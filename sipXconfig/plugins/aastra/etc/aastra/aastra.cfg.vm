@@ -59,4 +59,3 @@ sip line${line_id} ${setting.ProfileName}:  $!{setting.Value}
 # --- End setings for line${line_id} --
 
 #end
-

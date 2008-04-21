@@ -7,140 +7,138 @@
 <model>
   <group name='sip_id'>
     <setting name='screen_name'>
+      <profileName>screen name</profileName>
       <type>
-        <string/>
+        <string />
       </type>
-      <value/>
-    <profileName>screen name</profileName>
+      <value />
     </setting>
     <setting name='screen_name2'>
+      <profileName>screen name 2</profileName>
       <type>
-        <string/>
+        <string />
       </type>
-      <value/>
-    <profileName>screen name 2</profileName>
+      <value />
     </setting>
     <setting name='user_name'>
+      <profileName>user name</profileName>
       <type>
-        <string/>
+        <string />
       </type>
-      <value/>
-    <profileName>user name</profileName>
+      <value />
     </setting>
     <setting name='display_name'>
+      <profileName>display name</profileName>
       <type>
-        <string/>
+        <string />
       </type>
-      <value/>
-    <profileName>display name</profileName>
+      <value />
     </setting>
     <setting name='auth_name'>
+      <profileName>auth name</profileName>
       <type>
-        <string/>
+        <string />
       </type>
-      <value/>
-    <profileName>auth name</profileName>
+      <value />
     </setting>
     <setting name='password'>
       <type>
-        <string/>
+        <string />
       </type>
-      <value/>
-    <profileName>password</profileName>
+      <value />
     </setting>
   </group>
 
   <group name="server">
     <setting name='proxyIp'>
-      <type/>
+      <profileName>proxy ip</profileName>
+      <type />
       <value>0.0.0.0</value>
-    <profileName>proxy ip</profileName>
     </setting>
     <setting name='proxy_port' advanced="yes">
+      <profileName>proxy port</profileName>
       <type>
-        <integer/>
+        <integer />
       </type>
       <value>0</value>
-    <profileName>proxy port</profileName>
     </setting>
     <setting name='registrar_ip'>
-      <type/>
+      <profileName>registrar ip</profileName>
+      <type />
       <value>0.0.0.0</value>
-    <profileName>registrar ip</profileName>
     </setting>
     <setting name='registrar_port' advanced="yes">
+      <profileName>registrar port</profileName>
       <type>
-        <integer/>
+        <integer />
       </type>
       <value>0</value>
-    <profileName>registrar port</profileName>
     </setting>
     <setting name='outbound_proxy' advanced="yes">
-      <type/>
+      <profileName>outbound proxy</profileName>
+      <type />
       <value>0.0.0.0</value>
-    <profileName>outbound proxy</profileName>
     </setting>
     <setting name='outbound_proxy_port' advanced="yes">
+      <profileName>outbound proxy port</profileName>
       <type>
-        <integer/>
+        <integer />
       </type>
       <value>0</value>
-    <profileName>outbound proxy port</profileName>
     </setting>
     <setting name='centralized_conf'>
+      <profileName>centralized conf</profileName>
       <type>
-        <string/>
+        <string />
       </type>
-      <value/>
-    <profileName>centralized conf</profileName>
+      <value />
     </setting>
   </group>
   <group name="Settings">
     <setting name='registration_period' advanced="yes">
+      <profileName>registration period</profileName>
       <type>
-        <integer/>
+        <integer />
       </type>
       <value>0</value>
-    <profileName>registration period</profileName>
     </setting>
     <setting name='dtmf_method'>
+      <profileName>dtmf method</profileName>
       <type>
-        <integer/>
+        <integer />
       </type>
       <value>0</value>
-    <profileName>dtmf method</profileName>
     </setting>
     <setting name='srtp_mode'>
+      <profileName>srtp mode</profileName>
       <type>
-        <integer max='2' min='-1'/>
+        <integer max='2' min='-1' />
       </type>
       <value>0</value>
-    <profileName>srtp mode</profileName>
     </setting>
   </group>
 
   <group name="Not_needed">
     <setting name='bla_number'>
+      <profileName>bla number</profileName>
       <type>
-        <integer/>
+        <integer />
       </type>
-      <value/>
-    <profileName>bla number</profileName>
+      <value />
     </setting>
     <setting name='line_summary_subscription'>
+      <profileName>line summary subscription</profileName>
       <type>
-        <boolean/>
+        <boolean />
       </type>
       <value>0</value>
-    <profileName>line summary subscription</profileName>
     </setting>
     <setting name='mode'>
+      <profileName>mode</profileName>
       <type>
-        <integer/>
+        <integer />
       </type>
-      <value/>
-    <profileName>mode</profileName>
+      <value />
     </setting>
   </group>
 </model>
-

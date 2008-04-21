@@ -1,19 +1,19 @@
 <type id="lan_port">
   <enum>
     <option>
-       <value>0</value>
+      <value>0</value>
     </option>
     <option>
-       <value>1</value>
+      <value>1</value>
     </option>
     <option>
-       <value>2</value>
+      <value>2</value>
     </option>
     <option>
-       <value>3</value>
+      <value>3</value>
     </option>
     <option>
-       <value>4</value>
+      <value>4</value>
     </option>
   </enum>
 </type>
@@ -299,16 +299,16 @@
 <type id="transport-protocol">
   <enum>
     <option>
-       <value>0</value>
+      <value>0</value>
     </option>
     <option>
-       <value>1</value>
+      <value>1</value>
     </option>
     <option>
-       <value>2</value>
+      <value>2</value>
     </option>
     <option>
-       <value>4</value>
+      <value>4</value>
     </option>
   </enum>
 </type>

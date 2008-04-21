@@ -20,11 +20,11 @@ public class AastraLineDefaults {
     private static final String SIP_AUTH_PASSWD = "sip_id/password";
     private static final String SIP_SCREEN_NAME = "sip_id/screen_name";
     private static final String SIP_SCREEN_NAME2 = "sip_id/screen_name2";
-    private static final String SIP_DISPLAY_NAME = "sip_id/display_name"; 
-    private static final String PROXY_IP = "server/proxyIp" ; 
-    private static final String PROXY_PORT = "server/proxy_port" ; 
-    private static final String REGISTRAR_IP = "server/registrar_ip" ; 
-    private static final String REGISTRAR_PORT = "server/registrar_port" ; 
+    private static final String SIP_DISPLAY_NAME = "sip_id/display_name";
+    private static final String PROXY_IP = "server/proxyIp";
+    private static final String PROXY_PORT = "server/proxy_port";
+    private static final String REGISTRAR_IP = "server/registrar_ip";
+    private static final String REGISTRAR_PORT = "server/registrar_port";
 
     private DeviceDefaults m_defaults;
     private Line m_line;
@@ -70,8 +70,8 @@ public class AastraLineDefaults {
     public String getScreenName() {
         User u = m_line.getUser();
         if (u != null) {
-            return u.getUserName() + "@" + getRegistrationServer();
-            //return u.getFirstName();
+            return u.getUserName() + "@" + m_defaults.getDomainName();
+            // return u.getFirstName();
         }
         return null;
     }
@@ -80,8 +80,8 @@ public class AastraLineDefaults {
     public String getScreenName2() {
         User u = m_line.getUser();
         if (u != null) {
-            return u.getDisplayName() ; 
-            //return u.getLastName();
+            return u.getDisplayName();
+            // return u.getLastName();
         }
         return null;
     }
@@ -90,7 +90,7 @@ public class AastraLineDefaults {
     public String getRegistrationServer() {
         User u = m_line.getUser();
         if (u != null) {
-            return m_line.getPhoneContext().getPhoneDefaults().getDomainName();
+            return m_defaults.getDomainName();
         }
         return null;
     }
@@ -99,9 +99,8 @@ public class AastraLineDefaults {
     public String getProxyPort() {
         User u = m_line.getUser();
         if (u != null) {
-            return m_line.getPhoneContext().getPhoneDefaults().getProxyServerSipPort();
+            return m_defaults.getProxyServerSipPort();
         }
         return null;
     }
-
 }

@@ -18,20 +18,17 @@ import org.sipfoundry.sipxconfig.phone.LineInfo;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.speeddial.Button;
 import org.sipfoundry.sipxconfig.speeddial.SpeedDial;
-import org.sipfoundry.sipxconfig.device.Profile;
-import org.sipfoundry.sipxconfig.device.ProfileFilter;
-import org.sipfoundry.sipxconfig.device.ProfileLocation;
 
 public class AastraPhone extends Phone {
-    static final String REGISTRATION_PATH ="server/registrar_ip";
-          //"sipLine/sip_lineN_registrar_ip";
+    static final String REGISTRATION_PATH = "server/registrar_ip";
     static final String DISPLAY_NAME_PATH = "sip_id/screen_name";
     static final String PASSWORD_PATH = "sip_id/password";
     static final String USER_ID_PATH = "sip_id/user_name";
     static final String AUTHORIZATION_ID_PATH = "sip_id/auth_name";
 
     private static final String REGISTRATION_PORT_PATH = "server/registrar_port";
-//    private static final String EXTENSION_PATH = "sip/extension";
+
+    // private static final String EXTENSION_PATH = "sip/extension";
 
     public AastraPhone() {
     }
@@ -80,7 +77,7 @@ public class AastraPhone extends Phone {
                         line.setPhone(phone);
                         phone.initializeLine(line);
                         line.setSettingValue(DISPLAY_NAME_PATH, button.getLabel());
-                        //line.setSettingValue(EXTENSION_PATH, button.getNumber());
+                        // line.setSettingValue(EXTENSION_PATH, button.getNumber());
                         phone.addLine(line);
                     } else {
                         speeddials.add(button);
@@ -124,22 +121,9 @@ public class AastraPhone extends Phone {
         return lineInfo;
     }
 
+    @Override
     public void restart() {
         sendCheckSyncToFirstLine();
-    }
-
-    @Override
-    public Profile[] getProfileTypes() {
-        Profile[] profileTypes;
-        profileTypes = new Profile[] {
-            new Profile(this),
-        };
-        return profileTypes;
-    }
-
-    @Override
-    public void removeProfiles(ProfileLocation location) {
-        super.removeProfiles(location);
     }
 
     @Override

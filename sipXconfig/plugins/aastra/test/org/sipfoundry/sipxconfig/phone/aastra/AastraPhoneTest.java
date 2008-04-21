@@ -11,7 +11,6 @@ package org.sipfoundry.sipxconfig.phone.aastra;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.io.*;
 
 import junit.framework.TestCase;
 
@@ -78,7 +77,8 @@ public class AastraPhoneTest extends TestCase {
     }
 
     // FIXME: this test is failing - no speeddial generated
-/*    public void _testSpeeddialWithLines() throws Exception {
+    public void _testSpeeddialWithLines() throws Exception {
+
         Button[] buttons = new Button[] {
             new Button("jeo", "jeo@example.com"), new Button("Daffy Duck", "130")
         };
@@ -115,10 +115,10 @@ public class AastraPhoneTest extends TestCase {
         assertEquals("add 3 1 130", actualLines[i + 2]);
 
         phoneContextControl.verify();
-    }*/
+    }
 
     // FIXME: this test is failing - no speeddial generated
-/*    public void _testSpeeddialNoLines() throws Exception {
+    public void _testSpeeddialNoLines() throws Exception {
         Button[] buttons = new Button[] {
             new Button("jeo", "jeo@example.com"), new Button("Daffy Duck", "130")
         };
@@ -149,7 +149,7 @@ public class AastraPhoneTest extends TestCase {
         assertEquals("add 2 1 130", actualLines[i + 2]);
 
         phoneContextControl.verify();
-    }*/
+    }
 
     private int find(String[] lines, String match) {
         for (int i = 0; i < lines.length; i++) {
@@ -173,14 +173,14 @@ public class AastraPhoneTest extends TestCase {
 
         phone.setSerialNumber("0011aabb4050");
         phone.getProfileTypes()[0].generate(phone, location);
-        
+
         assertEquals(1, phone.getProfileTypes().length);
         assertEquals("0011aabb4050.cfg", phone.getProfileTypes()[0].getName());
 
+        InputStream expectedProfile = getClass().getResourceAsStream("mac.cfg");
 
-        //InputStream expectedProfile = getClass().getResourceAsStream("aastra.cfg");
-        //assertNotNull(expectedProfile);
-        //assertEquals(expectedProfile, location.toString());
+        assertNotNull(expectedProfile);
+        assertEquals(IOUtils.toString(expectedProfile), location.toString());
     }
 
     private void supplyTestData(AastraPhone phone) {
