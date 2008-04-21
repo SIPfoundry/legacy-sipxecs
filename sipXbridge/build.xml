@@ -20,8 +20,6 @@
 
 
 
-	<property name="top.build.dir" value="${basedir}" />
- 	<property name="build.dir" value="${top.build.dir}/sipXbridge"/>
   	<import file="ant-targets.xml"/>
   	<property name="dist.dir" value="${top.build.dir}/dist" />
   	<property name="test.results.dir" value="${build.dir}/test-results" />

@@ -1,5 +1,5 @@
 ## Process this file with automake to produce Makefile.in
-include config/project.am
+include $(top_srcdir)/config/project.am
 include ant-targets.am
 
 editscripts_IN = \
@@ -33,6 +33,7 @@ EXTRA_DIST = \
   LICENSE \
   config.properties.in \
   ant-targets.xml \
+  sipxbridge.spec \
   src \
   lib
 
