@@ -4,1166 +4,820 @@
 ]>
 
 <model>
-  <type id="lan_port" required="no">
-    <enum>
-      <option>
-        <value>0</value>
-      </option>
-      <option>
-        <value>1</value>
-      </option>
-      <option>
-        <value>2</value>
-      </option>
-      <option>
-        <value>3</value>
-      </option>
-      <option>
-        <value>4</value>
-      </option>
-    </enum>
-  </type>
-  <type id="resync-mode" required="no">
-    <enum>
-      <option>
-        <value>0</value>
-      </option>
-      <option>
-        <value>1</value>
-      </option>
-      <option>
-        <value>2</value>
-      </option>
-      <option>
-        <value>3</value>
-      </option>
-    </enum>
-  </type>
-  <type id="country-tone" required="no">
-    <enum>
-      <option>
-        <value>Australia</value>
-      </option>
-      <option>
-        <value>Europe</value>
-      </option>
-      <option>
-        <value>France</value>
-      </option>
-      <option>
-        <value>Germany</value>
-      </option>
-      <option>
-        <value>Italy</value>
-      </option>
-      <option>
-        <value>Mexico</value>
-      </option>
-      <option>
-        <value>United Kingdom</value>
-      </option>
-      <option>
-        <value>US</value>
-      </option>
-    </enum>
-  </type>
-  <type id="global-tone" required="no">
-    <enum>
-      <option>
-        <value>0</value>
-      </option>
-      <option>
-        <value>1</value>
-      </option>
-      <option>
-        <value>2</value>
-      </option>
-      <option>
-        <value>3</value>
-      </option>
-      <option>
-        <value>4</value>
-      </option>
-      <option>
-        <value>5</value>
-      </option>
-    </enum>
-  </type>
-  <type id="line-tone" required="no">
-    <enum>
-      <option>
-        <value>-1</value>
-      </option>
-      <option>
-        <value>0</value>
-      </option>
-      <option>
-        <value>1</value>
-      </option>
-      <option>
-        <value>2</value>
-      </option>
-      <option>
-        <value>3</value>
-      </option>
-      <option>
-        <value>4</value>
-      </option>
-      <option>
-        <value>5</value>
-      </option>
-    </enum>
-  </type>
-  <type id="protocol-type" required="no">
-    <enum>
-      <option>
-        <value>TFTP</value>
-      </option>
-      <option>
-        <value>FTP</value>
-      </option>
-      <option>
-        <value>HTTP</value>
-      </option>
-      <option>
-        <value>HTTPS</value>
-      </option>
-    </enum>
-  </type>
-  <type id="lang-pack" required="no">
-    <enum>
-      <option>
-        <value>1</value>
-      </option>
-      <option>
-        <value>2</value>
-      </option>
-      <option>
-        <value>3</value>
-      </option>
-      <option>
-        <value>4</value>
-      </option>
-    </enum>
-  </type>
-  <type id="time-zone" required="no">
-    <enum>
-      <option>
-        <value>US-Eastern</value>
-      </option>
-    </enum>
-  </type>
-  <type id="exp-key-type" required="no">
-    <enum>
-      <option>
-        <value>none</value>
-      </option>
-      <option>
-        <value>line</value>
-      </option>
-      <option>
-        <value>speeddial</value>
-      </option>
-      <option>
-        <value>dnd</value>
-      </option>
-      <option>
-        <value>blf</value>
-      </option>
-      <option>
-        <value>list</value>
-      </option>
-      <option>
-        <value>acd</value>
-      </option>
-      <option>
-        <value>dcp</value>
-      </option>
-      <option>
-        <value>xml</value>
-      </option>
-      <option>
-        <value>lcr</value>
-      </option>
-      <option>
-        <value>callers list</value>
-      </option>
-      <option>
-        <value>directory</value>
-      </option>
-      <option>
-        <value>icom</value>
-      </option>
-      <option>
-        <value>services</value>
-      </option>
-      <option>
-        <value>phonelock</value>
-      </option>
-      <option>
-        <value>empty</value>
-      </option>
-    </enum>
-  </type>
-  <type id="outgoing-intercom-type">
-    <enum>
-      <option>
-        <value>Phone side</value>
-      </option>
-      <option>
-        <value>Server side</value>
-      </option>
-      <option>
-        <value>Off</value>
-      </option>
-    </enum>
-  </type>
-  <type id="alert-community-tone">
-    <enum>
-      <option>
-        <value>Normal</value>
-      </option>
-      <option>
-        <value>Bellcore-Dr2</value>
-      </option>
-      <option>
-        <value>Bellcore-Dr3</value>
-      </option>
-      <option>
-        <value>Bellcore-Dr4</value>
-      </option>
-      <option>
-        <value>Bellcore-Dr5</value>
-      </option>
-      <option>
-        <value>Silent</value>
-      </option>
-    </enum>
-  </type>
-  <type id="time-format">
-    <enum>
-      <option>
-        <value>12 Hour</value>
-      </option>
-      <option>
-        <value>24 Hour</value>
-      </option>
-    </enum>
-  </type>
-
-  <type id="date-format">
-    <enum>
-      <option>
-        <value>WWW MMM DD</value>
-      </option>
-      <option>
-        <value>DD-MMM-YY</value>
-      </option>
-      <option>
-        <value>YYYY-MM-DD</value>
-      </option>
-      <option>
-        <value>DD/MM/YYYY</value>
-      </option>
-      <option>
-        <value>DD/MM/YY</value>
-      </option>
-      <option>
-        <value>DD-MM-YY</value>
-      </option>
-      <option>
-        <value>MM/DD/YY</value>
-      </option>
-      <option>
-        <value>MMM DD</value>
-      </option>
-    </enum>
-  </type>
-  <type id="dst-type">
-    <enum>
-      <option>
-        <value>Off</value>
-      </option>
-      <option>
-        <value>30min summer time</value>
-      </option>
-      <option>
-        <value>1hr summer time</value>
-      </option>
-      <option>
-        <value>Automatic</value>
-      </option>
-    </enum>
-  </type>
-  <type id="transport-protocol" required="no">
-    <enum>
-      <option>
-        <value>UDP and TCP</value>
-      </option>
-      <option>
-        <value>UDP</value>
-      </option>
-      <option>
-        <value>TCP</value>
-      </option>
-      <option>
-        <value>TLS</value>
-      </option>
-    </enum>
-  </type>
-  <type id="dtmf-method" required="no">
-    <enum>
-      <option>
-        <value>RTP</value>
-      </option>
-      <option>
-        <value>SIP INFO</value>
-      </option>
-      <option>
-        <value>Both</value>
-      </option>
-    </enum>
-  </type>
-  <type id="rtp-encryption" required="no">
-    <enum>
-      <option>
-        <value>SRTP Disabled</value>
-      </option>
-      <option>
-        <value>SRTP Preferred</value>
-      </option>
-      <option>
-        <value>SRTP Only</value>
-      </option>
-    </enum>
-  </type>
-  <group name="globalsr" advanced="no" hidden="no">
-    <group name="sip" advanced="no" hidden="no">
-      <setting name="sip_explicit_mwi_subscription" advanced="no" hidden="no">
+  &types;
+  <group name="globalsr">
+    <group name="sip">
+      <setting name="sip_explicit_mwi_subscription">
         <profileName>sip explicit mwi subscription</profileName>
-        <type required="no">
+        <type>
           <boolean />
         </type>
         <value>0</value>
       </setting>
-      <setting name="sip_explicit_mwi_subscription_period" advanced="no" hidden="no">
+      <setting name="sip_explicit_mwi_subscription_period">
         <profileName>sip explicit mwi subscription period</profileName>
-        <type required="no">
-          <integer max="214748364" min="30" required="no" />
+        <type>
+          <integer max="214748364" min="30" />
         </type>
         <value>86400</value>
       </setting>
-      <setting name="sip_transport_protocol" advanced="no" hidden="no">
+      <setting name="sip_transport_protocol">
         <profileName>sip transport protocol</profileName>
-        <type refid="transport-protocol" required="no" />
+        <type refid="transport-protocol" />
         <value>1</value>
       </setting>
-      <setting name="sip_symmetric_udp_signaling" advanced="yes" hidden="no">
+      <setting name="sip_symmetric_udp_signaling" advanced="yes">
         <profileName>sip symmetric udp signaling</profileName>
-        <type required="no">
+        <type>
           <boolean />
         </type>
         <value>1</value>
       </setting>
-      <setting name="sip_user-agent" advanced="yes" hidden="no">
+      <setting name="sip_user-agent" advanced="yes">
         <profileName>sip user-agent</profileName>
-        <type required="no">
+        <type>
           <boolean />
         </type>
         <value>1</value>
       </setting>
-      <setting name="sip_session_timer" advanced="no" hidden="no">
+      <setting name="sip_session_timer">
         <profileName>sip session timer</profileName>
-        <type required="no">
-          <integer required="no" />
+        <type>
+          <integer />
         </type>
         <value>0</value>
       </setting>
-      <setting name="sip_T1_timer" advanced="no" hidden="no">
+      <setting name="sip_T1_timer">
         <profileName>sip T1 timer</profileName>
-        <type required="no">
-          <integer required="no" />
+        <type>
+          <integer />
         </type>
         <value>500</value>
       </setting>
-      <setting name="sip_T2_timer" advanced="no" hidden="no">
+      <setting name="sip_T2_timer">
         <profileName>sip T2 timer</profileName>
-        <type required="no">
-          <integer required="no" />
+        <type>
+          <integer />
         </type>
         <value>0</value>
       </setting>
-      <setting name="sip_transaction_timer" advanced="no" hidden="no">
+      <setting name="sip_transaction_timer">
         <profileName>sip transaction timer</profileName>
-        <type required="no">
-          <integer max="64000" min="4000" required="no" />
+        <type>
+          <integer max="64000" min="4000" />
         </type>
         <value>4000</value>
       </setting>
-      <setting name="sip_transport_protocol" advanced="no" hidden="no">
+      <setting name="sip_transport_protocol">
         <profileName>sip transport protocol</profileName>
-        <type required="no">
-          <integer max="4" min="0" required="no" />
+        <type>
+          <integer max="4" min="0" />
         </type>
         <value>1</value>
       </setting>
-      <setting name="sip_registration_retry_timer" advanced="no" hidden="no">
+      <setting name="sip_registration_retry_timer">
         <profileName>sip registration retry timer</profileName>
-        <type required="no">
-          <integer max="1800" min="30" required="no" />
+        <type>
+          <integer max="1800" min="30" />
         </type>
         <value>1800</value>
       </setting>
-      <setting name="sip_registration_timeout_retry_timer" advanced="no" hidden="no">
+      <setting name="sip_registration_timeout_retry_timer">
         <profileName>sip registration timeout retry timer</profileName>
-        <type required="no">
-          <integer max="214748364" min="30" required="no" />
+        <type>
+          <integer max="214748364" min="30" />
         </type>
         <value>120</value>
       </setting>
-      <setting name="sip_registration_renewal_timer" advanced="no" hidden="no">
+      <setting name="sip_registration_renewal_timer">
         <profileName>sip registration renewal timer</profileName>
-        <type required="no">
-          <integer max="214748364" min="0" required="no" />
+        <type>
+          <integer max="214748364" min="0" />
         </type>
         <value>15</value>
       </setting>
-      <setting name="sip_blf_subscription_period" advanced="no" hidden="no">
+      <setting name="sip_blf_subscription_period">
         <profileName>sip blf subscription period</profileName>
-        <type required="no">
-          <integer min="2" required="no" />
+        <type>
+          <integer min="2" />
         </type>
         <value>3600</value>
       </setting>
-      <setting name="sip_acd_subscription_period" advanced="no" hidden="no">
+      <setting name="sip_acd_subscription_period">
         <profileName>sip acd subscription period</profileName>
-        <type required="no">
-          <integer min="2" required="no" />
+        <type>
+          <integer min="2" />
         </type>
         <value>3600</value>
       </setting>
-      <setting name="sip_blacklist_duration" advanced="no" hidden="no">
-        <profileName>sip blacklist duration</profileName>
-        <type required="no">
-          <integer required="no" />
-        </type>
-        <value>300</value>
-      </setting>
-      <setting name="sip_whitelist" advanced="no" hidden="no">
-        <profileName>sip whitelist</profileName>
-        <type required="no">
-          <boolean />
-        </type>
-        <value>0</value>
-      </setting>
-      <setting name="sip_cancel_after_blind_transfer" advanced="no" hidden="no">
+      <setting name="sip_cancel_after_blind_transfer">
         <profileName>sip cancel after blind transfer</profileName>
-        <type required="no">
+        <type>
           <boolean />
         </type>
         <value>0</value>
       </setting>
     </group>
-    <group name="rtp" advanced="no" hidden="no">
-      <setting name="sip_rtp_port" advanced="no" hidden="no">
+    <group name="rtp">
+      <setting name="sip_rtp_port">
         <profileName>sip rtp port</profileName>
-        <type required="no">
-          <integer required="no" />
+        <type>
+          <integer />
         </type>
         <value>3000</value>
       </setting>
-      <setting name="sip_use_basic_codecs" advanced="no" hidden="no">
+      <setting name="sip_use_basic_codecs">
         <profileName>sip use basic codecs</profileName>
-        <type required="no">
+        <type>
           <boolean />
         </type>
         <value>0</value>
       </setting>
-      <setting name="sip_out-of-band_dtmf" advanced="no" hidden="no">
+      <setting name="sip_out-of-band_dtmf">
         <profileName>sip out-of-band dtmf</profileName>
-        <type required="no">
+        <type>
           <boolean />
         </type>
         <value>1</value>
       </setting>
-      <setting name="sip_customized_codec" advanced="no" hidden="no">
+      <setting name="sip_customized_codec">
         <profileName>sip customized codec</profileName>
-        <type required="no">
-          <string required="no" password="no" />
+        <type>
+          <string />
         </type>
         <value />
       </setting>
-      <setting name="sip_dtmf_method" advanced="no" hidden="no">
+      <setting name="sip_dtmf_method">
         <profileName>sip dtmf method</profileName>
-        <type refid="dtmf-method" required="no" />
+        <type refid="dtmf-method" />
         <value>0</value>
       </setting>
-      <setting name="sip_srtp_mode" advanced="no" hidden="no">
+      <setting name="sip_srtp_mode">
         <profileName>sip srtp mode</profileName>
-        <type refid="rtp-encryption" required="no" />
+        <type refid="rtp-encryption" />
         <value>0</value>
       </setting>
-      <setting name="sip_silence_suppression" advanced="no" hidden="no">
+      <setting name="sip_silence_suppression">
         <profileName>sip silence suppression</profileName>
-        <type required="no">
+        <type>
           <boolean />
         </type>
         <value>1</value>
       </setting>
     </group>
-    <group name="autodial" advanced="no" hidden="no">
-      <setting name="sip_autodial_number" advanced="no" hidden="no">
+    <group name="autodial">
+      <setting name="sip_autodial_number">
         <profileName>sip autodial number</profileName>
-        <type required="no">
-          <string required="no" password="no" />
+        <type>
+          <string />
         </type>
         <value />
       </setting>
-      <setting name="sip_autodial_timeout" advanced="no" hidden="no">
+      <setting name="sip_autodial_timeout">
         <profileName>sip autodial timeout</profileName>
-        <type required="no">
-          <integer max="120" min="0" required="no" />
+        <type>
+          <integer max="120" min="0" />
         </type>
         <value>0</value>
       </setting>
     </group>
   </group>
-  <group name="td" advanced="no" hidden="no">
-    <setting name="time_format" advanced="no" hidden="no">
+  <group name="td">
+    <setting name="time_format">
       <profileName>time format</profileName>
-      <type refid="time-format" required="no" />
+      <type refid="time-format" />
       <value>0</value>
     </setting>
-    <setting name="date_format" advanced="no" hidden="no">
+    <setting name="date_format">
       <profileName>date format</profileName>
-      <type refid="date-format" required="no" />
+      <type refid="date-format" />
       <value>0</value>
     </setting>
-    <setting name="dst_config" advanced="no" hidden="no">
+    <setting name="dst_config">
       <profileName>dst config</profileName>
-      <type refid="dst-type" required="no" />
+      <type refid="dst-type" />
       <value>3</value>
     </setting>
-    <setting name="time_zone_name" advanced="no" hidden="no">
+    <setting name="time_zone_name">
       <profileName>time zone name</profileName>
-      <type refid="time-zone" required="no" />
+      <type refid="time-zone" />
       <value>US-Eastern</value>
     </setting>
   </group>
-  <group name="preferences" advanced="no" hidden="no">
-    <group name="general" advanced="no" hidden="no">
-      <setting name="sip_dial_plan" advanced="no" hidden="no">
+  <group name="preferences">
+    <group name="general">
+      <setting name="sip_dial_plan">
         <profileName>sip dial plan</profileName>
-        <type required="no">
-          <string required="no" password="no" />
+        <type>
+          <string />
         </type>
         <value>X+#|XX+*</value>
       </setting>
-      <setting name="sip_dial_plan_terminator" advanced="no" hidden="no">
+      <setting name="sip_dial_plan_terminator">
         <profileName>sip dial plan terminator</profileName>
-        <type required="no">
+        <type>
           <boolean />
         </type>
         <value>0</value>
       </setting>
-      <setting name="sip_digit_timeout" advanced="no" hidden="no">
+      <setting name="sip_digit_timeout">
         <profileName>sip digit timeout</profileName>
-        <type required="no">
-          <integer required="no" />
+        <type>
+          <integer />
         </type>
         <value>4</value>
       </setting>
-      <setting name="suppress_dtmf_playback" advanced="no" hidden="no">
+      <setting name="suppress_dtmf_playback">
         <profileName>suppress dtmf playback</profileName>
-        <type required="no">
+        <type>
           <boolean />
         </type>
         <value>0</value>
       </setting>
-      <setting name="display_dtmf_digits" advanced="no" hidden="no">
+      <setting name="display_dtmf_digits">
         <profileName>display dtmf digits</profileName>
-        <type required="no">
+        <type>
           <boolean />
         </type>
         <value>0</value>
       </setting>
-      <setting name="call_waiting" advanced="no" hidden="no">
+      <setting name="call_waiting">
         <profileName>call waiting</profileName>
-        <type required="no">
+        <type>
           <boolean />
         </type>
         <value>1</value>
       </setting>
-      <setting name="call_waiting_tone" advanced="no" hidden="no">
+      <setting name="call_waiting_tone">
         <profileName>call waiting tone</profileName>
-        <type required="no">
+        <type>
           <boolean />
         </type>
         <value>1</value>
       </setting>
-      <setting name="two_call_support" advanced="yes" hidden="no">
+      <setting name="two_call_support" advanced="yes">
         <profileName>two call support</profileName>
-        <type required="no">
+        <type>
           <boolean />
         </type>
         <value>1</value>
       </setting>
-      <setting name="stutter_disabled" advanced="no" hidden="no">
+      <setting name="stutter_disabled">
         <profileName>stutter disabled</profileName>
-        <type required="no">
+        <type>
           <boolean />
         </type>
         <value>0</value>
       </setting>
-      <setting name="incoming_call_interrupts_dialing" advanced="no" hidden="no">
+      <setting name="incoming_call_interrupts_dialing">
         <profileName>incoming call interrupts dialing</profileName>
-        <type required="no">
+        <type>
           <boolean />
         </type>
         <value>0</value>
       </setting>
-      <setting name="goodbye_cancels_incoming_call" advanced="no" hidden="no">
+      <setting name="goodbye_cancels_incoming_call">
         <profileName>goodbye cancels incoming call</profileName>
-        <type required="no">
+        <type>
           <boolean />
         </type>
         <value>1</value>
       </setting>
-      <setting name="mwi_led_line" advanced="no" hidden="no">
+      <setting name="mwi_led_line">
         <profileName>mwi led line</profileName>
-        <type required="no">
-          <integer max="9" min="0" required="no" />
+        <type>
+          <integer max="9" min="0" />
         </type>
         <value>0</value>
       </setting>
     </group>
-    <group name="outgoingIntercom" advanced="no" hidden="no">
-      <setting name="sip_intercom_type" advanced="no" hidden="no">
+    <group name="outgoingIntercom">
+      <setting name="sip_intercom_type">
         <profileName>sip intercom type</profileName>
-        <type refid="outgoing-intercom-type" required="no" />
+        <type refid="outgoing-intercom-type" />
         <value>3</value>
       </setting>
-      <setting name="sip_intercom_prefix_code" advanced="no" hidden="no">
+      <setting name="sip_intercom_prefix_code">
         <profileName>sip intercom prefix code</profileName>
-        <type required="no">
-          <string required="no" password="no" />
+        <type>
+          <string />
         </type>
         <value />
       </setting>
-      <setting name="sip_intercom_line" advanced="no" hidden="no">
+      <setting name="sip_intercom_line">
         <profileName>sip intercom line</profileName>
-        <type required="no">
-          <integer max="9" min="1" required="no" />
+        <type>
+          <integer max="9" min="1" />
         </type>
         <value>1</value>
       </setting>
     </group>
-    <group name="incomingIntercom" advanced="no" hidden="no">
-      <setting name="sip_allow_auto_answer" advanced="no" hidden="no">
+    <group name="incomingIntercom">
+      <setting name="sip_allow_auto_answer">
         <profileName>sip allow auto answer</profileName>
-        <type required="no">
+        <type>
           <boolean />
         </type>
         <value>1</value>
       </setting>
-      <setting name="sip_intercom_mute_mic" advanced="no" hidden="no">
+      <setting name="sip_intercom_mute_mic">
         <profileName>sip intercom mute mic</profileName>
-        <type required="no">
+        <type>
           <boolean />
         </type>
         <value>1</value>
       </setting>
-      <setting name="sip_play_warning_tone" advanced="no" hidden="no">
+      <setting name="sip_play_warning_tone">
         <profileName>sip play warning tone</profileName>
-        <type required="no">
+        <type>
           <boolean />
         </type>
         <value>1</value>
       </setting>
-      <setting name="sip_intercom_allow_barge_in" advanced="no" hidden="no">
+      <setting name="sip_intercom_allow_barge_in">
         <profileName>sip intercom allow barge in</profileName>
-        <type required="no">
+        <type>
           <boolean />
         </type>
         <value>1</value>
       </setting>
     </group>
-    <group name="tones" advanced="no" hidden="no">
-      <setting name="tone_set" advanced="no" hidden="no">
+    <group name="tones">
+      <setting name="tone_set">
         <profileName>tone set</profileName>
-        <type refid="country-tone" required="no" />
+        <type refid="country-tone" />
         <value>US</value>
       </setting>
-      <setting name="ring_tone" advanced="no" hidden="no">
+      <setting name="ring_tone">
         <profileName>ring tone</profileName>
-        <type refid="global-tone" required="no" />
+        <type refid="global-tone" />
         <value>0</value>
       </setting>
     </group>
-    <group name="priorityAlerting" advanced="no" hidden="no">
-      <setting name="priority_alerting_enabled" advanced="no" hidden="no">
+    <group name="priorityAlerting">
+      <setting name="priority_alerting_enabled">
         <profileName>priority alerting enabled</profileName>
-        <type required="no">
+        <type>
           <boolean />
         </type>
         <value>1</value>
       </setting>
-      <setting name="alert_auto_call_distribution" advanced="no" hidden="no">
+      <setting name="alert_auto_call_distribution">
         <profileName>alert auto call distribution</profileName>
-        <type refid="alert-community-tone" required="no" />
+        <type refid="alert-community-tone" />
         <value>0</value>
       </setting>
-      <setting name="alert_group" advanced="no" hidden="no">
+      <setting name="alert_group">
         <profileName>alert group</profileName>
-        <type refid="alert-community-tone" required="no" />
+        <type refid="alert-community-tone" />
         <value>0</value>
       </setting>
-      <setting name="alert_external" advanced="no" hidden="no">
+      <setting name="alert_external">
         <profileName>alert external</profileName>
-        <type refid="alert-community-tone" required="no" />
+        <type refid="alert-community-tone" />
         <value>0</value>
       </setting>
-      <setting name="alert_internal" advanced="no" hidden="no">
+      <setting name="alert_internal">
         <profileName>alert internal</profileName>
-        <type refid="alert-community-tone" required="no" />
+        <type refid="alert-community-tone" />
         <value>0</value>
       </setting>
-      <setting name="alert_emergency" advanced="no" hidden="no">
+      <setting name="alert_emergency">
         <profileName>alert emergency</profileName>
-        <type refid="alert-community-tone" required="no" />
+        <type refid="alert-community-tone" />
         <value>0</value>
       </setting>
-      <setting name="alert_priority" advanced="no" hidden="no">
+      <setting name="alert_priority">
         <profileName>alert priority</profileName>
-        <type refid="alert-community-tone" required="no" />
+        <type refid="alert-community-tone" />
         <value>0</value>
       </setting>
-      <setting name="alert_community1" advanced="no" hidden="no">
+      <setting name="alert_community1">
         <profileName>alert community 1</profileName>
-        <type refid="alert-community-tone" required="no" />
+        <type refid="alert-community-tone" />
         <value>0</value>
       </setting>
-      <setting name="alert_community2" advanced="no" hidden="no">
+      <setting name="alert_community2">
         <profileName>alert community 2</profileName>
-        <type refid="alert-community-tone" required="no" />
+        <type refid="alert-community-tone" />
         <value>0</value>
       </setting>
-      <setting name="alert_community3" advanced="no" hidden="no">
+      <setting name="alert_community3">
         <profileName>alert community 3</profileName>
-        <type refid="alert-community-tone" required="no" />
+        <type refid="alert-community-tone" />
         <value>0</value>
       </setting>
-      <setting name="alert_community4" advanced="no" hidden="no">
+      <setting name="alert_community4">
         <profileName>alert community 4</profileName>
-        <type refid="alert-community-tone" required="no" />
+        <type refid="alert-community-tone" />
         <value>0</value>
       </setting>
     </group>
-    <group name="dcp" advanced="no" hidden="no">
-      <setting name="directed_call_pickup" advanced="no" hidden="no">
+    <group name="dcp">
+      <setting name="directed_call_pickup">
         <profileName>directed call pickup</profileName>
-        <type required="no">
+        <type>
           <boolean />
         </type>
         <value>0</value>
       </setting>
-      <setting name="directed_call_pickup_prefix" advanced="no" hidden="no">
+      <setting name="directed_call_pickup_prefix">
         <profileName>directed call pickup prefix</profileName>
-        <type required="no">
-          <integer required="no" />
+        <type>
+          <integer />
         </type>
         <value />
       </setting>
-      <setting name="play_a_ring_splash" advanced="no" hidden="no">
+      <setting name="play_a_ring_splash">
         <profileName>play a ring splash</profileName>
-        <type required="no">
+        <type>
           <boolean />
         </type>
         <value>0</value>
       </setting>
-      <setting name="sprecode" advanced="no" hidden="no">
+      <setting name="sprecode">
         <profileName>sprecode</profileName>
-        <type required="no">
-          <string required="no" password="no" />
+        <type>
+          <string />
         </type>
         <value />
       </setting>
-      <setting name="pickupsprecode" advanced="no" hidden="no">
+      <setting name="pickupsprecode">
         <profileName>pickupsprecode</profileName>
-        <type required="no">
-          <string required="no" password="no" />
+        <type>
+          <string />
         </type>
         <value />
       </setting>
     </group>
-    <group name="acd" advanced="no" hidden="no">
-      <setting name="acd_auto_available" advanced="no" hidden="no">
+    <group name="acd">
+      <setting name="acd_auto_available">
         <profileName>acd auto available</profileName>
-        <type required="no">
+        <type>
           <boolean />
         </type>
         <value>0</value>
       </setting>
-      <setting name="acd_auto_available_timer" advanced="no" hidden="no">
+      <setting name="acd_auto_available_timer">
         <profileName>acd auto available timer</profileName>
-        <type required="no">
-          <integer max="60" min="0" required="no" />
+        <type>
+          <integer max="60" min="0" />
         </type>
         <value>60</value>
       </setting>
     </group>
-    <group name="caller_list" advanced="no" hidden="no">
-      <setting name="callers_list_disabled" advanced="no" hidden="no">
+    <group name="caller_list">
+      <setting name="callers_list_disabled">
         <profileName>callers list disabled</profileName>
-        <type required="no">
+        <type>
           <boolean />
         </type>
         <value>0</value>
       </setting>
-      <setting name="callers_list_script" advanced="yes" hidden="no">
+      <setting name="callers_list_script" advanced="yes">
         <profileName>callers list script</profileName>
-        <type required="no">
-          <string required="no" password="no" />
+        <type>
+          <string />
         </type>
         <value />
       </setting>
-      <setting name="services_script" advanced="yes" hidden="no">
+      <setting name="services_script" advanced="yes">
         <profileName>services script</profileName>
-        <type required="no">
-          <string required="no" password="no" />
+        <type>
+          <string />
         </type>
         <value />
       </setting>
     </group>
-    <group name="dir" advanced="no" hidden="no">
-      <setting name="directory_disabled" advanced="no" hidden="no">
+    <group name="dir">
+      <setting name="directory_disabled">
         <profileName>directory disabled</profileName>
-        <type required="no">
+        <type>
           <boolean />
         </type>
         <value>0</value>
       </setting>
-      <setting name="directory1" advanced="no" hidden="no">
+      <setting name="directory1">
         <profileName>directory 1</profileName>
-        <type required="no">
-          <string required="no" password="no" />
+        <type>
+          <string />
         </type>
         <value />
       </setting>
-      <setting name="directory2" advanced="no" hidden="no">
+      <setting name="directory2">
         <profileName>directory 2</profileName>
-        <type required="no">
-          <string required="no" password="no" />
+        <type>
+          <string />
         </type>
         <value />
       </setting>
     </group>
-    <group name="lang" advanced="no" hidden="no">
-      <setting name="language" advanced="no" hidden="no">
+    <group name="lang">
+      <setting name="language">
         <profileName>language</profileName>
-        <type required="no">
-          <integer max="4" min="0" required="no" />
+        <type>
+          <integer max="4" min="0" />
         </type>
         <value>0</value>
       </setting>
-      <setting name="language1" advanced="no" hidden="no">
+      <setting name="language1">
         <profileName>language 1</profileName>
-        <type refid="lang-pack" required="no" />
+        <type refid="lang-pack" />
         <value />
       </setting>
-      <setting name="language2" advanced="no" hidden="no">
+      <setting name="language2">
         <profileName>language 2</profileName>
-        <type refid="lang-pack" required="no" />
+        <type refid="lang-pack" />
         <value />
       </setting>
-      <setting name="language3" advanced="no" hidden="no">
+      <setting name="language3">
         <profileName>language 3</profileName>
-        <type refid="lang-pack" required="no" />
+        <type refid="lang-pack" />
         <value />
       </setting>
-      <setting name="language4" advanced="no" hidden="no">
+      <setting name="language4">
         <profileName>language 4</profileName>
-        <type refid="lang-pack" required="no" />
+        <type refid="lang-pack" />
         <value />
       </setting>
     </group>
   </group>
-  <group name="forwarding" advanced="no" hidden="no">
-    <setting name="call_forward_disabled" advanced="no" hidden="no">
+  <group name="forwarding">
+    <setting name="call_forward_disabled">
       <profileName>call forward disabled</profileName>
-      <type required="no">
+      <type>
         <boolean />
       </type>
       <value>0</value>
     </setting>
   </group>
-  <group name="audioTransmit" advanced="no" hidden="no">
-    <setting name="headset_tx_gain" advanced="no" hidden="no">
+  <group name="audioTransmit">
+    <setting name="headset_tx_gain">
       <profileName>headset tx gain</profileName>
-      <type required="no">
-        <integer max="10" min="-10" required="no" />
+      <type>
+        <integer max="10" min="-10" />
       </type>
       <value>0</value>
     </setting>
-    <setting name="headset_sidetone_gain" advanced="no" hidden="no">
+    <setting name="headset_sidetone_gain">
       <profileName>headset sidetone gain</profileName>
-      <type required="no">
-        <integer max="10" min="-10" required="no" />
+      <type>
+        <integer max="10" min="-10" />
       </type>
       <value>0</value>
     </setting>
-    <setting name="handset_tx_gain" advanced="no" hidden="no">
+    <setting name="handset_tx_gain">
       <profileName>handset tx gain</profileName>
-      <type required="no">
-        <integer max="10" min="-10" required="no" />
+      <type>
+        <integer max="10" min="-10" />
       </type>
       <value>0</value>
     </setting>
-    <setting name="handset_sidetone_gain" advanced="no" hidden="no">
+    <setting name="handset_sidetone_gain">
       <profileName>handset sidetone gain</profileName>
-      <type required="no">
-        <integer max="10" min="-10" required="no" />
+      <type>
+        <integer max="10" min="-10" />
       </type>
       <value>0</value>
     </setting>
-    <setting name="handsfree_tx_gain" advanced="no" hidden="no">
+    <setting name="handsfree_tx_gain">
       <profileName>handsfree tx gain</profileName>
-      <type required="no">
-        <integer max="10" min="-10" required="no" />
+      <type>
+        <integer max="10" min="-10" />
       </type>
       <value>0</value>
     </setting>
-    <setting name="audio_mode" advanced="no" hidden="no">
+    <setting name="audio_mode">
       <profileName>audio mode</profileName>
-      <type required="no">
-        <integer max="3" min="0" required="no" />
+      <type>
+        <integer max="3" min="0" />
       </type>
       <value>0</value>
     </setting>
   </group>
-  <group name="security" advanced="no" hidden="no">
-    <setting name="options_password_enabled" advanced="no" hidden="no">
+  <group name="security">
+    <setting name="options_password_enabled">
       <profileName>options password enabled</profileName>
-      <type required="no">
+      <type>
         <boolean />
       </type>
       <value>0</value>
     </setting>
-    <setting name="emergency_dialplan" advanced="no" hidden="no">
+    <setting name="emergency_dialplan">
       <profileName>emergency dial plan</profileName>
-      <type required="no">
-        <string maxLen="128" required="no" password="no" />
+      <type>
+        <string maxLen="128" />
       </type>
       <value>911|999|112|110</value>
     </setting>
   </group>
-  <group name="network" advanced="no" hidden="no">
-    <group name="ports" advanced="no" hidden="no">
-      <setting name="ethernet_port0" advanced="no" hidden="no">
+  <group name="network">
+    <group name="ports">
+      <setting name="ethernet_port0">
         <profileName>ethernet port 0</profileName>
-        <type refid="lan_port" required="no"></type>
+        <type refid="lan_port"></type>
         <value>0</value>
       </setting>
-      <setting name="ethernet_port1" advanced="no" hidden="no">
+      <setting name="ethernet_port1">
         <profileName>ethernet port 1</profileName>
-        <type refid="lan_port" required="no"></type>
+        <type refid="lan_port"></type>
         <value>0</value>
       </setting>
     </group>
-    <group name="sip_nat" advanced="no" hidden="no">
-      <setting name="upnp_manager" advanced="no" hidden="no">
+    <group name="sip_nat">
+      <setting name="upnp_manager">
         <profileName>upnp manager</profileName>
-        <type required="no">
+        <type>
           <boolean />
         </type>
         <value>0</value>
       </setting>
-      <setting name="upnp_gateway" advanced="yes" hidden="no">
+      <setting name="upnp_gateway" advanced="yes">
         <profileName>upnp gateway</profileName>
-        <type required="no">
-          <ipaddr required="no" />
+        <type>
+          <ipaddr />
         </type>
         <value>0.0.0.0</value>
       </setting>
-      <setting name="upnp_mapping_lines" advanced="yes" hidden="no">
+      <setting name="upnp_mapping_lines" advanced="yes">
         <profileName>upnp mapping lines</profileName>
-        <type required="no">
-          <integer max="10" min="0" required="no" />
+        <type>
+          <integer max="10" min="0" />
         </type>
         <value>0</value>
       </setting>
-      <setting name="sip_nat_ip" advanced="yes" hidden="no">
+      <setting name="sip_nat_ip" advanced="yes">
         <profileName>sip nat ip</profileName>
-        <type required="no">
-          <ipaddr required="no" />
+        <type>
+          <ipaddr />
         </type>
         <value>0.0.0.0</value>
       </setting>
-      <setting name="sip_nat_port" advanced="yes" hidden="no">
+      <setting name="sip_nat_port" advanced="yes">
         <profileName>sip nat port</profileName>
-        <type required="no">
-          <integer required="no" />
+        <type>
+          <integer />
         </type>
         <value>0</value>
       </setting>
-      <setting name="sip_nat_rtp_port" advanced="yes" hidden="no">
+      <setting name="sip_nat_rtp_port" advanced="yes">
         <profileName>sip nat rtp port</profileName>
-        <type required="no">
-          <integer required="no" />
+        <type>
+          <integer />
         </type>
         <value>51720</value>
       </setting>
-      <setting name="sip_nortel_nat_support" advanced="yes" hidden="no">
+      <setting name="sip_nortel_nat_support" advanced="yes">
         <profileName>sip nortel nat support</profileName>
-        <type required="no">
+        <type>
           <boolean />
         </type>
         <value>0</value>
       </setting>
-      <setting name="sip_nortel_nat_timer" advanced="yes" hidden="no">
+      <setting name="sip_nortel_nat_timer" advanced="yes">
         <profileName>sip nortel nat timer</profileName>
-        <type required="no">
-          <integer max="2147483647" min="0" required="no" />
+        <type>
+          <integer max="2147483647" min="0" />
         </type>
         <value>30</value>
       </setting>
     </group>
-    <group name="time_server" advanced="no" hidden="no">
-      <setting name="time_server_disabled" advanced="no" hidden="no">
+    <group name="time_server">
+      <setting name="time_server_disabled">
         <profileName>time server disabled</profileName>
-        <type required="no">
+        <type>
           <boolean />
         </type>
         <value>0</value>
       </setting>
-      <setting name="time_server1" advanced="yes" hidden="no">
+      <setting name="time_server1" advanced="yes">
         <profileName>time server1</profileName>
-        <type required="no">
-          <ipaddr required="no" />
+        <type>
+          <ipaddr />
         </type>
         <value>0.0.0.0</value>
       </setting>
-      <setting name="time_server2" advanced="yes" hidden="no">
+      <setting name="time_server2" advanced="yes">
         <profileName>time server2</profileName>
-        <type required="no">
-          <ipaddr required="no" />
+        <type>
+          <ipaddr />
         </type>
         <value>0.0.0.0</value>
       </setting>
-      <setting name="time_server3" advanced="yes" hidden="no">
+      <setting name="time_server3" advanced="yes">
         <profileName>time server3</profileName>
-        <type required="no">
-          <ipaddr required="no" />
+        <type>
+          <ipaddr />
         </type>
         <value>0.0.0.0</value>
       </setting>
     </group>
-    <group name="tos" advanced="no" hidden="no">
-      <setting name="tos_sip" advanced="no" hidden="no">
+    <group name="tos">
+      <setting name="tos_sip">
         <profileName>tos sip</profileName>
-        <type required="no">
-          <integer max="63" min="0" required="no" />
+        <type>
+          <integer max="63" min="0" />
         </type>
         <value>26</value>
       </setting>
-      <setting name="tos_rtp" advanced="no" hidden="no">
+      <setting name="tos_rtp">
         <profileName>tos rtp</profileName>
-        <type required="no">
-          <integer max="63" min="0" required="no" />
+        <type>
+          <integer max="63" min="0" />
         </type>
         <value>46</value>
       </setting>
-      <setting name="tos_rtcp" advanced="no" hidden="no">
+      <setting name="tos_rtcp">
         <profileName>tos rtcp</profileName>
-        <type required="no">
-          <integer max="63" min="0" required="no" />
+        <type>
+          <integer max="63" min="0" />
         </type>
       </setting>
     </group>
-    <group name="vlan" advanced="no" hidden="no">
-      <setting name="tagging_enabled" advanced="no" hidden="no">
+    <group name="vlan">
+      <setting name="tagging_enabled">
         <profileName>tagging enabled</profileName>
-        <type required="no">
+        <type>
           <boolean />
         </type>
         <value>0</value>
       </setting>
-      <setting name="priority_non-ip" advanced="no" hidden="no">
+      <setting name="priority_non-ip">
         <profileName>priority non-ip</profileName>
-        <type required="no">
-          <integer max="5" min="0" required="no" />
+        <type>
+          <integer max="5" min="0" />
         </type>
         <value>5</value>
       </setting>
-      <setting name="vlan_id" advanced="no" hidden="no">
+      <setting name="vlan_id">
         <profileName>vlan id</profileName>
-        <type required="no">
-          <integer max="4094" min="1" required="no" />
+        <type>
+          <integer max="4094" min="1" />
         </type>
         <value>1</value>
       </setting>
-      <setting name="tos_priority_map" advanced="no" hidden="no">
+      <setting name="tos_priority_map">
         <profileName>tos priority map</profileName>
-        <type required="no">
-          <integer max="63" min="0" required="no" />
+        <type>
+          <integer max="63" min="0" />
         </type>
         <value>3,5,5</value>
       </setting>
-      <setting name="vlan_id_port_1" advanced="no" hidden="no">
+      <setting name="vlan_id_port_1">
         <profileName>vlan id port 1</profileName>
-        <type required="no">
-          <integer max="4095" min="1" required="no" />
+        <type>
+          <integer max="4095" min="1" />
         </type>
         <value>1</value>
       </setting>
-      <setting name="Qos_eth_port_1_priority" advanced="no" hidden="no">
+      <setting name="Qos_eth_port_1_priority">
         <profileName>QoS eth port 1 priority</profileName>
-        <type required="no">
-          <integer max="7" min="0" required="no" />
+        <type>
+          <integer max="7" min="0" />
         </type>
         <value>0</value>
       </setting>
     </group>
   </group>
-  <group name="web_server" advanced="no" hidden="no">
-    <setting name="web_interface_enabled" advanced="no" hidden="no">
+  <group name="web_server">
+    <setting name="web_interface_enabled">
       <profileName>web interface enabled</profileName>
-      <type required="no">
+      <type>
         <boolean />
       </type>
       <value>1</value>
     </setting>
-    <setting name="admin_password" advanced="yes" hidden="no">
+    <setting name="admin_password" advanced="yes">
       <profileName>admin password</profileName>
-      <type required="no">
-        <integer max="4294967295" min="0" required="no" />
+      <type>
+        <integer max="4294967295" min="0" />
       </type>
       <value>22222</value>
     </setting>
-    <setting name="user_password" advanced="no" hidden="no">
+    <setting name="user_password">
       <profileName>user password</profileName>
-      <type required="no">
-        <integer max="4294967295" min="0" required="no" />
+      <type>
+        <integer max="4294967295" min="0" />
       </type>
       <value />
     </setting>
-    <setting name="force_web_recovery_mode_disabled" advanced="yes" hidden="no">
+    <setting name="force_web_recovery_mode_disabled" advanced="yes">
       <profileName>force web recovery mode disabled</profileName>
-      <type required="no">
+      <type>
         <boolean />
       </type>
       <value>0</value>
     </setting>
-    <setting name="max_boot_count" advanced="yes" hidden="no">
+    <setting name="max_boot_count" advanced="yes">
       <profileName>max boot count</profileName>
-      <type required="no">
-        <integer max="32767" min="0" required="no" />
+      <type>
+        <integer max="32767" min="0" />
       </type>
       <value>10</value>
     </setting>
-    <setting name="https_client_method" advanced="yes" hidden="no">
+    <setting name="https_client_method" advanced="yes">
       <profileName>https client method</profileName>
-      <type required="no">
+      <type>
         <enum>
           <option>
             <value>SSL3.0</value>
@@ -1175,420 +829,420 @@
       </type>
       <value>SSL3.0</value>
     </setting>
-    <setting name="https_redirect_http_get" advanced="yes" hidden="no">
+    <setting name="https_redirect_http_get" advanced="yes">
       <profileName>https redirect http get</profileName>
-      <type required="no">
+      <type>
         <boolean />
       </type>
       <value>1</value>
     </setting>
-    <setting name="https_block_http_post_xml" advanced="yes" hidden="no">
+    <setting name="https_block_http_post_xml" advanced="yes">
       <profileName>https block http post xml</profileName>
-      <type required="no">
+      <type>
         <boolean />
       </type>
       <value>0</value>
     </setting>
   </group>
-  <group name="server" advanced="no" hidden="no">
-    <group name="tftp" advanced="yes" hidden="no">
-      <setting name="download_protocol" advanced="yes" hidden="no">
+  <group name="server">
+    <group name="tftp" advanced="yes">
+      <setting name="download_protocol" advanced="yes">
         <profileName>download protocol</profileName>
-        <type refid="protocol-type" required="no" />
+        <type refid="protocol-type" />
         <value>TFTP</value>
       </setting>
-      <setting name="tftp_server" advanced="yes" hidden="no">
+      <setting name="tftp_server" advanced="yes">
         <profileName>tftp server</profileName>
-        <type required="no">
-          <ipaddr required="no" />
+        <type>
+          <ipaddr />
         </type>
         <value>0.0.0.0</value>
       </setting>
-      <setting name="use_alternate_tftp" advanced="yes" hidden="no">
+      <setting name="use_alternate_tftp" advanced="yes">
         <profileName>use alternate tftp</profileName>
-        <type required="no">
+        <type>
           <boolean />
         </type>
         <value>0</value>
       </setting>
-      <setting name="alternate_tftp_server" advanced="yes" hidden="no">
+      <setting name="alternate_tftp_server" advanced="yes">
         <profileName>alternate tftp server</profileName>
-        <type required="no">
-          <ipaddr required="no" />
+        <type>
+          <ipaddr />
         </type>
         <value>0.0.0.0</value>
       </setting>
     </group>
-    <group name="ftp" advanced="no" hidden="no">
-      <setting name="ftp_server" advanced="yes" hidden="no">
+    <group name="ftp">
+      <setting name="ftp_server" advanced="yes">
         <profileName>ftp server</profileName>
-        <type required="no">
-          <ipaddr required="no" />
+        <type>
+          <ipaddr />
         </type>
         <value>0.0.0.0</value>
       </setting>
-      <setting name="ftp_username" advanced="yes" hidden="no">
+      <setting name="ftp_username" advanced="yes">
         <profileName>ftp username</profileName>
-        <type required="no">
-          <string required="no" password="no" />
+        <type>
+          <string />
         </type>
         <value />
       </setting>
-      <setting name="ftp_password" advanced="yes" hidden="no">
+      <setting name="ftp_password" advanced="yes">
         <profileName>ftp password</profileName>
-        <type required="no">
-          <string password="yes" required="no" />
+        <type>
+          <string password="yes" />
         </type>
         <value />
       </setting>
     </group>
-    <group name="http" advanced="no" hidden="no">
-      <setting name="http_server" advanced="yes" hidden="no">
+    <group name="http">
+      <setting name="http_server" advanced="yes">
         <profileName>http server</profileName>
-        <type required="no">
-          <ipaddr required="no" />
+        <type>
+          <ipaddr />
         </type>
         <value>0.0.0.0</value>
       </setting>
-      <setting name="http_path" advanced="yes" hidden="no">
+      <setting name="http_path" advanced="yes">
         <profileName>http path</profileName>
-        <type required="no">
-          <string required="no" password="no" />
+        <type>
+          <string />
         </type>
         <value />
       </setting>
     </group>
-    <group name="https" advanced="no" hidden="no">
-      <setting name="https_server" advanced="yes" hidden="no">
+    <group name="https">
+      <setting name="https_server" advanced="yes">
         <profileName>https server</profileName>
-        <type required="no">
-          <ipaddr required="no" />
+        <type>
+          <ipaddr />
         </type>
         <value>0.0.0.0</value>
       </setting>
-      <setting name="https_path" advanced="yes" hidden="no">
+      <setting name="https_path" advanced="yes">
         <profileName>https path</profileName>
-        <type required="no">
-          <string required="no" password="no" />
+        <type>
+          <string />
         </type>
         <value />
       </setting>
     </group>
-    <group name="auto-resync" advanced="no" hidden="no">
-      <setting name="auto_resync_mode" advanced="no" hidden="no">
+    <group name="auto-resync">
+      <setting name="auto_resync_mode">
         <profileName>auto resync mode</profileName>
-        <type refid="resync-mode" required="no" />
+        <type refid="resync-mode" />
         <value>0</value>
       </setting>
-      <setting name="auto_resync_time" advanced="no" hidden="no">
+      <setting name="auto_resync_time">
         <profileName>auto resync time</profileName>
-        <type required="no">
-          <string required="no" password="no" />
+        <type>
+          <string />
         </type>
         <value>00:00</value>
       </setting>
     </group>
   </group>
-  <group name="log" advanced="no" hidden="no">
-    <setting name="log_server_ip" advanced="no" hidden="no">
+  <group name="log">
+    <setting name="log_server_ip">
       <profileName>log server ip</profileName>
-      <type required="no">
-        <ipaddr required="no" />
+      <type>
+        <ipaddr />
       </type>
       <value>0.0.0.0</value>
     </setting>
-    <setting name="log_server_port" advanced="no" hidden="no">
+    <setting name="log_server_port">
       <profileName>log server port</profileName>
-      <type required="no">
-        <integer required="no" />
+      <type>
+        <integer />
       </type>
       <value>0</value>
     </setting>
-    <setting name="log_module_sip" advanced="yes" hidden="no">
+    <setting name="log_module_sip" advanced="yes">
       <profileName>log module sip</profileName>
-      <type required="no">
+      <type>
         <boolean />
       </type>
       <value>1</value>
     </setting>
-    <setting name="log_module_linemgr" advanced="yes" hidden="no">
+    <setting name="log_module_linemgr" advanced="yes">
       <profileName>log module linemgr</profileName>
-      <type required="no">
+      <type>
         <boolean />
       </type>
       <value>1</value>
     </setting>
-    <setting name="log_module_ui" advanced="yes" hidden="no">
+    <setting name="log_module_ui" advanced="yes">
       <profileName>log module user interface</profileName>
-      <type required="no">
+      <type>
         <boolean />
       </type>
       <value>1</value>
     </setting>
-    <setting name="log_module_dis" advanced="yes" hidden="no">
+    <setting name="log_module_dis" advanced="yes">
       <profileName>log module dis</profileName>
-      <type required="no">
+      <type>
         <boolean />
       </type>
       <value>1</value>
     </setting>
-    <setting name="log_module_ept" advanced="yes" hidden="no">
+    <setting name="log_module_ept" advanced="yes">
       <profileName>log module ept</profileName>
-      <type required="no">
+      <type>
         <boolean />
       </type>
       <value>1</value>
     </setting>
-    <setting name="log_module_ind" advanced="yes" hidden="no">
+    <setting name="log_module_ind" advanced="yes">
       <profileName>log module ind</profileName>
-      <type required="no">
+      <type>
         <boolean />
       </type>
       <value>1</value>
     </setting>
-    <setting name="log_module_kbd" advanced="yes" hidden="no">
+    <setting name="log_module_kbd" advanced="yes">
       <profileName>log module kbd</profileName>
-      <type required="no">
+      <type>
         <boolean />
       </type>
       <value>1</value>
     </setting>
-    <setting name="log_module_net" advanced="yes" hidden="no">
+    <setting name="log_module_net" advanced="yes">
       <profileName>log module net</profileName>
-      <type required="no">
+      <type>
         <boolean />
       </type>
       <value>1</value>
     </setting>
-    <setting name="log_module_provis" advanced="yes" hidden="no">
+    <setting name="log_module_provis" advanced="yes">
       <profileName>log module provis</profileName>
-      <type required="no">
+      <type>
         <boolean />
       </type>
       <value>1</value>
     </setting>
-    <setting name="log_module_rtpt" advanced="yes" hidden="no">
+    <setting name="log_module_rtpt" advanced="yes">
       <profileName>log module rtpt</profileName>
-      <type required="no">
+      <type>
         <boolean />
       </type>
       <value>1</value>
     </setting>
-    <setting name="log_module_snd" advanced="yes" hidden="no">
+    <setting name="log_module_snd" advanced="yes">
       <profileName>log module snd</profileName>
-      <type required="no">
+      <type>
         <boolean />
       </type>
       <value>1</value>
     </setting>
-    <setting name="log_module_misc" advanced="yes" hidden="no">
+    <setting name="log_module_misc" advanced="yes">
       <profileName>log module misc</profileName>
-      <type required="no">
+      <type>
         <boolean />
       </type>
       <value>1</value>
     </setting>
   </group>
-  <group name="ExpansionModel" advanced="no" hidden="no">
-    <group name="ExpansionModelN" advanced="no" hidden="no">
-      <setting name="expmodX_keyN_type" advanced="no" hidden="no">
+  <group name="ExpansionModel">
+    <group name="ExpansionModelN">
+      <setting name="expmodX_keyN_type">
         <profileName>expmodX keyN type</profileName>
-        <type refid="exp-key-type" required="no" />
+        <type refid="exp-key-type" />
         <value>none</value>
       </setting>
-      <setting name="expmodX_keyN_lable" advanced="no" hidden="no">
+      <setting name="expmodX_keyN_lable">
         <profileName>expmodX keyN lable</profileName>
-        <type required="no">
-          <string required="no" password="no" />
+        <type>
+          <string />
         </type>
         <value />
       </setting>
-      <setting name="expmodX_keyN_value" advanced="no" hidden="no">
+      <setting name="expmodX_keyN_value">
         <profileName>expmodX keyN value</profileName>
-        <type required="no">
-          <integer required="no" />
+        <type>
+          <integer />
         </type>
         <value />
       </setting>
-      <setting name="expmodX_keyN_line" advanced="no" hidden="no">
+      <setting name="expmodX_keyN_line">
         <profileName>expmodX keyN line</profileName>
-        <type required="no">
-          <integer max="9" min="1" required="no" />
+        <type>
+          <integer max="9" min="1" />
         </type>
         <value>1</value>
       </setting>
     </group>
-    <group name="model1" advanced="no" hidden="no">
-      <setting name="expanmod1page1left" advanced="no" hidden="no">
+    <group name="model1">
+      <setting name="expanmod1page1left">
         <profileName>expanmod1page1left</profileName>
-        <type required="no">
-          <string required="no" password="no" />
+        <type>
+          <string />
         </type>
         <value />
       </setting>
-      <setting name="expanmod1page1right" advanced="no" hidden="no">
+      <setting name="expanmod1page1right">
         <profileName>expanmod1page1right</profileName>
-        <type required="no">
-          <string required="no" password="no" />
+        <type>
+          <string />
         </type>
         <value />
       </setting>
-      <setting name="expanmod1page2left" advanced="no" hidden="no">
+      <setting name="expanmod1page2left">
         <profileName>expanmod1page2left</profileName>
-        <type required="no">
-          <string required="no" password="no" />
+        <type>
+          <string />
         </type>
         <value />
       </setting>
-      <setting name="expanmod1page2right" advanced="no" hidden="no">
+      <setting name="expanmod1page2right">
         <profileName>expanmod1page2right</profileName>
-        <type required="no">
-          <string required="no" password="no" />
+        <type>
+          <string />
         </type>
         <value />
       </setting>
-      <setting name="expanmod1page2left" advanced="no" hidden="no">
+      <setting name="expanmod1page2left">
         <profileName>expanmod1page2left</profileName>
-        <type required="no">
-          <string required="no" password="no" />
+        <type>
+          <string />
         </type>
         <value />
       </setting>
-      <setting name="expanmod1page3right" advanced="no" hidden="no">
+      <setting name="expanmod1page3right">
         <profileName>expanmod1page3right</profileName>
-        <type required="no">
-          <string required="no" password="no" />
+        <type>
+          <string />
         </type>
         <value />
       </setting>
-      <setting name="expanmod1page3left" advanced="no" hidden="no">
+      <setting name="expanmod1page3left">
         <profileName>expanmod1page3left</profileName>
-        <type required="no">
-          <string required="no" password="no" />
+        <type>
+          <string />
         </type>
         <value />
       </setting>
     </group>
-    <group name="model2" advanced="no" hidden="no">
-      <setting name="expanmod2page1left" advanced="no" hidden="no">
+    <group name="model2">
+      <setting name="expanmod2page1left">
         <profileName>expanmod2page1left</profileName>
-        <type required="no">
-          <string required="no" password="no" />
+        <type>
+          <string />
         </type>
         <value />
       </setting>
-      <setting name="expanmod2page1right" advanced="no" hidden="no">
+      <setting name="expanmod2page1right">
         <profileName>expanmod2page1right</profileName>
-        <type required="no">
-          <string required="no" password="no" />
+        <type>
+          <string />
         </type>
         <value />
       </setting>
-      <setting name="expanmod2page2left" advanced="no" hidden="no">
+      <setting name="expanmod2page2left">
         <profileName>expanmod2page2left</profileName>
-        <type required="no">
-          <string required="no" password="no" />
+        <type>
+          <string />
         </type>
         <value />
       </setting>
-      <setting name="expanmod2page1r2ght" advanced="no" hidden="no">
+      <setting name="expanmod2page1r2ght">
         <profileName>expanmod2page1r2ght</profileName>
-        <type required="no">
-          <string required="no" password="no" />
+        <type>
+          <string />
         </type>
         <value />
       </setting>
-      <setting name="expanmod2page3left" advanced="no" hidden="no">
+      <setting name="expanmod2page3left">
         <profileName>expanmod2page3left</profileName>
-        <type required="no">
-          <string required="no" password="no" />
+        <type>
+          <string />
         </type>
         <value />
       </setting>
-      <setting name="expanmod2page3right" advanced="no" hidden="no">
+      <setting name="expanmod2page3right">
         <profileName>expanmod2page3right</profileName>
-        <type required="no">
-          <string required="no" password="no" />
+        <type>
+          <string />
         </type>
         <value />
       </setting>
     </group>
-    <group name="model3" advanced="no" hidden="no">
-      <setting name="expanmod3page1left" advanced="no" hidden="no">
+    <group name="model3">
+      <setting name="expanmod3page1left">
         <profileName>expanmod3page1left</profileName>
-        <type required="no">
-          <string required="no" password="no" />
+        <type>
+          <string />
         </type>
         <value />
       </setting>
-      <setting name="expanmod3page1right" advanced="no" hidden="no">
+      <setting name="expanmod3page1right">
         <profileName>expanmod3page1right</profileName>
-        <type required="no">
-          <string required="no" password="no" />
+        <type>
+          <string />
         </type>
         <value />
       </setting>
-      <setting name="expanmod3page2left" advanced="no" hidden="no">
+      <setting name="expanmod3page2left">
         <profileName>expanmod3page2left</profileName>
-        <type required="no">
-          <string required="no" password="no" />
+        <type>
+          <string />
         </type>
         <value />
       </setting>
-      <setting name="expanmod3page1r2ght" advanced="no" hidden="no">
+      <setting name="expanmod3page1r2ght">
         <profileName>expanmod3page1r2ght</profileName>
-        <type required="no">
-          <string required="no" password="no" />
+        <type>
+          <string />
         </type>
         <value />
       </setting>
-      <setting name="expanmod3page3left" advanced="no" hidden="no">
+      <setting name="expanmod3page3left">
         <profileName>expanmod3page3left</profileName>
-        <type required="no">
-          <string required="no" password="no" />
+        <type>
+          <string />
         </type>
         <value />
       </setting>
-      <setting name="expanmod3page3right" advanced="no" hidden="no">
+      <setting name="expanmod3page3right">
         <profileName>expanmod3page3right</profileName>
-        <type required="no">
-          <string required="no" password="no" />
+        <type>
+          <string />
         </type>
         <value />
       </setting>
     </group>
-    <group name="lock" advanced="no" hidden="no">
-      <setting name="softkeyN_locked" advanced="no" hidden="no">
+    <group name="lock">
+      <setting name="softkeyN_locked">
         <profileName>softkeyN locked</profileName>
-        <type required="no">
+        <type>
           <boolean />
         </type>
         <value>0</value>
       </setting>
-      <setting name="topsoftkeyN_locked" advanced="no" hidden="no">
+      <setting name="topsoftkeyN_locked">
         <profileName>topsoftkeyN locked</profileName>
-        <type required="no">
+        <type>
           <boolean />
         </type>
         <value>0</value>
       </setting>
-      <setting name="prgkeyN_locked" advanced="no" hidden="no">
+      <setting name="prgkeyN_locked">
         <profileName>prgkeyN locked</profileName>
-        <type required="no">
+        <type>
           <boolean />
         </type>
         <value>0</value>
       </setting>
-      <setting name="featurekeyN_locked" advanced="no" hidden="no">
+      <setting name="featurekeyN_locked">
         <profileName>featurekeyN locked</profileName>
-        <type required="no">
+        <type>
           <boolean />
         </type>
         <value>0</value>
       </setting>
-      <setting name="expmodX_key_N_locked" advanced="no" hidden="no">
+      <setting name="expmodX_key_N_locked">
         <profileName>expmodX key N locked</profileName>
-        <type required="no">
+        <type>
           <boolean />
         </type>
         <value>0</value>
@@ -1601,331 +1255,331 @@
     ==========
     
   -->
-  <group name="not_needed" advanced="no" hidden="no">
-    <group name="Network" advanced="no" hidden="no">
-      <setting name="dhcp" advanced="no" hidden="no">
+  <group name="not_needed">
+    <group name="Network">
+      <setting name="dhcp">
         <profileName>dhcp</profileName>
-        <type required="no">
+        <type>
           <boolean />
         </type>
         <value>1</value>
       </setting>
-      <setting name="ip" advanced="no" hidden="no">
+      <setting name="ip">
         <profileName>ip</profileName>
-        <type required="no">
-          <ipaddr required="no" />
+        <type>
+          <ipaddr />
         </type>
         <value>0.0.0.0</value>
       </setting>
-      <setting name="subnet_mask" advanced="no" hidden="no">
+      <setting name="subnet_mask">
         <profileName>subnet mask</profileName>
-        <type required="no">
-          <ipaddr required="no" />
+        <type>
+          <ipaddr />
         </type>
         <value>255.255.255.0</value>
       </setting>
-      <setting name="default_gateway" advanced="no" hidden="no">
+      <setting name="default_gateway">
         <profileName>default gateway</profileName>
-        <type required="no">
-          <ipaddr required="no" />
+        <type>
+          <ipaddr />
         </type>
         <value>1.0.0.1</value>
       </setting>
-      <setting name="dns1" advanced="no" hidden="no">
+      <setting name="dns1">
         <profileName>dns1</profileName>
-        <type required="no">
-          <ipaddr required="no" />
+        <type>
+          <ipaddr />
         </type>
         <value>0.0.0.0</value>
       </setting>
-      <setting name="dns2" advanced="no" hidden="no">
+      <setting name="dns2">
         <profileName>dns2</profileName>
-        <type required="no">
-          <ipaddr required="no" />
+        <type>
+          <ipaddr />
         </type>
         <value>0.0.0.0</value>
       </setting>
     </group>
-    <group name="sip" advanced="no" hidden="no">
-      <setting name="sip_screen_name" advanced="no" hidden="no">
+    <group name="sip">
+      <setting name="sip_screen_name">
         <profileName>sip screen name</profileName>
-        <type required="no">
-          <string required="no" password="no">
+        <type>
+          <string>
             <pattern>\d(1,20)[a-Z]*</pattern>
           </string>
         </type>
         <value />
       </setting>
-      <setting name="extension" advanced="no" hidden="no">
+      <setting name="extension">
         <profileName>extension</profileName>
       </setting>
-      <setting name="sip_screen_name2" advanced="no" hidden="no">
+      <setting name="sip_screen_name2">
         <profileName>sip screen name2</profileName>
-        <type required="no">
+        <type>
           <string required="yes" password="no">
             <pattern>\d(1,20)[a-Z]*</pattern>
           </string>
         </type>
         <value />
       </setting>
-      <setting name="sip_user_name" advanced="no" hidden="no">
+      <setting name="sip_user_name">
         <profileName>sip user name</profileName>
-        <type required="no">
+        <type>
           <string required="yes" password="no">
             <pattern>\d(1,20)[a-Z]*</pattern>
           </string>
         </type>
         <value />
       </setting>
-      <setting name="sip_display_name" advanced="no" hidden="no">
+      <setting name="sip_display_name">
         <profileName>sip display name</profileName>
-        <type required="no">
-          <string required="no" password="no" />
+        <type>
+          <string />
         </type>
         <value />
       </setting>
-      <setting name="sip_auth_name" advanced="no" hidden="no">
+      <setting name="sip_auth_name">
         <profileName>sip auth name</profileName>
-        <type required="no">
-          <string required="no" password="no" />
+        <type>
+          <string />
         </type>
         <value />
       </setting>
-      <setting name="sip_password" advanced="no" hidden="no">
+      <setting name="sip_password">
         <profileName>sip password</profileName>
-        <type required="no">
-          <string required="no" password="no" />
+        <type>
+          <string />
         </type>
         <value />
       </setting>
-      <setting name="sip_bla_number" advanced="no" hidden="no">
+      <setting name="sip_bla_number">
         <profileName>sip bla number</profileName>
-        <type required="no">
-          <integer required="no" />
+        <type>
+          <integer />
         </type>
         <value />
       </setting>
-      <setting name="sip_mode" advanced="no" hidden="no">
+      <setting name="sip_mode">
         <profileName>sip mode</profileName>
-        <type required="no">
-          <integer max="3" min="0" required="no" />
+        <type>
+          <integer max="3" min="0" />
         </type>
         <value>0</value>
       </setting>
     </group>
-    <group name="sip_network" advanced="no" hidden="no">
-      <setting name="sip_proxy_ip" advanced="no" hidden="no">
+    <group name="sip_network">
+      <setting name="sip_proxy_ip">
         <profileName>sip proxy ip</profileName>
-        <type required="no">
-          <ipaddr required="no" />
+        <type>
+          <ipaddr />
         </type>
         <value>0.0.0.0</value>
       </setting>
-      <setting name="sip_proxy_port" advanced="no" hidden="no">
+      <setting name="sip_proxy_port">
         <profileName>sip proxy port</profileName>
-        <type required="no">
-          <integer required="no" />
+        <type>
+          <integer />
         </type>
         <value>0</value>
       </setting>
-      <setting name="sip_backup_proxy_IP" advanced="no" hidden="no">
+      <setting name="sip_backup_proxy_IP">
         <profileName>sip backup proxy IP</profileName>
-        <type required="no">
-          <ipaddr required="no" />
+        <type>
+          <ipaddr />
         </type>
         <value>0.0.0.0</value>
       </setting>
-      <setting name="sip_backup_proxy_port" advanced="no" hidden="no">
+      <setting name="sip_backup_proxy_port">
         <profileName>sip backup proxy port</profileName>
-        <type required="no">
-          <integer required="no" />
+        <type>
+          <integer />
         </type>
         <value>0</value>
       </setting>
-      <setting name="sip_outbound_proxy" advanced="no" hidden="no">
+      <setting name="sip_outbound_proxy">
         <profileName>sip outbound proxy</profileName>
-        <type required="no">
-          <ipaddr required="no" />
+        <type>
+          <ipaddr />
         </type>
         <value>0.0.0.0</value>
       </setting>
-      <setting name="sip_outbound_proxy_port" advanced="no" hidden="no">
+      <setting name="sip_outbound_proxy_port">
         <profileName>sip outbound proxy port</profileName>
-        <type required="no">
-          <integer required="no" />
+        <type>
+          <integer />
         </type>
         <value>0</value>
       </setting>
-      <setting name="sip_registrar_ip" advanced="no" hidden="no">
+      <setting name="sip_registrar_ip">
         <profileName>sip registrar ip</profileName>
-        <type required="no">
-          <ipaddr required="no" />
+        <type>
+          <ipaddr />
         </type>
         <value>0.0.0.0</value>
       </setting>
-      <setting name="sip_registrar_port" advanced="no" hidden="no">
+      <setting name="sip_registrar_port">
         <profileName>sip registrar port</profileName>
-        <type required="no">
-          <integer required="no" />
+        <type>
+          <integer />
         </type>
         <value>0</value>
       </setting>
-      <setting name="sip_backup_registar_ip" advanced="no" hidden="no">
+      <setting name="sip_backup_registar_ip">
         <profileName>sip backup registar ip</profileName>
-        <type required="no">
-          <ipaddr required="no" />
+        <type>
+          <ipaddr />
         </type>
         <value>0.0.0.0</value>
       </setting>
-      <setting name="sip_backup_registar_port" advanced="no" hidden="no">
+      <setting name="sip_backup_registar_port">
         <profileName>sip backup registar port</profileName>
-        <type required="no">
-          <integer required="no" />
+        <type>
+          <integer />
         </type>
         <value>0</value>
       </setting>
-      <setting name="sip_registration_period" advanced="no" hidden="no">
+      <setting name="sip_registration_period">
         <profileName>sip registration period</profileName>
-        <type required="no">
-          <integer max="2147483647" min="0" required="no" />
+        <type>
+          <integer max="2147483647" min="0" />
         </type>
         <value>0</value>
       </setting>
-      <setting name="sip_centralized_conf" advanced="no" hidden="no">
+      <setting name="sip_centralized_conf">
         <profileName>sip centralized conf</profileName>
-        <type required="no">
-          <string required="no" password="no" />
+        <type>
+          <string />
         </type>
         <value />
       </setting>
     </group>
-    <group name="xml" advanced="no" hidden="no">
-      <setting name="xml_get_timeout" advanced="no" hidden="no">
+    <group name="xml">
+      <setting name="xml_get_timeout">
         <profileName>xml get timeout</profileName>
-        <type required="no">
-          <integer max="214748364" min="0" required="no" />
+        <type>
+          <integer max="214748364" min="0" />
         </type>
         <value>0</value>
       </setting>
-      <setting name="xml_application_URI" advanced="no" hidden="no">
+      <setting name="xml_application_URI">
         <profileName>xml application URI</profileName>
-        <type required="no">
-          <string required="no" password="no" />
+        <type>
+          <string />
         </type>
         <value />
       </setting>
-      <setting name="xml_application_title" advanced="no" hidden="no">
-         <profileName>xml application title</profileName>
-        <type required="no">
-          <string required="no" password="no" />
+      <setting name="xml_application_title">
+        <profileName>xml application title</profileName>
+        <type>
+          <string />
         </type>
         <value />
       </setting>
-      <setting name="xml_application_post_list" advanced="no" hidden="no">
+      <setting name="xml_application_post_list">
         <profileName>xml application post list</profileName>
-        <type required="no">
-          <string required="no" password="no" />
+        <type>
+          <string />
         </type>
         <value />
       </setting>
-      <setting name="xml_beep_notification" advanced="no" hidden="no">
+      <setting name="xml_beep_notification">
         <profileName>xml beep notification</profileName>
-        <type required="no">
+        <type>
           <boolean />
         </type>
         <value>1</value>
       </setting>
-      <setting name="xml_status_scroll_delay" advanced="no" hidden="no">
+      <setting name="xml_status_scroll_delay">
         <profileName>xml status scroll delay</profileName>
-        <type required="no">
-          <integer max="25" min="1" required="no" />
+        <type>
+          <integer max="25" min="1" />
         </type>
         <value>5</value>
       </setting>
     </group>
-    <group name="ActionURI" advanced="no" hidden="no">
-      <setting name="action_uri_startup" advanced="no" hidden="no">
+    <group name="ActionURI">
+      <setting name="action_uri_startup">
         <profileName>action uri startup</profileName>
-        <type required="no">
-          <string required="no" password="no" />
+        <type>
+          <string />
         </type>
         <value />
       </setting>
-      <setting name="action_uri_registered" advanced="no" hidden="no">
+      <setting name="action_uri_registered">
         <profileName>action uri registered</profileName>
-        <type required="no">
-          <string required="no" password="no" />
+        <type>
+          <string />
         </type>
         <value />
       </setting>
-      <setting name="action_uri_incoming" advanced="no" hidden="no">
+      <setting name="action_uri_incoming">
         <profileName>action uri incoming</profileName>
-        <type required="no">
-          <string required="no" password="no" />
+        <type>
+          <string />
         </type>
         <value />
       </setting>
-      <setting name="action_uri_outgoing" advanced="no" hidden="no">
+      <setting name="action_uri_outgoing">
         <profileName>action uri outgoing</profileName>
-        <type required="no">
-          <string required="no" password="no" />
+        <type>
+          <string />
         </type>
         <value />
       </setting>
-      <setting name="action_uri_offhook" advanced="no" hidden="no">
+      <setting name="action_uri_offhook">
         <profileName>action uri offhook</profileName>
-        <type required="no">
-          <string required="no" password="no" />
+        <type>
+          <string />
         </type>
         <value />
       </setting>
-      <setting name="action_uri_onhook" advanced="no" hidden="no">
+      <setting name="action_uri_onhook">
         <profileName>action uri onhook</profileName>
-        <type required="no">
-          <string required="no" password="no" />
+        <type>
+          <string />
         </type>
         <value />
       </setting>
     </group>
-    <group name="unsupported_sip" advanced="no" hidden="no">
-      <setting name="sip_missed_call_summary" advanced="yes" hidden="no">
+    <group name="unsupported_sip">
+      <setting name="sip_missed_call_summary" advanced="yes">
         <profileName>sip missed call summary</profileName>
-        <type required="no">
+        <type>
           <boolean />
         </type>
         <value>0</value>
       </setting>
-      <setting name="sip_missed_call_summary_subscription_period" advanced="no" hidden="no">
+      <setting name="sip_missed_call_summary_subscription_period">
         <profileName>sip missed call summary subscription period</profileName>
-        <type required="no">
-          <integer required="no" />
+        <type>
+          <integer />
         </type>
         <value>86400</value>
       </setting>
-      <setting name="sip_persistent_tls" advanced="no" hidden="no">
+      <setting name="sip_persistent_tls">
         <profileName>sip persistent tls</profileName>
-        <type required="no">
+        <type>
           <boolean />
         </type>
         <value>0</value>
       </setting>
-      <setting name="sip_send_mac" advanced="no" hidden="no">
+      <setting name="sip_send_mac">
         <profileName>sip send mac</profileName>
-        <type required="no">
+        <type>
           <boolean />
         </type>
         <value>0</value>
       </setting>
-      <setting name="sip_send_line" advanced="no" hidden="no">
+      <setting name="sip_send_line">
         <profileName>sip send line</profileName>
-        <type required="no">
+        <type>
           <boolean />
         </type>
         <value>0</value>
       </setting>
-      <setting name="sip_update_callerid" advanced="no" hidden="no">
+      <setting name="sip_update_callerid">
         <profileName>sip update callerid</profileName>
-        <type required="no">
+        <type>
           <boolean />
         </type>
         <value>0</value>

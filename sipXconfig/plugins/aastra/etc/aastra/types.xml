@@ -17,7 +17,6 @@
     </option>
   </enum>
 </type>
-
 <type id="resync-mode">
   <enum>
     <option>
@@ -34,7 +33,6 @@
     </option>
   </enum>
 </type>
-
 <type id="country-tone">
   <enum>
     <option>
@@ -201,7 +199,6 @@
     </option>
   </enum>
 </type>
-
 <type id="outgoing-intercom-type">
   <enum>
     <option>
@@ -215,7 +212,6 @@
     </option>
   </enum>
 </type>
-
 <type id="alert-community-tone">
   <enum>
     <option>
@@ -238,7 +234,6 @@
     </option>
   </enum>
 </type>
-
 <type id="time-format">
   <enum>
     <option>
@@ -249,7 +244,6 @@
     </option>
   </enum>
 </type>
-
 <type id="date-format">
   <enum>
     <option>
@@ -278,7 +272,6 @@
     </option>
   </enum>
 </type>
-
 <type id="dst-type">
   <enum>
     <option>
@@ -295,7 +288,6 @@
     </option>
   </enum>
 </type>
-
 <type id="transport-protocol">
   <enum>
     <option>
@@ -308,7 +300,7 @@
       <value>2</value>
     </option>
     <option>
-      <value>4</value>
+      <value>3</value>
     </option>
   </enum>
 </type>
