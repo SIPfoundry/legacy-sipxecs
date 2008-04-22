@@ -2,19 +2,10 @@
 include $(top_srcdir)/config/project.am
 include ant-targets.am
 
-editscripts_IN = \
-    sipxbridge.sh.in
+bin_SCRIPTS = sipxbridge.sh
 
-editscripts :
-	@for f in $(editscripts_IN); \
-	do \
-	  target=`basename $$f .in`; \
-     $(LocalizeSipXconfig) $(srcdir)/$$f > $$target; \
-	  $(INSTALL) -D -m 755 $$target $(DESTDIR)$(bindir)/$$target; \
-	done
-
-
-install-exec-hook : editscripts
+sipxbridge.sh: sipxbridge.sh.in
+	$(LocalizeSipXconfig) $< > $@
 
 RPMS=$(RPM)
 
