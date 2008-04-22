@@ -110,6 +110,7 @@
      <target name="install">
     	<mkdir dir="${dest.dir}${sipxbridge.lib.dir}"/>
     	<copy file="${build.dir}/dist/sipXbridge.jar" todir="${dest.dir}${sipxbridge.lib.dir}"/>
+    	<copy file="${build.dir}/sipxbridge.sh" todir="${bin.dir}"/>
     	<copy todir="${dest.dir}${sipxbridge.lib.dir}">
 		<fileset file="${log4j}" />
 		<fileset file="${jainsip}" />
