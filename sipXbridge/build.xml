@@ -137,11 +137,12 @@
 <!-- unit tests  -->
 
 <target name="mkreportdir">
-<mkdir dir="${junit.reports}" />
+<!-- mkdir dir="${junit.reports}" / -->
 </target>
 
 <target name='test' depends="mkreportdir" description="unit tests">
 
+<!-- 
 <junit fork="yes" showoutput="yes">
 	<classpath refid="project.class.path" />
 	<jvmarg value="-Dlog4j.configuration=log4j.properties" />
@@ -149,6 +150,7 @@
 	<formatter type="xml" />
 	<test name="test.org.sipfoundry.sipxbridge.SimpleCallSetupTest" todir="${junit.reports}" />
 </junit>
+-->
 </target>
 
 
@@ -161,12 +163,12 @@
 </target>
 
 <!-- Delete existing directories to ensure removal of old classes -->
-<target name="clean" description="clean up previous build" depends="cleanlogs">
+<target name="clean" description="clean up previous build" >
 	<delete dir="${classes}" />
 	<delete dir="${doc}/javadoc" />
 </target>
 
-<!-- Start iBridge -->
+<!-- Start sipxBridge  for experimental purposes only. WARNING cleans logs  -->
 <target name="sipxbridge" description="Start sipXbridge" depends="clean,cleanlogs,compile" >
      <java fork="yes" classname="org.sipfoundry.sipxbridge.Gateway">
      	   <arg value="-initOnStartup"/>

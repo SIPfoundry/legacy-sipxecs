@@ -19,7 +19,7 @@ clean :
 doc :
 	$(ANT_CMD) $(ANT_FLAGS) doc
 
-install :
+install : all dist
 	$(ANT_CMD) $(ANT_FLAGS) -Ddest.dir=$(DESTDIR) install
 
 check :
