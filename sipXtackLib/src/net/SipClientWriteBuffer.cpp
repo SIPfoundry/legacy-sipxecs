@@ -78,7 +78,16 @@ UtlBoolean SipClientWriteBuffer::handleMessage(OsMsg& eventMessage)
           // the incoming eventMessage.
           SipClientSendMsg* sendMsg =
              dynamic_cast <SipClientSendMsg*> (&eventMessage);
-          insertMessage(sendMsg->detachMessage());
+          if (sendMsg)
+          {
+             insertMessage(sendMsg->detachMessage());
+             messageProcessed = TRUE;
+          }
+          else
+          {
+             OsSysLog::add(FAC_SIP, PRI_CRIT, "SipClientWriteBuffer[%s]::handleMessage "
+                           "message is not a SipClientSendMsg", mName.data());
+          }
       }
       else // send Keep Alive
       {
@@ -88,12 +97,12 @@ UtlBoolean SipClientWriteBuffer::handleMessage(OsMsg& eventMessage)
           UtlString* pKeepAlive;
           pKeepAlive = new UtlString("\r\n");
           insertMessage(pKeepAlive);
+          messageProcessed = TRUE;
       }
 
       // Write what we can.
       writeMore();
 
-      messageProcessed = TRUE;
       // sendMsg will be deleted by ::run(), as usual.
       // Its destructor will free any storage owned by it.
    }
@@ -106,7 +115,9 @@ void SipClientWriteBuffer::sendMessage(const SipMessage& message,
                                        const char* address,
                                        int port)
 {
-   assert(FALSE);
+   OsSysLog::add(FAC_SIP, PRI_CRIT, "SipClientWriteBuffer[%s]::sendMessage "
+                 "should not be called", mName.data());
+   assert(false);
 }
 
 /// Insert a message into the buffer.
@@ -186,26 +197,31 @@ void SipClientWriteBuffer::writeMore()
          // Pop it and set up to write the next message.
          delete mWriteBuffer.get();
          mWriteString.remove(0);
-         UtlContainable* firstWriteString = mWriteBuffer.first();
-         SipMessage* m = dynamic_cast <SipMessage*> (firstWriteString);
          mWritePointer = 0;
-         mWriteQueued = m != NULL;
-         if (m != NULL)
+         mWriteQueued = ! mWriteBuffer.isEmpty();
+         if (mWriteQueued)
          {
-             // first check if this is a CRLF keepalive response
-             UtlString* keepAlive = dynamic_cast <UtlString*> (firstWriteString);
-             const char* keepAliveData = keepAlive->data();
-             if (*keepAliveData++    == '\r' 
-                 && *keepAliveData++ == '\n'
-                 && *keepAliveData++ ==  0)
-             {
-                 mWriteString.append("\r\n");
-             }
-             else   // normal path
-             {
-                int length;
-                m->getBytes(&mWriteString, &length);
-             }
+            // get the message on the head of the queue, and figure out which kind it is
+            UtlContainable* nextMsg = mWriteBuffer.first();
+            SipMessage* sipMsg;
+            UtlString* keepAliveMsg;
+            if ((sipMsg = dynamic_cast<SipMessage*>(nextMsg))) // a SIP message
+            {
+               int length;
+               sipMsg->getBytes(&mWriteString, &length);
+            }
+            else if ((keepAliveMsg = dynamic_cast<UtlString*>(nextMsg))) // a keepalive CRLF
+            {
+               mWriteString.append(*keepAliveMsg);
+            }
+            else
+            {
+               OsSysLog::add(FAC_SIP, PRI_CRIT, "SipClientWriteBuffer[%s]::writeMore "
+                             "unrecognized message type in queue", mName.data());
+               assert(false);
+               delete mWriteBuffer.get();
+               mWriteQueued = mWriteBuffer.isEmpty();
+            }
          }
       }
       else
@@ -283,15 +299,24 @@ void SipClientWriteBuffer::writeMore()
 /// sent.
 void SipClientWriteBuffer::emptyBuffer()
 {
-   // Return all buffered messages with transport errors.
-   SipMessage* m;
-   while ((m = dynamic_cast <SipMessage*> (mWriteBuffer.get())))
+   // Return all buffered SIP messages with transport errors.
+   UtlContainable *nextMsg;
+   while ((nextMsg=mWriteBuffer.get()))
    {
-      // Return the message with a transport error indication.
-      // SipUserAgent::dispatch takes ownership of the SIP message '*m'.
-      // SipUserAgent::dispatch does not block -- if its message recipients
-      // are overloaded, it discards the message.
-      mpSipUserAgent->dispatch(m, SipMessageEvent::TRANSPORT_ERROR);
+      SipMessage* m;
+      if ((m = dynamic_cast<SipMessage*>(nextMsg)))
+      {
+         // This is a SIP message - return it with a transport error indication.
+         // SipUserAgent::dispatch takes ownership of the SIP message '*m'.
+         // SipUserAgent::dispatch does not block -- if its message recipients
+         // are overloaded, it discards the message.
+         mpSipUserAgent->dispatch(m, SipMessageEvent::TRANSPORT_ERROR);
+      }
+      else
+      {
+         // This probably a keepalive - just delete it.
+         delete nextMsg;
+      }
    }
 
    // Clear the other variables.
