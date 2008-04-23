@@ -110,8 +110,8 @@
      <target name="install">
     	<mkdir dir="${dest.dir}${sipxbridge.lib.dir}"/>
     	<copy file="${build.dir}/dist/sipXbridge.jar" todir="${dest.dir}${sipxbridge.lib.dir}"/>
-    	<copy file="${build.dir}/sipxbridge.sh" todir="${bin.dir}"/>
-	<chmod file="${bin.dir}/sipxbridge.sh" perm="755" />
+    	<!-- copy file="${build.dir}/sipxbridge.sh" todir="${bin.dir}"/>
+	<chmod file="${bin.dir}/sipxbridge.sh" perm="755" / -->
     	<copy file="${build.dir}/sipxbridge.process.xml" todir="${proc.dir}"/>
     	<copy todir="${dest.dir}${sipxbridge.lib.dir}">
 		<fileset file="${log4j}" />
