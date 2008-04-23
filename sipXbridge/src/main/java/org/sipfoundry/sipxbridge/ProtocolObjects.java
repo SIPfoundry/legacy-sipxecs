@@ -69,14 +69,12 @@ public class ProtocolObjects {
                     SipFoundryLogRecordFactory.class.getName());
             stackProperties.setProperty("gov.nist.javax.sip.SERVER_LOG",
                     "logs/serverlog.txt");
-            // COMMENT
-            // stackProperties.setProperty("gov.nist.javax.sip.DEBUG_LOG","logs/debuglog.txt");
-
+           
             sipStack = ProtocolObjects.sipFactory
                     .createSipStack(stackProperties);
             ((SipStackImpl) sipStack)
                     .setAddressResolver(new ProxyAddressResolver());
-            // UNCOMMENT
+            
             ((SipStackImpl) sipStack).addLogAppender(new SipFoundryAppender(
                     new SipFoundryLayout(), Gateway.getLogFile()));
 

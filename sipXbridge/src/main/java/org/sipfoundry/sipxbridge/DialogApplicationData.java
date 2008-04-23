@@ -57,11 +57,7 @@ class DialogApplicationData {
 
     Sym rtpSession;
     
-    /*
-     * The Codec for the Rtp session (extracted from the Response).
-     * That was negotiated for the call setup.
-     */
-    String codecName;
+   
 
     
     private DialogApplicationData() {

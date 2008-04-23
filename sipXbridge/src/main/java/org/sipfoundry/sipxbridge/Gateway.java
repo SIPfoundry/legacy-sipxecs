@@ -10,6 +10,7 @@ package org.sipfoundry.sipxbridge;
 import gov.nist.javax.sip.SipStackExt;
 import gov.nist.javax.sip.clientauthutils.AuthenticationHelper;
 
+import java.io.File;
 import java.net.InetAddress;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -77,9 +78,9 @@ public class Gateway {
      * External provider.
      */
     private static SipProvider externalProvider;
-    
+
     /*
-     * External 
+     * External
      */
     private static SipProvider externalTlsProvider;
 
@@ -149,6 +150,8 @@ public class Gateway {
      * The time for REGISTER requests.
      */
     private static final int MAX_REGISTRATION_TIMER = 10000;
+
+    private static boolean isTlsSupportEnabled = false;
 
     private Gateway() {
 
@@ -317,13 +320,15 @@ public class Gateway {
                     .createListeningPoint(externalAddress, externalPort, "udp");
             ListeningPoint externalTcpListeningPoint = ProtocolObjects.sipStack
                     .createListeningPoint(externalAddress, externalPort, "tcp");
-            ListeningPoint externalTlsListeningPoint = ProtocolObjects.sipStack
-                .createListeningPoint(externalAddress, externalPort + 1, "tls");
-
+            if (Gateway.isTlsSupportEnabled) {
+                ListeningPoint externalTlsListeningPoint = ProtocolObjects.sipStack
+                        .createListeningPoint(externalAddress,
+                                externalPort + 1, "tls");
+                externalTlsProvider = ProtocolObjects.sipStack
+                        .createSipProvider(externalTlsListeningPoint);
+            }
             externalProvider = ProtocolObjects.sipStack
                     .createSipProvider(externalUdpListeningPoint);
-            
-            externalTlsProvider = ProtocolObjects.sipStack.createSipProvider(externalTlsListeningPoint);
 
             int localPort = bridgeConfiguration.getLocalPort();
             String localIpAddress = bridgeConfiguration.getLocalAddress();
@@ -386,8 +391,10 @@ public class Gateway {
     }
 
     public static SipProvider getWanProvider(String transport) {
-        if ( transport.equalsIgnoreCase("tls")) return externalTlsProvider;
-        else return externalProvider;
+        if (transport.equalsIgnoreCase("tls"))
+            return externalTlsProvider;
+        else
+            return externalProvider;
     }
 
     public static SipProvider getLanProvider() {
@@ -662,7 +669,8 @@ public class Gateway {
         try {
             SipListenerImpl listener = new SipListenerImpl();
             getWanProvider("udp").addSipListener(listener);
-            getWanProvider("tls").addSipListener(listener);
+            if ( Gateway.isTlsSupportEnabled) 
+                getWanProvider("tls").addSipListener(listener);
             getLanProvider().addSipListener(listener);
             ProtocolObjects.start();
         } catch (Exception ex) {
@@ -738,9 +746,10 @@ public class Gateway {
      * @return
      */
     public static String getCodecName() {
-        return Gateway.getAccountManager().getBridgeConfiguration().getCodecName();
+        return Gateway.getAccountManager().getBridgeConfiguration()
+                .getCodecName();
     }
-    
+
     /**
      * The main method for the Bridge.
      * 
@@ -749,10 +758,17 @@ public class Gateway {
     public static void main(String[] args) throws Exception {
         try {
             boolean initOnStart = true;
+            
+            Gateway.isTlsSupportEnabled = 
+                System.getProperty("sipxbridge.enableTls","false").equals("true");
 
             Gateway.configurationFile = System.getProperty("conf.dir",
                     "/etc/sipxpbx")
                     + "/sipxbridge.xml";
+            // Wait for the configuration file to become available.
+            while ( ! new File(Gateway.configurationFile).exists() ) {
+                Thread.sleep(5*1000);
+            }
             Gateway.startXmlRpcServer();
             if (initOnStart)
                 Gateway.start();
@@ -761,7 +777,5 @@ public class Gateway {
         }
 
     }
-
-   
 
 }

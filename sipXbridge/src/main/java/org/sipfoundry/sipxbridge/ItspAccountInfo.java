@@ -116,6 +116,8 @@ public class ItspAccountInfo implements
     private CrLfTimerTask crlfTimerTask;
     
     private String rtpKeepaliveMethod = "USE-EMPTY-PACKET";
+    
+    private boolean reInviteSupported = false;
 
     /**
      * This task runs periodically depending upon the timeout of the lookup
@@ -501,6 +503,20 @@ public class ItspAccountInfo implements
      */
     public String getRtpKeepaliveMethod() {
         return rtpKeepaliveMethod;
+    }
+
+    /**
+     * @param reInviteSupported the reInviteSupported to set
+     */
+    public void setReInviteSupported(boolean reInviteSupported) {
+        this.reInviteSupported = reInviteSupported;
+    }
+
+    /**
+     * @return the reInviteSupported
+     */
+    public boolean isReInviteSupported() {
+        return reInviteSupported;
     }
 
 }

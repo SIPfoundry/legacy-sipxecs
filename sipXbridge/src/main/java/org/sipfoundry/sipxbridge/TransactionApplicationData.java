@@ -8,8 +8,10 @@ package org.sipfoundry.sipxbridge;
 
 import javax.sip.ClientTransaction;
 import javax.sip.Dialog;
+import javax.sip.RequestEvent;
 import javax.sip.ServerTransaction;
 import javax.sip.SipProvider;
+import javax.sip.message.Request;
 
 /**
  * The information we stow away on a pending transaction completion. This is
@@ -26,6 +28,12 @@ class TransactionApplicationData {
      * The current operation.
      */
     Operation operation;
+    
+    /*
+     * The continuation operation after the current tx is complete
+     */
+
+    public Operation continuationOperation;
 
     /*
      * The incoming session. This is associated with the incoming invite. It is
@@ -90,6 +98,11 @@ class TransactionApplicationData {
      * transaction.
      */
     BackToBackUserAgent backToBackUa;
+
+     
+    Object continuationData;
+    
+   
 
     TransactionApplicationData(Operation operation) {
         this.operation = operation;

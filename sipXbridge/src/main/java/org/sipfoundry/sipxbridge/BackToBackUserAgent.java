@@ -115,7 +115,17 @@ public class BackToBackUserAgent {
         dad2.peerDialog = dialog1;
     }
 
-    private Sym getLanRtpSession(Dialog dialog) throws IOException {
+    /**
+     * Retrieve a Sym for the Lan RTP session.
+     * 
+     * @param dialog
+     * @param codecFilter
+     * @return the Lan facing Sym.
+     * 
+     * @throws IOException
+     */
+    private Sym getLanRtpSession(Dialog dialog, String codecFilter)
+            throws IOException {
         try {
             DialogApplicationData dialogApplicationData = DialogApplicationData
                     .get(dialog);
@@ -130,8 +140,7 @@ public class BackToBackUserAgent {
                         .createSessionDescription(
                                 this.rtpBridge.sessionDescription.toString());
                 rtpSession.getReceiver().setSessionDescription(
-                        SipUtilities.cleanSessionDescription(sd, Gateway
-                                .getCodecName()));
+                        SipUtilities.cleanSessionDescription(sd, codecFilter));
                 this.rtpBridge.addSym(rtpSession);
 
             }
@@ -164,9 +173,10 @@ public class BackToBackUserAgent {
                 SessionDescription sd = SdpFactory.getInstance()
                         .createSessionDescription(
                                 this.rtpBridge.sessionDescription.toString());
+                String codecName = this.getItspAccountInfo().isReInviteSupported()? null:
+                    Gateway.getCodecName();
                 rtpSession.getReceiver().setSessionDescription(
-                        SipUtilities.cleanSessionDescription(sd, Gateway
-                                .getCodecName()));
+                        SipUtilities.cleanSessionDescription(sd, codecName));
                 DialogApplicationData.get(dialog).rtpSession = rtpSession;
                 this.rtpBridge.addSym(rtpSession);
             }
@@ -228,28 +238,13 @@ public class BackToBackUserAgent {
      * @throws SipException
      * @throws InvalidArgumentException
      */
-    private void handleSpriralInviteWithReplaces(RequestEvent requestEvent,
-            ServerTransaction serverTransaction, String toDomain,
-            boolean isphone) throws SipException {
+    public void handleSpriralInviteWithReplaces(RequestEvent requestEvent,
+            Dialog replacedDialog, ServerTransaction serverTransaction,
+            String toDomain, boolean isphone) throws SipException {
         /* The inbound INVITE */
         Request incomingRequest = serverTransaction.getRequest();
         SipProvider provider = (SipProvider) requestEvent.getSource();
         try {
-
-            ReplacesHeader replacesHeader = (ReplacesHeader) incomingRequest
-                    .getHeader(ReplacesHeader.NAME);
-
-            Dialog replacedDialog = ((SipStackExt) ProtocolObjects.sipStack)
-                    .getReplacesDialog(replacesHeader);
-
-            if (replacedDialog == null) {
-
-                Response response = ProtocolObjects.messageFactory
-                        .createResponse(Response.NOT_FOUND, incomingRequest);
-                response.setReasonPhrase("Replaced Dialog not found");
-                serverTransaction.sendResponse(response);
-                return;
-            }
 
             if (logger.isDebugEnabled()) {
                 logger.debug("replacedDialogPeerDialog = "
@@ -330,10 +325,7 @@ public class BackToBackUserAgent {
                 logger.debug("newRtpBridge = " + newRtpBridge);
                 logger.debug("myRtpBridge = " + this.getRtpBridge());
                 logger.debug("hisRtpBridge = " + hisRtpBridge);
-                logger.debug("replaced codec = "
-                        + DialogApplicationData.get(replacedDialog).codecName);
-                logger.debug("refering codec = "
-                        + DialogApplicationData.get(referingDialog).codecName);
+
             }
 
             /*
@@ -356,7 +348,7 @@ public class BackToBackUserAgent {
                 ClientTransaction byeCtx = ((DialogExt) replacedDialog)
                         .getSipProvider().getNewClientTransaction(byeRequest);
                 TransactionApplicationData tad = new TransactionApplicationData(
-                        Operation.SPIRAL_CONSULTATION_TRANSFER_INVITE_TO_ITSP);
+                        Operation.HANDLE_SPIRAL_INVITE_WITH_REPLACES);
                 byeCtx.setApplicationData(tad);
                 replacedDialog.sendRequest(byeCtx);
 
@@ -455,12 +447,23 @@ public class BackToBackUserAgent {
 
     /**
      * This method is called when the REFER is received at the B2BUA. We need to
-     * redirect the INVITE to the contact mentioned in the Refer.
+     * redirect the INVITE to the contact mentioned in the Refer. To determine
+     * the codec that was negotiated in the original Call Setup, we send an
+     * INVITE (no-sdp) to the dialog.
+     * 
+     * @param referRequest --
+     *            the refer request.
+     * @param dialog -
+     *            the re-Invite dialog.
+     * @param codecName -
+     *            the codec to use on the re-Invite
      */
-    public void referInviteToSipxProxy(Request referRequest, Dialog dialog) {
+    public void referInviteToSipxProxy(Request referRequest, Dialog dialog,
+            String codecName) {
         logger
                 .debug("referInviteToSipxProxy: sendingReInvite to refered-to location");
         try {
+
             /*
              * Start the early media thread so the remote end does not drop the
              * call while phone rings at the new location.
@@ -502,10 +505,10 @@ public class BackToBackUserAgent {
             ContentTypeHeader cth = ProtocolObjects.headerFactory
                     .createContentTypeHeader("application", "sdp");
 
-            Sym lanRtpSession = this.getLanRtpSession(dialog);
+            Sym lanRtpSession = this.getLanRtpSession(dialog, codecName);
             SessionDescription sd = SipUtilities.cleanSessionDescription(
                     lanRtpSession.getReceiver().getSessionDescription(),
-                    Gateway.getCodecName());
+                    codecName);
             newRequest.setContent(sd, cth);
             /*
              * Create a new client transaction.
@@ -518,7 +521,6 @@ public class BackToBackUserAgent {
             DialogApplicationData dialogApplicationData = (DialogApplicationData) dialog
                     .getApplicationData();
 
-            newDialogApplicationData.codecName = dialogApplicationData.codecName;
             newDialogApplicationData.peerDialog = dialogApplicationData.peerDialog;
             newDialogApplicationData.musicOnHoldDialog = dialogApplicationData.musicOnHoldDialog;
             if (logger.isDebugEnabled()) {
@@ -531,8 +533,6 @@ public class BackToBackUserAgent {
             DialogApplicationData dat = (DialogApplicationData) this.referingDialogPeer
                     .getApplicationData();
             dat.peerDialog = ct.getDialog();
-            
-            dat.codecName = dialogApplicationData.codecName;
 
             /*
              * We terminate the dialog. There is no peer.
@@ -699,8 +699,9 @@ public class BackToBackUserAgent {
             DialogApplicationData.attach(this, outboundDialog);
             pairDialogs(inboundDialog, outboundDialog);
 
-            newRequest.setContent(this.getLanRtpSession(outboundDialog)
-                    .getReceiver().getSessionDescription().toString(), cth);
+            newRequest.setContent(this.getLanRtpSession(outboundDialog,
+                    Gateway.getCodecName()).getReceiver()
+                    .getSessionDescription().toString(), cth);
 
             TransactionApplicationData tad = new TransactionApplicationData(
                     Operation.SEND_INVITE_TO_SIPX_PROXY);
@@ -708,7 +709,8 @@ public class BackToBackUserAgent {
             tad.clientTransaction = ct;
             tad.clientTransactionProvider = Gateway.getLanProvider();
             tad.incomingSession = incomingSession;
-            tad.outgoingSession = this.getLanRtpSession(outboundDialog);
+            tad.outgoingSession = this.getLanRtpSession(outboundDialog, Gateway
+                    .getCodecName());
             tad.serverTransaction = serverTransaction;
             tad.serverTransactionProvider = Gateway
                     .getWanProvider(itspAccountInfo.getOutboundTransport());
@@ -861,6 +863,38 @@ public class BackToBackUserAgent {
 
     }
 
+    public void querySdpFromPeerDialog(RequestEvent requestEvent, Operation continuation, Object continuationData)
+            throws Exception {
+        try {
+            Dialog dialog = requestEvent.getDialog();
+            Dialog peerDialog = DialogApplicationData.getPeerDialog(dialog);
+            Request request = requestEvent.getRequest();
+            DialogApplicationData peerDat = DialogApplicationData
+                    .get(peerDialog);
+
+            if (peerDialog != null
+                    && peerDialog.getState() != DialogState.TERMINATED) {
+                Request reInvite = peerDialog.createRequest(Request.INVITE);
+                ClientTransaction ctx = ((DialogExt) peerDialog)
+                        .getSipProvider().getNewClientTransaction(reInvite);
+                TransactionApplicationData tad = new TransactionApplicationData(
+                        Operation.QUERY_SDP_FROM_PEER_DIALOG);
+                tad.continuationOperation = continuation;
+                
+                /*
+                 * Attach the context information to the transaction.
+                 */
+                ctx.setApplicationData(tad);
+                ctx.sendRequest();
+
+            }
+        } catch (Exception ex) {
+
+            this.tearDown();
+        }
+
+    }
+
     /**
      * Set up an outgoing invite to a given ITSP.
      * 
@@ -893,13 +927,27 @@ public class BackToBackUserAgent {
         if (logger.isDebugEnabled()) {
             logger.debug("sendInviteToItsp: spiral=" + spiral);
         }
-
-        if (spiral && replacesHeader != null) {
-            handleSpriralInviteWithReplaces(requestEvent, serverTransaction,
-                    toDomain, isphone);
-            return;
-        }
         try {
+            if (spiral && replacesHeader != null) {
+
+                Dialog replacedDialog = ((SipStackExt) ProtocolObjects.sipStack)
+                        .getReplacesDialog(replacesHeader);
+
+                if (replacedDialog == null) {
+
+                    Response response = ProtocolObjects.messageFactory
+                            .createResponse(Response.NOT_FOUND, incomingRequest);
+                    response.setReasonPhrase("Replaced Dialog not found");
+                    serverTransaction.sendResponse(response);
+                    return;
+                }
+              
+                handleSpriralInviteWithReplaces(requestEvent, replacedDialog,
+                        serverTransaction, toDomain, isphone);
+                
+
+                return;
+            }
 
             String toUser = ((SipURI) (((ToHeader) incomingRequest
                     .getHeader(ToHeader.NAME)).getAddress().getURI()))
@@ -920,6 +968,8 @@ public class BackToBackUserAgent {
 
             DialogApplicationData.attach(this, outboundDialog);
 
+            String codecName =  ! itspAccountInfo.isReInviteSupported()? Gateway.getCodecName():
+                null;
             SessionDescription sd = spiral ? DialogApplicationData
                     .getRtpSession(this.referingDialog).getReceiver()
                     .getSessionDescription() : this.getWanRtpSession(
@@ -977,6 +1027,7 @@ public class BackToBackUserAgent {
              */
             TransactionApplicationData tad = new TransactionApplicationData(
                     Operation.SEND_INVITE_TO_ITSP);
+           
             tad.serverTransaction = serverTransaction;
             tad.serverTransactionProvider = Gateway.getLanProvider();
             tad.itspAccountInfo = itspAccountInfo;
@@ -990,12 +1041,12 @@ public class BackToBackUserAgent {
                     .getSessionDescription(incomingRequest);
 
             if (!spiral) {
-                tad.incomingSession = this.getLanRtpSession(incomingDialog);
+                tad.incomingSession = this.getLanRtpSession(incomingDialog,
+                        Gateway.getCodecName());
 
                 SymEndpoint rtpEndpoint = new SymEndpoint(true);
                 // rtpEndpoint.setMaxSilence(Gateway.getMediaKeepaliveMilisec());
-                this.getLanRtpSession(incomingDialog).setRemoteEndpoint(
-                        rtpEndpoint);
+                tad.incomingSession.setRemoteEndpoint(rtpEndpoint);
                 rtpEndpoint.setSessionDescription(sessionDescription);
 
             } else if (spiral && replacesHeader == null) {

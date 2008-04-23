@@ -25,6 +25,7 @@ EXTRA_DIST = \
   config.properties \
   ant-targets.xml \
   sipxbridge.spec \
+  sipxbridge.process.xml \
   src \
   lib
 
@@ -33,4 +34,7 @@ BUILT_SOURCES = config.properties
 
 config.properties : config.properties.in Makefile
 	$(LocalizeSipXconfig) $(srcdir)/config.properties.in > config.properties
+
+sipxbridge.process.xml : sipxbridge.process.xml.in
+	$(LocalizeSipXconfig) $< > $@
 

@@ -537,6 +537,12 @@ public class SipUtilities {
             SessionDescription sessionDescription, String codec) {
         try {
 
+            /*
+             * No codec specified -- return the incoming session description.
+             */
+            if ( codec == null ) {
+                return sessionDescription;
+            }
             boolean found = false;
             
             Vector mediaDescriptions = sessionDescription

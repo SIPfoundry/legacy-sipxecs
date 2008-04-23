@@ -172,10 +172,9 @@
 				default="PCMU">
 				<xs:annotation>
 					<xs:documentation xml:lang="en">
-						The codec for the Sdp Offer that is allowable. 
-						Because sipxbridge does not support media transcoding, 
-						in to support call transfers, we need to 
-						restrict the all codec for call setups in the SDP offer to this value. 
+						The codec for the Sdp Offer that is allowable if re-invitation
+						is not supported for a given ITSP. All INVITES are restricted
+						to the specified codec if this is the case.
 					</xs:documentation>
 				</xs:annotation>
 				<xs:simpleType>
@@ -200,9 +199,6 @@
 			</xs:element>
 
 			<xs:element name="stun-interval" type="xs:integer" default="30" >
-				<xs:restriction base="xs:positiveInteger" >
-					<xs:minInclusiveValue = "10" />
-				</xs:restriction>
 				<xs:annotation>
 					<xs:documentation xml:lang="en">
 						The rediscovery period (seconds) used to determine if the NAT has
@@ -323,7 +319,14 @@
 				</xs:annotation>
 			</xs:element>
 
-
+			<xs:element name="is-reinvite-supported" type="xs:boolean" maxOccurs="1" minOccurs="0"
+				default="false">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+						Whether or not re-invite is supported.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
 
 			<xs:element name="route-inbound-calls-to-extension" type="xs:string"
 				maxOccurs="1" minOccurs="0" >
@@ -356,7 +359,7 @@
 				</xs:annotation>
 			</xs:element>
 			<xs:element name="sip-keepalive-method"
-				type="xs:string" maxOccurs="1" minOccurs="0">
+				default="CR-LF" maxOccurs="1" minOccurs="0">
 				<xs:annotation>
 					<xs:documentation xml:lang="en">
 						 Defines the mechanism to use for SIP keepalive.  If undefined,
@@ -373,7 +376,7 @@
 				</xs:simpleType>
 			</xs:element>
 			<xs:element name="rtp-keepalive-method"
-				type="xs:string" default="USE-EMPTY-PACKET" maxOccurs="1" minOccurs="0">
+				 default="USE-EMPTY-PACKET" maxOccurs="1" minOccurs="0">
 				<xs:annotation>
 					<xs:documentation xml:lang="en">
 						 Defines the mechanism to use for RTP keepalive.  If undefined,

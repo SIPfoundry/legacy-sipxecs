@@ -320,7 +320,18 @@ public class CallControlManager {
             DialogApplicationData dat = (DialogApplicationData) dialog
                     .getApplicationData();
             BackToBackUserAgent btobua = dat.backToBackUserAgent;
-            btobua.referInviteToSipxProxy(request, dialog);
+           
+            if (btobua.getItspAccountInfo().isReInviteSupported()) {
+                // The ITSP supports re-invite. Send him a Re-INVITE
+                // to determine what codec was negotiated.
+                ReferInviteToSipxProxyContinuationData continuation = new ReferInviteToSipxProxyContinuationData(
+                        request, dialog);
+                btobua.querySdpFromPeerDialog(requestEvent,
+                        Operation.REFER_INVITE_TO_SIPX_PROXY, continuation);
+            } else {
+                btobua.referInviteToSipxProxy(request, dialog, Gateway
+                        .getCodecName());
+            }
 
         } catch (ParseException ex) {
             // This should never happen
@@ -383,6 +394,7 @@ public class CallControlManager {
 
         } catch (Exception ex) {
             logger.error("Problem sending ack ", ex);
+
         }
 
     }
@@ -418,8 +430,9 @@ public class CallControlManager {
             if (ct.getState() == TransactionState.CALLING
                     || ct.getState() == TransactionState.PROCEEDING) {
                 Request cancelRequest = ct.createCancel();
-                SipProvider provider = SipUtilities
-                        .getPeerProvider((SipProvider) requestEvent.getSource(),itspAccount.getOutboundTransport());
+                SipProvider provider = SipUtilities.getPeerProvider(
+                        (SipProvider) requestEvent.getSource(), itspAccount
+                                .getOutboundTransport());
                 ClientTransaction clientTransaction = provider
                         .getNewClientTransaction(cancelRequest);
                 clientTransaction.sendRequest();
@@ -432,9 +445,9 @@ public class CallControlManager {
                 Dialog peerDialog = dialogApplicationData.peerDialog;
                 if (peerDialog != null) {
                     Request byeRequest = peerDialog.createRequest(Request.BYE);
-                    SipProvider provider = SipUtilities
-                            .getPeerProvider((SipProvider) requestEvent
-                                    .getSource(),itspAccount.getOutboundTransport());
+                    SipProvider provider = SipUtilities.getPeerProvider(
+                            (SipProvider) requestEvent.getSource(), itspAccount
+                                    .getOutboundTransport());
                     ClientTransaction byeCt = provider
                             .getNewClientTransaction(byeRequest);
                     peerDialog.sendRequest(byeCt);
@@ -549,21 +562,36 @@ public class CallControlManager {
                  */
                 TransactionApplicationData tad = (TransactionApplicationData) responseEvent
                         .getClientTransaction().getApplicationData();
-                
+
                 String codecName = null;
-                
-                if ( response.getStatusCode() == 200) {
-                        // The response has the codec name that we use for all subsequent transfers.
-                        codecName =  SipUtilities.getCodecName(response);
-                        logger.debug("processResponse: codecName " + codecName);
-                        if ( codecName != null ) dat.codecName = codecName;                   
+
+                if (response.getStatusCode() == 200) {
+                    // The response has the codec name that we use for all
+                    // subsequent transfers.
+                    codecName = SipUtilities.getCodecName(response);
+                    logger.debug("processResponse: codecName " + codecName);
                 }
 
                 /*
-                 * The TransactionApplicationData will indicate what the OK is
-                 * for.
+                 * The TransactionApplicationData operator will indicate what
+                 * the OK is for.
                  */
-                if (tad.operation == Operation.SEND_INVITE_TO_ITSP
+                if (tad.operation == Operation.QUERY_SDP_FROM_PEER_DIALOG
+                        && response.getStatusCode() == 200) {
+
+                    Request ackRequest = dialog.createAck(SipUtilities
+                            .getSeqNumber(response));
+
+                    Operation operation = tad.continuationOperation;
+
+                    if (operation == Operation.REFER_INVITE_TO_SIPX_PROXY) {
+                        dialog.sendAck(ackRequest);
+                        ReferInviteToSipxProxyContinuationData continuation = (ReferInviteToSipxProxyContinuationData) tad.continuationData;
+                        b2bua.referInviteToSipxProxy(continuation.request,
+                                continuation.dialog, codecName);
+                    } 
+
+                } else if (tad.operation == Operation.SEND_INVITE_TO_ITSP
                         || tad.operation == Operation.SEND_INVITE_TO_SIPX_PROXY) {
 
                     /*
@@ -571,7 +599,7 @@ public class CallControlManager {
                      */
                     dat.lastResponse = response;
                     dat.backToBackUserAgent = b2bua;
-                   
+
                     dialog.setApplicationData(dat);
 
                     /*
@@ -654,9 +682,12 @@ public class CallControlManager {
                         tad.outgoingSession.setRemoteEndpoint(hisEndpoint);
                         hisEndpoint.setSessionDescription(sessionDescription);
                         if (tad.operation == Operation.SEND_INVITE_TO_ITSP) {
-                            if ( ! tad.itspAccountInfo.getRtpKeepaliveMethod().equals("NONE")) {
+                            if (!tad.itspAccountInfo.getRtpKeepaliveMethod()
+                                    .equals("NONE")) {
                                 hisEndpoint.setMaxSilence(Gateway
-                                    .getMediaKeepaliveMilisec(),tad.itspAccountInfo.getRtpKeepaliveMethod());
+                                        .getMediaKeepaliveMilisec(),
+                                        tad.itspAccountInfo
+                                                .getRtpKeepaliveMethod());
                             }
                         }
 
@@ -692,8 +723,7 @@ public class CallControlManager {
                     ContentTypeHeader cth = (ContentTypeHeader) response
                             .getHeader(ContentTypeHeader.NAME);
                     Dialog referDialog = tad.referingDialog;
-                    
-                    
+
                     if (response.getRawContent() != null
                             && cth.getContentType().equals("application")
                             && cth.getContentSubType().equals("sdp")) {
@@ -897,8 +927,8 @@ public class CallControlManager {
                         (SipURI) request.getRequestURI());
             } else {
                 /*
-                 * Check the Via header of the inbound request to see if this
-                 * is an account we know about (TODO -- do a better job of 
+                 * Check the Via header of the inbound request to see if this is
+                 * an account we know about (TODO -- do a better job of
                  * authenticating inbound requests ).
                  */
                 ViaHeader viaHeader = (ViaHeader) request
