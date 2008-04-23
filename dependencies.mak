@@ -60,10 +60,6 @@ sipXvxml : sipXcallLib sipXcommserverLib sipXmediaAdapterLib
 sipXacd : sipXcallLib
 	@echo sipXacd
 
-.PHONY: sipXbridge
-sipXbridge : 
-	@echo sipXbridge
-
 .PHONY: sipXpbx
 sipXpbx : sipXproxy sipXregistry sipXpublisher sipXvxml sipXconfig
 	@echo sipXpbx
