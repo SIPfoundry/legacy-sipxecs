@@ -6,5 +6,6 @@ m4_include([config/sipXlib.m4])
 AM_INIT_AUTOMAKE(foreign)
 SFAC_DIST_DIR
 SFAC_DOWNLOAD_DEPENDENCIES
-AC_CONFIG_FILES([Makefile])
+SFAC_SIPX_GLOBAL_OPTS
+AC_CONFIG_FILES([Makefile freeswitch.spec])
 AC_OUTPUT
