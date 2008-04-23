@@ -22,9 +22,14 @@ EXTRA_DIST = \
   BUILDSTAMP \
   SVN-VERSION \
   LICENSE \
-  config.properties \
   ant-targets.xml \
+  sipxbridge.sh.in \
+  sipxbridge.sh \
+  config.properties.in \
+  config.properties \
+  sipxbridge.spec.in \
   sipxbridge.spec \
+  sipxbridge.process.xml.in \
   sipxbridge.process.xml \
   src \
   lib
@@ -32,8 +37,8 @@ EXTRA_DIST = \
 # BUILT_SOURCES is special autoconf variable to be checked on every make
 BUILT_SOURCES = config.properties
 
-config.properties : config.properties.in Makefile
-	$(LocalizeSipXconfig) $(srcdir)/config.properties.in > config.properties
+config.properties : config.properties.in 
+	$(LocalizeSipXconfig) $< > $@
 
 sipxbridge.process.xml : sipxbridge.process.xml.in
 	$(LocalizeSipXconfig) $< > $@
