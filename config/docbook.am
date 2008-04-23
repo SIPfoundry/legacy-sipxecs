@@ -19,7 +19,6 @@
 ## Following the 'include' of this file, the variable
 ##
 ##   DOCBOOK_OUTPUTS is the list of generated document files to be installed
-##                   (these are full paths, including $(DESTDIR) )
 ##
 
 OUTPUT_FORMS=

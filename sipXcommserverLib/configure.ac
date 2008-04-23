@@ -43,7 +43,11 @@ SFAC_FEATURE_SIP_TLS
 
 ENABLE_DOC
 ENABLE_DOXYGEN
+CHECK_DOCBOOKXML
 AM_CONDITIONAL(DOC, test x$enable_doc = xyes)
+AM_CONDITIONAL(GENERATE_DOCBOOK_HTML, test x$enable_xml2xhtml = xyes)
+AM_CONDITIONAL(GENERATE_DOCBOOK_TXT, test x$enable_xml2txt = xyes)
+AM_CONDITIONAL(GENERATE_DOCBOOK_PDF, test x$enable_xml2pdf = xyes)
 
 AC_ARG_ENABLE(odbc-tests,
   AC_HELP_STRING([--enable-odbc-tests], [Run unit tests that test ODBC connection to postgres]),

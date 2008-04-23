@@ -5,19 +5,25 @@ EXTRA_DIST = \
   Doxyfile.project.in \
   footer.html \
   credential.xml \
-  permission.xml \
-  INSTALL.ssl.in
+  permission.xml
 
-install-data-hook: $(DESTDIR)@SIPX_DOCDIR@/INSTALL.ssl
+if DOC
 
-$(DESTDIR)@SIPX_DOCDIR@/INSTALL.ssl: INSTALL.ssl $(DESTDIR)@SIPX_DOCDIR@
-	@INSTALL@ -m u=rw,go=r $< $@
+EXTRA_DIST += \
+	INSTALL.ssl.in \
+	$(top_srcdir)/config/sipxecs_entities.ent
 
-INSTALL.ssl: $(srcdir)/INSTALL.ssl.in
-	$(LocalizeSipXconfig) $(srcdir)/INSTALL.ssl.in > INSTALL.ssl
+CLEANFILES=
 
-CLEANFILES=INSTALL.ssl
+DOCBOOK_XML_DOCS=INSTALL.ssl
 
-INSTALL_DOC_TARGETS=$(DESTDIR)@SIPX_DOCDIR@/INSTALL.ssl
+include $(top_srcdir)/config/docbook.am
+
+endif # DOC
+
+install-data-hook: $(foreach doc,$(DOCBOOK_OUTPUTS),$(DESTDIR)@SIPX_DOCDIR@/$(doc))
+
+$(foreach doc,$(DOCBOOK_OUTPUTS),$(DESTDIR)@SIPX_DOCDIR@/$(doc)) : $(DESTDIR)@SIPX_DOCDIR@/% : %
+	$(INSTALL) -D -m 644 $< $@;
 
 
