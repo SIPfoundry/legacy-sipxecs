@@ -508,5 +508,7 @@ bool HttpRequestContext::isTrustedPeer( const UtlString& peername ) const
                  peerNames.data()
                  );
 #  endif
-   return mPeerCertTrusted && mPeerIdentities.contains(&peername);
+   UtlString normalizedPeer(peername);
+   normalizedPeer.toLower();   // this may not always be correct when peers use idns
+   return mPeerCertTrusted && mPeerIdentities.contains(&normalizedPeer);
 }
