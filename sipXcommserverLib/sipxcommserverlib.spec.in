@@ -100,6 +100,7 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(644,root,root,755)
 %doc CONTRIBUTORS INSTALL README NEWS TODO ChangeLog %name.configlog
 %docdir %{_datadir}/doc/sipxecs
+%{_datadir}/doc/sipxecs
 %attr(755,root,root) %{_bindir}/configpp
 %attr(755,root,root) %{_bindir}/config-defs
 %attr(755,root,root) %{_bindir}/get_def_addr
