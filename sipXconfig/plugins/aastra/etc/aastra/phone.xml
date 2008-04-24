@@ -732,6 +732,7 @@
         <type>
           <integer max="63" min="0" />
         </type>
+        <value>46</value>
       </setting>
     </group>
     <group name="vlan">
