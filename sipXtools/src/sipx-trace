@@ -164,7 +164,10 @@ then
     Components=${DefaultComponents}
 fi
 
-if [ "${Token}" = "(" -a ${Action} != USAGE ]
+# We have to append "x" to test whether $Token is '(', because an argument
+# to '[' that is '(' and not in the final position is treated as starting a
+# parenthesized expression.
+if [ "${Token}"x = "("x -a ${Action} != USAGE ]
 then
     echo "Must specify at least one token to search for; try '${MyName} --help'." 1>&2
     exit 1;
