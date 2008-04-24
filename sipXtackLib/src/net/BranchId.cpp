@@ -52,7 +52,7 @@ const char* BranchId::RFC3261_MAGIC_COOKIE = RFC3261_MAGIC_COOKIE_VALUE;
 const char*        SIPXECS_MAGIC_COOKIE        = RFC3261_MAGIC_COOKIE_VALUE SIPXECS_COOKIE_EXTENSION;
 const unsigned int SIPXECS_MAGIC_COOKIE_LENGTH = strlen(SIPXECS_MAGIC_COOKIE);
 
-#define SIPXECS_LOOP_KEY_SEPARATOR "%"
+#define SIPXECS_LOOP_KEY_SEPARATOR "~"
 
 /// The (secret) unique value used to sign the uniquepart hash.
 UtlString BranchId::smIdSecret;
