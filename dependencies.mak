@@ -64,6 +64,10 @@ sipXacd : sipXcallLib
 sipXpbx : sipXproxy sipXregistry sipXpublisher sipXvxml sipXconfig
 	@echo sipXpbx
 
+.PHONY: sipXbridge
+sipXbridge : 
+	@echo sipXbridge
+
 .PHONY: sipXecs
 sipXecs : sipXproxy sipXregistry sipXpublisher sipXvxml sipXconfig sipXpbx
 	@echo sipXecs
