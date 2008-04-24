@@ -20,7 +20,7 @@ doc :
 	$(ANT_CMD) $(ANT_FLAGS) doc
 
 install : all dist install-binSCRIPTS
-	$(ANT_CMD) $(ANT_FLAGS) -Ddest.dir=$(DESTDIR) install
+	$(ANT_CMD) $(ANT_FLAGS) -Ddest.dir=$(DESTDIR) -Ddata.dir=$(datadir) install
 
 check :
 	$(ANT_CMD) $(ANT_FLAGS) test

@@ -12,13 +12,14 @@ bin.dir=@bindir@
 lib.dir=@libdir@
 prefix.dir=@prefix@
 conf.dir=@SIPX_CONFDIR@
-sipxbridge.lib.dir=@SIPXBRIDGE_LIBDIR@
 proc.dir=@SIPX_PROCDIR@
-
+#data.dir=@SIPX_DATADIR@
+#sipxbridge.lib.dir=@SIPXBRIDGE_LIBDIR@
 # comma-separated combination of 'lines' 'source' and 'var' only valid
 # when debug is on
 
 # U T I L
+sipxbridge.lib.dir=${data.dir}/lib/sipXbridge
 log4j=${src.dir}/lib/log4j-1.2.14.jar
 jainsip=${src.dir}/lib/jain-sip-api-1.2.jar
 nistsip=${src.dir}/lib/jain-sip-ri-1.2.jar
