@@ -6,6 +6,7 @@ SUBDIRS = \
 	test
 
 LOCAL_SHELLSCRIPTS = \
+	sipx-servtest \
 	expire-spread \
 	monitor-spread \
 	sipxproc \
@@ -14,6 +15,7 @@ LOCAL_SHELLSCRIPTS = \
 EXTRA_DIST = $(foreach sipxScript,$(LOCAL_SHELLSCRIPTS),$(sipxScript).in)
 
 dist_bin_SCRIPTS = \
+	${PACKAGE}-config \
 	regtimes \
 	sipx-stats \
 	sipx-alias2dot \
@@ -37,4 +39,13 @@ $(foreach sipxScript,$(LOCAL_SHELLSCRIPTS),$(DESTDIR)@SIPX_BINDIR@/$(sipxScript)
 $(foreach sipxScript,$(LOCAL_SHELLSCRIPTS),$(sipxScript)) : % : $(srcdir)/%.in
 	$(LocalizeSipXconfig) $< > $@
 	chmod +x $@
+
+${PACKAGE}-config: $(top_srcdir)/config/sipX-config.in $(top_builddir)/BUILDSTAMP
+	@echo "making ${PACKAGE}-config"
+	@BuildStamp="$(shell cat $(top_builddir)/BUILDSTAMP)" \
+	; ${LocalizeSipXconfig} -e "s/@SIPX_BUILDSTAMP\@/$${BuildStamp}/" \
+	    $(top_srcdir)/config/sipX-config.in \
+	  > ${PACKAGE}-config
+	chmod +x ${PACKAGE}-config
+
 

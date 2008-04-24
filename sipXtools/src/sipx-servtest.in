@@ -21,7 +21,7 @@ use Net::Ping;
 ## Constants
 $CRLF = "\r\n";
 $SipVersion = '2.0';
-$VERSION = '0.06';
+$VERSION = '@SIPX_VERSION@';
 
 ## Globals
 # %Child holds pids for each UAS, indexed by $server:$port
@@ -69,7 +69,9 @@ $SHORT_HELP = <<SHORT_HELP;
                  [--test-id <label>]
                  [--alarm <alarm-address>]...  
                  
-   sipx-servtest --help
+    sipx-servtest --help
+
+    sipx-servtest --version
 
 SHORT_HELP
 
@@ -249,6 +251,7 @@ GetOptions(
            'alarm-from|f=s' => \$AlarmFrom,
 
            'help|h'         => \$Help,
+           'version|V'      => \$ShowVersion,
            ) 
                                             || die "$SHORT_HELP\n";                                             
 
@@ -256,6 +259,12 @@ if ($Help)
 {
    print $HELP;
    exit(0); 
+}
+
+if ($ShowVersion)
+{
+    print $VERSION;
+    exit(0); 
 }
 
 if ($TestAlarm)
