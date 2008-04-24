@@ -2,7 +2,7 @@
 %define prefix    %{_prefix}
 %define fs_user   @SIPXPBXUSER@
 
-Name:         freeswitch
+Name:         sipX-freeswitch
 Summary:      FreeSWITCH open source telephony platform (sipX integration)
 License:      MPL
 Group:        Productivity/Telephony/Servers
@@ -141,7 +141,7 @@ Requires:        %{name} = %{version}-%{release}
 French language phrases module and directory structure for say module and voicemail
 
 %prep
-%setup -q
+%setup -q 
 
 %build
 %ifos linux
