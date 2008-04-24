@@ -25,7 +25,6 @@ import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
-import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.vm.Mailbox;
 import org.sipfoundry.sipxconfig.vm.MailboxManager;
 import org.sipfoundry.sipxconfig.vm.MailboxPreferences;
@@ -90,11 +89,7 @@ public class ExportCsv {
         Index.SERIAL_NUMBER.set(row, phoneSerialNumber);
 
         Index.MODEL_ID.set(row, phone.getModelId());
-
-        List<Group> groupList = phone.getGroupsAsList();
-        if (!groupList.isEmpty()) {
-            Index.PHONE_GROUP.set(row, groupList.get(0).getName());
-        }
+        Index.PHONE_GROUP.set(row, phone.getGroupsNames());
         Index.PHONE_DESCRIPTION.set(row, phone.getDescription());
 
         // Now get the user(s) for each phone.
@@ -127,16 +122,13 @@ public class ExportCsv {
         Index.FIRST_NAME.set(row, user.getFirstName());
         Index.LAST_NAME.set(row, user.getLastName());
         Index.ALIAS.set(row, user.getAliasesString());
+        Index.USER_GROUP.set(row, user.getGroupsNames());
 
         // userEmail..
         if (m_mailboxManager.isEnabled()) {
             Mailbox mailbox = m_mailboxManager.getMailbox(user.getUserName());
             MailboxPreferences mboxPrefs = m_mailboxManager.loadMailboxPreferences(mailbox);
             Index.EMAIL.set(row, mboxPrefs.getEmailAddress());
-        }
-        List<Group> userGroupList = user.getGroupsAsList();
-        if (!userGroupList.isEmpty()) {
-            Index.USER_GROUP.set(row, userGroupList.get(0).getName());
         }
         String userPinToken = user.getPintoken();
         Index.PIN.set(row, formatRealmAndHash(realm, userPinToken));
