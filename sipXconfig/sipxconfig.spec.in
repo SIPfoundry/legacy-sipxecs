@@ -119,7 +119,8 @@ Summary: Configures/enables MRTG monitoring for %{name}
 * installs and configures sipXconfig integration for MRTG
 
 %package conference
-Requires: freeswitch
+Requires: sipxconfig
+Requires: sipX-freeswitch
 Group: Productivity/Telephony/SIP/Servers
 Vendor: SIPfoundry
 Summary: Provides conference bridge server for %{name}
