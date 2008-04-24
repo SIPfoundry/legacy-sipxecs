@@ -129,32 +129,6 @@
 		<fileset file="${ws-commons-util}" />
     	</copy>
   </target>
- <!--  I N S T A L L 
-     <target name="install">
-    	<mkdir dir="${dest.dir}/usr/share/sipxpbx/sipXbridge/lib"/>
-    	<copy file="${build.dir}/dist/sipXbridge.jar" todir="${dest.dir}/usr/share/sipxpbx/sipXbridge/lib"/>
-    	<copy file="${build.dir}/sipxbridge.process.xml" todir="${proc.dir}"/>
-    	<copy todir="${dest.dir}/usr/share/sipxpbx/sipXbridge/lib">
-		<fileset file="${log4j}" />
-		<fileset file="${jainsip}" />
-		<fileset file="${nistsip}" />
-		<fileset file="${nistsdp}" />
-		<fileset file="${junit}" />
-		<fileset file="${dnsjava}" />
-		<fileset file="${stun4j}" />
-		<fileset file="${commons-logging-api}" />
-		<fileset file="${commons-logging}" />
-		<fileset file="${commons-digester}" />
-		<fileset file="${commons-collections}" />
-		<fileset file="${commons-beanutils}" />
-		<fileset file="${xml-rpc-common}" />
-		<fileset file="${xml-rpc-server}" />
-		<fileset file="${xml-rpc-client}" />
-		<fileset file="${ws-commons-util}" />
-    	</copy>
-  </target>
-
--->
 
 <!-- unit tests  -->
 
