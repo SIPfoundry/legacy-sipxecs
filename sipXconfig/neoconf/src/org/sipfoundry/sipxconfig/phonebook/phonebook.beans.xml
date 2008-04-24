@@ -27,7 +27,7 @@
     <property name="csvParser" ref="csvParser" />
     <property name="vcardParser" ref="vcardParser" />
     <property name="vcardWriter" ref="vcardWriter" />
-    <property name="vcardEncoding" value="US-ASCII" />
+    <property name="vcardEncoding" value="UTF-8" />
     <property name="cvsEncoding" value="UTF-8" />
   </bean>
 

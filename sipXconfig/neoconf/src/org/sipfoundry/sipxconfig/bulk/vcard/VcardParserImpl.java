@@ -21,16 +21,19 @@ import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.bulk.BulkParser;
 
 public class VcardParserImpl implements BulkParser {
-    private static final String DEFAULT_VERSION = "2.1";
+    private static final String DEFAULT_VERSION = "3.0";
     private Pattern m_versionPattern = Pattern.compile("(?i)VERSION:((?:\\d)+(?:\\.\\d)*)");
-    private Pattern m_namePattern = Pattern.compile("(?i)N:([^;]*);([^;]*)(?:;[^;]*){3}");
+    private Pattern m_namePattern = Pattern
+            .compile("(?i)N:([\\p{L} ,\\.\\-]*)(?:;([\\p{L} ,\\.\\-]*))?(?:;[\\p{L} ,\\.\\-]*){0,3}");
     private Pattern m_phoneV21Pattern;
     private Pattern m_phoneV30Pattern;
 
     public void setTelType(String telType) {
-        String phoneV21PatternString = "(?i)TEL;(?:[a-zA-Z]+;)*" + telType + "(?:;[a-zA-Z]+)*:((?:\\+)?\\d+(?:-)?\\d*)";
+        String phoneV21PatternString = "(?i)TEL;(?:[a-zA-Z]+;)*" + telType
+                + "(?:;[a-zA-Z]+)*:((?:\\+)?\\d+(?:-)?\\d*)";
         String phoneV30PatternString = "(?i)TEL;(?:(?:TYPE=[a-zA-Z]+;)*TYPE=" + telType
-                + "(?:;TYPE=[a-zA-Z]+)*|TYPE=(?:[a-zA-Z]+,)*" + telType + "(?:,[a-zA-Z]+)*):((?:\\+)?\\d+(?:-)?\\d*)";
+                + "(?:;TYPE=[a-zA-Z]+)*|TYPE=(?:[a-zA-Z]+,)*" + telType
+                + "(?:,[a-zA-Z]+)*):((?:\\+)?\\d+(?:-)?\\d*)";
         m_phoneV21Pattern = Pattern.compile(phoneV21PatternString);
         m_phoneV30Pattern = Pattern.compile(phoneV30PatternString);
     }
@@ -41,14 +44,14 @@ public class VcardParserImpl implements BulkParser {
             RawPhonebookEntry entry = null;
             String line = null;
             while ((line = reader.readLine()) != null) {
-                if (line.equals("BEGIN:vCard")) {
+                if (line.equalsIgnoreCase("BEGIN:vCard")) {
                     entry = new RawPhonebookEntry();
                     continue;
                 }
                 if (entry == null) {
                     continue;
                 }
-                if (!line.equals("END:vCard")) {
+                if (!line.equalsIgnoreCase("END:vCard")) {
                     entry.addLineToEntry(line);
                 } else {
                     String[] entryStrings = entry.getEntry();
@@ -87,9 +90,9 @@ public class VcardParserImpl implements BulkParser {
 
             if (m_version != null) {
                 if (m_version.equals(DEFAULT_VERSION)) {
-                    matcher.usePattern(m_phoneV21Pattern);
-                } else if (m_version.equals("3.0")) {
                     matcher.usePattern(m_phoneV30Pattern);
+                } else if (m_version.equals("2.1")) {
+                    matcher.usePattern(m_phoneV21Pattern);
                 }
                 if (matcher.matches()) {
                     m_phoneNumber = matcher.group(1);
