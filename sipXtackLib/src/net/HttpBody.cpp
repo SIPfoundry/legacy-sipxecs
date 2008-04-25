@@ -179,13 +179,7 @@ HttpBody::HttpBody(const HttpBody& rHttpBody) :
 // Destructor
 HttpBody::~HttpBody()
 {
-   UtlSListIterator iterator(mBodyParts);
-   MimeBodyPart* pMimeBodyPart;
-   while ((pMimeBodyPart = dynamic_cast<MimeBodyPart*>(iterator())))
-   {
-        mBodyParts.remove(pMimeBodyPart);
-        delete pMimeBodyPart;
-   }
+   mBodyParts.destroyAll();
 }
 
 /* ============================ MANIPULATORS ============================== */
@@ -209,18 +203,12 @@ HttpBody::operator=(const HttpBody& rhs)
 
     mBodyPartCount = rhs.mBodyPartCount;
 
-   MimeBodyPart* pMimeBodyPart;
-
    // Delete the old list.
-   UtlSListIterator iterator(mBodyParts);
-   while ((pMimeBodyPart = dynamic_cast<MimeBodyPart*>(iterator())))
-   {
-       mBodyParts.remove(pMimeBodyPart);
-       delete pMimeBodyPart;
-   }
+   mBodyParts.destroyAll();
 
    // Copy the list from the RHS.
    UtlSListIterator rhsIterator(rhs.mBodyParts);
+   MimeBodyPart* pMimeBodyPart;
    while ((pMimeBodyPart = dynamic_cast<MimeBodyPart*>(rhsIterator())))
    {
        mBodyParts.append(new MimeBodyPart(*pMimeBodyPart));
