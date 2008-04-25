@@ -15,7 +15,6 @@ LOCAL_SHELLSCRIPTS = \
 EXTRA_DIST = $(foreach sipxScript,$(LOCAL_SHELLSCRIPTS),$(sipxScript).in)
 
 dist_bin_SCRIPTS = \
-	${PACKAGE}-config \
 	regtimes \
 	sipx-stats \
 	sipx-alias2dot \
