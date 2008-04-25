@@ -39,6 +39,9 @@ $(foreach sipxScript,$(LOCAL_SHELLSCRIPTS),$(sipxScript)) : % : $(srcdir)/%.in
 	$(LocalizeSipXconfig) $< > $@
 	chmod +x $@
 
+$(top_builddir)/BUILDSTAMP:
+	${MAKE} -C $(top_builddir) BUILDSTAMP
+
 ${PACKAGE}-config: $(top_srcdir)/config/sipX-config.in $(top_builddir)/BUILDSTAMP
 	@echo "making ${PACKAGE}-config"
 	@BuildStamp="$(shell cat $(top_builddir)/BUILDSTAMP)" \
