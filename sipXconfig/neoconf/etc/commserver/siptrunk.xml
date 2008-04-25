@@ -25,23 +25,21 @@
         of QOS on a per ITSP basis. When the limit is reached, sipXbridge will return "Service Unavailable".
       </description>
     </setting>
-    <setting name="outbound-proxy" hidden="yes" advanced="yes">
+    <setting name="outbound-proxy" hidden="yes">
       <description>If the ITSP specifies an outbound proxy, enter it here.</description>
     </setting>
-    <setting name="outbound-transport" hidden="no" advanced="yes">
+    <setting name="outbound-transport" hidden="yes">
+      <!--  set automatically from SipTrunk.getAddressTransport -->
       <type>
         <enum>
           <option>
-            <label>UDP</label>
-            <value>udp</value>
+            <value>UDP</value>
           </option>
           <option>
-            <label>TCP</label>
-            <value>tcp</value>
+            <value>TCP</value>
           </option>
         </enum>
       </type>
-      <value>udp</value>
       <description>The outbound proxy transport.</description>
     </setting>
     <setting name="proxy-domain" advanced="yes">
@@ -73,6 +71,15 @@
       <type refid="switch" />
       <value>false</value>
       <description>If checked, use the stun determined global address for SIP signaling and SDP.</description>
+    </setting>
+    <setting name="is-reinvite-supported" advanced="yes">
+      <label>Media Re-negotiation Support</label>
+      <type refid="switch" />
+      <value>true</value>
+      <description>
+        If checked, media renegotiation (reINVITE) is supported by the ITSP. This allows sipxbridge to delay codec
+        choice for call setup when dealing with call transfers.
+      </description>
     </setting>
     <setting name="route-inbound-calls-to-extension">
       <label>Incoming calls destination</label>

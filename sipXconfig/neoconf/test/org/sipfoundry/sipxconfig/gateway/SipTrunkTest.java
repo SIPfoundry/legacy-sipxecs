@@ -2,7 +2,10 @@ package org.sipfoundry.sipxconfig.gateway;
 
 import junit.framework.TestCase;
 
+import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDevice;
+import org.sipfoundry.sipxconfig.gateway.Gateway.AddressTransport;
+import org.sipfoundry.sipxconfig.setting.ModelFilesContext;
 
 public class SipTrunkTest extends TestCase {
 
@@ -38,5 +41,19 @@ public class SipTrunkTest extends TestCase {
         out.setSbcDevice(sbcDevice);
         
         assertEquals("1.1.1.1", out.getRoute());
+    }
+    
+    public void testDefaults() {
+        ModelFilesContext modelFilesContext = TestHelper.getModelFilesContext();
+        SipTrunk sipTrunk = new SipTrunk();
+        sipTrunk.setModelFilesContext(modelFilesContext);
+        sipTrunk.initialize();
+        
+        sipTrunk.setAddressTransport(AddressTransport.NONE);
+        assertEquals("UDP", sipTrunk.getSettingValue("itsp-account/outbound-transport"));
+        sipTrunk.setAddressTransport(AddressTransport.TCP);
+        assertEquals("TCP", sipTrunk.getSettingValue("itsp-account/outbound-transport"));
+        sipTrunk.setAddressTransport(AddressTransport.UDP);
+        assertEquals("UDP", sipTrunk.getSettingValue("itsp-account/outbound-transport"));
     }
 }

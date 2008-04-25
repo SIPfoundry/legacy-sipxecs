@@ -75,7 +75,7 @@
       <description>
         The maximum number of concurrent calls allowed via the given bridge overall. When the limit is reached,
         sipxbridge will return "Service Unavailable". If nothing is specified, no limit is placed on the max number of
-        concurrent calls.
+        concurrent calls. If nothing is specified, no limit is placed on the max number of concurrent calls.
       </description>
     </setting>
     <setting name="music-on-hold-support-enabled">
@@ -115,7 +115,7 @@
       <description>End of the RTP ports range.</description>
     </setting>
     <setting name="rtp-port-range" hidden="yes"></setting>
-    <setting name="allowed-codec-name" advanced="yes">
+    <setting name="allowed-codec-name" advanced="yes" hidden="yes">
       <label>Allowed Codec Name</label>
       <type>
         <enum>
@@ -132,8 +132,9 @@
       </type>
       <value>PCMU</value>
       <description>
-        The codec for the SDP Offer that is allowable. Because sipxbridge does not support media transcoding, in to
-        support call transfers, we need to restrict the all codec for call setups in the SDP offer to this value.
+        The codec for the SDP Offer that is allowable. This parameter is relevant if the ITSPs do not support ReInvite.
+        Because sipxbridge does not support media transcoding, in to support call transfers, we need to restrict the all
+        codec for call setups in the SDP offer to this value.
       </description>
     </setting>
     <setting name="log-level" advanced="yes">

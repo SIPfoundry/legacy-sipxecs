@@ -9,10 +9,12 @@
  */
 package org.sipfoundry.sipxconfig.gateway;
 
-import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDevice;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingEntry;
+
+import static org.sipfoundry.sipxconfig.gateway.Gateway.AddressTransport.NONE;
+import static org.sipfoundry.sipxconfig.gateway.Gateway.AddressTransport.UDP;
 
 public class SipTrunk extends Gateway {
     public static final String BEAN_ID = "gwSipTrunk";
@@ -61,10 +63,11 @@ public class SipTrunk extends Gateway {
         @SettingEntry(path = "itsp-account/outbound-transport")
         public String getOutboundTransport() {
             AddressTransport transport = m_trunk.getAddressTransport();
-            if (transport.equals(AddressTransport.NONE)) {
-                return StringUtils.EMPTY;
+            if (transport.equals(NONE)) {
+                // force default to be UDP - NONE is not supported
+                transport = UDP;
             }
-            return transport.getName();
+            return transport.getName().toUpperCase();
         }
 
         @SettingEntry(paths = { "itsp-account/outbound-proxy", "itsp-account/proxy-domain" })
