@@ -3,12 +3,11 @@ pid     = @SIPX_RUNDIR@/sipxcallresolver-agent.pid
 verify  = 2
 debug   = 5
 output  = @SIPX_LOGDIR@/sipxcallresolver-agent.log
+CApath  = @SIPX_CONFDIR@/ssl/authorities
+cert    = @SIPX_CONFDIR@/ssl/ssl.crt
+key     = @SIPX_CONFDIR@/ssl/ssl.key
+client  = no
 
 [postgresql]
 accept  = 9300
-CApath  = @SIPX_CONFDIR@/ssl/authorities
-cert    = @SIPX_CONFDIR@/ssl/ssl.crt
 connect = 5432
-client  = no
-key     = @SIPX_CONFDIR@/ssl/ssl.key
-
