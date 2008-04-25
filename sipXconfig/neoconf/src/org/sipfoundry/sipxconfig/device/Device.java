@@ -12,9 +12,12 @@ package org.sipfoundry.sipxconfig.device;
 import java.io.File;
 import java.util.Set;
 
+import org.sipfoundry.sipxconfig.common.NamedObject;
 import org.sipfoundry.sipxconfig.setting.BeanWithGroups;
 import org.sipfoundry.sipxconfig.setting.SettingExpressionEvaluator;
 import org.sipfoundry.sipxconfig.setting.SimpleDefinitionsEvaluator;
+
+import static org.apache.commons.lang.StringUtils.isNotBlank;
 
 public abstract class Device extends BeanWithGroups {
 
@@ -177,5 +180,30 @@ public abstract class Device extends BeanWithGroups {
 
     public void setSerialNumber(String serialNumber) {
         m_serialNumber = serialNumber;
+    }
+
+    /**
+     * @throws RestartException if it cannot complete the operation
+     */
+    public void restart() {
+    }
+
+    public String getNiceName() {
+        StringBuilder jn = new StringBuilder();
+        if (this instanceof NamedObject) {
+            NamedObject namedDevice = (NamedObject) this;
+            String name = namedDevice.getName();
+            if (isNotBlank(name)) {
+                jn.append(name);
+                jn.append("/");
+            }
+        }
+        String serialNumber = getSerialNumber();
+        if (isNotBlank(serialNumber)) {
+            jn.append(serialNumber);
+        } else {
+            jn.append(getModel().getLabel());
+        }
+        return jn.toString();
     }
 }

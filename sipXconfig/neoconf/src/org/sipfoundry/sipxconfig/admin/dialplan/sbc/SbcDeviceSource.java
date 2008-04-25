@@ -9,11 +9,10 @@
  */
 package org.sipfoundry.sipxconfig.admin.dialplan.sbc;
 
-import org.sipfoundry.sipxconfig.device.AbstractProfileManager;
-import org.sipfoundry.sipxconfig.device.Device;
+import org.sipfoundry.sipxconfig.device.DeviceSource;
 import org.springframework.beans.factory.annotation.Required;
 
-public class SbcProfileManagerImpl extends AbstractProfileManager {
+public class SbcDeviceSource implements DeviceSource<SbcDevice> {
 
     private SbcDeviceManager m_sbcDeviceManager;
 
@@ -22,13 +21,7 @@ public class SbcProfileManagerImpl extends AbstractProfileManager {
         m_sbcDeviceManager = sbcDeviceManager;
     }
 
-    @Override
-    protected Device loadDevice(Integer id) {
+    public SbcDevice loadDevice(Integer id) {
         return m_sbcDeviceManager.getSbcDevice(id);
-    }
-
-    @Override
-    protected void restartDevice(Integer id) {
-        // TODO: need a way to restart sbcs
     }
 }

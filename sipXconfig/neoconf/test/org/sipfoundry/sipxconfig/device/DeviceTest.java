@@ -17,11 +17,13 @@ import junit.framework.TestCase;
 
 import org.apache.commons.io.IOUtils;
 import org.sipfoundry.sipxconfig.TestHelper;
+import org.sipfoundry.sipxconfig.common.NamedObject;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
 import org.sipfoundry.sipxconfig.gateway.GatewayModel;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.TestPhone;
 import org.sipfoundry.sipxconfig.phone.TestPhoneModel;
+import org.sipfoundry.sipxconfig.setting.Setting;
 
 public class DeviceTest extends TestCase {
 
@@ -44,7 +46,7 @@ public class DeviceTest extends TestCase {
             public String getProfileFilename() {
                 return profileFilename;
             }
-        };        
+        };
         device.setModel(new TestPhoneModel());
 
         device.setProfileGenerator(generator);
@@ -84,4 +86,63 @@ public class DeviceTest extends TestCase {
 
         new File(root).delete();
     }
+
+    public void testGetNiceName() {
+        Device d = new Device() {
+            private DeviceDescriptor m_descriptor = new DeviceDescriptor() {
+            };
+
+            public DeviceDescriptor getModel() {
+                m_descriptor.setLabel("Acme Device");
+                return m_descriptor;
+            }
+
+            protected Setting loadSettings() {
+                return null;
+            }
+
+        };
+
+        assertEquals("Acme Device", d.getNiceName());
+
+        d.setSerialNumber("01234");
+        assertEquals("01234", d.getNiceName());
+    }
+
+    static class NamedDevice extends Device implements NamedObject {
+        private DeviceDescriptor m_descriptor = new DeviceDescriptor() {
+        };
+        private String m_name;
+
+        public DeviceDescriptor getModel() {
+            m_descriptor.setLabel("Acme Device");
+            return m_descriptor;
+        }
+
+        protected Setting loadSettings() {
+            return null;
+        }
+
+        public String getName() {
+            return m_name;
+        }
+
+        public void setName(String name) {
+            m_name = name;
+        }
+
+    }
+
+    public void testGetNiceNameForNamedObject() {
+        NamedDevice d = new NamedDevice();
+
+        assertEquals("Acme Device", d.getNiceName());
+
+        d.setSerialNumber("01234");
+        assertEquals("01234", d.getNiceName());
+
+        d.setName("bongo");
+        assertEquals("bongo/01234", d.getNiceName());
+    }
+
 }

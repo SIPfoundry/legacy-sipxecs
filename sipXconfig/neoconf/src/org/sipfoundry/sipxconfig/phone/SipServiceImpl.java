@@ -27,6 +27,7 @@ import org.apache.commons.lang.math.RandomUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.common.SipUri;
+import org.sipfoundry.sipxconfig.device.RestartException;
 import org.springframework.beans.factory.annotation.Required;
 
 /**

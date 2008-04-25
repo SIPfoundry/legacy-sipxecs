@@ -9,10 +9,9 @@
  */
 package org.sipfoundry.sipxconfig.gateway;
 
-import org.sipfoundry.sipxconfig.device.AbstractProfileManager;
-import org.sipfoundry.sipxconfig.device.Device;
+import org.sipfoundry.sipxconfig.device.DeviceSource;
 
-public class GatewayProfileManagerImpl extends AbstractProfileManager {
+public class GatewaySource implements DeviceSource<Gateway> {
 
     private GatewayContext m_gatewayContext;
 
@@ -20,13 +19,7 @@ public class GatewayProfileManagerImpl extends AbstractProfileManager {
         m_gatewayContext = gatewayContext;
     }
 
-    @Override
-    protected Device loadDevice(Integer id) {
+    public Gateway loadDevice(Integer id) {
         return m_gatewayContext.getGateway(id);
-    }
-
-    @Override
-    protected void restartDevice(Integer id) {
-        // TODO: need a way to restart gateways
     }
 }

@@ -18,7 +18,7 @@ public interface RestartManager {
      * 
      * @param deviceIds collection of phone ids to be restarted
      */
-    public void restart(Collection deviceIds);
+    public void restart(Collection<Integer> deviceIds);
 
     public void restart(Integer deviceId);
 }

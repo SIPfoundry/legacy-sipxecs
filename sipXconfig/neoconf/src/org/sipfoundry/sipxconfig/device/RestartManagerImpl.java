@@ -7,16 +7,15 @@
  * 
  * $
  */
-package org.sipfoundry.sipxconfig.phone;
+package org.sipfoundry.sipxconfig.device;
 
 import java.io.Serializable;
 import java.util.Collection;
-import java.util.Iterator;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sipfoundry.sipxconfig.device.RestartManager;
 import org.sipfoundry.sipxconfig.job.JobContext;
+import org.springframework.beans.factory.annotation.Required;
 
 public class RestartManagerImpl implements RestartManager {
     private static final Log LOG = LogFactory.getLog(RestartManagerImpl.class);
@@ -25,32 +24,19 @@ public class RestartManagerImpl implements RestartManager {
 
     private JobContext m_jobContext;
 
-    private PhoneContext m_phoneContext;
+    private DeviceSource m_deviceSource;
 
     /**
-     * The number of millis by which we are going to delay restarting a phone if more than one
-     * phone is restarted. We are delaying restart of the phone. The default value is 1 second,
+     * The number of millis by which we are going to delay restarting a device if more than one
+     * device is restarted. We are delaying restart of the device. The default value is 1 second,
      * but it can be changes by modifying sipxcongig.properties.in file. Set to 0 to remove the
      * throttle.
      * 
      */
     private int m_throttleInterval = DEFAULT_THROTTLE_INTERVAL;
 
-    public void setJobContext(JobContext jobContext) {
-        m_jobContext = jobContext;
-    }
-
-    public void setPhoneContext(PhoneContext phoneContext) {
-        m_phoneContext = phoneContext;
-    }
-
-    public void setThrottleInterval(int throttleInterval) {
-        m_throttleInterval = throttleInterval;
-    }
-
-    public void restart(Collection phoneIds) {
-        for (Iterator iter = phoneIds.iterator(); iter.hasNext();) {
-            Integer id = (Integer) iter.next();
+    public void restart(Collection<Integer> deviceIds) {
+        for (Integer id : deviceIds) {
             restart(id);
             throttle();
         }
@@ -67,16 +53,17 @@ public class RestartManagerImpl implements RestartManager {
         }
     }
 
-    public void restart(Integer phoneId) {
-        Phone phone = m_phoneContext.loadPhone(phoneId);
-        restart(phone);
+    public void restart(Integer deviceId) {
+        Device device = m_deviceSource.loadDevice(deviceId);
+        restart(device);
     }
 
-    private void restart(Phone phone) {
-        Serializable jobId = m_jobContext.schedule("Restarting phone " + phone.getSerialNumber());
+    private void restart(Device device) {
+        String jobName = "Restarting: " + device.getNiceName();
+        Serializable jobId = m_jobContext.schedule(jobName);
         try {
             m_jobContext.start(jobId);
-            phone.restart();
+            device.restart();
             m_jobContext.success(jobId);
         } catch (RestartException e) {
             m_jobContext.failure(jobId, null, e);
@@ -86,5 +73,19 @@ public class RestartManagerImpl implements RestartManager {
             // error gets logged to job error table and sipxconfig.log
             LOG.error(e);
         }
+    }
+
+    @Required
+    public void setJobContext(JobContext jobContext) {
+        m_jobContext = jobContext;
+    }
+
+    @Required
+    public void setDeviceSource(DeviceSource deviceSource) {
+        m_deviceSource = deviceSource;
+    }
+
+    public void setThrottleInterval(int throttleInterval) {
+        m_throttleInterval = throttleInterval;
     }
 }

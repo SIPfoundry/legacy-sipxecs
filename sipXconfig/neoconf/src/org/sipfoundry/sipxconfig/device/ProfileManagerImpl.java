@@ -14,13 +14,17 @@ import java.util.Collection;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sipfoundry.sipxconfig.common.NamedObject;
 import org.sipfoundry.sipxconfig.job.JobContext;
+import org.springframework.beans.factory.annotation.Required;
 
-public abstract class AbstractProfileManager implements ProfileManager {
-    private static final Log LOG = LogFactory.getLog(AbstractProfileManager.class);
+public class ProfileManagerImpl implements ProfileManager {
+    private static final Log LOG = LogFactory.getLog(ProfileManagerImpl.class);
 
     private JobContext m_jobContext;
+
+    private RestartManager m_restartManager;
+
+    private DeviceSource m_deviceSource;
 
     public final void generateProfiles(Collection<Integer> devices, boolean restart) {
         for (Integer id : devices) {
@@ -29,15 +33,16 @@ public abstract class AbstractProfileManager implements ProfileManager {
     }
 
     public final void generateProfile(Integer id, boolean restart) {
-        Device d = loadDevice(id);
+        Device d = m_deviceSource.loadDevice(id);
         generate(d);
         if (restart) {
-            restartDevice(id);
+            m_restartManager.restart(id);
         }
     }
 
     protected void generate(Device d) {
-        Serializable jobId = m_jobContext.schedule(formatJobName(d));
+        String jobName = "Projection for: " + d.getNiceName();
+        Serializable jobId = m_jobContext.schedule(jobName);
         try {
             m_jobContext.start(jobId);
             ProfileLocation location = d.getModel().getDefaultProfileLocation();
@@ -51,24 +56,18 @@ public abstract class AbstractProfileManager implements ProfileManager {
         }
     }
 
-    /** Overwrite to load device from appropriate context */
-    protected abstract Device loadDevice(Integer id);
-
-    /** Called to restart device after successful profile generation */
-    protected abstract void restartDevice(Integer id);
-
+    @Required
     public void setJobContext(JobContext jobContext) {
         m_jobContext = jobContext;
     }
 
-    static String formatJobName(Device device) {
-        StringBuilder jn = new StringBuilder("Projection for: ");
-        if (device instanceof NamedObject) {
-            NamedObject namedDevice = (NamedObject) device;
-            jn.append(namedDevice.getName());
-            jn.append("/");
-        }
-        jn.append(device.getSerialNumber());
-        return jn.toString();
+    @Required
+    public void setRestartManager(RestartManager restartManager) {
+        m_restartManager = restartManager;
+    }
+
+    @Required
+    public void setDeviceSource(DeviceSource deviceSource) {
+        m_deviceSource = deviceSource;
     }
 }

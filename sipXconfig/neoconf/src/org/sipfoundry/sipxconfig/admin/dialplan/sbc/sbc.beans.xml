@@ -33,10 +33,11 @@
     <property name="daoEventPublisher" ref="daoEventPublisher" />
   </bean>
 
-  <bean id="sbcDeviceManagerSbcDeviceDelete" factory-bean="sbcDeviceManagerImpl" factory-method="createSbcDeviceDeleteListener" />
+  <bean id="sbcDeviceManagerSbcDeviceDelete" factory-bean="sbcDeviceManagerImpl"
+    factory-method="createSbcDeviceDeleteListener" />
 
   <bean id="sbcDeviceManager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao"
-        depends-on="sbcDeviceManagerSbcDeviceDelete">
+    depends-on="sbcDeviceManagerSbcDeviceDelete">
     <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDeviceManager" />
     <property name="target">
       <ref local="sbcDeviceManagerImpl" />
@@ -72,9 +73,32 @@
     <property name="port" value="5060" />
   </bean>
 
-  <bean id="eagerSbcProfileManager" class="org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcProfileManagerImpl">
+  <bean id="sbcDeviceSource" class="org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDeviceSource">
     <property name="sbcDeviceManager">
       <ref local="sbcDeviceManager" />
+    </property>
+  </bean>
+
+  <bean id="eagerSbcRestartManager" class="org.sipfoundry.sipxconfig.device.RestartManagerImpl">
+    <property name="deviceSource">
+      <ref local="sbcDeviceSource" />
+    </property>
+    <property name="jobContext" ref="jobContext" />
+  </bean>
+
+  <bean id="sbcRestartManager" class="org.sipfoundry.sipxconfig.device.LazyRestartManagerImpl" init-method="init">
+    <property name="target">
+      <ref local="eagerSbcRestartManager" />
+    </property>
+    <property name="sleepInterval" value="5000" />
+  </bean>
+
+  <bean id="eagerSbcProfileManager" class="org.sipfoundry.sipxconfig.device.ProfileManagerImpl">
+    <property name="deviceSource">
+      <ref local="sbcDeviceSource" />
+    </property>
+    <property name="restartManager">
+      <ref local="sbcRestartManager" />
     </property>
     <property name="jobContext" ref="jobContext" />
   </bean>
@@ -86,18 +110,16 @@
     <property name="sleepInterval" value="5000" />
   </bean>
 
-  <bean id="sbcMigrationContextImpl"
-    class="org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcMigrationContextImpl">
+  <bean id="sbcMigrationContextImpl" class="org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcMigrationContextImpl">
     <property name="sbcManager">
       <ref local="sbcManager" />
     </property>
     <property name="sessionFactory" ref="sessionFactory" />
-    <property name="sbcDeviceManager" ref="sbcDeviceManager" />    
+    <property name="sbcDeviceManager" ref="sbcDeviceManager" />
     <property name="sbcModelSource" ref="nakedSbcModelSource" />
   </bean>
 
-  <bean id="sbcMigrationContext" class="org.springframework.aop.framework.ProxyFactoryBean"
-    parent="abstractDao">
+  <bean id="sbcMigrationContext" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
     <property name="proxyInterfaces">
       <value>org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcMigrationContext</value>
     </property>

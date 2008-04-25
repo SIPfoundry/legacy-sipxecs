@@ -21,10 +21,10 @@ import junit.framework.TestCase;
 import org.apache.commons.io.IOUtils;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.device.FileSystemProfileLocation;
+import org.sipfoundry.sipxconfig.device.RestartException;
 import org.sipfoundry.sipxconfig.device.VelocityProfileGenerator;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.PhoneTestDriver;
-import org.sipfoundry.sipxconfig.phone.RestartException;
 import org.sipfoundry.sipxconfig.phone.polycom.PolycomPhone.FormatFilter;
 import org.sipfoundry.sipxconfig.setting.Setting;
 

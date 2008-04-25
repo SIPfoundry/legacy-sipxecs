@@ -7,7 +7,7 @@
  * 
  * $
  */
-package org.sipfoundry.sipxconfig.phone;
+package org.sipfoundry.sipxconfig.device;
 
 
 /**

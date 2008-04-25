@@ -18,6 +18,7 @@ import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.device.Device;
 import org.sipfoundry.sipxconfig.device.ModelSource;
+import org.sipfoundry.sipxconfig.device.RestartException;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookManager;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
@@ -122,12 +123,6 @@ public abstract class Phone extends Device {
     public void removeLine(Line line) {
         getLines().remove(line);
         DataCollectionUtil.updatePositions(getLines());
-    }
-
-    /**
-     * @throws RestartException if it cannot complete the operation
-     */
-    public void restart() {
     }
 
     protected void sendCheckSyncToFirstLine() {

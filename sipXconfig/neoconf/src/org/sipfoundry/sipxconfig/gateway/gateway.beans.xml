@@ -44,7 +44,8 @@
     <property name="replicationContext" ref="sipxReplicationContext" />
   </bean>
 
-  <bean id="gatewayContextSbcDeviceDelete" factory-bean="gatewayContextImpl" factory-method="createSbcDeviceDeleteListener" />
+  <bean id="gatewayContextSbcDeviceDelete" factory-bean="gatewayContextImpl"
+    factory-method="createSbcDeviceDeleteListener" />
 
   <bean id="gatewayContext" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
     <property name="proxyInterfaces">
@@ -55,9 +56,32 @@
     </property>
   </bean>
 
-  <bean id="eagerGatewayProfileManager" class="org.sipfoundry.sipxconfig.gateway.GatewayProfileManagerImpl">
+  <bean id="gatewaySource" class="org.sipfoundry.sipxconfig.gateway.GatewaySource">
     <property name="gatewayContext">
       <ref local="gatewayContext" />
+    </property>
+  </bean>
+
+  <bean id="eagerGatewayRestartManager" class="org.sipfoundry.sipxconfig.device.RestartManagerImpl">
+    <property name="deviceSource">
+      <ref local="gatewaySource" />
+    </property>
+    <property name="jobContext" ref="jobContext" />
+  </bean>
+
+  <bean id="gatewayRestartManager" class="org.sipfoundry.sipxconfig.device.LazyRestartManagerImpl" init-method="init">
+    <property name="target">
+      <ref local="eagerGatewayRestartManager" />
+    </property>
+    <property name="sleepInterval" value="5000" />
+  </bean>
+
+  <bean id="eagerGatewayProfileManager" class="org.sipfoundry.sipxconfig.device.ProfileManagerImpl">
+    <property name="deviceSource">
+      <ref local="gatewaySource" />
+    </property>
+    <property name="restartManager">
+      <ref local="gatewayRestartManager" />
     </property>
     <property name="jobContext" ref="jobContext" />
   </bean>
@@ -69,18 +93,16 @@
     <property name="sleepInterval" value="5000" />
   </bean>
 
-   <bean id="sipTrunkMigrationContextImpl"
-    class="org.sipfoundry.sipxconfig.gateway.SipTrunkMigrationContextImpl">
+  <bean id="sipTrunkMigrationContextImpl" class="org.sipfoundry.sipxconfig.gateway.SipTrunkMigrationContextImpl">
     <property name="gatewayContext">
       <ref local="gatewayContext" />
     </property>
     <property name="sessionFactory" ref="sessionFactory" />
-    <property name="sbcDeviceManager" ref="sbcDeviceManager" />    
-    <property name="sbcModelSource" ref="nakedSbcModelSource" />    
+    <property name="sbcDeviceManager" ref="sbcDeviceManager" />
+    <property name="sbcModelSource" ref="nakedSbcModelSource" />
   </bean>
 
-  <bean id="sipTrunkMigrationContext" class="org.springframework.aop.framework.ProxyFactoryBean"
-    parent="abstractDao">
+  <bean id="sipTrunkMigrationContext" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
     <property name="proxyInterfaces">
       <value>org.sipfoundry.sipxconfig.gateway.SipTrunkMigrationContext</value>
     </property>
