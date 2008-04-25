@@ -3,7 +3,7 @@
   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
 
   <bean id="sipXbridgeProfileLocation" class="org.sipfoundry.sipxconfig.device.ReplicatedProfileLocation">
-    <property name="replicationContext" ref="sipxReplicationContext" />
+    <property name="replicationContext" ref="sipxReplicationContextDao" />
     <property name="type" value="SBC_BRIDGE_CONFIG" />
   </bean>
 
@@ -18,5 +18,6 @@
   <bean id="sbcSipXbridge" class="org.sipfoundry.sipxconfig.admin.dialplan.sbc.bridge.BridgeSbc" scope="prototype"
     parent="sbcGeneric">
     <property name="gatewayContext" ref="gatewayContext" />
+    <property name="processContext" ref="sipxProcessContext" />
   </bean>
 </beans>

@@ -28,6 +28,7 @@ public interface SipxProcessModel {
         public static final ProcessName ACD_SERVER = new ProcessName("ACDServer");
         public static final ProcessName RL_SERVER = new ProcessName("ResourceListServer");
         public static final ProcessName PAGE_SERVER = new ProcessName("PageServer");
+        public static final ProcessName SBC_BRIDGE = new ProcessName("SipXbridge");
 
         private ProcessName(String name) {
             super(name);

@@ -10,9 +10,13 @@
 package org.sipfoundry.sipxconfig.admin.dialplan.sbc.bridge;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import org.sipfoundry.sipxconfig.admin.commserver.Process;
+import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
+import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessModel.ProcessName;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDevice;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
 import org.sipfoundry.sipxconfig.device.ProfileContext;
@@ -24,10 +28,17 @@ import org.springframework.beans.factory.annotation.Required;
 
 public class BridgeSbc extends SbcDevice {
     private GatewayContext m_gatewayContext;
+    
+    private SipxProcessContext m_processContext;
 
     @Required
     public void setGatewayContext(GatewayContext gatewayContext) {
         m_gatewayContext = gatewayContext;
+    }
+    
+    @Required
+    public void setProcessContext(SipxProcessContext processContext) {
+        m_processContext = processContext;
     }
 
     @Override
@@ -106,5 +117,11 @@ public class BridgeSbc extends SbcDevice {
         public String getLogDirectory() {
             return m_defaults.getLogDirectory() + "/";
         }
+    }
+    
+    @Override
+    public void restart() {
+        Process p = new Process(ProcessName.SBC_BRIDGE);
+        m_processContext.manageServices(Arrays.asList(p), SipxProcessContext.Command.RESTART);
     }
 }
