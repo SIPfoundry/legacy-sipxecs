@@ -35,7 +35,7 @@ SIPDB_FILES=$(subst sipx_dbdir,$(SIPX_DATADIR)/sipdb,$(filter-out %~,$(wildcard 
 # The installed names of files that are translated from .pre forms.
 CONFIG_FILES_EDITED=$(subst .pre,,$(subst sipx_confdir,$(SIPX_CONFDIR),$(wildcard sipx_confdir/*.pre)))
 DOC_FILES_EDITED=$(subst .pre,,$(subst http_rootdir,$(HTTP_ROOTDIR),$(wildcard http_rootdir/*.pre)))
-SIPDB_FILES_EDITED=$(subst .pre,,$(subst sipx_dbdir,$(SIPX_DATADIR)/sipdb,$(wildcard sipx_dbdir/*.pre)))
+SIPDB_FILES_EDITED=$(subst .pre,,$(subst sipx_dbdir,$(SIPX_DATADIR)/sipdb,$(wildcard sipx_dbdir/*.pre))) $(SIPX_DATADIR)/sipdb/credential.xml.in $(SIPX_DATADIR)/sipdb/permission.xml
 
 install: $(CONFIG_FILES) $(DOC_FILES) $(SIPDB_FILES) $(CONFIG_FILES_EDITED) $(DOC_FILES_EDITED) $(SIPDB_FILES_EDITED) $(SIPX_DATADIR)/sipdb/credential.xml $(HTTP_ROOTDIR)/config-version.html
 
@@ -47,6 +47,8 @@ debug:
 	@ echo DOC_FILES_EDITED=$(DOC_FILES_EDITED) 
 	@ echo CONFIG_FILES_EDITED=$(CONFIG_FILES_EDITED)
 	@ echo SIPDB_FILES_EDITED=$(SIPDB_FILES_EDITED)
+
+# These rules copy files to the destination directories.
 
 $(CONFIG_FILES): $(SIPX_CONFDIR)/%: sipx_confdir/%
 	cp $< $@
@@ -60,6 +62,7 @@ $(SIPDB_FILES): $(SIPX_DATADIR)/sipdb/%: sipx_dbdir/%
 	cp $< $@
 	chmod a+r $@
 
+# This rule performs substitutions on config.defs.in to generate config.defs.
 $(SIPX_CONFDIR)/config.defs: $(SIPX_CONFDIR)/config.defs.in
 	sh -c \
 		"sed \
@@ -77,6 +80,7 @@ $(SIPX_CONFDIR)/config.defs: $(SIPX_CONFDIR)/config.defs.in
 		<$< >$@"
 	chmod a+r $@
 
+# This rule performs substitutions on .pre files to generate the non-.pre files.
 $(CONFIG_FILES_EDITED) $(DOC_FILES_EDITED) $(SIPDB_FILES_EDITED): %: %.pre $(SIPX_CONFDIR)/config.defs
 	. $(SIPX_CONFDIR)/config.defs ;\
 	sh -c \
@@ -100,11 +104,26 @@ $(CONFIG_FILES_EDITED) $(DOC_FILES_EDITED) $(SIPDB_FILES_EDITED): %: %.pre $(SIP
 	chmod a+r $@
 	[[ $@ != *.cgi ]] || chmod a+x $@
 
+# This rule sets the passwords and pintokens in credential.xml.in to generate
+# credential.xml.
 $(SIPX_DATADIR)/sipdb/credential.xml: $(SIPX_DATADIR)/sipdb/credential.xml.in $(SIPX_CONFDIR)/config.defs
 	cp $< $@
 	$(SETSIPXPASSWD) --credential $@ 1234
 	chmod a+r $@
 
+# This rule runs the script credential.xml.in.pre.scripte to generate
+# credential.xml.in.pre.
+$(SIPX_DATADIR)/sipdb/credential.xml.in.pre: $(SIPX_DATADIR)/sipdb/credential.xml.in.pre.script
+	sh $(SIPX_DATADIR)/sipdb/credential.xml.in.pre.script \
+		>$(SIPX_DATADIR)/sipdb/credential.xml.in.pre
+
+# This rule runs the script permission.xml.pre.scripte to generate
+# permission.xml.pre.
+$(SIPX_DATADIR)/sipdb/permission.xml.pre: $(SIPX_DATADIR)/sipdb/permission.xml.pre.script
+	sh $(SIPX_DATADIR)/sipdb/permission.xml.pre.script \
+		>$(SIPX_DATADIR)/sipdb/permission.xml.pre
+
+# This rule edits config-version.html.in to generate config-version.html.
 $(HTTP_ROOTDIR)/config-version.html: $(HTTP_ROOTDIR)/config-version.html.in
 	WCROOT="`svn info | grep '^URL:'`" ;\
 	SVNVERSION=`svnversion` ;\
