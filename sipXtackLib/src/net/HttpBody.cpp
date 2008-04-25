@@ -13,6 +13,8 @@
 
 // APPLICATION INCLUDES
 #include <os/OsSysLog.h>
+#include <utl/UtlSList.h>
+#include <utl/UtlSListIterator.h>
 #include <utl/UtlDList.h>
 #include <utl/UtlDListIterator.h>
 #include <net/HttpBody.h>
@@ -45,11 +47,6 @@ HttpBody::HttpBody(const char* bytes, int length, const char* contentType) :
    bodyLength(0),
    mBodyPartCount(0)
 {
-   for(int partIndex = 0; partIndex < MAX_HTTP_BODY_PARTS; partIndex++)
-   {
-      mpBodyParts[partIndex] = NULL;
-   }
-
    if (contentType)
    {
       append(contentType);
@@ -95,7 +92,7 @@ HttpBody::HttpBody(const char* bytes, int length, const char* contentType) :
 
          if(isMultipart())
          {
-            for(int partIndex = 0; partIndex < MAX_HTTP_BODY_PARTS; partIndex++)
+            for(unsigned int partIndex = 0;; partIndex++)
             {
                UtlString contentType;
                UtlString name;
@@ -134,14 +131,10 @@ HttpBody::HttpBody(const char* bytes, int length, const char* contentType) :
 
                if (partLength > 0)
                {
-                  mpBodyParts[partIndex] = new MimeBodyPart(this, partBytes, partBytes - parentBodyBytes,
-                                                            partLength,contentType.data());
+                  mBodyParts.append(new MimeBodyPart(this, partBytes, partBytes - parentBodyBytes,
+                                                            partLength,contentType.data()));
                   // Save the number of body parts.
                   mBodyPartCount = partIndex + 1;
-               }
-               else
-               {
-                  mpBodyParts[partIndex] = NULL;
                }
             }
          }
@@ -153,11 +146,6 @@ HttpBody::HttpBody(const char* bytes, int length, const char* contentType) :
 HttpBodyMultipart::HttpBodyMultipart(const char* contentType) :
    HttpBody(NULL, -1, contentType)
 {
-   for (int partIndex = 0; partIndex < MAX_HTTP_BODY_PARTS; partIndex++)
-   {
-      mpBodyParts[partIndex] = NULL;
-   }
-
    // Create the boundary.
    nextBoundary(mMultipartBoundary);
    // Write it into the body.
@@ -180,26 +168,23 @@ HttpBody::HttpBody(const HttpBody& rHttpBody) :
    mMultipartBoundary(rHttpBody.mMultipartBoundary),
    mBodyPartCount(rHttpBody.mBodyPartCount)
 {
-   for (int partIndex = 0; partIndex < MAX_HTTP_BODY_PARTS; partIndex++)
+   UtlSListIterator iterator(rHttpBody.mBodyParts);
+   MimeBodyPart* pMimeBodyPart;
+   while ((pMimeBodyPart = dynamic_cast<MimeBodyPart*>(iterator())))
    {
-      mpBodyParts[partIndex] =
-         rHttpBody.mpBodyParts[partIndex] ?
-         new MimeBodyPart(*(rHttpBody.mpBodyParts[partIndex])) :
-         NULL;
+       mBodyParts.append(new MimeBodyPart(*pMimeBodyPart));
    }
 }
 
 // Destructor
 HttpBody::~HttpBody()
 {
-   for(int partIndex = 0; partIndex < MAX_HTTP_BODY_PARTS; partIndex++)
+   UtlSListIterator iterator(mBodyParts);
+   MimeBodyPart* pMimeBodyPart;
+   while ((pMimeBodyPart = dynamic_cast<MimeBodyPart*>(iterator())))
    {
-       if(mpBodyParts[partIndex])
-       {
-           delete mpBodyParts[partIndex];
-           mpBodyParts[partIndex] = NULL;
-       }
-
+        mBodyParts.remove(pMimeBodyPart);
+        delete pMimeBodyPart;
    }
 }
 
@@ -223,14 +208,24 @@ HttpBody::operator=(const HttpBody& rhs)
     mMultipartBoundary = rhs.mMultipartBoundary;
 
     mBodyPartCount = rhs.mBodyPartCount;
-    for(int partIndex = 0; partIndex < MAX_HTTP_BODY_PARTS; partIndex++)
-    {
-       if(mpBodyParts[partIndex]) delete mpBodyParts[partIndex];
-           if (rhs.mpBodyParts[partIndex])
-                        mpBodyParts[partIndex] = new MimeBodyPart(*(rhs.mpBodyParts[partIndex]));
-           else
-                   mpBodyParts[partIndex] = NULL;
+
+   MimeBodyPart* pMimeBodyPart;
+
+   // Delete the old list.
+   UtlSListIterator iterator(mBodyParts);
+   while ((pMimeBodyPart = dynamic_cast<MimeBodyPart*>(iterator())))
+   {
+       mBodyParts.remove(pMimeBodyPart);
+       delete pMimeBodyPart;
    }
+
+   // Copy the list from the RHS.
+   UtlSListIterator rhsIterator(rhs.mBodyParts);
+   while ((pMimeBodyPart = dynamic_cast<MimeBodyPart*>(rhsIterator())))
+   {
+       mBodyParts.append(new MimeBodyPart(*pMimeBodyPart));
+   }
+
    return *this;
 }
 
@@ -284,17 +279,8 @@ void HttpBody::appendBodyPart(const HttpBody& body,
    MimeBodyPart* part = new MimeBodyPart(body, parameters);
 
    // Insert it as the last body part.
-   int index;
-   for (index = 0; index < MAX_HTTP_BODY_PARTS; index++)
-   {
-      if (!mpBodyParts[index])
-      {
-         mpBodyParts[index] = part;
-         mBodyPartCount++;
-         break;
-      }
-   }
-   assert(index < MAX_HTTP_BODY_PARTS);
+   mBodyParts.append(part);
+   mBodyPartCount++;
 
    // Turn the final boundary into an intermediate boundary.
    mBody.remove(mBody.length() - 4);
@@ -347,17 +333,15 @@ void HttpBody::appendBodyPart(const HttpBody& body,
       } while (mBody.index(mMultipartBoundary) != UTL_NOT_FOUND);
 
       // Replace the old boundary string.
-      for (int partIndex = 0; partIndex < MAX_HTTP_BODY_PARTS; partIndex++)
+      UtlSListIterator iterator(mBodyParts);
+      MimeBodyPart* part;
+      while ((part = dynamic_cast<MimeBodyPart*>(iterator())))
       {
-         MimeBodyPart* part = mpBodyParts[partIndex];
-         if (part)
-         {
             // Replace the boundary string just before this part.
             mBody.replace(part->getRawStart() - (2 + BOUNDARY_STRING_LENGTH),
                           BOUNDARY_STRING_LENGTH,
                           mMultipartBoundary.data(),
                           BOUNDARY_STRING_LENGTH);
-         }
       }
 
       // Replace the boundary string in the final boundary.
@@ -483,9 +467,9 @@ const MimeBodyPart* HttpBody::getMultipart(int index) const
 {
     const MimeBodyPart* bodyPart = NULL;
 
-    if(index >= 0 && index < MAX_HTTP_BODY_PARTS && isMultipart())
+    if(index >= 0 && isMultipart())
     {
-        bodyPart = mpBodyParts[index];
+        bodyPart = dynamic_cast<MimeBodyPart*>(mBodyParts.at(index));
     }
     return(bodyPart);
 }

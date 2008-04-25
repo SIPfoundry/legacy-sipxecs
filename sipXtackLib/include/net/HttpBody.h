@@ -14,6 +14,7 @@
 
 // APPLICATION INCLUDES
 #include <utl/UtlString.h>
+#include <utl/UtlSList.h>
 #include <utl/UtlDList.h>
 
 // DEFINES
@@ -24,8 +25,6 @@
 #define CONTENT_TYPE_MULTIPART_RELATED "multipart/related"
 
 #define MULTIPART_BOUNDARY_PARAMETER "boundary"
-
-#define MAX_HTTP_BODY_PARTS 20
 
 // MACROS
 // EXTERNAL FUNCTIONS
@@ -123,7 +122,7 @@ protected:
    UtlString mBody;
    UtlString  mMultipartBoundary;
    int mBodyPartCount;
-   MimeBodyPart* mpBodyParts[MAX_HTTP_BODY_PARTS];
+   UtlSList mBodyParts;
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
