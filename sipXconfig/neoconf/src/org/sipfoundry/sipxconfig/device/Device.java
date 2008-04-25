@@ -186,6 +186,7 @@ public abstract class Device extends BeanWithGroups {
      * @throws RestartException if it cannot complete the operation
      */
     public void restart() {
+        throw new RestartException("Restart not supported.");
     }
 
     public String getNiceName() {

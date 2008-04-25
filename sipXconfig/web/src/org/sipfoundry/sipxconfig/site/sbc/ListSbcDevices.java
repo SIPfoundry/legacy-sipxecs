@@ -24,8 +24,10 @@ import org.sipfoundry.sipxconfig.components.ExtraOptionModelDecorator;
 import org.sipfoundry.sipxconfig.components.ObjectSelectionModel;
 import org.sipfoundry.sipxconfig.components.SelectMap;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
+import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.device.ModelSource;
 import org.sipfoundry.sipxconfig.device.ProfileManager;
+import org.sipfoundry.sipxconfig.device.RestartManager;
 
 /**
  * List all the gateways, allow adding and deleting gateways
@@ -37,7 +39,10 @@ public abstract class ListSbcDevices extends BasePage {
     public abstract SbcDeviceManager getSbcDeviceManager();
 
     @InjectObject(value = "spring:sbcProfileManager")
-    public abstract ProfileManager getSbcProfileManager();
+    public abstract ProfileManager getProfileManager();
+
+    @InjectObject(value = "spring:sbcRestartManager")
+    public abstract RestartManager getRestartManager();
 
     @InjectObject(value = "spring:sbcModelSource")
     public abstract ModelSource<SbcDescriptor> getSbcDeviceModelSource();
@@ -51,10 +56,6 @@ public abstract class ListSbcDevices extends BasePage {
     @Persist
     public abstract void setGenerateProfileIds(Collection<Integer> ids);
 
-    public abstract Collection<Integer> getSbcsToDelete();
-
-    public abstract Collection<Integer> getSbcsToPropagate();
-
     public abstract SbcDescriptor getSbcDescriptor();
 
     public abstract SbcDevice getSbc();
@@ -64,27 +65,43 @@ public abstract class ListSbcDevices extends BasePage {
     }
 
     /**
-     * When user clicks on link to edit a gateway
+     * When user clicks on link to add an SBC
      */
     public IPage formSubmit(IRequestCycle cycle) {
-        Collection selectedRows = getSbcsToDelete();
-        if (selectedRows != null) {
-            getSbcDeviceManager().deleteSbcDevices(selectedRows);
-        }
-        selectedRows = getSbcsToPropagate();
-        if (selectedRows != null) {
-            setGenerateProfileIds(selectedRows);
-        }
         SbcDescriptor model = getSbcDescriptor();
-        if (model != null) {
-            return EditSbcDevice.getAddPage(cycle, model, this);
+        if (model == null) {
+            return null;
         }
-        return null;
+        return EditSbcDevice.getAddPage(cycle, model, this);
+    }
+
+    public void delete() {
+        Collection<Integer> ids = getSelections().getAllSelected();
+        if (!ids.isEmpty()) {
+            getSbcDeviceManager().deleteSbcDevices(ids);
+        }
+    }
+
+    public void propagate() {
+        Collection<Integer> ids = getSelections().getAllSelected();
+        if (!ids.isEmpty()) {
+            setGenerateProfileIds(ids);
+        }
     }
 
     public void propagateAll() {
         Collection gatewayIds = getSbcDeviceManager().getAllSbcDeviceIds();
         setGenerateProfileIds(gatewayIds);
+    }
+
+    public void restart() {
+        Collection<Integer> ids = getSelections().getAllSelected();
+        if (ids.isEmpty()) {
+            return;
+        }
+        getRestartManager().restart(ids);
+        String msg = getMessages().format("msg.success.restart", Integer.toString(ids.size()));
+        TapestryUtils.recordSuccess(this, msg);
     }
 
     public IPage editSbc(IRequestCycle cycle, Integer sbcId) {

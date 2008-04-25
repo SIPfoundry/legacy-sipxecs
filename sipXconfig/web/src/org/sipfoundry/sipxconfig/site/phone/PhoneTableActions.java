@@ -45,7 +45,7 @@ public abstract class PhoneTableActions extends BaseComponent {
     @InjectObject(value = "spring:phoneContext")
     public abstract PhoneContext getPhoneContext();
 
-    @InjectObject(value = "spring:restartManager")
+    @InjectObject(value = "spring:phoneRestartManager")
     public abstract RestartManager getRestartManager();
 
     public void generateProfiles() {
