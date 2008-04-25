@@ -10,6 +10,9 @@
 package org.sipfoundry.sipxconfig.setting;
 
 import java.io.File;
+import java.util.Locale;
+import java.util.MissingResourceException;
+import java.util.ResourceBundle;
 
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.context.support.ResourceBundleMessageSource;
@@ -43,6 +46,23 @@ public class ModelMessageSource extends ResourceBundleMessageSource {
         String parentName = modelFile.getParentFile().getName();
         String baseName = FilenameUtils.getBaseName(modelFile.getName());
         return parentName + "." + baseName;
+    }
+
+    /**
+     * Handle MissignResourceException - base class logs scary looking error on the WARN level. We
+     * actually OK with having this on INFO level, since not having a bundle for model is OK in
+     * most cases.
+     */
+    protected ResourceBundle doGetBundle(String basename, Locale locale) {
+        try {
+            return super.doGetBundle(basename, locale);
+        } catch (MissingResourceException e) {
+            if (logger.isDebugEnabled()) {
+                logger.debug("ResourceBundle [" + basename + "] not found for MessageSource: " + e.getMessage());
+            }
+            return null;
+        }
+
     }
 
 }
