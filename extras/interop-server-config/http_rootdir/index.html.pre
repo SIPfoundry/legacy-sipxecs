@@ -258,6 +258,7 @@ to <a href='trace.cgi'>trace the message flow in this system</a>.
 <li><a href='#two-dialog-subs'>Multiple Dialog Event Subscriptions</a></li>
 <li><a href='#BLF-status'>BLF Status Display</a></li>
 <li><a href='#loopdetected'>Proxy Loop Detection</a></li>
+<li><a href='#Require'>Processing the <code>Require</code> Header</a></li>
 </ol>
 
 <h3><a name='MWI'>1</a>. DTMF Generation and Message Waiting Indication (MWI)</h3>
@@ -842,6 +843,21 @@ your user interface conveys the reason for the failure (and is not
 troubled by the response body).  For information on the motivation for
 this response construction, see
 <a href='http://svn.resiprocate.org/rep/ietf-drafts/lawrence/hopcopy/draft-ietf-sip-hop-limit-diagnostics-03.html'>Diagnostic Responses for Session Initiation Protocol Hop Limit Errors</a>.
+</p>
+
+<h3><a name='Require'>24</a>. Processing the <code>Require</code> Header</h3>
+
+<p>
+<a href="http://www.ietf.org/rfc/rfc3261.txt">RFC 3261</a> requires
+that if a UA receives a request containing a <code>Require</code> header that names
+a SIP extension that it does not implement, it must reject the request
+with a 420 Extension Not Implemented response.
+Any call to <code>*63xxxx</code> is sent to the UA at
+<code>xxxx</code> after having the header <code>Require: merde</code>
+added to the INVITE.
+Since there is not and never will be a SIP extension named
+<code>merde</code>, the destination UA must reject this INVITE with a
+420 response.
 </p>
 
 <hr />

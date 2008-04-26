@@ -248,5 +248,16 @@
       </permissionMatch>
     </userMatch>
 
+    <!-- Test handling of Require header. -->
+    <userMatch>
+      <userPattern>*63xxxx</userPattern>
+      <permissionMatch>
+        <transform>
+          <user>{vdigits}</user>
+	  <headerparams name='Require'>merde</headerparams>
+        </transform>
+      </permissionMatch>
+    </userMatch>
+
   </hostMatch>
 </mappings>
