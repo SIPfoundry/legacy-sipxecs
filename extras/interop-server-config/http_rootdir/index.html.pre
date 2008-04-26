@@ -713,7 +713,7 @@ and display BLF information.  BLF (Busy Lamp Field) is a feature of
 a UA where it displays the busy/not-busy statuses of other AORs
 (extensions).
 This server provides a resource list URI
-"sip:~~rl~<span class='group'>gg</span>@@SIPXCHANGE_DOMAIN_NAME@"
+"sip:~~rl~F~<span class='group'>gg</span>@@SIPXCHANGE_DOMAIN_NAME@"
 which includes the statuses of
 "sip:1<span class='group'>gg</span>2@@SIPXCHANGE_DOMAIN_NAME@",
 "sip:1<span class='group'>gg</span>6@@SIPXCHANGE_DOMAIN_NAME@", and
@@ -724,7 +724,7 @@ including listing the status of each registered UA for each AOR
 separately.
 If your UA requires dialog events in the more restricted format
 provided by Broadworks, it should subscribe to the URI
-"sip:~~rl~<span class='group'>gg</span>c@@SIPXCHANGE_DOMAIN_NAME@".
+"sip:~~rl~C~<span class='group'>gg</span>@@SIPXCHANGE_DOMAIN_NAME@".
 </p>
 
 <p>

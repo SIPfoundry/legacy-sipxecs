@@ -33,7 +33,7 @@ DOC_FILES=$(subst http_rootdir,$(HTTP_ROOTDIR),$(filter-out %~,$(wildcard http_r
 SIPDB_FILES=$(subst sipx_dbdir,$(SIPX_DATADIR)/sipdb,$(filter-out %~,$(wildcard sipx_dbdir/*)))
 
 # The installed names of files that are translated from .pre forms.
-CONFIG_FILES_EDITED=$(subst .pre,,$(subst sipx_confdir,$(SIPX_CONFDIR),$(wildcard sipx_confdir/*.pre)))
+CONFIG_FILES_EDITED=$(subst .pre,,$(subst sipx_confdir,$(SIPX_CONFDIR),$(wildcard sipx_confdir/*.pre))) $(SIPX_CONFDIR)/resource-lists.xml
 DOC_FILES_EDITED=$(subst .pre,,$(subst http_rootdir,$(HTTP_ROOTDIR),$(wildcard http_rootdir/*.pre)))
 SIPDB_FILES_EDITED=$(subst .pre,,$(subst sipx_dbdir,$(SIPX_DATADIR)/sipdb,$(wildcard sipx_dbdir/*.pre))) $(SIPX_DATADIR)/sipdb/credential.xml.in $(SIPX_DATADIR)/sipdb/permission.xml
 
@@ -111,17 +111,23 @@ $(SIPX_DATADIR)/sipdb/credential.xml: $(SIPX_DATADIR)/sipdb/credential.xml.in $(
 	$(SETSIPXPASSWD) --credential $@ 1234
 	chmod a+r $@
 
-# This rule runs the script credential.xml.in.pre.scripte to generate
+# This rule runs the script credential.xml.in.pre.script to generate
 # credential.xml.in.pre.
 $(SIPX_DATADIR)/sipdb/credential.xml.in.pre: $(SIPX_DATADIR)/sipdb/credential.xml.in.pre.script
 	sh $(SIPX_DATADIR)/sipdb/credential.xml.in.pre.script \
 		>$(SIPX_DATADIR)/sipdb/credential.xml.in.pre
 
-# This rule runs the script permission.xml.pre.scripte to generate
+# This rule runs the script permission.xml.pre.script to generate
 # permission.xml.pre.
 $(SIPX_DATADIR)/sipdb/permission.xml.pre: $(SIPX_DATADIR)/sipdb/permission.xml.pre.script
 	sh $(SIPX_DATADIR)/sipdb/permission.xml.pre.script \
 		>$(SIPX_DATADIR)/sipdb/permission.xml.pre
+
+# This rule runs the script resource-lists.xml.pre.script to generate
+# resource-lists.xml.pre.
+$(SIPX_CONFDIR)/resource-lists.xml.pre: $(SIPX_CONFDIR)/resource-lists.xml.pre.script
+	sh $(SIPX_CONFDIR)/resource-lists.xml.pre.script \
+		>$(SIPX_CONFDIR)/resource-lists.xml.pre
 
 # This rule edits config-version.html.in to generate config-version.html.
 $(HTTP_ROOTDIR)/config-version.html: $(HTTP_ROOTDIR)/config-version.html.in
