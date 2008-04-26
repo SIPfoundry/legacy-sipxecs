@@ -55,6 +55,9 @@ we may need the single-digit groups as well.)  "n" is used here to mean
 
 *4xxxx	Call retrieve
 
+*63xxxx	Send call to xxxx with "Require: merde" to test rejection
+	of unknown Require's (and display of 420 responses).
+
 *701ggxy	Send out-of-dialog REFER to 1ggx with Refer-To 1ggy
 
 *71gg	Paging call to all phones registered to 1ggn.

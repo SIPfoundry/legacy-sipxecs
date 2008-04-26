@@ -248,7 +248,9 @@
       </permissionMatch>
     </userMatch>
 
-    <!-- Test handling of Require header. -->
+    <!-- Test handling of Require header.
+      - Forward *63xxx to xxxx with "Require: merde".
+      -->
     <userMatch>
       <userPattern>*63xxxx</userPattern>
       <permissionMatch>
