@@ -30,23 +30,30 @@ import org.apache.log4j.Logger;
  * @author M. Ranganathan
  * 
  */
-public class Sym implements SymInterface {
+public class Sym implements SymInterface, Serializable {
+
+    
+    private static final long serialVersionUID = -2762988912663901623L;
 
     private static Logger logger = Logger.getLogger(Sym.class);
 
     private String id;
 
     /*
-     * My endpoint for media.
+     * The receier endpoint.
      */
-    private SymEndpoint receiver;
+    private SymReceiverEndpoint receiver;
 
     /*
-     * The remote endpoint for media.
+     * The transmitter endpoint.
      */
-    private SymEndpoint transmitter;
+    private SymTransmitterEndpoint transmitter;
 
-    private transient Bridge bridge;
+    
+    /*
+     * The bridge to which we blong.
+     */
+    private  Bridge bridge;
 
     public Sym() {
         id = "sym:" + Math.abs(new Random().nextLong());
@@ -75,11 +82,20 @@ public class Sym implements SymInterface {
 
     }
 
-    public void setMyEndpoint(SymEndpoint myEndpoint) {
-        this.receiver = myEndpoint;
-        myEndpoint.setRtpSession(this);
+    /**
+     * Set the receiver endpoint. Messages are received at this end.
+     * 
+     * @param receiverEndpoint
+     */
+    public void setReceiver(SymReceiverEndpoint receiverEndpoint) {
+        this.receiver = receiverEndpoint;
+        receiverEndpoint.setSym(this);
     }
 
+    /**
+     * Get the receiver endpoint.
+     * 
+     */
     public SymEndpoint getReceiver() {
         return receiver;
     }
@@ -90,14 +106,19 @@ public class Sym implements SymInterface {
      * 
      * @param hisEndpoint
      */
-    public void setRemoteEndpoint(SymEndpoint hisEndpoint) {
+    public void setTransmitter(SymTransmitterEndpoint hisEndpoint) {
 
         this.transmitter = hisEndpoint;
-        hisEndpoint.setRtpSession(this);
+        hisEndpoint.setSym(this);
+        this.transmitter.datagramChannel = this.receiver.datagramChannel;
 
     }
 
-    public SymEndpoint getTransmitter() {
+    /**
+     * Get the transmitter endpoint.
+     * 
+     */
+    public SymTransmitterEndpoint getTransmitter() {
         return transmitter;
     }
 
@@ -105,18 +126,20 @@ public class Sym implements SymInterface {
         logger.debug("Closing channel : " + this.receiver);
         try {
             if (this.receiver != null) {
-                if (this.receiver.getRtpDatagramChannel() != null)
-                    this.receiver.getRtpDatagramChannel().close();
-                if (this.receiver.getRtcpDatagramChannel() != null)
-                    this.receiver.getRtcpDatagramChannel().close();
+                if (this.receiver.getDatagramChannel() != null)
+                    this.receiver.getDatagramChannel().close();
+                int port = this.receiver.getPort();
+                PortRange portRange = new PortRange( port, port+1);
+                Gateway.getPortManager().free(portRange);
+                
             }
             if (this.transmitter != null) {
-                if (this.transmitter.getRtpDatagramChannel() != null)
-                    this.transmitter.getRtpDatagramChannel().close();
-                if (this.transmitter.getRtcpDatagramChannel() != null)
-                    this.transmitter.getRtcpDatagramChannel().close();
+                if (this.transmitter.getDatagramChannel() != null)
+                    this.transmitter.getDatagramChannel().close();
                 this.transmitter.stopKeepalive();
             }
+            // Return resource to the Port range manager.
+            
         } catch (Exception ex) {
             logger.error("Unexpected exception occured", ex);
         }

@@ -9,6 +9,11 @@ public class PortRange {
     private int lowerBound;
 
     private int higherBound;
+    
+    public PortRange( int lowbound, int highbound) {
+        this.lowerBound = lowbound;
+        this.higherBound = highbound;
+    }
 
     /**
      * @param lowerBound
@@ -48,6 +53,15 @@ public class PortRange {
         } catch (Exception ex) {
             throw new RuntimeException("Error generating map", ex);
         }
+    }
+
+    public int range() {
+        return this.higherBound - this.lowerBound;
+    }
+    
+    public String toString() {
+       return new StringBuffer().append("lowBound = " + this.lowerBound + "\n")
+        .append("highBound = " + this.higherBound + "\n").toString();
     }
 
 }

@@ -16,10 +16,7 @@ public class SimpleCallSetupTest extends TestCase {
 
     private MockSipxProxy sipxProxy;
 
-    static {
-
-        PropertyConfigurator.configure("log4j.properties");
-    }
+   
 
     public void testSendInviteFromSipxProxy() {
         try {

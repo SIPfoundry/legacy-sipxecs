@@ -11,12 +11,9 @@ import org.apache.xmlrpc.client.XmlRpcClientConfigImpl;
 
 import junit.framework.TestCase;
 
-public class GetPortRangeTest extends TestCase {
+public class GetPortRangeTest extends AbstractSymmitronTestCase {
     private static Logger logger = Logger.getLogger(StartStopBridgeTest.class);
-
-    private static final String serverAddress = "192.168.5.240";
-    private static final int port = 8080;
-    private XmlRpcClient client;
+  
 
     /*
      * (non-Javadoc)
@@ -25,15 +22,8 @@ public class GetPortRangeTest extends TestCase {
      */
 
     protected void setUp() throws Exception {
-        // WE ASSUME HERE that there is a valid account in
-        // /etc/sipxpbx/sipxbridge.xml
         super.setUp();
-        Gateway.startXmlRpcServer();
-        XmlRpcClientConfigImpl config = new XmlRpcClientConfigImpl();
-        config.setServerURL(new URL("http://" + serverAddress + ":" + port));
-        client = new XmlRpcClient();
-        client.setConfig(config);
-        client.execute("sipXbridge.start", (Object[]) null);
+        super.start();
 
     }
 

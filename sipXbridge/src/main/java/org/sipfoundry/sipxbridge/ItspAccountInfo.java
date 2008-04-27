@@ -117,7 +117,7 @@ public class ItspAccountInfo implements
     
     private String rtpKeepaliveMethod = "USE-EMPTY-PACKET";
     
-    private boolean reInviteSupported = false;
+    private boolean reInviteSupported = true;
 
     /**
      * This task runs periodically depending upon the timeout of the lookup

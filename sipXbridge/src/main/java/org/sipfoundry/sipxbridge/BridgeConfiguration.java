@@ -23,7 +23,7 @@ public class BridgeConfiguration {
     private int externalPort = 5080;
     private int localPort = 5090;
     private String sipxProxyDomain;
-    private String stunServerAddress = "stun01.sipphone.com";
+    private String stunServerAddress =null;
     private String logLevel = "INFO";
     private int rtpPortLowerBound = 25000;
     private int rtpPortUpperBound = 25500;

@@ -187,6 +187,8 @@ public interface Symmitron {
 
     public static final int ILLEGAL_STATE = 5;
     
+    public static final int PORTS_NOT_AVAILABLE = 6;
+    
     /**
      * Starting port for Sym allocation.
      * 
@@ -248,6 +250,10 @@ public interface Symmitron {
     /**
      * Destroy a sym. This deallocates any resources ( sockets, ports ) that have been reserved
      * for that Sym
+     * 
+     * @param controllerHandle -- the controller handle.
+     * 
+     * @param symId - the id of the sym to be destroyed.
      */
     public Map<String,Object> destroySym(String controllerHandle, String symId);
     
@@ -307,19 +313,21 @@ public interface Symmitron {
      *            need to add a remote endpoint.
      * 
      * 
-     * @param symEndpoint --
-     *            the remote endpoint to add specified as Name-value pairs.
+     * @param destinationIpAddress -- the destinationIpAddress
+     * 
+     * @param destinationPort -- the destination port.
      * 
      * @param keepAliveTime --
      *            the keep alive time (0 means no keep alive packets).
      * 
-     * @param useLastSentForKeepalive --
-     *            if true, the last transmitted packet is used for keepalive.
-     *            Keepalive will not start until the first transmission.
+     * @param keepAliveMethod --
+     *          can be one of the following "NONE", "USE-LAST-SENT","USE-EMPTY-PACKET"
+     *          "USE-SPECIFIED-PAYLOAD"
      * 
      * @param keepAlivePacketData --
-     *            the keep alive packet data. Use an empty byte array if sending
-     *            an empty UDP Packet for keepalive.
+     *            the keep alive packet data. This parameter is relevant if
+     *            USE-SPECIFIED-PAYLOAD is specified. This is a uuencoded string.
+     *            It is uudecoded to extract the keepalive data.
      *            
      * @param autoLearnDestination -- true implies auto discover remote port - send port is based on
      *          remote port of last seen packet ( useful for dealing with NAT reboots ).
@@ -329,9 +337,9 @@ public interface Symmitron {
      * 
      */
     public Map<String, Object> setDestination(String controllerHandle,
-            String symId, Map<String, Object> symEndpoint,
+            String symId, String destinationIpAddress, int destinationPort,
             int keepAliveTime, String keepaliveMethod,
-            byte[] keepAlivePacketData, boolean autoLearnDestination );
+            String keepAlivePacketData, boolean autoLearnDestination );
 
     
 
@@ -373,13 +381,22 @@ public interface Symmitron {
      * 
      * @param controllerHandle --
      *            the controller handle.
-     * @param maintainPortParity -- maintain port parity. If this is set to true, then
-     *           data received on even ports is forwarded to even port receivers and data
-     *           received on odd ports is forwarded to odd port receivers.
      * 
      * @return a map containing the allocated bridge ID.
      */
-    public Map<String, Object> createBridge(String controllerHandle, boolean maintainPortParity);
+    public Map<String, Object> createBridge(String controllerHandle);
+    
+    
+    /**
+     * Destroy a bridge. This method destroys all the syms associated with 
+     * the bridge. Once the bridge is destroyed all references to its handle
+     * are removed from memory.
+     * 
+     * @param controllerHandle -- the controller handle.
+     * 
+     * @return a standard map
+     */
+    public Map<String,Object> destroyBridge(String controllerHandle, String bridgeId);
 
     /**
      * Start shuffling data on the specified bridge.
@@ -396,19 +413,7 @@ public interface Symmitron {
     public Map<String, Object> startBridge(String controllerHandle,
             String bridgeId);
 
-    /**
-     * Stop a bridge.
-     * 
-     * @param controllerHandle --
-     *            the controller handle making this call.
-     * 
-     * @param bridgeId --
-     *            the bridge id.
-     * 
-     * @return A standard map
-     */
-    public Map<String, Object> stopBridge(String controllerHandle,
-            String bridgeId);
+ 
 
     /**
      * Pause the bridge. When you pause the bridge, all data shuffling will

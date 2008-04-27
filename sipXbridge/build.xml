@@ -174,8 +174,8 @@
                          <include name="**/*.jar" />
                   </fileset>
            </classpath>
-           <jvmarg value="-Djavax.net.ssl.trustStore=keystore/testkeys"/>
-           <jvmarg value="-Djavax.net.ssl.keyStore=keystore/testkeys"/>
+           <jvmarg value="-Djavax.net.ssl.trustStore=testdata/keystore/testkeys"/>
+           <jvmarg value="-Djavax.net.ssl.keyStore=testdata/keystore/testkeys"/>
            <jvmarg value="-Djavax.net.ssl.keyStorePassword=passphrase"/>
 
      </java>

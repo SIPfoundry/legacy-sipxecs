@@ -1,6 +1,10 @@
 package org.sipfoundry.sipxbridge;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileReader;
 import java.net.URL;
+import java.util.Properties;
 
 import org.apache.log4j.Logger;
 import org.apache.xmlrpc.XmlRpcException;
@@ -15,8 +19,8 @@ public class InvalidAccountTest extends TestCase {
 
     private static Logger logger = Logger.getLogger(InvalidAccountTest.class);
 
-    private static final String serverAddress = "192.168.5.240";
-    private static final int port = 8080;
+    private static  String serverAddress ;
+    private static  int port ;
     private XmlRpcClient client;
 
     /*
@@ -26,12 +30,13 @@ public class InvalidAccountTest extends TestCase {
      */
 
     protected void setUp() throws Exception {
-        // WE ASSUME HERE that there is a valid account in
-        // /etc/sipxpbx/sipxbridge.xml
+       
         super.setUp();
-
-        Gateway
-                .setConfigurationFileName("src/test/java/org/sipfoundry/sipxbridge/bad-account.xml");
+        Properties properties = new Properties();
+        properties.load(new FileInputStream( new File ("testdata/selftest.properties")));
+        Gateway.setConfigurationFileName(properties.getProperty("org.sipfoundry.gateway.badAccount"));
+        serverAddress = properties.getProperty ("org.sipfoundry.gateway.serverAddress");
+        port = Integer.parseInt(properties.getProperty("org.sipfoundry.gateway.xmlRpcPort"));
         Gateway.startXmlRpcServer();
         XmlRpcClientConfigImpl config = new XmlRpcClientConfigImpl();
         config.setServerURL(new URL("http://" + serverAddress + ":" + port));

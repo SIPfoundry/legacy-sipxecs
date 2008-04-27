@@ -12,6 +12,7 @@ import gov.nist.javax.sip.clientauthutils.AuthenticationHelper;
 
 import java.io.File;
 import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -144,6 +145,11 @@ public class Gateway {
      */
     public static GatewayState state = GatewayState.STOPPED;
 
+    /*
+     * The port manager.
+     */
+    private static PortRangeManager portRangeManager;
+
     private static String logFile;
 
     /*
@@ -152,6 +158,10 @@ public class Gateway {
     private static final int MAX_REGISTRATION_TIMER = 10000;
 
     private static boolean isTlsSupportEnabled = false;
+
+    private static InetAddress localAddressByName;
+    
+    private static boolean isWebServerRunning = false;
 
     private Gateway() {
 
@@ -181,9 +191,16 @@ public class Gateway {
             logger.addAppender(appender);
             BridgeConfiguration bridgeConfiguration = accountManager
                     .getBridgeConfiguration();
+
+            Gateway.portRangeManager = new PortRangeManager(bridgeConfiguration
+                    .getRtpPortLowerBound(), bridgeConfiguration
+                    .getRtpPortUpperBound());
             InetAddress localAddr = InetAddress.getByName(Gateway
                     .getLocalAddress());
-            if (Gateway.getXmlRpcWebServerPort() != 0) {
+            if (Gateway.getXmlRpcWebServerPort() != 0 && !isWebServerRunning) {
+                isWebServerRunning  = true;
+                System.out.println("Starting xml rpc server on port " +
+                        Gateway.getXmlRpcWebServerPort());
                 webServer = new WebServer(Gateway.getXmlRpcWebServerPort(),
                         localAddr);
 
@@ -195,6 +212,8 @@ public class Gateway {
 
                 server.setHandlerMapping(handlerMapping);
                 webServer.start();
+            } else {
+                logger.debug("Not starting xml rpc server - port is null");
             }
 
         } catch (Exception ex) {
@@ -416,6 +435,15 @@ public class Gateway {
 
     public static String getLocalAddress() {
         return accountManager.getBridgeConfiguration().getLocalAddress();
+    }
+
+    public static InetAddress getLocalAddressByName()
+            throws UnknownHostException {
+        if (Gateway.localAddressByName == null) {
+            Gateway.localAddressByName = InetAddress.getByName(Gateway
+                    .getLocalAddress());
+        }
+        return Gateway.localAddressByName;
     }
 
     /**
@@ -669,7 +697,7 @@ public class Gateway {
         try {
             SipListenerImpl listener = new SipListenerImpl();
             getWanProvider("udp").addSipListener(listener);
-            if ( Gateway.isTlsSupportEnabled) 
+            if (Gateway.isTlsSupportEnabled)
                 getWanProvider("tls").addSipListener(listener);
             getLanProvider().addSipListener(listener);
             ProtocolObjects.start();
@@ -743,11 +771,18 @@ public class Gateway {
     /**
      * Get the codec name.
      * 
-     * @return
      */
     public static String getCodecName() {
         return Gateway.getAccountManager().getBridgeConfiguration()
                 .getCodecName();
+    }
+
+    /**
+     * Get the port range manager.
+     * 
+     */
+    public static PortRangeManager getPortManager() {
+        return Gateway.portRangeManager;
     }
 
     /**
@@ -758,16 +793,16 @@ public class Gateway {
     public static void main(String[] args) throws Exception {
         try {
             boolean initOnStart = true;
-            
-            Gateway.isTlsSupportEnabled = 
-                System.getProperty("sipxbridge.enableTls","false").equals("true");
+
+            Gateway.isTlsSupportEnabled = System.getProperty(
+                    "sipxbridge.enableTls", "false").equals("true");
 
             Gateway.configurationFile = System.getProperty("conf.dir",
                     "/etc/sipxpbx")
                     + "/sipxbridge.xml";
             // Wait for the configuration file to become available.
-            while ( ! new File(Gateway.configurationFile).exists() ) {
-                Thread.sleep(5*1000);
+            while (!new File(Gateway.configurationFile).exists()) {
+                Thread.sleep(5 * 1000);
             }
             Gateway.startXmlRpcServer();
             if (initOnStart)

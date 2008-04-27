@@ -329,8 +329,7 @@ public class CallControlManager {
                 btobua.querySdpFromPeerDialog(requestEvent,
                         Operation.REFER_INVITE_TO_SIPX_PROXY, continuation);
             } else {
-                btobua.referInviteToSipxProxy(request, dialog, Gateway
-                        .getCodecName());
+                btobua.referInviteToSipxProxy(request, dialog);
             }
 
         } catch (ParseException ex) {
@@ -563,14 +562,7 @@ public class CallControlManager {
                 TransactionApplicationData tad = (TransactionApplicationData) responseEvent
                         .getClientTransaction().getApplicationData();
 
-                String codecName = null;
-
-                if (response.getStatusCode() == 200) {
-                    // The response has the codec name that we use for all
-                    // subsequent transfers.
-                    codecName = SipUtilities.getCodecName(response);
-                    logger.debug("processResponse: codecName " + codecName);
-                }
+             
 
                 /*
                  * The TransactionApplicationData operator will indicate what
@@ -578,7 +570,9 @@ public class CallControlManager {
                  */
                 if (tad.operation == Operation.QUERY_SDP_FROM_PEER_DIALOG
                         && response.getStatusCode() == 200) {
-
+                    /*
+                     * Got a Response to our SDP query. Shuffle to the other end.
+                     */
                     Request ackRequest = dialog.createAck(SipUtilities
                             .getSeqNumber(response));
 
@@ -588,7 +582,7 @@ public class CallControlManager {
                         dialog.sendAck(ackRequest);
                         ReferInviteToSipxProxyContinuationData continuation = (ReferInviteToSipxProxyContinuationData) tad.continuationData;
                         b2bua.referInviteToSipxProxy(continuation.request,
-                                continuation.dialog, codecName);
+                                continuation.dialog);
                     } 
 
                 } else if (tad.operation == Operation.SEND_INVITE_TO_ITSP
@@ -669,17 +663,17 @@ public class CallControlManager {
                                 .getApplicationData();
 
                         Sym rtpSession = dialogApplicationData.rtpSession;
-                        SymEndpoint hisEndpoint = null;
+                        SymTransmitterEndpoint hisEndpoint = null;
                         if (rtpSession != null) {
                             hisEndpoint = rtpSession.getTransmitter();
                         }
 
                         if (hisEndpoint == null) {
-                            hisEndpoint = new SymEndpoint(true);
+                            hisEndpoint = new SymTransmitterEndpoint();
 
                         }
 
-                        tad.outgoingSession.setRemoteEndpoint(hisEndpoint);
+                        tad.outgoingSession.setTransmitter(hisEndpoint);
                         hisEndpoint.setSessionDescription(sessionDescription);
                         if (tad.operation == Operation.SEND_INVITE_TO_ITSP) {
                             if (!tad.itspAccountInfo.getRtpKeepaliveMethod()

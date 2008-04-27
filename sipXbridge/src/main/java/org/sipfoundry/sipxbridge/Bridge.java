@@ -48,7 +48,6 @@ public class Bridge {
 
     private DataShuffler dataShuffler;
 
-    private boolean earlyMedia = true;
 
     private BridgeState state = BridgeState.INITIAL;
 
@@ -59,8 +58,6 @@ public class Bridge {
     private String id;
 
     private long processingCount = 0;
-
-    private boolean parityFlag;
 
     class DataShuffler implements Runnable {
         // The buffer into which we'll read data when it's available
@@ -80,9 +77,9 @@ public class Bridge {
                 selector = Selector.open();
 
                 for (Sym session : Bridge.this.sessions) {
-                    session.getReceiver().getRtpDatagramChannel()
+                    session.getReceiver().getDatagramChannel()
                             .configureBlocking(false);
-                    session.getReceiver().getRtpDatagramChannel().register(
+                    session.getReceiver().getDatagramChannel().register(
                             selector, SelectionKey.OP_READ);
                 }
                 initializeSelectors = false;
@@ -136,19 +133,13 @@ public class Bridge {
                                 continue;
                             }
 
-                            if (datagramChannel.socket().getPort() % 2 == 1) {
-                                logger
-                                        .debug("RtpBridge:Got an RTCP packet -- discarding");
-                                continue;
-
-                            }
 
                             try {
 
                                 for (Sym rtpSession : sessions) {
                                     if (datagramChannel == rtpSession
                                             .getReceiver()
-                                            .getRtpDatagramChannel()) {
+                                            .getDatagramChannel()) {
                                         if (logger.isDebugEnabled()) {
                                             logger.debug("got something on "
                                                     + rtpSession.getReceiver()
@@ -174,61 +165,32 @@ public class Bridge {
                                          */
                                         continue;
                                     }
-                                    SymEndpoint writeChannel = rtpSession
+                                    SymTransmitterEndpoint writeChannel = rtpSession
                                             .getTransmitter();
                                     if (writeChannel == null)
                                         continue;
 
                                     try {
+          
+
                                         /*
-                                         * We need to rewrite and generate a new
-                                         * RTP packet if and only if We have
-                                         * started the early media thread. AND
-                                         * the user has specified a given packet
-                                         * for RTP keepalive payload. We do this
-                                         * to keep sequence number continuity.
+                                         * No need for header rewrite. Just flip
+                                         * and push out.
                                          */
-                                        if (writeChannel.isKeepaliveStarted()
-                                                && writeChannel
-                                                        .getKeepalivePayload() != null) {
-                                            RtpPacket rtpPacket = writeChannel
-                                                    .createRtpPacket(readBuffer);
-
-                                            if (!writeChannel.isOnHold()) {
-                                                writeChannel.send(rtpPacket);
-                                            } else {
-                                                if (logger.isDebugEnabled()) {
-                                                    logger
-                                                            .debug("WriteChannel on hold."
-                                                                    + writeChannel
-                                                                            .getIpAddress()
-                                                                    + ":"
-                                                                    + writeChannel
-                                                                            .getPort()
-                                                                    + " Not forwarding");
-                                                }
-
-                                            }
+                                        if (!writeChannel.isOnHold()) {
+                                            writeChannel
+                                                    .send((ByteBuffer) readBuffer
+                                                            .flip());
                                         } else {
-                                            /*
-                                             * No need for header rewrite. Just
-                                             * flip and push out.
-                                             */
-                                            if (!writeChannel.isOnHold()) {
-                                                writeChannel
-                                                        .send((ByteBuffer) readBuffer
-                                                                .flip());
-                                            } else {
-                                                if (logger.isDebugEnabled()) {
-                                                    logger
-                                                            .debug("WriteChannel on hold."
-                                                                    + writeChannel
-                                                                            .getIpAddress()
-                                                                    + ":"
-                                                                    + writeChannel
-                                                                            .getPort()
-                                                                    + " Not forwarding");
-                                                }
+                                            if (logger.isDebugEnabled()) {
+                                                logger
+                                                        .debug("WriteChannel on hold."
+                                                                + writeChannel
+                                                                        .getIpAddress()
+                                                                + ":"
+                                                                + writeChannel
+                                                                        .getPort()
+                                                                + " Not forwarding");
                                             }
                                         }
 
@@ -281,8 +243,7 @@ public class Bridge {
     /**
      * Default constructor.
      */
-    public Bridge(boolean maintainPortParity) {
-        this.parityFlag = maintainPortParity;
+    public Bridge() {
         id = "bridge:" + Long.toString(Math.abs(new Random().nextLong()));
     }
 
@@ -294,7 +255,7 @@ public class Bridge {
      */
     public Bridge(Request request) throws IOException {
 
-        this(true);
+        this();
 
         try {
 
@@ -310,7 +271,7 @@ public class Bridge {
      * Constructor when we are given a media map
      */
     public Bridge(Set<Sym> rtpSession) {
-        this(true);
+        this();
         this.sessions.addAll(rtpSession);
     }
 
@@ -370,12 +331,12 @@ public class Bridge {
      * 
      */
     public void pause() {
-        
+
         if (this.state == BridgeState.PAUSED)
             return;
         else if (this.state == BridgeState.RUNNING) {
             this.state = BridgeState.PAUSED;
-            
+
         } else {
             throw new IllegalStateException("Cannot pause bridge in "
                     + this.state);
@@ -394,14 +355,13 @@ public class Bridge {
             return;
         else if (this.state == BridgeState.PAUSED) {
             this.state = BridgeState.RUNNING;
-            
+
         } else {
             throw new IllegalStateException(" Cannot resume bridge in "
                     + this.state);
         }
     }
 
-   
     /**
      * Gets the current state.
      * 
@@ -411,12 +371,17 @@ public class Bridge {
         return this.state;
     }
 
-    public void addSym(Sym rtpSession) {
-        this.sessions.add(rtpSession);
+    /**
+     * Add a sym to this bridge.
+     * 
+     * @param sym
+     */
+    public void addSym(Sym sym) {
+        this.sessions.add(sym);
         this.initializeSelectors = true;
-        rtpSession.setBridge(this);
+        sym.setBridge(this);
         if (logger.isDebugEnabled()) {
-            logger.debug("addSymSession : " + rtpSession);
+            logger.debug("addSymSession : " + sym);
             logger.debug("addSymSession : " + this);
         }
     }
@@ -436,7 +401,7 @@ public class Bridge {
         }
     }
 
-    public Set<Sym> getSessions() {
+    public Set<Sym> getSyms() {
         return this.sessions;
     }
 

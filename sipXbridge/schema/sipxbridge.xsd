@@ -188,7 +188,7 @@
 			</xs:element>
 
 			<xs:element name="stun-server-address" type="xs:string"
-				maxOccurs="1" minOccurs="0" default="stun01.sipphone.com">
+				maxOccurs="1" minOccurs="0" >
 				<xs:annotation>
 					<xs:documentation xml:lang="en">
 						The stun server address used to determine the

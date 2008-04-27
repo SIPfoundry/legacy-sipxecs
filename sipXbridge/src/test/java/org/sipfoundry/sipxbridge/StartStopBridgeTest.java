@@ -1,6 +1,9 @@
 package org.sipfoundry.sipxbridge;
 
+import java.io.File;
+import java.io.FileReader;
 import java.net.URL;
+import java.util.Properties;
 
 import org.apache.log4j.Logger;
 import org.apache.xmlrpc.XmlRpcException;
@@ -9,30 +12,10 @@ import org.apache.xmlrpc.client.XmlRpcClientConfigImpl;
 
 import junit.framework.TestCase;
 
-public class StartStopBridgeTest extends TestCase {
+public class StartStopBridgeTest extends AbstractSymmitronTestCase {
     private static Logger logger = Logger.getLogger(StartStopBridgeTest.class);
 
-    private static final String serverAddress = "192.168.5.240";
-    private static final int port = 8080;
-    private XmlRpcClient client;
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see junit.framework.TestCase#setUp()
-     */
-
-    protected void setUp() throws Exception {
-        // WE ASSUME HERE that there is a valid account in
-        // /etc/sipxpbx/sipxbridge.xml
-        super.setUp();
-        Gateway.startXmlRpcServer();
-        XmlRpcClientConfigImpl config = new XmlRpcClientConfigImpl();
-        config.setServerURL(new URL("http://" + serverAddress + ":" + port));
-        client = new XmlRpcClient();
-        client.setConfig(config);
-
-    }
+  
 
     public void testStartServer() {
         try {
@@ -58,10 +41,6 @@ public class StartStopBridgeTest extends TestCase {
 
     }
 
-    protected void tearDown() throws Exception {
-        super.tearDown();
-        client.execute("sipXbridge.stop", (Object[]) null);
-        Gateway.stopXmlRpcServer();
-    }
+    
 
 }

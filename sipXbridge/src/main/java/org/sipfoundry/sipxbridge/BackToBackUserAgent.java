@@ -71,6 +71,8 @@ public class BackToBackUserAgent {
     private ItspAccountInfo itspAccountInfo;
 
     private Bridge rtpBridge;
+    
+    private Bridge rtcpBridge; // TODO - manage this.
 
     /*
      * This is just a table of dialogs that reference this B2bua. When the table
@@ -130,18 +132,18 @@ public class BackToBackUserAgent {
             DialogApplicationData dialogApplicationData = DialogApplicationData
                     .get(dialog);
             if (dialogApplicationData.rtpSession == null) {
-                Sym rtpSession = new Sym();
-                SymEndpoint endpoint = new SymEndpoint(false);
+                Sym sym = new Sym();
+                SymReceiverEndpoint endpoint = new SymReceiverEndpoint(Gateway.getPortManager().allocate(2,Parity.EVEN).getLowerBound());
                 endpoint.setIpAddress(Gateway.getLocalAddress());
-                rtpSession.setMyEndpoint(endpoint);
-                this.getRtpBridge().addSym(rtpSession);
-                dialogApplicationData.rtpSession = rtpSession;
+                sym.setReceiver(endpoint);
+                this.getRtpBridge().addSym(sym);
+                dialogApplicationData.rtpSession = sym;
                 SessionDescription sd = SdpFactory.getInstance()
                         .createSessionDescription(
                                 this.rtpBridge.sessionDescription.toString());
-                rtpSession.getReceiver().setSessionDescription(
+                sym.getReceiver().setSessionDescription(
                         SipUtilities.cleanSessionDescription(sd, codecFilter));
-                this.rtpBridge.addSym(rtpSession);
+                this.rtpBridge.addSym(sym);
 
             }
             return dialogApplicationData.rtpSession;
@@ -165,11 +167,11 @@ public class BackToBackUserAgent {
                 /*
                  * Allocate a receiver.
                  */
-                SymEndpoint mediaEndpoint = new SymEndpoint(false);
+                SymReceiverEndpoint mediaEndpoint = new SymReceiverEndpoint(Gateway.getPortManager().allocate(2,Parity.EVEN).getLowerBound());
                 mediaEndpoint.setIpAddress(itspAccountInfo
                         .isGlobalAddressingUsed() ? Gateway.getGlobalAddress()
                         : Gateway.getLocalAddress());
-                rtpSession.setMyEndpoint(mediaEndpoint);
+                rtpSession.setReceiver(mediaEndpoint);
                 SessionDescription sd = SdpFactory.getInstance()
                         .createSessionDescription(
                                 this.rtpBridge.sessionDescription.toString());
@@ -294,7 +296,7 @@ public class BackToBackUserAgent {
              * a new bridge.
              */
             this.getRtpBridge().pause();
-            Set<Sym> myrtpSessions = this.getRtpBridge().getSessions();
+            Set<Sym> myrtpSessions = this.getRtpBridge().getSyms();
             this.rtpBridge.initializeSelectors = true;
 
             DialogApplicationData replacedDialogApplicationData = (DialogApplicationData) replacedDialog
@@ -302,8 +304,8 @@ public class BackToBackUserAgent {
             Bridge hisRtpBridge = replacedDialogApplicationData.backToBackUserAgent
                     .getRtpBridge();
             hisRtpBridge.pause();
-            Set<Sym> hisRtpSessions = hisRtpBridge.getSessions();
-            Bridge newRtpBridge = new Bridge(true);
+            Set<Sym> hisRtpSessions = hisRtpBridge.getSyms();
+            Bridge newRtpBridge = new Bridge();
 
             for (Sym sym : myrtpSessions) {
                 if (sym != DialogApplicationData.getRtpSession(replacedDialog)
@@ -455,11 +457,8 @@ public class BackToBackUserAgent {
      *            the refer request.
      * @param dialog -
      *            the re-Invite dialog.
-     * @param codecName -
-     *            the codec to use on the re-Invite
      */
-    public void referInviteToSipxProxy(Request referRequest, Dialog dialog,
-            String codecName) {
+    public void referInviteToSipxProxy(Request referRequest, Dialog dialog) {
         logger
                 .debug("referInviteToSipxProxy: sendingReInvite to refered-to location");
         try {
@@ -505,10 +504,10 @@ public class BackToBackUserAgent {
             ContentTypeHeader cth = ProtocolObjects.headerFactory
                     .createContentTypeHeader("application", "sdp");
 
-            Sym lanRtpSession = this.getLanRtpSession(dialog, codecName);
+            Sym lanRtpSession = this.getLanRtpSession(dialog, Gateway.getCodecName());
             SessionDescription sd = SipUtilities.cleanSessionDescription(
                     lanRtpSession.getReceiver().getSessionDescription(),
-                    codecName);
+                    Gateway.getCodecName());
             newRequest.setContent(sd, cth);
             /*
              * Create a new client transaction.
@@ -676,13 +675,13 @@ public class BackToBackUserAgent {
                         + sessionDescription);
             }
 
-            SymEndpoint rtpEndpoint = new SymEndpoint(true);
+            SymTransmitterEndpoint rtpEndpoint = new SymTransmitterEndpoint();
             if (!this.itspAccountInfo.getRtpKeepaliveMethod().equals("NONE")) {
                 rtpEndpoint.setMaxSilence(Gateway.getMediaKeepaliveMilisec(),
                         this.itspAccountInfo.getRtpKeepaliveMethod());
             }
             Sym incomingSession = this.getWanRtpSession(inboundDialog);
-            incomingSession.setRemoteEndpoint(rtpEndpoint);
+            incomingSession.setTransmitter(rtpEndpoint);
 
             rtpEndpoint.setSessionDescription(sessionDescription);
 
@@ -1044,9 +1043,9 @@ public class BackToBackUserAgent {
                 tad.incomingSession = this.getLanRtpSession(incomingDialog,
                         Gateway.getCodecName());
 
-                SymEndpoint rtpEndpoint = new SymEndpoint(true);
+                SymTransmitterEndpoint rtpEndpoint = new SymTransmitterEndpoint();
                 // rtpEndpoint.setMaxSilence(Gateway.getMediaKeepaliveMilisec());
-                tad.incomingSession.setRemoteEndpoint(rtpEndpoint);
+                tad.incomingSession.setTransmitter(rtpEndpoint);
                 rtpEndpoint.setSessionDescription(sessionDescription);
 
             } else if (spiral && replacesHeader == null) {
@@ -1070,8 +1069,8 @@ public class BackToBackUserAgent {
                     return;
                 }
                 tad.referingDialog = referingDialog;
-                SymEndpoint rtpEndpoint = new SymEndpoint(true);
-                rtpSession.setRemoteEndpoint(rtpEndpoint);
+                SymTransmitterEndpoint rtpEndpoint = new SymTransmitterEndpoint();
+                rtpSession.setTransmitter(rtpEndpoint);
                 rtpEndpoint.setSessionDescription(sessionDescription);
                 if (!tad.itspAccountInfo.getRtpKeepaliveMethod().equals("NONE")) {
                     rtpEndpoint.setMaxSilence(Gateway
