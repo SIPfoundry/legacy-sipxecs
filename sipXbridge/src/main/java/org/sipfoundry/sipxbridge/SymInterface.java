@@ -53,13 +53,6 @@ public interface SymInterface {
      */
     public SymEndpointInterface getReceiver();
 
-    /**
-     * Return a map that is suitable for transmission across the xml rpc
-     * interface.
-     * 
-     * @return -- the map that can be sent via an xml rpc interface.
-     * 
-     */
-    public Map<String, Object> toMap();
+    
 
 }

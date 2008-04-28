@@ -58,6 +58,10 @@ public class Bridge {
     private String id;
 
     private long processingCount = 0;
+    
+    private long creationTime = System.currentTimeMillis();
+    
+    private long lastPacketTime ;
 
     class DataShuffler implements Runnable {
         // The buffer into which we'll read data when it's available
@@ -136,18 +140,21 @@ public class Bridge {
 
                             try {
 
-                                for (Sym rtpSession : sessions) {
-                                    if (datagramChannel == rtpSession
+                                for (Sym sym : sessions) {
+                                    if (datagramChannel == sym
                                             .getReceiver()
                                             .getDatagramChannel()) {
                                         if (logger.isDebugEnabled()) {
                                             logger.debug("got something on "
-                                                    + rtpSession.getReceiver()
+                                                    + sym.getReceiver()
                                                             .getIpAddress()
                                                     + ":"
-                                                    + rtpSession.getReceiver()
+                                                    + sym.getReceiver()
                                                             .getPort());
                                         }
+                                        sym.lastPacketTime = System.currentTimeMillis();
+                                        Bridge.this.lastPacketTime = sym.lastPacketTime;
+                                        
                                         /*
                                          * Set the remote port of the
                                          * transmitter side of the connection.
@@ -165,7 +172,7 @@ public class Bridge {
                                          */
                                         continue;
                                     }
-                                    SymTransmitterEndpoint writeChannel = rtpSession
+                                    SymTransmitterEndpoint writeChannel = sym
                                             .getTransmitter();
                                     if (writeChannel == null)
                                         continue;
@@ -403,6 +410,14 @@ public class Bridge {
 
     public Set<Sym> getSyms() {
         return this.sessions;
+    }
+    
+    public long getLastPacketTime() {
+        return this.lastPacketTime;
+    }
+    
+    public long getCreationTime() {
+        return this.creationTime;
     }
 
     @Override

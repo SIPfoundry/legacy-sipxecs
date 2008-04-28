@@ -38,6 +38,10 @@ public class Sym implements SymInterface, Serializable {
     private static Logger logger = Logger.getLogger(Sym.class);
 
     private String id;
+    
+    private long creationTime;
+    
+    long lastPacketTime; 
 
     /*
      * The receier endpoint.
@@ -57,10 +61,13 @@ public class Sym implements SymInterface, Serializable {
 
     public Sym() {
         id = "sym:" + Math.abs(new Random().nextLong());
+        this.creationTime = System.currentTimeMillis();
+       
 
     }
 
     public Sym(Bridge bridge) {
+        this();
         this.bridge = bridge;
 
     }
@@ -131,12 +138,14 @@ public class Sym implements SymInterface, Serializable {
                 int port = this.receiver.getPort();
                 PortRange portRange = new PortRange( port, port+1);
                 Gateway.getPortManager().free(portRange);
+                this.receiver = null;
                 
             }
             if (this.transmitter != null) {
                 if (this.transmitter.getDatagramChannel() != null)
                     this.transmitter.getDatagramChannel().close();
                 this.transmitter.stopKeepalive();
+                this.transmitter = null;
             }
             // Return resource to the Port range manager.
             
@@ -339,6 +348,22 @@ public class Sym implements SymInterface, Serializable {
      */
     public void setBridge(Bridge bridge) {
         this.bridge = bridge;
+    }
+
+    public SymState getState() {
+        if ( this.receiver == null && this.transmitter == null ) return SymState.TERMINATED;
+        else if ( this.getTransmitter() == null ) return SymState.INIT;
+        else if ( this.getTransmitter() != null && getTransmitter().isOnHold() ) {
+            return SymState.PAUSED; 
+        } else return SymState.RUNNING;
+    }
+
+    public long getCreationTime() {
+        return this.creationTime;
+    }
+    
+    public long getLastPacketTime() {
+        return this.lastPacketTime;
     }
 
 }

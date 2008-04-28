@@ -45,6 +45,9 @@ public abstract class AbstractSymmitronTestCase extends TestCase {
     }
     
     
+    
+    
+    
     protected void tearDown() throws Exception {
         super.tearDown();
         client.execute("sipXbridge.stop", (Object[]) null);
@@ -56,10 +59,11 @@ public abstract class AbstractSymmitronTestCase extends TestCase {
         assertNotNull(retval.get(Symmitron.INSTANCE_HANDLE));
     }
    
-    protected void start() throws Exception {
+    protected String start() throws Exception {
         String retval = (String) client.execute("sipXbridge.start",
                 (Object[]) null);
-        System.out.println("StartBridge returned " + retval);
+        return retval;
+      
     }
     
     protected String createEvenSym() throws Exception {
@@ -70,7 +74,10 @@ public abstract class AbstractSymmitronTestCase extends TestCase {
         args[2] = Symmitron.EVEN;
         
         Map retval = (Map) client.execute("sipXbridge.createSyms", args);
-        
+        if ( retval.get(Symmitron.STATUS_CODE).equals(Symmitron.ERROR)) {
+            throw new Exception("Error in processing request " +
+                    retval.get(Symmitron.ERROR_INFO));
+        }
         Object[] syms = (Object[]) retval.get(Symmitron.SYM_SESSION);
         return ( String ) syms[0];
     }
@@ -79,6 +86,10 @@ public abstract class AbstractSymmitronTestCase extends TestCase {
         Object[] args = new Object[1];
         args[0] = this.clientHandle;
         Map retval = (Map) client.execute("sipXbridge.createBridge", args);
+        if ( retval.get(Symmitron.STATUS_CODE).equals(Symmitron.ERROR)) {
+            throw new Exception("Error in processing request " +
+                    retval.get(Symmitron.ERROR_INFO));
+        }
         return (String) retval.get(Symmitron.BRIDGE_ID);
     }
     
@@ -86,7 +97,11 @@ public abstract class AbstractSymmitronTestCase extends TestCase {
         Object[] args = new Object[2];
         args[0] = this.clientHandle;
         args[1] = bridgeId;
-        client.execute("sipXbridge.destroyBridge",args);
+        Map retval = (Map) client.execute("sipXbridge.destroyBridge",args);
+        if ( retval.get(Symmitron.STATUS_CODE).equals(Symmitron.ERROR)) {
+            throw new Exception("Error in processing request " +
+                    retval.get(Symmitron.ERROR_INFO));
+        }
     }
     
     protected String createOddSym() throws Exception {
@@ -97,7 +112,10 @@ public abstract class AbstractSymmitronTestCase extends TestCase {
         args[2] = Symmitron.ODD;
         
         Map retval = (Map) client.execute("sipXbridge.createSyms", args);
-        
+        if ( retval.get(Symmitron.STATUS_CODE).equals(Symmitron.ERROR)) {
+            throw new Exception("Error in processing request " +
+                    retval.get(Symmitron.ERROR_INFO));
+        }
         Object[] syms = (Object[]) retval.get(Symmitron.SYM_SESSION);
         return ( String ) syms[0];
     }
@@ -112,7 +130,11 @@ public abstract class AbstractSymmitronTestCase extends TestCase {
         params[5] = "USE-EMPTY-PACKET";
         params[6] = "";
         params[7] = new Boolean(false);
-        client.execute("sipXbridge.setDestination", params);
+        Map retval = (Map)client.execute("sipXbridge.setDestination", params);
+        if ( retval.get(Symmitron.STATUS_CODE).equals(Symmitron.ERROR)) {
+            throw new Exception("Error in processing request " +
+                    retval.get(Symmitron.ERROR_INFO));
+        }
 
     }
     
@@ -122,10 +144,105 @@ public abstract class AbstractSymmitronTestCase extends TestCase {
         params[1] = bridge;
         params[2] = sym;
         Map retval = (Map) client.execute("sipXbridge.addSym",params);
+        if ( retval.get(Symmitron.STATUS_CODE).equals(Symmitron.ERROR)) {
+            throw new Exception("Error in processing request " +
+                    retval.get(Symmitron.ERROR_INFO));
+        }
     }
     
-   
+    protected void removeSym(String bridge, String sym) throws Exception    {
+        Object[] parms = new Object[3];
+        parms[0] = clientHandle;
+        parms[1] = bridge;
+        parms[2] = sym;
+        Map retval = (Map) client.execute("sipXbridge.removeSym",parms);
+        if ( retval.get(Symmitron.STATUS_CODE).equals(Symmitron.ERROR)) {
+            throw new Exception("Error in processing request " +
+                    retval.get(Symmitron.ERROR_INFO));
+        }
+        
+    }
     
+    /**
+     * Get a Sym.
+     */
+    protected SymInterface getSym(String sym) throws Exception {
+        Object[] args = new Object[2];
+        args[0] = clientHandle;
+        args[1] = sym;
+        Map retval = (Map) client.execute("sipXbridge.getSym", args);
+        if ( retval.get(Symmitron.STATUS_CODE).equals(Symmitron.ERROR)) {
+            throw new Exception("Error in processing request " +
+                    retval.get(Symmitron.ERROR_INFO));
+        }
+        SymImpl symImpl = new SymImpl();
+        
+        Map symSession = (Map) retval.get(Symmitron.SYM_SESSION);
+        Map receiverSession = ( Map) symSession.get("receiver");
+        if ( receiverSession != null && !receiverSession.isEmpty() ) {
+            String ipAddr = (String) receiverSession.get("ipAddress");
+            int port = (Integer) receiverSession.get("port");
+            String id = (String)receiverSession.get("id");
+       
+            SymEndpointImpl receiverEndpoint  = new SymEndpointImpl();
+            receiverEndpoint.ipAddress = ipAddr;
+            receiverEndpoint.port = port;
+            receiverEndpoint.id = id;
+            symImpl.receiver = receiverEndpoint;
+        }
+        
+        Map transmitterSession = (Map) symSession.get("transmitter");
+        if ( transmitterSession != null && ! transmitterSession.isEmpty() ) { 
+            String ipAddr = (String) transmitterSession.get("ipAddress");
+            
+           
+            int port = (Integer) transmitterSession.get("port");
+            String id = (String)transmitterSession.get("id");
+            
+            SymEndpointImpl transmitterEndpoint  = new SymEndpointImpl();
+            transmitterEndpoint.ipAddress = ipAddr;
+            transmitterEndpoint.port = port;
+            transmitterEndpoint.id = id;
+            symImpl.transmitter = transmitterEndpoint;
+        }
+        return symImpl;
+    }
+    
+   public void pauseBridge(String bridge) throws Exception  {
+       Object[] args = new Object[2];
+       args[0] = clientHandle;
+       args[1] = bridge;
+       Map retval = (Map) client.execute("sipXbridge.pauseBridge",args);
+       if ( retval.get(Symmitron.STATUS_CODE).equals(Symmitron.ERROR)) {
+           throw new Exception("Error in processing request " +
+                   retval.get(Symmitron.ERROR_INFO));
+       }
+   }
+    
+   public void resumeBridge(String bridge) throws Exception  {
+       Object[] args = new Object[2];
+       args[0] = clientHandle;
+       args[1] = bridge;
+       Map retval = (Map) client.execute("sipXbridge.resumeBridge",args);
+       if ( retval.get(Symmitron.STATUS_CODE).equals(Symmitron.ERROR)) {
+           throw new Exception("Error in processing request " +
+                   retval.get(Symmitron.ERROR_INFO));
+       }
+   }
+   
+   public void startBridge(String bridge) throws Exception  {
+       Object[] args = new Object[2];
+       args[0] = clientHandle;
+       args[1] = bridge;
+       Map retval = (Map) client.execute("sipXbridge.startBridge", args);
+       if ( retval.get(Symmitron.STATUS_CODE).equals(Symmitron.ERROR)) {
+           throw new Exception("Error in processing request " +
+                   retval.get(Symmitron.ERROR_INFO));
+       }
+   }
+   
+   
+   
     protected void signIn() throws Exception {
         String[] myHandle = new String[1] ;
         myHandle[0] = clientHandle;

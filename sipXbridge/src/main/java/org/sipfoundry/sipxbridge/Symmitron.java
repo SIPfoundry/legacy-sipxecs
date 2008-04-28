@@ -143,11 +143,23 @@ public interface Symmitron {
      * The sym Bridge State.
      */
     public static final String BRIDGE_STATE = "bridge-state";
+    
+    /**
+     * The time the bridge was created.
+     */
+    public static final String CREATION_TIME = "creation-time";
+    
+    
+    /**
+     * Time the last packet was received.
+     */
+    public static String LAST_PACKET_RECEIVED = "last-packet-received";
+    
 
     /**
      * The sym Session State.
      */
-    public static final String SESSION_STATE = "session-state";
+    public static final String SESSION_STATE = "sym-state";
 
     /**
      * The number of packets received.
@@ -275,7 +287,8 @@ public interface Symmitron {
     public Map<String, Object> getSym(String controllerHandle, String symId);
 
     /**
-     * Hold an sym Session.
+     * Hold a sym. When a sym is in the paused state, it does not send 
+     * any data to the remote endpoint.
      * 
      * @param controllerHandle -
      *            the controller handle making this call.
@@ -285,7 +298,7 @@ public interface Symmitron {
      * 
      * @return a standard map.
      */
-    public Map<String, Object> holdSym(String controllerHandle,
+    public Map<String, Object> pauseSym(String controllerHandle,
             String symId);
 
     /**

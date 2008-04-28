@@ -341,7 +341,7 @@ public class SipXbridgeServer implements Symmitron {
         }
     }
 
-    public Map<String, Object> holdSym(String controllerHandle, String sessionId) {
+    public Map<String, Object> pauseSym(String controllerHandle, String sessionId) {
         try {
             this.checkForControllerReboot(controllerHandle);
             Sym rtpSession = sessionMap.get(sessionId);
@@ -452,12 +452,12 @@ public class SipXbridgeServer implements Symmitron {
     public Map<String, Object> pauseBridge(String controllerHandle,
             String bridgeId) {
         this.checkForControllerReboot(controllerHandle);
-        Bridge rtpBridge = bridgeMap.get(bridgeId);
-        if (rtpBridge == null) {
+        Bridge bridge = bridgeMap.get(bridgeId);
+        if (bridge == null) {
             return this.createErrorMap(SESSION_NOT_FOUND,
                     "Bridge corresponding to " + bridgeId + " not found");
         }
-        rtpBridge.pause();
+        bridge.pause();
         return this.createSuccessMap();
     }
 
@@ -475,12 +475,12 @@ public class SipXbridgeServer implements Symmitron {
 
     public Map<String, Object> resumeSym(String controllerHandle,
             String sessionId) {
-        // TODO Auto-generated method stub
+        
         this.checkForControllerReboot(controllerHandle);
         Sym rtpSession = sessionMap.get(sessionId);
         if (rtpSession == null) {
             return this.createErrorMap(SESSION_NOT_FOUND,
-                    "Specified RTP Session was not found " + sessionId);
+                    "Specified sym was not found " + sessionId);
         }
         if (rtpSession.getTransmitter() == null) {
             return this.createErrorMap(ILLEGAL_STATE,
@@ -491,15 +491,37 @@ public class SipXbridgeServer implements Symmitron {
     }
 
     public Map<String, Object> getSymStatistics(String controllerHandle,
-            String rtpSessionId) {
-
+            String symId) {
+        
+        Sym sym = sessionMap.get(symId);
+        if ( sym == null ) {
+            return this.createErrorMap(SESSION_NOT_FOUND, 
+                    "Specified sym was not found " + symId );
+        }
+        Map<String,Object> retval = new HashMap<String,Object>();
+        retval.put(Symmitron.SESSION_STATE, sym.getState().toString() );
+        retval.put(Symmitron.CREATION_TIME, new Long(sym.getCreationTime()));
+        retval.put(Symmitron.LAST_PACKET_RECEIVED, new Long(sym.getLastPacketTime()));
+        retval.put(Symmitron.CURRENT_TIME_OF_DAY, new Long(System.currentTimeMillis()).toString());
+    
+        
         return null;
     }
 
     public Map<String, Object> getBridgeStatistics(String controllerHandle,
             String bridgeId) {
 
-        return null;
+        Bridge bridge = bridgeMap.get(bridgeId);
+        if ( bridge == null ) {
+            return this.createErrorMap(SESSION_NOT_FOUND, 
+                    "Specified bridge was not found " + bridgeId );
+        }
+        Map<String,Object> retval = new HashMap<String,Object>();
+        retval.put(Symmitron.BRIDGE_STATE, bridge.getState().toString());
+        retval.put(Symmitron.CREATION_TIME, new Long(bridge.getCreationTime()));
+        retval.put(Symmitron.LAST_PACKET_RECEIVED, new Long(bridge.getLastPacketTime()));
+        retval.put(Symmitron.CURRENT_TIME_OF_DAY, new Long(System.currentTimeMillis()).toString());
+        return retval;
     }
 
     public Map<String, Object> signOut(String controllerHandle) {
