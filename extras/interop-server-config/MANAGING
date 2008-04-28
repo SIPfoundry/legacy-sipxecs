@@ -94,7 +94,7 @@ RPMs, install the sipX signing key:
 
 Install the perl-XML-Parser RPM to provide XML/Parser.pm.
 
-Obtain a copy copy of the configuration files with either:
+Obtain a copy of the configuration files with either:
 
 	wget -np -nH -r http://sipxecs.sipfoundry.org/rep/sipXecs/main/extras/interop-server-config
 	cd rep/sipXecs/main/extras/interop-server-config
