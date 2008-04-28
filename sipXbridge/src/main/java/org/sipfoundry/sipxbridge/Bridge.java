@@ -7,6 +7,8 @@
 package org.sipfoundry.sipxbridge;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.DatagramChannel;
@@ -48,7 +50,6 @@ public class Bridge {
 
     private DataShuffler dataShuffler;
 
-
     private BridgeState state = BridgeState.INITIAL;
 
     SessionDescription sessionDescription;
@@ -58,10 +59,10 @@ public class Bridge {
     private String id;
 
     private long processingCount = 0;
-    
+
     private long creationTime = System.currentTimeMillis();
-    
-    private long lastPacketTime ;
+
+    private long lastPacketTime;
 
     class DataShuffler implements Runnable {
         // The buffer into which we'll read data when it's available
@@ -126,7 +127,8 @@ public class Bridge {
                             readBuffer.clear();
                             DatagramChannel datagramChannel = (DatagramChannel) key
                                     .channel();
-                            datagramChannel.receive(readBuffer);
+                            InetSocketAddress remoteAddress = (InetSocketAddress) datagramChannel.receive(readBuffer);
+                            
                             processingCount++;
                             if (getState() != BridgeState.RUNNING) {
                                 if (logger.isDebugEnabled()) {
@@ -137,12 +139,10 @@ public class Bridge {
                                 continue;
                             }
 
-
                             try {
 
                                 for (Sym sym : sessions) {
-                                    if (datagramChannel == sym
-                                            .getReceiver()
+                                    if (datagramChannel == sym.getReceiver()
                                             .getDatagramChannel()) {
                                         if (logger.isDebugEnabled()) {
                                             logger.debug("got something on "
@@ -151,10 +151,12 @@ public class Bridge {
                                                     + ":"
                                                     + sym.getReceiver()
                                                             .getPort());
+                                            logger.debug("remoteIpAddressAndPort : " + remoteAddress.getHostName() + ":" + remoteAddress.getPort());
                                         }
-                                        sym.lastPacketTime = System.currentTimeMillis();
+                                        sym.lastPacketTime = System
+                                                .currentTimeMillis();
                                         Bridge.this.lastPacketTime = sym.lastPacketTime;
-                                        
+
                                         /*
                                          * Set the remote port of the
                                          * transmitter side of the connection.
@@ -162,14 +164,14 @@ public class Bridge {
                                          * can change while in progress. This is
                                          * not relevant for the LAN side.
                                          */
-                                        /*
-                                         * if (rtpSession.getTransmitter() !=
-                                         * null && rtpSession.getTransmitter()
-                                         * .isKeepaliveStarted()) {
-                                         * rtpSession.getTransmitter() .setPort(
-                                         * datagramChannel .socket()
-                                         * .getRemoteSocketAddress()); }
-                                         */
+
+                                        if (sym.getTransmitter() != null
+                                                && sym.getTransmitter().isRemoteAddressAutoDiscovered()) {
+                                           
+                                            sym.getTransmitter().setIpAddressAndPort(remoteAddress.getHostName(), remoteAddress.getPort());
+                                            
+                                        }
+
                                         continue;
                                     }
                                     SymTransmitterEndpoint writeChannel = sym
@@ -178,7 +180,6 @@ public class Bridge {
                                         continue;
 
                                     try {
-          
 
                                         /*
                                          * No need for header rewrite. Just flip
@@ -411,11 +412,11 @@ public class Bridge {
     public Set<Sym> getSyms() {
         return this.sessions;
     }
-    
+
     public long getLastPacketTime() {
         return this.lastPacketTime;
     }
-    
+
     public long getCreationTime() {
         return this.creationTime;
     }

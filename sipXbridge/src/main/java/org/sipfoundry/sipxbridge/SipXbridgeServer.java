@@ -12,6 +12,8 @@ import org.apache.xmlrpc.XmlRpcException;
 import org.apache.xmlrpc.XmlRpcHandler;
 import org.apache.xmlrpc.XmlRpcRequest;
 
+import sun.misc.UUDecoder;
+
 /**
  * The SIPXbridge XML RPC handler.
  * 
@@ -304,12 +306,13 @@ public class SipXbridgeServer implements Symmitron {
             if (keepAlivePacketData.equals("")) {
                 keepAliveBytes = null;
             } else {
-                // TODO -- uudecode it.
+               UUDecoder decoder = new UUDecoder();
+               decoder.decodeBuffer(keepAlivePacketData);
             }
 
             transmitter.setKeepalivePayload(keepAliveBytes);
 
-            transmitter.setRemoteAddressAutoDiscovery(autoDiscoveryFlag);
+            transmitter.setRemoteAddressAutoDiscovered(autoDiscoveryFlag);
             if (sym.getTransmitter() == null) {
                 sym.setTransmitter(transmitter);
             }

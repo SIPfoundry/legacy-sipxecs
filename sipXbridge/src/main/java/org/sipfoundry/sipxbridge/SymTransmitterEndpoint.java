@@ -28,20 +28,20 @@ public class SymTransmitterEndpoint extends SymEndpoint {
 
     private ByteBuffer keepAliveBuffer = ByteBuffer.allocate(0);
 
-    private transient boolean remoteAddressAutoDiscoverFlag = false;
+    private  boolean remoteAddressAutoDiscovered = false;
 
     private String keepaliveMethod = "USE-EMPTY-PACKET";
 
-    private transient KeepaliveTimerTask keepaliveTimerTask;
+    private  KeepaliveTimerTask keepaliveTimerTask;
 
     private static Logger logger = Logger
             .getLogger(SymTransmitterEndpoint.class);
 
     private boolean onHold = false;
 
-    private transient boolean earlyMediaStarted = false;
+    private  boolean earlyMediaStarted = false;
 
-    private transient int maxSilence;
+    private int maxSilence;
 
     /**
      * The keepalive timer task.
@@ -208,10 +208,12 @@ public class SymTransmitterEndpoint extends SymEndpoint {
         }
     }
 
-    public void setRemoteAddressAutoDiscovery(boolean autoDiscoverFlag) {
-        this.remoteAddressAutoDiscoverFlag = autoDiscoverFlag;
+    public void setRemoteAddressAutoDiscovered(boolean autoDiscoverFlag) {
+        this.remoteAddressAutoDiscovered = autoDiscoverFlag;
 
     }
+    
+   
 
     public void setOnHold(boolean onHold) {
         this.onHold = onHold;
@@ -236,6 +238,13 @@ public class SymTransmitterEndpoint extends SymEndpoint {
       super.port = port;
       super.socketAddress = new InetSocketAddress( InetAddress.getByName(ipAddress), port);
         
+    }
+
+    /**
+     * @return the remoteAddressAutoDiscovered
+     */
+    public boolean isRemoteAddressAutoDiscovered() {
+        return remoteAddressAutoDiscovered;
     }
     
     

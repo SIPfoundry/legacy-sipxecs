@@ -202,7 +202,6 @@ public class SymmitronTest extends AbstractSymmitronTestCase {
         String ipAddr = (String) receiverSession.get("ipAddress");
         int port = (Integer) receiverSession.get("port");
         
-        System.out.println("ipAddr = " + ipAddr + " port " + port);
         
         
         String bridge = super.createBridge();
@@ -478,8 +477,7 @@ public class SymmitronTest extends AbstractSymmitronTestCase {
         SymInterface sym = super.getSym(sym1);
         String ipAddr = sym.getReceiver().getIpAddress();
         int port = sym.getReceiver().getPort();
-        System.out.println("ipAddr = " + ipAddr + " port " + port);
-       
+        
         
         String bridge = super.createBridge();
         super.setRemoteEndpoint(sym1, destinationPort1);
@@ -507,12 +505,11 @@ public class SymmitronTest extends AbstractSymmitronTestCase {
         this.counter = 0;
         
         byte[] data  = new byte[1024]  ;
-        DatagramSocket datagramSocket = new DatagramSocket();
         for ( int i = 0 ; i < 1000 ; i++) {
             DatagramPacket datagramPacket = new DatagramPacket( data, 
                     data.length,InetAddress.getByName(ipAddr), port);
             Thread.sleep(10);
-            datagramSocket.send(datagramPacket);
+            datagramSocket1.send(datagramPacket);
         }
         Thread.sleep(100);
         assertTrue ( counter >= 1000 );
@@ -528,7 +525,7 @@ public class SymmitronTest extends AbstractSymmitronTestCase {
             DatagramPacket datagramPacket = new DatagramPacket( data, 
                     data.length,InetAddress.getByName(ipAddr), port);
             Thread.sleep(10);
-            datagramSocket.send(datagramPacket);
+            datagramSocket1.send(datagramPacket);
         }
         Thread.sleep(100);
         
@@ -547,7 +544,7 @@ public class SymmitronTest extends AbstractSymmitronTestCase {
             DatagramPacket datagramPacket = new DatagramPacket( data, 
                     data.length,InetAddress.getByName(ipAddr), port);
             Thread.sleep(10);
-            datagramSocket.send(datagramPacket);
+            datagramSocket1.send(datagramPacket);
         }
         Thread.sleep(100);
         
