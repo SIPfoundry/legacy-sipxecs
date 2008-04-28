@@ -65,7 +65,7 @@ protected:
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
 
-   //! Pointer to the SubscriptionDB instance that handles persistance.
+   //! Pointer to the SubscriptionDB instance that handles persistence.
    SubscriptionDB* mSubscriptionDBInstance;
 
    //! Copy constructor NOT ALLOWED
@@ -197,7 +197,7 @@ private:
    //! the AOR domain name
    UtlString mDomain;
 
-   //! Pointer to the SubscriptionDB instance that handles persistance.
+   //! Pointer to the SubscriptionDB instance that handles persistence.
    SubscriptionDB* mSubscriptionDBInstance;
 
    //! Timer for flushing changes to disk.
