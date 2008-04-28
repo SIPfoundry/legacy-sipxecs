@@ -11,6 +11,7 @@ package org.sipfoundry.sipxconfig.phone.aastra;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import junit.framework.TestCase;
 
@@ -22,6 +23,7 @@ import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.device.MemoryProfileLocation;
 import org.sipfoundry.sipxconfig.device.Profile;
+import org.sipfoundry.sipxconfig.device.RestartException;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.LineInfo;
 import org.sipfoundry.sipxconfig.phone.Phone;
@@ -33,17 +35,12 @@ import org.sipfoundry.sipxconfig.speeddial.SpeedDial;
 
 public class AastraPhoneTest extends TestCase {
 
-    public void _testFactoryRegistered() {
-        PhoneContext pc = (PhoneContext) TestHelper.getApplicationContext().getBean(PhoneContext.CONTEXT_BEAN_NAME);
-        assertNotNull(pc.newPhone(new PhoneModel("aastra")));
-    }
-
     public void testGetFileName() throws Exception {
         AastraPhone phone = new AastraPhone();
-        phone.setSerialNumber("0011aabb4050");
+        phone.setSerialNumber("0011AABB4050");
         Profile[] profileTypes = phone.getProfileTypes();
         assertEquals(1, profileTypes.length);
-        assertEquals("0011aabb4050.cfg", profileTypes[0].getName());
+        assertEquals("0011AABB4050.cfg", profileTypes[0].getName());
     }
 
     public void testExternalLine() throws Exception {
@@ -74,6 +71,20 @@ public class AastraPhoneTest extends TestCase {
         phone.restart();
 
         testDriver.sipControl.verify();
+    }
+
+    public void testRestartNoLine() throws Exception {
+        PhoneModel aastraModel = new PhoneModel("aastra");
+        Phone phone = new AastraPhone();
+        phone.setModel(aastraModel);
+
+        PhoneTestDriver.supplyTestData(phone, new ArrayList<User>());
+        try {
+            phone.restart();
+            fail();
+        } catch (RestartException re) {
+            assertTrue(true);
+        }
     }
 
     // FIXME: this test is failing - no speeddial generated
@@ -171,13 +182,33 @@ public class AastraPhoneTest extends TestCase {
 
         supplyTestData(phone);
 
-        phone.setSerialNumber("0011aabb4050");
+        phone.setSerialNumber("0011AABB4050");
         phone.getProfileTypes()[0].generate(phone, location);
 
         assertEquals(1, phone.getProfileTypes().length);
-        assertEquals("0011aabb4050.cfg", phone.getProfileTypes()[0].getName());
+        assertEquals("0011AABB4050.cfg", phone.getProfileTypes()[0].getName());
 
         InputStream expectedProfile = getClass().getResourceAsStream("mac.cfg");
+
+        assertNotNull(expectedProfile);
+        assertEquals(IOUtils.toString(expectedProfile), location.toString());
+    }
+
+    public void testGenerateProfileWithNoLines() throws Exception {
+        List<User> m_lines = new ArrayList<User>();
+        PhoneModel aastraModel = new PhoneModel("aastra");
+        aastraModel.setProfileTemplate("aastra/aastra.cfg.vm");
+        aastraModel.setMaxLineCount(9);
+        AastraPhone phone = new AastraPhone();
+        phone.setModel(aastraModel);
+
+        MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(phone);
+
+        PhoneTestDriver.supplyTestData(phone, m_lines);
+
+        phone.getProfileTypes()[0].generate(phone, location);
+
+        InputStream expectedProfile = getClass().getResourceAsStream("mac_noline.cfg");
 
         assertNotNull(expectedProfile);
         assertEquals(IOUtils.toString(expectedProfile), location.toString());
@@ -200,4 +231,5 @@ public class AastraPhoneTest extends TestCase {
             u1, u2
         }));
     }
+
 }

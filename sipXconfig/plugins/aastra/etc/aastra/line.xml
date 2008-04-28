@@ -5,6 +5,7 @@
 ]>
 
 <model>
+  &types;
   <group name='sip_id'>
     <setting name='screen_name'>
       <profileName>screen name</profileName>
@@ -104,21 +105,17 @@
     </setting>
     <setting name='dtmf_method'>
       <profileName>dtmf method</profileName>
-      <type>
-        <integer />
-      </type>
+      <type refid="dtmf-method" />
       <value>0</value>
     </setting>
     <setting name='srtp_mode'>
       <profileName>srtp mode</profileName>
-      <type>
-        <integer max='2' min='-1' />
-      </type>
+      <type refid="line-rtp-encrypt" />
       <value>0</value>
     </setting>
   </group>
 
-  <group name="Not_needed">
+  <group name="Not_needed" hidden="yes">
     <setting name='bla_number'>
       <profileName>bla number</profileName>
       <type>

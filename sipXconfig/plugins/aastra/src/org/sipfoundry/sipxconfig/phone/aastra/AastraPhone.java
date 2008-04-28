@@ -128,7 +128,7 @@ public class AastraPhone extends Phone {
 
     @Override
     public String getProfileFilename() {
-        return getSerialNumber() + ".cfg";
+        return getSerialNumber().toUpperCase() + ".cfg";
     }
 
 }

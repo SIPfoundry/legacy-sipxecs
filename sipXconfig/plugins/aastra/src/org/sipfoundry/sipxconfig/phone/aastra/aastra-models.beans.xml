@@ -6,8 +6,12 @@
     <property name="beanId" value="aastra" />
     <property name="profileTemplate" value="aastra/aastra.cfg.vm" />
     <property name="vendor" value="Aastra"/>
+    <property name="staticProfileFilenames">
+      <list>
+        <value>aastra.cfg</value>
+      </list>
+    </property>
   </bean>
-
   <bean id="aastra53i" parent="aastraModel">
     <property name="label" value="Aastra SIP IP 53i" />
     <property name="maxLineCount" value="9" />
@@ -17,8 +21,8 @@
     <property name="maxLineCount" value="9" />
   </bean>
   <bean id="aastra57i" parent="aastraModel">
-  	<property name="label" value="Aastra SIP IP 57i" />
-  	<property name="maxLineCount" value="9" />
+    <property name="label" value="Aastra SIP IP 57i" />
+    <property name="maxLineCount" value="9" />
   </bean>
   <bean id="aastra560m" parent="aastraModel">
     <property name="label" value="Aastra SIP IP 560m" />

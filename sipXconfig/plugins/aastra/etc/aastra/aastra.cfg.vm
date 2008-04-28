@@ -52,7 +52,7 @@ ${setting.profileName}: $!{setting.Value}
 #if ($group.Name != "Not_needed")
 # == Settings for $group.Name ==
 #foreach ($setting in $group.Values)
-sip line${line_id} ${setting.ProfileName}:  $!{setting.Value}
+sip line${line_id} ${setting.ProfileName}: $!{setting.Value}
 #end
 #end
 #end

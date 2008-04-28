@@ -12,7 +12,7 @@
         <type>
           <boolean />
         </type>
-        <value>0</value>
+        <value>1</value>
       </setting>
       <setting name="sip_explicit_mwi_subscription_period">
         <profileName>sip explicit mwi subscription period</profileName>
@@ -23,8 +23,8 @@
       </setting>
       <setting name="sip_transport_protocol">
         <profileName>sip transport protocol</profileName>
-        <type refid="transport-protocol" />
-        <value>1</value>
+        <type refid="trprot" />
+        <value>0</value>
       </setting>
       <setting name="sip_symmetric_udp_signaling" advanced="yes">
         <profileName>sip symmetric udp signaling</profileName>
@@ -211,7 +211,7 @@
         <type>
           <string />
         </type>
-        <value>X+#|XX+*</value>
+        <value>"X+#|XX+*"</value>
       </setting>
       <setting name="sip_dial_plan_terminator">
         <profileName>sip dial plan terminator</profileName>
@@ -424,7 +424,9 @@
       <setting name="directed_call_pickup_prefix">
         <profileName>directed call pickup prefix</profileName>
         <type>
-          <integer />
+          <string required="yes">
+            <pattern>\b[*0-9]</pattern>
+          </string>
         </type>
         <value />
       </setting>
@@ -847,17 +849,10 @@
   </group>
   <group name="server">
     <group name="tftp" advanced="yes">
-      <setting name="download_protocol" advanced="yes">
+      <setting name="download_protocol">
         <profileName>download protocol</profileName>
         <type refid="protocol-type" />
         <value>TFTP</value>
-      </setting>
-      <setting name="tftp_server" advanced="yes">
-        <profileName>tftp server</profileName>
-        <type>
-          <ipaddr />
-        </type>
-        <value>0.0.0.0</value>
       </setting>
       <setting name="use_alternate_tftp" advanced="yes">
         <profileName>use alternate tftp</profileName>
@@ -1044,7 +1039,7 @@
       <value>1</value>
     </setting>
   </group>
-  <group name="ExpansionModel">
+  <group name="ExpansionModel" hidden="yes">
     <group name="ExpansionModelN">
       <setting name="expmodX_keyN_type">
         <profileName>expmodX keyN type</profileName>
@@ -1256,7 +1251,7 @@
     ==========
     
   -->
-  <group name="not_needed">
+  <group name="not_needed" hidden="yes">
     <group name="Network">
       <setting name="dhcp">
         <profileName>dhcp</profileName>
