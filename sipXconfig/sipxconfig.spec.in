@@ -120,6 +120,7 @@ Summary: Configures/enables MRTG monitoring for %{name}
 
 %package conference
 Requires: sipxconfig
+Requires: sipxcommserverlib
 Requires: sipX-freeswitch
 Group: Productivity/Telephony/SIP/Servers
 Vendor: SIPfoundry

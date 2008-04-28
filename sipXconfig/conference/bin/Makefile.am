@@ -1,16 +1,21 @@
 include $(top_srcdir)/config/subdir.am
 
 editscripts_IN = \
-    freeswitch.sh
+    freeswitch.sh.in
 
 EXTRA_DIST = \
-    $(editscripts_IN)
+   $(editscripts_IN)
 
-install-exec-hook: $(foreach file,$(editscripts_IN),$(DESTDIR)$(bindir)/$(file))
+# install-exec-hook: $(foreach file,$(editscripts_IN),$(DESTDIR)$(bindir)/$(file))
 
-$(foreach file,$(editscripts_IN),$(DESTDIR)$(bindir)/$(file)) : $(DESTDIR)$(bindir)/% : %
-	$(INSTALL) -D -m 755 $< $@
+.PHONY : editscripts
+editscripts :
+	@for f in $(editscripts_IN); \
+	do \
+		target=`basename $$f .in`; \
+		$(LocalizeSipXconfig) $(srcdir)/$$f > $$target; \
+		$(INSTALL) -D -m 755 $$target $(DESTDIR)$(bindir)/$$target; \
+	done
 
-$(foreach file,$(editscripts_IN),$(file)) : % : %.in
-	$(LocalizeSipXconfig) $< > $@
+install-exec-hook : editscripts
 
