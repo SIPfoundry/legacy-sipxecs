@@ -44,7 +44,7 @@ $(AC_TARGETS) :
 	$(MAKE) $@.bld
 
 # required on all platforms
-CUSTOM_PACKAGES = cgicc xerces-c ruby-dbi ruby-gems ruby-postgres $(JAVA_PKG) rrdtool
+CUSTOM_PACKAGES = cgicc xerces-c ruby-dbi ruby-gems ruby-postgres $(JAVA_PKG) rrdtool conference
 
 .PHONY: fc8 fc7 fc6
 fc8 fc7 fc6 : $(CUSTOM_PACKAGES)
