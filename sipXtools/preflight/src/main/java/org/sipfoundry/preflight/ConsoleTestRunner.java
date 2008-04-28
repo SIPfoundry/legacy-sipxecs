@@ -50,7 +50,7 @@ public class ConsoleTestRunner {
                 .withValueSeparator('=').hasArg().withArgName("realm").create();
 
         Option ntpTest = OptionBuilder.withLongOpt("ntp-test").withDescription(
-                "Verify that the NTP server(s) supplied by the DHCP server are properly servicing NTP time requests.").withValueSeparator('=').hasArg().withArgName(
+                "Verify that the NTP server(s) supplied by the DHCP server are properly servicing NTP time requests.").withValueSeparator('=').hasOptionalArg().withArgName(
                 "server").create();
 
         Option tftpTest = OptionBuilder.withLongOpt("tftp-test").withDescription(
