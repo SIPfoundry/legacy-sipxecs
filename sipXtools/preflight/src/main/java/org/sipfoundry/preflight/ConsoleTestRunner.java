@@ -50,7 +50,8 @@ public class ConsoleTestRunner {
                 .withValueSeparator('=').hasArg().withArgName("realm").create();
 
         Option ntpTest = OptionBuilder.withLongOpt("ntp-test").withDescription(
-                "Verify that the NTP server(s) supplied by the DHCP server are properly servicing NTP time requests.").create();
+                "Verify that the NTP server(s) supplied by the DHCP server are properly servicing NTP time requests.").withValueSeparator('=').hasArg().withArgName(
+                "server").create();
 
         Option tftpTest = OptionBuilder.withLongOpt("tftp-test").withDescription(
                 "Verify that the specified TFTP server is functioning properly.").withValueSeparator('=').hasArg().withArgName(
@@ -186,6 +187,16 @@ public class ConsoleTestRunner {
 
             if (line.hasOption("ntp-test")) {
                 NTP ntp = new NTP();
+                String ntpServer = line.getOptionValue("ntp-test");
+                if (ntpServer != null) {
+                    networkResources.ntpServers = new LinkedList<InetAddress>();
+                    try {
+                        networkResources.ntpServers.add(InetAddress.getByName(ntpServer));
+                    } catch (UnknownHostException e) {
+                        journalService.println("Invalid NTP server specified on command line.");
+                        networkResources.ntpServers = null;
+                    }
+                }
                 results = ntp.validate(10, networkResources, journalService, bindAddress);
                 if (results != NONE) {
                     System.err.println(results.toString());
