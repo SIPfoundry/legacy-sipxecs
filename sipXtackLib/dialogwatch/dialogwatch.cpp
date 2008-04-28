@@ -44,7 +44,8 @@ static const char default_content_type[] =
    DIALOG_EVENT_CONTENT_TYPE ","
    CONTENT_TYPE_MULTIPART_RELATED ","
    RESOURCE_LIST_CONTENT_TYPE ","
-   REG_EVENT_CONTENT_TYPE;
+   REG_EVENT_CONTENT_TYPE ","
+   PRESENCE_EVENT_CONTENT_TYPE;
 
 void subscriptionStateCallback(SipSubscribeClient::SubscriptionState newState,
                                const char* earlyDialogHandle,
@@ -101,7 +102,7 @@ void usage(const char* szExecutable)
             "    expiration defaults to 300 (seconds)\n"            
             "    event-type defaults to '%s'\n"
             "    content-type defaults to '%s',\n"
-            "        which supports dialog, dialog-list, and reg events\n",
+            "        which supports dialog, dialog-list, reg, and presence events\n",
             szExecutable, default_event_type, default_content_type);
 }
 
