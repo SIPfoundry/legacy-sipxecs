@@ -26,9 +26,9 @@ $(PATCHED_SRC) :
 	rm -rf $(LIBSRC)/sipX-freeswitch-1.0.rc3
 
 .PHONY: build-rpms
-build-rpms: $(PATCHED_SRC) $(srcdir)/freeswitch.spec 
+build-rpms: $(PATCHED_SRC) freeswitch.spec 
 	cp $(PATCHED_SRC) @RPMBUILD_TOPDIR@/SOURCES
-	QA_RPATHS=0x0003 rpmbuild -ba --target @RPM_TARGET_ARCH@-none-linux $(srcdir)/freeswitch.spec
+	QA_RPATHS=0x0003 rpmbuild -ba --target @RPM_TARGET_ARCH@-none-linux freeswitch.spec
 
 $(SRPM): build-rpms
 	mv @RPMBUILD_TOPDIR@/SRPMS/`basename $@` $@
