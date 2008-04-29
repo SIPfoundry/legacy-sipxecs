@@ -879,6 +879,8 @@ public class BackToBackUserAgent {
                 TransactionApplicationData tad = new TransactionApplicationData(
                         Operation.QUERY_SDP_FROM_PEER_DIALOG);
                 tad.continuationOperation = continuation;
+                tad.continuationData = continuationData;
+                
                 
                 /*
                  * Attach the context information to the transaction.
