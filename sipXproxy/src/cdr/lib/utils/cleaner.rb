@@ -18,7 +18,6 @@ class Cleaner
   end
 
   def run(queue)
-    action = 
     until (@terminator.wait) do
       queue << @action
     end

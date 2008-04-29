@@ -37,14 +37,11 @@ class CallStateEvent
     event_type_name ||= missing
     from_url = @from_url || missing
     to_url = @to_url || missing
-    event_time = @event_time || missing
     call_id = @call_id || missing
     cseq = @cseq || missing
     
     # Create and return a human-readable description of the event
-    "#<#{event_type_name} from #{from_url} to #{to_url} " +
-      "call_id=#{call_id} cseq=#{cseq}>"    
-#      "at #{event_time} call_id=#{call_id} cseq=#{cseq}>"    
+    "#<#{event_type_name} from #{from_url} to #{to_url} call_id=#{call_id} cseq=#{cseq}>"    
   end
   
   # Return the AOR part of the from_url, or nil if there is no from_url.

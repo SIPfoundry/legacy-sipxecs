@@ -260,12 +260,12 @@ class Cdr
   end
   
   def accept_call_setup(cse)
-    leg = @legs.accept_setup(cse)
+    @legs.accept_setup(cse)
     finish
   end
   
   def accept_call_end(cse)
-    leg = @legs.accept_end(cse)
+    @legs.accept_end(cse)
     finish
   end
   

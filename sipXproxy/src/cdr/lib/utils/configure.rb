@@ -43,20 +43,17 @@ class Configure
     value = @map.fetch(param_name, default)
     raise ConfigException, "No value for #{param_name}" unless value
     case value.upcase
-    when ENABLE: true
-    when DISABLE: false
+      when ENABLE then true
+      when DISABLE then false
     else raise ConfigException, %Q/Unrecognized value "#{value}" for "#{param_name}"./
     end
   end
-  
-  private
   
   # Set param values, mainly for testing.
   def []=(param_name, param_value)
     @map[param_name] = param_value
   end
-  
-  
+    
   class << self
     def from_file(config_file)
       map = parse_config(config_file)

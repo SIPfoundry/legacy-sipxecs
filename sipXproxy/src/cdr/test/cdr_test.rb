@@ -62,12 +62,12 @@ class CallLegTest < Test::Unit::TestCase
     assert !l.has_duration?
     
     cse_end = make_cse(:event_time => 200, :event_type => "F")
-    l.accept_end(cse_setup)
+    l.accept_end(cse_end)
     assert l.has_duration?
     
     l = CallLeg.new('to')
     cse_end = make_cse(:event_time => 200, :event_type => "E")
-    l.accept_end(cse_setup)
+    l.accept_end(cse_end)
     assert !l.has_duration?
     
     cse_setup = make_cse(:event_time => 100, :event_type => "S")

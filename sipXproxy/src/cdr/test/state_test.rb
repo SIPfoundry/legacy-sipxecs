@@ -36,16 +36,16 @@ class StateTest < Test::Unit::TestCase
     
     def retire; end
   end
-    
+  
   class DummyCse
     attr_reader :call_id, :event_time
-        
+    
     def initialize(call_id, event_time = Time.at(1000))
       @call_id = call_id
       @event_time = event_time
     end    
   end
-
+  
   def test_empty
     q1 = Queue.new
     q2 = Queue.new
@@ -101,11 +101,10 @@ class StateTest < Test::Unit::TestCase
   def test_retired_with_age
     observer = DummyQueue.new
     cse1 = DummyCse.new('id1')
-    cse2 = DummyCse.new('id2')
     
     state = State.new([], observer, DummyCdr )
-    state.accept(cse1)    
-    state.accept(cse1)    
+    state.accept(cse1)
+    state.accept(cse1)
     assert_equal(1, observer.counter)
     assert_equal(2, observer.last.counter)
     # generation == 2
@@ -116,7 +115,7 @@ class StateTest < Test::Unit::TestCase
     assert_equal(1, observer.counter)
     assert_equal(2, observer.last.counter)
     # generation == 4
-
+    
     state.flush_retired(3) # it's only 2 generations old at his point
     state.accept(cse1)
     state.accept(cse1)
@@ -167,7 +166,7 @@ class StateTest < Test::Unit::TestCase
     
     state.flush_failed(1)
     assert_equal(0, observer.counter)
-
+    
     state.flush_failed(0)
     assert_equal(1, observer.counter)
     
@@ -203,7 +202,7 @@ class StateTest < Test::Unit::TestCase
     
     cse1 = DummyCse.new('id1')    
     in_queue = [
-      cse1, cse1, [:flush_failed, 0]
+    cse1, cse1, [:flush_failed, 0]
     ]
     
     # results of calls to accept and terminated?
@@ -222,7 +221,7 @@ class StateTest < Test::Unit::TestCase
     cse2 = DummyCse.new('id2', Time.at(1100))    
     cse3 = DummyCse.new('id3', Time.at(1200))    
     in_queue = [
-      cse1, cse2, cse3, [:retire_long_calls, 150]
+    cse1, cse2, cse3, [:retire_long_calls, 150]
     ]
     MockCdr.results( false, false, false, false, false, false )
     state = State.new(in_queue, out_queue, MockCdr)
@@ -235,7 +234,7 @@ class StateTest < Test::Unit::TestCase
     # and one CDR remains in the state
     assert_equal(2, state.active_cdrs.size)
   end
-
+  
   def test_flush_failed_calls
     out_queue = []
     MockCdr.results(true, false, false)
@@ -243,10 +242,10 @@ class StateTest < Test::Unit::TestCase
     state.accept(DummyCse.new('id1', Time.at(1000)))
     state.accept(DummyCse.new('id2', Time.at(1151)))
     assert_equal(0, out_queue.size)
-
+    
     state.flush_failed_calls(160)
     assert_equal(0, out_queue.size)
-
+    
     state.flush_failed_calls(150)
     assert_equal(1, out_queue.size)
   end

@@ -43,6 +43,13 @@ class Dao
     DBI.connect(@connection, @username, &block)
   end
   
+  # this is run to test if DB connection is working
+  def test_connection
+    connect do | dbh |
+      check_purge(dbh)
+    end
+  end
+  
   # purge unconditionally
   def purge(time)
     connect do | dbh |
