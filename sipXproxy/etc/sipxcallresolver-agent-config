@@ -7,6 +7,7 @@ CApath  = @SIPX_CONFDIR@/ssl/authorities
 cert    = @SIPX_CONFDIR@/ssl/ssl.crt
 key     = @SIPX_CONFDIR@/ssl/ssl.key
 client  = no
+foreground = yes
 
 [postgresql]
 accept  = 9300

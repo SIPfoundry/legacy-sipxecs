@@ -329,8 +329,13 @@ cat > $Work.copy-files <<EOF
 ` ls -1d @wwwdir@/doc/*vxml 2>/dev/null `
 /etc/host.conf
 /etc/resolv.conf
+/etc/named.conf
+/etc/ntp.conf
+/etc/ntp/ntpservers
+/etc/ntp/step-tickers
 /etc/hosts
 /etc/crontab
+/var/run/sipxpbx
 /var/log/yum.log
 /etc/yum.conf
 /etc/yum
