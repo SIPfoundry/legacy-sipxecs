@@ -7,6 +7,7 @@ SUBDIRS = \
 
 LOCAL_SHELLSCRIPTS = \
 	sipx-servtest \
+	sipx-readroute \
 	expire-spread \
 	monitor-spread \
 	sipxproc \
@@ -20,7 +21,6 @@ dist_bin_SCRIPTS = \
 	sipx-stats \
 	sipx-alias2dot \
 	sipx-trace \
-	sipx-readroute \
 	sipx-log-cut \
 	sipx-servtest \
 	sipxcar \

@@ -32,7 +32,11 @@ REQUIREMENTS
     }
 }
 
-GetOptions( 'help|h' => \$Help
+Getopt::Long::Configure("no_auto_abbrev", "no_ignore_case_always");
+
+GetOptions( 'help|h' => \$Help,
+            'verbose|v' => \$Verbose,
+            'version|V' => \$Version
             )
     || exit -1;
 
@@ -42,12 +46,29 @@ if ( $Help )
     exit 0;
 }
 
+if ( $Version )
+{ 
+    print '@SIPX_VERSION@' . "\n";
+    exit 0;
+}
+
 sub printroute
 {
     my ($paramvalue) = shift;
-    $paramvalue =~ s/.*sipXecs-rs=//;
+
+    print "Input value:\n'$paramvalue'\n\n"
+        if $Verbose;
+
+    $paramvalue =~ s/.*sipXecs-rs=([^;?>]+)/\1/;
+
+    print "Escaped RouteState value:\n'$paramvalue'\n\n"
+        if $Verbose;
 
     my ($rawvalue) = uri_unescape($paramvalue);
+
+    print "Raw RouteState value:\n'$rawvalue'\n\n"
+        if $Verbose;
+
     my ($output, $nvpair, $pname, $pvalue, $pdecoded );
 
     $rawvalue =~ s/![0-9a-f]{32}//;
@@ -68,10 +89,13 @@ if ( ! defined $token || $token eq '-' )
 {
     while(<>)
     {
-        print;
-        if ( m|\bsipXecs-rs=([a-z0-9+/=%]+)%21[0-9a-f]{32}\b|i )
+        if ( m|\bsipXecs-rs=([a-z0-9+/=%]+)|i )
         {
-            &printroute($1);
+            &printroute($_);
+        }
+        else
+        {
+            print;
         }
     }
 }
