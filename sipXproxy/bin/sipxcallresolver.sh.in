@@ -330,38 +330,6 @@ ERROR
          Status=1
       fi
       
-      # In HA setup test for the CA field entry
-      if HAcheck; then
-         resolveConfig=`cat @SIPX_CONFDIR@/callresolver-config.in | grep SIP_CALLRESOLVER_CSE_CA`
-         if [ -z resolvConfig ]; then
-            cat <<ERROR
-
-Error: In a HA setup the SIP_CALLRESOLVER_CSE_CA parameter must be set.
-Add the line:
-  
-   SIP_CALLRESOLVER_CSE_CA  : <name of CA file>
-   
-to @SIPX_CONFDIR@/callresolver-config.in
-
-ERROR
-            resolveOk=0
-            Status=1
-         else
-            cfile=`expr match "$resolveConfig" '.*:\s*\(.*\)\s*$'`
-            if [ ! -f @SIPX_CONFDIR@/ssl/authorities/${cfile} ]; then 
-		       cat <<ERROR
-
-Error: The value for SIP_CALLRESOLVER_CSE_CA is: ${cfile}
-
-A file of that name does not exist in: @SIPX_CONFDIR@/ssl/authorities
-		       
-ERROR
-               resolveOk=0
-               Status=1
-            fi
-         fi
-      fi
-   
       if [ $resolveOk = 1 ]; then
          echo "  call resolver configuration ok"
       fi   

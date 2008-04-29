@@ -43,9 +43,11 @@ def main(filename, port)
   
   # create the SOAP server for our ACD state
   server = StatsServer.new(acd_state, :Port => port)
-  trap(:INT) do 
-    $stderr.puts "shutting down"
-    server.shutdown
+  %w( TERM INT ).each do | s |
+    Signal.trap(s) do
+      $stderr.puts "shutting down"
+      server.shutdown
+    end
   end
   trap("USR1") do
     puts "dumping state"
