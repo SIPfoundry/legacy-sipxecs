@@ -269,7 +269,16 @@ void getMessageData(UtlString& content,
                                   &viaPortNum,
                                   &protocol);
                 char numBuff[30];
-                sprintf(numBuff, "%d", viaPortNum);
+
+                /*
+                 * Translating an unspecified port to 5060 may not always be correct:
+                 * if the host specifier is a name rather than an address, then port
+                 * _could_ be resolved using RFC 3263, but at this time we know of no
+                 * implementations that do this (much less rely on it).  Since leaving
+                 * the viaPortNum as PORT_NONE results in more confusing displays in
+                 * the normal case, this is a good compromise.
+                 */
+                sprintf(numBuff, "%d", ( viaPortNum == PORT_NONE ? SIP_PORT : viaPortNum ));
                 UtlString viaPort(numBuff);
 
                 remoteHost = remoteAddress + ":" + viaPort;
