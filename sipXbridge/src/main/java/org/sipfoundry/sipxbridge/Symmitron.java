@@ -37,14 +37,34 @@ import java.util.Map;
  * <ul>
  * <li><it>SymEndpoint</it> This is an IP address and port. It represents
  * either a transmitter or a receiver.
- * <li><it>Sym</it> This is a pair of <it>SymEndpoint</it> A
- * Sym has a transmitter and a receiver. A Sym transmits packets
- * to the remote endpoint through its transmitter and receives packets through
- * the receiver.
+ * <li><it>Sym</it> Is a container for a pair of  <it>SymEndpoint</it> A
+ * Sym has at most one transmitter and a receiver. A Sym transmits packets
+ * to the remote end-point through its transmitter (if one exists)
+ * and receives packets from the remote endpoint through the receiver.
+ * 
+ * <p>A Sym has the following lifecycle: 
+ * A sym is in the INITAL state when it is first created. 
+ * When a Sym is created, it includes  a receiver but not a transmitter. 
+ * A transmitter has to be added through a separate operation. 
+ * When a transmitter is assigned to it, it transitions to the RUNNING state.
+ * When the client wishes to hold transmission to the target of the transmitter, 
+ * it can pause the <it>Sym</it> at which point the Sym transitions to the PAUSED
+ * state. The client can resume transmission - transitioning the sym back to the
+ * RUNNING state. The sym can be destroyed - transitioning it to the terminated
+ * state. Once a sym is terminated it cannot be revived again.
+ * 
  * <li><it>Bridge</it> a set of <it>Sym</it> A packet received on a
  * Sym belonging to a given Bridge is potentially transmitted via each of
  * the other Sym that belong to the Bridge. A given Sym can belong
  * to only one Bridge.
+ * 
+ * <p>A bridge has the following lifecycle: When a bridge is created, it contains no Syms 
+ * it is in the RUNNING state. A bridge may be paused - driving it to the PAUSED state.
+ * When a bridge is in the paused state, data received from any of the Syms associated
+ * with the Bridge is not forwarded. A bridge can be resumed from the PAUSED state which
+ * puts it back into the RUNNING state. A bridge can be destroyed. A destroyed bridge
+ * cannot transition out from the TERMINATED state.
+ * 
  * </ul>
  * 
  * 

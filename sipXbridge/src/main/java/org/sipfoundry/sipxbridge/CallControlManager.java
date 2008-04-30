@@ -73,13 +73,16 @@ public class CallControlManager {
      */
     public static void sendInternalError(ServerTransaction st, Exception ex) {
         try {
-            String message = "Internal Error " + ex.getMessage() + " at "
-                    + ex.getStackTrace()[0].getFileName() + ":"
-                    + ex.getStackTrace()[0].getLineNumber();
             Request request = st.getRequest();
             Response response = ProtocolObjects.messageFactory.createResponse(
                     Response.SERVER_INTERNAL_ERROR, request);
-            response.setReasonPhrase(message);
+            if (logger.isDebugEnabled()) {
+                String message = "Internal Error " + ex.getMessage() + " at "
+                        + ex.getStackTrace()[0].getFileName() + ":"
+                        + ex.getStackTrace()[0].getLineNumber();
+
+                response.setReasonPhrase(message);
+            }
             st.sendResponse(response);
 
         } catch (Exception e) {
@@ -191,7 +194,7 @@ public class CallControlManager {
 
         } catch (Exception ex) {
             logger.error("Error processing request", ex);
-            this.sendInternalError(serverTransaction, ex);
+            sendInternalError(serverTransaction, ex);
         }
     }
 
@@ -320,17 +323,17 @@ public class CallControlManager {
             DialogApplicationData dat = (DialogApplicationData) dialog
                     .getApplicationData();
             BackToBackUserAgent btobua = dat.backToBackUserAgent;
-           
+
             if (btobua.getItspAccountInfo().isReInviteSupported()) {
                 // The ITSP supports re-invite. Send him a Re-INVITE
                 // to determine what codec was negotiated.
                 ReferInviteToSipxProxyContinuationData continuation = new ReferInviteToSipxProxyContinuationData(
                         request, dialog);
-               
+
                 btobua.querySdpFromPeerDialog(requestEvent,
                         Operation.REFER_INVITE_TO_SIPX_PROXY, continuation);
             } else {
-                btobua.referInviteToSipxProxy(request, dialog);
+                btobua.referInviteToSipxProxy(request, dialog, Gateway.getCodecName());
             }
 
         } catch (ParseException ex) {
@@ -545,6 +548,8 @@ public class CallControlManager {
                     "Could not find a B2BUA for this response : " + response);
         }
 
+       
+
         try {
 
             if (response.getStatusCode() > 100
@@ -563,8 +568,6 @@ public class CallControlManager {
                 TransactionApplicationData tad = (TransactionApplicationData) responseEvent
                         .getClientTransaction().getApplicationData();
 
-             
-
                 /*
                  * The TransactionApplicationData operator will indicate what
                  * the OK is for.
@@ -572,23 +575,26 @@ public class CallControlManager {
                 if (tad.operation == Operation.QUERY_SDP_FROM_PEER_DIALOG
                         && response.getStatusCode() == 200) {
                     /*
-                     * Got a Response to our SDP query. Shuffle to the other end.
+                     * Got a Response to our SDP query. Shuffle to the other
+                     * end.
                      */
                     Request ackRequest = dialog.createAck(SipUtilities
                             .getSeqNumber(response));
 
                     Operation operation = tad.continuationOperation;
+                    
+                    String codec = SipUtilities.getCodecName(response);
 
                     if (operation == Operation.REFER_INVITE_TO_SIPX_PROXY) {
                         dialog.sendAck(ackRequest);
                         ReferInviteToSipxProxyContinuationData continuation = (ReferInviteToSipxProxyContinuationData) tad.continuationData;
                         b2bua.referInviteToSipxProxy(continuation.request,
-                                continuation.dialog);
-                    } 
+                                continuation.dialog, codec);
+                    }
 
                 } else if (tad.operation == Operation.SEND_INVITE_TO_ITSP
                         || tad.operation == Operation.SEND_INVITE_TO_SIPX_PROXY) {
-
+                    
                     /*
                      * Store away our incoming response - get ready for ACK
                      */
@@ -655,13 +661,17 @@ public class CallControlManager {
                         SessionDescription sessionDescription = SdpFactory
                                 .getInstance().createSessionDescription(
                                         new String(response.getRawContent()));
-                        logger.debug("SessionDescription = "
-                                + new String(response.getRawContent()));
+                        if (logger.isDebugEnabled()) {
+                            logger.debug("SessionDescription = "
+                                    + new String(response.getRawContent()));
+                        }
                         newSd = SdpFactory.getInstance()
                                 .createSessionDescription(
                                         new String(response.getRawContent()));
                         DialogApplicationData dialogApplicationData = (DialogApplicationData) dialog
                                 .getApplicationData();
+                        
+                      
 
                         Sym rtpSession = dialogApplicationData.rtpSession;
                         SymTransmitterEndpoint hisEndpoint = null;
@@ -692,17 +702,19 @@ public class CallControlManager {
                         incomingEndpoint.setSessionDescription(newSd);
 
                         newResponse.setContent(newSd.toString(), cth);
-                        tad.backToBackUa.getRtpBridge().start();
+                        tad.backToBackUa.getBridge().start();
+                        dialogApplicationData.codecName = SipUtilities
+                        .getCodecName(newResponse);
+                        logger.debug("dialog = " + dialog + " codec = " + dialogApplicationData.codecName);
 
                     }
                     if (logger.isDebugEnabled()
                             && response.getStatusCode() == 200) {
                         logger
                                 .debug("Here is the bridge after forwarding Response");
-                        logger
-                                .debug(tad.backToBackUa.getRtpBridge()
-                                        .toString());
+                        logger.debug(tad.backToBackUa.getBridge().toString());
                     }
+
                     serverTransaction.sendResponse(newResponse);
                 } else if (tad.operation == Operation.REFER_INVITE_TO_SIPX_PROXY
                         || tad.operation == Operation.SPIRAL_BLIND_TRANSFER_INVITE_TO_ITSP) {
@@ -714,7 +726,13 @@ public class CallControlManager {
                      * stream. Fix up the media session using the port in the
                      * incoming sdp answer.
                      */
-
+                    /*
+                     * Record the codec name that was used for call setup.
+                     */
+                    if (response.getStatusCode() == 200
+                            && response.getContentLength().getContentLength() != 0) {
+                        dat.codecName = SipUtilities.getCodecName(response);
+                    }
                     ContentTypeHeader cth = (ContentTypeHeader) response
                             .getHeader(ContentTypeHeader.NAME);
                     Dialog referDialog = tad.referingDialog;
@@ -745,7 +763,7 @@ public class CallControlManager {
                              * Grab the RTP session previously pointed at by the
                              * REFER dialog.
                              */
-                            b2bua.getRtpBridge().addSym(rtpSession);
+                            b2bua.getBridge().addSym(rtpSession);
                             ((DialogApplicationData) dialog
                                     .getApplicationData()).rtpSession = rtpSession;
                         } else {

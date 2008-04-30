@@ -57,6 +57,10 @@ class DialogApplicationData {
 
     Sym rtpSession;
     
+    /*
+     * The Negotiated codec for the call leg ( extracted from the response ).
+     */
+    String codecName;
    
 
     
