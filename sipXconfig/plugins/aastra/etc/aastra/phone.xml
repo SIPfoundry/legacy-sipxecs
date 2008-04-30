@@ -424,8 +424,8 @@
       <setting name="directed_call_pickup_prefix">
         <profileName>directed call pickup prefix</profileName>
         <type>
-          <string required="yes">
-            <pattern>\b[*0-9]</pattern>
+          <string>
+            <pattern>\*?\d*</pattern>
           </string>
         </type>
         <value />
@@ -447,7 +447,9 @@
       <setting name="pickupsprecode">
         <profileName>pickupsprecode</profileName>
         <type>
-          <string />
+         <string>
+           <pattern>\*?\w*</pattern>
+         </string>
         </type>
         <value />
       </setting>
@@ -793,14 +795,18 @@
     <setting name="admin_password" advanced="yes">
       <profileName>admin password</profileName>
       <type>
-        <integer max="4294967295" min="0" />
+        <string>
+          <pattern>\d*</pattern>
+        </string>
       </type>
       <value>22222</value>
     </setting>
     <setting name="user_password">
       <profileName>user password</profileName>
       <type>
-        <integer max="4294967295" min="0" />
+        <string password="yes">
+          <pattern>\d*</pattern>
+        </string>
       </type>
       <value />
     </setting>
@@ -823,14 +829,14 @@
       <type>
         <enum>
           <option>
-            <value>SSL3.0</value>
+            <value>SSL 3.0</value>
           </option>
           <option>
-            <value>TLS1.0</value>
+            <value>TLS 1.0</value>
           </option>
         </enum>
       </type>
-      <value>SSL3.0</value>
+      <value>SSL 3.0</value>
     </setting>
     <setting name="https_redirect_http_get" advanced="yes">
       <profileName>https redirect http get</profileName>
@@ -933,7 +939,9 @@
       <setting name="auto_resync_time">
         <profileName>auto resync time</profileName>
         <type>
-          <string />
+        <string>
+          <pattern>\d{2}:\d{2}</pattern>
+        </string>
         </type>
         <value>00:00</value>
       </setting>
