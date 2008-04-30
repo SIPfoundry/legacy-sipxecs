@@ -1,8 +1,8 @@
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -40,49 +40,27 @@ class ConfiguredHook : public UtlString
 {
 public:
 
-   // load the library for a hook and use its factory to get a new instance.
-   ConfiguredHook(const UtlString& hookPrefix,
-                  const UtlString& hookFactoryName,
-                  const UtlString& libName
-                  )
-      : UtlString(hookPrefix),
-        hook(NULL)
+   /// Wrapper around the constructor to do error checking and return NULL for errors
+   static ConfiguredHook* newHook(const UtlString& hookName,
+                                  const UtlString& hookFactoryName,
+                                  const UtlString& libName
+                                  )
       {
-         OsSharedLibMgrBase* sharedLibMgr = OsSharedLibMgr::getOsSharedLibMgr();
+         ConfiguredHook* theNewHook = NULL;
 
-         if (sharedLibMgr)
+         if (! libName.isNull())
          {
-            Plugin::Factory factory;
-            
-            if (OS_SUCCESS == sharedLibMgr->getSharedLibSymbol(libName.data(),
-                                                               hookFactoryName,
-                                                               (void*&)factory
-                                                               )
-                )
-            {
-               // Use the factory to get an instance of the hook
-               // and tell the new instance its own name.
-               hook = factory(hookPrefix); 
-
-               OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
-                             "PluginHooks ConfiguredHook:: created instance '%s' from '%s'",
-                             data(), libName.data()
-                             );
-            }
-            else
-            {
-               OsSysLog::add(FAC_KERNEL, PRI_ERR,
-                             "PluginHooks ConfiguredHook:: factory '%s' not found in library '%s' for instance '%s'",
-                             hookFactoryName.data(), libName.data(), data()
-                             );
-            }
+            theNewHook = new ConfiguredHook(hookName, hookFactoryName, libName);
          }
          else
          {
             OsSysLog::add(FAC_KERNEL, PRI_CRIT,
-                          "PluginHooks ConfiguredHook:: failed to getOsSharedLibMgr"
+                          "PluginHooks: no library configured for hook '%s': ignored",
+                          hookName.data()
                           );
          }
+
+         return theNewHook;
       }
 
    ~ConfiguredHook()
@@ -92,7 +70,7 @@ public:
          // the same library could be configured more than once with
          // different hook names and parameters.
       }
-   
+
    /// Get the name of this hook.
    void name(UtlString* hookName) const
       {
@@ -103,16 +81,22 @@ public:
          }
       }
 
+   /// Compare the library name.
+   bool isLibrary(const UtlString& libName) const
+      {
+         return mLibName.compareTo(libName) == 0;
+      }
+
    /// Get the actual hook object.
    Plugin* plugin() const
       {
-         return hook;
+         return mHook;
       }
 
    /// Construct the subhash for the hook and configure it.
    void readConfig(const UtlString& prefix, const OsConfigDb& configDb)
       {
-         if (hook)
+         if (mHook)
          {
             OsConfigDb myConfig;
             UtlString myConfigName;
@@ -122,14 +106,14 @@ public:
             myConfigName.append('.');
             myConfigName.append(*this);
             myConfigName.append('.');
-            
+
             if (OS_SUCCESS == configDb.getSubHash(myConfigName, myConfig))
             {
                OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
                              "ConfiguredHook:: configuring instance '%s' using prefix '%s'",
                              data(), myConfigName.data()
                              );
-               hook->readConfig(myConfig);
+               mHook->readConfig(myConfig);
             }
             else
             {
@@ -143,7 +127,55 @@ public:
 
 private:
 
-   Plugin* hook; ///< the actual hook instance
+   // load the library for a hook and use its factory to get a new instance.
+   ConfiguredHook(const UtlString& hookName,
+                  const UtlString& hookFactoryName,
+                  const UtlString& libName
+                  )
+      : UtlString(hookName),
+        mHook(NULL),
+        mLibName(libName)
+      {
+         OsSharedLibMgrBase* sharedLibMgr = OsSharedLibMgr::getOsSharedLibMgr();
+
+         if (sharedLibMgr)
+         {
+            Plugin::Factory factory;
+
+            if (OS_SUCCESS == sharedLibMgr->getSharedLibSymbol(libName.data(),
+                                                               hookFactoryName,
+                                                               (void*&)factory
+                                                               )
+                )
+            {
+               // Use the factory to get an instance of the hook
+               // and tell the new instance its own name.
+               mHook = factory(hookName);
+
+               OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
+                             "PluginHooks ConfiguredHook:: created instance '%s' from '%s'",
+                             hookName.data(), libName.data()
+                             );
+            }
+            else
+            {
+               OsSysLog::add(FAC_KERNEL, PRI_ERR,
+                             "PluginHooks ConfiguredHook:: "
+                             "factory '%s' not found in library '%s' for instance '%s'",
+                             hookFactoryName.data(), libName.data(), hookName.data()
+                             );
+            }
+         }
+         else
+         {
+            OsSysLog::add(FAC_KERNEL, PRI_CRIT,
+                          "PluginHooks ConfiguredHook:: failed to getOsSharedLibMgr"
+                          );
+         }
+      }
+
+   Plugin*    mHook;    ///< the actual hook instance
+   UtlString  mLibName; ///< the library name (for checking reconfiguration)
 };
 
 
@@ -170,23 +202,23 @@ void PluginHooks::readConfig(const OsConfigDb& configDb)
    // a temporary holding list.
    UtlSList existingHooks;
    UtlContainable* existingHook;
-   
+
    UtlSortedListIterator nextHook(mConfiguredHooks);
    while ((existingHook = nextHook()))
    {
       existingHooks.append(mConfiguredHooks.removeReference(existingHook));
    }
    // the mConfiguredHooks list is now empty
-   
+
    // Walk the current configuration,
    //   any existing hook is moved back to the mConfiguredHooks list,
    //   newly configured hooks are added,
    //   each configured hook is called to read its own configuration.
    UtlString  hookPrefix(mPrefix);
    hookPrefix.append(HOOK_LIB_PREFIX);
-   
+
    OsConfigDb allHooks;
-   
+
    OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
                  "PluginHooks::readConfig looking up hooks '%s'",
                  hookPrefix.data()
@@ -197,35 +229,37 @@ void PluginHooks::readConfig(const OsConfigDb& configDb)
       UtlString hookName;
       UtlString hookLibrary;
 
-      // walk each hook and attempt to load and configure it 
+      // walk each hook and attempt to load and configure it
       for ( lastHook = "";
             OS_SUCCESS == allHooks.getNext(lastHook, hookName, hookLibrary);
-            lastHook = hookName
+            (lastHook = hookName, hookName.remove(0), hookLibrary.remove(0))
            )
       {
          ConfiguredHook* thisHook;
-         
+
          if (NULL == (thisHook = dynamic_cast<ConfiguredHook*>(existingHooks.remove(&hookName))))
          {
             // not an existing hook, so create a new one
-            OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
-                          "PluginHooks: loading instance '%s'", hookName.data()
-                          );
-            thisHook = new ConfiguredHook(hookName, mFactory, hookLibrary);
+            thisHook = ConfiguredHook::newHook(hookName, mFactory, hookLibrary);
+         }
+         else
+         {
+            // this is a pre-existing hook; check to see that the library has not changed.
+            if (! thisHook->isLibrary(hookLibrary))
+            {
+               // the library for thisHook has changed, so delete and recreate it with the new one.
+               delete thisHook;
+               thisHook = ConfiguredHook::newHook(hookName, mFactory, hookLibrary);
+            }
          }
 
-         if (thisHook->plugin() != NULL)
+         if (thisHook)
          {
             // put the hook onto the list of active hooks
             mConfiguredHooks.insert(thisHook);
 
             // (re)configure the hook
             thisHook->readConfig(mPrefix, configDb);
-         }
-         else
-         {
-            // It failed (prob. lib didn't load) , no need to keep it around.
-            delete thisHook ;
          }
       }
    }
@@ -253,13 +287,13 @@ PluginIterator::PluginIterator( const PluginHooks& pluginHooks ) :
 Plugin* PluginIterator::next(UtlString* name)
 {
    Plugin* nextPlugin = NULL;
-   
+
    // make sure that name is cleared if passed in case this is the last hook
    if (name)
    {
       name->remove(0);
    }
-   
+
    // step the parent iterator on the mConfiguredHooks list
    ConfiguredHook* nextHook = static_cast<ConfiguredHook*>(mConfiguredHooksIterator());
    if (nextHook)
