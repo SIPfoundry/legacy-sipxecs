@@ -100,10 +100,11 @@ public class SipxValidationDelegate extends ValidationDelegate {
      * @return user visible message
      */
     private String getFormattedMsg(UserException e, Messages messages) {
-        String msg = e.getMessage();
-        if (messages == null) {
-            return msg;
+        String key = e.getKey();
+        if (key != null && messages != null) {
+            String msg = messages.getMessage(key);
+            return e.format(msg);
         }
-        return TapestryUtils.getMessage(messages, msg, msg);
+        return e.getMessage();
     }
 }

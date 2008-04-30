@@ -44,7 +44,7 @@ public class SipxValidationDelegateTest extends TestCase {
     }
 
     public void testRecordWithMessage() {
-        UserException exception = new UserException("error");
+        UserException exception = new UserException(false, "error");
 
         SipxValidationDelegate delegate = new SipxValidationDelegate();
         delegate.record(exception, new DummyMessages());

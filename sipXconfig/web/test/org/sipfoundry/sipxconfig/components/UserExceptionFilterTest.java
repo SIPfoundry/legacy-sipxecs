@@ -16,6 +16,7 @@ import junit.framework.JUnit4TestAdapter;
 import org.apache.hivemind.ApplicationRuntimeException;
 import org.apache.tapestry.IActionListener;
 import org.apache.tapestry.IComponent;
+import org.apache.tapestry.IPage;
 import org.apache.tapestry.listener.ListenerInvoker;
 import org.apache.tapestry.listener.ListenerInvokerFilter;
 import org.apache.tapestry.test.Creator;
@@ -89,7 +90,8 @@ public class UserExceptionFilterTest {
 
     @Test
     public void testApplicationException() {
-        IComponent source = (IComponent) new Creator().newInstance(EditUser.class);
+        IPage source = (IPage) new Creator().newInstance(EditUser.class);
+        source.setPage(source);
 
         IActionListener action = createMock(IActionListener.class);
 

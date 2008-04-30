@@ -70,8 +70,7 @@ public class LdapManagerImpl extends SipxHibernateDaoSupport implements LdapMana
         if (fullMessage.indexOf(';') > 0) {
             parsedMessage = fullMessage.substring(0, fullMessage.indexOf(';'));
         }
-        UserException ex = new UserException(message);
-        ex.initCause(new Throwable(parsedMessage));
+        UserException ex = new UserException(false, message, parsedMessage);
         throw ex;
     }
 

@@ -61,7 +61,7 @@ public class UserExceptionFilter implements ListenerInvokerFilter {
     private void recordUserException(UserException e, IComponent source) {
         IValidationDelegate validator = findValidator(source);
         if (validator instanceof SipxValidationDelegate) {
-            Messages messages = source.getMessages();
+            Messages messages = source.getPage().getMessages();
             SipxValidationDelegate sipxValidator = (SipxValidationDelegate) validator;
             sipxValidator.record(e, messages);
         } else if (validator != null) {

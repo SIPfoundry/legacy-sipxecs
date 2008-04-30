@@ -18,9 +18,7 @@
   <!--
     - B E A N S
   -->
-  <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate">
-    <set name="messages" value="ognl:messages"/>
-  </bean>
+  <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate" />
 
   <!--
     - C O M P O N E N T S
@@ -36,7 +34,7 @@
 
   <component id="applyConnectionParams" type="Submit">
     <binding name="value" value="message:label.continue" />
-    <binding name="action"value="listener:applyConnectionParams" />
+    <binding name="action" value="listener:applyConnectionParams" />
   </component>
 
   <!-- object class selection stage -->
