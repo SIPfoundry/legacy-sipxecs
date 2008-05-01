@@ -647,6 +647,31 @@ global_hostname_check () {
     return $?
 }
 
+global_master_check () {
+    local master_status
+    master_status=0
+    if [ "${CONFIG_SERVER_HOST}"x = ""x ]
+    then
+        echo "CONFIG_SERVER_HOST is not set in @SIPX_CONFDIR@/config.defs"
+        master_status=1
+    elif [ "${CONFIG_SERVER_ADDR}"x = ""x ]
+    then
+        echo "CONFIG_SERVER_ADDR is not set in @SIPX_CONFDIR@/config.defs"
+        master_status=1
+    else
+        local master_addr=`dns_a ${CONFIG_SERVER_HOST}`
+        if [ "${master_addr}" != "${CONFIG_SERVER_ADDR}" ]
+        then
+            echo "Mismatched Config Server configuration data:"
+            echo "   CONFIG_SERVER_HOST '${CONFIG_SERVER_HOST}' -> '${master_addr}'"
+            echo "   CONFIG_SERVER_ADDR '${CONFIG_SERVER_ADDR}'"
+            master_status=1
+        fi
+    fi
+    return ${master_status}
+}
+
+
 global_maxfds_check () {
     local fd_max
     fd_max=16384
@@ -716,6 +741,9 @@ do_check() {
 
     ## Check to see that hosts file does not have extra names on localhost address
     globaltest "localhost_shared" "MAY_FAIL" "localhost name is not shared"
+
+    ## Check to see that the different ways to configure the config server agree
+    globaltest "master" "MAY_FAIL" "configuration service hostname and address"
 
     ## Check that /tmp has the correct permissions.
     globaltest "tmp" "MAY_FAIL" "/tmp directory has correct permissions"
