@@ -94,7 +94,7 @@ import java.util.Map;
  * We follow the convention of returning a status code with every response. The
  * status codes are simply Strings <b>ERROR</b> and <b>OK</b>. When returning
  * a Map, the status code is referenced by a String <it>status-code</it>.
- * Detailed failure cause is returned by referencing the key <it>error-info</it>.
+ * Detailed failure cause is returned by referencing the key <it>faultInfo</it>.
  * In addition all Maps returned from the Symmitron will contain a special entry
  * called <it>instance-handle</it> that identifies the instance handle
  * corresponding to the current generation of Symmitron. We refer to this map as
@@ -122,12 +122,12 @@ public interface Symmitron {
     /**
      * A standard error code -- see definitions below.
      */
-    public static final String ERROR_CODE = "error-code";
+    public static final String ERROR_CODE = "faultCode";
 
     /**
      * Detailed error information.
      */
-    public static final String ERROR_INFO = "error-info";
+    public static final String ERROR_INFO = "faultString";
 
     /**
      * Instance handle of Symmitron
@@ -215,7 +215,7 @@ public interface Symmitron {
 
     public static final int SESSION_NOT_FOUND = 3;
 
-    public static final int ILLEGAL_ARGUMENT = 4;
+    public static final int ILLEGAL_ARGUMENT = 0; // Consistent with framework.
 
     public static final int ILLEGAL_STATE = 5;
     

@@ -6,6 +6,7 @@
  */
 package org.sipfoundry.sipxbridge;
 
+import gov.nist.javax.sdp.MediaDescriptionImpl;
 import gov.nist.javax.sip.DialogExt;
 import gov.nist.javax.sip.SipStackExt;
 import gov.nist.javax.sip.header.extensions.ReplacesHeader;
@@ -856,7 +857,7 @@ public class BackToBackUserAgent {
 
             MediaDescription mediaDescription = (MediaDescription) sessionDescription
                     .getMediaDescriptions(true).get(0);
-            mediaDescription.setAttribute("a", "recvonly");
+            ((MediaDescriptionImpl)mediaDescription).setDuplexity("recvonly");
             ContentTypeHeader cth = ProtocolObjects.headerFactory
                     .createContentTypeHeader("application", "sdp");
 
