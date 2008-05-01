@@ -32,6 +32,7 @@ import org.apache.log4j.Appender;
 import org.apache.log4j.Logger;
 import org.apache.xmlrpc.server.PropertyHandlerMapping;
 import org.apache.xmlrpc.server.XmlRpcServer;
+import org.apache.xmlrpc.server.XmlRpcServerConfigImpl;
 import org.apache.xmlrpc.webserver.WebServer;
 import org.sipfoundry.log4j.SipFoundryAppender;
 import org.sipfoundry.log4j.SipFoundryLayout;
@@ -203,13 +204,21 @@ public class Gateway {
                         Gateway.getXmlRpcWebServerPort());
                 webServer = new WebServer(Gateway.getXmlRpcWebServerPort(),
                         localAddr);
+                
+                 
+               
 
                 PropertyHandlerMapping handlerMapping = new PropertyHandlerMapping();
 
                 handlerMapping.addHandler("sipXbridge", SipXbridgeServer.class);
 
                 XmlRpcServer server = webServer.getXmlRpcServer();
-
+                
+                XmlRpcServerConfigImpl serverConfig = 
+                    new XmlRpcServerConfigImpl();
+                serverConfig.setKeepAliveEnabled(true);
+            
+                server.setConfig(serverConfig);
                 server.setHandlerMapping(handlerMapping);
                 webServer.start();
             } else {
