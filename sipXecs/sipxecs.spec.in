@@ -26,6 +26,12 @@ Requires: sipxconfig-tftp
 Requires: sipxconfig-report
 Requires: sipxconfig-agent
 Requires: sipxconfig-mrtg
+Requires: sipxconfig-conference
+Requires: sipxbridge
+Requires: sipX-freeswitch
+Requires: sipX-freeswitch-codec-passthru-g723
+Requires: sipX-freeswitch-codec-passthru-g729
+Requires: sipX-freeswitch-codec-passthru-amr
 Requires: sipxtools
 
 Source: %name-%version.tar.gz
