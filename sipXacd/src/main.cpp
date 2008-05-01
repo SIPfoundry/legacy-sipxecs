@@ -194,7 +194,18 @@ int main(int argc, char* argv[])
    OsSysLog::flush();
 
    // Say goodnight Gracie...
-   return 0;
+
+   // Use _exit to avoid the atexit() processing which will cause the
+   // destruction of static objects...yet there are still threads out
+   // there using those static objects.  This prevents core dumps
+   // due to those threads accessing the static objects post destruction.
+   //
+   // --Woof!
+
+   _exit(0);
+
+   /*NOTREACHED*/
+   return 0 ; // To appease the compiler gods
 }
 
 

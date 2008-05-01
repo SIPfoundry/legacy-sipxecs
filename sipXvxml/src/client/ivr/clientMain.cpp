@@ -1024,6 +1024,19 @@ int main(int argc, char *argv[])
 
    // This value has to stay allocated until autoThrottleThread is halted.
    MpMediaTask* pMedia = NULL;
+
+#if 0
+   Well, it should really be this:
+      MpMediaTask* pMedia = MpMediaTask::getMediaTask(0) ;
+
+   so that later the pMedia task will be deleted and thus destroyed.  
+   However, at times it doesn't die and gets stuck, so it's just easier 
+   to let the task run, but sure we don't call the destructors of any 
+   static objects it is using (Such as the OsLock it uses for syncronization) 
+   by calling _exit() when it is time to leave.
+
+#endif
+
    void *(args[2]) = { (void*) pMedia, (void*) pCallMgr };
 
    const VXIInteger* value2 =
@@ -1219,12 +1232,39 @@ If we delete it here, we get crashes when we CallManager tries to as well.
    platformResult = VXIplatformShutdown();
    CLIENT_CHECK_RESULT("VXIplatformShutdown()", platformResult);
 
+#if 0
+
+Several threads are still running at this point.  They really should be
+stopped.  But sometimes they lock up and never complete, and until that
+is fixed, don't bother stopping them, but make sure the static objects
+they may be accessing are never destroyed are never called by using _exit(2) 
+instead of exit(3).
+
+--Woof!
+
+#include "os/OsTimerTask.h"
+#include "os/OsStunAgentTask.h"
+   // End the singleton threads.
+   sipxDestroyMediaFactoryFactory();
+   OsTimerTask::destroyTimerTask();
+   OsStunAgentTask::releaseInstance();
+
+#endif
 
    OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG, "mediaserver main thread exited.");
 
    OsSysLog::flush();
 
-   exit(gExitStatus);
+   // Use _exit to avoid the atexit() processing which will cause the
+   // destruction of static objects...yet there are still threads out
+   // there using those static objects.  This prevents core dumps
+   // due to those threads accessing the static objects post destruction.
+   //
+   // --Woof!
+
+   _exit(gExitStatus);
+    /*NOTREACHED*/
+    return(0) ; // To appease the compiler gods
 }
 
    static void 
