@@ -6,6 +6,8 @@
  */
 package org.sipfoundry.sipxbridge;
 
+import gov.nist.javax.sdp.MediaDescriptionImpl;
+
 import java.text.ParseException;
 import java.util.Collection;
 import java.util.Iterator;
@@ -521,13 +523,10 @@ public class SipUtilities {
 
     }
 
-    
-    
     /**
-     * Cleans the Session description to include only the specified
-     * codec.This processing can be applied on the outbound INVITE
-     * to make sure that call transfers will work. It removes all the
-     * SRTP related fields as well.
+     * Cleans the Session description to include only the specified codec.This
+     * processing can be applied on the outbound INVITE to make sure that call
+     * transfers will work. It removes all the SRTP related fields as well.
      * 
      * @param sessionDescription
      * @param codec
@@ -540,26 +539,29 @@ public class SipUtilities {
             /*
              * No codec specified -- return the incoming session description.
              */
-            if ( codec == null ) {
+            if (codec == null) {
                 return sessionDescription;
             }
             boolean found = false;
-            
+
             Vector mediaDescriptions = sessionDescription
                     .getMediaDescriptions(true);
 
             int keeper = RtpPayloadTypes.getPayloadType(codec);
-            
+
             for (Iterator it = mediaDescriptions.iterator(); it.hasNext();) {
 
                 MediaDescription mediaDescription = (MediaDescription) it
                         .next();
-                Vector formats = mediaDescription.getMedia().getMediaFormats(true);
-                for ( Iterator it1 = formats.iterator(); it1.hasNext();) {
+                Vector formats = mediaDescription.getMedia().getMediaFormats(
+                        true);
+                for (Iterator it1 = formats.iterator(); it1.hasNext();) {
                     Object format = it1.next();
                     int fmt = new Integer(format.toString());
-                    if ( fmt != keeper && RtpPayloadTypes.isPayload(fmt)) it1.remove();
-                    else if ( fmt == keeper ) found = true;
+                    if (fmt != keeper && RtpPayloadTypes.isPayload(fmt))
+                        it1.remove();
+                    else if (fmt == keeper)
+                        found = true;
                 }
                 Vector attributes = mediaDescription.getAttributes(true);
 
@@ -570,12 +572,13 @@ public class SipUtilities {
                         String[] attrs = attribute.split(" ");
                         String[] pt = attrs[1].split("/");
                         logger.debug("pt == " + pt[0]);
-                        if (RtpPayloadTypes.isPayload(pt[0]) && !pt[0].equalsIgnoreCase(codec)) {
+                        if (RtpPayloadTypes.isPayload(pt[0])
+                                && !pt[0].equalsIgnoreCase(codec)) {
                             it1.remove();
                         }
-                    } else if ( attr.getName().equalsIgnoreCase("crypto")) {
+                    } else if (attr.getName().equalsIgnoreCase("crypto")) {
                         it1.remove();
-                    } else if ( attr.getName().equalsIgnoreCase("encryption")) {
+                    } else if (attr.getName().equalsIgnoreCase("encryption")) {
                         it1.remove();
                     }
                 }
@@ -594,8 +597,9 @@ public class SipUtilities {
 
     public static String getCodecName(Response response) {
         try {
-            if ( response.getContentLength().getContentLength() == 0 ) return null;
-            
+            if (response.getContentLength().getContentLength() == 0)
+                return null;
+
             SessionDescription sd = getSessionDescription(response);
             Vector mediaDescriptions = sd.getMediaDescriptions(true);
             MediaDescription mediaDescription = (MediaDescription) sd
@@ -671,22 +675,16 @@ public class SipUtilities {
         }
     }
 
-    public static void setSessionDescriptionMediaAttribute(
-            SessionDescription sessionDescription, String originalAttribute,
+    public static void setDuplexity(
+            SessionDescription sessionDescription, 
             String attributeValue) {
 
         try {
 
-            MediaDescription md = (MediaDescription) sessionDescription
+            MediaDescriptionImpl md = (MediaDescriptionImpl) sessionDescription
                     .getMediaDescriptions(true).get(0);
-            for (Object obj : md.getAttributes(false)) {
-                Attribute attr = (Attribute) obj;
-                if (attr.getName().equals(originalAttribute))
-                    attr.setName(attributeValue);
-                return;
-
-            }
-
+            md.setDuplexity(attributeValue);
+            
         } catch (Exception ex) {
             throw new RuntimeException("Malformatted sdp", ex);
         }
@@ -730,7 +728,8 @@ public class SipUtilities {
         }
     }
 
-    public static SipProvider getPeerProvider(SipProvider provider, String transport) {
+    public static SipProvider getPeerProvider(SipProvider provider,
+            String transport) {
         if (provider == Gateway.getLanProvider())
             return Gateway.getWanProvider(transport);
         else
@@ -773,6 +772,17 @@ public class SipUtilities {
         } catch (SdpException ex) {
             logger.error("Unexpected exception ", ex);
             throw new RuntimeException("Unexpected exception", ex);
+        }
+
+    }
+
+    public static void incrementSdpVersion(SessionDescription sessionDescription) {
+        try {
+            int version = sessionDescription.getVersion().getVersion();
+            sessionDescription.getVersion().setVersion(++version);
+        } catch (SdpException ex) {
+            logger.error("Unexpected exception ", ex);
+            throw new RuntimeException("Unexepcted exception", ex);
         }
 
     }

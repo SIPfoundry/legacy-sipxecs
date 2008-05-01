@@ -264,13 +264,16 @@ public class Sym implements SymInterface, Serializable {
                 dat.musicOnHoldDialog = mohDialog;
 
             }
+            SipUtilities.setDuplexity(this.getReceiver().getSessionDescription(),"recvonly");
+            SipUtilities.incrementSdpVersion(this.getReceiver().getSessionDescription());
             return this.getReceiver().getSessionDescription();
         } else if (newport == oldPort && oldIpAddress.equals(newIpAddress)) {
             if (attribute == null 
                    ||  attribute.equals("sendrecv")) {
                 logger.debug("Remove media on hold!");
-                SipUtilities.setSessionDescriptionMediaAttribute(this
-                        .getReceiver().getSessionDescription(),"recvonly", "sendrecv");
+                SipUtilities.setDuplexity(this
+                        .getReceiver().getSessionDescription(),"sendrecv");
+                SipUtilities.incrementSdpVersion(this.getReceiver().getSessionDescription());
                 this.getTransmitter().setOnHold(false);
 
                 DialogApplicationData dat = (DialogApplicationData) dialog
@@ -315,9 +318,10 @@ public class Sym implements SymInterface, Serializable {
                     SipUtilities.setSessionDescriptionAttribute("recvonly",
                             this.getReceiver().getSessionDescription());
                 } else {
-                    SipUtilities.setSessionDescriptionMediaAttribute(this
-                            .getReceiver().getSessionDescription(), "sendrecv", "recvonly");
+                    SipUtilities.setDuplexity(this
+                            .getReceiver().getSessionDescription(),  "recvonly");
                 }
+                SipUtilities.incrementSdpVersion(this.getReceiver().getSessionDescription());
             }
             return this.getReceiver().getSessionDescription();
 

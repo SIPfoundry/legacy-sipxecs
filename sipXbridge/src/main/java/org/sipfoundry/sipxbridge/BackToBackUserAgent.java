@@ -270,18 +270,8 @@ public class BackToBackUserAgent {
                                 .getApplicationData()).codecName);
             }
 
-            String referringCodec = ((DialogApplicationData) this.referingDialog
-                    .getApplicationData()).codecName;
-            String replacedCodec = ((DialogApplicationData) ((DialogApplicationData) replacedDialog
-                    .getApplicationData()).peerDialog.getApplicationData()).codecName;
-
-            if (!referringCodec.equals(replacedCodec)) {
-                Response response = ProtocolObjects.messageFactory
-                        .createResponse(Response.BUSY_HERE,
-                                incomingRequest);
-                serverTransaction.sendResponse(response);
-                return;
-            }
+         
+           
 
             if (((DialogApplicationData) replacedDialog.getApplicationData()).peerDialog
                     .getState() == DialogState.TERMINATED) {
@@ -935,8 +925,14 @@ public class BackToBackUserAgent {
             if (peerDialog != null
                     && peerDialog.getState() != DialogState.TERMINATED) {
                 Request reInvite = peerDialog.createRequest(Request.INVITE);
-                ClientTransaction ctx = ((DialogExt) peerDialog)
-                        .getSipProvider().getNewClientTransaction(reInvite);
+                SipProvider provider = ((DialogExt) peerDialog)
+                .getSipProvider();
+                ViaHeader viaHeader = SipUtilities.createViaHeader(provider, itspAccountInfo);
+                reInvite.setHeader(viaHeader);
+                ContactHeader contactHeader = SipUtilities.createContactHeader(provider, 
+                                                    itspAccountInfo);
+                reInvite.setHeader(contactHeader);
+                ClientTransaction ctx = provider.getNewClientTransaction(reInvite);
                 TransactionApplicationData tad = new TransactionApplicationData(
                         Operation.QUERY_SDP_FROM_PEER_DIALOG);
                 tad.continuationOperation = continuation;
@@ -946,7 +942,7 @@ public class BackToBackUserAgent {
                  * Attach the context information to the transaction.
                  */
                 ctx.setApplicationData(tad);
-                ctx.sendRequest();
+                peerDialog.sendRequest(ctx);
 
             }
         } catch (Exception ex) {

@@ -36,8 +36,6 @@
 		<pathelement location="${classes}" />
 		<pathelement location="${log4j}" />
 		<pathelement location="${jainsip}" />
-		<pathelement location="${nistsip}" />
-		<pathelement location="${nistsdp}" />
 		<pathelement location="${junit}" />
 		<pathelement location="${dnsjava}" />
 		<pathelement location="${stun4j}" />
@@ -113,8 +111,6 @@
     	<copy todir="${dest.dir}${sipxbridge.lib.dir}">
 		<fileset file="${log4j}" />
 		<fileset file="${jainsip}" />
-		<fileset file="${nistsip}" />
-		<fileset file="${nistsdp}" />
 		<fileset file="${junit}" />
 		<fileset file="${dnsjava}" />
 		<fileset file="${stun4j}" />
