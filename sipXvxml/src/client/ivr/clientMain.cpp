@@ -158,8 +158,6 @@ VXIMap *glbConfigArgs;
 //VXIplatform *glbPlatform;
 IvrTelListener *gpTelListener = 0;
 
-typedef void (*sighandler_t)(int);
-
 // Function that is the body of the thread that watches the length of the
 // Media Task's message queue and reduces the number of allowed calls
 // if the queue stays too large for too long.
@@ -167,37 +165,6 @@ void* autoThrottleFunction(void* arg);
 
 void initCodecs(SdpCodecFactory* codecFactory);
 
-
-/**
- * Description:
- * Establish a signal handler for a signal.
- * On non-POSIX systems, it just calls signal().
- * On POSIX systems, uses sigaction() so that it can set the flag causing
- * I/O system calls (specifically read() and getchar()) not to be interrupted
- * and return EINTR.
- * In either case, pt_signal() returns the previous handler for this signal.
- */
-   sighandler_t
-pt_signal(int sig_num, sighandler_t handler)
-{
-#if defined(__pingtel_on_posix__)
-   // Define two sigaction structures, action[0] specifies the new action,
-   // action[1] receives previous action.
-   struct sigaction action[2];
-   // Set up action[0] to specify the new handler.
-   action[0].sa_handler = handler;
-   // Don't mask any other signals during signal handling.
-   sigemptyset(&action[0].sa_mask);
-   // Set all special flags off, in particular SA_RESTART, so I/O calls
-   // are not interrupted.
-   action[0].sa_flags = 0;
-   // Call sigaction().
-   sigaction(sig_num, &action[0], &action[1]);
-   return action[1].sa_handler;
-#else
-   return signal(sig_num, handler);
-#endif
-}
 
 /* A thread can set gShutdownFlag to true to cause the main thread to clean
  * up execution and exit.  If it desires to indicate that the process should
@@ -208,59 +175,6 @@ pt_signal(int sig_num, sighandler_t handler)
  */
 bool gShutdownFlag = FALSE;
 int gExitStatus = EXIT_SUCCESS;
-
-/** 
- * Description: 
- *
- * This is the signal handler.  Signals are processed as follows:
- *
- * SIGINT ("control-C") and SIGTERM are taken as legitimate signals to
- * shut down.  They set gShutdownFlag to cause the main thread to
- * clean up execution and exit.
- *
- * All other signals are assumed to be errors.  Log an appropriate
- * message, flush the log, then send ourselves a SIGSEGV to cause a
- * core dump (if "ulimit" allows it).
- * 
- * Which signals are seen by sigHandler() is determined by the main
- * line code which sets up the signal handling.
- */
-
-// TRUE when executing from within a signal handler.
-static int sInSigHandler = 0;
-
-void 
-sigHandler(int sig_num)
-{
-   // sInSigHandler is used to make sure we do not get into a loop
-   // if OsSysLogTask throws a signal doing flush or add.
-   if (sInSigHandler)
-   {
-      // Die by calling abort.
-      abort() ;
-      // In the unlikely case abort returns 
-      exit(1);
-   }
-   sInSigHandler = TRUE;
-
-   // Log receiving the signal.
-   if (SIGTERM == sig_num)
-   {
-      OsSysLog::add( FAC_MEDIASERVER_VXI, PRI_INFO, "sigHandler: terminate signal received.");
-   }
-   else
-   {
-      OsSysLog::add( FAC_MEDIASERVER_VXI, PRI_CRIT, "sigHandler: caught signal: %d", sig_num );
-   }
-
-   // Flush the log to disk.
-   OsSysLog::flush();
-
-   // Otherwise, shut down gracefully.
-   gShutdownFlag = TRUE;
-
-   sInSigHandler = FALSE;
-}
 
 VXItrdResult   LockThreadStack()
 {
@@ -530,21 +444,72 @@ void freeThread(CallCleanupThreadArgs* thread, bool cancel)
 }
 
 
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//  NAME:        SignalTask
+//
+//  SYNOPSIS:
+//
+//  DESCRIPTION: This is the signal handler, When called this sets the global gShutdownFlag
+//               allowing the main processing loop to exit cleanly.
+//
+//  RETURNS:     None.
+//
+//  ERRORS:      None.
+//
+//  CAVEATS:     None.
+//
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+class SignalTask : public OsTask
+{
+public:
+   SignalTask() : OsTask() {}
+
+   int
+   run(void *pArg)
+   {
+       int sig_num ;
+       OsStatus res ;
+
+       // Wait for a signal.  This will unblock signals
+       // for THIS thread only, so this will be the only thread
+       // to catch an async signal directed to the process 
+       // from the outside.
+       res = awaitSignal(sig_num);
+       if (res == OS_SUCCESS)
+       {
+          if (SIGTERM == sig_num)
+          {
+             OsSysLog::add( FAC_MEDIASERVER_VXI, PRI_INFO, "SignalTask: terminate signal received.");
+          }
+          else
+          {
+            OsSysLog::add( FAC_MEDIASERVER_VXI, PRI_CRIT, "SignalTask: caught signal: %d", sig_num );
+          }
+       }
+       else
+       {
+            OsSysLog::add( FAC_MEDIASERVER_VXI, PRI_CRIT, "SignalTask: awaitSignal() failed");
+       }
+       // set the global shutdown flag
+       gShutdownFlag = TRUE ;
+       return 0 ;
+   }
+} ;
+
 ///////////////////////////////////////////////////////////////////////////////
 
 int main(int argc, char *argv[])
 {
-   sInSigHandler = 0;
-   // Register Signal handlers
-   pt_signal(SIGINT,   sigHandler);    // Trap Ctrl-C
-   // SIGTERM is the standard Unix way to tell a process to die.
-   pt_signal(SIGTERM,  sigHandler);
-#if defined(__pingtel_on_posix__)
-   pt_signal(SIGHUP,   sigHandler);    // Hangup
-   pt_signal(SIGQUIT,  sigHandler); 
-   // SIGPIPE can result from TCP failure, so it has to be ignored.
-   pt_signal(SIGPIPE,  SIG_IGN);
-#endif
+   // Block all signals in this the main thread.
+   // Any threads created from now on will have all signals masked.
+   OsTask::blockSignals();
+   
+   // Create a new task to wait for signals.  Only that task
+   // will ever see a signal from the outside.
+   SignalTask* signalTask = new SignalTask();
+   signalTask->start();
 
    char *configFile = NULL, *ptr = NULL;
    VXIplatformResult platformResult;
@@ -1110,10 +1075,17 @@ int main(int argc, char *argv[])
 
    OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG, "mediaserver main thread started.");
 
+   int ticks = 0 ;
    while(listener->isStarted() && !gShutdownFlag)
    {
-      OsTask::delay(120000);    // sleep for 2 minutes
+      OsTask::delay(1000);    // sleep for 1 second
+      if (++ticks < 120)
+      {
+         continue ;
+      }
+      ticks = 0 ;
 
+      // Every 2 minutes
       LockThreadStack();
       UtlSListIterator iterator(glbCleanupThreadStack);
       UtlInt* threadCollectable = (UtlInt*) iterator();
