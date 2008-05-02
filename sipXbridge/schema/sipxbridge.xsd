@@ -358,6 +358,17 @@
 					</xs:documentation>
 				</xs:annotation>
 			</xs:element>
+
+			<xs:element name="use-registration-for-caller-id"
+				type="xs:boolean" default="true" maxOccurs="1" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+						Whether or not to use Registration record for From Header of INVITE.
+						Only meaningful if register-on-initialization is set to true.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+
 			<xs:element name="sip-keepalive-method"
 				default="CR-LF" maxOccurs="1" minOccurs="0">
 				<xs:annotation>

@@ -118,6 +118,8 @@ public class ItspAccountInfo implements
     private String rtpKeepaliveMethod = "USE-EMPTY-PACKET";
     
     private boolean reInviteSupported = true;
+    
+    private boolean useRegistrationForCallerId = true;
 
     /**
      * This task runs periodically depending upon the timeout of the lookup
@@ -517,6 +519,20 @@ public class ItspAccountInfo implements
      */
     public boolean isReInviteSupported() {
         return reInviteSupported;
+    }
+
+    /**
+     * @param useRegistrationForCallerId the useRegistrationForCallerId to set
+     */
+    public void setUseRegistrationForCallerId(boolean useRegistrationForCallerId) {
+        this.useRegistrationForCallerId = useRegistrationForCallerId;
+    }
+
+    /**
+     * @return the useRegistrationForCallerId
+     */
+    public boolean isUseRegistrationForCallerId() {
+        return useRegistrationForCallerId;
     }
 
 }
