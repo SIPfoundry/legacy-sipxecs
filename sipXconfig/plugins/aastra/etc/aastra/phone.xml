@@ -550,7 +550,7 @@
       </setting>
     </group>
   </group>
-  <group name="forwarding">
+  <group name="forwarding" hidden="yes">
     <setting name="call_forward_disabled">
       <profileName>call forward disabled</profileName>
       <type>
