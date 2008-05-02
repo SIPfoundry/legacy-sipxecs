@@ -9,7 +9,7 @@
     <sipx-proxy-domain>sipfoundry.org</sipx-proxy-domain>
     <stun-server-address>stun01.sipphone.com</stun-server-address>
     <sip-keepalive-seconds>20</sip-keepalive-seconds>
-    <media-keepalive-seconds>2</media-keepalive-seconds>
+    <media-keepalive-seconds>1</media-keepalive-seconds>
     <music-on-hold-support-enabled>false</music-on-hold-support-enabled>
     <rtp-port-range>25000:25500</rtp-port-range>
     <allowed-codec-name>PCMU</allowed-codec-name>
@@ -29,8 +29,8 @@
     <route-inbound-calls-to-extension>operator</route-inbound-calls-to-extension>
     <use-rport>false</use-rport>
     <register-on-initialization>true</register-on-initialization>
-    <rtp-keepalive-method>USE-EMPTY-PACKET</rtp-keepalive-method>
     <use-registration-for-caller-id>true</use-registration-for-caller-id>
+    <rtp-keepalive-method>USE-EMPTY-PACKET</rtp-keepalive-method>
   </itsp-account>
 
 </sipxbridge-config>
