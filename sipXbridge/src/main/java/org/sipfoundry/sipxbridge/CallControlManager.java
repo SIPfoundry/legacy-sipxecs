@@ -47,6 +47,7 @@ import javax.sip.header.ContactHeader;
 import javax.sip.header.ContentTypeHeader;
 import javax.sip.header.EventHeader;
 import javax.sip.header.SubscriptionStateHeader;
+import javax.sip.header.SupportedHeader;
 import javax.sip.header.ToHeader;
 import javax.sip.header.ViaHeader;
 import javax.sip.message.Message;
@@ -127,6 +128,8 @@ public class CallControlManager {
 
                 Response response = ProtocolObjects.messageFactory
                         .createResponse(Response.OK, request);
+                SupportedHeader sh = ProtocolObjects.headerFactory.createSupportedHeader("replaces");
+                response.setHeader(sh);
                 if (newDescription != null) {
                     response.setContent(newDescription,
                             ProtocolObjects.headerFactory
@@ -137,7 +140,7 @@ public class CallControlManager {
                         "sipxbridge", Gateway.getLanProvider());
                 response.setHeader(contactHeader);
                 response.setReasonPhrase("RTP Session Parameters Changed");
-
+               
                 if (serverTransaction != null) {
                     serverTransaction.sendResponse(response);
                 } else {
@@ -215,6 +218,8 @@ public class CallControlManager {
             }
             Response response = ProtocolObjects.messageFactory.createResponse(
                     Response.OK, request);
+            SupportedHeader sh = ProtocolObjects.headerFactory.createSupportedHeader("replaces");
+            response.setHeader(sh);
 
             /*
              * We accept REFERs only from SIPX auto attendant for now.
@@ -309,6 +314,7 @@ public class CallControlManager {
 
             Response response = ProtocolObjects.messageFactory.createResponse(
                     Response.ACCEPTED, request);
+            SupportedHeader sh = ProtocolObjects.headerFactory.createSupportedHeader("replaces");
             ServerTransaction serverTransaction = requestEvent
                     .getServerTransaction();
 
@@ -611,6 +617,9 @@ public class CallControlManager {
                     Response newResponse = ProtocolObjects.messageFactory
                             .createResponse(response.getStatusCode(),
                                     serverTransaction.getRequest());
+                    SupportedHeader sh = ProtocolObjects.headerFactory.createSupportedHeader("replaces");
+                   
+                    newResponse.setHeader(sh);
 
                     String toTag = tad.toTag;
                     if (toTag == null) {
@@ -864,6 +873,8 @@ public class CallControlManager {
                         Response newResponse = ProtocolObjects.messageFactory
                                 .createResponse(response.getStatusCode(),
                                         originalRequest);
+                        SupportedHeader sh = ProtocolObjects.headerFactory.createSupportedHeader("replaces");
+                        newResponse.setHeader(sh);
                         serverTransaction.sendResponse(newResponse);
                     }
                 }

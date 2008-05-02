@@ -44,6 +44,7 @@ import javax.sip.header.Header;
 import javax.sip.header.HeaderFactory;
 import javax.sip.header.MaxForwardsHeader;
 import javax.sip.header.RouteHeader;
+import javax.sip.header.SupportedHeader;
 import javax.sip.header.ToHeader;
 import javax.sip.header.UserAgentHeader;
 import javax.sip.header.ViaHeader;
@@ -497,6 +498,12 @@ public class SipUtilities {
                     itspAccount);
 
             request.addHeader(contactHeader);
+            
+            SupportedHeader sh = 
+                (SupportedHeader) 
+                ProtocolObjects.headerFactory.createHeader(SupportedHeader.NAME, 
+                        "replaces");
+            request.addHeader(sh);
 
             return request;
 
@@ -720,6 +727,8 @@ public class SipUtilities {
             Request request = transaction.getRequest();
             Response response = ProtocolObjects.messageFactory.createResponse(
                     statusCode, request);
+            SupportedHeader sh = ProtocolObjects.headerFactory.createSupportedHeader("replaces");
+            response.addHeader(sh);
 
             return response;
         } catch (ParseException ex) {

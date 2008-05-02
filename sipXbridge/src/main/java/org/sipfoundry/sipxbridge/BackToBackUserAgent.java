@@ -47,6 +47,7 @@ import javax.sip.header.ContentTypeHeader;
 import javax.sip.header.FromHeader;
 import javax.sip.header.MaxForwardsHeader;
 import javax.sip.header.ReferToHeader;
+import javax.sip.header.SupportedHeader;
 import javax.sip.header.ToHeader;
 import javax.sip.header.ViaHeader;
 import javax.sip.message.Request;
@@ -279,6 +280,8 @@ public class BackToBackUserAgent {
                 Response response = ProtocolObjects.messageFactory
                         .createResponse(Response.BUSY_HERE,
                                 incomingRequest);
+                SupportedHeader sh = ProtocolObjects.headerFactory.createSupportedHeader("replaces");
+                response.setHeader(sh);
                 serverTransaction.sendResponse(response);
                 return;
             }
@@ -409,6 +412,9 @@ public class BackToBackUserAgent {
 
             Response response = ProtocolObjects.messageFactory.createResponse(
                     Response.OK, incomingRequest);
+            SupportedHeader sh = ProtocolObjects.headerFactory.createSupportedHeader("replaces");
+            response.setHeader(sh);
+           
             ContactHeader contactHeader = SipUtilities.createContactHeader(
                     null, provider);
             response.setHeader(contactHeader);
@@ -529,6 +535,8 @@ public class BackToBackUserAgent {
             if (replacesHeader != null) {
                 newRequest.addHeader(replacesHeader);
             }
+            SupportedHeader sh = ProtocolObjects.headerFactory.createSupportedHeader("replaces");
+            newRequest.setHeader(sh);
 
             ContactHeader contactHeader = SipUtilities.createContactHeader(
                     null, Gateway.getLanProvider());
@@ -550,6 +558,7 @@ public class BackToBackUserAgent {
             SessionDescription sd = SipUtilities.cleanSessionDescription(
                     lanRtpSession.getReceiver().getSessionDescription(),
                     codecName);
+            SipUtilities.setDuplexity(sd, "sendrecv");
             newRequest.setContent(sd, cth);
             /*
              * Create a new client transaction.
@@ -1256,6 +1265,8 @@ public class BackToBackUserAgent {
             try {
                 Response ok = ProtocolObjects.messageFactory.createResponse(
                         Response.OK, st.getRequest());
+                SupportedHeader sh = ProtocolObjects.headerFactory.createSupportedHeader("replaces");
+                ok.setHeader(sh);
                 st.sendResponse(ok);
 
             } catch (InvalidArgumentException ex) {

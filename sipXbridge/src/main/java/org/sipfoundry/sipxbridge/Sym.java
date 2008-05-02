@@ -32,16 +32,15 @@ import org.apache.log4j.Logger;
  */
 public class Sym implements SymInterface, Serializable {
 
-    
     private static final long serialVersionUID = -2762988912663901623L;
 
     private static Logger logger = Logger.getLogger(Sym.class);
 
     private String id;
-    
+
     private long creationTime;
-    
-    long lastPacketTime; 
+
+    long lastPacketTime;
 
     /*
      * The receier endpoint.
@@ -53,16 +52,14 @@ public class Sym implements SymInterface, Serializable {
      */
     private SymTransmitterEndpoint transmitter;
 
-    
     /*
      * The bridge to which we blong.
      */
-    private  Bridge bridge;
+    private Bridge bridge;
 
     public Sym() {
         id = "sym:" + Math.abs(new Random().nextLong());
         this.creationTime = System.currentTimeMillis();
-       
 
     }
 
@@ -136,10 +133,10 @@ public class Sym implements SymInterface, Serializable {
                 if (this.receiver.getDatagramChannel() != null)
                     this.receiver.getDatagramChannel().close();
                 int port = this.receiver.getPort();
-                PortRange portRange = new PortRange( port, port+1);
+                PortRange portRange = new PortRange(port, port + 1);
                 Gateway.getPortManager().free(portRange);
                 this.receiver = null;
-                
+
             }
             if (this.transmitter != null) {
                 if (this.transmitter.getDatagramChannel() != null)
@@ -148,7 +145,7 @@ public class Sym implements SymInterface, Serializable {
                 this.transmitter = null;
             }
             // Return resource to the Port range manager.
-            
+
         } catch (Exception ex) {
             logger.error("Unexpected exception occured", ex);
         }
@@ -197,8 +194,8 @@ public class Sym implements SymInterface, Serializable {
      *            the dialog application data
      * @return -- the recomputed session description.
      */
-    SessionDescription reAssignSessionParameters(Request request,
-            Dialog dialog) throws SdpParseException, SipException {
+    SessionDescription reAssignSessionParameters(Request request, Dialog dialog)
+            throws SdpParseException, SipException {
         SessionDescription sessionDescription = SipUtilities
                 .getSessionDescription(request);
         int oldPort = this.getTransmitter().getPort();
@@ -214,7 +211,7 @@ public class Sym implements SymInterface, Serializable {
          * first media. Question - what to do when only one media stream is put
          * on hold?
          */
-        
+
         String mediaAttribute = SipUtilities
                 .getSessionDescriptionMediaAttributeDuplexity(sessionDescription);
 
@@ -226,8 +223,9 @@ public class Sym implements SymInterface, Serializable {
             logger.debug("sessionAttribute = " + sessionAttribute);
         }
 
-        String attribute = sessionAttribute != null? sessionAttribute : mediaAttribute;
-        
+        String attribute = sessionAttribute != null ? sessionAttribute
+                : mediaAttribute;
+
         if (newIpAddress.equals("0.0.0.0") && newport == oldPort) {
             /*
              * RFC2543 specified that placing a user on hold was accomplished by
@@ -264,16 +262,18 @@ public class Sym implements SymInterface, Serializable {
                 dat.musicOnHoldDialog = mohDialog;
 
             }
-            SipUtilities.setDuplexity(this.getReceiver().getSessionDescription(),"recvonly");
-            SipUtilities.incrementSdpVersion(this.getReceiver().getSessionDescription());
+            SipUtilities.setDuplexity(this.getReceiver()
+                    .getSessionDescription(), "recvonly");
+            SipUtilities.incrementSdpVersion(this.getReceiver()
+                    .getSessionDescription());
             return this.getReceiver().getSessionDescription();
         } else if (newport == oldPort && oldIpAddress.equals(newIpAddress)) {
-            if (attribute == null 
-                   ||  attribute.equals("sendrecv")) {
+            if (attribute == null || attribute.equals("sendrecv")) {
                 logger.debug("Remove media on hold!");
-                SipUtilities.setDuplexity(this
-                        .getReceiver().getSessionDescription(),"sendrecv");
-                SipUtilities.incrementSdpVersion(this.getReceiver().getSessionDescription());
+                SipUtilities.setDuplexity(this.getReceiver()
+                        .getSessionDescription(), "sendrecv");
+                SipUtilities.incrementSdpVersion(this.getReceiver()
+                        .getSessionDescription());
                 this.getTransmitter().setOnHold(false);
 
                 DialogApplicationData dat = (DialogApplicationData) dialog
@@ -283,8 +283,7 @@ public class Sym implements SymInterface, Serializable {
                     BackToBackUserAgent b2bua = dat.backToBackUserAgent;
                     b2bua.sendByeToMohServer(dat.musicOnHoldDialog);
                 }
-            } else if (attribute != null && attribute
-                    .equals("sendonly")) {
+            } else if (attribute != null && attribute.equals("sendonly")) {
                 logger.debug("Setting media on hold.");
                 this.getTransmitter().setOnHold(true);
                 /*
@@ -314,17 +313,39 @@ public class Sym implements SymInterface, Serializable {
                     dat.musicOnHoldDialog = mohDialog;
                 }
 
-                if (sessionAttribute != null && sessionAttribute.equals("sendonly")) {
-                    SipUtilities.setSessionDescriptionAttribute("recvonly",
-                            this.getReceiver().getSessionDescription());
-                } else {
-                    SipUtilities.setDuplexity(this
-                            .getReceiver().getSessionDescription(),  "recvonly");
+                SipUtilities.setDuplexity(this.getReceiver()
+                        .getSessionDescription(), "recvonly");
+
+                SipUtilities.incrementSdpVersion(this.getReceiver()
+                        .getSessionDescription());
+            } else if (attribute != null && attribute.equals("inactive")) {
+                logger
+                        .debug("Setting media on hold. -- saw an inactive Session attribute");
+                this.getTransmitter().setOnHold(true);
+
+                if (Gateway.getMusicOnHoldAddress() != null) {
+                    Dialog mohDialog;
+                    try {
+                        mohDialog = Gateway.getCallControlManager()
+                                .getBackToBackUserAgent(dialog)
+                                .sendInviteToMohServer(
+                                        (SessionDescription) this.getReceiver()
+                                                .getSessionDescription()
+                                                .clone());
+                    } catch (CloneNotSupportedException e) {
+                        throw new RuntimeException("Unexpected exception ", e);
+                    }
+                    DialogApplicationData dat = (DialogApplicationData) dialog
+                            .getApplicationData();
+                    dat.musicOnHoldDialog = mohDialog;
                 }
-                SipUtilities.incrementSdpVersion(this.getReceiver().getSessionDescription());
+                SipUtilities.setDuplexity(this.getReceiver()
+                        .getSessionDescription(), "inactive");
+
+                SipUtilities.incrementSdpVersion(this.getReceiver()
+                        .getSessionDescription());
             }
             return this.getReceiver().getSessionDescription();
-
         } else {
             if (logger.isDebugEnabled()) {
                 logger
@@ -348,24 +369,28 @@ public class Sym implements SymInterface, Serializable {
     }
 
     /**
-     * @param rtpBridge the rtpBridge to set
+     * @param rtpBridge
+     *            the rtpBridge to set
      */
     public void setBridge(Bridge bridge) {
         this.bridge = bridge;
     }
 
     public SymState getState() {
-        if ( this.receiver == null && this.transmitter == null ) return SymState.TERMINATED;
-        else if ( this.getTransmitter() == null ) return SymState.INIT;
-        else if ( this.getTransmitter() != null && getTransmitter().isOnHold() ) {
-            return SymState.PAUSED; 
-        } else return SymState.RUNNING;
+        if (this.receiver == null && this.transmitter == null)
+            return SymState.TERMINATED;
+        else if (this.getTransmitter() == null)
+            return SymState.INIT;
+        else if (this.getTransmitter() != null && getTransmitter().isOnHold()) {
+            return SymState.PAUSED;
+        } else
+            return SymState.RUNNING;
     }
 
     public long getCreationTime() {
         return this.creationTime;
     }
-    
+
     public long getLastPacketTime() {
         return this.lastPacketTime;
     }
