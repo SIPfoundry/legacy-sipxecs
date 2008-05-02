@@ -68,11 +68,13 @@ public class SymmitronTest extends AbstractSymmitronTestCase {
         super.checkStandardMap(retval);
         Object[] syms = (Object[]) retval.get(Symmitron.SYM_SESSION);
         assertEquals ("Should allocate only one sym", syms.length , count);
-        
+        System.out.println("syms = " + syms);
+        System.out.println("sym[0] = " + (Map) syms[0]);
+        String symId = (String)((Map)syms[0]).get("id");
       
         args = new Object[2];
         args[0] = clientHandle;
-        args[1] = (String)syms[0];
+        args[1] = symId;
         retval = (Map) client.execute("sipXbridge.getSym", args);
         super.checkStandardMap(retval);
         Map symSession = (Map) retval.get(Symmitron.SYM_SESSION);
@@ -85,7 +87,7 @@ public class SymmitronTest extends AbstractSymmitronTestCase {
         
         args = new Object[2];
         args[0] = clientHandle;
-        args[1] = syms[0];
+        args[1] = symId;
         retval = ( Map ) super.client.execute("sipXbridge.destroySym",args);
         System.out.println("retval = "  + retval);
         super.checkStandardMap( retval);
@@ -463,7 +465,12 @@ public class SymmitronTest extends AbstractSymmitronTestCase {
         }
         Thread.sleep(100);
         assertTrue (counter < 100);
+        super.destroySym(sym2);
         super.destroyBridge(bridge);
+        datagramSocket1.close();
+        datagramSocket2.close();
+       
+        Thread.sleep(100);
           
     }
     

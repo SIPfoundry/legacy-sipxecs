@@ -79,7 +79,8 @@ public abstract class AbstractSymmitronTestCase extends TestCase {
                     retval.get(Symmitron.ERROR_INFO));
         }
         Object[] syms = (Object[]) retval.get(Symmitron.SYM_SESSION);
-        return ( String ) syms[0];
+        Map sym = (Map) syms[0];
+        return (String)sym.get("id");
     }
     
     protected String createBridge() throws Exception {
@@ -248,5 +249,17 @@ public abstract class AbstractSymmitronTestCase extends TestCase {
         myHandle[0] = clientHandle;
         Map retval = (Map) client.execute("sipXbridge.signIn",
                 (Object[]) myHandle);
+    }
+
+
+
+
+
+    public void destroySym(String sym) throws Exception {
+       Object[] args = new Object[2];
+       args[0] = clientHandle;
+       args[1] = sym;
+       Map retval = (Map) client.execute("sipXbridge.destroySym",args);
+        
     }
 }

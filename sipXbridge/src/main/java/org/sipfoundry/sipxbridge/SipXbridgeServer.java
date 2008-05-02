@@ -218,12 +218,12 @@ public class SipXbridgeServer implements Symmitron {
                 SymReceiverEndpoint rtpEndpoint = new SymReceiverEndpoint(
                         portRange.getLowerBound() + i);
                 sym.setReceiver(rtpEndpoint);
-                hset.add(sym.getId());
+                hset.add(sym.toMap());
                 this.addSymResource(controllerHandle, sym);
                 logger.debug("createSym : " + sym.getId());
             }
 
-            retval.put(SYM_SESSION, hset.toArray(new String[hset.size()]));
+            retval.put(SYM_SESSION, hset.toArray(new HashMap[hset.size()]));
 
             return retval;
         } catch (Exception ex) {
@@ -372,7 +372,7 @@ public class SipXbridgeServer implements Symmitron {
      *      java.lang.String, java.lang.String)
      */
     public Map<String, Object> removeSym(String controllerHandle,
-            String bridgeId, String rtpSessionId) {
+            String bridgeId, String symId) {
         try {
             this.checkForControllerReboot(controllerHandle);
             Bridge rtpBridge = bridgeMap.get(bridgeId);
@@ -381,11 +381,11 @@ public class SipXbridgeServer implements Symmitron {
                         "Specified RTP Bridge was not found " + bridgeId);
             }
 
-            Sym rtpSession = sessionMap.get(rtpSessionId);
+            Sym rtpSession = sessionMap.get(symId);
 
             if (rtpSession == null) {
                 return this.createErrorMap(SESSION_NOT_FOUND,
-                        "Specified RTP Session was not found " + rtpSessionId);
+                        "Specified RTP Session was not found " + symId);
             }
 
             rtpBridge.removeSym(rtpSession);

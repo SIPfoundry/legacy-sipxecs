@@ -92,7 +92,7 @@ public abstract class SymEndpoint implements SymEndpointInterface {
      */
     protected SymEndpoint()  {
 
-        this.id = "rtp-endpoint:" + Math.abs(new Random().nextLong());
+        this.id = "sym-endpoint:" + Math.abs(new Random().nextLong());
     }
 
     /**

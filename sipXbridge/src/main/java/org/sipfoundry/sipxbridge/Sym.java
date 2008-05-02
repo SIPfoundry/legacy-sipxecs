@@ -130,8 +130,11 @@ public class Sym implements SymInterface, Serializable {
         logger.debug("Closing channel : " + this.receiver);
         try {
             if (this.receiver != null) {
-                if (this.receiver.getDatagramChannel() != null)
+                if (this.receiver.getDatagramChannel() != null) {
                     this.receiver.getDatagramChannel().close();
+                } else {
+                    logger.debug("receiver datagram channel is null");
+                }
                 int port = this.receiver.getPort();
                 PortRange portRange = new PortRange(port, port + 1);
                 Gateway.getPortManager().free(portRange);
@@ -141,6 +144,9 @@ public class Sym implements SymInterface, Serializable {
             if (this.transmitter != null) {
                 if (this.transmitter.getDatagramChannel() != null)
                     this.transmitter.getDatagramChannel().close();
+                else {
+                   logger.debug("transmitter datagram channel is null"); 
+                }
                 this.transmitter.stopKeepalive();
                 this.transmitter = null;
             }
