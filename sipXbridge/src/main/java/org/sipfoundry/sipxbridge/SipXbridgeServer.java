@@ -212,18 +212,18 @@ public class SipXbridgeServer implements Symmitron {
                         "Ports not available");
 
             Map<String, Object> retval = createSuccessMap();
-            HashSet<Object> hset = new HashSet<Object>();
+            HashMap[] hmapArray = new HashMap[count];
             for (int i = 0; i < count; i++) {
                 Sym sym = new Sym();
                 SymReceiverEndpoint rtpEndpoint = new SymReceiverEndpoint(
                         portRange.getLowerBound() + i);
                 sym.setReceiver(rtpEndpoint);
-                hset.add(sym.toMap());
+                hmapArray[i] = sym.toMap();
                 this.addSymResource(controllerHandle, sym);
                 logger.debug("createSym : " + sym.getId());
             }
 
-            retval.put(SYM_SESSION, hset.toArray(new HashMap[hset.size()]));
+            retval.put(SYM_SESSION, hmapArray);
 
             return retval;
         } catch (Exception ex) {
