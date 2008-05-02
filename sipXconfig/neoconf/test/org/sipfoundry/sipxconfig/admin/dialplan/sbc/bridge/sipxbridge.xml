@@ -30,6 +30,7 @@
     <use-rport>false</use-rport>
     <register-on-initialization>true</register-on-initialization>
     <rtp-keepalive-method>USE-EMPTY-PACKET</rtp-keepalive-method>
+    <use-registration-for-caller-id>true</use-registration-for-caller-id>
   </itsp-account>
 
 </sipxbridge-config>
