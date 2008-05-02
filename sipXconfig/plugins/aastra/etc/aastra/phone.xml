@@ -300,7 +300,9 @@
       <setting name="sip_intercom_prefix_code">
         <profileName>sip intercom prefix code</profileName>
         <type>
-          <string />
+         <string>
+           <pattern>\*?\w*</pattern>
+         </string>
         </type>
         <value />
       </setting>
@@ -440,7 +442,9 @@
       <setting name="sprecode">
         <profileName>sprecode</profileName>
         <type>
-          <string />
+         <string>
+           <pattern>\*?\w*</pattern>
+         </string>
         </type>
         <value />
       </setting>
