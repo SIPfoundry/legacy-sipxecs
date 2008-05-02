@@ -52,10 +52,10 @@
       <type>
         <integer required="yes" />
       </type>
-      <value>2</value>
+      <value>1</value>
       <description>
         Keepalive timer for RTP. Each RTP stream facing the ITSP will start a timer that runs with this timeout (in
-        seconds).
+        seconds). If packets are not seen in the specified interval, the keepalive timer will send packets.
       </description>
     </setting>
     <setting name="xml-rpc-port" advanced="yes">
@@ -75,7 +75,7 @@
       <description>
         The maximum number of concurrent calls allowed via the given bridge overall. When the limit is reached,
         sipxbridge will return "Service Unavailable". If nothing is specified, no limit is placed on the max number of
-        concurrent calls. If nothing is specified, no limit is placed on the max number of concurrent calls.
+        concurrent calls. 
       </description>
     </setting>
     <setting name="music-on-hold-support-enabled">

@@ -73,11 +73,11 @@
       <description>If checked, use the stun determined global address for SIP signaling and SDP.</description>
     </setting>
     <setting name="is-reinvite-supported" advanced="yes">
-      <label>Media Re-negotiation Support</label>
+      <label>re-INVITE Support</label>
       <type refid="switch" />
       <value>true</value>
       <description>
-        If checked, media renegotiation (reINVITE) is supported by the ITSP. This allows sipxbridge to delay codec
+        If checked, reINVITE is supported by the ITSP. This allows sipxbridge to delay codec
         choice for call setup when dealing with call transfers.
       </description>
     </setting>
@@ -99,6 +99,12 @@
       <type refid="switch"></type>
       <value>true</value>
       <description>Defines whether or not to register with the given ITSP on initialization.</description>
+    </setting>
+    <setting name="use-registration-for-caller-id" advanced="yes">
+      <label>Use Registration for caller-ID</label>
+      <type refid="switch"></type>
+      <value>true</value>
+      <description>Defines whether or not to use the Registration username and domain as a caller ID.</description>
     </setting>
     <setting name="sip-keepalive-method" advanced="yes">
       <label>Method to use for SIP keepalive.</label>
