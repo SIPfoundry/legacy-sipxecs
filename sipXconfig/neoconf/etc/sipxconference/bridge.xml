@@ -82,14 +82,14 @@
         that there are too many users on the bridge. 0 means unlimited.</description>
     </setting>
     <setting name="sip-port" advanced="yes">
-      <label>FreeSWITCH SIP port</label>
+      <label>Conference Server SIP port</label>
       <type refid="port-number"/>
       <value>15060</value>
     </setting>
     <setting name="sip-domain">
-      <label>FreeSWITCH SIP domain</label>
+      <label>Conference Server SIP domain</label>
       <value></value>
-      <description>The host parts of the SIP URI of FreeSWITCH server.</description>
+      <description>The host parts of the SIP URI of the conference server.</description>
     </setting>
     <setting name="sip-proxy" advanced="yes">
       <label>SIP Outbound Proxy</label>
