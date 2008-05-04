@@ -152,6 +152,7 @@
         <include name="**/*.xml"/>
         <include name="**/*.wsdl"/>
         <include name="**/*.properties"/>
+        <include name="**/*.js"/>
       </classes>
       <lib dir="${dist.dir}">
 		  <include name="server-bindings.jar"/>

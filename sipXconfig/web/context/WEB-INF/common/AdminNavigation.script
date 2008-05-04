@@ -3,29 +3,7 @@
 	"-//Apache Software Foundation//Tapestry Script Specification 3.0//EN"
 	"http://jakarta.apache.org/tapestry/dtd/Script_3_0.dtd">
 <script>
-
-<body>
-  <unique>
-    <![CDATA[
-function hoverToOverForIE () {
-	if (document.all&&document.getElementById) {
-		navRoot = document.getElementById("nav");
-		for (i=0; i<navRoot.childNodes.length; i++) {
-			node = navRoot.childNodes[i];
-			if (node.nodeName=="LI") {
-				node.onmouseover=function() {
-					this.className+=" over";
-				}
-				node.onmouseout=function() {
-					this.className=this.className.replace(" over", "");
-				}
-			}
-		}
-	}
-}
-  	]]>
-  </unique>
-</body>
+<include-script resource-path="/org/sipfoundry/sipxconfig/components/ie-fix.js"/>
 <initialization>
 hoverToOverForIE();    
 </initialization>
