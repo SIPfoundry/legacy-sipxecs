@@ -18,6 +18,7 @@ EXTRA_DIST = \
   build.xml \
   config.properties.in \
   sipxbridge.spec.in \
+  sipxbridge.spec \
   sipxbridge.process.xml.in \
   sipxbridge.sh.in \
   CONTRIBUTORS \
