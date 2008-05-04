@@ -194,9 +194,14 @@
     </invoke-factory>
   </service-point>
 
+  <!-- Friendly URLs support -->
   <contribution configuration-id="tapestry.url.ServiceEncoders">
     <encoder id="mailbox" before="external" object="instance:site.vm.MailboxPageEncoder,url=/mailbox" />
     <page-service-encoder id="external" extension="external" service="external" />
+    <page-service-encoder id="page" extension="html" service="page" />
+    <direct-service-encoder id="direct" stateless-extension="direct" stateful-extension="sdirect" />
+    <asset-encoder id="asset" path="/assets" />
+    <extension-encoder id="extension" extension="svc" after="*" />
   </contribution>
 
   <contribution configuration-id="tapestry.InfrastructureOverrides">

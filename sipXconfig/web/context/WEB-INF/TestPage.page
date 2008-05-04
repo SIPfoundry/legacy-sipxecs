@@ -104,10 +104,6 @@
   <component id="populateUsers" type="DirectLink">
     <binding name="listener" value="listener:populateUsers"/>
   </component>
-  <component id="searchBongo" type="ExternalLink">
-    <binding name="page" value="literal:SearchPage"/>
-    <binding name="parameters" value="literal:bongo"/>
-  </component>
   <component id="RestartReminder" type="DirectLink">
     <binding name="listener" value="listener:goToRestartReminderPage"/>
   </component>

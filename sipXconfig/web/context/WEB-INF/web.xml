@@ -45,8 +45,10 @@
       classpath:/org/sipfoundry/sipxconfig/presence/presence.beans.xml
       classpath:/org/sipfoundry/sipxconfig/admin/intercom/intercom.beans.xml
       classpath:/org/sipfoundry/sipxconfig/domain/domain.beans.xml
-      classpath:/org/sipfoundry/sipxconfig/phonebook/phonebook.beans.xml classpath*:/sipxplugin.beans.xml
-      classpath*:/org/sipfoundry/sipxconfig/**/*-models.beans.xml classpath*:/dialplan/*.dialrules.beans.xml
+      classpath:/org/sipfoundry/sipxconfig/phonebook/phonebook.beans.xml
+      classpath*:/sipxplugin.beans.xml
+      classpath*:/org/sipfoundry/sipxconfig/**/*-models.beans.xml
+      classpath*:/dialplan/*.dialrules.beans.xml
       classpath*:/sipxplugin.beans.xml
       classpath*:/region_*/dialrules.beans.xml
       classpath:/org/sipfoundry/sipxconfig/acd/acd.beans.xml
@@ -150,6 +152,36 @@
   <servlet-mapping>
     <servlet-name>sipXconfig-web</servlet-name>
     <url-pattern>/mailbox/*</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>sipXconfig-web</servlet-name>
+    <url-pattern>*.html</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>sipXconfig-web</servlet-name>
+    <url-pattern>*.external</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>sipXconfig-web</servlet-name>
+    <url-pattern>*.direct</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>sipXconfig-web</servlet-name>
+    <url-pattern>*.sdirect</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>sipXconfig-web</servlet-name>
+    <url-pattern>/assets/*</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>sipXconfig-web</servlet-name>
+    <url-pattern>*.svc</url-pattern>
   </servlet-mapping>
 
   <servlet-mapping>
