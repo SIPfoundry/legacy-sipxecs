@@ -4,8 +4,6 @@ include ant-targets.am
 
 bin_SCRIPTS = sipxbridge.sh
 
-sipxbridge.sh: sipxbridge.sh.in
-	$(LocalizeSipXconfig) $< > $@
 
 RPMS=$(RPM)
 
@@ -18,28 +16,38 @@ EXTRA_DIST = \
   config/svn-version \
   ant-targets.xml \
   build.xml \
+  config.properties.in \
+  sipxbridge.spec.in \
+  sipxbridge.process.xml.in \
+  sipxbridge.sh.in \
   CONTRIBUTORS \
   BUILDSTAMP \
   SVN-VERSION \
   LICENSE \
   ant-targets.xml \
-  sipxbridge.sh.in \
-  sipxbridge.sh \
-  config.properties.in \
-  config.properties \
-  sipxbridge.spec.in \
-  sipxbridge.spec \
-  sipxbridge.process.xml.in \
-  sipxbridge.process.xml \
   src \
   lib
 
 # BUILT_SOURCES is special autoconf variable to be checked on every make
 BUILT_SOURCES = config.properties
 
+
+ETC_FILES = \
+    sipxbridge.process.xml.in
+
+install-data-hook : 
+	@for f in $(ETC_FILES); \
+	do \
+	  	target=`basename $$f .in`; \
+                echo "Processing  $(srcdir)/$$f"; \
+      $(LocalizeSipXconfig) $(srcdir)/$$f > $$target; \
+	    	mkdir -p $(DESTDIR)$(SIPX_PROCDIR); \
+	    	echo "Installing default $(DESTDIR)$(SIPX_PROCDIR)/$$target"; \
+		$(INSTALL) -D -m 644 $$target $(DESTDIR)$(SIPX_PROCDIR)/$$target; \
+	done
+
 config.properties : config.properties.in 
 	$(LocalizeSipXconfig) $< > $@
 
-sipxbridge.process.xml : sipxbridge.process.xml.in
+sipxbridge.sh : sipxbridge.sh.in
 	$(LocalizeSipXconfig) $< > $@
-
