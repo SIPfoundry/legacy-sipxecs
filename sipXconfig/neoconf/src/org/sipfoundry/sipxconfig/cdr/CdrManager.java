@@ -49,6 +49,13 @@ public interface CdrManager {
      */
     void dumpCdrs(Writer writer, Date from, Date to, CdrSearch search, User user) throws IOException;
     
+    /**
+     * Dump CDRs in a JSON format used by Exhibit platform.
+     * 
+     * @param out destination for JSON stream
+     */
+    void dumpCdrsJson(Writer out) throws IOException;
+    
     
     /**
      * Returns the list of active calls as CDRs

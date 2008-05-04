@@ -19,6 +19,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.text.Format;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -30,10 +31,10 @@ import javax.xml.rpc.ServiceException;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateFormatUtils;
 import org.apache.commons.lang.time.DateUtils;
-import org.sipfoundry.sipxconfig.bulk.csv.CsvWriter;
 import org.sipfoundry.sipxconfig.cdr.Cdr.Termination;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.springframework.dao.DataAccessException;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.core.RowCallbackHandler;
@@ -42,6 +43,7 @@ import org.springframework.jdbc.core.SingleColumnRowMapper;
 import org.springframework.jdbc.core.support.JdbcDaoSupport;
 
 public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager {
+    static final String CALL_ID = "call_id";
     static final String CALLEE_AOR = "callee_aor";
     static final String TERMINATION = "termination";
     static final String FAILURE_STATUS = "failure_status";
@@ -53,6 +55,7 @@ public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager {
     private String m_cdrAgentHost;
     private int m_cdrAgentPort;
     private int m_csvLimit;
+    private int m_jsonLimit;
 
     /**
      * CDRs database at the moment is using 'timestamp' type to store UTC time. Postgres
@@ -70,12 +73,27 @@ public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager {
         return getCdrs(from, to, search, user, 0, 0);
     }
 
-    public List<Cdr> getCdrs(Date from, Date to, CdrSearch search, User user, int limit,
-            int offset) {
+    public List<Cdr> getCdrs(Date from, Date to, CdrSearch search, User user, int limit, int offset) {
         CdrsStatementCreator psc = new SelectAll(from, to, search, user, m_tz, limit, offset);
         CdrsResultReader resultReader = new CdrsResultReader(m_tz);
         getJdbcTemplate().query(psc, resultReader);
         return resultReader.getResults();
+    }
+
+    public void dumpCdrs(Writer writer, Date from, Date to, CdrSearch search, User user) throws IOException {
+        ColumnInfoFactory columnInforFactory = new DefaultColumnInfoFactory(m_tz);
+        CdrsWriter resultReader = new CdrsCsvWriter(writer, columnInforFactory);
+        dump(resultReader, from, to, search, user, m_csvLimit);
+    }
+
+    public void dumpCdrsJson(Writer out) throws IOException {
+        DefaultColumnInfoFactory columnInforFactory = new DefaultColumnInfoFactory(m_tz);
+        columnInforFactory.setAorFormat(CdrsJsonWriter.AOR_FORMAT);
+        CdrsWriter resultReader = new CdrsJsonWriter(out, columnInforFactory);
+        // if we cannot see all the result - get only the latest
+        CdrSearch cdrSearch = new CdrSearch();
+        cdrSearch.setOrder(START_TIME, false);
+        dump(resultReader, null, null, cdrSearch, null, m_jsonLimit);
     }
 
     /**
@@ -88,13 +106,14 @@ public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager {
      * If we had direct access to that connection we could try calling "setChunkedStreamingMode"
      * on it.
      */
-    public void dumpCdrs(Writer writer, Date from, Date to, CdrSearch search, User user)
+    private void dump(CdrsWriter resultReader, Date from, Date to, CdrSearch search, User user, int limit)
         throws IOException {
-        CdrsStatementCreator psc = new SelectAll(from, to, search, user, m_tz, m_csvLimit, 0);
-        CdrsCsvWriter resultReader = new CdrsCsvWriter(writer, m_tz);
+        PreparedStatementCreator psc = new SelectAll(from, to, search, user, m_tz, limit, 0);
         try {
+            resultReader.writeHeader();
             getJdbcTemplate().query(psc, resultReader);
-        } catch (RuntimeException e) {
+            resultReader.writeFooter();
+        } catch (DataAccessException e) {
             // unwrap IOException that might happen during reading DB
             if (e.getCause() instanceof IOException) {
                 throw (IOException) e.getCause();
@@ -152,6 +171,10 @@ public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager {
         m_csvLimit = csvLimit;
     }
 
+    public void setJsonLimit(int jsonLimit) {
+        m_jsonLimit = jsonLimit;
+    }
+
     abstract static class CdrsStatementCreator implements PreparedStatementCreator {
         private static final String FROM = " FROM cdrs WHERE (? <= start_time) AND (start_time <= ?)";
         private static final String LIMIT = " LIMIT ? OFFSET ?";
@@ -168,8 +191,8 @@ public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager {
             this(from, to, search, user, tz, 0, 0);
         }
 
-        public CdrsStatementCreator(Date from, Date to, CdrSearch search, User user, TimeZone tz,
-                int limit, int offset) {
+        public CdrsStatementCreator(Date from, Date to, CdrSearch search, User user, TimeZone tz, int limit,
+                int offset) {
             m_calendar = Calendar.getInstance(tz);
             long fromMillis = from != null ? from.getTime() : 0;
             m_from = new Timestamp(fromMillis);
@@ -214,8 +237,7 @@ public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager {
     }
 
     static class SelectAll extends CdrsStatementCreator {
-        public SelectAll(Date from, Date to, CdrSearch search, User user, TimeZone tz, int limit,
-                int offset) {
+        public SelectAll(Date from, Date to, CdrSearch search, User user, TimeZone tz, int limit, int offset) {
             super(from, to, search, user, tz, limit, offset);
         }
 
@@ -282,73 +304,93 @@ public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager {
     static class ColumnInfo {
         /** List of fields that will be exported to CDR */
         static final String[] FIELDS = {
-            CALLEE_AOR, CALLER_AOR, START_TIME, CONNECT_TIME, END_TIME, FAILURE_STATUS,
-            TERMINATION,
+            CALLEE_AOR, CALLER_AOR, START_TIME, CONNECT_TIME, END_TIME, FAILURE_STATUS, TERMINATION, CALL_ID
         };
         static final boolean[] TIME_FIELDS = {
-            false, false, true, true, true, false, false
+            false, false, true, true, true, false, false, false
+        };
+        static final boolean[] AOR_FIELDS = {
+            true, true, false, false, false, false, false, false
         };
 
-        private int m_index;
+        private final int m_rsIndex;
+        private final int m_fieldIndex;
         private boolean m_timestamp;
+        private Format m_format;
+        private Calendar m_calendar;
 
-        public ColumnInfo(ResultSet rs, int i) throws SQLException {
-            m_index = rs.findColumn(FIELDS[i]);
-            m_timestamp = TIME_FIELDS[i];
+        public ColumnInfo(ResultSet rs, int i, Calendar calendar, Format dateFormat, Format aorFormat)
+            throws SQLException {
+            m_fieldIndex = i;
+            m_calendar = calendar;
+            m_rsIndex = rs.findColumn(FIELDS[m_fieldIndex]);
+            m_timestamp = TIME_FIELDS[m_fieldIndex];
+            if (AOR_FIELDS[m_fieldIndex]) {
+                m_format = aorFormat;
+            } else if (TIME_FIELDS[m_fieldIndex]) {
+                m_format = dateFormat;
+            }
         }
 
-        public int getIndex() {
-            return m_index;
+        int getIndex() {
+            return m_rsIndex;
         }
 
-        public boolean isTimestamp() {
+        boolean isTimestamp() {
             return m_timestamp;
         }
 
-        public static ColumnInfo[] create(ResultSet rs) throws SQLException {
-            ColumnInfo[] fields = new ColumnInfo[FIELDS.length];
+        public Object get(ResultSet rs) throws SQLException {
+            if (!m_timestamp) {
+                return rs.getString(m_rsIndex);
+            }
+            return rs.getTimestamp(m_rsIndex, m_calendar);
+        }
+
+        public String formatValue(ResultSet rs) throws SQLException {
+            Object v = get(rs);
+            if (v == null) {
+                return StringUtils.EMPTY;
+            }
+            if (m_format == null) {
+                return v.toString();
+            }
+            return m_format.format(v);
+        }
+
+        public String getField() {
+            return FIELDS[m_fieldIndex];
+        }
+    }
+
+    interface ColumnInfoFactory {
+        ColumnInfo[] create(ResultSet rs) throws SQLException;
+    }
+
+    static class DefaultColumnInfoFactory implements ColumnInfoFactory {
+        private Format m_dateFormat = DateFormatUtils.ISO_DATETIME_TIME_ZONE_FORMAT;
+        private Format m_aorFormat;
+        private Calendar m_calendar;
+
+        public DefaultColumnInfoFactory(TimeZone tz) {
+            m_calendar = Calendar.getInstance(tz);
+        }
+
+        public ColumnInfo[] create(ResultSet rs) throws SQLException {
+            ColumnInfo[] fields = new ColumnInfo[ColumnInfo.FIELDS.length];
             for (int i = 0; i < fields.length; i++) {
-                ColumnInfo ci = new ColumnInfo(rs, i);
+                ColumnInfo ci = new ColumnInfo(rs, i, m_calendar, m_dateFormat, m_aorFormat);
                 fields[i] = ci;
             }
             return fields;
         }
-    }
 
-    static class CdrsCsvWriter implements RowCallbackHandler {
-        private CsvWriter m_csv;
-
-        private ColumnInfo[] m_columns;
-
-        private Calendar m_calendar = Calendar.getInstance(DateUtils.UTC_TIME_ZONE);
-
-        public CdrsCsvWriter(Writer writer, TimeZone tz) throws IOException {
-            m_calendar = Calendar.getInstance(tz);
-            m_csv = new CsvWriter(writer);
-            m_csv.write(ColumnInfo.FIELDS, false);
+        public void setAorFormat(Format aorFormat) {
+            m_aorFormat = aorFormat;
         }
 
-        public void processRow(ResultSet rs) throws SQLException {
-            if (m_columns == null) {
-                m_columns = ColumnInfo.create(rs);
-            }
-            String[] row = new String[m_columns.length];
-            for (int i = 0; i < row.length; i++) {
-                if (m_columns[i].isTimestamp()) {
-                    Date date = rs.getTimestamp(m_columns[i].getIndex(), m_calendar);
-                    if (date != null) {
-                        row[i] = DateFormatUtils.ISO_DATETIME_TIME_ZONE_FORMAT.format(date);
-                    }
-
-                } else {
-                    row[i] = rs.getString(m_columns[i].getIndex());
-                }
-            }
-            try {
-                m_csv.write(row, true);
-            } catch (IOException e) {
-                new RuntimeException(e);
-            }
+        public void setDateFormat(Format dateFormat) {
+            m_dateFormat = dateFormat;
         }
     }
 }

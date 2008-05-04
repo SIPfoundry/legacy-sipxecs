@@ -9,29 +9,42 @@
  */
 package org.sipfoundry.sipxconfig.cdr;
 
+import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.sql.ResultSet;
 import java.sql.Timestamp;
+import java.text.FieldPosition;
+import java.text.Format;
+import java.text.ParsePosition;
 import java.util.Calendar;
 import java.util.List;
 import java.util.TimeZone;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.time.DateFormatUtils;
 import org.apache.commons.lang.time.DateUtils;
-import org.easymock.EasyMock;
 import org.easymock.IArgumentMatcher;
-import org.easymock.IMocksControl;
 import org.easymock.internal.matchers.InstanceOf;
 import org.sipfoundry.sipxconfig.SipxDatabaseTestCase;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.cdr.Cdr.Termination;
 import org.sipfoundry.sipxconfig.cdr.CdrManagerImpl.CdrsResultReader;
 import org.sipfoundry.sipxconfig.cdr.CdrManagerImpl.ColumnInfo;
+import org.sipfoundry.sipxconfig.cdr.CdrManagerImpl.ColumnInfoFactory;
+import org.sipfoundry.sipxconfig.cdr.CdrManagerImpl.DefaultColumnInfoFactory;
 import org.sipfoundry.sipxconfig.cdr.CdrSearch.Mode;
 import org.springframework.context.ApplicationContext;
 import org.springframework.jdbc.core.RowCallbackHandler;
+
+import static org.easymock.EasyMock.anyObject;
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.eq;
+import static org.easymock.EasyMock.expectLastCall;
+import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.reportMatcher;
+import static org.easymock.EasyMock.verify;
 
 public class CdrManagerImplTest extends SipxDatabaseTestCase {
 
@@ -65,6 +78,14 @@ public class CdrManagerImplTest extends SipxDatabaseTestCase {
         writer.flush();
     }
 
+    public void _testGetJson() throws Exception {
+        ApplicationContext app = TestHelper.getApplicationContext();
+        CdrManager cdrManager = (CdrManager) app.getBean(CdrManager.CONTEXT_BEAN_NAME);
+        Writer writer = new OutputStreamWriter(System.err);
+        cdrManager.dumpCdrsJson(writer);
+        writer.flush();
+    }
+
     public void _testGetCdrsSearch() {
         ApplicationContext app = TestHelper.getApplicationContext();
         CdrManager cdrManager = (CdrManager) app.getBean(CdrManager.CONTEXT_BEAN_NAME);
@@ -95,7 +116,7 @@ public class CdrManagerImplTest extends SipxDatabaseTestCase {
 
     public static <T extends Calendar> T eqTimeZone(T cal) {
         IArgumentMatcher matcher = new CalendarTimeZoneMatcher(cal.getTimeZone());
-        EasyMock.reportMatcher(matcher);
+        reportMatcher(matcher);
         return null;
     }
 
@@ -103,28 +124,27 @@ public class CdrManagerImplTest extends SipxDatabaseTestCase {
         TimeZone tz = DateUtils.UTC_TIME_ZONE;
         Calendar calendar = Calendar.getInstance(tz);
 
-        IMocksControl rsControl = EasyMock.createControl();
-        ResultSet rs = rsControl.createMock(ResultSet.class);
+        ResultSet rs = createMock(ResultSet.class);
 
         rs.getString("caller_aor");
-        rsControl.andReturn("caller");
+        expectLastCall().andReturn("caller");
         rs.getString("callee_aor");
-        rsControl.andReturn("callee");
+        expectLastCall().andReturn("callee");
 
-        rs.getTimestamp(EasyMock.eq("start_time"), eqTimeZone(calendar));
-        rsControl.andReturn(new Timestamp(0));
-        rs.getTimestamp(EasyMock.eq("connect_time"), eqTimeZone(calendar));
-        rsControl.andReturn(new Timestamp(1));
-        rs.getTimestamp(EasyMock.eq("end_time"), eqTimeZone(calendar));
-        rsControl.andReturn(new Timestamp(2));
+        rs.getTimestamp(eq("start_time"), eqTimeZone(calendar));
+        expectLastCall().andReturn(new Timestamp(0));
+        rs.getTimestamp(eq("connect_time"), eqTimeZone(calendar));
+        expectLastCall().andReturn(new Timestamp(1));
+        rs.getTimestamp(eq("end_time"), eqTimeZone(calendar));
+        expectLastCall().andReturn(new Timestamp(2));
 
         rs.getInt("failure_status");
-        rsControl.andReturn(404);
+        expectLastCall().andReturn(404);
 
         rs.getString("termination");
-        rsControl.andReturn("I");
+        expectLastCall().andReturn("I");
 
-        rsControl.replay();
+        replay(rs);
 
         CdrsResultReader reader = new CdrManagerImpl.CdrsResultReader(tz);
         reader.processRow(rs);
@@ -140,26 +160,26 @@ public class CdrManagerImplTest extends SipxDatabaseTestCase {
         assertEquals(404, cdr.getFailureStatus());
         assertEquals(Termination.IN_PROGRESS, cdr.getTermination());
 
-        rsControl.verify();
+        verify(rs);
     }
 
     public void testColumnInfo() throws Exception {
-        IMocksControl rsControl = EasyMock.createControl();
-        ResultSet rs = rsControl.createMock(ResultSet.class);
+        ResultSet rs = createMock(ResultSet.class);
         for (int i = 0; i < ColumnInfo.FIELDS.length; i++) {
-            rs.findColumn((String) EasyMock.anyObject());
-            rsControl.andReturn(i);
+            rs.findColumn((String) anyObject());
+            expectLastCall().andReturn(i);
         }
-        rsControl.replay();
+        replay(rs);
 
-        ColumnInfo[] infos = ColumnInfo.create(rs);
+        ColumnInfoFactory ciFactory = new DefaultColumnInfoFactory(TimeZone.getDefault());
+        ColumnInfo[] infos = ciFactory.create(rs);
 
         assertEquals(ColumnInfo.FIELDS.length, infos.length);
         for (int i = 0; i < infos.length; i++) {
             assertEquals(i, infos[i].getIndex());
             assertEquals(ColumnInfo.TIME_FIELDS[i], infos[i].isTimestamp());
         }
-        rsControl.verify();
+        verify(rs);
     }
 
     public void testCdrsCsvWriter() throws Exception {
@@ -167,95 +187,160 @@ public class CdrManagerImplTest extends SipxDatabaseTestCase {
         Calendar calendar = Calendar.getInstance(tz);
 
         Timestamp timestamp = new Timestamp(System.currentTimeMillis());
-        String dateStr = String.format("\"%s\",", DateFormatUtils.ISO_DATETIME_TIME_ZONE_FORMAT
-                .format(timestamp));
+        String dateStr = String.format("\"%s\",", DateFormatUtils.ISO_DATETIME_TIME_ZONE_FORMAT.format(timestamp));
 
-        IMocksControl rsControl = EasyMock.createControl();
-        ResultSet rs = rsControl.createMock(ResultSet.class);
+        ResultSet rs = createMock(ResultSet.class);
         for (int i = 0; i < ColumnInfo.FIELDS.length; i++) {
-            rs.findColumn((String) EasyMock.anyObject());
-            rsControl.andReturn(i);
+            rs.findColumn((String) anyObject());
+            expectLastCall().andReturn(i);
         }
 
         rs.getString(0);
-        rsControl.andReturn("caller");
+        expectLastCall().andReturn("caller");
         rs.getString(1);
-        rsControl.andReturn("callee");
+        expectLastCall().andReturn("callee");
 
-        rs.getTimestamp(EasyMock.eq(2), eqTimeZone(calendar));
-        rsControl.andReturn(timestamp);
-        rs.getTimestamp(EasyMock.eq(3), eqTimeZone(calendar));
-        rsControl.andReturn(timestamp);
-        rs.getTimestamp(EasyMock.eq(4), eqTimeZone(calendar));
-        rsControl.andReturn(timestamp);
+        rs.getTimestamp(eq(2), eqTimeZone(calendar));
+        expectLastCall().andReturn(timestamp);
+        rs.getTimestamp(eq(3), eqTimeZone(calendar));
+        expectLastCall().andReturn(timestamp);
+        rs.getTimestamp(eq(4), eqTimeZone(calendar));
+        expectLastCall().andReturn(timestamp);
 
         rs.getString(5);
-        rsControl.andReturn("404");
+        expectLastCall().andReturn("404");
 
         rs.getString(6);
-        rsControl.andReturn("I");
+        expectLastCall().andReturn("I");
 
-        rsControl.replay();
+        rs.getString(7);
+        expectLastCall().andReturn("0000-0000");
+
+        replay(rs);
 
         StringWriter writer = new StringWriter();
 
-        RowCallbackHandler handler = new CdrManagerImpl.CdrsCsvWriter(writer, tz);
+        ColumnInfoFactory columnInforFactory = new DefaultColumnInfoFactory(tz);
+        CdrsWriter handler = new CdrsCsvWriter(writer, columnInforFactory);
+        handler.writeHeader();
         handler.processRow(rs);
+        handler.writeFooter();
 
-        assertEquals(
-                "callee_aor,caller_aor,start_time,connect_time,end_time,failure_status,termination\n"
-                        + "\"caller\",\"callee\"," + dateStr + dateStr + dateStr
-                        + "\"404\",\"I\"\n", writer.toString());
+        assertEquals("callee_aor,caller_aor,start_time,connect_time,end_time,failure_status,termination,call_id\n"
+                + "\"caller\",\"callee\"," + dateStr + dateStr + dateStr + "\"404\",\"I\",\"0000-0000\"\n", writer
+                .toString());
 
-        rsControl.verify();
+        verify(rs);
     }
-    
+
+    public void testCdrsJsonWriter() throws Exception {
+        TimeZone tz = DateUtils.UTC_TIME_ZONE;
+        Calendar calendar = Calendar.getInstance(tz);
+
+        Timestamp timestamp = new Timestamp(0);
+
+        ResultSet rs = createMock(ResultSet.class);
+        for (int i = 0; i < ColumnInfo.FIELDS.length; i++) {
+            rs.findColumn((String) anyObject());
+            expectLastCall().andReturn(i);
+        }
+
+        rs.getString(0);
+        expectLastCall().andReturn("\"Brian Ferry\"<sip:1111@example.org>");
+        rs.getString(1);
+        expectLastCall().andReturn("sip:callee@example.com");
+
+        rs.getTimestamp(eq(2), eqTimeZone(calendar));
+        expectLastCall().andReturn(timestamp);
+        rs.getTimestamp(eq(3), eqTimeZone(calendar));
+        expectLastCall().andReturn(timestamp);
+        rs.getTimestamp(eq(4), eqTimeZone(calendar));
+        expectLastCall().andReturn(timestamp);
+
+        rs.getString(5);
+        expectLastCall().andReturn("404");
+
+        rs.getString(6);
+        expectLastCall().andReturn("I");
+
+        rs.getString(7);
+        expectLastCall().andReturn("0000-0000");
+
+        replay(rs);
+
+        StringWriter writer = new StringWriter();
+
+        Format testDateFormat = new Format() {
+            public StringBuffer format(Object obj, StringBuffer toAppendTo, FieldPosition pos) {
+                return toAppendTo.append("2008-05-02T06:29:08-04:00");
+            }
+
+            public Object parseObject(String source, ParsePosition pos) {
+                return null;
+            }
+        };
+
+        DefaultColumnInfoFactory ciFactory = new DefaultColumnInfoFactory(tz);
+        ciFactory.setDateFormat(testDateFormat);
+        ciFactory.setAorFormat(CdrsJsonWriter.AOR_FORMAT);
+        CdrsWriter handler = new CdrsJsonWriter(writer, ciFactory);
+        handler.writeHeader();
+        handler.processRow(rs);
+        handler.writeFooter();
+
+        InputStream expectedJson = getClass().getResourceAsStream("cdrs.test.json");
+        assertNotNull(expectedJson);
+
+        assertEquals(IOUtils.toString(expectedJson), writer.toString());
+
+        verify(rs);
+    }
+
     public void testCdrsCsvWriterNullConnectTime() throws Exception {
         TimeZone tz = DateUtils.UTC_TIME_ZONE;
         Calendar calendar = Calendar.getInstance(tz);
 
         Timestamp timestamp = new Timestamp(System.currentTimeMillis());
-        String dateStr = String.format("\"%s\",", DateFormatUtils.ISO_DATETIME_TIME_ZONE_FORMAT
-                .format(timestamp));
+        String dateStr = String.format("\"%s\",", DateFormatUtils.ISO_DATETIME_TIME_ZONE_FORMAT.format(timestamp));
 
-        IMocksControl rsControl = EasyMock.createControl();
-        ResultSet rs = rsControl.createMock(ResultSet.class);
+        ResultSet rs = createMock(ResultSet.class);
         for (int i = 0; i < ColumnInfo.FIELDS.length; i++) {
-            rs.findColumn((String) EasyMock.anyObject());
-            rsControl.andReturn(i);
+            rs.findColumn((String) anyObject());
+            expectLastCall().andReturn(i);
         }
 
         rs.getString(0);
-        rsControl.andReturn("caller");
+        expectLastCall().andReturn("caller");
         rs.getString(1);
-        rsControl.andReturn("callee");
+        expectLastCall().andReturn("callee");
 
-        rs.getTimestamp(EasyMock.eq(2), eqTimeZone(calendar));
-        rsControl.andReturn(timestamp);
-        rs.getTimestamp(EasyMock.eq(3), eqTimeZone(calendar));
-        rsControl.andReturn(null);
-        rs.getTimestamp(EasyMock.eq(4), eqTimeZone(calendar));
-        rsControl.andReturn(timestamp);
+        rs.getTimestamp(eq(2), eqTimeZone(calendar));
+        expectLastCall().andReturn(timestamp);
+        rs.getTimestamp(eq(3), eqTimeZone(calendar));
+        expectLastCall().andReturn(null);
+        rs.getTimestamp(eq(4), eqTimeZone(calendar));
+        expectLastCall().andReturn(timestamp);
 
         rs.getString(5);
-        rsControl.andReturn("404");
+        expectLastCall().andReturn("404");
 
         rs.getString(6);
-        rsControl.andReturn("I");
+        expectLastCall().andReturn("I");
 
-        rsControl.replay();
+        rs.getString(7);
+        expectLastCall().andReturn("0000-0000");
+
+        replay(rs);
 
         StringWriter writer = new StringWriter();
 
-        RowCallbackHandler handler = new CdrManagerImpl.CdrsCsvWriter(writer, tz);
+        ColumnInfoFactory columnInforFactory = new DefaultColumnInfoFactory(tz);
+        RowCallbackHandler handler = new CdrsCsvWriter(writer, columnInforFactory);
         handler.processRow(rs);
 
-        assertEquals(
-                "callee_aor,caller_aor,start_time,connect_time,end_time,failure_status,termination\n"
-                        + "\"caller\",\"callee\"," + dateStr + "\"\"," + dateStr
-                        + "\"404\",\"I\"\n", writer.toString());
+        assertEquals("\"caller\",\"callee\"," + dateStr + "\"\"," + dateStr + "\"404\",\"I\",\"0000-0000\"\n", writer
+                .toString());
 
-        rsControl.verify();
+        verify(rs);
     }
-    
 }

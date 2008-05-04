@@ -198,6 +198,7 @@
       <fileset dir="${src.dir}">
         <include name="**/*.xml" />
         <include name="**/*.properties" />
+        <include name="**/*.json" />
       </fileset>
       <!-- helpful when turning SQL debugging on -->
       <!-- fileset file="${test.src.dir}/spy.properties"/ -->
