@@ -154,13 +154,15 @@ table.component
 	background: #fff;
 }
 
-table.component thead
+table.component thead,
+table.component tbody tr th
 {
 	color: #fff;
 	background: #355563;
 }
 
-table.component thead tr th
+table.component thead tr th,
+table.component tbody tr th
 {
 	border-color: #1B2B31;
 }

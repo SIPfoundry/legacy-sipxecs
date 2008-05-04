@@ -342,7 +342,8 @@ table.component
 }
 
 
-table.component thead tr th
+table.component thead tr th,
+table.component tbody tr th
 {
 	border-width:1px;
 	border-style: solid;
@@ -406,13 +407,24 @@ ul.component-pager li
 	margin:0 5px;
 }
 
+
+div.right-column,
 div.help
 {
-	clear:right;
-	float:right;
-	width:15em;
-	margin:5px 0;
-	padding:5px;
+    clear:right;
+    float:right;
+    margin:5px 0;
+    padding:5px;
+}
+
+div.help
+{
+    width:15em;
+}
+
+div.right-column
+{
+    width:25em;
 }
 
 div.help ul

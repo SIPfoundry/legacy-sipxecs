@@ -16,6 +16,7 @@ import org.apache.tapestry.IAsset;
 import org.apache.tapestry.IComponent;
 import org.apache.tapestry.IExternalPage;
 import org.apache.tapestry.IPage;
+import org.apache.tapestry.IRender;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.PageRedirectException;
 import org.apache.tapestry.Tapestry;
@@ -81,6 +82,9 @@ public abstract class Border extends BaseComponent implements PageValidateListen
     @Deprecated
     @Parameter(defaultValue = "false")
     public abstract boolean getUseDojo();
+    
+    @Parameter
+    public abstract IRender getShellDelegate();
 
     @Message
     public abstract String getHelpLink(Integer... versionIds);
