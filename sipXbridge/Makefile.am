@@ -31,6 +31,18 @@ EXTRA_DIST = \
 # BUILT_SOURCES is special autoconf variable to be checked on every make
 BUILT_SOURCES = config.properties
 
+editscripts_IN = \
+    sipxbridge.spec.in \
+    config.properties.in \
+    sipxbridge.sh.in 
+
+editscripts :
+	@for f in $(editscripts_IN); \
+	do \
+	  target=`basename $$f .in`; \
+     $(LocalizeSipXconfig) $(srcdir)/$$f > $$target; \
+	  $(INSTALL) -D -m 755 $$target $(DESTDIR)$(bindir)/$$target; \
+	done
 
 ETC_FILES = \
     sipxbridge.process.xml.in
@@ -50,4 +62,7 @@ config.properties : config.properties.in
 	$(LocalizeSipXconfig) $< > $@
 
 sipxbridge.sh : sipxbridge.sh.in
+	$(LocalizeSipXconfig) $< > $@
+
+sipxbridge.spec : sipxbridge.spec.in
 	$(LocalizeSipXconfig) $< > $@
