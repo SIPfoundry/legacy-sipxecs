@@ -12,6 +12,7 @@ package org.sipfoundry.sipxconfig.components;
 import junit.framework.TestCase;
 
 import org.apache.tapestry.IPage;
+import org.apache.tapestry.IRender;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.PageRedirectException;
 import org.apache.tapestry.callback.ICallback;
@@ -202,6 +203,10 @@ public class BorderTest extends TestCase {
         }
 
         public void setBaseUrl(String baseUrl) {
+        }
+
+        public IRender getShellDelegate() {
+            return null;
         }
     }
 }
