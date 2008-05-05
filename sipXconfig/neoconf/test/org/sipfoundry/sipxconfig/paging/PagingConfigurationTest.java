@@ -40,6 +40,7 @@ public class PagingConfigurationTest extends TestCase {
         g1.setDescription("All the phones in the east side of the building");
         g1.setSound("TadaTada.wav");
         g1.setPageGroupNumber(42);
+        g1.setTimeout(60);
 
         Set<User> users = new LinkedHashSet<User>();
         for (int i = 0; i < 3; i++) {
@@ -54,6 +55,7 @@ public class PagingConfigurationTest extends TestCase {
         g2.setEnabled(true);
         g2.setSound("Tada.wav");
         g2.setPageGroupNumber(45);
+        g2.setTimeout(600);
 
         Set<User> users2 = new LinkedHashSet<User>();
         for (int i = 0; i < 2; i++) {

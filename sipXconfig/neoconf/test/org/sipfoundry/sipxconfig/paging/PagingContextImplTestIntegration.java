@@ -49,6 +49,7 @@ public class PagingContextImplTestIntegration extends IntegrationTestCase {
         assertEquals("Sales", group1.getDescription());
         assertEquals(true, group1.isEnabled());
         assertEquals("TadaTada.wav", group1.getSound());
+        assertEquals(60, group1.getTimeout());
         Set<User> users = group1.getUsers();
         assertEquals(2, users.size());
         Iterator it = users.iterator();
@@ -67,6 +68,7 @@ public class PagingContextImplTestIntegration extends IntegrationTestCase {
         assertEquals("Engineering", group.getDescription());
         assertEquals(false, group.isEnabled());
         assertEquals("TadaTada.wav", group.getSound());
+        assertEquals(60, group.getTimeout());
         Set<User> users = group.getUsers();
         assertEquals(1, users.size());
     }
@@ -98,6 +100,7 @@ public class PagingContextImplTestIntegration extends IntegrationTestCase {
         group.setPageGroupNumber(114);
         group.setDescription("test");
         group.setSound("TadaTada.wav");
+        group.setTimeout(120);
         Set<User> users = new HashSet<User>();
         users.add(m_coreContext.loadUser(1003));
         group.setUsers(users);

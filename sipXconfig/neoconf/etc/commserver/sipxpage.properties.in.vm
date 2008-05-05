@@ -14,5 +14,7 @@ ${id}.user : ${g.pageGroupNumber}
 ${id}.description : $!{g.description}
 ${id}.urls : ${g.formatUserList($domain)}
 ${id}.beep : file://${audioDir}/${g.sound}
+#set($inMilis = $g.timeout * 1000)
+${id}.timeout : $inMilis
 #end
 #end

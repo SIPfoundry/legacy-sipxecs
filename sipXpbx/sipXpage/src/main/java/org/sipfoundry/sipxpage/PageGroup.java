@@ -37,6 +37,7 @@ public class PageGroup implements LegListener
    InetSocketAddress inboundRtp = null ;
    URL beep ;
    boolean busy = false ;
+   int maximumDuration = 60000;
 
    PageGroup(LegSipListener legSipListener, String ipAddress, int rtpPort) throws SocketException
    {
@@ -91,6 +92,16 @@ public class PageGroup implements LegListener
    }
    
    /**
+    * Set the timeout to be used when this group is paged.
+    * 
+   * @param timeout The page timeout in mS
+    */
+   public void setMaximumDuration(int timeout)
+   {
+       this.maximumDuration = timeout;
+   }   
+   
+   /**
     * 
     * @return true if this PageGroup is currently involved
     * in a page.
@@ -134,7 +145,11 @@ public class PageGroup implements LegListener
             inbound.acceptCall(rtpPort) ;
             
             // Start the timers
-            Timers.addTimer("maximum_duration", 60000, this) ; // End this page after this much time
+            if (maximumDuration > 0)
+            {
+               // Start the maximumDuration timer if it is greater than 0
+               Timers.addTimer("maximum_duration", maximumDuration, this) ; // End this page after this many mS
+            }
             Timers.addTimer("beep_start", 1000, this) ; // Start the beep after this much time
             
             // Place a call to each destination

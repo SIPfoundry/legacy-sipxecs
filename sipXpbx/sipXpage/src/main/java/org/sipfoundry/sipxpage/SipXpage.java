@@ -146,6 +146,9 @@ public class SipXpage implements LegListener
             LOG.debug(String.format("Page Group %s adding beep %s",
                   user, pc.beep)) ;
             p.setBeep(pc.beep) ;
+            LOG.debug(String.format("Page Group %s adding timeout %d",
+                  user, pc.maximumDuration));
+            p.setMaximumDuration(pc.maximumDuration);            
             user2Group.put(user, p) ;
             for (String dest : pc.urls.split(","))
             {

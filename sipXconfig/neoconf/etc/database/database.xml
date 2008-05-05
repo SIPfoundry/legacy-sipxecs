@@ -259,6 +259,7 @@
   	<antcall target="gateway-reference-sbc-device" />
     <antcall target="sbc-device-add-port" />
     <antcall target="user-vcard-file"/>
+  	<antcall target="paging-group-add-timeout"/>
     <!-- When freezing schema uncomment this line -->
     <!-- sipx-version version="8" -->
   </target>
@@ -615,6 +616,10 @@
     <db-patch patch="user-vcard-file"/>
   </target>
 
+  <target name="paging-group-add-timeout" unless="paging-group-add-timeout">
+	<db-patch patch="paging-group-add-timeout"/>
+  </target>	
+	
   <!-- 
     Migration Targets Legend
     

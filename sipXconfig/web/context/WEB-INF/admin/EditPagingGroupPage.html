@@ -10,10 +10,14 @@
             <span jwcid="enableGroup@Checkbox" id="enableGroup" value="ognl:group.enabled"/>
           </tr>
           <tr jwcid="@common/FieldPanel" for="number" field="component:number" label="message:label.number">
-            <span jwcid="number@TextField" id="number" value="ognl:group.pageGroupNumber" translator="translator:integer" validators="spring-validators:required,min=1,max=99" displayName="message:label.number"/>
+            <span jwcid="number@TextField" id="number" value="ognl:group.pageGroupNumber" translator="translator:integer" validators="spring-validators:required,min=0,max=99" displayName="message:label.number"/>
           </tr>
           <tr jwcid="@common/FieldPanel" for="description" field="component:description" label="message:label.description">
             <span jwcid="description@TextArea" id="description" value="ognl:group.description" cols="45" rows="5" validators="spring-validators:validFieldSize"/>
+          </tr>
+          <tr jwcid="@common/FieldPanel" for="timeout" field="component:timeout" label="message:label.timeout">
+            <span jwcid="timeout@TextField" id="timeout" value="ognl:group.timeout"
+              translator="translator:integer" validators="spring-validators:required,min=0,max=600" displayName="message:label.timeout"/>
           </tr>
           <tr>
             <td><label for="beep"><span key="label.pageBeep"/></label></td>

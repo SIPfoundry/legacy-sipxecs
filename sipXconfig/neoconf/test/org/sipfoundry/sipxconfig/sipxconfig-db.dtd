@@ -439,6 +439,7 @@
     description CDATA #IMPLIED
     enabled CDATA #REQUIRED
     sound CDATA #REQUIRED
+    timeout CDATA #REQUIRED
 >
 
 <!ELEMENT paging_server EMPTY>

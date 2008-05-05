@@ -22,6 +22,7 @@
     <property name="description" />
     <property name="enabled" />
     <property name="sound" />
+    <property name="timeout" />    
     <set name="users" table="user_paging_group">
       <key column="paging_group_id" />
       <many-to-many column="user_id" class="org.sipfoundry.sipxconfig.common.User" />

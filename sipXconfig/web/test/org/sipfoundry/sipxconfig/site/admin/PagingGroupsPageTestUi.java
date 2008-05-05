@@ -30,11 +30,22 @@ public class PagingGroupsPageTestUi extends WebTestCase {
     }
 
     public void testPagingGroups() throws Exception {
+        assertElementNotPresent("prefix");
+        assertButtonNotPresent("pagingGroups:save");
+        
         createGroup();
         reloadPage();
+        
+        assertElementPresent("prefix");
+        assertTextFieldEquals("prefix", "*77");
+        assertButtonPresent("pagingGroups:save");        
+        
         editGroup();
         reloadPage();
         deleteAllGroups();
+        
+        assertElementNotPresent("prefix");
+        assertButtonNotPresent("pagingGroups:save");        
     }
 
     private void editGroup() {
@@ -44,6 +55,7 @@ public class PagingGroupsPageTestUi extends WebTestCase {
         assertCheckboxSelected("enableGroup");
         assertTextFieldEquals("number", "1");
         assertTextFieldEquals("description", "test group");
+        assertTextFieldEquals("timeout", "60");
         assertButtonPresent("form:cancel");
         clickButton("form:cancel");
     }
@@ -55,9 +67,11 @@ public class PagingGroupsPageTestUi extends WebTestCase {
         checkCheckbox("enableGroup");
         setTextField("number", "1");
         setTextField("description", "test group");
+        setTextField("timeout", "60");
         setTextField("promptUpload", m_fileName);
         assertButtonPresent("form:ok");
         clickButton("form:ok");
+        SiteTestHelper.assertNoUserError(tester);
     }
 
     private void reloadPage() {
@@ -85,12 +99,14 @@ public class PagingGroupsPageTestUi extends WebTestCase {
         assertLinkPresent("link.addPagingGroup");
         clickLink("link.addPagingGroup");
         setTextField("number", "1");
+        setTextField("timeout", "60");
         setTextField("promptUpload", m_fileName);
         clickButton("form:ok");
 
         SiteTestHelper.assertNoUserError(tester);
         clickLink("link.addPagingGroup");
         setTextField("number", "1");
+        setTextField("timeout", "60");
         setTextField("promptUpload", m_fileName);
         clickButton("form:ok");
 
@@ -108,6 +124,7 @@ public class PagingGroupsPageTestUi extends WebTestCase {
         clickLink("link.addPagingGroup");
         setTextField("number", "2");
         setTextField("description", description.toString());
+        setTextField("timeout", "60");
         setTextField("promptUpload", m_fileName);
         clickButton("form:ok");
 

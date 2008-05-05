@@ -21,6 +21,7 @@ public class Configuration
       String user ;           // The sip user part that pages this group
       String beep ;           // The audio file to use as a beep
       String urls ;           // A comma seperated list of URLs to page
+      int maximumDuration;    // The page timeout (in mS) (<=0 means no timeout)
    }
 
    String logLevel ;          // The desired logging level in SipFoundry format (not log4j!)
@@ -140,12 +141,20 @@ public class Configuration
          {
             PageGroupConfig p = new PageGroupConfig() ;
             String prefix = String.format("page.group.%d.", i) ;
+            String temp = null ;
+
             p.description= props.getProperty(prop=prefix+"description") ;
+            if (p.description == null)
+               break ;
+
             p.beep = props.getProperty(prop=prefix+"beep") ;
             p.user = props.getProperty(prop=prefix+"user") ;
             p.urls = props.getProperty(prop=prefix+"urls") ;
-            if (p.description == null)
-               break ;
+            temp = props.getProperty(prop=prefix+"timeout") ;
+            if (temp != null)
+            {
+               p.maximumDuration = Integer.parseInt(temp) ;
+            }
          
             pageGroups.add(p) ;
          }

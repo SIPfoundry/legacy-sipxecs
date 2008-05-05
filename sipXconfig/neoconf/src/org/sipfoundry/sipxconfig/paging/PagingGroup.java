@@ -24,10 +24,12 @@ public class PagingGroup extends BeanWithId {
 
     private String m_description;
 
-    private boolean m_enabled;
+    private boolean m_enabled = true; // default enabled
 
     private String m_sound;
 
+    private int m_timeout = 60;       // default to 60 seconds
+    
     private Set<User> m_users = new HashSet<User>();
 
     public String getDescription() {
@@ -76,5 +78,13 @@ public class PagingGroup extends BeanWithId {
             users.add(user.getUserName() + "@" + domain);
         }
         return StringUtils.join(users.toArray(), ',');
+    }
+
+    public int getTimeout() {
+        return m_timeout;
+    }
+
+    public void setTimeout(int timeout) {
+        m_timeout = timeout;
     }
 }
