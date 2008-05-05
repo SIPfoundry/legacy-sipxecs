@@ -2,7 +2,7 @@
 <watchdog-process enable="true" xmlns="http://www.sipfoundry.org/sipX/schema/xml/watchdogprocess-00-01">
   <process_definitions>
     <group name="MediaServer" >
-        <process name="Call Park Server">
+        <process name="ParkServer">
             <dependentdelay wait="0" />
             <stdout file="/dev/null" />
             <stderr file="/dev/null" />
@@ -26,7 +26,7 @@
   </process_definitions>
   <watchdog>
    <monitor>
-      <monitor-process name="Call Park Server" restart="enable" max_restarts="3" report="enable" max_reports="3">
+      <monitor-process name="ParkServer" restart="enable" max_restarts="3" report="enable" max_reports="3">
          <failure_contact method="email">@SIPXPBXUSER@@localhost</failure_contact>
       </monitor-process>
    </monitor>
