@@ -563,4 +563,65 @@ public class SymmitronTest extends AbstractSymmitronTestCase {
         
     }
     
+    public void testPing() throws Exception {
+        Object[] args = new Object[1];
+        args[0] = clientHandle;
+       
+        
+        String sym1 = super.createEvenSym();
+        String sym2 = super.createEvenSym();
+        String bridge = super.createBridge();
+        
+        Map retval = (Map) client.execute("sipXbridge.ping", args);
+        
+        Object[] timedOutSyms = (Object[]) retval.get(Symmitron.SYM_SESSION);
+       
+        assertNull( timedOutSyms);
+   
+        super.addSym(bridge, sym1);
+        super.addSym(bridge,sym2);
+        args = new Object[3];
+        args[0] = clientHandle;
+        args[1] = sym2;
+        args[2] = 1000;
+        retval = (Map) client.execute("sipXbridge.setTimeout",args);
+        Thread.sleep(2000);
+        args = new Object[1];
+        args[0] = clientHandle;
+    
+        retval = (Map) client.execute("sipXbridge.ping", args);
+        
+        timedOutSyms = (Object[]) retval.get(Symmitron.SYM_SESSION);
+        
+        assertTrue ( timedOutSyms.length == 1) ;
+        assertTrue (timedOutSyms[0].equals(sym2));
+        
+        int destinationPort1 = 26000;
+        SymInterface sym = super.getSym(sym1);
+        String ipAddr = sym.getReceiver().getIpAddress();
+        int port = sym.getReceiver().getPort();
+        DatagramSocket datagramSocket1 = new DatagramSocket(destinationPort1,
+                InetAddress.getByName(serverAddress));
+        byte[] data  = new byte[1024]  ;
+        
+        for ( int i = 0 ; i < 1000 ; i++) {
+            DatagramPacket datagramPacket = new DatagramPacket( data, 
+                    data.length,InetAddress.getByName(ipAddr), port);
+            Thread.sleep(10);
+            datagramSocket1.send(datagramPacket);
+        }
+        args = new Object[1];
+        args[0] = clientHandle;
+    
+        retval = (Map) client.execute("sipXbridge.ping", args);
+        assertTrue ( timedOutSyms.length == 1) ;
+        assertTrue (timedOutSyms[0].equals(sym2));
+     
+       
+        super.destroyBridge(bridge);
+        datagramSocket1.close();
+       
+   
+    }
+    
 }

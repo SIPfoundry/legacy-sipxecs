@@ -76,7 +76,10 @@ public class ConfigurationParser {
         digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG,
                 "xml-rpc-port"), "setXmlRpcPort", 0,
                 new Class[] { Integer.class });
-
+        
+        digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG,
+                "max-number-of-concurrent-calls"), "setMaxCalls", 0,
+        new Class[] { Integer.class });
         /*
          * ITSP configuration support parameters.
          */
@@ -123,6 +126,9 @@ public class ConfigurationParser {
         digester.addCallMethod(String.format("%s/%s", ITSP_CONFIG,
                 "is-reinvite-supported"), "setReInviteSupported", 0,
                 new Class[] { Boolean.class });
+        digester.addCallMethod(String.format("%s/%s", ITSP_CONFIG,
+        "max-number-of-concurrent-calls"), "setMaxCalls", 0,
+new Class[] { Integer.class });
 
     }
 

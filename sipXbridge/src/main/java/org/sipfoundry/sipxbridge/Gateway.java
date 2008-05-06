@@ -164,6 +164,8 @@ public class Gateway {
     
     private static boolean isWebServerRunning = false;
 
+    private static int callCount;
+
     private Gateway() {
 
     }
@@ -793,7 +795,39 @@ public class Gateway {
     public static PortRangeManager getPortManager() {
         return Gateway.portRangeManager;
     }
+    
+    /**
+     * Get the call limit ( number of concurrent calls)
+     */
+    public static int getCallLimit() {
+        return Gateway.getAccountManager().getBridgeConfiguration().getMaxCalls();
+    }
 
+    /**
+     * Get the call count.
+     * 
+     * @return -- the call count of the gateway ( number of active calls )
+     * 
+     */
+    public static int getCallCount() {
+      
+        return Gateway.callCount;
+    }
+    
+    
+    /**
+     * Decrement the call count.
+     */
+    public static void decrementCallCount() {
+        if (Gateway.callCount > 0 ) Gateway.callCount --;
+    }
+    
+    public static void incrementCallCount() {
+       Gateway.callCount ++;
+        
+    }  
+    
+    
     /**
      * The main method for the Bridge.
      * 
@@ -821,5 +855,9 @@ public class Gateway {
         }
 
     }
+
+   
+
+    
 
 }

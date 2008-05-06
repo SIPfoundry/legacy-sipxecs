@@ -23,6 +23,7 @@ import javax.sip.SipException;
 import javax.sip.SipListener;
 import javax.sip.SipProvider;
 import javax.sip.TimeoutEvent;
+import javax.sip.Transaction;
 import javax.sip.TransactionAlreadyExistsException;
 import javax.sip.TransactionTerminatedEvent;
 import javax.sip.header.CSeqHeader;
@@ -76,6 +77,19 @@ public class SipListenerImpl implements SipListener {
         String callId = dte.getDialog().getCallId().getCallId();
         Gateway.getAuthenticationHelper().removeCachedAuthenticationHeaders(
                 callId);
+        
+        if ( dat.backToBackUserAgent != null &&
+                dat.backToBackUserAgent.getCreatingDialog() == dte.getDialog()) {
+           
+            ItspAccountInfo itspAccountInfo = dat.backToBackUserAgent.getItspAccountInfo();
+            
+            
+            Gateway.decrementCallCount();
+            
+            if ( itspAccountInfo != null ) {
+                itspAccountInfo.decrementCallCount();
+            }
+        }
 
     }
 
@@ -301,7 +315,27 @@ public class SipListenerImpl implements SipListener {
 
     }
 
-    public void processTransactionTerminated(TransactionTerminatedEvent arg0) {
+    public void processTransactionTerminated(TransactionTerminatedEvent tte) {
+        
+        Transaction transaction = tte.getClientTransaction() != null ?
+                    tte.getClientTransaction() : tte.getServerTransaction();
+        Dialog dialog = transaction.getDialog();
+        Request request = transaction.getRequest();
+        /*
+         * When the INVITE tx terminates and the associated dialog state is
+         * CONFIRMED, we increment the call count.
+         * 
+         */
+        if ( request.getMethod().equals(Request.INVITE) && dialog.getState() == DialogState.CONFIRMED  && 
+                ((ToHeader) request.getHeader(ToHeader.NAME)).getParameter("tag") == null ) {
+            DialogApplicationData dat = (DialogApplicationData) dialog.getApplicationData();
+            BackToBackUserAgent b2bua = dat.backToBackUserAgent;
+            if ( b2bua != null && dialog == b2bua.getCreatingDialog() &&  b2bua.getItspAccountInfo() != null ) {
+               b2bua.getItspAccountInfo().incrementCallCount();
+            }
+            Gateway.incrementCallCount();
+        }
+       
 
     }
 

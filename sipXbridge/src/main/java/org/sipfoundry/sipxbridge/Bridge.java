@@ -155,6 +155,8 @@ public class Bridge {
                                         }
                                         sym.lastPacketTime = System
                                                 .currentTimeMillis();
+                                        sym.packetsReceived ++;
+                                        
                                         Bridge.this.lastPacketTime = sym.lastPacketTime;
 
                                         /*
@@ -189,6 +191,8 @@ public class Bridge {
                                             writeChannel
                                                     .send((ByteBuffer) readBuffer
                                                             .flip());
+                                            sym.getTransmitter().packetsSent ++;
+                                           
                                         } else {
                                             if (logger.isDebugEnabled()) {
                                                 logger

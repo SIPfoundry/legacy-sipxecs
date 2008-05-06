@@ -475,6 +475,7 @@ public class CallControlManager {
         try {
             BackToBackUserAgent b2bua = this
                     .getBackToBackUserAgent(requestEvent.getDialog());
+           
 
             if (b2bua != null) {
 

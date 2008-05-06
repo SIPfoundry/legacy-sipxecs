@@ -41,6 +41,8 @@ public class Sym implements SymInterface, Serializable {
     private long creationTime;
 
     long lastPacketTime;
+    
+    private int inactivityTimeout = -1;
 
     /*
      * The receier endpoint.
@@ -56,6 +58,8 @@ public class Sym implements SymInterface, Serializable {
      * The bridge to which we blong.
      */
     private Bridge bridge;
+
+    long packetsReceived;
 
     public Sym() {
         id = "sym:" + Math.abs(new Random().nextLong());
@@ -399,6 +403,21 @@ public class Sym implements SymInterface, Serializable {
 
     public long getLastPacketTime() {
         return this.lastPacketTime;
+    }
+    
+    public void setInactivityTimeout( int inactivityTimeout ) {
+        this.inactivityTimeout = inactivityTimeout;
+    }
+    
+    public boolean isTimedOut() {
+        if ( this.inactivityTimeout == -1) return false;
+        long time = System.currentTimeMillis();
+        return time -lastPacketTime > this.inactivityTimeout;
+    }
+
+    public long getPacketsReceived() {
+        
+        return this.packetsReceived;
     }
 
 }

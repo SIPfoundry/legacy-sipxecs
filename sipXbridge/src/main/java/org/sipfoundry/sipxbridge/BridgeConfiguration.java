@@ -35,6 +35,7 @@ public class BridgeConfiguration {
     private String logFileDirectory = "/var/log/sipxpbx/";
     private int globalAddressRediscoveryPeriod = 30;
     private String codecName = "PCMU";
+    private int maxCalls = -1;
 
     /**
      * @param externalAddress
@@ -293,6 +294,20 @@ public class BridgeConfiguration {
 
     public String getCodecName() {
         return this.codecName;
+    }
+
+    /**
+     * @param maxCalls the maxCalls to set
+     */
+    public void setMaxCalls(int maxCalls) {
+        this.maxCalls = maxCalls;
+    }
+
+    /**
+     * @return the maxCalls
+     */
+    public int getMaxCalls() {
+        return maxCalls;
     }
 
 }

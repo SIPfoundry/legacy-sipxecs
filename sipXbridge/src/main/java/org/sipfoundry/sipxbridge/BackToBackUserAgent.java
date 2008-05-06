@@ -971,11 +971,26 @@ public class BackToBackUserAgent {
     public void sendInviteToItsp(RequestEvent requestEvent,
             ServerTransaction serverTransaction, String toDomain,
             boolean isphone) throws GatewayConfigurationException, SipException {
+        
+        
         Request incomingRequest = serverTransaction.getRequest();
         Dialog incomingDialog = serverTransaction.getDialog();
         SipProvider itspProvider = Gateway.getWanProvider(itspAccountInfo
                 .getOutboundTransport());
 
+        if ( (Gateway.getCallLimit() != -1 && Gateway.getCallCount() >= Gateway.getCallLimit() ) || 
+             (itspAccountInfo.getMaxCalls() != -1 && itspAccountInfo.getCallCount() >= itspAccountInfo.getMaxCalls()) ) {
+            try {
+                serverTransaction.sendResponse(ProtocolObjects.messageFactory
+                        .createResponse(Response.BUSY_HERE, incomingRequest));
+            } catch (Exception e) {
+                String s = "Unepxected exception ";
+                logger.fatal(s, e);
+                throw new RuntimeException(s, e);
+            }
+        }
+        
+       
         boolean spiral = false;
 
         ListIterator headerIterator = incomingRequest
@@ -1293,6 +1308,14 @@ public class BackToBackUserAgent {
      */
     public Bridge getBridge() {
         return rtpBridge;
+    }
+
+
+    /**
+     * @return the creatingDialog
+     */
+    public Dialog getCreatingDialog() {
+        return creatingDialog;
     }
 
 }

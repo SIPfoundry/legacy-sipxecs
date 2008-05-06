@@ -120,6 +120,10 @@ public class ItspAccountInfo implements
     private boolean reInviteSupported = true;
     
     private boolean useRegistrationForCallerId = true;
+    
+    private int maxCalls = -1;
+    
+    private int callCount = 0;
 
     /**
      * This task runs periodically depending upon the timeout of the lookup
@@ -533,6 +537,36 @@ public class ItspAccountInfo implements
      */
     public boolean isUseRegistrationForCallerId() {
         return useRegistrationForCallerId;
+    }
+
+    /**
+     * @param maxCalls the maxCalls to set
+     */
+    public void setMaxCalls(int maxCalls) {
+        this.maxCalls = maxCalls;
+    }
+
+    /**
+     * @return the maxCalls
+     */
+    public int getMaxCalls() {
+        return maxCalls;
+    }
+
+    public void decrementCallCount() {
+        if ( this.callCount > 0 ) {
+            this.callCount --;
+        }
+        
+    }
+    
+    public int getCallCount() {
+        return this.callCount;
+    }
+
+    public void incrementCallCount() {
+        this.callCount ++;
+        
     }
 
 }

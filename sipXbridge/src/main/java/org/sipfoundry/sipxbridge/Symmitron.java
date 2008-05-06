@@ -475,6 +475,33 @@ public interface Symmitron {
      */
     public Map<String, Object> resumeBridge(String controllerHandle,
             String bridgeId);
+    
+    /**
+     * Set the timeout for a sym.
+     * 
+     * @param controllerHandle -- the controller handle.
+     * @param symId -- the sym id.
+     * @param timeout ( milliseconds ) after which inactivity is recorded.
+     */
+    public Map<String,Object> setTimeout(String controllerHandle, String symId, int timeout);
+    
+    /**
+     * Ping and test for liveness of monitored Syms.
+     * 
+     * @param controllerHandle -- the controller handle making the call.
+     * 
+     * @param symId -- the sym Id.
+     * 
+     * @return an array containing the syms that have not seen inbound for a time t >
+     *  the threshold timer value. Note that this is an instantaneous measure.
+     *  The inactivity flag is a boolean that indicates if a timeout has occurred
+     *  on the LAST received packet at the time the reading is made.
+     *  
+     *  
+     */
+    public Map <String,Object> ping(String controllerHandle);
+    
+    
 
     /**
      * Get Sym statistics.

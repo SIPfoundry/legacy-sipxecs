@@ -145,6 +145,7 @@ public class SipFoundryLayout extends Layout {
     @Override
     public String format(LoggingEvent arg0) {
         String msg = escapeCrlf(arg0.getRenderedMessage());
+        if ( msg == null ) return "";
         String loggerNames[] = arg0.getLoggerName().split("[.]");
         String loggerName = loggerNames[loggerNames.length - 1];
 

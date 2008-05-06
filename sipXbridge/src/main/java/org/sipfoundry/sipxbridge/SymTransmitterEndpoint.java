@@ -42,6 +42,8 @@ public class SymTransmitterEndpoint extends SymEndpoint {
     private  boolean earlyMediaStarted = false;
 
     private int maxSilence;
+    
+    long packetsSent;
 
     /**
      * The keepalive timer task.
@@ -245,6 +247,20 @@ public class SymTransmitterEndpoint extends SymEndpoint {
      */
     public boolean isRemoteAddressAutoDiscovered() {
         return remoteAddressAutoDiscovered;
+    }
+
+    /**
+     * @param packetsSent the packetsSent to set
+     */
+    public void setPacketsSent(long packetsSent) {
+        this.packetsSent = packetsSent;
+    }
+
+    /**
+     * @return the packetsSent
+     */
+    public long getPacketsSent() {
+        return packetsSent;
     }
     
     
