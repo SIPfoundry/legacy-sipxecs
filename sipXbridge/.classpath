@@ -17,5 +17,6 @@
 	<classpathentry kind="lib" path="lib/ws-commons-util-1.0.2.jar"/>
 	<classpathentry kind="lib" path="lib/commons-beanutils.jar"/>
 	<classpathentry kind="lib" path="lib/sip-sdp-1.2.jar"/>
+	<classpathentry kind="lib" path="lib/jain-sip-sdp-1.2.jar"/>
 	<classpathentry kind="output" path="classes"/>
 </classpath>
