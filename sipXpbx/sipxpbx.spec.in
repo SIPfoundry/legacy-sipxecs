@@ -111,6 +111,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/watchdog
 %attr(755,root,root) %{_bindir}/watchdog.sh
 %attr(755,root,root) %{_bindir}/sipx-snapshot
+%{_libexecdir}/sipx-strip-db-secrets.pl
 %attr(755,root,root) %{_bindir}/%name-config
 %attr(755,root,root) %{_bindir}/sipx-backup
 %attr(755,root,root) %{_bindir}/sipx-restore

@@ -12,7 +12,7 @@ PATH=$PATH:/sbin
 
 Action=SNAPSHOT
 DoWebFiles=YES
-SaveCredentials=NO
+SaveSecrets=NO
 CoreFiles=
 ExtraFiles=
 CommentFiles=
@@ -124,8 +124,8 @@ do
             shift
             ;;
 
-        -c|--credentials)
-            SaveCredentials=YES
+        -c|--credentials|--include-secrets)
+            SaveSecrets=YES
             ;;
 
         -i|--info-only)
@@ -219,7 +219,7 @@ then
 
 Usage:
 
-    sipx-snapshot [ -c  | --credentials ]
+    sipx-snapshot [ --include-secrets | -c  | --credentials ]
                   [ -nw | --no-www ]
                   [ -l  | --logs {current|all|none} ]
                   [ --log-start <date-time> [ --log-stop <date-time> ]]
@@ -253,10 +253,10 @@ Usage:
     in this case the final argument is the name of the directory where the
     information should be saved.
 
-    By default, all password information is removed from the recorded
-    credentials file.  If diagnosing a particular problem requires that the
-    real credential information be included, the --credentials switch
-    causes it to be left in.
+    By default, all passwords and other secrets are removed from the recorded
+    configuration files.  If diagnosing a particular problem requires that the
+    real secret information be included, the --include-secrets switch
+    causes it to be left in. 
 
     The --no-www switch disables saving the apache configuration files.
 
@@ -308,6 +308,9 @@ mkdir  $Work
 
 # File into which to record random system configuration information.
 SystemConfig=${Work}/SystemConfig
+
+# File into which the sipXconfig database is dumped
+ConfigDb=${Work}/SIPXCONFIG
 
 function hasTimestamps () {
    # looks for a timestamp like "2008-01-17T09:02:09.451460Z": on the first line
@@ -626,6 +629,8 @@ echo "" >> ${SystemConfig}
 
 if [ "${Action}" = "SNAPSHOT" ]
 then
+  # Record the database contents
+  pg_dump -d SIPXCONFIG -U postgres --attribute-inserts > ${ConfigDb}
 
   # Copy all the files and directories that should be copied.
   for file in `sort -u $Work.copy-files`
@@ -650,17 +655,23 @@ then
     fi
   done
 
-  # Remove the passtokens from credential.xml if we should do so.
-  if [ ${SaveCredentials} = NO ]
+  # Remove the secret values from configuration unless told not to.
+  if [ ${SaveSecrets} = NO ]
   then
     for file in `find $Work -name credential.xml`
     do
-      mv ${file} ${file}.tmp
-      sed < ${file}.tmp > ${file} \
+      perl -pi \
             -e 's|<passtoken>[^<]*</passtoken>|<passtoken>ELIDED</passtoken>|' \
-            -e 's|<pintoken>[^<]*</pintoken>|<pintoken>ELIDED</pintoken>|'
-      rm ${file}.tmp
+            -e 's|<pintoken>[^<]*</pintoken>|<pintoken>ELIDED</pintoken>|' \
+           ${file}
     done
+    for file in `find $Work -name domain-config`
+    do
+      perl -pi \
+            -e 's|SHARED_SECRET +: +.*|SHARED_SECRET : ELIDED|' \
+           ${file}
+    done
+    perl -pi @SIPX_LIBEXECDIR@/sipx-strip-db-secrets.pl ${ConfigDb}
   fi
 
   # If we cut out a timeslice of the logs, 

@@ -4,7 +4,18 @@ include $(top_srcdir)/config/subdir.am
 bin_SCRIPTS = \
     ${PACKAGE}-config \
     analyze_483s \
+	 sipx-snapshot \
+	 sipx-backup \
+	 sipx-restore \
+	 sipx-sendmail-configure \
+	 sipxlocalization \
+	 blat \
+	 check-fqdn \
+	 sipx-archive-common \
     ipcclean.pl
+
+libexec_SCRIPTS = \
+    sipx-strip-db-secrets.pl
 
 $(top_builddir)/BUILDSTAMP:
 	${MAKE} -C $(top_builddir) BUILDSTAMP
@@ -24,6 +35,7 @@ SCRIPT_TEMPLATES = \
 	sipxlocalization.in \
 	blat.in \
 	check-fqdn.in \
+	sipx-strip-db-secrets.pl \
 	sipx-archive-common.in
 
 EXTRA_DIST = \
@@ -31,10 +43,12 @@ EXTRA_DIST = \
    sipx-core-clean.in \
    voicemail_clean.in \
    sipx-chkspace.in \
-	$(bin_SCRIPTS) \
+   ${PACKAGE}-config \
+   analyze_483s \
+   ipcclean.pl \
 	$(SCRIPT_TEMPLATES)
 
-install-exec-hook : $(DESTDIR)@SERVICEDIR@/sipxpbx bin-scripts \
+install-exec-hook : $(DESTDIR)@SERVICEDIR@/sipxpbx \
                     $(DESTDIR)@DAILYDIR@/voicemail_clean \
                     $(DESTDIR)@DAILYDIR@/sipx-core-clean \
                     $(DESTDIR)@DAILYDIR@/sipx-chkspace
@@ -64,16 +78,5 @@ $(DESTDIR)@DAILYDIR@/sipx-chkspace: sipx-chkspace.in
 
 $(DESTDIR)@SERVICEDIR@:
 	$(INSTALL) -d $(DESTDIR)@SERVICEDIR@
-
-# XXX - Why do we depend on servicedir (/etc/init.d) but install in bindir?
-bin-scripts: $(DESTDIR)@SERVICEDIR@
-	for s in $(SCRIPT_TEMPLATES); \
-	do \
-		tgt=`basename $$s .in`; \
-		$(LocalizeSipXconfig) $(srcdir)/$$s > $$tgt; \
-		$(INSTALL) -D -m 755 $$tgt $(DESTDIR)$(bindir)/$$tgt; \
-	done
-
-.PHONY: bin-scripts
 
 DISTCLEANFILES = sipxpbx
