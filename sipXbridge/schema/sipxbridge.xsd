@@ -251,6 +251,15 @@
 				</xs:annotation>
 			</xs:element>
 
+			<xs:element name="outbound-proxy-port" type="xs:integer"
+				maxOccurs="1" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+						The outbound proxy port. If not specified, the default 5060 is used.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+
 			<xs:element name="outbound-transport" type="xs:string"
 				default="udp" maxOccurs="1" minOccurs="0">
 				<xs:annotation>

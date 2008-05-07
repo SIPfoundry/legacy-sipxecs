@@ -18,8 +18,7 @@ import junit.framework.TestCase;
 public class InvalidAccountTest extends TestCase {
 
     private static Logger logger = Logger.getLogger(InvalidAccountTest.class);
-
-    private static  String serverAddress ;
+    private static String serverAddress;
     private static  int port ;
     private XmlRpcClient client;
 
@@ -35,9 +34,10 @@ public class InvalidAccountTest extends TestCase {
         Properties properties = new Properties();
         properties.load(new FileInputStream( new File ("testdata/selftest.properties")));
         Gateway.setConfigurationFileName(properties.getProperty("org.sipfoundry.gateway.badAccount"));
-        serverAddress = properties.getProperty ("org.sipfoundry.gateway.serverAddress");
-        port = Integer.parseInt(properties.getProperty("org.sipfoundry.gateway.xmlRpcPort"));
+       
         Gateway.startXmlRpcServer();
+        port = Gateway.getAccountManager().getBridgeConfiguration().getXmlRpcPort();
+        serverAddress = Gateway.getAccountManager().getBridgeConfiguration().getExternalAddress();
         XmlRpcClientConfigImpl config = new XmlRpcClientConfigImpl();
         config.setServerURL(new URL("http://" + serverAddress + ":" + port));
         client = new XmlRpcClient();

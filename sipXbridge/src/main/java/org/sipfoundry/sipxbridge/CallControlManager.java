@@ -76,9 +76,9 @@ public class CallControlManager {
         try {
             Request request = st.getRequest();
             Response response = ProtocolObjects.messageFactory.createResponse(
-                    Response.SERVER_INTERNAL_ERROR, request);
+                    Response.BAD_REQUEST, request);
             if (logger.isDebugEnabled()) {
-                String message = "Internal Error " + ex.getMessage() + " at "
+                String message = "Exception occured at " + ex.getMessage() + " at "
                         + ex.getStackTrace()[0].getFileName() + ":"
                         + ex.getStackTrace()[0].getLineNumber();
 

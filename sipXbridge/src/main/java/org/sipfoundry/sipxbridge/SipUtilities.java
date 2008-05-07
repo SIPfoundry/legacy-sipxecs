@@ -219,6 +219,10 @@ public class SipUtilities {
 
         SipURI requestUri = ProtocolObjects.addressFactory.createSipURI(null,
                 proxy);
+        int port = itspAccount.getProxyPort();
+        if ( port != 5060) {
+            requestUri.setPort(port);
+        }
         if (itspAccount.getOutboundTransport().equalsIgnoreCase("tcp")) {
             requestUri.setTransportParam("tcp");
         }
@@ -753,7 +757,7 @@ public class SipUtilities {
                     : Gateway.getLocalAddress();
 
             if (connection != null)
-                connection.setAddress(Gateway.getGlobalAddress());
+                connection.setAddress(address);
 
             Origin origin = sessionDescription.getOrigin();
             origin.setAddress(address);

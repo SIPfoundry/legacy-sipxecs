@@ -33,10 +33,10 @@ public abstract class AbstractSymmitronTestCase extends TestCase {
         Properties properties = new Properties();
         properties.load(new FileInputStream ( new File ( "testdata/selftest.properties")));
         String accountName = properties.getProperty("org.sipfoundry.gateway.noItspAccount");
-        port = Integer.parseInt(properties.getProperty("org.sipfoundry.gateway.xmlRpcPort"));
-        serverAddress = properties.getProperty("org.sipfoundry.gateway.serverAddress");
-        Gateway.setConfigurationFileName(accountName);
+          Gateway.setConfigurationFileName(accountName);
         Gateway.startXmlRpcServer();
+        port = Gateway.getAccountManager().getBridgeConfiguration().getXmlRpcPort();
+        serverAddress = Gateway.getAccountManager().getBridgeConfiguration().getExternalAddress();
         XmlRpcClientConfigImpl config = new XmlRpcClientConfigImpl();
         config.setServerURL(new URL("http://" + serverAddress + ":" + port));
         client = new XmlRpcClient();

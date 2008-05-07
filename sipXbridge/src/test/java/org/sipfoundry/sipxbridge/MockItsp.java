@@ -73,7 +73,7 @@ public class MockItsp implements SipListener {
             + "s=\r\n" + "c=IN IP4 host.atlanta.example.com\r\n" + "t=0 0\r\n"
             + "m=audio 49170 RTP/AVP 0 8 97\r\n" + "a=rtpmap:0 PCMU/8000\r\n";
 
-    static {
+    static  {
         try {
             Properties stackProperties = new Properties();
             stackProperties.setProperty("javax.sip.STACK_NAME", "MockITSP");
@@ -89,8 +89,8 @@ public class MockItsp implements SipListener {
             ((SipStackImpl) sipStack)
                     .setAddressResolver(new ProxyAddressResolver());
 
-            ConfigurationParser parser = new ConfigurationParser();
-            accountManager = parser.createAccountManager("sipxbridge.xml");
+          
+            accountManager = Gateway.getAccountManager();
 
         } catch (Exception ex) {
             throw new RuntimeException("Error loading factories", ex);
@@ -238,9 +238,7 @@ public class MockItsp implements SipListener {
                         Response.OK, request);
                 st.sendResponse(response);
 
-            } else if (request.getMethod().equals(Request.ACK)) {
-                // TODO - start streaming audio here.
-            }
+            } 
         } catch (Exception ex) {
             logger.error("Unexpected exception", ex);
             ex.printStackTrace();
@@ -280,10 +278,12 @@ public class MockItsp implements SipListener {
     }
 
     public void init(int bytesToSend) throws Exception {
-
+        
         ItspAccountInfo accountInfo = accountManager.getDefaultAccount();
         myIpAddress = accountInfo.getOutboundProxy();
         myPort = accountInfo.getProxyPort();
+        
+        System.out.println("myIpAddress = " + myIpAddress + " myPort " + myPort);
         ListeningPoint listeningPoint = sipStack.createListeningPoint(
                 myIpAddress, myPort, "udp");
         provider = sipStack.createSipProvider(listeningPoint);

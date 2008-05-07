@@ -37,6 +37,7 @@
 		<pathelement location="${log4j}" />
 		<pathelement location="${jainsip}" />
 		<pathelement location="${junit}" />
+		<pathelement location="${sipunit}" />
 		<pathelement location="${dnsjava}" />
 		<pathelement location="${stun4j}" />
 		<pathelement location="${commons-logging-api}" />

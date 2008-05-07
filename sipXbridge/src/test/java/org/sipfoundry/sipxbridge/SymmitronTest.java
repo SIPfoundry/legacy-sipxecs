@@ -55,7 +55,21 @@ public class SymmitronTest extends AbstractSymmitronTestCase {
         super.signIn();
         
     }
-    
+    public void testSignInSignOut() {
+        try {
+            super.start();
+            String[] myHandle = new String[1] ;
+            myHandle[0] = "nat:12345";
+            Map retval = (Map) client.execute("sipXbridge.signIn",
+                    (Object[]) myHandle);
+            client.execute("sipXbridge.signOut",(Object[]) myHandle);
+           
+            
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            fail("Unexpected exception ");
+        }
+    }
  public void testSymCreate() throws Exception {
         
         int count = 1;
@@ -558,6 +572,8 @@ public class SymmitronTest extends AbstractSymmitronTestCase {
         // Heartbeat keeps going but no data.
         assertTrue(counter >= 1000 );
         super.destroyBridge(bridge);
+        datagramSocket1.close();
+        datagramSocket2.close();
         
         
         

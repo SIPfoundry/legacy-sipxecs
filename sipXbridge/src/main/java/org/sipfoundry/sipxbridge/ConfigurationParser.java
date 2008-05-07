@@ -76,10 +76,10 @@ public class ConfigurationParser {
         digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG,
                 "xml-rpc-port"), "setXmlRpcPort", 0,
                 new Class[] { Integer.class });
-        
+
         digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG,
                 "max-number-of-concurrent-calls"), "setMaxCalls", 0,
-        new Class[] { Integer.class });
+                new Class[] { Integer.class });
         /*
          * ITSP configuration support parameters.
          */
@@ -87,6 +87,9 @@ public class ConfigurationParser {
         digester.addSetNext(ITSP_CONFIG, "addItspAccount");
         digester.addCallMethod(String.format("%s/%s", ITSP_CONFIG,
                 "outbound-proxy"), "setOutboundProxy", 0);
+        digester.addCallMethod(String.format("%s/%s", ITSP_CONFIG,
+                "outbound-proxy-port"), "setProxyPort", 0,
+                new Class[] { Integer.class });
         digester.addCallMethod(String.format("%s/%s", ITSP_CONFIG,
                 "outbound-transport"), "setOutboundTransport", 0);
         digester.addCallMethod(String.format("%s/%s", ITSP_CONFIG,
@@ -120,15 +123,16 @@ public class ConfigurationParser {
                 "register-on-initialization"), "setRegisterOnInitialization",
                 0, new Class[] { Boolean.class });
         digester.addCallMethod(String.format("%s/%s", ITSP_CONFIG,
-                "use-registration-for-caller-id"), "setUseRegistrationForCallerId",
-        0, new Class[] { Boolean.class });
+                "use-registration-for-caller-id"),
+                "setUseRegistrationForCallerId", 0,
+                new Class[] { Boolean.class });
 
         digester.addCallMethod(String.format("%s/%s", ITSP_CONFIG,
                 "is-reinvite-supported"), "setReInviteSupported", 0,
                 new Class[] { Boolean.class });
         digester.addCallMethod(String.format("%s/%s", ITSP_CONFIG,
-        "max-number-of-concurrent-calls"), "setMaxCalls", 0,
-new Class[] { Integer.class });
+                "max-number-of-concurrent-calls"), "setMaxCalls", 0,
+                new Class[] { Integer.class });
 
     }
 
