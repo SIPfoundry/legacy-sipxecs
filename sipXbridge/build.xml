@@ -95,8 +95,22 @@
 			</assertions>
 	</target>
 
+	<target name="compile-exclude-tests"  description="compile the source">
+		<!-- Compile the java code from ${src} into ${classes} -->
+		<mkdir dir="${classes}" />
+		<javac srcdir="${src.dir}/src/main/java" 
+			destdir="${classes}" 
+			debug="${javac.debug}"
+			optimize= "${javac.optimize}"
+			debuglevel = "${javac.debuglevel}"
+		 	classpathref="project.class.path" deprecation="off" />
+			<assertions>
+				<enable />
+			</assertions>
+	</target>
+
 <!-- BUILD a Jar file -->
-	<target name="jar" depends="compile" description="create a jar file" >
+	<target name="jar" depends="compile-exclude-tests" description="create a jar file" >
 		<mkdir dir="${build.dir}/dist" />
 		<jar jarfile="${build.dir}/dist/sipXbridge.jar">
 			<fileset dir="${classes}" >
@@ -111,7 +125,6 @@
     	<copy todir="${dest.dir}${sipxbridge.lib.dir}">
 		<fileset file="${log4j}" />
 		<fileset file="${jainsip}" />
-		<fileset file="${junit}" />
 		<fileset file="${dnsjava}" />
 		<fileset file="${stun4j}" />
 		<fileset file="${commons-logging-api}" />
