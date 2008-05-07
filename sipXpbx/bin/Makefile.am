@@ -1,6 +1,5 @@
 include $(top_srcdir)/config/subdir.am
 
-
 bin_SCRIPTS = \
     ${PACKAGE}-config \
     analyze_483s \
@@ -48,15 +47,23 @@ EXTRA_DIST = \
    ipcclean.pl \
 	$(SCRIPT_TEMPLATES)
 
+$(foreach sipxScript,$(SCRIPT_TEMPLATES),$(sipxScript:.in=)) : % : $(srcdir)/%.in
+	$(LocalizeSipXconfig) $< > $@
+	chmod +x $@
+
 install-exec-hook : $(DESTDIR)@SERVICEDIR@/sipxpbx \
                     $(DESTDIR)@DAILYDIR@/voicemail_clean \
                     $(DESTDIR)@DAILYDIR@/sipx-core-clean \
-                    $(DESTDIR)@DAILYDIR@/sipx-chkspace
+                    $(DESTDIR)@DAILYDIR@/sipx-chkspace \
+						  remove-obsolete-bins
+
+.PHONY: remove-obsolete-bins
+
+remove-obsolete-bins:
 	rm -f $(DESTDIR)$(bindir)/backup-mailstore.sh
 	rm -f $(DESTDIR)$(bindir)/restore-configs.sh
 	rm -f $(DESTDIR)$(bindir)/restore-mailstore.sh
 	rm -f $(DESTDIR)$(bindir)/backup-configs.sh
-
 
 $(DESTDIR)@SERVICEDIR@/sipxpbx: $(DESTDIR)@SERVICEDIR@ sipxpbx
 	$(INSTALL) -D -m 755 sipxpbx $(DESTDIR)@SERVICEDIR@/sipxpbx
