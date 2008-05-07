@@ -35,7 +35,7 @@
 
 typedef struct
 {
-    unsigned long id;
+    TaoEventId id;
     char name[16];
 } USER_EVENT;
 
@@ -178,11 +178,11 @@ UtlBoolean TaoListenerClientTask::receiveEvent(TaoMessage& rMsg)
 {
     UtlBoolean bHandled ;
 #ifdef TAO_TIME_DEBUG
-        int     eventId = rMsg.getTaoObjHandle();
+        TaoEventId eventId = rMsg.getTaoObjHandle();
         OsTimeLog timeLog;
         char tmp[64];
 
-        sprintf(tmp, "%d ", eventId);
+        sprintf(tmp, "%ld ", eventId);
         UtlString stringData = UtlString("RECEIVE EVENT: ") + UtlString(tmp);
     timeLog.addEvent(stringData.data());
 #else
@@ -190,7 +190,7 @@ UtlBoolean TaoListenerClientTask::receiveEvent(TaoMessage& rMsg)
 #endif
         {
                 mListenerSem.acquire();
-                int *pHandles = (int*) mpListeners;
+                TaoListenerDb **pHandles = mpListeners;
                 int num = mListenerCnt;
 
 #ifdef _VXWORKS
@@ -210,7 +210,7 @@ UtlBoolean TaoListenerClientTask::receiveEvent(TaoMessage& rMsg)
             for (int loop = mListenerCnt;loop < mMaxNumListeners;loop++)
                 mpListeners[loop] = 0 ;
 
-                        pHandles = (int*) new TaoListenerDb[num+1];
+                        pHandles = (TaoListenerDb **)new TaoListenerDb[num+1];
 
                         if (num > 0)  // check if listener is already added.
                         {
@@ -218,7 +218,7 @@ UtlBoolean TaoListenerClientTask::receiveEvent(TaoMessage& rMsg)
                                 {
                                         if (mpListeners[i])
                                         {
-                                                pHandles[i] = (int)mpListeners[i];
+                                                pHandles[i] = mpListeners[i];
                                         }
                                 }
                         }
@@ -227,11 +227,11 @@ UtlBoolean TaoListenerClientTask::receiveEvent(TaoMessage& rMsg)
 
                 if (num > 0)
                 {
-                        TaoObjHandle listener;
+                        void* listener;
                         for (int i = 0; i < num; i++)
                         {
                                 if (pHandles[i])
-                                        listener = ((TaoListenerDb*)pHandles[i])->mpListenerPtr;
+                                        listener = pHandles[i]->mpListenerPtr;
                                 else
                                         listener = 0;
                                 if (listener)
@@ -311,7 +311,7 @@ UtlBoolean TaoListenerClientTask::receiveEvent(TaoMessage& rMsg)
         }
 
 #ifdef TAO_TIME_DEBUG
-        sprintf(tmp, "%d ", eventId);
+        sprintf(tmp, "%ld ", eventId);
         stringData = UtlString("LEAVING EVENT: ") + UtlString(tmp);
     timeLog.addEvent(stringData.data());
     timeLog.dumpLog();
@@ -332,13 +332,13 @@ UtlBoolean TaoListenerClientTask::receiveCallEvent(TaoMessage& rMsg,
 #ifdef TAO_TIME_DEBUG
         char tmp[64];
 
-        sprintf(tmp, "%d %d ", rMsg.getTaoObjHandle(), (int)pListener);
+        sprintf(tmp, "%ld %ld ", rMsg.getTaoObjHandle(), pListener);
         UtlString stringData = UtlString("RECEIVE CALL EVENT: ") + UtlString(tmp);
     timeLog.addEvent(stringData.data());
 #endif
         TaoMessage msg(rMsg);
 
-        int eventId;
+        TaoEventId eventId;
         if (!getCallEvent(rMsg, pListener, eventId))
                 return FALSE;
 
@@ -470,13 +470,13 @@ UtlBoolean TaoListenerClientTask::receiveConnectionEvent(TaoMessage& rMsg,
 #ifdef TAO_TIME_DEBUG
         char tmp[64];
 
-        sprintf(tmp, "%d %d ", rMsg.getTaoObjHandle(), (int)pListener);
+        sprintf(tmp, "%ld %ld ", rMsg.getTaoObjHandle(), pListener);
         UtlString stringData = UtlString("RECEIVE CONN EVENT: ") + UtlString(tmp);
     timeLog.addEvent(stringData.data());
 #endif
         int addedToCall = 0;
         int remoteIsCallee = 0;
-        int     eventId;
+        TaoEventId     eventId;
         if (!getConnectionEvent(rMsg,
                                                         pListener,
                                                         eventId,
@@ -596,7 +596,7 @@ UtlBoolean TaoListenerClientTask::receiveTerminalEvent(TaoMessage& rMsg,
 #ifdef TAO_TIME_DEBUG
         char tmp[64];
 
-        sprintf(tmp, "%d %d ", rMsg.getTaoObjHandle(), (int)pListener);
+        sprintf(tmp, "%ld %ld ", rMsg.getTaoObjHandle(), pListener);
         UtlString stringData = UtlString("RECEIVE TERM EVENT: ") + UtlString(tmp);
     timeLog.addEvent(stringData.data());
 #endif
@@ -634,7 +634,7 @@ UtlBoolean TaoListenerClientTask::receiveTerminalComponentEvent(TaoMessage& rMsg
 #ifdef TAO_TIME_DEBUG
         char tmp[64];
 
-        sprintf(tmp, "%d %d ", rMsg.getTaoObjHandle(), (int)pListener);
+        sprintf(tmp, "%ld %p ", rMsg.getTaoObjHandle(), pListener);
         UtlString stringData = UtlString("RECEIVE COMP EVENT: ") + UtlString(tmp);
     timeLog.addEvent(stringData.data());
 #endif
@@ -758,12 +758,12 @@ UtlBoolean TaoListenerClientTask::receiveTerminalConnectionEvent(TaoMessage& rMs
 #ifdef TAO_TIME_DEBUG
         char tmp[64];
 
-        sprintf(tmp, "%d %d ", rMsg.getTaoObjHandle(), (int)pListener);
+        sprintf(tmp, "%ld %ld ", rMsg.getTaoObjHandle(), pListener);
         UtlString stringData = UtlString("RECEIVE  TC  EVENT: ") + UtlString(tmp);
     timeLog.addEvent(stringData.data());
 #endif
 
-        int eventId;
+        TaoEventId eventId;
         int addedToCall = 0;
         int remoteIsCallee = 0;
         if (!getTerminalConnectionEvent(rMsg,
@@ -844,17 +844,16 @@ UtlBoolean TaoListenerClientTask::receiveTerminalConnectionEvent(TaoMessage& rMs
 void TaoListenerClientTask::addEventListener(PtEventListener* pListener, const char* callId)
 {
         mListenerSem.acquire();
-        int ptr = (int)pListener;
         if (mListenerCnt > 0)  // check if listener is already added.
         {
                 for (int i = 0; i < mListenerCnt; i++)
                 {
-                        if (mpListeners[i] && mpListeners[i]->mpListenerPtr == ptr)
+                        if (mpListeners[i] && mpListeners[i]->mpListenerPtr == pListener)
                         {
                                 if (!callId || (callId && mpListeners[i]->mName.compareTo(callId) == 0))
                                 {
                                         mpListeners[i]->mRef++;
-                                        osPrintf("Listener already exists in TaoListenerClientTask: 0x%08x\n", (int)pListener);
+                                        osPrintf("Listener already exists in TaoListenerClientTask: 0x%p\n", pListener);
                                         mListenerSem.release();
                                         return;
                                 }
@@ -875,7 +874,7 @@ void TaoListenerClientTask::addEventListener(PtEventListener* pListener, const c
         if (pListenerDb)
         {
                 pListenerDb->mRef++;
-                pListenerDb->mpListenerPtr = ptr;
+                pListenerDb->mpListenerPtr = pListener;
                 if (callId)
                         pListenerDb->mName.append(callId);
                 mpListeners[mListenerCnt++] = pListenerDb;
@@ -886,12 +885,11 @@ void TaoListenerClientTask::addEventListener(PtEventListener* pListener, const c
 void TaoListenerClientTask::removeEventListener(PtEventListener& rListener)
 {
         mListenerSem.acquire();
-        int ptr = (int)&rListener;
         if (mListenerCnt > 0)  // check if listener is already added.
         {
                 for (int i = 0; i < mListenerCnt; i++)
                 {
-                        if (mpListeners[i] && mpListeners[i]->mpListenerPtr == ptr)
+                        if (mpListeners[i] && mpListeners[i]->mpListenerPtr == &rListener)
                         {
                                 mpListeners[i]->mRef--;
                                 if (mpListeners[i]->mRef <= 0)
@@ -902,7 +900,7 @@ void TaoListenerClientTask::removeEventListener(PtEventListener& rListener)
                                                 mpListeners[j] = mpListeners[j + 1];
                                         }
                                         mListenerCnt--;
-                                        osPrintf("Remove listener in TaoListenerClientTask: 0x%08x\n", ptr);
+                                        osPrintf("Remove listener in TaoListenerClientTask: 0x%p\n", &rListener);
                                         mListenerSem.release();
                                         return;
                                 }
@@ -914,8 +912,8 @@ void TaoListenerClientTask::removeEventListener(PtEventListener& rListener)
 }
 
 UtlBoolean TaoListenerClientTask::getCallEvent(TaoMessage& rMsg,
-                                                                                PtCallListener* pListener,
-                                                                                int& evId)
+                                               PtCallListener* pListener,
+                                               TaoEventId& evId)
 {
         int cnt = rMsg.getArgCnt();
 
@@ -930,10 +928,9 @@ UtlBoolean TaoListenerClientTask::getCallEvent(TaoMessage& rMsg,
         UtlString callId = argList[0];
 
         int addedToCall = 0;
-        int ptr = (int)pListener;
         for (int i = 0; i < mListenerCnt; i++)
         {
-                if (mpListeners[i] && mpListeners[i]->mpListenerPtr == ptr)
+                if (mpListeners[i] && mpListeners[i]->mpListenerPtr == pListener)
                 {
                         if (!callId.isNull() && !(mpListeners[i]->mName.isNull()) && callId != mpListeners[i]->mName)
                         {
@@ -970,10 +967,10 @@ UtlBoolean TaoListenerClientTask::getCallEvent(TaoMessage& rMsg,
 }
 
 UtlBoolean TaoListenerClientTask::getConnectionEvent(TaoMessage& rMsg,
-                                                                                PtConnectionListener* pListener,
-                                                                                int& evId,
-                                                                                int& addedToCall,
-                                                                                int& remoteIsCallee)
+                                                     PtConnectionListener* pListener,
+                                                     TaoEventId& evId,
+                                                     int& addedToCall,
+                                                     int& remoteIsCallee)
 {
         PtEvent::PtEventId      eventId = (PtEvent::PtEventId) rMsg.getTaoObjHandle();
         if (!PtEvent::isConnectionEvent(eventId))
@@ -986,10 +983,9 @@ UtlBoolean TaoListenerClientTask::getConnectionEvent(TaoMessage& rMsg,
 
         UtlString callId = argList[0];
 
-        int ptr = (int)pListener;
         for (int i = 0; i < mListenerCnt; i++)
         {
-                if (mpListeners[i] && mpListeners[i]->mpListenerPtr == ptr)
+                if (mpListeners[i] && mpListeners[i]->mpListenerPtr == pListener)
                 {
                         if (!callId.isNull() && !(mpListeners[i]->mName.isNull()) && callId != mpListeners[i]->mName)
                         {
@@ -1041,10 +1037,10 @@ UtlBoolean TaoListenerClientTask::getConnectionEvent(TaoMessage& rMsg,
 }
 
 UtlBoolean TaoListenerClientTask::getTerminalConnectionEvent(TaoMessage& rMsg,
-                                                                                PtConnectionListener* pListener,
-                                                                                int& evId,
-                                                                                int& addedToCall,
-                                                                                int& remoteIsCallee)
+                                                             PtConnectionListener* pListener,
+                                                             TaoEventId& evId,
+                                                             int& addedToCall,
+                                                             int& remoteIsCallee)
 {
         PtEvent::PtEventId      eventId = (PtEvent::PtEventId) rMsg.getTaoObjHandle();
         if (!PtEvent::isTerminalConnectionEvent(eventId))
@@ -1058,10 +1054,9 @@ UtlBoolean TaoListenerClientTask::getTerminalConnectionEvent(TaoMessage& rMsg,
 
         UtlString callId = argList[0];
 
-        int ptr = (int)pListener;
         for (int i = 0; i < mListenerCnt; i++)
         {
-                if (mpListeners[i] && mpListeners[i]->mpListenerPtr == ptr)
+                if (mpListeners[i] && mpListeners[i]->mpListenerPtr == pListener)
                 {
                         if (!callId.isNull() && !(mpListeners[i]->mName.isNull()) && callId != mpListeners[i]->mName)
                         {
@@ -1282,12 +1277,12 @@ void TaoListenerClientTask::getEventName(int eventId, char *name)
         }
 }
 
-void TaoListenerClientTask::fireUserEvent(int eventId, int userEventId)
+void TaoListenerClientTask::fireUserEvent(TaoEventId eventId, TaoEventId userEventId)
 {
         getEventName(eventId, (char*)&name);
 
         USER_EVENT myEv;
-        myEv.id = (unsigned long)eventId;
+        myEv.id = eventId;
         strncpy(myEv.name, name, 16);
 #ifdef _VXWORKS
         wvEvent(userEventId, (char*)&myEv, sizeof(USER_EVENT));

@@ -14,6 +14,7 @@
 
 // SYSTEM INCLUDES
 #include <os/qsTypes.h>
+#include <os/OsDefs.h>
 
 // APPLICATION INCLUDES
 // DEFINES
@@ -29,7 +30,7 @@
 #define NULL 0
 #endif
 
-#define UTL_NOT_FOUND ((size_t)-1)
+#define UTL_NOT_FOUND (-1)
 
 // MACROS
 // EXTERNAL FUNCTIONS
@@ -45,7 +46,7 @@ typedef int UtlBoolean ;
  *      Int64 xyz;
  *      printf("The value is %" FORMAT_INTLL "d", xyz);
  *  Note that the '%' before and the format specifier after must be provided.
- *  This must be a #define, since this specifier isn't standardized.
+ *  This must be a [pound]define, since this specifier isn't standardized.
  */
 #if defined(_WIN32)
 #  define   FORMAT_INTLL   "I64"

@@ -147,7 +147,7 @@ public:
 
             sprintf(msg,
                     "\n  test case %d decodedSize"
-                    "\n     expected %d"
+                    "\n     expected %zu"
                     "\n     actual   %d",
                     test, tests[test].inputSize, decodedSize
                     );
@@ -176,7 +176,7 @@ public:
             
             sprintf(msg,
                     "\n  test case %d encoding"
-                    "\n     expected size %d data '%s'"
+                    "\n     expected size %zu data '%s'"
                     "\n     actual   size %d data '%s'",
                     test,
                     strlen(tests[test].output), tests[test].output,
@@ -198,7 +198,7 @@ public:
             decodedData[decodedSize] = '\000';
             sprintf(msg,
                     "\n  test case %d decoding %s"
-                    "\n     expected size %d data '%s'"
+                    "\n     expected size %zu data '%s'"
                     "\n     actual   size %d data '%s'",
                     test, decodedOk ? "ok" : "failed",
                     tests[test].inputSize, tests[test].inputData,
@@ -233,8 +233,8 @@ public:
             
             sprintf(msg,
                     "\n  test case %d encoding"
-                    "\n     expected size %d data '%s'"
-                    "\n     actual   size %d data '%s'",
+                    "\n     expected size %zu data '%s'"
+                    "\n     actual   size %zu data '%s'",
                     test,
                     strlen(tests[test].output), tests[test].output,
                     encoded.length(), encoded.data()
@@ -263,8 +263,8 @@ public:
             
             sprintf(msg,
                     "\n  test case %d encoding"
-                    "\n     expected size %d data '%s'"
-                    "\n     actual   size %d data '%s'",
+                    "\n     expected size %zu data '%s'"
+                    "\n     actual   size %zu data '%s'",
                     test,
                     strlen(tests[test].output), tests[test].output,
                     encoded.length(), encoded.data()
@@ -280,8 +280,8 @@ public:
 
             sprintf(msg,
                     "\n  test case %d decoding %s"
-                    "\n     expected size %d data '%s'"
-                    "\n     actual   size %d data '%s'",
+                    "\n     expected size %zu data '%s'"
+                    "\n     actual   size %zu data '%s'",
                     test, decodedOk ? "ok" : "failed",
                     tests[test].inputSize, tests[test].inputData,
                     decoded.length(), decoded.data()

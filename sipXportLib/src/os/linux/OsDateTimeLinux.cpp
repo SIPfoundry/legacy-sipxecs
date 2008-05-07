@@ -187,8 +187,8 @@ void OsDateTimeLinux::getCurTime(OsDateTimeLinux& rDateTime)
 void OsDateTimeLinux::getCurTimeSinceBoot(OsTime& rTime)
 {
    double seconds;
-   unsigned long secs;
-   unsigned long usecs;
+   int secs;
+   int usecs;
 
    seconds = secondsSinceBoot();
    secs  = (int)seconds;
@@ -201,7 +201,7 @@ void OsDateTimeLinux::getCurTimeSinceBoot(OsTime& rTime)
 // Current time as the number of seconds since midnight (0 hour) 01/01/1970
 unsigned long OsDateTimeLinux::getSecsSinceEpoch(void)
 {
-   return time(NULL);
+   return (unsigned long)time(NULL);
 }
 
 // Get the number of seconds since boot using /proc/uptime

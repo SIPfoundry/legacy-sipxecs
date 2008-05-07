@@ -16,7 +16,7 @@
 /** Flag that callback function was called */
 UtlBoolean gCallbackCalled;
 
-void setCallbackFlag(const int userData, const int eventData)
+void setCallbackFlag(void* userData, intptr_t eventData)
 {
     gCallbackCalled = TRUE;
 }
@@ -33,7 +33,7 @@ public:
     {
         OsCallback* pCallback;
 
-        pCallback = new OsCallback(12345, setCallbackFlag);
+        pCallback = new OsCallback((void*)12345, setCallbackFlag);
         gCallbackCalled = FALSE;
         pCallback->signal(67890);
         CPPUNIT_ASSERT(gCallbackCalled);

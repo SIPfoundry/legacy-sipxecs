@@ -1,3 +1,4 @@
 #@BASH@
 
+@bindir@/sipxconfig.sh --first-run
 @bindir@/sipxconfig.sh --setup

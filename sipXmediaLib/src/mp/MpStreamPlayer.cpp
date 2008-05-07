@@ -115,7 +115,7 @@ OsStatus MpStreamPlayer::realize(UtlBoolean bBlock /* = TRUE */)
 {   
    OsStatus status = OS_FAILED ;
    OsEvent eventHandle ;  
-   int eventData ;
+   intptr_t eventData ;
 
    // Only proceed if we have a flow graph and the player is unrealized.
    if (getState() == PlayerUnrealized)
@@ -130,7 +130,7 @@ OsStatus MpStreamPlayer::realize(UtlBoolean bBlock /* = TRUE */)
          if (mpMsgQ != NULL)
          {
             MpStreamMsg msg(MpStreamMsg::STREAM_REALIZE_URL, mTarget, NULL, 
-                  &eventHandle, mpQueueEvent, mFlags, (int) new Url(mUrl)) ;
+                  &eventHandle, mpQueueEvent, mFlags, (intptr_t) new Url(mUrl)) ;
             status = mpMsgQ->send(msg) ;
          }
       }
@@ -140,7 +140,7 @@ OsStatus MpStreamPlayer::realize(UtlBoolean bBlock /* = TRUE */)
          if (mpMsgQ != NULL)
          {
             MpStreamMsg msg(MpStreamMsg::STREAM_REALIZE_BUFFER, mTarget, NULL,
-                  &eventHandle, mpQueueEvent, mFlags, (int) mpBuffer) ;
+                  &eventHandle, mpQueueEvent, mFlags, (intptr_t) mpBuffer) ;
             status = mpMsgQ->send(msg) ;
          }
       }	 
@@ -575,7 +575,7 @@ UtlBoolean MpStreamPlayer::handleMessage(OsMsg& rMsg)
    {
       case OsMsg::OS_EVENT:
          OsEventMsg* pMsg = (OsEventMsg*) &rMsg ;
-         int status ;
+         intptr_t status ;
          if (pMsg->getEventData(status) == OS_SUCCESS)
          {
 #ifdef MP_STREAM_DEBUG /* [ */

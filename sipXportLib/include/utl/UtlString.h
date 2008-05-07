@@ -47,9 +47,9 @@ class UtlString : public UtlContainable
 public:
     static const char* ssNull;
 
-    static const size_t UTLSTRING_NOT_FOUND; ///< Returned from a search that failed.
+    static const ssize_t UTLSTRING_NOT_FOUND; ///< Returned from a search that failed.
 
-    static const size_t UTLSTRING_TO_END; /**< When specifying the length of a substring,
+    static const ssize_t UTLSTRING_TO_END; /**< When specifying the length of a substring,
                                            *   indicates that the substring should extend
                                            *   to the end of the string. */
 
@@ -247,20 +247,20 @@ public:
 ///@{
 
     /// Find the first instance of a single character.
-    size_t index(char c) const;
+    ssize_t index(char c) const;
     /**<
      * @return the offset of the first c or UTL_NOT_FOUND
      */
 
     /// Find the first instance of a single character starting at a specified offset.
-    size_t index(char c, size_t offset) const;
+    ssize_t index(char c, size_t offset) const;
     /**<
      * @return the offset from the beginning of the string of the
      * first c at or after offset, or UTL_NOT_FOUND
      */
 
     /// Find the first instance of a single character.
-    size_t first(char c) const;
+    ssize_t first(char c) const;
     /**<
      * @return the offset of the first c or UTL_NOT_FOUND
      *
@@ -268,13 +268,13 @@ public:
      */
 
     /// Find the first instance of a null terminated string.
-    size_t index(const char* ) const;
+    ssize_t index(const char* ) const;
     /**<
      * @return the offset of the first matching string or UTL_NOT_FOUND
      */
 
     /// Find the first instance of a specified length string.
-    size_t index(const char* , size_t ) const;
+    ssize_t index(const char* , size_t ) const;
     /**<
      * The search target value may contain null characters.
      *
@@ -282,7 +282,7 @@ public:
      */
 
     /// Find the first instance of a specified length string, with case control
-    size_t index(const char* , size_t , CompareCase ) const;
+    ssize_t index(const char* , size_t , CompareCase ) const;
     /**<
      * The search target value may contain null characters.
      *
@@ -290,7 +290,7 @@ public:
      */
 
     /// Find the first match for the specified string (which may contain null characters)
-    size_t index(const UtlString& ) const;
+    ssize_t index(const UtlString& ) const;
     /**<
      * The search target value may contain null characters.
      *
@@ -298,7 +298,7 @@ public:
      */
 
     /// Find a match for the specified string starting at offset
-    size_t index(const UtlString& match, ///< string value to search for
+    ssize_t index(const UtlString& match, ///< string value to search for
                  size_t offset           ///< offset in target to start search
                  ) const;
     /**<
@@ -308,7 +308,7 @@ public:
      */
 
     /// Find a match for the specified string starting at offset, with case sensitivity control
-    size_t index(const UtlString& , size_t , CompareCase ) const;
+    ssize_t index(const UtlString& , size_t , CompareCase ) const;
     /**<
      * The search target value (match) may contain null characters.
      *
@@ -316,13 +316,13 @@ public:
      */
 
     /// Find the first instance of a null terminated string
-    size_t first(const char* ) const;
+    ssize_t first(const char* ) const;
     /**<
      * @return the offset of the string or UTL_NOT_FOUND
      */
 
     /// Find the last instance of a null terminated string
-    size_t last(char s) const;
+    ssize_t last(char s) const;
     /**<
      * @return the offset of the string or UTL_NOT_FOUND
      */

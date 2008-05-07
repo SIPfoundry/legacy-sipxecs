@@ -116,7 +116,7 @@ PtStatus PtPhoneRinger::setRingerInfo(int patternIndex, char* rpInfo)
                                                                         arg);
         mpClient->sendRequest(msg);
 
-        int rc;
+        intptr_t rc;
         if (OS_SUCCESS != pe->wait(msg.getCmd(), mTimeOut))
         {
                 mpClient->resetConnectionSocket(msg.getMsgID());
@@ -128,10 +128,10 @@ PtStatus PtPhoneRinger::setRingerInfo(int patternIndex, char* rpInfo)
                 return PT_BUSY;
         }
 
-        pe->getEventData((int &)rc);
+        pe->getEventData(rc);
         pe->getStringData((UtlString &)arg);
 #ifdef PTAPI_TEST
-        int cmd;
+        intptr_t cmd;
         pe->getIntData2(cmd);
         assert(cmd == TaoMessage::RINGER_SET_INFO);
 #endif
@@ -156,7 +156,7 @@ PtStatus PtPhoneRinger::setRingerPattern(int patternIndex)
                                                                         buf);
         mpClient->sendRequest(msg);
 
-        int rc;
+        intptr_t rc;
         if (OS_SUCCESS != pe->wait(msg.getCmd(), mTimeOut))
         {
                 mpClient->resetConnectionSocket(msg.getMsgID());
@@ -168,9 +168,9 @@ PtStatus PtPhoneRinger::setRingerPattern(int patternIndex)
                 return PT_BUSY;
         }
 
-        pe->getEventData((int &)rc);
+        pe->getEventData(rc);
 #ifdef PTAPI_TEST
-        int cmd;
+        intptr_t cmd;
         pe->getIntData2(cmd);
         assert(cmd == TaoMessage::RINGER_SET_PATTERN);
 #endif
@@ -200,7 +200,7 @@ PtStatus PtPhoneRinger::setRingerVolume(int volume)
                                                                         buf);
         mpClient->sendRequest(msg);
 
-        int rc;
+        intptr_t rc;
         if (OS_SUCCESS != pe->wait(msg.getCmd(), mTimeOut))
         {
                 mpClient->resetConnectionSocket(msg.getMsgID());
@@ -212,9 +212,9 @@ PtStatus PtPhoneRinger::setRingerVolume(int volume)
                 return PT_BUSY;
         }
 
-        pe->getEventData((int &)rc);
+        pe->getEventData(rc);
 #ifdef PTAPI_TEST
-        int cmd;
+        intptr_t cmd;
         pe->getIntData2(cmd);
         assert(cmd == TaoMessage::RINGER_SET_VOLUME);
 #endif
@@ -396,7 +396,7 @@ PtStatus PtPhoneRinger::getRingerVolume(int& rVolume)
                                                                         "");
         mpClient->sendRequest(msg);
 
-        int rc;
+        intptr_t rc;
         UtlString arg;
 
         if (OS_SUCCESS != pe->wait(msg.getCmd(), mTimeOut))
@@ -410,10 +410,10 @@ PtStatus PtPhoneRinger::getRingerVolume(int& rVolume)
                 return PT_BUSY;
         }
 
-        pe->getEventData((int &)rc);
+        pe->getEventData(rc);
         pe->getStringData((UtlString &)arg);
 #ifdef PTAPI_TEST
-        int cmd;
+        intptr_t cmd;
         pe->getIntData2(cmd);
         assert(cmd == TaoMessage::RINGER_GET_VOLUME);
 #endif
@@ -453,7 +453,7 @@ PtStatus PtPhoneRinger::isRingerOn(PtBoolean& rIsOn)
 
         pe->getStringData((UtlString &)arg);
 #ifdef PTAPI_TEST
-        int cmd;
+        intptr_t cmd;
         pe->getIntData2(cmd);
         assert(cmd == TaoMessage::RINGER_IS_ON);
 #endif

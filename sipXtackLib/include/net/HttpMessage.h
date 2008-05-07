@@ -112,6 +112,7 @@
 // EXTERNAL VARIABLES
 // CONSTANTS
 const int HttpMessageRetries = 2;
+const ssize_t HTTP_NOT_FOUND = -1;
 
 // STRUCTS
 
@@ -125,7 +126,7 @@ class OsConnectionSocket;
 //! Callback method used as part of HttpMessage::get.
 //! If the callback method returns FALSE, then the retrieve is aborted.
 typedef UtlBoolean (*GetDataCallbackProc)(char* pData,
-                                         int iLength,
+                                         size_t iLength,
                                          void* pOptionalData,
                                          HttpMessage* pMsg);
 
@@ -188,11 +189,11 @@ public:
 
     //! Construct from a string
         HttpMessage(const char* messageBytes = NULL,
-                int byteCount = -1);
+                size_t byteCount = HTTP_NOT_FOUND);
 
     //! Construct from reading from the given socket
         HttpMessage(OsSocket* inSocket,
-                int bufferSize = HTTP_DEFAULT_SOCKET_BUFFER_SIZE);
+                size_t bufferSize = HTTP_DEFAULT_SOCKET_BUFFER_SIZE);
 
         //!Copy constructor
         HttpMessage(const HttpMessage& rHttpMessage);
@@ -282,7 +283,7 @@ public:
      *   another message.
      */
     int read(OsSocket* inSocket,
-             int bufferSize = HTTP_DEFAULT_SOCKET_BUFFER_SIZE,
+             size_t bufferSize = HTTP_DEFAULT_SOCKET_BUFFER_SIZE,
              UtlString* externalBuffer = NULL,
              int maxContentLength = 6000000);
 
@@ -323,27 +324,27 @@ public:
      */
     //@{
     //! Parse the first line of the request or response
-    int parseFirstLine(const char* messageBytes, int byteCount);
+    size_t parseFirstLine(const char* messageBytes, size_t byteCount);
 
         //! Parse the message from a byte buffer
         /*! This method reads the top header line, header feilds and
          * the message body if they are present from the buffer assuming
          * HTTP stream format.
      */
-    void parseMessage(const char* messageBytes, int byteCount);
+    void parseMessage(const char* messageBytes, ssize_t byteCount);
 
     //! Parses the bytes into a single or multipart body.
-    void parseBody(const char* messageBodyBytes, int byteCount);
+    void parseBody(const char* messageBodyBytes, size_t byteCount);
 
     //! returns: the number of bytes parsed
-    static int parseHeaders(const char* headerBytes,
-                            int messageLength,
+    static size_t parseHeaders(const char* headerBytes,
+                            size_t messageLength,
                             UtlDList& headerNameValues);
 
     //! returns: the number of bytes in the message buffer which constitue the message header
     /*! The end of the headers is determined by the first blank line
      */
-    static int findHeaderEnd(const char* messageBytes, int messageLength);
+    static size_t findHeaderEnd(const char* messageBytes, size_t messageLength);
 
     //@}
 /* ============================ ACCESSORS ================================= */
@@ -371,7 +372,7 @@ public:
    /*! \param partIndex - index into space delimited first header line
     * \param part
     */
-    void getFirstHeaderLinePart(int partIndex,
+    void getFirstHeaderLinePart(size_t partIndex,
                                 UtlString* part,
                                 char separator = HEADER_LINE_PART_DELIMITER) const;
 
@@ -539,7 +540,7 @@ public:
      * \param bytes - gets allocated and must be freed
      * \param length - the length of bytes
      */
-    void getBytes(UtlString* bytes, int* length, bool includeBody = true) const;
+    void getBytes(UtlString* bytes, size_t* length, bool includeBody = true) const;
     //! Get a malloc'ed string containing the text of the message.
     /*! Must be free'd by the caller.  Suitable for use in debugger.
      */

@@ -88,13 +88,13 @@ int HttpGetCommand::execute(int argc, char* argv[])
         {
             serverBegin += 7;
             UtlString uri(serverBegin);
-            int serverEndIndex = uri.index("/");
+            ssize_t serverEndIndex = uri.index("/");
             if(serverEndIndex < 0) serverEndIndex = uri.length();
             if(serverEndIndex > 0)
             {
                 UtlString server = uri;
                 server.remove(serverEndIndex);
-                int portIndex = server.index(":");
+                ssize_t portIndex = server.index(":");
                 int port = PORT_NONE;
                 if(portIndex > 0)
                 {
@@ -126,9 +126,9 @@ int HttpGetCommand::execute(int argc, char* argv[])
                 getResponse.read(&getSocket);
 
                 UtlString responseBytes;
-                int responseLength;
+                size_t responseLength;
                 getResponse.getBytes(&responseBytes, &responseLength);
-                printf("Got %d bytes\n", responseLength);
+                printf("Got %zu bytes\n", responseLength);
                 printf("Response: ++++++++++++++++++++++++++++++++++\n%s\n",
                     responseBytes.data());
             }

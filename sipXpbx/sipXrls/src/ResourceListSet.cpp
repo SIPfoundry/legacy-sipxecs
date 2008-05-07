@@ -59,7 +59,7 @@ ResourceListSet::ResourceListSet(ResourceListServer* resourceListServer) :
    mSuspendPublishingCount(0),
    mPublishingTimer(getResourceListServer()->getResourceListTask().
                     getMessageQueue(),
-                    ResourceListSet::PUBLISH_TIMEOUT),
+                    (void*)ResourceListSet::PUBLISH_TIMEOUT),
    mVersion(0)
 {
    OsSysLog::add(FAC_RLS, PRI_DEBUG,
@@ -352,7 +352,7 @@ void ResourceListSet::notifyEventCallbackAsync(const char* earlyDialogHandle,
 
    // Get the NOTIFY content.
    const char* b;
-   int l;
+   size_t l;
    const HttpBody* body = notifyRequest->getBody();
    if (body)
    {
@@ -782,8 +782,8 @@ void ResourceListSet::swapTags(const UtlString& dialogHandle,
                                UtlString& swappedDialogHandle)
 {
    // Find the commas in the dialogHandle.
-   size_t index1 = dialogHandle.index(',');
-   size_t index2 = dialogHandle.index(',', index1+1);
+   ssize_t index1 = dialogHandle.index(',');
+   ssize_t index2 = dialogHandle.index(',', index1+1);
 
    // Copy the call-Id and the first comma.
    swappedDialogHandle.remove(0);

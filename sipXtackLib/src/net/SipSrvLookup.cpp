@@ -469,7 +469,7 @@ void server_insert(server_t*& list,
       server_t* new_list = new server_t[new_length];
       // Copy all the elements binarily, to avoid the overhead of
       // duplicating all the host strings.
-      bcopy((char*) list, (char*) new_list,
+      memcpy((char*) new_list, (char*) list,
             list_length_used * sizeof (server_t));
       // Erase the host pointers in the old list.
       for (int i = 0; i < list_length_used; i++)

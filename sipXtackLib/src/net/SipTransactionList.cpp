@@ -155,7 +155,7 @@ SipTransactionList::findTransactionFor(const SipMessage& message,
             if (transaction2xxFound)
             {
                 UtlString bytes;
-                int len;
+                size_t len;
                 message.getBytes(&bytes, &len);
                 OsSysLog::add(FAC_SIP, PRI_DEBUG
                               ,"SipTransactionList::findTransactionFor"
@@ -179,7 +179,7 @@ SipTransactionList::findTransactionFor(const SipMessage& message,
                 transaction2xxFound = transactionFound;
 
                 UtlString bytes;
-                int len;
+                size_t len;
                 message.getBytes(&bytes, &len);
                 OsSysLog::add(FAC_SIP, PRI_DEBUG
                               ,"SipTransactionList::findTransactionFor"
@@ -197,7 +197,7 @@ SipTransactionList::findTransactionFor(const SipMessage& message,
         if(relationship ==  SipTransaction::MESSAGE_ACK )
         {
                 UtlString bytes;
-                int len;
+                size_t len;
                 message.getBytes(&bytes, &len);
                 OsSysLog::add(FAC_SIP, PRI_DEBUG
                               ,"SipTransactionList::findTransactionFor"
@@ -291,7 +291,7 @@ SipTransactionList::findTransactionFor(const SipMessage& message,
 
 #ifdef TRANSACTION_MATCH_DEBUG  
     UtlString bytes;
-    int len;
+    size_t len;
     message.getBytes(&bytes, &len);
     OsSysLog::add(FAC_SIP, PRI_DEBUG
                   ,"SipTransactionList::findTransactionFor %p(%p) %s %s(%p) %s"

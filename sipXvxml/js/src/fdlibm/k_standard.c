@@ -1,36 +1,41 @@
 /* -*- Mode: C; tab-width: 8; indent-tabs-mode: nil; c-basic-offset: 4 -*-
  *
- * The contents of this file are subject to the Netscape Public
- * License Version 1.1 (the "License"); you may not use this file
- * except in compliance with the License. You may obtain a copy of
- * the License at http://www.mozilla.org/NPL/
+ * ***** BEGIN LICENSE BLOCK *****
+ * Version: MPL 1.1/GPL 2.0/LGPL 2.1
  *
- * Software distributed under the License is distributed on an "AS
- * IS" basis, WITHOUT WARRANTY OF ANY KIND, either express oqr
- * implied. See the License for the specific language governing
- * rights and limitations under the License.
+ * The contents of this file are subject to the Mozilla Public License Version
+ * 1.1 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ * http://www.mozilla.org/MPL/
+ *
+ * Software distributed under the License is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+ * for the specific language governing rights and limitations under the
+ * License.
  *
  * The Original Code is Mozilla Communicator client code, released
  * March 31, 1998.
  *
- * The Initial Developer of the Original Code is Sun Microsystems,
- * Inc.  Portions created by Netscape are
- * Copyright (C) 1998 Netscape Communications Corporation. All
- * Rights Reserved.
+ * The Initial Developer of the Original Code is
+ * Sun Microsystems, Inc.
+ * Portions created by the Initial Developer are Copyright (C) 1998
+ * the Initial Developer. All Rights Reserved.
  *
- * Contributor(s): 
+ * Contributor(s):
  *
- * Alternatively, the contents of this file may be used under the
- * terms of the GNU Public License (the "GPL"), in which case the
- * provisions of the GPL are applicable instead of those above.
- * If you wish to allow use of your version of this file only
- * under the terms of the GPL and not to allow others to use your
- * version of this file under the NPL, indicate your decision by
- * deleting the provisions above and replace them with the notice
- * and other provisions required by the GPL.  If you do not delete
- * the provisions above, a recipient may use your version of this
- * file under either the NPL or the GPL.
- */
+ * Alternatively, the contents of this file may be used under the terms of
+ * either of the GNU General Public License Version 2 or later (the "GPL"),
+ * or the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
+ * in which case the provisions of the GPL or the LGPL are applicable instead
+ * of those above. If you wish to allow use of your version of this file only
+ * under the terms of either the GPL or the LGPL, and not to allow others to
+ * use your version of this file under the terms of the MPL, indicate your
+ * decision by deleting the provisions above and replace them with the notice
+ * and other provisions required by the GPL or the LGPL. If you do not delete
+ * the provisions above, a recipient may use your version of this file under
+ * the terms of any one of the MPL, the GPL or the LGPL.
+ *
+ * ***** END LICENSE BLOCK ***** */
 
 /* @(#)k_standard.c 1.3 95/01/18 */
 /*
@@ -48,7 +53,7 @@
 #include "fdlibm.h"
 
 /* XXX ugly hack to get msvc to link without error. */
-#if !defined(__pingtel_on_posix__) && _LIB_VERSION == _IEEE_ && !defined(DARWIN)
+#if _LIB_VERSION == _IEEE_ && !(defined(DARWIN) || defined(XP_MACOSX))
    int errno;
 #  define EDOM 0
 #  define ERANGE 0
@@ -145,7 +150,7 @@ static double zero = 0.0;	/* used as const */
 	    case 1:
 		/* acos(|x|>1) */
 		exc.type = DOMAIN;
-		exc.name = (char*)"acos";
+		exc.name = "acos";
 		exc.retval = zero;
 		if (_LIB_VERSION == _POSIX_)
 		  *err = EDOM;
@@ -159,7 +164,7 @@ static double zero = 0.0;	/* used as const */
 	    case 2:
 		/* asin(|x|>1) */
 		exc.type = DOMAIN;
-		exc.name = (char*)"asin";
+		exc.name = "asin";
 		exc.retval = zero;
 		if(_LIB_VERSION == _POSIX_)
 		  *err = EDOM;
@@ -175,7 +180,7 @@ static double zero = 0.0;	/* used as const */
 		exc.arg1 = y;
 		exc.arg2 = x;
 		exc.type = DOMAIN;
-		exc.name = (char*)"atan2";
+		exc.name = "atan2";
 		exc.retval = zero;
 		if(_LIB_VERSION == _POSIX_)
 		  *err = EDOM;
@@ -189,7 +194,7 @@ static double zero = 0.0;	/* used as const */
 	    case 4:
 		/* hypot(finite,finite) overflow */
 		exc.type = OVERFLOW;
-		exc.name = (char*)"hypot";
+		exc.name = "hypot";
 		if (_LIB_VERSION == _SVID_)
 		  exc.retval = HUGE;
 		else
@@ -203,7 +208,7 @@ static double zero = 0.0;	/* used as const */
 	    case 5:
 		/* cosh(finite) overflow */
 		exc.type = OVERFLOW;
-		exc.name = (char*)"cosh";
+		exc.name = "cosh";
 		if (_LIB_VERSION == _SVID_)
 		  exc.retval = HUGE;
 		else
@@ -217,7 +222,7 @@ static double zero = 0.0;	/* used as const */
 	    case 6:
 		/* exp(finite) overflow */
 		exc.type = OVERFLOW;
-		exc.name = (char*)"exp";
+		exc.name = "exp";
 		if (_LIB_VERSION == _SVID_)
 		  exc.retval = HUGE;
 		else
@@ -231,7 +236,7 @@ static double zero = 0.0;	/* used as const */
 	    case 7:
 		/* exp(finite) underflow */
 		exc.type = UNDERFLOW;
-		exc.name = (char*)"exp";
+		exc.name = "exp";
 		exc.retval = zero;
 		if (_LIB_VERSION == _POSIX_)
 		  *err = ERANGE;
@@ -242,7 +247,7 @@ static double zero = 0.0;	/* used as const */
 	    case 8:
 		/* y0(0) = -inf */
 		exc.type = DOMAIN;	/* should be SING for IEEE */
-		exc.name = (char*)"y0";
+		exc.name = "y0";
 		if (_LIB_VERSION == _SVID_)
 		  exc.retval = -HUGE;
 		else
@@ -259,7 +264,7 @@ static double zero = 0.0;	/* used as const */
 	    case 9:
 		/* y0(x<0) = NaN */
 		exc.type = DOMAIN;
-		exc.name = (char*)"y0";
+		exc.name = "y0";
 		if (_LIB_VERSION == _SVID_)
 		  exc.retval = -HUGE;
 		else
@@ -276,7 +281,7 @@ static double zero = 0.0;	/* used as const */
 	    case 10:
 		/* y1(0) = -inf */
 		exc.type = DOMAIN;	/* should be SING for IEEE */
-		exc.name = (char*)"y1";
+		exc.name = "y1";
 		if (_LIB_VERSION == _SVID_)
 		  exc.retval = -HUGE;
 		else
@@ -293,7 +298,7 @@ static double zero = 0.0;	/* used as const */
 	    case 11:
 		/* y1(x<0) = NaN */
 		exc.type = DOMAIN;
-		exc.name = (char*)"y1";
+		exc.name = "y1";
 		if (_LIB_VERSION == _SVID_)
 		  exc.retval = -HUGE;
 		else
@@ -310,7 +315,7 @@ static double zero = 0.0;	/* used as const */
 	    case 12:
 		/* yn(n,0) = -inf */
 		exc.type = DOMAIN;	/* should be SING for IEEE */
-		exc.name = (char*)"yn";
+		exc.name = "yn";
 		if (_LIB_VERSION == _SVID_)
 		  exc.retval = -HUGE;
 		else
@@ -327,7 +332,7 @@ static double zero = 0.0;	/* used as const */
 	    case 13:
 		/* yn(x<0) = NaN */
 		exc.type = DOMAIN;
-		exc.name = (char*)"yn";
+		exc.name = "yn";
 		if (_LIB_VERSION == _SVID_)
 		  exc.retval = -HUGE;
 		else
@@ -344,7 +349,7 @@ static double zero = 0.0;	/* used as const */
 	    case 14:
 		/* lgamma(finite) overflow */
 		exc.type = OVERFLOW;
-		exc.name = (char*)"lgamma";
+		exc.name = "lgamma";
                 if (_LIB_VERSION == _SVID_)
                   exc.retval = HUGE;
                 else
@@ -358,7 +363,7 @@ static double zero = 0.0;	/* used as const */
 	    case 15:
 		/* lgamma(-integer) or lgamma(0) */
 		exc.type = SING;
-		exc.name = (char*)"lgamma";
+		exc.name = "lgamma";
                 if (_LIB_VERSION == _SVID_)
                   exc.retval = HUGE;
                 else
@@ -375,7 +380,7 @@ static double zero = 0.0;	/* used as const */
 	    case 16:
 		/* log(0) */
 		exc.type = SING;
-		exc.name = (char*)"log";
+		exc.name = "log";
 		if (_LIB_VERSION == _SVID_)
 		  exc.retval = -HUGE;
 		else
@@ -392,7 +397,7 @@ static double zero = 0.0;	/* used as const */
 	    case 17:
 		/* log(x<0) */
 		exc.type = DOMAIN;
-		exc.name = (char*)"log";
+		exc.name = "log";
 		if (_LIB_VERSION == _SVID_)
 		  exc.retval = -HUGE;
 		else
@@ -409,7 +414,7 @@ static double zero = 0.0;	/* used as const */
 	    case 18:
 		/* log10(0) */
 		exc.type = SING;
-		exc.name = (char*)"log10";
+		exc.name = "log10";
 		if (_LIB_VERSION == _SVID_)
 		  exc.retval = -HUGE;
 		else
@@ -426,7 +431,7 @@ static double zero = 0.0;	/* used as const */
 	    case 19:
 		/* log10(x<0) */
 		exc.type = DOMAIN;
-		exc.name = (char*)"log10";
+		exc.name = "log10";
 		if (_LIB_VERSION == _SVID_)
 		  exc.retval = -HUGE;
 		else
@@ -444,7 +449,7 @@ static double zero = 0.0;	/* used as const */
 		/* pow(0.0,0.0) */
 		/* error only if _LIB_VERSION == _SVID_ */
 		exc.type = DOMAIN;
-		exc.name = (char*)"pow";
+		exc.name = "pow";
 		exc.retval = zero;
 		if (_LIB_VERSION != _SVID_) exc.retval = 1.0;
 		else if (!fd_matherr(&exc)) {
@@ -455,7 +460,7 @@ static double zero = 0.0;	/* used as const */
 	    case 21:
 		/* pow(x,y) overflow */
 		exc.type = OVERFLOW;
-		exc.name = (char*)"pow";
+		exc.name = "pow";
 		if (_LIB_VERSION == _SVID_) {
 		  exc.retval = HUGE;
 		  y *= 0.5;
@@ -474,7 +479,7 @@ static double zero = 0.0;	/* used as const */
 	    case 22:
 		/* pow(x,y) underflow */
 		exc.type = UNDERFLOW;
-		exc.name = (char*)"pow";
+		exc.name = "pow";
 		exc.retval =  zero;
 		if (_LIB_VERSION == _POSIX_)
 		  *err = ERANGE;
@@ -485,7 +490,7 @@ static double zero = 0.0;	/* used as const */
 	    case 23:
 		/* 0**neg */
 		exc.type = DOMAIN;
-		exc.name = (char*)"pow";
+		exc.name = "pow";
 		if (_LIB_VERSION == _SVID_) 
 		  exc.retval = zero;
 		else
@@ -502,7 +507,7 @@ static double zero = 0.0;	/* used as const */
 	    case 24:
 		/* neg**non-integral */
 		exc.type = DOMAIN;
-		exc.name = (char*)"pow";
+		exc.name = "pow";
 		if (_LIB_VERSION == _SVID_) 
 		    exc.retval = zero;
 		else 
@@ -519,7 +524,7 @@ static double zero = 0.0;	/* used as const */
 	    case 25:
 		/* sinh(finite) overflow */
 		exc.type = OVERFLOW;
-		exc.name = (char*)"sinh";
+		exc.name = "sinh";
 		if (_LIB_VERSION == _SVID_)
 		  exc.retval = ( (x>zero) ? HUGE : -HUGE);
 		else
@@ -533,7 +538,7 @@ static double zero = 0.0;	/* used as const */
 	    case 26:
 		/* sqrt(x<0) */
 		exc.type = DOMAIN;
-		exc.name = (char*)"sqrt";
+		exc.name = "sqrt";
 		if (_LIB_VERSION == _SVID_)
 		  exc.retval = zero;
 		else
@@ -550,7 +555,7 @@ static double zero = 0.0;	/* used as const */
             case 27:
                 /* fmod(x,0) */
                 exc.type = DOMAIN;
-                exc.name = (char*)"fmod";
+                exc.name = "fmod";
                 if (_LIB_VERSION == _SVID_)
                     exc.retval = x;
 		else
@@ -567,7 +572,7 @@ static double zero = 0.0;	/* used as const */
             case 28:
                 /* remainder(x,0) */
                 exc.type = DOMAIN;
-                exc.name = (char*)"remainder";
+                exc.name = "remainder";
                 exc.retval = zero/zero;
                 if (_LIB_VERSION == _POSIX_)
                   *err = EDOM;
@@ -581,7 +586,7 @@ static double zero = 0.0;	/* used as const */
             case 29:
                 /* acosh(x<1) */
                 exc.type = DOMAIN;
-                exc.name = (char*)"acosh";
+                exc.name = "acosh";
                 exc.retval = zero/zero;
                 if (_LIB_VERSION == _POSIX_)
                   *err = EDOM;
@@ -595,7 +600,7 @@ static double zero = 0.0;	/* used as const */
             case 30:
                 /* atanh(|x|>1) */
                 exc.type = DOMAIN;
-                exc.name = (char*)"atanh";
+                exc.name = "atanh";
                 exc.retval = zero/zero;
                 if (_LIB_VERSION == _POSIX_)
                   *err = EDOM;
@@ -609,7 +614,7 @@ static double zero = 0.0;	/* used as const */
             case 31:
                 /* atanh(|x|=1) */
                 exc.type = SING;
-                exc.name = (char*)"atanh";
+                exc.name = "atanh";
 		exc.retval = x/zero;	/* sign(x)*inf */
                 if (_LIB_VERSION == _POSIX_)
                   *err = EDOM;
@@ -623,7 +628,7 @@ static double zero = 0.0;	/* used as const */
 	    case 32:
 		/* scalb overflow; SVID also returns +-HUGE_VAL */
 		exc.type = OVERFLOW;
-		exc.name = (char*)"scalb";
+		exc.name = "scalb";
 		exc.retval = x > zero ? HUGE_VAL : -HUGE_VAL;
 		if (_LIB_VERSION == _POSIX_)
 		  *err = ERANGE;
@@ -634,7 +639,7 @@ static double zero = 0.0;	/* used as const */
 	    case 33:
 		/* scalb underflow */
 		exc.type = UNDERFLOW;
-		exc.name = (char*)"scalb";
+		exc.name = "scalb";
 		exc.retval = fd_copysign(zero,x);
 		if (_LIB_VERSION == _POSIX_)
 		  *err = ERANGE;
@@ -645,7 +650,7 @@ static double zero = 0.0;	/* used as const */
 	    case 34:
 		/* j0(|x|>X_TLOSS) */
                 exc.type = TLOSS;
-                exc.name = (char*)"j0";
+                exc.name = "j0";
                 exc.retval = zero;
                 if (_LIB_VERSION == _POSIX_)
                         *err = ERANGE;
@@ -660,7 +665,7 @@ static double zero = 0.0;	/* used as const */
 	    case 35:
 		/* y0(x>X_TLOSS) */
                 exc.type = TLOSS;
-                exc.name = (char*)"y0";
+                exc.name = "y0";
                 exc.retval = zero;
                 if (_LIB_VERSION == _POSIX_)
                         *err = ERANGE;
@@ -675,7 +680,7 @@ static double zero = 0.0;	/* used as const */
 	    case 36:
 		/* j1(|x|>X_TLOSS) */
                 exc.type = TLOSS;
-                exc.name = (char*)"j1";
+                exc.name = "j1";
                 exc.retval = zero;
                 if (_LIB_VERSION == _POSIX_)
                         *err = ERANGE;
@@ -690,7 +695,7 @@ static double zero = 0.0;	/* used as const */
 	    case 37:
 		/* y1(x>X_TLOSS) */
                 exc.type = TLOSS;
-                exc.name = (char*)"y1";
+                exc.name = "y1";
                 exc.retval = zero;
                 if (_LIB_VERSION == _POSIX_)
                         *err = ERANGE;
@@ -705,7 +710,7 @@ static double zero = 0.0;	/* used as const */
 	    case 38:
 		/* jn(|x|>X_TLOSS) */
                 exc.type = TLOSS;
-                exc.name = (char*)"jn";
+                exc.name = "jn";
                 exc.retval = zero;
                 if (_LIB_VERSION == _POSIX_)
                         *err = ERANGE;
@@ -720,7 +725,7 @@ static double zero = 0.0;	/* used as const */
 	    case 39:
 		/* yn(x>X_TLOSS) */
                 exc.type = TLOSS;
-                exc.name = (char*)"yn";
+                exc.name = "yn";
                 exc.retval = zero;
                 if (_LIB_VERSION == _POSIX_)
                         *err = ERANGE;
@@ -735,7 +740,7 @@ static double zero = 0.0;	/* used as const */
 	    case 40:
 		/* gamma(finite) overflow */
 		exc.type = OVERFLOW;
-		exc.name = (char*)"gamma";
+		exc.name = "gamma";
                 if (_LIB_VERSION == _SVID_)
                   exc.retval = HUGE;
                 else
@@ -749,7 +754,7 @@ static double zero = 0.0;	/* used as const */
 	    case 41:
 		/* gamma(-integer) or gamma(0) */
 		exc.type = SING;
-		exc.name = (char*)"gamma";
+		exc.name = "gamma";
                 if (_LIB_VERSION == _SVID_)
                   exc.retval = HUGE;
                 else
@@ -767,7 +772,7 @@ static double zero = 0.0;	/* used as const */
 		/* pow(NaN,0.0) */
 		/* error only if _LIB_VERSION == _SVID_ & _XOPEN_ */
 		exc.type = DOMAIN;
-		exc.name = (char*)"pow";
+		exc.name = "pow";
 		exc.retval = x;
 		if (_LIB_VERSION == _IEEE_ ||
 		    _LIB_VERSION == _POSIX_) exc.retval = 1.0;

@@ -174,7 +174,7 @@ public:
             const UtlContainable* ucAct = stringList.at(expectedIndex) ; 
             string msg ; 
             char strItr[33] ; 
-            sprintf(strItr, "%d", expectedIndex);
+            sprintf(strItr, "%zu", expectedIndex);
             TestUtilities::createMessage(3, &msg, prefix1, suffix, strItr) ; 
             CPPUNIT_ASSERT_EQUAL_MESSAGE(msg.data(), \
                         (void*)testDataForStringList[expectedIndex].item, (void*)ucAct) ; 
@@ -186,7 +186,7 @@ public:
             const UtlContainable* ucAct = intList.at(expectedIndex) ; 
             string msg ; 
             char strItr[33] ; 
-            sprintf(strItr, "%d", expectedIndex);
+            sprintf(strItr, "%zu", expectedIndex);
             TestUtilities::createMessage(3, &msg, prefix2, suffix, strItr) ; 
             CPPUNIT_ASSERT_EQUAL_MESSAGE(msg.data(), \
                         (void*)testDataForIntList[expectedIndex].item, (void*)ucAct) ; 
@@ -264,7 +264,7 @@ public:
             char strOldItr[33] ; 
             char strItr[33] ; 
             sprintf(strOldItr, "%d", k) ; 
-            sprintf(strItr, "%d", expectedIndex);
+            sprintf(strItr, "%zu", expectedIndex);
 
             const UtlContainable* returnValue = stringList.at(expectedIndex) ; 
             
@@ -341,7 +341,7 @@ public:
             char strOldItr[33] ; 
             char strItr[33] ; 
             sprintf(strOldItr, "%d", k) ; 
-            sprintf(strItr, "%d", expectedIndex);
+            sprintf(strItr, "%zu", expectedIndex);
 
             const UtlContainable* returnValue = intList.at(expectedIndex) ; 
             
@@ -447,7 +447,7 @@ public:
         const int testCount = sizeof(testData)/sizeof(testData[0]); 
         for (int i =0 ; i<testCount; i++)
         {
-            size_t returnValue = stringList.index(testData[i].item) ; 
+            ssize_t returnValue = stringList.index(testData[i].item) ; 
             TestUtilities::createMessage(2, &Message, prefix, testData[i].testDescription) ; 
             CPPUNIT_ASSERT_EQUAL_MESSAGE(Message.data(), (int)testData[i].expectedIndex, \
                                       (int)returnValue) ; 
@@ -571,7 +571,7 @@ public:
             const char* testDescription ; 
             UtlContainable* itemToRemove ; 
             int removeIndex ; 
-            int expectedIndex ; 
+            ssize_t expectedIndex ; 
             bool expectedResult ;
             size_t expectedEntries ; 
         };
@@ -642,7 +642,7 @@ public:
                 testData[i].testDescription, suffix2) ;
             CPPUNIT_ASSERT_EQUAL_MESSAGE(Message.data(), \
                  (int)testData[i].expectedEntries, (int)stringList.entries()) ; 
-            int indexAfterRemove = stringList.index(testData[i].itemToRemove) ; 
+            ssize_t indexAfterRemove = stringList.index(testData[i].itemToRemove) ; 
             TestUtilities::createMessage(3, &Message, prefix, \
                  testData[i].testDescription, suffix3) ; 
             CPPUNIT_ASSERT_EQUAL_MESSAGE(Message.data(), testData[i].expectedIndex, \

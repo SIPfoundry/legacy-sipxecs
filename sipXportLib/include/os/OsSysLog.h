@@ -288,7 +288,7 @@ public:
      //       should be logged.
 
    static OsStatus add(const char*            taskName,
-                       const int              taskId,
+                       const pthread_t        taskId,
                        const OsSysLogFacility facility,
                        const OsSysLogPriority priority,
                        const char*            format,
@@ -329,7 +329,7 @@ public:
 
 
    static OsStatus vadd(const char*            taskName,
-                        const int              taskId,
+                        const pthread_t        taskId,
                         const OsSysLogFacility facility,
                         const OsSysLogPriority priority,
                         const char*            format,

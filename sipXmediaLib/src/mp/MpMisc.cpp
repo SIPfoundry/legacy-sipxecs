@@ -246,7 +246,7 @@ MSG_Q_ID startLogging(int nmsgs, int maxlen)
         if (NULL == MpMisc.LogQ) {
                 printf("cannot create LogQ!  Quitting\n");
         } else {
-            Zprintf("logQ is 0x%X\n", (int) MpMisc.LogQ, 0,0,0,0,0);
+            Zprintf("logQ is 0x%p\n", MpMisc.LogQ, 0,0,0,0,0);
             taskSpawn("Logger", logTaskPrio, 0, 8192, (FUNCPTR) printTask,
                            0, 0, 0,0,0,0,0,0,0,0);
         }
@@ -296,7 +296,7 @@ static int goGetThePageSize()
 
 /************************************************************************/
 extern "C" {
-extern int showMpMisc(int justAddress);
+extern intptr_t showMpMisc(int justAddress);
 extern int setMaxMic(int v);
 extern int setMaxSpkr(int v);
 extern int setMinRtp(int v);
@@ -344,32 +344,32 @@ int Spkr2Off() {*gpsr = (1<<26); return 0;}
 #endif /* StrongARM ] */
 #endif /* _VXWORKS ] */
 
-int showMpMisc(int justAddress)
+intptr_t showMpMisc(int justAddress)
 {
-   Zprintf("&MpMisc = 0x%X\n", (int) &MpMisc, 0,0,0,0,0);
+   Zprintf("&MpMisc = 0x%p\n", &MpMisc, 0,0,0,0,0);
    if (!justAddress) {
-      Zprintf(" MicQ=0x%X, SpkQ=0x%X, EchoQ=0x%X, silence=0x%X\n"
+      Zprintf(" MicQ=0x%p, SpkQ=0x%p, EchoQ=0x%p, silence=0x%p\n"
          " micMuteStatus=%d, spkrMuteStatus=%d,",
-         (int) MpMisc.pMicQ, (int) MpMisc.pSpkQ, (int) MpMisc.pEchoQ,
-         (int) MpMisc.XXXsilence, MpMisc.micMuteStatus, MpMisc.spkrMuteStatus);
+         MpMisc.pMicQ, MpMisc.pSpkQ, MpMisc.pEchoQ,
+         MpMisc.XXXsilence, MpMisc.micMuteStatus, MpMisc.spkrMuteStatus);
       Zprintf(" audio_on=%d\n frameSamples=%d,"
          " frameBytes=%d, sampleBytes=%d,",
          MpMisc.audio_on,
          MpMisc.frameSamples, MpMisc.frameBytes, MpMisc.sampleBytes, 0,0);
-      Zprintf(" rtpMaxBytes=%d\n UcbPool=0x%X, RtpPool=0x%X, RtcpPool=0x%X\n",
-         MpMisc.rtpMaxBytes, (int) MpMisc.UcbPool, (int) MpMisc.RtpPool,
-         (int) MpMisc.RtcpPool, 0,0);
+      Zprintf(" rtpMaxBytes=%d\n UcbPool=0x%p, RtpPool=0x%p, RtcpPool=0x%p\n",
+         MpMisc.rtpMaxBytes, MpMisc.UcbPool, MpMisc.RtpPool,
+         MpMisc.RtcpPool, 0,0);
 #ifdef _VXWORKS /* [ */
       Zprintf(" mem_page_size=%d, mem_page_mask=0x%08X\n"
-         "LogQ=0x%X, logMsgLimit=%d, logMsgSize=%d\n",
+         "LogQ=0x%p, logMsgLimit=%d, logMsgSize=%d\n",
          MpMisc.mem_page_size, MpMisc.mem_page_mask,
-         (int) MpMisc.LogQ, MpMisc.logMsgLimit, MpMisc.logMsgSize, 0);
+         MpMisc.LogQ, MpMisc.logMsgLimit, MpMisc.logMsgSize, 0);
 #endif /* _VXWORKS ] */
       Zprintf(" Latency: maxMic=%d, maxSpkr=%d, minRtp=%d\n",
          MpMisc.max_mic_buffers, MpMisc.max_spkr_buffers,
          MpMisc.min_rtp_packets, 0,0,0);
    }
-   return (int) &MpMisc;
+   return (intptr_t) &MpMisc;
 }
 
 int setMaxMic(int v)

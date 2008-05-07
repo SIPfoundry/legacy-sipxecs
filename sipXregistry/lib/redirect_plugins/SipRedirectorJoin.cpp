@@ -739,7 +739,7 @@ SipRedirectorJoinNotification::SipRedirectorJoinNotification(
 {
 }
 
-OsStatus SipRedirectorJoinNotification::signal(const int eventData)
+OsStatus SipRedirectorJoinNotification::signal(const intptr_t eventData)
 {
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
                  "SipRedirectorJoinNotification::signal "
@@ -815,7 +815,7 @@ SipRedirectorJoinTask::handleMessage(OsMsg& eventMessage)
                   // Process the NOTIFY and store its information in
                   // *pStorage.
                   const char* body;
-                  int length;
+                  size_t length;
                   // Be careful getting the body, as any of the pointers
                   // may be null.
                   const HttpBody* http_body;

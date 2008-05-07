@@ -81,100 +81,100 @@ public:
    static void setTraceFlag(int flag) { sTraceFlag = flag; };
     //: Set trace flag, if non-zero, print a line of info
 
-   static int enableMemTracking(int taskId = 0);
+   static int enableMemTracking(pthread_t taskId = 0);
     //: Set trace flag, if non-zero, print a line of info
 
-   static int enableMsgQTracking(int taskId = 0);
+   static int enableMsgQTracking(pthread_t taskId = 0);
     //: Set trace flag, if non-zero, print a line of info
 
-   static int enableBSemTracking(int taskId = 0);
+   static int enableBSemTracking(pthread_t taskId = 0);
     //: Set trace flag, if non-zero, print a line of info
 
-   static int enableCSemTracking(int taskId = 0);
+   static int enableCSemTracking(pthread_t taskId = 0);
     //: Set trace flag, if non-zero, print a line of info
 
-   static int enableMutexTracking(int taskId = 0);
+   static int enableMutexTracking(pthread_t taskId = 0);
     //: Set trace flag, if non-zero, print a line of info
 
-   static int enableRWMutexTracking(int taskId = 0);
+   static int enableRWMutexTracking(pthread_t taskId = 0);
     //: Set trace flag, if non-zero, print a line of info
 
-   static int enableTimerTracking(int taskId = 0);
+   static int enableTimerTracking(pthread_t taskId = 0);
     //: Set trace flag, if non-zero, print a line of info
 
-   static int enableTaskTracking(int taskId = 0);
+   static int enableTaskTracking(pthread_t taskId = 0);
     //: Set trace flag, if non-zero, print a line of info
 
-   static int enableSocketTracking(int taskId = 0);
+   static int enableSocketTracking(pthread_t taskId = 0);
     //: Set trace flag, if non-zero, print a line of info
 
    static int disableTracking();
     //: Set trace flag, if non-zero, print a line of info
 
-   static void addAllocCnt(int addr,
-                                                  int taskId);
+   static void addAllocCnt(intptr_t addr,
+                           pthread_t taskId);
     //: Add allocCnt for the task, used for OsSocket tracking
 
    static void addAllocCnt(int size,
-                                                  int addr,
-                                                  int taskId);
+                           intptr_t addr,
+                           pthread_t taskId);
     //: Add allocCnt for the task, used for memory/OsMutex/OsRWMutex tracking
 
         static void addAllocCnt(int size,
-                                                          int addr,
-                                                          const char* name, 
-                                                          int pArg, 
-                                                          int priority, 
-                                                          int options,
-                                                          int taskId);
+                                intptr_t addr,
+                                const char* name, 
+                                int pArg, 
+                                int priority, 
+                                int options,
+                                pthread_t taskId);
     //: Add allocCnt for the task, used for OsTask tracking
 
         static void addAllocCnt(int state,
-                                                          int addr,
-                                                          int timerId, 
-                                                          int type, 
-                                                          int taskId);
+                                intptr_t addr,
+                                int timerId, 
+                                int type, 
+                                pthread_t taskId);
     //: Add allocCnt for the task, used for OsTimer/OsCSem tracking
 
         static void addAllocCnt(int options,
-                                                          int addr,
-                                                          int state, 
-                                                          int taskId);
+                                intptr_t addr,
+                                int state, 
+                                pthread_t taskId);
     //: Add allocCnt for the task, used for OsBSem tracking
 
-        static void addAllocCnt(int addr,
-                                                          const char* name, 
-                                                          int taskId);
+        static void addAllocCnt(intptr_t addr,
+                               const char* name, 
+                                pthread_t taskId);
     //: Add allocCnt for the task, used for OsMsgQ tracking
 
-        static void addFreeCnt(int addr, int taskId = 0);
+        static void addFreeCnt(intptr_t addr, pthread_t taskId = 0);
     //: Add freeCnt for the task
 
 /* ============================ ACCESSORS ================================= */
 
-   static void showMem(int taskId = 0);
+   static void showMem(pthread_t taskId = 0);
 
    static int delta();
      //:Return the change to the number of outstanding memory allocations
      //:since the last checkpoint.
 
-   static int delta(int taskId);
+   static int delta(pthread_t taskId);
      //:Return the change to the number of outstanding memory allocations
      //:since the last checkpoint.
 
-   static int allocCnt(int taskId = 0);
+   static int allocCnt(pthread_t taskId = 0);
      //:Return the number of memory allocations (monotonically increasing)
 
    static int rscStatus();
      //:Return the number of memory frees (monotonically increasing)
 
-   static int freeCnt(int taskId = 0);
+   static int freeCnt(pthread_t taskId = 0);
      //:Return the number of memory frees (monotonically increasing)
 
    static int netAllocCnt();
      //:Return the net number of allocations (allocCnt - freeCnt)
 
-   static int netAllocCnt(int taskId);
+   static int netAllocCnt(pthread_t taskId);
      //:Return the net number of allocations (allocCnt - freeCnt)
 
 /* ============================ INQUIRY =================================== */
@@ -190,7 +190,7 @@ private:
 
         static UtlRscStore mUtlRscStore;
 
-        static int mTaskId;
+        static pthread_t mTaskId;
 };
 
 

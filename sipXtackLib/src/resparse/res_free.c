@@ -75,7 +75,8 @@ free_rr(rrp)
                 free(rrp->rdata.naptr.flags);
                 free(rrp->rdata.naptr.services);
                 free(rrp->rdata.naptr.regexp);
-                free(rrp->rdata.naptr.replacement);
+                if (NULL != rrp->rdata.naptr.replacement)   // why reqd ???
+                   free(rrp->rdata.naptr.replacement);
                 break;
         case T_TXT:
                 free(rrp->rdata.txt.text);
@@ -138,8 +139,8 @@ free_response(resp)
          */
 
 /* res_parse already reverses the byte order, remove swap --GAT 3/1/01  */
-/*      if ((n = ntohs((u_short)resp->header.qdcount))) { remove ntohs --GAT */
-        if ((n =       (u_short)resp->header.qdcount) ) {
+/*      if ((n = ntohs((uint16_t)resp->header.qdcount))) { remove ntohs --GAT */
+        if ((n =       (uint16_t)resp->header.qdcount) ) {
                 for ( i=0 ; i<n ; i++ ) {
                         free(resp->question[i]->qname);
                         resp->question[i]->qname = NULL;
@@ -155,8 +156,8 @@ free_response(resp)
          *  Free authoritative answer memory
          */
 /* res_parse already reverses the byte order, remove swap --GAT 3/1/01  */
-/*      if ((n = ntohs((u_short)resp->header.ancount))) { remove ntohs --GAT */
-        if ((n =       (u_short)resp->header.ancount) ) {
+/*      if ((n = ntohs((uint16_t)resp->header.ancount))) { remove ntohs --GAT */
+        if ((n =       (uint16_t)resp->header.ancount) ) {
                 for ( i=0 ; i<n ; i++ ) {
                         free_rr(resp->answer[i]);
                         resp->answer[i] = NULL;
@@ -170,10 +171,11 @@ free_response(resp)
          *  Free name server memory
          */
 /* res_parse already reverses the byte order, remove swap --GAT 3/1/01  */
-/*      if ((n = ntohs((u_short)resp->header.nscount))) { remove ntohs --GAT */
-        if ((n =       (u_short)resp->header.nscount) ) {
+/*      if ((n = ntohs((uint16_t)resp->header.nscount))) { remove ntohs --GAT */
+        if ((n =       (uint16_t)resp->header.nscount) ) {
                 for ( i=0 ; i<n ; i++ ) {
-                        free_rr(resp->authority[i]);
+                        if (NULL != resp->authority[i])   // why reqd ???
+                           free_rr(resp->authority[i]);
                         resp->authority[i] = NULL;
                 }
                 free(resp->authority);
@@ -185,8 +187,8 @@ free_response(resp)
          *  Free additional memory
          */
 /* res_parse already reverses the byte order, remove swap --GAT 3/1/01  */
-/*      if ((n = ntohs((u_short)resp->header.arcount))) { remove ntohs --GAT */
-        if ((n =       (u_short)resp->header.arcount) ) {
+/*      if ((n = ntohs((uint16_t)resp->header.arcount))) { remove ntohs --GAT */
+        if ((n =       (uint16_t)resp->header.arcount) ) {
                 for ( i=0 ; i<n ; i++ ) {
                         free_rr(resp->additional[i]);
                         resp->additional[i] = NULL;

@@ -63,7 +63,7 @@ public:
    virtual OsStatus destroyAndDelete() = 0 ;
      //:Destroys and deletes the data source object
 
-   virtual OsStatus read(char *szBuffer, int iLength, int& iLengthRead) = 0 ;
+   virtual OsStatus read(char *szBuffer, size_t iLength, size_t& iLengthRead) = 0 ;
      //:Reads iLength bytes of data from the data source and places the
      //:data into the passed szBuffer buffer.
      //
@@ -71,7 +71,7 @@ public:
      //!param iLength - Max length to read
      //!param iLengthRead - The actual amount of data read.
 
-   virtual OsStatus peek(char* szBuffer, int iLength, int& iLengthRead) = 0 ;
+   virtual OsStatus peek(char* szBuffer, size_t iLength, size_t& iLengthRead) = 0 ;
      //:Identical to read, except the stream pointer is not advanced.
      //
      //!param szBuffer - Buffer to place data
@@ -85,7 +85,7 @@ public:
      // time consuming or blocking calls to exit with more quickly with an 
      // OS_INTERRUPTED return code.
 
-   virtual OsStatus seek(unsigned int iLocation) = 0 ;
+   virtual OsStatus seek(size_t iLocation) = 0 ;
      //:Moves the stream pointer to the an absolute location.
      //
      //!param iLocation - The desired seek location
@@ -96,10 +96,10 @@ public:
    
 /* ============================ ACCESSORS ================================= */
 
-   virtual OsStatus getLength(int& iLength) = 0 ;
+   virtual OsStatus getLength(size_t& iLength) = 0 ;
      //:Gets the length of the stream (if available)
 
-   virtual OsStatus getPosition(int& iPosition) = 0 ;
+   virtual OsStatus getPosition(size_t& iPosition) = 0 ;
      //:Gets the current position within the stream.
 
    virtual OsStatus toString(UtlString& string) = 0 ;

@@ -80,7 +80,7 @@ public:
 
          // Get the updates to apply.
 
-         int timeNow = OsDateTime::getSecsSinceEpoch();
+         unsigned long timeNow = OsDateTime::getSecsSinceEpoch();
 
          // update1 - one update with update number 11 that is in-order
          UtlSList update1;
@@ -338,7 +338,7 @@ void dumpList(const UtlSList& list)
          }
          else if (type == UtlInt::TYPE)
          {
-            fprintf(stderr, "%s = %d\n",
+            fprintf(stderr, "%s = %" PRIdPTR "\n",
                     name->data(),
                     (dynamic_cast <UtlInt*> (iter.value()))->getValue());
          }

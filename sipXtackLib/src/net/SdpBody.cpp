@@ -75,7 +75,7 @@ const SdpDirectionality SdpBody::sdpDirectionalityReverse[4] =
 /* ============================ CREATORS ================================== */
 
 // Constructor
-SdpBody::SdpBody(const char* bodyBytes, int byteCount)
+SdpBody::SdpBody(const char* bodyBytes, ssize_t byteCount)
 {
    remove(0);
    append(SDP_CONTENT_TYPE);
@@ -148,7 +148,7 @@ SdpBody::~SdpBody()
 
 /* ============================ MANIPULATORS ============================== */
 
-void SdpBody::parseBody(const char* bodyBytes, int byteCount)
+void SdpBody::parseBody(const char* bodyBytes, ssize_t byteCount)
 {
    if(byteCount < 0)
    {
@@ -293,7 +293,7 @@ UtlBoolean SdpBody::getMediaPort(int mediaIndex, int* port) const
 {
    UtlString portString;
    UtlBoolean portFound = getMediaSubfield(mediaIndex, 1, &portString);
-   int portCountSeparator;
+   ssize_t portCountSeparator;
 
    if(!portString.isNull())
    {
@@ -408,7 +408,7 @@ UtlBoolean SdpBody::getPayloadRtpMap(int payloadType,
    UtlBoolean foundRtpMap = FALSE;
    UtlSListIterator iterator(*sdpFields);
    NameValuePair* nv = NULL;
-   int aFieldIndex = 0;
+   size_t aFieldIndex = 0;
    const char* value;
    UtlString aFieldType;
    UtlString payloadString;
@@ -654,7 +654,7 @@ UtlBoolean SdpBody::getMediaData(int mediaIndex, UtlString* mediaType,
    const char* value;
    UtlString portString;
    UtlString portPairString;
-   int portCountSeparator;
+   ssize_t portCountSeparator;
    int typeCount = 0;
    UtlString payloadTypeString;
 
@@ -799,7 +799,7 @@ UtlBoolean SdpBody::getMediaAddress(int mediaIndex, UtlString* address) const
    NameValuePair* nv;
    address->remove(0);
    const char* value = NULL;
-   int ttlIndex;
+   ssize_t ttlIndex;
 
    // Try to find a specific address for the given media set
    nv = positionFieldInstance(mediaIndex, &iterator, "m");
@@ -1928,10 +1928,10 @@ void SdpBody::addAddressData(const char* networkType, const char* addressType, c
    addValue("c", value.data());
 }
 
-void SdpBody::addValue(const char* name, const char* value, int fieldIndex)
+void SdpBody::addValue(const char* name, const char* value, ssize_t fieldIndex)
 {
    NameValuePair* nv = new NameValuePair(name, value);
-   if(UTL_NOT_FOUND == (unsigned int)fieldIndex)
+   if(UTL_NOT_FOUND == fieldIndex)
    {
       sdpFields->append(nv);
    }
@@ -1962,7 +1962,7 @@ void SdpBody::addNtpTime(unsigned long ntpStartTime, unsigned long ntpEndTime)
    sprintf(integerString, "%lu", ntpEndTime);
    value.append(integerString);
 
-   size_t timeLocation = findFirstOf("zkam");
+   ssize_t timeLocation = findFirstOf("zkam");
    addValue("t", value.data(), timeLocation);
 }
 
@@ -1994,12 +1994,12 @@ void SdpBody::setOriginator(const char* userId, int sessionId, int sessionVersio
    setValue("o", value.data());
 }
 
-int SdpBody::getLength() const
+size_t SdpBody::getLength() const
 {
    UtlSListIterator iterator(*sdpFields);
    NameValuePair* nv = NULL;
    const char* value;
-   int length = 0;
+   size_t length = 0;
    
    while((nv = dynamic_cast<NameValuePair*>(iterator())))
    {
@@ -2022,7 +2022,7 @@ int SdpBody::getLength() const
    return(length);
 }
 
-void SdpBody::getBytes(const char** bytes, int* length) const
+void SdpBody::getBytes(const char** bytes, size_t* length) const
 {
    // This version of getBytes exists so that a caller who is
    // calling this method through an HttpBody will get the right
@@ -2033,7 +2033,7 @@ void SdpBody::getBytes(const char** bytes, int* length) const
    *bytes = mBody.data();
 }
 
-void SdpBody::getBytes(UtlString* bytes, int* length) const
+void SdpBody::getBytes(UtlString* bytes, size_t* length) const
 {
    UtlSListIterator iterator(*sdpFields);
    NameValuePair* nv = NULL;
@@ -2080,10 +2080,10 @@ bool SdpBody::isOptionalField(const char* name) const
    return OptionalStandardFields.index(name) != UtlString::UTLSTRING_NOT_FOUND;
 }
 
-size_t SdpBody::findFirstOf( const char* headers )
+ssize_t SdpBody::findFirstOf( const char* headers )
 {
-   size_t first = UTL_NOT_FOUND;
-   size_t found;
+   ssize_t first = UTL_NOT_FOUND;
+   ssize_t found;
    size_t lookingFor;
    size_t headersToTry;
    

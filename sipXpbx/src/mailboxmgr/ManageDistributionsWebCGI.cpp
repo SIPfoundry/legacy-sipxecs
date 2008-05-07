@@ -570,7 +570,7 @@ ManageDistributionsWebCGI::saveDistribution() const
    result = distributionFile.open( OsFile::CREATE );
    if ( result == OS_SUCCESS )
    {
-      unsigned long bytes_written = 0;
+      size_t bytes_written = 0;
       result = distributionFile.write( distributionData.data(), 
                                        distributionData.length(),
                                        bytes_written );

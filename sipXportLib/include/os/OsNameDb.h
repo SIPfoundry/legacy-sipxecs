@@ -30,9 +30,9 @@
 // FORWARD DECLARATIONS
 class UtlString;
 
-//:Name service maintaining mappings between string names and integer values
+//:Name service maintaining mappings between string names and pointer values
 // The OsNameDb is a singleton object that maintains a dictionary of
-// mappings between string names and the associated integer values.
+// mappings between string names and the associated pointer values.
 // Duplicate names are not allowed.
 
 class OsNameDb
@@ -48,13 +48,13 @@ public:
 /* ============================ MANIPULATORS ============================== */
 
    OsStatus insert(const UtlString& rKey,
-                   const int value);
+                   void* value);
      //:Add the key-value pair to the name database
      // Return OS_SUCCESS if successful, OS_NAME_IN_USE if the key is
      // already in the database.
 
    OsStatus remove(const UtlString& rKey,
-                   int* pValue = NULL);
+                   void** pValue = NULL);
      //:Remove the indicated key-value pair from the name database
      // If pValue is non-NULL, the value for the key-value pair is returned
      // via pValue.<br>
@@ -64,7 +64,7 @@ public:
 /* ============================ ACCESSORS ================================= */
 
    OsStatus lookup(const UtlString& rKey,
-                   int* pValue = NULL);
+                   void** pValue = NULL);
      //:Retrieve the value associated with the specified key
      // If pValue is non-NULL, the value is returned via pValue. <br>
      // Return OS_SUCCESS if the lookup is successful, return

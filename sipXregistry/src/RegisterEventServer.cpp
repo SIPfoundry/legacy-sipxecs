@@ -182,7 +182,7 @@ RegisterEventServer::RegisterEventServer(const UtlString& domainName,
    // Search the subscription DB to initialize the version number
    // to the largest recorded version for reg events.
    mVersion = 0;
-   int now = OsDateTime::getSecsSinceEpoch();
+   unsigned long now = OsDateTime::getSecsSinceEpoch();
    ResultSet rs;
    SubscriptionDB::getInstance()->getAllRows(rs);
    UtlSListIterator itor(rs);
@@ -194,7 +194,7 @@ RegisterEventServer::RegisterEventServer(const UtlString& domainName,
       UtlString* componentp =
          dynamic_cast <UtlString*> (rowp->findValue(&SubscriptionDB::gComponentKey));
       assert(componentp);
-      int expires =
+      unsigned long expires =
          *(dynamic_cast <UtlInt*> (rowp->findValue(&SubscriptionDB::gExpiresKey)));
       if (componentp->compareTo(SUBSCRIPTION_COMPONENT_REG) == 0 &&
           expires - now >= 0)
@@ -291,7 +291,7 @@ void RegisterEventServer::generateContent(const UtlString& aorString,
    getRegistrationDBInstance()->getUnexpiredContacts(aorUri,
                                                      0,
                                                      rs);
-   int now = OsDateTime::getSecsSinceEpoch();
+   unsigned long now = OsDateTime::getSecsSinceEpoch();
 
    // Construct the body, an empty notice for the user.
    UtlString content;
@@ -319,7 +319,7 @@ void RegisterEventServer::generateContent(const UtlString& aorString,
           (rowp = dynamic_cast <UtlHashMap*> (rs_itor())))
    {
       assert(rowp);
-      int expired =
+      unsigned long expired =
          (dynamic_cast <UtlInt*>
           (rowp->findValue(&RegistrationDB::gExpiresKey)))->getValue();
 
@@ -348,7 +348,7 @@ void RegisterEventServer::generateContent(const UtlString& aorString,
       int cseq =
          (dynamic_cast <UtlInt*>
           (rowp->findValue(&RegistrationDB::gCseqKey)))->getValue();
-      int expired =
+      unsigned long expired =
          (dynamic_cast <UtlInt*>
           (rowp->findValue(&RegistrationDB::gExpiresKey)))->getValue();
 

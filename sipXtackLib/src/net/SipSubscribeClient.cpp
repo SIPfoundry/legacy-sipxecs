@@ -780,8 +780,8 @@ void SipSubscribeClient::handleNotifyRequest(const SipMessage& notifyRequest)
     // tags on the NOTIFY are the opposite of what they are on
     // the SUBSCRIBE
     UtlString earlyDialogHandle(notifyDialogHandle);
-    int comma1 = earlyDialogHandle.index(',');
-    int comma2 = earlyDialogHandle.index(',', comma1+1);
+    ssize_t comma1 = earlyDialogHandle.index(',');
+    ssize_t comma2 = earlyDialogHandle.index(',', comma1+1);
     earlyDialogHandle.remove(comma1, comma2-comma1);
     earlyDialogHandle.append(',');
     

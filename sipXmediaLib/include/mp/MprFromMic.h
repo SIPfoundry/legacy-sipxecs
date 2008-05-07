@@ -70,7 +70,7 @@ private:
 
    void  Init_highpass_filter800();
    void  highpass_filter800(short *, short *, short);
-   short speech_detected(short*, int);
+   short speech_detected(Sample*, int);
 
 
    virtual UtlBoolean doProcessFrame(MpBufPtr inBufs[],

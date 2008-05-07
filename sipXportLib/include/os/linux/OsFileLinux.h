@@ -53,7 +53,7 @@ public:
    OsStatus fileunlock();
      //: Unlocks the file locked by the function above
 
-   OsStatus setLength(unsigned long newLength);
+   OsStatus setLength(size_t newLength);
      //: Sets the length of the file specified by the object to the new size
      //: Sets the length of the file specified by the object to the new size
      //: Shrinking or Growing the file as needed.

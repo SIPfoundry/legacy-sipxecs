@@ -280,7 +280,7 @@ public:
             {
                const HttpBody* secondNotifyBody = secondNotify->getBody();
                CPPUNIT_ASSERT(secondNotifyBody);
-               int notifyBodySize;
+               size_t notifyBodySize;
                const char* notifyBodyBytes;
                secondNotifyBody->getBytes(&notifyBodyBytes, &notifyBodySize);
                CPPUNIT_ASSERT(notifyBodyBytes);
@@ -358,7 +358,7 @@ public:
                const HttpBody* oneTimeBodyPtr = oneTimeNotifyRequest->getBody();
                CPPUNIT_ASSERT(oneTimeBodyPtr != NULL);
                const char* oneTimeBodyString;
-               int oneTimeNotifyBodySize;
+               size_t oneTimeNotifyBodySize;
                oneTimeBodyPtr->getBytes(&oneTimeBodyString, &oneTimeNotifyBodySize);
                ASSERT_STR_EQUAL(mwiStateString, oneTimeBodyString);
             }

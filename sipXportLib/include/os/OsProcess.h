@@ -28,7 +28,8 @@
 // CONSTANTS
 // STRUCTS
 // TYPEDEFS
-typedef int PID;
+const short PID_STR_LEN = 20;  // long enough for 64 bit CPUs.
+typedef pid_t PID;
 
 typedef struct OS_PROCESS_STRUCT
 {
@@ -177,10 +178,10 @@ public:
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
-    int mPID;
+    PID mPID;
      //: Process this object represents
 
-    int mParentPID;
+    PID mParentPID;
      //: Parent PID of this process
 
     UtlString mProcessName;

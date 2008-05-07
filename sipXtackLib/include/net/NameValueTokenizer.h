@@ -40,7 +40,7 @@ public:
 
 /* ============================ CREATORS ================================== */
 
-   NameValueTokenizer(const char* multiLineText, int textLength = -1);
+   NameValueTokenizer(const char* multiLineText, ssize_t textLength = -1);
      //:Default constructor
 
    virtual
@@ -48,8 +48,8 @@ public:
      //:Destructor
 
 /* ============================ MANIPULATORS ============================== */
-   static int findNextLineTerminator(const char* text, int length,
-                                     int* nextLineIndex);
+   static ssize_t findNextLineTerminator(const char* text, ssize_t length,
+                                     ssize_t* nextLineIndex);
    //: Finds the index to the next line terminator
    //! param: text - the char array in which to search for the
    // terminator
@@ -64,18 +64,18 @@ public:
    static void frontBackTrim(UtlString* string, const char* whiteSpace);
 
    static UtlBoolean getSubField(const char* textField,
-                                 int subfieldIndex,
+                                 size_t subfieldIndex,
                                  const char* subfieldSeparator,
                                  UtlString* subfieldText,
-                                 int* lastCharIndex = NULL);
+                                 size_t* lastCharIndex = NULL);
 
    static UtlBoolean getSubField(const char* textField,
-                                 int textFieldLength,
-                                 int subfieldIndex,
+                                 size_t textFieldLength,
+                                 size_t subfieldIndex,
                                  const char* subfieldSeparators,
                                  const char*& subfieldPtr,
-                                 int& subFieldLength,
-                                 int* lastCharIndex);
+                                 size_t& subFieldLength,
+                                 size_t* lastCharIndex);
 
    /**
     * Split the string (up to the point found by findNextLineTerminator)
@@ -89,7 +89,7 @@ public:
 
 /* ============================ INQUIRY =================================== */
     UtlBoolean isAtEnd();
-    int getProcessedIndex();
+    size_t getProcessedIndex();
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
@@ -98,8 +98,8 @@ protected:
 private:
 
     const char* textPtr;
-    int textLen;
-    int bytesConsumed;
+    ssize_t textLen;
+    size_t bytesConsumed;
 
     NameValueTokenizer(const NameValueTokenizer& rNameValueTokenizer);
     //:disable Copy constructor

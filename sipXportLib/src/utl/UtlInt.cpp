@@ -27,7 +27,7 @@ UtlContainableType UtlInt::TYPE = "UtlInt" ;
 /* ============================ CREATORS ================================== */
 
 // Constructor accepting an optional default value.
-UtlInt::UtlInt(int value)
+UtlInt::UtlInt(intptr_t value)
 {
     mValue = value ;
 } 
@@ -72,9 +72,9 @@ UtlInt UtlInt::operator--(int) {
 
 /* ============================ MANIPULATORS ============================== */
 
-int UtlInt::setValue(int iValue)
+intptr_t UtlInt::setValue(intptr_t iValue)
 {
-    int iOldValue = mValue ;
+    intptr_t iOldValue = mValue ;
     mValue = iValue ;
 
     return iOldValue ;
@@ -82,7 +82,7 @@ int UtlInt::setValue(int iValue)
 
 /* ============================ ACCESSORS ================================= */
 
-int UtlInt::getValue() const 
+intptr_t UtlInt::getValue() const 
 {
     return mValue ; 
 }
@@ -108,7 +108,7 @@ int UtlInt::compareTo(UtlContainable const * inVal) const
    if (inVal->isInstanceOf(UtlInt::TYPE))
     {
         UtlInt* temp = (UtlInt*)inVal ; 
-        int inInt = temp -> getValue() ; 
+        intptr_t inInt = temp -> getValue() ; 
         result = mValue - inInt ; 
     }
     else

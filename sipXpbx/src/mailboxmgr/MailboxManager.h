@@ -231,7 +231,7 @@ public:
         const UtlString& duration,
         const UtlString& timestamp,
         const char* data,
-        const int& datasize,
+        const size_t& datasize,
         const UtlString& nextMessageID = "-1",
         const UtlBoolean& saveIfDataIsEmpty=FALSE,
         const UtlBoolean& sendEmail=TRUE) ;
@@ -553,7 +553,7 @@ public:
         const UtlString& mailboxIdentity,
         const UtlString& greetingType,
         const char* data,
-        const int& datasize ) ;
+        const size_t& datasize ) ;
 
 
     /**
@@ -729,7 +729,7 @@ public:
      */
     OsStatus saveSystemPrompts (const UtlString& promptType,
                                 const char* data,
-                                const int&  datasize ) const ;
+                                const size_t&  datasize ) const ;
 
 
     /** Sets a system prompt to be the active system prompt

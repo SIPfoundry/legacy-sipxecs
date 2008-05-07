@@ -668,7 +668,7 @@ void ProvisioningAttrList::dumpAttributes(const UtlContainable* pAttribute)
                    (dynamic_cast<UtlBool*>(pMemberValue)->getValue() ? "TRUE" : "FALSE"));
          }
          else if (UtlString(pMemberValue->getContainableType()) == "UtlInt") {
-            osPrintf("{%s} = (INT) %d\n",
+            osPrintf("{%s} = (INT) %" PRIdPTR "\n",
                    pMemberName->data(),
                    dynamic_cast<UtlInt*>(pMemberValue)->getValue());
          }
@@ -695,7 +695,7 @@ void ProvisioningAttrList::dumpAttributes(const UtlContainable* pAttribute)
                    (dynamic_cast<UtlBool*>(pMemberValue)->getValue() ? "TRUE" : "FALSE"));
          }
          else if (UtlString(pMemberValue->getContainableType()) == "UtlInt") {
-            osPrintf("{%s}[%d] = (INT) %d\n",
+            osPrintf("{%s}[%d] = (INT) %" PRIdPTR "\n",
                    pMemberName->data(),
                    arrayIndex++,
                    dynamic_cast<UtlInt*>(pMemberValue)->getValue());

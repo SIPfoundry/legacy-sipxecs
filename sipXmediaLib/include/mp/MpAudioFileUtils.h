@@ -17,19 +17,19 @@ typedef short AudioSample;
 
 // Utils functions to handle the audiofile 
 
-long readIntMsb(istream &in, int bytes);
+int32_t readIntMsb(istream &in, int bytes);
 //: Read int from Most Significant Bytes
-long bytesToIntMsb(void *buff, int bytes);
+int32_t bytesToIntMsb(void *buff, int bytes);
 //: Most Significant Bytes: change bytes to int
-long readIntLsb(istream &in, int bytes);
+int32_t readIntLsb(istream &in, int bytes);
 //: Least Siginificant Bytes: read int
-long bytesToIntLsb(void *buff, int bytes);
+int32_t bytesToIntLsb(void *buff, int bytes);
 //: Least significant byte: byte to int 
 void skipBytes(istream &in, int bytes);
 //: Skip one byte
-void writeIntMsb(ostream &out, long l, int bytes);
+void writeIntMsb(ostream &out, int32_t l, int bytes);
 //: write int in Most Significant bytes
-void writeIntLsb(ostream &out, long l, int bytes);
+void writeIntLsb(ostream &out, int32_t l, int bytes);
 //: Write int in Least Significant bytes
 
 

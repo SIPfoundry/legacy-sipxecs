@@ -998,7 +998,7 @@ PlayMessagesCGI::formatTimestamp(   const UtlString& unformattedTimestamp,
    UtlString strTimestamp = unformattedTimestamp;
 
    // change hh:mm:ss to hh:mm
-   unsigned int i = strTimestamp.last(':');
+   ssize_t i = strTimestamp.last(':');
    if( i != UTL_NOT_FOUND )
       strTimestamp = strTimestamp.remove(i, 3 );
 

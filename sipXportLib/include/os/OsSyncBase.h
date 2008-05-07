@@ -107,7 +107,7 @@ protected:
       }
       
       /// record the task id and operation in the mTrail circular buffer
-      void dropCrumb(int id, OsSyncOperation op)
+      void dropCrumb(pthread_t id, OsSyncOperation op)
       {
          mCrumb = (mCrumb + 1) % NUMBER_OF_CRUMBS;
          mTrail[mCrumb].operation = op;
@@ -127,7 +127,7 @@ protected:
       struct
       {         
          OsSyncOperation operation; ///< operation on the syncronizer
-         unsigned int    taskId;    ///< the ID of the task that touched the syncronizer
+         pthread_t       taskId;    ///< the ID of the task that touched the syncronizer
          OsTime          time;      ///< when the operation happened
       } mTrail[NUMBER_OF_CRUMBS];
    } mSyncCrumbs;

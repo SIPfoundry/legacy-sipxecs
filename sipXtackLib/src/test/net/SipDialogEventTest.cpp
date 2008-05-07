@@ -50,7 +50,7 @@ public:
 
          // Convert it back to XML, and see if it is the same.
          UtlString bodyString;
-         int bodyLength;
+         size_t bodyLength;
        
          body.getBytes(&bodyString, &bodyLength);
        
@@ -68,7 +68,7 @@ public:
          CPPUNIT_ASSERT(strcmp(callId.data(), refCallId.data()) == 0);
 
          // See that the reported event body length is right.
-         int otherLength = body.getLength();
+         size_t otherLength = body.getLength();
          CPPUNIT_ASSERT_EQUAL_MESSAGE("content length is not equal",
                                       bodyLength, otherLength);
       }
@@ -96,7 +96,7 @@ public:
 
          // Convert it back to XML, and see if it is the same.
          UtlString bodyString;
-         int bodyLength;
+         size_t bodyLength;
        
          body.getBytes(&bodyString, &bodyLength);
        
@@ -114,7 +114,7 @@ public:
          CPPUNIT_ASSERT(strcmp(callId.data(), refCallId.data()) == 0);
 
          // See that the reported event body length is right.
-         int otherLength = body.getLength();
+         size_t otherLength = body.getLength();
          CPPUNIT_ASSERT_EQUAL_MESSAGE("content length is not equal",
                                       bodyLength, otherLength);
       }

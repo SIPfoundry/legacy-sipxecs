@@ -57,12 +57,12 @@ TaoMessage::TaoMessage(TaoListenerEventMessage& rEventMessage, TaoObjHandle hSoc
         mSocketHandle = hSocket;
         setMsgSubType(EVENT);
 
-        int              intData;
+        intptr_t         intData;
    char buff[MAXIMUM_INTEGER_STRING_LENGTH];
 
         intData = rEventMessage.getEventId();
         mTaoObjHandle = (TaoObjHandle) intData;
-        sprintf(buff, "%d", intData);
+        sprintf(buff, "%" PRIdPTR, intData);
         mArgList = buff;
         mArgCnt = 1;
 
@@ -74,7 +74,7 @@ TaoMessage::TaoMessage(TaoListenerEventMessage& rEventMessage, TaoObjHandle hSoc
         mMsgCnt++;
         char tmp[64];
 
-        sprintf(tmp, "%d %d %d %d %d ", getMsgSubType(), mCmd, mMsgID, mSocketHandle, mTaoObjHandle);
+        sprintf(tmp, "%d %d %d %ld %ld ", getMsgSubType(), mCmd, mMsgID, mSocketHandle, mTaoObjHandle);
         UtlString stringData = UtlString("TAO EVENT: ") + UtlString(tmp) + mArgList;
         mHttpMsg.logTimeEvent(stringData.data());
 #endif
@@ -111,7 +111,7 @@ TaoMessage::TaoMessage(const TaoMessage& rTaoMessage)
         mMsgCnt++;
         char tmp[64];
 
-        sprintf(tmp, "%d %d %d %d %d ", getMsgSubType(), mCmd, mMsgID, mSocketHandle, mTaoObjHandle);
+        sprintf(tmp, "%d %d %d %ld %ld ", getMsgSubType(), mCmd, mMsgID, mSocketHandle, mTaoObjHandle);
         UtlString stringData = UtlString("COPY CONSTRUCTOR: ") + UtlString(tmp) + mArgList;
         mHttpMsg.logTimeEvent(stringData.data());
 #endif
@@ -132,7 +132,7 @@ TaoMessage::TaoMessage(OsMsg& rTaoMessage)
         mMsgCnt++;
         char tmp[64];
 
-        sprintf(tmp, "%d %d %d %d %d ", getMsgSubType(), mCmd, mMsgID, mSocketHandle, mTaoObjHandle);
+        sprintf(tmp, "%d %d %d %ld %ld ", getMsgSubType(), mCmd, mMsgID, mSocketHandle, mTaoObjHandle);
         UtlString stringData = UtlString("COPY CONSTRUCTOR OS: ") + UtlString(tmp) + mArgList;
         mHttpMsg.logTimeEvent(stringData.data());
 #endif
@@ -170,7 +170,7 @@ TaoMessage::TaoMessage(const unsigned char msgSubType,
         mMsgCnt++;
         char tmp[64];
 
-        sprintf(tmp, "%d %d %d %d %d ", getMsgSubType(), mCmd, mMsgID, mSocketHandle, mTaoObjHandle);
+        sprintf(tmp, "%d %d %d %ld %ld ", getMsgSubType(), mCmd, mMsgID, mSocketHandle, mTaoObjHandle);
         UtlString stringData = UtlString("CONSTRUCTOR 7: ") + UtlString(tmp) + mArgList;
         mHttpMsg.logTimeEvent(stringData.data());
 #endif
@@ -197,16 +197,16 @@ TaoMessage::TaoMessage(const UtlString& msgString)
                 setMsgSubType(atoi(tmp.data()));
 
                 tmp = mHttpMsg.getHeaderValue(0, TAO_MESSAGE_HANDLE_FIELD);
-                mTaoObjHandle = atoi(tmp.data());
+                mTaoObjHandle = atol(tmp.data());
 
                 tmp = mHttpMsg.getHeaderValue(0, TAO_MESSAGE_CMD_FIELD);
                 mCmd = atoi(tmp.data());
 
                 tmp = mHttpMsg.getHeaderValue(0, TAO_MESSAGE_SOCKET_FIELD);
-                mSocketHandle = atoi(tmp.data());
+                mSocketHandle = atol(tmp.data());
 
                 tmp = mHttpMsg.getHeaderValue(0, TAO_MESSAGE_QUEUEHANDLE_FIELD);
-                mMessageQueueHandle = atoi(tmp.data());
+                mMessageQueueHandle = atol(tmp.data());
 
                 tmp = mHttpMsg.getHeaderValue(0, TAO_MESSAGE_ARGCNT_FIELD);
                 mArgCnt = atoi(tmp.data());
@@ -228,7 +228,7 @@ TaoMessage::TaoMessage(const UtlString& msgString)
         mMsgCnt++;
         char tmps[64];
 
-        sprintf(tmps, "%d %d %d %d %d ", getMsgSubType(), mCmd, mMsgID, mSocketHandle, mTaoObjHandle);
+        sprintf(tmps, "%d %d %d %ld %ld ", getMsgSubType(), mCmd, mMsgID, mSocketHandle, mTaoObjHandle);
         UtlString stringData = UtlString("CONSTRUCTOR str: ") + UtlString(tmps) + mArgList;
         mHttpMsg.logTimeEvent(stringData.data());
 #endif
@@ -263,13 +263,13 @@ void TaoMessage::createHTTPMsg(TaoMessage& rTaoMessage)
         sprintf(buff, "%d", rTaoMessage.getCmd());
         mHttpMsg.addHeaderField(TAO_MESSAGE_CMD_FIELD, buff);
 
-        sprintf(buff, "%d", rTaoMessage.getTaoObjHandle());
+        sprintf(buff, "%ld", rTaoMessage.getTaoObjHandle());
         mHttpMsg.addHeaderField(TAO_MESSAGE_HANDLE_FIELD, buff);
 
-        sprintf(buff, "%d", rTaoMessage.getSocket());
+        sprintf(buff, "%ld", rTaoMessage.getSocket());
         mHttpMsg.addHeaderField(TAO_MESSAGE_SOCKET_FIELD, buff);
 
-        sprintf(buff, "%d", rTaoMessage.getMsgQueueHandle());
+        sprintf(buff, "%ld", rTaoMessage.getMsgQueueHandle());
         mHttpMsg.addHeaderField(TAO_MESSAGE_QUEUEHANDLE_FIELD, buff);
 
         sprintf(buff, "%d", rTaoMessage.getArgCnt());
@@ -295,15 +295,15 @@ TaoMessage::operator=(const TaoMessage& rhs)
         if (this == &rhs)            // handle the assignment to self case
           return *this;
 
-        mTaoObjHandle   = rhs.mTaoObjHandle;
-   mSocketHandle  = rhs.mSocketHandle;
-        mMsgID                  = rhs.mMsgID;
-        mArgCnt                 = rhs.mArgCnt;
-        mArgList                   = rhs.mArgList;
+        mTaoObjHandle       = rhs.mTaoObjHandle;
+        mSocketHandle       = rhs.mSocketHandle;
+        mMsgID              = rhs.mMsgID;
+        mArgCnt             = rhs.mArgCnt;
+        mArgList            = rhs.mArgList;
         mMessageQueueHandle = rhs.mMessageQueueHandle;
-   mCmd           = rhs.mCmd;
+        mCmd                = rhs.mCmd;
 
-   mbDirty = TRUE ;
+        mbDirty = TRUE ;
 
 #ifdef USE_HTTPMSG
         createHTTPMsg((TaoMessage&)rhs);
@@ -312,7 +312,7 @@ TaoMessage::operator=(const TaoMessage& rhs)
 #ifdef TAOMSG_DEBUG
         char tmp[64];
 
-        sprintf(tmp, "%d %d %d %d %d ", getMsgSubType(), mCmd, mMsgID, mSocketHandle, mTaoObjHandle);
+        sprintf(tmp, "%d %d %d %ld %ld ", getMsgSubType(), mCmd, mMsgID, mSocketHandle, mTaoObjHandle);
         UtlString stringData = UtlString("ASSIGN: ") + UtlString(tmp) + mArgList;
         mHttpMsg.logTimeEvent(stringData.data());
 #endif
@@ -324,7 +324,7 @@ void TaoMessage::setMsgQueueHandle(TaoObjHandle handle)
 #ifdef USE_HTTPMSG
     char buff[MAXIMUM_INTEGER_STRING_LENGTH];
 
-        sprintf(buff, "%d", handle);
+        sprintf(buff, "%ld", handle);
         mHttpMsg.setHeaderValue(TAO_MESSAGE_QUEUEHANDLE_FIELD, buff);
 #endif
 
@@ -337,7 +337,7 @@ void TaoMessage::setSocket(TaoObjHandle handle)
 #ifdef USE_HTTPMSG
     char buff[MAXIMUM_INTEGER_STRING_LENGTH];
 
-        sprintf(buff, "%d", handle);
+        sprintf(buff, "%ld", handle);
         mHttpMsg.setHeaderValue(TAO_MESSAGE_SOCKET_FIELD, buff);
 #endif
 
@@ -411,7 +411,7 @@ void TaoMessage::setObjHandle(TaoObjHandle handle)
 #ifdef USE_HTTPMSG
    char buff[MAXIMUM_INTEGER_STRING_LENGTH];
 
-        sprintf(buff, "%d", handle);
+        sprintf(buff, "%ld", handle);
         mHttpMsg.setHeaderValue(TAO_MESSAGE_HANDLE_FIELD, buff);
 #endif
 
@@ -422,7 +422,7 @@ void TaoMessage::setObjHandle(TaoObjHandle handle)
 //////////////////////////////////////////////////////////////////////
 // Functions
 //////////////////////////////////////////////////////////////////////
-void TaoMessage::getBytes(UtlString* bytes, int* length)
+void TaoMessage::getBytes(UtlString* bytes, size_t* length)
 {
    if (mbDirty)
       serialize() ;
@@ -442,7 +442,7 @@ void TaoMessage::serialize()
 
         memset(buf, 0, 128 * sizeof(char));
 
-        sprintf(buf, "st=%d id=%d cmd=%d oh=%d sh=%d qh=%d ac=%d ",
+        sprintf(buf, "st=%d id=%d cmd=%d oh=%ld sh=%ld qh=%ld ac=%d ",
                 subType,
                 mMsgID,
                 mCmd,
@@ -465,7 +465,7 @@ void TaoMessage::deSerialize()
 
         pArg = new char[mBody.length()];
 
-        sscanf(mBody.data(), "st=%d id=%d cmd=%c oh=%d sh=%d qh=%d ac=%d %s",
+        sscanf(mBody.data(), "st=%d id=%d cmd=%c oh=%ld sh=%ld qh=%ld ac=%d %s",
                 &subType,
                 &mMsgID,
                 &mCmd,

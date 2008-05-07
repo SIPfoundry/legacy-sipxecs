@@ -65,7 +65,7 @@ public:
      * operator returns true for another object, then both of those
      * objects must return the same hashcode.
      */
-    virtual unsigned hash() const ;
+    virtual unsigned int hash() const ;
 
     /**
      * Get the ContainableType for a UtlContainable derived class.

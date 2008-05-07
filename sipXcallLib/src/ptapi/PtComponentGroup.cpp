@@ -332,7 +332,7 @@ UtlBoolean PtComponentGroup::activate(void)
                                                                         arg);
         mpClient->sendRequest(msg);
 
-        int rc;
+        intptr_t rc;
         if (OS_SUCCESS != pe->wait(msg.getCmd(), mTimeOut))
         {
                 mpClient->resetConnectionSocket(msg.getMsgID());
@@ -345,7 +345,7 @@ UtlBoolean PtComponentGroup::activate(void)
                 return PT_BUSY;
         }
 
-        pe->getEventData((int &)rc);
+        pe->getEventData(rc);
 #ifdef PTAPI_TEST
         int cmd;
         pe->getIntData2(cmd);
@@ -384,7 +384,7 @@ UtlBoolean PtComponentGroup::deactivate(void)
                                                                         arg);
         mpClient->sendRequest(msg);
 
-        int rc;
+        intptr_t rc;
         if (OS_SUCCESS != pe->wait(msg.getCmd(), mTimeOut))
         {
                 mpClient->resetConnectionSocket(msg.getMsgID());
@@ -397,7 +397,7 @@ UtlBoolean PtComponentGroup::deactivate(void)
                 return PT_BUSY;
         }
 
-        pe->getEventData((int &)rc);
+        pe->getEventData(rc);
 #ifdef PTAPI_TEST
         int cmd;
         pe->getIntData2(cmd);

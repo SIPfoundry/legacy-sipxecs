@@ -425,8 +425,8 @@ bool  CallStateEventBuilder_DB::finishElement(UtlString& event)
 
 void CallStateEventBuilder_DB::replaceSingleQuotes(const UtlString& value, UtlString& newValue)
 {
-   int startIndex = 0;
-   int newIndex = 0;
+   size_t startIndex = 0;
+   ssize_t newIndex = 0;
    
    newValue = value;
    

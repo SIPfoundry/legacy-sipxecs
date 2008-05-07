@@ -72,7 +72,7 @@ CallContainer::CallContainer(UtlString& callId, UtlString& address, OsMsgQ* inco
    mCallId = callId;
    mAddress = address;
    
-   mQueuedEvent = new OsQueuedEvent(*incomingQ, (int)this);
+   mQueuedEvent = new OsQueuedEvent(*incomingQ, (void*)this);
    mTimer = new OsTimer(*mQueuedEvent);
 }
 
@@ -258,7 +258,7 @@ UtlBoolean PresenceDialInServer::handleMessage(OsMsg& rMsg)
                            {
                               // Play built-in default sign-in confirmation audio tone
                               mpCallManager->bufferPlay(callId,
-                                                        (int)confirmationTone,
+                                                        (char*)confirmationTone,
                                                         confirmationToneLength,
                                                         RAW_PCM_16,
                                                         FALSE, FALSE, TRUE);
@@ -277,7 +277,7 @@ UtlBoolean PresenceDialInServer::handleMessage(OsMsg& rMsg)
                            {
                               // Play built-in default error audio tone
                               mpCallManager->bufferPlay(callId,
-                                                        (int)busyTone,
+                                                        (char*)busyTone,
                                                         busyToneLength,
                                                         RAW_PCM_16,
                                                         FALSE, FALSE, TRUE);
@@ -302,7 +302,7 @@ UtlBoolean PresenceDialInServer::handleMessage(OsMsg& rMsg)
                            {
                               // Play built-in default sign-out confirmation audio tone
                               mpCallManager->bufferPlay(callId,
-                                                        (int)dialTone,
+                                                        (char*)dialTone,
                                                         dialToneLength,
                                                         RAW_PCM_16,
                                                         FALSE, FALSE, TRUE);
@@ -319,7 +319,7 @@ UtlBoolean PresenceDialInServer::handleMessage(OsMsg& rMsg)
                            {
                               // Play built-in default error audio tone
                               mpCallManager->bufferPlay(callId,
-                                                        (int)busyTone,
+                                                        (char*)busyTone,
                                                         busyToneLength,
                                                         RAW_PCM_16,
                                                         FALSE, FALSE, TRUE);
@@ -398,7 +398,7 @@ UtlBoolean PresenceDialInServer::handleMessage(OsMsg& rMsg)
    else if(msgType == OsMsg::OS_EVENT && msgSubType == OsEventMsg::NOTIFY)
    {
       CallContainer* thisCall = NULL;
-      ((OsEventMsg&)rMsg).getUserData((int&)thisCall);
+      ((OsEventMsg&)rMsg).getUserData((void*&)thisCall);
       OsSysLog::add(FAC_SIP, PRI_DEBUG, "PresenceDialInServer::handleMessage dropping call %s",
                     thisCall->mCallId.data());
       mpCallManager->drop(thisCall->mCallId.data());

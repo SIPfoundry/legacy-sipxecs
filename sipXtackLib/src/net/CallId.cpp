@@ -187,7 +187,7 @@ void CallId::initialize()
    // not have to do 64 bit integer math just to build a big unique
    // string.
    char buffer[256];
-   sprintf(buffer, "%d/%ld.%.6ld/%s",
+   sprintf(buffer, "%d/%d.%.6d/%s",
            processId,
            currentTime.seconds(), currentTime.usecs(),
            thisHost.data());
@@ -221,7 +221,7 @@ void CallId::nextValue(const char* seed)
    // not have to do 64 bit integer math just to build a big unique
    // string.
    char buffer[256];
-   sprintf(buffer, "%s/%ld%.6ld/%.*s/%s",
+   sprintf(buffer, "%s/%d%.6d/%.*s/%s",
            sKey.data(),
            currentTime.seconds(), currentTime.usecs(),
            MAX_SEED_CHARS, seed,

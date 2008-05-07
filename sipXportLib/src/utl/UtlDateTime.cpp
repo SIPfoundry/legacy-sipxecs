@@ -54,9 +54,9 @@ void UtlDateTime::getTime(OsDateTime& value) const
 }
 
 
-unsigned UtlDateTime::hash() const
+unsigned int UtlDateTime::hash() const
 {
-   return mTime.getSecsSinceEpoch() ; 
+   return (unsigned int)mTime.getSecsSinceEpoch() ; 
 }
 
 
@@ -76,7 +76,7 @@ int UtlDateTime::compareTo(UtlContainable const * inVal) const
         UtlDateTime* temp = (UtlDateTime*)inVal ;
         OsDateTime inTime;
         temp->getTime(inTime);
-        int tempValue = inTime.getSecsSinceEpoch() ;
+        time_t tempValue = inTime.getSecsSinceEpoch() ;
         result = tempValue - mTime.getSecsSinceEpoch() ;
     }
     else

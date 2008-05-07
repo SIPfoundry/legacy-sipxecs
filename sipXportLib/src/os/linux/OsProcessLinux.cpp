@@ -177,7 +177,7 @@ OsStatus OsProcessLinux::launch(UtlString &rAppName, UtlString parameters[], OsP
     parms[parameterCount + 1] = NULL;
     
     //now fork into two processes
-    int forkReturnVal = fork();
+    PID forkReturnVal = fork();
     switch (forkReturnVal) 
     {
         case -1 :   retval = OS_FAILED;
@@ -273,8 +273,8 @@ OsStatus OsProcessLinux::getByPID(PID pid, OsProcess &rProcess)
     OsProcess process;
     OsProcessIterator pi;
     
-    char buf[20];
-    sprintf(buf,"%d",pid);
+    char buf[PID_STR_LEN];
+    sprintf(buf,"%ld",(long)pid);
     OsPath pidStr = buf;
     OsStatus findRetVal = pi.readProcFile(pidStr,process);
     
@@ -355,7 +355,7 @@ OsStatus OsProcessLinux::getPriority(int &rPrio)
     return retval;
 }
 
-int OsProcessLinux::getCurrentPID()
+PID OsProcessLinux::getCurrentPID()
 {
     return getpid();
 }

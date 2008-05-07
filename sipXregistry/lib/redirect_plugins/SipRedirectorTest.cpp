@@ -199,7 +199,7 @@ SipRedirectorTestNotification::SipRedirectorTestNotification(
 {
 }
 
-OsStatus SipRedirectorTestNotification::signal(const int eventData)
+OsStatus SipRedirectorTestNotification::signal(const intptr_t eventData)
 {
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
                  "SipRedirectorTestNotification::signal Fired mRequestSeqNo %d, mRedirectorNo %d",

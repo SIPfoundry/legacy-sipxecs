@@ -157,7 +157,7 @@ UtlBoolean MprRecorder::disable(Completion code)
    }
    mConsecutiveInactive = 0;
 
-   OsSysLog::add(FAC_MP, PRI_DEBUG, "MprRecorder::disable setting mpEvent (0x%08x) to NULL", (int)mpEvent);
+   OsSysLog::add(FAC_MP, PRI_DEBUG, "MprRecorder::disable setting mpEvent (0x%p) to NULL", mpEvent);
    
    {
       if (mpEvent != NULL)
@@ -246,13 +246,13 @@ UtlBoolean MprRecorder::updateWaveHeaderLengths(int handle)
     OsLock lock(mMutex); 
 
     //find out how many bytes were written so far
-    unsigned long length = lseek(handle,0,SEEK_END);
+    uint32_t length = lseek(handle,0,SEEK_END);    // 4 byte value for Endian conversion
     
     //now go back to beginning
     lseek(handle,4,SEEK_SET);
 
     //and update the RIFF length
-    unsigned long rifflength = htolel(length-8);
+    uint32_t rifflength = htolel(length-8);        // 4 byte value written to WAV file
     ssize_t dummy;
     dummy = write(handle, (char*)&rifflength,sizeof(rifflength));
 
@@ -260,7 +260,7 @@ UtlBoolean MprRecorder::updateWaveHeaderLengths(int handle)
     lseek(handle,40,SEEK_SET);
     
     //this should be the length of just the data
-    unsigned long datalength = htolel(length-44);
+    uint32_t datalength = htolel(length-44);       // 4 byte value written to WAV file
     dummy = write(handle, (char*)&datalength,sizeof(datalength));
 
     return retCode;
@@ -381,7 +381,7 @@ UtlBoolean MprRecorder::doProcessFrame(MpBufPtr inBufs[],
 
 void MprRecorder::progressReport(Completion code)
 {
-   int ud;
+   void* ud;
 
    mStatus = code;
 
@@ -391,8 +391,8 @@ void MprRecorder::progressReport(Completion code)
       if (NULL != mpEvent) 
       {
          mpEvent->getUserData(ud);
-         OsSysLog::add(FAC_MP, PRI_DEBUG, "MprRecorder::progressReport(%d), event=0x%x, &data=0x%X\n",
-            code, (int) mpEvent, ud);
+         OsSysLog::add(FAC_MP, PRI_DEBUG, "MprRecorder::progressReport(%d), event=0x%p, &data=0x%p\n",
+            code, mpEvent, ud);
          if (0 != ud) 
          {
             MprRecorderStats *rs = (MprRecorderStats*) ud;
@@ -413,10 +413,10 @@ void MprRecorder::progressReport(Completion code)
                OsSysLog::add(FAC_MP, PRI_WARNING, "MprRecorder::progressReport signal failed, returned %d, try again", (int)ret);
                // the event was probably just reset, try again after waiting for 10 ms.
                OsTask::delay(10);
-               int userdata;
+               void* userdata;
                mpEvent->getUserData(userdata);
-               OsSysLog::add(FAC_MP, PRI_WARNING, "user data - old (0x%08x), new (0x%08x), event (0x%08x) ", 
-                              ud, userdata, (int)mpEvent);
+               OsSysLog::add(FAC_MP, PRI_WARNING, "user data - old (0x%p), new (0x%p), event (0x%p) ", 
+                              ud, userdata, mpEvent);
 
 // Comment out the assert for production system
 //	            assert(userdata == ud);
@@ -429,7 +429,7 @@ void MprRecorder::progressReport(Completion code)
          }
          else
          {
-               OsSysLog::add(FAC_MP, PRI_WARNING, "MprRecorder::progressReport did not signal user data is 0 for event 0x%08x", (int)mpEvent);
+               OsSysLog::add(FAC_MP, PRI_WARNING, "MprRecorder::progressReport did not signal user data is 0 for event 0x%p", mpEvent);
          }
       }
       else
@@ -472,8 +472,8 @@ UtlBoolean MprRecorder::handleSetup(int file, int timeMS, int silenceLength, OsP
    }
 
    mStatus = RECORD_IDLE;
-   OsSysLog::add(FAC_MP, PRI_DEBUG, "MprRecorder::handleSetup(%d, %d, 0x%X)... #frames=%d\n",
-      file, timeMS, (int) event, mFramesToRecord);
+   OsSysLog::add(FAC_MP, PRI_DEBUG, "MprRecorder::handleSetup(%d, %d, 0x%p)... #frames=%d\n",
+      file, timeMS, event, mFramesToRecord);
    return TRUE;
 }
 
@@ -505,7 +505,7 @@ UtlBoolean MprRecorder::handleMessage(MpFlowGraphMsg& rMsg)
          int file = rMsg.getInt1();
          int iMSec = rMsg.getInt2();
          OsProtectedEvent* pEvent = (OsProtectedEvent*) rMsg.getPtr1();
-         int silenceLength = (int) rMsg.getPtr2();
+         int silenceLength = (int) (intptr_t) rMsg.getPtr2();
          return handleSetup(file, iMSec, silenceLength, pEvent);
       }
       break;

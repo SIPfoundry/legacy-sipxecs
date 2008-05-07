@@ -247,7 +247,7 @@ UtlBoolean SmimeBody::encrypt(HttpBody* bodyToEncrypt,
 
         // Append the real body content
         const char* dataPtr;
-        int dataLength;
+        size_t dataLength;
         bodyToEncrypt->getBytes(&dataPtr, &dataLength);
         dataToEncrypt.append(dataPtr, dataLength);
 

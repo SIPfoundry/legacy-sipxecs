@@ -151,14 +151,14 @@ public:
    ///< @returns NULL if none exists.
 
    /// Return an Id of the currently executing task.
-   static OsStatus getCurrentTaskId(int &rid);
+   static OsStatus getCurrentTaskId(pthread_t &rid);
 
    /// Return a pointer to the OsTask object corresponding to the named task.
    static OsTaskLinux* getTaskByName(const UtlString& taskName);
    ///< @returns NULL if there is no task object with that name.
 
    /// Return a pointer to the OsTask object corresponding to taskId.
-   static OsTaskLinux* getTaskById(const int taskId);
+   static OsTaskLinux* getTaskById(const pthread_t taskId);
    ///< @returns NULL if there is no task object with that id.
 
    /// Get the errno status for the task.
@@ -171,7 +171,7 @@ public:
    virtual OsStatus getPriority(int& rPriority);
 
    /// Get the task ID for this task.
-   virtual OsStatus id(int& rId);
+   virtual OsStatus id(pthread_t& rId);
 
    // Check if the task is ready to run.
    virtual UtlBoolean isReady(void);

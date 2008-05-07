@@ -169,7 +169,7 @@ void MpToneGen_stopTone(MpToneGenPtr p)
 #define AUDIO_A2D_MAX ((1<<(AUDIO_A2D_BITS-1))-1) /* i.e. 2047 */
 
 //static int setsw(tonePtr t, short *d, int l)
-static int setsw(tonePairPtr p, short *d, int l)
+static int setsw(tonePairPtr p, int16_t *d, int l)
 {
        // int y, sinm2, sinm1, costh, range;
         int y1, sinm12, sinm11, costh1;
@@ -186,7 +186,7 @@ static int setsw(tonePairPtr p, short *d, int l)
                   y1 = ( (costh1*sinm11)>>(AUDIO_A2D_BITS) ) - sinm12;
                   sinm12 = sinm11;
                   sinm11 = y1;
-                  *d++ = (short) y1;
+                  *d++ = (int16_t) y1;
              }
              p->low->sinm2 = sinm12;
              p->low->sinm1 = sinm11;
@@ -207,7 +207,7 @@ static int setsw(tonePairPtr p, short *d, int l)
              z = (y1+y2);
              if (z > 32767) z = 32767;
              if (z < -32767) z = -32767;
-             *d++ = (short) z;
+             *d++ = (int16_t) z;
         }
         p->low->sinm2 = sinm12;
         p->low->sinm1 = sinm11;
@@ -219,7 +219,7 @@ static int setsw(tonePairPtr p, short *d, int l)
 }
 
 #if 0 /* [ */
-static int addsw(tonePtr t, short *d, int l)
+static int addsw(tonePtr t, int16_t *d, int l)
 {
 
         int y, sinm2, sinm1, costh;
@@ -233,7 +233,7 @@ static int addsw(tonePtr t, short *d, int l)
                 y = ( (costh*sinm1)>>(AUDIO_A2D_BITS) ) - sinm2;
                 sinm2 = sinm1;
                 sinm1 = y;
-                *d++ += (short) y;
+                *d++ += (int16_t) y;
         }
         t->sinm2 = sinm2;
         t->sinm1 = sinm1;
@@ -245,7 +245,7 @@ static int addsw(tonePtr t, short *d, int l)
  * dtmfGenNext -- put the next n samples for a DTMF sequence into buffer b.
  */
 
-OsStatus MpToneGen_getNextBuff(MpToneGenPtr pThis, short *b, int N)
+OsStatus MpToneGen_getNextBuff(MpToneGenPtr pThis, int16_t *b, int N)
 {
         dtmfPatternPtr d;
         int n = 0;
@@ -268,7 +268,7 @@ OsStatus MpToneGen_getNextBuff(MpToneGenPtr pThis, short *b, int N)
                         setsw(p, b, i);
                     } else {
                         if (i != N) {
-                            memset(b, 0, sizeof(short) * i);
+                            memset(b, 0, sizeof(int16_t) * i);
                         } else {
                             ret = OS_NO_MORE_DATA;
                         }
@@ -301,7 +301,7 @@ OsStatus MpToneGen_getNextBuff(MpToneGenPtr pThis, short *b, int N)
                 }
             }
         }
-        Nprintf("MTG_gNB(0x%X, 0x%X, %d) -> %d\n", (int) pThis, b, N, n, 0,0);
+        Nprintf("MTG_gNB(0x%p, 0x%p, %d) -> %d\n", pThis, b, N, n, 0,0);
         pThis->mpMutex->release();
         return ret;
 } /*  MpToneGen_getNextBuff */
@@ -589,8 +589,8 @@ MpToneGenPtr MpToneGen_MpToneGen(int samprate, const char* toneLocale)
                 pThis = NULL;
             }
         }
-        Zprintf("MpToneGen_MpToneGen(%d) -> 0x%X\n",
-            samprate, (int) pThis, 0,0,0,0);
+        Zprintf("MpToneGen_MpToneGen(%d) -> 0x%p\n",
+            samprate, pThis, 0,0,0,0);
         return pThis;
 }
 
@@ -667,10 +667,10 @@ void mcpCsrWr(int a, int d) {
         mcp->mcdr2 = ((a&0xf) << MCDR2_V_RN) | MCDR2_M_nRW | (d & 0xFFFF);
 }
 
-int mcpAudioOut2(int l, unsigned short *d) {
+int mcpAudioOut2(int l, uint16_t *d) {
         volatile struct mcpreg *mcp;
         int i;
-        short *p;
+        int16_t *p;
 
         mcp = (struct mcpreg *) MCPBASE;
 

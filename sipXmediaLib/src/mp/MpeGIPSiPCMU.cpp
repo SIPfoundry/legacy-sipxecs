@@ -48,8 +48,8 @@ OsStatus MpeGIPSiPCMU::initEncode(void)
 OsStatus MpeGIPSiPCMU::freeEncode(void)
 {
    int res = 0;
-   // osPrintf(" MpeGIPSiPCMU::freeEncode(): t=%d, pt=%d, dt=0x%X\n",
-   //    smCodecInfo.getCodecType(), getPayloadType(), (int) pEncoderState);
+   // osPrintf(" MpeGIPSiPCMU::freeEncode(): t=%d, pt=%d, dt=0x%p\n",
+   //    smCodecInfo.getCodecType(), getPayloadType(), pEncoderState);
    if(pEncoderState!=NULL){
       res = EG711U_GIPS_10MS16B_free(pEncoderState);
       pEncoderState=NULL;

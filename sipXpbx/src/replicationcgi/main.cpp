@@ -338,13 +338,13 @@ updateDB ( const UtlString& importFileName, const UtlString& databaseName  )
        OsStatus rc;
        OsFile importFile (importFileName);
        importFile.open( OsFile::READ_ONLY );
-       unsigned long length;
+       size_t length;
 
        if ( (rc = importFile.getLength( length )) == OS_SUCCESS )
        {
            char* pBuf =
                new char[length];
-           unsigned long bytesRead;
+           size_t bytesRead;
            if ( (rc = importFile.read(pBuf, length, bytesRead)) == OS_SUCCESS )
            {
               updateDB( pBuf, databaseName );
@@ -417,13 +417,13 @@ void  loadResourceMap ( const UtlString& resourcemapFileName, UtlHashMap& rResou
     OsStatus rc;
     OsFile importFile (fileToRead);
     importFile.open( OsFile::READ_ONLY );
-    unsigned long length;
+    size_t length;
 
     if ( (rc = importFile.getLength( length )) == OS_SUCCESS )
     {
         unsigned char* pBuf =
             new unsigned char[length];
-        unsigned long bytesRead;
+        size_t bytesRead;
         if ( (rc = importFile.read(pBuf, length, bytesRead)) == OS_SUCCESS )
         {
 
@@ -819,7 +819,7 @@ void handleInput(const char* pBuf )
                     OsFile temporaryFile(temporaryLocation);
                     if (temporaryFile.open(OsFile::CREATE) == OS_SUCCESS)
                     {
-                       unsigned long bytesRead;
+                       size_t bytesRead;
                        rc = temporaryFile.write(pDecodedPayLoadData, iDecodedLength, bytesRead);
                        temporaryFile.close();
                        if (rc == OS_SUCCESS)
@@ -929,12 +929,12 @@ void handleInput(const UtlString& importFileName)
       OsStatus rc;
       OsFile importFile (importFileName);
       importFile.open( OsFile::READ_ONLY );
-      unsigned long length;
+      size_t length;
 
       if ( (rc = importFile.getLength( length )) == OS_SUCCESS )
       {
          char* pBuf = new char[length];
-         unsigned long bytesRead;
+         size_t bytesRead;
          if ( (rc = importFile.read(pBuf, length, bytesRead)) == OS_SUCCESS )
          {
             handleInput(pBuf ) ;

@@ -1,37 +1,45 @@
 /* -*- Mode: C; tab-width: 8; indent-tabs-mode: nil; c-basic-offset: 4 -*-
  *
- * The contents of this file are subject to the Netscape Public
- * License Version 1.1 (the "License"); you may not use this file
- * except in compliance with the License. You may obtain a copy of
- * the License at http://www.mozilla.org/NPL/
+ * ***** BEGIN LICENSE BLOCK *****
+ * Version: MPL 1.1/GPL 2.0/LGPL 2.1
  *
- * Software distributed under the License is distributed on an "AS
- * IS" basis, WITHOUT WARRANTY OF ANY KIND, either express oqr
- * implied. See the License for the specific language governing
- * rights and limitations under the License.
+ * The contents of this file are subject to the Mozilla Public License Version
+ * 1.1 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ * http://www.mozilla.org/MPL/
+ *
+ * Software distributed under the License is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+ * for the specific language governing rights and limitations under the
+ * License.
  *
  * The Original Code is Mozilla Communicator client code, released
  * March 31, 1998.
  *
- * The Initial Developer of the Original Code is Netscape
- * Communications Corporation.  Portions created by Netscape are
- * Copyright (C) 1998 Netscape Communications Corporation. All
- * Rights Reserved.
+ * The Initial Developer of the Original Code is
+ * Netscape Communications Corporation.
+ * Portions created by the Initial Developer are Copyright (C) 1998
+ * the Initial Developer. All Rights Reserved.
  *
- * Contributor(s): 
+ * Contributor(s):
  *
- * Alternatively, the contents of this file may be used under the
- * terms of the GNU Public License (the "GPL"), in which case the
- * provisions of the GPL are applicable instead of those above.
- * If you wish to allow use of your version of this file only
- * under the terms of the GPL and not to allow others to use your
- * version of this file under the NPL, indicate your decision by
- * deleting the provisions above and replace them with the notice
- * and other provisions required by the GPL.  If you do not delete
- * the provisions above, a recipient may use your version of this
- * file under either the NPL or the GPL.
- */
+ * Alternatively, the contents of this file may be used under the terms of
+ * either of the GNU General Public License Version 2 or later (the "GPL"),
+ * or the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
+ * in which case the provisions of the GPL or the LGPL are applicable instead
+ * of those above. If you wish to allow use of your version of this file only
+ * under the terms of either the GPL or the LGPL, and not to allow others to
+ * use your version of this file under the terms of the MPL, indicate your
+ * decision by deleting the provisions above and replace them with the notice
+ * and other provisions required by the GPL or the LGPL. If you do not delete
+ * the provisions above, a recipient may use your version of this file under
+ * the terms of any one of the MPL, the GPL or the LGPL.
+ *
+ * ***** END LICENSE BLOCK ***** */
 #include "jsstddef.h"
+#include "jsconfig.h"
+
+#if JS_HAS_XDR
 
 #include <string.h>
 #include "jstypes.h"
@@ -40,6 +48,7 @@
 #include "jsprf.h"
 #include "jsapi.h"
 #include "jscntxt.h"
+#include "jsnum.h"
 #include "jsobj.h"              /* js_XDRObject */
 #include "jsscript.h"           /* js_XDRScript */
 #include "jsstr.h"
@@ -114,19 +123,19 @@ mem_set32(JSXDRState *xdr, uint32 *lp)
 }
 
 static JSBool
-mem_getbytes(JSXDRState *xdr, char **bytesp, uint32 len)
+mem_getbytes(JSXDRState *xdr, char *bytes, uint32 len)
 {
     MEM_LEFT(xdr, len);
-    memcpy(*bytesp, MEM_DATA(xdr), len);
+    memcpy(bytes, MEM_DATA(xdr), len);
     MEM_INCR(xdr, len);
     return JS_TRUE;
 }
 
 static JSBool
-mem_setbytes(JSXDRState *xdr, char **bytesp, uint32 len)
+mem_setbytes(JSXDRState *xdr, char *bytes, uint32 len)
 {
     MEM_NEED(xdr, len);
-    memcpy(MEM_DATA(xdr), *bytesp, len);
+    memcpy(MEM_DATA(xdr), bytes, len);
     MEM_INCR(xdr, len);
     return JS_TRUE;
 }
@@ -224,6 +233,7 @@ JS_XDRInitBase(JSXDRState *xdr, JSXDRMode mode, JSContext *cx)
     xdr->numclasses = xdr->maxclasses = 0;
     xdr->reghash = NULL;
     xdr->userdata = NULL;
+    xdr->script = NULL;
 }
 
 JS_PUBLIC_API(JSXDRState *)
@@ -331,25 +341,23 @@ JS_XDRUint32(JSXDRState *xdr, uint32 *lp)
 }
 
 JS_PUBLIC_API(JSBool)
-JS_XDRBytes(JSXDRState *xdr, char **bytesp, uint32 len)
+JS_XDRBytes(JSXDRState *xdr, char *bytes, uint32 len)
 {
     uint32 padlen;
-    char *padbp;
     static char padbuf[JSXDR_ALIGN-1];
 
     if (xdr->mode == JSXDR_ENCODE) {
-        if (!xdr->ops->setbytes(xdr, bytesp, len))
+        if (!xdr->ops->setbytes(xdr, bytes, len))
             return JS_FALSE;
     } else {
-        if (!xdr->ops->getbytes(xdr, bytesp, len))
+        if (!xdr->ops->getbytes(xdr, bytes, len))
             return JS_FALSE;
     }
     len = xdr->ops->tell(xdr);
     if (len % JSXDR_ALIGN) {
         padlen = JSXDR_ALIGN - (len % JSXDR_ALIGN);
         if (xdr->mode == JSXDR_ENCODE) {
-            padbp = padbuf;
-            if (!xdr->ops->setbytes(xdr, &padbp, padlen))
+            if (!xdr->ops->setbytes(xdr, padbuf, padlen))
                 return JS_FALSE;
         } else {
             if (!xdr->ops->seek(xdr, padlen, JSXDR_SEEK_CUR))
@@ -376,7 +384,7 @@ JS_XDRCString(JSXDRState *xdr, char **sp)
         if (!(*sp = (char *) JS_malloc(xdr->cx, len + 1)))
             return JS_FALSE;
     }
-    if (!JS_XDRBytes(xdr, sp, len)) {
+    if (!JS_XDRBytes(xdr, *sp, len)) {
         if (xdr->mode == JSXDR_DECODE)
             JS_free(xdr->cx, *sp);
         return JS_FALSE;
@@ -403,46 +411,60 @@ JS_XDRCStringOrNull(JSXDRState *xdr, char **sp)
     return JS_XDRCString(xdr, sp);
 }
 
-/*
- * Convert between a JS (Unicode) string and the XDR representation.
- */
-JS_PUBLIC_API(JSBool)
-JS_XDRString(JSXDRState *xdr, JSString **strp)
+static JSBool
+XDRChars(JSXDRState *xdr, jschar *chars, uint32 nchars)
 {
-    uint32 i, len, padlen, nbytes;
-    jschar *chars = NULL, *raw;
+    uint32 i, padlen, nbytes;
+    jschar *raw;
 
-    if (xdr->mode == JSXDR_ENCODE)
-        len = JSSTRING_LENGTH(*strp);
-    if (!JS_XDRUint32(xdr, &len))
-        return JS_FALSE;
-    nbytes = len * sizeof(jschar);
-
-    if (xdr->mode == JSXDR_DECODE) {
-        if (!(chars = (jschar *) JS_malloc(xdr->cx, nbytes + sizeof(jschar))))
-            return JS_FALSE;
-    } else {
-        chars = JSSTRING_CHARS(*strp);
-    }
-
+    nbytes = nchars * sizeof(jschar);
     padlen = nbytes % JSXDR_ALIGN;
     if (padlen) {
         padlen = JSXDR_ALIGN - padlen;
         nbytes += padlen;
     }
     if (!(raw = (jschar *) xdr->ops->raw(xdr, nbytes)))
-        goto bad;
+        return JS_FALSE;
     if (xdr->mode == JSXDR_ENCODE) {
-        for (i = 0; i < len; i++)
+        for (i = 0; i != nchars; i++)
             raw[i] = JSXDR_SWAB16(chars[i]);
         if (padlen)
             memset((char *)raw + nbytes - padlen, 0, padlen);
     } else if (xdr->mode == JSXDR_DECODE) {
-        for (i = 0; i < len; i++)
+        for (i = 0; i != nchars; i++)
             chars[i] = JSXDR_SWAB16(raw[i]);
-        chars[len] = 0;
+    }
+    return JS_TRUE;
+}
 
-        if (!(*strp = JS_NewUCString(xdr->cx, chars, len)))
+/*
+ * Convert between a JS (Unicode) string and the XDR representation.
+ */
+JS_PUBLIC_API(JSBool)
+JS_XDRString(JSXDRState *xdr, JSString **strp)
+{
+    uint32 nchars;
+    jschar *chars;
+
+    if (xdr->mode == JSXDR_ENCODE)
+        nchars = JSSTRING_LENGTH(*strp);
+    if (!JS_XDRUint32(xdr, &nchars))
+        return JS_FALSE;
+
+    if (xdr->mode == JSXDR_DECODE) {
+        chars = (jschar *) JS_malloc(xdr->cx, (nchars + 1) * sizeof(jschar));
+        if (!chars)
+            return JS_FALSE;
+    } else {
+        chars = JSSTRING_CHARS(*strp);
+    }
+
+    if (!XDRChars(xdr, chars, nchars))
+        goto bad;
+    if (xdr->mode == JSXDR_DECODE) {
+        chars[nchars] = 0;
+        *strp = JS_NewUCString(xdr->cx, chars, nchars);
+        if (!*strp)
             goto bad;
     }
     return JS_TRUE;
@@ -466,23 +488,32 @@ JS_XDRStringOrNull(JSXDRState *xdr, JSString **strp)
     return JS_XDRString(xdr, strp);
 }
 
+static JSBool
+XDRDoubleValue(JSXDRState *xdr, jsdouble *dp)
+{
+    jsdpun u;
+
+    if (xdr->mode == JSXDR_ENCODE)
+        u.d = *dp;
+    if (!JS_XDRUint32(xdr, &u.s.lo) || !JS_XDRUint32(xdr, &u.s.hi))
+        return JS_FALSE;
+    if (xdr->mode == JSXDR_DECODE)
+        *dp = u.d;
+    return JS_TRUE;
+}
+
 JS_PUBLIC_API(JSBool)
-JS_XDRDouble(JSXDRState *xdr, jsdouble **dp)
+JS_XDRDouble(JSXDRState *xdr, jsdouble **dpp)
 {
     jsdouble d;
+
     if (xdr->mode == JSXDR_ENCODE)
-        d = **dp;
-#if IS_BIG_ENDIAN
-    if (!JS_XDRUint32(xdr, (uint32 *)&d + 1) ||
-        !JS_XDRUint32(xdr, (uint32 *)&d))
-#else
-    if (!JS_XDRUint32(xdr, (uint32 *)&d) ||
-        !JS_XDRUint32(xdr, (uint32 *)&d + 1))
-#endif
+        d = **dpp;
+    if (!XDRDoubleValue(xdr, &d))
         return JS_FALSE;
     if (xdr->mode == JSXDR_DECODE) {
-        *dp = JS_NewDouble(xdr->cx, d);
-        if (!*dp)
+        *dpp = JS_NewDouble(xdr->cx, d);
+        if (!*dpp)
             return JS_FALSE;
     }
     return JS_TRUE;
@@ -492,22 +523,9 @@ JS_XDRDouble(JSXDRState *xdr, jsdouble **dp)
 #define JSVAL_XDRNULL   0x8
 #define JSVAL_XDRVOID   0xA
 
-JS_PUBLIC_API(JSBool)
-JS_XDRValue(JSXDRState *xdr, jsval *vp)
+static JSBool
+XDRValueBody(JSXDRState *xdr, uint32 type, jsval *vp)
 {
-    uint32 type;
-    
-    if (xdr->mode == JSXDR_ENCODE) {
-        if (JSVAL_IS_NULL(*vp))
-            type = JSVAL_XDRNULL;
-        else if (JSVAL_IS_VOID(*vp))
-            type = JSVAL_XDRVOID;
-        else
-            type = JSVAL_TAG(*vp);
-    }
-    if (!JS_XDRUint32(xdr, &type))
-        return JS_FALSE;
-
     switch (type) {
       case JSVAL_XDRNULL:
         *vp = JSVAL_NULL;
@@ -568,6 +586,139 @@ JS_XDRValue(JSXDRState *xdr, jsval *vp)
         break;
       }
     }
+    return JS_TRUE;
+}
+
+JS_PUBLIC_API(JSBool)
+JS_XDRValue(JSXDRState *xdr, jsval *vp)
+{
+    uint32 type;
+
+    if (xdr->mode == JSXDR_ENCODE) {
+        if (JSVAL_IS_NULL(*vp))
+            type = JSVAL_XDRNULL;
+        else if (JSVAL_IS_VOID(*vp))
+            type = JSVAL_XDRVOID;
+        else
+            type = JSVAL_TAG(*vp);
+    }
+    return JS_XDRUint32(xdr, &type) && XDRValueBody(xdr, type, vp);
+}
+
+JSBool
+js_XDRAtom(JSXDRState *xdr, JSAtom **atomp)
+{
+    jsval v;
+    uint32 type;
+    jsdouble d;
+    JSAtom *atom;
+
+    if (xdr->mode == JSXDR_ENCODE) {
+        v = ATOM_KEY(*atomp);
+        return JS_XDRValue(xdr, &v);
+    }
+
+    /*
+     * Inline JS_XDRValue when decoding to avoid ceation of GC things when
+     * then corresponding atom already exists. See bug 321985.
+     */
+    if (!JS_XDRUint32(xdr, &type))
+        return JS_FALSE;
+    if (type == JSVAL_STRING)
+        return js_XDRStringAtom(xdr, atomp);
+
+    if (type == JSVAL_DOUBLE) {
+        if (!XDRDoubleValue(xdr, &d))
+            return JS_FALSE;
+        atom = js_AtomizeDouble(xdr->cx, d, 0);
+    } else {
+        if (!XDRValueBody(xdr, type, &v))
+            return JS_FALSE;
+        atom = js_AtomizeValue(xdr->cx, v, 0);
+    }
+
+    if (!atom)
+        return JS_FALSE;
+    *atomp = atom;
+    return JS_TRUE;
+}
+
+extern JSBool
+js_XDRStringAtom(JSXDRState *xdr, JSAtom **atomp)
+{
+    JSString *str;
+    uint32 nchars;
+    JSAtom *atom;
+    JSContext *cx;
+    void *mark;
+    jschar *chars;
+
+    if (xdr->mode == JSXDR_ENCODE) {
+        JS_ASSERT(ATOM_IS_STRING(*atomp));
+        str = ATOM_TO_STRING(*atomp);
+        return JS_XDRString(xdr, &str);
+    }
+
+    /*
+     * Inline JS_XDRString when decoding to avoid JSString allocation
+     * for already existing atoms. See bug 321985.
+     */
+    if (!JS_XDRUint32(xdr, &nchars))
+        return JS_FALSE;
+    atom = NULL;
+    cx = xdr->cx;
+    mark = JS_ARENA_MARK(&cx->tempPool);
+    JS_ARENA_ALLOCATE_CAST(chars, jschar *, &cx->tempPool,
+                           nchars * sizeof(jschar));
+    if (!chars)
+        JS_ReportOutOfMemory(cx);
+    else if (XDRChars(xdr, chars, nchars))
+        atom = js_AtomizeChars(cx, chars, nchars, 0);
+    JS_ARENA_RELEASE(&cx->tempPool, mark);
+    if (!atom)
+        return JS_FALSE;
+    *atomp = atom;
+    return JS_TRUE;
+}
+
+/*
+ * FIXME: This performs lossy conversion and we need to switch to
+ * js_XDRStringAtom while allowing to read older XDR files. See bug 325202.
+ */
+JSBool
+js_XDRCStringAtom(JSXDRState *xdr, JSAtom **atomp)
+{
+    char *bytes;
+    uint32 nbytes;
+    JSAtom *atom;
+    JSContext *cx;
+    void *mark;
+
+    if (xdr->mode == JSXDR_ENCODE) {
+        JS_ASSERT(ATOM_IS_STRING(*atomp));
+        bytes = JS_GetStringBytes(ATOM_TO_STRING(*atomp));
+        return JS_XDRCString(xdr, &bytes);
+    }
+
+    /*
+     * Inline JS_XDRCString when decoding not to malloc temporary buffer
+     * just to free it after atomization. See bug 321985.
+     */
+    if (!JS_XDRUint32(xdr, &nbytes))
+        return JS_FALSE;
+    atom = NULL;
+    cx = xdr->cx;
+    mark = JS_ARENA_MARK(&cx->tempPool);
+    JS_ARENA_ALLOCATE_CAST(bytes, char *, &cx->tempPool,
+                           nbytes * sizeof *bytes);
+    if (!bytes)
+        JS_ReportOutOfMemory(cx);
+    else if (JS_XDRBytes(xdr, bytes, nbytes))
+        atom = js_Atomize(cx, bytes, nbytes, 0);
+    JS_ARENA_RELEASE(&cx->tempPool, mark);
+    if (!atom)
+        return JS_FALSE;
+    *atomp = atom;
     return JS_TRUE;
 }
 
@@ -680,3 +831,5 @@ JS_XDRFindClassById(JSXDRState *xdr, uint32 id)
         return NULL;
     return xdr->registry[i];
 }
+
+#endif /* JS_HAS_XDR */

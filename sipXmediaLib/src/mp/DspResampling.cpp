@@ -227,17 +227,17 @@ void DspResampling::stats()
    if ((mTotalSamplesD + mTotalSamplesU) > 0) {
       if (mOverflowsD > 0) {
          osPrintf(
-          "DspResamp(0x%X): downsampling overflowed %d times in %d samples\n",
-            (int) this, mOverflowsD, mTotalSamplesD);
+          "DspResamp(0x%p): downsampling overflowed %d times in %d samples\n",
+            this, mOverflowsD, mTotalSamplesD);
       }
       if (mOverflowsU > 0) {
          osPrintf(
-          "DspResamp(0x%X): upsampling overflowed %d times in %d samples\n",
-            (int) this, mOverflowsU, mTotalSamplesU);
+          "DspResamp(0x%p): upsampling overflowed %d times in %d samples\n",
+            this, mOverflowsU, mTotalSamplesU);
       } 
       if (0 == (mOverflowsU + mOverflowsD)) {
-         osPrintf("DspResamp(0x%X): no overflows in %d samples\n",
-            (int) this, mTotalSamplesD + mTotalSamplesU);
+         osPrintf("DspResamp(0x%p): no overflows in %d samples\n",
+            this, mTotalSamplesD + mTotalSamplesU);
       }
       if (mpUpSampBuf) {
          osPrintf("DspResamp(0x%X): ranges: in(%d .. %d) out(%d .. %d) (UP)\n",

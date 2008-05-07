@@ -1,5 +1,6 @@
 noinst_HEADERS = \
 	jsautocfg.h \
+	jsautokw.h \
 	OSBclient.h \
 	OSBinet.h \
 	OSBjsi.h \

@@ -44,8 +44,8 @@
  *   - " => &quot;
  *
  * Other character values outside the range of valid 8-bit characters in XML:
- * - #x09 | #x0A | #x0D | [#x20-#FF]
- * are encoded using the numeric entity encoding (&#x??;).
+ * - [pound]x09 | [pound]x0A | [pound]x0D | [[pound]x20-[pound]FF]
+ * are encoded using the numeric entity encoding (&[pound]x??;).
  *
  * While this is not strictly XML conformant (in that it does not explicitly deal with
  * larger-size character encodings), it is symmetric (escaping and unescaping any string

@@ -314,7 +314,7 @@ void OSBpromptTTS::parseBaseUrl(const VXIchar* url, const VXIchar* glbBaseUrl)
    if (glbBaseUrl)
       url = glbBaseUrl;  // always use this if specified in mediaserver-config
 
-   unsigned int len;
+   size_t len;
    if (url)
    {
       len = wcslen(url);
@@ -333,7 +333,7 @@ void OSBpromptTTS::parseBaseUrl(const VXIchar* url, const VXIchar* glbBaseUrl)
         ( (mBaseUrl.index("http:") != UTL_NOT_FOUND) ||
           (mBaseUrl.index("https:") != UTL_NOT_FOUND) ) )
    {
-      if ((len = mBaseUrl.last('/')) != UTL_NOT_FOUND)
+      if ((len = mBaseUrl.last('/')) != (size_t)UTL_NOT_FOUND)
       {
          mBaseUrl = mBaseUrl(0, (len + 1));
          // :TODO: I suspect this line should be below the current 'if'.
@@ -574,7 +574,7 @@ int OSBpromptTTS::getDateMDYUrls(Url** prompts)
 {
    // UNUSED VARIABLE const char* text = mText.data();
    UtlString mon = "", day = "", year = "";
-   unsigned int i, j;
+   ssize_t i, j;
    j = mText.index("/");
    if (j != UTL_NOT_FOUND)
    {
@@ -594,7 +594,7 @@ int OSBpromptTTS::getDateMDUrls(Url** prompts)
 {
    // UNUSED VARIABLE const char* text = mText.data();
    UtlString mon = "", day = "", year = "";
-   unsigned int j;
+   ssize_t j;
    j = mText.index("/");
    if (j != UTL_NOT_FOUND)
    {
@@ -609,7 +609,7 @@ int OSBpromptTTS::getDateDMYUrls(Url** prompts)
 {
    // UNUSED VARIABLE const char* text = mText.data();
    UtlString mon = "", day = "", year = "";
-   unsigned int i, j;
+   ssize_t i, j;
    j = mText.index("/");
    if (j != UTL_NOT_FOUND)
    {
@@ -629,7 +629,7 @@ int OSBpromptTTS::getDateDMUrls(Url** prompts)
 {
    // UNUSED VARIABLE const char* text = mText.data();
    UtlString mon = "", day = "", year = "";
-   unsigned int j;
+   ssize_t j;
    j = mText.index("/");
    if (j != UTL_NOT_FOUND)
    {
@@ -644,7 +644,7 @@ int OSBpromptTTS::getDateMYUrls(Url** prompts)
 {
    // UNUSED VARIABLE const char* text = mText.data();
    UtlString mon = "", day = "", year = "";
-   unsigned int j;
+   ssize_t j;
    j = mText.index("/");
    if (j != UTL_NOT_FOUND)
    {
@@ -659,7 +659,7 @@ int OSBpromptTTS::getDateYMUrls(Url** prompts)
 {
    // UNUSED VARIABLE const char* text = mText.data();
    UtlString mon = "", day = "", year = "";
-   unsigned int j;
+   ssize_t j;
    j = mText.index("/");
    if (j != UTL_NOT_FOUND)
    {
@@ -954,7 +954,7 @@ int OSBpromptTTS::getTimeHMSUrls(Url** prompts)
                  "OSBpromptTTS::getTimeHMSUrls: mText = '%s', mBaseUrl = '%s'",
                  mText.data(), mBaseUrl.data());
    UtlString h = "", m = "", s = "";
-   unsigned int i, j;
+   ssize_t i, j;
    j = mText.index(":");
    if (j != UTL_NOT_FOUND)
    {
@@ -980,7 +980,7 @@ int OSBpromptTTS::getTimeHMUrls(Url** prompts)
                  "OSBpromptTTS::getTimeHMUrls: mText = '%s', mBaseUrl = '%s'",
                  mText.data(), mBaseUrl.data());
    UtlString h = "", m = "", s = "";
-   unsigned int i, j;
+   ssize_t i, j;
    j = mText.index(":");
    if (j != UTL_NOT_FOUND)
    {
@@ -1001,7 +1001,7 @@ int OSBpromptTTS::getTimeHUrls(Url** prompts)
                 "OSBpromptTTS::getTimeHUrls: mText = '%s', mBaseUrl = '%s'",
                 mText.data(), mBaseUrl.data());
   UtlString h = "", m = "", s = "";
-  unsigned int i = mText.index(" ");
+  ssize_t i = mText.index(" ");
   if (i != UTL_NOT_FOUND)
     h = mText(0, i);
   else
@@ -1012,7 +1012,7 @@ int OSBpromptTTS::getTimeHUrls(Url** prompts)
 int OSBpromptTTS::getDurationHMSUrls(Url** prompts)
 {
    UtlString h = "", m = "", s = "";
-   unsigned int i, j;
+   ssize_t i, j;
    j = mText.index(":");
    if (j != UTL_NOT_FOUND)
    {
@@ -1031,7 +1031,7 @@ int OSBpromptTTS::getDurationHMSUrls(Url** prompts)
 int OSBpromptTTS::getDurationHMUrls(Url** prompts)
 {
    UtlString h = "", m = "", s = "";
-   unsigned int j;
+   ssize_t j;
    j = mText.index(":");
    if (j != UTL_NOT_FOUND)
    {
@@ -1045,7 +1045,7 @@ int OSBpromptTTS::getDurationHMUrls(Url** prompts)
 int OSBpromptTTS::getDurationMSUrls(Url** prompts)
 {
    UtlString h = "", m = "", s = "";
-   unsigned int j;
+   ssize_t j;
    j = mText.index(":");
    if (j != UTL_NOT_FOUND)
    {

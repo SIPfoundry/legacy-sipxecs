@@ -79,14 +79,14 @@ MprDecode::~MprDecode()
    // Clean up decoder object
    int i;
 #if 0
-   osPrintf("|~MprDecode(0x%X): calling handleDeselectCodecs (%d to free)\n",
-      (int) this, mNumCurrentCodecs);
+   osPrintf("|~MprDecode(0x%p): calling handleDeselectCodecs (%d to free)\n",
+      this, mNumCurrentCodecs);
 #endif
    // Release our codecs (if any), and the array of pointers to them
    handleDeselectCodecs();
 #if 0
-   osPrintf("|~MprDecode(0x%X): deleting %d decoders, and array at 0x%X\n",
-      (int) this, mNumPrevCodecs, (int) mpPrevCodecs);
+   osPrintf("|~MprDecode(0x%p): deleting %d decoders, and array at 0x%p\n",
+      this, mNumPrevCodecs, mpPrevCodecs);
 #endif
    // Delete the list of codecs used in the past.
    {
@@ -230,8 +230,8 @@ void MprDecode::pushIntoJitterBuffer(MpBufPtr pPacket, int packetLen)
    res = JB_RecIn(pJBState, pHeader, packetLen, 0);
    if (0 != res) {
       osPrintf(
-         "\n\n *** JB_RecIn(0x%X, 0x%X, %d) returned %d\n",
-         (int) pJBState, (int) pHeader, packetLen, res);
+         "\n\n *** JB_RecIn(0x%p, 0x%p, %d) returned %d\n",
+         pJBState, pHeader, packetLen, res);
       osPrintf(" pt=%d, Ts=%d, Seq=%d (%2X %2X)\n\n",
          MprDejitter::getPayloadType(pPacket),
          MprDejitter::getTimestamp(pPacket), MprDejitter::getSeqNum(pPacket),
@@ -322,7 +322,7 @@ static int numWarnings = 0;
    }
 
    *outBufs = out;
-   Nprintf("Decode_doPF: returning 0x%x\n", (int) out, 0,0,0,0,0);
+   Nprintf("Decode_doPF: returning 0x%p\n", out, 0,0,0,0,0);
    return TRUE;
 }
 
@@ -384,14 +384,14 @@ UtlBoolean MprDecode::handleSelectCodecs(SdpCodec* pCodecs[], int numCodecs)
       ourCodec = pCodec->getCodecType();
       payload = pCodec->getCodecPayloadFormat();
 #if 0
-      osPrintf("  #%d: New=0x%X/i:%d/x:%d, ",
-         i, (int)pCodec, ourCodec, payload);
+      osPrintf("  #%d: New=0x%p/i:%d/x:%d, ",
+         i, ourCodec, payload);
 #endif
       pOldDecoder = mpConnection->mapPayloadType(payload);
       if (NULL != pOldDecoder) {
          oldSdpType = pOldDecoder->getInfo()->getCodecType();
 #if 0
-         osPrintf("  Old=0x%X/i:%d", (int)pOldDecoder, oldSdpType);
+         osPrintf("  Old=0x%p/i:%d", oldSdpType);
 #endif
          canReuse = (ourCodec == oldSdpType)
             || ((SdpCodec::SDP_CODEC_G729AB == ourCodec)
@@ -481,8 +481,8 @@ UtlBoolean MprDecode::handleDeselectCodecs()
       newN = mNumCurrentCodecs + mNumPrevCodecs;
       pPrevCodecs = new MpDecoderBase*[newN];
 #if 0
-      osPrintf("|handleDeselectCodecs(0x%X): (0x%X,%d) -> (0x%X,%d) (+%d)\n",
-         (int) this, (int) mpPrevCodecs, mNumPrevCodecs, (int) pPrevCodecs,
+      osPrintf("|handleDeselectCodecs(0x%p): (0x%p,%d) -> (0x%p,%d) (+%d)\n",
+         this, mpPrevCodecs, mNumPrevCodecs, pPrevCodecs,
          newN, mNumCurrentCodecs);
 #endif
       if (mNumPrevCodecs > 0) {

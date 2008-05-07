@@ -170,7 +170,7 @@ PtStatus PtTerminalConnection::answer()
                                                                         arg);
         mpClient->sendRequest(msg);
 
-        int rc;
+        intptr_t rc;
         UtlString callId;
 
         if (OS_SUCCESS != pe->wait(msg.getCmd(), mTimeOut))
@@ -184,10 +184,10 @@ PtStatus PtTerminalConnection::answer()
                 return PT_BUSY;
         }
 
-        pe->getEventData((int &)rc);
+        pe->getEventData(rc);
         pe->getStringData(callId);
 #ifdef PTAPI_TEST
-        int cmd;
+        intptr_t cmd;
         pe->getIntData2(cmd);
         assert(cmd == TaoMessage::ANSWER);
 #endif
@@ -271,7 +271,7 @@ PtStatus PtTerminalConnection::hold()
                                                                         arg);
         mpClient->sendRequest(msg);
 
-        int rc;
+        intptr_t rc;
         if (OS_SUCCESS != pe->wait(msg.getCmd(), mTimeOut))
         {
                 mpClient->resetConnectionSocket(msg.getMsgID());
@@ -283,9 +283,9 @@ PtStatus PtTerminalConnection::hold()
                 return PT_BUSY;
         }
 
-        pe->getEventData((int &)rc);
+        pe->getEventData(rc);
 #ifdef PTAPI_TEST
-        int cmd;
+        intptr_t cmd;
         pe->getIntData2(cmd);
         assert(cmd == TaoMessage::HOLD);
 #endif
@@ -317,7 +317,7 @@ PtStatus PtTerminalConnection::unhold()
                                                                         arg);
         mpClient->sendRequest(msg);
 
-        int rc;
+        intptr_t rc;
         if (OS_SUCCESS != pe->wait(msg.getCmd(), mTimeOut))
         {
                 mpClient->resetConnectionSocket(msg.getMsgID());
@@ -329,9 +329,9 @@ PtStatus PtTerminalConnection::unhold()
                 return PT_BUSY;
         }
 
-        pe->getEventData((int &)rc);
+        pe->getEventData(rc);
 #ifdef PTAPI_TEST
-        int cmd;
+        intptr_t cmd;
         pe->getIntData2(cmd);
         assert(cmd == TaoMessage::UNHOLD);
 #endif
@@ -378,13 +378,13 @@ PtStatus PtTerminalConnection::getState(int& rState)
                 return PT_BUSY;
         }
 
-        int rc;
-        int argCnt = 0;
-        pe->getEventData((int &)rc);
+        intptr_t rc;
+        intptr_t argCnt = 0;
+        pe->getEventData(rc);
         pe->getIntData(argCnt);
         pe->getStringData(arg);
 #ifdef PTAPI_TEST
-        int cmd;
+        intptr_t cmd;
         pe->getIntData2(cmd);
         assert(cmd == TaoMessage::GET_STATE);
 #endif
@@ -512,7 +512,7 @@ PtStatus PtTerminalConnection::startTone(int toneId, UtlBoolean local,
                                                                         arg);
         mpClient->sendRequest(msg);
 
-        int rc;
+        intptr_t rc;
         if (OS_SUCCESS != pe->wait(msg.getCmd(), mTimeOut))
         {
                 mpClient->resetConnectionSocket(msg.getMsgID());
@@ -524,9 +524,9 @@ PtStatus PtTerminalConnection::startTone(int toneId, UtlBoolean local,
                 return PT_BUSY;
         }
 
-        pe->getEventData((int &)rc);
+        pe->getEventData(rc);
 #ifdef PTAPI_TEST
-        int cmd;
+        intptr_t cmd;
         pe->getIntData2(cmd);
         assert(cmd == TaoMessage::START_TONE);
 #endif
@@ -554,7 +554,7 @@ PtStatus PtTerminalConnection::stopTone(void)
                                                                         mCallId);
         mpClient->sendRequest(msg);
 
-        int rc;
+        intptr_t rc;
         if (OS_SUCCESS != pe->wait(msg.getCmd(), mTimeOut))
         {
                 mpClient->resetConnectionSocket(msg.getMsgID());
@@ -566,9 +566,9 @@ PtStatus PtTerminalConnection::stopTone(void)
                 return PT_BUSY;
         }
 
-        pe->getEventData((int &)rc);
+        pe->getEventData(rc);
 #ifdef PTAPI_TEST
-        int cmd;
+        intptr_t cmd;
         pe->getIntData2(cmd);
         assert(cmd == TaoMessage::STOP_TONE);
 #endif
@@ -610,7 +610,7 @@ PtStatus PtTerminalConnection::playFile(const char* audioFileName, UtlBoolean re
                                                                         arg);
         mpClient->sendRequest(msg);
 
-        int rc;
+        intptr_t rc;
         if (OS_SUCCESS != pe->wait(msg.getCmd(), mTimeOut))
         {
                 mpClient->resetConnectionSocket(msg.getMsgID());
@@ -622,9 +622,9 @@ PtStatus PtTerminalConnection::playFile(const char* audioFileName, UtlBoolean re
                 return PT_BUSY;
         }
 
-        pe->getEventData((int &)rc);
+        pe->getEventData(rc);
 #ifdef PTAPI_TEST
-        int cmd;
+        intptr_t cmd;
         pe->getIntData2(cmd);
         assert(cmd == TaoMessage::PLAY_FILE_NAME);
 #endif
@@ -641,7 +641,7 @@ PtStatus PtTerminalConnection::playFile(FILE* audioFilePtr, UtlBoolean repeat,
         EVENT_TRACE("Entering PtTerminalConnection::playFile\n") ;
    char buff[MAXIMUM_INTEGER_STRING_LENGTH];
 
-   sprintf(buff, "%d", (int)audioFilePtr);
+   sprintf(buff, "%" PRIdPTR, (intptr_t)audioFilePtr);
         UtlString arg(buff);
 
     sprintf(buff, "%d", (int)repeat);
@@ -668,7 +668,7 @@ PtStatus PtTerminalConnection::playFile(FILE* audioFilePtr, UtlBoolean repeat,
                                                                         mCallId);
         mpClient->sendRequest(msg);
 
-        int rc;
+        intptr_t rc;
         if (OS_SUCCESS != pe->wait(msg.getCmd(), mTimeOut))
         {
                 mpClient->resetConnectionSocket(msg.getMsgID());
@@ -680,9 +680,9 @@ PtStatus PtTerminalConnection::playFile(FILE* audioFilePtr, UtlBoolean repeat,
                 return PT_BUSY;
         }
 
-        pe->getEventData((int &)rc);
+        pe->getEventData(rc);
 #ifdef PTAPI_TEST
-        int cmd;
+        intptr_t cmd;
         pe->getIntData2(cmd);
         assert(cmd == TaoMessage::PLAY_FILE_URL);
 #endif
@@ -710,7 +710,7 @@ PtStatus PtTerminalConnection::stopPlay(UtlBoolean closeFile)
                                                                         mCallId);
         mpClient->sendRequest(msg);
 
-        int rc;
+        intptr_t rc;
         if (OS_SUCCESS != pe->wait(msg.getCmd(), mTimeOut))
         {
                 mpClient->resetConnectionSocket(msg.getMsgID());
@@ -722,9 +722,9 @@ PtStatus PtTerminalConnection::stopPlay(UtlBoolean closeFile)
                 return PT_BUSY;
         }
 
-        pe->getEventData((int &)rc);
+        pe->getEventData(rc);
 #ifdef PTAPI_TEST
-        int cmd;
+        intptr_t cmd;
         pe->getIntData2(cmd);
         assert(cmd == TaoMessage::STOP_PLAY);
 #endif
@@ -745,7 +745,7 @@ PtStatus PtTerminalConnection::createPlayer(MpStreamPlayer** pPlayer, const char
 
    UtlString args;
 
-   sprintf(buff, "%d", (int) pPlayer);
+   sprintf(buff, "%" PRIdPTR, (intptr_t) pPlayer);
    args.append(buff);
    args.append(TAOMESSAGE_DELIMITER) ;
    args.append(szStream) ;
@@ -765,7 +765,7 @@ PtStatus PtTerminalConnection::createPlayer(MpStreamPlayer** pPlayer, const char
                                                                         args);
         mpClient->sendRequest(msg);
 
-        int rc;
+        intptr_t rc;
         if (OS_SUCCESS != pe->wait(msg.getCmd(), mTimeOut))
         {
                 mpClient->resetConnectionSocket(msg.getMsgID());
@@ -777,9 +777,9 @@ PtStatus PtTerminalConnection::createPlayer(MpStreamPlayer** pPlayer, const char
                 return PT_BUSY;
         }
 
-   pe->getEventData((int &)rc);
+   		pe->getEventData(rc);
 #ifdef PTAPI_TEST
-        int cmd;
+   		intptr_t cmd;
         pe->getIntData2(cmd);
         assert(cmd == TaoMessage::CREATE_PLAYER);
 #endif
@@ -801,7 +801,7 @@ PtStatus PtTerminalConnection::destroyPlayer(MpStreamPlayer* pPlayer)
    UtlString args;
 
 
-   sprintf(buff, "%d", (int) pPlayer);
+   sprintf(buff, "%" PRIdPTR, (intptr_t) pPlayer);
    args.append(buff);
    args.append(TAOMESSAGE_DELIMITER) ;
    args.append(mCallId);
@@ -816,7 +816,7 @@ PtStatus PtTerminalConnection::destroyPlayer(MpStreamPlayer* pPlayer)
                                                                         args);
         mpClient->sendRequest(msg);
 
-        int rc;
+        intptr_t rc;
         if (OS_SUCCESS != pe->wait(msg.getCmd(), mTimeOut))
         {
                 mpClient->resetConnectionSocket(msg.getMsgID());
@@ -828,9 +828,9 @@ PtStatus PtTerminalConnection::destroyPlayer(MpStreamPlayer* pPlayer)
                 return PT_BUSY;
         }
 
-   pe->getEventData((int &)rc);
+   		pe->getEventData(rc);
 #ifdef PTAPI_TEST
-        int cmd;
+   		intptr_t cmd;
         pe->getIntData2(cmd);
         assert(cmd == TaoMessage::DESTROY_PLAYER);
 #endif
@@ -851,7 +851,7 @@ PtStatus PtTerminalConnection::createPlaylistPlayer(MpStreamPlaylistPlayer** pPl
 
    UtlString args;
 
-   sprintf(buff, "%d", (int) pPlayer);
+   sprintf(buff, "%" PRIdPTR, (intptr_t) pPlayer);
    args.append(buff);
    args += TAOMESSAGE_DELIMITER + mCallId ;
 
@@ -865,7 +865,7 @@ PtStatus PtTerminalConnection::createPlaylistPlayer(MpStreamPlaylistPlayer** pPl
                                                                         args);
         mpClient->sendRequest(msg);
 
-        int rc;
+        intptr_t rc;
         if (OS_SUCCESS != pe->wait(msg.getCmd(), mTimeOut))
         {
                 mpClient->resetConnectionSocket(msg.getMsgID());
@@ -877,9 +877,9 @@ PtStatus PtTerminalConnection::createPlaylistPlayer(MpStreamPlaylistPlayer** pPl
                 return PT_BUSY;
         }
 
-   pe->getEventData((int &)rc);
+        pe->getEventData(rc);
 #ifdef PTAPI_TEST
-        int cmd;
+        intptr_t cmd;
         pe->getIntData2(cmd);
         assert(cmd == TaoMessage::CREATE_PLAYLIST_PLAYER);
 #endif
@@ -900,7 +900,7 @@ PtStatus PtTerminalConnection::destroyPlaylistPlayer(MpStreamPlaylistPlayer* pPl
 
    UtlString args;
 
-   sprintf(buff, "%d", (int) pPlayer);
+   sprintf(buff, "%" PRIdPTR, (intptr_t) pPlayer);
    args.append(buff);
    args.append(TAOMESSAGE_DELIMITER) ;
    args.append(mCallId);
@@ -915,7 +915,7 @@ PtStatus PtTerminalConnection::destroyPlaylistPlayer(MpStreamPlaylistPlayer* pPl
                                                                         args);
         mpClient->sendRequest(msg);
 
-        int rc;
+        intptr_t rc;
         if (OS_SUCCESS != pe->wait(msg.getCmd(), mTimeOut))
         {
                 mpClient->resetConnectionSocket(msg.getMsgID());
@@ -927,9 +927,9 @@ PtStatus PtTerminalConnection::destroyPlaylistPlayer(MpStreamPlaylistPlayer* pPl
                 return PT_BUSY;
         }
 
-   pe->getEventData((int &)rc);
+        pe->getEventData(rc);
 #ifdef PTAPI_TEST
-        int cmd;
+        intptr_t cmd;
         pe->getIntData2(cmd);
         assert(cmd == TaoMessage::DESTROY_PLAYLIST_PLAYER);
 #endif

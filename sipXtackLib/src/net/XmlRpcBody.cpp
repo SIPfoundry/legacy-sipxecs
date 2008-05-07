@@ -63,12 +63,12 @@ void XmlRpcBody::append(const char* string)
 
 /* ============================ ACCESSORS ================================= */
 
-int XmlRpcBody::getLength() const
+size_t XmlRpcBody::getLength() const
 {
    return (mBody.length());
 }
 
-void XmlRpcBody::getBytes(const char** bytes, int* length) const
+void XmlRpcBody::getBytes(const char** bytes, size_t* length) const
 {
    // This version of getBytes exists so that a caller who is
    // calling this method through an HttpBody will get the right
@@ -79,7 +79,7 @@ void XmlRpcBody::getBytes(const char** bytes, int* length) const
    *bytes = mBody.data();
 }
 
-void XmlRpcBody::getBytes(UtlString* bytes, int* length) const
+void XmlRpcBody::getBytes(UtlString* bytes, size_t* length) const
 {
    *bytes = mBody;
    *length = bytes->length();
@@ -96,8 +96,8 @@ bool XmlRpcBody::addValue(UtlContainable* value)
    {
       UtlInt* pValue = (UtlInt *)value;
       // allow room for the widest possible value, INT_MIN = -2147483648
-      char temp[11];
-      sprintf(temp, "%d", pValue->getValue());
+      char temp[20];
+      sprintf(temp, "%" PRIdPTR, pValue->getValue());
       paramValue.append(BEGIN_INT);
       paramValue.append(temp);
       paramValue.append(END_INT);

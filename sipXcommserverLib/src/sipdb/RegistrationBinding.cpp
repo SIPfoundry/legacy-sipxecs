@@ -357,7 +357,7 @@ void RegistrationBinding::setCseq(int cseq)
 }
 void RegistrationBinding::setCseq(const UtlString& cseq)
 {
-   mCseq = (int) atoi(cseq);
+   mCseq = atoi(cseq);
 }
 
 int RegistrationBinding::getExpires() const
@@ -370,7 +370,7 @@ void RegistrationBinding::setExpires(int expires)
 }
 void RegistrationBinding::setExpires(const UtlString& expires)
 {
-   mExpires = (int) atoi(expires);
+   mExpires = atoi(expires);
 }
 
 const UtlString* RegistrationBinding::getPrimary() const

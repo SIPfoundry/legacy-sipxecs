@@ -193,7 +193,7 @@ UtlBoolean SipPimClient::handleMessage(OsMsg& eventMessage)
                contentType.compareTo(CONTENT_TYPE_TEXT_PLAIN, UtlString::ignoreCase) == 0)
             {
                 const char* bodyBytes;
-                int bodyLength;
+                size_t bodyLength;
                 messageBody->getBytes(&bodyBytes, &bodyLength);
                 UtlString fromField;
                 sipMessage->getFromField(&fromField);

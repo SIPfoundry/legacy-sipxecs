@@ -62,7 +62,7 @@ UtlBoolean UtlContainable::isEqual(UtlContainable const * compareContainable) co
 /// Provides a hash function that uses the object pointer as the hash value.
 unsigned UtlContainable::directHash() const
 {
-   return reinterpret_cast <unsigned> (this);
+   return hashPtr(this);
 }
 
 /// Provides a hash function appropriate for null-terminated string values.

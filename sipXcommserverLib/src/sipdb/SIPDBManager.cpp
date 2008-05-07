@@ -81,7 +81,7 @@ SIPDBManager::~SIPDBManager ()
     // Critical Section here
     OsLock lock( sLockMutex );
 
-    int pid = getPid();
+    pid_t pid = getPid();
 
     // it is possible that the database was never opened
     // as it is opened only the first time a request for
@@ -135,7 +135,7 @@ SIPDBManager::getProcessCount ( int& rProcessCount ) const
     // one of its managed databases exists
     if ( spFastDB != NULL )
     {
-        int pid = getPid();
+        pid_t pid = getPid();
 
         // Thread Local Storage
         spFastDB->attach();
@@ -152,7 +152,7 @@ SIPDBManager::getProcessCount ( int& rProcessCount ) const
         if ( cursor.select() > 0 )
         {
             // Get the PID of the first process
-            int lastpid = -1;
+            pthread_t lastpid = -1;
             do {
                 // > 1 pid => not last process
                 if ( lastpid != cursor->pid ) {
@@ -193,7 +193,7 @@ SIPDBManager::pingDatabase (
     // one of its managed databases exists
     if ( spFastDB != NULL )
     {
-        int pid = getPid();
+        pid_t pid = getPid();
         spFastDB->attach();
         // create a readonly cursor
         dbCursor< TableInfo > cursor;
@@ -320,7 +320,7 @@ SIPDBManager::openDatabase () const
     // Critical Section here
     OsLock lock( sLockMutex );
 
-    int pid = getPid();
+    pid_t pid = getPid();
 
     dbDatabase* database = 
         new dbDatabase( dbDatabase::dbAllAccess 
@@ -364,7 +364,7 @@ SIPDBManager::getDatabase ( const UtlString& tablename ) const
     // Critical Section here
     OsLock lock( sLockMutex );
 
-    int pid = getPid();
+    pid_t pid = getPid();
 
     // Only construct one dbDatabase object per process
     if ( spFastDB == NULL )
@@ -469,7 +469,7 @@ SIPDBManager::removeDatabase ( const UtlString& tablename ) const
     // one dbDatabase construction call allowed per process
     if ( spFastDB != NULL )
     {
-        int pid = getPid();
+        pid_t pid = getPid();
 
         spFastDB->attach();
         dbCursor< TableInfo > cursor (dbCursorForUpdate);
@@ -612,7 +612,7 @@ SIPDBManager::updateDatabaseInfo (
     // Critical Section here
     OsLock lock( sLockMutex );
 
-    int pid = getPid();
+    pid_t pid = getPid();
 
     if (spFastDB != NULL)
     {

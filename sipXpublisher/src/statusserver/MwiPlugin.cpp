@@ -129,7 +129,7 @@ MwiPlugin::handleSubscribeRequest (
         if (OsSysLog::willLog(FAC_SIP, PRI_DEBUG))
           {
             UtlString rspMsg;
-            int rspLength;
+            size_t rspLength;
             httpResponse.getBytes( &rspMsg, &rspLength );
             OsSysLog::add(FAC_SIP, PRI_DEBUG,
                           "MwiPlugin::handleSubscribeRequest() - voicemailCGI response:\n%s"
@@ -148,7 +148,7 @@ MwiPlugin::handleSubscribeRequest (
             const HttpBody *pBody = httpResponse.getBody();
             if ( pBody )
               {
-                int charsRead;
+                size_t charsRead;
                 UtlString buffer;
 
                 pBody->getBytes(&buffer, &charsRead);
@@ -258,7 +258,7 @@ MwiPlugin::handleEvent (
         mailboxUrl.getIdentity( mailboxIdentity );
 
         // get the body from the request containing the MWI summaries
-        int charsRead;
+        size_t charsRead;
         UtlString buffer;
         HttpBody *pBody = (HttpBody *)request.getBody();
         if ( pBody )

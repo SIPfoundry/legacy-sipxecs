@@ -27,7 +27,7 @@ OsBSem  OsProtectEventMgr::sLock(OsBSem::Q_PRIORITY, OsBSem::FULL);
 
 /* ============================ CREATORS ================================== */
 
-OsProtectEventMgr* OsProtectEventMgr::getEventMgr(int userData)
+OsProtectEventMgr* OsProtectEventMgr::getEventMgr(void* userData)
 {
 
    if (spInstance != NULL)
@@ -45,7 +45,7 @@ OsProtectEventMgr* OsProtectEventMgr::getEventMgr(int userData)
 }
 
 // Constructor
-OsProtectEventMgr::OsProtectEventMgr(int userData,
+OsProtectEventMgr::OsProtectEventMgr(void* userData,
                                      int initialCount,
                                      int softLimit,
                                      int hardLimit,
@@ -116,7 +116,7 @@ OsProtectEventMgr::~OsProtectEventMgr()
    // Find and return an available element of the pool, creating more if
    // necessary and permitted.  Return NULL if failure.
 
-OsProtectedEvent* OsProtectEventMgr::alloc(int userData)
+OsProtectedEvent* OsProtectEventMgr::alloc(void* userData)
 {
         int i;
         OsProtectedEvent* pEvent = NULL;

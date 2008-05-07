@@ -182,8 +182,8 @@ OsStatus MpCodecFactory::createDecoder(SdpCodec::SdpCodecTypes internalCodecId,
 
    if (NULL != rpDecoder) {
 /*
-      osPrintf("MpCodecFactory::createDecoder(i:%d, x:%d, 0x%X)\n",
-         internalCodecId, payloadType, (int) rpDecoder);
+      osPrintf("MpCodecFactory::createDecoder(i:%d, x:%d, 0x%p)\n",
+         internalCodecId, payloadType, rpDecoder);
 */
       return OS_SUCCESS;
    }
@@ -265,8 +265,8 @@ OsStatus MpCodecFactory::createEncoder(SdpCodec::SdpCodecTypes internalCodecId,
    if (NULL != rpEncoder) 
    {
 /*
-      osPrintf("MpCodecFactory::createEncoder(i:%d, x:%d, 0x%X)\n",
-         internalCodecId, payloadType, (int) rpEncoder);
+      osPrintf("MpCodecFactory::createEncoder(i:%d, x:%d, 0x%p)\n",
+         internalCodecId, payloadType, rpEncoder);
 */
       return OS_SUCCESS;
    }

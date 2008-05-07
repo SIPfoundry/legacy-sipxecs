@@ -40,8 +40,8 @@ public:
 
    MimeBodyPart(const HttpBody* parent = NULL,
                 const char* bytes = 0,
-                int parentBodyStartIndex = 0,
-                int rawBodyLength = 0,
+                size_t parentBodyStartIndex = 0,
+                size_t rawBodyLength = 0,
                 const char* contentType = NULL);
 
    
@@ -73,18 +73,18 @@ public:
     *  HttpBody.
     */
    void attach(HttpBody* parent,
-               int rawPartStart, int rawPartLength,
-               int partStart, int partLength);
+               size_t rawPartStart, size_t rawPartLength,
+               size_t partStart, size_t partLength);
 
 /* ============================ ACCESSORS ================================= */
 
    // Get the various indexes from the object.
-   int getRawStart() const;
-   int getRawLength() const;
-   int getStart() const;
-   int getLength() const;
+   size_t getRawStart() const;
+   size_t getRawLength() const;
+   size_t getStart() const;
+   size_t getLength() const;
 
-   virtual void getBytes(const char** bytes, int* length) const;
+   virtual void getBytes(const char** bytes, size_t* length) const;
 
    UtlBoolean getPartHeaderValue(const char* headerName,
                                  UtlString& headerValue) const;
@@ -100,31 +100,31 @@ protected:
 private:
     UtlDList mNameValues;
     const HttpBody* mpParentBody;
-    int mParentBodyRawStartIndex;
-    int mRawBodyLength;
-    int mParentBodyStartIndex;
-    int mBodyLength;
+    size_t mParentBodyRawStartIndex;
+    size_t mRawBodyLength;
+    size_t mParentBodyStartIndex;
+    size_t mBodyLength;
 
 };
 
 /* ============================ INLINE METHODS ============================ */
 
-inline int MimeBodyPart::getRawStart() const
+inline size_t MimeBodyPart::getRawStart() const
 {
    return mParentBodyRawStartIndex;
 }
 
-inline int MimeBodyPart::getRawLength() const
+inline size_t MimeBodyPart::getRawLength() const
 {
    return mRawBodyLength;
 }
 
-inline int MimeBodyPart::getStart() const
+inline size_t MimeBodyPart::getStart() const
 {
    return mParentBodyStartIndex;
 }
 
-inline int MimeBodyPart::getLength() const
+inline size_t MimeBodyPart::getLength() const
 {
    return mBodyLength;
 }

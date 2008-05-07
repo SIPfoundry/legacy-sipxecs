@@ -63,7 +63,7 @@ UtlBoolean TaoEventDispatcher::handleMessage(OsMsg& rMsg)
                         // need to convert to ints and find a way to pass to the app
                         argList.index(TAOMESSAGE_DELIMITER, 0);
                         mpProviderEvent->setStringData(argList);
-                        mpProviderEvent->signal((int) handle);
+                        mpProviderEvent->signal(handle);
                         handled = TRUE;
                         break;
                 }

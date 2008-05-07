@@ -179,7 +179,7 @@ AC_DEFUN([CHECK_JDK],
     AC_ARG_VAR(JAVA_HOME, [Java Development Kit])
 
     TRY_JAVA_HOME=`ls -dr /usr/java/* 2> /dev/null | head -n 1`
-    for dir in $JAVA_HOME $JDK_HOME /usr/lib/jvm/java /usr/local/jdk /usr/local/java $TRY_JAVA_HOME; do
+    for dir in $JAVA_HOME $JDK_HOME /usr/lib/jvm/java /usr/lib64/jvm/java /usr/local/jdk /usr/local/java $TRY_JAVA_HOME; do
         AC_CHECK_FILE([$dir/lib/dt.jar],[jar=$dir/lib/dt.jar])
         if test x$jar != x; then
             found_jdk="yes";
@@ -590,8 +590,8 @@ AC_DEFUN([CHECK_APACHE2],
                [ apache2_mod_search_path="$withval"
                  apache2_mod_override="$withval"
                 ],
-               [ apache2_mod_search_path="/usr/local/apache2/modules /usr/apache2/modules /etc/httpd/modules /usr/lib/httpd/modules
-/usr/lib/apache2-prefork /usr/lib/apache2/modules"
+               [ apache2_mod_search_path="/usr/local/apache2/modules /usr/apache2/modules /etc/httpd/modules /usr/lib/httpd/modules 
+/usr/lib/apache2-prefork /usr/lib/apache2/modules /usr/lib64/apache2-prefork"
                  apache2_mod_override=""
                 ]
               )
@@ -663,7 +663,7 @@ AC_DEFUN([CHECK_APACHE2],
                [--with-apache-home=PATH the apache2 home directory],
                [ apache2_home_search_path="$withval"
                  ],
-               [ apache2_home_search_path="/usr/local/apache2 /usr/apache2 /etc/httpd /usr/local/sbin /usr/local /usr/sbin /usr /usr/lib/apache2 /usr/share/apache2 /usr/lib/httpd"
+               [ apache2_home_search_path="/usr/local/apache2 /usr/apache2 /etc/httpd /usr/local/sbin /usr/local /usr/sbin /usr /usr/lib/apache2 /usr/lib64/apache2 /usr/share/apache2 /usr/lib/httpd"
                  ]
                )
    AC_MSG_CHECKING([for apache2 home])
@@ -694,28 +694,35 @@ AC_DEFUN([CHECK_CGICC],
                  AC_PATH_PROG([CGICC_CONFIG],cgicc-config)
                  if test "x_$CGICC_CONFIG" != "x_"; then
                    cgicc_path=`$CGICC_CONFIG --prefix`
+                   cgicc_libpath="$cgicc_path/lib $cgicc_path/lib64"
                  else
                    cgicc_path="/usr/local/cgicc /usr/local /usr"
+                   cgicc_libpath="/usr/local/cgicc/lib /usr/local/cgicc/lib64 /usr/local/lib /usr/local/lib64 /usr/lib /usr/lib64"
                  fi
                 ]
                 )
 
     found_cgicc="no";
     for cgicc_dir in $cgicc_path; do
-	   if test -f "$cgicc_dir/include/cgicc/Cgicc.h" \
-               -a -f "$cgicc_dir/lib/libcgicc.so" -o "$cgicc_dir/lib/libcgicc.a"
-       then
-         found_cgicc="yes";
-         break;
+      if test x_$found_cgicc = x_no -a -f "$cgicc_dir/include/cgicc/Cgicc.h"
+      then
+        for cgicc_libdir in $cgicc_libpath; do
+          if test -f "$cgicc_libdir/libcgicc.so" -o -f "$cgicc_libdir/libcgicc.a"
+          then
+             found_cgicc="yes";
+             break;
+          fi
+        done
       fi
     done
 
     if test x_$found_cgicc = x_yes
     then
-        AC_MSG_RESULT($cgicc_dir)
+        AC_MSG_RESULT( [    cgicc includes found in $cgicc_dir] )
+        AC_MSG_RESULT( [    cgicc libraries found in $cgicc_libdir/libcgicc.so] )
 
         AC_SUBST(CGICC_CFLAGS,"-I$cgicc_dir/include")
-        AC_SUBST(CGICC_LIBS,"$cgicc_dir/lib/libcgicc.la")
+        AC_SUBST(CGICC_LIBS,"$cgicc_libdir/libcgicc.la")
     else
         AC_MSG_ERROR([cgicc not found - looked for lib/libcgicc.so and include/cgicc/Cgicc.h in $cgicc_path])
     fi
@@ -750,11 +757,11 @@ AC_DEFUN([CHECK_LIBWWW],
         AC_MSG_ERROR(not found; 'include/w3c-libwww/WWWLib.h' and 'include/WWWLib.h' not in any of: $libwww_path)
     fi
 
-    if test ! -e "$dir/lib/libwwwapp.so" -a  ! -e "$dir/lib/libwwwapp.a";then
-        AC_MSG_ERROR(not found; 'libwwwapps.so' not in: $dir/lib)
+    if test ! -e "$dir/lib/libwwwapp.so" -a  ! -e "$dir/lib/libwwwapp.a" -a ! -e "$dir/lib64/libwwwapp.so" ;then
+        AC_MSG_ERROR(not found; 'libwwwapp.so' not in: $dir/lib or $dir/lib64)
     fi
-    if test ! -e "$dir/lib/libwwwssl.so" -a  ! -e "$dir/lib/libwwwssl.a";then
-        AC_MSG_ERROR(not found; 'libwwwssl.so' not in: $dir/lib)
+    if test ! -e "$dir/lib/libwwwssl.so" -a  ! -e "$dir/lib/libwwwssl.a" -a ! -e "$dir/lib64/libwwwssl.so";then
+        AC_MSG_ERROR(not found; 'libwwwssl.so' not in: $dir/lib or $dir/lib64)
     fi
     if test x_$found_www = x_yes; then
         AC_MSG_RESULT($lwwwdir)
@@ -778,6 +785,11 @@ AC_DEFUN([CHECK_LIBWWW],
         if test -f $lwwwdir/lib/libxmltok.so -o -f $lwwwdir/lib/libxmltok.a
         then
            LIBWWW_LIBS="$LIBWWW_LIBS -lxmltok"
+        fi
+        # SUSE needs separate libexpat.so
+        if test -f $lwwwdir/lib64/libexpat.so
+        then
+           LIBWWW_LIBS="$LIBWWW_LIBS -lexpat"
         fi
 
         AC_SUBST(LIBWWW_LIBS)
@@ -871,7 +883,7 @@ AC_DEFUN([CHECK_PCRE],
 
     # Check for libpcre.{so,a} in the specified lib directory if any, and a
     # number of other likely places.
-    for dir in $libval /usr/local/lib /usr/local/pcre/lib /usr/lib /sw/lib; do
+    for dir in $libval /usr/local/lib /usr/local/pcre/lib /usr/lib /usr/lib64 /sw/lib; do
         if test -f "$dir/libpcre.so" -o -f "$dir/libpcre.a"; then
             found_pcre_lib="yes";
             libval=$dir
@@ -1388,7 +1400,7 @@ AC_DEFUN([CHECK_ODBC],
                 [libval=$withval],
                 [if test -n "$odbc_homeval";
                  then libval="$odbc_homeval/lib";
-                 else libval="/usr/lib /usr/lib/odbc /usr/local/lib /usr/local/odbc/lib";
+                 else libval="/usr/lib /usr/lib64 /usr/lib/odbc /usr/local/lib /usr/local/odbc/lib";
                  fi
                 ]
                 )

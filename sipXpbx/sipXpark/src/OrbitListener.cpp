@@ -63,7 +63,7 @@ OrbitListener::OrbitListener(CallManager* callManager,
    TaoAdaptor("OrbitListener-%d"),
    mpCallManager(callManager),
    mLifetime(lifetime, 0),
-   mBlindXferWait(blindXferWait, 0),
+   mBlindXferWait(blindXferWait, (intptr_t)0),
    mConsXferWait(consXferWait, 0)
 {
    // Assemble the full file name of the orbit file and initialize the reader.
@@ -502,9 +502,9 @@ UtlBoolean OrbitListener::handleMessage(OsMsg& rMsg)
       // OsQueuedEvent::signal() into the userdata of this OsEventMsg.
       // The userdata is the mSeqNo of the ParkedCallObject, plus an
       // "enum notifyCodes" value indicating what sort of event it was.
-      int userData;
+      intptr_t userData;
       OsEventMsg* pEventMsg = dynamic_cast <OsEventMsg*> (&rMsg);
-      pEventMsg->getUserData(userData);
+      pEventMsg->getUserData((void*&)userData);
       int seqNo;
       enum ParkedCallObject::notifyCodes type;
       ParkedCallObject::splitUserData(userData, seqNo, type);
@@ -519,7 +519,7 @@ UtlBoolean OrbitListener::handleMessage(OsMsg& rMsg)
          case ParkedCallObject::DTMF:
          {
             // Get the keycode.
-            int keycode;
+            intptr_t keycode;
             pEventMsg->getEventData(keycode);
             keycode >>= 16;
 
@@ -529,7 +529,7 @@ UtlBoolean OrbitListener::handleMessage(OsMsg& rMsg)
                keycode &= 0x7FFF;
                OsSysLog::add(FAC_PARK, PRI_DEBUG,
                              "OrbitListener::handleMessage DTMF keyup "
-                             "keycode %d, ParkedCallObject = %p",
+                             "keycode %ld, ParkedCallObject = %p",
                              keycode, pParkedCallObject);
 
                // Call the ParkedCallObject to process the keycode, which may
@@ -541,7 +541,7 @@ UtlBoolean OrbitListener::handleMessage(OsMsg& rMsg)
                keycode &= 0x7FFF;
                OsSysLog::add(FAC_PARK, PRI_DEBUG,
                              "OrbitListener::handleMessage DTMF keydown (ignored) "
-                             "keycode %d",
+                             "keycode %ld",
                              keycode);
                // Ignore it.
             }
@@ -748,7 +748,7 @@ ParkedCallObject* OrbitListener::getOldestCallInOrbit(const UtlString& orbit,
          // back to its parker.
          pCall->getTimeParked(parked);
          OsSysLog::add(FAC_PARK, PRI_DEBUG, "OrbitListener::getOldestCallInOrbit "
-                       "Entry for callId '%s', orbit '%s', time %ld.%06ld, "
+                       "Entry for callId '%s', orbit '%s', time %d.%06d, "
                        "isPickupCall %d, transferInProgress %d",
                        pKey->data(), pCall->getOrbit(), parked.seconds(), parked.usecs(),
                        pCall->isPickupCall(), pCall->transferInProgress());
@@ -948,7 +948,7 @@ bool OrbitListener::isCallRetrievalInvite(const char* callId,
 void OrbitListener::dumpTaoMessageArgs(TaoObjHandle eventId, TaoString& args) 
 {
    OsSysLog::add(FAC_PARK, PRI_DEBUG,
-                 "OrbitListener::dumpTaoMessageArgs Tao event id: %d local: %s args: %d",
+                 "OrbitListener::dumpTaoMessageArgs Tao event id: %ld local: %s args: %d",
                  eventId, args[TAO_OFFER_PARAM_LOCAL_CONNECTION], args.getCnt()) ;
         
    int argc = args.getCnt();
@@ -1021,7 +1021,7 @@ void OrbitListener::setUpParkedCallEstablished(const UtlString& callId,
    // This listener doesn't process DTMF, but the
    // addToneListener() seems to be needed to
    // activate DTMF listening via enableDtmfEvent().
-   mpCallManager->addToneListener(callId.data(), (int) &mListener);
+   mpCallManager->addToneListener(callId.data(), &mListener);
 
    // Get a copy of the INVITE that we received or sent
    // to start this dialog.  Look for a Referred-By
@@ -1043,7 +1043,7 @@ void OrbitListener::setUpParkedCallEstablished(const UtlString& callId,
       if (OsSysLog::willLog(FAC_PARK, PRI_DEBUG))
       {
          UtlString text;
-         int length;
+         size_t length;
          invite.getBytes(&text, &length);
          OsSysLog::add(FAC_PARK, PRI_DEBUG,
                        "OrbitListener::setUpParkedCallEstablished getInvite: INVITE is '%s'",

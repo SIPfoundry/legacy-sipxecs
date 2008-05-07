@@ -211,7 +211,7 @@ OsStatus MpFlowGraphBase::enable(void)
 // However, we do not want it.
 OsStatus MpFlowGraphBase::gainFocus(void)
 {
-   Nprintf("MpFG::gainFocus(0x%X), not supported!\n", (int) this, 0,0,0,0,0);
+   Nprintf("MpFG::gainFocus(0x%p), not supported!\n", this, 0,0,0,0,0);
    return OS_INVALID_ARGUMENT;
 }
 
@@ -347,7 +347,7 @@ OsStatus MpFlowGraphBase::insertResourceBefore(MpResource& rResource,
 // However, we did not want it.
 OsStatus MpFlowGraphBase::loseFocus(void)
 {
-   Nprintf("MpFG::loseFocus(0x%X), not supported!\n", (int) this, 0,0,0,0,0);
+   Nprintf("MpFG::loseFocus(0x%p), not supported!\n", this, 0,0,0,0,0);
    return OS_INVALID_ARGUMENT;
 }
 
@@ -789,7 +789,7 @@ static void complainAdd(const char *n1, int p1, const char *n2,
 {
       Zprintf("MpFlowGraphBase::handleAddLink(%s:%d, %s:%d)\n"
          " %s:%d is already connected!\n",
-         (int) n1, p1, (int) n2, p2, (int) n3, p3);
+         n1, p1, n2, p2, n3, p3);
 }
 
 // Handle the FLOWGRAPH_ADD_LINK message.
@@ -1011,8 +1011,8 @@ UtlBoolean MpFlowGraphBase::handleRemoveLink(MpResource* pFrom, int outPortIdx)
    // make sure the resource is part of this flow graph
    if (pFrom->getFlowGraph() != this)
    {
-      Zprintf("handleRemoveLink: pFrom->getFlowGraph() != this: 0x%x != 0x%x\n",
-         (int) (pFrom->getFlowGraph()), (int) this, 0,0,0,0);
+      Zprintf("handleRemoveLink: pFrom->getFlowGraph() != this: 0x%p != 0x%p\n",
+         (pFrom->getFlowGraph()), this, 0,0,0,0);
       assert(FALSE);
       return FALSE;
    }
@@ -1023,8 +1023,8 @@ UtlBoolean MpFlowGraphBase::handleRemoveLink(MpResource* pFrom, int outPortIdx)
    // disconnect the upstream end of the link
    if (pFrom->disconnectOutput(outPortIdx) == FALSE)
    {
-      Zprintf("handleRemoveLink: disconnectOutput(0x%x, %d) failed\n",
-         (int) pFrom, outPortIdx, 0,0,0,0);
+      Zprintf("handleRemoveLink: disconnectOutput(0x%p, %d) failed\n",
+         pFrom, outPortIdx, 0,0,0,0);
       assert(FALSE);    // couldn't disconnect
       return FALSE;
    }
@@ -1032,8 +1032,8 @@ UtlBoolean MpFlowGraphBase::handleRemoveLink(MpResource* pFrom, int outPortIdx)
    // disconnect the downstream end of the link
    if (pConnectedResource->disconnectInput(connectedPort) == FALSE)
    {
-      Zprintf("handleRemoveLink: disconnectInput(0x%x, %d) failed\n",
-         (int) pConnectedResource, connectedPort, 0,0,0,0);
+      Zprintf("handleRemoveLink: disconnectInput(0x%p, %d) failed\n",
+         pConnectedResource, connectedPort, 0,0,0,0);
       assert(FALSE);    // couldn't disconnect
       return FALSE;
    }
@@ -1057,8 +1057,8 @@ UtlBoolean MpFlowGraphBase::handleRemoveResource(MpResource* pResource)
    if (pResource->getFlowGraph() != this)
    {
       Zprintf("handleRemoveResource:\n"
-         "  pResource=0x%x, pResource->getFlowGraph()=0x%x, this=0x%x\n",
-         (int) pResource, (int) (pResource->getFlowGraph()), (int) this, 0,0,0);
+         "  pResource=0x%p, pResource->getFlowGraph()=0x%p, this=0x%p\n",
+         pResource, (pResource->getFlowGraph()), this, 0,0,0);
       assert(FALSE);
       return FALSE;
    }

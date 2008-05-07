@@ -382,7 +382,7 @@ int MpResource::numOutputs(void) const
 // Calculate a unique hash code for this object.
 unsigned MpResource::hash() const
 {
-    return (unsigned) this ; 
+    return hashPtr(this); 
 }
 
 // Get the ContainableType for a UtlContainable derived class.
@@ -446,7 +446,7 @@ int MpResource::compareTo(UtlContainable const * inVal) const
    
    if (inVal->isInstanceOf(getContainableType()))
    {
-      result = ((unsigned) this) - ((unsigned) inVal);
+      result = comparePtrs(this, inVal);
    }
    else
    {

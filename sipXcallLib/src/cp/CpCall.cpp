@@ -294,7 +294,7 @@ UtlBoolean CpCall::handleMessage(OsMsg& eventMessage)
                 int repeat = ((CpMultiStringMessage&)eventMessage).getInt2Data();
                 UtlBoolean local = ((CpMultiStringMessage&)eventMessage).getInt3Data();
                 UtlBoolean remote = ((CpMultiStringMessage&)eventMessage).getInt4Data();
-                int buffer = ((CpMultiStringMessage&)eventMessage).getInt5Data();
+                intptr_t buffer = ((CpMultiStringMessage&)eventMessage).getInt5Data();
                 int bufSize = ((CpMultiStringMessage&)eventMessage).getInt6Data();
                 int type = ((CpMultiStringMessage&)eventMessage).getInt7Data();
                 OsProtectedEvent* ev = (OsProtectedEvent*) ((CpMultiStringMessage&)eventMessage).getInt1Data();
@@ -603,8 +603,8 @@ UtlBoolean CpCall::handleMessage(OsMsg& eventMessage)
             {
             case OsEventMsg::NOTIFY:
                 {
-                    int eventData;
-                    int pListener;
+                    intptr_t eventData;
+                    void* pListener;
                     ((OsEventMsg&)eventMessage).getEventData(eventData);
                     ((OsEventMsg&)eventMessage).getUserData(pListener);
                     if (pListener)
@@ -616,7 +616,7 @@ UtlBoolean CpCall::handleMessage(OsMsg& eventMessage)
 
                         getCallId(arg);
                         arg.append(TAOMESSAGE_DELIMITER);
-                        sprintf(buf, "%d", eventData);
+                        sprintf(buf, "%ld", (long)eventData);
                         arg.append(buf);
 
                         for (i = 0; i < mToneListenerCnt; i++)
@@ -628,7 +628,7 @@ UtlBoolean CpCall::handleMessage(OsMsg& eventMessage)
                                 argCnt = 3;
 
                                 // post the dtmf event
-                                int eventId = TaoMessage::BUTTON_PRESS;
+                                TaoEventId eventId = TaoMessage::BUTTON_PRESS;
 
                                 TaoMessage msg(TaoMessage::EVENT,
                                     0,
@@ -646,8 +646,8 @@ UtlBoolean CpCall::handleMessage(OsMsg& eventMessage)
                         {
                             OsWriteLock lock(mDtmfQMutex);
 
-                            OsSysLog::add(FAC_CP, PRI_INFO, "CpCall %s - received dtmf event 0x%08x QLen=%d\n",
-                                mCallId.data(), eventData, mDtmfQLen);
+                            OsSysLog::add(FAC_CP, PRI_INFO, "CpCall %s - received dtmf event 0x%08lx QLen=%d\n",
+                                mCallId.data(), (long)eventData, mDtmfQLen);
 
                             for (i = 0; i < mDtmfQLen; i++)
                             {
@@ -660,16 +660,16 @@ UtlBoolean CpCall::handleMessage(OsMsg& eventMessage)
 
                                 if (mDtmfEvents[i].ignoreKeyUp && (eventData & 0x80000000))
                                 {
-                                    OsSysLog::add(FAC_CP, PRI_INFO, "CpCall %s - ignore KEYUP event 0x%08x\n",
-                                        mCallId.data(), eventData);
+                                    OsSysLog::add(FAC_CP, PRI_INFO, "CpCall %s - ignore KEYUP event 0x%08lx\n",
+                                        mCallId.data(), (long)eventData);
                                     continue; // ignore keyup event
                                 }
 
                                 if ((eventData & 0x80000000) == 0 &&
                                     (eventData & 0x0000ffff))
                                 {
-                                    OsSysLog::add(FAC_CP, PRI_INFO, "CpCall %s - ignore KEYDOWN event 0x%08x\n",
-                                        mCallId.data(), eventData);
+                                    OsSysLog::add(FAC_CP, PRI_INFO, "CpCall %s - ignore KEYDOWN event 0x%08lx\n",
+                                        mCallId.data(), (long)eventData);
                                     continue; // previous key still down, ignore long key event
                                 }
                                 OsQueuedEvent* dtmfEvent = (OsQueuedEvent*)(mDtmfEvents[i].event);
@@ -684,13 +684,13 @@ UtlBoolean CpCall::handleMessage(OsMsg& eventMessage)
                                     while ((tries++ < 10) && (res != OS_SUCCESS))
                                     {
                                         res = dtmfEvent->signal((eventData & 0xfffffff0));
-                                        OsSysLog::add(FAC_CP, PRI_INFO, "CpCall %s - resend dtmfEvent event 0x%08x to %p, res=%d\n",
-                                            mCallId.data(), eventData, dtmfEvent, res);
+                                        OsSysLog::add(FAC_CP, PRI_INFO, "CpCall %s - resend dtmfEvent event 0x%08lx to %p, res=%d\n",
+                                            mCallId.data(), (long)eventData, dtmfEvent, res);
                                     }
                                     if (res != OS_SUCCESS && tries >= 10)
                                     {
-                                        OsSysLog::add(FAC_CP, PRI_ERR, "CpCall %s - failed to notify DTMF event 0x%08x to %p, res=%d\n",
-                                            mCallId.data(), eventData, dtmfEvent, res);
+                                        OsSysLog::add(FAC_CP, PRI_ERR, "CpCall %s - failed to notify DTMF event 0x%08ldx to %p, res=%d\n",
+                                            mCallId.data(), (long)eventData, dtmfEvent, res);
                                     }
                                 }
                             }
@@ -762,7 +762,7 @@ void CpCall::localHold()
         mLocalHeld = TRUE;
         // Post a message to the callManager to change focus
         CpIntMessage localHoldMessage(CallManager::CP_YIELD_FOCUS,
-            (int)this);
+            (intptr_t)this);
         mpManager->postMessage(localHoldMessage);
         mLocalTermConnectionState = PtTerminalConnection::HELD;
     }
@@ -790,7 +790,7 @@ OsStatus CpCall::addTaoListener(OsServerTask* pListener,
                                 char* callId,
                                 int connectId,
                                 int mask,
-                                int pEv)
+                                intptr_t pEv)
 {
     return addListener(pListener,
         mpListeners,
@@ -821,10 +821,10 @@ OsStatus CpCall::ezRecord(int ms, int silenceLength, const char* fileName, doubl
     return mpMediaInterface->ezRecord(ms, silenceLength, fileName, duration, dtmfterm);
 }
 
-void CpCall::addToneListenerToFlowGraph(int pListener, Connection* connection)
+void CpCall::addToneListenerToFlowGraph(intptr_t pListener, Connection* connection)
 {
     OsQueuedEvent *pEv;
-    pEv = new OsQueuedEvent(mIncomingQ, pListener);
+    pEv = new OsQueuedEvent(mIncomingQ, (void*)pListener);
 
     UtlString remoteAddress;
     connection->getRemoteAddress(&remoteAddress);
@@ -835,13 +835,13 @@ void CpCall::addToneListenerToFlowGraph(int pListener, Connection* connection)
         (char*)remoteAddress.data(),
         connection->getConnectionId(),
         0,
-        (int)pEv);
+        (intptr_t)pEv);
 
     mpMediaInterface->addToneListener(pEv, connection->getConnectionId());
 }
 
 
-void CpCall::removeToneListenerFromFlowGraph(int pListener, Connection* connection)
+void CpCall::removeToneListenerFromFlowGraph(intptr_t pListener, Connection* connection)
 {
     mpMediaInterface->removeToneListener(connection->getConnectionId()) ;
 }
@@ -1268,12 +1268,12 @@ OsStatus CpCall::addListener(OsServerTask* pListener,
                              char* callId,
                              int connectId,
                              int mask,
-                             int pEv)
+                             intptr_t pEv)
 {
     for (int i = 0; i < listenerCnt; i++)
     {
         if (pListeners[i] &&
-            pListeners[i]->mpListenerPtr == (int) pListener &&
+            pListeners[i]->mpListenerPtr == pListener &&
             (!callId || pListeners[i]->mName.compareTo(callId) == 0) &&
             (pListeners[i]->mId == connectId))
         {
@@ -1295,7 +1295,7 @@ OsStatus CpCall::addListener(OsServerTask* pListener,
     TaoListenerDb *pListenerDb = new TaoListenerDb();
     if (callId)
         pListenerDb->mName.append(callId);
-    pListenerDb->mpListenerPtr = (int) pListener;
+    pListenerDb->mpListenerPtr = pListener;
     pListenerDb->mRef = 1;
     pListenerDb->mId = connectId;
     pListenerDb->mIntData = pEv;
@@ -1389,7 +1389,7 @@ void CpCall::postMetaEvent(int state, int remoteIsCallee)
 
 void CpCall::postTaoListenerMessage(int responseCode,
                                     UtlString responseText,
-                                    int eventId,
+                                    TaoEventId eventId,
                                     int type,
                                     int cause,
                                     int remoteIsCallee,
@@ -1399,7 +1399,7 @@ void CpCall::postTaoListenerMessage(int responseCode,
 {
     if (type == CONNECTION_STATE && !PtEvent::isStateTransitionAllowed(eventId, mLocalConnectionState))
     {
-        osPrintf("Connection state change from %d to %d is illegal\n", mLocalConnectionState, eventId);
+        osPrintf("Connection state change from %d to %d is illegal\n", mLocalConnectionState, (int)eventId);
         return;
     }
 

@@ -129,7 +129,7 @@ public:
                if(message)
                {
                   UtlString messageBytes;
-                  int len;
+                  size_t len;
                   message->getBytes(&messageBytes, &len);
                   printf("%s", messageBytes.data());
                }
@@ -170,13 +170,13 @@ public:
             CPPUNIT_ASSERT(b2);
 
             // The first segments have to be the same.
-            int n;
+            ssize_t n;
             n = a1 - a;
             if (b1 - b == n && strncmp(a, b, n) == 0)
             {
                // Cross-compare the second and third segments.
                n = a2 - (a1+1);
-               if ((int) strlen(b2+1) == n && strncmp(a1+1, b2+1, n) == 0)
+               if ((ssize_t)strlen(b2+1) == n && strncmp(a1+1, b2+1, n) == 0)
                {
                   n = strlen(a2+1);
                   result = b2 - (b1+1) == n && strncmp(a2+1, b1+1, n) == 0;
@@ -507,7 +507,7 @@ public:
                if(message)
                {
                   UtlString messageBytes;
-                  int len;
+                  size_t len;
                   message->getBytes(&messageBytes, &len);
                   printf("%s", messageBytes.data());
                }

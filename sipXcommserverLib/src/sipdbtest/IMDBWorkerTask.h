@@ -68,7 +68,7 @@ protected:
      * 
      * @return 
      */
-    int getPID () const;
+    pid_t getPID () const;
 
     /**
      * See above, used to set the busy flag (by the worker thread)

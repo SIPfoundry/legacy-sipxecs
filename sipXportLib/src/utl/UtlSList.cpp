@@ -205,10 +205,10 @@ size_t UtlSList::occurrencesOf(const UtlContainable* containableToMatch) const
 
 
 // Return the list position of the designated object.
-size_t UtlSList::index(const UtlContainable* containableToMatch) const 
+ssize_t UtlSList::index(const UtlContainable* containableToMatch) const 
 {
-    size_t matchedIndex = UTL_NOT_FOUND;
-    size_t currentIndex;
+    ssize_t matchedIndex = UTL_NOT_FOUND;
+    ssize_t currentIndex;
     UtlLink* listNode;
     UtlContainable* visitNode = NULL;
 

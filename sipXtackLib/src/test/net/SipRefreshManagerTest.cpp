@@ -59,7 +59,7 @@ class SipRefreshManagerTest : public CppUnit::TestCase
 
 #ifdef TEST_PRINT
                 UtlString responseBytes;
-                int len;
+                size_t len;
                 response.getBytes(&responseBytes, &len);
                 printf("%s", responseBytes.data());
 #endif
@@ -94,7 +94,7 @@ class SipRefreshManagerTest : public CppUnit::TestCase
                 if(message)
                 {
                     UtlString messageBytes;
-                    int len;
+                    size_t len;
                     message->getBytes(&messageBytes, &len);
                     printf("%s", messageBytes.data());
                 }
@@ -165,7 +165,7 @@ class SipRefreshManagerTest : public CppUnit::TestCase
         mwiSubscribeRequest.setCSeqField(1, SIP_SUBSCRIBE_METHOD);
         mwiSubscribeRequest.setExpiresField(expPeriod);
 
-        int len;
+        size_t len;
         UtlString requestDump;
         mwiSubscribeRequest.getBytes(&requestDump, &len);
 

@@ -141,7 +141,7 @@ UtlBoolean StreamWAVFormatDecoder::validDecoder()
    if (pSrc != NULL)
    {
       WAVChunkID id ; 
-      int read = 0 ;
+      size_t read = 0 ;
       if (pSrc->peek((char*) &id, sizeof(WAVChunkID), read) == OS_SUCCESS)
       {
          if (memcmp(id.ckID, MpWaveFileFormat, 4) == 0)
@@ -196,7 +196,7 @@ int StreamWAVFormatDecoder::run(void* pArgs)
    Sample        partialFrame[80] ;
    int   nSamplesPartialFrame = 0;   
    int numOutSamples = 0;
-   int iDataLength ;
+   size_t iDataLength ;
    int nQueuedFrames = 0;
 
    //used if the files are aLaw or uLaw encodec
@@ -205,7 +205,7 @@ int StreamWAVFormatDecoder::run(void* pArgs)
    StreamDataSource* pSrc = getDataSource() ;
    if (pSrc != NULL)
    {
-      int iRead = 0;
+      size_t iRead = 0;
       char buf[16]; 
 
       // "pre-read" 4 bytes, to see if this is a 0 length file and should
@@ -222,7 +222,7 @@ int StreamWAVFormatDecoder::run(void* pArgs)
          Click[40] = 20000 ;       // An impulse should do nicely
          Click[41] = -200 ;
 
-         queueFrame((const unsigned short *)Click);
+         queueFrame((const int16_t*)Click);
          mbEnd = TRUE ;
       }
       while (!mbEnd && nextDataChunk(iDataLength))
@@ -235,7 +235,7 @@ int StreamWAVFormatDecoder::run(void* pArgs)
          
          while ((iDataLength > 0) && !mbEnd)
          {
-            int iRead = 0;
+            size_t iRead = 0;
 
             UtlBoolean retval = OS_INVALID;
 
@@ -287,7 +287,7 @@ int StreamWAVFormatDecoder::run(void* pArgs)
 
             if (retval == OS_SUCCESS)
             {
-                int bytes;
+                size_t bytes;
                switch (mFormatChunk.formatTag)
                {
                   case 1:     // PCM                     
@@ -339,7 +339,7 @@ int StreamWAVFormatDecoder::run(void* pArgs)
                           {
                              if (iToCopy >= 80)
                              {
-                                queueFrame((const unsigned short *)OutBuffer+iCount);
+                                queueFrame((const int16_t*)OutBuffer+iCount);
                                 nQueuedFrames++ ;
                              }
                              else
@@ -358,7 +358,7 @@ int StreamWAVFormatDecoder::run(void* pArgs)
 
                              if (nSamplesPartialFrame == 80)
                              {
-                                queueFrame((const unsigned short *) partialFrame);
+                                queueFrame((const int16_t*) partialFrame);
                                 nSamplesPartialFrame = 0 ;
                                 nQueuedFrames++ ;
                              }
@@ -391,13 +391,13 @@ int StreamWAVFormatDecoder::run(void* pArgs)
 
 
 // Advances the mCurrentChunk to the next data chunk within the stream
-UtlBoolean StreamWAVFormatDecoder::nextDataChunk(int& iLength)
+UtlBoolean StreamWAVFormatDecoder::nextDataChunk(size_t& iLength)
 {
    UtlBoolean bSuccess = FALSE ;
-   int iRead ;
+   size_t iRead ;
    char Header[128]; 
-   unsigned long blockSize=0;
-   int iCurrentPosition ;
+   uint32_t blockSize=0;  // 4 byte value in WAV file
+   size_t iCurrentPosition ;
    iLength = 0 ;
    
    StreamDataSource* pDataSource = getDataSource() ;
@@ -544,8 +544,8 @@ UtlBoolean StreamWAVFormatDecoder::nextDataChunk(int& iLength)
    
        //if we haven't reached the end of the stream and we are still not success
        //then fire the decoding error
-       int currentPosition;
-       int streamLength;
+       size_t currentPosition;
+       size_t streamLength;
 
        pDataSource->getLength(streamLength);
        pDataSource->getPosition(currentPosition);

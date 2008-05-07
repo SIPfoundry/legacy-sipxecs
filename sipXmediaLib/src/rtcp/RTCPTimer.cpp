@@ -117,8 +117,7 @@ bool CRTCPTimer::Initialize(void)
     }
 
     // Associate a callback with an established vxWorks Timer
-    if(timer_connect(m_tTimer, (VOIDFUNCPTR) ReportingAlarm, (int)this)
-                                                                     == ERROR)
+    if(timer_connect(m_tTimer, (VOIDFUNCPTR) ReportingAlarm, this) == ERROR)
     {
         // Failure.  Let's deallocate all vxWorks timer related resources
         osPrintf("**** FAILURE **** CRTCPTimer::Initialize() -"
@@ -143,7 +142,7 @@ bool CRTCPTimer::Initialize(void)
     
     if(m_pCallback != NULL)
         delete m_pCallback;
-    m_pCallback = new OsCallback((int)this, ReportingAlarm);
+    m_pCallback = new OsCallback(this, ReportingAlarm);
     
     if(m_pTimer != NULL)
         delete m_pTimer;
@@ -251,7 +250,7 @@ bool CRTCPTimer::Shutdown( void )
 bool CRTCPTimer::CreateTimerThread(void)
 {
 
-    unsigned int iThreadID;
+    pthread_t iThreadID;
 
 
     // Create the thread terminate Event object.  The primary thread
@@ -266,7 +265,7 @@ bool CRTCPTimer::CreateTimerThread(void)
         return (FALSE);
 
     // We need to create a separate thread for managing the message queue
-    m_hTimerThread = (void *)_beginthreadex(
+    m_hTimerThread = (HANDLE)_beginthreadex(
                           NULL,             // No Special Security Attributes
                           0,                // Default Stack Size
                           TimerThreadProc,  // Thread Function
@@ -356,7 +355,7 @@ unsigned int __stdcall CRTCPTimer::TimerThreadProc(void * lpParameter)
  *
  *
  */
-void  CRTCPTimer::ReportingAlarm(timer_t tTimer, int iArgument)
+void  CRTCPTimer::ReportingAlarm(void* tTimer, intptr_t iArgument)
 {
     CRTCPTimer   *poRTCPTimer = (CRTCPTimer  *)iArgument;
 
@@ -370,7 +369,7 @@ void  CRTCPTimer::ReportingAlarm(timer_t tTimer, int iArgument)
 #include <sys/time.h>
 #endif
 
-void CRTCPTimer::ReportingAlarm(const int userData, const int eventData)
+void CRTCPTimer::ReportingAlarm(void* userData, intptr_t eventData)
 {
 #ifdef RTCP_LINUX_DEBUG
     struct timeval tv;

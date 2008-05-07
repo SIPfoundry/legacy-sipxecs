@@ -1,36 +1,41 @@
 /* -*- Mode: C; tab-width: 8; indent-tabs-mode: nil; c-basic-offset: 4 -*-
  *
- * The contents of this file are subject to the Netscape Public
- * License Version 1.1 (the "License"); you may not use this file
- * except in compliance with the License. You may obtain a copy of
- * the License at http://www.mozilla.org/NPL/
+ * ***** BEGIN LICENSE BLOCK *****
+ * Version: MPL 1.1/GPL 2.0/LGPL 2.1
  *
- * Software distributed under the License is distributed on an "AS
- * IS" basis, WITHOUT WARRANTY OF ANY KIND, either express oqr
- * implied. See the License for the specific language governing
- * rights and limitations under the License.
+ * The contents of this file are subject to the Mozilla Public License Version
+ * 1.1 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ * http://www.mozilla.org/MPL/
+ *
+ * Software distributed under the License is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+ * for the specific language governing rights and limitations under the
+ * License.
  *
  * The Original Code is Mozilla Communicator client code, released
  * March 31, 1998.
  *
- * The Initial Developer of the Original Code is Netscape
- * Communications Corporation.  Portions created by Netscape are
- * Copyright (C) 1998 Netscape Communications Corporation. All
- * Rights Reserved.
+ * The Initial Developer of the Original Code is
+ * Netscape Communications Corporation.
+ * Portions created by the Initial Developer are Copyright (C) 1998
+ * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
  *
- * Alternatively, the contents of this file may be used under the
- * terms of the GNU Public License (the "GPL"), in which case the
- * provisions of the GPL are applicable instead of those above.
- * If you wish to allow use of your version of this file only
- * under the terms of the GPL and not to allow others to use your
- * version of this file under the NPL, indicate your decision by
- * deleting the provisions above and replace them with the notice
- * and other provisions required by the GPL.  If you do not delete
- * the provisions above, a recipient may use your version of this
- * file under either the NPL or the GPL.
- */
+ * Alternatively, the contents of this file may be used under the terms of
+ * either of the GNU General Public License Version 2 or later (the "GPL"),
+ * or the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
+ * in which case the provisions of the GPL or the LGPL are applicable instead
+ * of those above. If you wish to allow use of your version of this file only
+ * under the terms of either the GPL or the LGPL, and not to allow others to
+ * use your version of this file under the terms of the MPL, indicate your
+ * decision by deleting the provisions above and replace them with the notice
+ * and other provisions required by the GPL or the LGPL. If you do not delete
+ * the provisions above, a recipient may use your version of this file under
+ * the terms of any one of the MPL, the GPL or the LGPL.
+ *
+ * ***** END LICENSE BLOCK ***** */
 
 /*
  * Lifetime-based fast allocation, inspired by much prior art, including
@@ -44,13 +49,6 @@
 #include "jsbit.h"
 #include "jsarena.h" /* Added by JSIFY */
 #include "jsutil.h" /* Added by JSIFY */
-#include "jslock.h"
-
-static JSArena *arena_freelist;
-
-#ifdef JS_THREADSAFE
-static JSLock *arena_freelist_lock;
-#endif
 
 #ifdef JS_ARENAMETER
 static JSArenaStats *arena_stats_list;
@@ -65,19 +63,12 @@ static JSArenaStats *arena_stats_list;
 JS_PUBLIC_API(void)
 JS_InitArenaPool(JSArenaPool *pool, const char *name, size_t size, size_t align)
 {
-#ifdef JS_THREADSAFE
-    /* Must come through here once in primordial thread to init safely! */
-    if (!arena_freelist_lock) {
-        arena_freelist_lock = JS_NEW_LOCK();
-        JS_ASSERT(arena_freelist_lock);
-    }
-#endif
     if (align == 0)
-	align = JS_ARENA_DEFAULT_ALIGN;
+        align = JS_ARENA_DEFAULT_ALIGN;
     pool->mask = JS_BITMASK(JS_CeilingLog2(align));
     pool->first.next = NULL;
     pool->first.base = pool->first.avail = pool->first.limit =
-	JS_ARENA_ALIGN(pool, &pool->first + 1);
+        JS_ARENA_ALIGN(pool, &pool->first + 1);
     pool->current = &pool->first;
     pool->arenasize = size;
 #ifdef JS_ARENAMETER
@@ -101,27 +92,15 @@ JS_InitArenaPool(JSArenaPool *pool, const char *name, size_t size, size_t align)
  * that (jsuword)(a + 1) is on a pointer boundary.
  *
  * By how much must we pad?  Let M be the alignment modulus for pool and P
- * the modulus for a pointer.  Given M >= P, the greatest distance between a
- * pointer aligned on an M boundary and one aligned on a P boundary is M-P.
- * If M and P are powers of two, then M-P = (pool->mask - POINTER_MASK).
+ * the modulus for a pointer.  Given M >= P, the base of an oversized arena
+ * that satisfies M is well-aligned for P.
  *
- * How much extra padding might spill over unused into the remainder of the
- * allocation, in the worst case (where M > P)?
- *
- * If we add M-P to the nominal back-pointer address and then round down to
- * align on a P boundary, we will use at most M-P bytes of padding, and at
- * least P (M > P => M >= 2P; M == 2P gives the least padding, P).  So if we
- * use P bytes of padding, then we will overallocate a by P+M-1 bytes, as we
- * also add M-1 to the estimated size in case malloc returns an odd pointer.
- * a->limit must include this overestimation to satisfy a->avail in [a->base,
- * a->limit].
- *
- * Similarly, if pool->mask is less than POINTER_MASK, we must include enough
- * space in the header size to align the back-pointer on a P boundary so that
- * it can be found by subtracting P from a->base.  This means a->base must be
- * on a P boundary, even though subsequent allocations from a may be aligned
- * on a lesser (M) boundary.  Given powers of two M and P as above, the extra
- * space needed when P > M is P-M or POINTER_MASK - pool->mask.
+ * On the other hand, if M < P, we must include enough space in the header
+ * size to align the back-pointer on a P boundary so that it can be found by
+ * subtracting P from a->base.  This means a->base must be on a P boundary,
+ * even though subsequent allocations from a may be aligned on a lesser (M)
+ * boundary.  Given powers of two M and P as above, the extra space needed
+ * when M < P is P-M or POINTER_MASK - pool->mask.
  *
  * The size of a header including padding is given by the HEADER_SIZE macro,
  * below, for any pool (for any value of M).
@@ -138,7 +117,7 @@ JS_InitArenaPool(JSArenaPool *pool, const char *name, size_t size, size_t align)
 #define HEADER_SIZE(pool)       (sizeof(JSArena **)                           \
                                  + (((pool)->mask < POINTER_MASK)             \
                                     ? POINTER_MASK - (pool)->mask             \
-                                    : (pool)->mask - POINTER_MASK))
+                                    : 0))
 #define HEADER_BASE_MASK(pool)  ((pool)->mask | POINTER_MASK)
 #define PTR_TO_HEADER(pool,p)   (JS_ASSERT(((jsuword)(p)                      \
                                             & HEADER_BASE_MASK(pool))         \
@@ -150,51 +129,40 @@ JS_InitArenaPool(JSArenaPool *pool, const char *name, size_t size, size_t align)
 JS_PUBLIC_API(void *)
 JS_ArenaAllocate(JSArenaPool *pool, size_t nb)
 {
-    JSArena **ap, **bp, *a, *b;
-    jsuword extra, hdrsz, gross, sz;
+    JSArena **ap, *a, *b;
+    jsuword extra, hdrsz, gross;
     void *p;
 
-    /* Search pool from current forward till we find or make enough space. */
+    /*
+     * Search pool from current forward till we find or make enough space.
+     *
+     * NB: subtract nb from a->limit in the loop condition, instead of adding
+     * nb to a->avail, to avoid overflowing a 32-bit address space (possible
+     * when running a 32-bit program on a 64-bit system where the kernel maps
+     * the heap up against the top of the 32-bit address space).
+     *
+     * Thanks to Juergen Kreileder <jk@blackdown.de>, who brought this up in
+     * https://bugzilla.mozilla.org/show_bug.cgi?id=279273.
+     */
     JS_ASSERT((nb & pool->mask) == 0);
-    for (a = pool->current; a->avail + nb > a->limit; pool->current = a) {
+    for (a = pool->current; nb > a->limit || a->avail > a->limit - nb;
+         pool->current = a) {
         ap = &a->next;
         if (!*ap) {
-            /* Not enough space in pool -- try to reclaim a free arena. */
+            /* Not enough space in pool, so we must malloc. */
             extra = (nb > pool->arenasize) ? HEADER_SIZE(pool) : 0;
             hdrsz = sizeof *a + extra + pool->mask;
             gross = hdrsz + JS_MAX(nb, pool->arenasize);
-            bp = &arena_freelist;
-            JS_ACQUIRE_LOCK(arena_freelist_lock);
-            while ((b = *bp) != NULL) {
-                /*
-                 * Insist on exact arenasize match if nb is not greater than
-                 * arenasize.  Otherwise take any arena big enough, but not by
-                 * more than gross + arenasize.
-                 */
-                sz = JS_UPTRDIFF(b->limit, b);
-                if (extra
-                    ? sz >= gross && sz <= gross + pool->arenasize
-                    : sz == gross) {
-                    *bp = b->next;
-                    JS_RELEASE_LOCK(arena_freelist_lock);
-                    b->next = NULL;
-                    COUNT(pool, nreclaims);
-                    goto claim;
-                }
-                bp = &b->next;
-            }
-
-            /* Nothing big enough on the freelist, so we must malloc. */
-            JS_RELEASE_LOCK(arena_freelist_lock);
+            if (gross < nb)
+                return NULL;
             b = (JSArena *) malloc(gross);
             if (!b)
-                return 0;
+                return NULL;
             b->next = NULL;
             b->limit = (jsuword)b + gross;
             JS_COUNT_ARENA(pool,++);
             COUNT(pool, nmallocs);
 
-        claim:
             /* If oversized, store ap in the header, just before a->base. */
             *ap = a = b;
             JS_ASSERT(gross <= JS_UPTRDIFF(a->limit, a));
@@ -237,11 +205,12 @@ JS_ArenaRealloc(JSArenaPool *pool, void *p, size_t size, size_t incr)
 
     JS_ASSERT(a->base == (jsuword)p);
     boff = JS_UPTRDIFF(a->base, a);
-    aoff = size + incr;
+    aoff = JS_ARENA_ALIGN(pool, size + incr);
     JS_ASSERT(aoff > pool->arenasize);
     extra = HEADER_SIZE(pool);                  /* oversized header holds ap */
     hdrsz = sizeof *a + extra + pool->mask;     /* header and alignment slop */
     gross = hdrsz + aoff;
+    JS_ASSERT(gross > aoff);
     a = (JSArena *) realloc(a, gross);
     if (!a)
         return NULL;
@@ -265,7 +234,7 @@ JS_ArenaRealloc(JSArenaPool *pool, void *p, size_t size, size_t incr)
 
     a->base = ((jsuword)a + hdrsz) & ~HEADER_BASE_MASK(pool);
     a->limit = (jsuword)a + gross;
-    a->avail = JS_ARENA_ALIGN(pool, a->base + aoff);
+    a->avail = a->base + aoff;
     JS_ASSERT(a->base <= a->avail && a->avail <= a->limit);
 
     /* Check whether realloc aligned differently, and copy if necessary. */
@@ -300,42 +269,30 @@ JS_ArenaGrow(JSArenaPool *pool, void *p, size_t size, size_t incr)
  * Reset pool->current to point to head in case it pointed at a tail arena.
  */
 static void
-FreeArenaList(JSArenaPool *pool, JSArena *head, JSBool reallyFree)
+FreeArenaList(JSArenaPool *pool, JSArena *head)
 {
     JSArena **ap, *a;
 
     ap = &head->next;
     a = *ap;
     if (!a)
-	return;
+        return;
 
 #ifdef DEBUG
     do {
-	JS_ASSERT(a->base <= a->avail && a->avail <= a->limit);
-	a->avail = a->base;
-	JS_CLEAR_UNUSED(a);
+        JS_ASSERT(a->base <= a->avail && a->avail <= a->limit);
+        a->avail = a->base;
+        JS_CLEAR_UNUSED(a);
     } while ((a = a->next) != NULL);
     a = *ap;
 #endif
 
-    if (reallyFree) {
-	do {
-	    *ap = a->next;
-	    JS_CLEAR_ARENA(a);
-	    JS_COUNT_ARENA(pool,--);
-	    free(a);
-	} while ((a = *ap) != NULL);
-    } else {
-	/* Insert the whole arena chain at the front of the freelist. */
-	do {
-	    ap = &(*ap)->next;
-	} while (*ap);
-        JS_ACQUIRE_LOCK(arena_freelist_lock);
-	*ap = arena_freelist;
-	arena_freelist = a;
-        JS_RELEASE_LOCK(arena_freelist_lock);
-	head->next = NULL;
-    }
+    do {
+        *ap = a->next;
+        JS_CLEAR_ARENA(a);
+        JS_COUNT_ARENA(pool,--);
+        free(a);
+    } while ((a = *ap) != NULL);
 
     pool->current = head;
 }
@@ -346,14 +303,14 @@ JS_ArenaRelease(JSArenaPool *pool, char *mark)
     JSArena *a;
 
     for (a = &pool->first; a; a = a->next) {
-	JS_ASSERT(a->base <= a->avail && a->avail <= a->limit);
+        JS_ASSERT(a->base <= a->avail && a->avail <= a->limit);
 
-	if (JS_UPTRDIFF(mark, a->base) <= JS_UPTRDIFF(a->avail, a->base)) {
-	    a->avail = JS_ARENA_ALIGN(pool, mark);
+        if (JS_UPTRDIFF(mark, a->base) <= JS_UPTRDIFF(a->avail, a->base)) {
+            a->avail = JS_ARENA_ALIGN(pool, mark);
             JS_ASSERT(a->avail <= a->limit);
-	    FreeArenaList(pool, a, JS_TRUE);
-	    return;
-	}
+            FreeArenaList(pool, a);
+            return;
+        }
     }
 }
 
@@ -399,11 +356,13 @@ JS_ArenaFreeAllocation(JSArenaPool *pool, void *p, size_t size)
 
     /*
      * At this point, a is doomed, so ensure that pool->current doesn't point
-     * at it.  What's more, force future allocations to scavenge all arenas on
-     * pool, in case some have free space.
+     * at it.  We must preserve LIFO order of mark/release cursors, so we use
+     * the oversized-allocation arena's back pointer (or if not oversized, we
+     * use the result of searching the entire pool) to compute the address of
+     * the arena that precedes a.
      */
     if (pool->current == a)
-        pool->current = &pool->first;
+        pool->current = (JSArena *) ((char *)ap - offsetof(JSArena, next));
 
     /*
      * This is a non-LIFO deallocation, so take care to fix up a->next's back
@@ -422,27 +381,27 @@ JS_ArenaFreeAllocation(JSArenaPool *pool, void *p, size_t size)
 JS_PUBLIC_API(void)
 JS_FreeArenaPool(JSArenaPool *pool)
 {
-    FreeArenaList(pool, &pool->first, JS_FALSE);
+    FreeArenaList(pool, &pool->first);
     COUNT(pool, ndeallocs);
 }
 
 JS_PUBLIC_API(void)
 JS_FinishArenaPool(JSArenaPool *pool)
 {
-    FreeArenaList(pool, &pool->first, JS_TRUE);
+    FreeArenaList(pool, &pool->first);
 #ifdef JS_ARENAMETER
     {
-	JSArenaStats *stats, **statsp;
+        JSArenaStats *stats, **statsp;
 
-	if (pool->stats.name)
-	    free(pool->stats.name);
-	for (statsp = &arena_stats_list; (stats = *statsp) != 0;
-	     statsp = &stats->next) {
-	    if (stats == &pool->stats) {
-		*statsp = stats->next;
-		return;
-	    }
-	}
+        if (pool->stats.name)
+            free(pool->stats.name);
+        for (statsp = &arena_stats_list; (stats = *statsp) != 0;
+             statsp = &stats->next) {
+            if (stats == &pool->stats) {
+                *statsp = stats->next;
+                return;
+            }
+        }
     }
 #endif
 }
@@ -450,28 +409,11 @@ JS_FinishArenaPool(JSArenaPool *pool)
 JS_PUBLIC_API(void)
 JS_ArenaFinish()
 {
-    JSArena *a, *next;
-
-    JS_ACQUIRE_LOCK(arena_freelist_lock);
-    a = arena_freelist;
-    arena_freelist = NULL;
-    JS_RELEASE_LOCK(arena_freelist_lock);
-    for (; a; a = next) {
-        next = a->next;
-        free(a);
-    }
 }
 
 JS_PUBLIC_API(void)
 JS_ArenaShutDown(void)
 {
-#ifdef JS_THREADSAFE
-    /* Must come through here once in the process's last thread! */
-    if (arena_freelist_lock) {
-        JS_DESTROY_LOCK(arena_freelist_lock);
-        arena_freelist_lock = NULL;
-    }
-#endif
 }
 
 #ifdef JS_ARENAMETER
@@ -536,9 +478,9 @@ JS_DumpArenaStats(FILE *fp)
             else
                 variance /= nallocs * (nallocs - 1);
             sigma = sqrt(variance);
-	} else {
-	    mean = variance = sigma = 0;
-	}
+        } else {
+            mean = variance = sigma = 0;
+        }
 
         fprintf(fp, "\n%s allocation statistics:\n", stats->name);
         fprintf(fp, "              number of arenas: %u\n", stats->narenas);

@@ -83,7 +83,7 @@ void notifyEventCallback(const char* earlyDialogHandle,
       if (notifyBody)
       {
          UtlString messageContent;
-         int bodyLength;
+         size_t bodyLength;
          notifyBody->getBytes(&messageContent, &bodyLength);
          fprintf(stdout, "%s", messageContent.data());
       }

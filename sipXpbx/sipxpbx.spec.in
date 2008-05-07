@@ -18,7 +18,13 @@ Requires: httpd >= 2.0.46
 %if %{_vendor} == suse
 Requires: apache2-prefork
 %endif
+
+%ifarch x86_64
+Requires: cgicc >= 3.2.4
+%else
 Requires: cgicc >= 3.2.2
+%endif
+
 %if %{_vendor} == redhat
 Requires: mod_ssl
 Requires: chkconfig

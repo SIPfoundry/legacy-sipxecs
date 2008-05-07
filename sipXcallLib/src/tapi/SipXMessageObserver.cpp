@@ -60,10 +60,10 @@ UtlBoolean SipXMessageObserver::handleMessage(OsMsg& rMsg)
        case OsMsg::OS_EVENT:
        {
            OsEventMsg* pEventMsg = (OsEventMsg*) &rMsg ;
-           int eventType ;
+           void* eventType ;
            pEventMsg->getUserData(eventType) ;
 
-           switch (eventType)
+           switch ((intptr_t)eventType)
            {
                case SIPXMO_NOTIFICATION_STUN:
                    handleStunOutcome(pEventMsg) ;
@@ -172,7 +172,7 @@ bool SipXMessageObserver::handleIncomingInfoMessage(SipMessage* pMessage)
             
             // get the content
             UtlString body;
-            int dummyLength = pMessage->getContentLength();
+            size_t dummyLength = pMessage->getContentLength();
             const HttpBody* pBody = pMessage->getBody();
             pBody->getBytes(&body, &dummyLength);    
             pInfoData->infoData.pContent = body.data();
@@ -270,7 +270,7 @@ bool SipXMessageObserver::handleStunOutcome(OsEventMsg* pMsg)
     SIPX_CONTACT_ADDRESS sipxContact; // contact structure for notifying
                                        // sipxtapi event listeners
     CONTACT_ADDRESS* pContact = NULL;
-    pMsg->getEventData((int&)pContact) ;
+    pMsg->getEventData((intptr_t&)pContact) ;
 
     SIPX_CONFIG_INFO eventInfo ;
     memset(&eventInfo, 0, sizeof(SIPX_CONFIG_INFO)) ;

@@ -1,36 +1,41 @@
 /* -*- Mode: C; tab-width: 8; indent-tabs-mode: nil; c-basic-offset: 4 -*-
  *
- * The contents of this file are subject to the Netscape Public
- * License Version 1.1 (the "License"); you may not use this file
- * except in compliance with the License. You may obtain a copy of
- * the License at http://www.mozilla.org/NPL/
+ * ***** BEGIN LICENSE BLOCK *****
+ * Version: MPL 1.1/GPL 2.0/LGPL 2.1
  *
- * Software distributed under the License is distributed on an "AS
- * IS" basis, WITHOUT WARRANTY OF ANY KIND, either express oqr
- * implied. See the License for the specific language governing
- * rights and limitations under the License.
+ * The contents of this file are subject to the Mozilla Public License Version
+ * 1.1 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ * http://www.mozilla.org/MPL/
+ *
+ * Software distributed under the License is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+ * for the specific language governing rights and limitations under the
+ * License.
  *
  * The Original Code is Mozilla Communicator client code, released
  * March 31, 1998.
  *
- * The Initial Developer of the Original Code is Netscape
- * Communications Corporation.  Portions created by Netscape are
- * Copyright (C) 1998 Netscape Communications Corporation. All
- * Rights Reserved.
+ * The Initial Developer of the Original Code is
+ * Netscape Communications Corporation.
+ * Portions created by the Initial Developer are Copyright (C) 1998
+ * the Initial Developer. All Rights Reserved.
  *
- * Contributor(s): 
+ * Contributor(s):
  *
- * Alternatively, the contents of this file may be used under the
- * terms of the GNU Public License (the "GPL"), in which case the
- * provisions of the GPL are applicable instead of those above.
- * If you wish to allow use of your version of this file only
- * under the terms of the GPL and not to allow others to use your
- * version of this file under the NPL, indicate your decision by
- * deleting the provisions above and replace them with the notice
- * and other provisions required by the GPL.  If you do not delete
- * the provisions above, a recipient may use your version of this
- * file under either the NPL or the GPL.
- */
+ * Alternatively, the contents of this file may be used under the terms of
+ * either of the GNU General Public License Version 2 or later (the "GPL"),
+ * or the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
+ * in which case the provisions of the GPL or the LGPL are applicable instead
+ * of those above. If you wish to allow use of your version of this file only
+ * under the terms of either the GPL or the LGPL, and not to allow others to
+ * use your version of this file under the terms of the MPL, indicate your
+ * decision by deleting the provisions above and replace them with the notice
+ * and other provisions required by the GPL or the LGPL. If you do not delete
+ * the provisions above, a recipient may use your version of this file under
+ * the terms of any one of the MPL, the GPL or the LGPL.
+ *
+ * ***** END LICENSE BLOCK ***** */
 
 #ifndef jsstr_h___
 #define jsstr_h___
@@ -205,56 +210,69 @@ typedef enum JSCharType {
 #define JS_CTYPE(c)     (JS_CCODE(c) & 0x1F)
 
 #define JS_ISALPHA(c)   ((((1 << JSCT_UPPERCASE_LETTER) |                     \
-			   (1 << JSCT_LOWERCASE_LETTER) |                     \
-			   (1 << JSCT_TITLECASE_LETTER) |                     \
-			   (1 << JSCT_MODIFIER_LETTER) |                      \
-			   (1 << JSCT_OTHER_LETTER))                          \
-			  >> JS_CTYPE(c)) & 1)
+                           (1 << JSCT_LOWERCASE_LETTER) |                     \
+                           (1 << JSCT_TITLECASE_LETTER) |                     \
+                           (1 << JSCT_MODIFIER_LETTER) |                      \
+                           (1 << JSCT_OTHER_LETTER))                          \
+                          >> JS_CTYPE(c)) & 1)
 
 #define JS_ISALNUM(c)   ((((1 << JSCT_UPPERCASE_LETTER) |                     \
-			   (1 << JSCT_LOWERCASE_LETTER) |                     \
-			   (1 << JSCT_TITLECASE_LETTER) |                     \
-			   (1 << JSCT_MODIFIER_LETTER) |                      \
-			   (1 << JSCT_OTHER_LETTER) |                         \
-			   (1 << JSCT_DECIMAL_DIGIT_NUMBER))                  \
-			  >> JS_CTYPE(c)) & 1)
+                           (1 << JSCT_LOWERCASE_LETTER) |                     \
+                           (1 << JSCT_TITLECASE_LETTER) |                     \
+                           (1 << JSCT_MODIFIER_LETTER) |                      \
+                           (1 << JSCT_OTHER_LETTER) |                         \
+                           (1 << JSCT_DECIMAL_DIGIT_NUMBER))                  \
+                          >> JS_CTYPE(c)) & 1)
 
 /* A unicode letter, suitable for use in an identifier. */
-#define JS_ISUC_LETTER(c)   ((((1 << JSCT_UPPERCASE_LETTER) |                 \
-			   (1 << JSCT_LOWERCASE_LETTER) |                     \
-			   (1 << JSCT_TITLECASE_LETTER) |                     \
-			   (1 << JSCT_MODIFIER_LETTER) |                      \
-			   (1 << JSCT_OTHER_LETTER) |                         \
-			   (1 << JSCT_LETTER_NUMBER))                         \
-			  >> JS_CTYPE(c)) & 1)
+#define JS_ISLETTER(c)   ((((1 << JSCT_UPPERCASE_LETTER) |                    \
+                            (1 << JSCT_LOWERCASE_LETTER) |                    \
+                            (1 << JSCT_TITLECASE_LETTER) |                    \
+                            (1 << JSCT_MODIFIER_LETTER) |                     \
+                            (1 << JSCT_OTHER_LETTER) |                        \
+                            (1 << JSCT_LETTER_NUMBER))                        \
+                           >> JS_CTYPE(c)) & 1)
 
 /*
-* 'IdentifierPart' from ECMA grammar, is Unicode letter or
-* combining mark or digit or connector punctuation.
-*/
-#define JS_ISID_PART(c) ((((1 << JSCT_UPPERCASE_LETTER) |                     \
-			   (1 << JSCT_LOWERCASE_LETTER) |                     \
-			   (1 << JSCT_TITLECASE_LETTER) |                     \
-			   (1 << JSCT_MODIFIER_LETTER) |                      \
-			   (1 << JSCT_OTHER_LETTER) |                         \
-			   (1 << JSCT_LETTER_NUMBER) |                        \
-			   (1 << JSCT_NON_SPACING_MARK) |                     \
-			   (1 << JSCT_COMBINING_SPACING_MARK) |               \
-			   (1 << JSCT_DECIMAL_DIGIT_NUMBER) |                 \
-			   (1 << JSCT_CONNECTOR_PUNCTUATION))                 \
-			  >> JS_CTYPE(c)) & 1)
+ * 'IdentifierPart' from ECMA grammar, is Unicode letter or combining mark or
+ * digit or connector punctuation.
+ */
+#define JS_ISIDPART(c)  ((((1 << JSCT_UPPERCASE_LETTER) |                     \
+                           (1 << JSCT_LOWERCASE_LETTER) |                     \
+                           (1 << JSCT_TITLECASE_LETTER) |                     \
+                           (1 << JSCT_MODIFIER_LETTER) |                      \
+                           (1 << JSCT_OTHER_LETTER) |                         \
+                           (1 << JSCT_LETTER_NUMBER) |                        \
+                           (1 << JSCT_NON_SPACING_MARK) |                     \
+                           (1 << JSCT_COMBINING_SPACING_MARK) |               \
+                           (1 << JSCT_DECIMAL_DIGIT_NUMBER) |                 \
+                           (1 << JSCT_CONNECTOR_PUNCTUATION))                 \
+                          >> JS_CTYPE(c)) & 1)
 
 /* Unicode control-format characters, ignored in input */
 #define JS_ISFORMAT(c) (((1 << JSCT_FORMAT) >> JS_CTYPE(c)) & 1)
 
-#define JS_ISWORD(c)    (JS_ISALNUM(c) || (c) == '_')
+/*
+ * Per ECMA-262 15.10.2.6, these characters are the only ones that make up a
+ * "word", as far as a RegExp is concerned.  If we want a Unicode-friendlier
+ * definition of "word", we should rename this macro to something regexp-y.
+ */
+#define JS_ISWORD(c)    ((c) < 128 && (isalnum(c) || (c) == '_'))
 
-/* XXXbe unify on A/X/Y tbls, avoid ctype.h? */
-#define JS_ISIDENT_START(c) (JS_ISUC_LETTER(c) || (c) == '_' || (c) == '$')
-#define JS_ISIDENT(c)       (JS_ISID_PART(c) || (c) == '_' || (c) == '$')
+#define JS_ISIDSTART(c) (JS_ISLETTER(c) || (c) == '_' || (c) == '$')
+#define JS_ISIDENT(c)   (JS_ISIDPART(c) || (c) == '_' || (c) == '$')
+
+#define JS_ISXMLSPACE(c)        ((c) == ' ' || (c) == '\t' || (c) == '\r' ||  \
+                                 (c) == '\n')
+#define JS_ISXMLNSSTART(c)      ((JS_CCODE(c) & 0x00000100) || (c) == '_')
+#define JS_ISXMLNS(c)           ((JS_CCODE(c) & 0x00000080) || (c) == '.' ||  \
+                                 (c) == '-' || (c) == '_')
+#define JS_ISXMLNAMESTART(c)    (JS_ISXMLNSSTART(c) || (c) == ':')
+#define JS_ISXMLNAME(c)         (JS_ISXMLNS(c) || (c) == ':')
 
 #define JS_ISDIGIT(c)   (JS_CTYPE(c) == JSCT_DECIMAL_DIGIT_NUMBER)
 
+/* XXXbe unify on A/X/Y tbls, avoid ctype.h? */
 /* XXXbe fs, etc. ? */
 #define JS_ISSPACE(c)   ((JS_CCODE(c) & 0x00070000) == 0x00040000)
 #define JS_ISPRINT(c)   ((c) < 128 && isprint(c))
@@ -262,24 +280,22 @@ typedef enum JSCharType {
 #define JS_ISUPPER(c)   (JS_CTYPE(c) == JSCT_UPPERCASE_LETTER)
 #define JS_ISLOWER(c)   (JS_CTYPE(c) == JSCT_LOWERCASE_LETTER)
 
-#define JS_TOUPPER(c)   ((JS_CCODE(c) & 0x00100000) ? (c) - ((int32)JS_CCODE(c) >> 22) : (c))
-#define JS_TOLOWER(c)   ((JS_CCODE(c) & 0x00200000) ? (c) + ((int32)JS_CCODE(c) >> 22) : (c))
+#define JS_TOUPPER(c)   ((jschar) ((JS_CCODE(c) & 0x00100000)                 \
+                                   ? (c) - ((int32)JS_CCODE(c) >> 22)         \
+                                   : (c)))
+#define JS_TOLOWER(c)   ((jschar) ((JS_CCODE(c) & 0x00200000)                 \
+                                   ? (c) + ((int32)JS_CCODE(c) >> 22)         \
+                                   : (c)))
 
-#define JS_TOCTRL(c)    ((c) ^ 64)      /* XXX unsafe! requires uppercase c */
-
-/* Shorthands for ASCII (7-bit) decimal and hex conversion. */
-#define JS7_ISDEC(c)    ((c) < 128 && isdigit(c))
+/*
+ * Shorthands for ASCII (7-bit) decimal and hex conversion.
+ * Manually inline isdigit for performance; MSVC doesn't do this for us.
+ */
+#define JS7_ISDEC(c)    ((((unsigned)(c)) - '0') <= 9)
 #define JS7_UNDEC(c)    ((c) - '0')
 #define JS7_ISHEX(c)    ((c) < 128 && isxdigit(c))
-#define JS7_UNHEX(c)    (uintN)(isdigit(c) ? (c) - '0' : 10 + tolower(c) - 'a')
+#define JS7_UNHEX(c)    (uintN)(JS7_ISDEC(c) ? (c) - '0' : 10 + tolower(c) - 'a')
 #define JS7_ISLET(c)    ((c) < 128 && isalpha(c))
-
-/* Initialize truly global state associated with JS strings. */
-extern JSBool
-js_InitStringGlobals(void);
-
-extern void
-js_FreeStringGlobals(void);
 
 /* Initialize per-runtime string state for the first context in the runtime. */
 extern JSBool
@@ -288,7 +304,12 @@ js_InitRuntimeStringState(JSContext *cx);
 extern void
 js_FinishRuntimeStringState(JSContext *cx);
 
+extern void
+js_FinishDeflatedStringCache(JSRuntime *rt);
+
 /* Initialize the String class, returning its prototype object. */
+extern JSClass js_StringClass;
+
 extern JSObject *
 js_InitStringClass(JSContext *cx, JSObject *obj);
 
@@ -328,20 +349,34 @@ extern JSObject *
 js_StringToObject(JSContext *cx, JSString *str);
 
 /*
+ * Convert a value to a printable C string.
+ */
+typedef JSString *(*JSValueToStringFun)(JSContext *cx, jsval v);
+
+extern JS_FRIEND_API(const char *)
+js_ValueToPrintable(JSContext *cx, jsval v, JSValueToStringFun v2sfun);
+
+#define js_ValueToPrintableString(cx,v) \
+    js_ValueToPrintable(cx, v, js_ValueToString)
+
+#define js_ValueToPrintableSource(cx,v) \
+    js_ValueToPrintable(cx, v, js_ValueToSource)
+
+/*
  * Convert a value to a string, returning null after reporting an error,
  * otherwise returning a new string reference.
  */
-extern JSString *
+extern JS_FRIEND_API(JSString *)
 js_ValueToString(JSContext *cx, jsval v);
 
 /*
  * Convert a value to its source expression, returning null after reporting
  * an error, otherwise returning a new string reference.
  */
-extern JSString *
+extern JS_FRIEND_API(JSString *)
 js_ValueToSource(JSContext *cx, jsval v);
 
-#ifdef HT_ENUMERATE_NEXT	/* XXX don't require jshash.h */
+#ifdef HT_ENUMERATE_NEXT        /* XXX don't require jshash.h */
 /*
  * Compute a hash function from str.
  */
@@ -355,6 +390,12 @@ js_HashString(JSString *str);
  */
 extern intN
 js_CompareStrings(JSString *str1, JSString *str2);
+
+/*
+ * Test if strings are equal.
+ */
+extern JSBool
+js_EqualStrings(JSString *str1, JSString *str2);
 
 /*
  * Boyer-Moore-Horspool superlinear search for pat:patlen in text:textlen.
@@ -382,8 +423,7 @@ js_strchr(const jschar *s, jschar c);
 extern jschar *
 js_strchr_limit(const jschar *s, jschar c, const jschar *limit);
 
-extern jschar *
-js_strncpy(jschar *t, const jschar *s, size_t n);
+#define js_strncpy(t, s, n)     memcpy((t), (s), (n) * sizeof(jschar))
 
 /*
  * Return s advanced past any Unicode white space characters.
@@ -394,38 +434,66 @@ js_SkipWhiteSpace(const jschar *s);
 /*
  * Inflate bytes to JS chars and vice versa.  Report out of memory via cx
  * and return null on error, otherwise return the jschar or byte vector that
- * was JS_malloc'ed.
+ * was JS_malloc'ed. length is updated with the length of the new string in jschars.
  */
 extern jschar *
-js_InflateString(JSContext *cx, const char *bytes, size_t length);
+js_InflateString(JSContext *cx, const char *bytes, size_t *length);
 
 extern char *
 js_DeflateString(JSContext *cx, const jschar *chars, size_t length);
 
 /*
  * Inflate bytes to JS chars into a buffer.
- * 'chars' must be large enough for 'length'+1 jschars.
+ * 'chars' must be large enough for 'length' jschars.
+ * The buffer is NOT null-terminated.
+ * cx may be NULL, which means no errors are thrown.
+ * The destination length needs to be initialized with the buffer size, takes
+ * the number of chars moved.
  */
-extern void
-js_InflateStringToBuffer(jschar *chars, const char *bytes, size_t length);
+extern JSBool
+js_InflateStringToBuffer(JSContext* cx, const char *bytes, size_t length,
+                         jschar *chars, size_t* charsLength);
+
+/*
+ * Deflate JS chars to bytes into a buffer.
+ * 'bytes' must be large enough for 'length chars.
+ * The buffer is NOT null-terminated.
+ * cx may be NULL, which means no errors are thrown.
+ * The destination length needs to be initialized with the buffer size, takes
+ * the number of bytes moved.
+ */
+extern JSBool
+js_DeflateStringToBuffer(JSContext* cx, const jschar *chars,
+                         size_t charsLength, char *bytes, size_t* length);
 
 /*
  * Associate bytes with str in the deflated string cache, returning true on
  * successful association, false on out of memory.
  */
 extern JSBool
-js_SetStringBytes(JSString *str, char *bytes, size_t length);
+js_SetStringBytes(JSRuntime *rt, JSString *str, char *bytes, size_t length);
 
 /*
  * Find or create a deflated string cache entry for str that contains its
  * characters chopped from Unicode code points into bytes.
  */
 extern char *
-js_GetStringBytes(JSString *str);
+js_GetStringBytes(JSRuntime *rt, JSString *str);
+
+/* Remove a deflated string cache entry associated with str if any. */
+extern void
+js_PurgeDeflatedStringCache(JSRuntime *rt, JSString *str);
 
 JSBool
 js_str_escape(JSContext *cx, JSObject *obj, uintN argc, jsval *argv,
               jsval *rval);
+
+/*
+ * Convert one UCS-4 char and write it into a UTF-8 buffer, which must be at
+ * least 6 bytes long.  Return the number of UTF-8 bytes of data written.
+ */
+extern int
+js_OneUcs4ToUtf8Char(uint8 *utf8Buffer, uint32 ucs4Char);
 
 JS_END_EXTERN_C
 

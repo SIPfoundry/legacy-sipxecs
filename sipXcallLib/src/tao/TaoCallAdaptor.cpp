@@ -405,10 +405,10 @@ TaoStatus TaoCallAdaptor::callConnect(TaoMessage& rMsg)
         PtSessionDesc   *pSession;
         UtlString               callId;
 
-        pTerminal = (PtTerminal *) atoi(args[0]);
-        pAddress =  (PtAddress *) atoi(args[1]);
+        pTerminal = (PtTerminal *) atol(args[0]);
+        pAddress =  (PtAddress *) atol(args[1]);
         destinationURL = args[2];
-        pSession = (PtSessionDesc *) atoi(args[3]);
+        pSession = (PtSessionDesc *) atol(args[3]);
         callId = args[4];
 
         int ret = mpCallMgrTask->connect(callId.data(), destinationURL.data());
@@ -442,7 +442,7 @@ TaoStatus TaoCallAdaptor::getConnect(TaoMessage& rMsg)
 
         TaoObjHandle  clientSocket = rMsg.getSocket();
         UtlString callId;
-        int connection = rMsg.getTaoObjHandle();
+        TaoObjHandle connection = rMsg.getTaoObjHandle();
 
 //      mpCallDb->insert(mpCallCnt->add(), objId);
         TaoMessage*     pMsg = new TaoMessage(TaoMessage::RESPONSE_CALL,
@@ -539,7 +539,7 @@ TaoStatus TaoCallAdaptor::getDrop(TaoMessage& rMsg)
 
         TaoObjHandle  clientSocket = rMsg.getSocket();
         UtlString callId;
-        int call = rMsg.getTaoObjHandle();
+        TaoObjHandle call = rMsg.getTaoObjHandle();
 
         TaoMessage*     pMsg = new TaoMessage(TaoMessage::RESPONSE_CALL,
                                                                         TaoMessage::DROP,
@@ -568,8 +568,8 @@ TaoStatus TaoCallAdaptor::callSetCodecCPULimit(TaoMessage& rMsg)
 
         TaoObjHandle  clientSocket = rMsg.getSocket();
         UtlString  argString = rMsg.getArgList();
-   TaoString args(argString, TAOMESSAGE_DELIMITER);
-        int call = rMsg.getTaoObjHandle();
+   		TaoString args(argString, TAOMESSAGE_DELIMITER);
+        TaoObjHandle call = rMsg.getTaoObjHandle();
 
    UtlString  callId = args[0] ;
    int       iLevel = atoi(args[1]) ;
@@ -603,7 +603,7 @@ TaoStatus TaoCallAdaptor::callCodecRenegotiate(TaoMessage& rMsg)
 
         TaoObjHandle  clientSocket = rMsg.getSocket();
         UtlString callId = rMsg.getArgList();
-        int call = rMsg.getTaoObjHandle();
+        TaoObjHandle call = rMsg.getTaoObjHandle();
 
    mpCallMgrTask->renegotiateCodecsAllTerminalConnections(callId.data()) ;
 
@@ -638,7 +638,7 @@ TaoStatus TaoCallAdaptor::callGetCodecCPUCost(TaoMessage& rMsg)
 
         TaoObjHandle  clientSocket = rMsg.getSocket();
         UtlString callId = rMsg.getArgList();
-        int call = rMsg.getTaoObjHandle();
+        TaoObjHandle call = rMsg.getTaoObjHandle();
 
    mpCallMgrTask->getCodecCPUCostCall(callId, iCodecCPUCodec) ;
 
@@ -675,7 +675,7 @@ TaoStatus TaoCallAdaptor::callGetCodecCPULimit(TaoMessage& rMsg)
 
         TaoObjHandle  clientSocket = rMsg.getSocket();
         UtlString callId = rMsg.getArgList();
-        int call = rMsg.getTaoObjHandle();
+        TaoObjHandle call = rMsg.getTaoObjHandle();
 
    mpCallMgrTask->getCodecCPULimitCall(callId, iCodecCPULimit) ;
 

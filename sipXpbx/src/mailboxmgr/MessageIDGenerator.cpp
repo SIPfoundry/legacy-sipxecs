@@ -94,7 +94,7 @@ MessageIDGenerator::getNextMessageID ( UtlString& rMessageName ) const
                 char buffer[32];
                 // Write it, zero extended to eight digits.
                 sprintf ( buffer, "%08d", nextSequenceNum );
-                unsigned long bytesWritten;
+                size_t bytesWritten;
 
                 // reset the pointer to 0 to overwrite the sequence
                 result = messageIDFile.setPosition(0);
@@ -149,7 +149,7 @@ MessageIDGenerator::recoverMessageID ( UtlString& rMessageName ) const
         rMessageName = "00000001";
         // Save 2 as the next sequence number.
         UtlString nextSequenceNum = "00000002";
-        unsigned long bytesWritten;
+        size_t bytesWritten;
         result = messageIDFile.write( nextSequenceNum , nextSequenceNum.length(), bytesWritten );
         OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
                       "MessageIDGenerator::recoverMessageID: write to ID file returns %d",

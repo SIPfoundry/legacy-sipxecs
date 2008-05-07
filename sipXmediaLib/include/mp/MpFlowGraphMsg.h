@@ -11,6 +11,7 @@
 #define _MpFlowGraphMsg_h_
 
 // SYSTEM INCLUDES
+#include <stdint.h>
 
 // APPLICATION INCLUDES
 #include "os/OsMsg.h"

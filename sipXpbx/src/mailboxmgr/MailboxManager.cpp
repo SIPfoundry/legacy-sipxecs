@@ -732,7 +732,7 @@ MailboxManager::createMailboxPrefsFile( UtlString& prefsFileLocation ) const
             "   <notification></notification>\n"
             "</prefs>";
 
-        unsigned long bytes_written = 0;
+        size_t bytes_written = 0;
         result = prefsFile.write(
             defaultPrefsData.data(),
             defaultPrefsData.length(),
@@ -1159,13 +1159,13 @@ MailboxManager::saveMessage (
     const UtlString& duration,
     const UtlString& timestamp,
     const char* data,
-    const int& datasize,
+    const size_t& datasize,
     const UtlString& nextMessageID,
     const UtlBoolean& saveIfDataIsEmpty,
     const UtlBoolean& sendEmail)
 {
    OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
-                 "MailboxManager::saveMessage(fromUrl = '%s', mailboxIdentity = '%s', duration = '%s', timestamp = '%s', datasize = %d, nextMessageId = '%s', saveIfDataIsEmpty = %d)",
+                 "MailboxManager::saveMessage(fromUrl = '%s', mailboxIdentity = '%s', duration = '%s', timestamp = '%s', datasize = %zu, nextMessageId = '%s', saveIfDataIsEmpty = %d)",
                  fromUrl.toString().data(), mailboxIdentity.data(),
                  duration.data(), timestamp.data(), datasize,
                  nextMessageID.data(), saveIfDataIsEmpty);
@@ -1209,7 +1209,7 @@ MailboxManager::saveMessage (
 
          // Create the wave file
          int file = open( nameWithoutExtension + ".wav", O_BINARY | O_CREAT | O_RDWR, 0644);
-         unsigned long bytes_written = 0;
+         ssize_t bytes_written = 0;
          if ( file != -1 )
          {
             bytes_written = write( file, data, datasize );
@@ -1240,7 +1240,7 @@ MailboxManager::saveMessage (
                      timestamp.data());
 
                   result = metaDataFile.write(
-                     xmlText, strlen (xmlText), bytes_written );
+                     xmlText, strlen (xmlText), (size_t&)bytes_written );
 
                   if ( result == OS_SUCCESS )
                   {
@@ -1324,7 +1324,7 @@ MailboxManager::saveMessage (
                wavFile.remove();
                logContent = "Failed to write recorded voicemail to " + nameWithoutExtension + ".wav\n" ;
                OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_ERR,
-                             "MailboxManager::saveMessage: write(fd = %d, size = %d) failed, fd opened on audio file '%s.wav', errno = %d '%s'",
+                             "MailboxManager::saveMessage: write(fd = %d, size = %zu) failed, fd opened on audio file '%s.wav', errno = %d '%s'",
                              file, datasize, nameWithoutExtension.data(),
                              errno, strerror(errno));
             }
@@ -1587,7 +1587,7 @@ MailboxManager::convertUrlStringToXML ( UtlString& value )
         UtlString temp = value;
         temp.remove ( 0, 1);
         temp.prepend ("&quot;");
-        int closeQuoteIndex = temp.index ('"');
+        ssize_t closeQuoteIndex = temp.index ('"');
         if (closeQuoteIndex > 0)
         {
             temp.remove ( closeQuoteIndex, 1 );
@@ -1597,7 +1597,7 @@ MailboxManager::convertUrlStringToXML ( UtlString& value )
     }
 
     // Check to see if it's a sip address
-    unsigned int index = 0;
+    ssize_t index = 0;
     while ( (index = value.first ('<')) != UTL_NOT_FOUND )
     {
         UtlString temp = value;
@@ -1636,7 +1636,7 @@ MailboxManager::convertXMLStringToURL ( UtlString& value )
         // Strip Leading "&quot;"
         temp.remove (0, 6);
         temp.prepend("\"");
-        int closeQuoteIndex = temp.index ("&quot;");
+        ssize_t closeQuoteIndex = temp.index ("&quot;");
         if (closeQuoteIndex > 0)
         {
             temp.remove ( closeQuoteIndex, 6 );
@@ -1648,10 +1648,10 @@ MailboxManager::convertXMLStringToURL ( UtlString& value )
     if ( value.index ("&lt;") != UTL_NOT_FOUND )
     {
         UtlString temp = value;
-        unsigned int indexLT = temp.index ("&lt;");
+        ssize_t indexLT = temp.index ("&lt;");
         temp.remove (indexLT, 4);
         temp.insert (indexLT, "<");
-        unsigned int indexGT = temp.index ("&gt;");
+        ssize_t indexGT = temp.index ("&gt;");
         if ( indexGT != UTL_NOT_FOUND )
         {
             temp.remove (indexGT, 4);
@@ -1685,7 +1685,7 @@ MailboxManager::validateMailbox (
     // up the extensions or alias tables but they work really well
     // when constructing URL's (as the default protocol is 'sip'
     UtlString userOrExtensionAtOptDomain(loginString);
-    unsigned int sipIndex = userOrExtensionAtOptDomain.index("sip:");
+    ssize_t sipIndex = userOrExtensionAtOptDomain.index("sip:");
     if ( sipIndex  != UTL_NOT_FOUND )
     {
         // see if we're being passed in a full URL in which
@@ -3294,7 +3294,7 @@ MailboxManager::forwardMessages (
             }
 
             // Save the file size
-            unsigned long fileSize;
+            size_t fileSize;
             file.getLength(fileSize);
 
             // Create a buffer for the file contents
@@ -3302,7 +3302,7 @@ MailboxManager::forwardMessages (
             if (buffer != NULL)
             {
                 // Read the file contents into the buffer
-                unsigned long bytesRead;
+                size_t bytesRead;
                 if ( file.read(buffer, fileSize,bytesRead) == OS_SUCCESS )
                 {
                     if (bytesRead == fileSize)
@@ -3702,7 +3702,7 @@ MailboxManager::saveGreetingOrName (
     const UtlString& mailboxIdentity,
     const UtlString& greetingType,
     const char* data,
-    const int&  datasize )
+    const size_t&  datasize )
 {
     OsStatus result = OS_SUCCESS;
     UtlString mailboxPath, logContents;
@@ -3735,7 +3735,7 @@ MailboxManager::saveGreetingOrName (
 
             // Create a new file
             int file = open(filename, O_BINARY | O_CREAT | O_RDWR, 0644);
-            unsigned long bytes_written = 0;
+            ssize_t bytes_written = 0;
             if ( file != -1 )
             {
                 // write the data to the file.
@@ -4886,7 +4886,7 @@ OsStatus
 MailboxManager::saveSystemPrompts (
     const UtlString& promptType,
     const char* data,
-    const int&  datasize ) const
+    const size_t&  datasize ) const
 {
     OsStatus result = OS_SUCCESS;
     UtlString systemPromptsDir, logContents;
@@ -4928,7 +4928,7 @@ MailboxManager::saveSystemPrompts (
 
             // 4. Create a new file
             int file = open(filename, O_BINARY | O_CREAT | O_RDWR, 0644);
-            unsigned long bytes_written = 0;
+            ssize_t bytes_written = 0;
             if ( file != -1 )
             {
                 // 5. write the data to the file.
@@ -5185,7 +5185,7 @@ MailboxManager::createOrganizationPrefsFile( const UtlString& orgPrefsFileLocati
             "   <autoattendant>" + UtlString( "afterhour" ) + "</autoattendant>\n"
             "</organizationprefs>";
    
-        unsigned long bytes_written = 0;
+        size_t bytes_written = 0;
         result = prefsFile.write(defaultPrefsData.data(),
                                  defaultPrefsData.length(),
                                  bytes_written);

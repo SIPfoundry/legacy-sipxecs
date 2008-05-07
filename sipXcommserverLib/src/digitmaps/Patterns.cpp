@@ -45,7 +45,7 @@ Patterns::~Patterns()
    // "ipv4 is supposed to be an IPv4 dotted quad
 bool Patterns::IPv4subnet(const UtlString ipv4, const UtlString cidr)
 {
-   size_t slash ;
+   ssize_t slash ;
    int mask_size ;
    struct in_addr in_address ;
    struct in_addr in_network ;
@@ -69,7 +69,7 @@ bool Patterns::IPv4subnet(const UtlString ipv4, const UtlString cidr)
    // Check of all dotted quads are in there.
    // Add 0's for missing elements.
    // Allows patterns like "192.168/16"
-   size_t dot = xmlNet.index('.');
+   ssize_t dot = xmlNet.index('.');
    if (dot == UTL_NOT_FOUND)
    {
       xmlNet.append(".0.0.0") ;

@@ -38,9 +38,9 @@ class OsTime
 public:
    static const OsTime OS_INFINITY;
    static const OsTime NO_WAIT;
-   static const long MSECS_PER_SEC ; 
-   static const long USECS_PER_MSEC ;
-   static const long USECS_PER_SEC ;
+   static const int MSECS_PER_SEC ; 
+   static const int USECS_PER_MSEC ;
+   static const int USECS_PER_SEC ;
 
 /* ============================ CREATORS ================================== */
 
@@ -97,19 +97,19 @@ public:
 
 /* ============================ ACCESSORS ================================= */
 
-   virtual long seconds(void) const
+   virtual int seconds(void) const
    {
       return mSeconds;
    }
    //:Return the seconds portion of the time interval
 
-   virtual long usecs(void) const
+   virtual int usecs(void) const
    {
       return mUsecs;
    }
    //:Return the microseconds portion of the time interval
 
-   virtual long cvtToMsecs(void) const;
+   virtual int cvtToMsecs(void) const;
      //:Convert the time interval to milliseconds
 
 /* ============================ INQUIRY =================================== */
@@ -127,9 +127,9 @@ protected:
 private:
    // The time interval denoted is (mSeconds + mUsecs/1,000,000) seconds.
    // This is effectively two's complement notation.
-   long mSeconds;               /* May be negative, if the time
+   int mSeconds;               /* May be negative, if the time
                                  * interval is negative */
-   long mUsecs;                 /* 0 <= mUsecs < USECS_PER_SEC,
+   int mUsecs;                 /* 0 <= mUsecs < USECS_PER_SEC,
                                  * even if mSeconds < 0 */
 
 };

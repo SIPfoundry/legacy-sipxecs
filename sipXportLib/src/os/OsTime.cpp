@@ -23,9 +23,9 @@
 // STATIC VARIABLE INITIALIZATIONS
 const OsTime OsTime::OS_INFINITY(0x7FFFFFFF,0x7FFFFFFF);
 const OsTime OsTime::NO_WAIT(0,0);
-const long OsTime::MSECS_PER_SEC   = 1000;
-const long OsTime::USECS_PER_MSEC  = 1000;
-const long OsTime::USECS_PER_SEC   = 1000000;
+const int OsTime::MSECS_PER_SEC   = 1000;
+const int OsTime::USECS_PER_MSEC  = 1000;
+const int OsTime::USECS_PER_SEC   = 1000000;
 
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
@@ -202,7 +202,7 @@ bool OsTime::operator<=(const OsTime& rhs) const
 /* ============================ ACCESSORS ================================= */
 
 // Convert the time interval to milliseconds
-long OsTime::cvtToMsecs(void) const
+int OsTime::cvtToMsecs(void) const
 {
    return (mSeconds * MSECS_PER_SEC) + (mUsecs / USECS_PER_MSEC);
 }

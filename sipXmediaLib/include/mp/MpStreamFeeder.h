@@ -128,7 +128,7 @@ public:
 
 /* ============================ ACCESSORS ================================= */
 
-   OsStatus getFrame(unsigned short *samples) ;
+   OsStatus getFrame(int16_t *samples) ;
      //: Get a frames worth of data (80 samples per frame) ;
 
    UtlBoolean isMarkedPaused() ;

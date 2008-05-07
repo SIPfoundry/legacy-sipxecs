@@ -381,7 +381,7 @@ void OsPathBase::Split()
 
 // this function will form the path into the correct path for the given
 // platform.
-// It also breaks the path into it's pieces and stores them in the correct member variables
+// It also breaks the path into its pieces and stores them in the correct member variables
 void OsPathBase::massage()
 {
     UtlString char_to_replace;
@@ -395,7 +395,7 @@ void OsPathBase::massage()
     else if (separator.compareTo("\\") == 0)
         char_to_replace = "/";
 
-    unsigned int pos = index(char_to_replace);
+    ssize_t pos = index(char_to_replace);
     while (pos != UTLSTRING_NOT_FOUND)
     {
         replace(pos,1,separator);

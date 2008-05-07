@@ -493,7 +493,7 @@ void RefreshDialogState::dumpState()
 
    long now = OsDateTime::getSecsSinceEpoch();
    UtlString msg_text;
-   int msg_length;
+   size_t msg_length;
    mpLastRequest->getBytes(&msg_text, &msg_length);
    OsTimer::OsTimerState state;
    OsTimer::Time expiresAt;
@@ -573,11 +573,13 @@ UtlBoolean SipRefreshManager::handleMessage(OsMsg &eventMessage)
     if(msgType == OsMsg::OS_EVENT &&
        msgSubType == OsEventMsg::NOTIFY)
     {
-        int eventData = 0;
+        intptr_t eventData = 0;
         RefreshDialogState* state = NULL;
+        void* stateVoid;
 
-        ((OsEventMsg&)eventMessage).getUserData((int&)state);
+        ((OsEventMsg&)eventMessage).getUserData(stateVoid);
         ((OsEventMsg&)eventMessage).getEventData(eventData);
+        state = (RefreshDialogState*)stateVoid;
 
         lock();
         // If the state is not still in the list we cannot
@@ -585,8 +587,8 @@ UtlBoolean SipRefreshManager::handleMessage(OsMsg &eventMessage)
         if(state && stateExists(state))
         {
             OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                          "SipRefreshManager::handleMessage Timer fired, state = %p '%s', eventData = %d",
-                          state, state->data(), eventData);
+                          "SipRefreshManager::handleMessage Timer fired, state = %p '%s', eventData = %ld",
+                          state, state->data(), (long)eventData);
 
             // Refresh request failed, need to clean up and
             // schedule a refresh in a short/failed time period
@@ -641,7 +643,7 @@ UtlBoolean SipRefreshManager::handleMessage(OsMsg &eventMessage)
                     SipMessage tempRequest(*(state->mpLastRequest));
                     
                     UtlString lastRequest;
-                    int length;
+                    size_t length;
                     state->mpLastRequest->getBytes(&lastRequest, &length);
                     OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipRefreshManager::handleMessage last request = '%s'",
                                   lastRequest.data());
@@ -677,8 +679,8 @@ UtlBoolean SipRefreshManager::handleMessage(OsMsg &eventMessage)
             else
             {
                 OsSysLog::add(FAC_SIP, PRI_ERR,
-                    "SipRefreshManager::handleMessage timer: %x does not match state's timer: %p",
-                    eventData, state->mpRefreshTimer);
+                    "SipRefreshManager::handleMessage timer: %lx does not match state's timer: %p",
+                    (long)eventData, state->mpRefreshTimer);
             }
         }
         unlock();
@@ -1196,7 +1198,7 @@ void SipRefreshManager::setRefreshTimer(RefreshDialogState& state,
                   nextResendSeconds);
 
     OsMsgQ* incomingQ = getMessageQueue();
-    OsTimer* resendTimer = new OsTimer(incomingQ, (int) &state);
+    OsTimer* resendTimer = new OsTimer(incomingQ, &state);
     state.mpRefreshTimer = resendTimer;
     OsTime timerTime(nextResendSeconds, 0);
     resendTimer->oneshotAfter(timerTime);                
@@ -1260,7 +1262,7 @@ void SipRefreshManager::setForResend(RefreshDialogState& state,
     if(state.mpLastRequest)
     {
         UtlString lastRequest;
-        int length;
+        size_t length;
         state.mpLastRequest->getBytes(&lastRequest, &length);
         OsSysLog::add(FAC_SIP, PRI_DEBUG,
                       "SipRefreshManager::setForResend last request = '%s'",

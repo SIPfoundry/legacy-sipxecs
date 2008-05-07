@@ -169,7 +169,7 @@ public:
      * Return the list position of the designated object or UTL_NOT_FOUND  if
      * not found.
      */
-    virtual size_t index(const UtlContainable* obj) const = 0;
+    virtual ssize_t index(const UtlContainable* obj) const = 0;
 
 
    /**

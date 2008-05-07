@@ -12,6 +12,7 @@ CFG=jsshell - Win32 Debug
 
 !IF "$(CFG)" != "js - Win32 Release" && "$(CFG)" != "js - Win32 Debug" &&\
  "$(CFG)" != "jsshell - Win32 Release" && "$(CFG)" != "jsshell - Win32 Debug" &&\
+ "$(CFG)" != "jskwgen - Win32 Release" && "$(CFG)" != "jskwgen - Win32 Debug" &&\
  "$(CFG)" != "fdlibm - Win32 Release" && "$(CFG)" != "fdlibm - Win32 Debug"
 !MESSAGE Invalid configuration "$(CFG)" specified.
 !MESSAGE You can specify a configuration when running NMAKE on this makefile
@@ -25,6 +26,8 @@ CFG=jsshell - Win32 Debug
 !MESSAGE "js - Win32 Debug" (based on "Win32 (x86) Dynamic-Link Library")
 !MESSAGE "jsshell - Win32 Release" (based on "Win32 (x86) Console Application")
 !MESSAGE "jsshell - Win32 Debug" (based on "Win32 (x86) Console Application")
+!MESSAGE "jskwgen - Win32 Release" (based on "Win32 (x86) Static Library")
+!MESSAGE "jskwgen - Win32 Debug" (based on "Win32 (x86) Static Library")
 !MESSAGE "fdlibm - Win32 Release" (based on "Win32 (x86) Static Library")
 !MESSAGE "fdlibm - Win32 Debug" (based on "Win32 (x86) Static Library")
 !MESSAGE 
@@ -55,7 +58,7 @@ NULL=nul
 OUTDIR=.\Release
 INTDIR=.\Release
 
-ALL : "fdlibm - Win32 Release" "$(OUTDIR)\js32.dll"
+ALL : "fdlibm - Win32 Release" "jskwgen - Win32 Release" "$(OUTDIR)\js32.dll"
 
 CLEAN : 
 	-@erase "$(INTDIR)\jsapi.obj"
@@ -90,19 +93,24 @@ CLEAN :
 	-@erase "$(INTDIR)\jsstr.obj"
 	-@erase "$(INTDIR)\jsutil.obj"
 	-@erase "$(INTDIR)\jsxdrapi.obj"
+	-@erase "$(INTDIR)\jsxml.obj"
 	-@erase "$(INTDIR)\prmjtime.obj"
+	-@erase "$(INTDIR)\js.pch"
+	-@erase "$(INTDIR)\jsautokw.h"
 	-@erase "$(OUTDIR)\js32.dll"
 	-@erase "$(OUTDIR)\js32.exp"
 	-@erase "$(OUTDIR)\js32.lib"
+	-@$(MAKE) /nologo /$(MAKEFLAGS) /F ".\js.mak" CFG="fdlibm - Win32 Release" clean
+	-@$(MAKE) /nologo /$(MAKEFLAGS) /F ".\js.mak" CFG="jskwgen - Win32 Release" clean
 
 "$(OUTDIR)" :
     if not exist "$(OUTDIR)/$(NULL)" mkdir "$(OUTDIR)"
 
 CPP=cl.exe
-# ADD BASE CPP /nologo /MT /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /YX /c
-# ADD CPP /nologo /MD /W3 /GX /O2 /D "NDEBUG" /D "_WINDOWS" /D "WIN32" /D "XP_PC" /D "JSFILE" /D "EXPORT_JS_API" /YX /c
-CPP_PROJ=/nologo /MD /W3 /GX /O2 /D "NDEBUG" /D "_WINDOWS" /D "WIN32" /D\
- "XP_PC" /D "JSFILE" /D "EXPORT_JS_API" /Fp"$(INTDIR)/js.pch" /YX\
+# ADD BASE CPP /nologo /MT /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D _X86_=1 /D "_WINDOWS" /YX /c
+# ADD CPP /nologo /MD /W3 /GX /O2 /D "NDEBUG" /D _X86_=1 /D "_WINDOWS" /D "WIN32" /D "XP_WIN" /D "JSFILE" /D "EXPORT_JS_API" /I"$(INTDIR)" /YX /c
+CPP_PROJ=/nologo /MD /W3 /GX /O2 /D "NDEBUG" /D _X86_=1 /D "_WINDOWS" /D "WIN32" /D\
+ "XP_WIN" /D "JSFILE" /D "EXPORT_JS_API" /Fp"$(INTDIR)/js.pch" /I"$(INTDIR)" /YX\
  /Fo"$(INTDIR)/" /c 
 CPP_OBJS=.\Release/
 CPP_SBRS=.\.
@@ -146,7 +154,7 @@ LINK32_FLAGS=kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib\
  advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib\
  odbccp32.lib /nologo /subsystem:windows /dll /incremental:no\
  /pdb:"$(OUTDIR)/js32.pdb" /machine:I386 /out:"$(OUTDIR)/js32.dll"\
- /implib:"$(OUTDIR)/js32.lib" 
+ /implib:"$(OUTDIR)/js32.lib" /opt:ref /opt:noicf
 LINK32_OBJS= \
 	"$(INTDIR)\jsapi.obj" \
 	"$(INTDIR)\jsarena.obj" \
@@ -180,6 +188,7 @@ LINK32_OBJS= \
 	"$(INTDIR)\jsstr.obj" \
 	"$(INTDIR)\jsutil.obj" \
 	"$(INTDIR)\jsxdrapi.obj" \
+	"$(INTDIR)\jsxml.obj" \
 	"$(INTDIR)\prmjtime.obj" \
 	"$(OUTDIR)\fdlibm.lib"
 
@@ -203,7 +212,7 @@ LINK32_OBJS= \
 OUTDIR=.\Debug
 INTDIR=.\Debug
 
-ALL : "fdlibm - Win32 Debug" "$(OUTDIR)\js32.dll"
+ALL : "fdlibm - Win32 Debug" "jskwgen - Win32 Debug" "$(OUTDIR)\js32.dll"
 
 CLEAN : 
 	-@erase "$(INTDIR)\jsapi.obj"
@@ -238,23 +247,26 @@ CLEAN :
 	-@erase "$(INTDIR)\jsstr.obj"
 	-@erase "$(INTDIR)\jsutil.obj"
 	-@erase "$(INTDIR)\jsxdrapi.obj"
+	-@erase "$(INTDIR)\jsxml.obj"
 	-@erase "$(INTDIR)\prmjtime.obj"
-	-@erase "$(INTDIR)\vc40.idb"
-	-@erase "$(INTDIR)\vc40.pdb"
+	-@erase "$(INTDIR)\js.pch"
+	-@erase "$(INTDIR)\jsautokw.h"
 	-@erase "$(OUTDIR)\js32.dll"
 	-@erase "$(OUTDIR)\js32.exp"
 	-@erase "$(OUTDIR)\js32.ilk"
 	-@erase "$(OUTDIR)\js32.lib"
 	-@erase "$(OUTDIR)\js32.pdb"
+	-@$(MAKE) /nologo /$(MAKEFLAGS) /F ".\js.mak" CFG="fdlibm - Win32 Debug" clean
+	-@$(MAKE) /nologo /$(MAKEFLAGS) /F ".\js.mak" CFG="jskwgen - Win32 Debug" clean
 
 "$(OUTDIR)" :
     if not exist "$(OUTDIR)/$(NULL)" mkdir "$(OUTDIR)"
 
 CPP=cl.exe
-# ADD BASE CPP /nologo /MTd /W3 /Gm /GX /Zi /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /YX /c
-# ADD CPP /nologo /MDd /W3 /Gm /GX /Zi /Od /D "_DEBUG" /D "DEBUG" /D "_WINDOWS" /D "WIN32" /D "XP_PC" /D "JSFILE" /D "EXPORT_JS_API" /YX /c
-CPP_PROJ=/nologo /MDd /W3 /Gm /GX /Zi /Od /D "_DEBUG" /D "DEBUG" /D "_WINDOWS"\
- /D "WIN32" /D "XP_PC" /D "JSFILE" /D "EXPORT_JS_API" /Fp"$(INTDIR)/js.pch" /YX\
+# ADD BASE CPP /nologo /MTd /W3 /Gm /GX /Zi /Od /D "WIN32" /D "_DEBUG" /D _X86_=1 /D "_WINDOWS" /YX /c
+# ADD CPP /nologo /MDd /W3 /Gm /GX /Zi /Od /D "_DEBUG" /D "DEBUG" /D _X86_=1 /D "_WINDOWS" /D "WIN32" /D "XP_WIN" /D "JSFILE" /D "EXPORT_JS_API" /I"$(INTDIR)" /YX /c
+CPP_PROJ=/nologo /MDd /W3 /Gm /GX /Zi /Od /D "_DEBUG" /D "DEBUG" /D _X86_=1 /D "_WINDOWS"\
+ /D "WIN32" /D "XP_WIN" /D "JSFILE" /D "EXPORT_JS_API" /Fp"$(INTDIR)/js.pch" /I"$(INTDIR)" /YX\
  /Fo"$(INTDIR)/" /Fd"$(INTDIR)/" /c 
 CPP_OBJS=.\Debug/
 CPP_SBRS=.\.
@@ -332,10 +344,161 @@ LINK32_OBJS= \
 	"$(INTDIR)\jsstr.obj" \
 	"$(INTDIR)\jsutil.obj" \
 	"$(INTDIR)\jsxdrapi.obj" \
+	"$(INTDIR)\jsxml.obj" \
 	"$(INTDIR)\prmjtime.obj" \
 	"$(OUTDIR)\fdlibm.lib"
 
 "$(OUTDIR)\js32.dll" : "$(OUTDIR)" $(DEF_FILE) $(LINK32_OBJS)
+    $(LINK32) @<<
+  $(LINK32_FLAGS) $(LINK32_OBJS)
+<<
+
+!ELSEIF  "$(CFG)" == "jskwgen - Win32 Release"
+
+# PROP BASE Use_MFC 0
+# PROP BASE Use_Debug_Libraries 0
+# PROP BASE Output_Dir "jsshell\Release"
+# PROP BASE Intermediate_Dir "jskwgen\Release"
+# PROP BASE Target_Dir "jskwgen"
+# PROP Use_MFC 0
+# PROP Use_Debug_Libraries 0
+# PROP Output_Dir "Release"
+# PROP Intermediate_Dir "Release"
+# PROP Target_Dir "jskwgen"
+OUTDIR=.\Release
+INTDIR=.\Release
+
+ALL : "$(INTDIR)" "$(INTDIR)\host_jskwgen.exe"
+
+CLEAN : 
+	-@erase "$(INTDIR)\jskwgen.obj"
+	-@erase "$(INTDIR)\jskwgen.pch"
+	-@erase "$(INTDIR)\host_jskwgen.exe"
+
+"$(INTDIR)" :
+    if not exist "$(INTDIR)/$(NULL)" mkdir "$(INTDIR)"
+
+CPP=cl.exe
+# ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /YX /c
+# ADD CPP /nologo /MD /W3 /GX /O2 /D "NDEBUG" /D "_CONSOLE" /D "WIN32" /D "XP_WIN" /D "JSFILE" /YX /c
+CPP_PROJ=/nologo /MD /W3 /GX /O2 /D "NDEBUG" /D "_CONSOLE" /D "WIN32" /D\
+ "XP_WIN" /D "JSFILE" /Fp"$(INTDIR)/jskwgen.pch" /YX /Fo"$(INTDIR)/" /c 
+CPP_OBJS=.\Release/
+CPP_SBRS=.\.
+
+.c{$(CPP_OBJS)}.obj:
+   $(CPP) $(CPP_PROJ) $<  
+
+.cpp{$(CPP_OBJS)}.obj:
+   $(CPP) $(CPP_PROJ) $<  
+
+.cxx{$(CPP_OBJS)}.obj:
+   $(CPP) $(CPP_PROJ) $<  
+
+.c{$(CPP_SBRS)}.sbr:
+   $(CPP) $(CPP_PROJ) $<  
+
+.cpp{$(CPP_SBRS)}.sbr:
+   $(CPP) $(CPP_PROJ) $<  
+
+.cxx{$(CPP_SBRS)}.sbr:
+   $(CPP) $(CPP_PROJ) $<  
+
+RSC=rc.exe
+# ADD BASE RSC /l 0x409 /d "NDEBUG"
+# ADD RSC /l 0x409 /d "NDEBUG"
+BSC32=bscmake.exe
+# ADD BASE BSC32 /nologo
+# ADD BSC32 /nologo
+BSC32_FLAGS=/nologo /o"$(INTDIR)/jskwgen.bsc" 
+BSC32_SBRS= \
+	
+LINK32=link.exe
+# ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /machine:I386
+# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /machine:I386
+LINK32_FLAGS=kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib\
+ advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib\
+ odbccp32.lib /nologo /subsystem:console /incremental:no\
+ /pdb:"$(INTDIR)/jskwgen.pdb" /machine:I386 /out:"$(INTDIR)/host_jskwgen.exe" 
+LINK32_OBJS= \
+	"$(INTDIR)\jskwgen.obj" \
+
+"$(INTDIR)\host_jskwgen.exe" : "$(INTDIR)" $(DEF_FILE) $(LINK32_OBJS)
+    $(LINK32) @<<
+  $(LINK32_FLAGS) $(LINK32_OBJS)
+<<
+
+!ELSEIF  "$(CFG)" == "jskwgen - Win32 Debug"
+
+# PROP BASE Use_MFC 0
+# PROP BASE Use_Debug_Libraries 0
+# PROP BASE Output_Dir "jsshell\Debug"
+# PROP BASE Intermediate_Dir "jskwgen\Debug"
+# PROP BASE Target_Dir "jskwgen"
+# PROP Use_MFC 0
+# PROP Use_Debug_Libraries 0
+# PROP Output_Dir "Debug"
+# PROP Intermediate_Dir "Debug"
+# PROP Target_Dir "jskwgen"
+OUTDIR=.\Debug
+INTDIR=.\Debug
+
+ALL : "$(INTDIR)" "$(INTDIR)\host_jskwgen.exe"
+
+CLEAN : 
+	-@erase "$(INTDIR)\jskwgen.obj"
+	-@erase "$(INTDIR)\jskwgen.pch"
+	-@erase "$(INTDIR)\host_jskwgen.exe"
+
+"$(INTDIR)" :
+    if not exist "$(INTDIR)/$(NULL)" mkdir "$(INTDIR)"
+
+CPP=cl.exe
+# ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /YX /c
+# ADD CPP /nologo /MD /W3 /GX /O2 /D "NDEBUG" /D "_CONSOLE" /D "WIN32" /D "XP_WIN" /D "JSFILE" /YX /c
+CPP_PROJ=/nologo /MD /W3 /GX /O2 /D "NDEBUG" /D "_CONSOLE" /D "WIN32" /D\
+ "XP_WIN" /D "JSFILE" /Fp"$(INTDIR)/jskwgen.pch" /YX /Fo"$(INTDIR)/" /c 
+CPP_OBJS=.\Debug/
+CPP_SBRS=.\.
+
+.c{$(CPP_OBJS)}.obj:
+   $(CPP) $(CPP_PROJ) $<  
+
+.cpp{$(CPP_OBJS)}.obj:
+   $(CPP) $(CPP_PROJ) $<  
+
+.cxx{$(CPP_OBJS)}.obj:
+   $(CPP) $(CPP_PROJ) $<  
+
+.c{$(CPP_SBRS)}.sbr:
+   $(CPP) $(CPP_PROJ) $<  
+
+.cpp{$(CPP_SBRS)}.sbr:
+   $(CPP) $(CPP_PROJ) $<  
+
+.cxx{$(CPP_SBRS)}.sbr:
+   $(CPP) $(CPP_PROJ) $<  
+
+RSC=rc.exe
+# ADD BASE RSC /l 0x409 /d "NDEBUG"
+# ADD RSC /l 0x409 /d "NDEBUG"
+BSC32=bscmake.exe
+# ADD BASE BSC32 /nologo
+# ADD BSC32 /nologo
+BSC32_FLAGS=/nologo /o"$(INTDIR)/jskwgen.bsc" 
+BSC32_SBRS= \
+	
+LINK32=link.exe
+# ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /machine:I386
+# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /machine:I386
+LINK32_FLAGS=kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib\
+ advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib\
+ odbccp32.lib /nologo /subsystem:console /incremental:no\
+ /pdb:"$(INTDIR)/jskwgen.pdb" /machine:I386 /out:"$(INTDIR)/host_jskwgen.exe" 
+LINK32_OBJS= \
+	"$(INTDIR)\jskwgen.obj" \
+
+"$(INTDIR)\host_jskwgen.exe" : "$(INTDIR)" $(DEF_FILE) $(LINK32_OBJS)
     $(LINK32) @<<
   $(LINK32_FLAGS) $(LINK32_OBJS)
 <<
@@ -359,16 +522,19 @@ ALL : "js - Win32 Release" "$(OUTDIR)\jsshell.exe"
 
 CLEAN : 
 	-@erase "$(INTDIR)\js.obj"
+	-@erase "$(INTDIR)\jsshell.pch"
 	-@erase "$(OUTDIR)\jsshell.exe"
+	-@$(MAKE) /nologo /$(MAKEFLAGS) /F ".\js.mak" CFG="js - Win32 Release" clean
+
 
 "$(OUTDIR)" :
     if not exist "$(OUTDIR)/$(NULL)" mkdir "$(OUTDIR)"
 
 CPP=cl.exe
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /YX /c
-# ADD CPP /nologo /MD /W3 /GX /O2 /D "NDEBUG" /D "_CONSOLE" /D "WIN32" /D "XP_PC" /D "JSFILE" /YX /c
+# ADD CPP /nologo /MD /W3 /GX /O2 /D "NDEBUG" /D "_CONSOLE" /D "WIN32" /D "XP_WIN" /D "JSFILE" /I"$(INTDIR)" /YX /c
 CPP_PROJ=/nologo /MD /W3 /GX /O2 /D "NDEBUG" /D "_CONSOLE" /D "WIN32" /D\
- "XP_PC" /D "JSFILE" /Fp"$(INTDIR)/jsshell.pch" /YX /Fo"$(INTDIR)/" /c 
+ "XP_WIN" /D "JSFILE" /Fp"$(INTDIR)/jsshell.pch" /I"$(INTDIR)" /YX /Fo"$(INTDIR)/" /c 
 CPP_OBJS=.\Release/
 CPP_SBRS=.\.
 
@@ -434,20 +600,20 @@ ALL : "js - Win32 Debug" "$(OUTDIR)\jsshell.exe"
 
 CLEAN : 
 	-@erase "$(INTDIR)\js.obj"
-	-@erase "$(INTDIR)\vc40.idb"
-	-@erase "$(INTDIR)\vc40.pdb"
+	-@erase "$(INTDIR)\jsshell.pch"
 	-@erase "$(OUTDIR)\jsshell.exe"
 	-@erase "$(OUTDIR)\jsshell.ilk"
 	-@erase "$(OUTDIR)\jsshell.pdb"
+	-@$(MAKE) /nologo /$(MAKEFLAGS) /F ".\js.mak" CFG="js - Win32 Debug" clean
 
 "$(OUTDIR)" :
     if not exist "$(OUTDIR)/$(NULL)" mkdir "$(OUTDIR)"
 
 CPP=cl.exe
 # ADD BASE CPP /nologo /W3 /Gm /GX /Zi /Od /D "WIN32" /D "_DEBUG" /D "_CONSOLE" /YX /c
-# ADD CPP /nologo /MDd /W3 /Gm /GX /Zi /Od /D "_CONSOLE" /D "_DEBUG" /D "WIN32" /D "XP_PC" /D "JSFILE" /D "DEBUG" /YX /c
+# ADD CPP /nologo /MDd /W3 /Gm /GX /Zi /Od /D "_CONSOLE" /D "_DEBUG" /D "WIN32" /D "XP_WIN" /D "JSFILE" /D "DEBUG" /YX /c
 CPP_PROJ=/nologo /MDd /W3 /Gm /GX /Zi /Od /D "_CONSOLE" /D "_DEBUG" /D "WIN32"\
- /D "XP_PC" /D "JSFILE" /D "DEBUG" /Fp"$(INTDIR)/jsshell.pch" /YX\
+ /D "XP_WIN" /D "JSFILE" /D "DEBUG" /Fp"$(INTDIR)/jsshell.pch" /YX\
  /Fo"$(INTDIR)/" /Fd"$(INTDIR)/" /c 
 CPP_OBJS=.\Debug/
 CPP_SBRS=.\.
@@ -528,16 +694,17 @@ CLEAN :
 	-@erase "$(INTDIR)\w_atan2.obj"
 	-@erase "$(INTDIR)\w_pow.obj"
 	-@erase "$(INTDIR)\w_sqrt.obj"
+	-@erase "$(INTDIR)\fdlibm.pch"
 	-@erase "$(OUTDIR)\fdlibm.lib"
 
 "$(OUTDIR)" :
     if not exist "$(OUTDIR)/$(NULL)" mkdir "$(OUTDIR)"
 
 CPP=cl.exe
-# ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /YX /c
-# ADD CPP /nologo /MD /W3 /GX /O2 /D "NDEBUG" /D "WIN32" /D "_WINDOWS" /D "_IEEE_LIBM" /YX /c
-CPP_PROJ=/nologo /MD /W3 /GX /O2 /D "NDEBUG" /D "WIN32" /D "_WINDOWS" /D\
- "_IEEE_LIBM" /D "XP_PC" /I .\ /Fp"$(INTDIR)/fdlibm.pch" /YX /Fo"$(INTDIR)/" /c 
+# ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D _X86_=1 /D "_WINDOWS" /YX /c
+# ADD CPP /nologo /MD /W3 /GX /O2 /D "NDEBUG" /D "WIN32" /D _X86_=1 /D "_WINDOWS" /D "_IEEE_LIBM" /YX /c
+CPP_PROJ=/nologo /MD /W3 /GX /O2 /D "NDEBUG" /D "WIN32" /D _X86_=1 /D "_WINDOWS" /D\
+ "_IEEE_LIBM" /D "XP_WIN" /I .\ /Fp"$(INTDIR)/fdlibm.pch" /YX /Fo"$(INTDIR)/" /c 
 CPP_OBJS=.\Release/
 CPP_SBRS=.\.
 
@@ -624,16 +791,17 @@ CLEAN :
 	-@erase "$(INTDIR)\w_atan2.obj"
 	-@erase "$(INTDIR)\w_pow.obj"
 	-@erase "$(INTDIR)\w_sqrt.obj"
+	-@erase "$(INTDIR)\fdlibm.pch"
 	-@erase "$(OUTDIR)\fdlibm.lib"
 
 "$(OUTDIR)" :
     if not exist "$(OUTDIR)/$(NULL)" mkdir "$(OUTDIR)"
 
 CPP=cl.exe
-# ADD BASE CPP /nologo /W3 /GX /Z7 /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /YX /c
-# ADD CPP /nologo /MDd /W3 /GX /Z7 /Od /D "_DEBUG" /D "WIN32" /D "_WINDOWS" /D "_IEEE_LIBM" /YX /c
-CPP_PROJ=/nologo /MDd /W3 /GX /Z7 /Od /D "_DEBUG" /D "WIN32" /D "_WINDOWS" /D\
- "_IEEE_LIBM" /D "XP_PC" -I .\ /Fp"$(INTDIR)/fdlibm.pch" /YX /Fo"$(INTDIR)/" /c 
+# ADD BASE CPP /nologo /W3 /GX /Z7 /Od /D "WIN32" /D "_DEBUG" /D _X86_=1 /D "_WINDOWS" /YX /c
+# ADD CPP /nologo /MDd /W3 /GX /Z7 /Od /D "_DEBUG" /D "WIN32" /D _X86_=1 /D "_WINDOWS" /D "_IEEE_LIBM" /YX /c
+CPP_PROJ=/nologo /MDd /W3 /GX /Z7 /Od /D "_DEBUG" /D "WIN32" /D _X86_=1 /D "_WINDOWS" /D\
+ "_IEEE_LIBM" /D "XP_WIN" -I .\ /Fp"$(INTDIR)/fdlibm.pch" /YX /Fo"$(INTDIR)/" /c 
 CPP_OBJS=.\Debug/
 CPP_SBRS=.\.
 
@@ -749,6 +917,7 @@ DEP_CPP_JSAPI=\
 	".\jsstr.h"\
 	".\jstypes.h"\
 	".\jsutil.h"\
+	".\jsxml.h"\
 	{$(INCLUDE)}"\sys\types.h"\
 	
 NODEP_CPP_JSAPI=\
@@ -803,6 +972,7 @@ DEP_CPP_JSAPI=\
 	".\jsstr.h"\
 	".\jstypes.h"\
 	".\jsutil.h"\
+	".\jsxml.h"\
 	{$(INCLUDE)}"\sys\types.h"\
 	
 NODEP_CPP_JSAPI=\
@@ -812,7 +982,6 @@ NODEP_CPP_JSAPI=\
 	
 
 "$(INTDIR)\jsapi.obj" : $(SOURCE) $(DEP_CPP_JSAPI) "$(INTDIR)"
-
 
 !ENDIF 
 
@@ -1880,6 +2049,7 @@ DEP_CPP_JSGC_=\
 	".\jsstr.h"\
 	".\jstypes.h"\
 	".\jsutil.h"\
+	".\jsxml.h"\
 	{$(INCLUDE)}"\sys\types.h"\
 	
 NODEP_CPP_JSGC_=\
@@ -1923,6 +2093,7 @@ DEP_CPP_JSGC_=\
 	".\jsstr.h"\
 	".\jstypes.h"\
 	".\jsutil.h"\
+	".\jsxml.h"\
 	{$(INCLUDE)}"\sys\types.h"\
 	
 NODEP_CPP_JSGC_=\
@@ -2029,6 +2200,7 @@ DEP_CPP_JSINT=\
 	".\jsstr.h"\
 	".\jstypes.h"\
 	".\jsutil.h"\
+	".\jsxml.h"\
 	{$(INCLUDE)}"\sys\types.h"\
 	
 NODEP_CPP_JSINT=\
@@ -2077,6 +2249,7 @@ DEP_CPP_JSINT=\
 	".\jsstr.h"\
 	".\jstypes.h"\
 	".\jsutil.h"\
+	".\jsxml.h"\
 	{$(INCLUDE)}"\sys\types.h"\
 	
 NODEP_CPP_JSINT=\
@@ -2947,6 +3120,7 @@ DEP_CPP_JSSCA=\
 	".\jsstr.h"\
 	".\jstypes.h"\
 	".\jsutil.h"\
+	".\jsxml.h"\
 	{$(INCLUDE)}"\sys\types.h"\
 	
 NODEP_CPP_JSSCA=\
@@ -2955,8 +3129,10 @@ NODEP_CPP_JSSCA=\
 	".\prlock.h"\
 	
 
-"$(INTDIR)\jsscan.obj" : $(SOURCE) $(DEP_CPP_JSSCA) "$(INTDIR)"
+"$(INTDIR)\jsscan.obj" : $(SOURCE) $(DEP_CPP_JSSCA) "$(INTDIR)" "$(INTDIR)\jsautokw.h"
 
+"$(INTDIR)\jsautokw.h" : $(INTDIR)\host_jskwgen.exe jskeyword.tbl
+	$(INTDIR)\host_jskwgen.exe $(INTDIR)\jsautokw.h
 
 !ELSEIF  "$(CFG)" == "js - Win32 Debug"
 
@@ -2993,7 +3169,9 @@ DEP_CPP_JSSCA=\
 	".\jsstr.h"\
 	".\jstypes.h"\
 	".\jsutil.h"\
+	".\jsxml.h"\
 	{$(INCLUDE)}"\sys\types.h"\
+	$(INTDIR)\jsautokw.h \
 	
 NODEP_CPP_JSSCA=\
 	".\jsautocfg.h"\
@@ -3002,6 +3180,46 @@ NODEP_CPP_JSSCA=\
 	
 
 "$(INTDIR)\jsscan.obj" : $(SOURCE) $(DEP_CPP_JSSCA) "$(INTDIR)"
+
+"$(INTDIR)\jsautokw.h" : $(INTDIR)\host_jskwgen.exe jskeyword.tbl
+	$(INTDIR)\host_jskwgen.exe $(INTDIR)\jsautokw.h
+
+!ENDIF 
+
+# End Source File
+################################################################################
+# Begin Source File
+
+SOURCE=.\jskwgen.c
+
+!IF  "$(CFG)" == "js - Win32 Release"
+
+DEP_CPP_JSSCO=\
+	".\jskwgen.c"\
+	{$(INCLUDE)}"\sys\types.h"\
+		
+
+"$(INTDIR)\jskwgen.obj" : $(SOURCE) $(DEP_CPP_JSSCO) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "js - Win32 Debug"
+
+DEP_CPP_JSSCO=\
+	".\jskwgen.c"\
+	{$(INCLUDE)}"\sys\types.h"\
+		
+LINK32_FLAGS=kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib\
+ advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib\
+ odbccp32.lib /nologo /subsystem:console /incremental:no\
+ /pdb:"$(INTDIR)/host_jskwgen.pdb" /machine:I386 /out:"$(INTDIR)/host_jskwgen.exe" 
+
+LINK32_OBJS= \
+	"$(INTDIR)\jskwgen.obj"
+
+"$(INTDIR)\host_jskwgen.exe" : "$(INTDIR)" $(SOURCE) $(DEP_CPP_JSSCO) "$(INTDIR)"
+    $(LINK32) @<<
+  $(LINK32_FLAGS) $(LINK32_OBJS)
+<<
 
 
 !ENDIF 
@@ -3434,6 +3652,88 @@ NODEP_CPP_JSXDR=\
 ################################################################################
 # Begin Source File
 
+SOURCE=.\jsxml.c
+
+!IF  "$(CFG)" == "js - Win32 Release"
+
+DEP_CPP_JSXML=\
+	".\js.msg"\
+	".\jsapi.h"\
+	".\jsarray.h"\
+	".\jsatom.h"\
+	".\jsbit.h"\
+	".\jsbool.h"\
+	".\jscntxt.h"\
+	".\jsfun.h"\
+	".\jsgc.h"\
+	".\jsinterp.h"\
+	".\jslock.h"\
+	".\jsnum.h"\
+	".\jsobj.h"\
+	".\jsopcode.h"\
+	".\jsparse.h"\
+	".\jsprf.h"\
+	".\jsscan.h"\
+	".\jsscope.h"\
+	".\jsscript.h"\
+	".\jsstr.h"\
+	".\jstypes.h"\
+	".\jsutil.h"\
+	".\jsxml.h"\
+	{$(INCLUDE)}"\sys\types.h"\
+	
+NODEP_CPP_JSXML=\
+	".\jsautocfg.h"\
+	".\prcvar.h"\
+	".\prlock.h"\
+	
+
+"$(INTDIR)\jsxml.obj" : $(SOURCE) $(DEP_CPP_JSXML) "$(INTDIR)"
+
+
+!ELSEIF  "$(CFG)" == "js - Win32 Debug"
+
+DEP_CPP_JSXML=\
+	".\js.msg"\
+	".\jsapi.h"\
+	".\jsarray.h"\
+	".\jsatom.h"\
+	".\jsbit.h"\
+	".\jsbool.h"\
+	".\jscntxt.h"\
+	".\jsfun.h"\
+	".\jsgc.h"\
+	".\jsinterp.h"\
+	".\jslock.h"\
+	".\jsnum.h"\
+	".\jsobj.h"\
+	".\jsopcode.h"\
+	".\jsparse.h"\
+	".\jsscan.h"\
+	".\jsscope.h"\
+	".\jsscript.h"\
+	".\jsstr.h"\
+	".\jstypes.h"\
+	".\jsutil.h"\
+	".\jsxml.h"\
+	".\jsprf.h"\
+	{$(INCLUDE)}"\sys\types.h"\
+	
+NODEP_CPP_JSXML=\
+	".\jsautocfg.h"\
+	".\prcvar.h"\
+	".\prlock.h"\
+	
+
+"$(INTDIR)\jsxml.obj" : $(SOURCE) $(DEP_CPP_JSXML) "$(INTDIR)"
+
+
+!ENDIF 
+
+# End Source File
+################################################################################
+# Begin Source File
+
 SOURCE=.\prmjtime.c
 
 !IF  "$(CFG)" == "js - Win32 Release"
@@ -3489,12 +3789,12 @@ NODEP_CPP_PRMJT=\
 !IF  "$(CFG)" == "js - Win32 Debug"
 
 "fdlibm - Win32 Debug" : 
-   $(MAKE) /$(MAKEFLAGS) /F ".\js.mak" CFG="fdlibm - Win32 Debug" 
+   @$(MAKE) /nologo /$(MAKEFLAGS) /F ".\js.mak" CFG="fdlibm - Win32 Debug" 
 
 !ELSEIF  "$(CFG)" == "js - Win32 Release"
 
 "fdlibm - Win32 Release" : 
-   $(MAKE) /$(MAKEFLAGS) /F ".\js.mak" CFG="fdlibm - Win32 Release" 
+   @$(MAKE) /nologo /$(MAKEFLAGS) /F ".\js.mak" CFG="fdlibm - Win32 Release" 
 
 !ENDIF 
 
@@ -3572,17 +3872,36 @@ NODEP_CPP_JS_C42=\
 ################################################################################
 # Begin Project Dependency
 
+# Project_Dep_Name "jskwgen"
+
+!IF  "$(CFG)" == "js - Win32 Release"
+
+"jskwgen - Win32 Release" : 
+   @$(MAKE) /nologo /$(MAKEFLAGS) /F ".\js.mak" CFG="jskwgen - Win32 Release" 
+
+!ELSEIF  "$(CFG)" == "js - Win32 Debug"
+
+"jskwgen - Win32 Debug" : 
+   @$(MAKE) /nologo /$(MAKEFLAGS) /F ".\js.mak" CFG="jskwgen - Win32 Debug" 
+
+!ENDIF 
+
+# End Project Dependency
+# End Target
+################################################################################
+# Begin Project Dependency
+
 # Project_Dep_Name "js"
 
 !IF  "$(CFG)" == "jsshell - Win32 Release"
 
 "js - Win32 Release" : 
-   $(MAKE) /$(MAKEFLAGS) /F ".\js.mak" CFG="js - Win32 Release" 
+   @$(MAKE) /nologo /$(MAKEFLAGS) /F ".\js.mak" CFG="js - Win32 Release" 
 
 !ELSEIF  "$(CFG)" == "jsshell - Win32 Debug"
 
 "js - Win32 Debug" : 
-   $(MAKE) /$(MAKEFLAGS) /F ".\js.mak" CFG="js - Win32 Debug" 
+   @$(MAKE) /nologo /$(MAKEFLAGS) /F ".\js.mak" CFG="js - Win32 Debug" 
 
 !ENDIF 
 

@@ -125,7 +125,7 @@ class VXIString : public VXIValue {
 
  private:
   VXIchar *value;
-  unsigned int length;
+  size_t length;
 };
 
 

@@ -41,7 +41,7 @@ OsBSemLinux::OsBSemLinux(const int queueOptions, const int initState)
    assert(res == POSIX_OK);
    
 #  ifdef OS_SYNC_DEBUG
-   int me = pthread_self();
+   pthread_t me = pthread_self();
    mSyncCrumbs.dropCrumb(me, crumbCreated);
    if (EMPTY == initState)
    {
@@ -59,8 +59,8 @@ OsBSemLinux::~OsBSemLinux()
    if (res != POSIX_OK)
    {
       OsSysLog::add(FAC_KERNEL, PRI_ERR,
-                    "OsBSemLinux::~OsBSemLinux pt_sem_destroy returned %d in task %u",
-                    res, (unsigned int)pthread_self()
+                    "OsBSemLinux::~OsBSemLinux pt_sem_destroy returned %d in task %lu",
+                    res, (unsigned long)pthread_self()
                     );
    }
 #  ifdef OS_SYNC_DEBUG

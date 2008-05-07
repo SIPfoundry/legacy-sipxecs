@@ -460,10 +460,10 @@ ManageNotificationsWebCGI::validateContactAddress() const
     OsStatus result = OS_INVALID ;
 
     // Find the index of '@' in the contact address
-    unsigned int at_index        = m_newContactAddress.index( '@' );
-    unsigned int last_at_index   = m_newContactAddress.last( '@' );
-    unsigned int dot_index       = m_newContactAddress.last( '.' );
-    unsigned int lastIndex       = m_newContactAddress.length() - 1;
+    ssize_t at_index        = m_newContactAddress.index( '@' );
+    ssize_t last_at_index   = m_newContactAddress.last( '@' );
+    ssize_t dot_index       = m_newContactAddress.last( '.' );
+    ssize_t lastIndex       = m_newContactAddress.length() - 1;
 
     // There should be only one '@' sign.
     if( at_index != UTL_NOT_FOUND && at_index == last_at_index )

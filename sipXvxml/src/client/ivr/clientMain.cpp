@@ -217,7 +217,7 @@ ChannelThreadArgs* findHandlingChannel(const char* callId)
 {
    LockChannel();
 #ifdef TEST_PRINT
-   OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG, "findHandlingChannel channelStack (0x%08x) for %s\n", (int)&glbChannelStack, callId);
+   OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG, "findHandlingChannel channelStack (%p) for %s\n", &glbChannelStack, callId);
 #endif
    ChannelThreadArgs* handlingChannel = NULL;
    if (!glbChannelStack.isEmpty())
@@ -226,23 +226,23 @@ ChannelThreadArgs* findHandlingChannel(const char* callId)
       OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG, "findHandlingChannel entries=(%d)\n", getStackSize(glbChannelStack));
 #endif
       UtlSListIterator iterator(glbChannelStack);
-      UtlInt* channelCollectable;
+      UtlVoidPtr* channelCollectable;
       ChannelThreadArgs* channel;
-      channelCollectable = (UtlInt*)iterator();
+      channelCollectable = (UtlVoidPtr*)iterator();
       while (channelCollectable && !handlingChannel)
       {
          channel = (ChannelThreadArgs*)channelCollectable->getValue();
 #ifdef TEST_PRINT
-         OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG, "channel=(0x%08x)\n", (int)channel);
+         OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG, "channel=(0x%08p)\n", channel);
 #endif
          if(channel && channel->callId && (strcmp(channel->callId, callId) == 0))
          {
             handlingChannel = channel;
          }
-         channelCollectable = (UtlInt*)iterator();
+         channelCollectable = (UtlVoidPtr*)iterator();
       }
    }
-   OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG, "findHandlingChannel exiting channelStack (0x%08x) for %s found channel=(0x%08x)\n", (int)&glbChannelStack, callId, (int)handlingChannel);
+   OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG, "findHandlingChannel exiting channelStack (%p) for %s found channel=(%p)\n", &glbChannelStack, callId, handlingChannel);
 
    UnlockChannel();
    return(handlingChannel);
@@ -253,7 +253,7 @@ CallCleanupThreadArgs* findCleanupThread(const char* callId)
    LockThreadStack();
 
 #ifdef TEST_PRINT
-   OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG, "findCleanupThread channelStack (0x%08x) for %s\n", (int)&glbCleanupThreadStack, callId);
+   OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG, "findCleanupThread channelStack (0x%10x) for %s\n", &glbCleanupThreadStack, callId);
 #endif
    CallCleanupThreadArgs* handlingChannel = NULL;
    if (!glbCleanupThreadStack.isEmpty())
@@ -262,23 +262,23 @@ CallCleanupThreadArgs* findCleanupThread(const char* callId)
       OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG, "findCleanupThread entries=(%d)\n", getStackSize(glbCleanupThreadStack));
 #endif
       UtlSListIterator iterator(glbCleanupThreadStack);
-      UtlInt* channelCollectable;
+      UtlVoidPtr* channelCollectable;
       CallCleanupThreadArgs* channel;
-      channelCollectable = (UtlInt*)iterator();
+      channelCollectable = (UtlVoidPtr*)iterator();
       while (channelCollectable && !handlingChannel)
       {
          channel = (CallCleanupThreadArgs*)channelCollectable->getValue();
 #ifdef TEST_PRINT
-         OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG, "channel=(0x%08x)\n", (int)channel);
+         OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG, "channel=(0x%10x)\n", channel);
 #endif
          if(channel && channel->callId && (strcmp(channel->callId, callId) == 0))
          {
             handlingChannel = channel;
          }
-         channelCollectable = (UtlInt*)iterator();
+         channelCollectable = (UtlVoidPtr*)iterator();
       }
    }
-   OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG, "findCleanupThread exiting channelStack (0x%08x) for %s found thread=(0x%08x)\n", (int)&glbCleanupThreadStack, callId, (int)handlingChannel);
+   OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG, "findCleanupThread exiting channelStack (%p) for %s found thread=(%p)\n", &glbCleanupThreadStack, callId, handlingChannel);
 
    UnlockThreadStack();
    return(handlingChannel);
@@ -291,7 +291,7 @@ void pushChannel(void* channel)
    OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG, "pushChannel: channel=0x%08x, callId=%s", (int)channel, ((ChannelThreadArgs*)channel)->callId);
 #endif
 
-   glbChannelStack.insertAt(0, new UtlInt((int) channel));
+   glbChannelStack.insertAt(0, new UtlVoidPtr(channel));
    UnlockChannel();
 }
 
@@ -299,10 +299,10 @@ void pushThread(void* thread)
 {
    LockThreadStack();
 #ifdef TEST_PRINT
-   OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG, "pushThread: thread=0x%08x, callId=%s", (int)thread, ((CallCleanupThreadArgs*)thread)->callId);
+   OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG, "pushThread: thread=0x%08x, callId=%s", thread, ((CallCleanupThreadArgs*)thread)->callId);
 #endif
 
-   glbCleanupThreadStack.insertAt(0, new UtlInt((int) thread));
+   glbCleanupThreadStack.insertAt(0, new UtlVoidPtr(thread));
         
    UnlockThreadStack();
 }
@@ -312,7 +312,7 @@ CallCleanupThreadArgs* popThread()
    LockThreadStack();
 
    CallCleanupThreadArgs* thread = NULL;
-   UtlInt* threadCollectable = (UtlInt*) glbCleanupThreadStack.get();
+   UtlVoidPtr* threadCollectable = (UtlVoidPtr*) glbCleanupThreadStack.get();
    if(threadCollectable)
    {
       thread = (CallCleanupThreadArgs*) threadCollectable->getValue();
@@ -328,7 +328,7 @@ ChannelThreadArgs* popChannel()
 {
    LockChannel();
    ChannelThreadArgs* channel = NULL;
-   UtlInt* channelCollectable = (UtlInt*) glbChannelStack.get();
+   UtlVoidPtr* channelCollectable = (UtlVoidPtr*) glbChannelStack.get();
    if(channelCollectable)
    {
       channel = (ChannelThreadArgs*) channelCollectable->getValue();
@@ -343,10 +343,10 @@ ChannelThreadArgs* removeChannel(const ChannelThreadArgs* channel)
 {
    LockChannel();
    if (channel)
-      OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG, "removeChannel: channel=0x%08x, callId=%s \n", (int)channel, channel->callId);
+      OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG, "removeChannel: channel=%p, callId=%s \n", channel, channel->callId);
 
-   UtlInt matchChannel((int)channel);
-   UtlInt* channelCollectable = (UtlInt*) glbChannelStack.remove(&matchChannel);
+   UtlVoidPtr matchChannel((void*)channel);
+   UtlVoidPtr* channelCollectable = (UtlVoidPtr*) glbChannelStack.remove(&matchChannel);
    if(channelCollectable)
    {
       channel = (ChannelThreadArgs*) channelCollectable->getValue();
@@ -358,7 +358,7 @@ ChannelThreadArgs* removeChannel(const ChannelThreadArgs* channel)
       channel = NULL;
    }
    if (channel)
-      OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG, "removeChannel exiting: channel=0x%08x, callId=%s \n", (int)channel, channel->callId);
+      OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG, "removeChannel exiting: channel=%p, callId=%s \n", channel, channel->callId);
 
    UnlockChannel();
    return((ChannelThreadArgs*)channel);
@@ -367,10 +367,10 @@ ChannelThreadArgs* removeChannel(const ChannelThreadArgs* channel)
 CallCleanupThreadArgs* removeThread(CallCleanupThreadArgs* thread)
 {
    if (thread)
-      OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG, "removeThread: channel=0x%08x, callId=%s \n", (int)thread, thread->callId);
+      OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG, "removeThread: channel=%p, callId=%s \n", thread, thread->callId);
 
-   UtlInt matchThread((int)thread);
-   UtlInt* channelCollectable = (UtlInt*) glbCleanupThreadStack.remove(&matchThread);
+   UtlVoidPtr matchThread(thread);
+   UtlVoidPtr* channelCollectable = (UtlVoidPtr*) glbCleanupThreadStack.remove(&matchThread);
    if(channelCollectable)
    {
       thread = (CallCleanupThreadArgs*) channelCollectable->getValue();
@@ -382,7 +382,7 @@ CallCleanupThreadArgs* removeThread(CallCleanupThreadArgs* thread)
       thread = NULL;
    }
    if (thread)
-      OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG, "removeThread exiting: channel=0x%08x, callId=%s \n", (int)thread, thread->callId);
+      OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG, "removeThread exiting: channel=%p, callId=%s \n", thread, thread->callId);
 
    return(thread);
 }
@@ -422,7 +422,7 @@ void freeThread(CallCleanupThreadArgs* thread, bool cancel)
    }
    else if (cancel)
    {
-      OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG, "main thread: Failed to destroy cleanup thread for %s - returned %d w status %d\n",  thread->callId, (int)trdResult, (int)status);
+      OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG, "main thread: Failed to destroy cleanup thread for %s - returned %d w status %p\n",  thread->callId, trdResult, status);
       VXItrdThreadCancel (thread->threadHandle);
       OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG, "main thread: Cancel cleanup thread for %s \n",  thread->callId);
       freed = TRUE;
@@ -439,7 +439,7 @@ void freeThread(CallCleanupThreadArgs* thread, bool cancel)
    }
    else
    {
-      OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_ERR, "main thread: Failed to free cleanup thread for %s - returned %d w status %d\n",  thread->callId, (int)trdResult, (int)status);
+      OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_ERR, "main thread: Failed to free cleanup thread for %s - returned %d w status %p\n",  thread->callId, trdResult, status);
    }
 }
 
@@ -1088,7 +1088,7 @@ int main(int argc, char *argv[])
       // Every 2 minutes
       LockThreadStack();
       UtlSListIterator iterator(glbCleanupThreadStack);
-      UtlInt* threadCollectable = (UtlInt*) iterator();
+      UtlVoidPtr* threadCollectable = (UtlVoidPtr*) iterator();
       int numThreads = getStackSize(glbCleanupThreadStack);
       int loops = 0;
       while(threadCollectable && (loops < numThreads))
@@ -1108,7 +1108,7 @@ int main(int argc, char *argv[])
                }
             }
          }
-         threadCollectable = (UtlInt*) iterator();
+         threadCollectable = (UtlVoidPtr*) iterator();
          loops++;
       } /* while (loops) ] */
 
@@ -1375,9 +1375,9 @@ static VXITRD_DEFINE_THREAD_FUNC(ChannelThread, userData)
    platformResult = VXIplatformProcessDocument(channelArgs->vxmlURL,
                                                sessionArgs, &result, platform);
 
-   if((VXIint) platformResult != 0){
+   if(platformResult != VXIplatform_RESULT_SUCCESS){
       OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_ERR, "Channel %d: ProcessDocument returned error code %d",
-              channelArgs->channelNum, (int)platformResult);
+              channelArgs->channelNum, platformResult);
    }
    else{
       if(result) {
@@ -1446,7 +1446,7 @@ static VXITRD_DEFINE_THREAD_FUNC(ChannelThread, userData)
 }
 
 
-int VXIProcessUrl (void *plistener,
+VXIplatformResult VXIProcessUrl (void *plistener,
       int channelNum,
       const char *callId,
       const char *from,
@@ -1459,13 +1459,13 @@ int VXIProcessUrl (void *plistener,
    VXItrdResult trdResult;
 
    if (plistener == NULL)
-      return 0;
+      return VXIplatform_RESULT_SUCCESS;
 
    IvrCallListener *listener = (IvrCallListener *)plistener;
    CallManager *pCallMgr = listener->getCallManager();
 
    /* Determine the URL if not specified on the command line */
-   VXIunsigned urlLen = strlen(url) + 1;
+   size_t urlLen = strlen(url) + 1;
    if(url && ( strstr (url, "http") != 0) ) // @JC fixed by removing the :
    {
       vxmlURL = (VXIchar *) calloc(urlLen, VXICHAR_SIZE);
@@ -1474,8 +1474,8 @@ int VXIProcessUrl (void *plistener,
    }
    else
    {
-      int gurlLen = wcslen(gblDefaultVxmlURL);
-      int llen = gurlLen + urlLen;
+      size_t gurlLen = wcslen(gblDefaultVxmlURL);
+      size_t llen = gurlLen + urlLen;
 
       char* tmp = new char[llen];
       vxmlURL = (VXIchar *) calloc(llen, VXICHAR_SIZE);
@@ -1491,7 +1491,7 @@ int VXIProcessUrl (void *plistener,
 
    VXIMap *sessionArgs = VXIMapCreate();
 
-   int len = (strlen(callId) + VXICHAR_SIZE - 1)/VXICHAR_SIZE; 
+   size_t len = (strlen(callId) + VXICHAR_SIZE - 1)/VXICHAR_SIZE; 
    VXIString *str = VXIStringCreateN((VXIchar*)callId, len);
    CLIENT_CHECK_MEMALLOC(str, "Call Id");
    VXIMapSetProperty(sessionArgs, L"callid", (VXIValue *)str);
@@ -1518,7 +1518,7 @@ int VXIProcessUrl (void *plistener,
    char* id = 0;
    if (callId)
    {
-      int len = strlen(callId);
+      size_t len = strlen(callId);
       id = new char[len + 1];
       memcpy(id, callId, len);
       id[len] = 0;
@@ -1569,7 +1569,7 @@ int VXIProcessUrl (void *plistener,
       dnis = NULL;
    }
 
-   return (VXIint) platformResult;
+   return platformResult;
 }
 
 
@@ -1645,7 +1645,7 @@ static VXITRD_DEFINE_THREAD_FUNC(CallCleanupThread, userData)
          {
             /* Need to cast this twice, some compilers won't allow going directly
                to VXIplatformResult */
-            platformResult = (VXIplatformResult) ((VXIint) status);
+            platformResult = (VXIplatformResult) ((VXIint) (uintptr_t)status);
          }
 
       }
@@ -1657,9 +1657,9 @@ static VXITRD_DEFINE_THREAD_FUNC(CallCleanupThread, userData)
 }
 
 
-int VXICleanUpCall (void *plistener,
-      const char *callId,
-      int VXISessionEnded)
+VXIplatformResult VXICleanUpCall (void *plistener,
+                       const char *callId,
+                       int VXISessionEnded)
 {
    VXIplatformResult platformResult = VXIplatform_RESULT_SUCCESS;
 
@@ -1684,7 +1684,7 @@ int VXICleanUpCall (void *plistener,
 
       thread = new struct CallCleanupThreadArgs;
 
-      int len = strlen(callId);
+      size_t len = strlen(callId);
       newCallId = new char[len + 1];
       if (!thread || !newCallId)
          return VXIplatform_RESULT_OUT_OF_MEMORY;
@@ -1709,7 +1709,7 @@ int VXICleanUpCall (void *plistener,
       pushThread(thread);
    }
 
-   return (VXIint) platformResult;
+   return platformResult;
 }
 
 
@@ -1898,15 +1898,15 @@ int __wrap_fclose(FILE* fp)
 #include <assert.h>
 
    extern "C" void
-__cxa_pure_virtual (int pThis, int p2)
+__cxa_pure_virtual (intptr_t pThis, int p2)
 {
-   int i[2];
-   i[0] = (int)&i;
+   intptr_t i[2];
+   i[0] = (intptr_t)&i;
    i[1] = 0x12345678;
-   printf("\n\n\n\nPINGTEL virtual method called pThis = 0x%08X; p2 = 0x%08X:\n", pThis, p2);
+   printf("\n\n\n\nPINGTEL virtual method called pThis = 0x%p; p2 = 0x%08X:\n", pThis, p2);
    printf("\n\n\n\nPINGTEL virtual method called caller = 0x%08X; memory info:\n", i[3]);
    for(int j = -4; j < 8; j++)
-      printf("%08X  ", i[j]);
+      printf("%p  ", i[j]);
    printf("\n\n\n\n\n");
    assert(FALSE);
 }

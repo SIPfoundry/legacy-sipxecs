@@ -8,9 +8,10 @@
 ////////////////////////////////////////////////////////////////////////
 //////
 
-
 #ifndef _TaoDefs_h_
 #define _TaoDefs_h_
+
+#include <stdint.h>
 
 // Constants
 #define MAXIMUM_INTEGER_STRING_LENGTH 20
@@ -27,8 +28,9 @@
 #define TAOMESSAGE_DELIMITER    UtlString("$d$")
 
 // TYPEDEFS
-typedef unsigned int TaoObjHandle;
-//:A 32-bit integer that has local meaning for a given TaoServer and represents
+typedef unsigned long TaoEventId;
+typedef unsigned long TaoObjHandle;
+//:A 32-bit or 64-bit integer that has local meaning for a given TaoServer and represents
 //:a PTAPI object or a TaoObject.
 
 typedef unsigned int  IPAddress;

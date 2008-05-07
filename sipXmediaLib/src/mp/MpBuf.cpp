@@ -12,8 +12,10 @@
 
 #include <stdio.h> 
 #include <stdlib.h>
+#include <stdint.h>
 #include <string.h>
 #include <assert.h>
+#include <limits>
 
 // APPLICATION INCLUDES
 
@@ -23,6 +25,8 @@
 #include "mp/MpBuf.h"
 #include "mp/MpMisc.h"
 #include "mp/NetInTask.h"
+
+#undef max
 
 // EXTERNAL FUNCTIONS
 
@@ -75,8 +79,8 @@ int showSpareBufs(int fixIt, char* tag)
             src = NULL;
         }
         OK &= ok;
-        osPrintf("%sspare[%d] = 0x%X->0x%X (%sOK)%s\n",
-            tag, i, (int) sb, (int) src,
+        osPrintf("%sspare[%d] = 0x%p->0x%p (%sOK)%s\n",
+            tag, i, sb, src,
             (ok ? "" : "NOT "),
             (fixed ? " (Fixed)" : ""));
     }
@@ -84,8 +88,8 @@ int showSpareBufs(int fixIt, char* tag)
 }
 #endif /* N_SPARE_BUFS ] */
 
-static unsigned int LowBufTable = 0xffffffff;
-static unsigned int HighBufTable = 0;
+static uintptr_t LowBufTable = std::numeric_limits<uintptr_t>::max();
+static uintptr_t HighBufTable = 0;
 
 #ifdef BUFFER_INSTRUMENTATION /* [ */
 // global mutex, used for thread safety when updating sequence counter
@@ -208,8 +212,8 @@ void dump1Buf(MpBufPtr t)
         case  1: state = '+'; break;
         default: state = '!'; break;
         }
-        sprintf(str, "%3d: %c 0x%X->0x%X %4d(%06d)",
-            i, state, (int) t, (int) t->pStorage, t->line_taken, t->time_taken);
+        sprintf(str, "%3d: %c 0x%p->0x%p %4d(%06d)",
+            i, state, t, t->pStorage, t->line_taken, t->time_taken);
         Zprintf("%s %4d(%06d) %4d(%06d)\n", (int) str, t->line_freed,
             t->time_freed, t->touched_by, t->touched_at, 0);
 #endif /* BUFFER_INSTRUMENTATION ] */
@@ -224,8 +228,8 @@ void dump1Pool(MpBufPoolPtr P, int skipFree)
 #endif /* BUFFER_INSTRUMENTATION ] */
         OsLock lock(*(P->mpMutex));
 
-        Zprintf(" Buffer table Dump(0x%X): count=%d mutex=0x%X *table=0x%X\n",
-            (int) P, P->allocCnt, (int) P->mpMutex, (int) P->table, 0,0);
+        Zprintf(" Buffer table Dump(0x%p): count=%d mutex=0x%p *table=0x%p\n",
+            P, P->allocCnt, P->mpMutex, P->table, 0,0);
 
         Zprintf("    size=%d eachLen=%d cacheAlign=%d last=%d",
             P->size, P->eachLen, P->cacheAlignment, P->lastTaken, 0, 0);
@@ -328,8 +332,8 @@ STATUS MpBufPool_delete(MpBufPoolPtr pool, int force)
             if (0 == force) {
                 return OS_BUSY;
             } else {
-                Zprintf("MpBufPool_delete(0x%X): %d buffers still in use!\n",
-                    (int) pool, refs, 0,0,0,0);
+                Zprintf("MpBufPool_delete(0x%p): %d buffers still in use!\n",
+                    pool, refs, 0,0,0,0);
             }
         }
 
@@ -357,7 +361,7 @@ static int bufferPoolCreates = 0;
 MpBufPoolPtr MpBufPool_MpBufPool(int poolSize, int maxBufferLen,
       int numBuffers, int cacheAlign)
 {
-        int i;
+        intptr_t i;
         int n;
         int totalBytes;
         int numBufs;
@@ -377,7 +381,7 @@ MpBufPoolPtr MpBufPool_MpBufPool(int poolSize, int maxBufferLen,
 
         pool = (MpBufPoolPtr) malloc(sizeof(MpBufPool));
         if (NULL == pool) {
-            Zprintf("MpBufPool: unable to malloc %d bytes!\n",
+            Zprintf("MpBufPool: unable to malloc %zu bytes!\n",
                 sizeof(MpBufPool), 0,0,0,0,0);
             return NULL;
         }
@@ -409,7 +413,7 @@ MpBufPoolPtr MpBufPool_MpBufPool(int poolSize, int maxBufferLen,
         totalBytes = numBufs * sizeof(MpBuf);
         bufs = (MpBufPtr) malloc(totalBytes);
         if (NULL == bufs) {
-            Zprintf("MpBufPool: unable to malloc %d bytes!\n",
+            Zprintf("MpBufPool: unable to malloc %zu bytes!\n",
                 numBufs * sizeof(MpBuf), 0,0,0,0,0);
             pool->mpMutex->release();
             delete pool->mpMutex;
@@ -419,12 +423,12 @@ MpBufPoolPtr MpBufPool_MpBufPool(int poolSize, int maxBufferLen,
         memset((char *) bufs, 0, totalBytes);
         pool->table = bufs;
 
-        if (((unsigned int) bufs) < LowBufTable) {
-            LowBufTable = (unsigned int) bufs;
+        if (((uintptr_t) bufs) < LowBufTable) {
+            LowBufTable = (uintptr_t) bufs;
         }
 
-        if (((unsigned int) (bufs + numBufs)) > HighBufTable) {
-            HighBufTable = (unsigned int) (bufs + numBufs);
+        if (((uintptr_t) (bufs + numBufs)) > HighBufTable) {
+            HighBufTable = (uintptr_t) (bufs + numBufs);
         }
 
         if (0 == cacheAlign) {
@@ -469,7 +473,7 @@ MpBufPoolPtr MpBufPool_MpBufPool(int poolSize, int maxBufferLen,
 
              /* round up the base of the first buffer */
 
-            i = (unsigned int) storage;
+            i = (uintptr_t) storage;
             n = i % cacheAlign;
             if (0 != n) {
                 n = cacheAlign - n;
@@ -479,8 +483,8 @@ MpBufPoolPtr MpBufPool_MpBufPool(int poolSize, int maxBufferLen,
 
 #ifdef BUFFER_INSTRUMENTATION /* [ */
         if (20 > bufferPoolCreates) {
-           Zprintf("buffer data base address = 0x%X (0x%X) (%d)\n",
-              (int) b, (int) (pool->MpBufPoolData),
+           Zprintf("buffer data base address = 0x%p (0x%p) (%d)\n",
+              b, (pool->MpBufPoolData),
               b - (char *)(pool->MpBufPoolData), 0,0,0);
         }
 #endif /* BUFFER_INSTRUMENTATION ] */
@@ -543,10 +547,10 @@ static int MpBuf_invalidX(MpBufPtr b, int forMods, int allocated, int line)
    int n;
    MpBufPoolPtr p;
 
-   if ((((unsigned int) b) < LowBufTable) ||
-                         (((unsigned int) b) > HighBufTable)) {
-      Zprintf("\nMpBuf_invalid(0x%X): Outside tables (line: %d)\n",
-         (int) b, line, 0,0,0,0);
+   if ((((uintptr_t) b) < LowBufTable) ||
+                         (((uintptr_t) b) > HighBufTable)) {
+      Zprintf("\nMpBuf_invalid(0x%p): Outside tables (line: %d)\n",
+         b, line, 0,0,0,0);
       return TRUE;
    }
 
@@ -554,21 +558,21 @@ static int MpBuf_invalidX(MpBufPtr b, int forMods, int allocated, int line)
    // $$$ could add a check that p points to one of the active pools...
    n = b - p->table;
    if ((n < 0 ) || (n > p->allocCnt)) {
-      Zprintf("\nMpBuf_invalid(0x%X): Outside table (p=0x%X,"
-         " n=%d, t=0x%X) line: %d\n",
-         (int) b, (int) p, n, (int) (p->table), line, 0);
+      Zprintf("\nMpBuf_invalid(0x%p): Outside table (p=0x%p,"
+         " n=%d, t=0x%p) line: %d\n",
+         b, p, n, (p->table), line, 0);
       return TRUE;
    }
 
    if (forMods && (1 != b->refCnt)) {
-      Zprintf("\nMpBuf_invalid(0x%X): reference count(%d) != 1 (line: %d)\n",
-         (int) b, b->refCnt, line, 0,0,0);
+      Zprintf("\nMpBuf_invalid(0x%p): reference count(%d) != 1 (line: %d)\n",
+         b, b->refCnt, line, 0,0,0);
       return TRUE;
    }
 
    if (allocated && (1 > b->refCnt)) {
-      Zprintf("\nMpBuf_invalid(0x%X): reference count(%d) < 1 (line: %d)\n",
-         (int) b, b->refCnt, line, 0,0,0);
+      Zprintf("\nMpBuf_invalid(0x%p): reference count(%d) < 1 (line: %d)\n",
+         b, b->refCnt, line, 0,0,0);
       return TRUE;
    }
 
@@ -596,8 +600,8 @@ OsStatus MpBuf_setNumSamples(MpBufPtr b, int num)
    }
 
    if ((num < 0) || (num > MpBuf_getByteLen(b))) {
-      Zprintf("MpBuf_setNumSamples(0x%X, %d): numSamples invalid (max=%d)\n",
-         (int) b, num, MpBuf_getByteLen(b), 0,0,0);
+      Zprintf("MpBuf_setNumSamples(0x%p, %d): numSamples invalid (max=%d)\n",
+         b, num, MpBuf_getByteLen(b), 0,0,0);
       return OS_INVALID_ARGUMENT;
    }
 
@@ -615,8 +619,8 @@ OsStatus MpBuf_setContentLen(MpBufPtr b, int numBytes)
    }
 
    if ((numBytes < 0) || (numBytes > MpBuf_getByteLen(b))) {
-      Zprintf("MpBuf_setContentLen(0x%X, %d): contentLen invalid (max=%d)\n",
-         (int) b, numBytes, MpBuf_getByteLen(b), 0,0,0);
+      Zprintf("MpBuf_setContentLen(0x%p, %d): contentLen invalid (max=%d)\n",
+         b, numBytes, MpBuf_getByteLen(b), 0,0,0);
       return OS_INVALID_ARGUMENT;
    }
 
@@ -631,8 +635,8 @@ OsStatus MpBuf_setOffset(MpBufPtr b, int offset)
    }
 
    if ((offset < 0) || (offset > MpBuf_getByteLen(b))) {
-      Zprintf("MpBuf_setOffset(0x%X, %d): Offset invalid (max=%d)\n",
-         (int) b, offset, MpBuf_getByteLen(b), 0,0,0);
+      Zprintf("MpBuf_setOffset(0x%p, %d): Offset invalid (max=%d)\n",
+         b, offset, MpBuf_getByteLen(b), 0,0,0);
       return OS_INVALID_ARGUMENT;
    }
 
@@ -828,8 +832,8 @@ OsStatus MpBuf_init(int samplesPerFrame, int numAudioBuffers)
    MpMisc.UcbPool = MpBufPool_MpBufPool(0,
                    samplesPerFrame*sizeof(Sample),
                         numAudioBuffers, 0);
-   Nprintf("MpBuf_init: MpMisc.UcbPool = 0x%X\n",
-                           (int) MpMisc.UcbPool, 0,0,0,0,0);
+   Nprintf("MpBuf_init: MpMisc.UcbPool = 0x%p\n",
+                           MpMisc.UcbPool, 0,0,0,0,0);
    if (NULL == MpMisc.UcbPool) {
       return OS_NO_MEMORY;
    }
@@ -837,8 +841,8 @@ OsStatus MpBuf_init(int samplesPerFrame, int numAudioBuffers)
    MpMisc.DMAPool = MpBufPool_MpBufPool(0,
                    8*samplesPerFrame*sizeof(Sample),
                         64, 32);
-   Nprintf("MpBuf_init: MpMisc.DMAPool = 0x%X\n",
-                           (int) MpMisc.DMAPool, 0,0,0,0,0);
+   Nprintf("MpBuf_init: MpMisc.DMAPool = 0x%p\n",
+                           MpMisc.DMAPool, 0,0,0,0,0);
 
    if (NULL == MpMisc.DMAPool) {
       return OS_NO_MEMORY;
@@ -894,8 +898,8 @@ OsStatus MpBuf_init(int samplesPerFrame, int numAudioBuffers)
         memset(MpBuf_getSamples(sb), 0, MpBuf_getByteLen(sb));
         MpBuf_setSpeech(sb, MP_SPEECH_SILENT);
         MpMisc.XXXsilence = sb;
-        Zprintf("MpBuf_init: MpMisc.silence = 0x%X\n",
-                                (int) MpMisc.XXXsilence, 0,0,0,0,0);
+        Zprintf("MpBuf_init: MpMisc.silence = 0x%p\n",
+                                MpMisc.XXXsilence, 0,0,0,0,0);
     }
 /*************************************************************************/
 
@@ -919,8 +923,8 @@ OsStatus MpBuf_init(int samplesPerFrame, int numAudioBuffers)
         memset(MpBuf_getSamples(sb), 0, MpBuf_getByteLen(sb));
         MpBuf_setSpeech(sb, MP_SPEECH_SILENT);
         MpMisc.XXXlongSilence = sb;
-        Zprintf("MpBuf_init: MpMisc.longSilence = 0x%X\n",
-                                (int) MpMisc.XXXlongSilence, 0,0,0,0,0);
+        Zprintf("MpBuf_init: MpMisc.longSilence = 0x%p\n",
+                                MpMisc.XXXlongSilence, 0,0,0,0,0);
     }
 /*************************************************************************/
  /*
@@ -941,14 +945,14 @@ OsStatus MpBuf_init(int samplesPerFrame, int numAudioBuffers)
         memset(MpBuf_getSamples(cnb), 0, MpBuf_getByteLen(cnb));
         MpBuf_setSpeech(cnb, MP_SPEECH_COMFORT_NOISE);
         MpMisc.comfortNoise = cnb;
-        Zprintf("MpBuf_init: MpMisc.comfortNoise = 0x%X\n",
-                                (int) MpMisc.comfortNoise, 0,0,0,0,0);
+        Zprintf("MpBuf_init: MpMisc.comfortNoise = 0x%p\n",
+                                MpMisc.comfortNoise, 0,0,0,0,0);
     }
 /*************************************************************************/
 
    MpMisc.RtpPool = MpBufPool_MpBufPool(0, NETWORK_MTU, rtpNBufs, 0);
-   Nprintf("MpBuf_init: MpMisc.RtpPool = 0x%X\n",
-                           (int) MpMisc.RtpPool, 0,0,0,0,0);
+   Nprintf("MpBuf_init: MpMisc.RtpPool = 0x%p\n",
+                           MpMisc.RtpPool, 0,0,0,0,0);
    if (NULL == MpMisc.RtpPool) {
       MpBufPool_delete(MpMisc.UcbPool, 1);
       MpMisc.UcbPool = NULL;
@@ -957,8 +961,8 @@ OsStatus MpBuf_init(int samplesPerFrame, int numAudioBuffers)
 
    MpMisc.RtcpPool = MpBufPool_MpBufPool(0,
       MAX_RTCP_PACKET_LEN, rtcpNBufs, 0);
-   Nprintf("MpBuf_init: MpMisc.RtcpPool = 0x%X\n",
-                           (int) MpMisc.RtcpPool, 0,0,0,0,0);
+   Nprintf("MpBuf_init: MpMisc.RtcpPool = 0x%p\n",
+                           MpMisc.RtcpPool, 0,0,0,0,0);
    if (NULL == MpMisc.RtcpPool) {
       MpBufPool_delete(MpMisc.UcbPool, 1);
       MpMisc.UcbPool = NULL;
@@ -1083,9 +1087,8 @@ MpBufPtr MpBuf_getBufY(MpBufPoolPtr Pool,
 #endif /* BUFFER_INSTRUMENTATION ] */
 
         Nprintf(" +%02d(%d)\n", i-1, line, 0,0,0,0);
-        Nprintf("take: 0x%08X (%d), at %d\n",
-                                (int) ret, i-1, line, 0,0,0);
-        /* printf("take: 0x%08X (%d)\n", (int) ret, i-1); */
+        Nprintf("take: 0x%p (%d), at %d\n",
+                                ret, i-1, line, 0,0,0);
         return ret;
 }
 
@@ -1108,8 +1111,8 @@ void MpBuf_delRef(MpBufPtr b)
         }
 
         if (MpBuf_invalid(b, FALSE, TRUE)) {
-            Zprintf("MpBuf_delRef(0x%X): invalid! line: %d\n",
-                        (int) b, line, 0,0,0,0);
+            Zprintf("MpBuf_delRef(0x%p): invalid! line: %d\n",
+                        b, line, 0,0,0,0);
             // assert(!MpBuf_invalid(b, FALSE, TRUE));
             return;
         }
@@ -1118,14 +1121,14 @@ void MpBuf_delRef(MpBufPtr b)
 
         n = b - l->table;
         if ((n < 0) || (n >= l->allocCnt)) {
-            Zprintf("MpBuf_delRef: attempt to free 0x%X (%d) @%d\n",
-                (int) b, n, line, 0,0,0);
+            Zprintf("MpBuf_delRef: attempt to free 0x%p (%d) @%d\n",
+                b, n, line, 0,0,0);
         } else if (1 != b->status) {
             l->mpMutex->acquire();
             b->status = 2;
             l->mpMutex->release();
             Zprintf("MpBuf_delRef: attempt to free a free buffer"
-                " -- 0x%X (%d) @%d\n", (int) b, n, line, 0,0,0);
+                " -- 0x%p (%d) @%d\n", b, n, line, 0,0,0);
         } else {
             Nprintf("!%d(%d)\n ", b - l->table, line,0,0,0,0);
             l->mpMutex->acquire();
@@ -1160,8 +1163,8 @@ void MpBuf_addRef(MpBufPtr b)
         }
 
         if (MpBuf_invalid(b, FALSE, TRUE)) {
-            Zprintf("MpBuf_addRef(0x%X): invalid! line: %d\n",
-                        (int) b, line, 0,0,0,0);
+            Zprintf("MpBuf_addRef(0x%p): invalid! line: %d\n",
+                        b, line, 0,0,0,0);
             return;
         }
 
@@ -1169,14 +1172,14 @@ void MpBuf_addRef(MpBufPtr b)
 
         n = b - l->table;
         if ((n < 0) || (n >= l->allocCnt)) {
-            Zprintf("MpBuf_addRef: attempt to free 0x%X (%d) @%d\n",
-                (int) b, n, line, 0,0,0);
+            Zprintf("MpBuf_addRef: attempt to free 0x%p (%d) @%d\n",
+                b, n, line, 0,0,0);
         } else if (1 != b->status) {
             l->mpMutex->acquire();
             b->status = 2;
             l->mpMutex->release();
             Zprintf("MpBuf_addRef: attempt to add ref to a free buffer"
-                " -- 0x%X (%d) @%d\n", (int) b, n, line, 0,0,0);
+                " -- 0x%p (%d) @%d\n", b, n, line, 0,0,0);
         } else {
             Nprintf("!%d(%d)\n ", b - l->table, line,0,0,0,0);
             l->mpMutex->acquire();
@@ -1200,15 +1203,15 @@ void MpBuf_touchX(MpBufPtr b, int line)
         n = b - l->table;
         if ((n < 0) || (n >= l->allocCnt)) {
             Zprintf(
-                "bufTouch: attempt to touch a bad buffer -- 0x%X (%d) @%d\n",
-                    (int) b, n, line, 0,0,0);
+                "bufTouch: attempt to touch a bad buffer -- 0x%p (%d) @%d\n",
+                    b, n, line, 0,0,0);
         } else if (1 != b->status) {
             l->mpMutex->acquire();
             b->status = 2;
             l->mpMutex->release();
             Zprintf(
-              "bufTouch: attempt to touch a free buffer -- 0x%X (%d) @%d(%d)\n",
-                  (int) b, n, line, buffer_time_stamp, 0,0);
+              "bufTouch: attempt to touch a free buffer -- 0x%p (%d) @%d(%d)\n",
+                  b, n, line, buffer_time_stamp, 0,0);
             dump1Buf(b);
         } else {
             l->mpMutex->acquire();
@@ -1228,7 +1231,7 @@ MpBufPtr MpBuf_allowMods(MpBufPtr b)
    }
 
    if (MpBuf_invalid(b, FALSE, TRUE)) {
-      Zprintf("MpBuf_allowMod(0x%X): invalid!\n", (int) b, 0,0,0,0,0);
+      Zprintf("MpBuf_allowMod(0x%p): invalid!\n", b, 0,0,0,0,0);
       return NULL;
    }
 

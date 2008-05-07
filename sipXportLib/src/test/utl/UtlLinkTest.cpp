@@ -377,9 +377,9 @@ public:
             char msg[1000];
             sprintf(msg,
                     "New allocations after filling in iteration %d\n"
-                    "   startingPoolSize %d\n"
-                    "   peakPoolSize     %d\n"
-                    "   totalAllocated   %d\n",
+                    "   startingPoolSize %zu\n"
+                    "   peakPoolSize     %zu\n"
+                    "   totalAllocated   %zu\n",
                     iteration, startingPoolSize, peakPoolSize, totalAllocated()
                     );
             CPPUNIT_ASSERT_MESSAGE(msg, peakPoolSize == totalAllocated());
@@ -392,9 +392,9 @@ public:
 
             sprintf(msg,
                     "New allocations after release in iteration %d\n"
-                    "   startingPoolSize %d\n"
-                    "   peakPoolSize     %d\n"
-                    "   totalAllocated   %d\n",
+                    "   startingPoolSize %zu\n"
+                    "   peakPoolSize     %zu\n"
+                    "   totalAllocated   %zu\n",
                     iteration, startingPoolSize, peakPoolSize, totalAllocated()
                     );
             CPPUNIT_ASSERT_MESSAGE(msg, peakPoolSize == totalAllocated());

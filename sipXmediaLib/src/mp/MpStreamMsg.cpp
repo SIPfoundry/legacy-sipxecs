@@ -28,7 +28,7 @@
 
 // Constructor
 MpStreamMsg::MpStreamMsg(int msg, UtlString& target, StreamHandle handle,
-                         void* pPtr1, void* pPtr2, int int1, int int2)
+                         void* pPtr1, void* pPtr2, intptr_t int1, intptr_t int2)
 :  OsMsg(OsMsg::STREAMING_MSG, msg),
    mTarget(target),
    mHandle(handle),
@@ -111,13 +111,13 @@ void MpStreamMsg::setPtr2(void* p)
 }
 
 // Set integer 1 of the stream message
-void MpStreamMsg::setInt1(int i)
+void MpStreamMsg::setInt1(intptr_t i)
 {
    mInt1 = i;
 }
 
 // Set integer 2 of the stream message
-void MpStreamMsg::setInt2(int i)
+void MpStreamMsg::setInt2(intptr_t i)
 {
    mInt2 = i;
 }
@@ -155,13 +155,13 @@ void* MpStreamMsg::getPtr2(void) const
 }
 
 // Return integer 1 of the stream message
-int MpStreamMsg::getInt1(void) const
+intptr_t MpStreamMsg::getInt1(void) const
 {
    return mInt1;
 }
 
 // Return integer 2 of the stream message
-int MpStreamMsg::getInt2(void) const
+intptr_t MpStreamMsg::getInt2(void) const
 {
    return mInt2;
 }

@@ -76,19 +76,18 @@ OsStatus OsTestUtilities::createDummyFile(OsPath testFile, unsigned long size)
 {
     OsStatus stat;
     char wbuff[10000];
-    unsigned long wbuffsize = (unsigned long)sizeof(wbuff);
-
+    size_t wbuffsize = (size_t)sizeof(wbuff);
     OsTestUtilities::initDummyBuffer(wbuff, sizeof(wbuff));
 
     OsFile wfile(testFile);
     stat = wfile.open(OsFile::CREATE);
     if (stat == OS_SUCCESS)
     {
-        unsigned long wposition = 0;
+        size_t wposition = 0;
         for (int i = 0; stat == OS_SUCCESS && wposition < wbuffsize; i++)
         {
-            unsigned long remaining = wbuffsize - wposition;
-            unsigned long byteswritten = 0;
+            size_t remaining = wbuffsize - wposition;
+            size_t byteswritten = 0;
             stat = wfile.write(wbuff + wposition, remaining, byteswritten);
             wposition += byteswritten;
         }
@@ -104,18 +103,18 @@ UtlBoolean OsTestUtilities::verifyDummyFile(OsPath testFile, unsigned long size)
     OsStatus stat;
     UtlBoolean ok = false;
     char rbuff[256];
-    unsigned long rbuffsize = (unsigned long)sizeof(rbuff);
+    size_t rbuffsize = (size_t)sizeof(rbuff);
     OsFile rfile(testFile);
     stat = rfile.open();
     if (stat == OS_SUCCESS)
     {
-        unsigned long rposition = 0;
+        size_t rposition = 0;
         ok = true;
         for (int i = 0; ok && rposition < size; i++)
         {
-            unsigned long remaining = (size - rposition);
-            unsigned long readsize = remaining < rbuffsize ? remaining : rbuffsize;
-            unsigned long bytesread = 0;
+            size_t remaining = (size - rposition);
+            size_t readsize = remaining < rbuffsize ? remaining : rbuffsize;
+            size_t bytesread = 0;
             stat = rfile.read(rbuff, readsize, bytesread);
             if (stat != OS_SUCCESS)
             {

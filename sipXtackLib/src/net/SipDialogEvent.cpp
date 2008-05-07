@@ -577,9 +577,9 @@ UtlBoolean SipDialogEvent::isEmpty()
 }
 
 
-int SipDialogEvent::getLength() const
+size_t SipDialogEvent::getLength() const
 {
-   int length;
+   size_t length;
    UtlString tempBody;
 
    getBytes(&tempBody, &length);
@@ -780,14 +780,14 @@ void SipDialogEvent::buildBody(int& version) const
 }
 
 
-void SipDialogEvent::getBytes(const char** bytes, int* length) const
+void SipDialogEvent::getBytes(const char** bytes, size_t* length) const
 {
    *bytes = mBody.data();
    *length = bodyLength;
 }
 
 
-void SipDialogEvent::getBytes(UtlString* bytes, int* length) const
+void SipDialogEvent::getBytes(UtlString* bytes, size_t* length) const
 {
    int dummy;
    buildBody(dummy);

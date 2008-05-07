@@ -64,7 +64,9 @@ public:
         int priority;
         process.setPriority(1);
         process.getPriority(priority);
-        CPPUNIT_ASSERT_EQUAL_MESSAGE("Set priority ok", 1, priority);
+        KNOWN_BUG("INTERMITTENT on F8 with 64Bit changes", "XECS-480");
+        CPPUNIT_ASSERT_MESSAGE("Set priority ok", priority == 1);
+      //CPPUNIT_ASSERT_EQUAL_MESSAGE("Set priority ok", 1, priority);
 
         OsProcess newProcess;
         stat = OsProcess::getByPID(process.getPID(), newProcess);

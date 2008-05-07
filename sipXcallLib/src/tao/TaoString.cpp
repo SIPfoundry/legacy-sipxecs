@@ -44,22 +44,22 @@ TaoString::TaoString(const char *str, const char *delimiter)
     mDelimiter(delimiter)
 {
 #ifdef TAOSTR_DEBUG
-        mStrCnt++;
+   mStrCnt++;
 #endif
    size_t    length;
-        size_t   pos;
-        size_t   pos2;
-        size_t   patLen;
+   size_t   pos;
+   ssize_t   pos2;
+   size_t   patLen;
    size_t    strLen ;
 
-        pos = 0;
-        pos2 = 0;
-        patLen = strlen(delimiter);
-        UtlString tmp(str);
+   pos = 0;
+   pos2 = 0;
+   patLen = strlen(delimiter);
+   UtlString tmp(str);
    strLen = strlen(str) ;
 
-        while (UTL_NOT_FOUND != (pos2 = tmp.index(delimiter, pos)))
-        {
+   while (UTL_NOT_FOUND != (pos2 = tmp.index(delimiter, pos)))
+   {
       length = pos2 - pos ;
       if (length)
       {

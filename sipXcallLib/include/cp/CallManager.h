@@ -173,7 +173,7 @@ public:
     virtual void toneStart(const char* callId, int toneId, UtlBoolean local, UtlBoolean remote);
     virtual void toneStop(const char* callId);
     virtual void audioPlay(const char* callId, const char* audioUrl, UtlBoolean repeat, UtlBoolean local, UtlBoolean remote);
-    virtual void bufferPlay(const char* callId, int audiobuf, int bufSize, int type, UtlBoolean repeat, UtlBoolean local, UtlBoolean remote);
+    virtual void bufferPlay(const char* callId, char* audiobuf, int bufSize, int type, UtlBoolean repeat, UtlBoolean local, UtlBoolean remote);
     virtual void audioStop(const char* callId);
     virtual void stopPremiumSound(const char* callId);
 #ifndef EXCLUDE_STREAMING
@@ -241,9 +241,9 @@ public:
 
     virtual void setTransferType(int type);
 
-    virtual void addToneListener(const char* callId, int pListener);
+    virtual void addToneListener(const char* callId, void* pListener);
 
-    virtual void removeToneListener(const char* callId, int pListener);
+    virtual void removeToneListener(const char* callId, void* pListener);
 
          // Change the function name from getDtmfTone to enableDtmfEvent, to better
          // reflect what it does.
@@ -265,15 +265,15 @@ public:
                                      OsQueuedEvent* dtmfEvent,
                                      UtlBoolean ignoreKeyUp);
 
-    virtual void disableDtmfEvent(const char* callId, int dtmfEvent);
+    virtual void disableDtmfEvent(const char* callId, void* dtmfEvent);
 
-    virtual void removeDtmfEvent(const char* callId, int dtmfEvent);
+    virtual void removeDtmfEvent(const char* callId, void* dtmfEvent);
 
 
     virtual OsStatus ezRecord(const char* callId,
                         int ms,
                         int silenceLength,
-                        int& duration,
+                        double& duration,
                         const char* fileName,
                         int& dtmfterm,
                         OsProtectedEvent* recordEvent = NULL);

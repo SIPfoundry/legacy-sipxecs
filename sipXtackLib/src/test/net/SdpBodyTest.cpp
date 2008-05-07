@@ -56,13 +56,13 @@ public:
          SdpBody body(sdp);
 
          UtlString bodyString;
-         int bodyLength;
+         size_t bodyLength;
        
          body.getBytes(&bodyString, &bodyLength);
        
          ASSERT_STR_EQUAL( bodyString.data(), sdp);
 
-         int otherLength = body.getLength();
+         size_t otherLength = body.getLength();
          CPPUNIT_ASSERT( bodyLength == otherLength );
        
          const char *junk = "IRRELEVENT JUNK THAT IS NOT SDP";
@@ -73,7 +73,7 @@ public:
          SdpBody embeddedBody(embeddedSdp.data(), strlen(sdp));
 
          UtlString extractedString;
-         int extractedStringLength;
+         size_t extractedStringLength;
        
          embeddedBody.getBytes(&extractedString, &extractedStringLength);
 
@@ -232,7 +232,7 @@ public:
       {
          UtlString sdpMsg;
          UtlString sdpExpected;
-         int sdpLength;
+         size_t sdpLength;
          
          SdpBody newSdp;
 
@@ -369,7 +369,7 @@ public:
          body.addNtpTime( 10000000, 20000000 );
          
          UtlString sdpMsg;
-         int sdpLength;
+         size_t sdpLength;
          
          body.getBytes(&sdpMsg, &sdpLength);
 
@@ -666,7 +666,7 @@ public:
         testBody.addCandidateAttribute("id2", 0.3, "userfrag2", "password2",
                 "192.168.1.103", 8777, "10.1.1.103", 10000) ;
         UtlString strBody ;
-        int nBody = 0;
+        size_t nBody = 0;
         testBody.getBytes(&strBody, &nBody) ;
         
         ASSERT_STR_EQUAL(testBodyExpected, strBody.data()) ;
@@ -677,7 +677,7 @@ public:
         SdpBody testBody ;
         SdpSrtpParameters testSrtp;
         UtlString strBody ;
-        int nBody ;
+        size_t nBody ;
 
         testSrtp.securityLevel = 0;
 

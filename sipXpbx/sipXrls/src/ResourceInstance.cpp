@@ -235,8 +235,7 @@ void ResourceInstance::notifyEventCallback(const UtlString* dialogHandle,
                   // Free alloc_xml, because we aren't saving a pointer to it.
                   delete alloc_xml;
                   OsSysLog::add(FAC_RLS, PRI_ERR,
-                                "ResourceInstance::notifyEventCallback cannot add dialog with id '%s', already %d in ResourceInstance '%s'",
-                                id.data(), mXmlDialogs.entries(),
+                                "ResourceInstance::notifyEventCallback cannot add dialog with id '%s', already %zu in ResourceInstance '%s'",                                id.data(), mXmlDialogs.entries(),
                                 mInstanceName.data());
                }
             }

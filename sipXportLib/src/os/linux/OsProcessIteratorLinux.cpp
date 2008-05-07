@@ -112,12 +112,12 @@ OsStatus OsProcessIteratorLinux::readProcFile(OsPath &procDirname, OsProcess & r
     OsFileLinux procFile(fullProcName);
     if (procFile.open(OsFile::READ_ONLY) == OS_SUCCESS)
     {
-        long len = 5000; //since the length is always 0 for these files, lets try to read 5k
+        size_t len = 5000; //since the length is always 0 for these files, lets try to read 5k
         char *buffer = new char[len+1];
         if (buffer)
         {
-            unsigned long bytesRead;
-            procFile.read((void *)buffer,(unsigned long)len,bytesRead);
+            size_t bytesRead;
+            procFile.read((void *)buffer,len,bytesRead);
 
             if (bytesRead)
             {
@@ -142,12 +142,12 @@ OsStatus OsProcessIteratorLinux::readProcFile(OsPath &procDirname, OsProcess & r
                     else
                     if (memcmp(ptr,"Pid:",4) == 0)
                     {
-                        rProcess.mPID = atoi(ptr+4);
+                        rProcess.mPID = atol(ptr+4);
                     }
                     else
                     if (memcmp(ptr,"PPid:",5) == 0)
                     {
-                        rProcess.mParentPID = atoi(ptr+5);
+                        rProcess.mParentPID = atol(ptr+5);
                     }
 
                     ptr = strtok(NULL,"\n");

@@ -40,7 +40,7 @@ public:
 
 /* ============================ MANIPULATORS ============================== */
 
-   virtual OsStatus encode(const short* pAudioSamples,
+   virtual OsStatus encode(const Sample* pAudioSamples,
                    const int numSamples,
                    int& rSamplesConsumed,
                    unsigned char* pCodeBuf,

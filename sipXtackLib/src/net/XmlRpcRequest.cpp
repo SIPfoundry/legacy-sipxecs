@@ -65,7 +65,7 @@ bool XmlRpcRequest::execute(XmlRpcResponse& response)
    if (OsSysLog::willLog(FAC_XMLRPC, PRI_INFO))
    {
       UtlString logBody;
-      int logLength;
+      size_t logLength;
       mpRequestBody->getBytes(&logBody, &logLength);
       UtlString urlString;
       mUrl.toString(urlString);
@@ -87,7 +87,7 @@ bool XmlRpcRequest::execute(XmlRpcResponse& response)
    if (statusCode/100 == 2)
    {
       UtlString bodyString;
-      int       bodyLength;
+      size_t       bodyLength;
       
       httpResponse.getBody()->getBytes(&bodyString, &bodyLength);
 

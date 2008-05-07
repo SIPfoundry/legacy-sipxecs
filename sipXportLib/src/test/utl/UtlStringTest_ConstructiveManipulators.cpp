@@ -538,14 +538,14 @@ public:
               a.length(), (size_t) 5);
 
         CPPUNIT_ASSERT_EQUAL_MESSAGE("did not find null char",
-              a.index('\0'), (size_t) 2);
+              a.index('\0'), (ssize_t) 2);
 
         a.append("cc\0dd", 5);
         CPPUNIT_ASSERT_EQUAL_MESSAGE("append with null char lost",
               a.length(), (size_t) 10);
 
         CPPUNIT_ASSERT_EQUAL_MESSAGE("failed to find last null char",
-              a.last('\0'), (size_t) 7);
+              a.last('\0'), (ssize_t) 7);
 
         UtlString b("\0", 1);
 
@@ -559,7 +559,7 @@ public:
         CPPUNIT_ASSERT_EQUAL_MESSAGE("copied strings w/null char not equal",
               c, b);
         CPPUNIT_ASSERT_EQUAL_MESSAGE("failed to find null char w/string",
-              a.index(b), (size_t) 2);
+              a.index(b), (ssize_t) 2);
 
         a.remove(3);
         CPPUNIT_ASSERT_EQUAL_MESSAGE("remove lost null char",

@@ -648,7 +648,7 @@ class dbCursor : public dbAnyCursor {
      *  }
      *</PRE>
      * @return pointer to the current record
-     */    
+     */
     T* nextAvailable() {
         if (!removed) {
             return next();

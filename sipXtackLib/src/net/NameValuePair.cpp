@@ -102,9 +102,9 @@ void NameValuePair::setValue(const char* newValue)
 {
         if(newValue)
         {
-                int len = strlen(newValue);
+                size_t len = strlen(newValue);
 
-                if(valueString && len > (int) strlen(valueString))
+                if(valueString && len > strlen(valueString))
                 {
                         delete[] valueString;
                         valueString = new char[len + 1];

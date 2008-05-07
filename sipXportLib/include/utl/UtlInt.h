@@ -39,7 +39,7 @@ public:
     /**
      * Constructor accepting an optional default value.
      */
-    UtlInt(int initialValue = 0) ;
+    UtlInt(intptr_t initialValue = 0) ;
       
     /**
      * Destructor
@@ -57,7 +57,7 @@ public:
     UtlInt operator--(int);     // Postfix decrement operator
 
     // Conversion to int
-    operator int() { return mValue; }
+    operator intptr_t() { return mValue; }
 
 /* ============================ MANIPULATORS ============================== */
 
@@ -66,14 +66,14 @@ public:
      *
      * @returns the old value
      */
-    int setValue(int iValue) ;
+    intptr_t setValue(intptr_t iValue) ;
 
 /* ============================ ACCESSORS ================================= */
 
     /**
      * Get the int wrapped by this object.
      */
-    int getValue() const ;    
+    intptr_t getValue() const ;    
 
     /**
      * Calculate a unique hash code for this object.  If the equals
@@ -110,7 +110,7 @@ protected:
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
-    int mValue ;    /** < The int wrapped by this object */ 
+    intptr_t mValue ;    /** < The int wrapped by this object */ 
 
 } ;
 

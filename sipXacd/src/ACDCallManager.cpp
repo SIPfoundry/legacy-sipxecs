@@ -352,7 +352,7 @@ bool ACDCallManager::eventCallback(SIPX_EVENT_CATEGORY category, void *pInfo)
                      // We exceed the max allowed, reject the call
                      sipxCallReject(pCallInfo->hCall, SIP_TEMPORARILY_UNAVAILABLE_CODE,
                                     "ACD Maximum Calls Exceeded");
-                     OsSysLog::add(FAC_ACD, PRI_WARNING, "ACDCallManager::eventCallback - CALLSTATE_OFFERING::reject the call %d due to exceed the max calls allowed (%d)",
+                     OsSysLog::add(FAC_ACD, PRI_WARNING, "ACDCallManager::eventCallback - CALLSTATE_OFFERING::reject the call %d due to exceed the max calls allowed (%zu)",
                                    pCallInfo->hCall, mCallHandleMap.entries());
                   }
                }
@@ -669,7 +669,7 @@ bool ACDCallManager::validateTransferToLine(SIPX_CALLSTATE_INFO* pCallInfo)
 
 void ACDCallManager::updateTransferCallState(SIPX_CALLSTATE_INFO* pCallInfo)
 {
-   SIPX_CALL hCallHandle;
+   SIPX_CALL hCallHandle = SIPX_CALL_NULL;
    SIPX_CALL hAssociatedCallHandle;
    int       callEvent;
    int       callCause;
@@ -794,7 +794,7 @@ void ACDCallManager::removeCallFromMap(ACDCall *pCallRef,
       pACDCall = (ACDCall*)pMap->findValue(pTemp);
       if(pACDCall == pCallRef ) {
          OsSysLog::add(FAC_ACD, gACD_DEBUG, 
-            "ACDCallManager::removeCallFromMap(%s) - removed ACDCall(%p) matching hCall=%d", 
+            "ACDCallManager::removeCallFromMap(%s) - removed ACDCall(%p) matching hCall=%" PRIdPTR, 
                mapName, pACDCall, pTemp->getValue());
          pKey = pMap->removeReference(pTemp);
          if (pKey != NULL) {
@@ -911,7 +911,7 @@ void ACDCallManager::removeCallFromMaps(ACDCall *pCallRef)
 
 void ACDCallManager::destroyACDCall(ACDCall* pCallRef)
 {
-   SIPX_CALL hCallHandle = pCallRef->getCallHandle();
+//   SIPX_CALL hCallHandle = pCallRef->getCallHandle();
 
    // Ignore events to this call handle from now on.
    // Moves still active handles into the "Dead" map

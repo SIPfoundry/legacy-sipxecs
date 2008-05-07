@@ -27,18 +27,18 @@
 // STRUCTS
 struct WAVChunkID
 {
-	char     ckID[4];               // chunk id 'RIFF'
-   unsigned long ckSize;           // chunk size
+   char     ckID[4];          // chunk id 'RIFF'
+   uint32_t ckSize;           // chunk size      = 4 byte value in WAV file
 };
 
 struct FORMATChunkInfo
 {
-   unsigned short formatTag;       // format tag currently pcm
-   unsigned short nChannels;       // number of channels
-   unsigned long nSamplesPerSec;   // sample rate in hz
-   unsigned long nAvgBytesPerSec;  // average bytes per second
-   unsigned short nBlockAlign;     // number of bytes per sample
-   unsigned short nBitsPerSample;  // number of bits in a sample
+   uint16_t formatTag;       // format tag currently pcm   = 2 byte value in WAV file
+   uint16_t nChannels;       // number of channels         = 2 byte value in WAV file
+   uint32_t nSamplesPerSec;  // sample rate in hz          = 4 byte value in WAV file
+   uint32_t nAvgBytesPerSec; // average bytes per second   = 4 byte value in WAV file
+   uint16_t nBlockAlign;     // number of bytes per sample = 2 byte value in WAV file
+   uint16_t nBitsPerSample;  // number of bits in a sample = 2 byte value in WAV file
 };
 
 
@@ -104,7 +104,7 @@ protected:
    int run(void* pArgs);
      //:Thread entry point
 
-   UtlBoolean nextDataChunk(int& iLength);
+   UtlBoolean nextDataChunk(size_t& iLength);
      //:Advances the mCurrentChunk to the next data chunk within the stream
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */

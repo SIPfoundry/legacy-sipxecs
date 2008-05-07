@@ -18,6 +18,7 @@
 // APPLICATION INCLUDES
 #include "os/OsMsg.h"
 #include "ptapi/PtEvent.h"
+#include "tao/TaoDefs.h"
 
 // DEFINES
 // MACROS
@@ -83,9 +84,9 @@ public:
 /* ============================ CREATORS ================================== */
 
     TaoListenerEventMessage(PtEvent::PtEventId eventId = PtEvent::EVENT_INVALID,
-                           int intData1 = 0,
-                           int intData2 = 0,
-                           int intData3 = 0,
+                           intptr_t intData1 = 0,
+                           intptr_t intData2 = 0,
+                           intptr_t intData3 = 0,
                            const char* stringData1 = NULL, 
                            const char* stringData2 = NULL, 
                            const char* stringData3 = NULL); 
@@ -107,21 +108,21 @@ public:
    void setStringData2(const char* stringData);
    void setStringData3(const char* stringData);
 
-   void setEventId(int id) { mEventId = (PtEvent::PtEventId)id; };
+   void setEventId(TaoEventId id) { mEventId = (PtEvent::PtEventId)id; };
 /* ============================ ACCESSORS ================================= */
 
-   int getEventId() { return mEventId; };
+   TaoEventId getEventId() { return mEventId; };
 
    void getStringData1(UtlString& stringData);
    void getStringData2(UtlString& stringData);
    void getStringData3(UtlString& stringData);
 
-   int getIntData1();
-   void setIntData1(int intData);
-   int getIntData2();
-   void setIntData2(int intData);
-   int getIntData3();
-   void setIntData3(int intData);
+   intptr_t getIntData1();
+   void setIntData1(intptr_t intData);
+   intptr_t getIntData2();
+   void setIntData2(intptr_t intData);
+   intptr_t getIntData3();
+   void setIntData3(intptr_t intData);
 
 /* ============================ INQUIRY =================================== */
 
@@ -136,9 +137,9 @@ private:
     UtlString mStringData2;
     UtlString mStringData3;
 
-    int mIntData1;
-    int mIntData2;
-    int mIntData3;
+    intptr_t mIntData1;
+    intptr_t mIntData2;
+    intptr_t mIntData3;
 
 
 };

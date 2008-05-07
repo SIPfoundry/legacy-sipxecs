@@ -298,9 +298,9 @@ int MprToNet::writeRtp(int payloadType, UtlBoolean markerState,
 
         if (l != sendret) {
             if (5 > mNumRtpWriteErrors++) {
-                Zprintf("Exit rW: send(0x%X 0x%X %d) returned %d,"
+                Zprintf("Exit rW: send(0x%p 0x%p %d) returned %d,"
                     " errno=%d (at %d)\n",
-                    (int) mpRtpSocket, (int) ph, l, sendret, errno, *pOsTC);
+                    mpRtpSocket, ph, l, sendret, errno, *pOsTC);
             }
 
             switch (errno) {

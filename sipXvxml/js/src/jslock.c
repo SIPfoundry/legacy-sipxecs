@@ -1,36 +1,41 @@
 /* -*- Mode: C; tab-width: 8; indent-tabs-mode: nil; c-basic-offset: 4 -*-
  *
- * The contents of this file are subject to the Netscape Public
- * License Version 1.1 (the "License"); you may not use this file
- * except in compliance with the License. You may obtain a copy of
- * the License at http://www.mozilla.org/NPL/
+ * ***** BEGIN LICENSE BLOCK *****
+ * Version: MPL 1.1/GPL 2.0/LGPL 2.1
  *
- * Software distributed under the License is distributed on an "AS
- * IS" basis, WITHOUT WARRANTY OF ANY KIND, either express oqr
- * implied. See the License for the specific language governing
- * rights and limitations under the License.
+ * The contents of this file are subject to the Mozilla Public License Version
+ * 1.1 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ * http://www.mozilla.org/MPL/
+ *
+ * Software distributed under the License is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+ * for the specific language governing rights and limitations under the
+ * License.
  *
  * The Original Code is Mozilla Communicator client code, released
  * March 31, 1998.
  *
- * The Initial Developer of the Original Code is Netscape
- * Communications Corporation.  Portions created by Netscape are
- * Copyright (C) 1998 Netscape Communications Corporation. All
- * Rights Reserved.
+ * The Initial Developer of the Original Code is
+ * Netscape Communications Corporation.
+ * Portions created by the Initial Developer are Copyright (C) 1998
+ * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
  *
- * Alternatively, the contents of this file may be used under the
- * terms of the GNU Public License (the "GPL"), in which case the
- * provisions of the GPL are applicable instead of those above.
- * If you wish to allow use of your version of this file only
- * under the terms of the GPL and not to allow others to use your
- * version of this file under the NPL, indicate your decision by
- * deleting the provisions above and replace them with the notice
- * and other provisions required by the GPL.  If you do not delete
- * the provisions above, a recipient may use your version of this
- * file under either the NPL or the GPL.
- */
+ * Alternatively, the contents of this file may be used under the terms of
+ * either of the GNU General Public License Version 2 or later (the "GPL"),
+ * or the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
+ * in which case the provisions of the GPL or the LGPL are applicable instead
+ * of those above. If you wish to allow use of your version of this file only
+ * under the terms of either the GPL or the LGPL, and not to allow others to
+ * use your version of this file under the terms of the MPL, indicate your
+ * decision by deleting the provisions above and replace them with the notice
+ * and other provisions required by the GPL or the LGPL. If you do not delete
+ * the provisions above, a recipient may use your version of this file under
+ * the terms of any one of the MPL, the GPL or the LGPL.
+ *
+ * ***** END LICENSE BLOCK ***** */
 
 #ifdef JS_THREADSAFE
 
@@ -40,13 +45,13 @@
 #include "jsstddef.h"
 #include <stdlib.h>
 #include "jspubtd.h"
-#include "prthread.h"
 #include "jsutil.h" /* Added by JSIFY */
 #include "jstypes.h"
 #include "jsbit.h"
 #include "jscntxt.h"
-#include "jslock.h"
+#include "jsdtoa.h"
 #include "jsgc.h"
+#include "jslock.h"
 #include "jsscope.h"
 #include "jsstr.h"
 
@@ -113,6 +118,44 @@ js_CompareAndSwap(jsword *w, jsword ov, jsword nv)
     return (int)res;
 }
 
+#elif (defined(__USLC__) || defined(_SCO_DS)) && defined(i386)
+
+/* Note: This fails on 386 cpus, cmpxchgl is a >= 486 instruction */
+
+asm int
+js_CompareAndSwap(jsword *w, jsword ov, jsword nv)
+{
+%ureg w, nv;
+	movl	ov,%eax
+	lock
+	cmpxchgl nv,(w)
+	sete	%al
+	andl	$1,%eax
+%ureg w;  mem ov, nv;
+	movl	ov,%eax
+	movl	nv,%ecx
+	lock
+	cmpxchgl %ecx,(w)
+	sete	%al
+	andl	$1,%eax
+%ureg nv;
+	movl	ov,%eax
+	movl	w,%edx
+	lock
+	cmpxchgl nv,(%edx)
+	sete	%al
+	andl	$1,%eax
+%mem w, ov, nv;
+	movl	ov,%eax
+	movl	nv,%ecx
+	movl	w,%edx
+	lock
+	cmpxchgl %ecx,(%edx)
+	sete	%al
+	andl	$1,%eax
+}
+#pragma asm full_optimization js_CompareAndSwap
+
 #elif defined(SOLARIS) && defined(sparc) && defined(ULTRA_SPARC)
 
 static JS_INLINE int
@@ -149,10 +192,6 @@ js_CompareAndSwap(jsword *w, jsword ov, jsword nv)
     return !_check_lock((atomic_p)w, ov, nv);
 }
 
-#elif defined(XP_OS2_VACPP)
-
-/* js_CompareAndSwap implemented in jslocko.asm */
-
 #else
 
 #error "Define NSPR_LOCK if your platform lacks a compare-and-swap instruction."
@@ -160,12 +199,6 @@ js_CompareAndSwap(jsword *w, jsword ov, jsword nv)
 #endif /* arch-tests */
 
 #endif /* !NSPR_LOCK */
-
-jsword
-js_CurrentThreadId()
-{
-    return CurrentThreadId();
-}
 
 void
 js_InitLock(JSThinLock *tl)
@@ -314,7 +347,7 @@ ShareScope(JSRuntime *rt, JSScope *scope)
          * scope->ownercx's transition to null against tests of that member
          * in ClaimScope.
          */
-        scope->lock.owner = scope->ownercx->thread;
+        scope->lock.owner = CX_THINLOCK_ID(scope->ownercx);
 #ifdef NSPR_LOCK
         JS_ACQUIRE_LOCK((JSLock*)scope->lock.fat);
 #endif
@@ -408,7 +441,7 @@ ClaimScope(JSScope *scope, JSContext *cx)
          * request before waiting on rt->scopeSharingDone).
          */
         if (!scope->u.link &&
-            (!js_LiveContext(rt, ownercx) ||
+            (!js_ValidContextPointer(rt, ownercx) ||
              !ownercx->requestDepth ||
              ownercx->thread == cx->thread)) {
             JS_ASSERT(scope->u.count == 0);
@@ -558,13 +591,23 @@ js_GetSlotThreadSafe(JSContext *cx, JSObject *obj, uint32 slot)
     scope = OBJ_SCOPE(obj);
     JS_ASSERT(scope->ownercx != cx);
     JS_ASSERT(obj->slots && slot < obj->map->freeslot);
-    if (scope->ownercx && ClaimScope(scope, cx))
+
+    /*
+     * Avoid locking if called from the GC (see GC_AWARE_GET_SLOT in jsobj.h).
+     * Also avoid locking an object owning a sealed scope.  If neither of those
+     * special cases applies, try to claim scope's flyweight lock from whatever
+     * context may have had it in an earlier request.
+     */
+    if (CX_THREAD_IS_RUNNING_GC(cx) ||
+        (SCOPE_IS_SEALED(scope) && scope->object == obj) ||
+        (scope->ownercx && ClaimScope(scope, cx))) {
         return obj->slots[slot];
+    }
 
 #ifndef NSPR_LOCK
     tl = &scope->lock;
-    me = cx->thread;
-    JS_ASSERT(me == CurrentThreadId());
+    me = CX_THINLOCK_ID(cx);
+    JS_ASSERT(CURRENT_THREAD_IS_ME(me));
     if (js_CompareAndSwap(&tl->owner, 0, me)) {
         /*
          * Got the lock with one compare-and-swap.  Even so, someone else may
@@ -638,15 +681,24 @@ js_SetSlotThreadSafe(JSContext *cx, JSObject *obj, uint32 slot, jsval v)
     scope = OBJ_SCOPE(obj);
     JS_ASSERT(scope->ownercx != cx);
     JS_ASSERT(obj->slots && slot < obj->map->freeslot);
-    if (scope->ownercx && ClaimScope(scope, cx)) {
+
+    /*
+     * Avoid locking if called from the GC (see GC_AWARE_GET_SLOT in jsobj.h).
+     * Also avoid locking an object owning a sealed scope.  If neither of those
+     * special cases applies, try to claim scope's flyweight lock from whatever
+     * context may have had it in an earlier request.
+     */
+    if (CX_THREAD_IS_RUNNING_GC(cx) ||
+        (SCOPE_IS_SEALED(scope) && scope->object == obj) ||
+        (scope->ownercx && ClaimScope(scope, cx))) {
         obj->slots[slot] = v;
         return;
     }
 
 #ifndef NSPR_LOCK
     tl = &scope->lock;
-    me = cx->thread;
-    JS_ASSERT(me == CurrentThreadId());
+    me = CX_THINLOCK_ID(cx);
+    JS_ASSERT(CURRENT_THREAD_IS_ME(me));
     if (js_CompareAndSwap(&tl->owner, 0, me)) {
         if (scope == OBJ_SCOPE(obj)) {
             obj->slots[slot] = v;
@@ -821,9 +873,6 @@ js_SetupLocks(int listc, int globc)
     return JS_TRUE;
 }
 
-/* pull in the cleanup function from jsdtoa.c */
-extern void js_FinishDtoa(void);
-
 void
 js_CleanupLocks()
 {
@@ -851,14 +900,6 @@ js_CleanupLocks()
         fl_list_table_len = 0;
     }
 #endif /* !NSPR_LOCK */
-    js_FinishDtoa();
-}
-
-void
-js_InitContextForLocking(JSContext *cx)
-{
-    cx->thread = CurrentThreadId();
-    JS_ASSERT(Thin_GetWait(cx->thread) == 0);
 }
 
 #ifndef NSPR_LOCK
@@ -981,7 +1022,7 @@ js_Dequeue(JSThinLock *tl)
 JS_INLINE void
 js_Lock(JSThinLock *tl, jsword me)
 {
-    JS_ASSERT(me == CurrentThreadId());
+    JS_ASSERT(CURRENT_THREAD_IS_ME(me));
     if (js_CompareAndSwap(&tl->owner, 0, me))
         return;
     if (Thin_RemoveWait(ReadWord(tl->owner)) != me)
@@ -995,14 +1036,22 @@ js_Lock(JSThinLock *tl, jsword me)
 JS_INLINE void
 js_Unlock(JSThinLock *tl, jsword me)
 {
-    JS_ASSERT(me == CurrentThreadId());
-    if (js_CompareAndSwap(&tl->owner, me, 0))
+    JS_ASSERT(CURRENT_THREAD_IS_ME(me));
+
+    /*
+     * Only me can hold the lock, no need to use compare and swap atomic
+     * operation for this common case.
+     */
+    if (tl->owner == me) {
+        tl->owner = 0;
         return;
+    }
+    JS_ASSERT(Thin_GetWait(tl->owner));
     if (Thin_RemoveWait(ReadWord(tl->owner)) == me)
         js_Dequeue(tl);
 #ifdef DEBUG
     else
-        JS_ASSERT(0);
+        JS_ASSERT(0);   /* unbalanced unlock */
 #endif
 }
 
@@ -1013,7 +1062,7 @@ js_LockRuntime(JSRuntime *rt)
 {
     PR_Lock(rt->rtLock);
 #ifdef DEBUG
-    rt->rtLockOwner = CurrentThreadId();
+    rt->rtLockOwner = js_CurrentThreadId();
 #endif
 }
 
@@ -1029,10 +1078,12 @@ js_UnlockRuntime(JSRuntime *rt)
 void
 js_LockScope(JSContext *cx, JSScope *scope)
 {
-    jsword me = cx->thread;
+    jsword me = CX_THINLOCK_ID(cx);
 
-    JS_ASSERT(me == CurrentThreadId());
+    JS_ASSERT(CURRENT_THREAD_IS_ME(me));
     JS_ASSERT(scope->ownercx != cx);
+    if (CX_THREAD_IS_RUNNING_GC(cx))
+        return;
     if (scope->ownercx && ClaimScope(scope, cx))
         return;
 
@@ -1052,9 +1103,37 @@ js_LockScope(JSContext *cx, JSScope *scope)
 void
 js_UnlockScope(JSContext *cx, JSScope *scope)
 {
-    jsword me = cx->thread;
+    jsword me = CX_THINLOCK_ID(cx);
 
-    JS_ASSERT(scope->ownercx == NULL);
+    /* We hope compilers use me instead of reloading cx->thread in the macro. */
+    if (CX_THREAD_IS_RUNNING_GC(cx))
+        return;
+    if (cx->lockedSealedScope == scope) {
+        cx->lockedSealedScope = NULL;
+        return;
+    }
+
+    /*
+     * If scope->ownercx is not null, it's likely that two contexts not using
+     * requests nested locks for scope.  The first context, cx here, claimed
+     * scope; the second, scope->ownercx here, re-claimed it because the first
+     * was not in a request, or was on the same thread.  We don't want to keep
+     * track of such nesting, because it penalizes the common non-nested case.
+     * Instead of asserting here and silently coping, we simply re-claim scope
+     * for cx and return.
+     *
+     * See http://bugzilla.mozilla.org/show_bug.cgi?id=229200 for a real world
+     * case where an asymmetric thread model (Mozilla's main thread is known
+     * to be the only thread that runs the GC) combined with multiple contexts
+     * per thread has led to such request-less nesting.
+     */
+    if (scope->ownercx) {
+        JS_ASSERT(scope->u.count == 0);
+        JS_ASSERT(scope->lock.owner == 0);
+        scope->ownercx = cx;
+        return;
+    }
+
     JS_ASSERT(scope->u.count > 0);
     if (Thin_RemoveWait(ReadWord(scope->lock.owner)) != me) {
         JS_ASSERT(0);   /* unbalanced unlock */
@@ -1077,23 +1156,45 @@ js_TransferScopeLock(JSContext *cx, JSScope *oldscope, JSScope *newscope)
     jsword me;
     JSThinLock *tl;
 
-    JS_ASSERT(JS_IS_SCOPE_LOCKED(newscope));
+    JS_ASSERT(JS_IS_SCOPE_LOCKED(cx, newscope));
 
     /*
      * If the last reference to oldscope went away, newscope needs no lock
      * state update.
      */
     if (!oldscope)
-	return;
-    JS_ASSERT(JS_IS_SCOPE_LOCKED(oldscope));
+        return;
+    JS_ASSERT(JS_IS_SCOPE_LOCKED(cx, oldscope));
+
+    /*
+     * Special case in js_LockScope and js_UnlockScope for the GC calling
+     * code that locks, unlocks, or mutates.  Nothing to do in these cases,
+     * because scope and newscope were "locked" by the GC thread, so neither
+     * was actually locked.
+     */
+    if (CX_THREAD_IS_RUNNING_GC(cx))
+        return;
+
+    /*
+     * Special case in js_LockObj and js_UnlockScope for locking the sealed
+     * scope of an object that owns that scope (the prototype or mutated obj
+     * for which OBJ_SCOPE(obj)->object == obj), and unlocking it.
+     */
+    JS_ASSERT(cx->lockedSealedScope != newscope);
+    if (cx->lockedSealedScope == oldscope) {
+        JS_ASSERT(newscope->ownercx == cx ||
+                  (!newscope->ownercx && newscope->u.count == 1));
+        cx->lockedSealedScope = NULL;
+        return;
+    }
 
     /*
      * If oldscope is single-threaded, there's nothing to do.
-     * XXX if (!newscope->ownercx), assume newscope->u.count is properly set
      */
     if (oldscope->ownercx) {
         JS_ASSERT(oldscope->ownercx == cx);
-        JS_ASSERT(newscope->ownercx == cx || !newscope->ownercx);
+        JS_ASSERT(newscope->ownercx == cx ||
+                  (!newscope->ownercx && newscope->u.count == 1));
         return;
     }
 
@@ -1114,7 +1215,7 @@ js_TransferScopeLock(JSContext *cx, JSScope *oldscope, JSScope *newscope)
     LOGIT(oldscope, '0');
     oldscope->u.count = 0;
     tl = &oldscope->lock;
-    me = cx->thread;
+    me = CX_THINLOCK_ID(cx);
     JS_UNLOCK0(tl, me);
 }
 
@@ -1124,8 +1225,23 @@ js_LockObj(JSContext *cx, JSObject *obj)
     JSScope *scope;
 
     JS_ASSERT(OBJ_IS_NATIVE(obj));
+
+    /*
+     * We must test whether the GC is calling and return without mutating any
+     * state, especially cx->lockedSealedScope.  Note asymmetry with respect to
+     * js_UnlockObj, which is a thin-layer on top of js_UnlockScope.
+     */
+    if (CX_THREAD_IS_RUNNING_GC(cx))
+        return;
+
     for (;;) {
         scope = OBJ_SCOPE(obj);
+        if (SCOPE_IS_SEALED(scope) && scope->object == obj &&
+            !cx->lockedSealedScope) {
+            cx->lockedSealedScope = scope;
+            return;
+        }
+
         js_LockScope(cx, scope);
 
         /* If obj still has this scope, we're done. */
@@ -1145,28 +1261,43 @@ js_UnlockObj(JSContext *cx, JSObject *obj)
 }
 
 #ifdef DEBUG
+
 JSBool
 js_IsRuntimeLocked(JSRuntime *rt)
 {
-    return CurrentThreadId() == rt->rtLockOwner;
+    return js_CurrentThreadId() == rt->rtLockOwner;
 }
 
 JSBool
-js_IsObjLocked(JSObject *obj)
+js_IsObjLocked(JSContext *cx, JSObject *obj)
 {
     JSScope *scope = OBJ_SCOPE(obj);
 
-    return MAP_IS_NATIVE(&scope->map) &&
-           (scope->ownercx ||
-            CurrentThreadId() == Thin_RemoveWait(ReadWord(scope->lock.owner)));
+    return MAP_IS_NATIVE(&scope->map) && js_IsScopeLocked(cx, scope);
 }
 
 JSBool
-js_IsScopeLocked(JSScope *scope)
+js_IsScopeLocked(JSContext *cx, JSScope *scope)
 {
-    return scope->ownercx ||
-           CurrentThreadId() == Thin_RemoveWait(ReadWord(scope->lock.owner));
-}
-#endif
+    /* Special case: the GC locking any object's scope, see js_LockScope. */
+    if (CX_THREAD_IS_RUNNING_GC(cx))
+        return JS_TRUE;
 
+    /* Special case: locked object owning a sealed scope, see js_LockObj. */
+    if (cx->lockedSealedScope == scope)
+        return JS_TRUE;
+
+    /*
+     * General case: the scope is either exclusively owned (by cx), or it has
+     * a thin or fat lock to cope with shared (concurrent) ownership.
+     */
+    if (scope->ownercx) {
+        JS_ASSERT(scope->ownercx == cx || scope->ownercx->thread == cx->thread);
+        return JS_TRUE;
+    }
+    return js_CurrentThreadId() ==
+           ((JSThread *)Thin_RemoveWait(ReadWord(scope->lock.owner)))->id;
+}
+
+#endif /* DEBUG */
 #endif /* JS_THREADSAFE */

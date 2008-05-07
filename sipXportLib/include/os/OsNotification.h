@@ -13,6 +13,7 @@
 #define _OsNotification_h_
 
 // SYSTEM INCLUDES
+#include <stdint.h>
 
 // APPLICATION INCLUDES
 #include "os/OsStatus.h"
@@ -44,7 +45,7 @@ public:
 
 /* ============================ MANIPULATORS ============================== */
 
-   virtual OsStatus signal(const int eventData) = 0;
+   virtual OsStatus signal(intptr_t eventData) = 0;
      //:Signal the occurrence of the event
 
 /* ============================ ACCESSORS ================================= */

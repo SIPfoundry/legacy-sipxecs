@@ -100,7 +100,7 @@ public:
          testMsg.normalizeProxyRoutes(UserAgent, requestUri, &removedRoutes);
 
          UtlString normalizedMsg;
-         int msgLen;
+         size_t msgLen;
          testMsg.getBytes(&normalizedMsg, &msgLen);
 
          ASSERT_STR_EQUAL(message, normalizedMsg.data());
@@ -135,7 +135,7 @@ public:
          testMsg.normalizeProxyRoutes(UserAgent, requestUri, &removedRoutes);
 
          UtlString normalizedMsg;
-         int msgLen;
+         size_t msgLen;
          testMsg.getBytes(&normalizedMsg, &msgLen);
 
          const char* expectedMessage = // route header removed
@@ -186,7 +186,7 @@ public:
          
          testMsg.normalizeProxyRoutes(UserAgent, requestUri, &removedRoutes);
          UtlString normalizedMsg;
-         int msgLen;
+         size_t msgLen;
          testMsg.getBytes(&normalizedMsg, &msgLen);
 
          ASSERT_STR_EQUAL(message, normalizedMsg.data());
@@ -221,7 +221,7 @@ public:
          testMsg.normalizeProxyRoutes(UserAgent, requestUri, &removedRoutes);
 
          UtlString normalizedMsg;
-         int msgLen;
+         size_t msgLen;
          testMsg.getBytes(&normalizedMsg, &msgLen);
 
          const char* expectedMessage = // route header removed
@@ -274,7 +274,7 @@ public:
          testMsg.normalizeProxyRoutes(UserAgent, requestUri, &removedRoutes);
 
          UtlString normalizedMsg;
-         int msgLen;
+         size_t msgLen;
          testMsg.getBytes(&normalizedMsg, &msgLen);
 
          UtlString requestUriResult;
@@ -322,7 +322,7 @@ public:
          testMsg.normalizeProxyRoutes(UserAgent, requestUri, &removedRoutes);
 
          UtlString normalizedMsg;
-         int msgLen;
+         size_t msgLen;
          testMsg.getBytes(&normalizedMsg, &msgLen);
 
          const char* expectedMessage = // route header removed, uri swapped
@@ -367,7 +367,7 @@ public:
          testMsg.normalizeProxyRoutes(UserAgent, requestUri, &removedRoutes);
 
          UtlString normalizedMsg;
-         int msgLen;
+         size_t msgLen;
          testMsg.getBytes(&normalizedMsg, &msgLen);
 
          const char* expectedMessage = // route header removed, uri swapped
@@ -420,7 +420,7 @@ public:
          testMsg.normalizeProxyRoutes(UserAgent, requestUri, &removedRoutes);
 
          UtlString normalizedMsg;
-         int msgLen;
+         size_t msgLen;
          testMsg.getBytes(&normalizedMsg, &msgLen);
 
          const char* expectedMessage = // route header removed, uri swapped
@@ -478,7 +478,7 @@ public:
          testMsg.normalizeProxyRoutes(UserAgent, requestUri, &removedRoutes);
 
          UtlString normalizedMsg;
-         int msgLen;
+         size_t msgLen;
          testMsg.getBytes(&normalizedMsg, &msgLen);
 
          const char* expectedMessage = // route header removed, uri swapped
@@ -543,7 +543,7 @@ public:
          testMsg.normalizeProxyRoutes(UserAgent, requestUri, &removedRoutes);
 
          UtlString normalizedMsg;
-         int msgLen;
+         size_t msgLen;
          testMsg.getBytes(&normalizedMsg, &msgLen);
 
          UtlString requestUriResult;

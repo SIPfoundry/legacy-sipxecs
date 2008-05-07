@@ -126,7 +126,7 @@ PtStatus PtPhoneHookswitch::setHookswitchState(int state)
                                         arg);
         mpClient->sendRequest(msg);
 
-        int rc;
+        intptr_t rc;
         if (OS_SUCCESS != pe->wait(msg.getCmd(), mTimeOut))
         {
                 mpClient->resetConnectionSocket(msg.getMsgID());
@@ -138,9 +138,9 @@ PtStatus PtPhoneHookswitch::setHookswitchState(int state)
                 return PT_BUSY;
         }
 
-        pe->getEventData((int &)rc);
+        pe->getEventData(rc);
 #ifdef PTAPI_TEST
-        int cmd;
+        intptr_t cmd;
         pe->getIntData2(cmd);
         assert(cmd == TaoMessage::HOOKSWITCH_SET_STATE);
 #endif
@@ -175,9 +175,11 @@ PtStatus PtPhoneHookswitch::getHookswitchState(int& state)
                 return PT_BUSY;
         }
 
-        pe->getEventData((int &)state);
+        intptr_t stateIntptr;
+        pe->getEventData(stateIntptr);
+        state=(int)stateIntptr;
 #ifdef PTAPI_TEST
-        int cmd;
+        intptr_t cmd;
         pe->getIntData2(cmd);
         assert(cmd == TaoMessage::HOOKSWITCH_SET_STATE);
 #endif
@@ -198,7 +200,7 @@ PtStatus PtPhoneHookswitch::getCall(PtCall& rCall)
                                         "");
         mpClient->sendRequest(msg);
 
-        int rc;
+        intptr_t rc;
         UtlString callId;
         if (OS_SUCCESS != pe->wait(msg.getCmd(), mTimeOut))
         {
@@ -211,10 +213,10 @@ PtStatus PtPhoneHookswitch::getCall(PtCall& rCall)
                 return PT_BUSY;
         }
 
-        pe->getEventData((int &)rc);
+        pe->getEventData(rc);
         pe->getStringData(callId);
 #ifdef PTAPI_TEST
-        int cmd;
+        intptr_t cmd;
         pe->getIntData2(cmd);
         assert(cmd == TaoMessage::HOOKSWITCH_GET_CALL);
 #endif

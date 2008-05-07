@@ -58,7 +58,7 @@ HttpRequestContext::HttpRequestContext(const char* requestMethod,
    {
        mEnvironmentVars[HTTP_ENV_RAW_URL].append(rawUrl);
        mEnvironmentVars[HTTP_ENV_UNMAPPED_FILE].append(rawUrl);
-       int fileEndIndex = mEnvironmentVars[HTTP_ENV_RAW_URL].index('?');
+       ssize_t fileEndIndex = mEnvironmentVars[HTTP_ENV_RAW_URL].index('?');
        if(fileEndIndex > 0)
        {
            mEnvironmentVars[HTTP_ENV_UNMAPPED_FILE].remove(fileEndIndex);
@@ -232,7 +232,7 @@ HttpRequestContext::operator=(const HttpRequestContext& rhs)
 
 void HttpRequestContext::extractPostCgiVariables(const HttpBody& body)
 {
-    int length;
+    size_t length;
     UtlString bodyBytes;
 
     body.getBytes(&bodyBytes, &length);
@@ -368,16 +368,16 @@ void HttpRequestContext::parseCgiVariables(const char* queryString,
 #endif
    //UtlString nameAndValue;
    const char* nameAndValuePtr;
-   int nameAndValueLength;
+   size_t nameAndValueLength;
    //UtlString name;
    const char* namePtr;
-   int nameLength;
-   int nameValueIndex = 0;
+   size_t nameLength;
+   size_t nameValueIndex = 0;
    UtlString value;
-   int lastCharIndex = 0;
-   int relativeIndex;
-   int nameValueRelativeIndex;
-   int queryStringLength = strlen(queryString);
+   size_t lastCharIndex = 0;
+   size_t relativeIndex;
+   size_t nameValueRelativeIndex;
+   size_t queryStringLength = strlen(queryString);
 
    do
    {
@@ -416,11 +416,11 @@ void HttpRequestContext::parseCgiVariables(const char* queryString,
          if(nameLength > 0)
          {
             // Ignore any subsequent name value separators should they exist
-            //int nvSeparatorIndex = nameAndValue.index(nameValueSeparator);
-            int valueSeparatorOffset = strspn(&(namePtr[nameLength]),
+            //size_t nvSeparatorIndex = nameAndValue.index(nameValueSeparator);
+            size_t valueSeparatorOffset = strspn(&(namePtr[nameLength]),
                                               nameValueSeparator);
             const char* valuePtr = &(namePtr[nameLength]) + valueSeparatorOffset;
-            int valueLength = nameAndValueLength -
+            size_t valueLength = nameAndValueLength -
                (valuePtr - nameAndValuePtr);
 
             // If there is a value

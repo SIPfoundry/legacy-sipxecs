@@ -84,7 +84,7 @@ private :
         const char* testDescription; 
         const char* searchString; 
         int startPosition;  // Specify -1 to ignore this parameter
-        int expectedValue;
+        ssize_t expectedValue;
     }; 
 
     struct TestCharIndexDataStructure
@@ -92,7 +92,7 @@ private :
         MEMBER_CONST char* testDescription; 
         MEMBER_CONST char searchCharacter; 
         int startPosition;  // Specify -1 to ignore this parameter
-        int expectedValue;
+        ssize_t expectedValue;
     }; 
 public:
 
@@ -389,7 +389,7 @@ public:
           UtlString expectedValue(testData[i].expectedValue);
           // Assemble the test description.
           char description[80];
-          sprintf(description, "\"%s\"(%d, %d)", testData[i].string,
+          sprintf(description, "\"%s\"(%zu, %zu)", testData[i].string,
                   testData[i].start, testData[i].length);
 
           // Execute the (start, length) operator.
@@ -829,7 +829,7 @@ public:
         string Message; 
         
         const TestCharstarIndexDataStructure testData[] = { \
-               { "Empty char* string", "", -1, 0 }, \
+               { "Empty char* string", "", -1, (ssize_t)0 }, \
                { "Non empty char* string", "Some", -1, INDEX_NOT_FOUND} \
         }; 
 
@@ -837,7 +837,7 @@ public:
         const int testCount = sizeof(testData) / sizeof(testData[0]); 
         for (int i =0; i <testCount; i++) 
         {
-            int result = testString.index(testData[i].searchString); 
+            ssize_t result = testString.index(testData[i].searchString); 
 
             TestUtilities::createMessage(2, &Message, prefix, testData[i].testDescription); 
             CPPUNIT_ASSERT_EQUAL_MESSAGE(Message.data(), testData[i].expectedValue, result); 
@@ -871,33 +871,33 @@ public:
     void testIndexChar()
     {
        UtlString s1 = "";
-       CPPUNIT_ASSERT_EQUAL(UTL_NOT_FOUND, s1.index('.', 0));
+       CPPUNIT_ASSERT_EQUAL((ssize_t)UTL_NOT_FOUND, s1.index('.', 0));
 
        UtlString s2 = ".";
-       CPPUNIT_ASSERT_EQUAL((size_t) 0, s2.index('.', 0));
-       CPPUNIT_ASSERT_EQUAL(UTL_NOT_FOUND, s2.index('.', 1));
-       CPPUNIT_ASSERT_EQUAL(UTL_NOT_FOUND, s2.index('x', 0));
-       CPPUNIT_ASSERT_EQUAL(UTL_NOT_FOUND, s2.index('x', 1));
+       CPPUNIT_ASSERT_EQUAL((ssize_t) 0, s2.index('.', 0));
+       CPPUNIT_ASSERT_EQUAL((ssize_t)UTL_NOT_FOUND, s2.index('.', 1));
+       CPPUNIT_ASSERT_EQUAL((ssize_t)UTL_NOT_FOUND, s2.index('x', 0));
+       CPPUNIT_ASSERT_EQUAL((ssize_t)UTL_NOT_FOUND, s2.index('x', 1));
 
        UtlString s3 = ".x.";
-       CPPUNIT_ASSERT_EQUAL((size_t) 0, s3.index('.', 0));
-       CPPUNIT_ASSERT_EQUAL((size_t) 2, s3.index('.', 1));
-       CPPUNIT_ASSERT_EQUAL((size_t) 2, s3.index('.', 2));
-       CPPUNIT_ASSERT_EQUAL(UTL_NOT_FOUND, s3.index('.', 3));
-       CPPUNIT_ASSERT_EQUAL((size_t) 1, s3.index('x', 0));
-       CPPUNIT_ASSERT_EQUAL((size_t) 1, s3.index('x', 1));
-       CPPUNIT_ASSERT_EQUAL(UTL_NOT_FOUND, s3.index('x', 2));
-       CPPUNIT_ASSERT_EQUAL(UTL_NOT_FOUND, s3.index('x', 3));
+       CPPUNIT_ASSERT_EQUAL((ssize_t) 0, s3.index('.', 0));
+       CPPUNIT_ASSERT_EQUAL((ssize_t) 2, s3.index('.', 1));
+       CPPUNIT_ASSERT_EQUAL((ssize_t) 2, s3.index('.', 2));
+       CPPUNIT_ASSERT_EQUAL((ssize_t)UTL_NOT_FOUND, s3.index('.', 3));
+       CPPUNIT_ASSERT_EQUAL((ssize_t) 1, s3.index('x', 0));
+       CPPUNIT_ASSERT_EQUAL((ssize_t) 1, s3.index('x', 1));
+       CPPUNIT_ASSERT_EQUAL((ssize_t)UTL_NOT_FOUND, s3.index('x', 2));
+       CPPUNIT_ASSERT_EQUAL((ssize_t)UTL_NOT_FOUND, s3.index('x', 3));
 
        UtlString s4 = "...";
-       CPPUNIT_ASSERT_EQUAL((size_t) 0, s4.index('.', 0));
-       CPPUNIT_ASSERT_EQUAL((size_t) 1, s4.index('.', 1));
-       CPPUNIT_ASSERT_EQUAL((size_t) 2, s4.index('.', 2));
-       CPPUNIT_ASSERT_EQUAL(UTL_NOT_FOUND, s4.index('.', 3));
-       CPPUNIT_ASSERT_EQUAL(UTL_NOT_FOUND, s4.index('x', 0));
-       CPPUNIT_ASSERT_EQUAL(UTL_NOT_FOUND, s4.index('x', 1));
-       CPPUNIT_ASSERT_EQUAL(UTL_NOT_FOUND, s4.index('x', 2));
-       CPPUNIT_ASSERT_EQUAL(UTL_NOT_FOUND, s4.index('x', 3));
+       CPPUNIT_ASSERT_EQUAL((ssize_t) 0, s4.index('.', 0));
+       CPPUNIT_ASSERT_EQUAL((ssize_t) 1, s4.index('.', 1));
+       CPPUNIT_ASSERT_EQUAL((ssize_t) 2, s4.index('.', 2));
+       CPPUNIT_ASSERT_EQUAL((ssize_t)UTL_NOT_FOUND, s4.index('.', 3));
+       CPPUNIT_ASSERT_EQUAL((ssize_t)UTL_NOT_FOUND, s4.index('x', 0));
+       CPPUNIT_ASSERT_EQUAL((ssize_t)UTL_NOT_FOUND, s4.index('x', 1));
+       CPPUNIT_ASSERT_EQUAL((ssize_t)UTL_NOT_FOUND, s4.index('x', 2));
+       CPPUNIT_ASSERT_EQUAL((ssize_t)UTL_NOT_FOUND, s4.index('x', 3));
     }
 
     /*a! Test case for the first(char*) method.  This method is
@@ -991,7 +991,7 @@ public:
                }
             }
 
-            int result;
+            ssize_t result;
             for(int j =0; j < testCount; j++)
             {
                 TestUtilities::createMessage(3, &Message, prefix, \
@@ -1079,7 +1079,7 @@ public:
             {
                suffix = ":- index(char*, pos)";
             }
-            int result;
+            ssize_t result;
             for(int j =0; j < testCount; j++)
             {
                 if (specifyCase)
@@ -1133,7 +1133,7 @@ public:
         }; 
         
         UtlString testString("Teststring test and test an#232 end"); 
-        int result; 
+        ssize_t result; 
         const int testCount = sizeof(testData) / sizeof(testData[0]) ;
         for (int i =0; i < testCount; i++)
         {
@@ -1181,7 +1181,7 @@ public:
         const int testCount = sizeof(testData)/sizeof(testData[0]);
         for(int j =0; j < testCount; j++)
         {
-            int result = ts.index(testData[j].searchCharacter, testData[j].startPosition);
+            ssize_t result = ts.index(testData[j].searchCharacter, testData[j].startPosition);
             TestUtilities::createMessage(3, &Message, prefix, \
                 testData[j].testDescription, suffix); 
             CPPUNIT_ASSERT_EQUAL_MESSAGE(Message.data(), \
@@ -1280,7 +1280,7 @@ public:
                    suffix = ":- contains()"; 
                }
             }
-            int result;
+            ssize_t result;
             for(int j =0; j < testCount; j++)
             {
                 TestUtilities::createMessage(3, &Message, prefix, \
@@ -1346,7 +1346,7 @@ public:
         const int testCount = sizeof(testData)/sizeof(testData[0]); 
         for (int i = 0; i < testCount; i++)
         {
-            int result = testString.last(testData[i].searchCharacter); 
+            ssize_t result = testString.last(testData[i].searchCharacter); 
             TestUtilities::createMessage(2, &Message, prefix, \
                 testData[i].testDescription); 
             CPPUNIT_ASSERT_EQUAL_MESSAGE(Message.data(), \
@@ -1370,7 +1370,7 @@ public:
         for (int i = 0; i < commonTestSetLength; i++)
         {
             UtlString ts(commonTestSet[i].input); 
-            int originalLength = ts.length(); 
+            int originalLength = (int)ts.length(); 
             // Do some operations which modifies the string's size
             ts.prepend("123"); 
             ts.append("45"); 
@@ -1378,7 +1378,7 @@ public:
             ts.replace(5, 1, "89"); 
 
             int expectedMutate = commonTestSet[i].length + 9; 
-            int actualMutate = ts.length(); 
+            int actualMutate = (int)ts.length(); 
              
             string Message;       
             TestUtilities::createMessage(3, &Message, prefix, \
@@ -1409,7 +1409,7 @@ public:
         
         int actualLength;
 
-        actualLength = testString1.length(); 
+        actualLength = (int)testString1.length(); 
         TestUtilities::createMessage(2, &Message, prefix, \
             "When the capacity as been explicitly set to a large value"); 
         CPPUNIT_ASSERT_EQUAL_MESSAGE(Message.data(), 8, actualLength); 

@@ -128,7 +128,7 @@ TaoStatus TaoObjectMap::insert(TaoObjHandle objId, TaoMessage::TaoMsgTypes objVa
    UtlInt* pInsertedKey;
 
    pDictKey   = new UtlInt(objId);
-   pDictValue = new UtlInt((int) objValue);
+   pDictValue = new UtlInt(objValue);
 
    pInsertedKey = (UtlInt*)
                   mDict.insertKeyAndValue(pDictKey, pDictValue);
@@ -154,7 +154,7 @@ TaoStatus TaoObjectMap::insert(TaoObjHandle objId, TaoObjHandle objValue)
    UtlInt* pInsertedKey;
 
    pDictKey   = new UtlInt(objId);
-   pDictValue = new UtlInt((int) objValue);
+   pDictValue = new UtlInt(objValue);
 
    pInsertedKey = (UtlInt*)
                   mDict.insertKeyAndValue(pDictKey, pDictValue);
@@ -208,7 +208,7 @@ TaoStatus TaoObjectMap::insert(const char* key, TaoObjHandle objValue)
    UtlInt* pInsertedKey;
 
    pDictKey   = new UtlString(key);
-   pDictValue = new UtlInt((int) objValue);
+   pDictValue = new UtlInt(objValue);
 
    pInsertedKey = (UtlInt*)
                   mDict.insertKeyAndValue(pDictKey, pDictValue);
@@ -394,7 +394,7 @@ TaoStatus TaoObjectMap::removeByValue(TaoObjHandle value)
             mDict.destroy(next);
             status = TAO_SUCCESS;
             mNumRemoves++;
-//          osPrintf("<** %d removeByValue: cvalue 0x%08x, next 0x%08x **>\n", (int)value, (int)cvalue, (int)next);
+//          osPrintf("<** %d removeByValue: cvalue 0x%p, next 0x%p **>\n", value, cvalue, next);
             break;
         }
     }

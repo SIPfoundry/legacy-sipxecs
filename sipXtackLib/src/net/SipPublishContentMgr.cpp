@@ -106,7 +106,7 @@ void PublishContentContainer::dumpState()
    {
       UtlInt* version = dynamic_cast <UtlInt*> (version_itor());
       OsSysLog::add(FAC_RLS, PRI_INFO,
-                    "\t          mEventVersion[%d] = %d, "
+                    "\t          mEventVersion[%d] = %" PRIdPTR ", "
                     "mEventContent[%d] = '%s':'%s'",
                     index, version->getValue(),
                     index, body->data(), body->getBytes());
@@ -552,7 +552,7 @@ UtlBoolean SipPublishContentMgr::getContent(const char* resourceId,
               // Test if ';' is present in *bodyPtr's MIME type.
               // (Remember that an HttpBody considered as a UtlString has
               // the value of its content type.)
-              size_t i = bodyPtr->index(';');
+              ssize_t i = bodyPtr->index(';');
 
               // The 'if expression' is TRUE if the MIME type of *bodyPtr
               // is found in in contentTypes.  This is messy, because

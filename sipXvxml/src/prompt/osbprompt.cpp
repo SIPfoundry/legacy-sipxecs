@@ -760,12 +760,12 @@ VXIpromptResult OSBpromptQueue(VXIpromptInterface* vxip,
    {
       OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG,
                     "OSBpromptQueue: handling as src = '%ls'", src.c_str());
-      unsigned int len = src.length();
+      size_t len = src.length();
       Diag(impl, DIAG_TAG_PROMPTING, NULL, L"Queuing AUDIO: %ls", src.c_str());
 
       char* str = new char[len + 1];
       //  wcstombs((char*)str, src.c_str(), len);
-      unsigned int i;
+      size_t i;
       //  memcpy((char*)str, (const char*)src.c_str(), len);
       if (str)
       {
@@ -801,7 +801,7 @@ VXIpromptResult OSBpromptQueue(VXIpromptInterface* vxip,
                }
                base[len] = 0;
                basestr = UtlString(base);
-               if ( (len = basestr.last('/')) != UTL_NOT_FOUND )
+               if ( (len = basestr.last('/')) != (size_t)UTL_NOT_FOUND )
                   basestr = basestr(0, (len + 1));
                basestr.append(str);
                audiourl = Url(basestr);

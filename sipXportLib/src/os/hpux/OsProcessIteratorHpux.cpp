@@ -97,7 +97,7 @@ OsStatus OsProcessIteratorHpux::readProcFile(OsPath &procDirname, OsProcess & rP
 {
     OsStatus retval = OS_FAILED;
     struct pst_status pststatus;
-    int pid = atoi(procDirname.data());
+    PID pid = atol(procDirname.data());
 
     if( pstat_getproc(&pststatus, sizeof(struct pst_status), 0, pid) == 1 )
     {

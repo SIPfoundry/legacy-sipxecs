@@ -148,7 +148,7 @@ int OsSocket::write(const char* buffer, int bufferLength)
    }
 #endif // FORCE_SOCKET_ERRORS
 
-   int bytesSent;
+   ssize_t bytesSent;
 
    int flags = 0;
 
@@ -167,7 +167,7 @@ int OsSocket::write(const char* buffer, int bufferLength)
    if (bytesSent != bufferLength)
    {
       OsSysLog::add(FAC_KERNEL, PRI_ERR,
-                    "OsSocket::write %d (%s:%d %s:%d) send returned %d, errno=%d '%s'",
+                    "OsSocket::write %d (%s:%d %s:%d) send returned %zd, errno=%d '%s'",
                     socketDescriptor,
                     remoteHostName.data(), remoteHostPort,
                     localHostName.data(), localHostPort,
@@ -232,7 +232,7 @@ int OsSocket::read(char* buffer, int bufferLength)
 #endif
 
    int error;
-   int bytesRead = recv(socketDescriptor, buffer, bufferLength, flags);
+   ssize_t bytesRead = recv(socketDescriptor, buffer, bufferLength, flags);
    if (bytesRead < 0)
    {
       error = OsSocketGetERRNO();
@@ -270,7 +270,7 @@ int OsSocket::read(char* buffer, int bufferLength,
 
    int error;
    struct sockaddr_in fromSockAddress;
-   int fromLength = sizeof(fromSockAddress);
+   size_t fromLength = sizeof(fromSockAddress);
 
    if (NULL != fromPort) *fromPort = PORT_NONE;
    if (NULL != fromAddress) fromAddress->s_addr = 0;
@@ -287,7 +287,7 @@ int OsSocket::read(char* buffer, int bufferLength,
    flags = MSG_NOSIGNAL;
 #endif
 
-   int bytesRead = recvfrom(socketDescriptor, buffer, bufferLength,
+   ssize_t bytesRead = recvfrom(socketDescriptor, buffer, bufferLength,
                             flags,
                             (struct sockaddr*) &fromSockAddress,
 #ifdef __pingtel_on_posix__

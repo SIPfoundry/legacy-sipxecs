@@ -88,10 +88,10 @@ UtlContainable* UtlSortedList::find(const UtlContainable* obj) const
 /* ============================ INQUIRY =================================== */
 
 // Return the list position of the designated object.
-size_t UtlSortedList::index(const UtlContainable* obj) const 
+ssize_t UtlSortedList::index(const UtlContainable* obj) const 
 {
-   size_t          index = UTL_NOT_FOUND;
-   size_t          thisIndex;
+   ssize_t         index = UTL_NOT_FOUND;
+   ssize_t         thisIndex;
    UtlLink*        listNode;
    unsigned        keyHash = obj->hash();
    

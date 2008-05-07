@@ -52,7 +52,7 @@ size_t DecompressPcm8Signed::getSamples(AudioSample * buffer,
    AudioByte *byteBuff = 
       reinterpret_cast<AudioByte *>(buffer);
    size_t samplesRead = readBytes(byteBuff,length);
-   for(long i=samplesRead-1; i>=0; i--)
+   for(ssize_t i=samplesRead-1; i>=0; i--)
       buffer[i] = static_cast<AudioSample>(byteBuff[i])
                   << ((sizeof(AudioSample)-1)*8);
    return samplesRead;
@@ -71,7 +71,7 @@ size_t DecompressPcm8Unsigned::getSamples(AudioSample * buffer,
    AudioByte *byteBuff =
       reinterpret_cast<AudioByte *>(buffer);
    size_t samplesRead = readBytes(byteBuff,length);
-   for(long i=samplesRead-1; i>=0; i--)
+   for(ssize_t i=samplesRead-1; i>=0; i--)
       buffer[i] = static_cast<AudioSample>(byteBuff[i] ^ 0x80)
                   << ((sizeof(AudioSample)-1)*8);
    return samplesRead;
@@ -89,7 +89,7 @@ size_t DecompressPcm16MsbSigned::getSamples(AudioSample *buffer,
    AudioByte *byteBuff = 
       reinterpret_cast<AudioByte *>(buffer);
    size_t read = readBytes(byteBuff,length*2)/2;
-   for(long i=read-1; i>=0; i--) {
+   for(ssize_t i=read-1; i>=0; i--) {
       short s = static_cast<AudioSample>(byteBuff[2*i]) << 8;
       s |= static_cast<AudioSample>(byteBuff[2*i+1]) & 255;
       buffer[i] = static_cast<AudioSample>(s)
@@ -110,7 +110,7 @@ size_t DecompressPcm16LsbSigned::getSamples(AudioSample *buffer,
    AudioByte *byteBuff = 
       reinterpret_cast<AudioByte *>(buffer);
    size_t read = readBytes(byteBuff,length*2)/2;
-   for(long i=read-1; i>=0; i--) {
+   for(ssize_t i=read-1; i>=0; i--) {
       short s = static_cast<AudioSample>(byteBuff[2*i+1]) << 8;
       s |= static_cast<AudioSample>(byteBuff[2*i]) & 255;
       buffer[i] = static_cast<AudioSample>(s)

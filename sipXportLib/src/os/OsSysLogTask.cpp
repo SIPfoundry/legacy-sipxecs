@@ -270,10 +270,10 @@ UtlBoolean OsSysLogTask::handleMessage(OsMsg& eventMessage)
                processConsoleEnable(FALSE);
                break ;
             case OsSysLogMsg::HEAD:
-               processHeadCommand((int) pSysLogMsg->getData());
+               processHeadCommand((int) (intptr_t) pSysLogMsg->getData());
                break ;
             case OsSysLogMsg::TAIL:
-               processTailCommand((int) pSysLogMsg->getData());
+               processTailCommand((int) (intptr_t) pSysLogMsg->getData());
                break ;
             case OsSysLogMsg::ADD_SOCKET:
                data = (char*) pSysLogMsg->getData();
@@ -295,7 +295,7 @@ UtlBoolean OsSysLogTask::handleMessage(OsMsg& eventMessage)
                processSetCallback((OsSysLogCallback) pSysLogMsg->getData());
                break ;
             case OsSysLogMsg::SET_FLUSH_PERIOD:
-               processSetFlushPeriod((int) pSysLogMsg->getData()) ;
+               processSetFlushPeriod((int) (intptr_t) pSysLogMsg->getData()) ;
                break ;
             case OsSysLogMsg::FLUSH_LOG:
                processFlushLog((OsEvent*) pSysLogMsg->getData());
@@ -810,7 +810,7 @@ OsStatus OsSysLogTask::processFlushLog(OsEvent* pEvent)
 
                   if (mpRingBuffer[iIndex] != NULL)
                   {
-                     unsigned long ulBytesWritten ;
+                     size_t ulBytesWritten ;
                      OsStatus status ;
 
                      status = file.write(mpRingBuffer[iIndex],

@@ -241,7 +241,7 @@ int MprFromNet::adjustBufferForRtp(MpBufPtr buf)
    if (0 != xBit) { // Check for RTP Header eXtension
       int xLen; // number of 32-bit words after extension header
       short* pXhdr; // pointer to extension header, after CSRC list
-      pXhdr = (short*) (((int)pRtpH) + sizeof(struct rtpHeader) + offset + 2);
+      pXhdr = (short*) (((intptr_t)pRtpH) + sizeof(struct rtpHeader) + offset + 2);
       xLen = ntohs(*pXhdr);
       offset += (sizeof(int) * (xLen + 1));
    }

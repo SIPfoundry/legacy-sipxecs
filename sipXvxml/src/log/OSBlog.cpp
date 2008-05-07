@@ -150,7 +150,7 @@ LogEntry::Append (const VXIchar* val, VXIunsigned n)
 {
   unsigned int i = 0;
   if (n <= 0)
-    n = wcslen(val);
+    n = (VXIunsigned)wcslen(val);
 
   // strip leading and trailing whitespace
   while ((n > 0) && (iswspace(val[n-1])))

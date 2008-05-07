@@ -47,6 +47,7 @@
  * documentation and/or software.
  */
 
+//64-bit port: this extern "C" causes problems...
 #ifdef __cplusplus
    extern "C" {
 #endif
@@ -67,7 +68,7 @@ typedef unsigned char* POINTER;
 typedef unsigned short int UINT2;
 
 /* UINT4 defines a four byte word */
-typedef unsigned long int UINT4;
+typedef unsigned int UINT4;
 
 /* PROTO_LIST is defined depending on how PROTOTYPES is defined above.
 If using PROTOTYPES, then PROTO_LIST returns the list, otherwise it
@@ -89,7 +90,7 @@ typedef struct {
 
 void MD5Init PROTO_LIST ((MD5_CTX_PT *));
 void MD5Update PROTO_LIST
-  ((MD5_CTX_PT *, const unsigned char *, unsigned int));
+  ((MD5_CTX_PT *, const unsigned char *, size_t));
 void MD5Final PROTO_LIST ((unsigned char [16], MD5_CTX_PT *));
 
 #ifdef __cplusplus
@@ -137,7 +138,7 @@ class NetMd5Codec
 
    /// Provide input to the hash - may be called repeatedly with additional input.
    void hash(const void*  input,
-             unsigned int length
+             size_t length
              );
 
    /// Convenient version of hash for UtlString.

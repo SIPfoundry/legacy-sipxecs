@@ -243,7 +243,7 @@ UtlBoolean PsButtonTask::handleMessage(OsMsg& rMsg)
 // Return TRUE if the message was handled, otherwise FALSE.
 UtlBoolean PsButtonTask::handleEventMessage(const OsEventMsg& rMsg)
 {
-   int           index;
+   intptr_t       index;
    PsButtonInfo* pButtonInfo;
    PsPhoneTask*  pPhoneTask;
    UtlBoolean     processed;
@@ -260,8 +260,8 @@ UtlBoolean PsButtonTask::handleEventMessage(const OsEventMsg& rMsg)
    switch(rMsg.getMsgSubType())
    {
    case OsEventMsg::NOTIFY:
-      rMsg.getUserData(index);                  // get button index
-      rMsg.getEventData((int&) pTimer);         // get timer object
+      rMsg.getUserData((void*&)index);                  // get button index
+      rMsg.getEventData((intptr_t&)pTimer);         // get timer object
       assert(index > 0 && index <= mMaxBtnIdx);  // check for valid index
       pButtonInfo = &mpButtonInfo[index];        // get ptr to button info
 
@@ -404,7 +404,7 @@ UtlBoolean PsButtonTask::handlePhoneMessage(PsMsg& rMsg)
 // Disable the repeat timer for the designated button.
 // Do nothing if there is no repeat timer in effect for the button.
 // A write lock should be acquired before calling this method.
-void PsButtonTask::disableTimer(int index)
+void PsButtonTask::disableTimer(intptr_t index)
 {
    OsTimer*        pTimer;
 
@@ -419,7 +419,7 @@ void PsButtonTask::disableTimer(int index)
 
 // Enable the repeat timer for the designated button.
 // A write lock should be acquired before calling this method.
-void PsButtonTask::enableTimer(int index)
+void PsButtonTask::enableTimer(intptr_t index)
 {
    OsQueuedEvent* pNotifier;
    OsTime         repInterval;
@@ -432,7 +432,7 @@ void PsButtonTask::enableTimer(int index)
    if (repInterval.isInfinite())    // if the repeat interval is infinite,
       return;                       //  don't bother enabling it
 
-   mpRepTimers[index] = new OsTimer(&mIncomingQ, index);
+   mpRepTimers[index] = new OsTimer(&mIncomingQ, (void*)index);
    res = mpRepTimers[index]->periodicEvery(repInterval, repInterval);
    assert(res == OS_SUCCESS);
 }

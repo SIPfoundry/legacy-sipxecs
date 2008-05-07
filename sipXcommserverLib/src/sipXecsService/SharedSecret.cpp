@@ -45,7 +45,7 @@ SharedSecret::SharedSecret(OsConfigDb& domainConfigDb)
       else
       {
          OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
-                       "SharedSecret::_ loaded from '%s' length %d",
+                       "SharedSecret::_ loaded from '%s' length %zu",
                        domainConfigDb.getIdentityLabel(), length());
       }
    }

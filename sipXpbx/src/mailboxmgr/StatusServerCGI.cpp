@@ -53,7 +53,7 @@ StatusServerCGI::execute(UtlString* out)
 
         // set the http headers
         char contentLengthHeader[40];
-        sprintf( contentLengthHeader, "Content-Length: %d\r\n", notifyBodyText.length() );
+        sprintf( contentLengthHeader, "Content-Length: %zu\r\n", notifyBodyText.length() );
         out->append( (UtlString)contentLengthHeader );
         out->append( "Content-Type: application/simple-message-summary\r\n" );
 

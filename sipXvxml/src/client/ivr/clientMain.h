@@ -41,11 +41,11 @@
  */
 int main (int argc, char *argv[]);
 
-int VXICleanUpCall (void *plistener,
+VXIplatformResult VXICleanUpCall (void *plistener,
                     const char *callId,
                     int VXISessionEnded);
 
-int VXIProcessUrl (void *listener,
+VXIplatformResult VXIProcessUrl (void *listener,
                    int channelNum,
                    const char *callId,
                    const char *from,

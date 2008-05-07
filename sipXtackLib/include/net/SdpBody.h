@@ -106,7 +106,7 @@ class SdpBody : public HttpBody
  */
    /// Construct from an existing SDP message value, or create an empty body. 
    SdpBody(const char* bytes = NULL, ///< NULL creates an empty body             
-           int byteCount = -1        ///< -1 means treat bytes as null terminated
+           ssize_t byteCount = -1        ///< -1 means treat bytes as null terminated
            );
 
    /// Copy constructor
@@ -127,16 +127,16 @@ class SdpBody : public HttpBody
  */
 
    /// Get the string length this body would be if serialized
-   virtual int getLength() const;
+   virtual size_t getLength() const;
 
    /// Get the serialized string representation of this SDP message.
    virtual void getBytes(const char** bytes, ///< buffer space where SDP is written, null terminated
-                         int* length         ///< number of bytes written (not including the null terminator)
+                         size_t* length      ///< number of bytes written (not including the null terminator)
                          ) const;
 
    /// Get the serialized string representation of this SDP message.
    virtual void getBytes(UtlString* bytes, ///< message output
-                         int* length       ///< number of bytes in message
+                         size_t* length    ///< number of bytes in message
                          ) const;
 
 ///@}
@@ -374,8 +374,8 @@ class SdpBody : public HttpBody
 
    // Get the crypto field for SRTP
    UtlBoolean getSrtpCryptoField(int mediaIndex,                  ///< mediaIndex of crypto field
-                                          int index,                       ///< Index inside of media type
-                                          SdpSrtpParameters& params) const;
+                                 int index,                       ///< Index inside of media type
+                                 SdpSrtpParameters& params) const;
 
    /**<
     * Find the "a" record containing an rtpmap for the given
@@ -476,7 +476,7 @@ class SdpBody : public HttpBody
 
    /// Parse an existing string into the internal representation.
    void parseBody(const char* bytes = NULL, ///< NULL creates an empty body             
-                  int byteCount = -1        ///< -1 means treat bytes as null terminated
+                  ssize_t byteCount = -1        ///< -1 means treat bytes as null terminated
                   );
 
 
@@ -484,14 +484,14 @@ class SdpBody : public HttpBody
   private:
 
    /// Get the position of the first of a set of headers, checking in order.
-   size_t findFirstOf( const char* headers /**< null terminated set of single-character header names */);
+   ssize_t findFirstOf( const char* headers /**< null terminated set of single-character header names */);
    /**<
     * @returns The index of the first of the headers found, or UTL_NOT_FOUND if none are present.
     *
     * Example:
     * @code
     * 
-    *    size_t timeLocation = findFirstOf("zkam");
+    *    ssize_t timeLocation = findFirstOf("zkam");
     *    addValue("t", value.data(), timeLocation);
     * 
     * @endcode
@@ -503,7 +503,7 @@ class SdpBody : public HttpBody
    /// Add the given name/value pair to the body at the specified position.
    void addValue(const char* name, 
                  const char* value = NULL, 
-                 int fieldIndex = UTL_NOT_FOUND /**< UTL_NOT_FOUND == at the end */
+                 ssize_t fieldIndex = UTL_NOT_FOUND /**< UTL_NOT_FOUND == at the end */
                  );
    
    UtlSList* sdpFields;

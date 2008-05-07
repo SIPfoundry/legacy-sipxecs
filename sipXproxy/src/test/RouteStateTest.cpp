@@ -466,7 +466,7 @@ public:
          ASSERT_STR_EQUAL(Value2, readValue.data());
          
          // since the state was in a Route, not a Record-Route, this should be
-         CPPUNIT_ASSERT_EQUAL(UTL_NOT_FOUND, routedState.mRecordRouteIndex);
+         CPPUNIT_ASSERT_EQUAL((ssize_t)UTL_NOT_FOUND, routedState.mRecordRouteIndex);
 
          removedHeaders.destroyAll();
       }
@@ -495,7 +495,7 @@ public:
          CPPUNIT_ASSERT(routeState.isMutable());
          CPPUNIT_ASSERT(!routeState.isFound());
          
-         CPPUNIT_ASSERT_EQUAL((size_t)0, routeState.mRecordRouteIndex);
+         CPPUNIT_ASSERT_EQUAL((ssize_t)0, routeState.mRecordRouteIndex);
 
          routeState.setParameter("plugin","param1","dummyvalue");
          
@@ -555,7 +555,7 @@ public:
          ASSERT_STR_EQUAL(Value2, readValue.data());
          
          // since the state was in a Route, not a Record-Route, this should be
-         CPPUNIT_ASSERT_EQUAL((size_t)1, spiraledState.mRecordRouteIndex);
+         CPPUNIT_ASSERT_EQUAL((ssize_t)1, spiraledState.mRecordRouteIndex);
 
          removedRoutes.destroyAll();
       }
@@ -599,7 +599,7 @@ public:
          routeState.update(&outputSipMessage);
 
          UtlString outputMessage;
-         int ignoreLength;
+         size_t ignoreLength;
          outputSipMessage.getBytes(&outputMessage, &ignoreLength);
 
          const char* expectedOutput =
@@ -648,7 +648,7 @@ public:
          state.update(&recordRoutedSipMessage);
 
          UtlString outputMessage;
-         int ignoreLength;
+         size_t ignoreLength;
          recordRoutedSipMessage.getBytes(&outputMessage, &ignoreLength);
 
          const char* appendedRoutedMessage =

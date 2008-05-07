@@ -305,7 +305,7 @@ UtlBoolean SipConnection::requestShouldCreateConnection(const SipMessage* sipMsg
         UtlString eventType;
         sipMsg->getEventField(eventType);
         eventType.toLower();
-        int typeIndex = eventType.index(SIP_EVENT_REFER);
+        ssize_t typeIndex = eventType.index(SIP_EVENT_REFER);
         if(typeIndex >=0)
         {
             // Send a bad callId/transaction message
@@ -383,7 +383,7 @@ UtlBoolean SipConnection::shouldCreateConnection(SipUserAgent& sipUa,
         if(!createConnection)
         {
             UtlString msgBytes;
-            int numBytes;
+            size_t numBytes;
             sipMsg->getBytes(&msgBytes, &numBytes);
             msgBytes.insert(0, "SipConnection::shouldCreateConnection: FALSE\n");
 #ifdef TEST_PRINT
@@ -678,7 +678,7 @@ UtlBoolean SipConnection::dial(const char* dialString,
         {
             UtlString requestedByField(callController);
             const char* alsoTags = strchr(dialString, '>');
-            int uriIndex = requestedByField.index('<');
+            ssize_t uriIndex = requestedByField.index('<');
             if(uriIndex < 0)
             {
                 requestedByField.insert(0, '<');
@@ -1563,7 +1563,7 @@ UtlBoolean SipConnection::transfereeStatus(int callState, int returnCode)
                     break;
                 }
                 UtlString messageBody;
-                int len;
+                size_t len;
                 alertingMessage.getBytes(&messageBody,&len);
 
                 body = new HttpBody(messageBody.data(), -1, CONTENT_TYPE_MESSAGE_SIPFRAG);
@@ -1579,7 +1579,7 @@ UtlBoolean SipConnection::transfereeStatus(int callState, int returnCode)
             referNotify.setContentType(CONTENT_TYPE_MESSAGE_SIPFRAG);
 
             // Add the content length
-            int len;
+            size_t len;
             UtlString bodyString;
             body->getBytes(&bodyString, &len);
             referNotify.setContentLength(len);
@@ -3047,7 +3047,7 @@ void SipConnection::processReferRequest(const SipMessage* request)
 
         // I am not sure we want the focus change to
         // be automatic.  It is here for now to make it work
-        CpIntMessage yieldFocus(CallManager::CP_YIELD_FOCUS, (int)mpCall);
+        CpIntMessage yieldFocus(CallManager::CP_YIELD_FOCUS, (intptr_t)mpCall);
         mpCallManager->postMessage(yieldFocus);
 
         // The new call by default assumes focus.
@@ -3139,7 +3139,7 @@ void SipConnection::processNotifyRequest(const SipMessage* request)
     request->getEventField(eventType);
 
     // IF this is a REFER result notification
-    int refIndex = eventType.index(SIP_EVENT_REFER);
+    ssize_t refIndex = eventType.index(SIP_EVENT_REFER);
     if(refIndex >= 0)
     {
         UtlString contentType;
@@ -3160,7 +3160,7 @@ void SipConnection::processNotifyRequest(const SipMessage* request)
             // Extract the message body, which is a sipfrag containing the
             // response that the transferee got from the transfer target.
             const char* bytes;
-            int numBytes;
+            size_t numBytes;
             body->getBytes(&bytes, &numBytes);
 
             SipMessage response(bytes, numBytes);
@@ -3567,7 +3567,7 @@ void SipConnection::processByeRequest(const SipMessage* request)
 
             // I am not sure we want the focus change to
             // be automatic.  It is here for now to make it work
-            CpIntMessage yieldFocus(CallManager::CP_YIELD_FOCUS, (int)mpCall);
+            CpIntMessage yieldFocus(CallManager::CP_YIELD_FOCUS, (intptr_t)mpCall);
             mpCallManager->postMessage(yieldFocus);
 
             // The new call by default assumes focus
@@ -3939,7 +3939,7 @@ UtlBoolean SipConnection::processResponse(const SipMessage* response,
                 getRemoteAddress(&remoteAddr);
                 CpMultiStringMessage* CancelTimerMessage =
                     new CpMultiStringMessage(CpCallManager::CP_CANCEL_TIMER, callId.data(), remoteAddr.data());
-                OsTimer* timer = new OsTimer(mpCallManager->getMessageQueue(), (int)CancelTimerMessage);
+                OsTimer* timer = new OsTimer(mpCallManager->getMessageQueue(), (void*)CancelTimerMessage);
                 OsTime timerTime(32,0);
                 timer->oneshotAfter(timerTime);
             }
@@ -4428,7 +4428,7 @@ void SipConnection::processInviteResponse(const SipMessage* response)
                 new SipMessageEvent(new SipMessage(sipRequest),
                 SipMessageEvent::SESSION_REINVITE_TIMER);
             OsTimer* timer = new OsTimer((mpCallManager->getMessageQueue()),
-                (int)sipMsgEvent);
+                (void*)sipMsgEvent);
             // Convert from mSeconds to uSeconds
             OsTime timerTime(timerSeconds, 0);
             timer->oneshotAfter(timerTime);
@@ -4769,7 +4769,7 @@ void SipConnection::processInviteResponse(const SipMessage* response)
                 else
                 {
                     UtlString redirected;
-                    int len;
+                    size_t len;
                     sipRequest.getBytes(&redirected, &len);
 #ifdef TEST_PRINT
                     osPrintf("==== Redirected failed ===>%s\n====>\n",
@@ -5035,7 +5035,7 @@ void SipConnection::processByeResponse(const SipMessage* response)
             new CpMultiStringMessage(CallManager::CP_FORCE_DROP_CONNECTION,
             callId.data(), remoteAddress.data(), localAddress.data());
         OsTimer* timer = new OsTimer((mpCallManager->getMessageQueue()),
-            (int)expiredBye);
+            (void*)expiredBye);
         // Convert from mSeconds to uSeconds
 #ifdef TEST_PRINT
         osPrintf("Setting BYE timeout to %d seconds\n",
@@ -5078,7 +5078,7 @@ void SipConnection::processCancelResponse(const SipMessage* response)
             callId.data(), remoteAddress.data(), localAddress.data());
 
         OsTimer* timer = new OsTimer((mpCallManager->getMessageQueue()),
-            (int)expiredBye);
+            (void*)expiredBye);
         // Convert from mSeconds to uSeconds
 #ifdef TEST_PRINT
         osPrintf("Setting CANCEL timeout to %d seconds\n",
@@ -5422,7 +5422,7 @@ OsStatus SipConnection::getInvite(SipMessage* message)
     if (OsSysLog::willLog(FAC_CP, PRI_DEBUG))
     {
        UtlString text;
-       int length;
+       size_t length;
        inviteMsg->getBytes(&text, &length);
        OsSysLog::add(FAC_CP, PRI_DEBUG,
                      "SipConnection::getInvite this = %p, inviteMsg = %p, message = '%s'",
@@ -5543,7 +5543,7 @@ UtlBoolean SipConnection::isMethodAllowed(const char* method)
     // If we do not know (mAllowedRemote is NULL) assume
     // it is supported.
     UtlBoolean methodSupported = TRUE;
-    int methodIndex = mAllowedRemote.index(method);
+    ssize_t methodIndex = mAllowedRemote.index(method);
     if(methodIndex >=0)
     {
         methodSupported = TRUE;

@@ -41,12 +41,6 @@
 
 // CONSTANTS
 
-#define SOCKET_LEN_TYPE
-#ifdef __pingtel_on_posix__
-#undef SOCKET_LEN_TYPE
-#define SOCKET_LEN_TYPE (socklen_t *)
-#endif
-
 // STATIC VARIABLE INITIALIZATIONS
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
@@ -93,10 +87,10 @@ OsConnectionSocket* OsSSLServerSocket::accept()
    {
       /* Block while waiting for a client to connect. */
       struct sockaddr_in clientSocketAddr;
-      int clientAddrLength = sizeof clientSocketAddr;
+      socklen_t clientAddrLength = sizeof clientSocketAddr;
       int clientSocket = ::accept(socketDescriptor,
                                   (struct sockaddr*) &clientSocketAddr,
-                                  SOCKET_LEN_TYPE &clientAddrLength);
+                                  &clientAddrLength);
 
       if (clientSocket < 0)
       {

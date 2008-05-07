@@ -28,7 +28,7 @@
 // Constructor
 OsEventMsg::OsEventMsg(const unsigned char subType,
                        const OsQueuedEvent& rEvent,
-                       const int eventData,
+                       intptr_t eventData,
                        const OsTime& rTimestamp)
 :  OsMsg(OsMsg::OS_EVENT, subType),
    mEventData(eventData),
@@ -41,8 +41,8 @@ OsEventMsg::OsEventMsg(const unsigned char subType,
 }
 
 OsEventMsg::OsEventMsg(unsigned char subType,
-                       int eventData,
-                       int userData)
+                       intptr_t eventData,
+                       void* userData)
 :  OsMsg(OsMsg::OS_EVENT, subType),
    mEventData(eventData),
    mUserData(userData)
@@ -101,7 +101,7 @@ int OsEventMsg::getMsgSize(void) const
 
 // Return the event data that was signaled by the notifier task.
 // Always returns OS_SUCCESS.
-OsStatus OsEventMsg::getEventData(int& rEventData) const
+OsStatus OsEventMsg::getEventData(intptr_t& rEventData) const
 {
    rEventData = mEventData;
    return OS_SUCCESS;
@@ -117,7 +117,7 @@ OsStatus OsEventMsg::getTimestamp(OsTime& rTimestamp) const
 
 // Return the user data specified when the OsQueuedEvent was constructed.
 // Always returns OS_SUCCESS.
-OsStatus OsEventMsg::getUserData(int& rUserData) const
+OsStatus OsEventMsg::getUserData(void*& rUserData) const
 {
    rUserData = mUserData;
    return OS_SUCCESS;

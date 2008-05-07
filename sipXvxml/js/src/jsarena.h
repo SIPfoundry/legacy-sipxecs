@@ -1,36 +1,41 @@
 /* -*- Mode: C; tab-width: 8; indent-tabs-mode: nil; c-basic-offset: 4 -*-
  *
- * The contents of this file are subject to the Netscape Public
- * License Version 1.1 (the "License"); you may not use this file
- * except in compliance with the License. You may obtain a copy of
- * the License at http://www.mozilla.org/NPL/
+ * ***** BEGIN LICENSE BLOCK *****
+ * Version: MPL 1.1/GPL 2.0/LGPL 2.1
  *
- * Software distributed under the License is distributed on an "AS
- * IS" basis, WITHOUT WARRANTY OF ANY KIND, either express oqr
- * implied. See the License for the specific language governing
- * rights and limitations under the License.
+ * The contents of this file are subject to the Mozilla Public License Version
+ * 1.1 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ * http://www.mozilla.org/MPL/
+ *
+ * Software distributed under the License is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+ * for the specific language governing rights and limitations under the
+ * License.
  *
  * The Original Code is Mozilla Communicator client code, released
  * March 31, 1998.
  *
- * The Initial Developer of the Original Code is Netscape
- * Communications Corporation.  Portions created by Netscape are
- * Copyright (C) 1998 Netscape Communications Corporation. All
- * Rights Reserved.
+ * The Initial Developer of the Original Code is
+ * Netscape Communications Corporation.
+ * Portions created by the Initial Developer are Copyright (C) 1998
+ * the Initial Developer. All Rights Reserved.
  *
- * Contributor(s): 
+ * Contributor(s):
  *
- * Alternatively, the contents of this file may be used under the
- * terms of the GNU Public License (the "GPL"), in which case the
- * provisions of the GPL are applicable instead of those above.
- * If you wish to allow use of your version of this file only
- * under the terms of the GPL and not to allow others to use your
- * version of this file under the NPL, indicate your decision by
- * deleting the provisions above and replace them with the notice
- * and other provisions required by the GPL.  If you do not delete
- * the provisions above, a recipient may use your version of this
- * file under either the NPL or the GPL.
- */
+ * Alternatively, the contents of this file may be used under the terms of
+ * either of the GNU General Public License Version 2 or later (the "GPL"),
+ * or the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
+ * in which case the provisions of the GPL or the LGPL are applicable instead
+ * of those above. If you wish to allow use of your version of this file only
+ * under the terms of either the GPL or the LGPL, and not to allow others to
+ * use your version of this file under the terms of the MPL, indicate your
+ * decision by deleting the provisions above and replace them with the notice
+ * and other provisions required by the GPL or the LGPL. If you do not delete
+ * the provisions above, a recipient may use your version of this file under
+ * the terms of any one of the MPL, the GPL or the LGPL.
+ *
+ * ***** END LICENSE BLOCK ***** */
 
 #ifndef jsarena_h___
 #define jsarena_h___
@@ -65,7 +70,6 @@ struct JSArenaStats {
     char        *name;          /* name for debugging */
     uint32      narenas;        /* number of arenas in pool */
     uint32      nallocs;        /* number of JS_ARENA_ALLOCATE() calls */
-    uint32      nreclaims;      /* number of reclaims from freeArenas */
     uint32      nmallocs;       /* number of malloc() calls */
     uint32      ndeallocs;      /* number of lifetime deallocations */
     uint32      ngrows;         /* number of JS_ARENA_GROW() calls */
@@ -96,10 +100,10 @@ struct JSArenaPool {
  */
 #ifdef JS_ARENA_CONST_ALIGN_MASK
 #define JS_ARENA_ALIGN(pool, n) (((jsuword)(n) + JS_ARENA_CONST_ALIGN_MASK)   \
-				 & ~(jsuword)JS_ARENA_CONST_ALIGN_MASK)
+                                 & ~(jsuword)JS_ARENA_CONST_ALIGN_MASK)
 
 #define JS_INIT_ARENA_POOL(pool, name, size) \
-	JS_InitArenaPool(pool, name, size, JS_ARENA_CONST_ALIGN_MASK + 1)
+        JS_InitArenaPool(pool, name, size, JS_ARENA_CONST_ALIGN_MASK + 1)
 #else
 #define JS_ARENA_ALIGN(pool, n) (((jsuword)(n) + (pool)->mask) & ~(pool)->mask)
 #endif
@@ -108,20 +112,32 @@ struct JSArenaPool {
     JS_ARENA_ALLOCATE_CAST(p, void *, pool, nb)
 
 #define JS_ARENA_ALLOCATE_TYPE(p, type, pool)                                 \
-    JS_ARENA_ALLOCATE_CAST(p, type *, pool, sizeof(type))
+    JS_ARENA_ALLOCATE_COMMON(p, type *, pool, sizeof(type), 0)
 
 #define JS_ARENA_ALLOCATE_CAST(p, type, pool, nb)                             \
+    JS_ARENA_ALLOCATE_COMMON(p, type, pool, nb, _nb > _a->limit)
+
+/*
+ * NB: In JS_ARENA_ALLOCATE_CAST and JS_ARENA_GROW_CAST, always subtract _nb
+ * from a->limit rather than adding _nb to _p, to avoid overflowing a 32-bit
+ * address space (possible when running a 32-bit program on a 64-bit system
+ * where the kernel maps the heap up against the top of the 32-bit address
+ * space).
+ *
+ * Thanks to Juergen Kreileder <jk@blackdown.de>, who brought this up in
+ * https://bugzilla.mozilla.org/show_bug.cgi?id=279273.
+ */
+#define JS_ARENA_ALLOCATE_COMMON(p, type, pool, nb, guard)                    \
     JS_BEGIN_MACRO                                                            \
-	JSArena *_a = (pool)->current;                                        \
-	size_t _nb = JS_ARENA_ALIGN(pool, nb);                                \
-	jsuword _p = _a->avail;                                               \
-	jsuword _q = _p + _nb;                                                \
-	if (_q > _a->limit)                                                   \
-	    _p = (jsuword)JS_ArenaAllocate(pool, _nb);                        \
-	else                                                                  \
-	    _a->avail = _q;                                                   \
-	p = (type) _p;                                                        \
-	JS_ArenaCountAllocation(pool, nb);                                    \
+        JSArena *_a = (pool)->current;                                        \
+        size_t _nb = JS_ARENA_ALIGN(pool, nb);                                \
+        jsuword _p = _a->avail;                                               \
+        if ((guard) || _p > _a->limit - _nb)                                  \
+            _p = (jsuword)JS_ArenaAllocate(pool, _nb);                        \
+        else                                                                  \
+            _a->avail = _p + _nb;                                             \
+        p = (type) _p;                                                        \
+        JS_ArenaCountAllocation(pool, nb);                                    \
     JS_END_MACRO
 
 #define JS_ARENA_GROW(p, pool, size, incr)                                    \
@@ -132,9 +148,9 @@ struct JSArenaPool {
         JSArena *_a = (pool)->current;                                        \
         if (_a->avail == (jsuword)(p) + JS_ARENA_ALIGN(pool, size)) {         \
             size_t _nb = (size) + (incr);                                     \
-            jsuword _q = (jsuword)(p) + JS_ARENA_ALIGN(pool, _nb);            \
-            if (_q <= _a->limit) {                                            \
-                _a->avail = _q;                                               \
+            _nb = JS_ARENA_ALIGN(pool, _nb);                                  \
+            if (_a->limit >= _nb && (jsuword)(p) <= _a->limit - _nb) {        \
+                _a->avail = (jsuword)(p) + _nb;                               \
                 JS_ArenaCountInplaceGrowth(pool, size, incr);                 \
             } else if ((jsuword)(p) == _a->base) {                            \
                 p = (type) JS_ArenaRealloc(pool, p, size, incr);              \
@@ -217,22 +233,13 @@ extern JS_PUBLIC_API(void)
 JS_FinishArenaPool(JSArenaPool *pool);
 
 /*
- * Finish using arenas, freeing all memory associated with them except for
- * any locks needed for thread safety.
+ * Deprecated do-nothing function.
  */
 extern JS_PUBLIC_API(void)
 JS_ArenaFinish(void);
 
 /*
- * Free any locks or other memory needed for thread safety, just before
- * shutting down.  At that point, we must be called by a single thread.
- *
- * After shutting down, the next thread to call JS_InitArenaPool must not
- * race with any other thread.  Once a pool has been initialized, threads
- * may safely call jsarena.c functions on thread-local pools.  The upshot
- * is that pools are per-thread, but the underlying global freelist is
- * thread-safe, provided that both the first pool initialization and the
- * shut-down call are single-threaded.
+ * Deprecated do-nothing function.
  */
 extern JS_PUBLIC_API(void)
 JS_ArenaShutDown(void);

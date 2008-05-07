@@ -27,7 +27,7 @@ TaoProviderListener::TaoProviderListener(PtEventMask* pMask)
         mpConnectionSocket = 0;
 }
 
-TaoProviderListener::TaoProviderListener(int objId,
+TaoProviderListener::TaoProviderListener(TaoObjHandle objId,
                                                                                  TaoObjHandle clientSocket,
                                                                                  TaoTransportTask* pSvrTransport,
                                                                                  const char * terminalName)

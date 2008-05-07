@@ -138,21 +138,21 @@ OsStatus WriteWaveHdr(OsFile &file)
 {
     OsStatus retCode = OS_FAILED;
     char tmpbuf[80];
-    short bitsPerSample = 16;
+    uint16_t bitsPerSample = 16;  // 2 byte value for Endian conversion and WAV file
 
     short sampleSize = sizeof(Sample); 
-    short compressionCode = 1; //PCM
+    uint16_t compressionCode = 1; //PCM = 2 byte value for Endian conversion
     short numChannels = 1; 
-    unsigned long samplesPerSecond = 8000;
-    unsigned long averageSamplePerSec = samplesPerSecond*sampleSize;
-    short blockAlign = sampleSize*numChannels; 
-    unsigned long bytesWritten = 0;
-    long TotalBytesWritten = 0;
+    uint32_t samplesPerSecond = 8000; // 4 byte value for Endian conversion and WAV file
+    uint32_t averageSamplePerSec = samplesPerSecond*sampleSize; // 4 byte value
+    uint16_t blockAlign = sampleSize*numChannels;               // 2 byte value
+    size_t bytesWritten = 0;
+    size_t TotalBytesWritten = 0;
 
     //write RIFF & length
     //8 bytes written
     strcpy(tmpbuf,MpWaveFileFormat);
-    unsigned long length = 0;
+    uint32_t length = 0;   // 4 byte value for Endian conversion and WAV file
     
     file.write(tmpbuf, strlen(tmpbuf),bytesWritten);
     TotalBytesWritten += bytesWritten;
@@ -230,16 +230,18 @@ OsStatus WriteWaveHdr(OsFile &file)
 OsStatus updateWaveHeaderLengths(OsFile &file)
 {
     OsStatus retCode = OS_FAILED;
-    unsigned long bytesWritten = 0;
+    size_t bytesWritten = 0;
     //find out how many bytes were written so far
-    unsigned long length;
-    file.getLength(length);
+    uint32_t length; // 4 byte value for Endian conversion
+    size_t temp_len;
+    file.getLength(temp_len);
+    length = temp_len;
     
     //no go back to beg
     file.setPosition(4);
     
     //and update the RIFF length
-    unsigned long rifflength = htolel(length-8);
+    uint32_t rifflength = htolel(length-8); // 4 byte value for WAV file
     file.write((char*)&rifflength,sizeof(rifflength),bytesWritten);
     if (bytesWritten == sizeof(rifflength))
     {
@@ -248,7 +250,7 @@ OsStatus updateWaveHeaderLengths(OsFile &file)
         file.setPosition(40);
     
         //this should be the length of just the data
-        unsigned long datalength = htolel(length-44);
+        uint32_t datalength = htolel(length-44); // 4 byte value for WAV file
         file.write((char*)&datalength,sizeof(datalength),bytesWritten);
 
         if (bytesWritten == sizeof(datalength))
@@ -279,8 +281,8 @@ OsStatus mergeWaveUrls(UtlString rSourceUrls[], UtlString &rDestFile)
             //for now...assume an error until write occurs ok
             bError = TRUE;
 
-            int bytesRead = 0;
-            long filesize;
+            size_t bytesRead = 0;
+            uint32_t filesize;       // 4 byte value in WAV file
             StreamHttpDataSource reader(rSourceUrls[index].data(),0);
             if (reader.open() == OS_SUCCESS)
             {
@@ -290,7 +292,7 @@ OsStatus mergeWaveUrls(UtlString rSourceUrls[], UtlString &rDestFile)
                     if (memcmp(chunkId,MpWaveFileFormat,4) == 0) //continue if the right format
                     {
                         //now read bytes left
-                        if (reader.read((char *)&filesize,sizeof(long),bytesRead) == OS_SUCCESS)
+                        if (reader.read((char *)&filesize,sizeof(uint32_t),bytesRead) == OS_SUCCESS)
                         {
                             filesize = letohl(filesize);
                             filesize +=8; //eight bytes we already read
@@ -304,8 +306,8 @@ OsStatus mergeWaveUrls(UtlString rSourceUrls[], UtlString &rDestFile)
                                         if (memcmp(chunkId,"fmt ",4) == 0) //continue if RIFF                
                                         {
                                             //read in the fmt length (most likely 16)
-                                            long fmtlength;
-                                            if (reader.read((char *)&fmtlength,sizeof(long),bytesRead) == OS_SUCCESS)
+                                            int32_t fmtlength;
+                                            if (reader.read((char *)&fmtlength,sizeof(int32_t),bytesRead) == OS_SUCCESS)
                                             {
                                                 fmtlength = letohl(fmtlength);
                                                 if (bytesRead == 4)
@@ -324,14 +326,14 @@ OsStatus mergeWaveUrls(UtlString rSourceUrls[], UtlString &rDestFile)
                                                         //for now...assume an error until write occurs ok
                                                         bError = TRUE;
 
-                                                        long datalength;
-                                                        if (reader.read((char *)&datalength,sizeof(long),bytesRead) == OS_SUCCESS)
+                                                        size_t datalength;
+                                                        if (reader.read((char *)&datalength,sizeof(int32_t),bytesRead) == OS_SUCCESS)
                                                         {
                                                             datalength = letohl(datalength);
-                                                            if (bytesRead == sizeof(long)) 
+                                                            if (bytesRead == sizeof(int32_t)) 
                                                             {
                                                                 unsigned char *charBuffer = (unsigned char*)malloc(datalength);
-                                                                unsigned long bytesWritten;
+                                                                size_t bytesWritten;
             
                                                                 if (reader.read((char *)charBuffer,datalength,bytesRead) == OS_SUCCESS)
                                                                 {
@@ -339,7 +341,7 @@ OsStatus mergeWaveUrls(UtlString rSourceUrls[], UtlString &rDestFile)
                                                                     {
                                                                         file.write(charBuffer,bytesRead,bytesWritten);
                     
-                                                                        if ((int)bytesWritten != bytesRead)
+                                                                        if (bytesWritten != bytesRead)
                                                                         {
                                                                            bError = TRUE;
                                                                         }
@@ -421,8 +423,8 @@ OsStatus mergeWaveFiles(UtlString rSourceFiles[], UtlString &rDestFile)
                     if (charBuffer)
                     {
 
-                        unsigned long TotalBytesRead = 0;
-                        unsigned long bytesRead = 0;
+                        size_t TotalBytesRead = 0;
+                        size_t bytesRead = 0;
                         do
                         {
                             bytesRead = reader.readBytes(charBuffer+TotalBytesRead, 65535);
@@ -431,7 +433,7 @@ OsStatus mergeWaveFiles(UtlString rSourceFiles[], UtlString &rDestFile)
 
                         if (TotalBytesRead > 0) 
                         {
-                            unsigned long bytesWritten;
+                            size_t bytesWritten;
                             file.write(charBuffer,TotalBytesRead,bytesWritten);
 
                             if (bytesWritten != TotalBytesRead)
@@ -515,7 +517,7 @@ unsigned char MuLawEncode2(Sample s)
 {
    unsigned char sign = (s<0)?0:0x80; // Save the sign
    if (s<0) s=-s; // make sample positive
-   signed long adjusted = static_cast<long>(s) << (16-sizeof(Sample)*8);
+   int32_t adjusted = static_cast<int32_t>(s) << (16-sizeof(Sample)*8);
    adjusted += 128L+4L;
    if (adjusted > 32767) adjusted = 32767;
    unsigned char exponent = numBits[(adjusted>>7)&0xFF] - 1;
@@ -528,7 +530,7 @@ Sample MuLawDecode2(unsigned char ulaw)
    ulaw = ~ulaw;
    unsigned char exponent = (ulaw >> 4) & 0x7;
    unsigned char mantissa = (ulaw & 0xF) + 16;
-   unsigned long adjusted = (mantissa << (exponent + 3)) - 128 - 4;
+   uint32_t adjusted = (mantissa << (exponent + 3)) - 128 - 4;
    return (ulaw & 0x80)? adjusted : -adjusted;
 }
 
@@ -559,6 +561,6 @@ Sample ALawDecode2(unsigned char alaw)
    alaw ^= 0x55;
    unsigned char exponent = (alaw >> 4) & 0x7;
    unsigned char mantissa = (alaw & 0xF) + (exponent?16:0);
-   unsigned long adjusted = (mantissa << (exponent + 4));
+   uint32_t adjusted = (mantissa << (exponent + 4));
    return (alaw & 0x80)? -adjusted : adjusted;
 }

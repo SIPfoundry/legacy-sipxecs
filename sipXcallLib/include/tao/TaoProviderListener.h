@@ -41,7 +41,7 @@ public:
 
 /* ============================ CREATORS ================================== */
 
-        TaoProviderListener(int objId,
+        TaoProviderListener(TaoObjHandle objId,
                                                                  TaoObjHandle clientSocket,
                                                                  TaoTransportTask* pSvrTransport,
                                                                  const char * terminalName);

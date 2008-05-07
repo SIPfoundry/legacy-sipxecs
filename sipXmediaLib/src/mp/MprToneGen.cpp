@@ -137,7 +137,7 @@ UtlBoolean MprToneGen::doProcessFrame(MpBufPtr inBufs[],
                                     int samplesPerSecond)
 {
    MpBufPtr out = NULL;
-   Sample *outbuf;
+   int16_t *outbuf;
    int count;
    OsStatus ret;
 
@@ -149,7 +149,7 @@ UtlBoolean MprToneGen::doProcessFrame(MpBufPtr inBufs[],
       assert(NULL != out);
       count = min(samplesPerFrame, MpBuf_getNumSamples(out));
       MpBuf_setNumSamples(out, count);
-      outbuf = MpBuf_getSamples(out);
+      outbuf = (int16_t*)MpBuf_getSamples(out);
       ret = MpToneGen_getNextBuff(mpToneGenState, outbuf, count);
       switch (ret) {
       case OS_WAIT_TIMEOUT: /* one-shot tone completed */

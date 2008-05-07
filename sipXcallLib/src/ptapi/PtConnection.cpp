@@ -155,7 +155,7 @@ PtStatus PtConnection::accept()
                                                                         arg);
         mpClient->sendRequest(msg);
 
-        int rc;
+        intptr_t rc;
         if (OS_SUCCESS != pe->wait(msg.getCmd(), mTimeOut))
         {
                 mpClient->resetConnectionSocket(msg.getMsgID());
@@ -167,9 +167,9 @@ PtStatus PtConnection::accept()
                 return PT_BUSY;
         }
 
-        pe->getEventData((int &)rc);
+        pe->getEventData(rc);
 #ifdef PTAPI_TEST
-        int cmd;
+        intptr_t cmd;
         pe->getIntData2(cmd);
         assert(cmd == TaoMessage::ACCEPT);
 #endif
@@ -200,7 +200,7 @@ PtStatus PtConnection::disconnect()
                                                                         arg);
         mpClient->sendRequest(msg);
 
-        int rc;
+        intptr_t rc;
         if (OS_SUCCESS != pe->wait(msg.getCmd(), mTimeOut))
         {
                 mpClient->resetConnectionSocket(msg.getMsgID());
@@ -212,9 +212,9 @@ PtStatus PtConnection::disconnect()
                 return PT_BUSY;
         }
 
-        pe->getEventData((int &)rc);
+        pe->getEventData(rc);
 #ifdef PTAPI_TEST
-        int cmd;
+        intptr_t cmd;
         pe->getIntData2(cmd);
         assert(cmd == TaoMessage::DISCONNECT);
 #endif
@@ -425,14 +425,14 @@ PtStatus PtConnection::getState(int& rState)
                 return PT_BUSY;
         }
 
-        int rc;
-        int argCnt = 0;
+        intptr_t rc;
+        intptr_t argCnt = 0;
         arg.remove(0);
-        pe->getEventData((int &)rc);
+        pe->getEventData(rc);
         pe->getIntData(argCnt);
         pe->getStringData(arg);
 #ifdef PTAPI_TEST
-        int cmd;
+        intptr_t cmd;
         pe->getIntData2(cmd);
         assert(cmd == TaoMessage::GET_STATE);
 #endif
@@ -641,7 +641,7 @@ PtStatus PtConnection::park(char* destinationURL, PtConnection& rNewConnection)
                                                                         arg);
         mpClient->sendRequest(msg);
 
-        int rc;
+        intptr_t rc;
         if (OS_SUCCESS != pe->wait(msg.getCmd(), mTimeOut))
         {
                 mpClient->resetConnectionSocket(msg.getMsgID());
@@ -653,9 +653,9 @@ PtStatus PtConnection::park(char* destinationURL, PtConnection& rNewConnection)
                 return PT_BUSY;
         }
 
-        pe->getEventData((int &)rc);
+        pe->getEventData(rc);
 #ifdef PTAPI_TEST
-        int cmd;
+        intptr_t cmd;
         pe->getIntData2(cmd);
         assert(cmd == TaoMessage::PARK);
 #endif
@@ -695,13 +695,13 @@ PtStatus PtConnection::redirect(char* destinationURL, PtConnection& rNewConnecti
                 return PT_BUSY;
         }
 
-        int rc;
+        intptr_t rc;
         arg.remove(0);
 
-        pe->getEventData((int &)rc);
+        pe->getEventData(rc);
         pe->getStringData(arg);
 #ifdef PTAPI_TEST
-        int cmd;
+        intptr_t cmd;
         pe->getIntData2(cmd);
         assert(cmd == TaoMessage::REDIRECT);
 #endif
@@ -736,7 +736,7 @@ PtStatus PtConnection::reject()
                                                                         arg);
         mpClient->sendRequest(msg);
 
-        int rc;
+        intptr_t rc;
         if (OS_SUCCESS != pe->wait(msg.getCmd(), mTimeOut))
         {
                 mpClient->resetConnectionSocket(msg.getMsgID());
@@ -748,7 +748,7 @@ PtStatus PtConnection::reject()
                 return PT_BUSY;
         }
 
-        pe->getEventData((int &)rc);
+        pe->getEventData(rc);
 #ifdef PTAPI_TEST
         int cmd;
         pe->getIntData2(cmd);

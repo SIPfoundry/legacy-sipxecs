@@ -82,7 +82,7 @@ void SipClientUdp::sendMessage(const SipMessage& message,
                                int port)
 {
    UtlString buffer;
-   int bufferLen;
+   size_t bufferLen;
    int bytesWritten;
 
    message.getBytes(&buffer, &bufferLen);
@@ -93,7 +93,7 @@ void SipClientUdp::sendMessage(const SipMessage& message,
       (dynamic_cast <OsDatagramSocket*> (clientSocket))->
       write(buffer.data(), bufferLen, address, port);
 
-   if (bufferLen == bytesWritten)
+   if ((int)bufferLen == bytesWritten)
    {
       // If send was successful, update the last-activity time.
       touch();

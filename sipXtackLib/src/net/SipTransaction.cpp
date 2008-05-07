@@ -245,8 +245,8 @@ SipTransaction::~SipTransaction()
         {
             // Cannot call signalAllAvailable as it traverses what
             // may be a broken (i.e. partially deleted) tree
-            UtlInt* eventNode = NULL;
-            while ((eventNode = (UtlInt*) mWaitingList->get()))
+            UtlVoidPtr* eventNode = NULL;
+            while ((eventNode = (UtlVoidPtr*) mWaitingList->get()))
             {
                 if(eventNode)
                 {
@@ -526,7 +526,7 @@ UtlBoolean SipTransaction::handleOutgoing(SipMessage& outgoingMessage,
         if (toAddress.isNull())
         {
            UtlString bytes;
-           int length;
+           size_t length;
            message->getBytes(&bytes, &length);
            OsSysLog::add(FAC_SIP, PRI_ERR,
                          "SipTransaction::handleOutgoing Unable to obtain To address.  Message is '%s'",
@@ -555,7 +555,7 @@ UtlBoolean SipTransaction::handleOutgoing(SipMessage& outgoingMessage,
         if (OsSysLog::willLog(FAC_SIP, PRI_DEBUG))
         {
             UtlString requestString;
-            int len;
+            size_t len;
             outgoingMessage.getBytes(&requestString, &len);
             UtlString transString;
             toString(transString, TRUE);
@@ -579,7 +579,7 @@ UtlBoolean SipTransaction::handleOutgoing(SipMessage& outgoingMessage,
             if (OsSysLog::willLog(FAC_SIP, PRI_WARNING))
             {
                 UtlString requestString;
-                int len;
+                size_t len;
                 outgoingMessage.getBytes(&requestString, &len);
                 UtlString transString;
                 toString(transString, TRUE);
@@ -596,7 +596,7 @@ UtlBoolean SipTransaction::handleOutgoing(SipMessage& outgoingMessage,
             if (OsSysLog::willLog(FAC_SIP, PRI_WARNING))
             {
                 UtlString requestString;
-                int len;
+                size_t len;
                 outgoingMessage.getBytes(&requestString, &len);
                 UtlString transString;
                 toString(transString, TRUE);
@@ -1156,7 +1156,7 @@ UtlBoolean SipTransaction::doFirstSend(SipMessage& message,
             // Set an event timer to resend the message
             // queue a message on this OsServerTask
             OsMsgQ* incomingQ = userAgent.getMessageQueue();
-            OsTimer* timer = new OsTimer(incomingQ, (int) resendEvent);
+            OsTimer* timer = new OsTimer(incomingQ, resendEvent);
             mTimers.append(timer);
 #ifdef TEST_PRINT
             OsSysLog::add(FAC_SIP, PRI_DEBUG,
@@ -1213,7 +1213,7 @@ UtlBoolean SipTransaction::doFirstSend(SipMessage& message,
                     new SipMessageEvent(new SipMessage(message),
                                 SipMessageEvent::TRANSACTION_EXPIRATION);
 
-                OsTimer* expiresTimer = new OsTimer(incomingQ, (int) expiresEvent);
+                OsTimer* expiresTimer = new OsTimer(incomingQ, expiresEvent);
                 mTimers.append(expiresTimer);
 #ifdef TEST_PRINT
                 OsSysLog::add(FAC_SIP, PRI_DEBUG,
@@ -1300,7 +1300,7 @@ void SipTransaction::handleResendEvent(const SipMessage& outgoingMessage,
                 if(outgoingMessage.getSipTransaction() == NULL)
                 {
                     UtlString msgString;
-                    int msgLen;
+                    size_t msgLen;
                     outgoingMessage.getBytes(&msgString, &msgLen);
                     OsSysLog::add(FAC_SIP, PRI_WARNING,
                                   "SipTransaction::handleResendEvent reschedule of response resend with NULL transaction, message = '%s'",
@@ -1315,7 +1315,7 @@ void SipTransaction::handleResendEvent(const SipMessage& outgoingMessage,
                                     SipMessageEvent::TRANSACTION_RESEND);
 
                 OsMsgQ* incomingQ = userAgent.getMessageQueue();
-                OsTimer* timer = new OsTimer(incomingQ, (int)resendEvent);
+                OsTimer* timer = new OsTimer(incomingQ, resendEvent);
                 mTimers.append(timer);
 #ifdef TEST_PRINT
                 OsSysLog::add(FAC_SIP, PRI_DEBUG,
@@ -1414,7 +1414,7 @@ void SipTransaction::handleResendEvent(const SipMessage& outgoingMessage,
                 if(outgoingMessage.getSipTransaction() == NULL)
                 {
                     UtlString msgString;
-                    int msgLen;
+                    size_t msgLen;
                     outgoingMessage.getBytes(&msgString, &msgLen);
                     OsSysLog::add(FAC_SIP, PRI_WARNING,
                         "SipTransaction::handleResendEvent reschedule of request resend with NULL transaction, message = '%s'",
@@ -1431,7 +1431,7 @@ void SipTransaction::handleResendEvent(const SipMessage& outgoingMessage,
                                     SipMessageEvent::TRANSACTION_RESEND);
 
                 OsMsgQ* incomingQ = userAgent.getMessageQueue();
-                OsTimer* timer = new OsTimer(incomingQ, (int) resendEvent);
+                OsTimer* timer = new OsTimer(incomingQ, resendEvent);
                 mTimers.append(timer);
 #ifdef TEST_PRINT
                 OsSysLog::add(FAC_SIP, PRI_DEBUG,
@@ -2476,7 +2476,7 @@ UtlBoolean SipTransaction::recurseDnsSrvChildren(SipUserAgent& userAgent,
                                     SipMessageEvent::TRANSACTION_EXPIRATION);
 
             OsMsgQ* incomingQ = userAgent.getMessageQueue();
-            OsTimer* expiresTimer = new OsTimer(incomingQ, (int) expiresEvent);
+            OsTimer* expiresTimer = new OsTimer(incomingQ, expiresEvent);
             mTimers.append(expiresTimer);
 #ifdef TEST_PRINT
             OsSysLog::add(FAC_SIP, PRI_DEBUG,
@@ -3215,7 +3215,7 @@ UtlBoolean SipTransaction::findBestResponse(SipMessage& bestResponse)
             if (OsSysLog::willLog(FAC_SIP, PRI_WARNING))
             {
                 UtlString msgString;
-                int msgLen;
+                size_t msgLen;
                 bestResponse.getBytes(&msgString, &msgLen);
 
                 // We got a bad response
@@ -3345,7 +3345,7 @@ UtlBoolean SipTransaction::doResend(SipMessage& resendMessage,
                 if(resendMessage.getSipTransaction() == NULL)
                 {
                     UtlString msgString;
-                    int msgLen;
+                    size_t msgLen;
                     resendMessage.getBytes(&msgString, &msgLen);
                     OsSysLog::add(FAC_SIP, PRI_WARNING,
                                   "SipTransaction::doResend reschedule of request resend with NULL transaction, message = '%s'",
@@ -3360,7 +3360,7 @@ UtlBoolean SipTransaction::doResend(SipMessage& resendMessage,
                                     SipMessageEvent::TRANSACTION_RESEND);
 
                OsMsgQ* incomingQ = userAgent.getMessageQueue();
-               OsTimer* timer = new OsTimer(incomingQ, (int) resendEvent);
+               OsTimer* timer = new OsTimer(incomingQ, resendEvent);
                mTimers.append(timer);
 #ifdef TEST_PRINT
                OsSysLog::add(FAC_SIP, PRI_DEBUG,
@@ -4175,7 +4175,7 @@ void SipTransaction::toString(UtlString& dumpString,
     dumpString.append(mIsUaTransaction ? "TRUE" : " FALSE");
 
     UtlString msgString;
-    int len;
+    size_t len;
 
     dumpString.append("\n\tmpRequest: ");
     if(mpRequest && dumpMessagesAlso)
@@ -4342,7 +4342,7 @@ void SipTransaction::toString(UtlString& dumpString,
     dumpString.append(numBuffer);
     if(mWaitingList)
     {
-        sprintf(numBuffer, "(%d)", mWaitingList->entries());
+       sprintf(numBuffer, "(%ld)", (long)mWaitingList->entries());
         dumpString.append(numBuffer);
     }
 
@@ -4364,7 +4364,7 @@ void SipTransaction::notifyWhenAvailable(OsEvent* availableEvent)
 
         UtlSList* list = parent->mWaitingList;
 
-        UtlInt* eventNode = new UtlInt((int)availableEvent);
+        UtlVoidPtr* eventNode = new UtlVoidPtr(availableEvent);
 
         list->append(eventNode);
     }
@@ -4384,7 +4384,7 @@ void SipTransaction::signalNextAvailable()
     if(parent && parent->mWaitingList)
     {
         // Remove the first event that is waiting for this transaction
-        UtlInt* eventNode = (UtlInt*) parent->mWaitingList->get();
+        UtlVoidPtr* eventNode = (UtlVoidPtr*) parent->mWaitingList->get();
 
         if(eventNode)
         {
@@ -4420,8 +4420,8 @@ void SipTransaction::signalAllAvailable()
     {
         UtlSList* list = parent->mWaitingList;
         // Remove the first event that is waiting for this transaction
-        UtlInt* eventNode = NULL;
-        while ((eventNode = (UtlInt*) list->get()))
+        UtlVoidPtr* eventNode = NULL;
+        while ((eventNode = (UtlVoidPtr*) list->get()))
         {
             if(eventNode)
             {

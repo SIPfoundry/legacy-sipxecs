@@ -30,7 +30,6 @@
 #include "sipdb/SIPXAuthHelper.h"
 #include "IMDBTaskMonitor.h"
 #include "IMDBWorkerTask.h"
-#include "utl/UtlInt.h"
 #include "utl/UtlSortedList.h"
 #include "utl/UtlSortedListIterator.h"
 #include "utl/UtlHashMapIterator.h"
@@ -75,12 +74,12 @@ UtlString pidKey ("pid");
 
 OsMutex IMDBWorkerTask::sLockMutex (OsMutex::Q_FIFO);
 
-int 
+PID 
 IMDBWorkerTask::getPID() const
 {
-    return static_cast< int >
+    return 
 #ifdef WIN32
-    (GetCurrentProcessId());
+    static_cast< int >(GetCurrentProcessId());
 #else
     (getpid());
 #endif
@@ -137,7 +136,7 @@ IMDBWorkerTask::getProcessInfo (
 
     ResultSet resultSet;
 
-    int currentProcessPID = getPID();
+    pid_t currentProcessPID = getPID();
 
     // request all the client process info from the IMDB
     // this is a flat table with 3 columns, pid, tablename and checksum (ignored)
@@ -162,7 +161,7 @@ IMDBWorkerTask::getProcessInfo (
             resultSet.getIndex( i, record );
 
             // the row's process id
-            int pid = ((UtlInt*)record.findValue(&pidKey))->getValue();
+            pid_t pid = ((UtlInt*)record.findValue(&pidKey))->getValue();
 
             // test to see if we should ignore the test app's pid as the
             // number of clients connected to the db will be off by 1
@@ -201,7 +200,7 @@ IMDBWorkerTask::getProcessInfo (
 
         while ((tableNames = (UtlSortedList*)iterator()))
         {
-            int nextPid = ((UtlInt*)iterator.key())->getValue();
+            pid_t nextPid = ((UtlInt*)iterator.key())->getValue();
             OsProcess process;
             OsProcessIterator processIterator;
             // find the name of the process 
@@ -214,8 +213,8 @@ IMDBWorkerTask::getProcessInfo (
                     // get the process name for this record
                     UtlString processName;
                     process.getProcessName( processName );
-                    char temp[10];
-                    sprintf(temp, "%d", nextPid );
+                    char temp[PID_STR_LEN];
+                    sprintf(temp, "%ld", (long)nextPid );
                     UtlString pidStr = temp ;
                     
                     rProcessInfo += (UtlString)"pid: " + pidStr + (UtlString)"\nprocess name: " + processName + (UtlString)"\ntable(s): ";

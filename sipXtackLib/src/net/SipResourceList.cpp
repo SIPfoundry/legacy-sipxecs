@@ -306,9 +306,9 @@ void SipResourceList::getListUri(UtlString& uri) const
 }
 
 
-int SipResourceList::getLength() const
+size_t SipResourceList::getLength() const
 {
-   int length;
+   size_t length;
    UtlString tempBody;
 
    getBytes(&tempBody, &length);
@@ -398,7 +398,7 @@ void SipResourceList::buildBody(int& version) const
    ((SipResourceList*)this)->mVersion++;
 }
 
-void SipResourceList::getBytes(const char** bytes, int* length) const
+void SipResourceList::getBytes(const char** bytes, size_t* length) const
 {
    UtlString tempBody;
 
@@ -408,7 +408,7 @@ void SipResourceList::getBytes(const char** bytes, int* length) const
    *bytes = mBody.data();
 }
 
-void SipResourceList::getBytes(UtlString* bytes, int* length) const
+void SipResourceList::getBytes(UtlString* bytes, size_t* length) const
 {
    int dummy;
    buildBody(dummy);

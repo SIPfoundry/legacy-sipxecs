@@ -25,8 +25,8 @@
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-TaoEvent::TaoEvent(const int userData)
-        :OsEvent(userData)
+TaoEvent::TaoEvent(const void* userData)
+        :OsEvent((void*)userData)
 {
         mIntData = 0;
         mIntData2 = 0;

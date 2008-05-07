@@ -181,11 +181,11 @@ void getMessageData(UtlString& content,
     UtlString responseText;
     UtlBoolean failed = FALSE;
 
-    int hostIndex = content.index("----Remote Host:");
+    ssize_t hostIndex = content.index("----Remote Host:");
     if(hostIndex > 0)
     {
         hostIndex += 16;
-        int hostEnd = content.index("----", hostIndex);
+        ssize_t hostEnd = content.index("----", hostIndex);
         remoteHost.append(&(content.data()[hostIndex]),
                           hostEnd - hostIndex);
 
@@ -193,14 +193,14 @@ void getMessageData(UtlString& content,
 
         remoteHost.append(":");
 
-        int portIndex = hostEnd + 11;
-        int portEnd = content.index("----", portIndex);
+        size_t portIndex = hostEnd + 11;
+        ssize_t portEnd = content.index("----", portIndex);
         remotePort.append(&(content.data()[portIndex]),
                           portEnd - portIndex);
         remoteHost.append(remotePort);
 
-        int messageIndex = portEnd + 5;
-        unsigned int messageEnd;
+        size_t messageIndex = portEnd + 5;
+        ssize_t messageEnd;
         if(isOutgoing)
         {
             messageEnd = content.index("--------------------END", messageIndex);
@@ -212,7 +212,7 @@ void getMessageData(UtlString& content,
         {
             messageEnd = content.index("====================END", messageIndex);
         }
-        if ( UTL_NOT_FOUND == messageEnd )
+        if ( (ssize_t)UTL_NOT_FOUND == messageEnd )
         {
            messageEnd = content.length();
         }
@@ -498,8 +498,8 @@ int main(int argc, char * argv[])
 
    char inputBuffer[BUFFER_SIZE + 1];
    UtlString bufferString;
-   int lineLen;
-   int nextLineStart;
+   ssize_t lineLen;
+   ssize_t nextLineStart;
 
    do
    {

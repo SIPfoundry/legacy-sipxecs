@@ -172,7 +172,7 @@ class SipResourceList : public HttpBody
    void getEventType(UtlString& type) const;
 
    //! Get the string length of this object
-   virtual int getLength() const;
+   virtual size_t getLength() const;
 
    //! Get the resource list uri
    void getListUri(UtlString& uri) const;
@@ -184,7 +184,7 @@ class SipResourceList : public HttpBody
     *       null terminator).
     */
    virtual void getBytes(const char** bytes,
-                         int* length) const;
+                         size_t* length) const;
 
    //! Get the serialized string representation of this resource list.
    /*! \param bytes - buffer space where the resource list is written, null
@@ -193,7 +193,7 @@ class SipResourceList : public HttpBody
     *       null terminator).
     */
    virtual void getBytes(UtlString* bytes,
-                         int* length) const;
+                         size_t* length) const;
 
 ///@}
 

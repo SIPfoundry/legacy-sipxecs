@@ -28,7 +28,7 @@ MpAuRead::MpAuRead(istream & s, int raw): MpAudioAbstract(), mStream(s)
 bool isAuFile(istream &file)
 {
    file.seekg(0);  // Seek to beginning
-   long magic = readIntMsb(file,4);
+   uint32_t magic = readIntMsb(file,4);
    return (magic == 0x2E736E64); // Should be `.snd'
 }
 
@@ -54,15 +54,15 @@ void MpAuRead::ReadHeader(void)
    char header[24];
    mStream.read(header,24);
 
-   long magic = bytesToIntMsb(header+0,4);
+   uint32_t magic = bytesToIntMsb(header+0,4);
    if (magic != 0x2E736E64) { // '.snd'
       osPrintf("Input file is not an AU file.\n");
       return;
    }
 
-   long headerLength = bytesToIntMsb(header+4,4);
+   uint32_t headerLength = bytesToIntMsb(header+4,4);
    _dataLength = bytesToIntMsb(header+8,4);
-   int format = bytesToIntMsb(header+12,4);
+   uint32_t format = bytesToIntMsb(header+12,4);
    _headerRate = bytesToIntMsb(header+16,4);
    _headerChannels = bytesToIntMsb(header+20,4);
    skipBytes(mStream,headerLength - 24); // Junk rest of header
@@ -99,7 +99,7 @@ static void WriteBuffer (ostream &out, AudioSample *buffer, int length)
          reinterpret_cast<AudioByte *>(buffer);
    int i = length;
    while (i-->0) {
-      int sample = *sampleBuff++;
+      Sample sample = *sampleBuff++;
       *byteBuff++ = sample >> 8;
       *byteBuff++ = sample;
    }

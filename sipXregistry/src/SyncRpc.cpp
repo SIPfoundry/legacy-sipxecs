@@ -437,7 +437,7 @@ RegistrarPeer::SynchronizationState SyncRpcPullUpdates::invoke(
                   {
                      OsSysLog::add(FAC_SIP, PRI_CRIT,
                                    "SyncRpcPullUpdates::invoke : "
-                                   "inconsistent number of updates %d != %d : "
+                                   "inconsistent number of updates %" PRIdPTR " != %zu : "
                                    " %s marked Incompatible for replication",
                                    numUpdates->getValue(),
                                    responseUpdates->entries(),

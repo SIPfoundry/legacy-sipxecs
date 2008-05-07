@@ -24,7 +24,7 @@ protected :
         int length ; 
     };
     
-    static const int INDEX_NOT_FOUND ; 
+    static const ssize_t INDEX_NOT_FOUND ; 
     static const char* longAlphaString  ;
     static const char* splCharString ;
     

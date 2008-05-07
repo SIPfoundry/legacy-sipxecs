@@ -47,8 +47,8 @@ MpdPtAVT::MpdPtAVT(int payloadType)
      mpNotify(NULL),
      mpRecorder(NULL)
 {
-   OsSysLog::add(FAC_MP, PRI_INFO, "MpdPtAVT(0x%X)::MpdPtAVT(%d)\n",
-      (int) this, payloadType);
+   OsSysLog::add(FAC_MP, PRI_INFO, "MpdPtAVT(%p)::MpdPtAVT(%d)\n",
+      this, payloadType);
 }
 
 MpdPtAVT::~MpdPtAVT()
@@ -88,7 +88,7 @@ OsStatus MpdPtAVT::freeDecode(void)
    return OS_SUCCESS;
 }
 
-void dumpRawAvtPacket(struct avtPacket* pAvt, int pThis)
+void dumpRawAvtPacket(struct avtPacket* pAvt, void* pThis)
 {
    UCHAR vpxcc;
    UCHAR mpt;
@@ -115,7 +115,7 @@ void dumpRawAvtPacket(struct avtPacket* pAvt, int pThis)
    duration = ntohs(duration);
 
    OsSysLog::add(FAC_MP, PRI_INFO,
-      " MpdPtAVT(0x%x): Raw packet: %02x %02x %6d %08x %08x %2d %02x %5d\n",
+      " MpdPtAVT(%p): Raw packet: %02x %02x %6d %08x %08x %2d %02x %5d\n",
       pThis, vpxcc, mpt, seq, timestamp, ssrc, key, dB, duration);
 }
 
@@ -128,7 +128,7 @@ int MpdPtAVT::decodeIn(MpBufPtr pPacket)
 
    pAvt = (struct avtPacket*) MpBuf_getStorage(pPacket);
 
-   dumpRawAvtPacket(pAvt, (int)this);
+   dumpRawAvtPacket(pAvt, this);
 
    ts = pAvt->rh.timestamp;
 
@@ -136,8 +136,8 @@ int MpdPtAVT::decodeIn(MpBufPtr pPacket)
       if (mCurrentToneSignature != ts) { // and we have not seen this
          if (0 != mToneDuration) { // and its duration > 0
             OsSysLog::add(FAC_MP, PRI_INFO,
-               "++++ MpdPtAVT(0x%X) SYNTHESIZING KEYUP for old key (%d)"
-               " duration=%d ++++\n", (int) this, 
+               "++++ MpdPtAVT(%p) SYNTHESIZING KEYUP for old key (%d)"
+               " duration=%d ++++\n", this, 
                mCurrentToneKey, mToneDuration);
             signalKeyUp(pPacket);
          }
@@ -147,20 +147,20 @@ int MpdPtAVT::decodeIn(MpBufPtr pPacket)
    // Key Down (start of tone)
    if ((0x80 == (0x80 & (pAvt->rh.mpt))) && (ts != mCurrentToneSignature)) {
      // start bit marked
-      OsSysLog::add(FAC_MP, PRI_INFO, "++++ MpdPtAVT(0x%X) RECEIVED KEYDOWN"
+      OsSysLog::add(FAC_MP, PRI_INFO, "++++ MpdPtAVT(%p) RECEIVED KEYDOWN"
          " (marker bit set), duration=%d, TSs: old=0x%08x, new=0x%08x,"
          " delta=%d; mCurrentToneKey=%d ++++",
-         (int) this, mToneDuration, ntohl(mPrevToneSignature), ntohl(ts),
+         this, mToneDuration, ntohl(mPrevToneSignature), ntohl(ts),
          ntohl(ts) - ntohl(mPrevToneSignature), mCurrentToneKey);
       signalKeyDown(pPacket);
       samples = pAvt->samplesSwapped;
       mToneDuration = (ntohs(samples) & 0xffff);
    } else if ((mPrevToneSignature != ts) && (-1 == mCurrentToneKey)) {
      // key up interpreted as key down if no previous start tone received
-      OsSysLog::add(FAC_MP, PRI_INFO, "++++ MpdPtAVT(0x%X) RECEIVED KEYDOWN"
+      OsSysLog::add(FAC_MP, PRI_INFO, "++++ MpdPtAVT(%p) RECEIVED KEYDOWN"
          " (lost packets?) duration=%d; TSs: old=0x%08x, new=0x%08x,"
          " delta=%d; ++++\n",
-         (int) this, mToneDuration, ntohl(mPrevToneSignature), ntohl(ts),
+         this, mToneDuration, ntohl(mPrevToneSignature), ntohl(ts),
          ntohl(ts) - ntohl(mPrevToneSignature));
       signalKeyDown(pPacket);
       samples = pAvt->samplesSwapped;
@@ -172,10 +172,10 @@ int MpdPtAVT::decodeIn(MpBufPtr pPacket)
       mToneDuration = (ntohs(samples) & 0xffff);
       if (mToneDuration && (0x80 != (0x80 & (pAvt->dB))))
       {
-         OsSysLog::add(FAC_MP, PRI_INFO, "++++ MpdPtAVT(0x%X) RECEIVED packet, not KEYDOWN, set duration to zero"
+         OsSysLog::add(FAC_MP, PRI_INFO, "++++ MpdPtAVT(%p) RECEIVED packet, not KEYDOWN, set duration to zero"
               " duration=%d; TSs: old=0x%08x, new=0x%08x,"
               " delta=%d; ++++\n",
-              (int) this, mToneDuration, ntohl(mPrevToneSignature), ntohl(ts),
+              this, mToneDuration, ntohl(mPrevToneSignature), ntohl(ts),
               ntohl(ts) - ntohl(mPrevToneSignature));
 	      mToneDuration = 0;
       }
@@ -183,8 +183,8 @@ int MpdPtAVT::decodeIn(MpBufPtr pPacket)
    
    // Key Up (end of tone)
    if (0x80 == (0x80 & (pAvt->dB))) {
-      OsSysLog::add(FAC_MP, PRI_INFO, "++++ MpdPtAVT(0x%X) RECEIVED KEYUP"
-      " duration=%d, TS=0x%08x ++++\n", (int) this, mToneDuration, ntohl(ts));
+      OsSysLog::add(FAC_MP, PRI_INFO, "++++ MpdPtAVT(%p) RECEIVED KEYUP"
+      " duration=%d, TS=0x%08x ++++\n", this, mToneDuration, ntohl(ts));
       signalKeyUp(pPacket);
    }
 
@@ -218,8 +218,8 @@ void MpdPtAVT::signalKeyDown(MpBufPtr pPacket)
    pAvt = (struct avtPacket*) MpBuf_getStorage(pPacket);
 
    ts = pAvt->rh.timestamp;
-   OsSysLog::add(FAC_MP, PRI_INFO, "MpdPtAVT(0x%X) Start Rcv Tone key=%d"
-      " dB=%d TS=0x%08x\n", (int) this, pAvt->key, pAvt->dB, ntohl(ts));
+   OsSysLog::add(FAC_MP, PRI_INFO, "MpdPtAVT(%p) Start Rcv Tone key=%d"
+      " dB=%d TS=0x%08x\n", this, pAvt->key, pAvt->dB, ntohl(ts));
    OsSysLog::add(FAC_MP, PRI_INFO,
                  "MpdPtAVT::signalKeyDown mpRecorder = %p, mpNotify = %p",
                  mpRecorder, mpNotify);
@@ -258,8 +258,8 @@ void MpdPtAVT::signalKeyUp(MpBufPtr pPacket)
    samples = ntohs(samples);
 
    if ((-1) != mCurrentToneKey) {
-      OsSysLog::add(FAC_MP, PRI_INFO, "MpdPtAVT(0x%X) Stop Rcv Tone key=%d"
-         " dB=%d TS=0x%08x+%d last key=%d\n", (int) this, pAvt->key, pAvt->dB,
+      OsSysLog::add(FAC_MP, PRI_INFO, "MpdPtAVT(%p) Stop Rcv Tone key=%d"
+         " dB=%d TS=0x%08x+%d last key=%d\n", this, pAvt->key, pAvt->dB,
          ntohl(mCurrentToneSignature), mToneDuration, mCurrentToneKey);
       mPrevToneSignature = mCurrentToneSignature;
       if (NULL != mpNotify) {

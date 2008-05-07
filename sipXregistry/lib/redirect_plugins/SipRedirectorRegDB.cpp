@@ -75,7 +75,7 @@ SipRedirectorRegDB::lookUp(
    int redirectorNo,
    SipRedirectorPrivateStorage*& privateStorage)
 {
-   int timeNow = OsDateTime::getSecsSinceEpoch();
+   unsigned long timeNow = OsDateTime::getSecsSinceEpoch();
    ResultSet registrations;
    // Local copy of requestUri
    Url requestUriCopy = requestUri;

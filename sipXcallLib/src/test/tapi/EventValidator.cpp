@@ -484,7 +484,7 @@ UtlString* EventValidator::allocCallStateEntry(SIPX_CALL hCall,
             szBuffer, 
             sizeof(szBuffer));
 
-    sprintf(szBuffer2, "<CALL> hLine=%d, hCall=%d: %s", 
+    sprintf(szBuffer2, "<CALL> hLine=%u, hCall=%u: %s", 
             hLine, 
             hCall,
             szBuffer);
@@ -504,7 +504,7 @@ UtlString* EventValidator::allocLineStateEntry(SIPX_LINE hLine,
             (SIPX_LINE_EVENT_TYPE_MINOR)(int) cause, 
             szBuffer, 
             sizeof(szBuffer)) ;
-    sprintf(szBuffer2, "<LINE> hLine=%d: %s", hLine, szBuffer);
+    sprintf(szBuffer2, "<LINE> hLine=%u: %s", hLine, szBuffer);
 
     return new UtlString(szBuffer2) ;
 
@@ -528,7 +528,7 @@ UtlString* EventValidator::allocInfoStatusEvent(SIPX_INFO hInfo, int status, int
 {
     char szBuffer[1024] ;    
     
-    sprintf(szBuffer, "<INFO STATUS> hInfo=%d: status=%d, responseCode=%d, responseText=%s",
+    sprintf(szBuffer, "<INFO STATUS> hInfo=%" PRIdPTR ": status=%d, responseCode=%d, responseText=%s",
             hInfo, 
             status, 
             responseCode, 
@@ -550,13 +550,13 @@ UtlString* EventValidator::allocInfoEvent(SIPX_CALL hCall,
     // TODO:: Need way to validate from url -- not API to get it w/ tag today from
     // the calling side.  Stripping here.
     UtlString from(szFromURL ? szFromURL : "") ;
-    int tagIndex = from.index(';') ;
+    ssize_t tagIndex = from.index(';') ;
     if (tagIndex >= 0)
     {
         from.remove(tagIndex) ;
     }
 
-    sprintf(szBuffer, "<INFO> hCall=%d, hLine=%d, from=%s, szUserAgent=%s, type=%s, content=%s, len=%d",
+    sprintf(szBuffer, "<INFO> hCall=%u, hLine=%u, from=%s, szUserAgent=%s, type=%s, content=%s, len=%d",
             hCall,
             hLine,
             from.data(),

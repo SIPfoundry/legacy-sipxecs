@@ -72,11 +72,11 @@ public:
 
 /* ============================ MANIPULATORS ============================== */
 
-   static long tm2Epoch(const struct tm *t);
+   static time_t tm2Epoch(const struct tm *t);
      //:Convert tm struct to epoch time
      //! returns: the number of seconds since the begining of 1970.
 
-   static long convertHttpDateToEpoch(const char *date);
+   static time_t convertHttpDateToEpoch(const char *date);
      //:Parse HTTP text format date and convert to epoch time
      // See RFC 822, 1123, 850, 1036
      //! returns: the number of seconds since the begining of 1970.

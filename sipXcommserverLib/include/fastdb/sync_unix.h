@@ -264,7 +264,7 @@ class dbThreadContext {
 };
 
 class dbProcessId { 
-    int       pid;
+    pid_t     pid;
     pthread_t tid;
   public:
     bool operator != (dbProcessId const& other) const { 
@@ -375,7 +375,7 @@ class dbThreadContext {
 
 
 class dbProcessId { 
-    int       pid;
+    pid_t       pid;
   public:
     bool operator != (dbProcessId const& other) const { 
         return pid != other.pid;

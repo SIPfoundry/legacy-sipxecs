@@ -38,19 +38,19 @@ public:
         int startingEntries;        
         startingEntries = pNameDb->numEntries();
 
-        CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, pNameDb->insert("test1", 1));
+        CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, pNameDb->insert("test1", (void*)1));
         CPPUNIT_ASSERT(!pNameDb->isEmpty());
         CPPUNIT_ASSERT_EQUAL(startingEntries+1, pNameDb->numEntries());
 
-        CPPUNIT_ASSERT_EQUAL(OS_NAME_IN_USE, pNameDb->insert("test1", 2));
+        CPPUNIT_ASSERT_EQUAL(OS_NAME_IN_USE, pNameDb->insert("test1", (void*)2));
         
-        CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, pNameDb->insert("test2", 2));
+        CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, pNameDb->insert("test2", (void*)2));
         CPPUNIT_ASSERT_EQUAL(startingEntries+2, pNameDb->numEntries());
 
         CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, pNameDb->lookup("test1", NULL));
-        CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, pNameDb->lookup("test1", &storedInt));
+        CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, pNameDb->lookup("test1", (void**)&storedInt));
         CPPUNIT_ASSERT_EQUAL(1, storedInt);
-        CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, pNameDb->lookup("test2", &storedInt));
+        CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, pNameDb->lookup("test2", (void**)&storedInt));
         CPPUNIT_ASSERT_EQUAL(2, storedInt);
         CPPUNIT_ASSERT_EQUAL(OS_NOT_FOUND, pNameDb->lookup("test3", NULL));
         

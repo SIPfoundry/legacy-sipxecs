@@ -11,6 +11,8 @@
 #ifndef _INCLUDED_MPTYPES_H /* [ */
 #define _INCLUDED_MPTYPES_H
 
+#include <stdint.h>
+
 /**************************************************************************/
 /* One of these should be defined, and the other should undefined!!!!!    */
 /* These are used to determine whether 16 bit samples need to be byte     */
@@ -37,7 +39,7 @@ typedef void * MSG_Q_ID;
 typedef void * SEM_ID;
 #endif /* _VXWORKS ] */
 
-typedef short Sample;
+typedef int16_t Sample;
 
 typedef struct __MpBuf_tag MpBuf;
 typedef struct __MpBuf_tag *MpBufPtr;

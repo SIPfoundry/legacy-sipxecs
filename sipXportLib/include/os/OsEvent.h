@@ -71,7 +71,7 @@ public:
 
 /* ============================ CREATORS ================================== */
 
-   OsEvent(const int userData = 0);
+   OsEvent(void* userData = 0);
      //:Constructor
 
    virtual
@@ -80,7 +80,7 @@ public:
 
 /* ============================ MANIPULATORS ============================== */
 
-   virtual OsStatus signal(const int eventData);
+   virtual OsStatus signal(intptr_t eventData);
      //:Set the event data and signal the occurrence of the event
      // Return OS_ALREADY_SIGNALED if the event has already been signaled
      // (and has not yet been cleared), otherwise return OS_SUCCESS.
@@ -94,7 +94,7 @@ public:
      //:Wait for the event to be signaled
      // Return OS_BUSY if the timeout expired, otherwise return OS_SUCCESS.
 
-   virtual OsStatus setUserData(int userData);
+   virtual OsStatus setUserData(void* userData);
      //:Sets the user data specified.  There are situations (such as the OsProtedtedEvent)
      // when the user data can not be specified when this object was constructed
      // so that this method is necessary to set the user data.
@@ -102,12 +102,12 @@ public:
 
 /* ============================ ACCESSORS ================================= */
 
-   virtual OsStatus getEventData(int& rEventData);
+   virtual OsStatus getEventData(intptr_t& rEventData);
      //:Return the event data that was signaled by the notifier task.
      // Return OS_NOT_SIGNALED if the event has not been signaled (or has
      // already been cleared), otherwise return OS_SUCCESS.
 
-   virtual OsStatus getUserData(int& rUserData) const;
+   virtual OsStatus getUserData(void*& rUserData) const;
      //:Return the user data specified when this object was constructed.
      // Always returns OS_SUCCESS.
 
@@ -122,11 +122,11 @@ protected:
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
 
-   int       mEventData;   // data set when the event was signaled
+   intptr_t  mEventData;   // data set when the event was signaled
    UtlBoolean mIsSignaled;  // indicates whether the event has been signaled
    OsBSem    mSignalSem;   // semaphore used to queue up tasks waiting for
                            //  the event to be signaled
-   int       mUserData;    // data specified on behalf of the user and
+   void*     mUserData;    // data specified on behalf of the user and
                            //  not otherwise used by this class -- the user
                            //  data is specified as an argument to the class
                            //  constructor

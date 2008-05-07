@@ -48,13 +48,13 @@ public:
 /* ============================ CREATORS ================================== */
 
    OsEventMsg(const unsigned char subType, const OsQueuedEvent& rEvent,
-              const int eventData, const OsTime& rTimestamp);
+              intptr_t eventData, const OsTime& rTimestamp);
      //:Constructor
      // userData is rEvent.getUserData(...).
 
    OsEventMsg(unsigned char subType,
-              int eventData,
-              int userData);
+              intptr_t eventData,
+              void* userData);
      //:Constructor
 
    OsEventMsg(const OsEventMsg& rOsEventMsg);
@@ -80,7 +80,7 @@ public:
      // the message object even if that object has been upcast to the type of
      // an ancestor class.
 
-   virtual OsStatus getEventData(int& rEventData) const;
+   virtual OsStatus getEventData(intptr_t& rEventData) const;
      //:Return the event data that was signaled by the notifier task
      // Always returns OS_SUCCESS.
 
@@ -88,7 +88,7 @@ public:
      //:Return the timestamp associated with this event
      // Always returns OS_SUCCESS.
 
-   virtual OsStatus getUserData(int& rUserData) const;
+   virtual OsStatus getUserData(void*& rUserData) const;
      //:Return the user data specified when the OsQueuedEvent was constructed
      // Always returns OS_SUCCESS.
 
@@ -100,9 +100,9 @@ protected:
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
 
-   int    mEventData;
-   int    mUserData;
-   OsTime mTimestamp;
+   intptr_t  mEventData;
+   void*     mUserData;
+   OsTime    mTimestamp;
 
 };
 

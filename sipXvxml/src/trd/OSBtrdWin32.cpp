@@ -71,7 +71,7 @@ extern "C" struct VXItrdMutex {
 
 extern "C" struct VXItrdThread {
   HANDLE threadHandle;
-  unsigned int threadID;
+  pthread_t threadID;
 };
 
 extern "C" struct VXItrdTimer {

@@ -107,7 +107,7 @@ bool CallStateEventWriter_XML::writeLog(const char* event)
       if (mEventFile)
       {
          // write it to the log file
-         unsigned long written;
+         size_t written;
          mEventFile->write(event, strlen(event), written);         
          OsSysLog::add(FAC_CDR, PRI_DEBUG,
                        "%s::writeLog", ModuleName);

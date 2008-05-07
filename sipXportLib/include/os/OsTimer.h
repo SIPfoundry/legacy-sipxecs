@@ -136,7 +136,7 @@ class OsTimer : public UtlContainableAtomic
 
    /** Construct a timer that signals by calling
     *  @code
-    *  rNotifier.signal((int) this)
+    *  rNotifier.signal(this)
     *  @endcode
     */
    OsTimer(OsNotification& rNotifier ///< OsNotification object to report event
@@ -144,11 +144,11 @@ class OsTimer : public UtlContainableAtomic
 
    /** Construct a timer that signals by calling
     *  @code
-    *  pQueue->send(new OsEventMsg(OsEventMsg::NOTIFY, (int) this, userData)
+    *  pQueue->send(new OsEventMsg(OsEventMsg::NOTIFY, this, userData)
     *  @endcode
     */
    OsTimer(OsMsgQ* pQueue,      ///< Queue to send OsEventMsg::NOTIFY message
-           int userData         ///< userData value to store in OsQueuedEvent
+           void* userData         ///< userData value to store in OsQueuedEvent
       );
 
    /// @}
@@ -224,7 +224,7 @@ class OsTimer : public UtlContainableAtomic
     */
 
    /// Get the userData value of a timer constructed with OsTimer(OsMsgQ*, int).
-   virtual int getUserData();
+   virtual void* getUserData();
 
    /// Get the ContainableType for a UtlContainable derived class.
    virtual UtlContainableType getContainableType() const;

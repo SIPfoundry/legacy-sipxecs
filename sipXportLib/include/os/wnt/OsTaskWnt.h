@@ -198,7 +198,7 @@ public:
      //:Return a pointer to the OsTask object for the currently executing task
      // Return NULL if none exists.
 
-   static OsStatus getCurrentTaskId(int &rid);
+   static OsStatus getCurrentTaskId(pthread_t &rid);
      //:Return an Id of the currently executing task
 
    static OsTaskWnt* getTaskByName(const UtlString& taskName);
@@ -228,7 +228,7 @@ public:
 
 /* ============================ INQUIRY =================================== */
 
-   virtual OsStatus id(int& rId);
+   virtual OsStatus id(pthread_t& rId);
      //:Get the task ID for this task
 
    virtual UtlBoolean isReady(void);

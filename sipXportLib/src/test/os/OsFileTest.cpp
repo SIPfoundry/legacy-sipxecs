@@ -90,7 +90,7 @@ public:
         OsStatus stat;
         OsPath testFile = mRootPath + OsPath::separator + "testWriteBuffer";
         char wbuff[10000];
-        unsigned long wbuffsize = (unsigned long)sizeof(wbuff);
+        size_t wbuffsize = (size_t)sizeof(wbuff);
 
         OsTestUtilities::initDummyBuffer(wbuff, sizeof(wbuff));
 
@@ -98,12 +98,12 @@ public:
         stat = wfile.open(OsFile::CREATE);
         CPPUNIT_ASSERT(stat == OS_SUCCESS);
 
-        unsigned long wposition = 0;
+        size_t wposition = 0;
         int i;
         for (i = 0; wposition < wbuffsize; i++)
         {
-            unsigned long remaining = wbuffsize - wposition;
-            unsigned long byteswritten = 0;
+            size_t remaining = wbuffsize - wposition;
+            size_t byteswritten = 0;
             stat = wfile.write(wbuff + wposition, remaining, byteswritten);
             CPPUNIT_ASSERT(stat == OS_SUCCESS);
             wposition += byteswritten;
@@ -116,17 +116,17 @@ public:
         //       R E A D
         ///////////////////////
         char rbuff[256];
-        unsigned long rbuffsize = (unsigned long)sizeof(rbuff);
+        size_t rbuffsize = (size_t)sizeof(rbuff);
         OsFile rfile(testFile);
         stat = rfile.open();
         CPPUNIT_ASSERT(stat == OS_SUCCESS);
         
-        unsigned long rposition = 0;
+        size_t rposition = 0;
         for (i = 0; rposition < wbuffsize; i++)
         {
-            unsigned long remaining = (wbuffsize - rposition);
-            unsigned long readsize = remaining < rbuffsize ? remaining : rbuffsize;
-            unsigned long bytesread = 0;
+            size_t remaining = (wbuffsize - rposition);
+            size_t readsize = remaining < rbuffsize ? remaining : rbuffsize;
+            size_t bytesread = 0;
             stat = rfile.read(rbuff, readsize, bytesread);
             CPPUNIT_ASSERT_MESSAGE("Read buffer", stat == OS_SUCCESS);
             UtlBoolean ok = OsTestUtilities::testDummyBuffer(rbuff, bytesread, rposition);
@@ -135,7 +135,7 @@ public:
         }
 
         // proper EOF
-        unsigned long zeroread = 0;
+        size_t zeroread = 0;
         stat = rfile.read(rbuff, 1, zeroread);
         CPPUNIT_ASSERT_MESSAGE("End of file", stat == OS_FILE_EOF);
         CPPUNIT_ASSERT_MESSAGE("No bytes read", zeroread == 0);

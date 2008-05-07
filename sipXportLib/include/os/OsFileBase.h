@@ -97,7 +97,7 @@ public:
    virtual OsStatus flush();
      //: Flushes any pending output
 
-   virtual OsStatus write(const void* pBuf, unsigned long bufLen, unsigned long& rBytesWritten);
+   virtual OsStatus write(const void* pBuf, size_t bufLen, size_t& rBytesWritten);
      //: Write X bytes to file
      //: Rturns:
      //:        OS_SUCCESS if successful
@@ -110,7 +110,7 @@ public:
      //: Sets the length of the file specified by the object to the new size
      //: Shrinking or Growing the file as needed.
 
-   virtual OsStatus setPosition(long pos, FilePositionOrigin origin = START);
+   virtual OsStatus setPosition(ssize_t pos, FilePositionOrigin origin = START);
      //: Set the current active position in the file for the next read or write
      //: operation. The pos variable is a signed number which is
      //: added to the specified origin. For origin == OsFile::Start
@@ -149,13 +149,13 @@ public:
 
 /* ============================ ACCESSORS ================================= */
 
-   virtual OsStatus getPosition(unsigned long &pos);
+   virtual OsStatus getPosition(size_t &pos);
      //: Get the current active position in the file for the next read or write operation.
 
    virtual void getFileName(OsPathBase& rOsPath) const;
      //: Returns the fully qualified filename for this File object
 
-   virtual OsStatus read(void *pBuf, unsigned long bufLen, unsigned long &rBytesRead);
+   virtual OsStatus read(void *pBuf, size_t bufLen, size_t &rBytesRead);
      //: Read X bytes from file
     
    virtual OsStatus readLine(UtlString &str);
@@ -164,7 +164,7 @@ public:
    virtual UtlBoolean close();
      //: Closes the file. 
 
-   OsStatus getLength(unsigned long &length);
+   OsStatus getLength(size_t &length);
      //: Returns the length of the file specified by the object
 
    FILE* getFileDescriptor() { return mOsFileHandle; };
@@ -202,7 +202,7 @@ protected:
    FILE *mOsFileHandle;
      //: Handle to file
 
-   int mLocalLockThreadId;
+   pthread_t mLocalLockThreadId;
      //: ID for the thread that obtained a local lock as part of file open
 
    OsPathBase mFilename;

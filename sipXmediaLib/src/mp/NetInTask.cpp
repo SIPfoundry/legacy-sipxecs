@@ -297,17 +297,17 @@ static  int flushedLimit = 125;
                 MpBuf_delRef(ib);
                 if (!pRxpSkt->isOk())
                 {
-                    Zprintf(" *** get1Msg: read(%d) returned %d, errno=%d=0x%X)\n",
-                        (int) pRxpSkt, nRead, errno, errno, 0,0);
+                    Zprintf(" *** get1Msg: read(%p) returned %d, errno=%d=0x%X)\n",
+                        pRxpSkt, nRead, errno, errno, 0,0);
                     return OS_NO_MORE_DATA;
                 }                                
             }
         } else {
             nRead = pRxpSkt->read(junk, sizeof(junk));
             if (numFlushed++ < 10) {
-                Zprintf("get1Msg: flushing a packet! (%d, %d, %d)"
+                Zprintf("get1Msg: flushing a packet! (%d, %d, %p)"
                     " (after %d DMA frames).\n",
-                    nRead, errno, (int) pRxpSkt, showFrameCount(1), 0,0);
+                    nRead, errno, pRxpSkt, showFrameCount(1), 0,0);
             }
             if ((nRead < 1) && !pRxpSkt->isOk()) 
             {
@@ -352,14 +352,14 @@ int findPoisonFds(int pipeFD)
         for (i=0, ppr=pairs; i<NET_TASK_MAX_FD_PAIRS; i++) {
             if (ppr->pRtpSocket && // not NULL socket and
                 isFdPoison(ppr->pRtpSocket->getSocketDescriptor())) {
-                OsSysLog::add(FAC_MP, PRI_ERR, " *** NetInTask: Removing fdRtp[%d], socket=0x%08x, socketDescriptor=%d\n", ppr-pairs,(int)ppr->pRtpSocket, (int)ppr->pRtpSocket->getSocketDescriptor());
+                OsSysLog::add(FAC_MP, PRI_ERR, " *** NetInTask: Removing fdRtp[%ld], socket=0x%p, socketDescriptor=%d\n", (long)(ppr-pairs), ppr->pRtpSocket, ppr->pRtpSocket->getSocketDescriptor());
                 n++;
                 ppr->pRtpSocket = NULL;
                 if (NULL == ppr->pRtcpSocket) ppr->fwdTo = NULL;
             }
             if (ppr->pRtcpSocket && // not NULL socket and
                 isFdPoison(ppr->pRtcpSocket->getSocketDescriptor())) {
-                OsSysLog::add(FAC_MP, PRI_ERR, " *** NetInTask: Removing fdRtcp[%d], socket=0x%08x, socketDescriptor=%d\n", ppr-pairs,(int)ppr->pRtcpSocket, (int)ppr->pRtcpSocket->getSocketDescriptor());
+                OsSysLog::add(FAC_MP, PRI_ERR, " *** NetInTask: Removing fdRtcp[%ld], socket=0x%p, socketDescriptor=%d\n", (long)(ppr-pairs), ppr->pRtcpSocket, (int)ppr->pRtcpSocket->getSocketDescriptor());
                 n++;
                 ppr->pRtcpSocket = NULL;
                 if (NULL == ppr->pRtpSocket) ppr->fwdTo = NULL;
@@ -403,9 +403,8 @@ int showNetInTable() {
    Zprintf("pipeFd = %d (last = %d)\n", pipeFd, last, 0,0,0,0);
    for (i=0, ppr=pairs; i<NET_TASK_MAX_FD_PAIRS; i++) {
       if (NULL != ppr->fwdTo) {
-         Zprintf(" %2d: MprFromNet=0x%X, pRtpSocket: 0x%x, pRtcpSocket: 0x%x\n",
-            i, (int) (ppr->fwdTo), (int) (ppr->pRtpSocket),
-            (int) (ppr->pRtcpSocket), 0,0);
+         Zprintf(" %2d: MprFromNet=0x%p, pRtpSocket: 0x%p, pRtcpSocket: 0x%p\n",
+            i, ppr->fwdTo, ppr->pRtpSocket, ppr->pRtcpSocket, 0,0);
       }
       ppr++;
    }
@@ -542,7 +541,7 @@ int NetInTask::run(void *pNotUsed)
                 if (NET_TASK_MAX_MSG_LEN !=
                      mpReadSocket->read((char *) &msg, NET_TASK_MAX_MSG_LEN)) {
                     osPrintf("NetInTask::run: Invalid request!\n");
-                } else if (-2 == (int) msg.pRtpSocket) {
+                } else if (-2 == (intptr_t) msg.pRtpSocket) {
                     /* request to exit... */
                     Nprintf(" *** NetInTask: closing pipeFd (%d)\n",
                         mpReadSocket->getSocketDescriptor(), 0,0,0,0,0);
@@ -663,9 +662,9 @@ int NetInTask::run(void *pNotUsed)
                     stat = get1Msg(ppr->pRtpSocket, ppr->fwdTo,
                        MpBufferMsg::AUD_RTP_RECV, ostc);
                     if (OS_SUCCESS != stat) {
-                        Zprintf(" *** NetInTask: removing RTP#%d pSkt=0x%x due"
+                        Zprintf(" *** NetInTask: removing RTP#%ld pSkt=0x%p due"
                             " to read error.\n", ppr-pairs,
-                            (int) ppr->pRtpSocket, 0,0,0,0);
+                            ppr->pRtpSocket, 0,0,0,0);
                         if (last == ppr->pRtpSocket->getSocketDescriptor())
                            last = OS_INVALID_SOCKET_DESCRIPTOR;
                         ppr->pRtpSocket = NULL;
@@ -678,9 +677,9 @@ int NetInTask::run(void *pNotUsed)
                     stat = get1Msg(ppr->pRtcpSocket, ppr->fwdTo,
                        MpBufferMsg::AUD_RTCP_RECV, ostc);
                     if (OS_SUCCESS != stat) {
-                        Zprintf(" *** NetInTask: removing RTCP#%d pSkt=0x%x due"
+                        Zprintf(" *** NetInTask: removing RTCP#%ld pSkt=0x%p due"
                             " to read error.\n", ppr-pairs,
-                            (int) ppr->pRtcpSocket, 0,0,0,0);
+                            ppr->pRtcpSocket, 0,0,0,0);
                         if (last == ppr->pRtcpSocket->getSocketDescriptor())
                            last = OS_INVALID_SOCKET_DESCRIPTOR;
                         ppr->pRtcpSocket = NULL;
@@ -808,8 +807,8 @@ OsStatus addNetInputSources(OsSocket* pRtpSocket, OsSocket* pRtcpSocket,
             if (wrote != NET_TASK_MAX_MSG_LEN)
             {
                 OsSysLog::add(FAC_MP, PRI_ERR,
-                    "addNetInputSources - writeSocket error: 0x%08x,%d wrote %d",
-                (int)writeSocket, writeSocket->getSocketDescriptor(), wrote);
+                    "addNetInputSources - writeSocket error: 0x%p,%d wrote %d",
+                writeSocket, writeSocket->getSocketDescriptor(), wrote);
             }
         }
         return ((NET_TASK_MAX_MSG_LEN == wrote) ? OS_SUCCESS : OS_BUSY);
@@ -834,8 +833,8 @@ OsStatus removeNetInputSources(MprFromNet* fwdTo, OsNotification* notify)
             if (wrote != NET_TASK_MAX_MSG_LEN)
             {
                 OsSysLog::add(FAC_MP, PRI_ERR,
-                    "removeNetInputSources - writeSocket error: 0x%08x,%d wrote %d",
-                    (int)writeSocket, writeSocket->getSocketDescriptor(), wrote);
+                    "removeNetInputSources - writeSocket error: 0x%p,%d wrote %d",
+                    writeSocket, writeSocket->getSocketDescriptor(), wrote);
             }
         }
 

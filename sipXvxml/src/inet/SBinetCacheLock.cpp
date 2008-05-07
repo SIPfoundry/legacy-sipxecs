@@ -93,8 +93,8 @@ SBinetCacheLock*
 SBinetCacheLockTable::FindCacheLock1(HTAnchor* anchor){
   if(!m_table) return(NULL);
 
-  unsigned int hash = (unsigned int)anchor % m_size;
-  unsigned int i;
+  size_t hash = (size_t)anchor % m_size;
+  size_t i;
   for(i=hash;i<m_size;i++){
     SBinetCacheLock* lock = m_table[i];
     if(lock && lock->hasAnchor(anchor)) return(lock);

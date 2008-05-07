@@ -194,7 +194,7 @@ CpMediaInterface* VoiceEngineFactoryImpl::createMediaInterface( const char* publ
                 szStunServer, stunOptions, iStunKeepAliveSecs, mbDTMFOutOfBand) ;
     
     // store it in our internal list, as an int
-    UtlInt* piMediaInterface = new UtlInt((int) pMediaInterface);
+    UtlInt* piMediaInterface = new UtlInt(pMediaInterface);
     mInterfaceList.insert(piMediaInterface);
 
     pMediaInterface->getVoiceEnginePtr()->GIPSVE_SetSoundDevices(mCurrentWaveInDevice, mCurrentWaveOutDevice);
@@ -203,7 +203,7 @@ CpMediaInterface* VoiceEngineFactoryImpl::createMediaInterface( const char* publ
 
 void VoiceEngineFactoryImpl::removeInterface(VoiceEngineMediaInterface* pMediaInterface)
 {
-    mInterfaceList.destroy(& UtlInt((int)pMediaInterface));
+    mInterfaceList.destroy(& UtlInt(pMediaInterface));
 }
 
 

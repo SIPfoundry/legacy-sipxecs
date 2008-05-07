@@ -129,7 +129,7 @@ public:
 
     void postTaoListenerMessage(int responseCode,
         UtlString responseText,
-        int eventId,
+        TaoEventId eventId,
         int type,
         int cause = PtEvent::CAUSE_NORMAL,
         int remoteIsCallee = 1,
@@ -141,7 +141,7 @@ public:
         char* callId = NULL,
         int ConnectId = 0,
         int mask = 0,
-        int pEv = 0);
+        intptr_t pEv = 0);
     //:Register as a listener for call and connection events.
 
     void setCallState(int responseCode, UtlString responseText, int state, int cause = PtEvent::CAUSE_NORMAL);
@@ -172,8 +172,8 @@ public:
     int getLocalConnectionState() { return mLocalConnectionState; };
     //: Sets the local connection state for this call
 
-    void addToneListenerToFlowGraph(int pListener, Connection* connection);
-    void removeToneListenerFromFlowGraph(int pListener, Connection* connection);
+    void addToneListenerToFlowGraph(intptr_t pListener, Connection* connection);
+    void removeToneListenerFromFlowGraph(intptr_t pListener, Connection* connection);
 
     OsStatus ezRecord(int ms, int silenceLength, const char* fileName, double& duration, int& dtmfterm);
     virtual OsStatus stopRecord();
@@ -253,7 +253,7 @@ protected:
         char* callId = NULL,
         int ConnectId = 0,
         int mask = 0,
-        int pEv = 0);
+        intptr_t pEv = 0);
 
     CpCallManager* mpManager;
     UtlString mCallId;

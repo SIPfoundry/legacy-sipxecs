@@ -36,7 +36,7 @@ OsCSemLinux::OsCSemLinux(const int queueOptions, const int maxCount) :
    assert(res == POSIX_OK);
 
 #  ifdef OS_SYNC_DEBUG
-   int me = pthread_self();
+   pthread_t me = pthread_self();
    mSyncCrumbs.dropCrumb(me, crumbCreated);
 #  endif
 }
@@ -53,7 +53,7 @@ OsCSemLinux::OsCSemLinux(const int queueOptions, const int maxCount,
    assert(res == POSIX_OK);
 
 #  ifdef OS_SYNC_DEBUG
-   int me = pthread_self();
+   pthread_t me = pthread_self();
    mSyncCrumbs.dropCrumb(me, crumbCreated);
 #  endif
 }

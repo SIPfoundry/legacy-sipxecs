@@ -166,7 +166,7 @@ PtStatus PtPhoneButton::buttonPress(void)
                                                                                 arg);
                 mpClient->sendRequest(msg);
 
-                int rc;
+                intptr_t rc;
                 if (OS_SUCCESS != pe->wait(msg.getCmd(), mTimeOut))
                 {
                         mpClient->resetConnectionSocket(msg.getMsgID());
@@ -176,11 +176,11 @@ PtStatus PtPhoneButton::buttonPress(void)
                 mpEventMgr->release(pe);
             }
                         return PT_BUSY;
-                }
+        }
 
-                pe->getEventData((int &)rc);
+        pe->getEventData(rc);
 #ifdef PTAPI_TEST
-        int cmd;
+        intptr_t cmd;
         pe->getIntData2(cmd);
         assert(cmd == TaoMessage::BUTTON_PRESS);
 #endif

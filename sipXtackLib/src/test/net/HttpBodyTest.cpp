@@ -110,7 +110,7 @@ UtlString extract_contents(HttpBody* body)
 
    // Replace the boundary string with "[boundary]".
    const char* boundary_string = body->getMultipartBoundary();
-   size_t location;
+   ssize_t location;
    while ((location = res.index(boundary_string)) != UTL_NOT_FOUND)
    {
       res.replace(location, strlen(boundary_string),

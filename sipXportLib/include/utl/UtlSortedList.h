@@ -82,7 +82,7 @@ public:
      * Return the list position of the designated object or UTL_NOT_FOUND  if
      * not found.
      */
-    virtual size_t index(const UtlContainable* obj) const;
+    virtual ssize_t index(const UtlContainable* obj) const;
 
     /**
      * Return the number of occurrences of the designated object

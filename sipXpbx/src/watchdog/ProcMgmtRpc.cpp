@@ -828,7 +828,7 @@ bool ProcMgmtRpcGetAliasByPID::execute(const HttpRequestContext& requestContext,
 
                OsSysLog::add(FAC_WATCHDOG, PRI_INFO,
                              "ProcMgmtRpc::getUserRequestState"
-                             " host %s requested process state for %d (%s)",
+                             " host %s requested process state for %" PRIdPTR " (%s)",
                              pCallingHostname->data(),
                              pPID->getValue(), alias.data()
                              );

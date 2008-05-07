@@ -1,44 +1,46 @@
 /* -*- Mode: C; tab-width: 8; indent-tabs-mode: nil; c-basic-offset: 4 -*-
  *
- * The contents of this file are subject to the Netscape Public
- * License Version 1.1 (the "License"); you may not use this file
- * except in compliance with the License. You may obtain a copy of
- * the License at http://www.mozilla.org/NPL/
+ * ***** BEGIN LICENSE BLOCK *****
+ * Version: MPL 1.1/GPL 2.0/LGPL 2.1
  *
- * Software distributed under the License is distributed on an "AS
- * IS" basis, WITHOUT WARRANTY OF ANY KIND, either express oqr
- * implied. See the License for the specific language governing
- * rights and limitations under the License.
+ * The contents of this file are subject to the Mozilla Public License Version
+ * 1.1 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ * http://www.mozilla.org/MPL/
+ *
+ * Software distributed under the License is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+ * for the specific language governing rights and limitations under the
+ * License.
  *
  * The Original Code is Mozilla Communicator client code, released
  * March 31, 1998.
  *
- * The Initial Developer of the Original Code is Netscape
- * Communications Corporation.  Portions created by Netscape are
- * Copyright (C) 1998 Netscape Communications Corporation. All
- * Rights Reserved.
+ * The Initial Developer of the Original Code is
+ * Netscape Communications Corporation.
+ * Portions created by the Initial Developer are Copyright (C) 1998
+ * the Initial Developer. All Rights Reserved.
  *
- * Contributor(s): 
+ * Contributor(s):
  *
- * Alternatively, the contents of this file may be used under the
- * terms of the GNU Public License (the "GPL"), in which case the
- * provisions of the GPL are applicable instead of those above.
- * If you wish to allow use of your version of this file only
- * under the terms of the GPL and not to allow others to use your
- * version of this file under the NPL, indicate your decision by
- * deleting the provisions above and replace them with the notice
- * and other provisions required by the GPL.  If you do not delete
- * the provisions above, a recipient may use your version of this
- * file under either the NPL or the GPL.
- */
+ * Alternatively, the contents of this file may be used under the terms of
+ * either of the GNU General Public License Version 2 or later (the "GPL"),
+ * or the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
+ * in which case the provisions of the GPL or the LGPL are applicable instead
+ * of those above. If you wish to allow use of your version of this file only
+ * under the terms of either the GPL or the LGPL, and not to allow others to
+ * use your version of this file under the terms of the MPL, indicate your
+ * decision by deleting the provisions above and replace them with the notice
+ * and other provisions required by the GPL or the LGPL. If you do not delete
+ * the provisions above, a recipient may use your version of this file under
+ * the terms of any one of the MPL, the GPL or the LGPL.
+ *
+ * ***** END LICENSE BLOCK ***** */
 
 /*
  * PR time code.
  */
 #include "jsstddef.h"
-#ifdef MOZILLA_CLIENT
-#include "platform.h"
-#endif
 #ifdef SOLARIS
 #define _REENTRANT 1
 #endif
@@ -52,21 +54,12 @@
 
 #define PRMJ_DO_MILLISECONDS 1
 
-#ifdef XP_PC
-#ifndef __MWERKS__
+#ifdef XP_OS2
 #include <sys/timeb.h>
-#else
-#include <WINDEF.H>
-#include <WINBASE.H>
 #endif
-#endif
-
-#ifdef XP_MAC
-#include <OSUtils.h>
-#include <TextUtils.h>
-#include <Resources.h>
-#include <Timer.h>
-#include <UTCUtils.h>
+#ifdef XP_WIN
+#include <windef.h>
+#include <winbase.h>
 #endif
 
 #if defined(XP_UNIX) || defined(XP_BEOS)
@@ -78,76 +71,6 @@ extern int gettimeofday(struct timeval *tv);
 #include <sys/time.h>
 
 #endif /* XP_UNIX */
-
-#ifdef XP_MAC
-static uint64 			 dstLocalBaseMicroseconds;
-static unsigned long	 gJanuaryFirst1970Seconds;
-
-static void MacintoshInitializeTime(void)
-{
-    uint64					upTime;
-    unsigned long			currentLocalTimeSeconds,
-	   startupTimeSeconds;
-    uint64				startupTimeMicroSeconds;
-    uint32				upTimeSeconds;
-    uint64				oneMillion, upTimeSecondsLong, microSecondsToSeconds;
-    DateTimeRec				firstSecondOfUnixTime;
-
-    /*
-     * Figure out in local time what time the machine started up. This information can be added to
-     * upTime to figure out the current local time as well as GMT.
-     */
-
-    Microseconds((UnsignedWide*)&upTime);
-
-    GetDateTime(&currentLocalTimeSeconds);
-
-    JSLL_I2L(microSecondsToSeconds, PRMJ_USEC_PER_SEC);
-    JSLL_DIV(upTimeSecondsLong, upTime, microSecondsToSeconds);
-    JSLL_L2I(upTimeSeconds, upTimeSecondsLong);
-
-    startupTimeSeconds = currentLocalTimeSeconds - upTimeSeconds;
-
-    /*  Make sure that we normalize the macintosh base seconds to the unix base of January 1, 1970.
-     */
-
-    firstSecondOfUnixTime.year = 1970;
-    firstSecondOfUnixTime.month = 1;
-    firstSecondOfUnixTime.day = 1;
-    firstSecondOfUnixTime.hour = 0;
-    firstSecondOfUnixTime.minute = 0;
-    firstSecondOfUnixTime.second = 0;
-    firstSecondOfUnixTime.dayOfWeek = 0;
-
-    DateToSeconds(&firstSecondOfUnixTime, &gJanuaryFirst1970Seconds);
-
-    startupTimeSeconds -= gJanuaryFirst1970Seconds;
-
-    /*  Now convert the startup time into a wide so that we can figure out GMT and DST.
-     */
-
-    JSLL_I2L(startupTimeMicroSeconds, startupTimeSeconds);
-    JSLL_I2L(oneMillion, PRMJ_USEC_PER_SEC);
-    JSLL_MUL(dstLocalBaseMicroseconds, oneMillion, startupTimeMicroSeconds);
-}
-
-/* Because serial port and SLIP conflict with ReadXPram calls,
- * we cache the call here
- */
-
-static void MyReadLocation(MachineLocation * loc)
-{
-    static MachineLocation storedLoc;	/* InsideMac, OSUtilities, page 4-20 */
-    static JSBool didReadLocation = JS_FALSE;
-    if (!didReadLocation)
-    {
-        MacintoshInitializeTime();
-        ReadLocation(&storedLoc);
-        didReadLocation = JS_TRUE;
-     }
-     *loc = storedLoc;
-}
-#endif /* XP_MAC */
 
 #define IS_LEAP(year) \
    (year != 0 && ((((year & 0x3) == 0) &&  \
@@ -166,7 +89,7 @@ static void PRMJ_basetime(JSInt64 tsecs, PRMJTime *prtm);
 JSInt32
 PRMJ_LocalGMTDifference()
 {
-#if defined(XP_UNIX) || defined(XP_PC) || defined(XP_BEOS)
+#if defined(XP_UNIX) || defined(XP_WIN) || defined(XP_OS2) || defined(XP_BEOS)
     struct tm ltime;
 
     /* get the difference between this time zone and GMT */
@@ -180,32 +103,6 @@ PRMJ_LocalGMTDifference()
 #else
     return mktime(&ltime) - (24L * 3600L);
 #endif
-#endif
-#if defined(XP_MAC)
-    static JSInt32   zone = -1L;
-    MachineLocation  machineLocation;
-    JSInt32 	     gmtOffsetSeconds;
-
-    /* difference has been set no need to recalculate */
-    if (zone != -1)
-        return zone;
-
-    /* Get the information about the local machine, including
-     * its GMT offset and its daylight savings time info.
-     * Convert each into wides that we can add to
-     * startupTimeMicroSeconds.
-     */
-
-    MyReadLocation(&machineLocation);
-
-    /* Mask off top eight bits of gmtDelta, sign extend lower three. */
-    gmtOffsetSeconds = (machineLocation.u.gmtDelta << 8);
-    gmtOffsetSeconds >>= 8;
-
-    /* Backout OS adjustment for DST, to give consistent GMT offset. */
-    if (machineLocation.u.dlsDelta != 0)
-        gmtOffsetSeconds -= PRMJ_HOUR_SECONDS;
-    return (zone = -gmtOffsetSeconds);
 #endif
 }
 
@@ -251,29 +148,22 @@ PRMJ_ToExtendedTime(JSInt32 base_time)
 JSInt64
 PRMJ_Now(void)
 {
-#ifdef XP_PC
+#ifdef XP_OS2
     JSInt64 s, us, ms2us, s2us;
-#ifndef __MWERKS__
     struct timeb b;
-#else
-    SYSTEMTIME time;
-#endif /* __MWERKS__ */
-#endif /* XP_PC */
+#endif
+#ifdef XP_WIN
+    JSInt64 s, us,
+    win2un = JSLL_INIT(0x19DB1DE, 0xD53E8000),
+    ten = JSLL_INIT(0, 10);
+    FILETIME time, midnight;
+#endif
 #if defined(XP_UNIX) || defined(XP_BEOS)
     struct timeval tv;
     JSInt64 s, us, s2us;
 #endif /* XP_UNIX */
-#ifdef XP_MAC
-    JSUint64 upTime;
-    JSInt64	 localTime;
-    JSInt64       gmtOffset;
-    JSInt64    dstOffset;
-    JSInt32       gmtDiff;
-    JSInt64	 s2us;
-#endif /* XP_MAC */
 
-#ifdef XP_PC
-#ifndef __MWERKS__
+#ifdef XP_OS2
     ftime(&b);
     JSLL_UI2L(ms2us, PRMJ_USEC_PER_MSEC);
     JSLL_UI2L(s2us, PRMJ_USEC_PER_SEC);
@@ -283,17 +173,27 @@ PRMJ_Now(void)
     JSLL_MUL(s, s, s2us);
     JSLL_ADD(s, s, us);
     return s;
-#else
-    GetLocalTime(&time);
-    JSLL_UI2L(ms2us, PRMJ_USEC_PER_MSEC);
-    JSLL_UI2L(s2us, PRMJ_USEC_PER_SEC);
-    JSLL_UI2L(s, time.wSecond);
-    JSLL_UI2L(us, time.wMilliseconds);
-    JSLL_MUL(us, us, ms2us);
-    JSLL_MUL(s, s, s2us);
+#endif
+#ifdef XP_WIN
+    /* The windows epoch is around 1600. The unix epoch is around 1970.
+       win2un is the difference (in windows time units which are 10 times
+       more precise than the JS time unit) */
+    GetSystemTimeAsFileTime(&time);
+    /* Win9x gets confused at midnight
+       http://support.microsoft.com/default.aspx?scid=KB;en-us;q224423
+       So if the low part (precision <8mins) is 0 then we get the time
+       again. */
+    if (!time.dwLowDateTime) {
+        GetSystemTimeAsFileTime(&midnight);
+        time.dwHighDateTime = midnight.dwHighDateTime;
+    }
+    JSLL_UI2L(s, time.dwHighDateTime);
+    JSLL_UI2L(us, time.dwLowDateTime);
+    JSLL_SHL(s, s, 32);
     JSLL_ADD(s, s, us);
+    JSLL_SUB(s, s, win2un);
+    JSLL_DIV(s, s, ten);
     return s;
-#endif /* __MWERKS__ */
 #endif
 
 #if defined(XP_UNIX) || defined(XP_BEOS)
@@ -309,24 +209,6 @@ PRMJ_Now(void)
     JSLL_ADD(s, s, us);
     return s;
 #endif /* XP_UNIX */
-#ifdef XP_MAC
-    JSLL_UI2L(localTime,0);
-    gmtDiff = PRMJ_LocalGMTDifference();
-    JSLL_I2L(gmtOffset,gmtDiff);
-    JSLL_UI2L(s2us, PRMJ_USEC_PER_SEC);
-    JSLL_MUL(gmtOffset,gmtOffset,s2us);
-
-    /* don't adjust for DST since it sets ctime and gmtime off on the MAC */
-    Microseconds((UnsignedWide*)&upTime);
-    JSLL_ADD(localTime,localTime,gmtOffset);
-    JSLL_ADD(localTime,localTime, dstLocalBaseMicroseconds);
-    JSLL_ADD(localTime,localTime, upTime);
-
-    dstOffset = PRMJ_DSTOffset(localTime);
-    JSLL_SUB(localTime,localTime,dstOffset);
-
-    return *((JSUint64 *)&localTime);
-#endif /* XP_MAC */
 }
 
 /* Get the DST timezone offset for the time passed in */
@@ -334,30 +216,12 @@ JSInt64
 PRMJ_DSTOffset(JSInt64 local_time)
 {
     JSInt64 us2s;
-#ifdef XP_MAC
-    /*
-     * Convert the local time passed in to Macintosh epoch seconds. Use UTC utilities to convert
-     * to UTC time, then compare difference with our GMT offset. If they are the same, then
-     * DST must not be in effect for the input date/time.
-     */
-    UInt32 macLocalSeconds = (local_time / PRMJ_USEC_PER_SEC) + gJanuaryFirst1970Seconds, utcSeconds;
-    ConvertLocalTimeToUTC(macLocalSeconds, &utcSeconds);
-    if ((utcSeconds - macLocalSeconds) == PRMJ_LocalGMTDifference())
-        return 0;
-    else {
-        JSInt64 dlsOffset;
-    	JSLL_UI2L(us2s, PRMJ_USEC_PER_SEC);
-    	JSLL_UI2L(dlsOffset, PRMJ_HOUR_SECONDS);
-    	JSLL_MUL(dlsOffset, dlsOffset, us2s);
-        return dlsOffset;
-    }
-#else
     time_t local;
     JSInt32 diff;
     JSInt64  maxtimet;
     struct tm tm;
     PRMJTime prtm;
-#if ( defined( USE_AUTOCONF ) && !defined( HAVE_LOCALTIME_R) ) || ( !defined ( USE_AUTOCONF ) && ( defined( XP_PC ) || defined( __FreeBSD__ ) || defined ( HPUX9 ) || defined ( SNI ) || defined ( NETBSD ) || defined ( OPENBSD ) || defined( DARWIN ) ) )
+#ifndef HAVE_LOCALTIME_R
     struct tm *ptm;
 #endif
 
@@ -376,7 +240,7 @@ PRMJ_DSTOffset(JSInt64 local_time)
     }
     JSLL_L2UI(local,local_time);
     PRMJ_basetime(local_time,&prtm);
-#if ( defined( USE_AUTOCONF ) && !defined( HAVE_LOCALTIME_R) ) || ( !defined ( USE_AUTOCONF ) && ( defined( XP_PC ) || defined( __FreeBSD__ ) || defined ( HPUX9 ) || defined ( SNI ) || defined ( NETBSD ) || defined ( OPENBSD ) || defined( DARWIN ) ) )
+#ifndef HAVE_LOCALTIME_R
     ptm = localtime(&local);
     if(!ptm){
         return JSLL_ZERO;
@@ -398,14 +262,13 @@ PRMJ_DSTOffset(JSInt64 local_time)
     JSLL_MUL(local_time,local_time,us2s);
 
     return(local_time);
-#endif
 }
 
 /* Format a time value into a buffer. Same semantics as strftime() */
 size_t
 PRMJ_FormatTime(char *buf, int buflen, char *fmt, PRMJTime *prtm)
 {
-#if defined(XP_UNIX) || defined(XP_PC) || defined(XP_MAC) || defined(XP_BEOS)
+#if defined(XP_UNIX) || defined(XP_WIN) || defined(XP_OS2) || defined(XP_BEOS)
     struct tm a;
 
     /* Zero out the tm struct.  Linux, SunOS 4 struct tm has extra members int
@@ -416,7 +279,7 @@ PRMJ_FormatTime(char *buf, int buflen, char *fmt, PRMJTime *prtm)
      * years.  Might still make sense to use this, but find the range of years
      * for which valid tz information exists, and map (per ECMA hint) from the
      * given year into that range.
-     
+
      * N.B. This hasn't been tested with anything that actually _uses_
      * tm_gmtoff; zero might be the wrong thing to set it to if you really need
      * to format a time.  This fix is for jsdate.c, which only uses

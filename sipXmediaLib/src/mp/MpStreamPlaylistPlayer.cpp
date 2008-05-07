@@ -86,7 +86,7 @@ OsStatus MpStreamPlaylistPlayer::add(Url& url, int flags)
    e->sourceType = SourceUrl;
    e->url = url;
    e->flags = flags;       
-   e->pQueuedEvent = new OsQueuedEvent(*getMessageQueue(), index);
+   e->pQueuedEvent = new OsQueuedEvent(*getMessageQueue(), (void*)index);
    e->index = index ;
 
    mPlayListDb->append(e);
@@ -104,7 +104,7 @@ OsStatus MpStreamPlaylistPlayer::add(UtlString* pBuffer, int flags)
    e->sourceType = SourceBuffer;
    e->pBuffer = pBuffer;
    e->flags = flags;       
-   e->pQueuedEvent = new OsQueuedEvent(*getMessageQueue(), index);
+   e->pQueuedEvent = new OsQueuedEvent(*getMessageQueue(), (void*)index);
    e->index = index ;
 
    mPlayListDb->append(e);
@@ -145,7 +145,7 @@ OsStatus MpStreamPlaylistPlayer::realize(UtlBoolean bBlock)
                             &eventHandle,
                             e->pQueuedEvent,
                             e->flags,
-                            (int) new Url(e->url));                   
+                            (intptr_t) new Url(e->url));                   
             status = mpMsgQ->send(msg);
             if (status != OS_SUCCESS)
             {
@@ -162,7 +162,7 @@ OsStatus MpStreamPlaylistPlayer::realize(UtlBoolean bBlock)
                             &eventHandle,
                             e->pQueuedEvent,
                             e->flags,
-                            (int) e->pBuffer);                            
+                            (intptr_t) e->pBuffer);                            
             status = mpMsgQ->send(msg);
             if (status != OS_SUCCESS)
             {
@@ -177,7 +177,7 @@ OsStatus MpStreamPlaylistPlayer::realize(UtlBoolean bBlock)
          if (status == OS_SUCCESS)
          {
             // Wait for a response
-            int eventData;
+            intptr_t eventData;
             status = eventHandle.wait(mRealizeTimeout);
             if (status == OS_SUCCESS)
                status = eventHandle.getEventData(eventData);
@@ -946,10 +946,12 @@ UtlBoolean MpStreamPlaylistPlayer::handleMessage(OsMsg& rMsg)
    {
       case OsMsg::OS_EVENT:
          OsEventMsg* pMsg = (OsEventMsg*) &rMsg;
-         int status;
+         intptr_t status;
          int index;
+	 void* indexVoid;
 
-         pMsg->getUserData(index);
+         pMsg->getUserData(indexVoid);
+	 index = (int)(intptr_t)indexVoid;
          if (pMsg->getEventData(status) == OS_SUCCESS)
          {
             PlayListEntry* e = (PlayListEntry*)mPlayListDb->at(index) ;

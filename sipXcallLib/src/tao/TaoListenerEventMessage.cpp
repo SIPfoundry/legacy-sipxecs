@@ -26,9 +26,9 @@
 
 // Constructor
 TaoListenerEventMessage::TaoListenerEventMessage(PtEvent::PtEventId eventId,
-                           int intData1,
-                           int intData2,
-                           int intData3,
+                           intptr_t intData1,
+                           intptr_t intData2,
+                           intptr_t intData3,
                            const char* stringData1,
                            const char* stringData2,
                            const char* stringData3) :
@@ -105,17 +105,17 @@ void TaoListenerEventMessage::setStringData3(const char* stringData)
     if(stringData) mStringData3.append(stringData);
 }
 
-void TaoListenerEventMessage::setIntData1(int intData)
+void TaoListenerEventMessage::setIntData1(intptr_t intData)
 {
     mIntData1 = intData;
 }
 
-void TaoListenerEventMessage::setIntData2(int intData)
+void TaoListenerEventMessage::setIntData2(intptr_t intData)
 {
     mIntData2 = intData;
 }
 
-void TaoListenerEventMessage::setIntData3(int intData)
+void TaoListenerEventMessage::setIntData3(intptr_t intData)
 {
     mIntData3 = intData;
 }
@@ -150,17 +150,17 @@ void TaoListenerEventMessage::getStringData3(UtlString& stringData)
 }
 
 
-int TaoListenerEventMessage::getIntData1()
+intptr_t TaoListenerEventMessage::getIntData1()
 {
     return(mIntData1);
 }
 
-int TaoListenerEventMessage::getIntData2()
+intptr_t TaoListenerEventMessage::getIntData2()
 {
     return(mIntData2);
 }
 
-int TaoListenerEventMessage::getIntData3()
+intptr_t TaoListenerEventMessage::getIntData3()
 {
     return(mIntData3);
 }

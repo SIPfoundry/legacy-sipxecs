@@ -58,7 +58,7 @@ SipPersistentSubscriptionMgr::SipPersistentSubscriptionMgr(
 
    // Read the subscription table and initialize the SipSubscriptionMgr.
 
-   int now = OsDateTime::getSecsSinceEpoch();
+   unsigned long now = OsDateTime::getSecsSinceEpoch();
    ResultSet rs;
    mSubscriptionDBInstance->getAllRows(rs);
    UtlSListIterator itor(rs);
@@ -304,7 +304,7 @@ UtlBoolean SipPersistentSubscriptionMgr::updateDialogInfo(
                     accept.data());
 
       // Attempt to update an existing row.
-      int now = OsDateTime::getSecsSinceEpoch();
+      int now = (int)OsDateTime::getSecsSinceEpoch();
       ret = mSubscriptionDBInstance->updateSubscribeUnexpiredSubscription(
          mComponent, to, from, callId, eventTypeKey, "",
          now, expires, subscribeCseq);
@@ -544,7 +544,7 @@ void SipPersistentSubscriptionMgr::updateVersion(SipMessage& notifyRequest,
    notifyRequest.getFromField(&to);
    notifyRequest.getCallIdField(&callId);
    notifyRequest.getEventField(&eventType, &eventId);
-   now = OsDateTime::getSecsSinceEpoch();
+   now = (int)OsDateTime::getSecsSinceEpoch();
 
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
                  "SipPersistentSubscriptionMgr::updateVersion "

@@ -52,11 +52,11 @@ public:
 
 /* ============================ MANIPULATORS ============================== */
 
-   virtual OsStatus getFrame(unsigned short* samples);
+   virtual OsStatus getFrame(int16_t* samples);
      //: Gets the next available frame
      //! returns OS_SUCCESS if a frame is available
 
-   virtual OsStatus queueFrame(const unsigned short* pSamples);
+   virtual OsStatus queueFrame(const int16_t* pSamples);
      //: Queues a frame of data
 
    virtual OsStatus queueEndOfFrames();

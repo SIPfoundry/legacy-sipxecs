@@ -43,6 +43,14 @@ void osPrintf(const char* format , ...)
 #endif
          ;
 
+// to print intptr_t types, we need a platform-specific formatter
+#ifdef __pingtel_on_posix__
+#  define __STDC_FORMAT_MACROS 1
+#  include <inttypes.h>
+#else
+#  error "Need a definition of PRIdPTR for this platform"
+#endif
+
 // @TODO clean up definition of 64 bit integer types - see also UtlDefs.h
 #ifdef __pingtel_on_posix__
 #  if defined(__linux__)

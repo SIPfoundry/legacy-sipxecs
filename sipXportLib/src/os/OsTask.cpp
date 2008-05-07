@@ -97,8 +97,8 @@ OsStatus OsTaskBase::syslog(const OsSysLogFacility facility,
                             const char*            format,
                                                     ...)
 {
-   int taskId;
-   int processId;
+   pthread_t taskId;
+   pid_t     processId;
 
    if (OsSysLog::willLog(facility, priority))
    {
@@ -221,7 +221,7 @@ OsTaskBase::OsTaskBase(const UtlString& name,
 
     if (!mName.isNull())
     {
-      OsUtil::insertKeyValue(TASK_PREFIX, mName, (int) this);
+      OsUtil::insertKeyValue(TASK_PREFIX, mName, this);
     }
 }
 

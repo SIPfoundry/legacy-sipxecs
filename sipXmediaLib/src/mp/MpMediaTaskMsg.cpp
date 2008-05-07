@@ -28,7 +28,7 @@
 
 // Constructor
 MpMediaTaskMsg::MpMediaTaskMsg(int msg, void* pPtr1, void* pPtr2,
-                               int int1, int int2)
+      intptr_t int1, intptr_t int2)
 :  OsMsg(OsMsg::MP_TASK_MSG, msg),
    mpPtr1(pPtr1),
    mpPtr2(pPtr2),
@@ -92,13 +92,13 @@ void MpMediaTaskMsg::setPtr2(void* p)
 }
 
 // Set integer 1 of the media task message
-void MpMediaTaskMsg::setInt1(int i)
+void MpMediaTaskMsg::setInt1(intptr_t i)
 {
    mInt1 = i;
 }
 
 // Set integer 2 of the media task message
-void MpMediaTaskMsg::setInt2(int i)
+void MpMediaTaskMsg::setInt2(intptr_t i)
 {
    mInt2 = i;
 }
@@ -124,13 +124,13 @@ void* MpMediaTaskMsg::getPtr2(void) const
 }
 
 // Return integer 1 of the media task message
-int MpMediaTaskMsg::getInt1(void) const
+intptr_t MpMediaTaskMsg::getInt1(void) const
 {
    return mInt1;
 }
 
 // Return integer 2 of the media task message
-int MpMediaTaskMsg::getInt2(void) const
+intptr_t MpMediaTaskMsg::getInt2(void) const
 {
    return mInt2;
 }

@@ -25,11 +25,11 @@
 
 bool isWaveFile(istream &file) {
    file.seekg(0);
-   unsigned long form = readIntMsb(file,4);
+   uint32_t form = readIntMsb(file,4);
    if (form != WAVE_CHUNK_FORMAT)
       return false; // Not RIFF file
    skipBytes(file,4);  // Skip chunk size
-   unsigned long type = readIntMsb(file,4);
+   uint32_t type = readIntMsb(file,4);
    if (type == ChunkName('W','A','V','E'))
       return true;
    return false; // RIFF file, but not WAVE file
@@ -121,11 +121,11 @@ int MpAudioWaveFileRead::getDecompressionType()
    }
 
    // Select decompressor based on compression type
-   unsigned long type = bytesToIntLsb(mpformatData+0 , 2);
+   uint32_t type = bytesToIntLsb(mpformatData+0 , 2);
 
    if (type == 1)
    {  // PCM format
-      unsigned long bitsPerSample = bytesToIntLsb(mpformatData+14, 2);
+      uint32_t bitsPerSample = bytesToIntLsb(mpformatData+14, 2);
       if (bitsPerSample <= 8) // Wave stores 8-bit data as unsigned
          returnValue = 1;
       else if (bitsPerSample <= 16) // 16 bit data is signed
@@ -141,7 +141,7 @@ int MpAudioWaveFileRead::getDecompressionType()
 // member function: minMaxSamplingRate
 void MpAudioWaveFileRead::minMaxSamplingRate(long *min, long *max, long *preferred) {
    initializeDecompression();
-   unsigned long samplingRate = bytesToIntLsb(mpformatData+4,4);
+   uint32_t samplingRate = bytesToIntLsb(mpformatData+4,4);
    *max = *min = *preferred = samplingRate;
 }
 
@@ -150,7 +150,7 @@ void MpAudioWaveFileRead::minMaxChannels(int *min, int *max, int *preferred) {
    initializeDecompression();
    if (mbIsOk)
    {
-        unsigned long channels = bytesToIntLsb(mpformatData+2,2);
+        uint32_t channels = bytesToIntLsb(mpformatData+2,2);
         *min = *max = *preferred = channels;
     }
 }
@@ -183,11 +183,11 @@ void MpAudioWaveFileRead::initializeDecompression()
    }
 
    // Select decompressor based on compression type
-   int type = bytesToIntLsb(mpformatData+0 , 2);
+   uint32_t type = bytesToIntLsb(mpformatData+0 , 2);
 
    if (type == 1)
    {  // PCM format
-      unsigned long bitsPerSample = bytesToIntLsb(mpformatData+14, 2);
+      uint32_t bitsPerSample = bytesToIntLsb(mpformatData+14, 2);
       if (bitsPerSample <= 8) // Wave stores 8-bit data as unsigned
          _decoder = new DecompressPcm8Unsigned(*this);
       else if (bitsPerSample <= 16) // 16 bit data is signed
@@ -289,8 +289,8 @@ void MpAudioWaveFileRead::nextChunk(void)
       _currentChunk = -1; // empty the stack
       return;
    }
-   unsigned long type = readIntMsb(mStream,4);
-   unsigned long size = readIntLsb(mStream,4);
+   uint32_t type = readIntMsb(mStream,4);
+   uint32_t size = readIntLsb(mStream,4);
    if (size > mFileSize || mStream.eof())
    {
       _currentChunk = -1; // empty the stack

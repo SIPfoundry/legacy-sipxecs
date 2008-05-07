@@ -9,6 +9,7 @@
 // SYSTEM INCLUDES
 #include <string.h>
 #include <ctype.h>
+#include <stdint.h>
 #ifdef _VXWORKS
 #include <resparse/vxw/hd_string.h>
 #endif
@@ -72,7 +73,7 @@ int HttpMessage::smHttpMessageCount = 0;
 /* ============================ CREATORS ================================== */
 
 // Constructor
-HttpMessage::HttpMessage(const char* messageBytes, int byteCount)
+HttpMessage::HttpMessage(const char* messageBytes, size_t byteCount)
    : mHeaderCacheClean(FALSE)
    , body(NULL)
    , transportTimeStamp(0)
@@ -93,7 +94,7 @@ HttpMessage::HttpMessage(const char* messageBytes, int byteCount)
    parseMessage(messageBytes, byteCount);
 }
 
-HttpMessage::HttpMessage(OsSocket* inSocket, int bufferSize)
+HttpMessage::HttpMessage(OsSocket* inSocket, size_t bufferSize)
    : mHeaderCacheClean(FALSE)
    , body(NULL)
    , transportTimeStamp(0)
@@ -250,7 +251,7 @@ HttpMessage::operator=(const HttpMessage& rHttpMessage)
 
 #ifdef _WIN32
 
-    int pathSeparatorIndex;
+    ssize_t pathSeparatorIndex;
     while((pathSeparatorIndex = uriString.first('/')) >= 0)
     {
         uriString.replace(pathSeparatorIndex, 1, "\\");
@@ -260,24 +261,24 @@ HttpMessage::operator=(const HttpMessage& rHttpMessage)
     platformFilePath = uriString;
 }*/
 
-int HttpMessage::parseFirstLine(const char* messageBytesPtr, int byteCount)
+size_t HttpMessage::parseFirstLine(const char* messageBytesPtr, size_t byteCount)
 {
    mHeaderCacheClean = FALSE;
    mFirstHeaderLine = OsUtil::NULL_OS_STRING;
-   int bytesConsumed = 0;
+   size_t bytesConsumed = 0;
 
     // Read the first header line
-   int nextLineOffset;
-        int headerLineLength =
-      NameValueTokenizer::findNextLineTerminator(messageBytesPtr,
-                                                                                        byteCount,
-                                                                                        &nextLineOffset);
+   ssize_t nextLineOffset;
+        ssize_t headerLineLength =
+                   NameValueTokenizer::findNextLineTerminator(messageBytesPtr,
+                                                              byteCount,
+                                                              &nextLineOffset);
 
         if(headerLineLength < 0)
         {
                 headerLineLength = byteCount;
         }
-
+        
         if(headerLineLength > 0)
         {
                 mFirstHeaderLine.append(messageBytesPtr, headerLineLength);
@@ -296,7 +297,7 @@ int HttpMessage::parseFirstLine(const char* messageBytesPtr, int byteCount)
 }
 
 // Parse message out of messageBytes
-void HttpMessage::parseMessage(const char* messageBytes, int byteCount)
+void HttpMessage::parseMessage(const char* messageBytes, ssize_t byteCount)
 {
    mHeaderCacheClean = FALSE;
 
@@ -317,7 +318,7 @@ void HttpMessage::parseMessage(const char* messageBytes, int byteCount)
 
    if(byteCount > 0)
    {
-      int bytesConsumed = 0;
+      ssize_t bytesConsumed = 0;
       const char* messageBytesPtr = messageBytes;
 
       // Read the first header line
@@ -344,7 +345,7 @@ void HttpMessage::parseMessage(const char* messageBytes, int byteCount)
    }
 }
 
-void HttpMessage::parseBody(const char* messageBytesPtr, int bodyLength)
+void HttpMessage::parseBody(const char* messageBytesPtr, size_t bodyLength)
 {
     if (bodyLength <= 1 &&
         messageBytesPtr &&
@@ -374,11 +375,11 @@ void HttpMessage::parseBody(const char* messageBytesPtr, int bodyLength)
                                 contentEncodingString);
 }
 
-int HttpMessage::findHeaderEnd(const char* headerBytes, int messageLength)
+size_t HttpMessage::findHeaderEnd(const char* headerBytes, size_t messageLength)
 {
-    int lineLength = 0;
-    int nextLineIndex = 0;
-    int bytesConsumed = 0;
+    ssize_t lineLength = 0;
+    ssize_t nextLineIndex = 0;
+    size_t bytesConsumed = 0;
     while(messageLength - bytesConsumed > 0 &&
           (lineLength =
             NameValueTokenizer::findNextLineTerminator(&headerBytes[bytesConsumed],
@@ -418,12 +419,12 @@ int HttpMessage::findHeaderEnd(const char* headerBytes, int messageLength)
     // If we did not find a terminator, there is no explicit end to the
     // headers
     else
-        bytesConsumed = -1;
+        bytesConsumed = HTTP_NOT_FOUND;
 
     return(bytesConsumed);
 }
 
-int HttpMessage::parseHeaders(const char* headerBytes, int messageLength,
+size_t HttpMessage::parseHeaders(const char* headerBytes, size_t messageLength,
                               UtlDList& headerNameValues)
 {
         UtlString name;
@@ -608,10 +609,10 @@ OsStatus HttpMessage::get/*[5]*/(Url& httpUrl,
       if (iRead > 0)
       {
          mHeaderCacheClean = FALSE;
-         int iHeaderLength = parseFirstLine(buffer.data(), iRead) ;
+         size_t iHeaderLength = parseFirstLine(buffer.data(), iRead) ;
          parseHeaders(&buffer.data()[iHeaderLength], iRead-iHeaderLength, mNameValues) ;
 
-         int iContentLength = getContentLength() ;
+         size_t iContentLength = getContentLength() ;
          if (iContentLength > 0)
             iRead = readBody(httpSocket, iContentLength, pCallbackProc, pOptionalData) ;
       }
@@ -1020,10 +1021,10 @@ int HttpMessage::readHeader(OsSocket* inSocket, UtlString& buffer)
 {
    char      ch ;
    int       iBytesRead = 0 ;
-   int       iRead;
+   ssize_t   iRead;
    OsSocket::IpProtocolSocketType socketType = inSocket->getIpProtocol();
    UtlString  remoteHost;
-        int       remotePort;
+   int        remotePort;
    UtlBoolean bLastWasCr = FALSE;
    UtlBoolean bIsCrLfFormat = FALSE ;
 
@@ -1080,7 +1081,7 @@ int HttpMessage::readBody(OsSocket* inSocket, int iLength, GetDataCallbackProc p
 {
    char         buffer[4096] ;
    int          iBytesRead = 0 ;
-   unsigned int iRead;
+   ssize_t      iRead;
    OsSocket::IpProtocolSocketType socketType = inSocket->getIpProtocol();
    UtlString    remoteHost;
    int          remotePort;
@@ -1093,7 +1094,7 @@ int HttpMessage::readBody(OsSocket* inSocket, int iLength, GetDataCallbackProc p
       while (inSocket->isOk() && inSocket->isReadyToRead(HTTP_READ_TIMEOUT_MSECS) &&
             (iBytesRead < iLength))
       {
-         int iMaxRead = MIN(sizeof(buffer), (unsigned int) (iLength - iBytesRead)) ;
+         size_t iMaxRead = MIN(sizeof(buffer), (unsigned int) (iLength - iBytesRead)) ;
          iRead = inSocket->read(buffer, iMaxRead, &remoteHost, &remotePort);
          if (iRead > 0)
          {
@@ -1119,7 +1120,7 @@ int HttpMessage::readBody(OsSocket* inSocket, int iLength, GetDataCallbackProc p
 
 
 
-int HttpMessage::read(OsSocket* inSocket, int bufferSize,
+int HttpMessage::read(OsSocket* inSocket, size_t bufferSize,
                       UtlString* externalBuffer,
                       int maxContentLength)
 {
@@ -1152,11 +1153,11 @@ int HttpMessage::read(OsSocket* inSocket, int bufferSize,
    UtlString* allBytes = externalBuffer ? externalBuffer : &localBuffer;
 #  ifdef MSG_DEBUG
    OsSysLog::add(FAC_HTTP, PRI_DEBUG,
-                 "HttpMessage::read %d initial residual bytes: '%s'",
+                 "HttpMessage::read %zu initial residual bytes: '%s'",
                  allBytes->length(), allBytes->data());
 #  endif
 
-   int residualBytes = allBytes->length(); // passed into this read already in the buffer
+   size_t residualBytes = allBytes->length(); // passed into this read already in the buffer
    int returnMessageLength = 0;
 
    int saveCountForKeepAlive = 0;
@@ -1164,7 +1165,7 @@ int HttpMessage::read(OsSocket* inSocket, int bufferSize,
    // Attempt to minimize the number of times that the string gets
    // re-allocated and copied by setting the initial capacity to the
    // requested approximate message size, bufferSize.
-   int byteCapacity = allBytes->capacity(bufferSize);
+   size_t byteCapacity = allBytes->capacity(bufferSize);
    if (byteCapacity >= bufferSize)
    {
       // Reallocating allBytes was successful.
@@ -1185,11 +1186,11 @@ int HttpMessage::read(OsSocket* inSocket, int bufferSize,
 
       // Initialize control variables.
       char buffer[bufferSize];  // fixed buffer to read into from the socket
-      int bytesTotal = 0;       // total bytes accumulated
+      ssize_t bytesTotal = 0;       // total bytes accumulated
 
       // The byte offset of the end of the header.  -1 means the end
       // has not yet been seen.
-      int headerEnd = -1;
+      ssize_t headerEnd = HTTP_NOT_FOUND;
 
       // The length of the content.  -1 means the end is not yet known.
       int contentLength = -1;
@@ -1203,7 +1204,7 @@ int HttpMessage::read(OsSocket* inSocket, int bufferSize,
       // Read the HTTP message.
       //
       bool finished = false;
-      int bytesRead = 0;
+      size_t bytesRead = 0;
       while (   ! finished
              && (   residualBytes > 0 // there are bytes already in the buffer - no need to read
                  || (   inSocket->isOk()
@@ -1221,8 +1222,8 @@ int HttpMessage::read(OsSocket* inSocket, int bufferSize,
          {
 #           ifdef MSG_DEBUG
             OsSysLog::add(FAC_HTTP, PRI_DEBUG,
-                          "HttpMessage::read %d residual bytes: '%.*s'",
-                          residualBytes, residualBytes, buffer);
+                          "HttpMessage::read %zu residual bytes: '%.*s'",
+                          residualBytes, (int)residualBytes, buffer);
 #           endif
 
             // set the variables as though this had been read from the socket.
@@ -1241,8 +1242,8 @@ int HttpMessage::read(OsSocket* inSocket, int bufferSize,
          {
 #           ifdef MSG_DEBUG
             OsSysLog::add(FAC_HTTP, PRI_DEBUG,
-                          "HttpMessage::read %d bytes read: '%.*s'",
-                          bytesRead, bytesRead, buffer);
+                          "HttpMessage::read %zu bytes read: '%.*s'",
+                          bytesRead, (int)bytesRead, buffer);
 #           endif
 
             allBytes->append(buffer, bytesRead); // move from temporary buffer into UtlString
@@ -1267,7 +1268,7 @@ int HttpMessage::read(OsSocket* inSocket, int bufferSize,
                // UDP and Multicast UDP you can only do one read
                // The fragmentation is handled at the socket layer
                // If we did not get it all we are not going to get any more
-               if (headerEnd <= 0 && OsSocket::isFramed(socketType))
+               if (headerEnd == HTTP_NOT_FOUND && OsSocket::isFramed(socketType))
                {
                   headerEnd = bytesTotal;
                }
@@ -1276,7 +1277,7 @@ int HttpMessage::read(OsSocket* inSocket, int bufferSize,
                if (headerEnd > 0)
                {
                   // Parse the first line
-                  int endOfFirstLine = parseFirstLine(allBytes->data(),
+                  size_t endOfFirstLine = parseFirstLine(allBytes->data(),
                                                       headerEnd);
                   // Parse all of the headers
                   parseHeaders(&(allBytes->data()[endOfFirstLine]),
@@ -1359,7 +1360,7 @@ int HttpMessage::read(OsSocket* inSocket, int bufferSize,
                {
                   if (contentLengthSet)
                   {
-                     if (contentLength + headerEnd <= ((int) allBytes->length()))
+                     if (contentLength + headerEnd <= (int)allBytes->length())
                      {
                         finished = true;
                      }
@@ -1393,7 +1394,7 @@ int HttpMessage::read(OsSocket* inSocket, int bufferSize,
                   // seen the end of the headers, on an unframed socket
                   if (contentLengthSet)
                   {
-                     if (contentLength + headerEnd <= ((int) allBytes->length()))
+                     if (contentLength + headerEnd <= (int)allBytes->length())
                      {
                         // we got all of the body, so we're done
                         finished = true;
@@ -1505,8 +1506,8 @@ int HttpMessage::read(OsSocket* inSocket, int bufferSize,
       //
 
       // Calculate the end of the message & body length
-      unsigned int bodyLength = 0;
-      unsigned int messageLength = 0;
+      size_t bodyLength = 0;
+      size_t messageLength = 0;
       if (   headerEnd > 0
           && (   !contentLengthSet
               || OsSocket::isFramed(socketType)
@@ -1528,7 +1529,7 @@ int HttpMessage::read(OsSocket* inSocket, int bufferSize,
             messageLength = headerEnd + contentLength;
 
             OsSysLog::add(FAC_HTTP, PRI_DEBUG,
-                          "HttpMessage::read full msg rcvd bytes %d: header: %d content: %d",
+                          "HttpMessage::read full msg rcvd bytes %zu: header: %zu content: %d",
                           bytesTotal, headerEnd, contentLength);
 
             // There are residual bytes for the next message
@@ -1564,7 +1565,7 @@ int HttpMessage::read(OsSocket* inSocket, int bufferSize,
             // (in multiple reads if necessary).
             OsSysLog::add(FAC_HTTP, PRI_WARNING,
                           "HttpMessage::read Not all content data "
-                          "successfully read: received %d body bytes but "
+                          "successfully read: received %zu body bytes but "
                           "Content-Length was %d",
                           bodyLength, contentLength);
 #           endif /* MSG_DEBUG */
@@ -1580,8 +1581,8 @@ int HttpMessage::read(OsSocket* inSocket, int bufferSize,
          // fetched with multiple reads if necessary.
          OsSysLog::add(FAC_HTTP, PRI_ERR,
                        "HttpMessage::read End of headers not found.  "
-                       "%d bytes read.  Content:\n>>>%.*s<<<\n",
-                       allBytes->length(), allBytes->length(),
+                       "%zu bytes read.  Content:\n>>>%.*s<<<\n",
+                       allBytes->length(), (int)allBytes->length(),
                        allBytes->data());
 #        endif /* MSG_DEBUG */
       }
@@ -1601,21 +1602,21 @@ int HttpMessage::read(OsSocket* inSocket, int bufferSize,
       // approximate size (allBytes->capacity(bufferSize)) failed, so
       // return an error.
       OsSysLog::add(FAC_HTTP, PRI_ERR,
-                    "HttpMessage::read allBytes->capacity(%d) failed, "
-                    "returning %d",
+                    "HttpMessage::read allBytes->capacity(%zu) failed, "
+                    "returning %zu",
                     bufferSize, byteCapacity);
       returnMessageLength = 0;
    }
 
 #  ifdef MSG_DEBUG
    UtlString b;
-   int l;
+   size_t l;
    getBytes(&b, &l);
    OsSysLog::add(FAC_HTTP, PRI_DEBUG,
                  "HttpMessage::read returning %d '%s'",
                  returnMessageLength, b.data());
    OsSysLog::add(FAC_HTTP, PRI_DEBUG,
-                 "HttpMessage::read %d final residual bytes: '%s'",
+                 "HttpMessage::read %zu final residual bytes: '%s'",
                  allBytes->length(), allBytes->data());
 #  endif
 
@@ -1625,8 +1626,8 @@ int HttpMessage::read(OsSocket* inSocket, int bufferSize,
 UtlBoolean HttpMessage::write(OsSocket* outSocket) const
 {
         UtlString buffer;
-        int bufferLen;
-        int bytesWritten;
+        size_t bufferLen;
+        size_t bytesWritten;
 
         getBytes(&buffer, &bufferLen);
         bytesWritten = outSocket->write(buffer.data(), bufferLen);
@@ -1823,11 +1824,11 @@ void HttpMessage::escapeChars(UtlString& unEscapedText, UtlString& tobeEscapedCh
 
 void HttpMessage::cannonizeToken(UtlString& token)
 {
-    int len = token.length();
+    size_t len = token.length();
     UtlBoolean capNextChar = TRUE;
     const char* tokenPtr = token.data();
     char thisChar;
-    for(int capCharIndex = 0; capCharIndex < len; capCharIndex++)
+    for(size_t capCharIndex = 0; capCharIndex < len; capCharIndex++)
     {
         thisChar = tokenPtr[capCharIndex];
         if(capNextChar)
@@ -2033,7 +2034,7 @@ int HttpMessage::getCountHeaderFields(const char* name) const
 
 NameValuePair* HttpMessage::getHeaderField(int index, const char* name) const
 {
-        UtlDListIterator iterator((UtlDList&)mNameValues);
+   		UtlDListIterator iterator((UtlDList&)mNameValues);
         //NameValuePair* headerFieldName = NULL;
         NameValuePair* headerField = NULL;
         int fieldIndex = 0;
@@ -2097,7 +2098,7 @@ NameValuePair* HttpMessage::getHeaderField(int index, const char* name) const
 
 const char* HttpMessage::getHeaderValue(int index, const char* name) const
 {
-        const char* value = NULL;
+   		const char* value = NULL;
         NameValuePair* headerField = getHeaderField(index, name);
 
         if(headerField)
@@ -2286,14 +2287,14 @@ UtlBoolean HttpMessage::getDateField(long* epochDate) const
     const char* dateField = getHeaderValue(0, HTTP_DATE_FIELD);
     if(dateField)
     {
-        *epochDate = OsDateTime::convertHttpDateToEpoch(dateField);
+        *epochDate = (long)OsDateTime::convertHttpDateToEpoch(dateField);
         // returns zero if the format is not understood
         if(! *epochDate)
         {
 #ifdef TEST_PRINT
             osPrintf("WARNING: unsupported date format\n");
             osPrintf("Date field: \"%s\"\n", dateField);
-            osPrintf("epoch date: %d\n", *epochDate);
+            osPrintf("epoch date: %ld\n", *epochDate);
 #endif
         }
     }
@@ -2332,7 +2333,7 @@ void HttpMessage::setLocationField(const char* locationField)
     setHeaderValue(HTTP_LOCATION_FIELD, locationField);
 }
 
-void HttpMessage::getBytes(UtlString* bufferString, int* length, bool includeBody) const
+void HttpMessage::getBytes(UtlString* bufferString, size_t* length, bool includeBody) const
 {
     *length = 0;
     UtlString name;
@@ -2345,14 +2346,14 @@ void HttpMessage::getBytes(UtlString* bufferString, int* length, bool includeBod
     UtlDListIterator iterator((UtlDList&)mNameValues);
     NameValuePair* headerField;
     UtlBoolean foundContentLengthHeader = FALSE;
-    int bodyLen = 0;
+    size_t bodyLen = 0;
     UtlString bodyBytes;
     if(includeBody && body)
     {
        body->getBytes(&bodyBytes, &bodyLen);
     }
 
-    int oldLen = 0 ;
+    size_t oldLen = 0 ;
     if(mHeaderCacheClean &&
         bodyLen == (oldLen = getContentLength()))
     {
@@ -2394,11 +2395,11 @@ void HttpMessage::getBytes(UtlString* bufferString, int* length, bool includeBod
         if(name.compareTo(HTTP_CONTENT_LENGTH_FIELD, UtlString::ignoreCase) == 0)
         {
             foundContentLengthHeader = TRUE;
-            int fieldBodyLengthValue = atoi(value ? value : "");
+            size_t fieldBodyLengthValue = atoi(value ? value : "");
             if(fieldBodyLengthValue != bodyLen)
             {
                 char bodyLengthString[40];
-                sprintf(bodyLengthString, "%d", bodyLen);
+                sprintf(bodyLengthString, "%zu", bodyLen);
                 OsSysLog::add(FAC_HTTP, PRI_WARNING, "HttpMessage::getBytes content-length: %s wrong setting to: %s",
                     value ? value : "", bodyLengthString);
                 headerField->setValue(bodyLengthString);
@@ -2423,8 +2424,8 @@ void HttpMessage::getBytes(UtlString* bufferString, int* length, bool includeBod
                 cannonizeToken(ContentLen);
                 bufferString->append(ContentLen);
                 bufferString->append(HTTP_NAME_VALUE_DELIMITER);
-        char bodyLengthString[40];
-        sprintf(bodyLengthString, " %d", bodyLen);
+                char bodyLengthString[40];
+                sprintf(bodyLengthString, " %zu", bodyLen);
                 bufferString->append(bodyLengthString);
                 bufferString->append(END_OF_LINE_DELIMITER);
         }
@@ -2443,7 +2444,7 @@ void HttpMessage::getBytes(UtlString* bufferString, int* length, bool includeBod
 char* HttpMessage::getBytes() const
 {
    UtlString buffer;
-   int length;
+   size_t length;
 
    getBytes(&buffer, &length);
    char* ret = (char*) malloc(length + 1);
@@ -2457,20 +2458,20 @@ char* HttpMessage::getBytes() const
 void HttpMessage::debugPrint() const
 {
    UtlString buffer;
-   int length;
+   size_t length;
 
    getBytes(&buffer, &length);
    printf("%s", buffer.data());
 }
 
-void HttpMessage::getFirstHeaderLinePart(int partIndex, UtlString* part, char separator) const
+void HttpMessage::getFirstHeaderLinePart(size_t partIndex, UtlString* part, char separator) const
 {
         const char* partStart = mFirstHeaderLine.data();
     // Tolerate separators in the begining
     while(*partStart == separator) partStart++;
 
         const char* partEnd;
-        int index = 0;
+        size_t index = 0;
         part->remove(0);
 
         // Find the begining
@@ -2496,7 +2497,7 @@ void HttpMessage::getFirstHeaderLinePart(int partIndex, UtlString* part, char se
                                 partEnd = partStart + strlen(partStart);
                         }
 
-                        int len = partEnd - partStart;
+                        size_t len = partEnd - partStart;
                         part->append(partStart, len);
                         //part->append("",1);
                 }
@@ -3079,8 +3080,8 @@ void HttpMessage::setDigestAuthorizationData(const char* user,
         authField.append(", ");
         authField.append(HTTP_AUTHENTICATION_QOP_TOKEN);
         authField.append("=");
-        int qopIntIndex = qopString.index(HTTP_QOP_AUTH_INTEGRITY, 0, UtlString::ignoreCase);
-        int qopIndex = qopString.index(HTTP_QOP_AUTH, 0, UtlString::ignoreCase);
+        ssize_t qopIntIndex = qopString.index(HTTP_QOP_AUTH_INTEGRITY, 0, UtlString::ignoreCase);
+        ssize_t qopIndex = qopString.index(HTTP_QOP_AUTH, 0, UtlString::ignoreCase);
         if(qopIntIndex >= 0)
         {
             authField.append(HTTP_QOP_AUTH_INTEGRITY);
@@ -3190,7 +3191,7 @@ void HttpMessage::buildMd5Digest(const char* userPasswordDigest,
     if(uri) a2Buffer.append(uri);
     UtlString qopString(qop ? qop : "");
     UtlBoolean qopInt = FALSE;
-    int qopIndex = qopString.index(HTTP_QOP_AUTH_INTEGRITY, 0, UtlString::ignoreCase);
+    ssize_t qopIndex = qopString.index(HTTP_QOP_AUTH_INTEGRITY, 0, UtlString::ignoreCase);
     if(qopIndex >= 0)
     {
         qopInt = TRUE;
@@ -3496,16 +3497,16 @@ UtlBoolean HttpMessage::getBasicAuthorizationData(UtlString* userId,
             decodedCookie);
 #endif
         // Parse out the userId and password
-        int userPasswordSeparatorIndex = (int) strchr(decodedCookie, ':');
+        char* userPasswordSeparatorIndex = strchr(decodedCookie, ':');
         if(userPasswordSeparatorIndex)
         {
-            userPasswordSeparatorIndex -= (int) decodedCookie;
+            size_t userPasswordSeparatorOffset = userPasswordSeparatorIndex - decodedCookie;
 
-            userId->append(decodedCookie, userPasswordSeparatorIndex);
-            password->append(&decodedCookie[userPasswordSeparatorIndex + 1],
-                            decodedLength - (userPasswordSeparatorIndex + 1));
+            userId->append(decodedCookie, userPasswordSeparatorOffset);
+            password->append(&decodedCookie[userPasswordSeparatorOffset + 1],
+                            decodedLength - (userPasswordSeparatorOffset + 1));
 #ifdef TEST
-            osPrintf("HttpMessage::getBasicAuthorizationData user/password separator index: %d\n",
+            osPrintf("HttpMessage::getBasicAuthorizationData user/password separator index: %p\n",
                 userPasswordSeparatorIndex);
             osPrintf("HttpMessage::getBasicAuthorizationData user: \"%s\" password: \"%s\"\n",
                 userId->data(), password->data());

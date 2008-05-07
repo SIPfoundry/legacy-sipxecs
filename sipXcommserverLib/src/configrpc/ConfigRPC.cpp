@@ -530,7 +530,7 @@ protected:
                                  UtlString faultMsg;
                                  faultMsg.append("parameter number ");
                                  char paramIndex[10];
-                                 sprintf(paramIndex,"%d", paramsSet + 1);
+                                 sprintf(paramIndex,"%zu", paramsSet + 1);
                                  faultMsg.append(paramIndex);
                                  faultMsg.append(" name is not a string");
                                  response.setFault(ConfigRPC::invalidType, faultMsg.data());

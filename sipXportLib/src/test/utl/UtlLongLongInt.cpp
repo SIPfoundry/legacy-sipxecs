@@ -56,7 +56,7 @@ private:
     static const Int64 llint_Negative ;
     //LLONG_MAX
     //LLONG_MIN
-    static const int INDEX_NOT_FOUND  ; 
+    static const ssize_t INDEX_NOT_FOUND  ; 
     // An indication that the test should be ignored. 
     static const int IGNORE_TEST ; 
     
@@ -380,6 +380,6 @@ const UtlLongLongIntTests::BasicIntllVerifier \
       } ; 
 
 const int UtlLongLongIntTests::commonTestSetLength = 5 ; 
-const int UtlLongLongIntTests::INDEX_NOT_FOUND = -1 ; 
+const ssize_t UtlLongLongIntTests::INDEX_NOT_FOUND = -1 ; 
 const int UtlLongLongIntTests::IGNORE_TEST=-1 ; 
 CPPUNIT_TEST_SUITE_REGISTRATION(UtlLongLongIntTests);

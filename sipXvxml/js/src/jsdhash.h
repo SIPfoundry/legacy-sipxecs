@@ -1,11 +1,11 @@
 /* -*- Mode: C; tab-width: 8; indent-tabs-mode: nil; c-basic-offset: 4 -*- */
 /* ***** BEGIN LICENSE BLOCK *****
- * Version: NPL 1.1/GPL 2.0/LGPL 2.1
+ * Version: MPL 1.1/GPL 2.0/LGPL 2.1
  *
- * The contents of this file are subject to the Netscape Public License
- * Version 1.1 (the "License"); you may not use this file except in
- * compliance with the License. You may obtain a copy of the License at
- * http://www.mozilla.org/NPL/
+ * The contents of this file are subject to the Mozilla Public License Version
+ * 1.1 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ * http://www.mozilla.org/MPL/
  *
  * Software distributed under the License is distributed on an "AS IS" basis,
  * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
@@ -14,7 +14,7 @@
  *
  * The Original Code is Mozilla JavaScript code.
  *
- * The Initial Developer of the Original Code is 
+ * The Initial Developer of the Original Code is
  * Netscape Communications Corporation.
  * Portions created by the Initial Developer are Copyright (C) 1999-2001
  * the Initial Developer. All Rights Reserved.
@@ -23,16 +23,16 @@
  *   Brendan Eich <brendan@mozilla.org> (Original Author)
  *
  * Alternatively, the contents of this file may be used under the terms of
- * either the GNU General Public License Version 2 or later (the "GPL"), or 
- * the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
+ * either of the GNU General Public License Version 2 or later (the "GPL"),
+ * or the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
  * in which case the provisions of the GPL or the LGPL are applicable instead
  * of those above. If you wish to allow use of your version of this file only
  * under the terms of either the GPL or the LGPL, and not to allow others to
- * use your version of this file under the terms of the NPL, indicate your
+ * use your version of this file under the terms of the MPL, indicate your
  * decision by deleting the provisions above and replace them with the notice
  * and other provisions required by the GPL or the LGPL. If you do not delete
  * the provisions above, a recipient may use your version of this file under
- * the terms of any one of the NPL, the GPL or the LGPL.
+ * the terms of any one of the MPL, the GPL or the LGPL.
  *
  * ***** END LICENSE BLOCK ***** */
 
@@ -45,13 +45,21 @@
 
 JS_BEGIN_EXTERN_C
 
-#ifdef DEBUG_brendan
+#if defined(__GNUC__) && defined(__i386__) && (__GNUC__ >= 3) && !defined(XP_OS2)
+#define JS_DHASH_FASTCALL __attribute__ ((regparm (3),stdcall))
+#elif defined(XP_WIN)
+#define JS_DHASH_FASTCALL __fastcall
+#else
+#define JS_DHASH_FASTCALL
+#endif
+
+#ifdef DEBUG_XXXbrendan
 #define JS_DHASHMETER 1
 #endif
 
-/* Maximum table size, do not equal or exceed (see min&maxAlphaFrac, below). */
-#undef JS_DHASH_MAX_SIZE
-#define JS_DHASH_MAX_SIZE       JS_BIT(24)
+/* Table size limit, do not equal or exceed (see min&maxAlphaFrac, below). */
+#undef JS_DHASH_SIZE_LIMIT
+#define JS_DHASH_SIZE_LIMIT     JS_BIT(24)
 
 /* Minimum table size, or gross entry count (net is at most .75 loaded). */
 #ifndef JS_DHASH_MIN_SIZE
@@ -87,7 +95,8 @@ typedef struct JSDHashTableOps  JSDHashTableOps;
  * Each hash table sub-type should nest the JSDHashEntryHdr structure at the
  * front of its particular entry type.  The keyHash member contains the result
  * of multiplying the hash code returned from the hashKey callback (see below)
- * by JS_DHASH_GOLDEN_RATIO.  Its value is table size invariant.  keyHash is
+ * by JS_DHASH_GOLDEN_RATIO, then constraining the result to avoid the magic 0
+ * and 1 values.  The stored keyHash value is table size invariant, and it is
  * maintained automatically by JS_DHashTableOperate -- users should never set
  * it, and its only uses should be via the entry macros below.
  *
@@ -95,6 +104,11 @@ typedef struct JSDHashTableOps  JSDHashTableOps;
  * removed.  An entry may be either busy or free; if busy, it may be live or
  * removed.  Consumers of this API should not access members of entries that
  * are not live.
+ *
+ * However, use JS_DHASH_ENTRY_IS_BUSY for faster liveness testing of entries
+ * returned by JS_DHashTableOperate, as JS_DHashTableOperate never returns a
+ * non-live, busy (i.e., removed) entry pointer to its caller.  See below for
+ * more details on JS_DHashTableOperate's calling rules.
  */
 struct JSDHashEntryHdr {
     JSDHashNumber       keyHash;        /* every entry must begin like this */
@@ -161,8 +175,9 @@ struct JSDHashEntryHdr {
  * and k=2, we want alpha >= .4.  For k=4, esize could be 6, and alpha >= .5
  * would still obtain.  See the JS_DHASH_MIN_ALPHA macro further below.
  *
- * The current implementation uses a constant .25 as alpha's lower bound when
- * deciding to shrink the table (while respecting JS_DHASH_MIN_SIZE).
+ * The current implementation uses a configurable lower bound on alpha, which
+ * defaults to .25, when deciding to shrink the table (while still respecting
+ * JS_DHASH_MIN_SIZE).
  *
  * Note a qualitative difference between chaining and double hashing: under
  * chaining, entry addresses are stable across table shrinks and grows.  With
@@ -176,7 +191,7 @@ struct JSDHashEntryHdr {
  * required, double hashing wins.
  */
 struct JSDHashTable {
-    JSDHashTableOps     *ops;           /* virtual operations, see below */
+    const JSDHashTableOps *ops;         /* virtual operations, see below */
     void                *data;          /* ops- and instance-specific data */
     int16               hashShift;      /* multiplicative hash shift */
     uint8               maxAlphaFrac;   /* 8-bit fixed point max alpha */
@@ -234,7 +249,8 @@ typedef void
  * moved via moveEntry callbacks.
  */
 typedef const void *
-(* JS_DLL_CALLBACK JSDHashGetKey)    (JSDHashTable *table, JSDHashEntryHdr *entry);
+(* JS_DLL_CALLBACK JSDHashGetKey)    (JSDHashTable *table,
+                                      JSDHashEntryHdr *entry);
 
 /*
  * Compute the hash code for a given key to be looked up, added, or removed
@@ -287,9 +303,9 @@ typedef void
  * set yet, to avoid claiming the last free entry in a severely overloaded
  * table.
  */
-typedef void
+typedef JSBool
 (* JS_DLL_CALLBACK JSDHashInitEntry)(JSDHashTable *table,
-                                     const JSDHashEntryHdr *entry,
+                                     JSDHashEntryHdr *entry,
                                      const void *key);
 
 /*
@@ -301,6 +317,7 @@ typedef void
  *  allocTable          Allocate raw bytes with malloc, no ctors run.
  *  freeTable           Free raw bytes with free, no dtors run.
  *  initEntry           Call placement new using default key-based ctor.
+ *                      Return JS_TRUE on success, JS_FALSE on error.
  *  moveEntry           Call placement new using copy ctor, run dtor on old
  *                      entry storage.
  *  clearEntry          Run dtor on entry.
@@ -315,6 +332,8 @@ typedef void
  * newly created by the JS_DHASH_ADD call that just succeeded.  If placement
  * new or similar initialization is required, define an initEntry hook.  Of
  * course, the clearEntry hook must zero or null appropriately.
+ *
+ * XXX assumes 0 is null for pointer types.
  */
 struct JSDHashTableOps {
     /* Mandatory hooks.  All implementations must provide these. */
@@ -360,6 +379,11 @@ JS_DHashMatchEntryStub(JSDHashTable *table,
                        const JSDHashEntryHdr *entry,
                        const void *key);
 
+extern JS_PUBLIC_API(JSBool)
+JS_DHashMatchStringKey(JSDHashTable *table,
+                       const JSDHashEntryHdr *entry,
+                       const void *key);
+
 extern JS_PUBLIC_API(void)
 JS_DHashMoveEntryStub(JSDHashTable *table,
                       const JSDHashEntryHdr *from,
@@ -369,6 +393,9 @@ extern JS_PUBLIC_API(void)
 JS_DHashClearEntryStub(JSDHashTable *table, JSDHashEntryHdr *entry);
 
 extern JS_PUBLIC_API(void)
+JS_DHashFreeStringKey(JSDHashTable *table, JSDHashEntryHdr *entry);
+
+extern JS_PUBLIC_API(void)
 JS_DHashFinalizeStub(JSDHashTable *table);
 
 /*
@@ -376,7 +403,7 @@ JS_DHashFinalizeStub(JSDHashTable *table);
  * if your entries move via memcpy and clear via memset(0), you can use these
  * stub operations.
  */
-extern JS_PUBLIC_API(JSDHashTableOps *)
+extern JS_PUBLIC_API(const JSDHashTableOps *)
 JS_DHashGetStubOps(void);
 
 /*
@@ -386,7 +413,7 @@ JS_DHashGetStubOps(void);
  * the ops->allocTable callback.
  */
 extern JS_PUBLIC_API(JSDHashTable *)
-JS_NewDHashTable(JSDHashTableOps *ops, void *data, uint32 entrySize,
+JS_NewDHashTable(const JSDHashTableOps *ops, void *data, uint32 entrySize,
                  uint32 capacity);
 
 /*
@@ -403,7 +430,7 @@ JS_DHashTableDestroy(JSDHashTable *table);
  * only to avoid inevitable early growth from JS_DHASH_MIN_SIZE).
  */
 extern JS_PUBLIC_API(JSBool)
-JS_DHashTableInit(JSDHashTable *table, JSDHashTableOps *ops, void *data,
+JS_DHashTableInit(JSDHashTable *table, const JSDHashTableOps *ops, void *data,
                   uint32 entrySize, uint32 capacity);
 
 /*
@@ -411,10 +438,10 @@ JS_DHashTableInit(JSDHashTable *table, JSDHashTableOps *ops, void *data,
  * maxAlpha must be in [0.5, 0.9375] for the default JS_DHASH_MIN_SIZE; or if
  * MinSize=JS_DHASH_MIN_SIZE <= 256, in [0.5, (float)(MinSize-1)/MinSize]; or
  * else in [0.5, 255.0/256].  minAlpha must be in [0, maxAlpha / 2), so that
- * we don't shrink on next remove after growing a table upon adding an entry
- * that brings entryCount past maxAlpha * tableSize.
+ * we don't shrink on the very next remove after growing a table upon adding
+ * an entry that brings entryCount past maxAlpha * tableSize.
  */
-JS_PUBLIC_API(void)
+extern JS_PUBLIC_API(void)
 JS_DHashTableSetAlphaBounds(JSDHashTable *table,
                             float maxAlpha,
                             float minAlpha);
@@ -463,12 +490,15 @@ typedef enum JSDHashOperator {
  *
  *  entry = JS_DHashTableOperate(table, key, JS_DHASH_ADD);
  *
- * If entry is null upon return, the table is severely overloaded, and new
- * memory can't be allocated for new entry storage via table->ops->allocTable.
+ * If entry is null upon return, then either the table is severely overloaded,
+ * and memory can't be allocated for entry storage via table->ops->allocTable;
+ * Or if table->ops->initEntry is non-null, the table->ops->initEntry op may
+ * have returned false.
+ *
  * Otherwise, entry->keyHash has been set so that JS_DHASH_ENTRY_IS_BUSY(entry)
  * is true, and it is up to the caller to initialize the key and value parts
  * of the entry sub-type, if they have not been set already (i.e. if entry was
- * not already in the table).
+ * not already in the table, and if the optional initEntry hook was not used).
  *
  * To remove an entry identified by key from table, call:
  *
@@ -478,7 +508,7 @@ typedef enum JSDHashOperator {
  * the entry is marked so that JS_DHASH_ENTRY_IS_FREE(entry).  This operation
  * returns null unconditionally; you should ignore its return value.
  */
-extern JS_PUBLIC_API(JSDHashEntryHdr *)
+extern JS_PUBLIC_API(JSDHashEntryHdr *) JS_DHASH_FASTCALL
 JS_DHashTableOperate(JSDHashTable *table, const void *key, JSDHashOperator op);
 
 /*
@@ -512,8 +542,25 @@ JS_DHashTableRawRemove(JSDHashTable *table, JSDHashEntryHdr *entry);
  * that were enumerated so far.  Return the total number of live entries when
  * enumeration completes normally.
  *
- * If etor calls JS_DHashTableOperate on table, it must return JS_DHASH_STOP;
- * otherwise undefined behavior results.
+ * If etor calls JS_DHashTableOperate on table with op != JS_DHASH_LOOKUP, it
+ * must return JS_DHASH_STOP; otherwise undefined behavior results.
+ *
+ * If any enumerator returns JS_DHASH_REMOVE, table->entryStore may be shrunk
+ * or compressed after enumeration, but before JS_DHashTableEnumerate returns.
+ * Such an enumerator therefore can't safely set aside entry pointers, but an
+ * enumerator that never returns JS_DHASH_REMOVE can set pointers to entries
+ * aside, e.g., to avoid copying live entries into an array of the entry type.
+ * Copying entry pointers is cheaper, and safe so long as the caller of such a
+ * "stable" Enumerate doesn't use the set-aside pointers after any call either
+ * to PL_DHashTableOperate, or to an "unstable" form of Enumerate, which might
+ * grow or shrink entryStore.
+ *
+ * If your enumerator wants to remove certain entries, but set aside pointers
+ * to other entries that it retains, it can use JS_DHashTableRawRemove on the
+ * entries to be removed, returning JS_DHASH_NEXT to skip them.  Likewise, if
+ * you want to remove entries, but for some reason you do not want entryStore
+ * to be shrunk or compressed, you can call JS_DHashTableRawRemove safely on
+ * the entry being enumerated, rather than returning JS_DHASH_REMOVE.
  */
 typedef JSDHashOperator
 (* JS_DLL_CALLBACK JSDHashEnumerator)(JSDHashTable *table, JSDHashEntryHdr *hdr,

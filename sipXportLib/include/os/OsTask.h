@@ -210,7 +210,7 @@ public:
     */
 
    /// Return an Id of the currently executing task.
-   static OsStatus getCurrentTaskId(int &rid);
+   static OsStatus getCurrentTaskId(pthread_t &rid);
    /**<         
     * This Id is unique within the current process, but not necessarily
     * over the entire host.
@@ -225,7 +225,7 @@ public:
     */
 
    /// Return a pointer to the OsTask object corresponding to taskId.
-   static OsTaskBase* getTaskById(const int taskId);
+   static OsTaskBase* getTaskById(const pthread_t taskId);
    /**<         
     * Return NULL is there is no task object with that id.
     */
@@ -251,7 +251,7 @@ public:
 /* ============================ INQUIRY =================================== */
 
    /// Get the task ID for this task.
-   virtual OsStatus id(int& rId) = 0;
+   virtual OsStatus id(pthread_t& rId) = 0;
 
    /// Check if the task is ready to run.
    virtual UtlBoolean isReady(void) = 0;

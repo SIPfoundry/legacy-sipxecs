@@ -531,7 +531,7 @@ TaoStatus TaoTerminalConnectionAdaptor::createPlayer(TaoMessage& rMsg)
                 return TAO_FAILURE;
 
    TaoString arg(rMsg.getArgList(), TAOMESSAGE_DELIMITER);
-   MpStreamPlayer** ppPlayer = (MpStreamPlayer**) atoi(arg[0]) ;
+   MpStreamPlayer** ppPlayer = (MpStreamPlayer**) atol(arg[0]) ;
    const char* szStream = arg[1] ;
    int flags = atoi(arg[2]) ;
    const char* szCallId = arg[3] ;
@@ -557,7 +557,7 @@ TaoStatus TaoTerminalConnectionAdaptor::destroyPlayer(TaoMessage& rMsg)
                 return TAO_FAILURE;
 
    TaoString arg(rMsg.getArgList(), TAOMESSAGE_DELIMITER);
-   MpStreamPlayer* pPlayer = (MpStreamPlayer*) atoi(arg[0]) ;
+   MpStreamPlayer* pPlayer = (MpStreamPlayer*) atol(arg[0]) ;
    const char* szCallId = arg[1] ;
 
 //   mpCallMgrTask->destroyPlayer(MpPlayer::STREAM_PLAYER, szCallId, pPlayer) ;
@@ -579,7 +579,7 @@ TaoStatus TaoTerminalConnectionAdaptor::createPlaylistPlayer(TaoMessage& rMsg)
                 return TAO_FAILURE;
 
    TaoString arg(rMsg.getArgList(), TAOMESSAGE_DELIMITER);
-   MpStreamPlaylistPlayer** ppPlayer = (MpStreamPlaylistPlayer**) atoi(arg[0]) ;
+   MpStreamPlaylistPlayer** ppPlayer = (MpStreamPlaylistPlayer**) atol(arg[0]) ;
    const char* szCallId = arg[1] ;
 
     // TO_BE_REMOVED
@@ -606,7 +606,7 @@ TaoStatus TaoTerminalConnectionAdaptor::destroyPlaylistPlayer(TaoMessage& rMsg)
                 return TAO_FAILURE;
 
    TaoString arg(rMsg.getArgList(), TAOMESSAGE_DELIMITER);
-   MpStreamPlaylistPlayer* pPlayer = (MpStreamPlaylistPlayer*) atoi(arg[0]) ;
+   MpStreamPlaylistPlayer* pPlayer = (MpStreamPlaylistPlayer*) atol(arg[0]) ;
    const char* szCallId = arg[1] ;
 
     // TO_BE_REMOVED

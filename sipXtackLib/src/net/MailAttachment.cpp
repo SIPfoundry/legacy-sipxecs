@@ -20,7 +20,7 @@ MailAttachment::MailAttachment(const MailAttachment &original)
     // Copy Constructor: 
     m_Filename = original.m_Filename;
     m_MIMEtype = original.m_MIMEtype;
-    int base64Len = strlen(original.m_Base64)+1;
+    size_t base64Len = strlen(original.m_Base64)+1;
     m_Base64 = new char[base64Len];
     if (m_Base64)
     {
@@ -55,7 +55,7 @@ bool MailAttachment::Load(const UtlString &filename)
     if (file.open() == OS_SUCCESS)
     {
         // Save the file size
-        unsigned long fileSize;
+        size_t fileSize;
         file.getLength(fileSize);
 
         // Create a buffer for the file contents
@@ -63,14 +63,14 @@ bool MailAttachment::Load(const UtlString &filename)
         if (buffer != NULL)
         {
             // Allocate a buffer for the base64 encoding of the file contents
-            unsigned long nBytesForEncoding = (fileSize/3+1)*4;
-            unsigned long nBytesForCRLF = (nBytesForEncoding/76+1)*2;
-            unsigned long nBytesForTerminatingNull = 1;
+            size_t nBytesForEncoding = (fileSize/3+1)*4;
+            size_t nBytesForCRLF = (nBytesForEncoding/76+1)*2;
+            size_t nBytesForTerminatingNull = 1;
             m_Base64 = new char[nBytesForEncoding+nBytesForCRLF+nBytesForTerminatingNull];
             if (m_Base64 != NULL)
             {
                 // Read the file contents into the buffer
-                unsigned long bytesRead;
+                size_t bytesRead;
                 if ( file.read(buffer, fileSize,bytesRead) == OS_SUCCESS )
                 {
                     if (bytesRead == fileSize)

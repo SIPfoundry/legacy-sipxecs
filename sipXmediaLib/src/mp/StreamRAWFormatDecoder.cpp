@@ -155,8 +155,8 @@ StreamRAWFormatDecoder::operator=(const StreamRAWFormatDecoder& rhs)
 // Thread entry point
 int StreamRAWFormatDecoder::run(void* pArgs)
 {
-   int iRead ;
-   int iLength = sizeof(unsigned short) * 80;
+   size_t iRead ;
+   size_t iLength = sizeof(uint16_t) * 80;
       
    StreamDataSource* pSrc = getDataSource() ;
    if (pSrc != NULL)
@@ -164,7 +164,7 @@ int StreamRAWFormatDecoder::run(void* pArgs)
       char* pEventSamples = new char[iLength]; 
       while ((pSrc->read(pEventSamples, iLength, iRead) == OS_SUCCESS) && !mbEnd)
       {
-         queueFrame((const unsigned short*) pEventSamples) ;
+         queueFrame((const int16_t*)pEventSamples) ;
       }
       delete pEventSamples ;
 

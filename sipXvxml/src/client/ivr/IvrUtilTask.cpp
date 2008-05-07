@@ -193,6 +193,7 @@ UtlBoolean IvrUtilTask::handleMessage(OsMsg& eventMessage)
 {
    UtlBoolean rc = TRUE;
    OsSysLogMsg* pSysLogMsg = NULL;
+   size_t temp_dur;
 
    switch (eventMessage.getMsgType())
    {
@@ -209,7 +210,8 @@ UtlBoolean IvrUtilTask::handleMessage(OsMsg& eventMessage)
       switch (pSysLogMsg->getMsgSubType())
       {
       case OsSysLogMsg::SET_FLUSH_PERIOD:
-         processSetFlushPeriod((int) pSysLogMsg->getData()) ;
+         temp_dur = (size_t)pSysLogMsg->getData();
+         processSetFlushPeriod((int) temp_dur) ;
          break ;
       case OsSysLogMsg::FLUSH_LOG:
          processFlushLog((OsEvent*) pSysLogMsg->getData());

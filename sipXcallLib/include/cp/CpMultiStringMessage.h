@@ -42,10 +42,10 @@ public:
        const char* str1 = NULL, const char* str2 = NULL,
        const char* str3 = NULL, const char* str4 = NULL,
        const char* str5 = NULL,
-       int int1 = 0, int int2 = 0,
-       int int3 = 0, int int4 = 0,
-       int int5 = 0, int int6 = 0,
-       int int7 = 0);
+       intptr_t int1 = 0, intptr_t int2 = 0,
+       intptr_t int3 = 0, intptr_t int4 = 0,
+       intptr_t int5 = 0, intptr_t int6 = 0,
+       intptr_t int7 = 0);
     //:Default constructor
 
 
@@ -64,13 +64,13 @@ public:
         void getString3Data(UtlString& str3) const;
         void getString4Data(UtlString& str4) const;
         void getString5Data(UtlString& str5) const;
-    int getInt1Data() const;
-        int getInt2Data() const;
-        int getInt3Data() const;
-    int getInt4Data() const;
-    int getInt5Data() const;
-    int getInt6Data() const;
-    int getInt7Data() const;
+    	intptr_t getInt1Data() const;
+        intptr_t getInt2Data() const;
+        intptr_t getInt3Data() const;
+    	intptr_t getInt4Data() const;
+    	intptr_t getInt5Data() const;
+    	intptr_t getInt6Data() const;
+    	intptr_t getInt7Data() const;
 
     void toString(UtlString& dumpString, const char* terminator = "\n") const;
 
@@ -82,18 +82,18 @@ protected:
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
-    int mInt1;
-    int mInt2;
-    int mInt3;
-    int mInt4;
-    int mInt5;
-    int mInt6;
-    int mInt7;
-        UtlString mString1Data;
-        UtlString mString2Data;
-        UtlString mString3Data;
-        UtlString mString4Data;
-        UtlString mString5Data;
+    intptr_t mInt1;
+    intptr_t mInt2;
+    intptr_t mInt3;
+    intptr_t mInt4;
+    intptr_t mInt5;
+    intptr_t mInt6;
+    intptr_t mInt7;
+    UtlString mString1Data;
+    UtlString mString2Data;
+    UtlString mString3Data;
+    UtlString mString4Data;
+    UtlString mString5Data;
 
    CpMultiStringMessage(const CpMultiStringMessage& rCpMultiStringMessage);
      //:disable Copy constructor

@@ -106,7 +106,7 @@ ACDAgent::ACDAgent(ACDAgentManager* pAcdAgentManager,
    mBounceCount        = 0;
 
    mpWrapupTimer =
-      new OsTimer(getMessageQueue(), WRAP_UP_TIMER);  
+      new OsTimer(getMessageQueue(), (void*)WRAP_UP_TIMER);  
 
    mCallEstablished = false;
    // Set the agents idle time to now
@@ -1260,9 +1260,9 @@ UtlBoolean ACDAgent::handleMessage(OsMsg& rMessage)
    }
    else if (rMessage.getMsgType() == OsMsg::OS_EVENT) {
 
-      int  timerSource;
+      uintptr_t timerSource;
       // Timer Event, determine which timer fired
-      ((OsEventMsg&)rMessage).getUserData(timerSource);
+      ((OsEventMsg&)rMessage).getUserData((void*&)timerSource);
       switch (timerSource) {
          case WRAP_UP_TIMER:
             OsSysLog::add(FAC_ACD, gACD_DEBUG,
@@ -1342,7 +1342,7 @@ void ACDAgent::updateStateMessage(ePresenceStateType type, bool state, bool reco
              OsDateTime nowTime;
              OsDateTime::getCurTime(nowTime);
              nowTime.cvtToTimeSinceEpoch(mIdleTimeStart);
-             OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDAgent::updateStateMessage ON_HOOK Agent(%s), idleTime (%ld)",
+             OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDAgent::updateStateMessage ON_HOOK Agent(%s), idleTime (%d)",
                            getUriString()->data(), mIdleTimeStart.seconds());
           }
           else
@@ -1416,7 +1416,7 @@ void ACDAgent::dropCallMessage(bool rna)
    OsDateTime::getCurTime(nowTime);
    nowTime.cvtToTimeSinceEpoch(mIdleTimeStart);
    // Debug
-   OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDAgent::dropCallMessage Agent(%s), idleTime (%ld) rna=%s",
+   OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDAgent::dropCallMessage Agent(%s), idleTime (%d) rna=%s",
                     getUriString()->data(), mIdleTimeStart.seconds(),
                     rna?"true":"false");
 

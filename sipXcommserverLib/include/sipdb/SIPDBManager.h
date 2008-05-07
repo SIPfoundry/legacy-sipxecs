@@ -42,7 +42,7 @@ class TableInfo
 {
 public:
     const char* tablename;      // the name of the database
-    int4        pid;            // the process ID
+    pthread_t   pid;            // the process ID
     int4        loadchecksum;   // a checksum only used during load (to detect change)
     bool        changed;        // flag used by other tables to determine if changed
     TYPE_DESCRIPTOR(

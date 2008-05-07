@@ -227,7 +227,7 @@ public:
          ResultSet results;
          UtlHashMap record1;
          UtlHashMap record2;
-         int timeNow = OsDateTime::getSecsSinceEpoch();
+         int timeNow = (int)OsDateTime::getSecsSinceEpoch();
          
          RegistrationDbTestContext testDbContext(TEST_DATA_DIR "/regdbdata",
                                                  TEST_WORK_DIR "/regdbdata"
@@ -465,7 +465,7 @@ public:
          UtlString contact;
          UtlSList bindings; 
          ResultSet results;         
-         int timeNow = OsDateTime::getSecsSinceEpoch();                        
+         int timeNow = (int)OsDateTime::getSecsSinceEpoch();                        
         
          RegistrationDbTestContext testDbContext(TEST_DATA_DIR "/regdbdata",
                                                  TEST_WORK_DIR "/regdbdata"
@@ -497,7 +497,7 @@ public:
          //UtlString contact;
          //UtlSList bindings; 
          ResultSet results;         
-         int timeNow = OsDateTime::getSecsSinceEpoch();                        
+         int timeNow = (int)OsDateTime::getSecsSinceEpoch();                        
         
          RegistrationDbTestContext testDbContext(TEST_DATA_DIR "/regdbdata",
                                                  TEST_WORK_DIR "/regdbdata"
@@ -525,7 +525,7 @@ public:
       
    void testCleanAndPersist()
       {
-         int timeNow = OsDateTime::getSecsSinceEpoch();                        
+         int timeNow = (int)OsDateTime::getSecsSinceEpoch();                        
         
          RegistrationDbTestContext testDbContext(TEST_DATA_DIR "/regdbdata",
                                                  TEST_WORK_DIR "/regdbdata"

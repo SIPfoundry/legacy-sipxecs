@@ -900,7 +900,7 @@ void Connection::setOfferingTimer(int milliSeconds)
         new CpMultiStringMessage(CpCallManager::CP_OFFERING_EXPIRED,
                     callId.data(), remoteAddr.data());
     OsTimer* timer = new OsTimer((mpCallManager->getMessageQueue()), 
-            (int)offeringExpiredMessage);
+            offeringExpiredMessage);
     // Convert from mSeconds to uSeconds
     OsTime timerTime(milliSeconds / 1000, milliSeconds % 1000);
     timer->oneshotAfter(timerTime);
@@ -928,7 +928,7 @@ void Connection::setRingingTimer(int seconds)
         new CpMultiStringMessage(CpCallManager::CP_RINGING_EXPIRED,
                     callId.data(), remoteAddr.data());
     OsTimer* timer = new OsTimer((mpCallManager->getMessageQueue()), 
-            (int)offeringExpiredMessage);
+            offeringExpiredMessage);
 
 #ifdef TEST_PRINT
     osPrintf("Setting ringing timeout in %d seconds\n",

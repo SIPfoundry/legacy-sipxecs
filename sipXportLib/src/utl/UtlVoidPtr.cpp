@@ -59,7 +59,7 @@ void* UtlVoidPtr::getValue() const
 
 unsigned UtlVoidPtr::hash() const
 {
-    return (unsigned) mpValue ; 
+    return hashPtr(mpValue);
 }
 
 
@@ -77,7 +77,7 @@ int UtlVoidPtr::compareTo(UtlContainable const * inVal) const
    
    if (inVal->isInstanceOf(UtlVoidPtr::TYPE))
    {
-      result = ((unsigned) mpValue) - ((unsigned) ((UtlVoidPtr*) inVal)->mpValue);
+      result = comparePtrs(mpValue, ((UtlVoidPtr*) inVal)->mpValue);
    }
    else
    {

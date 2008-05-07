@@ -123,7 +123,7 @@ PtStatus PtPhoneExtSpeaker::setVolume(int volume)
                                                                         arg);
         mpClient->sendRequest(msg);
 
-        int rc;
+        intptr_t rc;
         if (OS_SUCCESS != pe->wait(msg.getCmd(), mTimeOut))
         {
                 mpClient->resetConnectionSocket(msg.getMsgID());
@@ -135,9 +135,9 @@ PtStatus PtPhoneExtSpeaker::setVolume(int volume)
                 return PT_BUSY;
         }
 
-        pe->getEventData((int &)rc);
+        pe->getEventData(rc);
 #ifdef PTAPI_TEST
-        int cmd;
+        intptr_t cmd;
         pe->getIntData2(cmd);
         assert(cmd == TaoMessage::EXTSPEAKER_SET_VOLUME);
 #endif
@@ -164,7 +164,7 @@ PtStatus PtPhoneExtSpeaker::getVolume(int& rVolume)
                                                                         buf);
         mpClient->sendRequest(msg);
 
-        int rc;
+        intptr_t rc;
         UtlString arg;
 
         if (OS_SUCCESS != pe->wait(msg.getCmd(), mTimeOut))
@@ -178,10 +178,10 @@ PtStatus PtPhoneExtSpeaker::getVolume(int& rVolume)
                 return PT_BUSY;
         }
 
-        pe->getEventData((int &)rc);
+        pe->getEventData(rc);
         pe->getStringData((UtlString &)arg);
 #ifdef PTAPI_TEST
-        int cmd;
+        intptr_t cmd;
         pe->getIntData2(cmd);
         assert(cmd == TaoMessage::EXTSPEAKER_GET_VOLUME);
 #endif
@@ -207,7 +207,7 @@ PtStatus PtPhoneExtSpeaker::getNominalVolume(int& rVolume)
                                                                         buf);
         mpClient->sendRequest(msg);
 
-        int rc;
+        intptr_t rc;
         UtlString arg;
 
         if (OS_SUCCESS != pe->wait(msg.getCmd(), mTimeOut))
@@ -221,10 +221,10 @@ PtStatus PtPhoneExtSpeaker::getNominalVolume(int& rVolume)
                 return PT_BUSY;
         }
 
-        pe->getEventData((int &)rc);
+        pe->getEventData(rc);
         pe->getStringData((UtlString &)arg);
 #ifdef PTAPI_TEST
-        int cmd;
+        intptr_t cmd;
         pe->getIntData2(cmd);
         assert(cmd == TaoMessage::EXTSPEAKER_GET_NOMINAL_VOLUME);
 #endif

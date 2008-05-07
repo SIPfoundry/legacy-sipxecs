@@ -374,9 +374,13 @@ UtlBoolean SipSubscribeServer::handleMessage(OsMsg &eventMessage)
     {
         OsTimer* timer = 0;
         UtlString* subscribeDialogHandle = NULL;
+        intptr_t timerIntptr;
+        void* subscribeDialogHandleVoid;
 
-        ((OsEventMsg&)eventMessage).getUserData((int&)subscribeDialogHandle);
-        ((OsEventMsg&)eventMessage).getEventData((int&)timer);
+        ((OsEventMsg&)eventMessage).getUserData(subscribeDialogHandleVoid);
+        ((OsEventMsg&)eventMessage).getEventData(timerIntptr);
+	subscribeDialogHandle = (UtlString*)subscribeDialogHandleVoid;
+        timer = (OsTimer*)timerIntptr;
 
         if (subscribeDialogHandle)
         {

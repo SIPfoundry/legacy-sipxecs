@@ -41,7 +41,7 @@ unsigned long UtlRscTrace::sFreeCnt   = 0; // Number of memory frees
 int           UtlRscTrace::sTraceFlag = 0; // If non-zero, trace calls to the
                                            //  new and delete operators
 unsigned long UtlRscTrace::sStartTime  = 0; //
-int           UtlRscTrace::mTaskId         = 0;
+pthread_t     UtlRscTrace::mTaskId         = 0;
 
 long              UtlRscTrace::mCheckpoint = 0L; // Used to remember the net number of 
 OsMutex   *UtlRscTrace::mpResourceStoreLock = new OsMutex(OsMutex::Q_PRIORITY);
@@ -89,12 +89,12 @@ void UtlRscTrace::checkpoint()
 }
 
 void UtlRscTrace::addAllocCnt(int size,
-                                                          int addr,
+                                                          intptr_t addr,
                                                           const char* name, 
                                                           int pArg, 
                                                           int priority, 
                                                           int options,
-                                                          int taskId) 
+                                                          pthread_t taskId) 
 {
         if (mTaskId && (mTaskId != taskId))
                 return;
@@ -124,9 +124,9 @@ void UtlRscTrace::addAllocCnt(int size,
         mpResourceStoreLock->release();
 }
 
-void UtlRscTrace::addAllocCnt(int addr,
+void UtlRscTrace::addAllocCnt(intptr_t addr,
                                                           const char* name, 
-                                                          int taskId)
+                                                          pthread_t taskId)
 {
         if (mTaskId && (mTaskId != taskId))
                 return;
@@ -155,9 +155,9 @@ void UtlRscTrace::addAllocCnt(int addr,
 }
 
 void UtlRscTrace::addAllocCnt(int options,
-                                                          int addr,
+                                                          intptr_t addr,
                                                           int state, 
-                                                          int taskId)
+                                                          pthread_t taskId)
 {
         if (mTaskId && (mTaskId != taskId))
                 return;
@@ -186,10 +186,10 @@ void UtlRscTrace::addAllocCnt(int options,
 }
 
 void UtlRscTrace::addAllocCnt(int state,
-                                                          int addr,
+                                                          intptr_t addr,
                                                           int timerId, 
                                                           int type, 
-                                                          int taskId)
+                                                          pthread_t taskId)
 {
         if (mTaskId && (mTaskId != taskId))
                 return;
@@ -218,8 +218,8 @@ void UtlRscTrace::addAllocCnt(int state,
 }
 
 void UtlRscTrace::addAllocCnt(int size,
-                                                          int addr,
-                                                          int taskId)
+                                                          intptr_t addr,
+                                                          pthread_t taskId)
 {
         if (mTaskId && (mTaskId != taskId))
                 return;
@@ -247,8 +247,8 @@ void UtlRscTrace::addAllocCnt(int size,
         mpResourceStoreLock->release();
 }
  
-void UtlRscTrace::addAllocCnt(int addr,
-                                                          int taskId)
+void UtlRscTrace::addAllocCnt(intptr_t addr,
+                                                          pthread_t taskId)
 {
         if (mTaskId && (mTaskId != taskId))
                 return;
@@ -276,7 +276,7 @@ void UtlRscTrace::addAllocCnt(int addr,
         mpResourceStoreLock->release();
 }
  
-void UtlRscTrace::addFreeCnt(int addr, int taskId)
+void UtlRscTrace::addFreeCnt(intptr_t addr, pthread_t taskId)
 {
         if (mTaskId && (mTaskId != taskId))
                 return;
@@ -302,13 +302,13 @@ int UtlRscTrace::delta()
    return netAllocCnt() - mCheckpoint;
 }
 
-int UtlRscTrace::delta(int taskId)
+int UtlRscTrace::delta(pthread_t taskId)
 {
    return netAllocCnt(taskId) - mCheckpoint;
 }
 
 // Return the number of memory allocations (monotonically increasing)
-int UtlRscTrace::allocCnt(int taskId)
+int UtlRscTrace::allocCnt(pthread_t taskId)
 {
         unsigned int size;
         char** activeRscs;
@@ -415,7 +415,7 @@ int UtlRscTrace::rscStatus()
         return (nInserts - nRemoves);
 }
 
-int UtlRscTrace::freeCnt(int taskId)
+int UtlRscTrace::freeCnt(pthread_t taskId)
 {
         unsigned int nInserts;
         unsigned int nRemoves;
@@ -437,7 +437,7 @@ int UtlRscTrace::netAllocCnt()
         return cnt;
 }
 
-int UtlRscTrace::netAllocCnt(int taskId)
+int UtlRscTrace::netAllocCnt(pthread_t taskId)
 {
         int cnt;
 
@@ -447,7 +447,7 @@ int UtlRscTrace::netAllocCnt(int taskId)
         return cnt;
 }
 
-int UtlRscTrace::enableMemTracking(int taskId) 
+int UtlRscTrace::enableMemTracking(pthread_t taskId) 
 { 
 #ifdef _VXWORKS
     sStartTime = *osTimerCtr;
@@ -457,7 +457,7 @@ int UtlRscTrace::enableMemTracking(int taskId)
         return mTaskId;
 }
 
-int UtlRscTrace::enableMsgQTracking(int taskId)
+int UtlRscTrace::enableMsgQTracking(pthread_t taskId)
 {
 #ifdef _VXWORKS
     sStartTime = *osTimerCtr;
@@ -467,7 +467,7 @@ int UtlRscTrace::enableMsgQTracking(int taskId)
         return mTaskId;
 }
 
-int UtlRscTrace::enableBSemTracking(int taskId)
+int UtlRscTrace::enableBSemTracking(pthread_t taskId)
 {
 #ifdef _VXWORKS
     sStartTime = *osTimerCtr;
@@ -477,7 +477,7 @@ int UtlRscTrace::enableBSemTracking(int taskId)
         return mTaskId;
 }
 
-int UtlRscTrace::enableCSemTracking(int taskId)
+int UtlRscTrace::enableCSemTracking(pthread_t taskId)
 {
 #ifdef _VXWORKS
     sStartTime = *osTimerCtr;
@@ -487,7 +487,7 @@ int UtlRscTrace::enableCSemTracking(int taskId)
         return mTaskId;
 }
 
-int UtlRscTrace::enableMutexTracking(int taskId)
+int UtlRscTrace::enableMutexTracking(pthread_t taskId)
 {
 #ifdef _VXWORKS
     sStartTime = *osTimerCtr;
@@ -497,7 +497,7 @@ int UtlRscTrace::enableMutexTracking(int taskId)
         return mTaskId;
 }
 
-int UtlRscTrace::enableRWMutexTracking(int taskId)
+int UtlRscTrace::enableRWMutexTracking(pthread_t taskId)
 {
 #ifdef _VXWORKS
     sStartTime = *osTimerCtr;
@@ -507,7 +507,7 @@ int UtlRscTrace::enableRWMutexTracking(int taskId)
         return mTaskId;
 }
 
-int UtlRscTrace::enableTimerTracking(int taskId)
+int UtlRscTrace::enableTimerTracking(pthread_t taskId)
 {
 #ifdef _VXWORKS
     sStartTime = *osTimerCtr;
@@ -517,7 +517,7 @@ int UtlRscTrace::enableTimerTracking(int taskId)
         return mTaskId;
 }
 
-int UtlRscTrace::enableTaskTracking(int taskId)
+int UtlRscTrace::enableTaskTracking(pthread_t taskId)
 {
 #ifdef _VXWORKS
     sStartTime = *osTimerCtr;
@@ -527,7 +527,7 @@ int UtlRscTrace::enableTaskTracking(int taskId)
         return mTaskId;
 }
 
-int UtlRscTrace::enableSocketTracking(int taskId)
+int UtlRscTrace::enableSocketTracking(pthread_t taskId)
 {
 #ifdef _VXWORKS
     sStartTime = *osTimerCtr;

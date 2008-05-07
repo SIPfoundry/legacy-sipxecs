@@ -34,7 +34,7 @@ typedef struct __MpToneGen_tag *MpToneGenPtr;
 
 extern void MpToneGen_startTone(MpToneGenPtr p, int toneID);
 extern void MpToneGen_stopTone(MpToneGenPtr p);
-extern OsStatus MpToneGen_getNextBuff(MpToneGenPtr thisobj, short *b, int N);
+extern OsStatus MpToneGen_getNextBuff(MpToneGenPtr thisobj, int16_t *b, int N);
 extern void MpToneGen_delete(MpToneGenPtr p);
 extern MpToneGenPtr MpToneGen_MpToneGen(int samprate, const char* toneLocale=NULL);
 

@@ -37,7 +37,7 @@ public:
 
 /* ============================ CREATORS ================================== */
 
-   static OsProtectEventMgr* getEventMgr(int userData = 0);
+   static OsProtectEventMgr* getEventMgr(void* userData = 0);
      //:Return a pointer to the OsProtectEventMgr, creating it if necessary
 
    virtual
@@ -46,7 +46,7 @@ public:
 
 /* ============================ MANIPULATORS ============================== */
 
-   OsProtectedEvent* alloc(int userData = 0);
+   OsProtectedEvent* alloc(void* userData = 0);
      //:Allocate a new OsProtectEvent
      // Return OS_SUCCESS if allocation is successful
 
@@ -68,12 +68,12 @@ public:
 protected:
 
 #if defined(_pingtel_on_posix_)
-        OsProtectEventMgr(int userData = 0, int initialCount = 1000,
+        OsProtectEventMgr(void* userData = 0, int initialCount = 1000,
                                         int softLimit = 2500,
                                         int hardLimit = 25000,
                                         int increment = 500);
 #else
-        OsProtectEventMgr(int userData = 0, int initialCount = 200,
+        OsProtectEventMgr(void* userData = 0, int initialCount = 200,
                                         int softLimit = 500,
                                         int hardLimit = 5000,
                                         int increment = 50);

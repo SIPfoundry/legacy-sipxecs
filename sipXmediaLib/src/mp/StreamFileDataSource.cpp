@@ -115,20 +115,15 @@ OsStatus StreamFileDataSource::destroyAndDelete()
 
 // Reads iLength bytes of data from the data source and places the data into
 // the passed szBuffer buffer.
-OsStatus StreamFileDataSource::read(char *szBuffer, int iLength, int& iLengthRead)
+OsStatus StreamFileDataSource::read(char *szBuffer, size_t iLength, size_t& iLengthRead)
 {
    OsLock lock(mFileGuard) ;
    OsStatus rc = OS_FAILED ;
 
    if (mpFile != NULL)
    {
-      unsigned long temp;
-      // read() needs an unsigned long as its 3rd argument.
-      // Using a temporary assures that any needed conversion will be done.
-      // But if int and unsigned long have the same representation, the
-      // compiler's optimizer should eliminate this.
-      rc = mpFile->read(szBuffer, iLength, temp);
-      iLengthRead = temp;
+      rc = mpFile->read(szBuffer, iLength, iLengthRead);
+
    }
    
    return rc ;
@@ -136,18 +131,18 @@ OsStatus StreamFileDataSource::read(char *szBuffer, int iLength, int& iLengthRea
 
 
 // Identical to read, except the stream pointer is not advanced.
-OsStatus StreamFileDataSource::peek(char *szBuffer, int iLength, int& iLengthRead)
+OsStatus StreamFileDataSource::peek(char *szBuffer, size_t iLength, size_t& iLengthRead)
 {
    OsLock lock(mFileGuard) ;
    OsStatus rc = OS_FAILED ;
-   unsigned long lFilePosition = 0 ;
+   size_t lFilePosition = 0 ;
 
    if (mpFile != NULL)
    {
       rc = mpFile->getPosition(lFilePosition) ;
       if (rc == OS_SUCCESS)
       {
-         rc = mpFile->read(szBuffer, iLength, (unsigned long&) iLengthRead) ;
+         rc = mpFile->read(szBuffer, iLength, iLengthRead) ;
          if (rc == OS_SUCCESS)
          {
             rc = mpFile->setPosition(lFilePosition) ;
@@ -161,7 +156,7 @@ OsStatus StreamFileDataSource::peek(char *szBuffer, int iLength, int& iLengthRea
 
 
 // Moves the stream pointer to the an absolute location.
-OsStatus StreamFileDataSource::seek(unsigned int iLocation)
+OsStatus StreamFileDataSource::seek(size_t iLocation)
 {
    OsLock lock(mFileGuard) ;
    OsStatus rc = OS_FAILED ;
@@ -182,12 +177,12 @@ OsStatus StreamFileDataSource::seek(unsigned int iLocation)
 /* ============================ ACCESSORS ================================= */
 
 // Gets the length of the stream (if available)
-OsStatus StreamFileDataSource::getLength(int& iLength)
+OsStatus StreamFileDataSource::getLength(size_t& iLength)
 {
    OsLock lock(mFileGuard) ;
    OsStatus rc = OS_FAILED ;
 
-   unsigned long lLength = 0;
+   size_t lLength = 0;
    if (mpFile != NULL)
       rc = mpFile->getLength(lLength) ;
 
@@ -197,14 +192,14 @@ OsStatus StreamFileDataSource::getLength(int& iLength)
 
 
 // Gets the current position within the stream.
-OsStatus StreamFileDataSource::getPosition(int& iPosition)
+OsStatus StreamFileDataSource::getPosition(size_t& iPosition)
 {
    OsLock lock(mFileGuard) ;
    OsStatus status = OS_FAILED ;
 
    if (mpFile != NULL)
    {
-      unsigned long lPosition ;
+      size_t lPosition ;
       status = mpFile->getPosition(lPosition) ;
       iPosition = lPosition ;
    }

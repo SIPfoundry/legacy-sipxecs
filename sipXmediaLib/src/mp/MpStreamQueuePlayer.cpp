@@ -486,7 +486,7 @@ UtlBoolean MpStreamQueuePlayer::handleMessage(OsMsg& rMsg)
    {
       case OsMsg::OS_EVENT:
          OsEventMsg* pMsg = (OsEventMsg*) &rMsg ;
-         int action ;
+         intptr_t action ;
          if (pMsg->getEventData(action) == OS_SUCCESS)
          {
             switch (action)

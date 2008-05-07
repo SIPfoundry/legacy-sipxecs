@@ -182,9 +182,9 @@ public:
  Description:   An IChannel interface method that retrieves the socket handle
                 associated with a given channel.
 
- Returns:       unsigned int.
+ Returns:       int.
  ***********************************************************************|><|*/
-    unsigned int  GetSocket(void)     { return m_hSocket; }
+    int  GetSocket(void)     { return m_hSocket; }
 
 /*|><|***********************************************************************
  Name:          GetPort

@@ -27,7 +27,7 @@
 /* ============================ CREATORS ================================== */
 
 // Constructor
-MimeBodyPart::MimeBodyPart(const HttpBody* parent, const char* bodyPart, int  parentBodyStartIndex, int rawBodyLength, const char* contentType)
+MimeBodyPart::MimeBodyPart(const HttpBody* parent, const char* bodyPart, size_t parentBodyStartIndex, size_t rawBodyLength, const char* contentType)
 :  HttpBody(bodyPart,rawBodyLength,contentType),
    mpParentBody(parent),
    mParentBodyRawStartIndex(parentBodyStartIndex),
@@ -39,13 +39,13 @@ MimeBodyPart::MimeBodyPart(const HttpBody* parent, const char* bodyPart, int  pa
    {
        const char* parentBodyBytes;
        const char* bodyBytes;
-       int parentBodyLength;
+       size_t parentBodyLength;
        parent->getBytes(&parentBodyBytes, &parentBodyLength);
        bodyBytes = parentBodyBytes + parentBodyStartIndex;
        if(parentBodyLength >= parentBodyStartIndex + rawBodyLength)
        {
 
-           int parsedBytes = HttpMessage::parseHeaders(bodyBytes, rawBodyLength,
+           size_t parsedBytes = HttpMessage::parseHeaders(bodyBytes, rawBodyLength,
                     mNameValues);
 
            // search the part headers for a Content-Type
@@ -156,8 +156,8 @@ MimeBodyPart::operator=(const MimeBodyPart& rhs)
  *  HttpBody.
  */
 void MimeBodyPart::attach(HttpBody* parent,
-                          int rawPartStart, int rawPartLength,
-                          int partStart, int partLength)
+                          size_t rawPartStart, size_t rawPartLength,
+                          size_t partStart, size_t partLength)
 {
    mpParentBody = parent;
    mParentBodyRawStartIndex = rawPartStart;
@@ -168,13 +168,13 @@ void MimeBodyPart::attach(HttpBody* parent,
 
 /* ============================ ACCESSORS ================================= */
 
-void MimeBodyPart::getBytes(const char** bytes, int* length) const
+void MimeBodyPart::getBytes(const char** bytes, size_t* length) const
 {
     *bytes = NULL;
     if(mpParentBody)
     {
        const char* parentBodyBytes;
-       int parentBodyLength;
+       size_t parentBodyLength;
        mpParentBody->getBytes(&parentBodyBytes, &parentBodyLength);
        if(mParentBodyStartIndex + mBodyLength <= parentBodyLength)
        {

@@ -41,7 +41,7 @@ static char dummy;
 // Timer expiration event notification happens using the 
 // newly created OsQueuedEvent object
 
-OsTimer::OsTimer(OsMsgQ* pQueue, const int userData) :
+OsTimer::OsTimer(OsMsgQ* pQueue, void* userData) :
    mBSem(OsBSem::Q_PRIORITY, OsBSem::FULL),
    mApplicationState(0),
    mTaskState(0),
@@ -261,12 +261,12 @@ OsNotification* OsTimer::getNotifier(void) const
 }
 
 // Get the userData value of a timer constructed with OsTimer(OsMsgQ*, int).
-int OsTimer::getUserData()
+void* OsTimer::getUserData()
 {
    // Have to cast mpNotifier into OsQueuedEvent* to get the userData.
    OsQueuedEvent* e = dynamic_cast <OsQueuedEvent*> (mpNotifier);
    assert(e != 0);
-   int userData;
+   void* userData;
    e->getUserData(userData);
    return userData;
 }
@@ -305,7 +305,7 @@ int OsTimer::compareTo(UtlContainable const * inVal) const
 
    if (inVal->isInstanceOf(OsTimer::TYPE))
    {
-      result = ((unsigned) this) - ((unsigned) inVal);
+      result = comparePtrs(this, inVal);
    }
    else
    {

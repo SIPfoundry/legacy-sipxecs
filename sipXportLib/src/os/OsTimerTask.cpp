@@ -426,7 +426,7 @@ void OsTimerTask::fireTimer(OsTimer* timer)
    // Call the event routine if we are supposed to.
    if (timer->mFiring)
    {
-      timer->mpNotifier->signal((int) timer);
+     timer->mpNotifier->signal((intptr_t)timer);
       // Reset mFiring.
       {
          OsLock lock(timer->mBSem);

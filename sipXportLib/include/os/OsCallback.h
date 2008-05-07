@@ -25,7 +25,7 @@
 // STRUCTS
 
 // TYPEDEFS
-typedef void (*OsCallbackFunc) (const int userData, const int eventData);
+typedef void (*OsCallbackFunc) (void* userData, intptr_t eventData);
 
 // FORWARD DECLARATIONS
 
@@ -51,7 +51,7 @@ public:
 
 /* ============================ CREATORS ================================== */
 
-   OsCallback(const int userData, const OsCallbackFunc func);
+   OsCallback(void* userData, const OsCallbackFunc func);
      //:Constructor
 
    virtual
@@ -60,7 +60,7 @@ public:
 
 /* ============================ MANIPULATORS ============================== */
 
-   virtual OsStatus signal(const int eventData);
+   virtual OsStatus signal(intptr_t eventData);
      //:Signal the occurrence of the event by executing the callback function
      // Always return OS_SUCCESS.
 
@@ -76,7 +76,7 @@ private:
 
    OsCallbackFunc mFunc;     // routine that will be invoked in the notifier's
                              //  context to signal the event
-   int            mUserData; // data specified on behalf of the user and
+   void*          mUserData; // data specified on behalf of the user and
                              //  not otherwise used by this class -- the user
                              //  data is specified as an argument to the class
                              //  constructor

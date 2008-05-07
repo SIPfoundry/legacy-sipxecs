@@ -76,9 +76,9 @@ std::string MockCgiInput::getenv(const char *envName)
 size_t MockCgiInput::read(char *data, size_t length)
 {
 
-    unsigned long bytesRead = 0;
-    OsStatus rc = m_read->read(data, (unsigned long)length, bytesRead);
+    size_t bytesRead = 0;
+    OsStatus rc = m_read->read(data, length, bytesRead);
     CPPUNIT_ASSERT_EQUAL_MESSAGE("Read from cgi test input", OS_SUCCESS, rc);
 
-    return (size_t)bytesRead;
+    return bytesRead;
 }

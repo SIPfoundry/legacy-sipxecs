@@ -338,14 +338,14 @@ void OsTaskWnt::yield(void)
 // Return NULL if none exists.
 OsTaskWnt* OsTaskWnt::getCurrentTask(void)
 {
-   DWORD threadId;
+   pthread_t threadId;
 
    threadId = GetCurrentThreadId();
    return OsTaskWnt::getTaskById(threadId);
 }
 
 // Return the Id of the currently executing task
-OsStatus OsTaskWnt::getCurrentTaskId(int &rid)
+OsStatus OsTaskWnt::getCurrentTaskId(pthread_t &rid)
 {
    rid = GetCurrentThreadId();
    return OS_SUCCESS;
@@ -372,13 +372,13 @@ OsTaskWnt* OsTaskWnt::getTaskByName(const UtlString& taskName)
 
 // Return a pointer to the OsTask object corresponding to taskId
 // Return NULL is there is no task object with that id.
-OsTaskWnt* OsTaskWnt::getTaskById(const int taskId)
+OsTaskWnt* OsTaskWnt::getTaskById(const pthread_t taskId)
 {
-   char     idString[15];
+   char     idString[PID_STR_LEN];
    OsStatus res;
    int      val;
 
-   itoa((int) taskId, idString, 10);   // convert the id to a string
+   itoa((intptr_t)taskId, idString, PID_STR_LEN);   // convert the id to a string
    res = OsUtil::lookupKeyValue(TASKID_PREFIX, idString, &val);
    assert(res == OS_SUCCESS || res == OS_NOT_FOUND);
 
@@ -441,7 +441,7 @@ OsStatus OsTaskWnt::varGet(void)
 /* ============================ INQUIRY =================================== */
 
 // Get the task ID for this task
-OsStatus OsTaskWnt::id(int& rId)
+OsStatus OsTaskWnt::id(pthread_t& rId)
 {
    OsStatus retVal = OS_SUCCESS;
 
@@ -489,10 +489,10 @@ UtlBoolean OsTaskWnt::isSuspended(void)
 // The mDataGuard lock should be held upon entry into this method.
 UtlBoolean OsTaskWnt::doWntCreateTask(void)
 {
-   char  idString[15];
-   unsigned int threadId;
+   char  idString[PID_STR_LEN];
+   pthread_t threadId;
 
-   mThreadH = (void *)_beginthreadex(
+   mThreadH = (HANDLE)_beginthreadex(
                 0,             // don't specify any thread attributes
                 mStackSize,    // stack size (in bytes)
                 threadEntry,   // starting address of the new thread
@@ -508,8 +508,8 @@ UtlBoolean OsTaskWnt::doWntCreateTask(void)
    {
       // Enter the thread id into the global name database so that given the
       // thread id we will be able to find the corresponding OsTask object
-      itoa((int) mThreadId, idString, 10);  // convert the id to a string
-      OsUtil::insertKeyValue(TASKID_PREFIX, idString, (int) this);
+      itoa((intptr_t)mThreadId, idString, PID_STR_LEN);  // convert the id to a string
+      OsUtil::insertKeyValue(TASKID_PREFIX, idString, (intptr_t)this);
 
       mState = STARTED;
 
@@ -528,7 +528,7 @@ UtlBoolean OsTaskWnt::doWntCreateTask(void)
 // The mDataGuard lock should be held upon entry into this method.
 void OsTaskWnt::doWntTerminateTask(UtlBoolean force)
 {
-   char      idString[15];
+   char      idString[PID_STR_LEN];
    UtlBoolean ntResult;
    OsStatus  res;
 
@@ -549,7 +549,7 @@ void OsTaskWnt::doWntTerminateTask(UtlBoolean force)
    if (mThreadH != NULL)
    {
      // Remove the key from the internal task list, before terminating it
-     itoa((int) mThreadId, idString, 10);   // convert the id to a string
+     itoa((intptr_t)mThreadId, idString, PID_STR_LEN);   // convert the id to a string
      res = OsUtil::deleteKeyValue(TASKID_PREFIX, idString);
 
     //before we go ahead and kill the thread, lets make sure it's still running
@@ -605,7 +605,7 @@ unsigned int __stdcall OsTaskWnt::threadEntry(LPVOID arg)
    // The following is an attempt to create a good seed
    // for this task.
    int eTimeInt = OsDateTime::getSecsSinceEpoch();
-   int taskId;
+   pthread_t taskId;
    pTask->id(taskId);
    // Get the lower 16 bits (most varying) of the time and task pointer
    int lower16Time = eTimeInt % (256 * 256);

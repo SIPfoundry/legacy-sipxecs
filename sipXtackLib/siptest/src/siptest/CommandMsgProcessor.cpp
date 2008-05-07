@@ -130,7 +130,7 @@ UtlBoolean CommandMsgProcessor::handleMessage(OsMsg& eventMessage)
             }
 
                                 UtlString msgBytes;
-                                int msgLen;
+                                size_t msgLen;
                                 response.getBytes(&msgBytes, &msgLen);
                                 osPrintf("%s",msgBytes.data());
 

@@ -1,36 +1,41 @@
 /* -*- Mode: C; tab-width: 8; indent-tabs-mode: nil; c-basic-offset: 4 -*-
  *
- * The contents of this file are subject to the Netscape Public
- * License Version 1.1 (the "License"); you may not use this file
- * except in compliance with the License. You may obtain a copy of
- * the License at http://www.mozilla.org/NPL/
+ * ***** BEGIN LICENSE BLOCK *****
+ * Version: MPL 1.1/GPL 2.0/LGPL 2.1
  *
- * Software distributed under the License is distributed on an "AS
- * IS" basis, WITHOUT WARRANTY OF ANY KIND, either express oqr
- * implied. See the License for the specific language governing
- * rights and limitations under the License.
+ * The contents of this file are subject to the Mozilla Public License Version
+ * 1.1 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ * http://www.mozilla.org/MPL/
+ *
+ * Software distributed under the License is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+ * for the specific language governing rights and limitations under the
+ * License.
  *
  * The Original Code is Mozilla Communicator client code, released
  * March 31, 1998.
  *
- * The Initial Developer of the Original Code is Netscape
- * Communications Corporation.  Portions created by Netscape are
- * Copyright (C) 1998 Netscape Communications Corporation. All
- * Rights Reserved.
+ * The Initial Developer of the Original Code is
+ * Netscape Communications Corporation.
+ * Portions created by the Initial Developer are Copyright (C) 1998
+ * the Initial Developer. All Rights Reserved.
  *
- * Contributor(s): 
+ * Contributor(s):
  *
- * Alternatively, the contents of this file may be used under the
- * terms of the GNU Public License (the "GPL"), in which case the
- * provisions of the GPL are applicable instead of those above.
- * If you wish to allow use of your version of this file only
- * under the terms of the GPL and not to allow others to use your
- * version of this file under the NPL, indicate your decision by
- * deleting the provisions above and replace them with the notice
- * and other provisions required by the GPL.  If you do not delete
- * the provisions above, a recipient may use your version of this
- * file under either the NPL or the GPL.
- */
+ * Alternatively, the contents of this file may be used under the terms of
+ * either of the GNU General Public License Version 2 or later (the "GPL"),
+ * or the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
+ * in which case the provisions of the GPL or the LGPL are applicable instead
+ * of those above. If you wish to allow use of your version of this file only
+ * under the terms of either the GPL or the LGPL, and not to allow others to
+ * use your version of this file under the terms of the MPL, indicate your
+ * decision by deleting the provisions above and replace them with the notice
+ * and other provisions required by the GPL or the LGPL. If you do not delete
+ * the provisions above, a recipient may use your version of this file under
+ * the terms of any one of the MPL, the GPL or the LGPL.
+ *
+ * ***** END LICENSE BLOCK ***** */
 
 /*
  * PR assertion checker.
@@ -40,37 +45,6 @@
 #define jsutil_h___
 
 JS_BEGIN_EXTERN_C
-
-/***********************************************************************
-** FUNCTION:	JS_MALLOC()
-** DESCRIPTION:
-**   JS_NEW() allocates an untyped item of size _size from the heap.
-** INPUTS:  _size: size in bytes of item to be allocated
-** OUTPUTS:	untyped pointer to the node allocated
-** RETURN:	pointer to node or error returned from malloc().
-***********************************************************************/
-#define JS_MALLOC(_bytes) (malloc((_bytes)))
-
-/***********************************************************************
-** FUNCTION:	JS_DELETE()
-** DESCRIPTION:
-**   JS_DELETE() unallocates an object previosly allocated via JS_NEW()
-**   or JS_NEWZAP() to the heap.
-** INPUTS:	pointer to previously allocated object
-** OUTPUTS:	the referenced object is returned to the heap
-** RETURN:	void
-***********************************************************************/
-#define JS_DELETE(_ptr) { free(_ptr); (_ptr) = NULL; }
-
-/***********************************************************************
-** FUNCTION:	JS_NEW()
-** DESCRIPTION:
-**   JS_NEW() allocates an item of type _struct from the heap.
-** INPUTS:  _struct: a data type
-** OUTPUTS:	pointer to _struct
-** RETURN:	pointer to _struct or error returns from malloc().
-***********************************************************************/
-#define JS_NEW(_struct) ((_struct *) JS_MALLOC(sizeof(_struct)))
 
 #ifdef DEBUG
 
@@ -90,11 +64,42 @@ JS_Assert(const char *s, const char *file, JSIntn ln);
 #endif /* defined(DEBUG) */
 
 /*
+ * Compile-time assert. "condition" must be a constant expression.
+ * The macro should be used only once per source line in places where
+ * a "typedef" declaration is allowed.
+ */
+#define JS_STATIC_ASSERT(condition)                                           \
+    JS_STATIC_ASSERT_IMPL(condition, __LINE__)
+#define JS_STATIC_ASSERT_IMPL(condition, line)                                \
+    JS_STATIC_ASSERT_IMPL2(condition, line)
+#define JS_STATIC_ASSERT_IMPL2(condition, line)                               \
+    typedef int js_static_assert_line_##line[(condition) ? 1 : -1]
+
+/*
 ** Abort the process in a non-graceful manner. This will cause a core file,
 ** call to the debugger or other moral equivalent as well as causing the
 ** entire process to stop.
 */
 extern JS_PUBLIC_API(void) JS_Abort(void);
+
+#ifdef XP_UNIX
+
+typedef struct JSCallsite JSCallsite;
+
+struct JSCallsite {
+    uint32      pc;
+    char        *name;
+    const char  *library;
+    int         offset;
+    JSCallsite  *parent;
+    JSCallsite  *siblings;
+    JSCallsite  *kids;
+    void        *handy;
+};
+
+extern JSCallsite *JS_Backtrace(int skip);
+
+#endif
 
 JS_END_EXTERN_C
 

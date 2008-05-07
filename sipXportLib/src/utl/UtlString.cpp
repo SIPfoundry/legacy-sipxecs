@@ -26,8 +26,8 @@
 // STATIC VARIABLE INITIALIZATIONS
 const UtlContainableType UtlString::TYPE = "UtlString";
 const char* UtlString::ssNull = "";
-const size_t UtlString::UTLSTRING_NOT_FOUND = (size_t) (-1);
-const size_t UtlString::UTLSTRING_TO_END = (size_t) (-1);
+const ssize_t UtlString::UTLSTRING_NOT_FOUND = -1;
+const ssize_t UtlString::UTLSTRING_TO_END = -1;
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
@@ -214,7 +214,7 @@ UtlString& UtlString::append(const char c)
 UtlString& UtlString::append(const char* szStr, size_t N)
 {
     // The N bytes to append may contain zero bytes.
-    if(szStr && N>0)
+    if(szStr && N>0 && N!=(size_t)UTLSTRING_NOT_FOUND)
     {
         // Calculate the total space needed, including room for a final
         // zero byte.
@@ -253,7 +253,7 @@ UtlString& UtlString::append(const UtlString& str, size_t position, size_t lengt
 {
    if (position < str.mSize)
    {
-      if (   (length == UTLSTRING_TO_END)
+      if (   (length == (size_t)UTLSTRING_TO_END)
           || (position+length > str.mSize)
           )
       {
@@ -658,7 +658,7 @@ size_t UtlString::capacity(size_t N)
         }
         else
         {
-            osPrintf("******** ERROR******* : UtlString::capacity failed (%d). Memory not allocated!\n", N);
+            osPrintf("******** ERROR******* : UtlString::capacity failed (%ld). Memory not allocated!\n", (long)N);
 #ifdef _VXWORKS
             osPrintf("******** ERROR******* : Largest block = %d, requested size = %d\n",maxFreeBlockSize, N);
 #endif
@@ -710,7 +710,7 @@ UtlString operator+(const char* szStr, const UtlString& str)
 // Returns "-1" if there is no such character or if there is an embedded
 // null prior to finding c.
 // use index().
-size_t UtlString::first(char searchChar) const
+ssize_t UtlString::first(char searchChar) const
 {
     return index(searchChar) ;
 }
@@ -718,7 +718,7 @@ size_t UtlString::first(char searchChar) const
 
 // Find the first instance of the designated string or UTLSTRING_NOT_FOUND
 // if not found.
-size_t UtlString::first(const char * searchStr) const
+ssize_t UtlString::first(const char * searchStr) const
 {
     return index(searchStr);
 }
@@ -740,7 +740,7 @@ const char* UtlString::data() const
 
 // Return the index of the designated character or UTLSTRING_NOT_FOUND
 // if not found.
-size_t UtlString::index(char searchChar) const
+ssize_t UtlString::index(char searchChar) const
 {
     return index(searchChar, 0);
 }
@@ -748,9 +748,9 @@ size_t UtlString::index(char searchChar) const
 
 // Return the index of the designated character starting at the
 // designated postion or UTLSTRING_NOT_FOUND if not found.
-size_t UtlString::index(char searchChar, size_t start) const
+ssize_t UtlString::index(char searchChar, size_t start) const
 {
-    size_t foundPosition = UTLSTRING_NOT_FOUND;
+    ssize_t foundPosition = UTLSTRING_NOT_FOUND;
     if(mpData)
     {
         size_t startIndex = start;
@@ -771,16 +771,16 @@ size_t UtlString::index(char searchChar, size_t start) const
 
 // Optimization to avoid strlen call as well as the only
 // safe way to work with binary or opaque data
-size_t UtlString::index(const UtlString& searchString) const
+ssize_t UtlString::index(const UtlString& searchString) const
 {
     return(index(searchString, 0));
 }
 
 // Optimization to avoid strlen call as well as the only
 // safe way to work with binary or opaque data
-size_t UtlString::index(const UtlString& searchString, size_t start) const
+ssize_t UtlString::index(const UtlString& searchString, size_t start) const
 {
-    size_t foundPosition = UTLSTRING_NOT_FOUND;
+    ssize_t foundPosition = UTLSTRING_NOT_FOUND;
     // mpData may be null, so use data() which returns an
     // static empty string if mpData is null
     const char* dataPtr = data();
@@ -808,9 +808,9 @@ size_t UtlString::index(const UtlString& searchString, size_t start) const
 // designated position or UTLSTRING_NOT_FOUND  if not found.
 // Optimization to avoid strlen call as well as the only
 // safe way to work with binary or opaque data
-size_t UtlString::index(const UtlString& searchString, size_t start, CompareCase type) const
+ssize_t UtlString::index(const UtlString& searchString, size_t start, CompareCase type) const
 {
-    size_t foundPosition = UTLSTRING_NOT_FOUND;
+    ssize_t foundPosition = UTLSTRING_NOT_FOUND;
     size_t searchStrSize = searchString.length();
     size_t startIndex = start;
 
@@ -848,7 +848,7 @@ size_t UtlString::index(const UtlString& searchString, size_t start, CompareCase
 // Return the index of the designated substring or UTLSTRING_NOT_FOUND if not found.
 // Pattern matching. I think the arithmetic should be optimized.
 // such as KMP: http://www.ics.uci.edu/~eppstein/161/960227.html
-size_t UtlString::index(const char* searchStr) const
+ssize_t UtlString::index(const char* searchStr) const
 {
     return index(searchStr, 0);
 }
@@ -856,9 +856,9 @@ size_t UtlString::index(const char* searchStr) const
 
 // Return the index of the designated substring starting at the
 // designated position or UTLSTRING_NOT_FOUND if not found.
-size_t UtlString::index(const char* searchStr, size_t start) const
+ssize_t UtlString::index(const char* searchStr, size_t start) const
 {
-    size_t foundPosition = UTLSTRING_NOT_FOUND;
+    ssize_t foundPosition = UTLSTRING_NOT_FOUND;
     if(searchStr)
     {
         // mpData may be null, so use data() which returns an
@@ -889,9 +889,9 @@ size_t UtlString::index(const char* searchStr, size_t start) const
 
 // Return the index of the designated substring starting at the
 // designated position or UTLSTRING_NOT_FOUND  if not found.
-size_t UtlString::index(const char* searchStr, size_t start, CompareCase type) const
+ssize_t UtlString::index(const char* searchStr, size_t start, CompareCase type) const
 {
-    size_t foundPosition = UTLSTRING_NOT_FOUND;
+    ssize_t foundPosition = UTLSTRING_NOT_FOUND;
     if(searchStr)
     {
         size_t searchStrSize = strlen(searchStr);
@@ -908,15 +908,18 @@ size_t UtlString::index(const char* searchStr, size_t start, CompareCase type) c
             // static empty string if mpData is null
             const char* dataPtr = data();
 
-            for (int pos = startIndex;
-                 pos <= int(mSize - searchStrSize)
-                 && foundPosition == UTLSTRING_NOT_FOUND;
-                 pos++)
+            if(searchStrSize <= mSize)
             {
-                if(strncasecmp(dataPtr + pos, searchStr, searchStrSize) == 0)
-                {
-                    foundPosition = pos;
-                }
+               for (size_t pos = startIndex;
+                    pos <= (mSize - searchStrSize)
+                    && foundPosition == UTLSTRING_NOT_FOUND;
+                    pos++)
+               {
+                   if(strncasecmp(dataPtr + pos, searchStr, searchStrSize) == 0)
+                   {
+                       foundPosition = pos;
+                   }
+               }
             }
 
         }
@@ -927,9 +930,9 @@ size_t UtlString::index(const char* searchStr, size_t start, CompareCase type) c
 
 
 // Returns the index of the last occurrence in the string of the character s.
-size_t UtlString::last(char searchChar) const
+ssize_t UtlString::last(char searchChar) const
 {
-    size_t foundPosition = UTLSTRING_NOT_FOUND;
+    ssize_t foundPosition = UTLSTRING_NOT_FOUND;
     if(mpData)
     {
         size_t startIndex = 0;
@@ -962,7 +965,7 @@ UtlString UtlString::operator() (size_t start, size_t len) const
 
    // Note that since unsigned arithmetic can overflow, we have to test that
    // start + len >= start.
-   if (mpData && start <= mSize && len == UTLSTRING_TO_END )
+   if (mpData && start <= mSize && len == (size_t)UTLSTRING_TO_END )
    {
       // Get all of the string after start.
       newUtlString.append(&mpData[start], mSize - start);
@@ -1194,7 +1197,7 @@ UtlBoolean UtlString::contains(const char* searchStr) const
 {
     UtlBoolean containFlag = TRUE;
 
-    size_t containPosition = index(searchStr);
+    ssize_t containPosition = index(searchStr);
     if (containPosition == UTLSTRING_NOT_FOUND)
     {
         containFlag = FALSE;

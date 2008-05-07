@@ -87,10 +87,10 @@ private:
    OsStatus close();
      //:Closes the data source
 
-   OsStatus getLength(int& iLength);
+   OsStatus getLength(size_t& iLength);
      //:Gets the length of the stream (if available)
 
-   OsStatus read(char *szBuffer, int iLength, int& iLengthRead);
+   OsStatus read(char *szBuffer, size_t iLength, size_t& iLengthRead);
      //:Reads iLength bytes of data from the data source and places the
      //:data into the passed szBuffer buffer.
      //

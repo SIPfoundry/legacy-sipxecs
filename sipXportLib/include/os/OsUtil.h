@@ -73,7 +73,7 @@ public:
 
    static OsStatus insertKeyValue(const UtlString& rPrefix,
                                   const UtlString& rName,
-                                  const int value,
+                                  void* value,
                                   UtlBoolean exceptOnErr=TRUE);
      //:Insert a key-value pair into the name database
      // The key is constructed by concatenating rPrefix and rName.
@@ -83,7 +83,7 @@ public:
 
    static OsStatus deleteKeyValue(const UtlString& rPrefix,
                                   const UtlString& rName,
-                                  int* pValue=NULL);
+                                  void** pValue=NULL);
      //:Remove the indicated key-value pair from the name database
      // The key is constructed by concatenating rPrefix and rName.
      // If pValue is non-NULL, the value for the key-value pair is returned
@@ -93,14 +93,14 @@ public:
 
    static OsStatus lookupKeyValue(const UtlString& rPrefix,
                                   const UtlString& rName,
-                                  int* pValue=NULL);
+                                  void** pValue=NULL);
      //:Retrieve the value associated with the specified key
      // The key is constructed by concatenating rPrefix and rName.
      // If pValue is non-NULL, the value is returned via pValue.
      // Return OS_SUCCESS if the lookup is successful, return
      // OS_NOT_FOUND if there is no match for the specified key.
 
-   static OsStatus convertUtlStringToInt(const UtlString& rStr, int& rInt);
+   static OsStatus convertUtlStringToInt(const UtlString& rStr, intptr_t& rInt);
      //:Convert the value in rStr to an integer.
      // Uses strtol() with base==0 to perform the conversion.
      // Return OS_SUCCESS if the conversion was successful and set rInt to

@@ -200,7 +200,7 @@ VXIplatformInit(VXIMap *configArgs, VXIunsigned *nbChannels)
     if (!extensionRules) {
       const VXIchar *key;
       const VXIValue *val;
-      int prefixlen = wcslen(CLIENT_INET_EXTENSION_RULE_PREFIX);
+      size_t prefixlen = wcslen(CLIENT_INET_EXTENSION_RULE_PREFIX);
       
       VXIMapIterator *iter = VXIMapGetFirstProperty(configArgs,&key,&val);
       if (iter) {
@@ -1104,7 +1104,7 @@ SBclientConfigureDiagnosticTags(const VXIMap     *configArgs,
   VXIplatformResult rc = VXIplatform_RESULT_SUCCESS;
   const VXIchar *key;
   const VXIValue *val;
-  int prefixlen = wcslen(CLIENT_LOG_DIAG_TAG_KEY_PREFIX);
+  size_t prefixlen = wcslen(CLIENT_LOG_DIAG_TAG_KEY_PREFIX);
   VXIMapIterator *iter;
   VXIlogInterface *log = NULL;
   OSBlogInterface *osbLog = NULL;

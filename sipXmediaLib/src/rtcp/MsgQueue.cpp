@@ -510,10 +510,10 @@ bool CMsgQueue::CreateThreadEvents()
 ************************************************************************|<>|*/
 bool CMsgQueue::CreateMessageThread()
 {
-    unsigned int iMessageThreadID;
+    pthread_t iMessageThreadID;
 
 //  We need to create a separate thread for managing the message queue
-    m_hMessageThread = (int *)_beginthreadex(
+    m_hMessageThread = (HANDLE)_beginthreadex(
                 NULL,                // No Special Security Attributes
                 0,                   // Default Stack Size
                 InitMessageThread,   // Thread Function
@@ -792,7 +792,7 @@ bool CMsgQueue::CreateMessageTask()
                     0,                          // Flag Mask
                     1024*10,                    // Stack Size
                     (FUNCPTR)InitMessageThread, // Task Entry Point
-                    (int)this,                  // Argument to Entry Point
+                    this,                       // Argument to Entry Point
                     0, 0, 0, 0, 0, 0, 0, 0, 0); // 9 unused arguments
 
 //  Exit with a failure if task creation failed

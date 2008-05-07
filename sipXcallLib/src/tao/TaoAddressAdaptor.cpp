@@ -392,7 +392,7 @@ TaoStatus TaoAddressAdaptor::addressGetAddrListeners(TaoMessage& rMsg)
 
         for (int i = 0; i < actual; i++)
         {
-                sprintf(buff, "%d", (int)pAddressListeners[i]);
+                sprintf(buff, "%ld", pAddressListeners[i]);
                 argList += (UtlString) buff;
 
                 if (i < (actual - 1))
@@ -440,7 +440,7 @@ TaoStatus TaoAddressAdaptor::addressGetCallListeners(TaoMessage& rMsg)
 
         for (int i = 0; i < actual; i++)
         {
-                sprintf(buff, "%d", (int)pCallListeners[i]);
+                sprintf(buff, "%ld", pCallListeners[i]);
                 argList += (UtlString) buff;
 
                 if (i < (actual - 1))
@@ -488,7 +488,7 @@ TaoStatus TaoAddressAdaptor::addressGetConnections(TaoMessage& rMsg)
 
         for (int i = 0; i < actual; i++)
         {
-                sprintf(buff, "%d", (int)pConnections[i]);
+                sprintf(buff, "%ld", pConnections[i]);
                 argList += (UtlString) buff;
 
                 if (i < (actual - 1))
@@ -662,7 +662,7 @@ TaoStatus TaoAddressAdaptor::addressGetTerminals(TaoMessage& rMsg)
 
         for (int i = 0; i < actual; i++)
         {
-                sprintf(buff, "%d", (int)pTerminals[i]);
+                sprintf(buff, "%ld", pTerminals[i]);
                 argList += (UtlString) buff;
 
                 if (i < (actual - 1))

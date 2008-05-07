@@ -52,7 +52,7 @@ ResourceCached::ResourceCached(ResourceCache* resourceCache,
    mSeqNo(getResourceListSet()->getNextSeqNo()),
    mRefreshTimer(getResourceListServer()->getResourceListTask().
                     getMessageQueue(),
-                 mSeqNo + ResourceListSet::REFRESH_TIMEOUT)
+                 (void*)(mSeqNo + ResourceListSet::REFRESH_TIMEOUT))
 {
    OsSysLog::add(FAC_RLS, PRI_DEBUG,
                  "ResourceCached:: this = %p, URI = '%s'",

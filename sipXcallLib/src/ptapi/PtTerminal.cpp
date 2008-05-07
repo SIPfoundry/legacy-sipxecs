@@ -183,7 +183,7 @@ PtStatus PtTerminal::addCallListener(PtCallListener& rCallListener)
                                                                         arg);
         mpClient->sendRequest(msg);
 
-        int rc;
+        intptr_t rc;
         if (OS_SUCCESS != pe->wait(msg.getCmd(), mTimeOut))
         {
                 mpClient->resetConnectionSocket(msg.getMsgID());
@@ -195,9 +195,9 @@ PtStatus PtTerminal::addCallListener(PtCallListener& rCallListener)
                 return PT_BUSY;
         }
 
-        pe->getEventData((int &)rc);
+        pe->getEventData(rc);
 #ifdef PTAPI_TEST
-        int cmd;
+        intptr_t cmd;
         pe->getIntData2(cmd);
         assert(cmd == TaoMessage::ADD_CALL_LISTENER);
 #endif
@@ -224,7 +224,7 @@ PtStatus PtTerminal::addTerminalListener(PtTerminalListener& rTerminalListener)
         {
                 name.append(buff);
                 argCnt = 2;
-                sprintf(buff, "%d", handle);
+                sprintf(buff, "%ld", handle);
                 arg = name + TAOMESSAGE_DELIMITER  + buff;
         }
 
@@ -241,7 +241,7 @@ PtStatus PtTerminal::addTerminalListener(PtTerminalListener& rTerminalListener)
                                                                         arg);
         mpClient->sendRequest(msg);
 
-        int rc;
+        intptr_t rc;
         if (OS_SUCCESS != pe->wait(msg.getCmd(), mTimeOut))
         {
                 mpClient->resetConnectionSocket(msg.getMsgID());
@@ -253,9 +253,9 @@ PtStatus PtTerminal::addTerminalListener(PtTerminalListener& rTerminalListener)
                 return PT_BUSY;
         }
 
-        pe->getEventData((int &)rc);
+        pe->getEventData(rc);
 #ifdef PTAPI_TEST
-        int cmd;
+        intptr_t cmd;
         pe->getIntData2(cmd);
         assert(cmd == TaoMessage::ADD_TERM_LISTENER);
 #endif
@@ -309,10 +309,12 @@ PtStatus PtTerminal::getAddresses(PtAddress arAddresses[],
                 return PT_BUSY;
         }
 
-        pe->getEventData(nItems);
+        intptr_t temp;
+        pe->getEventData(temp);
+        nItems = (int)temp;
         pe->getStringData((UtlString &)arg);
 #ifdef PTAPI_TEST
-        int cmd;
+        intptr_t cmd;
         pe->getIntData2(cmd);
         assert(cmd == TaoMessage::GET_ADDRESSES);
 #endif
@@ -358,7 +360,7 @@ PtStatus PtTerminal::getCallListeners(PtCallListener aCallListeners[],
                                                                         arg);
         mpClient->sendRequest(msg);
 
-        int rc;
+        intptr_t rc;
         if (OS_SUCCESS != pe->wait(msg.getCmd(), mTimeOut))
         {
                 mpClient->resetConnectionSocket(msg.getMsgID());
@@ -370,9 +372,9 @@ PtStatus PtTerminal::getCallListeners(PtCallListener aCallListeners[],
                 return PT_BUSY;
         }
 
-        pe->getEventData((int &)rc);
+        pe->getEventData(rc);
 #ifdef PTAPI_TEST
-        int cmd;
+        intptr_t cmd;
         pe->getIntData2(cmd);
         assert(cmd == TaoMessage::GET_CALL_LISTENERS);
 #endif
@@ -775,9 +777,11 @@ PtStatus PtTerminal::getComponents(PtComponent* components[],
         }
 
         pe->getStringData((UtlString &)arg);
-        pe->getIntData(nItems);
+        intptr_t temp;
+        pe->getIntData(temp);
+        nItems = (int)temp;
 #ifdef PTAPI_TEST
-        int cmd;
+        intptr_t cmd;
         pe->getIntData2(cmd);
         assert(cmd == TaoMessage::GET_COMPONENTS);
 #endif
@@ -930,7 +934,7 @@ PtStatus PtTerminal::getConfiguration(PtConfigDb& rpConfigDb)
                                                                         "");
         mpClient->sendRequest(msg);
 
-        int rc;
+        intptr_t rc;
         if (OS_SUCCESS != pe->wait(msg.getCmd(), mTimeOut))
         {
                 mpClient->resetConnectionSocket(msg.getMsgID());
@@ -942,9 +946,9 @@ PtStatus PtTerminal::getConfiguration(PtConfigDb& rpConfigDb)
                 return PT_BUSY;
         }
 
-        pe->getEventData((int &)rc);
+        pe->getEventData(rc);
 #ifdef PTAPI_TEST
-        int cmd;
+        intptr_t cmd;
         pe->getIntData2(cmd);
         assert(cmd == TaoMessage::GET_CONFIG);
 #endif
@@ -972,7 +976,7 @@ PtStatus PtTerminal::getDoNotDisturb(PtBoolean& rFlag)
                                                                         "");
         mpClient->sendRequest(msg);
 
-        int rc;
+        intptr_t rc;
         if (OS_SUCCESS != pe->wait(msg.getCmd(), mTimeOut))
         {
                 mpClient->resetConnectionSocket(msg.getMsgID());
@@ -984,9 +988,9 @@ PtStatus PtTerminal::getDoNotDisturb(PtBoolean& rFlag)
                 return PT_BUSY;
         }
 
-        pe->getEventData((int &)rc);
+        pe->getEventData(rc);
 #ifdef PTAPI_TEST
-        int cmd;
+        intptr_t cmd;
         pe->getIntData2(cmd);
         assert(cmd == TaoMessage::GET_DONOT_DISTURB);
 #endif
@@ -1091,7 +1095,7 @@ PtStatus PtTerminal::getTerminalListeners(PtTerminalListener aTermListeners[],
                                                                         arg);
         mpClient->sendRequest(msg);
 
-        int rc;
+        intptr_t rc;
         if (OS_SUCCESS != pe->wait(msg.getCmd(), mTimeOut))
         {
                 mpClient->resetConnectionSocket(msg.getMsgID());
@@ -1103,9 +1107,9 @@ PtStatus PtTerminal::getTerminalListeners(PtTerminalListener aTermListeners[],
                 return PT_BUSY;
         }
 
-        pe->getEventData((int &)rc);
+        pe->getEventData(rc);
 #ifdef PTAPI_TEST
-        int cmd;
+        intptr_t cmd;
         pe->getIntData2(cmd);
         assert(cmd == TaoMessage::GET_TERM_LISTENERS);
 #endif
@@ -1134,7 +1138,7 @@ PtStatus PtTerminal::getProvider(PtProvider& rProvider)
                                                                         "");
         mpClient->sendRequest(msg);
 
-        int rc;
+        intptr_t rc;
         if (OS_SUCCESS != pe->wait(msg.getCmd(), mTimeOut))
         {
                 mpClient->resetConnectionSocket(msg.getMsgID());
@@ -1146,9 +1150,9 @@ PtStatus PtTerminal::getProvider(PtProvider& rProvider)
                 return PT_BUSY;
         }
 
-        pe->getEventData((int &)rc);
+        pe->getEventData(rc);
 #ifdef PTAPI_TEST
-        int cmd;
+        intptr_t cmd;
         pe->getIntData2(cmd);
         assert(cmd == TaoMessage::GET_PROVIDER);
 #endif
@@ -1436,7 +1440,7 @@ PtStatus PtTerminal::pickup(PtAddress& rPickupAddress,
                                                                         arg);
         mpClient->sendRequest(msg);
 
-        int rc;
+        intptr_t rc;
         if (OS_SUCCESS != pe->wait(msg.getCmd(), mTimeOut))
         {
                 mpClient->resetConnectionSocket(msg.getMsgID());
@@ -1448,9 +1452,9 @@ PtStatus PtTerminal::pickup(PtAddress& rPickupAddress,
                 return PT_BUSY;
         }
 
-        pe->getEventData((int &)rc);
+        pe->getEventData(rc);
 #ifdef PTAPI_TEST
-        int cmd;
+        intptr_t cmd;
         pe->getIntData2(cmd);
         assert(cmd == TaoMessage::PICKUP);
 #endif
@@ -1470,7 +1474,7 @@ PtStatus PtTerminal::removeCallListener(PtCallListener& rCallListener)
         UtlString local;
     char buff[MAXIMUM_INTEGER_STRING_LENGTH];
 
-    sprintf(buff, "%d", (int)&rCallListener);
+    sprintf(buff, "%" PRIdPTR, (intptr_t)&rCallListener);
 
         rCallListener.getLocation(&local);
 
@@ -1489,7 +1493,7 @@ PtStatus PtTerminal::removeCallListener(PtCallListener& rCallListener)
                                                                         arg);
         mpClient->sendRequest(msg);
 
-        int rc;
+        intptr_t rc;
         if (OS_SUCCESS != pe->wait(msg.getCmd(), mTimeOut))
         {
                 mpClient->resetConnectionSocket(msg.getMsgID());
@@ -1501,9 +1505,9 @@ PtStatus PtTerminal::removeCallListener(PtCallListener& rCallListener)
                 return PT_BUSY;
         }
 
-        pe->getEventData((int &)rc);
+        pe->getEventData(rc);
 #ifdef PTAPI_TEST
-        int cmd;
+        intptr_t cmd;
         pe->getIntData2(cmd);
         assert(cmd == TaoMessage::REMOVE_CALL_LISTENER);
 #endif
@@ -1527,7 +1531,7 @@ PtStatus PtTerminal::removeTerminalListener(PtTerminalListener& rTerminalListene
         if (PT_SUCCESS == rTerminalListener.getTerminalName(buff, 127)) // must have the terminal name
         {
                 name.append(buff);
-                sprintf(buff, "%d", handle);
+                sprintf(buff, "%ld", handle);
                 arg = name + TAOMESSAGE_DELIMITER  + buff;
         }
         else
@@ -1546,7 +1550,7 @@ PtStatus PtTerminal::removeTerminalListener(PtTerminalListener& rTerminalListene
                                                                         arg);
         mpClient->sendRequest(msg);
 
-        int rc;
+        intptr_t rc;
         if (OS_SUCCESS != pe->wait(msg.getCmd(), mTimeOut))
         {
                 mpClient->resetConnectionSocket(msg.getMsgID());
@@ -1558,9 +1562,9 @@ PtStatus PtTerminal::removeTerminalListener(PtTerminalListener& rTerminalListene
                 return PT_BUSY;
         }
 
-        pe->getEventData((int &)rc);
+        pe->getEventData(rc);
 #ifdef PTAPI_TEST
-        int cmd;
+        intptr_t cmd;
         pe->getIntData2(cmd);
         assert(cmd == TaoMessage::REMOVE_TERM_LISTENER);
 #endif
@@ -1595,7 +1599,7 @@ PtStatus PtTerminal::setDoNotDisturb(PtBoolean flag)
                                                                         arg);
         mpClient->sendRequest(msg);
 
-        int rc;
+        intptr_t rc;
         if (OS_SUCCESS != pe->wait(msg.getCmd(), mTimeOut))
         {
                 mpClient->resetConnectionSocket(msg.getMsgID());
@@ -1607,9 +1611,9 @@ PtStatus PtTerminal::setDoNotDisturb(PtBoolean flag)
                 return PT_BUSY;
         }
 
-        pe->getEventData((int &)rc);
+        pe->getEventData(rc);
 #ifdef PTAPI_TEST
-        int cmd;
+        intptr_t cmd;
         pe->getIntData2(cmd);
         assert(cmd == TaoMessage::SET_DONOT_DISTURB);
 #endif

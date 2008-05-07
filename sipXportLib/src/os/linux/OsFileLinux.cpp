@@ -124,7 +124,7 @@ OsStatus OsFileLinux::fileunlock()
 }
 
 
-OsStatus OsFileLinux::setLength(unsigned long newLength)
+OsStatus OsFileLinux::setLength(size_t newLength)
 {
     OsStatus stat = OS_SUCCESS;
 

@@ -307,7 +307,7 @@ void LinePresenceMonitor::handleNotifyMessage(const SipMessage* notifyMessage)
    if (notifyBody)
    {
       UtlString messageContent;
-      int bodyLength;
+      size_t bodyLength;
       
       notifyBody->getBytes(&messageContent, &bodyLength);
       

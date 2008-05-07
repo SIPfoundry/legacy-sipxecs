@@ -501,7 +501,7 @@ TaoStatus TaoProviderAdaptor::getCreateCall(TaoMessage& rMsg)
 
         TaoObjHandle  clientSocket = rMsg.getSocket();
         UtlString callId;
-        int objId = rMsg.getTaoObjHandle();
+        TaoObjHandle objId = rMsg.getTaoObjHandle();
 
         mpCallDb->insert(mpCallCnt->add(), objId);
         TaoMessage*     pMsg = new TaoMessage(TaoMessage::RESPONSE_PROVIDER,
@@ -546,7 +546,7 @@ TaoStatus TaoProviderAdaptor::providerGetCalls(TaoMessage& rMsg)
 
         for (int i = 0; i < actual; i++)
         {
-                sprintf(buff, "%d", (int)pCalls[i]);
+                sprintf(buff, "%ld", pCalls[i]);
                 argList += (UtlString) buff;
 
                 if (i < (actual - 1))
@@ -614,11 +614,11 @@ TaoStatus TaoProviderAdaptor::providerAddProviderListener(TaoMessage& rMsg)
 
         if (mObjId)
         {
-                int objId = atoi(sProviderListener);
+                TaoObjHandle objId = atol(sProviderListener);
                 TaoProviderListener *pListener;
                 pListener = new TaoProviderListener(objId, clientSocket, mpSvrTransport, sTerminalName);
                 objId = mpProviderListenerCnt->add();
-                mpProviderListenerDb->insert((TaoObjHandle)objId, (TaoObjHandle)pListener);
+                mpProviderListenerDb->insert(objId, (TaoObjHandle)pListener);
         }
 
 
@@ -691,7 +691,7 @@ TaoStatus TaoProviderAdaptor::providerGetProviderListeners(TaoMessage& rMsg)
 
         for (int i = 0; i < actual; i++)
         {
-                sprintf(buff, "%d", (int)pProviderListeners[i]);
+                sprintf(buff, "%ld", pProviderListeners[i]);
                 argList += (UtlString) buff;
 
                 if (i < (actual - 1))
@@ -849,7 +849,7 @@ TaoStatus TaoProviderAdaptor::providerShutdown(TaoMessage& rMsg)
                                                                         0,
                                                                         "");
 
-        osPrintf("==== TaoProviderAdaptor::providerShutdown %d\n", objId);
+        osPrintf("==== TaoProviderAdaptor::providerShutdown %ld\n", objId);
         if (mpSvrTransport->postMessage(*pMsg))
         {
                 delete pMsg;

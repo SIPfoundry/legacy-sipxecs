@@ -449,8 +449,8 @@ JB_inst* MpConnection::getJBinst(UtlBoolean optional) {
       int res;
       res = JB_create(&mpJB_inst);
 /*
-      osPrintf("MpConnection::getJBinst: JB_create=>0x%X\n",
-         (int) mpJB_inst);
+      osPrintf("MpConnection::getJBinst: JB_create=>0x%p\n",
+         mpJB_inst);
 */
 
       assert(NULL != mpJB_inst);

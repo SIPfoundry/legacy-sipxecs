@@ -177,7 +177,7 @@ UtlBoolean SipConfigServerAgent::handleMessage(OsMsg& eventMessage)
                sipMessage->getToAddress(&toAddr, &toPort, &toProto, NULL, NULL, &toTag);
                if( toTag.isNull())
                {
-                  int epochTime = OsDateTime::getSecsSinceEpoch();
+                  int epochTime = (int)OsDateTime::getSecsSinceEpoch();
                   // Build a to tag
                   char tagBuffer[100];
                   sprintf(tagBuffer, "%dasd", epochTime);

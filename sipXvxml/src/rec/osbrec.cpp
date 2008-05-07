@@ -210,9 +210,9 @@ static VXIrecResult OSBrecBeginSession(VXIrecInterface * pThis,
 
         if (impl->hungup != 1 && impl->pCallMgr)
         {
-            OsQueuedEvent* dtmfEvent = new OsQueuedEvent(impl->mIncomingQ, 1);
+            OsQueuedEvent* dtmfEvent = new OsQueuedEvent(impl->mIncomingQ, (void*)1);
             if (!dtmfEvent)
-            return VXIrec_RESULT_OUT_OF_MEMORY;
+               return VXIrec_RESULT_OUT_OF_MEMORY;
 
             VXIint interdigitTime = VXI_TIMEOUT_DEFAULT;
             impl->pCallMgr->enableDtmfEvent((const char*)impl->callId,
@@ -260,7 +260,7 @@ static VXIrecResult OSBrecEndSession(VXIrecInterface *pThis, VXIMap *)
         {
             if (impl->dtmfEvent)
             {
-                impl->pCallMgr->removeDtmfEvent((const char*)impl->callId, (int)impl->dtmfEvent);
+                impl->pCallMgr->removeDtmfEvent((const char*)impl->callId, (void*)impl->dtmfEvent);
                 // 08/19/03 (rschaaf):
                 // Since this event may still be in use, it must be the responsibility of
                 // the recipient of the removeDtmf message to delete the event.
@@ -296,12 +296,12 @@ static VXIrecResult OSBrecLoadGrammarFromURI(struct VXIrecInterface *pThis,
         vxistring gm(uri);
         vxistring min;
         vxistring max;
-        unsigned int idx = 0;
+        size_t idx = 0;
 
         if ((idx = gm.find(L"digits?")) != vxistring::npos)
         {
             idx += 7;
-            unsigned int pos = gm.length();
+            size_t pos = gm.length();
             vxistring tmpstr = gm.substr(idx, pos - idx);
             if ((pos = tmpstr.find(NEXT)) != vxistring::npos)
             {
@@ -420,7 +420,7 @@ static VXIrecResult OSBrecFreeGrammar(VXIrecInterface *pThis,
     if (gram == NULL || *gram == NULL)
         return VXIrec_RESULT_SUCCESS;
 
-    tp->Diag(DIAG_TAG_REC, NULL,L"Rec OSBrecFreeGrammar 0x%08x 0x%08x" , (int)gram, (int)(*gram));
+    tp->Diag(DIAG_TAG_REC, NULL,L"Rec OSBrecFreeGrammar 0x%p 0x%p" , gram, (*gram));
     tp->FreeGrammar(FromVXIrecGrammar(*gram));
     *gram = NULL;
     return VXIrec_RESULT_SUCCESS;
@@ -554,7 +554,9 @@ static VXIrecResult waitForResponse(VXIrecInterface *pThis,
         if (waitRet == OS_SUCCESS)
         {
             // got event
-            pMsg->getEventData(dtmfInfo);
+        intptr_t temp_info = dtmfInfo;
+        pMsg->getEventData(temp_info);
+        dtmfInfo = temp_info;
             eventInfo = ((dtmfInfo & 0xffff0000) >> 16);
             if (!pMsg->getSentFromISR())
             pMsg->releaseMsg(); // free the message
@@ -955,7 +957,7 @@ static int getRecordedData(OsProtectedEvent* recordEvent, int& dtmfterm,
         double& duration)
 {
     int ret = MprRecorder::RECORDING;
-    int info = 0;
+    void* info = 0;
     recordEvent->getUserData(info);
     if (info)
     {
@@ -1030,7 +1032,7 @@ static VXIrecResult OSBrecRecord(VXIrecInterface *pThis, const VXIMap *props,
 
         OsProtectEventMgr* eventMgr = OsProtectEventMgr::getEventMgr();
         OsProtectedEvent* recordEvent = eventMgr->alloc();
-        recordEvent->setUserData((int)&rs);
+        recordEvent->setUserData(&rs);
 
         int eventInfo = 0;
         int dtmfInfo;
@@ -1060,7 +1062,7 @@ static VXIrecResult OSBrecRecord(VXIrecInterface *pThis, const VXIMap *props,
 
         if (impl->dtmfEvent)
         {
-            impl->pCallMgr->disableDtmfEvent((const char*)impl->callId, (int)impl->dtmfEvent);
+            impl->pCallMgr->disableDtmfEvent((const char*)impl->callId, (void*)impl->dtmfEvent);
             // All key presses during recording would have been queued, confusing
             // recognition following it, so disable the dtmf listening during recording.
             // All key presses during recording will be ignored. 
@@ -1072,7 +1074,7 @@ static VXIrecResult OSBrecRecord(VXIrecInterface *pThis, const VXIMap *props,
         if ( impl->live == 1 && OS_SUCCESS == impl->pCallMgr->ezRecord((const char*)impl->callId,
                 maxtime,
                 finalsilence/1000, /* in seconds */
-                (int&)duration,
+                duration,
                 (const char*)fileName,
                 dtmfterm,
                 recordEvent))
@@ -1094,14 +1096,14 @@ static VXIrecResult OSBrecRecord(VXIrecInterface *pThis, const VXIMap *props,
                 {
                     ///////////////////////////////////   debug info   /////////////////////////////////
                     tp->Diag(DIAG_TAG_RECORDING, NULL, L"Recording: state %d event 0x%08x, to reset.",
-                    state, (int)recordEvent);
+                        state, recordEvent);
                     ///////////////////////////////////   debug info   /////////////////////////////////
 
                     recordEvent->reset();
 
                     ///////////////////////////////////   debug info   /////////////////////////////////
                     tp->Diag(DIAG_TAG_RECORDING, NULL, L"Recording: state %d event 0x%08x, reset.",
-                    state, (int)recordEvent);
+                        state, recordEvent);
                     ///////////////////////////////////   debug info   /////////////////////////////////
                 }
                 else
@@ -1110,23 +1112,23 @@ static VXIrecResult OSBrecRecord(VXIrecInterface *pThis, const VXIMap *props,
                     {
                         OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG,
                         "osbrec::OSBrecRecord calling stopRecording() for %s",
-                        impl->callId);
+                        (const char*)impl->callId);
                         impl->pCallMgr->stopRecording((const char*)impl->callId);
                         impl->recording = 0;
 
                         ///////////////////////////////////   debug info   /////////////////////////////////
-                        tp->Diag(DIAG_TAG_RECORDING, NULL, L"Recording: stop recording live=0, recording state %d event 0x%08x ", state, (int)recordEvent);
+                        tp->Diag(DIAG_TAG_RECORDING, NULL, L"Recording: stop recording live=0, recording state %d event 0x%08x ", state, recordEvent);
                         ///////////////////////////////////   debug info   /////////////////////////////////
                     }
                     ///////////////////////////////////   debug info   /////////////////////////////////
-                    tp->Diag(DIAG_TAG_RECORDING, NULL, L"Recording: recording stopped, releasing event 0x%08x ", (int)recordEvent);
+                    tp->Diag(DIAG_TAG_RECORDING, NULL, L"Recording: recording stopped, releasing event 0x%08x ", recordEvent);
                     ///////////////////////////////////   debug info   /////////////////////////////////
 
                     recordEvent->setUserData(0);
                     eventMgr->release(recordEvent);
 
                     ///////////////////////////////////   debug info   /////////////////////////////////
-                    tp->Diag(DIAG_TAG_RECORDING, NULL, L"Recording: recording stopped, state=%d released event 0x%08x ", state, (int)recordEvent);
+                    tp->Diag(DIAG_TAG_RECORDING, NULL, L"Recording: recording stopped, state=%d released event 0x%08x ", state, recordEvent);
                     ///////////////////////////////////   debug info   /////////////////////////////////
 
                     break;
@@ -1138,14 +1140,14 @@ static VXIrecResult OSBrecRecord(VXIrecInterface *pThis, const VXIMap *props,
             if (ret != OS_SUCCESS)
             {
                 ///////////////////////////////////   debug info   /////////////////////////////////
-                tp->Diag(DIAG_TAG_RECORDING, NULL, L"Recording: event 0x%08x timed out ret=%d", (int)recordEvent, (int)ret);
+                tp->Diag(DIAG_TAG_RECORDING, NULL, L"Recording: event 0x%08x timed out ret=%d", recordEvent, ret);
                 ///////////////////////////////////   debug info   /////////////////////////////////
 
                 if (impl->recording)
                 {
                     OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG,
                     "osbrec::OSBrecRecord calling stopRecording() for %s",
-                    impl->callId);
+                    (const char*)impl->callId);
                     impl->pCallMgr->stopRecording((const char*)impl->callId);
                     impl->recording = 0;
                 }
@@ -1154,14 +1156,14 @@ static VXIrecResult OSBrecRecord(VXIrecInterface *pThis, const VXIMap *props,
                 if(OS_ALREADY_SIGNALED == recordEvent->signal(0))
                 {
                     ///////////////////////////////////   debug info   /////////////////////////////////
-                    tp->Diag(DIAG_TAG_RECORDING, NULL, L"Recording: timed out state %d, event 0x%08x already signaled, releasing", state, (int)recordEvent);
+                    tp->Diag(DIAG_TAG_RECORDING, NULL, L"Recording: timed out state %d, event 0x%08x already signaled, releasing", state, recordEvent);
                     ///////////////////////////////////   debug info   /////////////////////////////////
 
                     recordEvent->setUserData(0);
                     eventMgr->release(recordEvent);
 
                     ///////////////////////////////////   debug info   /////////////////////////////////
-                    tp->Diag(DIAG_TAG_RECORDING, NULL, L"Recording: timed out, event 0x%08x already signaled, released", (int)recordEvent);
+                    tp->Diag(DIAG_TAG_RECORDING, NULL, L"Recording: timed out, event 0x%08x already signaled, released", recordEvent);
                     ///////////////////////////////////   debug info   /////////////////////////////////
                 }
             }
@@ -1183,9 +1185,9 @@ static VXIrecResult OSBrecRecord(VXIrecInterface *pThis, const VXIMap *props,
                 }
                 else
                 {
-                    int len = (int)rs.mTotalBytesWritten + 44; // header length = 44
+                    size_t len = (size_t)rs.mTotalBytesWritten + 44; // header length = 44
                     VXIbyte *data = new VXIbyte [len + 1];
-                    unsigned long numread = 0;
+                    size_t numread = 0;
 
                     if ((OS_SUCCESS == file.read(data, len, numread)) && (numread > 0))
                     {
@@ -1198,10 +1200,10 @@ static VXIrecResult OSBrecRecord(VXIrecInterface *pThis, const VXIMap *props,
                         UtlString strTime;
                         OsDateTime::getLocalTimeString(strTime);
                         const char* tmstr = strTime.data();
-                        int len = strlen(tmstr);
+                        size_t len = strlen(tmstr);
                         VXIchar *tm = new VXIchar[len + 1];
-                        for (int i = 0; i <= len; i++)
-                        tm[i] = (VXIchar)tmstr[i];
+                        for (size_t i = 0; i <= len; i++)
+                           tm[i] = (VXIchar)tmstr[i];
                         tm[len] = 0;
                         // Return the content
                         if (! content)
@@ -1331,7 +1333,7 @@ OSBREC_API VXIrecResult OSBrecExiting (VXIlogInterface *log,
             {
                 OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG,
                         "osbrec::OSBrecExiting calling stopRecording() for %s",
-                        impl->callId);
+                        (const char*)impl->callId);
                 impl->pCallMgr->stopRecording((const char*)impl->callId);
                 impl->recording = 0;
                 tp->Diag(DIAG_TAG_REC, NULL, L"stopRecording called");

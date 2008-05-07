@@ -270,7 +270,7 @@ SBinetHttpStream::OsGetData(HTAnchor* anchor,
 
    // Strip the file extension to allow for Apache MultiView magic
    if ((language_pref != NULL) && (absolute_url.first('?') == UTL_NOT_FOUND)) {
-      size_t urlExtensionDot = absolute_url.last('.');
+      ssize_t urlExtensionDot = absolute_url.last('.');
       if (urlExtensionDot != UTL_NOT_FOUND) {
          absolute_url.remove(urlExtensionDot);
       }
@@ -363,7 +363,7 @@ SBinetHttpStream::OsGetData(HTAnchor* anchor,
    	Diag (tagID, (const VXIchar*)NULL, L"response code (%d) response contentLength(%d)\n", m_HttpStatus, contentLength);
    }
 
-   int bodyLen = 0;
+   size_t bodyLen = 0;
    UtlString bodybytes;
    const HttpBody *responseBody = pResponse->getBody();
    if (responseBody) 
@@ -526,7 +526,7 @@ SBinetHttpStream::OsPostData(HTParentAnchor* source,
 
    HttpMessage request;
    UtlString    bytes;
-   int         reqlen = 0;
+   size_t      reqlen = 0;
 
    request.setBody(body);
    request.setRequestFirstHeaderLine(HTTP_POST_METHOD,
@@ -537,7 +537,7 @@ SBinetHttpStream::OsPostData(HTParentAnchor* source,
    request.getBytes(&bytes,&reqlen);
 
    HttpMessage response;
-   int         len = 0;
+   size_t      len = 0;
 
    int ret = response.get(newUrl, request, m_nTimeoutOpen);
    if (DiagIsEnabled(MODULE_SBINET_TAGID))
@@ -548,7 +548,7 @@ SBinetHttpStream::OsPostData(HTParentAnchor* source,
 
    int contentLength = response.getContentLength();
 
-   int i;
+   size_t i;
    VXIchar *out = NULL;
    VXIunsigned tagID = (unsigned int)MODULE_SBINET_STREAM_TAGID;
    if (DiagIsEnabled(tagID))
@@ -569,7 +569,7 @@ SBinetHttpStream::OsPostData(HTParentAnchor* source,
    UtlString contentTypeString;
    response.getContentType(&contentTypeString);
 
-   int bodyLen = 0;
+   size_t bodyLen = 0;
    const HttpBody *responseBody = response.getBody();
    if (responseBody) {
    	responseBody->getBytes(&bytes,&bodyLen);
@@ -770,7 +770,7 @@ SBinetHttpStream::Open(VXIint32                  flags,
   m_Done = 0;
   m_HttpStatus = -1234;
   /* Store pointer so we can get at it later in callbacks */
-  HTRequest_setContext(m_request,(void*) this);
+  HTRequest_setContext(m_request, this);
   /* We want user output: no headers or strange length stuff */
   HTRequest_setOutputFormat(m_request, WWW_SOURCE);
 

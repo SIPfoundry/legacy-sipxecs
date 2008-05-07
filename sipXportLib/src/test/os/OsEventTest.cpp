@@ -40,7 +40,7 @@ class RightEventThread : public OsServerTask
         CPPUNIT_ASSERT(event);
    
         mNumEvents++;
-        int eventIndex =-1;
+        void* eventIndex = NULL;
         event->getUserData(eventIndex);
         //CPPUNIT_ASSERT(mNumEvents == eventIndex);
         CPPUNIT_ASSERT(mNumEvents < mMaxEvents);
@@ -78,7 +78,7 @@ public:
         OsTime   eventTimeout(2,0);
         OsEvent* pEvent;
 
-        pEvent = new OsEvent(12345);
+        pEvent = new OsEvent((void*)12345);
         int epochTime = time(NULL);
         CPPUNIT_ASSERT(pEvent->wait(eventTimeout) != OS_SUCCESS);
         pEvent->signal(67890);
@@ -110,7 +110,7 @@ public:
         int index;
         for(index = 0; index < numTries; index++)
         {
-            OsEvent* event = new OsEvent(index);
+            OsEvent* event = new OsEvent((void*)index);
             OsRpcMsg eventMsg(OsMsg::USER_START,0,*event);
             rightThread.postMessage(eventMsg);
 
@@ -122,7 +122,7 @@ public:
             if(eventStat == OS_ALREADY_SIGNALED)
             {
                 // We (Left) lost the other side is done
-                int eventData;
+                intptr_t eventData;
                 event->getEventData(eventData);
                 CPPUNIT_ASSERT(eventData == index);
 

@@ -316,7 +316,7 @@ res_nameinquery(name, type, class, buf, eom)
         const u_char *buf, *eom;
 {
         const u_char *cp = buf + HFIXEDSZ;
-        int qdcount = ntohs((u_short)((HEADER*)buf)->qdcount);
+        int qdcount = ntohs((uint16_t)((HEADER*)buf)->qdcount);
 
         while (qdcount-- > 0) {
                 char tname[MAXDNAME+1];
@@ -355,7 +355,7 @@ res_queriesmatch(buf1, eom1, buf2, eom2)
         const u_char *buf2, *eom2;
 {
         const u_char *cp = buf1 + HFIXEDSZ;
-        int qdcount = ntohs((u_short)((HEADER*)buf1)->qdcount);
+        int qdcount = ntohs((uint16_t)((HEADER*)buf1)->qdcount);
 
         if (buf1 + HFIXEDSZ > eom1 || buf2 + HFIXEDSZ > eom2)
                 return (-1);
@@ -368,7 +368,7 @@ res_queriesmatch(buf1, eom1, buf2, eom2)
              (((HEADER *)buf2)->opcode == ns_o_update) )
                 return (1);
 
-        if (qdcount != ntohs((u_short)((HEADER*)buf2)->qdcount))
+        if (qdcount != ntohs((uint16_t)((HEADER*)buf2)->qdcount))
                 return (0);
         while (qdcount-- > 0) {
                 char tname[MAXDNAME+1];
@@ -473,7 +473,7 @@ res_send(buf, buflen, ans, anssiz)
                 if (v_circuit) {
                         int truncated;
                         struct iovec iov[2];
-                        u_short len;
+                        uint16_t len;
                         u_char *cp;
 
                         /*
@@ -507,7 +507,7 @@ res_send(buf, buflen, ans, anssiz)
                         /*
                          * Send length & message
                          */
-                        putshort((u_short)buflen, (u_char*)&len);
+                        putshort((uint16_t)buflen, (u_char*)&len);
                         iov[0].iov_base = (caddr_t)&len;
                         iov[0].iov_len = INT16SZ;
                         iov[1].iov_base = (caddr_t)buf;

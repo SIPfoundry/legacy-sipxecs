@@ -213,7 +213,7 @@ class SipRedirectorPickUpNotification : public OsNotification
       RedirectPlugin::RequestSeqNo requestSeqNo,
       int redirectorNo);
 
-   OsStatus signal(const int eventData);
+   OsStatus signal(const intptr_t eventData);
 
   private:
 

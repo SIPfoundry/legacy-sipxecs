@@ -41,15 +41,15 @@ public:
    // OsProcess doesn't provide any thread info so this method returns
    // the number of threads running under the process given by PID.
    // FIXME: Only implemented for linux, always returns 1 otherwise.
-   int getNumThreads( int PID )
+   int getNumThreads( PID myPID )
    {
        int numThreads = 1;
 
 #ifdef __linux__
        // /proc parsing stolen from OsProcessIteratorLinux.cpp
        OsStatus retval = OS_FAILED;
-       char pidString[20];
-       snprintf(pidString, 20, "%d", PID);
+       char pidString[PID_STR_LEN];
+       snprintf(pidString, PID_STR_LEN, "%ld", (long)myPID);
 
        OsPath fullProcName = "/proc/";
        fullProcName += pidString;
@@ -57,12 +57,12 @@ public:
        OsFileLinux procFile(fullProcName);
        if (procFile.open(OsFile::READ_ONLY) == OS_SUCCESS)
        {
-           long len = 5000; //since the length is always 0 for these files, lets try to read 5k
+           size_t len = 5000; //since the length is always 0 for these files, lets try to read 5k
            char *buffer = new char[len+1];
            if (buffer)
            {
-               unsigned long bytesRead;
-               procFile.read((void *)buffer,(unsigned long)len,bytesRead);
+               size_t bytesRead;
+               procFile.read((void *)buffer,len,bytesRead);
 
                if (bytesRead)
                {
@@ -98,7 +98,7 @@ public:
 
    void testShutdownBlocking()
    {
-      int myPID = OsProcess::getCurrentPID();
+      pid_t myPID = OsProcess::getCurrentPID();
       int startingThreads = getNumThreads(myPID);
 
       // Simple invite message from siptest/src/siptest/invite.txt
@@ -177,7 +177,7 @@ public:
 
    void testShutdownNonBlocking()
    {
-      int myPID = OsProcess::getCurrentPID();
+      pid_t myPID = OsProcess::getCurrentPID();
       int startingThreads = getNumThreads(myPID);
 
       // Simple invite message from siptest/src/siptest/invite.txt

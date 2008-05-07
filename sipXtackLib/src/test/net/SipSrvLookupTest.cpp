@@ -77,7 +77,7 @@ public:
 
       // Set up named configuration file.
       char config_file[100];
-      sprintf(config_file, "%s/%d.conf", temp_dir, pid);
+      sprintf(config_file, "%s/%ld.conf", temp_dir, (long)pid);
       f = fopen(config_file, "w");
       CPPUNIT_ASSERT(f != NULL);
       fprintf(f, "zone \".\" IN {\n");
@@ -87,7 +87,7 @@ public:
       fprintf(f, "};\n");
       fprintf(f, "options {\n");
       fprintf(f, "\tdirectory \"%s\";\n", TESTDIR);
-      fprintf(f, "\tpid-file \"%s/%d.pid\";\n", temp_dir, pid);
+      fprintf(f, "\tpid-file \"%s/%ld.pid\";\n", temp_dir, (long)pid);
       fprintf(f, "};\n");
       fprintf(f, "controls { };\n");
       fclose(f);
@@ -119,8 +119,8 @@ public:
       }
       // This is the parent process.
 #     ifdef TEST_PRINT
-      printf("Starting bind with execl(" EXECL_ARGS_FORMAT "), process %d\n",
-             EXECL_ARGS, (int) named_pid);
+      printf("Starting bind with execl(" EXECL_ARGS_FORMAT "), process %ld\n",
+             EXECL_ARGS, (long)named_pid);
 #     endif
 
       // Wait a bit so bind can start up.
@@ -665,7 +665,7 @@ public:
       // terminate the function if it fails.)
       int kill_return = kill(named_pid, SIGTERM);
 #     ifdef TEST_PRINT
-      printf("kill(%d, SIGTERM) = %d\n", named_pid, kill_return);
+      printf("kill(%ld, SIGTERM) = %d\n", (long)named_pid, kill_return);
 #     endif
       CPPUNIT_ASSERT(kill_return == 0);
 

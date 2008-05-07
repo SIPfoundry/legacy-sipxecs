@@ -36,10 +36,10 @@ public:
     void testCreator()
     {
         const char *hdr = "\r\nContent-Length: 0\r\n\r\n";
-        int expectedLen = strlen(hdr);
+        size_t expectedLen = strlen(hdr);
         HttpMessage* msg = new HttpMessage();
         UtlString buf;
-        int bufLen = 0;
+        size_t bufLen = 0;
 
         msg->getBytes(&buf, &bufLen);
         ASSERT_STR_EQUAL_MESSAGE("Set header comes back intact", hdr, (char *)buf.data());
@@ -56,8 +56,7 @@ public:
      */
     void testMessage()
     {
-        // TODO break this up into several tests. To intertwined
-
+        // TODO break this up into several tests. Too intertwined
         const char* name = "Content-Type";
         const char* value = "text/plain";
         const char* httpTopLine = "GET /index.html HTTP/1.0";
@@ -67,11 +66,11 @@ public:
         const char* v2a = "yyy-value2";
         UtlString messageBytes;
         UtlString messageBytes2;
-        int messageLen = 0;
-        int messageLen2 = 0;
+        size_t messageLen = 0;
+        size_t messageLen2 = 0;
         const char* body = "<HTML>\n<H3>Hello\n<BR>\n</HTML>\n";
         const HttpBody *bodyRef;
-        int bodyLength = 0;
+        size_t bodyLength = 0;
         UtlString headerLinePart;
         HttpMessage *msg;
         HttpMessage *msg2;
@@ -131,16 +130,16 @@ public:
 
         bodyRef->getBytes(&valueRef, &bodyLength);
         CPPUNIT_ASSERT_MESSAGE("bad body pointer", valueRef != NULL);
-        CPPUNIT_ASSERT_EQUAL_MESSAGE("incorrect body len", (int)strlen(body),
+        CPPUNIT_ASSERT_EQUAL_MESSAGE("incorrect body len", strlen(body),
                 bodyLength);
         ASSERT_STR_EQUAL_MESSAGE("incorrect body value", body, valueRef);
 
         const char* expectedLinePart[] = {
             "GET", "/index.html", "HTTP/1.0"
         };
-        int n = sizeof(expectedLinePart) / sizeof(expectedLinePart[0]);
+        size_t n = sizeof(expectedLinePart) / sizeof(expectedLinePart[0]);
 
-        for (int i = 0; i < n; i++)
+        for (size_t i = 0; i < n; i++)
         {
             msg->getFirstHeaderLinePart(i, &headerLinePart);
             CPPUNIT_ASSERT_MESSAGE("NULL header line part pointer",
@@ -373,7 +372,6 @@ public:
     {
         const char* sip = "INVITE 14 SIP/2.0\nContent-Type:application/sdp\n\n"
             "v=0\nm=audio 49170 RTP/AVP 0\nc=IN IP4 224.2.17.12/127";
-
         HttpMessage *msg = new HttpMessage(sip);
         SdpBody *sdp = (SdpBody *)msg->getBody();
 
@@ -385,13 +383,13 @@ public:
         const char* referenceSdp = 
             "v=0\r\nm=audio 49170 RTP/AVP 0\r\nc=IN IP4 224.2.17.12/127\r\n";
         const char* sdpBytes = NULL;
-        int sdpByteLength = 0;
+        size_t sdpByteLength = 0;
         sdp->getBytes(&sdpBytes, &sdpByteLength);
-        for(int iii = 0; iii < sdpByteLength; iii++)
+        for(size_t iii = 0; iii < sdpByteLength; iii++)
         {
             if(referenceSdp[iii] != sdpBytes[iii])
             {
-                printf("index[%d]: expected: %d got: %d\n",
+                printf("index[%zu]: expected: %d got: %d\n",
                     iii, referenceSdp[iii], sdpBytes[iii]);
             }
         }
@@ -404,7 +402,7 @@ public:
         SdpBody *sdpCopy = (SdpBody *)msgCopy->getBody();
         CPPUNIT_ASSERT_MESSAGE("NULL SDP copy", sdpCopy != NULL);
         const char* sdpCopyBytes = NULL;
-        int sdpCopyLen = 0;
+        size_t sdpCopyLen = 0;
         sdpCopy->getBytes(&sdpCopyBytes, &sdpCopyLen);
         //printf("SDP copy length: %d\n%s\n", sdpCopyLen, sdpCopyBytes);
         CPPUNIT_ASSERT_MESSAGE("Null sdp copy serialized content", sdpCopyBytes != NULL);

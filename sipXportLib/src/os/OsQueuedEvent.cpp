@@ -27,7 +27,7 @@
 /* ============================ CREATORS ================================== */
 
 // Constructor
-OsQueuedEvent::OsQueuedEvent(OsMsgQ& rMsgQ, const int userData)
+OsQueuedEvent::OsQueuedEvent(OsMsgQ& rMsgQ, void* userData)
 :  mUserData(userData),
    mpMsgQ(&rMsgQ)
 {
@@ -44,7 +44,7 @@ OsQueuedEvent::~OsQueuedEvent()
 
 // Set the event data and send an event message to the designated queue
 // Return the result of the message send operation.
-OsStatus OsQueuedEvent::signal(const int eventData)
+OsStatus OsQueuedEvent::signal(const intptr_t eventData)
 {
    OsStatus res;
 
@@ -54,7 +54,7 @@ OsStatus OsQueuedEvent::signal(const int eventData)
 
 // Set the user data value for this object
 // Always returns OS_SUCCESS.
-OsStatus OsQueuedEvent::setUserData(int userData)
+OsStatus OsQueuedEvent::setUserData(void* userData)
 {
    mUserData = userData;
    return OS_SUCCESS;
@@ -64,7 +64,7 @@ OsStatus OsQueuedEvent::setUserData(int userData)
 
 // Return the user data specified when this object was constructed.
 // Always returns OS_SUCCESS.
-OsStatus OsQueuedEvent::getUserData(int& rUserData) const
+OsStatus OsQueuedEvent::getUserData(void*& rUserData) const
 {
    rUserData = mUserData;
    return OS_SUCCESS;
@@ -87,7 +87,7 @@ OsStatus OsQueuedEvent::getMsgQ(OsMsgQ*& rpMsgQ) const
 // Send an event message to the designated message queue.
 // Return the result of the message send operation.
 OsStatus OsQueuedEvent::doSendEventMsg(const int msgType,
-                                       const int eventData) const
+                                       intptr_t eventData) const
 {
    OsTime timestamp;
 

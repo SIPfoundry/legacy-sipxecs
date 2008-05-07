@@ -690,7 +690,7 @@ int main()
 
    cout << "Run 100x/second timer for 2 seconds..." << endl;
    int rapidTimerExpirations = 0;
-   pNotifier = new OsCallback((int)&rapidTimerExpirations, handleRapidTimerEvent);
+   pNotifier = new OsCallback(&rapidTimerExpirations, handleRapidTimerEvent);
    pTimer = new OsTimer(*pNotifier);
    cout << "  Rapid-fire timer armed at " <<
            OsDateTime::getSecsSinceEpoch() << " secs" << endl;

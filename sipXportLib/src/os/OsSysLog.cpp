@@ -218,7 +218,7 @@ OsStatus OsSysLog::setLoggingPriorityForFacility(const OsSysLogFacility facility
 
 // Add a log entry
 OsStatus OsSysLog::add(const char*            taskName,
-                       const int              taskId,
+                       const pthread_t        taskId,
                        const OsSysLogFacility facility,
                        const OsSysLogPriority priority,
                        const char*            format,
@@ -251,7 +251,7 @@ OsStatus OsSysLog::add(const OsSysLogFacility facility,
    if (willLog(facility, priority))
    {
       UtlString taskName ;
-      int       taskId = 0 ;
+      pthread_t taskId = 0 ;
 
       va_list ap;
       va_start(ap, format);
@@ -276,7 +276,7 @@ OsStatus OsSysLog::add(const OsSysLogFacility facility,
 
 // Add a log entry given a variable argument list
 OsStatus OsSysLog::vadd(const char*            taskName,
-                        const int              taskId,                        
+                        const pthread_t        taskId,                        
                         const OsSysLogFacility facility,
                         const OsSysLogPriority priority,
                         const char*            format,
@@ -295,7 +295,7 @@ OsStatus OsSysLog::vadd(const char*            taskName,
          // Convert the variable arguments into a single string
 
          // Display all of the data
-         osPrintf("%s %s %s 0x%08X %s\n", 
+         osPrintf("%s %s %s 0x%0lX %s\n", 
                   OsSysLog::sFacilityNames[facility], 
                   OsSysLog::sPriorityNames[priority],
                   (taskName == NULL) ? "" : taskName, 

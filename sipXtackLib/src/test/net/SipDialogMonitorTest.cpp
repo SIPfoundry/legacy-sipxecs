@@ -101,7 +101,7 @@ public:
                  "From: sip:sipx.local\r\n"
                  "Call-ID: f88dfabce84b6a2787ef024a7dbe8749\r\n"
                  "Cseq: %d NOTIFY\r\n"
-                 "Content-Length: %d\r\n"
+                 "Content-Length: %zu\r\n"
                  "\r\n",
                  seqNo++,
                  strlen(body));

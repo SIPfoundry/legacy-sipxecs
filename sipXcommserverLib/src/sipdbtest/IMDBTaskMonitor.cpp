@@ -39,7 +39,7 @@ IMDBTaskMonitor::IMDBTaskMonitor (
     mpTimeoutEvent = new OsQueuedEvent( *getMessageQueue(), 0 ) ;
 
     //set subtype to signify user action
-    mpTimeoutEvent->setUserData( USER_TIMEOUT_EVENT);
+    mpTimeoutEvent->setUserData((void*) USER_TIMEOUT_EVENT);
     mpWatchDogTimer = new OsTimer(*mpTimeoutEvent) ;
 
     // Finally construct the heartbeat thread that hits the IMDB

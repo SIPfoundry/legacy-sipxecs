@@ -201,7 +201,7 @@ UtlBoolean SipNotifyStateTask::handleMessage(OsMsg& eventMessage)
                     osPrintf("SipNotifyStateTask::handleMessage found message-summary event ContentType plain/text\n");
                                         UtlDList bodyHeaderNameValues;
                     const char* bodyBytes;
-                    int bodyLength;
+                    size_t bodyLength;
                     httpBody->getBytes(&bodyBytes, &bodyLength);
                     HttpMessage::parseHeaders(bodyBytes, bodyLength,
                           bodyHeaderNameValues);
@@ -413,7 +413,7 @@ UtlBoolean SipNotifyStateTask::handleMessage(OsMsg& eventMessage)
                     osPrintf("SipNotifyStateTask::handleMessage got application/simple-message-summary body\n");
                     UtlDList bodyHeaderNameValues;
                     const char* bodyBytes;
-                    int bodyLength;
+                    size_t bodyLength;
                     httpBody->getBytes(&bodyBytes, &bodyLength);
                     HttpMessage::parseHeaders(bodyBytes, bodyLength,
                           bodyHeaderNameValues);
@@ -534,12 +534,12 @@ UtlBoolean SipNotifyStateTask::handleMessage(OsMsg& eventMessage)
     else if (eventMessage.getMsgType() == OsMsg::OS_EVENT)
     {
         OsEventMsg* pEventMsg = (OsEventMsg*) &eventMessage;
-        int userData ;
-        int eventData ;
+        void* userData ;
+        intptr_t eventData ;
         pEventMsg->getEventData(eventData);
         pEventMsg->getUserData(userData);
 
-        if (eventData == ((int) mpRunScriptTimer))
+        if (eventData == (intptr_t)mpRunScriptTimer)
         {
             // Restart Event: handle the event and clean up the temp data
             struct tagRunScriptInfo* pInfo =
@@ -620,7 +620,7 @@ OsStatus SipNotifyStateTask::handleCheckSyncEvent(const SipMessage* source)
       {
          pContent = new UtlString() ;
 
-         int length = 0 ;
+         size_t length = 0 ;
          body->getBytes(pContent, &length) ;
          if (pContent->isNull())
          {
@@ -721,7 +721,7 @@ UtlBoolean SipNotifyStateTask::scheduleRunScript(UtlString* pContent, CommandSec
 
    // Create the event/timer
    mpRunScriptEvent = new OsQueuedEvent(*getMessageQueue(), 0) ;
-   mpRunScriptEvent->setUserData((int) pInfo) ;
+   mpRunScriptEvent->setUserData(pInfo) ;
    mpRunScriptTimer = new OsTimer(*mpRunScriptEvent) ;
 
    // Force a min of 1 seconds

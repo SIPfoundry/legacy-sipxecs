@@ -131,7 +131,7 @@ public:
                UtlString* s2 = &output[j];
              
                int differences = 0;
-               for (unsigned int k = 0; k < s1->length() && k < s1->length(); k++)
+               for (size_t k = 0; k < s1->length() && k < s1->length(); k++)
                {
                   if ((*s1)(k) != (*s2)(k))
                   {
@@ -172,7 +172,7 @@ public:
                UtlString* s2 = &output[j];
              
                int differences = 0;
-               for (unsigned int k = 0; k < s1->length() && k < s1->length(); k++)
+               for (size_t k = 0; k < s1->length() && k < s1->length(); k++)
                {
                   if ((*s1)(k) != (*s2)(k))
                   {
@@ -219,7 +219,7 @@ public:
                UtlString* s2 = &output[j];
              
                int differences = 0;
-               for (unsigned int k = 0; k < s1->length() && k < s1->length(); k++)
+               for (size_t k = 0; k < s1->length() && k < s1->length(); k++)
                {
                   if ((*s1)(k) != (*s2)(k))
                   {
@@ -265,7 +265,7 @@ public:
             "Content-Length: 0\r\n"
             "\r\n";
 
-         int msgLength;
+         size_t msgLength;
          UtlString msgBytes;
 
          // initial send - no forking

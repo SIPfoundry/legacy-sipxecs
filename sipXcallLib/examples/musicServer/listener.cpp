@@ -59,7 +59,7 @@ UtlBoolean Listener::handleMessage(OsMsg& rMsg)
    {
       TaoMessage* taoMessage = (TaoMessage*)&rMsg;
 
-      int taoEventId = taoMessage->getTaoObjHandle();
+      TaoEventId taoEventId = taoMessage->getTaoObjHandle();
       UtlString argList(taoMessage->getArgList());
       TaoString arg(argList, TAOMESSAGE_DELIMITER);
 

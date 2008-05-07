@@ -38,15 +38,15 @@ public:
    // OsProcess doesn't provide any thread info so this method returns
    // the number of threads running under the process given by PID.
    // FIXME: Only implemented for linux, always returns 1 otherwise.
-   int getNumThreads( int PID )
+   int getNumThreads( PID myPID )
    {
        int numThreads = 1;
 
 #ifdef __linux__
        // /proc parsing stolen from OsProcessIteratorLinux.cpp
        OsStatus retval = OS_FAILED;
-       char pidString[20];
-       snprintf(pidString, 20, "%d", PID);
+       char pidString[PID_STR_LEN];
+       snprintf(pidString, PID_STR_LEN, "%ld", (long)myPID);
 
        OsPath fullProcName = "/proc/";
        fullProcName += pidString;
@@ -54,12 +54,12 @@ public:
        OsFileLinux procFile(fullProcName);
        if (procFile.open(OsFile::READ_ONLY) == OS_SUCCESS)
        {
-           long len = 5000; //since the length is always 0 for these files, lets try to read 5k
+           size_t len = 5000; //since the length is always 0 for these files, lets try to read 5k
            char *buffer = new char[len+1];
            if (buffer)
            {
-               unsigned long bytesRead;
-               procFile.read((void *)buffer,(unsigned long)len,bytesRead);
+               size_t bytesRead;
+               procFile.read((void *)buffer, len, bytesRead);
 
                if (bytesRead)
                {
@@ -144,7 +144,7 @@ public:
 
    void testStartNormalTask()
    {
-      int myPID = OsProcess::getCurrentPID();
+      PID myPID = OsProcess::getCurrentPID();
       int startingThreads = getNumThreads(myPID);
 
       for ( int j = 0 ; j < NUMBER_OF_ITERATIONS ; j++ ) {
@@ -174,7 +174,7 @@ public:
 
    void testStartShortTask()
    {
-      int myPID = OsProcess::getCurrentPID();
+      PID myPID = OsProcess::getCurrentPID();
       int startingThreads = getNumThreads(myPID);
 
       for ( int j = 0 ; j < NUMBER_OF_ITERATIONS ; j++ ) {
@@ -216,7 +216,7 @@ public:
 
    void testStartRunawayTask()
    {
-      int myPID = OsProcess::getCurrentPID();
+      PID myPID = OsProcess::getCurrentPID();
       int startingThreads = getNumThreads(myPID);
 
       for ( int j = 0 ; j < NUMBER_OF_ITERATIONS ; j++ ) {
@@ -247,7 +247,7 @@ public:
 
    void testDeleteNormalTask()
    {
-      int myPID = OsProcess::getCurrentPID();
+      PID myPID = OsProcess::getCurrentPID();
       int startingThreads = getNumThreads(myPID);
 
       for ( int j = 0 ; j < NUMBER_OF_ITERATIONS ; j++ ) {
@@ -264,7 +264,7 @@ public:
 
    void testDeleteShortTask()
    {
-      int myPID = OsProcess::getCurrentPID();
+      PID myPID = OsProcess::getCurrentPID();
       int startingThreads = getNumThreads(myPID);
 
       for ( int j = 0 ; j < NUMBER_OF_ITERATIONS ; j++ ) {
@@ -278,7 +278,7 @@ public:
 
    void testDeleteRunawayTask()
    {
-      int myPID = OsProcess::getCurrentPID();
+      PID myPID = OsProcess::getCurrentPID();
       int startingThreads = getNumThreads(myPID);
 
       for ( int j = 0 ; j < NUMBER_OF_ITERATIONS ; j++ ) {
@@ -294,7 +294,7 @@ public:
 
    void testReStartShortTask()
    {
-      int myPID = OsProcess::getCurrentPID();
+      PID myPID = OsProcess::getCurrentPID();
       int startingThreads = getNumThreads(myPID);
       SimpleTask * pTask = new SimpleTask();
       CPPUNIT_ASSERT_EQUAL(pTask->getState(), SimpleTask::SIMPLE_TASK_NOT_STARTED);

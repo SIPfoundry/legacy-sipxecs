@@ -510,10 +510,10 @@ TaoStatus TaoTerminalAdaptor::terminalGetCallListeners(TaoMessage& rMsg)
 
         for (int i = 0; i < size; i++)
         {
-                unsigned int objId = mpObjectCnt->add();
+                TaoObjHandle objId = mpObjectCnt->add();
 //              mpObjectDb->insert((TaoObjHandle)objId, (TaoObjHandle)&rpCallListeners[i]);
 
-                sprintf(buff, "%d", objId);
+                sprintf(buff, "%ld", objId);
                 argList += (UtlString) buff;
 
                 if (i < (size - 1))
@@ -787,9 +787,9 @@ TaoStatus TaoTerminalAdaptor::terminalGetTermListeners(TaoMessage& rMsg)
 
         for (int i = 0; i < size; i++)
         {
-                unsigned int objId = mpObjectCnt->add();
+                TaoObjHandle objId = mpObjectCnt->add();
 
-                sprintf(buff, "%d", objId);
+                sprintf(buff, "%ld", objId);
                 argList += (UtlString) buff;
 
                 if (i < (size - 1))

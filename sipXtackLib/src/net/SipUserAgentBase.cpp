@@ -13,6 +13,7 @@
 #include <assert.h>
 
 // APPLICATION INCLUDES
+#include <utl/UtlVoidPtr.h>
 #include <net/SipUserAgentBase.h>
 #include <os/OsWriteLock.h>
 
@@ -50,7 +51,7 @@ SipUserAgentBase::~SipUserAgentBase()
 
 void SipUserAgentBase::addConfigChangeConsumer(OsMsgQ& messageQueue)
 {
-    UtlInt* observer = new UtlInt((int) &messageQueue);
+    UtlVoidPtr* observer = new UtlVoidPtr(&messageQueue);
     OsWriteLock lock(mObserverMutex);
     mConfigChangeObservers.insert(observer);
 }

@@ -48,9 +48,9 @@ void RegistrationDbTestContext::ConvertRelativeExpirations(
    {
       timeShiftExpiresLine(line, timeNow);
       line.append("\n");
-      unsigned long bytesWritten = 0;
+      size_t bytesWritten = 0;
       CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, workingFile->write(line.data(), line.length(), bytesWritten));
-      CPPUNIT_ASSERT_EQUAL(static_cast<unsigned long>(line.length()), bytesWritten);
+      CPPUNIT_ASSERT_EQUAL(line.length(), bytesWritten);
    }
    // the files will be closed by the wrapper
 }
@@ -62,10 +62,10 @@ void RegistrationDbTestContext::timeShiftExpiresLine(UtlString& line, long timeN
    const char* EXPIRES_BEGIN = "<expires>";
    const int EXPIRES_TAG_LENGTH = 9; 
    const char* EXPIRES_END = "</expires>";
-   int pos1, pos2;
+   ssize_t pos1, pos2;
    // If the line has an expiration value, then time-shift it
-   if ((pos1 = line.index(EXPIRES_BEGIN)) != static_cast<int>(UTL_NOT_FOUND) &&
-       (pos2 = line.index(EXPIRES_END)) != static_cast<int>(UTL_NOT_FOUND))
+   if (((pos1 = line.index(EXPIRES_BEGIN)) != UTL_NOT_FOUND) &&
+       ((pos2 = line.index(EXPIRES_END)) != UTL_NOT_FOUND))
    {
       pos1 += EXPIRES_TAG_LENGTH;    // skip past the tag, to the expires value
       CPPUNIT_ASSERT(pos2 > pos1);   // expires value cannot be empty

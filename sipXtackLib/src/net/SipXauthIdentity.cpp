@@ -453,7 +453,7 @@ bool SipXauthIdentity::decode(const UtlString& identityValue,
          generateDate.getIsoTimeStringZ(generateTimeString);
          OsSysLog::add(FAC_SIP, PRI_WARNING,
                        "SipXauthIdentity::decode(%s)"
-                       " timestamp '%lX' from '%s' too old with interval of '%lu' seconds",
+                       " timestamp '%lX' from '%s' too old with interval of '%d' seconds",
                        identityValue.data(), epochTimestamp, generateTimeString.data(),
                        sSignatureValidityInterval.seconds()
                        );

@@ -46,7 +46,7 @@ mpXmlRpcDispatch(NULL)
  
    // Create the watchdog event/timer
    mpWatchDogUserChangeEvent = new OsQueuedEvent(*getMessageQueue(), 0) ;
-   mpWatchDogUserChangeEvent->setUserData(USER_PROCESS_EVENT); //set subtype to signify user action
+   mpWatchDogUserChangeEvent->setUserData((void*)USER_PROCESS_EVENT); //set subtype to signify user action
    mpWatchDogUserChangeTimer = new OsTimer(*mpWatchDogUserChangeEvent) ;         
 
    // Finally, set the timers
@@ -105,8 +105,8 @@ WatchDog::operator=(const WatchDog& rhs)
    
 UtlBoolean WatchDog::handleMessage(OsMsg &rMsg)
 {
-   int         eventData;
-   int         userData;
+   intptr_t    eventData;
+   intptr_t    userData;
    int         loop;
 
    UtlBoolean   returnValue = TRUE;
@@ -125,7 +125,7 @@ UtlBoolean WatchDog::handleMessage(OsMsg &rMsg)
        // I may in the near future
       pEventMsg = (OsEventMsg*) &rMsg;
       pEventMsg->getEventData(eventData);
-      pEventMsg->getUserData(userData);
+      pEventMsg->getUserData((void*&)userData);
 
       // Lock out other threads.
       OsLock mutex(mLock);   
@@ -321,7 +321,7 @@ UtlString WatchDog::getAliasByPid(const PID pid)
    OsStatus rc = OsProcessMgr::getInstance()->getAliasByPID(pid, alias);
    if (OS_SUCCESS != rc)
    {
-      OsSysLog::add(FAC_WATCHDOG,PRI_INFO,"getAliasByPID(%d) failed, OsStatus = %d", pid, rc);
+      OsSysLog::add(FAC_WATCHDOG,PRI_INFO,"getAliasByPID(%ld) failed, OsStatus = %d", (long)pid, rc);
    }
    
    return alias;

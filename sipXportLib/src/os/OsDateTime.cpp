@@ -122,7 +122,7 @@ OsDateTimeBase::operator=(const OsDateTimeBase& rhs)
 }
 
 
-long OsDateTimeBase::tm2Epoch(const struct tm *t)
+time_t OsDateTimeBase::tm2Epoch(const struct tm *t)
 {
     /*
      * tm2sec converts a GMT tm structure into the number of seconds since
@@ -136,7 +136,7 @@ long OsDateTimeBase::tm2Epoch(const struct tm *t)
      * This routine is intended to be very fast, much faster than mktime().
      */
     int  year;
-    long days;
+    time_t days;
     const int dayoffset[12] =
         {306, 337, 0, 31, 61, 92, 122, 153, 184, 214, 245, 275};
 
@@ -164,7 +164,7 @@ long OsDateTimeBase::tm2Epoch(const struct tm *t)
 }
 
 
-long OsDateTimeBase::convertHttpDateToEpoch(const char *date)
+time_t OsDateTimeBase::convertHttpDateToEpoch(const char *date)
 {
     /*
      * Parses an HTTP date in one of three standard forms:
@@ -466,16 +466,16 @@ void OsDateTimeBase::getLocalTimeString(UtlString& dateString)
     if (today->tm_isdst == 1)
       timezone = tzname[1];
 
-    int  len = timezone.length();
+    size_t  len = timezone.length();
 
     if (len > 3)
     {
-      size_t pos = timezone.index(" ");
+      ssize_t pos = timezone.index(" ");
       if (pos != UTL_NOT_FOUND)
       {
         tz[0] = timezone.data()[0];
         tz[1] = timezone.data()[pos + 1];
-        if ((pos = timezone.index(" ", pos + 1)) !=  UTL_NOT_FOUND)
+        if ((pos = timezone.index(" ", pos + 1)) != UTL_NOT_FOUND)
         {
           tz[2] = timezone.data()[pos + 1];
         }

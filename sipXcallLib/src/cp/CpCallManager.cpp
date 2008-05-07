@@ -397,9 +397,9 @@ CpCall* CpCallManager::findCall(const char* callId)
     OsReadLock lock(mCallListMutex);
     UtlDListIterator callIterator(mCallList);
     CpCall* call = NULL;
-    UtlInt* callCollectable = NULL;
+    UtlVoidPtr* callCollectable = NULL;
 
-    while ((callCollectable = (UtlInt*) callIterator()))
+    while ((callCollectable = (UtlVoidPtr*) callIterator()))
     {
         call = (CpCall*) callCollectable->getValue();
         if(call && call->hasCallId(callId))
@@ -416,14 +416,14 @@ CpCall* CpCallManager::findCall(const char* callId)
 void CpCallManager::appendCall(CpCall* call)
 {
     OsWriteLock lock(mCallListMutex);
-    UtlInt* callCollectable = new UtlInt((int)call);
+    UtlVoidPtr* callCollectable = new UtlVoidPtr(call);
     mCallList.append(callCollectable);
 }
 
 void CpCallManager::pushCall(CpCall* call)
 {
     OsWriteLock lock(mCallListMutex);
-    UtlInt* callCollectable = new UtlInt((int)call);
+    UtlVoidPtr* callCollectable = new UtlVoidPtr(call);
     mCallList.insertAt(0, callCollectable);
 }
 

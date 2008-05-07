@@ -15,6 +15,7 @@
 
 //uncomment next line to track the create and destroy of messages
 //#define TRACK_LIFE
+//#define TEST_PRINT
 
 // APPLICATION INCLUDES
 #include <utl/UtlDListIterator.h>
@@ -43,7 +44,7 @@ SipMessage::SipMessageFieldProps SipMessage::sSipMessageFieldProps;
 /* ============================ CREATORS ================================== */
 
 // Constructor
-SipMessage::SipMessage(const char* messageBytes, int byteCount) :
+SipMessage::SipMessage(const char* messageBytes, size_t byteCount) :
    HttpMessage(messageBytes, byteCount)
 {
 #ifdef TRACK_LIFE
@@ -55,7 +56,7 @@ SipMessage::SipMessage(const char* messageBytes, int byteCount) :
    replaceShortFieldNames();
 }
 
-SipMessage::SipMessage(OsSocket* inSocket, int bufferSize) :
+SipMessage::SipMessage(OsSocket* inSocket, size_t bufferSize) :
    HttpMessage(inSocket, bufferSize)
 {
 #ifdef TRACK_LIFE
@@ -319,7 +320,6 @@ void SipMessage::setInviteData(const char* fromField,
 {
    UtlString bodyString;
    UtlString uri;
-
     Url toUrl(toField);
    // Create the top header line
 
@@ -378,7 +378,6 @@ void SipMessage::setInviteData(const char* fromField,
     toUrl.removeHeaderParameters();
     UtlString toFieldString;
     toUrl.toString(toFieldString);
-
    setRequestData(SIP_INVITE_METHOD,
         uri, // URI
         fromField,
@@ -408,7 +407,7 @@ void SipMessage::addSdpBody(const char* rtpAddress, int rtpAudioPort, int rtcpAu
    if(numRtpCodecs > 0)
    {
       UtlString bodyString;
-      int len;
+      size_t len;
 
       // Create and add the SDP body
       SdpBody* sdpBody = new SdpBody();
@@ -428,7 +427,7 @@ void SipMessage::addSdpBody(const char* rtpAddress, int rtpAudioPort, int rtcpAu
 
       // Add the content length
       sdpBody->getBytes(&bodyString, &len);
-      setContentLength(len);
+      setContentLength((int)len);
    }
 }
 
@@ -830,7 +829,7 @@ void SipMessage::setRequestDiagBody(SipMessage request)
    request.setBody(NULL);
 
    UtlString sipFragString;
-   int sipFragLen;
+   size_t sipFragLen;
    request.getBytes(&sipFragString, &sipFragLen);
 
    // Create a body to contain the Vias from the request
@@ -863,7 +862,7 @@ void SipMessage::setInviteOkData(const char* fromField,
 {
    SdpBody* sdpBody;
    UtlString bodyString;
-   int len;
+   size_t len;
 
    setResponseData(SIP_OK_CODE, SIP_OK_TEXT, fromField, toField,
                      callId, sequenceNumber, SIP_INVITE_METHOD, localContact);
@@ -2016,7 +2015,7 @@ void SipMessage::addViaField(const char* viaField, UtlBoolean afterOtherVias)
 
    NameValuePair* nv = new NameValuePair(SIP_VIA_FIELD, viaField);
     // Look for other via fields
-    unsigned int fieldIndex = mNameValues.index(nv);
+    ssize_t fieldIndex = mNameValues.index(nv);
 
     if(fieldIndex == UTL_NOT_FOUND)
     {
@@ -2025,7 +2024,7 @@ void SipMessage::addViaField(const char* viaField, UtlBoolean afterOtherVias)
 
         //remove whole line
         NameValuePair* nv = NULL;
-        while(nv = dynamic_cast <NameValuePair*> (iterator()))
+        while((nv = dynamic_cast <NameValuePair*> (iterator())))
         {
             osPrintf("\tName: %s\n", nv->data());
         }
@@ -2358,7 +2357,7 @@ void SipMessage::setWarningField(int code, const char* hostname, const char* tex
    else
    {
       OsSysLog::add(FAC_SIP, PRI_WARNING,
-                    "SipMessage::setWarningField value too large (max %d) host '%s' text '%s'",
+                    "SipMessage::setWarningField value too large (max %zu) host '%s' text '%s'",
                     allocated, hostname, text
                     );
    }
@@ -2451,7 +2450,7 @@ void SipMessage::getFromUrl(Url& fromUrl) const
 void SipMessage::getFromLabel(UtlString* label) const
 {
    UtlString field;
-   int labelEnd;
+   ssize_t labelEnd;
 
    getFromField(&field);
 
@@ -2471,7 +2470,7 @@ void SipMessage::getFromLabel(UtlString* label) const
 void SipMessage::getToLabel(UtlString* label) const
 {
    UtlString field;
-   int labelEnd;
+   ssize_t labelEnd;
 
    getToField(&field);
 
@@ -2496,7 +2495,7 @@ UtlBoolean SipMessage::parseParameterFromUri(const char* uri,
     UtlString uriString(uri);
     parameterString.append("=");
     // This may need to be changed to be make case insensative
-    int parameterStart = uriString.index(parameterString.data());
+    ssize_t parameterStart = uriString.index(parameterString.data());
     // 0, UtlString::ignoreCase);
 
     parameterValue->remove(0);
@@ -2565,7 +2564,7 @@ void SipMessage::setUriParameter(UtlString* uri, const char* parameterName,
     if (parameterValue && *parameterValue != '\0')
         parameterString.append('=');
 
-   int tagIndex = uri->index(parameterString.data());
+   ssize_t tagIndex = uri->index(parameterString.data());
 
    // Tag already exists, replace it
    if(tagIndex >= 0)
@@ -2573,10 +2572,10 @@ void SipMessage::setUriParameter(UtlString* uri, const char* parameterName,
       //osPrintf("Found tag at index: %d\n", tagIndex);
         // Minimally start after the tag name & equal sign
       tagIndex+= parameterString.length();
-      int tagSpace = uri->index(' ', tagIndex);
-      int tagTab = uri->index('\t', tagIndex);
-      int tagSemi = uri->index(';', tagIndex);
-      int tagEnd = tagSpace;
+      ssize_t tagSpace = uri->index(' ', tagIndex);
+      ssize_t tagTab = uri->index('\t', tagIndex);
+      ssize_t tagSemi = uri->index(';', tagIndex);
+      ssize_t tagEnd = tagSpace;
       if(tagTab >= tagIndex && (tagTab < tagEnd || tagEnd < tagIndex))
       {
          tagEnd = tagTab;
@@ -2807,7 +2806,7 @@ UtlBoolean SipMessage::getWarningCode(int* warningCode, int index) const
 {
    const char* value = getHeaderValue(index, SIP_WARNING_FIELD);
    UtlString warningField;
-   int endOfCode;
+   ssize_t endOfCode;
 
    *warningCode = 0;
 
@@ -2833,7 +2832,7 @@ UtlBoolean SipMessage::removeLastVia()
 
    if ( getViaField( &viaField , 0))
    {
-      unsigned int posSubField = viaField.first(SIP_MULTIFIELD_SEPARATOR);
+      ssize_t posSubField = viaField.first(SIP_MULTIFIELD_SEPARATOR);
       if (posSubField != UTL_NOT_FOUND)
       {
          viaField.remove(0, posSubField + strlen(SIP_MULTIFIELD_SEPARATOR));
@@ -2904,7 +2903,7 @@ void SipMessage::getLastVia(UtlString* address,
    UtlString receivedAddress;
    UtlString receivedPortString;
    UtlString maddr;
-   int index;
+   ssize_t index;
 
    // why are these removed twice?  one time port is set to -1, later it is set to 0?
    address->remove(0);
@@ -3462,7 +3461,7 @@ void SipMessage::addRecordRouteUri(const char* recordRouteUri)
 
     mHeaderCacheClean = FALSE;
     
-    size_t firstRR = mNameValues.index(rrHeader);
+    ssize_t firstRR = mNameValues.index(rrHeader);
     mNameValues.insertAt(UTL_NOT_FOUND == firstRR ? 0 : firstRR, rrHeader);
 }
 
@@ -3614,7 +3613,7 @@ UtlBoolean SipMessage::removeRouteUri(int index, UtlString* routeUri)
             {
                 newRouteField.append(',');
             }
-            int routeUriIndex = aRouteUri.index('<');
+            ssize_t routeUriIndex = aRouteUri.index('<');
             if(routeUriIndex < 0)
             {
                 aRouteUri.insert(0, '<');
@@ -3691,7 +3690,7 @@ UtlBoolean SipMessage::buildRouteField(UtlString* routeFld) const
         UtlString recordRouteUri;
         routeField.remove(0);
         int index = 0;
-        int recordRouteUriIndex;
+        ssize_t recordRouteUriIndex;
         while(getRecordRouteUri(index, &recordRouteUri))
         {
             recordRouteFound = TRUE;
@@ -3721,7 +3720,7 @@ UtlBoolean SipMessage::buildRouteField(UtlString* routeFld) const
     if(recordRouteFound && getContactUri(0, &contactUri))
     {
         routeField.append(", ");
-        int contactUriIndex = contactUri.index('<');
+        size_t contactUriIndex = contactUri.index('<');
         if(contactUriIndex < 0)
         {
             contactUri.insert(0, '<');
@@ -3841,7 +3840,7 @@ UtlBoolean SipMessage::getFieldSubfield(const char* fieldName, int addressIndex,
    UtlBoolean uriFound = FALSE;
    UtlString url;
    int fieldIndex = 0;
-   int subFieldIndex = 0;
+   size_t subFieldIndex = 0;
    int index = 0;
    const char* value = getHeaderValue(fieldIndex, fieldName);
 
@@ -4850,20 +4849,20 @@ void SipMessage::parseViaParameters( const char* viaField
     const char* namValueSeparator = "=";
 
     const char* nameAndValuePtr;
-    int nameAndValueLength;
+    size_t nameAndValueLength;
     const char* namePtr;
-    int nameLength;
-    int nameValueIndex = 0;
+    size_t nameLength;
+    size_t nameValueIndex = 0;
    UtlString value;
-    int lastCharIndex = 0;
-    int relativeIndex;
-    int nameValueRelativeIndex;
-    int viaFieldLength = strlen(viaField);
+    size_t lastCharIndex = 0;
+    size_t relativeIndex;
+    size_t nameValueRelativeIndex;
+    size_t viaFieldLength = strlen(viaField);
 
     do
     {
 #       ifdef  TEST_PRINT
-        osPrintf("SipMessage::parseViaParameters: \"%s\" lastCharIndex: %d",
+        osPrintf("SipMessage::parseViaParameters: \"%s\" lastCharIndex: %zu",
                  &(viaField[lastCharIndex]), lastCharIndex);
 #       endif
         // Pull out a name value pair
@@ -4898,10 +4897,10 @@ void SipMessage::parseViaParameters( const char* viaField
 
             if(nameLength > 0)
             {
-                int valueSeparatorOffset = strspn(&(namePtr[nameLength]),
+                size_t valueSeparatorOffset = strspn(&(namePtr[nameLength]),
                                                   namValueSeparator);
                 const char* valuePtr = &(namePtr[nameLength]) + valueSeparatorOffset;
-                int valueLength = nameAndValueLength -
+                size_t valueLength = nameAndValueLength -
                     (valuePtr - nameAndValuePtr);
 
                 // If there is a value
@@ -5201,7 +5200,7 @@ SdpBody* SipMessage::convertToSdpBody(const HttpBody* pHttpBody)
     if(pHttpBody)
     {
         const char* theBody;
-        int theLength;
+        size_t theLength;
         pHttpBody->getBytes(&theBody, &theLength);
         pSdpBody = new SdpBody(theBody,theLength);
     }
@@ -5222,7 +5221,7 @@ void SipMessage::setDiagnosticSipFragResponse(const SipMessage& message,
    setWarningField(warningCode, address.data(), warningText);
 
    UtlString sipFragString;
-   int sipFragLen;
+   size_t sipFragLen;
    message.getBytes(&sipFragString, &sipFragLen, false /* don't inlcude the body */);
 
    // Create a body to contain the Vias from the request

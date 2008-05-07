@@ -187,8 +187,8 @@ OsStatus VoiceEngineNetTask::addInputSource(VoiceEngineDatagramSocket* pSocket)
         if (wrote != NET_TASK_MAX_MSG_LEN)
         {
             OsSysLog::add(FAC_MP, PRI_ERR, 
-                    "addNetInputSources - writeSocket error: 0x%08x,%d wrote %d",
-                    (int)writeSocket, writeSocket->getSocketDescriptor(), wrote);
+                    "addNetInputSources - writeSocket error: 0x%p,%d wrote %d",
+                    writeSocket, writeSocket->getSocketDescriptor(), wrote);
         }
     }
     else
@@ -217,8 +217,8 @@ OsStatus VoiceEngineNetTask::removeInputSource(VoiceEngineDatagramSocket* pSocke
         if (wrote != NET_TASK_MAX_MSG_LEN)
         {
             OsSysLog::add(FAC_MP, PRI_ERR, 
-                    "addNetInputSources - writeSocket error: 0x%08x,%d wrote %d",
-                    (int)writeSocket, writeSocket->getSocketDescriptor(), wrote);
+                    "addNetInputSources - writeSocket error: 0x%p,%d wrote %d",
+                    writeSocket, writeSocket->getSocketDescriptor(), wrote);
         }
     }
     else
@@ -279,17 +279,17 @@ static  int flushedLimit = 125;
                 MpBuf_setContentLen(ib, ret);
                 fwdTo->pushPacket(ib, rtpOrRtcp, &fromIP, fromPort);
             } else {
-                Zprintf(" *** get1Msg: read(%d) returned %d, errno=%d=0x%X)\n",
-                    (int) pRxpSkt, nRead, errno, errno, 0,0);
+                Zprintf(" *** get1Msg: read(0x%p) returned %d, errno=%d=0x%X)\n",
+                    pRxpSkt, nRead, errno, errno, 0,0);
                 MpBuf_delRef(ib);
                 return OS_NO_MORE_DATA;
             }
         } else {
             nRead = pRxpSkt->read(junk, sizeof(junk));
             if (numFlushed++ < 10) {
-                Zprintf("get1Msg: flushing a packet! (%d, %d, %d)"
+                Zprintf("get1Msg: flushing a packet! (%d, %d, 0x%p)"
                     " (after %d DMA frames).\n",
-                    nRead, errno, (int) pRxpSkt, showFrameCount(1), 0,0);
+                    nRead, errno, pRxpSkt, showFrameCount(1), 0,0);
             }
             if (nRead < 1) {
                 return OS_NO_MORE_DATA;
@@ -332,7 +332,7 @@ int XXfindPoisonFds(int pipeFD)
         for (i=0, ppr=pairs; i<NET_TASK_MAX_FD_PAIRS; i++) {
             if (ppr->pSocket && // not NULL socket and
                 XXisFdPoison(ppr->pSocket->getSocketDescriptor())) {
-                OsSysLog::add(FAC_MP, PRI_ERR, " *** VoiceEngineNetTask: Removing fdRtp[%d], socket=0x%08x, socketDescriptor=%d\n", ppr-pairs,(int)ppr->pSocket, (int)ppr->pSocket->getSocketDescriptor());
+                OsSysLog::add(FAC_MP, PRI_ERR, " *** VoiceEngineNetTask: Removing fdRtp[%d], socket=0x%p, socketDescriptor=%d\n", ppr-pairs,ppr->pSocket, (int)ppr->pSocket->getSocketDescriptor());
                 n++;
                 ppr->pSocket = NULL;                
             }

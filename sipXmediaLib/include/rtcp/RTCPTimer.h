@@ -276,11 +276,11 @@ private:    // Private Methods
  *
  *
  */
-    static void ReportingAlarm(timer_t tTimer, int iArgument);
+    static void ReportingAlarm(void* tTimer, intptr_t iArgument);
 
 #elif defined(__pingtel_on_posix__) /* ] [ */
 
-    static void ReportingAlarm(const int userData, const int eventData);
+    static void ReportingAlarm(void* userData, intptr_t eventData);
 
 #endif /* ] */
 

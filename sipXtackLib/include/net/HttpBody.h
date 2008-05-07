@@ -51,7 +51,7 @@ public:
 /* ============================ CREATORS ================================== */
 
    HttpBody(const char* bytes = NULL, 
-            int length = -1,
+            size_t length = -1,
             const char* contentType = NULL);
    //: Construct an HttpBody from a bunch of bytes
 
@@ -75,7 +75,7 @@ public:
 
    //! Pseudo body factory
    static HttpBody* createBody(const char* bodyBytes,
-                               int bodyBytesLength,
+                               size_t bodyBytesLength,
                                const char* contentType,
                                const char* contentEncoding);
 
@@ -85,19 +85,19 @@ public:
 
 /* ============================ ACCESSORS ================================= */
 
-   virtual int getLength() const;
+   virtual size_t getLength() const;
 
    // Note: for convenience, bytes is null terminated
    // However depending upon the content type, the body may
    // contain more than one null character.
    // *bytes != NULL, even if *length == 0.
-   virtual void getBytes(const char** bytes, int* length) const;
-   virtual void getBytes(UtlString* bytes, int* length) const;
+   virtual void getBytes(const char** bytes, size_t* length) const;
+   virtual void getBytes(UtlString* bytes, size_t* length) const;
    virtual const char* getBytes() const;
 
    UtlBoolean getMultipartBytes(int partIndex, 
                                 const char** bytes,
-                                int* length) const;
+                                size_t* length) const;
 
    const MimeBodyPart* getMultipart(int partIndex) const;
 
@@ -118,7 +118,7 @@ public:
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
 
-   int bodyLength;
+   size_t bodyLength;
    UtlString mBody;
    UtlString  mMultipartBoundary;
    int mBodyPartCount;

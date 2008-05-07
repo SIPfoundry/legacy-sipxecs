@@ -172,7 +172,7 @@ private:
     OsPath mStdErrorFilename;
 
     /// Add a new entry to the collection of monitored processes.
-    void addEntry(const UtlString &rAlias, int pid);
+    void addEntry(const UtlString &rAlias, PID pid);
     /**<
      * The removeEntry() method will always be called to first clear any 
      * existing entry.

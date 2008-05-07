@@ -54,7 +54,7 @@ OsStunDatagramSocket::OsStunDatagramSocket(int remoteHostPortNum,
         , mStunServer(szStunServer ? szStunServer : "") // szStunServer can be NULL
         , mStunOptions(iStunOptions)
         , mStunPort(PORT_NONE)
-        , mpTimer(new OsTimer(pStunAgent->getMessageQueue(), (int) this))
+        , mpTimer(new OsTimer(pStunAgent->getMessageQueue(), this))
         , mbEnabled(bEnableStun)
         , mStunRefreshErrors(0)
         , pStunAgent(OsStunAgentTask::getInstance(this))
@@ -604,7 +604,7 @@ void OsStunDatagramSocket::markStunSuccess()
         pContact->eContactType = NAT_MAPPED;
         pContact->iPort = mStunPort;
         
-        mpNotification->signal((int)pContact) ;
+        mpNotification->signal((intptr_t)pContact) ;
         mpNotification = NULL ;
     }
 }

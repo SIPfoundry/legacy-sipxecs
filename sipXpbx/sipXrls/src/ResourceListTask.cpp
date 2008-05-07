@@ -67,9 +67,9 @@ UtlBoolean ResourceListTask::handleMessage(OsMsg& rMsg)
       // The userdata is an "enum notifyCodes" value indicating what sort of
       // operation is to be done, plus a sequence number indicating (via
       // ResourceListSet) the object to be operated upon.
-      int userData;
+      intptr_t userData;
       OsEventMsg* pEventMsg = dynamic_cast <OsEventMsg*> (&rMsg);
-      pEventMsg->getUserData(userData);
+      pEventMsg->getUserData((void*&)userData);
       int seqNo;
       enum ResourceListSet::notifyCodes type;
       ResourceListSet::splitUserData(userData, seqNo, type);
@@ -104,7 +104,7 @@ UtlBoolean ResourceListTask::handleMessage(OsMsg& rMsg)
 
       default:
          OsSysLog::add(FAC_RLS, PRI_ERR,
-                       "ResourceListTask::handleMessage unknown event type %d, userData = %d",
+                       "ResourceListTask::handleMessage unknown event type %d, userData = %" PRIdPTR,
                        type, userData);
          break;
       }

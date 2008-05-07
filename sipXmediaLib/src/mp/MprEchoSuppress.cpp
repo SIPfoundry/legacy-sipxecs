@@ -236,16 +236,16 @@ void MprEchoSuppress::frame_match(MpBufPtr in)
         if (0 > (spkEndTC - micStartTC)) {
 #ifdef DEBUG_TC /* [ */
             if (doShowMe())  {
-                osPrintf("Discard(1) 0x%X: Tm=%d, Ts=%d (delta=%d)\n",
-                    (int) mpPrev, micEndTC, spkEndTC, (spkEndTC-micStartTC));
+                osPrintf("Discard(1) 0x%p: Tm=%d, Ts=%d (delta=%d)\n",
+                    mpPrev, micEndTC, spkEndTC, (spkEndTC-micStartTC));
             }
 #endif /* DEBUG_TC ] */
             MpBuf_delRef(mpPrev);
             mpPrev = NULL;
 #ifdef DEBUG_TC /* [ */
         } else if (doShowMe())  {
-            osPrintf("Keep       0x%X: Tm=%d, Ts=%d (delta=%d)\n",
-            (int) mpPrev, micEndTC, spkEndTC, (spkEndTC-micStartTC));
+            osPrintf("Keep       0x%p: Tm=%d, Ts=%d (delta=%d)\n",
+            mpPrev, micEndTC, spkEndTC, (spkEndTC-micStartTC));
 #endif /* DEBUG_TC ] */
         }
     }
@@ -270,16 +270,16 @@ void MprEchoSuppress::frame_match(MpBufPtr in)
                 spkEndTC = MpBuf_getOsTC(mpPrev);
 #ifdef DEBUG_TC /* [ */
                 if (doShowMe())  {
-                    osPrintf("Receive 0x%X:    Ts=%d (delta=%d)\n",
-                        (int) mpPrev, spkEndTC, (spkEndTC-micStartTC));
+                    osPrintf("Receive 0x%p:    Ts=%d (delta=%d)\n",
+                        mpPrev, spkEndTC, (spkEndTC-micStartTC));
                 }
 #endif /* DEBUG_TC ] */
                 long lll = micEndTC - spkEndTC;
                 if (0 > (spkEndTC - micStartTC)) {
 #ifdef DEBUG_TC /* [ */
                     if (doShowMe()) {
-                        osPrintf("Discard(2) 0x%X: Tm=%d, Ts=%d (delta=%d)\n",
-                            (int) mpPrev, micEndTC, spkEndTC,
+                        osPrintf("Discard(2) 0x%p: Tm=%d, Ts=%d (delta=%d)\n",
+                            mpPrev, micEndTC, spkEndTC,
                             (spkEndTC - micStartTC));
                     }
 #endif /* DEBUG_TC ] */

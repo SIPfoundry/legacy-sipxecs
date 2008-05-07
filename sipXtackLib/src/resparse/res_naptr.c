@@ -282,7 +282,7 @@ char             *res_naptr_replace(const char *replace,
    /* If requested, copy the portion of the original string after the match. */
    if (keep_context)
    {
-      int len = strlen(original) - match[0].rm_eo;
+      size_t len = strlen(original) - match[0].rm_eo;
       if (used_size + len > allocated_size)
       {
          allocated_size *= 2;

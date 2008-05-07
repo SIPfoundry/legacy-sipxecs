@@ -52,16 +52,22 @@ public:
             if (paramType.compareTo("UtlInt") == 0)
             {
                UtlInt* paramValue = (UtlInt *)value;
-               printf("value = %d\n", paramValue->getValue());
+               printf("value = %" PRIdPTR "\n", paramValue->getValue());
             }
             
-            if (paramType.compareTo("UtlString") == 0)
+            else if (paramType.compareTo("UtlLongLongInt") == 0)
+            {
+               UtlLongLongInt* paramValue = (UtlLongLongInt *)value;
+               printf("value = %" FORMAT_INTLL "d\n", paramValue->getValue());
+            }
+            
+            else if (paramType.compareTo("UtlString") == 0)
             {
                UtlString* paramValue = (UtlString *)value;
                printf("value = %s\n", paramValue->data());
             }
    
-            if (paramType.compareTo("UtlSList") == 0)
+            else if (paramType.compareTo("UtlSList") == 0)
             {
                UtlSList* list = (UtlSList *)value;
                UtlSListIterator iterator(*list);
@@ -72,7 +78,7 @@ public:
                   if (elementType.compareTo("UtlInt") == 0)
                   {
                      UtlInt* paramValue = (UtlInt *)pObject;
-                     printf("value = %d\n", paramValue->getValue());
+                     printf("value = %" PRIdPTR "\n", paramValue->getValue());
                   }
                   
                   if (elementType.compareTo("UtlString") == 0)
@@ -83,7 +89,7 @@ public:
                }
             }
    
-            if (paramType.compareTo("UtlHashMap") == 0)
+            else if (paramType.compareTo("UtlHashMap") == 0)
             {
                UtlHashMap* map = (UtlHashMap *)value;
                UtlHashMapIterator iterator(*map);
@@ -97,7 +103,7 @@ public:
                   if (elementType.compareTo("UtlInt") == 0)
                   {
                      UtlInt* paramValue = (UtlInt *)pObject;
-                     printf("value = %d\n", paramValue->getValue());
+                     printf("value = %" PRIdPTR "\n", paramValue->getValue());
                   }
                   
                   if (elementType.compareTo("UtlString") == 0)
@@ -117,7 +123,7 @@ public:
                         if (elementType.compareTo("UtlInt") == 0)
                         {
                            UtlInt* paramValue = (UtlInt *)pList;
-                           printf("value = %d\n", paramValue->getValue());
+                           printf("value = %" PRIdPTR "\n", paramValue->getValue());
                         }
                         
                         if (elementType.compareTo("UtlString") == 0)
@@ -128,6 +134,10 @@ public:
                      }
                   }
                }
+            }
+            else
+            {
+               printf("unrecognized param type %s\n", paramType.data());
             }
          }
 #endif
@@ -171,6 +181,11 @@ public:
             "<param>\n"
             "<value><int>162</int></value>\n"
             "</param>\n"
+#if __x86_64__
+            "<param>\n"
+            "<value><int>178187493530</int></value>\n"
+            "</param>\n"
+#endif
             "<param>\n"
             "<value><i8>0x00000000027972</i8></value>\n"
             "</param>\n"
@@ -208,6 +223,12 @@ public:
          UtlInt intValue(162);
          request.addParam(&intValue);
 
+#if __x86_64__
+         // test 64 bit integer 
+         UtlInt int64Value(178187493530);
+         request.addParam(&int64Value);
+#endif
+         
          UtlLongLongInt llintValue(162162);
          request.addParam(&llintValue);
          
@@ -233,7 +254,7 @@ public:
          request.execute(response);
 
          UtlString requestBody;
-         int length;
+         size_t length;
          request.mpHttpRequest->getBody()->getBytes(&requestBody, &length);
          
          ASSERT_STR_EQUAL(ref, requestBody.data());
@@ -253,6 +274,11 @@ public:
             "<param>\n"
             "<value><int>162</int></value>\n"
             "</param>\n"
+#if __x86_64__
+            "<param>\n"
+            "<value><int>178187493530</int></value>\n"
+            "</param>\n"
+#endif
             "<param>\n"
             "<value><i8>0x00000000027972</i8></value>\n"
             "</param>\n"
@@ -342,9 +368,10 @@ public:
          XmlRpcBody *responseBody = response.getBody();
 
          UtlString body;
-         int length;
+         size_t length;
          responseBody->getBytes(&body, &length);
          
+         // method was not registered: expect fault response
          ASSERT_STR_EQUAL(faultResponse, body.data());
 
          XmlRpcResponse newResponse;
@@ -352,6 +379,18 @@ public:
          dispatch.addMethod("addExtension", AddExtension::get, NULL);
          result = dispatch.parseXmlRpcRequest(requestContent, method, params, newResponse);
          CPPUNIT_ASSERT(result == true);
+  
+         // check that int was parsed correctly
+         CPPUNIT_ASSERT ( params.at(1) && params.at(1)->isInstanceOf(UtlInt::TYPE) ); 
+         UtlInt* pParamValue = (UtlInt *)params.at(1);
+         CPPUNIT_ASSERT ( pParamValue->getValue() == 162 );
+         
+#if __x86_64__
+         // check that 64bit int was parsed correctly
+         CPPUNIT_ASSERT ( params.at(2) && params.at(2)->isInstanceOf(UtlInt::TYPE) ); 
+         pParamValue = (UtlInt *)params.at(2);
+         CPPUNIT_ASSERT ( pParamValue->getValue() == 178187493530 );
+#endif
          
          HttpRequestContext context;
          XmlRpcMethod::ExecutionStatus status = XmlRpcMethod::OK;
@@ -528,7 +567,7 @@ public:
          response.setResponse(&members);         
 
          UtlString responseBody;
-         int length;
+         size_t length;
          response.getBody()->getBytes(&responseBody, &length);
 
          ASSERT_STR_EQUAL(ref, responseBody.data());
@@ -630,7 +669,7 @@ public:
          XmlRpcBody *responseBody = response1.getBody();
 
          UtlString body;
-         int length;
+         size_t length;
          responseBody->getBytes(&body, &length);
 
          ASSERT_STR_EQUAL(faultResponse, body.data());

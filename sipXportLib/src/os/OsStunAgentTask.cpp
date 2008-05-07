@@ -289,11 +289,13 @@ UtlBoolean OsStunAgentTask::handleStunTimerEvent(OsEventMsg& rMsg)
 {
     OsLock lock(mMapsLock) ;
     OsStunDatagramSocket* pSocket ;
+    void *pSocketVoid ;
     OsStatus rc ;
 
     // Pull out socket
-    rc = rMsg.getUserData((int&) pSocket) ;
+    rc = rMsg.getUserData(pSocketVoid) ;
     assert(rc == OS_SUCCESS) ;    
+    pSocket = (OsStunDatagramSocket*) pSocketVoid ;
 
     // Refresh the socket
     if ((rc == OS_SUCCESS) && pSocket)
@@ -388,12 +390,12 @@ UtlBoolean OsStunAgentTask::sendStunDiscoveryRequest(OsStunDatagramSocket* pSock
                     pQueuedEvent = dynamic_cast<OsQueuedEvent*>(pTimer->getNotifier());
                     if (pQueuedEvent)
                     {
-                        pQueuedEvent->setUserData((int) pSocket) ;
+                        pQueuedEvent->setUserData(pSocket) ;
                     }
                 }
                 else
                 {
-                    pTimer = new OsTimer(getMessageQueue(), (int) pSocket) ;
+                    pTimer = new OsTimer(getMessageQueue(), pSocket) ;
                     pQueuedEvent = (OsQueuedEvent*)pTimer->getNotifier();
                 }
 

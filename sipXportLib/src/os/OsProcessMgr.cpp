@@ -196,7 +196,7 @@ OsStatus OsProcessMgr::stopProcess(PID pid)
     OsProcess process;
     UtlString aliasName;
 
-    OsSysLog::add(FAC_PROCESSMGR, PRI_DEBUG,"OsProcessMgr::stopProcess %d", pid);
+    OsSysLog::add(FAC_PROCESSMGR, PRI_DEBUG,"OsProcessMgr::stopProcess %ld", (long)pid);
 
     if (OsProcess::getByPID(pid,process) == OS_SUCCESS)
     {
@@ -209,7 +209,7 @@ OsStatus OsProcessMgr::stopProcess(PID pid)
            if (state == PROCESS_STARTED)
            {
               OsSysLog::add(FAC_PROCESSMGR, PRI_DEBUG,
-                            "OsProcessMgr::stopProcess %d %s",pid, aliasName.data());
+                            "OsProcessMgr::stopProcess %ld %s", (long)pid, aliasName.data());
               setAliasState(aliasName,PROCESS_STOPPING);
               retval = process.kill();
               if (retval == OS_SUCCESS)
@@ -223,21 +223,21 @@ OsStatus OsProcessMgr::stopProcess(PID pid)
               }
               else
               {
-                 OsSysLog::add(FAC_PROCESSMGR, PRI_ERR,"OsProcessMgr::stopProcess %d kill failed",
-                               pid);
+                 OsSysLog::add(FAC_PROCESSMGR, PRI_ERR,"OsProcessMgr::stopProcess %ld kill failed",
+                               (long)pid);
               }
            }
            else
            {
-              OsSysLog::add(FAC_PROCESSMGR, PRI_WARNING,"OsProcessMgr::stopProcess %d not started",
-                            pid);
+              OsSysLog::add(FAC_PROCESSMGR, PRI_WARNING,"OsProcessMgr::stopProcess %ld not started",
+                            (long)pid);
            }
         }
     }
     else
     {
         OsSysLog::add(FAC_PROCESSMGR, PRI_ERR,
-                      "OsProcessMgr::stopProcess by pid %d not found",pid);
+                      "OsProcessMgr::stopProcess by pid %ld not found", (long)pid);
     }
 
     return retval;
@@ -253,7 +253,7 @@ OsStatus OsProcessMgr::getAliasByPID(PID pid ,UtlString &rAlias)
     while ((pAlias = dynamic_cast<UtlString*>(iMap())) && OS_FAILED == retval)
     {
         UtlString* pState = dynamic_cast<UtlString*>(mCurrentStateMap.findValue(pAlias));
-        int x = atoi(pState->data());
+        PID x = atol(pState->data());
         if( pid == x )
         {
             rAlias = *pAlias;
@@ -280,21 +280,21 @@ OsStatus OsProcessMgr::getProcessByAlias(const UtlString &rAlias, OsProcess &rPr
             bFound = true;
             UtlString* pState = dynamic_cast<UtlString*>(mCurrentStateMap.findValue(pAlias));
 
-            int pid = atoi(pState->data());
+            PID pid = atol(pState->data());
             if (pid > 0)
             {
                 retval = OsProcess::getByPID(pid,rProcess);
                 if (retval == OS_SUCCESS)
                 {
                    OsSysLog::add(FAC_PROCESSMGR, PRI_DEBUG,
-                                 "OsProcessMgr::getProcessByAlias '%s' pid %d",
-                                 rAlias.data(),pid);
+                                 "OsProcessMgr::getProcessByAlias '%s' pid %ld",
+                                 rAlias.data(),(long)pid);
                 }
                 else
                 {
                    OsSysLog::add(FAC_PROCESSMGR, PRI_DEBUG,
-                                 "OsProcessMgr::getProcessByAlias alias %s -> pid %d NOT valid",
-                                 rAlias.data(),pid);
+                                 "OsProcessMgr::getProcessByAlias alias %s -> pid %ld NOT valid",
+                                 rAlias.data(),(long)pid);
                 }
             }
             else
@@ -496,13 +496,13 @@ OsStatus OsProcessMgr::setAliasState(const UtlString &rAlias, int newstate)
     return  retval;
 }
                     
-void OsProcessMgr::addEntry(const UtlString &rAlias, int pid)
+void OsProcessMgr::addEntry(const UtlString &rAlias, PID pid)
 {        
-    char buf[20];
-    sprintf(buf,"%d",pid);
+    char buf[PID_STR_LEN];
+    sprintf(buf,"%ld",(long)pid);
 
-    OsSysLog::add(FAC_PROCESSMGR, PRI_DEBUG,"OsProcessMgr::addEntry(%s, %d)", 
-                  rAlias.data(), pid);
+    OsSysLog::add(FAC_PROCESSMGR, PRI_DEBUG,"OsProcessMgr::addEntry(%s, %ld)", 
+                  rAlias.data(), (long)pid);
 
     // Insert the new entry, clearing the old entry if one exists.
     removeEntry(rAlias);

@@ -1974,9 +1974,9 @@ void ACDQueue::resetRingNoAnswerStates(ACDCall* pCallRef)
 void ACDQueue::setRingNoAnswerState(ACDCall* pCallRef, ACDAgent* pAgentRef, bool state)
 {
    // First find the position of the Agent within the mAcdAgentList
-   size_t agentPos;
+   ssize_t agentPos;
    agentPos = mAcdAgentList.index( pAgentRef );
-   OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDQueue::setRingNoAnswerState - agent %s pos %d state %d", pAgentRef->getUriString()->data(), agentPos, state );
+   OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDQueue::setRingNoAnswerState - agent %s pos %zd state %d", pAgentRef->getUriString()->data(), agentPos, state );
      
    if ( agentPos!=UTL_NOT_FOUND )
    {
@@ -2022,9 +2022,9 @@ void ACDQueue::setRingNoAnswerState(ACDCall* pCallRef, ACDAgent* pAgentRef, bool
 bool ACDQueue::getRingNoAnswerState(ACDCall* pCallRef, ACDAgent* pAgentRef)
 {
    // First find the position of the Agent within the mAcdAgentList
-   size_t agentPos;
+   ssize_t agentPos;
    agentPos = mAcdAgentList.index( pAgentRef );
-   OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDQueue::getRingNoAnswerState - agent %s pos %d", pAgentRef->getUriString()->data(), agentPos);
+   OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDQueue::getRingNoAnswerState - agent %s pos %zd", pAgentRef->getUriString()->data(), agentPos);
      
    if ( agentPos!=UTL_NOT_FOUND )
    {
@@ -2077,7 +2077,7 @@ void ACDQueue::appendRoutingCall(ACDCall* pCallRef)
       UtlBool* rnaState = new UtlBool(false);
       rnaList->append( rnaState );      
    }
-   OsSysLog::add(FAC_ACD, PRI_DEBUG, "ACDQueue::appendRoutingCall - Added entry into mCallToRnaListMap for ACDCall %p : RnaList %p : size %d", pCallRef, rnaList, numOfAgents);
+   OsSysLog::add(FAC_ACD, PRI_DEBUG, "ACDQueue::appendRoutingCall - Added entry into mCallToRnaListMap for ACDCall %p : RnaList %p : size %zu", pCallRef, rnaList, numOfAgents);
 }
    
 void ACDQueue::removeRoutingCall(ACDCall* pCallRef)

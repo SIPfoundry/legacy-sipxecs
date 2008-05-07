@@ -162,7 +162,7 @@ TaoListenerManager::operator=(const TaoListenerManager& rhs)
 
 UtlBoolean TaoListenerManager::handleMessage(OsMsg& eventMessage)
 {
-        int eventId = ((TaoListenerEventMessage&)eventMessage).getEventId();
+        PtEvent::PtEventId eventId1 = (PtEvent::PtEventId)((TaoListenerEventMessage&)eventMessage).getEventId();
 
         OsReadLock lock(mListenerRWLock);
 
@@ -174,7 +174,7 @@ UtlBoolean TaoListenerManager::handleMessage(OsMsg& eventMessage)
                                 continue;
                         TaoEventListener* pListener = (TaoEventListener*)mpListeners[i]->mpListenerPtr;
 
-                        if (pListener && pListener->isEventEnabled((PtEvent::PtEventId &)eventId))
+                        if (pListener && pListener->isEventEnabled(eventId1))
                         {
                                 UtlString rTerminalName;
                                 char buf[128];
@@ -379,7 +379,7 @@ TaoStatus TaoListenerManager::addEventListener(const char* terminalName,
                         // add to listenerDb
                         TaoListenerDb *pListenerDb = new TaoListenerDb();
                         pListenerDb->mName = terminalName;
-                        pListenerDb->mpListenerPtr = (int) pListener;
+                        pListenerDb->mpListenerPtr = pListener;
                         pListenerDb->mRef = 1;
             if (mListenerCnt == mMaxNumListeners)
             {
@@ -481,7 +481,7 @@ TaoStatus TaoListenerManager::removeEventListener(TaoMessage& rMsg)
                                 mpListeners[i]->mRef--;
                                 if (mpListeners[i]->mRef <= 0)
                                 {
-                                        osPrintf("*** TaoListenerManager::removeEventListener %s 0x%08x %d\n", terminalName.data(), (int)mpListeners[i], mpListeners[i]->mRef);
+                                        osPrintf("*** TaoListenerManager::removeEventListener %s 0x%p %d\n", terminalName.data(), mpListeners[i], mpListeners[i]->mRef);
                                         if (mpListeners[i]->mpListenerPtr)
                                         {
                                                 TaoEventListener* pListener = (TaoEventListener*) mpListeners[i]->mpListenerPtr;

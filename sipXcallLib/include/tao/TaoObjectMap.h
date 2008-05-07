@@ -46,10 +46,10 @@ public:
         ~TaoListenerDb();
 
         UtlString       mName;
-        int                     mpListenerPtr;
-        int                     mRef;
-        int                     mId;
-        int                     mIntData;
+        void*           mpListenerPtr;
+        int             mRef;
+        int             mId;
+        intptr_t        mIntData;
 };
 
 //:Maintains a db of TaoObjHandle to TaoObject or PTAPI object mappings.

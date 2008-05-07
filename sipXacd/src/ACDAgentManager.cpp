@@ -114,7 +114,7 @@ ACDAgentManager::~ACDAgentManager()
    UtlString* pAgentUriString;
    UtlContainable *key;
    UtlContainable *pAgent;
-   while (pAgentUriString = (UtlString *) iterator())
+   while ((pAgentUriString = (UtlString *) iterator()))
    {
       key = mAcdAgentList.removeKeyAndValue(pAgentUriString, pAgent);
       delete pAgent;

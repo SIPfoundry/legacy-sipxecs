@@ -88,7 +88,7 @@ bool getAllLocalHostIps(const HostAdapterAddress* localHostAddresses[],
          numAddresses = j;
 #else
          void* ptr;
-         for (ptr = ifreq_array; (int) ptr < ((int) ifreq_array) + ifconf_structure.ifc_len; )
+         for (ptr = ifreq_array; (intptr_t)ptr < ((intptr_t)ifreq_array) + ifconf_structure.ifc_len; )
          {
             struct ifreq* ifr = (struct ifreq*) ptr;
             
@@ -96,7 +96,7 @@ bool getAllLocalHostIps(const HostAdapterAddress* localHostAddresses[],
             if (ifr->ifr_addr.sa_len > sizeof(struct sockaddr))
                len = ifr->ifr_addr.sa_len;
 
-            ptr = (void *) ((int) ptr + sizeof(ifr->ifr_name) + len);
+            ptr = (void *) ((intptr_t)ptr + sizeof(ifr->ifr_name) + len);
 
             // The body of this if statement should mirror the for loop above...
             if (ifr->ifr_addr.sa_family == AF_INET)

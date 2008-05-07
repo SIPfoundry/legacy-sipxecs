@@ -198,6 +198,7 @@ UtlBoolean SubscribeServerThread::insertRow(
       // Critical Section here
       OsLock mutex(mLock);
       // (We must supply a dummy XML version number.)
+      OsSysLog::add(FAC_AUTH, PRI_DEBUG, "SubscribeServerThread::insertRow() calling SubscriptionDB::getInstance()->InsertRow()\n") ;
       status = SubscriptionDB::getInstance()->insertRow(
          SUBSCRIPTION_COMPONENT_STATUS,
          uri, callid, contact, expires, subscribeCseq, eventType,
@@ -291,7 +292,7 @@ SubscribeServerThread::handleMessage(OsMsg& eventMessage)
 
                      if (plugin)
                      {
-                        int timeNow = OsDateTime::getSecsSinceEpoch();
+                        int timeNow = (int)OsDateTime::getSecsSinceEpoch();
                         int grantedExpiration;
                         UtlString newToTag;
 
@@ -456,7 +457,7 @@ SubscribeServerThread::handleMessage(OsMsg& eventMessage)
 
             // send final response
             UtlString finalMessageStr;
-            int finalMessageLen;
+            size_t finalMessageLen;
             finalResponse.getBytes(&finalMessageStr, &finalMessageLen);
             OsSysLog::add(FAC_SIP, PRI_DEBUG, "\n----------------------------------\n"
                 "Sending final response\n%s",finalMessageStr.data());

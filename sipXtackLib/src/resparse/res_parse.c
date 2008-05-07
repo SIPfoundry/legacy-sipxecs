@@ -29,22 +29,22 @@
 #define _getshort _pingtel_getshort
 #define _getlong _pingtel_getlong
 
-u_int _getshort(const u_char *src);
-u_long _getlong(const u_char *src);
+uint16_t _getshort(const u_char *src);
+uint32_t _getlong(const u_char *src);
 char * expand_cdname(char **cpp, char *msg);
 char * expand_charstring(char **cpp, char *msg);
 s_question * parse_question(char **cpp, char *msg);
 s_rr * parse_rr( char **cpp, char *msg);
 
-u_int _getshort(const u_char *src)
+uint16_t _getshort(const u_char *src)
 {
-        u_int dst;
+        uint16_t dst;
         NS_GET16(dst, src);
         return dst;
 }
-u_long _getlong(const u_char *src)
+uint32_t _getlong(const u_char *src)
 {
-        u_long dst;
+        uint32_t dst;
         NS_GET32(dst, src);
         return dst;
 }
@@ -144,9 +144,9 @@ parse_question(
                 return(NULL);
         }
         ptr->qtype = _getshort((const u_char *) *cpp);
-        *cpp += sizeof(u_short);
+        *cpp += sizeof(uint16_t);
         ptr->qclass = _getshort((const u_char *) *cpp);
-        *cpp += sizeof(u_short);
+        *cpp += sizeof(uint16_t);
 
         return(ptr);
 }
@@ -179,15 +179,15 @@ parse_rr(
                 return(NULL);
         }
         ptr->type = _getshort((const u_char *) *cpp);
-        *cpp += sizeof(u_short);
+        *cpp += sizeof(uint16_t);
         ptr->rclass = _getshort((const u_char *) *cpp);
-        *cpp += sizeof(u_short);
+        *cpp += sizeof(uint16_t);
         ptr->ttl = _getlong((const u_char *) *cpp);
-        *cpp += sizeof(u_long);
+        *cpp += sizeof(uint32_t);
 
         dlen = _getshort((const u_char *) *cpp);
         ptr->dlen = dlen;
-        *cpp += sizeof(u_short);
+        *cpp += sizeof(uint16_t);
 
         rd = &ptr->rdata;
 
@@ -223,15 +223,15 @@ parse_rr(
                 rd->soa.mname = expand_cdname(cpp, msg);
                 rd->soa.rname = expand_cdname(cpp, msg);
                 rd->soa.serial = _getlong((const u_char *) *cpp);
-                *cpp += sizeof(u_long);
+                *cpp += sizeof(uint32_t);
                 rd->soa.refresh = _getlong((const u_char *) *cpp);
-                *cpp += sizeof(u_long);
+                *cpp += sizeof(uint32_t);
                 rd->soa.retry = _getlong((const u_char *) *cpp);
-                *cpp += sizeof(u_long);
+                *cpp += sizeof(uint32_t);
                 rd->soa.expire = _getlong((const u_char *) *cpp);
-                *cpp += sizeof(u_long);
+                *cpp += sizeof(uint32_t);
                 rd->soa.minimum = _getlong((const u_char *) *cpp);
-                *cpp += sizeof(u_long);
+                *cpp += sizeof(uint32_t);
                 break;
 
         case T_MB:                              /* Mail Box  */
@@ -283,17 +283,17 @@ parse_rr(
 
         case T_MX:                              /* Mail Exchanger */
                 rd->mx.preference = _getshort((const u_char *) *cpp);
-                *cpp += sizeof(u_short);
+                *cpp += sizeof(uint16_t);
                 rd->mx.exchange = expand_cdname(cpp, msg);
                 break;
 
         case T_SRV:                             /* Service location */
                 rd->srv.priority = _getshort((const u_char *) *cpp);
-                *cpp += sizeof(u_short);
+                *cpp += sizeof(uint16_t);
                 rd->srv.weight = _getshort((const u_char *) *cpp);
-                *cpp += sizeof(u_short);
+                *cpp += sizeof(uint16_t);
                 rd->srv.port = _getshort((const u_char *) *cpp);
-                *cpp += sizeof(u_short);
+                *cpp += sizeof(uint16_t);
                 rd->srv.target = expand_cdname(cpp, msg);
                 break;
 
@@ -304,9 +304,9 @@ parse_rr(
                 // cpp += dlen.
                 char **cpp_end = cpp + dlen;
                 rd->naptr.order = _getshort((const u_char *) *cpp);
-                *cpp += sizeof(u_short);
+                *cpp += sizeof(uint16_t);
                 rd->naptr.preference = _getshort((const u_char *) *cpp);
-                *cpp += sizeof(u_short);
+                *cpp += sizeof(uint16_t);
                 if (( rd->naptr.flags = expand_charstring(cpp, msg)) == NULL ) {
                         cpp = cpp_end;
                         break;
@@ -366,7 +366,7 @@ parse_rr(
                          */
         case T_AFSDB:                           /* AFS Server */
                 rd->afsdb.subtype = _getshort((const u_char *) *cpp);
-                *cpp += sizeof(u_short);
+                *cpp += sizeof(uint16_t);
                 rd->afsdb.hostname = expand_cdname(cpp, msg);
                 break;
 
@@ -393,7 +393,7 @@ parse_rr(
 
         case T_RT:                              /* Route Through */
                 rd->rt.preference = _getshort((const u_char *) *cpp);
-                *cpp += sizeof(u_short);
+                *cpp += sizeof(uint16_t);
                 rd->rt.int_host = expand_cdname(cpp, msg);
                 break;
 
@@ -411,7 +411,7 @@ parse_rr(
         case T_UID:                             /* User ID */
         case T_GID:                             /* Group ID */
                 rd->number = _getlong((const u_char *) *cpp);
-                *cpp += sizeof(u_long);
+                *cpp += sizeof(uint32_t);
                 break;
 
         case T_UNSPEC:                          /* Unspecified info */
@@ -444,7 +444,7 @@ res_parse(char *msg)
         res_response *resp;
         int i;
 
-        u_short qdcount, ancount, nscount, arcount;
+        uint16_t qdcount, ancount, nscount, arcount;
 
 
         /*
@@ -463,10 +463,10 @@ res_parse(char *msg)
          *    (allows the tree to be freed in case of problems)
          * Also handle network/host ordering
          */
-        qdcount = ntohs((u_short)resp->header.qdcount); resp->header.qdcount = 0;
-        ancount = ntohs((u_short)resp->header.ancount); resp->header.ancount = 0;
-        nscount = ntohs((u_short)resp->header.nscount); resp->header.nscount = 0;
-        arcount = ntohs((u_short)resp->header.arcount); resp->header.arcount = 0;
+        qdcount = ntohs((uint16_t)resp->header.qdcount); resp->header.qdcount = 0;
+        ancount = ntohs((uint16_t)resp->header.ancount); resp->header.ancount = 0;
+        nscount = ntohs((uint16_t)resp->header.nscount); resp->header.nscount = 0;
+        arcount = ntohs((uint16_t)resp->header.arcount); resp->header.arcount = 0;
         resp->question = NULL;
         resp->answer = NULL;
         resp->authority = NULL;

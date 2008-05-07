@@ -1,36 +1,41 @@
 /* -*- Mode: C; tab-width: 8; indent-tabs-mode: nil; c-basic-offset: 4 -*-
  *
- * The contents of this file are subject to the Netscape Public
- * License Version 1.1 (the "License"); you may not use this file
- * except in compliance with the License. You may obtain a copy of
- * the License at http://www.mozilla.org/NPL/
+ * ***** BEGIN LICENSE BLOCK *****
+ * Version: MPL 1.1/GPL 2.0/LGPL 2.1
  *
- * Software distributed under the License is distributed on an "AS
- * IS" basis, WITHOUT WARRANTY OF ANY KIND, either express oqr
- * implied. See the License for the specific language governing
- * rights and limitations under the License.
+ * The contents of this file are subject to the Mozilla Public License Version
+ * 1.1 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ * http://www.mozilla.org/MPL/
+ *
+ * Software distributed under the License is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+ * for the specific language governing rights and limitations under the
+ * License.
  *
  * The Original Code is Mozilla Communicator client code, released
  * March 31, 1998.
  *
- * The Initial Developer of the Original Code is Netscape
- * Communications Corporation.  Portions created by Netscape are
- * Copyright (C) 1998 Netscape Communications Corporation. All
- * Rights Reserved.
+ * The Initial Developer of the Original Code is
+ * Netscape Communications Corporation.
+ * Portions created by the Initial Developer are Copyright (C) 1998
+ * the Initial Developer. All Rights Reserved.
  *
- * Contributor(s): 
+ * Contributor(s):
  *
- * Alternatively, the contents of this file may be used under the
- * terms of the GNU Public License (the "GPL"), in which case the
- * provisions of the GPL are applicable instead of those above.
- * If you wish to allow use of your version of this file only
- * under the terms of the GPL and not to allow others to use your
- * version of this file under the NPL, indicate your decision by
- * deleting the provisions above and replace them with the notice
- * and other provisions required by the GPL.  If you do not delete
- * the provisions above, a recipient may use your version of this
- * file under either the NPL or the GPL.
- */
+ * Alternatively, the contents of this file may be used under the terms of
+ * either of the GNU General Public License Version 2 or later (the "GPL"),
+ * or the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
+ * in which case the provisions of the GPL or the LGPL are applicable instead
+ * of those above. If you wish to allow use of your version of this file only
+ * under the terms of either the GPL or the LGPL, and not to allow others to
+ * use your version of this file under the terms of the MPL, indicate your
+ * decision by deleting the provisions above and replace them with the notice
+ * and other provisions required by the GPL or the LGPL. If you do not delete
+ * the provisions above, a recipient may use your version of this file under
+ * the terms of any one of the MPL, the GPL or the LGPL.
+ *
+ * ***** END LICENSE BLOCK ***** */
 
 #ifndef jsatom_h___
 #define jsatom_h___
@@ -53,11 +58,13 @@ JS_BEGIN_EXTERN_C
 #define ATOM_PINNED     0x01            /* atom is pinned against GC */
 #define ATOM_INTERNED   0x02            /* pinned variant for JS_Intern* API */
 #define ATOM_MARK       0x04            /* atom is reachable via GC */
+#define ATOM_HIDDEN     0x08            /* atom is in special hidden subspace */
 #define ATOM_NOCOPY     0x40            /* don't copy atom string bytes */
 #define ATOM_TMPSTR     0x80            /* internal, to avoid extra string */
 
 struct JSAtom {
-    JSHashEntry         entry;          /* key is jsval, value keyword info */
+    JSHashEntry         entry;          /* key is jsval or unhidden atom
+                                           if ATOM_HIDDEN */
     uint32              flags;          /* pinned, interned, and mark flags */
     jsatomid            number;         /* atom serial number and hash code */
 };
@@ -73,23 +80,29 @@ struct JSAtom {
 #define ATOM_TO_STRING(atom)      JSVAL_TO_STRING(ATOM_KEY(atom))
 #define ATOM_IS_BOOLEAN(atom)     JSVAL_IS_BOOLEAN(ATOM_KEY(atom))
 #define ATOM_TO_BOOLEAN(atom)     JSVAL_TO_BOOLEAN(ATOM_KEY(atom))
-#define ATOM_BYTES(atom)          JS_GetStringBytes(ATOM_TO_STRING(atom))
 
-#define ATOM_KEYWORD(atom)        ((struct keyword *)(atom)->entry.value)
-#define ATOM_SET_KEYWORD(atom,kw) ((atom)->entry.value = (kw))
+/*
+ * Return a printable, lossless char[] representation of a string-type atom.
+ * The lifetime of the result extends at least until the next GC activation,
+ * longer if cx's string newborn root is not overwritten.
+ */
+extern JS_FRIEND_API(const char *)
+js_AtomToPrintableString(JSContext *cx, JSAtom *atom);
 
 struct JSAtomListElement {
     JSHashEntry         entry;
 };
 
 #define ALE_ATOM(ale)   ((JSAtom *) (ale)->entry.key)
-#define ALE_INDEX(ale)  ((jsatomid) (ale)->entry.value)
+#define ALE_INDEX(ale)  ((jsatomid) JS_PTR_TO_UINT32((ale)->entry.value))
 #define ALE_JSOP(ale)   ((JSOp) (ale)->entry.value)
+#define ALE_VALUE(ale)  ((jsval) (ale)->entry.value)
 #define ALE_NEXT(ale)   ((JSAtomListElement *) (ale)->entry.next)
 
 #define ALE_SET_ATOM(ale,atom)  ((ale)->entry.key = (const void *)(atom))
-#define ALE_SET_INDEX(ale,index)((ale)->entry.value = (void *)(index))
-#define ALE_SET_JSOP(ale,op)    ((ale)->entry.value = (void *)(op))
+#define ALE_SET_INDEX(ale,index)((ale)->entry.value = JS_UINT32_TO_PTR(index))
+#define ALE_SET_JSOP(ale,op)    ((ale)->entry.value = JS_UINT32_TO_PTR(op))
+#define ALE_SET_VALUE(ale,val)  ((ale)->entry.value = (JSHashEntry *)(val))
 #define ALE_SET_NEXT(ale,link)  ((ale)->entry.next = (JSHashEntry *)(link))
 
 struct JSAtomList {
@@ -139,60 +152,66 @@ struct JSAtomState {
     jsatomid            number;         /* one beyond greatest atom number */
     jsatomid            liveAtoms;      /* number of live atoms after last GC */
 
+    /* The rt->emptyString atom, see jsstr.c's js_InitRuntimeStringState. */
+    JSAtom              *emptyAtom;
+
     /* Type names and value literals. */
     JSAtom              *typeAtoms[JSTYPE_LIMIT];
     JSAtom              *booleanAtoms[2];
     JSAtom              *nullAtom;
 
+    /* Standard class constructor or prototype names. */
+    JSAtom              *classAtoms[JSProto_LIMIT];
+
     /* Various built-in or commonly-used atoms, pinned on first context. */
-    JSAtom              *ArgumentsAtom;
-    JSAtom              *ArrayAtom;
-    JSAtom              *BooleanAtom;
-    JSAtom              *CallAtom;
-    JSAtom              *DateAtom;
-    JSAtom              *ErrorAtom;
-    JSAtom              *FunctionAtom;
-    JSAtom              *MathAtom;
-    JSAtom              *NumberAtom;
-    JSAtom              *ObjectAtom;
-    JSAtom              *RegExpAtom;
-    JSAtom              *ScriptAtom;
-    JSAtom              *StringAtom;
     JSAtom              *anonymousAtom;
     JSAtom              *argumentsAtom;
     JSAtom              *arityAtom;
     JSAtom              *calleeAtom;
     JSAtom              *callerAtom;
     JSAtom              *classPrototypeAtom;
+    JSAtom              *closeAtom;
     JSAtom              *constructorAtom;
     JSAtom              *countAtom;
+    JSAtom              *eachAtom;
+    JSAtom              *etagoAtom;
     JSAtom              *evalAtom;
+    JSAtom              *fileNameAtom;
     JSAtom              *getAtom;
     JSAtom              *getterAtom;
     JSAtom              *indexAtom;
     JSAtom              *inputAtom;
+    JSAtom              *iteratorAtom;
     JSAtom              *lengthAtom;
+    JSAtom              *lineNumberAtom;
+    JSAtom              *messageAtom;
     JSAtom              *nameAtom;
+    JSAtom              *namespaceAtom;
+    JSAtom              *nextAtom;
+    JSAtom              *noSuchMethodAtom;
     JSAtom              *parentAtom;
     JSAtom              *protoAtom;
+    JSAtom              *ptagcAtom;
+    JSAtom              *qualifierAtom;
     JSAtom              *setAtom;
     JSAtom              *setterAtom;
+    JSAtom              *spaceAtom;
+    JSAtom              *stackAtom;
+    JSAtom              *stagoAtom;
+    JSAtom              *starAtom;
+    JSAtom              *starQualifierAtom;
+    JSAtom              *tagcAtom;
     JSAtom              *toLocaleStringAtom;
     JSAtom              *toSourceAtom;
     JSAtom              *toStringAtom;
     JSAtom              *valueOfAtom;
+    JSAtom              *xmlAtom;
 
     /* Less frequently used atoms, pinned lazily by JS_ResolveStandardClass. */
     struct {
-        JSAtom          *EvalErrorAtom;
         JSAtom          *InfinityAtom;
-        JSAtom          *InternalErrorAtom;
         JSAtom          *NaNAtom;
-        JSAtom          *RangeErrorAtom;
-        JSAtom          *ReferenceErrorAtom;
-        JSAtom          *SyntaxErrorAtom;
-        JSAtom          *TypeErrorAtom;
-        JSAtom          *URIErrorAtom;
+        JSAtom          *XMLListAtom;
         JSAtom          *decodeURIAtom;
         JSAtom          *decodeURIComponentAtom;
         JSAtom          *defineGetterAtom;
@@ -200,10 +219,12 @@ struct JSAtomState {
         JSAtom          *encodeURIAtom;
         JSAtom          *encodeURIComponentAtom;
         JSAtom          *escapeAtom;
+        JSAtom          *functionNamespaceURIAtom;
         JSAtom          *hasOwnPropertyAtom;
         JSAtom          *isFiniteAtom;
         JSAtom          *isNaNAtom;
         JSAtom          *isPrototypeOfAtom;
+        JSAtom          *isXMLNameAtom;
         JSAtom          *lookupGetterAtom;
         JSAtom          *lookupSetterAtom;
         JSAtom          *parseFloatAtom;
@@ -219,47 +240,80 @@ struct JSAtomState {
     JSThinLock          lock;
     volatile uint32     tablegen;
 #endif
+#ifdef NARCISSUS
+    JSAtom              *callAtom;
+    JSAtom              *constructAtom;
+    JSAtom              *hasInstanceAtom;
+    JSAtom              *ExecutionContextAtom;
+    JSAtom              *currentAtom;
+#endif
 };
 
-/* Well-known predefined strings and their atoms. */
-extern const char   *js_type_str[];
-extern const char   *js_boolean_str[];
+#define CLASS_ATOM(cx,name) \
+    ((cx)->runtime->atomState.classAtoms[JSProto_##name])
 
-extern const char   js_Arguments_str[];
-extern const char   js_Array_str[];
-extern const char   js_Boolean_str[];
-extern const char   js_Call_str[];
-extern const char   js_Date_str[];
-extern const char   js_Function_str[];
-extern const char   js_Math_str[];
-extern const char   js_Number_str[];
-extern const char   js_Object_str[];
-extern const char   js_RegExp_str[];
-extern const char   js_Script_str[];
-extern const char   js_String_str[];
+/* Well-known predefined strings and their atoms. */
+extern const char   *js_type_strs[];
+extern const char   *js_boolean_strs[];
+extern const char   *js_proto_strs[];
+
+#define JS_PROTO(name,code,init) extern const char js_##name##_str[];
+#include "jsproto.tbl"
+#undef JS_PROTO
+
 extern const char   js_anonymous_str[];
 extern const char   js_arguments_str[];
 extern const char   js_arity_str[];
 extern const char   js_callee_str[];
 extern const char   js_caller_str[];
 extern const char   js_class_prototype_str[];
+extern const char   js_close_str[];
 extern const char   js_constructor_str[];
 extern const char   js_count_str[];
+extern const char   js_etago_str[];
+extern const char   js_each_str[];
 extern const char   js_eval_str[];
-extern const char   js_getter_str[];
+extern const char   js_fileName_str[];
 extern const char   js_get_str[];
+extern const char   js_getter_str[];
 extern const char   js_index_str[];
 extern const char   js_input_str[];
+extern const char   js_iterator_str[];
 extern const char   js_length_str[];
+extern const char   js_lineNumber_str[];
+extern const char   js_message_str[];
 extern const char   js_name_str[];
+extern const char   js_namespace_str[];
+extern const char   js_next_str[];
+extern const char   js_noSuchMethod_str[];
+extern const char   js_object_str[];
 extern const char   js_parent_str[];
+extern const char   js_private_str[];
 extern const char   js_proto_str[];
+extern const char   js_ptagc_str[];
+extern const char   js_qualifier_str[];
+extern const char   js_send_str[];
 extern const char   js_setter_str[];
 extern const char   js_set_str[];
+extern const char   js_space_str[];
+extern const char   js_stack_str[];
+extern const char   js_stago_str[];
+extern const char   js_star_str[];
+extern const char   js_starQualifier_str[];
+extern const char   js_tagc_str[];
 extern const char   js_toSource_str[];
 extern const char   js_toString_str[];
 extern const char   js_toLocaleString_str[];
 extern const char   js_valueOf_str[];
+extern const char   js_xml_str[];
+
+#ifdef NARCISSUS
+extern const char   js_call_str[];
+extern const char   js_construct_str[];
+extern const char   js_hasInstance_str[];
+extern const char   js_ExecutionContext_str[];
+extern const char   js_current_str[];
+#endif
 
 /*
  * Initialize atom state.  Return true on success, false with an out of
@@ -297,7 +351,7 @@ typedef void
 (*JSGCThingMarker)(void *thing, void *data);
 
 extern void
-js_MarkAtomState(JSAtomState *state, uintN gcflags, JSGCThingMarker mark,
+js_MarkAtomState(JSAtomState *state, JSBool keepAtoms, JSGCThingMarker mark,
                  void *data);
 
 extern void
@@ -349,6 +403,13 @@ js_Atomize(JSContext *cx, const char *bytes, size_t length, uintN flags);
 
 extern JS_FRIEND_API(JSAtom *)
 js_AtomizeChars(JSContext *cx, const jschar *chars, size_t length, uintN flags);
+
+/*
+ * Return an existing atom for the given char array or null if the char
+ * sequence is currently not atomized.
+ */
+extern JSAtom *
+js_GetExistingStringAtom(JSContext *cx, const jschar *chars, size_t length);
 
 /*
  * This variant handles all value tag types.

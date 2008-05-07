@@ -103,7 +103,7 @@ PtStatus PtProvider::createProvider(const char* login, const char* password,
                         const char* server, const char* options,
          CpCallManager* pCallMgr)
 {
-        size_t   pos;
+        ssize_t   pos;
         UtlString svr = server;
         UtlString host;
         int port;
@@ -184,10 +184,10 @@ PtStatus PtProvider::createProvider(const char* login, const char* password,
                 return PT_BUSY;
         }
 
-        int rc;
-        pe->getEventData((int &)rc);
+        intptr_t rc;
+        pe->getEventData(rc);
 #ifdef PTAPI_TEST
-        int cmd;
+        intptr_t cmd;
         pe->getIntData2(cmd);
         assert(cmd == TaoMessage::GET_PROVIDER);
 #endif
@@ -355,9 +355,9 @@ PtStatus PtProvider::addProviderListener(PtProviderListener& rListener)
                 return PT_NOT_FOUND;
         }
 
-    char buff[MAXIMUM_INTEGER_STRING_LENGTH];
+        char buff[MAXIMUM_INTEGER_STRING_LENGTH];
 
-    sprintf(buff, "%d", (int)&rListener);
+        sprintf(buff, "%" PRIdPTR, (intptr_t)&rListener);
         UtlString arg(buff);
 
         mpTransactionCnt->add();
@@ -373,7 +373,7 @@ PtStatus PtProvider::addProviderListener(PtProviderListener& rListener)
                                                                         arg);
         mpClient->sendRequest(msg);
 
-        int rc;
+        intptr_t rc;
         if (OS_SUCCESS != pe->wait(msg.getCmd(), mTimeOut))
         {
                 mpClient->resetConnectionSocket(msg.getMsgID());
@@ -385,9 +385,9 @@ PtStatus PtProvider::addProviderListener(PtProviderListener& rListener)
                 return PT_BUSY;
         }
 
-        pe->getEventData((int &)rc);
+        pe->getEventData(rc);
 #ifdef PTAPI_TEST
-        int cmd;
+        intptr_t cmd;
         pe->getIntData2(cmd);
         assert(cmd == TaoMessage::ADD_PROVIDER_LISTENER);
 #endif
@@ -427,12 +427,12 @@ PtStatus PtProvider::createCall(PtCall& rCall)
                 return PT_BUSY;
         }
 
-        int rc;
+        intptr_t rc;
         UtlString callId;
-        pe->getEventData((int &)rc);
+        pe->getEventData(rc);
         pe->getStringData(callId);
 #ifdef PTAPI_TEST
-        int cmd;
+        intptr_t cmd;
         pe->getIntData2(cmd);
         assert(cmd == TaoMessage::CREATE_CALL);
 #endif
@@ -464,7 +464,7 @@ PtStatus PtProvider::getAddress(const char* phoneURL, PtAddress& rAddress)
                                                                         phoneURL);
         mpClient->sendRequest(msg);
 
-        int rc;
+        intptr_t rc;
         UtlString name;
         if (OS_SUCCESS != pe->wait(msg.getCmd(), mTimeOut))
         {
@@ -477,10 +477,10 @@ PtStatus PtProvider::getAddress(const char* phoneURL, PtAddress& rAddress)
                 return PT_BUSY;
         }
 
-        pe->getEventData((int &)rc);
+        pe->getEventData(rc);
         pe->getStringData(name);
 #ifdef PTAPI_TEST
-        int cmd;
+        intptr_t cmd;
         pe->getIntData2(cmd);
         assert(cmd == TaoMessage::GET_ADDRESS);
 #endif
@@ -527,10 +527,12 @@ PtStatus PtProvider::getAddresses(PtAddress arAddresses[], int size, int& nItems
                 return PT_BUSY;
         }
 
-        pe->getEventData(nItems);
+        intptr_t temp;
+        pe->getEventData(temp);
+        nItems = (int) temp;
         pe->getStringData((UtlString &)arg);
 #ifdef PTAPI_TEST
-        int cmd;
+        intptr_t cmd;
         pe->getIntData2(cmd);
         assert(cmd == TaoMessage::GET_ADDRESSES);
 #endif
@@ -585,10 +587,12 @@ PtStatus PtProvider::getCalls(PtCall arCalls[], int size, int& nItems)
                 return PT_BUSY;
         }
 
-        pe->getEventData(nItems);
+        intptr_t temp;
+        pe->getEventData(temp);
+        nItems = (int)temp;
         pe->getStringData((UtlString &)arg);
 #ifdef PTAPI_TEST
-        int cmd;
+        intptr_t cmd;
         pe->getIntData2(cmd);
         assert(cmd == TaoMessage::GET_CALLS);
 #endif
@@ -636,10 +640,12 @@ PtStatus PtProvider::getProviderListeners(PtProviderListener* listeners[],
                 return PT_BUSY;
         }
 
-        pe->getEventData(nItems);
+        intptr_t temp;
+        pe->getEventData(temp);
+        nItems = (int)temp;
         pe->getStringData((UtlString &)arg);
 #ifdef PTAPI_TEST
-        int cmd;
+        intptr_t cmd;
         pe->getIntData2(cmd);
         assert(cmd == TaoMessage::GET_PROVIDER_LISTENERS);
 #endif
@@ -681,9 +687,11 @@ int PtProvider::getState(void)
                 return PT_BUSY;
         }
 
-        pe->getEventData((int &)state);
+        intptr_t temp;
+        pe->getEventData(temp);
+        state = (int)temp;
 #ifdef PTAPI_TEST
-        int cmd;
+        intptr_t cmd;
         pe->getIntData2(cmd);
         assert(cmd == TaoMessage::GET_STATE);
 #endif
@@ -724,12 +732,14 @@ PtStatus PtProvider::getTerminal(const char* name, PtTerminal& rTerminal)
         }
 
         TaoObjHandle rObjHandle;
-        pe->getEventData((int &)rObjHandle);
+        intptr_t temp;
+        pe->getEventData(temp);
+        rObjHandle = (TaoObjHandle)temp;
 
         UtlString terminalName;
         pe->getStringData(terminalName);
 #ifdef PTAPI_TEST
-        int cmd;
+        intptr_t cmd;
         pe->getIntData2(cmd);
         assert(cmd == TaoMessage::GET_TERMINAL);
 #endif
@@ -776,10 +786,12 @@ PtStatus PtProvider::getTerminals(PtTerminal arTerms[], int size, int& nItems)
                 return PT_BUSY;
         }
 
-        pe->getEventData(nItems);
+        intptr_t temp;
+        pe->getEventData(temp);
+        nItems = (int) temp;
         pe->getStringData((UtlString &)arg);
 #ifdef PTAPI_TEST
-        int cmd;
+        intptr_t cmd;
         pe->getIntData2(cmd);
         assert(cmd == TaoMessage::GET_TERMINALS);
 #endif
@@ -828,9 +840,11 @@ PtStatus PtProvider::numAddresses(int& count)
                 return PT_BUSY;
         }
 
-        pe->getEventData(count);
+        intptr_t temp;
+        pe->getEventData(temp);
+        count = (int)temp;
 #ifdef PTAPI_TEST
-        int cmd;
+        intptr_t cmd;
         pe->getIntData2(cmd);
         assert(cmd == TaoMessage::NUM_ADDRESSES);
 #endif
@@ -870,9 +884,11 @@ PtStatus PtProvider::numCalls(int& count)
                 return PT_BUSY;
         }
 
-        pe->getEventData(count);
+        intptr_t temp;
+        pe->getEventData(temp);
+        count = (int)temp;
 #ifdef PTAPI_TEST
-        int cmd;
+        intptr_t cmd;
         pe->getIntData2(cmd);
         assert(cmd == TaoMessage::NUM_CALLS);
 #endif
@@ -912,9 +928,11 @@ PtStatus PtProvider::numProviderListeners(int& count)
                 return PT_BUSY;
         }
 
-        pe->getEventData(count);
+        intptr_t temp;
+        pe->getEventData(temp);
+        count = (int)temp;
 #ifdef PTAPI_TEST
-        int cmd;
+        intptr_t cmd;
         pe->getIntData2(cmd);
         assert(cmd == TaoMessage::NUM_PROVIDER_LISTENERS);
 #endif
@@ -954,9 +972,11 @@ PtStatus PtProvider::numTerminals(int& count)
                 return PT_BUSY;
         }
 
-        pe->getEventData(count);
+        intptr_t temp;
+        pe->getEventData(temp);
+        count = (int)temp;
 #ifdef PTAPI_TEST
-        int cmd;
+        intptr_t cmd;
         pe->getIntData2(cmd);
         assert(cmd == TaoMessage::NUM_TERMINALS);
 #endif
@@ -972,9 +992,9 @@ PtStatus PtProvider::removeProviderListener(PtProviderListener& rListener)
                 return PT_NOT_FOUND;
         }
 
-    char buff[MAXIMUM_INTEGER_STRING_LENGTH];
+        char buff[MAXIMUM_INTEGER_STRING_LENGTH];
 
-    sprintf(buff, "%d", (int)&rListener);
+        sprintf(buff, "%" PRIdPTR, (intptr_t)&rListener);
         UtlString arg(buff);
 
         mpTransactionCnt->add();
@@ -1001,10 +1021,10 @@ PtStatus PtProvider::removeProviderListener(PtProviderListener& rListener)
                 return PT_BUSY;
         }
 
-        int rc;
-        pe->getEventData((int &)rc);
+        intptr_t rc;
+        pe->getEventData(rc);
 #ifdef PTAPI_TEST
-        int cmd;
+        intptr_t cmd;
         pe->getIntData2(cmd);
         assert(cmd == TaoMessage::REMOVE_PROVIDER_LISTENER);
 #endif

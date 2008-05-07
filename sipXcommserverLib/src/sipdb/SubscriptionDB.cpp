@@ -246,7 +246,7 @@ SubscriptionDB::store()
             itemsElement.SetAttribute( "type", sType.data() );
             itemsElement.SetAttribute( "xmlns", sXmlNamespace.data() );
 
-            int timeNow = OsDateTime::getSecsSinceEpoch();
+            int timeNow = (int)OsDateTime::getSecsSinceEpoch();
             itemsElement.SetAttribute( "timestamp", timeNow );
 
             // metadata contains column names
@@ -385,7 +385,7 @@ SubscriptionDB::insertRow (
     UtlBoolean result = FALSE;
     if ( !uri.isNull() && ( m_pFastDB != NULL ) )
     {
-        int timeNow = OsDateTime::getSecsSinceEpoch();
+        int timeNow = (int)OsDateTime::getSecsSinceEpoch();
 
         // Thread Local Storage
         m_pFastDB->attach();

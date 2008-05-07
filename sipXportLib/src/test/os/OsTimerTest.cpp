@@ -103,7 +103,7 @@ public:
        gCallBackCount++ ;
     }
 
-    static void TVCallback(const int userData, const int eventData)
+    static void TVCallback(void* userData, const intptr_t eventData)
     {
        OsTimerTest* foo = (OsTimerTest*) userData;
        foo->setTVCalled();
@@ -144,7 +144,7 @@ public:
        OsTimer* pTimer;
        OsStatus returnValue;
        long diffUSecs;
-       pNotifier = new OsCallback((int)this, TVCallback);
+       pNotifier = new OsCallback((void*)this, TVCallback);
        pTimer = new OsTimer(*pNotifier);
        gCallBackCount = 0;
        gettimeofday(&startTV, NULL);
@@ -203,7 +203,7 @@ public:
           OsTime timeToWait(testData[i].seconds,
                             testData[i].milliseconds*OsTime::USECS_PER_MSEC);
 
-          pNotifier = new OsCallback((int)this, TVCallback);
+          pNotifier = new OsCallback((void*)this, TVCallback);
           pTimer = new OsTimer(*pNotifier);
 
           expectedWaitUSecs = SecsToUsecs(testData[i].seconds) +
@@ -246,7 +246,7 @@ public:
        long expectedWaitUSecs;
        long diffUSecs;
 
-       pNotifier = new OsCallback((int)this, TVCallback);
+       pNotifier = new OsCallback((void*)this, TVCallback);
        pTimer = new OsTimer(*pNotifier);
 
        expectedWaitUSecs=(1*OsTime::USECS_PER_SEC) + (250*OsTime::USECS_PER_MSEC);
@@ -279,7 +279,7 @@ public:
        OsTimer* pTimer;
        UtlBoolean returnValue;
        long diffUSecs;
-       pNotifier = new OsCallback((int)this, TVCallback);
+       pNotifier = new OsCallback((void*)this, TVCallback);
        pTimer = new OsTimer(*pNotifier);
        // Create an OsDateTime object for 2 seconds in the future
        // and call oneShotAt.
@@ -321,7 +321,7 @@ public:
     {
        OsCallback* pNotifier;
        OsTimer* pTimer;
-       pNotifier = new OsCallback((int)this, TVCallback);
+       pNotifier = new OsCallback((void*)this, TVCallback);
        pTimer = new OsTimer(*pNotifier);
        gCallBackCount = 0;
        pTimer->oneshotAfter(oneSecond);
@@ -342,7 +342,7 @@ public:
         OsCallback* pNotifier;
         OsTimer* pTimer;
         UtlBoolean returnValue;
-        pNotifier = new OsCallback((int)this, TVCallback);
+        pNotifier = new OsCallback((void*)this, TVCallback);
         pTimer = new OsTimer(*pNotifier);
         gCallBackCount = 0;
         returnValue = pTimer->periodicEvery(twoSeconds, twoSeconds);
@@ -363,7 +363,7 @@ public:
     {
        OsCallback* pNotifier;
        OsTimer* pTimer;
-       pNotifier = new OsCallback((int)this, TVCallback);
+       pNotifier = new OsCallback((void*)this, TVCallback);
        pTimer = new OsTimer(*pNotifier);
        gCallBackCount = 0;
        pTimer->periodicEvery(OsTime::NO_WAIT, hundredMsec);
@@ -384,7 +384,7 @@ public:
        OsCallback* pNotifier;
        OsTimer* pTimer;
        long diffUSecs;
-       pNotifier = new OsCallback((int)this, TVCallback);
+       pNotifier = new OsCallback((void*)this, TVCallback);
        pTimer = new OsTimer(*pNotifier);
        gCallBackCount = 0;
        gettimeofday(&startTV, NULL);
@@ -413,7 +413,7 @@ public:
        OsTimer* pTimer;
        OsTimer* pTimer2;
        long diffUSecs;
-       pNotifier = new OsCallback((int)this, TVCallback);
+       pNotifier = new OsCallback((void*)this, TVCallback);
        pTimer = new OsTimer(*pNotifier);
        gCallBackCount = 0;
        pTimer->periodicEvery(oneSecond, twoSeconds);
@@ -453,7 +453,7 @@ public:
     {
        OsCallback* pNotifier;
        OsTimer* pTimer;
-       pNotifier = new OsCallback((int)this, TVCallback);
+       pNotifier = new OsCallback((void*)this, TVCallback);
        pTimer = new OsTimer(*pNotifier);
        gCallBackCount = 0;
        pTimer->periodicEvery(oneSecond, twoSeconds);
@@ -472,7 +472,7 @@ public:
     void testStartFire()
     {
        OsStatus returnValue;
-       OsCallback notifier((int) this, TVCallback);
+       OsCallback notifier((void*) this, TVCallback);
        OsTimer timer(notifier);
        gCallBackCount = 0;
        returnValue =  timer.oneshotAfter(oneSecond);
@@ -484,7 +484,7 @@ public:
     void testStartStop()
     {
        OsStatus returnValue;
-       OsCallback notifier((int) this, TVCallback);
+       OsCallback notifier((void*) this, TVCallback);
        OsTimer timer(notifier);
        gCallBackCount = 0;
        returnValue = timer.oneshotAfter(oneSecond);
@@ -499,7 +499,7 @@ public:
     void testStartPeriodicStop()
     {
        OsStatus returnValue;
-       OsCallback notifier((int) this, TVCallback);
+       OsCallback notifier((void*) this, TVCallback);
        OsTimer timer(notifier);
        gCallBackCount = 0;
        returnValue = timer.periodicEvery(oneSecond, twoSeconds);
@@ -516,7 +516,7 @@ public:
     void testStartDelete()
     {
        OsStatus returnValue;
-       OsCallback notifier((int) this, TVCallback);
+       OsCallback notifier((void*) this, TVCallback);
        OsTimer* pTimer = new OsTimer(notifier);
        gCallBackCount = 0;
        returnValue = pTimer->oneshotAfter(oneSecond);
@@ -532,7 +532,7 @@ public:
     void testStartStopStartFire()
     {
        OsStatus returnValue;
-       OsCallback notifier((int) this, TVCallback);
+       OsCallback notifier((void*) this, TVCallback);
        OsTimer timer(notifier);
        gCallBackCount = 0;
        returnValue = timer.oneshotAfter(oneSecond);
@@ -550,7 +550,7 @@ public:
     void testStartStart()
     {
        OsStatus returnValue;
-       OsCallback notifier((int) this, TVCallback);
+       OsCallback notifier((void*) this, TVCallback);
        OsTimer timer(notifier);
        gCallBackCount = 0;
        returnValue = timer.oneshotAfter(oneSecond);
@@ -565,7 +565,7 @@ public:
     void testStartStopStop()
     {
        OsStatus returnValue;
-       OsCallback notifier((int) this, TVCallback);
+       OsCallback notifier((void*) this, TVCallback);
        OsTimer timer(notifier);
        gCallBackCount = 0;
        returnValue = timer.oneshotAfter(oneSecond);
@@ -583,7 +583,7 @@ public:
     void testStartFireStop()
     {
        OsStatus returnValue;
-       OsCallback notifier((int) this, TVCallback);
+       OsCallback notifier((void*) this, TVCallback);
        OsTimer timer(notifier);
        gCallBackCount = 0;
        returnValue = timer.oneshotAfter(oneSecond);
@@ -598,7 +598,7 @@ public:
     void testStop()
     {
        OsStatus returnValue;
-       OsCallback notifier((int) this, TVCallback);
+       OsCallback notifier((void*) this, TVCallback);
        OsTimer timer(notifier);
        gCallBackCount = 0;
        returnValue = timer.stop();
@@ -609,7 +609,7 @@ public:
     void testStartDeleteAsync()
     {
        OsStatus returnValue;
-       OsCallback notifier((int) this, TVCallback);
+       OsCallback notifier((void*) this, TVCallback);
        OsTimer* pTimer = new OsTimer(notifier);
        gCallBackCount = 0;
        returnValue = pTimer->oneshotAfter(oneSecond);
@@ -631,7 +631,7 @@ public:
        // "started" but not put the timer back in the timer queue, so
        // when the update message caused OsTimerTask::removeTimer to run, it
        // couldn't find the timer.
-       OsCallback notifier((int) this, TVCallback);
+       OsCallback notifier((void*) this, TVCallback);
        OsTimer timer(notifier);
 
        // Start timer to fire in 1 sec, and every 1 sec after that.
@@ -703,7 +703,7 @@ public:
     }
 
     // Service function for testDeleteFireRace.
-    static void slowNotifier(const int userData, const int eventData)
+    static void slowNotifier(void* userData, const intptr_t eventData)
     {
        // Delay for 1 sec.
        OsTask::delay(1000);
@@ -739,7 +739,7 @@ public:
        // checks for the value DESTROYED (which is OK) or CONFLICT (which
        // is a failure).
 
-       OsCallback notifier((int) this, slowNotifier);
+       OsCallback notifier((void*) this, slowNotifier);
        OsTimer* pTimer = new OsTimer(notifier);
        // Set the state variable.
        testDeleteFireRace_stateVar = INITIAL;

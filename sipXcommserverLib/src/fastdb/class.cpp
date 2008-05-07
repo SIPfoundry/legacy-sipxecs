@@ -1112,7 +1112,7 @@ bool dbTableDescriptor::match(dbTable* table, bool confirmDeleteColumns)
 {
     unsigned nFields = table->fields.size;
     unsigned nMatches = 0;
-    bool formatNotChanged = (nFields == this->nFields);
+    bool formatNotChanged = ((size_t)nFields == this->nFields);
 
     for (dbFieldDescriptor* fd = firstField; fd != NULL; fd = fd->nextField) { 
         dbField* field = (dbField*)((char*)table + table->fields.offs);

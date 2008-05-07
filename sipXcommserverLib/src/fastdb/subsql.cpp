@@ -3600,7 +3600,7 @@ int WINAPI WinMain(
 				   LPTSTR lpCmdLine,
 				   int nCmdShow)
 {
-	int len = wcslen(lpCmdLine);
+	size_t len = wcslen(lpCmdLine);
 	char* line   = new char[len+1];
 	wcstombs(line, lpCmdLine, len);	
 #endif

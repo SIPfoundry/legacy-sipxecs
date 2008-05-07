@@ -276,10 +276,10 @@ res_dnok(dn)
  * Note that one _ comes from C and the others come from us.
  */
 #if defined (_WIN32) /* Use Columbia versions for win32 only --GAT */
-void __putlong(unsigned int src, u_char *dst) { ns_put32(src, dst); }
+void __putlong(u_int32 src, u_char *dst) { ns_put32(src, dst); }
 void __putshort(u_int16 src, u_char *dst) { ns_put16(src, dst); }
-u_int32 _getlong(const u_char *src) { return (ns_get32(src)); }
-u_int16 _getshort(const u_char *src) { return (ns_get16(src)); }
+uint32_t _getlong(const u_char *src) { return (ns_get32(src)); }
+uint16_t _getshort(const u_char *src) { return (ns_get16(src)); }
 #endif
 #endif /*BIND_4_COMPAT*/
 #endif /* __pingtel_on_posix__ */

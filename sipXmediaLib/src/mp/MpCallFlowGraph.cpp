@@ -336,22 +336,22 @@ MpCallFlowGraph::MpCallFlowGraph(const char* locale,
    res = pMediaTask->startFlowGraph(*this);
    assert(res == OS_SUCCESS);
 
-   Zprintf("mpBridge=0x%X, " "mpConnection=0x%X, " "mpFromFile=0x%X\n" 
-       "mpFromMic=0x%X, " "mpTFsMicMixer=0x%X" "mpTFsBridgeMixer=0x%X\n",
-      (int) mpBridge, (int) mpConnections[0], (int) mpFromFile, 
-      (int) mpFromMic, (int) mpTFsMicMixer, (int) mpTFsBridgeMixer);
+   Zprintf("mpBridge=0x%p, " "mpConnection=0x%p, " "mpFromFile=0x%p\n" 
+       "mpFromMic=0x%p, " "mpTFsMicMixer=0x%p" "mpTFsBridgeMixer=0x%p\n",
+      mpBridge, mpConnections[0], mpFromFile, 
+      mpFromMic, mpTFsMicMixer, mpTFsBridgeMixer);
 
 #ifdef DOING_ECHO_SUPPRESSION /* [ */
-   Zprintf("mpTFsMicMixer=0x%X, " "mpTFsBridgeMixer=0x%X\n"
-      "mpToneFileSplitter=0x%X, " "mpToSpkr=0x%X, " "mpToneGen=0x%X\n"
-      "mpEchoSuppress=0x%X\n",
-      (int) mpTFsMicMixer, (int) mpTFsBridgeMixer, (int) mpToneFileSplitter,
-      (int) mpToSpkr, (int) mpToneGen, (int) mpEchoSuppress);
+   Zprintf("mpTFsMicMixer=0x%p, " "mpTFsBridgeMixer=0x%p\n"
+      "mpToneFileSplitter=0x%p, " "mpToSpkr=0x%p, " "mpToneGen=0x%p\n"
+      "mpEchoSuppress=0x%p\n",
+      mpTFsMicMixer, mpTFsBridgeMixer, mpToneFileSplitter,
+      mpToSpkr, mpToneGen, mpEchoSuppress);
 #else /* DOING_ECHO_SUPPRESSION ] [ */
-   Zprintf("mpTFsMicMixer=0x%X, " "mpTFsBridgeMixer=0x%X\n"
-      "mpToneFileSplitter=0x%X, " "mpToSpkr=0x%X, " "mpToneGen=0x%X\n",
-      (int) mpTFsMicMixer, (int) mpTFsBridgeMixer, (int) mpToneFileSplitter,
-      (int) mpToSpkr, (int) mpToneGen, 0);
+   Zprintf("mpTFsMicMixer=0x%p, " "mpTFsBridgeMixer=0x%p\n"
+      "mpToneFileSplitter=0x%p, " "mpToSpkr=0x%p, " "mpToneGen=0x%p\n",
+      mpTFsMicMixer, mpTFsBridgeMixer, mpToneFileSplitter,
+      mpToSpkr, mpToneGen, 0);
 #endif /* DOING_ECHO_SUPPRESSION ] */
 }
 
@@ -516,7 +516,7 @@ OsStatus MpCallFlowGraph::gainFocus(void)
    }
 #endif /* DOING_ECHO_SUPPRESSION ] */
 
-   Nprintf("MpBFG::gainFocus(0x%X)\n", (int) this, 0,0,0,0,0);
+   Nprintf("MpBFG::gainFocus(0x%p)\n", this, 0,0,0,0,0);
    return OS_SUCCESS;
 }
 
@@ -550,7 +550,7 @@ OsStatus MpCallFlowGraph::loseFocus(void)
       mToneGenDefocused = TRUE;
    }
 
-   Nprintf("MpBFG::loseFocus(0x%X)\n", (int) this, 0,0,0,0,0);
+   Nprintf("MpBFG::loseFocus(0x%p)\n", this, 0,0,0,0,0);
    return OS_SUCCESS;
 }
 
@@ -810,7 +810,7 @@ OsStatus MpCallFlowGraph::ezRecord(int ms,
    MprRecorderStats rs;
    OsProtectEventMgr* eventMgr = OsProtectEventMgr::getEventMgr();
    OsProtectedEvent* recordEvent = eventMgr->alloc();
-   recordEvent->setUserData((int)&rs);
+   recordEvent->setUserData(&rs);
 
    int timeoutSecs = (ms/1000 + 1);
    OsTime maxEventTime(timeoutSecs, 0);
@@ -833,7 +833,7 @@ OsStatus MpCallFlowGraph::ezRecord(int ms,
    // Wait until the call sets the number of connections
    while(recordEvent->wait(0, maxEventTime) == OS_SUCCESS)
    {
-      int info;
+      void* info;
       recordEvent->getUserData(info);
       if (info)
       {
@@ -1369,7 +1369,7 @@ void MpCallFlowGraph::synchronize(const char* tag, int val1)
    if (val2 != MpMediaTask::getMediaTask(0)) {
       OsEvent event;
       MpFlowGraphMsg msg(MpFlowGraphMsg::FLOWGRAPH_SYNCHRONIZE,
-         NULL, NULL, (void*) tag, val1, (int) val2);
+         NULL, NULL, (void*) tag, val1, (intptr_t) val2);
       OsStatus  res;
 
       msg.setPtr1(&event);
@@ -1406,17 +1406,17 @@ UtlBoolean MpCallFlowGraph::writeWAVHeader(int handle)
     short bitsPerSample = 16;
 
     short sampleSize = sizeof(Sample); 
-    short compressionCode = 1; //PCM
-    short numChannels = 1; 
-    unsigned long samplesPerSecond = 8000;
-    unsigned long averageSamplePerSec = samplesPerSecond*sampleSize;
-    short blockAlign = sampleSize*numChannels; 
-    unsigned long bytesWritten = 0;
+    uint16_t compressionCode = 1; //PCM = 2 byte value
+    uint16_t numChannels = 1;  // 2 byte value for Endian conversion
+    uint32_t samplesPerSecond = 8000; // 4 byte value for Endian conversion
+    uint32_t averageSamplePerSec = samplesPerSecond*sampleSize; // 4 byte value
+    uint16_t blockAlign = sampleSize*numChannels;  // 2 byte value
+    size_t bytesWritten = 0;
 
     //write RIFF & length
     //8 bytes written
     strcpy(tmpbuf,MpWaveFileFormat);
-    unsigned long length = 0;
+    uint32_t length = 0;  // 4 byte value for Endian conversion
     bytesWritten += write(handle,tmpbuf, strlen(tmpbuf));
     bytesWritten += write(handle, (char*)&length, sizeof(length)); //filled in on close
     
@@ -1722,7 +1722,7 @@ UtlBoolean MpCallFlowGraph::handleSynchronize(MpFlowGraphMsg& rMsg)
 {
    OsNotification* pSync = (OsNotification*) rMsg.getPtr1();
 
-   int val1  = rMsg.getInt1();
+   intptr_t val1  = rMsg.getInt1();
 
    if (0 != pSync) {
       pSync->signal(val1);
@@ -1780,7 +1780,7 @@ UtlBoolean MpCallFlowGraph::handleStreamRealizeUrl(MpStreamMsg& rMsg)
    mpFromStream->realize(*pUrl, flags, handle, pNotifyEvents) ;
    delete pUrl ;
 
-   pNotifyHandle->signal((int) handle) ;
+   pNotifyHandle->signal((intptr_t)handle) ;
 
    return TRUE ;
 }
@@ -1797,7 +1797,7 @@ UtlBoolean MpCallFlowGraph::handleStreamRealizeBuffer(MpStreamMsg& rMsg)
    
    mpFromStream->realize(pBuffer, flags, handle, pNotifyEvents) ;
 
-   pNotifyHandle->signal((int) handle) ;
+   pNotifyHandle->signal((intptr_t)handle) ;
    
    return TRUE ;
 }

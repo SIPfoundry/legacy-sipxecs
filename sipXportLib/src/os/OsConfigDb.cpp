@@ -278,7 +278,7 @@ OsStatus OsConfigDb::remove(const UtlString& rKey)
    OsWriteLock lock(mRWMutex);
    DbEntry    lookupPair(rKey);
    DbEntry*   pEntryToRemove;
-   unsigned int i = mDb.index(&lookupPair);
+   ssize_t i = mDb.index(&lookupPair);
    if (i == UTL_NOT_FOUND)
    {
       return OS_NOT_FOUND;
@@ -393,7 +393,7 @@ OsStatus OsConfigDb::get(const UtlString& rKey, UtlString& rValue) const
 {
    OsReadLock lock(mRWMutex);
    DbEntry   lookupPair(rKey);
-   unsigned int        i;
+   ssize_t        i;
    DbEntry*  pEntry;
    i = mDb.index(&lookupPair);
    if (i == UTL_NOT_FOUND)
@@ -523,7 +523,7 @@ OsStatus OsConfigDb::getNext(const UtlString& rKey,
    UtlBoolean  foundMatch;
    int        nextIdx = 0;
    DbEntry   lookupPair(rKey);
-   unsigned int        idx;
+   ssize_t        idx;
    DbEntry*  pEntry;
 
    foundMatch = FALSE;
@@ -711,18 +711,18 @@ void OsConfigDb::storeToBuffer(char *buff) const
 int OsConfigDb::calculateBufferSize() const
 {
     int n = numEntries();
-    int size = n * strlen(DB_LINE_FORMAT);
+    size_t size = n * strlen(DB_LINE_FORMAT);
     for (int i = 0; i < n; i++)
     {
         DbEntry *pEntry = (DbEntry *)mDb.at(i);
         size += pEntry->key.length() + pEntry->value.length();
     }
-    return size;
+    return (int)size;
 }
 
 void OsConfigDb::removeChars(UtlString *s, char c)
 {
-    size_t x = 0;
+    ssize_t x = 0;
     while (x != UTL_NOT_FOUND)
     {
         x = s->first(c);
@@ -749,7 +749,7 @@ OsStatus OsConfigDb::storeBufferToFile(const char *filename, const char *buff, u
 
             OsFile file(filepath);
             file.open(OsFile::CREATE);
-            unsigned long writtenLen;
+            size_t writtenLen;
             file.write(buff, buffLen, writtenLen);
             file.close();
             if (writtenLen == buffLen)
@@ -797,7 +797,7 @@ OsStatus OsConfigDb::storeToFile(FILE* fp)
       pEntry = (DbEntry *)mDb.at(i);
 
       //remove any  \n or \r at the ends of the lines
-      unsigned int remove_char_loc = 0;
+      ssize_t remove_char_loc = 0;
       while (remove_char_loc != UTL_NOT_FOUND)
       {
       remove_char_loc = pEntry->key.first('\r');
@@ -842,12 +842,12 @@ OsStatus OsConfigDb::loadFromEncryptedFile(const char *file)
     retval = osfile.open(OsFile::READ_ONLY);
     if (retval == OS_SUCCESS)
     {
-        unsigned long buffLen = 0;
+        size_t buffLen = 0;
         osfile.getLength(buffLen);
         char *buff = new char[buffLen + 1];
         memset(buff, 0, buffLen + 1);
 
-        unsigned long bytesRead;
+        size_t bytesRead;
         retval = osfile.read(buff, buffLen, bytesRead);
         if (bytesRead != buffLen || retval != OS_SUCCESS)
         {
@@ -949,9 +949,9 @@ OsStatus OsConfigDb::loadFromUnencryptedBuffer(const char *buf)
 
    // step through the file writing out one entry per line
    // each entry is of the form "%s: %s\n"
-   int start = 0;
+   size_t start = 0;
    int size ;
-   size_t pos;
+   ssize_t pos;
    while (1)
    {
       pos = config.first('\n');
@@ -976,7 +976,7 @@ OsStatus OsConfigDb::loadFromUnencryptedBuffer(const char *buf)
          configLine[size] = 0 ;
 
          start = pos + 1;
-         int len = config.length();
+         size_t len = config.length();
          if (len > start)
             config = config(start, len - start);
          else
@@ -1005,7 +1005,7 @@ void OsConfigDb::insertEntry(const UtlString& rKey,
 {
    DbEntry  tempEntry(rKey, rNewValue);
    DbEntry* pOldEntry;
-   unsigned int       i;
+   ssize_t       i;
    i = mDb.index(&tempEntry);
    if (i != UTL_NOT_FOUND)
    {                             // we already have an entry with this key

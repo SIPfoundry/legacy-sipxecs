@@ -152,17 +152,17 @@ ACDCall::ACDCall(ACDCallManager* pAcdCallManager, ACDLine* pLineRef, SIPX_CALL h
    // preCreate all the timers we will need
 
    mpRingTimeoutTimer = 
-      new OsTimer(getMessageQueue(), RING_TIMEOUT_TIMER);
+      new OsTimer(getMessageQueue(), (void*)RING_TIMEOUT_TIMER);
    mpWelcomeAudioPlayTimer = 
-      new OsTimer(getMessageQueue(), WELCOME_AUDIO_TIMER);
+      new OsTimer(getMessageQueue(), (void*)WELCOME_AUDIO_TIMER);
    mpQueueAudioPlayTimer = 
-      new OsTimer(getMessageQueue(), QUEUE_AUDIO_TIMER);
+      new OsTimer(getMessageQueue(), (void*)QUEUE_AUDIO_TIMER);
    mpQueueAudioDelayTimer = 
-      new OsTimer(getMessageQueue(), QUEUE_DELAY_TIMER);
+      new OsTimer(getMessageQueue(), (void*)QUEUE_DELAY_TIMER);
    mpTerminationAudioPlayTimer = 
-      new OsTimer(getMessageQueue(), TERMINATION_AUDIO_TIMER);
+      new OsTimer(getMessageQueue(), (void*)TERMINATION_AUDIO_TIMER);
    mpQueueMaxWaitTimer = 
-      new OsTimer(getMessageQueue(), QUEUE_MAX_WAIT_TIMER);
+      new OsTimer(getMessageQueue(), (void*)QUEUE_MAX_WAIT_TIMER);
 
    OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDCall::ACDCall - New Call(%d) [%s] is created.",
                  mhCallHandle, mpCallIdentity);
@@ -709,6 +709,7 @@ UtlBoolean ACDCall::handleMessage(OsMsg& rMessage)
    int            event;
    int            cause;
    int            timerSource;
+   void*          timerSourceVoid;
    SIPX_CALL      handleCopy;
    ACDQueue*      pManagingQueue;
    UtlString*     pWelcomeAudio;
@@ -732,7 +733,8 @@ UtlBoolean ACDCall::handleMessage(OsMsg& rMessage)
 
    if (rMessage.getMsgType() == OsMsg::OS_EVENT) {
       // Timer Event, determine which timer fired
-      ((OsEventMsg&)rMessage).getUserData(timerSource);
+      ((OsEventMsg&)rMessage).getUserData(timerSourceVoid);
+      timerSource = (int)(intptr_t)timerSourceVoid;
       OsSysLog::add(FAC_ACD, gACD_DEBUG, 
          "ACDCall::handleMessage - Call(%d) Timer %s expired",
          mhCallHandle, eCallTimers2str[timerSource]);
@@ -1635,7 +1637,7 @@ void ACDCall::acdTransferAgentConnectedEvent(SIPX_CALL agentCallHandle)
    rc = sipxConferenceJoin(mhConferenceHandle, agentCallHandle, TRUE);
       if (rc != SIPX_RESULT_SUCCESS) {
          OsSysLog::add(FAC_ACD, PRI_ERR, "ACDCall::acdTransferAgentConnectedEvent"
-                       "Error(%d) on sipxConferenceJoin for Call(%d), AgentCall(%d), Conference(%d)", rc, mhCallHandle, agentCallHandle, mhConferenceHandle);
+                       "Error(%d) on sipxConferenceJoin for Call(%u), AgentCall(%u), Conference(%u)", rc, mhCallHandle, agentCallHandle, mhConferenceHandle);
 
          // This is a fatal condition.  Destroy the conference, update state and return
          sipxConferenceDestroy(mhConferenceHandle);

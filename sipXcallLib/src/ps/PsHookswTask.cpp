@@ -180,7 +180,7 @@ UtlBoolean PsHookswTask::handleEventMessage(const OsEventMsg& rMsg)
    switch(rMsg.getMsgSubType())
    {
    case OsEventMsg::NOTIFY:
-      rMsg.getEventData((int&) pTimer); // get timer object
+      rMsg.getEventData((intptr_t&) pTimer); // get timer object
       assert(pTimer == mpTimer);
 
       hookswState = readHwHookswState();// determine HW hook state

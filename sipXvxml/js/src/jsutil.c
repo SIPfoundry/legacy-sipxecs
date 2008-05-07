@@ -1,43 +1,42 @@
-/* -*- Mode: C; tab-width: 8; indent-tabs-mode: nil; c-basic-offset: 4 -*-
+/* -*- Mode: C; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 2 -*-
  *
- * The contents of this file are subject to the Netscape Public
- * License Version 1.1 (the "License"); you may not use this file
- * except in compliance with the License. You may obtain a copy of
- * the License at http://www.mozilla.org/NPL/
+ * ***** BEGIN LICENSE BLOCK *****
+ * Version: MPL 1.1/GPL 2.0/LGPL 2.1
  *
- * Software distributed under the License is distributed on an "AS
- * IS" basis, WITHOUT WARRANTY OF ANY KIND, either express oqr
- * implied. See the License for the specific language governing
- * rights and limitations under the License.
+ * The contents of this file are subject to the Mozilla Public License Version
+ * 1.1 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ * http://www.mozilla.org/MPL/
+ *
+ * Software distributed under the License is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+ * for the specific language governing rights and limitations under the
+ * License.
  *
  * The Original Code is Mozilla Communicator client code, released
  * March 31, 1998.
  *
- * The Initial Developer of the Original Code is Netscape
- * Communications Corporation.  Portions created by Netscape are
- * Copyright (C) 1998 Netscape Communications Corporation. All
- * Rights Reserved.
+ * The Initial Developer of the Original Code is
+ * Netscape Communications Corporation.
+ * Portions created by the Initial Developer are Copyright (C) 1998
+ * the Initial Developer. All Rights Reserved.
  *
- * Contributor(s): 
+ * Contributor(s):
+ *   IBM Corp.
  *
- * Alternatively, the contents of this file may be used under the
- * terms of the GNU Public License (the "GPL"), in which case the
- * provisions of the GPL are applicable instead of those above.
- * If you wish to allow use of your version of this file only
- * under the terms of the GPL and not to allow others to use your
- * version of this file under the NPL, indicate your decision by
- * deleting the provisions above and replace them with the notice
- * and other provisions required by the GPL.  If you do not delete
- * the provisions above, a recipient may use your version of this
- * file under either the NPL or the GPL.
+ * Alternatively, the contents of this file may be used under the terms of
+ * either of the GNU General Public License Version 2 or later (the "GPL"),
+ * or the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
+ * in which case the provisions of the GPL or the LGPL are applicable instead
+ * of those above. If you wish to allow use of your version of this file only
+ * under the terms of either the GPL or the LGPL, and not to allow others to
+ * use your version of this file under the terms of the MPL, indicate your
+ * decision by deleting the provisions above and replace them with the notice
+ * and other provisions required by the GPL or the LGPL. If you do not delete
+ * the provisions above, a recipient may use your version of this file under
+ * the terms of any one of the MPL, the GPL or the LGPL.
  *
- * This Original Code has been modified by IBM Corporation. Modifications made by IBM
- * described herein are Copyright (c) International Business Machines Corporation, 2000.
- * Modifications to Mozilla code or documentation identified per MPL Section 3.3
- *
- * Date        Modified by     Description of modification
- * 04/10/2000  IBM Corp.       Added DebugBreak() definitions for OS/2
- */
+ * ***** END LICENSE BLOCK ***** */
 
 /*
  * PR assertion checker.
@@ -52,127 +51,148 @@
 #    include <windows.h>
 #endif
 
-#ifdef XP_MAC
-#	 include <Types.h>
-#    include <stdarg.h>
-#	 include "jsprf.h"
-#endif
-
-#if defined(XP_OS2) && defined(DEBUG)
-/* Added definitions for DebugBreak() for 2 different OS/2 compilers.  Doing
- * the int3 on purpose for Visual Age so that a developer can step over the
- * instruction if so desired.  Not always possible if trapping due to exception
- * handling IBM-AKR
- */
-#if defined(XP_OS2_VACPP)
-   #include <builtin.h>
-   #define DebugBreak() { _interrupt(3); }
-#elif defined(XP_OS2_EMX)
-   /* Force a trap */
-   #define DebugBreak() { int *pTrap=NULL; *pTrap = 1; }
-#else
-   #define DebugBreak()
-#endif
-
-#elif defined(XP_OS2)
-   #define DebugBreak()
-#endif /* XP_OS2 && DEBUG */
-
-#ifdef XP_MAC
-/*
- * PStrFromCStr converts the source C string to a destination
- * pascal string as it copies. The dest string will
- * be truncated to fit into an Str255 if necessary.
- * If the C String pointer is NULL, the pascal string's length is
- * set to zero.
- */
-static void PStrFromCStr(const char* src, Str255 dst)
-{
-	short 	length  = 0;
-
-	/* handle case of overlapping strings */
-	if ( (void*)src == (void*)dst )
-	{
-		unsigned char*		curdst = &dst[1];
-		unsigned char		thisChar;
-
-		thisChar = *(const unsigned char*)src++;
-		while ( thisChar != '\0' )
-		{
-			unsigned char	nextChar;
-
-			/*
-                         * Use nextChar so we don't overwrite what we
-                         * are about to read
-                         */
-			nextChar = *(const unsigned char*)src++;
-			*curdst++ = thisChar;
-			thisChar = nextChar;
-
-			if ( ++length >= 255 )
-				break;
-		}
-	}
-	else if ( src != NULL )
-	{
-		unsigned char*		curdst = &dst[1];
-		/* count down so test it loop is faster */
-		short 				overflow = 255;
-		register char		temp;
-
-		/*
-                 * Can't do the K&R C thing of while (*s++ = *t++)
-                 * because it will copy trailing zero which might
-                 * overrun pascal buffer.  Instead we use a temp variable.
-                 */
-		while ( (temp = *src++) != 0 )
-		{
-			*(char*)curdst++ = temp;
-
-			if ( --overflow <= 0 )
-				break;
-		}
-		length = 255 - overflow;
-	}
-	dst[0] = length;
-}
-
-static void jsdebugstr(const char *debuggerMsg)
-{
-	Str255		pStr;
-
-	PStrFromCStr(debuggerMsg, pStr);
-	DebugStr(pStr);
-}
-
-static void dprintf(const char *format, ...)
-{
-    va_list ap;
-	char	*buffer;
-
-	va_start(ap, format);
-	buffer = (char *)JS_vsmprintf(format, ap);
-	va_end(ap);
-
-	jsdebugstr(buffer);
-	JS_DELETE(buffer);
-}
-#endif   /* XP_MAC */
-
-JS_PUBLIC_API(void) JS_Assert(const char *, const char *, JSIntn);
-
 JS_PUBLIC_API(void) JS_Assert(const char *s, const char *file, JSIntn ln)
 {
-#if defined(XP_UNIX) || defined(XP_OS2)
     fprintf(stderr, "Assertion failure: %s, at %s:%d\n", s, file, ln);
-#endif
-#ifdef XP_MAC
-    dprintf("Assertion failure: %s, at %s:%d\n", s, file, ln);
-#endif
-#if defined(WIN32) || defined(XP_OS2)
+#if defined(WIN32)
     DebugBreak();
+    exit(3);
+#elif defined(XP_OS2) || (defined(__GNUC__) && defined(__i386))
+    asm("int $3");
 #endif
-#ifndef XP_MAC
     abort();
-#endif
 }
+
+#if defined DEBUG_notme && defined XP_UNIX
+
+#define __USE_GNU 1
+#include <dlfcn.h>
+#include <string.h>
+#include "jshash.h"
+#include "jsprf.h"
+
+JSCallsite js_calltree_root = {0, NULL, NULL, 0, NULL, NULL, NULL, NULL};
+
+static JSCallsite *
+CallTree(void **bp)
+{
+    void **bpup, **bpdown, *pc;
+    JSCallsite *parent, *site, **csp;
+    Dl_info info;
+    int ok, offset;
+    const char *symbol;
+    char *method;
+
+    /* Reverse the stack frame list to avoid recursion. */
+    bpup = NULL;
+    for (;;) {
+        bpdown = (void**) bp[0];
+        bp[0] = (void*) bpup;
+        if ((void**) bpdown[0] < bpdown)
+            break;
+        bpup = bp;
+        bp = bpdown;
+    }
+
+    /* Reverse the stack again, finding and building a path in the tree. */
+    parent = &js_calltree_root;
+    do {
+        bpup = (void**) bp[0];
+        bp[0] = (void*) bpdown;
+        pc = bp[1];
+
+        csp = &parent->kids;
+        while ((site = *csp) != NULL) {
+            if (site->pc == pc) {
+                /* Put the most recently used site at the front of siblings. */
+                *csp = site->siblings;
+                site->siblings = parent->kids;
+                parent->kids = site;
+
+                /* Site already built -- go up the stack. */
+                goto upward;
+            }
+            csp = &site->siblings;
+        }
+
+        /* Check for recursion: see if pc is on our ancestor line. */
+        for (site = parent; site; site = site->parent) {
+            if (site->pc == pc)
+                goto upward;
+        }
+
+        /*
+         * Not in tree at all: let's find our symbolic callsite info.
+         * XXX static syms are masked by nearest lower global
+         */
+        info.dli_fname = info.dli_sname = NULL;
+        ok = dladdr(pc, &info);
+        if (ok < 0) {
+            fprintf(stderr, "dladdr failed!\n");
+            return NULL;
+        }
+
+/* XXXbe sub 0x08040000? or something, see dbaron bug with tenthumbs comment */
+        symbol = info.dli_sname;
+        offset = (char*)pc - (char*)info.dli_fbase;
+        method = symbol
+                 ? strdup(symbol)
+                 : JS_smprintf("%s+%X",
+                               info.dli_fname ? info.dli_fname : "main",
+                               offset);
+        if (!method)
+            return NULL;
+
+        /* Create a new callsite record. */
+        site = (JSCallsite *) malloc(sizeof(JSCallsite));
+        if (!site)
+            return NULL;
+
+        /* Insert the new site into the tree. */
+        site->pc = pc;
+        site->name = method;
+        site->library = info.dli_fname;
+        site->offset = offset;
+        site->parent = parent;
+        site->siblings = parent->kids;
+        parent->kids = site;
+        site->kids = NULL;
+
+      upward:
+        parent = site;
+        bpdown = bp;
+        bp = bpup;
+    } while (bp);
+
+    return site;
+}
+
+JSCallsite *
+JS_Backtrace(int skip)
+{
+    void **bp, **bpdown;
+
+    /* Stack walking code adapted from Kipp's "leaky". */
+#if defined(__i386)
+    __asm__( "movl %%ebp, %0" : "=g"(bp));
+#elif defined(__x86_64__)
+    __asm__( "movq %%rbp, %0" : "=g"(bp));
+#else
+    /*
+     * It would be nice if this worked uniformly, but at least on i386 and
+     * x86_64, it stopped working with gcc 4.1, because it points to the
+     * end of the saved registers instead of the start.
+     */
+    bp = (void**) __builtin_frame_address(0);
+#endif
+    while (--skip >= 0) {
+        bpdown = (void**) *bp++;
+        if (bpdown < bp)
+            break;
+        bp = bpdown;
+    }
+
+    return CallTree(bp);
+}
+
+#endif /* DEBUG_notme && XP_UNIX */

@@ -90,7 +90,7 @@ Notifier::sendNotifyForeachSubscription (
 {
     ResultSet subscriptions;
 
-    int timeNow = OsDateTime::getSecsSinceEpoch();
+    int timeNow = (int)OsDateTime::getSecsSinceEpoch();
 
     // Get all subcriptions associated with this identity
     mpSubscriptionDB->

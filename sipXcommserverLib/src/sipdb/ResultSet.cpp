@@ -44,7 +44,7 @@ ResultSet::destroyAll()
 {
     // the pRecord is actually a UtlHashMap
     UtlHashMap* pRecord;
-    while (pRecord = dynamic_cast<UtlHashMap*>(get()))
+    while ((pRecord = dynamic_cast<UtlHashMap*>(get())))
     {
         pRecord->destroyAll();
         delete pRecord;
@@ -69,7 +69,7 @@ ResultSet::getIndex(
 
     OsStatus result = OS_FAILED;
     UtlHashMap *m;
-    if (m = dynamic_cast<UtlHashMap*>(at(index)))
+    if ((m = dynamic_cast<UtlHashMap*>(at(index))))
     {
         m->copyInto(rRecord);
         result = OS_SUCCESS;

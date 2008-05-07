@@ -33,7 +33,7 @@ class OsConnectionSocket ;
 class HttpMessage ;
 // TYPEDEFS
 typedef UtlBoolean (*GetDataCallbackProc)(char* pData, 
-                                         int iLength, 
+                                         size_t iLength, 
                                          void* pOptionalData, 
                                          HttpMessage* pMsg);
 
@@ -74,7 +74,7 @@ public:
    virtual OsStatus destroyAndDelete() ;
      //:Destroys and deletes the data source object
 
-   virtual OsStatus read(char *szBuffer, int iLength, int& iLengthRead) ;
+   virtual OsStatus read(char *szBuffer, size_t iLength, size_t& iLengthRead) ;
      //:Reads iLength bytes of data from the data source and places the
      //:data into the passed szBuffer buffer.
      //
@@ -82,7 +82,7 @@ public:
      //!param iLength - Max length to read
      //!param iLengthRead - The actual amount of data read.
 
-   virtual OsStatus peek(char* szBuffer, int iLength, int& iLengthRead) ;
+   virtual OsStatus peek(char* szBuffer, size_t iLength, size_t& iLengthRead) ;
      //:Identical to read, except the stream pointer is not advanced.
      //
      //!param szBuffer - Buffer to place data
@@ -96,22 +96,22 @@ public:
      // time consuming or blocking calls to exit with more quickly with an 
      // OS_INTERRUPTED return code.
  
-   virtual OsStatus seek(unsigned int iLocation) ;
+   virtual OsStatus seek(size_t iLocation) ;
      //:Moves the stream pointer to the an absolute location.
      //
      //!param iLocation - The desired seek location
 
 
-   UtlBoolean deliverData(char *szData, int iLength, int iMaxLength) ;
+   UtlBoolean deliverData(char *szData, size_t iLength, size_t iMaxLength) ;
      //:Callback routine that is invoked whenever new data is available from
      //:http socket.
 
 /* ============================ ACCESSORS ================================= */
 
-   virtual OsStatus getLength(int& iLength);      
+   virtual OsStatus getLength(size_t& iLength);      
      //:Gets the length of the stream (if available)
 
-   virtual OsStatus getPosition(int& iPosition) ;
+   virtual OsStatus getPosition(size_t& iPosition) ;
      //:Gets the current position within the stream.
    
    virtual OsStatus toString(UtlString& string) ;
@@ -148,9 +148,9 @@ private:
    UtlBoolean  mbQuit ;                 // Are we quiting?
    UtlBoolean  mbDeleteOnCompletion ;   // Should the run method delete the object?
    unsigned int  miMaxData ;           // Max amount of data to buffer
-   unsigned int  miDSLength ;          // Data Stream Length
-   unsigned int  miOffset ;            // Present offset into the buffer
-   unsigned int  miBufferOffset ;      // Buffer offset from start of stream
+   size_t      miDSLength ;          // Data Stream Length
+   size_t      miOffset ;            // Present offset into the buffer
+   size_t      miBufferOffset ;      // Buffer offset from start of stream
    UtlBoolean  mbFiredThrottledEvent ;  // Should fire event on next throttle?
    UtlBoolean  mbClosed ;               // Have we closed this down?
    UtlBoolean  mbInterrupt ;            // Interrupt current operation?

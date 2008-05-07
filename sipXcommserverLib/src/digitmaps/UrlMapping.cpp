@@ -125,7 +125,7 @@ private:
 
          UtlString modifiedString;
          size_t lastIndex;
-         size_t index;
+         ssize_t index;
          for ( index = 0, lastIndex = 0;
                (index = value.index(replaceWhat, lastIndex, UtlString::ignoreCase)) != UTL_NOT_FOUND;
                lastIndex = index+replaceWhat.length()
@@ -1206,7 +1206,7 @@ bool UrlMapping::getNamedAttribute(TiXmlElement* component,
    else
    {
       // this is the old syntax: <foo>bar=value</foo>
-      size_t equalsOffset = componentContent.index(EQUAL_SIGN);
+      ssize_t equalsOffset = componentContent.index(EQUAL_SIGN);
       if (UTL_NOT_FOUND != equalsOffset)
       {
          name.append(componentContent,0,equalsOffset);

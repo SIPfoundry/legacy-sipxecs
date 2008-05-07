@@ -12,6 +12,8 @@
 #define _UtlContainable_h_
 
 // SYSTEM INCLUDES
+#include <stdint.h>
+
 // APPLICATION INCLUDES
 #include "utl/UtlDefs.h"
 
@@ -146,6 +148,20 @@ public:
      * </pre>
      */
 
+    static inline unsigned hashPtr(const void *ptr);
+    /**<
+     * Hashes a pointer to an unsigned (for use in hashtables, not crypto).
+     */
+
+    static inline int comparePtrs(const void *ptr1, const void *ptr2);
+    /**<
+     * Returns an int indicating the ordering between ptr1 and ptr2.
+     * This has the same sign as (conceptually) ptr1 - ptr2.  For example:
+     * <pre>
+     * assert(comparePtrs(&a[0], &a[1]) < 0);
+     * </pre>
+     */
+
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
 
@@ -155,5 +171,31 @@ private:
 } ;
 
 /* ============================ INLINE METHODS ============================ */
+
+inline unsigned UtlContainable::hashPtr(const void *ptr)
+{
+   return (unsigned) reinterpret_cast<uintptr_t>(ptr);
+}
+
+inline int UtlContainable::comparePtrs(const void *ptr1, const void *ptr2)
+{
+   if (sizeof(int) >= sizeof(void*))
+   {
+      // Fast version for 32-bit machines (or ILP64).  Written like this so
+      // it compiles but will get optimized away on other machines.
+      return (int)
+         (reinterpret_cast<intptr_t>(ptr1) - reinterpret_cast<intptr_t>(ptr2));
+   }
+   else
+   {
+      // Slower version that works everywhere.
+      if (ptr1 < ptr2)
+         return -1;
+      else if (ptr1 > ptr2)
+         return 1;
+      else
+         return 0;
+   }
+}
 
 #endif    // _UtlContainable_h_

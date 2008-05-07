@@ -30,8 +30,8 @@ CpMultiStringMessage::CpMultiStringMessage(unsigned char messageSubtype,
                                  const char* str1, const char* str2,
                                  const char* str3, const char* str4,
                                  const char* str5,
-                                 int int1, int int2, int int3, int int4,
-                                 int int5, int int6, int int7) :
+                                 intptr_t int1, intptr_t int2, intptr_t int3, intptr_t int4,
+                                 intptr_t int5, intptr_t int6, intptr_t int7) :
 OsMsg(OsMsg::PHONE_APP, messageSubtype)
 {
    mInt1 = int1;
@@ -144,37 +144,37 @@ void CpMultiStringMessage::getString5Data(UtlString& str5) const
         str5 = mString5Data;
 }
 
-int CpMultiStringMessage::getInt1Data() const
+intptr_t CpMultiStringMessage::getInt1Data() const
 {
         return(mInt1);
 }
 
-int CpMultiStringMessage::getInt2Data() const
+intptr_t CpMultiStringMessage::getInt2Data() const
 {
         return(mInt2);
 }
 
-int CpMultiStringMessage::getInt3Data() const
+intptr_t CpMultiStringMessage::getInt3Data() const
 {
         return(mInt3);
 }
 
-int CpMultiStringMessage::getInt4Data() const
+intptr_t CpMultiStringMessage::getInt4Data() const
 {
         return(mInt4);
 }
 
-int CpMultiStringMessage::getInt5Data() const
+intptr_t CpMultiStringMessage::getInt5Data() const
 {
         return(mInt5);
 }
 
-int CpMultiStringMessage::getInt6Data() const
+intptr_t CpMultiStringMessage::getInt6Data() const
 {
         return(mInt6);
 }
 
-int CpMultiStringMessage::getInt7Data() const
+intptr_t CpMultiStringMessage::getInt7Data() const
 {
         return(mInt7);
 }
@@ -214,37 +214,37 @@ void CpMultiStringMessage::toString(UtlString& dumpString, const char* term) con
     char intDataString[100];
     if(mInt1)
     {
-        sprintf(intDataString, "Int1: %d", mInt1);
+        sprintf(intDataString, "Int1: %ld", (long)mInt1);
         dumpString += intDataString;
         dumpString += terminator;
     }
     if(mInt2)
     {
-        sprintf(intDataString, "Int2: %d", mInt2);
+        sprintf(intDataString, "Int2: %ld", (long)mInt2);
         dumpString += intDataString;
         dumpString += terminator;
     }
     if(mInt3)
     {
-        sprintf(intDataString, "Int3: %d", mInt3);
+        sprintf(intDataString, "Int3: %ld", (long)mInt3);
         dumpString += intDataString;
         dumpString += terminator;
     }
     if(mInt4)
     {
-        sprintf(intDataString, "Int4: %d", mInt4);
+        sprintf(intDataString, "Int4: %ld", (long)mInt4);
         dumpString += intDataString;
         dumpString += terminator;
     }
     if(mInt5)
     {
-        sprintf(intDataString, "Int5: %d", mInt5);
+        sprintf(intDataString, "Int5: %ld", (long)mInt5);
         dumpString += intDataString;
         dumpString += terminator;
     }
     if(mInt6)
     {
-        sprintf(intDataString, "Int6: %d", mInt6);
+        sprintf(intDataString, "Int6: %ld", (long)mInt6);
         dumpString += intDataString;
         dumpString += terminator;
     }

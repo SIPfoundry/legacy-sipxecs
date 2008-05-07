@@ -12,12 +12,10 @@
 // APPLICATION INCLUDES
 #include <os/OsFS.h>
 #include <os/OsProcess.h>
-#include <os/OsSocket.h>
 #include <os/OsTask.h>
 #include <os/OsSysLog.h>
 #include <utl/UtlString.h>
 #include <utl/UtlHashMap.h>
-#include <utl/UtlInt.h>
 #include <utl/UtlSList.h>
 #include <net/ProvisioningAgent.h>
 #include <net/ProvisioningAgentXmlRpcAdapter.h>
@@ -936,20 +934,16 @@ ProvisioningAttrList* ACDServer::Set(ProvisioningAttrList& rRequestAttributes)
    if (gRestartFlag == true) {
       bool bWatchDogRestarted = false;
 
-      // Get the local host name.
-      UtlString myName;
-      OsSocket::getHostName(&myName);
-      
       // Construct the URL to the watchdog's XMLRPC server.
       Url targetURL;
       targetURL.setUrlType("https");
-      targetURL.setHostAddress(myName.data());
+      targetURL.setHostAddress(mDomain.data());
       targetURL.setHostPort(mWatchdogRpcServerPort);
       targetURL.setPath("RPC2");
 
       // Make the XMLRPC request to query this process's alias.
       XmlRpcRequest requestGetAlias(targetURL, "ProcMgmtRpc.getAliasByPID");
-      requestGetAlias.addParam(&myName);
+      requestGetAlias.addParam(&mDomain);
       UtlInt pid(OsProcess::getCurrentPID());
       requestGetAlias.addParam(&pid);
       XmlRpcResponse response1;
@@ -990,7 +984,7 @@ ProvisioningAttrList* ACDServer::Set(ProvisioningAttrList& rRequestAttributes)
                {
                   // Make the XMLRPC request to restart this process.
                   XmlRpcRequest requestRestart(targetURL, "ProcMgmtRpc.restart");
-                  requestRestart.addParam(&myName);
+                  requestRestart.addParam(&mDomain);
                   requestRestart.addParam(pAlias);
                   UtlBool bBlock(false);
                   requestRestart.addParam(&bBlock); // No, don't block for the state change.
@@ -1029,7 +1023,7 @@ ProvisioningAttrList* ACDServer::Set(ProvisioningAttrList& rRequestAttributes)
                            }
                            else
                            {
-                              OsSysLog::add(LOG_FACILITY, PRI_INFO, "ACDServer::Set - Restart %s", myName.data());
+                              OsSysLog::add(LOG_FACILITY, PRI_INFO, "ACDServer::Set - Restart %s", mDomain.data());
                               bWatchDogRestarted = true;
                            }
                         }

@@ -298,9 +298,9 @@ UtlBoolean findNextMessage(UtlString& content,
     if(hostIndex > 0)
     {
         //int endTokenIndex = content.index("END", hostIndex);
-        int outgoingEnd = content.index("--------------------END", hostIndex);
-        int incomingEnd = content.index("====================END", hostIndex);
-        int incomingParsedEnd = content.index("++++++++++++++++++++END", hostIndex);
+        ssize_t outgoingEnd = content.index("--------------------END", hostIndex);
+        ssize_t incomingEnd = content.index("====================END", hostIndex);
+        ssize_t incomingParsedEnd = content.index("++++++++++++++++++++END", hostIndex);
 
         int messageEnd = -1;
         UtlBoolean endFound = FALSE;
@@ -343,12 +343,12 @@ UtlBoolean findNextMessage(UtlString& content,
             remotePort.remove(0);
 
             hostIndex += 16;
-            int hostEnd = content.index("----", hostIndex);
+            ssize_t hostEnd = content.index("----", hostIndex);
             remoteHost.append(&(content.data()[hostIndex]),
                               hostEnd - hostIndex);
 
             int portIndex = hostEnd + 11;
-            int portEnd = content.index("----", portIndex);
+            ssize_t portEnd = content.index("----", portIndex);
             remotePort.append(&(content.data()[portIndex]),
                               portEnd - portIndex);
 
@@ -434,7 +434,7 @@ int main(int argc, char * argv[])
         UtlString host;
         UtlString port;
         UtlString message;
-        unsigned int bufferLength;
+        size_t bufferLength;
 
         do
         {

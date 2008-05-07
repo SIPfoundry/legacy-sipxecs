@@ -1297,7 +1297,7 @@ bool Url::parseString(const char* urlString, ///< string to parse URL from
 
    int workingOffset = 0; // begin at the beginning...
    
-   size_t afterAngleBrackets = UTL_NOT_FOUND;
+   ssize_t afterAngleBrackets = UTL_NOT_FOUND;
    
    if (AddrSpec == uriForm)
    {
@@ -1583,7 +1583,7 @@ bool Url::parseString(const char* urlString, ///< string to parse URL from
          // If '<...>' was seen, workingOffset should be just before '>'.
          if (afterAngleBrackets != UTL_NOT_FOUND)
          {
-            if ((size_t) (workingOffset+1) == afterAngleBrackets)
+            if ((ssize_t) (workingOffset+1) == afterAngleBrackets)
             {
                // Advance to after '>'.
                workingOffset = afterAngleBrackets;

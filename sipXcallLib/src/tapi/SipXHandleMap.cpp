@@ -163,10 +163,10 @@ void SipXHandleMap::dump()
     UtlInt* pKey ;
     UtlVoidPtr* pValue ;
         
-    while (pKey = (UtlInt*) itor())
+    while ((pKey = (UtlInt*) itor()))
     {
         pValue = (UtlVoidPtr*) findValue(pKey) ;
-        printf("\tkey=%d, value=%08X\n", pKey->getValue(), 
+        printf("\tkey=%" PRIdPTR ", value=%p\n", pKey->getValue(), 
                 pValue ? pValue->getValue() : 0) ;                        
     }       
 }

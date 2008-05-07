@@ -44,7 +44,7 @@ OsMsgQBase::OsMsgQBase(const UtlString& name)
 {
    if (mName != "")
    {
-      OsUtil::insertKeyValue(MSGQ_PREFIX, mName, (int) this);
+      OsUtil::insertKeyValue(MSGQ_PREFIX, mName, this);
    }
 }
 
@@ -64,7 +64,7 @@ OsMsgQBase::~OsMsgQBase()
 OsMsgQBase* OsMsgQBase::getMsgQByName(const UtlString& name)
 {
    OsStatus res;
-   int      val;
+   void*    val;
 
    if (name == "")
       return NULL;

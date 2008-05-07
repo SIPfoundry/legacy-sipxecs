@@ -459,7 +459,7 @@ void ReportCallback(SIPX_CALL hCall,
 
     if (sipxCallGetCommonData(hCall, &pInst, &callId, &remoteAddress, &lineId))
     {
-        printf("<event i=%p, h=%04X, c=%4d, M=%25s, m=%25s, a=%s, c=%s l=%s/>\n",
+        printf("<event i=%p, h=%04u, c=%4zu, M=%25s, m=%25s, a=%s, c=%s l=%s/>\n",
                 pInst,
                 hCall,
                 ++nCnt,
@@ -564,7 +564,7 @@ void sipxFireCallEvent(const void* pSrc,
             hCall = sipxCallLookupHandle(szCallId, pSrc);
             if (0 == hCall)
             {
-                OsSysLog::add(FAC_SIPXTAPI, PRI_WARNING, "sipxFireCallEvent - No call found for szCallId=%s, pSrc=%x", szCallId, pSrc);
+                OsSysLog::add(FAC_SIPXTAPI, PRI_WARNING, "sipxFireCallEvent - No call found for szCallId=%s, pSrc=%p", szCallId, pSrc);
 #ifdef DUMP_CALLS                    
                 sipxDumpCalls();
 #endif                
@@ -678,7 +678,7 @@ void sipxFireCallEvent(const void* pSrc,
             if (DESTROYED == major)
             {
                 OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
-                    "sipxFireCallEvent Free up the call object hCall=%d",
+                    "sipxFireCallEvent Free up the call object hCall=%u",
                     hCall);
                 sipxCallObjectFree(hCall);
             }
@@ -1086,8 +1086,6 @@ void sipxFireEvent(const void* pSrc,
     OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
         "sipxFireEvent pSrc=%p category=%d pInfo=%p",
         pSrc, category, pInfo);
-
-    bool bRet = false;
     
     UtlSListIterator eventListenerItor(*g_pEventListeners);
     UtlVoidPtr* ptr;

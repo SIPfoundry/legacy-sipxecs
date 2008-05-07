@@ -13,7 +13,7 @@
 #include <os/iostream>
 #include <stdio.h>
 
-typedef short AudioSample; 
+typedef int16_t AudioSample; 
 typedef unsigned char AudioByte; 
 
 

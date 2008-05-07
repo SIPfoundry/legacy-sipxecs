@@ -33,7 +33,7 @@
  *
  */
 interface INetworkChannel : public IBaseClass
- {
+{
 
 //  Public Methods
 
@@ -84,9 +84,9 @@ public:
  Description:   An IChannel interface method that retrieves the socket handle
                 associated with a given channel.
 
- Returns:       unsigned int.
+ Returns:       int.
  ***********************************************************************|><|*/
-    virtual unsigned int  GetSocket(void)=0;
+    virtual int  GetSocket(void)=0;
 
 /*|><|************************************************************************
  Name:          GetPort

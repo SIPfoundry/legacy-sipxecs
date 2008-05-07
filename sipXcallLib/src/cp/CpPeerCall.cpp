@@ -783,7 +783,7 @@ UtlBoolean CpPeerCall::handleGetAddresses(OsMsg* pEventMessage)
     UtlBoolean localAdded = FALSE;
     UtlSList* connectionList;
     OsProtectedEvent* getConnEvent = (OsProtectedEvent*) ((CpMultiStringMessage*)pEventMessage)->getInt1Data();
-    getConnEvent->getIntData((int&)connectionList);
+    getConnEvent->getIntData((intptr_t&)connectionList);
 
     if(getConnEvent)
     {
@@ -1124,7 +1124,7 @@ UtlBoolean CpPeerCall::handleUnholdTermConnection(OsMsg* pEventMessage)
     {
         // Post a message to the callManager to change focus
         CpIntMessage localHoldMessage(CallManager::CP_GET_FOCUS,
-            (int)this);
+            (intptr_t)this);
         mpManager->postMessage(localHoldMessage);
         mLocalHeld = FALSE;
     }
@@ -1334,7 +1334,7 @@ UtlBoolean CpPeerCall::handleAddToneListener(OsMsg* pEventMessage)
 {
     // add tone listener to all connecitons
     Connection* connection = NULL;
-    int pListener = ((CpMultiStringMessage*)pEventMessage)->getInt1Data();
+    intptr_t pListener = ((CpMultiStringMessage*)pEventMessage)->getInt1Data();
 
     OsReadLock lock(mConnectionMutex);
     UtlDListIterator iterator(mConnections);
@@ -1358,7 +1358,7 @@ UtlBoolean CpPeerCall::handleRemoveToneListener(OsMsg* pEventMessage)
 {
     // remove tone listener from all connecitons
     Connection* connection = NULL;
-    int pListener = ((CpMultiStringMessage*)pEventMessage)->getInt1Data();
+    intptr_t pListener = ((CpMultiStringMessage*)pEventMessage)->getInt1Data();
 
     OsReadLock lock(mConnectionMutex);
     UtlDListIterator iterator(mConnections);
@@ -1497,7 +1497,7 @@ UtlBoolean CpPeerCall::handleGetConnections(OsMsg* pEventMessage)
     UtlSList* connectionList = 0;
     OsProtectedEvent* getConnEvent = (OsProtectedEvent*) 
         ((CpMultiStringMessage*)pEventMessage)->getInt1Data();
-    getConnEvent->getIntData((int&)connectionList);
+    getConnEvent->getIntData((intptr_t&)connectionList);
 
     if(getConnEvent && connectionList)
     {
@@ -1545,7 +1545,7 @@ UtlBoolean CpPeerCall::handleGetSession(OsMsg* pEventMessage)
     SipSession* sessionPtr;
     OsProtectedEvent* getFieldEvent = (OsProtectedEvent*) 
         ((CpMultiStringMessage*)pEventMessage)->getInt1Data();
-    getFieldEvent->getIntData((int&)sessionPtr);
+    getFieldEvent->getIntData((intptr_t&)sessionPtr);
 
     OsSysLog::add(FAC_CP, PRI_DEBUG, "CpPeerCall::handleGetSession session: %p for callId %s address %s",
                   sessionPtr, callId.data(), address.data());
@@ -1626,7 +1626,7 @@ UtlBoolean CpPeerCall::handleGetInvite(OsMsg* pEventMessage)
     SipMessage* messagePtr;
     OsProtectedEvent* getFieldEvent = (OsProtectedEvent*) 
         ((CpMultiStringMessage*)pEventMessage)->getInt1Data();
-    getFieldEvent->getIntData((int&)messagePtr);
+    getFieldEvent->getIntData((intptr_t&)messagePtr);
 
     OsSysLog::add(FAC_CP, PRI_DEBUG, "CpPeerCall::handleGetInvite message: %p for callId %s address %s",
                   messagePtr, callId.data(), address.data());
@@ -1675,7 +1675,7 @@ UtlBoolean CpPeerCall::handleGetInvite(OsMsg* pEventMessage)
               if (OsSysLog::willLog(FAC_CP, PRI_DEBUG))
               {
                  UtlString text;
-                 int length;
+                 size_t length;
                  messagePtr->getBytes(&text, &length);
                  OsSysLog::add(FAC_CP, PRI_DEBUG,
                                "CpPeerCall::handleGetInvite INVITE found '%s'",
@@ -2155,7 +2155,7 @@ UtlBoolean CpPeerCall::handleUnholdAllTermConnections(OsMsg* pEventMessage)
 UtlBoolean CpPeerCall::handleUnholdLocalTermConnection(OsMsg* pEventMessage)
 {
     // Post a message to the callManager to change focus
-    CpIntMessage localHoldMessage(CallManager::CP_GET_FOCUS, (int)this);
+    CpIntMessage localHoldMessage(CallManager::CP_GET_FOCUS, (intptr_t)this);
     mpManager->postMessage(localHoldMessage);
     mLocalHeld = FALSE;
 
@@ -2168,7 +2168,7 @@ UtlBoolean CpPeerCall::handleUnholdLocalTermConnection(OsMsg* pEventMessage)
 UtlBoolean CpPeerCall::handleHoldLocalTermConnection(OsMsg* pEventMessage)
 {
     // Post a message to the callManager to change focus
-    CpIntMessage localHoldMessage(CallManager::CP_YIELD_FOCUS, (int)this);
+    CpIntMessage localHoldMessage(CallManager::CP_YIELD_FOCUS, (intptr_t)this);
     mpManager->postMessage(localHoldMessage);
     mLocalHeld = TRUE;
 
@@ -2538,8 +2538,8 @@ UtlBoolean CpPeerCall::handleSplitConnection(OsMsg* pEventMessage)
                     NULL,
                     NULL,
                     NULL,
-                    (int) pConnection,
-                    (int) pEvent,
+                    (intptr_t) pConnection,
+                    (intptr_t) pEvent,
                     (int) bAutoUnhold) ;
             mpManager->postMessage(joinMessage);
         }
@@ -2618,7 +2618,7 @@ void CpPeerCall::handleGetTermConnections(OsMsg* pEventMessage)
     UtlString connectionAddress;
     ((CpMultiStringMessage*)pEventMessage)->getString2Data(connectionAddress);
     OsProtectedEvent* getConnEvent = (OsProtectedEvent*) ((CpMultiStringMessage*)pEventMessage)->getInt1Data();
-    getConnEvent->getIntData((int&)connectionList);
+    getConnEvent->getIntData((intptr_t&)connectionList);
 
     if (connectionAddress.compareTo(mLocalAddress) == 0)
     {
@@ -2942,7 +2942,7 @@ void CpPeerCall::onHook()
     Connection* connection = NULL;
 
     // Take this call out of focus right away
-    CpIntMessage localHoldMessage(CallManager::CP_YIELD_FOCUS, (int) this);
+    CpIntMessage localHoldMessage(CallManager::CP_YIELD_FOCUS, (intptr_t) this);
     mpManager->postMessage(localHoldMessage);
     {
         OsReadLock lock(mConnectionMutex);
@@ -3062,7 +3062,7 @@ void CpPeerCall::dropIfDead()
                     // Drop the call immediately
                     if (mpManager->getDelayInDeleteCall() == 0)
                     {
-                        CpIntMessage ExitMsg(CallManager::CP_CALL_EXITED, (int)this) ;
+                        CpIntMessage ExitMsg(CallManager::CP_CALL_EXITED, (intptr_t)this) ;
                         mpManager->postMessage(ExitMsg) ;
                         OsSysLog::add(FAC_CP, PRI_DEBUG, "CpPeerCall::dropIfDead %s Posting call exit: %p",
                                       thisCallId.data(), this);
@@ -3070,8 +3070,8 @@ void CpPeerCall::dropIfDead()
                     else
                     {                    
                         // For media server we need to hold off the deletion for a while
-                        CpIntMessage * pExitMsg = new CpIntMessage(CallManager::CP_CALL_EXITED,(int)this);
-                        OsTimer * timer = new OsTimer(mpManager->getMessageQueue(), (int)pExitMsg);
+                        CpIntMessage * pExitMsg = new CpIntMessage(CallManager::CP_CALL_EXITED,(intptr_t)this);
+                        OsTimer * timer = new OsTimer(mpManager->getMessageQueue(), (void*)pExitMsg);
                         OsTime timerTime(mpManager->getDelayInDeleteCall(), 0);
                         timer->oneshotAfter(timerTime);
                         UtlString thisCallId;
@@ -3086,7 +3086,7 @@ void CpPeerCall::dropIfDead()
             else
             {
                 // Drop the call immediately
-                CpIntMessage ExitMsg(CallManager::CP_CALL_EXITED, (int)this) ;
+                CpIntMessage ExitMsg(CallManager::CP_CALL_EXITED, (intptr_t)this) ;
                 mpManager->postMessage(ExitMsg) ;
             }
         }
@@ -3612,7 +3612,7 @@ UtlBoolean CpPeerCall::isLocalTerminal(const char* terminalId)
     {
         UtlString term = UtlString(terminalId);
 
-        int pos = term.index("foreign-terminal");
+        ssize_t pos = term.index("foreign-terminal");
         if (pos < 0)
         {
             UtlString address;
@@ -3743,7 +3743,7 @@ void CpPeerCall::addToneListenersToConnection(Connection* connection)
     void* pListener ;
     while ((pListener = (void*) iterator()))
     {
-        addToneListenerToFlowGraph((int) pListener, connection);
+        addToneListenerToFlowGraph((intptr_t) pListener, connection);
     }
 }
 

@@ -635,7 +635,7 @@ void sipxSubscribeClientNotifyCallback(const char* earlyDialogHandle,
         UtlString userAgent;
         UtlString contentType;
         const HttpBody* contentBody = NULL;
-        int bodyLength = 0;
+        size_t bodyLength = 0;
         const char* bodyBytes = NULL;
 
         // If the dialog changed from and early dialog to an 
@@ -764,7 +764,7 @@ void sipxLineObjectFree(const SIPX_LINE hLine)
         if (pData->pLineAliases)
         {
             UtlVoidPtr* pValue ;
-            while (pValue = (UtlVoidPtr*) pData->pLineAliases->get())
+            while ((pValue = (UtlVoidPtr*) pData->pLineAliases->get()))
             {
                 Url* pUri = (Url*) pValue->getValue() ;
                 if (pUri)
@@ -850,7 +850,7 @@ SIPX_LINE sipxLineLookupHandleByURI(SIPX_INSTANCE_DATA* pInst,
     UtlVoidPtr* pObj = NULL;
     SIPX_LINE hLine = 0 ;
    
-    while (pIndex = dynamic_cast<UtlInt*>( iter() ) )       
+    while ((pIndex = dynamic_cast<UtlInt*>( iter() ) ))       
     {
         pObj = dynamic_cast<UtlVoidPtr*>(gpLineHandleMap->findValue(pIndex));
         SIPX_LINE_DATA* pData = NULL ;
@@ -873,7 +873,7 @@ SIPX_LINE sipxLineLookupHandleByURI(SIPX_INSTANCE_DATA* pInst,
                     Url* pUrl ;
                     UtlSListIterator iterator(*pData->pLineAliases) ;
 
-                    while (pValue = (UtlVoidPtr*) iterator()) 
+                    while ((pValue = (UtlVoidPtr*) iterator())) 
                     {
                         pUrl = (Url*) pValue->getValue() ;
                         
@@ -902,7 +902,7 @@ UtlBoolean sipxRemoveCallHandleFromConf(SIPX_CONF_DATA *pConfData,
     // 
 
 
-    OsSysLog::add(FAC_SIPXTAPI, PRI_DEBUG, "sipxRemoveCallHandleFromConf pConfData=%p, hCall=%d",
+    OsSysLog::add(FAC_SIPXTAPI, PRI_DEBUG, "sipxRemoveCallHandleFromConf pConfData=%p, hCall=%u",
                   pConfData, hCall);
                   
     UtlBoolean bFound = false ;
@@ -1101,7 +1101,7 @@ SIPX_INSTANCE_DATA* findSessionByCallManager(const void* pCallManager)
    
     UtlVoidPtr* pObj = NULL;
    
-    while (pObj = dynamic_cast<UtlVoidPtr*>(iter()))       
+    while ((pObj = dynamic_cast<UtlVoidPtr*>(iter())))       
     {
         SIPX_INSTANCE_DATA* pTest = (SIPX_INSTANCE_DATA*) pObj->getValue() ;
         if ((pTest) && (pTest->pCallManager == pCallManager))
@@ -1171,7 +1171,7 @@ SIPXTAPI_API void sipxLogEntryAdd(OsSysLogPriority priority,
     va_list ap;
     va_start(ap, format);
 
-    int threadId;
+    pthread_t threadId;
     OsTask::getCurrentTaskId(threadId) ;
     OsSysLog::vadd("sipXtapi", threadId, FAC_SIPXTAPI, priority, format, ap);  
      
@@ -1217,9 +1217,9 @@ UtlBoolean sipxIsCallInFocus()
    
     UtlInt* pIndex = NULL;
     UtlVoidPtr* pObj = NULL;
-    SIPX_CALL hCall = 0 ;
+//    SIPX_CALL hCall = 0 ;
    
-    while (pIndex = dynamic_cast<UtlInt*>( iter() ) )       
+    while ((pIndex = dynamic_cast<UtlInt*>( iter() ) )   )    
     {
         pObj = dynamic_cast<UtlVoidPtr*>(gpCallHandleMap->findValue(pIndex));
         SIPX_CALL_DATA* pData = NULL ;
@@ -1268,35 +1268,35 @@ SIPX_RESULT sipxCheckForHandleLeaks()
 
     if (gpCallHandleMap->entries() != 0)
     {
-        printf("\ngpCallHandleMap Leaks (%d):\n", gpCallHandleMap->entries()) ;
+        printf("\ngpCallHandleMap Leaks (%zu):\n", gpCallHandleMap->entries()) ;
         gpCallHandleMap->dump() ;
         rc = SIPX_RESULT_FAILURE ;
     }
 
     if (gpLineHandleMap->entries() != 0)
     {
-        printf("\ngpLineHandleMap Leaks (%d):\n", gpLineHandleMap->entries()) ;
+        printf("\ngpLineHandleMap Leaks (%zu):\n", gpLineHandleMap->entries()) ;
         gpLineHandleMap->dump() ;
         rc = SIPX_RESULT_FAILURE ;
     }
 
     if (gpConfHandleMap->entries() != 0)
     {
-        printf("\ngpConfHandleMap Leaks (%d):\n", gpConfHandleMap->entries()) ;
+        printf("\ngpConfHandleMap Leaks (%zu):\n", gpConfHandleMap->entries()) ;
         gpConfHandleMap->dump() ;
         rc = SIPX_RESULT_FAILURE ;
     }
 
     if (gpInfoHandleMap->entries() != 0)
     {
-        printf("\ngpInfoHandleMap Leaks (%d):\n", gpInfoHandleMap->entries()) ;
+        printf("\ngpInfoHandleMap Leaks (%zu):\n", gpInfoHandleMap->entries()) ;
         gpInfoHandleMap->dump() ;
         rc = SIPX_RESULT_FAILURE ;
     }
 
     if (gpSessionList->entries() != 0)
     {
-        printf("\ngSessionList leaks (%d)\n", gpSessionList->entries()) ;
+        printf("\ngSessionList leaks (%zu)\n", gpSessionList->entries()) ;
         rc = SIPX_RESULT_FAILURE ;
     }
 
@@ -1618,7 +1618,7 @@ void sipxDumpCalls()
     UtlVoidPtr* pObj = NULL;
     SIPX_CALL hCall = 0 ;
    
-    while (pIndex = dynamic_cast<UtlInt*>( iter() ) )       
+    while ((pIndex = dynamic_cast<UtlInt*>( iter() ) ))       
     {
         pObj = dynamic_cast<UtlVoidPtr*>(gpCallHandleMap->findValue(pIndex));
         SIPX_CALL_DATA* pData = NULL ;
@@ -1630,7 +1630,7 @@ void sipxDumpCalls()
         if (pData)
         {
             hCall = pIndex->getValue() ;
-            OsSysLog::add(FAC_SIPXTAPI, PRI_DEBUG, "***************** CallDump***\nhCall %d\n****callId %s\n****ghostCallId %s\n***bRemoveInsteadOfDrop %d\n****lineUri %s\n",
+            OsSysLog::add(FAC_SIPXTAPI, PRI_DEBUG, "***************** CallDump***\nhCall %u\n****callId %s\n****ghostCallId %s\n***bRemoveInsteadOfDrop %d\n****lineUri %s\n",
                 hCall,
                 pData->callId ? pData->callId->data() : NULL,
                 pData->ghostCallId ? pData->ghostCallId->data() : NULL, 

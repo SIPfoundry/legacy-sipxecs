@@ -166,7 +166,7 @@ void SdpCodec::toString(UtlString& sdpCodecContents) const
 {
     char stringBuffer[256];
     sprintf(stringBuffer,"SdpCodec:\n\
-codecId: %d\n\
+codecId: %" PRIdPTR "\n\
 payloadId: %d\n\
 mimeType: \'%s/%s\'\n\
 sampleRate: %d\n\

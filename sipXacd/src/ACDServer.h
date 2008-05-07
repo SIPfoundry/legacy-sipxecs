@@ -126,7 +126,7 @@ public:
 
    int                getAdministrativeState(void);
    
-   int                getMaxCallAllowed(void) { return mMaxAcdCallsAllowed; }
+   size_t             getMaxCallAllowed(void) { return mMaxAcdCallsAllowed; }
 
 /* ============================ INQUIRY =================================== */
 

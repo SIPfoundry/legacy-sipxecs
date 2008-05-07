@@ -152,7 +152,7 @@ UtlBoolean OsMsg::isMsgInUse(void) const
 //! Implements the interface for a UtlContainable
 unsigned OsMsg::hash() const
 {
-   return (unsigned) this;
+   return hashPtr(this);
 }
 
 UtlContainableType OsMsg::getContainableType() const
@@ -162,7 +162,7 @@ UtlContainableType OsMsg::getContainableType() const
 
 int OsMsg::compareTo(UtlContainable const* other) const
 {
-   return ((unsigned) this) - ((unsigned) other);
+   return comparePtrs(this, other);
 }
 
 

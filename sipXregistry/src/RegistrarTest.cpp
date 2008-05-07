@@ -237,7 +237,7 @@ void RegistrarTest::restartTimer()
       // start the timer
       mTestState = TimerRunning;
       OsSysLog::add( FAC_SIP, PRI_DEBUG,
-                    "RegistrarTest::restartTimer %d"
+                    "RegistrarTest::restartTimer %zu"
                     ,mRetryTime
                     );
 

@@ -279,7 +279,7 @@ OsStatus MpStreamFeeder::setEventHandler(OsNotification* pEventHandler)
 
 
 // Gets the next available frame
-OsStatus MpStreamFeeder::getFrame(unsigned short *samples)
+OsStatus MpStreamFeeder::getFrame(int16_t *samples)
 {
    OsStatus rc = OS_INVALID ;
 
@@ -399,7 +399,7 @@ void MpStreamFeeder::fireEvent(FeederEvent eventType)
       }
 
 #ifdef MP_STREAM_DEBUG /* [ */
-      int taskId = -1 ;
+      pthread_t taskId = -1 ;
       OsTask *pTask = OsTask::getCurrentTask() ;
       if (pTask  != NULL)
       {

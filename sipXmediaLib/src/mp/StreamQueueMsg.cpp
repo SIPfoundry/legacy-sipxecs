@@ -68,7 +68,7 @@ StreamQueueMsg& StreamQueueMsg::operator=(const StreamQueueMsg& rhs)
 }
 
 // Set the sample data for this message
-void StreamQueueMsg::setSamples(const short* pSamples)
+void StreamQueueMsg::setSamples(const int16_t* pSamples)
 { 
    setMsgSubType(AudioFrame) ;
    memcpy(mSamples, pSamples, sizeof(mSamples)) ;  
@@ -77,7 +77,7 @@ void StreamQueueMsg::setSamples(const short* pSamples)
 /* ============================ ACCESSORS ================================= */
 
 // Get the sample data for this message
-UtlBoolean StreamQueueMsg::getSamples(short* pSamples) const
+UtlBoolean StreamQueueMsg::getSamples(int16_t* pSamples) const
 {
    UtlBoolean bRC = FALSE ;
 

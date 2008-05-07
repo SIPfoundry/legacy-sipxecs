@@ -139,7 +139,7 @@ UtlBoolean IvrCallListener::handleMessage(OsMsg& rMsg)
    {
       TaoMessage* taoMessage = (TaoMessage*)&rMsg;
 
-      int taoEventId = taoMessage->getTaoObjHandle();
+      TaoEventId taoEventId = taoMessage->getTaoObjHandle();
       UtlString argList(taoMessage->getArgList());
 
       TaoString arg(argList, TAOMESSAGE_DELIMITER);
@@ -256,7 +256,7 @@ void IvrCallListener::handleAcceptCall(TaoMessage& rMsg, TaoString& arg)
    UtlString address = arg[2];
    mpCallManager->acceptConnection(callId.data(), address.data());
    mpCallManager->answerTerminalConnection(callId.data(), address.data(), "mediaserver");
-   mpCallManager->addToneListener(callId.data(), (int)mpDtmfListener);
+   mpCallManager->addToneListener(callId.data(), mpDtmfListener);
 
    // Add this call to the list so we can drop it later.
    OsStatus res = addCallId(callId.data());
@@ -367,7 +367,7 @@ void IvrCallListener::handleDisconnectCall(TaoMessage& rMsg, TaoString& arg)
    mpCallManager->getNumConnections(callId.data(), numConns);
    if (numConns <= 2)
    {
-      mpCallManager->removeToneListener(callId.data(), (int)mpDtmfListener);
+      mpCallManager->removeToneListener(callId.data(), mpDtmfListener);
       UtlBoolean res = isActiveCallId(callId.data());
       OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_INFO, 
                     "IvrCallListener::handleDisconnectCall %s active=%d \n", callId.data(), res);

@@ -789,8 +789,8 @@ CredentialDB::isUriDefined (
     UtlString identity;
     uri.getIdentity(identity);
 
-    OsSysLog::add(FAC_DB, PRI_DEBUG, "CredentialDB::isUriDefined identity %s, m_pFastDB=0x%08x ",
-                    identity.data(), (int)m_pFastDB);
+    OsSysLog::add(FAC_DB, PRI_DEBUG, "CredentialDB::isUriDefined identity %s, m_pFastDB=%p ",
+                    identity.data(), m_pFastDB);
 
     if ( !identity.isNull() && (m_pFastDB != NULL) )
     {

@@ -39,7 +39,7 @@ public:
 /* ============================ CREATORS ================================== */
 
     CpIntMessage(unsigned char messageSubtype = CallManager::CP_UNSPECIFIED,
-       const int intValue = 0);
+       const intptr_t intValue = 0);
      //:Default constructor
 
 
@@ -53,7 +53,7 @@ public:
 
 
 /* ============================ ACCESSORS ================================= */
-        void getIntData(int& intValue) const;
+        void getIntData(intptr_t& intValue) const;
 
 /* ============================ INQUIRY =================================== */
 
@@ -62,7 +62,7 @@ protected:
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
-        int mIntData;
+        intptr_t mIntData;
 
    CpIntMessage(const CpIntMessage& rCpIntMessage);
      //:disable Copy constructor

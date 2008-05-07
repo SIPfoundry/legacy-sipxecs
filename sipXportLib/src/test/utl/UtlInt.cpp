@@ -132,7 +132,7 @@ public:
         // First test the default constructor
         UtlInt testInt ; 
         const char* msg0 = "Test the default constructor" ; 
-        CPPUNIT_ASSERT_EQUAL_MESSAGE(msg0, 0, testInt.getValue()) ; 
+        CPPUNIT_ASSERT_EQUAL_MESSAGE(msg0, (intptr_t)0, testInt.getValue()) ; 
 
         //Now test the single argument constructor for each of 
         // the common test data type

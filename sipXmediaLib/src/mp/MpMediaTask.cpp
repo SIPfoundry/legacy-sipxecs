@@ -651,8 +651,8 @@ UtlBoolean MpMediaTask::handleSetFocus(MpFlowGraphBase* pFlowGraph)
       if (!isManagedFlowGraph(pFlowGraph) ||
           !pFlowGraph->isStarted())
       {
-         Nprintf("MpMT::handleSetFocus(0x%X) INVALID: %smanaged, %sstarted\n",
-            (int) pFlowGraph,
+         Nprintf("MpMT::handleSetFocus(0x%p) INVALID: %smanaged, %sstarted\n",
+            pFlowGraph,
             (int) (isManagedFlowGraph(pFlowGraph)? "" : "NOT "),
             (int) (pFlowGraph->isStarted() ? "" : "NOT "), 0,0,0);
          return FALSE; // we aren't managing this flow graph, return FALSE
@@ -662,8 +662,8 @@ UtlBoolean MpMediaTask::handleSetFocus(MpFlowGraphBase* pFlowGraph)
    if (mpFocus != NULL)
    {
       // remove focus from the flow graph that currently has it
-      Nprintf("MpMT::handleSetFocus(0x%X): removing old focus (0x%X)\n",
-         (int) pFlowGraph, (int) mpFocus, 0,0,0,0);
+      Nprintf("MpMT::handleSetFocus(0x%p): removing old focus (0x%p)\n",
+         pFlowGraph, mpFocus, 0,0,0,0);
       mpFocus->loseFocus();
    }
 
@@ -673,13 +673,13 @@ UtlBoolean MpMediaTask::handleSetFocus(MpFlowGraphBase* pFlowGraph)
       // try to give focus to the indicated flow graph
       if (OS_SUCCESS != mpFocus->gainFocus())
       {
-         Nprintf("MpMT::handleSetFocus(0x%X): attempt to give focus FAILED\n",
-            (int) pFlowGraph, 0,0,0,0,0);
+         Nprintf("MpMT::handleSetFocus(0x%p): attempt to give focus FAILED\n",
+            pFlowGraph, 0,0,0,0,0);
          mpFocus = NULL;
          return FALSE; // the flow graph did not accept focus.
       }
-      Nprintf("MpMT::handleSetFocus(0x%X): attempt to give focus SUCCEEDED\n",
-         (int) pFlowGraph, 0,0,0,0,0);
+      Nprintf("MpMT::handleSetFocus(0x%p): attempt to give focus SUCCEEDED\n",
+         pFlowGraph, 0,0,0,0,0);
    }
 
    return TRUE;

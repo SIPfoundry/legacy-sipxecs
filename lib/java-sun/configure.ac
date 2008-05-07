@@ -6,6 +6,9 @@ m4_include([config/sipXlib.m4])
 AM_INIT_AUTOMAKE(foreign)
 SFAC_DIST_DIR
 SFAC_DOWNLOAD_DEPENDENCIES
+
+AM_CONDITIONAL([IS_AMD64], [test -n "`uname -m | egrep 'x86_64|amd64'`"])
+
 AC_CONFIG_FILES([Makefile])
 AC_OUTPUT
 

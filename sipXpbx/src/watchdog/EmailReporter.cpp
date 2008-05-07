@@ -101,8 +101,8 @@ OsStatus EmailReporter::send()
         UtlString CommandWithUserStr = mEmailCommandStr;
         //now replace the %CONTACT% with the actual e-mail address
         //first find out where %CONTACT% is...
-        unsigned int body_pos = CommandWithUserStr.index("%BODY%");
-        unsigned int pos = CommandWithUserStr.index("%CONTACT%");
+        ssize_t body_pos = CommandWithUserStr.index("%BODY%");
+        ssize_t pos = CommandWithUserStr.index("%CONTACT%");
         if ((pos != UTL_NOT_FOUND) && (body_pos != UTL_NOT_FOUND))
         {
             //and now let's execute it!
@@ -130,7 +130,7 @@ OsStatus EmailReporter::send()
                     CommandWithUserStr = CommandWithUserStr.replace(pos,9,mContacts[loop]->data());
 
                     //recalculate pos of body because we changed the size
-                    int body_pos = CommandWithUserStr.index("%BODY%");
+                    ssize_t body_pos = CommandWithUserStr.index("%BODY%");
 
                     //now replace body
                     CommandWithUserStr = CommandWithUserStr.replace(body_pos,6,body.data());

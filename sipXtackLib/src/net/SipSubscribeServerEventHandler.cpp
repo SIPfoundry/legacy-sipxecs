@@ -161,10 +161,10 @@ UtlBoolean SipSubscribeServerEventHandler::getNotifyContent(const UtlString& res
         notifyRequest.setBody(messageBody);
         
         UtlString request;
-        int requestLength;
+        size_t requestLength;
         notifyRequest.getBytes(&request, &requestLength);   
         OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                      "SipSubscribeServerEventHandler::getNotifyContent resourceId '%s', eventTypeKey '%s' contentType '%s' NOTIFY message length = %d, message = '%s'",
+                      "SipSubscribeServerEventHandler::getNotifyContent resourceId '%s', eventTypeKey '%s' contentType '%s' NOTIFY message length = %zu, message = '%s'",
                       resourceId.data(), eventTypeKey.data(),
                       contentType.data(), requestLength, request.data());
     }

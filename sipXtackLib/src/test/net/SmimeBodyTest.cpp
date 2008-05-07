@@ -55,7 +55,7 @@ public:
         CPPUNIT_ASSERT(actualRead > 0);
         file.close();
         
-        int certLength[1];
+        size_t certLength[1];
         pemPublicKeyCert[0] = szKey;
         UtlString pem = pemPublicKeyCert[0];
         UtlString der;

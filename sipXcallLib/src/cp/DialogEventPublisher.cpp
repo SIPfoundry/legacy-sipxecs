@@ -150,7 +150,7 @@ UtlBoolean DialogEventPublisher::handleMessage(OsMsg& rMsg)
    {
       TaoMessage* taoMessage = (TaoMessage*)&rMsg;
 
-      int taoEventId = taoMessage->getTaoObjHandle();
+      TaoEventId taoEventId = taoMessage->getTaoObjHandle();
       UtlString argList(taoMessage->getArgList());
       TaoString arg(argList, TAOMESSAGE_DELIMITER);
 
@@ -159,7 +159,7 @@ UtlBoolean DialogEventPublisher::handleMessage(OsMsg& rMsg)
       UtlString  address = arg[TAO_OFFER_PARAM_ADDRESS] ;
       OsSysLog::add(FAC_PARK, PRI_DEBUG, "DialogEventPublisher::handleMessage TaoMessage type %d, subtype %d, Tao event %d, args %d, localConnection %d, callId '%s', address '%s'",
                     rMsg.getMsgType(), rMsg.getMsgSubType(),
-                    taoEventId, arg.getCnt(),
+                    (int)taoEventId, arg.getCnt(),
                     localConnection, callId.data(), address.data());
 #ifdef DEBUGGING
       dumpTaoMessageArgs(taoEventId, arg) ;

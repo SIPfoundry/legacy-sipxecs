@@ -24,6 +24,7 @@
 #include <memory.h>
 #include <string.h>
 #include <stddef.h>       // size_t
+#include <stdint.h>       // intptr_t
 
 // SYSTEM INCLUDES
 #ifdef VIDEO
@@ -484,7 +485,7 @@ const SIPX_CONF SIPX_CONF_NULL = 0; /**< Represents a null conference handle */
  * automatically deallocate this handle immediately after the status
  * call back.
  */
-typedef unsigned int SIPX_INFO;
+typedef intptr_t SIPX_INFO;
 
 /**
  * A publisher handle.  Refers to a publishing context.  
@@ -500,7 +501,7 @@ const SIPX_PUB SIPX_PUB_NULL = 0; /**< Represents a null publisher handle */
  * SIPX_SUB handles are created by using the sipxCallSubscribe function.
  * SIPX_SUB handles should be destroyed using the sipxCallUnsubscribe function.
  */
-typedef unsigned int SIPX_SUB ;
+typedef intptr_t SIPX_SUB ;
 
 /** 
  * A handle referring to an SIP NOTIFY message.  

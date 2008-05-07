@@ -295,7 +295,7 @@ bool FileRpcReplaceFile::replicateFile(UtlString& path_and_name, UtlInt& file_pe
    if (temporaryFile.open(OsFile::CREATE) == OS_SUCCESS)
    {
       UtlString     pdecodedData;
-      unsigned long bytesRead;
+      size_t bytesRead;
 
       if ( !NetBase64Codec::decode( file_content, pdecodedData ))
       {

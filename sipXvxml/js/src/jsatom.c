@@ -1,36 +1,41 @@
 /* -*- Mode: C; tab-width: 8; indent-tabs-mode: nil; c-basic-offset: 4 -*-
  *
- * The contents of this file are subject to the Netscape Public
- * License Version 1.1 (the "License"); you may not use this file
- * except in compliance with the License. You may obtain a copy of
- * the License at http://www.mozilla.org/NPL/
+ * ***** BEGIN LICENSE BLOCK *****
+ * Version: MPL 1.1/GPL 2.0/LGPL 2.1
  *
- * Software distributed under the License is distributed on an "AS
- * IS" basis, WITHOUT WARRANTY OF ANY KIND, either express oqr
- * implied. See the License for the specific language governing
- * rights and limitations under the License.
+ * The contents of this file are subject to the Mozilla Public License Version
+ * 1.1 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ * http://www.mozilla.org/MPL/
+ *
+ * Software distributed under the License is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+ * for the specific language governing rights and limitations under the
+ * License.
  *
  * The Original Code is Mozilla Communicator client code, released
  * March 31, 1998.
  *
- * The Initial Developer of the Original Code is Netscape
- * Communications Corporation.  Portions created by Netscape are
- * Copyright (C) 1998 Netscape Communications Corporation. All
- * Rights Reserved.
+ * The Initial Developer of the Original Code is
+ * Netscape Communications Corporation.
+ * Portions created by the Initial Developer are Copyright (C) 1998
+ * the Initial Developer. All Rights Reserved.
  *
- * Contributor(s): 
+ * Contributor(s):
  *
- * Alternatively, the contents of this file may be used under the
- * terms of the GNU Public License (the "GPL"), in which case the
- * provisions of the GPL are applicable instead of those above.
- * If you wish to allow use of your version of this file only
- * under the terms of the GPL and not to allow others to use your
- * version of this file under the NPL, indicate your decision by
- * deleting the provisions above and replace them with the notice
- * and other provisions required by the GPL.  If you do not delete
- * the provisions above, a recipient may use your version of this
- * file under either the NPL or the GPL.
- */
+ * Alternatively, the contents of this file may be used under the terms of
+ * either of the GNU General Public License Version 2 or later (the "GPL"),
+ * or the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
+ * in which case the provisions of the GPL or the LGPL are applicable instead
+ * of those above. If you wish to allow use of your version of this file only
+ * under the terms of either the GPL or the LGPL, and not to allow others to
+ * use your version of this file under the terms of the MPL, indicate your
+ * decision by deleting the provisions above and replace them with the notice
+ * and other provisions required by the GPL or the LGPL. If you do not delete
+ * the provisions above, a recipient may use your version of this file under
+ * the terms of any one of the MPL, the GPL or the LGPL.
+ *
+ * ***** END LICENSE BLOCK ***** */
 
 /*
  * JS atom table.
@@ -45,44 +50,52 @@
 #include "jsapi.h"
 #include "jsatom.h"
 #include "jscntxt.h"
+#include "jsconfig.h"
 #include "jsgc.h"
 #include "jslock.h"
 #include "jsnum.h"
-#include "jsopcode.h"
+#include "jsscan.h"
 #include "jsstr.h"
 
-extern const char js_Error_str[];       /* trivial, from jsexn.h */
+JS_FRIEND_API(const char *)
+js_AtomToPrintableString(JSContext *cx, JSAtom *atom)
+{
+    return js_ValueToPrintableString(cx, ATOM_KEY(atom));
+}
 
 /*
  * Keep this in sync with jspubtd.h -- an assertion below will insist that
  * its length match the JSType enum's JSTYPE_LIMIT limit value.
  */
-const char *js_type_str[] = {
+const char *js_type_strs[] = {
     "undefined",
-    "object",
+    js_object_str,
     "function",
     "string",
     "number",
     "boolean",
+    "null",
+    "xml",
 };
 
-const char *js_boolean_str[] = {
+JS_STATIC_ASSERT(JSTYPE_LIMIT ==
+                 sizeof js_type_strs / sizeof js_type_strs[0]);
+
+const char *js_boolean_strs[] = {
     js_false_str,
     js_true_str
 };
 
-const char js_Arguments_str[]       = "Arguments";
-const char js_Array_str[]           = "Array";
-const char js_Boolean_str[]         = "Boolean";
-const char js_Call_str[]            = "Call";
-const char js_Date_str[]            = "Date";
-const char js_Function_str[]        = "Function";
-const char js_Math_str[]            = "Math";
-const char js_Number_str[]          = "Number";
-const char js_Object_str[]          = "Object";
-const char js_RegExp_str[]          = "RegExp";
-const char js_Script_str[]          = "Script";
-const char js_String_str[]          = "String";
+#define JS_PROTO(name,code,init) const char js_##name##_str[] = #name;
+#include "jsproto.tbl"
+#undef JS_PROTO
+
+const char *js_proto_strs[JSProto_LIMIT] = {
+#define JS_PROTO(name,code,init) js_##name##_str,
+#include "jsproto.tbl"
+#undef JS_PROTO
+};
+
 const char js_anonymous_str[]       = "anonymous";
 const char js_arguments_str[]       = "arguments";
 const char js_arity_str[]           = "arity";
@@ -91,25 +104,60 @@ const char js_caller_str[]          = "caller";
 const char js_class_prototype_str[] = "prototype";
 const char js_constructor_str[]     = "constructor";
 const char js_count_str[]           = "__count__";
+const char js_each_str[]            = "each";
 const char js_eval_str[]            = "eval";
-const char js_getter_str[]          = "getter";
+const char js_fileName_str[]        = "fileName";
 const char js_get_str[]             = "get";
+const char js_getter_str[]          = "getter";
 const char js_index_str[]           = "index";
 const char js_input_str[]           = "input";
+const char js_iterator_str[]        = "__iterator__";
 const char js_length_str[]          = "length";
+const char js_lineNumber_str[]      = "lineNumber";
+const char js_message_str[]         = "message";
 const char js_name_str[]            = "name";
+const char js_next_str[]            = "next";
+const char js_noSuchMethod_str[]    = "__noSuchMethod__";
+const char js_object_str[]          = "object";
 const char js_parent_str[]          = "__parent__";
 const char js_proto_str[]           = "__proto__";
 const char js_setter_str[]          = "setter";
 const char js_set_str[]             = "set";
+const char js_stack_str[]           = "stack";
 const char js_toSource_str[]        = "toSource";
 const char js_toString_str[]        = "toString";
 const char js_toLocaleString_str[]  = "toLocaleString";
 const char js_valueOf_str[]         = "valueOf";
 
-#define HASH_OBJECT(o)  ((JSHashNumber)(o) >> JSVAL_TAGBITS)
+#if JS_HAS_XML_SUPPORT
+const char js_etago_str[]           = "</";
+const char js_namespace_str[]       = "namespace";
+const char js_ptagc_str[]           = "/>";
+const char js_qualifier_str[]       = "::";
+const char js_space_str[]           = " ";
+const char js_stago_str[]           = "<";
+const char js_star_str[]            = "*";
+const char js_starQualifier_str[]   = "*::";
+const char js_tagc_str[]            = ">";
+const char js_xml_str[]             = "xml";
+#endif
+
+#if JS_HAS_GENERATORS
+const char js_close_str[]           = "close";
+const char js_send_str[]            = "send";
+#endif
+
+#ifdef NARCISSUS
+const char js_call_str[]             = "__call__";
+const char js_construct_str[]        = "__construct__";
+const char js_hasInstance_str[]      = "__hasInstance__";
+const char js_ExecutionContext_str[] = "ExecutionContext";
+const char js_current_str[]          = "current";
+#endif
+
+#define HASH_OBJECT(o)  (JS_PTR_TO_UINT32(o) >> JSVAL_TAGBITS)
 #define HASH_INT(i)     ((JSHashNumber)(i))
-#define HASH_DOUBLE(dp) ((JSHashNumber)(((uint32*)(dp))[0] ^ ((uint32*)(dp))[1]))
+#define HASH_DOUBLE(dp) ((JSDOUBLE_HI32(*dp) ^ JSDOUBLE_LO32(*dp)))
 #define HASH_BOOLEAN(b) ((JSHashNumber)(b))
 
 JS_STATIC_DLL_CALLBACK(JSHashNumber)
@@ -142,13 +190,13 @@ js_compare_atom_keys(const void *k1, const void *k2)
 
     v1 = (jsval)k1, v2 = (jsval)k2;
     if (JSVAL_IS_STRING(v1) && JSVAL_IS_STRING(v2))
-        return !js_CompareStrings(JSVAL_TO_STRING(v1), JSVAL_TO_STRING(v2));
+        return js_EqualStrings(JSVAL_TO_STRING(v1), JSVAL_TO_STRING(v2));
     if (JSVAL_IS_DOUBLE(v1) && JSVAL_IS_DOUBLE(v2)) {
         double d1 = *JSVAL_TO_DOUBLE(v1);
         double d2 = *JSVAL_TO_DOUBLE(v2);
         if (JSDOUBLE_IS_NaN(d1))
             return JSDOUBLE_IS_NaN(d2);
-#ifdef XP_PC
+#if defined(XP_WIN)
         /* XXX MSVC miscompiles such that (NaN == 0) */
         if (JSDOUBLE_IS_NaN(d2))
             return JS_FALSE;
@@ -164,14 +212,15 @@ js_compare_stub(const void *v1, const void *v2)
     return 1;
 }
 
-JS_STATIC_DLL_CALLBACK(void *)
-js_alloc_atom_space(void *priv, size_t size)
+/* These next two are exported to jsscript.c and used similarly there. */
+void * JS_DLL_CALLBACK
+js_alloc_table_space(void *priv, size_t size)
 {
     return malloc(size);
 }
 
-JS_STATIC_DLL_CALLBACK(void)
-js_free_atom_space(void *priv, void *item)
+void JS_DLL_CALLBACK
+js_free_table_space(void *priv, void *item)
 {
     free(item);
 }
@@ -207,7 +256,7 @@ js_free_atom(void *priv, JSHashEntry *he, uintN flag)
 }
 
 static JSHashAllocOps atom_alloc_ops = {
-    js_alloc_atom_space,    js_free_atom_space,
+    js_alloc_table_space,   js_free_table_space,
     js_alloc_atom,          js_free_atom
 };
 
@@ -216,7 +265,6 @@ static JSHashAllocOps atom_alloc_ops = {
 JSBool
 js_InitAtomState(JSContext *cx, JSAtomState *state)
 {
-    state->runtime = cx->runtime;
     state->table = JS_NewHashTable(JS_ATOM_HASH_SIZE, js_hash_atom_key,
                                    js_compare_atom_keys, js_compare_stub,
                                    &atom_alloc_ops, state);
@@ -224,6 +272,8 @@ js_InitAtomState(JSContext *cx, JSAtomState *state)
         JS_ReportOutOfMemory(cx);
         return JS_FALSE;
     }
+
+    state->runtime = cx->runtime;
 #ifdef JS_THREADSAFE
     js_InitLock(&state->lock);
     state->tablegen = 0;
@@ -247,27 +297,16 @@ js_InitPinnedAtoms(JSContext *cx, JSAtomState *state)
             return JS_FALSE;                                                  \
     JS_END_MACRO
 
-    JS_ASSERT(sizeof js_type_str / sizeof js_type_str[0] == JSTYPE_LIMIT);
     for (i = 0; i < JSTYPE_LIMIT; i++)
-        FROB(typeAtoms[i],        js_type_str[i]);
+        FROB(typeAtoms[i],        js_type_strs[i]);
+
+    for (i = 0; i < JSProto_LIMIT; i++)
+        FROB(classAtoms[i],       js_proto_strs[i]);
 
     FROB(booleanAtoms[0],         js_false_str);
     FROB(booleanAtoms[1],         js_true_str);
     FROB(nullAtom,                js_null_str);
 
-    FROB(ArgumentsAtom,           js_Arguments_str);
-    FROB(ArrayAtom,               js_Array_str);
-    FROB(BooleanAtom,             js_Boolean_str);
-    FROB(CallAtom,                js_Call_str);
-    FROB(DateAtom,                js_Date_str);
-    FROB(ErrorAtom,               js_Error_str);
-    FROB(FunctionAtom,            js_Function_str);
-    FROB(MathAtom,                js_Math_str);
-    FROB(NumberAtom,              js_Number_str);
-    FROB(ObjectAtom,              js_Object_str);
-    FROB(RegExpAtom,              js_RegExp_str);
-    FROB(ScriptAtom,              js_Script_str);
-    FROB(StringAtom,              js_String_str);
     FROB(anonymousAtom,           js_anonymous_str);
     FROB(argumentsAtom,           js_arguments_str);
     FROB(arityAtom,               js_arity_str);
@@ -276,21 +315,54 @@ js_InitPinnedAtoms(JSContext *cx, JSAtomState *state)
     FROB(classPrototypeAtom,      js_class_prototype_str);
     FROB(constructorAtom,         js_constructor_str);
     FROB(countAtom,               js_count_str);
+    FROB(eachAtom,                js_each_str);
     FROB(evalAtom,                js_eval_str);
+    FROB(fileNameAtom,            js_fileName_str);
     FROB(getAtom,                 js_get_str);
     FROB(getterAtom,              js_getter_str);
     FROB(indexAtom,               js_index_str);
     FROB(inputAtom,               js_input_str);
+    FROB(iteratorAtom,            js_iterator_str);
     FROB(lengthAtom,              js_length_str);
+    FROB(lineNumberAtom,          js_lineNumber_str);
+    FROB(messageAtom,             js_message_str);
     FROB(nameAtom,                js_name_str);
+    FROB(nextAtom,                js_next_str);
+    FROB(noSuchMethodAtom,        js_noSuchMethod_str);
     FROB(parentAtom,              js_parent_str);
     FROB(protoAtom,               js_proto_str);
     FROB(setAtom,                 js_set_str);
     FROB(setterAtom,              js_setter_str);
+    FROB(stackAtom,               js_stack_str);
     FROB(toSourceAtom,            js_toSource_str);
     FROB(toStringAtom,            js_toString_str);
     FROB(toLocaleStringAtom,      js_toLocaleString_str);
     FROB(valueOfAtom,             js_valueOf_str);
+
+#if JS_HAS_XML_SUPPORT
+    FROB(etagoAtom,               js_etago_str);
+    FROB(namespaceAtom,           js_namespace_str);
+    FROB(ptagcAtom,               js_ptagc_str);
+    FROB(qualifierAtom,           js_qualifier_str);
+    FROB(spaceAtom,               js_space_str);
+    FROB(stagoAtom,               js_stago_str);
+    FROB(starAtom,                js_star_str);
+    FROB(starQualifierAtom,       js_starQualifier_str);
+    FROB(tagcAtom,                js_tagc_str);
+    FROB(xmlAtom,                 js_xml_str);
+#endif
+
+#if JS_HAS_GENERATORS
+    FROB(closeAtom,               js_close_str);
+#endif
+
+#ifdef NARCISSUS
+    FROB(callAtom,                js_call_str);
+    FROB(constructAtom,           js_construct_str);
+    FROB(hasInstanceAtom,         js_hasInstance_str);
+    FROB(ExecutionContextAtom,    js_ExecutionContext_str);
+    FROB(currentAtom,             js_current_str);
+#endif
 
 #undef FROB
 
@@ -302,7 +374,8 @@ js_InitPinnedAtoms(JSContext *cx, JSAtomState *state)
 void
 js_FreeAtomState(JSContext *cx, JSAtomState *state)
 {
-    JS_HashTableDestroy(state->table);
+    if (state->table)
+        JS_HashTableDestroy(state->table);
 #ifdef JS_THREADSAFE
     js_FinishLock(&state->lock);
 #endif
@@ -334,7 +407,7 @@ js_FinishAtomState(JSAtomState *state)
 {
     UninternArgs args;
 
-    if (!state->runtime)
+    if (!state->table)
         return;
     args.rt = state->runtime;
     args.leaks = 0;
@@ -352,7 +425,7 @@ js_FinishAtomState(JSAtomState *state)
 }
 
 typedef struct MarkArgs {
-    uintN           gcflags;
+    JSBool          keepAtoms;
     JSGCThingMarker mark;
     void            *data;
 } MarkArgs;
@@ -366,8 +439,7 @@ js_atom_marker(JSHashEntry *he, intN i, void *arg)
 
     atom = (JSAtom *)he;
     args = (MarkArgs *)arg;
-    if ((atom->flags & (ATOM_PINNED | ATOM_INTERNED)) ||
-        (args->gcflags & GC_KEEP_ATOMS)) {
+    if ((atom->flags & (ATOM_PINNED | ATOM_INTERNED)) || args->keepAtoms) {
         atom->flags |= ATOM_MARK;
         key = ATOM_KEY(atom);
         if (JSVAL_IS_GCTHING(key))
@@ -377,12 +449,14 @@ js_atom_marker(JSHashEntry *he, intN i, void *arg)
 }
 
 void
-js_MarkAtomState(JSAtomState *state, uintN gcflags, JSGCThingMarker mark,
+js_MarkAtomState(JSAtomState *state, JSBool keepAtoms, JSGCThingMarker mark,
                  void *data)
 {
     MarkArgs args;
 
-    args.gcflags = gcflags;
+    if (!state->table)
+        return;
+    args.keepAtoms = keepAtoms;
     args.mark = mark;
     args.data = data;
     JS_HashTableEnumerateEntries(state->table, js_atom_marker, &args);
@@ -402,7 +476,7 @@ js_atom_sweeper(JSHashEntry *he, intN i, void *arg)
         return HT_ENUMERATE_NEXT;
     }
     JS_ASSERT((atom->flags & (ATOM_PINNED | ATOM_INTERNED)) == 0);
-    atom->entry.key = NULL;
+    atom->entry.key = atom->entry.value = NULL;
     atom->flags = 0;
     return HT_ENUMERATE_REMOVE;
 }
@@ -411,7 +485,8 @@ void
 js_SweepAtomState(JSAtomState *state)
 {
     state->liveAtoms = 0;
-    JS_HashTableEnumerateEntries(state->table, js_atom_sweeper, state);
+    if (state->table)
+        JS_HashTableEnumerateEntries(state->table, js_atom_sweeper, state);
 }
 
 JS_STATIC_DLL_CALLBACK(intN)
@@ -427,7 +502,8 @@ js_atom_unpinner(JSHashEntry *he, intN i, void *arg)
 void
 js_UnpinPinnedAtoms(JSAtomState *state)
 {
-    JS_HashTableEnumerateEntries(state->table, js_atom_unpinner, NULL);
+    if (state->table)
+        JS_HashTableEnumerateEntries(state->table, js_atom_unpinner, NULL);
 }
 
 static JSAtom *
@@ -453,6 +529,7 @@ js_AtomizeHashedKey(JSContext *cx, jsval key, JSHashNumber keyHash, uintN flags)
 
     atom = (JSAtom *)he;
     atom->flags |= flags;
+    cx->weakRoots.lastAtom = atom;
 out:
     JS_UNLOCK(&state->lock,cx);
     return atom;
@@ -543,10 +620,17 @@ js_AtomizeDouble(JSContext *cx, jsdouble d, uintN flags)
 
     atom = (JSAtom *)he;
     atom->flags |= flags;
+    cx->weakRoots.lastAtom = atom;
 out:
     JS_UNLOCK(&state->lock,cx);
     return atom;
 }
+
+/*
+ * To put an atom into the hidden subspace. XOR its keyHash with this value,
+ * which is (sqrt(2)-1) in 32-bit fixed point.
+ */
+#define HIDDEN_ATOM_SUBSPACE_KEYHASH    0x6A09E667
 
 JSAtom *
 js_AtomizeString(JSContext *cx, JSString *str, uintN flags)
@@ -559,6 +643,8 @@ js_AtomizeString(JSContext *cx, JSString *str, uintN flags)
     JSAtom *atom;
 
     keyHash = js_HashString(str);
+    if (flags & ATOM_HIDDEN)
+        keyHash ^= HIDDEN_ATOM_SUBSPACE_KEYHASH;
     key = STRING_TO_JSVAL(str);
     state = &cx->runtime->atomState;
     JS_LOCK(&state->lock, cx);
@@ -604,7 +690,8 @@ js_AtomizeString(JSContext *cx, JSString *str, uintN flags)
     }
 
     atom = (JSAtom *)he;
-    atom->flags |= flags & (ATOM_PINNED | ATOM_INTERNED);
+    atom->flags |= flags & (ATOM_PINNED | ATOM_INTERNED | ATOM_HIDDEN);
+    cx->weakRoots.lastAtom = atom;
 out:
     JS_UNLOCK(&state->lock,cx);
     return atom;
@@ -627,12 +714,15 @@ js_Atomize(JSContext *cx, const char *bytes, size_t length, uintN flags)
      */
 #define ATOMIZE_BUF_MAX 32
     jschar inflated[ATOMIZE_BUF_MAX];
+    size_t inflatedLength = ATOMIZE_BUF_MAX - 1;
 
     if (length < ATOMIZE_BUF_MAX) {
-        js_InflateStringToBuffer(inflated, bytes, length);
+        js_InflateStringToBuffer(cx, bytes, length, inflated, &inflatedLength);
+        inflated[inflatedLength] = 0;
         chars = inflated;
     } else {
-        chars = js_InflateString(cx, bytes, length);
+        inflatedLength = length;
+        chars = js_InflateString(cx, bytes, &inflatedLength);
         if (!chars)
             return NULL;
         flags |= ATOM_NOCOPY;
@@ -641,7 +731,7 @@ js_Atomize(JSContext *cx, const char *bytes, size_t length, uintN flags)
     str = ALIGN(buf, JSString);
 
     str->chars = chars;
-    str->length = length;
+    str->length = inflatedLength;
     atom = js_AtomizeString(cx, str, ATOM_TMPSTR | flags);
     if (chars != inflated && (!atom || ATOM_TO_STRING(atom)->chars != chars))
         JS_free(cx, chars);
@@ -658,6 +748,30 @@ js_AtomizeChars(JSContext *cx, const jschar *chars, size_t length, uintN flags)
     str->chars = (jschar *)chars;
     str->length = length;
     return js_AtomizeString(cx, str, ATOM_TMPSTR | flags);
+}
+
+JSAtom *
+js_GetExistingStringAtom(JSContext *cx, const jschar *chars, size_t length)
+{
+    JSString *str;
+    char buf[2 * ALIGNMENT(JSString)];
+    JSHashNumber keyHash;
+    jsval key;
+    JSAtomState *state;
+    JSHashTable *table;
+    JSHashEntry **hep;
+
+    str = ALIGN(buf, JSString);
+    str->chars = (jschar *)chars;
+    str->length = length;
+    keyHash = js_HashString(str);
+    key = STRING_TO_JSVAL(str);
+    state = &cx->runtime->atomState;
+    JS_LOCK(&state->lock, cx);
+    table = state->table;
+    hep = JS_HashTableRawLookup(table, keyHash, (void *)key);
+    JS_UNLOCK(&state->lock, cx);
+    return (hep) ? (JSAtom *)*hep : NULL;
 }
 
 JSAtom *
@@ -743,7 +857,7 @@ js_IndexAtom(JSContext *cx, JSAtom *atom, JSAtomList *al)
 
     ATOM_LIST_LOOKUP(ale, hep, al, atom);
     if (!ale) {
-        if (al->count <= 5) {
+        if (al->count < 10) {
             /* Few enough for linear search, no hash table needed. */
             JS_ASSERT(!al->table);
             ale = (JSAtomListElement *)js_alloc_temp_entry(cx, atom);
@@ -757,11 +871,17 @@ js_IndexAtom(JSContext *cx, JSAtom *atom, JSAtomList *al)
             if (!al->table) {
                 /* No hash table yet, so hep had better be null! */
                 JS_ASSERT(!hep);
-                al->table = JS_NewHashTable(8, js_hash_atom_ptr,
+                al->table = JS_NewHashTable(al->count + 1, js_hash_atom_ptr,
                                             JS_CompareValues, JS_CompareValues,
                                             &temp_alloc_ops, cx);
                 if (!al->table)
                     return NULL;
+
+                /*
+                 * Set ht->nentries explicitly, because we are moving entries
+                 * from al to ht, not calling JS_HashTable(Raw|)Add.
+                 */
+                al->table->nentries = al->count;
 
                 /* Insert each ale on al->list into the new hash table. */
                 for (ale2 = al->list; ale2; ale2 = next) {
@@ -780,7 +900,7 @@ js_IndexAtom(JSContext *cx, JSAtom *atom, JSAtomList *al)
 
             /* Finally, add an entry for atom into the hash bucket at hep. */
             ale = (JSAtomListElement *)
-                JS_HashTableRawAdd(al->table, hep, atom->number, atom, NULL);
+                  JS_HashTableRawAdd(al->table, hep, atom->number, atom, NULL);
             if (!ale)
                 return NULL;
         }
@@ -820,8 +940,8 @@ js_map_atom(JSHashEntry *he, intN i, void *arg)
 }
 
 #ifdef DEBUG
-jsrefcount js_atom_map_count;
-jsrefcount js_atom_map_hash_table_count;
+static jsrefcount js_atom_map_count;
+static jsrefcount js_atom_map_hash_table_count;
 #endif
 
 JS_FRIEND_API(JSBool)

@@ -298,9 +298,9 @@ UtlBoolean SipPresenceEvent::isEmpty()
    return (mTuples.isEmpty());
 }
 
-int SipPresenceEvent::getLength() const
+size_t SipPresenceEvent::getLength() const
 {
-   int length;
+   size_t length;
    UtlString tempBody;
 
    getBytes(&tempBody, &length);
@@ -375,7 +375,7 @@ void SipPresenceEvent::buildBody(int& version) const
                  PresenceEvent.data());                 
 }
 
-void SipPresenceEvent::getBytes(const char** bytes, int* length) const
+void SipPresenceEvent::getBytes(const char** bytes, size_t* length) const
 {
    UtlString tempBody;
 
@@ -385,7 +385,7 @@ void SipPresenceEvent::getBytes(const char** bytes, int* length) const
    *bytes = mBody.data();
 }
 
-void SipPresenceEvent::getBytes(UtlString* bytes, int* length) const
+void SipPresenceEvent::getBytes(UtlString* bytes, size_t* length) const
 {
    int dummy;
    buildBody(dummy);

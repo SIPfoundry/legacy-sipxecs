@@ -67,8 +67,8 @@ SIPXAuthHelper::isAuthorizedUser (
     OsStatus result = OS_SUCCESS;
 
     UtlString userOrExtensionAtOptDomain(loginString);
-    int sipIndex = userOrExtensionAtOptDomain.index("sip:");
-    if (((unsigned int)(sipIndex)) != UTL_NOT_FOUND )
+    ssize_t sipIndex = userOrExtensionAtOptDomain.index("sip:");
+    if ( sipIndex != UTL_NOT_FOUND )
     {
         // see if we're being passed in a full URL in which 
         // case strip it down to its identity, discarding the display name
@@ -113,8 +113,8 @@ SIPXAuthHelper::isAuthorizedUser (
                 " in Credential DB\n";
             // Since userid does not expect any domain name associated with it, strip the domain off
             // and try again
-	    int atIndex = userOrExtensionAtOptDomain.index("@");
-            if ( (unsigned int) (atIndex) != UTL_NOT_FOUND )
+            ssize_t atIndex = userOrExtensionAtOptDomain.index("@");
+            if ( atIndex != UTL_NOT_FOUND )
             {
                 userOrExtensionAtOptDomain = userOrExtensionAtOptDomain(0, atIndex);
             }

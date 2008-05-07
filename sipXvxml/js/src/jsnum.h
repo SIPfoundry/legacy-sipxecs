@@ -1,36 +1,41 @@
 /* -*- Mode: C; tab-width: 8; indent-tabs-mode: nil; c-basic-offset: 4 -*-
  *
- * The contents of this file are subject to the Netscape Public
- * License Version 1.1 (the "License"); you may not use this file
- * except in compliance with the License. You may obtain a copy of
- * the License at http://www.mozilla.org/NPL/
+ * ***** BEGIN LICENSE BLOCK *****
+ * Version: MPL 1.1/GPL 2.0/LGPL 2.1
  *
- * Software distributed under the License is distributed on an "AS
- * IS" basis, WITHOUT WARRANTY OF ANY KIND, either express oqr
- * implied. See the License for the specific language governing
- * rights and limitations under the License.
+ * The contents of this file are subject to the Mozilla Public License Version
+ * 1.1 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ * http://www.mozilla.org/MPL/
+ *
+ * Software distributed under the License is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+ * for the specific language governing rights and limitations under the
+ * License.
  *
  * The Original Code is Mozilla Communicator client code, released
  * March 31, 1998.
  *
- * The Initial Developer of the Original Code is Netscape
- * Communications Corporation.  Portions created by Netscape are
- * Copyright (C) 1998 Netscape Communications Corporation. All
- * Rights Reserved.
+ * The Initial Developer of the Original Code is
+ * Netscape Communications Corporation.
+ * Portions created by the Initial Developer are Copyright (C) 1998
+ * the Initial Developer. All Rights Reserved.
  *
- * Contributor(s): 
+ * Contributor(s):
  *
- * Alternatively, the contents of this file may be used under the
- * terms of the GNU Public License (the "GPL"), in which case the
- * provisions of the GPL are applicable instead of those above.
- * If you wish to allow use of your version of this file only
- * under the terms of the GPL and not to allow others to use your
- * version of this file under the NPL, indicate your decision by
- * deleting the provisions above and replace them with the notice
- * and other provisions required by the GPL.  If you do not delete
- * the provisions above, a recipient may use your version of this
- * file under either the NPL or the GPL.
- */
+ * Alternatively, the contents of this file may be used under the terms of
+ * either of the GNU General Public License Version 2 or later (the "GPL"),
+ * or the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
+ * in which case the provisions of the GPL or the LGPL are applicable instead
+ * of those above. If you wish to allow use of your version of this file only
+ * under the terms of either the GPL or the LGPL, and not to allow others to
+ * use your version of this file under the terms of the MPL, indicate your
+ * decision by deleting the provisions above and replace them with the notice
+ * and other provisions required by the GPL or the LGPL. If you do not delete
+ * the provisions above, a recipient may use your version of this file under
+ * the terms of any one of the MPL, the GPL or the LGPL.
+ *
+ * ***** END LICENSE BLOCK ***** */
 
 #ifndef jsnum_h___
 #define jsnum_h___
@@ -55,46 +60,35 @@ JS_BEGIN_EXTERN_C
  * are stored in big endian`s way.
  */
 
-#if defined(__arm) || defined(__arm32__) || defined(_arm26__)
+#if defined(__arm) || defined(__arm32__) || defined(__arm26__) || defined(__arm__)
 #define CPU_IS_ARM
 #endif
 
-#if __GNUC__ >= 2
+typedef union jsdpun {
+    struct {
+#if defined(IS_LITTLE_ENDIAN) && !defined(CPU_IS_ARM)
+        uint32 lo, hi;
+#else
+        uint32 hi, lo;
+#endif
+    } s;
+    jsdouble d;
+} jsdpun;
+
+#if (__GNUC__ == 2 && __GNUC_MINOR__ > 95) || __GNUC__ > 2
 /*
  * This version of the macros is safe for the alias optimizations that gcc
  * does, but uses gcc-specific extensions.
  */
-typedef union {
-    jsdouble value;
-    struct {
-#if defined(IS_LITTLE_ENDIAN) && !defined(CPU_IS_ARM)
-        uint32 lsw;
-        uint32 msw;
-#else
-        uint32 msw;
-        uint32 lsw;
-#endif
-    } parts;
-} js_ieee_double_shape_type;
 
-#define JSDOUBLE_HI32(x)   (__extension__ ({ js_ieee_double_shape_type sh_u;  \
-                                             sh_u.value = (x);                \
-                                             sh_u.parts.msw; }))
-#define JSDOUBLE_LO32(x)   (__extension__ ({ js_ieee_double_shape_type sh_u;  \
-                                             sh_u.value = (x);                \
-                                             sh_u.parts.lsw; }))
-#define JSDOUBLE_SET_HI32(x, y)  (__extension__ ({                            \
-                                             js_ieee_double_shape_type sh_u;  \
-                                             sh_u.value = (x);                \
-                                             sh_u.parts.msw = (y);            \
-                                             (x) = sh_u.value; }))
-#define JSDOUBLE_SET_LO32(x, y)  (__extension__ ({                            \
-                                             js_ieee_double_shape_type sh_u;  \
-                                             sh_u.value = (x);                \
-                                             sh_u.parts.lsw = (y);            \
-                                             (x) = sh_u.value; }))
+#define JSDOUBLE_HI32(x) (__extension__ ({ jsdpun u; u.d = (x); u.s.hi; }))
+#define JSDOUBLE_LO32(x) (__extension__ ({ jsdpun u; u.d = (x); u.s.lo; }))
+#define JSDOUBLE_SET_HI32(x, y) \
+    (__extension__ ({ jsdpun u; u.d = (x); u.s.hi = (y); (x) = u.d; }))
+#define JSDOUBLE_SET_LO32(x, y) \
+    (__extension__ ({ jsdpun u; u.d = (x); u.s.lo = (y); (x) = u.d; }))
 
-#else /* GNUC */
+#else /* not or old GNUC */
 
 /*
  * We don't know of any non-gcc compilers that perform alias optimization,
@@ -112,7 +106,7 @@ typedef union {
 #define JSDOUBLE_SET_HI32(x, y) (JSDOUBLE_HI32(x)=(y))
 #define JSDOUBLE_SET_LO32(x, y) (JSDOUBLE_LO32(x)=(y))
 
-#endif /* GNUC */
+#endif /* not or old GNUC */
 
 #define JSDOUBLE_HI32_SIGNBIT   0x80000000
 #define JSDOUBLE_HI32_EXPMASK   0x7ff00000
@@ -130,7 +124,7 @@ typedef union {
     ((JSDOUBLE_HI32(x) & JSDOUBLE_HI32_EXPMASK) != JSDOUBLE_HI32_EXPMASK)
 
 #define JSDOUBLE_IS_NEGZERO(d)  (JSDOUBLE_HI32(d) == JSDOUBLE_HI32_SIGNBIT && \
-				 JSDOUBLE_LO32(d) == 0)
+                                 JSDOUBLE_LO32(d) == 0)
 
 /*
  * JSDOUBLE_IS_INT first checks that d is neither NaN nor infinite, to avoid
@@ -140,7 +134,16 @@ typedef union {
  */
 #define JSDOUBLE_IS_INT(d, i) (JSDOUBLE_IS_FINITE(d)                          \
                                && !JSDOUBLE_IS_NEGZERO(d)                     \
-			       && ((d) == (i = (jsint)(d))))
+                               && ((d) == (i = (jsint)(d))))
+
+#if defined(XP_WIN)
+#define JSDOUBLE_COMPARE(LVAL, OP, RVAL, IFNAN)                               \
+    ((JSDOUBLE_IS_NaN(LVAL) || JSDOUBLE_IS_NaN(RVAL))                         \
+     ? (IFNAN)                                                                \
+     : (LVAL) OP (RVAL))
+#else
+#define JSDOUBLE_COMPARE(LVAL, OP, RVAL, IFNAN) ((LVAL) OP (RVAL))
+#endif
 
 /* Initialize number constants and runtime state for the first context. */
 extern JSBool
@@ -150,6 +153,8 @@ extern void
 js_FinishRuntimeNumberState(JSContext *cx);
 
 /* Initialize the Number class, returning its prototype object. */
+extern JSClass js_NumberClass;
+
 extern JSObject *
 js_InitNumberClass(JSContext *cx, JSObject *obj);
 
@@ -165,7 +170,7 @@ extern const char js_parseInt_str[];
 
 /* GC-allocate a new JS number. */
 extern jsdouble *
-js_NewDouble(JSContext *cx, jsdouble d);
+js_NewDouble(JSContext *cx, jsdouble d, uintN gcflag);
 
 extern void
 js_FinalizeDouble(JSContext *cx, jsdouble *dp);
@@ -234,22 +239,25 @@ extern jsdouble
 js_DoubleToInteger(jsdouble d);
 
 /*
- * Similar to strtod except that replaces overflows with infinities of the correct
- * sign and underflows with zeros of the correct sign.  Guaranteed to return the
- * closest double number to the given input in dp.
- * Also allows inputs of the form [+|-]Infinity, which produce an infinity of the
- * appropriate sign.  The case of the "Infinity" string must match.
- * If the string does not have a number in it, set *ep to s and return 0.0 in dp.
+ * Similar to strtod except that it replaces overflows with infinities of the
+ * correct sign, and underflows with zeros of the correct sign.  Guaranteed to
+ * return the closest double number to the given input in dp.
+ *
+ * Also allows inputs of the form [+|-]Infinity, which produce an infinity of
+ * the appropriate sign.  The case of the "Infinity" string must match exactly.
+ * If the string does not contain a number, set *ep to s and return 0.0 in dp.
  * Return false if out of memory.
  */
 extern JSBool
 js_strtod(JSContext *cx, const jschar *s, const jschar **ep, jsdouble *dp);
 
 /*
- * Similar to strtol except that handles integers of arbitrary size.  Guaranteed to
- * return the closest double number to the given input when radix is 10 or a power of 2.
- * May experience roundoff errors for very large numbers of a different radix.
- * If the string does not have a number in it, set *ep to s and return 0.0 in dp.
+ * Similar to strtol except that it handles integers of arbitrary size.
+ * Guaranteed to return the closest double number to the given input when radix
+ * is 10 or a power of 2.  Callers may see round-off errors for very large
+ * numbers of a different radix than 10 or a power of 2.
+ *
+ * If the string does not contain a number, set *ep to s and return 0.0 in dp.
  * Return false if out of memory.
  */
 extern JSBool

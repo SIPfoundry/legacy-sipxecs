@@ -155,35 +155,35 @@ int TaoTransportAgent::run(void* runArg)
 int TaoTransportAgent::send(TaoMessage& rMsg)
 {
         UtlString buffer;
-        int bufferLen;
+        size_t bufferLen;
         rMsg.getBytes(&buffer, &bufferLen);
 
         // send the msg to the transport, receive the response
-        unsigned long sent = 0;
+        size_t sent = 0;
         if (mpSocket->isOk() && (bufferLen > 0))
         {
                 mWriteSem.acquire() ;
 
-                int iSendSize = bufferLen + (sizeof(unsigned long)*2) ;
+                size_t iSendSize = bufferLen + (sizeof(uint32_t)*2) ;
 
                 char* pBuf = new char[iSendSize] ;
 
-                unsigned long cookie = (unsigned long) 0x1234ABCD ;
-                unsigned long length = bufferLen ;
-                memcpy(&pBuf[0], &cookie, sizeof(unsigned long)) ;
-                memcpy(&pBuf[sizeof(unsigned long)], &length, sizeof(unsigned long)) ;
-                memcpy(&pBuf[sizeof(unsigned long)*2], buffer.data(), bufferLen) ;
+                uint32_t cookie = 0x1234ABCD ;
+                uint32_t length = bufferLen ;
+                memcpy(&pBuf[0], &cookie, sizeof(uint32_t)) ;
+                memcpy(&pBuf[sizeof(uint32_t)], &length, sizeof(uint32_t)) ;
+                memcpy(&pBuf[sizeof(uint32_t)*2], buffer.data(), bufferLen) ;
                 sent = mpSocket->write(pBuf, iSendSize) ;
 
                 delete pBuf ;
 
-                if (sent > (sizeof(unsigned long)*2))
-                        sent -= sizeof(unsigned long)*2 ;
+                if (sent > (sizeof(uint32_t)*2))
+                        sent -= sizeof(uint32_t)*2 ;
 
                 mWriteSem.release() ;
 
                 if (sent != length) {
-                        osPrintf("<<**>> TaoTransportAgent WRITE MISMATCH %lu != %lu\n", sent, length) ;
+                        osPrintf("<<**>> TaoTransportAgent WRITE MISMATCH %zu != %u\n", sent, length) ;
                         sent = 0 ;
                 }
         }

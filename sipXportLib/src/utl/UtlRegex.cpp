@@ -186,7 +186,7 @@ bool RegEx::Search(const char * subject, int len, int options)
 
   subjectStr  = subject;
   lastStart   = 0;
-  subjectLen  = (len >= 0) ? len : strlen(subject);
+  subjectLen  = (len >= 0) ? len : (int)strlen(subject);
   lastMatches = pcre_exec(re, pe, subjectStr, subjectLen, 0, options, ovector, 3*substrcount);
 
   return lastMatches > 0;
@@ -207,7 +207,7 @@ bool RegEx::SearchAt(const char* subject,  ///< the string to be searched for a 
 
    subjectStr  = subject;
    lastStart   = 0;
-   subjectLen  = (len >= 0) ? len : strlen(subject);
+   subjectLen  = (len >= 0) ? len : (int)strlen(subject);
    lastMatches = pcre_exec(re, pe, subject, subjectLen, offset, options, ovector, 3*substrcount);
 
    return lastMatches > 0;

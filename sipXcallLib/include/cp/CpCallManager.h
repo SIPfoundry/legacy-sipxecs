@@ -362,7 +362,7 @@ public:
     /*! Direct the media subsystem to play audio from a data buffer.
      */
     virtual void bufferPlay(const char* callId,
-                            int audiobuf,
+                            char* audiobuf,
                             int bufSize,
                             int type,
                             UtlBoolean repeat,
@@ -737,7 +737,7 @@ public:
 
     //! Deprecated, use getDtmfEvent
         virtual void addToneListener(const char* callId,
-                                 int pListener) = 0;
+                                 void* pListener) = 0;
 
 /* ============================ INQUIRY =================================== */
 

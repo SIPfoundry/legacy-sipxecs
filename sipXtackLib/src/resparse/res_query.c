@@ -173,11 +173,11 @@ res_query(name, class, type, answer, anslen)
                 return (n);
         }
 
-        if (hp->rcode != NOERROR || ntohs((u_short)hp->ancount) == 0) {
+        if (hp->rcode != NOERROR || ntohs((uint16_t)hp->ancount) == 0) {
 #ifdef DEBUG
                 if (_res.options & RES_DEBUG)
                         printf(";; rcode = %d, ancount=%d\n", hp->rcode,
-                            ntohs((u_short)hp->ancount));
+                            ntohs((uint16_t)hp->ancount));
 #endif
                 switch (hp->rcode) {
                 case NXDOMAIN:

@@ -153,23 +153,23 @@ friend class PtTerminal;
 
         UtlBoolean getCallEvent(TaoMessage& rMsg,
                                                    PtCallListener* pListener,
-                                                   int& evId);
+                                                   TaoEventId& evId);
 
         UtlBoolean getConnectionEvent(TaoMessage& rMsg,
                                                                 PtConnectionListener* pListener,
-                                                                int& evId,
+                                                                TaoEventId& evId,
                                                                 int& addedToCall,
                                                                 int& remoteIsCallee);
 
         UtlBoolean getTerminalConnectionEvent(TaoMessage& rMsg,
                                                                                 PtConnectionListener* pListener,
-                                                                                int& evId,
+                                                                                TaoEventId& evId,
                                                                                 int& addedToCall,
                                                                                 int& remoteIsCallee);
 
 #ifdef WV_DEBUG
-        void getEventName(int eventId, char *name);
-        void fireUserEvent(int eventId, int userEventId);
+        void getEventName(TaoEventId eventId, char *name);
+        void fireUserEvent(TaoEventId eventId, TaoEventId userEventId);
 #endif
 /* ============================ VARIABLES ================================ */
 private:

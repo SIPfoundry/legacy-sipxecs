@@ -338,7 +338,7 @@ void requestSet(Url& url, UtlHashMap& parameters)
             {
                 if (Verbose == Feedback)
                 {
-                    printf("set %d name/value pairs.\n", numberSet->getValue());
+                    printf("set %d name/value pairs.\n", (int)numberSet->getValue());
                 }
             }
             else
@@ -388,7 +388,7 @@ void requestDelete(Url& url, UtlSList& names)
             {
                 if (Verbose == Feedback)
                 {
-                   printf("deleted %d parameters.\n", deletedCount->getValue());
+                   printf("deleted %d parameters.\n", (int)deletedCount->getValue());
                 }
             }
             else

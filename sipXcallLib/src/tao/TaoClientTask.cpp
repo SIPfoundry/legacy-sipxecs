@@ -212,7 +212,7 @@ UtlBoolean TaoClientTask::handleMessage(OsMsg& rMsg)
                 {
                         osPrintf("TaoClientTask::handleMessage response msg not handled msg subtype = %d\n", rMsg.getMsgSubType());
                         UtlString buffer;
-                        int bufferLen;
+                        size_t bufferLen;
                         ((TaoMessage&) rMsg).getBytes(&buffer, &bufferLen);
                         osPrintf("%s\n", buffer.data());
 
@@ -227,7 +227,7 @@ UtlBoolean TaoClientTask::handleMessage(OsMsg& rMsg)
                 handled = FALSE;
                 osPrintf("\n ERROR! TaoClientTask::handleMessage - UNKNOWN MESSAGE TYPE %d\n", rMsg.getMsgSubType());
                 UtlString buffer;
-                int bufferLen;
+                size_t bufferLen;
                 ((TaoMessage&) rMsg).getBytes(&buffer, &bufferLen);
                 osPrintf("%s\n", buffer.data());
                 break;
@@ -259,7 +259,7 @@ UtlBoolean TaoClientTask::receiveMsg(TaoMessage& rMsg)
                 pEvent->setIntData2(data);
                 pEvent->setStringData(argList);
                 // If the event has already been signalled, clean up
-        if(OS_ALREADY_SIGNALED == pEvent->signal((int) handle))
+        if(OS_ALREADY_SIGNALED == pEvent->signal(handle))
         {
             OsProtectEventMgr* eventMgr = OsProtectEventMgr::getEventMgr();
             eventMgr->release(pEvent);
@@ -285,7 +285,7 @@ int TaoClientTask::sendRequest(TaoMessage& rMsg, OsMutex* pMutex, const OsTime& 
         }
         else
         {
-                osPrintf("\n++++++ TaoClientTask::sendRequest mpTaoServerTask = 0x%08x +++++\n", (int)mpTaoServerTask);
+                osPrintf("\n++++++ TaoClientTask::sendRequest mpTaoServerTask = 0x%p +++++\n", mpTaoServerTask);
                 osPrintf("\n++++++ %d %d +++++\n", rMsg.getMsgSubType(), rMsg.getCmd());
         }
 
@@ -310,24 +310,24 @@ int TaoClientTask::sendRequest(TaoMessage& rMsg, OsMutex* pMutex, const OsTime& 
                 mMutex.acquireWrite();
 
             UtlString buffer;
-            int bufferLen;
+            size_t bufferLen;
             rMsg.getBytes(&buffer, &bufferLen);
 
-                int iSendSize = bufferLen + (sizeof(unsigned long)*2) ;
+                size_t iSendSize = bufferLen + (sizeof(uint32_t)*2) ;
 
                 char* pBuf = new char[iSendSize] ;
 
-                unsigned long cookie = (unsigned long) 0x1234ABCD ;
-                unsigned long length = bufferLen ;
-                memcpy(&pBuf[0], &cookie, sizeof(unsigned long)) ;
-                memcpy(&pBuf[sizeof(unsigned long)], &length, sizeof(unsigned long)) ;
-                memcpy(&pBuf[sizeof(unsigned long)*2], buffer.data(), bufferLen) ;
+                uint32_t cookie = 0x1234ABCD ;
+                uint32_t length = bufferLen ;
+                memcpy(&pBuf[0], &cookie, sizeof(uint32_t)) ;
+                memcpy(&pBuf[sizeof(uint32_t)], &length, sizeof(uint32_t)) ;
+                memcpy(&pBuf[sizeof(uint32_t)*2], buffer.data(), bufferLen) ;
                 sent = mpConnectionSocket->write(pBuf, iSendSize) ;
 
                 delete pBuf ;
 
-                if (sent > sizeof(unsigned long)*2)
-                        sent -= sizeof(unsigned long)*2 ;
+                if (sent > sizeof(uint32_t)*2)
+                        sent -= sizeof(uint32_t)*2 ;
 
                 mMutex.releaseWrite();
         }

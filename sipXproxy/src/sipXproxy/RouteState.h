@@ -248,7 +248,7 @@ class RouteState
                               * - Any state in the request was in a Route header
                               *   (not a Record-Route header).
                               */
-   size_t     mRecordRouteIndex; /**<
+   ssize_t     mRecordRouteIndex; /**<
                                   * Used only if mMayBeMutable == true
                                   * This is the index of the Record-Route header that
                                   * contains a route matching the mRouteHostPort.  That

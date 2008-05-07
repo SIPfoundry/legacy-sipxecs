@@ -16,7 +16,7 @@
 #include "os/OsNameDb.h"
 #include "os/OsReadLock.h"
 #include "os/OsWriteLock.h"
-#include "utl/UtlInt.h"
+#include "utl/UtlVoidPtr.h"
 #include "utl/UtlString.h"
 
 // EXTERNAL FUNCTIONS
@@ -61,15 +61,15 @@ OsNameDb::~OsNameDb()
 // Return OS_SUCCESS if successful, OS_NAME_IN_USE if the key is already in
 // the database.
 OsStatus OsNameDb::insert(const UtlString& rKey,
-                          const int value)
+                          void* value)
 {
    OsWriteLock          lock(mRWLock);
-   UtlString* pDictKey;
-   UtlInt*    pDictValue;
-   UtlString* pInsertedKey;
+   UtlString*  pDictKey;
+   UtlVoidPtr* pDictValue;
+   UtlString*  pInsertedKey;
 
    pDictKey   = new UtlString(rKey);
-   pDictValue = new UtlInt(value);
+   pDictValue = new UtlVoidPtr(value);
    pInsertedKey = (UtlString*)
                   mDict.insertKeyAndValue(pDictKey, pDictValue);
 
@@ -92,7 +92,7 @@ OsStatus OsNameDb::insert(const UtlString& rKey,
 // Return OS_SUCCESS if the lookup is successful, return OS_NOT_FOUND
 // if there is no match for the specified key.
 OsStatus OsNameDb::remove(const UtlString& rKey,
-                          int* pValue)
+                          void** pValue)
 {
    OsWriteLock          lock(mRWLock);
    OsStatus   result = OS_NOT_FOUND;
@@ -111,10 +111,10 @@ OsStatus OsNameDb::remove(const UtlString& rKey,
       // integer value, do so.
       if (pValue != NULL)
       {
-         UtlInt* intValue = dynamic_cast<UtlInt*>(pDictValue);
-         if (intValue)
+         UtlVoidPtr* voidPtrValue = dynamic_cast<UtlVoidPtr*>(pDictValue);
+         if (voidPtrValue)
          {
-            *pValue = intValue->getValue();
+            *pValue = voidPtrValue->getValue();
          }
          else
          {
@@ -138,13 +138,13 @@ OsStatus OsNameDb::remove(const UtlString& rKey,
 // Return OS_SUCCESS if the lookup is successful, return OS_NOT_FOUND if
 // there is no match for the specified key.
 OsStatus OsNameDb::lookup(const UtlString& rKey,
-                          int* pValue)
+                          void** pValue)
 {
-   OsReadLock lock(mRWLock);
-   OsStatus   result = OS_NOT_FOUND;
-   UtlInt*    pDictValue;
+   OsReadLock  lock(mRWLock);
+   OsStatus    result = OS_NOT_FOUND;
+   UtlVoidPtr* pDictValue;
 
-   pDictValue = (UtlInt*)
+   pDictValue = (UtlVoidPtr*)
                 mDict.findValue(&rKey); // perform the lookup
 
    if (pDictValue != NULL)
@@ -186,7 +186,9 @@ OsNameDb::OsNameDb() :
 {
    // since we plan to store object pointers as well as integer values in the
    //  database, we make sure the sizes are compatible
-   assert(sizeof(void*) <= sizeof(int));
+   //TODO: is this test still required now that UtlVoidPtr is used instead of UtlInt 
+   //for this data?
+   assert(sizeof(void*) <= sizeof(intptr_t));
 
    // no other work required
 }

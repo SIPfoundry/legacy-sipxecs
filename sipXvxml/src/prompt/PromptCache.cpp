@@ -47,10 +47,11 @@ UtlString* PromptCache::lookup(Url& url, int flags)
 
    OsStatus status;
    char* szSource;
-   int length, readLength;
+   size_t length;
+   size_t readLength;
    UtlString urlType;
    UtlString urlPath, defaultPath, preferredPath, usedPath;
-   size_t index;
+   ssize_t index;
    UtlBoolean cacheEntry;
    UtlContainable* pKey = NULL;
    UtlString* pBuffer = NULL;
@@ -181,7 +182,7 @@ UtlString* PromptCache::lookup(Url& url, int flags)
             delete[] szSource;
             
             OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG,
-                          "PromptCache::lookup - Inserting key %s:%s (len=%d)",                             
+                          "PromptCache::lookup - Inserting key %s:%s (len=%zu)",                             
                           pKeyPath->data(),
                           usedPath.data(),
                           readLength);
@@ -296,7 +297,7 @@ OsStatus PromptCache::open(const UtlString preferredPath, const UtlString defaul
    // the English path (which is always included in the build).
    if (status != OS_SUCCESS && defaultPath.length())
    {
-      size_t index = defaultPath.index(STD_PROMPTS_DIR, UtlString::ignoreCase);
+      ssize_t index = defaultPath.index(STD_PROMPTS_DIR, UtlString::ignoreCase);
       if (index != UTL_NOT_FOUND)
       {
          index += strlen(STD_PROMPTS_DIR);
@@ -335,28 +336,26 @@ OsStatus PromptCache::close()
 
 
 // Gets the length of the stream (if available)
-OsStatus PromptCache::getLength(int& iLength)
+OsStatus PromptCache::getLength(size_t& iLength)
 {
    OsStatus rc = OS_FAILED;
 
-   unsigned long lLength = 0;
    if (mpFile != NULL)
-      rc = mpFile->getLength(lLength);
+      rc = mpFile->getLength(iLength);
 
-   iLength = lLength;
    return rc;
 }
 
 
 // Reads iLength bytes of data from the data source and places the data into
 // the passed szBuffer buffer.
-OsStatus PromptCache::read(char *szBuffer, int iLength, int& iLengthRead)
+OsStatus PromptCache::read(char *szBuffer, size_t iLength, size_t& iLengthRead)
 {
    OsStatus rc = OS_FAILED;
 
    if (mpFile != NULL)
    {
-      rc = mpFile->read(szBuffer, iLength, (unsigned long&) iLengthRead);
+      rc = mpFile->read(szBuffer, iLength, iLengthRead);
    }
 
    return rc;

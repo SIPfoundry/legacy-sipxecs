@@ -26,7 +26,7 @@ class TaoEvent : public OsEvent
 public:
 
 /* ============================ CREATORS ================================== */
-        TaoEvent(const int userData=0);
+        TaoEvent(const void* userData=0);
 
         TaoEvent(const TaoEvent& rTaoEvent);
      //:Copy constructor (not implemented for this class)

@@ -882,7 +882,7 @@ UtlBoolean SipLineMgr::buildAuthenticatedRequest(
                 const char* bodyString = "";
                 if(body)
                 {
-                    int len;
+                    size_t len;
                     body->getBytes(&bodyString, &len);
                     if(bodyString == NULL)
                         bodyString = "";

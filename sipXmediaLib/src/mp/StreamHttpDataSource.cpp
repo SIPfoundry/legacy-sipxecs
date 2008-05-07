@@ -27,7 +27,7 @@ OsBSem StreamHttpDataSource::sSemGuardDelete(OsBSem::Q_FIFO, OsBSem::FULL) ;
 
 // LOCAL FUNCTIONS
 UtlBoolean DataCallbackProc(char* pData, 
-                           int iLength, 
+                           size_t iLength, 
                            void* pOptionalData, 
                            HttpMessage* pMsg) ;
 
@@ -171,7 +171,7 @@ OsStatus StreamHttpDataSource::destroyAndDelete()
 
 // Reads iLength bytes of data from the data source and places the data into
 // the passed szBuffer buffer.
-OsStatus StreamHttpDataSource::read(char *szBuffer, int iLength, int& iLengthRead)
+OsStatus StreamHttpDataSource::read(char *szBuffer, size_t iLength, size_t& iLengthRead)
 {      
    OsStatus rc = OS_INVALID ;
    OsTime timeout(20,0);
@@ -239,7 +239,7 @@ OsStatus StreamHttpDataSource::read(char *szBuffer, int iLength, int& iLengthRea
 
 
 // Identical to read, except the stream pointer is not advanced.
-OsStatus StreamHttpDataSource::peek(char *szBuffer, int iLength, int& iLengthRead)
+OsStatus StreamHttpDataSource::peek(char *szBuffer, size_t iLength, size_t& iLengthRead)
 {      
    OsStatus rc = OS_INVALID ;
 
@@ -296,7 +296,7 @@ OsStatus StreamHttpDataSource::interrupt()
 
 
 // Moves the stream pointer to the an absolute location.
-OsStatus StreamHttpDataSource::seek(unsigned int iLocation)
+OsStatus StreamHttpDataSource::seek(size_t iLocation)
 {
    OsStatus status = OS_FAILED ;
 
@@ -364,7 +364,7 @@ OsStatus StreamHttpDataSource::seek(unsigned int iLocation)
 
 // Callback routine that is invoked whenever new data is available from http 
 // socket.
-UtlBoolean StreamHttpDataSource::deliverData(char *szData, int iLength, int iMaxLength)
+UtlBoolean StreamHttpDataSource::deliverData(char *szData, size_t iLength, size_t iMaxLength)
 {
    // Set the max length
    if (iMaxLength >= 0 ) 
@@ -417,7 +417,7 @@ UtlBoolean StreamHttpDataSource::deliverData(char *szData, int iLength, int iMax
 /* ============================ ACCESSORS ================================= */
 
 // Gets the length of the stream (if available)
-OsStatus StreamHttpDataSource::getLength(int& iLength)
+OsStatus StreamHttpDataSource::getLength(size_t& iLength)
 {
    OsStatus status = OS_FAILED ;
 
@@ -431,7 +431,7 @@ OsStatus StreamHttpDataSource::getLength(int& iLength)
 
 
 // Gets the current position within the stream.
-OsStatus StreamHttpDataSource::getPosition(int& iPosition)
+OsStatus StreamHttpDataSource::getPosition(size_t& iPosition)
 {
    OsStatus status = OS_SUCCESS ;
 
@@ -548,7 +548,7 @@ int StreamHttpDataSource::run(void *pArgs)
 
 // Call back for data gathering from socket
 UtlBoolean DataCallbackProc(char* pData, 
-                           int iLength, 
+                           size_t iLength, 
                            void* pOptionalData, 
                            HttpMessage* pMsg)
 {

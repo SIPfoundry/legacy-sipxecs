@@ -335,7 +335,7 @@ public:
 
         unsigned char getCmd() { return mCmd; };
 
-        void getBytes(UtlString* bytes, int* length);
+        void getBytes(UtlString* bytes, size_t* length);
         //: Get the bytes for the complete message, using the mHttpMsg's getBytes method.
         // Suitable for streaming or sending over a socket
         //! param: bytes - gets allocated and must be freed

@@ -16,6 +16,7 @@
 #include "os/OsExcept.h"
 #include "os/OsLock.h"
 #include "os/OsUtil.h"
+#include "os/OsProcess.h"
 #include "os/linux/OsLinuxDefs.h"
 #include "os/linux/OsTaskLinux.h"
 #include "os/linux/OsUtilLinux.h"
@@ -92,17 +93,17 @@ void OsTaskLinux::ackShutdown()
       if (mTaskId != 0) // only signal waiters on the first call
       {
          OsStatus res;
-         char     idString[15];
+         char     idString[PID_STR_LEN];
          // Remove the key from the internal task list, before terminating it
-         sprintf(idString, "%d", (int)mTaskId);    // convert the id to a string
+         sprintf(idString, "%ld", mTaskId);    // convert the id to a string
          res = OsUtil::deleteKeyValue(TASKID_PREFIX, idString);
 
          if (res != OS_SUCCESS)
          {
             OsSysLog::add(FAC_KERNEL, PRI_ERR,
                           "OsTaskLinux::ackShutdown '%s' unregister failed"
-                          " mTaskId = 0x%08x, key '%s', returns %d",
-                          mName.data(), (int) mTaskId, idString, res);
+                          " mTaskId = 0x%08lx, key '%s', returns %d",
+                          mName.data(), mTaskId, idString, res);
          }
          else
          {
@@ -168,7 +169,7 @@ UtlBoolean OsTaskLinux::start(void)
    if (UNINITIALIZED == mState || TERMINATED == mState)
    {
       int                       linuxRes;
-      char                      idString[15];
+      char                      idString[PID_STR_LEN];
       pthread_attr_t            attributes;
 
       /*
@@ -221,16 +222,16 @@ UtlBoolean OsTaskLinux::start(void)
    
       linuxRes = pthread_create(&mTaskId, &attributes, taskEntry, (void *)this);
       OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
-                    "OsTaskLinux::start '%s' this = %p, mTaskId = %d",
-                    mName.data(), this, (int)mTaskId);
+                    "OsTaskLinux::start '%s' this = %p, mTaskId = %ld",
+                    mName.data(), this, mTaskId);
       pthread_attr_destroy(&attributes);
 
       if (linuxRes == POSIX_OK)
       {
          // Enter the thread id into the global name database so that given the
          // thread id we will be able to find the corresponding OsTask object
-         sprintf(idString, "%d", (int)mTaskId);   // convert the id to a string
-         OsUtil::insertKeyValue(TASKID_PREFIX, idString, (int) this);
+         sprintf(idString, "%ld", mTaskId);   // convert the id to a string
+         OsUtil::insertKeyValue(TASKID_PREFIX, idString, this);
 
          mState = RUNNING;
       }
@@ -421,7 +422,7 @@ UtlBoolean OsTaskLinux::waitUntilShutDown(int milliSecToWait)
          // the task we're waiting for is unresponsive - destroy the process.
          OsSysLog::add(FAC_KERNEL, PRI_CRIT,
                        "OsTaskLinux::waitUntilShutDown "
-                       "'%s' failed to terminate after %ld.%03ld seconds - aborting process",
+                       "'%s' failed to terminate after %d.%03d seconds - aborting process",
                        taskName.data(), milliSecToWait / OsTime::MSECS_PER_SEC,
                        milliSecToWait % OsTime::MSECS_PER_SEC);
 
@@ -469,16 +470,16 @@ UtlBoolean OsTaskLinux::waitUntilShutDown(int milliSecToWait)
 // Return NULL if none exists.
 OsTaskLinux* OsTaskLinux::getCurrentTask(void)
 {
-   int taskId;
+   pthread_t taskId;
 
-   taskId = (int)pthread_self();
+   taskId = pthread_self();
    return OsTaskLinux::getTaskById(taskId);
 }
 
 // Return an Id of the currently executing task
-OsStatus OsTaskLinux::getCurrentTaskId(int &rid)
+OsStatus OsTaskLinux::getCurrentTaskId(pthread_t &rid)
 {
-   rid = (int)pthread_self();
+   rid = pthread_self();
    return OS_SUCCESS;
 }
 
@@ -487,7 +488,7 @@ OsStatus OsTaskLinux::getCurrentTaskId(int &rid)
 OsTaskLinux* OsTaskLinux::getTaskByName(const UtlString& taskName)
 {
    OsStatus res;
-   int      val;
+   void*    val;
 
    res = OsUtil::lookupKeyValue(TASK_PREFIX, taskName, &val);
    assert(res == OS_SUCCESS || res == OS_NOT_FOUND);
@@ -503,13 +504,13 @@ OsTaskLinux* OsTaskLinux::getTaskByName(const UtlString& taskName)
 
 // Return a pointer to the OsTask object corresponding to taskId
 // Return NULL is there is no task object with that id.
-OsTaskLinux* OsTaskLinux::getTaskById(const int taskId)
+OsTaskLinux* OsTaskLinux::getTaskById(const pthread_t taskId)
 {
-   char     idString[15];
+   char     idString[PID_STR_LEN];
    OsStatus res;
-   int      val;
+   void*    val;
 
-   sprintf(idString, "%d", taskId);   // convert the id to a string
+   sprintf(idString, "%ld", taskId);   // convert the id to a string
    res = OsUtil::lookupKeyValue(TASKID_PREFIX, idString, &val);
    assert(res == OS_SUCCESS || res == OS_NOT_FOUND);
 
@@ -566,13 +567,13 @@ OsStatus OsTaskLinux::getPriority(int& rPriority)
 /* ============================ INQUIRY =================================== */
 
 // Get the task ID for this task
-OsStatus OsTaskLinux::id(int& rId)
+OsStatus OsTaskLinux::id(pthread_t& rId)
 {
    OsStatus retVal = OS_SUCCESS;
    
    //if started, return the taskId, otherwise return -1
    if (isStarted())
-      rId = (int)mTaskId;
+      rId = mTaskId;
    else
    {
       retVal = OS_TASK_NOT_STARTED;

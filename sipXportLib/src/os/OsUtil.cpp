@@ -84,7 +84,7 @@ char *OsUtil::memscan(const char *lookIn,
 // error from within an object constructor.
 OsStatus OsUtil::insertKeyValue(const UtlString& rPrefix,
                                 const UtlString& rName,
-                                const int value,
+                                void* value,
                                 UtlBoolean exceptOnErr)
 {
    OsNameDb* pDict;
@@ -126,7 +126,7 @@ OsStatus OsUtil::insertKeyValue(const UtlString& rPrefix,
 // OS_NOT_FOUND if there is no match for the specified key.
 OsStatus OsUtil::deleteKeyValue(const UtlString& rPrefix,
                                 const UtlString& rName,
-                                int* pValue)
+                                void** pValue)
 {
    OsNameDb* pDict;
 
@@ -145,7 +145,7 @@ OsStatus OsUtil::deleteKeyValue(const UtlString& rPrefix,
 // OS_NOT_FOUND if there is no match for the specified key.
 OsStatus OsUtil::lookupKeyValue(const UtlString& rPrefix,
                                 const UtlString& rName,
-                                int* pValue)
+                                void** pValue)
 {
    OsNameDb* pDict;
 
@@ -160,14 +160,14 @@ OsStatus OsUtil::lookupKeyValue(const UtlString& rPrefix,
 // Return OS_SUCCESS if the conversion was successful and set rInt to
 // the converted value in rInt.  If the conversion failed, return
 // OS_FAILED and set rInt to -1.
-OsStatus OsUtil::convertUtlStringToInt(const UtlString& rStr, int& rInt)
+OsStatus OsUtil::convertUtlStringToInt(const UtlString& rStr, intptr_t& rInt)
 {
    const char *pBegin = rStr.data();
    char *pEnd;
-   int   i;
+   intptr_t   i;
 
    pBegin = rStr.data();
-   i = (int) strtol(pBegin, &pEnd, 0);
+   i = (intptr_t) strtol(pBegin, &pEnd, 0);
 
    // verify that the string is non-empty and we were able to parse all of it
    if (*pBegin && *pEnd == 0)

@@ -140,7 +140,7 @@ PtStatus PtPhoneLamp::setMode(int mode)
                                                                                         arg);
                         mpClient->sendRequest(msg);
 
-                        int rc;
+                        intptr_t rc;
                         if (OS_SUCCESS != pe->wait(msg.getCmd(), mTimeOut))
                         {
                                 mpClient->resetConnectionSocket(msg.getMsgID());
@@ -152,9 +152,9 @@ PtStatus PtPhoneLamp::setMode(int mode)
                                 return PT_BUSY;
                         }
 
-                        pe->getEventData((int &)rc);
+                        pe->getEventData(rc);
 #ifdef PTAPI_TEST
-        int cmd;
+        intptr_t cmd;
         pe->getIntData2(cmd);
         assert(cmd == TaoMessage::LAMP_SET_MODE);
 #endif

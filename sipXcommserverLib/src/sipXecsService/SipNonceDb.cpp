@@ -92,12 +92,12 @@ void SipNonceDb::createNewNonce(const UtlString& callId,  ///< input
                                 UtlString& nonce          ///< output
                                 )
 {
-   unsigned int now = OsDateTime::getSecsSinceEpoch();
+   unsigned long now = OsDateTime::getSecsSinceEpoch();
    char dateString[HEX_TIMESTAMP_LENGTH+1];
    UtlString nonceSignature;
 
    // create the timestamp, which will be in the clear
-   sprintf(dateString, "%08x", now);
+   sprintf(dateString, "%08x", (int)now);
    nonce = SipNonceDb::nonceSignature(callId,fromTag,realm,dateString);
    nonce.append(dateString);
 }
@@ -121,7 +121,7 @@ UtlBoolean SipNonceDb::isNonceValid(const UtlString& nonce,
       {
          // check for expiration
          char* end;
-         int nonceCreated = strtol(timestamp.data(), &end, 16 /* hex */);
+         long nonceCreated = strtol(timestamp.data(), &end, 16 /* hex */);
          long now = OsDateTime::getSecsSinceEpoch();
 
          if ( nonceCreated+expiredTime >= now )
@@ -131,7 +131,7 @@ UtlBoolean SipNonceDb::isNonceValid(const UtlString& nonce,
          else
          {
             OsSysLog::add(FAC_SIP,PRI_INFO,
-                          "SipNonceDB::isNonceValid expired nonce '%s': created %d+%ld < %ld",
+                          "SipNonceDB::isNonceValid expired nonce '%s': created %ld+%ld < %ld",
                           nonce.data(), nonceCreated, expiredTime, now
                           );
          }
@@ -152,7 +152,7 @@ UtlBoolean SipNonceDb::isNonceValid(const UtlString& nonce,
    {
       OsSysLog::add(FAC_SIP,PRI_ERR,
                     "SipNonceDb::isNonceValid invalid nonce format '%s'"
-                    " length %d expected %d",
+                    " length %zu expected %d",
                     nonce.data(), nonce.length(), MD5_SIZE+HEX_TIMESTAMP_LENGTH);
    }
 

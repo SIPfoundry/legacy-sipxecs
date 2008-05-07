@@ -188,13 +188,13 @@ void MprToSpkr::stats()
 {
    if ((mOverflowsOut+mUnderflowsOut+mOverflowsIn+mUnderflowsIn) > 0) {
       osPrintf(
-         "MprToSpkr(0x%X): volume control handled %d total samples\n"
+         "MprToSpkr(0x%p): volume control handled %d total samples\n"
          "  input under/overflows %d+%d, output %d+%d\n",
-         (int) this, mTotalSamples,
+         this, mTotalSamples,
          mUnderflowsIn, mOverflowsIn, mUnderflowsOut, mOverflowsOut);
    } else {
-      osPrintf("MprToSpkr(0x%X): no under/overflows in %d samples\n",
-         (int) this, mTotalSamples);
+      osPrintf("MprToSpkr(0x%p): no under/overflows in %d samples\n",
+         this, mTotalSamples);
    }
 /*
    osPrintf(" ranges: input(%d .. %d), output(%d .. %d)\n",

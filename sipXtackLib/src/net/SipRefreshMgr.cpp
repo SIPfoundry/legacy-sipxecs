@@ -777,7 +777,7 @@ SipRefreshMgr::rescheduleRequest(
         // Make a copy for the timer
         SipMessage* timerRegisterMessage = new SipMessage(*request);
 
-        OsTimer* timer = new OsTimer(&mIncomingQ, (int)timerRegisterMessage);
+        OsTimer* timer = new OsTimer(&mIncomingQ, timerRegisterMessage);
 
         secondsFromNow = (secondsFromNow * percentage)/100;
 
@@ -1327,7 +1327,7 @@ SipRefreshMgr::handleMessage( OsMsg& eventMessage )
 /*
                 // Report that we were unable to find this request
                 UtlString response ;
-                int      respLen ;
+                size_t      respLen ;
                 UtlString msgContents ;
 
                 // Log Failure
@@ -1353,10 +1353,14 @@ SipRefreshMgr::handleMessage( OsMsg& eventMessage )
         // A timer expired
         SipMessage* sipMessage;
         OsTimer* timer;
+        void* sipMessageVoid;
+        intptr_t timerIntptr;
         int protocolType;
 
-        ((OsEventMsg&)eventMessage).getUserData((int&)sipMessage);
-        ((OsEventMsg&)eventMessage).getEventData((int&)timer);
+        ((OsEventMsg&)eventMessage).getUserData(sipMessageVoid);
+        ((OsEventMsg&)eventMessage).getEventData(timerIntptr);
+        sipMessage = (SipMessage*)sipMessageVoid;
+        timer = (OsTimer*)timerIntptr;
 
         if ( timer )
         {
@@ -1377,7 +1381,7 @@ SipRefreshMgr::handleMessage( OsMsg& eventMessage )
                     method.data(), callId.data())  ;
                     
 #ifdef TEST_PRINT
-            int len = 0 ;
+            size_t len = 0 ;
             UtlString bytes ;
 
             sipMessage->getBytes(&bytes, &len) ;

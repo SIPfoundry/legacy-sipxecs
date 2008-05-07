@@ -166,7 +166,7 @@ PtStatus PtAddress::addAddressListener(PtAddressListener& rAddressListener)
 {
         TaoObjHandle handle = (TaoObjHandle)&rAddressListener;
     char buff[MAXIMUM_INTEGER_STRING_LENGTH];
-    sprintf(buff, "%d", handle);
+    sprintf(buff, "%ld", handle);
 
         UtlString arg(buff);
 
@@ -183,7 +183,7 @@ PtStatus PtAddress::addAddressListener(PtAddressListener& rAddressListener)
                                                                         arg);
         mpClient->sendRequest(msg);
 
-        int rc;
+        intptr_t rc;
         if (OS_SUCCESS != pe->wait(msg.getCmd(), mTimeOut))
         {
                 mpClient->resetConnectionSocket(msg.getMsgID());
@@ -195,9 +195,9 @@ PtStatus PtAddress::addAddressListener(PtAddressListener& rAddressListener)
                 return PT_BUSY;
         }
 
-        pe->getEventData((int &)rc);
+        pe->getEventData(rc);
 #ifdef PTAPI_TEST
-        int cmd;
+        intptr_t cmd;
         pe->getIntData2(cmd);
         assert(cmd == TaoMessage::ADD_ADDRESS_LISTENER);
 #endif
@@ -210,7 +210,7 @@ PtStatus PtAddress::addCallListener(PtCallListener& rCallListener)
 {
         TaoObjHandle handle = (TaoObjHandle)&rCallListener;
     char buff[MAXIMUM_INTEGER_STRING_LENGTH];
-    sprintf(buff, "%d", handle);
+    sprintf(buff, "%ld", handle);
 
         UtlString arg(buff);
 
@@ -227,7 +227,7 @@ PtStatus PtAddress::addCallListener(PtCallListener& rCallListener)
                                                                         arg);
         mpClient->sendRequest(msg);
 
-        int rc;
+        intptr_t rc;
         if (OS_SUCCESS != pe->wait(msg.getCmd(), mTimeOut))
         {
                 mpClient->resetConnectionSocket(msg.getMsgID());
@@ -239,9 +239,9 @@ PtStatus PtAddress::addCallListener(PtCallListener& rCallListener)
                 return PT_BUSY;
         }
 
-        pe->getEventData((int &)rc);
+        pe->getEventData(rc);
 #ifdef PTAPI_TEST
-        int cmd;
+        intptr_t cmd;
         pe->getIntData2(cmd);
         assert(cmd == TaoMessage::ADD_CALL_LISTENER);
 #endif
@@ -265,7 +265,7 @@ PtStatus PtAddress::cancelForwarding()
                                                                         "");
         mpClient->sendRequest(msg);
 
-        int rc;
+        intptr_t rc;
         if (OS_SUCCESS != pe->wait(msg.getCmd(), mTimeOut))
         {
                 mpClient->resetConnectionSocket(msg.getMsgID());
@@ -277,9 +277,9 @@ PtStatus PtAddress::cancelForwarding()
                 return PT_BUSY;
         }
 
-        pe->getEventData((int &)rc);
+        pe->getEventData(rc);
 #ifdef PTAPI_TEST
-        int cmd;
+        intptr_t cmd;
         pe->getIntData2(cmd);
         assert(cmd == TaoMessage::CANCEL_ALL_FORWARDING);
 #endif
@@ -355,10 +355,10 @@ PtStatus PtAddress::cancelForwarding(PtAddressForwarding forwards[], int size)
                 return PT_BUSY;
         }
 
-        int rc;
-        pe->getEventData((int &)rc);
+        intptr_t rc;
+        pe->getEventData(rc);
 #ifdef PTAPI_TEST
-        int cmd;
+        intptr_t cmd;
         pe->getIntData2(cmd);
         assert(cmd == TaoMessage::CANCEL_FORWARDING);
 #endif
@@ -395,11 +395,11 @@ PtStatus PtAddress::cancelForwarding(PtAddressForwarding forwards[], int size)
 
 PtStatus PtAddress::removeAddressListener(PtAddressListener& rAddressListener)
 {
-        TaoObjHandle listener = 0x00000008; //fake
+    TaoObjHandle listener = 0x00000008; //fake
     char buff[MAXIMUM_INTEGER_STRING_LENGTH];
 
-    sprintf(buff, "%d", listener);
-        UtlString arg(buff);
+    sprintf(buff, "%ld", listener);
+    UtlString arg(buff);
 
         mpTransactionCnt->add();
         unsigned int transactionId = mpTransactionCnt->getRef();
@@ -425,10 +425,10 @@ PtStatus PtAddress::removeAddressListener(PtAddressListener& rAddressListener)
                 return PT_BUSY;
         }
 
-        int rc;
-        pe->getEventData((int &)rc);
+        intptr_t rc;
+        pe->getEventData(rc);
 #ifdef PTAPI_TEST
-        int cmd;
+        intptr_t cmd;
         pe->getIntData2(cmd);
         assert(cmd == TaoMessage::REMOVE_ADDRESS_LISTENER);
 #endif
@@ -442,7 +442,7 @@ PtStatus PtAddress::removeCallListener(PtCallListener& rCallListener)
         TaoObjHandle listener = (TaoObjHandle)&rCallListener;
     char buff[MAXIMUM_INTEGER_STRING_LENGTH];
 
-    sprintf(buff, "%d", listener);
+    sprintf(buff, "%ld", listener);
         UtlString arg(buff);
 
         mpTransactionCnt->add();
@@ -469,10 +469,10 @@ PtStatus PtAddress::removeCallListener(PtCallListener& rCallListener)
                 return PT_BUSY;
         }
 
-        int rc;
-        pe->getEventData((int &)rc);
+        intptr_t rc;
+        pe->getEventData(rc);
 #ifdef PTAPI_TEST
-        int cmd;
+        intptr_t cmd;
         pe->getIntData2(cmd);
         assert(cmd == TaoMessage::REMOVE_CALL_LISTENER);
 #endif
@@ -512,10 +512,10 @@ PtStatus PtAddress::setDoNotDisturb(PtBoolean flag)
                 return PT_BUSY;
         }
 
-        int rc;
-        pe->getEventData((int &)rc);
+        intptr_t rc;
+        pe->getEventData(rc);
 #ifdef PTAPI_TEST
-        int cmd;
+        intptr_t cmd;
         pe->getIntData2(cmd);
         assert(cmd == TaoMessage::SET_DONOT_DISTURB);
 #endif
@@ -583,10 +583,10 @@ PtStatus PtAddress::setForwarding(PtAddressForwarding forwards[], int size)
                 return PT_BUSY;
         }
 
-        int rc;
-        pe->getEventData((int &)rc);
+        intptr_t rc;
+        pe->getEventData(rc);
 #ifdef PTAPI_TEST
-        int cmd;
+        intptr_t cmd;
         pe->getIntData2(cmd);
         assert(cmd == TaoMessage::SET_FORWARDING);
 #endif
@@ -652,10 +652,10 @@ PtStatus PtAddress::setMessageWaiting(PtBoolean flag)
                 return PT_BUSY;
         }
 
-        int rc;
-        pe->getEventData((int &)rc);
+        intptr_t rc;
+        pe->getEventData(rc);
 #ifdef PTAPI_TEST
-        int cmd;
+        intptr_t cmd;
         pe->getIntData2(cmd);
         assert(cmd == TaoMessage::SET_MESSAGE_WAITING);
 #endif
@@ -696,10 +696,10 @@ PtStatus PtAddress::setOfferedTimeout(int milliSecs)
                 return PT_BUSY;
         }
 
-        int rc;
-        pe->getEventData((int &)rc);
+        intptr_t rc;
+        pe->getEventData(rc);
 #ifdef PTAPI_TEST
-        int cmd;
+        intptr_t cmd;
         pe->getIntData2(cmd);
         assert(cmd == TaoMessage::SET_OFFERED_TIMEOUT);
 #endif
@@ -754,7 +754,7 @@ PtStatus PtAddress::getAddressListeners(PtAddressListener* addrListeners[],
                                                                         arg);
         mpClient->sendRequest(msg);
 
-        int items;
+        intptr_t items;
         if (OS_SUCCESS != pe->wait(msg.getCmd(), mTimeOut))
         {
                 mpClient->resetConnectionSocket(msg.getMsgID());
@@ -766,10 +766,10 @@ PtStatus PtAddress::getAddressListeners(PtAddressListener* addrListeners[],
                 return PT_BUSY;
         }
 
-        pe->getEventData((int &)items);
+        pe->getEventData(items);
         pe->getStringData((UtlString &)arg);
 #ifdef PTAPI_TEST
-        int cmd;
+        intptr_t cmd;
         pe->getIntData2(cmd);
         assert(cmd == TaoMessage::GET_ADDRESS_LISTENERS);
 #endif
@@ -800,7 +800,7 @@ PtStatus PtAddress::getCallListeners(PtCallListener* callListeners[],
                                                                         arg);
         mpClient->sendRequest(msg);
 
-        int items;
+        intptr_t items;
         if (OS_SUCCESS != pe->wait(msg.getCmd(), mTimeOut))
         {
                 mpClient->resetConnectionSocket(msg.getMsgID());
@@ -812,10 +812,10 @@ PtStatus PtAddress::getCallListeners(PtCallListener* callListeners[],
                 return PT_BUSY;
         }
 
-        pe->getEventData((int &)items);
+        pe->getEventData(items);
         pe->getStringData((UtlString &)arg);
 #ifdef PTAPI_TEST
-        int cmd;
+        intptr_t cmd;
         pe->getIntData2(cmd);
         assert(cmd == TaoMessage::GET_CALL_LISTENERS);
 #endif
@@ -846,7 +846,7 @@ PtStatus PtAddress::getConnections(PtConnection connections[],
                                                                         arg);
         mpClient->sendRequest(msg);
 
-        int items;
+        intptr_t items;
         if (OS_SUCCESS != pe->wait(msg.getCmd(), mTimeOut))
         {
                 mpClient->resetConnectionSocket(msg.getMsgID());
@@ -858,10 +858,10 @@ PtStatus PtAddress::getConnections(PtConnection connections[],
                 return PT_BUSY;
         }
 
-        pe->getEventData((int &)items);
+        pe->getEventData(items);
         pe->getStringData((UtlString &)arg);
 #ifdef PTAPI_TEST
-        int cmd;
+        intptr_t cmd;
         pe->getIntData2(cmd);
         assert(cmd == TaoMessage::GET_CONNECTIONS);
 #endif
@@ -934,7 +934,7 @@ PtStatus PtAddress::getTerminals(PtTerminal terms[], int size, int& nItems)
                                                                         arg);
         mpClient->sendRequest(msg);
 
-        int items;
+        intptr_t items;
         if (OS_SUCCESS != pe->wait(msg.getCmd(), mTimeOut))
         {
                 mpClient->resetConnectionSocket(msg.getMsgID());
@@ -946,10 +946,10 @@ PtStatus PtAddress::getTerminals(PtTerminal terms[], int size, int& nItems)
                 return PT_BUSY;
         }
 
-        pe->getEventData((int &)items);
+        pe->getEventData(items);
         pe->getStringData((UtlString &)arg);
 #ifdef PTAPI_TEST
-        int cmd;
+        intptr_t cmd;
         pe->getIntData2(cmd);
         assert(cmd == TaoMessage::GET_TERMINALS);
 #endif
@@ -990,10 +990,10 @@ PtStatus PtAddress::getProvider(PtProvider& rProvider)
                 return PT_BUSY;
         }
 
-        int rc;
-        pe->getEventData((int &)rc);
+        intptr_t rc;
+        pe->getEventData(rc);
 #ifdef PTAPI_TEST
-        int cmd;
+        intptr_t cmd;
         pe->getIntData2(cmd);
         assert(cmd == TaoMessage::GET_PROVIDER);
 #endif
@@ -1028,9 +1028,11 @@ PtStatus PtAddress::numAddressListeners(int& count)
                 return PT_BUSY;
         }
 
-        pe->getEventData((int &)count);
+        intptr_t temp;
+        pe->getEventData(temp);
+        count = (int)temp;
 #ifdef PTAPI_TEST
-        int cmd;
+        intptr_t cmd;
         pe->getIntData2(cmd);
         assert(cmd == TaoMessage::NUM_ADDRESS_LISTENERS);
 #endif
@@ -1067,9 +1069,11 @@ PtStatus PtAddress::numCallListeners(int& count)
                 return PT_BUSY;
         }
 
-        pe->getEventData((int &)count);
+        intptr_t temp;
+        pe->getEventData(temp);
+        count = (int)temp;
 #ifdef PTAPI_TEST
-        int cmd;
+        intptr_t cmd;
         pe->getIntData2(cmd);
         assert(cmd == TaoMessage::NUM_CALL_LISTENERS);
 #endif
@@ -1104,9 +1108,11 @@ PtStatus PtAddress::numConnections(int& count)
                 return PT_BUSY;
         }
 
-        pe->getEventData((int &)count);
+        intptr_t temp;
+        pe->getEventData((intptr_t &)temp);
+        count = (int)temp;
 #ifdef PTAPI_TEST
-        int cmd;
+        intptr_t cmd;
         pe->getIntData2(cmd);
         assert(cmd == TaoMessage::NUM_CONNECTIONS);
 #endif
@@ -1147,9 +1153,11 @@ PtStatus PtAddress::numTerminals(int& count)
                 return PT_BUSY;
         }
 
-        pe->getEventData((int &)count);
+        intptr_t temp;
+        pe->getEventData(temp);
+        count = (int)temp;
 #ifdef PTAPI_TEST
-        int cmd;
+        intptr_t cmd;
         pe->getIntData2(cmd);
         assert(cmd == TaoMessage::NUM_TERMINALS);
 #endif

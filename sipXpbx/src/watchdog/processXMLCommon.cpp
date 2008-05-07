@@ -137,8 +137,8 @@ adjustProcessList(TiXmlDocument &doc)
                 TiXmlElement pidElement("pid");
 
                 pProcessMgr->getProcessByAlias(processAlias, process);
-                char pidbuf[20];
-                sprintf(pidbuf,"%d",process.getPID());
+                char pidbuf[PID_STR_LEN];
+                sprintf(pidbuf,"%ld",(long)process.getPID());
                 TiXmlText pidText(pidbuf);
 
                 pElement->SetAttribute("status",getProcessStatusString(pProcessMgr->getAliasState(processAlias)));

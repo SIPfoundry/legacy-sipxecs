@@ -413,7 +413,7 @@ int  CNetworkChannel::Receive(unsigned char *puchBuffer,
 
     else if (!m_fFlags.bfReliable)
     {
-        int iLength = sizeof(SOCKADDR_IN);
+        socklen_t iLength = sizeof(SOCKADDR_IN);
 
         // If an unconnected Network channel, must use recvfrom()
         // After receiving the data, we'll connect the channel.
@@ -424,7 +424,7 @@ int  CNetworkChannel::Receive(unsigned char *puchBuffer,
 #ifndef __pingtel_on_posix__
                             (SOCKADDR *) &m_ipRemote, &iLength);
 #else
-/* matching ( */            (SOCKADDR *) &m_ipRemote, (socklen_t *)&iLength);
+/* matching ( */            (SOCKADDR *) &m_ipRemote, &iLength);
 #endif
 
         // If data read, connect the datagram socket to the peer to enable

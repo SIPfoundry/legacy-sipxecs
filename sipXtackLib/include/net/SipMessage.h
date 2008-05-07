@@ -321,11 +321,11 @@ public:
 
     //! Construct from a buffer
     SipMessage(const char* messageBytes = NULL,
-               int byteCount = -1);
+               size_t byteCount = -1);
 
     //! Construct from bytes read from a socket
     SipMessage(OsSocket* inSocket,
-               int bufferSize = HTTP_DEFAULT_SOCKET_BUFFER_SIZE);
+               size_t bufferSize = HTTP_DEFAULT_SOCKET_BUFFER_SIZE);
 
     //! Copy constructor
     SipMessage(const SipMessage& rSipMessage);

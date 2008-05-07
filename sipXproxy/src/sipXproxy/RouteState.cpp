@@ -373,7 +373,7 @@ bool RouteState::decode(const UtlString& stateToken)
              */
             UtlString encodedValue;
             UtlString decodedValue;
-            size_t star;
+            ssize_t star;
             if (   ((star = names.index('*')) != UtlString::UTLSTRING_NOT_FOUND)
                 && (names.index('*', star+1)  == UtlString::UTLSTRING_NOT_FOUND)
                 ) // exactly one '*' in names

@@ -2,10 +2,12 @@
 
 noinst_LTLIBRARIES = libjavascript.la
 
-libjavascript_la_CFLAGS = -DGCC_OPT_BUG -DXP_UNIX -DSVR4 -DSYSV -D_BSD_SOURCE -DPOSIX_SOURCE -DX86_LINX -DEDITLINE
+libjavascript_la_CFLAGS = -DGCC_OPT_BUG -DXP_UNIX -DSVR4 -DSYSV -D_BSD_SOURCE -DPOSIX_SOURCE -DX86_LINX -DEDITLINE -DHAVE_VA_COPY -DVA_COPY=va_copy
 
 libjavascript_la_SOURCES= \
     src/jsapi.c     \
+    src/jsxml.c     \
+    src/jsiter.c    \
     src/jsarena.c   \
     src/jsarray.c   \
     src/jsatom.c    \
@@ -121,6 +123,8 @@ libjavascript_la_SOURCES= \
 
 nobase_include_HEADERS = \
 	src/jsapi.h \
+	src/jsxml.h \
+	src/jsiter.h \
 	src/jsarena.h \
 	src/jsarray.h \
 	src/jsatom.h \
@@ -169,5 +173,7 @@ nobase_include_HEADERS = \
 	src/fdlibm/fdlibm.h
 
 EXTRA_DIST = \
+	src/jskeyword.tbl \
 	src/jsopcode.tbl \
+	src/jsproto.tbl \
 	src/js.msg

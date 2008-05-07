@@ -168,7 +168,7 @@ void SubscriptionSet::addInstance(const char* instanceName,
    else
    {
       OsSysLog::add(FAC_RLS, PRI_ERR,
-                    "SubscriptionSet::addInstance cannot add ResourceInstance with name '%s', already %d in SubscriptionSet '%s'",
+                    "SubscriptionSet::addInstance cannot add ResourceInstance with name '%s', already %zu in SubscriptionSet '%s'",
                     instanceName, mSubscriptions.entries(),
                     mUri.data());
    }

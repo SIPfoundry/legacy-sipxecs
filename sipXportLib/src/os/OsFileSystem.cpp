@@ -297,15 +297,15 @@ OsStatus OsFileSystem::createDirRecursive(const OsPath& rOsPath)
         // Find last separator and chop last name off path
         UtlString sep = OsPath::separator;
         
-        int lastSep = -1;
-        unsigned int nextSep = rOsPath.index(sep);
+        ssize_t lastSep = UtlString::UTLSTRING_NOT_FOUND;
+        ssize_t nextSep = rOsPath.index(sep);
         
         while (nextSep != UtlString::UTLSTRING_NOT_FOUND)
         {
             lastSep = nextSep;
             nextSep = rOsPath.index(sep, lastSep+1);
         }
-        if (lastSep != -1)
+        if (lastSep != UtlString::UTLSTRING_NOT_FOUND)
         {
             parentDir = rOsPath(0, lastSep);
             OsPath parent(parentDir);

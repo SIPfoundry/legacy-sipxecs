@@ -57,9 +57,9 @@
 // STATIC VARIABLE INITIALIZATIONS
 
 #ifdef TEST_UPLOAD_FILE_DEBUG
-void incrementalCheckSum(unsigned int* checkSum, const char* buffer, int bufferLength)
+void incrementalCheckSum(unsigned int* checkSum, const char* buffer, size_t bufferLength)
 {
-    int integerIndex = 0;
+    size_t integerIndex = 0;
     while(integerIndex < bufferLength)
     {
         (*checkSum) += (*buffer);
@@ -548,7 +548,7 @@ void HttpServer::processRequest(const HttpMessage& request,
         UtlString uri;
         request.getRequestUri(&uri);
         UtlString uriFileName(uri);
-        int fileNameEnd = -1;
+        ssize_t fileNameEnd = -1;
         if(method.compareTo(HTTP_GET_METHOD) == 0)
         {
             fileNameEnd = uriFileName.first('?');
@@ -559,7 +559,7 @@ void HttpServer::processRequest(const HttpMessage& request,
         }
 
         UtlString mappedUriFileName;
-        int badCharsIndex = uriFileName.index("..");
+        ssize_t badCharsIndex = uriFileName.index("..");
         if(badCharsIndex < 0)
         {
            badCharsIndex = uriFileName.index("//");
@@ -725,7 +725,7 @@ void HttpServer::processFileRequest(const HttpRequestContext& requestContext,
                 // This stuff really ought to be configurable and
                 // contained in a list
                 const char* fileNamePtr = uriFileName.data();
-                int extensionIndex = uriFileName.last('.');
+                ssize_t extensionIndex = uriFileName.last('.');
                 if(extensionIndex >= 0)
                 {
                     fileNamePtr += extensionIndex + 1;
@@ -977,7 +977,7 @@ int HttpServer::doPostFile(const HttpRequestContext& requestContext,
 
 #ifdef TEST_UPLOAD_FILE_DEBUG
     const char* saveBytes;
-    int saveLen;
+    size_t saveLen;
     body->getBytes(&saveBytes, &saveLen);
     int bodyDumpFileDesc = open("/flash0/postbodyDump.aif", O_WRONLY | O_CREAT | O_TRUNC | O_BINARY,
                     S_IREAD | S_IWRITE);
@@ -992,7 +992,7 @@ int HttpServer::doPostFile(const HttpRequestContext& requestContext,
             const MimeBodyPart* firstPartFileBody = //firstPartMessage.getBody();
                 body->getMultipart(0);
             const char* fileData;
-            int fileDataLength;
+            size_t fileDataLength;
             if(firstPartFileBody)
             {
 #ifdef TEST_UPLOAD_FILE_DEBUG
@@ -1042,7 +1042,7 @@ int HttpServer::doPostFile(const HttpRequestContext& requestContext,
 
                                                                         if(fileDesc >= 0)
                                                                         {
-                                                                                int bytesWritten = write(fileDesc,
+                                                                                size_t bytesWritten = write(fileDesc,
                                                                                         (char*)fileData, fileDataLength);
 #ifdef TEST_UPLOAD_FILE_DEBUG
                                                                                 unsigned int postWriteCheckSum = 0;
@@ -1078,7 +1078,7 @@ int HttpServer::doPostFile(const HttpRequestContext& requestContext,
 
                                                                                         htmlMessage.append("<H3>Upload Successful</H3>\n");
                                                                                         char buffer[20];
-                                                                                        sprintf(buffer, "%d", bytesWritten);
+                                                                                        sprintf(buffer, "%zd", bytesWritten);
                                                                                         status = UtlString(buffer);
                                                                                         status.append(" bytes saved as file: ");
                                                                                         status.append(tokenValue.data());
@@ -1092,7 +1092,7 @@ int HttpServer::doPostFile(const HttpRequestContext& requestContext,
                                                                                         htmlMessage.append("<H3>Upload Failed</H3>\n");
                                                                                         htmlMessage.append("Insufficient file space\n");
                                                                                         char buffer[100];
-                                                                                        sprintf(buffer, "<BR>Bytes available: %d\n<BR>Bytes needed: %d for file: ",
+                                                                                        sprintf(buffer, "<BR>Bytes available: %zd\n<BR>Bytes needed: %zd for file: ",
                                                                                                 bytesWritten, fileDataLength);
                                                                                         htmlMessage.append(buffer);
                                                                                         htmlMessage.append(tokenValue.data());
@@ -1401,8 +1401,8 @@ void HttpServer::addRequestProcessor(const char* fileUrl,
    addUriMap( fileUrl, fileUrl );
    
    UtlString* name = new UtlString(fileUrl);
-    UtlInt* value = new UtlInt((int)requestProcessor);
-    mRequestProcessorMethods.insertKeyAndValue(name, value);
+   UtlVoidPtr* value = new UtlVoidPtr((void*)requestProcessor);
+   mRequestProcessorMethods.insertKeyAndValue(name, value);
 }
 
 void HttpServer::addHttpService(const char* fileUrl, HttpService* service)
@@ -1493,11 +1493,11 @@ UtlBoolean HttpServer::findRequestProcessor(const char* fileUri,
                                             )
 {
     UtlString uriCollectable(fileUri);
-    UtlInt* processorCollectable;
+    UtlVoidPtr* processorCollectable;
 
     requestProcessor = NULL;
     processorCollectable =
-        (UtlInt*) mRequestProcessorMethods.findValue(&uriCollectable);
+        (UtlVoidPtr*) mRequestProcessorMethods.findValue(&uriCollectable);
     if(processorCollectable)
     {
         requestProcessor = (RequestProcessor*)processorCollectable->getValue();
@@ -1530,7 +1530,7 @@ UtlBoolean HttpServer::mapUri(OsConfigDb& uriMaps, const char* uri, UtlString& m
         UtlString originalUri(uri);
         UtlString mapFromUri(uri);
         UtlString mapToUri;
-        int dirSeparatorIndex;
+        size_t dirSeparatorIndex;
 
         OsSysLog::add(FAC_SIP, PRI_DEBUG, "HttpServer::mapUri looking for \"%s\"",
                       mapFromUri.data());

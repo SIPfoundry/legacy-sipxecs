@@ -91,13 +91,13 @@ void OsTimeLog::getLogString(UtlString& log) const
       for(event = 0; event < numRecordedEvents; event++)
       {
          time = mpEventTimes[event] - tZero;;
-         sprintf(formatted, "\n  %8ld.%.06ld", time.seconds(), time.usecs());
+         sprintf(formatted, "\n  %8d.%.06d", time.seconds(), time.usecs());
          log.append(formatted);
 
          if(event > 0)
          {
             deltaTime = time - previousTime;
-            sprintf(formatted, "  %8ld.%.06ld  ", deltaTime.seconds(), deltaTime.usecs());
+            sprintf(formatted, "  %8d.%.06d  ", deltaTime.seconds(), deltaTime.usecs());
             log.append(formatted);
          }
          else
@@ -115,7 +115,7 @@ void OsTimeLog::getLogString(UtlString& log) const
 
       if ( mNumEvents > mMaxEventCount )
       {
-         sprintf(formatted, "\n  !!! Overflow - %d events lost !!!", mNumEvents - mMaxEventCount);
+         sprintf(formatted, "\n  !!! Overflow - %ld events lost !!!", long(mNumEvents - mMaxEventCount));
          log.append(formatted);
       }
    }

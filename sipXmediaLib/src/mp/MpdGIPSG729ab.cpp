@@ -124,8 +124,8 @@ OsStatus MpdGIPSG729ab::initDecode(MpConnection* pConnection)
 
    //Attach the decoder to NetEq instance
    res += NETEQG729_GIPS_10MS16B_init(mpJBState, (G729_decinst*) this);
-   osPrintf("NETEQG729_GIPS_10MS16B_init(0x%X, 0x%X) returned %d\n",
-      (int) mpJBState, (int) this, res);
+   osPrintf("NETEQG729_GIPS_10MS16B_init(0x%p, 0x%p) returned %d\n",
+      mpJBState,  this, res);
 
    osPrintf("MpdGIPSG729ab::initDecode: payloadType=%d\n", getPayloadType());
    return ((0==res) ? OS_SUCCESS : OS_NO_MEMORY);
@@ -241,8 +241,8 @@ GIPS_Word16 G729FIX_GIPS_decode(G729_decinst_t *G729dec_inst,
    if (NULL == pMe->getDecoder()) {
       // This may be overkill now that the original problem has been fixed...
       osPrintf(
-      "G729FIX_GIPS_decode(0x%X, %d): attempt to use stale instance!\n",
-         (int) pMe, len);
+      "G729FIX_GIPS_decode(0x%p, %d): attempt to use stale instance!\n",
+         pMe, len);
       if (0 == len) nS = ANNEXA_SAMPLES;
       while (len > 0) {
          nS += ANNEXA_SAMPLES;
@@ -253,7 +253,7 @@ GIPS_Word16 G729FIX_GIPS_decode(G729_decinst_t *G729dec_inst,
    }
 
    if (10 > G729FixCountD) {
-      osPrintf("G729FIX_GIPS_decode(0x%X), len=%d\n", (int) G729dec_inst, len);
+      osPrintf("G729FIX_GIPS_decode(0x%p), len=%d\n", G729dec_inst, len);
    }
 
    if (0 == len) {
@@ -302,8 +302,8 @@ GIPS_Word16 G729FIX_GIPS_decodePLC(G729_decinst_t *G729dec_inst,
    int nS = ANNEXA_SAMPLES * noOfLostFrames;
 
    if (10 > G729FixCountP) {
-      osPrintf("G729FIX_GIPS_decodePLC(0x%X, 0x%X, %d)\n",
-         (int) G729dec_inst, (int) decoded, noOfLostFrames);
+      osPrintf("G729FIX_GIPS_decodePLC(0x%p, 0x%p, %d)\n",
+         G729dec_inst, decoded, noOfLostFrames);
    }
    G729FixCountP++;
    memset((void*) decoded, 0, nS * sizeof(short));

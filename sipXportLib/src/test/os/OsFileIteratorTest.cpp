@@ -80,7 +80,7 @@ public:
         int i;
         for ( i= 0; i < NumTestFiles; i++ )
         {
-            OsTestUtilities::createDummyFile(mRootPath+OsPath::separator+TestFiles[i], 100);
+           OsTestUtilities::createDummyFile(mRootPath+OsPath::separator+TestFiles[i], 100);
         }
     }
 

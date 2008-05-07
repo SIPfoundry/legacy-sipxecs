@@ -113,12 +113,12 @@ private:
      //:Handle an incoming message from the keyboard controller.
      // Return TRUE if the message was handled, otherwise FALSE.
 
-   virtual void disableTimer(int index);
+   virtual void disableTimer(intptr_t index);
      //:Disable the repeat timer for the designated button
      // Do nothing if there is no repeat timer in effect for the button.
      // A write lock should be acquired before calling this method.
 
-   virtual void enableTimer(int index);
+   virtual void enableTimer(intptr_t index);
      //:Enable the repeat timer for the designated button
      // A write lock should be acquired before calling this method.
 

@@ -368,7 +368,7 @@ void
 print_response(FILE* fp, res_response* resp)
 {
         unsigned int    i;
-        u_short n;
+        uint16_t n;
         HEADER  *hp;
 
         /*

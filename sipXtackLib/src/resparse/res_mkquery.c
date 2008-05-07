@@ -164,9 +164,9 @@ res_mkquery(op, dname, class, type, data, datalen, newrr_in, buf, buflen)
                         return (-1);
                 cp += n;
                 buflen -= n;
-                __putshort((u_short) type, cp);
+                __putshort((uint16_t) type, cp);
                 cp += INT16SZ;
-                __putshort((u_short) class, cp);
+                __putshort((uint16_t) class, cp);
                 cp += INT16SZ;
                 hp->qdcount = htons(1);
                 if (op == QUERY || data == NULL)
@@ -184,7 +184,7 @@ res_mkquery(op, dname, class, type, data, datalen, newrr_in, buf, buflen)
 /* 01b,29apr97,jag Changed T_NULL to T_NULL_RR to fix conflict with loadCoffLib.h */
                 __putshort(T_NULL_RR, cp);
                 cp += INT16SZ;
-                __putshort((u_short) class, cp);
+                __putshort((uint16_t) class, cp);
                 cp += INT16SZ;
                 __putlong(0, cp);
                 cp += INT32SZ;
@@ -200,13 +200,13 @@ res_mkquery(op, dname, class, type, data, datalen, newrr_in, buf, buflen)
                 if (buflen < 1 + RRFIXEDSZ + datalen)
                         return (-1);
                 *cp++ = '\0';   /* no domain name */
-                __putshort((u_short) type, cp);
+                __putshort((uint16_t) type, cp);
                 cp += INT16SZ;
-                __putshort((u_short) class, cp);
+                __putshort((uint16_t) class, cp);
                 cp += INT16SZ;
                 __putlong(0, cp);
                 cp += INT32SZ;
-                __putshort((u_short) datalen, cp);
+                __putshort((uint16_t) datalen, cp);
                 cp += INT16SZ;
                 if (datalen) {
                         memcpy(cp, data, datalen);

@@ -53,7 +53,7 @@ int XmlRpcMethodContainer::compareTo(const UtlContainable *b) const
 
 unsigned int XmlRpcMethodContainer::hash() const
 {
-    return (unsigned int) mpUserData;
+   return hashPtr(mpUserData);
 }
 
 
@@ -155,7 +155,7 @@ void XmlRpcDispatch::processRequest(const HttpRequestContext& requestContext,
                                     HttpMessage*& response )
 {
 #   ifdef TEST_HTTP
-    int len;
+    size_t len;
     UtlString httpString;
 
     request.getBytes(&httpString , &len);
@@ -171,7 +171,7 @@ void XmlRpcDispatch::processRequest(const HttpRequestContext& requestContext,
                                         HTTP_OK_TEXT);
 
    UtlString bodyString;
-   int bodyLength;
+   size_t bodyLength;
    const HttpBody* requestBody = request.getBody();
    requestBody->getBytes(&bodyString, &bodyLength);
    
@@ -430,7 +430,7 @@ bool XmlRpcDispatch::parseValue(TiXmlNode* subNode,
          if (valueNode->FirstChild())
          {
             paramValue = valueNode->FirstChild()->Value();
-            params.insertAt(index, new UtlInt(atoi(paramValue)));
+            params.insertAt(index, new UtlInt(atol(paramValue)));
             result = true;
          }
          else
@@ -614,7 +614,7 @@ bool XmlRpcDispatch::parseStruct(TiXmlNode* subNode, UtlHashMap*& members)
                   if (valueElement->FirstChild())
                   {
                      paramValue = valueElement->FirstChild()->Value();
-                     pMembers->insertKeyAndValue(new UtlString(name), new UtlInt(atoi(paramValue)));
+                     pMembers->insertKeyAndValue(new UtlString(name), new UtlInt(atol(paramValue)));
                      result = true;
                   }
                   else
@@ -788,7 +788,7 @@ bool XmlRpcDispatch::parseArray(TiXmlNode* subNode, UtlSList*& array)
                if (arrayElement->FirstChild())
                {
                   paramValue = arrayElement->FirstChild()->Value();
-                  pList->insert(new UtlInt(atoi(paramValue)));
+                  pList->insert(new UtlInt(atol(paramValue)));
                   result = true;
                }
                else

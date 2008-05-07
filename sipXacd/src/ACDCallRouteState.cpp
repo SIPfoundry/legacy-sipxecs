@@ -88,8 +88,6 @@ ACDCallRouteState* ACDCallRouteState_IDLE::Instance(void)
 
 void ACDCallRouteState_IDLE::routeRequestEvent(ACDCall* pAcdCallInstance)
 {
-   SIPX_RESULT rc;
-
    // Transition to the TRYING state
    pAcdCallInstance->transitionRouteState(TRYING);
 

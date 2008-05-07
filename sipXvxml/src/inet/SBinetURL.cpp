@@ -822,7 +822,7 @@ void SBinetURL::AppendStringValueToMultipart( const VXIchar *value )
 	// I am guessing what headers should be
 	sprintf(tempCBuf,"Content-Type: text/plain%s", CRLF);
 	appendStr(tempCBuf);
-	sprintf(tempCBuf,"Content-Length: %d%s", strlen(tempVal), CRLF);
+	sprintf(tempCBuf,"Content-Length: %zu%s", strlen(tempVal), CRLF);
 	appendStr(tempCBuf);
 	sprintf(tempCBuf,"%s%s%s", CRLF, tempVal, CRLF); // One blank line before
 	appendStr(tempCBuf);
