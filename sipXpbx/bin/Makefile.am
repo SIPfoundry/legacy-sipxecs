@@ -34,7 +34,7 @@ SCRIPT_TEMPLATES = \
 	sipxlocalization.in \
 	blat.in \
 	check-fqdn.in \
-	sipx-strip-db-secrets.pl \
+	sipx-strip-db-secrets.pl.in \
 	sipx-archive-common.in
 
 EXTRA_DIST = \
