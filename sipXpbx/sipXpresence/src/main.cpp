@@ -20,6 +20,7 @@
 #include <os/OsFS.h>
 #include <os/OsSysLog.h>
 #include <os/OsConfigDb.h>
+#include <persist/SipPersistentSubscriptionMgr.h>
 
 // DEFINES
 #ifndef SIPX_VERSION
@@ -355,8 +356,14 @@ int main(int argc, char* argv[])
    UtlString domainName;
    configDb.get(CONFIG_SETTING_DOMAIN_NAME, domainName);
 
+   // Create the SipPersistentSubscriptionMgr.
+   SipSubscriptionMgr* subscriptionMgr =
+      new SipPersistentSubscriptionMgr(SUBSCRIPTION_COMPONENT_PRESENCE,
+                                       domainName);
+
    // Create the Sip Presence Monitor
    SipPresenceMonitor presenceMonitor(userAgent,
+                                      subscriptionMgr,
                                       domainName,
                                       TcpPort,
                                       &configDb,

@@ -5,7 +5,8 @@ bin_PROGRAMS = sipxpresence
 sipxpresence_LDADD = \
         @SIPXCALL_LIBS@ \
         @SIPXMEDIAADAPTER_LIBS@ \
-        @GIPS_NEQ_OBJS@
+        @GIPS_NEQ_OBJS@ \
+	@SIPXCOMMSERVER_LIBS@
 
 sipxpresence_CXXFLAGS = \
         -I$(top_builddir)/config \

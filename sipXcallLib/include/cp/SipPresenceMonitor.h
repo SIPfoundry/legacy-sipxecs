@@ -54,14 +54,16 @@ class SipPresenceMonitor : public StateChangeNotifier
 {
   public:
 
-   SipPresenceMonitor(SipUserAgent* userAgent, /**<
-                                               * Sip user agent for sending out
-                                               * SUBSCRIBEs and receiving NOTIFYs
-                                               */
-                    UtlString& domainName,    ///< sipX domain name
-                    int hostPort,             ///< Host port
-                    OsConfigDb*configFile,    ///< configuration
-                    bool toBePublished);      ///< option to publish for other subscriptions
+   SipPresenceMonitor(SipUserAgent* userAgent,   /**<
+                                                 * Sip user agent for sending out
+                                                 * SUBSCRIBEs and receiving NOTIFYs
+                                                 */
+                      SipSubscriptionMgr* subscriptionMgr,
+                                                ///< subscription manager to record subscriptions
+                      UtlString& domainName,    ///< sipX domain name
+                      int hostPort,             ///< Host port
+                      OsConfigDb*configFile,    ///< configuration
+                      bool toBePublished);      ///< option to publish for other subscriptions
 
    virtual ~SipPresenceMonitor();
 

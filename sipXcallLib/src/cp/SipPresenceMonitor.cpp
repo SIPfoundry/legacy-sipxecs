@@ -127,11 +127,14 @@ UtlContainableType PresenceDefaultConstructor::getContainableType() const
 
 // Constructor
 SipPresenceMonitor::SipPresenceMonitor(SipUserAgent* userAgent,
+                                       SipSubscriptionMgr* subscriptionMgr,
                                        UtlString& domainName,
                                        int hostPort,
                                        OsConfigDb* configFile,
                                        bool toBePublished)
-   : mLock(OsBSem::Q_PRIORITY, OsBSem::FULL)
+   : mLock(OsBSem::Q_PRIORITY, OsBSem::FULL),
+     mpSubscriptionMgr(subscriptionMgr)
+
 {
    mpUserAgent = userAgent;
    mDomainName = domainName;
@@ -195,8 +198,6 @@ SipPresenceMonitor::SipPresenceMonitor(SipUserAgent* userAgent,
    if (mToBePublished)
    {
       // Create the SIP Subscribe Server
-      mpSubscriptionMgr = new SipSubscriptionMgr(); // Component for holding the subscription data
-   
       mpSubscribeServer = new SipSubscribeServer(*mpUserAgent, mSipPublishContentMgr,
                                                  *mpSubscriptionMgr, mPolicyHolder);
       // Arrange to generate default content for presence events.

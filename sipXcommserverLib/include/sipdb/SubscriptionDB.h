@@ -11,8 +11,6 @@
 
 // SYSTEM INCLUDES
 
-
-
 // APPLICATION INCLUDES
 #include "os/OsMutex.h"
 
@@ -24,6 +22,8 @@
 #define SUBSCRIPTION_COMPONENT_RLS "rls"
 // "component" value for sipXregistry "reg" event subscriptions
 #define SUBSCRIPTION_COMPONENT_REG "reg"
+// "component" value for sipXpresence a/k/a the Presence Server
+#define SUBSCRIPTION_COMPONENT_PRESENCE "presence"
 
 // MACROS
 // EXTERNAL FUNCTIONS
