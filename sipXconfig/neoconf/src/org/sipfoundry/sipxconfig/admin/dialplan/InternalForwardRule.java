@@ -31,12 +31,20 @@ import org.sipfoundry.sipxconfig.admin.dialplan.config.UrlTransform;
  */
 public abstract class InternalForwardRule extends DialingRule {
 
-    private final String m_url;
     private final DialPattern m_dialPattern;
+    private Transform m_transform;
 
     public InternalForwardRule(DialPattern dialPattern, String url) {
         m_dialPattern = dialPattern;
-        m_url = url;
+        UrlTransform transform = new UrlTransform();
+        transform.setUrl(url);
+        m_transform = transform;
+        setEnabled(true);
+    }
+
+    public InternalForwardRule(DialPattern dialPattern, Transform transform) {
+        m_dialPattern = dialPattern;
+        m_transform = transform;
         setEnabled(true);
     }
 
@@ -53,10 +61,8 @@ public abstract class InternalForwardRule extends DialingRule {
 
     @Override
     public Transform[] getTransforms() {
-        UrlTransform transform = new UrlTransform();
-        transform.setUrl(m_url);
         return new Transform[] {
-            transform
+            m_transform
         };
     }
 

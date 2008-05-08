@@ -223,7 +223,7 @@ SipRedirectorMapping::lookUp(
             UtlHashMap record;
             urlMappingRegistrations.getIndex(i, record);
             UtlString contactKey("contact");
-            UtlString contact= *((UtlString*)record.findValue(&contactKey));
+            UtlString contact= *(dynamic_cast <UtlString*> (record.findValue(&contactKey)));
             OsSysLog::add(FAC_SIP, PRI_DEBUG,
                           "%s::lookUp contact = '%s'",
                           mLogName.data(), contact.data());
@@ -231,13 +231,11 @@ SipRedirectorMapping::lookUp(
             OsSysLog::add(FAC_SIP, PRI_DEBUG,
                           "%s::lookUp contactUri = '%s'",
                           mLogName.data(), contactUri.toString().data());
+            // We no longer check for recursive loops here because we
+            // have comprehensive loop detection in the proxy.
 
-            // prevent recursive loops
-            if (!contactUri.isUserHostPortEqual(requestUri))
-            {
-               // Add the contact.
-               addContact(response, requestString, contactUri, mLogName.data());
-            }
+            // Add the contact.
+            addContact(response, requestString, contactUri, mLogName.data());
          }
       }
    }

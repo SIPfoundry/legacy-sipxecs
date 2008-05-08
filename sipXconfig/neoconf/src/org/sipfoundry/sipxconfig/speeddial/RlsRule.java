@@ -11,11 +11,17 @@ package org.sipfoundry.sipxconfig.speeddial;
 
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPattern;
 import org.sipfoundry.sipxconfig.admin.dialplan.InternalForwardRule;
+import org.sipfoundry.sipxconfig.admin.dialplan.config.FullTransform;
 
 public class RlsRule extends InternalForwardRule {
+    private static final FullTransform RLS_TRANSFORM = new FullTransform();
+
+    static {
+        RLS_TRANSFORM.setHeaderParams("Route=sip:${RLS_SIP_SRV_OR_HOSTPORT}");
+    }
+
     public RlsRule() {
-        super(new DialPattern("~~rl~", DialPattern.VARIABLE_DIGITS),
-                "<sip:{digits}@${RLS_SIP_SRV_OR_HOSTPORT}>");
+        super(new DialPattern("~~rl~", DialPattern.VARIABLE_DIGITS), RLS_TRANSFORM);
         setName("RLS");
         setDescription("Forward resource list subscriptions to RLS");
     }

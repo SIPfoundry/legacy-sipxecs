@@ -10,9 +10,7 @@
 
     <userMatch>
       <!--Music on Hold-->
-      <description>
-        Forward music on hold calls to Park Server
-      </description>
+      <description>Forward music on hold calls to Park Server</description>
       <userPattern>~~mh~</userPattern>
       <permissionMatch>
         <transform>
@@ -23,13 +21,11 @@
 
     <userMatch>
       <!--RLS-->
-      <description>
-        Forward resource list subscriptions to RLS
-      </description>
+      <description>Forward resource list subscriptions to RLS</description>
       <userPattern>~~rl~.</userPattern>
       <permissionMatch>
         <transform>
-          <url>&lt;sip:{digits}@${RLS_SIP_SRV_OR_HOSTPORT}&gt;</url>
+          <headerparams>Route=sip:${RLS_SIP_SRV_OR_HOSTPORT}</headerparams>
         </transform>
       </permissionMatch>
     </userMatch>

@@ -64,15 +64,11 @@ ResourceList::ResourceList(ResourceListSet* resourceListSet,
    mResourceListNameCons.append(getResourceListServer()->getDomainName());
 
    // Compose the resource list URIs as they will appear in the SUBSCRIBE.
-   mResourceListUri = "sip:";
-   mResourceListUri.append(mUserPart);
-   mResourceListUri.append("@");
-   mResourceListUri.append(getResourceListServer()->getServerLocalHostPart());
-
-   mResourceListUriCons = "sip:";
-   mResourceListUriCons.append(mUserPartCons);
-   mResourceListUriCons.append("@");
-   mResourceListUriCons.append(getResourceListServer()->getServerLocalHostPart());
+   // Because we now use a Route header to send SUBSCRIBEs to the RLS,
+   // and leave the request-URI unchanged, the resource list URIs are
+   // the same as the resource list names.
+   mResourceListUri = mResourceListName;
+   mResourceListUriCons = mResourceListNameCons;
 
    // Initialize mVersion by looking up the next allowed version
    // that is recorded in any subscription for mResourceListUri.
