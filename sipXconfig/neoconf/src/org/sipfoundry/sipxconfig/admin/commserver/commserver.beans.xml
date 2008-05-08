@@ -8,7 +8,7 @@
     </property>
     <property name="coreContext" ref="coreContext" />
     <property name="sipxReplicationContext" ref="sipxReplicationContext" />
-    <!-- default music on hold user -->
+    <!-- default music-on-hold user -->
     <property name="mohUser" value="~~mh~" />
   </bean>
 

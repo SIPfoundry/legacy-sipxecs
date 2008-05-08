@@ -8,7 +8,7 @@
     <hostPattern>${MY_IP_ADDR}</hostPattern>
     <userMatch>
       <!--Music on Hold-->
-      <description>Forward music on hold calls to Park Server</description>
+      <description>Forward music-on-hold calls to Park Server</description>
       <userPattern>~~mh~</userPattern>
       <permissionMatch>
         <transform>
