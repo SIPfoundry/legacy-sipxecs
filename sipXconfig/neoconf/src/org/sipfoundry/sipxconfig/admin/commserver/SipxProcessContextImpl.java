@@ -82,7 +82,7 @@ public class SipxProcessContextImpl extends SipxReplicationContextImpl implement
             // The result was not an XmlRpcException, so return it.
             return result;
         } catch (XmlRpcException e) {
-            LOG.error("Error XML/RPC, fault: " + e.code + " message: " + e.getMessage());
+            LOG.error("Error XML/RPC fault: " + e.code + " message: " + e.getMessage());
             throw new RuntimeException(e);
         } catch (MalformedURLException e) {
             LOG.error("Error URL: " + url);
@@ -136,29 +136,24 @@ public class SipxProcessContextImpl extends SipxReplicationContextImpl implement
     }
 
     public void manageServices(Location location, Collection processes, Command command) {
-        // HACK: if we are restarting multiple services STOP them all and then START them all
-        if (Command.RESTART.equals(command)) {
-            manageServices(location, processes, Command.STOP);
-            manageServices(location, processes, Command.START);
-        } else {
-            for (Iterator i = processes.iterator(); i.hasNext();) {
-                Process process = (Process) i.next();
-                manageService(location, process, command);
-            }
+        if (!processes.isEmpty()) {
+            manageService(location, processes, command);
         }
     }
 
-    public void manageService(Location location, Process process, Command command) {
+    public void manageService(Location location, Collection processes, Command command) {
         try {
-            String alias = URLEncoder.encode(process.getName(), "UTF-8");
-
             Vector<Object> params = new Vector<Object>();
-            params.add(alias);
-            params.add(Boolean.TRUE); // Yes, block for the state change.
-            boolean result = (Boolean) invokeXmlRpcRequest(location, command.getName(), params);
-            if (!result) {
-                LOG.warn("Failed to '" + command.getName() + "' process '" + alias + "'.");
+            Vector<String> procaliaslist = new Vector<String>();
+
+            // Build a process alias list.
+            for (Iterator<Process> i = processes.iterator(); i.hasNext();) {
+                Process process = i.next();
+                procaliaslist.add(URLEncoder.encode(process.getName(), "UTF-8")); 
             }
+            params.add(procaliaslist);
+            params.add(Boolean.TRUE); // Yes, block for the state change.
+            Map<String, String> result = (Map<String, String>) invokeXmlRpcRequest(location, command.getName(), params);
         } catch (UnsupportedEncodingException e) {
             throw new RuntimeException(e);
         }

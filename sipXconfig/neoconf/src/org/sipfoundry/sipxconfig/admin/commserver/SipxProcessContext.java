@@ -57,10 +57,9 @@ public interface SipxProcessContext {
     public void restartOnEvent(Collection<Process> services, Class eventClass);
 
     /**
-     * Apply the specified command to the process/service. This method handles only commands that
-     * don't need output, which excludes the "status" command.
+     * Apply the specified command to the processes/services. 
      */
-    public void manageService(Location location, Process process, Command command);
+    public void manageService(Location location,  Collection<Process> processes, Command command);
     
     /**
      * This should be used to get list of restartable Processes

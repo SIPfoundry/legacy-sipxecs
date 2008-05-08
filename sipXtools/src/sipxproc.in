@@ -85,6 +85,7 @@ action = 'getStateAll'
 
 opts = GetoptLong.new(*OptSet)
 argument = nil
+aliaslist = []
 block = nil
 begin
    opts.each do |name, arg|
@@ -99,6 +100,7 @@ begin
             # One string argument must be specified.
             action = name.gsub(/--/, '')
             argument = arg
+            aliaslist.push(argument)
             block = true
          when '--startAll', '--stopAll', '--restartAll'
             # Applies to all processes (so none can be specified.)
@@ -124,11 +126,14 @@ if 0 != ARGV.length
 end   
 
 params = [ client_host ]
-if argument
-   params.push(argument)
-end
-if block
-   params.push(block)
+case action
+when 'start', 'stop', 'restart'
+    params.push(aliaslist)
+    params.push(block)
+when 'getalisbypid'
+    params.push(argument)
+else
+   # No parms required for all other actions
 end
 
 client = XMLRPC::Client.new2("https://" << server_host << ":" << port << "/RPC2")

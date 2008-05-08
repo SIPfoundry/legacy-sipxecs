@@ -31,6 +31,22 @@ public class SipxProcessContextImplTest extends TestCase {
     private List m_methodNameStrings;
     private List m_paramVectors;
 
+    private final static Process[] STOPPROCESSLIST =  new Process[] {
+        new Process(ProcessName.REGISTRAR),
+        new Process(ProcessName.MEDIA_SERVER)
+    };
+
+    private final static Process[] STARTPROCESSLIST =  new Process[] {
+        new Process(ProcessName.PRESENCE_SERVER)
+    };
+
+    private final static Process[] RESTARTPROCESSLIST =  new Process[] {
+        new Process(ProcessName.REGISTRAR),
+        new Process(ProcessName.MEDIA_SERVER),
+        new Process(ProcessName.PRESENCE_SERVER),
+        new Process(ProcessName.ACD_SERVER)
+    };
+
     private final static ServiceStatus[] SERVICESTATUS = new ServiceStatus[] {
         new ServiceStatus(new Process(ProcessName.REGISTRAR), ServiceStatus.Status.STARTING),
         new ServiceStatus(new Process(ProcessName.MEDIA_SERVER), ServiceStatus.Status.STARTED),
@@ -52,18 +68,21 @@ public class SipxProcessContextImplTest extends TestCase {
                 m_methodNameStrings.add(methodName);
                 m_paramVectors.add(params);
 
-                if (Command.STOP.getName() == methodName || Command.START.getName() == methodName
-                        || Command.RESTART.getName() == methodName) {
-                    return new Boolean(true);
-                } else if ("getStateAll" == methodName) {
-                    Hashtable result = new Hashtable();
-                    for (int x = 0; x < SERVICESTATUS.length; x++) {
-                        result.put(SERVICESTATUS[x].getServiceName(), SERVICESTATUS[x].getStatus().getName());
-                    }
-                    return result;
+                Hashtable result = new Hashtable();
+                if ("getStateAll" == methodName) {
+                   for (int x = 0; x < SERVICESTATUS.length; x++) {
+                       result.put(SERVICESTATUS[x].getServiceName(), SERVICESTATUS[x].getStatus().getName());
+                   }
+                }
+                else {
+                   for (int x = 0; x < STOPPROCESSLIST.length; x++) {
+                       result.put(STOPPROCESSLIST[x].getName(), "true");
+                   }
                 }
 
-                throw new RuntimeException("Unrecognized methodName: '" + methodName + "'.");
+                return result;
+
+               //  throw new RuntimeException("Unrecognized methodName: '" + methodName + "'.");
             }
         };
 
@@ -95,70 +114,48 @@ public class SipxProcessContextImplTest extends TestCase {
     }
 
     public void testManageService() {
-        Process[] processes = {
-            new Process(ProcessName.REGISTRAR)
-        };
         Location[] locations = {
             m_processContextImpl.getLocations()[0]
         };
         Command command = Command.STOP;
 
-        m_processContextImpl.manageService(locations[0], processes[0], command);
+        m_processContextImpl.manageService(locations[0], Arrays.asList(STOPPROCESSLIST), command);
 
-        checkManageServicesResults(processes, locations, command);
+        checkManageServicesResults(STOPPROCESSLIST, locations, command);
     }
 
     public void testManageServices() {
-        Process[] processes = {
-            new Process(ProcessName.MEDIA_SERVER), new Process(ProcessName.PRESENCE_SERVER)
-        };
         Location[] locations = m_processContextImpl.getLocations();
         Command command = Command.STOP;
 
-        m_processContextImpl.manageServices(Arrays.asList(processes), command);
+        m_processContextImpl.manageServices(Arrays.asList(STOPPROCESSLIST), command);
 
-        checkManageServicesResults(processes, locations, command);
+        checkManageServicesResults(STOPPROCESSLIST, locations, command);
     }
 
     public void testManageServicesRestart() {
-        Process[] processes = {
-            new Process(ProcessName.MEDIA_SERVER), new Process(ProcessName.PRESENCE_SERVER)
-        };
         Location[] locations = m_processContextImpl.getLocations();
         Command command = Command.RESTART;
 
-        m_processContextImpl.manageServices(Arrays.asList(processes), command);
+        m_processContextImpl.manageServices(Arrays.asList(RESTARTPROCESSLIST), command);
 
-        // changing restart: stop and start
-        int calls = processes.length * locations.length;
-        assertEquals(2 * calls, m_numberOfCalls);
+        checkManageServicesResults(RESTARTPROCESSLIST, locations, command);
 
-        for (int l = 0; l < locations.length; l++) {
-            for (int x = 0; x < processes.length; x++) {
-                assertEquals(Command.STOP.getName(), m_methodNameStrings.get(x));
-            }
-            for (int x = processes.length; x < 2 * processes.length; x++) {
-                assertEquals(Command.START.getName(), m_methodNameStrings.get(x));
-            }
-        }
     }
 
     public void testManageServicesLocation() {
-        Process[] processes = {
-            new Process(ProcessName.PROXY), new Process(ProcessName.ACD_SERVER)
-        };
         Location[] locations = {
             m_processContextImpl.getLocations()[1]
         };
         Command command = Command.START;
 
-        m_processContextImpl.manageServices(locations[0], Arrays.asList(processes), command);
+        m_processContextImpl.manageServices(locations[0], Arrays.asList(STARTPROCESSLIST), command);
 
-        checkManageServicesResults(processes, locations, command);
+        checkManageServicesResults(STARTPROCESSLIST, locations, command);
     }
 
     private void checkManageServicesResults(final Process[] PROCESSES, final Location[] LOCATIONS, final Command COMMAND) {
-        assertEquals(LOCATIONS.length * PROCESSES.length, m_numberOfCalls);
+        assertEquals(LOCATIONS.length, m_numberOfCalls);
 
         for (int x = 0; x < m_numberOfCalls; x++) {
             assertEquals(COMMAND.getName(), m_methodNameStrings.get(x));
@@ -168,14 +165,31 @@ public class SipxProcessContextImplTest extends TestCase {
         Set<String> expectedCombinations = new HashSet<String>();
         for (int x = 0; x < PROCESSES.length; x++) {
             for (int y = 0; y < LOCATIONS.length; y++) {
+                String TempString = PROCESSES[x].getName() + LOCATIONS[y].getProcessMonitorUrl();
                 expectedCombinations.add(PROCESSES[x].getName() + LOCATIONS[y].getProcessMonitorUrl());
             }
         }
 
+        Process[] Processes;
+        if ( COMMAND == Command.STOP ) {
+           Processes = STOPPROCESSLIST;
+        }
+        else if ( COMMAND == Command.START ) {
+                 Processes = STARTPROCESSLIST;
+             }
+             else if ( COMMAND == Command.RESTART ) {
+                      Processes = RESTARTPROCESSLIST;
+                  }
+                  else {
+                      Processes = STOPPROCESSLIST;
+                  }
         // Compare the expected Process-Location combinations to what actually occured.
-        for (int x = 0; x < m_numberOfCalls; x++) {
-            String value = ((Vector<Object>) m_paramVectors.get(x)).elementAt(0).toString() + m_urlStrings.get(x);
-            assertTrue(expectedCombinations.remove(value));
+        for (int y = 0; y < LOCATIONS.length; y++) {
+            for (int x = 0; x < Processes.length; x++) {
+               List ProcList = (List) ((Vector<Object>) m_paramVectors.get(y)).elementAt(0);
+               String value = ProcList.get(x).toString() + m_urlStrings.get(y);
+               assertTrue(expectedCombinations.remove(value));
+            }
         }
         assertEquals(0, expectedCombinations.size());
     }

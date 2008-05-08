@@ -21,6 +21,7 @@
 #include "ImdbRpc.h"
 #include "FileRpc.h"
 #include "utl/UtlBool.h"
+#include "utl/UtlSListIterator.h"
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -257,6 +258,27 @@ void WatchDog::setProcessUserRequestStateAll(const int state, UtlHashMap& proces
    }
 }
 
+
+void WatchDog::setProcessUserRequestStateList(const int state, const UtlSList& alias_list, UtlHashMap& process_results)
+{
+   UtlString* pAlias;
+   UtlSListIterator aliasListIterator(alias_list);
+   bool result;
+
+   // Lock out other threads.
+   OsLock mutex(mLock);   
+
+   while ( (pAlias = dynamic_cast<UtlString*> (aliasListIterator())) )
+   {
+      // UtlHashMap stores raw pointers to the key and value objects, instead of 
+      // making copies.  Therefore, individual UtlString/UtlBoolean objects are 
+      // explicitly new'd here, and the caller is responsible for deleting.
+      result = setProcessUserRequestStateNoLock(*pAlias, state);
+      UtlString* pNewAlias = new UtlString(*pAlias);
+      process_results.insertKeyAndValue(pNewAlias, new UtlBool(result));
+   }
+}
+
 bool WatchDog::setProcessUserRequestState(const UtlString& alias, const int state)
 {
    // Lock out other threads.
@@ -307,6 +329,27 @@ void WatchDog::getAllPids(UtlHashMap& pids)
          {
             delete pAlias;
          }
+      }
+   }
+}
+
+
+void WatchDog::getPidsByAliasList(const UtlSList& alias_list, UtlHashMap& pids)
+{
+   OsProcess process;
+   OsProcessMgr* processMgr = OsProcessMgr::getInstance();
+   UtlSListIterator aliasListIterator( alias_list );
+   UtlString* pAlias;
+
+   // Lock out other threads.
+   OsLock mutex(mLock);   
+
+   while ( (pAlias = dynamic_cast<UtlString*> (aliasListIterator())) )
+   {
+      OsStatus rc = processMgr->getProcessByAlias(*pAlias, process);
+      if (OS_SUCCESS == rc)
+      {
+         pids.insertKeyAndValue(pAlias, new UtlInt(process.getPID()));   
       }
    }
 }

@@ -118,6 +118,31 @@ public:
     * \see setProcessUserRequestStateNoLock
     */
 
+
+   /// Sets the specified "user request state" for all processes in a list.
+   void setProcessUserRequestStateList(const int state, const UtlSList& alias_list, UtlHashMap& process_results);
+   /**<
+    * The setProcessUserRequestState() is called for each process.  
+    * 
+    * Returns a map of each monitored process's alias (UtlString pointer) to the 
+    * result of the corresponding setProcessUserRequestStateNoLock() call 
+    * (UtlBoolean pointer.)  The caller is responsible for destroying the 
+    * dynamically allocated memory returned in the process_states object (using 
+    * destroyAll().)
+    *
+    * Locks the semaphore while using the the mpProcessList member and calling 
+    * 'setProcessUserRequestStateNoLock'.
+    * 
+    * \note This method does not block on the process state changes, and 
+    * therefore does not report on the result of the requested state changes.
+    * (For example, calling this method with USER_PROCESS_STOP will not result
+    * in a failure for an already stopped process.)
+    * 
+    * \param state The state to set.
+    * \param process_results Output of the monitored process aliases and change results.
+    * \see setProcessUserRequestStateNoLock
+    */
+
 /* ============================ INQUIRY =================================== */
 
    /// Returns the alias of the monitored processes with the specified PID.
@@ -148,6 +173,10 @@ public:
    /// Returns the PIDs of all monitored processes mapped by alias.  The caller is
    /// responsible for deleting the new'd memory.
    void getAllPids(UtlHashMap& pids);
+
+   /// Returns the PIDs of all requested processes mapped by alias.  The caller is
+   /// responsible for deleting the new'd memory.
+   void getPidsByAliasList(const UtlSList& alias_list, UtlHashMap& pids);
 
    /// Whether or not the specified peer is allowed to make XML-RPC Process Manamgement requests.
    bool isAllowedPeer(const UtlString& peer) const;

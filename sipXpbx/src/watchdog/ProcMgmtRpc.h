@@ -252,9 +252,8 @@ protected:
 };
 
 /**
- Attempts to set the "user requested state" of the specified process to "start".  If successful, 
- it then optionally blocks (up to SINGLE_BLOCK_MAX seconds) for the current state to be equal 
- to the requested state.
+ Attempts to set the "user requested state" of the specified processes to "start".  If successful, 
+ it then optionally blocks for the current state to be equal to the requested state.
 
  \par
  A process monitored by the watchdog may be configured as not user start-able.  Calling this 
@@ -278,9 +277,9 @@ protected:
            against an explicit list of hosts allowed to make requests.</td>
     </tr>
     <tr>
-       <td>string</td>
+       <td>array</td>
        <td>alias</td>
-       <td>The alias of the process whose state is to be changed.  (The alias 
+       <td>List of aliases (strings) of the processes whose state is to be changed.  (The alias 
            is the "name" attribute of the "monitor-process" element in the process's 
            SIPX_CONFDIR/process.d/___.process.xml configuration file.)</td>
     </tr>
@@ -299,10 +298,11 @@ protected:
        <td><b>Description</b></td>
     </tr>
     <tr>
-       <td>boolean</td>
-       <td>True if a matching alias was found, its "user requested state" was changed,
-           and the current state is equal to the requested state.  Returns false 
-           otherwise.</td>
+       <td>boolean struct</td>
+       <td>Whether or not each monitored process "user requested state" was changed,
+           and the current state is equal to the requested state.  Indexed by process alias.
+           (The alias is the "name" attribute of the "monitor-process" element in the
+           process' SIPX_CONFDIR/process.d/___.process.xml configuration file.)</td>
     </tr>
  </table>
  */
@@ -417,14 +417,14 @@ protected:
                         );
 };
 
+
 /**
- Attempts to set the "user requested state" of the specified process to "stop".  If successful, 
- it then optionally blocks (up to SINGLE_BLOCK_MAX seconds) for the current state to be equal 
- to the requested state. 
+ Attempts to set the "user requested state" of the specified processes to "stop".  If successful,
+ it then optionally blocks for the state to be equal to the requested state. 
 
  \par
- A process monitored by the watchdog may be configured as not user stop-able.  (i.e. The
- "KeepAlive" proces.)  Calling this method for such a process will fail, even if the 
+ Processes monitored by the watchdog may be configured as not user stop-able.  (i.e. The
+ "KeepAlive" process.)  Calling this method for such a process will fail, even if the
  process is already stopped.  
 
  \par
@@ -445,16 +445,16 @@ protected:
            against an explicit list of hosts allowed to make requests.</td>
     </tr>
     <tr>
-       <td>string</td>
+       <td>array</td>
        <td>alias</td>
-       <td>The alias of the process.  (The alias is the "name" attribute of the 
+       <td>List of aliases of the processes.  (The alias is the "name" attribute of the
            "monitor-process" element in the process's 
            SIPX_CONFDIR/process.d/___.process.xml configuration file.)</td>
     </tr>
     <tr>
        <td>boolean</td>
        <td>blockForStateChange</td>
-       <td>Whether or not to block for the state change to occur.</td>
+       <td>Whether or not to block for the state changes to occur.</td>
     </tr>
  </table>
  
@@ -466,10 +466,11 @@ protected:
        <td><b>Description</b></td>
     </tr>
     <tr>
-       <td>boolean</td>
-       <td>True if a matching alias was found, its "user requested state" was changed,
-           and the current state is equal to the requested state.  Returns false 
-           otherwise.</td>
+       <td>boolean struct</td>
+       <td>Whether or not each monitored process "user requested state" was changed, and
+           the current state is equal to the requested state.  Indexed by process alias.
+           (The alias is the "name" attribute of the "monitor-process" element in the
+           process's SIPX_CONFDIR/process.d/___.process.xml configuration file.)</td>
     </tr>
  </table>
 
@@ -587,9 +588,8 @@ protected:
 };
 
 /**
- Attempts to set the "user requested state" of the specified process to "restart".  If successful, 
- it then optionally blocks (up to SINGLE_BLOCK_MAX seconds) for the process to be running with a 
- new PID.
+ Attempts to set the "user requested state" of the specified processes to "restart".  If successful, 
+ it then optionally blocks for the process to be running with new PIDs.
 
  \par
  A process monitored by the watchdog may be configured as not user restart-able.  (i.e. The 
@@ -613,9 +613,9 @@ protected:
            against an explicit list of hosts allowed to make requests.</td>
     </tr>
     <tr>
-       <td>string</td>
+       <td>array</td>
        <td>alias</td>
-       <td>The alias of the process.  (The alias is the "name" attribute of the 
+       <td>List of aliases of the processes.  (The alias is the "name" attribute of the
            "monitor-process" element in the process's 
            SIPX_CONFDIR/process.d/___.process.xml configuration file.)</td>
     </tr>
@@ -634,9 +634,11 @@ protected:
        <td><b>Description</b></td>
     </tr>
     <tr>
-       <td>boolean</td>
-       <td>True if a matching alias was found, its "user requested state" was changed,
-           and the process is now running with a new PID.  Returns false otherwise.</td>
+       <td>boolean struct</td>
+       <td>Whether or not each monitored process "user requested state" was changed, and 
+           the current state is equal to the requested state.  Indexed by process alias.  
+           (The alias is the "name" attribute of the "monitor-process" element in the 
+           process's SIPX_CONFDIR/process.d/___.process.xml configuration file.)</td>
     </tr>
  </table>
  */
