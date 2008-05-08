@@ -37,33 +37,40 @@ import java.util.Map;
  * <ul>
  * <li><it>SymEndpoint</it> This is an IP address and port. It represents
  * either a transmitter or a receiver.
- * <li><it>Sym</it> Is a container for a pair of  <it>SymEndpoint</it> A
- * Sym has at most one transmitter and a receiver. A Sym transmits packets
- * to the remote end-point through its transmitter (if one exists)
- * and receives packets from the remote endpoint through the receiver.
+ * <li><it>Sym</it> Is a container for a pair of <it>SymEndpoint</it> A Sym
+ * has at most one transmitter and a receiver. A Sym transmits packets to the
+ * remote end-point through its transmitter (if one exists) and receives packets
+ * from the remote endpoint through the receiver.
  * 
- * <p>A Sym has the following lifecycle: 
- * A sym is in the INITAL state when it is first created. 
- * When a Sym is created, it includes  a receiver but not a transmitter. 
- * A transmitter has to be added through a separate operation. 
- * When a transmitter is assigned to it, it transitions to the RUNNING state.
- * When the client wishes to hold transmission to the target of the transmitter, 
- * it can pause the <it>Sym</it> at which point the Sym transitions to the PAUSED
- * state. The client can resume transmission - transitioning the sym back to the
- * RUNNING state. The sym can be destroyed - transitioning it to the terminated
- * state. Once a sym is terminated it cannot be revived again.
+ * <p>
+ * A Sym has the following lifecycle: A sym is in the <b>INITAL</b> state when it is
+ * first created. When a Sym is created, it includes a receiver but not a
+ * transmitter. A transmitter has to be added through a separate operation. When
+ * a transmitter is assigned to it, it transitions to the RUNNING state. When
+ * the client wishes to hold transmission to the target of the transmitter, it
+ * can pause the <it>Sym</it> at which point the Sym transitions to the PAUSED
+ * state. A Sym in the PAUSED state does not forward data. The client can
+ * <it>resume</it> transmission - transitioning the sym back to the <b>RUNNING</b>
+ * state. The <it>Sym</it> can be destroyed - transitioning it to the
+ * <b>TERMINATED</b> state and releasing all associated resources. Once a Sym is
+ * in the <b>TERMINATED</b> state, it cannot transition out of that state.
  * 
- * <li><it>Bridge</it> a set of <it>Sym</it> A packet received on a
- * Sym belonging to a given Bridge is potentially transmitted via each of
- * the other Sym that belong to the Bridge. A given Sym can belong
- * to only one Bridge.
+ * <li><it>Bridge</it> a set of <it>Sym</it> A packet received on a Sym
+ * belonging to a given Bridge is potentially transmitted via each of the other
+ * Sym that belong to the Bridge. A given Sym can belong to only one Bridge.
  * 
- * <p>A bridge has the following lifecycle: When a bridge is created, it contains no Syms 
- * it is in the RUNNING state. A bridge may be paused - driving it to the PAUSED state.
- * When a bridge is in the paused state, data received from any of the Syms associated
- * with the Bridge is not forwarded. A bridge can be resumed from the PAUSED state which
- * puts it back into the RUNNING state. A bridge can be destroyed. A destroyed bridge
- * cannot transition out from the TERMINATED state.
+ * <p>
+ * A bridge has the following lifecycle: When a bridge is created, it contains
+ * no Syms it is in the INITIAL state. A bridge may be <it>started</it> to
+ * enable it to start forwarding packets. This places it in the <b>RUNNING</b>
+ * state. A <b>RUNNING</b> bridge may be paused. When a bridge is in the
+ * <b>PAUSED</b> state, data received from any of the Syms associated with the
+ * Bridge is not forwarded. A bridge can be resumed from the <b>PAUSED</b>
+ * state which puts it back into the <b>RUNNING</b> state. A bridge can be
+ * destroyed which puts it into the <b>TERMINATED</b> state. A destroyed bridge
+ * cannot transition out from the TERMINATED state. When a bridge is destroyed,
+ * all of the associated Syms are also destroyed and their resources are
+ * released.
  * 
  * </ul>
  * 
@@ -163,18 +170,16 @@ public interface Symmitron {
      * The sym Bridge State.
      */
     public static final String BRIDGE_STATE = "bridge-state";
-    
+
     /**
      * The time the bridge was created.
      */
     public static final String CREATION_TIME = "creation-time";
-    
-    
+
     /**
      * Time the last packet was received.
      */
     public static String LAST_PACKET_RECEIVED = "last-packet-received";
-    
 
     /**
      * The sym Session State.
@@ -215,21 +220,19 @@ public interface Symmitron {
 
     public static final int SESSION_NOT_FOUND = 3;
 
-    public static final int ILLEGAL_ARGUMENT = 0; // Consistent with framework.
+    public static final int ILLEGAL_ARGUMENT = 0; // Consistent with
+                                                    // framework.
 
     public static final int ILLEGAL_STATE = 5;
-    
+
     public static final int PORTS_NOT_AVAILABLE = 6;
-    
+
     /**
      * Starting port for Sym allocation.
      * 
      */
     public static final int EVEN = 1;
     public static final int ODD = 2;
-  
-    
-    
 
     /**
      * Sign in to symmmitron. This allows remote hosts to sign into symmitron.
@@ -248,67 +251,72 @@ public interface Symmitron {
      * 
      */
     public Map<String, Object> signIn(String controllerHandle);
-    
-    
-    /**
-     * Sign out of the symmitron. This allows remote hosts to delete all resources.
-     * 
-     * @param controllerHandle --
-     *          instance handle of the controller.
-     *          
-     * @return -- a standard map
-     */
-    public Map<String,Object> signOut(String controllerHandle);
 
     /**
-     * Allocate a set of syms. This returns with the receivers end
-     * running. This method does not specify an Id.
+     * Sign out of the symmitron. This allows remote hosts to delete all
+     * resources.
+     * 
+     * @param controllerHandle --
+     *            instance handle of the controller.
+     * 
+     * @return -- a standard map
+     */
+    public Map<String, Object> signOut(String controllerHandle);
+
+    /**
+     * Allocate a set of syms. This returns with the receivers end running. This
+     * method does not specify an Id.
      * 
      * @param controllerHandle -
      *            the controller handle that is making this call.
      * 
-     * @param count - number of syms to be allocated.
+     * @param count -
+     *            number of syms to be allocated.
      * 
-     * @param parity - 1 Even or 2 Odd the allocated set is a contiguous set of ports.
+     * @param parity -
+     *            1 Even or 2 Odd the allocated set is a contiguous set of
+     *            ports.
      * 
      * 
      * 
      * @return a map containing a key that references a map containing the
-     *         allocated sym  if any in addition to the standard entries.
+     *         allocated sym if any in addition to the standard entries.
      * 
      */
-    public Map<String, Object> createSyms(String controllerHandle, int count, int parity);
-    
+    public Map<String, Object> createSyms(String controllerHandle, int count,
+            int parity);
+
     /**
-     * Destroy a sym. This deallocates any resources ( sockets, ports ) that have been reserved
-     * for that Sym
+     * Destroy a sym. This deallocates any resources ( sockets, ports ) that
+     * have been reserved for that Sym
      * 
-     * @param controllerHandle -- the controller handle.
+     * @param controllerHandle --
+     *            the controller handle.
      * 
-     * @param symId - the id of the sym to be destroyed.
+     * @param symId -
+     *            the id of the sym to be destroyed.
      */
-    public Map<String,Object> destroySym(String controllerHandle, String symId);
-    
-   
+    public Map<String, Object> destroySym(String controllerHandle, String symId);
+
     /**
      * Get an sym Session given its ID if it exists.
      * 
      * @param controllerHandle -
      *            the controller handle that is making this call.
-     *            
-     * @param symId - 
-     *          the symId that we want to get
      * 
-     * @return a map containing a key "sym" that references a map
-     *         containing the Sym. If such a session cannot be found,
-     *         then the entry is not present in the returned map.
+     * @param symId -
+     *            the symId that we want to get
+     * 
+     * @return a map containing a key "sym" that references a map containing the
+     *         Sym. If such a session cannot be found, then the entry is not
+     *         present in the returned map.
      * 
      */
     public Map<String, Object> getSym(String controllerHandle, String symId);
 
     /**
-     * Hold a sym. When a sym is in the paused state, it does not send 
-     * any data to the remote endpoint.
+     * Hold a sym. When a sym is in the paused state, it does not send any data
+     * to the remote endpoint.
      * 
      * @param controllerHandle -
      *            the controller handle making this call.
@@ -318,8 +326,7 @@ public interface Symmitron {
      * 
      * @return a standard map.
      */
-    public Map<String, Object> pauseSym(String controllerHandle,
-            String symId);
+    public Map<String, Object> pauseSym(String controllerHandle, String symId);
 
     /**
      * Resume an sym Session.
@@ -331,8 +338,7 @@ public interface Symmitron {
      * 
      * @return a standard map
      */
-    public Map<String, Object> resumeSym(String controllerHandle,
-            String symId);
+    public Map<String, Object> resumeSym(String controllerHandle, String symId);
 
     /**
      * 
@@ -342,28 +348,32 @@ public interface Symmitron {
      *            the controller handle that is making this call.
      * 
      * @param symId --
-     *            the Sym Identifier for the sym Session for which we
-     *            need to add a remote endpoint.
+     *            the Sym Identifier for the sym Session for which we need to
+     *            add a remote endpoint.
      * 
      * 
-     * @param destinationIpAddress -- the destinationIpAddress
+     * @param destinationIpAddress --
+     *            the destinationIpAddress
      * 
-     * @param destinationPort -- the destination port.
+     * @param destinationPort --
+     *            the destination port.
      * 
      * @param keepAliveTime --
      *            the keep alive time (0 means no keep alive packets).
      * 
      * @param keepAliveMethod --
-     *          can be one of the following "NONE", "USE-LAST-SENT","USE-EMPTY-PACKET"
-     *          "USE-SPECIFIED-PAYLOAD"
+     *            can be one of the following "NONE",
+     *            "USE-LAST-SENT","USE-EMPTY-PACKET" "USE-SPECIFIED-PAYLOAD"
      * 
      * @param keepAlivePacketData --
      *            the keep alive packet data. This parameter is relevant if
-     *            USE-SPECIFIED-PAYLOAD is specified. This is a uuencoded string.
-     *            It is uudecoded to extract the keepalive data.
-     *            
-     * @param autoLearnDestination -- true implies auto discover remote port - send port is based on
-     *          remote port of last seen packet ( useful for dealing with NAT reboots ).
+     *            USE-SPECIFIED-PAYLOAD is specified. This is a uuencoded
+     *            string. It is uudecoded to extract the keepalive data.
+     * 
+     * @param autoLearnDestination --
+     *            true implies auto discover remote port - send port is based on
+     *            remote port of last seen packet ( useful for dealing with NAT
+     *            reboots ).
      * 
      * 
      * @return - a standard map
@@ -372,9 +382,7 @@ public interface Symmitron {
     public Map<String, Object> setDestination(String controllerHandle,
             String symId, String destinationIpAddress, int destinationPort,
             int keepAliveTime, String keepaliveMethod,
-            String keepAlivePacketData, boolean autoLearnDestination );
-
-    
+            String keepAlivePacketData, boolean autoLearnDestination);
 
     /**
      * Remove a sym from a bridge.
@@ -404,10 +412,8 @@ public interface Symmitron {
      * 
      * @return a standard map
      */
-    public Map<String, Object> addSym(String controllerHandle,
-            String bridgeId, String symId);
-
-    
+    public Map<String, Object> addSym(String controllerHandle, String bridgeId,
+            String symId);
 
     /**
      * Create an empty sym bridge.
@@ -418,18 +424,19 @@ public interface Symmitron {
      * @return a map containing the allocated bridge ID.
      */
     public Map<String, Object> createBridge(String controllerHandle);
-    
-    
+
     /**
-     * Destroy a bridge. This method destroys all the syms associated with 
-     * the bridge. Once the bridge is destroyed all references to its handle
-     * are removed from memory.
+     * Destroy a bridge. This method destroys all the syms associated with the
+     * bridge. Once the bridge is destroyed all references to its handle are
+     * removed from memory.
      * 
-     * @param controllerHandle -- the controller handle.
+     * @param controllerHandle --
+     *            the controller handle.
      * 
      * @return a standard map
      */
-    public Map<String,Object> destroyBridge(String controllerHandle, String bridgeId);
+    public Map<String, Object> destroyBridge(String controllerHandle,
+            String bridgeId);
 
     /**
      * Start shuffling data on the specified bridge.
@@ -445,8 +452,6 @@ public interface Symmitron {
      */
     public Map<String, Object> startBridge(String controllerHandle,
             String bridgeId);
-
- 
 
     /**
      * Pause the bridge. When you pause the bridge, all data shuffling will
@@ -475,33 +480,38 @@ public interface Symmitron {
      */
     public Map<String, Object> resumeBridge(String controllerHandle,
             String bridgeId);
-    
+
     /**
      * Set the timeout for a sym.
      * 
-     * @param controllerHandle -- the controller handle.
-     * @param symId -- the sym id.
-     * @param timeout ( milliseconds ) after which inactivity is recorded.
+     * @param controllerHandle --
+     *            the controller handle.
+     * @param symId --
+     *            the sym id.
+     * @param timeout (
+     *            milliseconds ) after which inactivity is recorded.
      */
-    public Map<String,Object> setTimeout(String controllerHandle, String symId, int timeout);
-    
+    public Map<String, Object> setTimeout(String controllerHandle,
+            String symId, int timeout);
+
     /**
      * Ping and test for liveness of monitored Syms.
      * 
-     * @param controllerHandle -- the controller handle making the call.
+     * @param controllerHandle --
+     *            the controller handle making the call.
      * 
-     * @param symId -- the sym Id.
+     * @param symId --
+     *            the sym Id.
      * 
-     * @return an array containing the syms that have not seen inbound for a time t >
-     *  the threshold timer value. Note that this is an instantaneous measure.
-     *  The inactivity flag is a boolean that indicates if a timeout has occurred
-     *  on the LAST received packet at the time the reading is made.
-     *  
-     *  
+     * @return an array containing the syms that have not seen inbound for a
+     *         time t > the threshold timer value. Note that this is an
+     *         instantaneous measure. The inactivity flag is a boolean that
+     *         indicates if a timeout has occurred on the LAST received packet
+     *         at the time the reading is made.
+     * 
+     * 
      */
-    public Map <String,Object> ping(String controllerHandle);
-    
-    
+    public Map<String, Object> ping(String controllerHandle);
 
     /**
      * Get Sym statistics.
@@ -512,13 +522,13 @@ public interface Symmitron {
      * @param symId --
      *            the sym id.
      * 
-     * @return A map containing statistics for the sym . On successful
-     *         lookup, a map containing the following keys will be returned.
+     * @return A map containing statistics for the sym . On successful lookup, a
+     *         map containing the following keys will be returned.
      *         <ul>
      *         <li><it>current-time-of-day</it> - the current time of day (
      *         according to symitrons clock )
-     *         <li><it>sym</it> - pointer to a hash map containing the
-     *         sym ( note that this contains the current receiver port.
+     *         <li><it>sym</it> - pointer to a hash map containing the sym (
+     *         note that this contains the current receiver port.
      *         <li><it>creation-time</it> - time this session was created.
      *         <li><it>idle-timer-starts</it> - number of times ( from start
      *         of session ) that the idle timer kicked in.
@@ -547,8 +557,8 @@ public interface Symmitron {
      *         <li><it>bridge-state</it> -- the bridge state.
      *         <li><it>packets-processed</it> -- the number of packets
      *         processed.
-     *         <li><it>sym-stats</it> -- a collection of statistics
-     *         for the individual sym Sessions that are part of this Bridge.
+     *         <li><it>sym-stats</it> -- a collection of statistics for the
+     *         individual sym Sessions that are part of this Bridge.
      *         </ul>
      */
     public Map<String, Object> getBridgeStatistics(String controllerHandle,
