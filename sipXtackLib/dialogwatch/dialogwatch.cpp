@@ -250,7 +250,8 @@ int main(int argc, char* argv[])
                                          refreshMgr);
    sipSubscribeClient.start();  
 
-   UtlString toUri(targetURI);
+   // Construct a name-addr from targetURI.
+   UtlString toUri = '<' + targetURI + '>';
    UtlString fromUri = "dialogwatch@" + myDomainName;
    UtlString earlyDialogHandle;
             

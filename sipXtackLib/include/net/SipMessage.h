@@ -516,8 +516,8 @@ public:
                         const char* routeField);
 
     void setSubscribeData(const char* uri,
-                          const char* fromField,
-                          const char* toField,
+                          const char* fromField, ///< name-addr
+                          const char* toField,   ///< name-addr
                           const char* callId,
                           int cseq,
                           const char* eventField,
@@ -565,8 +565,8 @@ public:
 
     void setRequestData(const char* method,
                         const char* uri,
-                        const char* fromAddress,
-                        const char* toAddress,
+                        const char* fromAddress, ///< name-addr
+                        const char* toAddress,   ///< name-addr
                         const char* callId,
                         int sequenceNumber = 1,
                         const char* contactUrl = NULL);

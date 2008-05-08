@@ -133,9 +133,9 @@ public:
                                const char* acceptHeaderValue,
                                //< value of the Accept header
                                const char* fromFieldValue,
-                               //< value of the From header
+                               //< value (name-addr) of the From header
                                const char* toFieldValue,
-                               //< value of the To header
+                               //< value (name-addr) of the To header
                                const char* contactFieldValue,
                                /**< Value of the Contact header.
                                 *   Must route to this UA.

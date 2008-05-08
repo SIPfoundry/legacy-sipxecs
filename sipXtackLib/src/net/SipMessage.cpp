@@ -572,10 +572,10 @@ void SipMessage::setRequestData(const char* method, const char* uri,
    // Add the From field
    setRawFromField(fromField);
 
-   // Add the to field
+   // Add the To field
    setRawToField(toField);
 
-   // Add the call-id field
+   // Add the Call-Id field
    setCallIdField(callId);
 
    // Add the CSeq field
