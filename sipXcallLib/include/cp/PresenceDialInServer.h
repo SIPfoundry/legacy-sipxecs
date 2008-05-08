@@ -58,10 +58,10 @@ public:
 
 /* ============================ ACCESSORS ================================= */
 
-   /// Registered a StateChangeNotifier
+   /// Register a StateChangeNotifier
    void addStateChangeNotifier(const char* fileUrl, StateChangeNotifier* notifier);
 
-   /// Unregistered a StateChangeNotifier
+   /// Unregister a StateChangeNotifier
    void removeStateChangeNotifier(const char* fileUrl);
 
 /* ============================ INQUIRY =================================== */

@@ -185,7 +185,7 @@ SipPresenceMonitor::SipPresenceMonitor(SipUserAgent* userAgent,
                                    MAX_CONNECTIONS,                   // maxCalls
                                    sipXmediaFactoryFactory(&configDb));    // CpMediaInterfaceFactory
 
-   mpDialInServer = new PresenceDialInServer(mpCallManager, configFile);    
+   mpDialInServer = new PresenceDialInServer(mpCallManager, configFile);
    mpCallManager->addTaoListener(mpDialInServer);
    mpDialInServer->start();
 
@@ -272,7 +272,7 @@ bool SipPresenceMonitor::addExtension(UtlString& groupName, Url& contactUrl)
                     groupName.data(), list);   
    }
 
-   // Check whether the contact has already being added to the group
+   // Check whether the contact has already been added to the group
    UtlString resourceId;
    contactUrl.getIdentity(resourceId);
    Resource* resource = list->getResource(resourceId);
@@ -348,12 +348,14 @@ bool SipPresenceMonitor::addPresenceEvent(UtlString& contact, SipPresenceEvent* 
    if (mPresenceEventList.find(&contact) == NULL)
    {
       requiredPublish = true;
-      OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipPresenceMonitor::addPresenceEvent adding the presenceEvent %p for contact %s",
+      OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                    "SipPresenceMonitor::addPresenceEvent adding presenceEvent %p for contact %s",
                     presenceEvent, contact.data());
    }
    else
    {
-      OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipPresenceMonitor::addPresenceEvent presenceEvent %p for contact %s already exists, just update the content.",
+      OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                    "SipPresenceMonitor::addPresenceEvent presenceEvent %p for contact %s already exists, updating its contents.",
                     presenceEvent, contact.data());
                     
       // Get the object from the presence event list
@@ -500,7 +502,6 @@ void SipPresenceMonitor::removeStateChangeNotifier(const char* fileUrl)
 
 void SipPresenceMonitor::notifyStateChange(UtlString& contact, SipPresenceEvent* presenceEvent)
 {
-
    // Loop through the notifier list
    UtlHashMapIterator iterator(mStateChangeNotifiers);
    UtlString* listUri;
@@ -524,14 +525,10 @@ void SipPresenceMonitor::notifyStateChange(UtlString& contact, SipPresenceEvent*
          UtlString status;
          tuple->getStatus(status);
             
-         if (status.compareTo(STATUS_CLOSED) == 0)
-         {
-            notifier->setStatus(contactUrl, StateChangeNotifier::AWAY);
-         }
-         else
-         {     
-            notifier->setStatus(contactUrl, StateChangeNotifier::PRESENT);
-         }
+         notifier->setStatus(contactUrl, 
+                             status.compareTo(STATUS_CLOSED) == 0 ?
+                             StateChangeNotifier::AWAY :
+                             StateChangeNotifier::PRESENT);
       }
    }
    mLock.release();
@@ -567,16 +564,10 @@ bool SipPresenceMonitor::setStatus(const Url& aor, const Status value)
    
    Tuple* tuple = new Tuple(id.data());
    
-   if (value == StateChangeNotifier::PRESENT)
-   {
-      tuple->setStatus(STATUS_OPEN);
-      tuple->setContact(contact, 1.0);
-   }
-   else if (value == StateChangeNotifier::AWAY)
-   {
-      tuple->setStatus(STATUS_CLOSED);
-      tuple->setContact(contact, 1.0);
-   }
+   tuple->setStatus(value == StateChangeNotifier::PRESENT ?
+                    STATUS_OPEN :
+                    STATUS_CLOSED);
+   tuple->setContact(contact, 1.0);
 
    sipPresenceEvent->insertTuple(tuple); 
    
