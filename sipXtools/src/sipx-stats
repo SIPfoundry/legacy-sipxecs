@@ -114,7 +114,7 @@ sub countMessage
     }
     elsif ( m|^SIP/2.0\s+(\d+).*\\n(?:Cseq\|I):\s*\d+\s+(\w+)|i ) # response
     {
-        #SIP/2.0 202 Accepted\r\nExpires: 7200\r\nFrom: \"Scott Best\" <sip:9494621181@sipx-socal01.panasonic.aero>;tag=4F9D0F0A-8A356FB1\r\nTo: <sip:9494621181@sipx-socal01.panasonic.aero>;tag=833061270\r\nCall-Id: c7c10d1e-9217f46c-19e5112b@10.139.35.201\r\nCseq: 2 SUBSCRIBE\r\nVia: SIP/2.0/TCP 10.139.4.87;branch=z9hG4bK-2c97076e7747d6dc0a07a947c714cb22\r\nVia: SIP/2.0/UDP 10.139.35.201:5060;branch=z9hG4bK93e53ec764298C78\r\nContact: sip:9494621181@sipx-socal01.panasonic.aero\r\nDate: Wed, 09 Aug 2006 18:00:00 GMT\r\nAllow: INVITE, ACK, CANCEL, BYE, REFER, OPTIONS, NOTIFY, SUBSCRIBE\r\nUser-Agent: sipX/3.0.30 (Linux)\r\nAccept-Language: en\r\nSupported: sip-cc-01, timer\r\nContent-Length: 0\r\n\r\n====================END====================\n"
+        #SIP/2.0 202 Accepted\r\nExpires: 7200\r\nFrom: \"Leto Atriedes\" <sip:8005551181@sipx-socal01.example.com>;tag=4F9D0F0A-8A356FB1\r\nTo: <sip:8005551181@sipx-socal01.example.com>;tag=833061270\r\nCall-Id: c7c10d1e-9217f46c-19e5112b@10.0.35.201\r\nCseq: 2 SUBSCRIBE\r\nVia: SIP/2.0/TCP 10.0.4.87;branch=z9hG4bK-2c97076e7747d6dc0a07a947c714cb22\r\nVia: SIP/2.0/UDP 10.0.35.201:5060;branch=z9hG4bK93e53ec764298C78\r\nContact: sip:8005551181@sipx-socal01.example.com\r\nDate: Wed, 09 Aug 2006 18:00:00 GMT\r\nAllow: INVITE, ACK, CANCEL, BYE, REFER, OPTIONS, NOTIFY, SUBSCRIBE\r\nUser-Agent: sipX/3.0.30 (Linux)\r\nAccept-Language: en\r\nSupported: sip-cc-01, timer\r\nContent-Length: 0\r\n\r\n====================END====================\n"
         $Code = $1;
         $Method = $2;
 
