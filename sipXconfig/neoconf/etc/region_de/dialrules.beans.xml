@@ -26,13 +26,8 @@
   <!-- properties: optionalPrefix, emergencyNumber -->
   <bean id="de.emergencyRule" parent="defaultEmergencyRule" singleton="false">
     <property name="name" value="Notfallnummern" />
-    <property name="description" value="Notfallnummer für Deutschland" />
-    <property name="emergencyNumber" value="112" />
-  </bean>
-  <bean id="de.emergencyRule" parent="defaultEmergencyRule" singleton="false">
-    <property name="name" value="Polizei" />
-    <property name="description" value="Notfallnummer für Polizei" />
-    <property name="emergencyNumber" value="110" />
+    <property name="description" value="Notfallnummern für Deutschland" />
+    <property name="emergencyNumber" value="110, 112" />
   </bean>
 
   <!-- properties for all long distance rules:  pstnPrefixOptional, pstnPrefix, 
