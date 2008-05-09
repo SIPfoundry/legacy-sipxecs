@@ -57,11 +57,6 @@ The assigned facility codes are:
    dial plan is activated.
 
    The current assignments are:
-      ~~rl~[internal user seq. no.] -> full RFC 4662 resource list
-      ~~rl~[internal user seq. no.]c -> Broadworks-format ("consolidated")
-                                        resource list
-
-   The proposed new assignments are:
       ~~rl~F~[user name] -> full RFC 4662 resource list
       ~~rl~C~[user name] -> Broadworks-format resource list
       ~~rl~D~[something] -> for debugging requests
