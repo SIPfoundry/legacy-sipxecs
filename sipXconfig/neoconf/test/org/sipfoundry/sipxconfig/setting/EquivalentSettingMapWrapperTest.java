@@ -1,14 +1,11 @@
 package org.sipfoundry.sipxconfig.setting;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import junit.framework.TestCase;
 
-public class EquivalentSettingMapWrapperTest {
+public class EquivalentSettingMapWrapperTest extends TestCase {
 
     private EquivalentSettingMapWrapper uniqueMap1, uniqueMap2, uniqueMap3;
 
-    @Before
     public void setUp() {
         Setting animalDog = new SettingImpl("animal");
         animalDog.setValue("dog");
@@ -35,17 +32,17 @@ public class EquivalentSettingMapWrapperTest {
         uniqueMap3 = new EquivalentSettingMapWrapper(map3);
     }
 
-    @Test
     public void testIdentity() {
-        Assert.assertTrue(uniqueMap1.equals(uniqueMap1));
+        assertEquals(uniqueMap1, uniqueMap1);
     }
 
-    @Test
     public void testEquivalence() {
-        Assert.assertTrue(uniqueMap1.equals(uniqueMap3));
-        Assert.assertTrue(uniqueMap3.equals(uniqueMap1));
-        Assert.assertFalse(uniqueMap1.equals(uniqueMap2));
-        Assert.assertFalse(uniqueMap2.equals(uniqueMap1));
+        assertEquals(uniqueMap1, uniqueMap3);
+        assertEquals(uniqueMap3, uniqueMap1);
+        assertEquals(uniqueMap1.hashCode(), uniqueMap3.hashCode());
+        
+        assertFalse(uniqueMap1.equals(uniqueMap2));
+        assertFalse(uniqueMap2.equals(uniqueMap1));
     }
 
 }
