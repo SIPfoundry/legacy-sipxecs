@@ -311,6 +311,7 @@ public:
 
     /// Set the URL host port
     void setHostPort(int port);
+    ///< port == PORT_NONE specifies that no port number is to be added.
 
     /// Get the file path from the URL
     UtlBoolean getPath(UtlString& path,
