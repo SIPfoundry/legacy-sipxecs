@@ -51,13 +51,9 @@ public class SipListenerImpl implements SipListener {
      */
     public void processDialogTerminated(DialogTerminatedEvent dte) {
 
+        logger.debug("DialogTerminatedEvent "  + dte.getDialog() );
         CallIdHeader cid = dte.getDialog().getCallId();
-        BackToBackUserAgent b2bua = Gateway.getCallControlManager()
-                .getBackToBackUserAgent(dte.getDialog());
-        if (b2bua != null) {
-            b2bua.removeDialog(dte.getDialog());
 
-        }
         DialogApplicationData dat = DialogApplicationData.get(dte.getDialog());
         if (dat != null && dat.musicOnHoldDialog != null
                 && dat.musicOnHoldDialog.getState() != DialogState.TERMINATED) {
@@ -74,19 +70,22 @@ public class SipListenerImpl implements SipListener {
             }
 
         }
-        String callId = dte.getDialog().getCallId().getCallId();
-        Gateway.getAuthenticationHelper().removeCachedAuthenticationHeaders(
-                callId);
-        
-        if ( dat.backToBackUserAgent != null &&
-                dat.backToBackUserAgent.getCreatingDialog() == dte.getDialog()) {
-           
-            ItspAccountInfo itspAccountInfo = dat.backToBackUserAgent.getItspAccountInfo();
-            
-            
+        BackToBackUserAgent b2bua = dat.backToBackUserAgent;
+        if (b2bua != null) {
+            b2bua.removeDialog(dte.getDialog());
+
+        }
+
+        if (dat.backToBackUserAgent != null
+                && dat.backToBackUserAgent.getCreatingDialog() == dte
+                        .getDialog()) {
+
+            ItspAccountInfo itspAccountInfo = dat.backToBackUserAgent
+                    .getItspAccountInfo();
+
             Gateway.decrementCallCount();
-            
-            if ( itspAccountInfo != null ) {
+
+            if (itspAccountInfo != null) {
                 itspAccountInfo.decrementCallCount();
             }
         }
@@ -154,10 +153,11 @@ public class SipListenerImpl implements SipListener {
 
         try {
 
-          
-            if ( responseEvent.getClientTransaction() == null ) {
-                // Cannot find transaction state -- this must be a timed out transaction.
-                // Just ignore the response and wait for the other end to time out.
+            if (responseEvent.getClientTransaction() == null) {
+                // Cannot find transaction state -- this must be a timed out
+                // transaction.
+                // Just ignore the response and wait for the other end to time
+                // out.
                 logger.debug("Discarding response - no client tx state found");
                 return;
             }
@@ -186,7 +186,9 @@ public class SipListenerImpl implements SipListener {
 
                 }
 
-                if (method.equals(Request.REGISTER) || method.equals(Request.OPTIONS)) return;
+                if (method.equals(Request.REGISTER)
+                        || method.equals(Request.OPTIONS))
+                    return;
             }
 
             if (response.getStatusCode() == Response.PROXY_AUTHENTICATION_REQUIRED
@@ -316,9 +318,9 @@ public class SipListenerImpl implements SipListener {
     }
 
     public void processTransactionTerminated(TransactionTerminatedEvent tte) {
-        
-        Transaction transaction = tte.getClientTransaction() != null ?
-                    tte.getClientTransaction() : tte.getServerTransaction();
+
+        Transaction transaction = tte.getClientTransaction() != null ? tte
+                .getClientTransaction() : tte.getServerTransaction();
         Dialog dialog = transaction.getDialog();
         Request request = transaction.getRequest();
         /*
@@ -326,16 +328,19 @@ public class SipListenerImpl implements SipListener {
          * CONFIRMED, we increment the call count.
          * 
          */
-        if ( request.getMethod().equals(Request.INVITE) && dialog.getState() == DialogState.CONFIRMED  && 
-                ((ToHeader) request.getHeader(ToHeader.NAME)).getParameter("tag") == null ) {
-            DialogApplicationData dat = (DialogApplicationData) dialog.getApplicationData();
+        if (request.getMethod().equals(Request.INVITE)
+                && dialog.getState() == DialogState.CONFIRMED
+                && ((ToHeader) request.getHeader(ToHeader.NAME))
+                        .getParameter("tag") == null) {
+            DialogApplicationData dat = (DialogApplicationData) dialog
+                    .getApplicationData();
             BackToBackUserAgent b2bua = dat.backToBackUserAgent;
-            if ( b2bua != null && dialog == b2bua.getCreatingDialog() &&  b2bua.getItspAccountInfo() != null ) {
-               b2bua.getItspAccountInfo().incrementCallCount();
+            if (b2bua != null && dialog == b2bua.getCreatingDialog()
+                    && b2bua.getItspAccountInfo() != null) {
+                b2bua.getItspAccountInfo().incrementCallCount();
             }
             Gateway.incrementCallCount();
         }
-       
 
     }
 

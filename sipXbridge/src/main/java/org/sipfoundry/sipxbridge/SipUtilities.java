@@ -220,7 +220,7 @@ public class SipUtilities {
         SipURI requestUri = ProtocolObjects.addressFactory.createSipURI(null,
                 proxy);
         int port = itspAccount.getProxyPort();
-        if ( port != 5060) {
+        if (port != 5060) {
             requestUri.setPort(port);
         }
         if (itspAccount.getOutboundTransport().equalsIgnoreCase("tcp")) {
@@ -487,26 +487,16 @@ public class SipUtilities {
             Request request = ProtocolObjects.messageFactory.createRequest(
                     requestUri, Request.INVITE, callid, cseqHeader, fromHeader,
                     toHeader, list, maxForwards);
-            SipURI routeURI = ProtocolObjects.addressFactory.createSipURI(null,
-                    itspAccount.getOutboundProxy());
-            routeURI.setLrParam();
-            routeURI.setPort(itspAccount.getProxyPort());
-            routeURI.setTransportParam(itspAccount.getOutboundTransport());
-            Address address = ProtocolObjects.addressFactory
-                    .createAddress(routeURI);
-            // request.setHeader(routeHeader);
-
+            
             Gateway.getAuthenticationHelper().setAuthenticationHeaders(request);
 
             ContactHeader contactHeader = createContactHeader(sipProvider,
                     itspAccount);
 
             request.addHeader(contactHeader);
-            
-            SupportedHeader sh = 
-                (SupportedHeader) 
-                ProtocolObjects.headerFactory.createHeader(SupportedHeader.NAME, 
-                        "replaces");
+
+            SupportedHeader sh = (SupportedHeader) ProtocolObjects.headerFactory
+                    .createHeader(SupportedHeader.NAME, "replaces");
             request.addHeader(sh);
 
             return request;
@@ -686,8 +676,7 @@ public class SipUtilities {
         }
     }
 
-    public static void setDuplexity(
-            SessionDescription sessionDescription, 
+    public static void setDuplexity(SessionDescription sessionDescription,
             String attributeValue) {
 
         try {
@@ -695,7 +684,7 @@ public class SipUtilities {
             MediaDescriptionImpl md = (MediaDescriptionImpl) sessionDescription
                     .getMediaDescriptions(true).get(0);
             md.setDuplexity(attributeValue);
-            
+
         } catch (Exception ex) {
             throw new RuntimeException("Malformatted sdp", ex);
         }
@@ -731,7 +720,8 @@ public class SipUtilities {
             Request request = transaction.getRequest();
             Response response = ProtocolObjects.messageFactory.createResponse(
                     statusCode, request);
-            SupportedHeader sh = ProtocolObjects.headerFactory.createSupportedHeader("replaces");
+            SupportedHeader sh = ProtocolObjects.headerFactory
+                    .createSupportedHeader("replaces");
             response.addHeader(sh);
 
             return response;

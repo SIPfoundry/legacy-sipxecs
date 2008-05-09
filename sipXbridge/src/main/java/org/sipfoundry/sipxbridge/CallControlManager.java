@@ -78,8 +78,8 @@ public class CallControlManager {
             Response response = ProtocolObjects.messageFactory.createResponse(
                     Response.BAD_REQUEST, request);
             if (logger.isDebugEnabled()) {
-                String message = "Exception occured at " + ex.getMessage() + " at "
-                        + ex.getStackTrace()[0].getFileName() + ":"
+                String message = "Exception occured at " + ex.getMessage()
+                        + " at " + ex.getStackTrace()[0].getFileName() + ":"
                         + ex.getStackTrace()[0].getLineNumber();
 
                 response.setReasonPhrase(message);
@@ -128,7 +128,8 @@ public class CallControlManager {
 
                 Response response = ProtocolObjects.messageFactory
                         .createResponse(Response.OK, request);
-                SupportedHeader sh = ProtocolObjects.headerFactory.createSupportedHeader("replaces");
+                SupportedHeader sh = ProtocolObjects.headerFactory
+                        .createSupportedHeader("replaces");
                 response.setHeader(sh);
                 if (newDescription != null) {
                     response.setContent(newDescription,
@@ -140,7 +141,7 @@ public class CallControlManager {
                         "sipxbridge", Gateway.getLanProvider());
                 response.setHeader(contactHeader);
                 response.setReasonPhrase("RTP Session Parameters Changed");
-               
+
                 if (serverTransaction != null) {
                     serverTransaction.sendResponse(response);
                 } else {
@@ -218,7 +219,8 @@ public class CallControlManager {
             }
             Response response = ProtocolObjects.messageFactory.createResponse(
                     Response.OK, request);
-            SupportedHeader sh = ProtocolObjects.headerFactory.createSupportedHeader("replaces");
+            SupportedHeader sh = ProtocolObjects.headerFactory
+                    .createSupportedHeader("replaces");
             response.setHeader(sh);
 
             /*
@@ -314,7 +316,8 @@ public class CallControlManager {
 
             Response response = ProtocolObjects.messageFactory.createResponse(
                     Response.ACCEPTED, request);
-            SupportedHeader sh = ProtocolObjects.headerFactory.createSupportedHeader("replaces");
+            SupportedHeader sh = ProtocolObjects.headerFactory
+                    .createSupportedHeader("replaces");
             ServerTransaction serverTransaction = requestEvent
                     .getServerTransaction();
 
@@ -339,7 +342,8 @@ public class CallControlManager {
                 btobua.querySdpFromPeerDialog(requestEvent,
                         Operation.REFER_INVITE_TO_SIPX_PROXY, continuation);
             } else {
-                btobua.referInviteToSipxProxy(request, dialog, Gateway.getCodecName());
+                btobua.referInviteToSipxProxy(request, dialog, Gateway
+                        .getCodecName());
             }
 
         } catch (ParseException ex) {
@@ -475,7 +479,6 @@ public class CallControlManager {
         try {
             BackToBackUserAgent b2bua = this
                     .getBackToBackUserAgent(requestEvent.getDialog());
-           
 
             if (b2bua != null) {
 
@@ -555,8 +558,6 @@ public class CallControlManager {
                     "Could not find a B2BUA for this response : " + response);
         }
 
-       
-
         try {
 
             if (response.getStatusCode() > 100
@@ -589,7 +590,7 @@ public class CallControlManager {
                             .getSeqNumber(response));
 
                     Operation operation = tad.continuationOperation;
-                    
+
                     String codec = SipUtilities.getCodecName(response);
 
                     if (operation == Operation.REFER_INVITE_TO_SIPX_PROXY) {
@@ -601,7 +602,7 @@ public class CallControlManager {
 
                 } else if (tad.operation == Operation.SEND_INVITE_TO_ITSP
                         || tad.operation == Operation.SEND_INVITE_TO_SIPX_PROXY) {
-                    
+
                     /*
                      * Store away our incoming response - get ready for ACK
                      */
@@ -618,8 +619,9 @@ public class CallControlManager {
                     Response newResponse = ProtocolObjects.messageFactory
                             .createResponse(response.getStatusCode(),
                                     serverTransaction.getRequest());
-                    SupportedHeader sh = ProtocolObjects.headerFactory.createSupportedHeader("replaces");
-                   
+                    SupportedHeader sh = ProtocolObjects.headerFactory
+                            .createSupportedHeader("replaces");
+
                     newResponse.setHeader(sh);
 
                     String toTag = tad.toTag;
@@ -680,8 +682,6 @@ public class CallControlManager {
                                         new String(response.getRawContent()));
                         DialogApplicationData dialogApplicationData = (DialogApplicationData) dialog
                                 .getApplicationData();
-                        
-                      
 
                         Sym rtpSession = dialogApplicationData.rtpSession;
                         SymTransmitterEndpoint hisEndpoint = null;
@@ -714,8 +714,9 @@ public class CallControlManager {
                         newResponse.setContent(newSd.toString(), cth);
                         tad.backToBackUa.getBridge().start();
                         dialogApplicationData.codecName = SipUtilities
-                        .getCodecName(newResponse);
-                        logger.debug("dialog = " + dialog + " codec = " + dialogApplicationData.codecName);
+                                .getCodecName(newResponse);
+                        logger.debug("dialog = " + dialog + " codec = "
+                                + dialogApplicationData.codecName);
 
                     }
                     if (logger.isDebugEnabled()
@@ -874,7 +875,8 @@ public class CallControlManager {
                         Response newResponse = ProtocolObjects.messageFactory
                                 .createResponse(response.getStatusCode(),
                                         originalRequest);
-                        SupportedHeader sh = ProtocolObjects.headerFactory.createSupportedHeader("replaces");
+                        SupportedHeader sh = ProtocolObjects.headerFactory
+                                .createSupportedHeader("replaces");
                         newResponse.setHeader(sh);
                         serverTransaction.sendResponse(newResponse);
                     }
@@ -937,9 +939,9 @@ public class CallControlManager {
      *            callId for which we want our user agent.
      */
 
-    public BackToBackUserAgent getBackToBackUserAgent(SipProvider provider,
-            Request request, Dialog dialog, boolean callOriginatedFromLan)
-            throws Exception {
+    public synchronized BackToBackUserAgent getBackToBackUserAgent(
+            SipProvider provider, Request request, Dialog dialog,
+            boolean callOriginatedFromLan) throws Exception {
 
         String callId = SipUtilities.getCallId(request);
         // BackToBackUserAgent b2bua = callTable.get(callId);

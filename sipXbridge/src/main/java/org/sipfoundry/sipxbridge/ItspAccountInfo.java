@@ -542,8 +542,13 @@ public class ItspAccountInfo implements
     /**
      * @param maxCalls the maxCalls to set
      */
-    public void setMaxCalls(int maxCalls) {
-        this.maxCalls = maxCalls;
+    public void setMaxCalls(String maxCalls) {
+        try {
+            this.maxCalls = Integer.parseInt(maxCalls);
+        } catch (NumberFormatException ex) {
+            logger.error("Illegal Argument " + maxCalls);
+            
+        }
     }
 
     /**

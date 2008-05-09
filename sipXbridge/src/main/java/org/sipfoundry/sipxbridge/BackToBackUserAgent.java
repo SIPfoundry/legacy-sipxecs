@@ -194,6 +194,7 @@ public class BackToBackUserAgent {
         } catch (SdpParseException ex) {
             throw new RuntimeException("Unexpected exception -- FIXME", ex);
         } catch (IOException ex) {
+            logger.error("IOException occured while allocating sym",ex);
             return null;
         }
 
@@ -1051,6 +1052,8 @@ public class BackToBackUserAgent {
 
             String codecName = !itspAccountInfo.isReInviteSupported() ? Gateway
                     .getCodecName() : null;
+                    
+           
             SessionDescription sd = spiral ? DialogApplicationData
                     .getRtpSession(this.referingDialog).getReceiver()
                     .getSessionDescription() : this.getWanRtpSession(

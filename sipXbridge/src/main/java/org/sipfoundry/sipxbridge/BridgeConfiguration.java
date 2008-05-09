@@ -8,6 +8,8 @@ package org.sipfoundry.sipxbridge;
 
 import java.net.InetAddress;
 
+import org.apache.log4j.Logger;
+
 /**
  * A class that represents the configuration of the SipxBridge. IMPORTANT -- the
  * methods of this class are tied to sipxbridge.xsd. Do not change method names
@@ -23,7 +25,7 @@ public class BridgeConfiguration {
     private int externalPort = 5080;
     private int localPort = 5090;
     private String sipxProxyDomain;
-    private String stunServerAddress =null;
+    private String stunServerAddress = null;
     private String logLevel = "INFO";
     private int rtpPortLowerBound = 25000;
     private int rtpPortUpperBound = 25500;
@@ -31,11 +33,13 @@ public class BridgeConfiguration {
     private boolean musicOnHoldEnabled = false;
     private int xmlRpcPort = 0;
     private int sipKeepalive = 20 * 1000; // Miliseconds for SIP keepalive.
-    private int mediaKeepalive = 160; // milisec for media keepalive.
+    private int mediaKeepalive = 500; // milisec for media keepalive.
     private String logFileDirectory = "/var/log/sipxpbx/";
     private int globalAddressRediscoveryPeriod = 30;
     private String codecName = "PCMU";
     private int maxCalls = -1;
+
+    private static Logger logger = Logger.getLogger(BridgeConfiguration.class);
 
     /**
      * @param externalAddress
@@ -143,8 +147,12 @@ public class BridgeConfiguration {
     /**
      * set the global address rediscovery period.
      */
-    public void setGlobalAddressRediscoveryPeriod(int period) {
-        this.globalAddressRediscoveryPeriod = period;
+    public void setGlobalAddressRediscoveryPeriod(String period) {
+        try {
+            this.globalAddressRediscoveryPeriod = Integer.parseInt(period);
+        } catch (NumberFormatException ex) {
+            logger.error("Illegal Format " + period);
+        }
     }
 
     /**
@@ -247,8 +255,12 @@ public class BridgeConfiguration {
      * @param sipKeepalive
      *            the sipKeepalive to set
      */
-    public void setSipKeepalive(int sipKeepalive) {
-        this.sipKeepalive = sipKeepalive;
+    public void setSipKeepalive(String sipKeepalive) {
+        try {
+            this.sipKeepalive = Integer.parseInt(sipKeepalive);
+        } catch ( NumberFormatException ex) {
+            logger.error("Illegal Arg " + sipKeepalive);
+        }
     }
 
     /**
@@ -262,8 +274,12 @@ public class BridgeConfiguration {
      * @param mediaKeepalive
      *            the mediaKeepalive to set
      */
-    public void setMediaKeepalive(int mediaKeepalive) {
-        this.mediaKeepalive = mediaKeepalive * 1000;
+    public void setMediaKeepalive(String mediaKeepalive) {
+        try {
+            this.mediaKeepalive = Integer.parseInt(mediaKeepalive) * 1000;
+        } catch (NumberFormatException ex) {
+            logger.error("Illegal Arg " + mediaKeepalive);
+        }
     }
 
     /**
@@ -297,10 +313,15 @@ public class BridgeConfiguration {
     }
 
     /**
-     * @param maxCalls the maxCalls to set
+     * @param maxCalls
+     *            the maxCalls to set
      */
-    public void setMaxCalls(int maxCalls) {
-        this.maxCalls = maxCalls;
+    public void setMaxCalls(String maxCalls) {
+        try {
+            this.maxCalls = Integer.parseInt(maxCalls);
+        } catch (NumberFormatException ex) {
+            logger.error("Bad Param " + maxCalls);
+        }
     }
 
     /**

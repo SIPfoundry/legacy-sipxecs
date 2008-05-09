@@ -81,6 +81,8 @@ class DialogApplicationData {
 
     public static DialogApplicationData attach(
             BackToBackUserAgent backToBackUserAgent, Dialog dialog) {
+        if ( backToBackUserAgent == null ) 
+            throw new NullPointerException("Null back2back ua");
         DialogApplicationData dat = new DialogApplicationData();
         dat.backToBackUserAgent = backToBackUserAgent;
         dialog.setApplicationData(dat);

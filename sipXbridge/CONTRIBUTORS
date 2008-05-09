@@ -7,6 +7,13 @@ http://stun4j.dev.java.net
 The DNS Java package developed by Brian Wellington
 http://www.dnsjava.org
 
+The SipUnit package developed by Becky McElroy
+http://www.cafesip.org
+
+The NIST JAIN-SIP Reference Implementation from the National Institute
+of Standards and Technology (Advanced Networking Technologies Division).
+http://jain-sip.dev.java.net
+
 The help of the following sipx community members in testing this code
 is gratefully acknowledged.
 

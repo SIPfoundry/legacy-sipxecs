@@ -64,6 +64,7 @@ public class Sym implements SymInterface, Serializable {
     public Sym() {
         id = "sym:" + Math.abs(new Random().nextLong());
         this.creationTime = System.currentTimeMillis();
+      
 
     }
 

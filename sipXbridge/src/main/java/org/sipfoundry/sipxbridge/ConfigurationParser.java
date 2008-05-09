@@ -50,8 +50,7 @@ public class ConfigurationParser {
         digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG,
                 "stun-server-address"), "setStunServerAddress", 0);
         digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG,
-                "stun-interval"), "setGlobalAddressRediscoveryPeriod", 0,
-                new Class[] { Integer.class });
+                "stun-interval"), "setGlobalAddressRediscoveryPeriod", 0);
         digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG,
                 "allowed-codec-name"), "setCodecName", 0);
         digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG,
@@ -66,11 +65,9 @@ public class ConfigurationParser {
         digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG,
                 "log-level"), "setLogLevel", 0);
         digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG,
-                "sip-keepalive-seconds"), "setSipKeepalive", 0,
-                new Class[] { Integer.class });
+                "sip-keepalive-seconds"), "setSipKeepalive", 0);
         digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG,
-                "media-keepalive-seconds"), "setMediaKeepalive", 0,
-                new Class[] { Integer.class });
+                "media-keepalive-seconds"), "setMediaKeepalive", 0);
         digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG,
                 "log-directory"), "setLogFileDirectory", 0);
         digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG,
@@ -130,9 +127,10 @@ public class ConfigurationParser {
         digester.addCallMethod(String.format("%s/%s", ITSP_CONFIG,
                 "is-reinvite-supported"), "setReInviteSupported", 0,
                 new Class[] { Boolean.class });
+        
+        // BUGBUG -- compensation for sipxconfig bug
         digester.addCallMethod(String.format("%s/%s", ITSP_CONFIG,
-                "max-number-of-concurrent-calls"), "setMaxCalls", 0,
-                new Class[] { Integer.class });
+                "max-number-of-concurrent-calls"), "setMaxCalls", 0);
 
     }
 

@@ -67,8 +67,10 @@ public class ProtocolObjects {
             // UNCOMMENT
             stackProperties.setProperty("gov.nist.javax.sip.LOG_FACTORY",
                     SipFoundryLogRecordFactory.class.getName());
-            stackProperties.setProperty("gov.nist.javax.sip.SERVER_LOG",
-                    "logs/serverlog.txt");
+            
+            
+            //stackProperties.setProperty("gov.nist.javax.sip.SERVER_LOG",
+            //        "logs/serverlog.txt");
            
             sipStack = ProtocolObjects.sipFactory
                     .createSipStack(stackProperties);

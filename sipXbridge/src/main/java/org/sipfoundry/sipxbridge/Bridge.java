@@ -243,7 +243,7 @@ public class Bridge {
     // ///////////////////////////////////////////////////////////////////////////////////
     // Private methods.
     // ///////////////////////////////////////////////////////////////////////////////////
-    void setState(BridgeState newState) {
+    private void setState(BridgeState newState) {
         this.state = newState;
 
     }
@@ -315,7 +315,7 @@ public class Bridge {
 
         this.dataShuffler = new DataShuffler();
         this.dataShufflerThread = new Thread(dataShuffler);
-        this.state = BridgeState.RUNNING;
+        this.setState(BridgeState.RUNNING);
         this.dataShufflerThread.start();
 
     }
@@ -325,15 +325,17 @@ public class Bridge {
      * 
      */
     public void stop() {
-
+        if ( logger.isDebugEnabled()) {
+            logger.debug("Closing SymBridge : " +
+                this.toString());
+        }
         for (Sym rtpSession : this.sessions) {
-            if (rtpSession.getReceiver() != null)
                 rtpSession.close();
         }
 
         if (this.dataShuffler != null)
             this.dataShuffler.exit();
-        this.state = BridgeState.TERMINATED;
+        this.setState(BridgeState.TERMINATED);
 
     }
 
@@ -344,14 +346,14 @@ public class Bridge {
      */
     public void pause() {
 
-        if (this.state == BridgeState.PAUSED)
+        if (this.getState() == BridgeState.PAUSED)
             return;
-        else if (this.state == BridgeState.RUNNING) {
-            this.state = BridgeState.PAUSED;
+        else if (this.getState() == BridgeState.RUNNING) {
+            this.setState(BridgeState.PAUSED);
 
         } else {
             throw new IllegalStateException("Cannot pause bridge in "
-                    + this.state);
+                    + this.getState());
         }
 
     }
@@ -363,14 +365,14 @@ public class Bridge {
      */
 
     public void resume() {
-        if (this.state == BridgeState.RUNNING)
+        if (this.getState() == BridgeState.RUNNING)
             return;
-        else if (this.state == BridgeState.PAUSED) {
-            this.state = BridgeState.RUNNING;
+        else if (this.getState() == BridgeState.PAUSED) {
+            this.setState(BridgeState.RUNNING);
 
         } else {
             throw new IllegalStateException(" Cannot resume bridge in "
-                    + this.state);
+                    + this.getState());
         }
     }
 
