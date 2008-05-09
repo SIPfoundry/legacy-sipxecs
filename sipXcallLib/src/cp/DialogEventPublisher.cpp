@@ -106,14 +106,23 @@ UtlContainableType DialogDefaultConstructor::getContainableType() const
 
 // Constructor
 DialogEventPublisher::DialogEventPublisher(CallManager* callManager,
-                                           SipPublishContentMgr* contentMgr)
+                                           SipPublishContentMgr* contentMgr,
+                                           const UtlString& entityHost,
+                                           int entityPort) :
+   mpCallManager(callManager),
+   mpSipPublishContentMgr(contentMgr),
+   mDialogId(0),
+   mEntityHost(entityHost),
+   mEntityPort(entityPort)
 {
-   mpCallManager = callManager;
-   mpSipPublishContentMgr = contentMgr;
    // Arrange to generate default content for dialog events.
    mpSipPublishContentMgr->publishDefault(DIALOG_EVENT_TYPE, DIALOG_EVENT_TYPE,
                                           new DialogDefaultConstructor);
-   mDialogId = 0;
+   // Determine the host/port parts if none are given.
+   if (mEntityHost.isNull())
+   {
+      mpCallManager->getUserAgent()->getLocalAddress(&mEntityHost, &mEntityPort);
+   }
 }
 
 //Destructor
@@ -526,46 +535,26 @@ void DialogEventPublisher::dumpTaoMessageArgs(unsigned char eventId, TaoString& 
    }
 }
 
-void DialogEventPublisher::getEntity(UtlString& requestUri, UtlString& entity)
+void DialogEventPublisher::getEntity(const UtlString& requestUri,
+                                     UtlString& entity)
 {
    entity = "";
-   // Contruct entity from requestUri and local contact information
-   if (mpCallManager)
+
+   UtlString userId;
+   Url tempRequestUri(requestUri);
+   tempRequestUri.getUserId(userId);
+         
+   if (!userId.isNull())
    {
-      SipUserAgent *tempUA = mpCallManager->getUserAgent();
-      if (tempUA)
-      {
-         int port;
-         UtlString localAddress;
-         UtlString userId;
+      Url entityUrl(mEntityHost);
+      entityUrl.setHostPort(mEntityPort);
+      entityUrl.setUserId(userId.data());
          
-         OsSysLog::add(FAC_SIP, PRI_DEBUG, "DialogEventPublisher::getEntity requestUri '%s'", requestUri.data());
-         
-         Url tempRequestUri(requestUri);
-         tempRequestUri.getUserId(userId);
-         OsSysLog::add(FAC_SIP, PRI_DEBUG, "DialogEventPublisher::getEntity userId '%s'", userId.data());  
-         
-         if (!userId.isNull())
-         {
-            tempUA->getLocalAddress(&localAddress, &port);
-         
-            Url entityUrl(localAddress);
-            entityUrl.setHostPort(port);
-            entityUrl.setUserId(userId.data());
-         
-            entityUrl.toString(entity);
-            OsSysLog::add(FAC_SIP, PRI_DEBUG, "DialogEventPublisher::getEntity entity '%s'", entity.data());         
-         }
-      }
-      else
-      {
-         OsSysLog::add(FAC_SIP, PRI_WARNING, "DialogEventPublisher::getEntity UserAgent not found");      
-      }
+      entityUrl.toString(entity);
    }
-   else
-   {
-      OsSysLog::add(FAC_SIP, PRI_WARNING, "DialogEventPublisher::getEntity CallManager not found");
-   }
+   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                 "DialogEventPublisher::getEntity requestUri = '%s', userId = '%s', entity '%s'",
+                 requestUri.data(), userId.data(), entity.data());         
 }
 
 bool DialogEventPublisher::findEntryByCallId(UtlString& callId, UtlString& entity)

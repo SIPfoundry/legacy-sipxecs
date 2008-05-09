@@ -647,8 +647,10 @@ int main(int argc, char* argv[])
     subscribeServer.enableEventType(DIALOG_EVENT_TYPE);
     subscribeServer.start();
 
-    // Create the dialog event publisher
-    DialogEventPublisher dialogEvents(&callManager, &publisher);
+    // Create the DialogEventPublisher.
+    // Use the sipX domain as the hostport of resource-IDs of the
+    // published events, as that will be the request-URIs of SUBSCRIBEs.
+    DialogEventPublisher dialogEvents(&callManager, &publisher, domain);
     callManager.addTaoListener(&dialogEvents);
     dialogEvents.start();
 

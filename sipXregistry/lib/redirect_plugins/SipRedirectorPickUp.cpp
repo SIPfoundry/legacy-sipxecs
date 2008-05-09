@@ -471,8 +471,8 @@ SipRedirectorPickUp::lookUp(
       // an extension that is an orbit number.
 
       // Add the contact to the response.
-      UtlString contactStr = "<sip:" + userId + "@" + mParkServerDomain + ">";
-      Url contactUri(contactStr);
+      UtlString contactStr = "sip:" + userId + "@" + mParkServerDomain;
+      Url contactUri(contactStr, Url::AddrSpec);
       addContact(response, requestString, contactUri, mLogNameOrbit.data());
 
       return RedirectPlugin::LOOKUP_SUCCESS;
@@ -672,7 +672,7 @@ SipRedirectorPickUp::lookUpDialog(
          contactString.append("@");
          contactString.append(mParkServerDomain);
          
-         Url contact_URI(contactString);
+         Url contact_URI(contactString, Url::AddrSpec);
          
          contact_URI.setUrlParameter("operation", "retrieve");               
  
