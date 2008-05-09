@@ -11,14 +11,25 @@ package org.sipfoundry.sipxconfig.gateway.audiocodes;
 
 import java.util.Set;
 
+import org.sipfoundry.sipxconfig.device.DeviceVersion;
 import org.sipfoundry.sipxconfig.gateway.GatewayModel;
 
 public class AudioCodesModel extends GatewayModel {
+    public static final DeviceVersion REL_5_0 = new DeviceVersion(AudioCodesGateway.BEAN_ID, "5.0");
+    public static final DeviceVersion REL_5_2 = new DeviceVersion(AudioCodesGateway.BEAN_ID, "5.2");
+
     private boolean m_fxo;
     private boolean m_fxs;
     private boolean m_digital;
     private boolean m_bri;
     private String m_configDirectory;
+
+    public AudioCodesModel() {
+        super(AudioCodesGateway.BEAN_ID);
+        setVersions(new DeviceVersion[] {
+            REL_5_0, REL_5_2
+        });
+    }
 
     public void setFxo(boolean fxo) {
         m_fxo = fxo;

@@ -14,6 +14,7 @@ import junit.framework.TestCase;
 
 import org.apache.commons.io.IOUtils;
 import org.sipfoundry.sipxconfig.TestHelper;
+import org.sipfoundry.sipxconfig.device.DeviceVersion;
 import org.sipfoundry.sipxconfig.device.MemoryProfileLocation;
 import org.sipfoundry.sipxconfig.gateway.FxoPort;
 import org.sipfoundry.sipxconfig.phone.PhoneTestDriver;
@@ -34,7 +35,7 @@ public class AudioCodesDigitalGatewayTest extends TestCase {
         model.setDigital(true);
         model.setBri(false);
         model.setMaxPorts(4);
-        model.setProfileTemplate("audiocodes/gateway.ini.vm");
+        model.setProfileTemplate("audiocodes/gateway-%s.ini.vm");
         String configDirectory = TestHelper.getSysDirProperties().getProperty("audiocodesGatewayModel.configDirectory");
         model.setConfigDirectory(configDirectory);
 
@@ -44,7 +45,16 @@ public class AudioCodesDigitalGatewayTest extends TestCase {
         m_gateway.setDefaults(PhoneTestDriver.getDeviceDefaults());
     }
 
-    public void testGenerateTypicalProfiles() throws Exception {
+    public void testGenerateTypicalProfiles50() throws Exception {
+        doTestGenerateTypicalProfiles(AudioCodesModel.REL_5_0);
+    }
+    
+    public void testGenerateTypicalProfiles52() throws Exception {
+        doTestGenerateTypicalProfiles(AudioCodesModel.REL_5_2);
+    }    
+    
+    public void doTestGenerateTypicalProfiles(DeviceVersion version) throws Exception {
+        m_gateway.setDeviceVersion(version);
         for (int i = 0; i < 2; i++) {
             FxoPort trunk = new FxoPort();
             m_gateway.addPort(trunk);
@@ -54,12 +64,17 @@ public class AudioCodesDigitalGatewayTest extends TestCase {
         
         m_gateway.setSettingValue("SIP_general/SOURCENUMBERMAPIP2TEL","*,0,$$,$$,$$,$$,*,1,*");
         m_gateway.setSettingValue("SIP_general/REMOVECLIWHENRESTRICTED","1");
-
+        m_gateway.setSettingValue("SIP_coders/CoderName/Type[0]", "g711Alaw64k");
+        m_gateway.setSettingValue("SIP_coders/CoderName/Type[1]", "g729");
+        m_gateway.setSettingValue("SIP_coders/CoderName/Type[2]", "g711Alaw64k");
+        m_gateway.setSettingValue("SIP_coders/CoderName/Type[3]", "g711Alaw64k");
+        m_gateway.setSettingValue("SIP_coders/CoderName/Type[4]", "g711Alaw64k");
+        
         m_gateway.generateProfiles(location);
 
         String actual = location.toString();
 
-        InputStream expectedProfile = getClass().getResourceAsStream("digital-gateway.ini");
+        InputStream expectedProfile = getClass().getResourceAsStream("digital-gateway-" + version.getVersionId() + ".ini");
         assertNotNull(expectedProfile);
         String expected = IOUtils.toString(expectedProfile);
 

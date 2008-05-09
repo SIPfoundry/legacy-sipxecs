@@ -21,8 +21,13 @@ import org.sipfoundry.sipxconfig.setting.BeanWithSettings;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
 class AudioCodesContext extends ProfileContext {
+
     public AudioCodesContext(Device device, String profileTemplate) {
-        super(device, profileTemplate);
+        super(device, getGatewayTemplate(device, profileTemplate));
+    }
+
+    public static String getGatewayTemplate(Device device, String profileTemplate) {
+        return String.format(profileTemplate, device.getDeviceVersion().getVersionId());
     }
 
     public Map<String, Object> getContext() {
@@ -30,14 +35,21 @@ class AudioCodesContext extends ProfileContext {
         // $$ is used as ignore value
         context.put("ignore", SettingsIron.IGNORE);
 
+        Device gateway = getDevice();
+
         SettingsIron iron = new SettingsIron();
-        getDevice().getSettings().acceptVisitor(iron);
-        context.put("flatSettings", iron.getFlat());
+        gateway.getSettings().acceptVisitor(iron);
+
+        Collection<Setting> flatSettings = iron.getFlat();
+        context.put("parameterTables", AudioCodesGateway.PARAMETER_TABLE_SETTINGS);
+        context.put("flatSettings", flatSettings);
+
         Collection[] portFlatSettings = getPortFlatSettings();
         if (portFlatSettings != null) {
             context.put("portFlatSettings", portFlatSettings);
         }
         context.put("allowedIPs", getAllowedIPs());
+
         return context;
     }
 

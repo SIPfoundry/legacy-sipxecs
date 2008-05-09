@@ -54,6 +54,19 @@
             displayName="message:label.serial"/>
         </label>
       </span>
+      <span jwcid="@If" condition="ognl:gateway.model.versions.length > 0">
+      <tr jwcid="@common/FieldPanel"
+        for="gateway:version"
+        label="message:label.firmwareVersion"
+        field="component:selectVersion">
+
+        <td jwcid="selectVersion@PropertySelection"
+          model="ognl:versions"
+          value="ognl:gateway.deviceVersion"
+          displayName="message:label.firmwareVersion"/>
+      </tr>
+      </span>      
+      
       <label jwcid="@common/FieldPanel" for="gateway:description"
         field="component:gatewayDescription"
         label="message:label.description">

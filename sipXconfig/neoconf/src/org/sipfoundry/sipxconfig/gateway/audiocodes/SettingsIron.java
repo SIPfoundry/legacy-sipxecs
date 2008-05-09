@@ -34,15 +34,22 @@ class SettingsIron implements SettingVisitor {
     }
 
     public boolean visitSettingArray(SettingArray array) {
-        // Scan the array and add settings (non duplicate) to the flattened collection.
-        for (String settingName : array.getSettingNames()) {
-            Set<Object> values = new HashSet<Object>();
-            for (int i = 0; i < array.getSize(); i++) {
-                Object elName = array.getSetting(i, settingName).getTypedValue();
-                if (!values.contains(elName)) {
-                    // Non duplicate. Add to flattened collection.
-                    values.add(elName);
-                    m_flat.add(array.getSetting(i, settingName));
+        String arrayName = array.getProfileName();
+
+        if (AudioCodesGateway.PARAMETER_TABLE_SETTINGS.contains(arrayName)) {
+            array.removeDuplicates();
+            m_flat.add(array);
+        } else {
+            // Scan the array and add settings (non duplicate) to the flattened collection.
+            for (String settingName : array.getSettingNames()) {
+                Set<Object> values = new HashSet<Object>();
+                for (int i = 0; i < array.getSize(); i++) {
+                    Object elName = array.getSetting(i, settingName).getTypedValue();
+                    if (!values.contains(elName)) {
+                        // Non duplicate. Add to flattened collection.
+                        values.add(elName);
+                        m_flat.add(array.getSetting(i, settingName));
+                    }
                 }
             }
         }

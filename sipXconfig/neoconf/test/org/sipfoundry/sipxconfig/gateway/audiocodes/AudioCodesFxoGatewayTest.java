@@ -17,6 +17,7 @@ import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
+import org.sipfoundry.sipxconfig.device.DeviceVersion;
 import org.sipfoundry.sipxconfig.device.MemoryProfileLocation;
 import org.sipfoundry.sipxconfig.gateway.FxoPort;
 import org.sipfoundry.sipxconfig.phone.PhoneTestDriver;
@@ -34,10 +35,10 @@ public class AudioCodesFxoGatewayTest extends TestCase {
         m_model = new AudioCodesModel();
         m_model.setBeanId("gwAudiocodes");
         m_model.setModelId("audiocodes");
-        m_model.setModelDir("audiocodes");        
+        m_model.setModelDir("audiocodes");
         m_model.setFxo(true);
         m_model.setMaxPorts(4);
-        m_model.setProfileTemplate("audiocodes/gateway.ini.vm");
+        m_model.setProfileTemplate("audiocodes/gateway-%s.ini.vm");
         String configDirectory = TestHelper.getSysDirProperties().getProperty("audiocodesGatewayModel.configDirectory");
         m_model.setConfigDirectory(configDirectory);
 
@@ -47,7 +48,16 @@ public class AudioCodesFxoGatewayTest extends TestCase {
         m_gateway.setDefaults(PhoneTestDriver.getDeviceDefaults());
     }
 
-    public void testGenerateTypicalProfiles() throws Exception {
+    public void testGenerateTypicalProfiles50() throws Exception {
+        doTestGenerateTypicalProfiles(AudioCodesModel.REL_5_0);
+    }
+
+    public void testGenerateTypicalProfiles52() throws Exception {
+        doTestGenerateTypicalProfiles(AudioCodesModel.REL_5_2);
+    }
+
+    public void doTestGenerateTypicalProfiles(DeviceVersion version) throws Exception {
+        m_gateway.setDeviceVersion(version);
         for (int i = 0; i < 2; i++) {
             FxoPort trunk = new FxoPort();
             m_gateway.addPort(trunk);
@@ -62,13 +72,13 @@ public class AudioCodesFxoGatewayTest extends TestCase {
 
         String actual = location.toString();
 
-        InputStream expectedProfile = getClass().getResourceAsStream("fxo-gateway.ini");
+        InputStream expectedProfile = getClass().getResourceAsStream("fxo-gateway-" + version.getVersionId() + ".ini");
         assertNotNull(expectedProfile);
         String expected = IOUtils.toString(expectedProfile);
 
         assertEquals(expected, actual);
     }
-    
+
     public void testGeneratePrevieProfiles() {
         for (int i = 0; i < 2; i++) {
             FxoPort trunk = new FxoPort();
@@ -79,7 +89,7 @@ public class AudioCodesFxoGatewayTest extends TestCase {
         MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(m_gateway);
 
         m_gateway.generateFiles(location);
-        assertTrue(location.toString().length() > 0);            
+        assertTrue(location.toString().length() > 0);
     }
 
     public void testPrepareSettings() throws Exception {
@@ -91,8 +101,7 @@ public class AudioCodesFxoGatewayTest extends TestCase {
         defaultsCtrl.replay();
 
         m_gateway.setDefaults(defaults);
-        assertEquals("mysipdomain.com", m_gateway
-                .getSettingValue("SIP_Proxy_Registration/ProxyIP"));
+        assertEquals("mysipdomain.com", m_gateway.getSettingValue("SIP_Proxy_Registration/ProxyIP"));
 
         defaultsCtrl.verify();
     }

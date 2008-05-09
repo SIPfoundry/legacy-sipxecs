@@ -10,7 +10,10 @@
 package org.sipfoundry.sipxconfig.gateway.audiocodes;
 
 import java.io.File;
+import java.util.Arrays;
+import java.util.List;
 
+import org.sipfoundry.sipxconfig.device.DeviceVersion;
 import org.sipfoundry.sipxconfig.device.ProfileContext;
 import org.sipfoundry.sipxconfig.device.ProfileLocation;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
@@ -20,11 +23,21 @@ import org.sipfoundry.sipxconfig.setting.type.FileSetting;
 import org.sipfoundry.sipxconfig.setting.type.SettingType;
 
 public abstract class AudioCodesGateway extends Gateway {
+    public static final String BEAN_ID = "audiocodes";
+    protected static final List PARAMETER_TABLE_SETTINGS = Arrays.asList("CoderName");
     private static final String CALL_PROGRESS_TONES_FILE = "Media_RTP_RTPC/Telephony/CallProgressTonesFilename";
     private static final String FXS_LOOP_CHARACTERISTICS_FILE =
         "Media_RTP_RTPC/Telephony/FXSLoopCharacteristicsFilename";
     private static final String[] COPY_FILES = {CALL_PROGRESS_TONES_FILE, FXS_LOOP_CHARACTERISTICS_FILE};
-
+    
+    public AudioCodesGateway() {
+        setDeviceVersion(AudioCodesModel.REL_5_0);
+    }    
+    
+    public void setDefaultVersionId(String defaultVersionId) {
+        setDeviceVersion(DeviceVersion.getDeviceVersion(BEAN_ID + defaultVersionId));
+    }    
+    
     @Override
     public void initialize() {
         AudioCodesGatewayDefaults defaults = new AudioCodesGatewayDefaults(this, getDefaults());

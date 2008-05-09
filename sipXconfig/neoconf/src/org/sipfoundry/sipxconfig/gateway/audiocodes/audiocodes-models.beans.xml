@@ -4,7 +4,7 @@
   <!-- default AudioCodes gateway model -->
   <bean id="audiocodesGatewayModel" abstract="true" class="org.sipfoundry.sipxconfig.gateway.audiocodes.AudioCodesModel"
     parent="abstractGatewayModel">
-    <property name="profileTemplate" value="audiocodes/gateway.ini.vm" />
+    <property name="profileTemplate" value="audiocodes/gateway-%s.ini.vm" />
     <property name="modelDir" value="audiocodes" />
 	<property name="vendor" value="AudioCodes"/>
   </bean>
@@ -28,9 +28,20 @@
     <property name="maxPorts" value="4" />
   </bean>
 
-  <bean id="audiocodesMediant" parent="audiocodesTP">
-    <property name="label" value="AudioCodes Mediant" />
+  <bean id="audiocodesMediant" abstract="true" parent="audiocodesTP">
     <property name="maxPorts" value="8" />
+  </bean>
+
+  <bean id="audiocodesMediant1000" parent="audiocodesMediant">
+    <property name="label" value="AudioCodes Mediant 1000" />
+  </bean>
+  
+  <bean id="audiocodesMediant2000" parent="audiocodesMediant">
+    <property name="label" value="AudioCodes Mediant 2000" />
+  </bean>
+  
+  <bean id="audiocodesMediant3000" parent="audiocodesMediant">
+    <property name="label" value="AudioCodes Mediant 3000" />
   </bean>
 
   <bean id="gwAudiocodesTp260" class="org.sipfoundry.sipxconfig.gateway.audiocodes.AudioCodesDigitalGateway"

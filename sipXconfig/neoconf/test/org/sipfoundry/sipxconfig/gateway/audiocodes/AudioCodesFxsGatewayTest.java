@@ -16,22 +16,32 @@ import junit.framework.TestCase;
 import org.apache.commons.io.IOUtils;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.device.DeviceVersion;
 import org.sipfoundry.sipxconfig.device.MemoryProfileLocation;
 import org.sipfoundry.sipxconfig.phone.PhoneTestDriver;
 
 public class AudioCodesFxsGatewayTest extends TestCase {
 
-    public void testGenerateTypicalProfiles() throws Exception {
+    public void testGenerateTypicalProfiles50() throws Exception {
+        doTestGenerateTypicalProfiles(AudioCodesModel.REL_5_0);
+    }
+
+    public void testGenerateTypicalProfiles52() throws Exception {
+        doTestGenerateTypicalProfiles(AudioCodesModel.REL_5_2);
+    }
+
+    public void doTestGenerateTypicalProfiles(DeviceVersion version) throws Exception {
         AudioCodesFxsModel model = new AudioCodesFxsModel();
         model.setBeanId("gwFxsAudiocodes");
         model.setFxs(true);
-        model.setProfileTemplate("audiocodes/gateway.ini.vm");
+        model.setProfileTemplate("audiocodes/gateway-%s.ini.vm");
         model.setModelDir("audiocodes");
         String configDirectory = TestHelper.getSysDirProperties().getProperty("audiocodesFxs.configDirectory");
         model.setConfigDirectory(configDirectory);
 
         AudioCodesFxsGateway gateway = new AudioCodesFxsGateway();
         gateway.setModel(model);
+        gateway.setDeviceVersion(version);
 
         MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(gateway);
 
@@ -55,7 +65,7 @@ public class AudioCodesFxsGatewayTest extends TestCase {
 
         String actual = location.toString();
 
-        InputStream expectedProfile = getClass().getResourceAsStream("fxs-gateway.ini");
+        InputStream expectedProfile = getClass().getResourceAsStream("fxs-gateway-" + version.getVersionId() + ".ini");
         assertNotNull(expectedProfile);
         String expected = IOUtils.toString(expectedProfile);
 

@@ -10,6 +10,8 @@
 package org.sipfoundry.sipxconfig.setting;
 
 import java.util.Collection;
+import java.util.LinkedHashSet;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -112,5 +114,19 @@ public class SettingArray extends AbstractSetting {
             copy.m_elements[i] = sm.copy();
         }
         return copy;
+    }
+
+    public void removeDuplicates() {
+        Set<EquivalentSettingMapWrapper> uniqueSettingMaps = new LinkedHashSet<EquivalentSettingMapWrapper>();
+
+        for (SettingMap settingMap : m_elements) {
+            uniqueSettingMaps.add(new EquivalentSettingMapWrapper(settingMap));
+        }
+
+        m_elements = new SettingMap[uniqueSettingMaps.size()];
+        int index = 0;
+        for (EquivalentSettingMapWrapper wrapper : uniqueSettingMaps) {
+            m_elements[index++] = wrapper.getMap();
+        }
     }
 }

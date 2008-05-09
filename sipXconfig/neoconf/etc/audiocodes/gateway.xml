@@ -368,6 +368,16 @@
         <string maxLen="50" />
       </type>
     </setting>
+    <setting name="SIPSDPSessionOwner" advanced="yes" if="5.2">
+      <label>SDP Session Owner</label>
+      <type>
+        <string maxLen="39" />
+      </type>
+      <value>AudiocodesGW</value>
+      <description>
+        The value of the Session Owner line ("o" field) in outgoing SDP bodies. May be up to 39 characters.
+      </description>
+    </setting>
     <setting name="SIPSubject" advanced="yes">
       <label>Subject</label>
       <type>
@@ -399,6 +409,25 @@
         INVITE. When enabled gateway will use the same call identifiers.
       </description>
     </setting>
+    <setting name="EnablePChargingVector" advanced="yes" if="5.2">
+      <label>Enable P-Charging-Vector</label>
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+      <description>If checked, adds a P-Charging-Vector header to outgoing INVITE messages.</description>
+    </setting>
+    <setting name="EnableVMURI" advanced="yes" if="5.2">
+      <label>Enable Voicemail URI</label>
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+      <description>
+        Enables or disables the interworking of target and cause for redirection from Tel to IP and vice versa,
+        according to RFC 4468.
+      </description>
+    </setting>
     <setting name="SipT1Rtx" advanced="yes">
       <label>SIP T1 Retransmission Timer [msec]</label>
       <type>
@@ -423,8 +452,8 @@
   </group>
   <group name="SIP_coders">
     <label>Voice Codecs</label>
-    <collection name="Codecs" size="5">
-      <setting name='CoderName'>
+    <collection name="CoderName" size="5">
+      <setting name="Type">
         <label>Codec</label>
         <type>
           <enum>
@@ -610,6 +639,29 @@
         ‘Gateway Name’.
       </description>
     </setting>
+    <setting name="isProxyHotSwap" if="5.2">
+      <label>Hot-Swap Redundancy Mode</label>
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+      <description>
+        Enable or disable proxy hot-swap redundancy mode. This allows SIP INVITE/REGISTER messages to be routed to a
+        redundant Proxy/Registrar server if the primary Proxy/Registrar server does not respond.
+      </description>
+    </setting>
+    <setting name="HotSwapRtx" advanced="yes" if="5.2">
+      <label>Number of RTX before Hot-Swap</label>
+      <type>
+        <integer min="1" max="30" />
+      </type>
+      <value>3</value>
+      <description>
+        The number of retransmitted INVITE messages before a call is routed (hot-swapped) to the next option. The valid
+        range is 1 to 30.
+      </description>
+    </setting>
+
     <setting name='Cnonce' if='fxs' advanced='yes'>
       <label>CNONCE</label>
       <value>Default_Cnonce</value>
@@ -630,6 +682,51 @@
         </enum>
       </type>
       <value>0</value>
+    </setting>
+    <setting name="SIPChallengeCachingMode" advanced="yes" if="5.2">
+      <label>Challenge Caching Mode</label>
+      <type>
+        <enum>
+          <option>
+            <label>None (challenges are not cached)</label>
+            <value>0</value>
+          </option>
+          <option>
+            <label>INVITE Only (challenges for INVITE requests are cached)</label>
+            <value>1</value>
+          </option>
+          <option>
+            <label>Full (Cache all challenges)</label>
+            <value>2</value>
+          </option>
+        </enum>
+      </type>
+      <value>0</value>
+      <description>
+        To reduce the number of SIP messages, challenges can be cached. Select the desired level of challenge caching to
+        use with SIP proxies.
+      </description>
+    </setting>
+    <setting name="MutualAuthenticationMode" advanced="yes" if="5.2">
+      <label>Mutual Authentication Mode</label>
+      <type>
+        <enum>
+          <option>
+            <label>Optional</label>
+            <value>0</value>
+          </option>
+          <option>
+            <label>Mandatory</label>
+            <value>1</value>
+          </option>
+        </enum>
+      </type>
+      <value>0</value>
+      <description>
+        Select whether Authentication and Key Agreement (AKA) Digest Authentication information are optional or
+        mandatory for incoming requests. If set to Mandatory, incoming requests without AKA information will be
+        rejected.
+      </description>
     </setting>
   </group>
   <group name="SIP_DTMF">

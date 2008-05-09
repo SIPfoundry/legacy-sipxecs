@@ -24,6 +24,7 @@ import org.apache.tapestry.form.validator.Validator;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDevice;
 import org.sipfoundry.sipxconfig.components.EnumPropertySelectionModel;
 import org.sipfoundry.sipxconfig.components.LocalizedOptionModelDecorator;
+import org.sipfoundry.sipxconfig.components.ObjectSelectionModel;
 import org.sipfoundry.sipxconfig.components.SerialNumberTranslator;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
@@ -57,13 +58,20 @@ public abstract class GatewayForm extends BaseComponent implements PageBeginRend
 
     public abstract SbcDevice getSelectedSbcDevice();
 
+    public ObjectSelectionModel getVersions() {
+        ObjectSelectionModel versions = new ObjectSelectionModel();
+        versions.setArray(getGateway().getModel().getVersions());
+        versions.setLabelExpression("versionId");
+
+        return versions;
+    }
+
     public void pageBeginRender(PageEvent event) {
         IPropertySelectionModel model = getAddressTransportModel();
         if (model == null) {
             EnumPropertySelectionModel rawModel = new EnumPropertySelectionModel();
             rawModel.setEnumClass(Gateway.AddressTransport.class);
-            model = new LocalizedOptionModelDecorator(rawModel, getMessages(),
-                    "addressTransport.");
+            model = new LocalizedOptionModelDecorator(rawModel, getMessages(), "addressTransport.");
             setAddressTransportModel(model);
         }
     }
