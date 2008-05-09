@@ -686,6 +686,8 @@ public class SipUtilities {
             md.setDuplexity(attributeValue);
 
         } catch (Exception ex) {
+            logger.error("Error while processing the following SDP : " + sessionDescription );
+            logger.error("attributeValue = " + attributeValue);
             throw new RuntimeException("Malformatted sdp", ex);
         }
 

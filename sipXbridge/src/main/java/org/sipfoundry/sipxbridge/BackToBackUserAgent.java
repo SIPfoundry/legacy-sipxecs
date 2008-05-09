@@ -16,6 +16,7 @@ import java.net.URLDecoder;
 import java.text.ParseException;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
@@ -196,7 +197,7 @@ public class BackToBackUserAgent {
         } catch (SdpParseException ex) {
             throw new RuntimeException("Unexpected exception -- FIXME", ex);
         } catch (IOException ex) {
-            logger.error("IOException occured while allocating sym",ex);
+            logger.error("IOException occured while allocating sym", ex);
             return null;
         }
 
@@ -275,15 +276,12 @@ public class BackToBackUserAgent {
                                 .getApplicationData()).codecName);
             }
 
-         
-           
-
             if (((DialogApplicationData) replacedDialog.getApplicationData()).peerDialog
                     .getState() == DialogState.TERMINATED) {
                 Response response = ProtocolObjects.messageFactory
-                        .createResponse(Response.BUSY_HERE,
-                                incomingRequest);
-                SupportedHeader sh = ProtocolObjects.headerFactory.createSupportedHeader("replaces");
+                        .createResponse(Response.BUSY_HERE, incomingRequest);
+                SupportedHeader sh = ProtocolObjects.headerFactory
+                        .createSupportedHeader("replaces");
                 response.setHeader(sh);
                 serverTransaction.sendResponse(response);
                 return;
@@ -291,8 +289,7 @@ public class BackToBackUserAgent {
 
             if (this.referingDialogPeer.getState() == DialogState.TERMINATED) {
                 Response response = ProtocolObjects.messageFactory
-                        .createResponse(Response.BUSY_HERE,
-                                incomingRequest);
+                        .createResponse(Response.BUSY_HERE, incomingRequest);
                 serverTransaction.sendResponse(response);
                 return;
             }
@@ -415,9 +412,10 @@ public class BackToBackUserAgent {
 
             Response response = ProtocolObjects.messageFactory.createResponse(
                     Response.OK, incomingRequest);
-            SupportedHeader sh = ProtocolObjects.headerFactory.createSupportedHeader("replaces");
+            SupportedHeader sh = ProtocolObjects.headerFactory
+                    .createSupportedHeader("replaces");
             response.setHeader(sh);
-           
+
             ContactHeader contactHeader = SipUtilities.createContactHeader(
                     null, provider);
             response.setHeader(contactHeader);
@@ -521,7 +519,7 @@ public class BackToBackUserAgent {
             ReferToHeader referToHeader = (ReferToHeader) referRequest
                     .getHeader(ReferToHeader.NAME);
             SipURI uri = (SipURI) referToHeader.getAddress().getURI();
-
+            Request newRequest = dialog.createRequest(Request.INVITE);
             String replacesParam = uri.getHeader(ReplacesHeader.NAME);
             ReplacesHeader replacesHeader = null;
             if (replacesParam != null) {
@@ -530,26 +528,32 @@ public class BackToBackUserAgent {
                 replacesHeader = (ReplacesHeader) ProtocolObjects.headerFactory
                         .createHeader("Replaces", decodedReplaces);
             }
-           
-            String sipxAuthIdentity = uri.getHeader("x-sipx-authidentity");
-            ExtensionHeader extHeader = null;
-            if ( sipxAuthIdentity != null ) {
-                URLDecoder decoder = new URLDecoder();
-                String decodedAuth = decoder.decode(sipxAuthIdentity, "UTF-8");
-                extHeader = (ExtensionHeader) ProtocolObjects.headerFactory.createHeader("x-sipx-authidentity", decodedAuth);
-            }
             uri.removeParameter("Replaces");
-            ((gov.nist.javax.sip.address.SipURIExt) uri).removeHeaders();
-
-            Request newRequest = dialog.createRequest(Request.INVITE);
-            newRequest.setRequestURI(uri);
             if (replacesHeader != null) {
                 newRequest.addHeader(replacesHeader);
             }
-            if ( extHeader != null ) {
-                newRequest.addHeader(extHeader);
+
+            for (Iterator it = uri.getHeaderNames(); it.hasNext();) {
+                String headerName = (String) it.next();
+                String sipxAuthIdentity = uri.getHeader(headerName);
+                Header header = null;
+                if (sipxAuthIdentity != null) {
+                    URLDecoder decoder = new URLDecoder();
+                    String decodedAuth = decoder.decode(sipxAuthIdentity,
+                            "UTF-8");
+                    header = (Header) ProtocolObjects.headerFactory
+                            .createHeader(headerName, decodedAuth);
+                }
+                if (header != null) {
+                    newRequest.addHeader(header);
+                }
             }
-            SupportedHeader sh = ProtocolObjects.headerFactory.createSupportedHeader("replaces");
+            ((gov.nist.javax.sip.address.SipURIExt) uri).removeHeaders();
+
+            newRequest.setRequestURI(uri);
+
+            SupportedHeader sh = ProtocolObjects.headerFactory
+                    .createSupportedHeader("replaces");
             newRequest.setHeader(sh);
 
             ContactHeader contactHeader = SipUtilities.createContactHeader(
@@ -880,7 +884,7 @@ public class BackToBackUserAgent {
 
             MediaDescription mediaDescription = (MediaDescription) sessionDescription
                     .getMediaDescriptions(true).get(0);
-            ((MediaDescriptionImpl)mediaDescription).setDuplexity("recvonly");
+            ((MediaDescriptionImpl) mediaDescription).setDuplexity("recvonly");
             ContentTypeHeader cth = ProtocolObjects.headerFactory
                     .createContentTypeHeader("application", "sdp");
 
@@ -950,13 +954,15 @@ public class BackToBackUserAgent {
                     && peerDialog.getState() != DialogState.TERMINATED) {
                 Request reInvite = peerDialog.createRequest(Request.INVITE);
                 SipProvider provider = ((DialogExt) peerDialog)
-                .getSipProvider();
-                ViaHeader viaHeader = SipUtilities.createViaHeader(provider, itspAccountInfo);
+                        .getSipProvider();
+                ViaHeader viaHeader = SipUtilities.createViaHeader(provider,
+                        itspAccountInfo);
                 reInvite.setHeader(viaHeader);
-                ContactHeader contactHeader = SipUtilities.createContactHeader(provider, 
-                                                    itspAccountInfo);
+                ContactHeader contactHeader = SipUtilities.createContactHeader(
+                        provider, itspAccountInfo);
                 reInvite.setHeader(contactHeader);
-                ClientTransaction ctx = provider.getNewClientTransaction(reInvite);
+                ClientTransaction ctx = provider
+                        .getNewClientTransaction(reInvite);
                 TransactionApplicationData tad = new TransactionApplicationData(
                         Operation.QUERY_SDP_FROM_PEER_DIALOG);
                 tad.continuationOperation = continuation;
@@ -985,15 +991,16 @@ public class BackToBackUserAgent {
     public void sendInviteToItsp(RequestEvent requestEvent,
             ServerTransaction serverTransaction, String toDomain,
             boolean isphone) throws GatewayConfigurationException, SipException {
-        
-        
+
         Request incomingRequest = serverTransaction.getRequest();
         Dialog incomingDialog = serverTransaction.getDialog();
         SipProvider itspProvider = Gateway.getWanProvider(itspAccountInfo
                 .getOutboundTransport());
 
-        if ( (Gateway.getCallLimit() != -1 && Gateway.getCallCount() >= Gateway.getCallLimit() ) || 
-             (itspAccountInfo.getMaxCalls() != -1 && itspAccountInfo.getCallCount() >= itspAccountInfo.getMaxCalls()) ) {
+        if ((Gateway.getCallLimit() != -1 && Gateway.getCallCount() >= Gateway
+                .getCallLimit())
+                || (itspAccountInfo.getMaxCalls() != -1 && itspAccountInfo
+                        .getCallCount() >= itspAccountInfo.getMaxCalls())) {
             try {
                 serverTransaction.sendResponse(ProtocolObjects.messageFactory
                         .createResponse(Response.BUSY_HERE, incomingRequest));
@@ -1003,8 +1010,7 @@ public class BackToBackUserAgent {
                 throw new RuntimeException(s, e);
             }
         }
-        
-       
+
         boolean spiral = false;
 
         ListIterator headerIterator = incomingRequest
@@ -1065,8 +1071,7 @@ public class BackToBackUserAgent {
 
             String codecName = !itspAccountInfo.isReInviteSupported() ? Gateway
                     .getCodecName() : null;
-                    
-           
+
             SessionDescription sd = spiral ? DialogApplicationData
                     .getRtpSession(this.referingDialog).getReceiver()
                     .getSessionDescription() : this.getWanRtpSession(
@@ -1296,7 +1301,8 @@ public class BackToBackUserAgent {
             try {
                 Response ok = ProtocolObjects.messageFactory.createResponse(
                         Response.OK, st.getRequest());
-                SupportedHeader sh = ProtocolObjects.headerFactory.createSupportedHeader("replaces");
+                SupportedHeader sh = ProtocolObjects.headerFactory
+                        .createSupportedHeader("replaces");
                 ok.setHeader(sh);
                 st.sendResponse(ok);
 
@@ -1325,7 +1331,6 @@ public class BackToBackUserAgent {
     public Bridge getBridge() {
         return rtpBridge;
     }
-
 
     /**
      * @return the creatingDialog
