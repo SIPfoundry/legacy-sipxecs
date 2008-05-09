@@ -34,6 +34,7 @@ The assigned facility codes are:
    service that needs an identity gets one in this prefix group.
    Allocated so far are:
 
+      ~~id~acd  -> the ACD
       ~~id~park  -> the park server
       ~~id~media -> the media server
 
