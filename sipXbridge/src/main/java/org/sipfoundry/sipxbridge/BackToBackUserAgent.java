@@ -44,7 +44,9 @@ import javax.sip.header.CSeqHeader;
 import javax.sip.header.CallIdHeader;
 import javax.sip.header.ContactHeader;
 import javax.sip.header.ContentTypeHeader;
+import javax.sip.header.ExtensionHeader;
 import javax.sip.header.FromHeader;
+import javax.sip.header.Header;
 import javax.sip.header.MaxForwardsHeader;
 import javax.sip.header.ReferToHeader;
 import javax.sip.header.SupportedHeader;
@@ -528,6 +530,14 @@ public class BackToBackUserAgent {
                 replacesHeader = (ReplacesHeader) ProtocolObjects.headerFactory
                         .createHeader("Replaces", decodedReplaces);
             }
+           
+            String sipxAuthIdentity = uri.getHeader("x-sipx-authidentity");
+            ExtensionHeader extHeader = null;
+            if ( sipxAuthIdentity != null ) {
+                URLDecoder decoder = new URLDecoder();
+                String decodedAuth = decoder.decode(sipxAuthIdentity, "UTF-8");
+                extHeader = (ExtensionHeader) ProtocolObjects.headerFactory.createHeader("x-sipx-authidentity", decodedAuth);
+            }
             uri.removeParameter("Replaces");
             ((gov.nist.javax.sip.address.SipURIExt) uri).removeHeaders();
 
@@ -535,6 +545,9 @@ public class BackToBackUserAgent {
             newRequest.setRequestURI(uri);
             if (replacesHeader != null) {
                 newRequest.addHeader(replacesHeader);
+            }
+            if ( extHeader != null ) {
+                newRequest.addHeader(extHeader);
             }
             SupportedHeader sh = ProtocolObjects.headerFactory.createSupportedHeader("replaces");
             newRequest.setHeader(sh);
