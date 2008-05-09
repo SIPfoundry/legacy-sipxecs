@@ -1,10 +1,7 @@
-VERSION=1.5.0
-SUN_VERSION=1_5_0
-BUILD=10
-REL=2
-
-# Combine the SRC and NOSRC to create usable (non-free) rpm
-JDK_LIBSRC = $(LIBSRC)/java-sun
+VERSION=1.6.0
+SUN_VERSION=6
+BUILD=5
+REL=1
 if IS_AMD64
   SUN_ARCH = amd64
   ARCH = @RPM_TARGET_ARCH@
@@ -12,7 +9,10 @@ else
   SUN_ARCH = i586
   ARCH = i586
 endif
-SRC_ZIP = $(JDK_LIBSRC)/jdk-$(SUN_VERSION)_$(BUILD)-linux-$(SUN_ARCH).bin
+
+# Combine the SRC and NOSRC to create usable (non-free) rpm
+JDK_LIBSRC = $(LIBSRC)/java-sun
+SRC_ZIP = $(JDK_LIBSRC)/jdk-$(SUN_VERSION)u$(BUILD)-linux-$(SUN_ARCH).bin
 NOSRC_RPM = $(JDK_LIBSRC)/java-$(VERSION)-sun-$(VERSION).$(BUILD)-$(REL)jpp.nosrc.rpm
 RPM_SPEC=java-$(VERSION)-sun.spec
 RPMS = \
