@@ -68,6 +68,8 @@ public:
 
    void setUp()
       {
+         TestDbContext.setSipxDir(SipXecsService::ConfigurationDirType, TEST_DATA_DIR);
+
          // Construct a SipUserAgent to provide the isMyHostAlias recognizer
          mUserAgent = new SipUserAgent(SIP_PORT, // udp port
                                        SIP_PORT, // tcp port

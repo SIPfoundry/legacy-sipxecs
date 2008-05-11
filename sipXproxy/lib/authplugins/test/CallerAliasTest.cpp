@@ -45,7 +45,7 @@ public:
    void setUp()
       {
          TestDbContext.inputFile("caller-alias.xml");
-         TestDbContext.setSipxDir(SipXecsService::ConfigurationDirType);
+         TestDbContext.setSipxDir(SipXecsService::ConfigurationDirType, TEST_DATA_DIR);
 
          RouteState::setSecret("fixed"); // force invariant signatures
 
