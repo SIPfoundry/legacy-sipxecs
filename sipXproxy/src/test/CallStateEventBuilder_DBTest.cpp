@@ -11,7 +11,7 @@
 
 #include "os/OsTime.h"
 #include "os/OsDateTime.h"
-#include "cse/CallStateEventBuilder_DB.h"
+#include "CallStateEventBuilder_DB.h"
 
 const OsDateTime testBaseTime(2004, // year
                               11,   // month (zero based)

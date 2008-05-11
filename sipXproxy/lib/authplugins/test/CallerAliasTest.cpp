@@ -18,10 +18,10 @@
 #include "net/SipUserAgent.h"
 #include "sipdb/CallerAliasDB.h"
 
-#include "sipXproxy/ForwardRules.h"
-#include "sipXproxy/SipRouter.h"
-#include "sipXproxy/AuthPlugin.h"
-#include "sipXproxy/CallerAlias.h"
+#include "ForwardRules.h"
+#include "SipRouter.h"
+#include "AuthPlugin.h"
+#include "CallerAlias.h"
 
 class CallerAliasTest : public CppUnit::TestCase
 {

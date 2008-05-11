@@ -14,7 +14,7 @@
 #include "os/OsDefs.h"
 #include "net/Url.h"
 #include "net/SipMessage.h"
-#include "sipXproxy/ForwardRules.h"
+#include "ForwardRules.h"
 
 #define VM "VoIcEmAiL"
 #define MS "MeDiAsErVeR"

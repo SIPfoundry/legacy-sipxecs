@@ -100,21 +100,11 @@ EnforceAuthRules::readConfig( OsConfigDb& configDb /**< a subhash of the individ
    UtlString fileName;
    if ( ! configDb.get(RULES_FILENAME_CONFIG_PARAM, fileName) )
    {
-      OsPath workingDirectory ;
-      if ( OsFileSystem::exists(SIPX_CONFDIR) )
-      {
-         workingDirectory = SIPX_CONFDIR;
-         OsPath path(workingDirectory);
-         path.getNativePath(workingDirectory);
+      OsPath defaultPath =
+         SipXecsService::Path(SipXecsService::ConfigurationDirType, DEFAULT_AUTH_RULES_FILENAME);
 
-      } else
-      {
-         OsPath path;
-         OsFileSystem::getWorkingDirectory(path);
-         path.getNativePath(workingDirectory);
-      }
-      fileName = workingDirectory + OsPathBase::separator + DEFAULT_AUTH_RULES_FILENAME;
-
+      fileName = defaultPath;
+      
       OsSysLog::add(FAC_SIP, PRI_DEBUG, "EnforceAuthRules[%s]::readConfig "
                     " no rules file configured; trying '%s'",
                     mInstanceName.data(), fileName.data()

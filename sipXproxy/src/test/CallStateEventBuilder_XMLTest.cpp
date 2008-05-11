@@ -11,7 +11,7 @@
 #include "utl/UtlString.h"
 #include "os/OsTime.h"
 #include "os/OsDateTime.h"
-#include "cse/CallStateEventBuilder_XML.h"
+#include "CallStateEventBuilder_XML.h"
 
 // Note: these tests will fail if PRETTYPRINT_EVENTS is defined in CallStateEventBuilder_XML.cpp
 

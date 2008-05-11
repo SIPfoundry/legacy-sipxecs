@@ -8,6 +8,8 @@ include config/conditional_doc.am
 
 SUBDIRS = \
 	. \
+	include \
+	lib \
 	src \
 	bin \
 	meta \

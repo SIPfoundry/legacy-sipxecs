@@ -13,11 +13,12 @@
 
 #include <os/OsDefs.h>
 #include <os/OsConfigDb.h>
+#include <os/OsSysLog.h>
 #include <net/SipMessage.h>
 #include <net/SipUserAgent.h>
-#include "sipXproxy/ForwardRules.h"
-#include "sipXproxy/SipRouter.h"
-#include "sipXproxy/CallerAlias.h"
+#include "ForwardRules.h"
+#include "SipRouter.h"
+#include "CallerAlias.h"
 
 extern CallerAlias* CallerAlias::spInstance;
 
@@ -63,7 +64,7 @@ private:
    static const char* SipRouterConfiguration;
    
 public:
-    static SipDbTestContext  TestDbContext;
+   static SipDbTestContext TestDbContext;
 
    void setUp()
       {
@@ -73,7 +74,7 @@ public:
                                        -1,       // tls port
                                        "127.0.0.2" // public address
                                        );
-
+         
          UtlString internalDomainAlias("example.com:5060");
          mUserAgent->setHostAliases(internalDomainAlias);
 
@@ -83,8 +84,11 @@ public:
          UtlString externalAlias("external.example.net:5060");
          mUserAgent->setHostAliases(externalAlias);
 
-         UtlString rulesFile(TEST_DATA_DIR "/rulesdata/routing.xml");
-         mForwardingRules.loadMappings( rulesFile, MediaServer, VoiceMail, LocalHost );
+         UtlString rulesFile;
+         TestDbContext.inputFilePath("/rulesdata/routing.xml", rulesFile);
+         CPPUNIT_ASSERT(OS_SUCCESS ==
+                        mForwardingRules.loadMappings(rulesFile,
+                                                      MediaServer, VoiceMail, LocalHost));
 
          OsConfigDb testConfigDb;
          CPPUNIT_ASSERT( testConfigDb.loadFromBuffer( SipRouterConfiguration ) == OS_SUCCESS );
@@ -223,6 +227,8 @@ public:
          size_t msgLen;
          testMsg.getBytes(&proxiedMsg, &msgLen);
 
+         OsSysLog::add(FAC_SIP, PRI_INFO, "Proxied Message:\n%s", proxiedMsg.data());
+         
          UtlString requestUri;
          testMsg.getRequestUri(&requestUri);
          ASSERT_STR_EQUAL("sip:user@somewhere.com", requestUri.data());
@@ -703,15 +709,16 @@ public:
 const char* SipRouterTest::VoiceMail   = "Voicemail";
 const char* SipRouterTest::MediaServer = "Mediaserver";
 const char* SipRouterTest::LocalHost   = "localhost";
-const char* SipRouterTest::SipRouterConfiguration = "SIPX_PROXY_AUTHENTICATE_REALM : example.com\r\n"
-                                                    "SIPX_PROXY_HOSTPORT : 10.10.10.1:5060\r\n"
-                                                    "SIPX_PROXY_DOMAIN_NAME : example.com\r\n"
-                                                    "SIPX_PROXY_HOOK_LIBRARY.authrules : ../sipXproxy/authplugins/.libs/libEnforceAuthRules.so\r\n"
-                                                    "SIPX_PROXY.authrules.IDENTITY_VALIDITY_SECONDS : 300\r\n"
-                                                    "SIPX_PROXY_HOOK_LIBRARY.fromalias : ../sipXproxy/authplugins/.libs/libCallerAlias.so\r\n"
-                                                    "\r\n";
+const char* SipRouterTest::SipRouterConfiguration =
+   "SIPX_PROXY_AUTHENTICATE_REALM : example.com\r\n"
+   "SIPX_PROXY_HOSTPORT : 10.10.10.1:5060\r\n"
+   "SIPX_PROXY_DOMAIN_NAME : example.com\r\n"
+   "SIPX_PROXY_HOOK_LIBRARY.authrules : ../../lib/authplugins/authplugins/.libs/libEnforceAuthRules.so\r\n"
+   "SIPX_PROXY.authrules.IDENTITY_VALIDITY_SECONDS : 300\r\n"
+   "SIPX_PROXY_HOOK_LIBRARY.fromalias : ../../lib/authplugins/authplugins/.libs/libCallerAlias.so\r\n"
+   "\r\n";
 
 CPPUNIT_TEST_SUITE_REGISTRATION(SipRouterTest);
 
-SipDbTestContext  SipRouterTest::TestDbContext(TEST_DATA_DIR, TEST_WORK_DIR "siproutertest_context");
+SipDbTestContext  SipRouterTest::TestDbContext(TEST_DATA_DIR, TEST_WORK_DIR "/siproutertest_context");
 

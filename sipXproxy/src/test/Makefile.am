@@ -1,27 +1,25 @@
-#INCLUDES = -I$(top_srcdir)/src/cse -I$(top_srcdir)/src/sipXproxy
 
-## All tests under this GNU variable should run relatively quickly
-## and of course require no setup
-TESTS = proxytest enforcerulestest calleraliastest transfercontroltest msftxferhacktest
+if ENABLE_CSE_TESTS
+TEST_CSE_OPT = cse_test.sh
+endif
+
+TESTS = proxytest $(TEST_CSE_OPT)
 
 check_PROGRAMS = \
-	proxytest \
-	calleraliastest \
-	transfercontroltest \
-	msftxferhacktest \
-	enforcerulestest 
-# sandbox
+	proxytest
 
 COMMON_CXX_FLAGS = \
 	-DTEST_WORK_DIR=\"@abs_builddir@\" \
 	-DTEST_DATA_DIR=\"@abs_top_srcdir@/src/test\" \
-	-DSIPX_CONFDIR=\"@SIPX_CONFDIR@\" \
-	-I$(top_srcdir)/src
+	-I$(top_srcdir)/include \
+	-I$(top_srcdir)/src \
+	-I$(top_srcdir)/lib/authplugins
 
 COMMON_LIBS = \
    @SIPXUNIT_LIBS@ \
    @SIPXCOMMSERVERTEST_LIBS@ \
-   @SIPXCOMMSERVER_LIBS@
+   @SIPXCOMMSERVER_LIBS@ \
+	../libsipXproxy.la 
 
 proxytest_CXXFLAGS = \
 	$(COMMON_CXX_FLAGS)
@@ -37,65 +35,17 @@ proxytest_LDFLAGS = \
     -rdynamic
 
 proxytest_LDADD = \
-	$(COMMON_LIBS) \
-	$(top_builddir)/src//cse/libcse.la \
-	$(top_builddir)/src/sipXproxy/libsipXproxy.la 
-
-enforcerulestest_CXXFLAGS = \
-	$(COMMON_CXX_FLAGS)
-
-enforcerulestest_SOURCES = \
-	$(top_srcdir)/src/sipXproxy/EnforceAuthRules.cpp \
-	EnforceAuthRulesTest.cpp
-
-enforcerulestest_LDADD = \
-	$(COMMON_LIBS) \
-	$(top_builddir)/src/sipXproxy/libsipXproxy.la
-
-calleraliastest_CXXFLAGS = \
-	$(COMMON_CXX_FLAGS)
-
-calleraliastest_SOURCES = \
-	$(top_srcdir)/src/sipXproxy/CallerAlias.cpp \
-	CallerAliasTest.cpp
-
-calleraliastest_LDADD = \
-	$(COMMON_LIBS) \
-	$(top_builddir)/src/sipXproxy/libsipXproxy.la
-
-transfercontroltest_CXXFLAGS = \
-	$(COMMON_CXX_FLAGS)
-
-transfercontroltest_SOURCES = \
-	$(top_srcdir)/src/sipXproxy/TransferControl.cpp \
-	TransferControlTest.cpp
-
-transfercontroltest_LDADD = \
-	$(COMMON_LIBS) \
-	$(top_builddir)/src/sipXproxy/libsipXproxy.la
-
-msftxferhacktest_CXXFLAGS = \
-	$(COMMON_CXX_FLAGS)
-
-msftxferhacktest_SOURCES = \
-	$(top_srcdir)/src/sipXproxy/MSFT_ExchangeTransferHack.cpp \
-	MSFT_ExchangeTransferHackTest.cpp
-
-msftxferhacktest_LDADD = \
-	$(COMMON_LIBS) \
-	$(top_builddir)/src/sipXproxy/libsipXproxy.la
+	$(COMMON_LIBS)
 
 EXTRA_DATA = \
-	authexception.xml \
-	caller-alias.xml \
-	credential.xml \
-	permission.xml \
-	transfer-control/domain-config \
    rulesdata/simple.xml \
    rulesdata/routing.xml
 
-
-EXTRA_DIST = $(EXTRA_DATA)
+EXTRA_DIST = \
+  $(EXTRA_DATA) \
+  cse_test.rb \
+  environment.rb \
+  sipsupport.rb
 
 # [DEBUG ASSISTANT] List a single unit test to isolate a unit test for
 # debugging or when developing a new unit test. As courtesy remove all
@@ -114,3 +64,48 @@ EXTRA_DIST = $(EXTRA_DATA)
 #sandbox_SOURCES = \
 #   SipRouterTest.cpp
 
+
+# disabled testsuite, this entire makefile needs to be refactored, this
+# was giving errors in 'make dist' target and non-standard usage of build
+# switches had to be removed -- DLH
+
+# Define values used in local database unit tests. This only
+# happens if configure was run with --with-dbtests.
+db_deps = db_setup
+PG_USER = @POSTGRESQL_USER@
+
+SCHEMA_FILE = $(top_srcdir)/etc/database/schema.sql
+
+CSE_TEST_FILES = \
+  $(srcdir)/cse_test.rb \
+  $(srcdir)/environment.rb \
+  $(srcdir)/sipsupport.rb
+
+# Let make check create a small shell script to start the real Ruby 
+# file. This satisfies the automake requirement that a testsuite must 
+# be an executable file that is created during make check.
+# check_PROGRAMS = $(testsuite)
+
+# Create simple shell script to start up Ruby, pass in the correct
+# parameters. First copy all Ruby script files from src/cse/test
+# to the build directory so all required files can be found.
+cse_test.sh: $(db_deps) $(CSE_TEST_FILES)
+	@echo "Generating test start script"
+	@cp $(srcdir)/*.rb .
+	@echo "ruby cse_test.rb -- --verbose --prefix=${prefix} --dbname=$(SIPXTEST_DATABASE)" \
+         > cse_test.sh
+	@chmod +x cse_test.sh
+
+# Set up PostgreSQL database for local unit test
+.PHONY: db_setup
+db_setup:	
+	@echo "Setting up database"
+	-dropdb -U $(PG_USER) $(SIPXTEST_DATABASE) &>/dev/null
+	createdb -U $(PG_USER) $(SIPXTEST_DATABASE) &>/dev/null
+	@if [ -f $(SCHEMA_FILE) ]; then \
+    psql -U $(PG_USER) -d $(SIPXTEST_DATABASE) \
+      -f $(SCHEMA_FILE) &>/dev/null; \
+  else \
+    @echo "Schema file $(SCHEMA_FILE) not found"; \
+  fi
+	@echo "Done."

@@ -19,8 +19,8 @@
 #include "net/SipMessage.h"
 #include "net/SipXauthIdentity.h"
 
-#include "sipXproxy/AuthPlugin.h"
-#include "sipXproxy/EnforceAuthRules.h"
+#include "AuthPlugin.h"
+#include "EnforceAuthRules.h"
 
 class EnforceAuthRulesTest : public CppUnit::TestCase
 {
@@ -47,7 +47,6 @@ public:
       {
          SipXauthIdentity::setSecret("fixed");
          RouteState::setSecret("fixed");
-         TestDbContext.inputFile("authexception.xml");
          TestDbContext.inputFile("permission.xml");
          TestDbContext.inputFile("credential.xml");
       }
@@ -831,4 +830,4 @@ private:
 CPPUNIT_TEST_SUITE_REGISTRATION(EnforceAuthRulesTest);
 
 EnforceAuthRules* EnforceAuthRulesTest::enforcer = dynamic_cast<EnforceAuthRules*>(getAuthPlugin("enforce"));
-SipDbTestContext  EnforceAuthRulesTest::TestDbContext(TEST_DATA_DIR, TEST_WORK_DIR "enforceauthrules_context");
+SipDbTestContext  EnforceAuthRulesTest::TestDbContext(TEST_DATA_DIR, TEST_WORK_DIR "/enforceauthrules_context");

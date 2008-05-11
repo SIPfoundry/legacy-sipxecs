@@ -55,7 +55,6 @@
 #define CONFIG_SETTING_CALL_STATE         "SIPX_PROXY_CALL_STATE"
 #define CONFIG_SETTING_CALL_STATE_LOG     "SIPX_PROXY_CALL_STATE_LOG"
 #define CALL_STATE_LOG_FILE_DEFAULT SIPX_LOGDIR "/sipxproxy_callstate.log"
-#define CONFIG_ETC_DIR SIPX_CONFDIR
 #define FORWARDING_RULES_FILENAME "forwardingrules.xml"
 #define SIPX_PROXY_LOG_FILE "sipXproxy.log"
 #define CONFIG_LOG_DIR SIPX_LOGDIR
@@ -173,7 +172,6 @@ void initSysLog(OsConfigDb* pConfig)
    //
    // Get/Apply Log Filename
    //
-   fileTarget.remove(0) ;
    if ((pConfig->get(CONFIG_SETTING_LOG_DIR, fileTarget) != OS_SUCCESS) ||
       fileTarget.isNull() || !OsFileSystem::exists(fileTarget))
    {
@@ -347,14 +345,6 @@ proxy( int argc, char* argv[] )
     OsSocket::getHostIp(&ipAddress);
 
 
-    OsPath DomainConfigfileName = SipXecsService::domainConfigPath();
-    OsConfigDb domainConfigDb;
-
-    if(OS_SUCCESS != domainConfigDb.loadFromFile(DomainConfigfileName))
-    {      
-       osPrintf("Failed to open domain config file: %s\n", DomainConfigfileName.data());
-    }
-
     OsPath ConfigfileName = SipXecsService::Path(SipXecsService::ConfigurationDirType,
                                                  CONFIG_SETTINGS_FILE);
     OsConfigDb configDb;
@@ -363,13 +353,21 @@ proxy( int argc, char* argv[] )
     {      
        osPrintf("Failed to open config file: %s\n", ConfigfileName.data());
     }
-    
-    SharedSecret LoopDetectionSecret(domainConfigDb);
-    BranchId::setSecret(LoopDetectionSecret);
-    
     // Initialize the OsSysLog...
     initSysLog(&configDb);
 
+    OsPath DomainConfigfileName = SipXecsService::domainConfigPath();
+    OsConfigDb domainConfigDb;
+
+    if(OS_SUCCESS != domainConfigDb.loadFromFile(DomainConfigfileName))
+    {      
+       OsSysLog::add(FAC_SIP, PRI_CRIT, "Failed to open domain config file: %s\n",
+                     DomainConfigfileName.data());
+    }
+
+    SharedSecret LoopDetectionSecret(domainConfigDb);
+    BranchId::setSecret(LoopDetectionSecret);
+    
     configDb.get("SIPX_PROXY_DOMAIN_NAME", domainName);
     if(domainName.isNull())
     {

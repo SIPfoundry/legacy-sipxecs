@@ -14,7 +14,7 @@
 #include "os/OsSysLog.h"
 
 #include "utl/UtlSList.h"
-#include "sipXproxy/RouteState.h"
+#include "RouteState.h"
 
 // CONSTANTS
 static const char Value1[] = "value1";

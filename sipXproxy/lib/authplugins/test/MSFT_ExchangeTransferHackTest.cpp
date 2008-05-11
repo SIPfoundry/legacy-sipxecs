@@ -16,15 +16,15 @@
 #include "net/SipMessage.h"
 #include "net/SipUserAgent.h"
 
-#include "sipXproxy/ForwardRules.h"
-#include "sipXproxy/SipRouter.h"
+#include "ForwardRules.h"
+#include "SipRouter.h"
 
 #include "testlib/FileTestContext.h"
-#include "sipXproxy/TransferControl.h"
+#include "MSFT_ExchangeTransferHack.h"
 
-class TransferControlTest : public CppUnit::TestCase
+class MSFT_ExchangeTransferHackTest : public CppUnit::TestCase
 {
-   CPPUNIT_TEST_SUITE(TransferControlTest);
+   CPPUNIT_TEST_SUITE(MSFT_ExchangeTransferHackTest);
 
    CPPUNIT_TEST(testConstructor);
 
@@ -35,20 +35,23 @@ class TransferControlTest : public CppUnit::TestCase
    CPPUNIT_TEST(UnAuthenticatedRefer);
    CPPUNIT_TEST(AuthenticatedRefer);
    CPPUNIT_TEST(UnAuthenticatedForiegnRefer);
+   CPPUNIT_TEST(BadReferNotExchange);
+   CPPUNIT_TEST(BadReferFromExchange);
+   CPPUNIT_TEST(BadReferFromExchangeWithPort);
    
    CPPUNIT_TEST_SUITE_END();
 
 public:
 
    static FileTestContext* TransferTestContext;
-   static TransferControl* xferctl;
+   static MSFT_ExchangeTransferHack* xferctl;
    static SipUserAgent     testUserAgent;
    static SipRouter*       testSipRouter;
    
    void setUp()
       {
          TransferTestContext = new FileTestContext(TEST_DATA_DIR "/transfer-control",
-                                                   TEST_WORK_DIR "/transfer-control-context");
+                                                   TEST_WORK_DIR "/msft-xfer-hack-context");
          TransferTestContext->inputFile("domain-config");
          TransferTestContext->setSipxDir(SipXecsService::ConfigurationDirType);
       }
@@ -63,12 +66,14 @@ public:
           * This test exists to initialize the singleton plugin.
           * Doing it as a static ran into ordering problems.
           */
-         CPPUNIT_ASSERT((xferctl = dynamic_cast<TransferControl*>(getAuthPlugin("xfer"))));
+         CPPUNIT_ASSERT((xferctl=dynamic_cast<MSFT_ExchangeTransferHack*>(getAuthPlugin("msft"))));
+
+         OsConfigDb xferConfigDb;
+         xferConfigDb.set(MSFT_ExchangeTransferHack::RecognizerConfigKey, "^RTCC/");
+         xferctl->readConfig(xferConfigDb);
 
          testUserAgent.setIsUserAgent(FALSE);
 
-         //testUserAgent.setDnsSrvTimeout(1 /* seconds */);
-         //testUserAgent.setMaxSrvRecords(4);
          testUserAgent.setUserAgentHeaderProperty("sipXecs/testproxy");
 
          testUserAgent.setForking(FALSE);  // Disable forking
@@ -127,6 +132,12 @@ public:
                                                        ));
          ASSERT_STR_EQUAL(unmodifiedRejectReason, rejectReason.data());
 
+         // check that the message has not been modified
+         UtlString outputMsg;
+         size_t    outputSize;
+         testMsg.getBytes(&outputMsg, &outputSize);
+
+         ASSERT_STR_EQUAL(message, outputMsg.data());
       }
 
    // Test that a dialog-forming INVITE without a replaces header is not affected
@@ -169,6 +180,13 @@ public:
                                                        rejectReason
                                                        ));
          ASSERT_STR_EQUAL(unmodifiedRejectReason, rejectReason.data());
+
+         // check that the message has not been modified
+         UtlString outputMsg;
+         size_t    outputSize;
+         testMsg.getBytes(&outputMsg, &outputSize);
+
+         ASSERT_STR_EQUAL(message, outputMsg.data());
       }
 
 
@@ -203,7 +221,7 @@ public:
          UtlString method("INVITE");
          AuthPlugin::AuthResult priorResult = AuthPlugin::CONTINUE;
          
-         CPPUNIT_ASSERT(AuthPlugin::ALLOW
+         CPPUNIT_ASSERT(AuthPlugin::CONTINUE
                         == xferctl->authorizeAndModify(testSipRouter,
                                                        identity,
                                                        requestUri,
@@ -214,6 +232,13 @@ public:
                                                        rejectReason
                                                        ));
          ASSERT_STR_EQUAL(unmodifiedRejectReason, rejectReason.data());
+
+         // check that the message has not been modified
+         UtlString outputMsg;
+         size_t    outputSize;
+         testMsg.getBytes(&outputMsg, &outputSize);
+
+         ASSERT_STR_EQUAL(message, outputMsg.data());
       }
 
    // Test that a REFER with Replaces is allowed
@@ -246,7 +271,7 @@ public:
          UtlString method("REFER");
          AuthPlugin::AuthResult priorResult = AuthPlugin::CONTINUE;
          
-         CPPUNIT_ASSERT(AuthPlugin::ALLOW
+         CPPUNIT_ASSERT(AuthPlugin::CONTINUE
                         == xferctl->authorizeAndModify(testSipRouter,
                                                        identity,
                                                        requestUri,
@@ -257,10 +282,17 @@ public:
                                                        rejectReason
                                                        ));
          ASSERT_STR_EQUAL(unmodifiedRejectReason, rejectReason.data());
+
+         // check that the message has not been modified
+         UtlString outputMsg;
+         size_t    outputSize;
+         testMsg.getBytes(&outputMsg, &outputSize);
+
+         ASSERT_STR_EQUAL(message, outputMsg.data());
       }
 
 
-   // Test that an unauthenticated REFER without Replaces is challenged
+   // Test that an unauthenticated REFER without Replaces and a good target is not modified
    void UnAuthenticatedRefer()
       {
          UtlString identity; // no authenticated identity
@@ -290,7 +322,7 @@ public:
          UtlString method("REFER");
          AuthPlugin::AuthResult priorResult = AuthPlugin::CONTINUE;
          
-         CPPUNIT_ASSERT(AuthPlugin::DENY
+         CPPUNIT_ASSERT(AuthPlugin::CONTINUE
                         == xferctl->authorizeAndModify(testSipRouter,
                                                        identity,
                                                        requestUri,
@@ -301,10 +333,17 @@ public:
                                                        rejectReason
                                                        ));
          ASSERT_STR_EQUAL(unmodifiedRejectReason, rejectReason.data());
+
+         // check that the message has not been modified
+         UtlString outputMsg;
+         size_t    outputSize;
+         testMsg.getBytes(&outputMsg, &outputSize);
+
+         ASSERT_STR_EQUAL(message, outputMsg.data());
       }
 
    
-   // Test that an authenticated REFER without Replaces is allowed and annotated
+   // Test that an authenticated REFER without Replaces to a good target is allowed and not modified
    void AuthenticatedRefer()
       {
          UtlString identity("controller@domain"); // an authenticated identity
@@ -352,18 +391,15 @@ public:
          Url modifiedReferTo(modifiedReferToStr);
          CPPUNIT_ASSERT(Url::SipUrlScheme == modifiedReferTo.getScheme());
 
-         UtlString transferIdentityValue;
-         CPPUNIT_ASSERT(modifiedReferTo.getHeaderParameter("X-Sipx-Authidentity",
-                                                           transferIdentityValue));
-         Url transferIdentityUrl(transferIdentityValue);
-         CPPUNIT_ASSERT(Url::SipUrlScheme == transferIdentityUrl.getScheme());
+         // check that the message has not been modified
+         UtlString outputMsg;
+         size_t    outputSize;
+         testMsg.getBytes(&outputMsg, &outputSize);
 
-         UtlString transferIdentity;
-         transferIdentityUrl.getIdentity(transferIdentity);
-         ASSERT_STR_EQUAL("controller@domain", transferIdentity.data());
+         ASSERT_STR_EQUAL(message, outputMsg.data());
       }
 
-   // Test that an unauthenticated REFER without Replaces to a foreign target is not challenged
+   // Test that an unauthenticated REFER without Replaces to a foreign target is not modified
    void UnAuthenticatedForiegnRefer()
       {
          UtlString identity; // no authenticated identity
@@ -393,7 +429,7 @@ public:
          UtlString method("REFER");
          AuthPlugin::AuthResult priorResult = AuthPlugin::CONTINUE;
          
-         CPPUNIT_ASSERT(AuthPlugin::ALLOW
+         CPPUNIT_ASSERT(AuthPlugin::CONTINUE
                         == xferctl->authorizeAndModify(testSipRouter,
                                                        identity,
                                                        requestUri,
@@ -404,15 +440,173 @@ public:
                                                        rejectReason
                                                        ));
          ASSERT_STR_EQUAL(unmodifiedRejectReason, rejectReason.data());
+
+         // check that the message has not been modified
+         UtlString outputMsg;
+         size_t    outputSize;
+         testMsg.getBytes(&outputMsg, &outputSize);
+
+         ASSERT_STR_EQUAL(message, outputMsg.data());
       }
    
+   // Test that a buggy REFER without Replaces not from Exchange is not modified
+   void BadReferNotExchange()
+      {
+         UtlString identity; // no authenticated identity
+         Url requestUri("sip:someone@foreign.example.edu");
+
+         const char* message =
+            "REFER sip:someone@foreign.example.edu SIP/2.0\r\n"
+            "Refer-To: other@foreign.example.edu\r\n"
+            "Via: SIP/2.0/TCP 10.1.1.3:33855\r\n"
+            "To: sip:someone@somewhere\r\n"
+            "From: Caller <sip:caller@example.org>; tag=30543f3483e1cb11ecb40866edd3295b\r\n"
+            "Call-Id: f88dfabce84b6a2787ef024a7dbe8749\r\n"
+            "Cseq: 1 INVITE\r\n"
+            "Max-Forwards: 20\r\n"
+            "User-Agent: OtherBuggy/2\r\n"
+            "Contact: caller@127.0.0.1\r\n"
+            "Content-Length: 0\r\n"
+            "\r\n";
+         SipMessage testMsg(message, strlen(message));
+
+         UtlSList noRemovedRoutes;
+         UtlString myRouteName("myhost.example.com");
+         RouteState routeState( testMsg, noRemovedRoutes, myRouteName );
+
+         const char unmodifiedRejectReason[] = "unmodified";
+         UtlString rejectReason(unmodifiedRejectReason);
+         
+         UtlString method("REFER");
+         AuthPlugin::AuthResult priorResult = AuthPlugin::CONTINUE;
+         
+         CPPUNIT_ASSERT(AuthPlugin::CONTINUE
+                        == xferctl->authorizeAndModify(testSipRouter,
+                                                       identity,
+                                                       requestUri,
+                                                       routeState,
+                                                       method,
+                                                       priorResult,
+                                                       testMsg,
+                                                       rejectReason
+                                                       ));
+         ASSERT_STR_EQUAL(unmodifiedRejectReason, rejectReason.data());
+
+         // check that the message has not been modified
+         UtlString outputMsg;
+         size_t    outputSize;
+         testMsg.getBytes(&outputMsg, &outputSize);
+
+         ASSERT_STR_EQUAL(message, outputMsg.data());
+      }
+   
+   // Test that a buggy REFER without Replaces from Exchange is modified
+   void BadReferFromExchange()
+      {
+         UtlString identity; // no authenticated identity
+         Url requestUri("sip:someone@foreign.example.edu");
+
+         const char* message =
+            "REFER sip:someone@foreign.example.edu SIP/2.0\r\n"
+            "Refer-To: other@foreign.example.edu\r\n"
+            "Via: SIP/2.0/TCP 10.1.1.3:33855\r\n"
+            "To: sip:someone@somewhere\r\n"
+            "From: Caller <sip:caller@example.org>; tag=30543f3483e1cb11ecb40866edd3295b\r\n"
+            "Call-Id: f88dfabce84b6a2787ef024a7dbe8749\r\n"
+            "Cseq: 1 INVITE\r\n"
+            "Max-Forwards: 20\r\n"
+            "User-Agent: RTCC/2\r\n"
+            "Contact: caller@127.0.0.1\r\n"
+            "Content-Length: 0\r\n"
+            "\r\n";
+         SipMessage testMsg(message, strlen(message));
+
+         UtlSList noRemovedRoutes;
+         UtlString myRouteName("myhost.example.com");
+         RouteState routeState( testMsg, noRemovedRoutes, myRouteName );
+
+         const char unmodifiedRejectReason[] = "unmodified";
+         UtlString rejectReason(unmodifiedRejectReason);
+         
+         UtlString method("REFER");
+         AuthPlugin::AuthResult priorResult = AuthPlugin::CONTINUE;
+         
+         CPPUNIT_ASSERT(AuthPlugin::CONTINUE
+                        == xferctl->authorizeAndModify(testSipRouter,
+                                                       identity,
+                                                       requestUri,
+                                                       routeState,
+                                                       method,
+                                                       priorResult,
+                                                       testMsg,
+                                                       rejectReason
+                                                       ));
+         ASSERT_STR_EQUAL(unmodifiedRejectReason, rejectReason.data());
+
+         // check that the target has been modified to our domain
+         UtlString modifiedReferToStr;
+         CPPUNIT_ASSERT(testMsg.getReferToField(modifiedReferToStr));
+
+         ASSERT_STR_EQUAL("sip:other@example.edu", modifiedReferToStr.data());
+      }
+
+   // Test that a buggy REFER without Replaces from Exchange is modified
+   void BadReferFromExchangeWithPort()
+      {
+         UtlString identity; // no authenticated identity
+         Url requestUri("sip:someone@10.1.1.5:56777");
+
+         const char* message =
+            "REFER sip:someone@10.1.1.5:56777 SIP/2.0\r\n"
+            "Refer-To: other@10.1.1.5:56777\r\n"
+            "Via: SIP/2.0/TCP 10.1.1.3:33855\r\n"
+            "To: sip:someone@somewhere\r\n"
+            "From: Caller <sip:caller@example.org>; tag=30543f3483e1cb11ecb40866edd3295b\r\n"
+            "Call-Id: f88dfabce84b6a2787ef024a7dbe8749\r\n"
+            "Cseq: 1 INVITE\r\n"
+            "Max-Forwards: 20\r\n"
+            "User-Agent: RTCC/2\r\n"
+            "Contact: caller@127.0.0.1\r\n"
+            "Content-Length: 0\r\n"
+            "\r\n";
+         SipMessage testMsg(message, strlen(message));
+
+         UtlSList noRemovedRoutes;
+         UtlString myRouteName("myhost.example.com");
+         RouteState routeState( testMsg, noRemovedRoutes, myRouteName );
+
+         const char unmodifiedRejectReason[] = "unmodified";
+         UtlString rejectReason(unmodifiedRejectReason);
+         
+         UtlString method("REFER");
+         AuthPlugin::AuthResult priorResult = AuthPlugin::CONTINUE;
+         
+         CPPUNIT_ASSERT(AuthPlugin::CONTINUE
+                        == xferctl->authorizeAndModify(testSipRouter,
+                                                       identity,
+                                                       requestUri,
+                                                       routeState,
+                                                       method,
+                                                       priorResult,
+                                                       testMsg,
+                                                       rejectReason
+                                                       ));
+         ASSERT_STR_EQUAL(unmodifiedRejectReason, rejectReason.data());
+
+         // check that the target has been modified to our domain
+         UtlString modifiedReferToStr;
+         CPPUNIT_ASSERT(testMsg.getReferToField(modifiedReferToStr));
+
+         ASSERT_STR_EQUAL("sip:other@example.edu", modifiedReferToStr.data());
+      }
+
 private:
    ForwardRules  mForwardingRules;
 };
 
-CPPUNIT_TEST_SUITE_REGISTRATION(TransferControlTest);
+CPPUNIT_TEST_SUITE_REGISTRATION(MSFT_ExchangeTransferHackTest);
 
-TransferControl* TransferControlTest::xferctl;
-FileTestContext* TransferControlTest::TransferTestContext;
-SipUserAgent     TransferControlTest::testUserAgent;
-SipRouter*       TransferControlTest::testSipRouter;
+MSFT_ExchangeTransferHack* MSFT_ExchangeTransferHackTest::xferctl;
+FileTestContext* MSFT_ExchangeTransferHackTest::TransferTestContext;
+SipUserAgent     MSFT_ExchangeTransferHackTest::testUserAgent;
+SipRouter*       MSFT_ExchangeTransferHackTest::testSipRouter;
