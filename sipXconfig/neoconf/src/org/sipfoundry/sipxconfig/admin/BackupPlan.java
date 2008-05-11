@@ -223,6 +223,14 @@ public class BackupPlan extends BeanWithId implements ApplicationContextAware {
         m_voicemail = voicemail;
     }
 
+    /**
+     * For backup to make sense at least one of the parameters (i.e. voicemail or configuration)
+     * have to be set.
+     */
+    public boolean isEmpty() {
+        return !(m_voicemail || m_configs);
+    }
+
     public void schedule(Timer timer, String rootBackupPath, String binPath) {
         schedule(timer, getTask(rootBackupPath, binPath));
     }
@@ -265,7 +273,7 @@ public class BackupPlan extends BeanWithId implements ApplicationContextAware {
     }
 
     public void setMailSenderContext(MailSenderContext mailSenderContext) {
-        this.m_mailSenderContext = mailSenderContext;
+        m_mailSenderContext = mailSenderContext;
     }
 
     public void setEmailFromAddress(String emailFromAddress) {

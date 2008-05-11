@@ -18,11 +18,10 @@ import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.form.IPropertySelectionModel;
 import org.apache.tapestry.html.BasePage;
-import org.apache.tapestry.valid.IValidationDelegate;
-import org.apache.tapestry.valid.ValidationConstraint;
 import org.sipfoundry.sipxconfig.admin.AdminContext;
 import org.sipfoundry.sipxconfig.admin.BackupPlan;
 import org.sipfoundry.sipxconfig.admin.DailyBackupSchedule;
+import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.components.ExtraOptionModelDecorator;
 import org.sipfoundry.sipxconfig.components.ObjectSelectionModel;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
@@ -80,37 +79,46 @@ public abstract class BackupPage extends BasePage implements PageBeginRenderList
         }
     }
 
-    public void submit() {
-        if (!TapestryUtils.isValid(this)) {
-            // do nothing on errors
-            return;
-        }
-    }
-
     public void backup() {
         if (!TapestryUtils.isValid(this)) {
             // do nothing on errors
             return;
         }
-        AdminContext adminContext = getAdminContext();
         BackupPlan plan = getBackupPlan();
-        if (!plan.isConfigs() && !plan.isVoicemail()) {
-            IValidationDelegate delegate = TapestryUtils.getValidator(getPage());
-            delegate.record(getMessages().getMessage("message.emptySelection"), ValidationConstraint.REQUIRED);
-        } else {
-            File[] backupFiles = adminContext.performBackup(plan);
-            if (null != backupFiles) {
-                setBackupFiles(Arrays.asList(backupFiles));
-            } else {
-                IValidationDelegate validator = TapestryUtils.getValidator(this);
-                validator.record("Backup operation failed.", ValidationConstraint.CONSISTENCY);
-            }
+        if (plan.isEmpty()) {
+            throw new EmptySelectionException();
         }
+
+        AdminContext adminContext = getAdminContext();
+        File[] backupFiles = adminContext.performBackup(plan);
+        if (null == backupFiles) {
+            throw new FailedBackupException();
+        }
+        setBackupFiles(Arrays.asList(backupFiles));
     }
 
     public void ok() {
-        AdminContext adminContext = getAdminContext();
+        if (!TapestryUtils.isValid(this)) {
+            // do nothing on errors
+            return;
+        }
         BackupPlan plan = getBackupPlan();
+        if (plan.isEmpty()) {
+            throw new EmptySelectionException();
+        }
+        AdminContext adminContext = getAdminContext();
         adminContext.storeBackupPlan(plan);
+    }
+
+    private static class EmptySelectionException extends UserException {
+        public EmptySelectionException() {
+            super(false, "message.emptySelection");
+        }
+    }
+
+    private static class FailedBackupException extends UserException {
+        public FailedBackupException() {
+            super(false, "message.backupFailed");
+        }
     }
 }

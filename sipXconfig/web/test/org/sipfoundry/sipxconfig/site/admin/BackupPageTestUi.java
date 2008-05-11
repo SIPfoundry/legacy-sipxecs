@@ -56,6 +56,18 @@ public class BackupPageTestUi extends WebTestCase {
         assertTextFieldEquals("dailyScheduledTime", "3:24 AM");
     }
 
+    public void testEmptyPlan() {
+        SiteTestHelper.assertNoException(tester);
+        uncheckCheckbox("backup:check:voicemail");
+        uncheckCheckbox("backup:check:configs");
+        selectOption("backup:limit", "10");
+        checkCheckbox("dailyScheduleEnabled");
+        selectOption("dailyScheduledDay", "Wednesday");
+        setTextField("dailyScheduledTime", "3:24 AM");
+        clickButton("backup:ok");
+        SiteTestHelper.assertUserError(tester);
+    }
+
     public void testEmptyTime() {
         SiteTestHelper.assertNoException(tester);
         checkCheckbox("backup:check:voicemail");

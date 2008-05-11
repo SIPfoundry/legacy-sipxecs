@@ -25,7 +25,6 @@
      -->
   <component id="form" type="Form">
     <binding name="delegate" value="bean:validator"/>
-    <binding name="listener" value="listener:submit"/>
   </component>
   <component id="errors" type="common/ErrorMsg"/>
   <component id="checkConfigs" type="Checkbox">
