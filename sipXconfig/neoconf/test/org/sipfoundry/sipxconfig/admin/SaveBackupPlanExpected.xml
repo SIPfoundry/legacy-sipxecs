@@ -3,7 +3,7 @@
 <dataset>
     <backup_plan 
 		backup_plan_id="[backup_plan_id]"
-		limited_count="[null]"
+		limited_count="50"
 		configs="1"
 		voicemail="1"
 		email_address="[null]"

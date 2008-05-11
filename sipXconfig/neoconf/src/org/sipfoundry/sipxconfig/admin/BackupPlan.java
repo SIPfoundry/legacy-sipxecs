@@ -51,7 +51,7 @@ public class BackupPlan extends BeanWithId implements ApplicationContextAware {
 
     private boolean m_voicemail = true;
     private boolean m_configs = true;
-    private Integer m_limitedCount;
+    private Integer m_limitedCount = 50;
     private Date m_backupTime;
     private String m_emailAddress;
 
