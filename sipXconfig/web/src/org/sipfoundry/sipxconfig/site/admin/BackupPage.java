@@ -33,10 +33,7 @@ public abstract class BackupPage extends BasePage implements PageBeginRenderList
      * Conceivable, available backup limits. Otherwise arbitrary. NOTE : Spring 1.1 couldn't
      * define Integers in lists see DefaultXmlBeanDefinitionParser.java:parsePropertySubelement()
      */
-    public static final List BACKUP_LIMIT_MODEL = Arrays.asList(new Integer[] {
-        new Integer(1), new Integer(2), new Integer(3), new Integer(4), new Integer(5),
-        new Integer(10), new Integer(20), new Integer(30), new Integer(40), new Integer(50)
-    });
+    public static final List<Integer> BACKUP_LIMIT_MODEL = Arrays.asList(1, 2, 3, 4, 5, 10, 20, 30, 40, 50);
 
     public abstract AdminContext getAdminContext();
 
@@ -47,8 +44,9 @@ public abstract class BackupPage extends BasePage implements PageBeginRenderList
     public abstract BackupPlan getBackupPlan();
 
     public abstract void setBackupPlan(BackupPlan plan);
-    
+
     public abstract IPropertySelectionModel getBackupLimitSelectionModel();
+
     public abstract void setBackupLimitSelectionModel(IPropertySelectionModel model);
 
     public void pageBeginRender(PageEvent event_) {
@@ -68,7 +66,7 @@ public abstract class BackupPage extends BasePage implements PageBeginRenderList
             }
             setBackupPlan(plan);
         }
-        
+
         ExtraOptionModelDecorator backupLimitModel = (ExtraOptionModelDecorator) getBackupLimitSelectionModel();
         if (backupLimitModel == null) {
             ObjectSelectionModel numbersOnly = new ObjectSelectionModel();
@@ -98,8 +96,7 @@ public abstract class BackupPage extends BasePage implements PageBeginRenderList
         BackupPlan plan = getBackupPlan();
         if (!plan.isConfigs() && !plan.isVoicemail()) {
             IValidationDelegate delegate = TapestryUtils.getValidator(getPage());
-            delegate.record(getMessages().getMessage("message.emptySelection"),
-                    ValidationConstraint.REQUIRED);
+            delegate.record(getMessages().getMessage("message.emptySelection"), ValidationConstraint.REQUIRED);
         } else {
             File[] backupFiles = adminContext.performBackup(plan);
             if (null != backupFiles) {

@@ -12,7 +12,6 @@ package org.sipfoundry.sipxconfig.admin;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -41,17 +40,12 @@ public class BackupPlan extends BeanWithId implements ApplicationContextAware {
     public static final String CONFIGURATION_ARCHIVE = "configuration.tar.gz";
     public static final FilenameFilter BACKUP_FILE_FILTER = new FilenameFilter() {
         public boolean accept(File dir, String name) {
-            return name.equalsIgnoreCase(VOICEMAIL_ARCHIVE)
-                    || name.equalsIgnoreCase(CONFIGURATION_ARCHIVE);
+            return name.equalsIgnoreCase(VOICEMAIL_ARCHIVE) || name.equalsIgnoreCase(CONFIGURATION_ARCHIVE);
         }
     };
+    private static final SimpleDateFormat FILE_NAME_FORMAT = new SimpleDateFormat("yyyyMMddHHmm");
 
     private static final Log LOG = LogFactory.getLog(BackupPlan.class);
-
-    /* ensures we do not get caught in infinite loop */
-    private static final int MAX_BACKUPS_TO_DELETE = 100;
-
-    private static final int SUCCESS = 0;
 
     private String m_backupScript = "sipx-backup";
 
@@ -60,7 +54,7 @@ public class BackupPlan extends BeanWithId implements ApplicationContextAware {
     private Integer m_limitedCount;
     private Date m_backupTime;
     private String m_emailAddress;
-    
+
     private ApplicationContext m_applicationContext;
     private String m_emailFromAddress;
 
@@ -77,7 +71,8 @@ public class BackupPlan extends BeanWithId implements ApplicationContextAware {
                 backupDir.mkdirs();
             }
             File binDir = new File(binPath);
-            if (SUCCESS == perform(backupDir, binDir)) {
+            if (perform(backupDir, binDir)) {
+                purgeOld(rootBackupDir);
                 File[] backupFiles = getBackupFiles(backupDir);
                 sendEmail(backupFiles);
                 return backupFiles;
@@ -117,70 +112,61 @@ public class BackupPlan extends BeanWithId implements ApplicationContextAware {
     }
 
     File getNextBackupDir(File rootBackupDir) {
+        // FIXME: only works if no more than one backup a minute
         m_backupTime = new Date();
-        DateFormat fmt = new SimpleDateFormat("yyyyMMddHHmm");
-        File nextDir = new File(rootBackupDir, fmt.format(m_backupTime));
-
-        String purgeable;
-        int i = 0;
-        do {
-            purgeable = getOldestPurgableBackup(rootBackupDir.list());
-            if (purgeable != null) {
-                try {
-                    File oldBackup = new File(rootBackupDir, purgeable);
-                    LOG.info(String.format("Deleting old backup '%s'", oldBackup
-                            .getAbsolutePath()));
-                    FileUtils.deleteDirectory(oldBackup);
-                    if (i++ > MAX_BACKUPS_TO_DELETE) {
-                        LOG.error("Avoiding infinite loop trying to remove old backups");
-                        break;
-                    }
-                } catch (IOException nonfatal) {
-                    LOG.error("Could not limit backup count", nonfatal);
-                    break;
-                }
-            }
-        } while (purgeable != null);
-
-        return nextDir;
+        return new File(rootBackupDir, FILE_NAME_FORMAT.format(m_backupTime));
     }
 
-    String getOldestPurgableBackup(String[] filelist) {
-        if (m_limitedCount == null || filelist == null) {
-            return null;
+    void purgeOld(File rootBackupDir) {
+        if (m_limitedCount == null) {
+            return;
+        }
+        if (m_limitedCount < 1) {
+            // have to leave at least on
+            m_limitedCount = 1;
+        }
+        String[] files = rootBackupDir.list();
+        int removeCount = files.length - m_limitedCount;
+        if (removeCount <= 0) {
+            return;
         }
 
-        if (filelist.length < m_limitedCount) {
-            return null;
+        // HACK: sort by name - depends on the fact that name is a nicely formatted dates
+        Arrays.sort(files);
+        for (int i = 0; i < removeCount; i++) {
+            try {
+                File oldBackup = new File(rootBackupDir, files[i]);
+                LOG.info(String.format("Deleting old backup '%s'", oldBackup));
+                FileUtils.deleteDirectory(oldBackup);
+            } catch (IOException nonfatal) {
+                LOG.error("Could not limit backup count", nonfatal);
+            }
         }
-
-        Arrays.sort(filelist);
-        return filelist[0];
     }
 
     void setScript(String script) {
         m_backupScript = script;
     }
 
-    private int perform(File workingDir, File binDir) throws IOException, InterruptedException {
-        String cmdLine = new String(binDir.getPath() + File.separator + m_backupScript + " -n");
+    private boolean perform(File workingDir, File binDir) throws IOException, InterruptedException {
+        ProcessBuilder pb = new ProcessBuilder(binDir.getPath() + File.separator + m_backupScript, "-n");
         if (!isVoicemail()) {
             // Configuration only.
-            cmdLine += " -c";
+            pb.command().add("-c");
         } else if (!isConfigs()) {
             // Voicemail only.
-            cmdLine += " -v";
+            pb.command().add("-v");
         }
 
-        Process process = Runtime.getRuntime().exec(cmdLine, ArrayUtils.EMPTY_STRING_ARRAY,
-                workingDir);
+        Process process = pb.directory(workingDir).start();
         int code = process.waitFor();
-        if (SUCCESS != code) {
+        if (code != 0) {
             String errorMsg = String.format("Backup operation failed. Exit code: %d", code);
             LOG.error(errorMsg);
+            return false;
         }
 
-        return code;
+        return true;
     }
 
     File[] getBackupFiles(File backupDir) {
@@ -281,7 +267,7 @@ public class BackupPlan extends BeanWithId implements ApplicationContextAware {
     public void setMailSenderContext(MailSenderContext mailSenderContext) {
         this.m_mailSenderContext = mailSenderContext;
     }
-    
+
     public void setEmailFromAddress(String emailFromAddress) {
         m_emailFromAddress = emailFromAddress;
     }

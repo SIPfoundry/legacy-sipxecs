@@ -16,6 +16,8 @@ import java.util.TimerTask;
 
 import junit.framework.TestCase;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.ArrayUtils;
 import org.easymock.IMocksControl;
 import org.easymock.classextension.EasyMock;
 import org.sipfoundry.sipxconfig.TestHelper;
@@ -44,16 +46,40 @@ public class BackupPlanTest extends TestCase {
         }
     }
 
+    public void testPurgeOld() throws Exception {
+        TestHelper.getTestDirectory();
+        File root = new File(TestHelper.getTestDirectory(), "purge-" + System.currentTimeMillis());
+        for (int i = 0; i < 5; i++) {
+            File testDir = new File(root, "dir-" + i);
+            boolean mkdirs = testDir.mkdirs();
+            assertTrue(mkdirs);
+        }
+        assertEquals(5, root.list().length);
+        m_backup.setLimitedCount(5);
+        m_backup.purgeOld(root);
+        assertEquals(5, root.list().length);
+        m_backup.setLimitedCount(2);
+        m_backup.purgeOld(root);
+        String[] list = root.list();
+        assertEquals(2, list.length);
+        assertTrue(ArrayUtils.contains(list, "dir-3"));
+        assertTrue(ArrayUtils.contains(list, "dir-4"));
+        m_backup.setLimitedCount(0);
+        m_backup.purgeOld(root);
+        list = root.list();
+        assertEquals(1, list.length);
+        assertEquals("dir-4", list[0]);
+        FileUtils.deleteDirectory(root);
+    }
+
     public void testPerform() throws Exception {
         if (TestUtil.isWindows()) {
             // tries to run a shell script. ignore test
             return;
         }
 
-        String backupPath = TestHelper.getTestDirectory() + File.separator
-                + System.currentTimeMillis();
-        File[] backups = m_backup.perform(backupPath, TestUtil.getTestSourceDirectory(this
-                .getClass()));
+        String backupPath = TestHelper.getTestDirectory() + File.separator + System.currentTimeMillis();
+        File[] backups = m_backup.perform(backupPath, TestUtil.getTestSourceDirectory(this.getClass()));
         assertEquals(2, backups.length);
         assertTrue(backups[0].exists());
         assertTrue(backups[1].exists());
@@ -62,18 +88,6 @@ public class BackupPlanTest extends TestCase {
     public void testGetNextBackupDir() {
         File f = m_backup.getNextBackupDir(new File("."));
         assertTrue(f.getName().matches("\\d{12}"));
-    }
-
-    public void testOldestPurgableBackup() throws Exception {
-        m_backup.setLimitedCount(new Integer(2));
-        assertNull(m_backup.getOldestPurgableBackup(null));
-        assertNull(m_backup.getOldestPurgableBackup(new String[0]));
-        assertNull(m_backup.getOldestPurgableBackup(new String[] {
-            "20050501"
-        }));
-        assertEquals("20050501", m_backup.getOldestPurgableBackup(new String[] {
-            "20050501", "20050502"
-        }));
     }
 
     public void testDailyTimer() throws Exception {
