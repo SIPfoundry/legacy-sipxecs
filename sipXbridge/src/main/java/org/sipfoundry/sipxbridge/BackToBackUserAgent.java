@@ -133,8 +133,7 @@ public class BackToBackUserAgent {
      * 
      * @throws IOException
      */
-    private Sym getLanRtpSession(Dialog dialog, String codecFilter)
-            throws IOException {
+    Sym getLanRtpSession(Dialog dialog) throws IOException {
         try {
             DialogApplicationData dialogApplicationData = DialogApplicationData
                     .get(dialog);
@@ -151,7 +150,9 @@ public class BackToBackUserAgent {
                         .createSessionDescription(
                                 this.rtpBridge.sessionDescription.toString());
                 sym.getReceiver().setSessionDescription(
-                        SipUtilities.cleanSessionDescription(sd, codecFilter));
+                        SipUtilities.cleanSessionDescription(sd, Gateway
+                                .getCodecName()));
+
                 this.rtpBridge.addSym(sym);
 
             }
@@ -167,7 +168,7 @@ public class BackToBackUserAgent {
      * 
      * @return
      */
-    public Sym getWanRtpSession(Dialog dialog) {
+    Sym getWanRtpSession(Dialog dialog) {
         try {
             Sym rtpSession = DialogApplicationData.getRtpSession(dialog);
             if (rtpSession == null) {
@@ -186,8 +187,7 @@ public class BackToBackUserAgent {
                 SessionDescription sd = SdpFactory.getInstance()
                         .createSessionDescription(
                                 this.rtpBridge.sessionDescription.toString());
-                String codecName = this.getItspAccountInfo()
-                        .isReInviteSupported() ? null : Gateway.getCodecName();
+                String codecName =  Gateway.getCodecName();
                 rtpSession.getReceiver().setSessionDescription(
                         SipUtilities.cleanSessionDescription(sd, codecName));
                 DialogApplicationData.get(dialog).rtpSession = rtpSession;
@@ -417,7 +417,7 @@ public class BackToBackUserAgent {
             response.setHeader(sh);
 
             ContactHeader contactHeader = SipUtilities.createContactHeader(
-                    null, provider);
+                    null, provider, Gateway.getSipxProxyTransport());
             response.setHeader(contactHeader);
 
             serverTransaction.sendResponse(response);
@@ -506,7 +506,7 @@ public class BackToBackUserAgent {
      *            the re-Invite dialog.
      */
     public void referInviteToSipxProxy(Request referRequest, Dialog dialog,
-            String codecName) {
+            SessionDescription sessionDescription) {
         logger
                 .debug("referInviteToSipxProxy: sendingReInvite to refered-to location");
         try {
@@ -523,8 +523,9 @@ public class BackToBackUserAgent {
             String replacesParam = uri.getHeader(ReplacesHeader.NAME);
             ReplacesHeader replacesHeader = null;
             if (replacesParam != null) {
-                URLDecoder decoder = new URLDecoder();
-                String decodedReplaces = decoder.decode(replacesParam, "UTF-8");
+
+                String decodedReplaces = URLDecoder.decode(replacesParam,
+                        "UTF-8");
                 replacesHeader = (ReplacesHeader) ProtocolObjects.headerFactory
                         .createHeader("Replaces", decodedReplaces);
             }
@@ -535,14 +536,14 @@ public class BackToBackUserAgent {
 
             for (Iterator it = uri.getHeaderNames(); it.hasNext();) {
                 String headerName = (String) it.next();
-                String sipxAuthIdentity = uri.getHeader(headerName);
+                String headerValue = uri.getHeader(headerName);
                 Header header = null;
-                if (sipxAuthIdentity != null) {
-                    URLDecoder decoder = new URLDecoder();
-                    String decodedAuth = decoder.decode(sipxAuthIdentity,
+                if (headerValue != null) {
+
+                    String decodedHeaderValue = URLDecoder.decode(headerValue,
                             "UTF-8");
                     header = (Header) ProtocolObjects.headerFactory
-                            .createHeader(headerName, decodedAuth);
+                            .createHeader(headerName, decodedHeaderValue);
                 }
                 if (header != null) {
                     newRequest.addHeader(header);
@@ -557,7 +558,7 @@ public class BackToBackUserAgent {
             newRequest.setHeader(sh);
 
             ContactHeader contactHeader = SipUtilities.createContactHeader(
-                    null, Gateway.getLanProvider());
+                    null, Gateway.getLanProvider(),Gateway.getSipxProxyTransport());
             newRequest.setHeader(contactHeader);
             /*
              * Create a new out of dialog request.
@@ -571,11 +572,14 @@ public class BackToBackUserAgent {
             ContentTypeHeader cth = ProtocolObjects.headerFactory
                     .createContentTypeHeader("application", "sdp");
 
-            Sym lanRtpSession = this.getLanRtpSession(dialog, Gateway
-                    .getCodecName());
-            SessionDescription sd = SipUtilities.cleanSessionDescription(
-                    lanRtpSession.getReceiver().getSessionDescription(),
-                    codecName);
+            Sym lanRtpSession = this.getLanRtpSession(dialog);
+
+            if (sessionDescription != null)
+                lanRtpSession.getReceiver().setSessionDescription(
+                        sessionDescription);
+
+            SessionDescription sd = lanRtpSession.getReceiver()
+                    .getSessionDescription();
             SipUtilities.setDuplexity(sd, "sendrecv");
             newRequest.setContent(sd, cth);
             /*
@@ -678,12 +682,13 @@ public class BackToBackUserAgent {
             if (!this.itspAccountInfo.isInboundCallsRoutedToAutoAttendant()) {
                 uri = ProtocolObjects.addressFactory.createSipURI(
                         incomingRequestURI.getUser(), Gateway
-                                .getSipxProxyAddress());
+                                .getSipxProxyDomain());
             } else {
                 uri = ProtocolObjects.addressFactory.createSipURI(
                         this.itspAccountInfo.getAutoAttendantName(), Gateway
-                                .getSipxProxyAddress());
+                                .getSipxProxyDomain());
             }
+            uri.setTransportParam(Gateway.getSipxProxyTransport());
 
             String callId = ((CallIdHeader) request
                     .getHeader(CallIdHeader.NAME)).getCallId();
@@ -701,6 +706,16 @@ public class BackToBackUserAgent {
 
             ToHeader toHeader = (ToHeader) request.getHeader(ToHeader.NAME)
                     .clone();
+            
+            /*
+             * Change the domain of the inbound request to that of the sipx proxy.
+             * Change the user part if routed to specific extension.
+             */
+            ((SipURI)toHeader.getAddress().getURI()).setHost(Gateway.getSipxProxyDomain());
+            ((SipURI)toHeader.getAddress().getURI()).removePort();
+            if (this.itspAccountInfo.isInboundCallsRoutedToAutoAttendant() ) {
+                ((SipURI)toHeader.getAddress().getURI()).setUser(this.itspAccountInfo.getAutoAttendantName()) ;
+            }
 
             toHeader.removeParameter("tag");
 
@@ -719,15 +734,14 @@ public class BackToBackUserAgent {
                     uri, Request.INVITE, callIdHeader, cseqHeader, fromHeader,
                     toHeader, viaList, maxForwards);
             ContactHeader contactHeader = SipUtilities.createContactHeader(
-                    incomingRequestURI.getUser(), Gateway.getLanProvider());
+                    incomingRequestURI.getUser(), Gateway.getLanProvider(),Gateway.getSipxProxyTransport());
             newRequest.setHeader(contactHeader);
             /*
              * The incoming session description.
              */
             SessionDescription sessionDescription = SipUtilities
                     .getSessionDescription(request);
-            if (Gateway.getCodecName() != null
-                    && !itspAccountInfo.isReInviteSupported()) {
+            if (Gateway.getCodecName() != null) {
                 SessionDescription newSd = SipUtilities
                         .cleanSessionDescription(sessionDescription, Gateway
                                 .getCodecName());
@@ -769,18 +783,16 @@ public class BackToBackUserAgent {
             DialogApplicationData.attach(this, outboundDialog);
             pairDialogs(inboundDialog, outboundDialog);
 
-            newRequest.setContent(this.getLanRtpSession(outboundDialog,
-                    Gateway.getCodecName()).getReceiver()
-                    .getSessionDescription().toString(), cth);
+            newRequest.setContent(this.getLanRtpSession(outboundDialog)
+                    .getReceiver().getSessionDescription().toString(), cth);
 
             TransactionApplicationData tad = new TransactionApplicationData(
                     Operation.SEND_INVITE_TO_SIPX_PROXY);
-            tad.isReInvite = false;
+
             tad.clientTransaction = ct;
             tad.clientTransactionProvider = Gateway.getLanProvider();
             tad.incomingSession = incomingSession;
-            tad.outgoingSession = this.getLanRtpSession(outboundDialog, Gateway
-                    .getCodecName());
+            tad.outgoingSession = this.getLanRtpSession(outboundDialog);
             tad.serverTransaction = serverTransaction;
             tad.serverTransactionProvider = Gateway
                     .getWanProvider(itspAccountInfo.getOutboundTransport());
@@ -873,7 +885,7 @@ public class BackToBackUserAgent {
                     uri, Request.INVITE, callIdHeader, cseqHeader, fromHeader,
                     toHeader, viaList, maxForwards);
             ContactHeader contactHeader = SipUtilities.createContactHeader(
-                    Gateway.SIPXBRIDGE_USER, Gateway.getLanProvider());
+                    Gateway.SIPXBRIDGE_USER, Gateway.getLanProvider(),Gateway.getSipxProxyTransport());
             newRequest.setHeader(contactHeader);
 
             /*
@@ -892,7 +904,7 @@ public class BackToBackUserAgent {
 
             TransactionApplicationData tad = new TransactionApplicationData(
                     Operation.SEND_INVITE_TO_MOH_SERVER);
-            tad.isReInvite = false;
+
             tad.clientTransaction = ct;
             tad.clientTransactionProvider = Gateway.getLanProvider();
             tad.incomingSession = null;
@@ -902,6 +914,8 @@ public class BackToBackUserAgent {
             tad.backToBackUa = this;
             ct.setApplicationData(tad);
             this.addDialog(ct.getDialog());
+            DialogApplicationData dat = DialogApplicationData.attach(this, ct.getDialog());
+            
 
             ct.sendRequest();
             retval = ct.getDialog();
@@ -1069,8 +1083,7 @@ public class BackToBackUserAgent {
 
             DialogApplicationData.attach(this, outboundDialog);
 
-            String codecName = !itspAccountInfo.isReInviteSupported() ? Gateway
-                    .getCodecName() : null;
+            String codecName = Gateway.getCodecName() ;
 
             SessionDescription sd = spiral ? DialogApplicationData
                     .getRtpSession(this.referingDialog).getReceiver()
@@ -1143,8 +1156,7 @@ public class BackToBackUserAgent {
                     .getSessionDescription(incomingRequest);
 
             if (!spiral) {
-                tad.incomingSession = this.getLanRtpSession(incomingDialog,
-                        Gateway.getCodecName());
+                tad.incomingSession = this.getLanRtpSession(incomingDialog);
 
                 SymTransmitterEndpoint rtpEndpoint = new SymTransmitterEndpoint();
                 // rtpEndpoint.setMaxSilence(Gateway.getMediaKeepaliveMilisec());

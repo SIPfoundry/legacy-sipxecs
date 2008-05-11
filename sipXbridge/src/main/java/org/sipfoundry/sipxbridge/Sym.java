@@ -271,6 +271,7 @@ public class Sym implements SymInterface, Serializable {
                 DialogApplicationData dat = (DialogApplicationData) dialog
                         .getApplicationData();
                 dat.musicOnHoldDialog = mohDialog;
+              
 
             }
             SipUtilities.setDuplexity(this.getReceiver()

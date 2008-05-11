@@ -511,20 +511,7 @@ public class ItspAccountInfo implements
         return rtpKeepaliveMethod;
     }
 
-    /**
-     * @param reInviteSupported the reInviteSupported to set
-     */
-    public void setReInviteSupported(boolean reInviteSupported) {
-        this.reInviteSupported = reInviteSupported;
-    }
-
-    /**
-     * @return the reInviteSupported
-     */
-    public boolean isReInviteSupported() {
-        return reInviteSupported;
-    }
-
+    
     /**
      * @param useRegistrationForCallerId the useRegistrationForCallerId to set
      */

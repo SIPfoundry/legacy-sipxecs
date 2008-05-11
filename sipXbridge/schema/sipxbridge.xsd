@@ -168,12 +168,22 @@
 				</xs:simpleType>
 			</xs:element>
 
+			<xs:element name="is-reinvite-supported" type="xs:boolean" maxOccurs="1" minOccurs="0"
+				default="true">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+						Whether or not re-invite is supported. If supported, then
+					        Dynamic media renegotiation is used to determine codec
+						during call transfer.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
 			<xs:element name="allowed-codec-name" maxOccurs="1" minOccurs="0"
 				default="PCMU">
 				<xs:annotation>
 					<xs:documentation xml:lang="en">
 						The codec for the Sdp Offer that is allowable if re-invitation
-						is not supported for a given ITSP. All INVITES are restricted
+						is not supported. All INVITES are restricted
 						to the specified codec if this is the case.
 					</xs:documentation>
 				</xs:annotation>
@@ -328,14 +338,6 @@
 				</xs:annotation>
 			</xs:element>
 
-			<xs:element name="is-reinvite-supported" type="xs:boolean" maxOccurs="1" minOccurs="0"
-				default="false">
-				<xs:annotation>
-					<xs:documentation xml:lang="en">
-						Whether or not re-invite is supported.
-					</xs:documentation>
-				</xs:annotation>
-			</xs:element>
 
 			<xs:element name="route-inbound-calls-to-extension" type="xs:string"
 				maxOccurs="1" minOccurs="0" >

@@ -20,36 +20,7 @@ public enum Operation {
     SEND_REGISTER_QUERY, SEND_REGISTER, 
     SPIRAL_BLIND_TRANSFER_INVITE_TO_ITSP, 
     HANDLE_SPIRAL_INVITE_WITH_REPLACES,
-    SEND_INVITE_TO_MOH_SERVER, QUERY_SDP_FROM_PEER_DIALOG;
-
-    @Override
-    public String toString() {
-        if (this.equals(Operation.REFER_INVITE_TO_SIPX_PROXY)) {
-            return "ReferInviteToSipxProxy";
-        } else if (this.equals(Operation.PROCESS_BYE)) {
-            return "ProcessBye";
-        } else if (this.equals(Operation.SEND_DEREGISTER)) {
-            return "SendDeregister";
-        } else if (this.equals(Operation.SEND_INVITE_TO_ITSP)) {
-            return "SendInviteToItsp";
-        } else if (this.equals(Operation.SEND_INVITE_TO_SIPX_PROXY)) {
-            return "SendInviteToSipxProxy";
-        } else if (this.equals(Operation.SEND_REGISTER_QUERY)) {
-            return "SendRegisterQuery";
-        } else if (this.equals(Operation.SEND_REGISTER)) {
-            return "SendRegister";
-        } else if (this.equals(Operation.SPIRAL_BLIND_TRANSFER_INVITE_TO_ITSP)) {
-            return "SpiralBlindTransferInviteToItsp";
-        } else if (this
-                .equals(Operation.HANDLE_SPIRAL_INVITE_WITH_REPLACES)) {
-            return "SpiralConsultationTransferInviteToItsp";
-        } else if (this.equals(Operation.SEND_INVITE_TO_MOH_SERVER)) {
-            return "SendInviteToMohServer";
-        } else if ( this.equals(Operation.QUERY_SDP_FROM_PEER_DIALOG)) {
-            return "sendReInviteNoSdp";
-        } else {
-            return null;
-        }
-    }
+    SEND_INVITE_TO_MOH_SERVER, QUERY_SDP_FROM_PEER_DIALOG, REFER_RE_INVITE,
+    REFER_RE_INVITE_FORWARD;
 
 }

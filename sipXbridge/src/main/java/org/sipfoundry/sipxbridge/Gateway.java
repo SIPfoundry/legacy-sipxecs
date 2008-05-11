@@ -75,6 +75,8 @@ public class Gateway {
      * Internal SIp Provider
      */
     private static SipProvider internalProvider;
+    
+   
 
     /*
      * External provider.
@@ -104,7 +106,7 @@ public class Gateway {
     /*
      * The SIPX proxy transport.
      */
-    private static String sipxProxyTransport = "udp";
+    private static String sipxProxyTransport = "UDP";
 
     /*
      * This is a placeholder - to be replaced by STUN
@@ -359,7 +361,8 @@ public class Gateway {
             }
             externalProvider = ProtocolObjects.sipStack
                     .createSipProvider(externalUdpListeningPoint);
-
+            externalProvider.addListeningPoint(externalTcpListeningPoint);
+           
             int localPort = bridgeConfiguration.getLocalPort();
             String localIpAddress = bridgeConfiguration.getLocalAddress();
             System.out.println("Local Address:port = " + localIpAddress + ":"
@@ -387,9 +390,13 @@ public class Gateway {
             ListeningPoint internalTcpListeningPoint = ProtocolObjects.sipStack
                     .createListeningPoint(localIpAddress, localPort, "tcp");
 
+            
+            
             internalProvider = ProtocolObjects.sipStack
-                    .createSipProvider(internalUdpListeningPoint);
-
+                .createSipProvider(internalUdpListeningPoint);
+            
+            internalProvider.addListeningPoint(internalTcpListeningPoint);
+            
             registrationManager = new RegistrationManager(getWanProvider("udp"));
 
             backToBackUserAgentManager = new CallControlManager();
@@ -428,7 +435,7 @@ public class Gateway {
     }
 
     public static SipProvider getLanProvider() {
-        return internalProvider;
+       return internalProvider;
     }
 
     /**
@@ -780,11 +787,13 @@ public class Gateway {
     }
 
     /**
-     * Get the codec name.
+     * Get the default codec name. Returns null if 
+     * Re-Invite is supported.
      * 
      */
     public static String getCodecName() {
-        return Gateway.getAccountManager().getBridgeConfiguration()
+        if ( Gateway.isReInviteSupported()) return null;
+        else return Gateway.getAccountManager().getBridgeConfiguration()
                 .getCodecName();
     }
 
@@ -827,6 +836,10 @@ public class Gateway {
         
     }  
     
+    public static boolean isReInviteSupported() {
+        
+        return accountManager.getBridgeConfiguration().isReInviteSupported();
+    }
     
     /**
      * The main method for the Bridge.
@@ -855,6 +868,8 @@ public class Gateway {
         }
 
     }
+
+    
 
    
 

@@ -51,7 +51,7 @@ public class SipListenerImpl implements SipListener {
      */
     public void processDialogTerminated(DialogTerminatedEvent dte) {
 
-        logger.debug("DialogTerminatedEvent "  + dte.getDialog() );
+        logger.debug("DialogTerminatedEvent " + dte.getDialog());
         CallIdHeader cid = dte.getDialog().getCallId();
 
         DialogApplicationData dat = DialogApplicationData.get(dte.getDialog());
@@ -70,23 +70,25 @@ public class SipListenerImpl implements SipListener {
             }
 
         }
-        BackToBackUserAgent b2bua = dat.backToBackUserAgent;
-        if (b2bua != null) {
-            b2bua.removeDialog(dte.getDialog());
+        if (dat != null) {
+            BackToBackUserAgent b2bua = dat.backToBackUserAgent;
+            if (b2bua != null) {
+                b2bua.removeDialog(dte.getDialog());
 
-        }
+            }
 
-        if (dat.backToBackUserAgent != null
-                && dat.backToBackUserAgent.getCreatingDialog() == dte
-                        .getDialog()) {
+            if (dat.backToBackUserAgent != null
+                    && dat.backToBackUserAgent.getCreatingDialog() == dte
+                            .getDialog()) {
 
-            ItspAccountInfo itspAccountInfo = dat.backToBackUserAgent
-                    .getItspAccountInfo();
+                ItspAccountInfo itspAccountInfo = dat.backToBackUserAgent
+                        .getItspAccountInfo();
 
-            Gateway.decrementCallCount();
+                Gateway.decrementCallCount();
 
-            if (itspAccountInfo != null) {
-                itspAccountInfo.decrementCallCount();
+                if (itspAccountInfo != null) {
+                    itspAccountInfo.decrementCallCount();
+                }
             }
         }
 
@@ -334,6 +336,8 @@ public class SipListenerImpl implements SipListener {
                         .getParameter("tag") == null) {
             DialogApplicationData dat = (DialogApplicationData) dialog
                     .getApplicationData();
+            if (dat == null)
+                return; // Nothing to do must be MOH Dialog.
             BackToBackUserAgent b2bua = dat.backToBackUserAgent;
             if (b2bua != null && dialog == b2bua.getCreatingDialog()
                     && b2bua.getItspAccountInfo() != null) {

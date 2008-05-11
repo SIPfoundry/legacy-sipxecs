@@ -1,8 +1,11 @@
 THIS IS AN EARLY RELEASE. 
 
+Welcome to sipxbridge -- the little bridge that could.
+
 This is an ITSP (trunking) gateway. It aims to provide media and
 signaling gatewaying between SIP endpoints inside a firewall /NAT and 
-an external ITSP gateway.
+an external ITSP gateway. Until this software is completely integrated
+with sipxconfig, please configure it manually.
 
 
 Prerequisites

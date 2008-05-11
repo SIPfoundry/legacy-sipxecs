@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.util.HashSet;
 import java.util.Properties;
 
 import javax.sdp.MediaDescription;
@@ -46,6 +47,7 @@ import javax.sip.message.Response;
 import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
+import org.cafesip.sipunit.SipPhone;
 import org.sipfoundry.sipxbridge.ProtocolObjects;
 import org.sipfoundry.sipxbridge.ProxyAddressResolver;
 import org.sipfoundry.sipxbridge.SipUtilities;
@@ -69,10 +71,12 @@ public class MockSipxProxy implements SipListener {
     private boolean inviteOkSeen;
     private boolean sendDataFlag;
     private int readCount;
-    private static String ibridgeDomain = "ibridge.sipx.com";
+    private static String ibridgeDomain = "sipxpbx.example.com";
 
     private int bytesRead;
     private int writeCount;
+    private org.cafesip.sipunit.SipStack phoneStack;
+    private HashSet<SipPhone> sipPhones = new HashSet<SipPhone>();
 
     private static Logger logger = Logger.getLogger(MockSipxProxy.class);
 

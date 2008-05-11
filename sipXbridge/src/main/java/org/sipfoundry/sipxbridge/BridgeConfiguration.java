@@ -37,6 +37,7 @@ public class BridgeConfiguration {
     private String logFileDirectory = "/var/log/sipxpbx/";
     private int globalAddressRediscoveryPeriod = 30;
     private String codecName = "PCMU";
+    private boolean reInviteSupported = true;
     private int maxCalls = -1;
 
     private static Logger logger = Logger.getLogger(BridgeConfiguration.class);
@@ -329,6 +330,17 @@ public class BridgeConfiguration {
      */
     public int getMaxCalls() {
         return maxCalls;
+    }
+    
+    public boolean isReInviteSupported() {
+        return this.reInviteSupported;
+    }
+
+    /**
+     * @param reInviteSupported the reInviteSupported to set
+     */
+    public void setReInviteSupported(boolean reInviteSupported) {
+        this.reInviteSupported = reInviteSupported;
     }
 
 }

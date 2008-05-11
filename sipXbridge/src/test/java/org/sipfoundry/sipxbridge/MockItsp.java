@@ -257,8 +257,8 @@ public class MockItsp implements SipListener {
     
     class PhoneCaller  {
         SipPhone phone;
-        int inboundNumber;
-        public PhoneCaller( int inboundNumber) throws Exception{
+        String inboundNumber;
+        public PhoneCaller(String inboundNumber) throws Exception{
             String userName = accountInfo.getUserName();
             String domain = accountInfo.getProxyDomain();
             phone = phoneStack.createSipPhone(myIpAddress, "udp",
@@ -268,7 +268,7 @@ public class MockItsp implements SipListener {
         }
         
         public void makeCall() {
-            String user = Integer.toString(inboundNumber);
+            String user = inboundNumber;
             String to = "sip:" + user + "@" + bridgeConfig.getSipxProxyDomain();
             String sdpBody = String.format(sdpBodyFormat, myIpAddress
                     , myIpAddress,
@@ -290,6 +290,13 @@ public class MockItsp implements SipListener {
         }
     }
 
+    
+    public void makePhoneInboundCall() throws Exception {
+        String userName = this.accountInfo.getUserName();
+        
+        PhoneCaller phoneCaller = new PhoneCaller(userName);
+        phoneCaller.makeCall();
+    }
     public void createPhones( int responderCount , int callerCount) throws Exception {
         /*
          * Set up phones.

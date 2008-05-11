@@ -85,6 +85,8 @@ public class SipUtilities {
     public static ViaHeader createViaHeader(SipProvider sipProvider,
             String transport) {
         try {
+            if ( !transport.equalsIgnoreCase("tcp") && !transport.equalsIgnoreCase("udp")) throw new IllegalArgumentException("Bad transport");
+            
             ListeningPoint listeningPoint = sipProvider
                     .getListeningPoint(transport);
             String host = listeningPoint.getIPAddress();
@@ -145,7 +147,7 @@ public class SipUtilities {
             if (!itspAccount.isGlobalAddressingUsed()) {
 
                 ListeningPoint lp = provider
-                        .getListeningPoint(ListeningPoint.UDP);
+                        .getListeningPoint(itspAccount.getOutboundTransport());
                 String ipAddress = lp.getIPAddress();
                 int port = lp.getPort();
                 SipURI sipUri = ProtocolObjects.addressFactory.createSipURI(
@@ -186,9 +188,9 @@ public class SipUtilities {
      * Create a contact header for the given provider.
      */
     public static ContactHeader createContactHeader(String user,
-            SipProvider provider) {
+            SipProvider provider, String transport) {
         try {
-            ListeningPoint lp = provider.getListeningPoint(ListeningPoint.UDP);
+            ListeningPoint lp = provider.getListeningPoint(transport);
             String ipAddress = lp.getIPAddress();
             int port = lp.getPort();
             SipURI sipUri = ProtocolObjects.addressFactory.createSipURI(null,
@@ -196,6 +198,7 @@ public class SipUtilities {
             if (user != null)
                 sipUri.setUser(user);
             sipUri.setPort(port);
+            sipUri.setTransportParam(transport);
             Address address = ProtocolObjects.addressFactory
                     .createAddress(sipUri);
             ContactHeader ch = ProtocolObjects.headerFactory
@@ -487,7 +490,7 @@ public class SipUtilities {
             Request request = ProtocolObjects.messageFactory.createRequest(
                     requestUri, Request.INVITE, callid, cseqHeader, fromHeader,
                     toHeader, list, maxForwards);
-            
+
             Gateway.getAuthenticationHelper().setAuthenticationHeaders(request);
 
             ContactHeader contactHeader = createContactHeader(sipProvider,
@@ -527,7 +530,8 @@ public class SipUtilities {
     /**
      * Cleans the Session description to include only the specified codec.This
      * processing can be applied on the outbound INVITE to make sure that call
-     * transfers will work. It removes all the SRTP related fields as well.
+     * transfers will work in the absence of re-invites. 
+     * It removes all the SRTP related fields as well.
      * 
      * @param sessionDescription
      * @param codec
@@ -536,19 +540,18 @@ public class SipUtilities {
     public static SessionDescription cleanSessionDescription(
             SessionDescription sessionDescription, String codec) {
         try {
-
+            if  ( codec == null ) return sessionDescription;
             /*
              * No codec specified -- return the incoming session description.
              */
-            if (codec == null) {
-                return sessionDescription;
-            }
+
             boolean found = false;
 
             Vector mediaDescriptions = sessionDescription
                     .getMediaDescriptions(true);
 
-            int keeper = RtpPayloadTypes.getPayloadType(codec);
+            int keeper = codec == null ? -1 : RtpPayloadTypes
+                    .getPayloadType(codec);
 
             for (Iterator it = mediaDescriptions.iterator(); it.hasNext();) {
 
@@ -556,23 +559,29 @@ public class SipUtilities {
                         .next();
                 Vector formats = mediaDescription.getMedia().getMediaFormats(
                         true);
-                for (Iterator it1 = formats.iterator(); it1.hasNext();) {
-                    Object format = it1.next();
-                    int fmt = new Integer(format.toString());
-                    if (fmt != keeper && RtpPayloadTypes.isPayload(fmt))
-                        it1.remove();
-                    else if (fmt == keeper)
-                        found = true;
+                if (keeper != -1) {
+                    for (Iterator it1 = formats.iterator(); it1.hasNext();) {
+                        Object format = it1.next();
+                        int fmt = new Integer(format.toString());
+                        if (fmt != keeper && RtpPayloadTypes.isPayload(fmt))
+                            it1.remove();
+                        else if (fmt == keeper)
+                            found = true;
+                    }
                 }
                 Vector attributes = mediaDescription.getAttributes(true);
 
                 for (Iterator it1 = attributes.iterator(); it1.hasNext();) {
                     Attribute attr = (Attribute) it1.next();
-                    if (attr.getName().equalsIgnoreCase("rtpmap")) {
+                    if ( logger.isDebugEnabled()) {
+                        logger.debug("attrName = "  + attr.getName());
+                    }
+                    if (attr.getName().equalsIgnoreCase("rtpmap")
+                            && codec != null) {
                         String attribute = attr.getValue();
                         String[] attrs = attribute.split(" ");
                         String[] pt = attrs[1].split("/");
-                        logger.debug("pt == " + pt[0]);
+                        if ( logger.isDebugEnabled()) logger.debug("pt == " + pt[0]);
                         if (RtpPayloadTypes.isPayload(pt[0])
                                 && !pt[0].equalsIgnoreCase(codec)) {
                             it1.remove();
@@ -585,11 +594,9 @@ public class SipUtilities {
                 }
 
             }
-            if (!found) {
-                return null;
-            } else {
-                return sessionDescription;
-            }
+
+            return sessionDescription;
+
         } catch (Exception ex) {
             logger.fatal("Unexpected exception!", ex);
             throw new RuntimeException("Unexpected exception cleaning SDP", ex);
@@ -686,7 +693,8 @@ public class SipUtilities {
             md.setDuplexity(attributeValue);
 
         } catch (Exception ex) {
-            logger.error("Error while processing the following SDP : " + sessionDescription );
+            logger.error("Error while processing the following SDP : "
+                    + sessionDescription);
             logger.error("attributeValue = " + attributeValue);
             throw new RuntimeException("Malformatted sdp", ex);
         }
