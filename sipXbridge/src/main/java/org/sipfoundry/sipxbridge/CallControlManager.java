@@ -544,6 +544,60 @@ public class CallControlManager {
 
     }
 
+    
+    /**
+     * Sends an SDP answer to the peer of this dialog.
+     * 
+     * @param response
+     * @param dialog
+     * @throws Exception
+     */
+    private void sendSdpAnswerInAck ( Response response, Dialog dialog)  throws Exception {
+        DialogApplicationData dat = (DialogApplicationData) dialog
+        .getApplicationData();
+        BackToBackUserAgent b2bua = dat.backToBackUserAgent;
+        if (response.getContentLength().getContentLength() != 0) {
+            Dialog peerDialog = DialogApplicationData
+            .getPeerDialog(dialog);
+            SessionDescription sd = SipUtilities
+                    .cleanSessionDescription(SipUtilities
+                            .getSessionDescription(response),
+                            Gateway.getCodecName());
+           
+            DialogApplicationData peerDialogApplicationData = (DialogApplicationData)peerDialog.getApplicationData();
+
+            /*
+             * Got a Response to our SDP query. Shuffle to the
+             * other end.
+             */
+            Request ackRequest = peerDialog.createAck(SipUtilities
+                    .getSeqNumber(peerDialogApplicationData.lastResponse));
+            
+            if (((DialogExt) peerDialog).getSipProvider() == Gateway
+                    .getLanProvider()) {
+                // We did a SDP query. So we need to put an SDP
+                // Answer in the response.
+                b2bua.getLanRtpSession(dialog).getReceiver()
+                        .setSessionDescription(sd);
+               
+            } else {
+                b2bua.getWanRtpSession(dialog).getReceiver()
+                .setSessionDescription(sd); 
+            }
+            
+            if ( Gateway.isReInviteSupported()) {
+            
+                ackRequest.setContent(sd.toString(),
+                    ProtocolObjects.headerFactory
+                            .createContentTypeHeader(
+                                    "application", "sdp"));
+                peerDialog.sendAck(ackRequest);
+            }
+
+          
+        }
+    }
+    
     /**
      * Process an INVITE response.
      * 
@@ -621,6 +675,8 @@ public class CallControlManager {
                  */
                 TransactionApplicationData tad = (TransactionApplicationData) responseEvent
                         .getClientTransaction().getApplicationData();
+                
+                logger.debug("Operation = " + tad.operation);
 
                 /*
                  * The TransactionApplicationData operator will indicate what
@@ -629,6 +685,7 @@ public class CallControlManager {
                 if (tad.operation == Operation.QUERY_SDP_FROM_PEER_DIALOG
                         && response.getStatusCode() == 200) {
                     Operation operation = tad.continuationOperation;
+                    logger.debug("continuationOperation = " + operation);
                     
                     /*
                      * Send him a PRACK at this point??
@@ -877,63 +934,10 @@ public class CallControlManager {
                         dialog.sendAck(ackRequest);
                         // The codec has been determined at this point.
                         // send an INVITE to the peer of the dialog.
-                        if (response.getContentLength().getContentLength() != 0) {
-
-                            SessionDescription sd = SipUtilities
-                                    .cleanSessionDescription(SipUtilities
-                                            .getSessionDescription(response),
-                                            Gateway.getCodecName());
-                            Dialog peerDialog = DialogApplicationData
-                                    .getPeerDialog(dialog);
-                            DialogApplicationData peerDialogApplicationData = (DialogApplicationData)peerDialog.getApplicationData();
-
-                            /*
-                             * Got a Response to our SDP query. Shuffle to the
-                             * other end.
-                             */
-                            ackRequest = peerDialog.createAck(SipUtilities
-                                    .getSeqNumber(peerDialogApplicationData.lastResponse));
-                            
-                            if (((DialogExt) peerDialog).getSipProvider() == Gateway
-                                    .getLanProvider()) {
-                                // We did a SDP query. So we need to put an SDP
-                                // Answer in the response.
-                                b2bua.getLanRtpSession(dialog).getReceiver()
-                                        .setSessionDescription(sd);
-                               
-                            } else {
-                                b2bua.getWanRtpSession(dialog).getReceiver()
-                                .setSessionDescription(sd); 
-                            }
-                            
-                            if ( Gateway.isReInviteSupported()) {
-                            
-                                ackRequest.setContent(sd.toString(),
-                                    ProtocolObjects.headerFactory
-                                            .createContentTypeHeader(
-                                                    "application", "sdp"));
-                                peerDialog.sendAck(ackRequest);
-                            }
-
-                            /*
-                             * DialogApplicationData.get(peerDialog).rtpSession
-                             * .getReceiver().setSessionDescription(sd); Request
-                             * reInvite = peerDialog
-                             * .createRequest(Request.INVITE);
-                             * reInvite.setContent(sd.toString(),
-                             * ProtocolObjects.headerFactory
-                             * .createContentTypeHeader( "application", "sdp"));
-                             * ClientTransaction reInviteTransaction =
-                             * ((DialogExt) peerDialog)
-                             * .getSipProvider().getNewClientTransaction(
-                             * reInvite); TransactionApplicationData rtad = new
-                             * TransactionApplicationData(
-                             * Operation.REFER_RE_INVITE);
-                             * reInviteTransaction.setApplicationData(rtad);
-                             * rtad.backToBackUa = b2bua;
-                             * reInviteTransaction.sendRequest();
-                             */
-                        }
+                      
+                        this.sendSdpAnswerInAck(response,dialog);
+                        
+                       
                     }
 
                     /*
@@ -946,41 +950,17 @@ public class CallControlManager {
                     }
 
                 } else if (tad.operation
-                        .equals(Operation.SEND_INVITE_TO_MOH_SERVER)) {
+                        .equals(Operation.SEND_INVITE_TO_MOH_SERVER) && response.getStatusCode() == Response.OK ) {
                     Request ack = dialog.createAck(((CSeqHeader) response
                             .getHeader(CSeqHeader.NAME)).getSeqNumber());
                     dialog.sendAck(ack);
-                } else if (tad.operation == Operation.REFER_RE_INVITE_FORWARD) {
+                }  else if ( tad.operation == Operation.HANDLE_SPIRAL_INVITE_WITH_REPLACES) {
+                    
                     Request ack = dialog.createAck(((CSeqHeader) response
                             .getHeader(CSeqHeader.NAME)).getSeqNumber());
 
                     dialog.sendAck(ack);
-
-                } else if (tad.operation == Operation.REFER_RE_INVITE) {
-                    Request ack = dialog.createAck(((CSeqHeader) response
-                            .getHeader(CSeqHeader.NAME)).getSeqNumber());
-                    dialog.sendAck(ack);
-                    SessionDescription sd = SipUtilities
-                            .cleanSessionDescription(SipUtilities
-                                    .getSessionDescription(response), Gateway
-                                    .getCodecName());
-                    Dialog peerDialog = DialogApplicationData
-                            .getPeerDialog(dialog);
-                    DialogApplicationData.get(peerDialog).rtpSession
-                            .getReceiver().setSessionDescription(sd);
-                    Request reInvite = peerDialog.createRequest(Request.INVITE);
-                    reInvite.setContent(sd.toString(),
-                            ProtocolObjects.headerFactory
-                                    .createContentTypeHeader("application",
-                                            "sdp"));
-                    ClientTransaction reInviteTransaction = ((DialogExt) peerDialog)
-                            .getSipProvider().getNewClientTransaction(reInvite);
-                    TransactionApplicationData rtad = new TransactionApplicationData(
-                            Operation.REFER_RE_INVITE_FORWARD);
-                    reInviteTransaction.setApplicationData(rtad);
-                    rtad.backToBackUa = b2bua;
-                    reInviteTransaction.sendRequest();
-
+                    this.sendSdpAnswerInAck(response, dialog);
                 } else {
                     logger
                             .fatal("CallControlManager: Unknown Case in if statement ");
