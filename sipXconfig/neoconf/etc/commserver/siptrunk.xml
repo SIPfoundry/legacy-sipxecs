@@ -72,15 +72,6 @@
       <value>false</value>
       <description>If checked, use the stun determined global address for SIP signaling and SDP.</description>
     </setting>
-    <setting name="is-reinvite-supported" advanced="yes">
-      <label>re-INVITE Support</label>
-      <type refid="switch" />
-      <value>true</value>
-      <description>
-        If checked, reINVITE is supported by the ITSP. This allows sipxbridge to delay codec
-        choice for call setup when dealing with call transfers.
-      </description>
-    </setting>
     <setting name="route-inbound-calls-to-extension">
       <label>Incoming calls destination</label>
       <value>operator</value>

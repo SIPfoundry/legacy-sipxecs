@@ -12,6 +12,7 @@
     <media-keepalive-seconds>1</media-keepalive-seconds>
     <music-on-hold-support-enabled>false</music-on-hold-support-enabled>
     <rtp-port-range>25000:25500</rtp-port-range>
+    <is-reinvite-supported>true</is-reinvite-supported>
     <allowed-codec-name>PCMU</allowed-codec-name>
     <log-level>INFO</log-level>
     <log-directory>/var/log/sipxpbx/</log-directory>
@@ -25,7 +26,6 @@
     <password>1234</password>
     <display-name>John User</display-name>
     <use-global-addressing>false</use-global-addressing>
-    <is-reinvite-supported>true</is-reinvite-supported>
     <route-inbound-calls-to-extension>operator</route-inbound-calls-to-extension>
     <use-rport>false</use-rport>
     <register-on-initialization>true</register-on-initialization>

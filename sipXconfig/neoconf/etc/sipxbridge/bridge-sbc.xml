@@ -2,6 +2,16 @@
 <!DOCTYPE model PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN" 
   "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd">
 <model>
+  <type id="switch">
+    <boolean>
+      <true>
+        <value>true</value>
+      </true>
+      <false>
+        <value>false</value>
+      </false>
+    </boolean>
+  </type>
   <group name="bridge-configuration">
     <label>SIP</label>
     <setting name="external-address">
@@ -115,7 +125,16 @@
       <description>End of the RTP ports range.</description>
     </setting>
     <setting name="rtp-port-range" hidden="yes"></setting>
-    <setting name="allowed-codec-name" advanced="yes" hidden="yes">
+    <setting name="is-reinvite-supported" advanced="yes" >
+      <label>re-INVITE Support</label>
+      <type refid="switch" />
+      <value>true</value>
+      <description>
+        If checked, reINVITE is supported by the ITSP. This allows sipxbridge to delay codec
+        choice for call setup when dealing with call transfers.
+      </description>
+    </setting>
+    <setting name="allowed-codec-name" advanced="yes" >
       <label>Allowed Codec Name</label>
       <type>
         <enum>
@@ -132,9 +151,9 @@
       </type>
       <value>PCMU</value>
       <description>
-        The codec for the SDP Offer that is allowable. This parameter is relevant if the ITSPs do not support ReInvite.
-        Because sipxbridge does not support media transcoding, in to support call transfers, we need to restrict the all
-        codec for call setups in the SDP offer to this value.
+        The codec for the SDP Offer that is allowable. This parameter is ONLY relevant if the ITSPs do NOT support ReInvite.
+	Otherwise it is ignored. If is-reinvite-supported flag is set to false then SDP offers and answers are filtered 
+        to allow only this codec through.
       </description>
     </setting>
     <setting name="log-level" advanced="yes">
