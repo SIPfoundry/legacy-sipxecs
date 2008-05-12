@@ -47,7 +47,7 @@ public:
       {
          SipXauthIdentity::setSecret("fixed");
          RouteState::setSecret("fixed");
-         TestDbContext.setSipxDir(SipXecsService::ConfigurationDirType, TEST_DATA_DIR);
+         TestDbContext.setSipxDir(SipXecsService::ConfigurationDirType);
          TestDbContext.inputFile("permission.xml");
          TestDbContext.inputFile("credential.xml");
       }

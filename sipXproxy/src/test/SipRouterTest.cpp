@@ -68,7 +68,8 @@ public:
 
    void setUp()
       {
-         TestDbContext.setSipxDir(SipXecsService::ConfigurationDirType, TEST_DATA_DIR);
+         // prevent the test from using any installed configuration files
+         TestDbContext.setSipxDir(SipXecsService::ConfigurationDirType);
 
          // Construct a SipUserAgent to provide the isMyHostAlias recognizer
          mUserAgent = new SipUserAgent(SIP_PORT, // udp port
