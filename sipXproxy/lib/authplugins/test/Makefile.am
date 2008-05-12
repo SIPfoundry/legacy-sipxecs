@@ -64,7 +64,6 @@ msftxferhacktest_LDADD = \
 
 
 EXTRA_DATA = \
-	authexception.xml \
 	caller-alias.xml \
 	credential.xml \
 	permission.xml \
