@@ -7,11 +7,7 @@ pkgconf_DATA = \
     mime.types
 
 pbxconf_files = \
-    WatchDog.xml \
-    ProcessDefinitions.xml \
-    resourcemap.xml \
-    voicemail.xml.in \
-    sipxwatchdog-config.in
+    voicemail.xml.in
 
 wwwconf_files = \
     httpd.conf \

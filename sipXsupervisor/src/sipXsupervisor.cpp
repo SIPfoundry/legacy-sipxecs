@@ -25,6 +25,7 @@
 #include "EmailReporter.h"
 #include "sipdb/SIPDBManager.h"
 #include "sipXecsService/SipXecsService.h"
+#include "config/sipxsupervisor-buildstamp.h"
 
 //The worker who does all the checking... based on OsServerTask
 WatchDog *pDog;
@@ -33,7 +34,7 @@ WatchDog *pDog;
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
-const char* CONFIG_SETTINGS_FILE = "sipxwatchdog-config";
+const char* CONFIG_SETTINGS_FILE = "sipxsupervisor-config";
 
 // STRUCTS
 // TYPEDEFS
@@ -120,7 +121,7 @@ OsStatus getSettings(TiXmlDocument &doc, int &rCheckPeriod)
     return retval;
 }
 
-// Parses the sipxwatchdog-config file and extracts the XML RPC port and  
+// Parses the sipxsupervisor-config file and extracts the XML RPC port and  
 // peer hostnames.  Returns OS_SUCCESS only if a non-zero port was found 
 // *and* at least one peer hostname was found.  On success, the 'allowedPeers' 
 // will contain new'd UtlString objects, which the caller is responsible  
@@ -247,13 +248,18 @@ OsStatus initLogfile(TiXmlDocument &doc)
                         OsSysLog::setLoggingPriority(logging_level);
 
                         if ( retval == OS_SUCCESS )
-                            OsSysLog::add(FAC_WATCHDOG, PRI_NOTICE, "Starting Watchdog");
+                        {
+                           OsSysLog::add(FAC_WATCHDOG, PRI_NOTICE,
+                                         ">>>>> Starting sipxsupervisor version %s",
+                                         SipXsupervisorVersion);
+                        }
                         else
+                        {
                            // This is one case where we need to output an
                            // error message.
                            osPrintf("ERROR: initLogfile: Could not initialize SysLog!\n");
+                        }
                     }
-
                 }
             }
         }
@@ -600,8 +606,13 @@ int main(int argc, char* argv[])
 
         if (argString.compareTo("-h") == 0) 
         {
-            usageExit = true;
-            valueExit = 0;
+           usageExit = true;
+           valueExit = 0;
+        }
+        if (argString.compareTo("-v") == 0) 
+        {
+           osPrintf("sipxsupervisor %s\n\n", SipXsupervisorVersion);
+           return 0;
         }
         else if (argString.compareTo("-f") == 0)
         {
@@ -626,8 +637,9 @@ int main(int argc, char* argv[])
 
         if (usageExit)
         {
-            osPrintf("usage: %s [-h] [-f filename]\n", argv[0]);
+            osPrintf("usage: %s [-h] [-v] [-f filename]\n", argv[0]);
             osPrintf(" -h           Print this help and exit.\n");
+            osPrintf(" -v           Print version number.\n");
             osPrintf(" -f filename  Use the specified watchdog config file.\n");
             return valueExit;
         }

@@ -9,5 +9,5 @@
    <!-- required empty placeholder, byproduct for C++ code assumption -->
    <monitor/> 
 
-   <logfile level="notice">@SIPX_LOGDIR@/watchdog.log</logfile>
+   <logfile level="notice">@SIPX_LOGDIR@/sipxsupervisor.log</logfile>
 </watchdog>

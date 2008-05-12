@@ -2,13 +2,13 @@
 #
 # chkconfig: 35 90 10
 # description: This script starts up the sipXpbx processes.
-#              Most of the real startup is done by the watchdog - it starts
-#              up all other sipX processes and ensures that they are
+#              Most of the real startup is done by the sipxsupervisor - it starts
+#              up all other sipXecs processes and ensures that they are
 #              operating properly. It restarts them if they exit unexpectedly,
 #              and notifies the administrator of the failure.
 #
 # processname: sipxpbx
-# pidfile: @SIPX_RUNDIR@/watchdog.pid
+# pidfile: @SIPX_RUNDIR@/sipxsupervisor.pid
 #
 # Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 # Contributors retain copyright to elements licensed under a Contributor Agreement.
@@ -104,7 +104,7 @@ iam=`whoami`
 
 # Set the limit for core file size based on the SIPX_CORELIMIT
 # variable in config.defs.
-# This either allows core files to be generated when sipX
+# This either allows core files to be generated when sipXecs
 # processes crash (if SIPX_CORELIMIT is "unlimited"), or
 # disallows it (if SIPX_CORELIMIT is "0").
 ulimit -c ${SIPX_CORELIMIT:-0}
@@ -136,9 +136,7 @@ if [ "${SIPX_CORELIMIT}" = "unlimited" -a -w /proc/sys/fs/suid_dumpable ]
     ## So lets use 1 for now until proven otherwise.
 fi
 
-# This should somehow be syncronized with what's in
-# the ProcessDefinitions.xml and Watchdog.xml
-sipx_processes="watchdog "`sipx_services`
+sipx_processes="sipxsupervisor `sipx_services`"
 
 # Find the name of the process, use process_name.sh if found
 # and executable otherwise use process_name
@@ -356,7 +354,7 @@ configtest() { # process-name  process-wd  process-command
 }
 
 
-# Shut down sipX services
+# Shut down sipXecs services
 stop_sipx () {
 
     # Iterate through the list of processes, above killing each one
@@ -697,7 +695,7 @@ log_results () {
 }
 
 ## High-level configtest function
-## Verify that the prerequisites for running sipX are OK.
+## Verify that the prerequisites for running sipXecs are OK.
 do_check() {
     ## Do the 'global' checks first, then call each shell script
     ## to let it do its own checks (using the configtest wrapper function)
@@ -768,8 +766,8 @@ do_check() {
 }
 
 # High-level stop function.
-# Stops the watchdog process (running as @SIPXPBXUSER@), and the
-# sipX services
+# Stops the sipxsupervisor process (running as @SIPXPBXUSER@), and the
+# sipXecs services
 do_stop() {
 
    echo -n "Stopping apache: "
@@ -786,8 +784,8 @@ do_stop() {
 }
 
 # High-level start function.
-# Starts the watchdog process (running as @SIPXPBXUSER@), which starts
-# the sipX services
+# Starts the sipxsupervisor process (running as @SIPXPBXUSER@), which starts
+# the sipXecs services
 do_start() {
 
         ### Clean up various temporary files and locks.
@@ -856,11 +854,11 @@ do_start() {
         make_root_writable_only @SIPX_BINDIR@/sipx-restore
         make_root_writable_only @SIPX_BINDIR@/sipx-archive-common
 
-        # Start up the watchdog
-        # Start the watchdog with SIPX_LOGDIR as the working directory,
+        # Start up the sipxsupervisor
+        # Start the sipxsupervisor with SIPX_LOGDIR as the working directory,
         # so that any core files it produces will be put there.
         cd @SIPX_LOGDIR@
-        start watchdog
+        start sipxsupervisor
 
         sleep 1
         echo -n "Starting httpd: "
@@ -906,19 +904,21 @@ export PATH=$PATH:@bindir@
 # See how we were called.
 case "$1" in
   start)
-        ### Verify that the sipX services are not already running.
-        if [ -e @SIPX_RUNDIR@/watchdog.pid ]
+        ### Verify that the sipXecs services are not already running.
+        if [ -e @SIPX_RUNDIR@/sipxsupervisor.pid ]
         then
-            echo "   Found @SIPX_RUNDIR@/watchdog.pid - checking for running watchdog process"
-            runningdog=`cat @SIPX_RUNDIR@/watchdog.pid 2>/dev/null`
+            echo "   Found @SIPX_RUNDIR@/sipxsupervisor.pid..."
+            echo "         checking for running sipxsupervisor process..."
+            runningdog=`cat @SIPX_RUNDIR@/sipxsupervisor.pid 2>/dev/null`
             if [ -n "$runningdog" -a `proc_alive $runningdog` -eq 0 ]
             then
-                echo -n " The sipX watchdog may already be running. Try stop or restart."
+                echo -n " The sipXecs sipxsupervisor may already be running (pid $runningdog)."
+                echo -n " Try stop or restart."
                 echo_failure
                 echo
             else
                 # stale pid file found? - do stop just in case
-                echo " watchdog not found - running restart to clean locks."
+                echo " sipxsupervisor not found - running restart to clean locks."
                 do_stop
                 do_start
             fi

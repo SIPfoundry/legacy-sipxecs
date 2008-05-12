@@ -36,7 +36,7 @@ REGISTRARFILE  = '/etc/sipxpbx/registrar-config.in'
 CDRCONFIG      = '/etc/sipxpbx/callresolver-config.in'
 PROXYCONFIG    = '/etc/sipxpbx/proxy-config.in'
 AUTHPROXYCONFIG= '/etc/sipxpbx/authproxy-config.in'
-WATCHDOG_CONFIG= '/etc/sipxpbx/sipxwatchdog-config.in'
+WATCHDOG_CONFIG= '/etc/sipxpbx/sipxsupervisor-config.in'
 
 # -----------------------------------------------------------------------------------------------------------
 # Global variables

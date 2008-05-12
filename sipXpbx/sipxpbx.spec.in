@@ -114,8 +114,6 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/analyze_483s
 %attr(755,root,root) %{_bindir}/ipcclean.pl
 %attr(755,root,root) %{_bindir}/check-fqdn
-%attr(755,root,root) %{_bindir}/watchdog
-%attr(755,root,root) %{_bindir}/watchdog.sh
 %attr(755,root,root) %{_bindir}/sipx-snapshot
 %{_libexecdir}/sipx-strip-db-secrets.pl
 %attr(755,root,root) %{_bindir}/%name-config
@@ -135,12 +133,7 @@ rm -rf $RPM_BUILD_ROOT
 
 # The configuration directory needs to be writeable because
 # config files are generated from templates via config.defs
-%config(noreplace) %attr(644,root,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx/WatchDog.xml
-%config(noreplace) %attr(644,root,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx/ProcessDefinitions.xml
-%config(noreplace) %attr(644,root,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx/resourcemap.xml
 %config(noreplace) %attr(644,root,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx/voicemail.xml.in
-
-%config(noreplace) %attr(644,root,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx/sipxwatchdog-config.in
 
 %config(noreplace) %attr(644,root,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx/process.d/sipxpark.process.xml
 %config(noreplace) %attr(644,root,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx/process.d/sipxpresence.process.xml
@@ -193,9 +186,6 @@ rm -rf $RPM_BUILD_ROOT
 
 %config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx/sipxrls-config.in
 
-%attr(755,root,root) %{_datadir}/sipx/schema/watchdog.xsd
-%attr(755,root,root) %{_datadir}/sipx/schema/watchdogprocess.xsd
-%attr(755,root,root) %{_datadir}/sipx/schema/processdefinitions.xsd
 %attr(755,root,root) %{_datadir}/sipx/schema/resource-lists.xsd
 
 %attr(755,root,root) %{_bindir}/sipxpresence.sh
@@ -222,8 +212,6 @@ rm -f %{_bindir}/backup-mailstore.sh
 rm -f %{_bindir}/restore-configs.sh 
 rm -f %{_bindir}/restore-mailstore.sh
 rm -f %{_bindir}/backup-configs.sh
-rm -f %{_localstatedir}/sipxdata/tmp/processAlias.dat
-rm -f %{_localstatedir}/sipxdata/tmp/locked.lck
 rm -rf %{_datadir}/www/cgi-bin/processmonitor
 rm -f %{_sysconfdir}/sipxpbx/cbadmission.xml.in
 

@@ -25,7 +25,7 @@ done
 
 CONFIG_DEFS="@SIPX_CONFDIR@/config.defs"
 
-CONFIG_FILES="@SIPX_CONFDIR@/sipxwatchdog-config"
+CONFIG_FILES="@SIPX_CONFDIR@/sipxsupervisor-config"
 
 # If the "config.defs" file exists and the <name>.in file exists for a
 # configuration file, then run the config preprocessor to generate the
@@ -42,8 +42,8 @@ fi
 
 case ${Action} in
    RUN)
-     echo $$ > @SIPX_RUNDIR@/watchdog.pid
-     exec @bindir@/watchdog $Args
+     echo $$ > @SIPX_RUNDIR@/sipxsupervisor.pid
+     exec @bindir@/sipxsupervisor $Args
      ;;
 
    CONFIGTEST)

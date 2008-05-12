@@ -1,0 +1,231 @@
+<?xml version='1.0' encoding='iso-8859-1' standalone='yes'?>
+<!--
+- XML Schema for sipXecs supervisor process configuration: 
+-    @SIPX_CONFDIR@/process.d/*.process.xml
+-->
+<schema
+    xmlns:proc='http://www.sipfoundry.org/sipX/schema/xml/sipXecs-process-01-00'
+    targetNamespace='http://www.sipfoundry.org/sipX/schema/xml/sipXecs-process-01-00'
+    xmlns='http://www.w3.org/2001/XMLSchema'
+    >
+
+  <annotation>
+    <documentation>
+      Definition of how to control a sipXecs process and for sipXecs process monitoring
+    </documentation>
+  </annotation>
+
+  <!-- Elements -->
+  <element name='sipXecs-process'>
+    <complexType>
+      <sequence>
+        <element ref='proc:name'      minOccurs='1' maxOccurs='1'/>
+        <element ref='proc:commands'  minOccurs='1' maxOccurs='1'/>
+        <element ref='proc:status'    minOccurs='1' maxOccurs='1'/>
+        <element ref='proc:resources' minOccurs='0' maxOccurs='1'/>
+      </sequence>
+    </complexType>
+  </element>
+
+  <element name='name' type="normalizedString">
+    <annotation>
+      <documentation>
+        The name to be displayed for this process.
+      </documentation>
+    </annotation>
+  </element>
+      
+  <complexType name='Command'>
+    <annotation>
+      <documentation>
+        Describes a command to be executed.
+      </documentation>
+    </annotation>
+    <sequence>
+      <element name="defaultdir" type="string" default='@SIPX_LOGDIR@' 
+               minOccurs='0' maxOccurs='1'>
+        <annotation>
+          <documentation>
+            Path to the working directory for the process.
+            Defaults to the default SIPX_LOGDIR.
+          </documentation>
+        </annotation>
+      </element>
+      <element name="user" type="normalizedString" default='@SIPXPBXUSER@' 
+               minOccurs='0' maxOccurs='1'>
+        <annotation>
+          <documentation>
+            Username for the identity to be used when executing any command.
+            Defaults to the default SIPXPBXUSER.
+          </documentation>
+        </annotation>
+      </element>
+      <element name="execute" type="normalizedString" minOccurs='1' maxOccurs='1'>
+        <annotation>
+          <documentation>
+            Command to execute in the process
+          </documentation>
+        </annotation>
+      </element>
+      <element name="parameter" type="string" minOccurs='0' maxOccurs='unbounded'>
+        <annotation>
+          <documentation>
+            Parameter value to be passed to the command
+          </documentation>
+        </annotation>
+      </element>
+    </sequence>
+  </complexType>
+
+  <element name='commands'>
+    <annotation>
+      <documentation>
+        Defines the commands to be executed to manipulate this process.
+      </documentation>
+    </annotation>
+    <complexType>
+      <sequence>
+        <element name='configtest'  type='proc:Command' minOccurs='1' maxOccurs='1' />
+        <element name='start'       type='proc:Command' minOccurs='1' maxOccurs='1' />
+        <element name='stop'        type='proc:Command' minOccurs='1' maxOccurs='1' />
+        <element name='reconfigure' type='proc:Command' minOccurs='0' maxOccurs='1' />
+      </sequence>
+    </complexType>
+  </element>
+
+  <element name='status' >
+    <annotation>
+      <documentation>
+        Describes how the sipXsupervisor can determine the status of the process.
+      </documentation>
+    </annotation>
+    <complexType>
+      <sequence>
+        <element name='pid' type='normalizedString' minOccurs='0' maxOccurs='1'>
+          <annotation>
+            <documentation>
+              Path to a text file containing the current process id of the command;
+              this file should be created by the process as soon as possible after
+              it starts, and deleted when it exits.
+              Defaults to SIPX_RUNDIR/*name*.pid where *name* is the value of the name element.
+              This is not expected to exist if the isService attribute is 'false'.
+            </documentation>
+          </annotation>
+        </element>
+        <element name='log' type='normalizedString' minOccurs='0' maxOccurs='unbounded'>
+          <annotation>
+            <documentation>
+              Path to the process log file.
+              Defaults to SIPX_LOGDIR/*name*.log where *name* is the value of the name element.
+            </documentation>
+          </annotation>
+        </element>
+      </sequence>
+      <attribute name="isService" type="boolean">
+        <annotation>
+          <documentation>
+            Whether or not this process should continue to run (and therefor have a pid
+            file) after the start command is executed.  The value 'true' means that a
+            pid file should exist and a process with the specified pid should be running; 
+            the value 'false' means that the command just executes and exits.
+          </documentation>
+        </annotation>
+      </attribute>
+    </complexType>
+  </element>
+
+  <complexType name='Resource'>
+    <annotation>
+      <documentation>
+        Describes a single object that must exist for this process to execute.
+      </documentation>
+    </annotation>
+    <simpleContent>
+      <extension base='string'>
+        <attribute name='required' type='boolean' default='true' />
+      </extension>
+    </simpleContent>
+  </complexType>
+
+  <simpleType name='ConfigAccess'>
+    <annotation>
+      <documentation>
+        Declares the kind of access granted to the configuration system to this resource.
+      </documentation>
+    </annotation>
+    <restriction base='string'>
+      <enumeration value='read-only'/>
+      <enumeration value='read-write'/>
+    </restriction>
+  </simpleType>
+
+  <complexType name='Database'>
+    <annotation>
+      <documentation>
+        Describes a single object that must exist for this process to execute.
+      </documentation>
+    </annotation>
+    <simpleContent>
+      <extension base='proc:Resource'>
+        <attribute name='configAccess' type='proc:ConfigAccess' default='read-write'/>
+      </extension>
+    </simpleContent>
+  </complexType>
+
+  <element name='resource' type='proc:Resource' abstract='true'/>
+
+  <element name='resources'>
+    <annotation>
+      <documentation>
+        Describes resources used by this process
+      </documentation>
+    </annotation>
+    <complexType>
+      <sequence>
+        <element ref='proc:resource' minOccurs='0' maxOccurs='unbounded' />
+      </sequence>
+    </complexType>
+  </element>
+
+  <element name='file' type='proc:Resource' substitutionGroup='proc:resource'>
+    <annotation>
+      <documentation>
+        Content is the full path to a file.
+      </documentation>
+    </annotation>
+  </element>
+
+  <element name='process' type='proc:Resource' substitutionGroup='proc:resource'>
+    <annotation>
+      <documentation>
+        Content is the name of a sipXecs-process that must be running.
+        This may not name a process whose 'isService' attribute is false.
+      </documentation>
+    </annotation>
+  </element>
+
+  <element name='osconfig' type='proc:Database' substitutionGroup='proc:resource'>
+    <annotation>
+      <documentation>
+        Content is the full path to an OsConfigDB file.
+      </documentation>
+    </annotation>
+  </element>
+
+  <element name='imdb' type='proc:Database' substitutionGroup='proc:resource'>
+    <annotation>
+      <documentation>
+        Content is the name of a SipDB table.
+      </documentation>
+    </annotation>
+  </element>
+
+  <element name='sqldb' type='proc:Database' substitutionGroup='proc:resource'>
+    <annotation>
+      <documentation>
+        Content is the name of a Postgres database.
+      </documentation>
+    </annotation>
+  </element>
+
+</schema>

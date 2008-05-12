@@ -13,7 +13,6 @@ SUBDIRS = . \
     sipXpark \
     sipXpresence \
     sipXrls \
-    meta \
     $(doc_SUBDIRS)
 
 RPMS = $(DEFAULT_RPMS) $(DEBUG_RPM)
