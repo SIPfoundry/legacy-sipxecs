@@ -8,6 +8,7 @@ SUBDIRS = . \
     src \
     bin \
     etc \
+    meta \
     sipXdialog \
     sipXpage \
     sipXpark \
