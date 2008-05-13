@@ -127,8 +127,9 @@ public class Bridge {
                             readBuffer.clear();
                             DatagramChannel datagramChannel = (DatagramChannel) key
                                     .channel();
-                            InetSocketAddress remoteAddress = (InetSocketAddress) datagramChannel.receive(readBuffer);
-                            
+                            InetSocketAddress remoteAddress = (InetSocketAddress) datagramChannel
+                                    .receive(readBuffer);
+
                             processingCount++;
                             if (getState() != BridgeState.RUNNING) {
                                 if (logger.isDebugEnabled()) {
@@ -151,12 +152,20 @@ public class Bridge {
                                                     + ":"
                                                     + sym.getReceiver()
                                                             .getPort());
-                                            logger.debug("remoteIpAddressAndPort : " + remoteAddress.getHostName() + ":" + remoteAddress.getPort());
+                                            if (remoteAddress != null)
+                                                logger
+                                                        .debug("remoteIpAddressAndPort : "
+                                                                + remoteAddress
+                                                                        .getAddress()
+                                                                        .getHostAddress()
+                                                                + ":"
+                                                                + remoteAddress
+                                                                        .getPort());
                                         }
                                         sym.lastPacketTime = System
                                                 .currentTimeMillis();
-                                        sym.packetsReceived ++;
-                                        
+                                        sym.packetsReceived++;
+
                                         Bridge.this.lastPacketTime = sym.lastPacketTime;
 
                                         /*
@@ -168,10 +177,19 @@ public class Bridge {
                                          */
 
                                         if (sym.getTransmitter() != null
-                                                && sym.getTransmitter().isRemoteAddressAutoDiscovered()) {
-                                           
-                                            sym.getTransmitter().setIpAddressAndPort(remoteAddress.getHostName(), remoteAddress.getPort());
-                                            
+                                                && sym
+                                                        .getTransmitter()
+                                                        .isRemoteAddressAutoDiscovered()) {
+                                            if (remoteAddress != null)
+                                                sym
+                                                        .getTransmitter()
+                                                        .setIpAddressAndPort(
+                                                                remoteAddress
+                                                                        .getAddress()
+                                                                        .getHostAddress(),
+                                                                remoteAddress
+                                                                        .getPort());
+
                                         }
 
                                         continue;
@@ -191,8 +209,8 @@ public class Bridge {
                                             writeChannel
                                                     .send((ByteBuffer) readBuffer
                                                             .flip());
-                                            sym.getTransmitter().packetsSent ++;
-                                           
+                                            sym.getTransmitter().packetsSent++;
+
                                         } else {
                                             if (logger.isDebugEnabled()) {
                                                 logger
@@ -325,12 +343,11 @@ public class Bridge {
      * 
      */
     public void stop() {
-        if ( logger.isDebugEnabled()) {
-            logger.debug("Closing SymBridge : " +
-                this.toString());
+        if (logger.isDebugEnabled()) {
+            logger.debug("Closing SymBridge : " + this.toString());
         }
         for (Sym rtpSession : this.sessions) {
-                rtpSession.close();
+            rtpSession.close();
         }
 
         if (this.dataShuffler != null)
