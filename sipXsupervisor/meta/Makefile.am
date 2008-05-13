@@ -13,7 +13,7 @@ install-data-hook : $(PREVIOUS_CONFIG) install-schema
 PREVIOUS_CONFIG = $(DESTDIR)@SIPX_UPGRADEDIR@/@PACKAGE@-previous.tgz
 
 $(PREVIOUS_CONFIG) :
-       $(INSTALL) -D -m 644 $(PREVIOUS_CONFIG)
+	$(INSTALL) -D -m 644 $(PREVIOUS_CONFIG)
 
 .PHONY: install-schema
 install-schema: $(foreach xsd,$(schemas),$(DESTDIR)@SIPX_SCHEMADIR@/$(xsd))
