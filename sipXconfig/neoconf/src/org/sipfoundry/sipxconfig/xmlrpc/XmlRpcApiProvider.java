@@ -7,29 +7,28 @@
  * 
  *
  */
-package org.sipfoundry.sipxconfig.admin.commserver;
+package org.sipfoundry.sipxconfig.xmlrpc;
 
-import org.sipfoundry.sipxconfig.xmlrpc.XmlRpcProxyFactoryBean;
+import org.springframework.beans.factory.InitializingBean;
 
-public class DefaultProcessManagerApiProvider implements ProcessManagerApiProvider {
+public class XmlRpcApiProvider<T> implements ApiProvider<T>, InitializingBean {
 
     private String m_methodNamePrefix;
     private boolean m_secure;
     private Class m_serviceInterface;
+    private XmlRpcMarshaller m_marshaller;
 
-    public ProcessManagerApi getApi(Location location) {
-        String serviceUrl = location.getProcessMonitorUrl();
-        return getApi(serviceUrl);
-    }
-
-    private ProcessManagerApi getApi(String serviceUrl) {
+    public T getApi(String serviceUrl) {
         XmlRpcProxyFactoryBean factory = new XmlRpcProxyFactoryBean();
         factory.setSecure(m_secure);
-        factory.setMethodNamePrefix(m_methodNamePrefix);
+        factory.setMarshaller(m_marshaller);
+        if (m_methodNamePrefix != null) {
+            factory.setMethodNamePrefix(m_methodNamePrefix);
+        }
         factory.setServiceInterface(m_serviceInterface);
         factory.setServiceUrl(serviceUrl);
         factory.afterPropertiesSet();
-        return (ProcessManagerApi) factory.getObject();
+        return (T) factory.getObject();
     }
 
     public void setMethodNamePrefix(String methodNamePrefix) {
@@ -40,7 +39,17 @@ public class DefaultProcessManagerApiProvider implements ProcessManagerApiProvid
         m_secure = secure;
     }
 
+    public void setMarshaller(XmlRpcMarshaller marshaller) {
+        m_marshaller = marshaller;
+    }
+
     public void setServiceInterface(Class serviceInterface) {
         m_serviceInterface = serviceInterface;
+    }
+
+    public void afterPropertiesSet() throws Exception {
+        if (m_marshaller != null && m_methodNamePrefix != null) {
+            throw new IllegalArgumentException("Specify only one: marshaller or methodNamePrefix");
+        }
     }
 }

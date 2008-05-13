@@ -23,6 +23,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessModel.ProcessName;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.xmlrpc.ApiProvider;
 import org.sipfoundry.sipxconfig.xmlrpc.XmlRpcRemoteException;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.context.ApplicationEvent;
@@ -36,7 +37,7 @@ public class SipxProcessContextImpl implements SipxProcessContext, ApplicationLi
     private EventsToServices<Process> m_eventsToServices = new EventsToServices<Process>();
     private String m_host;
     private LocationsManager m_locationsManager;
-    private ProcessManagerApiProvider m_processManagerApiProvider;
+    private ApiProvider<ProcessManagerApi> m_processManagerApiProvider;
 
     @Required
     public void setHost(String host) {
@@ -54,7 +55,7 @@ public class SipxProcessContextImpl implements SipxProcessContext, ApplicationLi
     }
 
     @Required
-    public void setProcessManagerApiProvider(ProcessManagerApiProvider processManagerApiProvider) {
+    public void setProcessManagerApiProvider(ApiProvider processManagerApiProvider) {
         m_processManagerApiProvider = processManagerApiProvider;
     }
 
@@ -66,7 +67,7 @@ public class SipxProcessContextImpl implements SipxProcessContext, ApplicationLi
     public ServiceStatus[] getStatus(Location location) {
         try {
             // Break the result into the keys and values.
-            ProcessManagerApi api = m_processManagerApiProvider.getApi(location);
+            ProcessManagerApi api = m_processManagerApiProvider.getApi(location.getProcessMonitorUrl());
             Map<String, String> result = api.getStateAll(m_host);
             return extractStatus(result, location);
         } catch (XmlRpcRemoteException e) {
@@ -115,7 +116,7 @@ public class SipxProcessContextImpl implements SipxProcessContext, ApplicationLi
                 processNames[i++] = process.getName();
             }
 
-            ProcessManagerApi api = m_processManagerApiProvider.getApi(location);
+            ProcessManagerApi api = m_processManagerApiProvider.getApi(location.getProcessMonitorUrl());
             switch (command) {
             case RESTART:
                 api.restart(m_host, processNames, true);

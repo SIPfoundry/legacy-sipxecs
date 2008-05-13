@@ -122,8 +122,9 @@ public class XmlRpcClientInterceptor extends UrlBasedRemoteAccessor implements M
 
         public Request(MethodInvocation invocation, XmlRpcMarshaller marshaller) {
             Method method = invocation.getMethod();
-            m_methodName = marshaller.methodName(method.getName());
-            m_args = marshaller.parameters(invocation.getArguments());
+            String name = method.getName();
+            m_methodName = marshaller.methodName(name);
+            m_args = marshaller.parameters(name, invocation.getArguments());
         }
 
         public String getMethodName() {
@@ -160,8 +161,9 @@ public class XmlRpcClientInterceptor extends UrlBasedRemoteAccessor implements M
             return m_methodNamePrefix + name;
         }
 
-        public Object[] parameters(Object... args) {
+        public Object[] parameters(String name, Object... args) {
             return args;
         }
+
     }
 }

@@ -7,8 +7,8 @@
  * 
  *
  */
-package org.sipfoundry.sipxconfig.admin.commserver;
+package org.sipfoundry.sipxconfig.xmlrpc;
 
-public interface ProcessManagerApiProvider {
-    ProcessManagerApi getApi(Location location);
+public interface ApiProvider<T> {
+    T getApi(String serviceUrl);
 }

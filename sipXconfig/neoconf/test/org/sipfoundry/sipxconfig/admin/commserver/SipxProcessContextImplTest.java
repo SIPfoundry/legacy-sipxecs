@@ -18,6 +18,7 @@ import junit.framework.TestCase;
 
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext.Command;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessModel.ProcessName;
+import org.sipfoundry.sipxconfig.xmlrpc.ApiProvider;
 
 import static org.easymock.EasyMock.aryEq;
 import static org.easymock.EasyMock.createMock;
@@ -66,8 +67,8 @@ public class SipxProcessContextImplTest extends TestCase {
         api.getStateAll("localhost");
         expectLastCall().andReturn(result);
 
-        ProcessManagerApiProvider provider = createMock(ProcessManagerApiProvider.class);
-        provider.getApi(location);
+        ApiProvider provider = createMock(ApiProvider.class);
+        provider.getApi(location.getProcessMonitorUrl());
         expectLastCall().andReturn(api);
 
         m_processContextImpl.setProcessManagerApiProvider(provider);
@@ -94,8 +95,8 @@ public class SipxProcessContextImplTest extends TestCase {
         api.restart(host(), asArray(PROCESSES[0].getName(), PROCESSES[1].getName()), block());
         expectLastCall().andReturn(null);
 
-        ProcessManagerApiProvider provider = createMock(ProcessManagerApiProvider.class);
-        provider.getApi(location);
+        ApiProvider provider = createMock(ApiProvider.class);
+        provider.getApi(location.getProcessMonitorUrl());
         expectLastCall().andReturn(api).times(3);
 
         m_processContextImpl.setProcessManagerApiProvider(provider);
@@ -112,9 +113,9 @@ public class SipxProcessContextImplTest extends TestCase {
         api.stop(host(), asArray(PROCESSES[0].getName(), PROCESSES[1].getName()), block());
         expectLastCall().andReturn(null).times(m_locationsManager.getLocations().length);
 
-        ProcessManagerApiProvider provider = createMock(ProcessManagerApiProvider.class);
+        ApiProvider provider = createMock(ApiProvider.class);
         for (Location location : m_locationsManager.getLocations()) {
-            provider.getApi(location);
+            provider.getApi(location.getProcessMonitorUrl());
             expectLastCall().andReturn(api);
         }
 

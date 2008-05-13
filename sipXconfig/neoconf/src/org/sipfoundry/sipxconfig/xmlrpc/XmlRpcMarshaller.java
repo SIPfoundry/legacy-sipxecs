@@ -18,5 +18,5 @@ package org.sipfoundry.sipxconfig.xmlrpc;
 public interface XmlRpcMarshaller {
     String methodName(String name);
 
-    Object[] parameters(Object... args);
+    Object[] parameters(String name, Object... args);
 }
