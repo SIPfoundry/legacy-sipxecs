@@ -17,7 +17,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -26,28 +25,37 @@ import java.util.Vector;
 import org.apache.commons.collections.Factory;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.xmlrpc.XmlRpcClient;
 import org.apache.xmlrpc.XmlRpcException;
 import org.apache.xmlrpc.secure.SecureXmlRpcClient;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessModel.ProcessName;
 import org.sipfoundry.sipxconfig.common.UserException;
-import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 
-public class SipxProcessContextImpl extends SipxReplicationContextImpl implements BeanFactoryAware, SipxProcessContext,
-        ApplicationListener {
+public class SipxProcessContextImpl implements SipxProcessContext, ApplicationListener {
+
+    private static final Log LOG = LogFactory.getLog(SipxProcessContextImpl.class);
 
     private SipxProcessModel m_processModel;
     private EventsToServices<Process> m_eventsToServices = new EventsToServices<Process>();
     private String m_host;
+    private LocationsManager m_locationsManager;
 
     @Required
     public void setHost(String host) {
         m_host = host;
     }
 
+    @Required
+    public void setLocationsManager(LocationsManager locationsManager) {
+        m_locationsManager = locationsManager;
+    }
+
+    @Required
     public void setProcessModel(SipxProcessModel model) {
         m_processModel = model;
     }
@@ -127,33 +135,26 @@ public class SipxProcessContextImpl extends SipxReplicationContextImpl implement
         return serviceStatusList.toArray(new ServiceStatus[serviceStatusList.size()]);
     }
 
-    public void manageServices(Collection processes, Command command) {
-        Location[] locations = getLocations();
+    public void manageServices(Collection<Process> processes, Command command) {
+        Location[] locations = m_locationsManager.getLocations();
         for (int i = 0; i < locations.length; i++) {
             Location location = locations[i];
             manageServices(location, processes, command);
         }
     }
 
-    public void manageServices(Location location, Collection processes, Command command) {
-        if (!processes.isEmpty()) {
-            manageService(location, processes, command);
-        }
-    }
-
-    public void manageService(Location location, Collection processes, Command command) {
+    public void manageServices(Location location, Collection<Process> processes, Command command) {
         try {
             Vector<Object> params = new Vector<Object>();
             Vector<String> procaliaslist = new Vector<String>();
 
             // Build a process alias list.
-            for (Iterator<Process> i = processes.iterator(); i.hasNext();) {
-                Process process = i.next();
-                procaliaslist.add(URLEncoder.encode(process.getName(), "UTF-8")); 
+            for (Process process : processes) {
+                procaliaslist.add(URLEncoder.encode(process.getName(), "UTF-8"));
             }
             params.add(procaliaslist);
             params.add(Boolean.TRUE); // Yes, block for the state change.
-            Map<String, String> result = (Map<String, String>) invokeXmlRpcRequest(location, command.getName(), params);
+            invokeXmlRpcRequest(location, command.getName(), params);
         } catch (UnsupportedEncodingException e) {
             throw new RuntimeException(e);
         }

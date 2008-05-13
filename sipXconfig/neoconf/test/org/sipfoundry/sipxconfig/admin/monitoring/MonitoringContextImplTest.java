@@ -15,13 +15,14 @@ import java.util.List;
 import junit.framework.TestCase;
 
 import org.sipfoundry.sipxconfig.TestHelper;
-import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContextImpl;
-import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContextImplTest;
+import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
+import org.sipfoundry.sipxconfig.admin.commserver.LocationsManagerImpl;
+import org.sipfoundry.sipxconfig.admin.commserver.LocationsManagerImplTest;
 import org.sipfoundry.sipxconfig.test.TestUtil;
 
 public class MonitoringContextImplTest extends TestCase {
     private MonitoringContextImpl m_monitoringContextImpl;
-    private SipxProcessContextImpl m_processContextImpl;
+    private LocationsManager m_processContextImpl;
     private MRTGConfig m_mrtgConfig;
     private MRTGConfig m_mrtgRrdConfig;
     private MRTGConfig m_mrtgTemplateConfig;
@@ -29,19 +30,16 @@ public class MonitoringContextImplTest extends TestCase {
     protected void setUp() {
         m_monitoringContextImpl = new MonitoringContextImpl();
         m_monitoringContextImpl.setEnabled(true);
-        m_processContextImpl = new SipxProcessContextImpl() {
+        m_processContextImpl = new LocationsManagerImpl() {
             protected InputStream getTopologyAsStream() {
-                return SipxProcessContextImplTest.class.getResourceAsStream("topology.test.xml");
+                return LocationsManagerImplTest.class.getResourceAsStream("topology.test.xml");
             }
         };
-        m_monitoringContextImpl.setSipxProcessContext(m_processContextImpl);
+        m_monitoringContextImpl.setLocationsManager(m_processContextImpl);
 
-        m_mrtgConfig = new MRTGConfig(TestUtil.getTestSourceDirectory(getClass()) + "/"
-                + "mrtg.cfg");
-        m_mrtgRrdConfig = new MRTGConfig(TestUtil.getTestSourceDirectory(getClass()) + "/"
-                + "mrtg-rrd.cfg");
-        m_mrtgTemplateConfig = new MRTGConfig(TestUtil.getTestSourceDirectory(getClass()) + "/"
-                + "mrtg-t.cfg");
+        m_mrtgConfig = new MRTGConfig(TestUtil.getTestSourceDirectory(getClass()) + "/" + "mrtg.cfg");
+        m_mrtgRrdConfig = new MRTGConfig(TestUtil.getTestSourceDirectory(getClass()) + "/" + "mrtg-rrd.cfg");
+        m_mrtgTemplateConfig = new MRTGConfig(TestUtil.getTestSourceDirectory(getClass()) + "/" + "mrtg-t.cfg");
         m_monitoringContextImpl.setMrtgConfig(m_mrtgConfig);
         m_monitoringContextImpl.setMrtgRrdConfig(m_mrtgRrdConfig);
         m_monitoringContextImpl.setMrtgTemplateConfig(m_mrtgTemplateConfig);
@@ -86,16 +84,14 @@ public class MonitoringContextImplTest extends TestCase {
         assertEquals(4, m_monitoringContextImpl.getTargetsForHost("localhost").size());
         assertEquals(1, m_monitoringContextImpl.getTargetsForHost("192.168.0.27").size());
 
-        List<MRTGTarget> localhostTargets = m_monitoringContextImpl
-                .getTargetsForHost("localhost");
+        List<MRTGTarget> localhostTargets = m_monitoringContextImpl.getTargetsForHost("localhost");
         assertEquals("Server CPU Load", localhostTargets.get(0).getTitle());
         assertEquals("Free Memory", localhostTargets.get(1).getTitle());
         assertEquals("Currently Established TCP Connections", localhostTargets.get(2).getTitle());
 
         List<MRTGTarget> targets = m_monitoringContextImpl.getTargetsForHost("192.168.0.27");
         assertEquals("memgraph_192.168.0.27", targets.get(0).getId());
-        assertEquals("memAvailReal.0&memTotalReal.0:sipxtest@192.168.0.27", targets.get(0)
-                .getExpression());
+        assertEquals("memAvailReal.0&memTotalReal.0:sipxtest@192.168.0.27", targets.get(0).getExpression());
         assertEquals("Free Memory", targets.get(0).getTitle());
         assertEquals("<H1> Free Memory </H1>", targets.get(0).getPageTop());
         long expectedBytes = 10000000000L;
@@ -118,18 +114,16 @@ public class MonitoringContextImplTest extends TestCase {
     }
 
     public void testGetMRTGTarget() {
-        assertEquals("Server CPU Load", m_monitoringContextImpl.getMRTGTarget("Server CPU Load",
-                "localhost").getTitle());
-        assertEquals("Currently Established TCP Connections", m_monitoringContextImpl
-                .getMRTGTarget("Currently Established TCP Connections", "localhost").getTitle());
-        assertEquals("Free Memory", m_monitoringContextImpl.getMRTGTarget("Free Memory",
-                "192.168.0.27").getTitle());
+        assertEquals("Server CPU Load", m_monitoringContextImpl.getMRTGTarget("Server CPU Load", "localhost")
+                .getTitle());
+        assertEquals("Currently Established TCP Connections", m_monitoringContextImpl.getMRTGTarget(
+                "Currently Established TCP Connections", "localhost").getTitle());
+        assertEquals("Free Memory", m_monitoringContextImpl.getMRTGTarget("Free Memory", "192.168.0.27").getTitle());
     }
 
     public void testIntializeConfigFiles() throws Exception {
         // This exposes XCF-2189
-        m_mrtgConfig = new MRTGConfig(TestUtil.getTestSourceDirectory(getClass()) + "/"
-                + "mrtg.cfg.test");
+        m_mrtgConfig = new MRTGConfig(TestUtil.getTestSourceDirectory(getClass()) + "/" + "mrtg.cfg.test");
         m_monitoringContextImpl.setMrtgConfig(m_mrtgConfig);
         m_monitoringContextImpl.afterPropertiesSet();
     }
@@ -137,11 +131,9 @@ public class MonitoringContextImplTest extends TestCase {
     public void testIntializeConfigFiles2() throws Exception {
         // If a target doesn't have underscore, it's not valid, so it should be eliminated
         InputStream mrtg_cfg = MonitoringContextImpl.class.getResourceAsStream("mrtg.cfg.test2");
-        TestHelper.copyStreamToDirectory(mrtg_cfg, TestHelper.getTestDirectory(),"mrtg.cfg.test2");
-        m_mrtgConfig = new MRTGConfig(TestHelper.getTestDirectory() + "/"
-                + "mrtg.cfg.test2");
-        m_mrtgRrdConfig = new MRTGConfig(TestHelper.getTestDirectory() + "/"
-                + "mrtg-rrd.cfg");
+        TestHelper.copyStreamToDirectory(mrtg_cfg, TestHelper.getTestDirectory(), "mrtg.cfg.test2");
+        m_mrtgConfig = new MRTGConfig(TestHelper.getTestDirectory() + "/" + "mrtg.cfg.test2");
+        m_mrtgRrdConfig = new MRTGConfig(TestHelper.getTestDirectory() + "/" + "mrtg-rrd.cfg");
         m_monitoringContextImpl.setMrtgConfig(m_mrtgConfig);
         m_monitoringContextImpl.setMrtgRrdConfig(m_mrtgRrdConfig);
         m_monitoringContextImpl.afterPropertiesSet();

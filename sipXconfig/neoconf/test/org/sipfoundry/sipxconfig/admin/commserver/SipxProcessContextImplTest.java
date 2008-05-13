@@ -25,26 +25,24 @@ import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessModel.ProcessName;
 
 public class SipxProcessContextImplTest extends TestCase {
     private SipxProcessContextImpl m_processContextImpl;
+    private LocationsManager m_locationsManager;
 
     private int m_numberOfCalls;
     private List m_urlStrings;
     private List m_methodNameStrings;
     private List m_paramVectors;
 
-    private final static Process[] STOPPROCESSLIST =  new Process[] {
-        new Process(ProcessName.REGISTRAR),
-        new Process(ProcessName.MEDIA_SERVER)
+    private final static Process[] STOPPROCESSLIST = new Process[] {
+        new Process(ProcessName.REGISTRAR), new Process(ProcessName.MEDIA_SERVER)
     };
 
-    private final static Process[] STARTPROCESSLIST =  new Process[] {
+    private final static Process[] STARTPROCESSLIST = new Process[] {
         new Process(ProcessName.PRESENCE_SERVER)
     };
 
-    private final static Process[] RESTARTPROCESSLIST =  new Process[] {
-        new Process(ProcessName.REGISTRAR),
-        new Process(ProcessName.MEDIA_SERVER),
-        new Process(ProcessName.PRESENCE_SERVER),
-        new Process(ProcessName.ACD_SERVER)
+    private final static Process[] RESTARTPROCESSLIST = new Process[] {
+        new Process(ProcessName.REGISTRAR), new Process(ProcessName.MEDIA_SERVER),
+        new Process(ProcessName.PRESENCE_SERVER), new Process(ProcessName.ACD_SERVER)
     };
 
     private final static ServiceStatus[] SERVICESTATUS = new ServiceStatus[] {
@@ -56,11 +54,13 @@ public class SipxProcessContextImplTest extends TestCase {
     };
 
     protected void setUp() throws Exception {
-        m_processContextImpl = new SipxProcessContextImpl() {
-
+        m_locationsManager = new LocationsManagerImpl() {
             protected InputStream getTopologyAsStream() {
-                return SipxProcessContextImplTest.class.getResourceAsStream("topology.test.xml");
+                return LocationsManagerImplTest.class.getResourceAsStream("topology.test.xml");
             }
+        };
+
+        m_processContextImpl = new SipxProcessContextImpl() {
 
             protected Object invokeXmlRpcRequest(Location location, String methodName, Vector params) {
                 m_numberOfCalls++;
@@ -70,21 +70,22 @@ public class SipxProcessContextImplTest extends TestCase {
 
                 Hashtable result = new Hashtable();
                 if ("getStateAll" == methodName) {
-                   for (int x = 0; x < SERVICESTATUS.length; x++) {
-                       result.put(SERVICESTATUS[x].getServiceName(), SERVICESTATUS[x].getStatus().getName());
-                   }
-                }
-                else {
-                   for (int x = 0; x < STOPPROCESSLIST.length; x++) {
-                       result.put(STOPPROCESSLIST[x].getName(), "true");
-                   }
+                    for (int x = 0; x < SERVICESTATUS.length; x++) {
+                        result.put(SERVICESTATUS[x].getServiceName(), SERVICESTATUS[x].getStatus().getName());
+                    }
+                } else {
+                    for (int x = 0; x < STOPPROCESSLIST.length; x++) {
+                        result.put(STOPPROCESSLIST[x].getName(), "true");
+                    }
                 }
 
                 return result;
 
-               //  throw new RuntimeException("Unrecognized methodName: '" + methodName + "'.");
+                // throw new RuntimeException("Unrecognized methodName: '" + methodName + "'.");
             }
         };
+
+        m_processContextImpl.setLocationsManager(m_locationsManager);
 
         m_methodNameStrings = new ArrayList();
         m_urlStrings = new ArrayList();
@@ -94,7 +95,7 @@ public class SipxProcessContextImplTest extends TestCase {
     }
 
     public void testGetStatus() {
-        ServiceStatus[] resultServiceStatus = m_processContextImpl.getStatus(m_processContextImpl.getLocations()[0]);
+        ServiceStatus[] resultServiceStatus = m_processContextImpl.getStatus(m_locationsManager.getLocations()[0]);
 
         assertEquals(1, m_numberOfCalls);
 
@@ -115,17 +116,17 @@ public class SipxProcessContextImplTest extends TestCase {
 
     public void testManageService() {
         Location[] locations = {
-            m_processContextImpl.getLocations()[0]
+            m_locationsManager.getLocations()[0]
         };
         Command command = Command.STOP;
 
-        m_processContextImpl.manageService(locations[0], Arrays.asList(STOPPROCESSLIST), command);
+        m_processContextImpl.manageServices(locations[0], Arrays.asList(STOPPROCESSLIST), command);
 
         checkManageServicesResults(STOPPROCESSLIST, locations, command);
     }
 
     public void testManageServices() {
-        Location[] locations = m_processContextImpl.getLocations();
+        Location[] locations = m_locationsManager.getLocations();
         Command command = Command.STOP;
 
         m_processContextImpl.manageServices(Arrays.asList(STOPPROCESSLIST), command);
@@ -134,7 +135,7 @@ public class SipxProcessContextImplTest extends TestCase {
     }
 
     public void testManageServicesRestart() {
-        Location[] locations = m_processContextImpl.getLocations();
+        Location[] locations = m_locationsManager.getLocations();
         Command command = Command.RESTART;
 
         m_processContextImpl.manageServices(Arrays.asList(RESTARTPROCESSLIST), command);
@@ -145,7 +146,7 @@ public class SipxProcessContextImplTest extends TestCase {
 
     public void testManageServicesLocation() {
         Location[] locations = {
-            m_processContextImpl.getLocations()[1]
+            m_locationsManager.getLocations()[1]
         };
         Command command = Command.START;
 
@@ -165,30 +166,26 @@ public class SipxProcessContextImplTest extends TestCase {
         Set<String> expectedCombinations = new HashSet<String>();
         for (int x = 0; x < PROCESSES.length; x++) {
             for (int y = 0; y < LOCATIONS.length; y++) {
-                String TempString = PROCESSES[x].getName() + LOCATIONS[y].getProcessMonitorUrl();
                 expectedCombinations.add(PROCESSES[x].getName() + LOCATIONS[y].getProcessMonitorUrl());
             }
         }
 
         Process[] Processes;
-        if ( COMMAND == Command.STOP ) {
-           Processes = STOPPROCESSLIST;
+        if (COMMAND == Command.STOP) {
+            Processes = STOPPROCESSLIST;
+        } else if (COMMAND == Command.START) {
+            Processes = STARTPROCESSLIST;
+        } else if (COMMAND == Command.RESTART) {
+            Processes = RESTARTPROCESSLIST;
+        } else {
+            Processes = STOPPROCESSLIST;
         }
-        else if ( COMMAND == Command.START ) {
-                 Processes = STARTPROCESSLIST;
-             }
-             else if ( COMMAND == Command.RESTART ) {
-                      Processes = RESTARTPROCESSLIST;
-                  }
-                  else {
-                      Processes = STOPPROCESSLIST;
-                  }
         // Compare the expected Process-Location combinations to what actually occured.
         for (int y = 0; y < LOCATIONS.length; y++) {
             for (int x = 0; x < Processes.length; x++) {
-               List ProcList = (List) ((Vector<Object>) m_paramVectors.get(y)).elementAt(0);
-               String value = ProcList.get(x).toString() + m_urlStrings.get(y);
-               assertTrue(expectedCombinations.remove(value));
+                List ProcList = (List) ((Vector<Object>) m_paramVectors.get(y)).elementAt(0);
+                String value = ProcList.get(x).toString() + m_urlStrings.get(y);
+                assertTrue(expectedCombinations.remove(value));
             }
         }
         assertEquals(0, expectedCombinations.size());

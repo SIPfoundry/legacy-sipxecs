@@ -1,38 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" 
-	"http://www.springframework.org/dtd/spring-beans.dtd">
-<beans>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
   <bean id="sipxServer" class="org.sipfoundry.sipxconfig.admin.commserver.SipxServer" parent="beanWithSettings">
-    <property name="configDirectory">
-      <value>${sysdir.etc}</value>
-    </property>
+    <property name="configDirectory" value="${sysdir.etc}" />
     <property name="coreContext" ref="coreContext" />
     <property name="sipxReplicationContext" ref="sipxReplicationContext" />
     <!-- default music-on-hold user -->
     <property name="mohUser" value="~~mh~" />
   </bean>
 
-  <bean id="sipxReplicationContextImpl" abstract="true"
-    class="org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContextImpl">
+  <bean id="locationsManager" class="org.sipfoundry.sipxconfig.admin.commserver.LocationsManagerImpl">
     <property name="configDirectory" value="${sysdir.etc}" />
-    <property name="replicationManager" ref="replicationManagerImpl" />
-    <property name="jobContext" ref="jobContext" />
   </bean>
 
   <bean id="replicationManagerImpl" class="org.sipfoundry.sipxconfig.admin.commserver.imdb.ReplicationManagerImpl" />
 
-  <bean id="sipxProcessDefsProcessModel"
-    class="org.sipfoundry.sipxconfig.admin.commserver.ProcessDefinitionsSipxProcessModel">
-    <constructor-arg>
-      <value>${sysdir.etc}/process.d</value>
-    </constructor-arg>
-  </bean>
-
-  <bean id="sipxProcessContext" parent="sipxReplicationContextImpl"
-    class="org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContextImpl">
-    <!-- real value injected by sipxconfig.properties -->
-    <property name="host" value="localhost" />
-    <property name="processModel" ref="sipxProcessDefsProcessModel" />
+  <bean id="sipxReplicationContextImpl" class="org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContextImpl">
+    <property name="replicationManager" ref="replicationManagerImpl" />
+    <property name="jobContext" ref="jobContext" />
+    <property name="locationsManager" ref="locationsManager" />
   </bean>
 
   <bean id="sipxReplicationContextDao" class="org.springframework.aop.framework.ProxyFactoryBean">
@@ -45,7 +31,7 @@
       <value>org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext</value>
     </property>
     <property name="target">
-      <ref local="sipxProcessContext" />
+      <ref local="sipxReplicationContextImpl" />
     </property>
   </bean>
 
@@ -56,11 +42,25 @@
     </property>
   </bean>
 
+
+  <bean id="sipxProcessDefsProcessModel"
+    class="org.sipfoundry.sipxconfig.admin.commserver.ProcessDefinitionsSipxProcessModel">
+    <constructor-arg>
+      <value>${sysdir.etc}/process.d</value>
+    </constructor-arg>
+  </bean>
+
+  <bean id="sipxProcessContext" class="org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContextImpl">
+    <!-- real value injected by sipxconfig.properties -->
+    <property name="host" value="localhost" />
+    <property name="processModel" ref="sipxProcessDefsProcessModel" />
+    <property name="locationsManager" ref="locationsManager" />
+  </bean>
+
   <bean id="dataSetGenerator" abstract="true"
     class="org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSetGenerator">
     <property name="coreContext" ref="coreContext" />
   </bean>
-
 
   <!-- list of files and directory in which they are located can be changed in sipxconfig.properties -->
   <bean id="externalAliases" class="org.sipfoundry.sipxconfig.admin.commserver.imdb.ExternalAliases" />

@@ -16,7 +16,7 @@
     - B E A N S
   -->
   <bean name="locationModel" class="org.sipfoundry.sipxconfig.components.ObjectSelectionModel" lifecycle="request">
-    <set name="array" value="sipxProcessContext.locations" />
+    <set name="array" value="locationsManager.locations" />
     <set name="labelExpression" value="literal:id" />
   </bean>
   <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate" />

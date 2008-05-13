@@ -15,10 +15,13 @@ import org.springframework.beans.factory.annotation.Required;
 
 public class SipxProcess {
     private Boolean m_enabled;
+    private LocationsManager m_locationsManager;
     private SipxProcessContext m_sipxProcessContext;
     private ProcessName m_processName;
 
-    public SipxProcess(SipxProcessContext sipxProcessContext, ProcessName processName) {
+    public SipxProcess(LocationsManager locationsManager, SipxProcessContext sipxProcessContext,
+            ProcessName processName) {
+        m_locationsManager = locationsManager;
         m_sipxProcessContext = sipxProcessContext;
         m_processName = processName;
     }
@@ -34,7 +37,7 @@ public class SipxProcess {
         boolean enabled = false;
         String name = m_processName.getName();
         ServiceStatus[] servStatus = null;
-        for (Location location : m_sipxProcessContext.getLocations()) {
+        for (Location location : m_locationsManager.getLocations()) {
             servStatus = m_sipxProcessContext.getStatus(location);
             for (ServiceStatus status : servStatus) {
                 if (status.getServiceName().equals(name)) {
@@ -53,5 +56,10 @@ public class SipxProcess {
     @Required
     public void setProcessName(ProcessName processName) {
         m_processName = processName;
+    }
+
+    @Required
+    public void setLocationsManager(LocationsManager locationsManager) {
+        m_locationsManager = locationsManager;
     }
 }

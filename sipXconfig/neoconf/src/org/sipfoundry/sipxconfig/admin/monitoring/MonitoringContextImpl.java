@@ -19,7 +19,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
-import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContextImpl;
+import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.springframework.beans.factory.InitializingBean;
 
 public class MonitoringContextImpl implements MonitoringContext, InitializingBean {
@@ -27,7 +27,7 @@ public class MonitoringContextImpl implements MonitoringContext, InitializingBea
 
     private static final String COMMAND = "env LANG=C";
 
-    private SipxProcessContextImpl m_sipxReplicationContext;
+    private LocationsManager m_locationsManager;
 
     private MRTGConfig m_templateMrtgConfig;
 
@@ -66,8 +66,8 @@ public class MonitoringContextImpl implements MonitoringContext, InitializingBea
      * Set the sipxReplicationContext needed for retrieving the locations within topology.xml The
      * locations will be displayed as available hosts to monitor in HA configuration
      */
-    public void setSipxProcessContext(SipxProcessContextImpl sipxReplicationContext) {
-        this.m_sipxReplicationContext = sipxReplicationContext;
+    public void setLocationsManager(LocationsManager locationsManager) {
+        m_locationsManager = locationsManager;
     }
 
     /**
@@ -82,7 +82,7 @@ public class MonitoringContextImpl implements MonitoringContext, InitializingBea
      */
     public List<String> getAvailableHosts() {
         List<String> hosts = new ArrayList<String>();
-        Location[] locations = m_sipxReplicationContext.getLocations();
+        Location[] locations = m_locationsManager.getLocations();
         for (Location location : locations) {
             String host = location.getSipDomain();
             if (StringUtils.isEmpty(host)) {
@@ -212,8 +212,7 @@ public class MonitoringContextImpl implements MonitoringContext, InitializingBea
      * 
      * The mrtg targets will be generated with ids like: templateTargetId_host.
      */
-    private void generateConfigFiles(String host, String communityString,
-            List<String> selectedTargetNames) {
+    private void generateConfigFiles(String host, String communityString, List<String> selectedTargetNames) {
 
         String hostTemplate = "$(host)";
         String snmpTemplate = "$(snmpString)";
@@ -237,11 +236,10 @@ public class MonitoringContextImpl implements MonitoringContext, InitializingBea
         for (MRTGTarget templateTarget : templateTargets) {
             if (selectedTargetNames.contains(templateTarget.getTitle())) {
                 // set id like templateTargetId_host
-                templateTarget.setId(templateTarget.getId() + MonitoringUtil.UNDERSCORE
-                        + host.toLowerCase());
+                templateTarget.setId(templateTarget.getId() + MonitoringUtil.UNDERSCORE + host.toLowerCase());
                 // replace ${host} and ${snmpString} in template expression
-                templateTarget.setExpression(templateTarget.getExpression().replace(hostTemplate,
-                        host).replace(snmpTemplate, communityString));
+                templateTarget.setExpression(templateTarget.getExpression().replace(hostTemplate, host).replace(
+                        snmpTemplate, communityString));
                 selectedTargets.add(templateTarget);
             }
         }
@@ -258,8 +256,8 @@ public class MonitoringContextImpl implements MonitoringContext, InitializingBea
         Runtime rt = Runtime.getRuntime();
         try {
             // run: env LANG=C /usr/bin/mrtg /etc/mrtg/mrtg-rrd.cfg
-            rt.exec(COMMAND + MonitoringUtil.SPACE + MonitoringUtil.MRTG_DIR
-                    + MonitoringUtil.SPACE + m_mrtgRrdConfig.getFilename());
+            rt.exec(COMMAND + MonitoringUtil.SPACE + MonitoringUtil.MRTG_DIR + MonitoringUtil.SPACE
+                    + m_mrtgRrdConfig.getFilename());
         } catch (IOException e) {
             LOG.error(e);
         }
@@ -271,8 +269,8 @@ public class MonitoringContextImpl implements MonitoringContext, InitializingBea
     public boolean updateGraphs(String host) {
         try {
             if (m_rrdToolGraphUpdater == null) {
-                m_rrdToolGraphUpdater = new RRDToolGraphUpdater(m_templateMrtgConfig
-                        .getWorkingDir(), m_templateMrtgConfig.getWorkingDir());
+                m_rrdToolGraphUpdater = new RRDToolGraphUpdater(m_templateMrtgConfig.getWorkingDir(),
+                        m_templateMrtgConfig.getWorkingDir());
             }
             for (MRTGTarget target : getTargetsForHost(host)) {
                 m_rrdToolGraphUpdater.updateAllGraphs(target);

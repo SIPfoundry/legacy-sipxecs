@@ -21,6 +21,7 @@ import org.apache.tapestry.services.ExpressionEvaluator;
 import org.apache.tapestry.valid.IValidationDelegate;
 import org.apache.tapestry.valid.ValidatorException;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
+import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext.Command;
 import org.sipfoundry.sipxconfig.common.UserException;
@@ -37,6 +38,9 @@ public abstract class Services extends BasePage implements PageBeginRenderListen
 
     @InjectObject(value = "spring:sipxProcessContext")
     public abstract SipxProcessContext getSipxProcessContext();
+
+    @InjectObject(value = "spring:locationsManager")
+    public abstract LocationsManager getLocationsManager();
 
     @InjectObject(value = "spring:domainManager")
     public abstract DomainManager getDomainManager();
@@ -55,7 +59,7 @@ public abstract class Services extends BasePage implements PageBeginRenderListen
     public void pageBeginRender(PageEvent event_) {
         Location location = getServiceLocation();
         if (location == null) {
-            Location[] locations = getSipxProcessContext().getLocations();
+            Location[] locations = getLocationsManager().getLocations();
             if (locations.length > 0) {
                 location = locations[0];
                 setServiceLocation(location);

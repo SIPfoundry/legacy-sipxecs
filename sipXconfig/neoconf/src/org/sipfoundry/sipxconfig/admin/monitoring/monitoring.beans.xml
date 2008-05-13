@@ -11,8 +11,8 @@
   </bean>
 
   <bean id="monitoringContextImpl" class="org.sipfoundry.sipxconfig.admin.monitoring.MonitoringContextImpl">
-    <property name="sipxProcessContext">
-      <ref bean="sipxProcessContext" />
+    <property name="locationsManager">
+      <ref bean="locationsManager" />
     </property>
     <property name="mrtgTemplateConfig">
       <ref bean="mrtgTemplateConfig" />
@@ -27,14 +27,14 @@
   </bean>
 
   <bean id="mrtgTemplateConfig" class="org.sipfoundry.sipxconfig.admin.monitoring.MRTGConfig">
-    <property name="filename" value="/etc/mrtg/mrtg-t.cfg"/>
+    <property name="filename" value="/etc/mrtg/mrtg-t.cfg" />
   </bean>
 
   <bean id="mrtgConfig" class="org.sipfoundry.sipxconfig.admin.monitoring.MRTGConfig">
-    <property name="filename" value="/etc/mrtg/mrtg.cfg"/>
+    <property name="filename" value="/etc/mrtg/mrtg.cfg" />
   </bean>
 
   <bean id="mrtgRrdConfig" class="org.sipfoundry.sipxconfig.admin.monitoring.MRTGConfig">
-    <property name="filename" value="/etc/mrtg/mrtg-rrd.cfg"/>
+    <property name="filename" value="/etc/mrtg/mrtg-rrd.cfg" />
   </bean>
 </beans>

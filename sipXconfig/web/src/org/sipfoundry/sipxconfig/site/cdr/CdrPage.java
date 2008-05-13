@@ -19,6 +19,7 @@ import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.html.BasePage;
+import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcess;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessModel;
@@ -36,6 +37,9 @@ public abstract class CdrPage extends BasePage implements PageBeginRenderListene
     @InjectObject(value = "spring:sipxProcessContext")
     public abstract SipxProcessContext getSipxProcessContext();
 
+    @InjectObject(value = "spring:locationsManager")
+    public abstract LocationsManager getLocationsManager();
+
     public abstract SipxProcess getCallResolverProcess();
 
     public abstract void setCallResolverProcess(SipxProcess sipxProcess);
@@ -51,7 +55,7 @@ public abstract class CdrPage extends BasePage implements PageBeginRenderListene
     public void pageBeginRender(PageEvent event) {
         SipxProcess crp = getCallResolverProcess();
         if (crp == null) {
-            crp = new SipxProcess(getSipxProcessContext(),
+            crp = new SipxProcess(getLocationsManager(), getSipxProcessContext(),
                     SipxProcessModel.ProcessName.CALL_RESOLVER);
             setCallResolverProcess(crp);
         }

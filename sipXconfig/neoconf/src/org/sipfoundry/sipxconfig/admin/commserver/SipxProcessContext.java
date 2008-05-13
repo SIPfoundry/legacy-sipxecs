@@ -33,8 +33,6 @@ public interface SipxProcessContext {
      */
     public ServiceStatus[] getStatus(Location location);
 
-    public Location[] getLocations();
-
     /**
      * Apply the specified command to the named services. This method handles only commands that
      * don't need output, which excludes the "status" command.
@@ -57,11 +55,6 @@ public interface SipxProcessContext {
     public void restartOnEvent(Collection<Process> services, Class eventClass);
 
     /**
-     * Apply the specified command to the processes/services. 
-     */
-    public void manageService(Location location,  Collection<Process> processes, Command command);
-    
-    /**
      * This should be used to get list of restartable Processes
      * 
      * @return list of the services that you usually want to restart
@@ -69,7 +62,5 @@ public interface SipxProcessContext {
      */
     public List<Process> getRestartable();
     
-    public Process getProcess(String name);
     public Process getProcess(ProcessName name);
-    public Process[] getProcess(ProcessName[] names);
 }
