@@ -50,11 +50,19 @@
     </constructor-arg>
   </bean>
 
+  <bean id="processManagerApiProvider"
+    class="org.sipfoundry.sipxconfig.admin.commserver.DefaultProcessManagerApiProvider">
+    <property name="methodNamePrefix" value="ProcMgmtRpc." />
+    <property name="secure" value="true" />
+    <property name="serviceInterface" value="org.sipfoundry.sipxconfig.admin.commserver.ProcessManagerApi" />
+  </bean>
+
   <bean id="sipxProcessContext" class="org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContextImpl">
     <!-- real value injected by sipxconfig.properties -->
     <property name="host" value="localhost" />
     <property name="processModel" ref="sipxProcessDefsProcessModel" />
     <property name="locationsManager" ref="locationsManager" />
+    <property name="processManagerApiProvider" ref="processManagerApiProvider" />
   </bean>
 
   <bean id="dataSetGenerator" abstract="true"

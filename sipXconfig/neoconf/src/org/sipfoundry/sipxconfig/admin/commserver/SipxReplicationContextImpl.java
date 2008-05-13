@@ -110,7 +110,6 @@ public class SipxReplicationContextImpl implements ApplicationEventPublisherAwar
     public void setJobContext(JobContext jobContext) {
         m_jobContext = jobContext;
     }
-
     @Required
     public void setLocationsManager(LocationsManager locationsManager) {
         m_locationsManager = locationsManager;

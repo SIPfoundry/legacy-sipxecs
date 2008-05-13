@@ -11,20 +11,28 @@ package org.sipfoundry.sipxconfig.xmlrpc;
 
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
+import java.util.Arrays;
 
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.xmlrpc.XmlRpcClient;
 import org.apache.xmlrpc.XmlRpcClientRequest;
 import org.apache.xmlrpc.XmlRpcException;
+import org.apache.xmlrpc.secure.SecureXmlRpcClient;
+import org.springframework.beans.factory.BeanInitializationException;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.remoting.support.UrlBasedRemoteAccessor;
 
-public class XmlRpcClientInterceptor extends UrlBasedRemoteAccessor implements MethodInterceptor,
-        InitializingBean {
+public class XmlRpcClientInterceptor extends UrlBasedRemoteAccessor implements MethodInterceptor, InitializingBean {
+    private static final Log LOG = LogFactory.getLog(XmlRpcClientInterceptor.class);
+
     private XmlRpcClient m_xmlRpcClient;
 
-    private String m_methodNamePrefix;
+    private boolean m_secure;
+
+    private XmlRpcMarshaller m_marshaller = new DefaultMarshaller(null);
 
     /**
      * Intercepts method call and executes XML/RPC call instead.
@@ -42,7 +50,11 @@ public class XmlRpcClientInterceptor extends UrlBasedRemoteAccessor implements M
      * 
      */
     public Object invoke(MethodInvocation invocation) throws Throwable {
-        XmlRpcClientRequest request = new Request(invocation, m_methodNamePrefix);
+        XmlRpcClientRequest request = new Request(invocation, m_marshaller);
+        if (LOG.isInfoEnabled()) {
+            String msg = String.format("XML/RPC %s on %s", request, getServiceUrl());
+            LOG.info(msg);
+        }
 
         try {
             Object result = m_xmlRpcClient.execute(request);
@@ -53,28 +65,33 @@ public class XmlRpcClientInterceptor extends UrlBasedRemoteAccessor implements M
             }
             return result;
         } catch (XmlRpcException e) {
+            LOG.error("XML/RPC error: ", e);
             // in cases execute throws exception - we still need to translate
             throw new XmlRpcRemoteException(e);
         } catch (RuntimeException e) {
+            LOG.error("Runtime error in XML/RPC call", e);
             // do not repackage RuntimeExceptions
             throw e;
         } catch (Exception e) {
+            LOG.error("Exception in XML/RPC call", e);
             // repackage only checked exceptions
             throw new XmlRpcRemoteException(e);
         }
     }
 
     public void afterPropertiesSet() {
+        super.afterPropertiesSet();
         if (getServiceInterface() == null) {
             throw new IllegalArgumentException("serviceInterface is required");
         }
-        if (getServiceUrl() == null) {
-            throw new IllegalArgumentException("serviceUrl is required");
-        }
         try {
-            m_xmlRpcClient = new XmlRpcClient(getServiceUrl());
+            if (m_secure) {
+                m_xmlRpcClient = new SecureXmlRpcClient(getServiceUrl());
+            } else {
+                m_xmlRpcClient = new XmlRpcClient(getServiceUrl());
+            }
         } catch (MalformedURLException e) {
-            throw new RuntimeException(e);
+            throw new BeanInitializationException("Cannot create XML/RPC proxy.", e);
         }
     }
 
@@ -88,27 +105,29 @@ public class XmlRpcClientInterceptor extends UrlBasedRemoteAccessor implements M
     }
 
     public void setMethodNamePrefix(String methodNamePrefix) {
-        m_methodNamePrefix = methodNamePrefix;
+        m_marshaller = new DefaultMarshaller(methodNamePrefix);
+    }
+
+    public void setSecure(boolean secure) {
+        m_secure = secure;
+    }
+
+    public void setMarshaller(XmlRpcMarshaller marshaller) {
+        m_marshaller = marshaller;
     }
 
     static class Request implements XmlRpcClientRequest {
-        private Method m_method;
-
+        private String m_methodName;
         private Object[] m_args;
 
-        private String m_methodNamePrefix;
-
-        public Request(MethodInvocation invocation, String methodNamePrefix) {
-            m_method = invocation.getMethod();
-            m_args = invocation.getArguments();
-            m_methodNamePrefix = methodNamePrefix;
+        public Request(MethodInvocation invocation, XmlRpcMarshaller marshaller) {
+            Method method = invocation.getMethod();
+            m_methodName = marshaller.methodName(method.getName());
+            m_args = marshaller.parameters(invocation.getArguments());
         }
 
         public String getMethodName() {
-            if (m_methodNamePrefix == null) {
-                return m_method.getName();
-            }
-            return m_methodNamePrefix + m_method.getName();
+            return m_methodName;
         }
 
         public int getParameterCount() {
@@ -117,6 +136,32 @@ public class XmlRpcClientInterceptor extends UrlBasedRemoteAccessor implements M
 
         public Object getParameter(int index) {
             return m_args[index];
+        }
+
+        public String toString() {
+            return String.format("%s with %s", m_methodName, Arrays.deepToString(m_args));
+        }
+    }
+
+    /**
+     * Default marshaller adds method name prefix but does not change arguments.
+     */
+    static class DefaultMarshaller implements XmlRpcMarshaller {
+        private final String m_methodNamePrefix;
+
+        public DefaultMarshaller(String methodNamePrefix) {
+            m_methodNamePrefix = methodNamePrefix;
+        }
+
+        public String methodName(String name) {
+            if (m_methodNamePrefix == null) {
+                return name;
+            }
+            return m_methodNamePrefix + name;
+        }
+
+        public Object[] parameters(Object... args) {
+            return args;
         }
     }
 }

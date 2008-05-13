@@ -12,19 +12,11 @@ package org.sipfoundry.sipxconfig.admin.commserver;
 import java.util.Collection;
 import java.util.List;
 
-import org.apache.commons.lang.enums.Enum;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessModel.ProcessName;
 
 public interface SipxProcessContext {
-    public static class Command extends Enum {
-        public static final Command START = new Command("start");
-        public static final Command STOP = new Command("stop");
-        public static final Command RESTART = new Command("restart");
-        public static final Command STATUS = new Command("status");
-
-        public Command(String name) {
-            super(name);
-        }
+    public static enum Command {
+        START, STOP, RESTART;
     }
 
     /**
@@ -61,6 +53,5 @@ public interface SipxProcessContext {
      * 
      */
     public List<Process> getRestartable();
-    
     public Process getProcess(ProcessName name);
 }

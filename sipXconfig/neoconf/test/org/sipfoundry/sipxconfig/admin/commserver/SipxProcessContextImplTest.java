@@ -10,47 +10,33 @@
 package org.sipfoundry.sipxconfig.admin.commserver;
 
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Set;
-import java.util.Vector;
+import java.util.HashMap;
+import java.util.Map;
 
 import junit.framework.TestCase;
 
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext.Command;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessModel.ProcessName;
 
+import static org.easymock.EasyMock.aryEq;
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.createStrictMock;
+import static org.easymock.EasyMock.eq;
+import static org.easymock.EasyMock.expectLastCall;
+import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.verify;
+
 public class SipxProcessContextImplTest extends TestCase {
     private SipxProcessContextImpl m_processContextImpl;
     private LocationsManager m_locationsManager;
 
-    private int m_numberOfCalls;
-    private List m_urlStrings;
-    private List m_methodNameStrings;
-    private List m_paramVectors;
-
-    private final static Process[] STOPPROCESSLIST = new Process[] {
+    private final static Process[] PROCESSES = new Process[] {
         new Process(ProcessName.REGISTRAR), new Process(ProcessName.MEDIA_SERVER)
     };
 
-    private final static Process[] STARTPROCESSLIST = new Process[] {
-        new Process(ProcessName.PRESENCE_SERVER)
-    };
-
-    private final static Process[] RESTARTPROCESSLIST = new Process[] {
-        new Process(ProcessName.REGISTRAR), new Process(ProcessName.MEDIA_SERVER),
-        new Process(ProcessName.PRESENCE_SERVER), new Process(ProcessName.ACD_SERVER)
-    };
-
-    private final static ServiceStatus[] SERVICESTATUS = new ServiceStatus[] {
-        new ServiceStatus(new Process(ProcessName.REGISTRAR), ServiceStatus.Status.STARTING),
-        new ServiceStatus(new Process(ProcessName.MEDIA_SERVER), ServiceStatus.Status.STARTED),
-        new ServiceStatus(new Process(ProcessName.PRESENCE_SERVER), ServiceStatus.Status.STOPPED),
-        new ServiceStatus(new Process(ProcessName.PROXY), ServiceStatus.Status.FAILED),
-        new ServiceStatus(new Process(ProcessName.ACD_SERVER), ServiceStatus.Status.UNKNOWN)
+    private final static Process[] START_PROCESSLIST = new Process[] {
+        new Process(ProcessName.PRESENCE_SERVER),
     };
 
     protected void setUp() throws Exception {
@@ -60,134 +46,94 @@ public class SipxProcessContextImplTest extends TestCase {
             }
         };
 
-        m_processContextImpl = new SipxProcessContextImpl() {
-
-            protected Object invokeXmlRpcRequest(Location location, String methodName, Vector params) {
-                m_numberOfCalls++;
-                m_urlStrings.add(location.getProcessMonitorUrl());
-                m_methodNameStrings.add(methodName);
-                m_paramVectors.add(params);
-
-                Hashtable result = new Hashtable();
-                if ("getStateAll" == methodName) {
-                    for (int x = 0; x < SERVICESTATUS.length; x++) {
-                        result.put(SERVICESTATUS[x].getServiceName(), SERVICESTATUS[x].getStatus().getName());
-                    }
-                } else {
-                    for (int x = 0; x < STOPPROCESSLIST.length; x++) {
-                        result.put(STOPPROCESSLIST[x].getName(), "true");
-                    }
-                }
-
-                return result;
-
-                // throw new RuntimeException("Unrecognized methodName: '" + methodName + "'.");
-            }
-        };
-
+        m_processContextImpl = new SipxProcessContextImpl();
         m_processContextImpl.setLocationsManager(m_locationsManager);
-
-        m_methodNameStrings = new ArrayList();
-        m_urlStrings = new ArrayList();
-        m_paramVectors = new ArrayList();
-
         m_processContextImpl.setProcessModel(new SimpleSipxProcessModel());
+        m_processContextImpl.setHost("localhost");
     }
 
     public void testGetStatus() {
-        ServiceStatus[] resultServiceStatus = m_processContextImpl.getStatus(m_locationsManager.getLocations()[0]);
+        Location location = m_locationsManager.getLocations()[0];
 
-        assertEquals(1, m_numberOfCalls);
+        Map<String, String> result = new HashMap<String, String>();
+        result.put(ProcessName.REGISTRAR.getName(), "Starting");
+        result.put(ProcessName.MEDIA_SERVER.getName(), "Started");
+        result.put(ProcessName.PRESENCE_SERVER.getName(), "Stopped");
+        result.put(ProcessName.PROXY.getName(), "Failed");
+        result.put(ProcessName.ACD_SERVER.getName(), "Unknown");
 
-        // Build the set of expected Process-ServiceStatus combinations. The order is not
-        // important.
-        Set<String> expectedCombinations = new HashSet<String>();
-        for (int x = 0; x < SERVICESTATUS.length; x++) {
-            expectedCombinations.add(SERVICESTATUS[x].getServiceName() + SERVICESTATUS[x].getStatus().getName());
+        ProcessManagerApi api = createMock(ProcessManagerApi.class);
+        api.getStateAll("localhost");
+        expectLastCall().andReturn(result);
+
+        ProcessManagerApiProvider provider = createMock(ProcessManagerApiProvider.class);
+        provider.getApi(location);
+        expectLastCall().andReturn(api);
+
+        m_processContextImpl.setProcessManagerApiProvider(provider);
+        replay(provider, api);
+
+        ServiceStatus[] resultServiceStatus = m_processContextImpl.getStatus(location);
+
+        assertEquals(result.size(), resultServiceStatus.length);
+        for (ServiceStatus serviceStatus : resultServiceStatus) {
+            String expected = result.get(serviceStatus.getServiceName());
+            assertEquals(expected, serviceStatus.getStatus().getName());
         }
-
-        // Compare the expected Process-ServiceStatus combinations to what actually occured.
-        for (int x = 0; x < resultServiceStatus.length; x++) {
-            String value = resultServiceStatus[x].getServiceName() + resultServiceStatus[x].getStatus().getName();
-            assertTrue(expectedCombinations.remove(value));
-        }
-        assertEquals(0, expectedCombinations.size());
+        verify(provider, api);
     }
 
-    public void testManageService() {
-        Location[] locations = {
-            m_locationsManager.getLocations()[0]
-        };
-        Command command = Command.STOP;
+    public void testManageServicesSingleLocation() {
+        Location location = m_locationsManager.getLocations()[0];
 
-        m_processContextImpl.manageServices(locations[0], Arrays.asList(STOPPROCESSLIST), command);
+        ProcessManagerApi api = createStrictMock(ProcessManagerApi.class);
+        api.stop(host(), asArray(PROCESSES[0].getName(), PROCESSES[1].getName()), block());
+        expectLastCall().andReturn(null);
+        api.start(host(), asArray(START_PROCESSLIST[0].getName()), block());
+        expectLastCall().andReturn(null);
+        api.restart(host(), asArray(PROCESSES[0].getName(), PROCESSES[1].getName()), block());
+        expectLastCall().andReturn(null);
 
-        checkManageServicesResults(STOPPROCESSLIST, locations, command);
+        ProcessManagerApiProvider provider = createMock(ProcessManagerApiProvider.class);
+        provider.getApi(location);
+        expectLastCall().andReturn(api).times(3);
+
+        m_processContextImpl.setProcessManagerApiProvider(provider);
+        replay(provider, api);
+
+        m_processContextImpl.manageServices(location, Arrays.asList(PROCESSES), Command.STOP);
+        m_processContextImpl.manageServices(location, Arrays.asList(START_PROCESSLIST), Command.START);
+        m_processContextImpl.manageServices(location, Arrays.asList(PROCESSES), Command.RESTART);
+        verify(provider, api);
     }
 
     public void testManageServices() {
-        Location[] locations = m_locationsManager.getLocations();
-        Command command = Command.STOP;
+        ProcessManagerApi api = createStrictMock(ProcessManagerApi.class);
+        api.stop(host(), asArray(PROCESSES[0].getName(), PROCESSES[1].getName()), block());
+        expectLastCall().andReturn(null).times(m_locationsManager.getLocations().length);
 
-        m_processContextImpl.manageServices(Arrays.asList(STOPPROCESSLIST), command);
+        ProcessManagerApiProvider provider = createMock(ProcessManagerApiProvider.class);
+        for (Location location : m_locationsManager.getLocations()) {
+            provider.getApi(location);
+            expectLastCall().andReturn(api);
+        }
 
-        checkManageServicesResults(STOPPROCESSLIST, locations, command);
+        m_processContextImpl.setProcessManagerApiProvider(provider);
+        replay(provider, api);
+
+        m_processContextImpl.manageServices(Arrays.asList(PROCESSES), Command.STOP);
+        verify(provider, api);
     }
 
-    public void testManageServicesRestart() {
-        Location[] locations = m_locationsManager.getLocations();
-        Command command = Command.RESTART;
-
-        m_processContextImpl.manageServices(Arrays.asList(RESTARTPROCESSLIST), command);
-
-        checkManageServicesResults(RESTARTPROCESSLIST, locations, command);
-
+    static <T> T[] asArray(T... items) {
+        return aryEq(items);
     }
 
-    public void testManageServicesLocation() {
-        Location[] locations = {
-            m_locationsManager.getLocations()[1]
-        };
-        Command command = Command.START;
-
-        m_processContextImpl.manageServices(locations[0], Arrays.asList(STARTPROCESSLIST), command);
-
-        checkManageServicesResults(STARTPROCESSLIST, locations, command);
+    static String host() {
+        return eq("localhost");
     }
 
-    private void checkManageServicesResults(final Process[] PROCESSES, final Location[] LOCATIONS, final Command COMMAND) {
-        assertEquals(LOCATIONS.length, m_numberOfCalls);
-
-        for (int x = 0; x < m_numberOfCalls; x++) {
-            assertEquals(COMMAND.getName(), m_methodNameStrings.get(x));
-        }
-
-        // Build the set of expected Process-Location combinations. The order is not important.
-        Set<String> expectedCombinations = new HashSet<String>();
-        for (int x = 0; x < PROCESSES.length; x++) {
-            for (int y = 0; y < LOCATIONS.length; y++) {
-                expectedCombinations.add(PROCESSES[x].getName() + LOCATIONS[y].getProcessMonitorUrl());
-            }
-        }
-
-        Process[] Processes;
-        if (COMMAND == Command.STOP) {
-            Processes = STOPPROCESSLIST;
-        } else if (COMMAND == Command.START) {
-            Processes = STARTPROCESSLIST;
-        } else if (COMMAND == Command.RESTART) {
-            Processes = RESTARTPROCESSLIST;
-        } else {
-            Processes = STOPPROCESSLIST;
-        }
-        // Compare the expected Process-Location combinations to what actually occured.
-        for (int y = 0; y < LOCATIONS.length; y++) {
-            for (int x = 0; x < Processes.length; x++) {
-                List ProcList = (List) ((Vector<Object>) m_paramVectors.get(y)).elementAt(0);
-                String value = ProcList.get(x).toString() + m_urlStrings.get(y);
-                assertTrue(expectedCombinations.remove(value));
-            }
-        }
-        assertEquals(0, expectedCombinations.size());
+    static boolean block() {
+        return eq(true);
     }
 }

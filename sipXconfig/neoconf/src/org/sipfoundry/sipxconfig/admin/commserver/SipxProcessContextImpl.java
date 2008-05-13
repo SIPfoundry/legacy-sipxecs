@@ -9,10 +9,6 @@
  */
 package org.sipfoundry.sipxconfig.admin.commserver;
 
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.MalformedURLException;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -20,18 +16,14 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Vector;
 
 import org.apache.commons.collections.Factory;
 import org.apache.commons.collections.MapUtils;
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.xmlrpc.XmlRpcClient;
-import org.apache.xmlrpc.XmlRpcException;
-import org.apache.xmlrpc.secure.SecureXmlRpcClient;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessModel.ProcessName;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.xmlrpc.XmlRpcRemoteException;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
@@ -44,10 +36,16 @@ public class SipxProcessContextImpl implements SipxProcessContext, ApplicationLi
     private EventsToServices<Process> m_eventsToServices = new EventsToServices<Process>();
     private String m_host;
     private LocationsManager m_locationsManager;
+    private ProcessManagerApiProvider m_processManagerApiProvider;
 
     @Required
     public void setHost(String host) {
         m_host = host;
+    }
+
+    @Required
+    public void setProcessModel(SipxProcessModel model) {
+        m_processModel = model;
     }
 
     @Required
@@ -56,49 +54,8 @@ public class SipxProcessContextImpl implements SipxProcessContext, ApplicationLi
     }
 
     @Required
-    public void setProcessModel(SipxProcessModel model) {
-        m_processModel = model;
-    }
-
-    public SipxProcessModel getProcessModel() {
-        return m_processModel;
-    }
-
-    /**
-     * Invokes the specified 'ProcMgmtRpc' method on the watchdog XML-RPC server of the specified
-     * location, using the specified parameters. It adds this machine's hostname as the first
-     * parameter.
-     */
-    protected Object invokeXmlRpcRequest(Location location, String methodName, Vector params) {
-        String url = location.getProcessMonitorUrl();
-        try {
-            // Add this machine's hostname as the first parameter.
-            params.add(0, m_host);
-
-            if (LOG.isInfoEnabled()) {
-                String paramStr = StringUtils.join(params, ",");
-                String msg = String.format("XML/RPC %s on %s with %s", methodName, url, paramStr);
-                LOG.info(msg);
-            }
-            // The execute() method may throw OR return an XmlRpcException.
-            XmlRpcClient client = new SecureXmlRpcClient(url);
-            Object result = client.execute("ProcMgmtRpc." + methodName, params);
-            if (result instanceof XmlRpcException) {
-                throw (XmlRpcException) result;
-            }
-
-            // The result was not an XmlRpcException, so return it.
-            return result;
-        } catch (XmlRpcException e) {
-            LOG.error("Error XML/RPC fault: " + e.code + " message: " + e.getMessage());
-            throw new RuntimeException(e);
-        } catch (MalformedURLException e) {
-            LOG.error("Error URL: " + url);
-            throw new RuntimeException(e);
-        } catch (IOException e) {
-            LOG.warn("XML/RPC call.", e);
-            throw new UserException(e.getMessage());
-        }
+    public void setProcessManagerApiProvider(ProcessManagerApiProvider processManagerApiProvider) {
+        m_processManagerApiProvider = processManagerApiProvider;
     }
 
     /**
@@ -107,15 +64,22 @@ public class SipxProcessContextImpl implements SipxProcessContext, ApplicationLi
      * thrown from this method, but only if things have gone horribly wrong.
      */
     public ServiceStatus[] getStatus(Location location) {
+        try {
+            // Break the result into the keys and values.
+            ProcessManagerApi api = m_processManagerApiProvider.getApi(location);
+            Map<String, String> result = api.getStateAll(m_host);
+            return extractStatus(result, location);
+        } catch (XmlRpcRemoteException e) {
+            throw new UserException(e.getCause());
+        }
+    }
 
-        // Break the result into the keys and values.
-        Map<String, String> result = (Map<String, String>) invokeXmlRpcRequest(location, "getStateAll", new Vector());
-
-        // Loop through the key-value pairs and construct the ServiceStatus.
-        List<ServiceStatus> serviceStatusList = new ArrayList(result.size());
-
-        for (Map.Entry<String, String> entry : result.entrySet()) {
-
+    /**
+     * Loop through the key-value pairs and construct the ServiceStatus.
+     */
+    private ServiceStatus[] extractStatus(Map<String, String> statusAll, Location location) {
+        List<ServiceStatus> serviceStatusList = new ArrayList(statusAll.size());
+        for (Map.Entry<String, String> entry : statusAll.entrySet()) {
             String status = entry.getValue();
             ServiceStatus.Status st = ServiceStatus.Status.getEnum(status);
             if (st == null) {
@@ -145,18 +109,28 @@ public class SipxProcessContextImpl implements SipxProcessContext, ApplicationLi
 
     public void manageServices(Location location, Collection<Process> processes, Command command) {
         try {
-            Vector<Object> params = new Vector<Object>();
-            Vector<String> procaliaslist = new Vector<String>();
-
-            // Build a process alias list.
+            String[] processNames = new String[processes.size()];
+            int i = 0;
             for (Process process : processes) {
-                procaliaslist.add(URLEncoder.encode(process.getName(), "UTF-8"));
+                processNames[i++] = process.getName();
             }
-            params.add(procaliaslist);
-            params.add(Boolean.TRUE); // Yes, block for the state change.
-            invokeXmlRpcRequest(location, command.getName(), params);
-        } catch (UnsupportedEncodingException e) {
-            throw new RuntimeException(e);
+
+            ProcessManagerApi api = m_processManagerApiProvider.getApi(location);
+            switch (command) {
+            case RESTART:
+                api.restart(m_host, processNames, true);
+                break;
+            case START:
+                api.start(m_host, processNames, true);
+                break;
+            case STOP:
+                api.stop(m_host, processNames, true);
+                break;
+            default:
+                break;
+            }
+        } catch (XmlRpcRemoteException e) {
+            throw new UserException(e);
         }
     }
 
@@ -176,21 +150,8 @@ public class SipxProcessContextImpl implements SipxProcessContext, ApplicationLi
         return m_processModel.getRestartable();
     }
 
-    public Process getProcess(String name) {
-        return m_processModel.getProcess(name);
-    }
-
     public Process getProcess(ProcessName name) {
         return m_processModel.getProcess(name);
-    }
-
-    public Process[] getProcess(ProcessName[] names) {
-        Process[] processes = new Process[names.length];
-        for (int i = 0; i < names.length; i++) {
-            processes[i] = getProcess(names[i]);
-        }
-
-        return processes;
     }
 
     static final class EventsToServices<E> {

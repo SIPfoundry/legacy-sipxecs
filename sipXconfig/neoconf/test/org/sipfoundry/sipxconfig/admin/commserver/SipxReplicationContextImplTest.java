@@ -12,7 +12,6 @@ package org.sipfoundry.sipxconfig.admin.commserver;
 import junit.framework.TestCase;
 
 public class SipxReplicationContextImplTest extends TestCase {
-
     public void testEmpty() {
         // FIXEM: this class needs tests
     }
