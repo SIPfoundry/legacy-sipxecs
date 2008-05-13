@@ -102,7 +102,7 @@ public:
      //!param iLocation - The desired seek location
 
 
-   UtlBoolean deliverData(char *szData, size_t iLength, size_t iMaxLength) ;
+   UtlBoolean deliverData(char *szData, int iLength, size_t iMaxLength) ;
      //:Callback routine that is invoked whenever new data is available from
      //:http socket.
 

@@ -364,7 +364,7 @@ OsStatus StreamHttpDataSource::seek(size_t iLocation)
 
 // Callback routine that is invoked whenever new data is available from http 
 // socket.
-UtlBoolean StreamHttpDataSource::deliverData(char *szData, size_t iLength, size_t iMaxLength)
+UtlBoolean StreamHttpDataSource::deliverData(char *szData, int iLength, size_t iMaxLength)
 {
    // Set the max length
    if (iMaxLength >= 0 ) 
