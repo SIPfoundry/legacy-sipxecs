@@ -195,7 +195,6 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx/sipxpresence-config.in
 
 %{upgrade_archive_dir}/%{this_archive}
-%{upgrade_archive_dir}/%{name}-previous.tgz
 
 %files devel
 %defattr(644,root,root,755)
