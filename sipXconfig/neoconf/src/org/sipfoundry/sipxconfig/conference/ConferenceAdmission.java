@@ -72,6 +72,6 @@ public class ConferenceAdmission extends XmlFile {
     }
 
     public ConfigFileType getType() {
-        return ConfigFileType.CONFERENCE_ADDMINSION;
+        return ConfigFileType.CONFERENCE_ADMINSION;
     }
 }
