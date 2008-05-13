@@ -85,8 +85,12 @@ LocalizeSipXconfig = sed \
 		  -e 's,@DATE_PARSE_ARGS\@,@DATE_PARSE_ARGS@,g' \
 		  -e 's,@XARGS_REPLACE\@,@XARGS_REPLACE@,g'
 
-# install sipx watchdog support
-$(DESTDIR)$(SIPX_PROCDIR)/%.process.xml : %.process.xml.in
-	$(LocalizeSipXconfig) $< > `basename $@`
+# install sipxsupervisor process definition
+$(DESTDIR)$(SIPX_PROCDIR)/%.process.xml : %.process.xml $(DESTDIR)$(SIPX_PROCDIR)
+	$(INSTALL) -D -m 644 $< $@
+
+$(DESTDIR)$(SIPX_PROCDIR) :
 	$(INSTALL) -d $(DESTDIR)$(SIPX_PROCDIR)
-	$(INSTALL) -D -m 644 `basename $@` $@
+
+%.process.xml : %.process.xml.in
+	$(LocalizeSipXconfig) $< > $@
