@@ -40,12 +40,13 @@ SubscriptionSet::SubscriptionSet(ResourceCached* resource,
 
    // Start the subscription for dialog events.
    UtlBoolean ret;
+   UtlString mUriNameAddr = "<" + mUri + ">";
    ret = getResourceListServer()->getSubscribeClient().
       addSubscription(mUri.data(),
                       getResourceListServer()->getEventType(),
                       getResourceListServer()->getContentType(),
                       getResourceListServer()->getClientOutgoingAddress(),
-                      mUri.data(),
+                      mUriNameAddr.data(),
                       getResourceListServer()->getClientOutgoingAddress(),
                       getResourceListServer()->getResubscribeInterval(),
                       getResourceListSet(),
