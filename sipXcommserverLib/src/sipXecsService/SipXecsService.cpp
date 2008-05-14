@@ -22,6 +22,7 @@ const char* SipXecsService::DefaultLogDir           = SIPX_LOGDIR;
 const char* SipXecsService::DefaultRunDir           = SIPX_RUNDIR;
 const char* SipXecsService::DefaultTmpDir           = SIPX_TMPDIR;
 const char* SipXecsService::DefaultDatabaseDir      = SIPX_DBDIR;
+const char* SipXecsService::DefaultVarDir           = SIPX_VARDIR;
 
 DirectoryType SipXecsService::ConfigurationDirType = "SIPX_CONFDIR";
 DirectoryType SipXecsService::LocalStateDirType    = "SIPX_VARDIR";
@@ -29,6 +30,7 @@ DirectoryType SipXecsService::LogDirType           = "SIPX_LOGDIR";
 DirectoryType SipXecsService::RunDirType           = "SIPX_RUNDIR";
 DirectoryType SipXecsService::TmpDirType           = "SIPX_TMPDIR"; 
 DirectoryType SipXecsService::DatabaseDirType      = "SIPX_DBDIR";
+DirectoryType SipXecsService::VarDirType           = "SIPX_VARDIR";
 
 // lookup keys for the domain configuration
 const char* SipXecsService::DomainDbKey::SIP_DOMAIN_NAME = "SIP_DOMAIN_NAME";
@@ -89,6 +91,10 @@ const char* SipXecsService::defaultDir(DirectoryType pathType)
    else if (DatabaseDirType == pathType)
    {
       returnDir = DefaultDatabaseDir;
+   }
+   else if (VarDirType == pathType)
+   {
+      returnDir = DefaultVarDir;
    }
    else 
    {
