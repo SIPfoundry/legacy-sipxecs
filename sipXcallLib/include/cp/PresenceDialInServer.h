@@ -76,6 +76,7 @@ private:
 
    void parseConfig(UtlString& configFile);
 
+   // Returns TRUE if the requested state is different from the current state.
    bool notifyStateChange(UtlString& contact, bool signIn);
   
    CallManager* mpCallManager;

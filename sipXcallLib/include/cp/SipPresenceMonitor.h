@@ -16,6 +16,9 @@
 // APPLICATION INCLUDES
 #include <os/OsBSem.h>
 #include <os/OsConfigDb.h>
+#include <os/OsServerTask.h>
+#include <os/OsTime.h>
+#include <os/OsTimer.h>
 #include <net/StateChangeNotifier.h>
 #include <cp/PresenceDialInServer.h>
 #include <net/SipUserAgent.h>
@@ -26,8 +29,9 @@
 #include <net/SipRefreshManager.h>
 #include <net/SipPublishContentMgr.h>
 #include <net/SipPresenceEvent.h>
-#include <utl/UtlSList.h>
 #include <utl/UtlHashMap.h>
+#include <utl/UtlSList.h>
+#include <utl/UtlString.h>
 #include <cp/CallManager.h>
 #include <cp/XmlRpcSignIn.h>
 #include <net/SdpCodecFactory.h>
@@ -40,22 +44,75 @@
 // TYPEDEFS
 // FORWARD DECLARATIONS
 
+
 /**
- * A SipPresenceMonitor is an object that is used for keeping track of the SIP
- * user agents' presence status. All the presence information is stored in a
- * NOTIFIER so that other clients can subscribe the information via
- * SUBSCRIBE/NOTIFY. Furthermore, if a StateChangeNotifier is registered with
- * SipPresenceMonitor, the state change will also be sent out via the
- * StateChangeNotifier.
+ * A SipPresenceMonitor keeps track of the SIP user agents' presence
+ * status. The SipPresenceMonitor attaches a CallManager and
+ * PresenceDialInServer to the SipUserAgent, so that it can receive
+ * and interpret sign-in/sign-out calls.  The SipPresenceMonitor
+ * operates an XML listener (XmlRpcSignin) to receive XML RPC calls to
+ * sign-in/sign-out.  Furthermore, the caller can register a
+ * StateChangeNotifier with SipPresenceMonitor so that state changes
+ * will be delivered to the StateChangeNotifier.
  *
+ * If toBePblished is TRUE:  subscriptionMgr must point to a
+ * SipSubscriptionMgr.  Along with a SipSubscribeServer that
+ * SipPresenceMonitor creates, these are used to service subscriptions
+ * to the presence information.
  */
+
+/// Task that periodically writes the presence statuses to a disk file.
+class SipPresenceMonitorPersistenceTask : public OsServerTask
+{
+/* //////////////////////////// PUBLIC //////////////////////////////////// */
+public:
+
+/* ============================ CREATORS ================================== */
+
+   //! Default constructor
+   SipPresenceMonitorPersistenceTask(SipPresenceMonitor* presenceMonitor);
+
+   //! Destructor
+   virtual
+      ~SipPresenceMonitorPersistenceTask();
+
+/* ============================ MANIPULATORS ============================== */
+
+   UtlBoolean handleMessage(OsMsg& rMsg);
+   /// Method to process messages which get queued for this OsServerTask.
+
+   void stop();
+   /// Stop the task properly.
+
+/* ============================ ACCESSORS ================================= */
+
+/* ============================ INQUIRY =================================== */
+
+/* //////////////////////////// PROTECTED ///////////////////////////////// */
+protected:
+
+/* //////////////////////////// PRIVATE /////////////////////////////////// */
+private:
+
+   //! Pointer to the SipPresenceMonitor that we are to store to disk.
+   SipPresenceMonitor* mSipPresenceMonitor;
+
+   //! Copy constructor NOT ALLOWED
+   SipPresenceMonitorPersistenceTask(const SipPresenceMonitorPersistenceTask& rSipPresenceMonitorPersistenceTask);
+
+   //! Assignment operator NOT ALLOWED
+   SipPresenceMonitorPersistenceTask& operator=(const SipPresenceMonitorPersistenceTask& rhs);
+};
+
 
 class SipPresenceMonitor : public StateChangeNotifier
 {
+   friend class SipPresenceMonitorPersistenceTask;
+
   public:
 
    SipPresenceMonitor(SipUserAgent* userAgent,   /**<
-                                                 * Sip user agent for sending out
+                                                 * SipUserAgent for sending out
                                                  * SUBSCRIBEs and receiving NOTIFYs
                                                  */
                       SipSubscriptionMgr* subscriptionMgr,
@@ -63,7 +120,8 @@ class SipPresenceMonitor : public StateChangeNotifier
                       UtlString& domainName,    ///< sipX domain name
                       int hostPort,             ///< Host port
                       OsConfigDb*configFile,    ///< configuration
-                      bool toBePublished);      ///< option to publish for other subscriptions
+                      bool toBePublished,       ///< option to publish for other subscriptions
+                      const char* persistentFile); ///< name of file to persist into, or NULL
 
    virtual ~SipPresenceMonitor();
 
@@ -79,8 +137,9 @@ class SipPresenceMonitor : public StateChangeNotifier
    /// Unregister a StateChangeNotifier
    void removeStateChangeNotifier(const char* fileUrl);
 
-   /// Set the status value
+   /// Set the status value for the URI 'aor'.
    virtual bool setStatus(const Url& aor, const Status value);
+   // Returns TRUE if the requested state is different from the current state.
    
    /// Get the state of the contact
    void getState(const Url& aor, UtlString& status);
@@ -89,13 +148,21 @@ class SipPresenceMonitor : public StateChangeNotifier
 
    /// Add the contact and presence event to the subscribe list
    bool addPresenceEvent(UtlString& contact, SipPresenceEvent* presenceEvent);
+   // Returns TRUE if the requested state is different from the current state.
 
    /// Publish the presence event package to the resource list
    void publishContent(UtlString& contact, SipPresenceEvent* presenceEvent);
 
    /// Send the state change to the notifier
    void notifyStateChange(UtlString& contact, SipPresenceEvent* presenceEvent);
+   // Caller must hold mLock.
                                    
+   /// Read the presence events from the persistent file.
+   void readPersistentFile();
+
+   /// Write the presence events to the persistent file.
+   void writePersistentFile();
+
   private:
 
    CallManager* mpCallManager;
@@ -124,6 +191,29 @@ class SipPresenceMonitor : public StateChangeNotifier
 
    /// Disabled assignment operator
    SipPresenceMonitor& operator=(const SipPresenceMonitor& rhs);
+
+   /// Path name of the persistence file, or the null string for no persistence.
+   UtlString mPersistentFile;
+
+   //! Timer for flushing changes to disk.
+   /** When mPresenceEventList is dirty (changes have not been written to disk),
+    *  this timer is running; when it is clean, this timer is stopped.
+    *  (This works because the OsTimer start and stop methods are fully
+    *  interlocked, and report whether the timer was previously running.)
+    */
+   OsTimer mPersistenceTimer;
+
+   //! Time interval to save changes to disk.
+   static const OsTime sPersistInterval;
+
+   //! The 'type' attribute of the top-level 'items' element.
+   static const UtlString sType;
+
+   //! The XML namespace of the top-level 'items' element.
+   static const UtlString sXmlNamespace;
+
+   //! Task to save changes to disk.
+   SipPresenceMonitorPersistenceTask mPersistTask;
 };
 
 #endif // _SIPPRESENCEMONITOR_H_

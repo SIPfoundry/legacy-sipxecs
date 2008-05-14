@@ -21,6 +21,7 @@
 #include <os/OsSysLog.h>
 #include <os/OsConfigDb.h>
 #include <persist/SipPersistentSubscriptionMgr.h>
+#include <sipXecsService/SipXecsService.h>
 
 // DEFINES
 #ifndef SIPX_VERSION
@@ -70,6 +71,11 @@ extern "C" {
 // EXTERNAL VARIABLES
 // CONSTANTS
 // STATIC VARIABLE INITIALIZATIONS
+
+// The name of the persistent file in which we save the presence information,
+// relative to SIPX_VARDIR.
+static const UtlString sPersistentFileName("sipxpresence/state.xml");
+
 // GLOBAL VARIABLE INITIALIZATIONS
 UtlBoolean    gShutdownFlag = FALSE;
 
@@ -357,17 +363,21 @@ int main(int argc, char* argv[])
    configDb.get(CONFIG_SETTING_DOMAIN_NAME, domainName);
 
    // Create the SipPersistentSubscriptionMgr.
-   SipSubscriptionMgr* subscriptionMgr =
-      new SipPersistentSubscriptionMgr(SUBSCRIPTION_COMPONENT_PRESENCE,
-                                       domainName);
+   SipPersistentSubscriptionMgr subscriptionMgr(SUBSCRIPTION_COMPONENT_PRESENCE,
+                                                domainName);
 
-   // Create the Sip Presence Monitor
+   // Determine the name of the persistent file.
+   UtlString pathName = SipXecsService::Path(SipXecsService::VarDirType,
+                                             sPersistentFileName.data());
+
+   // Create the Sip Presence Monitor, which handles all of the processing.
    SipPresenceMonitor presenceMonitor(userAgent,
-                                      subscriptionMgr,
+                                      &subscriptionMgr,
                                       domainName,
                                       TcpPort,
                                       &configDb,
-                                      true);
+                                      true,
+                                      pathName.data());
 
    // Loop forever until signaled to shut down
    while (!gShutdownFlag)

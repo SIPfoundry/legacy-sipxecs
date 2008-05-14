@@ -10,16 +10,21 @@
 // SYSTEM INCLUDES
 
 // APPLICATION INCLUDES
+#include <os/OsEventMsg.h>
 #include <os/OsFS.h>
+#include <os/OsMsg.h>
 #include <os/OsSysLog.h>
 #include <os/OsConfigDb.h>
 #include <utl/UtlHashMapIterator.h>
-#include <net/SipResourceList.h>
+#include <utl/XmlContent.h>
 #include <net/NetMd5Codec.h>
 #include <net/SipMessage.h>
+#include <net/SipResourceList.h>
 #include <cp/SipPresenceMonitor.h>
 #include <cp/XmlRpcSignIn.h>
 #include <mi/CpMediaInterfaceFactoryFactory.h>
+#include "xmlparser/tinyxml.h"
+#include <xmlparser/ExtractContent.h>
 
 #ifndef EXCLUDE_STREAMING
 #include <mp/MpMediaTask.h>
@@ -49,6 +54,15 @@
 // TYPEDEFS
 // FORWARD DECLARATIONS
 // STATIC VARIABLE INITIALIZATIONS
+
+// Persistence interval is 20 seconds.
+const OsTime SipPresenceMonitor::sPersistInterval(20, 0);
+
+// The 'type' attribute of the top-level 'items' element.
+const UtlString SipPresenceMonitor::sType("presence-state");
+
+// The XML namespace of the top-level 'items' element.
+const UtlString SipPresenceMonitor::sXmlNamespace("http://www.sipfoundry.org/sipX/schema/xml/presence-state-00-00");
 
 // Objects to construct default content for presence events.
 
@@ -131,15 +145,24 @@ SipPresenceMonitor::SipPresenceMonitor(SipUserAgent* userAgent,
                                        UtlString& domainName,
                                        int hostPort,
                                        OsConfigDb* configFile,
-                                       bool toBePublished)
-   : mLock(OsBSem::Q_PRIORITY, OsBSem::FULL),
-     mpSubscriptionMgr(subscriptionMgr)
-
+                                       bool toBePublished,
+                                       const char* persistentFile) :
+   mpUserAgent(userAgent),
+   mDomainName(domainName),
+   mToBePublished(toBePublished),
+   mLock(OsBSem::Q_PRIORITY, OsBSem::FULL),
+   mpSubscriptionMgr(subscriptionMgr),
+   mPersistentFile(persistentFile),
+   mPersistenceTimer(mPersistTask.getMessageQueue(), 0),
+   mPersistTask(this)
 {
-   mpUserAgent = userAgent;
-   mDomainName = domainName;
-   mToBePublished = toBePublished;
-   
+   // Read the persistent file to initialize mPersenceEventList, if
+   // one is supplied.
+   if (!mPersistentFile.isNull())
+   {
+      readPersistentFile();
+   }
+
    char buffer[80];
    sprintf(buffer, "@%s:%d", mDomainName.data(), hostPort);
    mHostAndPort = UtlString(buffer);
@@ -153,6 +176,7 @@ SipPresenceMonitor::SipPresenceMonitor(SipUserAgent* userAgent,
 #ifdef INCLUDE_RTCP
    CRTCManager::getRTCPControl();
 #endif //INCLUDE_RTCP
+   // Start the media processing tasks.
    mpStartTasks();
 
    // Instantiate the call processing subsystem
@@ -215,45 +239,44 @@ SipPresenceMonitor::SipPresenceMonitor(SipUserAgent* userAgent,
    }
    
    mpXmlRpcSignIn = new XmlRpcSignIn(this, HttpPort);   
+
+   // Start the persist task.
+   if (!mPersistentFile.isNull())
+   {
+      mPersistTask.start();
+   }
 }
 
 // Destructor
 SipPresenceMonitor::~SipPresenceMonitor()
 {
-   // Remove itself from the presence dial-in server
+   // Remove self from the presence dial-in server
    mpDialInServer->removeStateChangeNotifier("Presence_Dial_In_Server");
 
-   if (mpSubscriptionMgr)
-   {
-      delete mpSubscriptionMgr;
-   }
-   
    if (mpSubscribeServer)
    {
       delete mpSubscribeServer;
    }
    
-   if (!mMonitoredLists.isEmpty())
-   {
-      mMonitoredLists.destroyAll();
-   }
+   mMonitoredLists.destroyAll();
 
-   if (!mPresenceEventList.isEmpty())
-   {
-      mPresenceEventList.destroyAll();
-   }
-
-   if (!mStateChangeNotifiers.isEmpty())
-   {
-      mStateChangeNotifiers.destroyAll();
-   }
+   mStateChangeNotifiers.destroyAll();
    
    if (mpXmlRpcSignIn)
    {
       delete mpXmlRpcSignIn;
    }   
-}
 
+   // Stop the persist task and then write the event list to disk.
+   mPersistenceTimer.stop();
+   mPersistTask.stop();
+   if (!mPersistentFile.isNull())
+   {
+      writePersistentFile();
+   }
+
+   mPresenceEventList.destroyAll();
+}
 
 bool SipPresenceMonitor::addExtension(UtlString& groupName, Url& contactUrl)
 {
@@ -309,7 +332,7 @@ bool SipPresenceMonitor::removeExtension(UtlString& groupName, Url& contactUrl)
 {
    bool result = false;
    mLock.acquire();
-   // Check whether the group has existed or not. If not, return false.
+   // Check whether the group exists or not. If not, return false.
    SipResourceList* list = dynamic_cast <SipResourceList *> (mMonitoredLists.findValue(&groupName));
    if (list == NULL)
    {
@@ -318,7 +341,7 @@ bool SipPresenceMonitor::removeExtension(UtlString& groupName, Url& contactUrl)
    }
    else
    {
-      // Check whether the contact has existed or not
+      // Check whether the contact exists or not
       UtlString resourceId;
       contactUrl.getIdentity(resourceId);
       Resource* resource = list->getResource(resourceId);
@@ -341,8 +364,11 @@ bool SipPresenceMonitor::removeExtension(UtlString& groupName, Url& contactUrl)
    return result;   
 }
 
+// Returns TRUE if the requested state is different from the current state.
 bool SipPresenceMonitor::addPresenceEvent(UtlString& contact, SipPresenceEvent* presenceEvent)
 {
+   mLock.acquire();
+
    bool requiredPublish = false;
    
    if (mPresenceEventList.find(&contact) == NULL)
@@ -385,19 +411,35 @@ bool SipPresenceMonitor::addPresenceEvent(UtlString& contact, SipPresenceEvent* 
 
    if (requiredPublish)
    {         
-      // Insert it into the presence event list
+      // Insert it into the presence event list.
       int dummy;
       presenceEvent->buildBody(dummy);
       mPresenceEventList.insertKeyAndValue(new UtlString(contact), presenceEvent);
+      if (OsSysLog::willLog(FAC_SIP, PRI_DEBUG))
+      {
+         UtlString b;
+         size_t l;
+         presenceEvent->getBytes(&b, &l);
+
+         OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                       "SipPresenceMonitor::addPresenceEvent presenceEvent %p for contact '%s' body '%s' is different from previous presenceEvent",
+                       presenceEvent, contact.data(), b.data());
+      }
 
       if (mToBePublished)
       { 
-         // Publish the content to the resource list
+         // Publish the content to the resource list.
          publishContent(contact, presenceEvent);
       }
       
-      // Notify the state change
+      // Notify the state change.
       notifyStateChange(contact, presenceEvent);
+
+      if (!mPersistentFile.isNull())
+      {
+         // Start the save timer.
+         mPersistenceTimer.oneshotAfter(sPersistInterval);
+      }
    }
    else
    {
@@ -406,6 +448,7 @@ bool SipPresenceMonitor::addPresenceEvent(UtlString& contact, SipPresenceEvent* 
       delete presenceEvent;
    }
    
+   mLock.release();
    return requiredPublish;
 }
 
@@ -500,28 +543,26 @@ void SipPresenceMonitor::removeStateChangeNotifier(const char* fileUrl)
    mLock.release();
 }
 
-void SipPresenceMonitor::notifyStateChange(UtlString& contact, SipPresenceEvent* presenceEvent)
+// Caller must hold mLock.
+void SipPresenceMonitor::notifyStateChange(UtlString& contact,
+                                           SipPresenceEvent* presenceEvent)
 {
    // Loop through the notifier list
    UtlHashMapIterator iterator(mStateChangeNotifiers);
    UtlString* listUri;
    StateChangeNotifier* notifier;
    Url contactUrl(contact);
-   mLock.acquire();
+
    while ((listUri = dynamic_cast <UtlString *> (iterator())))
    {
       notifier = dynamic_cast <StateChangeNotifier *> (mStateChangeNotifiers.findValue(listUri));
 
-      if (presenceEvent->isEmpty())
+      UtlString id;
+      NetMd5Codec::encode(contact, id);
+      Tuple* tuple = presenceEvent->getTuple(id);
+
+      if (tuple)
       {
-         notifier->setStatus(contactUrl, StateChangeNotifier::AWAY);
-      }
-      else
-      {
-         UtlString id;
-         NetMd5Codec::encode(contact, id);
-         Tuple* tuple = presenceEvent->getTuple(id);
-            
          UtlString status;
          tuple->getStatus(status);
             
@@ -530,10 +571,14 @@ void SipPresenceMonitor::notifyStateChange(UtlString& contact, SipPresenceEvent*
                              StateChangeNotifier::AWAY :
                              StateChangeNotifier::PRESENT);
       }
+      else
+      {
+         notifier->setStatus(contactUrl, StateChangeNotifier::AWAY);
+      }
    }
-   mLock.release();
 }
 
+// Returns TRUE if the requested state is different from the current state.
 bool SipPresenceMonitor::setStatus(const Url& aor, const Status value)
 {
    if (OsSysLog::willLog(FAC_SIP, PRI_DEBUG))
@@ -571,7 +616,7 @@ bool SipPresenceMonitor::setStatus(const Url& aor, const Status value)
 
    sipPresenceEvent->insertTuple(tuple); 
    
-   // Add the SipPresenceEvent object to the subscribe list
+   // Add the SipPresenceEvent object to the presence event list.
    result = addPresenceEvent(contact, sipPresenceEvent);
    
    return result;
@@ -587,6 +632,9 @@ void SipPresenceMonitor::getState(const Url& aor, UtlString& status)
    contact.prepend("sip:");
 
    UtlContainable* foundValue;
+
+   mLock.acquire();
+
    foundValue = mPresenceEventList.findValue(&contact);
    
    if (foundValue)
@@ -605,4 +653,290 @@ void SipPresenceMonitor::getState(const Url& aor, UtlString& status)
                     
       status = STATUS_CLOSED;
    }   
+
+   mLock.release();
 }
+
+
+// Constructor
+SipPresenceMonitorPersistenceTask::SipPresenceMonitorPersistenceTask(
+   SipPresenceMonitor* presenceMonitor) :
+   mSipPresenceMonitor(presenceMonitor)
+{
+   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                 "SipPresenceMonitorPersistenceTask::_ "
+                 "mSipPresenceMonitor = %p",
+                 mSipPresenceMonitor);
+}
+
+// Destructor
+SipPresenceMonitorPersistenceTask::~SipPresenceMonitorPersistenceTask()
+{
+   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                 "SipPresenceMonitorPersistenceTask::~");
+}
+
+// Read the presence events from the persistent file.
+void SipPresenceMonitor::readPersistentFile()
+{
+   mLock.acquire();
+
+   // Initialize Tiny XML document object.
+   TiXmlDocument document;
+   TiXmlNode* items_node;
+   if (
+      // Load the XML into it.
+      document.LoadFile(mPersistentFile.data()) &&
+      // Find the top element, which should be an <items>.
+      (items_node = document.FirstChild("items")) != NULL &&
+      items_node->Type() == TiXmlNode::ELEMENT)
+   {
+      // Find all the <item> elements.
+      int item_seq_no = 0;
+      for (TiXmlNode* item_node = 0;
+           (item_node = items_node->IterateChildren("item",
+                                                    item_node));
+         )
+      {
+         if (item_node->Type() == TiXmlNode::ELEMENT)
+         {
+            item_seq_no++;
+            TiXmlElement* item_element = item_node->ToElement();
+
+            // Process the <item> element.
+            bool item_valid = true;
+
+            // Process the 'id' child.
+            UtlString id;
+            TiXmlNode* id_node = item_element->FirstChild("id");
+            if (id_node && id_node->Type() == TiXmlNode::ELEMENT)
+            {
+               textContentShallow(id, id_node);
+               if (id.isNull())
+               {
+                  // Id null.
+                  OsSysLog::add(FAC_ACD, PRI_ERR,
+                                "id child of <item> was null");
+                  item_valid = false;
+               }                  
+            }
+            else
+            {
+               // Id missing.
+               OsSysLog::add(FAC_ACD, PRI_ERR,
+                             "id child of <item> was missing");
+               item_valid = false;
+            }
+
+            // Process the 'contact' child.
+            UtlString contact;
+            TiXmlNode* contact_node = item_element->FirstChild("contact");
+            if (contact_node && contact_node->Type() == TiXmlNode::ELEMENT)
+            {
+               textContentShallow(contact, contact_node);
+               if (contact.isNull())
+               {
+                  // Contact null.
+                  OsSysLog::add(FAC_ACD, PRI_ERR,
+                                "contact child of <item> was null");
+                  item_valid = false;
+               }                  
+            }
+            else
+            {
+               // Contact missing.
+               OsSysLog::add(FAC_ACD, PRI_ERR,
+                             "contact child of <item> was missing");
+               item_valid = false;
+            }
+
+            // Process the 'status' child.
+            UtlString status;
+            TiXmlNode* status_node = item_element->FirstChild("status");
+            if (status_node && status_node->Type() == TiXmlNode::ELEMENT)
+            {
+               textContentShallow(status, status_node);
+               if (status.isNull())
+               {
+                  // Status null.
+                  OsSysLog::add(FAC_ACD, PRI_ERR,
+                                "status child of <item> was null");
+                  item_valid = false;
+               }                  
+            }
+            else
+            {
+               // Status missing.
+               OsSysLog::add(FAC_ACD, PRI_ERR,
+                             "status child of <item> was missing");
+               item_valid = false;
+            }
+
+            OsSysLog::add(FAC_ACD, PRI_DEBUG,
+                          "SipPresenceMonitor::readPersistentFile row: id = '%s', contact = '%s', status = '%s'",
+                          id.data(), contact.data(), status.data());
+
+            if (item_valid)
+            {
+               // Create a presence event package and store it in
+               // mPresenceEventList.
+               SipPresenceEvent* sipPresenceEvent = new SipPresenceEvent(contact);
+               NetMd5Codec::encode(contact, id);
+               Tuple* tuple = new Tuple(id.data());
+               tuple->setStatus(status);
+               tuple->setContact(contact, 1.0);
+               sipPresenceEvent->insertTuple(tuple); 
+               int dummy;
+               sipPresenceEvent->buildBody(dummy);
+               mPresenceEventList.insertKeyAndValue(new UtlString(contact),
+                                                    sipPresenceEvent);
+            }
+            else
+            {
+            OsSysLog::add(FAC_ACD, PRI_ERR,
+                          "In presence status file '%s', <item> number %d had invalid or incomplete information.  The readable information was: id = '%s', contact = '%s', status = '%s'",
+                          mPersistentFile.data(), item_seq_no,
+                          id.data(), contact.data(), status.data());
+
+            }
+         }
+      }
+   }
+   else
+   {
+      // Report error parsing file.
+      OsSysLog::add(FAC_ACD, PRI_CRIT,
+                    "Presence status file '%s' could not be parsed.",
+                    mPersistentFile.data());
+   } 
+
+   mLock.release();
+
+   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                 "SipPresenceMonitorPersistenceTask::readPersistentFile done");
+}
+
+// Write the presence events to the persistent file.
+void SipPresenceMonitor::writePersistentFile()
+{
+   mLock.acquire();
+
+   // Create an empty document
+   TiXmlDocument document;
+
+   // Create a hard coded standalone declaration section
+   document.Parse("<?xml version=\"1.0\" standalone=\"yes\"?>");
+
+   // Create the root node container
+   TiXmlElement itemsElement ("items");
+   itemsElement.SetAttribute("type", sType.data());
+   itemsElement.SetAttribute("xmlns", sXmlNamespace.data());
+
+   int timeNow = (int)OsDateTime::getSecsSinceEpoch();
+   itemsElement.SetAttribute("timestamp", timeNow);
+
+   // mPresenceEventList is a hash map that maps contacts to SipPresenceEvents.
+   // SipPresenceEvents are hash maps of contacts to Tuples.  In practice,
+   // a SipPresenceEvent has only one Tuple.  (And if it had more, there
+   // would be no way to discover what they are, as there is no iterator.)
+   // Tuples are triples:  id, contact, status.
+
+   // Loop through all the events in mPresenceEventList.
+   UtlHashMapIterator iterator(mPresenceEventList);
+   UtlString* contact;
+   while ((contact = dynamic_cast <UtlString *> (iterator())))
+   {
+      // Create an item container
+      TiXmlElement itemElement ("item");
+
+      // Get the SipPresenceEvent.
+      SipPresenceEvent* event =
+         dynamic_cast <SipPresenceEvent*> (iterator.value());
+      
+      // Calculate the id of the Tuple.
+      UtlString id;
+      NetMd5Codec::encode(contact->data(), id);
+
+      // Get the Tuple.
+      Tuple* tuple = event->getTuple(id);
+
+      // Get the status.
+      UtlString status;
+      tuple->getStatus(status);
+
+      // Construct the <item>.
+      TiXmlElement id_element("id");
+      TiXmlText id_content(id);
+      id_element.InsertEndChild(id_content);
+      itemElement.InsertEndChild(id_element);
+      TiXmlElement contact_element("contact");
+      TiXmlText contact_content(contact->data());
+      contact_element.InsertEndChild(contact_content);
+      itemElement.InsertEndChild(contact_element);
+      TiXmlElement status_element("status");
+      TiXmlText status_content(status);
+      status_element.InsertEndChild(status_content);
+      itemElement.InsertEndChild(status_element);
+
+      // Add the <item> element to the <items> element.
+      itemsElement.InsertEndChild ( itemElement );
+   }
+
+   // Attach <items> to the root node to the document
+   document.InsertEndChild(itemsElement);
+   document.SaveFile(mPersistentFile);
+
+   mLock.release();
+
+   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                 "SipPresenceMonitorPersistenceTask::writePersistentFile file written");
+}
+
+
+/* ============================ MANIPULATORS ============================== */
+
+UtlBoolean SipPresenceMonitorPersistenceTask::handleMessage(OsMsg& rMsg)
+{
+   UtlBoolean handled = FALSE;
+
+   OsSysLog::add(FAC_RLS, PRI_DEBUG,
+                 "SipPresenceMonitorPersistenceTask::handleMessage message type %d subtype %d",
+                 rMsg.getMsgType(), rMsg.getMsgSubType());
+
+   if (rMsg.getMsgType() == OsMsg::OS_EVENT &&
+       rMsg.getMsgSubType() == OsEventMsg::NOTIFY)
+   {
+      // An event notification.
+      // The only event is an order to store the database to disk.
+      mSipPresenceMonitor->writePersistentFile();
+      handled = TRUE;
+   }
+   else if (rMsg.getMsgType() == OsMsg::OS_SHUTDOWN)
+   {
+      // Leave 'handled' false and pass on to OsServerTask::handleMessage.
+   }
+   else
+   {
+      OsSysLog::add(FAC_RLS, PRI_ERR,
+                    "SipPresenceMonitorPersistenceTask::handleMessage unknown msg type %d",
+                    rMsg.getMsgType());
+   }
+
+   return handled;
+}
+
+// Stop the task properly.
+void SipPresenceMonitorPersistenceTask::stop()
+{
+   waitUntilShutDown();
+}
+
+/* ============================ ACCESSORS ================================= */
+
+/* ============================ INQUIRY =================================== */
+
+/* //////////////////////////// PROTECTED ///////////////////////////////// */
+
+/* //////////////////////////// PRIVATE /////////////////////////////////// */
+
+/* ============================ FUNCTIONS ================================= */

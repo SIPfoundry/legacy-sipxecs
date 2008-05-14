@@ -25,4 +25,4 @@ noinst_HEADERS =
 install-exec-hook :
 
 install-data-hook :
-
+	$(INSTALL) -d -m 755 $(DESTDIR)@SIPX_VARDIR@/sipxpresence

@@ -242,12 +242,13 @@ UtlBoolean PresenceDialInServer::handleMessage(OsMsg& rMsg)
                      CallContainer* thisCall = new CallContainer(callId, address, mpIncomingQ);
                      mCalls.insertKeyAndValue(new UtlString(callId), thisCall);
                   
-                     // Get the feature code from the request url
+                     // Get the feature code from the request URI.
                      requestUrl = Url(entity);
                      requestUrl.getUserId(featureCode);
                      contactUrl = Url(address);
                      contactUrl.getIdentity(contact);
-                     OsSysLog::add(FAC_SIP, PRI_DEBUG, "PresenceDialInServer::handleMessage contact %s request for %s",
+                     OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                                   "PresenceDialInServer::handleMessage contact '%s' request feature code '%s'",
                                    contact.data(), featureCode.data());
                   
                      if (featureCode.compareTo(mSignInFC) == 0)
@@ -444,34 +445,35 @@ void PresenceDialInServer::dumpTaoMessageArgs(unsigned char eventId, TaoString& 
 
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
+
+// Returns TRUE if the requested state is different from the current state.
 bool PresenceDialInServer::notifyStateChange(UtlString& contact, bool signIn)
 {
    bool result = false;
    
    // Loop through the notifier list
-   UtlHashMapIterator iterator(mStateChangeNotifiers);
    UtlString* listUri;
    StateChangeNotifier* notifier;
    UtlVoidPtr* container;
    Url contactUrl(contact);
    mLock.acquire();
+   UtlHashMapIterator iterator(mStateChangeNotifiers);
    while ((listUri = dynamic_cast <UtlString *> (iterator())) != NULL)
    {
       container = dynamic_cast <UtlVoidPtr *> (mStateChangeNotifiers.findValue(listUri));
       notifier = (StateChangeNotifier *) container->getValue();
 
-      if (signIn)
-      {
-         OsSysLog::add(FAC_SIP, PRI_INFO, "PresenceDialInServer::notifyStateChange contact %s ==> SIGN_IN",
-                       contact.data());
-         result = notifier->setStatus(contactUrl, StateChangeNotifier::PRESENT);
-      }
-      else
-      {
-         OsSysLog::add(FAC_SIP, PRI_INFO, "PresenceDialInServer::notifyStateChange contact %s ==> SIGN_OUT",
-                       contact.data());
-         result = notifier->setStatus(contactUrl, StateChangeNotifier::AWAY);
-      }
+      OsSysLog::add(FAC_SIP, PRI_INFO,
+                    "PresenceDialInServer::notifyStateChange contact '%s' ==> %s",
+                    contact.data(),
+                    signIn ? "SIGN_IN" : "SIGN_OUT");
+      result = notifier->setStatus(contactUrl, 
+                                   signIn ?
+                                   StateChangeNotifier::PRESENT :
+                                   StateChangeNotifier::AWAY);
+      OsSysLog::add(FAC_SIP, PRI_INFO,
+                    "PresenceDialInServer::notifyStateChange notifier->setStatus returned %d",
+                    result);
    }
    mLock.release();
    

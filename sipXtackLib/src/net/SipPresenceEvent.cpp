@@ -238,16 +238,13 @@ SipPresenceEvent::operator=(const SipPresenceEvent& rhs)
 void SipPresenceEvent::insertTuple(Tuple* tuple)
 {
    mLock.acquire();
-   if (mTuples.insert(tuple) != NULL)   
-   {                 
-      OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipPresenceEvent::insertTuple Tuple = %p succeeded", 
-                    tuple);
-   }
-   else
-   {
-      OsSysLog::add(FAC_SIP, PRI_ERR, "SipPresenceEvent::insertTuple Tuple = %p failed", 
-                    tuple);
-   }
+   UtlContainable* result = mTuples.insert(tuple);
+
+   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                 "SipPresenceEvent::insertTuple Tuple = %p %s", 
+                 tuple,
+                 result ? "succeeded" : "failed");
+
    mLock.release();
 }
 
