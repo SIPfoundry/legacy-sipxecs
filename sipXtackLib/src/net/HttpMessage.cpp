@@ -2454,7 +2454,7 @@ char* HttpMessage::getBytes() const
    return ret;
 }
 
-// Print message to stdout.  (To be called from GDB.)
+// Print the message to stdout.  (To be called from GDB.)
 void HttpMessage::debugPrint() const
 {
    UtlString buffer;

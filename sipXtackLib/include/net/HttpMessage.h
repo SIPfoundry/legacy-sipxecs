@@ -542,10 +542,10 @@ public:
      */
     void getBytes(UtlString* bytes, size_t* length, bool includeBody = true) const;
     //! Get a malloc'ed string containing the text of the message.
-    /*! Must be free'd by the caller.  Suitable for use in debugger.
+    /*! Must be free'd by the caller.  Suitable for use in a debugger.
      */
     char* getBytes() const;
-    //! Print message to stdout (for debugging).
+    //! Print the message to stdout (for debugging).
     void debugPrint(void) const;
 
    //! @name Authentication access methods

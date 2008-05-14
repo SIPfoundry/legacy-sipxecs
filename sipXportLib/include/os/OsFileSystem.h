@@ -103,7 +103,6 @@ private:
      
    static OsStatus createDirRecursive(const OsPath& rOsPath);
      //: Recursively creates a directory and its parents if non-existant
-     
 
 };
 

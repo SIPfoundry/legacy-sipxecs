@@ -1191,6 +1191,21 @@ void Url::toString(UtlString& urlString) const
    }
 }
 
+// Get a malloc'ed string containing the URI as a name-addr.
+char* Url::getBytes() const
+{
+   UtlString buffer;
+
+   // Write into the UtlString.
+   toString(buffer);
+
+   char* ret = (char*) malloc(buffer.length() + 1);
+   assert(ret);
+   memcpy(ret, buffer.data(), buffer.length() + 1);
+
+   return ret;
+}
+
 void Url::dump()
 {
     UtlString proto;

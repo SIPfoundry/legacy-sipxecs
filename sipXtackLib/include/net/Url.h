@@ -231,11 +231,15 @@ public:
     //  as a field in a header.
     UtlString toString() const;
 
-    //! Serialize this URL as a real URL (with no <...>, display name,
+    //! Serialize this URL as a proper URL (with no <...>, display name,
     //  or field parameters).  This is also called 'addr-spec' in RFC 3261.
     void getUri(UtlString& Uri) const;
 
-    //! Debug dump to STDOUT
+    //! Get a malloc'ed string containing the URI as a name-addr.
+    /*! Must be free'd by the caller.  Suitable for use in a debugger.
+     */
+    char* getBytes() const;
+    //! Debug dump of the internal structures to STDOUT.
     void dump();
 
     //! Clear the contents of this URL
