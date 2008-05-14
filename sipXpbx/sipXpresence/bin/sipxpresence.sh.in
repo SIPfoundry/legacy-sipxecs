@@ -51,6 +51,14 @@ case ${Action} in
    CONFIGTEST)
      Status=0
 
+     # Validate the saved state file, if it exists.
+     F=@SIPX_VARDIR@/sipxpresence/state.xml
+     if [[ -s $F ]]
+     then
+	 @bindir@/sipx-validate-xml $F
+	 Status=$(($Status+$?))
+     fi
+
      #@bindir@/sipx-validate-xml @SIPX_CONFDIR@/sipxpresence-config.xml
      #Status=$(($Status+$?))
 

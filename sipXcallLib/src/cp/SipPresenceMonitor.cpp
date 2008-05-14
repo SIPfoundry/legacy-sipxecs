@@ -108,6 +108,8 @@ void PresenceDefaultConstructor::generateDefaultContent(SipPublishContentMgr* co
       
    UtlString id;
    NetMd5Codec::encode(resourceId, id);
+   // Prepend 'I', as tuple id's must start with a letter.
+   id.insert(0, 'I');
    
    Tuple* tuple = new Tuple(id.data());
    tuple->setStatus(DEFAULT_PRESENCE_STATUS);
@@ -309,6 +311,8 @@ bool SipPresenceMonitor::addExtension(UtlString& groupName, Url& contactUrl)
       
       UtlString id;
       NetMd5Codec::encode(resourceId, id);
+      // Prepend 'I', as tuple id's must start with a letter.
+      id.insert(0, 'I');
       resource->setInstance(id, STATE_PENDIND);
       list->insertResource(resource);
       
@@ -392,6 +396,8 @@ bool SipPresenceMonitor::addPresenceEvent(UtlString& contact, SipPresenceEvent* 
       UtlString oldStatus, status;
       UtlString id;
       NetMd5Codec::encode(contact, id);
+      // Prepend 'I', as tuple id's must start with a letter.
+      id.insert(0, 'I');
       oldPresenceEvent->getTuple(id)->getStatus(oldStatus);
       presenceEvent->getTuple(id)->getStatus(status);
       
@@ -485,6 +491,8 @@ void SipPresenceMonitor::publishContent(UtlString& contact, SipPresenceEvent* pr
          {
             UtlString id;
             NetMd5Codec::encode(contact, id);
+            // Prepend 'I', as tuple id's must start with a letter.
+            id.insert(0, 'I');
             Tuple* tuple = presenceEvent->getTuple(id);
             
             UtlString status;
@@ -559,6 +567,8 @@ void SipPresenceMonitor::notifyStateChange(UtlString& contact,
 
       UtlString id;
       NetMd5Codec::encode(contact, id);
+      // Prepend 'I', as tuple id's must start with a letter.
+      id.insert(0, 'I');
       Tuple* tuple = presenceEvent->getTuple(id);
 
       if (tuple)
@@ -606,6 +616,8 @@ bool SipPresenceMonitor::setStatus(const Url& aor, const Status value)
       
    UtlString id;
    NetMd5Codec::encode(contact, id);
+   // Prepend 'I', as tuple id's must start with a letter.
+   id.insert(0, 'I');
    
    Tuple* tuple = new Tuple(id.data());
    
@@ -642,6 +654,8 @@ void SipPresenceMonitor::getState(const Url& aor, UtlString& status)
       SipPresenceEvent* presenceEvent = dynamic_cast <SipPresenceEvent *> (foundValue);
       UtlString id;
       NetMd5Codec::encode(contact, id);
+      // Prepend 'I', as tuple id's must start with a letter.
+      id.insert(0, 'I');
       presenceEvent->getTuple(id)->getStatus(status);
       OsSysLog::add(FAC_SIP, PRI_ERR, "SipPresenceMonitor::getState contact %s state = %s",
                     contact.data(), status.data());
@@ -781,7 +795,6 @@ void SipPresenceMonitor::readPersistentFile()
                // Create a presence event package and store it in
                // mPresenceEventList.
                SipPresenceEvent* sipPresenceEvent = new SipPresenceEvent(contact);
-               NetMd5Codec::encode(contact, id);
                Tuple* tuple = new Tuple(id.data());
                tuple->setStatus(status);
                tuple->setContact(contact, 1.0);
@@ -856,6 +869,8 @@ void SipPresenceMonitor::writePersistentFile()
       // Calculate the id of the Tuple.
       UtlString id;
       NetMd5Codec::encode(contact->data(), id);
+      // Prepend 'I', as tuple id's must start with a letter.
+      id.insert(0, 'I');
 
       // Get the Tuple.
       Tuple* tuple = event->getTuple(id);

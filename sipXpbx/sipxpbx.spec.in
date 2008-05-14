@@ -195,6 +195,8 @@ rm -rf $RPM_BUILD_ROOT
 
 %config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx/sipxpresence-config.in
 
+%attr(755,root,root) %{_datadir}/sipx/schema/presence-state.xsd
+
 %{upgrade_archive_dir}/%{this_archive}
 
 %files devel
