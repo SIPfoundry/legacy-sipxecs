@@ -498,14 +498,14 @@
       </setting>
     </group>
     <group name="dir">
-      <setting name="directory_disabled">
+      <setting name="directory_disabled" hidden="yes">
         <profileName>directory disabled</profileName>
         <type>
           <boolean />
         </type>
         <value>0</value>
       </setting>
-      <setting name="directory1">
+      <setting name="directory1" hidden="yes">
         <profileName>directory 1</profileName>
         <type>
           <string />

@@ -32,14 +32,19 @@ import org.sipfoundry.sipxconfig.phone.PhoneModel;
 import org.sipfoundry.sipxconfig.phone.PhoneTestDriver;
 import org.sipfoundry.sipxconfig.speeddial.Button;
 import org.sipfoundry.sipxconfig.speeddial.SpeedDial;
+import org.sipfoundry.sipxconfig.phone.aastra.AastraPhone.PhonebookProfile;
 
 public class AastraPhoneTest extends TestCase {
 
     public void testGetFileName() throws Exception {
+        PhoneModel aastraModel = new PhoneModel("aastra");
         AastraPhone phone = new AastraPhone();
+        phone.setModel(aastraModel);
+        supplyTestData(phone);
+
         phone.setSerialNumber("0011AABB4050");
         Profile[] profileTypes = phone.getProfileTypes();
-        assertEquals(1, profileTypes.length);
+        assertEquals(2, profileTypes.length);
         assertEquals("0011AABB4050.cfg", profileTypes[0].getName());
     }
 
@@ -232,4 +237,55 @@ public class AastraPhoneTest extends TestCase {
         }));
     }
 
+    public void testPhonebookName() throws Exception {
+        PhoneModel aastraModel = new PhoneModel("aastra");
+        AastraPhone phone = new AastraPhone();
+        phone.setModel(aastraModel);
+
+        PhoneTestDriver.supplyTestData(phone, true);
+
+        phone.setSerialNumber("0011AABB4050");
+        assertEquals(2, phone.getProfileTypes().length);
+        assertEquals("0011AABB4050.cfg", phone.getProfileFilename());
+        assertEquals("0011AABB4050-Directory.csv", phone.getFistDirectoryName());
+    }
+
+    public void testPhonebookNameDefault() throws Exception {
+        PhoneModel aastraModel = new PhoneModel("aastra");
+        AastraPhone phone = new AastraPhone();
+        phone.setModel(aastraModel);
+
+        PhoneTestDriver.supplyTestData(phone, true);
+
+        assertEquals(2, phone.getProfileTypes().length);
+        String phonebookName = phone.getSerialNumber().toUpperCase() + "-Directory.csv";
+        assertEquals(phone.getProfileTypes()[0].getName(), phone.getProfileFilename());
+        assertEquals(phonebookName, phone.getFistDirectoryName());
+    }
+
+    public void testPhonebookManagementEnabled() throws Exception {
+        PhoneModel aastraModel = new PhoneModel("aastra");
+        Phone phone = new AastraPhone();
+        phone.setModel(aastraModel);
+        PhoneTestDriver.supplyTestData(phone, true);
+
+        // Should return two profiles - the regular profile and the phonebook
+        // profile.
+        Profile[] profileTypes = phone.getProfileTypes();
+        assertEquals(2, profileTypes.length);
+        assertTrue(profileTypes[0].getClass().equals(Profile.class));
+        assertTrue(profileTypes[1].getClass().equals(PhonebookProfile.class));
+    }
+
+    public void testPhonebookManagementDisabled() throws Exception {
+        PhoneModel aastraModel = new PhoneModel("aastra");
+        Phone phone = new AastraPhone();
+        phone.setModel(aastraModel);
+        PhoneTestDriver.supplyTestData(phone, false);
+
+        // Should only return one Profile.
+        Profile[] profileTypes = phone.getProfileTypes();
+        assertEquals(1, profileTypes.length);
+        assertTrue(profileTypes[0].getClass().equals(Profile.class));
+    }
 }
