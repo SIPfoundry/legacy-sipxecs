@@ -14,7 +14,11 @@ import java.util.Properties;
 import javax.sip.ListeningPoint;
 import javax.sip.SipListener;
 import javax.sip.SipProvider;
+import javax.sip.message.Request;
 
+import org.cafesip.sipunit.SipCall;
+import org.cafesip.sipunit.SipPhone;
+import org.cafesip.sipunit.SipRequest;
 import org.cafesip.sipunit.SipTestCase;
 import org.sipfoundry.sipxbridge.*;
 
@@ -29,7 +33,9 @@ public abstract class AbstractSipSignalingTest extends SipTestCase {
     private static int baseMediaPort;
     protected ItspAccountInfo accountInfo;
     protected AccountManagerImpl accountManager;
-    
+    protected String sipxProxyAddress;
+  
+  
     @Override
     public void setUp() throws Exception {
         Properties properties = new Properties();
@@ -42,9 +48,15 @@ public abstract class AbstractSipSignalingTest extends SipTestCase {
         Gateway.startXmlRpcServer();
         accountManager = Gateway.getAccountManager();
         accountInfo = accountManager.getDefaultAccount();
+        
 
         sipxProxyPort = Integer.parseInt(properties
                 .getProperty("org.sipfoundry.gateway.mockSipxProxyPort"));
+        sipxProxyAddress = properties.getProperty("org.sipfoundry.gateway.mockSipxProxyAddress");
+      
+        
+
+        
        
         localAddr = Gateway.getAccountManager().getBridgeConfiguration()
                 .getLocalAddress();
@@ -57,7 +69,6 @@ public abstract class AbstractSipSignalingTest extends SipTestCase {
     @Override
     public void tearDown() throws Exception {
         Gateway.stop();
-
     }
     
     public int getMediaPort() {

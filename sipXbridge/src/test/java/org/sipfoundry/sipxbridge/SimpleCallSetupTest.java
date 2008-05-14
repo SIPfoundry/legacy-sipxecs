@@ -12,6 +12,7 @@ import java.io.FileReader;
 import java.util.HashSet;
 import java.util.Properties;
 
+import javax.sip.message.Request;
 import javax.sip.message.Response;
 
 import org.apache.log4j.PropertyConfigurator;
@@ -19,6 +20,7 @@ import org.sipfoundry.sipxbridge.Gateway;
 import org.sipfoundry.sipxbridge.ItspAccountInfo;
 import org.cafesip.sipunit.SipCall;
 import org.cafesip.sipunit.SipPhone;
+import org.cafesip.sipunit.SipRequest;
 import org.cafesip.sipunit.SipResponse;
 import org.cafesip.sipunit.SipStack;
 import org.cafesip.sipunit.SipTestCase;
@@ -42,6 +44,37 @@ public class SimpleCallSetupTest extends AbstractSipSignalingTest {
             + "a=rtpmap:0 PCMU/8000\r\n"
             + "a=rtpmap:101 telephone-event/8000\r\n"
             + "a=fmtp:101 0-11,16\r\n";
+
+    
+    class PhoneResponder implements Runnable {
+        SipPhone sipPhone;
+    
+        public PhoneResponder(SipPhone sipPhone) {
+            this.sipPhone = sipPhone;
+        }
+
+        public void run() {
+            try {
+                sipPhone.listenRequestMessage();
+                SipCall sipCall = sipPhone.createSipCall();
+
+                sipCall.waitForIncomingCall(3000);
+
+                SipRequest sipRequest = sipCall.getLastReceivedRequest();
+                Request request = (Request) sipRequest.getMessage();
+                sipCall.waitForAck(3000);
+
+                sipCall.waitForDisconnect(3000);
+                sipCall.respondToDisconnect();
+
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                AbstractSipSignalingTest.fail("Unexpected exception ");
+            }
+
+        }
+
+    }
 
     public void testDialBadNumber() {
         try {
@@ -144,6 +177,17 @@ public class SimpleCallSetupTest extends AbstractSipSignalingTest {
             ex.printStackTrace();
             fail("Unexpected exception occured " + ex.getMessage());
         }
+    }
+    
+    public void testInboundCallFromItsp()  throws Exception {
+        SipPhone sipPhone = sipStack.createSipPhone("127.0.0.1", "udp", this.accountManager.getBridgeConfiguration().getLocalPort(),
+                "sip:"+ 
+                this.accountManager.getDefaultAccount().getAutoAttendantName()+
+                "@"+this.accountManager.getBridgeConfiguration().getSipxProxyDomain());
+        PhoneResponder responder = new PhoneResponder (sipPhone);
+        new Thread(responder).start();
+        mockItsp.makePhoneInboundCall();
+        
     }
 
     @Override

@@ -92,13 +92,13 @@ public class TestUtilities {
      * @throws GatewayConfigurationException
      */
     public static Request createOutboundInviteRequest(SipProvider sipProvider,
-            String toUser, String toDomain, boolean isphone)
+            String toUser, String toDomain, String gatewayAddress, int gatewayPort, boolean isphone)
             throws GatewayConfigurationException {
         try {
 
             SipURI requestUri = SipFactories.addressFactory.createSipURI(
-                    toUser, MockSipxProxy.gatewayAddress);
-            requestUri.setPort(MockSipxProxy.gatewayPort);
+                    toUser, gatewayAddress);
+            requestUri.setPort(gatewayPort);
             if (isphone) {
 
                 requestUri.setUserParam("phone");

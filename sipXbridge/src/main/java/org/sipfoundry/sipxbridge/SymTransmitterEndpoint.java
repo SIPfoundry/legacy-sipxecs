@@ -1,3 +1,9 @@
+/*
+ *  Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.
+ *  Contributors retain copyright to elements licensed under a Contributor Agreement.
+ *  Licensed to the User under the LGPL license.
+ *
+ */
 package org.sipfoundry.sipxbridge;
 
 import java.io.IOException;
@@ -28,7 +34,7 @@ public class SymTransmitterEndpoint extends SymEndpoint {
 
     private ByteBuffer keepAliveBuffer = ByteBuffer.allocate(0);
 
-    private  boolean remoteAddressAutoDiscovered = false;
+    private  AutoDiscoveryFlag remoteAddressAutoDiscovered = AutoDiscoveryFlag.NO_AUTO_DISCOVERY;
 
     private String keepaliveMethod = "USE-EMPTY-PACKET";
 
@@ -71,7 +77,8 @@ public class SymTransmitterEndpoint extends SymEndpoint {
                     return;
                 if (keepaliveMethod.equals("REPLAY-LAST-SENT-PACKET")
                         || keepaliveMethod.equals("USE-EMPTY-PACKET")) {
-                    datagramChannel.send(keepAliveBuffer, socketAddress);
+                    if ( datagramChannel != null )
+                        datagramChannel.send(keepAliveBuffer, socketAddress);
                 }
             } catch (ClosedChannelException ex) {
                 logger
@@ -129,7 +136,8 @@ public class SymTransmitterEndpoint extends SymEndpoint {
         if (keepaliveMethod.equals("REPLAY-LAST-SENT-PACKET")) {
             this.keepAliveBuffer = byteBuffer;
         }
-        this.datagramChannel.send(byteBuffer, this.socketAddress);
+        if ( this.datagramChannel != null )
+            this.datagramChannel.send(byteBuffer, this.socketAddress);
 
     }
 
@@ -170,8 +178,7 @@ public class SymTransmitterEndpoint extends SymEndpoint {
                 this.ipAddress = sessionDescription.getConnection()
                         .getAddress();
 
-            // TODO -- we need to sort through different media types here.
-            MediaDescription mediaDescription = (MediaDescription) sessionDescription
+             MediaDescription mediaDescription = (MediaDescription) sessionDescription
                     .getMediaDescriptions(true).get(0);
 
             if (mediaDescription.getConnection() != null) {
@@ -210,9 +217,12 @@ public class SymTransmitterEndpoint extends SymEndpoint {
         }
     }
 
-    public void setRemoteAddressAutoDiscovered(boolean autoDiscoverFlag) {
-        this.remoteAddressAutoDiscovered = autoDiscoverFlag;
-
+    public void computeAutoDiscoveryFlag ()  {
+        if ( this.ipAddress == null && this.port == 0) {
+            this.remoteAddressAutoDiscovered = AutoDiscoveryFlag.IP_ADDRESS_AND_PORT;
+        } else if ( this.ipAddress != null && this.port == 0   ) {
+            this.remoteAddressAutoDiscovered = AutoDiscoveryFlag.PORT_ONLY;
+        } 
     }
     
    
@@ -238,14 +248,17 @@ public class SymTransmitterEndpoint extends SymEndpoint {
         throws UnknownHostException {
       super.ipAddress = ipAddress;
       super.port = port;
-      super.socketAddress = new InetSocketAddress( InetAddress.getByName(ipAddress), port);
+      // Note that the IP address does not need to be specified ( can be auto discovered ).
+      if ( ipAddress != null ) {
+          super.socketAddress = new InetSocketAddress( InetAddress.getByName(ipAddress), port);
+      }
         
     }
 
     /**
      * @return the remoteAddressAutoDiscovered
      */
-    public boolean isRemoteAddressAutoDiscovered() {
+    public AutoDiscoveryFlag getAutoDiscoveryFlag() {
         return remoteAddressAutoDiscovered;
     }
 

@@ -32,7 +32,7 @@ public abstract class AbstractSymmitronTestCase extends TestCase {
         super.setUp();
         Properties properties = new Properties();
         properties.load(new FileInputStream ( new File ( "testdata/selftest.properties")));
-        String accountName = properties.getProperty("org.sipfoundry.gateway.noItspAccount");
+        String accountName = properties.getProperty("org.sipfoundry.gateway.localAccount");
           Gateway.setConfigurationFileName(accountName);
         Gateway.startXmlRpcServer();
         port = Gateway.getAccountManager().getBridgeConfiguration().getXmlRpcPort();
@@ -122,7 +122,7 @@ public abstract class AbstractSymmitronTestCase extends TestCase {
     }
     
     protected void setRemoteEndpoint( String sym, int destinationPort) throws Exception {
-        Object[] params = new Object[8];
+        Object[] params = new Object[7];
         params[0] = clientHandle;
         params[1] = sym;
         params[2] = serverAddress;
@@ -130,7 +130,24 @@ public abstract class AbstractSymmitronTestCase extends TestCase {
         params[4] = new Integer(500);
         params[5] = "USE-EMPTY-PACKET";
         params[6] = "";
-        params[7] = new Boolean(false);
+        Map retval = (Map)client.execute("sipXbridge.setDestination", params);
+        if ( retval.get(Symmitron.STATUS_CODE).equals(Symmitron.ERROR)) {
+            throw new Exception("Error in processing request " +
+                    retval.get(Symmitron.ERROR_INFO));
+        }
+
+    }
+    
+    protected void setAutoDiscover( String sym) throws Exception {
+        Object[] params = new Object[7];
+        params[0] = clientHandle;
+        params[1] = sym;
+        params[2] = "";
+        params[3] = 0;
+        params[4] = new Integer(500);
+        params[5] = "USE-EMPTY-PACKET";
+        params[6] = "";
+      
         Map retval = (Map)client.execute("sipXbridge.setDestination", params);
         if ( retval.get(Symmitron.STATUS_CODE).equals(Symmitron.ERROR)) {
             throw new Exception("Error in processing request " +

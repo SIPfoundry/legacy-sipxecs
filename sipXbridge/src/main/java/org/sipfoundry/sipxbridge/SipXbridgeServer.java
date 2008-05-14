@@ -271,8 +271,7 @@ public class SipXbridgeServer implements Symmitron {
      */
     public Map<String, Object> setDestination(String controllerHandle,
             String symId, String ipAddress, int port, int keepAliveTime,
-            String keepaliveMethod, String keepAlivePacketData,
-            boolean autoDiscoveryFlag) {
+            String keepaliveMethod, String keepAlivePacketData) {
         try {
             this.checkForControllerReboot(controllerHandle);
 
@@ -281,9 +280,8 @@ public class SipXbridgeServer implements Symmitron {
                         + " controllerHande %s " + " symId %s "
                         + " ipAddress %s " + " port %d "
                         + " keepAliveMethod = %s " + " keepAliveTime %d "
-                        + " autoDiscoverFlag %s ", controllerHandle, symId,
-                        ipAddress, port, keepaliveMethod, keepAliveTime,
-                        autoDiscoveryFlag));
+                        , controllerHandle, symId,
+                        ipAddress, port, keepaliveMethod, keepAliveTime));
             }
 
             Sym sym = sessionMap.get(symId);
@@ -291,17 +289,24 @@ public class SipXbridgeServer implements Symmitron {
                 return createErrorMap(SESSION_NOT_FOUND, "");
             }
 
+            // Check input arguments.
+            if ( ipAddress.equals("") && port != 0) {
+                return createErrorMap( ILLEGAL_ARGUMENT, "Must specify IP address if port is not zero");
+            }
+            if ( ipAddress.equals("")) ipAddress = null;
+            
             Map<String, Object> retval = createSuccessMap();
 
             // Allocate a new session if needed.
             SymTransmitterEndpoint transmitter = sym.getTransmitter() != null ? sym
                     .getTransmitter()
                     : new SymTransmitterEndpoint();
+                    
+          
 
             transmitter.setIpAddressAndPort(ipAddress, port);
             transmitter.setMaxSilence(keepAliveTime, keepaliveMethod);
-            // BUGBUG -- fix this.
-
+         
             byte[] keepAliveBytes = null;
             if (keepAlivePacketData.equals("")) {
                 keepAliveBytes = null;
@@ -312,7 +317,7 @@ public class SipXbridgeServer implements Symmitron {
 
             transmitter.setKeepalivePayload(keepAliveBytes);
 
-            transmitter.setRemoteAddressAutoDiscovered(autoDiscoveryFlag);
+            transmitter.computeAutoDiscoveryFlag();
             if (sym.getTransmitter() == null) {
                 sym.setTransmitter(transmitter);
             }

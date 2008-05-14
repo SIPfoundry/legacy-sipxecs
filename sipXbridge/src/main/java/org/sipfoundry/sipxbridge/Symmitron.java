@@ -354,9 +354,13 @@ public interface Symmitron {
      * 
      * @param destinationIpAddress --
      *            the destinationIpAddress
+     *            
      * 
      * @param destinationPort --
-     *            the destination port.
+     *            the destination port. If port is not zero then IP address must be specified.
+     *            If port is 0 then if IP address is also unspecified, both are auto learned.
+     *            If port is 0 and IP address is unspecified, both are auto learned.
+     *            If port is non zero and IP address is specified, then neither is auto-learned.
      * 
      * @param keepAliveTime --
      *            the keep alive time (0 means no keep alive packets).
@@ -370,10 +374,6 @@ public interface Symmitron {
      *            USE-SPECIFIED-PAYLOAD is specified. This is a uuencoded
      *            string. It is uudecoded to extract the keepalive data.
      * 
-     * @param autoLearnDestination --
-     *            true implies auto discover remote port - send port is based on
-     *            remote port of last seen packet ( useful for dealing with NAT
-     *            reboots ).
      * 
      * 
      * @return - a standard map
@@ -382,7 +382,7 @@ public interface Symmitron {
     public Map<String, Object> setDestination(String controllerHandle,
             String symId, String destinationIpAddress, int destinationPort,
             int keepAliveTime, String keepaliveMethod,
-            String keepAlivePacketData, boolean autoLearnDestination);
+            String keepAlivePacketData);
 
     /**
      * Remove a sym from a bridge.

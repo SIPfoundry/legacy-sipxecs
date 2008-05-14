@@ -175,20 +175,20 @@ public class Bridge {
                                          * can change while in progress. This is
                                          * not relevant for the LAN side.
                                          */
-
+                                        AutoDiscoveryFlag autoDiscoveryFlag = sym.getTransmitter().getAutoDiscoveryFlag();
                                         if (sym.getTransmitter() != null
-                                                && sym
-                                                        .getTransmitter()
-                                                        .isRemoteAddressAutoDiscovered()) {
-                                            if (remoteAddress != null)
-                                                sym
-                                                        .getTransmitter()
-                                                        .setIpAddressAndPort(
+                                                &&  autoDiscoveryFlag != AutoDiscoveryFlag.NO_AUTO_DISCOVERY) {
+                                            if (remoteAddress != null && autoDiscoveryFlag == AutoDiscoveryFlag.IP_ADDRESS_AND_PORT) {
+                                                sym.getTransmitter().setIpAddressAndPort(
                                                                 remoteAddress
                                                                         .getAddress()
                                                                         .getHostAddress(),
                                                                 remoteAddress
                                                                         .getPort());
+                                            } else if ( autoDiscoveryFlag == AutoDiscoveryFlag.PORT_ONLY) {
+                                                sym.getTransmitter()
+                                                .setPort(remoteAddress.getPort());
+                                            }
 
                                         }
 

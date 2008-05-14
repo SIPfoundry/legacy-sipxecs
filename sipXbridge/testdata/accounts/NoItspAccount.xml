@@ -14,7 +14,7 @@
     <music-on-hold-support-enabled>true</music-on-hold-support-enabled>
     <rtp-port-range>25000:25500</rtp-port-range>
     <log-level>DEBUG</log-level>
-    <log-directory>/var/log/sipxpbx/</log-directory>
+    <log-directory>./</log-directory>
     <xml-rpc-port>8088</xml-rpc-port>
   </bridge-configuration>
 

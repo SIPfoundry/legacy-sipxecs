@@ -26,7 +26,7 @@
     <user-name>1551921584</user-name>
     <password>password</password>
     <use-global-addressing>false</use-global-addressing>
-    <route-inbound-calls-to-extension>operator</route-inbound-calls-to-extension>
+    <route-inbound-calls-to-extension>200</route-inbound-calls-to-extension>
     <use-rport>false</use-rport>
     <register-on-initialization>true</register-on-initialization>
     <is-reinvite-supported>false</is-reinvite-supported>
