@@ -1,0 +1,41 @@
+
+Goal: To measure the media thruput performance of the symmitron.
+
+
+Description
+
+Experiments were performed with 100 bidrectional streams pushing data through 
+the symmitron.  I allocated 50 bridges in the symmitron.  This would 
+correspond to 50 concurrent phone calls.
+Each bridge had a pair of Syms Each sym received data from a sender 
+and forwarded it to the other side.
+Measurements were made over 1000 packets. I performed the experiments
+on my laptop ( dual core 2 ghz intel processor ) using localhost.
+The symmitron ran in the same process as the sender and receiver. 
+
+
+sender	---->| 		|---> receiver
+	     |   bridge |
+receiver<----|	        |<--- sender
+
+
+Measurements
+------------
+Time between packets    Root Mean Square Jitter value (measured at receiver)
+
+10 ms.                  PACKET LOSS occured.
+
+20 ms.			6.17 ms. ( 0 packet loss ) 
+
+40 ms.                  1.9 ms.  ( 0 packet loss )
+
+80 ms.			1.15 ms. ( 0 packet loss ) 
+
+160 ms.                 1.10 ms.  ( 0 packet loss )
+
+
+Conclusion
+---------
+
+The bridge can easily perform at the desired design point of 50 concurrent 
+calls. 

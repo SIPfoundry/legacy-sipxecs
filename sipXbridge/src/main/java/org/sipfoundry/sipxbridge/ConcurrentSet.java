@@ -4,6 +4,7 @@ package org.sipfoundry.sipxbridge;
  * Symhis little utility is because java 5 does not support concurrent sets.
  * 
  */
+import java.nio.channels.DatagramChannel;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -15,6 +16,8 @@ class ConcurrentSet implements Set<Sym> {
 
     Map<String, Sym> map = new ConcurrentHashMap<String, Sym>();
     private Bridge bridge;
+    private static Map<DatagramChannel,Bridge> bridgeMap = 
+        new ConcurrentHashMap<DatagramChannel,Bridge>();
     
     public ConcurrentSet(Bridge bridge) {
         this.bridge = bridge;
@@ -26,7 +29,22 @@ class ConcurrentSet implements Set<Sym> {
             element.getBridge().removeSym(element);
         }
         element.setBridge(this.bridge);
+        DatagramChannel channel = element.getReceiver().getDatagramChannel();
+        if (! bridgeMap.containsKey(channel)) {  
+            DataShuffler.initializeSelectors();
+           
+        }
+        bridgeMap.put(channel, bridge);
         return true;
+    }
+    
+    public static Bridge getBridge(DatagramChannel channel) {
+        return bridgeMap.get(channel);
+    }
+    
+    public static void removeChannel(DatagramChannel channel) {
+        bridgeMap.remove(channel);
+        DataShuffler.initializeSelectors();
     }
 
     public boolean addAll(Collection<? extends Sym> collection) {
@@ -62,6 +80,12 @@ class ConcurrentSet implements Set<Sym> {
     public boolean remove(Object obj) {
         this.map.remove(((Sym)obj).getId());
         ((Sym)obj).setBridge(null);
+        Sym element = ( Sym ) obj;
+        DatagramChannel channel = element.getReceiver().getDatagramChannel();
+        bridgeMap.remove(channel);
+        DataShuffler.initializeSelectors();
+       
+        
         return true;
     }
 
@@ -91,6 +115,10 @@ class ConcurrentSet implements Set<Sym> {
 
     public <T> T[] toArray(T[] array) {
         return map.values().toArray(array);
+    }
+
+    public static Collection<Bridge> getBridges() {
+        return bridgeMap.values();
     }
     
    

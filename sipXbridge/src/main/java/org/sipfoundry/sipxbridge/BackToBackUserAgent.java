@@ -338,7 +338,7 @@ public class BackToBackUserAgent {
              */
             this.getBridge().pause();
             Set<Sym> myrtpSessions = this.getBridge().getSyms();
-            this.rtpBridge.initializeSelectors = true;
+            
 
             DialogApplicationData replacedDialogApplicationData = (DialogApplicationData) replacedDialog
                     .getApplicationData();
@@ -379,7 +379,7 @@ public class BackToBackUserAgent {
             /*
              * Let the RTP Bridge initialize its selector table.
              */
-            hisBridge.initializeSelectors = true;
+        
 
             this.rtpBridge.resume();
             hisBridge.resume();

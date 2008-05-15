@@ -77,7 +77,8 @@ public class SymTransmitterEndpoint extends SymEndpoint {
                     return;
                 if (keepaliveMethod.equals("REPLAY-LAST-SENT-PACKET")
                         || keepaliveMethod.equals("USE-EMPTY-PACKET")) {
-                    if ( datagramChannel != null )
+                    if ( datagramChannel != null  && socketAddress != null 
+                            && datagramChannel.isOpen())
                         datagramChannel.send(keepAliveBuffer, socketAddress);
                 }
             } catch (ClosedChannelException ex) {

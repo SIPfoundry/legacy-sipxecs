@@ -272,7 +272,7 @@ public class SymmitronTest extends AbstractSymmitronTestCase {
             datagramSocket.send(datagramPacket);
         }
         Thread.sleep(100);
-        assertTrue ( counter >= 1000 );
+        assertTrue ( "Counter is " + counter, counter >= 1000 );
 
         datagramSocket1.close();
         datagramSocket2.close();
@@ -354,7 +354,7 @@ public class SymmitronTest extends AbstractSymmitronTestCase {
             datagramSocket2.send(datagramPacket);
         }
         Thread.sleep(100);
-        assertTrue ( counter >= 1000 );
+        assertTrue (" Counter is " + counter, counter >= 1000 );
         counter = 0;
         for ( int i = 0 ; i < 1000 ; i++) {
             DatagramPacket datagramPacket = new DatagramPacket( data, 
@@ -731,5 +731,8 @@ public class SymmitronTest extends AbstractSymmitronTestCase {
        
    
     }
+    
+    
+    
     
 }

@@ -160,6 +160,7 @@
 				</xs:annotation>
 				<xs:simpleType>
 					<xs:restriction base="xs:string">
+						<xs:enumeration value="OFF" />
 						<xs:enumeration value="INFO" />
 						<xs:enumeration value="WARN" />
 						<xs:enumeration value="ERROR" />

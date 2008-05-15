@@ -7,15 +7,8 @@
 package org.sipfoundry.sipxbridge;
 
 import java.io.IOException;
-import java.net.InetSocketAddress;
 import java.net.SocketAddress;
-import java.nio.ByteBuffer;
-import java.nio.channels.ClosedChannelException;
-import java.nio.channels.DatagramChannel;
-import java.nio.channels.SelectionKey;
-import java.nio.channels.Selector;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Random;
 import java.util.Set;
 
@@ -42,226 +35,39 @@ import org.apache.log4j.Logger;
 public class Bridge {
     private static Logger logger = Logger.getLogger(Bridge.class);
 
-    private ConcurrentSet sessions = new ConcurrentSet(this);
+    ConcurrentSet sessions = new ConcurrentSet(this);
 
     private boolean started;
 
-    private Thread dataShufflerThread;
+    private static Thread dataShufflerThread;
 
-    private DataShuffler dataShuffler;
-
+    private static DataShuffler dataShuffler; 
+    
     private BridgeState state = BridgeState.INITIAL;
 
     SessionDescription sessionDescription;
 
-    boolean initializeSelectors = true;
+   
 
     private String id;
 
-    private long processingCount = 0;
+    long processingCount = 0;
 
     private long creationTime = System.currentTimeMillis();
 
-    private long lastPacketTime;
+    long lastPacketTime;
 
-    class DataShuffler implements Runnable {
-        // The buffer into which we'll read data when it's available
-        private ByteBuffer readBuffer;
-        private Selector selector;
-        private boolean toExit;
-
-        public DataShuffler() {
-
-            readBuffer = ByteBuffer.allocate(8192 * 2);
-        }
-
-        private void initializeSelector() {
-            selector = null;
-
-            try {
-                selector = Selector.open();
-
-                for (Sym session : Bridge.this.sessions) {
-                    session.getReceiver().getDatagramChannel()
-                            .configureBlocking(false);
-                    session.getReceiver().getDatagramChannel().register(
-                            selector, SelectionKey.OP_READ);
-                }
-                initializeSelectors = false;
-
-            } catch (ClosedChannelException ex) {
-                logger.error("Unepxected exception", ex);
-                return;
-            } catch (IOException ex) {
-                logger.error("Unepxected exception", ex);
-                return;
-            }
-        }
-
-        public void run() {
-
-            // Wait for an event one of the registered channels
-            logger.debug("Starting Shuffler");
-
-            while (true) {
-                try {
-                    if (initializeSelectors) {
-                        initializeSelector();
-                    }
-                    selector.select();
-                    if (toExit)
-                        break;
-
-                    // Iterate over the set of keys for which events are
-                    // available
-                    Iterator<SelectionKey> selectedKeys = selector
-                            .selectedKeys().iterator();
-                    while (selectedKeys.hasNext()) {
-                        SelectionKey key = (SelectionKey) selectedKeys.next();
-                        selectedKeys.remove();
-
-                        if (!key.isValid()) {
-                            continue;
-                        }
-                        if (key.isReadable()) {
-                            readBuffer.clear();
-                            DatagramChannel datagramChannel = (DatagramChannel) key
-                                    .channel();
-                            InetSocketAddress remoteAddress = (InetSocketAddress) datagramChannel
-                                    .receive(readBuffer);
-
-                            processingCount++;
-                            if (getState() != BridgeState.RUNNING) {
-                                if (logger.isDebugEnabled()) {
-                                    logger
-                                            .debug("RtpBridge:Discarding packet. Bridge state is "
-                                                    + getState());
-                                }
-                                continue;
-                            }
-
-                            try {
-
-                                for (Sym sym : sessions) {
-                                    if (datagramChannel == sym.getReceiver()
-                                            .getDatagramChannel()) {
-                                        if (logger.isDebugEnabled()) {
-                                            logger.debug("got something on "
-                                                    + sym.getReceiver()
-                                                            .getIpAddress()
-                                                    + ":"
-                                                    + sym.getReceiver()
-                                                            .getPort());
-                                            if (remoteAddress != null)
-                                                logger
-                                                        .debug("remoteIpAddressAndPort : "
-                                                                + remoteAddress
-                                                                        .getAddress()
-                                                                        .getHostAddress()
-                                                                + ":"
-                                                                + remoteAddress
-                                                                        .getPort());
-                                        }
-                                        sym.lastPacketTime = System
-                                                .currentTimeMillis();
-                                        sym.packetsReceived++;
-
-                                        Bridge.this.lastPacketTime = sym.lastPacketTime;
-
-                                        /*
-                                         * Set the remote port of the
-                                         * transmitter side of the connection.
-                                         * This allows for NAT reboots ( port
-                                         * can change while in progress. This is
-                                         * not relevant for the LAN side.
-                                         */
-                                        AutoDiscoveryFlag autoDiscoveryFlag = sym.getTransmitter().getAutoDiscoveryFlag();
-                                        if (sym.getTransmitter() != null
-                                                &&  autoDiscoveryFlag != AutoDiscoveryFlag.NO_AUTO_DISCOVERY) {
-                                            if (remoteAddress != null && autoDiscoveryFlag == AutoDiscoveryFlag.IP_ADDRESS_AND_PORT) {
-                                                sym.getTransmitter().setIpAddressAndPort(
-                                                                remoteAddress
-                                                                        .getAddress()
-                                                                        .getHostAddress(),
-                                                                remoteAddress
-                                                                        .getPort());
-                                            } else if ( autoDiscoveryFlag == AutoDiscoveryFlag.PORT_ONLY) {
-                                                sym.getTransmitter()
-                                                .setPort(remoteAddress.getPort());
-                                            }
-
-                                        }
-
-                                        continue;
-                                    }
-                                    SymTransmitterEndpoint writeChannel = sym
-                                            .getTransmitter();
-                                    if (writeChannel == null)
-                                        continue;
-
-                                    try {
-
-                                        /*
-                                         * No need for header rewrite. Just flip
-                                         * and push out.
-                                         */
-                                        if (!writeChannel.isOnHold()) {
-                                            writeChannel
-                                                    .send((ByteBuffer) readBuffer
-                                                            .flip());
-                                            sym.getTransmitter().packetsSent++;
-
-                                        } else {
-                                            if (logger.isDebugEnabled()) {
-                                                logger
-                                                        .debug("WriteChannel on hold."
-                                                                + writeChannel
-                                                                        .getIpAddress()
-                                                                + ":"
-                                                                + writeChannel
-                                                                        .getPort()
-                                                                + " Not forwarding");
-                                            }
-                                        }
-
-                                    } catch (Exception ex) {
-                                        logger
-                                                .error(
-                                                        "Unexpected error shuffling bytes",
-                                                        ex);
-                                    }
-                                }
-                            } finally {
-
-                            }
-
-                        }
-                    }
-                } catch (Exception ex) {
-                    logger.error("Unexpected exception occured", ex);
-                    for (Sym rtpSession : sessions) {
-                        rtpSession.close();
-                    }
-                    setState(BridgeState.TERMINATED);
-                    return;
-                }
-
-            }
-
-        }
-
-        public void exit() {
-            this.toExit = true;
-            selector.wakeup();
-
-        }
-
+   
+    
+    static {
+        dataShuffler = new DataShuffler();
+        dataShufflerThread = new Thread(dataShuffler);
+        dataShufflerThread.start();
     }
-
     // ///////////////////////////////////////////////////////////////////////////////////
     // Private methods.
     // ///////////////////////////////////////////////////////////////////////////////////
-    private void setState(BridgeState newState) {
+    void setState(BridgeState newState) {
         this.state = newState;
 
     }
@@ -331,11 +137,9 @@ public class Bridge {
         else
             started = true;
 
-        this.dataShuffler = new DataShuffler();
-        this.dataShufflerThread = new Thread(dataShuffler);
+       
         this.setState(BridgeState.RUNNING);
-        this.dataShufflerThread.start();
-
+      
     }
 
     /**
@@ -350,8 +154,7 @@ public class Bridge {
             rtpSession.close();
         }
 
-        if (this.dataShuffler != null)
-            this.dataShuffler.exit();
+      
         this.setState(BridgeState.TERMINATED);
 
     }
@@ -409,7 +212,7 @@ public class Bridge {
      */
     public void addSym(Sym sym) {
         this.sessions.add(sym);
-        this.initializeSelectors = true;
+       
         sym.setBridge(this);
         if (logger.isDebugEnabled()) {
             logger.debug("addSymSession : " + sym);
@@ -425,7 +228,7 @@ public class Bridge {
     public void removeSym(Sym rtpSession) {
         logger.debug("RtpBridge: removing RtpSession " + rtpSession.getId());
         this.sessions.remove(rtpSession);
-        this.initializeSelectors = true;
+        
         if (logger.isDebugEnabled()) {
             logger.debug("removeSymSession : " + rtpSession);
             logger.debug("removeSymSession : " + this);
