@@ -49,7 +49,7 @@
       <userPattern>~~rl~.</userPattern>
       <permissionMatch>
         <transform>
-          <url>&lt;sip:{digits}@${RLS_ADDR}:${RLS_SIP_PORT}&gt;</url>
+          <headerparams>Route=sip:${RLS_SIP_SRV_OR_HOSTPORT}</headerparams>
         </transform>
       </permissionMatch>
     </userMatch>
