@@ -5,6 +5,9 @@ schemas = \
 
 EXTRA_DATA = $(foreach xsd,$(schemas),$(xsd).in)
 
+EXTRA_DIST = \
+	$(EXTRA_DATA)
+
 install-data-hook : install-schema
 
 .PHONY : install-schema

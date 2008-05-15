@@ -12,6 +12,7 @@ EXTRA_DATA = $(foreach xsd,$(schemas),$(xsd).in)
 # installation target
 SIPX30_CONFIG = @PACKAGE@-3.0.tgz
 PREVIOUS_CONFIG = $(DESTDIR)@SIPX_UPGRADEDIR@/@PACKAGE@-previous.tgz
+
 EXTRA_DIST = \
 	$(EXTRA_DATA) \
 	$(SIPX30_CONFIG)
