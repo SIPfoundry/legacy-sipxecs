@@ -307,7 +307,7 @@ sub find_last_notify {
 	$empty_notifies++ unless /<dialog-info/;
 	# Make sure a <state> that isn't "terminated" is present, as
 	# terminated notices may not have complete information.
-	next unless m%<state>(?!terminated)\w+</state>%;
+	next unless m%<state(\s([^>"']|"[^"<]*"|'[^'<]*')*)?>(early|confirmed)</state>%;
 	# This line passes the tests, save it.
 	$log_line = $_;
     }
