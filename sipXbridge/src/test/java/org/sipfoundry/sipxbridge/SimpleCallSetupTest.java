@@ -9,15 +9,23 @@ package org.sipfoundry.sipxbridge;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileReader;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.util.HashSet;
 import java.util.Properties;
 
+import javax.sdp.MediaDescription;
+import javax.sdp.SdpFactory;
+import javax.sdp.SessionDescription;
 import javax.sip.message.Request;
 import javax.sip.message.Response;
 
 import org.apache.log4j.PropertyConfigurator;
 import org.sipfoundry.sipxbridge.Gateway;
 import org.sipfoundry.sipxbridge.ItspAccountInfo;
+import org.sipfoundry.sipxbridge.MockItsp.SocketReader;
+import org.sipfoundry.sipxbridge.MockItsp.SocketWriter;
 import org.cafesip.sipunit.SipCall;
 import org.cafesip.sipunit.SipPhone;
 import org.cafesip.sipunit.SipRequest;
@@ -44,11 +52,28 @@ public class SimpleCallSetupTest extends AbstractSipSignalingTest {
             + "a=rtpmap:0 PCMU/8000\r\n"
             + "a=rtpmap:101 telephone-event/8000\r\n"
             + "a=fmtp:101 0-11,16\r\n";
+    private SessionDescription createSessionDescription() {
+        try {
+            int mediaPort = this.getMediaPort();
 
-    
+            String sdpBody = String.format(sdpBodyFormat, "127.0.0.1",
+                   "127.0.0.1", mediaPort);
+            SessionDescription sd = SdpFactory.getInstance()
+                    .createSessionDescription(sdpBody);
+
+            return sd;
+
+        } catch (Exception ex) {
+            TestCase.fail("Cannot create session description");
+            return null;
+        }
+
+    }
     class PhoneResponder implements Runnable {
         SipPhone sipPhone;
-    
+        SocketReader socketReader;
+        SessionDescription remoteSessionDescription;
+
         public PhoneResponder(SipPhone sipPhone) {
             this.sipPhone = sipPhone;
         }
@@ -62,10 +87,19 @@ public class SimpleCallSetupTest extends AbstractSipSignalingTest {
 
                 SipRequest sipRequest = sipCall.getLastReceivedRequest();
                 Request request = (Request) sipRequest.getMessage();
+                remoteSessionDescription = SipUtilities
+                        .getSessionDescription(request);
+                SessionDescription sd = createSessionDescription();
+                int port = SipUtilities.getSessionDescriptionMediaPort(sd);
+                
+                sipCall.sendIncomingCallResponse(Response.OK, "OK", 3000, sd
+                        .toString(), "application", "sdp", null, null);
                 sipCall.waitForAck(3000);
 
+               
                 sipCall.waitForDisconnect(3000);
                 sipCall.respondToDisconnect();
+                
 
             } catch (Exception ex) {
                 ex.printStackTrace();
@@ -75,7 +109,7 @@ public class SimpleCallSetupTest extends AbstractSipSignalingTest {
         }
 
     }
-
+ 
     public void testDialBadNumber() {
         try {
             String to = "sip:3015551212@" + accountInfo.getProxyDomain();
@@ -187,6 +221,7 @@ public class SimpleCallSetupTest extends AbstractSipSignalingTest {
         PhoneResponder responder = new PhoneResponder (sipPhone);
         new Thread(responder).start();
         mockItsp.makePhoneInboundCall();
+        Thread.sleep(4000);
         
     }
 

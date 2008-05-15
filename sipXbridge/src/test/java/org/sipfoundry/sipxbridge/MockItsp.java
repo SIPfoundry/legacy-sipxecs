@@ -383,12 +383,16 @@ public class MockItsp implements SipListener {
                 ViaHeader inboundViaHeader = (ViaHeader) newRequest
                         .getHeader(ViaHeader.NAME);
                 int viaPort = inboundViaHeader.getPort();
+                System.out.println("viaPort = " + viaPort);
+                RouteHeader rh = null;
                 if (viaPort != this.myPort + 1) {
+                   
 
                     SipPhone sipPhone = this.sipPhones.get(user);
                     if (sipPhone == null) {
                         Response response = SipFactories.messageFactory
                                 .createResponse(Response.NOT_FOUND, request);
+                        response.setReasonPhrase("Cannot find phone " + user);
                         st.sendResponse(response);
                         return;
 
@@ -398,12 +402,29 @@ public class MockItsp implements SipListener {
                             null, this.myIpAddress);
                     phoneUri.setPort(this.myPort + 1);
                     newRequest.setRequestURI(phoneUri);
+                    SipURI routeUri = SipFactories.addressFactory.createSipURI(
+                            null, this.myIpAddress);
+                    routeUri.setPort(this.myPort + 1);
+                    routeUri.setLrParam();
+                    Address routeAddress = SipFactories.addressFactory
+                            .createAddress(routeUri);
+                    rh = SipFactories.headerFactory
+                            .createRouteHeader(routeAddress);
                 } else {
                     SipURI phoneUri = SipFactories.addressFactory.createSipURI(
                             null, this.myIpAddress);
-                    phoneUri.setPort(this.accountManager
+                    phoneUri.setPort(accountManager
                             .getBridgeConfiguration().getExternalPort());
                     newRequest.setRequestURI(phoneUri);
+                    SipURI routeUri = SipFactories.addressFactory.createSipURI(
+                            null, this.myIpAddress);
+                    routeUri.setPort(accountManager
+                            .getBridgeConfiguration().getExternalPort());
+                    routeUri.setLrParam();
+                    Address routeAddress = SipFactories.addressFactory
+                            .createAddress(routeUri);
+                    rh = SipFactories.headerFactory
+                            .createRouteHeader(routeAddress);
                 }
                 ViaHeader viaHeader = SipFactories.headerFactory
                         .createViaHeader(this.myIpAddress, this.myPort, "udp",
@@ -423,15 +444,8 @@ public class MockItsp implements SipListener {
                 ContactHeader contactHeader = ((ListeningPointExt) this.listeningPoint)
                         .createContactHeader();
                 newRequest.setHeader(contactHeader);
-                SipURI routeUri = SipFactories.addressFactory.createSipURI(
-                        null, this.myIpAddress);
-                routeUri.setPort(this.myPort + 1);
-                routeUri.setLrParam();
-                Address routeAddress = SipFactories.addressFactory
-                        .createAddress(routeUri);
-                RouteHeader rh = SipFactories.headerFactory
-                        .createRouteHeader(routeAddress);
-                newRequest.addHeader(rh);
+                
+                newRequest.setHeader(rh);
 
                // System.out.println("newRequest -- " + newRequest);
                 ClientTransaction ctx = provider

@@ -27,7 +27,7 @@ import gov.nist.javax.sip.clientauthutils.*;
 import junit.framework.TestCase;
 
 public abstract class AbstractSipSignalingTest extends SipTestCase {
-    protected int sipxProxyPort;
+    protected int sipxProxyPort = 5060;
     protected String localAddr;
     protected int localPort;
     private static int baseMediaPort;
@@ -50,8 +50,7 @@ public abstract class AbstractSipSignalingTest extends SipTestCase {
         accountInfo = accountManager.getDefaultAccount();
         
 
-        sipxProxyPort = Integer.parseInt(properties
-                .getProperty("org.sipfoundry.gateway.mockSipxProxyPort"));
+       
         sipxProxyAddress = properties.getProperty("org.sipfoundry.gateway.mockSipxProxyAddress");
       
         

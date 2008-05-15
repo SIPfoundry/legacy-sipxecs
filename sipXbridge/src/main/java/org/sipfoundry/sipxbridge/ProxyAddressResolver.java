@@ -6,6 +6,8 @@
  */
 package org.sipfoundry.sipxbridge;
 
+import java.net.InetAddress;
+
 import javax.sip.address.Hop;
 
 import org.apache.log4j.Logger;
@@ -20,15 +22,15 @@ import gov.nist.core.net.AddressResolver;
  * 
  */
 public class ProxyAddressResolver implements AddressResolver {
-    private static Logger logger = Logger.getLogger(AddressResolver.class);
-
+   
     private static AccountManagerImpl accountManager = Gateway
             .getAccountManager();
 
     public Hop resolveAddress(Hop hop) {
 
-        logger.debug("Resolving " + hop.getHost() + " port " + hop.getPort());
-        if (hop.getHost().equals(Gateway.getSipxProxyDomain())) {
+        if ( hop.getHost().equals("127.0.0.1")) { 
+            return hop; // For testing only.
+        } else if (hop.getHost().equals(Gateway.getSipxProxyDomain())) {
             return Gateway.getSipxProxyHop();
         } else if (Gateway.getAccountManager().getHopToItsp(hop.getHost()) != null) {
             return Gateway.getAccountManager().getHopToItsp(hop.getHost());
