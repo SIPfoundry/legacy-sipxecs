@@ -28,6 +28,7 @@ endif
 AC_TARGETS = \
 	cgicc \
 	cppunit \
+	jain-sip \
 	java-ibm \
 	java-sun \
 	ruby-dbi \
