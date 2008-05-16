@@ -82,7 +82,8 @@ class NameValuePair ;
  *   - setFieldParameter()
  *   - removeFieldParameter()
  *   - removeFieldParameters()
- * 
+ * - properties
+ *   - isGRUU()
  */
 
 class Url
@@ -587,8 +588,23 @@ public:
 
    /// Set the scheme to be used (also see setUrlType).
    void setScheme(Scheme scheme);
-   
 
+   /// Is this a Globally Routable UA URI?
+   bool isGRUU() const;
+   ///< @returns true if it detectably has the properties of a GRUU
+
+   /// Mark this as a Globally Routable UA URI
+   void setGRUU(const UtlString& uniqueId /**< This is used as the value of the 'gr' Url
+                                           *   parameter in a SIP URL.  If an empty UtlString
+                                           *   is passed, the parameter is added with no value. */
+                );
+   /**<
+    * This adds the parameter that identifies this URL as a GRUU
+    * @see draft-ietf-sip-gruu-15.txt
+    *
+    * @note at present, may be called only for SipsUrlScheme or SipsUrlScheme URLs
+    */
+   
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
 

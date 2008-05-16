@@ -35,6 +35,8 @@
 // EXTERNAL VARIABLES
 // CONSTANTS
 
+const char* SIP_GRUU_URL_PARAMETER = "gr";
+
 /* =========================================================================
  * IMPORTANT NOTE:
  *   If you change any of the following regular expressions, enable the
@@ -1922,5 +1924,33 @@ void Url::gen_value_escape(UtlString& unEscapedText)
       unEscapedText = escapedText;
    }
 }
+
+
+/// Is this a Globally Routable UA URI?
+bool Url::isGRUU() const
+{
+   // for now we just test to see if it has the standard gruu marker parameter
+   UtlString valueNotUsed;
+   return (   ( SipUrlScheme == mScheme || SipsUrlScheme == mScheme )
+           && getUrlParameter(SIP_GRUU_URL_PARAMETER, valueNotUsed)
+           );
+}
+
+/// Mark as being a Globally Routable UA URI
+void Url::setGRUU(const UtlString& uniqueId)
+{
+   if ( SipUrlScheme == mScheme || SipsUrlScheme == mScheme )
+   {
+      setUrlParameter(SIP_GRUU_URL_PARAMETER, uniqueId.data());
+   }
+   else
+   {
+      OsSysLog::add(FAC_SIP, PRI_CRIT, "Url::setGRUU called for an invalid URL scheme (%s)",
+                    schemeName(mScheme)
+                    );
+      assert(false);
+   }
+}
+
 
 /* ============================ FUNCTIONS ================================= */

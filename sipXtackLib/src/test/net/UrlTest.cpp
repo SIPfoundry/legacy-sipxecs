@@ -99,6 +99,7 @@ class UrlTest : public CppUnit::TestCase
     CPPUNIT_TEST(testBigUriUser);
     CPPUNIT_TEST(testBigUriNoSchemeUser);
     CPPUNIT_TEST(testBigUriHost);
+    CPPUNIT_TEST(testGRUU);
     CPPUNIT_TEST_SUITE_END();
 
 private:
@@ -1853,6 +1854,95 @@ public:
 
          KNOWN_BUG("fails on FC6", "XPB-843");
          CPPUNIT_ASSERT(bighostUrl.getScheme() == Url::UnknownUrlScheme);
+      }
+
+   void testGRUU()
+      {
+         UtlString url;
+         
+         url = "sip:user@example.edu";
+         Url url1(url, Url::AddrSpec);
+         CPPUNIT_ASSERT(! url1.isGRUU());
+         
+         url = "<sip:user@example.edu>;gr=sk33tyzzx";
+         Url url2(url, Url::NameAddr);
+         CPPUNIT_ASSERT(! url2.isGRUU());
+         
+         url = "sip:user@example.edu;gr=sk33tyzzx";
+         Url url3(url, Url::AddrSpec);
+         CPPUNIT_ASSERT(url3.isGRUU());
+         
+         url = "sip:user@example.edu;gr=sk33tyzzx";
+         Url url4(url, Url::NameAddr);
+         CPPUNIT_ASSERT(! url4.isGRUU());
+         
+         url = "sip:user@example.edu;Gr=sk33tyzzx";
+         Url url5(url, Url::AddrSpec);
+         CPPUNIT_ASSERT(url5.isGRUU());
+         
+         url = "sip:user@example.edu;GR=sk33tyzzx";
+         Url url6(url, Url::AddrSpec);
+         CPPUNIT_ASSERT(url6.isGRUU());
+         
+         url = "sip:user@example.edu;gr";
+         Url url7(url, Url::AddrSpec);
+         CPPUNIT_ASSERT(url7.isGRUU());
+         
+         url = "sip:user@example.edu;gruu=sk33tyzzx";
+         Url url8(url, Url::AddrSpec);
+         CPPUNIT_ASSERT(! url8.isGRUU());
+         
+         UtlString gruuId("sk33tyzzx");
+         
+         url = "sip:user@example.edu";
+         Url url9(url, Url::AddrSpec);
+         CPPUNIT_ASSERT(! url9.isGRUU());
+         url9.setGRUU(gruuId);
+         CPPUNIT_ASSERT(url9.isGRUU());
+         UtlString url9_addrspec;
+         url9.getUri(url9_addrspec);
+         ASSERT_STR_EQUAL("sip:user@example.edu;gr=sk33tyzzx", url9_addrspec);
+         UtlString url9_nameaddr;
+         url9.toString(url9_nameaddr);
+         ASSERT_STR_EQUAL("<sip:user@example.edu;gr=sk33tyzzx>", url9_nameaddr);
+         
+         url = "sip:user@example.edu;gr=other";
+         Url url10(url, Url::AddrSpec);
+         CPPUNIT_ASSERT(url10.isGRUU());
+         url10.setGRUU(gruuId);
+         CPPUNIT_ASSERT(url10.isGRUU());
+         UtlString url10_addrspec;
+         url10.getUri(url10_addrspec);
+         ASSERT_STR_EQUAL("sip:user@example.edu;gr=sk33tyzzx", url10_addrspec);
+         UtlString url10_nameaddr;
+         url10.toString(url10_nameaddr);
+         ASSERT_STR_EQUAL("<sip:user@example.edu;gr=sk33tyzzx>", url10_nameaddr);
+
+         url = "sip:user@example.edu;GR=other";
+         Url url11(url, Url::AddrSpec);
+         CPPUNIT_ASSERT(url11.isGRUU());
+         url11.setGRUU(gruuId);
+         CPPUNIT_ASSERT(url11.isGRUU());
+         UtlString url11_addrspec;
+         url11.getUri(url11_addrspec);
+         ASSERT_STR_EQUAL("sip:user@example.edu;GR=sk33tyzzx", url11_addrspec);
+         UtlString url11_nameaddr;
+         url11.toString(url11_nameaddr);
+         ASSERT_STR_EQUAL("<sip:user@example.edu;GR=sk33tyzzx>", url11_nameaddr);
+
+         url = "sip:user@example.edu";
+         Url url12(url, Url::AddrSpec);
+         CPPUNIT_ASSERT(! url12.isGRUU());
+         UtlString noId;
+         url12.setGRUU(noId);
+         CPPUNIT_ASSERT(url12.isGRUU());
+         UtlString url12_addrspec;
+         url12.getUri(url12_addrspec);
+         ASSERT_STR_EQUAL("sip:user@example.edu;gr", url12_addrspec);
+         UtlString url12_nameaddr;
+         url12.toString(url12_nameaddr);
+         ASSERT_STR_EQUAL("<sip:user@example.edu;gr>", url12_nameaddr);
+         
       }
 
     /////////////////////////
