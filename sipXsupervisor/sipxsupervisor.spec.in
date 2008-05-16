@@ -79,10 +79,6 @@ mkdir -p %{upgrade_archive_root}
 tar --directory ${RPM_BUILD_ROOT} \
     -czf %{upgrade_archive_root}/%{this_archive} \
     etc
-# Do it again for cdr (same contents, different name)
-tar --directory ${RPM_BUILD_ROOT} \
-    -czf %{upgrade_archive_root}/%{this_archive_cdr} \
-    etc
 
 %clean
 rm -rf $RPM_BUILD_ROOT
