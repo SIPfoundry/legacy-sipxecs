@@ -650,6 +650,7 @@ AC_DEFUN([SFAC_DOWNLOAD_DEPENDENCIES],
   AC_SUBST(FC6_UPDATES_URL, http://mirrors.kernel.org/fedora/core/updates)
   AC_SUBST(FC6_EXTRAS_URL, http://mirrors.kernel.org/fedora/extras)
   AC_SUBST(RRDTOOL_URL, http://oss.oetiker.ch/rrdtool/pub)
+  AC_SUBST(JAIN_SIP_URL, http://sipxecs.sipfoundry.org/temp/sipXecs)
 
   SFAC_SRCDIR_EXPAND
   download_file="$abs_srcdir/config/download-file"

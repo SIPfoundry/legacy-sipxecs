@@ -1,7 +1,5 @@
 JAIN_SIP_VER = 1.2
 JAIN_SIP_REL = 1
-# temporary tarball location
-JAIN_SIP_URL = http://sipxecs.sipfoundry.org/temp/sipXecs
 
 SRC = $(LIBSRC)/jain-sip/jain-sip-$(JAIN_SIP_VER).tar.gz
 SRPM = $(DEST_SRPM)/jain-sip-$(JAIN_SIP_VER)-$(JAIN_SIP_REL).src.rpm

@@ -42,13 +42,14 @@ Group:          Development/Java
 License:        Apache Software License 2.0
 URL:            https://jain-sip.dev.java.net/
 BuildArch:      noarch
-Source0:        http://sipxecs.sipfoundry.org/temp/sipXecs/jain-sip-1.2.tar.gz
+Source0:        jain-sip-1.2.tar.gz
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root
 
 BuildRequires:  jpackage-utils >= 0:1.7.3
 BuildRequires:  java-devel >= 0:1.5.0
 BuildRequires:  ant >= 0:1.6.5
 BuildRequires:  junit >= 0:3.8.2
+BuildRequires:  log4j >= 0:1.2
 Requires:       log4j >= 0:1.2
 
 %description
