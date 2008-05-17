@@ -43,6 +43,7 @@ License:        Apache Software License 2.0
 URL:            https://jain-sip.dev.java.net/
 BuildArch:      noarch
 Source0:        jain-sip-1.2.tar.gz
+Patch0:			build-fix.patch
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root
 
 BuildRequires:  jpackage-utils >= 0:1.7.3
@@ -70,6 +71,7 @@ Javadoc for %{name}.
 %prep
 rm -rf $RPM_BUILD_ROOT
 %setup -q
+%patch -p1
 
 # -----------------------------------------------------------------------------
 
@@ -80,7 +82,7 @@ log4j \
 )
 CLASSPATH=$CLASSPATH:classes
 
-ant -Dbuild.sysclasspath=only all
+ant -Dbuild.sysclasspath=only compileapi compileri compilesdp sip-sdp-jar javadoc javadoc-jain
 # -----------------------------------------------------------------------------
 
 %install

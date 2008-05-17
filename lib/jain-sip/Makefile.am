@@ -1,7 +1,11 @@
 JAIN_SIP_VER = 1.2
 JAIN_SIP_REL = 1
 
-SRC = $(LIBSRC)/jain-sip/jain-sip-$(JAIN_SIP_VER).tar.gz
+
+TARBALL=jain-sip-$(JAIN_SIP_VER).tar.gz
+PATCH = build-fix.patch
+
+SRC = $(LIBSRC)/jain-sip/$(TARBALL)
 SRPM = $(DEST_SRPM)/jain-sip-$(JAIN_SIP_VER)-$(JAIN_SIP_REL).src.rpm
 RPMS = \
 	$(DEST_RPM)/jain-sip-$(JAIN_SIP_VER)-$(JAIN_SIP_REL).noarch.rpm \
@@ -13,12 +17,14 @@ all : $(SRPM) $(RPMS)
 $(SRC) :
 	$(DOWNLOAD_FILE) $@ $(JAIN_SIP_URL)/`basename $@`
 
+$(RPM_SOURCES_DIR)/$(TARBALL) : $(SRC)
+	cp $< $@
+
 $(RPM_SOURCES_DIR)/% : %
 	cp $< $@
 
 .PHONY: build-rpms
-build-rpms: $(SRC) $(srcdir)/jain-sip.spec
-	cp $(SRC) @RPMBUILD_TOPDIR@/SOURCES
+build-rpms: $(SRC) $(srcdir)/jain-sip.spec $(RPM_SOURCES_DIR)/$(PATCH) $(RPM_SOURCES_DIR)/$(TARBALL)
 	rpmbuild -ba $(srcdir)/jain-sip.spec
 
 $(SRPM): build-rpms
