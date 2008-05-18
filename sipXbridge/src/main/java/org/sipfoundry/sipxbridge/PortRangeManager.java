@@ -76,7 +76,6 @@ public class PortRangeManager {
     }
 
     public synchronized PortRange allocate(int size, Parity parity) {
-       // System.out.println("Allocating " + size + " Parity " + parity);
         Iterator<PortRange> it = portRangeQueue.iterator();
         int res;
         if (parity.equals(Parity.EVEN))

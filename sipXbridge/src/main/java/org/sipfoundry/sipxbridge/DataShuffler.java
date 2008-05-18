@@ -19,38 +19,40 @@ class DataShuffler implements Runnable {
 
     // The buffer into which we'll read data when it's available
     private static ByteBuffer readBuffer = ByteBuffer.allocate(4096);;
-    private static Selector selector ;
+    private static Selector selector;
     private static Logger logger = Logger.getLogger(DataShuffler.class);
 
     private static boolean initializeSelectors = true;
 
     public DataShuffler() {
 
-      
     }
 
     private static void initializeSelector() {
-       
 
         try {
             selector = Selector.open();
 
             for (Bridge bridge : ConcurrentSet.getBridges()) {
+
                 for (Sym session : bridge.sessions) {
-                    if (session.getReceiver() != null &&
-                            session.getReceiver().getDatagramChannel().isOpen()) {
-                        session.getReceiver().getDatagramChannel()
-                                .configureBlocking(false);
-                        session.getReceiver().getDatagramChannel().register(
-                                selector, SelectionKey.OP_READ);
+                    try {
+                        if (session.getReceiver() != null
+                                && session.getReceiver().getDatagramChannel()
+                                        .isOpen()) {
+                            session.getReceiver().getDatagramChannel()
+                                    .configureBlocking(false);
+                            session.getReceiver().getDatagramChannel()
+                                    .register(selector, SelectionKey.OP_READ);
+                        }
+                    } catch (ClosedChannelException ex) {
+                        // Avoid loading any closed channels in our select set.
+                        continue;
                     }
                 }
                 initializeSelectors = false;
             }
 
-        } catch (ClosedChannelException ex) {
-            logger.error("Unepxected exception", ex);
-            return;
         } catch (IOException ex) {
             logger.error("Unepxected exception", ex);
             return;
@@ -69,11 +71,9 @@ class DataShuffler implements Runnable {
 
                 if (initializeSelectors) {
                     initializeSelector();
-                }  
-                
+                }
+
                 selector.select();
-                
-               
 
                 // Iterate over the set of keys for which events are
                 // available
@@ -121,15 +121,15 @@ class DataShuffler implements Runnable {
                                                         .getIpAddress() + ":"
                                                 + sym.getReceiver().getPort());
                                         if (remoteAddress != null) {
-                                            if ( logger.isDebugEnabled())
+                                            if (logger.isDebugEnabled())
                                                 logger
-                                                    .debug("remoteIpAddressAndPort : "
-                                                            + remoteAddress
-                                                                    .getAddress()
-                                                                    .getHostAddress()
-                                                            + ":"
-                                                            + remoteAddress
-                                                                    .getPort());
+                                                        .debug("remoteIpAddressAndPort : "
+                                                                + remoteAddress
+                                                                        .getAddress()
+                                                                        .getHostAddress()
+                                                                + ":"
+                                                                + remoteAddress
+                                                                        .getPort());
                                         }
                                     }
                                     sym.lastPacketTime = System
@@ -225,15 +225,11 @@ class DataShuffler implements Runnable {
     }
 
     public static void initializeSelectors() {
-          initializeSelectors = true;
-          if ( selector != null ) {
-              selector.wakeup();
-          }
-         
-     
-        
-    }
+        initializeSelectors = true;
+        if (selector != null) {
+            selector.wakeup();
+        }
 
-    
+    }
 
 }

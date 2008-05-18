@@ -108,6 +108,10 @@ public class SipListenerImpl implements SipListener {
 
         logger.debug("Gateway: got an invoming request "
                 + requestEvent.getRequest());
+        if (Gateway.getState() == GatewayState.STOPPING) {
+            logger.debug("Gateway is stopping -- returning");
+            return;
+        }
 
         Request request = requestEvent.getRequest();
         String method = request.getMethod();
@@ -146,6 +150,12 @@ public class SipListenerImpl implements SipListener {
     }
 
     public void processResponse(ResponseEvent responseEvent) {
+        
+        if (Gateway.getState() == GatewayState.STOPPING) {
+            logger.debug("Gateway is stopping -- returning");
+            return;
+        }
+        
         Response response = responseEvent.getResponse();
         CSeqHeader cseqHeader = (CSeqHeader) response
                 .getHeader(CSeqHeader.NAME);

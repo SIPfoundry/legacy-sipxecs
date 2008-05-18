@@ -144,18 +144,27 @@ public class AccountManagerImpl implements
      *            the domain name for which we want creds.
      * 
      */
-    public UserCredentials getCredentials(String domainName) {
+    public UserCredentials getCredentials(SipURI sipUri, String authRealm) {
 
-        UserCredentials retval = this.itspAccounts.get(domainName);
+        UserCredentials retval = this.itspAccounts.get(authRealm);
         if (retval == null) {
             // Maybe he is coming in with an address instead of a domain name.
             // do a reverse lookup.
-            String realDomainName = this.addressToDomainNameMap.get(domainName);
+            String realDomainName = this.addressToDomainNameMap.get(authRealm);
             if (realDomainName == null) {
-                logger.debug("No creds found for " + domainName);
+                // Check to see if we have any creds based upon his URI.
+                String host = sipUri.getHost();
+                retval = this.itspAccounts.get(host);
+                
+            
 
             } else {
                 retval = this.itspAccounts.get(realDomainName);
+            }
+        }
+        if ( retval == null ) {
+            if (logger.isDebugEnabled()) {
+                logger.debug("No creds for account " + sipUri + " realm " + authRealm);
             }
         }
         return retval;

@@ -1122,8 +1122,7 @@ public class BackToBackUserAgent {
 
             DialogApplicationData.attach(this, outboundDialog);
 
-            String codecName = Gateway.getCodecName();
-
+        
             SessionDescription sd = spiral ? DialogApplicationData
                     .getRtpSession(this.referingDialog).getReceiver()
                     .getSessionDescription() : this.getWanRtpSession(
@@ -1131,6 +1130,7 @@ public class BackToBackUserAgent {
 
             SipUtilities.fixupSdpAddresses(sd, itspAccountInfo
                     .isGlobalAddressingUsed());
+            String codecName = Gateway.getCodecName();
 
             SessionDescription newSd = SipUtilities.cleanSessionDescription(sd,
                     codecName);

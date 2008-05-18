@@ -15,19 +15,4 @@ package org.sipfoundry.sipxbridge;
 public enum BridgeState {
     INITIAL, RUNNING, PAUSED, TERMINATED;
 
-    @Override
-    public String toString() {
-        if (this == INITIAL) {
-            return "INITIAL";
-        } else if (this == RUNNING) {
-            return "RUNNING";
-        } else if (this == PAUSED) {
-            return "PAUSED";
-        } else if (this == TERMINATED) {
-            return "TERMINATED";
-        } else {
-            return null;
-        }
-    }
-
 }

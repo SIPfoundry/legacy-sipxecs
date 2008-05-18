@@ -26,10 +26,9 @@ import org.apache.log4j.Logger;
  * from a kernel level copy such as ip-tables.
  * 
  * 
- * TODO -- optimize this to use a thread pool.
  * 
  * 
- * @author M. Ranganathan
+ * @author M. Ranganathan <mranga@pingtel.com>
  * 
  */
 public class Bridge {

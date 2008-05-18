@@ -1084,13 +1084,13 @@ public class CallControlManager {
                 accountInfo = Gateway.getAccountManager().getItspAccount(host,
                         port);
             }
-            if (accountInfo == null)
-                return null;
+         
 
             if (this.backToBackUserAgentTable.containsKey(callId)) {
                 b2bua = this.backToBackUserAgentTable.get(callId);
             } else {
-
+                if (accountInfo == null)
+                    return null;
                 b2bua = new BackToBackUserAgent(provider, request, dialog,
                         accountInfo);
 

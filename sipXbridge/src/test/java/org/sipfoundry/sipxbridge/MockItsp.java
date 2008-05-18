@@ -200,9 +200,14 @@ public class MockItsp implements SipListener {
         SipPhone sipPhone;
         SocketReader socketReader;
         SessionDescription remoteSessionDescription;
+        int callTime;
+        boolean callerSendsBye;
 
-        public PhoneResponder(SipPhone sipPhone) {
+        public PhoneResponder(SipPhone sipPhone, int callTime,
+                boolean callerSendsBye) {
             this.sipPhone = sipPhone;
+            this.callTime = callTime;
+            this.callerSendsBye = callerSendsBye;
         }
 
         public void run() {
@@ -225,6 +230,7 @@ public class MockItsp implements SipListener {
                     new Thread(socketReader).start();
                 sipCall.sendIncomingCallResponse(Response.OK, "OK", 3000, sd
                         .toString(), "application", "sdp", null, null);
+
                 sipCall.waitForAck(3000);
 
                 if (writeCount > 0) {
@@ -238,8 +244,14 @@ public class MockItsp implements SipListener {
                             .getByName(ipAddress), remotePort));
                     new Thread(new SocketWriter(datagramSocket)).start();
                 }
-                sipCall.waitForDisconnect(3000);
-                sipCall.respondToDisconnect();
+                if (callerSendsBye) {
+                    sipCall.waitForDisconnect(3000);
+                    sipCall.respondToDisconnect();
+                } else {
+                    Thread.sleep(callTime);
+                    sipCall.disconnect();
+                    sipCall.waitForAnswer(1000);
+                }
                 socket.close();
 
             } catch (Exception ex) {
@@ -259,11 +271,11 @@ public class MockItsp implements SipListener {
             String userName = accountInfo.getUserName();
             String domain = accountInfo.getProxyDomain();
             phone = phoneStack.createSipPhone(
-                    abstractSipSignalingTest.sipxProxyAddress, "udp",
-                    myPort,
+                    abstractSipSignalingTest.sipxProxyAddress, "udp", myPort,
                     String.format("sip:%s@%s", userName, domain));
 
             this.inboundNumber = inboundNumber;
+
         }
 
         public void makeCall() {
@@ -297,8 +309,8 @@ public class MockItsp implements SipListener {
         phoneCaller.makeCall();
     }
 
-    public void createPhones(int responderCount, int callerCount)
-            throws Exception {
+    public void createPhones(int responderCount, int callerCount,
+            int timeOfCall, boolean callerSendsBye) throws Exception {
         /*
          * Set up phones.
          */
@@ -308,7 +320,8 @@ public class MockItsp implements SipListener {
             SipPhone sipPhone = this.phoneStack.createSipPhone(
                     this.myIpAddress, "udp", this.myPort, phoneId);
             this.sipPhones.put(user, sipPhone);
-            PhoneResponder phoneResponder = new PhoneResponder(sipPhone);
+            PhoneResponder phoneResponder = new PhoneResponder(sipPhone,
+                    timeOfCall, callerSendsBye);
             new Thread(phoneResponder).start();
             this.phoneResponders.add(phoneResponder);
         }
@@ -386,7 +399,6 @@ public class MockItsp implements SipListener {
                 System.out.println("viaPort = " + viaPort);
                 RouteHeader rh = null;
                 if (viaPort != this.myPort + 1) {
-                   
 
                     SipPhone sipPhone = this.sipPhones.get(user);
                     if (sipPhone == null) {
@@ -413,13 +425,13 @@ public class MockItsp implements SipListener {
                 } else {
                     SipURI phoneUri = SipFactories.addressFactory.createSipURI(
                             null, this.myIpAddress);
-                    phoneUri.setPort(accountManager
-                            .getBridgeConfiguration().getExternalPort());
+                    phoneUri.setPort(accountManager.getBridgeConfiguration()
+                            .getExternalPort());
                     newRequest.setRequestURI(phoneUri);
                     SipURI routeUri = SipFactories.addressFactory.createSipURI(
                             null, this.myIpAddress);
-                    routeUri.setPort(accountManager
-                            .getBridgeConfiguration().getExternalPort());
+                    routeUri.setPort(accountManager.getBridgeConfiguration()
+                            .getExternalPort());
                     routeUri.setLrParam();
                     Address routeAddress = SipFactories.addressFactory
                             .createAddress(routeUri);
@@ -444,10 +456,10 @@ public class MockItsp implements SipListener {
                 ContactHeader contactHeader = ((ListeningPointExt) this.listeningPoint)
                         .createContactHeader();
                 newRequest.setHeader(contactHeader);
-                
+
                 newRequest.setHeader(rh);
 
-               // System.out.println("newRequest -- " + newRequest);
+                // System.out.println("newRequest -- " + newRequest);
                 ClientTransaction ctx = provider
                         .getNewClientTransaction(newRequest);
                 ctx.setApplicationData(st);
@@ -491,6 +503,8 @@ public class MockItsp implements SipListener {
             }
         } catch (Exception ex) {
             ex.printStackTrace();
+            System.out.println("Error while Processing request " + 
+                    requestEvent.getServerTransaction().getRequest());
             AbstractSipSignalingTest.fail("Unexpected exception");
         }
     }

@@ -7,6 +7,7 @@
 
 package org.sipfoundry.sipxbridge;
 
+import gov.nist.javax.sip.DialogExt;
 import gov.nist.javax.sip.SipStackExt;
 import gov.nist.javax.sip.clientauthutils.AuthenticationHelper;
 
@@ -16,12 +17,16 @@ import java.net.UnknownHostException;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import javax.sip.ClientTransaction;
+import javax.sip.Dialog;
+import javax.sip.DialogState;
 import javax.sip.ListeningPoint;
 import javax.sip.SipException;
 import javax.sip.SipProvider;
 import javax.sip.address.Address;
 import javax.sip.address.Hop;
 import javax.sip.address.SipURI;
+import javax.sip.header.CallIdHeader;
 import javax.sip.message.Request;
 
 import net.java.stun4j.StunAddress;
@@ -75,8 +80,6 @@ public class Gateway {
      * Internal SIp Provider
      */
     private static SipProvider internalProvider;
-    
-   
 
     /*
      * External provider.
@@ -163,7 +166,7 @@ public class Gateway {
     private static boolean isTlsSupportEnabled = false;
 
     private static InetAddress localAddressByName;
-    
+
     private static boolean isWebServerRunning = false;
 
     private static int callCount;
@@ -203,25 +206,21 @@ public class Gateway {
             InetAddress localAddr = InetAddress.getByName(Gateway
                     .getLocalAddress());
             if (Gateway.getXmlRpcWebServerPort() != 0 && !isWebServerRunning) {
-                isWebServerRunning  = true;
-                System.out.println("Starting xml rpc server on port " +
-                        Gateway.getXmlRpcWebServerPort());
+                isWebServerRunning = true;
+                System.out.println("Starting xml rpc server on port "
+                        + Gateway.getXmlRpcWebServerPort());
                 webServer = new WebServer(Gateway.getXmlRpcWebServerPort(),
                         localAddr);
-                
-                 
-               
 
                 PropertyHandlerMapping handlerMapping = new PropertyHandlerMapping();
 
                 handlerMapping.addHandler("sipXbridge", SipXbridgeServer.class);
 
                 XmlRpcServer server = webServer.getXmlRpcServer();
-                
-                XmlRpcServerConfigImpl serverConfig = 
-                    new XmlRpcServerConfigImpl();
+
+                XmlRpcServerConfigImpl serverConfig = new XmlRpcServerConfigImpl();
                 serverConfig.setKeepAliveEnabled(true);
-            
+
                 server.setConfig(serverConfig);
                 server.setHandlerMapping(handlerMapping);
                 webServer.start();
@@ -362,7 +361,7 @@ public class Gateway {
             externalProvider = ProtocolObjects.sipStack
                     .createSipProvider(externalUdpListeningPoint);
             externalProvider.addListeningPoint(externalTcpListeningPoint);
-           
+
             int localPort = bridgeConfiguration.getLocalPort();
             String localIpAddress = bridgeConfiguration.getLocalAddress();
             System.out.println("Local Address:port = " + localIpAddress + ":"
@@ -390,13 +389,11 @@ public class Gateway {
             ListeningPoint internalTcpListeningPoint = ProtocolObjects.sipStack
                     .createListeningPoint(localIpAddress, localPort, "tcp");
 
-            
-            
             internalProvider = ProtocolObjects.sipStack
-                .createSipProvider(internalUdpListeningPoint);
-            
+                    .createSipProvider(internalUdpListeningPoint);
+
             internalProvider.addListeningPoint(internalTcpListeningPoint);
-            
+
             registrationManager = new RegistrationManager(getWanProvider("udp"));
 
             backToBackUserAgentManager = new CallControlManager();
@@ -435,7 +432,7 @@ public class Gateway {
     }
 
     public static SipProvider getLanProvider() {
-       return internalProvider;
+        return internalProvider;
     }
 
     /**
@@ -738,17 +735,72 @@ public class Gateway {
         registerWithItsp();
     }
 
+    /**
+     * Stop the gateway. Release any port resources associated with ongoing
+     * dialogs and tear down ongoing Music oh
+     */
     public static synchronized void stop() {
+        Gateway.state = GatewayState.STOPPING;
         backToBackUserAgentManager.stop();
         timer.cancel();
+        try {
+            for (Dialog dialog : ((SipStackExt) ProtocolObjects.sipStack)
+                    .getDialogs()) {
+
+                CallIdHeader cid = dialog.getCallId();
+
+                DialogApplicationData dat = DialogApplicationData.get(dialog);
+                if (dat != null
+                        && dat.musicOnHoldDialog != null
+                        && dat.musicOnHoldDialog.getState() != DialogState.TERMINATED) {
+                    try {
+                        SipProvider provider = ((DialogExt) dat.musicOnHoldDialog)
+                                .getSipProvider();
+                        Request byeRequest = dat.musicOnHoldDialog
+                                .createRequest(Request.BYE);
+                        ClientTransaction ctx = provider
+                                .getNewClientTransaction(byeRequest);
+                        dat.musicOnHoldDialog.sendRequest(ctx);
+                    } catch (Exception ex) {
+                        logger.error(
+                                "Exception in dialog termination processing",
+                                ex);
+                    }
+
+                }
+                if (dat != null) {
+                    BackToBackUserAgent b2bua = dat.backToBackUserAgent;
+                    if (b2bua != null) {
+                        b2bua.removeDialog(dialog);
+
+                    }
+
+                    if (dat.backToBackUserAgent != null
+                            && dat.backToBackUserAgent.getCreatingDialog() == dialog) {
+
+                        ItspAccountInfo itspAccountInfo = dat.backToBackUserAgent
+                                .getItspAccountInfo();
+
+                        Gateway.decrementCallCount();
+
+                        if (itspAccountInfo != null) {
+                            itspAccountInfo.decrementCallCount();
+                        }
+                    }
+                }
+            }
+        } catch (Exception ex) {
+            logger.error("Unexepcted exception occured while stopping bridge",
+                    ex);
+
+        }
         ProtocolObjects.stop();
         // TODO -- send deregistration to all accounts
         Gateway.state = GatewayState.STOPPED;
     }
 
     /**
-     * Get the global address of igate ( this should be determined by Stun but
-     * for now we hard code it ).
+     * Get the global address of bridge.
      * 
      * @return
      */
@@ -787,14 +839,15 @@ public class Gateway {
     }
 
     /**
-     * Get the default codec name. Returns null if 
-     * Re-Invite is supported.
+     * Get the default codec name. Returns null if Re-Invite is supported.
      * 
      */
     public static String getCodecName() {
-        if ( Gateway.isReInviteSupported()) return null;
-        else return Gateway.getAccountManager().getBridgeConfiguration()
-                .getCodecName();
+        if (Gateway.isReInviteSupported())
+            return null;
+        else
+            return Gateway.getAccountManager().getBridgeConfiguration()
+                    .getCodecName();
     }
 
     /**
@@ -804,12 +857,13 @@ public class Gateway {
     public static PortRangeManager getPortManager() {
         return Gateway.portRangeManager;
     }
-    
+
     /**
      * Get the call limit ( number of concurrent calls)
      */
     public static int getCallLimit() {
-        return Gateway.getAccountManager().getBridgeConfiguration().getMaxCalls();
+        return Gateway.getAccountManager().getBridgeConfiguration()
+                .getMaxCalls();
     }
 
     /**
@@ -819,28 +873,28 @@ public class Gateway {
      * 
      */
     public static int getCallCount() {
-      
+
         return Gateway.callCount;
     }
-    
-    
+
     /**
      * Decrement the call count.
      */
     public static void decrementCallCount() {
-        if (Gateway.callCount > 0 ) Gateway.callCount --;
+        if (Gateway.callCount > 0)
+            Gateway.callCount--;
     }
-    
+
     public static void incrementCallCount() {
-       Gateway.callCount ++;
-        
-    }  
-    
+        Gateway.callCount++;
+
+    }
+
     public static boolean isReInviteSupported() {
-        
+
         return accountManager.getBridgeConfiguration().isReInviteSupported();
     }
-    
+
     /**
      * The main method for the Bridge.
      * 
@@ -868,11 +922,5 @@ public class Gateway {
         }
 
     }
-
-    
-
-   
-
-    
 
 }
