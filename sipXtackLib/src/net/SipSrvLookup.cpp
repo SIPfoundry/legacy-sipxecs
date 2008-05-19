@@ -190,8 +190,17 @@ static union u_rdata* look_for(res_response* response,
                                ///< RR type
    );
 
-/// Function to compare two server entries.
-static int server_compare(const void* a, const void* b);
+// Functions to compare two server entries. 
+// 3261 says to prefer TCP for large messages
+
+// sort server list so TCP forks will be tried last (UDP preferred)
+static int server_compare_prefer_udp(const void* a, const void* b);
+
+// sort server list so UDP forks will be tried last (TCP preferred)
+static int server_compare_prefer_tcp(const void* a, const void* b);
+
+static int server_compare(const void* a, const void* b, 
+                          OsSocket::IpProtocolSocketType leastPreferredTransport);
 /**<
  * Compares two server_t's which represent two servers.
  * Used by qsort to sort the list of server entries into preference
@@ -199,7 +208,8 @@ static int server_compare(const void* a, const void* b);
  * ordinary use, most preferred) element is:
  * # Lowest priority
  * # Highest weighting score
- * # Other transport types (UDP) are preferred over TCP
+ * # Other transport types (UDP) are preferred over TCP for small messages
+ * # Other transport types (TCP) are preferred over UDP for large messages
  *
  * @returns Integer comparison result as needed by qsort.
  */
@@ -234,8 +244,10 @@ server_t* SipSrvLookup::servers(const char* domain,
                                 ///< "sip" or "sips"
                                 OsSocket::IpProtocolSocketType socketType,
                                 ///< types of transport
-                                int port
+                                int port,
                                 ///< port number from URI, or PORT_NONE
+                                OsSocket::IpProtocolSocketType preferredTransport
+                                ///< preferred transport protocol
    )
 {
    server_t* list;
@@ -268,18 +280,17 @@ server_t* SipSrvLookup::servers(const char* domain,
                     service, socketType);
       /* Add no elements to the list. */
    }
-   else
    // Case 1: Domain name is a numeric IP address.
-   if (inet_aton(domain, &in.sin_addr))
+   else if (inet_aton(domain, &in.sin_addr))
    {
       in.sin_family = AF_INET;
       // Set up the port number.
       // If port was specified in the URI, that is the port to use.
-      // Otherwise, if the service is sips, use 5061.  Otherwise use 5060.
+      // if not specified, use 5061 for sips service; use 5060 for anything else.
       in.sin_port = htons(portIsValid(port) ? port :
                           ((strcmp(service, "sips") == 0) || (socketType == OsSocket::SSL_SOCKET)) ? 
                           5061 : 5060);
-      // Set the transport if it is not already set for SIPS.
+      // If sips service, make sure transport is set correctly.
       if (socketType == OsSocket::UNKNOWN &&
           strcmp(service, "sips") == 0)
       {
@@ -326,23 +337,27 @@ server_t* SipSrvLookup::servers(const char* domain,
       {
          lookup_A(list, list_length_allocated, list_length_used,
                   domain,
-                  // Default the transport for "sips".
-                  (socketType == OsSocket::UNKNOWN &&
-                   strcmp(service, "sips") == 0) ?
-                  OsSocket::SSL_SOCKET : socketType,
-                  // must do a query.
-                  NULL,
-                  // Default the port if it is not already set.
-                  (portIsValid(port) ? port :
-                  ((strcmp(service, "sips") == 0) || (socketType == OsSocket::SSL_SOCKET)) ? 
-                  5061 : 5060),
-                  // Set the priority and weight to 0.
-                  0, 0);
+                  // If sips service, make sure transport is set correctly.
+                  (socketType == OsSocket::UNKNOWN && strcmp(service, "sips") == 0) ?
+                              OsSocket::SSL_SOCKET : socketType,
+                  NULL,                                 // must do a query.
+                  (portIsValid(port) ?  port :          // use port if specified
+                   ((strcmp(service, "sips") == 0) ||   // else use 5061 for sips;
+                            (socketType == OsSocket::SSL_SOCKET)) ? 
+                                5061 : 5060),           // else use 5060.
+                  0, 0);                // Set priority and weight to 0.
       }
    }
 
    // Sort the list of servers found by priority and score.
-   qsort(list, list_length_used, sizeof (server_t), server_compare);
+   if (preferredTransport == OsSocket::UDP) // list order is UDP before TCP
+   {
+       qsort(list, list_length_used, sizeof (server_t), server_compare_prefer_udp);
+   }
+   else // list order puts TCP before UDP (large requests need this)
+   {
+       qsort(list, list_length_used, sizeof (server_t), server_compare_prefer_tcp);
+   }
 
    // Add ending empty element to list (after sorting the real entries).
    memset(&in, 0, sizeof(in)) ;
@@ -832,8 +847,27 @@ union u_rdata* look_for(res_response* response, const char* name,
    return NULL;
 }
 
-// Function to compare two server entries.
-int server_compare(const void* a, const void* b)
+// Functions to compare two server entries.
+// sort server list so TCP forks will be tried last (UDP preferred)
+int server_compare_prefer_udp(const void* a, const void* b)
+{
+    int result;
+    result = server_compare( a, b, 
+                             OsSocket::TCP);  // TCP is least preferred transport
+    return result;
+}
+
+// sort server list so UDP forks will be tried last (TCP preferred)
+int server_compare_prefer_tcp(const void* a, const void* b)
+{
+    int result;
+    result = server_compare( a, b, 
+                             OsSocket::UDP);  // UDP is least preferred transport
+    return result;
+}
+
+int server_compare(const void* a, const void* b, 
+                   OsSocket::IpProtocolSocketType leastPreferredProto)
 {
     int result = 0;
     const server_t* s1 = (const server_t*) a;
@@ -864,13 +898,18 @@ int server_compare(const void* a, const void* b)
     {
         result = 1;
     }
-    // Compare the transport type, so UDP is favored over TCP.
-    // That means that TCP must be larger than UDP.
-    else if (s1->type == OsSocket::TCP && s2->type != OsSocket::TCP)
+    // Compare the transport type, so everything is favored over leastPreferredProto.
+    // That means that leastPreferredProto must be larger than others.
+    // Smaller messages will ask to prefer UDP (TCP is lowest)
+    // Large messages will ask to prefer TCP (UDP is lowest)
+    // See SipTransaction::getPreferredProtocol.
+    else if (s1->type == leastPreferredProto 
+          && s2->type != leastPreferredProto)
     {
         result = 1;
     }
-    else if (s1->type != OsSocket::TCP && s2->type == OsSocket::TCP)
+    else if (s1->type != leastPreferredProto 
+          && s2->type == leastPreferredProto)
     {
         result = -1;
     }

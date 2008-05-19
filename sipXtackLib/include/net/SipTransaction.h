@@ -310,6 +310,9 @@ protected:
 
     void doMarkBusy(int markValue);
 
+    OsSocket::IpProtocolSocketType getPreferredProtocol();
+    //: Determine best protocol, based on message size
+
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
     SipTransaction(const SipTransaction& rSipTransaction);

@@ -59,8 +59,10 @@ public:
                             ///< "sip" or "sips"
                             OsSocket::IpProtocolSocketType socketType,
                             ///< types of transport
-                            int port
+                            int port,
                             ///< port number from URI, or PORT_NONE
+                            OsSocket::IpProtocolSocketType preferredTransport = OsSocket::UDP
+                            ///< preferred transport protocol
       );
    /**<
     * Returns the list of server entries for SIP domain name 'domain'.
@@ -86,6 +88,12 @@ public:
     * all transports that it knows about that are compatible with the service.
     * (If socketType is incompatible with service, no addresses will
     * be returned.)
+    *
+    * The 'preferredTransport' specifies how to sort servers with respect to
+    * transport protocols and may have the values (within IpProtocolSocketType):
+    *    TCP
+    *    UDP    (default value)
+    * RFC-3261 specifies TCP should be preferred for larger messages
     *
     * @returns Allocates an array of server_t objects and returns
     * the pointer to it.  Caller is responsible for delete[]'ing the array.

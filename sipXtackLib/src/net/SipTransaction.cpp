@@ -32,6 +32,7 @@
 // CONSTANTS
 #define SIP_UDP_RESEND_TIMES 7
 #define MIN_Q_DELTA_SQUARE 0.0000000001 // Smallest Q difference is 0.00001
+#define UDP_LARGE_MSG_LIMIT  1200       // spec says 1300, but we may have to add another via
 
 //#define LOG_FORKING
 //#define ROUTE_DEBUG
@@ -509,7 +510,7 @@ UtlBoolean SipTransaction::handleOutgoing(SipMessage& outgoingMessage,
         // Fix the request so that it is ready to send
         prepareRequestForSend(*message,
                               userAgent,
-                              addressRequiresDnsSrvLookup,
+                              addressRequiresDnsSrvLookup,      // decision is returned
                               toAddress,
                               port,
                               protocol);
@@ -619,8 +620,8 @@ UtlBoolean SipTransaction::handleOutgoing(SipMessage& outgoingMessage,
         // and start pursuing the first child.
         sendSucceeded = recurseDnsSrvChildren(userAgent, transactionList);
     }
-    else
-    {
+    else    // It is a response, cancel, dnsChild, or an ack for failure
+    {       // these messages do not get dns lookup, do not get protocol change
         sendSucceeded = doFirstSend(*message,
                                     relationship,
                                     userAgent,
@@ -657,13 +658,12 @@ void SipTransaction::prepareRequestForSend(SipMessage& request,
         request.setMaxForwards(defaultMaxForwards);
     }
 
-    // ACKs for 200 response do NOT reuse the INVITEs routing and URI
-    UtlBoolean ackFor2xx = FALSE;
+    UtlBoolean ackFor2xx = FALSE;   // ACKs for 200 resp get new routing and URI
     UtlString method;
     request.getRequestMethod(&method);
 
-    if(method.compareTo(SIP_ACK_METHOD) == 0 &&
-        mpLastFinalResponse)
+    if(method.compareTo(SIP_ACK_METHOD) == 0 
+       && mpLastFinalResponse)
     {
         int responseCode;
         responseCode = mpLastFinalResponse->getResponseStatusCode();
@@ -672,13 +672,11 @@ void SipTransaction::prepareRequestForSend(SipMessage& request,
         {
             ackFor2xx = TRUE;
         }
-
     }
-    // If this is an ACK for a 2xx response we have to look it up
-    // for error ACK's, we know to route this request just like the invite.
-    if(mIsDnsSrvChild &&
-       !mSendToAddress.isNull() &&
-       !ackFor2xx)              // error ACK
+    // Conditions which don't need new routing, no DNS lookup
+    if(mIsDnsSrvChild               // DNS lookup already done
+       && !mSendToAddress.isNull()  // sendTo address is known 
+       && !ackFor2xx)               // ACK for error response, follows response rules
     {
         toAddress = mSendToAddress;
         port = mSendToPort;
@@ -699,13 +697,15 @@ void SipTransaction::prepareRequestForSend(SipMessage& request,
 #      endif
     }
 
-    // Look at the request and figure out how to route it.
+    // Requests must be routed. 
+    // ACK for a 2xx response follows request rules
     else
     {
-        // process header parameters in the request uri
+        // process header parameters in the request uri, 
+        // especially moving any route parameters to route headers
         request.applyTargetUriHeaderParams();
 
-        // Use the proxy only for requests
+        // Default to use the proxy 
         userAgent.getProxyServer(0, &toAddress, &port, &protocol);
 #       ifdef ROUTE_DEBUG
         OsSysLog::add(FAC_SIP, PRI_DEBUG,
@@ -714,7 +714,7 @@ void SipTransaction::prepareRequestForSend(SipMessage& request,
                       &request, toAddress.data(), port, protocol.data());
 #       endif
 
-        // See if there is a route
+        // Try to get top-most route
         UtlString routeUri;
         UtlString routeAddress;
         int routePort;
@@ -728,12 +728,12 @@ void SipTransaction::prepareRequestForSend(SipMessage& request,
 
         UtlString routeHost;
         SipMessage::parseAddressFromUri(routeUri.data(),
-            &routeHost, &routePort, &routeProtocol);
+                                        &routeHost, &routePort, &routeProtocol);
 
         // All of this URL maipulation should be done via
         // the Url (routeUrlParser) object.  However to
-        // be safe, we are only using it to
-        // get the maddr If the maddr is present use it as the address
+        // be safe, we are only using it to get the maddr.
+        // If the maddr is present use it as the address
         if(!maddr.isNull())
         {
             routeAddress = maddr;
@@ -752,25 +752,24 @@ void SipTransaction::prepareRequestForSend(SipMessage& request,
         // If there is no route use the configured outbound proxy
         if(routeAddress.isNull())
         {
-            // It is already set in toAddress
+            // Set by earlier call to userAgent.getProxyServer
+            // this path is for debug purposes only
 #       ifdef ROUTE_DEBUG
         OsSysLog::add(FAC_SIP, PRI_DEBUG,
                       "SipTransaction::prepareRequestForSend route address is null");
 #       endif
         }
-        else //if(!routeAddress.isNull())
+        else // there is a route 
         {
-
-            toAddress = routeAddress;
+            toAddress = routeAddress;   // from top-most route or maddr
             port = routePort;
-            protocol = routeProtocol;
+            protocol = routeProtocol;   // can be null if not set in header
 
             // If this is not a loose route set the URI
             UtlString value;
             if(!nextHopLooseRoutes)
             {
                //Change the URI in the first line to the route Uri
-
                // so pop the first route uri
                 request.removeRouteUri(0, &routeUri);
 #               ifdef ROUTE_DEBUG
@@ -785,7 +784,6 @@ void SipTransaction::prepareRequestForSend(SipMessage& request,
                 request.getRequestUri(&uri);
                 request.addLastRouteUri(uri.data());
 
-
                 // Set the URI to the popped route
                 UtlString ChangedUri;
                 routeUrlParser.getUri(ChangedUri);
@@ -798,7 +796,7 @@ void SipTransaction::prepareRequestForSend(SipMessage& request,
                           &request, toAddress.data(), port, protocol.data()
                           );
 #           endif
-        }
+        }   // end "there is a route"
 
         // No proxy, no route URI, try to use URI from message
         if(toAddress.isNull())
@@ -854,8 +852,8 @@ void SipTransaction::prepareRequestForSend(SipMessage& request,
         //check if CANCEL method and has corresponding INVITE
         if(strcmp(thisMethod.data(), SIP_CANCEL_METHOD) == 0)
         {
-            //Stick DNS parameters because this cancel is for the same transaction as invite
-            //find correcponding INVITE request
+            //Cancel uses same DNS parameters as matching invite transaction
+            //find corresponding INVITE request
             //SipMessage * InviteMsg =  sentMessages.getInviteFor( &message);
             if ( !mIsServerTransaction &&
                  mpRequest &&
@@ -866,7 +864,6 @@ void SipTransaction::prepareRequestForSend(SipMessage& request,
                 {
                     request.setDNSField( protocol , toAddress , sPort);
                 }
-
             }
         }
 
@@ -941,14 +938,9 @@ UtlBoolean SipTransaction::doFirstSend(SipMessage& message,
        if (lastSentProtocol == OsSocket::UNKNOWN)
        {
           /*
-           * :HACK: This is a problem, and a more comprehensive fix is still needed. [XSL-49]
-           *
-           * We get to here when sending an ACK to 2xx responses, and we shouldn't;
-           * those really should be going through the normal routing to determine the
-           * protocol using DNS SRV lookups, but there is code elsewhere that prevents
-           * that from happening.
-           *
-           * Forcing UDP may not always be correct, but it's the best we can do now.
+           * This problem should be fixed by XECS-414 which sends an 
+           * ACK for a 2xx response through the normal routing 
+           * to determine the protocol using DNS SRV lookups
            */
           toProtocol = OsSocket::UDP;
           OsSysLog::add(FAC_SIP, PRI_ERR,
@@ -2418,11 +2410,14 @@ UtlBoolean SipTransaction::recurseDnsSrvChildren(SipUserAgent& userAgent,
         {
             mTransactionState = TRANSACTION_CONFIRMED;
 
-            // Do the DNS SRV lookup for the request destination
+            // Do the DNS lookup for the request destination but first
+            // determine whether to force the msg to be sent via tcp
+            OsSocket::IpProtocolSocketType msgSizeProtocol = getPreferredProtocol();
             mpDnsDestinations = SipSrvLookup::servers(mSendToAddress.data(),
                                                       "sip", // TODO - scheme should be from the request URI
                                                       mSendToProtocol,
-                                                      mSendToPort);
+                                                      mSendToPort,
+                                                      msgSizeProtocol);
 
             // HACK:
             // Add a via to this request so when we set a timer it is
@@ -5267,6 +5262,32 @@ UtlBoolean SipTransaction::isUriRecursedChildren(UtlString& uriString)
 
     return(childHasSameUri);
 }
+
+//: Determine best choice for protocol, based on message size
+//  Default is UDP, returns TCP only for large messages
+OsSocket::IpProtocolSocketType SipTransaction::getPreferredProtocol()
+{
+    size_t msgLength;
+    UtlString msgBytes;
+    OsSocket::IpProtocolSocketType retProto = OsSocket::UDP;
+
+    if (1)
+    {
+        mpRequest->getBytes(&msgBytes, &msgLength);
+        if (msgLength > UDP_LARGE_MSG_LIMIT)
+        {
+            retProto = OsSocket::TCP;
+            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                          "SipTransaction::getLargeMsgProtocol change %d to %d for size %d"
+                          ,mSendToProtocol
+                          ,retProto
+                          ,msgLength
+                          );
+        }
+    }
+    return retProto;
+}
+
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 
