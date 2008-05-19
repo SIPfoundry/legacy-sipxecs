@@ -107,7 +107,7 @@ while(<>)
         { 
             # Successful REGISTER Response
             $cseq = $1; 
-            if (m|\\r\\nContact:\s*([^>]+>)(?:[^;]*;)*EXPIRES=(\d+)|i)
+            if (m|\\r\\nContact:\s*([^>]+>)(?:[^;]*;)*?EXPIRES=(\d+)|i)
             {
                 # successful registration
                 $secs = $2;
