@@ -61,7 +61,7 @@
 #define LOG_FACILITY   FAC_SIP
 
 // Configuration names pulled from config-file
-#define CONFIG_SETTING_BIND_IP        "SIP_PROXY_BIND_IP"
+#define CONFIG_SETTING_BIND_IP        "SIPX_PROXY_BIND_IP"
 #define CONFIG_SETTINGS_FILE          "sipXproxy-config"
 #define CONFIG_SETTING_LOG_LEVEL      "SIPX_PROXY_LOG_LEVEL"
 #define CONFIG_SETTING_LOG_CONSOLE    "SIPX_PROXY_LOG_CONSOLE"
