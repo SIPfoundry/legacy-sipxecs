@@ -27,6 +27,9 @@ import org.sipfoundry.sipxconfig.phone.LineInfo;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookEntry;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookManager;
+import org.sipfoundry.sipxconfig.setting.DelegatingSettingModel.InsertValueFilter;
+import org.sipfoundry.sipxconfig.setting.Setting;
+import org.sipfoundry.sipxconfig.setting.XmlEscapeValueFilter;
 import org.sipfoundry.sipxconfig.speeddial.SpeedDial;
 
 /**
@@ -66,8 +69,7 @@ public class PolycomPhone extends Phone {
     @Override
     public void initialize() {
         SpeedDial speedDial = getPhoneContext().getSpeedDial(this);
-        PolycomPhoneDefaults phoneDefaults = new PolycomPhoneDefaults(getPhoneContext()
-                .getPhoneDefaults(), speedDial);
+        PolycomPhoneDefaults phoneDefaults = new PolycomPhoneDefaults(getPhoneContext().getPhoneDefaults(), speedDial);
         addDefaultBeanSettingHandler(phoneDefaults);
 
         PolycomIntercomDefaults intercomDefaults = new PolycomIntercomDefaults(this);
@@ -76,8 +78,7 @@ public class PolycomPhone extends Phone {
 
     @Override
     public void initializeLine(Line line) {
-        PolycomLineDefaults lineDefaults = new PolycomLineDefaults(getPhoneContext()
-                .getPhoneDefaults(), line);
+        PolycomLineDefaults lineDefaults = new PolycomLineDefaults(getPhoneContext().getPhoneDefaults(), line);
         line.addDefaultBeanSettingHandler(lineDefaults);
     }
 
@@ -90,7 +91,6 @@ public class PolycomPhone extends Phone {
         ProfileFilter format = getProfileFilter();
 
         ApplicationConfiguration app = new ApplicationConfiguration(this);
-
         getProfileGenerator().generate(location, app, format, app.getAppFilename());
 
         SipConfiguration sip = new SipConfiguration(this);
@@ -105,6 +105,17 @@ public class PolycomPhone extends Phone {
             SpeedDial speedDial = getPhoneContext().getSpeedDial(this);
             DirectoryConfiguration dir = new DirectoryConfiguration(entries, speedDial);
             getProfileGenerator().generate(location, dir, format, app.getDirectoryFilename());
+        }
+    }
+
+    @Override
+    protected void beforeProfileGeneration() {
+        InsertValueFilter insert = new InsertValueFilter(XmlEscapeValueFilter.FILTER);
+        Setting settings = getSettings();
+        settings.acceptVisitor(insert);
+        for (Line line : getLines()) {
+            Setting lineSettings = line.getSettings();
+            lineSettings.acceptVisitor(insert);
         }
     }
 

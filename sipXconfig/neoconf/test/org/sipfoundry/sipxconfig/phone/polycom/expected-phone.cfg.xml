@@ -8,7 +8,7 @@
   <reg 
     reg.1.displayName="Joe User" 
     reg.1.address="juser" 
-    reg.1.label="" 
+    reg.1.label="Joe &amp; Joe"
     reg.1.type="private" 
     reg.1.thirdPartyName="" 
     reg.1.auth.userId="juser" 

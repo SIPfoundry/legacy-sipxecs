@@ -31,6 +31,7 @@ public class PhoneConfigurationTest extends XMLTestCase {
     private PolycomPhone phone;
     private ProfileGenerator m_pg;
     private MemoryProfileLocation m_location;
+    private PhoneTestDriver m_testDriver;
 
     protected void setUp() throws Exception {
         XMLUnit.setIgnoreWhitespace(true);
@@ -38,8 +39,7 @@ public class PhoneConfigurationTest extends XMLTestCase {
         PolycomModel model = new PolycomModel();
         model.setMaxLineCount(6);
         phone.setModel(model);
-        PhoneTestDriver.supplyTestData(phone);
-
+        m_testDriver = PhoneTestDriver.supplyTestData(phone);
         m_location = new MemoryProfileLocation();
         VelocityProfileGenerator pg = new VelocityProfileGenerator();
         pg.setVelocityEngine(TestHelper.getVelocityEngine());
@@ -48,11 +48,13 @@ public class PhoneConfigurationTest extends XMLTestCase {
 
     public void testGenerateProfileVersion16() throws Exception {
         phone.setDeviceVersion(PolycomModel.VER_1_6);
+        m_testDriver.getPrimaryLine().setSettingValue("reg/label", "Joe & Joe");
+        phone.beforeProfileGeneration();
+
         PhoneConfiguration cfg = new PhoneConfiguration(phone);
         m_pg.generate(m_location, cfg, null, "profile");
 
-        InputStream expectedPhoneStream = getClass()
-                .getResourceAsStream("expected-phone.cfg.xml");
+        InputStream expectedPhoneStream = getClass().getResourceAsStream("expected-phone.cfg.xml");
         Reader expectedXml = new InputStreamReader(expectedPhoneStream);
         Reader generatedXml = m_location.getReader();
 
@@ -67,13 +69,14 @@ public class PhoneConfigurationTest extends XMLTestCase {
      * missing or wrong.
      */
     public void testGenerateProfileVersion20() throws Exception {
+        m_testDriver.getPrimaryLine().setSettingValue("reg/label", "Joe & Joe");
+        phone.beforeProfileGeneration();
         PhoneConfiguration cfg = new PhoneConfiguration(phone);
         PhoneTestDriver.supplyVitalEmergencyData(phone);
+
         m_pg.generate(m_location, cfg, null, "profile");
 
-        
-        InputStream expectedPhoneStream = getClass().getResourceAsStream(
-                "expected-phone-3.0.0.cfg.xml");
+        InputStream expectedPhoneStream = getClass().getResourceAsStream("expected-phone-3.0.0.cfg.xml");
         assertEquals(IOUtils.toString(expectedPhoneStream), m_location.toString());
         expectedPhoneStream.close();
     }

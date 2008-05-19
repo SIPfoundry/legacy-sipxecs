@@ -23,7 +23,7 @@ class CallResolverConfigure
   DEFAULT_LOG_DIR = '/var/log/sipxpbx'
 
   CONFIG_FILE_NAME = 'callresolver-config'
-  LOG_FILE_NAME = 'sipcallresolver.log'
+  LOG_FILE_NAME = 'sipxcallresolver.log'
 
   LOCALHOST = 'localhost'
 

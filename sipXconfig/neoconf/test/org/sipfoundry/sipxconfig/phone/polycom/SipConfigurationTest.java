@@ -51,13 +51,15 @@ public class SipConfigurationTest extends XMLTestCase {
 
     public void testGenerateProfile16() throws Exception {
         phone.setDeviceVersion(PolycomModel.VER_1_6);
+        phone.beforeProfileGeneration();
         assertProfileEquals("expected-sip.cfg.xml");
     }
 
     public void testGenerateProfile20() throws Exception {
         initSettings();
-        phone.setSettingValue("dialplan/digitmap/routing.1/emergency.1.value", "911,912");
         phone.setDeviceVersion(PolycomModel.VER_2_0);
+        phone.setSettingValue("dialplan/digitmap/routing.1/emergency.1.value", "911,912");
+        phone.beforeProfileGeneration();
         ProfileContext cfg = new SipConfiguration(phone);
 
         m_pg.generate(m_location, cfg, null, "profile");
@@ -69,8 +71,8 @@ public class SipConfigurationTest extends XMLTestCase {
     }
 
     private void assertProfileEquals(String expected) throws Exception {
-
         initSettings();
+        phone.beforeProfileGeneration();
 
         ProfileContext cfg = new SipConfiguration(phone);
 

@@ -41,8 +41,16 @@ public abstract class Device extends BeanWithGroups {
      * Default implementation generates a single profile file if profile file name is provided.
      */
     public void generateProfiles(ProfileLocation location) {
+        beforeProfileGeneration();
         copyFiles(location);
         generateFiles(location);
+    }
+
+    /**
+     * Method called before profiles are generated. Gives device a chance to modify its settings.
+     */
+    protected void beforeProfileGeneration() {
+        return;
     }
 
     /**
