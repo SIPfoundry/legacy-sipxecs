@@ -23,6 +23,7 @@ CLEANFILES=
 if DOC
 
 DOCBOOK_XML_DOCS = \
+	Hotelling \
 	ClusterManagement
 
 include config/docbook.am

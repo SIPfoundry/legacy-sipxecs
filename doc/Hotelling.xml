@@ -1,0 +1,179 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN"
+"http://www.docbook.org/xml/4.2/docbookx.dtd" [
+<!ENTITY sipxecs "sipXecs">
+<!ENTITY sipxrelease "4.0">
+<!ENTITY sipxconfig "sipXconfig">
+<!ENTITY sipx "sipX">
+]>
+<article lang="en">
+  
+  <!-- 
+    - Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+    - Contributors retain copyright to elements licensed under a Contributor Agreement.
+    - Licensed to the User under the LGPL license.
+  -->
+
+  <title>
+    &sipxecs; Hotelling Feature Specification
+  </title>
+
+  <section id='overview'>
+    <title>Overview</title>
+
+    <para>
+      The <firstterm>Hotelling</firstterm> feature provides for defining a
+      set of 'hotel' phones whose features and lines are temporarily
+      reconfigured for a user when that user 'signs in' to the phone.  The
+      reconfiguration is reversed either when the user explicitly 'signs
+      out' or after some system-configured elapsed time.
+    </para>
+
+    <para>
+      The motivation for this feature is to support environments in which
+      some users are mobile, so a larger population of users can be
+      supported using a smaller number of phones, while preserving the
+      personalization of phone settings and capabilities specific for each
+      user.
+    </para>
+
+    <section id='scenario'>
+      <title>Typical User Scenario</title>
+
+      <para>
+        The following scenario illustrates how the hotelling feature is
+        used.  This section is intended only as an example; it is not
+        intended to show all aspects of the Hotelling feature set.
+        Subsequent sections more fully define the requirements.
+      </para>
+
+      <para>
+        Our example scenario takes place in an office of JumboExample Corp
+        (a member of the Example family of companies).  JumboExample has
+        many field operatives that spend most of thier time away from the
+        office, but each has an occasional need to come in to file reports,
+        attend staff meetings, and be briefed on changes in JumboExample
+        policies.  Joe Schmoe is one of these field operatives.
+      </para>
+
+      <para>
+        Joe arrives at the office on Monday morning, and goes to the Field
+        Operative section, where there are 15 cubicles available for
+        operatives when they are in the facility.  Each cubicle is supplied
+        with furniture, basic office supplies, a laptop docking station
+        with large screen monitor, and a SIP phone.
+      </para>
+
+      <para>
+        Joe goes down the line of cubicles, past a few that are occupied by
+        other field operatives, until he finds one that appears to be
+        available.  Before sitting down, he checks the display on the SIP
+        phone and sees that the phone display indeed indicates that no one
+        is presently logged in to this phone (see <xref
+        linkend='unassigned'/>).
+      </para>
+
+      <para>
+        Joe sits down, puts his laptop in the docking station and the
+        picture of his dog on the desk, and then logs in to the phone.  The
+        phone in this cubicle is equipped with several speed dial buttons,
+        one of which is labeled "Login".  He presses this button and after
+        one ring the call is answered by the login autoattendant.  The
+        autoattendant prompts him for his personal extension number, which
+        he enters, and it then prompts him for his PIN (this is the same
+        PIN he uses for voicemail), which he also enters.  After a brief
+        pause, the autoattendant confirms that his login is successful and
+        instructs him to hang up the phone and wait for it to be
+        reconfigured.  Joe hangs up and goes to get coffee (and to see if
+        anyone has left unwanted sweets at the coffee station).
+      </para>
+
+      <para>
+        A moment after Joe leaves the cubicle, the phone reboots (see <xref
+        linkend='reconfigure'/>).  When he returns, the first line on the
+        phone is displaying that it is now his extension number, and the
+        message waiting dispay indicates that he has 2 new voicemail
+        messages.
+      </para>
+
+      <para>
+        Joe presses the 'Messages' key on the phone to connect to his
+        mailbox, enters his PIN, and deals with the messages.  Then he uses
+        the first speed dial key, which is now programmed to the number for
+        the administrative assistant for his team.  The assistant answers
+        and preempts his question about where the staff meeting is to be
+        held today: she knew from her caller-id display that it was Joe,
+        and he always calls to ask.  Other speed dial keys on the phone are
+        programmed for his home number and that of his supervisor.
+      </para>
+
+      <para>
+        While he is reading his email, his supervisor calls: to call him,
+        she had just dialled his extension number, not needing to know
+        which cubicle he had selected.  She wants him to meet with her at
+        the end of the day to go over sales projections in his area for the
+        coming month.
+      </para>
+
+      <para>
+        Before leaving at the end of the day, Joe repacks his laptop and
+        photo, and presses the speed dial key that is programmed to log him
+        out.  The system answers the call and plays an acknowlegement
+        message, but Joe is already on his way home.  After a moment, the
+        call disconnects and the phone reboots.  When it comes back up, it
+        is again displaying that it is an unassigned phone.
+      </para>
+
+    </section>
+  </section>
+
+  <section id='requirements'>
+    <title>Requirements</title>
+
+    <para>
+      The following sections describe the functional requirements
+      for the Hotelling feature.
+    </para>
+
+    <section id='unassigned'>
+      <title>Unassigned Hotel Phones</title>
+    </section>
+
+    <section id='login'>
+      <title>Login</title>
+
+    </section>
+
+    <section id='features'>
+      <title>User &amp; Phone Features</title>
+
+    </section>
+
+    <section id='reconfigure'>
+      <title>Reconfiguration Process</title>
+
+    </section>
+
+    <section id='logout'>
+      <title>Logout</title>
+
+    </section>
+
+    <section id='expiration'>
+      <title>Expiration</title>
+
+    </section>
+
+  </section>
+
+  <section id='design'>
+    <title>Design Overview</title>
+
+    <para>TBD</para>
+
+  </section>
+
+  <!--
+      -*- mode: nXML; auto-fill -*-
+  -->
+</article>
