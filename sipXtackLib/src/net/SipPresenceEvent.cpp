@@ -124,7 +124,7 @@ const UtlContainableType Tuple::getContainableType() const
 /* ============================ CREATORS ================================== */
 
 // Constructor
-SipPresenceEvent::SipPresenceEvent(const char* entity, const char*bodyBytes)
+SipPresenceEvent::SipPresenceEvent(const char* entity, const char* bodyBytes)
    : mLock(OsBSem::Q_PRIORITY, OsBSem::FULL)
 {
    remove(0);
@@ -132,12 +132,12 @@ SipPresenceEvent::SipPresenceEvent(const char* entity, const char*bodyBytes)
 
    mEntity = entity;
    
-   if(bodyBytes)
+   if (bodyBytes)
    {
       bodyLength = strlen(bodyBytes);
       parseBody(bodyBytes);
   
-      ((SipPresenceEvent*)this)->mBody = bodyBytes;
+      ((SipPresenceEvent*) this)->mBody = bodyBytes;
    }
 }
 
@@ -156,9 +156,9 @@ SipPresenceEvent::~SipPresenceEvent()
 
 void SipPresenceEvent::parseBody(const char* bodyBytes)
 {
-   if(bodyBytes)
+   if (bodyBytes)
    {
-      OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipPresenceEvent::parseBody incoming package = %s\n", 
+      OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipPresenceEvent::parseBody incoming package = '%s'", 
                     bodyBytes);
                     
       TiXmlDocument doc("PresenceEvent.xml");
@@ -283,7 +283,7 @@ Tuple* SipPresenceEvent::getTuple(UtlString& tupleId)
       }
    }     
           
-   OsSysLog::add(FAC_SIP, PRI_WARNING, "SipPresenceEvent::getTuple could not found the Tuple for tupleId = %s", 
+   OsSysLog::add(FAC_SIP, PRI_WARNING, "SipPresenceEvent::getTuple could not find the Tuple for tupleId = '%s'", 
                  tupleId.data());                 
             
    mLock.release();

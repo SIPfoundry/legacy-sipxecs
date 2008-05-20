@@ -319,6 +319,12 @@ protected:
     *
     * @NOTE If milliSecToWait expires, the thread is assumed to be hung,
     * and the entire process is aborted with a critical error.
+    *
+    * @NOTE This method is protected instead of public because
+    * subclasses likely will require additional processing to shut
+    * down the task correctly.  If this method needs to be exposed,
+    * create a public method for the subclass that calls
+    * waitUntilShutDown (and does any other needed processing).
     */
 
    /// Acknowledge a shutdown request.

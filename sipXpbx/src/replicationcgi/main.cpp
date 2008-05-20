@@ -972,7 +972,7 @@ main( int argc, char *argv[] )
    // this process is immune from external signals.  Beware!
 
    OsPathBase logFilePath = SipXecsService::Path(SipXecsService::LogDirType,
-                                              REPLICATION_LOG_FILENAME);
+                                                 REPLICATION_LOG_FILENAME);
 
    gstrError.remove(0);
    
