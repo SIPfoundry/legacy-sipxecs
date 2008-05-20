@@ -67,4 +67,13 @@ public class EditSbcDeviceTestUi extends WebTestCase {
 
         SiteTestHelper.assertUserError(tester);
     }
+    
+    public void testNoProfilePreviewOnNewSbc() throws Exception {
+        SiteTestHelper.assertNoUserError(tester);
+        
+        SiteTestHelper.selectOption(tester, "PropertySelection", "sipXbridge");
+        
+        SiteTestHelper.assertNoUserError(tester);
+        assertTextNotPresent("sipxbridge.xml");
+    }
 }

@@ -193,6 +193,12 @@ public class GatewaysTestUi extends WebTestCase {
         // we should not get error this time
         assertTablePresent("list:gateway");
     }
+    
+    public void testNoPreviewProfileOnNewGateway() {
+        clickLink("ListGateways");
+        SiteTestHelper.selectOption(tester, "selectGatewayModel", "Acme 1000");
+        assertTextNotPresent("null.ini");
+    }
 
     /**
      * Fills and submits edit gateway form

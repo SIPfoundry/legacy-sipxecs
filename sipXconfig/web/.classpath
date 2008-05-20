@@ -56,5 +56,6 @@
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/commons-httpclient-3.0.1.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/nekohtml-0.9.5.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/backport-util-concurrent-3.1.jar"/>
+	<classpathentry kind="var" path="SIPX_CONFIG/lib/cssparser-0.9.4.jar"/>
 	<classpathentry kind="output" path="bin.eclipse"/>
 </classpath>
