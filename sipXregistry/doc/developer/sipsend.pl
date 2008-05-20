@@ -72,6 +72,8 @@ $HELP = <<HELP;
            Arbitrary header string (do not use for those specified above)
         ---use-via-name
            Use the system name in the via, not the IP address
+        ---transport
+           Use specified transport, (valid: tcp, udp; default: tcp) 
 
     (Options with one dash set the SIP short-form header with the same name.
     Options with two dashes set the SIP long-form header with the same name.
@@ -112,6 +114,7 @@ HELP
              '-', '-event',        1, 'Event',
              '-', '--header',      1, 'Header',
              '-', '--use-via-name',0, 'UseViaName',
+             '-', '--transport',   1, 'TransportIn',
              'm', 'server',        1, 'Server',
              'm', 'method',        1, 'Method',
              'm', 'request-uri',   1, 'Target',
@@ -132,9 +135,28 @@ else
 
 ### Connect to server
 
-$proto = getprotobyname('tcp');
+if ( ! $TransportIn )
+{
+    # If no Transport is specified, use tcp.
+    $Transport = "tcp";
+}
+else
+{
+    $Transport = lc($TransportIn);
+}
 
-socket( SIP, PF_INET, SOCK_STREAM, $proto );
+# Set socket type based on protocol
+if ( $Transport eq "tcp" )
+{
+    $SockType = SOCK_STREAM;
+}
+else
+{
+    $SockType = SOCK_DGRAM;
+}
+
+$proto = getprotobyname($Transport);
+socket( SIP, PF_INET, $SockType, $proto );
 
 if ( $SymmetricPort )
 {
@@ -175,17 +197,18 @@ else
   $MySystem = $MyAddr;
 }
 $Branch = "z9hG4bK-".&RandHash;
-$Via = "SIP/$SipVersion/TCP $MySystem:$myPort;branch=$Branch";
+$UCTransport = uc($Transport);
+$Via = "SIP/$SipVersion/$UCTransport $MySystem:$myPort;branch=$Branch";
 
 
 if ( ! $From )
 {
-    $From = "Sip Send <sip:sipsend\@$MySystem;transport=tcp>;tag=".substr(&RandHash,0,8);
+    $From = "Sip Send <sip:sipsend\@$MySystem;transport=$Transport>;tag=".substr(&RandHash,0,8);
 }
 
 if ( ! $Contact )
 {
-    $Contact = "<sip:sipsend\@$MySystem:$MyPort;transport=tcp>";
+    $Contact = "<sip:sipsend\@$MySystem:$MyPort;transport=$Transport>";
 }
 
 if ( ! $CallId )
