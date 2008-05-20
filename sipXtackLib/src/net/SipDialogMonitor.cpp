@@ -146,7 +146,7 @@ bool SipDialogMonitor::addExtension(UtlString& groupName, Url& contactUrl)
       
       UtlString id;
       NetMd5Codec::encode(resourceId, id);
-      resource->setInstance(id, STATE_PENDIND);
+      resource->setInstance(id, STATE_PENDING);
       list->insertResource(resource);
       
       // Set up the subscription to the URI.

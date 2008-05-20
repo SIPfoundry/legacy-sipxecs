@@ -108,6 +108,7 @@ private:
 class SipPresenceMonitor : public StateChangeNotifier
 {
    friend class SipPresenceMonitorPersistenceTask;
+   friend class PresenceDefaultConstructor;
 
   public:
 
@@ -157,6 +158,11 @@ class SipPresenceMonitor : public StateChangeNotifier
    void notifyStateChange(UtlString& contact, SipPresenceEvent* presenceEvent);
    // Caller must hold mLock.
                                    
+   //! Construct a tuple id from a presence resource name.
+   static void makeId(UtlString& id,             ///< output: tuple id
+                      const UtlString& resource  ///< resource URI
+      );
+
    /// Read the presence events from the persistent file.
    void readPersistentFile();
 

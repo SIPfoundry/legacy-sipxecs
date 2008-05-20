@@ -43,7 +43,7 @@
 #define BEGIN_INSTANCE "<instance id="
 
 #define STATE_ACTIVE "active"
-#define STATE_PENDIND "pending"
+#define STATE_PENDING "pending"
 #define STATE_TERMINATED "terminated"
 
 // STRUCTS

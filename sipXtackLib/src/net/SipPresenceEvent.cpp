@@ -9,7 +9,7 @@
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
 #include <os/OsSysLog.h>
-#include <utl/UtlHashMapIterator.h>
+#include <utl/UtlHashBagIterator.h>
 #include <utl/XmlContent.h>
 #include <net/SipPresenceEvent.h>
 #include <net/NameValueTokenizer.h>
@@ -31,9 +31,9 @@ const UtlContainableType Tuple::TYPE = "Tuple";
 /* ============================ CREATORS ================================== */
 
 // Constructor
-Tuple::Tuple(const char* tupleId)
+Tuple::Tuple(const char* tupleId) :
+   UtlString(tupleId)
 {
-   mId = tupleId;
 }
 
 
@@ -51,25 +51,34 @@ Tuple::operator=(const Tuple& rhs)
    if (this == &rhs)            // handle the assignment to self case
       return *this;
 
+   static_cast <UtlString&> (*this) = static_cast <const UtlString&> (rhs);
+   this->mStatus = rhs.mStatus;
+   this->mContactUri = rhs.mContactUri;
+   this->mPriority = rhs.mPriority;
+
    return *this;
 }
 
 // Copy constructor
-Tuple::Tuple(const Tuple& rTuple)
+Tuple::Tuple(const Tuple& rTuple) :
+   UtlString(static_cast <const UtlString&> (rTuple)),
+   mStatus(rTuple.mStatus),
+   mContactUri(rTuple.mContactUri),
+   mPriority(rTuple.mPriority)
 {
-   mId = rTuple.mId;
 }
 
 /* ============================ ACCESSORS ================================= */
+
 void Tuple::setTupleId(const char* tupleId)
 {
-   mId = tupleId;
+   static_cast <UtlString&> (*this) = tupleId;
 }
 
 
 void Tuple::getTupleId(UtlString& tupleId) const
 {
-   tupleId = mId;
+   tupleId = static_cast <const UtlString&> (*this);
 }
 
 
@@ -85,31 +94,19 @@ void Tuple::getStatus(UtlString& status) const
 }
 
 
-void Tuple::setContact(const char* contactUrl,
+void Tuple::setContact(const char* contactUri,
                        const float priority)
 {
-   mContactUrl = contactUrl;
+   mContactUri = contactUri;
    mPriority = priority;
 }
 
 
-void Tuple::getContact(UtlString& contactUrl,
+void Tuple::getContact(UtlString& contactUri,
                        float& priority) const
 {
-   contactUrl = mContactUrl;
+   contactUri = mContactUri;
    priority = mPriority;
-}
-
-
-int Tuple::compareTo(const UtlContainable *b) const
-{
-   return mId.compareTo(((Tuple *)b)->mId);
-}
-
-
-unsigned int Tuple::hash() const
-{
-    return mId.hash();
 }
 
 
@@ -137,7 +134,7 @@ SipPresenceEvent::SipPresenceEvent(const char* entity, const char* bodyBytes)
       bodyLength = strlen(bodyBytes);
       parseBody(bodyBytes);
   
-      ((SipPresenceEvent*) this)->mBody = bodyBytes;
+      mBody = bodyBytes;
    }
 }
 
@@ -146,10 +143,7 @@ SipPresenceEvent::SipPresenceEvent(const char* entity, const char* bodyBytes)
 SipPresenceEvent::~SipPresenceEvent()
 {
    // Clean up all the tuple elements
-   if (!mTuples.isEmpty())
-   {
-      mTuples.destroyAll();
-   }
+   mTuples.destroyAll();
 }
 
 /* ============================ MANIPULATORS ============================== */
@@ -224,20 +218,12 @@ void SipPresenceEvent::parseBody(const char* bodyBytes)
 }
 
 
-// Assignment operator
-SipPresenceEvent&
-SipPresenceEvent::operator=(const SipPresenceEvent& rhs)
-{
-   if (this == &rhs)            // handle the assignment to self case
-      return *this;
-
-   return *this;
-}
-
 /* ============================ ACCESSORS ================================= */
+
 void SipPresenceEvent::insertTuple(Tuple* tuple)
 {
    mLock.acquire();
+
    UtlContainable* result = mTuples.insert(tuple);
 
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
@@ -252,47 +238,49 @@ void SipPresenceEvent::insertTuple(Tuple* tuple)
 Tuple* SipPresenceEvent::removeTuple(Tuple* tuple)
 {
    mLock.acquire();
-   UtlContainable *foundValue;
-   foundValue = mTuples.remove(tuple);
 
-   OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipPresenceEvent::removeTuple Tuple = %p", 
-                 foundValue);                 
+   Tuple *foundValue = dynamic_cast <Tuple*> (mTuples.remove(tuple));
+
+   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                 "SipPresenceEvent::removeTuple Tuple = %p, returned %p", 
+                 tuple, foundValue);
 
    mLock.release();
-   return (Tuple *) foundValue;
+   return foundValue;
 }
 
 
 Tuple* SipPresenceEvent::getTuple(UtlString& tupleId)
 {
    mLock.acquire();
-   UtlHashMapIterator tupleIterator(mTuples);
-   Tuple* pTuple;
-   UtlString foundValue;
-   while ((pTuple = (Tuple *) tupleIterator()))
-   {
-      pTuple->getTupleId(foundValue);
-      
-      if (foundValue.compareTo(tupleId) == 0)
-      {
-         OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipPresenceEvent::getTuple found Tuple = %p for tupleId %s", 
-                       pTuple, tupleId.data());                 
-            
-         mLock.release();
-         return pTuple;
-      }
-   }     
+
+   // We are cheating a bit in the find() here, because we search
+   // for a Tuple but give a UtlString as the argument.
+   Tuple* pTuple = dynamic_cast <Tuple*> (mTuples.find(&tupleId));
           
-   OsSysLog::add(FAC_SIP, PRI_WARNING, "SipPresenceEvent::getTuple could not find the Tuple for tupleId = '%s'", 
-                 tupleId.data());                 
+   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                 "SipPresenceEvent::getTuple seach for '%s', found %p", 
+                 tupleId.data(), pTuple);                 
             
    mLock.release();
-   return NULL;
+   return pTuple;
 }
 
-UtlBoolean SipPresenceEvent::isEmpty()
+const UtlHashBag& SipPresenceEvent::getTuples()
 {
-   return (mTuples.isEmpty());
+   return mTuples;
+}
+
+Tuple* SipPresenceEvent::getTuple()
+{
+   mLock.acquire();
+
+   UtlHashBagIterator itor(mTuples);
+
+   Tuple* tuple = dynamic_cast <Tuple*> (itor());
+
+   mLock.release();
+   return tuple;
 }
 
 size_t SipPresenceEvent::getLength() const
@@ -307,44 +295,45 @@ size_t SipPresenceEvent::getLength() const
 
 void SipPresenceEvent::buildBody(int& version) const
 {
-   UtlString PresenceEvent;
+   mLock.acquire();
+
+   // Pretend that mBody (from the base class HttpBody) is mutable.
+   UtlString& mBodyMutable(const_cast <UtlString&> (mBody));
    UtlString singleLine;
 
    // Presence events have no version.
    version = 0;
 
    // Construct the xml document of Tuple event
-   PresenceEvent = UtlString(XML_VERSION_1_0);
+   mBodyMutable = XML_VERSION_1_0;
 
    // Presence Structure
-   PresenceEvent.append(BEGIN_PRESENCE);
-   PresenceEvent.append(PRESENTITY_EQUAL);
+   mBodyMutable.append(BEGIN_PRESENCE);
+   mBodyMutable.append(PRESENTITY_EQUAL);
    singleLine = DOUBLE_QUOTE + mEntity + DOUBLE_QUOTE;
-   PresenceEvent += singleLine;
-   PresenceEvent.append(END_LINE);
+   mBodyMutable += singleLine;
+   mBodyMutable.append(END_LINE);
     
    // Tuple elements
-   ((SipPresenceEvent*)this)->mLock.acquire();
-   UtlHashMapIterator tupleIterator(mTuples);
+   UtlHashBagIterator tupleIterator(const_cast <UtlHashBag&> (mTuples));
    Tuple* pTuple;
    while ((pTuple = (Tuple *) tupleIterator()))
    {
-      
       UtlString tupleId;
       pTuple->getTupleId(tupleId);
 
-      PresenceEvent.append(BEGIN_TUPLE);
+      mBodyMutable.append(BEGIN_TUPLE);
       singleLine = DOUBLE_QUOTE + tupleId + DOUBLE_QUOTE;
-      PresenceEvent += singleLine;
-      PresenceEvent.append(END_LINE);
+      mBodyMutable += singleLine;
+      mBodyMutable.append(END_LINE);
       
       // Status element
       UtlString status;
       pTuple->getStatus(status);
-      PresenceEvent.append(BEGIN_STATUS);
+      mBodyMutable.append(BEGIN_STATUS);
       singleLine = BEGIN_BASIC + status + END_BASIC;
-      PresenceEvent += singleLine;
-      PresenceEvent.append(END_STATUS);
+      mBodyMutable += singleLine;
+      mBodyMutable.append(END_STATUS);
       
       // Contact element
       UtlString contact;
@@ -353,23 +342,24 @@ void SipPresenceEvent::buildBody(int& version) const
       if (!contact.isNull())
       {
          singleLine = BEGIN_CONTACT + contact + END_CONTACT;
-         PresenceEvent += singleLine;
+         mBodyMutable += singleLine;
       }
 
       // End of Tuple element
-      PresenceEvent.append(END_TUPLE);
+      mBodyMutable.append(END_TUPLE);
    }
 
    // End of presence structure
-   PresenceEvent.append(END_PRESENCE);
+   mBodyMutable.append(END_PRESENCE);
    
-   ((SipPresenceEvent*)this)->mLock.release();
+   // Pretend bodyLength (from base class HttpBody) is mutable.
+   const_cast <size_t&> (bodyLength) = mBodyMutable.length();
+   
+   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                 "SipTupleEvent::getBytes Tuple mBodyMutable = '%s'", 
+                 mBodyMutable.data());                 
 
-   ((SipPresenceEvent*)this)->mBody = PresenceEvent;
-   ((SipPresenceEvent*)this)->bodyLength = PresenceEvent.length();
-   
-   OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipTupleEvent::getBytes Tuple content = \n%s", 
-                 PresenceEvent.data());                 
+   mLock.release();
 }
 
 void SipPresenceEvent::getBytes(const char** bytes, size_t* length) const
@@ -377,7 +367,6 @@ void SipPresenceEvent::getBytes(const char** bytes, size_t* length) const
    UtlString tempBody;
 
    getBytes(&tempBody, length);
-   ((SipPresenceEvent*)this)->mBody = tempBody.data();
 
    *bytes = mBody.data();
 }
@@ -387,8 +376,8 @@ void SipPresenceEvent::getBytes(UtlString* bytes, size_t* length) const
    int dummy;
    buildBody(dummy);
    
-   *bytes = ((SipPresenceEvent*)this)->mBody;
-   *length = ((SipPresenceEvent*)this)->bodyLength;
+   *bytes = mBody;
+   *length = bodyLength;
 }
 
 

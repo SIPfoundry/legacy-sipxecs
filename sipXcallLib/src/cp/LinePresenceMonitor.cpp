@@ -314,33 +314,36 @@ void LinePresenceMonitor::handleNotifyMessage(const SipMessage* notifyMessage)
       // Parse the content and store it in a SipPresenceEvent object
       SipPresenceEvent sipPresenceEvent(contact, messageContent);
       
-      UtlString id;
-      NetMd5Codec::encode(contact, id);
-      Tuple* tuple = sipPresenceEvent.getTuple(id);
-      
-      if (tuple != NULL)
+      if (sipPresenceEvent.getTuples().entries() == 1)
       {
+         Tuple* tuple = sipPresenceEvent.getTuple();
          UtlString status;
          tuple->getStatus(status);
-      
          Url contactUrl(contact);
+
          // Call setStatus() to do the updating.
          setStatus(contactUrl,
                    status.compareTo(STATUS_CLOSED) == 0 ?      
                    StateChangeNotifier::SIGN_OUT :
                    StateChangeNotifier::SIGN_IN);
+
+         OsSysLog::add(FAC_SIP, PRI_WARNING,
+                       "LinePresenceMonitor::handleNotifyMessage presence processed, contact '%s' set to '%s'",
+                       contact.data(),
+                       status.data()); 
       }
       else
       {
-         OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                       "LinePresenceMonitor::handleNotifyMessage unable to find matching tuple for: %s",
-                       contact.data()); 
+         OsSysLog::add(FAC_SIP, PRI_WARNING,
+                       "LinePresenceMonitor::handleNotifyMessage presence event contains %d events: '%s'",
+                       sipPresenceEvent.getTuples().entries(),
+                       messageContent.data()); 
       }
    }
    else
    {
-      OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                    "LinePresenceMonitor::handleNotifyMessage received an empty notify body from %s",
+      OsSysLog::add(FAC_SIP, PRI_WARNING,
+                    "LinePresenceMonitor::handleNotifyMessage received an empty notify body from '%s'",
                     contact.data()); 
    }
 }

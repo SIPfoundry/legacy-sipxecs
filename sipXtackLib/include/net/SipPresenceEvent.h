@@ -12,7 +12,7 @@
 
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
-#include <utl/UtlHashMap.h>
+#include <utl/UtlHashBag.h>
 #include <net/HttpBody.h>
 #include <net/Url.h>
 #include <os/OsDateTime.h>
@@ -55,11 +55,14 @@
 //! Container for tuple element in the presence event package
 /**
  * This class contains all the contents presented in a tuple element of the
- * presence information data format described in RFC 3863. This class has the
+ * Presence Information Data Format described in RFC 3863. This class has the
  * methods to construct and manipulate the tuple and its sub-elements.
+ *
+ * The UtlString superclass of Tuple is the 'id' datum of the Tuple.
+ * Tuple inherits its hash() and compareTo() from UtlString.
  */
 
-class Tuple : public UtlContainable
+class Tuple : public UtlString
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
   public:
@@ -81,10 +84,6 @@ class Tuple : public UtlContainable
 
    static const UtlContainableType TYPE;
 
-   virtual unsigned int hash() const;
-
-   int compareTo(const UtlContainable *b) const;
-
 ///@}
    
 /**
@@ -103,9 +102,9 @@ class Tuple : public UtlContainable
 
    void getStatus(UtlString& state) const;
 
-   void setContact(const char* url, const float priority);
+   void setContact(const char* uri, const float priority);
 
-   void getContact(UtlString& url, float& priority) const;
+   void getContact(UtlString& uri, float& priority) const;
 
 ///@}
    
@@ -115,17 +114,14 @@ class Tuple : public UtlContainable
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
   private:
 
-   // Variables for tuple element
-   UtlString mId;
-
    // Variables for status element
    UtlString mStatus;
 
    // Variables for contact element
-   UtlString mContactUrl;
+   UtlString mContactUri;
    float mPriority;
 
-   //Assignment operator
+   // Assignment operator
    Tuple& operator=(const Tuple& rhs);
 };
 
@@ -203,8 +199,16 @@ class SipPresenceEvent : public HttpBody
    //! Remove the Tuple object.
    Tuple* removeTuple(Tuple* tuple);
    
-   //! Check whether there is any Tuple or not
-   UtlBoolean isEmpty();
+   /** Make the hash bag of Tuples visible.
+    *  Beware that this operation does not lock the SipPresenceEvent,
+    *  so the caller must ensure no other operations are done on it
+    *  as long as the hash bag is visible.
+    */
+   const UtlHashBag& getTuples();
+
+   //! Get a single tuple.  Returns NULL if SipPresenceEvent has no Tuples.
+   //  Only useful if SipPresenceEvent has no more than 1 Tuple.
+   Tuple* getTuple();
 
 ///@}
    
@@ -218,14 +222,14 @@ class SipPresenceEvent : public HttpBody
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
   private:
 
-   //! Variables for presence
+   //! The URI of the entity described by this presence event.
    UtlString mEntity;
 
-   //! Variables for tuple element
-   UtlHashMap mTuples;
+   //! The tuples of presence information.  (Tuples are indexed by their id's.)
+   UtlHashBag mTuples;
 
-    //! reader/writer lock for synchronization
-    OsBSem mLock;
+   //! Reader/writer lock for synchronization
+   mutable OsBSem mLock;
 
    //! Disabled copy constructor
    SipPresenceEvent(const SipPresenceEvent& rSipPresenceEvent);

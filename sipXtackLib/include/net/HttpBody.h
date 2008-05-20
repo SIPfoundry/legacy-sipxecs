@@ -120,7 +120,7 @@ protected:
 
    size_t bodyLength;
    UtlString mBody;
-   UtlString  mMultipartBoundary;
+   UtlString mMultipartBoundary;
    int mBodyPartCount;
    UtlSList mBodyParts;
 
