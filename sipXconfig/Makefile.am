@@ -59,6 +59,7 @@ EXTRA_DIST = \
     BUILDSTAMP \
     SVN-VERSION \
     LICENSE \
+    NOTICE \
     build.properties.in \
     lib.properties \
     neoconf \
