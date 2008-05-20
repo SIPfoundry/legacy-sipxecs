@@ -12,10 +12,9 @@
       </span>
     </span>
   </div>
-  <div jwcid="@If" condition="ognl:!gateway.isNew()">
-    <div jwcid="@common/ProfilePreview" device="ognl:gateway"/>
-    <div jwcid="@common/DeviceResources" deviceDescriptor="ognl:gateway.model" />
-  </div>
+    
+  <div jwcid="@common/ProfilePreview" device="ognl:gateway"/>
+  <div jwcid="@common/DeviceResources" deviceDescriptor="ognl:gateway.model" />
   
   <div jwcid="@common/OptionalElement" id="settings-content" element="ognl:gateway.isNew()?'':'div'">
     <form jwcid="@Form" delegate="bean:validator" id="gateway">

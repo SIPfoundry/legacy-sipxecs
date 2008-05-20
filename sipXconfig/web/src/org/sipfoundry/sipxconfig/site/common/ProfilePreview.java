@@ -26,6 +26,6 @@ public abstract class ProfilePreview extends BaseComponent {
 
     public boolean getRender() {
         Profile[] profileTypes = getDevice().getProfileTypes();
-        return profileTypes != null && profileTypes.length > 0;
+        return !getDevice().isNew() && profileTypes != null && profileTypes.length > 0;
     }
 }
