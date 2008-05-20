@@ -562,10 +562,13 @@ public class BackToBackUserAgent {
                         .createHeader("Replaces", decodedReplaces);
             }
             uri.removeParameter("Replaces");
+            uri.setHost(Gateway.getSipxProxyDomain());
+            uri.removePort();
             if (replacesHeader != null) {
                 newRequest.addHeader(replacesHeader);
             }
 
+            
             for (Iterator it = uri.getHeaderNames(); it.hasNext();) {
                 String headerName = (String) it.next();
                 String headerValue = uri.getHeader(headerName);
