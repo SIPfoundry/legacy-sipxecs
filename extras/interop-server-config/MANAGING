@@ -51,6 +51,9 @@ this:
 Rename these RPMs to have a different extension (or delete them), and
 run the rpm command again.
 
+Regarding RPMs whose names do not start with "sip", once they have
+been installed, they rarely need to be updated.
+
 Do not install:
 
 1) the sipXconfig RPMs (sipxconfig, sipxconfig-agent, sipxconfig-ftp,
@@ -60,7 +63,7 @@ uses special config files,
 2) the Call Resolver (sipxproxy-cdr), as that requires Postgres to be
 set up,
 
-3) the sipxecs RPMs, as they are just umbrella packages that require
+3) the sipxecs RPMs, as they are just umbrella packages that "require"
 all the other RPMs, and
 
 4) the java-NNN-sun-NNN.rpm, java-NNN-sun-fonts-NNN.rpm, and
