@@ -16,9 +16,16 @@ then
         -e "s/M/.${SIPX_BUILD_LABEL}/g;"
 elif git branch > /dev/null 2>&1
 then
-    git log \
-    | perl -n -e 'm/^\s+git-svn-id: [^@]+@(\d+)/ && do {printf("%06d",$1); exit; };' \
-    | perl -p -e "s/\$/.${SIPX_BUILD_LABEL}/g;"
+    if git diff --quiet && git diff --cached --quiet 
+    then
+        # there are no changes
+        git log \
+        | perl -n -e 'm/^\s+git-svn-id: [^@]+@(\d+)/ && do {printf("%06d",$1); exit; };'
+    else
+        git log \
+        | perl -n -e 'm/^\s+git-svn-id: [^@]+@(\d+)/ && do {printf("%06d",$1); exit; };' \
+        | perl -p -e "s/\$/.${SIPX_BUILD_LABEL}/g;"
+    fi
 else
     dir=$topdir
     until test -e $dir/SVN-VERSION -o "$dir" = "/" -o ! -d $dir
