@@ -577,11 +577,11 @@ public class CallControlManager {
                     .getLanProvider()) {
                 // We did a SDP query. So we need to put an SDP
                 // Answer in the response.
-                b2bua.getLanRtpSession(dialog).getReceiver()
+                b2bua.getLanRtpSession(dialog).getTransmitter()
                         .setSessionDescription(sd);
                
             } else {
-                b2bua.getWanRtpSession(dialog).getReceiver()
+                b2bua.getWanRtpSession(dialog).getTransmitter()
                 .setSessionDescription(sd); 
             }
             

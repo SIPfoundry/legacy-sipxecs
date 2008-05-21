@@ -54,6 +54,11 @@ public class SymReceiverEndpoint extends SymEndpoint {
     }
 
     public void setSessionDescription(SessionDescription sessionDescription) {
+        if ( this.sessionDescription != null) {
+            logger.debug("WARNING -- replacing session description ");
+            logger.debug("Old SD  = " + this.sessionDescription);
+            logger.debug("newSD = " + sessionDescription);
+        }
         Connection connection = sessionDescription.getConnection();
         try {
             this.sessionDescription = sessionDescription;

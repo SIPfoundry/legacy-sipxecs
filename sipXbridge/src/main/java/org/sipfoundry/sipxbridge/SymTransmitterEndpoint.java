@@ -172,6 +172,10 @@ public class SymTransmitterEndpoint extends SymEndpoint {
     
     @Override
     public void setSessionDescription(SessionDescription sessionDescription) {
+        if ( this.sessionDescription != null) {
+            logger.debug("WARNING -- replacing session description");
+            
+        }
         try {
             this.sessionDescription = sessionDescription;
 

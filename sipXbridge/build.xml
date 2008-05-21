@@ -190,22 +190,41 @@
      </java>
 </target>
 	
-
+<target name="symserver" description="Start sipXbridge" depends="clean,cleanlogs,compile" >
+	     <java fork="yes" classname="org.sipfoundry.sipxbridge.TransReceiver">
+	     	   <arg value="true"/>
+		        <classpath>
+			  <pathelement location="${classes}" />
+	                  <fileset dir="lib">
+	                         <include name="**/*.jar" />
+	                  </fileset>
+	           		  <fileset dir="tools">
+	           		         <include name="**/*.jar" />
+	           	      </fileset>
+	           </classpath>
+	     </java>
+</target>
+	
+<target name="symclient" description="Start sipXbridge" depends="clean,cleanlogs,compile" >
+	     <java fork="yes" classname="org.sipfoundry.sipxbridge.TransReceiver">
+	     	   <arg value="false"/>
+	     	   <arg value="50"/>
+		        <classpath>
+			  <pathelement location="${classes}" />
+	                  <fileset dir="lib">
+	                         <include name="**/*.jar" />
+	                  </fileset>
+	           		  <fileset dir="tools">
+	           		         <include name="**/*.jar" />
+	           	      </fileset>
+	           </classpath>
+	     </java>
+</target>
+	
+	
 <!-- These targets are for testing only -->
 
-<target name="test1" description="Start sipXbridge" depends="clean,cleanlogs,compile" >
-     <java fork="yes" classname="org.sipfoundry.sipxbridge.Gateway">
-     	   <arg value="-initOnStartup"/>
-	   <arg value="-config" />
-	   <arg value="file:///etc/sipxpbx/sipxbridge-test1.xml" />
-           <classpath>
-		  <pathelement location="${classes}" />
-                  <fileset dir="lib">
-                         <include name="**/*.jar" />
-                  </fileset>
-           </classpath>
-     </java>
-</target>
+
 
 <target name="test2" description="Start sipXbridge" depends="clean,cleanlogs,compile" >
      <java fork="yes" classname="org.sipfoundry.sipxbridge.Gateway">
