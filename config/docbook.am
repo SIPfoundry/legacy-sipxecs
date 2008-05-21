@@ -52,19 +52,18 @@ if GENERATE_DOCBOOK_PDF
 
 OUTPUT_FORMS+=.pdf
 
-PDF_CONTROL_FILES= \
-	$(top_srcdir)/config/docbook-html.xsl \
-	$(top_srcdir)/config/docbook-jadetex.dsssl
+PDF_CONTROL_FILE=$(top_srcdir)/config/docbook-jadetex.dsssl
 
-EXTRA_DIST+=$(PDF_CONTROL_FILES)
+EXTRA_DIST+=$(PDF_CONTROL_FILE)
 
 DSSSL_JADETEX=/usr/share/sgml/docbook/dsssl-stylesheets/print/docbook.dsl
 
 PDF_INTERMEDIATE_FORMS=.tex .aux .log .out
 PDF_INTERMEDIATES=$(foreach doc,$(DOCBOOK_XML_DOCS),$(foreach intform,$(PDF_INTERMEDIATE_FORMS),$(doc)$(intform)))
 
-%.tex: %.xml $(DSSSL_JADETEX) $(PDF_CONTROL_FILES)
-	$(OPENJADE) -t tex -d $(DSSSL_JADETEX) -c /usr/share/sgml/openjade/catalog \
+%.tex: %.xml $(DSSSL_JADETEX) $(PDF_CONTROL_FILE)
+	$(OPENJADE) -t tex -d $(PDF_CONTROL_FILE) \
+		-c /usr/share/sgml/openjade/catalog \
 		-o $@ /usr/share/sgml/docbook/dsssl-stylesheets/dtds/decls/xml.dcl $<
 
 %.pdf %.out %.aux %.log: %.tex
