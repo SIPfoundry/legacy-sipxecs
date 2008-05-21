@@ -4,4 +4,5 @@
 <xsl:param name='toc.section.depth' select='4'/>
 <xsl:param name='section.autolabel' select='1'/>
 <xsl:param name='section.label.includes.component.label' select='1'/>
+<xsl:param name='xref.with.number.and.title' select='0'/>
 </xsl:stylesheet>
