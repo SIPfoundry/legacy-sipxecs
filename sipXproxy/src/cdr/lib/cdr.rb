@@ -241,7 +241,7 @@ class Cdr
   def accept_call_request(cse)
     original = !cse.to_tag
     # bailout if we already have original request and this one is not
-    return if(@got_original && !orginal) 
+    return if(@got_original && !original)
     
     # continue if we are original or if we are older 
     if((!@got_original && original) || !@start_time || @start_time > cse.event_time)
