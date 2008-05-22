@@ -247,7 +247,7 @@ public class AastraPhoneTest extends TestCase {
         phone.setSerialNumber("0011AABB4050");
         assertEquals(2, phone.getProfileTypes().length);
         assertEquals("0011AABB4050.cfg", phone.getProfileFilename());
-        assertEquals("0011AABB4050-Directory.csv", phone.getFistDirectoryName());
+        assertEquals("0011AABB4050-Directory.csv", phone.getPhonebookFilename());
     }
 
     public void testPhonebookNameDefault() throws Exception {
@@ -260,7 +260,7 @@ public class AastraPhoneTest extends TestCase {
         assertEquals(2, phone.getProfileTypes().length);
         String phonebookName = phone.getSerialNumber().toUpperCase() + "-Directory.csv";
         assertEquals(phone.getProfileTypes()[0].getName(), phone.getProfileFilename());
-        assertEquals(phonebookName, phone.getFistDirectoryName());
+        assertEquals(phonebookName, phone.getPhonebookFilename());
     }
 
     public void testPhonebookManagementEnabled() throws Exception {
