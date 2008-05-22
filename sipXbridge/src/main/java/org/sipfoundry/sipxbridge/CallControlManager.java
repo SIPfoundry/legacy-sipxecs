@@ -577,17 +577,18 @@ public class CallControlManager {
                     .getLanProvider()) {
                 // We did a SDP query. So we need to put an SDP
                 // Answer in the response.
-                b2bua.getLanRtpSession(dialog).getTransmitter()
+                b2bua.getWanRtpSession(peerDialog).getReceiver()
                         .setSessionDescription(sd);
                
             } else {
-                b2bua.getWanRtpSession(dialog).getTransmitter()
+                b2bua.getLanRtpSession(peerDialog).getReceiver()
                 .setSessionDescription(sd); 
             }
             
-            if ( Gateway.isReInviteSupported()) {
+         
             
-                ackRequest.setContent(sd.toString(),
+            if ( Gateway.isReInviteSupported()) {
+                 ackRequest.setContent(sd.toString(),
                     ProtocolObjects.headerFactory
                             .createContentTypeHeader(
                                     "application", "sdp"));
