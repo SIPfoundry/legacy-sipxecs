@@ -655,17 +655,17 @@ public:
      */
     //@{
     void setResponseData(const SipMessage* request,
-                        int responseCode,
-                        const char* responseText,
-                        const char* localContact = NULL);
+                         int responseCode,
+                         const char* responseText,
+                         const char* localContact = NULL);
 
     void setResponseData(int statusCode, const char* statusText,
-                        const char* fromAddress,
-                        const char* toAddress,
-                        const char* callId,
-                        int sequenceNumber,
-                        const char* sequenceMethod,
-                        const char* localContact = NULL);
+                         const char* fromAddress,
+                         const char* toAddress,
+                         const char* callId,
+                         int sequenceNumber,
+                         const char* sequenceMethod,
+                         const char* localContact = NULL);
 
     void setOkResponseData(const SipMessage* request,
                            const char* localContact = NULL);
@@ -839,7 +839,7 @@ public:
                       const char* fromLabel = NULL);
     void setRawToField(const char* toField);
 
-    void setRawFromField(const char* toField);
+    void setRawFromField(const char* fromField);
 
     void setToField(const char* toAddress, int toPort,
                     const char* fromProtocol = NULL,

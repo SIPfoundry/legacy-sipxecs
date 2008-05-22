@@ -3185,13 +3185,13 @@ UtlBoolean SipTransaction::findBestResponse(SipMessage& bestResponse)
     proxyRealmsSeen.destroyAll();
 
     // We have made it to the top and there are no responses
-    if ( !responseFound && mpParentTransaction == NULL)
+    if (!responseFound && mpParentTransaction == NULL)
     {
-        if(mpRequest)
+        if (mpRequest)
         {
             bestResponse.setResponseData(mpRequest,
-                SIP_REQUEST_TIMEOUT_CODE,
-                SIP_REQUEST_TIMEOUT_TEXT);
+                                         SIP_REQUEST_TIMEOUT_CODE,
+                                         SIP_REQUEST_TIMEOUT_TEXT);
             responseFound = TRUE;
         }
         else

@@ -353,6 +353,9 @@ void SipPresenceEvent::buildBody(int& version) const
    mBodyMutable.append(END_PRESENCE);
    
    // Pretend bodyLength (from base class HttpBody) is mutable.
+   // @TODO@ This is just to adjust bodyLength to match UtlString::length().
+   // This seems redundant.  I suspect bodyLength is redundant for
+   // UtlString::length() and should be removed.
    const_cast <size_t&> (bodyLength) = mBodyMutable.length();
    
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
