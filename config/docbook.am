@@ -29,28 +29,37 @@ EXTRA_DIST+=$(DOCBOOK_INPUTS)
 
 if GENERATE_DOCBOOK_HTML
 
-OUTPUT_FORMS+=.html
 XSL_JADETEX=$(top_srcdir)/config/style.xsl
+SIPXECS_CSS=$(top_srcdir)/config/sipXecs.css
 
 %.html: %.xml $(XSL_JADETEX)
 	$(XSLTPROC) -o $@ $(XSL_JADETEX) $<
 
-EXTRA_DIST+=$(XSL_JADETEX)
+EXTRA_DIST+= \
+	$(XSL_JADETEX) \
+	$(SIPXECS_CSS)
+
+DOCBOOK_HTML_OUTPUTS= \
+	$(foreach doc,$(DOCBOOK_XML_DOCS),$(doc).html) \
+	sipXecs.css
+
+sipXecs.css: $(SIPXECS_CSS)
+	cp $< $@
+
+CLEANFILES+=sipXecs.css
 
 endif # GENERATE_DOCBOOK_HTML
 
 if GENERATE_DOCBOOK_TXT
 
-OUTPUT_FORMS+=.txt
-
 %.txt: %.html
 	$(HTML2TXT) $< > $@
+
+DOCBOOK_TXT_OUTPUTS=$(foreach doc,$(DOCBOOK_XML_DOCS),$(doc).txt)
 
 endif # GENERATE_DOCBOOK_TXT
 
 if GENERATE_DOCBOOK_PDF
-
-OUTPUT_FORMS+=.pdf
 
 PDF_CONTROL_FILE=$(top_srcdir)/config/docbook-jadetex.dsssl
 
@@ -67,10 +76,10 @@ PDF_INTERMEDIATES=$(foreach doc,$(DOCBOOK_XML_DOCS),$(foreach intform,$(PDF_INTE
 		-o $@ /usr/share/sgml/docbook/dsssl-stylesheets/dtds/decls/xml.dcl $<
 
 %.pdf %.out %.aux %.log: %.tex
-	if [ -e prior.aux ]; then cp -pf prior.aux pprior.aux; fi
-	f=$(shell basename $< .tex).aux; if [ -e $$f ]; then cp -pf $$f prior.aux; fi
+	@if [ -e prior.aux ]; then cp -pf prior.aux pprior.aux; fi
+	@f=$(shell basename $< .tex).aux; if [ -e $$f ]; then cp -pf $$f prior.aux; fi
 	-$(PDFJADETEX) $< > pdfjadetex.log
-	if ! cmp $(shell basename $< .tex).aux prior.aux > /dev/null 2>&1 && \
+	@if ! cmp $(shell basename $< .tex).aux prior.aux > /dev/null 2>&1 && \
 		! cmp $(shell basename $< .tex).aux pprior.aux > /dev/null 2>&1 && \
 		expr $(MAKELEVEL) '<' 4 > /dev/null; then \
 		rm -f $@; \
@@ -78,8 +87,13 @@ PDF_INTERMEDIATES=$(foreach doc,$(DOCBOOK_XML_DOCS),$(foreach intform,$(PDF_INTE
 		$(MAKE) $@; \
 	fi
 
+DOCBOOK_PDF_OUTPUTS=$(foreach doc,$(DOCBOOK_XML_DOCS),$(doc).pdf)
+
 CLEANFILES+=$(PDF_INTERMEDIATES)
 
 endif # GENERATE_DOCBOOK_PDF
 
-DOCBOOK_OUTPUTS=$(foreach doc,$(DOCBOOK_XML_DOCS),$(foreach outform,$(OUTPUT_FORMS),$(doc)$(outform)))
+DOCBOOK_OUTPUTS= \
+	$(DOCBOOK_HTML_OUTPUTS) \
+	$(DOCBOOK_TXT_OUTPUTS) \
+	$(DOCBOOK_PDF_OUTPUTS)
