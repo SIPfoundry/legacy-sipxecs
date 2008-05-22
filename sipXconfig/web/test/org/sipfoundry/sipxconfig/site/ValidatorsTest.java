@@ -160,4 +160,38 @@ public class ValidatorsTest extends TestCase {
             assertTrue(true);
         }
     }
+
+    public void testValidPagingPrefix() throws ValidatorException {
+        Pattern p = (Pattern) m_context.getBean("validPagingPrefix");
+        p.validate(m_field, m_validationMessages, "*");
+        p.validate(m_field, m_validationMessages, "77");
+        p.validate(m_field, m_validationMessages, "*77");
+        p.validate(m_field, m_validationMessages, "77*");
+        p.validate(m_field, m_validationMessages, "7*7");
+        p.validate(m_field, m_validationMessages, "*7*7");
+        p.validate(m_field, m_validationMessages, "7*7*");
+        p.validate(m_field, m_validationMessages, "*77*");
+        p.validate(m_field, m_validationMessages, "*7*7*");
+
+        try {
+            p.validate(m_field, m_validationMessages, "-7");
+            fail("Should throw a ValidatorException");
+        } catch (ValidatorException expected) {
+            assertTrue(true);
+        }
+
+        try {
+            p.validate(m_field, m_validationMessages, "$7");
+            fail("Should throw a ValidatorException");
+        } catch (ValidatorException expected) {
+            assertTrue(true);
+        }
+
+        try {
+            p.validate(m_field, m_validationMessages, "!");
+            fail("Should throw a ValidatorException");
+        } catch (ValidatorException expected) {
+            assertTrue(true);
+        }
+    }
 }

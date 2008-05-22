@@ -125,6 +125,15 @@
     </property>
   </bean>
 
+  <!-- paging prefix - only * and digits, at least one -->
+  <bean name="validPagingPrefix" class="org.apache.tapestry.form.validator.Pattern">
+    <property name="pattern">
+      <value>^[\*\d]+$</value>
+    </property>
+    <property name="message">
+      <value>Please enter * and digits only, for example: 77, *77, 77*, 7*7</value>
+    </property>
+  </bean>
 
   <!-- T R A N S L A T O R S -->
   <bean name="validTime" class="org.sipfoundry.sipxconfig.components.DateWithTimezoneTranslator">

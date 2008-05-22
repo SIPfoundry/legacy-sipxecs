@@ -32,7 +32,7 @@
         	  label="message:label.prefix">
             <input jwcid="prefix@TextField" id="prefix"
               value="ognl:prefix"
-              validators="spring-validators:required,noWhitespace,validFieldSize"
+              validators="spring-validators:required,noWhitespace,validFieldSize,validPagingPrefix"
               displayName="message:label.prefix"/>
             <input jwcid="save@Submit" id="pagingGroups:save"
               listener="listener:savePagingPrefix"
