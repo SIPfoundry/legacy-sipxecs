@@ -540,9 +540,9 @@ OsStatus HttpMessage::get/*[5]*/(Url& httpUrl,
    request.addHeaderField("Host", hostPort.data());
    request.addHeaderField("Accept", "*/*");
    OsConnectionSocket *httpSocket = NULL;
+   int connected = 0;
 
    int tries = 0;
-   int connected = 0;
    int exp = 1;
    while (tries++ < HttpMessageRetries)
    {
@@ -704,6 +704,8 @@ int HttpMessage::get/*[4]*/(Url& httpUrl,
     {
         if (httpSocket == NULL)
         {
+            // httpSocket is seen to be NULL, so we have no socket.
+            connected = false;
             int tries = 0;
             int exp = 1;
             while (!connected && (tries++ < HttpMessageRetries))
@@ -812,6 +814,7 @@ int HttpMessage::get/*[4]*/(Url& httpUrl,
                   delete httpSocket;
                   pConnectionMapEntry->mpSocket = NULL;
                   httpSocket = NULL;
+                  connected = false;
                }
             }
         }
@@ -851,6 +854,7 @@ int HttpMessage::get/*[4]*/(Url& httpUrl,
                        delete httpSocket;
                        pConnectionMapEntry->mpSocket = NULL;
                        httpSocket = NULL;
+                       connected = false;
                     }
                  }
               }
@@ -873,6 +877,7 @@ int HttpMessage::get/*[4]*/(Url& httpUrl,
                     pConnectionMapEntry->mpSocket = NULL;
                  }
                  httpSocket = NULL;
+                 connected = false;
               }
 
               responseReceived = true; // to get out of the loop and bail
