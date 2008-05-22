@@ -1,7 +1,7 @@
 # this is used by sipxbuild to compute a correct build order
 
 .PHONY: doc
-doc :
+doc : sipXcommserverLib
 	@echo doc
 
 .PHONY: sipXtools
@@ -73,5 +73,5 @@ sipXbridge :
 	@echo sipXbridge
 
 .PHONY: sipXecs
-sipXecs : sipXproxy sipXregistry sipXpublisher sipXvxml sipXconfig sipXpbx sipXsupervisor
+sipXecs : sipXproxy sipXregistry sipXpublisher sipXvxml sipXconfig sipXpbx sipXsupervisor doc
 	@echo sipXecs

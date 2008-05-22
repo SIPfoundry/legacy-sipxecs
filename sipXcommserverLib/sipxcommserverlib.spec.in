@@ -26,6 +26,7 @@ Requires: ruby
 Requires: patch
 # bind-utils required for dig
 Requires: bind-utils
+Requires: %{name}-doc
 
 Prefix: %_prefix
 BuildRoot: %{_tmppath}/%name-%version-root
@@ -42,6 +43,15 @@ project.
 %if %{_vendor} == suse
 %debug_package
 %endif
+
+%package doc
+
+%description doc
+This package contains common files for sipXecs documentation
+
+%files doc
+%docdir %{_datadir}/doc/sipxecs
+%{_datadir}/doc/sipxecs
 
 # Install header files
 %package devel
@@ -99,8 +109,6 @@ rm -rf $RPM_BUILD_ROOT
 %files
 %defattr(644,root,root,755)
 %doc CONTRIBUTORS INSTALL README NEWS TODO ChangeLog %name.configlog
-%docdir %{_datadir}/doc/sipxecs
-%{_datadir}/doc/sipxecs
 %attr(755,root,root) %{_bindir}/configpp
 %attr(755,root,root) %{_bindir}/config-defs
 %attr(755,root,root) %{_bindir}/get_def_addr

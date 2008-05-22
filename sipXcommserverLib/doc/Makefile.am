@@ -5,12 +5,14 @@ EXTRA_DIST = \
   Doxyfile.project.in \
   footer.html \
   credential.xml \
-  permission.xml
+  permission.xml \
+  sipxecs-doc.spec
 
 if DOC
 
 EXTRA_DIST += \
 	INSTALL.ssl.in \
+	config/sipXecs.css \
 	$(top_srcdir)/config/sipxecs_entities.ent
 
 CLEANFILES=
@@ -18,6 +20,10 @@ CLEANFILES=
 DOCBOOK_XML_DOCS=INSTALL.ssl
 
 include $(top_srcdir)/config/docbook.am
+
+CLEANFILES+=sipXecs.css
+
+DOCBOOK_OUTPUTS+=sipXecs.css
 
 endif # DOC
 

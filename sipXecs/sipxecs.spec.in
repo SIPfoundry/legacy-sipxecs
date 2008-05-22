@@ -34,6 +34,7 @@ Requires: sipX-freeswitch-codec-passthru-g723_1
 Requires: sipX-freeswitch-codec-passthru-g729
 Requires: sipX-freeswitch-codec-passthru-amr
 Requires: sipxtools
+Requires: sipxecs-doc
 
 Source: %name-%version.tar.gz
 

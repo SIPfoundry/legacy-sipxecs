@@ -40,8 +40,7 @@ EXTRA_DIST+= \
 	$(SIPXECS_CSS)
 
 DOCBOOK_HTML_OUTPUTS= \
-	$(foreach doc,$(DOCBOOK_XML_DOCS),$(doc).html) \
-	sipXecs.css
+	$(foreach doc,$(DOCBOOK_XML_DOCS),$(doc).html)
 
 sipXecs.css: $(SIPXECS_CSS)
 	cp $< $@
