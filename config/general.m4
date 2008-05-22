@@ -707,7 +707,7 @@ AC_DEFUN([CHECK_CGICC],
       if test x_$found_cgicc = x_no -a -f "$cgicc_dir/include/cgicc/Cgicc.h"
       then
         for cgicc_libdir in $cgicc_libpath; do
-          if test -f "$cgicc_libdir/libcgicc.so" -o -f "$cgicc_libdir/libcgicc.a"
+          if test -f "$cgicc_libdir/libcgicc.la"
           then
              found_cgicc="yes";
              break;
@@ -719,12 +719,12 @@ AC_DEFUN([CHECK_CGICC],
     if test x_$found_cgicc = x_yes
     then
         AC_MSG_RESULT( [    cgicc includes found in $cgicc_dir] )
-        AC_MSG_RESULT( [    cgicc libraries found in $cgicc_libdir/libcgicc.so] )
+        AC_MSG_RESULT( [    cgicc libraries found in $cgicc_libdir] )
 
         AC_SUBST(CGICC_CFLAGS,"-I$cgicc_dir/include")
         AC_SUBST(CGICC_LIBS,"$cgicc_libdir/libcgicc.la")
     else
-        AC_MSG_ERROR([cgicc not found - looked for lib/libcgicc.so and include/cgicc/Cgicc.h in $cgicc_path])
+        AC_MSG_ERROR([cgicc not found - looked for lib/libcgicc.la and include/cgicc/Cgicc.h in $cgicc_path])
     fi
 ])dnl
 
