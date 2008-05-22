@@ -296,7 +296,6 @@ OsStatus OsProcessLinux::getInfo(OsProcessInfo &rProcessInfo)
     OsStatus retval = OS_FAILED;
     
     OsProcess process;
-    OsProcessIterator pi;
     
     OsStatus findRetVal = getByPID(mPID,process);
     
