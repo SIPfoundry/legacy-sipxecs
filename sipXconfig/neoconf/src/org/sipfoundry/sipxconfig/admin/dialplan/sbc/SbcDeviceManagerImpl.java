@@ -12,6 +12,10 @@ package org.sipfoundry.sipxconfig.admin.dialplan.sbc;
 import java.util.Collection;
 import java.util.List;
 
+import org.hibernate.Criteria;
+import org.hibernate.Session;
+import org.sipfoundry.sipxconfig.admin.dialplan.sbc.bridge.BridgeSbc;
+import org.sipfoundry.sipxconfig.common.DaoUtils;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.common.event.DaoEventPublisher;
@@ -19,6 +23,7 @@ import org.sipfoundry.sipxconfig.common.event.SbcDeviceDeleteListener;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.dao.support.DataAccessUtils;
+import org.springframework.orm.hibernate3.HibernateCallback;
 
 public class SbcDeviceManagerImpl extends SipxHibernateDaoSupport<SbcDevice> implements
         SbcDeviceManager, BeanFactoryAware {
@@ -30,6 +35,8 @@ public class SbcDeviceManagerImpl extends SipxHibernateDaoSupport<SbcDevice> imp
     private BeanFactory m_beanFactory;
 
     private DaoEventPublisher m_daoEventPublisher;
+
+    private String m_localIpAddress;
 
     public void setDaoEventPublisher(DaoEventPublisher daoEventPublisher) {
         m_daoEventPublisher = daoEventPublisher;
@@ -68,6 +75,21 @@ public class SbcDeviceManagerImpl extends SipxHibernateDaoSupport<SbcDevice> imp
         return load(SbcDevice.class, id);
     }
 
+    public BridgeSbc getBridgeSbc() {
+        SbcDevice sbcDevice = DaoUtils.requireOneOrZero(getSbcDeviceByType(BridgeSbc.class), "sbc bridge");
+        return (BridgeSbc) sbcDevice;
+    }
+
+    private <SbcDevice> List<SbcDevice> getSbcDeviceByType(final Class<SbcDevice> type) {
+        HibernateCallback callback = new HibernateCallback() {
+            public Object doInHibernate(Session session) {
+                Criteria criteria = session.createCriteria(type);
+                return criteria.list();
+            }
+        };
+        return getHibernateTemplate().executeFind(callback);
+    }
+
     public List<SbcDevice> getSbcDevices() {
         return getHibernateTemplate().loadAll(SbcDevice.class);
     }
@@ -76,6 +98,7 @@ public class SbcDeviceManagerImpl extends SipxHibernateDaoSupport<SbcDevice> imp
         String beanId = descriptor.getBeanId();
         SbcDevice newSbc = (SbcDevice) m_beanFactory.getBean(beanId, SbcDevice.class);
         newSbc.setModel(descriptor);
+        newSbc.setAddress(m_localIpAddress);
         return newSbc;
     }
 
@@ -141,5 +164,13 @@ public class SbcDeviceManagerImpl extends SipxHibernateDaoSupport<SbcDevice> imp
                 }
             }
         }
+    }
+
+    public void setLocalIpAddress(String localIpAddress) {
+        m_localIpAddress = localIpAddress;
+    }
+
+    public String getLocalIpAddress() {
+        return m_localIpAddress;
     }
 }

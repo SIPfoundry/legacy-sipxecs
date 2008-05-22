@@ -17,9 +17,12 @@ import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.form.IPropertySelectionModel;
 import org.apache.tapestry.html.BasePage;
+import org.apache.tapestry.valid.IValidationDelegate;
+import org.apache.tapestry.valid.ValidatorException;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDescriptor;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDevice;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDeviceManager;
+import org.sipfoundry.sipxconfig.admin.dialplan.sbc.bridge.BridgeSbc;
 import org.sipfoundry.sipxconfig.components.ExtraOptionModelDecorator;
 import org.sipfoundry.sipxconfig.components.ObjectSelectionModel;
 import org.sipfoundry.sipxconfig.components.SelectMap;
@@ -58,6 +61,8 @@ public abstract class ListSbcDevices extends BasePage {
 
     public abstract SbcDescriptor getSbcDescriptor();
 
+    public abstract void setSbcDescriptor(SbcDescriptor sbcDescriptor);
+
     public abstract SbcDevice getSbc();
 
     public Collection getAllSelected() {
@@ -68,11 +73,25 @@ public abstract class ListSbcDevices extends BasePage {
      * When user clicks on link to add an SBC
      */
     public IPage formSubmit(IRequestCycle cycle) {
+        IValidationDelegate validator = TapestryUtils.getValidator(getPage());
         SbcDescriptor model = getSbcDescriptor();
         if (model == null) {
             return null;
+        } else if (model.getBeanId().equals("sbcSipXbridge")) {
+            BridgeSbc bridgeSbc = getSbcDeviceManager().getBridgeSbc();
+            if (bridgeSbc == null) {
+                return EditSbcDevice.getAddPage(cycle, model, this);
+            } else {
+                ValidatorException ex = new ValidatorException(getMessages().getMessage(
+                        "sbcBridge.creation.error"));
+                validator.record(ex);
+                //reset SBCs's models combobox selected value
+                setSbcDescriptor(null);
+                return null;
+            }
+        } else {
+            return EditSbcDevice.getAddPage(cycle, model, this);
         }
-        return EditSbcDevice.getAddPage(cycle, model, this);
     }
 
     public void delete() {

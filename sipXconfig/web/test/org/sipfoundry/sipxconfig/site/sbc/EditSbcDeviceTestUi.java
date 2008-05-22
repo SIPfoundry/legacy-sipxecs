@@ -44,12 +44,52 @@ public class EditSbcDeviceTestUi extends WebTestCase {
         sbcsTable = getTable("list:sbc");
         assertEquals(2, sbcsTable.getRowCount());
 
+        //local address automatically configured
+        SiteTestHelper.selectOption(tester, "PropertySelection", "Unmanaged SBC");
+        setTextField("sbcDevice:name", "sbc2");
+        assertTextFieldEquals("sbcDevice:address", SiteTestHelper.getSbcDeviceLocalIp());
+        clickButton("form:ok");
+        SiteTestHelper.assertNoUserError(tester);
+        sbcsTable = getTable("list:sbc");
+        assertEquals(3, sbcsTable.getRowCount());
+
+        //add bridge
+        SiteTestHelper.selectOption(tester, "PropertySelection", "sipXbridge");
+        setTextField("sbcDevice:name", "bridge");
+        assertTextFieldEquals("sbcDevice:address", SiteTestHelper.getSbcDeviceLocalIp());
+        clickButton("form:ok");
+        SiteTestHelper.assertNoUserError(tester);
+        sbcsTable = getTable("list:sbc");
+        assertEquals(4, sbcsTable.getRowCount());
+
+        //creation of maximum one bridge is allowed
+        SiteTestHelper.selectOption(tester, "PropertySelection", "sipXbridge");
+        SiteTestHelper.assertUserError(getTester());
+
+        //delete one sbc
         setWorkingForm("Form");
         checkCheckbox("checkbox");
         clickButton("list:sbc:delete");
         SiteTestHelper.assertNoUserError(tester);
         sbcsTable = getTable("list:sbc");
-        assertEquals(1, sbcsTable.getRowCount());
+        assertEquals(3, sbcsTable.getRowCount());
+
+        //delete all sbcs
+        deleteAllSbcs();
+
+    }
+
+    private void deleteAllSbcs() {
+        setWorkingForm("Form");
+        int rowCount = SiteTestHelper.getRowCount(getTester(), "list:sbc");
+        if (rowCount <= 1) {
+            return;
+        }
+        for (int i = 0; i < rowCount - 1; i++) {
+            SiteTestHelper.selectRow(getTester(), i, true);
+        }
+        clickButton("list:sbc:delete");
+        assertEquals(1, SiteTestHelper.getRowCount(getTester(), "list:sbc"));
     }
 
     public void testAddSbcWithSameName() throws Exception {

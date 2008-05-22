@@ -12,7 +12,8 @@
       <label jwcid="@common/FieldPanel" for="sbcDevice:address"
         field="component:sbcDeviceAddress"
         label="message:label.address"
-        description="message:description.address">
+        description="message:description.address"
+        defaultValue="ognl:sbcDeviceManager.localIpAddress">
         <input jwcid="sbcDeviceAddress@TextField" id="sbcDevice:address"
           value="ognl:sbcDevice.address"
           validators="spring-validators:required,validHostOrIp"

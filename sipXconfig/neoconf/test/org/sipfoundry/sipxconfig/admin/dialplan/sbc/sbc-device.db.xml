@@ -7,4 +7,6 @@
     serial_number="101122334455" description="description1"/>
   <sbc_device sbc_device_id="1002" address="10.1.2.5" bean_id="sbcGeneric" model_id="sbcGenericModel" name="Sbc1002"
     serial_number="201122334455" />
+  <sbc_device sbc_device_id="1003" address="10.1.2.6" bean_id="sbcSipXbridge" model_id="sipXbridgeSbcModel" name="SbcBridge"
+    serial_number="301122334455" description="bridgeDesc" />
 </dataset>

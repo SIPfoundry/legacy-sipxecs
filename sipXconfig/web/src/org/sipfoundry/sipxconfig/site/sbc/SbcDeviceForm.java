@@ -13,10 +13,12 @@ import java.util.List;
 
 import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.annotations.ComponentClass;
+import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Parameter;
 import org.apache.tapestry.form.translator.Translator;
 import org.apache.tapestry.form.validator.Validator;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDevice;
+import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDeviceManager;
 import org.sipfoundry.sipxconfig.components.SerialNumberTranslator;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 
@@ -32,4 +34,7 @@ public abstract class SbcDeviceForm extends BaseComponent {
     public Translator getSerialNumberTranslator() {
         return new SerialNumberTranslator(getSbcDevice().getModel());
     }
+
+    @InjectObject(value = "spring:sbcDeviceManager")
+    public abstract SbcDeviceManager getSbcDeviceManager();
 }

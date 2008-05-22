@@ -12,6 +12,8 @@ package org.sipfoundry.sipxconfig.admin.dialplan.sbc;
 import java.util.Collection;
 import java.util.List;
 
+import org.sipfoundry.sipxconfig.admin.dialplan.sbc.bridge.BridgeSbc;
+
 public interface SbcDeviceManager {
     public static final String CONTEXT_BEAN_NAME = "sbcDeviceManager";
     
@@ -30,4 +32,8 @@ public interface SbcDeviceManager {
     SbcDevice newSbcDevice(SbcDescriptor descriptor);
 
     Collection<Integer> getAllSbcDeviceIds();
+
+    public BridgeSbc getBridgeSbc();
+
+    public String getLocalIpAddress();
 }

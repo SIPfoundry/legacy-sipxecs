@@ -12,6 +12,7 @@ package org.sipfoundry.sipxconfig.admin.dialplan.sbc;
 import java.util.Collection;
 
 import org.sipfoundry.sipxconfig.IntegrationTestCase;
+import org.sipfoundry.sipxconfig.admin.dialplan.sbc.bridge.BridgeSbc;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.device.ModelSource;
 
@@ -34,7 +35,7 @@ public class SbcDeviceManagerImplTestIntegration extends IntegrationTestCase {
 
     public void testClear() {
         loadDataSet("admin/dialplan/sbc/sbc-device.db.xml");
-        assertEquals(3, countRowsInTable("sbc_device"));
+        assertEquals(4, countRowsInTable("sbc_device"));
         m_sdm.clear();
         flush();
 
@@ -44,10 +45,11 @@ public class SbcDeviceManagerImplTestIntegration extends IntegrationTestCase {
     public void testGetAllSbcDeviceIds() {
         loadDataSet("admin/dialplan/sbc/sbc-device.db.xml");
         Collection<Integer> allSbcDeviceIds = m_sdm.getAllSbcDeviceIds();
-        assertEquals(3, allSbcDeviceIds.size());
+        assertEquals(4, allSbcDeviceIds.size());
         assertTrue(allSbcDeviceIds.contains(1000));
         assertTrue(allSbcDeviceIds.contains(1001));
         assertTrue(allSbcDeviceIds.contains(1002));
+        assertTrue(allSbcDeviceIds.contains(1003));
     }
 
     public void testGetSbcDevice() {
@@ -59,6 +61,18 @@ public class SbcDeviceManagerImplTestIntegration extends IntegrationTestCase {
         assertEquals("10.1.2.4", sbc.getAddress());
         assertEquals("101122334455", sbc.getSerialNumber());
         assertEquals("description1", sbc.getDescription());
+    }
+
+    public void testGetSbcBridge() {
+        loadDataSet("admin/dialplan/sbc/sbc-device.db.xml");
+        BridgeSbc bridgeSbc = m_sdm.getBridgeSbc();
+        assertEquals("SbcBridge", bridgeSbc.getName());
+        assertEquals("10.1.2.6", bridgeSbc.getAddress());
+        assertEquals("301122334455", bridgeSbc.getSerialNumber());
+        assertEquals("bridgeDesc", bridgeSbc.getDescription());
+        m_sdm.deleteSbcDevice(1003);
+        bridgeSbc = m_sdm.getBridgeSbc();
+        assertTrue(bridgeSbc==null);
     }
 
     public void testSave() {
