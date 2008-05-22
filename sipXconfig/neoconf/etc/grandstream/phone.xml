@@ -59,7 +59,7 @@
             </type>
             <value>0</value>
         </setting>
-        <setting name="P102" if="gsPhone.*">
+        <setting name="P102" if="gsPhoneGxp2000|gsPhoneGxp1200|gsPhoneBt200">
             <label>Date Display Format</label>
             <type>
                 <enum>
@@ -79,7 +79,7 @@
             </type>
             <value>0</value>
         </setting>
-        <setting name="P122" if="gsPhoneGx.*">
+        <setting name="P122" if="gsPhoneGx.*|gsPhoneBt200">
             <label>Time Display Format</label>
             <type>
                 <enum>
@@ -93,7 +93,7 @@
             </type>
             <value>0</value>
         </setting>
-        <setting name="P123" if="gsPhoneGx.*">
+        <setting name="P123" if="gsPhoneGxp2000|gsPhoneGxp1200">
             <label>Display Clock</label>
             <type>
                 <boolean/>
@@ -101,8 +101,38 @@
             <value>0</value>
             <description>Display clock instead of date.</description>
         </setting>
-        <setting name="P322" if="gsPhoneGxp">
+        <setting name="P339" if="gsPhoneBt200">
+            <label>Display Account instead of Date</label>
+            <type>
+                <boolean/>
+            </type>
+            <value>0</value>
+            <description>Display account name instead of date.</description>
+        </setting>
+        <setting name="P322" if="gsPhoneGxp2000|gsPhoneGxp1200">
             <label>LCD Backlight always on</label>
+            <type>
+                <boolean/>
+            </type>
+            <value>0</value>
+        </setting>
+        <setting name="P334" if="gsPhoneGxp2020|gsPhoneGxp2010">
+            <label>LCD Backlight Brightness</label>
+            <type>
+                <string/>
+            </type>
+            <value>0</value>
+            <description>LCD backlight brightness. 0 - 8 where 0 is off and 8 is brightest.</description>
+        </setting>
+        <setting name="P336" if="gsPhoneGx.*|gsPhoneBt200">
+            <label>Mute Speaker in Headset Mode</label>
+            <type>
+                <boolean/>
+            </type>
+            <value>0</value>
+        </setting>
+        <setting name="P338" if="gsPhoneGx.*|gsPhoneBt200">
+            <label>Disable in-call DTMF Display</label>
             <type>
                 <boolean/>
             </type>
@@ -127,6 +157,20 @@
             </type>
             <value>1</value>
         </setting>
+        <setting name="P1303" if="gsPhoneGxp2010|gsPhoneGxp2020">
+            <label>Intercom User ID (Account 1)</label>
+            <type>
+                <string/>
+            </type>
+            <value>0</value>
+        </setting>
+        <setting name="P186" if="gsPhone.*">
+            <label>Disable Call-Waiting Tone</label>
+            <type>
+                <boolean/>
+            </type>
+            <value>1</value>
+        </setting>
         <setting name="P72" if="gsPhone.*">
             <label>Use # as Dial Key</label>
             <type>
@@ -135,12 +179,20 @@
             <value>1</value>
             <description>Use # as Dial Key (if checked, "#" will function as the "(Re-)Dial" key)</description>
         </setting>
+        <setting name="P184" if="gsPhone.*">
+            <label>Quick IP-call Mode</label>
+            <type>
+                <boolean/>
+            </type>
+            <value>0</value>
+            <description>Enable a quick IP-call mdoe that makes it easier to dial IP addresses.</description>
+        </setting>
         <setting name="P105" if="gsPhone.*">
             <label>Caller ID for ring tone 1</label>
             <type>
                 <string/>
             </type>
-            <value>0</value>
+            <value></value>
             <description>Use custom ring tone 1 if incoming caller ID is the following.</description>
         </setting>
         <setting name="P106" if="gsPhone.*">
@@ -148,7 +200,7 @@
             <type>
                 <string/>
             </type>
-            <value>0</value>
+            <value></value>
             <description>Use custom ring tone 2 if incoming caller ID is the following.</description>
         </setting>
         <setting name="P107" if="gsPhone.*">
@@ -156,8 +208,67 @@
             <type>
                 <string/>
             </type>
-            <value>0</value>
+            <value></value>
             <description>Use custom ring tone 3 if incoming caller ID is the following.</description>
+        </setting>
+        <setting name="P71" if="gsPhoneGxp.*|gsPhoneBt200">
+                <label>Offhook Auto-Dial</label>
+                <type>
+                        <string/>
+                </type>
+                <value/>
+                <description>User ID/extension to dial automatically when offhook.</description>
+        </setting>
+        <setting name="P342" if="gsPhoneBt200">
+            <label>Onhook Threshold</label>
+            <type>
+                <enum>
+                    <option>
+                        <label>Hookflash Off</label><value>0</value>
+                    </option>
+                    <option>
+                        <label>200ms</label><value>2</value>
+                    </option>
+                    <option>
+                        <label>400ms</label><value>4</value>
+                    </option>
+                    <option>
+                        <label>600ms</label><value>6</value>
+                    </option>
+                    <option>
+                        <label>800ms</label><value>8</value>
+                    </option>
+                    <option>
+                        <label>1000ms</label><value>10</value>
+                    </option>
+                    <option>
+                        <label>1200ms</label><value>12</value>
+                    </option>
+                </enum>
+            </type>
+            <value>8</value>
+        </setting>
+        <setting name="P342" if="gsPhoneGxp.*|gsPhoneBt200">
+            <label>Display Language</label>
+            <type>
+                <enum>
+                    <option>
+                        <label>English</label><value>0</value>
+                    </option>
+                    <option>
+                        <label>Secondary Language</label><value>1</value>
+                    </option>
+                </enum>
+            </type>
+            <value>0</value>
+        </setting>
+        <setting name="P399" if="gsPhoneGxp.*|gsPhoneBt200">
+            <label>Language File Postfix</label>
+            <type>
+                <string/>
+            </type>
+            <value></value>
+            <description> </description>
         </setting>
         <setting name="P86" if="gsHt.*">
             <label>FXS Impedence</label>
@@ -277,29 +388,29 @@
             <value>0</value>
             <description>Disable DHCP support.</description>
         </setting>
-        <setting name="P146" if="gsPhoneGxv3000">
-          <label>DHCP Hostname</label>
+        <setting name="P146" if="gsPhoneGx.*|gsPhoneBt200">
+          <label>Hostname</label>
           <type>
             <string/>
           </type>
           <value></value>
-          <description>Maximum 32 characters</description>
+          <description>DHCP option 12. Maximum 32 characters</description>
         </setting>
-        <setting name="P147" if="gsPhoneGxv3000">
-          <label>DHCP Domain</label>
+        <setting name="P147" if="gsPhoneGx.*|gsPhoneBt200">
+          <label>Domain Name</label>
           <type>
             <string/>
           </type>
           <value></value>
-          <description>Maximum 32 characters</description>
+          <description>DHCP option 15. Maximum 32 characters</description>
         </setting>
-        <setting name="P148" if="gsPhoneGxv3000">
+        <setting name="P148" if="gsPhoneGx.*|gsPhoneBt200">
           <label>DHCP Vendor Class ID</label>
           <type>
             <string/>
           </type>
-          <value>Grandstream GXV-3000</value>
-          <description>Maximum 32 characters</description>
+          <value>Grandstream</value>
+          <description>DHCP option 60. Maximum 32 characters</description>
         </setting>
         <setting name="__IPAddress-9">
           <label>IP Address</label>
@@ -392,7 +503,7 @@
             </type>
             <value>0</value>
         </setting>
-        <setting name="P244" if="gsPhoneBt|gsHt286|gsHt486">
+        <setting name="P244" if="gsPhoneBt100|gsHt286|gsHt486">
             <label>Override MTU Size</label>
             <type>
                 <integer/>
@@ -466,7 +577,7 @@
             </type>
             <value></value>
         </setting>
-        <setting name="P84" if="gsPhoneGxv3000">
+        <setting name="P269" if="gsPhoneGxv3000">
             <label>PPPoE Service Name</label>
             <type>
                 <string/>
@@ -520,35 +631,59 @@
             <value>5004</value>
             <description>Local RTP port (1024-65535, default 5004)</description>
         </setting>
-		<setting name="P78" if="gsPhoneGxv3000">
-			<label>Use Random Port</label>
-			<type>
-				<boolean/>
-			</type>
-			<value>0</value>
-		</setting>
+	<setting name="P78" if="gsPhoneGxp.*|gsPhoneBt200|gsPhoneGxv3000">
+		<label>Use Random Port</label>
+		<type>
+			<boolean/>
+		</type>
+		<value>0</value>
+	</setting>
         <setting name="P79" if="gsPhone.*">
             <label>DTMF Payload Type</label>
             <type refid="byte"/>
             <value>101</value>
         </setting>
-		<setting name="P49" if="gsPhoneGxv3000">
-			<label>G723 encoding rate</label>
-			<type>
-				<enum>
-					<option>
-						<label>6.3kbps</label>
-						<value>0</value>
-					</option>
-					<option>
-						<label>5.3kbps</label>
-						<value>1</value>
-					</option>
-				</enum>
-			</type>
-			<value>0</value>
-		</setting>
-        <setting name="P239" if="gsPhoneBt|gsHt286|gsHt486">
+	<setting name="P49" if="gsPhoneGxp.*|gsPhoneBT200|gsPhoneGxv3000">
+		<label>G723 encoding rate</label>
+		<type>
+			<enum>
+				<option>
+					<label>6.3kbps</label>
+					<value>0</value>
+				</option>
+				<option>
+					<label>5.3kbps</label>
+					<value>1</value>
+				</option>
+			</enum>
+		</type>
+		<value>0</value>
+	</setting>
+        <setting name="P97" if="gsPhoneGxp.*|gsPhoneBt200">
+                <label>iLBC Frame Size</label>
+                <type>
+                        <enum>
+                                <option>
+                                        <label>20 ms</label>
+                                        <value>0</value>
+                                </option>
+                                <option>
+                                        <label>30 ms</label>
+                                        <value>1</value>
+                                </option>
+                        </enum>
+                </type>
+                <value>0</value>
+        </setting>
+        <setting name="P96" if="gsPhoneGxp.*|gsPhoneBt200">
+                <label>iLBC payload type</label>
+                <type>
+                        <integer min="96" max="127"/>
+                </type>
+                <value>97</value>
+                <description>iLBC payload type. Between 96 and 127</description>
+        </setting>
+        <setting name="P239" if="gsPhoneBt100|gsHt286|gsHt486">
             <label>SIP Register Expiration</label>
             <type>
                 <integer/>
@@ -556,7 +691,7 @@
             <value>3600</value>
             <description>in seconds (default 1 hour, max 45 days)</description>
         </setting>
-        <setting name="P243" if="gsPhoneBt|gsHt286|gsHt486">
+        <setting name="P243" if="gsPhoneBt100|gsHt286|gsHt486">
             <label>Allow incoming SIP messages</label>
             <type>
                 <boolean/>
@@ -564,7 +699,7 @@
             <value>0</value>
             <description>from SIP proxy only.</description>
         </setting>
-        <setting name="P198.bt" if="gsPhoneBt">
+        <setting name="P198.bt" if="gsPhoneBt100">
             <label>Special Feature</label>
             <profileName>P198</profileName>
             <type>
@@ -686,142 +821,7 @@
             <description>Always refresh with INVITE instead of UPDATE.</description>
         </setting>
     </group>
-    <group name="speeddial" if="gsPhoneGxp">
-        <label>Speed Dial</label>
-        <setting name="P302">
-            <label>Speed Dial 1 Name</label>
-            <type>
-                <string/>
-            </type>
-            <value></value>
-        </setting>
-        <setting name="P303">
-            <label>Speed Dial 1 UserID</label>
-            <type>
-                <integer/>
-            </type>
-            <value></value>
-        </setting>
-        <setting name="P301">
-            <label>Speed Dial 1 Account</label>
-            <type refid="gxpaccount"/>
-            <value>0</value>
-        </setting>
-        <setting name="P305">
-            <label>Speed Dial 2 Name</label>
-            <type>
-                <string/>
-            </type>
-            <value></value>
-        </setting>
-        <setting name="P306">
-            <label>Speed Dial 2 UserID</label>
-            <type>
-                <integer/>
-            </type>
-            <value></value>
-        </setting>
-        <setting name="P304">
-            <label>Speed Dial 2 Account</label>
-            <type refid="gxpaccount"/>
-            <value>0</value>
-        </setting>
-        <setting name="P308">
-            <label>Speed Dial 3 Name</label>
-            <type>
-                <string/>
-            </type>
-            <value></value>
-        </setting>
-        <setting name="P309">
-            <label>Speed Dial 3 UserID</label>
-            <type>
-                <integer/>
-            </type>
-            <value></value>
-        </setting>
-        <setting name="P307">
-            <label>Speed Dial 3 Account</label>
-            <type refid="gxpaccount"/>
-            <value>0</value>
-        </setting>
-        <setting name="P311">
-            <label>Speed Dial 4 Name</label>
-            <type>
-                <string/>
-            </type>
-            <value></value>
-        </setting>
-        <setting name="P312">
-            <label>Speed Dial 4 UserID</label>
-            <type>
-                <integer/>
-            </type>
-            <value></value>
-        </setting>
-        <setting name="P310">
-            <label>Speed Dial 4 Account</label>
-            <type refid="gxpaccount"/>
-            <value>0</value>
-        </setting>
-        <setting name="P314">
-            <label>Speed Dial 5 Name</label>
-            <type>
-                <string/>
-            </type>
-            <value></value>
-        </setting>
-        <setting name="P315">
-            <label>Speed Dial 5 UserID</label>
-            <type>
-                <integer/>
-            </type>
-            <value></value>
-        </setting>
-        <setting name="P313">
-            <label>Speed Dial 5 Account</label>
-            <type refid="gxpaccount"/>
-            <value>0</value>
-        </setting>
-        <setting name="P317">
-            <label>Speed Dial 6 Name</label>
-            <type>
-                <string/>
-            </type>
-            <value></value>
-        </setting>
-        <setting name="P318">
-            <label>Speed Dial 6 UserID</label>
-            <type>
-                <integer/>
-            </type>
-            <value></value>
-        </setting>
-        <setting name="P316">
-            <label>Speed Dial 6 Account</label>
-            <type refid="gxpaccount"/>
-            <value>0</value>
-        </setting>
-        <setting name="P320">
-            <label>Speed Dial 7 Name</label>
-            <type>
-                <string/>
-            </type>
-            <value></value>
-        </setting>
-        <setting name="P321">
-            <label>Speed Dial 7 UserID</label>
-            <type>
-                <integer/>
-            </type>
-            <value></value>
-        </setting>
-        <setting name="P319">
-            <label>Speed Dial 7 Account</label>
-            <type refid="gxpaccount"/>
-            <value>0</value>
-        </setting>
-    </group>
+
     <group name="wan" if="gsHt4.*">
         <label>WAN</label>
         <setting name="P110">
@@ -1263,64 +1263,8 @@
             <value>*00</value>
             <description>Key pattern to use the PSTN line.</description>
         </setting>
-        <setting name="P260">
-            <label>Route Call to PSTN 1</label>
-            <type>
-                <string/>
-            </type>
-            <value></value>
-            <description>Outbound calls will be routed to PSTN port when dialed digits match.</description>
-        </setting>
-        <setting name="P261">
-            <label>Route Call to PSTN 2</label>
-            <type>
-                <string/>
-            </type>
-            <value></value>
-            <description>Outbound calls will be routed to PSTN port when dialed digits match.</description>
-        </setting>
-        <setting name="P262">
-            <label>Route Call to PSTN 3</label>
-            <type>
-                <string/>
-            </type>
-            <value></value>
-            <description>Outbound calls will be routed to PSTN port when dialed digits match.</description>
-        </setting>
-        <setting name="P263">
-            <label>Route Call to PSTN 4</label>
-            <type>
-                <string/>
-            </type>
-            <value></value>
-            <description>Outbound calls will be routed to PSTN port when dialed digits match.</description>
-        </setting>
-        <setting name="P264">
-            <label>Route Call to PSTN 5</label>
-            <type>
-                <string/>
-            </type>
-            <value></value>
-            <description>Outbound calls will be routed to PSTN port when dialed digits match.</description>
-        </setting>
-        <setting name="P270">
-            <label>Forward to PSTN</label>
-            <type>
-                <string/>
-            </type>
-            <value></value>
-            <description>VoIP calls will be forwarded to the specified PSTN number.</description>
-        </setting>
-        <setting name="P271">
-            <label>Forward to VoIP</label>
-            <type>
-                <string/>
-            </type>
-            <value></value>
-            <description>PSTN calls will be forwarded to the specified VoIP number.</description>
-        </setting>
         <setting name="P780">
-            <label>Route Call to PSTN 1</label>
+            <label>Route Call to PSTN 0</label>
             <type>
                 <string/>
             </type>
@@ -1328,7 +1272,7 @@
             <description>Outbound calls will be routed to PSTN port when dialed digits match.</description>
         </setting>
         <setting name="P781">
-            <label>Route Call to PSTN 2</label>
+            <label>Route Call to PSTN 1</label>
             <type>
                 <string/>
             </type>
@@ -1336,7 +1280,7 @@
             <description>Outbound calls will be routed to PSTN port when dialed digits match.</description>
         </setting>
         <setting name="P782">
-            <label>Route Call to PSTN 3</label>
+            <label>Route Call to PSTN 2</label>
             <type>
                 <string/>
             </type>
@@ -1344,7 +1288,7 @@
             <description>Outbound calls will be routed to PSTN port when dialed digits match.</description>
         </setting>
         <setting name="P783">
-            <label>Route Call to PSTN 4</label>
+            <label>Route Call to PSTN 3</label>
             <type>
                 <string/>
             </type>
@@ -1352,12 +1296,68 @@
             <description>Outbound calls will be routed to PSTN port when dialed digits match.</description>
         </setting>
         <setting name="P784">
+            <label>Route Call to PSTN 4</label>
+            <type>
+                <string/>
+            </type>
+            <value></value>
+            <description>Outbound calls will be routed to PSTN port when dialed digits match.</description>
+        </setting>
+        <setting name="P785">
             <label>Route Call to PSTN 5</label>
             <type>
                 <string/>
             </type>
             <value></value>
             <description>Outbound calls will be routed to PSTN port when dialed digits match.</description>
+        </setting>
+        <setting name="P786">
+            <label>Route Call to PSTN 6</label>
+            <type>
+                <string/>
+            </type>
+            <value></value>
+            <description>Outbound calls will be routed to PSTN port when dialed digits match.</description>
+        </setting>
+        <setting name="P787">
+            <label>Route Call to PSTN 7</label>
+            <type>
+                <string/>
+            </type>
+            <value></value>
+            <description>Outbound calls will be routed to PSTN port when dialed digits match.</description>
+        </setting>
+        <setting name="P788">
+            <label>Route Call to PSTN 8</label>
+            <type>
+                <string/>
+            </type>
+            <value></value>
+            <description>Outbound calls will be routed to PSTN port when dialed digits match.</description>
+        </setting>
+        <setting name="P789">
+            <label>Route Call to PSTN 9</label>
+            <type>
+                <string/>
+            </type>
+            <value></value>
+            <description>Outbound calls will be routed to PSTN port when dialed digits match.</description>
+        </setting>
+        <setting name="P796">
+            <label>Forward to PSTN</label>
+            <type>
+                <string/>
+            </type>
+            <value></value>
+            <description>VoIP calls will be forwarded to the specified PSTN number.</description>
+        </setting>
+        <setting name="P797">
+            <label>Forward to VoIP</label>
+            <type>
+                <string/>
+            </type>
+            <value></value>
+            <description>PSTN calls will be forwarded to the specified VoIP number.</description>
         </setting>
         <setting name="P794">
             <label>PIN for PSTN Calls</label>
@@ -1587,7 +1587,7 @@
     </group>
     <group name="upgrade">
         <label>Upgrade</label>
-        <setting name="P212" if="gsPhone.*|gsHt286|gsHt486">
+        <setting name="P212">
             <label>Firmware Upgrade Type</label>
             <type>
                 <enum>
@@ -1601,96 +1601,84 @@
             </type>
             <value>0</value>
         </setting>
-        <setting name="P192" if="gsPhone.*|gsHt286|gsHt486">
+        <setting name="P192">
             <label>Firmware Server Path</label>
             <type>
                 <string/>
             </type>
             <value></value>
+            <description>TFTP/HTTP Server address.</description>
         </setting>
-        <setting name="__TFTPServer-213" if="gsPhoneGxp|gsHt286">
-            <label>TFTP server</label>
-            <profileName>P213,P214,P215,P216</profileName>
+        <setting name="P237">
+            <label>Config Server Path</label>
             <type>
-                <ipaddr/>
+                <string/>
             </type>
             <value></value>
-            <description>TFTP Server address.</description>
+            <description>TFTP/HTTP Server address.</description>
         </setting>
-        <setting name="__TFTPServerOld-41" if="gsHt386|gsHt488|gsHt496">
-            <label>TFTP server</label>
-            <profileName>P41,P42,P43,P44</profileName>
-            <type>
-                <ipaddr/>
-            </type>
-            <value></value>
-        </setting>
-        <setting name="P193" if="gsPhone.*|gsHt286|gsHt486">
-            <label>Automatic HTTP Upgrade</label>
+        <setting name="P194">
+            <label>Automatic TFTP/HTTP Upgrade</label>
             <type>
                 <boolean/>
             </type>
             <value>0</value>
-            <description>Checking every defined days.</description>
+            <description>Automatic firmware upgrade if checked.</description>
         </setting>
-        <setting name="P194" if="gsPhone.*|gsHt286|gsHt486">
+        <setting name="P193">
             <label>Check Interval</label>
             <type>
                 <integer/>
             </type>
-            <value>7</value>
-            <description>Check for new firmware every x days</description>
+            <value>10080</value>
+            <description>Check for new firmware every x minutes. Unit is minutes. Minimum is 60. Default is 7 days.</description>
         </setting>
-        <setting name="P232" if="gsPhoneBt|gsHt486">
+        <setting name="P232">
             <label>Firmware File Prefix</label>
             <type>
                 <string/>
             </type>
             <value></value>
         </setting>
-        <setting name="P233" if="gsPhoneBt|gsHt486">
+        <setting name="P233">
             <label>Firmware File Postfix</label>
             <type>
                 <string/>
             </type>
             <value></value>
         </setting>
-        <setting name="P234" if="gsPhoneBt|gsHt486">
+        <setting name="P234">
             <label>Config File Prefix</label>
             <type>
                 <string/>
             </type>
             <value></value>
         </setting>
-        <setting name="P235" if="gsPhoneBt|gsHt486">
+        <setting name="P235">
             <label>Config File Postfix</label>
             <type>
                 <string/>
             </type>
             <value></value>
         </setting>
-        <setting name="P237" if="gsPhoneBt|gsHt486">
-            <label>Config Server Path</label>
-            <type>
-                <string/>
-            </type>
-            <value></value>
-        </setting>
-        <setting name="P238" if="gsPhoneBt|gsHt486">
-            <label>Firmware Check</label>
+        <setting name="P238">
+            <label>Firmware Check based on pre/postfix</label>
             <type>
                 <enum>
                     <option>
-                        <label>Always</label><value>0</value>
+                        <label>Always check for new firmware</label><value>0</value>
                     </option>
                     <option>
-                        <label>Only when FW pre/suffix changes</label><value>1</value>
+                        <label>Checo only when FW pre/suffix changes</label><value>1</value>
+                    </option>
+                    <option>
+                        <label>Skip firmware check</label><value>2</value>
                     </option>
                 </enum>
             </type>
             <value>0</value>
         </setting>
-        <setting name="P240" if="gsPhoneBt|gsHt286|gsHt486">
+        <setting name="P240" if="gsPhoneGx.*|gsPhoneBt200|gsHt488|gsHt496|gsHt386">
             <label>Authenticate Conf File</label>
             <type>
                 <boolean/>
@@ -1698,7 +1686,7 @@
             <value>0</value>
             <description>Authenticate configuration file before acceptance.</description>
         </setting>
-        <setting name="P242" if="gsPhoneBt|gsHt486">
+        <setting name="P242" if="gsHt488|gsHt496|gsHt386">
             <label>Firmware Key</label>
             <type>
                 <string/>
@@ -2164,5 +2152,603 @@
 			<value>554</value>
 			<description>Video surveillance data stream port</description>
 		</setting>
+    </group>
+    <group name="phonebook" if="gsPhoneGxp.*">
+                <label>Phonebook</label>
+        <setting name="P330">
+            <label>Phonebook XML Download</label>
+            <type>
+                <enum>
+                    <option>
+                        <label>No</label><value>0</value>
+                    </option>
+                    <option>
+                        <label>Yes, HTTP</label><value>1</value>
+                    </option>
+                    <option>
+                        <label>Yes, TFTP</label><value>2</value>
+                    </option>
+                </enum>
+            </type>
+            <value>0</value>
+            <description>Enable downloading a phonebook in XML format.</description>
+        </setting>
+        <setting name="P331">
+            <label>Phonebook Server Path</label>
+            <type>
+                <string/>
+            </type>
+            <value></value>
+            <description>Path to the XML file that contains the directory. Must be in the host/path format (dir.example.com/path).</description>
+        </setting>
+        <setting name="P332">
+            <label>Phonebook Download Interval</label>
+            <type>
+                <string/>
+            </type>
+            <value></value>
+            <description>Number of hours between downlods. Must be between 0 and 720.</description>
+        </setting>
+        <setting name="P333">
+            <label>Remove Manually Edited Entries</label>
+            <type>
+                <boolean/>
+            </type>
+            <value>0</value>
+            <description>When downloading the phonebook, remove manually edited entries.</description>
+        </setting>
+        <setting name="P340" if="gsPhoneGxp2.*">
+            <label>XML Idel Screen</label>
+            <type>
+                <enum>
+                    <option>
+                        <label>No</label><value>0</value>
+                    </option>
+                    <option>
+                        <label>Yes, HTTP</label><value>1</value>
+                    </option>
+                    <option>
+                        <label>Yes, TFTP</label><value>2</value>
+                    </option>
+                </enum>
+            </type>
+            <value>0</value>
+            <description>Enable downloading an idle screen in XML format.</description>
+        </setting>
+        <setting name="P341" if="gsPhoneGxp2.*">
+            <label>Idle Screen Server Path</label>
+            <type>
+                <string/>
+            </type>
+            <value></value>
+            <description>Path to the XML file that contains the idel screen. Must be in the host/path foramt (dir.example.com/path).</description>
+        </setting>
+        <setting name="P337" if="gsPhoneGxp2020|gsPhoneGxp2010">
+            <label>XML App Server Path</label>
+            <type>
+                <string/>
+            </type>
+            <value></value>
+            <description>Path to the XML file that contains the application. Must be in the host/path foramt (dir.example.com/path).</description>
+        </setting>
+        <setting name="P352">
+            <label>Softkey Label</label>
+            <type>
+                <string/>
+            </type>
+            <value></value>
+            <description> </description>
+        </setting>
+    </group>
+    <group name="progresstones" if="gsPhoneGxp.*|gsPhoneBt200">
+                <label>Progress Tones</label>
+        <setting name="P345">
+            <label>Ring Tone</label>
+            <type>
+                <string/>
+            </type>
+            <value>f1=440,f2=480,c=200/400;</value>
+            <description>Syntax: f1=val,f2=val[,c=on1/off1[-on2/off2[-on3/off3]]]; (Frequencies are in Hz and cadence on and off are in 10ms).</description>
+        </setting>
+        <setting name="P343">
+            <label>Dial Tone</label>
+            <type>
+                <string/>
+            </type>
+            <value>f1=350,f2=440;</value>
+            <description>Syntax: f1=val,f2=val[,c=on1/off1[-on2/off2[-on3/off3]]]; (Frequencies are in Hz and cadence on and off are in 10ms).</description>
+        </setting>
+        <setting name="P344">
+            <label>Message Waiting</label>
+            <type>
+                <string/>
+            </type>
+            <value>f1=350,f2=440,c=10/10;</value>
+            <description>Syntax: f1=val,f2=val[,c=on1/off1[-on2/off2[-on3/off3]]]; (Frequencies are in Hz and cadence on and off are in 10ms).</description>
+        </setting>
+        <setting name="P346">
+            <label>Ring Back Tone</label>
+            <type>
+                <string/>
+            </type>
+            <value>f1=440,f2=480,c=200/400;</value>
+            <description>Syntax: f1=val,f2=val[,c=on1/off1[-on2/off2[-on3/off3]]]; (Frequencies are in Hz and cadence on and off are in 10ms).</description>
+        </setting>
+        <setting name="P347">
+            <label>Call Waiting Tone</label>
+            <type>
+                <string/>
+            </type>
+            <value>f1=440,f2=440,c=25/525;</value>
+            <description>Syntax: f1=val,f2=val[,c=on1/off1[-on2/off2[-on3/off3]]]; (Frequencies are in Hz and cadence on and off are in 10ms).</description>
+        </setting>
+        <setting name="P348">
+            <label>Busy Tone</label>
+            <type>
+                <string/>
+            </type>
+            <value>f1=480,f2=620,c=50/50;</value>
+            <description>Syntax: f1=val,f2=val[,c=on1/off1[-on2/off2[-on3/off3]]]; (Frequencies are in Hz and cadence on and off are in 10ms).</description>
+        </setting>
+        <setting name="P349">
+            <label>Reorder Tone</label>
+            <type>
+                <string/>
+            </type>
+            <value>f1=480,f2=620,c=25/25;</value>
+            <description>Syntax: f1=val,f2=val[,c=on1/off1[-on2/off2[-on3/off3]]]; (Frequencies are in Hz and cadence on and off are in 10ms).</description>
+        </setting>
+    </group>
+
+    <group name="multipurposekeys" if="gsPhoneGxp.*">
+                <label>Multi-Purpose Keys</label>
+        <setting name="P323">
+            <label>Key 1 Mode</label>
+            <type>
+                <enum>
+                    <option>
+                        <label>Speed Dial</label><value>0</value>
+                    </option>
+                    <option>
+                        <label>BLF</label><value>1</value>
+                    </option>
+                    <option>
+                        <label>Presence Watcher</label><value>2</value>
+                    </option>
+                    <option>
+                        <label>Eventlist BLF</label><value>3</value>
+                    </option>
+                </enum>
+            </type>
+            <value>0</value>
+            <description>Functional role of multi-purpose key 1.</description>
+        </setting>
+        <setting name="P301">
+            <label>Account</label>
+            <type>
+                <enum>
+                    <option>
+                        <label>Account 1</label><value>0</value>
+                    </option>
+                    <option>
+                        <label>Account 2</label><value>1</value>
+                    </option>
+                    <option>
+                        <label>Account 3</label><value>2</value>
+                    </option>
+                    <option>
+                        <label>Account 4</label><value>3</value>
+                    </option>
+                    <option>
+                        <label>Account 5</label><value>4</value>
+                    </option>
+                    <option>
+                        <label>Account 6</label><value>5</value>
+                    </option>
+                </enum>
+            </type>
+            <value>0</value>
+            <description>Account used for speed dial.</description>
+        </setting>
+        <setting name="P302">
+            <label>Display Name</label>
+            <type>
+                <string/>
+            </type>
+            <value>0</value>
+        </setting>
+        <setting name="P303">
+            <label>User ID monitored or called</label>
+            <type>
+                <string/>
+            </type>
+            <value>0</value>
+            <description>___________________________________________________</description>
+        </setting>
+
+        <setting name="P324">
+            <label>Key 2 Mode</label>
+            <type>
+                <enum>
+                    <option>
+                        <label>Speed Dial</label><value>0</value>
+                    </option>
+                    <option>
+                        <label>BLF</label><value>1</value>
+                    </option>
+                    <option>
+                        <label>Presence Watcher</label><value>2</value>
+                    </option>
+                    <option>
+                        <label>Eventlist BLF</label><value>3</value>
+                    </option>
+                </enum>
+            </type>
+            <value>0</value>
+            <description>Functional role of multi-purpose key 2.</description>
+        </setting>
+        <setting name="P304">
+            <label>Account</label>
+            <type>
+                <enum>
+                    <option>
+                        <label>Account 1</label><value>0</value>
+                    </option>
+                    <option>
+                        <label>Account 2</label><value>1</value>
+                    </option>
+                    <option>
+                        <label>Account 3</label><value>2</value>
+                    </option>
+                    <option>
+                        <label>Account 4</label><value>3</value>
+                    </option>
+                    <option>
+                        <label>Account 5</label><value>4</value>
+                    </option>
+                    <option>
+                        <label>Account 6</label><value>5</value>
+                    </option>
+                </enum>
+            </type>
+            <value>0</value>
+            <description>Account used for speed dial.</description>
+        </setting>
+        <setting name="P305">
+            <label>Display Name</label>
+            <type>
+                <string/>
+            </type>
+            <value>0</value>
+        </setting>
+        <setting name="P306">
+            <label>User ID monitored or called</label>
+            <type>
+                <string/>
+            </type>
+            <value>0</value>
+            <description>___________________________________________________</description>
+        </setting>
+
+        <setting name="P325">
+            <label>Key 3 Mode</label>
+            <type>
+                <enum>
+                    <option>
+                        <label>Speed Dial</label><value>0</value>
+                    </option>
+                    <option>
+                        <label>BLF</label><value>1</value>
+                    </option>
+                    <option>
+                        <label>Presence Watcher</label><value>2</value>
+                    </option>
+                    <option>
+                        <label>Eventlist BLF</label><value>3</value>
+                    </option>
+                </enum>
+            </type>
+            <value>0</value>
+            <description>Functional role of multi-purpose key 3.</description>
+        </setting>
+        <setting name="P307">
+            <label>Account</label>
+            <type>
+                <enum>
+                    <option>
+                        <label>Account 1</label><value>0</value>
+                    </option>
+                    <option>
+                        <label>Account 2</label><value>1</value>
+                    </option>
+                    <option>
+                        <label>Account 3</label><value>2</value>
+                    </option>
+                    <option>
+                        <label>Account 4</label><value>3</value>
+                    </option>
+                    <option>
+                        <label>Account 5</label><value>4</value>
+                    </option>
+                    <option>
+                        <label>Account 6</label><value>5</value>
+                    </option>
+                </enum>
+            </type>
+            <value>0</value>
+            <description>Account used for speed dial.</description>
+        </setting>
+        <setting name="P308">
+            <label>Display Name</label>
+            <type>
+                <string/>
+            </type>
+            <value>0</value>
+        </setting>
+        <setting name="P309">
+            <label>User ID monitored or called</label>
+            <type>
+                <string/>
+            </type>
+            <value>0</value>
+            <description>___________________________________________________</description>
+        </setting>
+
+        <setting name="P326">
+            <label>Key 4 Mode</label>
+            <type>
+                <enum>
+                    <option>
+                        <label>Speed Dial</label><value>0</value>
+                    </option>
+                    <option>
+                        <label>BLF</label><value>1</value>
+                    </option>
+                    <option>
+                        <label>Presence Watcher</label><value>2</value>
+                    </option>
+                    <option>
+                        <label>Eventlist BLF</label><value>3</value>
+                    </option>
+                </enum>
+            </type>
+            <value>0</value>
+            <description>Functional role of multi-purpose key 4.</description>
+        </setting>
+        <setting name="P310">
+            <label>Account</label>
+            <type>
+                <enum>
+                    <option>
+                        <label>Account 1</label><value>0</value>
+                    </option>
+                    <option>
+                        <label>Account 2</label><value>1</value>
+                    </option>
+                    <option>
+                        <label>Account 3</label><value>2</value>
+                    </option>
+                    <option>
+                        <label>Account 4</label><value>3</value>
+                    </option>
+                    <option>
+                        <label>Account 5</label><value>4</value>
+                    </option>
+                    <option>
+                        <label>Account 6</label><value>5</value>
+                    </option>
+                </enum>
+            </type>
+            <value>0</value>
+            <description>Account used for speed dial.</description>
+        </setting>
+        <setting name="P311">
+            <label>Display Name</label>
+            <type>
+                <string/>
+            </type>
+            <value>0</value>
+        </setting>
+        <setting name="P312">
+            <label>User ID monitored or called</label>
+            <type>
+                <string/>
+            </type>
+            <value>0</value>
+            <description>___________________________________________________</description>
+        </setting>
+
+        <setting name="P327">
+            <label>Key 5 Mode</label>
+            <type>
+                <enum>
+                    <option>
+                        <label>Speed Dial</label><value>0</value>
+                    </option>
+                    <option>
+                        <label>BLF</label><value>1</value>
+                    </option>
+                    <option>
+                        <label>Presence Watcher</label><value>2</value>
+                    </option>
+                    <option>
+                        <label>Eventlist BLF</label><value>3</value>
+                    </option>
+                </enum>
+            </type>
+            <value>0</value>
+            <description>Functional role of multi-purpose key 5.</description>
+        </setting>
+        <setting name="P313">
+            <label>Account</label>
+            <type>
+                <enum>
+                    <option>
+                        <label>Account 1</label><value>0</value>
+                    </option>
+                    <option>
+                        <label>Account 2</label><value>1</value>
+                    </option>
+                    <option>
+                        <label>Account 3</label><value>2</value>
+                    </option>
+                    <option>
+                        <label>Account 4</label><value>3</value>
+                    </option>
+                    <option>
+                        <label>Account 5</label><value>4</value>
+                    </option>
+                    <option>
+                        <label>Account 6</label><value>5</value>
+                    </option>
+                </enum>
+            </type>
+            <value>0</value>
+            <description>Account used for speed dial.</description>
+        </setting>
+        <setting name="P314">
+            <label>Display Name</label>
+            <type>
+                <string/>
+            </type>
+            <value>0</value>
+        </setting>
+        <setting name="P315">
+            <label>User ID monitored or called</label>
+            <type>
+                <string/>
+            </type>
+            <value>0</value>
+            <description>___________________________________________________</description>
+        </setting>
+
+        <setting name="P328">
+            <label>Key 6 Mode</label>
+            <type>
+                <enum>
+                    <option>
+                        <label>Speed Dial</label><value>0</value>
+                    </option>
+                    <option>
+                        <label>BLF</label><value>1</value>
+                    </option>
+                    <option>
+                        <label>Presence Watcher</label><value>2</value>
+                    </option>
+                    <option>
+                        <label>Eventlist BLF</label><value>3</value>
+                    </option>
+                </enum>
+            </type>
+            <value>0</value>
+            <description>Functional role of multi-purpose key 6.</description>
+        </setting>
+        <setting name="P316">
+            <label>Account</label>
+            <type>
+                <enum>
+                    <option>
+                        <label>Account 1</label><value>0</value>
+                    </option>
+                    <option>
+                        <label>Account 2</label><value>1</value>
+                    </option>
+                    <option>
+                        <label>Account 3</label><value>2</value>
+                    </option>
+                    <option>
+                        <label>Account 4</label><value>3</value>
+                    </option>
+                    <option>
+                        <label>Account 5</label><value>4</value>
+                    </option>
+                    <option>
+                        <label>Account 6</label><value>5</value>
+                    </option>
+                </enum>
+            </type>
+            <value>0</value>
+            <description>Account used for speed dial.</description>
+        </setting>
+        <setting name="P317">
+            <label>Display Name</label>
+            <type>
+                <string/>
+            </type>
+            <value>0</value>
+        </setting>
+        <setting name="P318">
+            <label>User ID monitored or called</label>
+            <type>
+                <string/>
+            </type>
+            <value>0</value>
+            <description>___________________________________________________</description>
+        </setting>
+
+        <setting name="P329">
+            <label>Key 7 Mode</label>
+            <type>
+                <enum>
+                    <option>
+                        <label>Speed Dial</label><value>0</value>
+                    </option>
+                    <option>
+                        <label>BLF</label><value>1</value>
+                    </option>
+                    <option>
+                        <label>Presence Watcher</label><value>2</value>
+                    </option>
+                    <option>
+                        <label>Eventlist BLF</label><value>3</value>
+                    </option>
+                </enum>
+            </type>
+            <value>0</value>
+            <description>Functional role of multi-purpose key 7.</description>
+        </setting>
+        <setting name="P319">
+            <label>Account</label>
+            <type>
+                <enum>
+                    <option>
+                        <label>Account 1</label><value>0</value>
+                    </option>
+                    <option>
+                        <label>Account 2</label><value>1</value>
+                    </option>
+                    <option>
+                        <label>Account 3</label><value>2</value>
+                    </option>
+                    <option>
+                        <label>Account 4</label><value>3</value>
+                    </option>
+                    <option>
+                        <label>Account 5</label><value>4</value>
+                    </option>
+                    <option>
+                        <label>Account 6</label><value>5</value>
+                    </option>
+                </enum>
+            </type>
+            <value>0</value>
+            <description>Account used for speed dial.</description>
+        </setting>
+        <setting name="P320">
+            <label>Display Name</label>
+            <type>
+                <string/>
+            </type>
+            <value>0</value>
+        </setting>
+        <setting name="P321">
+            <label>User ID monitored or called</label>
+            <type>
+                <string/>
+            </type>
+            <value>0</value>
+            <description>___________________________________________________</description>
+        </setting>
+
     </group>
 </model>

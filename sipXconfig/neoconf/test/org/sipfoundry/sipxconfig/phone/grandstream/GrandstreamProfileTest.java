@@ -28,12 +28,28 @@ public class GrandstreamProfileTest extends TestCase {
         assertProfile("gsHt496", "expected-ht.cfg");
     }
 
-    public void testBudgetone() throws Exception {
-        assertProfile("gsPhoneBt", "expected-gsbt.cfg");
+    public void testBudgetone10x() throws Exception {
+        assertProfile("gsPhoneBt100", "expected-gsbt.cfg");
     }
 
-    public void testGxs2000() throws Exception {
-        assertProfile("gsPhoneGxp", "expected-gxp.cfg");
+    public void testBudgetone200() throws Exception {
+        assertProfile("gsPhoneBt200", "expected-gsbt.cfg");
+    }
+
+    public void testGxp1200() throws Exception {
+        assertProfile("gsPhoneGxp1200", "expected-gxp.cfg");
+    }
+
+    public void testGxp2000() throws Exception {
+        assertProfile("gsPhoneGxp2000", "expected-gxp.cfg");
+    }
+
+    public void testGxp2010() throws Exception {
+        assertProfile("gsPhoneGxp2010", "expected-gxp.cfg");
+    }
+
+    public void testGxp2020() throws Exception {
+        assertProfile("gsPhoneGxp2020", "expected-gxp.cfg");
     }
 
     public void testGxv3000() throws Exception {

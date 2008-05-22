@@ -31,22 +31,22 @@ import org.sipfoundry.sipxconfig.setting.SettingExpressionEvaluator;
  */
 public class GrandstreamPhone extends Phone {
     private static final String TIMEZONE_SETTING = "phone/P64";
-    private static final String USERID_PATH = "port/P35-P404-P504-P604";
+    private static final String USERID_PATH = "port/P35-P404-P504-P604-P1704-P1804";
     private static final String HT_USERID_PATH = "port/P35-P735";
-    private static final String AUTHID_PATH = "port/P36-P405-P505-P605";
+    private static final String AUTHID_PATH = "port/P36-P405-P505-P605-P1705-P1805";
     private static final String HT_AUTHID_PATH = "port/P36-P736";
-    private static final String PASSWORD_PATH = "port/P34-P406-P506-P606";
+    private static final String PASSWORD_PATH = "port/P34-P406-P506-P606-P1706-P1806";
     private static final String HT_PASSWORD_PATH = "port/P34-P734";
-    private static final String DISPLAY_NAME_PATH = "port/P3-P407-P507-P607";
+    private static final String DISPLAY_NAME_PATH = "port/P3-P407-P507-P607-P1707-P1807";
     private static final String HT_DISPLAY_NAME_PATH = "port/P3-P703";
-    private static final String REGISTRATION_SERVER_PATH = "port/P47-P402-P502-P602";
-    private static final String LINE_ACTIVE_PATH = "port/P271-P401-P501-P601";
+    private static final String REGISTRATION_SERVER_PATH = "port/P47-P402-P502-P602-P1702-P1802";
+    private static final String LINE_ACTIVE_PATH = "port/P271-P401-P501-P601-P1701-P1801";
     // unclear what 2nd copy is
-    private static final String REGISTRATION_SERVER2_PATH = "port/P48-P403-P503-P603";
+    private static final String REGISTRATION_SERVER2_PATH = "port/P48-P403-P503-P603-P1703-P1803";
     private static final String HT_REGISTRATION_SERVER_PATH = "port/P47-P747";
     // unclear what 2nd copy is
     private static final String HT_REGISTRATION_SERVER2_PATH = "port/P48-P748";
-    private static final String VOICEMAIL_PATH = "port/P33-P426-P526-P626";
+    private static final String VOICEMAIL_PATH = "port/P33-P426-P526-P626-P1726-P1826";
 
     private boolean m_isTextFormatEnabled;
 
@@ -154,8 +154,7 @@ public class GrandstreamPhone extends Phone {
             m_defaults = defaults;
         }
 
-        @SettingEntry(paths = { "upgrade/__TFTPServer-213", "upgrade/__TFTPServerOld-41", "upgrade/P192",
-                "upgrade/P237" })
+        @SettingEntry(paths = { "upgrade/P192", "upgrade/P237" })
         public String getTftpServer() {
             return m_defaults.getTftpServer();
         }
