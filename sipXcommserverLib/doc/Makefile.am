@@ -5,8 +5,7 @@ EXTRA_DIST = \
   Doxyfile.project.in \
   footer.html \
   credential.xml \
-  permission.xml \
-  sipxecs-doc.spec
+  permission.xml
 
 if DOC
 
