@@ -7,10 +7,9 @@
       in a number of relational tables. Our implementation is derived
       from FastDB by Konstantin Knizhnik.
 
-  sipdb and sipdbtest
+  sipdb
       Application specific wrapper classes for the tables we store in
-      fastdb, and a command line utility for manipulating those shared
-      memory tables. These classes also implement an XML persistence
+      fastdb. These classes also implement an XML persistence
       mechanism for these tables.
 
   digitmaps
