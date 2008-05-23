@@ -75,8 +75,7 @@ public class ConfigurationParser {
                 new Class[] { Integer.class });
 
         digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG,
-                "max-number-of-concurrent-calls"), "setMaxCalls", 0,
-                new Class[] { Integer.class });
+                "max-number-of-concurrent-calls"), "setMaxCalls",0);
         digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG,
         "is-reinvite-supported"), "setReInviteSupported", 0,
         new Class[] { Boolean.class });

@@ -692,7 +692,11 @@ public class CallControlManager {
                      * Send him a PRACK at this point??
                      */
                     
-
+                    if ( response.getContentLength().getContentLength() == 0 ) {
+                        logger.error("DROPPING CALL -- Expecting a content length != 0 ");
+                        b2bua.tearDown();
+                        return;
+                    }
                     SessionDescription sd = SipUtilities
                             .getSessionDescription(response);
                     

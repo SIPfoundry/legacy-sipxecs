@@ -100,21 +100,7 @@ public class BackToBackUserAgent {
 
     private static final String SIPXBRIDGE = "sipxbridge";
 
-    /**
-     * Terminate the two sides of the bridge
-     */
-    private void tearDown() throws Exception {
-
-        for (Dialog dialog : this.dialogTable) {
-
-            Request byeRequest = dialog.createRequest(Request.BYE);
-            SipProvider provider = ((DialogExt) dialog).getSipProvider();
-            ClientTransaction ct = provider.getNewClientTransaction(byeRequest);
-            dialog.sendRequest(ct);
-        }
-
-    }
-
+    
     private void pairDialogs(Dialog dialog1, Dialog dialog2) {
         DialogApplicationData dad1 = DialogApplicationData.get(dialog1);
 
@@ -199,6 +185,20 @@ public class BackToBackUserAgent {
         } catch (IOException ex) {
             logger.error("IOException occured while allocating sym", ex);
             return null;
+        }
+
+    }
+    /**
+     * Terminate the two sides of the bridge
+     */
+    public void tearDown() throws Exception {
+
+        for (Dialog dialog : this.dialogTable) {
+
+            Request byeRequest = dialog.createRequest(Request.BYE);
+            SipProvider provider = ((DialogExt) dialog).getSipProvider();
+            ClientTransaction ct = provider.getNewClientTransaction(byeRequest);
+            dialog.sendRequest(ct);
         }
 
     }
