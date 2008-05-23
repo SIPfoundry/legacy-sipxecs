@@ -36,7 +36,7 @@ BuildRoot: %{_tmppath}/%name-%version-root
 %define this_archive %{name}-%{version}-%{release}.tgz
 
 %description
- This project is used to hold code used in common by a number of the
+This project is used to hold code used in common by a number of the
 sipX family servers. It is not intended to be useful as a standalone
 project.
 
@@ -62,18 +62,13 @@ Vendor: SIPfoundry
 Summary: Header files for %name 
 
 %description devel 
-This project is used to hold code used in common by a number of the
-sipX family servers. It is not intended to be useful as a standalone
-project.
-
 This package contains the neccessary header files and static libraries
-helpful to build projects from the sipX library
+helpful to build projects using the sipXcommserverLib library
 
 %package doc
 Group: Development/Libraries
 Vendor: SIPfoundry
 Summary: Common document files for sipXecs
-BuildArch: noarch
 
 %description doc
 This package contains common files for sipXecs documentation
@@ -105,6 +100,59 @@ tar --directory ${RPM_BUILD_ROOT} \
 
 %clean
 rm -rf $RPM_BUILD_ROOT
+
+%pre
+# If needed, change open source daemon user name to @SIPXPBXUSER@.
+# The open source names that have been used are 'sipx' and 'sipxpbx'.
+for openname in sipx sipxpbx; do 
+  if [ "@SIPXPBXUSER@" != "${openname}" ] &&
+     ! id -u "@SIPXPBXUSER@" > /dev/null 2>&1 &&
+     id -u ${openname} > /dev/null 2>&1
+  then
+     /usr/sbin/usermod -l @SIPXPBXUSER@ ${openname}
+  fi
+done
+
+# If there is no daemon user, create it.
+# Red Hat's useradd command adds the group automatically,
+# but SUSE does not.
+# The -f option means to create the group only if it does not already exist.
+/usr/sbin/groupadd -f @SIPXPBXGROUP@
+if ! id -u @SIPXPBXUSER@ > /dev/null 2>&1 ; then
+   /usr/sbin/useradd \
+       -c "sipX service daemon" \
+       -d %{_sysconfdir}/sipxpbx \
+       -s /bin/bash \
+       -g @SIPXPBXGROUP@ \
+       @SIPXPBXUSER@ > /dev/null 2>&1
+fi
+
+# record the old version
+sipx-upgrade -p sipxcommserverlib -c
+
+%post
+sipx-upgrade -p sipxcommserverlib -u --bdir %{_bindir}  --ddir %{_datadir} --cdir %{_sysconfdir} --sdir %{_localstatedir}  --ldir %{_libexecdir}
+rm -f %{_sysconfdir}/sipxpbx/process.d/keepalive.process.xml
+
+%define current_archive %{upgrade_archive_dir}/%{name}-current.tgz
+%define previous_archive %{upgrade_archive_dir}/%{name}-previous.tgz
+if [ -f %{current_archive} ]; then
+  mv %{current_archive} %{previous_archive}
+fi
+mv %{upgrade_archive_dir}/%{this_archive} %{current_archive}
+
+pkg-upgrade --previous %{previous_archive} --current %{current_archive}
+
+# On an HA Slave system the pkg-upgrade of config.defs will fail, since it will have been modified 
+# by the install wizard.  Could also happen on other systems where config.defs was modified.  This 
+# will simply make sure config.defs have the new watchdog XMLRPC server port item, without which 
+# the new watchdog will not start.  
+grep WATCHDOG_SERVER_XMLRPC_PORT %{_sysconfdir}/sipxpbx/config.defs > /dev/null
+if [ $? != "0" ]; then
+  echo "" >> %{_sysconfdir}/sipxpbx/config.defs
+  echo "WATCHDOG_SERVER_XMLRPC_PORT=8092" >> %{_sysconfdir}/sipxpbx/config.defs
+  echo "" >> %{_sysconfdir}/sipxpbx/config.defs
+fi
 
 %files
 %defattr(644,root,root,755)
@@ -171,57 +219,3 @@ rm -rf $RPM_BUILD_ROOT
 %files doc
 %docdir %{_datadir}/doc/sipxecs
 %{_datadir}/doc/sipxecs
-
-%pre
-# If needed, change open source daemon user name to @SIPXPBXUSER@.
-# The open source names that have been used are 'sipx' and 'sipxpbx'.
-for openname in sipx sipxpbx; do 
-  if [ "@SIPXPBXUSER@" != "${openname}" ] &&
-     ! id -u "@SIPXPBXUSER@" > /dev/null 2>&1 &&
-     id -u ${openname} > /dev/null 2>&1
-  then
-     /usr/sbin/usermod -l @SIPXPBXUSER@ ${openname}
-  fi
-done
-
-# If there is no daemon user, create it.
-# Red Hat's useradd command adds the group automatically,
-# but SUSE does not.
-# The -f option means to create the group only if it does not already exist.
-/usr/sbin/groupadd -f @SIPXPBXGROUP@
-if ! id -u @SIPXPBXUSER@ > /dev/null 2>&1 ; then
-   /usr/sbin/useradd \
-       -c "sipX service daemon" \
-       -d %{_sysconfdir}/sipxpbx \
-       -s /bin/bash \
-       -g @SIPXPBXGROUP@ \
-       @SIPXPBXUSER@ > /dev/null 2>&1
-fi
-
-# record the old version
-sipx-upgrade -p sipxcommserverlib -c
-
-%post
-sipx-upgrade -p sipxcommserverlib -u --bdir %{_bindir}  --ddir %{_datadir} --cdir %{_sysconfdir} --sdir %{_localstatedir}  --ldir %{_libexecdir}
-rm -f %{_sysconfdir}/sipxpbx/process.d/keepalive.process.xml
-
-%define current_archive %{upgrade_archive_dir}/%{name}-current.tgz
-%define previous_archive %{upgrade_archive_dir}/%{name}-previous.tgz
-if [ -f %{current_archive} ]; then
-  mv %{current_archive} %{previous_archive}
-fi
-mv %{upgrade_archive_dir}/%{this_archive} %{current_archive}
-
-pkg-upgrade --previous %{previous_archive} --current %{current_archive}
-
-# On an HA Slave system the pkg-upgrade of config.defs will fail, since it will have been modified 
-# by the install wizard.  Could also happen on other systems where config.defs was modified.  This 
-# will simply make sure config.defs have the new watchdog XMLRPC server port item, without which 
-# the new watchdog will not start.  
-grep WATCHDOG_SERVER_XMLRPC_PORT %{_sysconfdir}/sipxpbx/config.defs > /dev/null
-if [ $? != "0" ]; then
-  echo "" >> %{_sysconfdir}/sipxpbx/config.defs
-  echo "WATCHDOG_SERVER_XMLRPC_PORT=8092" >> %{_sysconfdir}/sipxpbx/config.defs
-  echo "" >> %{_sysconfdir}/sipxpbx/config.defs
-fi
-
