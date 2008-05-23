@@ -96,7 +96,6 @@ AC_DEFUN([SFAC_SIPX_GLOBAL_OPTS],
     AC_SUBST(SIPX_VXMLDATADIR,[${localstatedir}/sipxdata/mediaserver/data])
 
     AC_SUBST(SIPX_PARKMUSICDIR,[${localstatedir}/sipxdata/parkserver/music])
-    AC_SUBST(SIPX_PAGEMUSICDIR,[${localstatedir}/sipxdata/sipxpage/music])
 
     # temporary - see http://track.sipfoundry.org/browse/XPB-93
     AC_SUBST(SIPX_BACKUPDIR, [${localstatedir}/sipxdata/backup])

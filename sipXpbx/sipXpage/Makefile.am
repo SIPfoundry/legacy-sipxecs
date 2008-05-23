@@ -2,7 +2,7 @@
 
 include $(top_srcdir)/config/subdir.am
 
-audio_path=@SIPX_PAGEMUSICDIR@
+audio_path=@SIPX_VARDIR@/sipxpage/music
 
 AUDIO_DIST = \
    audio/attention.wav \
