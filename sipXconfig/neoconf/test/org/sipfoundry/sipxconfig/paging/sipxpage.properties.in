@@ -3,7 +3,7 @@ rtp.port : 8500
 sip.tlsPort : ${PAGE_SERVER_SIP_SECURE_PORT}
 sip.udpPort : ${PAGE_SERVER_SIP_PORT}
 sip.tcpPort : ${PAGE_SERVER_SIP_PORT}
-
+sip.trace : NONE
 log.file : ${PAGE_LOG_DIR}/sipxpage.log
 log.level : NOTICE
 

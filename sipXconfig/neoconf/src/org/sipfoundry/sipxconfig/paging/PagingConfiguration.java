@@ -25,12 +25,17 @@ public class PagingConfiguration extends TemplateConfigurationFile {
 
     private String m_logLevel;
 
+    private String m_sipTraceLevel;
+
     public void generate(PagingServer server, List<PagingGroup> pagingGroups,
             String audioDirectory, String domain) {
         m_pagingGroups = pagingGroups;
         m_audioDirectory = audioDirectory;
         m_domain = domain;
-        m_logLevel = server.getLogLevel();
+        m_logLevel = server.getSipxServer().getPagingLogLevel();
+        m_sipTraceLevel = server.getSipTraceLevel();
+        // "sipxpage.properties.in" needs to be reloaded when used in Logging page
+        server.getSipxServer().resetSettings();
     }
 
     protected VelocityContext setupContext() {
@@ -39,6 +44,7 @@ public class PagingConfiguration extends TemplateConfigurationFile {
         context.put("audioDir", m_audioDirectory);
         context.put("domain", m_domain);
         context.put("logLevel", m_logLevel);
+        context.put("sipTraceLevel", m_sipTraceLevel);
         return context;
     }
 

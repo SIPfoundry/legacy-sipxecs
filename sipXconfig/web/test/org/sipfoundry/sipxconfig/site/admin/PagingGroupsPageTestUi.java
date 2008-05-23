@@ -82,6 +82,7 @@ public class PagingGroupsPageTestUi extends WebTestCase {
     }
 
     private void deleteAllGroups() {
+        SiteTestHelper.assertNoException(tester);        
         setWorkingForm("pagingGroups");
         int rowCount = SiteTestHelper.getRowCount(tester, "pagingGroups:list");
         if (rowCount <= 1) {
@@ -129,5 +130,18 @@ public class PagingGroupsPageTestUi extends WebTestCase {
         clickButton("form:ok");
 
         SiteTestHelper.assertUserError(tester);
+    }
+
+    public void testAdvancedSettingsPagingGroup() throws Exception {
+        SiteTestHelper.assertNoUserError(tester);
+        assertLinkPresent("link.addPagingGroup");
+        assertLinkNotPresent("setting:toggle");
+
+        clickLink("link.addPagingGroup");
+        setTextField("number", "11");
+        setTextField("promptUpload", m_fileName);
+        clickButton("form:ok");
+
+        assertLinkPresent("setting:toggle");
     }
 }

@@ -19,6 +19,10 @@ public interface PagingContext extends DialingRuleProvider {
 
     void setPagingPrefix(String prefix);
 
+    String getSipTraceLevel();
+
+    void setSipTraceLevel(String traceLevel);
+
     PagingServer getPagingServer();
 
     List<PagingGroup> getPagingGroups();

@@ -3,7 +3,7 @@ rtp.port : 8500
 sip.tlsPort : ${dollar}{PAGE_SERVER_SIP_SECURE_PORT}
 sip.udpPort : ${dollar}{PAGE_SERVER_SIP_PORT}
 sip.tcpPort : ${dollar}{PAGE_SERVER_SIP_PORT}
-
+sip.trace : ${sipTraceLevel}
 log.file : ${dollar}{PAGE_LOG_DIR}/sipxpage.log
 log.level : ${logLevel}
 #foreach($g in $groups)

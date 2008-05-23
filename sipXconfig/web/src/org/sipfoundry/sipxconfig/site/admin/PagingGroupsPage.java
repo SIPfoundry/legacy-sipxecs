@@ -17,8 +17,11 @@ import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.annotations.Bean;
 import org.apache.tapestry.annotations.InjectObject;
+import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
+import org.apache.tapestry.form.IPropertySelectionModel;
+import org.apache.tapestry.form.StringPropertySelectionModel;
 import org.apache.tapestry.html.BasePage;
 import org.apache.tapestry.valid.ValidatorException;
 import org.sipfoundry.sipxconfig.components.SelectMap;
@@ -30,6 +33,12 @@ import org.sipfoundry.sipxconfig.paging.PagingProvisioningContext;
 
 public abstract class PagingGroupsPage extends BasePage implements PageBeginRenderListener {
     public static final String PAGE = "admin/PagingGroupsPage";
+
+    public static final String NONE = "NONE";
+
+    public static final String TRACE = "TRACE";
+
+    public static final String DEBUG = "DEBUG";
 
     @InjectObject(value = "spring:pagingContext")
     public abstract PagingContext getPagingContext();
@@ -55,6 +64,13 @@ public abstract class PagingGroupsPage extends BasePage implements PageBeginRend
 
     public abstract String getPrefix();
 
+    public abstract void setTraceLevel(String traceLevel);
+
+    public abstract String getTraceLevel();
+
+    @Persist
+    public abstract boolean isAdvanced();
+
     public IPage addPagingGroup(IRequestCycle cycle) {
         EditPagingGroupPage page = (EditPagingGroupPage) cycle.getPage(EditPagingGroupPage.PAGE);
         page.addPagingGroup(getPage().getPageName());
@@ -74,12 +90,15 @@ public abstract class PagingGroupsPage extends BasePage implements PageBeginRend
             setPrefix(prefix);
         }
 
+        // load sip trace level
+        setTraceLevel(getPagingContext().getSipTraceLevel());
+
         // load paging groups
         List<PagingGroup> groups = getPagingContext().getPagingGroups();
         setGroups(groups);
     }
 
-    public void savePagingPrefix() {
+    public void savePagingServer() {
         String prefix = getPrefix();
         if (StringUtils.isEmpty(prefix)) {
             TapestryUtils.getValidator(getPage()).record(
@@ -90,6 +109,7 @@ public abstract class PagingGroupsPage extends BasePage implements PageBeginRend
         List<PagingGroup> groups = getGroups();
         if (groups.size() > 0) {
             getPagingContext().setPagingPrefix(prefix);
+            getPagingContext().setSipTraceLevel(getTraceLevel());
         }
     }
 
@@ -107,5 +127,11 @@ public abstract class PagingGroupsPage extends BasePage implements PageBeginRend
 
     public void restart() {
         getPagingProvisioningContext().deploy();
+    }
+
+    public IPropertySelectionModel getTraceLevelModel() {
+        return new StringPropertySelectionModel(new String[] {
+            NONE, TRACE, DEBUG
+        });
     }
 }

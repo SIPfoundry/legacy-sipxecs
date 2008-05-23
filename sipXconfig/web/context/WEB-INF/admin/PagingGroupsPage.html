@@ -25,6 +25,9 @@
       </li>
     </ul>
     <span jwcid="@If" condition="ognl:(groups.size() > 0)">
+      <ul class="component-links">
+        <li jwcid="@common/ToggleLink" toggle="ognl:advanced"></li>
+      </ul>
       <fieldset>
   	    <table>
 		  <tr jwcid="@common/FieldPanel" for="prefix"
@@ -34,11 +37,24 @@
               value="ognl:prefix"
               validators="spring-validators:required,noWhitespace,validFieldSize,validPagingPrefix"
               displayName="message:label.prefix"/>
-            <input jwcid="save@Submit" id="pagingGroups:save"
-              listener="listener:savePagingPrefix"
-          	  value="message:button.save" />
 		  </tr>
+		  <span jwcid="@If" condition="ognl:advanced" renderTag="false">
+			<tr jwcid="@common/FieldPanel" for="traceLevel"
+				field="component:traceLevel"
+				label="message:label.traceLevel">
+			  <span jwcid="traceLevel@PropertySelection" id="traceLevel"
+				  model="ognl:traceLevelModel"
+				  value="ognl:traceLevel" />
+			</tr>
+		  </span>
   	    </table>
+	<ul class="component-submit">
+          <li>
+		<input jwcid="save@Submit" id="pagingGroups:save"
+		    value="message:button.save"
+                listener="listener:savePagingServer" />
+          </li>
+        </ul>
       </fieldset>
     </span>
 	<table jwcid="@common/Table" id="pagingGroups:list"

@@ -41,6 +41,10 @@ public class PagingContextImplTestIntegration extends IntegrationTestCase {
         assertEquals("*77", m_pagingContext.getPagingPrefix());
     }
 
+    public void testGetSipTraceLevel() throws Exception {
+        assertEquals("NONE", m_pagingContext.getSipTraceLevel());
+    }
+
     public void testGetPagingGroups() throws Exception {
         List<PagingGroup> groups = m_pagingContext.getPagingGroups();
         assertEquals(3, groups.size());
@@ -90,6 +94,12 @@ public class PagingContextImplTestIntegration extends IntegrationTestCase {
         assertEquals("*77", m_pagingContext.getPagingPrefix());
         m_pagingContext.setPagingPrefix("*88");
         assertEquals("*88", m_pagingContext.getPagingPrefix());
+    }
+
+    public void testSaveSipTraceLevel() throws Exception {
+        assertEquals("NONE", m_pagingContext.getSipTraceLevel());
+        m_pagingContext.setSipTraceLevel("DEBUG");
+        assertEquals("DEBUG", m_pagingContext.getSipTraceLevel());
     }
 
     public void testSavePagingGroup() throws Exception {

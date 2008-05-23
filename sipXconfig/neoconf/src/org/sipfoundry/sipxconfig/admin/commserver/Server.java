@@ -18,6 +18,8 @@ public interface Server {
 
     String getPresenceServiceUri();
     
+    String getPagingLogLevel();
+
     /**
      * Saves settings to permanent storage (config files)
      */

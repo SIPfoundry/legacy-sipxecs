@@ -60,6 +60,14 @@ public abstract class PagingContextImpl extends SipxHibernateDaoSupport implemen
         getPagingServer().setPrefix(prefix);
     }
 
+    public String getSipTraceLevel() {
+        return getPagingServer().getSipTraceLevel();
+    }
+
+    public void setSipTraceLevel(String traceLevel) {
+        getPagingServer().setSipTraceLevel(traceLevel);
+    }
+
     public void savePagingGroup(PagingGroup group) {
         if (group.isNew()) {
             // check if new object

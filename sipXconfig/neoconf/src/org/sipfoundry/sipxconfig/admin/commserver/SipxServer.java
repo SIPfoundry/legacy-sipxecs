@@ -37,6 +37,7 @@ public class SipxServer extends BeanWithSettings implements Server, AliasProvide
     // domain name
     private static final String PRESENCE_SERVER_LOCATION = "presence/SIP_PRESENCE_DOMAIN_NAME";
     private static final String PRESENCE_API_PORT = "presence/SIP_PRESENCE_HTTP_PORT";
+    private static final String PAGING_LOG_LEVEL = "Logging/log.level";
 
     private String m_configDirectory;
     private ConfigFileStorage m_storage;
@@ -201,5 +202,9 @@ public class SipxServer extends BeanWithSettings implements Server, AliasProvide
         }
         String aliasesString = StringUtils.join(allAliases.iterator(), ' ');
         setting.setValue(aliasesString);
+    }
+
+    public String getPagingLogLevel() {
+        return getSettingValue(PAGING_LOG_LEVEL);
     }
 }

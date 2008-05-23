@@ -9,12 +9,17 @@
  */
 package org.sipfoundry.sipxconfig.paging;
 
+import org.sipfoundry.sipxconfig.admin.commserver.Server;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
 
 public class PagingServer extends BeanWithId {
+    private Server m_sipxServer;
+
     private String m_prefix;
 
     private String m_logLevel;
+
+    private String m_sipTraceLevel;
 
     public String getPrefix() {
         return m_prefix;
@@ -30,5 +35,21 @@ public class PagingServer extends BeanWithId {
 
     public void setLogLevel(String logLevel) {
         m_logLevel = logLevel;
+    }
+
+    public String getSipTraceLevel() {
+        return m_sipTraceLevel;
+    }
+
+    public void setSipTraceLevel(String sipTraceLevel) {
+        m_sipTraceLevel = sipTraceLevel;
+    }
+
+    public Server getSipxServer() {
+        return m_sipxServer;
+    }
+
+    public void setSipxServer(Server sipxServer) {
+        m_sipxServer = sipxServer;
     }
 }

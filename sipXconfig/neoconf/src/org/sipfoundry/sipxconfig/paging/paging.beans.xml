@@ -9,7 +9,8 @@
 
   <bean id="pagingServer" class="org.sipfoundry.sipxconfig.paging.PagingServer" scope="prototype">
     <property name="prefix" value="*77" />
-    <property name="logLevel" value="NOTICE" />
+    <property name="sipxServer" ref="sipxServer"/>
+    <property name="sipTraceLevel" value="NONE" />
   </bean>
 
   <bean id="pagingContextImpl" class="org.sipfoundry.sipxconfig.paging.PagingContextImpl">

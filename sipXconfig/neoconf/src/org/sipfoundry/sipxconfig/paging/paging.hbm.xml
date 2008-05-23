@@ -10,6 +10,7 @@
       </generator>
     </id>
     <property name="prefix" />
+    <property name="sipTraceLevel" />
   </class>
 
   <class name="PagingGroup" table="paging_group">
