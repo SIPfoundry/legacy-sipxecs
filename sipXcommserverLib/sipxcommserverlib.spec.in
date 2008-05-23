@@ -44,19 +44,6 @@ project.
 %debug_package
 %endif
 
-%package doc
-Group: Development/Libraries
-Vendor: SIPfoundry
-Summary: Common document files for sipXecs
-BuildArch: noarch
-
-%description doc
-This package contains common files for sipXecs documentation
-
-%files doc
-%docdir %{_datadir}/doc/sipxecs
-%{_datadir}/doc/sipxecs
-
 # Install header files
 %package devel
 Requires: %name
@@ -81,6 +68,15 @@ project.
 
 This package contains the neccessary header files and static libraries
 helpful to build projects from the sipX library
+
+%package doc
+Group: Development/Libraries
+Vendor: SIPfoundry
+Summary: Common document files for sipXecs
+BuildArch: noarch
+
+%description doc
+This package contains common files for sipXecs documentation
 
 %prep
 %setup -q
@@ -162,7 +158,6 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/libsipXcommserverTest.a
 %docdir %{_datadir}/doc/sipxecs/%name
 %{_datadir}/doc/sipxecs/%name
-
 %{_includedir}/configrpc/*
 %{_includedir}/digitmaps/*
 %{_includedir}/fastdb/*
@@ -172,6 +167,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_includedir}/sipdb/*
 %{_includedir}/sipXecsService/*
 %{_includedir}/testlib/*
+
+%files doc
+%docdir %{_datadir}/doc/sipxecs
+%{_datadir}/doc/sipxecs
 
 %pre
 # If needed, change open source daemon user name to @SIPXPBXUSER@.
