@@ -7,11 +7,10 @@ EXTRA_DIST = \
   credential.xml \
   permission.xml
 
-if DOC
+if GENERATE_DOCBOOK
 
 EXTRA_DIST += \
 	INSTALL.ssl.in \
-	$(top_srcdir)/config/sipXecs.css \
 	$(top_srcdir)/config/sipxecs_entities.ent
 
 CLEANFILES=
@@ -20,11 +19,18 @@ DOCBOOK_XML_DOCS=INSTALL.ssl
 
 include $(top_srcdir)/config/docbook.am
 
-CLEANFILES+=sipXecs.css
+if GENERATE_DOCBOOK_HTML
+
+EXTRA_DIST+= \
+	$(top_srcdir)/config/sipXecs.css
 
 DOCBOOK_OUTPUTS+=sipXecs.css
 
-endif # DOC
+CLEANFILES+=sipXecs.css
+
+endif # GENERATE_DOCBOOK_HTML
+
+endif # GENERATE_DOCBOOK
 
 install-data-hook: $(foreach doc,$(DOCBOOK_OUTPUTS),$(DESTDIR)@SIPX_DOCDIR@/$(doc))
 
