@@ -11,7 +11,7 @@ if DOC
 
 EXTRA_DIST += \
 	INSTALL.ssl.in \
-	config/sipXecs.css \
+	$(top_srcdir)/config/sipXecs.css \
 	$(top_srcdir)/config/sipxecs_entities.ent
 
 CLEANFILES=
