@@ -45,6 +45,10 @@ project.
 %endif
 
 %package doc
+Group: Development/Libraries
+Vendor: SIPfoundry
+Summary: Common document files for sipXecs
+BuildArch: noarch
 
 %description doc
 This package contains common files for sipXecs documentation
