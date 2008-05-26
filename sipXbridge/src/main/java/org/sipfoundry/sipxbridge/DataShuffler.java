@@ -151,22 +151,21 @@ class DataShuffler implements Runnable {
                                                 .getAutoDiscoveryFlag();
 
                                         if (autoDiscoveryFlag != AutoDiscoveryFlag.NO_AUTO_DISCOVERY) {
-                                            if (remoteAddress != null
-                                                    && autoDiscoveryFlag == AutoDiscoveryFlag.IP_ADDRESS_AND_PORT) {
-                                                sym
-                                                        .getTransmitter()
-                                                        .setIpAddressAndPort(
-                                                                remoteAddress
-                                                                        .getAddress()
-                                                                        .getHostAddress(),
-                                                                remoteAddress
-                                                                        .getPort());
-                                            } else if (autoDiscoveryFlag == AutoDiscoveryFlag.PORT_ONLY) {
-                                                sym
-                                                        .getTransmitter()
-                                                        .setPort(
-                                                                remoteAddress
-                                                                        .getPort());
+                                            if (remoteAddress != null) {
+                                                if (autoDiscoveryFlag == AutoDiscoveryFlag.IP_ADDRESS_AND_PORT) {
+                                                    sym.getTransmitter()
+                                                            .setIpAddressAndPort(
+                                                                    remoteAddress
+                                                                            .getAddress()
+                                                                            .getHostAddress(),
+                                                                    remoteAddress
+                                                                            .getPort());
+                                                } else if (autoDiscoveryFlag == AutoDiscoveryFlag.PORT_ONLY) {
+                                                    sym.getTransmitter()
+                                                            .setPort(
+                                                                    remoteAddress
+                                                                            .getPort());
+                                                }
                                             }
                                         }
 

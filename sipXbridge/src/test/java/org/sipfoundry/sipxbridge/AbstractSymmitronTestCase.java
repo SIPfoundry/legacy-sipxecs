@@ -286,6 +286,12 @@ public abstract class AbstractSymmitronTestCase extends TestCase {
                 (Object[]) myHandle);
     }
 
+    protected void signOut() throws Exception {
+        String[] myHandle = new String[1] ;
+        myHandle[0] = clientHandle;
+        client.execute("sipXbridge.signOut",(Object[]) myHandle);
+        
+    }
 
 
 

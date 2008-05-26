@@ -49,10 +49,7 @@ public abstract class SymEndpoint implements SymEndpointInterface {
      */
     protected int port;
 
-    // private InetAddress inetAddress;
-
-    protected  InetSocketAddress socketAddress;
-
+  
 
     /*
      * Session description.
@@ -165,7 +162,8 @@ public abstract class SymEndpoint implements SymEndpointInterface {
      * 
      * @param port
      */
-    public void setPort(int port) {
+    public void setPort(int port) throws IllegalArgumentException {
+        if ( port < 0 ) throw new IllegalArgumentException("Bad port "+ port);
         this.port = port;
     }
 

@@ -34,22 +34,27 @@ public class SymTransmitterEndpoint extends SymEndpoint {
 
     private ByteBuffer keepAliveBuffer = ByteBuffer.allocate(0);
 
-    private  AutoDiscoveryFlag remoteAddressAutoDiscovered = AutoDiscoveryFlag.NO_AUTO_DISCOVERY;
+    private AutoDiscoveryFlag remoteAddressAutoDiscovered = AutoDiscoveryFlag.NO_AUTO_DISCOVERY;
 
     private String keepaliveMethod = "USE-EMPTY-PACKET";
 
-    private  KeepaliveTimerTask keepaliveTimerTask;
+    private KeepaliveTimerTask keepaliveTimerTask;
 
     private static Logger logger = Logger
             .getLogger(SymTransmitterEndpoint.class);
 
     private boolean onHold = false;
 
-    private  boolean earlyMediaStarted = false;
+    private boolean earlyMediaStarted = false;
 
     private int maxSilence;
-    
+
     long packetsSent;
+    
+    // private InetAddress inetAddress;
+
+    private  InetSocketAddress socketAddress;
+
 
     /**
      * The keepalive timer task.
@@ -68,7 +73,7 @@ public class SymTransmitterEndpoint extends SymEndpoint {
 
         public void run() {
             try {
-               
+
                 if (datagramChannel == null)
                     return;
                 long now = System.currentTimeMillis();
@@ -77,7 +82,7 @@ public class SymTransmitterEndpoint extends SymEndpoint {
                     return;
                 if (keepaliveMethod.equals("REPLAY-LAST-SENT-PACKET")
                         || keepaliveMethod.equals("USE-EMPTY-PACKET")) {
-                    if ( datagramChannel != null  && socketAddress != null 
+                    if (datagramChannel != null && socketAddress != null
                             && datagramChannel.isOpen())
                         datagramChannel.send(keepAliveBuffer, socketAddress);
                 }
@@ -137,7 +142,7 @@ public class SymTransmitterEndpoint extends SymEndpoint {
         if (keepaliveMethod.equals("REPLAY-LAST-SENT-PACKET")) {
             this.keepAliveBuffer = byteBuffer;
         }
-        if ( this.datagramChannel != null )
+        if (this.datagramChannel != null)
             this.datagramChannel.send(byteBuffer, this.socketAddress);
 
     }
@@ -169,12 +174,11 @@ public class SymTransmitterEndpoint extends SymEndpoint {
 
     }
 
-    
     @Override
     public void setSessionDescription(SessionDescription sessionDescription) {
-        if ( this.sessionDescription != null) {
+        if (this.sessionDescription != null) {
             logger.debug("WARNING -- replacing session description");
-            
+
         }
         try {
             this.sessionDescription = sessionDescription;
@@ -183,7 +187,7 @@ public class SymTransmitterEndpoint extends SymEndpoint {
                 this.ipAddress = sessionDescription.getConnection()
                         .getAddress();
 
-             MediaDescription mediaDescription = (MediaDescription) sessionDescription
+            MediaDescription mediaDescription = (MediaDescription) sessionDescription
                     .getMediaDescriptions(true).get(0);
 
             if (mediaDescription.getConnection() != null) {
@@ -222,15 +226,15 @@ public class SymTransmitterEndpoint extends SymEndpoint {
         }
     }
 
-    public void computeAutoDiscoveryFlag ()  {
-        if ( this.ipAddress == null && this.port == 0) {
+    void computeAutoDiscoveryFlag() {
+        if (this.ipAddress == null && this.port == 0) {
             this.remoteAddressAutoDiscovered = AutoDiscoveryFlag.IP_ADDRESS_AND_PORT;
-        } else if ( this.ipAddress != null && this.port == 0   ) {
+        } else if (this.ipAddress != null && this.port == 0) {
             this.remoteAddressAutoDiscovered = AutoDiscoveryFlag.PORT_ONLY;
-        } 
+        } else if (this.ipAddress != null && this.port != 0) {
+            this.remoteAddressAutoDiscovered = AutoDiscoveryFlag.NO_AUTO_DISCOVERY;
+        }
     }
-    
-   
 
     public void setOnHold(boolean onHold) {
         this.onHold = onHold;
@@ -241,7 +245,6 @@ public class SymTransmitterEndpoint extends SymEndpoint {
         return this.onHold;
     }
 
-    
     /**
      * Set the remote IP address and port.
      * 
@@ -250,14 +253,44 @@ public class SymTransmitterEndpoint extends SymEndpoint {
      * @throws UnknownHostException
      */
     public void setIpAddressAndPort(String ipAddress, int port)
-        throws UnknownHostException {
-      super.ipAddress = ipAddress;
-      super.port = port;
-      // Note that the IP address does not need to be specified ( can be auto discovered ).
-      if ( ipAddress != null ) {
-          super.socketAddress = new InetSocketAddress( InetAddress.getByName(ipAddress), port);
-      }
-        
+            throws UnknownHostException {
+        super.ipAddress = ipAddress;
+        super.port = port;
+        // Note that the IP address does not need to be specified ( can be auto
+        // discovered ).
+        if (ipAddress != null && port != 0) {
+            socketAddress = new InetSocketAddress(InetAddress
+                    .getByName(ipAddress), port);
+
+        }
+    }
+
+    @Override
+    public void setPort(int port) throws IllegalArgumentException {
+        try {
+            super.setPort(port);
+            if (ipAddress != null && port != 0) {
+               socketAddress = new InetSocketAddress(InetAddress
+                        .getByName(ipAddress), port);
+
+            }
+        } catch (UnknownHostException ex) {
+            throw new IllegalArgumentException("Unknown host " + ipAddress);
+        }
+    }
+    
+    @Override
+    public void setIpAddress(String ipAddress) throws IllegalArgumentException  {
+        try {
+            super.setIpAddress(ipAddress);
+            if (ipAddress != null && port != 0) {
+                socketAddress = new InetSocketAddress(InetAddress
+                         .getByName(ipAddress), port);
+
+             }
+        } catch (UnknownHostException ex) {
+            throw new IllegalArgumentException("Unknown host " + ipAddress);
+        }
     }
 
     /**
@@ -268,7 +301,8 @@ public class SymTransmitterEndpoint extends SymEndpoint {
     }
 
     /**
-     * @param packetsSent the packetsSent to set
+     * @param packetsSent
+     *            the packetsSent to set
      */
     public void setPacketsSent(long packetsSent) {
         this.packetsSent = packetsSent;
@@ -280,6 +314,5 @@ public class SymTransmitterEndpoint extends SymEndpoint {
     public long getPacketsSent() {
         return packetsSent;
     }
-    
-    
+
 }

@@ -162,14 +162,18 @@ public class SipXbridgeServer implements Symmitron {
         } else if (!previousInstance.equals(controllerHandle)) {
             HashSet<Bridge> rtpBridges = bridgeResourceMap
                     .get(previousInstance);
-            for (Bridge rtpBridge : rtpBridges) {
-                rtpBridge.stop();
+            if (rtpBridges != null) {
+                for (Bridge rtpBridge : rtpBridges) {
+                    rtpBridge.stop();
+                }
             }
             bridgeResourceMap.remove(previousInstance);
             bridgeResourceMap.put(controllerHandle, new HashSet<Bridge>());
             HashSet<Sym> rtpSessions = sessionResourceMap.get(previousInstance);
-            for (Sym rtpSession : rtpSessions) {
-                rtpSession.close();
+            if (rtpSessions != null) {
+                for (Sym rtpSession : rtpSessions) {
+                    rtpSession.close();
+                }
             }
             sessionResourceMap.remove(previousInstance);
             sessionResourceMap.put(controllerHandle, new HashSet<Sym>());
@@ -279,9 +283,9 @@ public class SipXbridgeServer implements Symmitron {
                 logger.debug(String.format("setDestination : "
                         + " controllerHande %s " + " symId %s "
                         + " ipAddress %s " + " port %d "
-                        + " keepAliveMethod = %s " + " keepAliveTime %d "
-                        , controllerHandle, symId,
-                        ipAddress, port, keepaliveMethod, keepAliveTime));
+                        + " keepAliveMethod = %s " + " keepAliveTime %d ",
+                        controllerHandle, symId, ipAddress, port,
+                        keepaliveMethod, keepAliveTime));
             }
 
             Sym sym = sessionMap.get(symId);
@@ -290,23 +294,24 @@ public class SipXbridgeServer implements Symmitron {
             }
 
             // Check input arguments.
-            if ( ipAddress.equals("") && port != 0) {
-                return createErrorMap( ILLEGAL_ARGUMENT, "Must specify IP address if port is not zero");
+            if (ipAddress.equals("") && port != 0) {
+                return createErrorMap(ILLEGAL_ARGUMENT,
+                        "Must specify IP address if port is not zero");
             }
-            if ( ipAddress.equals("")) ipAddress = null;
-            
+            if (ipAddress.equals(""))
+                ipAddress = null;
+
             Map<String, Object> retval = createSuccessMap();
 
             // Allocate a new session if needed.
             SymTransmitterEndpoint transmitter = sym.getTransmitter() != null ? sym
                     .getTransmitter()
                     : new SymTransmitterEndpoint();
-                    
-          
 
             transmitter.setIpAddressAndPort(ipAddress, port);
+            transmitter.computeAutoDiscoveryFlag();
             transmitter.setMaxSilence(keepAliveTime, keepaliveMethod);
-         
+
             byte[] keepAliveBytes = null;
             if (keepAlivePacketData.equals("")) {
                 keepAliveBytes = null;
@@ -317,7 +322,6 @@ public class SipXbridgeServer implements Symmitron {
 
             transmitter.setKeepalivePayload(keepAliveBytes);
 
-            transmitter.computeAutoDiscoveryFlag();
             if (sym.getTransmitter() == null) {
                 sym.setTransmitter(transmitter);
             }

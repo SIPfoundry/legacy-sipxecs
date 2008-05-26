@@ -11,20 +11,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.util.Properties;
 
-import javax.sip.ListeningPoint;
-import javax.sip.SipListener;
-import javax.sip.SipProvider;
-import javax.sip.message.Request;
-
-import org.cafesip.sipunit.SipCall;
-import org.cafesip.sipunit.SipPhone;
-import org.cafesip.sipunit.SipRequest;
 import org.cafesip.sipunit.SipTestCase;
-import org.sipfoundry.sipxbridge.*;
-
-import gov.nist.javax.sip.clientauthutils.*;
-
-import junit.framework.TestCase;
 
 public abstract class AbstractSipSignalingTest extends SipTestCase {
     protected int sipxProxyPort = 5060;

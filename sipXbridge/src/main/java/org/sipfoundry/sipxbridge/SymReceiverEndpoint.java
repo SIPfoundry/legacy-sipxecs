@@ -23,6 +23,8 @@ import org.apache.log4j.Logger;
 public class SymReceiverEndpoint extends SymEndpoint {
 
     private static Logger logger = Logger.getLogger(SymReceiverEndpoint.class);
+    
+    private  InetSocketAddress socketAddress;
 
     public SymReceiverEndpoint(int port) throws IOException {
         super();

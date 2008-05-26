@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.util.Map;
 
 import junit.framework.TestCase;
@@ -59,7 +60,7 @@ public class SymmitronTest extends AbstractSymmitronTestCase {
         try {
             super.start();
             String[] myHandle = new String[1] ;
-            myHandle[0] = "nat:12345";
+            myHandle[0] = clientHandle;
             Map retval = (Map) client.execute("sipXbridge.signIn",
                     (Object[]) myHandle);
             client.execute("sipXbridge.signOut",(Object[]) myHandle);
@@ -216,9 +217,20 @@ public class SymmitronTest extends AbstractSymmitronTestCase {
         Map symSession = (Map) retval.get(Symmitron.SYM_SESSION);
         Map receiverSession = ( Map) symSession.get("receiver");
         String ipAddr = (String) receiverSession.get("ipAddress");
-        int port = (Integer) receiverSession.get("port");
+        int port1 = (Integer) receiverSession.get("port");
         
         
+        
+        args = new Object[2];
+        args[0] = clientHandle;
+        args[1] = sym2;
+        retval = (Map) client.execute("sipXbridge.getSym", args);
+        super.checkStandardMap(retval);
+        symSession = (Map) retval.get(Symmitron.SYM_SESSION);
+        receiverSession = ( Map) symSession.get("receiver");
+        ipAddr = (String) receiverSession.get("ipAddress");
+        int port2 = (Integer) receiverSession.get("port");
+          
         
         String bridge = super.createBridge();
         super.setRemoteEndpoint(sym1, destinationPort1);
@@ -265,14 +277,25 @@ public class SymmitronTest extends AbstractSymmitronTestCase {
         
         byte[] data  = new byte[1024]  ;
         DatagramSocket datagramSocket = new DatagramSocket();
+        DatagramPacket datagramPacket = new DatagramPacket( data, 
+                data.length,InetAddress.getByName(ipAddr), port1);
         for ( int i = 0 ; i < 1000 ; i++) {
-            DatagramPacket datagramPacket = new DatagramPacket( data, 
-                    data.length,InetAddress.getByName(ipAddr), port);
+          
             Thread.sleep(10);
             datagramSocket.send(datagramPacket);
         }
         Thread.sleep(100);
         assertTrue ( "Counter is " + counter, counter >= 1000 );
+        this.counter = 0;
+        datagramPacket = new DatagramPacket( data, 
+                data.length,InetAddress.getByName(ipAddr), port2);
+        for ( int i = 0 ; i < 1000 ; i++) {
+            Thread.sleep(10);
+            datagramSocket1.send(datagramPacket);
+        }
+        assertTrue ( "Counter is " + counter, counter >= 1000 );
+         
+        
 
         datagramSocket1.close();
         datagramSocket2.close();
@@ -730,6 +753,124 @@ public class SymmitronTest extends AbstractSymmitronTestCase {
         datagramSocket1.close();
        
    
+    }
+    /**
+     * Create and send data through bridge.
+     * 
+     * @throws Exception
+     */
+    private void sendDataThroughBridgeNoDestroy() throws Exception {
+        int destinationPort1 = 26000;
+        int destinationPort2 = 27000;
+
+        String sym1 = super.createEvenSym();
+        String sym2 = super.createEvenSym();
+        
+        Object[] args = new Object[2];
+        args[0] = clientHandle;
+        args[1] = sym1;
+        Map retval = (Map) client.execute("sipXbridge.getSym", args);
+        super.checkStandardMap(retval);
+        Map symSession = (Map) retval.get(Symmitron.SYM_SESSION);
+        Map receiverSession = ( Map) symSession.get("receiver");
+        String ipAddr = (String) receiverSession.get("ipAddress");
+        int port1 = (Integer) receiverSession.get("port");
+        
+        
+        
+        args = new Object[2];
+        args[0] = clientHandle;
+        args[1] = sym2;
+        retval = (Map) client.execute("sipXbridge.getSym", args);
+        super.checkStandardMap(retval);
+        symSession = (Map) retval.get(Symmitron.SYM_SESSION);
+        receiverSession = ( Map) symSession.get("receiver");
+        ipAddr = (String) receiverSession.get("ipAddress");
+        int port2 = (Integer) receiverSession.get("port");
+          
+        
+        String bridge = super.createBridge();
+        super.setRemoteEndpoint(sym1, destinationPort1);
+        super.setRemoteEndpoint(sym2,destinationPort2);
+        
+        args = new Object[3];
+        args[0] = clientHandle;
+        args[1] = bridge;
+        args[2] = sym1;
+        retval = (Map) client.execute("sipXbridge.addSym", args);
+        super.checkStandardMap(retval);
+        
+        args = new Object[3];
+        args[0] = clientHandle;
+        args[1] = bridge;
+        args[2] = sym2;
+        retval = (Map) client.execute("sipXbridge.addSym", args);
+        super.checkStandardMap(retval);
+       
+        
+        DatagramSocket datagramSocket1 = new DatagramSocket(destinationPort1,
+                InetAddress.getByName(serverAddress));
+
+        new Thread(new Listener(datagramSocket1)).start();
+
+        DatagramSocket datagramSocket2 = new DatagramSocket(destinationPort2,
+                InetAddress.getByName(serverAddress));
+
+        new Thread(new Listener(datagramSocket2)).start();
+       
+        
+        Thread.sleep(2000);
+
+        assertTrue("Should see a non zero counter", counter != 0);
+        
+        args = new Object[2];
+        args[0] = clientHandle;
+        args[1] = bridge;
+        retval = (Map) client.execute("sipXbridge.startBridge", args);
+        
+        super.checkStandardMap(retval);
+        
+        this.counter = 0;
+        
+        byte[] data  = new byte[1024]  ;
+        DatagramSocket datagramSocket = new DatagramSocket();
+        DatagramPacket datagramPacket = new DatagramPacket( data, 
+                data.length,InetAddress.getByName(ipAddr), port1);
+        for ( int i = 0 ; i < 1000 ; i++) {
+          
+            Thread.sleep(10);
+            datagramSocket.send(datagramPacket);
+        }
+        Thread.sleep(100);
+        assertTrue ( "Counter is " + counter, counter >= 1000 );
+        this.counter = 0;
+        datagramPacket = new DatagramPacket( data, 
+                data.length,InetAddress.getByName(ipAddr), port2);
+        for ( int i = 0 ; i < 1000 ; i++) {
+            Thread.sleep(10);
+            datagramSocket1.send(datagramPacket);
+        }
+        assertTrue ( "Counter is " + counter, counter >= 1000 );
+         
+        
+
+        datagramSocket1.close();
+        datagramSocket2.close();
+        datagramSocket.close();
+
+    }
+    
+    public void testStartStop() throws Exception {
+        this.sendDataThroughBridgeNoDestroy();
+        clientHandle = "nat:4567";
+        super.signIn();
+        this.sendDataThroughBridgeNoDestroy();
+        clientHandle="nat:5678";
+        super.signIn();
+        this.testSendDataThroughBridge();
+        
+        
+        
     }
     
     
