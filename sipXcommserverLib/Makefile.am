@@ -1,7 +1,7 @@
 ## Process this file with automake to produce Makefile.in
 include config/project.am
 
-RPMS = $(DEFAULT_RPMS) $(DEBUG_RPM) sipxcommserverlib-doc-$(SIPX_VERSION).$(RPM__TARGET_ARCH).rpm
+RPMS = $(DEFAULT_RPMS) $(DEBUG_RPM) sipxcommserverlib-doc-$(SIPX_VERSION).$(RPM_TARGET_ARCH).rpm
 
 EXTRA_DIST = \
     config/sipX-config.in \
