@@ -26,6 +26,7 @@ public class TransReceiver {
   
     String serverAddress;
     XmlRpcClient client;
+    String clientAddress;
     
     
     HashSet<Listener> listeners = new HashSet<Listener>();
@@ -167,7 +168,7 @@ public class TransReceiver {
         Object[] params = new Object[7];
         params[0] = clientHandle;
         params[1] = sym;
-        params[2] = serverAddress;
+        params[2] = clientAddress;
         params[3] = new Integer(destinationPort);
         params[4] = new Integer(500);
         params[5] = "USE-EMPTY-PACKET";
@@ -185,7 +186,7 @@ public class TransReceiver {
         Object[] params = new Object[7];
         params[0] = clientHandle;
         params[1] = sym;
-        params[2] = serverAddress;
+        params[2] = clientAddress;
         params[3] = new Integer(destinationPort);
         params[4] = new Integer(500);
         params[5] = "NONE";
@@ -357,6 +358,7 @@ public class TransReceiver {
         } else {
             String urlString = "file:" + accountName;
             System.out.println("urlString " + urlString);
+            clientAddress = properties.getProperty("org.sipfoundry.gateway.symmitronTestClientAddress");
             XmlRpcClientConfigImpl config = new XmlRpcClientConfigImpl();
             AccountManagerImpl accountManager = new ConfigurationParser()
             .createAccountManager(urlString);
@@ -389,7 +391,7 @@ public class TransReceiver {
             destinationPort1 += i;
             System.out.println("dest port " + destinationPort1);
             DatagramSocket datagramSocket1 = new DatagramSocket(destinationPort1,
-                    InetAddress.getByName(serverAddress));
+                    InetAddress.getByName(clientAddress));
             Listener listener1 = new Listener( datagramSocket1);
             this.listeners.add(listener1);
             setRemoteEndpointNoKeepAlive(sym, destinationPort1);
@@ -404,7 +406,7 @@ public class TransReceiver {
             System.out.println("port2 = " + port2);
             destinationPort2 += i;
             DatagramSocket datagramSocket2 = new DatagramSocket(destinationPort2,
-                    InetAddress.getByName(serverAddress));
+                    InetAddress.getByName(clientAddress));
             Listener listener2 = new Listener( datagramSocket2);
             this.listeners.add(listener2);
             setRemoteEndpointNoKeepAlive(sym, destinationPort2);
