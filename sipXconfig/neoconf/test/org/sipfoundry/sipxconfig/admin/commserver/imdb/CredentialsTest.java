@@ -41,12 +41,10 @@ public class CredentialsTest extends XMLTestCase {
         User user = new User();
         user.setSipPassword("test");
         user.setUserName("user");
-        coreContext.getSpecialUser(SpecialUserType.MEDIA_SERVER);
-        expectLastCall().andReturn(user);
-        coreContext.getSpecialUser(SpecialUserType.PARK_SERVER);
-        expectLastCall().andReturn(user);
-        coreContext.getSpecialUser(SpecialUserType.ACD_SERVER);
-        expectLastCall().andReturn(user);
+        for (SpecialUserType u : SpecialUserType.values()) {
+            coreContext.getSpecialUser(u);
+            expectLastCall().andReturn(user);            
+        }
 
         CallGroupContext callGroupContext = createMock(CallGroupContext.class);
         callGroupContext.getCallGroups();
@@ -70,9 +68,12 @@ public class CredentialsTest extends XMLTestCase {
         assertXpathEvaluatesTo("sip:user@host.company.com", "/items/item[2]/uri", domDoc);
 
         assertXpathExists("/items/item[3]", domDoc);
-        assertXpathEvaluatesTo("sip:user@host.company.com", "/items/item[2]/uri", domDoc);
+        assertXpathEvaluatesTo("sip:user@host.company.com", "/items/item[3]/uri", domDoc);
 
-        assertXpathNotExists("/items/item[4]", domDoc);
+        assertXpathExists("/items/item[4]", domDoc);
+        assertXpathEvaluatesTo("sip:user@host.company.com", "/items/item[4]/uri", domDoc);
+
+        assertXpathNotExists("/items/item[5]", domDoc);
         verify(coreContext, callGroupContext);
     }
 

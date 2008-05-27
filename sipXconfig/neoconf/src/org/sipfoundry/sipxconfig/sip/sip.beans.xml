@@ -2,5 +2,15 @@
 <beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
 
-  <bean id="sip" class="org.sipfoundry.sipxconfig.sip.SipServiceImpl" />
+  <bean id="sip" class="org.sipfoundry.sipxconfig.sip.SipServiceImpl">
+    <property name="hostName" value="localhost" />
+    <property name="hostIpAddress" value="127.0.0.1" />
+    <property name="transport" value="udp" />
+    <property name="port" value="5180" />
+    <property name="properties">
+      <value>javax.sip.STACK_NAME=sipXconfig</value>
+    </property>
+  </bean>
+
+
 </beans>

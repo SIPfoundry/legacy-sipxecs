@@ -75,7 +75,11 @@ public class PermissionsTest extends XMLTestCase {
                 domDoc);
         assertXpathEvaluatesTo("sip:~~id~acd@host.company.com", "/items/item[15]/identity",
                 domDoc);
-        assertXpathNotExists("/items/item[16]", domDoc);
+        assertXpathEvaluatesTo("sip:~~id~config@host.company.com", "/items/item[16]/identity",
+                domDoc);
+        assertXpathEvaluatesTo("sip:~~id~config@host.company.com", "/items/item[20]/identity",
+                domDoc);
+        assertXpathNotExists("/items/item[21]", domDoc);
 
         verify(coreContext, callGroupContext);
     }
@@ -118,13 +122,13 @@ public class PermissionsTest extends XMLTestCase {
 
         org.w3c.dom.Document domDoc = XmlUnitHelper.getDomDoc(document);
 
-        // 5 permissions per special user - 3 special users == 15
-        assertXpathExists("/items/item[16]", domDoc);
-        assertXpathEvaluatesTo("sip:sales@host.company.com", "/items/item[16]/identity", domDoc);
-        assertXpathEvaluatesTo("sip:sales@host.company.com", "/items/item[20]/identity", domDoc);
-        assertXpathEvaluatesTo("sip:marketing@host.company.com", "/items/item[21]/identity",
+        // 5 permissions per special user - 4 special users == 20
+        assertXpathExists("/items/item[21]", domDoc);
+        assertXpathEvaluatesTo("sip:sales@host.company.com", "/items/item[21]/identity", domDoc);
+        assertXpathEvaluatesTo("sip:sales@host.company.com", "/items/item[25]/identity", domDoc);
+        assertXpathEvaluatesTo("sip:marketing@host.company.com", "/items/item[26]/identity",
                 domDoc);
-        assertXpathEvaluatesTo("sip:marketing@host.company.com", "/items/item[25]/identity",
+        assertXpathEvaluatesTo("sip:marketing@host.company.com", "/items/item[30]/identity",
                 domDoc);
 
         verify(coreContext, callGroupContext);

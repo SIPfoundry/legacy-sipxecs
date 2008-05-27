@@ -14,7 +14,7 @@ import org.apache.commons.lang.RandomStringUtils;
 public class SpecialUser extends BeanWithId {
 
     public enum SpecialUserType {
-        PARK_SERVER("~~id~park"), MEDIA_SERVER("~~id~media"), ACD_SERVER("~~id~acd");
+        PARK_SERVER("~~id~park"), MEDIA_SERVER("~~id~media"), ACD_SERVER("~~id~acd"), CONFIG_SERVER("~~id~config");
 
         private String m_userName;
 

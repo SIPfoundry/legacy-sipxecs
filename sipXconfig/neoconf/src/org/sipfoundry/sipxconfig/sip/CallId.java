@@ -9,7 +9,10 @@
  */
 package org.sipfoundry.sipxconfig.sip;
 
+public class CallId {
+    private volatile long m_id = 100;
 
-public abstract class AbstractMessage {
-    public abstract void createAndSend();
+    public long get() {
+        return m_id++;
+    }
 }

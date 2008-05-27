@@ -9,7 +9,8 @@
  */
 package org.sipfoundry.sipxconfig.sip;
 
-
-public abstract class AbstractMessage {
-    public abstract void createAndSend();
+public class SipxSipException extends RuntimeException {
+    public SipxSipException(Throwable cause) {
+        super(cause);
+    }
 }
