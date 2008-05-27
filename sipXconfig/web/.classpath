@@ -17,7 +17,6 @@
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/htmlunit-1.14.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/jakarta-oro-2.0.8.jar" sourcepath="/LIB_SRC/oro/src.zip"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/javassist-3.6.ga.jar" sourcepath="/LIB_SRC/javassist/3.0/src.zip"/>
-	<classpathentry kind="var" path="SIPX_CONFIG/lib/log4j-1.2.14.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/ognl-2.7.2.jar" sourcepath="LIB_SRC/ognl/ognl-2.6.7-dist.zip"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/javax.servlet.jar" sourcepath="JRE_SRC"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/sipx-jwebunit-core-1.4.1.jar" sourcepath="/LIB_SRC/jwebunit/1.4.1/jwebunit-1.4.1-sources.zip">
