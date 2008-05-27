@@ -189,6 +189,7 @@
     <sipx-javac srcdir="${test.src.dir}"
        destdir="${test.classes.dir}">
       <classpath>
+        <pathelement path="${junit.jar}"/>
         <pathelement path="${classes.dir}"/>
       </classpath>
     </sipx-javac>
@@ -245,6 +246,7 @@
     <pathelement location="${src.dir}"/>
     <pathelement location="${test.src.dir}"/>
     <pathelement location="etc"/>
+    <pathelement location="${junit.jar}"/>
     <pathelement location="${clover.jar}"/> 
     <path refid="base.path"/>
     <pathelement location="${classes.dir}"/>
