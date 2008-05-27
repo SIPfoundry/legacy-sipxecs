@@ -68,9 +68,7 @@ cdr.bindings.src.dir=${top.build.dir}/neoconf/dist/cdr-bindings-src
 cdr.bindings.dir=${top.build.dir}/neoconf/dist/cdr-bindings-classes
 cdr-bindings.jar=${top.build.dir}/neoconf/dist/cdr-bindings.jar
 
-# SYSTEM JARS
-build-classpath=@JPACKAGE_BUILD_CLASSPATH@
-
-# jars that are detected during build and do not have to be installed
-log4j.jar=@LOG4J_JAR@
+# SYSTEM CLASSPATHS
+classpath.build=@CLASSPATH_BUILD@
+classpath.run=@CLASSPATH_RUN@
 

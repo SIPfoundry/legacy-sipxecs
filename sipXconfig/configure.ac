@@ -43,7 +43,9 @@ CHECK_CLOVER
 CHECK_JUNIT4
 CHECK_LOG4J
 # TODO: uncomment when it's been built on all platforms
-# CHECK_JAIN_SIP
+CHECK_JAIN_SIP
+CHECK_JAR([ANT_JAR],[ant],[CLASSPATH_RUN])
+CHECK_JAR([ANT_LAUNCHER_JAR],[ant-launcher],[CLASSPATH_RUN])
 CHECK_RUBY([1.8.2])
 CHECK_RUBY_MODULE([soap/wsdlDriver])
 CHECK_GEM([0.8.11])

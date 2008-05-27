@@ -69,6 +69,7 @@
   <taskdef name="wsdl2java" 
 	    classname="org.apache.axis.tools.ant.wsdl.Wsdl2javaAntTask">
 		<classpath refid="axis.path"/>
+		<classpath path="${classpath.build}"/>
 		<classpath>
 		    <pathelement location="${axis-ant.jar}"/>
 		</classpath>	
@@ -142,7 +143,6 @@
 
     <sipx-javac srcdir="${src.dir}"
         destdir="${classes.dir}"
-        classpathref="base.path"
         excludes="test/**"/>
   </target>
 
@@ -187,11 +187,9 @@
 		<description>compile tests</description>
 
     <sipx-javac srcdir="${test.src.dir}"
-       destdir="${test.classes.dir}"
-       classpathref="base.path">
+       destdir="${test.classes.dir}">
       <classpath>
         <pathelement path="${classes.dir}"/>
-        <pathelement location="${junit.jar}"/>
       </classpath>
     </sipx-javac>
     <copy todir="${test.classes.dir}">
@@ -239,7 +237,6 @@
         <include name="**/*.java"/>
       </fileset>
       <classpath refid="base.path"/>
-      <classpath path="${junit.jar}"/>	
     </javadoc>
   </target>
 
@@ -247,13 +244,11 @@
   <path id="test.path">
     <pathelement location="${src.dir}"/>
     <pathelement location="${test.src.dir}"/>
-    <pathelement location="${log4j.jar}"/>
     <pathelement location="etc"/>
     <pathelement location="${clover.jar}"/> 
     <path refid="base.path"/>
     <pathelement location="${classes.dir}"/>
     <pathelement location="${test.classes.dir}"/>
-    <pathelement location="${junit.jar}"/>
   </path>
 
   <!--

@@ -11,6 +11,7 @@
 	    - all spring jars at this point
 	    -->
   <path id="compile.dependencies">
+    <pathelement path="${classpath.build}" />
     <pathelement location="${saxpath.jar}" />
     <pathelement location="${jaxen.jar}" />
     <pathelement location="${commons-lang.jar}" />
@@ -37,6 +38,7 @@
 	    - all spring jars at this point
 	    -->
   <path id="runtime.dependencies">
+    <pathelement path="${classpath.run}" />
     <pathelement location="${commons-logging.jar}" />
     <pathelement location="${logkit.jar}" />
     <pathelement location="${c3p0.jar}" />
@@ -75,7 +77,6 @@
     <pathelement location="${xml-apis.jar}" />
     <pathelement location="${spring-mock.jar}" />
   </path>
-  <property name="classpath" refid="base.path" />
 
   <!-- INSTALL -->
   <target name="install" depends="jar">

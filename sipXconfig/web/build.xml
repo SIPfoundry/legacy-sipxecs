@@ -14,6 +14,7 @@
   <!-- common path unit tests need that interfaces w/sipXconfig lib 
        all spring jars at this point -->
   <path id="compile.dependencies">
+    <pathelement path="${classpath.build}" />
     <pathelement path="${sipxconfig.jar}"/>
     <pathelement path="${spring.jar}"/>
     <pathelement path="${hibernate.jar}"/>
@@ -35,6 +36,7 @@
   <!-- common path unit tests need that interfaces w/sipXconfig lib 
        all spring jars at this point -->
   <path id="runtime.dependencies">
+    <pathelement path="${classpath.run}" />
     <pathelement path="${acegi-security.jar}"/>
     <pathelement path="${aopalliance.jar}"/>
     <pathelement path="${asm.jar}"/>
@@ -60,7 +62,6 @@
     <pathelement path="${jaxen.jar}"/>
     <pathelement path="${jdbc-driver.jar}"/>
     <pathelement path="${jta.jar}"/>
-    <pathelement path="${log4j.jar}"/>
     <pathelement path="${logkit.jar}"/>
     <pathelement path="${odmg.jar}"/>
     <pathelement path="${saxpath.jar}"/>
@@ -109,7 +110,6 @@
     <pathelement path="${cssparser.jar}"/>
     <pathelement path="${commons-codec.jar}"/>
   </path>
-  <property name="classpath" refid="base.path"/>
 
   <target name="init" depends="ant-targets.init">
     <mkdir dir="${dist.dir}/war-root"/>
@@ -183,7 +183,7 @@
       <replacefilter token="@sipxconfig.db.user@" property="sipxconfig.db.user"/>
       <replacefilter token="@bash@" property="bash"/>
       <replacefilter token="@prefix@" property="prefix"/>
-      <replacefilter token="@build-classpath@" property="build-classpath"/>
+      <replacefilter token="@classpath.run@" property="classpath.run"/>
     </replace>
     <chmod file="${dest.dir}${bin.dir}/sipxconfig.sh" perm="ugo+x"/>
 
@@ -281,10 +281,10 @@
   	<echo>http://localhost:9999/sipxconfig/app?page=TestPage&amp;service=page</echo>
   	<echo/>
     <java classname="org.sipfoundry.sipxconfig.site.JettyTestSetup" fork="true">
+      <classpath path="classpath.build"/>
+      <classpath path="classpath.run"/>
       <classpath refid="test.path"/>
       <classpath refid="base.path"/>
-      <classpath location="${junit.jar}"/>
-      <classpath location="${log4j.jar}"/>
       <classpath location="${server-bindings.jar}"/>
       <!-- simulates appending sipxpbx.conf.dir in real start-up script -->      
       <classpath location="${test.systemRoot}/etc"/>
@@ -397,9 +397,9 @@
       failonerror="true"
       dir="${server.bindings.src}">
         <classpath refid="axis.path"/>
-        <classpath location="${log4j.jar}"/>
+        <classpath path="${classpath.run}"/>
         <classpath location="${classes.dir}"/>
-		<classpath location="${server-bindings.jar}"/>
+        <classpath location="${server-bindings.jar}"/>
         <arg value="server"/>
         <arg file="${server.bindings.src}/org/sipfoundry/sipxconfig/api/deploy.wsdd"/>
     </java>
@@ -463,8 +463,8 @@
     <java classname="org.sipfoundry.sipxconfig.site.JettyTestSetup" fork="true">
       <classpath refid="base.path"/>
       <classpath refid="test.path"/>
-      <classpath location="${junit.jar}"/>
-      <classpath location="${log4j.jar}"/>
+      <classpath path="${classpath.run}"/>
+      <classpath path="${classpath.build}"/>
       <classpath location="${server-bindings.jar}"/>
       <sysproperty key="basedir" value="${basedir}"/>
     </java>
@@ -475,8 +475,8 @@
     <java classname="org.sipfoundry.sipxconfig.site.JettyTestSetup">
       <classpath refid="base.path"/>
       <classpath refid="test.path"/>
-      <classpath location="${junit.jar}"/>
-      <classpath location="${log4j.jar}"/>
+      <classpath path="${classpath.run}"/>
+      <classpath path="${classpath.build}"/>
       <classpath location="${server-bindings.jar}"/>
       <sysproperty key="basedir" value="${basedir}"/>
       <arg value="shutdown"/>

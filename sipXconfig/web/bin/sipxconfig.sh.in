@@ -30,7 +30,6 @@ Args=""
 : ${StorePassword:=changeit}
 : ${PostgresUser:=@sipxconfig.db.user@}
 : ${FirstRunFile:=@sipxpbx.conf.dir@/.first-run}
-: ${BuildClasspath:=@build-classpath@}
 
 TEST_WRITE_ACCESS="\
   @sipxpbx.conf.dir@/config.defs \
@@ -110,7 +109,7 @@ createAuthoritiesKeystore() {
 # and expand pathnames to create a string for PATH-based variables 
 classpath() {
     # initialize with additional JARS
-    Cpath=$($BuildClasspath $ADDITIONAL_JARS)
+    Cpath=@classpath.run@
     for f in $@; do
       Cpath=$Cpath:$f
     done

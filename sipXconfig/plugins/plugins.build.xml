@@ -12,6 +12,7 @@
    - all spring jars at this point
    -->
   <path id="compile.dependencies">
+    <pathelement path="${classpath.build}" />
     <pathelement location="${sipxconfig.jar}" />
     <pathelement location="${commons-lang.jar}" />
     <pathelement location="${spring.jar}" />
@@ -28,6 +29,8 @@
     - all spring jars at this point
     -->
   <path id="runtime.dependencies">
+    <pathelement path="${classpath.run}" />
+
     <!-- TEST -->
     <pathelement location="${neoconf.tests.classes}" />
     <pathelement location="${dbunit.jar}" />
@@ -62,7 +65,6 @@
     <pathelement location="${easymock.jar}" />
     <pathelement location="${easymockclassextension.jar}" />
   </path>
-  <property name="classpath" refid="base.path" />
 
   <!-- INSTALL -->
   <target name="install" depends="jar">
