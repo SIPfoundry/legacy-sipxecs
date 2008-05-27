@@ -28,9 +28,12 @@ import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.valid.ValidationConstraint;
 import org.apache.tapestry.web.WebResponse;
+import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
+import org.sipfoundry.sipxconfig.domain.DomainManager;
+import org.sipfoundry.sipxconfig.phone.SipService;
 import org.sipfoundry.sipxconfig.phonebook.Phonebook;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookEntry;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookManager;
@@ -44,6 +47,12 @@ public abstract class UserPhonebookPage extends UserBasePage implements PageBegi
     @InjectObject("spring:phonebookManager")
     public abstract PhonebookManager getPhonebookManager();
 
+    @InjectObject("spring:sip")
+    public abstract SipService getSipService();
+
+    @InjectObject("spring:domainManager")
+    public abstract DomainManager getDomainManager();
+
     @Persist
     public abstract void setQuery(String query);
 
@@ -55,22 +64,20 @@ public abstract class UserPhonebookPage extends UserBasePage implements PageBegi
     public abstract void setPhonebookEntries(Collection<PhonebookEntry> entries);
 
     /**
-     * Gets a comma-separated list of extensions for the user in the current row
-     * 
-     * @return A String containing a comma-separated list of phone extensions
+     * comma-separated list of extensions for the user in the current row
      */
     public abstract String getExtensionsForCurrentEntry();
 
     public abstract void setExtensionsForCurrentEntry(String value);
 
     /**
-     * Gets a comma-separated list of sip id's for the user in the current row
-     * 
-     * @return A String containing a comma-separated list of sip id's
+     * comma-separated list of sip id's for the user in the current row
      */
     public abstract String getSipIdsForCurrentEntry();
 
     public abstract void setSipIdsForCurrentEntry(String value);
+
+    public abstract void setCurrentNumber(String number);
 
     public void pageBeginRender(PageEvent event) {
         super.pageBeginRender(event);
@@ -90,6 +97,18 @@ public abstract class UserPhonebookPage extends UserBasePage implements PageBegi
             entries = getPhonebookManager().search(phonebooks, query);
         }
         setPhonebookEntries(entries);
+    }
+
+    /**
+     * Implements click to call link
+     * 
+     * @param number number to call - refer is sent to current user
+     */
+    public void call(String number) {
+        String domain = getDomainManager().getDomain().getName();
+        String userAddrSpec = getUser().getAddrSpec(domain);
+        String destAddrSpec = SipUri.format(number, domain, false);
+        getSipService().sendRefer(userAddrSpec, destAddrSpec);
     }
 
     /**
@@ -123,6 +142,7 @@ public abstract class UserPhonebookPage extends UserBasePage implements PageBegi
         User user = getUserForEntry(entry);
         AliasSorter aliasSorter = new AliasSorter(user, entry);
         Messages messages = getMessages();
+        setCurrentNumber(entry.getNumber());
         setExtensionsForCurrentEntry(aliasSorter.getExtensions(messages));
         setSipIdsForCurrentEntry(aliasSorter.getSipIds(messages));
     }

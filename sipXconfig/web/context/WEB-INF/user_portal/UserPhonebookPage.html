@@ -34,7 +34,7 @@
       </ul>
       <table jwcid="@common/Table" id="userPhonebook:phonebookTable"
         source="ognl:phonebookEntries"
-        columns="* firstName,lastName,extensions,sipIds"
+        columns="* firstName,lastName,extensions,sipIds,!call"
         row="ognl:phonebookEntry"
         usePager="ognl:true"
         volatile="ognl:true">
@@ -43,6 +43,14 @@
         </span>
         <span jwcid="sipIdsColumnValue@Block">
           <span jwcid="@Insert" value="ognl:sipIdsForCurrentEntry"/>
+        </span>
+        <span jwcid="callColumnValue@Block">
+            <a jwcid="@DirectLink"
+                listener="listener:call"
+                parameters="ognl:currentNumber"
+                asyn="ognl:true">
+                <span key="link.call"/>
+            </a>
         </span>
       </table>
     </fieldset>
