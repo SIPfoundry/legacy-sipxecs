@@ -143,36 +143,6 @@ AC_DEFUN([CHECK_CPPUNIT],
 ])
 
 
-# ============ T O M C A T  =======================
-AC_DEFUN([CHECK_TOMCAT_HOME],
-[
-   AC_ARG_VAR(TOMCAT_HOME, [Apache Tomcat home directory])
-   for dir in $TOMCAT_HOME $CATALINA_HOME /usr/local/tomcat; do
-       # simply test for directory
-       if test -d $dir; then
-           TOMCAT_HOME=$dir;
-           found_tomcat="yes";
-
-           # older JVM's working with older tomcats need servlet.jar from tomcat
-           # attempt to find it, by don't complain if you can't. Should break this
-           # into separate macro CHECK_TOMCAT5
-           jar_path=$dir/lib:$dir/common/lib;
-           AC_PATH_PROG(SERVLET_JAR, servlet.jar, ,$jar_path)
-           if test x$SERVLET_JAR != x; then
-               AC_SUBST(SERVLET_JAR)
-               break;
-           fi
-       fi
-   done
-
-   if test x_$found_tomcat != x_yes; then
-       AC_MSG_ERROR([Cannot tomcat. You may try setting the TOMCAT_HOME or CATALINA_HOME environment \
-           variable if you haven't already done so])
-   fi
-
-])
-
-
 # ============ J D K  =======================
 AC_DEFUN([CHECK_JDK],
 [

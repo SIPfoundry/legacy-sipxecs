@@ -8,6 +8,7 @@ AC_INIT(sipXconfig, 3.11.3, sipx-dev@list.sipfoundry.org)
 
 AC_CONFIG_AUX_DIR(config)
 m4_include([config/general.m4])
+m4_include([config/java.m4])
 m4_include([config/sipXlib.m4])
 
 SFAC_SIPX_INSTALL_PREFIX
@@ -39,6 +40,10 @@ AM_CONDITIONAL(IS_RPMBUILD, test x$enable_rpmbuild = xyes)
 CHECK_JDK
 CHECK_ANT
 CHECK_CLOVER
+CHECK_JUNIT4
+CHECK_LOG4J
+# TODO: uncomment when it's been built on all platforms
+# CHECK_JAIN_SIP
 CHECK_RUBY([1.8.2])
 CHECK_RUBY_MODULE([soap/wsdlDriver])
 CHECK_GEM([0.8.11])
@@ -122,5 +127,5 @@ AC_OUTPUT
 
 # autoconf variables like datadir, localstatedir, etc are not resolved
 # until make time, so here we get a jump start on this mainly for ANT
-# purist that don't do make and got right int ant
+# purist that don't do make and got right in ant
 make build.properties
