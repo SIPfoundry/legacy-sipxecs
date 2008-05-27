@@ -41,7 +41,6 @@ CHECK_JDK
 CHECK_ANT
 CHECK_CLOVER
 CHECK_JUNIT4
-CHECK_LOG4J
 # TODO: uncomment when it's been built on all platforms
 CHECK_JAIN_SIP
 CHECK_JAR([ANT_JAR],[ant],[CLASSPATH_RUN])
