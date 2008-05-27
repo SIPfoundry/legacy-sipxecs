@@ -19,8 +19,8 @@ sender	---->| 		|---> receiver
 receiver<----|	        |<--- sender
 
 
-Measurements
-------------
+Measurements ( sender and receiver colocated with sipxbridge)
+-------------------------------------------------------------
 Time between packets    Root Mean Square Jitter value (measured at receiver)
 
 10 ms.                  PACKET LOSS occured.
@@ -32,6 +32,13 @@ Time between packets    Root Mean Square Jitter value (measured at receiver)
 80 ms.			1.15 ms. ( 0 packet loss ) 
 
 160 ms.                 1.10 ms.  ( 0 packet loss )
+
+
+Measurements ( sender and receiver on a different IP address than sipxbridge)
+--------------------------------------------------------------------
+
+Time between packets		RMS jitter value ( measured at receiver)
+--------------------            ---------------------------------------
 
 
 Conclusion

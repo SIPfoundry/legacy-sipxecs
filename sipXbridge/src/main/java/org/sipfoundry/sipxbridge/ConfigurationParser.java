@@ -24,8 +24,7 @@ import org.xml.sax.SAXException;
 public class ConfigurationParser {
     private static final String BRIDGE_CONFIG = "sipxbridge-config/bridge-configuration";
     private static final String ITSP_CONFIG = "sipxbridge-config/itsp-account";
-    private static Logger logger = Logger.getLogger(ConfigurationParser.class);
-
+  
     /**
      * Add the digester rules.
      * 
@@ -143,7 +142,6 @@ public class ConfigurationParser {
 
         // Process the input file.
         try {
-            logger.debug("URL = " + url);
             InputSource inputSource = new InputSource(url);
             digester.parse(inputSource);
             AccountManagerImpl accountManagerImpl = (AccountManagerImpl) digester
@@ -161,11 +159,12 @@ public class ConfigurationParser {
             }
             return (AccountManagerImpl) digester.getRoot();
         } catch (java.io.IOException ioe) {
-            System.out.println("Error reading input file:" + ioe.getMessage());
+            // Note that we do not have a debug file here so we need to print to stderr.
+            ioe.printStackTrace(System.err);
             throw new RuntimeException("Intiialzation exception", ioe);
         } catch (org.xml.sax.SAXException se) {
-            System.out.println("Error parsing input file:" + se.getMessage());
-            throw new RuntimeException("Intiialzation exception", se);
+             se.printStackTrace(System.err);
+             throw new RuntimeException("Intiialzation exception", se);
         }
 
     }
