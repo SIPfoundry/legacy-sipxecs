@@ -7,7 +7,7 @@
  * 
  * $
  */
-package org.sipfoundry.sipxconfig.phone;
+package org.sipfoundry.sipxconfig.sip;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -19,8 +19,6 @@ import org.apache.commons.io.IOUtils;
 import org.easymock.EasyMock;
 import org.sipfoundry.sipxconfig.domain.Domain;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
-import org.sipfoundry.sipxconfig.phone.SipServiceImpl.NotifyMessage;
-import org.sipfoundry.sipxconfig.phone.SipServiceImpl.ReferMessage;
 
 public class SipServiceImplTest extends TestCase {
 
@@ -46,7 +44,7 @@ public class SipServiceImplTest extends TestCase {
     }
 
     public void testBranchId() throws Exception {
-        NotifyMessage msg = new NotifyMessage(null, "sip:user@example.org", "Event: check-sync\r\n");
+        NotifyMessage msg = new NotifyMessage(null, "sip:user@example.org", "check-sync");
 
         StringBuilder f1 = new StringBuilder();
         msg.formatHeaders(f1, null, 0);
@@ -67,8 +65,7 @@ public class SipServiceImplTest extends TestCase {
                 + "Contact: sip:proxy.example.org:5061\r\n" + "Content-Length: 20\r\n\r\n";
 
         StringBuilder f = new StringBuilder();
-        NotifyMessage msg = new NotifyMessage("config.example.org", "sip:user@example.org", "Event: check-sync\r\n",
-                new byte[20]);
+        NotifyMessage msg = new NotifyMessage("config.example.org", "sip:user@example.org", "check-sync", null, new byte[20]);
         msg.formatHeaders(f, "proxy.example.org", 5061);
         String sipHeaders = f.toString();
 
@@ -98,7 +95,7 @@ public class SipServiceImplTest extends TestCase {
 
         String msg = "NOTIFY sipuaconfig@localhost.com SIP/2.0\r\n" + "Content-Length: 0\r\n" + "\r\n";
 
-        NotifyMessage msg1 = new NotifyMessage("config.example.org", "sip:user@example.org", "Event: check-sync\r\n");
+        NotifyMessage msg1 = new NotifyMessage("config.example.org", "sip:user@example.org", "check-sync");
         msg1.send("localhost", 5060, msg.getBytes("US-ASCII"));
 
         rdr.shutdown();

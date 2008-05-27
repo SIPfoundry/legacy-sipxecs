@@ -36,8 +36,8 @@
       classpath:/org/sipfoundry/sipxconfig/phone/phone.beans.xml
       classpath:/org/sipfoundry/sipxconfig/security/security.beans.xml
       classpath:/org/sipfoundry/sipxconfig/setting/setting.beans.xml
+      classpath:/org/sipfoundry/sipxconfig/sip/sip.beans.xml
       classpath:/org/sipfoundry/sipxconfig/site/tapestry.xml
-      classpath:/org/sipfoundry/sipxconfig/setting/setting.beans.xml
       classpath:/org/sipfoundry/sipxconfig/speeddial/speeddial.beans.xml
       classpath:/org/sipfoundry/sipxconfig/common/common.beans.xml
       classpath:/org/sipfoundry/sipxconfig/search/search.beans.xml

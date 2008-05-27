@@ -30,6 +30,7 @@ import org.sipfoundry.sipxconfig.setting.SettingExpressionEvaluator;
  * Support for Grandstream BudgeTone / HandyTone
  */
 public class GrandstreamPhone extends Phone {
+    private static final String APPLICATION_OCTET_STREAM = "application/octet-stream";
     private static final String TIMEZONE_SETTING = "phone/P64";
     private static final String USERID_PATH = "port/P35-P404-P504-P604-P1704-P1804";
     private static final String HT_USERID_PATH = "port/P35-P735";
@@ -135,7 +136,7 @@ public class GrandstreamPhone extends Phone {
     
     public Profile[] getProfileTypes() {
         String profileFilename = getProfileFilename();
-        Profile profile = new Profile(profileFilename, "application/octet-stream");
+        Profile profile = new Profile(profileFilename, APPLICATION_OCTET_STREAM);
         return new Profile[] {
             profile
         };
@@ -266,9 +267,8 @@ public class GrandstreamPhone extends Phone {
         LineInfo info = line.getLineInfo();
         String password = info.getPassword();
         byte[] resetPayload = new ResetPacket(password, getSerialNumber()).getResetMessage();
-        String event = "Content-Type: application/octet-stream\r\n" + "Event: sys-control\r\n";
-
-        getSipService().sendNotify(line.getAddrSpec(), event, resetPayload);
+        
+        getSipService().sendNotify(line.getAddrSpec(), "sys-control", APPLICATION_OCTET_STREAM, resetPayload);
     }
 
     static class GrandstreamSettingExpressionEvaluator implements SettingExpressionEvaluator {

@@ -94,6 +94,5 @@
     <property name="lineSettingsFile" value="line.xml" />
   </bean>
 
-  <bean id="sip" class="org.sipfoundry.sipxconfig.phone.SipServiceImpl" />
   <bean id="line" class="org.sipfoundry.sipxconfig.phone.Line" singleton="false" parent="beanWithSettings" />
 </beans>

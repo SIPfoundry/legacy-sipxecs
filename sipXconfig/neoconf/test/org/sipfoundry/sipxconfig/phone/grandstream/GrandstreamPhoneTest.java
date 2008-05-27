@@ -12,13 +12,15 @@ package org.sipfoundry.sipxconfig.phone.grandstream;
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.util.Map;
+import java.util.TreeMap;
 
 import junit.framework.TestCase;
 
 import org.easymock.EasyMock;
 import org.easymock.IArgumentMatcher;
 import org.sipfoundry.sipxconfig.phone.PhoneTestDriver;
-import org.sipfoundry.sipxconfig.phone.SipService;
+import org.sipfoundry.sipxconfig.sip.SipService;
 
 public class GrandstreamPhoneTest extends TestCase {
 
@@ -67,9 +69,9 @@ public class GrandstreamPhoneTest extends TestCase {
     public void testReset() throws Exception {
         tester.sipControl = EasyMock.createStrictControl();
         tester.sip = tester.sipControl.createMock(SipService.class);
-        tester.sip.sendNotify(EasyMock.eq("sip:juser@sipfoundry.org"), EasyMock
-                .eq("Content-Type: application/octet-stream\r\nEvent: sys-control\r\n"),
-                resetMatcher());
+
+        tester.sip.sendNotify(EasyMock.eq("sip:juser@sipfoundry.org"), EasyMock.eq("sys-control"), EasyMock
+                .eq("application/octet-stream"), resetMatcher());
         tester.sipControl.replay();
 
         phone.setSipService(tester.sip);

@@ -7,7 +7,8 @@
  * 
  * $
  */
-package org.sipfoundry.sipxconfig.phone;
+package org.sipfoundry.sipxconfig.sip;
+
 
 
 /**
@@ -16,7 +17,7 @@ package org.sipfoundry.sipxconfig.phone;
 public interface SipService {
     public void sendCheckSync(String addrSpec);
 
-    public void sendNotify(String addrSpec, String event, byte[] payload);
+    public void sendNotify(String addrSpec, String eventType, String contentType, byte[] payload);
     
     public void sendRefer(String sourceAddrSpec, String destinationAddSpec);
 }
