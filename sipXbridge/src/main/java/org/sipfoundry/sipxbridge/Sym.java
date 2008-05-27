@@ -136,6 +136,7 @@ public class Sym implements SymInterface, Serializable {
         try {
             if (this.receiver != null) {
                 if (this.receiver.getDatagramChannel() != null) {
+                    this.receiver.getDatagramChannel().socket().close();
                     this.receiver.getDatagramChannel().close();
                     ConcurrentSet.removeChannel(this.receiver.getDatagramChannel());
                 } else {
@@ -149,6 +150,7 @@ public class Sym implements SymInterface, Serializable {
             }
             if (this.transmitter != null) {
                 if (this.transmitter.getDatagramChannel() != null) {
+                    this.transmitter.getDatagramChannel().socket().close();
                     this.transmitter.getDatagramChannel().close();
                     ConcurrentSet.removeChannel(this.transmitter.getDatagramChannel());
                 } else {

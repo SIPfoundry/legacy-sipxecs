@@ -31,7 +31,9 @@ class DataShuffler implements Runnable {
     private static void initializeSelector() {
 
         try {
+            if ( selector != null ) selector.close();
             selector = Selector.open();
+            
 
             for (Bridge bridge : ConcurrentSet.getBridges()) {
 
@@ -153,7 +155,8 @@ class DataShuffler implements Runnable {
                                         if (autoDiscoveryFlag != AutoDiscoveryFlag.NO_AUTO_DISCOVERY) {
                                             if (remoteAddress != null) {
                                                 if (autoDiscoveryFlag == AutoDiscoveryFlag.IP_ADDRESS_AND_PORT) {
-                                                    sym.getTransmitter()
+                                                    sym
+                                                            .getTransmitter()
                                                             .setIpAddressAndPort(
                                                                     remoteAddress
                                                                             .getAddress()
@@ -161,7 +164,8 @@ class DataShuffler implements Runnable {
                                                                     remoteAddress
                                                                             .getPort());
                                                 } else if (autoDiscoveryFlag == AutoDiscoveryFlag.PORT_ONLY) {
-                                                    sym.getTransmitter()
+                                                    sym
+                                                            .getTransmitter()
                                                             .setPort(
                                                                     remoteAddress
                                                                             .getPort());
@@ -217,10 +221,13 @@ class DataShuffler implements Runnable {
                 }
             } catch (Exception ex) {
                 logger.error("Unexpected exception occured", ex);
-                for (Sym rtpSession : bridge.sessions) {
-                    rtpSession.close();
+                if (bridge != null && bridge.sessions != null) {
+                    for (Sym rtpSession : bridge.sessions) {
+                        rtpSession.close();
+                    }
                 }
-                bridge.setState(BridgeState.TERMINATED);
+                if ( bridge != null )
+                    bridge.setState(BridgeState.TERMINATED);
                 continue;
             }
 

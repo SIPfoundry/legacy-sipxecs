@@ -220,6 +220,7 @@ public class Gateway {
 
                 XmlRpcServerConfigImpl serverConfig = new XmlRpcServerConfigImpl();
                 serverConfig.setKeepAliveEnabled(true);
+               
 
                 server.setConfig(serverConfig);
                 server.setHandlerMapping(handlerMapping);

@@ -373,6 +373,7 @@ public class TransReceiver {
                             + port));
           
             client = new XmlRpcClient();
+            
             client.setConfig(config);
         }
     }

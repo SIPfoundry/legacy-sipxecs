@@ -42,6 +42,8 @@ public class SymReceiverEndpoint extends SymEndpoint {
 
         // The datagram channel which is used to receive packets.
         this.datagramChannel = DatagramChannel.open();
+        
+        this.datagramChannel.socket().setReuseAddress(true);
 
         // Set up to be non blocking
         this.datagramChannel.configureBlocking(false);
