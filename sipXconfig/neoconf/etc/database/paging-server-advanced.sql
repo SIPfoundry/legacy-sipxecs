@@ -1,2 +1,7 @@
 -- alter paging server table
-alter table paging_server add column sip_trace_level character varying(255) not null;
+ALTER TABLE paging_server ADD COLUMN sip_trace_level CHARACTER VARYING(255);
+
+UPDATE paging_server SET sip_trace_level='NONE';
+
+ALTER TABLE paging_server ALTER COLUMN sip_trace_level SET NOT NULL;
+
