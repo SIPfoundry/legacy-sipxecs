@@ -51,7 +51,7 @@ public class HostNameOption extends DHCPOption {
         try {
             dataStream.writeByte(super.getCode().toInt());
             dataStream.writeByte(super.getLength());
-            dataStream.write(hostName.getBytes());
+            dataStream.write(hostName.getBytes("ISO-8859-1"));
         } catch (IOException e) {
             System.err.println(e);
         }
@@ -67,7 +67,7 @@ public class HostNameOption extends DHCPOption {
         super.setLength(length);
         byte[] stringBuffer = new byte[length];
         dataStream.readFully(stringBuffer, 0, length);
-        hostName = new String(stringBuffer, 0, length);
+        hostName = new String(stringBuffer, 0, length, "ISO-8859-1");
     }
 
 }

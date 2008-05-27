@@ -202,12 +202,12 @@ public class DHCPMessage {
             dataStream.write(chaddr, 0, 16);
 
             int snameLength = sname.length();
-            dataStream.write(sname.getBytes(), 0, snameLength);
+            dataStream.write(sname.getBytes("ISO-8859-1"), 0, snameLength);
             for (int x = snameLength; x < 64; x++)
                 dataStream.writeByte(0);
 
             int fileLength = file.length();
-            dataStream.write(file.getBytes(), 0, fileLength);
+            dataStream.write(file.getBytes("ISO-8859-1"), 0, fileLength);
             for (int x = fileLength; x < 128; x++)
                 dataStream.writeByte(0);
 
@@ -254,10 +254,10 @@ public class DHCPMessage {
             giaddr = InetAddress.getByAddress(addressBuffer);
             dataStream.readFully(chaddr, 0, 16);
             dataStream.readFully(stringBuffer, 0, 64);
-            sname = new String(stringBuffer, 0, 64);
+            sname = new String(stringBuffer, 0, 64, "ISO-8859-1");
             sname = sname.trim();
             dataStream.readFully(stringBuffer, 0, 128);
-            file = new String(stringBuffer, 0, 128);
+            file = new String(stringBuffer, 0, 128, "ISO-8859-1");
             file = file.trim();
 
             // Check for options.
