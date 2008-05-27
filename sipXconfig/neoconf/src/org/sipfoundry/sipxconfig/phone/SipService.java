@@ -17,4 +17,6 @@ public interface SipService {
     public void sendCheckSync(String addrSpec);
 
     public void sendNotify(String addrSpec, String event, byte[] payload);
+    
+    public void sendRefer(String sourceAddrSpec, String destinationAddSpec);
 }

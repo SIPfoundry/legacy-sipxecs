@@ -19,6 +19,8 @@ import org.apache.commons.io.IOUtils;
 import org.easymock.EasyMock;
 import org.sipfoundry.sipxconfig.domain.Domain;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
+import org.sipfoundry.sipxconfig.phone.SipServiceImpl.NotifyMessage;
+import org.sipfoundry.sipxconfig.phone.SipServiceImpl.ReferMessage;
 
 public class SipServiceImplTest extends TestCase {
 
@@ -44,32 +46,50 @@ public class SipServiceImplTest extends TestCase {
     }
 
     public void testBranchId() throws Exception {
+        NotifyMessage msg = new NotifyMessage(null, "sip:user@example.org", "Event: check-sync\r\n");
+
         StringBuilder f1 = new StringBuilder();
-        m_sip.formatHeaders(f1, "sip:user@example.org", "Event: check-sync\r\n", 20);
+        msg.formatHeaders(f1, null, 0);
 
         StringBuilder f2 = new StringBuilder();
-        m_sip.formatHeaders(f2, "sip:user@example.org", "Event: check-sync\r\n", 20);
+        msg.formatHeaders(f2, null, 0);
 
         // branch id should make these differ
         assertFalse(f1.toString().equals(f2.toString()));
     }
 
-    public void testCreateHeader() throws Exception {
+    public void testNotifyHeader() throws Exception {
         String expectedHeader = "NOTIFY sip:user@example.org SIP/2.0\r\n"
-                + "Via: SIP/2.0/UDP proxy.example.org:5061;branch=[0-9a-f]{1,16}\r\n"
-                + "From: sip:sipuaconfig@config.example.org\r\n" + "To: sip:user@example.org\r\n"
+                + "Via: SIP/2.0/UDP proxy.example.org:5061;branch=[0-9a-f]{1,16}\r\n" + "To: sip:user@example.org\r\n"
+                + "From: sip:sipuaconfig@config.example.org\r\n" + "Call-ID: 90d3f2-[0-9a-f]{1,16}\r\n"
+                + "CSeq: 1 NOTIFY\r\n" + "Event: check-sync\r\n"
                 + "Date: [A-z]{3}, \\d{1,2} [A-z]{3} \\d{4} \\d{2}:\\d{2}:\\d{2} GMT\r\n"
-                + "Call-ID: 90d3f2-[0-9a-f]{1,16}\r\n" + "CSeq: 1 NOTIFY\r\n"
-                + "Contact: sip:proxy.example.org:5061\r\n" + "Event: check-sync\r\n" + "Content-Length: 20\r\n\r\n";
+                + "Contact: sip:proxy.example.org:5061\r\n" + "Content-Length: 20\r\n\r\n";
 
         StringBuilder f = new StringBuilder();
-        m_sip.formatHeaders(f, "sip:user@example.org", "Event: check-sync\r\n", 20);
+        NotifyMessage msg = new NotifyMessage("config.example.org", "sip:user@example.org", "Event: check-sync\r\n",
+                new byte[20]);
+        msg.formatHeaders(f, "proxy.example.org", 5061);
         String sipHeaders = f.toString();
 
-        System.err.println(expectedHeader);
-        System.err.println(sipHeaders);
+        // assertEquals(expectedHeader, sipHeaders);
+        assertTrue(sipHeaders.matches(expectedHeader));
+    }
 
-        //assertEquals(expectedHeader, sipHeaders);
+    public void testReferHeader() throws Exception {
+        String expectedHeader = "REFER sip:300@example.org SIP/2.0\r\n"
+                + "Via: SIP/2.0/UDP proxy.example.org:5061;branch=[0-9a-f]{1,16}\r\n" + "To: sip:300@example.org\r\n"
+                + "From: sip:sipuaconfig@config.example.org\r\n" + "Call-ID: 90d3f3-[0-9a-f]{1,16}\r\n"
+                + "CSeq: 1 REFER\r\n" + "Refer-To: sip:200@example.org\r\n"
+                + "Date: [A-z]{3}, \\d{1,2} [A-z]{3} \\d{4} \\d{2}:\\d{2}:\\d{2} GMT\r\n"
+                + "Contact: sip:proxy.example.org:5061\r\n" + "Content-Length: 0\r\n\r\n";
+
+        StringBuilder f = new StringBuilder();
+        ReferMessage msg = new ReferMessage("config.example.org", "sip:300@example.org", "sip:200@example.org");
+        msg.formatHeaders(f, "proxy.example.org", 5061);
+        String sipHeaders = f.toString();
+
+        // assertEquals(expectedHeader, sipHeaders);
         assertTrue(sipHeaders.matches(expectedHeader));
     }
 
@@ -78,7 +98,8 @@ public class SipServiceImplTest extends TestCase {
 
         String msg = "NOTIFY sipuaconfig@localhost.com SIP/2.0\r\n" + "Content-Length: 0\r\n" + "\r\n";
 
-        m_sip.send(msg.getBytes());
+        NotifyMessage msg1 = new NotifyMessage("config.example.org", "sip:user@example.org", "Event: check-sync\r\n");
+        msg1.send("localhost", 5060, msg.getBytes("US-ASCII"));
 
         rdr.shutdown();
         assertEquals(msg, rdr.msg);
