@@ -30,6 +30,7 @@ Args=""
 : ${StorePassword:=changeit}
 : ${PostgresUser:=@sipxconfig.db.user@}
 : ${FirstRunFile:=@sipxpbx.conf.dir@/.first-run}
+: ${BuildClasspath:=@build-classpath@}
 
 TEST_WRITE_ACCESS="\
   @sipxpbx.conf.dir@/config.defs \
@@ -49,6 +50,12 @@ TEST_WRITE_ACCESS="\
 Database=SIPXCONFIG
 RequiredDatabaseVersion=7
 IndexDir=${TmpDir}/index
+
+# jars that we expect to be installed on the system
+ADDITIONAL_JARS="\
+	log4j \
+	ant
+	ant-launcher"
 
 # Search/replace variables used in config.defs into config files
 runConfigpp() {
@@ -102,12 +109,12 @@ createAuthoritiesKeystore() {
 # Take a list of files or directories 
 # and expand pathnames to create a string for PATH-based variables 
 classpath() {
-    Cpath=""
+    # initialize with additional JARS
+    Cpath=$($BuildClasspath $ADDITIONAL_JARS)
     for f in $@; do
       Cpath=$Cpath:$f
     done
-    # trim first colon
-    echo ${Cpath:1}
+    echo $Cpath
 }
 
 # Incase system failed suddenly, clear previous locks
@@ -130,7 +137,9 @@ databaseCommand() {
     # XCF-1275 - Do not want to suppress output if there is an error
     # however want to be quiet if everything is ok for clean rpm install
     # output
+    # ant.library.dir needs to be set - but should not point to any jars
     CmdOut=`$JavaCmd \
+        -Dant.library.dir=${TmpDir} \
         -Djava.net.preferIPv4Stack=true \
         -classpath $Classpath \
         org.apache.tools.ant.launch.Launcher \
@@ -214,7 +223,7 @@ onWebUi() {
        $SystemProps \
        $JavaOpts \
        $TrustStoreOpts \
-            $KeyStoreOpts \
+       $KeyStoreOpts \
        -classpath "$Classpath" \
        org.mortbay.jetty.Server @sipxpbx.conf.dir@/sipxconfig-jetty.xml
 }

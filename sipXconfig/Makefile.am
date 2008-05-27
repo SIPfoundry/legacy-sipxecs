@@ -3,6 +3,8 @@ include config/project.am
 # Append to global search/replace with _very_ project specific search/replaces
 edit = $(LocalizeSipXconfig) \
     -e 's,@OPENSSL\@,@OPENSSL@,g' \
+    -e 's,@JPACKAGE_BUILD_CLASSPATH\@,@JPACKAGE_BUILD_CLASSPATH@,g' \
+    -e 's,@LOG4J_JAR\@,@LOG4J_JAR@,g' \
     -e 's,@CLOVER_JAR\@,@CLOVER_JAR@,g' \
     -e 's,@MRTG_ENABLED\@,@MRTG_ENABLED@,g' \
     -e 's,@RUBY_BINDINGS_ENABLED\@,@RUBY_BINDINGS_ENABLED@,g' \

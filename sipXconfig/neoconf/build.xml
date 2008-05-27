@@ -128,8 +128,6 @@
       <fileset file="${servlet.jar}" />
       <fileset file="${xerces.jar}" />
       <fileset file="${xml-apis.jar}" />
-      <fileset file="${ant.jar}" />
-      <fileset file="${ant-launcher.jar}" />
       <fileset file="${j2ee.jar}" />
       <fileset file="${spring.jar}" />
       <fileset file="${spring-ldap.jar}" />
@@ -163,7 +161,6 @@
       <fileset file="${javassist.jar}" />
       <fileset file="${bsf.jar}" />
       <fileset file="${jakarta-oro.jar}" />
-      <fileset file="${log4j.jar}" />
       <fileset file="${xmlrpc.jar}" />
       <fileset file="${antlr.jar}" />
       <fileset file="${lucene.jar}" />

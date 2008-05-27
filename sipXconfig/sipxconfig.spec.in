@@ -23,6 +23,8 @@ Url:      http://www.sipfoundry.org/
 
 Source: %name-%version.tar.gz
 
+Requires: ant >= 1.6
+Requires: log4j >= 2.1
 Requires: sipxtacklib >= 3.11
 Requires: sipxcommserverlib >= 3.11
 Requires: sipxpbx >= 3.11
