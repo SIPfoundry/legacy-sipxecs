@@ -624,6 +624,7 @@
 
   <target name="location" unless="location">
     <db-patch patch="location"/>
+  </target>
 
   <target name="paging-server-advanced" unless="paging-server">
     <db-patch patch="paging-server-advanced" />
