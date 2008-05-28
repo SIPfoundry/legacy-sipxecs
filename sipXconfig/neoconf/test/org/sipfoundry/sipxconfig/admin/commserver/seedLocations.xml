@@ -3,18 +3,18 @@
   <table name="location">
     <column>location_id</column>
     <column>name</column>
-    <column>replication_url</column>
+    <column>address</column>
     <column>sip_domain</column>
     <row>
       <value>100</value>
       <value>Config Server, Media Server and Comm Server</value>
-      <value>https://localhost:8091/cgi-bin/replication/replication.cgi</value>
+      <value>localhost</value>
       <value>h1.example.org</value>
     </row>
     <row>
       <value>101</value>
       <value>Distributed Comm Server</value>
-      <value>https://192.168.0.27:8091/cgi-bin/replication/replication.cgi</value>
+      <value>192.168.0.27</value>
       <value>h2.example.org</value>
     </row>
   </table>

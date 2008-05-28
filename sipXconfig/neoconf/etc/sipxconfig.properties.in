@@ -11,6 +11,7 @@ sip.port=5180
 phoneDefaults.proxyServerAddr=${PROXY_SERVER_ADDR}
 phoneDefaults.proxyServerSipPort=${PROXY_SERVER_SIP_PORT}
 # END: do not use
+locationsMigrationTrigger.hostname=${MY_FULL_HOSTNAME}
 phoneDefaults.tftpServer=${CONFIG_SERVER_ADDR}
 phoneDefaults.authorizationRealm=${SIPXCHANGE_REALM}
 phoneDefaults.fullyQualifiedDomainName=${MY_FULL_HOSTNAME}

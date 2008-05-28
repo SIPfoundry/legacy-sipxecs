@@ -10,8 +10,7 @@
       </generator>
     </id>
     <property name="name"/>
-    <property name="processMonitorUrl"/>
-    <property name="replicationUrl"/>
+    <property name="address"/>
     <property name="sipDomain"/>
   </class>
 </hibernate-mapping>

@@ -25,6 +25,8 @@
     <property name="locationsManager">
       <ref local="locationsManager" />
     </property>
+    <property name="configDirectory" value="${sysdir.etc}"/>
+    <property name="topologyFilename" value="topology.xml"/>
     <property name="taskNames">
       <list>
         <value>migrate_locations</value>

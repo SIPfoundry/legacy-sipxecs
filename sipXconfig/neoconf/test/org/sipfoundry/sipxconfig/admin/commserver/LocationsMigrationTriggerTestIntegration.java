@@ -16,22 +16,23 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import org.sipfoundry.sipxconfig.IntegrationTestCase;
-import org.sipfoundry.sipxconfig.TestHelper;
 
 public class LocationsMigrationTriggerTestIntegration extends IntegrationTestCase {
     
+    private static final String TOPOLOGY_TEST_XML = "topology.test.xml";
     private static final String TOPOLOGY_TEST_XML_ORIG = "topology.test.xml.orig";
     private LocationsMigrationTrigger m_out;
     private LocationsManager m_locationsManager;
     
     public void testOnInitTaskWithNoLocationsInDatabase() throws Exception {
-        TestHelper.cleanInsert("admin/commserver/clearLocations.xml");
+        loadDataSetXml("admin/commserver/clearLocations.xml");
         Location[] locationsBeforeMigration = m_locationsManager.getLocations();
         assertEquals(0, locationsBeforeMigration.length);
         
         File testTopologyFile = createTopologyFile();
         
         m_out.setConfigDirectory(getConfigDirectory());
+        m_out.setTopologyFilename(TOPOLOGY_TEST_XML);
         m_out.onInitTask("migrate_locations");
         
         Location[] locationsAfterMigration = m_locationsManager.getLocations();
@@ -45,7 +46,7 @@ public class LocationsMigrationTriggerTestIntegration extends IntegrationTestCas
     }
     
     public void testOnInitTaskExistingLocationsInDatabase() throws Exception {
-        TestHelper.cleanInsert("admin/commserver/seedLocations.xml");
+        loadDataSetXml("admin/commserver/seedLocations.xml");
         Location[] locationsBeforeMigration = m_locationsManager.getLocations();
         assertEquals(2, locationsBeforeMigration.length);
         
@@ -58,6 +59,25 @@ public class LocationsMigrationTriggerTestIntegration extends IntegrationTestCas
         assertEquals("h1.example.org", locationsAfterMigration[0].getSipDomain());
         assertEquals("https://192.168.0.27:8091/cgi-bin/replication/replication.cgi", locationsAfterMigration[1].getReplicationUrl());
         assertEquals("h2.example.org", locationsAfterMigration[1].getSipDomain());
+    }
+    
+    public void testOnInitTaskWithMissingTopologyFile() throws Exception {
+        loadDataSetXml("admin/commserver/clearLocations.xml");
+        Location[] locationsBeforeMigration = m_locationsManager.getLocations();
+        assertEquals(0, locationsBeforeMigration.length);
+        
+        // skip step of creating topology file
+        
+        m_out.setConfigDirectory(getConfigDirectory());
+        m_out.setHostname("my.full.hostname");
+        m_out.onInitTask("migrate_locations");
+        
+        Location[] locationsAfterMigration = m_locationsManager.getLocations();
+        assertEquals(1, locationsAfterMigration.length);
+        assertEquals("https://my.full.hostname:8091/cgi-bin/replication/replication.cgi",
+                locationsAfterMigration[0].getReplicationUrl());
+        assertEquals("https://my.full.hostname:8092/RPC2",
+                locationsAfterMigration[0].getProcessMonitorUrl());
     }
     
     public void setLocationsMigrationTrigger(LocationsMigrationTrigger locationMigrationTrigger) {
@@ -74,7 +94,7 @@ public class LocationsMigrationTriggerTestIntegration extends IntegrationTestCas
     
     private File createTopologyFile() throws Exception {
         File origTopologyFile = new File(getConfigDirectory(), TOPOLOGY_TEST_XML_ORIG);
-        File testTopologyFile = new File(getConfigDirectory(), "topology.test.xml");
+        File testTopologyFile = new File(getConfigDirectory(), TOPOLOGY_TEST_XML);
         
         InputStream in = new FileInputStream(origTopologyFile);
         OutputStream out = new FileOutputStream(testTopologyFile);

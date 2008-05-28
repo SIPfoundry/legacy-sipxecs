@@ -26,10 +26,11 @@ import org.xml.sax.SAXException;
 
 public class LocationsMigrationTrigger extends InitTaskListener {
     private static final Log LOG = LogFactory.getLog(LocationsMigrationTrigger.class);
-    private static final String TOPOLOGY_XML = "topology.test.xml";
     
     private LocationsManager m_locationsManager;
-    private File m_topologyFile;
+    private String m_hostname;
+    private String m_topologyFilename;
+    private String m_configDirectory;
     
     @Override
     public void onInitTask(String task) {
@@ -43,8 +44,17 @@ public class LocationsMigrationTrigger extends InitTaskListener {
         for (Location location : locations) {
             m_locationsManager.storeLocation(location);
         }
+
+        if (locations.length == 0) {
+            LOG.info("No locations migrated from topology.xml - Creating localhost location.");
+            Location localhostLocation = new Location();
+            localhostLocation.setName("Config Server, Media Server and Comm Server");
+            localhostLocation.setAddress(m_hostname);
+            m_locationsManager.storeLocation(localhostLocation);
+        }
+        
         LOG.info("Deleting topology.xml after data migration");
-        m_topologyFile.delete();
+        getTopologyFile().delete();
     }
     
     public void setLocationsManager(LocationsManager locationsManager) {
@@ -52,7 +62,15 @@ public class LocationsMigrationTrigger extends InitTaskListener {
     }
     
     public void setConfigDirectory(String configDirectory) {
-        m_topologyFile = new File(configDirectory, TOPOLOGY_XML);
+        m_configDirectory = configDirectory;
+    }
+    
+    public void setHostname(String hostname) {
+        m_hostname = hostname;
+    }
+    
+    public void setTopologyFilename(String topologyFilename) {
+        m_topologyFilename = topologyFilename;
     }
     
     private Location[] loadLocationsFromFile() {
@@ -64,19 +82,25 @@ public class LocationsMigrationTrigger extends InitTaskListener {
         } catch (FileNotFoundException e) {
             // When running in a test environment, the topology file will not be found
             // set to empty array so that we do not have to parse again
-            LOG.warn("Could not find the file " + TOPOLOGY_XML, e);
+            LOG.warn("Could not find the file " + m_topologyFilename, e);
             return new Location[0];
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            LOG.warn("Error accessing file " + m_topologyFilename, e);
+            return new Location[0];
         } catch (SAXException e) {
-            throw new RuntimeException(e);
+            LOG.warn("Error parsing file " + m_topologyFilename, e);
+            return new Location[0];
         }
     }
     
     /** Open an input stream on the topology file and return it */
     protected InputStream getTopologyAsStream() throws FileNotFoundException {
-        InputStream stream = new FileInputStream(m_topologyFile);
+        InputStream stream = new FileInputStream(getTopologyFile());
         return stream;
+    }
+    
+    private File getTopologyFile() {
+        return new File(m_configDirectory, m_topologyFilename);
     }
     
     private static final class LocationDigester extends Digester {
@@ -90,10 +114,10 @@ public class LocationsMigrationTrigger extends InitTaskListener {
             addObjectCreate(PATTERN, Location.class);
             addSetProperties(PATTERN, "id", "name");
             String[] elementNames = {
-                "replication_url", "agent_url", "sip_domain"
+                "replication_url", "sip_domain"
             };
             String[] propertyNames = {
-                "replicationUrl", "processMonitorUrl", "sipDomain"
+                "url", "sipDomain"
             };
             addSetProperties(PATTERN);
             SetNestedPropertiesRule rule = new SetNestedPropertiesRule(elementNames, propertyNames);

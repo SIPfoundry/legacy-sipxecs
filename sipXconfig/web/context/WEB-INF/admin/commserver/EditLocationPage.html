@@ -1,0 +1,47 @@
+<div jwcid="@common/Border" useDojo="ognl:true">
+  <h2 id="locations:page">
+    <span key="title">Edit Location</span>
+  </h2>
+  <span jwcid="errors@common/ErrorMsg"/>
+  <form jwcid="@Form" delegate="bean:validator">
+    <fieldset>
+      <table>
+        <tbody>
+          <tr jwcid="@common/FieldPanel"
+            for="location:name"
+            label="message:label.name"
+            field="component:name"
+            description="message:description.name" >
+              <input jwcid="name@TextField"
+                id="location:name"
+                value="ognl:locationBean.name"
+                validators="spring-validators:required"
+                displayName="message:label.name"/>
+          </tr>
+          <tr jwcid="@common/FieldPanel"
+            for="location:address"
+            label="message:label.address"
+            field="component:address"
+            description="message:description.address" >
+              <input jwcid="address@TextField"
+                id="location:address"
+                value="ognl:locationBean.address"
+                validators="spring-validators:required,validHostOrIp"
+                displayName="message:label.address"/>
+          </tr>
+          <tr jwcid="@common/FieldPanel"
+            for="location:sipDomain"
+            label="message:label.sipDomain"
+            field="component:sipDomain"
+            description="message:description.sipDomain" >
+              <input jwcid="sipDomain@TextField"
+                id="location:sipDomain"
+                value="ognl:locationBean.sipDomain"
+                displayName="message:label.sipDomain"/>
+          </tr>
+        </tbody>
+      </table>
+    </fieldset>
+    <span jwcid="@common/FormActions" listener="listener:saveLocation" callback="ognl:callback"/>
+  </form>
+</div>

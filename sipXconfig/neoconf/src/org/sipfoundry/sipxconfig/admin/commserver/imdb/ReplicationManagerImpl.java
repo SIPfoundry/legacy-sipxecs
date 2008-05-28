@@ -97,6 +97,7 @@ public class ReplicationManagerImpl implements ReplicationManager {
             return true;
         }
         
+        LOG.debug("Posting xmlData to " + url);
         HttpURLConnection urlConn = getConnection(url);
         urlConn.setDoOutput(true);
         urlConn.setRequestMethod("POST");

@@ -9,13 +9,21 @@
  */
 package org.sipfoundry.sipxconfig.admin.commserver;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.sipfoundry.sipxconfig.common.BeanWithId;
 
 public class Location extends BeanWithId {
+    private static final String HTTP_PREFIX = "https://";
+    private static final int REPLICATION_PORT = 8091;
+    private static final int PROCESS_MONITOR_PORT = 8092;
+    private static final String REPLICATION_PATH = "/cgi-bin/replication/replication.cgi";
+    private static final String PROCESS_MONITOR_PATH = "/RPC2";
+    
     private String m_name;
-    private String m_processMonitorUrl;
-    private String m_replicationUrl;
     private String m_sipDomain;
+    private String m_address;
 
     public String getName() {
         return m_name;
@@ -25,20 +33,34 @@ public class Location extends BeanWithId {
         m_name = name;
     }
 
-    public String getProcessMonitorUrl() {
-        return m_processMonitorUrl;
+    public String getAddress() {
+        return m_address;
     }
-
-    public void setProcessMonitorUrl(String processMonitorUrl) {
-        m_processMonitorUrl = processMonitorUrl;
+    
+    public void setAddress(String address) {
+        m_address = address;
+    }
+    
+    /**
+     * Sets this instances address field based on the value parsed from the given URL.  For
+     * example, the URL of "https://localhost:8091/cgi-bin/replication/replication.cgi" will
+     * result in an address value of "localhost"
+     * @param url The URL to parse, either the process monitor url or the replication url
+     */
+    public void setUrl(String url) {
+        Pattern addressPattern = Pattern.compile("^http[s]?://([a-zA-Z0-9\\.]+):.*$");
+        Matcher matcher = addressPattern.matcher(url);
+        matcher.matches();
+        String address = matcher.group(1);
+        setAddress(address);
+    }
+    
+    public String getProcessMonitorUrl() {
+        return HTTP_PREFIX + m_address + ':' + PROCESS_MONITOR_PORT + PROCESS_MONITOR_PATH;
     }
 
     public String getReplicationUrl() {
-        return m_replicationUrl;
-    }
-
-    public void setReplicationUrl(String replicationUrl) {
-        m_replicationUrl = replicationUrl;
+        return HTTP_PREFIX + m_address + ':' + REPLICATION_PORT + REPLICATION_PATH;
     }
 
     public String getSipDomain() {

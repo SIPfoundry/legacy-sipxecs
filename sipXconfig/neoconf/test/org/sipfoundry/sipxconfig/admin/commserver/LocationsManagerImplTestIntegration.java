@@ -10,17 +10,16 @@
 package org.sipfoundry.sipxconfig.admin.commserver;
 
 import org.sipfoundry.sipxconfig.IntegrationTestCase;
-import org.sipfoundry.sipxconfig.TestHelper;
 
 public class LocationsManagerImplTestIntegration extends IntegrationTestCase {
     private LocationsManager m_out;
 
     public void testGetLocations() throws Exception {
-        TestHelper.cleanInsert("admin/commserver/clearLocations.xml");
+        loadDataSetXml("admin/commserver/clearLocations.xml");
         Location[] emptyLocations = m_out.getLocations();
         assertEquals(0, emptyLocations.length);
         
-        TestHelper.cleanInsert("admin/commserver/seedLocations.xml");
+        loadDataSetXml("admin/commserver/seedLocations.xml");
         Location[] locations = m_out.getLocations();
         assertEquals(2, locations.length);
         assertEquals("https://localhost:8091/cgi-bin/replication/replication.cgi", locations[0].getReplicationUrl());
@@ -29,18 +28,30 @@ public class LocationsManagerImplTestIntegration extends IntegrationTestCase {
         assertEquals("h2.example.org", locations[1].getSipDomain());
     }
     
+    public void testFindById() throws Exception {
+        loadDataSetXml("admin/commserver/seedLocations.xml");
+        Location[] locations = m_out.getLocations();
+        
+        Location firstLocation = locations[0];
+        int locationId = firstLocation.getId();
+        
+        Location locationById = m_out.getLocation(locationId);
+        assertNotNull(locationById);
+        assertEquals(firstLocation.getName(), locationById.getName());
+    }
+    
     public void testStore() throws Exception {
-        TestHelper.cleanInsert("admin/commserver/clearLocations.xml");
+        loadDataSetXml("admin/commserver/clearLocations.xml");
         Location location = new Location();
         location.setName("test location");
-        location.setSipDomain("example.org");
+        location.setAddress("localhost");
         
         m_out.storeLocation(location);
         
         Location[] dbLocations = m_out.getLocations();
         assertEquals(1, dbLocations.length);
         assertEquals("test location", dbLocations[0].getName());
-        assertEquals("example.org", dbLocations[0].getSipDomain());
+        assertEquals("localhost", dbLocations[0].getAddress());
         
         location.setSipDomain("newdomain.org");
         m_out.storeLocation(location);
@@ -51,7 +62,7 @@ public class LocationsManagerImplTestIntegration extends IntegrationTestCase {
     }
     
     public void testDelete() throws Exception {
-        TestHelper.cleanInsert("admin/commserver/seedLocations.xml");
+        loadDataSetXml("admin/commserver/seedLocations.xml");
         Location[] locationsBeforeDelete = m_out.getLocations();
         assertEquals(2, locationsBeforeDelete.length);
         

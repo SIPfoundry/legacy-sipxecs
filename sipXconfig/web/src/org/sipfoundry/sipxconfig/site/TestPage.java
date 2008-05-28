@@ -221,11 +221,11 @@ public abstract class TestPage extends BasePage {
         for (Location location : existingLocations) {
             getLocationsManager().deleteLocation(location);
         }
-        Location testLocation = new Location();
-        testLocation.setName("Config Server, Media Server and Comm Server");
-        testLocation.setReplicationUrl("https://host.example.org:8091/cgi-bin/replication/replication.cgi");
-        testLocation.setProcessMonitorUrl("https://host.example.org:8092/RPC2");
-        getLocationsManager().storeLocation(testLocation);
+        
+        Location remoteLocation = new Location();
+        remoteLocation.setName("Remote Location");
+        remoteLocation.setAddress("host.example.org");
+        getLocationsManager().storeLocation(remoteLocation);
     }
     
     public String resetCoreContext() {

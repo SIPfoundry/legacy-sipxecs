@@ -23,12 +23,13 @@ public class ServicesTestUi extends WebTestCase {
     protected void setUp() throws Exception {
         getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
         SiteTestHelper.home(tester);
-        
+        clickLink("seedLocationsManager");
         clickLink("Services");
     }
     
     public void testDisplay() {
         // there will be user error - we cannot contact the host.example.org
+        SiteTestHelper.dumpPage(tester);
         SiteTestHelper.assertUserError(tester);
     }
 }

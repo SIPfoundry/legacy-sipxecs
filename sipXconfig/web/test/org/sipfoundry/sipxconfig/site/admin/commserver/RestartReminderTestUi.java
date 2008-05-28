@@ -25,6 +25,7 @@ public class RestartReminderTestUi extends WebTestCase {
     protected void setUp() throws Exception {
         getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
         SiteTestHelper.home(tester);
+        clickLink("seedLocationsManager");
         clickLink(RESTART_REMINDER_LINK);
     }
     
