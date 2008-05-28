@@ -21,8 +21,8 @@ public class Location extends BeanWithId {
         return m_name;
     }
 
-    public void setName(String id) {
-        m_name = id;
+    public void setName(String name) {
+        m_name = name;
     }
 
     public String getProcessMonitorUrl() {

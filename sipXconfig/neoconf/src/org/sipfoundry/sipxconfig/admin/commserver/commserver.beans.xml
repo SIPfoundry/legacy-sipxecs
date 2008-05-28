@@ -1,44 +1,66 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<beans xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
-  <bean id="sipxServer" class="org.sipfoundry.sipxconfig.admin.commserver.SipxServer" parent="beanWithSettings">
+  <bean id="sipxServer"
+    class="org.sipfoundry.sipxconfig.admin.commserver.SipxServer"
+    parent="beanWithSettings">
     <property name="configDirectory" value="${sysdir.etc}" />
     <property name="coreContext" ref="coreContext" />
-    <property name="sipxReplicationContext" ref="sipxReplicationContext" />
+    <property name="sipxReplicationContext"
+      ref="sipxReplicationContext" />
     <!-- default music-on-hold user -->
     <property name="mohUser" value="~~mh~" />
   </bean>
 
-  <bean id="locationsManager" class="org.sipfoundry.sipxconfig.admin.commserver.LocationsManagerImpl">
-    <property name="configDirectory" value="${sysdir.etc}" />
+  <bean id="locationsManager"
+    class="org.sipfoundry.sipxconfig.admin.commserver.LocationsManagerImpl">
     <property name="sessionFactory">
-      <ref bean="sessionFactory"/>
+      <ref bean="sessionFactory" />
     </property>
   </bean>
 
-  <bean id="replicationManagerImpl" class="org.sipfoundry.sipxconfig.admin.commserver.imdb.ReplicationManagerImpl" />
+  <bean id="locationsMigrationTrigger"
+    class="org.sipfoundry.sipxconfig.admin.commserver.LocationsMigrationTrigger">
+    <property name="locationsManager">
+      <ref local="locationsManager" />
+    </property>
+    <property name="taskNames">
+      <list>
+        <value>migrate_locations</value>
+      </list>
+    </property>
+  </bean>
 
-  <bean id="sipxReplicationContextImpl" class="org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContextImpl">
+  <bean id="replicationManagerImpl"
+    class="org.sipfoundry.sipxconfig.admin.commserver.imdb.ReplicationManagerImpl" />
+
+  <bean id="sipxReplicationContextImpl"
+    class="org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContextImpl">
     <property name="replicationManager" ref="replicationManagerImpl" />
     <property name="jobContext" ref="jobContext" />
     <property name="locationsManager" ref="locationsManager" />
   </bean>
 
-  <bean id="sipxReplicationContextDao" class="org.springframework.aop.framework.ProxyFactoryBean">
+  <bean id="sipxReplicationContextDao"
+    class="org.springframework.aop.framework.ProxyFactoryBean">
     <property name="interceptorNames">
       <list>
         <value>readOnlyHibernateInterceptor</value>
       </list>
     </property>
     <property name="proxyInterfaces">
-      <value>org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext</value>
+      <value>
+        org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext
+      </value>
     </property>
     <property name="target">
       <ref local="sipxReplicationContextImpl" />
     </property>
   </bean>
 
-  <bean id="sipxReplicationContext" class="org.sipfoundry.sipxconfig.admin.commserver.LazySipxReplicationContextImpl"
+  <bean id="sipxReplicationContext"
+    class="org.sipfoundry.sipxconfig.admin.commserver.LazySipxReplicationContextImpl"
     init-method="init">
     <property name="target">
       <ref local="sipxReplicationContextDao"></ref>
@@ -57,15 +79,18 @@
     class="org.sipfoundry.sipxconfig.xmlrpc.XmlRpcApiProvider">
     <property name="methodNamePrefix" value="ProcMgmtRpc." />
     <property name="secure" value="true" />
-    <property name="serviceInterface" value="org.sipfoundry.sipxconfig.admin.commserver.ProcessManagerApi" />
+    <property name="serviceInterface"
+      value="org.sipfoundry.sipxconfig.admin.commserver.ProcessManagerApi" />
   </bean>
 
-  <bean id="sipxProcessContext" class="org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContextImpl">
+  <bean id="sipxProcessContext"
+    class="org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContextImpl">
     <!-- real value injected by sipxconfig.properties -->
     <property name="host" value="localhost" />
     <property name="processModel" ref="sipxProcessDefsProcessModel" />
     <property name="locationsManager" ref="locationsManager" />
-    <property name="processManagerApiProvider" ref="processManagerApiProvider" />
+    <property name="processManagerApiProvider"
+      ref="processManagerApiProvider" />
   </bean>
 
   <bean id="dataSetGenerator" abstract="true"
@@ -74,9 +99,11 @@
   </bean>
 
   <!-- list of files and directory in which they are located can be changed in sipxconfig.properties -->
-  <bean id="externalAliases" class="org.sipfoundry.sipxconfig.admin.commserver.imdb.ExternalAliases" />
+  <bean id="externalAliases"
+    class="org.sipfoundry.sipxconfig.admin.commserver.imdb.ExternalAliases" />
 
-  <bean id="aliasCollector" class="org.sipfoundry.sipxconfig.admin.commserver.AliasCollector">
+  <bean id="aliasCollector"
+    class="org.sipfoundry.sipxconfig.admin.commserver.AliasCollector">
     <property name="aliasProviderBeanIds">
       <list>
         <value>sipxServer</value>
@@ -87,7 +114,8 @@
 
   <bean id="extensionDataSet" parent="dataSetGenerator"
     class="org.sipfoundry.sipxconfig.admin.commserver.imdb.Extensions" />
-  <bean id="aliasDataSet" parent="dataSetGenerator" class="org.sipfoundry.sipxconfig.admin.commserver.imdb.Aliases"
+  <bean id="aliasDataSet" parent="dataSetGenerator"
+    class="org.sipfoundry.sipxconfig.admin.commserver.imdb.Aliases"
     dependency-check="objects">
     <property name="aliasProvider">
       <ref local="aliasCollector" />
@@ -104,14 +132,18 @@
   <bean id="caller-aliasDataSet" parent="dataSetGenerator"
     class="org.sipfoundry.sipxconfig.admin.commserver.imdb.CallerAliases">
     <property name="gatewayContext" ref="gatewayContext" />
-    <property name="anonymousAlias" value="sip:anonymous@anonymous.invalid" />
+    <property name="anonymousAlias"
+      value="sip:anonymous@anonymous.invalid" />
   </bean>
 
-  <bean id="replicationTrigger" class="org.sipfoundry.sipxconfig.admin.commserver.imdb.ReplicationTrigger">
+  <bean id="replicationTrigger"
+    class="org.sipfoundry.sipxconfig.admin.commserver.imdb.ReplicationTrigger">
     <property name="replicationContext" ref="sipxReplicationContext" />
     <property name="parkOrbitContext" ref="parkOrbitContext" />
     <property name="speedDialManager" ref="speedDialManager" />
   </bean>
 
-  <bean id="registrationContext" class="org.sipfoundry.sipxconfig.admin.commserver.RegistrationContextImpl"></bean>
+  <bean id="registrationContext"
+    class="org.sipfoundry.sipxconfig.admin.commserver.RegistrationContextImpl">
+  </bean>
 </beans>

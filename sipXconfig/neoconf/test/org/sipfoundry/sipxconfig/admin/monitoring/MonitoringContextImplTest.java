@@ -14,15 +14,15 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
+import org.easymock.EasyMock;
 import org.sipfoundry.sipxconfig.TestHelper;
+import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
-import org.sipfoundry.sipxconfig.admin.commserver.LocationsManagerImpl;
-import org.sipfoundry.sipxconfig.admin.commserver.LocationsManagerImplTestIntegration;
 import org.sipfoundry.sipxconfig.test.TestUtil;
 
 public class MonitoringContextImplTest extends TestCase {
     private MonitoringContextImpl m_monitoringContextImpl;
-    private LocationsManager m_processContextImpl;
+    private LocationsManager m_locationsManager;
     private MRTGConfig m_mrtgConfig;
     private MRTGConfig m_mrtgRrdConfig;
     private MRTGConfig m_mrtgTemplateConfig;
@@ -30,12 +30,17 @@ public class MonitoringContextImplTest extends TestCase {
     protected void setUp() {
         m_monitoringContextImpl = new MonitoringContextImpl();
         m_monitoringContextImpl.setEnabled(true);
-        m_processContextImpl = new LocationsManagerImpl() {
-            protected InputStream getTopologyAsStream() {
-                return LocationsManagerImplTestIntegration.class.getResourceAsStream("topology.test.xml");
-            }
-        };
-        m_monitoringContextImpl.setLocationsManager(m_processContextImpl);
+        
+        m_locationsManager = EasyMock.createNiceMock(LocationsManager.class);
+        Location firstLocation = new Location();
+        firstLocation.setSipDomain("h1.sipfoundry.org");
+        Location secondLocation = new Location();
+        secondLocation.setSipDomain("h2.sipfoundry.org");
+        m_locationsManager.getLocations();
+        EasyMock.expectLastCall().andReturn(new Location[] {firstLocation, secondLocation}).anyTimes();
+        EasyMock.replay(m_locationsManager);
+        
+        m_monitoringContextImpl.setLocationsManager(m_locationsManager);
 
         m_mrtgConfig = new MRTGConfig(TestUtil.getTestSourceDirectory(getClass()) + "/" + "mrtg.cfg");
         m_mrtgRrdConfig = new MRTGConfig(TestUtil.getTestSourceDirectory(getClass()) + "/" + "mrtg-rrd.cfg");

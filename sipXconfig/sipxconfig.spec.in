@@ -239,7 +239,6 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) %{sipxpbxconf}/log4j.properties
 %config(noreplace) %{sipxpbxconf}/sipxconfig.properties.in
 %{sipxpbxconf}/sipxconfig.properties.map
-%config(noreplace) %{sipxpbxconf}/topology.xml.in
 %config(noreplace) %{sipxpbxconf}/VM_global_library.vm
 %config(noreplace) %{sipxpbxconf}/setting.dtd
 %config(noreplace) %{sipxpbxconf}/setting.xsl
@@ -293,13 +292,6 @@ sipx-upgrade -p sipxconfig -c
 
 %post
 sipx-upgrade -p sipxconfig -u --bdir %{_bindir} --ddir %{_datadir} --cdir %{_sysconfdir} --sdir %{_localstatedir}
-
-# Don't use pkg-upgrade for this file.  On HA Master systems this line will have been modified by the install wizard to
-# replace "DISTRIBUTED_HOSTNAME" with an actual hostname.  This command simply updates the line with the new agent URL.
-sed -i "s/:\${CONFIG_SERVER_HTTPS_PORT}\/cgi-bin\/processmonitor\/process.cgi/:\${WATCHDOG_SERVER_XMLRPC_PORT}\/RPC2/g" %{sipxpbxconf}/topology.xml.in 
-if [ -f %{sipxpbxconf}/topology.xml.in.rpmnew ]; then
-  rm -f %{sipxpbxconf}/topology.xml.in.rpmnew
-fi
 
 %define current_archive %{upgrade_archive_dir}/%{name}-current.tgz
 %define previous_archive %{upgrade_archive_dir}/%{name}-previous.tgz

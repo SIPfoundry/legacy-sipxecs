@@ -16,7 +16,7 @@ Args=""
 : ${JavaCmd:=`@bin.dir@/sipx-config --java`}
 : ${ConfigDefs:=@sipxpbx.conf.dir@/config.defs}
 : ${Configpp:=@bin.dir@/configpp}
-: ${ConfigFiles:=@sipxpbx.conf.dir@/sipxconfig.properties @sipxpbx.conf.dir@/topology.xml}
+: ${ConfigFiles:=@sipxpbx.conf.dir@/sipxconfig.properties}
 : ${PidFile:=@sipxpbx.run.dir@/sipxconfig.pid}
 : ${DatabaseProject:=@sipxpbx.conf.dir@/database/database.xml}
 : ${LibDir:=@sipxconfig.lib.dir@}
@@ -304,7 +304,6 @@ configtest() {
 EOF
       Status=1
     fi
-    @bin.dir@/sipx-validate-xml @sipxpbx.conf.dir@/topology.xml.in
     Status=$(($Status+$?))
 
     for f in $TEST_WRITE_ACCESS; do

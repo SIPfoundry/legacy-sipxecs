@@ -28,6 +28,8 @@ import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.acd.AcdContext;
 import org.sipfoundry.sipxconfig.admin.WaitingListener;
 import org.sipfoundry.sipxconfig.admin.callgroup.CallGroupContext;
+import org.sipfoundry.sipxconfig.admin.commserver.Location;
+import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
@@ -161,6 +163,9 @@ public abstract class TestPage extends BasePage {
 
     @InjectObject(value = "spring:pagingContext")
     public abstract PagingContext getPagingContext();
+    
+    @InjectObject(value = "spring:locationsManager")
+    public abstract LocationsManager getLocationsManager();
 
     @InjectPage(value = WaitingPage.PAGE)
     public abstract WaitingPage getWaitingPage();
@@ -210,7 +215,19 @@ public abstract class TestPage extends BasePage {
     public void resetPersonalAttendants() {
         getMailboxManager().clearPersonalAttendants();
     }
-
+    
+    public void seedLocationsManager() {
+        Location[] existingLocations = getLocationsManager().getLocations();
+        for (Location location : existingLocations) {
+            getLocationsManager().deleteLocation(location);
+        }
+        Location testLocation = new Location();
+        testLocation.setName("Config Server, Media Server and Comm Server");
+        testLocation.setReplicationUrl("https://host.example.org:8091/cgi-bin/replication/replication.cgi");
+        testLocation.setProcessMonitorUrl("https://host.example.org:8092/RPC2");
+        getLocationsManager().storeLocation(testLocation);
+    }
+    
     public String resetCoreContext() {
         // need to reset all data that could potentially have a reference
         // to users

@@ -9,17 +9,6 @@
  */
 package org.sipfoundry.sipxconfig.admin.commserver;
 
-import java.io.InputStream;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-
-import junit.framework.TestCase;
-
-import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext.Command;
-import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessModel.ProcessName;
-import org.sipfoundry.sipxconfig.xmlrpc.ApiProvider;
-
 import static org.easymock.EasyMock.aryEq;
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.createStrictMock;
@@ -27,6 +16,17 @@ import static org.easymock.EasyMock.eq;
 import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+
+import junit.framework.TestCase;
+
+import org.easymock.EasyMock;
+import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext.Command;
+import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessModel.ProcessName;
+import org.sipfoundry.sipxconfig.xmlrpc.ApiProvider;
 
 public class SipxProcessContextImplTest extends TestCase {
     private SipxProcessContextImpl m_processContextImpl;
@@ -41,12 +41,12 @@ public class SipxProcessContextImplTest extends TestCase {
     };
 
     protected void setUp() throws Exception {
-        m_locationsManager = new LocationsManagerImpl() {
-            protected InputStream getTopologyAsStream() {
-                return LocationsManagerImplTestIntegration.class.getResourceAsStream("topology.test.xml");
-            }
-        };
-
+        m_locationsManager = EasyMock.createNiceMock(LocationsManager.class);
+        Location location = new Location();
+        m_locationsManager.getLocations();
+        EasyMock.expectLastCall().andReturn(new Location[] {location}).anyTimes();
+        EasyMock.replay(m_locationsManager);
+        
         m_processContextImpl = new SipxProcessContextImpl();
         m_processContextImpl.setLocationsManager(m_locationsManager);
         m_processContextImpl.setProcessModel(new SimpleSipxProcessModel());

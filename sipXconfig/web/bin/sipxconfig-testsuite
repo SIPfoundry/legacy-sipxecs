@@ -16,7 +16,7 @@ setUp() {
   TmpDir=/tmp
   PidFile=${TmpDir}/pidfile
   ConfigDefs=${TmpDir}/config.defs
-  ConfigFiles="${TmpDir}/sipxconfig.properties  ${TmpDir}/topology.xml"
+  ConfigFiles="${TmpDir}/sipxconfig.properties"
   LibDir=${Path}/../../lib
   NewLine="
 "

@@ -22,6 +22,7 @@ public class StatisticsPageTestUi extends WebTestCase {
     public void setUp() throws Exception {
         getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
         SiteTestHelper.home(getTester());
+        clickLink("seedLocationsManager");
         clickLink("toggleNavigation");
         clickLink("menu.statistics");
     }

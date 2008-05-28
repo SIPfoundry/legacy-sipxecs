@@ -8,3 +8,5 @@ create table location (
 );
 
 create sequence location_seq;
+
+insert into initialization_task (name) values ('migrate_locations');

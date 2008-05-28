@@ -9,7 +9,7 @@
       <agent_url>
          https://localhost:8092/RPC2
       </agent_url>
-      <sip_domain>h1.sipfoundry.org</sip_domain>
+      <sip_domain>upgrade1.example.org</sip_domain>
    </location>
    <location id="Primary CommServer">
       <component id="CommServer1"  type="comm-server" />         
@@ -19,6 +19,6 @@
       <agent_url>
          https://192.168.0.27:8092/RPC2
       </agent_url>
-      <sip_domain>h2.sipfoundry.org</sip_domain>
+      <sip_domain>upgrade2.example.org</sip_domain>
    </location>  
 </topology>

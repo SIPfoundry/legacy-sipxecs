@@ -10,6 +10,7 @@
   <table name="patch"/>
   <table name="initialization_task"/>
   <table name="upload"/>
+  <table name="location"/>
 
   <!-- settings -->  
   <table name="value_storage"/>
@@ -107,6 +108,7 @@
     </row>
   </table>
   <table name="domain_alias"/>
+  
   <table name="phonebook"/>
   <table name="phonebook_member"/>
   <table name="phonebook_consumer"/>
