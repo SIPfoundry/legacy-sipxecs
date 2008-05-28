@@ -260,6 +260,7 @@
     <antcall target="sbc-device-add-port" />
     <antcall target="user-vcard-file"/>
     <antcall target="paging-group-add-timeout"/>
+  	<antcall target="location"/>
     <antcall target="paging-server-advanced" />
     <!-- When freezing schema uncomment this line -->
     <!-- sipx-version version="8" -->
@@ -620,6 +621,9 @@
   <target name="paging-group-add-timeout" unless="paging-group-add-timeout">
     <db-patch patch="paging-group-add-timeout"/>
   </target>	
+
+  <target name="location" unless="location">
+    <db-patch patch="location"/>
 
   <target name="paging-server-advanced" unless="paging-server">
     <db-patch patch="paging-server-advanced" />

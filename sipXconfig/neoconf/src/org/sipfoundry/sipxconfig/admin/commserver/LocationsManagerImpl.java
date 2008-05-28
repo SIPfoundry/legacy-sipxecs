@@ -12,18 +12,17 @@ package org.sipfoundry.sipxconfig.admin.commserver;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.List;
 
 import org.apache.commons.digester.Digester;
 import org.apache.commons.digester.SetNestedPropertiesRule;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.xml.sax.SAXException;
+import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 
-public class LocationsManagerImpl implements LocationsManager {
+public class LocationsManagerImpl extends SipxHibernateDaoSupport<Location> implements LocationsManager {
     private static final Log LOG = LogFactory.getLog(SipxReplicationContextImpl.class);
 
     private static final String TOPOLOGY_XML = "topology.xml";
@@ -45,21 +44,10 @@ public class LocationsManagerImpl implements LocationsManager {
     }
 
     private Location[] createLocations() {
-        try {
-            InputStream stream = getTopologyAsStream();
-            Digester digester = new LocationDigester();
-            Collection<Location> locations = (Collection) digester.parse(stream);
-            return locations.toArray(new Location[locations.size()]);
-        } catch (FileNotFoundException e) {
-            // When running in a test environment, the topology file will not be found
-            // set to empty array so that we do not have to parse again
-            LOG.warn("Could not find the file " + TOPOLOGY_XML, e);
-            return new Location[0];
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        } catch (SAXException e) {
-            throw new RuntimeException(e);
-        }
+        List<Location> locationList =  getHibernateTemplate().loadAll(Location.class);
+        Location[] locationArray = new Location[locationList.size()];
+        locationList.toArray(locationArray);
+        return locationArray;
     }
 
     private static final class LocationDigester extends Digester {

@@ -17,7 +17,7 @@ import junit.framework.TestCase;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManagerImpl;
-import org.sipfoundry.sipxconfig.admin.commserver.LocationsManagerImplTest;
+import org.sipfoundry.sipxconfig.admin.commserver.LocationsManagerImplTestIntegration;
 import org.sipfoundry.sipxconfig.test.TestUtil;
 
 public class MonitoringContextImplTest extends TestCase {
@@ -32,7 +32,7 @@ public class MonitoringContextImplTest extends TestCase {
         m_monitoringContextImpl.setEnabled(true);
         m_processContextImpl = new LocationsManagerImpl() {
             protected InputStream getTopologyAsStream() {
-                return LocationsManagerImplTest.class.getResourceAsStream("topology.test.xml");
+                return LocationsManagerImplTestIntegration.class.getResourceAsStream("topology.test.xml");
             }
         };
         m_monitoringContextImpl.setLocationsManager(m_processContextImpl);

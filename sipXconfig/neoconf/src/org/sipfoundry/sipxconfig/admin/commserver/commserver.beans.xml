@@ -11,6 +11,9 @@
 
   <bean id="locationsManager" class="org.sipfoundry.sipxconfig.admin.commserver.LocationsManagerImpl">
     <property name="configDirectory" value="${sysdir.etc}" />
+    <property name="sessionFactory">
+      <ref bean="sessionFactory"/>
+    </property>
   </bean>
 
   <bean id="replicationManagerImpl" class="org.sipfoundry.sipxconfig.admin.commserver.imdb.ReplicationManagerImpl" />

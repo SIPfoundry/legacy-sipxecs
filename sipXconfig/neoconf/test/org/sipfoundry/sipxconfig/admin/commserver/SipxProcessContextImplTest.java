@@ -43,7 +43,7 @@ public class SipxProcessContextImplTest extends TestCase {
     protected void setUp() throws Exception {
         m_locationsManager = new LocationsManagerImpl() {
             protected InputStream getTopologyAsStream() {
-                return LocationsManagerImplTest.class.getResourceAsStream("topology.test.xml");
+                return LocationsManagerImplTestIntegration.class.getResourceAsStream("topology.test.xml");
             }
         };
 

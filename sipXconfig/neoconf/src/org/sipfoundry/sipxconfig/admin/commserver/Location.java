@@ -9,18 +9,20 @@
  */
 package org.sipfoundry.sipxconfig.admin.commserver;
 
-public class Location {
-    private String m_id;
+import org.sipfoundry.sipxconfig.common.BeanWithId;
+
+public class Location extends BeanWithId {
+    private String m_name;
     private String m_processMonitorUrl;
     private String m_replicationUrl;
     private String m_sipDomain;
 
-    public String getId() {
-        return m_id;
+    public String getName() {
+        return m_name;
     }
 
-    public void setId(String id) {
-        m_id = id;
+    public void setName(String id) {
+        m_name = id;
     }
 
     public String getProcessMonitorUrl() {
