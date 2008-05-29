@@ -36,13 +36,13 @@
 
 Summary:        JAIN-SIP reference implementation
 Name:           jain-sip
-Version:        1.2
-Release:        1
+Version:        1.2.71
+Release:        2
 Group:          Development/Java
 License:        Apache Software License 2.0
 URL:            https://jain-sip.dev.java.net/
 BuildArch:      noarch
-Source0:        jain-sip-1.2.tar.gz
+Source0:        jain-sip-src-1.2.71.tar.gz
 Patch0:			build-fix.patch
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root
 
@@ -70,7 +70,7 @@ Javadoc for %{name}.
 
 %prep
 rm -rf $RPM_BUILD_ROOT
-%setup -q
+%setup -q -n jain-sip
 %patch -p1
 
 # -----------------------------------------------------------------------------
@@ -82,7 +82,7 @@ log4j \
 )
 CLASSPATH=$CLASSPATH:classes
 
-ant -Dbuild.sysclasspath=only compileapi compileri compilesdp sip-sdp-jar javadoc javadoc-jain
+ant -Dbuild.sysclasspath=only make javadoc
 # -----------------------------------------------------------------------------
 
 %install
@@ -91,20 +91,14 @@ rm -rf $RPM_BUILD_ROOT
 # jar
 install -d $RPM_BUILD_ROOT%{javadir}/%{name}
 # install jars to $RPM_BUILD_ROOT%{javadir}/%{name} (as %{name}-%{version}.jar)
-install -pm 644 %{name}-api-%{version}.jar \
-  $RPM_BUILD_ROOT%{_javadir}/%{name}/%{name}-api-%{version}.jar
-install -pm 644 %{name}-ri-%{version}.jar \
-  $RPM_BUILD_ROOT%{_javadir}/%{name}/%{name}-ri-%{version}.jar
-install -pm 644 sip-sdp-%{version}.jar \
-  $RPM_BUILD_ROOT%{_javadir}/%{name}/sip-sdp-%{version}.jar
+install -pm 644 %{name}-sdp-%{version}.jar \
+  $RPM_BUILD_ROOT%{_javadir}/%{name}/%{name}-sdp-%{version}.jar
 (cd $RPM_BUILD_ROOT%{javadir}/%{name} && for jar in *-%{version}.jar; do ln -sf ${jar} `echo $jar| sed  "s|-%{version}||g"`; done)
 
 # javadoc
 install -d $RPM_BUILD_ROOT%{javadocdir}/%{name}-%{version}/
-install -d $RPM_BUILD_ROOT%{javadocdir}/%{name}-%{version}/jain
-install -d $RPM_BUILD_ROOT%{javadocdir}/%{name}-%{version}/ri
-cp -pr javadoc-jain/* $RPM_BUILD_ROOT%{javadocdir}/%{name}-%{version}/jain
-cp -pr javadoc/* $RPM_BUILD_ROOT%{javadocdir}/%{name}-%{version}/ri
+cp -pr javadoc/* $RPM_BUILD_ROOT%{javadocdir}/%{name}-%{version}/
+(cd $RPM_BUILD_ROOT%{javadocdir} && ln -sf %{name}-%{version} %{name})
 
 # -----------------------------------------------------------------------------
 
@@ -120,9 +114,14 @@ rm -rf $RPM_BUILD_ROOT
 %files javadoc
 %defattr(0644,root,root,0755)
 %{javadocdir}/%{name}-%{version}
+%{javadocdir}/%{name}
 
 # -----------------------------------------------------------------------------
 
 %changelog
-* Thu May 14 2008 Damian Krzeminski <damian at pingtel.com> 0:1.0-1jpp
+* Thu May 28 2008 Damian Krzeminski <damian at pingtel.com> 0:1.2.71-2jpp
+- Install integrated jain-sip-sdp.jar 
+- Install only one javadoc for the entire package
+
+* Thu May 14 2008 Damian Krzeminski <damian at pingtel.com> 0:1.2-1jpp
 - Initial build

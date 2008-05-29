@@ -1,8 +1,8 @@
-JAIN_SIP_VER = 1.2
-JAIN_SIP_REL = 1
+JAIN_SIP_VER = 1.2.71
+JAIN_SIP_REL = 2
 
 
-TARBALL=jain-sip-$(JAIN_SIP_VER).tar.gz
+TARBALL=jain-sip-src-$(JAIN_SIP_VER).tar.gz
 PATCH = build-fix.patch
 
 SRC = $(LIBSRC)/jain-sip/$(TARBALL)

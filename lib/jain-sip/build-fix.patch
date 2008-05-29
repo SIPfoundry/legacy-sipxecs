@@ -1,4 +1,4 @@
-From 1fc905a7e4edf5f1e4d112a0043afdb607d512b0 Mon Sep 17 00:00:00 2001
+From 222f3fd2c6a0b172ac28bf1793d9d0c87a2c967c Mon Sep 17 00:00:00 2001
 From: dkrzemin <damian@pingtel.com>
 Date: Fri, 16 May 2008 17:52:31 -0400
 Subject: [PATCH] Minor build changes to allow for building on non-Sun compilers
@@ -12,7 +12,7 @@ Always add log4j to classpath.
  2 files changed, 6 insertions(+), 3 deletions(-)
 
 diff --git a/ant-build-config.properties b/ant-build-config.properties
-index 659c8fe..b24bcb1 100644
+index 60d7b15..513dcbd 100644
 --- a/ant-build-config.properties
 +++ b/ant-build-config.properties
 @@ -3,7 +3,7 @@ javac.source=1.5
@@ -21,14 +21,14 @@ index 659c8fe..b24bcb1 100644
  javac.optimize=off
 -javac.debuglevel=lines,var,source
 +javac.debuglevel=lines,vars,source
- log4j=log4j-1.2.8.jar
- junit=junit-3.8.1.jar
- 
+ log4j=lib/log4j-1.2.8.jar
+ # JUNIT ONLY REQUIRED FOR TESTING. NOT REQUIRED FOR jain-sip RI
+ junit=lib/junit-3.8.1.jar
 diff --git a/build.xml b/build.xml
-index 0fea222..6f62419 100755
+index 2aa66e0..2f5dc7b 100755
 --- a/build.xml
 +++ b/build.xml
-@@ -229,7 +229,10 @@ c:/jakarta-ant/bin/ant all
+@@ -233,7 +233,10 @@ c:/jakarta-ant/bin/ant all
  				</target>
  
  				<target name="compilesdp" depends="init">
@@ -40,8 +40,8 @@ index 0fea222..6f62419 100755
  					</javac>
  					<jar destfile="${sdp_jar}" basedir="${classes}" includes="gov/nist/core/**/*.class,gov/nist/javax/sdp/**/*.class,javax/sdp/**/*.class" />
  				</target>
-@@ -237,7 +240,7 @@ c:/jakarta-ant/bin/ant all
- 				<target name="compileunit" depends="clean, init, sip-sdp-jar">
+@@ -241,7 +244,7 @@ c:/jakarta-ant/bin/ant all
+ 				<target name="compileunit" depends="clean, init, jain-sip-sdp-jar">
  					<copy file="src/test/torture/torture.xml" toDir="classes/test/torture/" />
  					<copy file="src/test/torture/torture.dtd" toDir="classes/test/torture/" />
 -					<javac debug="${javac.debug}" debuglevel="${javac.debuglevel}" nowarn="${javac.nowarn}" deprecation="${javac.deprecation}" optimize="${javac.optimize}" srcdir="${srcroot}" includes="test/unit/**/*.java,test/torture/**/*.java" destdir="${classes}">
