@@ -16,19 +16,28 @@
     - Licensed to the User under the LGPL license.
   -->
 
-  <title>&sipxecs; Installation, Setup, and Configuration Requirements</title>
+  <title>&sipxecs; Installation, Setup, and Configuration Specification</title>
 
-  <section>
-    <title>Introduction</title>
-
-    <para>
-      Everything in this note is intended to serve as the basis for a
-      discussion of how to expand and reorganize the installation and
-      configuration of &sipxecs; services to meet the distributed system
-      goals of release &sipxrelease; and beyond.
-    </para>
-
-  </section>
+   <articleinfo>
+    <abstract>
+      <para>
+        Describes how a sipXecs system is installed, including initial
+        configuration, and how service processes are managed.
+      </para>
+    </abstract>
+    <revhistory>
+      <revision>
+        <revnumber>0.2</revnumber>
+        <date><?dbtimestamp format="Y-m-d X"?></date>
+        <revremark>added detail with high level design information</revremark>
+      </revision>
+      <revision>
+        <revnumber>0.1</revnumber>
+        <date>2008-03-27</date>
+        <revremark>Functional Requirements Review</revremark>
+      </revision>
+    </revhistory>
+  </articleinfo>
 
   <section id='scenarios'>
     <title>Scenarios</title>
@@ -70,8 +79,7 @@
 
         <para>
           After the &sipxsetup; application has established the minimal
-          conditions for operation of &sipxsuper; and &sipxconfig;, it  the &sipxsuper;
-          service has started 
+          conditions for operation of &sipxsuper; and &sipxconfig;, it starts the &sipxsuper;.
         </para>
       </section>
 
@@ -79,7 +87,7 @@
         <title>Installation of a system using RPMs</title>
 
         <para>
-          Installation from RPMs can be done either by installing
+          Installation from RPMs can be done either by installing the 
           individual rpms manually, or by configuring the package
           manager (yum, apt, or whatever) to include a repository
           containing them and directing the package manager to install the
@@ -97,10 +105,11 @@
         <para>
           Following installation, the administrator must run the &sipxsetup;
           wizard program manually, which configures the minimum system
-          parameters as it does when run in the iso installation.  If all
+          parameters as it does when run in the iso installation (see <xref
+          linkend='inst.single.iso'/>).  If all 
           of the minimal parameters are configured, the &sipxsetup; program
-          will configure the &sipxsuper; process to start automatically on
-          the next reboot (and may also start it directly); see <xref
+          configures the &sipxsuper; process to start automatically on
+          the next reboot (and may also start it directly): see <xref
           linkend='supervisor'/>. 
         </para>
 
@@ -126,7 +135,7 @@
           <listitem><para><emphasis>tbd</emphasis></para></listitem>
         </itemizedlist>
 
-        <para><emphasis>The list above is incomplete.  In some
+        <para><emphasis>The list above may be incomplete.  In some
         cases, the user may be allowed to explicitly choose not to
         configure some of the system services.</emphasis></para>
 
@@ -208,7 +217,7 @@
             where the service should be added, and configures the service
             to run on that system.  &sipxconfig; then collects any
             configuration information needed to initialize that service,
-            and then xxx
+            and then activates the service.
           </para>
         </section>
 
@@ -218,21 +227,56 @@
     <section id='backup'>
       <title>Configuration Backup and Restore</title>
       <para>
-        <emphasis>TBD</emphasis> - ideally, it should be possible to back
-        up only the master system to fully preserve all of the
-        configuration for a cluster.  The extent to which the ideal can be
-        acheived is a matter to be studied.
+        It should be possible to back up only the master system to fully
+        preserve all of the configuration for a cluster.  Following a
+        restore operation, &sipxconfig; must regenerate all service
+        configurations for all services in the cluster.
       </para>
     </section>
 
     <section id='upgrade'>
       <title>Software Upgrade</title>
       <para>
-        <emphasis>TBD</emphasis> - it is clear that the master must be
-        upgraded first.  The specifics of how and when to propogate
-        upgraded configuration information to distributed systems is a
-        matter to be studied.
+        The procedure to upgrade a &sipxecs; cluster is as follows:
       </para>
+      <procedure>
+        <step>
+          <para>
+            The master system is upgraded first by installing the rpms and
+            then restarting the &sipxecs; service.  
+          </para> 
+        </step>
+        <step>
+          <para>
+            When the &sipxsuper; starts, it compares its own version
+            identifier to that of the current configuration on that system (see <xref
+            linkend='config.stamp'/>).  
+          </para>
+          <procedure>
+            <step>
+              <para>
+                If the previous version identifier is not the same as its
+                own version (including if no previous version is recorded),
+                &sipxsuper; does not start all configured services: it
+                starts only &sipxconfig;. 
+              </para>
+            </step>
+            <step id='config.stamp'>
+              <para>
+                When &sipxconfig; has confirmed that the stored
+                configuration on a system in the cluster is appropriate for
+                the version of software installed on that system, it
+                invokes an XML RPC interface of &sipxsuper; to update the
+                stored configuration version number on that system.
+              </para>
+            </step>
+
+          </procedure>
+        </step>
+        
+
+      </procedure>
+
     </section>
 
   </section>
@@ -241,24 +285,18 @@
     <title>Components</title>
 
     <para>
-      This section is a functional description of some &sipxecs; components.
+      This section is a functional description of the &sipxecs; components
+      important to system and service configuration and managment.
     </para>
 
     <section id='setup'>
       <title>&sipxsetup;</title>
       
       <para>
-        The &sipxsetup; is an application that gets the information
-        essential to initializing the system and bringing up the &sipxsuper;
-        process manager; it does this by performing a series of
-        steps (described below).  
-
-        <emphasis>
-          The &sipxsetup; can be stopped after any step.  When restarted,
-          it must resume at the first uncompleted step, with all values
-          from earlier steps already saved and working on the system.
-        </emphasis>
-
+        The &sipxsetup; is an application that gets the configuration data
+        from the administrator that is essential to initializing the system
+        and bringing up the &sipxsuper; process manager; it does this by
+        performing the following steps:
       </para>
 
       <section id='setup.init'>
@@ -268,14 +306,14 @@
           The &sipxsetup; steps are:
         </para>
 
-        <orderedlist>
-          <listitem>
+        <procedure>
+          <step>
             <para>Get a new password for the root account</para>
             <para>The new root password is set immediately to maximize system security.</para>
             <para>This step is skipped if the root password is not equal to
             the hardcoded &sipxecs; iso installation root password.</para>
-          </listitem>
-          <listitem>
+          </step>
+          <step>
             <para>
               Initialize and start the network.
             </para>
@@ -295,14 +333,14 @@
               reconfiguring the network or shutting down the system at this point
               so that it can be moved to be connected to the network.
             </para>
-          </listitem>
-          <listitem>
+          </step>
+          <step>
             <para>Set the system timezone.</para>
-          </listitem>
-          <listitem>
+          </step>
+          <step>
             <para>Set the system time.</para>
-          </listitem>
-          <listitem>
+          </step>
+          <step>
             <para>
               Select system type.
             </para>
@@ -323,8 +361,8 @@
                 </listitem>
               </itemizedlist>
             </para>
-          </listitem>
-        </orderedlist>
+          </step>
+        </procedure>
 
         <section id='setup.master'>
           <title>New standalone or cluster master system</title>
@@ -545,42 +583,43 @@
 
         <para>
           Before attempting to start any service, &sipxsuper;:
-          <orderedlist>
-            <listitem>
-              <para>
-                Checks that each required resource is satisfied.
-              </para>
-            </listitem>
-            <listitem>
-              <para>
-                If one is defined, it executes the configuration test
-                command defined by the service.  It reads any standard
-                error output and saves it.  The exit status of the test
-                command is checked: 
-                <itemizedlist>
-                  <listitem>
-                    <para>
-                      If the status is negative, the service cannot be
-                      started.  
-                    </para>
-                  </listitem>
-                  <listitem>
-                    <para>
-                      If the status is greater than zero, the service can
-                      be started but its status is marked as having had a
-                      configuration warning.
-                    </para>
-                  </listitem>
-                  <listitem>
-                    <para>
-                      If the status is zero, the service can be started.
-                    </para>
-                  </listitem>
-                </itemizedlist>
-              </para>
-            </listitem>
-          </orderedlist>
         </para>
+
+        <procedure>
+          <step>
+            <para>
+              Checks that each required resource is satisfied.
+            </para>
+          </step>
+          <step>
+            <para>
+              If one is defined, it executes the configuration test
+              command defined by the service.  It reads any standard
+              error output and saves it.  The exit status of the test
+              command is checked: 
+              <itemizedlist>
+                <listitem>
+                  <para>
+                    If the status is negative, the service cannot be
+                    started.  
+                  </para>
+                </listitem>
+                <listitem>
+                  <para>
+                    If the status is greater than zero, the service can
+                    be started but its status is marked as having had a
+                    configuration warning.
+                  </para>
+                </listitem>
+                <listitem>
+                  <para>
+                    If the status is zero, the service can be started.
+                  </para>
+                </listitem>
+              </itemizedlist>
+            </para>
+          </step>
+        </procedure>
 
         <para>
           A set of XML RPC operations is provided by &sipxsuper; to
