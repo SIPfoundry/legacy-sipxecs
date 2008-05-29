@@ -11,9 +11,9 @@ BUILDER ?= $(defaultBuilder)
 
 .PHONY: BUILDSTAMP
 BUILDSTAMP: 
-	@echo "Generating BUILDSTAMP" 
-	test -d config || mkdir config
-	sipxBuildTime=`date -u +%Y-%m-%dT%H:%M:%S` ; \
+	@echo -n "Generating BUILDSTAMP: " 
+	@test -d config || mkdir config
+	@sipxBuildTime=`date -u +%Y-%m-%dT%H:%M:%S` ; \
 	SIPX_BUILDSTAMP="$${sipxBuildTime} $(BUILDER)" ; \
 	echo "$${SIPX_BUILDSTAMP}" > BUILDSTAMP ; \
 	${LocalizeSipXconfig} \
@@ -25,7 +25,8 @@ BUILDSTAMP:
 	${LocalizeSipXconfig} \
 		-e "s/sipx/SipX/" \
 	    $(srcdir)/config/sipX-buildstamp.h.in \
-	> config/@PACKAGE@-buildstamp.h
+	> config/@PACKAGE@-buildstamp.h; \
+	echo "$${SIPX_BUILDSTAMP}"
 
 # automake doesn't like this inside the conditional
 .PHONY : doc
