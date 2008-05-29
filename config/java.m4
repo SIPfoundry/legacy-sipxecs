@@ -96,8 +96,6 @@ AC_DEFUN([CHECK_LOG4J],[CHECK_JAR([LOG4J_JAR],[log4j])])
 # ============ J A I N - S I P ==============
 AC_DEFUN([CHECK_JAIN_SIP],
 [
-	CHECK_JAR([JAIN_SIP_API_JAR],[jain-sip/jain-sip-api])
-	CHECK_JAR([JAIN_SIP_RI_JAR],[jain-sip/jain-sip-ri])
-	CHECK_JAR([JAIN_SIP_SDP_JAR],[jain-sip/sip-sdp])
+	CHECK_JAR([JAIN_SIP_SDP_JAR],[jain-sip/jain-sip-sdp])
 ])
 
