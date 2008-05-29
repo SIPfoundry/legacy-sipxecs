@@ -83,7 +83,7 @@ public class SymTransmitterEndpoint extends SymEndpoint {
                 if (keepaliveMethod.equals("REPLAY-LAST-SENT-PACKET")
                         || keepaliveMethod.equals("USE-EMPTY-PACKET")) {
                     if (datagramChannel != null && socketAddress != null
-                            && datagramChannel.isOpen())
+                            && datagramChannel.isOpen() && socketAddress != null)
                         datagramChannel.send(keepAliveBuffer, socketAddress);
                 }
             } catch (ClosedChannelException ex) {
@@ -262,6 +262,8 @@ public class SymTransmitterEndpoint extends SymEndpoint {
             socketAddress = new InetSocketAddress(InetAddress
                     .getByName(ipAddress), port);
 
+        } else {
+            socketAddress = null;
         }
     }
 
@@ -273,6 +275,8 @@ public class SymTransmitterEndpoint extends SymEndpoint {
                socketAddress = new InetSocketAddress(InetAddress
                         .getByName(ipAddress), port);
 
+            } else {
+                socketAddress = null;
             }
         } catch (UnknownHostException ex) {
             throw new IllegalArgumentException("Unknown host " + ipAddress);
@@ -287,6 +291,8 @@ public class SymTransmitterEndpoint extends SymEndpoint {
                 socketAddress = new InetSocketAddress(InetAddress
                          .getByName(ipAddress), port);
 
+             } else {
+                 socketAddress = null;
              }
         } catch (UnknownHostException ex) {
             throw new IllegalArgumentException("Unknown host " + ipAddress);
