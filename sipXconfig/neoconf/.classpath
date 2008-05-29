@@ -60,7 +60,6 @@
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/javamail-1.3.2.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="lib" path="etc"/>
-	<classpathentry kind="var" path="JAVA_LIBDIR/jain-sip/jain-sip-api.jar" sourcepath="/LIB_SRC/jain-sip/src.zip"/>
-	<classpathentry kind="var" path="JAVA_LIBDIR/jain-sip/jain-sip-ri.jar" sourcepath="/LIB_SRC/jain-sip/src.zip"/>
+	<classpathentry kind="var" path="JAVA_LIBDIR/jain-sip/jain-sip-sdp.jar" sourcepath="/LIB_SRC/jain-sip/src.zip"/>
 	<classpathentry kind="output" path="bin.eclipse"/>
 </classpath>
