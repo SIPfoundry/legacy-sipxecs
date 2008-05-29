@@ -66,7 +66,7 @@ EXTRA_DIST+=$(PDF_CONTROL_FILE)
 
 DSSSL_JADETEX=/usr/share/sgml/docbook/dsssl-stylesheets/print/docbook.dsl
 
-PDF_INTERMEDIATE_FORMS=.tex .aux .log .out
+PDF_INTERMEDIATE_FORMS=.tex .aux .log .out .prior.aux .pprior.aux .pdfjadetex.log
 PDF_INTERMEDIATES=$(foreach doc,$(DOCBOOK_XML_DOCS),$(foreach intform,$(PDF_INTERMEDIATE_FORMS),$(doc)$(intform)))
 
 %.tex: %.xml $(DSSSL_JADETEX) $(PDF_CONTROL_FILE)
@@ -75,15 +75,30 @@ PDF_INTERMEDIATES=$(foreach doc,$(DOCBOOK_XML_DOCS),$(foreach intform,$(PDF_INTE
 		-o $@ /usr/share/sgml/docbook/dsssl-stylesheets/dtds/decls/xml.dcl $<
 
 %.pdf %.out %.aux %.log: %.tex
-	@if [ -e prior.aux ]; then cp -pf prior.aux pprior.aux; fi
-	@f=$(shell basename $< .tex).aux; if [ -e $$f ]; then cp -pf $$f prior.aux; fi
-	-$(PDFJADETEX) $< > pdfjadetex.log
-	@if ! cmp $(shell basename $< .tex).aux prior.aux > /dev/null 2>&1 && \
-		! cmp $(shell basename $< .tex).aux pprior.aux > /dev/null 2>&1 && \
-		expr $(MAKELEVEL) '<' 4 > /dev/null; then \
-		rm -f $@; \
-		echo "Found undefined references, compiling again..."; \
-		$(MAKE) $@; \
+	@if [ -e $*.prior.aux ]; \
+	then \
+	   echo -n "save prior aux data: "; \
+		cp -pvf $*.prior.aux $*.pprior.aux; \
+	fi
+	@if [ -e $*.aux ]; \
+	then \
+	   echo -n "save current aux data: "; \
+	   cp -pvf $*.aux $*.prior.aux; \
+	fi
+	-$(PDFJADETEX) $< > $*.pdfjadetex.log
+	@if   ! cmp $*.aux $*.prior.aux > /dev/null 2>&1 \
+	&& ! cmp $*.aux $*.pprior.aux > /dev/null 2>&1; \
+	then \
+	   echo -n "Found undefined references: "; \
+		if expr $(MAKELEVEL) '<' 4 > /dev/null; \
+		then \
+			echo "compiling again..."; \
+			rm -vf $@; \
+			$(MAKE) $@; \
+		else \
+			echo "error: recompilation limit exceeded"; \
+			exit 1; \
+		fi; \
 	fi
 
 DOCBOOK_PDF_OUTPUTS=$(foreach doc,$(DOCBOOK_XML_DOCS),$(doc).pdf)
@@ -96,3 +111,5 @@ DOCBOOK_OUTPUTS= \
 	$(DOCBOOK_HTML_OUTPUTS) \
 	$(DOCBOOK_TXT_OUTPUTS) \
 	$(DOCBOOK_PDF_OUTPUTS)
+
+CLEANFILES+=$(DOCBOOK_OUTPUTS)
