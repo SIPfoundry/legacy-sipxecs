@@ -12,22 +12,16 @@ package org.sipfoundry.sipxconfig.sip;
 import java.text.ParseException;
 import java.util.Collections;
 import java.util.Properties;
+import java.util.Random;
 import java.util.TooManyListenersException;
 
-import javax.sip.DialogTerminatedEvent;
-import javax.sip.IOExceptionEvent;
 import javax.sip.InvalidArgumentException;
 import javax.sip.ListeningPoint;
 import javax.sip.ObjectInUseException;
 import javax.sip.PeerUnavailableException;
-import javax.sip.RequestEvent;
-import javax.sip.ResponseEvent;
 import javax.sip.SipFactory;
-import javax.sip.SipListener;
 import javax.sip.SipProvider;
 import javax.sip.SipStack;
-import javax.sip.TimeoutEvent;
-import javax.sip.TransactionTerminatedEvent;
 import javax.sip.TransportNotSupportedException;
 import javax.sip.address.Address;
 import javax.sip.address.AddressFactory;
@@ -39,12 +33,16 @@ import javax.sip.header.ContactHeader;
 import javax.sip.header.ContentTypeHeader;
 import javax.sip.header.EventHeader;
 import javax.sip.header.FromHeader;
+import javax.sip.header.Header;
 import javax.sip.header.HeaderFactory;
 import javax.sip.header.MaxForwardsHeader;
+import javax.sip.header.RouteHeader;
 import javax.sip.header.ToHeader;
 import javax.sip.header.ViaHeader;
 import javax.sip.message.MessageFactory;
 import javax.sip.message.Request;
+
+import gov.nist.javax.sip.ListeningPointExt;
 
 import org.sipfoundry.sipxconfig.common.SipUri;
 import org.springframework.beans.factory.BeanInitializationException;
@@ -80,8 +78,12 @@ public class SipStackBean implements InitializingBean {
     private MessageFactory m_messageFactory;
 
     private SipProvider m_sipProvider;
-    
+
+    private ListeningPoint m_listeningPoint;
+
     private CallId m_id = new CallId();
+
+    private SipListenerImpl m_sipListener;
 
     public void afterPropertiesSet() {
         SipFactory factory = SipFactory.getInstance();
@@ -97,10 +99,10 @@ public class SipStackBean implements InitializingBean {
             m_headerFactory = factory.createHeaderFactory();
             m_messageFactory = factory.createMessageFactory();
 
-            ListeningPoint listeningPoint = stack.createListeningPoint(m_hostIpAddress, m_port, m_transport);
-            m_sipProvider = stack.createSipProvider(listeningPoint);
-            DefaultSipListener sipListener = new DefaultSipListener();
-            m_sipProvider.addSipListener(sipListener);
+            m_listeningPoint = stack.createListeningPoint(m_hostIpAddress, m_port, m_transport);
+            m_sipProvider = stack.createSipProvider(m_listeningPoint);
+            m_sipListener = new SipListenerImpl();
+            m_sipProvider.addSipListener(m_sipListener);
         } catch (PeerUnavailableException e) {
             throw new BeanInitializationException(errorMsg, e);
         } catch (TransportNotSupportedException e) {
@@ -161,15 +163,14 @@ public class SipStackBean implements InitializingBean {
     public FromHeader createFromHeader() throws ParseException {
         SipURI fromAddress = createOurSipUri();
         Address fromNameAddress = m_addressFactory.createAddress(fromAddress);
-        return m_headerFactory.createFromHeader(fromNameAddress, null);
+
+        return m_headerFactory.createFromHeader(fromNameAddress, Integer.toString(Math.abs(new Random().nextInt())));
     }
 
     public ContactHeader createContactHeader() throws ParseException {
-        SipURI contactURI = createOurSipUri();
-        contactURI.setPort(m_port);
-        Address contactAddress = m_addressFactory.createAddress(contactURI);
 
-        return m_headerFactory.createContactHeader(contactAddress);
+        return ((ListeningPointExt) m_listeningPoint).createContactHeader();
+
     }
 
     final ToHeader createToHeader(String toAddrSpec) throws ParseException {
@@ -178,8 +179,14 @@ public class SipStackBean implements InitializingBean {
     }
 
     final ViaHeader createViaHeader() throws ParseException, InvalidArgumentException {
-        String branchId = Long.toHexString(m_id.get());
-        return m_headerFactory.createViaHeader(m_proxyHost, m_proxyPort, m_transport, branchId);
+
+        String host = m_listeningPoint.getIPAddress();
+        int port = m_listeningPoint.getPort();
+
+        String transport = m_listeningPoint.getTransport();
+        // Leave the via header branch Id null.
+        // The transaction layer will assign the via header branch Id.
+        return m_headerFactory.createViaHeader(host, port, transport, null);
     }
 
     protected Request createRequest(String requestType, String addrSpec) throws ParseException {
@@ -196,6 +203,14 @@ public class SipStackBean implements InitializingBean {
             Request request = m_messageFactory.createRequest(requestURI, requestType, callIdHeader, cSeqHeader,
                     fromHeader, toHeader, Collections.singletonList(viaHeader), maxForwards);
 
+            // FIXME: we need to properly resolve address here
+            SipURI sipUri = m_addressFactory.createSipURI(null, m_proxyHost);
+            sipUri.setPort(m_proxyPort);
+            sipUri.setLrParam();
+            Address address = m_addressFactory.createAddress(sipUri);
+
+            RouteHeader routeHeader = m_headerFactory.createRouteHeader(address);
+            request.setHeader(routeHeader);
             request.addHeader(contactHeader);
 
             return request;
@@ -221,37 +236,8 @@ public class SipStackBean implements InitializingBean {
         request.addHeader(eventHeader);
     }
 
-    static class DefaultSipListener implements SipListener {
-
-        public void processDialogTerminated(DialogTerminatedEvent dialogTerminatedEvent) {
-            // TODO Auto-generated method stub
-
-        }
-
-        public void processIOException(IOExceptionEvent exceptionEvent) {
-            // TODO Auto-generated method stub
-
-        }
-
-        public void processRequest(RequestEvent requestEvent) {
-            // TODO Auto-generated method stub
-
-        }
-
-        public void processResponse(ResponseEvent responseEvent) {
-            // TODO Auto-generated method stub
-
-        }
-
-        public void processTimeout(TimeoutEvent timeoutEvent) {
-            // TODO Auto-generated method stub
-
-        }
-
-        public void processTransactionTerminated(TransactionTerminatedEvent transactionTerminatedEvent) {
-            // TODO Auto-generated method stub
-
-        }
-
+    public void addHeader(Request request, String name, String value) throws ParseException {
+        Header header = m_headerFactory.createHeader(name, value);
+        request.addHeader(header);
     }
 }

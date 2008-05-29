@@ -11,11 +11,11 @@ package org.sipfoundry.sipxconfig.sip;
 
 import java.text.ParseException;
 
+import javax.sip.ClientTransaction;
 import javax.sip.SipException;
 import javax.sip.message.Request;
 
 class NotifyMessage extends JainSipMessage {
-
     private String m_addrSpec;
     private String m_eventType;
 
@@ -35,11 +35,17 @@ class NotifyMessage extends JainSipMessage {
         try {
             Request request = createRequest(Request.NOTIFY, m_addrSpec);
             getHelper().addEventHeader(request, m_eventType);
-
-            getSipProvider().sendRequest(request);
+            getHelper().addHeader(request, "Subscription-State", "active");
+            ClientTransaction clientTx = getSipProvider().getNewClientTransaction(request);
+            TransactionApplicationData tad = new TransactionApplicationData(Operator.SEND_NOTIFY);
+            clientTx.setApplicationData(tad);
+            clientTx.sendRequest();
+            tad.block();
         } catch (ParseException e) {
             throw new SipxSipException(e);
         } catch (SipException e) {
+            throw new SipxSipException(e);
+        } catch (InterruptedException e) {
             throw new SipxSipException(e);
         }
     }
