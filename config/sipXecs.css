@@ -55,3 +55,9 @@ border-color: black;
 border-width: 1px;
 padding:      5px;
 }
+
+.parameter
+{
+font-style: italic;
+}
+
