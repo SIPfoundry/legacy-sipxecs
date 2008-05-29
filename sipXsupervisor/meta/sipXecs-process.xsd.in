@@ -20,6 +20,7 @@
     <complexType>
       <sequence>
         <element ref='proc:name'      minOccurs='1' maxOccurs='1'/>
+        <element ref='proc:version'   minOccurs='1' maxOccurs='1'/>
         <element ref='proc:commands'  minOccurs='1' maxOccurs='1'/>
         <element ref='proc:status'    minOccurs='1' maxOccurs='1'/>
         <element ref='proc:resources' minOccurs='0' maxOccurs='1'/>
@@ -31,6 +32,14 @@
     <annotation>
       <documentation>
         The name to be displayed for this process.
+      </documentation>
+    </annotation>
+  </element>
+      
+  <element name='version' type="normalizedString">
+    <annotation>
+      <documentation>
+        The version identifier for the installed version of the process.
       </documentation>
     </annotation>
   </element>
