@@ -19,7 +19,7 @@ import org.sipfoundry.sipxconfig.IntegrationTestCase;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
-public class SipxProxyConfigurationTest extends IntegrationTestCase {
+public class SipxProxyConfigurationTestIntegration extends IntegrationTestCase {
 
     private SipxProxyService m_proxyService;
 
@@ -48,7 +48,7 @@ public class SipxProxyConfigurationTest extends IntegrationTestCase {
         StringWriter actualConfigWriter = new StringWriter();
         out.write(actualConfigWriter);
         
-        Reader referenceConfigReader = new InputStreamReader(SipxProxyConfigurationTest.class
+        Reader referenceConfigReader = new InputStreamReader(SipxProxyConfigurationTestIntegration.class
                 .getResourceAsStream("expected-proxy-config"));
         String referenceConfig = IOUtils.toString(referenceConfigReader);
         
