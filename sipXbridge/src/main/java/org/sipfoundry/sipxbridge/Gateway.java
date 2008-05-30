@@ -682,10 +682,6 @@ public class Gateway {
                     for (ItspAccountInfo itspAccount : Gateway
                             .getAccountManager().getItspAccounts()) {
                         if (itspAccount.getSipKeepaliveMethod().equals(
-                                Request.OPTIONS)) {
-                            itspAccount.startOptionsTimerTask();
-
-                        } else if (itspAccount.getSipKeepaliveMethod().equals(
                                 "CR-LF")) {
                             itspAccount.startCrLfTimerTask();
 

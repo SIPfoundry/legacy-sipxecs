@@ -179,17 +179,29 @@ public class SipListenerImpl implements SipListener {
                         .debug("Discarding response -- no transaction context information");
                 return;
             }
+            ClientTransaction ctx = responseEvent.getClientTransaction();
+            
             ItspAccountInfo accountInfo = ((TransactionApplicationData) responseEvent
                     .getClientTransaction().getApplicationData()).itspAccountInfo;
-            /*
-             * Got a 4xx response. Increment the failure count for the account
-             * and mark it as AUTHENTICATION_FAILED
-             */
-            if ((response.getStatusCode() == Response.PROXY_AUTHENTICATION_REQUIRED
+           
+            if (method.equals(Request.OPTIONS) ) {
+            	
+            	if ( response.getStatusCode() == Response.CALL_OR_TRANSACTION_DOES_NOT_EXIST) {
+            		Dialog dialog = responseEvent.getClientTransaction().getDialog();
+            		BackToBackUserAgent b2bua = DialogApplicationData.get(dialog).backToBackUserAgent;
+            		b2bua.tearDown();
+            	}
+            
+            } else if ((response.getStatusCode() == Response.PROXY_AUTHENTICATION_REQUIRED
                     || response.getStatusCode() == Response.UNAUTHORIZED || (response
                     .getStatusCode() > 200 && method.equals(Request.REGISTER)))
                     && accountInfo != null
                     && accountInfo.incrementFailureCount(callId) > 1) {
+            	
+            	 /*
+                 * Got a 4xx response. Increment the failure count for the account
+                 * and mark it as AUTHENTICATION_FAILED
+                 */
                 accountInfo.setState(AccountState.AUTHENTICATION_FAILED);
                 if (logger.isDebugEnabled()) {
                     logger
@@ -198,8 +210,7 @@ public class SipListenerImpl implements SipListener {
 
                 }
 
-                if (method.equals(Request.REGISTER)
-                        || method.equals(Request.OPTIONS))
+                if (method.equals(Request.REGISTER))
                     return;
             }
 
@@ -297,7 +308,12 @@ public class SipListenerImpl implements SipListener {
         try {
             if (ctx != null) {
                 Request request = ctx.getRequest();
-                if (request.getMethod().equals(Request.REGISTER)) {
+                if ( request.getMethod().equals(Request.OPTIONS)) {
+                	ClientTransaction clientTransaction = timeoutEvent.getClientTransaction();
+                	Dialog dialog = clientTransaction.getDialog();
+            		BackToBackUserAgent b2bua = DialogApplicationData.get(dialog).backToBackUserAgent;
+            		b2bua.tearDown();
+                } else if (request.getMethod().equals(Request.REGISTER)) {
                     Gateway.getRegistrationManager().processTimeout(
                             timeoutEvent);
                 } else if (request.getMethod().equals(Request.INVITE)) {

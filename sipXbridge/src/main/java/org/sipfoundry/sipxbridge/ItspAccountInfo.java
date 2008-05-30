@@ -91,10 +91,6 @@ public class ItspAccountInfo implements
      */
     private boolean registerOnInitialization = true;
 
-    /**
-     * The options timer task.
-     */
-    private OptionsTimerTask optionsTimerTask;
 
     /**
      * Registration Interval (seconds)
@@ -296,20 +292,7 @@ public class ItspAccountInfo implements
         }
     }
 
-    public void startOptionsTimerTask() {
-        this.optionsTimerTask = new OptionsTimerTask(Gateway.getWanProvider("udp"),
-                this);
-        Gateway.timer.schedule(optionsTimerTask, Gateway
-                .getSipKeepaliveSeconds() * 1000);
-    }
-
-    public void destroyOptionsTimerTask() {
-        if (this.optionsTimerTask != null) {
-            this.optionsTimerTask.cancel();
-            this.optionsTimerTask = null;
-        }
-    }
-
+    
     public boolean isInboundCallsRoutedToAutoAttendant() {
         return this.autoAttendantName != null;
     }
