@@ -1,0 +1,31 @@
+SIPX_PROXY_BIND_IP : ${proxyService.ipAddress}
+SIPX_PROXY_DEFAULT_EXPIRES : $settings.getSetting('SIPX_PROXY_DEFAULT_EXPIRES').Value
+SIPX_PROXY_DEFAULT_SERIAL_EXPIRES : $settings.getSetting('SIPX_PROXY_DEFAULT_SERIAL_EXPIRES').Value
+SIPX_PROXY_HOST_ALIASES : ${proxyService.ipAddress}:${proxyService.sipPort} ${proxyService.hostname}:${proxyService.sipPort} ${proxyService.fullHostname}:${proxyService.sipPort} ${proxyService.sipSrvOrHostport}
+SIPX_PROXY_LOG_CONSOLE :
+SIPX_PROXY_LOG_DIR :
+SIPX_PROXY_LOG_LEVEL : $settings.getSetting('SIPX_PROXY_LOG_LEVEL').Value
+SIPX_PROXY_MAX_FORWARDS :
+SIPX_PROXY_STALE_TCP_TIMEOUT :
+SIPX_PROXY_TLS_PORT : ${proxyService.secureSipPort}
+SIPX_PROXY_TCP_PORT : ${proxyService.sipPort}
+SIPX_PROXY_UDP_PORT : ${proxyService.sipPort}
+SIPX_PROXY_CALL_STATE :
+SIPX_PROXY_CALL_STATE_LOG :
+SIPX_PROXY_CALL_STATE_DB : ${proxyService.callResolverCallStateDb}
+
+SIPX_PROXY_AUTHENTICATE_ALGORITHM :
+SIPX_PROXY_AUTHENTICATE_REALM : ${proxyService.realm}
+SIPX_PROXY_DOMAIN_NAME : ${proxyService.domainName}
+SIPX_PROXY_HOSTPORT : ${proxyService.ipAddress}:${proxyService.sipPort}
+
+SIPX_PROXY_HOOK_LIBRARY.200_xfer : @sipxpbx.lib.dir@/authplugins/libTransferControl.so
+
+SIPX_PROXY_HOOK_LIBRARY.210_msftxchghack : @sipxpbx.lib.dir@/authplugins/libMSFT_ExchangeTransferHack.so
+SIPX_PROXY.210_msftxchghack.USERAGENT : ^RTCC/
+
+SIPX_PROXY_HOOK_LIBRARY.400_authrules : @sipxpbx.lib.dir@/authplugins/libEnforceAuthRules.so
+SIPX_PROXY.400_authrules.RULES        : @sipxpbx.conf.dir@/authrules.xml
+SIPX_PROXY.400_authrules.IDENTITY_VALIDITY_SECONDS : 300
+
+SIPX_PROXY_HOOK_LIBRARY.700_fromalias : @sipxpbx.lib.dir@/authplugins/libCallerAlias.so

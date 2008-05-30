@@ -13,7 +13,6 @@ setupbin_IN = $(foreach file,$(setupbin_SCRIPTS),$(file).in)
 
 editscripts_IN = \
     sipXproxy.sh \
-    upgrade2mergedproxy \
     sipxcallresolver-agent.sh \
     sipxcallresolver.sh
 

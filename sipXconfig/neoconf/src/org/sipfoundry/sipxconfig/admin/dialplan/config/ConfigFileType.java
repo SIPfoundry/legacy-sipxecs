@@ -30,6 +30,7 @@ public final class ConfigFileType extends Enum {
     public static final ConfigFileType DOMAIN_CONFIG = new ConfigFileType("domain-config");
     public static final ConfigFileType PAGING_CONFIG = new ConfigFileType("sipxpage.properties.in");
     public static final ConfigFileType SBC_BRIDGE_CONFIG = new ConfigFileType("sipxbridge.xml");
+    public static final ConfigFileType PROXY_CONFIG = new ConfigFileType("sipXproxy-config");
 
     private ConfigFileType(String name) {
         super(name);

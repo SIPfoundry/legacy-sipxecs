@@ -117,8 +117,14 @@
     </replace>
 
     <replace file="${dest.dir}${sipxpbx.conf.dir}/database/database.xml"
-             propertyfile="${top.build.dir}/build.properties">
+            propertyfile="${top.build.dir}/build.properties">
       <replacefilter token="@sipxconfig.db.user@" property="sipxconfig.db.user" />
+    </replace>
+
+    <replace file="${dest.dir}${sipxpbx.conf.dir}/sipxproxy/sipXproxy-config.vm"
+            propertyfile="${top.build.dir}/build.properties">
+      <replacefilter token="@sipxpbx.conf.dir@" property="sipxpbx.conf.dir" />
+      <replacefilter token="@sipxpbx.lib.dir@" property="sipxpbx.lib.dir" />
     </replace>
 
     <!-- copy jars and war -->

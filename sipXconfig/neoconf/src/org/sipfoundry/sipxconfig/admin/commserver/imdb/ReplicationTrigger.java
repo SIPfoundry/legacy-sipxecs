@@ -16,6 +16,9 @@ import org.sipfoundry.sipxconfig.admin.parkorbit.ParkOrbitContext;
 import org.sipfoundry.sipxconfig.common.ApplicationInitializedEvent;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
+import org.sipfoundry.sipxconfig.service.SipxProxyService;
+import org.sipfoundry.sipxconfig.service.SipxService;
+import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.speeddial.SpeedDialManager;
 import org.springframework.context.ApplicationEvent;
@@ -30,6 +33,8 @@ public class ReplicationTrigger implements ApplicationListener, DaoEventListener
 
     private SpeedDialManager m_speedDialManager;
     
+    private SipxServiceManager m_sipxServiceManager;
+    
     private boolean m_replicateOnStartup = true;
 
     public void setReplicationContext(SipxReplicationContext replicationContext) {
@@ -42,6 +47,10 @@ public class ReplicationTrigger implements ApplicationListener, DaoEventListener
 
     public void setSpeedDialManager(SpeedDialManager speedDialManager) {
         m_speedDialManager = speedDialManager;
+    }
+    
+    public void setSipxServiceManager(SipxServiceManager serviceManager) {
+        m_sipxServiceManager = serviceManager;
     }
     
     public boolean isReplicateOnStartup() {
@@ -70,6 +79,9 @@ public class ReplicationTrigger implements ApplicationListener, DaoEventListener
             m_replicationContext.generateAll();
             m_parkOrbitContext.activateParkOrbits();
             m_speedDialManager.activateResourceList();
+            
+            SipxService proxyService = m_sipxServiceManager.getServiceByBeanId(SipxProxyService.BEAN_ID);
+            m_sipxServiceManager.replicateServiceConfig(proxyService);
         }
     }
 

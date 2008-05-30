@@ -55,20 +55,6 @@
       <type />
       <value />
     </setting>
-    <setting name="SIPX_PROXY_DEFAULT_SERIAL_EXPIRES" advanced="yes">
-      <profileName>sipXproxy-config.in</profileName>
-      <type>
-        <integer />
-      </type>
-      <value>20</value>
-    </setting>
-    <setting name="SIPX_PROXY_DEFAULT_EXPIRES" advanced="yes">
-      <profileName>sipXproxy-config.in</profileName>
-      <type>
-        <integer />
-      </type>
-      <value>180</value>
-    </setting>
     <setting name="SIP_REGISTRAR_DOMAIN_ALIASES" hidden="yes">
       <profileName>registrar-config.in</profileName>
       <value>${MY_FULL_HOSTNAME} ${MY_IP_ADDR}</value>
@@ -196,11 +182,6 @@
     </setting>
   </group>
   <group name="Logging">
-    <setting name="SIPX_PROXY_LOG_LEVEL">
-      <profileName>sipXproxy-config.in</profileName>
-      <type refid="loglevel" />
-      <value>NOTICE</value>
-    </setting>
     <setting name="SIP_REGISTRAR_LOG_LEVEL">
       <profileName>registrar-config.in</profileName>
       <type refid="loglevel" />

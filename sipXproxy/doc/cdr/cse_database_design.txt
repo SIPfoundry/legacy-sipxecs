@@ -135,7 +135,7 @@ Call State Event Database Design Specification
           Either XML or database option must be set for logging. If both 
           are set only the database option will take effect.
 
-        Configuration parameters in sipXproxy-config.in are: 
+        Configuration parameters in sipXproxy-config are: 
   
         - SIPX_PROXY_CALL_STATE_DB : DISABLE/ENABLE
 

@@ -28,7 +28,6 @@ done
 CONFIG_DEFS="@SIPX_CONFDIR@/config.defs"
 
 CONFIG_FILES="\
-  @SIPX_CONFDIR@/sipXproxy-config \
   @SIPX_CONFDIR@/forwardingrules.xml \
   @SIPX_CONFDIR@/authrules.xml \
   "

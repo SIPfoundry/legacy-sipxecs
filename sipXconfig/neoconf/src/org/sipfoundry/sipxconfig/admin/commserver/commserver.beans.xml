@@ -143,6 +143,7 @@
     <property name="replicationContext" ref="sipxReplicationContext" />
     <property name="parkOrbitContext" ref="parkOrbitContext" />
     <property name="speedDialManager" ref="speedDialManager" />
+    <property name="sipxServiceManager" ref="sipxServiceManager"/>
   </bean>
 
   <bean id="registrationContext"

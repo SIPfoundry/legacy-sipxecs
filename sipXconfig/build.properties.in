@@ -24,6 +24,7 @@ sipxpbx.bin.dir=@SIPX_BINDIR@
 sipxpbx.data.dir=@SIPX_DATADIR@
 sipxpbx.conf.dir=@SIPX_CONFDIR@
 sipxpbx.var.dir=@SIPX_VARDIR@
+sipxpbx.lib.dir=@SIPX_LIBDIR@
 sipxvxml.data.dir=@SIPX_VXMLDATADIR@
 sipxpark.audio.dir=@SIPX_PARKMUSICDIR@
 sipxpage.audio.dir=@SIPX_VARDIR@/sipxpage/music

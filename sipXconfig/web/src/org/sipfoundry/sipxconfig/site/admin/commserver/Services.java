@@ -12,6 +12,8 @@ package org.sipfoundry.sipxconfig.site.admin.commserver;
 import java.util.Collection;
 
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.tapestry.IPage;
+import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.annotations.Bean;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.event.PageBeginRenderListener;
@@ -22,16 +24,22 @@ import org.apache.tapestry.valid.IValidationDelegate;
 import org.apache.tapestry.valid.ValidatorException;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
+import org.sipfoundry.sipxconfig.admin.commserver.ServiceStatus;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext.Command;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.components.ObjectSelectionModel;
 import org.sipfoundry.sipxconfig.components.SelectMap;
+import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.domain.DomainConfigReplicatedEvent;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
+import org.sipfoundry.sipxconfig.site.service.EditProxyService;
 
 public abstract class Services extends BasePage implements PageBeginRenderListener {
     public static final String PAGE = "admin/commserver/Services";
+
+    public static final String SIPXPROXY = "SIPXProxy";
 
     @InjectObject(value = "service:tapestry.ognl.ExpressionEvaluator")
     public abstract ExpressionEvaluator getExpressionEvaluator();
@@ -47,6 +55,17 @@ public abstract class Services extends BasePage implements PageBeginRenderListen
 
     @Bean
     public abstract SelectMap getSelections();
+
+    @Bean
+    public abstract SipxValidationDelegate getValidator();
+
+    @Bean
+    public abstract ServerStatusSqueezeAdapter getServerStatusConverter();
+
+    @Bean(initializer = "array=sipxProcessContext.locations,labelExpression=id")
+    public abstract ObjectSelectionModel getLocationModel();
+
+    public abstract ServiceStatus getCurrentRow();
 
     public abstract Location getServiceLocation();
 
@@ -86,6 +105,14 @@ public abstract class Services extends BasePage implements PageBeginRenderListen
         }
     }
 
+    public boolean getCurrentRowHasServiceLink() {
+        return SIPXPROXY.equals(getCurrentRow().getServiceName());
+    }
+
+    public IPage editService(IRequestCycle cycle) {
+        return cycle.getPage(EditProxyService.PAGE);
+    }
+
     /**
      * Registered as form listener - forces service status update every time form is submitted
      */
@@ -115,7 +142,8 @@ public abstract class Services extends BasePage implements PageBeginRenderListen
             // commands when it receives an event.
             if (Command.RESTART.equals(operation)) {
                 getDomainManager().replicateDomainConfig();
-                getSipxProcessContext().restartOnEvent(services, DomainConfigReplicatedEvent.class);
+                getSipxProcessContext().restartOnEvent(services,
+                        DomainConfigReplicatedEvent.class);
             } else {
                 getSipxProcessContext().manageServices(getServiceLocation(), services, operation);
             }

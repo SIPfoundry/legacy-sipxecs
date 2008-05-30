@@ -143,6 +143,7 @@
         <value>org/sipfoundry/sipxconfig/phonebook/phonebook.hbm.xml</value>
         <value>org/sipfoundry/sipxconfig/acd/acd.hbm.xml</value>
         <value>org/sipfoundry/sipxconfig/service/service.hbm.xml</value>
+        <value>org/sipfoundry/sipxconfig/service/sipx-service.hbm.xml</value>
         <value>org/sipfoundry/sipxconfig/vm/attendant/personalAttendant.hbm.xml</value>
         <value>org/sipfoundry/sipxconfig/paging/paging.hbm.xml</value>
       </list>
@@ -154,6 +155,7 @@
         <value>abstractPhone</value>
         <value>upload</value>
         <value>abstractService</value>
+        <value>sipxService</value>
       </list>
     </property>
   </bean>

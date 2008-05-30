@@ -262,6 +262,8 @@
     <antcall target="paging-group-add-timeout"/>
   	<antcall target="location"/>
     <antcall target="paging-server-advanced" />
+  	<antcall target="sipx-service" />
+  	<antcall target="add-proxy-service" />
     <!-- When freezing schema uncomment this line -->
     <!-- sipx-version version="8" -->
   </target>
@@ -626,8 +628,16 @@
     <db-patch patch="location"/>
   </target>
 
+  <target name="sipx-service" unless="sipx-service">
+    <db-patch patch="sipx-service"/>
+  </target>
+
   <target name="paging-server-advanced" unless="paging-server-advanced">
     <db-patch patch="paging-server-advanced" />
+  </target>
+
+  <target name="add-proxy-service" unless="add-proxy-service">
+  	<db-patch patch="add-proxy-service"/>
   </target>
 
   <!-- 

@@ -109,7 +109,6 @@ rm -rf $RPM_BUILD_ROOT
 
 %doc CONTRIBUTORS ChangeLog %name.configlog
 %attr(755,root,root) %{_bindir}/sipXproxy.sh
-%attr(755,root,root) %{_bindir}/upgrade2mergedproxy
 %attr(755,root,root) %{_bindir}/sipXproxy
 %attr(755,root,root) %{_bindir}/%name-config
 %attr(755,root,root) %{_datadir}/sipx/schema/forwardingrules.xsd
@@ -134,11 +133,6 @@ rm -rf $RPM_BUILD_ROOT
 # config files are generated from templates via config.defs
 %dir %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx
 
-# The configmerge mapping file is NOT user configurable and will change
-# each release.
-%attr(644,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx/sipXproxy-config.in.map
-
-%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx/sipXproxy-config.in
 %config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx/forwardingrules.xml.in
 %config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx/authrules.xml.in
 %config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx/process.d/sipXproxy.process.xml
@@ -157,34 +151,6 @@ sipx-upgrade -p sipxproxy -c
 
 %post
 sipx-upgrade -p sipxproxy -u --bdir %{_bindir} --ddir %{_datadir} --cdir %{_sysconfdir} --sdir %{_localstatedir}
-
-# Attempt to use the upgrade2mergedproxy script to merge the previous
-# forking proxy and authorization proxy configurations into an
-# equivalent sipXproxy-config.in.  If that succeeds, use the generated
-# sipXproxy-config.in as the "old" configuration for sipXproxy, and
-# the RPM's sipXproxy-config.in as the "new" configuration, and let
-# pkg-upgrade edit the two together.  If upgrade2mergedproxy cannot
-# produce a sipXproxy-config.in (probably because this is not an
-# upgrade from version 3.8), use the RPM's sipXproxy-config.in.
-%define configfile %{_sysconfdir}/sipxpbx/sipXproxy-config.in
-# Do not run upgrade2mergedproxy if sipXproxy-config.in.rpmnew exists,
-# because that means that we've upgraded a configuration that already
-# had a sipXproxy-config.in.
-if [ -f %{_sysconfdir}/sipxpbx/proxy-config.in -a \
-     ! -f %{configfile}.rpmnew ]; then
-  mv %{configfile} %{configfile}.rpmnew
-  %{_bindir}/upgrade2mergedproxy --preserve --cleanlogs --cleancfgin --cleanproc \
-      --cdir %{_sysconfdir}/sipxpbx --ldir %{_localstatedir}/log/sipxpbx
-  [ -f %{configfile} ] && chown @SIPXPBXUSER@:@SIPXPBXGROUP@ %{configfile}
-  if [ ! -f %{configfile} ]; then
-    # upgrade2mergedproxy could not create sipXproxy-config.in; use
-    # the RPM's version.
-    mv %{configfile}.rpmnew %{configfile}
-  fi
-  # sipXproxy-config.in and sipXproxy-config.in.rpmnew are now
-  # arranged correctly for the standard pkg-upgrade process to merge
-  # them.
-fi
 
 %define current_archive %{upgrade_archive_dir}/%{name}-current.tgz
 %define previous_archive %{upgrade_archive_dir}/%{name}-previous.tgz
