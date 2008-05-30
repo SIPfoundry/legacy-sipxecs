@@ -47,7 +47,7 @@ class SipListenerImpl implements SipListener {
 
             TransactionApplicationData tad = (TransactionApplicationData) clientTransaction.getApplicationData();
             if (tad != null) {
-                tad.timeout();
+                tad.timeout(timeoutEvent);
             }
         }
     }

@@ -9,10 +9,12 @@
  */
 package org.sipfoundry.sipxconfig.sip;
 
-import java.util.concurrent.Semaphore;
+import java.util.EventObject;
+import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.TimeUnit;
 
 import javax.sip.ResponseEvent;
+import javax.sip.TimeoutEvent;
 
 /**
  * Transaction context data. Register one of these per transaction to track data that is specific
@@ -23,10 +25,9 @@ class TransactionApplicationData {
 
     private Operator m_operator;
 
-    private Semaphore m_sem = new Semaphore(0);
+    private SynchronousQueue<EventObject> m_queue = new SynchronousQueue<EventObject>();
 
-    private ResponseEvent m_responseEvent;
-
+  
     public TransactionApplicationData(Operator operator) {
         m_operator = operator;
     }
@@ -37,24 +38,26 @@ class TransactionApplicationData {
      * @return false if timeout, true if response received
      * @throws InterruptedException
      */
-    public boolean block() throws InterruptedException {
-        return m_sem.tryAcquire(1000, TimeUnit.MILLISECONDS);
+    public EventObject block() throws InterruptedException {
+        return m_queue.poll(1000, TimeUnit.MILLISECONDS);
+      
     }
 
     public void response(ResponseEvent responseEvent) {
         if (m_operator == Operator.SEND_NOTIFY) {
-            m_responseEvent = responseEvent;
-            // FIXME: what are we doing if there is an error?
-            if (m_responseEvent.getResponse().getStatusCode() / 100 >= 2) {
-                m_sem.release();
+             // We ignore 1xx responses. 2xx and above are put into the queue.
+            if (responseEvent.getResponse().getStatusCode() / 100 >= 2) {
+                m_queue.add(responseEvent);
             }
         }
     }
 
-    public void timeout() {
+    public void timeout(TimeoutEvent timeoutEvent) {
         // FIXME: we need to report timeout somehow
         if (m_operator == Operator.SEND_NOTIFY) {
-            m_sem.release();
+            m_queue.add(timeoutEvent);
         }
     }
+
+ 
 }
