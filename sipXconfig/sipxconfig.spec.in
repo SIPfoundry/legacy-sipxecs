@@ -238,7 +238,7 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) %{sipxpbxconf}/sipxconfig-jetty.xml
 %config(noreplace) %{sipxpbxconf}/log4j.properties
 %config(noreplace) %{sipxpbxconf}/sipxconfig.properties.in
-%{sipxpbxconf}/sipxconfig.properties.map
+%{sipxpbxconf}/sipxconfig.properties.in.map
 %config(noreplace) %{sipxpbxconf}/VM_global_library.vm
 %config(noreplace) %{sipxpbxconf}/setting.dtd
 %config(noreplace) %{sipxpbxconf}/setting.xsl
