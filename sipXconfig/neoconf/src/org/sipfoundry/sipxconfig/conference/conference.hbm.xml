@@ -48,4 +48,8 @@
     <![CDATA[select conf.id from Conference conf where conf.name = :value or conf.extension = :value]]>
   </query>
   
+  <query name="conferenceByName">
+    <![CDATA[from Conference conf where conf.name = :value]]>
+  </query>
+
 </hibernate-mapping>

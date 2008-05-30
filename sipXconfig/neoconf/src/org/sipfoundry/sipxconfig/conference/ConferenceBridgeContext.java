@@ -45,5 +45,7 @@ public interface ConferenceBridgeContext extends AliasOwner, AliasProvider {
 
     Conference loadConference(Serializable id);
 
+    Conference findConferenceByName(String name);
+
     void clear();
 }

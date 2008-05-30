@@ -12,6 +12,7 @@
   
   <!-- P R O P E R T I E S -->
   <inject property="conferenceBridgeContext" object="spring:conferenceBridgeContext"/>
+  <inject property="activeConferenceContext" object="spring:activeConferenceContext"/>
   <inject property="coreContext" object="spring:coreContext"/>
   <property name="rowsToDelete"/>
   <property name="action"/>
@@ -29,7 +30,7 @@
     <binding name="value" value="message:button.delete"/>
   </component>
   <component id="tableView" type="common/Table">
-    <binding name="columns" value="literal:* name,enabled,host,description"/>
+    <binding name="columns" value="literal:* name,enabled,host,description,activeConferences"/>
     <binding name="source" value="bridges"/>
     <binding name="row" value="currentRow"/>
     <binding name="selections" value="selections"/>
@@ -38,8 +39,5 @@
   <component id="nameText" type="Insert">
     <binding name="value" value="currentRow.name"/>
   </component>
-  <component id="editRowLink" type="DirectLink">
-    <binding name="listener" value="selectListener"/>
-    <binding name="parameters" value="currentRow.id"/>
-  </component>
+
 </component-specification>

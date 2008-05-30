@@ -89,6 +89,14 @@ public class ConferenceBridgeContextImplTestDb extends SipxDatabaseTestCase {
         assertEquals("conf_desc_3001", conference.getDescription());
     }
 
+    public void testFindConferenceByName() throws Exception {
+        TestHelper.insertFlat("conference/participants.db.xml");
+        Conference conference = m_context.findConferenceByName("conf_name_3001");
+
+        assertEquals("conf_name_3001", conference.getName());
+        assertEquals("conf_desc_3001", conference.getDescription());
+    }
+
     public void testClear() throws Exception {
         IDatabaseConnection db = TestHelper.getConnection();
         TestHelper.insertFlat("conference/participants.db.xml");

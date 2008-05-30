@@ -16,10 +16,24 @@
     <!-- default value - overridden in sipxconfig.properties -->
   </bean>
 
-  <bean id="conferenceBridgeContextImpl" class="org.sipfoundry.sipxconfig.conference.ConferenceBridgeContextImpl">
-    <property name="sessionFactory" ref="sessionFactory" />
-    <property name="aliasManager" ref="aliasManager" />
-    <property name="coreContext" ref="coreContext" />
+  <bean id="activeConferenceContextImpl"
+        class="org.sipfoundry.sipxconfig.conference.ActiveConferenceContextImpl">
+    <property name="freeswitchApiProvider" ref="freeswitchApiProvider" />
+    <property name="conferenceBridgeContext" ref="conferenceBridgeContext" />
+  </bean>
+
+  <bean id="activeConferenceContext"
+        class="org.springframework.aop.framework.ProxyFactoryBean">
+    <property name="target">
+      <ref local="activeConferenceContextImpl" />
+    </property>
+  </bean>
+
+  <bean id="conferenceBridgeContextImpl"
+    class="org.sipfoundry.sipxconfig.conference.ConferenceBridgeContextImpl">
+    <property name="sessionFactory" ref="sessionFactory"/>
+    <property name="aliasManager" ref="aliasManager"/>
+    <property name="coreContext" ref="coreContext"/>
     <property name="provisioning">
       <ref local="conferenceBridgeProvisioning" />
     </property>
@@ -28,7 +42,7 @@
   <bean id="conferenceBridgeContext" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
     <property name="proxyInterfaces"
       value="org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext,
-      	org.sipfoundry.sipxconfig.admin.commserver.AliasProvider" />
+      org.sipfoundry.sipxconfig.admin.commserver.AliasProvider" />
     <property name="target">
       <ref local="conferenceBridgeContextImpl" />
     </property>

@@ -1,0 +1,6 @@
+<span jwcid="@If" condition="ognl:activeConferenceCount == 0">0 active</span>
+<span jwcid="@Else">
+    <span jwcid="@DirectLink" listener="listener:activeConferences" parameters="ognl:bridge.id" class="goLink">
+        <span jwcid="@Insert" value="ognl:activeConferenceCount" /> active...
+    </span>
+</span>

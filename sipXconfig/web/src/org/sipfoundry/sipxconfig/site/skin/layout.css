@@ -609,3 +609,8 @@ html, body {
    padding-left: 20px;
    background: transparent url('/sipxconfig/images/loading.gif') left no-repeat ;
 }
+
+.goLink {
+    padding-left: 20px;
+    background: transparent url('/sipxconfig/images/go.png') left no-repeat;
+}

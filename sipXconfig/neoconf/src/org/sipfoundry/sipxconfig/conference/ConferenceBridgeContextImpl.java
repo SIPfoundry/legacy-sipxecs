@@ -33,6 +33,7 @@ public class ConferenceBridgeContextImpl extends HibernateDaoSupport implements 
     private static final String CONFERENCE = "conference";
     private static final String VALUE = "value";
     private static final String CONFERENCE_IDS_WITH_ALIAS = "conferenceIdsWithAlias";
+    private static final String CONFERENCE_BY_NAME = "conferenceByName";
 
     private AliasManager m_aliasManager;
     private BeanFactory m_beanFactory;
@@ -116,6 +117,17 @@ public class ConferenceBridgeContextImpl extends HibernateDaoSupport implements 
 
     public Conference loadConference(Serializable id) {
         return (Conference) getHibernateTemplate().load(Conference.class, id);
+    }
+
+    public Conference findConferenceByName(String name) {
+        Conference conference = null;
+        List<Conference> conferences = getHibernateTemplate().findByNamedQueryAndNamedParam(
+                CONFERENCE_BY_NAME, VALUE, name);
+        if (SipxCollectionUtils.safeSize(conferences) > 0) {
+            conference = conferences.get(0);
+        }
+
+        return conference;
     }
 
     public void clear() {

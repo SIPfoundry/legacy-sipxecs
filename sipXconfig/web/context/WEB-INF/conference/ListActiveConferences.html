@@ -1,0 +1,43 @@
+<html title="message:title">
+<head>
+    <link rel="stylesheet" type="text/css" href="../../css/sipxconfig.css"/>
+</head>
+<body jwcid="$content$">
+<div jwcid="@common/Border">
+    <span jwcid="@common/ErrorMsg"/>
+
+    <h2><span key="title">Active Conferences</span>: <div jwcid="@Insert" value="ognl:bridge.name" /></h2>
+
+    <div class="help">
+        A conference marked with a <img jwcid="@Image" image="asset:lockedIcon" />
+        padlock is locked. A locked conference will not allow new participants
+        to connect.
+    </div>
+
+    <form jwcid="@common/AutoRefreshForm">
+        <table jwcid="tableView@common/Table"
+               columns="literal:* name, description, extension, members" row="ognl:currentConference"
+               source="ognl:activeConferences"
+               selections="bean:selections">
+          <span jwcid="nameColumnValue@Block">
+            <span jwcid="@If" condition="ognl:currentConference.isLocked">
+               <img jwcid="@Image" image="asset:lockedIcon" align="top" alt="This conference is locked." />
+            </span>
+            <span jwcid="@DirectLink" listener="listener:activeConferenceControl" class="goLink"
+                  parameters="ognl:currentConference.conference">
+               <span jwcid="@Insert" value="ognl:currentConference.name" />
+            </span>
+          </span>
+          <span jwcid="membersColumnValue@Block">
+              <img jwcid="@Image" image="asset:userIcon" align="top" />
+              <span jwcid="@Insert" value="ognl:currentConference.members" />
+          </span>
+        </table>
+            <input jwcid="lockButton@Submit" id="activeConference:lock"
+                   value="message:button.lock" listener="listener:lockConferences" />
+            <input jwcid="unlockButton@Submit" id="activeConference:unlock"
+                   value="message:button.unlock" listener="listener:unlockConferences" />
+    </form>
+</div>
+</body>
+</html>
