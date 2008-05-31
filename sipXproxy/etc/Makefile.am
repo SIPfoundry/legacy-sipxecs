@@ -24,10 +24,8 @@ CFG_FILES = $(foreach file,$(cfgfiles_IN),$(DESTDIR)/$(sysconfdir)/sipxpbx/$(fil
 install-data-hook : \
 	$(CFG_FILES) \
 	$(PROC_FILES) \
-	upgrade-add-domain \
 	upgrade-auth-rules \
-	upgrade-forwarding-rules \
-	upgrade-auth-plugins
+	upgrade-forwarding-rules
 
 $(foreach file,$(process_xml_files_IN),$(DESTDIR)/$(sysconfdir)/sipxpbx/process.d/$(basename $(file))) : $(DESTDIR)/$(sysconfdir)/sipxpbx/process.d/% : %
 	@if ! test -f $@; \
@@ -75,43 +73,5 @@ upgrade-forwarding-rules:
 	@perl -pi \
 	-e 's|<routes>|<routes xmlns="http://www.sipfoundry.org/sipX/schema/xml/forwardingrules-00-00">|' \
 	$(DESTDIR)$(sysconfdir)/sipxpbx/forwardingrules.xml.in
-
-.PHONY: upgrade-auth-plugins
-upgrade-auth-plugins :
-	@echo -n "        Checking for auth plugins..."
-	@if ! grep libEnforceAuthRules.so $(DESTDIR)$(sysconfdir)/sipxpbx/sipXproxy-config > /dev/null 2>&1 ; \
-	then \
-		echo -n " 'authrules' added"; \
-		( echo "" \
-		; echo "SIPX_PROXY_HOOK_LIBRARY.authrules : $(libdir)/authplugins/libEnforceAuthRules.so" \
-		; echo "SIPX_PROXY.authrules.RULES        : $(sysconfdir)/sipxpbx/authrules.xml" \
-		) >> $(DESTDIR)$(sysconfdir)/sipxpbx/sipXproxy-config; \
-	else \
-		echo -n " 'authrules' ok"; \
-	fi; \
-	if ! grep libCallerAlias.so $(DESTDIR)$(sysconfdir)/sipxpbx/sipXproxy-config > /dev/null 2>&1 ; \
-	then \
-		echo -n " 'fromalias' added"; \
-		( echo "" \
-		; echo "SIPX_PROXY_HOOK_LIBRARY.fromalias : $(libdir)/authplugins/libCallerAlias.so" \
-		) >> $(DESTDIR)$(sysconfdir)/sipxpbx/sipXproxy-config; \
-	else \
-		echo -n " 'fromalias' ok"; \
-	fi
-	@echo ""
-
-
-.PHONY: upgrade-add-domain
-upgrade-add-domain :
-	@echo -n "        Checking for domain configuration..."
-	@if ! grep -e '^SIPX_PROXY_DOMAIN_NAME\>' $(DESTDIR)$(sysconfdir)/sipxpbx/sipXproxy-config > /dev/null 2>&1 ; \
-	then \
-		echo " adding "; \
-		( echo "" \
-		; echo 'SIPX_PROXY_DOMAIN_NAME : $${SIPXCHANGE_DOMAIN_NAME}' \
-		) >> $(DESTDIR)$(sysconfdir)/sipxpbx/sipXproxy-config; \
-	else \
-		echo " ok"; \
-	fi
 
 
