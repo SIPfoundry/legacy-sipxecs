@@ -9,7 +9,6 @@
  */
 package org.sipfoundry.sipxconfig.sip;
 
-
 import java.io.IOException;
 
 import java.text.ParseException;
@@ -57,7 +56,6 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Required;
 
 import static org.sipfoundry.sipxconfig.common.SpecialUser.SpecialUserType.CONFIG_SERVER;
-
 
 /**
  * Spring adapter for JAIN SIP factories
@@ -107,19 +105,23 @@ public class SipStackBean implements InitializingBean {
         try {
 
             FileAppender fa = (FileAppender) Logger.getRootLogger().getAppender("file");
-            String fileName = fa.getFile();
+            String fileName = null;
+            if (fa != null) {
+                fileName = fa.getFile();
 
-            String level = Logger.getLogger("javax.sip").getLevel().toString();
+                String level = Logger.getLogger("javax.sip").getLevel().toString();
 
-            m_properties.setProperty("gov.nist.javax.sip.TRACE_LEVEL", level);
-            m_properties.setProperty(
-                    "gov.nist.javax.sip.LOG_MESSAGE_CONTENT", "true");
-            m_properties.setProperty("gov.nist.javax.sip.LOG_FACTORY",
-                    SipFoundryLogRecordFactory.class.getName());
-          
+                m_properties.setProperty("gov.nist.javax.sip.TRACE_LEVEL", level);
+                m_properties.setProperty("gov.nist.javax.sip.LOG_MESSAGE_CONTENT", "true");
+                m_properties.setProperty("gov.nist.javax.sip.LOG_FACTORY",
+                        SipFoundryLogRecordFactory.class.getName());
+            }
+
             SipStack stack = factory.createSipStack(m_properties);
-            ((SipStackImpl) stack).addLogAppender(new SipFoundryAppender(new SipFoundryLayout(),
-                    fileName));
+            if (fileName != null) {
+                ((SipStackImpl) stack).addLogAppender(new SipFoundryAppender(
+                        new SipFoundryLayout(), fileName));
+            }
             m_addressFactory = factory.createAddressFactory();
             m_headerFactory = factory.createHeaderFactory();
             m_messageFactory = factory.createMessageFactory();
@@ -260,7 +262,8 @@ public class SipStackBean implements InitializingBean {
         }
     }
 
-    public void addContent(Request request, String contentType, byte[] payload) throws ParseException {
+    public void addContent(Request request, String contentType, byte[] payload)
+            throws ParseException {
         if (contentType == null) {
             return;
         }
