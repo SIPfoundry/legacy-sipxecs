@@ -262,8 +262,7 @@ public class SipStackBean implements InitializingBean {
         }
     }
 
-    public void addContent(Request request, String contentType, byte[] payload)
-            throws ParseException {
+    public void addContent(Request request, String contentType, byte[] payload) throws ParseException {
         if (contentType == null) {
             return;
         }
