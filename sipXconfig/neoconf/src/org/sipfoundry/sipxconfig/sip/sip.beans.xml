@@ -10,6 +10,7 @@
     <property name="properties">
       <value>javax.sip.STACK_NAME=sipXconfig</value>
     </property>
+    <property name="domainManager"     ref="domainManager" />
   </bean>
 
 

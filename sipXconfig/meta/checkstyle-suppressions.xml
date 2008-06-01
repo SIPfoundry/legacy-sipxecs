@@ -8,4 +8,6 @@
     <suppress checks="MethodNameCheck"
               files="ConferenceBridgeProvisioningImpl.java"
               lines="38-42"/>
+    <suppress checks=".*"
+              files="SipFoundryLogRecordFactory.java" />
 </suppressions>

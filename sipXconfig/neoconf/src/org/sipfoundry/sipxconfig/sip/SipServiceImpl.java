@@ -15,6 +15,8 @@ import org.apache.commons.logging.LogFactory;
 public class SipServiceImpl extends SipStackBean implements SipService  {
 
     static final Log LOG = LogFactory.getLog(SipServiceImpl.class);
+    
+    private String m_fromServerName;
 
     public void sendCheckSync(String addrSpec) {
         AbstractMessage message = new NotifyMessage(this, addrSpec, "check-sync");
@@ -28,5 +30,9 @@ public class SipServiceImpl extends SipStackBean implements SipService  {
 
     public void sendRefer(String sourceAddrSpec, String destinationAddSpec) {
         // TODO: implementation using JAIN SIP stack needed
+    }
+    
+    public void setFromServerName(String fromServerName) {
+        this.m_fromServerName = fromServerName;
     }
 }

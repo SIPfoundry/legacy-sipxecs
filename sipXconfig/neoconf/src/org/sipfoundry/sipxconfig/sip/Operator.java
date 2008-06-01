@@ -12,6 +12,8 @@ package org.sipfoundry.sipxconfig.sip;
 /**
  * This tracks the current operation for a given transaction.
  * 
+ * @author mranga
+ * 
  */
 public enum Operator {
     SEND_NOTIFY, SEND_3PCC_CALL_SETUP;
