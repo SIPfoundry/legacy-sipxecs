@@ -50,7 +50,7 @@ class NotifyMessage extends JainSipMessage {
             clientTx.setApplicationData(tad);
             clientTx.sendRequest();
             EventObject eventObject = tad.block();
-            if (eventObject == null) {
+            if (tad.block() == null) {
                 throw new SipException("Timed out waiting for response");
             } else if (eventObject instanceof TimeoutEvent) {
                 throw new SipException("Timeout occured waiting for response");

@@ -39,7 +39,7 @@ class TransactionApplicationData {
      * @throws InterruptedException
      */
     public EventObject block() throws InterruptedException {
-        return m_queue.poll(5000, TimeUnit.MILLISECONDS);
+        return m_queue.poll(1000, TimeUnit.MILLISECONDS);
       
     }
 

@@ -9,8 +9,6 @@
  */
 package org.sipfoundry.sipxconfig.sip;
 
-import java.io.IOException;
-
 import java.text.ParseException;
 import java.util.Collections;
 import java.util.Properties;
@@ -45,12 +43,8 @@ import javax.sip.message.MessageFactory;
 import javax.sip.message.Request;
 
 import gov.nist.javax.sip.ListeningPointExt;
-import gov.nist.javax.sip.SipStackImpl;
 
-import org.apache.log4j.FileAppender;
-import org.apache.log4j.Logger;
 import org.sipfoundry.sipxconfig.common.SipUri;
-import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.springframework.beans.factory.BeanInitializationException;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Required;
@@ -61,7 +55,6 @@ import static org.sipfoundry.sipxconfig.common.SpecialUser.SpecialUserType.CONFI
  * Spring adapter for JAIN SIP factories
  */
 public class SipStackBean implements InitializingBean {
-
     private int m_port;
 
     private String m_hostName;
@@ -92,8 +85,6 @@ public class SipStackBean implements InitializingBean {
 
     private SipListenerImpl m_sipListener;
 
-    private DomainManager m_domainManager;
-
     public void afterPropertiesSet() {
         SipFactory factory = SipFactory.getInstance();
         factory.setPathName("gov.nist");
@@ -103,25 +94,7 @@ public class SipStackBean implements InitializingBean {
         // add more properties here if needed
         String errorMsg = "Cannot initialize SIP stack";
         try {
-
-            FileAppender fa = (FileAppender) Logger.getRootLogger().getAppender("file");
-            String fileName = null;
-            if (fa != null) {
-                fileName = fa.getFile();
-
-                String level = Logger.getLogger("javax.sip").getLevel().toString();
-
-                m_properties.setProperty("gov.nist.javax.sip.TRACE_LEVEL", level);
-                m_properties.setProperty("gov.nist.javax.sip.LOG_MESSAGE_CONTENT", "true");
-                m_properties.setProperty("gov.nist.javax.sip.LOG_FACTORY",
-                        SipFoundryLogRecordFactory.class.getName());
-            }
-
             SipStack stack = factory.createSipStack(m_properties);
-            if (fileName != null) {
-                ((SipStackImpl) stack).addLogAppender(new SipFoundryAppender(
-                        new SipFoundryLayout(), fileName));
-            }
             m_addressFactory = factory.createAddressFactory();
             m_headerFactory = factory.createHeaderFactory();
             m_messageFactory = factory.createMessageFactory();
@@ -129,7 +102,6 @@ public class SipStackBean implements InitializingBean {
             m_listeningPoint = stack.createListeningPoint(m_hostIpAddress, m_port, m_transport);
             m_sipProvider = stack.createSipProvider(m_listeningPoint);
             m_sipListener = new SipListenerImpl();
-
             m_sipProvider.addSipListener(m_sipListener);
         } catch (PeerUnavailableException e) {
             throw new BeanInitializationException(errorMsg, e);
@@ -141,8 +113,6 @@ public class SipStackBean implements InitializingBean {
             throw new BeanInitializationException(errorMsg, e);
         } catch (TooManyListenersException e) {
             throw new BeanInitializationException(errorMsg, e);
-        } catch (IOException e) {
-            throw new BeanInitializationException(errorMsg, e);
         }
     }
 
@@ -152,10 +122,6 @@ public class SipStackBean implements InitializingBean {
 
     public SipProvider getSipProvider() {
         return m_sipProvider;
-    }
-
-    public DomainManager getDomainManager() {
-        return m_domainManager;
     }
 
     public void setPort(int port) {
@@ -190,11 +156,6 @@ public class SipStackBean implements InitializingBean {
         m_proxyPort = port;
     }
 
-    @Required
-    public void setDomainManager(DomainManager domainManager) {
-        m_domainManager = domainManager;
-    }
-
     private SipURI createOurSipUri() throws ParseException {
         return m_addressFactory.createSipURI(CONFIG_SERVER.getUserName(), m_hostName);
     }
@@ -203,8 +164,7 @@ public class SipStackBean implements InitializingBean {
         SipURI fromAddress = createOurSipUri();
         Address fromNameAddress = m_addressFactory.createAddress(fromAddress);
 
-        return m_headerFactory.createFromHeader(fromNameAddress, Integer.toString(Math
-                .abs(new Random().nextInt())));
+        return m_headerFactory.createFromHeader(fromNameAddress, Integer.toString(Math.abs(new Random().nextInt())));
     }
 
     public ContactHeader createContactHeader() throws ParseException {
@@ -234,16 +194,14 @@ public class SipStackBean implements InitializingBean {
             FromHeader fromHeader = createFromHeader();
             ToHeader toHeader = createToHeader(addrSpec);
             URI requestURI = m_addressFactory.createURI(addrSpec);
-            MaxForwardsHeader maxForwards = m_headerFactory
-                    .createMaxForwardsHeader(m_maxForwards);
+            MaxForwardsHeader maxForwards = m_headerFactory.createMaxForwardsHeader(m_maxForwards);
             ViaHeader viaHeader = createViaHeader();
             ContactHeader contactHeader = createContactHeader();
             CallIdHeader callIdHeader = m_sipProvider.getNewCallId();
 
             CSeqHeader cSeqHeader = m_headerFactory.createCSeqHeader(m_id.get(), requestType);
-            Request request = m_messageFactory.createRequest(requestURI, requestType,
-                    callIdHeader, cSeqHeader, fromHeader, toHeader, Collections
-                            .singletonList(viaHeader), maxForwards);
+            Request request = m_messageFactory.createRequest(requestURI, requestType, callIdHeader, cSeqHeader,
+                    fromHeader, toHeader, Collections.singletonList(viaHeader), maxForwards);
 
             // FIXME: we need to properly resolve address here
             SipURI sipUri = m_addressFactory.createSipURI(null, m_proxyHost);
@@ -267,8 +225,7 @@ public class SipStackBean implements InitializingBean {
             return;
         }
         String[] ct = contentType.split("/", 2);
-        ContentTypeHeader contentTypeHeader = m_headerFactory.createContentTypeHeader(ct[0],
-                ct[1]);
+        ContentTypeHeader contentTypeHeader = m_headerFactory.createContentTypeHeader(ct[0], ct[1]);
         if (contentTypeHeader != null) {
             request.setContent(payload, contentTypeHeader);
         }
