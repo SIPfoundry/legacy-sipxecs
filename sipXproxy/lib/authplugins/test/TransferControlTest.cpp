@@ -29,6 +29,7 @@ class TransferControlTest : public CppUnit::TestCase
    CPPUNIT_TEST(testConstructor);
 
    CPPUNIT_TEST(nonInvite);
+   CPPUNIT_TEST(nonInviteRefer);
    CPPUNIT_TEST(normalInvite);
    CPPUNIT_TEST(InviteWithReplaces);
    CPPUNIT_TEST(ReferWithReplaces);
@@ -127,6 +128,66 @@ public:
                                                        ));
          ASSERT_STR_EQUAL(unmodifiedRejectReason, rejectReason.data());
 
+         // verify that the message has not been modified
+         UtlString forwardedMsg;
+         size_t length;
+         testMsg.getBytes(&forwardedMsg,&length);
+         ASSERT_STR_EQUAL(message, forwardedMsg.data());
+      }
+
+   // Test that an in-dialog REFER request for a method other than INVITE is not affected
+   void nonInviteRefer()
+      {
+         UtlString identity; // no authenticated identity
+         Url requestUri("sip:someone@somewhere");
+
+         const char* message =
+            "REFER sip:someone@somewhere SIP/2.0\r\n"
+            "Refer-To: <sip:else@where;method=INFO>\r\n"
+            "Via: SIP/2.0/TCP 10.1.1.3:33855\r\n"
+            "To: sip:someone@somewhere;tag=totag\r\n"
+            "From: Caller <sip:caller@example.org>; tag=30543f3483e1cb11ecb40866edd3295b\r\n"
+            "Call-Id: f88dfabce84b6a2787ef024a7dbe8749\r\n"
+            "Cseq: 5 INFO\r\n"
+            "Max-Forwards: 20\r\n"
+            "Contact: caller@127.0.0.1\r\n"
+            "Content-Length: 0\r\n"
+            "\r\n";
+         SipMessage testMsg(message, strlen(message));
+
+         UtlSList noRemovedRoutes;
+         UtlString myRouteName("myhost.example.com");
+         RouteState routeState( testMsg, noRemovedRoutes, myRouteName );
+
+         const char unmodifiedRejectReason[] = "unmodified";
+         UtlString rejectReason(unmodifiedRejectReason);
+         
+         UtlString method("REFER");
+         AuthPlugin::AuthResult priorResult = AuthPlugin::CONTINUE;
+         
+         CPPUNIT_ASSERT(AuthPlugin::CONTINUE
+                        == xferctl->authorizeAndModify(testSipRouter,
+                                                       identity,
+                                                       requestUri,
+                                                       routeState,
+                                                       method,
+                                                       priorResult,
+                                                       testMsg,
+                                                       rejectReason
+                                                       ));
+         ASSERT_STR_EQUAL(unmodifiedRejectReason, rejectReason.data());
+
+         // verify that the Refer-To has not been modified to route through this proxy
+         UtlString forwardedTargetStr;
+         CPPUNIT_ASSERT(testMsg.getReferToField(forwardedTargetStr));
+         ASSERT_STR_EQUAL("<sip:else@where;method=INFO>",
+                          forwardedTargetStr.data());
+
+         // verify that the message has not been modified
+         UtlString forwardedMsg;
+         size_t length;
+         testMsg.getBytes(&forwardedMsg,&length);
+         ASSERT_STR_EQUAL(message, forwardedMsg.data());
       }
 
    // Test that a dialog-forming INVITE without a replaces header is not affected
@@ -169,9 +230,13 @@ public:
                                                        rejectReason
                                                        ));
          ASSERT_STR_EQUAL(unmodifiedRejectReason, rejectReason.data());
+
+         // verify that the message has not been modified
+         UtlString forwardedMsg;
+         size_t length;
+         testMsg.getBytes(&forwardedMsg,&length);
+         ASSERT_STR_EQUAL(message, forwardedMsg.data());
       }
-
-
 
    // Test that an out-of-dialog INVITE with a Replaces header is allowed
    void InviteWithReplaces()
@@ -214,6 +279,12 @@ public:
                                                        rejectReason
                                                        ));
          ASSERT_STR_EQUAL(unmodifiedRejectReason, rejectReason.data());
+
+         // verify that the message has not been modified
+         UtlString forwardedMsg;
+         size_t length;
+         testMsg.getBytes(&forwardedMsg,&length);
+         ASSERT_STR_EQUAL(message, forwardedMsg.data());
       }
 
    // Test that a REFER with Replaces is allowed
@@ -224,7 +295,7 @@ public:
 
          const char* message =
             "REFER sip:someone@somewhere SIP/2.0\r\n"
-            "Refer-To: other@elsewhere?replaces=valid@callid;to-tag=totagvalue;from-tag=fromtagvalue\r\n"
+            "Refer-To: <other@elsewhere;transport=udp?replaces=valid%40callid%3Bto-tag%3Dtotagvalue%3Bfrom-tag%3dfromtagvalue>\r\n"
             "Via: SIP/2.0/TCP 10.1.1.3:33855\r\n"
             "To: sip:someone@somewhere\r\n"
             "From: Caller <sip:caller@example.org>; tag=30543f3483e1cb11ecb40866edd3295b\r\n"
@@ -257,6 +328,25 @@ public:
                                                        rejectReason
                                                        ));
          ASSERT_STR_EQUAL(unmodifiedRejectReason, rejectReason.data());
+
+         /*
+          * The target of this refer is not local, but the refer-to is not our domain and
+          * is not a gruu, so this should be routed through this proxy.
+          */
+         UtlString modifiedReferToStr;
+         CPPUNIT_ASSERT(testMsg.getReferToField(modifiedReferToStr));
+
+         Url modifiedReferTo(modifiedReferToStr);
+         CPPUNIT_ASSERT(Url::SipUrlScheme == modifiedReferTo.getScheme());
+
+         UtlString transferIdentityValue; // with replaces: should _not_ get an identity
+         CPPUNIT_ASSERT(! modifiedReferTo.getHeaderParameter("X-Sipx-Authidentity",
+                                                             transferIdentityValue));
+
+         UtlString replacesId;
+         CPPUNIT_ASSERT(modifiedReferTo.getHeaderParameter(SIP_REPLACES_FIELD,replacesId));
+         ASSERT_STR_EQUAL("valid@callid;to-tag=totagvalue;from-tag=fromtagvalue",
+                          replacesId.data());
       }
 
 

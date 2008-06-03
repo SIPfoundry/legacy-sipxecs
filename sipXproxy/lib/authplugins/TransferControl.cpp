@@ -17,6 +17,9 @@
 
 // DEFINES
 // CONSTANTS
+
+const char* SIP_METHOD_URI_PARAMETER = "method";
+
 // TYPEDEFS
 // FORWARD DECLARATIONS
 
@@ -86,8 +89,15 @@ TransferControl::authorizeAndModify(const SipRouter* sipRouter,  ///< for access
          UtlString targetStr;
          if (request.getReferToField(targetStr))
          {
-            Url target(targetStr);
-            if (Url::SipUrlScheme == target.getScheme())
+            Url target(targetStr, Url::NameAddr);  // parse the target URL
+
+            UtlString targetMethod; 
+            if (   Url::SipUrlScheme == target.getScheme() 
+                /* REFER can create requests other than INVITE: we don't care about those       *
+                 * so check that the method is INVITE or is unspecified (INVITE is the default) */
+                && (   ! target.getUrlParameter(SIP_METHOD_URI_PARAMETER, targetMethod)
+                    || (0==targetMethod.compareTo(SIP_INVITE_METHOD, UtlString::ignoreCase))
+                    ))
             {
                // check whether or not this is REFER with Replaces
                
