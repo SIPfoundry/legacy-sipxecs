@@ -116,6 +116,9 @@ if GENERATE_DOT
 %.png: %.dot
 	$(DOT) -Tpng $< -o $@
 
+%.svg: %.dot
+	$(DOT) -Tsvg $< -o $@
+
 endif
 
 DOCBOOK_OUTPUTS= \

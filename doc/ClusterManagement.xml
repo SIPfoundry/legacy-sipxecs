@@ -851,7 +851,10 @@
           <title>Service Process State Machine</title>
           <mediaobject>
             <imageobject>
-              <imagedata format='PNG' width='100%' scalefit='1' fileref='process_state.png'/>
+              <imagedata format='SVG' width='80%' scalefit='1' fileref='process_state.svg'/>
+            </imageobject>
+            <imageobject>
+              <imagedata format='PNG' width='80%' scalefit='1' fileref='process_state.png'/>
             </imageobject>
           </mediaobject>
         </figure>

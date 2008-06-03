@@ -4,7 +4,7 @@
 // 
 //
 digraph map {
-   size="5,3";
+   size="6,3";
 
    node [shape=box color=black fontcolor=black];
 
