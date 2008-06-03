@@ -35,5 +35,7 @@ public interface SbcDeviceManager {
 
     public BridgeSbc getBridgeSbc();
 
+    public void checkForNewSbcDeviceCreation(SbcDescriptor descriptor);
+
     public String getLocalIpAddress();
 }

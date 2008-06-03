@@ -22,7 +22,7 @@ import org.apache.tapestry.valid.ValidatorException;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDescriptor;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDevice;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDeviceManager;
-import org.sipfoundry.sipxconfig.admin.dialplan.sbc.bridge.BridgeSbc;
+import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.components.ExtraOptionModelDecorator;
 import org.sipfoundry.sipxconfig.components.ObjectSelectionModel;
 import org.sipfoundry.sipxconfig.components.SelectMap;
@@ -77,19 +77,18 @@ public abstract class ListSbcDevices extends BasePage {
         SbcDescriptor model = getSbcDescriptor();
         if (model == null) {
             return null;
-        } else if (model.getBeanId().equals("sbcSipXbridge")) {
-            BridgeSbc bridgeSbc = getSbcDeviceManager().getBridgeSbc();
-            if (bridgeSbc == null) {
-                return EditSbcDevice.getAddPage(cycle, model, this);
-            } else {
-                ValidatorException ex = new ValidatorException(getMessages().getMessage(
-                        "sbcBridge.creation.error"));
-                validator.record(ex);
-                //reset SBCs's models combobox selected value
+        } else {
+            //we have to try/catch the possible UserException since we need to reset
+            //SBCs's models combobox selected value when it is thrown
+            try {
+                getSbcDeviceManager().checkForNewSbcDeviceCreation(model);
+            } catch (UserException ex) {
+                validator.record(new ValidatorException(
+                        ex.format(getMessages().getMessage(ex.getMessage()))));
+                // reset SBCs's models combobox selected value
                 setSbcDescriptor(null);
                 return null;
             }
-        } else {
             return EditSbcDevice.getAddPage(cycle, model, this);
         }
     }

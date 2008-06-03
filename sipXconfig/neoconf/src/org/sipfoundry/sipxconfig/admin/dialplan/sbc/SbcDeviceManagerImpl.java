@@ -9,6 +9,7 @@
  */
 package org.sipfoundry.sipxconfig.admin.dialplan.sbc;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -90,8 +91,29 @@ public class SbcDeviceManagerImpl extends SipxHibernateDaoSupport<SbcDevice> imp
         return getHibernateTemplate().executeFind(callback);
     }
 
+    private List<SbcDevice> getSbcDevicesByDescriptor(SbcDescriptor descriptor) {
+        List<SbcDevice> sbcs = getSbcDevices();
+        List<SbcDevice> list = new ArrayList<SbcDevice>();
+        for (SbcDevice sbc : sbcs) {
+            if (sbc.getModelId().equals(descriptor.getModelId())) {
+                list.add(sbc);
+            }
+        }
+        return list;
+    }
+
     public List<SbcDevice> getSbcDevices() {
         return getHibernateTemplate().loadAll(SbcDevice.class);
+    }
+
+    public void checkForNewSbcDeviceCreation(SbcDescriptor descriptor) {
+        int maxAllowed = descriptor.getMaxAllowed();
+        if (descriptor.getMaxAllowed() > -1) {
+            int size = getSbcDevicesByDescriptor(descriptor).size();
+            if (size >= maxAllowed) {
+                throw new UserException("sbc.creation.error", new Object[] {size, descriptor.getLabel()});
+            }
+        }
     }
 
     public SbcDevice newSbcDevice(SbcDescriptor descriptor) {
@@ -104,6 +126,7 @@ public class SbcDeviceManagerImpl extends SipxHibernateDaoSupport<SbcDevice> imp
 
     public void storeSbcDevice(SbcDevice sbc) {
         if (sbc.isNew()) {
+            checkForNewSbcDeviceCreation(sbc.getModel());
             checkForDuplicateNames(sbc);
         } else {
             // if the sbc name was changed

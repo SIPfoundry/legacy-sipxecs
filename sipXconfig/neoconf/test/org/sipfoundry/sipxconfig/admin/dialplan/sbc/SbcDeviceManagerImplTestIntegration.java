@@ -88,6 +88,23 @@ public class SbcDeviceManagerImplTestIntegration extends IntegrationTestCase {
         m_sdm.storeSbcDevice(newSbcDevice);
     }
 
+    public void testSaveErrorMaxAllowed() {
+        SbcDescriptor model = m_modelSource.getModel("sipXbridgeSbcModel");
+        model.setMaxAllowed(1);
+        SbcDevice newSbcDevice = m_sdm.newSbcDevice(model);
+        newSbcDevice.setName("aaa");
+        m_sdm.storeSbcDevice(newSbcDevice);
+        flush();
+        try {
+            newSbcDevice = m_sdm.newSbcDevice(model);
+            newSbcDevice.setName("bbb");
+            m_sdm.storeSbcDevice(newSbcDevice);
+            fail("Creation of two bridges should not be accepted.");
+        } catch (UserException e) {
+            // ok - 2 bridges failed
+        }
+    }
+
     public void testSaveDuplicate() {
         SbcDescriptor model = m_modelSource.getModel("sbcGenericModel");
         SbcDevice newSbcDevice = m_sdm.newSbcDevice(model);

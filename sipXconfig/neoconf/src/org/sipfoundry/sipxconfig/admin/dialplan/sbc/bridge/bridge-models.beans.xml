@@ -12,6 +12,7 @@
     <property name="label" value="sipXbridge" />
     <property name="modelDir" value="sipXbridge" />
     <property name="serialNumberPattern" value="" />
+    <property name="maxAllowed" value="1" />
     <property name="defaultProfileLocation" ref="sipXbridgeProfileLocation" />
   </bean>
 
