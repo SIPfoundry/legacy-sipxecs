@@ -34,6 +34,8 @@ $(foreach out,$(OUTPUT_FORMS),ClusterManagement.$(out)) : ClusterManagement.% : 
 
 OTHER_DOCS+=process_state.svg process_state.png
 
+EXTRA_DIST+=process_state.dot
+
 endif # DOC
 
 all: $(DOCBOOK_OUTPUTS) $(OTHER_DOCS)
