@@ -6,6 +6,7 @@
 ##   ENABLE_DOC
 ##   CHECK_DOCBOOKXML
 ##   AM_CONDITIONAL(DOC, test x$enable_doc = xyes)
+##   AM_CONDITIONAL(GENERATE_DOT, test x$have_dot = xtrue)
 ##   AM_CONDITIONAL(GENERATE_DOCBOOK_HTML, test x$enable_xml2xhtml = xyes)
 ##   AM_CONDITIONAL(GENERATE_DOCBOOK_TXT, test x$enable_xml2xtxt = xyes)
 ##   AM_CONDITIONAL(GENERATE_DOCBOOK_PDF, test x$enable_xml2pdf = xyes)
@@ -39,6 +40,7 @@ EXTRA_DIST+= \
 	$(XSL_JADETEX) \
 	$(SIPXECS_CSS)
 
+OUTPUT_FORMS+=html
 DOCBOOK_HTML_OUTPUTS= \
 	$(foreach doc,$(DOCBOOK_XML_DOCS),$(doc).html)
 
@@ -54,6 +56,7 @@ if GENERATE_DOCBOOK_TXT
 %.txt: %.html
 	$(HTML2TXT) $< > $@
 
+OUTPUT_FORMS+=txt
 DOCBOOK_TXT_OUTPUTS=$(foreach doc,$(DOCBOOK_XML_DOCS),$(doc).txt)
 
 endif # GENERATE_DOCBOOK_TXT
@@ -101,11 +104,19 @@ PDF_INTERMEDIATES=$(foreach doc,$(DOCBOOK_XML_DOCS),$(foreach intform,$(PDF_INTE
 		fi; \
 	fi
 
+OUTPUT_FORMS+=pdf
 DOCBOOK_PDF_OUTPUTS=$(foreach doc,$(DOCBOOK_XML_DOCS),$(doc).pdf)
 
 CLEANFILES+=$(PDF_INTERMEDIATES)
 
 endif # GENERATE_DOCBOOK_PDF
+
+if GENERATE_DOT
+
+%.png: %.dot
+	$(DOT) -Tpng $< -o $@
+
+endif
 
 DOCBOOK_OUTPUTS= \
 	$(DOCBOOK_HTML_OUTPUTS) \

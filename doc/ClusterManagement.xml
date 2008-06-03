@@ -598,173 +598,6 @@
         </para>
       </section>
 
-      <section id='process.mgmt'>
-        <title>Service Control and Status</title>
-
-        <para>
-          The &sipxsuper; maintains three peices of state with
-          respect to each &sipxecs; service for which it has a definition:
-        </para>
-
-        <itemizedlist>
-          <listitem>
-            <para>
-              The desired state of the service on the system:
-              <variablelist>
-                <varlistentry>
-                  <term>enabled</term>
-                  <listitem>
-                    <para>the service process should be active on this system</para>
-                  </listitem>
-                </varlistentry>
-                <varlistentry>
-                  <term>disabled</term>
-                  <listitem>
-                    <para>the service should not be active on this system</para>
-                  </listitem>
-                </varlistentry>
-              </variablelist>
-            </para>
-          </listitem>
-
-          <listitem>
-            <para>
-              The configuration version stamp.
-            </para>
-            <para>
-              This value is set by &sipxconfig; (see <xref
-              linkend='super.xmlrpc.setcfgver'/>) when all configuration for
-              the process has been replicated to the system.  It records
-              the version of the process for which the replicated
-              configuration is intended.  This value is used to check that
-              the configuration version matches that of the service process
-              before that process is started (see <xref linkend='super.versioncheck'/>).
-            </para>
-          </listitem>
-
-          <listitem>
-            <para>
-              The actual state of the process on the system:
-              <variablelist>
-
-                <varlistentry>
-                  <term>ConfigurationVersionMismatch</term>
-                  <listitem>
-                    <para>
-                      the stored configuration version does not match the
-                      version in the process definition (see <xref linkend='super.versioncheck'/>).
-                    </para>
-                  </listitem>
-                </varlistentry>
-
-                <varlistentry>
-                  <term>ResourceRequired</term>
-                  <listitem>
-                    <para>some resource required by the process is not available</para>
-                  </listitem>
-                </varlistentry>
-
-                <varlistentry>
-                  <term>ConfigurationTestFailed</term>
-                  <listitem>
-                    <para>
-                      the service returned a failure status when its
-                      configuration test was exectuted.
-                    </para>
-                  </listitem>
-                </varlistentry>
-
-                <varlistentry>
-                  <term>Starting</term>
-                  <listitem>
-                    <para>
-                      the start command has been issued, the process is
-                      not yet known to be running (normally an ephemeral
-                      state). 
-                    </para>
-                  </listitem>
-                </varlistentry>
-
-                <varlistentry>
-                  <term>StartingWarning</term>
-                  <listitem>
-                    <para>
-                      the start command has been issued, the process is not
-                      yet known to be running (normally an ephemeral
-                      state), but the configuration test returned a warning
-                      status before the process was started.
-                    </para>
-                  </listitem>
-                </varlistentry>
-
-                <varlistentry>
-                  <term>Running</term>
-                  <listitem>
-                    <para>
-                      the process is running.
-                    </para>
-                  </listitem>
-                </varlistentry>
-
-                <varlistentry>
-                  <term>RunningWarning</term>
-                  <listitem>
-                    <para>
-                      the process is running, but the configuration test
-                      returned a warning status before the process was started.
-                    </para>
-                  </listitem>
-                </varlistentry>
-
-                <varlistentry>
-                  <term>Restarting</term>
-                  <listitem>
-                    <para>
-                      the restart command has been issued, the process is
-                      not yet known to be running (normally an ephemeral
-                      state). 
-                    </para>
-                  </listitem>
-                </varlistentry>
-
-                <varlistentry>
-                  <term>Stopping</term>
-                  <listitem>
-                    <para>
-                      the stop command has been issued, the process is
-                      still running (normally an ephemeral state). 
-                    </para>
-                  </listitem>
-                </varlistentry>
-
-                <varlistentry>
-                  <term>NotRunning</term>
-                  <listitem>
-                    <para>
-                      the process is not running.
-                    </para>
-                  </listitem>
-                </varlistentry>
-
-              </variablelist>
-            </para>
-          </listitem>
-        </itemizedlist>
-
-        <note>
-          <para>
-            <emphasis>
-              Whether or not a service should be started is not a part
-              of the <link linkend='process.def'>process
-              definition</link>: it is separate state controlled by
-              &sipxconfig;.  The process definition is read-only data
-              about the process installed with the the binaries and other
-              static data it needs.
-            </emphasis>
-          </para>
-        </note>
-
-      </section>
       <section id='super.start'>
         <title>&sipxsuper; Startup</title>
 
@@ -867,6 +700,163 @@
         </para>
 
      </section>
+
+     <section id='process.mgmt'>
+        <title>Service Control and Status</title>
+
+        <para>
+          The &sipxsuper; maintains three peices of state with
+          respect to each &sipxecs; service for which it has a definition:
+        </para>
+
+        <itemizedlist>
+          <listitem>
+            <para>
+              The desired state of the service on the system:
+              <variablelist>
+                <varlistentry>
+                  <term>enabled</term>
+                  <listitem>
+                    <para>the service process should be active on this system</para>
+                  </listitem>
+                </varlistentry>
+                <varlistentry>
+                  <term>disabled</term>
+                  <listitem>
+                    <para>the service should not be active on this system</para>
+                  </listitem>
+                </varlistentry>
+              </variablelist>
+              See <xref linkend="process.fsm"/> for an illustration of process states.
+            </para>
+          </listitem>
+
+          <listitem>
+            <para>
+              The configuration version stamp.
+            </para>
+            <para>
+              This value is set by &sipxconfig; (see <xref
+              linkend='super.xmlrpc.setcfgver'/>) when all configuration for
+              the process has been replicated to the system.  It records
+              the version of the process for which the replicated
+              configuration is intended.  This value is used to check that
+              the configuration version matches that of the service process
+              before that process is started (see <xref linkend='super.versioncheck'/>).
+            </para>
+          </listitem>
+
+          <listitem>
+            <para>
+              The actual state of the process on the system:
+              <variablelist>
+
+                <varlistentry>
+                  <term>ConfigurationVersionMismatch</term>
+                  <listitem>
+                    <para>
+                      the stored configuration version does not match the
+                      version in the process definition (see <xref linkend='super.versioncheck'/>).
+                    </para>
+                  </listitem>
+                </varlistentry>
+
+                <varlistentry>
+                  <term>ResourceRequired</term>
+                  <listitem>
+                    <para>some resource required by the process is not available</para>
+                  </listitem>
+                </varlistentry>
+
+                <varlistentry>
+                  <term>ConfigurationTestFailed</term>
+                  <listitem>
+                    <para>
+                      the service returned a failure status when its
+                      configuration test was exectuted.
+                    </para>
+                  </listitem>
+                </varlistentry>
+
+                <varlistentry>
+                  <term>Starting</term>
+                  <listitem>
+                    <para>
+                      the start command has been issued, the process is
+                      not yet known to be running (normally an ephemeral
+                      state). 
+                    </para>
+                  </listitem>
+                </varlistentry>
+
+                <varlistentry>
+                  <term>Running</term>
+                  <listitem>
+                    <para>
+                      the process is running.
+                    </para>
+                  </listitem>
+                </varlistentry>
+
+                <varlistentry>
+                  <term>Restarting</term>
+                  <listitem>
+                    <para>
+                      the restart command has been issued, the process is
+                      not yet known to be running (normally an ephemeral
+                      state). 
+                    </para>
+                  </listitem>
+                </varlistentry>
+
+                <varlistentry>
+                  <term>Stopping</term>
+                  <listitem>
+                    <para>
+                      the stop command has been issued, the process is
+                      still running (normally an ephemeral state). 
+                    </para>
+                  </listitem>
+                </varlistentry>
+
+                <varlistentry>
+                  <term>NotRunning</term>
+                  <listitem>
+                    <para>
+                      the process is not running.
+                    </para>
+                  </listitem>
+                </varlistentry>
+
+              </variablelist>
+              See <xref linkend="process.fsm"/> for an illustration of process states.
+            </para>
+          </listitem>
+        </itemizedlist>
+
+        <note>
+          <para>
+            <emphasis>
+              Whether or not a service should be started is not a part
+              of the <link linkend='process.def'>process
+              definition</link>: it is separate state controlled by
+              &sipxconfig;.  The process definition is read-only data
+              about the process installed with the the binaries and other
+              static data it needs.
+            </emphasis>
+          </para>
+        </note> 
+
+        <figure id='process.fsm'>
+          <title>Service Process State Machine</title>
+          <mediaobject>
+            <imageobject>
+              <imagedata format='PNG' width='100%' scalefit='1' fileref='process_state.png'/>
+            </imageobject>
+          </mediaobject>
+        </figure>
+
+      </section>
 
     </section>
 
@@ -984,6 +974,5 @@
     </section>
 
   </appendix>
-
 
 </article>

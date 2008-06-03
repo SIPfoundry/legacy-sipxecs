@@ -900,12 +900,35 @@ AC_DEFUN([CHECK_PCRE],
 # ============ D O X Y G E N ==================
 # Originaly from CppUnit BB_ENABLE_DOXYGEN
 
+AC_DEFUN([ENABLE_DOT],
+[
+   AC_ARG_ENABLE(dot, [  --enable-dot            use dot to generate graphs],
+                      [enable_dot="$enableval"], [enable_dot=yes])
+   if test "x$enable_dot" != xno
+   then 
+      AC_PATH_PROG(DOT, dot, , $PATH)
+      if test x$DOT = x
+      then
+         AC_MSG_WARN([could not find dot - some graphics will not be generated])
+         enable_dot=no
+      fi
+   fi
+
+   # adjust values from yes/no to those used in doxygen configuration files (true/false)
+   if test "x$enable_dot" = "xyes"
+   then
+      have_dot="true"
+   else
+      have_dot="false"
+   fi
+   AC_SUBST(have_dot)
+])
+
 AC_DEFUN([ENABLE_DOXYGEN],
 [
   AC_REQUIRE([ENABLE_DOC])
+  AC_REQUIRE([ENABLE_DOT])
   AC_ARG_ENABLE(doxygen, [  --enable-doxygen        enable documentation generation with doxygen (yes)], [enable_doxygen="$enableval"], [ enable_doxygen=yes])
-  AC_ARG_ENABLE(dot, [  --enable-dot            use 'dot' to generate graphs in doxygen (auto)],
-                     [enable_dot="$enableval"], [enable_dot=true])
   AC_ARG_ENABLE(html-docs, [  --enable-html-docs      enable HTML generation with doxygen (yes)], [enable_html_docs="$enableval"], [ enable_html_docs=yes])
   AC_ARG_ENABLE(latex-docs, [  --enable-latex-docs     enable LaTeX documentation generation with doxygen (no)], [enable_latex_docs="$enableval"], [ enable_latex_docs=no])
   if test "x$enable_doxygen" != xno; then
@@ -914,27 +937,9 @@ AC_DEFUN([ENABLE_DOXYGEN],
           if test "x$DOXYGEN" = x; then
                 AC_MSG_WARN([could not find doxygen - disabled])
                 enable_doxygen=no
-          else
-                  AC_PATH_PROG(DOT, dot, , $PATH)
           fi
   fi
 
-  if test x$DOT = x; then
-          if test "x$enable_dot" = xyes; then
-                  AC_MSG_ERROR([could not find dot])
-          fi
-          enable_dot=no
-  else
-          enable_dot=yes
-  fi
-
-  # adjust values from yes/no to those used in doxygen configuration files (true/false)
-  if test "$enable_dot" = "yes"
-  then
-     enable_dot="true"
-  else
-     enable_dot="false"
-  fi
   if test "$enable_html_docs" = "yes"
   then
      enable_html_docs="true"
@@ -947,7 +952,6 @@ AC_DEFUN([ENABLE_DOXYGEN],
   else
      enable_latex_docs="false"
   fi
-  AC_SUBST(enable_dot)
   AC_SUBST(enable_html_docs)
   AC_SUBST(enable_latex_docs)
 ])

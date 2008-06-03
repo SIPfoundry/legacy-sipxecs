@@ -28,6 +28,10 @@ DOCBOOK_XML_DOCS = \
 
 include config/docbook.am
 
+$(foreach out,$(OUTPUT_FORMS),ClusterManagement.$(out)) : ClusterManagement.% : process_state.png
+
+OTHER_DOCS+=process_state.png
+
 endif # DOC
 
 all: $(DOCBOOK_OUTPUTS) $(OTHER_DOCS)
