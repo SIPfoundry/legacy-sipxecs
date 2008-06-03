@@ -77,6 +77,10 @@ public:
    // is now writable).
    virtual void writeMore(void);
 
+   // Remove and report all stored message content (because the socket
+   // is not usable).
+   virtual void emptyBuffer(void);
+
    UtlBoolean isSharedSocket( void ) const;
 
    UtlBoolean sendInvite(char* toAddress, char* callId, int rtpPort,
@@ -181,6 +185,15 @@ protected:
      *  If false, wait on outgoing SIP message in queue.
      */
     UtlBoolean mWriteQueued;
+
+    /** 
+     *  On non-blocking connect failures, we need to get the first
+     *  send message in order to successfully trigger the protocol
+     *  fallback mechanism.
+     *  TRUE from startup until first successful write on a TCP
+     *  socket, then false forever.
+     */
+    UtlBoolean mbTcpOnErrWaitForSend;
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:

@@ -1587,7 +1587,7 @@ void SipUserAgent::dispatch(SipMessage* message, int messageType)
       enum SipTransaction::messageRelationship relationship;
 #ifdef TRANSACTION_MATCH_DEBUG // enable only for transaction match debugging - log is confusing otherwise
             OsSysLog::add(FAC_SIP, PRI_DEBUG
-                          ,"SipUserAgent[%s]::dispatch searching for transaction",
+                          ,"SipUserAgent[%s]::dispatch(incoming) searching for transaction",
                           getName().data());
 #           endif
       SipTransaction* transaction =
@@ -2146,6 +2146,107 @@ void SipUserAgent::dispatch(SipMessage* message, int messageType)
          mSipTransactions.markAvailable(*transaction);
       }
    }        // end SipMessageEvent::APPLICATION
+   else if(messageType == SipMessageEvent::TRANSPORT_ERROR)
+   {
+       OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                     "SipUserAgent[%s]::dispatch transport error message received",
+                     getName().data());
+
+       if(message)
+       {
+          // WARNING: you cannot touch the contents of the transaction
+          // attached to the message until the transaction has been
+          // locked (via findTransactionFor, if no transaction is 
+          // returned, it either no longer exists or we could not get
+          // a lock for it.
+
+          if(message->getSipTransaction() == NULL)
+          {
+             OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                           "SipUserAgent[%s]::dispatch "
+                           "transport error message with NULL transaction",
+                           getName().data()
+                           );
+          }
+
+          int nextTimeout = -1;
+          enum SipTransaction::messageRelationship relationship;
+          //mSipTransactions.lock();
+#ifdef TRANSACTION_MATCH_DEBUG // enable only for transaction match debugging - log is confusing otherwise
+       OsSysLog::add(FAC_SIP, PRI_DEBUG
+                     ,"SipUserAgent[%s]::dispatch(transport error) searching for transaction",
+                     getName().data());
+#           endif
+          SipTransaction* transaction =
+             mSipTransactions.findTransactionFor(*message,
+                                                 TRUE, // timers are only set for outgoing?
+                                                 relationship);
+          if(transaction)
+          {
+              // If we are shutting down, unlock the transaction
+              // and set it to null.  We pretend that the transaction
+              // does not exist (i.e. no-op).
+              if (mbShuttingDown || mbShutdownDone)
+              {
+                  mSipTransactions.markAvailable(*transaction);
+                  transaction = NULL;
+              }
+          }
+
+          if(transaction)
+          {
+             SipMessage* delayedDispatchMessage = NULL;
+             transaction->handleExpiresEvent(*message,
+                                             *this,
+                                             relationship,
+                                             mSipTransactions,
+                                             nextTimeout,
+                                             delayedDispatchMessage);
+
+             mSipTransactions.markAvailable(*transaction);
+
+             if(delayedDispatchMessage)
+             {
+                // Only bother processing if the logs are enabled
+                if (    isMessageLoggingEnabled() ||
+                    OsSysLog::willLog(FAC_SIP_INCOMING_PARSED, PRI_DEBUG))
+                {
+                   UtlString delayMsgString;
+                   size_t delayMsgLen;
+                   delayedDispatchMessage->getBytes(&delayMsgString,
+                                                    &delayMsgLen);
+                   delayMsgString.insert(0, "SIP User agent delayed dispatch message:\n");
+                   delayMsgString.append("++++++++++++++++++++END++++++++++++++++++++\n");
+
+                   logMessage(delayMsgString.data(), delayMsgString.length());
+                   OsSysLog::add(FAC_SIP_INCOMING_PARSED, PRI_DEBUG,"%s",
+                                 delayMsgString.data());
+                }
+
+                queueMessageToObservers(delayedDispatchMessage,
+                                        SipMessageEvent::TRANSPORT_ERROR
+                                        );
+
+                //delayedDispatchMessage gets freed in queueMessageToObservers
+                delayedDispatchMessage = NULL;
+             }
+          }
+          else // Could not find a transaction for this expired message
+          {
+             if (OsSysLog::willLog(FAC_SIP, PRI_DEBUG))
+             {
+                UtlString noTxMsgString;
+                size_t noTxMsgLen;
+                message->getBytes(&noTxMsgString, &noTxMsgLen);
+
+                OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                              "SipUserAgent[%s]::dispatch "
+                              "transport error with no matching transaction: %s",
+                              getName().data(), noTxMsgString.data());
+             }
+          }
+       }
+   }    // End SipMessageEvent::TRANSPORT_ERROR
    else
    {
       shouldDispatch = TRUE;
@@ -2500,7 +2601,7 @@ UtlBoolean SipUserAgent::handleMessage(OsMsg& eventMessage)
                //mSipTransactions.lock();
 #ifdef TRANSACTION_MATCH_DEBUG // enable only for transaction match debugging - log is confusing otherwise
             OsSysLog::add(FAC_SIP, PRI_DEBUG
-                          ,"SipUserAgent[%s]::handleMessage #1 searching for transaction",
+                          ,"SipUserAgent[%s]::handleMessage(resend) searching for transaction",
                           getName().data());
 #           endif
                SipTransaction* transaction =
@@ -2644,7 +2745,7 @@ UtlBoolean SipUserAgent::handleMessage(OsMsg& eventMessage)
                //mSipTransactions.lock();
 #ifdef TRANSACTION_MATCH_DEBUG // enable only for transaction match debugging - log is confusing otherwise
             OsSysLog::add(FAC_SIP, PRI_DEBUG
-                          ,"SipUserAgent[%s]::handleMessage #2 searching for transaction",
+                          ,"SipUserAgent[%s]::handleMessage(expired) searching for transaction",
                           getName().data());
 #           endif
                SipTransaction* transaction =

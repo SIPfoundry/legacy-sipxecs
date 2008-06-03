@@ -180,7 +180,8 @@ SipClient::SipClient(OsSocket* socket,
    mSocketLock(OsBSem::Q_FIFO, OsBSem::FULL),
    mFirstResendTimeoutMs(SIP_DEFAULT_RTT * 4), // for first transcation time out
    mbSharedSocket(bIsSharedSocket),
-   mWriteQueued(FALSE)
+   mWriteQueued(FALSE),
+   mbTcpOnErrWaitForSend(TRUE)
 {
    touch();
 
@@ -321,6 +322,15 @@ UtlBoolean SipClient::sendTo(SipMessage& message,
    }
 
    return sendOk;
+}
+
+// Remove and report all stored message content (because the socket
+// is not usable).
+// This is the default, do-nothing, implementation, to be overridden
+// by classes that use this functionality.
+void SipClient::emptyBuffer(void)
+{
+   assert(FALSE);
 }
 
 // Continue sending stored message content (because the socket
@@ -468,6 +478,15 @@ int SipClient::run(void* runArg)
    // Buffer to hold data read from the socket but not yet parsed
    // into incoming SIP messages.
    UtlString readBuffer;
+   bool      waitingToReportErr  = FALSE;    // controls whether to read-select on socket
+   bool      tcpOnErrWaitForSend = TRUE; 
+   int       repeatedEOFs = 0;
+
+   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                 "SipClient[%s]::run start  "
+                 "OnErrWait-%d waitingToReport-%d mbOnErrWait-%d EOFs-%d",
+                 mName.data(), tcpOnErrWaitForSend, waitingToReportErr, 
+                 mbTcpOnErrWaitForSend, repeatedEOFs);
 
    // Wait structure:
    struct pollfd fds[2];
@@ -478,6 +497,7 @@ int SipClient::run(void* runArg)
 
    do
    {
+       assert(repeatedEOFs < 20);
       // The file descriptor for the socket may change, as OsSocket's
       // can be re-opened.
       fds[1].fd = clientSocket->getSocketDescriptor();
@@ -489,13 +509,23 @@ int SipClient::run(void* runArg)
       fds[0].revents = 0;
       fds[1].revents = 0;
 
-      fds[0].events = POLLIN;
-      // Read the socket only if the socket is not shared.
-      // If it is shared, the ancestral SipClient will read it.
-      // If multiple threads attempt to read the socket, poll() may
-      // succeed but another may read the data, leaving us to block on
-      // read.
-      fds[1].events = mbSharedSocket ? 0 : POLLIN;
+      fds[0].events = POLLIN;   // only read-select on pipe 
+
+      // For non-blocking connect failures, don't read-select on socket if
+      // the initial read showed an error but we have to wait to report it.
+      if (!waitingToReportErr)   
+      {
+          // Read the socket only if the socket is not shared.
+          // If it is shared, the ancestral SipClient will read it.
+          // If multiple threads attempt to read the socket, poll() may
+          // succeed but another may read the data, leaving us to block on
+          // read.
+          fds[1].events = mbSharedSocket ? 0 : POLLIN;
+      }
+      else 
+      {
+          fds[1].events = 0;
+      }
 
       // Set wait for writing the socket if there is queued messages to
       // send.
@@ -520,22 +550,35 @@ int SipClient::run(void* runArg)
          assert(res >= 0 || (res == -1 && errno == EINTR));
       }
 
-      // Check for message queue messages before checking the socket,
+      // Check for message queue messages (fds[0]) before checking the socket(fds[1]),
       // to make sure that we process shutdown messages promptly, even
       // if we would be spinning trying to service the socket.
       if ((fds[0].revents & POLLIN) != 0)
       {
-         // Poll finished because the pipe is ready to read.
+         // Poll finished because the pipe is ready to read, 
+         // (one byte in pipe means message available in queue.)
+         // only a SipClient with a derived SipClientWriteBuffer 
+         // uses the pipe in the Sip message send process
 
          // Receive the message.
          res = receiveMessage((OsMsg*&) pMsg, OsTime::NO_WAIT);
          assert(res == OS_SUCCESS);
 
-         // Read 1 byte from the pipe.
+         // Normally, this is a SIP message for the write buffer.  Once we have get
+         // here, we are able to report any initial non-blocking connect error.
+         mbTcpOnErrWaitForSend = FALSE;
+         tcpOnErrWaitForSend = FALSE;
+         OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                       "SipClient[%s]::run got pipe-select  "
+                       "OnErrWait-%d waitingToReport-%d mbOnErrWait-%d EOFs-%d",
+                       mName.data(), tcpOnErrWaitForSend, waitingToReportErr, 
+                       mbTcpOnErrWaitForSend, repeatedEOFs);
+
+         // Read 1 byte from the pipe to clear it.
          char buffer[1];
          assert(read(mPipeReadingFd, &buffer, 1) == 1);
 
-         if (!handleMessage(*pMsg))                  // process the message
+         if (!handleMessage(*pMsg))            // process the message (from queue)
          {
             OsServerTask::handleMessage(*pMsg);
          }
@@ -544,6 +587,15 @@ int SipClient::run(void* runArg)
          {
             pMsg->releaseMsg();                         // free the message
          }
+
+         // if this helps, why is it needed?
+         if (waitingToReportErr)   
+         {
+             // Return all buffered messages with a transport error indication.
+             emptyBuffer();
+             clientStopSelf();
+         }
+
       }
       else if ((fds[1].revents & POLLOUT) != 0)
       {
@@ -578,6 +630,7 @@ int SipClient::run(void* runArg)
               readBuffer(0) == '\r' && readBuffer(1) == '\n' &&
               readBuffer(2) == '\r' && readBuffer(3) == '\n'))
          {
+             repeatedEOFs = 0;
              // The 'message' was a keepalive (CR-LF or CR-LF-CR-LF).
              UtlString fromIpAddress;
              int fromPort;
@@ -633,7 +686,7 @@ int SipClient::run(void* runArg)
                                         SipClientSendMsg::SIP_CLIENT_SEND_KEEP_ALIVE,
                                         fromIpAddress,
                                         fromPort);
-                handleMessage(sendMsg);
+                handleMessage(sendMsg);     // add newly created keep-alive to write buffer
             }
                break;
             case OsSocket::UDP:
@@ -658,9 +711,10 @@ int SipClient::run(void* runArg)
             // remember any unparsed input for later use.
             readBuffer.remove(0, res);
          }
-         else if (res > 0)
+         else if (res > 0)      // got message, but not keep-alive
          {
             // Message successfully read.
+            repeatedEOFs = 0;
 
             // Do preliminary processing of message to log it,
             // clean up its data, and extract any needed source address.
@@ -678,23 +732,47 @@ int SipClient::run(void* runArg)
          {
             // Something went wrong while reading the message.
             // (Possibly EOF on a connection-oriented socket.)
+            repeatedEOFs++;
 
             // Delete the SipMessage allocated above, which is no longer needed.
             delete msg;
+            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                          "SipClient[%s]::run SipMessage::read returns %d (error(%d) or EOF), "
+                          "readBuffer = '%.1000s'",
+                          mName.data(), res, errno, readBuffer.data());
 
-            // If the socket is not framed, we need to abort the connection.
+            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                          "SipClient[%s]::run error wait status  "
+                          "OnErrWait-%d waitingToReport-%d mbOnErrWait-%d EOFs-%d",
+                          mName.data(), tcpOnErrWaitForSend, waitingToReportErr, 
+                          mbTcpOnErrWaitForSend, repeatedEOFs);
+
+            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                          "SipClient[%s]::run read error protocol %d ",
+                          mName.data(), 
+                          OsSocket::isFramed(clientSocket->getIpProtocol()));
+
+            // If the socket is not framed (is connection-oriented), 
+            // we need to abort the connection and post a message
             // :TODO: This doesn't work right for framed connection-oriented
             // protocols (like SCTP), but OsSocket doesn't have an EOF-query
             // method -- we need to close all connection-oriented
             // sockets as well in case it was an EOF.
             // Define a virtual function that returns the correct bit.
-            OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                          "SipClient[%s]::run SipMessage::read returns %d (error or EOF), "
-                          "readBuffer = '%.1000s'",
-                          mName.data(), res, readBuffer.data());
             if (!OsSocket::isFramed(clientSocket->getIpProtocol()))
             {
-               clientStopSelf();
+                // On non-blocking connect failures, we need to get the first send message  
+                // in order to successfully trigger the protocol fallback mechanism
+                if (!tcpOnErrWaitForSend)
+                {
+                   // Return all buffered messages with a transport error indication.
+                   emptyBuffer();
+                   clientStopSelf();
+                }
+                else
+                {
+                   waitingToReportErr = TRUE;
+                }
             }
             // Delete the data read so far, which will not have been
             // deleted by HttpMessage::read.
