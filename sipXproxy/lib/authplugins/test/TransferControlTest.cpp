@@ -299,7 +299,7 @@ public:
 
          const char* message =
             "REFER sip:someone@somewhere SIP/2.0\r\n"
-            "Refer-To: <other@elsewhere;transport=udp?replaces=valid%40callid%3Bto-tag%3Dtotagvalue%3Bfrom-tag%3dfromtagvalue>\r\n"
+            "Refer-To: other@elsewhere?replaces=valid@callid;to-tag=totagvalue;from-tag=fromtagvalue\r\n"
             "Via: SIP/2.0/TCP 10.1.1.3:33855\r\n"
             "To: sip:someone@somewhere\r\n"
             "From: Caller <sip:caller@example.org>; tag=30543f3483e1cb11ecb40866edd3295b\r\n"
@@ -339,7 +339,6 @@ public:
           */
          UtlString modifiedReferToStr;
          CPPUNIT_ASSERT(testMsg.getReferToField(modifiedReferToStr));
-
          Url modifiedReferTo(modifiedReferToStr);
          CPPUNIT_ASSERT(Url::SipUrlScheme == modifiedReferTo.getScheme());
 
@@ -350,11 +349,6 @@ public:
          UtlString proxyRoute;         // but should route through this proxy
          CPPUNIT_ASSERT(modifiedReferTo.getHeaderParameter(SIP_ROUTE_FIELD,proxyRoute));
          ASSERT_STR_EQUAL("<sip:example.edu;lr>", proxyRoute.data());
-
-         UtlString replacesId;
-         CPPUNIT_ASSERT(modifiedReferTo.getHeaderParameter(SIP_REPLACES_FIELD,replacesId));
-         ASSERT_STR_EQUAL("valid@callid;to-tag=totagvalue;from-tag=fromtagvalue",
-                          replacesId.data());
       }
 
 

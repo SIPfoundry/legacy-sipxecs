@@ -89,7 +89,7 @@ TransferControl::authorizeAndModify(const SipRouter* sipRouter,  ///< for access
          UtlString targetStr;
          if (request.getReferToField(targetStr))
          {
-            Url target(targetStr, Url::NameAddr);  // parse the target URL
+            Url target(targetStr);  // parse the target URL
 
             UtlString targetMethod; 
             if (   Url::SipUrlScheme == target.getScheme() 
