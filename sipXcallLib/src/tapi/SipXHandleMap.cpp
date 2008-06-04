@@ -24,6 +24,7 @@
 // EXTERNAL VARIABLES
 // CONSTANTS
 // STATIC VARIABLE INITIALIZATIONS
+const SIPXHANDLE SIPXHANDLE_NULL = 0;
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
@@ -43,81 +44,92 @@ SipXHandleMap::~SipXHandleMap()
 
 /* ============================ MANIPULATORS ============================== */
 
-void SipXHandleMap::addHandleRef(SIPXHANDLE hHandle)
+bool SipXHandleMap::addHandleRef(SIPXHANDLE hHandle)
 {
-    lock() ;    
+    bool bRC = false ;
 
-    mLockCountHash.findValue(&UtlInt(hHandle));
-    UtlInt* count = static_cast<UtlInt*>(mLockCountHash.findValue(&UtlInt(hHandle))) ;
-    if (count == NULL)
+    if (lock())
     {
-        mLockCountHash.insertKeyAndValue(new UtlInt(hHandle), new UtlInt(1));
-    }
-    else
-    {
-        count->setValue(count->getValue() + 1);
-    }
+        mLockCountHash.findValue(&UtlInt(hHandle));
+        UtlInt* count = static_cast<UtlInt*>(mLockCountHash.findValue(&UtlInt(hHandle))) ;
+        if (count == NULL)
+        {
+            mLockCountHash.insertKeyAndValue(new UtlInt(hHandle), new UtlInt(1));
+        }
+        else
+        {
+            count->setValue(count->getValue() + 1);
+        }
     
-    unlock() ;
-}
-
-void SipXHandleMap::releaseHandleRef(SIPXHANDLE hHandle)
-{
-    lock();
-
-    UtlInt* pCount = static_cast<UtlInt*>(mLockCountHash.findValue(&UtlInt(hHandle))) ;
-    if (pCount == NULL)
-    {
-        mLockCountHash.insertKeyAndValue(new UtlInt(hHandle), new UtlInt(0));
-    }
-    else
-    {
-        pCount->setValue(pCount->getValue() - 1);
+        bRC = unlock() ;
     }
 
-    unlock();
+    return bRC ;
 }
 
-void SipXHandleMap::lock()
+bool SipXHandleMap::releaseHandleRef(SIPXHANDLE hHandle)
 {
-    mLock.acquire() ;
+    bool bRC = false ;
+
+    if (lock())
+    {
+        UtlInt* pCount = static_cast<UtlInt*>(mLockCountHash.findValue(&UtlInt(hHandle))) ;
+        if (pCount == NULL)
+        {
+            mLockCountHash.insertKeyAndValue(new UtlInt(hHandle), new UtlInt(0));
+        }
+        else
+        {
+            pCount->setValue(pCount->getValue() - 1);
+        }
+        bRC = unlock();
+    }
+    return bRC ;
+}
+
+bool SipXHandleMap::lock()
+{
+    return (mLock.acquire() == OS_SUCCESS);
 }
 
 
-void SipXHandleMap::unlock() 
+bool SipXHandleMap::unlock() 
 {
-    mLock.release() ;
+    return (mLock.release() == OS_SUCCESS);
 }
 
 
 SIPXHANDLE SipXHandleMap::allocHandle(const void* pData) 
 {
-    lock() ;
+    SIPXHANDLE rc = SIPXHANDLE_NULL;
 
-    SIPXHANDLE hCall = mNextHandle++ ;
-    insertKeyAndValue(new UtlInt(hCall), new UtlVoidPtr((void*) pData)) ;
-    addHandleRef(hCall);
+    if (lock())
+    {
+        rc = mNextHandle++ ;
+        insertKeyAndValue(new UtlInt(rc), new UtlVoidPtr((void*) pData)) ;
+        addHandleRef(rc);
+        unlock() ;
+    }
 
-    unlock() ;
-
-    return hCall ;
+    return rc;
 }
 
 const void* SipXHandleMap::findHandle(SIPXHANDLE handle) 
 {
-    lock() ;
-
     const void* pRC = NULL ;
-    UtlInt key(handle) ;
-    UtlVoidPtr* pValue ;
-
-    pValue = (UtlVoidPtr*) findValue(&key) ;
-    if (pValue != NULL)
+    if (lock())
     {
-        pRC = pValue->getValue() ;
-    }
+        UtlInt key(handle) ;
+        UtlVoidPtr* pValue ;
 
-    unlock() ;
+        pValue = (UtlVoidPtr*) findValue(&key) ;
+        if (pValue != NULL)
+        {
+            pRC = pValue->getValue() ;
+        }
+
+        unlock() ;
+    }
 
     return pRC ;
 }
@@ -125,32 +137,35 @@ const void* SipXHandleMap::findHandle(SIPXHANDLE handle)
 
 const void* SipXHandleMap::removeHandle(SIPXHANDLE handle) 
 {
-    lock() ;
-
-    releaseHandleRef(handle);
     const void* pRC = NULL ;
-        
-    UtlInt* pCount = static_cast<UtlInt*>(mLockCountHash.findValue(&UtlInt(handle))) ;
-        
-    if (pCount == NULL || pCount->getValue() < 1)
-    {
-        UtlInt key(handle) ;
-        UtlVoidPtr* pValue ;
-            
-        pValue = (UtlVoidPtr*) findValue(&key) ;
-        if (pValue != NULL)
-        {
-            pRC = pValue->getValue() ;                
-            destroy(&key) ;
-        }
-
-        if (pCount)
-        {
-            mLockCountHash.destroy(&UtlInt(handle));
-        }
-    }
     
-    unlock() ;
+    if (lock())
+    {
+        releaseHandleRef(handle);
+        
+        UtlInt* pCount = static_cast<UtlInt*>(mLockCountHash.findValue(&UtlInt(handle))) ;
+        
+        if (pCount == NULL || pCount->getValue() < 1)
+        {
+            UtlInt key(handle) ;
+            UtlVoidPtr* pValue ;
+            
+            pValue = (UtlVoidPtr*) findValue(&key) ;
+            if (pValue != NULL)
+            {
+                pRC = pValue->getValue() ;                
+                destroy(&key) ;
+            }
+
+            if (pCount)
+            {
+                mLockCountHash.destroy(&UtlInt(handle));
+            }
+        }
+    
+        unlock() ;
+    }
+
     return pRC ;
 }
 

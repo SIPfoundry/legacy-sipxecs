@@ -27,6 +27,7 @@
 // TYPEDEFS
 typedef unsigned int SIPXHANDLE ;
 // FORWARD DECLARATIONS
+extern const SIPXHANDLE SIPXHANDLE_NULL;
 
 /**
  * SipXHandleMap provides a very simple container that associates a void*
@@ -62,14 +63,14 @@ class SipXHandleMap : public UtlHashMap
      * routines.  This is called automatically for those routines, however,
      * should be called explicitly if using an external iterator on the map.
      */
-    void lock() ;
+    bool lock() ;
 
     /**
      * Unlock access to the allocHandle, findHandle, and removeHandle
      * routines.  This is called automatically for those routines, however,
      * should be called explicitly if using an external iterator on the map.
      */
-    void unlock() ;
+    bool unlock() ;
     
     /**
      * Adds a reference count to the handle lock.  In this way, removeHandle is 
@@ -78,7 +79,7 @@ class SipXHandleMap : public UtlHashMap
      * addHandleRef should only be used in very specific
      * cases, when the handle might become invalid before it is needed again.
      */
-     void addHandleRef(SIPXHANDLE handle);
+     bool addHandleRef(SIPXHANDLE handle);
      
     /**
      * Allocate a unique handle and associate the designed pData value
@@ -121,7 +122,7 @@ class SipXHandleMap : public UtlHashMap
      * So, removeHandle will only actually remove the handle and
      * return a pointer when there are no outstanding locks.
      */
-    void releaseHandleRef(SIPXHANDLE handle);
+    bool releaseHandleRef(SIPXHANDLE handle);
     
 };
 

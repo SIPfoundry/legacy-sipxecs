@@ -2787,32 +2787,33 @@ SIPXTAPI_API SIPX_RESULT sipxConferenceDestroy(SIPX_CONF hConf)
     if (hConf)
     {
        // Lock the whole thing for the duration.
-       gpConfHandleMap->lock() ;
-
-       // Get a snapshot of the calls, drop the connections, remove the conf handle,
-       // and THEN whack the call -- otherwise whacking the calls will force updates
-       // into SIPX_CONF_DATA structure (work that isn't needed).
-       if (sipxConferenceGetCalls(hConf, hCalls, CONF_MAX_CONNECTIONS, nCalls) ==
-           SIPX_RESULT_SUCCESS)
+       if (gpConfHandleMap->lock())
        {
-          for (size_t idx=0; idx<nCalls; idx++)
-          {
-             assert(hCalls[idx] != SIPX_CALL_NULL);
-             sipxConferenceRemove(hConf, hCalls[idx]) ;
-          }
-       }
-       else
-       {
-          OsSysLog::add(FAC_SIPXTAPI, PRI_WARNING,
-                        "sipxConferenceDestroy hConf=%u does not exist",
-                        hConf);
-          assert(FALSE);
-       }
+           // Get a snapshot of the calls, drop the connections, remove the conf handle,
+           // and THEN whack the call -- otherwise whacking the calls will force updates
+           // into SIPX_CONF_DATA structure (work that isn't needed).
+           if (sipxConferenceGetCalls(hConf, hCalls, CONF_MAX_CONNECTIONS, nCalls) ==
+               SIPX_RESULT_SUCCESS)
+           {
+              for (size_t idx=0; idx<nCalls; idx++)
+              {
+                 assert(hCalls[idx] != SIPX_CALL_NULL);
+                 sipxConferenceRemove(hConf, hCalls[idx]) ;
+              }
+           }
+           else
+           {
+              OsSysLog::add(FAC_SIPXTAPI, PRI_WARNING,
+                            "sipxConferenceDestroy hConf=%d does not exist",
+                            hConf);
+              assert(FALSE);
+           }
 
-       sipxConfFree(hConf) ;
-       gpConfHandleMap->unlock() ;
+           sipxConfFree(hConf) ;
+           gpConfHandleMap->unlock() ;
 
-       rc = SIPX_RESULT_SUCCESS ;
+           rc = SIPX_RESULT_SUCCESS ;
+       }
     }
 
     return rc ;
