@@ -33,6 +33,7 @@ $(foreach out,$(OUTPUT_FORMS),ClusterManagement.$(out)) : ClusterManagement.% : 
 $(foreach out,$(OUTPUT_FORMS),ClusterManagement.$(out)) : ClusterManagement.% : process_state.png
 
 OTHER_DOCS+=process_state.svg process_state.png
+CLEANFILES+=process_state.svg process_state.png
 
 EXTRA_DIST+=process_state.dot
 

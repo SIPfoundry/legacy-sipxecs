@@ -119,6 +119,16 @@ if GENERATE_DOT
 %.svg: %.dot
 	$(DOT) -Tsvg $< -o $@
 
+else
+
+%.png: %.dot
+	@echo "'dot' not available - substituting missing image"
+	@cp -v $(top_srcdir)/config/missing.png $@
+
+%.svg: %.dot
+	@echo "'dot' not available - substituting missing image"
+	@cp -v $(top_srcdir)/config/missing.svg $@
+
 endif
 
 DOCBOOK_OUTPUTS= \
