@@ -85,12 +85,13 @@
     <property name="name" value="Informační služby" />
     <property name="description" value="Informační telefonní čísla" />
     <property name="areaCodes" value="1180, 1181, 1188, 133001, 133002, 14100, 14112, 14116" />
+    <property name="externalLen" value="-1" />
     <property name="permissionName" value="900Dialing" />
   </bean>
   <bean id="cs.mobileRule" parent="cs.longDistanceRule" singleton="false">
     <property name="name" value="Mobilní telefony" />
     <property name="description" value="Volání na mobilní telefony" />
-    <property name="areaCodes" value="6, 7" />
+    <property name="areaCodes" value="6,7" />
     <property name="permissionName" value="Mobile" />
   </bean>
   <bean id="cs.internationalRule" parent="cs.longDistanceRule" singleton="false">
