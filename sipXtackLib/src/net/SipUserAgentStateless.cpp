@@ -36,7 +36,7 @@ SipUserAgentStateless::SipUserAgentStateless(int sipTcpPort, int sipUdpPort) :
    Url contact;
    contact.setHostAddress(localAddress.data());
    contact.setHostPort(sipUdpPort);
-   contact.toString(mContactAddress);
+   contact.toString(mContactURI);
 
    OsDatagramSocket* serverSocket =
        new OsDatagramSocket(0, NULL,sipUdpPort, NULL);

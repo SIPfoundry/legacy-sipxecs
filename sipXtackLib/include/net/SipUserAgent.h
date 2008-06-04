@@ -459,6 +459,9 @@ public:
     //! Get the NAT mapped address and port
     UtlBoolean getNatMappedAddress(UtlString* pIpAddress, int* pPort) ;
 
+    //! Get the SipUserAgent's contact URI.
+    void getContactURI(UtlString& contact);
+
     void setIsUserAgent(UtlBoolean isUserAgent);
 
     /// Provides a string to be appended to the standard User-Agent header.

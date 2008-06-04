@@ -140,9 +140,11 @@ class ResourceListServer : public UtlContainableAtomic
    // Return value is valid as long as the ResourceListServer exists.
    const char* getServerLocalHostPart() const;
  
-   //! Get the outgoing address used for SUBSCRIBEs.
-   // Return value is valid as long as the ResourceListServer exists.
-   const char* getClientOutgoingAddress() const;
+   //! Get the From URI to be used for SUBSCRIBEs.
+   const char* getClientFromURI() const;
+
+   //! Get the Contact URI to be used for SUBSCRIBEs.
+   const char* getClientContactURI() const;
 
    //! Get the event publisher.
    SipPublishContentMgr& getEventPublisher();
@@ -207,8 +209,10 @@ class ResourceListServer : public UtlContainableAtomic
    UtlString mEventType;
    //! Content type.
    UtlString mContentType;
-   //! Outgoing address for client.
-   UtlString mClientOutgoingAddress;
+   //! From URI for mClientSipUserAgent.
+   UtlString mClientFromURI;
+   //! Contact URI for mClientSipUserAgent.
+   UtlString mClientContactURI;
    //! Refresh interval for reinitializing connection to resource URIs, in seconds..
    int mRefreshInterval;
    //! Resubscription interval for subscriptions, in seconds.
@@ -334,10 +338,16 @@ inline const char* ResourceListServer::getServerLocalHostPart() const
    return mServerLocalHostPart.data();
 }
 
-//! Get the client outgoing address.
-inline const char* ResourceListServer::getClientOutgoingAddress() const
+//! Get the client From URI.
+inline const char* ResourceListServer::getClientFromURI() const
 {
-   return mClientOutgoingAddress.data();
+   return mClientFromURI.data();
+}
+
+//! Get the client Contact URI.
+inline const char* ResourceListServer::getClientContactURI() const
+{
+   return mClientContactURI.data();
 }
 
 //! Get the event publisher.

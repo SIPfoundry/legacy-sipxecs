@@ -581,6 +581,7 @@ void SipMessage::setRequestData(const char* method, const char* uri,
    // Add the CSeq field
    setCSeqField(sequenceNumber, method);
 
+   // Add the Contact field, if any.
    if(contactUrl && *contactUrl)
    {
       setContactField(contactUrl);

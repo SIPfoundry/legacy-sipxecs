@@ -149,10 +149,13 @@ ResourceListServer::ResourceListServer(const UtlString& domainName,
               portIsValid(udpPort) ? udpPort : tcpPort);
       mServerLocalHostPart = buffer;
 
-      // Construct the client's URI.
+      // Construct the client's From URI.
       sprintf(buffer, "sip:sipXrls@%s:%d", localAddress.data(), localPort);
-      mClientOutgoingAddress = buffer;
-   }
+      mClientFromURI = buffer;
+
+      // Obtain the client's Contact URI.
+      mClientUserAgent.getContactURI(mClientContactURI);
+}
 
    // Initialize the SipUserAgent's.
    // Set the user-agent strings.

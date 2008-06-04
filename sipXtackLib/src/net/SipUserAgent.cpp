@@ -166,6 +166,7 @@ SipUserAgent::SipUserAgent(int sipTcpPort,
         {
             OsSysLog::add(FAC_NET, PRI_EMERG, "Unable to bind on tls port %d (ok=%d)",
                     sipTlsPort, mSipTlsServer->isOk());
+            mTlsPort == PORT_NONE;
         }
     }
 #endif
@@ -181,6 +182,7 @@ SipUserAgent::SipUserAgent(int sipTcpPort,
         {
             OsSysLog::add(FAC_NET, PRI_EMERG, "Unable to bind on tcp port %d (ok=%d)",
                     sipTcpPort, mSipTcpServer->isOk());
+            mTcpPort = PORT_NONE;
         }        
     }
 
@@ -200,8 +202,13 @@ SipUserAgent::SipUserAgent(int sipTcpPort,
         {
             OsSysLog::add(FAC_NET, PRI_EMERG, "Unable to bind on udp port %d (ok=%d)",
                     sipUdpPort, mSipUdpServer->isOk());
+            mUdpPort = PORT_NONE;
         }                
     }
+    OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                  "SipUserAgent[%s]::_ after creating mSip*Servers: "
+                  "mTcpPort = %d, mUdpPort = %d, mTlsPort = %d",
+                  getName().data(), mTcpPort, mUdpPort, mTlsPort);
 
     mMaxMessageLogSize = MAXIMUM_SIP_LOG_SIZE;
     mMaxForwards = SIP_DEFAULT_MAX_FORWARDS;
@@ -413,17 +420,22 @@ SipUserAgent::SipUserAgent(int sipTcpPort,
           protocol = NULL;
        }
          
-       SipMessage::buildSipUri(&mContactAddress,
+       SipMessage::buildSipUri(&mContactURI,
                                !mConfigPublicAddress.isNull() ?
                                mConfigPublicAddress.data() :
                                sipIpAddress.data(),
                                port,
                                protocol,
                                defaultSipUser.data());
+       OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                     "SipUserAgent[%s]::_ port = %d, protocol = %s, mContactURI = '%s'",
+                     getName().data(), port,
+                     protocol ? protocol : "NULL",
+                     mContactURI.data());
     }
 
     // Initialize the transaction id seed
-    BranchId::setSecret(mContactAddress); // XECS-226 should be a configuration value
+    BranchId::setSecret(mContactURI); // XECS-226 should be a configuration value
 
     mPingLock = FALSE;
     if(natPingUrl && *natPingUrl && natPingFrequency > 0)
@@ -789,7 +801,7 @@ UtlBoolean SipUserAgent::send(SipMessage& message,
    {
       // Add a Contact header with the default Contact URI
       // for this SipUserAgent.
-      message.setContactField(mContactAddress.data());
+      message.setContactField(mContactURI.data());
    }
 
    if (!isResponse)
@@ -1636,7 +1648,7 @@ void SipUserAgent::dispatch(SipMessage* message, int messageType)
                   Url newContact;
                   newContact.setHostAddress(natAddress.data());
                   newContact.setHostPort(natPort);
-                  newContact.toString(mContactAddress);
+                  newContact.toString(mContactURI);
 
                   // Set the address and port for the via as
                   // well
@@ -1644,7 +1656,7 @@ void SipUserAgent::dispatch(SipMessage* message, int messageType)
                   mSipPort = natPort;
                   OsSysLog::add(FAC_SIP, PRI_DEBUG,
                                 "SipUserAgent[%s]::dispatch set new contact: %s",
-                                getName().data(), mContactAddress.data());
+                                getName().data(), mContactURI.data());
                }
                mPingLock = FALSE;
             }
@@ -3026,6 +3038,11 @@ UtlBoolean SipUserAgent::getNatMappedAddress(UtlString* pIpAddress, int* pPort)
     return bRet;
 }
 
+// Get the Contact URI.
+void SipUserAgent::getContactURI(UtlString& contact)
+{
+   contact = mContactURI;
+}
 
 void SipUserAgent::setIsUserAgent(UtlBoolean isUserAgent)
 {
