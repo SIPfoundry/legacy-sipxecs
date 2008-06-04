@@ -405,7 +405,6 @@ void Url::setUrlType(const char* urlProtocol)
    {
       // no urlProtocol value passed
       OsSysLog::add(FAC_SIP, PRI_CRIT, "Url::setUrlType Url scheme NULL");
-      assert(urlProtocol);
       mScheme = UnknownUrlScheme;
    }
 }
@@ -432,7 +431,7 @@ void Url::setDisplayName(const char* displayName)
        }
        else
        {
-          assert(FALSE); // invalid display name value
+          OsSysLog::add(FAC_SIP, PRI_CRIT, "Url::setDisplayName '%s' invalid", displayName);
        }
    }
 }
@@ -1345,7 +1344,13 @@ bool Url::parseString(const char* urlString, ///< string to parse URL from
             break;
 
          default:
-            assert(false);
+            OsSysLog::add(FAC_SIP, PRI_ERR, "Url::parseString display name invalid (matches: %d)\n"
+                          "   %s value: '%s'",
+                          displayName.Matches(),
+                          uriForm == NameAddr ? "NameAddr" :
+                          uriForm == AddrSpec ? "AddrSpec" :
+                          "(unknown form)",
+                          urlString);
          }
 
          // does not include whitespace or the '<'
