@@ -10,6 +10,8 @@
 package org.sipfoundry.sipxconfig.site.admin.commserver;
 
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.tapestry.IPage;
@@ -35,11 +37,16 @@ import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.domain.DomainConfigReplicatedEvent;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.site.service.EditProxyService;
+import org.sipfoundry.sipxconfig.site.service.EditRegistrarService;
 
 public abstract class Services extends BasePage implements PageBeginRenderListener {
     public static final String PAGE = "admin/commserver/Services";
-
-    public static final String SIPXPROXY = "SIPXProxy";
+    
+    public static final Map<String, String> SERVICE_MAP = new HashMap<String, String>();
+    static {
+        SERVICE_MAP.put("SIPXProxy", EditProxyService.PAGE);
+        SERVICE_MAP.put("SIPRegistrar", EditRegistrarService.PAGE);
+    }
 
     @InjectObject(value = "service:tapestry.ognl.ExpressionEvaluator")
     public abstract ExpressionEvaluator getExpressionEvaluator();
@@ -106,11 +113,11 @@ public abstract class Services extends BasePage implements PageBeginRenderListen
     }
 
     public boolean getCurrentRowHasServiceLink() {
-        return SIPXPROXY.equals(getCurrentRow().getServiceName());
+        return SERVICE_MAP.containsKey(getCurrentRow().getServiceName());
     }
 
-    public IPage editService(IRequestCycle cycle) {
-        return cycle.getPage(EditProxyService.PAGE);
+    public IPage editService(IRequestCycle cycle, String serviceName) {
+        return cycle.getPage(SERVICE_MAP.get(serviceName));
     }
 
     /**

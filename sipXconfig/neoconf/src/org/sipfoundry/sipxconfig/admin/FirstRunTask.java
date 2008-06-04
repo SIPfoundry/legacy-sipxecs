@@ -18,7 +18,6 @@ import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.common.ApplicationInitializedEvent;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
-import org.sipfoundry.sipxconfig.service.SipxService;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.context.ApplicationEvent;
@@ -43,9 +42,6 @@ public class FirstRunTask implements ApplicationListener {
         m_dialPlanContext.activateDialPlan();
         m_coreContext.initializeSpecialUsers();
         
-        SipxService proxyService = m_serviceManager.getServiceByBeanId("sipxProxyService");
-        m_serviceManager.replicateServiceConfig(proxyService);
-
         List restartable = m_processContext.getRestartable();
         m_processContext.restartOnEvent(restartable, DialPlanActivatedEvent.class);
     }

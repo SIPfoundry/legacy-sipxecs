@@ -17,13 +17,13 @@ import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
-import org.sipfoundry.sipxconfig.service.SipxProxyService;
+import org.sipfoundry.sipxconfig.service.SipxRegistrarService;
 import org.sipfoundry.sipxconfig.service.SipxService;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.sipfoundry.sipxconfig.site.admin.commserver.Services;
 
-public abstract class EditProxyService extends PageWithCallback implements PageBeginRenderListener {
-    public static final String PAGE = "service/EditProxyService";
+public abstract class EditRegistrarService extends PageWithCallback implements PageBeginRenderListener {
+    public static final String PAGE = "service/EditRegistrarService";
 
     @InjectObject(value = "spring:sipxServiceManager")
     public abstract SipxServiceManager getSipxServiceManager();
@@ -31,15 +31,15 @@ public abstract class EditProxyService extends PageWithCallback implements PageB
     @Bean
     public abstract SipxValidationDelegate getValidator();
 
-    public abstract SipxService getProxyService();
+    public abstract SipxService getRegistrarService();
 
-    public abstract void setProxyService(SipxService proxyService);
+    public abstract void setRegistrarService(SipxService registrarService);
 
     public void pageBeginRender(PageEvent event) {
-        if (getProxyService() == null) {
+        if (getRegistrarService() == null) {
             SipxService proxyService = getSipxServiceManager().getServiceByBeanId(
-                    SipxProxyService.BEAN_ID);
-            setProxyService(proxyService);
+                    SipxRegistrarService.BEAN_ID);
+            setRegistrarService(proxyService);
         }
         
         if (getCallback() == null) {
@@ -53,7 +53,8 @@ public abstract class EditProxyService extends PageWithCallback implements PageB
     }
 
     public void apply() {
-        getSipxServiceManager().storeService(getProxyService());
+        getRegistrarService().validate();
+        getSipxServiceManager().storeService(getRegistrarService());
     }
 
     public void cancel(IRequestCycle cycle) {

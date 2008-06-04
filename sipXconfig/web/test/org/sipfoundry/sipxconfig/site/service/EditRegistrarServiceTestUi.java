@@ -14,16 +14,16 @@ import net.sourceforge.jwebunit.junit.WebTestCase;
 
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 
-public class EditProxyServiceTestUi extends WebTestCase {
+public class EditRegistrarServiceTestUi extends WebTestCase {
     
     public static Test suite() throws Exception {
-        return SiteTestHelper.webTestSuite(EditProxyServiceTestUi.class);
+        return SiteTestHelper.webTestSuite(EditRegistrarServiceTestUi.class);
     }
     
     public void testDisplay() {
         getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
         SiteTestHelper.home(tester);
-        clickLink("editProxyService");
+        clickLink("editRegistrarService");
         SiteTestHelper.assertNoException(tester);
     }
 }

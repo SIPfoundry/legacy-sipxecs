@@ -34,7 +34,8 @@
                    <span jwcid="serviceNameColumnValue@Block">
                       <span jwcid="@If" condition="ognl:currentRowHasServiceLink">
                          <a jwcid="@DirectLink"
-                            listener="listener:editService">
+                            listener="listener:editService"
+                            parameters="ognl:currentRow.serviceName">
                             <span jwcid="@Insert" value="ognl:currentRow.serviceName"/>
                          </a>
                       </span>

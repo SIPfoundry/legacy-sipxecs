@@ -55,60 +55,6 @@
       <type />
       <value />
     </setting>
-    <setting name="SIP_REGISTRAR_DOMAIN_ALIASES" hidden="yes">
-      <profileName>registrar-config.in</profileName>
-      <value>${MY_FULL_HOSTNAME} ${MY_IP_ADDR}</value>
-    </setting>
-  </group>
-  <group name="isn">
-    <setting name="SIP_REDIRECT.190-ISN.BASE_DOMAIN">
-      <profileName>registrar-config.in</profileName>
-      <type>
-        <boolean>
-          <true>
-            <value>freenum.org</value>
-          </true>
-          <false>
-            <value />
-          </false>
-        </boolean>
-      </type>
-      <value />
-    </setting>
-    <setting name="SIP_REDIRECT.190-ISN.PREFIX" advanced="yes">
-      <profileName>registrar-config.in</profileName>
-      <type refid="feature-code" />
-    </setting>
-  </group>
-  <group name="enum">
-    <setting name="SIP_REDIRECT.200-ENUM.BASE_DOMAIN">
-      <profileName>registrar-config.in</profileName>
-      <type>
-        <string />
-      </type>
-    </setting>
-    <setting name="SIP_REDIRECT.200-ENUM.DIAL_PREFIX">
-      <profileName>registrar-config.in</profileName>
-      <type refid="feature-code" />
-    </setting>
-    <setting name="SIP_REDIRECT.200-ENUM.ADD_PREFIX">
-      <profileName>registrar-config.in</profileName>
-      <type refid="feature-code" />
-    </setting>
-    <setting name="SIP_REDIRECT.200-ENUM.PREFIX_PLUS" advanced="yes">
-      <profileName>registrar-config.in</profileName>
-      <type>
-        <boolean>
-          <true>
-            <value>Y</value>
-          </true>
-          <false>
-            <value>N</value>
-          </false>
-        </boolean>
-      </type>
-      <value>Y</value>
-    </setting>
   </group>
   <group name="voice-mail">
     <setting name="VOICEMAIL_AGE_LIMIT">
@@ -122,30 +68,6 @@
       <profileName>config.defs</profileName>
       <type />
       <value />
-    </setting>
-  </group>
-  <group name="call-pick-up">
-    <setting name="SIP_REDIRECT.180-PICKUP.GLOBAL_CALL_PICKUP_CODE" hidden="yes">
-      <profileName>registrar-config.in</profileName>
-      <type refid="feature-code" />
-      <value></value>
-    </setting>
-    <setting name="SIP_REDIRECT.180-PICKUP.DIRECTED_CALL_PICKUP_CODE">
-      <profileName>registrar-config.in</profileName>
-      <type refid="feature-code" />
-      <value>*78</value>
-    </setting>
-    <setting name="SIP_REDIRECT.180-PICKUP.CALL_RETRIEVE_CODE">
-      <profileName>registrar-config.in</profileName>
-      <type refid="feature-code" required="yes" />
-      <value>*4</value>
-    </setting>
-    <setting name="SIP_REDIRECT.180-PICKUP.CALL_PICKUP_WAIT" advanced="yes">
-      <profileName>registrar-config.in</profileName>
-      <type>
-        <real min="1" max="30" required="yes" />
-      </type>
-      <value>2</value>
     </setting>
   </group>
   <group name="presence">
@@ -182,11 +104,6 @@
     </setting>
   </group>
   <group name="Logging">
-    <setting name="SIP_REGISTRAR_LOG_LEVEL">
-      <profileName>registrar-config.in</profileName>
-      <type refid="loglevel" />
-      <value>NOTICE</value>
-    </setting>
     <setting name="SIP_PARK_LOG_LEVEL">
       <profileName>sipxpark-config.in</profileName>
       <type refid="loglevel" />
@@ -250,15 +167,15 @@
     </setting>
   </group>
   <group name="park" hidden="yes">
+    <setting name="SIP_REGISTRAR_PARK_SERVER">
+      <profileName>registrar-config</profileName>
+    </setting>
     <setting name="SIP_PARK_DOMAIN_NAME">
       <profileName>sipxpark-config</profileName>
     </setting>
     <setting name="SIP_PARK_UDP_PORT">
       <profileName>sipxpark-config</profileName>
       <type refid="port-number" />
-    </setting>
-    <setting name="SIP_REGISTRAR_PARK_SERVER">
-      <profileName>registrar-config</profileName>
     </setting>
   </group>
 </model>

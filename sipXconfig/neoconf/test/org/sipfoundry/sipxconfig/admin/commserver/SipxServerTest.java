@@ -10,7 +10,6 @@
 package org.sipfoundry.sipxconfig.admin.commserver;
 
 import java.io.InputStream;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 
@@ -19,8 +18,6 @@ import junit.framework.TestCase;
 import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.TestHelper;
-import org.sipfoundry.sipxconfig.admin.commserver.SipxServer.ConflictingFeatureCodeException;
-import org.sipfoundry.sipxconfig.admin.commserver.SipxServer.ConflictingFeatureCodeValidator;
 import org.sipfoundry.sipxconfig.admin.forwarding.AliasMapping;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.setting.Setting;
@@ -50,34 +47,10 @@ public class SipxServerTest extends TestCase {
         TestHelper.copyStreamToDirectory(registrar, TestHelper.getTestDirectory(),
                 "registrar-config.in");
     }
-    
+
     public void testGetSetting() {
         Setting settings = m_server.getSettings();
         assertNotNull(settings);
-    }
-
-    public void testConflictingFeatureCodes() {
-        Setting settings = m_server.getSettings().copy();        
-        ConflictingFeatureCodeValidator validator = new ConflictingFeatureCodeValidator();
-        validator.validate(settings);
-        
-        settings = m_server.getSettings().copy();        
-        settings.getSetting("call-pick-up/SIP_REDIRECT.180-PICKUP.GLOBAL_CALL_PICKUP_CODE").setValue("*7");
-        try {
-            validator.validate(settings);
-            fail();
-        } catch (ConflictingFeatureCodeException expected) {
-            assertTrue(true);
-        }
-        
-        settings = m_server.getSettings().copy();        
-        settings.getSetting("enum/SIP_REDIRECT.200-ENUM.ADD_PREFIX").setValue("*7");
-        try {
-            validator.validate(settings);
-            fail();
-        } catch (ConflictingFeatureCodeException expected) {
-            assertTrue(true);
-        }
     }
 
     public void testGetAliasMappings() {
@@ -102,6 +75,30 @@ public class SipxServerTest extends TestCase {
         coreContextCtrl.verify();
     }
 
+    public void testConflictingFeatureCodes() {
+        Setting settings = m_server.getSettings().copy();        
+        ConflictingFeatureCodeValidator validator = new ConflictingFeatureCodeValidator();
+        validator.validate(settings);
+        
+        settings = m_server.getSettings().copy();        
+        settings.getSetting("presence/SIP_PRESENCE_SIGN_IN_CODE").setValue("*86");
+        try {
+            validator.validate(settings);
+            fail();
+        } catch (ConflictingFeatureCodeException expected) {
+            assertTrue(true);
+        }
+        
+        settings = m_server.getSettings().copy();        
+        settings.getSetting("presence/SIP_PRESENCE_SIGN_OUT_CODE").setValue("*86");
+        try {
+            validator.validate(settings);
+            fail();
+        } catch (ConflictingFeatureCodeException expected) {
+            assertTrue(true);
+        }
+    }
+
     public void testGetPresenceServerUri() {
         assertEquals("sip:presence.server.com:5130", m_server.getPresenceServerUri());
     }
@@ -109,18 +106,6 @@ public class SipxServerTest extends TestCase {
     public void testGetMusicOnHoldUri() {
         m_server.setMohUser("~~mh~");
         assertEquals("sip:~~mh~@example.org", m_server.getMusicOnHoldUri("example.org"));
-    }
-
-    public void testSetRegistrarDomainAliases() {
-        String[] aliases = {
-            "example.com", "example.org"
-        };
-        m_server.setRegistrarDomainAliases(Arrays.asList(aliases));
-        assertEquals("${MY_FULL_HOSTNAME} ${MY_IP_ADDR} example.com example.org", m_server
-                .getSettingValue("domain/SIP_REGISTRAR_DOMAIN_ALIASES"));
-        m_server.setRegistrarDomainAliases(null);
-        assertEquals("${MY_FULL_HOSTNAME} ${MY_IP_ADDR}", m_server
-                .getSettingValue("domain/SIP_REGISTRAR_DOMAIN_ALIASES"));
     }
 
     public static SipxServer setUpSipxServer() {

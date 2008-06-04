@@ -12,24 +12,22 @@ package org.sipfoundry.sipxconfig.admin.commserver;
 import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
-import java.util.List;
-import java.util.Locale;
 
-import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
 import org.sipfoundry.sipxconfig.admin.forwarding.AliasMapping;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.SipUri;
-import org.sipfoundry.sipxconfig.common.UserException;
-import org.sipfoundry.sipxconfig.setting.AbstractSettingVisitor;
+import org.sipfoundry.sipxconfig.service.SipxRegistrarService;
+import org.sipfoundry.sipxconfig.service.SipxService;
+import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettings;
 import org.sipfoundry.sipxconfig.setting.ConfigFileStorage;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
 public class SipxServer extends BeanWithSettings implements Server, AliasProvider {
     private static final String DOMAIN_NAME = "domain/SIPXCHANGE_DOMAIN_NAME";
-    private static final String SIP_REGISTRAR_DOMAIN_ALIASES = "domain/SIP_REGISTRAR_DOMAIN_ALIASES";
     private static final String PRESENCE_SIGN_IN_CODE = "presence/SIP_PRESENCE_SIGN_IN_CODE";
     private static final String PRESENCE_SIGN_OUT_CODE = "presence/SIP_PRESENCE_SIGN_OUT_CODE";
     private static final String PRESENCE_SERVER_SIP_PORT = "presence/PRESENCE_SERVER_SIP_PORT";
@@ -44,6 +42,7 @@ public class SipxServer extends BeanWithSettings implements Server, AliasProvide
     private SipxReplicationContext m_sipxReplicationContext;
     private CoreContext m_coreContext;
     private String m_mohUser;
+    private SipxServiceManager m_sipxServiceManager;
 
     public void setSipxReplicationContext(SipxReplicationContext sipxReplicationContext) {
         m_sipxReplicationContext = sipxReplicationContext;
@@ -69,61 +68,17 @@ public class SipxServer extends BeanWithSettings implements Server, AliasProvide
     }
 
     public void applySettings() {
-        new ConflictingFeatureCodeValidator().validate(getSettings());
+        SipxService registrarService = m_sipxServiceManager
+                .getServiceByBeanId(SipxRegistrarService.BEAN_ID);
+        new ConflictingFeatureCodeValidator().validate(Arrays.asList(new Setting[] {
+            getSettings(), registrarService.getSettings()
+        }));
         try {
             m_storage.flush();
             handlePossiblePresenceServerChange();
         } catch (IOException e) {
             // TODO: catch and report as User Exception
             throw new RuntimeException(e);
-        }
-    }
-    
-    static class ConflictingFeatureCodeValidator extends AbstractSettingVisitor {
-        private List<Setting> m_codes;
-        
-        /**
-         * Reentrant but not multi-threaded
-         */
-        void validate(Setting settings) {
-            m_codes = new ArrayList();
-            settings.acceptVisitor(this);            
-        }
-        
-        public void visitSetting(Setting setting) {
-            String value = setting.getValue();
-            if (StringUtils.isBlank(value)) {
-                return;
-            }
-            String name = setting.getName();
-            if (name.endsWith("_CODE") || name.endsWith("_PREFIX")) {
-                for (Setting code : m_codes) {
-                    String codeValue = code.getValue();
-                    if (value.startsWith(codeValue) || codeValue.startsWith(value)) {
-                        throw new ConflictingFeatureCodeException(setting, code);
-                    }
-                }
-                m_codes.add(setting);
-            }
-        }        
-    }
-    
-    public static class ConflictingFeatureCodeException extends UserException {
-        private Setting m_a;
-        private Setting m_b;
-        ConflictingFeatureCodeException(Setting a, Setting b) {
-            super("Conflicting feature codes");
-            m_a = a;
-            m_b = b;
-        }
-        
-        @Override
-        public String getMessage() {
-            Object[] params = new String[] {
-                    m_a.getMessageSource().getMessage(m_a.getLabelKey(), null, Locale.getDefault()),
-                    m_b.getMessageSource().getMessage(m_b.getLabelKey(), null, Locale.getDefault())
-            };
-            return String.format("Conflicting feature codes: %s and %s", params);            
         }
     }
 
@@ -193,15 +148,8 @@ public class SipxServer extends BeanWithSettings implements Server, AliasProvide
         return SipUri.format(m_mohUser, domainName, false);
     }
 
-    public void setRegistrarDomainAliases(Collection<String> aliases) {
-        Setting setting = getSettings().getSetting(SIP_REGISTRAR_DOMAIN_ALIASES);
-        List<String> allAliases = new ArrayList<String>();
-        allAliases.add(setting.getDefaultValue());
-        if (aliases != null) {
-            allAliases.addAll(aliases);
-        }
-        String aliasesString = StringUtils.join(allAliases.iterator(), ' ');
-        setting.setValue(aliasesString);
+    public void setSipxServiceManager(SipxServiceManager sipxServiceManager) {
+        m_sipxServiceManager = sipxServiceManager;
     }
 
     public String getPagingLogLevel() {

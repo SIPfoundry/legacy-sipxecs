@@ -15,6 +15,7 @@
   <bean id="domainManagerImpl" class="org.sipfoundry.sipxconfig.domain.DomainManagerImpl">
     <property name="sessionFactory" ref="sessionFactory" />
     <property name="replicationContext" ref="sipxReplicationContext" />
+    <property name="sipxServiceManager" ref="sipxServiceManager" /> 
 
     <!-- initialize for tests only: the real value gets set by sipxconfig.properties.in -->
     <property name="initialDomain" value="example.org" />

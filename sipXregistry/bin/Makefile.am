@@ -18,7 +18,6 @@ ${PACKAGE}-config: $(top_srcdir)/config/sipX-config.in $(top_builddir)/BUILDSTAM
 	chmod +x ${PACKAGE}-config
 
 editscripts_IN = \
-    registrar-config-upgrade.in \
     sipregistrar.sh.in
 
 .PHONY : editscripts

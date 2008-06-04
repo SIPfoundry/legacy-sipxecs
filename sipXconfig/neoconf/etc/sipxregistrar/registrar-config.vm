@@ -1,0 +1,66 @@
+SIP_REGISTRAR_BIND_IP : $!{registrarService.ipAddress}
+SIP_REGISTRAR_AUTHENTICATE_ALGORITHM : 
+SIP_REGISTRAR_AUTHENTICATE_REALM : $!{registrarService.realm}
+SIP_REGISTRAR_DOMAIN_NAME : $!{registrarService.domainName}
+#set ($domainAliases = $settings.getSetting('domain'))
+SIP_REGISTRAR_DOMAIN_ALIASES : $!domainAliases.getSetting('SIP_REGISTRAR_DOMAIN_ALIASES').Value
+SIP_REGISTRAR_PROXY_PORT : $!{registrarService.sipPort}
+SIP_REGISTRAR_LOG_CONSOLE : 
+SIP_REGISTRAR_LOG_DIR : 
+SIP_REGISTRAR_LOG_LEVEL : $!settings.getSetting('logging').getSetting('SIP_REGISTRAR_LOG_LEVEL').Value
+SIP_REGISTRAR_MAX_EXPIRES : 
+SIP_REGISTRAR_MIN_EXPIRES : 
+SIP_REGISTRAR_HOOK_LIBRARY.MWI : @SIPX_LIBDIR@/libRegistrarImpliedMWI.so
+SIP_REGISTRAR.MWI.UA.CISCO : ^(CSCO|Cisco)
+SIP_REGISTRAR_TCP_PORT : $!{registrarService.registrarSipPort}
+SIP_REGISTRAR_UDP_PORT : $!{registrarService.registrarSipPort}
+SIP_REGISTRAR_REG_EVENT_PORT : $!{registrarService.registrarEventSipPort}
+
+# Configure the redirectors.
+SIP_REDIRECT_HOOK_LIBRARY.110-REG : @SIPX_LIBDIR@/libRedirectorRegDB.so
+SIP_REDIRECT_HOOK_LIBRARY.120-ALIAS : @SIPX_LIBDIR@/libRedirectorAliasDB.so
+SIP_REDIRECT_HOOK_LIBRARY.130-SUBSCRIBE : @SIPX_LIBDIR@/libRedirectorSubscribe.so
+SIP_REDIRECT_HOOK_LIBRARY.140-MAPPING : @SIPX_LIBDIR@/libRedirectorMapping.so
+SIP_REDIRECT.140-MAPPING.MEDIA_SERVER : $!{registrarService.mediaServerSipSrvOrHostport};transport=tcp
+SIP_REDIRECT.140-MAPPING.VOICEMAIL_SERVER : https%3A%2F%2Flocalhost%3A${registrarService.voicemailHttpsPort}
+SIP_REDIRECT.140-MAPPING.MAPPING_RULES_FILENAME : @SIPX_CONFDIR@/mappingrules.xml
+SIP_REDIRECT.140-MAPPING.FALLBACK : false
+SIP_REDIRECT_HOOK_LIBRARY.150-FALLBACK : @SIPX_LIBDIR@/libRedirectorMapping.so
+SIP_REDIRECT.150-FALLBACK.MEDIA_SERVER : $!{registrarService.mediaServerSipSrvOrHostport};transport=tcp
+SIP_REDIRECT.150-FALLBACK.VOICEMAIL_SERVER : https%3A%2F%2Flocalhost%3A${registrarService.voicemailHttpsPort}
+SIP_REDIRECT.150-FALLBACK.MAPPING_RULES_FILENAME : @SIPX_CONFDIR@/fallbackrules.xml
+SIP_REDIRECT.150-FALLBACK.FALLBACK : true
+SIP_REDIRECT_HOOK_LIBRARY.160-HUNT : @SIPX_LIBDIR@/libRedirectorHunt.so
+SIP_REDIRECT_HOOK_LIBRARY.180-PICKUP : @SIPX_LIBDIR@/libRedirectorPickUp.so
+SIP_REDIRECT.180-PICKUP.PICKUP_1_SEC_SUBSCRIBE : Y
+SIP_REDIRECT.180-PICKUP.PICKUP_REVERSED_REPLACES : N
+SIP_REDIRECT.180-PICKUP.PICKUP_NO_EARLY_ONLY : Y
+#set ($callPickupSettings = $settings.getSetting('call-pick-up'))
+SIP_REDIRECT.180-PICKUP.GLOBAL_CALL_PICKUP_CODE :
+SIP_REDIRECT.180-PICKUP.DIRECTED_CALL_PICKUP_CODE : $!callPickupSettings.getSetting('SIP_REDIRECT.180-PICKUP.DIRECTED_CALL_PICKUP_CODE').Value
+SIP_REDIRECT.180-PICKUP.CALL_RETRIEVE_CODE : $!callPickupSettings.getSetting('SIP_REDIRECT.180-PICKUP.CALL_RETRIEVE_CODE').Value
+SIP_REDIRECT.180-PICKUP.CALL_PICKUP_WAIT : $!callPickupSettings.getSetting('SIP_REDIRECT.180-PICKUP.CALL_PICKUP_WAIT').Value
+SIP_REDIRECT.180-PICKUP.PARK_SERVER : $!{registrarService.orbitServerSipSrvOrHostport};transport=tcp
+SIP_REDIRECT.180-PICKUP.ORBIT_FILENAME : @SIPX_CONFDIR@/orbits.xml
+SIP_REDIRECT_HOOK_LIBRARY.190-ISN : @SIPX_LIBDIR@/libRedirectorISN.so
+#set ($isnSettings = $settings.getSetting('isn'))
+SIP_REDIRECT.190-ISN.BASE_DOMAIN : $!isnSettings.getSetting('SIP_REDIRECT.190-ISN.BASE_DOMAIN').Value
+SIP_REDIRECT.190-ISN.PREFIX : $!isnSettings.getSetting('SIP_REDIRECT.190-ISN.PREFIX').Value
+SIP_REDIRECT_HOOK_LIBRARY.200-ENUM : @SIPX_LIBDIR@/libRedirectorENUM.so
+#set ($enumSettings = $settings.getSetting('enum'))
+SIP_REDIRECT.200-ENUM.DIAL_PREFIX : $!enumSettings.getSetting('SIP_REDIRECT.200-ENUM.DIAL_PREFIX').Value
+SIP_REDIRECT.200-ENUM.ADD_PREFIX : $!enumSettings.getSetting('SIP_REDIRECT.200-ENUM.ADD_PREFIX').Value
+SIP_REDIRECT.200-ENUM.PREFIX_PLUS : $!enumSettings.getSetting('SIP_REDIRECT.200-ENUM.PREFIX_PLUS').Value
+SIP_REDIRECT.200-ENUM.BASE_DOMAIN : $!enumSettings.getSetting('SIP_REDIRECT.200-ENUM.BASE_DOMAIN').Value
+
+# Put Time Of Day redirector after all ordinary redirectors.
+SIP_REDIRECT_HOOK_LIBRARY.900-TIMEOFDAY : @SIPX_LIBDIR@/libRedirectorTimeOfDay.so
+  
+# AuthRouter is always last.
+SIP_REDIRECT_HOOK_LIBRARY.999-AUTHROUTER : @SIPX_LIBDIR@/libRedirectorAuthRouter.so
+SIP_REDIRECT.999-AUTHROUTER.SIPX_PROXY : $!{registrarService.proxyServerSipHostport};transport=tcp
+
+# See HaSetup.pdf for how to use the following
+SIP_REGISTRAR_XMLRPC_PORT : 5077
+SIP_REGISTRAR_NAME : $!{registrarService.fullHostname}
+SIP_REGISTRAR_SYNC_WITH : 

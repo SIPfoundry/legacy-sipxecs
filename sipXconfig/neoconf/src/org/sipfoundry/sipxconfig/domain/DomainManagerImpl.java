@@ -19,12 +19,15 @@ import org.sipfoundry.sipxconfig.admin.commserver.SipxServer;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.admin.localization.Localization;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
+import org.sipfoundry.sipxconfig.service.SipxRegistrarService;
+import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.springframework.dao.support.DataAccessUtils;
 
 public abstract class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> implements
         DomainManager {
 
     private SipxReplicationContext m_replicationContext;
+    private SipxServiceManager m_sipxServiceManager;
     private String m_authorizationRealm;
     private String m_initialDomain;
     private String m_initialAlias;
@@ -38,6 +41,10 @@ public abstract class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> 
 
     public void setReplicationContext(SipxReplicationContext context) {
         m_replicationContext = context;
+    }
+
+    public void setSipxServiceManager(SipxServiceManager sipxServiceManager) {
+        m_sipxServiceManager = sipxServiceManager;
     }
 
     /**
@@ -78,8 +85,13 @@ public abstract class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> 
     private void updateServer(Domain domain) {
         SipxServer sipxServer = getServer();
         sipxServer.setDomainName(domain.getName());
-        sipxServer.setRegistrarDomainAliases(domain.getAliases());
         sipxServer.applySettings();
+
+        SipxRegistrarService registrarService = (SipxRegistrarService) m_sipxServiceManager
+                .getServiceByBeanId(SipxRegistrarService.BEAN_ID);
+        registrarService.setDomainName(domain.getName());
+        registrarService.setRegistrarDomainAliases(domain.getAliases());
+        m_replicationContext.replicate(registrarService.getConfiguration());
     }
 
     public void replicateDomainConfig() {

@@ -9,6 +9,8 @@
  */
 package org.sipfoundry.sipxconfig.admin.commserver.imdb;
 
+import java.util.Collection;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
@@ -16,7 +18,6 @@ import org.sipfoundry.sipxconfig.admin.parkorbit.ParkOrbitContext;
 import org.sipfoundry.sipxconfig.common.ApplicationInitializedEvent;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
-import org.sipfoundry.sipxconfig.service.SipxProxyService;
 import org.sipfoundry.sipxconfig.service.SipxService;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.sipfoundry.sipxconfig.setting.Group;
@@ -80,8 +81,10 @@ public class ReplicationTrigger implements ApplicationListener, DaoEventListener
             m_parkOrbitContext.activateParkOrbits();
             m_speedDialManager.activateResourceList();
             
-            SipxService proxyService = m_sipxServiceManager.getServiceByBeanId(SipxProxyService.BEAN_ID);
-            m_sipxServiceManager.replicateServiceConfig(proxyService);
+            Collection<SipxService> allSipxServices = m_sipxServiceManager.getAllServices();
+            for (SipxService sipxService : allSipxServices) {
+                m_sipxServiceManager.replicateServiceConfig(sipxService);
+            }
         }
     }
 

@@ -9,13 +9,15 @@
  */
 package org.sipfoundry.sipxconfig.service;
 
+import java.util.Collection;
+
 import org.easymock.EasyMock;
 import org.hibernate.SessionFactory;
 import org.sipfoundry.sipxconfig.IntegrationTestCase;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.setting.ModelFilesContext;
 
-public class SipxServiceManagerTestIntegration extends IntegrationTestCase {
+public class SipxServiceManagerImplTestIntegration extends IntegrationTestCase {
 
     private SipxServiceManagerImpl m_out;
     private ModelFilesContext m_modelFilesContext;
@@ -23,7 +25,6 @@ public class SipxServiceManagerTestIntegration extends IntegrationTestCase {
     private SessionFactory m_sessionFactory;
 
     protected void init() {
-        m_out = new SipxServiceManagerImpl();
         m_out.setSessionFactory(m_sessionFactory);
         SipxServiceManagerImpl impl = (SipxServiceManagerImpl)m_out;
         m_replicationContext = EasyMock.createMock(SipxReplicationContext.class);
@@ -35,6 +36,13 @@ public class SipxServiceManagerTestIntegration extends IntegrationTestCase {
         SipxService service = m_out.getServiceByBeanId(SipxProxyService.BEAN_ID);
         assertNotNull(service);
         assertEquals(SipxProxyService.BEAN_ID, service.getBeanId());
+    }
+    
+    public void testGetAllServices() {
+        init();
+        Collection<SipxService> allServices = m_out.getAllServices();
+        assertNotNull(allServices);
+        assertEquals(2, allServices.size());
     }
 
     public void testStoreService() {
@@ -55,6 +63,10 @@ public class SipxServiceManagerTestIntegration extends IntegrationTestCase {
         
         m_out.storeService(service);
         EasyMock.verify(m_replicationContext);
+    }
+    
+    public void setSipxServiceManagerImpl(SipxServiceManagerImpl sipxServiceManagerImpl) {
+        m_out = sipxServiceManagerImpl;
     }
     
     public void setModelFilesContext(ModelFilesContext context) {

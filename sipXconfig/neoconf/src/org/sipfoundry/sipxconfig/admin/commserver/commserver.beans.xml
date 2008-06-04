@@ -11,6 +11,7 @@
       ref="sipxReplicationContext" />
     <!-- default music-on-hold user -->
     <property name="mohUser" value="~~mh~" />
+    <property name="sipxServiceManager" ref="sipxServiceManager" />
   </bean>
 
   <bean id="locationsManager"

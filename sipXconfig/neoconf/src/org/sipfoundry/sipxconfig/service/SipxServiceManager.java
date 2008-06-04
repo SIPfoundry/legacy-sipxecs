@@ -9,8 +9,11 @@
  */
 package org.sipfoundry.sipxconfig.service;
 
+import java.util.Collection;
+
 public interface SipxServiceManager {
     public SipxService getServiceByBeanId(String beanId);
+    public Collection<SipxService> getAllServices();
     public void storeService(SipxService service);
     public void replicateServiceConfig(SipxService service);
 }

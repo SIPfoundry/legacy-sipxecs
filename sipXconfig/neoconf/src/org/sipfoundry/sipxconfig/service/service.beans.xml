@@ -78,4 +78,30 @@
     <property name="velocityEngine" ref="velocityEngine" />
     <property name="template" value="sipxproxy/sipXproxy-config.vm" />
   </bean>
+  
+  <bean id="sipxRegistrarService" class="org.sipfoundry.sipxconfig.service.SipxRegistrarService" 
+    parent="sipxService" scope="prototype">
+    <property name="beanId" value="sipxRegistrarService" />
+    <property name="modelFilesContext" ref="modelFilesContext" />
+    <property name="modelName" value="sipxregistrar.xml" />
+    <property name="modelDir" value="sipxregistrar" />
+    <property name="configuration" ref="sipxRegistrarConfiguration" />
+    <property name="sipxServer" ref="sipxServer" />
+  </bean>
+  
+  <bean id="sipxRegistrarConfiguration" class="org.sipfoundry.sipxconfig.service.SipxRegistrarConfiguration" 
+    scope="prototype">
+    <property name="velocityEngine" ref="velocityEngine" />
+    <property name="template" value="sipxregistrar/registrar-config.vm" />
+  </bean>
+  
+  <bean id="sipxRegistrarInitializer" class="org.sipfoundry.sipxconfig.service.SipxRegistrarServiceInitializer">
+    <property name="domainManager" ref="domainManager" />
+    <property name="sipxServiceManager" ref="sipxServiceManager" />
+    <property name="taskNames">
+      <list>
+        <value>initialize_sipx_registrar_service</value>
+      </list>
+    </property>    
+  </bean>
 </beans>

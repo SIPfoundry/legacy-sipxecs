@@ -16,6 +16,7 @@ import org.dbunit.database.DatabaseConfig;
 import org.dbunit.database.DatabaseConnection;
 import org.dbunit.database.IDatabaseConnection;
 import org.dbunit.dataset.IDataSet;
+import org.dbunit.dataset.ReplacementDataSet;
 import org.dbunit.operation.DatabaseOperation;
 import org.hibernate.SessionFactory;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -75,6 +76,13 @@ public abstract class IntegrationTestCase extends
         IDatabaseConnection connection = getConnection();
         IDataSet dataSet = TestHelper.loadDataSet(resource);
         DatabaseOperation.CLEAN_INSERT.execute(connection, dataSet);
+    }
+    
+    protected ReplacementDataSet loadReplaceableDataSetFlat(String fileResource) throws Exception {
+        IDataSet ds = TestHelper.loadDataSetFlat(fileResource);
+        ReplacementDataSet relaceable = new ReplacementDataSet(ds);
+        relaceable.addReplacementObject("[null]", null);
+        return relaceable;
     }
 
     protected IDatabaseConnection getConnection() {

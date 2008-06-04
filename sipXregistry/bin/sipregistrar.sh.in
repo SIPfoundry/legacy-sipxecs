@@ -28,7 +28,6 @@ done
 CONFIG_DEFS="@SIPX_CONFDIR@/config.defs"
 
 CONFIG_FILES="\
-  @SIPX_CONFDIR@/registrar-config \
   @SIPX_CONFDIR@/mappingrules.xml \
   @SIPX_CONFDIR@/fallbackrules.xml \
   "

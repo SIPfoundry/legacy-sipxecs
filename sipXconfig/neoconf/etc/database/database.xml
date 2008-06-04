@@ -264,6 +264,7 @@
     <antcall target="paging-server-advanced" />
   	<antcall target="sipx-service" />
   	<antcall target="add-proxy-service" />
+  	<antcall target="add-registrar-service" />
     <!-- When freezing schema uncomment this line -->
     <!-- sipx-version version="8" -->
   </target>
@@ -619,7 +620,7 @@
   <target name="user-vcard-file" unless="user-vcard-file">
     <db-patch patch="user-vcard-file"/>
   </target>
-
+  	
   <target name="paging-group-add-timeout" unless="paging-group-add-timeout">
     <db-patch patch="paging-group-add-timeout"/>
   </target>	
@@ -637,9 +638,12 @@
   </target>
 
   <target name="add-proxy-service" unless="add-proxy-service">
-  	<db-patch patch="add-proxy-service"/>
+    <db-patch patch="add-proxy-service"/>
   </target>
 
+  <target name="add-registrar-service" unless="add-registrar-service">
+    <db-patch patch="add-registrar-service"/>
+  </target>
   <!-- 
     Migration Targets Legend
     
