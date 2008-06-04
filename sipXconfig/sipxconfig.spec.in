@@ -276,6 +276,7 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) %{sipxpbxconf}/sipxbridge/*
 %config(noreplace) %{sipxpbxconf}/sipxconference/*
 %config(noreplace) %{sipxpbxconf}/sipxproxy/*
+%config(noreplace) %{sipxpbxconf}/sipxregistrar/*
 %dir %{sipxpbxconf}/sipxpark
 %config(noreplace) %{sipxpbxconf}/sipxpark/*
 %dir %{sipxpbxconf}/sipxvxml
