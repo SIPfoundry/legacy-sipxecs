@@ -35,6 +35,10 @@ public class SbcManagerImpl extends HibernateDaoSupport implements SbcManager, B
             sbc = new DefaultSbc();
             sbc.setRoutes(createDefaultSbcRoutes());
             saveSbc(sbc);
+            //Need to flush - since there can be only one Default SBC in the database.
+            //Otherwise, the hibernate session may not be aware of the fact that a default SBC is
+            //already saved, so  you may end up having two default SBCs in the database.
+            getHibernateTemplate().flush();
         }
         return sbc;
     }
