@@ -9,6 +9,8 @@
  */
 package org.sipfoundry.sipxconfig.admin.dialplan.config;
 
+import static org.easymock.EasyMock.expectLastCall;
+
 import java.io.StringWriter;
 import java.util.Collections;
 
@@ -21,7 +23,10 @@ import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRuleProvider;
 import org.sipfoundry.sipxconfig.admin.dialplan.EmergencyRouting;
+import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDeviceManager;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcManager;
+import org.sipfoundry.sipxconfig.nattraversal.NatTraversal;
+import org.sipfoundry.sipxconfig.nattraversal.NatTraversalManager;
 
 /**
  * ConfigGeneratorTest
@@ -85,10 +90,26 @@ public class ConfigGeneratorTest extends XMLTestCase {
 
     public static ConfigGenerator createConfigGenerator() {
         SbcManager sbcManager = EasyMock.createNiceMock(SbcManager.class);
-        EasyMock.replay(sbcManager);
+
+        SbcDeviceManager sbcDeviceManager = EasyMock.createNiceMock(SbcDeviceManager.class);
+
+        NatTraversalManager natTraversalManager = EasyMock.createNiceMock(NatTraversalManager.class);
+        NatTraversal natTraversal = (NatTraversal) TestHelper.getApplicationContext().
+            getBean("natTraversal");
+        natTraversalManager.getNatTraversal();
+        expectLastCall().andReturn(natTraversal);
+
+        EasyMock.replay(sbcManager, sbcDeviceManager, natTraversalManager);
+
         ConfigGenerator generator = new ConfigGenerator();
         generator.getForwardingRules().setVelocityEngine(TestHelper.getVelocityEngine());
         generator.getForwardingRules().setSbcManager(sbcManager);
+
+        generator.getNatTraversalRules().setSbcManager(sbcManager);
+        generator.getNatTraversalRules().setNatTraversalManager(natTraversalManager);
+        generator.getNatTraversalRules().setSbcDeviceManager(sbcDeviceManager);
+        generator.getNatTraversalRules().setVelocityEngine(TestHelper.getVelocityEngine());
+
         return generator;
     }
 }

@@ -32,6 +32,7 @@ public final class ConfigFileType extends Enum {
     public static final ConfigFileType SBC_BRIDGE_CONFIG = new ConfigFileType("sipxbridge.xml");
     public static final ConfigFileType PROXY_CONFIG = new ConfigFileType("sipXproxy-config");
     public static final ConfigFileType REGISTRAR_CONFIG = new ConfigFileType("registrar-config");
+    public static final ConfigFileType NAT_TRAVERSAL_RULES = new ConfigFileType("nattraversalrules.xml");
 
     private ConfigFileType(String name) {
         super(name);

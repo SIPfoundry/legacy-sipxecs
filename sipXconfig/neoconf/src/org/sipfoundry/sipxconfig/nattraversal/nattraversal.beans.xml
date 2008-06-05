@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN"
+	"http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+
+  <bean id="natTraversal" class="org.sipfoundry.sipxconfig.nattraversal.NatTraversal"
+    parent="beanWithSettings">
+    <property name="modelFilesContext" ref="modelFilesContext"/>
+  </bean>
+  <bean id="natTraversalManager" class="org.sipfoundry.sipxconfig.nattraversal.NatTraversalManagerImpl">
+    <property name="sessionFactory" ref="sessionFactory" />
+  </bean>
+</beans>

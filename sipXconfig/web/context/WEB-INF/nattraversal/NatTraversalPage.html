@@ -1,0 +1,57 @@
+<div jwcid="@common/Border">
+  <h2>
+    <span key="title">NAT Traversal</span>
+  </h2>
+  <span jwcid="@common/ErrorMsg"/>
+  <div class="help">
+    <b><span key="label.quickLinks">Quick Links</span></b>
+    <ul>
+      <li>
+        <a jwcid="@PageLink" page="admin/JobStatusPage" href="#"><span key="label.jobStatus">Job Status</span></a>
+      </li>
+      <li>
+        <a jwcid="@PageLink" page="dialplan/sbc/InternetCalling" href="#">
+        <span key="label.internetCalling">Internet Calling</span></a>
+      </li>
+    </ul>
+  </div>
+  <span jwcid="@common/QuickHelp" value="message:quick.help"/>
+  <form jwcid="form@Form" delegate="bean:validator" listener="listener:formSubmit">
+    <p>
+      <input jwcid="enabled@Checkbox" value="ognl:natTraversal.enabled"/>
+      <label for="enabled"><span key="label.enableNatTraversal"/></label>
+    </p>
+    <p>
+      <input jwcid="behindnat@Checkbox"
+      value="ognl:natTraversal.behindnat"
+      onchange="javascript:this.form.submit();"/>
+      <label for="behindnat"><span key="label.behindnat"/></label>
+    </p>
+	<fieldset jwcid="settings@setting/SettingsFieldset" settings="ognl:natTraversal.settings" renderGroupTitle="false"/>
+    <fieldset>
+      <table>
+         <tr>
+		   <td valign="top">
+			<label for="domains"><span key="title.domains">Intranet Domains</span></label><p>
+		   </td>
+		   <td>
+		<span jwcid="domains@For" source="ognl:domains" value="ognl:domain">
+			<label><span jwcid="@Insert" value="ognl:domain"/></label><p>
+			</span>
+		   </td>
+	      <tr>
+		   <td valign="top">
+			<label for="subnets"><span key="title.subnets">Intranet Subnets</span></label><p>
+		   </td>
+		   <td>
+			<span jwcid="subnets@For" source="ognl:subnets" value="ognl:subnet">
+			<label><span jwcid="@Insert" value="ognl:subnet"/></label><p>
+			</span>
+		  </td>
+	     </tr>
+	  </table>
+	</fieldset>
+    <span jwcid="@common/FormActions" listener="listener:activate"/>
+  </form>
+
+</div>

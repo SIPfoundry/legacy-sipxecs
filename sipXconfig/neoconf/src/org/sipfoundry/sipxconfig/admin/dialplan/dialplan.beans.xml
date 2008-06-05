@@ -155,6 +155,12 @@
     <property name="velocityEngine" ref="velocityEngine" />
     <property name="sbcManager" ref="sbcManager" />
   </bean>
+  <bean id="natTraversalRules" class="org.sipfoundry.sipxconfig.admin.dialplan.config.NatTraversalRules">
+    <property name="velocityEngine" ref="velocityEngine" />
+    <property name="sbcManager" ref="sbcManager" />
+    <property name="sbcDeviceManager" ref="sbcDeviceManager" />
+    <property name="natTraversalManager" ref="natTraversalManager" />
+  </bean>
 
   <bean id="dialingRuleCollector" class="org.sipfoundry.sipxconfig.admin.dialplan.DialingRuleCollector" />
 
@@ -171,6 +177,9 @@
     </property>
     <property name="forwardingRules">
       <ref local="forwardingRules" />
+    </property>
+    <property name="natTraversalRules">
+      <ref local="natTraversalRules" />
     </property>
     <property name="dialingRuleProvider">
       <ref local="dialingRuleCollector" />

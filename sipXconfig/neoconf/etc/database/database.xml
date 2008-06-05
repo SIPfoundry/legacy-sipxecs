@@ -265,6 +265,7 @@
   	<antcall target="sipx-service" />
   	<antcall target="add-proxy-service" />
   	<antcall target="add-registrar-service" />
+	<antcall target="nat-traversal" />
     <!-- When freezing schema uncomment this line -->
     <!-- sipx-version version="8" -->
   </target>
@@ -644,6 +645,11 @@
   <target name="add-registrar-service" unless="add-registrar-service">
     <db-patch patch="add-registrar-service"/>
   </target>
+
+  <target name="nat-traversal" unless="nat-traversal">
+     <db-patch patch="nat-traversal"/>
+  </target>
+
   <!-- 
     Migration Targets Legend
     

@@ -34,6 +34,7 @@ public class ConfigGenerator {
     private AuthRules m_authRules;
     private FallbackRules m_fallbackRules;
     private ForwardingRules m_forwardingRules;
+    private NatTraversalRules m_natTraversalRules;
     private DialingRuleProvider m_dialingRuleProvider;
     private List<XmlFile> m_attendantScheduleFiles = new ArrayList<XmlFile>();
     private Map<ConfigFileType, XmlFile> m_files = new HashMap<ConfigFileType, XmlFile>();
@@ -44,15 +45,25 @@ public class ConfigGenerator {
         setAuthRules(new AuthRules());
         setFallbackRules(new FallbackRules());
         setForwardingRules(new ForwardingRules());
+        setNatTraversalRules(new NatTraversalRules());
     }
 
     public ForwardingRules getForwardingRules() {
         return m_forwardingRules;
     }
 
+    public NatTraversalRules getNatTraversalRules() {
+        return m_natTraversalRules;
+    }
+
     public void setForwardingRules(ForwardingRules forwardingRules) {
         m_forwardingRules = forwardingRules;
         m_files.put(m_forwardingRules.getType(), m_forwardingRules);
+    }
+
+    public void setNatTraversalRules(NatTraversalRules natTraversalRules) {
+        m_natTraversalRules = natTraversalRules;
+        m_files.put(m_natTraversalRules.getType(), m_natTraversalRules);
     }
 
     public void setAuthRules(AuthRules authRules) {
@@ -82,6 +93,7 @@ public class ConfigGenerator {
         for (IDialingRule rule : rules) {
             m_authRules.generate(rule);
         }
+
     }
 
     public void generate(DialPlanContext plan, EmergencyRouting er) {
@@ -124,6 +136,7 @@ public class ConfigGenerator {
         m_authRules.end();
         m_fallbackRules.end();
         m_forwardingRules.end();
+        m_natTraversalRules.end();
     }
 
     /**

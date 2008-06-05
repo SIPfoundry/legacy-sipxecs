@@ -27,7 +27,7 @@ import org.sipfoundry.sipxconfig.site.admin.commserver.RestartReminderPanel;
 public abstract class ActivateDialPlan extends PageWithCallback {
     public static final Enum[] OPTIONS = {
         ConfigFileType.MAPPING_RULES, ConfigFileType.FALLBACK_RULES, ConfigFileType.AUTH_RULES,
-        ConfigFileType.FORWARDING_RULES
+        ConfigFileType.FORWARDING_RULES, ConfigFileType.NAT_TRAVERSAL_RULES
     };
 
     public static final String PAGE = "dialplan/ActivateDialPlan";

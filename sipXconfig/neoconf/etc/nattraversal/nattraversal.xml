@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE model
+	  PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN"
+	  "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd">
+<model>
+	<group name="nattraversal-info">
+		<setting name="publicaddress">
+			<type>
+				<ipaddr />
+			</type>
+			<value></value>
+		</setting>
+		<setting name="aggressiveness">
+			<type>
+				<enum>
+					<option>
+						<label>Aggressive</label>
+						<value>Aggressive</value>
+					</option>
+					<option>
+						<label>Conservative</label>
+						<value>Conservative</value>
+					</option>
+				</enum>
+			</type>
+		</setting>
+		<setting name="max-concurrent-relays" >
+			<type>
+				<integer min="1" max="50" required="yes" />
+			</type>
+			<value>50</value>
+		</setting>
+	</group>
+</model>
