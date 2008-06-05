@@ -1,10 +1,5 @@
 package org.sipfoundry.sipxconfig.admin.dialplan.config;
 
-import static org.easymock.EasyMock.createNiceMock;
-import static org.easymock.EasyMock.expectLastCall;
-import static org.easymock.EasyMock.replay;
-import static org.easymock.EasyMock.verify;
-
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.StringReader;
@@ -13,11 +8,9 @@ import java.util.List;
 
 import org.custommonkey.xmlunit.XMLTestCase;
 import org.custommonkey.xmlunit.XMLUnit;
-import org.dom4j.Document;
 import org.easymock.EasyMock;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.XmlUnitHelper;
-import org.sipfoundry.sipxconfig.admin.dialplan.IDialingRule;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.DefaultSbc;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.Sbc;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDevice;
@@ -28,25 +21,29 @@ import org.sipfoundry.sipxconfig.admin.dialplan.sbc.bridge.BridgeSbc;
 import org.sipfoundry.sipxconfig.nattraversal.NatTraversal;
 import org.sipfoundry.sipxconfig.nattraversal.NatTraversalManager;
 
-public class NatTraversalRulesTest extends  XMLTestCase {
-    SbcManager m_sbcManager;
-    NatTraversalManager m_natTraversalManager;
-    SbcDeviceManager m_sbcDeviceManager;
-    NatTraversal m_natTraversal;
-    BridgeSbc m_bridgeSbc;
+import static org.easymock.EasyMock.createNiceMock;
+import static org.easymock.EasyMock.expectLastCall;
+
+public class NatTraversalRulesTest extends XMLTestCase {
+    private SbcManager m_sbcManager;
+    private NatTraversalManager m_natTraversalManager;
+    private SbcDeviceManager m_sbcDeviceManager;
+    private NatTraversal m_natTraversal;
+    private BridgeSbc m_bridgeSbc;
+
     protected void setUp() throws Exception {
         XmlUnitHelper.setNamespaceAware(false);
         XMLUnit.setIgnoreWhitespace(true);
 
-        Sbc sbc = configureSbc(new DefaultSbc(), configureSbcDevice("10.1.2.3"), Arrays.asList("*.example.org"),
-                Arrays.asList("10.0.0.0/22","172.16.0.0/12", "192.168.0.0/16"));
+        Sbc sbc = configureSbc(new DefaultSbc(), configureSbcDevice("10.1.2.3"), Arrays.asList("*.example.org"), Arrays
+                .asList("10.0.0.0/22", "172.16.0.0/12", "192.168.0.0/16"));
 
         m_sbcManager = createNiceMock(SbcManager.class);
         m_sbcManager.loadDefaultSbc();
         expectLastCall().andReturn(sbc);
 
-        m_natTraversal = (NatTraversal) TestHelper.getApplicationContext().
-            getBean("natTraversal");
+        m_natTraversal = new NatTraversal();
+        m_natTraversal.setModelFilesContext(TestHelper.getModelFilesContext());
         m_natTraversal.setEnabled(true);
         m_natTraversal.getSettings().getSetting(NatTraversal.INFO_AGGRESSIVENESS).setTypedValue("Aggressive");
         m_natTraversal.getSettings().getSetting(NatTraversal.INFO_MAXCONCRELAYS).setTypedValue(Integer.parseInt("2"));
@@ -61,8 +58,8 @@ public class NatTraversalRulesTest extends  XMLTestCase {
         m_natTraversal.setBehindnat(true);
 
         m_sbcDeviceManager = createNiceMock(SbcDeviceManager.class);
-        m_bridgeSbc = (BridgeSbc) TestHelper.getApplicationContext().
-            getBean("sbcSipXbridge");
+        m_bridgeSbc = new BridgeSbc(); 
+        m_bridgeSbc.setModelFilesContext(TestHelper.getModelFilesContext());
         m_bridgeSbc.getSettings().getSetting("bridge-configuration/external-address").setTypedValue("1.2.3.4");
         m_bridgeSbc.getSettings().getSetting("bridge-configuration/local-address").setTypedValue("11.12.21.1");
         m_bridgeSbc.getSettings().getSetting("bridge-configuration/external-port").setTypedValue("4321");
@@ -73,11 +70,9 @@ public class NatTraversalRulesTest extends  XMLTestCase {
 
         NatTraversalRules rules = generate(m_sbcManager, m_natTraversalManager, m_sbcDeviceManager);
 
-        Document document = rules.getDocument();
-        String generatedXml = XmlUnitHelper.asString(document);
+        String generatedXml = rules.getFileContent();
 
-        InputStream referenceXmlStream = NatTraversalRulesTest.class
-                .getResourceAsStream("nattraversalrules.test.xml");
+        InputStream referenceXmlStream = NatTraversalRulesTest.class.getResourceAsStream("nattraversalrules.test.xml");
 
         assertXMLEqual(new InputStreamReader(referenceXmlStream), new StringReader(generatedXml));
 
@@ -87,8 +82,8 @@ public class NatTraversalRulesTest extends  XMLTestCase {
         m_natTraversal.setBehindnat(false);
 
         m_sbcDeviceManager = createNiceMock(SbcDeviceManager.class);
-        m_bridgeSbc = (BridgeSbc) TestHelper.getApplicationContext().
-            getBean("sbcSipXbridge");
+        m_bridgeSbc = new BridgeSbc(); 
+        m_bridgeSbc.setModelFilesContext(TestHelper.getModelFilesContext());
         m_bridgeSbc.getSettings().getSetting("bridge-configuration/external-address").setTypedValue("1.2.3.4");
         m_bridgeSbc.getSettings().getSetting("bridge-configuration/local-address").setTypedValue("11.12.21.1");
         m_bridgeSbc.getSettings().getSetting("bridge-configuration/external-port").setTypedValue("4321");
@@ -99,8 +94,7 @@ public class NatTraversalRulesTest extends  XMLTestCase {
 
         NatTraversalRules rules = generate(m_sbcManager, m_natTraversalManager, m_sbcDeviceManager);
 
-        Document document = rules.getDocument();
-        String generatedXml = XmlUnitHelper.asString(document);
+        String generatedXml = rules.getFileContent();
 
         InputStream referenceXmlStream = NatTraversalRulesTest.class
                 .getResourceAsStream("nattraversalrules.test.no-public-address.xml");
@@ -120,8 +114,7 @@ public class NatTraversalRulesTest extends  XMLTestCase {
 
         NatTraversalRules rules = generate(m_sbcManager, m_natTraversalManager, m_sbcDeviceManager);
 
-        Document document = rules.getDocument();
-        String generatedXml = XmlUnitHelper.asString(document);
+        String generatedXml = rules.getFileContent();
 
         InputStream referenceXmlStream = NatTraversalRulesTest.class
                 .getResourceAsStream("nattraversalrules.test.no-sbc-bridge.xml");
@@ -129,19 +122,18 @@ public class NatTraversalRulesTest extends  XMLTestCase {
         assertXMLEqual(new InputStreamReader(referenceXmlStream), new StringReader(generatedXml));
     }
 
-    private static NatTraversalRules generate(SbcManager sbcManager,
-            NatTraversalManager natTraversalManager, SbcDeviceManager sbcDeviceManager) {
+    private static NatTraversalRules generate(SbcManager sbcManager, NatTraversalManager natTraversalManager,
+            SbcDeviceManager sbcDeviceManager) {
         NatTraversalRules rules = new NatTraversalRules();
         rules.setVelocityEngine(TestHelper.getVelocityEngine());
+        rules.setTemplate("nattraversal/nattraversalrules.vm");
         rules.setSbcManager(sbcManager);
         rules.setNatTraversalManager(natTraversalManager);
         rules.setSbcDeviceManager(sbcDeviceManager);
-        rules.end();
         return rules;
     }
 
-    private static Sbc configureSbc(Sbc sbc, SbcDevice sbcDevice, List<String> domains,
-            List<String> subnets) {
+    private static Sbc configureSbc(Sbc sbc, SbcDevice sbcDevice, List<String> domains, List<String> subnets) {
         SbcRoutes routes = new SbcRoutes();
         routes.setDomains(domains);
         routes.setSubnets(subnets);
@@ -157,6 +149,5 @@ public class NatTraversalRulesTest extends  XMLTestCase {
         sbcDevice.setAddress(address);
         return sbcDevice;
     }
-
 
 }

@@ -16,6 +16,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.sipfoundry.sipxconfig.admin.ConfigurationFile;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.AttendantRule;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
@@ -37,7 +38,7 @@ public class ConfigGenerator {
     private NatTraversalRules m_natTraversalRules;
     private DialingRuleProvider m_dialingRuleProvider;
     private List<XmlFile> m_attendantScheduleFiles = new ArrayList<XmlFile>();
-    private Map<ConfigFileType, XmlFile> m_files = new HashMap<ConfigFileType, XmlFile>();
+    private Map<ConfigFileType, ConfigurationFile> m_files = new HashMap<ConfigFileType, ConfigurationFile>();
 
     public ConfigGenerator() {
         // this is usually overwritten by spring configuration file
@@ -136,7 +137,6 @@ public class ConfigGenerator {
         m_authRules.end();
         m_fallbackRules.end();
         m_forwardingRules.end();
-        m_natTraversalRules.end();
     }
 
     /**
@@ -147,12 +147,12 @@ public class ConfigGenerator {
      * @param type type of the configuration file
      */
     public String getFileContent(ConfigFileType type) {
-        XmlFile file = m_files.get(type);
+        ConfigurationFile file = m_files.get(type);
         return file.getFileContent();
     }
 
     public void activate(SipxReplicationContext sipxReplicationContext, String scriptsDirectory) {
-        for (XmlFile file : m_files.values()) {
+        for (ConfigurationFile file : m_files.values()) {
             sipxReplicationContext.replicate(file);
         }
         activateAttendantRules(scriptsDirectory);

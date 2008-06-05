@@ -74,6 +74,5 @@ public abstract class TemplateConfigurationFile implements ConfigurationFile {
             LOG.error("Rethrowing unexpected: " + e.getMessage());
             throw new RuntimeException(e);
         }
-
     }
 }

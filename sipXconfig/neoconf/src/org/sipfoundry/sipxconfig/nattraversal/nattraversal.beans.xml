@@ -3,9 +3,8 @@
 	"http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
 
-  <bean id="natTraversal" class="org.sipfoundry.sipxconfig.nattraversal.NatTraversal"
-    parent="beanWithSettings">
-    <property name="modelFilesContext" ref="modelFilesContext"/>
+  <bean id="natTraversal" class="org.sipfoundry.sipxconfig.nattraversal.NatTraversal" parent="beanWithSettings">
+    <property name="modelFilesContext" ref="modelFilesContext" />
   </bean>
   <bean id="natTraversalManager" class="org.sipfoundry.sipxconfig.nattraversal.NatTraversalManagerImpl">
     <property name="sessionFactory" ref="sessionFactory" />
