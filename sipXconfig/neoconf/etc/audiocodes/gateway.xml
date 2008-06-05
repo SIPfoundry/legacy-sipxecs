@@ -1139,6 +1139,28 @@
       </type>
       <value>0</value>
     </setting>
+    <group name="SAS">
+      <label>Stand-Alone Survivability</label>
+      <profileName>Stand-Alone Survivability</profileName>
+      <setting name='EnableSAS'>
+        <label>Enable SAS</label>
+        <type>
+          <boolean />
+        </type>
+        <value>0</value>
+        <description>Enable/disable Stand-Alone Survivability</description>
+      </setting>
+      <setting name='SASLocalSIPUDPPort'>
+        <label>SAS Local SIP UDP port</label>
+        <value>5080</value>
+        <description>UDP Port for SAS SIP signaling</description>
+      </setting>
+      <setting name='SASDefaultGatewayIP'>
+        <label>SAS Default Gateway</label>
+        <value></value>
+        <description>SAS Default Gateway</description>
+      </setting>
+    </group>
   </group>
   <group name='advanced-supplementary-services'>
     <label>Supplementary Services</label>
