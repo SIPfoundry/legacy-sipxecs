@@ -325,7 +325,7 @@ void SipClientWriteBuffer::emptyBuffer()
       }
    }
 
-   OsSysLog::add(FAC_SIP, PRI_ERR,
+   OsSysLog::add(FAC_SIP, PRI_DEBUG,
                  "SipClientWriteBuffer[%s]::emptyBuffer "
                  "had %d sip messages, %d total",
                  getName().data(), numRealEmptied, numEmptied);
