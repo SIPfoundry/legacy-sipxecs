@@ -2,13 +2,30 @@
 <beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
 
+
+  <bean id="sfLogLayout" class="org.sipfoundry.sipxconfig.sip.log4j.SipFoundryLayout">
+    <property name="facility" value="JAVA" />
+    <property name="hostName" value="localhost"/>
+  </bean>
+
+  <bean id="sfLogAppender" class="org.sipfoundry.sipxconfig.sip.log4j.SipFoundryAppender">
+    <constructor-arg ref="sfLogLayout"/>
+    <constructor-arg value="${sysdir.log}/sipxconfig.log"/>
+  </bean>
+
   <bean id="sip" class="org.sipfoundry.sipxconfig.sip.SipServiceImpl">
     <property name="hostName" value="localhost" />
     <property name="hostIpAddress" value="127.0.0.1" />
     <property name="transport" value="udp" />
     <property name="port" value="5180" />
+    <property name="logAppender" ref="sfLogAppender"/>
     <property name="properties">
-      <value>javax.sip.STACK_NAME=sipXconfig</value>
+      <value>
+        javax.sip.STACK_NAME=sipXconfig
+        gov.nist.javax.sip.TRACE_LEVEL=DEBUG
+        gov.nist.javax.sip.LOG_MESSAGE_CONTENT=true
+        gov.nist.javax.sip.LOG_FACTORY=org.sipfoundry.sipxconfig.sip.log4j.SipFoundryLogRecordFactory
+      </value>
     </property>
   </bean>
 

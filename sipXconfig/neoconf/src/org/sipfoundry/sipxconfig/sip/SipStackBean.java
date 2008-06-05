@@ -43,7 +43,9 @@ import javax.sip.message.MessageFactory;
 import javax.sip.message.Request;
 
 import gov.nist.javax.sip.ListeningPointExt;
+import gov.nist.javax.sip.SipStackImpl;
 
+import org.apache.log4j.Appender;
 import org.sipfoundry.sipxconfig.common.SipUri;
 import org.springframework.beans.factory.BeanInitializationException;
 import org.springframework.beans.factory.InitializingBean;
@@ -55,6 +57,7 @@ import static org.sipfoundry.sipxconfig.common.SpecialUser.SpecialUserType.CONFI
  * Spring adapter for JAIN SIP factories
  */
 public class SipStackBean implements InitializingBean {
+
     private int m_port;
 
     private String m_hostName;
@@ -85,6 +88,8 @@ public class SipStackBean implements InitializingBean {
 
     private SipListenerImpl m_sipListener;
 
+    private Appender m_logAppender;
+
     public void afterPropertiesSet() {
         SipFactory factory = SipFactory.getInstance();
         factory.setPathName("gov.nist");
@@ -95,6 +100,7 @@ public class SipStackBean implements InitializingBean {
         String errorMsg = "Cannot initialize SIP stack";
         try {
             SipStack stack = factory.createSipStack(m_properties);
+            addLogAppender(stack);
             m_addressFactory = factory.createAddressFactory();
             m_headerFactory = factory.createHeaderFactory();
             m_messageFactory = factory.createMessageFactory();
@@ -102,6 +108,7 @@ public class SipStackBean implements InitializingBean {
             m_listeningPoint = stack.createListeningPoint(m_hostIpAddress, m_port, m_transport);
             m_sipProvider = stack.createSipProvider(m_listeningPoint);
             m_sipListener = new SipListenerImpl();
+
             m_sipProvider.addSipListener(m_sipListener);
         } catch (PeerUnavailableException e) {
             throw new BeanInitializationException(errorMsg, e);
@@ -116,6 +123,17 @@ public class SipStackBean implements InitializingBean {
         }
     }
 
+    private void addLogAppender(SipStack stack) {
+        if (m_logAppender == null) {
+            return;
+        }
+        // HACK: there should be a method in SipStack to change log appender
+        if (stack instanceof SipStackImpl) {
+            SipStackImpl impl = (SipStackImpl) stack;
+            impl.addLogAppender(m_logAppender);
+        }
+    }
+
     public void setProperties(Properties properties) {
         m_properties = properties;
     }
@@ -126,6 +144,10 @@ public class SipStackBean implements InitializingBean {
 
     public void setPort(int port) {
         m_port = port;
+    }
+
+    public void setLogAppender(Appender logAppender) {
+        m_logAppender = logAppender;
     }
 
     @Required

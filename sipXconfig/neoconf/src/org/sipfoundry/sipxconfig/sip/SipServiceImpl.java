@@ -12,7 +12,7 @@ package org.sipfoundry.sipxconfig.sip;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-public class SipServiceImpl extends SipStackBean implements SipService  {
+public class SipServiceImpl extends SipStackBean implements SipService {
 
     static final Log LOG = LogFactory.getLog(SipServiceImpl.class);
 
