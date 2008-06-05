@@ -271,6 +271,7 @@ rm -rf $RPM_BUILD_ROOT
 %dir %{sipxpbxconf}/snom
 %config(noreplace) %{sipxpbxconf}/snom/*
 %config(noreplace) %{sipxpbxconf}/mitel/*
+%config(noreplace) %{sipxpbxconf}/nattraversal/*
 %config(noreplace) %{sipxpbxconf}/nortel/*
 %config(noreplace) %{sipxpbxconf}/nt1535/*
 %config(noreplace) %{sipxpbxconf}/sipxbridge/*
