@@ -5,6 +5,42 @@ SIPfoundry Issue Tracker at:
 
 
 
+Version 3.11.3
+
+** Bug
+    * [XCF-1939] - Schedule backing up of files without selecting configuration and voicemail checkbox backs up configuration files
+    * [XCF-2457] - sipXconfig does not start properly after upgrading from 3.8
+    * [XCF-2484] - Aastra Phones: "Call Park Prefix " does not display any error message when negative or duplicate value is entered.
+    * [XCF-2496] - Remove Call Forwarding Tab from Aastra Phone UI
+    * [XCF-2513] - internal error when clicking on a configuration profile link for a new (unsaved) gateway or SBC
+    * [XCF-2514] - Restrict to only one sipxbridge instance.
+    * [XCF-2516] - Aastra Phones: "Prefix Code" does not display any error message when negative or duplicate value is entered.
+    * [XCF-2533] - Config UI gives HTTP ERROR: 404 on ecs-3.11.0-008638-012577 fresh installation
+    * [XCF-2534] - Internal error seen when trying to access sipXconfig web service
+    * [XCF-2535] - Services do not get restared after activating the dial plans
+    * [XCF-2542] - User Password lable in Aastra phones does not have help text.
+    * [XCF-2555] - Aastra Phonebook - Generated profile, <macid>.cfg does not contain path to phonebook directory
+    * [XCF-2556] - Aastra : Label under Web Server link contains question mark
+    * [XCF-2594] - Problem with upgrading database table paging_server
+
+** Improvement
+    * [XCF-1967] - The Number of  Backups to keep setting is defaulted at "Unlimited"
+    * [XCF-2028] - sipXpage needs "advanced" configuration section
+    * [XCF-2223] - sipxconfig should support Audiocodes release 5.2 (current shipping version)
+    * [XCF-2543] - Paging prefix should accept only valid characters and positive integers.
+
+** New Feature
+    * [XCF-1440] - Add/remove HA slave servers from web UI
+    * [XCF-2441] - generate sipXproxy configuration
+    * [XCF-2472] - Grandstream: Improve plugin to support new phones GXP2010, GXP2020, GXP1200, BT200
+    * [XCF-2506] - Add Phonebook support for Aastra phones
+    * [XCF-2518] - dynamic conference control for freeswitch conferences
+
+** Task
+    * [XCF-2387] - clean-up sipXconfig interaction with XML/RPC provided by process manager
+    * [XCF-2510] - use SIP JAIN stack to sipXconfig
+
+
 Version 3.11.2
 
 ** Bug
