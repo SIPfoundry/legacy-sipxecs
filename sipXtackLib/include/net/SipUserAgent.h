@@ -253,7 +253,7 @@ public:
                 int queueSize = OsServerTask::DEF_MAX_MSGS,
                 UtlBoolean bUseNextAvailablePort = FALSE,
                 UtlBoolean doUaMessageChecks = TRUE,
-                UtlBoolean forceSymmetricSignaling = FALSE
+                UtlBoolean forceSymmetricSignaling = TRUE
                  );
 
     //! Destructor
