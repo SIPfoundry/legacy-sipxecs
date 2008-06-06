@@ -11,14 +11,17 @@ package org.sipfoundry.sipxconfig.sip;
 
 import java.text.ParseException;
 
+import javax.sip.ClientTransaction;
+import javax.sip.SipException;
 import javax.sip.SipProvider;
 import javax.sip.message.Request;
 
 public abstract class JainSipMessage extends AbstractMessage {
+    private ClientTransaction m_clientTransaction;
     private SipStackBean m_helper;
-
     private byte[] m_payload;
     private String m_contentType;
+   
 
     public JainSipMessage(SipStackBean helper, String contentType, byte[] payload) {
         m_helper = helper;
@@ -40,6 +43,17 @@ public abstract class JainSipMessage extends AbstractMessage {
             throw new SipxSipException(e);
         }
     }
+    
+    protected Request createRequest(String requestType, String fromAddrSpec, String toAddrSpec) {
+        try {
+            Request request = m_helper.createRequest(requestType, fromAddrSpec, toAddrSpec);
+            m_helper.addContent(request, m_contentType, m_payload);
+            return request;
+
+        } catch (ParseException e) {
+            throw new SipxSipException(e);
+        }
+    }
 
     protected SipProvider getSipProvider() {
         return m_helper.getSipProvider();
@@ -47,5 +61,17 @@ public abstract class JainSipMessage extends AbstractMessage {
 
     protected SipStackBean getHelper() {
         return m_helper;
+    }
+    
+    protected void setClientTransaction(ClientTransaction clientTransaction) {
+        m_clientTransaction = clientTransaction;
+    }
+    
+    public void send() {
+        try {
+            m_clientTransaction.sendRequest();
+        } catch (SipException e) {
+            throw new SipxSipException(e);
+        }
     }
 }

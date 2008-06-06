@@ -14,5 +14,5 @@ package org.sipfoundry.sipxconfig.sip;
  * 
  */
 public enum Operator {
-    SEND_NOTIFY, SEND_3PCC_CALL_SETUP;
+    SEND_NOTIFY, SEND_3PCC_REFER_CALL_SETUP, SEND_REFER;
 }

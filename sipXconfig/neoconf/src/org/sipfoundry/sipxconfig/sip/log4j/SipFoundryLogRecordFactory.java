@@ -17,7 +17,6 @@ import gov.nist.javax.sip.LogRecordFactory;
  * generate a log record with the correct format. This log format was obtained by reverse
  * engineering the log records found in the SIPX logs.
  * 
- * @author M. Ranganathan
  * 
  */
 public class SipFoundryLogRecordFactory implements LogRecordFactory {

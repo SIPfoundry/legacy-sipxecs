@@ -10,18 +10,33 @@
 package org.sipfoundry.sipxconfig.sip;
 
 import javax.sip.ClientTransaction;
+import javax.sip.Dialog;
 import javax.sip.DialogTerminatedEvent;
 import javax.sip.IOExceptionEvent;
 import javax.sip.RequestEvent;
 import javax.sip.ResponseEvent;
+import javax.sip.ServerTransaction;
 import javax.sip.SipListener;
 import javax.sip.TimeoutEvent;
 import javax.sip.TransactionTerminatedEvent;
+import javax.sip.header.SubscriptionStateHeader;
+import javax.sip.message.Request;
+import javax.sip.message.Response;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 class SipListenerImpl implements SipListener {
 
+    private static final Log LOG = LogFactory.getLog(SipListenerImpl.class);
+
+    private SipStackBean m_stackBean;
+
+    public SipListenerImpl(SipStackBean stackBean) {
+        m_stackBean = stackBean;
+    }
+
     public void processDialogTerminated(DialogTerminatedEvent dialogTerminatedEvent) {
-        // TODO Auto-generated method stub
 
     }
 
@@ -30,14 +45,54 @@ class SipListenerImpl implements SipListener {
     }
 
     public void processRequest(RequestEvent requestEvent) {
-        // TODO Auto-generated method stub
+        try {
+            ServerTransaction serverTransaction = requestEvent.getServerTransaction();
+            LOG.debug("SipListenerImpl: processing incoming request "
+                    + serverTransaction.getRequest().getMethod());
+            if (serverTransaction == null) {
+                LOG.debug("processRequest : NULL ServerTransaction -- dropping request");
+                return;
+            }
+            Request request = requestEvent.getRequest();
+            if (request.getMethod().equals(Request.BYE)) {
+                Response response = m_stackBean.createResponse(request, Response.OK);
+                serverTransaction.sendResponse(response);
+            } else if (request.getMethod().equals(Request.NOTIFY)) {
+                LOG.debug("got a NOTIFY");
+                Response response = m_stackBean.createResponse(request, Response.OK);
+                serverTransaction.sendResponse(response);
+                SubscriptionStateHeader subscriptionState = 
+                        (SubscriptionStateHeader) request.getHeader(SubscriptionStateHeader.NAME);
+                if (subscriptionState.getState().equals(SubscriptionStateHeader.TERMINATED)) {
+                    Dialog dialog = requestEvent.getDialog();
+                    m_stackBean.tearDownDialog(dialog);
+                }
+            }
+        } catch (Exception ex) {
+            LOG.error("Exception  " + requestEvent.getRequest(), ex);
+            Dialog dialog = requestEvent.getDialog();
+            m_stackBean.tearDownDialog(dialog);
+        }
     }
 
     public void processResponse(ResponseEvent responseEvent) {
-        ClientTransaction clientTransaction = responseEvent.getClientTransaction();
-        TransactionApplicationData tad = (TransactionApplicationData) clientTransaction.getApplicationData();
-        if (tad != null) {
-            tad.response(responseEvent);
+        try {
+            ClientTransaction clientTransaction = responseEvent.getClientTransaction();
+            if (clientTransaction == null) {
+                LOG.debug("clientTransaction NULL -- dropping response ");
+                return;
+            }
+            TransactionApplicationData tad = (TransactionApplicationData) clientTransaction
+                    .getApplicationData();
+            if (tad != null) {
+                tad.response(responseEvent);
+            }
+        } catch (Exception ex) {
+            LOG.error("Error occured processing response", ex);
+            Dialog dialog = responseEvent.getDialog();
+            if (dialog != null) {
+                m_stackBean.tearDownDialog(dialog);
+            }
         }
     }
 
@@ -45,14 +100,22 @@ class SipListenerImpl implements SipListener {
         if (!timeoutEvent.isServerTransaction()) {
             ClientTransaction clientTransaction = timeoutEvent.getClientTransaction();
 
-            TransactionApplicationData tad = (TransactionApplicationData) clientTransaction.getApplicationData();
+            TransactionApplicationData tad = (TransactionApplicationData) clientTransaction
+                    .getApplicationData();
             if (tad != null) {
                 tad.timeout(timeoutEvent);
+            } else {
+                Dialog dialog = clientTransaction.getDialog();
+                if (dialog != null) {
+                    dialog.delete();
+                }
+
             }
+
         }
     }
 
     public void processTransactionTerminated(TransactionTerminatedEvent transactionTerminatedEvent) {
-        // TODO Do any transaction specific continuation actions here.
+
     }
 }

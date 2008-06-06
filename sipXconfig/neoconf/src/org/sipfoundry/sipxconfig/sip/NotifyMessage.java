@@ -16,17 +16,22 @@ import javax.sip.ClientTransaction;
 import javax.sip.ResponseEvent;
 import javax.sip.SipException;
 import javax.sip.TimeoutEvent;
+import javax.sip.header.SubscriptionStateHeader;
 import javax.sip.message.Request;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 class NotifyMessage extends JainSipMessage {
-    static final Log LOG = LogFactory.getLog(NotifyMessage.class);
-
+    private static final Log LOG = LogFactory.getLog(NotifyMessage.class);
+    private static final String TIMEOUT_ERROR_MESSAGE = "Timed out waiting for response";
+    private static final String TRANSACTION_ERROR_MESSAGE = "Error returned by transaction ";
+    private static final String UNEXPECTED_EVENT = "Unexpected event -- ignoring";
+    
     private String m_addrSpec;
     private String m_eventType;
-
+    private ClientTransaction m_clientTransaction;
+  
     public NotifyMessage(SipStackBean helper, String addrSpec, String eventType,
             String contentType, byte[] payload) {
         super(helper, contentType, payload);
@@ -40,31 +45,34 @@ class NotifyMessage extends JainSipMessage {
         m_eventType = eventType;
     }
 
-    public void createAndSend() {
+    public ClientTransaction createAndSend() {
         try {
             Request request = createRequest(Request.NOTIFY, m_addrSpec);
             getHelper().addEventHeader(request, m_eventType);
-            getHelper().addHeader(request, "Subscription-State", "active");
+            getHelper().addHeader(request, SubscriptionStateHeader.NAME,
+                    SubscriptionStateHeader.ACTIVE);
             ClientTransaction clientTx = getSipProvider().getNewClientTransaction(request);
-            TransactionApplicationData tad = new TransactionApplicationData(Operator.SEND_NOTIFY);
+            TransactionApplicationData tad = new TransactionApplicationData(Operator.SEND_NOTIFY,
+                    this.getHelper(), this);
             clientTx.setApplicationData(tad);
             clientTx.sendRequest();
             EventObject eventObject = tad.block();
             if (eventObject == null) {
-                throw new SipException("Timed out waiting for response");
+                throw new SipException(TIMEOUT_ERROR_MESSAGE);
             } else if (eventObject instanceof TimeoutEvent) {
-                throw new SipException("Timeout occured waiting for response");
+                throw new SipException(TIMEOUT_ERROR_MESSAGE);
             } else if (eventObject instanceof ResponseEvent) {
                 ResponseEvent responseEvent = (ResponseEvent) eventObject;
                 if (responseEvent.getResponse().getStatusCode() / 100 > 2) {
-                    throw new SipException("Error returned by transaction "
-                            + responseEvent.getResponse().getStatusCode() + " "
+                    throw new SipException(TRANSACTION_ERROR_MESSAGE
+                            + responseEvent.getResponse().getStatusCode() 
                             + responseEvent.getResponse().getReasonPhrase());
                 }
 
             } else {
-                LOG.warn("Unexpected event -- ignoring");
+                LOG.warn(UNEXPECTED_EVENT);
             }
+            return clientTx;
         } catch (ParseException e) {
             throw new SipxSipException(e);
         } catch (SipException e) {
@@ -73,4 +81,43 @@ class NotifyMessage extends JainSipMessage {
             throw new SipxSipException(e);
         }
     }
+
+    public ClientTransaction createTransaction() {
+        try {
+            Request request = createRequest(Request.NOTIFY, m_addrSpec);
+            getHelper().addEventHeader(request, m_eventType);
+            getHelper().addHeader(request, SubscriptionStateHeader.NAME,
+                    SubscriptionStateHeader.ACTIVE);
+            ClientTransaction clientTx = getSipProvider().getNewClientTransaction(request);
+            TransactionApplicationData tad = new TransactionApplicationData(Operator.SEND_NOTIFY,
+                    this.getHelper(), this);
+            clientTx.setApplicationData(tad);
+            clientTx.sendRequest();
+            EventObject eventObject = tad.block();
+            if (eventObject == null) {
+                throw new SipException(TIMEOUT_ERROR_MESSAGE);
+            } else if (eventObject instanceof TimeoutEvent) {
+                throw new SipException(TIMEOUT_ERROR_MESSAGE);
+            } else if (eventObject instanceof ResponseEvent) {
+                ResponseEvent responseEvent = (ResponseEvent) eventObject;
+                if (responseEvent.getResponse().getStatusCode() / 100 > 2) {
+                    throw new SipException(TRANSACTION_ERROR_MESSAGE
+                            + responseEvent.getResponse().getStatusCode() 
+                            + responseEvent.getResponse().getReasonPhrase());
+                }
+
+            } else {
+                LOG.warn(UNEXPECTED_EVENT);
+            }
+            m_clientTransaction = clientTx;
+            return m_clientTransaction;
+        } catch (ParseException e) {
+            throw new SipxSipException(e);
+        } catch (SipException e) {
+            throw new SipxSipException(e);
+        } catch (InterruptedException e) {
+            throw new SipxSipException(e);
+        }
+    }
+
 }

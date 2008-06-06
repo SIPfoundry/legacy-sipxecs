@@ -27,6 +27,7 @@
         gov.nist.javax.sip.LOG_FACTORY=org.sipfoundry.sipxconfig.sip.log4j.SipFoundryLogRecordFactory
       </value>
     </property>
+    <property name="coreContext" ref="coreContext" />
   </bean>
 
 
