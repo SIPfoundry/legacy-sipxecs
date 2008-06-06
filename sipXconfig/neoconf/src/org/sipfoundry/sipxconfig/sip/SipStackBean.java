@@ -9,14 +9,6 @@
  */
 package org.sipfoundry.sipxconfig.sip;
 
-import static org.sipfoundry.sipxconfig.common.SpecialUser.SpecialUserType.CONFIG_SERVER;
-import gov.nist.javax.sip.DialogExt;
-import gov.nist.javax.sip.ListeningPointExt;
-import gov.nist.javax.sip.SipStackImpl;
-import gov.nist.javax.sip.clientauthutils.AuthenticationHelper;
-import gov.nist.javax.sip.header.HeaderFactoryImpl;
-import gov.nist.javax.sip.header.extensions.ReferredByHeader;
-
 import java.text.ParseException;
 import java.util.Collections;
 import java.util.Properties;
@@ -60,16 +52,24 @@ import javax.sip.message.MessageFactory;
 import javax.sip.message.Request;
 import javax.sip.message.Response;
 
+import gov.nist.javax.sip.DialogExt;
+import gov.nist.javax.sip.ListeningPointExt;
+import gov.nist.javax.sip.SipStackImpl;
+import gov.nist.javax.sip.clientauthutils.AuthenticationHelper;
+import gov.nist.javax.sip.header.HeaderFactoryImpl;
+import gov.nist.javax.sip.header.extensions.ReferredByHeader;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.log4j.Appender;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.common.User;
-import org.sipfoundry.sipxconfig.common.SpecialUser.SpecialUserType;
 import org.springframework.beans.factory.BeanInitializationException;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Required;
+
+import static org.sipfoundry.sipxconfig.common.SpecialUser.SpecialUserType.CONFIG_SERVER;
 
 /**
  * Spring adapter for JAIN SIP factories
@@ -79,10 +79,9 @@ public class SipStackBean implements InitializingBean {
     private static final Log LOG = LogFactory.getLog(SipStackBean.class);
 
     // Dummy sdp body for initial INVITE
-    private static final String SDP_BODY_FORMAT = "v=0\r\n"
-            + "o=- 978416123 978416123 IN IP4 %s\r\n" + "s=SipXconfig\r\n" + "c=IN IP4 %s\r\n"
-            + "t=0 0\r\n" + "m=audio 2222 RTP/AVP 0 101\r\n" + "a=sendrecv\r\n"
-            + "a=rtpmap:0 PCMU/8000\r\n" + "a=rtpmap:101 telephone-event/8000\r\n";
+    private static final String SDP_BODY_FORMAT = "v=0\r\n" + "o=- 978416123 978416123 IN IP4 %s\r\n"
+            + "s=SipXconfig\r\n" + "c=IN IP4 %s\r\n" + "t=0 0\r\n" + "m=audio 2222 RTP/AVP 0 101\r\n"
+            + "a=sendrecv\r\n" + "a=rtpmap:0 PCMU/8000\r\n" + "a=rtpmap:101 telephone-event/8000\r\n";
 
     private static final String COMMA = ", ";
 
@@ -145,13 +144,11 @@ public class SipStackBean implements InitializingBean {
 
             m_listeningPoint = stack.createListeningPoint(m_hostIpAddress, m_port, m_transport);
             m_sipProvider = stack.createSipProvider(m_listeningPoint);
+
             m_sipListener = new SipListenerImpl(this);
-            User user = getCoreContext().getSpecialUser(SpecialUserType.CONFIG_SERVER);
-
-            m_authenticationHelper = ((SipStackImpl) stack).getAuthenticationHelper(
-                    new AccountManagerImpl(new UserCredentialsImpl(user, this)), m_headerFactory);
-
             m_sipProvider.addSipListener(m_sipListener);
+
+            m_authenticationHelper = createAuthenticationHelper(stack);
         } catch (PeerUnavailableException e) {
             throw new BeanInitializationException(errorMsg, e);
         } catch (TransportNotSupportedException e) {
@@ -163,6 +160,21 @@ public class SipStackBean implements InitializingBean {
         } catch (TooManyListenersException e) {
             throw new BeanInitializationException(errorMsg, e);
         }
+    }
+
+    private AuthenticationHelper createAuthenticationHelper(SipStack stack) {
+        if (stack instanceof SipStackImpl) {
+            SipStackImpl impl = (SipStackImpl) stack;
+            User user = getCoreContext().getSpecialUser(CONFIG_SERVER);
+            if (user == null) {
+                LOG.warn("No credentials for: " + CONFIG_SERVER);
+                return null;
+            }
+            String authorizationRealm = getCoreContext().getAuthorizationRealm();
+            AccountManagerImpl accountManager = new AccountManagerImpl(user, authorizationRealm);
+            return impl.getAuthenticationHelper(accountManager, m_headerFactory);
+        }
+        return null;
     }
 
     private void addLogAppender(SipStack stack) {
@@ -237,10 +249,6 @@ public class SipStackBean implements InitializingBean {
         return m_timer;
     }
 
-    final AuthenticationHelper getAuthenticationHelper() {
-        return m_authenticationHelper;
-    }
-
     private SipURI createOurSipUri() throws ParseException {
         return m_addressFactory.createSipURI(CONFIG_SERVER.getUserName(), m_hostName);
     }
@@ -249,16 +257,14 @@ public class SipStackBean implements InitializingBean {
         SipURI fromAddress = createOurSipUri();
         Address fromNameAddress = m_addressFactory.createAddress(fromAddress);
 
-        return m_headerFactory.createFromHeader(fromNameAddress, Integer.toString(Math
-                .abs(new Random().nextInt())));
+        return m_headerFactory.createFromHeader(fromNameAddress, Integer.toString(Math.abs(new Random().nextInt())));
     }
 
     final FromHeader createFromHeader(String fromUri) throws ParseException {
         SipURI fromSipURI = (SipURI) m_addressFactory.createURI(fromUri);
         Address fromNameAddress = m_addressFactory.createAddress(fromSipURI);
 
-        return m_headerFactory.createFromHeader(fromNameAddress, Integer.toString(Math
-                .abs(new Random().nextInt())));
+        return m_headerFactory.createFromHeader(fromNameAddress, Integer.toString(Math.abs(new Random().nextInt())));
     }
 
     final ContactHeader createContactHeader() throws ParseException {
@@ -299,16 +305,14 @@ public class SipStackBean implements InitializingBean {
             FromHeader fromHeader = createFromHeader();
             ToHeader toHeader = createToHeader(addrSpec);
             URI requestURI = m_addressFactory.createURI(addrSpec);
-            MaxForwardsHeader maxForwards = m_headerFactory
-                    .createMaxForwardsHeader(m_maxForwards);
+            MaxForwardsHeader maxForwards = m_headerFactory.createMaxForwardsHeader(m_maxForwards);
             ViaHeader viaHeader = createViaHeader();
             ContactHeader contactHeader = createContactHeader();
             CallIdHeader callIdHeader = m_sipProvider.getNewCallId();
 
             CSeqHeader cSeqHeader = m_headerFactory.createCSeqHeader(m_id.get(), requestType);
-            Request request = m_messageFactory.createRequest(requestURI, requestType,
-                    callIdHeader, cSeqHeader, fromHeader, toHeader, Collections
-                            .singletonList(viaHeader), maxForwards);
+            Request request = m_messageFactory.createRequest(requestURI, requestType, callIdHeader, cSeqHeader,
+                    fromHeader, toHeader, Collections.singletonList(viaHeader), maxForwards);
 
             // FIXME: we need to properly resolve address here
             SipURI sipUri = m_addressFactory.createSipURI(null, m_proxyHost);
@@ -332,16 +336,14 @@ public class SipStackBean implements InitializingBean {
             FromHeader fromHeader = createFromHeader(fromAddrSpec);
             ToHeader toHeader = createToHeader(addrSpec);
             URI requestURI = m_addressFactory.createURI(addrSpec);
-            MaxForwardsHeader maxForwards = m_headerFactory
-                    .createMaxForwardsHeader(m_maxForwards);
+            MaxForwardsHeader maxForwards = m_headerFactory.createMaxForwardsHeader(m_maxForwards);
             ViaHeader viaHeader = createViaHeader();
             ContactHeader contactHeader = createContactHeader();
             CallIdHeader callIdHeader = m_sipProvider.getNewCallId();
 
             CSeqHeader cSeqHeader = m_headerFactory.createCSeqHeader(m_id.get(), requestType);
-            Request request = m_messageFactory.createRequest(requestURI, requestType,
-                    callIdHeader, cSeqHeader, fromHeader, toHeader, Collections
-                            .singletonList(viaHeader), maxForwards);
+            Request request = m_messageFactory.createRequest(requestURI, requestType, callIdHeader, cSeqHeader,
+                    fromHeader, toHeader, Collections.singletonList(viaHeader), maxForwards);
 
             // FIXME: we need to properly resolve address here
             SipURI sipUri = m_addressFactory.createSipURI(null, m_proxyHost);
@@ -352,9 +354,8 @@ public class SipStackBean implements InitializingBean {
             RouteHeader routeHeader = m_headerFactory.createRouteHeader(address);
             request.setHeader(routeHeader);
             request.addHeader(contactHeader);
-            String methods = Request.INVITE + COMMA + Request.ACK + COMMA + Request.OPTIONS
-                    + COMMA + Request.CANCEL + COMMA + Request.BYE + COMMA + Request.REFER
-                    + COMMA + Request.NOTIFY;
+            String methods = Request.INVITE + COMMA + Request.ACK + COMMA + Request.OPTIONS + COMMA + Request.CANCEL
+                    + COMMA + Request.BYE + COMMA + Request.REFER + COMMA + Request.NOTIFY;
             AllowHeader allowHeader = m_headerFactory.createAllowHeader(methods);
             request.addHeader(allowHeader);
             return request;
@@ -368,8 +369,7 @@ public class SipStackBean implements InitializingBean {
             return;
         }
         String[] ct = contentType.split("/", 2);
-        ContentTypeHeader contentTypeHeader = m_headerFactory.createContentTypeHeader(ct[0],
-                ct[1]);
+        ContentTypeHeader contentTypeHeader = m_headerFactory.createContentTypeHeader(ct[0], ct[1]);
         if (contentTypeHeader != null) {
             request.setContent(payload, contentTypeHeader);
         }
@@ -432,7 +432,6 @@ public class SipStackBean implements InitializingBean {
         } catch (SipException e) {
             LOG.error("Unexpected exception sending BYE", e);
         }
-
     }
 
     public ContentTypeHeader createContentTypeHeader() throws ParseException {
@@ -444,4 +443,14 @@ public class SipStackBean implements InitializingBean {
         return ((HeaderFactoryImpl) m_headerFactory).createReferredByHeader(address);
     }
 
+    public ClientTransaction handleChallenge(Response response, ClientTransaction clientTransaction) {
+        if (m_authenticationHelper == null) {
+            return null;
+        }
+        try {
+            return m_authenticationHelper.handleChallenge(response, clientTransaction, m_sipProvider, 5);
+        } catch (SipException e) {
+            throw new SipxSipException(e);
+        }
+    }
 }

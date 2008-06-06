@@ -116,6 +116,5 @@ class SipListenerImpl implements SipListener {
     }
 
     public void processTransactionTerminated(TransactionTerminatedEvent transactionTerminatedEvent) {
-
     }
 }

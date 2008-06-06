@@ -13,27 +13,26 @@ import gov.nist.javax.sip.clientauthutils.UserCredentials;
 
 import org.sipfoundry.sipxconfig.common.User;
 
-public class UserCredentialsImpl implements UserCredentials {
+class UserCredentialsImpl implements UserCredentials {
+    private final String m_password;
+    private final String m_realm;
+    private final String m_userName;
 
-    private User m_user;
-
-    private SipStackBean m_helper;
-
-    public UserCredentialsImpl(User user, SipStackBean stackBean) {
-        m_user = user;
-        m_helper = stackBean;
+    public UserCredentialsImpl(User user, String realm) {
+        m_userName = user.getUserName();
+        m_password = user.getSipPassword();
+        m_realm = realm;
     }
 
     public String getPassword() {
-        return m_user.getSipPassword();
+        return m_password;
     }
 
     public String getSipDomain() {
-        return m_helper.getHostName();
+        return m_realm;
     }
 
     public String getUserName() {
-        return m_user.getUserName();
+        return m_userName;
     }
-
 }

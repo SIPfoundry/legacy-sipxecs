@@ -16,7 +16,6 @@ import javax.sip.Dialog;
 import javax.sip.SipException;
 import javax.sip.message.Request;
 
-
 public class InviteMessage extends JainSipMessage {
 
     private String m_toAddrSpec;
@@ -30,12 +29,9 @@ public class InviteMessage extends JainSipMessage {
     private Dialog m_dialog;
 
     /**
-     * 
-     * @param helper
-     * @param toAddressSpec -- the target for the 3pcc.
+     * @param toAddressSpec the target for the 3pcc.
      */
-    public InviteMessage(SipStackBean helper, String fromAddressSpec, String toAddressSpec,
-            Operator operator) {
+    public InviteMessage(SipStackBean helper, String fromAddressSpec, String toAddressSpec, Operator operator) {
         super(helper, null, null);
         try {
             m_toAddrSpec = toAddressSpec;
@@ -52,8 +48,7 @@ public class InviteMessage extends JainSipMessage {
     public ClientTransaction createAndSend() {
         try {
             ClientTransaction ctx = getSipProvider().getNewClientTransaction(m_request);
-            TransactionApplicationData tad = new TransactionApplicationData(m_operator, this
-                    .getHelper(), this);
+            TransactionApplicationData tad = new TransactionApplicationData(m_operator, this.getHelper(), this);
             ctx.setApplicationData(tad);
             if (m_dialog == null) {
                 ctx.sendRequest();
@@ -70,8 +65,7 @@ public class InviteMessage extends JainSipMessage {
     public ClientTransaction createTransaction() {
         try {
             ClientTransaction ctx = getSipProvider().getNewClientTransaction(m_request);
-            TransactionApplicationData tad = new TransactionApplicationData(m_operator, this
-                    .getHelper(), this);
+            TransactionApplicationData tad = new TransactionApplicationData(m_operator, this.getHelper(), this);
             ctx.setApplicationData(tad);
             setClientTransaction(ctx);
             return ctx;
@@ -82,11 +76,11 @@ public class InviteMessage extends JainSipMessage {
     }
 
     public String getToAddrSpec() {
-        return this.m_toAddrSpec;
+        return m_toAddrSpec;
     }
 
     public String getFromAddrSpec() {
-        return this.m_fromAddrSpec;
+        return m_fromAddrSpec;
     }
 
     public Request getRequest() {

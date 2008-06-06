@@ -14,17 +14,17 @@ import javax.sip.address.SipURI;
 import gov.nist.javax.sip.clientauthutils.AccountManager;
 import gov.nist.javax.sip.clientauthutils.UserCredentials;
 
-public class AccountManagerImpl implements AccountManager {
+import org.sipfoundry.sipxconfig.common.User;
 
-    private UserCredentialsImpl m_userCredenitals;
-    
-    
-    public AccountManagerImpl(UserCredentialsImpl userCredentials) {
-        this.m_userCredenitals = userCredentials;
-    }
-  
-    public UserCredentials getCredentials(SipURI sipUri, String realm) {     
-        return m_userCredenitals;
+class AccountManagerImpl implements AccountManager {
+
+    private UserCredentials m_userCredentials;
+
+    public AccountManagerImpl(User user, String realm) {
+        m_userCredentials = new UserCredentialsImpl(user, realm);
     }
 
+    public UserCredentials getCredentials(SipURI sipUri, String realm) {
+        return m_userCredentials;
+    }
 }
