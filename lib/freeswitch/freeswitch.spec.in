@@ -2,11 +2,11 @@
 %define prefix    %{_prefix}
 %define fs_user   @SIPXPBXUSER@
 
-Name:         sipX-freeswitch
+Name:         sipx-freeswitch
 Summary:      FreeSWITCH open source telephony platform (sipX integration)
 License:      MPL
 Group:        Productivity/Telephony/Servers
-Version:      1.0.rc3
+Version:      1.0.0
 Release:      1
 URL:          http://www.freeswitch.org/
 Packager:     Michal Bielicki
@@ -275,8 +275,8 @@ touch .noversion
 %dir %attr(0750, %{fs_user}, daemon) %{prefix}/conf/sip_profiles
 %dir %attr(0750, %{fs_user}, daemon) %{prefix}/conf/sip_profiles/nat
 %dir %attr(0750, %{fs_user}, daemon) %{prefix}/conf/dialplan/extensions
-%dir %attr(0750, %{fs_user}, daemon) %{prefix}/conf/sip_profiles/default
-%dir %attr(0750, %{fs_user}, daemon) %{prefix}/conf/sip_profiles/outbound
+%dir %attr(0750, %{fs_user}, daemon) %{prefix}/conf/sip_profiles/external
+%dir %attr(0750, %{fs_user}, daemon) %{prefix}/conf/sip_profiles/internal
 %dir %attr(0750, %{fs_user}, daemon) %{prefix}/conf/jingle_profiles
 %ifos linux
 %config(noreplace) %attr(0644, %{fs_user}, daemon) /etc/monit.d/freeswitch.monitrc
@@ -317,14 +317,16 @@ touch .noversion
 %config(noreplace) %attr(0640, %{fs_user}, daemon) %{prefix}/conf/autoload_configs/xml_curl.conf.xml
 %config(noreplace) %attr(0640, %{fs_user}, daemon) %{prefix}/conf/autoload_configs/xml_rpc.conf.xml
 %config(noreplace) %attr(0640, %{fs_user}, daemon) %{prefix}/conf/autoload_configs/zeroconf.conf.xml
+%config(noreplace) %attr(0640, %{fs_user}, daemon) %{prefix}/conf/autoload_configs/lua.conf.xml
+%config(noreplace) %attr(0640, %{fs_user}, daemon) %{prefix}/conf/autoload_configs/perl.conf.xml
 %config(noreplace) %attr(0640, %{fs_user}, daemon) %{prefix}/conf/dialplan/*.xml
 %config(noreplace) %attr(0640, %{fs_user}, daemon) %{prefix}/conf/directory/*.xml
 %config(noreplace) %attr(0640, %{fs_user}, daemon) %{prefix}/conf/directory/default/*
 %config(noreplace) %attr(0640, %{fs_user}, daemon) %{prefix}/conf/mrcp_profiles/*.xml
 %config(noreplace) %attr(0640, %{fs_user}, daemon) %{prefix}/conf/sip_profiles/*.xml
-%config(noreplace) %attr(0640, %{fs_user}, daemon) %{prefix}/conf/sip_profiles/default/*.xml
-%config(noreplace) %attr(0640, %{fs_user}, daemon) %{prefix}/conf/sip_profiles/outbound/*.xml
 %config(noreplace) %attr(0640, %{fs_user}, daemon) %{prefix}/conf/sip_profiles/nat/*.xml
+%config(noreplace) %attr(0640, %{fs_user}, daemon) %{prefix}/conf/sip_profiles/external/*.xml
+%config(noreplace) %attr(0640, %{fs_user}, daemon) %{prefix}/conf/sip_profiles/internal/*.xml
 %config(noreplace) %attr(0640, %{fs_user}, daemon) %{prefix}/conf/jingle_profiles/*.xml
 %config(noreplace) %attr(0640, %{fs_user}, daemon) %{prefix}/htdocs/*
 %ifos linux

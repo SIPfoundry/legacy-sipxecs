@@ -1,16 +1,16 @@
-FS_VER = 1.0
-FS_REL = rc3-1
+FS_VER = 1.0.0
+FS_REL = 1
 FS_URL=http://files.freeswitch.org
 
-SRC = $(LIBSRC)/freeswitch-1.0.rc3.tar.gz
-PATCHED_SRC = $(LIBSRC)/sipX-freeswitch-1.0.rc3.tar.gz
+SRC = $(LIBSRC)/freeswitch-$(FS_VER).tar.gz
+PATCHED_SRC = $(LIBSRC)/sipx-freeswitch-$(FS_VER).tar.gz
 
-RPM = $(DEST_RPM)/sipX-freeswitch-$(FS_VER).$(FS_REL).@RPM_TARGET_ARCH@.rpm
-SRPM = $(DEST_RPM)/sipX-freeswitch-$(FS_VER).$(FS_REL).src.rpm
-DEVEL_RPM = $(DEST_RPM)/sipX-freeswitch-devel-$(FS_VER).$(FS_REL).@RPM_TARGET_ARCH@.rpm
-AMR_RPM = $(DEST_RPM)/sipX-freeswitch-codec-passthru-amr-$(FS_VER).$(FS_REL).@RPM_TARGET_ARCH@.rpm
-G723_RPM = $(DEST_RPM)/sipX-freeswitch-codec-passthru-g723_1-$(FS_VER).$(FS_REL).@RPM_TARGET_ARCH@.rpm
-G729_RPM = $(DEST_RPM)/sipX-freeswitch-codec-passthru-g729-$(FS_VER).$(FS_REL).@RPM_TARGET_ARCH@.rpm
+RPM = $(DEST_RPM)/sipx-freeswitch-$(FS_VER)-$(FS_REL).@RPM_TARGET_ARCH@.rpm
+SRPM = $(DEST_RPM)/sipx-freeswitch-$(FS_VER)-$(FS_REL).src.rpm
+DEVEL_RPM = $(DEST_RPM)/sipx-freeswitch-devel-$(FS_VER)-$(FS_REL).@RPM_TARGET_ARCH@.rpm
+AMR_RPM = $(DEST_RPM)/sipx-freeswitch-codec-passthru-amr-$(FS_VER)-$(FS_REL).@RPM_TARGET_ARCH@.rpm
+G723_RPM = $(DEST_RPM)/sipx-freeswitch-codec-passthru-g723_1-$(FS_VER)-$(FS_REL).@RPM_TARGET_ARCH@.rpm
+G729_RPM = $(DEST_RPM)/sipx-freeswitch-codec-passthru-g729-$(FS_VER)-$(FS_REL).@RPM_TARGET_ARCH@.rpm
 
 
 RPMS = $(RPM) $(DEVEL_RPM) $(AMR_RPM) $(G723_RPM) $(G729_RPM)
@@ -20,10 +20,10 @@ all : $(RPMS)
 $(PATCHED_SRC) :
 	$(DOWNLOAD_FILE) $(SRC) $(FS_URL)/`basename $(SRC)`
 	pushd $(LIBSRC) && tar -xzf $(SRC) && popd
-	cp $(srcdir)/patches/bootstrap.sh $(LIBSRC)/freeswitch-1.0.rc3
-	mv $(LIBSRC)/freeswitch-1.0.rc3 $(LIBSRC)/sipX-freeswitch-1.0.rc3
-	pushd $(LIBSRC) && tar -czf $(PATCHED_SRC) sipX-freeswitch-1.0.rc3 && popd
-	rm -rf $(LIBSRC)/sipX-freeswitch-1.0.rc3
+	cp $(srcdir)/patches/bootstrap.sh $(LIBSRC)/freeswitch-$(FS_VER)
+	mv $(LIBSRC)/freeswitch-$(FS_VER) $(LIBSRC)/sipx-freeswitch-$(FS_VER)
+	pushd $(LIBSRC) && tar -czf $(PATCHED_SRC) sipx-freeswitch-$(FS_VER) && popd
+	rm -rf $(LIBSRC)/sipx-freeswitch-$(FS_VER)
 
 .PHONY: build-rpms
 build-rpms: $(PATCHED_SRC) freeswitch.spec 
