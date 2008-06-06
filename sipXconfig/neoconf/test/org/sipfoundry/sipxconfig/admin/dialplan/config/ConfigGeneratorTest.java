@@ -94,8 +94,7 @@ public class ConfigGeneratorTest extends XMLTestCase {
         SbcDeviceManager sbcDeviceManager = EasyMock.createNiceMock(SbcDeviceManager.class);
 
         NatTraversalManager natTraversalManager = EasyMock.createNiceMock(NatTraversalManager.class);
-        NatTraversal natTraversal = (NatTraversal) TestHelper.getApplicationContext().
-            getBean("natTraversal");
+        NatTraversal natTraversal = new NatTraversal();
         natTraversalManager.getNatTraversal();
         expectLastCall().andReturn(natTraversal);
 
