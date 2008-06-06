@@ -21,6 +21,8 @@ $(PATCHED_SRC) :
 	$(DOWNLOAD_FILE) $(SRC) $(FS_URL)/`basename $(SRC)`
 	pushd $(LIBSRC) && tar -xzf $(SRC) && popd
 	cp $(srcdir)/patches/bootstrap.sh $(LIBSRC)/freeswitch-$(FS_VER)
+	cp $(srcdir)/patches/disable_LPC10.p0 $(LIBSRC)/
+	pushd $(LIBSRC) && patch -p0 < disable_LPC10.p0 && rm disable_LPC10.p0 && popd
 	mv $(LIBSRC)/freeswitch-$(FS_VER) $(LIBSRC)/sipx-freeswitch-$(FS_VER)
 	pushd $(LIBSRC) && tar -czf $(PATCHED_SRC) sipx-freeswitch-$(FS_VER) && popd
 	rm -rf $(LIBSRC)/sipx-freeswitch-$(FS_VER)

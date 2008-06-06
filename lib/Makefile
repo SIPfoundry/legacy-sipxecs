@@ -45,11 +45,7 @@ $(AC_TARGETS) :
 	$(MAKE) $@.bld
 
 # required on all platforms
-CUSTOM_PACKAGES = cgicc xerces-c ruby-dbi ruby-gems ruby-postgres $(JAVA_PKG) rrdtool jain-sip
-ifneq ($(ARCH),ppc)
-  CUSTOM_PACKAGES += conference
-endif 
-
+CUSTOM_PACKAGES = cgicc xerces-c ruby-dbi ruby-gems ruby-postgres $(JAVA_PKG) rrdtool jain-sip conference
 
 .PHONY: fc8 fc7 fc6
 fc8 fc7 fc6 : $(CUSTOM_PACKAGES)

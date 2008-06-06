@@ -1,0 +1,70 @@
+diff -ur freeswitch-1.0.0/libs/voipcodecs/src/Makefile.am freeswitch-1.0.0_NO_LPC10/libs/voipcodecs/src/Makefile.am
+--- freeswitch-1.0.0/libs/voipcodecs/src/Makefile.am	2008-05-27 11:43:26.000000000 -0400
++++ freeswitch-1.0.0_no_LPC10/libs/voipcodecs/src/Makefile.am	2008-06-06 16:17:50.000000000 -0400
+@@ -40,11 +40,6 @@
+                            gsm0610_rpe.c \
+                            gsm0610_short_term.c \
+                            ima_adpcm.c \
+-                           lpc10_analyse.c \
+-                           lpc10_decode.c \
+-                           lpc10_encode.c \
+-                           lpc10_placev.c \
+-                           lpc10_voicing.c \
+                            oki_adpcm.c \
+                            vector_int.c
+ 
+@@ -58,7 +53,6 @@
+                          voipcodecs/g726.h \
+                          voipcodecs/gsm0610.h \
+                          voipcodecs/ima_adpcm.h \
+-                         voipcodecs/lpc10.h \
+                          voipcodecs/oki_adpcm.h \
+                          voipcodecs/telephony.h \
+                          voipcodecs/vector_int.h \
+@@ -66,8 +60,7 @@
+ 
+ nodist_include_HEADERS = voipcodecs.h
+ 
+-noinst_HEADERS = gsm0610_local.h \
+-                 lpc10_encdecs.h
++noinst_HEADERS = gsm0610_local.h
+ 
+ # We need to run at_dictionary_gen, so it generates the
+ # at_interpreter_dictionary.h file
+diff -ur freeswitch-1.0.0/src/mod/codecs/mod_voipcodecs/mod_voipcodecs.c freeswitch-1.0.0_NO_LPC10/src/mod/codecs/mod_voipcodecs/mod_voipcodecs.c
+--- freeswitch-1.0.0/src/mod/codecs/mod_voipcodecs/mod_voipcodecs.c	2008-05-27 11:42:56.000000000 -0400
++++ freeswitch-1.0.0_no_LPC10/src/mod/codecs/mod_voipcodecs/mod_voipcodecs.c	2008-06-06 16:16:58.000000000 -0400
+@@ -39,6 +39,7 @@
+ SWITCH_MODULE_DEFINITION(mod_voipcodecs, mod_voipcodecs_load, NULL, NULL);
+ 
+ /*  LPC10     - START */
++#if 0 /* DISABLE LPC10 */
+ 
+ struct lpc10_context {
+ 	lpc10_encode_state_t encoder_object;
+@@ -113,9 +114,9 @@
+ 	return SWITCH_STATUS_SUCCESS;
+ }
+ 
++#endif /* DISABLE LPC10 */
+ /*  LPC10     - END */
+ 
+-
+ /*  GSM       - START */
+ struct gsm_context {
+ 	gsm0610_state_t decoder_object;
+@@ -688,12 +689,14 @@
+ 											 switch_gsm_init, switch_gsm_encode, switch_gsm_decode, switch_gsm_destroy);
+ 	}
+ 	/* LPC10 */
++#if 0 /* DISABLE LPC10 */
+ #if SWITCH_MAX_INTERVAL >= 90
+ 	SWITCH_ADD_CODEC(codec_interface, "LPC-10");
+ 	switch_core_codec_add_implementation(pool, codec_interface,
+ 										 SWITCH_CODEC_TYPE_AUDIO, 7, "LPC", NULL, 8000, 8000, 2400,
+ 										 90000, 720, 1440, 28, 1, 1, 1, switch_lpc10_init, switch_lpc10_encode, switch_lpc10_decode, switch_lpc10_destroy);
+ #endif
++#endif /* DISABLE LPC10 */
+ 	/* indicate that the module should continue to be loaded */
+ 	return SWITCH_STATUS_SUCCESS;
+ }
