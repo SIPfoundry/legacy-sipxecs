@@ -822,6 +822,7 @@ UtlBoolean SipConnection::answer(const void* pDisplay)
     {
         int numMatchingCodecs = 0;
         SdpCodec** matchingCodecs = NULL;
+        SdpDirectionality directionality; 	// result not yet used       
 
         mpMediaInterface->setVideoWindowDisplay(pDisplay);
         // Get supported codecs
@@ -836,7 +837,7 @@ UtlBoolean SipConnection::answer(const void* pDisplay)
 
         getInitialSdpCodecs(inviteMsg, supportedCodecs,
             numMatchingCodecs, matchingCodecs,
-            remoteRtpAddress, remoteRtpPort, remoteRtcpPort);
+            remoteRtpAddress, remoteRtpPort, remoteRtcpPort, &directionality);
 
 
         hasSdpBody = inviteMsg->hasSdpBody();
@@ -1030,6 +1031,7 @@ UtlBoolean SipConnection::accept(int ringingTimeOutSeconds)
         UtlString replaceToTag;
         UtlString replaceFromTag;
         SdpSrtpParameters srtpParams;
+        SdpDirectionality directionality; 	// result not yet used       
 
         // Make sure that this isn't part of a transfer.  If we find a
         // REPLACES header, then we shouldn't accept the call, but rather
@@ -1060,7 +1062,7 @@ UtlBoolean SipConnection::accept(int ringingTimeOutSeconds)
             getInitialSdpCodecs(inviteMsg,
                 supportedCodecs,
                 numMatchingCodecs, matchingCodecs,
-                remoteRtpAddress, remoteRtpPort, remoteRtcpPort);
+                remoteRtpAddress, remoteRtpPort, remoteRtcpPort, &directionality);
 
             // Try to setup for early receipt of media.
             if(numMatchingCodecs > 0)
@@ -2605,12 +2607,12 @@ void SipConnection::processInviteRequest(const SipMessage* request)
 
         int numMatchingCodecs = 0;
         SdpCodec** matchingCodecs = NULL;
-
+        SdpDirectionality directionality;
         // Get the RTP info from the message if present
         // Should check the content type first
         if(getInitialSdpCodecs(request,
             supportedCodecs, numMatchingCodecs, matchingCodecs,
-            remoteRtpAddress, remoteRtpPort, remoteRtcpPort))
+            remoteRtpAddress, remoteRtpPort, remoteRtcpPort, &directionality))
         {
             // If the codecs match send an OK
             if(numMatchingCodecs > 0)
@@ -2627,8 +2629,11 @@ void SipConnection::processInviteRequest(const SipMessage* request)
 #endif
 
                 // Far side requested hold
-                if(remoteRtpPort == 0 ||
-                    remoteRtpAddress.compareTo("0.0.0.0") == 0)
+
+                if(remoteRtpPort == 0 || 
+                    remoteRtpAddress.compareTo("0.0.0.0") == 0 ||
+                    directionality == sdpDirectionalitySendOnly ||
+                    directionality == sdpDirectionalityInactive)
                 {
                     //receiveRtpPort = 0;
                     // Leave the receive on to drain the buffers
@@ -2646,7 +2651,10 @@ void SipConnection::processInviteRequest(const SipMessage* request)
                     
                     mRemoteRequestedHold = TRUE;
                 }
-                else if(remoteRtpPort > 0)
+                else if(remoteRtpPort > 0 
+                       && remoteRtpAddress.compareTo("0.0.0.0") != 0 
+                       &&   (directionality == sdpDirectionalitySendRecv 
+                         ||  directionality == sdpDirectionalityRecvOnly))
                 {
                     mpMediaInterface->startRtpReceive(mConnectionId,
                         numMatchingCodecs, matchingCodecs, srtpParams);
@@ -2862,10 +2870,11 @@ void SipConnection::processInviteRequest(const SipMessage* request)
         // Get the codecs
         int numMatchingCodecs = 0;
         SdpCodec** matchingCodecs = NULL;
+        SdpDirectionality directionality; 	// result not yet used       
         getInitialSdpCodecs(request,
             supportedCodecs,
             numMatchingCodecs, matchingCodecs,
-            remoteRtpAddress, remoteRtpPort, remoteRtcpPort);
+            remoteRtpAddress, remoteRtpPort, remoteRtcpPort, &directionality);
 
         // We are not suppose to go into offering state before, after
         // or at all when queuing a call.
@@ -3395,10 +3404,11 @@ void SipConnection::processAckRequest(const SipMessage* request)
         //codecs, address & port
         int numMatchingCodecs = 0;
         SdpCodec** matchingCodecs = NULL;
+        SdpDirectionality directionality; 	// result not yet used       
         if(getInitialSdpCodecs(request,
             supportedCodecs,
             numMatchingCodecs, matchingCodecs,
-            remoteRtpAddress, remoteRtpPort, remoteRtcpPort) &&
+            remoteRtpAddress, remoteRtpPort, remoteRtcpPort, &directionality) &&
             numMatchingCodecs > 0)
         {
             // Set up the remote RTP sockets
@@ -3710,7 +3720,8 @@ UtlBoolean SipConnection::getInitialSdpCodecs(const SipMessage* sdpMessage,
                                               SdpCodec** &codecsInCommon,
                                               UtlString& remoteAddress,
                                               int& remotePort,
-                                              int& remoteRtcpPort) const
+                                              int& remoteRtcpPort,
+                                              SdpDirectionality* directionality) const
 {
     int videoRtpPort;
     int videoRtcpPort;
@@ -3722,6 +3733,17 @@ UtlBoolean SipConnection::getInitialSdpCodecs(const SipMessage* sdpMessage,
 #ifdef TEST_PRINT
         osPrintf("SDP body in INVITE, finding best codec\n");
 #endif
+        // This does not support SDP data with multiple media lines (m=)
+        // This handicap is also present in SdpBody::getBestAudioCodes
+        
+        int mediaIndex = 0;
+
+        if(!sdpBody->getMediaDirection(mediaIndex, directionality))
+        {
+            // The default value is sendrecv if there is no attribute.
+            *directionality = sdpDirectionalitySendRecv; 
+        } 
+
         sdpBody->getBestAudioCodecs(supportedCodecsArray,
             numCodecsInCommon,
             codecsInCommon,
@@ -4084,9 +4106,10 @@ void SipConnection::processInviteResponse(const SipMessage* response)
                 // The address should be retrieved from the sdpBody
                 int numMatchingCodecs = 0;
                 SdpCodec** matchingCodecs = NULL;
+        		SdpDirectionality directionality; 	// result not yet used       
                 getInitialSdpCodecs(response, supportedCodecs,
                     numMatchingCodecs, matchingCodecs,
-                    remoteRtpAddress, remoteRtpPort, remoteRtcpPort);
+                    remoteRtpAddress, remoteRtpPort, remoteRtcpPort, &directionality);
 
                 if(numMatchingCodecs > 0)
                 {
@@ -4512,9 +4535,10 @@ void SipConnection::processInviteResponse(const SipMessage* response)
         // The address should be retrieved from the sdpBody
         int numMatchingCodecs = 0;
         SdpCodec** matchingCodecs = NULL;
+        SdpDirectionality directionality; 	// result not yet used       
         getInitialSdpCodecs(response, supportedCodecs,
             numMatchingCodecs, matchingCodecs,
-            remoteRtpAddress, remoteRtpPort, remoteRtcpPort);
+            remoteRtpAddress, remoteRtpPort, remoteRtcpPort, &directionality);
 
         if (numMatchingCodecs > 0 && mpMediaInterface != NULL)
         {

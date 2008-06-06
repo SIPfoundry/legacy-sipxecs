@@ -262,7 +262,8 @@ private:
         SdpCodec** &codecsInCommon,
         UtlString& remoteAddress,
         int& remotePort,
-        int& remoteRtcpPort) const;
+        int& remoteRtcpPort,
+        SdpDirectionality* directionality) const;
 
     virtual void proceedToRinging(const SipMessage* inviteMessage,
         SipUserAgent* sipUserAgent,

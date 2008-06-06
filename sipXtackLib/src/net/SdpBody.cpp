@@ -723,44 +723,58 @@ UtlBoolean SdpBody::getMediaData(int mediaIndex, UtlString* mediaType,
       *numPayloadTypes = typeCount;
 
       // Get the directionality attribute, if any.
-      
-      // The default value is sendrecv if there is no attribute.
-      *directionality = sdpDirectionalitySendRecv;
-      NameValuePair* fieldNV;
-      bool loop = true;
-      while (loop && (fieldNV = dynamic_cast <NameValuePair*> (iterator())))
+      if(!getMediaDirection(mediaIndex, directionality))
       {
-         if (fieldNV->compareTo("m") == 0)
-         {
-            // If we get to the next m= line, stop.
-            loop = false;
-         }
-         else if (fieldNV->compareTo("a") == 0)
-         {
-            // Check to see if this a= line is a directionality attribute.
-            for (unsigned int i = 0;
-                 loop &&
-                 i < sizeof (sdpDirectionalityStrings) /
-                    sizeof (sdpDirectionalityStrings[0]);
-                 i++)
-            {
-               if (strcmp(fieldNV->getValue(),
-                          sdpDirectionalityStrings[i]) == 0)
-               {
-                  // This is a directionality attribute.
-                  // Save the code value and exit.
-                  *directionality = static_cast <SdpDirectionality> (i);
-                  loop = false;
-               }
-            }
-            // If the a= line value was not a directionality attribute,
-            // continue examining lines.
-         }
-         // All other lines are ignored in this search.
+          // The default value is sendrecv if there is no attribute.
+          *directionality = sdpDirectionalitySendRecv;
       }
    }
 
    return(fieldFound);
+}
+
+UtlBoolean SdpBody::getMediaDirection(int mediaIndex, SdpDirectionality* directionality) const
+{
+    UtlBoolean directionFound = FALSE;
+    UtlSListIterator iterator(*sdpFields);
+    NameValuePair* nv = positionFieldInstance(mediaIndex, &iterator, "m");
+    
+    if (nv)
+    {
+        NameValuePair* fieldNV;
+        bool loop = true;
+        while (loop && (fieldNV = dynamic_cast <NameValuePair*> (iterator())))
+        {
+            if (fieldNV->compareTo("m") == 0)
+            {
+                // If we get to the next m= line, stop.
+                loop = false;
+            }
+            else if (fieldNV->compareTo("a") == 0)
+            {
+                // Check to see if this a= line is a directionality attribute.
+                for (unsigned int i = 0; loop && i
+                        < sizeof (sdpDirectionalityStrings)
+                                / sizeof (sdpDirectionalityStrings[0]); i++)
+                {
+                    if (strcmp(fieldNV->getValue(), sdpDirectionalityStrings[i])
+                            == 0)
+                    {
+                        // This is a directionality attribute.
+                        // Save the code value and exit.
+                        *directionality = static_cast <SdpDirectionality> (i);
+                        loop = false;
+                        directionFound = TRUE;
+                    }
+                }
+                // If the a= line value was not a directionality attribute,
+                // continue examining lines.
+            }
+            // All other lines are ignored in this search.
+        }
+    }
+    
+    return directionFound;
 }
 
 int SdpBody::findMediaType(const char* mediaType, int startMediaIndex) const

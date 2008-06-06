@@ -325,6 +325,10 @@ class SdpBody : public HttpBody
                            UtlString* mediaType ///< audio, video, application, etc.
                            ) const;
 
+   /// Get the media direction attribute for the inidicated media stream
+   UtlBoolean getMediaDirection(int mediaIndex, 
+                                SdpDirectionality* directionality) const;
+
    /// Get the port number for the indicated media stream.
    UtlBoolean getMediaPort(int mediaIndex, ///< which media description set to read
                            int* port) const;
