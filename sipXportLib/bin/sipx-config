@@ -62,7 +62,7 @@ testJavaTool()
       Ver=`$CommandCandidate -version 2>&1`
       if ! echo $Ver | grep "$JavaVersions" >/dev/null 
       then
-        echo "Version $Ver not compatible" >/dev/stderr
+        echo "Version $Ver not compatible" 1>&2
         return 1
       fi
     fi
