@@ -1,89 +1,34 @@
 
 Welcome to sipxbridge -- the little bridge that could.
 
-THIS IS AN EARLY RELEASE. 
+THIS IS AN EARLY (BETA) RELEASE. 
 
-SipXbridge is an ITSP (trunking) gateway geared towards the needs of
-the SIPX PBX system.  It aims to provide media and signaling gatewaying
-between SIP endpoints inside a firewall /NAT and an external ITSP
-gateway. Until this software is completely integrated with sipxconfig,
-please configure it manually. Here is how you can proceed:
-
-
-Prerequisites
-----------------
-
-copy sipxbridge.xml.example to /etc/sipxpbx/sipxbridge.xml
-
-Look at the documentation in schema/sipxbridge.xsd 
-and edit /etc/sipxpbx/sipxbridge.xml
-Set up your account information there.
-
-copy config.properties.test to config.properties 
-( this file will be generated from config.properties.in when sipxbridge becomes part of the top level build )
-
+SipXbridge is ITSP bridge geared towards the needs of the SIPX PBX system.
+It aims to provide media and signaling gatewaying functionality  between
+SIP endpoints inside a firewall /NAT and an external ITSP gateway.
 
 
 Start sipx and configure sipx to use sipxbridge
 ----------------------------------------------
 
-- Set  up sipxbridge as an umanaged SBC and give sipx the 
-localIpAddress and port where it an expect to talk to sipxbridge
- (see properties above) 
+- sipxbridge will start as a service when you start sipx.
 
-- Set up a Trunk Gateway to use the unmanaged SBC. You should set up
-the Route field in the Trunk Gateway configuration page to point to the
-host:port ( i.e. local address ) of where sipxbridge runs.
+- configure sipxbridge using sipxconfig. Sipxbridge is configured as an SBC. 
+The settings will vary according to your ITSP.
 
-Note: If you are running 3.10 stable, you can do the following:
-	- edit /etc/sipxpbx/fallbackrules.xml.in
-	- Add a port following the sipxbridge address for the local side of sipxbridge.
-	- Save a backup copy of this file.
-	- Use sipxproc to restart the SIPRegistrar and SIPXProxy server to make the changes known to sipx.
+- Set up a dial plan to use sipxbridge as your sbc. You can set up 
+a prefix ( say 91 + number ) to direct your calls to sipxbridge.
 
-- Configure a user accounts and phones as usual. 
-For direct inbound dialing, you want to set up an alias corresponding to
-the telephone number. 
+- On your pstn phone, dial your ITSP provided  number for inbound (to sipx) 
+calls. Dial 91your-phone-number for outbound calls.
 
-- Set up a long distance dial plan with prefix 9 telephone numbers directed
-towards the configured Trunk Gateway.
-
-4. This project is still being integrated with sipxconfig. 
-   Until that process is complete, start sipxbridge using the following command:
-
-	"sudo ant -Dtop.build.dir=./ -Dsrc.dir=./ -Dbuild.dir=./ sipxbridge"
- 
-  If you want to redfine where your configuration file and log files go:
-
-	"sudo ant -Dtop.build.dir=./ -Dsrc.dir=./ -Dbuild.dir=./ -Dconf.dir=your-confdir -Dlog.dir=your-log-dir sipxbridge"
-
-  Note that the configuration file name is always sipxbridge.xml and note that the log file name is always sipxbridge.log. 
-  Only the directories where they go is configurable.
-	
-   NOTE : It may be convenient to set up a shell alias for the command above.
-
-5. Start your IP phone and register it with sipx (or if it is already up and running, do nothing ). 
-
-6.  On your pstn phone, dial your ITSP provided  number for inbound (to sipx) calls. Dial 91your-phone-number for outbound calls.
-
-7. Try a few call transfers etc.
+- Try a few call transfers etc.
 
 
 Warnings and disclaimers
 ------------------------
 
-THIS IS AN EARLY PROTOTYPE. Expect bugs.
+THIS IS  NOT YET PRODUCTION READY.
 
-It has only been minimally tested for single call flows.
-
-I need to test for load, concurrency, memory leaks, handling of error
-conditions, network load conditions, timeouts, race conditions etc.
-In other words, the bulk of the work remains to be done.
-
-Limitations
-----------
-
-- No media transcoding.
-- I have had trouble with restricted port NATS. Symmetric NATs
-  have worked well so far.
+It has only been minimally tested.
 
