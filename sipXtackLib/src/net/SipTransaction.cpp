@@ -5281,7 +5281,7 @@ OsSocket::IpProtocolSocketType SipTransaction::getPreferredProtocol()
         {
             retProto = OsSocket::TCP;
             OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                          "SipTransaction::getLargeMsgProtocol change %d to %d for size %d"
+                          "SipTransaction::getLargeMsgProtocol change %d to %d for size %zd"
                           ,mSendToProtocol
                           ,retProto
                           ,msgLength
