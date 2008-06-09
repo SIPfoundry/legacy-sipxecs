@@ -81,7 +81,7 @@ public class SbcDeviceManagerImpl extends SipxHibernateDaoSupport<SbcDevice> imp
         return (BridgeSbc) sbcDevice;
     }
 
-    private <SbcDevice> List<SbcDevice> getSbcDeviceByType(final Class<SbcDevice> type) {
+    private <T> List<T> getSbcDeviceByType(final Class<T> type) {
         HibernateCallback callback = new HibernateCallback() {
             public Object doInHibernate(Session session) {
                 Criteria criteria = session.createCriteria(type);

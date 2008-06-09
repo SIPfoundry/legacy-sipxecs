@@ -30,8 +30,8 @@ public class SipFoundryAppender extends FileAppender {
 
     private long m_nextTimeCheck;
 
-    public SipFoundryAppender(Layout layout, String file) throws IOException {
-        super(layout, file);
+    public SipFoundryAppender(Layout l, String file) throws IOException {
+        super(l, file);
     }
 
     public void append(LoggingEvent event) {

@@ -12,8 +12,6 @@ package org.sipfoundry.sipxconfig.phone.grandstream;
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
-import java.util.Map;
-import java.util.TreeMap;
 
 import junit.framework.TestCase;
 

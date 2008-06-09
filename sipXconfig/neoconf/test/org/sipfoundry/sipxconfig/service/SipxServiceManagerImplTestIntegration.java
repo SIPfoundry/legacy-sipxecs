@@ -26,7 +26,7 @@ public class SipxServiceManagerImplTestIntegration extends IntegrationTestCase {
 
     protected void init() {
         m_out.setSessionFactory(m_sessionFactory);
-        SipxServiceManagerImpl impl = (SipxServiceManagerImpl)m_out;
+        SipxServiceManagerImpl impl = m_out;
         m_replicationContext = EasyMock.createMock(SipxReplicationContext.class);
         impl.setSipxReplicationContext(m_replicationContext);
     }
@@ -52,7 +52,7 @@ public class SipxServiceManagerImplTestIntegration extends IntegrationTestCase {
         service.setModelName("sipxproxy.xml");
         service.setModelFilesContext(m_modelFilesContext);
         service.setConfiguration(new SipxProxyConfiguration(){
-            public void generate(SipxService service) {
+            public void generate(SipxService s) {
                 // do nothing
             }
         });

@@ -15,6 +15,7 @@ import org.apache.hivemind.Messages;
 import org.apache.hivemind.impl.AbstractMessages;
 import org.apache.tapestry.IComponent;
 import org.apache.tapestry.services.ComponentMessagesSource;
+import org.sipfoundry.sipxconfig.components.TapestryUtils;
 
 public class JarMessagesSourceServiceAdapter implements ComponentMessagesSource {
 
@@ -32,8 +33,8 @@ public class JarMessagesSourceServiceAdapter implements ComponentMessagesSource 
     public Messages getMessages(IComponent component) {
         Messages messages = m_jarMessagesSource.getMessages(component);
         if (messages != null) {
-            return new FallbackMessages(messages, m_systemMessagesSource.getMessages(component),
-                    component.getPage().getLocale());
+            return new FallbackMessages(messages, m_systemMessagesSource.getMessages(component), component.getPage()
+                    .getLocale());
         }
         return m_systemMessagesSource.getMessages(component);
     }
@@ -51,28 +52,15 @@ public class JarMessagesSourceServiceAdapter implements ComponentMessagesSource 
         }
 
         protected String findMessage(String key) {
-            if (isMessageIdFound(key)) {
-                return m_localeMessages.getMessage(key);
-            } else {
-                return m_fallbackMessages.getMessage(key);
+            String message = TapestryUtils.getMessage(m_localeMessages, key, null);
+            if (message == null) {
+                message = m_fallbackMessages.getMessage(key);
             }
+            return message;
         }
 
         protected Locale getLocale() {
             return m_locale;
-        }
-
-        private boolean isMessageIdFound(String key) {
-            // This is not a pretty hack and should be removed once a better solution is found
-            // We are checking the message returned by m_localMessages against the known value
-            // that ComponentMessages returns for an unknown message id:
-            // For message id "unknown.message" return value is [UNKNOWN.MESSAGE]
-            String emptyMessage = '[' + key.toUpperCase() + ']';
-            if (emptyMessage.equals(m_localeMessages.getMessage(key))) {
-                return false;
-            }
-
-            return true;
         }
     }
 }

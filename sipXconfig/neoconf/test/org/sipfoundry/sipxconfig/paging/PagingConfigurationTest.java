@@ -9,9 +9,6 @@
  */
 package org.sipfoundry.sipxconfig.paging;
 
-import static org.easymock.EasyMock.expect;
-import static org.easymock.classextension.EasyMock.createMock;
-
 import java.io.InputStream;
 import java.io.StringWriter;
 import java.util.Arrays;
@@ -22,12 +19,13 @@ import java.util.Set;
 import junit.framework.TestCase;
 
 import org.apache.commons.io.IOUtils;
-import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.commserver.Server;
-import org.sipfoundry.sipxconfig.admin.commserver.SipxServer;
 import org.sipfoundry.sipxconfig.common.User;
+
+import static org.easymock.EasyMock.createControl;
+import static org.easymock.EasyMock.expect;
 
 public class PagingConfigurationTest extends TestCase {
     private PagingConfiguration m_pagingConfiguration;
@@ -39,7 +37,7 @@ public class PagingConfigurationTest extends TestCase {
         m_pagingServer.setLogLevel("NOTICE");
         m_pagingServer.setSipTraceLevel("NONE");
 
-        IMocksControl sipxServerCtrl = EasyMock.createControl();
+        IMocksControl sipxServerCtrl = createControl();
         Server sipxServer = sipxServerCtrl.createMock(Server.class);
         expect(sipxServer.getPagingLogLevel()).andReturn("NOTICE").once();
         sipxServer.resetSettings();

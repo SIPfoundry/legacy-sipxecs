@@ -30,19 +30,17 @@ public class FreeswitchApiResultParserImpl implements FreeswitchApiResultParser 
 
     private static final String MEMBER_DELIMITER = ";";
 
-    private static final Pattern CONFERENCE_NOT_FOUND_PATTERN =
-        Pattern.compile("Conference ([\\w ]+) not found\\n");
+    private static final Pattern CONFERENCE_NOT_FOUND_PATTERN = Pattern.compile("Conference ([\\w ]+) not found\\n");
 
-    private static final Pattern CONFERENCE_NAME_PATTERN =
-        Pattern.compile("Conference ([\\w ]+) \\((\\d+) members?( locked)?\\)");
+    private static final Pattern CONFERENCE_NAME_PATTERN = Pattern
+            .compile("Conference ([\\w ]+) \\((\\d+) members?( locked)?\\)");
 
-    private static final Pattern INVALID_MEMBER_PATTERN =
-        Pattern.compile("Non-Existant ID [\\d]+\\n"); // the misspelling is intentional - typo in freeswitch API
+    // the misspelling is intentional - typo in freeswitch API
+    private static final Pattern INVALID_MEMBER_PATTERN = Pattern.compile("Non-Existant ID [\\d]+\\n");
 
     /**
-     * Verifies that a member action was completed successfully and that the
-     * target member exists.
-     *
+     * Verifies that a member action was completed successfully and that the target member exists.
+     * 
      * @throws NoSuchMemberException if the member does not exist
      */
     public boolean verifyMemberAction(String resultString, ActiveConferenceMember member) {
@@ -53,9 +51,9 @@ public class FreeswitchApiResultParserImpl implements FreeswitchApiResultParser 
     }
 
     /**
-     * Verifies that a conference action was completed successfully and that the
-     * target conference exists.
-     *
+     * Verifies that a conference action was completed successfully and that the target conference
+     * exists.
+     * 
      * @throws NoSuchConferenceException if the member does not exist
      */
     public boolean verifyConferenceAction(String resultString, Conference conference) {
@@ -66,32 +64,30 @@ public class FreeswitchApiResultParserImpl implements FreeswitchApiResultParser 
     }
 
     /**
-     * Parses a result string and determines the total number of
-     * active conferences.
-     *
+     * Parses a result string and determines the total number of active conferences.
+     * 
      * @param resultString the string returned from the FreeSWITCH API call
      * @return the number of active conferences reported by FreeSWITCH.
      */
     public int getActiveConferenceCount(String resultString) {
         if (resultString.equals(EMPTY_STRING)) {
             return 0;
-        } else {
-            Matcher matcher = CONFERENCE_NAME_PATTERN.matcher(resultString);
-            boolean found = matcher.find();
-            int count = 0;
-            while (found) {
-                count++;
-                found = matcher.find(matcher.end());
-            }
-
-            return count;
         }
+        Matcher matcher = CONFERENCE_NAME_PATTERN.matcher(resultString);
+        boolean found = matcher.find();
+        int count = 0;
+        while (found) {
+            count++;
+            found = matcher.find(matcher.end());
+        }
+
+        return count;
     }
 
     /**
-     * Parses a result string and creates a list of ActiveConference
-     * objects representing each conference.
-     *
+     * Parses a result string and creates a list of ActiveConference objects representing each
+     * conference.
+     * 
      * @param resultString the string returned from the FreeSWITCH API call
      * @return a List of ActiveConference objects
      */

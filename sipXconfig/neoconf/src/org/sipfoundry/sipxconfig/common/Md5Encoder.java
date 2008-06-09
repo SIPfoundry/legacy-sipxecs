@@ -38,6 +38,7 @@ public final class Md5Encoder {
      * 
      * @deprecated use version that does not require credentials
      */
+    @Deprecated
     public static final String digestPassword(String user, String domain, String realm,
             String password) {
         String full = user + '@' + domain + ':' + realm + ':' + password;

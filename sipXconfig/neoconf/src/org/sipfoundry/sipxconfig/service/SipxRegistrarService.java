@@ -103,8 +103,7 @@ public class SipxRegistrarService extends SipxService {
 
     public void setRegistrarDomainAliases(Collection<String> aliases) {
         Setting domainAliasSetting = getSettings().getSetting(SIP_REGISTRAR_DOMAIN_ALIASES);
-        Setting userConfiguredAliasSetting = getSettings().getSetting(
-                USER_CONFIGURED_DOMAIN_ALIASES);
+        Setting userConfiguredAliasSetting = getSettings().getSetting(USER_CONFIGURED_DOMAIN_ALIASES);
 
         if (aliases != null) {
             userConfiguredAliasSetting.setValue(StringUtils.join(aliases, ' '));
@@ -119,8 +118,7 @@ public class SipxRegistrarService extends SipxService {
         }
 
         if (userConfiguredAliasSetting.getValue() != null) {
-            allAliases.addAll(Arrays.asList(StringUtils.split(userConfiguredAliasSetting
-                    .getValue())));
+            allAliases.addAll(Arrays.asList(StringUtils.split(userConfiguredAliasSetting.getValue())));
         }
         String aliasesString = StringUtils.join(allAliases.iterator(), ' ');
         domainAliasSetting.setValue(aliasesString);
@@ -134,14 +132,11 @@ public class SipxRegistrarService extends SipxService {
             getSettings(), m_server.getSettings()
         }));
     }
-    
+
     private boolean settingsLoaded() {
-        if (getModelFilesContext() == null
-                || getModelDir() == null
-                || getModelName() == null) {
+        if (getModelFilesContext() == null || getModelDir() == null || getModelName() == null) {
             return false;
-        } else {
-            return getSettings() != null;
         }
+        return getSettings() != null;
     }
 }

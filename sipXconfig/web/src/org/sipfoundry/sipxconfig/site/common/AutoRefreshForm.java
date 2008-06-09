@@ -19,11 +19,12 @@ import org.apache.tapestry.annotations.InitialValue;
 import org.apache.tapestry.annotations.Parameter;
 import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.components.Block;
+import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 
 @ComponentClass
-public abstract class AutoRefreshForm extends BaseComponent {
+public abstract class AutoRefreshForm extends BaseComponent implements PageBeginRenderListener {
     /**
      * Additional actions to be displayed on the left side of refresh button
      */

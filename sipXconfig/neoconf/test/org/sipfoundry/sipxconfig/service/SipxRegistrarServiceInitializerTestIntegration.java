@@ -18,7 +18,6 @@ import org.sipfoundry.sipxconfig.domain.DomainManager;
 public class SipxRegistrarServiceInitializerTestIntegration extends IntegrationTestCase {
 
     private SipxRegistrarServiceInitializer m_out;
-    private SipxServiceManager m_sipxServiceManager;
 
     public void testOnInitTask() throws Exception {
         SipxService registrarService = new SipxRegistrarService();

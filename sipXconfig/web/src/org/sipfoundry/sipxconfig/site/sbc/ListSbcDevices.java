@@ -77,20 +77,19 @@ public abstract class ListSbcDevices extends BasePage {
         SbcDescriptor model = getSbcDescriptor();
         if (model == null) {
             return null;
-        } else {
-            //we have to try/catch the possible UserException since we need to reset
-            //SBCs's models combobox selected value when it is thrown
-            try {
-                getSbcDeviceManager().checkForNewSbcDeviceCreation(model);
-            } catch (UserException ex) {
-                validator.record(new ValidatorException(
-                        ex.format(getMessages().getMessage(ex.getMessage()))));
-                // reset SBCs's models combobox selected value
-                setSbcDescriptor(null);
-                return null;
-            }
-            return EditSbcDevice.getAddPage(cycle, model, this);
         }
+
+        // we have to try/catch the possible UserException since we need to reset
+        // SBCs's models combobox selected value when it is thrown
+        try {
+            getSbcDeviceManager().checkForNewSbcDeviceCreation(model);
+        } catch (UserException ex) {
+            validator.record(new ValidatorException(ex.format(getMessages().getMessage(ex.getMessage()))));
+            // reset SBCs's models combobox selected value
+            setSbcDescriptor(null);
+            return null;
+        }
+        return EditSbcDevice.getAddPage(cycle, model, this);
     }
 
     public void delete() {
