@@ -110,7 +110,7 @@ private:
    unsigned long   mDialogId;                // Incremental dialog ID counter
    SIPX_PUB        mhPublisherHandle;        // The sipXtapi handle for the associated dialog publisher
    UtlString       mDialogPDU;               // Storage for dialog PDU
-   int             mDialogPDULength;         // Length, in bytes, of the dialog PDU
+   ssize_t         mDialogPDULength;         // Length, in bytes, of the dialog PDU
    bool            mLineBusy;                // Used by non-trunk line to indicate if busy with call
    UtlHashMap      mCalls;                   // Number of calls on this line
 };

@@ -529,7 +529,7 @@ UtlBoolean OrbitListener::handleMessage(OsMsg& rMsg)
                keycode &= 0x7FFF;
                OsSysLog::add(FAC_PARK, PRI_DEBUG,
                              "OrbitListener::handleMessage DTMF keyup "
-                             "keycode %ld, ParkedCallObject = %p",
+                             "keycode %" PRIdPTR "d, ParkedCallObject = %p",
                              keycode, pParkedCallObject);
 
                // Call the ParkedCallObject to process the keycode, which may
@@ -541,7 +541,7 @@ UtlBoolean OrbitListener::handleMessage(OsMsg& rMsg)
                keycode &= 0x7FFF;
                OsSysLog::add(FAC_PARK, PRI_DEBUG,
                              "OrbitListener::handleMessage DTMF keydown (ignored) "
-                             "keycode %ld",
+                             "keycode %" PRIdPTR "d",
                              keycode);
                // Ignore it.
             }
@@ -1043,7 +1043,7 @@ void OrbitListener::setUpParkedCallEstablished(const UtlString& callId,
       if (OsSysLog::willLog(FAC_PARK, PRI_DEBUG))
       {
          UtlString text;
-         size_t length;
+         ssize_t length;
          invite.getBytes(&text, &length);
          OsSysLog::add(FAC_PARK, PRI_DEBUG,
                        "OrbitListener::setUpParkedCallEstablished getInvite: INVITE is '%s'",

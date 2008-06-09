@@ -815,7 +815,7 @@ SipRedirectorJoinTask::handleMessage(OsMsg& eventMessage)
                   // Process the NOTIFY and store its information in
                   // *pStorage.
                   const char* body;
-                  size_t length;
+                  ssize_t length;
                   // Be careful getting the body, as any of the pointers
                   // may be null.
                   const HttpBody* http_body;

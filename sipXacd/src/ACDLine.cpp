@@ -93,9 +93,7 @@ ACDLine::ACDLine(ACDLineManager* pAcdLineManager,
    if (mPublishLinePresence) {
       mpDialogEventPackage = new SipDialogEvent(STATE, lineIdentity);
       
-      size_t temp_len;
-      mpDialogEventPackage->getBytes(&mDialogPDU, &temp_len);
-      mDialogPDULength = temp_len;
+      mpDialogEventPackage->getBytes(&mDialogPDU, &mDialogPDULength);
       
       sipxPublisherCreate(mhAcdCallManagerHandle,
                           &mhPublisherHandle,
@@ -320,7 +318,6 @@ OsStatus ACDLine::publishCallState(ACDCall* pCallRef, ACDCall::eCallState state)
    UtlString remoteIdentity, remoteDisplayName;
    Url localUrl, remoteUrl;
    Url localTarget, remoteTarget;
-   size_t temp_len;
 
 
    // See if dialog event publishing is enabled for this line
@@ -383,8 +380,7 @@ OsStatus ACDLine::publishCallState(ACDCall* pCallRef, ACDCall::eCallState state)
 
          // Send the content to the subscribe server
          mLock.acquire();
-         mpDialogEventPackage->getBytes(&mDialogPDU, &temp_len);
-         mDialogPDULength = temp_len;
+         mpDialogEventPackage->getBytes(&mDialogPDU, &mDialogPDULength);
          sipxPublisherUpdate(mhPublisherHandle,
                              DIALOG_EVENT_CONTENT_TYPE,
                              mDialogPDU.data(),
@@ -452,8 +448,7 @@ OsStatus ACDLine::publishCallState(ACDCall* pCallRef, ACDCall::eCallState state)
 
          // Send the content to the subscribe server
          mLock.acquire();            
-         mpDialogEventPackage->getBytes(&mDialogPDU, &temp_len);
-         mDialogPDULength = temp_len;
+         mpDialogEventPackage->getBytes(&mDialogPDU, &mDialogPDULength);
          sipxPublisherUpdate(mhPublisherHandle,
                              DIALOG_EVENT_CONTENT_TYPE,
                              mDialogPDU.data(),
@@ -486,9 +481,7 @@ OsStatus ACDLine::publishCallState(ACDCall* pCallRef, ACDCall::eCallState state)
 
                mLock.acquire();            
                // Publish the content to the subscribe server
-               size_t temp_len;
-               mpDialogEventPackage->getBytes(&mDialogPDU, &temp_len);
-               mDialogPDULength = temp_len;
+               mpDialogEventPackage->getBytes(&mDialogPDU, &mDialogPDULength);
                sipxPublisherUpdate(mhPublisherHandle,
                                    DIALOG_EVENT_CONTENT_TYPE,
                                    mDialogPDU.data(),

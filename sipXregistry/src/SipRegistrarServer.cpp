@@ -1236,7 +1236,7 @@ SipRegistrarServer::handleMessage( OsMsg& eventMessage )
         if (OsSysLog::willLog(FAC_SIP, PRI_DEBUG))
         {
            UtlString finalMessageStr;
-           size_t finalMessageLen;
+           ssize_t finalMessageLen;
            finalResponse.getBytes(&finalMessageStr, &finalMessageLen);
            OsSysLog::add( FAC_SIP, PRI_DEBUG, "\n----------------------------------\n"
                          "Sending final response\n%s", finalMessageStr.data());

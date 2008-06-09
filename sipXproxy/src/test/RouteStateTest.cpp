@@ -599,7 +599,7 @@ public:
          routeState.update(&outputSipMessage);
 
          UtlString outputMessage;
-         size_t ignoreLength;
+         ssize_t ignoreLength;
          outputSipMessage.getBytes(&outputMessage, &ignoreLength);
 
          const char* expectedOutput =
@@ -648,7 +648,7 @@ public:
          state.update(&recordRoutedSipMessage);
 
          UtlString outputMessage;
-         size_t ignoreLength;
+         ssize_t ignoreLength;
          recordRoutedSipMessage.getBytes(&outputMessage, &ignoreLength);
 
          const char* appendedRoutedMessage =

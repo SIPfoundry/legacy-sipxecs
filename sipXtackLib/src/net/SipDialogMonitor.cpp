@@ -440,7 +440,7 @@ void SipDialogMonitor::handleNotifyMessage(const SipMessage* notifyMessage,
    if (notifyBody)
    {
       UtlString messageContent;
-      size_t bodyLength;
+      ssize_t bodyLength;
       
       notifyBody->getBytes(&messageContent, &bodyLength);
       

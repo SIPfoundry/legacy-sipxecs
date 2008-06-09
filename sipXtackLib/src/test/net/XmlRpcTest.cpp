@@ -254,7 +254,7 @@ public:
          request.execute(response);
 
          UtlString requestBody;
-         size_t length;
+         ssize_t length;
          request.mpHttpRequest->getBody()->getBytes(&requestBody, &length);
          
          ASSERT_STR_EQUAL(ref, requestBody.data());
@@ -368,7 +368,7 @@ public:
          XmlRpcBody *responseBody = response.getBody();
 
          UtlString body;
-         size_t length;
+         ssize_t length;
          responseBody->getBytes(&body, &length);
          
          // method was not registered: expect fault response
@@ -567,7 +567,7 @@ public:
          response.setResponse(&members);         
 
          UtlString responseBody;
-         size_t length;
+         ssize_t length;
          response.getBody()->getBytes(&responseBody, &length);
 
          ASSERT_STR_EQUAL(ref, responseBody.data());
@@ -669,7 +669,7 @@ public:
          XmlRpcBody *responseBody = response1.getBody();
 
          UtlString body;
-         size_t length;
+         ssize_t length;
          responseBody->getBytes(&body, &length);
 
          ASSERT_STR_EQUAL(faultResponse, body.data());

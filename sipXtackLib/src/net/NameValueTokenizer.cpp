@@ -83,8 +83,8 @@ ssize_t NameValueTokenizer::findNextLineTerminator(const char* text, ssize_t len
 
 void NameValueTokenizer::frontTrim(UtlString* string, const char* whiteSpace)
 {
-    size_t len = 0;
-    size_t index = 0;
+    ssize_t len = 0;
+    ssize_t index = 0;
     const char* stringData;
     if(string != NULL)
     {
@@ -103,8 +103,8 @@ void NameValueTokenizer::frontTrim(UtlString* string, const char* whiteSpace)
 
 void NameValueTokenizer::backTrim(UtlString* string, const char* whiteSpace)
 {
-    size_t len = 0;
-    size_t index = 0;
+    ssize_t len = 0;
+    ssize_t index = 0;
     const char* stringData;
     if(string != NULL)
     {
@@ -128,12 +128,12 @@ void NameValueTokenizer::frontBackTrim(UtlString* string, const char* whiteSpace
 }
 
 UtlBoolean NameValueTokenizer::getSubField(const char* textField,
-                                           size_t textFieldLength,
-                                           size_t subFieldIndex,
+                                           ssize_t textFieldLength,
+                                           ssize_t subFieldIndex,
                                            const char* subFieldSeparators,
                                            const char*& subFieldPtr,
-                                           size_t& subFieldLength,
-                                           size_t* lastCharIndex)
+                                           ssize_t& subFieldLength,
+                                           ssize_t* lastCharIndex)
 {
     UtlBoolean found = FALSE;
     if(textField)
@@ -146,9 +146,9 @@ UtlBoolean NameValueTokenizer::getSubField(const char* textField,
     ssize_t subFieldI = -1;
     ssize_t subFieldBegin = 0;
     ssize_t separatorIndex = -1;
-    size_t numSeparators = strlen(subFieldSeparators);
+    ssize_t numSeparators = strlen(subFieldSeparators);
 
-    for(size_t charIndex = 0; subFieldI < (ssize_t)subFieldIndex; charIndex++)
+    for(ssize_t charIndex = 0; subFieldI < subFieldIndex; charIndex++)
     {
         if((textFieldLength >= 0 &&
         charIndex >= textFieldLength) ||
@@ -183,7 +183,7 @@ UtlBoolean NameValueTokenizer::getSubField(const char* textField,
         }
     }
 
-    if(subFieldI == (ssize_t)subFieldIndex)
+    if(subFieldI == subFieldIndex)
     {
         found = TRUE;
         //subfieldText->append(&(textField[subfieldBegin]),
@@ -214,12 +214,12 @@ UtlBoolean NameValueTokenizer::getSubField(const char* textField,
 }
 
 UtlBoolean NameValueTokenizer::getSubField(const char* textField,
-                                           size_t subFieldIndex,
+                                           ssize_t subFieldIndex,
                                            const char* subFieldSeparators,
                                            UtlString* subFieldText,
-                                           size_t* lastCharIndex)
+                                           ssize_t* lastCharIndex)
 {
-    size_t subFieldLength = 0;
+    ssize_t subFieldLength = 0;
     const char* subFieldPtr = NULL;
 
     UtlBoolean found = getSubField(textField,
@@ -317,7 +317,7 @@ NameValueTokenizer::operator=(const NameValueTokenizer& rhs)
 
 /* ============================ ACCESSORS ================================= */
 
-size_t NameValueTokenizer::getProcessedIndex()
+ssize_t NameValueTokenizer::getProcessedIndex()
 {
    return(bytesConsumed);
 }
@@ -325,7 +325,7 @@ size_t NameValueTokenizer::getProcessedIndex()
 /* ============================ INQUIRY =================================== */
 UtlBoolean NameValueTokenizer::isAtEnd()
 {
-   return((ssize_t)bytesConsumed >= textLen);
+   return(bytesConsumed >= textLen);
 }
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */

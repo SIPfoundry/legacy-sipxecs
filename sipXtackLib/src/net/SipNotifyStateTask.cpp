@@ -201,7 +201,7 @@ UtlBoolean SipNotifyStateTask::handleMessage(OsMsg& eventMessage)
                     osPrintf("SipNotifyStateTask::handleMessage found message-summary event ContentType plain/text\n");
                                         UtlDList bodyHeaderNameValues;
                     const char* bodyBytes;
-                    size_t bodyLength;
+                    ssize_t bodyLength;
                     httpBody->getBytes(&bodyBytes, &bodyLength);
                     HttpMessage::parseHeaders(bodyBytes, bodyLength,
                           bodyHeaderNameValues);
@@ -413,7 +413,7 @@ UtlBoolean SipNotifyStateTask::handleMessage(OsMsg& eventMessage)
                     osPrintf("SipNotifyStateTask::handleMessage got application/simple-message-summary body\n");
                     UtlDList bodyHeaderNameValues;
                     const char* bodyBytes;
-                    size_t bodyLength;
+                    ssize_t bodyLength;
                     httpBody->getBytes(&bodyBytes, &bodyLength);
                     HttpMessage::parseHeaders(bodyBytes, bodyLength,
                           bodyHeaderNameValues);
@@ -620,7 +620,7 @@ OsStatus SipNotifyStateTask::handleCheckSyncEvent(const SipMessage* source)
       {
          pContent = new UtlString() ;
 
-         size_t length = 0 ;
+         ssize_t length = 0 ;
          body->getBytes(pContent, &length) ;
          if (pContent->isNull())
          {

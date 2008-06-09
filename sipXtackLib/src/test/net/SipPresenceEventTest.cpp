@@ -52,14 +52,14 @@ public:
          presenceEvent.insertTuple(tuple);
 
          UtlString bodyString;
-         size_t bodyLength;
+         ssize_t bodyLength;
        
          presenceEvent.getBytes(&bodyString, &bodyLength);
          //printf("body = \n%s\n", bodyString.data());
 
          CPPUNIT_ASSERT(strcmp(bodyString.data(), package) == 0);
 
-         size_t otherLength = presenceEvent.getLength();
+         ssize_t otherLength = presenceEvent.getLength();
          CPPUNIT_ASSERT_EQUAL_MESSAGE("content length is not equal",
                                       bodyLength, otherLength);
       }
@@ -81,14 +81,14 @@ public:
          SipPresenceEvent body("dong@panther.pingtel.com", package);
 
          UtlString bodyString;
-         size_t bodyLength;
+         ssize_t bodyLength;
        
          body.getBytes(&bodyString, &bodyLength);
          //printf("body = \n%s\n", bodyString.data());
        
          CPPUNIT_ASSERT(strcmp(bodyString.data(), package) == 0);
 
-         size_t otherLength = body.getLength();
+         ssize_t otherLength = body.getLength();
          CPPUNIT_ASSERT_EQUAL_MESSAGE("content length is not equal",
                                       bodyLength, otherLength);
       }

@@ -127,16 +127,16 @@ class SdpBody : public HttpBody
  */
 
    /// Get the string length this body would be if serialized
-   virtual size_t getLength() const;
+   virtual ssize_t getLength() const;
 
    /// Get the serialized string representation of this SDP message.
    virtual void getBytes(const char** bytes, ///< buffer space where SDP is written, null terminated
-                         size_t* length      ///< number of bytes written (not including the null terminator)
+                         ssize_t* length      ///< number of bytes written (not including the null terminator)
                          ) const;
 
    /// Get the serialized string representation of this SDP message.
    virtual void getBytes(UtlString* bytes, ///< message output
-                         size_t* length    ///< number of bytes in message
+                         ssize_t* length    ///< number of bytes in message
                          ) const;
 
 ///@}

@@ -36,10 +36,10 @@ public:
     void testCreator()
     {
         const char *hdr = "\r\nContent-Length: 0\r\n\r\n";
-        size_t expectedLen = strlen(hdr);
+        ssize_t expectedLen = strlen(hdr);
         HttpMessage* msg = new HttpMessage();
         UtlString buf;
-        size_t bufLen = 0;
+        ssize_t bufLen = 0;
 
         msg->getBytes(&buf, &bufLen);
         ASSERT_STR_EQUAL_MESSAGE("Set header comes back intact", hdr, (char *)buf.data());
@@ -66,11 +66,11 @@ public:
         const char* v2a = "yyy-value2";
         UtlString messageBytes;
         UtlString messageBytes2;
-        size_t messageLen = 0;
-        size_t messageLen2 = 0;
+        ssize_t messageLen = 0;
+        ssize_t messageLen2 = 0;
         const char* body = "<HTML>\n<H3>Hello\n<BR>\n</HTML>\n";
         const HttpBody *bodyRef;
-        size_t bodyLength = 0;
+        ssize_t bodyLength = 0;
         UtlString headerLinePart;
         HttpMessage *msg;
         HttpMessage *msg2;
@@ -130,7 +130,7 @@ public:
 
         bodyRef->getBytes(&valueRef, &bodyLength);
         CPPUNIT_ASSERT_MESSAGE("bad body pointer", valueRef != NULL);
-        CPPUNIT_ASSERT_EQUAL_MESSAGE("incorrect body len", strlen(body),
+        CPPUNIT_ASSERT_EQUAL_MESSAGE("incorrect body len", (ssize_t)strlen(body),
                 bodyLength);
         ASSERT_STR_EQUAL_MESSAGE("incorrect body value", body, valueRef);
 
@@ -372,6 +372,7 @@ public:
     {
         const char* sip = "INVITE 14 SIP/2.0\nContent-Type:application/sdp\n\n"
             "v=0\nm=audio 49170 RTP/AVP 0\nc=IN IP4 224.2.17.12/127";
+
         HttpMessage *msg = new HttpMessage(sip);
         SdpBody *sdp = (SdpBody *)msg->getBody();
 
@@ -383,13 +384,13 @@ public:
         const char* referenceSdp = 
             "v=0\r\nm=audio 49170 RTP/AVP 0\r\nc=IN IP4 224.2.17.12/127\r\n";
         const char* sdpBytes = NULL;
-        size_t sdpByteLength = 0;
+        ssize_t sdpByteLength = 0;
         sdp->getBytes(&sdpBytes, &sdpByteLength);
-        for(size_t iii = 0; iii < sdpByteLength; iii++)
+        for(ssize_t iii = 0; iii < sdpByteLength; iii++)
         {
             if(referenceSdp[iii] != sdpBytes[iii])
             {
-                printf("index[%zu]: expected: %d got: %d\n",
+                printf("index[%zd]: expected: %d got: %d\n",
                     iii, referenceSdp[iii], sdpBytes[iii]);
             }
         }
@@ -402,7 +403,7 @@ public:
         SdpBody *sdpCopy = (SdpBody *)msgCopy->getBody();
         CPPUNIT_ASSERT_MESSAGE("NULL SDP copy", sdpCopy != NULL);
         const char* sdpCopyBytes = NULL;
-        size_t sdpCopyLen = 0;
+        ssize_t sdpCopyLen = 0;
         sdpCopy->getBytes(&sdpCopyBytes, &sdpCopyLen);
         //printf("SDP copy length: %d\n%s\n", sdpCopyLen, sdpCopyBytes);
         CPPUNIT_ASSERT_MESSAGE("Null sdp copy serialized content", sdpCopyBytes != NULL);

@@ -546,7 +546,7 @@ public:
                  commonContainables_Clone[2], &noExist \
        } ; 
 
-       size_t expectedValues_Index[] = { 0, 7, 4, 1, 2, 4, UTL_NOT_FOUND } ; 
+       ssize_t expectedValues_Index[] = { 0, 7, 4, 1, 2, 4, UTL_NOT_FOUND } ; 
  
        bool expectedValues_Contains[]    = {true, true, true, true, true, true, false } ;
        bool expectedValues_ContainsRef[] = {true, true, true, true, true, false, false} ; 
@@ -567,7 +567,7 @@ public:
            string msg ; 
            if (type == TEST_INDEX) 
            {
-               size_t actual = commonList.index(searchValues[i]) ; 
+               ssize_t actual = commonList.index(searchValues[i]) ; 
                TestUtilities::createMessage(2, &msg, prefixIndex, Msgs[i]) ; 
                CPPUNIT_ASSERT_EQUAL_MESSAGE(msg.data(), expectedValues_Index[i], actual) ; 
            } 

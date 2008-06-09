@@ -152,7 +152,7 @@ public:
          CPPUNIT_ASSERT(plugin->processResponse(testResponseNoMod1));
 
          UtlString msg1, msg2;
-         size_t len1, len2;
+         ssize_t len1, len2;
          testResponseNoMod1.getBytes(&msg1, &len1);
          testResponseNoMod2.getBytes(&msg2, &len2);
 

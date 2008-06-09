@@ -352,7 +352,7 @@ void ResourceListSet::notifyEventCallbackAsync(const char* earlyDialogHandle,
 
    // Get the NOTIFY content.
    const char* b;
-   size_t l;
+   ssize_t l;
    const HttpBody* body = notifyRequest->getBody();
    if (body)
    {

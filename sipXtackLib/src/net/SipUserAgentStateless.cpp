@@ -156,7 +156,7 @@ UtlBoolean SipUserAgentStateless::sendTo(SipMessage& message,
                 sendAddress, sendPort);
         messageStatus = messageChars;
         UtlString msgBytes;
-        size_t msgLen;
+        ssize_t msgLen;
         message.getBytes(&msgBytes, &msgLen);
         msgBytes.insert(0, messageStatus);
         msgBytes.append("--------------------END--------------------\n");
@@ -173,7 +173,7 @@ void SipUserAgentStateless::dispatch(SipMessage* message,
     //if(message)
     //{
     //    UtlString msgBytes;
-    //    size_t msgLen;
+    //    ssize_t msgLen;
     //    message->getBytes(&msgBytes, &msgLen);
     //    msgBytes.insert(0, "Received message:\n");
     //    msgBytes.append("++++++++++++++++++++END++++++++++++++++++++\n");

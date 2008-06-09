@@ -458,14 +458,12 @@ int ACDAudio::run(void* pArg)
 
    if (status == "OK") {
       UtlString audioData;
-      int audioLength;
+      ssize_t audioLength;
 
       const HttpBody* pResponseBody = pGetRequest->getBody();
-      uintptr_t temp_len;
-      pResponseBody->getBytes(&audioData, &temp_len);
-      audioLength = temp_len;
+      pResponseBody->getBytes(&audioData, &audioLength);
 
-      OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDAudio::run - received %d bytes from: %s\n",
+      OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDAudio::run - received %zd bytes from: %s\n",
                     audioLength, mUriString.data());
 
       // Now save the downloaded audio to a local file

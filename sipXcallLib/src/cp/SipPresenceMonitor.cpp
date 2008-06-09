@@ -418,7 +418,7 @@ bool SipPresenceMonitor::addPresenceEvent(UtlString& contact, SipPresenceEvent* 
       if (OsSysLog::willLog(FAC_SIP, PRI_DEBUG))
       {
          UtlString b;
-         size_t l;
+         ssize_t l;
          presenceEvent->getBytes(&b, &l);
 
          OsSysLog::add(FAC_SIP, PRI_DEBUG,

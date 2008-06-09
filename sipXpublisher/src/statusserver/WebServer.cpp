@@ -75,7 +75,7 @@ WebServer::ProcessEvent(
     UtlString event;
     response = new HttpMessage();
 
-    size_t len;
+    ssize_t len;
     UtlString httpString;
     SubscribeServerPluginBase* plugin = NULL;
 

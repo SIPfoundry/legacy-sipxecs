@@ -352,7 +352,7 @@ UtlBoolean MprFromStream::doProcessFrame(MpBufPtr inBufs[],
             MpBuf_setSpeech(out, MP_SPEECH_TONE);
             outbuf = MpBuf_getSamples(out);
 
-            if (mpStreamRenderer->getFrame(outbuf) == OS_SUCCESS)
+            if (mpStreamRenderer->getFrame((uint16_t*)outbuf) == OS_SUCCESS)
             {
                bSentData = TRUE ;
 

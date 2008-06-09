@@ -43,7 +43,7 @@ unsigned HttpBody::boundaryCounter = 0;
 /* ============================ CREATORS ================================== */
 
 // Constructor
-HttpBody::HttpBody(const char* bytes, size_t length, const char* contentType) :
+HttpBody::HttpBody(const char* bytes, ssize_t length, const char* contentType) :
    bodyLength(0),
    mBodyPartCount(0)
 {
@@ -64,8 +64,8 @@ HttpBody::HttpBody(const char* bytes, size_t length, const char* contentType) :
          //    (mBodyContentType.data())[boundaryIndex]);
 
          // Allow white space before =
-         size_t fieldLength = this->length();
-         while(boundaryIndex < (ssize_t)fieldLength &&
+         ssize_t fieldLength = this->length();
+         while(boundaryIndex < fieldLength &&
                (data()[boundaryIndex] == ' ' ||
                 data()[boundaryIndex] == '\t'))
             boundaryIndex++;
@@ -74,7 +74,7 @@ HttpBody::HttpBody(const char* bytes, size_t length, const char* contentType) :
          {
             mMultipartBoundary.append(&data()[boundaryIndex + 1]);
             NameValueTokenizer::frontTrim(&mMultipartBoundary, " \t");
-            size_t whiteSpaceIndex = mMultipartBoundary.first(' ');
+            ssize_t whiteSpaceIndex = mMultipartBoundary.first(' ');
             if(whiteSpaceIndex > 0) mMultipartBoundary.remove(whiteSpaceIndex);
             whiteSpaceIndex = mMultipartBoundary.first('\t');
             if(whiteSpaceIndex > 0) mMultipartBoundary.remove(whiteSpaceIndex);
@@ -99,8 +99,8 @@ HttpBody::HttpBody(const char* bytes, size_t length, const char* contentType) :
                UtlString value;
                const char* partBytes;
                const char* parentBodyBytes;
-               size_t partLength;
-               size_t parentBodyLength;
+               ssize_t partLength;
+               ssize_t parentBodyLength;
                getBytes(&parentBodyBytes, &parentBodyLength);
                getMultipartBytes(partIndex, &partBytes, &partLength);
                //osPrintf("Body part 1 length: %d\n", firstPart.length());
@@ -127,7 +127,7 @@ HttpBody::HttpBody(const char* bytes, size_t length, const char* contentType) :
                //partBytes.insert(0, "GET / HTTP/1.0\n");
                //HttpMessage firstPartMessage(partBytes.data(), partBytes.length());
                //const HttpBody* partFileBody = firstPartMessage.getBody();
-               //size_t bytesLeft = parser.getProcessedIndex() - partLength;
+               //ssize_t bytesLeft = parser.getProcessedIndex() - partLength;
 
                if (partLength > 0)
                {
@@ -225,7 +225,7 @@ HttpBody* HttpBody::copy() const
 
 // Pseudo factory
 HttpBody* HttpBody::createBody(const char* bodyBytes,
-                               size_t bodyLength,
+                               ssize_t bodyLength,
                                const char* contentType,
                                const char* contentEncoding)
 {
@@ -275,7 +275,7 @@ void HttpBody::appendBodyPart(const HttpBody& body,
    mBody.append("\r\n");
 
    // Insert the headers.
-   size_t rawPartStart = mBody.length();
+   ssize_t rawPartStart = mBody.length();
    UtlDListIterator iterator(*part->getParameters());
    NameValuePair* nvp;
    while ((nvp = (NameValuePair*) iterator()))
@@ -288,12 +288,12 @@ void HttpBody::appendBodyPart(const HttpBody& body,
    mBody.append("\r\n");
 
    // Insert the body.
-   size_t partStart = mBody.length();
+   ssize_t partStart = mBody.length();
    const char* bytes;
-   size_t length;
+   ssize_t length;
    body.getBytes(&bytes, &length);
    mBody.append(bytes, length);
-   size_t partEnd = mBody.length();
+   ssize_t partEnd = mBody.length();
 
    // Update bodyLength.
    bodyLength = mBody.length();
@@ -349,18 +349,18 @@ void HttpBody::appendBodyPart(const HttpBody& body,
 
 /* ============================ ACCESSORS ================================= */
 
-size_t HttpBody::getLength() const
+ssize_t HttpBody::getLength() const
 {
    return bodyLength;
 }
 
-void HttpBody::getBytes(const char** bytes, size_t* length) const
+void HttpBody::getBytes(const char** bytes, ssize_t* length) const
 {
    *bytes = mBody.data();
    *length = mBody.length();
 }
 
-void HttpBody::getBytes(UtlString* bytes, size_t* length) const
+void HttpBody::getBytes(UtlString* bytes, ssize_t* length) const
 {
    bytes->remove(0);
    const char* bytePtr;
@@ -399,7 +399,7 @@ const char* HttpBody::getContentType() const
 
 UtlBoolean HttpBody::getMultipartBytes(int partIndex,
                                        const char** bytes,
-                                       size_t* length) const
+                                       ssize_t* length) const
 {
     UtlBoolean partFound = FALSE;
     if(!mMultipartBoundary.isNull())

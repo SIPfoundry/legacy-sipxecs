@@ -130,7 +130,7 @@ public:
 
          // verify that the message has not been modified
          UtlString forwardedMsg;
-         size_t length;
+         ssize_t length;
          testMsg.getBytes(&forwardedMsg,&length);
          ASSERT_STR_EQUAL(message, forwardedMsg.data());
       }
@@ -185,7 +185,7 @@ public:
 
          // verify that the message has not been modified
          UtlString forwardedMsg;
-         size_t length;
+         ssize_t length;
          testMsg.getBytes(&forwardedMsg,&length);
          ASSERT_STR_EQUAL(message, forwardedMsg.data());
       }
@@ -233,7 +233,7 @@ public:
 
          // verify that the message has not been modified
          UtlString forwardedMsg;
-         size_t length;
+         ssize_t length;
          testMsg.getBytes(&forwardedMsg,&length);
          ASSERT_STR_EQUAL(message, forwardedMsg.data());
       }
@@ -282,7 +282,7 @@ public:
 
          // verify that the message has not been modified
          UtlString forwardedMsg;
-         size_t length;
+         ssize_t length;
          testMsg.getBytes(&forwardedMsg,&length);
          ASSERT_STR_EQUAL(message, forwardedMsg.data());
       }

@@ -383,7 +383,7 @@ UtlBoolean SipConnection::shouldCreateConnection(SipUserAgent& sipUa,
         if(!createConnection)
         {
             UtlString msgBytes;
-            size_t numBytes;
+            ssize_t numBytes;
             sipMsg->getBytes(&msgBytes, &numBytes);
             msgBytes.insert(0, "SipConnection::shouldCreateConnection: FALSE\n");
 #ifdef TEST_PRINT
@@ -1565,7 +1565,7 @@ UtlBoolean SipConnection::transfereeStatus(int callState, int returnCode)
                     break;
                 }
                 UtlString messageBody;
-                size_t len;
+                ssize_t len;
                 alertingMessage.getBytes(&messageBody,&len);
 
                 body = new HttpBody(messageBody.data(), -1, CONTENT_TYPE_MESSAGE_SIPFRAG);
@@ -1581,7 +1581,7 @@ UtlBoolean SipConnection::transfereeStatus(int callState, int returnCode)
             referNotify.setContentType(CONTENT_TYPE_MESSAGE_SIPFRAG);
 
             // Add the content length
-            size_t len;
+            ssize_t len;
             UtlString bodyString;
             body->getBytes(&bodyString, &len);
             referNotify.setContentLength(len);
@@ -3169,7 +3169,7 @@ void SipConnection::processNotifyRequest(const SipMessage* request)
             // Extract the message body, which is a sipfrag containing the
             // response that the transferee got from the transfer target.
             const char* bytes;
-            size_t numBytes;
+            ssize_t numBytes;
             body->getBytes(&bytes, &numBytes);
 
             SipMessage response(bytes, numBytes);
@@ -4793,7 +4793,7 @@ void SipConnection::processInviteResponse(const SipMessage* response)
                 else
                 {
                     UtlString redirected;
-                    size_t len;
+                    ssize_t len;
                     sipRequest.getBytes(&redirected, &len);
 #ifdef TEST_PRINT
                     osPrintf("==== Redirected failed ===>%s\n====>\n",
@@ -5446,7 +5446,7 @@ OsStatus SipConnection::getInvite(SipMessage* message)
     if (OsSysLog::willLog(FAC_CP, PRI_DEBUG))
     {
        UtlString text;
-       size_t length;
+       ssize_t length;
        inviteMsg->getBytes(&text, &length);
        OsSysLog::add(FAC_CP, PRI_DEBUG,
                      "SipConnection::getInvite this = %p, inviteMsg = %p, message = '%s'",

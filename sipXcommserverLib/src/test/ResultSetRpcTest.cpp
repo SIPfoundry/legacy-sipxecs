@@ -129,7 +129,7 @@ public:
          request.addParam(&registrations);
 
          UtlString requestBody;
-         size_t bodyLength;
+         ssize_t bodyLength;
          request.mpRequestBody->getBytes(&requestBody, &bodyLength);
 
          const char* correctRequestBody =

@@ -101,16 +101,16 @@ class XmlRpcBody : public HttpBody
    void append(const char* string);
 
    /// Get the string length of this object
-   virtual size_t getLength() const;
+   virtual ssize_t getLength() const;
 
    /// Get the serialized char representation of this body.
    virtual void getBytes(const char** bytes, ///< body content output, null terminated
-                         size_t* length ///< # bytes written (not including the null terminator
+                         ssize_t* length ///< # bytes written (not including the null terminator
                          ) const;
 
    /// Get the serialized string representation of this body.
    virtual void getBytes(UtlString* bytes, ///< body content output, null terminated
-                         size_t* length ///< # bytes written (not including the null terminator
+                         ssize_t* length ///< # bytes written (not including the null terminator
                          ) const;
 
    /// Add a value to the XML-RPC content

@@ -70,7 +70,7 @@ public:
    virtual OsStatus end() = 0 ;
      //:Ends decoding
 
-   virtual OsStatus getFrame(int16_t* pSamples) = 0 ;
+   virtual OsStatus getFrame(uint16_t* pSamples) = 0 ;
      //:Gets the next available frame.
      //!returns TRUE if a frame is available, otherwise false
 

@@ -155,7 +155,7 @@ void XmlRpcDispatch::processRequest(const HttpRequestContext& requestContext,
                                     HttpMessage*& response )
 {
 #   ifdef TEST_HTTP
-    size_t len;
+    ssize_t len;
     UtlString httpString;
 
     request.getBytes(&httpString , &len);
@@ -171,7 +171,7 @@ void XmlRpcDispatch::processRequest(const HttpRequestContext& requestContext,
                                         HTTP_OK_TEXT);
 
    UtlString bodyString;
-   size_t bodyLength;
+   ssize_t bodyLength;
    const HttpBody* requestBody = request.getBody();
    requestBody->getBytes(&bodyString, &bodyLength);
    

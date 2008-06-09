@@ -126,7 +126,7 @@ int HttpGetCommand::execute(int argc, char* argv[])
                 getResponse.read(&getSocket);
 
                 UtlString responseBytes;
-                size_t responseLength;
+                ssize_t responseLength;
                 getResponse.getBytes(&responseBytes, &responseLength);
                 printf("Got %zu bytes\n", responseLength);
                 printf("Response: ++++++++++++++++++++++++++++++++++\n%s\n",

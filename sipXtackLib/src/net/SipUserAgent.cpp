@@ -1157,7 +1157,7 @@ UtlBoolean SipUserAgent::sendUdp(SipMessage* message,
               OsSysLog::willLog(FAC_SIP_OUTGOING, PRI_INFO))
         {
           UtlString msgBytes;
-          size_t msgLen;
+          ssize_t msgLen;
           message->getBytes(&msgBytes, &msgLen);
           msgBytes.insert(0, "No send address\n");
           msgBytes.append("--------------------END--------------------\n");
@@ -1200,7 +1200,7 @@ UtlBoolean SipUserAgent::sendUdp(SipMessage* message,
   if (    isMessageLoggingEnabled() ||
           OsSysLog::willLog(FAC_SIP_OUTGOING, PRI_INFO))
     {
-      size_t len;
+      ssize_t len;
       message->getBytes(&msgBytes, &len);
       msgBytes.insert(0, messageStatusString.data());
       msgBytes.append("--------------------END--------------------\n");
@@ -1236,7 +1236,7 @@ UtlBoolean SipUserAgent::sendSymmetricUdp(SipMessage& message,
             OsSysLog::willLog(FAC_SIP_OUTGOING, PRI_INFO))
     {
         UtlString msgBytes;
-        size_t msgLen;
+        ssize_t msgLen;
         message.getBytes(&msgBytes, &msgLen);
         UtlString outcomeMsg;
         char portString[20];
@@ -1392,7 +1392,7 @@ UtlBoolean SipUserAgent::sendTcp(SipMessage* message,
                                  int port)
 {
     int sendSucceeded = FALSE;
-    size_t len;
+    ssize_t len;
     UtlString msgBytes;
     UtlString messageStatusString = "SipUserAgent::sendTcp ";
 
@@ -1536,7 +1536,7 @@ void SipUserAgent::dispatch(SipMessage* message, int messageType)
        return;
    }
 
-   size_t len;
+   ssize_t len;
    UtlString msgBytes;
    UtlString messageStatusString;
    UtlBoolean resentWithAuth = FALSE;
@@ -2224,7 +2224,7 @@ void SipUserAgent::dispatch(SipMessage* message, int messageType)
                     OsSysLog::willLog(FAC_SIP_INCOMING_PARSED, PRI_DEBUG))
                 {
                    UtlString delayMsgString;
-                   size_t delayMsgLen;
+                   ssize_t delayMsgLen;
                    delayedDispatchMessage->getBytes(&delayMsgString,
                                                     &delayMsgLen);
                    delayMsgString.insert(0, "SIP User agent delayed dispatch message:\n");
@@ -2248,7 +2248,7 @@ void SipUserAgent::dispatch(SipMessage* message, int messageType)
              if (OsSysLog::willLog(FAC_SIP, PRI_DEBUG))
              {
                 UtlString noTxMsgString;
-                size_t noTxMsgLen;
+                ssize_t noTxMsgLen;
                 message->getBytes(&noTxMsgString, &noTxMsgLen);
 
                 OsSysLog::add(FAC_SIP, PRI_DEBUG,
@@ -2297,7 +2297,7 @@ void SipUserAgent::dispatch(SipMessage* message, int messageType)
           )
       {
          UtlString delayMsgString;
-         size_t delayMsgLen;
+         ssize_t delayMsgLen;
          delayedDispatchMessage->getBytes(&delayMsgString,
                                           &delayMsgLen);
          delayMsgString.insert(0, "SIP User agent delayed dispatch message:\n");
@@ -2464,7 +2464,7 @@ void SipUserAgent::queueMessageToInterestedObservers(SipMessageEvent& event,
                                 eventName.data(),
                                 observerCriteria->getSession());
                   UtlString messageContent;
-                  size_t messageLength;
+                  ssize_t messageLength;
                   message->getBytes(&messageContent, &messageLength);
                   OsSysLog::add(FAC_SIP, PRI_CRIT,
                                 "SipUserAgent::queueMessageToInterestedObservers failed message is: %s",
@@ -2544,7 +2544,7 @@ UtlBoolean SipUserAgent::handleMessage(OsMsg& eventMessage)
             // I cannot remember what kind of message ends up here???
             if (OsSysLog::willLog(FAC_SIP, PRI_DEBUG))
             {
-               size_t len;
+               ssize_t len;
                UtlString msgBytes;
                sipMsg->getBytes(&msgBytes, &len);
                OsSysLog::add(FAC_SIP, PRI_DEBUG,
@@ -2669,7 +2669,7 @@ UtlBoolean SipUserAgent::handleMessage(OsMsg& eventMessage)
                          OsSysLog::willLog(FAC_SIP_INCOMING, PRI_DEBUG))
                      {
                         UtlString delayMsgString;
-                        size_t delayMsgLen;
+                        ssize_t delayMsgLen;
                         delayedDispatchMessage->getBytes(&delayMsgString,
                                                          &delayMsgLen);
                         delayMsgString.insert(0, "SIP User agent delayed dispatch message:\n");
@@ -2795,7 +2795,7 @@ UtlBoolean SipUserAgent::handleMessage(OsMsg& eventMessage)
                          OsSysLog::willLog(FAC_SIP_INCOMING_PARSED, PRI_DEBUG))
                      {
                         UtlString delayMsgString;
-                        size_t delayMsgLen;
+                        ssize_t delayMsgLen;
                         delayedDispatchMessage->getBytes(&delayMsgString,
                                                          &delayMsgLen);
                         delayMsgString.insert(0, "SIP User agent delayed dispatch message:\n");
@@ -2819,7 +2819,7 @@ UtlBoolean SipUserAgent::handleMessage(OsMsg& eventMessage)
                   if (OsSysLog::willLog(FAC_SIP, PRI_DEBUG))
                   {
                      UtlString noTxMsgString;
-                     size_t noTxMsgLen;
+                     ssize_t noTxMsgLen;
                      sipMessage->getBytes(&noTxMsgString, &noTxMsgLen);
 
                      OsSysLog::add(FAC_SIP, PRI_DEBUG,

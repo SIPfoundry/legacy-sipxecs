@@ -227,7 +227,7 @@ public:
          CPPUNIT_ASSERT(mSipRouter->proxyMessage(testMsg));
 
          UtlString proxiedMsg;
-         size_t msgLen;
+         ssize_t msgLen;
          testMsg.getBytes(&proxiedMsg, &msgLen);
 
          OsSysLog::add(FAC_SIP, PRI_INFO, "Proxied Message:\n%s", proxiedMsg.data());
@@ -265,7 +265,7 @@ public:
          CPPUNIT_ASSERT(mSipRouter->proxyMessage(testMsg));
 
          UtlString proxiedMsg;
-         size_t msgLen;
+         ssize_t msgLen;
          testMsg.getBytes(&proxiedMsg, &msgLen);
 
          UtlString requestUri;
@@ -303,7 +303,7 @@ public:
          CPPUNIT_ASSERT(mSipRouter->proxyMessage(testMsg));
 
          UtlString proxiedMsg;
-         size_t msgLen;
+         ssize_t msgLen;
          testMsg.getBytes(&proxiedMsg, &msgLen);
 
          UtlString requestUri;
@@ -348,7 +348,7 @@ public:
          CPPUNIT_ASSERT(mSipRouter->proxyMessage(testMsg));
 
          UtlString proxiedMsg;
-         size_t msgLen;
+         ssize_t msgLen;
          testMsg.getBytes(&proxiedMsg, &msgLen);
 
          UtlString requestUri;
@@ -386,7 +386,7 @@ public:
          CPPUNIT_ASSERT(mSipRouter->proxyMessage(testMsg));
 
          UtlString proxiedMsg;
-         size_t msgLen;
+         ssize_t msgLen;
          testMsg.getBytes(&proxiedMsg, &msgLen);
 
          UtlString requestUri;
@@ -435,7 +435,7 @@ public:
          CPPUNIT_ASSERT(mSipRouter->proxyMessage(testMsg));
 
          // UtlString proxiedMsg;
-         // size_t msgLen;
+         // ssize_t msgLen;
          // testMsg.getBytes(&proxiedMsg, &msgLen);
          // printf("In:\n%s\nOut:\n%s\n", message, proxiedMsg.data());
 
@@ -480,7 +480,7 @@ public:
          CPPUNIT_ASSERT(mSipRouter->proxyMessage(testMsg));
 
          // UtlString proxiedMsg;
-         // size_t msgLen;
+         // ssize_t msgLen;
          // testMsg.getBytes(&proxiedMsg, &msgLen);
          // printf("In:\n%s\nOut:\n%s\n", message, proxiedMsg.data());
 
@@ -535,7 +535,7 @@ public:
        CPPUNIT_ASSERT(mSipRouter->proxyMessage(testMsg));
 
        // UtlString proxiedMsg;
-       // size_t msgLen;
+       // ssize_t msgLen;
        // testMsg.getBytes(&proxiedMsg, &msgLen);
        // printf("In:\n%s\nOut:\n%s\n", message, proxiedMsg.data());
 
@@ -589,7 +589,7 @@ public:
       CPPUNIT_ASSERT(mSipRouter->proxyMessage(testMsg));
 
       // UtlString proxiedMsg;
-      // size_t msgLen;
+      // ssize_t msgLen;
       // testMsg.getBytes(&proxiedMsg, &msgLen);
       // printf("In:\n%s\nOut:\n%s\n", message, proxiedMsg.data());
 
@@ -641,7 +641,7 @@ public:
       CPPUNIT_ASSERT(mSipRouter->proxyMessage(testMsg));
 
       // UtlString proxiedMsg;
-      // size_t msgLen;
+      // ssize_t msgLen;
       // testMsg.getBytes(&proxiedMsg, &msgLen);
       // printf("In:\n%s\nOut:\n%s\n", message, proxiedMsg.data());
 
@@ -686,7 +686,7 @@ public:
       CPPUNIT_ASSERT(mSipRouter->proxyMessage(testMsg));
 
       // UtlString proxiedMsg;
-      // int msgLen;
+      // ssize_t msgLen;
       // testMsg.getBytes(&proxiedMsg, &msgLen);
       // printf("In:\n%s\nOut:\n%s\n", message, proxiedMsg.data());
 

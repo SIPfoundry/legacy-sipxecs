@@ -28,7 +28,7 @@ MpAuRead::MpAuRead(istream & s, int raw): MpAudioAbstract(), mStream(s)
 bool isAuFile(istream &file)
 {
    file.seekg(0);  // Seek to beginning
-   uint32_t magic = readIntMsb(file,4);
+   int32_t magic = readIntMsb(file,4);
    return (magic == 0x2E736E64); // Should be `.snd'
 }
 

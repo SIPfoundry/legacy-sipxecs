@@ -265,7 +265,7 @@ public:
             "Content-Length: 0\r\n"
             "\r\n";
 
-         size_t msgLength;
+         ssize_t msgLength;
          UtlString msgBytes;
 
          // initial send - no forking

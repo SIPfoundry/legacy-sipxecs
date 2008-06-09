@@ -82,7 +82,7 @@ public:
    bool operator==( const CallbackTrace& rhs ) const
    {
       UtlString localMessage, rhsMessage;
-      size_t       localLen,     rhsLen;
+      ssize_t       localLen,     rhsLen;
       
       // this method is often used to compare a message
       // captured by the output processor against a reference message
@@ -122,7 +122,7 @@ public:
       {
          UtlString thisCallbackTraceString;
          UtlString rhsCallbackTraceString;
-         size_t len;
+         ssize_t len;
          
          mMessage.getBytes( &thisCallbackTraceString, &len );
          thisCallbackTraceString.append( mAddress );

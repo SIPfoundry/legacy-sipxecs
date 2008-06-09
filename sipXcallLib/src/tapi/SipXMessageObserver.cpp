@@ -172,7 +172,7 @@ bool SipXMessageObserver::handleIncomingInfoMessage(SipMessage* pMessage)
             
             // get the content
             UtlString body;
-            size_t dummyLength = pMessage->getContentLength();
+            ssize_t dummyLength = pMessage->getContentLength();
             const HttpBody* pBody = pMessage->getBody();
             pBody->getBytes(&body, &dummyLength);    
             pInfoData->infoData.pContent = body.data();

@@ -1675,7 +1675,7 @@ UtlBoolean CpPeerCall::handleGetInvite(OsMsg* pEventMessage)
               if (OsSysLog::willLog(FAC_CP, PRI_DEBUG))
               {
                  UtlString text;
-                 size_t length;
+                 ssize_t length;
                  messagePtr->getBytes(&text, &length);
                  OsSysLog::add(FAC_CP, PRI_DEBUG,
                                "CpPeerCall::handleGetInvite INVITE found '%s'",

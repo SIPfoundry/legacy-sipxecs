@@ -527,7 +527,7 @@ UtlBoolean SipTransaction::handleOutgoing(SipMessage& outgoingMessage,
         if (toAddress.isNull())
         {
            UtlString bytes;
-           size_t length;
+           ssize_t length;
            message->getBytes(&bytes, &length);
            OsSysLog::add(FAC_SIP, PRI_ERR,
                          "SipTransaction::handleOutgoing Unable to obtain To address.  Message is '%s'",
@@ -556,7 +556,7 @@ UtlBoolean SipTransaction::handleOutgoing(SipMessage& outgoingMessage,
         if (OsSysLog::willLog(FAC_SIP, PRI_DEBUG))
         {
             UtlString requestString;
-            size_t len;
+            ssize_t len;
             outgoingMessage.getBytes(&requestString, &len);
             UtlString transString;
             toString(transString, TRUE);
@@ -580,7 +580,7 @@ UtlBoolean SipTransaction::handleOutgoing(SipMessage& outgoingMessage,
             if (OsSysLog::willLog(FAC_SIP, PRI_WARNING))
             {
                 UtlString requestString;
-                size_t len;
+                ssize_t len;
                 outgoingMessage.getBytes(&requestString, &len);
                 UtlString transString;
                 toString(transString, TRUE);
@@ -597,7 +597,7 @@ UtlBoolean SipTransaction::handleOutgoing(SipMessage& outgoingMessage,
             if (OsSysLog::willLog(FAC_SIP, PRI_WARNING))
             {
                 UtlString requestString;
-                size_t len;
+                ssize_t len;
                 outgoingMessage.getBytes(&requestString, &len);
                 UtlString transString;
                 toString(transString, TRUE);
@@ -1295,7 +1295,7 @@ void SipTransaction::handleResendEvent(const SipMessage& outgoingMessage,
                 if(outgoingMessage.getSipTransaction() == NULL)
                 {
                     UtlString msgString;
-                    size_t msgLen;
+                    ssize_t msgLen;
                     outgoingMessage.getBytes(&msgString, &msgLen);
                     OsSysLog::add(FAC_SIP, PRI_WARNING,
                                   "SipTransaction::handleResendEvent reschedule of response resend with NULL transaction, message = '%s'",
@@ -1409,7 +1409,7 @@ void SipTransaction::handleResendEvent(const SipMessage& outgoingMessage,
                 if(outgoingMessage.getSipTransaction() == NULL)
                 {
                     UtlString msgString;
-                    size_t msgLen;
+                    ssize_t msgLen;
                     outgoingMessage.getBytes(&msgString, &msgLen);
                     OsSysLog::add(FAC_SIP, PRI_WARNING,
                         "SipTransaction::handleResendEvent reschedule of request resend with NULL transaction, message = '%s'",
@@ -3213,7 +3213,7 @@ UtlBoolean SipTransaction::findBestResponse(SipMessage& bestResponse)
             if (OsSysLog::willLog(FAC_SIP, PRI_WARNING))
             {
                 UtlString msgString;
-                size_t msgLen;
+                ssize_t msgLen;
                 bestResponse.getBytes(&msgString, &msgLen);
 
                 // We got a bad response
@@ -3343,7 +3343,7 @@ UtlBoolean SipTransaction::doResend(SipMessage& resendMessage,
                 if(resendMessage.getSipTransaction() == NULL)
                 {
                     UtlString msgString;
-                    size_t msgLen;
+                    ssize_t msgLen;
                     resendMessage.getBytes(&msgString, &msgLen);
                     OsSysLog::add(FAC_SIP, PRI_WARNING,
                                   "SipTransaction::doResend reschedule of request resend with NULL transaction, message = '%s'",
@@ -4173,7 +4173,7 @@ void SipTransaction::toString(UtlString& dumpString,
     dumpString.append(mIsUaTransaction ? "TRUE" : " FALSE");
 
     UtlString msgString;
-    size_t len;
+    ssize_t len;
 
     dumpString.append("\n\tmpRequest: ");
     if(mpRequest && dumpMessagesAlso)
@@ -5270,7 +5270,7 @@ UtlBoolean SipTransaction::isUriRecursedChildren(UtlString& uriString)
 //  Default is UDP, returns TCP only for large messages
 OsSocket::IpProtocolSocketType SipTransaction::getPreferredProtocol()
 {
-    size_t msgLength;
+    ssize_t msgLength;
     UtlString msgBytes;
     OsSocket::IpProtocolSocketType retProto = OsSocket::UDP;
 

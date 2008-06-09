@@ -104,7 +104,7 @@ protected:
    int run(void* pArgs);
      //:Thread entry point
 
-   UtlBoolean nextDataChunk(size_t& iLength);
+   UtlBoolean nextDataChunk(ssize_t& iLength);
      //:Advances the mCurrentChunk to the next data chunk within the stream
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */

@@ -493,7 +493,7 @@ void RefreshDialogState::dumpState()
 
    long now = OsDateTime::getSecsSinceEpoch();
    UtlString msg_text;
-   size_t msg_length;
+   ssize_t msg_length;
    mpLastRequest->getBytes(&msg_text, &msg_length);
    OsTimer::OsTimerState state;
    OsTimer::Time expiresAt;
@@ -643,7 +643,7 @@ UtlBoolean SipRefreshManager::handleMessage(OsMsg &eventMessage)
                     SipMessage tempRequest(*(state->mpLastRequest));
                     
                     UtlString lastRequest;
-                    size_t length;
+                    ssize_t length;
                     state->mpLastRequest->getBytes(&lastRequest, &length);
                     OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipRefreshManager::handleMessage last request = '%s'",
                                   lastRequest.data());
@@ -1262,7 +1262,7 @@ void SipRefreshManager::setForResend(RefreshDialogState& state,
     if(state.mpLastRequest)
     {
         UtlString lastRequest;
-        size_t length;
+        ssize_t length;
         state.mpLastRequest->getBytes(&lastRequest, &length);
         OsSysLog::add(FAC_SIP, PRI_DEBUG,
                       "SipRefreshManager::setForResend last request = '%s'",

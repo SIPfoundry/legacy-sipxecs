@@ -57,9 +57,9 @@
 // STATIC VARIABLE INITIALIZATIONS
 
 #ifdef TEST_UPLOAD_FILE_DEBUG
-void incrementalCheckSum(unsigned int* checkSum, const char* buffer, size_t bufferLength)
+void incrementalCheckSum(unsigned int* checkSum, const char* buffer, ssize_t bufferLength)
 {
-    size_t integerIndex = 0;
+    ssize_t integerIndex = 0;
     while(integerIndex < bufferLength)
     {
         (*checkSum) += (*buffer);
@@ -977,7 +977,7 @@ int HttpServer::doPostFile(const HttpRequestContext& requestContext,
 
 #ifdef TEST_UPLOAD_FILE_DEBUG
     const char* saveBytes;
-    size_t saveLen;
+    ssize_t saveLen;
     body->getBytes(&saveBytes, &saveLen);
     int bodyDumpFileDesc = open("/flash0/postbodyDump.aif", O_WRONLY | O_CREAT | O_TRUNC | O_BINARY,
                     S_IREAD | S_IWRITE);
@@ -992,7 +992,7 @@ int HttpServer::doPostFile(const HttpRequestContext& requestContext,
             const MimeBodyPart* firstPartFileBody = //firstPartMessage.getBody();
                 body->getMultipart(0);
             const char* fileData;
-            size_t fileDataLength;
+            ssize_t fileDataLength;
             if(firstPartFileBody)
             {
 #ifdef TEST_UPLOAD_FILE_DEBUG
@@ -1042,7 +1042,7 @@ int HttpServer::doPostFile(const HttpRequestContext& requestContext,
 
                                                                         if(fileDesc >= 0)
                                                                         {
-                                                                                size_t bytesWritten = write(fileDesc,
+                                                                                ssize_t bytesWritten = write(fileDesc,
                                                                                         (char*)fileData, fileDataLength);
 #ifdef TEST_UPLOAD_FILE_DEBUG
                                                                                 unsigned int postWriteCheckSum = 0;
@@ -1530,7 +1530,7 @@ UtlBoolean HttpServer::mapUri(OsConfigDb& uriMaps, const char* uri, UtlString& m
         UtlString originalUri(uri);
         UtlString mapFromUri(uri);
         UtlString mapToUri;
-        size_t dirSeparatorIndex;
+        ssize_t dirSeparatorIndex;
 
         OsSysLog::add(FAC_SIP, PRI_DEBUG, "HttpServer::mapUri looking for \"%s\"",
                       mapFromUri.data());

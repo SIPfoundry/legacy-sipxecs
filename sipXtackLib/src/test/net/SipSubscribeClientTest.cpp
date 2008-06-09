@@ -129,7 +129,7 @@ public:
                if(message)
                {
                   UtlString messageBytes;
-                  size_t len;
+                  ssize_t len;
                   message->getBytes(&messageBytes, &len);
                   printf("%s", messageBytes.data());
                }
@@ -507,7 +507,7 @@ public:
                if(message)
                {
                   UtlString messageBytes;
-                  size_t len;
+                  ssize_t len;
                   message->getBytes(&messageBytes, &len);
                   printf("%s", messageBytes.data());
                }

@@ -69,7 +69,7 @@ StreamQueueingFormatDecoder::~StreamQueueingFormatDecoder()
 /* ============================ MANIPULATORS ============================== */
 
 // Gets the next available frame
-OsStatus StreamQueueingFormatDecoder::getFrame(int16_t* samples)
+OsStatus StreamQueueingFormatDecoder::getFrame(uint16_t* samples)
 {
    OsStatus status = OS_SUCCESS ;
 
@@ -98,7 +98,7 @@ OsStatus StreamQueueingFormatDecoder::getFrame(int16_t* samples)
       mMsgqFrames.receive((OsMsg*&)pMsg) ;
 
       // If we have hit the end of the frames, then return non OS_SUCCESS
-      if (!pMsg->getSamples(samples))
+      if (!pMsg->getSamples((int16_t*)samples))
       {
          status = OS_INVALID ;
          memset(samples, 0, sizeof(int16_t) * 80) ;
@@ -134,7 +134,7 @@ void StreamQueueingFormatDecoder::checkThrottle()
 }
 
 // Queues a frame of data
-OsStatus StreamQueueingFormatDecoder::queueFrame(const int16_t* pSamples)
+OsStatus StreamQueueingFormatDecoder::queueFrame(const uint16_t* pSamples)
 {
    OsStatus status = OS_SUCCESS;
 
@@ -145,7 +145,7 @@ OsStatus StreamQueueingFormatDecoder::queueFrame(const int16_t* pSamples)
    StreamQueueMsg* pMsg = (StreamQueueMsg*) mMsgPool.findFreeMsg() ;
    if (pMsg)
    {
-      pMsg->setSamples(pSamples);                        
+      pMsg->setSamples((const int16_t*)pSamples);                        
          mMsgqFrames.send(*pMsg) ;     
    }     
    else
@@ -186,7 +186,7 @@ OsStatus StreamQueueingFormatDecoder::queueEndOfFrames()
 //: Drains any queued frames
 OsStatus StreamQueueingFormatDecoder::drain()
 {
-   int16_t samples[80] ;
+   uint16_t samples[80] ;
 
    mbDraining = TRUE ;
    while (getNumQueuedFrames() > 0)

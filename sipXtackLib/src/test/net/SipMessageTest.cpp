@@ -83,7 +83,7 @@ class SipMessageTest : public CppUnit::TestCase
          SipMessage testMsg( SimpleMessage, strlen( SimpleMessage ) );
 
          UtlString msgBytes;
-         size_t       msgLength;
+         ssize_t   msgLength;
 
          testMsg.getBytes(&msgBytes, &msgLength);
          ASSERT_STR_EQUAL(SimpleMessage, msgBytes.data());
@@ -421,11 +421,12 @@ class SipMessageTest : public CppUnit::TestCase
             ;
          
          SipMessage testMsg( MultipartBodyMessage, strlen( MultipartBodyMessage ) );
+
          const SdpBody* sdpBody = testMsg.getSdpBody();
          CPPUNIT_ASSERT(sdpBody);
          
          UtlString theBody;
-         size_t theLength;
+         ssize_t theLength;
          
          sdpBody->getBytes(&theBody, &theLength);
          sdpBody->findMediaType("audio", 0);
@@ -482,6 +483,7 @@ class SipMessageTest : public CppUnit::TestCase
 
          UtlString value;
          size_t i;
+
          SipMessage testMessage1(message1, strlen(message1));
 
          for (i = 0;
@@ -495,7 +497,7 @@ class SipMessageTest : public CppUnit::TestCase
                     i, i);
             ASSERT_STR_EQUAL_MESSAGE(buffer, vias[i], value.data());
          }
-         CPPUNIT_ASSERT_EQUAL((char*)i, (char*)(sizeof (vias) / sizeof (vias[0])));
+         CPPUNIT_ASSERT_EQUAL(i, (sizeof (vias) / sizeof (vias[0])));
 
          SipMessage testMessage2(message2, strlen(message2));
 
@@ -1102,13 +1104,13 @@ class SipMessageTest : public CppUnit::TestCase
         const char* referenceSdp = 
             "v=0\r\nm=audio 49170 RTP/AVP 0\r\nc=IN IP4 224.2.17.12/127\r\n";
         const char* sdpBytes = NULL;
-        size_t sdpByteLength = 0;
+        ssize_t sdpByteLength = 0;
         sdp->getBytes(&sdpBytes, &sdpByteLength);
-        for(size_t iii = 0; iii < sdpByteLength; iii++)
+        for(ssize_t iii = 0; iii < sdpByteLength; iii++)
         {
             if(referenceSdp[iii] != sdpBytes[iii])
             {
-                printf("index[%zu]: expected: %d got: %d\n",
+                printf("index[%zd]: expected: %d got: %d\n",
                     iii, referenceSdp[iii], sdpBytes[iii]);
             }
         }
@@ -1121,7 +1123,7 @@ class SipMessageTest : public CppUnit::TestCase
         const SdpBody *sdpCopy = msgCopy->getSdpBody();
         CPPUNIT_ASSERT_MESSAGE("NULL SDP copy", sdpCopy != NULL);
         const char* sdpCopyBytes = NULL;
-        size_t sdpCopyLen = 0;
+        ssize_t sdpCopyLen = 0;
         sdpCopy->getBytes(&sdpCopyBytes, &sdpCopyLen);
         //printf("SDP copy length: %d\n%s\n", sdpCopyLen, sdpCopyBytes);
         CPPUNIT_ASSERT_MESSAGE("Null sdp copy serialized content", sdpCopyBytes != NULL);
@@ -1147,13 +1149,13 @@ class SipMessageTest : public CppUnit::TestCase
         const HttpBody* fooBody = msg->getBody();
 
         const char* fooBytes = NULL;
-        size_t fooByteLength = 0;
+        ssize_t fooByteLength = 0;
         fooBody->getBytes(&fooBytes, &fooByteLength);
-        for(size_t iii = 0; iii < fooByteLength; iii++)
+        for(ssize_t iii = 0; iii < fooByteLength; iii++)
         {
             if(referenceContent[iii] != fooBytes[iii])
             {
-                printf("index[%zu]: expected: %d got: %d\n",
+                printf("index[%zd]: expected: %d got: %d\n",
                     iii, referenceContent[iii], fooBytes[iii]);
             }
         }
@@ -1166,7 +1168,7 @@ class SipMessageTest : public CppUnit::TestCase
         const HttpBody *fooCopy = msgCopy->getBody();
         CPPUNIT_ASSERT_MESSAGE("NULL foo body copy", fooCopy != NULL);
         const char* fooCopyBytes = NULL;
-        size_t fooCopyLen = 0;
+        ssize_t fooCopyLen = 0;
         fooCopy->getBytes(&fooCopyBytes, &fooCopyLen);
         //printf("foo copy length: %d\n%s\n", fooCopyLen, fooCopyBytes);
         CPPUNIT_ASSERT_MESSAGE("Null foo copy serialized content", fooCopyBytes != NULL);
@@ -1224,7 +1226,7 @@ class SipMessageTest : public CppUnit::TestCase
 
 #if 0
          UtlString p;
-         size_t l;
+         ssize_t l;
          msg->getBytes(&p, &l);
          fprintf(stderr,
                  "testSetInviteDataHeaders for %s after first setInviteData:\n%s\n",
@@ -1323,7 +1325,7 @@ class SipMessageTest : public CppUnit::TestCase
 
 #if 0
          UtlString p;
-         size_t l;
+         ssize_t l;
          msg->getBytes(&p, &l);
          fprintf(stderr,
                  "testSetInviteDataHeaders for %s after first setInviteData:\n%s\n",
@@ -1425,7 +1427,7 @@ class SipMessageTest : public CppUnit::TestCase
 
 #if 0
          UtlString p;
-         size_t l;
+         ssize_t l;
          msg->getBytes(&p, &l);
          fprintf(stderr,
                  "testSetInviteDataHeaders for %s after first setInviteData:\n%s\n",
@@ -1444,7 +1446,7 @@ class SipMessageTest : public CppUnit::TestCase
    void testApplyTargetUriHeaderParams()
       {
          UtlString dumpStr;
-         size_t       dumpLength;
+         ssize_t   dumpLength;
 
          dumpLength = 0;
          dumpLength = dumpLength; // suppress compiler warnings about unused variables
@@ -1707,7 +1709,7 @@ class SipMessageTest : public CppUnit::TestCase
             "\r\n";
 
          UtlString translated;
-         size_t length;
+         ssize_t length;
          
          testMsg.getBytes(&translated, &length);
          

@@ -277,7 +277,7 @@ class SipDialogEvent : public HttpBody
    void buildBody(int& version) const;
 
    //! Get the string length of this object
-   virtual size_t getLength() const;
+   virtual ssize_t getLength() const;
 
    //! Get the serialized char representation of this dialog event.
    /*! \param bytes - pointer to the body text of the dialog event will
@@ -286,7 +286,7 @@ class SipDialogEvent : public HttpBody
     *       null terminator).
     */
    virtual void getBytes(const char** bytes,
-                         size_t* length) const;
+                         ssize_t* length) const;
 
    //! Get the serialized string representation of this dialog event.
    /*! \param bytes - UtlString into which the body text will be copied.
@@ -294,7 +294,7 @@ class SipDialogEvent : public HttpBody
     *       null terminator).
     */
    virtual void getBytes(UtlString* bytes,
-                         size_t* length) const;
+                         ssize_t* length) const;
    // Import HttpBody's getBytes methods, except as overridden here.
    using HttpBody::getBytes;
 

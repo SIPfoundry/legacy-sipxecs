@@ -279,7 +279,7 @@ OsStatus MpStreamFeeder::setEventHandler(OsNotification* pEventHandler)
 
 
 // Gets the next available frame
-OsStatus MpStreamFeeder::getFrame(int16_t *samples)
+OsStatus MpStreamFeeder::getFrame(uint16_t *samples)
 {
    OsStatus rc = OS_INVALID ;
 

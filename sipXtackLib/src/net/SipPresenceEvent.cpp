@@ -283,9 +283,9 @@ Tuple* SipPresenceEvent::getTuple()
    return tuple;
 }
 
-size_t SipPresenceEvent::getLength() const
+ssize_t SipPresenceEvent::getLength() const
 {
-   size_t length;
+   ssize_t length;
    UtlString tempBody;
 
    getBytes(&tempBody, &length);
@@ -356,7 +356,7 @@ void SipPresenceEvent::buildBody(int& version) const
    // @TODO@ This is just to adjust bodyLength to match UtlString::length().
    // This seems redundant.  I suspect bodyLength is redundant for
    // UtlString::length() and should be removed.
-   const_cast <size_t&> (bodyLength) = mBodyMutable.length();
+   const_cast <ssize_t&> (bodyLength) = mBodyMutable.length();
    
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
                  "SipTupleEvent::getBytes Tuple mBodyMutable = '%s'", 
@@ -365,7 +365,7 @@ void SipPresenceEvent::buildBody(int& version) const
    mLock.release();
 }
 
-void SipPresenceEvent::getBytes(const char** bytes, size_t* length) const
+void SipPresenceEvent::getBytes(const char** bytes, ssize_t* length) const
 {
    UtlString tempBody;
 
@@ -374,7 +374,7 @@ void SipPresenceEvent::getBytes(const char** bytes, size_t* length) const
    *bytes = mBody.data();
 }
 
-void SipPresenceEvent::getBytes(UtlString* bytes, size_t* length) const
+void SipPresenceEvent::getBytes(UtlString* bytes, ssize_t* length) const
 {
    int dummy;
    buildBody(dummy);

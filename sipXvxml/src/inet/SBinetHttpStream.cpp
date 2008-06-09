@@ -363,7 +363,7 @@ SBinetHttpStream::OsGetData(HTAnchor* anchor,
    	Diag (tagID, (const VXIchar*)NULL, L"response code (%d) response contentLength(%d)\n", m_HttpStatus, contentLength);
    }
 
-   size_t bodyLen = 0;
+   ssize_t bodyLen = 0;
    UtlString bodybytes;
    const HttpBody *responseBody = pResponse->getBody();
    if (responseBody) 
@@ -526,7 +526,7 @@ SBinetHttpStream::OsPostData(HTParentAnchor* source,
 
    HttpMessage request;
    UtlString    bytes;
-   size_t      reqlen = 0;
+   ssize_t      reqlen = 0;
 
    request.setBody(body);
    request.setRequestFirstHeaderLine(HTTP_POST_METHOD,
@@ -537,7 +537,7 @@ SBinetHttpStream::OsPostData(HTParentAnchor* source,
    request.getBytes(&bytes,&reqlen);
 
    HttpMessage response;
-   size_t      len = 0;
+   ssize_t      len = 0;
 
    int ret = response.get(newUrl, request, m_nTimeoutOpen);
    if (DiagIsEnabled(MODULE_SBINET_TAGID))
@@ -548,7 +548,7 @@ SBinetHttpStream::OsPostData(HTParentAnchor* source,
 
    int contentLength = response.getContentLength();
 
-   size_t i;
+   ssize_t i;
    VXIchar *out = NULL;
    VXIunsigned tagID = (unsigned int)MODULE_SBINET_STREAM_TAGID;
    if (DiagIsEnabled(tagID))
@@ -569,7 +569,7 @@ SBinetHttpStream::OsPostData(HTParentAnchor* source,
    UtlString contentTypeString;
    response.getContentType(&contentTypeString);
 
-   size_t bodyLen = 0;
+   ssize_t bodyLen = 0;
    const HttpBody *responseBody = response.getBody();
    if (responseBody) {
    	responseBody->getBytes(&bytes,&bodyLen);

@@ -134,7 +134,7 @@ public:
 
          // check that the message has not been modified
          UtlString outputMsg;
-         size_t    outputSize;
+         ssize_t    outputSize;
          testMsg.getBytes(&outputMsg, &outputSize);
 
          ASSERT_STR_EQUAL(message, outputMsg.data());
@@ -183,7 +183,7 @@ public:
 
          // check that the message has not been modified
          UtlString outputMsg;
-         size_t    outputSize;
+         ssize_t    outputSize;
          testMsg.getBytes(&outputMsg, &outputSize);
 
          ASSERT_STR_EQUAL(message, outputMsg.data());
@@ -235,7 +235,7 @@ public:
 
          // check that the message has not been modified
          UtlString outputMsg;
-         size_t    outputSize;
+         ssize_t    outputSize;
          testMsg.getBytes(&outputMsg, &outputSize);
 
          ASSERT_STR_EQUAL(message, outputMsg.data());
@@ -285,7 +285,7 @@ public:
 
          // check that the message has not been modified
          UtlString outputMsg;
-         size_t    outputSize;
+         ssize_t    outputSize;
          testMsg.getBytes(&outputMsg, &outputSize);
 
          ASSERT_STR_EQUAL(message, outputMsg.data());
@@ -336,7 +336,7 @@ public:
 
          // check that the message has not been modified
          UtlString outputMsg;
-         size_t    outputSize;
+         ssize_t    outputSize;
          testMsg.getBytes(&outputMsg, &outputSize);
 
          ASSERT_STR_EQUAL(message, outputMsg.data());
@@ -393,7 +393,7 @@ public:
 
          // check that the message has not been modified
          UtlString outputMsg;
-         size_t    outputSize;
+         ssize_t    outputSize;
          testMsg.getBytes(&outputMsg, &outputSize);
 
          ASSERT_STR_EQUAL(message, outputMsg.data());
@@ -443,7 +443,7 @@ public:
 
          // check that the message has not been modified
          UtlString outputMsg;
-         size_t    outputSize;
+         ssize_t    outputSize;
          testMsg.getBytes(&outputMsg, &outputSize);
 
          ASSERT_STR_EQUAL(message, outputMsg.data());
@@ -494,7 +494,7 @@ public:
 
          // check that the message has not been modified
          UtlString outputMsg;
-         size_t    outputSize;
+         ssize_t    outputSize;
          testMsg.getBytes(&outputMsg, &outputSize);
 
          ASSERT_STR_EQUAL(message, outputMsg.data());

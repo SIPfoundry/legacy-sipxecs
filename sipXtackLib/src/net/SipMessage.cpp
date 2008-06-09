@@ -44,7 +44,7 @@ SipMessage::SipMessageFieldProps SipMessage::sSipMessageFieldProps;
 /* ============================ CREATORS ================================== */
 
 // Constructor
-SipMessage::SipMessage(const char* messageBytes, size_t byteCount) :
+SipMessage::SipMessage(const char* messageBytes, ssize_t byteCount) :
    HttpMessage(messageBytes, byteCount)
 {
 #ifdef TRACK_LIFE
@@ -56,7 +56,7 @@ SipMessage::SipMessage(const char* messageBytes, size_t byteCount) :
    replaceShortFieldNames();
 }
 
-SipMessage::SipMessage(OsSocket* inSocket, size_t bufferSize) :
+SipMessage::SipMessage(OsSocket* inSocket, ssize_t bufferSize) :
    HttpMessage(inSocket, bufferSize)
 {
 #ifdef TRACK_LIFE
@@ -320,7 +320,8 @@ void SipMessage::setInviteData(const char* fromField,
 {
    UtlString bodyString;
    UtlString uri;
-    Url toUrl(toField);
+   
+   Url toUrl(toField);
    // Create the top header line
 
    // If we have a contact for the other side use it
@@ -378,6 +379,7 @@ void SipMessage::setInviteData(const char* fromField,
     toUrl.removeHeaderParameters();
     UtlString toFieldString;
     toUrl.toString(toFieldString);
+    
    setRequestData(SIP_INVITE_METHOD,
         uri, // URI
         fromField,
@@ -407,7 +409,7 @@ void SipMessage::addSdpBody(const char* rtpAddress, int rtpAudioPort, int rtcpAu
    if(numRtpCodecs > 0)
    {
       UtlString bodyString;
-      size_t len;
+      ssize_t len;
 
       // Create and add the SDP body
       SdpBody* sdpBody = new SdpBody();
@@ -427,7 +429,7 @@ void SipMessage::addSdpBody(const char* rtpAddress, int rtpAudioPort, int rtcpAu
 
       // Add the content length
       sdpBody->getBytes(&bodyString, &len);
-      setContentLength((int)len);
+      setContentLength(len);
    }
 }
 
@@ -830,7 +832,7 @@ void SipMessage::setRequestDiagBody(SipMessage request)
    request.setBody(NULL);
 
    UtlString sipFragString;
-   size_t sipFragLen;
+   ssize_t sipFragLen;
    request.getBytes(&sipFragString, &sipFragLen);
 
    // Create a body to contain the Vias from the request
@@ -863,7 +865,7 @@ void SipMessage::setInviteOkData(const char* fromField,
 {
    SdpBody* sdpBody;
    UtlString bodyString;
-   size_t len;
+   ssize_t len;
 
    setResponseData(SIP_OK_CODE, SIP_OK_TEXT, fromField, toField,
                      callId, sequenceNumber, SIP_INVITE_METHOD, localContact);
@@ -3721,7 +3723,7 @@ UtlBoolean SipMessage::buildRouteField(UtlString* routeFld) const
     if(recordRouteFound && getContactUri(0, &contactUri))
     {
         routeField.append(", ");
-        size_t contactUriIndex = contactUri.index('<');
+        ssize_t contactUriIndex = contactUri.index('<');
         if(contactUriIndex < 0)
         {
             contactUri.insert(0, '<');
@@ -3841,7 +3843,7 @@ UtlBoolean SipMessage::getFieldSubfield(const char* fieldName, int addressIndex,
    UtlBoolean uriFound = FALSE;
    UtlString url;
    int fieldIndex = 0;
-   size_t subFieldIndex = 0;
+   ssize_t subFieldIndex = 0;
    int index = 0;
    const char* value = getHeaderValue(fieldIndex, fieldName);
 
@@ -4850,15 +4852,15 @@ void SipMessage::parseViaParameters( const char* viaField
     const char* namValueSeparator = "=";
 
     const char* nameAndValuePtr;
-    size_t nameAndValueLength;
+    ssize_t nameAndValueLength;
     const char* namePtr;
-    size_t nameLength;
-    size_t nameValueIndex = 0;
+    ssize_t nameLength;
+    ssize_t nameValueIndex = 0;
    UtlString value;
-    size_t lastCharIndex = 0;
-    size_t relativeIndex;
-    size_t nameValueRelativeIndex;
-    size_t viaFieldLength = strlen(viaField);
+    ssize_t lastCharIndex = 0;
+    ssize_t relativeIndex;
+    ssize_t nameValueRelativeIndex;
+    ssize_t viaFieldLength = strlen(viaField);
 
     do
     {
@@ -4898,10 +4900,10 @@ void SipMessage::parseViaParameters( const char* viaField
 
             if(nameLength > 0)
             {
-                size_t valueSeparatorOffset = strspn(&(namePtr[nameLength]),
+                ssize_t valueSeparatorOffset = strspn(&(namePtr[nameLength]),
                                                   namValueSeparator);
                 const char* valuePtr = &(namePtr[nameLength]) + valueSeparatorOffset;
-                size_t valueLength = nameAndValueLength -
+                ssize_t valueLength = nameAndValueLength -
                     (valuePtr - nameAndValuePtr);
 
                 // If there is a value
@@ -5201,7 +5203,7 @@ SdpBody* SipMessage::convertToSdpBody(const HttpBody* pHttpBody)
     if(pHttpBody)
     {
         const char* theBody;
-        size_t theLength;
+        ssize_t theLength;
         pHttpBody->getBytes(&theBody, &theLength);
         pSdpBody = new SdpBody(theBody,theLength);
     }
@@ -5222,7 +5224,7 @@ void SipMessage::setDiagnosticSipFragResponse(const SipMessage& message,
    setWarningField(warningCode, address.data(), warningText);
 
    UtlString sipFragString;
-   size_t sipFragLen;
+   ssize_t sipFragLen;
    message.getBytes(&sipFragString, &sipFragLen, false /* don't inlcude the body */);
 
    // Create a body to contain the Vias from the request

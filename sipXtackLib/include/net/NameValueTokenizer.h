@@ -64,18 +64,18 @@ public:
    static void frontBackTrim(UtlString* string, const char* whiteSpace);
 
    static UtlBoolean getSubField(const char* textField,
-                                 size_t subfieldIndex,
+                                 ssize_t subfieldIndex,
                                  const char* subfieldSeparator,
                                  UtlString* subfieldText,
-                                 size_t* lastCharIndex = NULL);
+                                 ssize_t* lastCharIndex = NULL);
 
    static UtlBoolean getSubField(const char* textField,
-                                 size_t textFieldLength,
-                                 size_t subfieldIndex,
+                                 ssize_t textFieldLength,
+                                 ssize_t subfieldIndex,
                                  const char* subfieldSeparators,
                                  const char*& subfieldPtr,
-                                 size_t& subFieldLength,
-                                 size_t* lastCharIndex);
+                                 ssize_t& subFieldLength,
+                                 ssize_t* lastCharIndex);
 
    /**
     * Split the string (up to the point found by findNextLineTerminator)
@@ -89,7 +89,7 @@ public:
 
 /* ============================ INQUIRY =================================== */
     UtlBoolean isAtEnd();
-    size_t getProcessedIndex();
+    ssize_t getProcessedIndex();
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
@@ -99,7 +99,7 @@ private:
 
     const char* textPtr;
     ssize_t textLen;
-    size_t bytesConsumed;
+    ssize_t bytesConsumed;
 
     NameValueTokenizer(const NameValueTokenizer& rNameValueTokenizer);
     //:disable Copy constructor

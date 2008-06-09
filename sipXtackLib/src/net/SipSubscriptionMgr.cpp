@@ -820,7 +820,7 @@ UtlBoolean SipSubscriptionMgr::createNotifiesDialogInfo(const char* resourceId,
                 if (OsSysLog::willLog(FAC_SIP, PRI_DEBUG))
                 {
                    UtlString s;
-                   size_t i;
+                   ssize_t i;
                    notifyArray[index]->getBytes(&s, &i);
                    OsSysLog::add(FAC_SIP, PRI_DEBUG,
                                  "SipSubscriptionMgr::createNotifiesDialogInfo notifyArray[%d] = '%s'",

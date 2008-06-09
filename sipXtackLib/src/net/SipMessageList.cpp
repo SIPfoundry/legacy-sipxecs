@@ -281,12 +281,12 @@ SipMessageList::remove( SipMessage* message )
     {
       #ifdef TEST_PRINT
          UtlString listMessageStr;
-         size_t listMessageLen;
+         ssize_t listMessageLen;
          listMessage->getBytes(&listMessageStr, &listMessageLen);
          osPrintf("\n-------\nSipMessageList::remove List message %s \n++++++\n",listMessageStr.data());
 
          UtlString MessageStr;
-         size_t MessageLen;
+         ssize_t MessageLen;
          message->getBytes(&MessageStr, &MessageLen);
          osPrintf("\nSipMessageList::remove parameter Message %s \n-------\n",MessageStr.data());
       #endif
@@ -354,7 +354,7 @@ void SipMessageList::toString(UtlString& listDumpString)
 
     SipMessage* listMessage;
     UtlString listMessageBytes;
-    size_t msgLen;
+    ssize_t msgLen;
 
     while ((listMessage = (SipMessage*) messageList.next(iteratorHandle)))
     {

@@ -639,7 +639,7 @@ void sipxSubscribeClientNotifyCallback(const char* earlyDialogHandle,
         UtlString userAgent;
         UtlString contentType;
         const HttpBody* contentBody = NULL;
-        size_t bodyLength = 0;
+        ssize_t bodyLength = 0;
         const char* bodyBytes = NULL;
 
         // If the dialog changed from and early dialog to an 

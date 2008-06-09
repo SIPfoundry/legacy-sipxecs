@@ -408,7 +408,7 @@ UtlBoolean SdpBody::getPayloadRtpMap(int payloadType,
    UtlBoolean foundRtpMap = FALSE;
    UtlSListIterator iterator(*sdpFields);
    NameValuePair* nv = NULL;
-   size_t aFieldIndex = 0;
+   ssize_t aFieldIndex = 0;
    const char* value;
    UtlString aFieldType;
    UtlString payloadString;
@@ -2008,12 +2008,12 @@ void SdpBody::setOriginator(const char* userId, int sessionId, int sessionVersio
    setValue("o", value.data());
 }
 
-size_t SdpBody::getLength() const
+ssize_t SdpBody::getLength() const
 {
    UtlSListIterator iterator(*sdpFields);
    NameValuePair* nv = NULL;
    const char* value;
-   size_t length = 0;
+   ssize_t length = 0;
    
    while((nv = dynamic_cast<NameValuePair*>(iterator())))
    {
@@ -2036,7 +2036,7 @@ size_t SdpBody::getLength() const
    return(length);
 }
 
-void SdpBody::getBytes(const char** bytes, size_t* length) const
+void SdpBody::getBytes(const char** bytes, ssize_t* length) const
 {
    // This version of getBytes exists so that a caller who is
    // calling this method through an HttpBody will get the right
@@ -2047,7 +2047,7 @@ void SdpBody::getBytes(const char** bytes, size_t* length) const
    *bytes = mBody.data();
 }
 
-void SdpBody::getBytes(UtlString* bytes, size_t* length) const
+void SdpBody::getBytes(UtlString* bytes, ssize_t* length) const
 {
    UtlSListIterator iterator(*sdpFields);
    NameValuePair* nv = NULL;

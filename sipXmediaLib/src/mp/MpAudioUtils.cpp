@@ -281,7 +281,7 @@ OsStatus mergeWaveUrls(UtlString rSourceUrls[], UtlString &rDestFile)
             //for now...assume an error until write occurs ok
             bError = TRUE;
 
-            size_t bytesRead = 0;
+            ssize_t bytesRead = 0;
             uint32_t filesize;       // 4 byte value in WAV file
             StreamHttpDataSource reader(rSourceUrls[index].data(),0);
             if (reader.open() == OS_SUCCESS)
@@ -326,7 +326,7 @@ OsStatus mergeWaveUrls(UtlString rSourceUrls[], UtlString &rDestFile)
                                                         //for now...assume an error until write occurs ok
                                                         bError = TRUE;
 
-                                                        size_t datalength;
+                                                        ssize_t datalength;
                                                         if (reader.read((char *)&datalength,sizeof(int32_t),bytesRead) == OS_SUCCESS)
                                                         {
                                                             datalength = letohl(datalength);
@@ -341,7 +341,7 @@ OsStatus mergeWaveUrls(UtlString rSourceUrls[], UtlString &rDestFile)
                                                                     {
                                                                         file.write(charBuffer,bytesRead,bytesWritten);
                     
-                                                                        if (bytesWritten != bytesRead)
+                                                                        if ((ssize_t)bytesWritten != bytesRead)
                                                                         {
                                                                            bError = TRUE;
                                                                         }

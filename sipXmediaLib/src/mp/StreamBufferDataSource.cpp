@@ -80,18 +80,18 @@ OsStatus StreamBufferDataSource::destroyAndDelete()
 
 // Reads iLength bytes of data from the data source and places the data into
 // the passed szBuffer buffer.
-OsStatus StreamBufferDataSource::read(char *szBuffer, size_t iLength, size_t& iLengthRead)
+OsStatus StreamBufferDataSource::read(char *szBuffer, ssize_t iLength, ssize_t& iLengthRead)
 {
    OsStatus rc = OS_FAILED;
    iLengthRead = 0;
 
    if (mpBuffer != NULL)
    {
-      size_t iBufferLength = mpBuffer->length();
+      ssize_t iBufferLength = mpBuffer->length();
 
       if (miPosition < iBufferLength)
       {        
-         size_t iMaxCopy = __min(iBufferLength - miPosition, iLength);
+         ssize_t iMaxCopy = __min(iBufferLength - miPosition, iLength);
          memcpy(szBuffer, &mpBuffer->data()[miPosition], iMaxCopy);
          miPosition += iMaxCopy;
 
@@ -105,7 +105,7 @@ OsStatus StreamBufferDataSource::read(char *szBuffer, size_t iLength, size_t& iL
 
 
 // Identical to read, except the stream pointer is not advanced.
-OsStatus StreamBufferDataSource::peek(char *szBuffer, size_t iLength, size_t& iLengthRead)
+OsStatus StreamBufferDataSource::peek(char *szBuffer, ssize_t iLength, ssize_t& iLengthRead)
 {
    OsStatus rc = OS_FAILED ;
    size_t iPosition = miPosition ;
@@ -116,7 +116,7 @@ OsStatus StreamBufferDataSource::peek(char *szBuffer, size_t iLength, size_t& iL
 
       if (iPosition < iBufferLength)
       {        
-         size_t iMaxCopy = __min(iBufferLength - iPosition, iLength) ;
+         size_t iMaxCopy = __min(iBufferLength - iPosition, (size_t)iLength) ;
          memcpy(szBuffer, &mpBuffer->data()[iPosition], iMaxCopy) ;
          iPosition += iMaxCopy ;
 
@@ -151,7 +151,7 @@ OsStatus StreamBufferDataSource::seek(size_t iLocation)
 
 
 // Gets the length of the stream (if available)
-OsStatus StreamBufferDataSource::getLength(size_t& iLength)
+OsStatus StreamBufferDataSource::getLength(ssize_t& iLength)
 {
    OsStatus status = OS_FAILED ;
 
@@ -166,7 +166,7 @@ OsStatus StreamBufferDataSource::getLength(size_t& iLength)
 
 
 // Gets the current position within the stream.
-OsStatus StreamBufferDataSource::getPosition(size_t& iPosition)
+OsStatus StreamBufferDataSource::getPosition(ssize_t& iPosition)
 {
    OsStatus status = OS_FAILED ;
 

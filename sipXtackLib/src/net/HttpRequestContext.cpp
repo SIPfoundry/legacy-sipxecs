@@ -232,7 +232,7 @@ HttpRequestContext::operator=(const HttpRequestContext& rhs)
 
 void HttpRequestContext::extractPostCgiVariables(const HttpBody& body)
 {
-    size_t length;
+    ssize_t length;
     UtlString bodyBytes;
 
     body.getBytes(&bodyBytes, &length);
@@ -368,16 +368,16 @@ void HttpRequestContext::parseCgiVariables(const char* queryString,
 #endif
    //UtlString nameAndValue;
    const char* nameAndValuePtr;
-   size_t nameAndValueLength;
+   ssize_t nameAndValueLength;
    //UtlString name;
    const char* namePtr;
-   size_t nameLength;
-   size_t nameValueIndex = 0;
+   ssize_t nameLength;
+   ssize_t nameValueIndex = 0;
    UtlString value;
-   size_t lastCharIndex = 0;
-   size_t relativeIndex;
-   size_t nameValueRelativeIndex;
-   size_t queryStringLength = strlen(queryString);
+   ssize_t lastCharIndex = 0;
+   ssize_t relativeIndex;
+   ssize_t nameValueRelativeIndex;
+   ssize_t queryStringLength = strlen(queryString);
 
    do
    {
@@ -416,11 +416,11 @@ void HttpRequestContext::parseCgiVariables(const char* queryString,
          if(nameLength > 0)
          {
             // Ignore any subsequent name value separators should they exist
-            //size_t nvSeparatorIndex = nameAndValue.index(nameValueSeparator);
-            size_t valueSeparatorOffset = strspn(&(namePtr[nameLength]),
+            //ssize_t nvSeparatorIndex = nameAndValue.index(nameValueSeparator);
+            ssize_t valueSeparatorOffset = strspn(&(namePtr[nameLength]),
                                               nameValueSeparator);
             const char* valuePtr = &(namePtr[nameLength]) + valueSeparatorOffset;
-            size_t valueLength = nameAndValueLength -
+            ssize_t valueLength = nameAndValueLength -
                (valuePtr - nameAndValuePtr);
 
             // If there is a value

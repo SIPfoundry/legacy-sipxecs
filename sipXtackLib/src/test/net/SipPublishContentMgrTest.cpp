@@ -165,7 +165,7 @@ public:
        
          SipPublishContentMgr publisher;
 
-         size_t bodyLength = strlen(content);
+         ssize_t bodyLength = strlen(content);
          HttpBody *body = new HttpBody(content, bodyLength, "text/xml");
 
          int numOldContents;
@@ -187,7 +187,7 @@ public:
          CPPUNIT_ASSERT_EQUAL_MESSAGE("number of contents are not the same",
                                       1, numOldContents);
          UtlString returned_contents;
-         size_t returned_length;
+         ssize_t returned_length;
          oldContents[0]->getBytes(&returned_contents, &returned_length);
          CPPUNIT_ASSERT_MESSAGE("bad body",
                                 strcmp(returned_contents.data(),
@@ -252,7 +252,7 @@ public:
 
          const char *default_content = "This is the default string.";
          {
-            size_t bodyLength = strlen(default_content);
+            ssize_t bodyLength = strlen(default_content);
             HttpBody *body = new HttpBody(default_content, bodyLength,
                                           "text/plain");
             int version = 0;
@@ -289,7 +289,7 @@ public:
          
          const char *content_1b = "This is content for 1b.";
          {
-            size_t bodyLength = strlen(content_1b);
+            ssize_t bodyLength = strlen(content_1b);
             HttpBody *body = new HttpBody(content_1b, bodyLength,
                                           "text/plain");
             int version = 0;
@@ -297,7 +297,7 @@ public:
          }
          const char *content_2 = "This is content for 2.";
          {
-            size_t bodyLength = strlen(content_2);
+            ssize_t bodyLength = strlen(content_2);
             HttpBody *body = new HttpBody(content_2, bodyLength, "text/plain");
             int version = 0;
             publisher.publish("2", event_type, event_type, 1, &body, &version);
@@ -307,7 +307,7 @@ public:
          int v;
          UtlBoolean d;
          const char *s;
-         size_t l;
+         ssize_t l;
 
          publisher.getContent("0", event_type, event_type, "text/plain", b, v, d);
          CPPUNIT_ASSERT_MESSAGE("Content for 0 should be default",
@@ -395,7 +395,7 @@ public:
        
          SipPublishContentMgr publisher;
 
-         size_t bodyLength = strlen(content);
+         ssize_t bodyLength = strlen(content);
          HttpBody *body = new HttpBody(content, bodyLength, "text/xml");
          int version = 0;
 
@@ -421,7 +421,7 @@ public:
                                                       notifyRequest,
                                                       version));
          const char* notifyBodyBytes = NULL;
-         size_t notifyBodySize = 0;
+         ssize_t notifyBodySize = 0;
          const HttpBody* notifyBody = notifyRequest.getBody();
          notifyBody->getBytes(&notifyBodyBytes, &notifyBodySize);
          CPPUNIT_ASSERT(notifyBodyBytes);
@@ -433,7 +433,7 @@ public:
          CPPUNIT_ASSERT_EQUAL_MESSAGE("number of contents are not the same",
                                       1, numOldContents);
          UtlString returned_contents;
-         size_t returned_length;
+         ssize_t returned_length;
          oldContents[0]->getBytes(&returned_contents, &returned_length);
          CPPUNIT_ASSERT_MESSAGE("bad body", 
                                 strcmp(returned_contents.data(),
@@ -485,7 +485,7 @@ public:
        
          SipPublishContentMgr publisher;
 
-         size_t bodyLength = strlen(content);
+         ssize_t bodyLength = strlen(content);
          HttpBody *body = new HttpBody(content, bodyLength,
                                        DIALOG_EVENT_CONTENT_TYPE);
          int version = 0;
@@ -512,7 +512,7 @@ public:
 
          CPPUNIT_ASSERT(TRUE==foundContent);
 
-         size_t length;
+         ssize_t length;
          const char* contentBody = NULL;
 
          oldContents[0]->getBytes(&contentBody, &length);
@@ -537,7 +537,7 @@ public:
          publisher.unpublish(TEST_RESOURCE_ID, "dialog", "dialog");
 
          UtlString returned_contents;
-         size_t returned_length;
+         ssize_t returned_length;
          oldContents[0]->getBytes(&returned_contents, &returned_length);
          CPPUNIT_ASSERT_MESSAGE("bad body", 
                                 strcmp(returned_contents.data(),
@@ -559,7 +559,7 @@ public:
 
          publisher.setContentChangeObserver(eventType, (void *)appData, contentChangeCallback);
 
-         size_t bodyLength = strlen(content);
+         ssize_t bodyLength = strlen(content);
          HttpBody *body = new HttpBody(content, bodyLength,
                                        DIALOG_EVENT_CONTENT_TYPE);
          int version = 0;
@@ -591,12 +591,12 @@ public:
          int versions[2] = { 0, 0 };
 
          const char *content_text_plain = "text/plain content";
-         size_t bodyLength_text_plain = strlen(content_text_plain);
+         ssize_t bodyLength_text_plain = strlen(content_text_plain);
          bodies[0] = new HttpBody(content_text_plain, bodyLength_text_plain,
                                   "text/plain");
 
          const char *content_text_xml = "text/xml content";
-         size_t bodyLength_text_xml = strlen(content_text_xml);
+         ssize_t bodyLength_text_xml = strlen(content_text_xml);
          bodies[1] = new HttpBody(content_text_xml, bodyLength_text_xml,
                                   "text/xml;charset=X");
 
@@ -606,7 +606,7 @@ public:
          int version;
          UtlBoolean foundContent;
          UtlBoolean isDefaultContent;
-         size_t length;
+         ssize_t length;
          const char* contentBody;
 
          // Search with no Accept.

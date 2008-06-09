@@ -132,7 +132,7 @@ void SipClientWriteBuffer::insertMessage(SipMessage* message)
    // mWritePointer.
    if (wasEmpty)
    {
-      size_t length;
+      ssize_t length;
       message->getBytes(&mWriteString, &length);
       mWritePointer = 0;
    }
@@ -207,7 +207,7 @@ void SipClientWriteBuffer::writeMore()
             UtlString* keepAliveMsg;
             if ((sipMsg = dynamic_cast<SipMessage*>(nextMsg))) // a SIP message
             {
-               size_t length;
+               ssize_t length;
                sipMsg->getBytes(&mWriteString, &length);
             }
             else if ((keepAliveMsg = dynamic_cast<UtlString*>(nextMsg))) // a keepalive CRLF

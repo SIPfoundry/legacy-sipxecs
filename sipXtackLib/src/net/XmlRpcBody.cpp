@@ -63,12 +63,12 @@ void XmlRpcBody::append(const char* string)
 
 /* ============================ ACCESSORS ================================= */
 
-size_t XmlRpcBody::getLength() const
+ssize_t XmlRpcBody::getLength() const
 {
    return (mBody.length());
 }
 
-void XmlRpcBody::getBytes(const char** bytes, size_t* length) const
+void XmlRpcBody::getBytes(const char** bytes, ssize_t* length) const
 {
    // This version of getBytes exists so that a caller who is
    // calling this method through an HttpBody will get the right
@@ -79,7 +79,7 @@ void XmlRpcBody::getBytes(const char** bytes, size_t* length) const
    *bytes = mBody.data();
 }
 
-void XmlRpcBody::getBytes(UtlString* bytes, size_t* length) const
+void XmlRpcBody::getBytes(UtlString* bytes, ssize_t* length) const
 {
    *bytes = mBody;
    *length = bytes->length();

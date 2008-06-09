@@ -115,14 +115,14 @@ OsStatus StreamFileDataSource::destroyAndDelete()
 
 // Reads iLength bytes of data from the data source and places the data into
 // the passed szBuffer buffer.
-OsStatus StreamFileDataSource::read(char *szBuffer, size_t iLength, size_t& iLengthRead)
+OsStatus StreamFileDataSource::read(char *szBuffer, ssize_t iLength, ssize_t& iLengthRead)
 {
    OsLock lock(mFileGuard) ;
    OsStatus rc = OS_FAILED ;
 
    if (mpFile != NULL)
    {
-      rc = mpFile->read(szBuffer, iLength, iLengthRead);
+      rc = mpFile->read(szBuffer, iLength, (size_t&)iLengthRead);
 
    }
    
@@ -131,7 +131,7 @@ OsStatus StreamFileDataSource::read(char *szBuffer, size_t iLength, size_t& iLen
 
 
 // Identical to read, except the stream pointer is not advanced.
-OsStatus StreamFileDataSource::peek(char *szBuffer, size_t iLength, size_t& iLengthRead)
+OsStatus StreamFileDataSource::peek(char *szBuffer, ssize_t iLength, ssize_t& iLengthRead)
 {
    OsLock lock(mFileGuard) ;
    OsStatus rc = OS_FAILED ;
@@ -142,7 +142,7 @@ OsStatus StreamFileDataSource::peek(char *szBuffer, size_t iLength, size_t& iLen
       rc = mpFile->getPosition(lFilePosition) ;
       if (rc == OS_SUCCESS)
       {
-         rc = mpFile->read(szBuffer, iLength, iLengthRead) ;
+         rc = mpFile->read(szBuffer, iLength, (size_t&)iLengthRead) ;
          if (rc == OS_SUCCESS)
          {
             rc = mpFile->setPosition(lFilePosition) ;
@@ -177,7 +177,7 @@ OsStatus StreamFileDataSource::seek(size_t iLocation)
 /* ============================ ACCESSORS ================================= */
 
 // Gets the length of the stream (if available)
-OsStatus StreamFileDataSource::getLength(size_t& iLength)
+OsStatus StreamFileDataSource::getLength(ssize_t& iLength)
 {
    OsLock lock(mFileGuard) ;
    OsStatus rc = OS_FAILED ;
@@ -192,7 +192,7 @@ OsStatus StreamFileDataSource::getLength(size_t& iLength)
 
 
 // Gets the current position within the stream.
-OsStatus StreamFileDataSource::getPosition(size_t& iPosition)
+OsStatus StreamFileDataSource::getPosition(ssize_t& iPosition)
 {
    OsLock lock(mFileGuard) ;
    OsStatus status = OS_FAILED ;
