@@ -11,7 +11,7 @@
           for="dialplan:localExtensionLen">
           <input jwcid="extensionLen@TextField" id="dialplan:localExtensionLen" 
             value="ognl:rule.localExtensionLen" displayName="message:label.extensionLen"
-            translator="translator:number" validators="validators:required,min=1,max=99"/>
+            translator="translator:sipxnumber,omitZero=true" validators="validators:required,min=1,max=99"/>
         </tr>
         <tr jwcid="@common/FieldPanel"
           field="component:voiceMail"

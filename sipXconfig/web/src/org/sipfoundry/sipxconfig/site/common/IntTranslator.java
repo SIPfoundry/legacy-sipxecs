@@ -13,14 +13,12 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.Locale;
 
-import org.apache.tapestry.form.translator.NumberTranslator;
-
 /**
  * Integer translator using locale acceptable symbols.
  * 
  * Undesired feature: Does not complain about decimal values, just drops them.   
  */
-public class IntTranslator extends NumberTranslator {
+public class IntTranslator extends SipxconfigNumberTranslator {
 
     public IntTranslator() {        
     }

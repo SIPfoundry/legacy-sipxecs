@@ -41,7 +41,7 @@
   <component id="port" type="TextField">
     <binding name="value" value="bridge.port"/>
     <binding name="displayName" value="message:label.port"/>
-    <binding name="translator" value="translator:number"/>
+    <binding name="translator" value="translator:sipxnumber,omitZero=true"/>
     <binding name="validators" value="validators:required,min=1024,max=65534"/>
   </component>
   <component id="settingsFieldset" type="setting/SettingsFieldset">

@@ -212,5 +212,9 @@
   <contribution configuration-id="tapestry.form.translator.Translators">
     <bean name="integer" class="site.common.IntTranslator" />
   </contribution>
+  
+  <contribution configuration-id="tapestry.form.translator.Translators">
+    <bean name="sipxnumber" class="site.common.SipxconfigNumberTranslator" />
+  </contribution>
 
 </module>

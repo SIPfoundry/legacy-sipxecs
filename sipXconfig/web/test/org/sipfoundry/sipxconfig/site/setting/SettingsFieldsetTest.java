@@ -19,7 +19,6 @@ import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingImpl;
 import org.sipfoundry.sipxconfig.setting.SettingSet;
-import org.sipfoundry.sipxconfig.site.setting.SettingsFieldset.SettingsIron;
 
 public class SettingsFieldsetTest extends TestCase {
 
@@ -92,12 +91,12 @@ public class SettingsFieldsetTest extends TestCase {
         set.addSetting(toggle);
         set.addSetting(new SettingImpl("c"));
 
-        SettingsIron iron = new SettingsFieldset.SettingsIron();
+        SettingsIron iron = new SettingsIron();
         set.acceptVisitor(iron);
         assertFalse(iron.isAdvanced());
 
         toggle.setAdvanced(true);
-        iron = new SettingsFieldset.SettingsIron();
+        iron = new SettingsIron();
         set.acceptVisitor(iron);
         assertTrue(iron.isAdvanced());
     }

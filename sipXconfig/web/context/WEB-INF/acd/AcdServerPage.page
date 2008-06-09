@@ -52,7 +52,7 @@
   </component>
   <component id="portField" type="TextField">
     <binding name="value" value="acdServer.port" />
-    <binding name="translator" value="translator:number" />
+    <binding name="translator" value="translator:sipxnumber,omitZero=true" />
     <binding name="validators" value="validators:required,min=1024,max=65534" />
     <binding name="displayName" value="message:label.port" />
   </component>

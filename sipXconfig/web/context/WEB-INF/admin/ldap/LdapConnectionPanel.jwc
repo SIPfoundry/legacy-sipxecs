@@ -31,7 +31,7 @@
   </component>  
   <component id="port" type="TextField">
     <binding name="value" value="lcp.port"/>
-    <binding name="translator" value="translator:number,omitZero=false"/>
+    <binding name="translator" value="translator:sipxnumber,omitZero=true"/>
     <binding name="validators" value="validators:required"/>
     <binding name="displayName" value="message:label.port"/>
   </component>

@@ -64,7 +64,7 @@
   </component>
   <component id="timeout" type="TextField">
     <binding name="value" value="intercom.timeoutInSeconds" />
-    <binding name="translator" value="translator:number,omitZero=false" />
+    <binding name="translator" value="translator:sipxnumber,omitZero=true" />
     <binding name="validators" value="validators:required,min=0" />
     <binding name="displayName" value="message:label.timeout" />
   </component>

@@ -29,7 +29,7 @@
           <input jwcid="gatewayAddressPort@TextField" id="gateway:addressPort" maxlength="255"
             value="ognl:gateway.addressPort"
             validators="validators:required,min=0[%label.invalidformat],max=65534[%label.invalidformat]"
-            translator="translator:number,omitZero=false"
+            translator="translator:sipxnumber,omitZero=true"
             displayName="message:label.addressPort"/>
         </label>
         <label jwcid="@common/FieldPanel" for="gateway:addressTransport"

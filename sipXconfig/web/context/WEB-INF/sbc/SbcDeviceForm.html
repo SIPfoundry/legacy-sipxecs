@@ -26,7 +26,7 @@
         defaultValue="5060">
         <input jwcid="sbcDevicePort@TextField" id="sbcDevice:port"
           value="ognl:sbcDevice.port"
-          translator="translator:number,pattern=#####"
+          translator="translator:sipxnumber,omitZero=true,pattern=#####"
           validators="spring-validators:required"
           displayName="message:label.port"/>
       </label>
