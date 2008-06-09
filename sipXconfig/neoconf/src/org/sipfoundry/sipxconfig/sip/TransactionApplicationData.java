@@ -121,7 +121,7 @@ class TransactionApplicationData {
                 LOG.debug("Got REFER Response " + response.getStatusCode());
                 // We set up a timer to terminate the INVITE dialog if we do not see a 200 OK in
                 // the transfer.
-                m_helper.getTimer().schedule(new ReferTimerTask(dialog), 180000);
+                m_helper.scheduleTerminate(dialog);
             }
         } catch (InvalidArgumentException e) {
             LOG.error("Invalid argument", e);

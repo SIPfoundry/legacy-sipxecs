@@ -10,13 +10,24 @@
 package org.sipfoundry.sipxconfig.sip;
 
 import java.text.ParseException;
+import java.util.Arrays;
+import java.util.List;
 
 import javax.sip.ClientTransaction;
 import javax.sip.Dialog;
 import javax.sip.SipException;
+import javax.sip.header.AllowHeader;
 import javax.sip.message.Request;
 
 public class InviteMessage extends JainSipMessage {
+
+    // Dummy sdp body for initial INVITE
+    private static final String SDP_BODY_FORMAT = "v=0\r\n" + "o=- 978416123 978416123 IN IP4 %1$s\r\n"
+            + "s=SipXconfig\r\n" + "c=IN IP4 %1$s\r\n" + "t=0 0\r\n" + "m=audio 2222 RTP/AVP 0 101\r\n"
+            + "a=sendrecv\r\n" + "a=rtpmap:0 PCMU/8000\r\n" + "a=rtpmap:101 telephone-event/8000\r\n";
+
+    private static final List<String> METHODS = Arrays.asList(Request.INVITE, Request.ACK, Request.OPTIONS,
+            Request.CANCEL, Request.BYE, Request.REFER, Request.NOTIFY);
 
     private String m_toAddrSpec;
 
@@ -24,31 +35,27 @@ public class InviteMessage extends JainSipMessage {
 
     private Operator m_operator;
 
-    private Request m_request;
-
     private Dialog m_dialog;
 
     /**
      * @param toAddressSpec the target for the 3pcc.
      */
     public InviteMessage(SipStackBean helper, String fromAddressSpec, String toAddressSpec, Operator operator) {
-        super(helper, null, null);
-        try {
-            m_toAddrSpec = toAddressSpec;
-            m_fromAddrSpec = fromAddressSpec;
-            m_operator = operator;
-            m_request = createRequest(Request.INVITE, m_fromAddrSpec, m_toAddrSpec);
-            String sdpBody = helper.createSdpBody();
-            m_request.setContent(sdpBody, helper.createContentTypeHeader());
-        } catch (ParseException ex) {
-            throw new SipxSipException(ex);
-        }
+        super(helper);
+        m_toAddrSpec = toAddressSpec;
+        m_fromAddrSpec = fromAddressSpec;
+        m_operator = operator;
     }
 
     public ClientTransaction createAndSend() {
         try {
-            ClientTransaction ctx = getSipProvider().getNewClientTransaction(m_request);
-            TransactionApplicationData tad = new TransactionApplicationData(m_operator, this.getHelper(), this);
+            Request request = createRequest(Request.INVITE, m_fromAddrSpec, m_toAddrSpec);
+            AllowHeader allowHeader = getHelper().createAllowHeader(METHODS);
+            request.addHeader(allowHeader);
+            String sdpBody = getHelper().formatWithIpAddress(SDP_BODY_FORMAT);
+            request.setContent(sdpBody, getHelper().createContentTypeHeader());
+            ClientTransaction ctx = getSipProvider().getNewClientTransaction(request);
+            TransactionApplicationData tad = new TransactionApplicationData(m_operator, getHelper(), this);
             ctx.setApplicationData(tad);
             if (m_dialog == null) {
                 ctx.sendRequest();
@@ -56,19 +63,8 @@ public class InviteMessage extends JainSipMessage {
                 m_dialog.sendRequest(ctx);
             }
             return ctx;
-        } catch (SipException ex) {
+        } catch (ParseException ex) {
             throw new SipxSipException(ex);
-        }
-
-    }
-
-    public ClientTransaction createTransaction() {
-        try {
-            ClientTransaction ctx = getSipProvider().getNewClientTransaction(m_request);
-            TransactionApplicationData tad = new TransactionApplicationData(m_operator, this.getHelper(), this);
-            ctx.setApplicationData(tad);
-            setClientTransaction(ctx);
-            return ctx;
         } catch (SipException ex) {
             throw new SipxSipException(ex);
         }
@@ -81,9 +77,5 @@ public class InviteMessage extends JainSipMessage {
 
     public String getFromAddrSpec() {
         return m_fromAddrSpec;
-    }
-
-    public Request getRequest() {
-        return m_request;
     }
 }

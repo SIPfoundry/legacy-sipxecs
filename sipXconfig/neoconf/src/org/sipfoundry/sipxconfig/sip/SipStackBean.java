@@ -11,6 +11,7 @@ package org.sipfoundry.sipxconfig.sip;
 
 import java.text.ParseException;
 import java.util.Collections;
+import java.util.List;
 import java.util.Properties;
 import java.util.Random;
 import java.util.Timer;
@@ -59,6 +60,7 @@ import gov.nist.javax.sip.clientauthutils.AuthenticationHelper;
 import gov.nist.javax.sip.header.HeaderFactoryImpl;
 import gov.nist.javax.sip.header.extensions.ReferredByHeader;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.log4j.Appender;
@@ -77,13 +79,6 @@ import static org.sipfoundry.sipxconfig.common.SpecialUser.SpecialUserType.CONFI
 public class SipStackBean implements InitializingBean {
 
     private static final Log LOG = LogFactory.getLog(SipStackBean.class);
-
-    // Dummy sdp body for initial INVITE
-    private static final String SDP_BODY_FORMAT = "v=0\r\n" + "o=- 978416123 978416123 IN IP4 %s\r\n"
-            + "s=SipXconfig\r\n" + "c=IN IP4 %s\r\n" + "t=0 0\r\n" + "m=audio 2222 RTP/AVP 0 101\r\n"
-            + "a=sendrecv\r\n" + "a=rtpmap:0 PCMU/8000\r\n" + "a=rtpmap:101 telephone-event/8000\r\n";
-
-    private static final String COMMA = ", ";
 
     private static final String APPLICATION = "application";
 
@@ -245,41 +240,21 @@ public class SipStackBean implements InitializingBean {
         return m_hostName;
     }
 
-    Timer getTimer() {
-        return m_timer;
-    }
-
     private SipURI createOurSipUri() throws ParseException {
         return m_addressFactory.createSipURI(CONFIG_SERVER.getUserName(), m_hostName);
     }
 
-    final FromHeader createFromHeader() throws ParseException {
-        SipURI fromAddress = createOurSipUri();
+    private FromHeader createFromHeader(SipURI fromAddress) throws ParseException {
         Address fromNameAddress = m_addressFactory.createAddress(fromAddress);
 
         return m_headerFactory.createFromHeader(fromNameAddress, Integer.toString(Math.abs(new Random().nextInt())));
     }
 
-    final FromHeader createFromHeader(String fromUri) throws ParseException {
-        SipURI fromSipURI = (SipURI) m_addressFactory.createURI(fromUri);
-        Address fromNameAddress = m_addressFactory.createAddress(fromSipURI);
-
-        return m_headerFactory.createFromHeader(fromNameAddress, Integer.toString(Math.abs(new Random().nextInt())));
-    }
-
     final ContactHeader createContactHeader() throws ParseException {
-
         return ((ListeningPointExt) m_listeningPoint).createContactHeader();
-
-    }
-
-    final String createSdpBody() {
-        String ipAddress = m_listeningPoint.getIPAddress();
-        return String.format(SDP_BODY_FORMAT, ipAddress, ipAddress);
     }
 
     final long getSequenceNumber(Message sipMessage) {
-
         CSeqHeader cseqHeader = (CSeqHeader) sipMessage.getHeader(CSeqHeader.NAME);
         return cseqHeader.getSeqNumber();
     }
@@ -300,40 +275,15 @@ public class SipStackBean implements InitializingBean {
         return m_headerFactory.createViaHeader(host, port, transport, null);
     }
 
-    final Request createRequest(String requestType, String addrSpec) throws ParseException {
-        try {
-            FromHeader fromHeader = createFromHeader();
-            ToHeader toHeader = createToHeader(addrSpec);
-            URI requestURI = m_addressFactory.createURI(addrSpec);
-            MaxForwardsHeader maxForwards = m_headerFactory.createMaxForwardsHeader(m_maxForwards);
-            ViaHeader viaHeader = createViaHeader();
-            ContactHeader contactHeader = createContactHeader();
-            CallIdHeader callIdHeader = m_sipProvider.getNewCallId();
-
-            CSeqHeader cSeqHeader = m_headerFactory.createCSeqHeader(m_id.get(), requestType);
-            Request request = m_messageFactory.createRequest(requestURI, requestType, callIdHeader, cSeqHeader,
-                    fromHeader, toHeader, Collections.singletonList(viaHeader), maxForwards);
-
-            // FIXME: we need to properly resolve address here
-            SipURI sipUri = m_addressFactory.createSipURI(null, m_proxyHost);
-            sipUri.setPort(m_proxyPort);
-            sipUri.setLrParam();
-            Address address = m_addressFactory.createAddress(sipUri);
-
-            RouteHeader routeHeader = m_headerFactory.createRouteHeader(address);
-            request.setHeader(routeHeader);
-            request.addHeader(contactHeader);
-
-            return request;
-
-        } catch (InvalidArgumentException e) {
-            throw new SipxSipException(e);
-        }
-    }
-
     final Request createRequest(String requestType, String fromAddrSpec, String addrSpec) throws ParseException {
+        SipURI fromUri;
+        if (fromAddrSpec == null) {
+            fromUri = createOurSipUri();
+        } else {
+            fromUri = (SipURI) m_addressFactory.createURI(fromAddrSpec);
+        }
         try {
-            FromHeader fromHeader = createFromHeader(fromAddrSpec);
+            FromHeader fromHeader = createFromHeader(fromUri);
             ToHeader toHeader = createToHeader(addrSpec);
             URI requestURI = m_addressFactory.createURI(addrSpec);
             MaxForwardsHeader maxForwards = m_headerFactory.createMaxForwardsHeader(m_maxForwards);
@@ -354,10 +304,6 @@ public class SipStackBean implements InitializingBean {
             RouteHeader routeHeader = m_headerFactory.createRouteHeader(address);
             request.setHeader(routeHeader);
             request.addHeader(contactHeader);
-            String methods = Request.INVITE + COMMA + Request.ACK + COMMA + Request.OPTIONS + COMMA + Request.CANCEL
-                    + COMMA + Request.BYE + COMMA + Request.REFER + COMMA + Request.NOTIFY;
-            AllowHeader allowHeader = m_headerFactory.createAllowHeader(methods);
-            request.addHeader(allowHeader);
             return request;
         } catch (InvalidArgumentException e) {
             throw new SipxSipException(e);
@@ -452,5 +398,24 @@ public class SipStackBean implements InitializingBean {
         } catch (SipException e) {
             throw new SipxSipException(e);
         }
+    }
+
+    public String formatWithIpAddress(String format) {
+        String ipAddress = m_listeningPoint.getIPAddress();
+        return String.format(format, ipAddress);
+    }
+
+    public AllowHeader createAllowHeader(List<String> methods) throws ParseException {
+        return m_headerFactory.createAllowHeader(StringUtils.join(methods, ", "));
+    }
+
+    /**
+     * We set up a timer to terminate the INVITE dialog if we do not see a 200 OK in the transfer.
+     * 
+     * @param dialog dialog to terminate
+     */
+    public void scheduleTerminate(Dialog dialog) {
+        ReferTimerTask referTimerTask = new ReferTimerTask(dialog);
+        m_timer.schedule(referTimerTask, 180000);
     }
 }

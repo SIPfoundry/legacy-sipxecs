@@ -27,13 +27,11 @@ class NotifyMessage extends JainSipMessage {
     private static final String TIMEOUT_ERROR_MESSAGE = "Timed out waiting for response";
     private static final String TRANSACTION_ERROR_MESSAGE = "Error returned by transaction ";
     private static final String UNEXPECTED_EVENT = "Unexpected event -- ignoring";
-    
+
     private String m_addrSpec;
     private String m_eventType;
-    private ClientTransaction m_clientTransaction;
-  
-    public NotifyMessage(SipStackBean helper, String addrSpec, String eventType,
-            String contentType, byte[] payload) {
+
+    public NotifyMessage(SipStackBean helper, String addrSpec, String eventType, String contentType, byte[] payload) {
         super(helper, contentType, payload);
         m_addrSpec = addrSpec;
         m_eventType = eventType;
@@ -47,13 +45,12 @@ class NotifyMessage extends JainSipMessage {
 
     public ClientTransaction createAndSend() {
         try {
-            Request request = createRequest(Request.NOTIFY, m_addrSpec);
+            Request request = createRequest(Request.NOTIFY, null, m_addrSpec);
             getHelper().addEventHeader(request, m_eventType);
-            getHelper().addHeader(request, SubscriptionStateHeader.NAME,
-                    SubscriptionStateHeader.ACTIVE);
+            getHelper().addHeader(request, SubscriptionStateHeader.NAME, SubscriptionStateHeader.ACTIVE);
             ClientTransaction clientTx = getSipProvider().getNewClientTransaction(request);
-            TransactionApplicationData tad = new TransactionApplicationData(Operator.SEND_NOTIFY,
-                    this.getHelper(), this);
+            TransactionApplicationData tad = new TransactionApplicationData(Operator.SEND_NOTIFY, this.getHelper(),
+                    this);
             clientTx.setApplicationData(tad);
             clientTx.sendRequest();
             EventObject eventObject = tad.block();
@@ -64,8 +61,7 @@ class NotifyMessage extends JainSipMessage {
             } else if (eventObject instanceof ResponseEvent) {
                 ResponseEvent responseEvent = (ResponseEvent) eventObject;
                 if (responseEvent.getResponse().getStatusCode() / 100 > 2) {
-                    throw new SipException(TRANSACTION_ERROR_MESSAGE
-                            + responseEvent.getResponse().getStatusCode() 
+                    throw new SipException(TRANSACTION_ERROR_MESSAGE + responseEvent.getResponse().getStatusCode()
                             + responseEvent.getResponse().getReasonPhrase());
                 }
 
@@ -81,43 +77,4 @@ class NotifyMessage extends JainSipMessage {
             throw new SipxSipException(e);
         }
     }
-
-    public ClientTransaction createTransaction() {
-        try {
-            Request request = createRequest(Request.NOTIFY, m_addrSpec);
-            getHelper().addEventHeader(request, m_eventType);
-            getHelper().addHeader(request, SubscriptionStateHeader.NAME,
-                    SubscriptionStateHeader.ACTIVE);
-            ClientTransaction clientTx = getSipProvider().getNewClientTransaction(request);
-            TransactionApplicationData tad = new TransactionApplicationData(Operator.SEND_NOTIFY,
-                    this.getHelper(), this);
-            clientTx.setApplicationData(tad);
-            clientTx.sendRequest();
-            EventObject eventObject = tad.block();
-            if (eventObject == null) {
-                throw new SipException(TIMEOUT_ERROR_MESSAGE);
-            } else if (eventObject instanceof TimeoutEvent) {
-                throw new SipException(TIMEOUT_ERROR_MESSAGE);
-            } else if (eventObject instanceof ResponseEvent) {
-                ResponseEvent responseEvent = (ResponseEvent) eventObject;
-                if (responseEvent.getResponse().getStatusCode() / 100 > 2) {
-                    throw new SipException(TRANSACTION_ERROR_MESSAGE
-                            + responseEvent.getResponse().getStatusCode() 
-                            + responseEvent.getResponse().getReasonPhrase());
-                }
-
-            } else {
-                LOG.warn(UNEXPECTED_EVENT);
-            }
-            m_clientTransaction = clientTx;
-            return m_clientTransaction;
-        } catch (ParseException e) {
-            throw new SipxSipException(e);
-        } catch (SipException e) {
-            throw new SipxSipException(e);
-        } catch (InterruptedException e) {
-            throw new SipxSipException(e);
-        }
-    }
-
 }

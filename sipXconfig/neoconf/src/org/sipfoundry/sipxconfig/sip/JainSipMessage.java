@@ -33,17 +33,6 @@ public abstract class JainSipMessage extends AbstractMessage {
         this(helper, null, null);
     }
 
-    protected Request createRequest(String requestType, String addrSpec) {
-        try {
-            Request request = m_helper.createRequest(requestType, addrSpec);
-            m_helper.addContent(request, m_contentType, m_payload);
-            return request;
-
-        } catch (ParseException e) {
-            throw new SipxSipException(e);
-        }
-    }
-    
     protected Request createRequest(String requestType, String fromAddrSpec, String toAddrSpec) {
         try {
             Request request = m_helper.createRequest(requestType, fromAddrSpec, toAddrSpec);
@@ -54,7 +43,7 @@ public abstract class JainSipMessage extends AbstractMessage {
             throw new SipxSipException(e);
         }
     }
-
+    
     protected SipProvider getSipProvider() {
         return m_helper.getSipProvider();
     }
