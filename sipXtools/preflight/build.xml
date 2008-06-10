@@ -27,8 +27,26 @@
   </path>
   <property name="classpath" refid="base.path" />
 
+  <!-- J N I -->
+  <target name="jni" depends="compile" description="create RockSaw JNI library" >
+    <taskdef resource="cpptasks.tasks" classpath="${cpptasks.jar}"/>
+    <typedef resource="cpptasks.types" classpath="${cpptasks.jar}"/>
+    <cc outfile="${build.dir}/dist/librocksaw.so">
+      <fileset dir="${src.dir}/src/main/native/posix" includes="RawSocket.c"/>
+      <includepath path=""/>
+      <defineset define="_REENTRANT"/>
+      <compilerarg value="-Wall"/>
+      <compilerarg value="-O2"/>
+      <compilerarg value="-pipe"/>
+      <compilerarg value="-ansi"/>
+      <compilerarg value="-pthread"/>
+      <compilerarg value="-fpic"/>
+      <linkerarg value="-shared"/>
+    </cc>
+  </target>
+
   <!-- J A R -->
-  <target name="jar" depends="compile" description="create jar file" >
+  <target name="jar" depends="jni" description="create jar file" >
     <taskdef name="one-jar" classname="com.simontuffs.onejar.ant.OneJarTask" classpath="${one-jar.jar}" onerror="report"/>
     <one-jar destfile="${build.dir}/dist/preflight.jar" manifest="${src.dir}/preflight.mf" >
       <main>
@@ -70,7 +88,7 @@
     <taskdef resource="cpptasks.tasks" classpath="${cpptasks.jar}"/>
     <typedef resource="cpptasks.types" classpath="${cpptasks.jar}"/>
     <cc outfile="${build.dir}/dist/preflight">
-      <fileset dir="${src.dir}/src/main/native/posix" includes="*.c"/>
+      <fileset dir="${src.dir}/src/main/native/posix" includes="preflight.c"/>
       <defineset>
         <define name="SIPX_LIBDIR" value='"${preflight.lib.dir}"'/>
       </defineset>
@@ -120,6 +138,7 @@
   <target name="posix-install">
     <!-- Posix Launcher -->
     <mkdir dir="${dest.dir}${preflight.lib.dir}"/>
+    <copy file="${build.dir}/dist/librocksaw.so" todir="${dest.dir}${lib.dir}"/>
     <copy file="${build.dir}/dist/preflight.jar" todir="${dest.dir}${preflight.lib.dir}"/>
     <copy file="${build.dir}/dist/preflight" todir="${dest.dir}${bin.dir}"/>
     <chmod file="${dest.dir}${bin.dir}/preflight" perm="ugo+x" />
