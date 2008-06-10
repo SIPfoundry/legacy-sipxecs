@@ -3,15 +3,16 @@
 
 # Check that the right number of arguments have been supplied.
 # Otherwise give the usage message.
-if [ $# -ne 3 ]; then
-    echo "Usage: $0 (localization package tar file) (voice prompt directory) (region file directory)" >&2
-    echo "E.g. : $0 LocalizationPackage_cs.tgz /usr/share/www/doc /etc/sipxpbx" >&2
+if [ $# -ne 4 ]; then
+    echo "Usage: $0 (localization package file) (voice prompt directory) (region directory) (third party directory)" >&2
+    echo "E.g. : $0 LocalizationPackage_cs.tgz /usr/share/www/doc /etc/sipxpbx /usr/share/sipxpbx" >&2
     exit 1
 fi
 
 FILE=$1
 VOICE_PROMPT_DIR=$2
 REGION_DIR=$3
+SHARE_DIR=$4
 
 # Check the localization package file and specified directories for validity.
 if ! [ -d $VOICE_PROMPT_DIR -a -w $VOICE_PROMPT_DIR ]; then
@@ -22,8 +23,8 @@ if ! [ -d $REGION_DIR -a -w $REGION_DIR ]; then
     echo "'$REGION_DIR' is not a writable directory." >&2
     exit 1
 fi
-if ! [ -d $REGION_DIR/../sipxpbx -a -w $REGION_DIR/../sipxpbx ]; then
-    echo "'$REGION_DIR/../sipxpbx' is not a writable directory." >&2
+if ! [ -d $SHARE_DIR -a -w $SHARE_DIR ]; then
+    echo "'$SHARE_DIR' is not a writable directory." >&2
     exit 1
 fi
 if ! [ -f $FILE -a -r $FILE ]; then
@@ -56,8 +57,8 @@ if tar tf $FILE sipxpbx >/dev/null 2>&1 ; then
     tar xf $FILE --directory=$REGION_DIR/.. 'sipxpbx/*'
 fi
 if tar tf $FILE third_party >/dev/null 2>&1 ; then
-    # The file contains third party files for the /var directory - extract them
-    tar xf $FILE --directory=$REGION_DIR 'third_party/*'
+    # The file contains third party files - extract them
+    tar xf $FILE --directory=$SHARE_DIR 'third_party/*'
 fi
 
 # Delete the localization package file

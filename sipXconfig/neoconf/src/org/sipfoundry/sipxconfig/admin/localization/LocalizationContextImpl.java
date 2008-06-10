@@ -44,6 +44,7 @@ public class LocalizationContextImpl extends SipxHibernateDaoSupport implements
     private String m_regionDir;
     private String m_promptsDir;
     private String m_binDir;
+    private String m_shareDir;
     private String m_defaultRegion;
     private String m_defaultLanguage;
     private DialPlanContext m_dialPlanContext;
@@ -59,6 +60,10 @@ public class LocalizationContextImpl extends SipxHibernateDaoSupport implements
 
     public void setBinDir(String binDir) {
         m_binDir = binDir;
+    }
+
+    public void setShareDir(String shareDir) {
+        m_shareDir = shareDir;
     }
 
     public void setDefaultRegion(String defaultRegion) {
@@ -220,7 +225,7 @@ public class LocalizationContextImpl extends SipxHibernateDaoSupport implements
         try {
             String[] cmd = new String[] {
                 m_binDir + File.separator + "sipxlocalization", fileToApply.getPath(),
-                m_promptsDir, m_regionDir
+                m_promptsDir, m_regionDir, m_shareDir
             };
             Process p = Runtime.getRuntime().exec(cmd);
             BufferedReader scriptErrorReader = new BufferedReader(new InputStreamReader(p
