@@ -33,7 +33,8 @@
     <typedef resource="cpptasks.types" classpath="${cpptasks.jar}"/>
     <cc outfile="${build.dir}/dist/librocksaw.so">
       <fileset dir="${src.dir}/src/main/native/posix" includes="RawSocket.c"/>
-      <includepath path=""/>
+      <includepath path="${jdk.include}"/>
+      <includepath path="${jdk.include}/linux"/>
       <defineset define="_REENTRANT"/>
       <compilerarg value="-Wall"/>
       <compilerarg value="-O2"/>

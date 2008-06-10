@@ -5,6 +5,7 @@ top.dir=@abs_top_srcdir@
 src.dir=@abs_srcdir@
 java=@JAVA@
 java.home=@JAVA_HOME@
+jdk.include=@JAVA_HOME@/include
 optimize=@JAVAC_OPTIMIZED@
 deprecation=false
 debug=@JAVAC_DEBUG@
