@@ -15,6 +15,10 @@ do
             Action=CONFIGTEST
             ;;
 
+        --stop)
+            Action=STOP
+            ;;
+
         *)
             Args="$Args $1"
             ;;
@@ -51,6 +55,12 @@ case ${Action} in
      exec @bindir@/sipregistrar $Args
      ;;
 
+   STOP)
+     echo $$ > @SIPX_RUNDIR@/sipregistrar.pid
+     exec @bindir@/sipregistrar $Args
+     ;;
+
+
    CONFIGTEST)
      # check validity of xml routing rules
      @bindir@/sipx-validate-xml @SIPX_CONFDIR@/mappingrules.xml
@@ -62,9 +72,6 @@ case ${Action} in
      Status=$(($Status+$?))
      ! test -e @SIPX_DBDIR@/alias.xml \
      || @bindir@/sipx-validate-xml @SIPX_DBDIR@/alias.xml
-     Status=$(($Status+$?))
-     ! test -e @SIPX_DBDIR@/caller-alias.xml \
-     || @bindir@/sipx-validate-xml @SIPX_DBDIR@/caller-alias.xml
      Status=$(($Status+$?))
 
      # if this system is configured for HA, check that both have valid routes

@@ -9,6 +9,7 @@ editetc_IN = \
 
 EXTRA_DIST = \
   sipregistrar.process.xml.in \
+  sipXregistry-process.xml.in \
   $(editetc_IN) 
 
 # Install files in $(editetc_IN), or if they already exist, edit
@@ -18,6 +19,8 @@ install-data-hook : \
 	$(foreach etcfile,$(editetc_IN),$(DESTDIR)$(sysconfdir)/sipxpbx/$(etcfile)) \
 	editetc \
 	$(DESTDIR)$(SIPX_PROCDIR)/sipregistrar.process.xml
+
+SIPX_PROCESS_DEFS=sipXregistry
 
 $(foreach etcfile,$(editetc_IN),$(etcfile).tmp) : %.tmp : %
 	$(LocalizeSipXconfig) $< > $@

@@ -73,6 +73,7 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(644,root,root,755)
 
 %doc CONTRIBUTORS %name.configlog
+%attr(644,root,root) %{_sysconfdir}/sipxpbx/process.d/sipXregistry-process.xml
 %attr(755,root,root) %{_bindir}/sipregistrar.sh
 %attr(755,root,root) %{_bindir}/sipregistrar
 %attr(755,root,root) %{_bindir}/%name-config
