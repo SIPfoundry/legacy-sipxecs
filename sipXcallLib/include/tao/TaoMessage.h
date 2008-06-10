@@ -335,7 +335,7 @@ public:
 
         unsigned char getCmd() { return mCmd; };
 
-        void getBytes(UtlString* bytes, size_t* length);
+        void getBytes(UtlString* bytes, ssize_t* length);
         //: Get the bytes for the complete message, using the mHttpMsg's getBytes method.
         // Suitable for streaming or sending over a socket
         //! param: bytes - gets allocated and must be freed
@@ -371,7 +371,7 @@ private:
 #ifdef USE_HTTPMSG
         HttpMessage      mHttpMsg;              // HTTPMessage form of the TaoMessage
 #endif
-   int          mBodyLength;
+   ssize_t          mBodyLength;
    UtlString mBody;
 
 

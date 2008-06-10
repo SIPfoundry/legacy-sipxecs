@@ -155,7 +155,7 @@ int TaoTransportAgent::run(void* runArg)
 int TaoTransportAgent::send(TaoMessage& rMsg)
 {
         UtlString buffer;
-        size_t bufferLen;
+        ssize_t bufferLen;
         rMsg.getBytes(&buffer, &bufferLen);
 
         // send the msg to the transport, receive the response

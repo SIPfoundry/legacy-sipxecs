@@ -422,7 +422,7 @@ void TaoMessage::setObjHandle(TaoObjHandle handle)
 //////////////////////////////////////////////////////////////////////
 // Functions
 //////////////////////////////////////////////////////////////////////
-void TaoMessage::getBytes(UtlString* bytes, size_t* length)
+void TaoMessage::getBytes(UtlString* bytes, ssize_t* length)
 {
    if (mbDirty)
       serialize() ;

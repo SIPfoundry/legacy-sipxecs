@@ -1327,7 +1327,7 @@ SipRefreshMgr::handleMessage( OsMsg& eventMessage )
 /*
                 // Report that we were unable to find this request
                 UtlString response ;
-                size_t      respLen ;
+                ssize_t   respLen ;
                 UtlString msgContents ;
 
                 // Log Failure
@@ -1381,7 +1381,7 @@ SipRefreshMgr::handleMessage( OsMsg& eventMessage )
                     method.data(), callId.data())  ;
                     
 #ifdef TEST_PRINT
-            size_t len = 0 ;
+            ssize_t len = 0 ;
             UtlString bytes ;
 
             sipMessage->getBytes(&bytes, &len) ;

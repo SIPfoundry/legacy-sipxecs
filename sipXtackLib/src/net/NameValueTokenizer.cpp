@@ -146,7 +146,7 @@ UtlBoolean NameValueTokenizer::getSubField(const char* textField,
     ssize_t subFieldI = -1;
     ssize_t subFieldBegin = 0;
     ssize_t separatorIndex = -1;
-    ssize_t numSeparators = strlen(subFieldSeparators);
+    size_t numSeparators = strlen(subFieldSeparators);
 
     for(ssize_t charIndex = 0; subFieldI < subFieldIndex; charIndex++)
     {

@@ -212,7 +212,7 @@ UtlBoolean TaoClientTask::handleMessage(OsMsg& rMsg)
                 {
                         osPrintf("TaoClientTask::handleMessage response msg not handled msg subtype = %d\n", rMsg.getMsgSubType());
                         UtlString buffer;
-                        size_t bufferLen;
+                        ssize_t bufferLen;
                         ((TaoMessage&) rMsg).getBytes(&buffer, &bufferLen);
                         osPrintf("%s\n", buffer.data());
 
@@ -227,7 +227,7 @@ UtlBoolean TaoClientTask::handleMessage(OsMsg& rMsg)
                 handled = FALSE;
                 osPrintf("\n ERROR! TaoClientTask::handleMessage - UNKNOWN MESSAGE TYPE %d\n", rMsg.getMsgSubType());
                 UtlString buffer;
-                size_t bufferLen;
+                ssize_t bufferLen;
                 ((TaoMessage&) rMsg).getBytes(&buffer, &bufferLen);
                 osPrintf("%s\n", buffer.data());
                 break;
@@ -310,7 +310,7 @@ int TaoClientTask::sendRequest(TaoMessage& rMsg, OsMutex* pMutex, const OsTime& 
                 mMutex.acquireWrite();
 
             UtlString buffer;
-            size_t bufferLen;
+            ssize_t bufferLen;
             rMsg.getBytes(&buffer, &bufferLen);
 
                 size_t iSendSize = bufferLen + (sizeof(uint32_t)*2) ;
