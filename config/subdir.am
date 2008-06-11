@@ -92,7 +92,7 @@ install-data-hook: \
 	$(foreach proc,$(SIPX_PROCESS_DEFS),$(DESTDIR)$(SIPX_PROCESSDIR)/$(proc)-process.xml)
 
 $(foreach proc,$(SIPX_PROCESS_DEFS),$(DESTDIR)$(SIPX_PROCESSDIR)/$(proc)-process.xml) \
-	: $(DESTDIR)$(SIPX_PROCESSDIR)/% : % $(DESTDIR)$(SIPX_PROCDIR)
+	: $(DESTDIR)$(SIPX_PROCESSDIR)/% : % 
 	$(INSTALL) -D -m 644 $< $@
 
 $(foreach proc,$(SIPX_PROCESS_DEFS),$(proc)-process.xml) : % : %.in
