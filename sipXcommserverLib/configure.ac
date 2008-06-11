@@ -32,6 +32,7 @@ CHECK_DATE_PARSE_ARGS
 # Checks for typedefs, structures, and compiler characteristics.
 # Checks for library functions.
 
+CHECK_APACHE2
 CHECK_CPPUNIT
 CHECK_XERCES
 CHECK_ODBC
