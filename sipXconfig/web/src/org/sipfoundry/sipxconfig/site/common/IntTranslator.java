@@ -30,6 +30,8 @@ public class IntTranslator extends SipxconfigNumberTranslator {
     @Override
     public DecimalFormat getDecimalFormat(Locale locale) {
         // assumes NumberFormat actually returns a DecimalFormat, which is does 
-        return (DecimalFormat) NumberFormat.getIntegerInstance(locale);
+        DecimalFormat format = (DecimalFormat) NumberFormat.getIntegerInstance(locale);
+        format.setGroupingUsed(false);
+        return format;
     }
 }
