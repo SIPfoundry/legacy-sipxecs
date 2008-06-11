@@ -39,7 +39,7 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(644,root,root,755)
 %doc CONTRIBUTORS LICENSE INSTALL README NEWS TODO ChangeLog %name.configlog
 %attr(755,root,root) %{_bindir}
-%attr(644,root,root) %{_libdir}
-%attr(644,root,root) %{_libdir}/preflight
+%attr(755,root,root) %{_libdir}
+%attr(755,root,root) %{_libdir}/preflight
 %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_datadir}/sipxpbx/preflight
 %{_mandir}/man1
