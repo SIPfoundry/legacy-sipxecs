@@ -56,8 +56,7 @@ case ${Action} in
      ;;
 
    STOP)
-     echo $$ > @SIPX_RUNDIR@/sipregistrar.pid
-     exec @bindir@/sipregistrar $Args
+     sipx_stop sipregistrar @SIPX_RUNDIR@/sipregistrar.pid
      ;;
 
 

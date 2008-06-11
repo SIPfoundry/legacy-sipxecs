@@ -51,40 +51,46 @@
       </documentation>
     </annotation>
     <sequence>
-      <element name="defaultdir" type="string" default='@SIPX_LOGDIR@' 
-               minOccurs='0' maxOccurs='1'>
-        <annotation>
-          <documentation>
-            Path to the working directory for the process.
-            Defaults to the default SIPX_LOGDIR.
-          </documentation>
-        </annotation>
-      </element>
-      <element name="user" type="normalizedString" default='@SIPXPBXUSER@' 
-               minOccurs='0' maxOccurs='1'>
-        <annotation>
-          <documentation>
-            Username for the identity to be used when executing any command.
-            Defaults to the default SIPXPBXUSER.
-          </documentation>
-        </annotation>
-      </element>
-      <element name="execute" type="normalizedString" minOccurs='1' maxOccurs='1'>
-        <annotation>
-          <documentation>
-            Command to execute in the process
-          </documentation>
-        </annotation>
-      </element>
-      <element name="parameter" type="string" minOccurs='0' maxOccurs='unbounded'>
-        <annotation>
-          <documentation>
-            Parameter value to be passed to the command
-          </documentation>
-        </annotation>
-      </element>
+      <element ref='proc:defaultdir' minOccurs='0' maxOccurs='1'/>
+      <element ref='proc:user' minOccurs='0' maxOccurs='1'/>
+      <element ref='proc:execute' minOccurs='1' maxOccurs='1'/>
+      <element ref='proc:parameter' minOccurs='0' maxOccurs='unbounded'/>
     </sequence>
   </complexType>
+
+  <element name="defaultdir" type="string" default='@SIPX_LOGDIR@'>
+    <annotation>
+      <documentation>
+        Path to the working directory for the process.
+        Defaults to the default SIPX_LOGDIR.
+      </documentation>
+    </annotation>
+  </element>
+
+  <element name="user" type="normalizedString" default='@SIPXPBXUSER@'>
+    <annotation>
+      <documentation>
+        Username for the identity to be used when executing any command.
+        Defaults to the default SIPXPBXUSER.
+      </documentation>
+    </annotation>
+  </element>
+
+  <element name="execute" type="normalizedString">
+    <annotation>
+      <documentation>
+        Command to execute in the process
+      </documentation>
+    </annotation>
+  </element>
+
+  <element name="parameter" type="string">
+    <annotation>
+      <documentation>
+        Parameter value to be passed to the command
+      </documentation>
+    </annotation>
+  </element>
 
   <element name='commands'>
     <annotation>
@@ -94,12 +100,44 @@
     </annotation>
     <complexType>
       <sequence>
-        <element name='configtest'  type='proc:Command' minOccurs='1' maxOccurs='1' />
-        <element name='start'       type='proc:Command' minOccurs='1' maxOccurs='1' />
-        <element name='stop'        type='proc:Command' minOccurs='1' maxOccurs='1' />
-        <element name='reconfigure' type='proc:Command' minOccurs='0' maxOccurs='1' />
+        <element ref='proc:configtest' minOccurs='1' maxOccurs='1'/>
+        <element ref='proc:start'      minOccurs='1' maxOccurs='1'/>
+        <element ref='proc:stop'       minOccurs='1' maxOccurs='1'/>
+        <element ref='proc:reconfigure' minOccurs='0' maxOccurs='1'/>
       </sequence>
     </complexType>
+  </element>
+
+  <element name='configtest'  type='proc:Command'>
+    <annotation>
+      <documentation>
+        Command to be executed to test the process configuration
+      </documentation>
+    </annotation>
+  </element>
+
+  <element name='start'       type='proc:Command'>
+    <annotation>
+      <documentation>
+        Command to be executed to start the process
+      </documentation>
+    </annotation>
+  </element>
+
+  <element name='stop'        type='proc:Command'>
+    <annotation>
+      <documentation>
+        Command to be executed to stop the process
+      </documentation>
+    </annotation>
+  </element>
+
+  <element name='reconfigure' type='proc:Command'>
+    <annotation>
+      <documentation>
+        Command to be executed to tell the process to reread its configuration
+      </documentation>
+    </annotation>
   </element>
 
   <element name='status' >
@@ -110,25 +148,8 @@
     </annotation>
     <complexType>
       <sequence>
-        <element name='pid' type='normalizedString' minOccurs='0' maxOccurs='1'>
-          <annotation>
-            <documentation>
-              Path to a text file containing the current process id of the command;
-              this file should be created by the process as soon as possible after
-              it starts, and deleted when it exits.
-              Defaults to SIPX_RUNDIR/*name*.pid where *name* is the value of the name element.
-              This is not expected to exist if the isService attribute is 'false'.
-            </documentation>
-          </annotation>
-        </element>
-        <element name='log' type='normalizedString' minOccurs='0' maxOccurs='unbounded'>
-          <annotation>
-            <documentation>
-              Path to the process log file.
-              Defaults to SIPX_LOGDIR/*name*.log where *name* is the value of the name element.
-            </documentation>
-          </annotation>
-        </element>
+        <element ref='proc:pid' minOccurs='0' maxOccurs='1'/>
+        <element ref='proc:log' minOccurs='0' maxOccurs='unbounded'/>
       </sequence>
       <attribute name="isService" type="boolean">
         <annotation>
@@ -141,6 +162,27 @@
         </annotation>
       </attribute>
     </complexType>
+  </element>
+
+  <element name='pid' type='normalizedString'>
+    <annotation>
+      <documentation>
+        Path to a text file containing the current process id of the command;
+        this file should be created by the process as soon as possible after
+        it starts, and deleted when it exits.
+        Defaults to SIPX_RUNDIR/*name*.pid where *name* is the value of the name element.
+        This is not expected to exist if the isService attribute is 'false'.
+      </documentation>
+    </annotation>
+  </element>
+
+  <element name='log' type='normalizedString'>
+    <annotation>
+      <documentation>
+        Path to the process log file.
+        Defaults to SIPX_LOGDIR/*name*.log where *name* is the value of the name element.
+      </documentation>
+    </annotation>
   </element>
 
   <complexType name='Resource'>

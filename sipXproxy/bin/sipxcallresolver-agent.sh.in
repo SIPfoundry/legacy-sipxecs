@@ -15,6 +15,10 @@ do
             Action=CONFIGTEST
             ;;
 
+        --stop)
+            Action=STOP
+            ;;
+
         --help)
             Action=USAGE
             ;;
@@ -40,6 +44,11 @@ case ${Action} in
    RUN)
      # the stunnel command creates the pid file as specified by the configuration file
      exec @STUNNEL@ "${CONFIG_FILE}"
+     ;;
+
+   STOP)
+     # the stunnel command creates the pid file as specified by the configuration file
+     sipx_stop sipxcallresolver-agent @SIPX_RUNDIR@/sipxcallresolver-agent.pid
      ;;
 
    CONFIGTEST)

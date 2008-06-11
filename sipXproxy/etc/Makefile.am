@@ -14,8 +14,16 @@ process_xml_files_IN = \
 	sipxcallresolver.process.xml.in
 
 EXTRA_DIST = \
+	sipXproxy-process.xml.in \
+	sipxcallresolver-agent-process.xml.in \
+	sipxcallresolver-process.xml.in \
 	$(process_xml_files_IN) \
 	$(cfgfiles_IN)
+
+SIPX_PROCESS_DEFS=\
+	sipXproxy \
+	sipxcallresolver-agent \
+	sipxcallresolver
 
 PROC_FILES = $(foreach file,$(process_xml_files_IN),$(DESTDIR)/$(sysconfdir)/sipxpbx/process.d/$(basename $(file)))
 

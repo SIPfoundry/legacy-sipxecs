@@ -37,65 +37,6 @@ fi
 ## Source function library.
 . @SIPX_LIBEXECDIR@/sipx-utils.sh || exit 1
 
-# Set up correctly depending on the distribution
-if [ -f /etc/redhat-release ]
-then
-  # Redhat
-  . /etc/init.d/functions
-
-  HTTP_DAEMON_START="@APACHE2_HTTPD@"
-
-elif [ -f /etc/SuSE-release ]
-then
-  # SuSE
-  . /etc/rc.status
-
-  echo_success()
-  {
-      rc_reset
-      rc_status -v
-  }
-  echo_failure()
-  {
-      rc_failed
-      rc_status -v
-  }
-
-  HTTP_DAEMON_START="@APACHE2_HTTPD@"
-
-elif [ -f /etc/debian_version ]
-then
-  # Debian
-  echo_success()
-  {
-      echo success
-  }
-  echo_failure()
-  {
-      echo failure
-  }
-
-  HTTP_DAEMON_START="start-stop-daemon --start --chuid root --exec @APACHE2_HTTPD@ --"
-
-else
-  # Other distos
-  echo_success()
-  {
-      echo success
-  }
-  echo_failure()
-  {
-      echo failure
-  }
-
-  if [ -f /etc/init.d/functions.sh ]
-  then
-       . /etc/init.d/functions.sh
-       HTTP_DAEMON_START="start-stop-daemon --start --chuid root --exec @APACHE2_HTTPD@ --"
-  else
-       HTTP_DAEMON_START="@APACHE2_HTTPD@"
-  fi
-fi
 
 # Source configuration
 . @SIPX_CONFDIR@/config.defs
@@ -224,70 +165,9 @@ stop() {
 }
 
 stopCheck() {
-   proc_name=$1; shift
-
-   STATUS=0
-
-   echo -n "  Confirm Stop: $proc_name "
-   pidFile=@SIPX_RUNDIR@/$proc_name.pid
-   if [ -r ${pidFile} ]
-   then
-       PID=`cat ${pidFile} 2> /dev/null`
-       if [ `proc_alive $PID` -eq 0 ]
-       then
-          for ticks in `seq 19 -1 0`
-          do
-             sleep 1
-             test `proc_alive $PID` -eq 0 && echo -n "." || break
-          done
-          if [ `proc_alive $PID` -eq 0 ]
-          then
-              # It didn't die!  Try to get a core dump
-              echo ""
-              echo    "    $proc_name did not Stop."
-              echo -n "    Trying to abort $proc_name "
-              kill -ABRT $PID 2> /dev/null
-              for ticks in `seq 55 -5 0`
-              do
-                 sleep 5
-                 test `proc_alive $PID` -eq 0 && echo -n " $ticks" || break
-              done
-              if [ `proc_alive $PID` -eq 0 ]
-              then
-                  echo ""
-                  echo    "    $proc_name did not abort."
-                  echo -n "    Trying to kill $proc_name "
-                  kill -KILL $PID 2> /dev/null
-                  for ticks in `seq 55 -5 0`
-                  do
-                     sleep 5
-                     test `proc_alive $PID` -eq 0 && echo -n " $ticks" || break
-                  done
-              fi
-          fi
-       fi
-
-       if [ `proc_alive $PID` -eq 0 ]
-       then
-           # Holy fluff!  It didn't die!  The end is nigh!
-           echo ""
-           echo_failure
-           echo ""
-           [ "$BOOTUP" = "color" ] && $SETCOLOR_FAILURE
-           echo "    $proc_name will not die."
-           echo "    Machine must be restarted!"
-           [ "$BOOTUP" = "color" ] && $SETCOLOR_NORMAL
-       else
-           echo_success
-           echo ""
-           rm -f ${pidFile}
-       fi
-
-   else
-       echo -n "(Not started) "
-       echo_success
-       echo ""
-   fi
+    local proc_name=$1; shift
+    local pidFile=@SIPX_RUNDIR@/${proc_name}.pid
+    sipx_stop ${proc_name} ${pidFile}
 }
 
 # Low-level configtest function for internal tests defined by some global_*_check function here.

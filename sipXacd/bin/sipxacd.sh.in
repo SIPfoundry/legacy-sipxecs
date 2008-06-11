@@ -15,6 +15,10 @@ do
             Action=CONFIGTEST
             ;;
 
+        --stop)
+            Action=STOP
+            ;;
+
         *)
             Args="$Args $1"
             ;;
@@ -35,6 +39,10 @@ case ${Action} in
      else
          exec @bindir@/sipxacd $Args
      fi
+     ;;
+
+   STOP)
+     sipx_stop sipxacd @SIPX_RUNDIR@/sipxacd.pid
      ;;
 
    CONFIGTEST)

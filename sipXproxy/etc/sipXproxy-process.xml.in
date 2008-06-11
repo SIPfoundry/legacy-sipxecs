@@ -1,33 +1,31 @@
 <?xml version='1.0' encoding='iso-8859-1' standalone='yes'?>
 <sipXecs-process xmlns='http://www.sipfoundry.org/sipX/schema/xml/sipXecs-process-01-00'>
-  <name>SIPRegistrar</name>
+  <name>SIPXProxy</name>
   <version>@VERSION@</version>
   <commands>
     <configtest>
-      <execute>@SIPX_BINDIR@/sipregistrar.sh</execute>
+      <execute>@SIPX_BINDIR@/sipXproxy.sh</execute>
       <parameter>--configtest</parameter>
     </configtest>
     <start>
-      <execute>@SIPX_BINDIR@/sipregistrar.sh</execute>
+      <execute>@SIPX_BINDIR@/sipXproxy.sh</execute>
     </start>
     <stop>
-      <execute>@SIPX_BINDIR@/sipregistrar.sh</execute>
+      <execute>@SIPX_BINDIR@/sipXproxy.sh</execute>
       <parameter>--stop</parameter>
     </stop>
   </commands>
   <status isService='true'>
-    <pid>@SIPX_RUNDIR@/sipregistrar.pid</pid>
-    <log>@SIPX_LOGDIR@/sipregistrar.log</log>
+    <pid>@SIPX_RUNDIR@/sipXproxy.pid</pid>
+    <log>@SIPX_LOGDIR@/sipXproxy.log</log>
   </status>
   <resources>
     <osconfig>@SIPX_CONFDIR@/domain-config</osconfig>
-    <osconfig>@SIPX_CONFDIR@/registrar-config</osconfig>
-    <file>@SIPX_CONFDIR@/mappingrules.xml</file>
-    <file>@SIPX_CONFDIR@/fallbackrules.xml</file>
+    <osconfig>@SIPX_CONFDIR@/sipXproxy-config</osconfig>
+    <file>@SIPX_CONFDIR@/forwardingrules.xml</file>
+    <file>@SIPX_CONFDIR@/authrules.xml</file>
     <imdb>credential</imdb>
     <imdb>permission</imdb>
-    <imdb>alias</imdb>
-    <imdb>huntgroup</imdb>
-    <imdb>registration</imdb>
+    <imdb>caller-alias</imdb>
   </resources>
 </sipXecs-process>

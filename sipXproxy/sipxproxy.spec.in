@@ -111,6 +111,9 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/sipXproxy.sh
 %attr(755,root,root) %{_bindir}/sipXproxy
 %attr(755,root,root) %{_bindir}/%name-config
+%attr(644,root,root) %{_datadir}/sipx/process.d/sipXproxy-process.xml
+%attr(644,root,root) %{_datadir}/sipx/process.d/sipcallresolver-process.xml
+%attr(644,root,root) %{_datadir}/sipx/process.d/sipcallresolver-agent-process.xml
 %attr(755,root,root) %{_datadir}/sipx/schema/forwardingrules.xsd
 
 %attr(755,root,root) %{_libdir}/authplugins/libEnforceAuthRules.la

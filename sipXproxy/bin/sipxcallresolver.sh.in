@@ -8,7 +8,7 @@ Action=RUN
 Status=1
 Args=""
 
- . @SIPX_LIBEXECDIR@/sipx-utils.sh
+. @SIPX_LIBEXECDIR@/sipx-utils.sh
 
 # Declare script variables in a manner that unit test
 # (or end user I suppose) can override
@@ -468,6 +468,10 @@ do
             Action=NOP
             ;;
 
+        --stop)
+            Action=STOP
+            ;;
+
         -h|--help)
             Action=HELP
             ;;
@@ -493,6 +497,8 @@ elif [ ${Action} = DATABASE ]; then
 elif [ ${Action} = RUN ]; then
     runConfigpp
     onStartup
+elif [ ${Action} = STOP ]; then
+    sipx_stop sipxcallresover @SIPX_RUNDIR@/sipxcallresolver.pid
 elif [ ${Action} = SETUP ]; then
     onSetup
 elif [ ${Action} = PATCH ]; then
