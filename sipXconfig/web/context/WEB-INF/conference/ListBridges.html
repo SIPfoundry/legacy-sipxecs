@@ -1,14 +1,10 @@
-<html title="message:title">
-<head>
-    <link rel="stylesheet" type="text/css" href="../../css/sipxconfig.css"/>
-</head>
-<body jwcid="$content$">
 <div jwcid="@common/Border">
-    <h2><span key="title">Conference Bridges</span></h2>
-    <span jwcid="@common/ErrorMsg"/>
-    <form jwcid="form" id="bridge:form">
-        <fieldset jwcid="bridgesPanel"></fieldset>
-	</form>                    
+  <h2><span key="title">Conference Bridges</span></h2>
+  <span jwcid="@common/ErrorMsg"/>
+  <form jwcid="@Form" id="bridge:form" delegate="bean:validator">
+    <fieldset jwcid="@conference/BridgesPanel"
+      addListener="listener:add"
+      selectListener="listener:edit"
+      bridges="ognl:conferenceBridgeContext.bridges" />
+  </form>
 </div>
-</body>
-</html>

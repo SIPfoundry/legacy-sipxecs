@@ -7,7 +7,7 @@
     </li>
   </ul>
   <table jwcid="tableView" id="bridge:list">
-    <span jwcid="nameColumnValue">
+    <span jwcid="nameColumnValue@Block">
       <span jwcid="editRowLink@DirectLink" listener="ognl:selectListener"
             parameters="ognl:currentRow.id">
         <span jwcid="nameText"/>
@@ -17,8 +17,7 @@
       <span jwcid="@common/EnabledColumn" value="ognl:currentRow.enabled"/>
     </span>    
     <span jwcid="activeConferencesColumnValue@Block">
-      <span jwcid="@conference/ActiveConferencesValue" bridge="ognl:currentRow"
-            activeConferenceCount="ognl:getActiveConferenceCount(currentRow)" />
+      <span jwcid="@conference/ActiveConferencesValue" bridgeId="ognl:currentRow.id" />
     </span>
   </table>
   <ul class="component-submit">

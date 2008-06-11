@@ -10,27 +10,35 @@
 package org.sipfoundry.sipxconfig.site.conference;
 
 import org.apache.tapestry.IPage;
-import org.apache.tapestry.IRequestCycle;
+import org.apache.tapestry.annotations.Bean;
+import org.apache.tapestry.annotations.InjectObject;
+import org.apache.tapestry.annotations.InjectPage;
 import org.apache.tapestry.html.BasePage;
-import org.sipfoundry.sipxconfig.components.TapestryUtils;
+import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext;
 
 public abstract class ListBridges extends BasePage {
 
     public static final String PAGE = "conference/ListBridges";
 
+    @InjectObject(value = "spring:conferenceBridgeContext")
     public abstract ConferenceBridgeContext getConferenceBridgeContext();
 
-    public void add(IRequestCycle cycle) {
-        EditBridge editBridge = (EditBridge) cycle.getPage(EditBridge.PAGE);
+    @Bean
+    public abstract SipxValidationDelegate getValidator();
+
+    @InjectPage(value = EditBridge.PAGE)
+    public abstract EditBridge getEditBridgePage();
+
+    public IPage add() {
+        EditBridge editBridge = getEditBridgePage();
         editBridge.setBridgeId(null);
         editBridge.setReturnPage(PAGE);
-        cycle.activate(editBridge);
+        return editBridge;
     }
 
-    public IPage edit(IRequestCycle cycle) {
-        Integer bridgeId = TapestryUtils.getBeanId(cycle);
-        EditBridge editBridge = (EditBridge) cycle.getPage(EditBridge.PAGE);
+    public IPage edit(Integer bridgeId) {
+        EditBridge editBridge = getEditBridgePage();
         editBridge.setBridgeId(bridgeId);
         editBridge.setReturnPage(PAGE);
         return editBridge;

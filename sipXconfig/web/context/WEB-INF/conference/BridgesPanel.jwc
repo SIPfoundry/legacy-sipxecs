@@ -12,7 +12,6 @@
   
   <!-- P R O P E R T I E S -->
   <inject property="conferenceBridgeContext" object="spring:conferenceBridgeContext"/>
-  <inject property="activeConferenceContext" object="spring:activeConferenceContext"/>
   <inject property="coreContext" object="spring:coreContext"/>
   <property name="rowsToDelete"/>
   <property name="action"/>
@@ -35,7 +34,6 @@
     <binding name="row" value="currentRow"/>
     <binding name="selections" value="selections"/>
   </component>
-  <component id="nameColumnValue" type="Block"/>
   <component id="nameText" type="Insert">
     <binding name="value" value="currentRow.name"/>
   </component>

@@ -1,6 +1,22 @@
-<span jwcid="@If" condition="ognl:activeConferenceCount == 0">0 active</span>
-<span jwcid="@Else">
-    <span jwcid="@DirectLink" listener="listener:activeConferences" parameters="ognl:bridge.id" class="goLink">
-        <span jwcid="@Insert" value="ognl:activeConferenceCount" /> active...
+<div jwcid="cell@Any">
+  <div jwcid="@RenderBlock" block="ognl:block" />
+</div>
+<span jwcid="loading@Block">
+  <div jwcid="throbber@Any">
+      <img jwcid="@Image" image="asset:loadingImage" />
+  </div>
+  <span jwcid="@Script"
+    scriptAsset="asset:script"
+    compClientId="clientId:throbber"
+    bridgeId="ognl:bridgeId"/>
+</span>
+<span jwcid="inactive@Block">
+    <span key="label.inactive"/>
+</span>
+<span jwcid="active@Block">
+    <span jwcid="@DirectLink" class="goLink"
+        listener="listener:activeConferences"
+        parameters="ognl:bridgeId">
+        <span jwcid="@Insert" value="ognl:activeLabel" />
     </span>
 </span>
