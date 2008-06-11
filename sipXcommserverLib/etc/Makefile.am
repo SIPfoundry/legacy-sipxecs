@@ -20,7 +20,8 @@ $(DESTDIR)$(sysconfdir)/sipxpbx/config.defs: config.defs
 	fi
 
 config.defs : $(srcdir)/config.defs.in 
-		$(LocalizeSipXconfig) $(srcdir)/config.defs.in > config.defs;
+		@echo "Localize $< -> $@"
+		@$(LocalizeSipXconfig) $(srcdir)/config.defs.in > config.defs;
 
 $(DESTDIR)$(sysconfdir)/sipxpbx/config.defs.map : config.defs.map
 	$(INSTALL) -D -m 644 $< $@

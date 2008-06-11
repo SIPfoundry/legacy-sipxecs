@@ -23,7 +23,8 @@ $(foreach file,$(editscripts_IN),$(DESTDIR)$(bindir)/$(file)) : $(DESTDIR)$(bind
 	$(INSTALL) -D -m 755 $< $@
 
 $(foreach file,$(editscripts_IN),$(file)) : % : %.in
-	$(LocalizeSipXconfig) $< > $@
+	@echo "Localize $< -> $@"
+	@$(LocalizeSipXconfig) $< > $@
 
 EXTRA_DIST = \
    $(foreach file,$(editscripts_IN),$(file).in) \

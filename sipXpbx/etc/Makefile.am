@@ -40,14 +40,16 @@ $(foreach file,$(pbxconf_files) $(wwwconf_files),$(DESTDIR)$(sysconfdir)/sipxpbx
 	fi
 
 $(foreach file,$(pbxconf_files) $(wwwconf_files),$(file)) : % : %.in
-	$(LocalizeSipXconfig) \
+	@echo "Localize $< -> $@"
+	@$(LocalizeSipXconfig) \
 	-e 's,@APACHE2_HOST_ACCESS\@,@APACHE2_HOST_ACCESS@,g' \
 	-e 's,@APACHE2_MOD_ACCESS\@,@APACHE2_MOD_ACCESS@,g' \
 	$< > $@
 
 logrotate.d/sipxchange: logrotate.d/sipxchange.in
 	test -d logrotate.d || mkdir logrotate.d
-	$(LocalizeSipXconfig) $< > $@
+	@echo "Localize $< -> $@"
+	@$(LocalizeSipXconfig) $< > $@
 
 $(DESTDIR)$(sysconfdir)/logrotate.d/sipxchange: logrotate.d/sipxchange
 	@if [ -f $@ ]; \

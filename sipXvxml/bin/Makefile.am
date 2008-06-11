@@ -18,5 +18,6 @@ ${PACKAGE}-config: $(top_srcdir)/config/sipX-config.in $(top_builddir)/BUILDSTAM
 	chmod +x ${PACKAGE}-config
 
 install-exec-hook :
-	$(LocalizeSipXconfig) $(srcdir)/sipXvxml.sh.in > sipXvxml.sh
+	@echo "Localize $< -> $@"
+	@$(LocalizeSipXconfig) $(srcdir)/sipXvxml.sh.in > sipXvxml.sh
 	$(INSTALL) -D -m 755 sipXvxml.sh $(DESTDIR)$(bindir)/sipXvxml.sh

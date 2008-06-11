@@ -49,7 +49,8 @@ EXTRA_DIST = \
 BUILT_SOURCES = config.properties
 
 config.properties : config.properties.in Makefile
-	$(LocalizeSipXconfig) $(srcdir)/config.properties.in > config.properties
+	@echo "Localize $< -> $@"
+	@$(LocalizeSipXconfig) $(srcdir)/config.properties.in > config.properties
 
 DISTCLEANFILES = \
 	$(CONFIG_DISTCLEANFILES)

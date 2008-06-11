@@ -9,7 +9,8 @@ install-data-hook : \
 	$(DESTDIR)$(SIPX_CONFDIR)/sipxrls-config.in	
 
 sipxrls.process.xml.local : $(srcdir)/sipxrls.process.xml.in
-	$(LocalizeSipXconfig) $< > $@
+	@echo "Localize $< -> $@"
+	@$(LocalizeSipXconfig) $< > $@
 
 $(DESTDIR)$(SIPX_PROCDIR)/sipxrls.process.xml: sipxrls.process.xml.local
 	@if ! test -f $@; \
@@ -24,7 +25,8 @@ $(DESTDIR)$(SIPX_PROCDIR)/sipxrls.process.xml: sipxrls.process.xml.local
 	fi
 
 sipxrls-config.in.local : $(srcdir)/sipxrls-config.in.in
-	$(LocalizeSipXconfig) $< > $@
+	@echo "Localize $< -> $@"
+	@$(LocalizeSipXconfig) $< > $@
 
 $(DESTDIR)$(SIPX_CONFDIR)/sipxrls-config.in : sipxrls-config.in.local
 	@if ! test -f $@; \

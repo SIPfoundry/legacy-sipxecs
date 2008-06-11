@@ -15,4 +15,5 @@ bin_SCRIPTS = \
 	sipxconfig-report
 
 sipxconfig-% : sipxconfig-%.in
-	$(edit) $< > $@
+	@echo "Localize $< -> $@"
+	@$(edit) $< > $@

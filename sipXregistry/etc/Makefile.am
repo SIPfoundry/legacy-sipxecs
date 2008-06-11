@@ -23,7 +23,8 @@ install-data-hook : \
 SIPX_PROCESS_DEFS=sipXregistry
 
 $(foreach etcfile,$(editetc_IN),$(etcfile).tmp) : %.tmp : %
-	$(LocalizeSipXconfig) $< > $@
+	@echo "Localize $< -> $@"
+	@$(LocalizeSipXconfig) $< > $@
 
 
 $(DESTDIR)$(sysconfdir)/sipxpbx/fallbackrules.xml.in: fallbackrules.xml.in.tmp
@@ -58,6 +59,7 @@ editetc :
 	for f in $(editetc_IN); \
 	do \
 	  target=`basename $$f`; \
+	  echo "Localize $(srcdir)/$$f -> $$target" ; \
 	  $(LocalizeSipXconfig) $(srcdir)/$$f > $$target.tmp; \
 	  tgtdir=`dirname $(DESTDIR)$(sysconfdir)/sipxpbx/$$target`; \
 	  if [ -f $(DESTDIR)$(sysconfdir)/sipxpbx/$$target ]; \

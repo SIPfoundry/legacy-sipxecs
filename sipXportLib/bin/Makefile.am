@@ -18,7 +18,8 @@ EXTRA_DIST = \
 install-exec-hook :
 
 sipx-upgrade: $(srcdir)/sipx-upgrade.in
-	$(LocalizeSipXconfig) $(srcdir)/sipx-upgrade.in > sipx-upgrade
+	@echo "Localize $< -> $@"
+	@$(LocalizeSipXconfig) $(srcdir)/sipx-upgrade.in > sipx-upgrade
 
 shell-unit: $(srcdir)/shell-unit.in
 	cp $(srcdir)/shell-unit.in shell-unit
@@ -27,7 +28,8 @@ $(DESTDIR)$(bindir)/sipx-upgrade: sipx-upgrade
 	$(INSTALL) -D -m 755 $(srcdir)/sipx-upgrade $(DESTDIR)$(bindir)/sipx-upgrade
 
 sipx-upgrade-testsuite: sipx-upgrade shell-unit $(srcdir)/sipx-upgrade-testsuite.in
-	$(LocalizeSipXconfig) $(srcdir)/sipx-upgrade-testsuite.in > $@
+	@echo "Localize $< -> $@"
+	@$(LocalizeSipXconfig) $(srcdir)/sipx-upgrade-testsuite.in > $@
 	chmod +x $@
 
 $(top_builddir)/BUILDSTAMP:

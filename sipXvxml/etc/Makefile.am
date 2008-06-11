@@ -5,7 +5,8 @@ EXTRA_DIST = \
     mediaserver-config.in.in
 
 install-data-hook : $(DESTDIR)$(SIPX_PROCDIR)/sipXvxml.process.xml
-	$(LocalizeSipXconfig) $(srcdir)/mediaserver-config.in.in > mediaserver-config.in ; \
+	@echo "Localize $< -> $@"
+	@$(LocalizeSipXconfig) $(srcdir)/mediaserver-config.in.in > mediaserver-config.in ; \
 	if ! test -f $(DESTDIR)$(sysconfdir)/sipxpbx/mediaserver-config.in ; \
 	then \
 		echo ""; echo "Installing default $(sysconfdir)/sipxpbx/mediaserver-config.in"; \

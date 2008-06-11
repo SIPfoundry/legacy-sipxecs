@@ -37,7 +37,8 @@ $(foreach sipxScript,$(LOCAL_SHELLSCRIPTS),$(DESTDIR)@SIPX_BINDIR@/$(sipxScript)
 	$(INSTALL) -D -m 755 $< $@
 
 $(foreach sipxScript,$(LOCAL_SHELLSCRIPTS),$(sipxScript)) : % : $(srcdir)/%.in
-	$(LocalizeSipXconfig) $< > $@
+	@echo "Localize $< -> $@"
+	@$(LocalizeSipXconfig) $< > $@
 	chmod +x $@
 
 $(top_builddir)/BUILDSTAMP:

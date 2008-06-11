@@ -17,4 +17,5 @@ EXTRA_DIST = \
     merge-logs.in
 
 merge-logs: $(srcdir)/merge-logs.in
-	$(LocalizeSipXconfig) $(srcdir)/merge-logs.in > merge-logs
+	@echo "Localize $< -> $@"
+	@$(LocalizeSipXconfig) $(srcdir)/merge-logs.in > merge-logs

@@ -32,5 +32,6 @@ $(foreach file,$(cfgfiles_IN),$(DESTDIR)/$(sysconfdir)/sipxpbx/$(file)) : $(DEST
 	fi
 
 $(foreach file,$(cfgfiles_IN),$(file).local) : %.local : %
-	$(LocalizeSipXconfig) $< > $@
+	@echo "Localize $< -> $@"
+	@$(LocalizeSipXconfig) $< > $@
 

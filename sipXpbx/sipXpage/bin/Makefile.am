@@ -7,7 +7,7 @@ $(top_builddir)/BUILDSTAMP:
 	${MAKE} -C $(top_builddir) BUILDSTAMP
 
 sipxpage-config: $(top_srcdir)/config/sipX-config.in $(top_builddir)/BUILDSTAMP
-	BuildStamp="$(shell cat $(top_builddir)/BUILDSTAMP)" \
+	@BuildStamp="$(shell cat $(top_builddir)/BUILDSTAMP)" \
 	; ${LocalizeSipXconfig} -e "s/@SIPX_BUILDSTAMP\@/$${BuildStamp}/" \
 	    $(top_srcdir)/config/sipX-config.in \
 	  > sipxpage-config

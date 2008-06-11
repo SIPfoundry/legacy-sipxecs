@@ -58,5 +58,6 @@ libsipXcommserver_la_SOURCES = \
 	 sipXecsService/SharedSecret.cpp
 
 $(foreach sipxScript,$(libexec_SCRIPTS),$(sipxScript)) : % : $(srcdir)/%.in
-	$(LocalizeSipXconfig) $< > $@
+	@echo "Localize $< -> $@"
+	@$(LocalizeSipXconfig) $< > $@
 	chmod +x $@

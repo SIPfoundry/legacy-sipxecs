@@ -15,7 +15,8 @@ bin_SCRIPTS = \
 	${PACKAGE}-config
 
 sipxsupervisor.sh: sipxsupervisor.sh.in
-	$(LocalizeSipXconfig) $< > $@
+	@echo "Localize $< -> $@"
+	@$(LocalizeSipXconfig) $< > $@
 
 EXTRA_DIST = sipxsupervisor.sh.in
 

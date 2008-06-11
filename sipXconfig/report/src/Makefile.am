@@ -52,7 +52,8 @@ check :
 
 $(DESTDIR)$(bindir)/sipxconfig-report : bin/sipxconfig-report.in
 	mkdir -p bin
-	${LocalizeSipXconfig} -e 's,@GEM_LIB_DIR\@,$(GEM_LIB_DIR),g' \
+	@echo "Localize $< -> $@"
+	@${LocalizeSipXconfig} -e 's,@GEM_LIB_DIR\@,$(GEM_LIB_DIR),g' \
 	    $(srcdir)/bin/sipxconfig-report.in \
 	      > bin/sipxconfig-report
 	$(INSTALL) -D -m 755 bin/sipxconfig-report \

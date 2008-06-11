@@ -36,4 +36,5 @@ $(foreach xsd,$(processed_schemas),$(DESTDIR)@SIPX_SCHEMADIR@/$(xsd)): $(DESTDIR
 	$(INSTALL) -D -m 644 $< $@
 
 $(foreach xsd,$(processed_schemas),$(xsd)): % : $(srcdir)/%.in
-	$(LocalizeSipXconfig) $< > $@
+	@echo "Localize $< -> $@"
+	@$(LocalizeSipXconfig) $< > $@

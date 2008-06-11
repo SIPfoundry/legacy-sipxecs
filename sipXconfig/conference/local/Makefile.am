@@ -28,5 +28,6 @@ $(foreach file,$(cfgfiles_IN),$(DESTDIR)@FREESWITCH_PREFIX@/conf/$(file)) : $(DE
 	fi
 
 $(foreach file,$(cfgfiles_IN),$(file).local) : %.local : %
-	$(LocalizeSipXconfig) $< > $@
+	@echo "Localize $< -> $@"
+	@$(LocalizeSipXconfig) $< > $@
 

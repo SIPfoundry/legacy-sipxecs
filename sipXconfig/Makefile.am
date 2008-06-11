@@ -78,7 +78,8 @@ EXTRA_DIST = \
 BUILT_SOURCES = build.properties
 
 build.properties : build.properties.in Makefile _top.build.dir
-	$(edit) $(srcdir)/build.properties.in > $(top_builddir)/build.properties
+	@echo "Localize $< -> $@"
+	@$(edit) $(srcdir)/build.properties.in > $(top_builddir)/build.properties
 
 # This sets the default build dir to the last directory that called
 # configure shell script.  This allows 'ant' to be called from any directory

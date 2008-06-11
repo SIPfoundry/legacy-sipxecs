@@ -16,7 +16,8 @@ all: localize-sipx-scripts
 localize-sipx-scripts: $(foreach sipxScript,$(SCRIPT_TEMPLATES),$(sipxScript))
 
 $(foreach sipxScript,$(SCRIPT_TEMPLATES),$(sipxScript)) : % : $(srcdir)/%.in
-	$(LocalizeSipXconfig) \
+	@echo "Localize $< -> $@"
+	@$(LocalizeSipXconfig) \
 		-e 's,@OPENSSL\@,@OPENSSL@,g' \
 		-e 's,@DATE_PARSE_ARGS\@,@DATE_PARSE_ARGS@,g' \
 		$< > $@

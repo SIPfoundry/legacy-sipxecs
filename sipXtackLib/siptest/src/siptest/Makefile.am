@@ -32,4 +32,5 @@ EXTRA_DIST = \
     subscribe-dialog-test.in
 
 subscribe-dialog-test: $(srcdir)/subscribe-dialog-test.in
-	$(LocalizeSipXconfig) $(srcdir)/subscribe-dialog-test.in > subscribe-dialog-test
+	@echo "Localize $< -> $@"
+	@$(LocalizeSipXconfig) $(srcdir)/subscribe-dialog-test.in > subscribe-dialog-test

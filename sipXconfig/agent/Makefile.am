@@ -51,7 +51,8 @@ check :
 
 $(DESTDIR)$(bindir)/sipxconfig-agent : bin/sipxconfig-agent.in
 	mkdir -p bin
-	${LocalizeSipXconfig} -e 's,@GEM_LIB_DIR\@,$(GEM_LIB_DIR),g' \
+	@echo "Localize $< -> $@"
+	@${LocalizeSipXconfig} -e 's,@GEM_LIB_DIR\@,$(GEM_LIB_DIR),g' \
 	    $(srcdir)/bin/sipxconfig-agent.in \
 	      > bin/sipxconfig-agent
 	$(INSTALL) -D -m 755 bin/sipxconfig-agent \

@@ -29,7 +29,8 @@ noinst_PROGRAMS = \
 	sipxconfigrpcsrv
 
 $(foreach sipxScript,$(LOCAL_SHELLSCRIPTS),$(sipxScript)) : % : $(srcdir)/%.in
-	$(LocalizeSipXconfig) $< > $@
+	@echo "Localize $< -> $@"
+	@$(LocalizeSipXconfig) $< > $@
 	chmod +x $@
 
 sipxconfigrpc_SOURCES = \

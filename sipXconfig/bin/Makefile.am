@@ -33,13 +33,16 @@ $(top_builddir)/BUILDSTAMP:
 	${MAKE} -C $(top_builddir) BUILDSTAMP
 
 $(setupbin_SCRIPTS) : $(setupbin_IN)
-	${LocalizeSipXconfig} $(srcdir)/$(notdir $@).in > $@
+	@echo "Localize $< -> $@"
+	@${LocalizeSipXconfig} $(srcdir)/$(notdir $@).in > $@
 
 $(ruby_scripts) : $(ruby_scripts_src)
-	${LocalizeSipXconfig} $(srcdir)/$(notdir $@).rb > $@
+	@echo "Localize $< -> $@"
+	@${LocalizeSipXconfig} $(srcdir)/$(notdir $@).rb > $@
 
 ${PACKAGE}-config: $(top_srcdir)/config/sipX-config.in $(top_builddir)/BUILDSTAMP
-	BuildStamp="$(shell cat $(top_builddir)/BUILDSTAMP)" \
+	@echo "Create $<"
+	@BuildStamp="$(shell cat $(top_builddir)/BUILDSTAMP)" \
 	; ${LocalizeSipXconfig} -e "s/@SIPX_BUILDSTAMP\@/$${BuildStamp}/" \
 	    $(top_srcdir)/config/sipX-config.in \
 	  > ${PACKAGE}-config
@@ -51,4 +54,5 @@ $(foreach file,$(editscripts_IN),$(DESTDIR)$(bindir)/$(file)) : $(DESTDIR)$(bind
 	$(INSTALL) -D -m 755 $< $@
 
 $(foreach file,$(editscripts_IN),$(file)) : % : %.in
-	$(LocalizeSipXconfig) $< > $@
+	@echo "Localize $< -> $@"
+	@$(LocalizeSipXconfig) $< > $@

@@ -39,18 +39,22 @@ install-data-hook :
 	@for f in $(ETC_FILES); \
 	do \
 	  	target=`basename $$f .in`; \
-                echo "Processing  $(srcdir)/$$f"; \
-      $(LocalizeSipXconfig) $(srcdir)/$$f > $$target; \
+		echo "Processing  $(srcdir)/$$f"; \
+      		echo "Localize $$f -> $$target"; \
+		$(LocalizeSipXconfig) $(srcdir)/$$f > $$target; \
 	    	mkdir -p $(DESTDIR)$(SIPX_PROCDIR); \
 	    	echo "Installing default $(DESTDIR)$(SIPX_PROCDIR)/$$target"; \
 		$(INSTALL) -D -m 644 $$target $(DESTDIR)$(SIPX_PROCDIR)/$$target; \
 	done
 
 config.properties : config.properties.in 
-	$(LocalizeSipXconfig) $< > $@
+	@echo "Localize $< -> $@"
+	@$(LocalizeSipXconfig) $< > $@
 
 sipxbridge.sh : sipxbridge.sh.in
-	$(LocalizeSipXconfig) $< > $@
+	@echo "Localize $< -> $@"
+	@$(LocalizeSipXconfig) $< > $@
 
 sipxbridge.spec : sipxbridge.spec.in
-	$(LocalizeSipXconfig) $< > $@
+	@echo "Localize $< -> $@"
+	@$(LocalizeSipXconfig) $< > $@

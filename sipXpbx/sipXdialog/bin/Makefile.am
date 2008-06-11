@@ -8,7 +8,7 @@ $(top_builddir)/BUILDSTAMP:
 
 sipxdialog-config: $(top_srcdir)/config/sipX-config.in $(top_builddir)/BUILDSTAMP
 	@echo "Generating BuildStamp"; \
-	BuildStamp="$(shell cat $(top_builddir)/BUILDSTAMP)" \
+	@BuildStamp="$(shell cat $(top_builddir)/BUILDSTAMP)" \
 	; ${LocalizeSipXconfig} -e "s/@SIPX_BUILDSTAMP\@/$${BuildStamp}/" \
 	    $(top_srcdir)/config/sipX-config.in \
 	  > sipxdialog-config

@@ -32,7 +32,8 @@ EXTRA_DIST = \
     sipxpbx.spec 
 
 install-exec-hook :
-	$(LocalizeSipXconfig) $(srcdir)/bin/httpd-sipxchange-config.sh.in > httpd-sipxchange-config.sh
+	@echo "Localize $< -> $@"
+	@$(LocalizeSipXconfig) $(srcdir)/bin/httpd-sipxchange-config.sh.in > httpd-sipxchange-config.sh
 	$(INSTALL) -D -m 755 httpd-sipxchange-config.sh $(DESTDIR)$(bindir)/httpd-sipxchange-config.sh
 
 install-data-hook :

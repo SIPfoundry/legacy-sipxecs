@@ -64,7 +64,8 @@ $(DEST_SRC)/@PACKAGE@-$(VERSION).tar.bz2.md5: $(DEST_SRC)/@PACKAGE@-$(VERSION).t
 
 # RPM Spec file
 @PACKAGE@.spec : @PACKAGE@.spec.in
-	$(LocalizeSipXconfig) $(srcdir)/@PACKAGE@.spec.in > @PACKAGE@.spec
+	@echo "Localize $< -> $@"
+	@$(LocalizeSipXconfig) $(srcdir)/@PACKAGE@.spec.in > @PACKAGE@.spec
 
 dist-hook : $(distdir)/@PACKAGE@.spec clean-svn
 

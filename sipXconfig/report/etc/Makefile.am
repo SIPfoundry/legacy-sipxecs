@@ -16,7 +16,8 @@ cfg_DATA = \
 install-data-hook : $(CRON_INSTALL) $(DESTDIR)@SIPX_CONFDIR@/report/sipxconfig-report-config
 
 sipxconfig-report-config : sipxconfig-report-config.in
-	$(LocalizeSipXconfig) $< > $@
+	@echo "Localize $< -> $@"
+	@$(LocalizeSipXconfig) $< > $@
 
 $(DESTDIR)$(sysconfdir)/sipxpbx/report/sipxconfig-report-config: sipxconfig-report-config
 	@if ! test -f $@; \
@@ -34,6 +35,7 @@ $(DESTDIR)$(sysconfdir)/sipxpbx/report/sipxconfig-report-config: sipxconfig-repo
 # /etc/cron.d/cron.allow file
 .PHONY: install-crontab
 install-crontab : sipxconfig-report-crontab.in
-	$(LocalizeSipXconfig) $(srcdir)/sipxconfig-report-crontab.in > sipxconfig-report-crontab
+	@echo "Localize $< -> $@"
+	@$(LocalizeSipXconfig) $(srcdir)/sipxconfig-report-crontab.in > sipxconfig-report-crontab
 	$(INSTALL) -D -m 644 sipxconfig-report-crontab $(DESTDIR)$(CRON_D)/sipxconfig-report-crontab
 
