@@ -718,9 +718,6 @@ int main(int argc, char* argv[])
                     if (!playTones(szPlayTones))
                     {
                         printf("%s: Failed to play tones: %s\n", argv[0], szPlayTones) ;
-                    }
-                    else
-                    {
                         bError = true ;
                     }
                 }
@@ -731,9 +728,6 @@ int main(int argc, char* argv[])
                     if (!playFile(szFile))
                     {
                         printf("%s: Failed to play file: %s\n", argv[0], szFile) ;
-                    }
-                    else
-                    {
                         bError = true ;
                     }
                 }
