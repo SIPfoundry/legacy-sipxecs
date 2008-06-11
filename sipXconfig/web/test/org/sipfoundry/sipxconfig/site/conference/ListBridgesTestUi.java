@@ -38,25 +38,14 @@ public class ListBridgesTestUi extends ListWebTestCase {
     }
 
     protected Object[] getExpectedTableRow(String[] paramValues) {
-        Object[] expectedTableRow = super.getExpectedTableRow(paramValues);
-        return ArrayUtils.add(expectedTableRow, 2, "Disabled");
+        Object[] expected = super.getExpectedTableRow(paramValues);
+        expected = ArrayUtils.add(expected, 2, "Disabled");
+        expected = ArrayUtils.add(expected, "");
+        return expected;
     }
 
     public void setUp() {
         super.setUp();
         setAddLinkSubmit(true);
-    }
-    
-    // FIXME: commented out standard test - see: XCF-2610
-    public void testAdd() throws Exception {
-    }
-    
-    public void testEdit() throws Exception {
-    }
-    
-    public void testDisplay() {
-    }
-    
-    public void testDelete() throws Exception {
     }
 }
