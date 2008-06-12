@@ -17,9 +17,13 @@ import javax.sip.*;
 public interface DiscoveryAgent {
     public void discover();
     
-    public void processResponse(ResponseEvent responseEvent);
+    public void processPingResponse();
 
-    public void processTimeout(TimeoutEvent timeoutEvent);
+    public void processPingTimeout();
+
+    public void processSIPResponse(ResponseEvent responseEvent);
+
+    public void processSIPTimeout(TimeoutEvent timeoutEvent);
 
     public void processTransactionTerminated(TransactionTerminatedEvent  transactionTerminatedEvent);
     

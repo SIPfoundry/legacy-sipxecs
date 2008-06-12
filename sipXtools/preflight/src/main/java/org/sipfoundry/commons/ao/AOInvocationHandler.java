@@ -72,7 +72,8 @@ public class AOInvocationHandler implements InvocationHandler, Runnable {
 	
 	private final HashMap<Method, MethodAttribute> methodCache;
 
-	private final Logger logger;
+	@SuppressWarnings("unused")
+    private final Logger logger;
 
 	protected AOInvocationHandler(Object object, ExecutorPool executorPool, HashMap<Method, MethodAttribute> methodCache, Logger logger) {
 		this.object = object;

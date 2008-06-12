@@ -21,7 +21,8 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class ActiveObjectGroupImpl<K> implements ActiveObjectGroup, Iterable<Object> {
 	private Logger logger;
-	private final String groupName;
+	@SuppressWarnings("unused")
+    private final String groupName;
 	private final ExecutorPool executorPool;
 	private final TimerPool timerPool;
 	

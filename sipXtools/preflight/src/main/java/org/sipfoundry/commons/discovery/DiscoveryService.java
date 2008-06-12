@@ -9,8 +9,6 @@ import org.sipfoundry.commons.ao.ActiveObjectGroupImpl;
 import org.sipfoundry.preflight.JournalService;
 
 import java.util.*;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.text.*;
 
 /**
@@ -168,7 +166,7 @@ public class DiscoveryService extends ActiveObjectGroupImpl<String> implements S
         }
 
         DiscoveryAgent discoveryAgent = (DiscoveryAgent) tid.getApplicationData();
-        discoveryAgent.processResponse(responseEvent);
+        discoveryAgent.processSIPResponse(responseEvent);
 
     }
 
@@ -176,7 +174,7 @@ public class DiscoveryService extends ActiveObjectGroupImpl<String> implements S
         ClientTransaction tid = timeoutEvent.getClientTransaction();
         if (tid != null) {
             DiscoveryAgent discoveryAgent = (DiscoveryAgent) tid.getApplicationData();
-            discoveryAgent.processTimeout(timeoutEvent);
+            discoveryAgent.processSIPTimeout(timeoutEvent);
         }
     }
 

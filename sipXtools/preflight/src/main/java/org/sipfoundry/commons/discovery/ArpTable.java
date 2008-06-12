@@ -62,7 +62,6 @@ public class ArpTable {
         return macAddress;
     }
     
-    @SuppressWarnings("unused")
     private native static String windowsLookup(String ipAddress);
         
     public static void main(String args[]) {

@@ -24,6 +24,8 @@ public class DiscoveryAgentImpl extends ActiveObject implements DiscoveryAgent {
     private final DiscoveryService discoveryService;
     private final SipProvider sipProvider;
     private boolean terminated = false;
+    private Pinger pinger;
+        
 
     public DiscoveryAgentImpl(String targetAddress, DiscoveryService discoveryService) {
         this.targetAddress = targetAddress;
@@ -33,6 +35,22 @@ public class DiscoveryAgentImpl extends ActiveObject implements DiscoveryAgent {
 
     @Startup
     public void discover() {
+        pinger = new Pinger(1234, targetAddress, 2000);
+        
+        if (pinger.ping()) {
+            processPingResponse();
+        } else {
+            processPingTimeout();
+        }
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.sipfoundry.preflight.discovery.DiscoveryAgent#processPingResponse()
+     */
+    @Synchronous
+    public void processPingResponse() {
         try {
             ClientTransaction clientTransaction;
 
@@ -40,7 +58,7 @@ public class DiscoveryAgentImpl extends ActiveObject implements DiscoveryAgent {
             // Create the client transaction.
             clientTransaction = sipProvider.getNewClientTransaction(request);
             clientTransaction.setApplicationData(this);
-            // send the request out.
+            // Send the request out.
             clientTransaction.sendRequest();
         } catch (TransactionUnavailableException e) {
             e.printStackTrace();
@@ -52,11 +70,11 @@ public class DiscoveryAgentImpl extends ActiveObject implements DiscoveryAgent {
     /*
      * (non-Javadoc)
      * 
-     * @see org.sipfoundry.preflight.discovery.DiscoveryAgent#processResponse(javax.sip.ResponseEvent)
+     * @see org.sipfoundry.preflight.discovery.DiscoveryAgent#processSIPResponse(javax.sip.ResponseEvent)
      */
     @SuppressWarnings("unchecked")
     @Synchronous
-    public void processResponse(ResponseEvent responseEvent) {
+    public void processSIPResponse(ResponseEvent responseEvent) {
         String userAgentInfo = "";
         Response response = (Response) responseEvent.getResponse();
         UserAgentHeader userAgentHeader = (UserAgentHeader) response.getHeader(UserAgentHeader.NAME);
@@ -78,10 +96,24 @@ public class DiscoveryAgentImpl extends ActiveObject implements DiscoveryAgent {
     /*
      * (non-Javadoc)
      * 
-     * @see org.sipfoundry.preflight.discovery.DiscoveryAgent#processTimeout(javax.sip.TimeoutEvent)
+     * @see org.sipfoundry.preflight.discovery.DiscoveryAgent#processPingTimeout(javax.sip.TimeoutEvent)
      */
     @Synchronous
-    public void processTimeout(TimeoutEvent timeoutEvent) {
+    public void processPingTimeout() {
+        if (!terminated) {
+            discoveryService.addDiscovered(targetAddress, "");
+        	ActiveObjectGroup activeObjectGroup = getActiveObjectGroup();
+        	activeObjectGroup.deleteInstance(this);
+        }
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.sipfoundry.preflight.discovery.DiscoveryAgent#processSIPTimeout(javax.sip.TimeoutEvent)
+     */
+    @Synchronous
+    public void processSIPTimeout(TimeoutEvent timeoutEvent) {
         if (!terminated) {
             discoveryService.addDiscovered(targetAddress, "");
         	ActiveObjectGroup activeObjectGroup = getActiveObjectGroup();
