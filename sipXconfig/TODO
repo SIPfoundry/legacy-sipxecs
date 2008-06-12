@@ -42,14 +42,6 @@ Normalize database
    (instead of keeping in database). However we need to have performance test
    before we try it to change it.
 
-Replace ProfilePublisher with sipXpublisher Plugin
-
-   ProfilePublisher  handles SIP SUBSCRIBE/NOTIFY messages for event type
-   config. sipXpublisher does the same this for MWI (voicemail) and already has
-   plugin architecture. Challenge, is one's in java and postgres, other is in
-   C++ and IMDB so port won't be clear-cut.
-   Last modified: Thu Jun 9 15:34:20 EDT 2004
-
 References
 
    1. http://track.sipfoundry.org/secure/BrowseProject.jspa?id=10002&report=roadmap
