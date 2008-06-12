@@ -10,9 +10,11 @@
 package org.sipfoundry.sipxconfig.site.conference;
 
 import java.io.Serializable;
+import java.util.Collection;
 
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
+import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.conference.Bridge;
@@ -38,6 +40,11 @@ public abstract class EditConference extends PageWithCallback implements PageBeg
 
     public abstract boolean getChanged();
 
+    public abstract CoreContext getCoreContext();
+    
+    public abstract void setSelectedUsers(Collection<Integer> selectedUsers);
+    public abstract Collection<Integer> getSelectedUsers();
+    
     public void pageBeginRender(PageEvent event_) {
         if (getConference() != null) {
             return;
@@ -48,6 +55,7 @@ public abstract class EditConference extends PageWithCallback implements PageBeg
         } else {
             conference = getConferenceBridgeContext().newConference();
         }
+        
         setConference(conference);
     }
 

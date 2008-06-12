@@ -14,15 +14,14 @@ package org.sipfoundry.sipxconfig.conference;
 // import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
-// import java.util.HashMap;
 import java.util.List;
-// import java.util.Map;
 
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.admin.forwarding.AliasMapping;
 import org.sipfoundry.sipxconfig.common.NamedObject;
 import org.sipfoundry.sipxconfig.common.SipUri;
+import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettings;
 import org.sipfoundry.sipxconfig.setting.ProfileNameHandler;
 import org.sipfoundry.sipxconfig.setting.Setting;
@@ -56,6 +55,8 @@ public class Conference extends BeanWithSettings implements NamedObject {
 
     private Bridge m_bridge;
 
+    private User m_owner;
+    
     private ConferenceAorDefaults m_defaults;
 
     public Conference() {
@@ -103,6 +104,14 @@ public class Conference extends BeanWithSettings implements NamedObject {
         m_bridge = bridge;
     }
 
+    public User getOwner() {
+        return m_owner;
+    }
+
+    public void setOwner(User owner) {
+        m_owner = owner;
+    }
+
     public String getExtension() {
         return m_extension;
     }
@@ -139,6 +148,10 @@ public class Conference extends BeanWithSettings implements NamedObject {
         return getSettingValue(AOR_RECORD);
     }
 
+    public boolean hasOwner() {
+        return m_owner != null;
+    }
+    
     @Override
     public void setSettingValue(String path, String value) {
         if (AOR_RECORD.equals(path)) {
