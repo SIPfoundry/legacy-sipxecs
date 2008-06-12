@@ -1,10 +1,10 @@
 include $(top_srcdir)/config/subdir.am
 
 editscripts_IN = \
-    freeswitch.sh.in
+    freeswitch.sh
 
 EXTRA_DIST = \
-   $(editscripts_IN)
+   $(foreach file,$(editscripts_IN),$(file).in)
 
 install-exec-hook: $(foreach file,$(editscripts_IN),$(DESTDIR)$(bindir)/$(file))
 
