@@ -6,12 +6,13 @@
   <!-- 
     - Backup Plan
   -->
-  <class name="BackupPlan" table="backup_plan">
+  <class name="BackupPlan" table="backup_plan" discriminator-value="L">
     <id name="id" column="backup_plan_id" type="int" unsaved-value="-1">
       <generator class="sequence">
         <param name="sequence">backup_plan_seq</param>
       </generator>
     </id>
+	<discriminator column="backup_type" type="character" />
     <property name="limitedCount" />
     <property name="configs" />
     <property name="voicemail" />
@@ -20,8 +21,9 @@
       <key column="backup_plan_id" />
       <one-to-many class="DailyBackupSchedule" />
     </bag>
+    <subclass name="LocalBackupPlan" discriminator-value="L"></subclass>
+    <subclass name="FtpBackupPlan" discriminator-value="F"></subclass>
   </class>
-
   <!--
     - Daily Backup Schedule
   -->

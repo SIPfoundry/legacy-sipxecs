@@ -126,4 +126,6 @@
 
   <!-- nat traversal -->
     <table name="nat_traversal"/>
+  <!-- ftp backup configuration -->
+    <table name="ftp_configuration"/>
 </dataset>

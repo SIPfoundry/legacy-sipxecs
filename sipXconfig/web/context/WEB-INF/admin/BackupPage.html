@@ -1,5 +1,16 @@
 <div jwcid="@common/Border">
   <h2><span key="title">Backup</span></h2>
+  <div class="help">
+      <b><span key="label.quickLinks">Quick Links</span></b>
+       <ul>
+         <li>
+         <a jwcid="ftpConfiguration@PageLink" page="admin/BackupRestoreConfigurationPage" href="#">
+		<span key="configurationPage">Configuration</span>
+         </a>
+         </li>
+      </ul>
+  </div>
+  <span jwcid="@common/QuickHelp" value="message:ftp.configuration">configuration is...</span>
   <p jwcid="@If" condition="ognl:backupFiles.empty">
     <div jwcid="@common/QuickHelp" value="message:description" />
   </p>
@@ -12,7 +23,14 @@
   </p>
   <span jwcid="errors" />
   <form jwcid="form">
-    <fieldset>
+      <input jwcid="@Checkbox"
+	id="ftp:checkbox"
+	value="ognl:ftp"
+	onchange="javascript:this.form.submit();"/>
+	  <label for="ftp:checkbox">
+	    <span key="ftp.label">FTP server</span>
+	  </label>
+      <fieldset>
       <legend><span key="label.files"></span></legend>
       <table>
         <tbody>

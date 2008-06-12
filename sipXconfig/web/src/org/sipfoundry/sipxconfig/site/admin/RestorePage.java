@@ -35,7 +35,10 @@ import org.sipfoundry.sipxconfig.admin.AdminContext;
 import org.sipfoundry.sipxconfig.admin.BackupBean;
 import org.sipfoundry.sipxconfig.admin.BackupBean.Type;
 import org.sipfoundry.sipxconfig.admin.BackupPlan;
+import org.sipfoundry.sipxconfig.admin.FtpRestore;
 import org.sipfoundry.sipxconfig.admin.Restore;
+import org.sipfoundry.sipxconfig.admin.ftp.FtpConfiguration;
+import org.sipfoundry.sipxconfig.admin.ftp.FtpContext;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.components.AssetSelector;
 import org.sipfoundry.sipxconfig.components.SelectMap;
@@ -43,6 +46,8 @@ import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.site.user_portal.UserBasePage;
 
 public abstract class RestorePage extends UserBasePage implements PageBeginRenderListener {
+    public static final String PAGE = "admin/RestorePage";
+
     private static final String FILE_TYPE = ".tar.gz";
 
     private static final String MESSAGE = "message.";
@@ -72,20 +77,49 @@ public abstract class RestorePage extends UserBasePage implements PageBeginRende
     @InjectObject(value = "spring:restore")
     public abstract Restore getRestore();
 
+    @InjectObject(value = "spring:ftpRestore")
+    public abstract FtpRestore getFtpRestore();
+
     @InjectPage(value = WaitingPage.PAGE)
     public abstract WaitingPage getWaitingPage();
+
+    @InjectPage(value = BackupRestoreConfigurationPage.PAGE)
+    public abstract BackupRestoreConfigurationPage getBackupRestoreConfigurationPage();
 
     @Persist
     @InitialValue(value = "literal:restore")
     public abstract String getTab();
 
-    public void pageBeginRender(PageEvent event_) {
+    @Persist(value = "session")
+    public abstract boolean isFtp();
 
+    public abstract void setFtp(boolean ftp);
+
+    public void pageBeginRender(PageEvent event_) {
         if (getBackups() != null) {
             return;
         }
+        getBackupRestoreConfigurationPage().setLaunchingPage(PAGE);
+        if (getTab() != null && getTab().equals("restore")) {
+            backupSetting();
+        }
+    }
+
+    private void backupSetting() {
         AdminContext context = getAdminContext();
-        setBackups(context.getBackups());
+        // get corresonding backups depending on getBackupRestoreConfigurationPage setting
+        try {
+            if (isFtp()) {
+                setBackups(context.getFtpBackups());
+            } else {
+                setBackups(context.getBackups());
+            }
+        } catch (UserException ex) {
+            setBackups(new ArrayList<Map<Type, BackupBean>>());
+            TapestryUtils.getValidator(this).record(
+                    new ValidatorException(getMessages().getMessage(ex.getMessage())));
+
+        }
     }
 
     public String getCurrentBackupName() {
@@ -103,6 +137,12 @@ public abstract class RestorePage extends UserBasePage implements PageBeginRende
         return Type.values();
     }
 
+    public void refreshBackupSource() {
+        //remove previous errors since the restore source is changed (FTP or local)
+        TapestryUtils.getValidator(this).clear();
+        backupSetting();
+    }
+
     public IPage restore() {
         Collection<File> selectedFiles = getSelections().getAllSelected();
         List<BackupBean> selectedBackups = new ArrayList<BackupBean>();
@@ -112,20 +152,15 @@ public abstract class RestorePage extends UserBasePage implements PageBeginRende
 
         if (!validateSelections(selectedBackups)) {
             TapestryUtils.getValidator(getPage()).record(
-                    new ValidatorException(getMessages().getMessage("message.invalidSelection")));
+                    new ValidatorException(getMessages().getMessage(
+                            "message.invalidSelection")));
             return null;
         }
-        try {
-            return setupWaitingPage(selectedBackups);
-        } catch (UserException ex) {
-            TapestryUtils.getValidator(getPage()).record(
-                    new ValidatorException(getMessages().getMessage(MESSAGE + ex.getMessage())));
-            return null;
-        }
+        return setupWaitingPage(selectedBackups, isFtp());
     }
 
     public IPage uploadAndRestoreFiles() {
-        IValidationDelegate validator = TapestryUtils.getValidator(getPage());
+        IValidationDelegate validator = TapestryUtils.getValidator(this);
         try {
             List<BackupBean> selectedBackups = new ArrayList<BackupBean>();
             BackupBean config;
@@ -141,7 +176,7 @@ public abstract class RestorePage extends UserBasePage implements PageBeginRende
             if (selectedBackups.isEmpty()) {
                 throw new ValidatorException(getMessages().getMessage("message.noFileToRestore"));
             }
-            return setupWaitingPage(selectedBackups);
+            return setupWaitingPage(selectedBackups, false);
         } catch (ValidatorException e) {
             validator.record(e);
             return null;
@@ -153,12 +188,25 @@ public abstract class RestorePage extends UserBasePage implements PageBeginRende
 
     }
 
-    private IPage setupWaitingPage(List<BackupBean> selectedBackups) {
-        Restore restore = getRestore();
+    private IPage setupWaitingPage(List<BackupBean> selectedBackups, boolean fromFtp) {
+        Restore restore = null;
+        FtpConfiguration configuration = getAdminContext().getFtpConfiguration();
+        if (fromFtp) {
+            FtpRestore ftpRestore = getFtpRestore();
+            FtpContext ftpContext = ftpRestore.getFtpContext();
+            ftpContext.setHost(configuration.getHost());
+            ftpContext.setPassword(configuration.getPassword());
+            ftpContext.setUserId(configuration.getUserId());
+            restore = ftpRestore;
+        } else {
+            restore = getRestore();
+        }
+
         restore.validate(selectedBackups);
         // set selected backups in order to be used when Waiting page notifies the restore
         // bean
         restore.setSelectedBackups(selectedBackups);
+
         // sets the waiting listener: it'll be notified by waiting page when this is
         // requested by the client (browser) - after it loads the waiting page
         WaitingPage waitingPage = getWaitingPage();

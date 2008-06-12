@@ -14,6 +14,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.tapestry.annotations.InjectPage;
+import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.form.IPropertySelectionModel;
@@ -27,6 +29,7 @@ import org.sipfoundry.sipxconfig.components.ObjectSelectionModel;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 
 public abstract class BackupPage extends BasePage implements PageBeginRenderListener {
+    public static final String PAGE = "admin/BackupPage";
 
     /**
      * Conceivable, available backup limits. Otherwise arbitrary. NOTE : Spring 1.1 couldn't
@@ -48,7 +51,14 @@ public abstract class BackupPage extends BasePage implements PageBeginRenderList
 
     public abstract void setBackupLimitSelectionModel(IPropertySelectionModel model);
 
+    @InjectPage(value = BackupRestoreConfigurationPage.PAGE)
+    public abstract BackupRestoreConfigurationPage getBackupRestoreConfigurationPage();
+    @Persist(value = "session")
+    public abstract boolean isFtp();
+    public abstract void setFtp(boolean ftp);
+
     public void pageBeginRender(PageEvent event_) {
+        getBackupRestoreConfigurationPage().setLaunchingPage(PAGE);
         List urls = getBackupFiles();
         if (urls == null) {
             setBackupFiles(Collections.EMPTY_LIST);
@@ -56,15 +66,14 @@ public abstract class BackupPage extends BasePage implements PageBeginRenderList
 
         // every plan has at least 1 schedule, thought of having this somewhere in
         // library, but you could argue it's application specific.
-        BackupPlan plan = getBackupPlan();
-        if (plan == null) {
-            plan = getAdminContext().getBackupPlan();
-            if (plan.getSchedules().isEmpty()) {
-                DailyBackupSchedule schedule = new DailyBackupSchedule();
-                plan.addSchedule(schedule);
-            }
-            setBackupPlan(plan);
+        //get the backup Plan depending on the BackupRestoreConfiguration page setting
+        BackupPlan plan = isFtp() ? getAdminContext().getFtpConfiguration().getBackupPlan()
+                : getAdminContext().getLocalBackupPlan();
+        if (plan.getSchedules().isEmpty()) {
+            DailyBackupSchedule schedule = new DailyBackupSchedule();
+            plan.addSchedule(schedule);
         }
+        setBackupPlan(plan);
 
         ExtraOptionModelDecorator backupLimitModel = (ExtraOptionModelDecorator) getBackupLimitSelectionModel();
         if (backupLimitModel == null) {
@@ -80,6 +89,7 @@ public abstract class BackupPage extends BasePage implements PageBeginRenderList
     }
 
     public void backup() {
+
         if (!TapestryUtils.isValid(this)) {
             // do nothing on errors
             return;
