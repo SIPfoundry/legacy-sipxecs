@@ -19,6 +19,7 @@ EXTRA_DIST = \
   sipxbridge.spec.in \
   sipxbridge.spec \
   sipxbridge.process.xml.in \
+  sipxbridge-process.xml.in \
   sipxbridge.sh.in \
   CONTRIBUTORS \
   BUILDSTAMP \
@@ -31,21 +32,23 @@ EXTRA_DIST = \
 # BUILT_SOURCES is special autoconf variable to be checked on every make
 BUILT_SOURCES = config.properties
 
+install-data-hook : \
+	$(DESTDIR)$(SIPX_PROCDIR)/sipxbridge.process.xml \
+	$(DESTDIR)$(SIPX_PROCESSDIR)/sipxbridge-process.xml
 
-ETC_FILES = \
-    sipxbridge.process.xml.in
+$(DESTDIR)$(SIPX_PROCDIR)/sipxbridge.process.xml : sipxbridge.process.xml
+	$(INSTALL) -D -m 644 $< $@
 
-install-data-hook : 
-	@for f in $(ETC_FILES); \
-	do \
-	  	target=`basename $$f .in`; \
-		echo "Processing  $(srcdir)/$$f"; \
-      		echo "Localize $$f -> $$target"; \
-		$(LocalizeSipXconfig) $(srcdir)/$$f > $$target; \
-	    	mkdir -p $(DESTDIR)$(SIPX_PROCDIR); \
-	    	echo "Installing default $(DESTDIR)$(SIPX_PROCDIR)/$$target"; \
-		$(INSTALL) -D -m 644 $$target $(DESTDIR)$(SIPX_PROCDIR)/$$target; \
-	done
+sipxbridge.process.xml : sipxbridge.process.xml.in
+	@echo "Localize $< -> $@"
+	@$(LocalizeSipXconfig) $< > $@
+
+$(DESTDIR)$(SIPX_PROCESSDIR)/sipxbridge-process.xml : sipxbridge-process.xml
+	$(INSTALL) -D -m 644 $< $@
+
+sipxbridge-process.xml : sipxbridge-process.xml.in
+	@echo "Localize $< -> $@"
+	@$(LocalizeSipXconfig) $< > $@
 
 config.properties : config.properties.in 
 	@echo "Localize $< -> $@"

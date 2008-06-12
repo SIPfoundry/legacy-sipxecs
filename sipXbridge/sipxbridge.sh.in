@@ -16,6 +16,10 @@ do
             Action=CONFIGTEST
             ;;
 
+        --stop)
+            Action=STOP
+            ;;
+
         *)
             Args="$Args $1"
             ;;
@@ -29,6 +33,8 @@ CONFIG_DEFS="@SIPX_CONFDIR@/config.defs"
 CONFIG_FILES="\
   @SIPX_CONFDIR@/sipxbridge.xml \
   "
+
+. @SIPX_LIBEXECDIR@/sipx-utils.sh || exit 1
 
 # If the "config.defs" file exists and the <name>.in file exists for a
 # configuration file, then run the config preprocessor to generate the
@@ -53,6 +59,10 @@ case ${Action} in
      exec $JavaCmd -Dconf.dir=@SIPX_CONFDIR@  \
          -cp $ClassPath org.sipfoundry.sipxbridge.Gateway \
          $Args
+     ;;
+
+   STOP)
+     sipx_stop sipXbridge @SIPX_RUNDIR@/sipxbridge.pid
      ;;
 
    CONFIGTEST)
