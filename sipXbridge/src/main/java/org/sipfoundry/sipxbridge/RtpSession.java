@@ -1,18 +1,4 @@
-/*
- *  Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.
- *  Contributors retain copyright to elements licensed under a Contributor Agreement.
- *  Licensed to the User under the LGPL license.
- *
- */
 package org.sipfoundry.sipxbridge;
-
-import java.io.IOException;
-import java.io.Serializable;
-import java.nio.channels.DatagramChannel;
-import java.util.HashMap;
-import java.util.Random;
-import java.util.UUID;
-import java.util.Vector;
 
 import javax.sdp.SdpParseException;
 import javax.sdp.SessionDescription;
@@ -22,184 +8,36 @@ import javax.sip.SipException;
 import javax.sip.message.Request;
 
 import org.apache.log4j.Logger;
+import org.sipfoundry.sipxbridge.symmitron.Sym;
 
-/**
- * Representation of a media session. A media sesison is a pair of media
- * endpoints.
- * 
- * @author M. Ranganathan
- * 
- */
-public class Sym implements SymInterface, Serializable {
-
-    private static final long serialVersionUID = -2762988912663901623L;
-
-    private static Logger logger = Logger.getLogger(Sym.class);
-
-    private String id;
-
-    private long creationTime;
-
-    long lastPacketTime;
+public class RtpSession extends Sym {
     
-    private int inactivityTimeout = -1;
-
-    /*
-     * The receier endpoint.
-     */
-    private SymReceiverEndpoint receiver;
-
-    /*
-     * The transmitter endpoint.
-     */
-    private SymTransmitterEndpoint transmitter;
-
-    /*
-     * The bridge to which we blong.
-     */
-    private Bridge bridge;
-
-    long packetsReceived;
-
-    public Sym() {
-        id = "sym:" + Math.abs(new Random().nextLong());
-        this.creationTime = System.currentTimeMillis();
-      
-
+    private static Logger logger = Logger.getLogger(RtpSession.class);
+    
+    public RtpSession() {
+        super();
     }
-
-    public Sym(Bridge bridge) {
-        this();
-        this.bridge = bridge;
-
+    
+    @Override
+    public RtpReceiverEndpoint getReceiver() {
+        return (RtpReceiverEndpoint) super.getReceiver();
     }
-
-    public HashMap<String, Object> toMap() {
-        HashMap<String, Object> retval = new HashMap<String, Object>();
-        retval.put("id", id);
-        if (this.receiver != null)
-            retval.put("receiver", receiver.toMap());
-        else {
-            retval.put("receiver", new HashMap<String, Object>());
-        }
-        if (this.transmitter != null) {
-            retval.put("transmitter", transmitter.toMap());
-        } else {
-            retval.put("transmitter", new HashMap<String, Object>());
-        }
-        return retval;
-
+    
+    @Override
+    public RtpTransmitterEndpoint getTransmitter() {
+        return (RtpTransmitterEndpoint) super.getTransmitter();
     }
-
-    /**
-     * Set the receiver endpoint. Messages are received at this end.
-     * 
-     * @param receiverEndpoint
-     */
-    public void setReceiver(SymReceiverEndpoint receiverEndpoint) {
-        this.receiver = receiverEndpoint;
-        receiverEndpoint.setSym(this);
+    
+    
+    protected void setTransmitter(RtpTransmitterEndpoint endpoint) {
+        super.setTransmitter(endpoint);
     }
-
-    /**
-     * Get the receiver endpoint.
-     * 
-     */
-    public SymEndpoint getReceiver() {
-        return receiver;
+    
+    protected void setReceiver(RtpReceiverEndpoint receiverEndpoint) {
+        super.setReceiver(receiverEndpoint);
     }
-
-    /**
-     * Set the remote endpoint and connect the datagram socket to the remote
-     * socket address.
-     * 
-     * @param hisEndpoint
-     */
-    public void setTransmitter(SymTransmitterEndpoint hisEndpoint) {
-
-        this.transmitter = hisEndpoint;
-        hisEndpoint.setSym(this);
-        this.transmitter.datagramChannel = this.receiver.datagramChannel;
-
-    }
-
-    /**
-     * Get the transmitter endpoint.
-     * 
-     */
-    public SymTransmitterEndpoint getTransmitter() {
-        return transmitter;
-    }
-
-    public void close() {
-        logger.debug("Closing channel : " + this.receiver);
-        try {
-            if (this.receiver != null) {
-                if (this.receiver.getDatagramChannel() != null) {
-                    this.receiver.getDatagramChannel().socket().close();
-                    this.receiver.getDatagramChannel().close();
-                    ConcurrentSet.removeChannel(this.receiver.getDatagramChannel());
-                } else {
-                    logger.debug("receiver datagram channel is null");
-                }
-                int port = this.receiver.getPort();
-                PortRange portRange = new PortRange(port, port + 1);
-                Gateway.getPortManager().free(portRange);
-                this.receiver = null;
-
-            }
-            if (this.transmitter != null) {
-                if (this.transmitter.getDatagramChannel() != null) {
-                    this.transmitter.getDatagramChannel().socket().close();
-                    this.transmitter.getDatagramChannel().close();
-                    ConcurrentSet.removeChannel(this.transmitter.getDatagramChannel());
-                } else {
-                   logger.debug("transmitter datagram channel is null"); 
-                }
-                this.transmitter.stopKeepalive();
-                this.transmitter = null;
-            }
-            // Return resource to the Port range manager.
-
-        } catch (Exception ex) {
-            logger.error("Unexpected exception occured", ex);
-        }
-
-    }
-
-    public String toString() {
-        StringBuffer sbuf = new StringBuffer();
-        sbuf.append("RtpSession = [ ");
-        sbuf.append("id = " + this.id);
-        if (this.receiver != null) {
-            sbuf.append(" RECEIVER : " + this.getReceiver().getIpAddress()
-                    + ":" + this.getReceiver().getPort());
-        } else {
-            sbuf.append("NO RECEIVER");
-        }
-
-        if (this.transmitter != null) {
-            sbuf.append(": TRANSMITTER : "
-                    + this.getTransmitter().getIpAddress() + ":"
-                    + this.getTransmitter().getPort());
-        } else {
-            sbuf.append(": NO TRANSMITTER ");
-        }
-        sbuf.append("]");
-        return sbuf.toString();
-    }
-
-    /**
-     * @return the rtpBridge
-     */
-    public Bridge getBridge() {
-        return bridge;
-    }
-
-    public String getId() {
-        return this.id;
-    }
-
+    
+    
     /**
      * Reassign the session parameters ( possibly putting the media on hold and
      * playing music ).
@@ -383,47 +221,4 @@ public class Sym implements SymInterface, Serializable {
         }
 
     }
-
-    /**
-     * @param rtpBridge
-     *            the rtpBridge to set
-     */
-    public void setBridge(Bridge bridge) {
-        this.bridge = bridge;
-    }
-
-    public SymState getState() {
-        if (this.receiver == null && this.transmitter == null)
-            return SymState.TERMINATED;
-        else if (this.getTransmitter() == null)
-            return SymState.INIT;
-        else if (this.getTransmitter() != null && getTransmitter().isOnHold()) {
-            return SymState.PAUSED;
-        } else
-            return SymState.RUNNING;
-    }
-
-    public long getCreationTime() {
-        return this.creationTime;
-    }
-
-    public long getLastPacketTime() {
-        return this.lastPacketTime;
-    }
-    
-    public void setInactivityTimeout( int inactivityTimeout ) {
-        this.inactivityTimeout = inactivityTimeout;
-    }
-    
-    public boolean isTimedOut() {
-        if ( this.inactivityTimeout == -1) return false;
-        long time = System.currentTimeMillis();
-        return time -lastPacketTime > this.inactivityTimeout;
-    }
-
-    public long getPacketsReceived() {
-        
-        return this.packetsReceived;
-    }
-
 }

@@ -179,7 +179,7 @@
      	   <arg value="-initOnStartup"/>
            <classpath>
 		  <pathelement location="${classes}" />
-                  <fileset dir="lib">
+                  <fileset dir="./lib">
                          <include name="**/*.jar" />
                   </fileset>
            </classpath>

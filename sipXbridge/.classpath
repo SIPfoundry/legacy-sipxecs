@@ -15,8 +15,8 @@
 	<classpathentry kind="lib" path="lib/xmlrpc-client-3.1.jar"/>
 	<classpathentry kind="lib" path="lib/ws-commons-util-1.0.2.jar"/>
 	<classpathentry kind="lib" path="lib/commons-beanutils.jar"/>
-	<classpathentry kind="lib" path="lib/jain-sip-sdp-1.2.70.jar"/>
 	<classpathentry kind="lib" path="tools/junit-3.8.1.jar"/>
 	<classpathentry kind="lib" path="tools/sipunit.jar"/>
+	<classpathentry kind="lib" path="/usr/share/java/jain-sip/jain-sip-sdp-1.2.71.jar"/>
 	<classpathentry kind="output" path="classes"/>
 </classpath>

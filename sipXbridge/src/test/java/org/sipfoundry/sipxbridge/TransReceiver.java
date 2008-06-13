@@ -17,6 +17,9 @@ import org.apache.xmlrpc.client.XmlRpcClient;
 import org.apache.xmlrpc.client.XmlRpcClientConfigImpl;
 import org.sipfoundry.sipxbridge.SymmitronThruputTest.Listener;
 import org.sipfoundry.sipxbridge.SymmitronThruputTest.Transmitter;
+import org.sipfoundry.sipxbridge.symmitron.SymEndpointInterface;
+import org.sipfoundry.sipxbridge.symmitron.SymInterface;
+import org.sipfoundry.sipxbridge.symmitron.Symmitron;
 
 /*
  * The transmitter receiver pair for the thruput test.

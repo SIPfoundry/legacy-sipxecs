@@ -1,5 +1,7 @@
 package org.sipfoundry.sipxbridge;
 
+import org.sipfoundry.sipxbridge.symmitron.SymEndpointInterface;
+
 class SymEndpointImpl implements SymEndpointInterface {
     String id;
     String ipAddress;

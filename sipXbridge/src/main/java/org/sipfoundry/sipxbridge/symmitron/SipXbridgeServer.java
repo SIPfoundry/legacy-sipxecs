@@ -1,16 +1,19 @@
-package org.sipfoundry.sipxbridge;
+package org.sipfoundry.sipxbridge.symmitron;
 
+import java.io.IOException;
+import java.net.InetAddress;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Hashtable;
 import java.util.Map;
 import java.util.Random;
-import java.util.UUID;
+import java.util.Timer;
 
 import org.apache.log4j.Logger;
 import org.apache.xmlrpc.XmlRpcException;
-import org.apache.xmlrpc.XmlRpcHandler;
-import org.apache.xmlrpc.XmlRpcRequest;
+import org.apache.xmlrpc.server.PropertyHandlerMapping;
+import org.apache.xmlrpc.server.XmlRpcServer;
+import org.apache.xmlrpc.server.XmlRpcServerConfigImpl;
+import org.apache.xmlrpc.webserver.WebServer;
 
 import sun.misc.UUDecoder;
 
@@ -23,6 +26,10 @@ import sun.misc.UUDecoder;
 public class SipXbridgeServer implements Symmitron {
 
     private static Logger logger = Logger.getLogger(SipXbridgeServer.class);
+
+    protected static Timer timer = new Timer();
+
+    private static String status;
 
     /*
      * Map that pairs the SymSession id with the SymSession
@@ -49,11 +56,20 @@ public class SipXbridgeServer implements Symmitron {
      */
     private static HashMap<String, String> instanceTable = new HashMap<String, String>();
 
+    private static PortRangeManager portRangeManager;
+
     /*
      * My Instance handle
      */
-    private static String myHandle = "sipxbridge:"
-            + Math.abs(new Random().nextLong());
+    private static String myHandle = "sipxbridge:" + Math.abs(new Random().nextLong());
+
+    private static boolean isWebServerRunning;
+
+    private static WebServer webServer;
+
+    private static int portRangeLowerBound;
+
+    private static int portRangeUpperBound;
 
     private Map<String, Object> createErrorMap(int errorCode, String reason) {
         Map<String, Object> retval = new HashMap<String, Object>();
@@ -86,6 +102,45 @@ public class SipXbridgeServer implements Symmitron {
     }
 
     /**
+     * Get the port range manager.
+     * 
+     */
+    public static PortRangeManager getPortManager() {
+        return portRangeManager;
+    }
+
+    public static void setPortRange(int portRangeLowerBound, int portRangeUpperBound) {
+        SipXbridgeServer.portRangeLowerBound = portRangeLowerBound;
+        SipXbridgeServer.portRangeUpperBound = portRangeUpperBound;
+        portRangeManager = new PortRangeManager(portRangeLowerBound, portRangeUpperBound);
+
+    }
+
+    public static void startWebServer(int xmlRpcWebServerPort, InetAddress localAddr)
+            throws XmlRpcException, IOException {
+
+        if (! isWebServerRunning) {
+            isWebServerRunning = true;
+            logger.debug("Starting xml rpc server on port "
+                    + xmlRpcWebServerPort);
+            webServer = new WebServer(xmlRpcWebServerPort, localAddr);
+
+            PropertyHandlerMapping handlerMapping = new PropertyHandlerMapping();
+
+            handlerMapping.addHandler("sipXbridge", SipXbridgeServer.class);
+
+            XmlRpcServer server = webServer.getXmlRpcServer();
+
+            XmlRpcServerConfigImpl serverConfig = new XmlRpcServerConfigImpl();
+            serverConfig.setKeepAliveEnabled(true);
+
+            server.setConfig(serverConfig);
+            server.setHandlerMapping(handlerMapping);
+            webServer.start();
+        }
+    }
+
+    /**
      * The RPC handler for sipxbridge.
      */
     public SipXbridgeServer() {
@@ -98,7 +153,7 @@ public class SipXbridgeServer implements Symmitron {
      * @return the current bridge state.
      */
     public String getStatus() {
-        return Gateway.getState().toString();
+        return status;
     }
 
     /**
@@ -106,25 +161,25 @@ public class SipXbridgeServer implements Symmitron {
      * 
      */
     public String start() {
-        try {
-            Gateway.start();
-        } catch (Exception ex) {
-            logger.error("Exception starting bridge ", ex);
 
-        }
-        return Gateway.getState().toString();
+        status = "INITIALIZED";
+        return status;
     }
 
     /**
      * Stop the bridge
      */
     public String stop() {
-        try {
-            Gateway.stop();
-        } catch (Exception ex) {
-            logger.error("Exception in stopping bridge", ex);
+
+        for (Bridge bridge : ConcurrentSet.getBridges()) {
+            bridge.stop();
         }
-        return Gateway.getState().toString();
+
+        timer.cancel();
+        timer = new Timer();
+
+        status = "STOPPED";
+        return status;
     }
 
     /**
@@ -134,9 +189,7 @@ public class SipXbridgeServer implements Symmitron {
      */
     public Map getRtpPortRange() {
 
-        PortRange portRange = new PortRange(
-                Gateway.getRtpPortRangeLowerBound(), Gateway
-                        .getRtpPortRangeUpperBound());
+        PortRange portRange = new PortRange(portRangeLowerBound, portRangeUpperBound);
 
         return portRange.toMap();
 
@@ -145,8 +198,7 @@ public class SipXbridgeServer implements Symmitron {
     /**
      * Check for client reboot.
      * 
-     * @param controllerHandle -
-     *            a client handle in the form componentName:instanceId
+     * @param controllerHandle - a client handle in the form componentName:instanceId
      */
     public void checkForControllerReboot(String controllerHandle) {
         String[] handleParts = controllerHandle.split(":");
@@ -160,8 +212,7 @@ public class SipXbridgeServer implements Symmitron {
         if (previousInstance == null) {
             instanceTable.put(componentName, controllerHandle);
         } else if (!previousInstance.equals(controllerHandle)) {
-            HashSet<Bridge> rtpBridges = bridgeResourceMap
-                    .get(previousInstance);
+            HashSet<Bridge> rtpBridges = bridgeResourceMap.get(previousInstance);
             if (rtpBridges != null) {
                 for (Bridge rtpBridge : rtpBridges) {
                     rtpBridge.stop();
@@ -201,26 +252,24 @@ public class SipXbridgeServer implements Symmitron {
     /*
      * (non-Javadoc)
      * 
-     * @see org.sipfoundry.sipxbridge.Symmitron#createSyms(java.lang.String,
-     *      int, int)
+     * @see org.sipfoundry.sipxbridge.Symmitron#createSyms(java.lang.String, int, int)
      */
-    public Map<String, Object> createSyms(String controllerHandle, int count,
-            int parity) {
+    public Map<String, Object> createSyms(String controllerHandle, int count, int parity) {
         try {
             this.checkForControllerReboot(controllerHandle);
 
-            PortRange portRange = Gateway.getPortManager().allocate(count,
+            PortRange portRange = SipXbridgeServer.getPortManager().allocate(count,
                     parity == ODD ? Parity.ODD : Parity.EVEN);
             if (portRange == null)
-                return createErrorMap(PORTS_NOT_AVAILABLE,
-                        "Ports not available");
+                return createErrorMap(PORTS_NOT_AVAILABLE, "Ports not available");
 
             Map<String, Object> retval = createSuccessMap();
             HashMap[] hmapArray = new HashMap[count];
             for (int i = 0; i < count; i++) {
                 Sym sym = new Sym();
-                SymReceiverEndpoint rtpEndpoint = new SymReceiverEndpoint(
-                        portRange.getLowerBound() + i);
+                SymReceiverEndpoint rtpEndpoint = new SymReceiverEndpoint(portRange
+                        .getLowerBound()
+                        + i);
                 sym.setReceiver(rtpEndpoint);
                 hmapArray[i] = sym.toMap();
                 this.addSymResource(controllerHandle, sym);
@@ -240,8 +289,7 @@ public class SipXbridgeServer implements Symmitron {
     /*
      * (non-Javadoc)
      * 
-     * @see org.sipfoundry.sipxbridge.Symmitron#getSym(java.lang.String,
-     *      java.lang.String)
+     * @see org.sipfoundry.sipxbridge.Symmitron#getSym(java.lang.String, java.lang.String)
      */
     public Map<String, Object> getSym(String controllerHandle, String symId) {
 
@@ -269,23 +317,20 @@ public class SipXbridgeServer implements Symmitron {
     /*
      * (non-Javadoc)
      * 
-     * @see org.sipfoundry.sipxbridge.Symmitron#setDestination(java.lang.String,
-     *      java.lang.String, java.lang.String, int , int, java.lang.String,
-     *      byte[], boolean)
+     * @see org.sipfoundry.sipxbridge.Symmitron#setDestination(java.lang.String, java.lang.String,
+     *      java.lang.String, int , int, java.lang.String, byte[], boolean)
      */
-    public Map<String, Object> setDestination(String controllerHandle,
-            String symId, String ipAddress, int port, int keepAliveTime,
-            String keepaliveMethod, String keepAlivePacketData) {
+    public Map<String, Object> setDestination(String controllerHandle, String symId,
+            String ipAddress, int port, int keepAliveTime, String keepaliveMethod,
+            String keepAlivePacketData) {
         try {
             this.checkForControllerReboot(controllerHandle);
 
             if (logger.isDebugEnabled()) {
-                logger.debug(String.format("setDestination : "
-                        + " controllerHande %s " + " symId %s "
-                        + " ipAddress %s " + " port %d "
-                        + " keepAliveMethod = %s " + " keepAliveTime %d ",
-                        controllerHandle, symId, ipAddress, port,
-                        keepaliveMethod, keepAliveTime));
+                logger.debug(String.format("setDestination : " + " controllerHande %s "
+                        + " symId %s " + " ipAddress %s " + " port %d "
+                        + " keepAliveMethod = %s " + " keepAliveTime %d ", controllerHandle,
+                        symId, ipAddress, port, keepaliveMethod, keepAliveTime));
             }
 
             Sym sym = sessionMap.get(symId);
@@ -305,8 +350,7 @@ public class SipXbridgeServer implements Symmitron {
 
             // Allocate a new session if needed.
             SymTransmitterEndpoint transmitter = sym.getTransmitter() != null ? sym
-                    .getTransmitter()
-                    : new SymTransmitterEndpoint();
+                    .getTransmitter() : new SymTransmitterEndpoint();
 
             transmitter.setIpAddressAndPort(ipAddress, port);
             transmitter.computeAutoDiscoveryFlag();
@@ -336,8 +380,7 @@ public class SipXbridgeServer implements Symmitron {
 
     }
 
-    public Map<String, Object> startBridge(String controllerHandle,
-            String bridgeId) {
+    public Map<String, Object> startBridge(String controllerHandle, String bridgeId) {
         try {
             this.checkForControllerReboot(controllerHandle);
 
@@ -353,8 +396,7 @@ public class SipXbridgeServer implements Symmitron {
         }
     }
 
-    public Map<String, Object> pauseSym(String controllerHandle,
-            String sessionId) {
+    public Map<String, Object> pauseSym(String controllerHandle, String sessionId) {
         try {
             this.checkForControllerReboot(controllerHandle);
             Sym rtpSession = sessionMap.get(sessionId);
@@ -364,8 +406,7 @@ public class SipXbridgeServer implements Symmitron {
             }
             if (rtpSession.getTransmitter() == null) {
                 return this.createErrorMap(ILLEGAL_STATE,
-                        "transmitter is not assigned for rtp session "
-                                + sessionId);
+                        "transmitter is not assigned for rtp session " + sessionId);
             }
             rtpSession.getTransmitter().setOnHold(true);
             return this.createSuccessMap();
@@ -378,11 +419,10 @@ public class SipXbridgeServer implements Symmitron {
     /*
      * (non-Javadoc)
      * 
-     * @see org.sipfoundry.sipxbridge.Symmitron#removeSym(java.lang.String,
-     *      java.lang.String, java.lang.String)
+     * @see org.sipfoundry.sipxbridge.Symmitron#removeSym(java.lang.String, java.lang.String,
+     *      java.lang.String)
      */
-    public Map<String, Object> removeSym(String controllerHandle,
-            String bridgeId, String symId) {
+    public Map<String, Object> removeSym(String controllerHandle, String bridgeId, String symId) {
         try {
             this.checkForControllerReboot(controllerHandle);
             Bridge rtpBridge = bridgeMap.get(bridgeId);
@@ -409,24 +449,23 @@ public class SipXbridgeServer implements Symmitron {
     /*
      * (non-Javadoc)
      * 
-     * @see org.sipfoundry.sipxbridge.Symmitron#addSym(java.lang.String,
-     *      java.lang.String, java.lang.String)
+     * @see org.sipfoundry.sipxbridge.Symmitron#addSym(java.lang.String, java.lang.String,
+     *      java.lang.String)
      */
-    public Map<String, Object> addSym(String controllerHandle, String bridgeId,
-            String symId) {
+    public Map<String, Object> addSym(String controllerHandle, String bridgeId, String symId) {
         try {
             this.checkForControllerReboot(controllerHandle);
             Bridge bridge = bridgeMap.get(bridgeId);
             if (bridge == null) {
-                return this.createErrorMap(SESSION_NOT_FOUND,
-                        "Specified Bridge was not found " + bridgeId);
+                return this.createErrorMap(SESSION_NOT_FOUND, "Specified Bridge was not found "
+                        + bridgeId);
             }
 
             Sym sym = sessionMap.get(symId);
 
             if (sym == null) {
-                return this.createErrorMap(SESSION_NOT_FOUND,
-                        "Specified sym was not found " + symId);
+                return this.createErrorMap(SESSION_NOT_FOUND, "Specified sym was not found "
+                        + symId);
             }
 
             bridge.addSym(sym);
@@ -440,8 +479,7 @@ public class SipXbridgeServer implements Symmitron {
     /*
      * (non-Javadoc)
      * 
-     * @see org.sipfoundry.sipxbridge.Symmitron#createBridge(java.lang.String,
-     *      boolean)
+     * @see org.sipfoundry.sipxbridge.Symmitron#createBridge(java.lang.String, boolean)
      */
     public Map<String, Object> createBridge(String controllerHandle) {
 
@@ -464,38 +502,35 @@ public class SipXbridgeServer implements Symmitron {
 
     }
 
-    public Map<String, Object> pauseBridge(String controllerHandle,
-            String bridgeId) {
+    public Map<String, Object> pauseBridge(String controllerHandle, String bridgeId) {
         this.checkForControllerReboot(controllerHandle);
         Bridge bridge = bridgeMap.get(bridgeId);
         if (bridge == null) {
-            return this.createErrorMap(SESSION_NOT_FOUND,
-                    "Bridge corresponding to " + bridgeId + " not found");
+            return this.createErrorMap(SESSION_NOT_FOUND, "Bridge corresponding to " + bridgeId
+                    + " not found");
         }
         bridge.pause();
         return this.createSuccessMap();
     }
 
-    public Map<String, Object> resumeBridge(String controllerHandle,
-            String bridgeId) {
+    public Map<String, Object> resumeBridge(String controllerHandle, String bridgeId) {
         this.checkForControllerReboot(controllerHandle);
         Bridge rtpBridge = bridgeMap.get(bridgeId);
         if (rtpBridge == null) {
-            return this.createErrorMap(SESSION_NOT_FOUND,
-                    "Bridge corresponding to " + bridgeId + " not found");
+            return this.createErrorMap(SESSION_NOT_FOUND, "Bridge corresponding to " + bridgeId
+                    + " not found");
         }
         rtpBridge.resume();
         return this.createSuccessMap();
     }
 
-    public Map<String, Object> resumeSym(String controllerHandle,
-            String sessionId) {
+    public Map<String, Object> resumeSym(String controllerHandle, String sessionId) {
 
         this.checkForControllerReboot(controllerHandle);
         Sym rtpSession = sessionMap.get(sessionId);
         if (rtpSession == null) {
-            return this.createErrorMap(SESSION_NOT_FOUND,
-                    "Specified sym was not found " + sessionId);
+            return this.createErrorMap(SESSION_NOT_FOUND, "Specified sym was not found "
+                    + sessionId);
         }
         if (rtpSession.getTransmitter() == null) {
             return this.createErrorMap(ILLEGAL_STATE,
@@ -505,54 +540,48 @@ public class SipXbridgeServer implements Symmitron {
         return this.createSuccessMap();
     }
 
-    public Map<String, Object> getSymStatistics(String controllerHandle,
-            String symId) {
+    public Map<String, Object> getSymStatistics(String controllerHandle, String symId) {
 
         Sym sym = sessionMap.get(symId);
         if (sym == null) {
-            return this.createErrorMap(SESSION_NOT_FOUND,
-                    "Specified sym was not found " + symId);
+            return this.createErrorMap(SESSION_NOT_FOUND, "Specified sym was not found " + symId);
         }
         Map<String, Object> retval = new HashMap<String, Object>();
         retval.put(Symmitron.SESSION_STATE, sym.getState().toString());
         retval.put(Symmitron.CREATION_TIME, new Long(sym.getCreationTime()));
-        retval.put(Symmitron.LAST_PACKET_RECEIVED, new Long(sym
-                .getLastPacketTime()));
-        retval.put(Symmitron.CURRENT_TIME_OF_DAY, new Long(System
-                .currentTimeMillis()).toString());
+        retval.put(Symmitron.LAST_PACKET_RECEIVED, new Long(sym.getLastPacketTime()));
+        retval
+                .put(Symmitron.CURRENT_TIME_OF_DAY, new Long(System.currentTimeMillis())
+                        .toString());
         if (sym.getTransmitter() != null)
-            retval.put(Symmitron.PACKETS_SENT, new Long(sym.getTransmitter()
-                    .getPacketsSent()));
+            retval.put(Symmitron.PACKETS_SENT, new Long(sym.getTransmitter().getPacketsSent()));
         else
             retval.put(Symmitron.PACKETS_RECEIVED, new Long(0));
-        retval.put(Symmitron.PACKETS_RECEIVED, new Long(sym
-                .getPacketsReceived()));
+        retval.put(Symmitron.PACKETS_RECEIVED, new Long(sym.getPacketsReceived()));
 
         return null;
     }
 
-    public Map<String, Object> getBridgeStatistics(String controllerHandle,
-            String bridgeId) {
+    public Map<String, Object> getBridgeStatistics(String controllerHandle, String bridgeId) {
 
         Bridge bridge = bridgeMap.get(bridgeId);
         if (bridge == null) {
-            return this.createErrorMap(SESSION_NOT_FOUND,
-                    "Specified bridge was not found " + bridgeId);
+            return this.createErrorMap(SESSION_NOT_FOUND, "Specified bridge was not found "
+                    + bridgeId);
         }
         Map<String, Object> retval = new HashMap<String, Object>();
         retval.put(Symmitron.BRIDGE_STATE, bridge.getState().toString());
         retval.put(Symmitron.CREATION_TIME, new Long(bridge.getCreationTime()));
-        retval.put(Symmitron.LAST_PACKET_RECEIVED, new Long(bridge
-                .getLastPacketTime()));
-        retval.put(Symmitron.CURRENT_TIME_OF_DAY, new Long(System
-                .currentTimeMillis()).toString());
+        retval.put(Symmitron.LAST_PACKET_RECEIVED, new Long(bridge.getLastPacketTime()));
+        retval
+                .put(Symmitron.CURRENT_TIME_OF_DAY, new Long(System.currentTimeMillis())
+                        .toString());
         return retval;
     }
 
     public Map<String, Object> signOut(String controllerHandle) {
         try {
-            HashSet<Bridge> rtpBridges = bridgeResourceMap
-                    .get(controllerHandle);
+            HashSet<Bridge> rtpBridges = bridgeResourceMap.get(controllerHandle);
             if (rtpBridges != null) {
                 for (Bridge rtpBridge : rtpBridges) {
                     rtpBridge.stop();
@@ -631,8 +660,8 @@ public class SipXbridgeServer implements Symmitron {
 
     }
 
-    public Map<String, Object> setTimeout(String controllerHandle,
-            String symId, int inactivityTimeout) {
+    public Map<String, Object> setTimeout(String controllerHandle, String symId,
+            int inactivityTimeout) {
         try {
             this.checkForControllerReboot(controllerHandle);
 
@@ -650,8 +679,7 @@ public class SipXbridgeServer implements Symmitron {
         }
     }
 
-    public Map<String, Object> destroyBridge(String controllerHandle,
-            String bridgeId) {
+    public Map<String, Object> destroyBridge(String controllerHandle, String bridgeId) {
         logger.debug("destroyBridge: " + bridgeId);
         this.checkForControllerReboot(controllerHandle);
         Bridge bridge = bridgeMap.get(bridgeId);

@@ -2,7 +2,7 @@
  * This is in charge of shuffling data. There is a single thread that shuffles data for all bridges.
  * 
  */
-package org.sipfoundry.sipxbridge;
+package org.sipfoundry.sipxbridge.symmitron;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -14,11 +14,12 @@ import java.nio.channels.Selector;
 import java.util.Iterator;
 
 import org.apache.log4j.Logger;
+import org.sipfoundry.sipxbridge.BridgeState;
 
 class DataShuffler implements Runnable {
 
     // The buffer into which we'll read data when it's available
-    private static ByteBuffer readBuffer = ByteBuffer.allocate(4096);;
+    private static ByteBuffer readBuffer = ByteBuffer.allocate(8192);
     private static Selector selector;
     private static Logger logger = Logger.getLogger(DataShuffler.class);
 

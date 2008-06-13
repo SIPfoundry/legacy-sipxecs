@@ -3,6 +3,10 @@ package org.sipfoundry.sipxbridge;
 import java.util.HashSet;
 import java.util.Random;
 
+import org.sipfoundry.sipxbridge.symmitron.Parity;
+import org.sipfoundry.sipxbridge.symmitron.PortRange;
+import org.sipfoundry.sipxbridge.symmitron.PortRangeManager;
+
 import junit.framework.TestCase;
 
 public class PortRangeManagerTest extends TestCase {

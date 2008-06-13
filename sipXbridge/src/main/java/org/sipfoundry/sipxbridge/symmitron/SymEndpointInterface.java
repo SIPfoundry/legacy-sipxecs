@@ -1,4 +1,4 @@
-package org.sipfoundry.sipxbridge;
+package org.sipfoundry.sipxbridge.symmitron;
 
 /**
  * A sym endpoint is a host-port pair. It can be assigned the role of either a

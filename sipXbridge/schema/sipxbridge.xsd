@@ -251,6 +251,17 @@
 				</xs:annotation>
 			</xs:element>
 
+			<xs:element name="outbound-registrar" type="xs:string"
+				maxOccurs="1" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+						The outbound registrar. If not specified,
+						the outbound proxy is determined and
+						this is also assumed to be the registrar.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+
 			<xs:element name="outbound-proxy" type="xs:string"
 				maxOccurs="1" minOccurs="0">
 				<xs:annotation>

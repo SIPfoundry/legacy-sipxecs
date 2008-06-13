@@ -76,7 +76,7 @@ public class ProtocolObjects {
                     .createSipStack(stackProperties);
             ((SipStackImpl) sipStack)
                     .setAddressResolver(new ProxyAddressResolver());
-            
+          
             ((SipStackImpl) sipStack).addLogAppender(new SipFoundryAppender(
                     new SipFoundryLayout(), Gateway.getLogFile()));
 

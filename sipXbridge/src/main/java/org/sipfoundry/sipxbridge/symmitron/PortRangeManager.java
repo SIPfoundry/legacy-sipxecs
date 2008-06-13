@@ -4,12 +4,13 @@
  *  Licensed to the User under the LGPL license.
  *
  */
-package org.sipfoundry.sipxbridge;
+package org.sipfoundry.sipxbridge.symmitron;
 
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.PriorityQueue;
 import java.util.TreeMap;
+
 
 /**
  * Resource manager for the ports that are managed by sipxbridge. Allocates

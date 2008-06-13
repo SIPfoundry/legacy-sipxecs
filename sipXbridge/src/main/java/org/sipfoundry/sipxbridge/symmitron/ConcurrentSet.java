@@ -1,16 +1,16 @@
-package org.sipfoundry.sipxbridge;
+package org.sipfoundry.sipxbridge.symmitron;
 
 /**
- * Symhis little utility is because java 5 does not support concurrent sets.
+ *  little utility is because java 5 does not support concurrent sets.
  * 
  */
 import java.nio.channels.DatagramChannel;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+
 
 class ConcurrentSet implements Set<Sym> {
 

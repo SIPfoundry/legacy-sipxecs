@@ -14,6 +14,8 @@ import junit.framework.TestCase;
 
 import org.apache.xmlrpc.client.XmlRpcClient;
 import org.apache.xmlrpc.client.XmlRpcClientConfigImpl;
+import org.sipfoundry.sipxbridge.symmitron.SymEndpointInterface;
+import org.sipfoundry.sipxbridge.symmitron.SymInterface;
 
 public class SymmitronThruputTest extends AbstractSymmitronTestCase {
     

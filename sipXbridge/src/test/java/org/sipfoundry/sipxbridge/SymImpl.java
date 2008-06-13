@@ -1,8 +1,8 @@
 package org.sipfoundry.sipxbridge;
 import java.util.Map;
 
-import org.sipfoundry.sipxbridge.SymEndpointInterface;
-import org.sipfoundry.sipxbridge.SymInterface;
+import org.sipfoundry.sipxbridge.symmitron.SymEndpointInterface;
+import org.sipfoundry.sipxbridge.symmitron.SymInterface;
 
 
 class SymImpl implements SymInterface {

@@ -288,12 +288,13 @@ public class SipListenerImpl implements SipListener {
                 logger.debug("dropping response " + method);
             }
 
-        } catch (Exception ex) {
+        } catch (Throwable ex) {
             Dialog dialog = responseEvent.getDialog();
-            dialog.delete();
+            if ( dialog != null ) dialog.delete();
 
             logger.error("Unexpected error processing response >>>> "
                     + response, ex);
+            logger.error("cause = " + ex.getCause());
         }
 
     }

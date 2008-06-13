@@ -4,28 +4,12 @@
  *  Licensed to the User under the LGPL license.
  *
  */
-package org.sipfoundry.sipxbridge;
+package org.sipfoundry.sipxbridge.symmitron;
 
-import java.io.IOException;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.net.SocketException;
-import java.nio.ByteBuffer;
-import java.nio.channels.ClosedChannelException;
 import java.nio.channels.DatagramChannel;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
-import java.util.TimerTask;
-import java.util.Vector;
-
-import javax.sdp.Connection;
-import javax.sdp.MediaDescription;
-import javax.sdp.Origin;
-import javax.sdp.SessionDescription;
-
-import org.apache.commons.beanutils.PropertyUtils;
-import org.apache.log4j.Logger;
 
 /**
  * A media endpoint is an ip addres, port pair.
@@ -34,8 +18,6 @@ import org.apache.log4j.Logger;
  * 
  */
 public abstract class SymEndpoint implements SymEndpointInterface {
-
-    private static Logger logger = Logger.getLogger(SymEndpoint.class);
 
     private String id;
 
@@ -49,27 +31,14 @@ public abstract class SymEndpoint implements SymEndpointInterface {
      */
     protected int port;
 
-  
-
-    /*
-     * Session description.
-     */
-    protected  SessionDescription sessionDescription;
-
-   
     /*
      * Our datagram channel.
      */
     protected  DatagramChannel datagramChannel;
 
     private Sym sym;
-  
-  
-
  
-   
-
-    public Map toMap() {
+    public Map<String,Object> toMap() {
        
             Map<String,Object> retval = new HashMap<String,Object>();
             retval.put("id", this.getId());
@@ -166,29 +135,5 @@ public abstract class SymEndpoint implements SymEndpointInterface {
         if ( port < 0 ) throw new IllegalArgumentException("Bad port "+ port);
         this.port = port;
     }
-
-    
-    /**
-     * Get the associated session description.
-     * 
-     * @return
-     */
-    SessionDescription getSessionDescription() {
-        return sessionDescription;
-    }
-    
-    
-    /**
-     * Set our session description parameter. Note that for a reciever, we fix
-     * up the session description to be the IP address and port that we are
-     * listening at.Make sure you call this method only with a cloned session
-     * description because the fields of the sessiondescription are rewritten.
-     * 
-     * @param sessionDescription
-     */
-    abstract void setSessionDescription(SessionDescription sessionDescription);
-
-
- 
 
 }

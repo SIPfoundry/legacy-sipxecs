@@ -13,6 +13,8 @@ import javax.sip.ServerTransaction;
 import javax.sip.SipProvider;
 import javax.sip.message.Request;
 
+import org.sipfoundry.sipxbridge.symmitron.Sym;
+
 /**
  * The information we stow away on a pending transaction completion. This is
  * transitory information that is only relevant for the duration of the
@@ -39,13 +41,21 @@ class TransactionApplicationData {
      * The incoming session. This is associated with the incoming invite. It is
      * completed when the response is forwarded.
      */
-    Sym incomingSession;
+    RtpSession incomingSession;
+    
+    RtpSession incomingRtcpSession;
+    
     /*
      * The Pending outgoing session ( awaiting completion after the response
      * comes in ). This is associated with the outgoing invite and is completed
      * when the response containing the sdp answer comes in.
      */
-    Sym outgoingSession;
+    RtpSession outgoingSession;
+    
+    /*
+     * The Pending outgoing Rtcp session ( awaiting completion after the response comes in ).
+     */
+    RtpSession outgoingRtcpSession;
 
     /*
      * The ITSP account information.
@@ -101,6 +111,8 @@ class TransactionApplicationData {
 
      
     Object continuationData;
+
+   
     
    
 

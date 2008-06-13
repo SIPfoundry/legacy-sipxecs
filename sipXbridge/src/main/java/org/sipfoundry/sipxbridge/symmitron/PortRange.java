@@ -1,4 +1,4 @@
-package org.sipfoundry.sipxbridge;
+package org.sipfoundry.sipxbridge.symmitron;
 
 import java.util.Map;
 

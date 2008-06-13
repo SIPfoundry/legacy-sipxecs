@@ -11,6 +11,8 @@ import javax.sip.Dialog;
 import javax.sip.ServerTransaction;
 import javax.sip.message.Response;
 
+import org.sipfoundry.sipxbridge.symmitron.Sym;
+
 /**
  * Store information that is specific to a Dialog. This is a temporary holding
  * place for dialog specific data.
@@ -55,12 +57,17 @@ class DialogApplicationData {
      * Rtp session associated with this call leg.
      */
 
-    Sym rtpSession;
+    RtpSession rtpSession;
     
     /*
      * The Negotiated codec for the call leg ( extracted from the response ).
      */
     String codecName;
+
+    /*
+     * The RTCP session.
+     */
+    RtpSession rtcpSession;
    
 
     
@@ -75,8 +82,12 @@ class DialogApplicationData {
         return ((DialogApplicationData) dialog.getApplicationData()).peerDialog;
     }
 
-    public static Sym getRtpSession(Dialog dialog) {
+    public static RtpSession getRtpSession(Dialog dialog) {
         return ((DialogApplicationData) dialog.getApplicationData()).rtpSession;
+    }
+    
+    public static RtpSession getRtcpSession(Dialog dialog) {
+        return ((DialogApplicationData) dialog.getApplicationData()).rtcpSession;
     }
 
     public static DialogApplicationData attach(

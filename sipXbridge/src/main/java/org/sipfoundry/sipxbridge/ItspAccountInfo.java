@@ -27,10 +27,11 @@ import org.xbill.DNS.Type;
  * @author M. Ranganathan
  */
 
-public class ItspAccountInfo implements
-        gov.nist.javax.sip.clientauthutils.UserCredentials {
+public class ItspAccountInfo implements gov.nist.javax.sip.clientauthutils.UserCredentials {
 
     private static Logger logger = Logger.getLogger(ItspAccountInfo.class);
+    
+    private String outboundRegistrar;
 
     /**
      * The proxy + registrar for the account.
@@ -91,7 +92,6 @@ public class ItspAccountInfo implements
      */
     private boolean registerOnInitialization = true;
 
-
     /**
      * Registration Interval (seconds)
      */
@@ -110,28 +110,27 @@ public class ItspAccountInfo implements
     private String sipKeepaliveMethod = "CR-LF";
 
     private CrLfTimerTask crlfTimerTask;
-    
+
     private String rtpKeepaliveMethod = "USE-EMPTY-PACKET";
-    
+
     private boolean reInviteSupported = true;
-    
+
     private boolean useRegistrationForCallerId = true;
-    
+
     private int maxCalls = -1;
-    
+
     private int callCount = 0;
 
     /**
-     * This task runs periodically depending upon the timeout of the lookup
-     * specified.
+     * This task runs periodically depending upon the timeout of the lookup specified.
      * 
      */
     class Scanner extends TimerTask {
 
         public void run() {
             try {
-                Record[] records = new Lookup("_sip._" + getOutboundTransport()
-                        + "." + getSipDomain(), Type.SRV).run();
+                Record[] records = new Lookup("_sip._" + getOutboundTransport() + "."
+                        + getSipDomain(), Type.SRV).run();
                 logger.debug("Did a successful DNS SRV lookup");
                 SRVRecord record = (SRVRecord) records[0];
                 int port = record.getPort();
@@ -139,15 +138,14 @@ public class ItspAccountInfo implements
                 long time = record.getTTL() * 1000;
                 String resolvedName = record.getTarget().toString();
                 setOutboundProxy(resolvedName);
-                HopImpl proxyHop = new HopImpl(InetAddress.getByName(
-                        getOutboundProxy()).getHostAddress(), getProxyPort(),
-                        getOutboundTransport(), ItspAccountInfo.this);
-                Gateway.getAccountManager().setHopToItsp(getSipDomain(),
-                        proxyHop);
+                HopImpl proxyHop = new HopImpl(InetAddress.getByName(getOutboundProxy())
+                        .getHostAddress(), getProxyPort(), getOutboundTransport(),
+                        ItspAccountInfo.this);
+                Gateway.getAccountManager().setHopToItsp(getSipDomain(), proxyHop);
                 Gateway.timer.schedule(new Scanner(), time);
             } catch (Exception ex) {
-                logger.error("Error looking up domain " + "_sip._"
-                        + getOutboundTransport() + "." + getSipDomain());
+                logger.error("Error looking up domain " + "_sip._" + getOutboundTransport() + "."
+                        + getSipDomain());
             }
 
         }
@@ -163,8 +161,8 @@ public class ItspAccountInfo implements
         @Override
         public void run() {
 
-            for (Iterator<FailureCounter> it = failureCountTable.values()
-                    .iterator(); it.hasNext();) {
+            for (Iterator<FailureCounter> it = failureCountTable.values().iterator(); it
+                    .hasNext();) {
                 FailureCounter fc = it.next();
                 long now = System.currentTimeMillis();
                 if (now - fc.creationTime > 30000) {
@@ -260,9 +258,8 @@ public class ItspAccountInfo implements
     public void lookupAccount() throws GatewayConfigurationException {
         try {
             String outboundDomain = this.getSipDomain();
-            Record[] records = new Lookup("_sip._"
-                    + this.getOutboundTransport() + "." + outboundDomain,
-                    Type.SRV).run();
+            Record[] records = new Lookup("_sip._" + this.getOutboundTransport() + "."
+                    + outboundDomain, Type.SRV).run();
 
             if (records == null || records.length == 0) {
                 // SRV lookup failed, use the outbound proxy directly.
@@ -275,24 +272,23 @@ public class ItspAccountInfo implements
                 this.setPort(port);
                 long time = record.getTTL() * 1000;
                 String resolvedName = record.getTarget().toString();
+                if ( resolvedName.endsWith(".") ) {
+                    resolvedName = resolvedName.substring(0, resolvedName.lastIndexOf('.'));
+                }
                 this.setOutboundProxy(resolvedName);
                 this.startDNSScannerThread(time);
             }
 
         } catch (TextParseException ex) {
 
-            throw new GatewayConfigurationException(
-                    "Problem with domain name lookup", ex);
+            throw new GatewayConfigurationException("Problem with domain name lookup", ex);
         } catch (RuntimeException ex) {
             ex.printStackTrace();
-            logger.fatal(
-                    "Exception in processing -- could not add ITSP account ",
-                    ex);
+            logger.fatal("Exception in processing -- could not add ITSP account ", ex);
             throw ex;
         }
     }
 
-    
     public boolean isInboundCallsRoutedToAutoAttendant() {
         return this.autoAttendantName != null;
     }
@@ -310,32 +306,28 @@ public class ItspAccountInfo implements
     }
 
     /**
-     * @param proxyPort
-     *            the proxyPort to set
+     * @param proxyPort the proxyPort to set
      */
     public void setProxyPort(int proxyPort) {
         this.proxyPort = proxyPort;
     }
 
     /**
-     * @param displayName
-     *            the displayName to set
+     * @param displayName the displayName to set
      */
     public void setDisplayName(String displayName) {
         this.displayName = displayName;
     }
 
     /**
-     * @param password
-     *            the password to set
+     * @param password the password to set
      */
     public void setPassword(String password) {
         this.password = password;
     }
 
     /**
-     * @param proxyDomain
-     *            the proxyDomain to set
+     * @param proxyDomain the proxyDomain to set
      */
     public void setProxyDomain(String proxyDomain) {
         logger.debug("setProxyDomain " + proxyDomain);
@@ -350,8 +342,7 @@ public class ItspAccountInfo implements
     }
 
     /**
-     * @param authenticationRealm
-     *            the authenticationRealm to set
+     * @param authenticationRealm the authenticationRealm to set
      */
     public void setAuthenticationRealm(String authenticationRealm) {
         logger.debug("setAuthenticationRealm : " + authenticationRealm);
@@ -359,24 +350,22 @@ public class ItspAccountInfo implements
     }
 
     /**
-     * Note that authentication realm is an optional configuration parameter. We
-     * return the authenticationRealm if set else we return the outbound proxy
-     * if set else we return the domain.
+     * Note that authentication realm is an optional configuration parameter. We return the
+     * authenticationRealm if set else we return the outbound proxy if set else we return the
+     * domain.
      * 
      * @return the authenticationRealm
      */
     public String getAuthenticationRealm() {
-        if (authenticationRealm != null)
+        if (authenticationRealm != null) {
             return authenticationRealm;
-        else if (outboundProxy != null)
-            return outboundProxy;
-        else
+        } else {
             return proxyDomain;
+        }
     }
 
     /**
-     * @param outboundTransport
-     *            the outboundTransport to set
+     * @param outboundTransport the outboundTransport to set
      */
     public void setOutboundTransport(String outboundTransport) {
         this.outboundTransport = outboundTransport;
@@ -390,8 +379,7 @@ public class ItspAccountInfo implements
     }
 
     /**
-     * @param registerOnInitialization
-     *            the registerOnInitialization to set
+     * @param registerOnInitialization the registerOnInitialization to set
      */
     public void setRegisterOnInitialization(boolean registerOnInitialization) {
         this.registerOnInitialization = registerOnInitialization;
@@ -405,24 +393,21 @@ public class ItspAccountInfo implements
     }
 
     /**
-     * @param rportUsed
-     *            the rportUsed to set
+     * @param rportUsed the rportUsed to set
      */
     public void setRportUsed(boolean rportUsed) {
         this.rportUsed = rportUsed;
     }
 
     /**
-     * @param globalAddressingUsed
-     *            the globalAddressingUsed to set
+     * @param globalAddressingUsed the globalAddressingUsed to set
      */
     public void setGlobalAddressingUsed(boolean globalAddressingUsed) {
         this.globalAddressingUsed = globalAddressingUsed;
     }
 
     /**
-     * @param userName
-     *            the userName to set
+     * @param userName the userName to set
      */
     public void setUserName(String userName) {
         this.userName = userName;
@@ -442,8 +427,7 @@ public class ItspAccountInfo implements
     }
 
     /**
-     * @param state
-     *            the state to set
+     * @param state the state to set
      */
     public void setState(AccountState state) {
         this.state = state;
@@ -456,11 +440,8 @@ public class ItspAccountInfo implements
         return state;
     }
 
-   
-
     /**
-     * @param sipKeepaliveMethod
-     *            the sipKeepaliveMethod to set
+     * @param sipKeepaliveMethod the sipKeepaliveMethod to set
      */
     public void setSipKeepaliveMethod(String sipKeepaliveMethod) {
         this.sipKeepaliveMethod = sipKeepaliveMethod;
@@ -475,9 +456,8 @@ public class ItspAccountInfo implements
 
     public void startCrLfTimerTask() {
         this.crlfTimerTask = new CrLfTimerTask(Gateway.getWanProvider("udp"), this);
-        Gateway.timer.schedule(crlfTimerTask, Gateway
-                .getSipKeepaliveSeconds() * 1000);
-        
+        Gateway.timer.schedule(crlfTimerTask, Gateway.getSipKeepaliveSeconds() * 1000);
+
     }
 
     /**
@@ -494,7 +474,6 @@ public class ItspAccountInfo implements
         return rtpKeepaliveMethod;
     }
 
-    
     /**
      * @param useRegistrationForCallerId the useRegistrationForCallerId to set
      */
@@ -517,7 +496,7 @@ public class ItspAccountInfo implements
             this.maxCalls = Integer.parseInt(maxCalls);
         } catch (NumberFormatException ex) {
             logger.error("Illegal Argument " + maxCalls);
-            
+
         }
     }
 
@@ -529,19 +508,33 @@ public class ItspAccountInfo implements
     }
 
     public void decrementCallCount() {
-        if ( this.callCount > 0 ) {
-            this.callCount --;
+        if (this.callCount > 0) {
+            this.callCount--;
         }
-        
+
     }
-    
+
     public int getCallCount() {
         return this.callCount;
     }
 
     public void incrementCallCount() {
-        this.callCount ++;
-        
+        this.callCount++;
+
+    }
+
+    /**
+     * @param outboundRegistrar the outboundRegistrar to set
+     */
+    public void setOutboundRegistrar(String outboundRegistrar) {
+        this.outboundRegistrar = outboundRegistrar;
+    }
+
+    /**
+     * @return the outboundRegistrar
+     */
+    public String getOutboundRegistrar() {
+        return this.outboundRegistrar;
     }
 
 }

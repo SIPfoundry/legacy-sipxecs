@@ -4,7 +4,7 @@
  *  Licensed to the User under the LGPL license.
  *
  */
-package org.sipfoundry.sipxbridge;
+package org.sipfoundry.sipxbridge.symmitron;
 
 import java.util.Map;
 

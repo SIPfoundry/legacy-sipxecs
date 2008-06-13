@@ -5,9 +5,9 @@
  *
  */
 
-package org.sipfoundry.sipxbridge;
+package org.sipfoundry.sipxbridge.symmitron;
 
-import java.util.Map;
+
 
 /**
  * A sym session is a pair of transmitter and receiver. Here is the lifecycle of

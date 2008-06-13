@@ -4,26 +4,18 @@
  *  Licensed to the User under the LGPL license.
  *
  */
-package org.sipfoundry.sipxbridge;
+package org.sipfoundry.sipxbridge.symmitron;
 
-import java.io.IOException;
-import java.net.SocketAddress;
-import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
 
-import javax.sdp.SdpFactory;
-import javax.sdp.SdpParseException;
-import javax.sdp.SessionDescription;
-import javax.sip.message.Request;
-
 import org.apache.log4j.Logger;
+import org.sipfoundry.sipxbridge.BridgeState;
 
 /**
- * Manages the pairing of Rtp pipes. One side belongs to the Lan the other side
- * terminates the ITSP. There is a data shuffler that reads from one end and
- * writes to the other side of the bridge. This method can potentially benifit
- * from a kernel level copy such as ip-tables.
+ * Manages the pairing of Rtp pipes. One side belongs to the Lan the other side terminates the
+ * ITSP. There is a data shuffler that reads from one end and writes to the other side of the
+ * bridge. This method can potentially benifit from a kernel level copy such as ip-tables.
  * 
  * 
  * 
@@ -40,11 +32,9 @@ public class Bridge {
 
     private static Thread dataShufflerThread;
 
-    private static DataShuffler dataShuffler; 
-    
-    private BridgeState state = BridgeState.INITIAL;
+    private static DataShuffler dataShuffler;
 
-    SessionDescription sessionDescription;
+    private BridgeState state = BridgeState.INITIAL;
 
    
 
@@ -56,13 +46,14 @@ public class Bridge {
 
     long lastPacketTime;
 
-   
-    
+    private Parity parity;
+
     static {
         dataShuffler = new DataShuffler();
         dataShufflerThread = new Thread(dataShuffler);
         dataShufflerThread.start();
     }
+
     // ///////////////////////////////////////////////////////////////////////////////////
     // Private methods.
     // ///////////////////////////////////////////////////////////////////////////////////
@@ -82,25 +73,7 @@ public class Bridge {
         id = "bridge:" + Long.toString(Math.abs(new Random().nextLong()));
     }
 
-    /**
-     * Constructor.
-     * 
-     * @param itspAccountInfo
-     * @throws IOException
-     */
-    public Bridge(Request request) throws IOException {
-
-        this();
-
-        try {
-
-            this.sessionDescription = SdpFactory.getInstance()
-                    .createSessionDescription(
-                            new String(request.getRawContent()));
-        } catch (SdpParseException ex) {
-            throw new IOException("Unable to parse SDP ");
-        }
-    }
+   
 
     /**
      * Constructor when we are given a media map
@@ -136,9 +109,8 @@ public class Bridge {
         else
             started = true;
 
-       
         this.setState(BridgeState.RUNNING);
-      
+
     }
 
     /**
@@ -153,7 +125,6 @@ public class Bridge {
             rtpSession.close();
         }
 
-      
         this.setState(BridgeState.TERMINATED);
 
     }
@@ -171,8 +142,7 @@ public class Bridge {
             this.setState(BridgeState.PAUSED);
 
         } else {
-            throw new IllegalStateException("Cannot pause bridge in "
-                    + this.getState());
+            throw new IllegalStateException("Cannot pause bridge in " + this.getState());
         }
 
     }
@@ -190,8 +160,7 @@ public class Bridge {
             this.setState(BridgeState.RUNNING);
 
         } else {
-            throw new IllegalStateException(" Cannot resume bridge in "
-                    + this.getState());
+            throw new IllegalStateException(" Cannot resume bridge in " + this.getState());
         }
     }
 
@@ -211,7 +180,22 @@ public class Bridge {
      */
     public void addSym(Sym sym) {
         this.sessions.add(sym);
-       
+        if (sym.getTransmitter() != null) {
+            if (this.parity == null) {
+                if (sym.getTransmitter().getPort() % 2 == 0) {
+                    this.parity = Parity.EVEN;
+                } else {
+                    this.parity = Parity.ODD;
+                }
+            } else {
+                if ( this.parity == Parity.EVEN && sym.getTransmitter().getPort() %2  != 0 ) {
+                    logger.warn("Unexpected mixing of odd and even parity", new Exception());     
+                } else if ( sym.getTransmitter().getPort() %2 != 1 ) {
+                    logger.warn("Unexpected mixing of odd and even parity", new Exception());
+                }
+            }
+        }
+
         sym.setBridge(this);
         if (logger.isDebugEnabled()) {
             logger.debug("addSymSession : " + sym);
@@ -227,7 +211,7 @@ public class Bridge {
     public void removeSym(Sym rtpSession) {
         logger.debug("RtpBridge: removing RtpSession " + rtpSession.getId());
         this.sessions.remove(rtpSession);
-        
+
         if (logger.isDebugEnabled()) {
             logger.debug("removeSymSession : " + rtpSession);
             logger.debug("removeSymSession : " + this);

@@ -13,6 +13,9 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.Map;
 
+import org.sipfoundry.sipxbridge.symmitron.SymInterface;
+import org.sipfoundry.sipxbridge.symmitron.Symmitron;
+
 import junit.framework.TestCase;
 
 public class SymmitronTest extends AbstractSymmitronTestCase {

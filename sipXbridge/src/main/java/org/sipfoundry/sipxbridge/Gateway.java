@@ -41,6 +41,8 @@ import org.apache.xmlrpc.server.XmlRpcServerConfigImpl;
 import org.apache.xmlrpc.webserver.WebServer;
 import org.sipfoundry.log4j.SipFoundryAppender;
 import org.sipfoundry.log4j.SipFoundryLayout;
+import org.sipfoundry.sipxbridge.symmitron.PortRangeManager;
+import org.sipfoundry.sipxbridge.symmitron.SipXbridgeServer;
 import org.xbill.DNS.Lookup;
 import org.xbill.DNS.Record;
 import org.xbill.DNS.SRVRecord;
@@ -200,31 +202,15 @@ public class Gateway {
             BridgeConfiguration bridgeConfiguration = accountManager
                     .getBridgeConfiguration();
 
-            Gateway.portRangeManager = new PortRangeManager(bridgeConfiguration
-                    .getRtpPortLowerBound(), bridgeConfiguration
-                    .getRtpPortUpperBound());
+            SipXbridgeServer.setPortRange(bridgeConfiguration
+                    .getRtpPortLowerBound(),bridgeConfiguration
+                    .getRtpPortUpperBound());  
+            
             InetAddress localAddr = InetAddress.getByName(Gateway
                     .getLocalAddress());
+            
             if (Gateway.getXmlRpcWebServerPort() != 0 && !isWebServerRunning) {
-                isWebServerRunning = true;
-                System.out.println("Starting xml rpc server on port "
-                        + Gateway.getXmlRpcWebServerPort());
-                webServer = new WebServer(Gateway.getXmlRpcWebServerPort(),
-                        localAddr);
-
-                PropertyHandlerMapping handlerMapping = new PropertyHandlerMapping();
-
-                handlerMapping.addHandler("sipXbridge", SipXbridgeServer.class);
-
-                XmlRpcServer server = webServer.getXmlRpcServer();
-
-                XmlRpcServerConfigImpl serverConfig = new XmlRpcServerConfigImpl();
-                serverConfig.setKeepAliveEnabled(true);
-               
-
-                server.setConfig(serverConfig);
-                server.setHandlerMapping(handlerMapping);
-                webServer.start();
+                SipXbridgeServer.startWebServer(bridgeConfiguration.getXmlRpcPort(), localAddr);
             } else {
                 logger.debug("Not starting xml rpc server - port is null");
             }
@@ -345,7 +331,7 @@ public class Gateway {
 
             int externalPort = bridgeConfiguration.getExternalPort();
             String externalAddress = bridgeConfiguration.getExternalAddress();
-            System.out.println("External Address:port = " + externalAddress
+            logger.debug("External Address:port = " + externalAddress
                     + ":" + externalPort);
 
             ListeningPoint externalUdpListeningPoint = ProtocolObjects.sipStack
@@ -847,13 +833,7 @@ public class Gateway {
                     .getCodecName();
     }
 
-    /**
-     * Get the port range manager.
-     * 
-     */
-    public static PortRangeManager getPortManager() {
-        return Gateway.portRangeManager;
-    }
+   
 
     /**
      * Get the call limit ( number of concurrent calls)
@@ -918,6 +898,10 @@ public class Gateway {
             ex.printStackTrace();
         }
 
+    }
+
+    public static boolean isRtcpRelayingSupported() {
+        return false;
     }
 
 }

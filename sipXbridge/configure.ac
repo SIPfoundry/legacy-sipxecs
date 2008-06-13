@@ -12,6 +12,9 @@ SFAC_SIPX_INSTALL_PREFIX
 AM_INIT_AUTOMAKE(foreign)
 SFAC_AUTOMAKE_VERSION([1.6])
 CHECK_AUTOCONF
+# TODO: uncomment when it's been built on all platforms
+CHECK_JAIN_SIP
+
 # CHECK_RPM_DEBUG
 
 AC_CONFIG_SRCDIR([src])

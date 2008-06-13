@@ -1,10 +1,6 @@
 package org.sipfoundry.sipxbridge;
 
 import java.io.IOException;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.net.SocketException;
-import java.nio.channels.DatagramChannel;
 import java.util.Vector;
 
 import javax.sdp.Connection;
@@ -13,53 +9,24 @@ import javax.sdp.Origin;
 import javax.sdp.SessionDescription;
 
 import org.apache.log4j.Logger;
+import org.sipfoundry.sipxbridge.symmitron.SymReceiverEndpoint;
 
-/**
- * Receiver Endpoint.
- * 
- * @author mranga
- * 
- */
-public class SymReceiverEndpoint extends SymEndpoint {
-
-    private static Logger logger = Logger.getLogger(SymReceiverEndpoint.class);
+public class RtpReceiverEndpoint extends SymReceiverEndpoint {
     
-    private  InetSocketAddress socketAddress;
-
-    public SymReceiverEndpoint(int port) throws IOException {
-        super();
-
-        // Our IP address is the address where we are listening.
-
-        this.ipAddress = Gateway.getLocalAddress();
-        
-        // Our port where we listen for stuff.
-        
-        this.port = port;
-
-        if ( logger.isDebugEnabled())
-            logger.debug("Creating SymReceiverEndpoint " + ipAddress + " port " + port);
-
-        // The datagram channel which is used to receive packets.
-        this.datagramChannel = DatagramChannel.open();
-        
-        this.datagramChannel.socket().setReuseAddress(true);
-
-        // Set up to be non blocking
-        this.datagramChannel.configureBlocking(false);
-
-        InetAddress inetAddress = Gateway.getLocalAddressByName();
-
-        // Allocate the datagram channel on which we will listen.
-        socketAddress = new InetSocketAddress(inetAddress, port);
-
-        datagramChannel.socket().bind(socketAddress);
-
+    private SessionDescription sessionDescription;
+    
+    private static Logger logger = Logger.getLogger(RtpReceiverEndpoint.class);
+    
+    public RtpReceiverEndpoint( int port ) throws IOException {
+        super( port );
     }
-
-    public void setSessionDescription(SessionDescription sessionDescription) {
-        if ( this.sessionDescription != null) {
-            logger.debug("WARNING -- replacing session description ");
+    
+    public SessionDescription getSessionDescription() {
+        return this.sessionDescription;
+    }
+    
+    public void setSessionDescription(SessionDescription sessionDescription, boolean isRtp) {
+        if ( this.sessionDescription != null && logger.isDebugEnabled() ) {
             logger.debug("Old SD  = " + this.sessionDescription);
             logger.debug("newSD = " + sessionDescription);
         }
@@ -92,5 +59,4 @@ public class SymReceiverEndpoint extends SymEndpoint {
             throw new RuntimeException("Unexpected exception", ex);
         }
     }
-
 }
