@@ -1,8 +1,8 @@
 <?xml version="1.0" ?>
 <sipxrelay-config xmlns="http://www.sipfoundry.org/sipX/schema/xml/symmitron-00-00">
-    <external-address>sipxpbx.example.com</external-address>
+    <external-address>127.0.0.1</external-address>
     <external-port>6080</external-port>
-    <local-address>sipxpbx.example.com</local-address>
+    <local-address>127.0.0.1</local-address>
     <local-port>6090</local-port>
     <port-range>30000:30500</port-range>
     <log-level>DEBUG</log-level>

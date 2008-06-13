@@ -61,7 +61,7 @@ import org.apache.log4j.Logger;
 import org.sipfoundry.sipxbridge.symmitron.Bridge;
 import org.sipfoundry.sipxbridge.symmitron.Parity;
 import org.sipfoundry.sipxbridge.symmitron.PortRange;
-import org.sipfoundry.sipxbridge.symmitron.SipXbridgeServer;
+import org.sipfoundry.sipxbridge.symmitron.SymmitronServer;
 import org.sipfoundry.sipxbridge.symmitron.Sym;
 import org.sipfoundry.sipxbridge.symmitron.SymReceiverEndpoint;
 import org.sipfoundry.sipxbridge.symmitron.SymTransmitterEndpoint;
@@ -170,7 +170,7 @@ public class BackToBackUserAgent {
 
             if (dialogApplicationData.rtpSession == null) {
                 RtpSession sym = new RtpSession();
-                PortRange portRange = SipXbridgeServer.getPortManager().allocate(2, Parity.EVEN);
+                PortRange portRange = SymmitronServer.getPortManager().allocate(2, Parity.EVEN);
                 RtpReceiverEndpoint endpoint = new RtpReceiverEndpoint(portRange.getLowerBound());
                 endpoint.setIpAddress(Gateway.getLocalAddress());
                 sym.setReceiver(endpoint);
@@ -226,7 +226,7 @@ public class BackToBackUserAgent {
                 /*
                  * Allocate a receiver.
                  */
-                PortRange portRange = SipXbridgeServer.getPortManager().allocate(2, Parity.EVEN);
+                PortRange portRange = SymmitronServer.getPortManager().allocate(2, Parity.EVEN);
                 RtpReceiverEndpoint mediaEndpoint = new RtpReceiverEndpoint(portRange
                         .getLowerBound());
                 mediaEndpoint.setIpAddress(itspAccountInfo.isGlobalAddressingUsed() ? Gateway

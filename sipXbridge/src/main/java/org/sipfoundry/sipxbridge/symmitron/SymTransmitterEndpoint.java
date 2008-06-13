@@ -15,7 +15,6 @@ import java.nio.channels.ClosedChannelException;
 import java.util.TimerTask;
 
 import org.apache.log4j.Logger;
-import org.sipfoundry.sipxbridge.Gateway;
 
 /**
  * Transmitter endpoint.
@@ -76,9 +75,9 @@ public class SymTransmitterEndpoint extends SymEndpoint {
                 if (datagramChannel == null)
                     return;
                 long now = System.currentTimeMillis();
-                if (now - lastPacketSentTime < Gateway
-                        .getMediaKeepaliveMilisec())
+                if (now - lastPacketSentTime < maxSilence) {
                     return;
+                }
                 if ( keepaliveMethod.equals("USE-EMPTY-PACKET")) {
                     if (datagramChannel != null && getSocketAddress() != null
                             && datagramChannel.isOpen() && getSocketAddress() != null)
@@ -120,7 +119,7 @@ public class SymTransmitterEndpoint extends SymEndpoint {
             return;
         this.earlyMediaStarted = true;
         this.keepaliveTimerTask = new KeepaliveTimerTask();
-        SipXbridgeServer.timer.schedule(this.keepaliveTimerTask, this.maxSilence/2,
+        SymmitronServer.timer.schedule(this.keepaliveTimerTask, this.maxSilence/2,
                 this.maxSilence);
 
     }
@@ -161,8 +160,9 @@ public class SymTransmitterEndpoint extends SymEndpoint {
         }
         this.maxSilence = maxSilence;
         this.keepaliveMethod = keepaliveMethod;
-        if (maxSilence != 0 && !keepaliveMethod.equals("NONE"))
+        if (maxSilence != 0 && !keepaliveMethod.equals("NONE")) {
             this.startKeepaliveTimer();
+        }
     }
 
     public void setKeepalivePayload(byte[] keepAlivePacketData) {

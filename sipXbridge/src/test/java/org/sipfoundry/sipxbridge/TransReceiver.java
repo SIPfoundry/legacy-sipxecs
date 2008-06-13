@@ -15,9 +15,9 @@ import junit.framework.TestCase;
 
 import org.apache.xmlrpc.client.XmlRpcClient;
 import org.apache.xmlrpc.client.XmlRpcClientConfigImpl;
-import org.sipfoundry.sipxbridge.SymmitronThruputTest.Listener;
-import org.sipfoundry.sipxbridge.SymmitronThruputTest.Transmitter;
+import org.sipfoundry.sipxbridge.symmitron.SymEndpointImpl;
 import org.sipfoundry.sipxbridge.symmitron.SymEndpointInterface;
+import org.sipfoundry.sipxbridge.symmitron.SymImpl;
 import org.sipfoundry.sipxbridge.symmitron.SymInterface;
 import org.sipfoundry.sipxbridge.symmitron.Symmitron;
 
@@ -267,10 +267,10 @@ public class TransReceiver {
             String id = (String)receiverSession.get("id");
        
             SymEndpointImpl receiverEndpoint  = new SymEndpointImpl();
-            receiverEndpoint.ipAddress = ipAddr;
-            receiverEndpoint.port = port;
-            receiverEndpoint.id = id;
-            symImpl.receiver = receiverEndpoint;
+            receiverEndpoint.setIpAddress(ipAddr);
+            receiverEndpoint.setPort(port);
+            receiverEndpoint.setId(id);
+            symImpl.setReceiver(receiverEndpoint);
         }
         
         Map transmitterSession = (Map) symSession.get("transmitter");
@@ -282,10 +282,10 @@ public class TransReceiver {
             String id = (String)transmitterSession.get("id");
             
             SymEndpointImpl transmitterEndpoint  = new SymEndpointImpl();
-            transmitterEndpoint.ipAddress = ipAddr;
-            transmitterEndpoint.port = port;
-            transmitterEndpoint.id = id;
-            symImpl.transmitter = transmitterEndpoint;
+            transmitterEndpoint.setIpAddress(ipAddr);
+            transmitterEndpoint.setPort(port);
+            transmitterEndpoint.setId(id);
+            symImpl.setTransmitter(transmitterEndpoint);
         }
         return symImpl;
     }

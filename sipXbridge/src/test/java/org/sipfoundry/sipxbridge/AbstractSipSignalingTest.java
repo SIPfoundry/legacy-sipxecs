@@ -35,15 +35,7 @@ public abstract class AbstractSipSignalingTest extends SipTestCase {
         Gateway.startXmlRpcServer();
         accountManager = Gateway.getAccountManager();
         accountInfo = accountManager.getDefaultAccount();
-        
-
-       
-        sipxProxyAddress = properties.getProperty("org.sipfoundry.gateway.mockSipxProxyAddress");
-      
-        
-
-        
-       
+        sipxProxyAddress = properties.getProperty("org.sipfoundry.gateway.mockSipxProxyAddress");     
         localAddr = Gateway.getAccountManager().getBridgeConfiguration()
                 .getLocalAddress();
         localPort = Gateway.getAccountManager().getBridgeConfiguration()

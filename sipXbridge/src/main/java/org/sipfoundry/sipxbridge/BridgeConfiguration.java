@@ -73,7 +73,7 @@ public class BridgeConfiguration {
                     .getHostAddress();
         } catch (Exception ex) {
             throw new IllegalArgumentException("invalid address : "
-                    + externalAddress);
+                    + localAddress);
         }
     }
 

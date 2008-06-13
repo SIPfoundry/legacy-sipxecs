@@ -6,7 +6,7 @@ import java.net.InetSocketAddress;
 import java.nio.channels.DatagramChannel;
 
 import org.apache.log4j.Logger;
-import org.sipfoundry.sipxbridge.Gateway;
+
 
 /**
  * Receiver Endpoint.
@@ -25,7 +25,7 @@ public class SymReceiverEndpoint extends SymEndpoint {
 
         // Our IP address is the address where we are listening.
 
-        this.ipAddress = Gateway.getLocalAddress();
+        this.ipAddress = SymmitronServer.getLocalAddress();
         
         // Our port where we listen for stuff.
         
@@ -42,7 +42,7 @@ public class SymReceiverEndpoint extends SymEndpoint {
         // Set up to be non blocking
         this.datagramChannel.configureBlocking(false);
 
-        InetAddress inetAddress = Gateway.getLocalAddressByName();
+        InetAddress inetAddress = SymmitronServer.getLocalAddressByName();
 
         // Allocate the datagram channel on which we will listen.
         socketAddress = new InetSocketAddress(inetAddress, port);

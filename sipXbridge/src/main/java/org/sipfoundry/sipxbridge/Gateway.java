@@ -42,7 +42,8 @@ import org.apache.xmlrpc.webserver.WebServer;
 import org.sipfoundry.log4j.SipFoundryAppender;
 import org.sipfoundry.log4j.SipFoundryLayout;
 import org.sipfoundry.sipxbridge.symmitron.PortRangeManager;
-import org.sipfoundry.sipxbridge.symmitron.SipXbridgeServer;
+import org.sipfoundry.sipxbridge.symmitron.SymmitronServer;
+import org.sipfoundry.sipxbridge.symmitron.SymmitronConfig;
 import org.xbill.DNS.Lookup;
 import org.xbill.DNS.Record;
 import org.xbill.DNS.SRVRecord;
@@ -202,15 +203,17 @@ public class Gateway {
             BridgeConfiguration bridgeConfiguration = accountManager
                     .getBridgeConfiguration();
 
-            SipXbridgeServer.setPortRange(bridgeConfiguration
-                    .getRtpPortLowerBound(),bridgeConfiguration
-                    .getRtpPortUpperBound());  
+            SymmitronConfig symmitronConfig = new SymmitronConfig();
             
-            InetAddress localAddr = InetAddress.getByName(Gateway
-                    .getLocalAddress());
+            symmitronConfig.setLocalAddress(bridgeConfiguration.getExternalAddress());
+            symmitronConfig.setPortRangeLowerBound(bridgeConfiguration.getRtpPortLowerBound());
+            symmitronConfig.setPortRangeUpperBound(bridgeConfiguration.getRtpPortUpperBound());
+            symmitronConfig.setXmlRpcPort(bridgeConfiguration.getXmlRpcPort());
+            SymmitronServer.setSymmitronConfig(symmitronConfig);
+            
             
             if (Gateway.getXmlRpcWebServerPort() != 0 && !isWebServerRunning) {
-                SipXbridgeServer.startWebServer(bridgeConfiguration.getXmlRpcPort(), localAddr);
+                SymmitronServer.startWebServer();
             } else {
                 logger.debug("Not starting xml rpc server - port is null");
             }
@@ -439,14 +442,7 @@ public class Gateway {
         return accountManager.getBridgeConfiguration().getLocalAddress();
     }
 
-    public static InetAddress getLocalAddressByName()
-            throws UnknownHostException {
-        if (Gateway.localAddressByName == null) {
-            Gateway.localAddressByName = InetAddress.getByName(Gateway
-                    .getLocalAddress());
-        }
-        return Gateway.localAddressByName;
-    }
+   
 
     /**
      * @return the sipxProxyAddress

@@ -11,7 +11,6 @@ import java.util.HashMap;
 import java.util.Random;
 
 import org.apache.log4j.Logger;
-import org.sipfoundry.sipxbridge.Gateway;
 
 /**
  * Representation of a media session. A media sesison is a pair of media
@@ -130,7 +129,7 @@ public class Sym implements SymInterface, Serializable {
                 }
                 int port = this.receiver.getPort();
                 PortRange portRange = new PortRange(port, port + 1);
-                SipXbridgeServer.getPortManager().free(portRange);
+                SymmitronServer.getPortManager().free(portRange);
                 this.receiver = null;
 
             }

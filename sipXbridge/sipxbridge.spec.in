@@ -29,7 +29,7 @@ Prefix: %_prefix
 BuildRoot: %{_tmppath}/%name-%version-root
 
 %description
-Native ITSP bridging solution for SIPX PBX.
+Native ITSP and media bridging solution for SIPX PBX.
 
 %prep
 %setup -q
@@ -50,6 +50,8 @@ rm -rf $RPM_BUILD_ROOT
 %files
 %defattr(644,root,root,755)
 %config(noreplace) %attr(644,root,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx/process.d/sipxbridge.process.xml
+%config(noreplace) %attr(644,root,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx/process.d/sipxrelay.process.xml
 %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_datadir}/sipxpbx/lib/sipXbridge
 %attr(644,root,root) %{_datadir}/sipx/process.d/sipxbridge-process.xml
 %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_bindir}/sipxbridge.sh
+%attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_bindir}/sipxrelay.sh
