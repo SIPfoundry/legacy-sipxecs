@@ -11,8 +11,7 @@ edit = $(LocalizeSipXconfig) \
     -e 's,@RUBY\@,@RUBY@,g' \
     -e 's,@WSDL2RUBY\@,@WSDL2RUBY@,g' \
     -e 's,@SIPX_PAGEMUSICDIR\@,@SIPX_PAGEMUSICDIR@,g' \
-    -e 's,@SIPFOUNDRY_ORG\@,@SIPFOUNDRY_ORG@,g' \
-    -e 's,@SIPX_DOWNLOADDIR\@,@SIPX_DOWNLOADDIR@,g'
+    -e 's,@SIPFOUNDRY_ORG\@,@SIPFOUNDRY_ORG@,g'
 
 RPMS = \
 	$(RPM) \

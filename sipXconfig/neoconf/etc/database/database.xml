@@ -266,7 +266,6 @@
   	<antcall target="add-proxy-service" />
   	<antcall target="add-registrar-service" />
 	<antcall target="nat-traversal" />
-	<antcall target="backup-ftp" />
     <antcall target="user-conferences" />
     <!-- When freezing schema uncomment this line -->
     <!-- sipx-version version="8" -->
@@ -298,10 +297,6 @@
 
   <target name="backup-email-address" unless="backup-email-address">
     <db-patch patch="backup-email-address" />
-  </target>
-
-  <target name="backup-ftp" unless="backup-ftp">
-    <db-patch patch="backup-ftp"/>
   </target>
 
   <target name="speeddial" unless="speeddial">

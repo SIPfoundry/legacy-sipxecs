@@ -22,8 +22,6 @@ import java.util.Timer;
 
 import org.apache.commons.io.filefilter.DirectoryFileFilter;
 import org.sipfoundry.sipxconfig.admin.BackupBean.Type;
-import org.sipfoundry.sipxconfig.admin.ftp.FtpConfiguration;
-import org.sipfoundry.sipxconfig.admin.ftp.FtpContext;
 import org.sipfoundry.sipxconfig.common.ApplicationInitializedEvent;
 import org.sipfoundry.sipxconfig.common.DSTChangeEvent;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
@@ -43,11 +41,11 @@ public class AdminContextImpl extends HibernateDaoSupport implements AdminContex
 
     private String m_backupDirectory;
 
+    private Timer m_timer;
+
     private BeanFactory m_beanFactory;
 
     private ExportCsv m_exportCsv;
-
-    private String m_ftpBackupDirectory;
 
     public String getBackupDirectory() {
         return m_backupDirectory;
@@ -69,39 +67,14 @@ public class AdminContextImpl extends HibernateDaoSupport implements AdminContex
         m_exportCsv = exportCsv;
     }
 
-    public FtpConfiguration getFtpConfiguration() {
-        List configurations = getHibernateTemplate().loadAll(FtpConfiguration.class);
-        FtpConfiguration configuration = (FtpConfiguration)
-            DaoUtils.requireOneOrZero(configurations, "all configurations");
-        if (configuration != null) {
-            FtpContext ftpContext = ((FtpBackupPlan) configuration.getBackupPlan()).getFtpContext();
-            ftpContext.setHost(configuration.getHost());
-            ftpContext.setUserId(configuration.getUserId());
-            ftpContext.setPassword(configuration.getPassword());
-        } else {
-            configuration = (FtpConfiguration) m_beanFactory.getBean("ftpConfiguration");
-            storeBackupPlan(configuration.getBackupPlan());
-            storeFtpConfiguration(configuration);
-        }
-        return configuration;
-    }
+    public BackupPlan getBackupPlan() {
+        List plans = getHibernateTemplate().loadAll(BackupPlan.class);
+        BackupPlan plan = (BackupPlan) DaoUtils.requireOneOrZero(plans, "all backup plans");
 
-    public void storeFtpConfiguration(FtpConfiguration configuration) {
-
-        FtpContext ftpContext = ((FtpBackupPlan) configuration.getBackupPlan()).getFtpContext();
-
-        getHibernateTemplate().saveOrUpdate(configuration);
-
-        ftpContext.setHost(configuration.getHost());
-        ftpContext.setPassword(configuration.getPassword());
-        ftpContext.setUserId(configuration.getUserId());
-    }
-
-    public LocalBackupPlan getLocalBackupPlan() {
-        List plans = getHibernateTemplate().loadAll(LocalBackupPlan.class);
-        LocalBackupPlan plan = (LocalBackupPlan) DaoUtils.requireOneOrZero(plans, "all backup plans");
+        // create a new one if one doesn't exists, otherwise
+        // risk having 2 or more in database
         if (plan == null) {
-            plan = (LocalBackupPlan) m_beanFactory.getBean("localBackupPlan");
+            plan = (BackupPlan) m_beanFactory.getBean("backupPlan");
             storeBackupPlan(plan);
         }
         return plan;
@@ -113,8 +86,7 @@ public class AdminContextImpl extends HibernateDaoSupport implements AdminContex
     }
 
     public File[] performBackup(BackupPlan plan) {
-        String backupDirectory = (plan instanceof FtpBackupPlan) ? m_ftpBackupDirectory : m_backupDirectory;
-        return plan.perform(backupDirectory, m_binDirectory);
+        return plan.perform(m_backupDirectory, m_binDirectory);
     }
 
     public void performExport(Writer writer) throws IOException {
@@ -130,20 +102,16 @@ public class AdminContextImpl extends HibernateDaoSupport implements AdminContex
         // interface are
         // automatically registered
         if (event instanceof ApplicationInitializedEvent || event instanceof DSTChangeEvent) {
-            resetTimer(getLocalBackupPlan());
-            resetTimer(getFtpConfiguration().getBackupPlan());
+            resetTimer(getBackupPlan());
         }
     }
 
     private void resetTimer(BackupPlan plan) {
-        Timer timer = plan.getTimer();
-        if (timer != null) {
-            timer.cancel();
+        if (m_timer != null) {
+            m_timer.cancel();
         }
-        timer = new Timer(false); // daemon, dies with main thread
-        plan.setTimer(timer);
-        String backupDirectory = (plan instanceof FtpBackupPlan) ? m_ftpBackupDirectory : m_backupDirectory;
-        plan.schedule(timer, backupDirectory, m_binDirectory);
+        m_timer = new Timer(false); // daemon, dies with main thread
+        plan.schedule(m_timer, m_backupDirectory, m_binDirectory);
     }
 
     public String[] getInitializationTasks() {
@@ -165,66 +133,26 @@ public class AdminContextImpl extends HibernateDaoSupport implements AdminContex
      * 
      */
     public List<Map<Type, BackupBean>> getBackups() {
-
         File backupDirectory = new File(getBackupDirectory());
         FileFilter dirFilter = DirectoryFileFilter.DIRECTORY;
-        File [] backupFolders = backupDirectory.listFiles(dirFilter);
-
+        File[] backupFolders = backupDirectory.listFiles(dirFilter);
         if (backupFolders == null) {
             return Collections.emptyList();
         }
-        List<Map<Type, BackupBean>> backupBeans = new ArrayList<Map<Type, BackupBean>>();
-        for (File backupFolder : backupFolders) {
-            File [] backupFiles = backupFolder.listFiles(BackupPlan.BACKUP_FILE_FILTER);
-            addBackupBeans(backupBeans, backupFiles);
-        }
-        Collections.sort(backupBeans, new BackupBean.CompareFolders());
-        return backupBeans;
-    }
-    /**
-     * create and add BackupBeans
-     * @param repositoryBean
-     * @param backupFiles
-     */
-    private  void addBackupBeans(List<Map<Type, BackupBean>> repositoryBean, File [] backupFiles) {
-        Map<Type, BackupBean> backups = new HashMap<Type, BackupBean>(2);
-        for (File file : backupFiles) {
-            BackupBean backupBean = new BackupBean(file);
-            backups.put(backupBean.getType(), backupBean);
 
-        }
-        if (!backups.isEmpty()) {
-            repositoryBean.add(backups);
-        }
-    }
-    /**
-     * The same as getBackups but the file paths are constructed in such a way
-     * as to match with FTP download location
-     */
-    public List<Map<Type, BackupBean>> getFtpBackups() {
-        File [] backupFolders = null;
-        FtpContext ftpContext = ((FtpBackupPlan) getFtpConfiguration().getBackupPlan()).getFtpContext();
-        ftpContext.openConnection();
-        String [] directoryNames = ftpContext.list(".");
-        backupFolders = new File [directoryNames.length];
-        int i = 0;
-        for (String directoryName : directoryNames) {
-            backupFolders[i++] = new File(getFtpBackupDirectory() + File.separator + directoryName);
-        }
-        if (backupFolders == null) {
-            return Collections.emptyList();
-        }
         List<Map<Type, BackupBean>> backupBeans = new ArrayList<Map<Type, BackupBean>>();
         for (File backupFolder : backupFolders) {
-            String [] names = ftpContext.list(backupFolder.getName());
-            File[] backupFiles = new File[names.length];
-            i = 0;
-            for (String name : names) {
-                backupFiles[i++] = new File(backupFolder.getAbsolutePath() + File.separator + name);
+            Map<Type, BackupBean> backups = new HashMap<Type, BackupBean>(2);
+            File[] backupFiles = backupFolder.listFiles(BackupPlan.BACKUP_FILE_FILTER);
+            for (File file : backupFiles) {
+                BackupBean backupBean = new BackupBean(file);
+                backups.put(backupBean.getType(), backupBean);
+
             }
-            addBackupBeans(backupBeans, backupFiles);
+            if (!backups.isEmpty()) {
+                backupBeans.add(backups);
+            }
         }
-        ftpContext.closeConnection();
         Collections.sort(backupBeans, new BackupBean.CompareFolders());
         return backupBeans;
     }
@@ -238,15 +166,4 @@ public class AdminContextImpl extends HibernateDaoSupport implements AdminContex
         // for now we are assuming that "tapestry" bean is not available during upgrade run
         return !m_beanFactory.containsBean("tapestry");
     }
-
-
-    public String getFtpBackupDirectory() {
-        return m_ftpBackupDirectory;
-    }
-
-    public void setFtpBackupDirectory(String ftpBackupDirectory) {
-        m_ftpBackupDirectory = ftpBackupDirectory;
-    }
-
-
 }

@@ -6,26 +6,7 @@
     <span jwcid="@RenderBlock" block="ognl:components.get(tab + 'Tab')" />
   </div>
   <span jwcid="restoreTab@Block">
-    <div class="help">
-      <b><span key="label.quickLinks">Quick Links</span></b>
-      <ul>
-        <li><a jwcid="@PageLink" page="admin/BackupRestoreConfigurationPage" href="#"><span key="configurationPage">Configuration</span></a>
-        </li>
-      </ul>
-    </div>
-    <span jwcid="@common/QuickHelp" value="message:ftp.configuration">configuration is...</span>
     <span jwcid="@common/QuickHelp" value="message:restore.quick.help"/>
-    <form jwcid="render@Form" listener="listener:refreshBackupSource">
-      <table>
-         <input jwcid="@Checkbox"
-	   id="ftp:checkbox"
-	   value="ognl:ftp"
-	   onchange="javascript:this.form.submit();"/>
-	       <label for="ftp:checkbox">
-	         <span key="ftp.label">FTP server</span>
-	       </label>
-	   </table>
-    </form>
     <span jwcid="@If" condition="ognl:backups.empty">
       <p><span key="message.noBackups">There is no backup files saved in the backup folder.</span></p>
     </span>

@@ -7,6 +7,5 @@
 		configs="1"
 		voicemail="1"
 		email_address="[null]"
-		backup_type="[backup_type]"
      /> 
 </dataset>

@@ -36,18 +36,6 @@ public class BackupPageTestUi extends WebTestCase {
     }
 
     /**
-     * Tests that ftp backup fails upon unsucessful connection
-     */
-    public void testFtpBackupNowError() {
-        SiteTestHelper.assertNoException(tester);
-        checkCheckbox("ftp:checkbox");
-        clickButton("backup:now");
-        SiteTestHelper.assertUserError(tester);
-        uncheckCheckbox("ftp:checkbox");
-        SiteTestHelper.assertNoException(tester);
-    }
-
-    /**
      * Does not check if backup was successful - just checks if no Tapestry exceptions show up
      */
     public void testOk() {
@@ -99,21 +87,6 @@ public class BackupPageTestUi extends WebTestCase {
         SiteTestHelper.assertNoException(getTester());
         assertElementPresent("backup:emailAddress");
         SiteTestHelper.assertNoException(getTester());
-    }
-
-   /**
-    * Tests if the ftp checkbox field is present
-    */
-    public void testFtpCheckBox() {
-        SiteTestHelper.assertNoException(getTester());
-        assertElementPresent("ftp:checkbox");
-        SiteTestHelper.assertNoException(getTester());
-    }
-    /**
-     * Tests if the ftp configuration quick link is present
-     */
-    public void testFtpConfQuickLink() {
-        assertLinkPresent("ftpConfiguration");
     }
 
     public void testTimeFormat() {

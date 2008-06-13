@@ -29,7 +29,7 @@ public class BackupPlanTest extends TestCase {
     private BackupPlan m_backup;
 
     protected void setUp() throws Exception {
-        m_backup = new LocalBackupPlan();
+        m_backup = new BackupPlan();
         m_backup.setMailSenderContext(new MailSenderContextImpl());
         m_backup.setScript("mock-backup.sh");
     }
@@ -99,7 +99,7 @@ public class BackupPlanTest extends TestCase {
     }
 
     private void checkTimer(ScheduledDay day, long timerPeriod) {
-        BackupPlan plan = new LocalBackupPlan();
+        BackupPlan plan = new BackupPlan();
         DailyBackupSchedule schedule = new DailyBackupSchedule();
         schedule.setEnabled(true);
         schedule.setScheduledDay(day);

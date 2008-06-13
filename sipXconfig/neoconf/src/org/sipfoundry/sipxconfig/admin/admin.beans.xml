@@ -25,9 +25,6 @@
     <property name="logDirectory" value="${sysdir.log}"/>
   </bean>
 
-  <bean id="ftpRestore" class="org.sipfoundry.sipxconfig.admin.FtpRestore" parent="restore">
-  </bean>
-
   <bean id="whacker" class="org.sipfoundry.sipxconfig.admin.Whacker">
     <property name="processContext" ref="sipxProcessContext" />
   </bean>
@@ -36,19 +33,9 @@
     <property name="adminContext" ref="adminContext" />
   </bean>
 
-  <bean id="backupPlan" class="org.sipfoundry.sipxconfig.admin.BackupPlan" abstract="true">
+  <bean id="backupPlan" class="org.sipfoundry.sipxconfig.admin.BackupPlan">
     <property name="mailSenderContext" ref="mailSenderContext" />
     <property name="emailFromAddress" value="backup" />
-  </bean>
-
-  <bean id="localBackupPlan" class="org.sipfoundry.sipxconfig.admin.LocalBackupPlan" parent="backupPlan">
-  </bean>
-
-  <bean id="ftpBackupPlan" class="org.sipfoundry.sipxconfig.admin.FtpBackupPlan" parent="backupPlan">
-  </bean>
-
-  <bean id="ftpConfiguration" class="org.sipfoundry.sipxconfig.admin.ftp.FtpConfiguration">
-	  <property name="backupPlan" ref="ftpBackupPlan" />
   </bean>
 
   <bean id="messageSource" class="org.springframework.context.support.ResourceBundleMessageSource">

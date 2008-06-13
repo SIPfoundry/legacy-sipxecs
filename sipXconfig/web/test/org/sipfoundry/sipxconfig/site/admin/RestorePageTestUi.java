@@ -146,24 +146,4 @@ public class RestorePageTestUi extends WebTestCase {
 
     }
 
-    public void testFtpCheckBox() throws Exception {
-        SiteTestHelper.assertNoException(getTester());
-        clickLink("link:restore");
-        setWorkingForm("render");
-        assertElementPresent("ftp:checkbox");
-        SiteTestHelper.assertNoException(getTester());
-    }
-
-    public void testErrorConnectFtpServer() throws Exception {
-        SiteTestHelper.assertNoException(getTester());
-        clickLink("link:restore");
-        setWorkingForm("render");
-        checkCheckbox("ftp:checkbox");
-        submitForm();
-        SiteTestHelper.assertUserError(getTester());
-        uncheckCheckbox("ftp:checkbox");
-        submitForm();
-        SiteTestHelper.assertNoException(getTester());
-    }
-
 }
