@@ -12,6 +12,8 @@ Url: http://www.sipfoundry.org/sipXbridge
 Source: %name-%version.tar.gz
 
 Requires: sipxcommserverlib >= 3.11
+Requires: log4j >= 1.2
+Requires: jain-sip >= 1.2.71
 # does not work with w/gcj - require -ibm or -sun depending on a platform
 %ifarch ppc ppc64
 Requires: java-ibm >= 1.5
@@ -53,5 +55,6 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) %attr(644,root,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx/process.d/sipxrelay.process.xml
 %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_datadir}/sipxpbx/lib/sipXbridge
 %attr(644,root,root) %{_datadir}/sipx/process.d/sipxbridge-process.xml
+%attr(644,root,root) %{_datadir}/sipx/process.d/sipxrelay-process.xml
 %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_bindir}/sipxbridge.sh
 %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_bindir}/sipxrelay.sh
