@@ -27,7 +27,7 @@ done
 CONFIG_DEFS="@SIPX_CONFDIR@/config.defs"
 
 CONFIG_FILES="\
-  @SIPX_CONFDIR@/sipxbridge.xml \
+  @SIPX_CONFDIR@/sipxrelay.xml \
   "
 
 # If the "config.defs" file exists and the <name>.in file exists for a
@@ -45,13 +45,13 @@ fi
 
 case ${Action} in
    RUN)
-     echo $$ > @SIPX_RUNDIR@/sipxbridge.pid
+     echo $$ > @SIPX_RUNDIR@/sipxrelay.pid
 
      JavaCmd=`@SIPX_BINDIR@/sipx-config --java`
      LibPath=`perl -e 'print join(":", @ARGV);' @datadir@/sipxpbx/lib/sipXbridge/*.jar`
      ClassPath=$LibPath
      exec $JavaCmd -Dconf.dir=@SIPX_CONFDIR@  \
-         -cp $ClassPath org.sipfoundry.sipxbridge.Gateway \
+         -cp $ClassPath org.sipfoundry.sipxbridge.sipxrelay.SymmitronServer \
          $Args
      ;;
 
@@ -59,7 +59,7 @@ case ${Action} in
      Status=0
 
      # Check that the log file is writable.
-     logfile="@SIPX_LOGDIR@/sipxbridge.log"
+     logfile="@SIPX_LOGDIR@/sipxrelay.log"
      if [ -e $logfile -a ! -w $logfile ]
      then
 	 echo "Log file '$logfile' exists but is not writable by user '@SIPXPBXUSER@'." >&2
