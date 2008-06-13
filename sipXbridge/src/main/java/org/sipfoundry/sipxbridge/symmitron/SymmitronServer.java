@@ -1,3 +1,9 @@
+/*
+ *  Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.
+ *  Contributors retain copyright to elements licensed under a Contributor Agreement.
+ *  Licensed to the User under the LGPL license.
+ *
+ */
 package org.sipfoundry.sipxbridge.symmitron;
 
 import java.io.File;
@@ -18,6 +24,7 @@ import org.apache.xmlrpc.server.PropertyHandlerMapping;
 import org.apache.xmlrpc.server.XmlRpcServer;
 import org.apache.xmlrpc.server.XmlRpcServerConfigImpl;
 import org.apache.xmlrpc.webserver.WebServer;
+import org.sipfoundry.sipxbridge.Gateway;
 
 import sun.misc.UUDecoder;
 
@@ -739,10 +746,15 @@ public class SymmitronServer implements Symmitron {
     }
     
     
-    public static void main ( String [] args ) throws IOException, XmlRpcException {
+    public static void main ( String [] args ) throws Exception {
         String configurationFile = System.getProperty("conf.dir",
         "/etc/sipxpbx")
         + "/sipxrelay.xml";
+        
+        // Wait for the configuration file to become available.
+        while (!new File(configurationFile).exists()) {
+            Thread.sleep(5 * 1000);
+        }
         SymmitronConfig config = new SymmitronConfigParser().parse("file:" + configurationFile);
         config.setLogFileName("sipxrelay.log");
         SymmitronServer.setSymmitronConfig(config);

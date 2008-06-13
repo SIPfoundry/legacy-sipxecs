@@ -110,7 +110,7 @@ import java.util.Map;
  * <b> The following method Javadocs will only document the information in
  * addition to these standard keys. </b>
  * 
- * @author mranga
+ * @author M. Ranganathan
  * 
  */
 public interface Symmitron {

@@ -51,7 +51,7 @@ case ${Action} in
      LibPath=`perl -e 'print join(":", @ARGV);' @datadir@/sipxpbx/lib/sipXbridge/*.jar`
      ClassPath=$LibPath
      exec $JavaCmd -Dconf.dir=@SIPX_CONFDIR@  \
-         -cp $ClassPath org.sipfoundry.sipxbridge.sipxrelay.SymmitronServer \
+         -cp $ClassPath org.sipfoundry.sipxbridge.symmitron.SymmitronServer \
          $Args
      ;;
 

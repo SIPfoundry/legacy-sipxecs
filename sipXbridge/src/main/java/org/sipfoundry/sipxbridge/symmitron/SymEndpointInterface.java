@@ -1,10 +1,16 @@
+/*
+ *  Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.
+ *  Contributors retain copyright to elements licensed under a Contributor Agreement.
+ *  Licensed to the User under the LGPL license.
+ *
+ */
 package org.sipfoundry.sipxbridge.symmitron;
 
 /**
  * A sym endpoint is a host-port pair. It can be assigned the role of either a
  * reciever or a sender.
  * 
- * @author mranga
+ * @author M. Ranganathan
  * 
  */
 public interface SymEndpointInterface {

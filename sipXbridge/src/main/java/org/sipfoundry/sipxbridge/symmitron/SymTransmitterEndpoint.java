@@ -29,7 +29,7 @@ public class SymTransmitterEndpoint extends SymEndpoint {
     private transient byte[] keepalivePayload = null;
 
     private ByteBuffer keepAliveBuffer = null;
-    
+
     private ByteBuffer emptyBuffer = ByteBuffer.allocate(0);
 
     private AutoDiscoveryFlag remoteAddressAutoDiscovered = AutoDiscoveryFlag.NO_AUTO_DISCOVERY;
@@ -38,8 +38,7 @@ public class SymTransmitterEndpoint extends SymEndpoint {
 
     private KeepaliveTimerTask keepaliveTimerTask;
 
-    private static Logger logger = Logger
-            .getLogger(SymTransmitterEndpoint.class);
+    private static Logger logger = Logger.getLogger(SymTransmitterEndpoint.class);
 
     protected boolean onHold = false;
 
@@ -48,11 +47,10 @@ public class SymTransmitterEndpoint extends SymEndpoint {
     private int maxSilence;
 
     long packetsSent;
-    
+
     // private InetAddress inetAddress;
 
-    private  InetSocketAddress socketAddress;
-
+    private InetSocketAddress socketAddress;
 
     /**
      * The keepalive timer task.
@@ -63,9 +61,8 @@ public class SymTransmitterEndpoint extends SymEndpoint {
 
         KeepaliveTimerTask() {
 
-            logger
-                    .debug("Starting early media sender TimerTask : remote endpoint = "
-                            + getIpAddress() + "/ " + port);
+            logger.debug("Starting early media sender TimerTask : remote endpoint = "
+                    + getIpAddress() + "/ " + port);
 
         }
 
@@ -78,39 +75,31 @@ public class SymTransmitterEndpoint extends SymEndpoint {
                 if (now - lastPacketSentTime < maxSilence) {
                     return;
                 }
-                if ( keepaliveMethod.equals("USE-EMPTY-PACKET")) {
+                if (keepaliveMethod.equals("USE-EMPTY-PACKET")) {
                     if (datagramChannel != null && getSocketAddress() != null
                             && datagramChannel.isOpen() && getSocketAddress() != null)
                         datagramChannel.send(emptyBuffer, getSocketAddress());
-                        
-                } else if ( keepaliveMethod.equals("REPLAY-LAST-SENT-PACKET")) {
-                    if ( keepAliveBuffer != null && datagramChannel != null && getSocketAddress() != null
-                                && datagramChannel.isOpen() && getSocketAddress() != null) {
-                           datagramChannel.send((ByteBuffer)keepAliveBuffer, getSocketAddress());
-                          
+
+                } else if (keepaliveMethod.equals("REPLAY-LAST-SENT-PACKET")) {
+                    if (keepAliveBuffer != null && datagramChannel != null
+                            && getSocketAddress() != null && datagramChannel.isOpen()
+                            && getSocketAddress() != null) {
+                        datagramChannel.send((ByteBuffer) keepAliveBuffer, getSocketAddress());
+
                     }
                 }
             } catch (ClosedChannelException ex) {
-                logger
-                        .warn(
-                                "Exitting early media thread due to closed channel",
-                                ex);
+                logger.warn("Exitting early media thread due to closed channel", ex);
                 this.cancel();
 
             } catch (Exception ex) {
-                logger
-                        .fatal("Unexpected exception in sending early media ",
-                                ex);
+                logger.fatal("Unexpected exception in sending early media ", ex);
                 this.cancel();
             }
 
         }
 
     }
-
-    // /////////////////////////////////////////////////
-    // Private methods.
-    // /////////////////////////////////////////////////
 
     private void startKeepaliveTimer() {
 
@@ -119,14 +108,11 @@ public class SymTransmitterEndpoint extends SymEndpoint {
             return;
         this.earlyMediaStarted = true;
         this.keepaliveTimerTask = new KeepaliveTimerTask();
-        SymmitronServer.timer.schedule(this.keepaliveTimerTask, this.maxSilence/2,
+        SymmitronServer.timer.schedule(this.keepaliveTimerTask, this.maxSilence / 2,
                 this.maxSilence);
 
     }
 
-    // ///////////////////////////////////////////////
-    // Public methods.
-    // ///////////////////////////////////////////////
     public SymTransmitterEndpoint() {
         super();
     }
@@ -138,12 +124,12 @@ public class SymTransmitterEndpoint extends SymEndpoint {
         return earlyMediaStarted;
     }
 
-    public  void send(ByteBuffer byteBuffer) throws IOException {
+    public void send(ByteBuffer byteBuffer) throws IOException {
 
         if (logger.isDebugEnabled())
             logger.debug("Sending to " + this.getSocketAddress());
         this.lastPacketSentTime = System.currentTimeMillis();
-      
+
         if (this.datagramChannel != null) {
             this.datagramChannel.send(byteBuffer, this.getSocketAddress());
         }
@@ -180,7 +166,6 @@ public class SymTransmitterEndpoint extends SymEndpoint {
 
     }
 
-    
     void computeAutoDiscoveryFlag() {
         if (this.ipAddress == null && this.port == 0) {
             this.remoteAddressAutoDiscovered = AutoDiscoveryFlag.IP_ADDRESS_AND_PORT;
@@ -207,15 +192,13 @@ public class SymTransmitterEndpoint extends SymEndpoint {
      * @param port
      * @throws UnknownHostException
      */
-    public void setIpAddressAndPort(String ipAddress, int port)
-            throws UnknownHostException {
+    public void setIpAddressAndPort(String ipAddress, int port) throws UnknownHostException {
         super.ipAddress = ipAddress;
         super.port = port;
         // Note that the IP address does not need to be specified ( can be auto
         // discovered ).
         if (ipAddress != null && port != 0) {
-            setSocketAddress(new InetSocketAddress(InetAddress
-                    .getByName(ipAddress), port));
+            setSocketAddress(new InetSocketAddress(InetAddress.getByName(ipAddress), port));
 
         } else {
             setSocketAddress(null);
@@ -227,8 +210,7 @@ public class SymTransmitterEndpoint extends SymEndpoint {
         try {
             super.setPort(port);
             if (ipAddress != null && port != 0) {
-               setSocketAddress(new InetSocketAddress(InetAddress
-                        .getByName(ipAddress), port));
+                setSocketAddress(new InetSocketAddress(InetAddress.getByName(ipAddress), port));
 
             } else {
                 setSocketAddress(null);
@@ -237,18 +219,17 @@ public class SymTransmitterEndpoint extends SymEndpoint {
             throw new IllegalArgumentException("Unknown host " + ipAddress);
         }
     }
-    
+
     @Override
-    public void setIpAddress(String ipAddress) throws IllegalArgumentException  {
+    public void setIpAddress(String ipAddress) throws IllegalArgumentException {
         try {
             super.setIpAddress(ipAddress);
             if (ipAddress != null && port != 0) {
-                setSocketAddress(new InetSocketAddress(InetAddress
-                         .getByName(ipAddress), port));
+                setSocketAddress(new InetSocketAddress(InetAddress.getByName(ipAddress), port));
 
-             } else {
-                 setSocketAddress(null);
-             }
+            } else {
+                setSocketAddress(null);
+            }
         } catch (UnknownHostException ex) {
             throw new IllegalArgumentException("Unknown host " + ipAddress);
         }
@@ -262,8 +243,7 @@ public class SymTransmitterEndpoint extends SymEndpoint {
     }
 
     /**
-     * @param packetsSent
-     *            the packetsSent to set
+     * @param packetsSent the packetsSent to set
      */
     public void setPacketsSent(long packetsSent) {
         this.packetsSent = packetsSent;

@@ -25,7 +25,7 @@ package org.sipfoundry.sipxbridge.symmitron;
  * <b>PAUSED</b> state no transmissions for this bridge are allowed. The state
  * of a session does not govern heartbeats sent out through that session.
  * 
- * @author mranga
+ * @author M. Ranganathan
  * 
  */
 public interface SymInterface {
