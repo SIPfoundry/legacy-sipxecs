@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+	<xs:annotation>
+		<xs:documentation xml:lang="en">
+                    The sipx relay configuration file.
+		</xs:documentation>
+	</xs:annotation>
+
+	<xs:element name="sipxrelay-config" type="SymmitronConfig" minOccurs="1" maxOccurs="1" />
+
+	<xs:complexType name="SymmitronConfig">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">
+				The confiuration of the IP addresses and ports of the
+				SIPX Bridge.
+			</xs:documentation>
+		</xs:annotation>
+		<xs:element name="external-address" type="xs:string"
+				minOccurs="1" maxOccurs="1">
+			<xs:annotation>
+				<xs:documentation xml:lang="en">
+					The internal ( local ) address.
+				</xs:documentation>
+			</xs:annotation>
+		</xs:element>
+		<xs:element name="local-address" type="xs:string"
+				minOccurs="1" maxOccurs="1">
+			<xs:annotation>
+				<xs:documentation xml:lang="en">
+					The internal ( local ) address.
+				</xs:documentation>
+			</xs:annotation>
+		</xs:element>
+		<xs:element name="port-range" type="xs:string"
+			maxOccurs="1" minOccurs="0" default="30000:30500">
+			<xs:annotation>
+				<xs:documentation xml:lang="en">
+					Range of RTP ports that belong to symmitron.
+				</xs:documentation>
+			</xs:annotation>
+		</xs:element>
+		<xs:element name="xml-rpc-port" type="xs:integer"
+			maxOccurs="1" minOccurs="1"   >
+			<xs:annotation>
+				<xs:documentation xml:lang="en">
+					Port for external XML RPC requests to be directed. 
+				</xs:documentation>
+			</xs:annotation>
+		</xs:element>
+		<xs:element name="log-level" maxOccurs="1" minOccurs="0"
+			default="INFO">
+			<xs:annotation>
+				<xs:documentation xml:lang="en">
+					Log configuration. Defaults to INFO level.
+				</xs:documentation>
+			</xs:annotation>
+			<xs:simpleType>
+				<xs:restriction base="xs:string">
+					<xs:enumeration value="OFF" />
+					<xs:enumeration value="INFO" />
+					<xs:enumeration value="WARN" />
+					<xs:enumeration value="ERROR" />
+					<xs:enumeration value="DEBUG" />
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:element>
+	</xs:complexType>
+	
+</xs:schema>

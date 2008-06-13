@@ -1,0 +1,12 @@
+
+<?xml version="1.0" ?>
+<symmitron-config xmlns="http://www.sipfoundry.org/sipX/schema/xml/symmitron-00-00">
+    <external-address>sipxpbx.example.com</external-address>
+    <external-port>5080</external-port>
+    <local-address>sipxpbx.example.com</local-address>
+    <local-port>5090</local-port>
+    <port-range>25000:25500</port-range>
+    <log-level>DEBUG</log-level>
+    <log-directory>/tmp</log-directory>
+    <xml-rpc-port>8088</xml-rpc-port>
+</sipxbridge-config>
