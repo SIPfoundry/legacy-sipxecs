@@ -917,9 +917,9 @@ AC_DEFUN([ENABLE_DOT],
    # adjust values from yes/no to those used in doxygen configuration files (true/false)
    if test "x$enable_dot" = "xyes"
    then
-      have_dot="true"
+      have_dot="YES"
    else
-      have_dot="false"
+      have_dot="NO"
    fi
    AC_SUBST(have_dot)
 ])

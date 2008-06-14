@@ -1,4 +1,7 @@
 include $(top_srcdir)/config/subdir.am
+
+CLEANFILES=
+
 include $(top_srcdir)/config/doxygen.am
 
 EXTRA_DIST = \
@@ -12,8 +15,6 @@ if GENERATE_DOCBOOK
 EXTRA_DIST += \
 	INSTALL.ssl.in \
 	$(top_srcdir)/config/sipxecs_entities.ent
-
-CLEANFILES=
 
 DOCBOOK_XML_DOCS=INSTALL.ssl
 

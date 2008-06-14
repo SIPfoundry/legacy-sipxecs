@@ -1,4 +1,7 @@
 include $(top_srcdir)/config/subdir.am
+
+CLEANFILES=
+
 include $(top_srcdir)/config/doxygen.am
 
 # Necessary Makefile for Autoconf 2.57, will not recurse into developer and license

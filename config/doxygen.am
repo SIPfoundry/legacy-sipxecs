@@ -9,7 +9,7 @@ doc: @PACKAGE@
 
 @PACKAGE@: Doxyfile
 	rm -rf @PACKAGE@
-	$(DOXYGEN)
+	$(DOXYGEN) > @PACKAGE@.doxygen.log 2>&1
 
 Doxyfile: $(top_srcdir)/config/Doxyfile.in Doxyfile.project
 	@echo "creating Doxyfile from template"
@@ -17,6 +17,7 @@ Doxyfile: $(top_srcdir)/config/Doxyfile.in Doxyfile.project
 		-e 's,@enable_html_docs\@,@enable_html_docs@,g' \
 		-e 's,@enable_latex_docs\@,@enable_latex_docs@,g' \
 		-e 's,@have_dot\@,@have_dot@,g' \
+		-e 's,@DOT\@,@DOT@,g' \
 		-e 's,@srcdir\@,$(srcdir),g' \
 		-e 's,@top_srcdir\@,$(top_srcdir),g' \
 	$(top_srcdir)/config/Doxyfile.in \
@@ -28,6 +29,7 @@ Doxyfile.project: $(srcdir)/Doxyfile.project.in
 		-e 's,@enable_html_docs\@,@enable_html_docs@,g' \
 		-e 's,@enable_latex_docs\@,@enable_latex_docs@,g' \
 		-e 's,@have_dot\@,@have_dot@,g' \
+		-e 's,@DOT\@,@DOT@,g' \
 		-e 's,@srcdir\@,$(srcdir),g' \
 		-e 's,@top_srcdir\@,$(top_srcdir),g' \
 	$< > $@
@@ -41,12 +43,14 @@ install-doc: @PACKAGE@
 	find @PACKAGE@ -type f -print \
 	| xargs @XARGS_REPLACE@% @INSTALL@ -m u=rw,go=r % $(DESTDIR)@SIPX_DOCDIR@/%
 
+CLEANFILES+=@PACKAGE@ Doxyfile Doxyfile.project @PACKAGE@.doxygen.log
+
 clean: clean-doc
 
 .PHONY: clean-doc
 clean-doc:
-	rm -rf @PACKAGE@ Doxyfile Doxyfile.project
+	rm -rf $(CLEANFILES)
 
-DISTCLEANFILES = @PACKAGE@ Doxyfile Doxyfile.project
+
 
 

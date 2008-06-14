@@ -1,4 +1,7 @@
 include $(top_srcdir)/config/subdir.am
+
+CLEANFILES=
+
 include $(top_srcdir)/config/doxygen.am
 
 EXTRA_DIST = \
@@ -11,8 +14,6 @@ EXTRA_DIST = \
 	fallbackrules.xml \
 	registration.xml \
 	footer.html
-
-CLEANFILES =
 
 DOCBOOK_XML_DOCS =
 
