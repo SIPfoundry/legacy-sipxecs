@@ -7,7 +7,6 @@
 package org.sipfoundry.sipxbridge.symmitron;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -24,7 +23,6 @@ import org.apache.xmlrpc.server.PropertyHandlerMapping;
 import org.apache.xmlrpc.server.XmlRpcServer;
 import org.apache.xmlrpc.server.XmlRpcServerConfigImpl;
 import org.apache.xmlrpc.webserver.WebServer;
-import org.sipfoundry.sipxbridge.Gateway;
 
 import sun.misc.UUDecoder;
 
@@ -157,7 +155,7 @@ public class SymmitronServer implements Symmitron {
 
             PropertyHandlerMapping handlerMapping = new PropertyHandlerMapping();
 
-            handlerMapping.addHandler("sipXbridge", SymmitronServer.class);
+            handlerMapping.addHandler("sipXrelay", SymmitronServer.class);
 
             XmlRpcServer server = webServer.getXmlRpcServer();
 

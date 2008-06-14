@@ -1,21 +1,12 @@
 package org.sipfoundry.sipxbridge.symmitron;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
-import java.net.URL;
 import java.util.HashSet;
-import java.util.Properties;
 
 import junit.framework.TestCase;
-
-import org.apache.xmlrpc.client.XmlRpcClient;
-import org.apache.xmlrpc.client.XmlRpcClientConfigImpl;
-import org.sipfoundry.sipxbridge.symmitron.SymEndpointInterface;
-import org.sipfoundry.sipxbridge.symmitron.SymInterface;
 
 public class SymmitronThruputTest extends AbstractSymmitronTestCase {
     

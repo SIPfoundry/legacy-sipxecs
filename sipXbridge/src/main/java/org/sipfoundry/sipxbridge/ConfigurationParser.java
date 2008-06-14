@@ -163,10 +163,10 @@ public class ConfigurationParser {
         } catch (java.io.IOException ioe) {
             // Note that we do not have a debug file here so we need to print to stderr.
             ioe.printStackTrace(System.err);
-            throw new RuntimeException("Intiialzation exception", ioe);
+            throw new GatewayConfigurationException("Intiialzation exception", ioe);
         } catch (org.xml.sax.SAXException se) {
              se.printStackTrace(System.err);
-             throw new RuntimeException("Intiialzation exception", se);
+             throw new GatewayConfigurationException("Intiialzation exception", se);
         }
 
     }

@@ -102,18 +102,20 @@ public class ItspAccountInfo implements gov.nist.javax.sip.clientauthutils.UserC
      */
     private AccountState state = AccountState.INIT;
 
-    /**
+    /*
      * The call Id table.
      */
     private HashMap<String, FailureCounter> failureCountTable = new HashMap<String, FailureCounter>();
 
+    
+    /*
+     * NAT keepalive method.
+     */
     private String sipKeepaliveMethod = "CR-LF";
 
     private CrLfTimerTask crlfTimerTask;
 
     private String rtpKeepaliveMethod = "USE-EMPTY-PACKET";
-
-    private boolean reInviteSupported = true;
 
     private boolean useRegistrationForCallerId = true;
 
@@ -256,6 +258,8 @@ public class ItspAccountInfo implements gov.nist.javax.sip.clientauthutils.UserC
     }
 
     public void lookupAccount() throws GatewayConfigurationException {
+        // User has already specified an outbound proxy so just bail out.
+        if ( this.outboundProxy != null ) return;
         try {
             String outboundDomain = this.getSipDomain();
             Record[] records = new Lookup("_sip._" + this.getOutboundTransport() + "."

@@ -35,13 +35,10 @@ public class InvalidAccountTest extends TestCase {
         properties.load(new FileInputStream( new File ("testdata/selftest.properties")));
         Gateway.setConfigurationFileName(properties.getProperty("org.sipfoundry.gateway.badAccount"));
        
-        Gateway.startXmlRpcServer();
-        port = Gateway.getAccountManager().getBridgeConfiguration().getXmlRpcPort();
-        serverAddress = Gateway.getAccountManager().getBridgeConfiguration().getExternalAddress();
-        XmlRpcClientConfigImpl config = new XmlRpcClientConfigImpl();
-        config.setServerURL(new URL("http://" + serverAddress + ":" + port));
-        client = new XmlRpcClient();
-        client.setConfig(config);
+        Gateway.parseConfigurationFile();
+        Gateway.initializeSymmitron();
+        
+       
 
     }
 
@@ -62,8 +59,8 @@ public class InvalidAccountTest extends TestCase {
 
     protected void tearDown() throws Exception {
         super.tearDown();
-        client.execute("sipXbridge.stop", (Object[]) null);
-        Gateway.stopXmlRpcServer();
+        //client.execute("sipXbridge.stop", (Object[]) null);
+        Gateway.stop();
     }
 
 }

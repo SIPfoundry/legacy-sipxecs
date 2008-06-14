@@ -40,7 +40,7 @@ public class GetPortRangeTest extends AbstractSymmitronTestCase {
 
     protected void tearDown() throws Exception {
         super.tearDown();
-        client.execute("sipXbridge.stop", (Object[]) null);
+        client.execute("sipXrelay.stop", (Object[]) null);
         SymmitronServer.stopXmlRpcServer();
     }
 

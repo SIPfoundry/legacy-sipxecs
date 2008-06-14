@@ -56,7 +56,7 @@ public abstract class AbstractSymmitronTestCase extends TestCase {
     
     protected void tearDown() throws Exception {
         super.tearDown();
-        client.execute("sipXbridge.stop", (Object[]) null);
+        client.execute("sipXrelay.stop", (Object[]) null);
         
     }
     
@@ -66,7 +66,7 @@ public abstract class AbstractSymmitronTestCase extends TestCase {
     }
    
     protected String start() throws Exception {
-        String retval = (String) client.execute("sipXbridge.start",
+        String retval = (String) client.execute("sipXrelay.start",
                 (Object[]) null);
         return retval;
       
@@ -79,7 +79,7 @@ public abstract class AbstractSymmitronTestCase extends TestCase {
         args[1] = new Integer(count);
         args[2] = Symmitron.EVEN;
         
-        Map retval = (Map) client.execute("sipXbridge.createSyms", args);
+        Map retval = (Map) client.execute("sipXrelay.createSyms", args);
         if ( retval.get(Symmitron.STATUS_CODE).equals(Symmitron.ERROR)) {
             throw new Exception("Error in processing request " +
                     retval.get(Symmitron.ERROR_INFO));
@@ -92,7 +92,7 @@ public abstract class AbstractSymmitronTestCase extends TestCase {
     protected String createBridge() throws Exception {
         Object[] args = new Object[1];
         args[0] = this.clientHandle;
-        Map retval = (Map) client.execute("sipXbridge.createBridge", args);
+        Map retval = (Map) client.execute("sipXrelay.createBridge", args);
         if ( retval.get(Symmitron.STATUS_CODE).equals(Symmitron.ERROR)) {
             throw new Exception("Error in processing request " +
                     retval.get(Symmitron.ERROR_INFO));
@@ -104,7 +104,7 @@ public abstract class AbstractSymmitronTestCase extends TestCase {
         Object[] args = new Object[2];
         args[0] = this.clientHandle;
         args[1] = bridgeId;
-        Map retval = (Map) client.execute("sipXbridge.destroyBridge",args);
+        Map retval = (Map) client.execute("sipXrelay.destroyBridge",args);
         if ( retval.get(Symmitron.STATUS_CODE).equals(Symmitron.ERROR)) {
             throw new Exception("Error in processing request " +
                     retval.get(Symmitron.ERROR_INFO));
@@ -118,7 +118,7 @@ public abstract class AbstractSymmitronTestCase extends TestCase {
         args[1] = new Integer(count);
         args[2] = Symmitron.ODD;
         
-        Map retval = (Map) client.execute("sipXbridge.createSyms", args);
+        Map retval = (Map) client.execute("sipXrelay.createSyms", args);
         if ( retval.get(Symmitron.STATUS_CODE).equals(Symmitron.ERROR)) {
             throw new Exception("Error in processing request " +
                     retval.get(Symmitron.ERROR_INFO));
@@ -136,7 +136,7 @@ public abstract class AbstractSymmitronTestCase extends TestCase {
         params[4] = new Integer(500);
         params[5] = "USE-EMPTY-PACKET";
         params[6] = "";
-        Map retval = (Map)client.execute("sipXbridge.setDestination", params);
+        Map retval = (Map)client.execute("sipXrelay.setDestination", params);
         if ( retval.get(Symmitron.STATUS_CODE).equals(Symmitron.ERROR)) {
             throw new Exception("Error in processing request " +
                     retval.get(Symmitron.ERROR_INFO));
@@ -154,7 +154,7 @@ public abstract class AbstractSymmitronTestCase extends TestCase {
         params[4] = new Integer(500);
         params[5] = "NONE";
         params[6] = "";
-        Map retval = (Map)client.execute("sipXbridge.setDestination", params);
+        Map retval = (Map)client.execute("sipXrelay.setDestination", params);
         if ( retval.get(Symmitron.STATUS_CODE).equals(Symmitron.ERROR)) {
             throw new Exception("Error in processing request " +
                     retval.get(Symmitron.ERROR_INFO));
@@ -172,7 +172,7 @@ public abstract class AbstractSymmitronTestCase extends TestCase {
         params[5] = "USE-EMPTY-PACKET";
         params[6] = "";
       
-        Map retval = (Map)client.execute("sipXbridge.setDestination", params);
+        Map retval = (Map)client.execute("sipXrelay.setDestination", params);
         if ( retval.get(Symmitron.STATUS_CODE).equals(Symmitron.ERROR)) {
             throw new Exception("Error in processing request " +
                     retval.get(Symmitron.ERROR_INFO));
@@ -185,7 +185,7 @@ public abstract class AbstractSymmitronTestCase extends TestCase {
         params[0] = clientHandle;
         params[1] = bridge;
         params[2] = sym;
-        Map retval = (Map) client.execute("sipXbridge.addSym",params);
+        Map retval = (Map) client.execute("sipXrelay.addSym",params);
         if ( retval.get(Symmitron.STATUS_CODE).equals(Symmitron.ERROR)) {
             throw new Exception("Error in processing request " +
                     retval.get(Symmitron.ERROR_INFO));
@@ -197,7 +197,7 @@ public abstract class AbstractSymmitronTestCase extends TestCase {
         parms[0] = clientHandle;
         parms[1] = bridge;
         parms[2] = sym;
-        Map retval = (Map) client.execute("sipXbridge.removeSym",parms);
+        Map retval = (Map) client.execute("sipXrelay.removeSym",parms);
         if ( retval.get(Symmitron.STATUS_CODE).equals(Symmitron.ERROR)) {
             throw new Exception("Error in processing request " +
                     retval.get(Symmitron.ERROR_INFO));
@@ -212,7 +212,7 @@ public abstract class AbstractSymmitronTestCase extends TestCase {
         Object[] args = new Object[2];
         args[0] = clientHandle;
         args[1] = sym;
-        Map retval = (Map) client.execute("sipXbridge.getSym", args);
+        Map retval = (Map) client.execute("sipXrelay.getSym", args);
         if ( retval.get(Symmitron.STATUS_CODE).equals(Symmitron.ERROR)) {
             throw new Exception("Error in processing request " +
                     retval.get(Symmitron.ERROR_INFO));
@@ -254,7 +254,7 @@ public abstract class AbstractSymmitronTestCase extends TestCase {
        Object[] args = new Object[2];
        args[0] = clientHandle;
        args[1] = bridge;
-       Map retval = (Map) client.execute("sipXbridge.pauseBridge",args);
+       Map retval = (Map) client.execute("sipXrelay.pauseBridge",args);
        if ( retval.get(Symmitron.STATUS_CODE).equals(Symmitron.ERROR)) {
            throw new Exception("Error in processing request " +
                    retval.get(Symmitron.ERROR_INFO));
@@ -265,7 +265,7 @@ public abstract class AbstractSymmitronTestCase extends TestCase {
        Object[] args = new Object[2];
        args[0] = clientHandle;
        args[1] = bridge;
-       Map retval = (Map) client.execute("sipXbridge.resumeBridge",args);
+       Map retval = (Map) client.execute("sipXrelay.resumeBridge",args);
        if ( retval.get(Symmitron.STATUS_CODE).equals(Symmitron.ERROR)) {
            throw new Exception("Error in processing request " +
                    retval.get(Symmitron.ERROR_INFO));
@@ -276,7 +276,7 @@ public abstract class AbstractSymmitronTestCase extends TestCase {
        Object[] args = new Object[2];
        args[0] = clientHandle;
        args[1] = bridge;
-       Map retval = (Map) client.execute("sipXbridge.startBridge", args);
+       Map retval = (Map) client.execute("sipXrelay.startBridge", args);
        if ( retval.get(Symmitron.STATUS_CODE).equals(Symmitron.ERROR)) {
            throw new Exception("Error in processing request " +
                    retval.get(Symmitron.ERROR_INFO));
@@ -288,14 +288,14 @@ public abstract class AbstractSymmitronTestCase extends TestCase {
     protected void signIn() throws Exception {
         String[] myHandle = new String[1] ;
         myHandle[0] = clientHandle;
-        Map retval = (Map) client.execute("sipXbridge.signIn",
+        Map retval = (Map) client.execute("sipXrelay.signIn",
                 (Object[]) myHandle);
     }
 
     protected void signOut() throws Exception {
         String[] myHandle = new String[1] ;
         myHandle[0] = clientHandle;
-        client.execute("sipXbridge.signOut",(Object[]) myHandle);
+        client.execute("sipXrelay.signOut",(Object[]) myHandle);
         
     }
 
@@ -306,7 +306,7 @@ public abstract class AbstractSymmitronTestCase extends TestCase {
        Object[] args = new Object[2];
        args[0] = clientHandle;
        args[1] = sym;
-       Map retval = (Map) client.execute("sipXbridge.destroySym",args);
+       Map retval = (Map) client.execute("sipXrelay.destroySym",args);
         
     }
 }

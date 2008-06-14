@@ -12,7 +12,7 @@ package org.sipfoundry.sipxbridge;
  * @author M. Ranganathan.
  * 
  */
-public class GatewayConfigurationException extends Exception {
+public class GatewayConfigurationException extends RuntimeException {
     public GatewayConfigurationException(String reason) {
         super(reason);
     }

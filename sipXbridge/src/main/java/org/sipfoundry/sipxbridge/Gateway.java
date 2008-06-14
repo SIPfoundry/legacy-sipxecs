@@ -56,7 +56,7 @@ import org.xbill.DNS.Type;
  * @author M. Ranganathan
  * 
  */
-public class Gateway {
+class Gateway {
 
     private static Logger logger = Logger.getLogger(Gateway.class);
 
@@ -64,8 +64,8 @@ public class Gateway {
 
     static final String SIPXBRIDGE_USER = "sipxbridge";
     /*
-     * The account manager -- tracks user accounts. This is populated by reading
-     * the sipxbridge.xml configuration file.
+     * The account manager -- tracks user accounts. This is populated by reading the
+     * sipxbridge.xml configuration file.
      */
     private static AccountManagerImpl accountManager;
 
@@ -127,7 +127,7 @@ public class Gateway {
     /*
      * A table of timers for re-registration
      */
-    public static Timer timer;
+    static Timer timer;
 
     /*
      * The Music on hold URL
@@ -152,7 +152,7 @@ public class Gateway {
     /*
      * The Gateway state.
      */
-    public static GatewayState state = GatewayState.STOPPED;
+    static GatewayState state = GatewayState.STOPPED;
 
     /*
      * The port manager.
@@ -168,8 +168,6 @@ public class Gateway {
 
     private static boolean isTlsSupportEnabled = false;
 
-    private static InetAddress localAddressByName;
-
     private static boolean isWebServerRunning = false;
 
     private static int callCount;
@@ -178,45 +176,39 @@ public class Gateway {
 
     }
 
-    public static void setConfigurationFileName(String configFileName) {
+    static void setConfigurationFileName(String configFileName) {
         Gateway.configurationFile = configFileName;
+    }
+
+    static void parseConfigurationFile() {
+        ConfigurationParser parser = new ConfigurationParser();
+        accountManager = parser.createAccountManager(configurationFile);
+
     }
 
     /**
      * Start the xml rpc server.
      * 
      */
-    public static void startXmlRpcServer() {
+    static void initializeSymmitron() {
         try {
 
-            ConfigurationParser parser = new ConfigurationParser();
-            accountManager = parser.createAccountManager(configurationFile);
-            Gateway.logFile = accountManager.getBridgeConfiguration()
-                    .getLogFileDirectory()
+            Gateway.logFile = accountManager.getBridgeConfiguration().getLogFileDirectory()
                     + "/sipxbridge.log";
-            Appender appender = new SipFoundryAppender(new SipFoundryLayout(),
-                    accountManager.getBridgeConfiguration()
-                            .getLogFileDirectory()
-                            + "/sipxbridge.log");
+            Appender appender = new SipFoundryAppender(new SipFoundryLayout(), accountManager
+                    .getBridgeConfiguration().getLogFileDirectory()
+                    + "/sipxbridge.log");
 
             logger.addAppender(appender);
-            BridgeConfiguration bridgeConfiguration = accountManager
-                    .getBridgeConfiguration();
+            BridgeConfiguration bridgeConfiguration = accountManager.getBridgeConfiguration();
 
             SymmitronConfig symmitronConfig = new SymmitronConfig();
-            
+
             symmitronConfig.setLocalAddress(bridgeConfiguration.getExternalAddress());
             symmitronConfig.setPortRangeLowerBound(bridgeConfiguration.getRtpPortLowerBound());
             symmitronConfig.setPortRangeUpperBound(bridgeConfiguration.getRtpPortUpperBound());
             symmitronConfig.setXmlRpcPort(bridgeConfiguration.getXmlRpcPort());
             SymmitronServer.setSymmitronConfig(symmitronConfig);
-            
-            
-            if (Gateway.getXmlRpcWebServerPort() != 0 && !isWebServerRunning) {
-                SymmitronServer.startWebServer();
-            } else {
-                logger.debug("Not starting xml rpc server - port is null");
-            }
 
         } catch (Exception ex) {
             logger.error("Error starting xml rpc server", ex);
@@ -225,7 +217,7 @@ public class Gateway {
         }
     }
 
-    public static void stopXmlRpcServer() {
+    static void stopXmlRpcServer() {
         try {
             webServer.shutdown();
         } catch (Exception ex) {
@@ -234,61 +226,53 @@ public class Gateway {
     }
 
     /**
-     * Discover our public address using stun.
+     * Discover our address using stun.
      * 
      * @throws GatewayConfigurationException
      */
-    public static void discoverPublicAddress()
-            throws GatewayConfigurationException {
+    static void discoverAddress() throws GatewayConfigurationException {
         try {
 
-            BridgeConfiguration bridgeConfiguration = accountManager
-                    .getBridgeConfiguration();
-            String stunServerAddress = bridgeConfiguration
-                    .getStunServerAddress();
+            BridgeConfiguration bridgeConfiguration = accountManager.getBridgeConfiguration();
+            String stunServerAddress = bridgeConfiguration.getStunServerAddress();
 
             if (stunServerAddress != null) {
 
                 // Todo -- deal with the situation when this port may be taken.
-                StunAddress localStunAddress = new StunAddress(Gateway
-                        .getLocalAddress(), STUN_PORT);
+                StunAddress localStunAddress = new StunAddress(Gateway.getLocalAddress(),
+                        STUN_PORT);
 
-                StunAddress serverStunAddress = new StunAddress(
-                        stunServerAddress, STUN_PORT);
+                StunAddress serverStunAddress = new StunAddress(stunServerAddress, STUN_PORT);
 
                 NetworkConfigurationDiscoveryProcess addressDiscovery = new NetworkConfigurationDiscoveryProcess(
                         localStunAddress, serverStunAddress);
                 java.util.logging.LogManager logManager = java.util.logging.LogManager
                         .getLogManager();
                 java.util.logging.Logger log = logManager
-                        .getLogger(NetworkConfigurationDiscoveryProcess.class
-                                .getName());
+                        .getLogger(NetworkConfigurationDiscoveryProcess.class.getName());
                 log.setLevel(java.util.logging.Level.OFF);
 
                 addressDiscovery.start();
-                StunDiscoveryReport report = addressDiscovery
-                        .determineAddress();
+                StunDiscoveryReport report = addressDiscovery.determineAddress();
                 // System.out.println("Stun report = " + report);
-                globalAddress = report.getPublicAddress().getSocketAddress()
-                        .getAddress().getHostAddress();
+                globalAddress = report.getPublicAddress().getSocketAddress().getAddress()
+                        .getHostAddress();
                 logger.debug("Stun report = " + report);
                 if (report.getPublicAddress().getPort() != STUN_PORT) {
-                    System.out
-                            .println("WARNING External port != internal port ");
+                    System.out.println("WARNING External port != internal port ");
                 }
 
             }
         } catch (Exception ex) {
-            throw new GatewayConfigurationException(
-                    "Error discovering public address", ex);
+            throw new GatewayConfigurationException("Error discovering  address", ex);
         }
     }
 
     /**
-     * Start timer to rediscover our public address.
+     * Start timer to rediscover our address.
      * 
      */
-    public static void startRediscoveryTimer() {
+    static void startRediscoveryTimer() {
         int rediscoveryTime = Gateway.accountManager.getBridgeConfiguration()
                 .getGlobalAddressRediscoveryPeriod();
         TimerTask ttask = new TimerTask() {
@@ -296,46 +280,39 @@ public class Gateway {
             @Override
             public void run() {
                 try {
-                    Gateway.discoverPublicAddress();
+                    Gateway.discoverAddress();
                 } catch (Exception ex) {
-                    logger.error("Error re-discovering public address");
+                    logger.error("Error re-discovering  address");
                 }
 
             }
 
         };
-        Gateway.timer.schedule(ttask, rediscoveryTime * 1000,
-                rediscoveryTime * 1000);
+        Gateway.timer.schedule(ttask, rediscoveryTime * 1000, rediscoveryTime * 1000);
     }
 
     /**
      * Initialize the bridge.
      * 
      */
-    public static void init() {
+    static void init() {
         try {
 
             Gateway.timer = new Timer();
 
             /*
-             * We re-parse the file here because it can change when the bridge
-             * is re-initialized.
+             * We re-parse the file here because it can change when the bridge is re-initialized.
              */
             ConfigurationParser parser = new ConfigurationParser();
             accountManager = parser.createAccountManager(configurationFile);
-            BridgeConfiguration bridgeConfiguration = accountManager
-                    .getBridgeConfiguration();
-            InetAddress localAddr = InetAddress.getByName(Gateway
-                    .getLocalAddress());
+            BridgeConfiguration bridgeConfiguration = accountManager.getBridgeConfiguration();
 
             authenticationHelper = ((SipStackExt) ProtocolObjects.sipStack)
-                    .getAuthenticationHelper(accountManager,
-                            ProtocolObjects.headerFactory);
+                    .getAuthenticationHelper(accountManager, ProtocolObjects.headerFactory);
 
             int externalPort = bridgeConfiguration.getExternalPort();
             String externalAddress = bridgeConfiguration.getExternalAddress();
-            logger.debug("External Address:port = " + externalAddress
-                    + ":" + externalPort);
+            logger.debug("External Address:port = " + externalAddress + ":" + externalPort);
 
             ListeningPoint externalUdpListeningPoint = ProtocolObjects.sipStack
                     .createListeningPoint(externalAddress, externalPort, "udp");
@@ -343,8 +320,7 @@ public class Gateway {
                     .createListeningPoint(externalAddress, externalPort, "tcp");
             if (Gateway.isTlsSupportEnabled) {
                 ListeningPoint externalTlsListeningPoint = ProtocolObjects.sipStack
-                        .createListeningPoint(externalAddress,
-                                externalPort + 1, "tls");
+                        .createListeningPoint(externalAddress, externalPort + 1, "tls");
                 externalTlsProvider = ProtocolObjects.sipStack
                         .createSipProvider(externalTlsListeningPoint);
             }
@@ -354,24 +330,20 @@ public class Gateway {
 
             int localPort = bridgeConfiguration.getLocalPort();
             String localIpAddress = bridgeConfiguration.getLocalAddress();
-            System.out.println("Local Address:port = " + localIpAddress + ":"
-                    + localPort);
+            System.out.println("Local Address:port = " + localIpAddress + ":" + localPort);
 
-            SipURI mohUri = accountManager.getBridgeConfiguration()
-                    .getMusicOnHoldName() == null ? null
-                    : ProtocolObjects.addressFactory.createSipURI(
-                            accountManager.getBridgeConfiguration()
-                                    .getMusicOnHoldName(), Gateway
-                                    .getSipxProxyDomain());
+            SipURI mohUri = accountManager.getBridgeConfiguration().getMusicOnHoldName() == null ? null
+                    : ProtocolObjects.addressFactory.createSipURI(accountManager
+                            .getBridgeConfiguration().getMusicOnHoldName(), Gateway
+                            .getSipxProxyDomain());
             if (mohUri != null) {
-                musicOnHoldAddress = ProtocolObjects.addressFactory
-                        .createAddress(mohUri);
+                musicOnHoldAddress = ProtocolObjects.addressFactory.createAddress(mohUri);
             }
 
             String domain = Gateway.getSipxProxyDomain();
             gatewayFromAddress = ProtocolObjects.addressFactory
-                    .createAddress(ProtocolObjects.addressFactory.createSipURI(
-                            SIPXBRIDGE_USER, domain));
+                    .createAddress(ProtocolObjects.addressFactory.createSipURI(SIPXBRIDGE_USER,
+                            domain));
 
             ListeningPoint internalUdpListeningPoint = ProtocolObjects.sipStack
                     .createListeningPoint(localIpAddress, localPort, "udp");
@@ -390,8 +362,7 @@ public class Gateway {
 
             Hop hop = getSipxProxyHop();
             if (hop == null) {
-                System.out
-                        .println("Cannot resolve sipx proxy address check config ");
+                System.out.println("Cannot resolve sipx proxy address check config ");
             }
             System.out.println("Proxy assumed to be running at 	" + hop);
 
@@ -401,34 +372,34 @@ public class Gateway {
 
     }
 
-    public static AccountManagerImpl getAccountManager() {
+    static AccountManagerImpl getAccountManager() {
         return Gateway.accountManager;
 
     }
 
-    public static RegistrationManager getRegistrationManager() {
+    static RegistrationManager getRegistrationManager() {
         return registrationManager;
     }
 
-    public static AuthenticationHelper getAuthenticationHelper() {
+    static AuthenticationHelper getAuthenticationHelper() {
         return authenticationHelper;
     }
 
-    public static SipProvider getWanProvider(String transport) {
+    static SipProvider getWanProvider(String transport) {
         if (transport.equalsIgnoreCase("tls"))
             return externalTlsProvider;
         else
             return externalProvider;
     }
 
-    public static SipProvider getLanProvider() {
+    static SipProvider getLanProvider() {
         return internalProvider;
     }
 
     /**
      * @return the backToBackUserAgentManager
      */
-    public static CallControlManager getCallControlManager() {
+    static CallControlManager getCallControlManager() {
         return backToBackUserAgentManager;
     }
 
@@ -438,31 +409,24 @@ public class Gateway {
      * @return
      */
 
-    public static String getLocalAddress() {
+    static String getLocalAddress() {
         return accountManager.getBridgeConfiguration().getLocalAddress();
     }
-
-   
 
     /**
      * @return the sipxProxyAddress
      */
-    public static HopImpl getSipxProxyHop() {
+    static HopImpl getSipxProxyHop() {
         try {
             /*
-             * No caching of results here as the failover mechanism depends upon
-             * DNS.
+             * No caching of results here as the failover mechanism depends upon DNS.
              */
             if (logger.isDebugEnabled())
-                logger
-                        .debug("getSipxProxyHop() : Looking up the following address "
-                                + "_sip._"
-                                + getSipxProxyTransport()
-                                + "."
-                                + getSipxProxyDomain());
+                logger.debug("getSipxProxyHop() : Looking up the following address " + "_sip._"
+                        + getSipxProxyTransport() + "." + getSipxProxyDomain());
 
-            Record[] records = new Lookup("_sip._" + getSipxProxyTransport()
-                    + "." + getSipxProxyDomain(), Type.SRV).run();
+            Record[] records = new Lookup("_sip._" + getSipxProxyTransport() + "."
+                    + getSipxProxyDomain(), Type.SRV).run();
             if (records == null) {
                 logger.debug("SRV record lookup returned null");
                 Gateway.sipxProxyAddress = getSipxProxyDomain();
@@ -478,8 +442,7 @@ public class Gateway {
                 // record.
                 // The library ought to strip this.
                 if (resolvedName.endsWith(".")) {
-                    resolvedName = resolvedName.substring(0, resolvedName
-                            .lastIndexOf('.'));
+                    resolvedName = resolvedName.substring(0, resolvedName.lastIndexOf('.'));
                 }
                 Gateway.sipxProxyAddress = resolvedName;
                 Gateway.sipxProxyPort = port;
@@ -487,40 +450,37 @@ public class Gateway {
             }
 
         } catch (TextParseException ex) {
-            logger
-                    .error("Problem looking up proxy address -- stopping gateway");
+            logger.error("Problem looking up proxy address -- stopping gateway");
             return null;
         }
 
     }
 
     /**
-     * Get the sipx proxy address from the domain. This is determined by using
-     * the DNS query above.
+     * Get the sipx proxy address from the domain. This is determined by using the DNS query
+     * above.
      * 
      * @return the sipx proxy address ( determined from DNS)
      */
-    public static String getSipxProxyAddress() {
+    static String getSipxProxyAddress() {
         return sipxProxyAddress;
     }
 
     /**
-     * Get the sipx proxy port from the domain. This is determined by using the
-     * DNS query above.
+     * Get the sipx proxy port from the domain. This is determined by using the DNS query above.
      * 
      * @return the sipx proxy domain.
      */
-    public static int getSipxProxyPort() {
+    static int getSipxProxyPort() {
         return sipxProxyPort;
     }
 
     /**
-     * The transport to use to talk to sipx proxy. This is registered in the DNS
-     * srv.
+     * The transport to use to talk to sipx proxy. This is registered in the DNS srv.
      * 
      * @return the proxy transport
      */
-    public static String getSipxProxyTransport() {
+    static String getSipxProxyTransport() {
         return sipxProxyTransport;
     }
 
@@ -529,7 +489,7 @@ public class Gateway {
      * 
      * @return the sipx proxy domain name.
      */
-    public static String getSipxProxyDomain() {
+    static String getSipxProxyDomain() {
         return accountManager.getBridgeConfiguration().getSipxProxyDomain();
     }
 
@@ -537,7 +497,7 @@ public class Gateway {
      * 
      * @return the bridge log level.
      */
-    public static String getLogLevel() {
+    static String getLogLevel() {
         return accountManager.getBridgeConfiguration().getLogLevel();
     }
 
@@ -545,7 +505,7 @@ public class Gateway {
      * @return the upper bound of the port range we are allowing for RTP.
      * 
      */
-    public static int getRtpPortRangeUpperBound() {
+    static int getRtpPortRangeUpperBound() {
 
         return accountManager.getBridgeConfiguration().getRtpPortUpperBound();
     }
@@ -553,7 +513,7 @@ public class Gateway {
     /**
      * @return the lower bound of the port range for RTP.
      */
-    public static int getRtpPortRangeLowerBound() {
+    static int getRtpPortRangeLowerBound() {
         return accountManager.getBridgeConfiguration().getRtpPortLowerBound();
     }
 
@@ -562,9 +522,8 @@ public class Gateway {
      * 
      * @return
      */
-    public static int getMediaKeepaliveMilisec() {
-        return Gateway.accountManager.getBridgeConfiguration()
-                .getMediaKeepalive();
+    static int getMediaKeepaliveMilisec() {
+        return Gateway.accountManager.getBridgeConfiguration().getMediaKeepalive();
     }
 
     /**
@@ -572,21 +531,19 @@ public class Gateway {
      * 
      * @return
      */
-    public static int getSipKeepaliveSeconds() {
-        return Gateway.accountManager.getBridgeConfiguration()
-                .getSipKeepalive();
+    static int getSipKeepaliveSeconds() {
+        return Gateway.accountManager.getBridgeConfiguration().getSipKeepalive();
     }
 
     /**
      * Get the MOH server Request URI.
      */
-    public static SipURI getMusicOnHoldUri() {
+    static SipURI getMusicOnHoldUri() {
         try {
             return accountManager.getBridgeConfiguration().getMusicOnHoldName() == null ? null
-                    : ProtocolObjects.addressFactory.createSipURI(
-                            accountManager.getBridgeConfiguration()
-                                    .getMusicOnHoldName(), Gateway
-                                    .getSipxProxyAddress());
+                    : ProtocolObjects.addressFactory.createSipURI(accountManager
+                            .getBridgeConfiguration().getMusicOnHoldName(), Gateway
+                            .getSipxProxyAddress());
         } catch (Exception ex) {
             logger.error("Unexpected exception creating Music On Hold URI", ex);
             throw new RuntimeException("Unexpected exception", ex);
@@ -596,30 +553,29 @@ public class Gateway {
     /**
      * @return the Music On Hold server Address.
      */
-    public static Address getMusicOnHoldAddress() {
+    static Address getMusicOnHoldAddress() {
         return musicOnHoldAddress;
     }
 
     /**
-     * Get the Gateway Address ( used in From Header ) of requests that
-     * originate from the Gateway.
+     * Get the Gateway Address ( used in From Header ) of requests that originate from the
+     * Gateway.
      * 
-     * @return an address that can be used in the From Header of request that
-     *         originate from the Gateway.
+     * @return an address that can be used in the From Header of request that originate from the
+     *         Gateway.
      */
-    public static Address getGatewayFromAddress() {
+    static Address getGatewayFromAddress() {
         return Gateway.gatewayFromAddress;
 
     }
 
-    public static void registerWithItsp() throws GatewayConfigurationException {
+    static void registerWithItsp() throws GatewayConfigurationException {
         System.out.println("------- REGISTERING--------");
         try {
             Gateway.accountManager.lookupItspAccountAddresses();
             Gateway.accountManager.startAuthenticationFailureTimers();
 
-            for (ItspAccountInfo itspAccount : Gateway.accountManager
-                    .getItspAccounts()) {
+            for (ItspAccountInfo itspAccount : Gateway.accountManager.getItspAccounts()) {
                 if (itspAccount.isRegisterOnInitialization()) {
                     Gateway.registrationManager.sendRegistrer(itspAccount);
                 }
@@ -634,23 +590,20 @@ public class Gateway {
                 try {
                     Thread.sleep(1000);
                 } catch (InterruptedException ex) {
-                    throw new RuntimeException(
-                            "Unexpected exception registering", ex);
+                    throw new RuntimeException("Unexpected exception registering", ex);
                 }
                 /*
-                 * Check to see if all accounts that need authentication have
-                 * successfully registered.
+                 * Check to see if all accounts that need authentication have successfully
+                 * registered.
                  */
                 boolean allAuthenticated = true;
-                for (ItspAccountInfo itspAccount : Gateway.accountManager
-                        .getItspAccounts()) {
+                for (ItspAccountInfo itspAccount : Gateway.accountManager.getItspAccounts()) {
                     if (itspAccount.isRegisterOnInitialization()) {
                         if (itspAccount.getState() == AccountState.AUTHENTICATION_FAILED) {
                             Gateway.stop();
                             System.out
                                     .println("Authentication Failure with ITSP account check account info.");
-                            throw new GatewayConfigurationException(
-                                    "Authentication failure ");
+                            throw new GatewayConfigurationException("Authentication failure ");
                         } else if (itspAccount.getState() != AccountState.AUTHENTICATED) {
                             allAuthenticated = false;
                         }
@@ -661,10 +614,9 @@ public class Gateway {
                 if (allAuthenticated) {
                     System.out.println("---- SIPXBRIDGE READY ----");
                     Gateway.state = GatewayState.INITIALIZED;
-                    for (ItspAccountInfo itspAccount : Gateway
-                            .getAccountManager().getItspAccounts()) {
-                        if (itspAccount.getSipKeepaliveMethod().equals(
-                                "CR-LF")) {
+                    for (ItspAccountInfo itspAccount : Gateway.getAccountManager()
+                            .getItspAccounts()) {
+                        if (itspAccount.getSipKeepaliveMethod().equals("CR-LF")) {
                             itspAccount.startCrLfTimerTask();
 
                         }
@@ -674,8 +626,7 @@ public class Gateway {
                     Gateway.stop();
                 }
             }
-            throw new GatewayConfigurationException(
-                    "Could not register with all accounts ");
+            throw new GatewayConfigurationException("Could not register with all accounts ");
 
         } catch (SipException ex) {
             throw new GatewayConfigurationException("Error in Registering ", ex);
@@ -687,7 +638,7 @@ public class Gateway {
      * 
      * @throws Exception
      */
-    public static void startSipListener() throws GatewayConfigurationException {
+    static void startSipListener() throws GatewayConfigurationException {
         try {
             SipListenerImpl listener = new SipListenerImpl();
             getWanProvider("udp").addSipListener(listener);
@@ -702,48 +653,42 @@ public class Gateway {
 
     }
 
-    public static void start() throws GatewayConfigurationException {
+    static void start() throws GatewayConfigurationException {
         if (Gateway.getState() != GatewayState.STOPPED) {
             return;
         }
         Gateway.state = GatewayState.INITIALIZING;
         init();
-        discoverPublicAddress();
+        discoverAddress();
         startRediscoveryTimer();
         startSipListener();
         registerWithItsp();
     }
 
     /**
-     * Stop the gateway. Release any port resources associated with ongoing
-     * dialogs and tear down ongoing Music oh
+     * Stop the gateway. Release any port resources associated with ongoing dialogs and tear down
+     * ongoing Music oh
      */
-    public static synchronized void stop() {
+    static synchronized void stop() {
         Gateway.state = GatewayState.STOPPING;
         backToBackUserAgentManager.stop();
         timer.cancel();
         try {
-            for (Dialog dialog : ((SipStackExt) ProtocolObjects.sipStack)
-                    .getDialogs()) {
+            for (Dialog dialog : ((SipStackExt) ProtocolObjects.sipStack).getDialogs()) {
 
                 CallIdHeader cid = dialog.getCallId();
 
                 DialogApplicationData dat = DialogApplicationData.get(dialog);
-                if (dat != null
-                        && dat.musicOnHoldDialog != null
+                if (dat != null && dat.musicOnHoldDialog != null
                         && dat.musicOnHoldDialog.getState() != DialogState.TERMINATED) {
                     try {
                         SipProvider provider = ((DialogExt) dat.musicOnHoldDialog)
                                 .getSipProvider();
-                        Request byeRequest = dat.musicOnHoldDialog
-                                .createRequest(Request.BYE);
-                        ClientTransaction ctx = provider
-                                .getNewClientTransaction(byeRequest);
+                        Request byeRequest = dat.musicOnHoldDialog.createRequest(Request.BYE);
+                        ClientTransaction ctx = provider.getNewClientTransaction(byeRequest);
                         dat.musicOnHoldDialog.sendRequest(ctx);
                     } catch (Exception ex) {
-                        logger.error(
-                                "Exception in dialog termination processing",
-                                ex);
+                        logger.error("Exception in dialog termination processing", ex);
                     }
 
                 }
@@ -769,8 +714,7 @@ public class Gateway {
                 }
             }
         } catch (Exception ex) {
-            logger.error("Unexepcted exception occured while stopping bridge",
-                    ex);
+            logger.error("Unexepcted exception occured while stopping bridge", ex);
 
         }
         ProtocolObjects.stop();
@@ -783,7 +727,7 @@ public class Gateway {
      * 
      * @return
      */
-    public static String getGlobalAddress() {
+    static String getGlobalAddress() {
         return globalAddress;
     }
 
@@ -792,7 +736,7 @@ public class Gateway {
      * 
      * @return the web server port.
      */
-    public static int getXmlRpcWebServerPort() {
+    static int getXmlRpcWebServerPort() {
         return Gateway.accountManager.getBridgeConfiguration().getXmlRpcPort();
     }
 
@@ -801,7 +745,7 @@ public class Gateway {
      * 
      * @return
      */
-    public static GatewayState getState() {
+    static GatewayState getState() {
 
         return Gateway.state;
 
@@ -813,7 +757,7 @@ public class Gateway {
      * @return the log file name
      * 
      */
-    public static String getLogFile() {
+    static String getLogFile() {
         return Gateway.logFile;
     }
 
@@ -821,22 +765,18 @@ public class Gateway {
      * Get the default codec name. Returns null if Re-Invite is supported.
      * 
      */
-    public static String getCodecName() {
+    static String getCodecName() {
         if (Gateway.isReInviteSupported())
             return null;
         else
-            return Gateway.getAccountManager().getBridgeConfiguration()
-                    .getCodecName();
+            return Gateway.getAccountManager().getBridgeConfiguration().getCodecName();
     }
-
-   
 
     /**
      * Get the call limit ( number of concurrent calls)
      */
-    public static int getCallLimit() {
-        return Gateway.getAccountManager().getBridgeConfiguration()
-                .getMaxCalls();
+    static int getCallLimit() {
+        return Gateway.getAccountManager().getBridgeConfiguration().getMaxCalls();
     }
 
     /**
@@ -845,7 +785,7 @@ public class Gateway {
      * @return -- the call count of the gateway ( number of active calls )
      * 
      */
-    public static int getCallCount() {
+    static int getCallCount() {
 
         return Gateway.callCount;
     }
@@ -853,19 +793,23 @@ public class Gateway {
     /**
      * Decrement the call count.
      */
-    public static void decrementCallCount() {
+    static void decrementCallCount() {
         if (Gateway.callCount > 0)
             Gateway.callCount--;
     }
 
-    public static void incrementCallCount() {
+    static void incrementCallCount() {
         Gateway.callCount++;
 
     }
 
-    public static boolean isReInviteSupported() {
+    static boolean isReInviteSupported() {
 
         return accountManager.getBridgeConfiguration().isReInviteSupported();
+    }
+
+    static boolean isRtcpRelayingSupported() {
+        return false;
     }
 
     /**
@@ -875,29 +819,39 @@ public class Gateway {
      */
     public static void main(String[] args) throws Exception {
         try {
-            boolean initOnStart = true;
 
-            Gateway.isTlsSupportEnabled = System.getProperty(
-                    "sipxbridge.enableTls", "false").equals("true");
+            Gateway.isTlsSupportEnabled = System.getProperty("sipxbridge.enableTls", "false")
+                    .equals("true");
 
-            Gateway.configurationFile = System.getProperty("conf.dir",
-                    "/etc/sipxpbx")
+            Gateway.configurationFile = System.getProperty("conf.dir", "/etc/sipxpbx")
                     + "/sipxbridge.xml";
-            // Wait for the configuration file to become available.
-            while (!new File(Gateway.configurationFile).exists()) {
-                Thread.sleep(5 * 1000);
-            }
-            Gateway.startXmlRpcServer();
-            if (initOnStart)
+            String command = System.getProperty("sipxbridge.command", "start");
+
+            if (command.equals("start")) {
+                // Wait for the configuration file to become available.
+                while (!new File(Gateway.configurationFile).exists()) {
+                    Thread.sleep(5 * 1000);
+                }
+                Gateway.parseConfigurationFile();
+                Gateway.initializeSymmitron();
                 Gateway.start();
+            } else if (command.equals("stop")) {
+                // TODO -- open the xml rpc connection and stop sipxbridge
+            } else if ( command.equals("configtest")) {
+                try {
+                    Gateway.parseConfigurationFile();
+                    System.exit(0);
+                } catch (Exception ex) {
+                    System.exit(-1);
+                }
+            }
+
         } catch (Throwable ex) {
             ex.printStackTrace();
+            logger.fatal("Unexpected exception starting",ex);
+          
         }
 
-    }
-
-    public static boolean isRtcpRelayingSupported() {
-        return false;
     }
 
 }

@@ -32,7 +32,8 @@ public abstract class AbstractSipSignalingTest extends SipTestCase {
                 .getProperty("org.sipfoundry.gateway.mockItspAccount");
         Gateway.setConfigurationFileName(accountName);
         System.out.println("config file name " + accountName);
-        Gateway.startXmlRpcServer();
+        Gateway.parseConfigurationFile();
+        Gateway.initializeSymmitron();
         accountManager = Gateway.getAccountManager();
         accountInfo = accountManager.getDefaultAccount();
         sipxProxyAddress = properties.getProperty("org.sipfoundry.gateway.mockSipxProxyAddress");     

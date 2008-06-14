@@ -317,7 +317,8 @@ public class SimpleCallSetupTest extends AbstractSipSignalingTest {
         this.mockItsp = new MockItsp(this);
 
         this.mockItsp.init(1000);
-        Gateway.startXmlRpcServer();
+        Gateway.parseConfigurationFile();
+        Gateway.initializeSymmitron();
         Gateway.start();
 
     }
