@@ -29,6 +29,7 @@ AC_TARGETS = \
 	cgicc \
 	cppunit \
 	jain-sip \
+	jakarta-commons-net \
 	java-ibm \
 	java-sun \
 	ruby-dbi \
@@ -47,11 +48,14 @@ $(AC_TARGETS) :
 # required on all platforms
 CUSTOM_PACKAGES = cgicc xerces-c ruby-dbi ruby-gems ruby-postgres $(JAVA_PKG) rrdtool jain-sip conference
 
-.PHONY: fc8 fc7 fc6
-fc8 fc7 fc6 : $(CUSTOM_PACKAGES)
+.PHONY: fc6
+fc6 : $(CUSTOM_PACKAGES) jakarta-commons-net
+
+.PHONY: fc8 fc7
+fc8 fc7 : $(CUSTOM_PACKAGES)
 
 .PHONY: rhel5 centos5 rhel4
-rhel5 centos5 rhel4 : w3c-libwww $(CUSTOM_PACKAGES)
+rhel5 centos5 rhel4 : w3c-libwww $(CUSTOM_PACKAGES) jakarta-commons-net
 
 .PHONY: conference
 conference : freeswitch

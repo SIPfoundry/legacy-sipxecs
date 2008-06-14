@@ -629,6 +629,7 @@ AC_DEFUN([SFAC_DOWNLOAD_DEPENDENCIES],
   # URLs to files pulled down files
   AC_SUBST(RUBY_AUX_RPMS_URL, http://people.redhat.com/dlutter/yum)
   AC_SUBST(MOD_CPLUSPLUS_URL, http://umn.dl.sourceforge.net/sourceforge/modcplusplus)
+  AC_SUBST(JPKG_FREE_URL, http://mirrors.dotsrc.org/jpackage/1.7/generic/free)
   AC_SUBST(JPKG_NONFREE_URL, http://mirrors.dotsrc.org/jpackage/1.7/generic/non-free)
   AC_SUBST(CGICC_URL, http://ftp.gnu.org/gnu/cgicc)
   AC_SUBST(XERCES_C_URL, http://www.apache.org/dist/xerces/c/sources)
