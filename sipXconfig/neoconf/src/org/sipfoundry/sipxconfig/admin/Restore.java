@@ -61,7 +61,7 @@ public class Restore implements Serializable, WaitingListener {
         execute(backups, true);
     }
 
-    private void execute(List<BackupBean> backups, boolean verify) {
+    protected void execute(List<BackupBean> backups, boolean verify) {
         String[] cmdLine = getCmdLine(backups, verify);
         try {
             Process process = Runtime.getRuntime().exec(cmdLine);

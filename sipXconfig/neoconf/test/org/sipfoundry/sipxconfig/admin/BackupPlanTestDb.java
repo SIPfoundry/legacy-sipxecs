@@ -28,17 +28,21 @@ public class BackupPlanTestDb extends SipxDatabaseTestCase {
     public void testStoreJob() throws Exception {
         TestHelper.cleanInsert("ClearDb.xml");
         
-        BackupPlan plan = new BackupPlan();
+        BackupPlan plan = new LocalBackupPlan();
         m_adminContext.storeBackupPlan(plan);
         
         ITable actual = TestHelper.getConnection().createDataSet().getTable("backup_plan");
 
         IDataSet expectedDs = TestHelper.loadDataSetFlat("admin/SaveBackupPlanExpected.xml"); 
+
         ReplacementDataSet expectedRds = new ReplacementDataSet(expectedDs);
+
         expectedRds.addReplacementObject("[backup_plan_id]", plan.getId());
         expectedRds.addReplacementObject("[null]", null);
-        
+        expectedRds.addReplacementObject("[backup_type]","L");
+
         ITable expected = expectedRds.getTable("backup_plan");
+        
                 
         Assertion.assertEquals(expected, actual);        
     }

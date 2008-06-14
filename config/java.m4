@@ -93,6 +93,7 @@ AC_DEFUN([CHECK_JUNIT4],[CHECK_JAR([JUNIT4_JAR],[junit4],[CLASSPATH_BUILD])])
 
 AC_DEFUN([CHECK_LOG4J],[CHECK_JAR([LOG4J_JAR],[log4j])])
 
+AC_DEFUN([CHECK_COMMONS_NET], [CHECK_JAR([COMMONS_NET_JAR],[jakarta-commons-net])])
 # ============ J A I N - S I P ==============
 AC_DEFUN([CHECK_JAIN_SIP],
 [

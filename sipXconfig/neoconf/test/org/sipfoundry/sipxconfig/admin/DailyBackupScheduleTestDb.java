@@ -30,11 +30,18 @@ public class DailyBackupScheduleTestDb extends SipxDatabaseTestCase {
     public void testStoreJob() throws Exception {
         TestHelper.cleanInsert("ClearDb.xml");
         
-        BackupPlan plan = m_adminContext.getBackupPlan();
+        BackupPlan plan = m_adminContext.getLocalBackupPlan();
+        BackupPlan ftpPlan = m_adminContext.getFtpConfiguration().getBackupPlan();
         DailyBackupSchedule dailySchedule = new DailyBackupSchedule();
+        DailyBackupSchedule ftpDailySchedule = new DailyBackupSchedule();
+
         plan.addSchedule(dailySchedule);
+        ftpPlan.addSchedule(ftpDailySchedule);
+
         m_adminContext.storeBackupPlan(plan);
+        m_adminContext.storeBackupPlan(ftpPlan);
         
+
         ITable actual = TestHelper.getConnection().createDataSet().getTable("daily_backup_schedule");
 
         IDataSet expectedDs = TestHelper.loadDataSetFlat("admin/SaveDailyBackupScheduleExpected.xml"); 
@@ -44,6 +51,12 @@ public class DailyBackupScheduleTestDb extends SipxDatabaseTestCase {
         expectedRds.addReplacementObject("[time_of_day]", new Date(0));        
         expectedRds.addReplacementObject("[null]", null);
         
+        expectedRds.addReplacementObject("[backup_plan_id2]", ftpPlan.getId());
+        expectedRds.addReplacementObject("[daily_backup_schedule_id2]", ftpDailySchedule.getId());
+        expectedRds.addReplacementObject("[time_of_day2]", new Date(0));
+        expectedRds.addReplacementObject("[null]", null);
+
+
         ITable expected = expectedRds.getTable("daily_backup_schedule");
                 
         Assertion.assertEquals(expected, actual);        

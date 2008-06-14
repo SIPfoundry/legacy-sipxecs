@@ -18,6 +18,7 @@ debuglevel=lines
 # S I P X P B X  / S I P X C O N F I G
 sipxconfig.phone.dir=@SIPX_CONFIGPHONEDIR@
 sipxpbx.backup.dir=@SIPX_BACKUPDIR@
+sipxpbx.download.dir=@SIPX_DOWNLOADDIR@
 sipxpbx.upgrade.dir=@SIPX_UPGRADEDIR@
 sipxconfig.lib.dir=@SIPXCONFIG_LIBDIR@
 sipxpbx.bin.dir=@SIPX_BINDIR@

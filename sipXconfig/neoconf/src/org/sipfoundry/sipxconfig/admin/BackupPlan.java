@@ -35,7 +35,7 @@ import org.springframework.context.ApplicationContextAware;
 /**
  * Backup various parts of the system to a fixed backup directory.
  */
-public class BackupPlan extends BeanWithId implements ApplicationContextAware {
+public abstract class BackupPlan extends BeanWithId implements ApplicationContextAware {
     public static final String VOICEMAIL_ARCHIVE = "voicemail.tar.gz";
     public static final String CONFIGURATION_ARCHIVE = "configuration.tar.gz";
     public static final FilenameFilter BACKUP_FILE_FILTER = new FilenameFilter() {
@@ -62,21 +62,37 @@ public class BackupPlan extends BeanWithId implements ApplicationContextAware {
 
     private Collection<DailyBackupSchedule> m_schedules = new ArrayList<DailyBackupSchedule>(0);
 
+
+    private Timer m_timer;
+
+
+    protected File createBackupDirectory(File rootBackupDir) {
+        File backupDir = getNextBackupDir(rootBackupDir);
+        if (!backupDir.isDirectory()) {
+            backupDir.mkdirs();
+        }
+        return backupDir;
+    }
+
+    protected File[] executeBackup(File backupDir, File binDir) throws IOException,
+            InterruptedException {
+        if (perform(backupDir, binDir)) {
+            File[] backupFiles = getBackupFiles(backupDir);
+            sendEmail(backupFiles);
+            return backupFiles;
+        } else {
+            return null;
+        }
+
+    }
+
     public File[] perform(String rootBackupPath, String binPath) {
         String errorMsg = "Errors when creating backup.";
+        File rootBackupDir = new File(rootBackupPath);
+        File backupDir = createBackupDirectory(rootBackupDir);
+        purgeOld(rootBackupDir);
         try {
-            File rootBackupDir = new File(rootBackupPath);
-            File backupDir = getNextBackupDir(rootBackupDir);
-            if (!backupDir.isDirectory()) {
-                backupDir.mkdirs();
-            }
-            File binDir = new File(binPath);
-            if (perform(backupDir, binDir)) {
-                purgeOld(rootBackupDir);
-                File[] backupFiles = getBackupFiles(backupDir);
-                sendEmail(backupFiles);
-                return backupFiles;
-            }
+            return executeBackup(backupDir, new File(binPath));
         } catch (IOException e) {
             LOG.error(errorMsg, e);
         } catch (InterruptedException e) {
@@ -111,13 +127,13 @@ public class BackupPlan extends BeanWithId implements ApplicationContextAware {
         m_mailSenderContext.sendMail(m_emailAddress, m_emailFromAddress, subject, body, confFile);
     }
 
-    File getNextBackupDir(File rootBackupDir) {
+    public File getNextBackupDir(File rootBackupDir) {
         // FIXME: only works if no more than one backup a minute
         m_backupTime = new Date();
         return new File(rootBackupDir, FILE_NAME_FORMAT.format(m_backupTime));
     }
 
-    void purgeOld(File rootBackupDir) {
+    protected void purgeOld(File rootBackupDir) {
         if (m_limitedCount == null) {
             return;
         }
@@ -278,5 +294,12 @@ public class BackupPlan extends BeanWithId implements ApplicationContextAware {
 
     public void setEmailFromAddress(String emailFromAddress) {
         m_emailFromAddress = emailFromAddress;
+    }
+    public Timer getTimer() {
+        return m_timer;
+    }
+
+    public void setTimer(Timer timer) {
+        m_timer = timer;
     }
 }

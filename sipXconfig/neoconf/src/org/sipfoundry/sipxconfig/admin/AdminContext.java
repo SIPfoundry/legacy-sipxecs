@@ -15,12 +15,18 @@ import java.io.Writer;
 import java.util.List;
 import java.util.Map;
 
+import org.sipfoundry.sipxconfig.admin.ftp.FtpConfiguration;
+
 public interface AdminContext {
     public static final String CONTEXT_BEAN_NAME = "adminContext";
 
-    public abstract BackupPlan getBackupPlan();
+    public LocalBackupPlan getLocalBackupPlan();
+
+    public FtpConfiguration getFtpConfiguration();
 
     public abstract void storeBackupPlan(BackupPlan plan);
+
+    public void storeFtpConfiguration(FtpConfiguration configuration);
 
     public File[] performBackup(BackupPlan plan);
 
@@ -35,6 +41,9 @@ public interface AdminContext {
     public String[] getInitializationTasks();
 
     public List<Map<BackupBean.Type, BackupBean>> getBackups();
+    public List<Map<BackupBean.Type, BackupBean>> getFtpBackups();
+
+    public String getBackupDirectory();
 
     /**
      * @return true if this is an upgrade/data init run, and *not* a real sipXconfig run
