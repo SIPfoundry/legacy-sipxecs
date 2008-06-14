@@ -65,9 +65,9 @@ public class SymmitronTest extends AbstractSymmitronTestCase {
             super.start();
             String[] myHandle = new String[1];
             myHandle[0] = clientHandle;
-            Map retval = (Map) client.execute("sipXbridge.signIn",
+            Map retval = (Map) client.execute("sipXrelay.signIn",
                     (Object[]) myHandle);
-            client.execute("sipXbridge.signOut", (Object[]) myHandle);
+            client.execute("sipXrelay.signOut", (Object[]) myHandle);
 
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -83,7 +83,7 @@ public class SymmitronTest extends AbstractSymmitronTestCase {
         args[1] = new Integer(count);
         args[2] = Symmitron.EVEN;
 
-        Map retval = (Map) super.client.execute("sipXbridge.createSyms", args);
+        Map retval = (Map) super.client.execute("sipXrelay.createSyms", args);
         super.checkStandardMap(retval);
         Object[] syms = (Object[]) retval.get(Symmitron.SYM_SESSION);
         assertEquals("Should allocate only one sym", syms.length, count);
@@ -94,7 +94,7 @@ public class SymmitronTest extends AbstractSymmitronTestCase {
         args = new Object[2];
         args[0] = clientHandle;
         args[1] = symId;
-        retval = (Map) client.execute("sipXbridge.getSym", args);
+        retval = (Map) client.execute("sipXrelay.getSym", args);
         super.checkStandardMap(retval);
         Map symSession = (Map) retval.get(Symmitron.SYM_SESSION);
         Map receiverSession = (Map) symSession.get("receiver");
@@ -106,7 +106,7 @@ public class SymmitronTest extends AbstractSymmitronTestCase {
         args = new Object[2];
         args[0] = clientHandle;
         args[1] = symId;
-        retval = (Map) super.client.execute("sipXbridge.destroySym", args);
+        retval = (Map) super.client.execute("sipXrelay.destroySym", args);
         System.out.println("retval = " + retval);
         super.checkStandardMap(retval);
 
@@ -116,14 +116,14 @@ public class SymmitronTest extends AbstractSymmitronTestCase {
         Object[] args = new Object[1];
         args[0] = clientHandle;
         Map retval = (Map) super.client
-                .execute("sipXbridge.createBridge", args);
+                .execute("sipXrelay.createBridge", args);
         super.checkStandardMap(retval);
         assertNotNull(retval.get(Symmitron.BRIDGE_ID));
         String bridgeId = (String) retval.get(Symmitron.BRIDGE_ID);
         args = new Object[2];
         args[0] = this.clientHandle;
         args[1] = bridgeId;
-        retval = (Map) super.client.execute("sipXbridge.destroyBridge", args);
+        retval = (Map) super.client.execute("sipXrelay.destroyBridge", args);
         super.checkStandardMap(retval);
 
     }
@@ -140,14 +140,14 @@ public class SymmitronTest extends AbstractSymmitronTestCase {
         params[0] = clientHandle;
         params[1] = bridge;
         params[2] = sym1;
-        Map retval = (Map) client.execute("sipXbridge.addSym", params);
+        Map retval = (Map) client.execute("sipXrelay.addSym", params);
         super.checkStandardMap(retval);
 
         params = new Object[3];
         params[0] = clientHandle;
         params[1] = bridge;
         params[2] = sym2;
-        retval = (Map) client.execute("sipXbridge.addSym", params);
+        retval = (Map) client.execute("sipXrelay.addSym", params);
         super.checkStandardMap(retval);
 
         /*
@@ -165,7 +165,7 @@ public class SymmitronTest extends AbstractSymmitronTestCase {
         params[5] = "USE-EMPTY-PACKET";
         params[6] = "";
 
-        retval = (Map) client.execute("sipXbridge.setDestination", params);
+        retval = (Map) client.execute("sipXrelay.setDestination", params);
         super.checkStandardMap(retval);
 
         params = new Object[7];
@@ -177,7 +177,7 @@ public class SymmitronTest extends AbstractSymmitronTestCase {
         params[5] = "USE-EMPTY-PACKET";
         params[6] = "";
 
-        retval = (Map) client.execute("sipXbridge.setDestination", params);
+        retval = (Map) client.execute("sipXrelay.setDestination", params);
         super.checkStandardMap(retval);
 
         DatagramSocket datagramSocket1 = new DatagramSocket(destinationPort1,
@@ -215,7 +215,7 @@ public class SymmitronTest extends AbstractSymmitronTestCase {
         Object[] args = new Object[2];
         args[0] = clientHandle;
         args[1] = sym1;
-        Map retval = (Map) client.execute("sipXbridge.getSym", args);
+        Map retval = (Map) client.execute("sipXrelay.getSym", args);
         super.checkStandardMap(retval);
         Map symSession = (Map) retval.get(Symmitron.SYM_SESSION);
         Map receiverSession = (Map) symSession.get("receiver");
@@ -225,7 +225,7 @@ public class SymmitronTest extends AbstractSymmitronTestCase {
         args = new Object[2];
         args[0] = clientHandle;
         args[1] = sym2;
-        retval = (Map) client.execute("sipXbridge.getSym", args);
+        retval = (Map) client.execute("sipXrelay.getSym", args);
         super.checkStandardMap(retval);
         symSession = (Map) retval.get(Symmitron.SYM_SESSION);
         receiverSession = (Map) symSession.get("receiver");
@@ -240,14 +240,14 @@ public class SymmitronTest extends AbstractSymmitronTestCase {
         args[0] = clientHandle;
         args[1] = bridge;
         args[2] = sym1;
-        retval = (Map) client.execute("sipXbridge.addSym", args);
+        retval = (Map) client.execute("sipXrelay.addSym", args);
         super.checkStandardMap(retval);
 
         args = new Object[3];
         args[0] = clientHandle;
         args[1] = bridge;
         args[2] = sym2;
-        retval = (Map) client.execute("sipXbridge.addSym", args);
+        retval = (Map) client.execute("sipXrelay.addSym", args);
         super.checkStandardMap(retval);
 
         DatagramSocket datagramSocket1 = new DatagramSocket(destinationPort1,
@@ -267,7 +267,7 @@ public class SymmitronTest extends AbstractSymmitronTestCase {
         args = new Object[2];
         args[0] = clientHandle;
         args[1] = bridge;
-        retval = (Map) client.execute("sipXbridge.startBridge", args);
+        retval = (Map) client.execute("sipXrelay.startBridge", args);
 
         super.checkStandardMap(retval);
 
@@ -312,7 +312,7 @@ public class SymmitronTest extends AbstractSymmitronTestCase {
         Object[] args = new Object[2];
         args[0] = clientHandle;
         args[1] = sym2;
-        Map retval = (Map) client.execute("sipXbridge.getSym", args);
+        Map retval = (Map) client.execute("sipXrelay.getSym", args);
         super.checkStandardMap(retval);
 
         Map symSession = (Map) retval.get(Symmitron.SYM_SESSION);
@@ -328,14 +328,14 @@ public class SymmitronTest extends AbstractSymmitronTestCase {
         args[0] = clientHandle;
         args[1] = bridge;
         args[2] = sym1;
-        retval = (Map) client.execute("sipXbridge.addSym", args);
+        retval = (Map) client.execute("sipXrelay.addSym", args);
         super.checkStandardMap(retval);
 
         args = new Object[3];
         args[0] = clientHandle;
         args[1] = bridge;
         args[2] = sym2;
-        retval = (Map) client.execute("sipXbridge.addSym", args);
+        retval = (Map) client.execute("sipXrelay.addSym", args);
         super.checkStandardMap(retval);
 
         DatagramSocket datagramSocket1 = new DatagramSocket(destinationPort1,
@@ -355,7 +355,7 @@ public class SymmitronTest extends AbstractSymmitronTestCase {
         args = new Object[2];
         args[0] = clientHandle;
         args[1] = bridge;
-        retval = (Map) client.execute("sipXbridge.startBridge", args);
+        retval = (Map) client.execute("sipXrelay.startBridge", args);
 
         super.checkStandardMap(retval);
 
@@ -402,7 +402,7 @@ public class SymmitronTest extends AbstractSymmitronTestCase {
         Object[] args = new Object[2];
         args[0] = clientHandle;
         args[1] = sym1;
-        Map retval = (Map) client.execute("sipXbridge.getSym", args);
+        Map retval = (Map) client.execute("sipXrelay.getSym", args);
         super.checkStandardMap(retval);
         Map symSession = (Map) retval.get(Symmitron.SYM_SESSION);
         Map receiverSession = (Map) symSession.get("receiver");
@@ -419,14 +419,14 @@ public class SymmitronTest extends AbstractSymmitronTestCase {
         args[0] = clientHandle;
         args[1] = bridge;
         args[2] = sym1;
-        retval = (Map) client.execute("sipXbridge.addSym", args);
+        retval = (Map) client.execute("sipXrelay.addSym", args);
         super.checkStandardMap(retval);
 
         args = new Object[3];
         args[0] = clientHandle;
         args[1] = bridge;
         args[2] = sym2;
-        retval = (Map) client.execute("sipXbridge.addSym", args);
+        retval = (Map) client.execute("sipXrelay.addSym", args);
         super.checkStandardMap(retval);
 
         DatagramSocket datagramSocket1 = new DatagramSocket(destinationPort1,
@@ -446,7 +446,7 @@ public class SymmitronTest extends AbstractSymmitronTestCase {
         args = new Object[2];
         args[0] = clientHandle;
         args[1] = bridge;
-        retval = (Map) client.execute("sipXbridge.startBridge", args);
+        retval = (Map) client.execute("sipXrelay.startBridge", args);
 
         super.checkStandardMap(retval);
 
@@ -466,7 +466,7 @@ public class SymmitronTest extends AbstractSymmitronTestCase {
         args = new Object[2];
         args[0] = clientHandle;
         args[1] = bridge;
-        retval = (Map) client.execute("sipXbridge.pauseBridge", args);
+        retval = (Map) client.execute("sipXrelay.pauseBridge", args);
         super.checkStandardMap(retval);
 
         this.counter = 0;
@@ -508,7 +508,7 @@ public class SymmitronTest extends AbstractSymmitronTestCase {
         Object[] args = new Object[2];
         args[0] = clientHandle;
         args[1] = sym1;
-        Map retval = (Map) client.execute("sipXbridge.getSym", args);
+        Map retval = (Map) client.execute("sipXrelay.getSym", args);
         super.checkStandardMap(retval);
         Map symSession = (Map) retval.get(Symmitron.SYM_SESSION);
         Map receiverSession = (Map) symSession.get("receiver");
@@ -525,14 +525,14 @@ public class SymmitronTest extends AbstractSymmitronTestCase {
         args[0] = clientHandle;
         args[1] = bridge;
         args[2] = sym1;
-        retval = (Map) client.execute("sipXbridge.addSym", args);
+        retval = (Map) client.execute("sipXrelay.addSym", args);
         super.checkStandardMap(retval);
 
         args = new Object[3];
         args[0] = clientHandle;
         args[1] = bridge;
         args[2] = sym2;
-        retval = (Map) client.execute("sipXbridge.addSym", args);
+        retval = (Map) client.execute("sipXrelay.addSym", args);
         super.checkStandardMap(retval);
 
         DatagramSocket datagramSocket1 = new DatagramSocket(destinationPort1,
@@ -566,7 +566,7 @@ public class SymmitronTest extends AbstractSymmitronTestCase {
         args[0] = clientHandle;
         args[1] = bridge;
         args[2] = sym2;
-        retval = (Map) client.execute("sipXbridge.removeSym", args);
+        retval = (Map) client.execute("sipXrelay.removeSym", args);
 
         this.counter = 0;
 
@@ -630,7 +630,7 @@ public class SymmitronTest extends AbstractSymmitronTestCase {
         Object[] args = new Object[2];
         args[0] = clientHandle;
         args[1] = sym2;
-        Map retval = (Map) client.execute("sipXbridge.pauseSym", args);
+        Map retval = (Map) client.execute("sipXrelay.pauseSym", args);
         super.checkStandardMap(retval);
         this.counter = 0;
 
@@ -648,7 +648,7 @@ public class SymmitronTest extends AbstractSymmitronTestCase {
         args = new Object[2];
         args[0] = clientHandle;
         args[1] = sym2;
-        retval = (Map) client.execute("sipXbridge.resumeSym", args);
+        retval = (Map) client.execute("sipXrelay.resumeSym", args);
         super.checkStandardMap(retval);
         this.counter = 0;
 
@@ -676,7 +676,7 @@ public class SymmitronTest extends AbstractSymmitronTestCase {
         String sym2 = super.createEvenSym();
         String bridge = super.createBridge();
 
-        Map retval = (Map) client.execute("sipXbridge.ping", args);
+        Map retval = (Map) client.execute("sipXrelay.ping", args);
 
         Object[] timedOutSyms = (Object[]) retval.get(Symmitron.SYM_SESSION);
 
@@ -688,12 +688,12 @@ public class SymmitronTest extends AbstractSymmitronTestCase {
         args[0] = clientHandle;
         args[1] = sym2;
         args[2] = 1000;
-        retval = (Map) client.execute("sipXbridge.setTimeout", args);
+        retval = (Map) client.execute("sipXrelay.setTimeout", args);
         Thread.sleep(2000);
         args = new Object[1];
         args[0] = clientHandle;
 
-        retval = (Map) client.execute("sipXbridge.ping", args);
+        retval = (Map) client.execute("sipXrelay.ping", args);
 
         timedOutSyms = (Object[]) retval.get(Symmitron.SYM_SESSION);
 
@@ -717,7 +717,7 @@ public class SymmitronTest extends AbstractSymmitronTestCase {
         args = new Object[1];
         args[0] = clientHandle;
 
-        retval = (Map) client.execute("sipXbridge.ping", args);
+        retval = (Map) client.execute("sipXrelay.ping", args);
         assertTrue(timedOutSyms.length == 1);
         assertTrue(timedOutSyms[0].equals(sym2));
 
@@ -741,7 +741,7 @@ public class SymmitronTest extends AbstractSymmitronTestCase {
         Object[] args = new Object[2];
         args[0] = clientHandle;
         args[1] = sym1;
-        Map retval = (Map) client.execute("sipXbridge.getSym", args);
+        Map retval = (Map) client.execute("sipXrelay.getSym", args);
         super.checkStandardMap(retval);
         Map symSession = (Map) retval.get(Symmitron.SYM_SESSION);
         Map receiverSession = (Map) symSession.get("receiver");
@@ -751,7 +751,7 @@ public class SymmitronTest extends AbstractSymmitronTestCase {
         args = new Object[2];
         args[0] = clientHandle;
         args[1] = sym2;
-        retval = (Map) client.execute("sipXbridge.getSym", args);
+        retval = (Map) client.execute("sipXrelay.getSym", args);
         super.checkStandardMap(retval);
         symSession = (Map) retval.get(Symmitron.SYM_SESSION);
         receiverSession = (Map) symSession.get("receiver");
@@ -766,14 +766,14 @@ public class SymmitronTest extends AbstractSymmitronTestCase {
         args[0] = clientHandle;
         args[1] = bridge;
         args[2] = sym1;
-        retval = (Map) client.execute("sipXbridge.addSym", args);
+        retval = (Map) client.execute("sipXrelay.addSym", args);
         super.checkStandardMap(retval);
 
         args = new Object[3];
         args[0] = clientHandle;
         args[1] = bridge;
         args[2] = sym2;
-        retval = (Map) client.execute("sipXbridge.addSym", args);
+        retval = (Map) client.execute("sipXrelay.addSym", args);
         super.checkStandardMap(retval);
 
         DatagramSocket datagramSocket1 = new DatagramSocket(destinationPort1,
@@ -793,7 +793,7 @@ public class SymmitronTest extends AbstractSymmitronTestCase {
         args = new Object[2];
         args[0] = clientHandle;
         args[1] = bridge;
-        retval = (Map) client.execute("sipXbridge.startBridge", args);
+        retval = (Map) client.execute("sipXrelay.startBridge", args);
 
         super.checkStandardMap(retval);
 
