@@ -9,9 +9,17 @@
  */
 package org.sipfoundry.sipxconfig.xmlrpc;
 
+import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.util.Arrays;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.FutureTask;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
@@ -34,6 +42,10 @@ public class XmlRpcClientInterceptor extends UrlBasedRemoteAccessor implements M
 
     private XmlRpcMarshaller m_marshaller = new DefaultMarshaller(null);
 
+    private long m_timeout = 5000;
+
+    private ExecutorService m_service = Executors.newSingleThreadExecutor();
+
     /**
      * Intercepts method call and executes XML/RPC call instead.
      * 
@@ -50,24 +62,14 @@ public class XmlRpcClientInterceptor extends UrlBasedRemoteAccessor implements M
      * 
      */
     public Object invoke(MethodInvocation invocation) throws Throwable {
-        XmlRpcClientRequest request = new Request(invocation, m_marshaller);
+        final XmlRpcClientRequest request = new Request(invocation, m_marshaller);
         if (LOG.isInfoEnabled()) {
             String msg = String.format("XML/RPC %s on %s", request, getServiceUrl());
             LOG.info(msg);
         }
 
         try {
-            Object result = m_xmlRpcClient.execute(request);
-            // strangely execute returns exceptions, instead of throwing them
-            if (result instanceof XmlRpcException) {
-                // let catch block translate it
-                throw (XmlRpcException) result;
-            }
-            return result;
-        } catch (XmlRpcException e) {
-            LOG.error("XML/RPC error: ", e);
-            // in cases execute throws exception - we still need to translate
-            throw new XmlRpcRemoteException(e);
+            return executeWithTimeout(request);
         } catch (RuntimeException e) {
             LOG.error("Runtime error in XML/RPC call", e);
             // do not repackage RuntimeExceptions
@@ -96,6 +98,50 @@ public class XmlRpcClientInterceptor extends UrlBasedRemoteAccessor implements M
     }
 
     /**
+     * Temporary workaround for the problem with timeout (or lack thereof) in the XML/RPC library
+     * transport.
+     * 
+     * We call the XML/RPC in the background thread and interrupt it if it takes too long. We
+     * attempt to handle exceptions related to the threading issues (And timeout) only. Everything
+     * else is handled by the invoke method.
+     * 
+     * @param request XML/RPC request
+     * @return result of XML/RPC call
+     */
+    private Object executeWithTimeout(final XmlRpcClientRequest request) throws Throwable {
+        Callable execute = new Callable() {
+            public Object call() throws IOException {
+                try {
+                    Object result = m_xmlRpcClient.execute(request);
+                    // strangely execute returns exceptions, instead of throwing them
+                    if (result instanceof XmlRpcException) {
+                        // let catch block translate it
+                        throw (XmlRpcException) result;
+                    }
+                    return result;
+                } catch (XmlRpcException e) {
+                    LOG.error("XML/RPC error: ", e);
+                    // in cases execute throws exception - we still need to translate
+                    throw new XmlRpcRemoteException(e);
+                }
+            }
+        };
+        FutureTask task = new FutureTask(execute);
+        m_service.execute(task);
+        try {
+            return task.get(m_timeout, TimeUnit.MILLISECONDS);
+        } catch (InterruptedException e) {
+            throw new XmlRpcRemoteException(e);
+        } catch (TimeoutException e) {
+            LOG.error("Timeout in XML/RPC call");
+            throw new XmlRpcRemoteException(e);
+        } catch (ExecutionException e) {
+            // rethrow cause and let us to repackage it below
+            throw e.getCause();
+        }
+    }
+
+    /**
      * Mostly for testing - one can inject other XmlRpcClient implementations
      * 
      * @param xmlRpcClient client that would be used to make remote calls
@@ -114,6 +160,10 @@ public class XmlRpcClientInterceptor extends UrlBasedRemoteAccessor implements M
 
     public void setMarshaller(XmlRpcMarshaller marshaller) {
         m_marshaller = marshaller;
+    }
+
+    public void setTimeout(long timeout) {
+        m_timeout = timeout;
     }
 
     static class Request implements XmlRpcClientRequest {
