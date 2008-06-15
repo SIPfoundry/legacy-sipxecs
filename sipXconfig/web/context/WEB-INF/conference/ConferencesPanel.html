@@ -30,6 +30,16 @@
 	</table>
     <ul class="component-submit">
         <li>
+            <input jwcid="lockButton@Submit" id="conference:lock"
+                value="message:button.lock"
+                action="listener:lockConferences" />
+        </li>
+        <li>
+            <input jwcid="unlockButton@Submit" id="conference:unlock"
+                value="message:button.unlock"
+                action="listener:unlockConferences" />        
+        </li>
+        <li>
             <input jwcid="delete@Submit" id="conference:delete"
                 selected="ognl:rowsToDelete"
                 tag="ognl:selections.allSelected"

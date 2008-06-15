@@ -9,8 +9,11 @@
  */
 package org.sipfoundry.sipxconfig.site.conference;
 
+import java.io.Serializable;
 import java.util.Collection;
 
+import org.apache.commons.collections.Closure;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.tapestry.IActionListener;
@@ -21,6 +24,7 @@ import org.apache.tapestry.annotations.Parameter;
 import org.apache.tapestry.engine.RequestCycle;
 import org.sipfoundry.sipxconfig.components.SelectMap;
 import org.sipfoundry.sipxconfig.components.TablePanel;
+import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.conference.ActiveConferenceContext;
 import org.sipfoundry.sipxconfig.conference.Conference;
 import org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext;
@@ -76,5 +80,49 @@ public abstract class ConferencesPanel extends TablePanel {
             // TODO better UI to mark the bridge in the UI as unreachable
             LOG.error("Couldn't connect to FreeSWITCH to fetch active conferences", fae);
         }
+    }
+
+    public abstract class Action implements Closure {
+        private String m_msgSuccess;
+
+        public Action(String msgSuccess) {
+            m_msgSuccess = getMessages().getMessage(msgSuccess);
+        }
+
+        public void execute(Object id) {
+            Conference conference = getConferenceBridgeContext().loadConference((Serializable) id);
+            execute(conference);
+            TapestryUtils.recordSuccess(ConferencesPanel.this, m_msgSuccess);
+        }
+
+        public abstract void execute(Conference conference);
+    }
+
+    private void forAllConferences(Closure closure) {
+        Collection<Integer> selected = getSelections().getAllSelected();
+        if (selected.isEmpty()) {
+            return;
+        }
+        CollectionUtils.forAllDo(selected, closure);
+    }
+
+    public void lockConferences() {
+        Closure lock = new Action("msg.success.lock") {
+            public void execute(Conference conference) {
+                getActiveConferenceContext().lockConference(conference);
+            }
+
+        };
+        forAllConferences(lock);
+    }
+
+    public void unlockConferences() {
+        Closure lock = new Action("msg.success.unlock") {
+            public void execute(Conference conference) {
+                getActiveConferenceContext().unlockConference(conference);
+            }
+
+        };
+        forAllConferences(lock);
     }
 }
