@@ -1,20 +1,34 @@
 <fieldset>
     <ul class="component-links">
         <li>
-            <a jwcid="addLink"  id="conference:add" href="#"><span key="add_link">Add New Line</span></a>
+            <a jwcid="addLink@LinkSubmit"  id="conference:add"
+                selected="ognl:action"
+                tag="ognl:addListener">
+                <span key="add_link">Add New Line</span>
+            </a>
         </li>
     </ul>
-	<table jwcid="tableView" id="conference:list" class="component">
-		<span jwcid="nameColumnValue">
-			<span jwcid="editRowLink"><span jwcid="nameText"/></span>
+	<table jwcid="@common/Table" id="conference:list" class="component"
+        columns="* name,enabled,extension,description"
+        source="ognl:conferences"
+        row="ognl:currentRow"
+        selections="ognl:selections">
+		<span jwcid="nameColumnValue@Block">
+			<a jwcid="@DirectLink" listener="ognl:selectListener" parameters="ognl:currentRow.id">
+                <span jwcid="@Insert" value="ognl:currentRow.name"/>
+            </a>
 		</span>
         <span jwcid="enabledColumnValue@Block">
-          <span jwcid="@common/EnabledColumn" value="ognl:currentRow.enabled"/>
+            <span jwcid="@common/EnabledColumn" value="ognl:currentRow.enabled"/>
         </span>    
 	</table>
     <ul class="component-submit">
         <li>
-            <input jwcid="delete" type="submit" id="conference:delete" name=""/>
+            <input jwcid="delete@Submit" id="conference:delete"
+                selected="ognl:rowsToDelete"
+                tag="ognl:selections.allSelected"
+                value="message:button.delete"
+            />
         </li>
     </ul>
 </fieldset>
