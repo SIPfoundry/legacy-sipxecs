@@ -31,16 +31,24 @@ public abstract class ListBridges extends BasePage {
     public abstract EditBridge getEditBridgePage();
 
     public IPage add() {
-        EditBridge editBridge = getEditBridgePage();
-        editBridge.setBridgeId(null);
-        editBridge.setReturnPage(PAGE);
-        return editBridge;
+        return activateEditPage(null, null);
     }
 
     public IPage edit(Integer bridgeId) {
-        EditBridge editBridge = getEditBridgePage();
-        editBridge.setBridgeId(bridgeId);
-        editBridge.setReturnPage(PAGE);
-        return editBridge;
+        return activateEditPage(bridgeId, null);
+    }
+
+    public IPage active(Integer bridgeId) {
+        return activateEditPage(bridgeId, "conferences");
+    }
+
+    private IPage activateEditPage(Integer bridgeId, String tab) {
+        EditBridge page = getEditBridgePage();
+        page.setBridgeId(bridgeId);
+        if (tab != null) {
+            page.setTab(tab);
+        }
+        page.setReturnPage(PAGE);
+        return page;
     }
 }

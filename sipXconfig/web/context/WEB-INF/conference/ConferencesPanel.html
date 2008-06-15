@@ -9,7 +9,7 @@
         </li>
     </ul>
 	<table jwcid="@common/Table" id="conference:list" class="component"
-        columns="* name,enabled,extension,description"
+        columns="* name,enabled,extension,description,active"
         source="ognl:conferences"
         row="ognl:currentRow"
         selections="ognl:selections">
@@ -20,7 +20,13 @@
 		</span>
         <span jwcid="enabledColumnValue@Block">
             <span jwcid="@common/EnabledColumn" value="ognl:currentRow.enabled"/>
-        </span>    
+        </span>
+        <span jwcid="activeColumnValue@Block">
+            <span jwcid="@conference/ActiveValue"
+                itemId="ognl:currentRow.id"
+                calculateListener="listener:calculateActiveValue"
+                activateListener="ognl:selectActiveListener"/>
+        </span>
 	</table>
     <ul class="component-submit">
         <li>

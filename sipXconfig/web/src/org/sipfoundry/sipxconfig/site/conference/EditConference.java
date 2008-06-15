@@ -53,7 +53,7 @@ public abstract class EditConference extends PageWithCallback implements PageBeg
 
     @Persist
     @InitialValue(value = "literal:config")
-    public abstract String getTab();
+    public abstract void setTab(String tab);
 
     public void pageBeginRender(PageEvent event_) {
         if (getConference() != null) {

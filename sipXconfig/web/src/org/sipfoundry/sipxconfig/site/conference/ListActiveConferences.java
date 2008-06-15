@@ -14,8 +14,6 @@ import java.util.Collection;
 import java.util.List;
 
 import org.apache.tapestry.IAsset;
-import org.apache.tapestry.IPage;
-import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.annotations.Asset;
 import org.apache.tapestry.annotations.Bean;
 import org.apache.tapestry.annotations.InjectObject;

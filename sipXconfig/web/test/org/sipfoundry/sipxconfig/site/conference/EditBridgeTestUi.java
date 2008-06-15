@@ -37,6 +37,7 @@ public class EditBridgeTestUi extends ListWebTestCase {
         setWorkingForm("form");
         setTextField("item:name", "bridge_test");
         clickButton("form:apply");
+        clickLink("link:conferences");
         SiteTestHelper.assertNoUserError(tester);
     }
 
@@ -54,6 +55,7 @@ public class EditBridgeTestUi extends ListWebTestCase {
 
     protected Object[] getExpectedTableRow(String[] paramValues) {
         Object[] expected = super.getExpectedTableRow(paramValues);
-        return ArrayUtils.add(expected, 2, "Disabled");
+        expected = ArrayUtils.add(expected, 2, "Disabled");
+        return ArrayUtils.add(expected, "");
     }
 }

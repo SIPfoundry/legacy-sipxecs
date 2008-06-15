@@ -7,12 +7,11 @@
   <description>Table of conference bridges</description>
   <parameter name="addListener" required="yes"/>
   <parameter name="selectListener" required="yes"/>
+  <parameter name="selectActiveListener" required="yes"/>
   <parameter name="bridges" required="yes"/>
   <parameter name="changed" required="no"/>
   
   <!-- P R O P E R T I E S -->
-  <inject property="conferenceBridgeContext" object="spring:conferenceBridgeContext"/>
-  <inject property="coreContext" object="spring:coreContext"/>
   <property name="rowsToDelete"/>
   <property name="action"/>
   <property name="currentRow"/>

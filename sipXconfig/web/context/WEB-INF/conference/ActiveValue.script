@@ -3,9 +3,9 @@
     "-//Apache Software Foundation//Tapestry Script Specification 3.0//EN"
     "http://jakarta.apache.org/tapestry/dtd/Script_3_0.dtd">
 <script>
-  <input-symbol key="bridgeId" required="yes"/>
+  <input-symbol key="parameters" required="yes"/>
   <input-symbol key="compClientId" required="yes"/>
   <initialization>
-dojo.byId('${compClientId}').startRendering(${bridgeId});
+dojo.byId('${compClientId}').startRendering(${parameters});
   </initialization>
 </script>

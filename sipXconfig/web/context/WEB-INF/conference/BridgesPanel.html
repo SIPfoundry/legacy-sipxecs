@@ -17,12 +17,14 @@
       <span jwcid="@common/EnabledColumn" value="ognl:currentRow.enabled"/>
     </span>    
     <span jwcid="activeConferencesColumnValue@Block">
-      <span jwcid="@conference/ActiveConferencesValue" bridgeId="ognl:currentRow.id" />
+      <span jwcid="@conference/ActiveValue" itemId="ognl:currentRow.id"
+        calculateListener="listener:calculateActiveValue"
+        activateListener="ognl:selectActiveListener"/>
     </span>
   </table>
   <ul class="component-submit">
     <li>
-      <input jwcid="delete" type="submit" id="bridge:delete" name=""/>
+      <input jwcid="delete" id="bridge:delete"/>
     </li>
   </ul>
 </fieldset>

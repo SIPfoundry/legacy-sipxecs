@@ -12,8 +12,9 @@ package org.sipfoundry.sipxconfig.site.conference;
 import java.io.Serializable;
 
 import org.apache.tapestry.IPage;
-import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.annotations.InitialValue;
+import org.apache.tapestry.annotations.InjectObject;
+import org.apache.tapestry.annotations.InjectPage;
 import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
@@ -25,10 +26,9 @@ import org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext;
 public abstract class EditBridge extends PageWithCallback implements PageBeginRenderListener {
     public static final String PAGE = "conference/EditBridge";
 
-    public abstract ConferenceBridgeContext getConferenceBridgeContext();
-
     public abstract Serializable getBridgeId();
 
+    @Persist
     public abstract void setBridgeId(Serializable id);
 
     public abstract Bridge getBridge();
@@ -36,10 +36,13 @@ public abstract class EditBridge extends PageWithCallback implements PageBeginRe
     public abstract void setBridge(Bridge acdServer);
 
     public abstract boolean getChanged();
-    
+
+    @InjectObject("spring:conferenceBridgeContext")
+    public abstract ConferenceBridgeContext getConferenceBridgeContext();
+
     @Persist
-    @InitialValue(value = "literal:config")
-    public abstract String getTab();    
+    @InitialValue("literal:config")
+    public abstract void setTab(String tab);
 
     public void pageBeginRender(PageEvent event_) {
         if (getBridge() != null) {
@@ -76,19 +79,29 @@ public abstract class EditBridge extends PageWithCallback implements PageBeginRe
         }
     }
 
-    public IPage addConference(IRequestCycle cycle) {
+    @InjectPage(EditConference.PAGE)
+    public abstract EditConference getEditConferencePage();
+
+    public IPage addConference() {
         apply();
-        EditConference editConference = (EditConference) cycle.getPage(EditConference.PAGE);
-        editConference.setBridgeId(getBridgeId());
-        editConference.setConferenceId(null);
-        editConference.setReturnPage(PAGE);
-        return editConference;
+        return activateEditConferencePage(null, null);
     }
 
-    public IPage editConference(IRequestCycle cycle, Integer id) {
-        EditConference editConference = (EditConference) cycle.getPage(EditConference.PAGE);
+    public IPage editConference(Integer id) {
+        return activateEditConferencePage(id, null);
+    }
+
+    public IPage activeConferences(Integer id) {
+        return activateEditConferencePage(id, "participants");
+    }
+
+    private IPage activateEditConferencePage(Integer id, String tab) {
+        EditConference editConference = getEditConferencePage();
         editConference.setBridgeId(getBridgeId());
         editConference.setConferenceId(id);
+        if (tab != null) {
+            editConference.setTab(tab);
+        }
         editConference.setReturnPage(PAGE);
         return editConference;
     }
