@@ -114,12 +114,4 @@ public abstract class ListActiveConferences extends BasePage implements PageBegi
             }
         }
     }
-
-    public IPage activeConferenceControl(Conference conference) {
-        IRequestCycle cycle = getRequestCycle();
-        ActiveConferenceControl controlPage = (ActiveConferenceControl) cycle.getPage(ActiveConferenceControl.PAGE);
-        controlPage.setConference(conference);
-        return controlPage;
-    }
-
 }

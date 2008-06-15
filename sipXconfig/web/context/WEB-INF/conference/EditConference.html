@@ -1,17 +1,19 @@
-<html title="Conference Bridge">
-<head>
-    <link rel="stylesheet" type="text/css" href="../../css/sipxconfig.css"/>
-</head>
-<body jwcid="$content$">
-	<div jwcid="@common/Border">
-	<h2><span key="title">Conference</span></h2>
+<div jwcid="@common/Border">
+  <h2><span key="title">Conference</span></h2>
+  <span jwcid="@common/TabNavigation" tabNames="ognl:tabNames" selectedTab="ognl:tab"/>
+  <div id="settings-content">
     <span jwcid="@common/ErrorMsg"/>
+    <span jwcid="@RenderBlock" block="ognl:components.get(tab + 'Tab')" />
+  </div>
+  <div jwcid="configTab@Block">
     <form jwcid="form" id="conference:form">
-        <fieldset jwcid="itemCommon"/>
-        <fieldset jwcid="@conference/ConferenceOwnerPanel" conference="ognl:conference" />
-    	<fieldset jwcid="settingsFieldset"/>
-        <span jwcid="formActions"/>
+      <fieldset jwcid="itemCommon"/>
+      <fieldset jwcid="@conference/ConferenceOwnerPanel" conference="ognl:conference" />
+      <fieldset jwcid="settingsFieldset"/>
+      <span jwcid="formActions"/>
     </form>
-    </div>
-</body>
-</html>
+  </div>
+  <div jwcid="participantsTab@Block">
+     <div jwcid="@conference/ActiveConferenceControl" conference="ognl:conference" />
+  </div>
+</div>

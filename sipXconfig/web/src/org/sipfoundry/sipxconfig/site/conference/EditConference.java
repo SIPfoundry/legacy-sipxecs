@@ -10,8 +10,13 @@
 package org.sipfoundry.sipxconfig.site.conference;
 
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 
+import org.apache.commons.lang.ArrayUtils;
+import org.apache.tapestry.annotations.InitialValue;
+import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.sipfoundry.sipxconfig.common.CoreContext;
@@ -41,10 +46,15 @@ public abstract class EditConference extends PageWithCallback implements PageBeg
     public abstract boolean getChanged();
 
     public abstract CoreContext getCoreContext();
-    
+
     public abstract void setSelectedUsers(Collection<Integer> selectedUsers);
+
     public abstract Collection<Integer> getSelectedUsers();
-    
+
+    @Persist
+    @InitialValue(value = "literal:config")
+    public abstract String getTab();
+
     public void pageBeginRender(PageEvent event_) {
         if (getConference() != null) {
             return;
@@ -55,8 +65,19 @@ public abstract class EditConference extends PageWithCallback implements PageBeg
         } else {
             conference = getConferenceBridgeContext().newConference();
         }
-        
+
         setConference(conference);
+    }
+
+    public List<String> getTabNames() {
+        String[] tabs = new String[] {
+            "config"
+        };
+        Conference conference = getConference();
+        if (!conference.isNew() && conference.isEnabled()) {
+            tabs = (String[]) ArrayUtils.add(tabs, "participants");
+        }
+        return Arrays.asList(tabs);
     }
 
     public void apply() {
@@ -67,12 +88,12 @@ public abstract class EditConference extends PageWithCallback implements PageBeg
 
     private void saveValid() {
         Conference conference = getConference();
-        
+
         // Make sure the conference is OK to save before we save it.
         // Since the database is not locked, there is a race condition here, but at least
         // we are reducing the likelihood of a problem significantly.
         getConferenceBridgeContext().validate(conference);
-        
+
         if (conference.isNew()) {
             // associate with bridge
             Bridge bridge = getConferenceBridgeContext().loadBridge(getBridgeId());
