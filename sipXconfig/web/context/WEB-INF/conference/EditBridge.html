@@ -1,7 +1,14 @@
 <div jwcid="@common/Border">
 <h2><span key="title">Conference Bridge</span></h2>
-  <span jwcid="@common/ErrorMsg"/>
-  <form jwcid="form" id="bridge:form">
+  <span jwcid="@common/TabNavigation" tabNames="ognl:{'config','conferences'}" selectedTab="ognl:tab"/>
+  <div id="settings-content">
+    <span jwcid="@common/ErrorMsg"/>
+    <form jwcid="form" id="bridge:form">
+      <span jwcid="@RenderBlock" block="ognl:components.get(tab + 'Tab')" />
+      <span jwcid="formActions"/>
+    </form>
+  </div>
+  <div jwcid="configTab@Block">
     <fieldset>
       <table>
         <tbody>
@@ -14,9 +21,10 @@
           </tr>
         </tbody>
       </table>
-    </fieldset>
+    </fieldset>  
     <fieldset jwcid="settingsFieldset"/>
-      <span jwcid="conferencePanel"/>
-      <span jwcid="formActions"/>
-  </form>
+  </div>
+  <div jwcid="conferencesTab@Block">
+    <span jwcid="conferencePanel"/>
+  </div>
 </div>

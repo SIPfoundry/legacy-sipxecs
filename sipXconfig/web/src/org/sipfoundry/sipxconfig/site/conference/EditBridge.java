@@ -13,6 +13,8 @@ import java.io.Serializable;
 
 import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
+import org.apache.tapestry.annotations.InitialValue;
+import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
@@ -34,6 +36,10 @@ public abstract class EditBridge extends PageWithCallback implements PageBeginRe
     public abstract void setBridge(Bridge acdServer);
 
     public abstract boolean getChanged();
+    
+    @Persist
+    @InitialValue(value = "literal:config")
+    public abstract String getTab();    
 
     public void pageBeginRender(PageEvent event_) {
         if (getBridge() != null) {
