@@ -14,10 +14,12 @@ import org.apache.tapestry.IActionListener;
 import org.apache.tapestry.IAsset;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.annotations.Asset;
+import org.apache.tapestry.annotations.Component;
 import org.apache.tapestry.annotations.ComponentClass;
 import org.apache.tapestry.annotations.EventListener;
 import org.apache.tapestry.annotations.InitialValue;
 import org.apache.tapestry.annotations.Parameter;
+import org.apache.tapestry.components.Any;
 import org.apache.tapestry.components.Block;
 import org.apache.tapestry.engine.RequestCycle;
 import org.apache.tapestry.event.BrowserEvent;
@@ -54,6 +56,9 @@ public abstract class ActiveValue extends BaseComponent {
 
     public abstract int getActiveCount();
 
+    @Component
+    public abstract Any getCell();
+
     @EventListener(events = "startRendering", targets = "throbber")
     public void retrieveActiveCount(IRequestCycle cycle, BrowserEvent event) {
         // reset the number in case we cannot recalculate it
@@ -70,7 +75,12 @@ public abstract class ActiveValue extends BaseComponent {
         if (newActiveCount != null) {
             setActiveCount(newActiveCount);
         }
-        cycle.getResponseBuilder().updateComponent("cell");
+        String cellComponentId = event.getMethodArguments().getString(1);
+        // HACK: proper way to do that is...
+        // String cellComponentId = getCell().getClientId();
+        // but it looks like getCell() always returns the first 'cell' component on this page
+        // might be related to https://issues.apache.org/jira/browse/TAPESTRY-2250
+        cycle.getResponseBuilder().updateComponent(cellComponentId);
     }
 
     public Block getBlock() {

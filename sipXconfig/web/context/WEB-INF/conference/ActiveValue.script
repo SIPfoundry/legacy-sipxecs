@@ -5,7 +5,8 @@
 <script>
   <input-symbol key="parameters" required="yes"/>
   <input-symbol key="compClientId" required="yes"/>
+  <input-symbol key="updateCompClientId" required="yes"/>
   <initialization>
-dojo.byId('${compClientId}').startRendering(${parameters});
+dojo.byId('${compClientId}').startRendering(${parameters}, '${updateCompClientId}');
   </initialization>
 </script>
