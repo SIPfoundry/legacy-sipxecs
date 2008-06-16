@@ -10,20 +10,25 @@
 package org.sipfoundry.sipxconfig.conference;
 
 import java.util.Collections;
+import java.util.List;
 
 import org.dbunit.database.IDatabaseConnection;
 import org.sipfoundry.sipxconfig.SipxDatabaseTestCase;
 import org.sipfoundry.sipxconfig.TestHelper;
+import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
 
 public class ConferenceBridgeContextImplTestDb extends SipxDatabaseTestCase {
 
     private ConferenceBridgeContext m_context;
-
+    private CoreContext m_coreContext;
+    
     protected void setUp() throws Exception {
         m_context = (ConferenceBridgeContext) TestHelper.getApplicationContext().getBean(
                 ConferenceBridgeContext.CONTEXT_BEAN_NAME);
-
+        m_coreContext = (CoreContext) TestHelper.getApplicationContext().getBean(CoreContext.CONTEXT_BEAN_NAME);
+        
         TestHelper.cleanInsert("ClearDb.xml");
         TestHelper.insertFlat("conference/users.db.xml");
     }
@@ -97,6 +102,17 @@ public class ConferenceBridgeContextImplTestDb extends SipxDatabaseTestCase {
         assertEquals("conf_desc_3001", conference.getDescription());
     }
 
+    public void testFindConferenceByOwner() throws Exception {
+        TestHelper.insertFlat("conference/participants.db.xml");
+        User owner = m_coreContext.loadUser(1002);
+        List<Conference> ownerConferences = m_context.findConferencesByOwner(owner);
+        
+        assertEquals(3, ownerConferences.size());
+        for (Conference conference : ownerConferences) {
+            assertEquals(owner.getId(), conference.getOwner().getId());
+        }
+    }
+    
     public void testClear() throws Exception {
         IDatabaseConnection db = TestHelper.getConnection();
         TestHelper.insertFlat("conference/participants.db.xml");

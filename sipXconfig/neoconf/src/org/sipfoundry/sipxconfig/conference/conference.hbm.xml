@@ -54,5 +54,9 @@
   <query name="conferenceByName">
     <![CDATA[from Conference conf where conf.name = :value]]>
   </query>
+  
+  <query name="conferencesByOwner">
+    <![CDATA[from Conference conf where conf.owner = :owner]]>
+  </query>
 
 </hibernate-mapping>

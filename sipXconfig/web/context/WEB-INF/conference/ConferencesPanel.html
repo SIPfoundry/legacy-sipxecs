@@ -9,7 +9,7 @@
         </li>
     </ul>
 	<table jwcid="@common/Table" id="conference:list" class="component"
-        columns="* name,enabled,extension,description,active"
+        columns="* name,!owner,enabled,extension,description,active"
         source="ognl:conferences"
         row="ognl:currentRow"
         selections="ognl:selections">
@@ -17,6 +17,12 @@
 			<a jwcid="@DirectLink" listener="ognl:selectListener" parameters="ognl:currentRow.id">
                 <span jwcid="@Insert" value="ognl:currentRow.name"/>
             </a>
+		</span>
+		<span jwcid="ownerColumnValue@Block">
+		    <span jwcid="@If" condition="ognl:currentRow.hasOwner">
+		      <span jwcid="@Insert" value="ognl:currentRow.owner.displayName" />
+		      (<span jwcid="@Insert" value="ognl:currentRow.owner.userName" />)
+		    </span>
 		</span>
         <span jwcid="enabledColumnValue@Block">
             <span jwcid="@common/EnabledColumn" value="ognl:currentRow.enabled"/>

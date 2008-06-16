@@ -23,6 +23,7 @@ import org.sipfoundry.sipxconfig.alias.AliasManager;
 import org.sipfoundry.sipxconfig.common.BeanId;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.SipxCollectionUtils;
+import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
@@ -173,5 +174,11 @@ public class ConferenceBridgeContextImpl extends HibernateDaoSupport implements 
             list.addAll(conference.generateAliases(m_coreContext.getDomainName()));
         }
         return list;
+    }
+    
+    public List<Conference> findConferencesByOwner(User owner) {
+        List<Conference> conferences = getHibernateTemplate().findByNamedQueryAndNamedParam(
+                "conferencesByOwner", "owner", owner);
+        return conferences;
     }
 }

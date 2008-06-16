@@ -21,6 +21,8 @@ import org.apache.tapestry.form.IPropertySelectionModel;
 import org.sipfoundry.sipxconfig.admin.localization.LocalizationContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
+import org.sipfoundry.sipxconfig.conference.Conference;
+import org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext;
 import org.sipfoundry.sipxconfig.permission.Permission;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.site.admin.LocalizedLanguageMessages;
@@ -44,6 +46,12 @@ public abstract class EditMyInformation extends UserBasePage implements EditPinC
     
     @InjectObject(value = "spring:localizedLanguageMessages")
     public abstract LocalizedLanguageMessages getLocalizedLanguageMessages();
+    
+    @InjectObject(value = "spring:conferenceBridgeContext")
+    public abstract ConferenceBridgeContext getConferenceBridgeContext();
+    
+    public abstract Conference getCurrentRow();
+    public abstract void setCurrentRow(Conference currentRow);
     
     public abstract String getPin();
 
@@ -139,7 +147,8 @@ public abstract class EditMyInformation extends UserBasePage implements EditPinC
         List<String> tabNames = new ArrayList<String>();
         tabNames.add("info");
         tabNames.add("distributionLists");
-
+        tabNames.add("conferences");
+        
         String paPermissionValue = getUser().getSettingValue("permission/application/personal-auto-attendant");
         if (Permission.isEnabled(paPermissionValue)) {
             tabNames.add("menu");

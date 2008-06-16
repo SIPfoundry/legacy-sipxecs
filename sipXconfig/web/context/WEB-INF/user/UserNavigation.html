@@ -51,6 +51,12 @@
               <span key="link.attendant">Personal Attendant</span>
             </a>
           </span>
+          <span jwcid="@common/Tab" isActive="ognl:conferencesTabActive">
+            <a id="userConferencesLink" jwcid="conferencesLink@DirectLink"
+               listener="listener:viewUserConferences" parameters="ognl:bean">
+                <span key="link.conferences">Conferences</span>
+            </a>
+          </span>
           <span jwcid="@common/Tab" isActive="ognl:registrationsTabActive">
             <a id="userRegistrationsLink" jwcid="userRegistrationsLink@DirectLink"
               listener="listener:viewUserRegistrations" parameters="ognl:bean.id">

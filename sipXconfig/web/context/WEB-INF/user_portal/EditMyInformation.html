@@ -24,6 +24,9 @@
   </fieldset>
   <ul jwcid="@common/FormActions" listener="listener:save" callback="ognl:callback"/>
 </div>
+<div jwcid="conferencesTab@Block">
+    <div jwcid="@conference/UserConferencesPanel" user="ognl:user" />    
+</div>
 <div jwcid="menuTab@Block">
    <span jwcid="@common/QuickHelp" value="message:quick.help"/>
   <fieldset>

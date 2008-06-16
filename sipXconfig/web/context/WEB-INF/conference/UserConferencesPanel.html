@@ -1,0 +1,6 @@
+<div>
+    <h3>Conferences for <span jwcid="@Insert" value="ognl:user.displayName" /></h3>
+        <table jwcid="@common/Table" columns="literal:* name,description,extension"
+               source="ognl:conferenceBridgeContext.findConferencesByOwner(user)"
+               row="ognl:currentRow" />
+</div>

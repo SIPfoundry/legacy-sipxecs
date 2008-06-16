@@ -421,6 +421,7 @@
     extension CDATA #IMPLIED
     value_storage_id CDATA #IMPLIED
     meetme_bridge_id CDATA #REQUIRED
+    owner_id CDATA #IMPLIED
 >
 
 <!ELEMENT meetme_participant EMPTY>
