@@ -104,7 +104,7 @@ public abstract class ActiveConferenceControl extends BaseComponent {
             recordFailure(e);
         }
         setMembersCached(members);
-        return Collections.emptyList();
+        return members;
     }
 
     public abstract class Action implements Closure {
