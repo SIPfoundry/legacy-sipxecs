@@ -291,7 +291,7 @@
         <value>0</value>
       </setting>
     </group>
-    <group name="outgoingIntercom">
+    <group name="outgoingIntercom" hidden="yes">
       <setting name="sip_intercom_type">
         <profileName>sip intercom type</profileName>
         <type refid="outgoing-intercom-type" />
@@ -314,7 +314,7 @@
         <value>1</value>
       </setting>
     </group>
-    <group name="incomingIntercom">
+    <group name="incomingIntercom" hidden="yes">
       <setting name="sip_allow_auto_answer">
         <profileName>sip allow auto answer</profileName>
         <type>
