@@ -32,12 +32,11 @@
     <binding name="field" value="components.musicOnHoldSelector.prompt"/>
     <binding name="label" value="message:label.music"/>    
   </component>
-  <component id="musicOnHoldSelector" type="common/AssetSelector">
+  <component id="musicOnHoldSelector" type="common/AssetSelectorMultiple">
     <binding name="asset" value="parkOrbit.music"/>
     <binding name="assetDir" value="orbitsGenerator.audioDirectory"/>
     <binding name="errorMsg" value="message:error.select"/>
     <binding name="contentType" value="literal:audio/x-wav"/>
-    <binding name="selectable" value="true"></binding>
   </component>
   <component id="settingsFieldset" type="setting/SettingsFieldset">
     <binding name="settings" value="parkOrbit.settings"/>

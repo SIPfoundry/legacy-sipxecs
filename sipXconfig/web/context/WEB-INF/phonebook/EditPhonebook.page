@@ -37,22 +37,20 @@
     <binding name="label" value="message:label.phonebookCsvFile"/>
     <binding name="description" value="message:description.phonebookCsvFile"/>
   </component>
-  <component id="phonebookCsvFile" type="common/AssetSelector">
+  <component id="phonebookCsvFile" type="common/AssetSelectorSingle">
     <binding name="asset" value="phonebook.membersCsvFilename" />
     <binding name="assetDir" value="phonebookDirectory" />
     <binding name="contentType" value="literal:text/csv" />
-    <binding name="selectable" value="false" />
   </component>
   <component id="phonebookVcardFilePanel" type="common/FieldPanel">
     <binding name="field" value="components.phonebookVcardFileX"/>
     <binding name="label" value="message:label.phonebookVcardFile"/>
     <binding name="description" value="message:description.phonebookVcardFile"/>
   </component>
-  <component id="phonebookVcardFile" type="common/AssetSelector">
+  <component id="phonebookVcardFile" type="common/AssetSelectorSingle">
     <binding name="asset" value="phonebook.membersVcardFilename" />
     <binding name="assetDir" value="phonebookDirectory" />
     <binding name="contentType" value="literal:text/vCard" />
-    <binding name="selectable" value="false" />
   </component>
   <component id="nameDescription" type="common/ItemCommon">
     <binding name="useExtension" value="literal:false"/>

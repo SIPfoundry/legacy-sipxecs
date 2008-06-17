@@ -35,6 +35,7 @@ import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.type.BooleanSetting;
 import org.sipfoundry.sipxconfig.setting.type.EnumSetting;
+import org.sipfoundry.sipxconfig.setting.type.FileSetting;
 import org.sipfoundry.sipxconfig.setting.type.IntegerSetting;
 import org.sipfoundry.sipxconfig.setting.type.RealSetting;
 import org.sipfoundry.sipxconfig.setting.type.SettingType;
@@ -173,8 +174,19 @@ public abstract class SettingEditor extends BaseComponent {
     public IFormComponent getFormComponent() {
         SettingType type = getSetting().getType();
         String componentName = type.getName();
-        if (type instanceof EnumSetting && ((EnumSetting) type).isListenOnChange()) {
-            componentName += LISTEN_ON_CHANGE;
+        if (type instanceof EnumSetting) {
+            EnumSetting enumType = (EnumSetting) type;
+            if (enumType.isListenOnChange()) {
+                componentName += LISTEN_ON_CHANGE;
+            }
+        }
+        if (type instanceof FileSetting) {
+            FileSetting fsType = (FileSetting) type;
+            if (fsType.isVariable()) {
+                componentName += "Single";
+            } else {
+                componentName += "Multiple";
+            }
         }
         IComponent component = getComponent(componentName + "Field");
         if (component instanceof IFormComponent) {
@@ -192,8 +204,8 @@ public abstract class SettingEditor extends BaseComponent {
         EnumSetting enumType = (EnumSetting) type;
         MessageSource messageSource = getMessageSource();
         IPropertySelectionModel model = null;
-        model = (messageSource != null) ? localizedModelForType(setting, enumType, messageSource,
-                getPage().getLocale()) : enumModelForType(enumType);
+        model = (messageSource != null) ? localizedModelForType(setting, enumType, messageSource, getPage().getLocale())
+                : enumModelForType(enumType);
 
         if (enumType.isPromptSelect()) {
             model = getTapestry().instructUserToSelect(model, getMessages());

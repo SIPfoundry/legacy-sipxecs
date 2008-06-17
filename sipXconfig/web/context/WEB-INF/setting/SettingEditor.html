@@ -48,14 +48,23 @@
     disabled="ognl:disabled" />
 </span>
 <span jwcid="fileBlock@Block">
-  <span jwcid="fileField@common/AssetSelector"
-    id="ognl:widgetId"
-    asset="ognl:setting.value"
-    assetDir="ognl:setting.type.directory"
-    selectable="ognl:setting.type.variable"
-    contentType="ognl:setting.type.contentType"
-    submitOnChange="ognl:false"
-    enabled="ognl:enabled" />
+  <span jwcid="@If" condition="ognl:setting.type.variable" renderTag="ognl:false">
+    <span jwcid="fileMultipleField@common/AssetSelectorMultiple"
+      id="ognl:widgetId"
+      asset="ognl:setting.value"
+      assetDir="ognl:setting.type.directory"
+      contentType="ognl:setting.type.contentType"
+      submitOnChange="ognl:false"
+      enabled="ognl:enabled" />
+  </span>
+  <span jwcid="@Else">
+    <span jwcid="fileSingleField@common/AssetSelectorSingle"
+      id="ognl:widgetId"
+      asset="ognl:setting.value"
+      assetDir="ognl:setting.type.directory"
+      contentType="ognl:setting.type.contentType"
+      enabled="ognl:enabled" />
+  </span>  
 </span>
 <span jwcid="ifDecorated@If" condition="ognl:decorated" renderTag="ognl:false">
   <span jwcid="@common/FieldPanel"

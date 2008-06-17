@@ -7,7 +7,7 @@
  * 
  * $
  */
-package org.sipfoundry.sipxconfig.components;
+package org.sipfoundry.sipxconfig.site.common;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -19,7 +19,6 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -27,26 +26,24 @@ import org.apache.tapestry.AbstractPage;
 import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IMarkupWriter;
 import org.apache.tapestry.IRequestCycle;
-import org.apache.tapestry.annotations.ComponentClass;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Parameter;
 import org.apache.tapestry.form.IFormComponent;
-import org.apache.tapestry.form.IPropertySelectionModel;
-import org.apache.tapestry.form.StringPropertySelectionModel;
 import org.apache.tapestry.request.IUploadFile;
 import org.apache.tapestry.valid.IValidationDelegate;
 import org.apache.tapestry.valid.ValidationConstraint;
 import org.apache.tapestry.valid.ValidatorException;
+import org.sipfoundry.sipxconfig.components.TapestryContext;
+import org.sipfoundry.sipxconfig.components.TapestryUtils;
 
 /**
  * Component that allows user to select from existing set of assets (prompts etc.) or upload a new
  * asset.
  */
-@ComponentClass(allowBody = false, allowInformalParameters = true)
 public abstract class AssetSelector extends BaseComponent {
     private static final Log LOG = LogFactory.getLog(AssetSelector.class);
 
-    @InjectObject(value = "spring:tapestry")
+    @InjectObject("spring:tapestry")
     public abstract TapestryContext getTapestry();
 
     @Parameter(required = true)
@@ -64,18 +61,8 @@ public abstract class AssetSelector extends BaseComponent {
     @Parameter(required = true)
     public abstract String getContentType();
 
-    /**
-     * If selectable is set to true, user can upload mulitple files and select among them. If it's
-     * set to fals only a single file can be uploaded or deleted.
-     */
-    @Parameter(defaultValue = "ognl:false")
-    public abstract boolean isSelectable();
-
     @Parameter(defaultValue = "ognl:true")
     public abstract boolean isEnabled();
-
-    @Parameter(defaultValue = "ognl:true")
-    public abstract boolean getSubmitOnChange();
 
     public abstract void setAsset(String asset);
 
@@ -105,27 +92,7 @@ public abstract class AssetSelector extends BaseComponent {
         return localized;
     }
 
-    public IPropertySelectionModel getAssetSelectionModel() {
-        File assetDir = new File(getAssetDir());
-        // make sure it exists
-        assetDir.mkdirs();
-        // TODO: this probably should be replaced by listFiles with a filter that excludes
-        // directories
-        String[] assets = assetDir.list();
-        if (assets == null) {
-            assets = ArrayUtils.EMPTY_STRING_ARRAY;
-        }
-        return new StringPropertySelectionModel(assets);
-    }
-
     protected void renderComponent(IMarkupWriter writer, IRequestCycle cycle) {
-        if (TapestryUtils.isRewinding(cycle, this) && getAssetExists()) {
-            // reset the value of the asset if associated file does not exist
-            File assetFile = new File(getAssetDir(), getAsset());
-            if (!isSelectable() && !assetFile.exists()) {
-                setAsset(null);
-            }
-        }
         super.renderComponent(writer, cycle);
         if (TapestryUtils.isRewinding(cycle, this)) {
             AbstractPage page = (AbstractPage) getPage();

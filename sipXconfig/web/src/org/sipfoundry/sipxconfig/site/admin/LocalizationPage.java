@@ -30,10 +30,10 @@ import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessModel;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.localization.LocalizationContext;
 import org.sipfoundry.sipxconfig.common.UserException;
-import org.sipfoundry.sipxconfig.components.AssetSelector;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.domain.DomainConfigReplicatedEvent;
+import org.sipfoundry.sipxconfig.site.common.AssetSelector;
 
 public abstract class LocalizationPage extends BasePage implements PageBeginRenderListener {
     public static final String PAGE = "admin/LocalizationPage";

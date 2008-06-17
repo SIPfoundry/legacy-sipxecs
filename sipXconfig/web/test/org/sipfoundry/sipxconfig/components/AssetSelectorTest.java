@@ -9,6 +9,8 @@
  */
 package org.sipfoundry.sipxconfig.components;
 
+import org.sipfoundry.sipxconfig.site.common.AssetSelector;
+
 import junit.framework.TestCase;
 
 public class AssetSelectorTest extends TestCase {
