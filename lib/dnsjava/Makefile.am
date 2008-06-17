@@ -3,6 +3,7 @@ DNSJAVA_REL = 1
 
 
 TARBALL=dnsjava-$(DNSJAVA_VER).tar.gz
+PATCH = 0001-Remove-building-SUN-JVM-DNS-provider.patch
 
 SRC = $(LIBSRC)/dnsjava/$(TARBALL)
 SRPM = $(DEST_SRPM)/dnsjava-$(DNSJAVA_VER)-$(DNSJAVA_REL).src.rpm
@@ -23,7 +24,7 @@ $(RPM_SOURCES_DIR)/% : %
 	cp $< $@
 
 .PHONY: build-rpms
-build-rpms: $(SRC) $(srcdir)/dnsjava.spec $(RPM_SOURCES_DIR)/$(TARBALL)
+build-rpms: $(SRC) $(srcdir)/dnsjava.spec $(RPM_SOURCES_DIR)/$(PATCH) $(RPM_SOURCES_DIR)/$(TARBALL)
 	rpmbuild -ba $(srcdir)/dnsjava.spec
 
 $(SRPM): build-rpms

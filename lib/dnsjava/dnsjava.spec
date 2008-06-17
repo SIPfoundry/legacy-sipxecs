@@ -43,6 +43,7 @@ License:        BSD License
 URL:            http://www.dnsjava.org
 BuildArch:      noarch
 Source0:        http://www.dnsjava.org/download/dnsjava-2.0.6.tar.gz
+Patch0:         0001-Remove-building-SUN-JVM-DNS-provider.patch
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root
 
 BuildRequires:  jpackage-utils >= 0:1.7.3
@@ -72,6 +73,7 @@ Javadoc for %{name}.
 %prep
 rm -rf $RPM_BUILD_ROOT
 %setup -q
+%patch -p1
 
 # -----------------------------------------------------------------------------
 
