@@ -10,7 +10,7 @@ digraph map {
 
    subgraph ConfiguredState {
       rank=same;
-      Disabled      [label="Disabled/NotRunning"];
+      Disabled      [label="Disabled"];
       Enabled       [label="Enabled"];
    }     
 
@@ -19,7 +19,7 @@ digraph map {
       node [shape=ellipse];
       Testing [label="Testing"];
       Starting [label="Starting"];
-      Running [label="Running"];
+      Running [shape=box label="Running"];
       Stopping [label="Stopping"];
    }
 
@@ -32,21 +32,25 @@ digraph map {
       Failed [label="Failed"];
    }
 
-
-   Disabled -> Testing [label="start"];
+   Disabled -> Testing [label="enable"];
 
    Testing -> Starting [label="passed"];
 
    Testing -> ConfigurationMismatch [label="failed"];
+
    ConfigurationMismatch ->Testing [label="set cfg version"];
 
    Testing -> ResourceRequired [label="failed"];
+
    ResourceRequired -> Testing [label="created"];
 
    Testing -> ConfigurationTestFailed [label="failed"];
-   ConfigurationTestFailed -> Testing [label="start"];
+
+   ConfigurationTestFailed -> Testing [label="created"];
 
    Starting -> Running [label="started"];
+
+   Starting -> Failed [label="stopped"];
 
    Running -> Stopping [label="stop"];
 
@@ -58,7 +62,7 @@ digraph map {
 
    Starting -> Failed [label="exit"];
 
-   Failed -> Testing [label="start"];
+   Failed -> Testing [label="retry"];
 
    Enabled -> Testing [label="boot"];
 

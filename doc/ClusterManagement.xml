@@ -3,7 +3,6 @@
 "http://www.docbook.org/xml/4.2/docbookx.dtd" [
 <!ENTITY sipxecs "sipXecs">
 <!ENTITY sipxrelease "4.0">
-<!ENTITY sipxsetup "sipXsetup">
 <!ENTITY sipxecspgk "sipxecs rpm">
 <!ENTITY sipxconfig "sipXconfig">
 <!ENTITY sipxsuper "sipXsupervisor">
@@ -21,14 +20,19 @@
    <articleinfo>
     <abstract>
       <para>
-        Describes how a sipXecs system is installed, including initial
+        Describes how a &sipxecs; system is installed, including initial
         configuration, and how service processes are managed.
       </para>
     </abstract>
     <revhistory>
       <revision>
-        <revnumber>0.2</revnumber>
+        <revnumber>0.3</revnumber>
         <date><?dbtimestamp format="Y-m-d X"?></date>
+        <revremark>reworked initial setup, simplified process states</revremark>
+      </revision>
+      <revision>
+        <revnumber>0.2</revnumber>
+        <date>2008-05-29</date>
         <revremark>added detail with high level design information</revremark>
       </revision>
       <revision>
@@ -56,31 +60,47 @@
 
         <para>
           Our administrator chooses a system that meets the hardware
-          requirements to be the new &sipxecs; server, inserts the &sipxecs;
-          installation CD (or perhaps soon, a DVD) in the drive, and boots
-          from it.  After a prompt to ensure that it is acceptable to
-          re-initialize the system and destroy all data on the drives, the
-          installation run automatically, ejects the installation disk, and
-          reboots.
+          requirements to be the new &sipxecs; server, inserts the
+          &sipxecs; installation CD (or perhaps soon, a DVD) in the drive,
+          and boots from it.  After a prompt to ensure that it is
+          acceptable to re-initialize the system and destroy all data on
+          the drives, the installation runs prompting the administrator for:
+        </para>
+        <procedure>
+          <step>
+            <para>The password for the system root account</para>
+          </step>
+          <step>
+            <para>
+              The network parameters:
+              <itemizedlist spacing='compact'>
+                <listitem><para>Host Name</para></listitem>
+                <listitem><para>IP Address</para></listitem>
+                <listitem><para>Netmask</para></listitem>
+                <listitem><para>Default Gateway IP Address</para></listitem>
+              </itemizedlist>
+            </para>
+          </step>
+          <step>
+            <para>Set the system timezone.</para>
+          </step>
+          <step>
+            <para>Set the system time, and select ntp servers.</para>
+          </step>
+        </procedure>
+
+        <para>
+          When the installation is complete, the installer ejects the
+          installation disk and reboots.
         </para>
 
         <para>
-          Following the reboot, the user is prompted to log in as 'root'
-          using the default 'setup' password, and a single-use script
-          invokes the &sipxsetup; wizard.  See <xref linkend='setup'/> for details
-          of the &sipxsetup; application and what it configures.
-          <emphasis>
-            The single-use script must de-activate itself so that it will not
-            be run on subsequent root logins before it invokes the
-            &sipxsetup; application, since that application may reboot the
-            system.
-          </emphasis>
+          Following the reboot, the administrator starts a web browser on
+          some other system connected to the same network and directs it to
+          the new &sipxecs; system.  The new &sipxecs; system is in a
+          special setup mode, described in <xref linkend='setup'/>.
         </para>
 
-        <para>
-          After the &sipxsetup; application has established the minimal
-          conditions for operation of &sipxsuper; and &sipxconfig;, it starts the &sipxsuper;.
-        </para>
       </section>
 
       <section id='inst.single.rpm'>
@@ -98,24 +118,17 @@
           The &sipxecspgk; that installs all the &sipxecs;
           components.  The recommended installation method is to install
           this umbrella rpm so that all components are installed.
-          <emphasis>Installing a component does not configure any service
-          to automatically start.</emphasis> 
         </para>
 
         <para>
-          Following installation, the administrator must run the &sipxsetup;
-          wizard program manually, which configures the minimum system
-          parameters as it does when run in the iso installation (see <xref
-          linkend='inst.single.iso'/>).  If all 
-          of the minimal parameters are configured, the &sipxsetup; program
-          configures the &sipxsuper; process to start automatically on
-          the next reboot (and may also start it directly): see <xref
-          linkend='supervisor'/>. 
+          Following installation, the administrator must either reboot the
+          system, or manually start the &sipxecs; services, and then
+          connect to the web interface for initial setup (see <xref linkend='setup'/>).
         </para>
 
       </section>
 
-      <section id='sipxconfig.init'>
+      <section id='setup'>
         <title>Initial Configuration with &sipxconfig;</title>
         <para>
           The first time that the administrator logs in to the &sipxconfig;
@@ -123,9 +136,39 @@
           made that establish the basic system parameters and configure
           each of the required services.  Until the required services have
           been configured and activated, ordinary use of the &sipxconfig;
-          administrative and user interfaces is not allowed; only a
-          checklist of the remaining required choices is possible.
+          administrative and user interfaces is not allowed.  This mode
+          requests the following information from the administrator using a
+          series of setup screens:
         </para>
+
+        <procedure>
+          <step>
+            <para>The password for the superadmin &sipxecs; account</para>
+          </step>
+          
+          <step>
+            <para>
+              The information needed to generate a TLS/SSL certificate:
+              <itemizedlist spacing='compact'>
+                <listitem><para>SIP Domain Name</para></listitem>
+                <listitem><para>Organization Name</para></listitem>
+                <listitem><para>Country Code</para></listitem>
+                <listitem><para>State or Province</para></listitem>
+                <listitem><para>Locality (city)</para></listitem>
+              </itemizedlist>
+            </para>
+          </step>
+
+          <step>
+            <para>
+              Having gotten the data above, the system can now switch out of
+              the setup mode.  The final setup screen displays a link back to
+              the normal &sipxconfig; login screen; following this link
+              converts the session to one protected by TLS/SSL and prompts
+              for the newly established superadmin password.  
+            </para>
+          </step>
+        </procedure>
 
         <itemizedlist>
           <listitem><para>establish superuser password</para></listitem>
@@ -148,7 +191,7 @@
           installation of the master system: from an iso image (<xref
           linkend='inst.single.iso'/>) or rpms (<xref
           linkend='inst.single.rpm'/>).  Once the <link
-          linkend='sipxconfig.init'>initial configuration with
+          linkend='setup'>initial configuration with
           &sipxconfig;</link> is complete, the user can choose to <link linkend='dist.add'>add a
           distributed system to the cluster</link> (a single-system installation
           is just a degenerate case - a cluster with only one system).
@@ -184,9 +227,9 @@
               <listitem><para>The configuration files for the services on the system.</para></listitem>
             </itemizedlist>
             When all required information has been provided and this
-            configuration is ready, &sipxconfig; displays a system setup
-            password value for the administrator.  The administrator then
-            <link linkend='inst.dist'>install the distributed system</link>.
+            configuration is ready, &sipxconfig; presents an option to
+            'Push Configuration'.  This is used after installing the
+            software on the system, as described in <xref linkend='inst.dist'/>.
           </para>
 
         </section>
@@ -200,11 +243,11 @@
             administrator installs the &sipxecs; software on the new system
             either <link linkend='inst.single.iso'>from an iso image</link>
             or <link linkend='inst.single.rpm'>on an existing system from
-            rpms</link>.  The administrator then executes the &sipxsetup;
-            application (if using the iso installer, this happens on the
-            first login as root).  The &sipxsetup; application fetches the
-            prepared configuration from the master system as described in
-            <xref linkend='setup.dist'/>.
+            rpms</link>.  The administrator then navigates to the screen
+            for the new system in &sipxconfig; on the master system, and
+            selects the 'Push Configuration' function.  This transmits the 
+            prepared configuration from the master system to the
+            distributed system (see <xref linkend='super.xmlrpc.setup'/>).
           </para>
 
         </section>
@@ -289,216 +332,12 @@
       important to system and service configuration and managment.
     </para>
 
-    <section id='setup'>
-      <title>&sipxsetup;</title>
-      
-      <para>
-        The &sipxsetup; is an application that gets the configuration data
-        from the administrator that is essential to initializing the system
-        and bringing up the &sipxsuper; process manager; it does this by
-        performing the following steps:
-      </para>
-
-      <procedure>
-        <step>
-          <para>Get a new password for the root account</para>
-          <para>The new root password is set immediately to maximize system security.</para>
-          <para>This step is skipped if the root password is not equal to
-          the hardcoded &sipxecs; iso installation root password.</para>
-        </step>
-        <step>
-          <para>
-            Initialize and start the network.
-          </para>
-          <para>
-            Collect the network parameters:
-            <itemizedlist spacing='compact'>
-              <listitem><para>Host Name</para></listitem>
-              <listitem><para>IP Address</para></listitem>
-              <listitem><para>Netmask</para></listitem>
-              <listitem><para>Default Gateway IP Address</para></listitem>
-            </itemizedlist>
-            It then configures the network using the supplied parameters and
-            attempts to start it.  If the network startup succeeds, the
-            &sipxsetup; proceeds; if not, it displays the standard error
-            from the attempt to start and offers to repeat this step.  
-          </para>
-        </step>
-        <step>
-          <para>Set the system timezone.</para>
-          <para>
-            This sets the timezone using the standard for the distribution;
-            the default choice is whatever it is currently set to.
-          </para>
-        </step>
-        <step>
-          <para>Set the system time.</para>
-          <para>
-            This sets the time to a value in hours and minutes.  The
-            purpose is only to set an approximate time until ntp can be
-            configured.
-          </para>
-          <para>
-            The default value is the time in the system clock.
-          </para>
-        </step>
-        <step>
-          <para>
-            Select system type from:
-          </para>
-          <itemizedlist>
-            <listitem>
-              <para>
-                A new standalone or cluster master system; proceeds to <xref
-                linkend='setup.master'/> 
-              </para>
-            </listitem> 
-            <listitem>
-              <para>
-                A distributed system to be added to an existing
-                cluster; proceeds to <xref linkend='setup.dist'/>
-              </para>
-            </listitem>
-          </itemizedlist>
-          <substeps>
-            <step id='setup.master'>
-              <para>
-                These steps are performed only when the system type
-                selected is standalone or cluster master:
-              </para>
-              <substeps>
-                <step>
-                  <para>
-                    For a new (standalone or master) system installation, 
-                    &sipxsetup; checks to see if a TLS/SSL certificate is
-                    installed, and if not prompts for the information
-                    needed to generate one:
-                    <itemizedlist spacing='compact'>
-                      <listitem><para>SIP Domain Name</para></listitem>
-                      <listitem><para>Organization Name</para></listitem>
-                      <listitem><para>Section Name</para></listitem>
-                      <listitem><para>Country Code</para></listitem>
-                      <listitem><para>State or Province</para></listitem>
-                      <listitem><para>Locality (city)</para></listitem>
-                    </itemizedlist>
-                  </para>
-
-                  <para>
-                    The SIP Domain Name is saved in the domain-config
-                    configuration file.
-                  </para>
-
-                  <para>
-                    The TLS/SSL parameters are recorded, and then used to
-                    generate and install a self-signed CA certificate and a
-                    system certificate for the new system signed by that CA
-                    certificate. 
-                  </para>
-                </step>
-                <step>
-                  <para>
-                    Having set up the network and the TLS/SSL certificates, the
-                    minimal conditions are established to begin using
-                    &sipxconfig;, so &sipxsetup; completes as described in <xref
-                    linkend='setup.fini'/>. 
-                  </para>
-                </step>
-              </substeps>
-            </step>
-
-            <step id='setup.dist'>
-              <para>
-                These steps are performed only when the system type
-                selected is a distributed system: 
-              </para>
-              
-              <substeps>
-                <step>
-
-                  <para>
-                    For a distributed system installation, the existence of the
-                    system must already have been configured using &sipxconfig;
-                    on the master; see <xref linkend='dist.add'/>.
-                  </para>
-
-                  <para>
-                    When the admistrator chooses the "New distributed system"
-                    option, &sipxsetup; prompts for the name of the master
-                    system, and for the distributed system setup password
-                    supplied by &sipxconfig; when the distributed system was
-                    added. 
-                  </para>
-
-                  <para>
-                    The master system name is saved in the &sipxsuper;
-                    saved state for the system.
-                  </para>
-                </step>
-
-                <step>
-                  <para>
-                    Using the provided master system name and password,
-                    &sipxsetup; contacts an 'Distributed System Setup
-                    Interface' provided by &sipxconfig; running on the
-                    master system (see <xref linkend='config.setup'/>.  The
-                    new system authenticates itself to that service using
-                    the setup password (the connection to the master is
-                    encrypted with TLS/SSL, so the use of a plaintext
-                    password is safe).  The initial setup service returns a
-                    prepared initial configuration for the system (see
-                    <xref linkend='config.setup'/>, which
-                    &sipxsetup; installs. 
-                  </para>
-                </step>
-
-                <step>
-                  <para>
-                    Having set up the network and the TLS/SSL certificate, the
-                    minimal conditions are established to begin using
-                    &sipxsuper; as the local agent for &sipxconfig;, so
-                    &sipxsetup; completes as described in <xref linkend='setup.fini'/>. 
-                  </para>
-                </step>
-              </substeps>
-
-            </step>
-          </substeps>
-        </step>
-        <step id='setup.fini'>
-          <para>
-            When the minimal conditions are established for using
-            &sipxconfig; and &sipxsuper;, the &sipxsetup; application
-            configures the &sipxsuper; to start by default on reboot.
-            &sipxsetup; then gives the user the choice of whether to:
-            <itemizedlist>
-              <listitem><para>exit to the shell</para></listitem>
-              <listitem><para>start the &sipxsuper; service and exit to the shell</para></listitem>
-              <listitem><para>reboot the system</para></listitem>
-            </itemizedlist>
-          </para>
-        </step>
-      </procedure>
-    </section>
-
     <section id='supervisor'>
       <title>&sipxsuper;</title>
       <para>
         The &sipxsuper; is the master process management service for all
-        &sipxecs; managed services on a system.   The
-        <link linkend='setup'>&sipxsetup; installation program</link>
-        establishes two items of configuration for &sipxsuper;:
+        &sipxecs; managed services on a system.   
       </para>
-      <itemizedlist>
-        <listitem>
-          <para>The name of the master system for the cluster.</para>
-        </listitem>
-        <listitem>
-          <para>
-            The TLS/SSL certificate that secures all communications
-            with the the &sipxconfig; on the master system.
-          </para>
-        </listitem>
-      </itemizedlist>
 
       <section id='process.def'>
         <title>Service Definition</title>
@@ -936,6 +775,30 @@
 
     </section>
 
+    <section id='super.xmlrpc.setup'>
+      <title>Distributed System Setup</title>
+      <para>
+        The Distributed System Setup Interface is available only in a newly
+        installed system that has not yet been configured.  It allows
+        &sipxconfig; to push an initial system configuration to a new
+        distributed system.  The interface is a simple HTTP
+        PUT operation for a URL on the distributed system.  It is not
+        authenticated, since no certificate is available yet.
+        <note>
+          <para>The construction of the full URL for this request is
+          TBD</para>
+        </note>
+      </para>
+
+      <para>
+        The entity accepted by this PUT request is a gzipped tar file
+        containing system configuration files to be installed as root from
+        the root of the file system.  
+      </para>
+
+    </section>
+
+
   </appendix>
 
   <appendix id='config.if'>
@@ -945,29 +808,6 @@
       The following methods are provided by &sipxconfig; for the
       &sipxsuper; on a distributed system to invoke:
     </para>
-
-    <section id='config.setup'>
-      <title>Distributed System Setup Interface</title>
-      <para>
-        The Distributed System Setup Interface allows &sipxsetup; to fetch
-        an initial system configuration.  The interface is a simple HTTPS
-        GET operation for a URL on the master system, authenticated using
-        Basic authentication whose user name is "sipXsetup" and whose
-        password is the value generated by &sipxconfig; for that
-        distributed host.  
-        <note>
-          <para>The construction of the full URL for this request is
-          TBD</para>
-        </note>
-      </para>
-
-      <para>
-        The entity returned by this GET request is a gzipped tar file
-        containing system configuration files to be installed as root from
-        the root of the file system.  
-      </para>
-
-    </section>
 
     <section id='config.checkin'>
       <title>Distributed System Checkin Interface</title>
