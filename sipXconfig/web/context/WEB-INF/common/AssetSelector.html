@@ -1,10 +1,10 @@
 <table>
   <tr>
     <td>
-      <span jwcid="@If" condition="ognl:assetExists and !selectable">
+      <span jwcid="@If" condition="ognl:assetExists and !selectable" renderTag="false">
         <span jwcid="@Insert" value="ognl:asset"/>
       </span>
-      <span jwcid="@If" condition="ognl:selectable">
+      <span jwcid="@If" condition="ognl:selectable" renderTag="false">
         <input id="ognl:id" jwcid="prompt@PropertySelection"
           model="ognl:tapestry.instructUserToSelect(assetSelectionModel, messages)"
           value="ognl:asset"
@@ -13,7 +13,7 @@
       </span>
     </td>
     <td>
-      <span jwcid="@If" condition="ognl:assetExists">
+      <span jwcid="@If" condition="ognl:assetExists" renderTag="false">
         <a jwcid="downloadLink@common/DownloadLink" id="link:download"
           dirName="ognl:assetDir"
           fileName="ognl:asset"
@@ -23,7 +23,7 @@
       </span>
     </td>
     <td>
-      <span jwcid="@If" condition="ognl:assetExists and !selectable">
+      <span jwcid="@If" condition="ognl:assetExists and !selectable" renderTag="false">
         <a jwcid="deleteLink@LinkSubmit" tag="ognl:asset" selected="ognl:deleteAsset" disabled="ognl:disabled">
           <span key="link.delete">Delete</span>
         </a>
@@ -32,7 +32,7 @@
   </tr>
   <tr>
     <td colspan="3">
-      <span jwcid="@If" condition="ognl:!assetExists or selectable">
+      <span jwcid="@If" condition="ognl:!assetExists or selectable" renderTag="false">
         <input type="file" jwcid="promptUpload@Upload"
           file="ognl:uploadAsset" disabled="ognl:disabled"/>
       </span>
