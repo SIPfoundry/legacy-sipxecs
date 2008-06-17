@@ -652,6 +652,7 @@ AC_DEFUN([SFAC_DOWNLOAD_DEPENDENCIES],
   AC_SUBST(FC6_EXTRAS_URL, http://mirrors.kernel.org/fedora/extras)
   AC_SUBST(RRDTOOL_URL, http://oss.oetiker.ch/rrdtool/pub)
   AC_SUBST(JAIN_SIP_URL, http://download.java.net/communications/jain-sip/nightly/jain-sip-src)
+  AC_SUBST(DNSJAVA_URL, http://www.dnsjava.org/download/)
 
   SFAC_SRCDIR_EXPAND
   download_file="$abs_srcdir/config/download-file"

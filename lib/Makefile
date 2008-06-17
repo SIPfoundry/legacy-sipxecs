@@ -28,6 +28,7 @@ endif
 AC_TARGETS = \
 	cgicc \
 	cppunit \
+	dnsjava \
 	jain-sip \
 	jakarta-commons-net \
 	java-ibm \
