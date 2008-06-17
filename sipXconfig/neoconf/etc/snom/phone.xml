@@ -370,9 +370,9 @@
       <type refid="on-off" />
       <value>off</value>
     </setting>
-    <setting name="filter_registrar" advanced="yes">
+    <setting name="filter_registrar" hidden="yes">
       <type refid="on-off" />
-      <value>on</value>
+      <value>off</value>
     </setting>
     <setting name="challenge_reboot" advanced="yes">
       <type refid="on-off" />
