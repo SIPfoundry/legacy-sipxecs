@@ -129,7 +129,7 @@ public class FtpContextImpl implements Serializable, FtpContext {
         }
     }
 
-    private FTPFile [] searchFiles(String ...names) {
+    private FTPFile[] searchFiles(String... names) {
         try {
             FTPFile[] allFiles = m_client.listFiles(".");
             List<FTPFile> filesToSearch = new ArrayList<FTPFile>();
@@ -140,11 +140,12 @@ public class FtpContextImpl implements Serializable, FtpContext {
                 }
             }
 
-            return (FTPFile[]) filesToSearch.toArray(new FTPFile[0]);
+            return filesToSearch.toArray(new FTPFile[0]);
         } catch (IOException ex) {
             throw new UserException(ex);
         }
     }
+
     public void delete(String... names) {
         delete(searchFiles(names));
     }
@@ -168,23 +169,23 @@ public class FtpContextImpl implements Serializable, FtpContext {
     }
 
     public void download(String locationPath, String... names) {
-        download(locationPath , searchFiles(names));
+        download(locationPath, searchFiles(names));
     }
 
-    private void download(String locationPath , FTPFile... files) {
+    private void download(String locationPath, FTPFile... files) {
         OutputStream output;
         File fileNew;
         try {
             for (FTPFile file : files) {
                 if (file.isFile()) {
                     output = new FileOutputStream(locationPath + File.separator + file.getName());
-                    m_client.retrieveFile(file.getName() , output);
+                    m_client.retrieveFile(file.getName(), output);
                     output.close();
                 } else if (file.isDirectory()) {
                     changeDirectory(file.getName());
                     fileNew = new File(locationPath + File.separator + file.getName());
                     fileNew.mkdir();
-                    download(locationPath + File.separator + file.getName() , m_client.listFiles());
+                    download(locationPath + File.separator + file.getName(), m_client.listFiles());
                     changeDirectory(TWO_POINTS);
                 }
             }
@@ -193,7 +194,6 @@ public class FtpContextImpl implements Serializable, FtpContext {
             throw new UserException(ex);
         }
     }
-
 
     public void closeConnection() {
         if (m_client != null && m_client.isConnected()) {

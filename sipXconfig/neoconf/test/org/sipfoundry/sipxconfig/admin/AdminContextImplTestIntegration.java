@@ -9,11 +9,6 @@
  */
 package org.sipfoundry.sipxconfig.admin;
 
-import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.expect;
-import static org.easymock.EasyMock.replay;
-import static org.easymock.EasyMock.verify;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
@@ -21,13 +16,13 @@ import java.util.Map;
 
 import org.sipfoundry.sipxconfig.IntegrationTestCase;
 import org.sipfoundry.sipxconfig.admin.BackupBean.Type;
-import org.sipfoundry.sipxconfig.admin.commserver.Location;
-import org.sipfoundry.sipxconfig.admin.commserver.Process;
-import org.sipfoundry.sipxconfig.admin.commserver.ServiceStatus;
-import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
-import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessModel.ProcessName;
 import org.sipfoundry.sipxconfig.admin.ftp.FtpContext;
 import org.sipfoundry.sipxconfig.test.TestUtil;
+
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.verify;
 
 public class AdminContextImplTestIntegration extends IntegrationTestCase {
     private static final String FIRST_BACKUP = "200706101100";

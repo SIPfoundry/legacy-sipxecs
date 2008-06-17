@@ -65,7 +65,7 @@ public abstract class ConferenceOwnerPanel extends BaseComponent {
         return selectUsersPage;
     }
     
-    public void unassign(IRequestCycle cycle) {
+    public void unassign() {
         getConference().setOwner(null);
     }    
 }
