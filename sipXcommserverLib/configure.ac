@@ -47,7 +47,7 @@ ENABLE_DOT
 ENABLE_DOXYGEN
 CHECK_DOCBOOKXML
 AM_CONDITIONAL(DOC, test x$enable_doc = xyes)
-AM_CONDITIONAL(GENERATE_DOT, test x$have_dot = xtrue)
+AM_CONDITIONAL(GENERATE_DOT, test x$have_dot = xYES)
 AM_CONDITIONAL(GENERATE_DOCBOOK_HTML, test x$enable_xml2xhtml = xyes)
 AM_CONDITIONAL(GENERATE_DOCBOOK_TXT, test x$enable_xml2txt = xyes)
 AM_CONDITIONAL(GENERATE_DOCBOOK_PDF, test x$enable_xml2pdf = xyes)

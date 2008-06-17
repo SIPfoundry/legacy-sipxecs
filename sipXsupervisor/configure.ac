@@ -25,7 +25,7 @@ CHECK_XARGS_REPLACE
 ENABLE_DOC
 AM_CONDITIONAL(DOC, test x$enable_doc = xyes)
 CHECK_DOCBOOKXML
-AM_CONDITIONAL(GENERATE_DOT, test x$have_dot = xtrue)
+AM_CONDITIONAL(GENERATE_DOT, test x$have_dot = xYES)
 AM_CONDITIONAL(GENERATE_DOCBOOK_HTML, test x$enable_xml2xhtml = xyes)
 AM_CONDITIONAL(GENERATE_DOCBOOK_TXT, test x$enable_xml2xtxt = xyes)
 AM_CONDITIONAL(GENERATE_DOCBOOK_PDF, test x$enable_xml2pdf = xyes)
