@@ -283,8 +283,10 @@ SipRedirectorJoin::lookUp(
    SipRedirectorPrivateStorage*& privateStorage)
 {
    UtlString userId;
+   UtlString incomingCallId;
        
    requestUri.getUserId(userId);
+   message.getCallIdField(&incomingCallId);
 
    if (!mCallJoinCode.isNull() &&
        userId.length() > mCallJoinCode.length() &&
@@ -293,6 +295,7 @@ SipRedirectorJoin::lookUp(
        userId.compareTo(mExcludedUser2) != 0)
    {
       return lookUpDialog(requestString,
+                          incomingCallId,
                           response,
                           requestSeqNo,
                           redirectorNo,
@@ -313,6 +316,7 @@ SipRedirectorJoin::lookUp(
 RedirectPlugin::LookUpStatus
 SipRedirectorJoin::lookUpDialog(
    const UtlString& requestString,
+   const UtlString& incomingCallId,
    SipMessage& response,
    RedirectPlugin::RequestSeqNo requestSeqNo,
    int redirectorNo,
@@ -449,6 +453,9 @@ SipRedirectorJoin::lookUpDialog(
       // more strictly compliant.
       subscribe.setHeaderValue(SIP_ACCEPT_FIELD,
                                DIALOG_EVENT_CONTENT_TYPE);
+      // Set the References header for tracing dialog associations.
+      subscribe.setHeaderValue(SIP_REFERENCES_FIELD,
+                               incomingCallId);
    
       // Send the SUBSCRIBE.
       mpSipUserAgent->send(subscribe);

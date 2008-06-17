@@ -167,6 +167,7 @@ class SipRedirectorPickUp : public RedirectPlugin
    // Support functions.
    RedirectPlugin::LookUpStatus lookUpDialog(
       const UtlString& requestString,
+      const UtlString& incomingCallId,
       SipMessage& response,
       RequestSeqNo requestSeqNo,
       int redirectorNo,

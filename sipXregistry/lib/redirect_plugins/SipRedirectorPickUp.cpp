@@ -385,8 +385,10 @@ SipRedirectorPickUp::lookUp(
 {
    UtlString userId;
    bool bSupportsReplaces;
+   UtlString incomingCallId;
        
    requestUri.getUserId(userId);
+   message.getCallIdField(&incomingCallId);
 
    if (!mCallPickUpCode.isNull() &&
        userId.length() > mCallPickUpCode.length() &&
@@ -401,6 +403,7 @@ SipRedirectorPickUp::lookUp(
       // match all strings with the directed pick-up feature code as a
       // prefix, we also require that the suffix not be "*" or "#".
       return lookUpDialog(requestString,
+                          incomingCallId,
                           response,
                           requestSeqNo,
                           redirectorNo,
@@ -416,6 +419,7 @@ SipRedirectorPickUp::lookUp(
    {
       // Process the global call pick-up code.
       return lookUpDialog(requestString,
+                          incomingCallId,
                           response,
                           requestSeqNo,
                           redirectorNo,
@@ -497,6 +501,7 @@ SipRedirectorPickUp::lookUp(
          if (mOrbitFileReader.findInOrbitList(orbit) != NULL)
          {
             return lookUpDialog(requestString,
+                                incomingCallId,
                                 response,
                                 requestSeqNo,
                                 redirectorNo,
@@ -535,6 +540,7 @@ SipRedirectorPickUp::lookUp(
 RedirectPlugin::LookUpStatus
 SipRedirectorPickUp::lookUpDialog(
    const UtlString& requestString,
+   const UtlString& incomingCallId,
    SipMessage& response,
    RedirectPlugin::RequestSeqNo requestSeqNo,
    int redirectorNo,
@@ -741,6 +747,9 @@ SipRedirectorPickUp::lookUpDialog(
          // more strictly compliant.
          subscribe.setHeaderValue(SIP_ACCEPT_FIELD,
 	                          DIALOG_EVENT_CONTENT_TYPE);
+         // Set the References header for tracing dialog associations.
+         subscribe.setHeaderValue(SIP_REFERENCES_FIELD,
+                                  incomingCallId);
    
          // Send the SUBSCRIBE.
          mpSipUserAgent->send(subscribe);
