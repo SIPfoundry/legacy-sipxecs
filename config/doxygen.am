@@ -39,9 +39,13 @@ install-data-hook: install-doc
 .PHONY: install-doc
 install-doc: @PACKAGE@
 	rm -rf $(DESTDIR)@SIPX_DOCDIR@/@PACKAGE@
-	@INSTALL@ -d $(DESTDIR)@SIPX_DOCDIR@/@PACKAGE@
-	find @PACKAGE@ -type f -print \
-	| xargs @XARGS_REPLACE@% @INSTALL@ -m u=rw,go=r % $(DESTDIR)@SIPX_DOCDIR@/%
+	$(INSTALL) -d $(DESTDIR)@SIPX_DOCDIR@/@PACKAGE@
+	@echo "copying ./@PACKAGE@ to $(DESTDIR)@SIPX_DOCDIR@/@PACKAGE@"
+	tar -c --mode=u=rw,go=r -f - --exclude='.?*' @PACKAGE@ \
+	| \
+	( cd $(DESTDIR)@SIPX_DOCDIR@ > /dev/null \
+	; tar -x -f - \
+	)
 
 CLEANFILES+=@PACKAGE@ Doxyfile Doxyfile.project @PACKAGE@.doxygen.log
 
