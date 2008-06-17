@@ -1497,7 +1497,7 @@ bool Url::parseString(const char* urlString, ///< string to parse URL from
       if (FileUrlScheme != mScheme) // no host is ok in a file URL
       {
          /*
-          * This is not a file URL, so not having a recognized host name is invalid.
+          * This is not a file URL, so not having a recognizable host name is invalid.
           *
           * Since we may have been called from a constructor, there is no way to
           * return an error, but at this point we know this is bad, so instead

@@ -391,7 +391,7 @@ SipRedirectorJoin::lookUpDialog(
                     "%s::lookUpDialog userId '%s'",
                     mLogName.data(), userId.data());
 
-      // Construct the SUBSCRIBE for the call pickup.
+      // Construct the SUBSCRIBE for the call join.
       SipMessage subscribe;
       UtlString subscribeRequestUri("sip:");
       // The user of the request URI is our subscribeUser parameter.

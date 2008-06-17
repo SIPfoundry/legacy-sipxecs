@@ -523,7 +523,7 @@ public:
                           const char* eventField,
                           const char* acceptField,
                           const char* id,
-                          const char* contact,
+                          const char* contact,   ///< may be NULL
                           const char* routeField,
                           int expiresInSeconds);
 
