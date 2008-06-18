@@ -38,6 +38,26 @@ public class PortRangeManagerTest extends TestCase {
             portRangeManager.free(portRange);
         }
         assertEquals(portRangeManager.getRangeCount(),1);
+        PortRange p1 = portRangeManager.allocate(1, Parity.EVEN);
+        PortRange p2 = portRangeManager.allocate(1, Parity.EVEN);
+        portRangeManager.free(p1);
+        portRangeManager.free(p2);
+        PortRange p3 = portRangeManager.allocate(1, Parity.EVEN);
+        assertEquals("Should re-allocate at the same point in the range", p1.getLowerBound(),p3.getLowerBound());
+        assertEquals("Should allocate one port", p3.getLowerBound() + 1, p3.getHigherBound());
+        portRangeManager.free(p3);
+        
+        PortRange p4 = portRangeManager.allocate(2, Parity.EVEN);
+        
+        portRangeManager.free( new PortRange( p4.getLowerBound(),
+                p4.getLowerBound() + 1));
+        portRangeManager.free( new PortRange(p4.getLowerBound() + 1, p4.getLowerBound() + 2 ));
+        
+        PortRange p5 = portRangeManager.allocate(1, Parity.EVEN);
+        assertEquals(p1.getLowerBound() , p5.getLowerBound());
+        
+        
+        
     }
 
 }

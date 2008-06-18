@@ -121,8 +121,8 @@ public class Bridge {
         if (logger.isDebugEnabled()) {
             logger.debug("Closing SymBridge : " + this.toString());
         }
-        for (Sym rtpSession : this.sessions) {
-            rtpSession.close();
+        for (Sym sym : this.sessions) {
+            sym.close();
         }
 
         this.setState(BridgeState.TERMINATED);

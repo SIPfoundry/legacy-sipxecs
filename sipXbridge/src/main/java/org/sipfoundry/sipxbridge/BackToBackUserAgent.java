@@ -56,6 +56,7 @@ import org.apache.log4j.Logger;
 import org.sipfoundry.sipxbridge.symmitron.Bridge;
 import org.sipfoundry.sipxbridge.symmitron.Parity;
 import org.sipfoundry.sipxbridge.symmitron.PortRange;
+import org.sipfoundry.sipxbridge.symmitron.PortRangeManager;
 import org.sipfoundry.sipxbridge.symmitron.Sym;
 import org.sipfoundry.sipxbridge.symmitron.SymmitronServer;
 
@@ -193,8 +194,9 @@ public class BackToBackUserAgent {
                 }
 
             }
-            logger.debug("getLanRtpSession : " + dialog + " rtpSession = " + dialogApplicationData.rtpSession);
-            
+            logger.debug("getLanRtpSession : " + dialog + " rtpSession = "
+                    + dialogApplicationData.rtpSession);
+
             return dialogApplicationData.rtpSession;
         } catch (SdpParseException ex) {
             logger.error("unexpected parse exception ", ex);
@@ -608,10 +610,21 @@ public class BackToBackUserAgent {
 
         this.dialogTable.remove(dialog);
         if (this.dialogTable.isEmpty()) {
-            this.rtpBridge.stop();
             if (Gateway.isRtcpRelayingSupported()) {
                 this.rtcpBridge.stop();
+            } else {
+                // Remove the odd port allocation.
+                for (Sym sym : rtpBridge.getSyms()) {
+                    if ( sym.getReceiver() != null ) {
+                        int evenPort = sym.getReceiver().getPort();
+                        int oddPort = evenPort + 1;
+                        PortRangeManager portRangeManager = SymmitronServer.getPortManager();
+                        portRangeManager.free(new PortRange(oddPort, oddPort + 1));
+                    }
+                }
             }
+            this.rtpBridge.stop();
+
         }
         if (logger.isDebugEnabled()) {
             logger.debug("Remove Dialog " + dialog);
@@ -717,7 +730,7 @@ public class BackToBackUserAgent {
             RtpSession lanRtpSession = this.getLanRtpSession(dialog);
             if (sessionDescription != null) {
                 lanRtpSession.getReceiver().setSessionDescription(sessionDescription, true);
-                if (Gateway.isRtcpRelayingSupported() ) {
+                if (Gateway.isRtcpRelayingSupported()) {
                     RtpSession lanRtcpSession = this.getLanRtcpSession(dialog);
                     lanRtcpSession.getReceiver().setSessionDescription(sessionDescription, false);
                 }
@@ -1207,8 +1220,8 @@ public class BackToBackUserAgent {
             SessionDescription sd = spiral ? DialogApplicationData.getRtpSession(
                     this.referingDialog).getReceiver().getSessionDescription() : this
                     .getWanRtpSession(outboundDialog).getReceiver().getSessionDescription();
-            
-           //Thread.sleep(200);
+
+            // Thread.sleep(200);
 
             SipUtilities.fixupSdpAddresses(sd, itspAccountInfo.isGlobalAddressingUsed());
             String codecName = Gateway.getCodecName();
@@ -1278,7 +1291,8 @@ public class BackToBackUserAgent {
                 tad.incomingSession.setTransmitter(rtpEndpoint);
                 rtpEndpoint.setSessionDescription(sessionDescription, true);
                 if (Gateway.isRtcpRelayingSupported()) {
-                    tad.incomingRtcpSession = DialogApplicationData.getRtcpSession(incomingDialog);
+                    tad.incomingRtcpSession = DialogApplicationData
+                            .getRtcpSession(incomingDialog);
                     RtpTransmitterEndpoint rtcpEndpoint = new RtpTransmitterEndpoint();
                     tad.incomingRtcpSession.setTransmitter(rtcpEndpoint);
                     rtcpEndpoint.setSessionDescription(sessionDescription, false);
@@ -1295,7 +1309,8 @@ public class BackToBackUserAgent {
                 }
                 tad.operation = Operation.SPIRAL_BLIND_TRANSFER_INVITE_TO_ITSP;
                 RtpSession rtpSession = DialogApplicationData.getRtpSession(this.referingDialog);
-                RtpSession rtcpSession = DialogApplicationData.getRtcpSession(this.referingDialog);
+                RtpSession rtcpSession = DialogApplicationData
+                        .getRtcpSession(this.referingDialog);
                 if (rtpSession == null) {
                     Response errorResponse = ProtocolObjects.messageFactory.createResponse(
                             Response.SESSION_NOT_ACCEPTABLE, incomingRequest);

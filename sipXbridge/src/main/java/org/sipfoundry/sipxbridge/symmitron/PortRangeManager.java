@@ -11,6 +11,8 @@ import java.util.Iterator;
 import java.util.PriorityQueue;
 import java.util.TreeMap;
 
+import org.apache.log4j.Logger;
+
 
 /**
  * Resource manager for the ports that are managed by sipxbridge. Allocates
@@ -21,6 +23,8 @@ import java.util.TreeMap;
  * 
  */
 public class PortRangeManager {
+    
+    private static Logger logger  = Logger.getLogger(PortRangeManager.class);
 
     TreeMap<Integer, PortRange> portRangeLowboundMap;
 
@@ -130,6 +134,8 @@ public class PortRangeManager {
      * @param portRange
      */
     public synchronized void free(PortRange portRange) {
+        
+        logger.debug("Freeing " + portRange.getLowerBound() + " " + portRange.getHigherBound());
 
         this.insert(portRange);
 

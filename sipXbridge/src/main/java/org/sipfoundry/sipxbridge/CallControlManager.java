@@ -271,17 +271,18 @@ public class CallControlManager {
                 // This is an In-dialog request.
                 // We add our session description to the response.
                 DialogApplicationData dat = DialogApplicationData.get(dialog);
-
-                BackToBackUserAgent b2bua = dat.backToBackUserAgent;
-                RtpSession sym = null;
-                if (provider == Gateway.getLanProvider())
-                    sym = b2bua.getLanRtpSession(dialog);
-                else
-                    sym = b2bua.getWanRtpSession(dialog);
-                SessionDescription sd = sym.getReceiver().getSessionDescription();
-                if (sd != null) {
-                    response.setContent(sd.toString(), ProtocolObjects.headerFactory
-                            .createContentTypeHeader("application", "sdp"));
+                if (dat != null) {
+                    BackToBackUserAgent b2bua = dat.backToBackUserAgent;
+                    RtpSession sym = null;
+                    if (provider == Gateway.getLanProvider())
+                        sym = b2bua.getLanRtpSession(dialog);
+                    else
+                        sym = b2bua.getWanRtpSession(dialog);
+                    SessionDescription sd = sym.getReceiver().getSessionDescription();
+                    if (sd != null) {
+                        response.setContent(sd.toString(), ProtocolObjects.headerFactory
+                                .createContentTypeHeader("application", "sdp"));
+                    }
                 }
 
             }
@@ -547,16 +548,16 @@ public class CallControlManager {
                 // We did a SDP query. So we need to put an SDP
                 // Answer in the response.
                 b2bua.getWanRtpSession(peerDialog).getReceiver().setSessionDescription(sd, true);
-                if ( Gateway.isRtcpRelayingSupported()) {
-                    b2bua.getWanRtcpSession(peerDialog).getReceiver()
-                        .setSessionDescription(sd, false);
+                if (Gateway.isRtcpRelayingSupported()) {
+                    b2bua.getWanRtcpSession(peerDialog).getReceiver().setSessionDescription(sd,
+                            false);
                 }
 
             } else {
                 b2bua.getLanRtpSession(peerDialog).getReceiver().setSessionDescription(sd, true);
-                if ( Gateway.isRtcpRelayingSupported() ) {
-                    b2bua.getLanRtcpSession(peerDialog).getReceiver()
-                        .setSessionDescription(sd, false);
+                if (Gateway.isRtcpRelayingSupported()) {
+                    b2bua.getLanRtcpSession(peerDialog).getReceiver().setSessionDescription(sd,
+                            false);
                 }
             }
 
@@ -909,7 +910,7 @@ public class CallControlManager {
                     if (response.getStatusCode() == Response.OK) {
 
                         b2bua.addDialog(dialog);
-                      //  Thread.sleep(100);
+                        Thread.sleep(100);
                         Request ackRequest = dialog.createAck(((CSeqHeader) response
                                 .getHeader(CSeqHeader.NAME)).getSeqNumber());
                         dialog.sendAck(ackRequest);
@@ -961,16 +962,20 @@ public class CallControlManager {
                      * know what to do with then we just do nothing.
                      */
                     if (tad.operation != Operation.REFER_INVITE_TO_SIPX_PROXY) {
-                        assert serverTransaction != null;
-                        Request originalRequest = serverTransaction.getRequest();
-                        // tad.backToBackUa.getRtpBridge().stop();
-                        // this.callTable.remove(callid);
-                        Response newResponse = ProtocolObjects.messageFactory.createResponse(
-                                response.getStatusCode(), originalRequest);
-                        SupportedHeader sh = ProtocolObjects.headerFactory
-                                .createSupportedHeader("replaces");
-                        newResponse.setHeader(sh);
-                        serverTransaction.sendResponse(newResponse);
+
+                        if (serverTransaction != null) {
+                            Request originalRequest = serverTransaction.getRequest();
+                            // tad.backToBackUa.getRtpBridge().stop();
+                            // this.callTable.remove(callid);
+                            Response newResponse = ProtocolObjects.messageFactory.createResponse(
+                                    response.getStatusCode(), originalRequest);
+                            SupportedHeader sh = ProtocolObjects.headerFactory
+                                    .createSupportedHeader("replaces");
+                            newResponse.setHeader(sh);
+                            serverTransaction.sendResponse(newResponse);
+                        } else {
+                            b2bua.tearDown();
+                        }
                     }
                 }
             }
