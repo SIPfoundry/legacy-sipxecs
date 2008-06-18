@@ -915,7 +915,9 @@ public class CallControlManager {
                                 .getHeader(CSeqHeader.NAME)).getSeqNumber());
                         dialog.sendAck(ackRequest);
 
-                        this.sendSdpAnswerInAck(response, dialog);
+                        if ( tad.operation == Operation.QUERY_SDP_FROM_PEER_DIALOG) {
+                           this.sendSdpAnswerInAck(response, dialog);
+                        }
 
                     }
 

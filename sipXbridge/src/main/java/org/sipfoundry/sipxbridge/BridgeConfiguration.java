@@ -20,6 +20,7 @@ import org.apache.log4j.Logger;
  * 
  */
 public class BridgeConfiguration {
+    private String globalAddress;
     private String externalAddress;
     private String localAddress;
     private int externalPort = 5080;
@@ -341,6 +342,20 @@ public class BridgeConfiguration {
      */
     public void setReInviteSupported(boolean reInviteSupported) {
         this.reInviteSupported = reInviteSupported;
+    }
+
+    /**
+     * @param globalAddress the globalAddress to set
+     */
+    public void setGlobalAddress(String globalAddress) {
+        this.globalAddress = globalAddress;
+    }
+
+    /**
+     * @return the globalAddress
+     */
+    public String getGlobalAddress() {
+        return globalAddress;
     }
 
 }

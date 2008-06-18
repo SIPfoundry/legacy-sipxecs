@@ -659,8 +659,15 @@ class Gateway {
         }
         Gateway.state = GatewayState.INITIALIZING;
         init();
-        discoverAddress();
-        startRediscoveryTimer();
+        if (Gateway.getGlobalAddress() == null) {
+            discoverAddress();
+        } else {
+            Gateway.accountManager.getBridgeConfiguration().setStunServerAddress(null);
+        }
+
+        if (Gateway.accountManager.getBridgeConfiguration().getStunServerAddress() != null) {
+            startRediscoveryTimer();
+        }
         startSipListener();
         registerWithItsp();
     }
@@ -728,7 +735,9 @@ class Gateway {
      * @return
      */
     static String getGlobalAddress() {
-        return globalAddress;
+
+        return Gateway.accountManager.getBridgeConfiguration().getGlobalAddress() == null ? globalAddress
+                : Gateway.accountManager.getBridgeConfiguration().getGlobalAddress();
     }
 
     /**
@@ -836,10 +845,33 @@ class Gateway {
                 Gateway.initializeSymmitron();
                 Gateway.start();
             } else if (command.equals("stop")) {
-                // TODO -- open the xml rpc connection and stop sipxbridge
-            } else if ( command.equals("configtest")) {
+               SipStackExt sipStack = (SipStackExt) ProtocolObjects.sipStack;
+               for ( Dialog dialog: sipStack.getDialogs() ) {
+                   DialogApplicationData dat = DialogApplicationData.get(dialog);
+                   if ( dat != null  && dat.backToBackUserAgent != null) {
+                       dat.backToBackUserAgent.tearDown();
+                       dat.backToBackUserAgent = null;   
+                   }
+               }
+               Thread.sleep(10000);
+            } else if (command.equals("configtest")) {
                 try {
                     Gateway.parseConfigurationFile();
+                    BridgeConfiguration configuration = Gateway.accountManager
+                            .getBridgeConfiguration();
+                    boolean globalFlag = false;
+                    for (ItspAccountInfo itspAccount : Gateway.accountManager.getItspAccounts()) {
+                        if (itspAccount.isGlobalAddressingUsed()) {
+                            globalFlag = true;
+                        }
+                    }
+                    if (globalFlag && configuration.getGlobalAddress() == null
+                            && configuration.getStunServerAddress() == null) {
+                        logger.error("Configuration error -- no global address or stun server");
+                        System.exit(-1);
+                    }
+                    // TODO -- check for availability of the ports.
+
                     System.exit(0);
                 } catch (Exception ex) {
                     System.exit(-1);
@@ -848,8 +880,8 @@ class Gateway {
 
         } catch (Throwable ex) {
             ex.printStackTrace();
-            logger.fatal("Unexpected exception starting",ex);
-          
+            logger.fatal("Unexpected exception starting", ex);
+
         }
 
     }

@@ -36,14 +36,14 @@ public class RtpReceiverEndpoint extends SymReceiverEndpoint {
             Origin origin = sessionDescription.getOrigin();
             if ( this.sessionDescription != null ) {
                 origin = this.sessionDescription.getOrigin();
-                SipUtilities.incrementSdpVersion(sessionDescription);
             }
             this.sessionDescription = sessionDescription;
             
             sessionDescription.setOrigin(origin);
 
-            if (connection != null)
+            if (connection != null) {
                 connection.setAddress(this.ipAddress);
+            }
 
             origin.setAddress(this.ipAddress);
             Vector mds = sessionDescription.getMediaDescriptions(true);

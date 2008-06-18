@@ -51,6 +51,8 @@ public class ConfigurationParser {
         digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG,
                 "stun-interval"), "setGlobalAddressRediscoveryPeriod", 0);
         digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG,
+        "global-address"), "setGlobalAddress", 0);  
+        digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG,
                 "allowed-codec-name"), "setCodecName", 0);
         digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG,
                 "sipx-proxy-domain"), "setSipxProxyDomain", 0);
@@ -69,9 +71,6 @@ public class ConfigurationParser {
                 "media-keepalive-seconds"), "setMediaKeepalive", 0);
         digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG,
                 "log-directory"), "setLogFileDirectory", 0);
-        digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG,
-                "xml-rpc-port"), "setXmlRpcPort", 0,
-                new Class[] { Integer.class });
 
         digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG,
                 "max-number-of-concurrent-calls"), "setMaxCalls",0);

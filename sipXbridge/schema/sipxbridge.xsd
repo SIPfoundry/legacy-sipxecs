@@ -106,16 +106,6 @@
 				</xs:annotation>
 			</xs:element>
 			
-			<xs:element name="xml-rpc-port" type="xs:integer"
-				maxOccurs="1" minOccurs="0"   >
-				<xs:annotation>
-					<xs:documentation xml:lang="en">
-						Port for external XML RPC requests to be directed. The XML rpc server allows
-						for external control of the media bridging capabilities of sipxbridge. If not specified,
-						the XML RPC server is not started.
-					</xs:documentation>
-				</xs:annotation>
-			</xs:element>
 
 			<xs:element name="max-number-of-concurrent-calls" type="xs:integer"
 				maxOccurs="1" minOccurs="0">
@@ -214,6 +204,18 @@
 					<xs:documentation xml:lang="en">
 						The rediscovery period (seconds) used to determine if the NAT has
 						rebooted and aquired a new global IP address. 
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+
+			<xs:element name="global-address" type="xs:string"
+				maxOccurs="1" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+						The publicly routable address of the bridge ( only relevant if global addressing
+						is needed by any of the associated ITSPs).If something is specified, then the stun 
+						parameters are ignored. If neither STUN nor global address is specified and global
+						addressing is needed by an ITSP then it is a configuration error.
 					</xs:documentation>
 				</xs:annotation>
 			</xs:element>
