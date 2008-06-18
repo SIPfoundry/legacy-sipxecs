@@ -543,7 +543,7 @@ public class CallControlManager {
             Request ackRequest = peerDialog.createAck(SipUtilities
                     .getSeqNumber(peerDialogApplicationData.lastResponse));
 
-            if (((DialogExt) peerDialog).getSipProvider() == Gateway.getLanProvider()) {
+            if (((DialogExt) dialog).getSipProvider() == Gateway.getLanProvider()) {
                 // We did a SDP query. So we need to put an SDP
                 // Answer in the response.
                 b2bua.getWanRtpSession(peerDialog).getReceiver().setSessionDescription(sd, true);

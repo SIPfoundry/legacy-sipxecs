@@ -14,18 +14,14 @@ import gov.nist.javax.sip.header.extensions.ReplacesHeader;
 import java.io.IOException;
 import java.net.URLDecoder;
 import java.text.ParseException;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
-import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.TimerTask;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
 import javax.sdp.MediaDescription;
 import javax.sdp.SdpFactory;
@@ -46,7 +42,6 @@ import javax.sip.header.CSeqHeader;
 import javax.sip.header.CallIdHeader;
 import javax.sip.header.ContactHeader;
 import javax.sip.header.ContentTypeHeader;
-import javax.sip.header.ExtensionHeader;
 import javax.sip.header.FromHeader;
 import javax.sip.header.Header;
 import javax.sip.header.MaxForwardsHeader;
@@ -61,10 +56,8 @@ import org.apache.log4j.Logger;
 import org.sipfoundry.sipxbridge.symmitron.Bridge;
 import org.sipfoundry.sipxbridge.symmitron.Parity;
 import org.sipfoundry.sipxbridge.symmitron.PortRange;
-import org.sipfoundry.sipxbridge.symmitron.SymmitronServer;
 import org.sipfoundry.sipxbridge.symmitron.Sym;
-import org.sipfoundry.sipxbridge.symmitron.SymReceiverEndpoint;
-import org.sipfoundry.sipxbridge.symmitron.SymTransmitterEndpoint;
+import org.sipfoundry.sipxbridge.symmitron.SymmitronServer;
 
 /**
  * A class that represents an ongoing call. Each call Id points at one of these structures. It can
@@ -200,6 +193,8 @@ public class BackToBackUserAgent {
                 }
 
             }
+            logger.debug("getLanRtpSession : " + dialog + " rtpSession = " + dialogApplicationData.rtpSession);
+            
             return dialogApplicationData.rtpSession;
         } catch (SdpParseException ex) {
             logger.error("unexpected parse exception ", ex);
@@ -257,6 +252,7 @@ public class BackToBackUserAgent {
                 }
 
             }
+            logger.debug("getWanRtpSession : " + dialog + " rtpSession = " + rtpSession);
             return rtpSession;
         } catch (SdpParseException ex) {
             throw new RuntimeException("Unexpected exception -- FIXME", ex);
@@ -1211,6 +1207,8 @@ public class BackToBackUserAgent {
             SessionDescription sd = spiral ? DialogApplicationData.getRtpSession(
                     this.referingDialog).getReceiver().getSessionDescription() : this
                     .getWanRtpSession(outboundDialog).getReceiver().getSessionDescription();
+            
+           Thread.sleep(200);
 
             SipUtilities.fixupSdpAddresses(sd, itspAccountInfo.isGlobalAddressingUsed());
             String codecName = Gateway.getCodecName();
@@ -1276,9 +1274,7 @@ public class BackToBackUserAgent {
 
             if (!spiral) {
                 tad.incomingSession = this.getLanRtpSession(incomingDialog);
-
                 RtpTransmitterEndpoint rtpEndpoint = new RtpTransmitterEndpoint();
-                // rtpEndpoint.setMaxSilence(Gateway.getMediaKeepaliveMilisec());
                 tad.incomingSession.setTransmitter(rtpEndpoint);
                 rtpEndpoint.setSessionDescription(sessionDescription, true);
                 if (Gateway.isRtcpRelayingSupported()) {
@@ -1318,8 +1314,8 @@ public class BackToBackUserAgent {
                 RtpTransmitterEndpoint rtcpEndpoint = null;
                 if (Gateway.isRtcpRelayingSupported()) {
                     rtcpEndpoint = new RtpTransmitterEndpoint();
-
                     rtcpEndpoint.setSessionDescription(sessionDescription, false);
+                    rtcpSession.setTransmitter(rtcpEndpoint);
                 }
                 if (!tad.itspAccountInfo.getRtpKeepaliveMethod().equals("NONE")) {
                     rtpEndpoint.setMaxSilence(Gateway.getMediaKeepaliveMilisec(),

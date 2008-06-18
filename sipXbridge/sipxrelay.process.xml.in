@@ -10,7 +10,7 @@
 
             <start control="true">
                 <execute command="@bindir@/sipxrelay.sh"
-                         parameters=""
+                         parameters="start"
                          defaultdir="@SIPX_LOGDIR@" />
             </start>
 

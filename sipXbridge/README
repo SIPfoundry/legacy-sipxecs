@@ -24,6 +24,33 @@ calls. Dial 91your-phone-number for outbound calls.
 
 - Try a few call transfers etc.
 
+Firewall/NAT considerations
+---------------------------
+
+Some ITSPs work without any NAT configuration needed. They work by
+ignoring the SIP/SDP port information -- relying instead on the remote
+address of the incoming datagram packet. Such ITSPs require no NAT
+configuration. Other ITSPs will send packets to the specified ports if
+you use global addresses and will look at the inbound UDP to determine
+ports if you use local addresses in your signaling.  Yet other ITSPs
+are more particular. They will expect you to provide a valid port in
+your singaling and only send packets to the specified port. To cover
+all cases, you need to
+
+1. Configure sipxbridge to use the mechanism that your ITSP expects to see.
+2. Possibly configure your NAT/Firewall to forward inbound packets from your ITSP.
+
+To configure your NAT/Firewall, you need to set up port forwarding in
+the port range that sipxbridge uses.
+
+Here are my linux firewall rules:
+
+iptables -t nat -A PREROUTING -p udp --dport 15000:15500 -j DNAT --to-destination 192.168.5.240
+iptables -A FORWARD -i $EXTIF -o $INTIF0 -d 192.168.5.240 -p udp --dport 15000:15500 -j ACCEPT
+
+Here, my sipxbridge runs in the port range 15000 to 15600 
+EXTIF is my WAN-facing interface ( eth3 ).
+INTIF is my WAN-facing interface ( eth0 ).
 
 Warnings and disclaimers
 ------------------------

@@ -62,6 +62,8 @@ public class RtpTransmitterEndpoint extends SymTransmitterEndpoint {
 
             InetAddress inetAddress = InetAddress.getByName(ipAddress);
             this.setSocketAddress(new InetSocketAddress(inetAddress, this.port));
+            
+            
 
             /*
              * We use the same datagram channel for sending and receiving.
@@ -73,7 +75,9 @@ public class RtpTransmitterEndpoint extends SymTransmitterEndpoint {
             }
 
             this.onHold = false;
-
+            
+            this.connect();
+            
             assert this.datagramChannel != null;
 
         } catch (Exception ex) {

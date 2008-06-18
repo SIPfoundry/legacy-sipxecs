@@ -45,15 +45,9 @@ public class ProtocolObjects {
             sipFactory.setPathName("gov.nist");
             headerFactory = sipFactory.createHeaderFactory();
             messageFactory = sipFactory.createMessageFactory();
-            String[] productTokens = new String[] { "sipxbridge", "1.0",
-                    "alpha" };
-            LinkedList<String> tokens = new LinkedList<String>();
-            for (String token : productTokens) {
-                tokens.add(token);
-            }
+            
 
-            UserAgentHeader userAgentHeader = headerFactory
-                    .createUserAgentHeader(tokens);
+            UserAgentHeader userAgentHeader = SipUtilities.createUserAgentHeader();
             ((MessageFactoryImpl) messageFactory)
                     .setCommonUserAgentHeader(userAgentHeader);
             addressFactory = sipFactory.createAddressFactory();

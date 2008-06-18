@@ -67,12 +67,12 @@ public class SipUtilities {
     /**
      * Create a UA header
      */
-    private static UserAgentHeader createUserAgentHeader() {
+    public static UserAgentHeader createUserAgentHeader() {
         try {
             LinkedList<String> tokens = new LinkedList<String>();
-            tokens.add("iBridge");
-            UserAgentHeader userAgent = ProtocolObjects.headerFactory
-                    .createUserAgentHeader(tokens);
+            UserAgentHeader userAgent = (UserAgentHeader) ProtocolObjects.headerFactory
+                    .createHeader(UserAgentHeader.NAME,
+                            "sipXecs/3.11.3 sipXecs/sipxbridge (Linux)");
             return userAgent;
         } catch (ParseException ex) {
             throw new RuntimeException("Unexpected exception ", ex);
@@ -203,11 +203,8 @@ public class SipUtilities {
     private static Request createRegistrationRequestTemplate(ItspAccountInfo itspAccount,
             SipProvider sipProvider) throws ParseException, InvalidArgumentException {
 
-     
-        String registrar = itspAccount.getOutboundRegistrar() != null ?
-                    itspAccount.getOutboundRegistrar(): 
-                    itspAccount.getOutboundProxy();
-        
+        String registrar = itspAccount.getOutboundRegistrar() != null ? itspAccount
+                .getOutboundRegistrar() : itspAccount.getOutboundProxy();
 
         SipURI requestUri = ProtocolObjects.addressFactory.createSipURI(null, registrar);
         int port = itspAccount.getProxyPort();
@@ -257,6 +254,17 @@ public class SipUtilities {
             request.addHeader(header);
         }
 
+        if (itspAccount.getOutboundRegistrarRoute() != null) {
+            String outboundRegistrarRoute = itspAccount.getOutboundProxy();
+            SipURI routeUri = ProtocolObjects.addressFactory.createSipURI(null,
+                    outboundRegistrarRoute);
+            routeUri.setLrParam();
+            Address routeAddress = ProtocolObjects.addressFactory.createAddress(routeUri);
+            RouteHeader routeHeader = ProtocolObjects.headerFactory
+                    .createRouteHeader(routeAddress);
+            request.addHeader(routeHeader);
+        }
+
         return request;
     }
 
@@ -302,7 +310,7 @@ public class SipUtilities {
         try {
             SipURI requestUri = ProtocolObjects.addressFactory.createSipURI(null, itspAccount
                     .getSipDomain());
-           
+
             SipURI fromUri = ProtocolObjects.addressFactory.createSipURI(itspAccount
                     .getUserName(), itspAccount.getSipDomain());
 
@@ -408,8 +416,8 @@ public class SipUtilities {
     }
 
     public static Request createInviteRequest(SipURI requestUri, SipProvider sipProvider,
-            ItspAccountInfo itspAccount,  FromHeader from, String toUser,
-            String toDomain, boolean isphone) throws GatewayConfigurationException {
+            ItspAccountInfo itspAccount, FromHeader from, String toUser, String toDomain,
+            boolean isphone) throws GatewayConfigurationException {
         try {
             FromHeader fromHeader = null;
 
@@ -419,18 +427,19 @@ public class SipUtilities {
              */
             if (itspAccount.isRegisterOnInitialization()
                     && itspAccount.isUseRegistrationForCallerId()) {
-                String domain  = itspAccount.getOutboundRegistrar() != null ? itspAccount.getOutboundRegistrar() : 
-                    itspAccount.getOutboundProxy();
-                SipURI fromUri = ProtocolObjects.addressFactory.createSipURI(itspAccount.getUserName(),domain);
-                fromUri.removeParameter("user");               
+                String domain = itspAccount.getOutboundRegistrar() != null ? itspAccount
+                        .getOutboundRegistrar() : itspAccount.getOutboundProxy();
+                SipURI fromUri = ProtocolObjects.addressFactory.createSipURI(itspAccount
+                        .getUserName(), domain);
+                fromUri.removeParameter("user");
                 fromHeader = ProtocolObjects.headerFactory.createFromHeader(
                         ProtocolObjects.addressFactory.createAddress(fromUri), new Long(Math
                                 .abs(new java.util.Random().nextLong())).toString());
-                
+
                 toDomain = domain;
                 toUser = requestUri.getUser();
-           
-             } else {
+
+            } else {
                 fromHeader = from;
             }
 
@@ -441,9 +450,9 @@ public class SipUtilities {
             }
 
             fromHeader.setTag(new Long(Math.abs(new java.util.Random().nextLong())).toString());
-                     
+
             SipURI toUri = ProtocolObjects.addressFactory.createSipURI(toUser, toDomain);
-            
+
             if (isphone) {
                 toUri.setUserParam("phone");
             } else {
@@ -472,9 +481,16 @@ public class SipUtilities {
             Gateway.getAuthenticationHelper().setAuthenticationHeaders(request);
 
             ContactHeader contactHeader = createContactHeader(sipProvider, itspAccount);
-
             request.addHeader(contactHeader);
 
+            String outboundProxy = itspAccount.getOutboundProxy();
+            SipURI routeUri = ProtocolObjects.addressFactory.createSipURI(null, outboundProxy);
+            routeUri.setLrParam();
+            Address routeAddress = ProtocolObjects.addressFactory.createAddress(routeUri);
+            RouteHeader routeHeader = ProtocolObjects.headerFactory
+                    .createRouteHeader(routeAddress);
+            request.addHeader(routeHeader);
+            request.setHeader(createUserAgentHeader());
             return request;
 
         } catch (ParseException ex) {

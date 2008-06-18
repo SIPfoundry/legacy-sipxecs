@@ -122,6 +122,8 @@ public class ItspAccountInfo implements gov.nist.javax.sip.clientauthutils.UserC
     private int maxCalls = -1;
 
     private int callCount = 0;
+    
+    private String outboundRegistrarRoute;
 
     /**
      * This task runs periodically depending upon the timeout of the lookup specified.
@@ -539,6 +541,21 @@ public class ItspAccountInfo implements gov.nist.javax.sip.clientauthutils.UserC
      */
     public String getOutboundRegistrar() {
         return this.outboundRegistrar;
+    }
+
+
+    /**
+     * @param outboundRegistrarRoute the outboundRegistrarRoute to set
+     */
+    public void setOutboundRegistrarRoute(String outboundRegistrarRoute) {
+        this.outboundRegistrarRoute = outboundRegistrarRoute;
+    }
+
+    /**
+     * @return the outboundRegistrarRoute
+     */
+    public String getOutboundRegistrarRoute() {
+        return outboundRegistrarRoute;
     }
 
 }

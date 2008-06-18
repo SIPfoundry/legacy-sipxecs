@@ -84,7 +84,9 @@ public class ConfigurationParser {
         digester.addObjectCreate(ITSP_CONFIG, ItspAccountInfo.class);
         digester.addSetNext(ITSP_CONFIG, "addItspAccount");
         digester.addCallMethod(String.format("%s/%s", ITSP_CONFIG,
-            "outbound-registrar"), "setOutboundRegistrar", 0);
+            "outbound-registrar"), "setOutboundRegistrar", 0);   
+        digester.addCallMethod(String.format("%s/%s", ITSP_CONFIG,
+            "outbound-registrar-route"), "setOutboundRegistrarRoute", 0);
         digester.addCallMethod(String.format("%s/%s", ITSP_CONFIG,
                 "outbound-proxy"), "setOutboundProxy", 0);
         digester.addCallMethod(String.format("%s/%s", ITSP_CONFIG,
@@ -115,6 +117,8 @@ public class ConfigurationParser {
         digester.addCallMethod(
                 String.format("%s/%s", ITSP_CONFIG, "use-rport"),
                 "setRportUsed", 0, new Class[] { Boolean.class });
+        
+        
 
         digester.addCallMethod(String.format("%s/%s", ITSP_CONFIG,
                 "route-inbound-calls-to-extension"), "setAutoAttendantName", 0,

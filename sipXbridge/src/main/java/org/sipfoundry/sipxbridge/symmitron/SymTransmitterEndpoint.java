@@ -166,7 +166,7 @@ public class SymTransmitterEndpoint extends SymEndpoint {
 
     }
 
-    void computeAutoDiscoveryFlag() {
+    void computeAutoDiscoveryFlag() throws Exception {
         if (this.ipAddress == null && this.port == 0) {
             this.remoteAddressAutoDiscovered = AutoDiscoveryFlag.IP_ADDRESS_AND_PORT;
         } else if (this.ipAddress != null && this.port == 0) {
@@ -174,6 +174,7 @@ public class SymTransmitterEndpoint extends SymEndpoint {
         } else if (this.ipAddress != null && this.port != 0) {
             this.remoteAddressAutoDiscovered = AutoDiscoveryFlag.NO_AUTO_DISCOVERY;
         }
+
     }
 
     public void setOnHold(boolean onHold) {
@@ -259,8 +260,18 @@ public class SymTransmitterEndpoint extends SymEndpoint {
     /**
      * @param socketAddress the socketAddress to set
      */
-    public void setSocketAddress(InetSocketAddress socketAddress) {
+    protected void setSocketAddress(InetSocketAddress socketAddress) {
         this.socketAddress = socketAddress;
+
+    }
+
+    public void connect() throws IOException {
+       /*
+       if (this.datagramChannel.isConnected()) {
+            this.datagramChannel.disconnect();
+        }
+        this.datagramChannel.connect(socketAddress);*/
+
     }
 
     /**
