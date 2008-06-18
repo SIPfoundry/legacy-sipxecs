@@ -15,4 +15,4 @@ $(foreach file,$(editscripts_IN),$(file)) : % : %.in
 $(foreach file,$(editscripts_IN),$(DESTDIR)$(bindir)/$(file)) : $(DESTDIR)$(bindir)/% : %
 	$(INSTALL) -D -m 755 $< $@
 
-
+DISTCLEANFILES = freeswitch.sh
