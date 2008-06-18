@@ -268,6 +268,7 @@
 	<antcall target="nat-traversal" />
 	<antcall target="backup-ftp" />
     <antcall target="user-conferences" />
+	<antcall target="discovered-devices"/>
     <!-- When freezing schema uncomment this line -->
     <!-- sipx-version version="8" -->
   </target>
@@ -653,13 +654,17 @@
   </target>
 
   <target name="nat-traversal" unless="nat-traversal">
-     <db-patch patch="nat-traversal"/>
+    <db-patch patch="nat-traversal"/>
   </target>
 
   <target name="user-conferences" unless="user-conferences">
-     <db-patch patch="user-conferences" />
+    <db-patch patch="user-conferences" />
   </target>
-	
+
+  <target name="discovered-devices" unless="discovered-devices">
+    <db-patch patch="discovered-devices"/>
+  </target>
+
   <!-- 
     Migration Targets Legend
     

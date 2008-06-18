@@ -20,17 +20,17 @@ import org.apache.tapestry.valid.ValidatorException;
 import org.sipfoundry.sipxconfig.components.SelectMap;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.device.DiscoveredDevice;
-import org.sipfoundry.sipxconfig.phone.DeviceFinder;
+import org.sipfoundry.sipxconfig.phone.DiscoveredDeviceManager;
 import org.sipfoundry.sipxconfig.site.user_portal.UserBasePage;
 
 public abstract class DiscoverDevices extends UserBasePage implements PageBeginRenderListener {
     public static final String PAGE = "DiscoverDevices";
 
-    private static final String ACTION_REDISCOVER = "discover";
+    private static final String ACTION_REFRESH = "refresh";
     private static final String ACTION_CLEAR = "clear";
 
-    @InjectObject(value = "spring:deviceFinder")
-    public abstract DeviceFinder getTaskExecutor();
+    @InjectObject(value = "spring:discoveredDeviceManager")
+    public abstract DiscoveredDeviceManager getDiscoveredDeviceManager();
 
     public abstract void setTargets(List<DiscoveredDevice> targets);
 
@@ -42,38 +42,8 @@ public abstract class DiscoverDevices extends UserBasePage implements PageBeginR
 
     public abstract String getAction();
 
-    public abstract boolean isDiscovering();
-
-    public abstract void setDiscovering(boolean discovering);
-
-    public abstract boolean isDiscoveryExecuted();
-
-    public abstract void setDiscoveryExecuted(boolean discoveryExecuted);
-
-    public abstract boolean isDiscoveryFailed();
-
-    public abstract void setDiscoveryFailed(boolean discoveryFailed);
-
-    public abstract boolean isDiscoveryNotStarted();
-
-    public abstract void setDiscoveryNotStarted(boolean discoveryFailed);
-
     public void pageBeginRender(PageEvent event) {
-        setDiscovering(false);
-        setDiscoveryExecuted(false);
-        setDiscoveryFailed(false);
-        setDiscoveryNotStarted(false);
-        String state = getTaskExecutor().getState();
-        if (state.equals(DeviceFinder.RUNNING)) {
-            setDiscovering(true);
-        } else if (state.equals(DeviceFinder.FINISHED)) {
-            setDiscoveryExecuted(true);
-            setTargets(getTaskExecutor().getDiscoveredDevices());
-        } else if (state.equals(DeviceFinder.FAILED)) {
-            setDiscoveryFailed(true);
-        } else if (state.equals(DeviceFinder.NOT_STARTED)) {
-            setDiscoveryNotStarted(true);
-        }
+        setTargets(getDiscoveredDeviceManager().getUnregisteredDiscoveredDevices());
         setSelections(new SelectMap());
     }
 
@@ -82,8 +52,8 @@ public abstract class DiscoverDevices extends UserBasePage implements PageBeginR
     }
 
     public void submit() {
-        if (ACTION_REDISCOVER.equals(getAction())) {
-            getTaskExecutor().start();
+        if (ACTION_REFRESH.equals(getAction())) {
+            //reload
             return;
         } else if (ACTION_CLEAR.equals(getAction())) {
             // clears list
@@ -111,7 +81,7 @@ public abstract class DiscoverDevices extends UserBasePage implements PageBeginR
             }
         }
 
-        getTaskExecutor().saveDiscoveredDevices(devicesToSave);
+        getDiscoveredDeviceManager().saveDiscoveredDevices(devicesToSave);
 
         if (devicesWithoutModel.size() > 0) {
             StringBuilder error = new StringBuilder(getMessages().getMessage(

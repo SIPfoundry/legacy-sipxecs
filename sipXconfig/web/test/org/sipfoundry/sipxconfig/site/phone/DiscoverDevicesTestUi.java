@@ -29,8 +29,6 @@ public class DiscoverDevicesTestUi extends WebTestCase {
     }
 
     public void testDiscover() {
-        assertSubmitButtonPresent("notStartedDiscover");
-        clickButton("noStartedDiscover");
         assertSubmitButtonPresent("refresh");
     }
 }
