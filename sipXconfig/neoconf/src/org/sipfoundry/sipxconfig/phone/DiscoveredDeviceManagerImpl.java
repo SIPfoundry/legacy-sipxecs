@@ -19,12 +19,12 @@ import org.sipfoundry.sipxconfig.gateway.GatewayContext;
 import org.sipfoundry.sipxconfig.gateway.GatewayModel;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 
-public class DiscoveredDeviceManagerImpl extends SipxHibernateDaoSupport implements
+public class DiscoveredDeviceManagerImpl extends SipxHibernateDaoSupport<DiscoveredDevice> implements
         DiscoveredDeviceManager {
 
     private static final String DISCOVERED_DEVICE = "Discovered Device";
 
-    private static final String SPACE_MINUS = " - ";
+    private static final String SEPARATOR = " - ";
 
     private PhoneContext m_phoneContext;
 
@@ -39,8 +39,7 @@ public class DiscoveredDeviceManagerImpl extends SipxHibernateDaoSupport impleme
     }
 
     public List<DiscoveredDevice> getDiscoveredDevices() {
-        List<DiscoveredDevice> devices = (List<DiscoveredDevice>) getHibernateTemplate()
-                .findByNamedQuery("devices");
+        List<DiscoveredDevice> devices = getHibernateTemplate().loadAll(DiscoveredDevice.class);
         return devices;
     }
 
@@ -84,7 +83,7 @@ public class DiscoveredDeviceManagerImpl extends SipxHibernateDaoSupport impleme
                 gateway.setSerialNumber(device.getMacAddress());
                 gateway.setDescription(DISCOVERED_DEVICE);
                 gateway.setAddress(device.getIpAddress());
-                gateway.setName(device.getMacAddress() + SPACE_MINUS + DISCOVERED_DEVICE);
+                gateway.setName(device.getMacAddress() + SEPARATOR + DISCOVERED_DEVICE);
                 m_gatewayContext.storeGateway(gateway);
             }
         }

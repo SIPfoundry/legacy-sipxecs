@@ -12,15 +12,8 @@ package org.sipfoundry.sipxconfig.phone;
 import java.util.List;
 
 import org.sipfoundry.sipxconfig.device.DiscoveredDevice;
-import org.sipfoundry.sipxconfig.gateway.GatewayContext;
 
 public interface DiscoveredDeviceManager {
-    public static final String CONTEXT_BEAN_NAME = "discoveredDeviceManager";
-
-    public void setPhoneContext(PhoneContext context);
-
-    public void setGatewayContext(GatewayContext context);
-
     public List<DiscoveredDevice> getDiscoveredDevices();
 
     public List<DiscoveredDevice> getUnregisteredDiscoveredDevices();
