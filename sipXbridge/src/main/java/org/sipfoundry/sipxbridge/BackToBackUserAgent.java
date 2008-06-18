@@ -1208,7 +1208,7 @@ public class BackToBackUserAgent {
                     this.referingDialog).getReceiver().getSessionDescription() : this
                     .getWanRtpSession(outboundDialog).getReceiver().getSessionDescription();
             
-           Thread.sleep(200);
+           //Thread.sleep(200);
 
             SipUtilities.fixupSdpAddresses(sd, itspAccountInfo.isGlobalAddressingUsed());
             String codecName = Gateway.getCodecName();

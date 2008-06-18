@@ -909,7 +909,7 @@ public class CallControlManager {
                     if (response.getStatusCode() == Response.OK) {
 
                         b2bua.addDialog(dialog);
-                        Thread.sleep(100);
+                      //  Thread.sleep(100);
                         Request ackRequest = dialog.createAck(((CSeqHeader) response
                                 .getHeader(CSeqHeader.NAME)).getSeqNumber());
                         dialog.sendAck(ackRequest);
