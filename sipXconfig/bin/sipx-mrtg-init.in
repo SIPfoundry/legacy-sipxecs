@@ -22,7 +22,6 @@ fi
 SIPX_USER=@SIPXPBXUSER@
 SIPX_VARDIR=@SIPX_VARDIR@
 SIPX_CONFDIR=@SIPX_CONFDIR@
-SERVICE_DIR=@SERVICEDIR@
 SIPXCONFIG_PROPERTIES_IN=$SIPX_CONFDIR/sipxconfig.properties.in
 
 
@@ -73,46 +72,6 @@ if test $DISABLE_MONITORING = "true"; then
     sed 's/\(^monitoringContextImpl.enabled=\)true/\1false/' -i.org $SIPXCONFIG_PROPERTIES_IN
   fi
   exit 0
-fi
-
-
-
-#########################################
-# SNMP CONFIGURATION 
-#########################################
-if [ -d /etc/snmp ]
-then
-  cd /etc/snmp
-  if [ -f snmpd.conf ]
-  then 
-    mv snmpd.conf snmpd.conf.old
-  fi
-
-  cat > ./snmpd.conf <<EOF
-rocommunity sipxecs
-
-disk /
-EOF
-
-  chown $SIPX_USER:$SIPX_USER /etc/snmp/snmpd.conf
-
-
-    if [ -f /sbin/chkconfig ]
-    then
-      # RedHat / Fedora
-      chkconfig snmpd on
-      # Stop it first and suppress output to prevent unnecessary errors
-      service snmpd stop > /dev/null
-      service snmpd start
-    else
-      # SUSE (SUSE adds snmpd to the runlevel automatically upon installation)
-      $SERVICE_DIR/snmpd stop > /dev/null
-      $SERVICE_DIR/snmpd start
-    fi
-else
-  echo "Directory /etc/snmp does not exist. Please verify your snmp instalation."
-  echo "Exiting..."
-  exit 
 fi
 
 #########################################
@@ -251,7 +210,7 @@ EOF
 
   chown $SIPX_USER:$SIPX_USER ./mrtg-t.cfg
 else
-  echo "Directory /etc/mrtg does not exist. Pleas verify you mrtg instalation"
+  echo "Directory /etc/mrtg does not exist. Please verify your mrtg instalation"
   echo "Exiting ..."
   exit
 fi

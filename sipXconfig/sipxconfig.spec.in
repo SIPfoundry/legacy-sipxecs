@@ -100,20 +100,32 @@ Summary: Configures/enables FTP for devices controlled by %{name}
 * turns on xinit.d/vsftpd service on
 * add a user account w/default account for polycom phones
 
-%package mrtg
-Requires: sipxconfig
-Requires: mrtg
+%package snmp
 Requires: net-snmp
-Requires: rrdtool
-Requires: libart_lgpl
 
 %if %{_vendor} == redhat
 Requires: net-snmp-utils
-Requires: rrdtool-perl
 Requires: lm_sensors
 %endif
 %if %{_vendor} == suse
 Requires: sensors
+%endif
+Group: Productivity/Telephony/SIP/Servers
+Vendor: SIPfoundry
+Summary: Configures/enables SNMP for %{name}
+
+%description snmp
+* installs and configures SNMP
+
+%package mrtg
+Requires: sipxconfig-snmp
+Requires: sipxconfig
+Requires: mrtg
+Requires: rrdtool
+Requires: libart_lgpl
+
+%if %{_vendor} == redhat
+Requires: rrdtool-perl
 %endif
 Group: Productivity/Telephony/SIP/Servers
 Vendor: SIPfoundry
@@ -384,6 +396,13 @@ if [ "$1" = "0" ] ; then
     service vsftpd restart
   fi
 fi
+
+%files snmp
+%defattr(644,root,root,755)
+%attr(755,root,root) %{_bindir}/sipx-snmp-init
+
+%post snmp
+sipx-snmp-init > /dev/null
 
 %files mrtg
 %defattr(644,root,root,755)

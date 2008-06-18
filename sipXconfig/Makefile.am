@@ -16,6 +16,7 @@ edit = $(LocalizeSipXconfig) \
 
 RPMS = \
 	$(RPM) \
+	$(DEST_RPM)/@PACKAGE@-snmp-$(SIPX_VERSION).@RPM_TARGET_ARCH@.rpm \
 	$(DEST_RPM)/@PACKAGE@-mrtg-$(SIPX_VERSION).@RPM_TARGET_ARCH@.rpm \
 	$(DEST_RPM)/@PACKAGE@-tftp-$(SIPX_VERSION).@RPM_TARGET_ARCH@.rpm \
 	$(DEST_RPM)/@PACKAGE@-ftp-$(SIPX_VERSION).@RPM_TARGET_ARCH@.rpm \
