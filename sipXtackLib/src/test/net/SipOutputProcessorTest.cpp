@@ -89,16 +89,33 @@ public:
       // sent.  Given that, headers that have non-deterministric or 
       // hard-to-predict values are not considered when doing the 
       // comparison.  These headers are Date: Via: and User-Agent:.
+      // We also remove the To-tag, as it is not predictable.
       SipMessage tmpMessage1( mMessage );
       tmpMessage1.removeLastVia();
       tmpMessage1.removeHeader( HTTP_DATE_FIELD, 0 );
       tmpMessage1.removeHeader( HTTP_USER_AGENT_FIELD, 0 );
 
-   SipMessage tmpMessage2( rhs.mMessage );
+      UtlString toField;
+      tmpMessage1.getToField(&toField);
+      Url toUri(toField, Url::NameAddr);
+      toUri.removeFieldParameter("tag");
+      // Force <...> to be used when serializing toUri.
+      toUri.includeAngleBrackets();
+      toUri.toString(toField);
+      tmpMessage1.setRawToField(toField);
+
+      SipMessage tmpMessage2( rhs.mMessage );
       tmpMessage2.removeLastVia();
       tmpMessage2.removeHeader( HTTP_DATE_FIELD, 0 );
       tmpMessage2.removeHeader( HTTP_USER_AGENT_FIELD, 0 );
       
+      tmpMessage2.getToField(&toField);
+      toUri.removeFieldParameter("tag");
+      // Force <...> to be used when serializing toUri.
+      toUri.includeAngleBrackets();
+      toUri.toString(toField);
+      tmpMessage2.setRawToField(toField);
+
       tmpMessage1.getBytes( &localMessage, &localLen );
       tmpMessage2.getBytes( &rhsMessage, &rhsLen );
       

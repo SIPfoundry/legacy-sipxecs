@@ -21,12 +21,13 @@
 #include <utl/UtlDListIterator.h>
 #include <utl/UtlHashBagIterator.h>
 #include <utl/UtlHashMap.h>
-#include <net/SipMessage.h>
+#include <net/CallId.h>
 #include <net/MimeBodyPart.h>
-#include <net/SmimeBody.h>
 #include <net/NameValueTokenizer.h>
-#include <net/Url.h>
+#include <net/SipMessage.h>
 #include <net/SipUserAgent.h>
+#include <net/SmimeBody.h>
+#include <net/Url.h>
 #include <os/OsDateTime.h>
 #include <os/OsSysLog.h>
 
@@ -590,35 +591,37 @@ void SipMessage::setRequestData(const char* method, const char* uri,
    }
 }
 
-void SipMessage::setResponseData(int statusCode, const char* statusText,
-                     const char* fromField, const char* toField,
-                     const char* callId,
-                     int sequenceNumber, const char* sequenceMethod,
-                     const char* localContact )
+void SipMessage::setResponseData(int statusCode,
+                                 const char* statusText,
+                                 const char* fromField,
+                                 const char* toField,
+                                 const char* callId,
+                                 int sequenceNumber,
+                                 const char* sequenceMethod,
+                                 const char* localContact)
 {
-   // Create the top header line
-   setResponseFirstHeaderLine(SIP_PROTOCOL_VERSION, statusCode,
-      statusText);
+   // Create the top header line.
+   setResponseFirstHeaderLine(SIP_PROTOCOL_VERSION, statusCode, statusText);
 
-   // Add the From field
+   // Add the From field.
    setRawFromField(fromField);
 
-   // Add the to field
+   // Add the To field.
    setRawToField(toField);
 
-   // Add the call-id field
+   // Add the Call-Id field.
    setCallIdField(callId);
 
-   // Add the CSeq field
-   if(sequenceNumber >= 0)
+   // Add the CSeq field.
+   if (sequenceNumber >= 0)
    {
       setCSeqField(sequenceNumber, sequenceMethod);
    }
 
-   // Local Contact
+   // Add the local Contact.
    if (localContact)
    {
-      setContactField(localContact) ;
+      setContactField(localContact);
    }
 }
 
