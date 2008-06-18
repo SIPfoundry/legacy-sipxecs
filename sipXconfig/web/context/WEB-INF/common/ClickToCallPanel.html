@@ -1,0 +1,18 @@
+<form jwcid="call@Form"
+  delegate="ognl:delegate"
+  success="listener:call">
+  <fieldset>
+    <table>
+      <tr jwcid="@common/FieldPanel" for="call:number"
+        description="message:description"
+        field="component:number"
+        label="message:number">
+        <input jwcid="number@TextField" id="call:number"
+          displayName="message:number"
+          validators="spring-validators:required,validPhoneOrAor"
+          value="ognl:number" />
+        <input jwcid="@Submit" value="message:call"/>
+     </tr>
+    </table>
+  </fieldset>
+</form>
