@@ -607,7 +607,27 @@ void SipMessage::setResponseData(int statusCode,
    setRawFromField(fromField);
 
    // Add the To field.
-   setRawToField(toField);
+   // Add the To-tag to the To field, if necessary.
+   // @TODO@ This test for the presence of the 'tag' URI-parameter
+   // isn't completely correct, but it is fast and works in all cases
+   // I've ever seen.
+   // To do this right requires the caller telling us whether a new
+   // tag is required, or properly parsing toField.
+   if (   statusCode != SIP_TRYING_CODE
+       && strstr(toField, ";tag=") == NULL)
+   {
+      UtlString tagValue;
+      CallId::getNewTag(fromField, // Use fromField as the seed, as it should
+                                   // contain the to-tag from the other end.
+                        tagValue);
+      UtlString toFieldS(toField);
+      setUriParameter(&toFieldS, "tag", tagValue);
+      setRawToField(toFieldS);
+   }
+   else
+   {
+      setRawToField(toField);
+   }
 
    // Add the Call-Id field.
    setCallIdField(callId);

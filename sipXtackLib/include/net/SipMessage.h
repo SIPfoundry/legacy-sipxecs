@@ -663,6 +663,7 @@ public:
     void setResponseData(int statusCode, const char* statusText,
                          const char* fromAddress,
                          const char* toAddress,
+                         ///< A to-tag will be generated if none is supplied.
                          const char* callId,
                          int sequenceNumber,
                          const char* sequenceMethod,
