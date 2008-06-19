@@ -1105,8 +1105,8 @@ public class BackToBackUserAgent {
         try {
             Dialog dialog = requestEvent.getDialog();
             Dialog peerDialog = DialogApplicationData.getPeerDialog(dialog);
-            Request request = requestEvent.getRequest();
             DialogApplicationData peerDat = DialogApplicationData.get(peerDialog);
+            peerDat.isSdpAnswerPending = true;
 
             if (peerDialog != null && peerDialog.getState() != DialogState.TERMINATED) {
                 logger.debug("queryDialogFromPeer -- sending query to " + peerDialog);

@@ -528,6 +528,7 @@ public class CallControlManager {
      * @throws Exception
      */
     private void sendSdpAnswerInAck(Response response, Dialog dialog) throws Exception {
+        logger.debug("sendSdpAnswerInAck " + response);
         DialogApplicationData dat = (DialogApplicationData) dialog.getApplicationData();
         BackToBackUserAgent b2bua = dat.backToBackUserAgent;
         if (response.getContentLength().getContentLength() != 0) {
@@ -566,7 +567,10 @@ public class CallControlManager {
                         .createContentTypeHeader("application", "sdp"));
                 peerDialog.sendAck(ackRequest);
             }
+            peerDialogApplicationData.isSdpAnswerPending = false;
 
+        } else {
+            logger.error("ERROR  0 contentLength ");
         }
     }
 
@@ -660,7 +664,8 @@ public class CallControlManager {
                     SessionDescription sd = SipUtilities.getSessionDescription(response);
 
                     dat.lastResponse = response;
-
+                    
+                  
                     if (operation == Operation.REFER_INVITE_TO_SIPX_PROXY) {
 
                         ReferInviteToSipxProxyContinuationData continuation = (ReferInviteToSipxProxyContinuationData) tad.continuationData;
@@ -914,9 +919,11 @@ public class CallControlManager {
                         Request ackRequest = dialog.createAck(((CSeqHeader) response
                                 .getHeader(CSeqHeader.NAME)).getSeqNumber());
                         dialog.sendAck(ackRequest);
-
-                        if ( tad.operation == Operation.QUERY_SDP_FROM_PEER_DIALOG) {
+                        Dialog peerDialog = DialogApplicationData.getPeerDialog(dialog);
+                        if ( DialogApplicationData.get(peerDialog).isSdpAnswerPending) {
                            this.sendSdpAnswerInAck(response, dialog);
+                        } else {
+                            logger.debug("Not sending SdpAnswer");
                         }
 
                     }

@@ -68,6 +68,9 @@ class DialogApplicationData {
      * The RTCP session.
      */
     RtpSession rtcpSession;
+    
+    
+    boolean isSdpAnswerPending;
    
 
     
@@ -103,6 +106,7 @@ class DialogApplicationData {
     public static DialogApplicationData get(Dialog dialog) {
         return (DialogApplicationData) dialog.getApplicationData();
     }
+    
 
    
 

@@ -12,33 +12,36 @@ import org.apache.log4j.Logger;
 import org.sipfoundry.sipxbridge.symmitron.SymReceiverEndpoint;
 
 public class RtpReceiverEndpoint extends SymReceiverEndpoint {
-    
+
     private SessionDescription sessionDescription;
-    
+
     private static Logger logger = Logger.getLogger(RtpReceiverEndpoint.class);
-    
-    public RtpReceiverEndpoint( int port ) throws IOException {
-        super( port );
+
+    public RtpReceiverEndpoint(int port) throws IOException {
+        super(port);
     }
-    
+
     public SessionDescription getSessionDescription() {
         return this.sessionDescription;
     }
-    
+
     public void setSessionDescription(SessionDescription sessionDescription, boolean isRtp) {
-        if ( this.sessionDescription != null && logger.isDebugEnabled() ) {
+        if (this.sessionDescription != null && logger.isDebugEnabled()) {
             logger.debug("Old SD  = " + this.sessionDescription);
             logger.debug("newSD = " + sessionDescription);
         }
         Connection connection = sessionDescription.getConnection();
-       
+
         try {
             Origin origin = sessionDescription.getOrigin();
-            if ( this.sessionDescription != null ) {
+            if (this.sessionDescription != null) {
                 origin = this.sessionDescription.getOrigin();
+                if (!this.sessionDescription.equals(sessionDescription)) {
+                   SipUtilities.incrementSdpVersion(sessionDescription);
+                }
             }
             this.sessionDescription = sessionDescription;
-            
+
             sessionDescription.setOrigin(origin);
 
             if (connection != null) {
@@ -48,8 +51,7 @@ public class RtpReceiverEndpoint extends SymReceiverEndpoint {
             origin.setAddress(this.ipAddress);
             Vector mds = sessionDescription.getMediaDescriptions(true);
             for (int i = 0; i < mds.size(); i++) {
-                MediaDescription mediaDescription = (MediaDescription) mds
-                        .get(i);
+                MediaDescription mediaDescription = (MediaDescription) mds.get(i);
                 if (mediaDescription.getConnection() != null) {
                     mediaDescription.getConnection().setAddress(this.ipAddress);
                 }
