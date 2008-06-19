@@ -68,6 +68,7 @@ AC_CHECK_FUNCS(setenv)
 ENABLE_DOC
 ENABLE_DOXYGEN
 AM_CONDITIONAL(DOC, test x$enable_doc = xyes)
+AM_CONDITIONAL(GENERATE_DOXYGEN, test x$enable_doxygen = xyes)
 
 AC_CONFIG_FILES([
   Makefile 

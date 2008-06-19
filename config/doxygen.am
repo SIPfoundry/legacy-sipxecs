@@ -3,9 +3,32 @@
 # handles all setup for doxygen generation 
 # _except_ the addition of files to the EXTRA_DIST variable
 
-all: doc
+if GENERATE_DOXYGEN
 
-doc: @PACKAGE@
+DoxygenLocal=@PACKAGE@
+
+DoxygenInstall=$(DESTDIR)@SIPX_DOCDIR@/@PACKAGE@
+
+CopiedDocs=$(ExternalDocs)
+
+CLEANFILES+=Doxyfile Doxyfile.project @PACKAGE@.doxygen.log
+
+clean : clean-doxygen
+
+else
+
+DoxygenLocal=
+
+DoxygenInstall=
+
+CopiedDocs=
+
+endif
+
+all: $(DoxygenLocal) $(foreach doc,$(CopiedDocs),@PACKAGE@/$(doc))
+
+$(foreach doc,$(CopiedDocs),@PACKAGE@/$(doc)): @PACKAGE@/% : %
+	cp $< $@
 
 @PACKAGE@: Doxyfile
 	rm -rf @PACKAGE@
@@ -34,10 +57,7 @@ Doxyfile.project: $(srcdir)/Doxyfile.project.in
 		-e 's,@top_srcdir\@,$(top_srcdir),g' \
 	$< > $@
 
-install-data-hook: install-doc
-
-.PHONY: install-doc
-install-doc: @PACKAGE@
+$(DESTDIR)@SIPX_DOCDIR@/@PACKAGE@ : @PACKAGE@
 	rm -rf $(DESTDIR)@SIPX_DOCDIR@/@PACKAGE@
 	$(INSTALL) -d $(DESTDIR)@SIPX_DOCDIR@/@PACKAGE@
 	@echo "copying ./@PACKAGE@ to $(DESTDIR)@SIPX_DOCDIR@/@PACKAGE@"
@@ -47,14 +67,8 @@ install-doc: @PACKAGE@
 	; tar -x -f - \
 	)
 
-CLEANFILES+=@PACKAGE@ Doxyfile Doxyfile.project @PACKAGE@.doxygen.log
+install-data-hook: $(DoxygenInstall)
 
-clean: clean-doc
-
-.PHONY: clean-doc
-clean-doc:
-	rm -rf $(CLEANFILES)
-
-
-
-
+.PHONY: clean-doxygen
+clean-doxygen :
+	rm -rf @PACKAGE@

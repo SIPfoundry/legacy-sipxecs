@@ -26,6 +26,7 @@ CHECK_XARGS_REPLACE
 ENABLE_DOC
 ENABLE_DOXYGEN
 AM_CONDITIONAL(DOC, test x$enable_doc = xyes)
+AM_CONDITIONAL(GENERATE_DOXYGEN, test x$enable_doxygen = xyes)
 
 # Checks for header files.
 # Checks for typedefs, structures, and compiler characteristics.
