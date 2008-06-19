@@ -298,7 +298,7 @@ UtlBoolean SipRegistrar::operationalPhase()
    {
       mSipUserAgent->addMessageObserver( *this->getMessageQueue(), NULL /* all methods */ );
 
-      // the above causes us to actually receive all methods
+      // the above causes us to receive all methods
       // the following sets what we send in Allow headers
       mSipUserAgent->allowMethod(SIP_REGISTER_METHOD);
       mSipUserAgent->allowMethod(SIP_SUBSCRIBE_METHOD);
