@@ -16,7 +16,7 @@ import org.sipfoundry.sipxconfig.device.DiscoveredDevice;
 public interface DiscoveredDeviceManager {
     public List<DiscoveredDevice> getDiscoveredDevices();
 
-    public List<DiscoveredDevice> getUnregisteredDiscoveredDevices();
+    public List<DiscoveredDevice> getUnsavedDiscoveredDevices();
 
     public void updateDiscoveredDevices(List<DiscoveredDevice> devices);
 

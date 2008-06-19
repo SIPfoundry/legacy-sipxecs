@@ -43,7 +43,7 @@ public abstract class DiscoverDevices extends UserBasePage implements PageBeginR
     public abstract String getAction();
 
     public void pageBeginRender(PageEvent event) {
-        setTargets(getDiscoveredDeviceManager().getUnregisteredDiscoveredDevices());
+        setTargets(getDiscoveredDeviceManager().getUnsavedDiscoveredDevices());
         setSelections(new SelectMap());
     }
 

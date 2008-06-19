@@ -34,6 +34,14 @@ public class DiscoveredDeviceManagerTestIntegration extends IntegrationTestCase 
         assertEquals(2, devices.size());
     }
 
+    public void testGetUnsavedDevices() throws Exception {
+        loadDataSet("phone/discovered_devices.db.xml");
+        List<DiscoveredDevice> devices = m_context.getUnsavedDiscoveredDevices();
+        assertEquals(1, devices.size());
+        DiscoveredDevice device1 = devices.get(0);
+        assertEquals("000011112222", device1.getMacAddress());
+    }
+
     public void testUpdateDevices() throws Exception {
         loadDataSet("phone/discovered_devices.db.xml");
         List<DiscoveredDevice> devices = new ArrayList<DiscoveredDevice>();

@@ -43,7 +43,7 @@ public class DiscoveredDeviceManagerImpl extends SipxHibernateDaoSupport<Discove
         return devices;
     }
 
-    public List<DiscoveredDevice> getUnregisteredDiscoveredDevices() {
+    public List<DiscoveredDevice> getUnsavedDiscoveredDevices() {
         List<DiscoveredDevice> unregisteredDevices = new ArrayList<DiscoveredDevice>();
         List<DiscoveredDevice> discoveredDevices = getDiscoveredDevices();
         for (DiscoveredDevice device : discoveredDevices) {
