@@ -16,7 +16,9 @@
     <label>SIP</label>
     <setting name="external-address">
       <label>External address</label>
-      <description>The ITSP facing address. The ITSP will send signaling here.</description>
+      <description>The ITSP facing address. The ITSP will send signaling here. This can be a local address. If you have only one interface on your machine
+      it will be the same as your local address.
+     </description>
     </setting>
     <setting name="external-port">
       <label>External port</label>
@@ -24,7 +26,8 @@
         <integer required="yes" />
       </type>
       <value>5080</value>
-      <description>The ITSP facing port. The ITSP will send signaling here.</description>
+      <description>The ITSP facing port. The ITSP will send signaling here.
+	Must be different from local-port if local-address is the same as external-address. </description>
     </setting>
     <setting name="local-address" hidden="yes">
       <type>
@@ -42,10 +45,18 @@
     <setting name="sipx-proxy-domain" hidden="yes">
       <description>The sipXecs proxy domain.</description>
     </setting>
+    <setting name="global-address">
+      <label>Public Address</label>
+      <description>This setting is relevant if your ITSP requires a public address to be specificed and if you do not wish to use STUN
+	to determine that address. If you enter a public address here, any STUN settings will be ignored.
+     </description>
+    </setting>
     <setting name="stun-server-address">
       <label>STUN server</label>
       <value>stun01.sipphone.com</value>
-      <description>The stun server address used to determine the global address of the bridge.</description>
+      <description>The stun server address used to determine the global address of the bridge. If you enter a static global address, this
+	field is ignored.
+      </description>
     </setting>
     <setting name="sip-keepalive-seconds" advanced="yes">
       <label>Signaling keep-alive interval</label>
@@ -68,13 +79,14 @@
         seconds). If packets are not seen in the specified interval, the keepalive timer will send packets.
       </description>
     </setting>
-    <setting name="xml-rpc-port" advanced="yes">
+    <setting name="xml-rpc-port" advanced="yes" hidden="yes">
       <label>API port</label>
       <type>
         <integer />
       </type>
       <description>
         Port for external XML/RPC requests to be directed. If not specified, the XML RPC server is not started.
+	The XML RPC interface is used by sipxconfig to report status to the user.
       </description>
     </setting>
     <setting name="max-number-of-concurrent-calls">
@@ -131,7 +143,8 @@
       <value>true</value>
       <description>
         If checked, reINVITE is supported by the ITSP. This allows sipxbridge to delay codec
-        choice for call setup when dealing with call transfers.
+        choice for call setup when dealing with call transfers and can give you a wider range
+	of codecs to chose from.
       </description>
     </setting>
     <setting name="allowed-codec-name" advanced="yes" >
@@ -151,8 +164,8 @@
       </type>
       <value>PCMU</value>
       <description>
-        The codec for the SDP Offer that is allowable. This parameter is ONLY relevant if the ITSPs do NOT support ReInvite.
-	Otherwise it is ignored. If is-reinvite-supported flag is set to false then SDP offers and answers are filtered 
+        The codec for the SDP Offer that is allowable. This parameter is ONLY relevant if the ITSPs do NOT support ReINVITE.
+	Otherwise it is ignored. If is-reinvite-supported flag is set to "false" then SDP offers and answers are filtered
         to allow only this codec through.
       </description>
     </setting>

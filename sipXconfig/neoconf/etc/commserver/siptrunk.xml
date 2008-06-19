@@ -70,7 +70,7 @@
       <label>Global addressing</label>
       <type refid="switch" />
       <value>false</value>
-      <description>If checked, use the stun determined global address for SIP signaling and SDP.</description>
+      <description>If checked, use the global address for SIP and SDP.</description>
     </setting>
     <setting name="route-inbound-calls-to-extension">
       <label>Incoming calls destination</label>
@@ -91,6 +91,14 @@
       <value>true</value>
       <description>Defines whether or not to register with the given ITSP on initialization.</description>
     </setting>
+    <setting name="outbound-registrar" advanced="yes">
+      <description>Registrar domain ( if different from proxy domain ). Determines how the request URI for the outbound
+	REGISTER request is constructed.
+       </description>
+    </setting>
+    <setting name="outbound-registrar-route" advanced="yes">
+      <description>Route to the Registrar ( if different from the ITSP proxy ).  </description>
+    </setting>
     <setting name="use-registration-for-caller-id" advanced="yes">
       <label>Use Registration for caller-ID</label>
       <type refid="switch"></type>
@@ -102,25 +110,33 @@
       <type>
         <enum>
           <option>
+            <label>None</label>
+            <value>NONE</value>
+          </option>
+          <option>
+            <label>SIP REGISTER Request</label>
             <value>REGISTER</value>
           </option>
           <option>
-            <value>OPTIONS</value>
-          </option>
-          <option>
+            <label>Empty SIP message</label>
             <value>CR-LF</value>
           </option>
         </enum>
       </type>
+      <value>CR-LF</value>
       <description>
         Defines the mechanism to use for SIP keepalive. If undefined, REGISTER is used if the account is marked
-        register-on-initialization else, if OPTIONS is Supported, OPTIONS is used else CR-LF is used.
+        register-on-initialization else CR-LF (empty SIP message) is used.
       </description>
     </setting>
     <setting name="rtp-keepalive-method" advanced="yes">
       <label>Method to use for RTP keepalive.</label>
       <type>
         <enum>
+          <option>
+            <label>None</label>
+            <value>NONE</value>
+          </option>
           <option>
             <label>Use empty packet</label>
             <value>USE-EMPTY-PACKET</value>
