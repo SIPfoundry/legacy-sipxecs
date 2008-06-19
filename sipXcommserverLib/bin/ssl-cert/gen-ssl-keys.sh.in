@@ -32,8 +32,7 @@ AutoDefault=OFF
 #   external tools
 openssl="@OPENSSL@"
 
-# default base name for ca and its files
-caName=ca.`hostname --domain`
+caName=""
 
 # if there is a file of saved default answers for the questions, read them
 DefaultDefaults=SSL_DEFAULTS
@@ -41,6 +40,9 @@ Defaults=""
 
 DefaultServer=`hostname --fqdn`
 SipDomainName=""
+OrganizationName=""
+
+defaultEmail=${USER}@`hostname --domain`
 
 CurrentWorkDir=`pwd`
 WorkDir=${CurrentWorkDir}
@@ -54,8 +56,8 @@ WorkDir=${CurrentWorkDir}
 ## localityName             Locality Name (eg, city)
 ## organizationName         Organization Name (eg, company)
 ## organizationalUnitName   Organization Unit Name (eg, section)     VoIP Services
-## caName                   CA Common Name (The name for CA)         ca.`hostname --domain`
-## caEmail                  Email Contact Address for CA             root@${caName}
+## caName                   CA Common Name        ${organizationName} VoIP Certificate Authority
+## caEmail                  Email Contact Address for CA             ${USER}@`hostname --domain`
 ## sipDomainName            SIP domain name                          `hostname --domain`
 ## serverName               Full DNS name for the server             `hostname --fqdn`
 ## server Server            Common Name (name for Server)            `hostname --fqdn`
@@ -161,6 +163,11 @@ askfor () # variable, prompt, default, storeflag
     if [ "${AutoDefault}" = "AUTODEFAULT" ]
     then
         value="$default"
+        if test -z "$value"
+        then
+            echo "Can not default $prompt" 1>&2
+            exit 1
+        fi
         echo "  $prompt: $default"
     else
         until test -n "$value"
@@ -233,7 +240,7 @@ getLocality()
     askfor countryName            "Country Name (2 letter code)" ""
     askfor stateOrProvinceName    "State or Province Name (full name)" ""
     askfor localityName           "Locality Name (eg, city)" ""
-    askfor organizationName       "Organization Name (eg, company)" ""
+    askfor organizationName       "Organization Name (eg, company)" "${OrganizationName}"
     askfor organizationalUnitName "Organization Unit Name (eg, section)" "VoIP Services"
 }
 
@@ -247,8 +254,8 @@ Identifying information for your private Certificate Authority (CA)
 
 EOF
 
-    askfor caName   "CA Common Name (DNS name for CA)"
-    askfor caEmail  "Email Contact Address for CA (name@example.org)" "root@${caName}"
+    askfor caName   "CA Common Name" "${organizationName} VoIP Certificate Authority"
+    askfor caEmail  "Email Contact Address for CA (name@example.org)" "${defaultEmail}"
 }
 
 getRestrictions()
@@ -926,6 +933,36 @@ do
             else
                 csrFile=${2}
                 Action=DO_SERVER
+                shift # consume the switch ( for n values, consume n-1 )
+            fi
+            ;;
+
+        -e|--email)
+            ##
+            ## Specify a default contact email address
+            ##
+            if [ $# -lt 2 ]
+            then
+                echo "Must specify <email-address> with ${1}" 1>&2
+                Action=USAGE
+                break
+            else
+                defaultEmail=${2}
+                shift # consume the switch ( for n values, consume n-1 )
+            fi
+            ;;
+
+        -o|--org)
+            ##
+            ## Specify the organization name
+            ##
+            if [ $# -lt 2 ]
+            then
+                echo "Must specify <organization-name> with ${1}" 1>&2
+                Action=USAGE
+                break
+            else
+                OrganizationName=${2}
                 shift # consume the switch ( for n values, consume n-1 )
             fi
             ;;
