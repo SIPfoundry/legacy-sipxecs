@@ -301,12 +301,14 @@ sub find_last_notify {
     while (<LOG>) {
 	next unless /:INCOMING:/;
 	next unless /----\\nNOTIFY\s/i;
-	next unless /\\r\\nFrom\s*:\s*<?sips?:$extension@/i;
+        # See http://list.sipfoundry.org/archive/sipx-dev/msg10767.html.
+	next unless /\\r\\nFrom\s*:(\s*|[^<\\]*<|\s*\\"([^"\\]|\\\\[^\\"]|\\\\\\"|\\\\\\\\)*\\"\s*<)sips?:$extension@/i;
 	next unless /\\nEvent\s*:\s*dialog\b/i;
 	# Count the number of empty bodies.
 	$empty_notifies++ unless /<dialog-info/;
 	# Make sure a <state> that isn't "terminated" is present, as
 	# terminated notices may not have complete information.
+        # See http://list.sipfoundry.org/archive/sipx-dev/msg10792.html.
 	next unless m%<state(\s([^>"']|"[^"<]*"|'[^'<]*')*)?>(early|confirmed)</state>%;
 	# This line passes the tests, save it.
 	$log_line = $_;
