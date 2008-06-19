@@ -11,7 +11,10 @@ Work=${TMPDIR:-/tmp}/sipx-snapshot-rls.$$
 
 # Send a MESSAGE request to ~~rl~D~dumpstate, which cause the RLS to
 # write its state.
-if sipsend.pl `hostname -f` MESSAGE "sip:~~rl~D~dumpstate@${SIPXCHANGE_DOMAIN_NAME}" >$Work &&
+if @SIPX_BINDIR@/sipsend.pl \
+        `hostname -f` \
+        MESSAGE \
+        "sip:~~rl~D~dumpstate@${SIPXCHANGE_DOMAIN_NAME}" >$Work &&
    grep '^SIP/2\.0  *2' $Work >/dev/null ; then
     # If we got a success response, exit with 0.
     rm $Work
