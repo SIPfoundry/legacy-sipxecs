@@ -67,6 +67,8 @@ const char* OsSysLog::sFacilityNames[] =
    "CDR",
    "RLS",
    "XMLRPC",
+   "FSM",
+   "NAT",
    "UNKNOWN",
 } ;
 

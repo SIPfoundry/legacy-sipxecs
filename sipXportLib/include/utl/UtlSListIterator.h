@@ -44,7 +44,7 @@ public:
     /**
      * Constructor accepting a source UtlSList 
      */
-    UtlSListIterator(const UtlSList& list) ;
+    UtlSListIterator(const UtlSList& list);
 
 
     /**
@@ -52,7 +52,15 @@ public:
      * 
      * @return The  element or NULL if no more elements are available.
      */
-    virtual UtlContainable* findNext(const UtlContainable* objectToFind) ;
+    virtual UtlContainable* findNext(const UtlContainable* objectToFind);
+
+    /**
+     * Take a look at the next element in the list without moving the position
+     * of the iterator.
+     * 
+     * @return The next element or NULL if already at the end.
+     */
+    virtual UtlContainable* peekAtNext(void);
 
     /**
      * Insert the designated element after the current iterator

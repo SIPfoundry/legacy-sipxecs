@@ -321,7 +321,7 @@ public:
      * @return the offset of the string or UTL_NOT_FOUND
      */
 
-    /// Find the last instance of a null terminated string
+    /// Find the last instance of a character.
     ssize_t last(char s) const;
     /**<
      * @return the offset of the string or UTL_NOT_FOUND

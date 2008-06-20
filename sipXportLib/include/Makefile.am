@@ -114,6 +114,7 @@ nobase_include_HEADERS = \
     utl/UtlDList.h \
     utl/UtlDListIterator.h \
     utl/UtlDefs.h \
+    utl/UtlFsm.h \
     utl/UtlHashBag.h \
     utl/UtlHashBagIterator.h \
     utl/UtlHashMap.h \

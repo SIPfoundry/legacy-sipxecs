@@ -79,6 +79,40 @@ UtlContainable* UtlSListIterator::findNext(const UtlContainable* containableToMa
    return match;
 }
 
+UtlContainable* UtlSListIterator::peekAtNext(void)
+{
+   UtlContainable* match = NULL;
+
+   UtlContainer::acquireIteratorConnectionLock();
+   OsLock takeContainer(mContainerRefLock);
+   UtlSList* myList = dynamic_cast<UtlSList*>(mpMyContainer);
+   
+   if (myList != NULL) // list still valid?
+   {
+      OsLock take(myList->mContainerLock);
+      UtlContainer::releaseIteratorConnectionLock();
+
+      UtlLink* nextLink;
+      if( mpCurrentNode )
+      {
+         nextLink = mpCurrentNode->next();
+      }
+      else
+      {
+         nextLink = myList->head();
+      }
+      if( nextLink )
+      {
+         match = (UtlContainable*)nextLink->data;
+      }
+   }
+   else
+   {
+      UtlContainer::releaseIteratorConnectionLock();
+   }   
+   
+   return match;
+}
 
 UtlContainable* UtlSListIterator::insertAfterPoint(UtlContainable* insertedObject) 
 {

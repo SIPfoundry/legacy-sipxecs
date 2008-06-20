@@ -57,7 +57,7 @@ public:
     UtlInt operator--(int);     // Postfix decrement operator
 
     // Conversion to int
-    operator intptr_t() { return mValue; }
+    operator intptr_t() const { return mValue; }
 
 /* ============================ MANIPULATORS ============================== */
 

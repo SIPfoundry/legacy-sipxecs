@@ -86,6 +86,8 @@ enum tagOsSysLogFacility
    FAC_CDR,                ///< CDR generating related
    FAC_RLS,                ///< Resource list server
    FAC_XMLRPC,             ///< XML RPC related
+   FAC_FSM,                ///< Finite State Machine tracking
+   FAC_NAT,                ///< NAT Traversal related
    FAC_MAX_FACILITY        ///< Last Facility (used to for length)
 
    //
