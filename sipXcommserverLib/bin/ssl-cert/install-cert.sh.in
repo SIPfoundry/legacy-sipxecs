@@ -44,8 +44,15 @@ remote_receive() {
 CurrentWorkDir=`pwd`
 WorkDir=${CurrentWorkDir}
 
+InstallDir="@SIPX_CONFDIR@"
+openssl="@OPENSSL@"
+sipXuser="@SIPXPBXUSER@"
+
 Action=INSTALL
 Basename=""
+
+certOk=0
+certsInstalled=0
 
 while [ $# -ne 0 ]
 do
@@ -101,6 +108,33 @@ done
 if [ -z "${Basename}" ]
 then
     Basename=`hostname --fqdn`
+else
+    # if they gave the full file name, strip the suffix off
+    case "${Basename}" in
+        *.crt)
+            Basename=`basename "${Basename}" .crt`
+            ;;
+        *.p12)
+            Basename=`basename "${Basename}" .p12`
+            ;;
+        *.key)
+            Basename=`basename "${Basename}" .key`
+            ;;
+    esac
+
+    case "${Basename}" in
+        *-sip)
+            installQualifier="-sip"
+            ;;
+        *-web)
+            installQualifier="-web"
+            ;;
+        *)
+            installQualifier=""
+            ;;
+    esac
+
+
 fi
 
 if [ "${Action}" = "REMOTE_RECEIVE" ]
@@ -154,7 +188,8 @@ EOF
     exit 1
 fi
 
-caName=`@OPENSSL@ x509 -in "${Basename}.crt" -issuer -nameopt RFC2253,multiline -noout | perl -ne 'use English; m/^ +commonName += / && print $POSTMATCH'`
+caName=`${openssl} x509 -in "${Basename}.crt" -issuer -nameopt RFC2253,multiline -noout \
+    | perl -ne 'use English; m/^ +commonName += / && print $POSTMATCH'`
 
 if [ -n "${caName}" -a -f "${caName}.crt" ]
     then
@@ -176,44 +211,62 @@ echo "Checking the '${Basename}' certificate"
 if @bindir@/ssl-cert/check-cert.sh ${AuthoritySwitch} "${AuthorityTarget}" "$Basename.crt"
 then
 
-    if [ ! -d @SIPX_CONFDIR@/ssl ]
+    if [ ! -d ${InstallDir}/ssl ]
     then
-        mkdir               @SIPX_CONFDIR@/ssl || exit 1
-        chown @SIPXPBXUSER@ @SIPX_CONFDIR@/ssl || exit 1
-        chmod 0700          @SIPX_CONFDIR@/ssl || exit 1
+        mkdir               ${InstallDir}/ssl || exit 1
+        chown ${sipXuser}   ${InstallDir}/ssl || exit 1
+        chmod 0700          ${InstallDir}/ssl || exit 1
     fi
 
     if [ -n "${caName}" -a -f "${caName}.crt" ]
     then
         # create the sipX authorities store directory
-        if [ ! -d @SIPX_CONFDIR@/ssl/authorities ]
+        if [ ! -d ${InstallDir}/ssl/authorities ]
         then
-            mkdir               @SIPX_CONFDIR@/ssl/authorities || exit 1
-            chown @SIPXPBXUSER@ @SIPX_CONFDIR@/ssl/authorities || exit 1
-            chmod 0700          @SIPX_CONFDIR@/ssl/authorities || exit 1
+            mkdir               ${InstallDir}/ssl/authorities || exit 1
+            chown ${sipXuser}   ${InstallDir}/ssl/authorities || exit 1
+            chmod 0700          ${InstallDir}/ssl/authorities || exit 1
         fi
         
         echo "Installing '${caName}.crt' certificate as a trusted CA"
-        cp -v "${caName}.crt" "@SIPX_CONFDIR@/ssl/authorities/${caName}.crt" || exit 1
-        chown @SIPXPBXUSER@   "@SIPX_CONFDIR@/ssl/authorities/${caName}.crt" || exit 1
-        chmod 0644            "@SIPX_CONFDIR@/ssl/authorities/${caName}.crt" || exit 1
+        cp -v "${caName}.crt" "${InstallDir}/ssl/authorities/${caName}.crt" || exit 1
+        chown ${sipXuser}     "${InstallDir}/ssl/authorities/${caName}.crt" || exit 1
+        chmod 0644            "${InstallDir}/ssl/authorities/${caName}.crt" || exit 1
 
         # regenerate the hash symlinks for the certificate store
         @bindir@/ssl-cert/ca_rehash 
     fi
 
-    echo "Installing the '${Basename}' certificate"
-    cp -v "$Basename.crt" @SIPX_CONFDIR@/ssl/ssl.crt || exit 1
-    chown @SIPXPBXUSER@   @SIPX_CONFDIR@/ssl/ssl.crt || exit 1
-    chmod 0600            @SIPX_CONFDIR@/ssl/ssl.crt || exit 1
+    if [ -r "${Basename}.crt" -a -r "${Basename}.key" ]
+    then
+        echo "Installing the '${Basename}' certificate (pem format)"
+        cp -v "$Basename.crt" "${InstallDir}/ssl/ssl${installQualifier}.crt" || exit 1
+        chown ${sipXuser}     "${InstallDir}/ssl/ssl${installQualifier}.crt" || exit 1
+        chmod 0600            "${InstallDir}/ssl/ssl${installQualifier}.crt" || exit 1
 
-    echo "Installing the '${Basename}' private key"
-    cp -v "$Basename.key" @SIPX_CONFDIR@/ssl/ssl.key || exit 1
-    chown @SIPXPBXUSER@   @SIPX_CONFDIR@/ssl/ssl.key || exit 1
-    chmod 0600            @SIPX_CONFDIR@/ssl/ssl.key || exit 1
+        echo "Installing the '${Basename}' private key"
+        cp -v "$Basename.key" "${InstallDir}/ssl/ssl${installQualifier}.key" || exit 1
+        chown ${sipXuser}     "${InstallDir}/ssl/ssl${installQualifier}.key" || exit 1
+        chmod 0600            "${InstallDir}/ssl/ssl${installQualifier}.key" || exit 1
 
-    echo "Checking the installed certificate"
-    if @bindir@/ssl-cert/check-cert.sh @SIPX_CONFDIR@/ssl/ssl.crt
+        certsInstalled+=1
+
+        echo "Checking the installed certificate"
+        @bindir@/ssl-cert/check-cert.sh "${InstallDir}/ssl/ssl${installQualifier}.crt"
+        certOk+=$?
+    fi
+
+    if [ -r "${Basename}.p12" ]
+    then
+        echo "Installing the '${Basename}' certificate (pkcs12 format)"
+        cp -v "$Basename.crt" "${InstallDir}/ssl/ssl${installQualifier}.p12" || exit 1
+        chown ${sipXuser}     "${InstallDir}/ssl/ssl${installQualifier}.p12" || exit 1
+        chmod 0600            "${InstallDir}/ssl/ssl${installQualifier}.p12" || exit 1
+
+        certsInstalled+=1
+    fi
+
+    if [ ${certOk} -eq 0 -a ${certsInstalled} -gt 0 ]
     then
         cat <<EOF
 
@@ -221,7 +274,7 @@ then
 
 EOF
 
-    cert_expires=`@OPENSSL@ x509 -in "${Basename}.crt" -noout -enddate | sed 's/notAfter=//'`
+    cert_expires=`${openssl} x509 -in "${Basename}.crt" -noout -enddate | sed 's/notAfter=//'`
 
     cat <<EOF
 

@@ -21,9 +21,10 @@ CertDays=1095
 CAkeyBits=2048
 ServerKeyBits=1024
 
-UsageType=SIP_AND_WEB
+RestrictionType=SIP_AND_WEB
 RestrictedCert=UNRESTRICTED
 Restrictions=""
+restrictionName=""
 
 # default action - generate self-signed CA certificate and host certificate
 Action=DO_ALL
@@ -68,7 +69,7 @@ showUsage()
 {
     cat <<USAGE
 
-    Generate and display SSL keys and certificates; with it 
+    Generate and display SSL keys and certificates; with it
     you can:
 
     - Display the contents of a certificate file:
@@ -93,7 +94,7 @@ showUsage()
                       [ <certificate-options> ]
                       [ <generator-options> ]
 
-    - Create a private self-signed authority certificate you can 
+    - Create a private self-signed authority certificate you can
       use to sign certificates for multiple systems:
 
       gen-ssl-keys.sh --new-ca
@@ -111,16 +112,23 @@ showUsage()
 
     In each of the above, the <certificate-options> are:
 
-      --web-only  requests a certificate with names needed by http
-      --sip-only  requests a certificate with names needed by sip
+      --web-only  requests a certificate with only subject names
+                  needed by http.  If this is used, the resulting
+                  file names will have '-web' appended to the
+                  server name.
 
-      (if neither of the above are specified, names used by both 
-       are included)
+      --sip-only  requests a certificate with only subject names
+                  needed by sip.  If this is used, the resulting
+                  file names will have '-sip' appended to the
+                  server name.
 
-      --restricted adds an indication to the certificate indicating 
-        that its use is restricted to web client, web server, and/or
-        sip server usage (depending on whether or the --*-only options
-        were used).
+      (if neither of the above are specified, subject names used
+       by both protocols are included)
+
+      --restricted adds an indication to the certificate that its use
+                   is restricted to web client, web server, and/or
+                   sip server usage (depending on whether or the
+                   --web-only or --sip-only options were used).
 
     The <generator-options> are:
 
@@ -128,7 +136,7 @@ showUsage()
 
                  Specifies a directory where all files should be stored:
                  defaults to the current directory.  If specified, then
-                 any relative path name given in an argument is assumed 
+                 any relative path name given in an argument is assumed
                  to be relative to this directory.
 
          {-p|--parameters} <parameter-file>
@@ -151,7 +159,7 @@ USAGE
 
 ### Prompts for a value for variable,
 ###    the default is the current value if variable is set, and the default argument if not
-###    the answer is stored in the $Defaults file unless NOSTORE is passed.as the fourth arg.
+###    the answer is stored in the ${Defaults} file unless NOSTORE is passed.as the fourth arg.
 askfor () # variable, prompt, default, storeflag
 {
     local var="$1"
@@ -162,27 +170,28 @@ askfor () # variable, prompt, default, storeflag
 
     if [ "${AutoDefault}" = "AUTODEFAULT" ]
     then
-        value="$default"
-        if test -z "$value"
+        value="${default}"
+        if test -z "${value}"
         then
-            echo "Can not default $prompt" 1>&2
+            echo "Can not default ${prompt}" 1>&2
+            echo "   Set parameter '${var}' in ${Defaults}" 1>&2
             exit 1
         fi
-        echo "  $prompt: $default"
+        echo "  ${prompt}: ${default}"
     else
-        until test -n "$value"
+        until test -n "${value}"
         do
-            echo -n "$prompt [$default] : "
+            echo -n "${prompt} [${default}] : "
             read value
 
-            if test -z "$value"
+            if test -z "${value}"
             then
-                value="$default"
+                value="${default}"
             fi
         done
     fi
 
-    eval "$var=\"$value\""
+    eval "${var}=\"${value}\""
 
     if test "${store}" != "NOSTORE" && ! grep -q -e "^${var}=" "${Defaults}" 2> /dev/null
     then
@@ -204,23 +213,23 @@ seedRand()
         numrandfiles=0
         for file in /var/log/messages /var/adm/messages /tmp/* /etc/resolv.conf; do
             #  make sure file is readable and not empty
-            if [ -r $file -a -s $file ]; then
-                if [ ".$randfiles" = . ]; then
-                    randfiles="$file"
+            if [ -r ${file} -a -s ${file} ]; then
+                if [ ".${randfiles}" = . ]; then
+                    randfiles="${file}"
                 else
-                    randfiles="${randfiles}:$file"
+                    randfiles="${randfiles}:${file}"
                 fi
-                numrandfiles=$(($numrandfiles + 1))
-                test $numrandfiles -ge 6 && break
+                numrandfiles=$((${numrandfiles} + 1))
+                test ${numrandfiles} -ge 6 && break
             fi
         done
-        $openssl rand \
+        ${openssl} rand \
             -rand "${randfiles}" \
             -out "${randomFile}" \
             ${CAkeyBits} \
             > /dev/null 2>&1
     else
-        $openssl rand \
+        ${openssl} rand \
             -rand "${randomFile}" \
             -out "${randomFile}" \
             ${CAkeyBits} \
@@ -262,7 +271,7 @@ getRestrictions()
 {
     if test ${RestrictedCert} = RESTRICTED
     then
-        case ${UsageType} in
+        case ${RestrictionType} in
             WEB_ONLY)
                 Restrictions="extendedKeyUsage=serverAuth,clientAuth"
                 ;;
@@ -278,12 +287,26 @@ getRestrictions()
     else
         Restrictions=""
     fi
+
+    case ${RestrictionType} in
+        WEB_ONLY)
+            restrictionName="-web"
+            ;;
+
+        SIP_ONLY)
+            restrictionName="-sip"
+            ;;
+
+        SIP_AND_WEB)
+            restrictionName=""
+            ;;
+    esac
 }
 
 # Get subjects
 getSubjects()
 {
-    case ${UsageType} in
+    case ${RestrictionType} in
         WEB_ONLY)
             getServerName
             Subjects="DNS:${serverName}"
@@ -383,7 +406,7 @@ EOF
         Generating RSA private key for CA (${CAkeyBits} bit)
 
 EOF
-    $openssl genrsa \
+    ${openssl} genrsa \
         -rand ${randomFile} \
         -out "${caName}.key" \
         ${CAkeyBits} \
@@ -415,7 +438,7 @@ commonName                      = ${caName}
 emailAddress                    = ${caEmail}
 EOT
 
-    $openssl req \
+    ${openssl} req \
         -config "${caName}_csr.cfg" \
         -new \
         -key "${caName}.key" \
@@ -442,7 +465,7 @@ nsComment        = "${myName} generated custom CA certificate"
 nsCertType       = sslCA
 EOT
 
-    $openssl x509 \
+    ${openssl} x509 \
         -req \
         -signkey "${caName}.key" \
         -set_serial ${startSerial} \
@@ -465,11 +488,11 @@ EOT
     echo "______________________________________________________________________"
     echo ""
     echo -n "Verify..."
-    $openssl verify "${caName}.crt" > /dev/null 2>&1
+    ${openssl} verify "${caName}.crt" > /dev/null 2>&1
 
     if [ $? -eq 0 ]; then
         echo "CA certificate OK" 1>&2
-        rm -f "${caName}.csr"  "${caName}_csr.cfg"  "${caName}_crt.cfg"
+        rm -f "${caName}_csr.cfg"  "${caName}_crt.cfg"
     else
         echo "${myName}:Error: Failed to verify resulting X.509 certificate" 1>&2
         exit 1
@@ -480,14 +503,14 @@ EOT
 genServerCSR()
 {
     echo ""
-    echo "Generating server certificate request [$serverName]"
+    echo "Generating server certificate request [${serverName}]"
     echo "______________________________________________________________________"
     echo ""
     echo "        Generating RSA private key for server (${ServerKeyBits} bit)"
 
-    $openssl genrsa \
+    ${openssl} genrsa \
         -rand "${randomFile}" \
-        -out $serverName.key \
+        -out "${serverName}${restrictionName}.key" \
         ${ServerKeyBits} \
         > /dev/null 2>&1
 
@@ -495,12 +518,12 @@ genServerCSR()
         echo "${myName}:Error: Failed to generate RSA private key" 1>&2
         exit 1
     fi
-    chmod o=,g=r $serverName.key
+    chmod o=,g=r "${serverName}${restrictionName}.key"
 
     echo "______________________________________________________________________"
     echo ""
     echo "        Generating X.509 certificate signing request for '${serverName}'"
-    cat >${serverName}_csr.cfg <<EOT
+    cat >"${serverName}${restrictionName}_csr.cfg" <<EOT
 [ req ]
 default_bits           = ${ServerKeyBits}
 distinguished_name     = req_DN
@@ -521,13 +544,13 @@ subjectKeyIdentifier   = hash
 ${Restrictions}
 EOT
 
-    $openssl req \
-        -config ${serverName}_csr.cfg \
+    ${openssl} req \
+        -config "${serverName}${restrictionName}_csr.cfg" \
         -new \
         -sha1 \
-        -key $serverName.key \
+        -key "${serverName}${restrictionName}.key" \
         -reqexts extend_req \
-        -out ${serverName}.csr \
+        -out "${serverName}${restrictionName}.csr" \
         -days ${CertDays} \
         > /dev/null
 
@@ -535,7 +558,7 @@ EOT
         echo "${myName}:Error: Failed to generate certificate signing request" 1>&2
         exit 1
     else
-        rm -f  ${serverName}_csr.cfg
+        rm -f "${serverName}${restrictionName}_csr.cfg"
     fi
 }
 
@@ -546,7 +569,7 @@ signServerCertificate()
     echo ""
     echo "        Generating X.509 certificate signed by ${caName}"
 
-    cat >${serverName}_crt.cfg <<EOT
+    cat > "${serverName}${restrictionName}_crt.cfg" <<EOT
 [ x509v3 ]
 basicConstraints = CA:false,pathlen:0
 [ extend_cert ]
@@ -556,18 +579,18 @@ subjectKeyIdentifier   = hash
 ${Restrictions}
 EOT
 
-    $openssl x509 \
+    ${openssl} x509 \
         -req \
         -CA "${caName}.crt" \
         -CAkey "${caKey:-${caName}.key}" \
         -CAserial "${caName}.ser" \
-        -extfile ${serverName}_crt.cfg \
+        -extfile "${serverName}${restrictionName}_crt.cfg" \
         -extensions x509v3 \
         -extensions extend_cert \
         -sha1 \
         -days ${CertDays} \
-        -in ${serverName}.csr \
-        -out ${serverName}.crt \
+        -in "${serverName}${restrictionName}.csr" \
+        -out "${serverName}${restrictionName}.crt" \
         -text \
         -certopt no_pubkey,no_sigdump \
         > /dev/null 2>&1
@@ -583,9 +606,11 @@ EOT
     echo "        Generating PKCS#12 package"
 
     echo '' \
-    | $openssl pkcs12 -export -out "${serverName}.pfx" -passout stdin \
-                      -in "${serverName}.crt" -inkey "${serverName}.key"  -name "${serverName}" \
-                      -certfile "${caName}.crt" -caname "${caName}" #1> /dev/null 2>&1
+    | ${openssl} pkcs12 \
+        -export -out "${serverName}${restrictionName}.p12" -passout stdin \
+        -in "${serverName}${restrictionName}.crt" \
+        -inkey "${serverName}${restrictionName}.key"  -name "${serverName}" \
+        -certfile "${caName}.crt" -caname "${caName}" #1> /dev/null 2>&1
 
     echo "______________________________________________________________________"
     echo ""
@@ -593,18 +618,18 @@ EOT
     echo ""
     local verified=0
     local vfy
-    echo -n "    ${serverName}.crt ..."
-    $openssl verify \
+    echo -n "    ${serverName}${restrictionName}.crt ..."
+    ${openssl} verify \
         -CAfile "${caName}.crt" \
-        "${serverName}.crt" \
+        "${serverName}${restrictionName}.crt" \
         > /dev/null
     vfy=$?
     test ${vfy} -eq 0 && echo "ok" || echo "failed"
-    verified=$(($vfy + $verified))
+    verified=$((${vfy} + ${verified}))
 
-    if [ $verified -eq 0 ]; then
+    if [ ${verified} -eq 0 ]; then
         echo "Server certificates OK" 1>&2
-        rm -f ${serverName}_crt.cfg
+        rm -f "${serverName}${restrictionName}_crt.cfg"
     else
         echo "${myName}:Error: Failed to verify resulting X.509 certificate" 1>&2
         exit 1
@@ -663,7 +688,7 @@ EOF
     seedRand
     genCA
 
-    cert_expires=`@OPENSSL@ x509 -in "${caName}.crt" -noout -enddate | sed 's/notAfter=//'`
+    cert_expires=`${openssl} x509 -in "${caName}.crt" -noout -enddate | sed 's/notAfter=//'`
 
     cat <<EOF
 
@@ -715,15 +740,17 @@ EOF
 ______________________________________________________________________
 Results:
 
-   server key:         $serverName.key
-   server CSR:         $serverName.csr
+   server key:         ${serverName}${restrictionName}.key
+   server CSR:         ${serverName}${restrictionName}.csr
 
   To obtain your certificate from a Certificate Authority, send the
-  $serverName.csr file to your CA for signing.  When you get the response,
-  put the certificate data they give you into $serverName.crt, and then run
-  this command as root in this directory:
+     ${serverName}${restrictionName}.csr
+  file to your CA for signing.  When you get the response,
+  put the certificate data they give you into:
+     ${serverName}${restrictionName}.crt
+  and then run this command as root in this directory:
 
-      @bindir@/ssl-cert/install-cert.sh $serverName
+      @bindir@/ssl-cert/install-cert.sh ${serverName}${restrictionName}
 
   You may also need to install the root certificate from the CA; if this
   is needed, the install-cert.sh command will detect this and provide
@@ -735,7 +762,7 @@ EOF
 
 showCSR()
 {
-    $openssl req \
+    ${openssl} req \
         -in "${csrFile}" \
         -text \
         -nameopt RFC2253,multiline \
@@ -746,7 +773,8 @@ showCSR()
 ## Extract information from a CSR and present it for approval
 checkCSR()
 {
-    serverName=`@OPENSSL@ req -in "${csrFile}" -subject -nameopt RFC2253,multiline -noout | perl -ne 'use English; m/^\s+commonName\s+=\s+/ && print $POSTMATCH'`
+    serverName=`${openssl} req -in "${csrFile}" -subject -nameopt RFC2253,multiline -noout \
+        | perl -ne 'use English; m/^\s+commonName\s+=\s+/ && print $POSTMATCH'`
 
     if [ -z "${serverName}" ]
     then
@@ -754,7 +782,7 @@ checkCSR()
         exit 1
     fi
 
-    Subjects=`@OPENSSL@ req -in "${csrFile}" -text -noout \
+    Subjects=`${openssl} req -in "${csrFile}" -text -noout \
         | grep --after-context=1 'X509v3 Subject Alternative Name:' \
         | tail -n 1`
 
@@ -807,19 +835,20 @@ doSignServer()
     checkCSR
     signServerCertificate
 
-    cert_expires=`@OPENSSL@ x509 -in "${serverName}.crt" -noout -enddate | sed 's/notAfter=//'`
+    cert_expires=`${openssl} x509 -in "${serverName}${restrictionName}.crt" -noout -enddate \
+        | sed 's/notAfter=//'`
 
     cat <<EOF
 ______________________________________________________________________
 
 
    CA certificate:     "${caName}.crt"
-   server certificate: $serverName.crt
+   server certificate: ${serverName}${restrictionName}.crt
 
   To install these certificates and the server key on this system, run the
   following command as root in this directory:
 
-      @bindir@/ssl-cert/install-cert.sh $serverName
+      @bindir@/ssl-cert/install-cert.sh ${serverName}${restrictionName}
 
   The server certificate will expire ${cert_expires};
   you will need to rerun this command to generate new certificates
@@ -831,7 +860,7 @@ EOF
 
 showCert()
 {
-    $openssl x509 \
+    ${openssl} x509 \
         -in "${certFile}" \
         -text \
         -nameopt RFC2253,multiline \
@@ -972,11 +1001,11 @@ do
             ;;
 
         --web-only)
-            UsageType=WEB_ONLY
+            RestrictionType=WEB_ONLY
             ;;
 
         --sip-only)
-            UsageType=SIP_ONLY
+            RestrictionType=SIP_ONLY
             ;;
 
         -p|--parameters)
@@ -1041,7 +1070,7 @@ do
 
         -r|--restricted)
             ##
-            ## Limit the domain/server certificate to the specified usage; 
+            ## Limit the domain/server certificate to the specified usage;
             ## For SIP, the extendedKeyUsage restriction oid is:
             ##   iso(1) identified-organization(3) dod(6) internet(1)
             ##   security(5) mechanisms(5) pkix(7) id-kp(3) id-kp-sipDomain(20)
