@@ -29,8 +29,14 @@ class SdpBodyTest : public CppUnit::TestCase
    CPPUNIT_TEST(testTimeHeaders);
    CPPUNIT_TEST(testGetMediaSetCount);
    CPPUNIT_TEST(testGetMediaAddress);
+   CPPUNIT_TEST(testGetMediaAttribute);
+   CPPUNIT_TEST(testRemoveMediaAttribute);
+   CPPUNIT_TEST(testInsertAttribute);
+   CPPUNIT_TEST(testModifyMediaAddress);
+   CPPUNIT_TEST(testModifyMediaPort);
    CPPUNIT_TEST(testCandidateParsing);
    CPPUNIT_TEST(testRtcpPortParsing);
+   CPPUNIT_TEST(testAddAttribute);
    CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -553,6 +559,575 @@ public:
          ASSERT_STR_EQUAL( address.data(), "224.2.17.12");
       }
 
+    void testGetMediaAttribute()
+    {
+       const char *sdp = 
+          "v=0\r\n"
+          "o=mhandley 2890844526 2890842807 IN IP4 126.16.64.4\r\n"
+          "s=SDP Seminar\r\n"
+          "i=A Seminar on the session description protocol\r\n"
+          "u=http://www.cs.ucl.ac.uk/staff/M.Handley/sdp.03.ps\r\n"
+          "e=mjh@isi.edu (Mark Handley)\r\n"
+          "c=IN IP4 224.2.17.12/127\r\n"
+          "t=2873397496 2873404696\r\n"
+          "a=test1\r\n"
+          "a=test2:value2\r\n"
+          "a=test3\r\n"
+          "a=test4:value4\r\n"
+          "a=test11:value11\r\n"
+          "m=audio 49170 RTP/AVP 0\r\n"    // media description 0
+          "a=test1\r\n"
+          "a=test2:override_value2\r\n"
+          "a=test5\r\n"
+          "a=test6:value6\r\n"
+          "a=test11:override_0_value11\r\n"
+          "m=video 51372 RTP/AVP 31\r\n"   // media description 1
+          "a=test3\r\n"
+          "a=test4:override_value4\r\n"
+          "a=test7\r\n"
+          "a=test8:value8\r\n" 
+          "a=test11:override_1_value11\r\n"
+          "m=application 32416 udp wb\r\n" // media description 2
+          "a=test9\r\n"
+          "a=test10:value10\r\n"
+          "a=test11:override_2_value11\r\n"
+          ;
+       SdpBody body(sdp);
+       UtlString attributeValue; 
+
+       CPPUNIT_ASSERT( body.getMediaAttribute( 0, "test1", &attributeValue ) == TRUE );
+       ASSERT_STR_EQUAL( "", attributeValue.data() );
+       CPPUNIT_ASSERT( body.getMediaAttribute( 0, "test2", &attributeValue ) == TRUE );
+       ASSERT_STR_EQUAL( "override_value2", attributeValue.data() );
+       CPPUNIT_ASSERT( body.getMediaAttribute( 0, "test3", &attributeValue ) == TRUE );
+       ASSERT_STR_EQUAL( "", attributeValue.data() );
+       CPPUNIT_ASSERT( body.getMediaAttribute( 0, "test4", &attributeValue ) == TRUE );
+       ASSERT_STR_EQUAL( "value4", attributeValue.data() );
+       CPPUNIT_ASSERT( body.getMediaAttribute( 0, "test5", &attributeValue ) == TRUE );
+       ASSERT_STR_EQUAL( "", attributeValue.data() );
+       CPPUNIT_ASSERT( body.getMediaAttribute( 0, "test6", &attributeValue ) == TRUE );
+       ASSERT_STR_EQUAL( "value6", attributeValue.data() );
+       CPPUNIT_ASSERT( body.getMediaAttribute( 0, "test7", &attributeValue ) == FALSE );
+       ASSERT_STR_EQUAL( "", attributeValue.data() );
+       CPPUNIT_ASSERT( body.getMediaAttribute( 0, "test8", &attributeValue ) == FALSE );
+       ASSERT_STR_EQUAL( "", attributeValue.data() );
+       CPPUNIT_ASSERT( body.getMediaAttribute( 0, "test9", &attributeValue ) == FALSE );
+       ASSERT_STR_EQUAL( "", attributeValue.data() );
+       CPPUNIT_ASSERT( body.getMediaAttribute( 0, "test10", &attributeValue ) == FALSE );
+       ASSERT_STR_EQUAL( "", attributeValue.data() );
+       CPPUNIT_ASSERT( body.getMediaAttribute( 0, "test11", &attributeValue ) == TRUE );
+       ASSERT_STR_EQUAL( "override_0_value11", attributeValue.data() );
+       CPPUNIT_ASSERT( body.getMediaAttribute( 0, "dummy", &attributeValue ) == FALSE );
+       ASSERT_STR_EQUAL( "", attributeValue.data() );
+       
+       CPPUNIT_ASSERT( body.getMediaAttribute( 1, "test1", &attributeValue ) == TRUE );
+       ASSERT_STR_EQUAL( "", attributeValue.data() );
+       CPPUNIT_ASSERT( body.getMediaAttribute( 1, "test2", &attributeValue ) == TRUE );
+       ASSERT_STR_EQUAL( "value2", attributeValue.data() );
+       CPPUNIT_ASSERT( body.getMediaAttribute( 1, "test3", &attributeValue ) == TRUE );
+       ASSERT_STR_EQUAL( "", attributeValue.data() );
+       CPPUNIT_ASSERT( body.getMediaAttribute( 1, "test4", &attributeValue ) == TRUE );
+       ASSERT_STR_EQUAL( "override_value4", attributeValue.data() );
+       CPPUNIT_ASSERT( body.getMediaAttribute( 1, "test5", &attributeValue ) == FALSE );
+       ASSERT_STR_EQUAL( "", attributeValue.data() );
+       CPPUNIT_ASSERT( body.getMediaAttribute( 1, "test6", &attributeValue ) == FALSE );
+       ASSERT_STR_EQUAL( "", attributeValue.data() );
+       CPPUNIT_ASSERT( body.getMediaAttribute( 1, "test7", &attributeValue ) == TRUE );
+       ASSERT_STR_EQUAL( "", attributeValue.data() );
+       CPPUNIT_ASSERT( body.getMediaAttribute( 1, "test8", &attributeValue ) == TRUE );
+       ASSERT_STR_EQUAL( "value8", attributeValue.data() );
+       CPPUNIT_ASSERT( body.getMediaAttribute( 1, "test9", &attributeValue ) == FALSE );
+       ASSERT_STR_EQUAL( "", attributeValue.data() );
+       CPPUNIT_ASSERT( body.getMediaAttribute( 1, "test10", &attributeValue ) == FALSE );
+       ASSERT_STR_EQUAL( "", attributeValue.data() );
+       CPPUNIT_ASSERT( body.getMediaAttribute( 1, "test11", &attributeValue ) == TRUE );
+       ASSERT_STR_EQUAL( "override_1_value11", attributeValue.data() );
+       CPPUNIT_ASSERT( body.getMediaAttribute( 1, "dummy", &attributeValue ) == FALSE );
+       ASSERT_STR_EQUAL( "", attributeValue.data() );
+       
+       CPPUNIT_ASSERT( body.getMediaAttribute( 2, "test1", &attributeValue ) == TRUE );
+       ASSERT_STR_EQUAL( "", attributeValue.data() );
+       CPPUNIT_ASSERT( body.getMediaAttribute( 2, "test2", &attributeValue ) == TRUE );
+       ASSERT_STR_EQUAL( "value2", attributeValue.data() );
+       CPPUNIT_ASSERT( body.getMediaAttribute( 2, "test3", &attributeValue ) == TRUE );
+       ASSERT_STR_EQUAL( "", attributeValue.data() );
+       CPPUNIT_ASSERT( body.getMediaAttribute( 2, "test4", &attributeValue ) == TRUE );
+       ASSERT_STR_EQUAL( "value4", attributeValue.data() );
+       CPPUNIT_ASSERT( body.getMediaAttribute( 2, "test5", &attributeValue ) == FALSE );
+       ASSERT_STR_EQUAL( "", attributeValue.data() );
+       CPPUNIT_ASSERT( body.getMediaAttribute( 2, "test6", &attributeValue ) == FALSE );
+       ASSERT_STR_EQUAL( "", attributeValue.data() );
+       CPPUNIT_ASSERT( body.getMediaAttribute( 2, "test7", &attributeValue ) == FALSE );
+       ASSERT_STR_EQUAL( "", attributeValue.data() );
+       CPPUNIT_ASSERT( body.getMediaAttribute( 2, "test8", &attributeValue ) == FALSE );
+       ASSERT_STR_EQUAL( "", attributeValue.data() );
+       CPPUNIT_ASSERT( body.getMediaAttribute( 2, "test9", &attributeValue ) == TRUE );
+       ASSERT_STR_EQUAL( "", attributeValue.data() );
+       CPPUNIT_ASSERT( body.getMediaAttribute( 2, "test10", &attributeValue ) == TRUE );
+       ASSERT_STR_EQUAL( "value10", attributeValue.data() );
+       CPPUNIT_ASSERT( body.getMediaAttribute( 2, "test11", &attributeValue ) == TRUE );
+       ASSERT_STR_EQUAL( "override_2_value11", attributeValue.data() );
+       CPPUNIT_ASSERT( body.getMediaAttribute( 2, "dummy", &attributeValue ) == FALSE );
+       ASSERT_STR_EQUAL( "", attributeValue.data() );
+       
+       CPPUNIT_ASSERT( body.getMediaAttribute( 3, "test1", &attributeValue ) == FALSE );
+       ASSERT_STR_EQUAL( "", attributeValue.data() );
+    }
+   
+    void testRemoveMediaAttribute()
+    {
+       const char *sdp = 
+          "v=0\r\n"
+          "o=mhandley 2890844526 2890842807 IN IP4 126.16.64.4\r\n"
+          "s=SDP Seminar\r\n"
+          "i=A Seminar on the session description protocol\r\n"
+          "u=http://www.cs.ucl.ac.uk/staff/M.Handley/sdp.03.ps\r\n"
+          "e=mjh@isi.edu (Mark Handley)\r\n"
+          "c=IN IP4 224.2.17.12/127\r\n"
+          "t=2873397496 2873404696\r\n"
+          "a=test0\r\n"
+          "a=test1\r\n"
+          "a=test2\r\n"
+          "a=someattrib1:specialvalue1\r\n"
+          "m=audio 49170 RTP/AVP 0\r\n"    // media description 0
+          "a=test1\r\n"
+          "a=test3\r\n"
+          "a=test4\r\n"
+          "a=someattrib2\r\n"
+          "m=video 51372 RTP/AVP 31\r\n"   // media description 1
+          "a=test5\r\n"
+          "a=test6\r\n"
+          "a=someattrib3:specialvalue3\r\n"
+          "m=application 32416 udp wb\r\n" // media description 2
+          "m=audio 32416 udp wb\r\n" // media description 3
+          "a=test7\r\n"
+          "a=test8\r\n"
+          ;
+       SdpBody body(sdp);
+
+       CPPUNIT_ASSERT( body.removeMediaAttribute( 0, "test0" ) == true );
+       CPPUNIT_ASSERT( body.removeMediaAttribute( 0, "test1" ) == true );
+       CPPUNIT_ASSERT( body.removeMediaAttribute( 0, "test2" ) == true );
+       CPPUNIT_ASSERT( body.removeMediaAttribute( 0, "test3" ) == true );
+       CPPUNIT_ASSERT( body.removeMediaAttribute( 0, "test4" ) == true );
+       CPPUNIT_ASSERT( body.removeMediaAttribute( 0, "test5" ) == false );
+       CPPUNIT_ASSERT( body.removeMediaAttribute( 0, "test6" ) == false );
+       CPPUNIT_ASSERT( body.removeMediaAttribute( 0, "test7" ) == false );
+       CPPUNIT_ASSERT( body.removeMediaAttribute( 0, "test8" ) == false );
+
+       const char *expectedSdp1 = 
+          "v=0\r\n"
+          "o=mhandley 2890844526 2890842807 IN IP4 126.16.64.4\r\n"
+          "s=SDP Seminar\r\n"
+          "i=A Seminar on the session description protocol\r\n"
+          "u=http://www.cs.ucl.ac.uk/staff/M.Handley/sdp.03.ps\r\n"
+          "e=mjh@isi.edu (Mark Handley)\r\n"
+          "c=IN IP4 224.2.17.12/127\r\n"
+          "t=2873397496 2873404696\r\n"
+          "a=test1\r\n"
+          "a=someattrib1:specialvalue1\r\n"
+          "m=audio 49170 RTP/AVP 0\r\n"    // media description 0
+          "a=someattrib2\r\n"
+          "m=video 51372 RTP/AVP 31\r\n"   // media description 1
+          "a=test5\r\n"
+          "a=test6\r\n"
+          "a=someattrib3:specialvalue3\r\n"
+          "m=application 32416 udp wb\r\n" // media description 2
+          "m=audio 32416 udp wb\r\n"       // media description 3
+          "a=test7\r\n"
+          "a=test8\r\n"
+          ;
+       SdpBody expectedBody1(expectedSdp1);
+
+       UtlString testBodyText, expectedBodyText;
+       ssize_t testLen, expectedLen;
+       
+       body.         getBytes( &testBodyText,     &testLen );
+       expectedBody1.getBytes( &expectedBodyText, &expectedLen );
+       
+       ASSERT_STR_EQUAL( expectedBodyText.data(), testBodyText.data() );
+       CPPUNIT_ASSERT( expectedLen == testLen );
+
+       // media description index 1
+       CPPUNIT_ASSERT( body.removeMediaAttribute( 1, "test0" ) == false );
+       CPPUNIT_ASSERT( body.removeMediaAttribute( 1, "test1" ) == true );
+       CPPUNIT_ASSERT( body.removeMediaAttribute( 1, "test2" ) == false );
+       CPPUNIT_ASSERT( body.removeMediaAttribute( 1, "test3" ) == false );
+       CPPUNIT_ASSERT( body.removeMediaAttribute( 1, "test4" ) == false );
+       CPPUNIT_ASSERT( body.removeMediaAttribute( 1, "test5" ) == true );
+       CPPUNIT_ASSERT( body.removeMediaAttribute( 1, "test6" ) == true );
+       CPPUNIT_ASSERT( body.removeMediaAttribute( 1, "test7" ) == false );
+       CPPUNIT_ASSERT( body.removeMediaAttribute( 1, "test8" ) == false );
+
+       const char *expectedSdp2 = 
+          "v=0\r\n"
+          "o=mhandley 2890844526 2890842807 IN IP4 126.16.64.4\r\n"
+          "s=SDP Seminar\r\n"
+          "i=A Seminar on the session description protocol\r\n"
+          "u=http://www.cs.ucl.ac.uk/staff/M.Handley/sdp.03.ps\r\n"
+          "e=mjh@isi.edu (Mark Handley)\r\n"
+          "c=IN IP4 224.2.17.12/127\r\n"
+          "t=2873397496 2873404696\r\n"
+          "a=someattrib1:specialvalue1\r\n"
+          "m=audio 49170 RTP/AVP 0\r\n"    // media description 0
+          "a=someattrib2\r\n"
+          "m=video 51372 RTP/AVP 31\r\n"   // media description 1
+          "a=someattrib3:specialvalue3\r\n"
+          "m=application 32416 udp wb\r\n" // media description 2
+          "m=audio 32416 udp wb\r\n"       // media description 3
+          "a=test7\r\n"
+          "a=test8\r\n"
+          ;
+       SdpBody expectedBody2(expectedSdp2);
+
+       body.         getBytes( &testBodyText,     &testLen );
+       expectedBody2.getBytes( &expectedBodyText, &expectedLen );
+       
+       ASSERT_STR_EQUAL( expectedBodyText.data(), testBodyText.data() );
+       CPPUNIT_ASSERT( expectedLen == testLen );
+       
+       // media description index 2
+       CPPUNIT_ASSERT( body.removeMediaAttribute( 2, "test0" ) == false );
+       CPPUNIT_ASSERT( body.removeMediaAttribute( 2, "test1" ) == false );
+       CPPUNIT_ASSERT( body.removeMediaAttribute( 2, "test2" ) == false );
+       CPPUNIT_ASSERT( body.removeMediaAttribute( 2, "test3" ) == false );
+       CPPUNIT_ASSERT( body.removeMediaAttribute( 2, "test4" ) == false );
+       CPPUNIT_ASSERT( body.removeMediaAttribute( 2, "test5" ) == false );
+       CPPUNIT_ASSERT( body.removeMediaAttribute( 2, "test6" ) == false );
+       CPPUNIT_ASSERT( body.removeMediaAttribute( 2, "test7" ) == false );
+       CPPUNIT_ASSERT( body.removeMediaAttribute( 2, "test8" ) == false );
+
+       const char *expectedSdp3 = 
+          "v=0\r\n"
+          "o=mhandley 2890844526 2890842807 IN IP4 126.16.64.4\r\n"
+          "s=SDP Seminar\r\n"
+          "i=A Seminar on the session description protocol\r\n"
+          "u=http://www.cs.ucl.ac.uk/staff/M.Handley/sdp.03.ps\r\n"
+          "e=mjh@isi.edu (Mark Handley)\r\n"
+          "c=IN IP4 224.2.17.12/127\r\n"
+          "t=2873397496 2873404696\r\n"
+          "a=someattrib1:specialvalue1\r\n"
+          "m=audio 49170 RTP/AVP 0\r\n"    // media description 0
+          "a=someattrib2\r\n"
+          "m=video 51372 RTP/AVP 31\r\n"   // media description 1
+          "a=someattrib3:specialvalue3\r\n"
+          "m=application 32416 udp wb\r\n" // media description 2
+          "m=audio 32416 udp wb\r\n"       // media description 3
+          "a=test7\r\n"
+          "a=test8\r\n"
+          ;
+       SdpBody expectedBody3(expectedSdp3);
+
+       body.         getBytes( &testBodyText,     &testLen );
+       expectedBody3.getBytes( &expectedBodyText, &expectedLen );
+       
+       ASSERT_STR_EQUAL( expectedBodyText.data(), testBodyText.data() );
+       CPPUNIT_ASSERT( expectedLen == testLen );
+       
+       // media description index 3
+       CPPUNIT_ASSERT( body.removeMediaAttribute( 3, "test0" ) == false );
+       CPPUNIT_ASSERT( body.removeMediaAttribute( 3, "test1" ) == false );
+       CPPUNIT_ASSERT( body.removeMediaAttribute( 3, "test2" ) == false );
+       CPPUNIT_ASSERT( body.removeMediaAttribute( 3, "test3" ) == false );
+       CPPUNIT_ASSERT( body.removeMediaAttribute( 3, "test4" ) == false );
+       CPPUNIT_ASSERT( body.removeMediaAttribute( 3, "test5" ) == false );
+       CPPUNIT_ASSERT( body.removeMediaAttribute( 3, "test6" ) == false );
+       CPPUNIT_ASSERT( body.removeMediaAttribute( 3, "test7" ) == true );
+       CPPUNIT_ASSERT( body.removeMediaAttribute( 3, "test8" ) == true );
+
+       const char *expectedSdp4 = 
+          "v=0\r\n"
+          "o=mhandley 2890844526 2890842807 IN IP4 126.16.64.4\r\n"
+          "s=SDP Seminar\r\n"
+          "i=A Seminar on the session description protocol\r\n"
+          "u=http://www.cs.ucl.ac.uk/staff/M.Handley/sdp.03.ps\r\n"
+          "e=mjh@isi.edu (Mark Handley)\r\n"
+          "c=IN IP4 224.2.17.12/127\r\n"
+          "t=2873397496 2873404696\r\n"
+          "a=someattrib1:specialvalue1\r\n"
+          "m=audio 49170 RTP/AVP 0\r\n"    // media description 0
+          "a=someattrib2\r\n"
+          "m=video 51372 RTP/AVP 31\r\n"   // media description 1
+          "a=someattrib3:specialvalue3\r\n"
+          "m=application 32416 udp wb\r\n" // media description 2
+          "m=audio 32416 udp wb\r\n"       // media description 3
+          ;
+       SdpBody expectedBody4(expectedSdp4);
+
+       body.         getBytes( &testBodyText,     &testLen );
+       expectedBody4.getBytes( &expectedBodyText, &expectedLen );
+       
+       ASSERT_STR_EQUAL( expectedBodyText.data(), testBodyText.data() );
+       CPPUNIT_ASSERT( expectedLen == testLen );       
+    }
+    
+    void testInsertAttribute()
+    {
+       const char *sdp = 
+          "v=0\r\n"
+          "o=mhandley 2890844526 2890842807 IN IP4 126.16.64.4\r\n"
+          "s=SDP Seminar\r\n"
+          "i=A Seminar on the session description protocol\r\n"
+          "u=http://www.cs.ucl.ac.uk/staff/M.Handley/sdp.03.ps\r\n"
+          "e=mjh@isi.edu (Mark Handley)\r\n"
+          "c=IN IP4 224.2.17.12/127\r\n"
+          "t=2873397496 2873404696\r\n"
+          "a=test1\r\n"
+          "a=test2\r\n"
+          "m=audio 49170 RTP/AVP 0\r\n"    // media description 0
+          "a=test1\r\n"
+          "a=test2\r\n"
+          "m=video 51372 RTP/AVP 31\r\n"   // media description 1
+          "a=test1\r\n"
+          "a=test2\r\n"
+          "m=application 32416 udp wb\r\n" // media description 2
+          "a=test1\r\n"
+          "a=test2\r\n"
+          ;
+       SdpBody body(sdp);
+       
+       CPPUNIT_ASSERT( body.insertMediaAttribute( -1, "someattrib1", "specialvalue1" ) == true );
+       CPPUNIT_ASSERT( body.insertMediaAttribute(  0, "someattrib2" ) == true );
+       CPPUNIT_ASSERT( body.insertMediaAttribute(  1, "someattrib3", "specialvalue3" ) == true );
+       CPPUNIT_ASSERT( body.insertMediaAttribute(  2, "someattrib4", "specialvalue4" ) == true );
+       CPPUNIT_ASSERT( body.insertMediaAttribute(  3, "someattrib5", "specialvalue5" ) == false );
+       CPPUNIT_ASSERT( body.insertMediaAttribute(  3, 0 ) == false );
+       
+       const char *expectedSdp = 
+          "v=0\r\n"
+          "o=mhandley 2890844526 2890842807 IN IP4 126.16.64.4\r\n"
+          "s=SDP Seminar\r\n"
+          "i=A Seminar on the session description protocol\r\n"
+          "u=http://www.cs.ucl.ac.uk/staff/M.Handley/sdp.03.ps\r\n"
+          "e=mjh@isi.edu (Mark Handley)\r\n"
+          "c=IN IP4 224.2.17.12/127\r\n"
+          "t=2873397496 2873404696\r\n"
+          "a=test1\r\n"
+          "a=test2\r\n"
+          "a=someattrib1:specialvalue1\r\n"
+          "m=audio 49170 RTP/AVP 0\r\n"    // media description 0
+          "a=test1\r\n"
+          "a=test2\r\n"
+          "a=someattrib2\r\n"
+          "m=video 51372 RTP/AVP 31\r\n"   // media description 1
+          "a=test1\r\n"
+          "a=test2\r\n"
+          "a=someattrib3:specialvalue3\r\n"
+          "m=application 32416 udp wb\r\n" // media description 2
+          "a=test1\r\n"
+          "a=test2\r\n"
+          "a=someattrib4:specialvalue4\r\n"
+          ;
+       SdpBody expectedBody(expectedSdp);
+
+       UtlString testBodyText, expectedBodyText;
+       ssize_t testLen, expectedLen;
+       
+       body.        getBytes( &testBodyText,     &testLen );
+       expectedBody.getBytes( &expectedBodyText, &expectedLen );
+       
+       ASSERT_STR_EQUAL( expectedBodyText.data(), testBodyText.data() );
+       CPPUNIT_ASSERT( expectedLen == testLen );
+    }
+    
+    void testModifyMediaAddress()
+    {
+       const char *sdp = 
+          "v=0\r\n"
+          "o=mhandley 2890844526 2890842807 IN IP4 126.16.64.4\r\n"
+          "s=SDP Seminar\r\n"
+          "i=A Seminar on the session description protocol\r\n"
+          "u=http://www.cs.ucl.ac.uk/staff/M.Handley/sdp.03.ps\r\n"
+          "e=mjh@isi.edu (Mark Handley)\r\n"
+          "t=2873397496 2873404696\r\n"
+          "a=test1\r\n"
+          "a=test2\r\n"
+          "m=audio 49170 RTP/AVP 0\r\n"    // media description 0
+          "c=IN IP4 224.2.17.12/127\r\n"
+          "a=test1\r\n"
+          "a=test2\r\n"
+          "m=video 51372 RTP/AVP 31\r\n"   // media description 1
+          "m=application 32416 udp wb\r\n" // media description 2
+          "i=test\r\n"
+          "m=audio 55554 RTP/AVP 0\r\n" // media description 3
+          "i=test\r\n"
+          "c=IN IP4 224.2.17.12/127\r\n"
+          "a=test1\r\n"
+          "a=test2\r\n"
+          "m=audio 55560 RTP/AVP 0\r\n" // media description 4
+          "m=audio 55562 RTP/AVP 0\r\n" // media description 5
+          "b=dummy\r\n"
+          "m=audio 55564 RTP/AVP 0\r\n" // media description 6
+          "z=dummy\r\n"
+          "m=audio 55566 RTP/AVP 0\r\n" // media description 7
+          "k=dummy\r\n"
+          "m=audio 55568 RTP/AVP 0\r\n" // media description 8
+          "a=dummy\r\n"
+          "m=audio 55510 RTP/AVP 0\r\n" // media description 9
+          "t=dummy\r\n"
+          "m=audio 55520 RTP/AVP 0\r\n" // media description 10
+          "r=dummy\r\n"
+          "m=audio 55530 RTP/AVP 0\r\n" // media description 11
+          "m=audio 55534 RTP/AVP 0\r\n" // media description 12
+          ;
+       SdpBody body(sdp);
+       
+       CPPUNIT_ASSERT( body.modifyMediaAddress( -1, "10.10.10.0" ) == true );
+       CPPUNIT_ASSERT( body.modifyMediaAddress(  0, "10.10.10.1" ) == true );
+       CPPUNIT_ASSERT( body.modifyMediaAddress(  1, "10.10.10.2" ) == true );
+       CPPUNIT_ASSERT( body.modifyMediaAddress(  2, "10.10.10.3" ) == true );
+       CPPUNIT_ASSERT( body.modifyMediaAddress(  3, "10.10.10.4" ) == true );
+       CPPUNIT_ASSERT( body.modifyMediaAddress(  4, "10.10.10.5" ) == true );
+       CPPUNIT_ASSERT( body.modifyMediaAddress(  5, "10.10.10.6" ) == true );
+       CPPUNIT_ASSERT( body.modifyMediaAddress(  6, "10.10.10.7" ) == true );
+       CPPUNIT_ASSERT( body.modifyMediaAddress(  7, "10.10.10.8" ) == true );
+       CPPUNIT_ASSERT( body.modifyMediaAddress(  8, "10.10.10.9" ) == true );
+       CPPUNIT_ASSERT( body.modifyMediaAddress(  9, "10.10.10.10" ) == true );
+       CPPUNIT_ASSERT( body.modifyMediaAddress( 10, "10.10.10.11" ) == true );
+       CPPUNIT_ASSERT( body.modifyMediaAddress( 11, "10.10.10.12" ) == true );
+       CPPUNIT_ASSERT( body.modifyMediaAddress( 12, "10.10.10.13" ) == true );
+       CPPUNIT_ASSERT( body.modifyMediaAddress( 13, "10.10.10.14" ) == false );
+       CPPUNIT_ASSERT( body.modifyMediaAddress( 1, 0 ) == false );
+       
+       const char *expectedSdp = 
+          "v=0\r\n"
+          "o=mhandley 2890844526 2890842807 IN IP4 126.16.64.4\r\n"
+          "s=SDP Seminar\r\n"
+          "i=A Seminar on the session description protocol\r\n"
+          "u=http://www.cs.ucl.ac.uk/staff/M.Handley/sdp.03.ps\r\n"
+          "e=mjh@isi.edu (Mark Handley)\r\n"
+          "c=IN IP4 10.10.10.0\r\n"
+          "t=2873397496 2873404696\r\n"
+          "a=test1\r\n"
+          "a=test2\r\n"
+          "m=audio 49170 RTP/AVP 0\r\n"    // media description 0
+          "c=IN IP4 10.10.10.1\r\n"
+          "a=test1\r\n"
+          "a=test2\r\n"
+          "m=video 51372 RTP/AVP 31\r\n"   // media description 1
+          "c=IN IP4 10.10.10.2\r\n"
+          "m=application 32416 udp wb\r\n" // media description 2
+          "i=test\r\n"
+          "c=IN IP4 10.10.10.3\r\n"
+          "m=audio 55554 RTP/AVP 0\r\n" // media description 3
+          "i=test\r\n"
+          "c=IN IP4 10.10.10.4\r\n"
+          "a=test1\r\n"
+          "a=test2\r\n"
+          "m=audio 55560 RTP/AVP 0\r\n" // media description 4
+          "c=IN IP4 10.10.10.5\r\n"
+          "m=audio 55562 RTP/AVP 0\r\n" // media description 5
+          "c=IN IP4 10.10.10.6\r\n"
+          "b=dummy\r\n"
+          "m=audio 55564 RTP/AVP 0\r\n" // media description 6
+          "c=IN IP4 10.10.10.7\r\n"
+          "z=dummy\r\n"
+          "m=audio 55566 RTP/AVP 0\r\n" // media description 7
+          "c=IN IP4 10.10.10.8\r\n"
+          "k=dummy\r\n"
+          "m=audio 55568 RTP/AVP 0\r\n" // media description 8
+          "c=IN IP4 10.10.10.9\r\n"
+          "a=dummy\r\n"
+          "m=audio 55510 RTP/AVP 0\r\n" // media description 9
+          "c=IN IP4 10.10.10.10\r\n"
+          "t=dummy\r\n"
+          "m=audio 55520 RTP/AVP 0\r\n" // media description 10
+          "c=IN IP4 10.10.10.11\r\n"
+          "r=dummy\r\n"
+          "m=audio 55530 RTP/AVP 0\r\n" // media description 11
+          "c=IN IP4 10.10.10.12\r\n"
+          "m=audio 55534 RTP/AVP 0\r\n" // media description 12
+          "c=IN IP4 10.10.10.13\r\n"
+          ;
+       SdpBody expectedBody(expectedSdp);
+
+       UtlString testBodyText, expectedBodyText;
+       ssize_t testLen, expectedLen;
+       
+       body.        getBytes( &testBodyText,     &testLen );
+       expectedBody.getBytes( &expectedBodyText, &expectedLen );
+       
+       ASSERT_STR_EQUAL( expectedBodyText.data(), testBodyText.data() );
+       CPPUNIT_ASSERT( expectedLen == testLen );     
+    }
+    
+    void testModifyMediaPort()
+    {
+       const char *sdp = 
+          "v=0\r\n"
+          "o=mhandley 2890844526 2890842807 IN IP4 126.16.64.4\r\n"
+          "s=SDP Seminar\r\n"
+          "i=A Seminar on the session description protocol\r\n"
+          "u=http://www.cs.ucl.ac.uk/staff/M.Handley/sdp.03.ps\r\n"
+          "e=mjh@isi.edu (Mark Handley)\r\n"
+          "c=IN IP4 224.2.17.12/127\r\n"
+          "t=2873397496 2873404696\r\n"
+          "a=test1\r\n"
+          "a=test2\r\n"
+          "m=audio 49170 RTP/AVP 0\r\n"    // media description 0
+          "c=IN IP4 224.2.17.12/127\r\n"
+          "a=test1\r\n"
+          "a=test2\r\n"
+          "m=video 51372 RTP/AVP 31\r\n"   // media description 1
+          "m=application 32416 udp wb\r\n" // media description 2
+          "i=test\r\n"
+          "m=audio 55554 RTP/AVP 0\r\n" // media description 3
+          "i=test\r\n"
+          "c=IN IP4 224.2.17.12/127\r\n"
+          "a=test1\r\n"
+          "a=test2\r\n"
+          "m=audio 55560 RTP/AVP 0\r\n" // media description 4
+          "a=test1\r\n"
+          "a=test2\r\n"
+          ;
+       SdpBody body(sdp);
+       
+       CPPUNIT_ASSERT( body.modifyMediaPort( 0, 10000 ) == true );
+       CPPUNIT_ASSERT( body.modifyMediaPort( 1, 11000 ) == true );
+       CPPUNIT_ASSERT( body.modifyMediaPort( 2, 12000 ) == true );
+       CPPUNIT_ASSERT( body.modifyMediaPort( 3, 13000 ) == true );
+       CPPUNIT_ASSERT( body.modifyMediaPort( 4, 14000 ) == true );
+       CPPUNIT_ASSERT( body.modifyMediaPort( 5, 15000 ) == false );
+       
+       const char *expectedSdp = 
+          "v=0\r\n"
+          "o=mhandley 2890844526 2890842807 IN IP4 126.16.64.4\r\n"
+          "s=SDP Seminar\r\n"
+          "i=A Seminar on the session description protocol\r\n"
+          "u=http://www.cs.ucl.ac.uk/staff/M.Handley/sdp.03.ps\r\n"
+          "e=mjh@isi.edu (Mark Handley)\r\n"
+          "c=IN IP4 224.2.17.12/127\r\n"
+          "t=2873397496 2873404696\r\n"
+          "a=test1\r\n"
+          "a=test2\r\n"
+          "m=audio 10000 RTP/AVP 0\r\n"    // media description 0
+          "c=IN IP4 224.2.17.12/127\r\n"
+          "a=test1\r\n"
+          "a=test2\r\n"
+          "m=video 11000 RTP/AVP 31\r\n"   // media description 1
+          "m=application 12000 udp wb\r\n" // media description 2
+          "i=test\r\n"
+          "m=audio 13000 RTP/AVP 0\r\n" // media description 3
+          "i=test\r\n"
+          "c=IN IP4 224.2.17.12/127\r\n"
+          "a=test1\r\n"
+          "a=test2\r\n"
+          "m=audio 14000 RTP/AVP 0\r\n" // media description 4
+          "a=test1\r\n"
+          "a=test2\r\n"
+          ;
+       SdpBody expectedBody(expectedSdp);
+
+       UtlString testBodyText, expectedBodyText;
+       ssize_t testLen, expectedLen;
+       
+       body.        getBytes( &testBodyText,     &testLen );
+       expectedBody.getBytes( &expectedBodyText, &expectedLen );
+       
+       ASSERT_STR_EQUAL( expectedBodyText.data(), testBodyText.data() );
+       CPPUNIT_ASSERT( expectedLen == testLen );
+    }
+
     void testCandidateParsing()
     {
         UtlString id ;
@@ -740,6 +1315,48 @@ public:
         CPPUNIT_ASSERT(port == 8900) ;
         bodyCheck.getMediaRtcpPort(2, &port) ;
         CPPUNIT_ASSERT(port == 8999) ;
+    }
+
+    void testAddAttribute()
+    {
+        const char *sdp = 
+           "v=0\r\n"
+           "o=mhandley 2890844526 2890842807 IN IP4 126.16.64.4\r\n"
+           "s=SDP Seminar\r\n"
+           "i=A Seminar on the session description protocol\r\n"
+           "u=http://www.cs.ucl.ac.uk/staff/M.Handley/sdp.03.ps\r\n"
+           "e=mjh@isi.edu (Mark Handley)\r\n"
+           "c=IN IP4 224.2.17.12/127\r\n"
+           "t=2873397496 2873404696\r\n"
+           "m=audio 49170 RTP/AVP 0\r\n"
+           "m=video 51372 RTP/AVP 31\r\n"
+           "m=application 32416 udp wb\r\n"
+           ;
+        SdpBody body(sdp);
+
+        body.addAttribute("recvonly");
+        body.addAttribute("orient", "portrait");
+
+        const char *sdpExpected = 
+           "v=0\r\n"
+           "o=mhandley 2890844526 2890842807 IN IP4 126.16.64.4\r\n"
+           "s=SDP Seminar\r\n"
+           "i=A Seminar on the session description protocol\r\n"
+           "u=http://www.cs.ucl.ac.uk/staff/M.Handley/sdp.03.ps\r\n"
+           "e=mjh@isi.edu (Mark Handley)\r\n"
+           "c=IN IP4 224.2.17.12/127\r\n"
+           "t=2873397496 2873404696\r\n"
+           "m=audio 49170 RTP/AVP 0\r\n"
+           "m=video 51372 RTP/AVP 31\r\n"
+           "m=application 32416 udp wb\r\n"
+           "a=recvonly\r\n"
+           "a=orient:portrait\r\n"
+           ;
+
+        UtlString strBody ;
+        ssize_t nBody ;
+        body.getBytes(&strBody, &nBody) ;
+        ASSERT_STR_EQUAL(sdpExpected, strBody.data()) ;
     }
 };
 

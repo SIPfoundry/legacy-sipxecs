@@ -3864,7 +3864,7 @@ void SipMessage::buildReplacesField(UtlString& replacesField,
 UtlBoolean SipMessage::getFieldSubfield(const char* fieldName, int addressIndex, UtlString* uri) const
 {
    UtlBoolean uriFound = FALSE;
-   UtlString url;
+   UtlString url, urlBackup;
    int fieldIndex = 0;
    ssize_t subFieldIndex = 0;
    int index = 0;
@@ -3882,10 +3882,11 @@ UtlBoolean SipMessage::getFieldSubfield(const char* fieldName, int addressIndex,
 
       while(!url.isNull() && index < addressIndex)
       {
+         urlBackup = url;
          subFieldIndex++;
          index++;
          NameValueTokenizer::getSubField(value, subFieldIndex,
-            SIP_MULTIFIELD_SEPARATOR, &url);
+                                         SIP_MULTIFIELD_SEPARATOR, &url);
 #ifdef TEST
          osPrintf("Got field: \"%s\" subfield[%d]: %s\n", fieldName, fieldIndex, url.data());
 #endif
@@ -3905,6 +3906,15 @@ UtlBoolean SipMessage::getFieldSubfield(const char* fieldName, int addressIndex,
       fieldIndex++;
       value = getHeaderValue(fieldIndex, fieldName);
    }
+   
+   // If we were looking for the last subfield, set 'uri' to return
+   // to the last one we found.
+   if( addressIndex == BOTTOM_SUBFIELD && !urlBackup.isNull() )
+   {
+      uri->append( urlBackup.data() );
+      uriFound = TRUE;
+   }
+   
    return(uriFound);
 }
 

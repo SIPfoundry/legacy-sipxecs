@@ -266,6 +266,9 @@ class SipUserAgent;
 #define SIPS_URL_TYPE "SIPS:"
 #define SIP_DEFAULT_MAX_FORWARDS 20
 
+// Subfield constant
+#define BOTTOM_SUBFIELD (INT_MAX)
+
 // Caller preference request dispostions tokens
 #define SIP_DISPOSITION_QUEUE "QUEUE"
 
@@ -789,10 +792,11 @@ public:
     //@}
 
 
-    //! @name Specialized header field accessors
+    //! @name Specialized header field accessors.
+    //! Using BOTTOM_SUBFIELD as the subfieldIndex returns the last subfield
     //@{
     UtlBoolean getFieldSubfield(const char* fieldName, int subfieldIndex,
-                               UtlString* subfieldValue) const;
+                                UtlString* subfieldValue) const;
 
     // Get the Contact field, but in URI (addr-spec) format (despite
     // that the Contact: header value has name-addr format).
@@ -801,17 +805,17 @@ public:
     // Get the Contact field as a string (as the value appears in the
     // header).
     UtlBoolean getContactField(int addressIndex,
-                              UtlString& contactField) const;
+                               UtlString& contactField) const;
 
     UtlBoolean getContactEntry(int addressIndex,
-                              UtlString* uriAndParameters) const;
+                               UtlString* uriAndParameters) const;
 
     UtlBoolean getContactAddress(int addressIndex,
-                                UtlString* contactAddress,
-                                int* contactPort,
-                                UtlString* protocol,
-                                UtlString* user = NULL,
-                                UtlString* userLabel = NULL) const;
+                                 UtlString* contactAddress,
+                                 int* contactPort,
+                                 UtlString* protocol,
+                                 UtlString* user = NULL,
+                                 UtlString* userLabel = NULL) const;
 
     void setViaFromRequest(const SipMessage* request);
 
@@ -904,6 +908,7 @@ public:
 
     // Retrieves the index-th logical Via: header value, folding together
     // all the Via: headers and parsing ",".
+    // Using BOTTOM_SUBFIELD as the subfieldIndex returns the last subfield
     UtlBoolean getViaFieldSubField(UtlString* viaSubField, int subFieldIndex) const;
 
     void getLastVia(UtlString* viaAddress,

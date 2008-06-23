@@ -33,6 +33,8 @@
 #define SDP_SUBFIELD_SEPARATOR ' '
 #define SDP_SUBFIELD_SEPARATORS "\t "
 
+#define SDP_ATTRIB_NAME_VALUE_SEPARATOR ":"
+
 #define SDP_AUDIO_MEDIA_TYPE "audio"
 #define SDP_VIDEO_MEDIA_TYPE "video"
 #define SDP_APPLICATION_MEDIA_TYPE "application"
@@ -373,6 +375,34 @@ UtlBoolean SdpBody::getMediaPayloadType(int mediaIndex, int maxTypes,
    *numTypes = typeCount;
 
    return(typeCount > 0);
+}
+
+UtlBoolean SdpBody::getMediaAttribute(int mediaIndex, const UtlString& attributeNameTofind, UtlString* pAttributeValue ) const
+{
+   bool bAttributeFound = false;
+   
+   if( pAttributeValue )
+   {
+      pAttributeValue->remove( 0 );
+   }
+   
+   NameValuePair* nv;
+   nv = getRefToMediaAttributeByName( mediaIndex, attributeNameTofind );
+   if( nv )
+   {
+      bAttributeFound = true;
+      if( pAttributeValue )
+      {
+         const char* attribNameAndValue = NULL;
+         attribNameAndValue = nv->getValue();
+         if(attribNameAndValue)
+         {      
+            NameValueTokenizer::getSubField(attribNameAndValue, 1,
+                                            SDP_ATTRIB_NAME_VALUE_SEPARATOR, pAttributeValue );  
+         }
+      }
+   }
+   return bAttributeFound;
 }
 
 UtlBoolean SdpBody::getMediaSubfield(int mediaIndex, int subfieldIndex, UtlString* subField) const
@@ -1917,9 +1947,176 @@ void SdpBody::addMediaData(const char* mediaType,
    addValue("m", value.data());
 }
 
-void SdpBody::addAttribute(const char* attribute)
+void SdpBody::addAttribute( const char* pAttributeName, 
+                            const char* pAttributeValue )
 {
-   addValue("a", attribute);
+   if( pAttributeName )
+   {
+      UtlString attributeToAdd( pAttributeName );
+      if( pAttributeValue )
+      {
+         attributeToAdd.append(':');
+         attributeToAdd.append( pAttributeValue );
+      }
+      addValue( "a", attributeToAdd.data() );
+   }
+}
+              
+bool SdpBody::insertMediaAttribute(int mediaIndex,
+                                   const char* pAttributeName, 
+                                   const char* pAttributeValue )
+{
+   bool bInsertionPointFound = false;
+   
+   if( pAttributeName )
+   {
+      UtlSListIterator iterator( *sdpFields );
+      
+      if( mediaIndex >= 0 )
+      {
+         if( mediaIndex >= getMediaSetCount() || mediaIndex < 0 )
+         {
+            return false;
+         }
+         else
+         {
+            positionFieldInstance( mediaIndex, &iterator, "m" );         
+         }
+      }
+      
+      // search for attribute insertion point
+      while( !bInsertionPointFound )
+      {
+         const NameValuePair* nv = (NameValuePair*) iterator.peekAtNext();
+         if( nv == 0 || nv->compareTo( "m" ) == 0 )
+         {
+            bInsertionPointFound = true;
+         }
+         else
+         {
+            iterator();
+         }
+         
+      }
+      if( bInsertionPointFound )
+      {
+         UtlString attributeToAdd( pAttributeName );
+         if( pAttributeValue )
+         {
+            attributeToAdd.append(':');
+            attributeToAdd.append( pAttributeValue );
+         }
+         NameValuePair* nv = new NameValuePair("a", attributeToAdd );
+         iterator.insertAfterPoint( nv );
+      }
+   }
+   return bInsertionPointFound;
+}
+
+/// Adds an attribute to an existing media description
+bool SdpBody::removeMediaAttribute(int mediaIndex,
+                                   const char* pAttributeName )
+{
+   bool bAttributeRemoved = false;
+   if( pAttributeName )
+   {
+      NameValuePair* nv;
+      nv = getRefToMediaAttributeByName( mediaIndex, pAttributeName );
+      if( nv )
+      {
+         if( sdpFields->removeReference( nv ) )
+         {
+            bAttributeRemoved = true;
+         }
+      }
+   }
+   return bAttributeRemoved;
+}   
+
+/// Modify IP address for the indicated media stream.
+bool SdpBody::modifyMediaAddress(int mediaIndex, 
+                                 const char* pAddress )
+{
+   UtlSListIterator iterator( *sdpFields );
+   bool bAddressSet = false;
+   
+   if( pAddress )
+   {
+      NameValuePair* nv;
+      if( mediaIndex == -1 || ( mediaIndex < getMediaSetCount() && mediaIndex >= 0 ) )
+      {
+         if( mediaIndex != -1 )
+         {
+            positionFieldInstance( mediaIndex, &iterator, "m" ); 
+         }
+         nv = findFieldNameBefore( &iterator, "c", "m" );
+         if(nv)
+         {
+            // c= line found, modify it.
+            UtlString value = nv->getValue();
+            bAddressSet = modifySdpSubfieldValue( value, 2, pAddress );
+            nv->setValue( value );
+         }
+         else
+         {
+            UtlString cLineToAdd;
+            cLineToAdd.append("IN IP4 ");
+            cLineToAdd.append( pAddress );
+            
+            // reseed iterator since findFieldNameBefore() modifies it even when no matches are found
+            iterator.reset();
+            if( mediaIndex != -1 )
+            {
+               positionFieldInstance( mediaIndex, &iterator, "m" ); 
+            }
+            NameValuePair* newNv = new NameValuePair("c", cLineToAdd );
+
+            while( ( nv = (NameValuePair*) iterator.peekAtNext() ) != 0 )
+            {
+               if( strcspn( nv->data(), "bzkatrm" ) == 0 )
+               {
+                  // next element is one of those elements that has to come after
+                  // the c= line according to RFC4566.  This means that we found our 
+                  // insertion point.  Add our c= line here.. 
+                  break;
+               }
+               else
+               {
+                  // next element is a line that must come before the c= line that 
+                  // we are trying to insert.  Keep looking of an insertion point
+                  iterator();                  
+               }
+            }
+            iterator.insertAfterPoint( newNv );
+         }
+         bAddressSet = true;         
+      }
+   }
+   return bAddressSet;
+}
+
+/// Set the port number for the indicated media stream.
+bool SdpBody::modifyMediaPort(int mediaIndex, ///< which media description set to modify
+                              int port)
+{
+   UtlSListIterator iterator( *sdpFields );
+   bool bPortSet = false;
+   
+   if( mediaIndex < getMediaSetCount() && mediaIndex >= 0 )
+   {
+      NameValuePair* nv;
+      nv = positionFieldInstance( mediaIndex, &iterator, "m" ); 
+      if(nv)
+      {
+         // m= line found, modify it.
+         char portText[14];
+         sprintf( portText, "%d", port );
+         UtlString value = nv->getValue();
+         bPortSet = modifySdpSubfieldValue( value, 1, portText );
+         nv->setValue( value );
+      }
+   }
+   return bPortSet;
 }
 
 void SdpBody::addAddressData(const char* ipAddress)
@@ -2167,5 +2364,87 @@ NameValuePair* SdpBody::findFieldNameBefore(UtlSListIterator* iter,
    return(nv);
 }
 
+bool SdpBody::modifySdpSubfieldValue( UtlString& sdpLineValue, 
+                                      int subFieldToModifyIndex, 
+                                      const UtlString& subFiledReplacement )
+{
+   UtlString readSubfield;
+   bool bReplacementDone = false;
+   UtlString newSdpLineValue;
+   
+   int index = 0;
+   while( NameValueTokenizer::getSubField( sdpLineValue, index, SDP_SUBFIELD_SEPARATORS, &readSubfield ) )
+   {
+      if( index != 0 )
+      {
+         newSdpLineValue.append( " " );                                             
+      }
+      if( index == subFieldToModifyIndex ) // 2 is index of the address information element in c= line
+      {
+         newSdpLineValue.append( subFiledReplacement );
+         bReplacementDone = true;
+      }
+      else
+      {
+         newSdpLineValue.append( readSubfield );
+      }
+      index++;
+   }
+   sdpLineValue = newSdpLineValue;
+   return bReplacementDone;
+}
+
+NameValuePair* SdpBody::getRefToMediaAttributeByName( int mediaIndex,
+                                                      const char* pAttributeNameToFind ) const
+{
+   UtlSListIterator iterator1(*sdpFields);
+   UtlSListIterator iterator2(*sdpFields);
+   NameValuePair* pMatch = 0;
+   uint iteratorIndex;
+   bool bAttributeFound = false;
+   
+   if( pAttributeNameToFind )
+   {
+      // The search for the attribute will be done in two passes.  First,
+      // we will search for the attribute within the media description
+      // designated by the suppliedc 'mediaIndex' parameter.  If that returns
+      // no match, we will then search for the attribute in the session
+      // description part of the SDP body.  The 'searchStartInterators'
+      // contains the search starting point for both passes.
+      UtlSListIterator* searchStartInterators[2] = { 0, 0 };
+      if( positionFieldInstance(mediaIndex, &iterator1, "m") )
+      {
+         searchStartInterators[0] = &iterator1;
+         searchStartInterators[1] = &iterator2;
+      
+         for( iteratorIndex = 0; 
+              !bAttributeFound && iteratorIndex < sizeof( searchStartInterators ) / sizeof( searchStartInterators[0] );
+              iteratorIndex++ )
+         {
+            UtlSListIterator* pTempIterator = searchStartInterators[ iteratorIndex ];
+            if( pTempIterator ) 
+            {
+               UtlString attribName;
+               NameValuePair* nv;
+               
+               while( !pMatch && ( nv = findFieldNameBefore(pTempIterator, "a", "m") ) )
+               {
+                  const char* attribNameAndValue = nv->getValue();
+                  if(attribNameAndValue)
+                  {
+                     NameValueTokenizer::getSubField(attribNameAndValue, 0,
+                                                     SDP_ATTRIB_NAME_VALUE_SEPARATOR, &attribName);
+                     if( attribName.compareTo( pAttributeNameToFind ) == 0 )
+                     {
+                        pMatch = nv;
+                     }
+                  }
+               }
+            }
+         }
+      }
+   }
+   return pMatch;
+}
 
 /* ============================ FUNCTIONS ================================= */

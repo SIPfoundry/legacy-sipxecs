@@ -230,6 +230,11 @@ class SdpBody : public HttpBody
                                              * see RFC 1890 for the Payload Type numbers
                                              */
                      );
+   
+   /// Adds an attribute to the SDP body
+   void addAttribute(const char* attributeName,      ///< name of attribute to add
+                     const char* pAttributeValue = 0 ///< optional attribute value.
+                          );
 
    void addCodecParameters(int numRtpCodecs,
                            SdpCodec* rtpCodecs[],
@@ -274,11 +279,42 @@ class SdpBody : public HttpBody
                                const char* candidateIp, 
                                int candidatePort) ;
 
-    /// Add an attribute.
-    void addAttribute(const char* attribute);
-
 ///@}
    
+ /**
+  * @name ====================== SDP Modification Interfaces
+  *
+  * These interfaces are used to add to or modify an existing SDP body
+  *
+  * @{
+  */
+    /// Adds an attribute to an existing media description
+    bool insertMediaAttribute(int mediaIndex,                 ///< which media description set to modify.  -1 means that attributee will be added to session description
+                              const char* attributeName,      ///< name of attribute to add
+                              const char* pAttributeValue = 0 ///< optional attribute value.
+                               );
+
+    /// Removes an attribute from an existing media description. If the attribute cannot be found
+    /// in the designated media description, the routine will try to remove the attribute  from
+    /// the session description section.
+    bool removeMediaAttribute(int mediaIndex,                 ///< which media description set to modify.  -1 means that attributee will be added to session description
+                              const char* attributeName       ///< name of attribute to add
+                               );
+
+    /// Set IP address for the indicated media stream.  If a media address (c= line in SDP body)
+    /// cannot be found in the designated media description, a c= line with the new address is 
+    // added to it.  Specifying a mediaIndex of -1 will affect the Session Description section
+    bool modifyMediaAddress(int mediaIndex, ///< which media description set to modify.  use -1 of Session Description section
+                            const char* pNewAddress  ///< new address information 
+                               );
+    
+    /// Set the port number for the indicated media stream.
+    bool modifyMediaPort(int mediaIndex, ///< which media description set to modify
+                         int newPort     ///< new port value 
+                               );
+
+ ///@}
+    
 /**
  * @name ====================== Field Reading Interfaces
  *
@@ -357,6 +393,14 @@ class SdpBody : public HttpBody
                                   int* numTypes,  ///< number of entries returned in payloadTypes
                                   int payloadTypes[] ///< array of integer payload types
                                   ) const;
+
+   /// Get the attribute the indicated media stream.
+   /// @return TRUE is the attribute is found in either the specified media description or the 
+   ///         session descrpition section.
+   UtlBoolean getMediaAttribute(int mediaIndex,                 ///< which media description set to read
+                                const UtlString& attributeName, ///< name of attribute to search for
+                                UtlString* pAttributeValue = 0  ///< will receive attrib's value if found and not a simple flag
+                                ) const;
 
    /// Media field accessor utility.
    UtlBoolean getMediaSubfield(int mediaIndex,
@@ -526,6 +570,23 @@ class SdpBody : public HttpBody
    static NameValuePair* findFieldNameBefore(UtlSListIterator* iter,
                                              const char* targetFieldName,
                                              const char* beforeFieldName);
+   
+   /**<
+    * Modifies a specific subfield on a given SDP line value.
+    */
+   bool modifySdpSubfieldValue( UtlString& sdpLineValue, 
+                                int subFieldToModifyIndex, 
+                                const UtlString& subFiledReplacement );
+
+   /**<
+    * Returns the reference of the first SDP attribute (a= line) matching
+    * the supplied name for the specified media description.  If the attribute
+    * is not found in the media descrption, the session description session 
+    * is then searched for a match.
+    */ 
+   NameValuePair* getRefToMediaAttributeByName( int mediaIndex,
+                                                const char* pAttributeName ) const;
+   
 
    //! Disabled assignment operator
    SdpBody& operator=(const SdpBody& rhs);

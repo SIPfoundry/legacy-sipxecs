@@ -60,6 +60,7 @@ class SipMessageTest : public CppUnit::TestCase
       CPPUNIT_TEST(testPathFieldManipulations);
       CPPUNIT_TEST(testRouteFieldManipulations);
       CPPUNIT_TEST(test200ResponseToRequestWithPath);
+      CPPUNIT_TEST(testGetFieldSubfield);
       CPPUNIT_TEST_SUITE_END();
 
       public:
@@ -2514,6 +2515,30 @@ class SipMessageTest : public CppUnit::TestCase
       ASSERT_STR_EQUAL("<sip:outboundproxy.com>", tmpString.data() );
  
       CPPUNIT_ASSERT(finalResponse.getPathUri(3, &tmpString)==FALSE);
+   }
+
+   void testGetFieldSubfield()
+   {
+      // Basic test of SipMessage::getFieldSubfield.
+      // This test avoids many of the difficult cases (which getFieldSubfield
+      // does not handle correctly).
+      const char *msg_string =
+         "REGISTER sip:sipx.local SIP/2.0\r\n"
+         "Supported: a,b\r\n"   // No space in "a,b" to prevent space in output.
+         "Supported: c\r\n"
+         "\r\n";
+      SipMessage msg(msg_string);
+
+      UtlString value;
+      CPPUNIT_ASSERT(msg.getFieldSubfield(SIP_SUPPORTED_FIELD, 0, &value));
+      ASSERT_STR_EQUAL("a", value.data());
+      CPPUNIT_ASSERT(msg.getFieldSubfield(SIP_SUPPORTED_FIELD, 1, &value));
+      ASSERT_STR_EQUAL("b", value.data());
+      CPPUNIT_ASSERT(msg.getFieldSubfield(SIP_SUPPORTED_FIELD, 2, &value));
+      ASSERT_STR_EQUAL("c", value.data());
+      CPPUNIT_ASSERT(!msg.getFieldSubfield(SIP_SUPPORTED_FIELD, 3, &value));
+      CPPUNIT_ASSERT(msg.getFieldSubfield(SIP_SUPPORTED_FIELD, BOTTOM_SUBFIELD, &value));
+      ASSERT_STR_EQUAL("c", value.data());
    }
 };
 
