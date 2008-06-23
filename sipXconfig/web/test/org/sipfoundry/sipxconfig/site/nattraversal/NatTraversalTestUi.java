@@ -1,6 +1,9 @@
 package org.sipfoundry.sipxconfig.site.nattraversal;
 
 import junit.framework.Test;
+
+import org.sipfoundry.sipxconfig.common.InitializationTask;
+import org.sipfoundry.sipxconfig.nattraversal.NatTraversalManager;
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 import net.sourceforge.jwebunit.junit.WebTestCase;
 
@@ -15,7 +18,8 @@ public class NatTraversalTestUi extends WebTestCase {
     public void setUp() {
         getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
         SiteTestHelper.home(getTester());
-        clickLink("resetInternetCalling");
+
+        clickLink("initNatTraversal");
         clickLink("NatTraversal");
     }
 

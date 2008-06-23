@@ -46,6 +46,7 @@ import org.sipfoundry.sipxconfig.gateway.Gateway;
 import org.sipfoundry.sipxconfig.gateway.GatewayContext;
 import org.sipfoundry.sipxconfig.gateway.GatewayModel;
 import org.sipfoundry.sipxconfig.job.JobContext;
+import org.sipfoundry.sipxconfig.nattraversal.NatTraversalManager;
 import org.sipfoundry.sipxconfig.paging.PagingContext;
 import org.sipfoundry.sipxconfig.permission.Permission;
 import org.sipfoundry.sipxconfig.permission.PermissionManager;
@@ -167,11 +168,20 @@ public abstract class TestPage extends BasePage {
     @InjectObject(value = "spring:locationsManager")
     public abstract LocationsManager getLocationsManager();
 
+    @InjectObject(value = "spring:natTraversalManager")
+    public abstract NatTraversalManager getNatTraversalManager();
+
+
     @InjectPage(value = WaitingPage.PAGE)
     public abstract WaitingPage getWaitingPage();
 
     public void resetServiceManager() {
         getServiceManager().clear();
+    }
+
+    public void initNatTraversal() {
+        getNatTraversalManager().saveDefaultNatTraversal();
+        getSbcManager().clear();
     }
 
     public void resetCallForwarding() {

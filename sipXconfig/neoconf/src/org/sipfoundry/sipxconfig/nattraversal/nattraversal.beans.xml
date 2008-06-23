@@ -9,4 +9,14 @@
   <bean id="natTraversalManager" class="org.sipfoundry.sipxconfig.nattraversal.NatTraversalManagerImpl">
     <property name="sessionFactory" ref="sessionFactory" />
   </bean>
+  <bean id="natTraversalInit" class="org.sipfoundry.sipxconfig.nattraversal.NatTraversalInit">
+    <property name="natTraversalManager">
+      <ref local="natTraversalManager" />
+    </property>
+    <property name="taskNames">
+      <list>
+        <value>default_NAT_traversal</value>
+      </list>
+    </property>
+  </bean>
 </beans>

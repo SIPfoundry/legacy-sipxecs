@@ -9,3 +9,5 @@ CREATE TABLE nat_traversal
       REFERENCES value_storage (value_storage_id) MATCH SIMPLE
       ON UPDATE NO ACTION ON DELETE NO ACTION
 );
+
+insert into initialization_task (name) values ('default_NAT_traversal');

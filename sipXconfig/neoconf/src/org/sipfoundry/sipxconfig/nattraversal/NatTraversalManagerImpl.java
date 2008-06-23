@@ -20,26 +20,39 @@ import org.springframework.beans.factory.BeanFactoryAware;
 public class NatTraversalManagerImpl extends SipxHibernateDaoSupport<NatTraversal>
     implements NatTraversalManager, BeanFactoryAware {
 
+    private static final String ALL_NAT_TRAVERSAL = "all nat traversal";
+
     private BeanFactory m_beanFactory;
 
     public void store(NatTraversal natTraversal) {
         saveBeanWithSettings(natTraversal);
     }
     public NatTraversal getNatTraversal() {
-        List plans = getHibernateTemplate().loadAll(NatTraversal.class);
-        NatTraversal natTraversal = (NatTraversal) DaoUtils.requireOneOrZero(plans, "all nat traversal");
+        List nats = getHibernateTemplate().loadAll(NatTraversal.class);
+        NatTraversal natTraversal = (NatTraversal) DaoUtils.requireOneOrZero(nats, ALL_NAT_TRAVERSAL);
+        natTraversal.setModelFilesContext((ModelFilesContext) m_beanFactory.getBean("modelFilesContext"));
+        return natTraversal;
+    }
 
+    /**
+     * Save in database the default settings for NAT Traversal once the application is initialized - since
+     * replication process uses READ ONLY hibernate session.
+     * NAT Traversal has to be saved before replicaion
+     * This method is called only once (after application initialization) in NatTarversalInit listener
+     */
+    public void saveDefaultNatTraversal() {
+        List nats = getHibernateTemplate().loadAll(NatTraversal.class);
+        NatTraversal natTraversal = (NatTraversal) DaoUtils.requireOneOrZero(nats,
+                ALL_NAT_TRAVERSAL);
         // create a new one if one doesn't exists, otherwise
         // risk having 2 or more in database
         if (natTraversal == null) {
             natTraversal = (NatTraversal) m_beanFactory.getBean("natTraversal");
             store(natTraversal);
-        } else {
-            natTraversal.setModelFilesContext((ModelFilesContext) m_beanFactory.getBean("modelFilesContext"));
+            //make sure that hibernate session is synchronized with database data
+            getHibernateTemplate().flush();
         }
-        return natTraversal;
     }
-
     public void setBeanFactory(BeanFactory beanFactory) {
         m_beanFactory = beanFactory;
     }

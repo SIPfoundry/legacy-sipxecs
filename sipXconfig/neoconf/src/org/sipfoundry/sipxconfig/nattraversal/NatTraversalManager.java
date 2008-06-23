@@ -14,4 +14,5 @@ public interface NatTraversalManager {
 
     public void store(NatTraversal natTraversal);
     public NatTraversal getNatTraversal();
+    public void saveDefaultNatTraversal();
 }
