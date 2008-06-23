@@ -42,6 +42,7 @@ class UtlSListIteratorTest : public CppUnit::TestCase
     CPPUNIT_TEST(testInsertAfterPoint_EmptyList) ; 
     CPPUNIT_TEST(testInsertAfterPoint) ; 
     CPPUNIT_TEST(removeItem) ;
+    CPPUNIT_TEST(testPeekAtNext) ;
     CPPUNIT_TEST_SUITE_END();
 
 private:
@@ -651,7 +652,55 @@ public:
 
     } //removeItem()
 
+    void testPeekAtNext()
+    {
+       UtlString v1("a");
+       UtlString v2("b");
+       UtlString v3("c");
+       UtlString v4("d");
+       UtlContainable* e;
 
+       UtlSList h;
+       h.insert(&v1);
+       h.insert(&v2);
+       h.insert(&v3);
+       h.insert(&v4);
+
+       UtlSListIterator iter(h); 
+
+       // check that peekAtNext() returns v1 while iterator points at NULL
+       e = iter.peekAtNext();
+       CPPUNIT_ASSERT(e == &v1);
+       CPPUNIT_ASSERT(iter.item() == NULL );
+       
+       // Step the iterator and check that peekAtNext() returns v2 
+       // while iterator points at v1
+       iter();
+       e = iter.peekAtNext();
+       CPPUNIT_ASSERT(e == &v2);
+       CPPUNIT_ASSERT(iter.item() == &v1);
+
+       // Step the iterator and check that peekAtNext() returns v3 
+       // while iterator points at v2
+       iter();
+       e = iter.peekAtNext();
+       CPPUNIT_ASSERT(e == &v3);
+       CPPUNIT_ASSERT(iter.item() == &v2);
+
+       // Step the iterator and check that peekAtNext() returns v4 
+       // while iterator points at v3
+       iter();
+       e = iter.peekAtNext();
+       CPPUNIT_ASSERT(e == &v4);
+       CPPUNIT_ASSERT(iter.item() == &v3);
+
+       // Step the iterator and check that peekAtNext() returns NULL 
+       // while iterator points at v4
+       iter();
+       e = iter.peekAtNext();
+       CPPUNIT_ASSERT(e == NULL);
+       CPPUNIT_ASSERT(iter.item() == &v4);
+    }
 };
 
 const int UtlSListIteratorTest::INDEX_NOT_EXIST = -1; 

@@ -92,15 +92,11 @@ UtlContainable* UtlSListIterator::peekAtNext(void)
       OsLock take(myList->mContainerLock);
       UtlContainer::releaseIteratorConnectionLock();
 
-      UtlLink* nextLink;
-      if( mpCurrentNode )
-      {
-         nextLink = mpCurrentNode->next();
-      }
-      else
-      {
-         nextLink = myList->head();
-      }
+      // advance the iterator
+      UtlLink* nextLink = (mpCurrentNode == NULL
+                           ? myList->head()
+                           : mpCurrentNode->next()
+                           );
       if( nextLink )
       {
          match = (UtlContainable*)nextLink->data;
