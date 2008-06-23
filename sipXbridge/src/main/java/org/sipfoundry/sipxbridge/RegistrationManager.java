@@ -114,6 +114,10 @@ public class RegistrationManager {
          
             itspAccount.setState(AccountState.AUTHENTICATED);
             
+            if ( itspAccount.getSipKeepaliveMethod().equals("CR-LF")) {
+                itspAccount.startCrLfTimerTask();
+
+            }
             
             if (time > 0) {
                 TimerTask ttask = new RegistrationTimerTask(itspAccount);
@@ -122,9 +126,17 @@ public class RegistrationManager {
             
 
         } else {
+            /* Authentication failed. Try again after 30 seconds */
             ItspAccountInfo itspAccount = ((TransactionApplicationData) ct
                     .getApplicationData()).itspAccountInfo;
             itspAccount.setState(AccountState.AUTHENTICATION_FAILED);
+            if ( itspAccount.getSipKeepaliveMethod().equals("CR-LF") ) {
+                itspAccount.stopCrLfTimerTask();
+
+            }
+            TimerTask ttask = new RegistrationTimerTask(itspAccount);
+            Gateway.timer.schedule(ttask, 30 * 1000);
+            
         }
     }
 

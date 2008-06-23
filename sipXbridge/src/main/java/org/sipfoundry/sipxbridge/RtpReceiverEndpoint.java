@@ -36,9 +36,6 @@ public class RtpReceiverEndpoint extends SymReceiverEndpoint {
             Origin origin = sessionDescription.getOrigin();
             if (this.sessionDescription != null) {
                 origin = this.sessionDescription.getOrigin();
-                if (!this.sessionDescription.equals(sessionDescription)) {
-                   SipUtilities.incrementSdpVersion(sessionDescription);
-                }
             }
             this.sessionDescription = sessionDescription;
 

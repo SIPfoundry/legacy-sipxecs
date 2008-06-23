@@ -30,7 +30,7 @@ import org.xbill.DNS.Type;
 public class ItspAccountInfo implements gov.nist.javax.sip.clientauthutils.UserCredentials {
 
     private static Logger logger = Logger.getLogger(ItspAccountInfo.class);
-    
+
     private String outboundRegistrar;
 
     /**
@@ -107,7 +107,6 @@ public class ItspAccountInfo implements gov.nist.javax.sip.clientauthutils.UserC
      */
     private HashMap<String, FailureCounter> failureCountTable = new HashMap<String, FailureCounter>();
 
-    
     /*
      * NAT keepalive method.
      */
@@ -122,8 +121,10 @@ public class ItspAccountInfo implements gov.nist.javax.sip.clientauthutils.UserC
     private int maxCalls = -1;
 
     private int callCount = 0;
-    
+
     private String outboundRegistrarRoute;
+
+    private boolean crLfTimerTaskStarted;
 
     /**
      * This task runs periodically depending upon the timeout of the lookup specified.
@@ -261,7 +262,8 @@ public class ItspAccountInfo implements gov.nist.javax.sip.clientauthutils.UserC
 
     public void lookupAccount() throws GatewayConfigurationException {
         // User has already specified an outbound proxy so just bail out.
-        if ( this.outboundProxy != null ) return;
+        if (this.outboundProxy != null)
+            return;
         try {
             String outboundDomain = this.getSipDomain();
             Record[] records = new Lookup("_sip._" + this.getOutboundTransport() + "."
@@ -278,7 +280,7 @@ public class ItspAccountInfo implements gov.nist.javax.sip.clientauthutils.UserC
                 this.setPort(port);
                 long time = record.getTTL() * 1000;
                 String resolvedName = record.getTarget().toString();
-                if ( resolvedName.endsWith(".") ) {
+                if (resolvedName.endsWith(".")) {
                     resolvedName = resolvedName.substring(0, resolvedName.lastIndexOf('.'));
                 }
                 this.setOutboundProxy(resolvedName);
@@ -461,9 +463,20 @@ public class ItspAccountInfo implements gov.nist.javax.sip.clientauthutils.UserC
     }
 
     public void startCrLfTimerTask() {
-        this.crlfTimerTask = new CrLfTimerTask(Gateway.getWanProvider("udp"), this);
-        Gateway.timer.schedule(crlfTimerTask, Gateway.getSipKeepaliveSeconds() * 1000);
+        if (!this.crLfTimerTaskStarted) {
+            this.crLfTimerTaskStarted = true;
+            this.crlfTimerTask = new CrLfTimerTask(Gateway.getWanProvider("udp"), this);
+            Gateway.timer.schedule(crlfTimerTask, Gateway.getSipKeepaliveSeconds() * 1000);
+        }
 
+    }
+    
+    public void stopCrLfTimerTask() {
+        if ( this.crLfTimerTaskStarted ) {
+            this.crLfTimerTaskStarted  = false;
+            this.crlfTimerTask.cancel();
+            
+        }
     }
 
     /**
@@ -542,7 +555,6 @@ public class ItspAccountInfo implements gov.nist.javax.sip.clientauthutils.UserC
     public String getOutboundRegistrar() {
         return this.outboundRegistrar;
     }
-
 
     /**
      * @param outboundRegistrarRoute the outboundRegistrarRoute to set

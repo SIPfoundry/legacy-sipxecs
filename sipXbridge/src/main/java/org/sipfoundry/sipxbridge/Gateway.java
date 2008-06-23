@@ -168,8 +168,6 @@ class Gateway {
 
     private static boolean isTlsSupportEnabled = false;
 
-    private static boolean isWebServerRunning = false;
-
     private static int callCount;
 
     private Gateway() {
@@ -592,41 +590,29 @@ class Gateway {
                 } catch (InterruptedException ex) {
                     throw new RuntimeException("Unexpected exception registering", ex);
                 }
-                /*
-                 * Check to see if all accounts that need authentication have successfully
-                 * registered.
-                 */
-                boolean allAuthenticated = true;
+                
                 for (ItspAccountInfo itspAccount : Gateway.accountManager.getItspAccounts()) {
-                    if (itspAccount.isRegisterOnInitialization()) {
-                        if (itspAccount.getState() == AccountState.AUTHENTICATION_FAILED) {
-                            Gateway.stop();
-                            System.out
-                                    .println("Authentication Failure with ITSP account check account info.");
-                            throw new GatewayConfigurationException("Authentication failure ");
-                        } else if (itspAccount.getState() != AccountState.AUTHENTICATED) {
-                            allAuthenticated = false;
-                        }
-
+                    if (itspAccount.isRegisterOnInitialization() && itspAccount.getState() == AccountState.AUTHENTICATING) {
+                        continue;
                     }
                 }
+                break;
 
-                if (allAuthenticated) {
-                    System.out.println("---- SIPXBRIDGE READY ----");
-                    Gateway.state = GatewayState.INITIALIZED;
-                    for (ItspAccountInfo itspAccount : Gateway.getAccountManager()
-                            .getItspAccounts()) {
-                        if (itspAccount.getSipKeepaliveMethod().equals("CR-LF")) {
-                            itspAccount.startCrLfTimerTask();
+            }
+           
+            
+            /*
+             * For all those who ask for keepalive and don't need registration, kick off their timers.
+             */
+            for (ItspAccountInfo itspAccount : Gateway.getAccountManager().getItspAccounts()) {
+                if (!itspAccount.isRegisterOnInitialization()
+                        && itspAccount.getSipKeepaliveMethod().equals("CR-LF")) {
+                    itspAccount.startCrLfTimerTask();
 
-                        }
-                    }
-                    return;
-                } else {
-                    Gateway.stop();
                 }
             }
-            throw new GatewayConfigurationException("Could not register with all accounts ");
+            
+            Gateway.state = GatewayState.INITIALIZED;
 
         } catch (SipException ex) {
             throw new GatewayConfigurationException("Error in Registering ", ex);
@@ -669,7 +655,9 @@ class Gateway {
             startRediscoveryTimer();
         }
         startSipListener();
+
         registerWithItsp();
+
     }
 
     /**
@@ -845,15 +833,15 @@ class Gateway {
                 Gateway.initializeSymmitron();
                 Gateway.start();
             } else if (command.equals("stop")) {
-               SipStackExt sipStack = (SipStackExt) ProtocolObjects.sipStack;
-               for ( Dialog dialog: sipStack.getDialogs() ) {
-                   DialogApplicationData dat = DialogApplicationData.get(dialog);
-                   if ( dat != null  && dat.backToBackUserAgent != null) {
-                       dat.backToBackUserAgent.tearDown();
-                       dat.backToBackUserAgent = null;   
-                   }
-               }
-               Thread.sleep(10000);
+                SipStackExt sipStack = (SipStackExt) ProtocolObjects.sipStack;
+                for (Dialog dialog : sipStack.getDialogs()) {
+                    DialogApplicationData dat = DialogApplicationData.get(dialog);
+                    if (dat != null && dat.backToBackUserAgent != null) {
+                        dat.backToBackUserAgent.tearDown();
+                        dat.backToBackUserAgent = null;
+                    }
+                }
+                Thread.sleep(10000);
             } else if (command.equals("configtest")) {
                 try {
                     Gateway.parseConfigurationFile();

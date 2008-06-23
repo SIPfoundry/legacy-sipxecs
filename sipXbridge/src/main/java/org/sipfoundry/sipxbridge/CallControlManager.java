@@ -8,23 +8,17 @@ package org.sipfoundry.sipxbridge;
 
 import gov.nist.javax.sip.DialogExt;
 import gov.nist.javax.sip.SipStackImpl;
-import gov.nist.javax.sip.header.AcceptLanguage;
 import gov.nist.javax.sip.message.SIPResponse;
-import gov.nist.javax.sip.stack.SIPClientTransaction;
 import gov.nist.javax.sip.stack.SIPDialog;
 import gov.nist.javax.sip.stack.SIPServerTransaction;
 
-import java.io.IOException;
 import java.text.ParseException;
-import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Locale;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 
-import javax.sdp.SdpException;
 import javax.sdp.SdpFactory;
-import javax.sdp.SdpParseException;
 import javax.sdp.SessionDescription;
 import javax.sip.ClientTransaction;
 import javax.sip.Dialog;
@@ -33,9 +27,7 @@ import javax.sip.InvalidArgumentException;
 import javax.sip.RequestEvent;
 import javax.sip.ResponseEvent;
 import javax.sip.ServerTransaction;
-import javax.sip.SipException;
 import javax.sip.SipProvider;
-import javax.sip.Transaction;
 import javax.sip.TransactionAlreadyExistsException;
 import javax.sip.TransactionState;
 import javax.sip.address.SipURI;
@@ -43,7 +35,6 @@ import javax.sip.header.AcceptHeader;
 import javax.sip.header.AcceptLanguageHeader;
 import javax.sip.header.AllowHeader;
 import javax.sip.header.CSeqHeader;
-import javax.sip.header.CallIdHeader;
 import javax.sip.header.ContactHeader;
 import javax.sip.header.ContentTypeHeader;
 import javax.sip.header.EventHeader;
@@ -51,14 +42,10 @@ import javax.sip.header.SubscriptionStateHeader;
 import javax.sip.header.SupportedHeader;
 import javax.sip.header.ToHeader;
 import javax.sip.header.ViaHeader;
-import javax.sip.message.Message;
 import javax.sip.message.Request;
 import javax.sip.message.Response;
 
 import org.apache.log4j.Logger;
-import org.sipfoundry.sipxbridge.symmitron.Sym;
-import org.sipfoundry.sipxbridge.symmitron.SymEndpoint;
-import org.sipfoundry.sipxbridge.symmitron.SymTransmitterEndpoint;
 
 /**
  * Processes INVITE, REFER, ACK and BYE
@@ -553,6 +540,7 @@ public class CallControlManager {
                     b2bua.getWanRtcpSession(peerDialog).getReceiver().setSessionDescription(sd,
                             false);
                 }
+                SipUtilities.incrementSdpVersion(sd);
 
             } else {
                 b2bua.getLanRtpSession(peerDialog).getReceiver().setSessionDescription(sd, true);
@@ -560,6 +548,7 @@ public class CallControlManager {
                     b2bua.getLanRtcpSession(peerDialog).getReceiver().setSessionDescription(sd,
                             false);
                 }
+                SipUtilities.incrementSdpVersion(sd);
             }
 
             if (Gateway.isReInviteSupported()) {
