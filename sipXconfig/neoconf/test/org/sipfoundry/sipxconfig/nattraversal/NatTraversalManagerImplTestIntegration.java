@@ -1,7 +1,6 @@
 package org.sipfoundry.sipxconfig.nattraversal;
 
 import org.sipfoundry.sipxconfig.IntegrationTestCase;
-import org.sipfoundry.sipxconfig.TestHelper;
 
 public class NatTraversalManagerImplTestIntegration extends IntegrationTestCase {
     private NatTraversalManager m_natTraversalManager;

@@ -1,14 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN"
-	"http://www.springframework.org/dtd/spring-beans.dtd">
-<beans>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
 
-  <bean id="natTraversal" class="org.sipfoundry.sipxconfig.nattraversal.NatTraversal" parent="beanWithSettings">
-    <property name="modelFilesContext" ref="modelFilesContext" />
+  <bean id="natTraversal" class="org.sipfoundry.sipxconfig.nattraversal.NatTraversal" parent="beanWithSettings"
+    scope="prototype">
   </bean>
-  <bean id="natTraversalManager" class="org.sipfoundry.sipxconfig.nattraversal.NatTraversalManagerImpl">
+
+  <bean id="natTraversalManagerImpl" class="org.sipfoundry.sipxconfig.nattraversal.NatTraversalManagerImpl">
     <property name="sessionFactory" ref="sessionFactory" />
   </bean>
+
+  <bean id="natTraversalManager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
+    <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.nattraversal.NatTraversalManager" />
+    <property name="target">
+      <ref local="natTraversalManagerImpl" />
+    </property>
+  </bean>
+
   <bean id="natTraversalInit" class="org.sipfoundry.sipxconfig.nattraversal.NatTraversalInit">
     <property name="natTraversalManager">
       <ref local="natTraversalManager" />
