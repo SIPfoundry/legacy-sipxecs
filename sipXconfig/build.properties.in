@@ -23,6 +23,7 @@ sipxpbx.upgrade.dir=@SIPX_UPGRADEDIR@
 sipxconfig.lib.dir=@SIPXCONFIG_LIBDIR@
 sipxpbx.bin.dir=@SIPX_BINDIR@
 sipxpbx.data.dir=@SIPX_DATADIR@
+sipxpbx.process.dir=@SIPX_PROCESSDIR@
 sipxpbx.conf.dir=@SIPX_CONFDIR@
 sipxpbx.var.dir=@SIPX_VARDIR@
 sipxpbx.lib.dir=@SIPX_LIBDIR@

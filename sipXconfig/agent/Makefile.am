@@ -1,3 +1,6 @@
+SIPX_PROCESS_DEFS = \
+	sipxconfig-agent
+
 include $(top_srcdir)/config/subdir.am
 
 rake=$(RAKE) builddir="$$builddir"
@@ -15,6 +18,7 @@ endif
 
 install : \
 	$(DESTDIR)$(SIPX_PROCDIR)/sipxconfig-agent.process.xml \
+	$(DESTDIR)$(SIPX_PROCESSDIR)/sipxconfig-agent-process.xml \
 	$(INSTALL_GEM) \
 	$(DESTDIR)$(bindir)/sipxconfig-agent
 
@@ -49,11 +53,12 @@ install-gem-for-rpm : package-gem
 check :
 	cd $(srcdir) && $(rake)
 
-$(DESTDIR)$(bindir)/sipxconfig-agent : bin/sipxconfig-agent.in
-	mkdir -p bin
+$(DESTDIR)$(bindir)/sipxconfig-agent : sipxconfig-agent
+	$(INSTALL) -D -m 755 sipxconfig-agent \
+	    $(DESTDIR)$(bindir)/sipxconfig-agent
+
+sipxconfig-agent : bin/sipxconfig-agent.in
 	@echo "Localize $< -> $@"
 	@${LocalizeSipXconfig} -e 's,@GEM_LIB_DIR\@,$(GEM_LIB_DIR),g' \
 	    $(srcdir)/bin/sipxconfig-agent.in \
-	      > bin/sipxconfig-agent
-	$(INSTALL) -D -m 755 bin/sipxconfig-agent \
-	    $(DESTDIR)$(bindir)/sipxconfig-agent
+	      > sipxconfig-agent

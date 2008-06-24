@@ -232,6 +232,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/sipx-upgrade-3.6-mailstore-report
 %attr(755,root,root) %{_bindir}/ssl-cert/create-ssl-keystore.sh
 %attr(755,root,root) %{_bindir}/ssl-cert/create-ssl-truststore.sh
+%attr(644,root,root) %{_datadir}/sipx/process.d/sipxconfig-process.xml
 
 # Because of generation of data and profiles
 %dir %attr(775,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{phonedir}
@@ -414,6 +415,7 @@ sipx-mrtg-init -e > /dev/null
 %files conference
 %defattr(644,@SIPXPBXUSER@,@SIPXPBXUSER@,755)
 %config(noreplace) %{sipxpbxconf}/process.d/freeswitch.process.xml
+%attr(644,root,root) %{_datadir}/sipx/process.d/freeswitch-process.xml
 %{sipxpbxconf}/freeswitch_config.defs
 %dir %attr(775,@SIPXPBXUSER@,@SIPXPBXUSER@) %{freeswitchdir}
 %{freeswitchdir}/conf/freeswitch.xml.in
@@ -439,6 +441,7 @@ fi
 
 %defattr(644,@SIPXPBXUSER@,@SIPXPBXUSER@,755)
 %config(noreplace) %{sipxpbxconf}/process.d/sipxconfig-agent.process.xml
+%attr(644,root,root) %{_datadir}/sipx/process.d/sipxconfig-agent-process.xml
 
 %post agent
 gem install --no-rdoc --local %{sipxpbxvarlib}/sipXconfig-agent-*.gem >/dev/null

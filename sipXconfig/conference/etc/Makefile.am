@@ -5,11 +5,15 @@ cfgfiles_IN = \
 
 EXTRA_DIST = \
     freeswitch.process.xml.in \
+    freeswitch-process.xml.in \
     $(cfgfiles_IN)
 
 ### if ENABLE_CONFERENCE
 PROCESS_XML_FILES = \
 	$(DESTDIR)$(SIPX_PROCDIR)/freeswitch.process.xml
+
+SIPX_PROCESS_DEFS = \
+	freeswitch
 ### endif
 
 CFG_FILES = $(foreach file,$(cfgfiles_IN),$(DESTDIR)/$(sysconfdir)/sipxpbx/$(file))

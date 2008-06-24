@@ -61,6 +61,7 @@ LocalizeSipXconfig = sed \
 		  -e 's,@SIPX_INCDIR\@,@SIPX_INCDIR@,g' \
 		  -e 's,@SIPX_LIBDIR\@,@SIPX_LIBDIR@,g' \
 		  -e 's,@SIPX_PROCDIR\@,@SIPX_PROCDIR@,g' \
+		  -e 's,@SIPX_PROCESSDIR\@,@SIPX_PROCESSDIR@,g' \
 		  -e 's,@SIPX_SETUPDIR\@,@SIPX_SETUPDIR@,g' \
 		  -e 's,@SIPX_LIBEXECDIR\@,@SIPX_LIBEXECDIR@,g' \
 		  -e 's,@SIPX_VARDIR\@,@SIPX_VARDIR@,g' \
@@ -85,7 +86,7 @@ LocalizeSipXconfig = sed \
 		  -e 's,@XARGS_REPLACE\@,@XARGS_REPLACE@,g'
 
 ################################################################
-# localize and install sipXsupervisor process definition based on:
+# localize and install process definition based on:
 # SIPX_PROCESS_DEFS : the process definition file name without '-process.xml'
 
 install-data-hook: \
@@ -96,7 +97,7 @@ $(foreach proc,$(SIPX_PROCESS_DEFS),$(DESTDIR)$(SIPX_PROCESSDIR)/$(proc)-process
 	$(INSTALL) -D -m 644 $< $@
 
 $(foreach proc,$(SIPX_PROCESS_DEFS),$(proc)-process.xml) : % : %.in
-	@echo "Localize sipXsupervisor process definition $<"
+	@echo "Localize process definition: $*"
 	@$(LocalizeSipXconfig) $< > $@
 
 ################################################################
@@ -106,7 +107,7 @@ $(DESTDIR)$(SIPX_PROCDIR)/%.process.xml : %.process.xml $(DESTDIR)$(SIPX_PROCDIR
 	$(INSTALL) -D -m 644 $< $@
 
 %.process.xml : %.process.xml.in
-	@echo "Localize watchdog process definition $<"
+	@echo "Localize old-style watchdog process definition: $@"
 	@$(LocalizeSipXconfig) $< > $@
 
 $(DESTDIR)$(SIPX_PROCDIR) :

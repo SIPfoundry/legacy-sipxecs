@@ -1,0 +1,25 @@
+<?xml version='1.0' encoding='iso-8859-1' standalone='yes'?>
+<sipXecs-process xmlns='http://www.sipfoundry.org/sipX/schema/xml/sipXecs-process-01-00'>
+  <name>ConfigServer</name>
+  <version>@VERSION@</version>
+  <commands>
+    <configtest>
+      <execute>@bin.dir@/sipxconfig.sh</execute>
+      <parameter>--configtest</parameter>
+    </configtest>
+    <start>
+      <execute>@bin.dir@/sipxconfig.sh</execute>
+    </start>
+    <stop>
+      <execute>@bin.dir@/sipxconfig.sh</execute>
+      <parameter>--stop</parameter>
+    </stop>
+  </commands>
+  <status isService='true'>
+    <pid>@sipxpbx.run.dir@/sipxconfig.pid</pid>
+    <log>@sipxpbx.log.dir@/sipxconfig.log</log>
+  </status>
+  <resources>
+    <osconfig>@sipxpbx.conf.dir@/domain-config</osconfig>
+  </resources>
+</sipXecs-process>
