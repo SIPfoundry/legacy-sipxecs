@@ -1,12 +1,15 @@
 include $(top_srcdir)/config/subdir.am
 
+SIPX_PROCESS_DEFS = sipstatus
+
 ETC_FILES = \
     status-config.in \
     status-plugin.xml.in
 
 EXTRA_DIST = \
     $(ETC_FILES) \
-    sipstatus.process.xml.in
+    sipstatus.process.xml.in \
+    sipstatus-process.xml.in
 
 install-data-hook : $(DESTDIR)$(SIPX_PROCDIR)/sipstatus.process.xml
 	@for f in $(ETC_FILES); \
