@@ -35,3 +35,5 @@ $(foreach file,$(cfgfiles_IN),$(file).local) : %.local : %
 	@echo "Localize $< -> $@"
 	@$(LocalizeSipXconfig) $< > $@
 
+DISTCLEANFILES = freeswitch_config.defs \
+		 freeswitch.process.xml
