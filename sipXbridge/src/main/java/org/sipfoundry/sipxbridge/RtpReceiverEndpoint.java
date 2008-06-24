@@ -35,11 +35,16 @@ public class RtpReceiverEndpoint extends SymReceiverEndpoint {
         try {
             Origin origin = sessionDescription.getOrigin();
             if (this.sessionDescription != null) {
+                /*
+                 * draft-ietf-sipping-sip-offeranswer-08 section 5.2.5 makes it clear that a UA
+                 * cannot change the session id field of the o-line when making a subsequent
+                 * offer/answer.
+                 */
                 origin = this.sessionDescription.getOrigin();
+                sessionDescription.setOrigin(origin);
+
             }
             this.sessionDescription = sessionDescription;
-
-            sessionDescription.setOrigin(origin);
 
             if (connection != null) {
                 connection.setAddress(this.ipAddress);

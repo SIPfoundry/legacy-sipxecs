@@ -762,8 +762,8 @@ public class SipUtilities {
 
     public static void incrementSdpVersion(SessionDescription sessionDescription) {
         try {
-            int version = sessionDescription.getVersion().getVersion();
-            sessionDescription.getVersion().setVersion(++version);
+            long version = sessionDescription.getOrigin().getSessionVersion();
+            sessionDescription.getOrigin().setSessionVersion(++version);
         } catch (SdpException ex) {
             logger.error("Unexpected exception ", ex);
             throw new RuntimeException("Unexepcted exception", ex);
