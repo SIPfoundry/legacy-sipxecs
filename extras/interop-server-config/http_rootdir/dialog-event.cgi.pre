@@ -39,13 +39,6 @@ HTML:{
 	last HTML;
     }
 
-    # Get the user-agent.
-    my($user_agent) = &user_agent($log_file, $extension);
-    if ($user_agent ne '') {
-	print &p(&strong(&escapeHTML("User-Agent:")), $user_agent),
-	      "\n";
-    }
-
     # Get the dialog event package.
     my($notify) = &find_last_notify($extension);
 
@@ -92,6 +85,21 @@ HTML:{
 	my($outdent) = ($x =~ m%^</[a-z]%i);
 	$line = ('  ' x ($depth - $outdent)) . $line;
 	$depth += $delta;
+    }
+
+    # Print the user-agent identification.
+    my($user_agent);
+    # Get the User-Agent header from the NOTIFY, if there is one.
+    ($user_agent) = $headers =~ /\nUser-Agent:\s*(.*)\n/i;
+    # If that did not work, get the User-Agent header from the latest registration.
+    if ($user_agent eq '') {
+	$user_agent = &user_agent($log_file, $extension);
+	$user_agent .= ' (guessed from REGISTER)' if $user_agent ne '';
+    }
+    # If we got a User-Agent value, print it.
+    if ($user_agent ne '') {
+	print &p(&strong(&escapeHTML("User-Agent:")), $user_agent),
+	      "\n";
     }
 
     # Content-Type header test.
@@ -427,10 +435,13 @@ sub user_agent {
 
         # Get the extension.
         if ($extension eq (/\nTo:.*?sips?:(\d+)@/i)[0]) {
-            # If the extension matches, return the user-agent.
+            # If the extension matches, record the user-agent.
             ($user_agent) = /\nUser-Agent:\s*(.*)\n/i;
-            return $user_agent;
         }
     }
     close LOG;
+
+    # Return the last User-Agent value seen, which is most likely the
+    # one that generated the last dialog event.
+    return $user_agent;
 }
