@@ -117,6 +117,13 @@ class SipRouter : public OsServerTask
     * @returns true iff valid authentication is found (and sets authUser).
     */
 
+   /** If sipRequest is a REGISTER that came from behind a NAT (indicated
+    *  by 'received' parameter on topmost Via), add an initial signed Path URI
+    *  for this proxy.
+    *  @returns true iff sipRequest was modified.
+    */
+   bool addPathHeaderIfNATRegisterRequest( SipMessage& sipRequest ) const;
+   
    /// Verifies if the proxy supports all the extensions listed in the Proxy-Require
    /// header of an incoming request.
    bool areAllExtensionsSupported( const SipMessage& sipRequest,   ///< request to be evluated

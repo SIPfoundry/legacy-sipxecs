@@ -1059,9 +1059,15 @@ public:
 
     UtlBoolean getPathUri(int index, UtlString* pathUri) const;
 
-    void addPathUri(const char* routeUri);
+    /// Add a URI to the Path header at the beginning.
+    void addPathUri(const char* routeUri
+                    ///< URI or a name-addr with <...>
+       );
 
-    void addLastPathUri(const char* pathUri);
+    /// Add a URI to the Path header at the end.
+    void addLastPathUri(const char* pathUri
+                        ///< URI or a name-addr with <...>
+       );
 
     //! @name Call control header field accessors
     //@{

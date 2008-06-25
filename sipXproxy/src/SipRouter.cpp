@@ -295,10 +295,16 @@ bool SipRouter::proxyMessage(SipMessage& sipRequest)
             // Forwarding Rules and let the request spiral.   The request
             // will eventually get authorized as it spirals back to us.
             // Add proprietary header indicating that the request is 
-            // spiraling.
+            // spiraling. 
             sipRequest.setHeaderValue( SIPX_SPIRAL_HEADER, "true", 0 );
             bRequestShouldBeAuthorized        = false;
             bForwardingRulesShouldBeEvaluated = true;
+            // If the UA sending this request is located behind 
+            // a NAT and the request is a REGISTER then add a
+            // Path header to this proxy to make sure that all subsequent 
+            // requests sent to the registering UA get funneled through
+            // this proxy.
+            addPathHeaderIfNATRegisterRequest( sipRequest );
          }
          else
          {
@@ -619,6 +625,35 @@ bool SipRouter::isLocalDomain(const Url& url ///< a url to be tested
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
+bool SipRouter::addPathHeaderIfNATRegisterRequest( SipMessage& sipRequest ) const 
+{
+   bool bMessageModified = false;
+   UtlString method;
+
+   sipRequest.getRequestMethod(&method);
+   if( method.compareTo(SIP_REGISTER_METHOD) == 0 )
+   {
+      // Check if top via header has a 'received' parameter.  Presence of such
+      // a header would indicate that the registering user is located behind
+      // a NAT.
+      UtlString  privateAddress, protocol;
+      int        privatePort;
+      UtlBoolean bReceivedSet;
+      
+      sipRequest.getLastVia( &privateAddress, &privatePort, &protocol, NULL, &bReceivedSet );
+      if( bReceivedSet )
+      {
+         // Add Path header to the message
+         Url pathUri( mRouteHostPort );
+         UtlString pathUriString;      
+         pathUri.toString( pathUriString );
+         sipRequest.addPathUri( pathUriString );
+         bMessageModified = true;         
+      }
+   }
+   return bMessageModified;
+}
+
 bool SipRouter::areAllExtensionsSupported( const SipMessage& sipRequest, 
                                            UtlString& disallowedExtensions ) const
 {
