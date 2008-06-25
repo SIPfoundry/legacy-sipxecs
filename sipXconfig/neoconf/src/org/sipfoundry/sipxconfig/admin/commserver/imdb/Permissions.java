@@ -10,8 +10,8 @@
 package org.sipfoundry.sipxconfig.admin.commserver.imdb;
 
 import java.util.List;
+import java.util.Map;
 
-import org.dom4j.Element;
 import org.sipfoundry.sipxconfig.admin.callgroup.CallGroup;
 import org.sipfoundry.sipxconfig.admin.callgroup.CallGroupContext;
 import org.sipfoundry.sipxconfig.common.SipUri;
@@ -35,7 +35,7 @@ public class Permissions extends DataSetGenerator {
      * 
      * to the list of items.
      */
-    protected void addItems(Element items) {
+    protected void addItems(List<Map<String, String>> items) {
         String domain = getSipDomain();
         for (SpecialUserType sut : SpecialUserType.values()) {
             addSpecialUser(sut.getUserName(), items, domain);
@@ -54,16 +54,15 @@ public class Permissions extends DataSetGenerator {
         }
     }
 
-    void addUser(Element item, User user, String domain) {
+    void addUser(List<Map<String, String>> item, User user, String domain) {
         Setting permissions = user.getSettings().getSetting(Permission.CALL_PERMISSION_PATH);
-        Setting voicemailPermissions = user.getSettings().getSetting(
-                Permission.VOICEMAIL_SERVER_PATH);
+        Setting voicemailPermissions = user.getSettings().getSetting(Permission.VOICEMAIL_SERVER_PATH);
         PermissionWriter writer = new PermissionWriter(user, domain, item);
         permissions.acceptVisitor(writer);
         voicemailPermissions.acceptVisitor(writer);
     }
 
-    private void addSpecialUser(String userId, Element items, String domain) {
+    private void addSpecialUser(String userId, List<Map<String, String>> items, String domain) {
         User user = getCoreContext().newUser();
         user.setPermission(PermissionName.VOICEMAIL, false);
         user.setPermission(PermissionName.SIPX_VOICEMAIL, false);
@@ -75,11 +74,11 @@ public class Permissions extends DataSetGenerator {
     class PermissionWriter extends AbstractSettingVisitor {
         private User m_user;
 
-        private Element m_items;
+        private List<Map<String, String>> m_items;
 
         private String m_domain;
 
-        PermissionWriter(User user, String domain, Element items) {
+        PermissionWriter(User user, String domain, List<Map<String, String>> items) {
             m_user = user;
             m_items = items;
             m_domain = domain;
@@ -102,9 +101,9 @@ public class Permissions extends DataSetGenerator {
         }
 
         private void addPermission(String uri, String permissionName) {
-            Element userItem = addItem(m_items);
-            userItem.addElement("identity").setText(uri);
-            userItem.addElement("permission").setText(permissionName);
+            Map<String, String> userItem = addItem(m_items);
+            userItem.put("identity", uri);
+            userItem.put("permission", permissionName);
         }
     }
 

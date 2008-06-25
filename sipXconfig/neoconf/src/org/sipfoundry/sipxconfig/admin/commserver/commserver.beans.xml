@@ -35,8 +35,28 @@
     </property>
   </bean>
 
+  <bean id="fileApiProvider"
+    class="org.sipfoundry.sipxconfig.xmlrpc.XmlRpcApiProvider">
+    <property name="methodNamePrefix" value="File." />
+    <property name="secure" value="true" />
+    <property name="serviceInterface"
+      value="org.sipfoundry.sipxconfig.admin.commserver.imdb.FileApi" />
+  </bean>
+
+  <bean id="imdbProvider"
+    class="org.sipfoundry.sipxconfig.xmlrpc.XmlRpcApiProvider">
+    <property name="methodNamePrefix" value="ImdbTable." />
+    <property name="secure" value="true" />
+    <property name="serviceInterface"
+      value="org.sipfoundry.sipxconfig.admin.commserver.imdb.ImdbApi" />
+  </bean>
+
   <bean id="replicationManagerImpl"
-    class="org.sipfoundry.sipxconfig.admin.commserver.imdb.ReplicationManagerImpl" />
+    class="org.sipfoundry.sipxconfig.admin.commserver.imdb.ReplicationManagerImpl">
+    <property name="fileApiProvider" ref="fileApiProvider"/>
+    <property name="imdbApiProvider" ref="imdbProvider"/>
+    <property name="configDirectory" value="${sysdir.etc}"/>
+  </bean>
 
   <bean id="sipxReplicationContextImpl"
     class="org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContextImpl">

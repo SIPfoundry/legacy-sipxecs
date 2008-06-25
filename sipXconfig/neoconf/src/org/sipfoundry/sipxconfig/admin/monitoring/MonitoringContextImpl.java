@@ -13,7 +13,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.StringTokenizer;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -86,7 +85,7 @@ public class MonitoringContextImpl implements MonitoringContext, InitializingBea
         for (Location location : locations) {
             String host = location.getSipDomain();
             if (StringUtils.isEmpty(host)) {
-                host = getHostFromUrl(location.getReplicationUrl());
+                host = location.getAddress();
             }
             hosts.add(host);
         }
@@ -116,24 +115,6 @@ public class MonitoringContextImpl implements MonitoringContext, InitializingBea
                 LOG.error("could not parse mrtg.cfg");
             }
         }
-    }
-
-    /**
-     * returns host name to monitor, workaround for Location.getSipDomain() returning null
-     * 
-     */
-    private String getHostFromUrl(String url) {
-        String host = "";
-        StringTokenizer st = new StringTokenizer(url, "/", false);
-        while (st.hasMoreTokens()) {
-            String next = st.nextToken();
-            if (next.startsWith("https")) {
-                String[] tokens = StringUtils.split(st.nextToken(), ":");
-                host = tokens[0].trim();
-                break;
-            }
-        }
-        return host.toLowerCase();
     }
 
     /**

@@ -9,13 +9,13 @@
  */
 package org.sipfoundry.sipxconfig.admin.commserver.imdb;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
-import org.custommonkey.xmlunit.XMLTestCase;
-import org.dom4j.Document;
-import org.dom4j.DocumentFactory;
-import org.dom4j.Element;
-import org.sipfoundry.sipxconfig.XmlUnitHelper;
+import junit.framework.TestCase;
+
 import org.sipfoundry.sipxconfig.admin.callgroup.CallGroup;
 import org.sipfoundry.sipxconfig.admin.callgroup.CallGroupContext;
 import org.sipfoundry.sipxconfig.common.CoreContext;
@@ -28,7 +28,7 @@ import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
 
-public class CredentialsTest extends XMLTestCase {
+public class CredentialsTest extends TestCase {
     public void testGenerateEmpty() throws Exception {
         CoreContext coreContext = createMock(CoreContext.class);
         coreContext.getDomainName();
@@ -43,7 +43,7 @@ public class CredentialsTest extends XMLTestCase {
         user.setUserName("user");
         for (SpecialUserType u : SpecialUserType.values()) {
             coreContext.getSpecialUser(u);
-            expectLastCall().andReturn(user);            
+            expectLastCall().andReturn(user);
         }
 
         CallGroupContext callGroupContext = createMock(CallGroupContext.class);
@@ -56,51 +56,39 @@ public class CredentialsTest extends XMLTestCase {
         credentials.setCoreContext(coreContext);
         credentials.setCallGroupContext(callGroupContext);
 
-        Document document = credentials.generate();
+        List<Map<String, String>> items = credentials.generate();
 
-        org.w3c.dom.Document domDoc = XmlUnitHelper.getDomDoc(document);
-        assertXpathEvaluatesTo("credential", "/items/@type", domDoc);
-        // 3 special users
-        assertXpathExists("/items/item[1]", domDoc);
-        assertXpathEvaluatesTo("sip:user@host.company.com", "/items/item[1]/uri", domDoc);
+        assertEquals(SpecialUserType.values().length, items.size());
+        assertEquals("sip:user@host.company.com", items.get(0).get("uri"));
+        assertEquals("sip:user@host.company.com", items.get(1).get("uri"));
+        assertEquals("sip:user@host.company.com", items.get(2).get("uri"));
+        assertEquals("sip:user@host.company.com", items.get(3).get("uri"));
 
-        assertXpathExists("/items/item[2]", domDoc);
-        assertXpathEvaluatesTo("sip:user@host.company.com", "/items/item[2]/uri", domDoc);
-
-        assertXpathExists("/items/item[3]", domDoc);
-        assertXpathEvaluatesTo("sip:user@host.company.com", "/items/item[3]/uri", domDoc);
-
-        assertXpathExists("/items/item[4]", domDoc);
-        assertXpathEvaluatesTo("sip:user@host.company.com", "/items/item[4]/uri", domDoc);
-
-        assertXpathNotExists("/items/item[5]", domDoc);
         verify(coreContext, callGroupContext);
     }
 
     public void testAddCallgroup() throws Exception {
-        Document document = DocumentFactory.getInstance().createDocument();
-        Element item = document.addElement("items");
+        List<Map<String, String>> items = new ArrayList<Map<String, String>>();
 
         CallGroup cg = new CallGroup();
         cg.setName("sales");
         cg.setSipPassword("pass4321");
 
         Credentials credentials = new Credentials();
-        credentials.addCallGroup(item, cg, "sipx.sipfoundry.org", "sipfoundry.org");
+        credentials.addCallGroup(items, cg, "sipx.sipfoundry.org", "sipfoundry.org");
 
-        org.w3c.dom.Document domDoc = XmlUnitHelper.getDomDoc(document);
-        assertXpathEvaluatesTo("sip:sales@sipx.sipfoundry.org", "/items/item/uri", domDoc);
-        String digest = "282e44b75e1e04d379d3157c34e31814";
         // Md5Encoder.digestPassword("sales", "sipfoundry.org", "pass4321");
-        assertXpathEvaluatesTo(digest, "/items/item/pintoken", domDoc);
-        assertXpathEvaluatesTo(digest, "/items/item/passtoken", domDoc);
-        assertXpathEvaluatesTo("sipfoundry.org", "/items/item/realm", domDoc);
-        assertXpathEvaluatesTo("DIGEST", "/items/item/authtype", domDoc);
+        String digest = "282e44b75e1e04d379d3157c34e31814";
+        Map<String, String> item = items.get(0);
+        assertEquals("sip:sales@sipx.sipfoundry.org", item.get("uri"));
+        assertEquals(digest, item.get("pintoken"));
+        assertEquals(digest, item.get("passtoken"));
+        assertEquals("sipfoundry.org", item.get("realm"));
+        assertEquals("DIGEST", item.get("authtype"));
     }
 
     public void testAddUser() throws Exception {
-        Document document = DocumentFactory.getInstance().createDocument();
-        Element item = document.addElement("items");
+        List<Map<String, String>> items = new ArrayList<Map<String, String>>();
         User user = new User();
         user.setUserName("superadmin");
         final String PIN = "pin1234";
@@ -108,37 +96,36 @@ public class CredentialsTest extends XMLTestCase {
         user.setSipPassword("pass4321");
 
         Credentials credentials = new Credentials();
-        credentials.addUser(item, user, "sipx.sipfoundry.org", "sipfoundry.org");
+        credentials.addUser(items, user, "sipx.sipfoundry.org", "sipfoundry.org");
 
-        org.w3c.dom.Document domDoc = XmlUnitHelper.getDomDoc(document);
-        assertXpathEvaluatesTo("sip:superadmin@" + "sipx.sipfoundry.org", "/items/item/uri",
-                domDoc);
-        assertXpathEvaluatesTo(Md5Encoder.digestPassword("superadmin", "sipfoundry.org", PIN),
-                "/items/item/pintoken", domDoc);
-        assertXpathEvaluatesTo(Md5Encoder.digestPassword("superadmin", "sipfoundry.org",
-                "pass4321"), "/items/item/passtoken", domDoc);
-        assertXpathEvaluatesTo("sipfoundry.org", "/items/item/realm", domDoc);
-        assertXpathEvaluatesTo("DIGEST", "/items/item/authtype", domDoc);
+        assertEquals(1, items.size());
+        Map<String, String> item = items.get(0);
+
+        assertEquals("sip:superadmin@sipx.sipfoundry.org", item.get("uri"));
+        assertEquals(Md5Encoder.digestPassword("superadmin", "sipfoundry.org", PIN), item.get("pintoken"));
+        assertEquals(Md5Encoder.digestPassword("superadmin", "sipfoundry.org", "pass4321"), item.get("passtoken"));
+        assertEquals("sipfoundry.org", item.get("realm"));
+        assertEquals("DIGEST", item.get("authtype"));
     }
 
     public void testAddUserEmptyPasswords() throws Exception {
-        Document document = DocumentFactory.getInstance().createDocument();
-        Element item = document.addElement("items");
+        List<Map<String, String>> items = new ArrayList<Map<String, String>>();
 
         User user = new User();
         user.setUserName("superadmin");
         user.setPin("", "sipfoundry.org");
 
         Credentials credentials = new Credentials();
-        credentials.addUser(item, user, "sipx.sipfoundry.org", "sipfoundry.org");
+        credentials.addUser(items, user, "sipx.sipfoundry.org", "sipfoundry.org");
 
-        org.w3c.dom.Document domDoc = XmlUnitHelper.getDomDoc(document);
-        assertXpathEvaluatesTo("sip:superadmin@" + "sipx.sipfoundry.org", "/items/item/uri",
-                domDoc);
+        assertEquals(1, items.size());
+        Map<String, String> item = items.get(0);
+
+        assertEquals("sip:superadmin@sipx.sipfoundry.org", item.get("uri"));
         String emptyHash = Md5Encoder.digestPassword("superadmin", "sipfoundry.org", "");
-        assertXpathEvaluatesTo(emptyHash, "/items/item/pintoken", domDoc);
-        assertXpathEvaluatesTo(emptyHash, "/items/item/passtoken", domDoc);
-        assertXpathEvaluatesTo("sipfoundry.org", "/items/item/realm", domDoc);
-        assertXpathEvaluatesTo("DIGEST", "/items/item/authtype", domDoc);
+        assertEquals(emptyHash, item.get("pintoken"));
+        assertEquals(emptyHash, item.get("passtoken"));
+        assertEquals("sipfoundry.org", item.get("realm"));
+        assertEquals("DIGEST", item.get("authtype"));
     }
 }

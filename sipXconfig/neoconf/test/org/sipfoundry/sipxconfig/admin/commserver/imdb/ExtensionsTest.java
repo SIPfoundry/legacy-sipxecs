@@ -12,17 +12,20 @@ package org.sipfoundry.sipxconfig.admin.commserver.imdb;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+
+import junit.framework.TestCase;
 
 import org.apache.commons.lang.StringUtils;
-import org.custommonkey.xmlunit.XMLTestCase;
-import org.dom4j.Document;
-import org.easymock.EasyMock;
-import org.easymock.IMocksControl;
-import org.sipfoundry.sipxconfig.XmlUnitHelper;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 
-public class ExtensionsTest extends XMLTestCase {
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.expectLastCall;
+import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.verify;
+
+public class ExtensionsTest extends TestCase {
     private String[][] DATA = {
         {
             "first", "last", "userName", "1234"
@@ -49,7 +52,7 @@ public class ExtensionsTest extends XMLTestCase {
             if (!StringUtils.isBlank(extension)) {
                 user.addAlias(extension);
             }
-            if(i == 0) {
+            if (i == 0) {
                 // long extension should be ignored
                 user.addAlias("555555555555");
             }
@@ -59,49 +62,41 @@ public class ExtensionsTest extends XMLTestCase {
     }
 
     public void testGenerateEmpty() throws Exception {
-        IMocksControl control = EasyMock.createControl();
-        CoreContext coreContext = control.createMock(CoreContext.class);
+        CoreContext coreContext = createMock(CoreContext.class);
         coreContext.getDomainName();
-        control.andReturn("company.com");
+        expectLastCall().andReturn("company.com");
         coreContext.loadUsers();
-        control.andReturn(Collections.EMPTY_LIST);
-        control.replay();
+        expectLastCall().andReturn(Collections.EMPTY_LIST);
+        replay(coreContext);
 
         Extensions extensions = new Extensions();
         extensions.setCoreContext(coreContext);
 
-        Document document = extensions.generate();
-        org.w3c.dom.Document domDoc = XmlUnitHelper.getDomDoc(document);
-        assertXpathEvaluatesTo("extension", "/items/@type", domDoc);
-        assertXpathNotExists("/items/item", domDoc);
-        control.verify();
+        List<Map<String, String>> document = extensions.generate();
+        assertEquals(0, document.size());
+
+        verify(coreContext);
     }
 
     public void testGenerate() throws Exception {
-        IMocksControl control = EasyMock.createControl();
-        CoreContext coreContext = control.createMock(CoreContext.class);
+        CoreContext coreContext = createMock(CoreContext.class);
         coreContext.getDomainName();
-        control.andReturn("company.com");
+        expectLastCall().andReturn("company.com");
         coreContext.loadUsers();
-        control.andReturn(m_users);
-        control.replay();
+        expectLastCall().andReturn(m_users);
+        replay(coreContext);
 
         Extensions extensions = new Extensions();
         extensions.setCoreContext(coreContext);
 
-        Document document = extensions.generate();
-        org.w3c.dom.Document domDoc = XmlUnitHelper.getDomDoc(document);
-        String extensionsXml = XmlUnitHelper.asString(document);
-        System.err.println(extensionsXml);
+        List<Map<String, String>> items = extensions.generate();
+        assertEquals(2, items.size());
 
-        assertXpathEvaluatesTo("extension", "/items/@type", domDoc);
-        assertXpathEvaluatesTo("1234", "/items/item/extension", domDoc);
-        assertXpathEvaluatesTo("\"first last\"<sip:userName@company.com>", "/items/item/uri",
-                domDoc);
-        assertXpathEvaluatesTo("4321", "/items/item[2]/extension", domDoc);
-        assertXpathEvaluatesTo("sip:kuku@company.com", "/items/item[2]/uri", domDoc);
-        assertXpathNotExists("/items/item[3]", domDoc);
+        assertEquals("1234", items.get(0).get("extension"));
+        assertEquals("\"first last\"<sip:userName@company.com>", items.get(0).get("uri"));
+        assertEquals("4321", items.get(1).get("extension"));
+        assertEquals("sip:kuku@company.com", items.get(1).get("uri"));
 
-        control.verify();
+        verify(coreContext);
     }
 }

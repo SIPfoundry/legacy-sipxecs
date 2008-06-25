@@ -9,9 +9,11 @@
  */
 package org.sipfoundry.sipxconfig.admin.commserver.imdb;
 
+import java.util.List;
+import java.util.Map;
+
 import junit.framework.TestCase;
 
-import org.dom4j.Element;
 import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.common.CoreContext;
@@ -24,8 +26,7 @@ public class DataSetGeneratorTest extends TestCase {
                 return null;
             }
 
-            protected void addItems(Element items) {
-                // do nothing
+            protected void addItems(List<Map<String, String>> items) {
             }
         };
 

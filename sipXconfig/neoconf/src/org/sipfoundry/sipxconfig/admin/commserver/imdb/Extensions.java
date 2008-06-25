@@ -10,13 +10,13 @@
 package org.sipfoundry.sipxconfig.admin.commserver.imdb;
 
 import java.util.List;
+import java.util.Map;
 
-import org.dom4j.Element;
 import org.sipfoundry.sipxconfig.common.User;
 
 public class Extensions extends DataSetGenerator {
 
-    protected void addItems(Element items) {
+    protected void addItems(List<Map<String, String>> items) {
         String domainName = getSipDomain();
         List<User> users = getCoreContext().loadUsers();
         for (User user : users) {
@@ -31,18 +31,19 @@ public class Extensions extends DataSetGenerator {
      * @param domainName
      * @param user
      */
-    private void addItem(Element items, String domainName, User user) {
+    private void addItem(List<Map<String, String>> items, String domainName, User user) {
         if (user.hasNumericUsername()) {
             // no need add those users
             return;
         }
         String extension = user.getExtension(false);
-        // only generate an empty if extensio exist and extension is different from user name
+        // only generate an empty if extension exist and extension is different from user name
         if (extension != null) {
-            Element item = items.addElement("item");
-            item.addElement("uri").setText(user.getUri(domainName));
+            Map<String, String> item = addItem(items);
+
+            item.put("uri", user.getUri(domainName));
             // add first found numeric alias
-            item.addElement("extension").setText(extension);
+            item.put("extension", extension);
         }
     }
 

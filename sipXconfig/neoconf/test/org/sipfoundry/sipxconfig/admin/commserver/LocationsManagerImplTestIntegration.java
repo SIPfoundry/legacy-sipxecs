@@ -22,9 +22,9 @@ public class LocationsManagerImplTestIntegration extends IntegrationTestCase {
         loadDataSetXml("admin/commserver/seedLocations.xml");
         Location[] locations = m_out.getLocations();
         assertEquals(2, locations.length);
-        assertEquals("https://localhost:8091/cgi-bin/replication/replication.cgi", locations[0].getReplicationUrl());
+        assertEquals("https://localhost:8092/RPC2", locations[0].getProcessMonitorUrl());
         assertEquals("h1.example.org", locations[0].getSipDomain());
-        assertEquals("https://192.168.0.27:8091/cgi-bin/replication/replication.cgi", locations[1].getReplicationUrl());
+        assertEquals("https://192.168.0.27:8092/RPC2", locations[1].getProcessMonitorUrl());
         assertEquals("h2.example.org", locations[1].getSipDomain());
     }
     

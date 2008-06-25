@@ -16,9 +16,7 @@ import org.sipfoundry.sipxconfig.common.BeanWithId;
 
 public class Location extends BeanWithId {
     private static final String HTTP_PREFIX = "https://";
-    private static final int REPLICATION_PORT = 8091;
     private static final int PROCESS_MONITOR_PORT = 8092;
-    private static final String REPLICATION_PATH = "/cgi-bin/replication/replication.cgi";
     private static final String PROCESS_MONITOR_PATH = "/RPC2";
     
     private String m_name;
@@ -57,10 +55,6 @@ public class Location extends BeanWithId {
     
     public String getProcessMonitorUrl() {
         return HTTP_PREFIX + m_address + ':' + PROCESS_MONITOR_PORT + PROCESS_MONITOR_PATH;
-    }
-
-    public String getReplicationUrl() {
-        return HTTP_PREFIX + m_address + ':' + REPLICATION_PORT + REPLICATION_PATH;
     }
 
     public String getSipDomain() {

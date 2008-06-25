@@ -17,7 +17,6 @@ import org.junit.Test;
 import org.sipfoundry.sipxconfig.admin.ConfigurationFile;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.ConfigFileType;
-import org.sipfoundry.sipxconfig.device.ReplicatedProfileLocation.InMemoryConfiguration;
 
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.eq;

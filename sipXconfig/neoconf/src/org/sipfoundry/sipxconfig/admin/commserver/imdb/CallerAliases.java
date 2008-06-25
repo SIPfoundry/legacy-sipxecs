@@ -10,9 +10,9 @@
 package org.sipfoundry.sipxconfig.admin.commserver.imdb;
 
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
-import org.dom4j.Element;
 import org.sipfoundry.sipxconfig.admin.forwarding.AliasMapping;
 import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.common.User;
@@ -26,7 +26,7 @@ public class CallerAliases extends DataSetGenerator {
 
     private String m_anonymousAlias;
 
-    protected void addItems(Element items) {
+    protected void addItems(List<Map<String, String>> items) {
         // FIXME: use only gateways that are used in dialplan...
         List<Gateway> gateways = m_gatewayContext.getGateways();
         List<User> users = getCoreContext().loadUsers();
@@ -81,21 +81,22 @@ public class CallerAliases extends DataSetGenerator {
         return null;
     }
 
-    private Element addItem(Element items, String domain, String alias, String identity) {
+    private Map<String, String> addItem(List<Map<String, String>> items, String domain, String alias, String identity) {
         if (StringUtils.isEmpty(alias)) {
             // nothing to add
             return null;
         }
-        Element item = addItem(items);
+
+        Map<String, String> item = addItem(items);
         if (identity != null) {
-            item.addElement("identity").setText(identity);
+            item.put("identity", identity);
         }
-        item.addElement("domain").setText(domain);
-        item.addElement("alias").setText(alias);
+        item.put("domain", domain);
+        item.put("alias", alias);
         return item;
     }
 
-    private Element addItem(Element items, String domain, String alias) {
+    private Map<String, String> addItem(List<Map<String, String>> items, String domain, String alias) {
         return addItem(items, domain, alias, null);
     }
 

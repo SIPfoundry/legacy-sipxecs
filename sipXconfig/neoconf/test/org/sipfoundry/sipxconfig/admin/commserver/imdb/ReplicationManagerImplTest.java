@@ -9,152 +9,104 @@
  */
 package org.sipfoundry.sipxconfig.admin.commserver.imdb;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
+import java.nio.charset.Charset;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import junit.framework.TestCase;
 
 import org.apache.commons.codec.binary.Base64;
-import org.custommonkey.xmlunit.SimpleXpathEngine;
-import org.custommonkey.xmlunit.XMLAssert;
-import org.custommonkey.xmlunit.XMLUnit;
-import org.dom4j.Document;
-import org.easymock.classextension.EasyMock;
-import org.easymock.classextension.IMocksControl;
-import org.sipfoundry.sipxconfig.XmlUnitHelper;
+import org.sipfoundry.sipxconfig.admin.ConfigurationFile;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
-import org.sipfoundry.sipxconfig.admin.dialplan.config.AttendantScheduleFile;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.ConfigFileType;
-import org.sipfoundry.sipxconfig.admin.dialplan.config.XmlFile;
+import org.sipfoundry.sipxconfig.device.InMemoryConfiguration;
+import org.sipfoundry.sipxconfig.xmlrpc.ApiProvider;
+
+import static org.easymock.EasyMock.aryEq;
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.eq;
+import static org.easymock.EasyMock.expectLastCall;
+import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.verify;
 
 public class ReplicationManagerImplTest extends TestCase {
-    public ReplicationManagerImplTest() {
-        XMLUnit.setIgnoreWhitespace(true);
-    }
 
-    public void testPostData() throws Exception {
-        Document repDoc = XmlUnitHelper.loadDocument(getClass(), "replication.xml");
-        final String data = XmlUnitHelper.asString(repDoc);
+    private static final Location[] LOCATIONS = new Location[] {
+        new Location(), new Location()
+    };
 
-        ByteArrayOutputStream os = new ByteArrayOutputStream();
-        InputStream is = new ByteArrayInputStream("replication was successful"
-                .getBytes("US-ASCII"));
+    public void testReplicateFile() {
+        ReplicationManagerImpl replicationManager = new ReplicationManagerImpl();
+        replicationManager.setHostname("localhost");
+        replicationManager.setConfigDirectory("/etc/sipxecs");
 
-        IMocksControl control = EasyMock.createControl();
-        final HttpURLConnection urlConnection = control.createMock(MockHttpURLConnection.class);
-        urlConnection.setDoOutput(true);
-        urlConnection.setRequestMethod("POST");
-        urlConnection.setRequestProperty("Content-length", Integer.toString(data.length()));
-        urlConnection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-        urlConnection.getOutputStream();
-        control.andReturn(os);
-        urlConnection.getInputStream();
-        control.andReturn(is);
-        urlConnection.connect();
-        urlConnection.getResponseMessage();
-        control.andReturn("");
-        urlConnection.getHeaderField("ErrorInReplication");
-        control.andReturn("");
-        control.replay();
+        final FileApi fileApi = createMock(FileApi.class);
 
-        ReplicationManagerImpl impl = new ReplicationManagerImpl() {
-            protected HttpURLConnection getConnection(String url) {
-                return urlConnection;
+        String content = "1234";
+        fileApi.replace("localhost", "/etc/sipxecs/domain-config", 0644, encode(content));
+        expectLastCall().andReturn(true).times(LOCATIONS.length);
+
+        replay(fileApi);
+
+        ApiProvider<FileApi> provider = new ApiProvider<FileApi>() {
+            public FileApi getApi(String serviceUrl) {
+                return fileApi;
             }
         };
 
-        assertTrue(impl.postData("http://bongo.com/replication.cgi", data.getBytes("UTF-8")));
+        replicationManager.setFileApiProvider(provider);
 
-        XMLAssert.assertXMLEqual(XmlUnitHelper.asString(repDoc), new String(os.toByteArray()));
-        control.verify();
+        ConfigurationFile file = new InMemoryConfiguration(ConfigFileType.DOMAIN_CONFIG, content);
+
+        replicationManager.replicateFile(LOCATIONS, file);
+
+        verify(fileApi);
     }
 
-    public void testGenerateXMLDataToPost() throws Exception {
-        ReplicationManagerImpl impl = new ReplicationManagerImpl();
-        byte[] data = new byte[] {
-            15, 7, 123, -127, 126, 0
-        };
-
-        Document document = impl.generateXMLDataToPost(data, DataSet.EXTENSION.getName(),
-                "database");
-
-        org.w3c.dom.Document domDoc = XmlUnitHelper.getDomDoc(document);
-
-        XMLAssert.assertXpathEvaluatesTo(DataSet.EXTENSION.getName(),
-                "/replicationdata/data/@target_data_name", domDoc);
-        XMLAssert.assertXpathEvaluatesTo("database", "/replicationdata/data/@type", domDoc);
-        XMLAssert.assertXpathEvaluatesTo("replace", "/replicationdata/data/@action", domDoc);
-        XMLAssert.assertXpathEvaluatesTo("comm-server",
-                "/replicationdata/data/@target_component_type", domDoc);
-        XMLAssert.assertXpathEvaluatesTo("CommServer1",
-                "/replicationdata/data/@target_component_id", domDoc);
-
-        SimpleXpathEngine simpleXpathEngine = new SimpleXpathEngine();
-        String payload = simpleXpathEngine.evaluate("/replicationdata/data/payload", domDoc);
-        for (int i = 0; i < data.length; i++) {
-            assertEquals(data[i], Base64.decodeBase64(payload.getBytes("US-ASCII"))[i]);
-        }
-    }
-
-    public void testReplicateFile() throws Exception {
-        final Document testDoc = XmlUnitHelper.loadDocument(getClass(), "replication.test.xml");
-
-        // this may be slightly ugly. overriding all methods used internally by
-        // replicateFile in order to focus testing on that method
-        ReplicationManager out = new ReplicationManagerImpl() {
-            boolean postData(String url, byte[] xmlData) throws IOException {
-                return true;
-            }
-
-            Document generateXMLDataToPost(byte[] payload, String targetDataName, String dataType) {
-                assertEquals(ConfigFileType.ATTENDANT_SCHEDULE.getName(), targetDataName);
-                assertEquals("file", "file");
-                try {
-                    String testFile = new String(payload);
-                    String controlFile = testDoc.asXML();
-                    XMLAssert.assertXMLEqual(controlFile, testFile);
-                } catch (Exception e) {
-                    fail(e.getMessage());
-                }
-                return testDoc;
+    public void testReplicateData() {
+        final Map<String, String> data[] = new Map[] {
+            new HashMap<String, String>() {
             }
         };
 
-        Location location = new Location();
+        ReplicationManagerImpl replicationManager = new ReplicationManagerImpl();
+        replicationManager.setHostname("localhost");
 
-        XmlFile xmlFile = new AttendantScheduleFile() {
-            public Document getDocument() {
-                try {
-                    return XmlUnitHelper.loadDocument(getClass(), "replication.test.xml");
-                } catch (Exception e) {
-                    fail(e.getMessage());
-                    return null;
-                }
+        final ImdbApi imdbApi = createMock(ImdbApi.class);
+
+        imdbApi.replace(eq("localhost"), eq(DataSet.ALIAS.getName()), aryEq(data));
+        expectLastCall().andReturn(true).times(LOCATIONS.length);
+        replay(imdbApi);
+
+        ApiProvider<ImdbApi> provider = new ApiProvider<ImdbApi>() {
+            public ImdbApi getApi(String serviceUrl) {
+                return imdbApi;
             }
         };
 
-        out.replicateFile(new Location[] {
-            location
-        }, xmlFile);
+        replicationManager.setImdbApiProvider(provider);
+
+        DataSetGenerator file = new DataSetGenerator() {
+
+            protected void addItems(List<Map<String, String>> items) {
+                items.add(data[0]);
+            }
+
+            protected DataSet getType() {
+                return DataSet.ALIAS;
+            }
+
+        };
+
+        replicationManager.replicateData(LOCATIONS, file);
+
+        verify(imdbApi);
     }
 
-    private static class MockHttpURLConnection extends HttpURLConnection {
-        public MockHttpURLConnection() throws Exception {
-            super(new URL("http://test"));
-        }
-
-        public void disconnect() {
-        }
-
-        public boolean usingProxy() {
-            return false;
-        }
-
-        public void connect() {
-        }
+    private String encode(String content) {
+        Charset ascii = Charset.forName("US-ASCII");
+        byte[] encoded = Base64.encodeBase64(content.getBytes(ascii));
+        return new String(encoded, ascii);
     }
 }

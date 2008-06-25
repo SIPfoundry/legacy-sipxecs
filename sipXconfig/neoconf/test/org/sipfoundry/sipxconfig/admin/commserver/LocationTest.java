@@ -3,12 +3,6 @@ package org.sipfoundry.sipxconfig.admin.commserver;
 import junit.framework.TestCase;
 
 public class LocationTest extends TestCase {
-    public void testGetReplicationUrl() {
-        Location out = new Location();
-        out.setAddress("localhost");
-        assertEquals("https://localhost:8091/cgi-bin/replication/replication.cgi", out.getReplicationUrl());
-    }
-    
     public void testGetProcessMonitorUrl() {
         Location out = new Location();
         out.setAddress("localhost");

@@ -9,19 +9,15 @@
  */
 package org.sipfoundry.sipxconfig.admin.commserver.imdb;
 
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
-import org.custommonkey.xmlunit.XMLTestCase;
-import org.custommonkey.xmlunit.XMLUnit;
-import org.dom4j.Element;
-import org.sipfoundry.sipxconfig.XmlUnitHelper;
+import junit.framework.TestCase;
+
 import org.sipfoundry.sipxconfig.admin.forwarding.AliasMapping;
 
-public class AliasesTest extends XMLTestCase {
+public class AliasesTest extends TestCase {
     private final static String[][] DATA = {
         {
             "301@example.org", "\"John Doe\"<sip:john.doe@example.org>"
@@ -38,17 +34,12 @@ public class AliasesTest extends XMLTestCase {
 
     private Aliases m_aliases;
 
-    public AliasesTest() {
-        XmlUnitHelper.setNamespaceAware(false);
-        XMLUnit.setIgnoreWhitespace(true);
-    }
-
     protected void setUp() throws Exception {
         m_aliases = new Aliases();
     }
 
     public void testAddAliases() throws Exception {
-        List aliases = new ArrayList();
+        List<AliasMapping> aliases = new ArrayList<AliasMapping>();
         for (int i = 0; i < DATA.length; i++) {
             String[] aliasRow = DATA[i];
             AliasMapping mapping = new AliasMapping();
@@ -57,13 +48,14 @@ public class AliasesTest extends XMLTestCase {
             aliases.add(mapping);
         }
 
-        Element element = m_aliases.createItemsElement(DataSet.ALIAS);
-        m_aliases.addAliases(element, aliases);
+        List<Map<String, String>> result = new ArrayList<Map<String, String>>();
+        m_aliases.addAliases(result, aliases);
 
-        String aliasesXml = XmlUnitHelper.asString(element.getDocument());
-
-        InputStream referenceXmlStream = AliasesTest.class.getResourceAsStream("alias.test.xml");
-
-        assertXMLEqual(new InputStreamReader(referenceXmlStream), new StringReader(aliasesXml));
+        assertEquals(DATA.length, result.size());
+        for (int i = 0; i < DATA.length; i++) {
+            String[] aliasRow = DATA[i];
+            assertEquals(aliasRow[0], result.get(i).get("identity"));
+            assertEquals(aliasRow[1], result.get(i).get("contact"));
+        }
     }
 }

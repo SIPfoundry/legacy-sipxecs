@@ -8,10 +8,11 @@
  * $
  */
 package org.sipfoundry.sipxconfig.admin.commserver.imdb;
-import java.util.Collection;
-import java.util.Iterator;
 
-import org.dom4j.Element;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+
 import org.sipfoundry.sipxconfig.admin.commserver.AliasProvider;
 import org.sipfoundry.sipxconfig.admin.forwarding.AliasMapping;
 
@@ -26,22 +27,19 @@ public class Aliases extends DataSetGenerator {
         return DataSet.ALIAS;
     }
 
-    protected void addItems(Element items) {
+    protected void addItems(List<Map<String, String>> items) {
         addAliases(items, m_aliasProvider.getAliasMappings());
     }
 
-    void addAliases(Element items, Collection aliases) {
-        for (Iterator i = aliases.iterator(); i.hasNext();) {
-            AliasMapping alias = (AliasMapping) i.next();
-            Element item = addItem(items);
-            Element identity = item.addElement("identity");
-            identity.setText(alias.getIdentity());
-            Element contact = item.addElement("contact");
-            contact.setText(alias.getContact());
+    void addAliases(List<Map<String, String>> items, Collection<AliasMapping> aliases) {
+        for (AliasMapping alias : aliases) {
+            Map<String, String> aliasItem = addItem(items);
+            aliasItem.put("identity", alias.getIdentity());
+            aliasItem.put("contact", alias.getContact());
         }
     }
-    
+
     public void setAliasProvider(AliasProvider aliasProvider) {
         m_aliasProvider = aliasProvider;
-    }    
+    }
 }

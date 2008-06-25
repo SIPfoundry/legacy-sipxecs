@@ -105,5 +105,7 @@ cdrManagerImpl.cdrAgentPort=${CALLRESOLVER_AGENT_PORT}
 sipxProcessContext.host=${MY_FULL_HOSTNAME}
 sbcDeviceManagerImpl.localIpAddress=${MY_IP_ADDR}
 
+replicationManagerImpl.hostname=${MY_FULL_HOSTNAME}
+
 # ======= BEGIN NEW INSTALLATION SETTINGS =================
 

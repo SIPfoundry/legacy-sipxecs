@@ -9,15 +9,15 @@
  */
 package org.sipfoundry.sipxconfig.admin.commserver.imdb;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
-import org.custommonkey.xmlunit.XMLTestCase;
-import org.dom4j.Document;
-import org.dom4j.DocumentFactory;
-import org.dom4j.Element;
+import junit.framework.TestCase;
+
 import org.sipfoundry.sipxconfig.TestHelper;
-import org.sipfoundry.sipxconfig.XmlUnitHelper;
 import org.sipfoundry.sipxconfig.admin.callgroup.CallGroup;
 import org.sipfoundry.sipxconfig.admin.callgroup.CallGroupContext;
 import org.sipfoundry.sipxconfig.common.CoreContext;
@@ -31,7 +31,7 @@ import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
 
-public class PermissionsTest extends XMLTestCase {
+public class PermissionsTest extends TestCase {
 
     public void testGenerateEmpty() throws Exception {
         PermissionManagerImpl pm = new PermissionManagerImpl();
@@ -58,29 +58,19 @@ public class PermissionsTest extends XMLTestCase {
         permissions.setCoreContext(coreContext);
         permissions.setCallGroupContext(callGroupContext);
 
-        Document document = permissions.generate();
-
-        org.w3c.dom.Document domDoc = XmlUnitHelper.getDomDoc(document);
-        assertXpathEvaluatesTo("permission", "/items/@type", domDoc);
-        assertXpathExists("/items/item", domDoc);
+        List<Map<String,String>> items = permissions.generate();
+        assertEquals(20, items.size());
         // 5 permissions per special user
-        assertXpathEvaluatesTo("sip:~~id~park@host.company.com", "/items/item/identity", domDoc);
-        assertXpathEvaluatesTo("sip:~~id~park@host.company.com", "/items/item[5]/identity",
-                domDoc);
-        assertXpathEvaluatesTo("sip:~~id~media@host.company.com", "/items/item[6]/identity",
-                domDoc);
-        assertXpathEvaluatesTo("sip:~~id~media@host.company.com", "/items/item[10]/identity",
-                domDoc);
-        assertXpathEvaluatesTo("sip:~~id~acd@host.company.com", "/items/item[11]/identity",
-                domDoc);
-        assertXpathEvaluatesTo("sip:~~id~acd@host.company.com", "/items/item[15]/identity",
-                domDoc);
-        assertXpathEvaluatesTo("sip:~~id~config@host.company.com", "/items/item[16]/identity",
-                domDoc);
-        assertXpathEvaluatesTo("sip:~~id~config@host.company.com", "/items/item[20]/identity",
-                domDoc);
-        assertXpathNotExists("/items/item[21]", domDoc);
-
+        
+        assertEquals("sip:~~id~park@host.company.com",  items.get(0).get("identity"));
+        assertEquals("sip:~~id~park@host.company.com", items.get(4).get("identity"));
+        assertEquals("sip:~~id~media@host.company.com", items.get(5).get("identity"));
+        assertEquals("sip:~~id~media@host.company.com", items.get(9).get("identity"));
+        assertEquals("sip:~~id~acd@host.company.com", items.get(10).get("identity"));
+        assertEquals("sip:~~id~acd@host.company.com", items.get(14).get("identity"));
+        assertEquals("sip:~~id~config@host.company.com", items.get(15).get("identity"));
+        assertEquals("sip:~~id~config@host.company.com", items.get(19).get("identity"));
+        
         verify(coreContext, callGroupContext);
     }
 
@@ -118,25 +108,23 @@ public class PermissionsTest extends XMLTestCase {
         permissions.setCoreContext(coreContext);
         permissions.setCallGroupContext(callGroupContext);
 
-        Document document = permissions.generate();
-
-        org.w3c.dom.Document domDoc = XmlUnitHelper.getDomDoc(document);
+        List<Map<String,String>> items = permissions.generate();
 
         // 5 permissions per special user - 4 special users == 20
-        assertXpathExists("/items/item[21]", domDoc);
-        assertXpathEvaluatesTo("sip:sales@host.company.com", "/items/item[21]/identity", domDoc);
-        assertXpathEvaluatesTo("sip:sales@host.company.com", "/items/item[25]/identity", domDoc);
-        assertXpathEvaluatesTo("sip:marketing@host.company.com", "/items/item[26]/identity",
-                domDoc);
-        assertXpathEvaluatesTo("sip:marketing@host.company.com", "/items/item[30]/identity",
-                domDoc);
+        int start = 20;
+        
+        assertEquals(start + 10, items.size());
+        
+        assertEquals("sip:sales@host.company.com", items.get(start + 0).get("identity"));
+        assertEquals("sip:sales@host.company.com", items.get(start + 4).get("identity"));
+        assertEquals("sip:marketing@host.company.com", items.get(start + 5).get("identity"));
+        assertEquals("sip:marketing@host.company.com", items.get(start + 9).get("identity"));
 
         verify(coreContext, callGroupContext);
     }
 
     public void testAddUser() throws Exception {
-        Document document = DocumentFactory.getInstance().createDocument();
-        Element items = document.addElement("items");
+        List<Map<String, String>> items = new ArrayList<Map<String,String>>();
 
         PermissionManagerImpl pm = new PermissionManagerImpl();
         pm.setModelFilesContext(TestHelper.getModelFilesContext());
@@ -158,16 +146,14 @@ public class PermissionsTest extends XMLTestCase {
         Permissions permissions = new Permissions();
         permissions.addUser(items, user, "sipx.sipfoundry.org");
 
-        org.w3c.dom.Document domDoc = XmlUnitHelper.getDomDoc(document);
-        assertXpathEvaluatesTo("sip:goober@sipx.sipfoundry.org", "/items/item/identity", domDoc);
-        assertXpathEvaluatesTo("LocalDialing", "/items/item/permission", domDoc);
+        assertEquals(5, items.size());
+        assertEquals("sip:goober@sipx.sipfoundry.org", items.get(0).get("identity"));
+        assertEquals("LocalDialing",  items.get(0).get("permission"));
 
-        assertXpathEvaluatesTo("sip:goober@sipx.sipfoundry.org", "/items/item[4]/identity",
-                domDoc);
-        assertXpathEvaluatesTo("ExchangeUMVoicemailServer", "/items/item[4]/permission", domDoc);
+        assertEquals("sip:goober@sipx.sipfoundry.org", items.get(3).get("identity"));
+        assertEquals("ExchangeUMVoicemailServer", items.get(3).get("permission"));
 
-        assertXpathEvaluatesTo("sip:~~vm~goober@sipx.sipfoundry.org", "/items/item[5]/identity",
-                domDoc);
-        assertXpathEvaluatesTo("ExchangeUMVoicemailServer", "/items/item[5]/permission", domDoc);
+        assertEquals("sip:~~vm~goober@sipx.sipfoundry.org",  items.get(4).get("identity"));
+        assertEquals("ExchangeUMVoicemailServer", items.get(4).get("permission"));
     }
 }

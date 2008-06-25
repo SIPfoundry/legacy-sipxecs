@@ -69,7 +69,7 @@ public class SipxReplicationContextImpl implements ApplicationEventPublisherAwar
     }
 
     public void replicate(ConfigurationFile file) {
-        Serializable jobId = m_jobContext.schedule("File replication: " + file.getType().getName());
+        Serializable jobId = m_jobContext.schedule("File replication: " + file.getType());
         boolean success = false;
         try {
             m_jobContext.start(jobId);
@@ -90,7 +90,7 @@ public class SipxReplicationContextImpl implements ApplicationEventPublisherAwar
         try {
             StringWriter writer = new StringWriter();
             XMLWriter xmlWriter = new XMLWriter(writer, OutputFormat.createPrettyPrint());
-            xmlWriter.write(generator.generate());
+            xmlWriter.write(generator.generateXml());
             return writer.toString();
         } catch (IOException e) {
             return "";

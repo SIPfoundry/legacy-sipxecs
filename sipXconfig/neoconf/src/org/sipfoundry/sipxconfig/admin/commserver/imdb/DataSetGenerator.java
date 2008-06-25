@@ -9,6 +9,11 @@
  */
 package org.sipfoundry.sipxconfig.admin.commserver.imdb;
 
+import java.util.Hashtable;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
 import org.dom4j.Document;
 import org.dom4j.DocumentFactory;
 import org.dom4j.Element;
@@ -16,20 +21,8 @@ import org.sipfoundry.sipxconfig.common.CoreContext;
 
 public abstract class DataSetGenerator {
 
-    private static final DocumentFactory FACTORY = DocumentFactory.getInstance();
     private CoreContext m_coreContext;
     private String m_sipDomain;
-
-    protected final Element createItemsElement(DataSet dataSet) {
-        Document document = FACTORY.createDocument();
-        Element items = document.addElement("items");
-        items.addAttribute("type", dataSet.getName());
-        return items;
-    }
-
-    protected final Element addItem(Element items) {
-        return items.addElement("item");
-    }
 
     public void setCoreContext(CoreContext coreContext) {
         m_coreContext = coreContext;
@@ -53,13 +46,50 @@ public abstract class DataSetGenerator {
         return m_sipDomain;
     }
 
-    public Document generate() {
-        Element items = createItemsElement(getType());
+    public List<Map<String, String>> generate() {
+        List<Map<String, String>> items = new LinkedList<Map<String, String>>();
         addItems(items);
-        return items.getDocument();
+        return items;
+    }
+
+    /**
+     * Creates empty item.
+     * 
+     * XML/RPC client that we use insist on using Hashtable, but there is no reason to pollute the
+     * code everywhere.
+     * 
+     * @return newly created empty item
+     */
+    protected final Map<String, String> addItem(List<Map<String, String>> items) {
+        Map<String, String> item = new Hashtable<String, String>();
+        items.add(item);
+        return item;
+    }
+
+    /**
+     * This is for testing only.
+     * 
+     * @return XML representation of dataset
+     */
+    @Deprecated
+    public Document generateXml() {
+        List<Map<String, String>> items = generate();
+
+        DocumentFactory factory = DocumentFactory.getInstance();
+        Document document = factory.createDocument();
+        Element itemsEl = document.addElement("items");
+        itemsEl.addAttribute("type", getType().getName());
+
+        for (Map<String, String> item : items) {
+            Element itemEl = itemsEl.addElement("item");
+            for (Map.Entry<String, String> entry : item.entrySet()) {
+                itemEl.addElement(entry.getKey()).setText(entry.getValue());
+            }
+        }
+        return document;
     }
 
     protected abstract DataSet getType();
 
-    protected abstract void addItems(Element items);
+    protected abstract void addItems(List<Map<String, String>> items);
 }

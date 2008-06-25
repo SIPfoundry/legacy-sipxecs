@@ -15,6 +15,7 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import org.custommonkey.xmlunit.XMLTestCase;
 import org.custommonkey.xmlunit.XMLUnit;
@@ -111,10 +112,8 @@ public class CallerAliasesTest extends XMLTestCase {
 
         EasyMock.replay(coreContext, gatewayContext);
 
-        Document document = cas.generate();
-        org.w3c.dom.Document domDoc = XmlUnitHelper.getDomDoc(document);
-        assertXpathEvaluatesTo("caller-alias", "/items/@type", domDoc);
-        assertXpathNotExists("/items/item", domDoc);
+        List<Map<String, String>> document = cas.generate();
+        assertEquals(0, document.size());
 
         EasyMock.verify(coreContext, gatewayContext);
     }
@@ -137,14 +136,13 @@ public class CallerAliasesTest extends XMLTestCase {
 
         EasyMock.replay(coreContext, gatewayContext);
 
-        Document document = cas.generate();
-
+        Document document = cas.generateXml();
         String casXml = XmlUnitHelper.asString(document);
+        
         InputStream referenceXmlStream = AliasesTest.class
                 .getResourceAsStream("caller-alias.test.xml");
         assertXMLEqual(new InputStreamReader(referenceXmlStream), new StringReader(casXml));
 
         EasyMock.verify(coreContext, gatewayContext);
     }
-
 }

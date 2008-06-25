@@ -9,32 +9,37 @@
  */
 package org.sipfoundry.sipxconfig.admin.dialplan.config;
 
-import org.apache.commons.lang.enums.Enum;
 
 /**
  * Names used by this enumeration have to corresponds to names used in resource.xml file in order
  * for replication to work properly.
  */
-public final class ConfigFileType extends Enum {
-    public static final ConfigFileType MAPPING_RULES = new ConfigFileType("mappingrules.xml");
-    public static final ConfigFileType FORWARDING_RULES = new ConfigFileType("forwardingrules.xml");
-    public static final ConfigFileType FALLBACK_RULES = new ConfigFileType("fallbackrules.xml");
-    public static final ConfigFileType AUTH_RULES = new ConfigFileType("authrules.xml");
-    public static final ConfigFileType ORBITS = new ConfigFileType("orbits.xml");
-    public static final ConfigFileType E911_RULES = new ConfigFileType("e911rules.xml");
-    public static final ConfigFileType CONFERENCE_ADMINSION = new ConfigFileType("conference_admission.xml");
-    public static final ConfigFileType CONFERENCE_CONFIGURATION = new ConfigFileType("conference_configuration.xml");
-    public static final ConfigFileType ATTENDANT_SCHEDULE = new ConfigFileType("attendant_schedule.xml");
-    public static final ConfigFileType ORGANIZATION_PREFS = new ConfigFileType("organizationprefs.xml");
-    public static final ConfigFileType RESOURCE_LISTS = new ConfigFileType("resource-lists.xml");
-    public static final ConfigFileType DOMAIN_CONFIG = new ConfigFileType("domain-config");
-    public static final ConfigFileType PAGING_CONFIG = new ConfigFileType("sipxpage.properties.in");
-    public static final ConfigFileType SBC_BRIDGE_CONFIG = new ConfigFileType("sipxbridge.xml");
-    public static final ConfigFileType PROXY_CONFIG = new ConfigFileType("sipXproxy-config");
-    public static final ConfigFileType REGISTRAR_CONFIG = new ConfigFileType("registrar-config");
-    public static final ConfigFileType NAT_TRAVERSAL_RULES = new ConfigFileType("nattraversalrules.xml");
+public enum ConfigFileType {
+    MAPPING_RULES("mappingrules.xml.in"),
+    FORWARDING_RULES("forwardingrules.xml.in"),
+    FALLBACK_RULES("fallbackrules.xml.in"),
+    AUTH_RULES("authrules.xml.in"),
+    ORBITS("orbits.xml"),
+    E911_RULES("e911rules.xml"),
+    CONFERENCE_ADMINSION("conference_admission.xml"),
+    CONFERENCE_CONFIGURATION("conference_configuration.xml"),
+    ATTENDANT_SCHEDULE("attendant_schedule.xml"),
+    ORGANIZATION_PREFS("organizationprefs.xml"),
+    RESOURCE_LISTS("resource-lists.xml"),
+    DOMAIN_CONFIG("domain-config"),
+    PAGING_CONFIG("sipxpage.properties.in"),
+    SBC_BRIDGE_CONFIG("sipxbridge.xml"),
+    PROXY_CONFIG("sipXproxy-config"),
+    REGISTRAR_CONFIG("registrar-config"),
+    NAT_TRAVERSAL_RULES("nattraversalrules.xml");
 
-    private ConfigFileType(String name) {
-        super(name);
+    private String m_name;
+
+    ConfigFileType(String name) {
+        m_name = name;
+    }
+
+    public String getName() {
+        return m_name;
     }
 }
