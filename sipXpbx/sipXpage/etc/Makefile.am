@@ -1,11 +1,15 @@
 include $(top_srcdir)/config/subdir.am
 
+SIPX_PROCESS_DEFS = \
+	sipxpage
+
 ETC_FILES = \
     sipxpage.properties.in
 
 EXTRA_DIST = \
     $(ETC_FILES) \
-    sipxpage.process.xml.in
+    sipxpage.process.xml.in \
+    sipxpage-process.xml.in
 
 install-data-hook : $(DESTDIR)$(SIPX_PROCDIR)/sipxpage.process.xml
 	@for f in $(ETC_FILES); \

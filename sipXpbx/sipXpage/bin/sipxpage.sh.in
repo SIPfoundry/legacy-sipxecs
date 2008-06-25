@@ -16,6 +16,10 @@ do
             Action=CONFIGTEST
             ;;
 
+        --stop)
+            Action=STOP
+            ;;
+
         *)
             Args="$Args $1"
             ;;
@@ -43,9 +47,11 @@ then
   done
 fi
 
+pidfile=@SIPX_RUNDIR@/sipxpage.pid
+
 case ${Action} in
    RUN)
-     echo $$ > @SIPX_RUNDIR@/sipxpage.pid
+     echo $$ > ${pidfile}
 
      JavaCmd=`@SIPX_BINDIR@/sipx-config --java`
      LibPath=`perl -e 'print join(":", @ARGV);' @SIPX_LIBDIR@/sipXpage/*.jar`
@@ -53,6 +59,10 @@ case ${Action} in
      exec $JavaCmd -Dconf.dir=@SIPX_CONFDIR@ \
          -cp $ClassPath sipxpage.SipXpage \
          $Args
+     ;;
+
+   STOP)
+     sipx_stop sipxpage ${pidfile}
      ;;
 
    CONFIGTEST)

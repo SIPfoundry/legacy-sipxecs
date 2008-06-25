@@ -5,7 +5,7 @@ EXTRA_DIST = \
     sipXvxml-process.xml.in \
     mediaserver-config.in.in
 
-SIPX_PROCESSDIR = \
+SIPX_PROCESS_DEFS = \
 	sipXvxml
 
 install-data-hook : $(DESTDIR)$(SIPX_PROCDIR)/sipXvxml.process.xml

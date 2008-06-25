@@ -1,10 +1,14 @@
 include $(top_srcdir)/config/subdir.am
 
+SIPX_PROCESS_DEFS = \
+	sipxpark
+
 ETC_FILES = \
     sipxpark-config.in
 
 EXTRA_DIST = \
     $(ETC_FILES) \
+    sipxpark-process.xml.in \
     sipxpark.process.xml.in
 
 install-data-hook : $(DESTDIR)$(SIPX_PROCDIR)/sipxpark.process.xml

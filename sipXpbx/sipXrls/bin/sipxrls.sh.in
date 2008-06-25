@@ -15,6 +15,10 @@ do
             Action=CONFIGTEST
             ;;
 
+        --stop)
+            Action=STOP
+            ;;
+
         *)
             Args="$Args $1"
             ;;
@@ -42,10 +46,16 @@ then
   done
 fi
 
+pidfile=@SIPX_RUNDIR@/sipxrls.pid
+
 case ${Action} in
    RUN)
-     echo $$ > @SIPX_RUNDIR@/sipxrls.pid
+     echo $$ > ${pidfile}
      exec @bindir@/sipxrls $Args
+     ;;
+
+   STOP)
+     sipx_stop sipxrls ${pidfile}
      ;;
 
    CONFIGTEST)
