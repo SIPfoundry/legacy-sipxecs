@@ -18,6 +18,8 @@ import javax.sip.header.ContactHeader;
 import javax.sip.message.Request;
 import javax.sip.message.Response;
 
+import org.apache.log4j.Logger;
+
 /**
  * The registration manager. It refreshes registrations etc.
  * 
@@ -25,6 +27,9 @@ import javax.sip.message.Response;
  * 
  */
 public class RegistrationManager {
+    
+    private static Logger logger = Logger.getLogger(RegistrationManager.class);
+    
     private SipProvider provider;
 
     public RegistrationManager(SipProvider sipProvider) {
@@ -118,10 +123,10 @@ public class RegistrationManager {
                 itspAccount.startCrLfTimerTask();
 
             }
-            
-            if (time > 0) {
+            logger.debug("time = " + time + " Seconds " );
+            if (time > 0 && itspAccount.registrationTimerTask == null) {
                 TimerTask ttask = new RegistrationTimerTask(itspAccount);
-                Gateway.timer.schedule(ttask, time * 1000);
+                Gateway.getTimer().schedule(ttask, time * 1000);
             }
             
 
@@ -134,8 +139,10 @@ public class RegistrationManager {
                 itspAccount.stopCrLfTimerTask();
 
             }
-            TimerTask ttask = new RegistrationTimerTask(itspAccount);
-            Gateway.timer.schedule(ttask, 30 * 1000);
+            if ( itspAccount.registrationTimerTask == null ) {
+                TimerTask ttask = new RegistrationTimerTask(itspAccount);
+                Gateway.getTimer().schedule(ttask, 30 * 1000);
+            }
             
         }
     }

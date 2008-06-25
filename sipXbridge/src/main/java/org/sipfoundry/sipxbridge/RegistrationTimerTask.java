@@ -24,6 +24,7 @@ public class RegistrationTimerTask extends TimerTask {
 
     public RegistrationTimerTask(ItspAccountInfo itspAccount) {
         this.itspAccount = itspAccount;
+        this.itspAccount.registrationTimerTask = this;
 
     }
 
@@ -32,6 +33,7 @@ public class RegistrationTimerTask extends TimerTask {
 
         try {
             Gateway.getRegistrationManager().sendRegistrer(itspAccount);
+            this.itspAccount.registrationTimerTask = null;
         } catch (Exception ex) {
             throw new RuntimeException("Unexpected exception", ex);
         }

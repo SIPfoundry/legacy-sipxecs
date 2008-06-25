@@ -95,7 +95,7 @@ public class ItspAccountInfo implements gov.nist.javax.sip.clientauthutils.UserC
     /**
      * Registration Interval (seconds)
      */
-    private int registrationInterval = 120;
+    private int registrationInterval = 600;
 
     /*
      * The state of the account.
@@ -126,6 +126,8 @@ public class ItspAccountInfo implements gov.nist.javax.sip.clientauthutils.UserC
 
     private boolean crLfTimerTaskStarted;
 
+    protected  RegistrationTimerTask registrationTimerTask;
+
     /**
      * This task runs periodically depending upon the timeout of the lookup specified.
      * 
@@ -147,7 +149,7 @@ public class ItspAccountInfo implements gov.nist.javax.sip.clientauthutils.UserC
                         .getHostAddress(), getProxyPort(), getOutboundTransport(),
                         ItspAccountInfo.this);
                 Gateway.getAccountManager().setHopToItsp(getSipDomain(), proxyHop);
-                Gateway.timer.schedule(new Scanner(), time);
+                Gateway.getTimer().schedule(new Scanner(), time);
             } catch (Exception ex) {
                 logger.error("Error looking up domain " + "_sip._" + getOutboundTransport() + "."
                         + getSipDomain());
@@ -199,7 +201,7 @@ public class ItspAccountInfo implements gov.nist.javax.sip.clientauthutils.UserC
 
     public void startFailureCounterScanner() {
         FailureCounterScanner fcs = new FailureCounterScanner();
-        Gateway.timer.schedule(fcs, 5000, 5000);
+        Gateway.getTimer().schedule(fcs, 5000, 5000);
     }
 
     public String getOutboundProxy() {
@@ -256,7 +258,7 @@ public class ItspAccountInfo implements gov.nist.javax.sip.clientauthutils.UserC
     }
 
     public void startDNSScannerThread(long time) {
-        Gateway.timer.schedule(new Scanner(), time);
+        Gateway.getTimer().schedule(new Scanner(), time);
 
     }
 
@@ -311,6 +313,10 @@ public class ItspAccountInfo implements gov.nist.javax.sip.clientauthutils.UserC
 
     public int getRegistrationInterval() {
         return registrationInterval;
+    }
+    
+    public void setRegistrationInterval( int registrationInterval ) {
+        this.registrationInterval = registrationInterval;
     }
 
     /**
@@ -466,7 +472,7 @@ public class ItspAccountInfo implements gov.nist.javax.sip.clientauthutils.UserC
         if (!this.crLfTimerTaskStarted) {
             this.crLfTimerTaskStarted = true;
             this.crlfTimerTask = new CrLfTimerTask(Gateway.getWanProvider("udp"), this);
-            Gateway.timer.schedule(crlfTimerTask, Gateway.getSipKeepaliveSeconds() * 1000);
+            Gateway.getTimer().schedule(crlfTimerTask, Gateway.getSipKeepaliveSeconds() * 1000);
         }
 
     }

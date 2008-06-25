@@ -599,7 +599,7 @@ public class BackToBackUserAgent {
         this.creatingDialog = dialog;
 
         this.optionsTimerTask = new OptionsTimerTask();
-        Gateway.timer.schedule(optionsTimerTask, 30 * 1000, 30 * 1000);
+        Gateway.getTimer().schedule(optionsTimerTask, 30 * 1000, 30 * 1000);
 
     }
 

@@ -189,9 +189,9 @@ public class Bridge {
                 }
             } else {
                 if ( this.parity == Parity.EVEN && sym.getTransmitter().getPort() %2  != 0 ) {
-                    logger.warn("Unexpected mixing of odd and even parity", new Exception());     
+                    logger.warn("Unexpected mixing of odd and even parity " + this.parity);     
                 } else if ( sym.getTransmitter().getPort() %2 != 1 ) {
-                    logger.warn("Unexpected mixing of odd and even parity", new Exception());
+                    logger.warn("Unexpected mixing of odd and even parity" + this.parity);
                 }
             }
         }

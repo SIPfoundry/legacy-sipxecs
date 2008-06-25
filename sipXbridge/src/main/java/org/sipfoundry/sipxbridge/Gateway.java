@@ -127,7 +127,7 @@ class Gateway {
     /*
      * A table of timers for re-registration
      */
-    static Timer timer;
+    private static Timer timer = new Timer();
 
     /*
      * The Music on hold URL
@@ -197,7 +197,7 @@ class Gateway {
                     .getBridgeConfiguration().getLogFileDirectory()
                     + "/sipxbridge.log");
 
-            logger.addAppender(appender);
+           // logger.addAppender(appender);
             BridgeConfiguration bridgeConfiguration = accountManager.getBridgeConfiguration();
 
             SymmitronConfig symmitronConfig = new SymmitronConfig();
@@ -286,7 +286,7 @@ class Gateway {
             }
 
         };
-        Gateway.timer.schedule(ttask, rediscoveryTime * 1000, rediscoveryTime * 1000);
+        Gateway.getTimer().schedule(ttask, rediscoveryTime * 1000, rediscoveryTime * 1000);
     }
 
     /**
@@ -296,8 +296,7 @@ class Gateway {
     static void init() {
         try {
 
-            Gateway.timer = new Timer();
-
+       
             /*
              * We re-parse the file here because it can change when the bridge is re-initialized.
              */
@@ -590,19 +589,20 @@ class Gateway {
                 } catch (InterruptedException ex) {
                     throw new RuntimeException("Unexpected exception registering", ex);
                 }
-                
+
                 for (ItspAccountInfo itspAccount : Gateway.accountManager.getItspAccounts()) {
-                    if (itspAccount.isRegisterOnInitialization() && itspAccount.getState() == AccountState.AUTHENTICATING) {
+                    if (itspAccount.isRegisterOnInitialization()
+                            && itspAccount.getState() == AccountState.AUTHENTICATING) {
                         continue;
                     }
                 }
                 break;
 
             }
-           
-            
+
             /*
-             * For all those who ask for keepalive and don't need registration, kick off their timers.
+             * For all those who ask for keepalive and don't need registration, kick off their
+             * timers.
              */
             for (ItspAccountInfo itspAccount : Gateway.getAccountManager().getItspAccounts()) {
                 if (!itspAccount.isRegisterOnInitialization()
@@ -611,7 +611,7 @@ class Gateway {
 
                 }
             }
-            
+
             Gateway.state = GatewayState.INITIALIZED;
 
         } catch (SipException ex) {
@@ -645,14 +645,34 @@ class Gateway {
         }
         Gateway.state = GatewayState.INITIALIZING;
         init();
-        if (Gateway.getGlobalAddress() == null) {
-            discoverAddress();
-        } else {
-            Gateway.accountManager.getBridgeConfiguration().setStunServerAddress(null);
+        boolean globalAddressing = false;
+
+        /*
+         * See if there is an ITSP that wants global addressing.
+         */
+        for (ItspAccountInfo itspAccount : Gateway.getAccountManager().getItspAccounts()) {
+            if (itspAccount.isGlobalAddressingUsed()) {
+                globalAddressing = true;
+            }
+        }
+        
+        if ( globalAddressing && Gateway.getGlobalAddress() == null && 
+                Gateway.accountManager.getBridgeConfiguration().getStunServerAddress() ==null ) {
+            throw new GatewayConfigurationException("Gateway address or stun server required. ");
         }
 
-        if (Gateway.accountManager.getBridgeConfiguration().getStunServerAddress() != null) {
-            startRediscoveryTimer();
+        if (globalAddressing) {
+            if (Gateway.getGlobalAddress() == null) {
+                discoverAddress();
+            } else {
+                Gateway.accountManager.getBridgeConfiguration().setStunServerAddress(null);
+            }
+
+            if (Gateway.accountManager.getBridgeConfiguration().getStunServerAddress() != null) {
+                startRediscoveryTimer();
+            }
+        } else {
+            logger.debug("Global rediscovery not needed.");
         }
         startSipListener();
 
@@ -667,7 +687,8 @@ class Gateway {
     static synchronized void stop() {
         Gateway.state = GatewayState.STOPPING;
         backToBackUserAgentManager.stop();
-        timer.cancel();
+        logger.debug("Stopping Gateway");
+        getTimer().purge();
         try {
             for (Dialog dialog : ((SipStackExt) ProtocolObjects.sipStack).getDialogs()) {
 
@@ -808,6 +829,13 @@ class Gateway {
     static boolean isRtcpRelayingSupported() {
         return false;
     }
+    
+    /**
+     * @return the timer
+     */
+    public static Timer getTimer() {
+        return timer;
+    }
 
     /**
      * The main method for the Bridge.
@@ -873,5 +901,7 @@ class Gateway {
         }
 
     }
+
+   
 
 }

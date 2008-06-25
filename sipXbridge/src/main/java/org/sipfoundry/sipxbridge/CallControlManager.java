@@ -410,7 +410,11 @@ public class CallControlManager {
 
             DialogApplicationData dat = (DialogApplicationData) dialog.getApplicationData();
 
-            if (dat != null && dat.lastResponse != null) {
+            if (dat != null
+                    && dat.lastResponse != null
+                    && dat.lastResponse.getStatusCode() == Response.OK
+                    && ((CSeqHeader) dat.lastResponse.getHeader(CSeqHeader.NAME)).getMethod()
+                            .equals(Request.INVITE)) {
                 Request ack = dialog.createAck(SipUtilities.getSeqNumber(dat.lastResponse));
                 dialog.sendAck(ack);
                 /*
@@ -653,8 +657,7 @@ public class CallControlManager {
                     SessionDescription sd = SipUtilities.getSessionDescription(response);
 
                     dat.lastResponse = response;
-                    
-                  
+
                     if (operation == Operation.REFER_INVITE_TO_SIPX_PROXY) {
 
                         ReferInviteToSipxProxyContinuationData continuation = (ReferInviteToSipxProxyContinuationData) tad.continuationData;
@@ -909,8 +912,8 @@ public class CallControlManager {
                                 .getHeader(CSeqHeader.NAME)).getSeqNumber());
                         dialog.sendAck(ackRequest);
                         Dialog peerDialog = DialogApplicationData.getPeerDialog(dialog);
-                        if ( DialogApplicationData.get(peerDialog).isSdpAnswerPending) {
-                           this.sendSdpAnswerInAck(response, dialog);
+                        if (DialogApplicationData.get(peerDialog).isSdpAnswerPending) {
+                            this.sendSdpAnswerInAck(response, dialog);
                         } else {
                             logger.debug("Not sending SdpAnswer");
                         }
