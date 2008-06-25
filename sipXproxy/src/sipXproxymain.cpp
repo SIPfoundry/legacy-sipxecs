@@ -747,8 +747,8 @@ proxy( int argc, char* argv[] )
 
     if (!pSipUserAgent->isOk())
     {
-        OsSysLog::add(FAC_SIP, PRI_EMERG, "SipUserAgent reported a problem, setting shutdown flags...");
-        gShutdownFlag = TRUE ;
+        OsSysLog::add(FAC_SIP, PRI_EMERG, "SipUserAgent reported a problem, setting shutdown flag...");
+        gShutdownFlag = TRUE;
     }
     pSipUserAgent->setDnsSrvTimeout(dnsSrvTimeout);
     pSipUserAgent->setMaxSrvRecords(maxNumSrvRecords);
