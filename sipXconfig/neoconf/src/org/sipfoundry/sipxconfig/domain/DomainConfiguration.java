@@ -11,7 +11,6 @@ package org.sipfoundry.sipxconfig.domain;
 
 import org.apache.velocity.VelocityContext;
 import org.sipfoundry.sipxconfig.admin.TemplateConfigurationFile;
-import org.sipfoundry.sipxconfig.admin.dialplan.config.ConfigFileType;
 
 public class DomainConfiguration extends TemplateConfigurationFile {
 
@@ -32,9 +31,5 @@ public class DomainConfiguration extends TemplateConfigurationFile {
         context.put("realm", m_realm);
         context.put("language", m_language);
         return context;
-    }
-
-    public ConfigFileType getType() {
-        return ConfigFileType.DOMAIN_CONFIG;
     }
 }

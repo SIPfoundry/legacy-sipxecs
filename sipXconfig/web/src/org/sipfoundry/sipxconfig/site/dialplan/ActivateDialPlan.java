@@ -11,12 +11,11 @@ package org.sipfoundry.sipxconfig.site.dialplan;
 
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.form.IPropertySelectionModel;
+import org.apache.tapestry.form.StringPropertySelectionModel;
 import org.sipfoundry.sipxconfig.admin.commserver.Process;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessModel.ProcessName;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
-import org.sipfoundry.sipxconfig.admin.dialplan.config.ConfigFileType;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.ConfigGenerator;
-import org.sipfoundry.sipxconfig.components.NewEnumPropertySelectionModel;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.site.admin.commserver.RestartReminderPanel;
 
@@ -24,21 +23,21 @@ import org.sipfoundry.sipxconfig.site.admin.commserver.RestartReminderPanel;
  * ActivateDialPlan
  */
 public abstract class ActivateDialPlan extends PageWithCallback {
-    public static final ConfigFileType[] OPTIONS = {
-        ConfigFileType.MAPPING_RULES, ConfigFileType.FALLBACK_RULES, ConfigFileType.AUTH_RULES,
-        ConfigFileType.FORWARDING_RULES, ConfigFileType.NAT_TRAVERSAL_RULES
+    public static final String[] OPTIONS = {
+        "mappingrules.xml.in", "fallbackrules.xml.in", "authrules.xml.in",
+        "forwardingrules.xml.in", "nattraversalrules.xml"
     };
 
     public static final String PAGE = "dialplan/ActivateDialPlan";
 
-    public abstract ConfigFileType getSelected();
+    public abstract String getSelected();
 
     public abstract DialPlanContext getDialPlanContext();
 
     public String getXml() {
         ConfigGenerator generator = getDialPlanContext().getGenerator(getDialPlanContext().getEmergencyRouting());
-        ConfigFileType type = getSelected();
-        return generator.getFileContent(type);
+        String name = getSelected();
+        return generator.getFileContent(name);
     }
 
     @SuppressWarnings("unused")
@@ -54,9 +53,7 @@ public abstract class ActivateDialPlan extends PageWithCallback {
     }
 
     public IPropertySelectionModel getFileSelectionModel() {
-        NewEnumPropertySelectionModel model = new NewEnumPropertySelectionModel();
-        model.setOptions(OPTIONS);
-        return model;
+        return new StringPropertySelectionModel(OPTIONS);
     }
 
     public void cancel(IRequestCycle cycle) {

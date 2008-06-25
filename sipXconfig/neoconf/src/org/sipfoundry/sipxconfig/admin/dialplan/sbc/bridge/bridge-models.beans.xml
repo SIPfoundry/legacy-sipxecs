@@ -4,7 +4,8 @@
 
   <bean id="sipXbridgeProfileLocation" class="org.sipfoundry.sipxconfig.device.ReplicatedProfileLocation">
     <property name="replicationContext" ref="sipxReplicationContextDao" />
-    <property name="type" value="SBC_BRIDGE_CONFIG" />
+    <property name="name" value="sipxbridge.xml" />
+    <property name="directory" value="${sysdir.etc}"/>
   </bean>
 
   <bean id="sipXbridgeSbcModel" parent="abstractSbcModel">

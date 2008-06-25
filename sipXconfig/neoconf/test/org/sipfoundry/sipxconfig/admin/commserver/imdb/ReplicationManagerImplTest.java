@@ -19,7 +19,6 @@ import junit.framework.TestCase;
 import org.apache.commons.codec.binary.Base64;
 import org.sipfoundry.sipxconfig.admin.ConfigurationFile;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
-import org.sipfoundry.sipxconfig.admin.dialplan.config.ConfigFileType;
 import org.sipfoundry.sipxconfig.device.InMemoryConfiguration;
 import org.sipfoundry.sipxconfig.xmlrpc.ApiProvider;
 
@@ -39,7 +38,6 @@ public class ReplicationManagerImplTest extends TestCase {
     public void testReplicateFile() {
         ReplicationManagerImpl replicationManager = new ReplicationManagerImpl();
         replicationManager.setHostname("localhost");
-        replicationManager.setConfigDirectory("/etc/sipxecs");
 
         final FileApi fileApi = createMock(FileApi.class);
 
@@ -57,7 +55,7 @@ public class ReplicationManagerImplTest extends TestCase {
 
         replicationManager.setFileApiProvider(provider);
 
-        ConfigurationFile file = new InMemoryConfiguration(ConfigFileType.DOMAIN_CONFIG, content);
+        ConfigurationFile file = new InMemoryConfiguration("/etc/sipxecs", "domain-config", content);
 
         replicationManager.replicateFile(LOCATIONS, file);
 

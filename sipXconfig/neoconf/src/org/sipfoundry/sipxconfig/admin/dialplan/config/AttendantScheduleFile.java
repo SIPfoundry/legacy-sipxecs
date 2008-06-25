@@ -29,7 +29,6 @@ public class AttendantScheduleFile extends XmlFile {
     private static final String SUFFIX = "-schedule.xml";
 
     private Document m_document;
-    private String m_baseFileName;
 
     public Document getDocument() {
         if (m_document == null) {
@@ -39,12 +38,9 @@ public class AttendantScheduleFile extends XmlFile {
         return m_document;
     }
 
-    public ConfigFileType getType() {
-        return ConfigFileType.ATTENDANT_SCHEDULE;
-    }
-
     void generate(AttendantRule attendantRule) {
-        m_baseFileName = attendantRule.getSystemName() + SUFFIX;
+        String name = attendantRule.getSystemName() + SUFFIX;
+        setName(name);
         Element root = getDocument().getRootElement();
         Element schedule = root.addElement("autoattendant");
         Holiday holidayAttendant = attendantRule.getHolidayAttendant();
@@ -91,9 +87,5 @@ public class AttendantScheduleFile extends XmlFile {
         Element ah = parent.addElement(name);
         ah.addElement("filename").setText(sa.getAttendant().getSystemName());
         return ah;
-    }
-
-    public String getFileBaseName() {
-        return m_baseFileName;
     }
 }

@@ -22,7 +22,6 @@ import org.sipfoundry.sipxconfig.admin.ExtensionInUseException;
 import org.sipfoundry.sipxconfig.admin.NameInUseException;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.ConfigGenerator;
-import org.sipfoundry.sipxconfig.admin.dialplan.config.EmergencyRoutingRules;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.SpecialAutoAttendantMode;
 import org.sipfoundry.sipxconfig.alias.AliasManager;
 import org.sipfoundry.sipxconfig.common.BeanId;
@@ -48,8 +47,8 @@ import org.springframework.dao.support.DataAccessUtils;
 /**
  * DialPlanContextImpl is an implementation of DialPlanContext with hibernate support.
  */
-public abstract class DialPlanContextImpl extends SipxHibernateDaoSupport implements
-        BeanFactoryAware, DialPlanContext, ApplicationListener {
+public abstract class DialPlanContextImpl extends SipxHibernateDaoSupport implements BeanFactoryAware, DialPlanContext,
+        ApplicationListener {
     private static final String DIALING_RULE_IDS_WITH_NAME_QUERY = "dialingRuleIdsWithName";
     private static final String ATTENDANT_GROUP_ID = "auto_attendant";
     private static final String OPERATOR_CONSTANT = "operator";
@@ -75,6 +74,8 @@ public abstract class DialPlanContextImpl extends SipxHibernateDaoSupport implem
 
     /* delayed injection - working around circular reference */
     public abstract GatewayContext getGatewayContext();
+    
+    public abstract SpecialAutoAttendantMode createSpecialAutoAttendantMode();
 
     /**
      * Loads dial plan, creates a new one if none exist
@@ -130,8 +131,7 @@ public abstract class DialPlanContextImpl extends SipxHibernateDaoSupport implem
      */
     private void validateRule(DialingRule rule) {
         String name = rule.getName();
-        DaoUtils.checkDuplicatesByNamedQuery(getHibernateTemplate(), rule,
-                DIALING_RULE_IDS_WITH_NAME_QUERY, name,
+        DaoUtils.checkDuplicatesByNamedQuery(getHibernateTemplate(), rule, DIALING_RULE_IDS_WITH_NAME_QUERY, name,
                 new NameInUseException(DIALING_RULE, name));
 
         // For internal rules, check for alias collisions. Note: this method throws
@@ -181,8 +181,7 @@ public abstract class DialPlanContextImpl extends SipxHibernateDaoSupport implem
      * @return A List of the DialingRules for that gateway.
      */
     public List<DialingRule> getRulesForGateway(Integer gatewayId) {
-        return getHibernateTemplate().findByNamedQueryAndNamedParam("dialingRulesByGatewayId",
-                "gatewayId", gatewayId);
+        return getHibernateTemplate().findByNamedQueryAndNamedParam("dialingRulesByGatewayId", "gatewayId", gatewayId);
     }
 
     /**
@@ -218,12 +217,10 @@ public abstract class DialPlanContextImpl extends SipxHibernateDaoSupport implem
     public void duplicateRules(Collection<Integer> selectedRows) {
         DialPlan dialPlan = getDialPlan();
         List<DialingRule> rules = dialPlan.getRules();
-        Collection<DialingRule> selectedRules = DataCollectionUtil.findByPrimaryKey(rules,
-                selectedRows.toArray());
+        Collection<DialingRule> selectedRules = DataCollectionUtil.findByPrimaryKey(rules, selectedRows.toArray());
         for (DialingRule rule : selectedRules) {
             // Create a copy of the rule with a unique name
-            DialingRule ruleDup = (DialingRule) duplicateBean(rule,
-                    DIALING_RULE_IDS_WITH_NAME_QUERY);
+            DialingRule ruleDup = (DialingRule) duplicateBean(rule, DIALING_RULE_IDS_WITH_NAME_QUERY);
 
             rules.add(ruleDup);
         }
@@ -303,8 +300,7 @@ public abstract class DialPlanContextImpl extends SipxHibernateDaoSupport implem
 
     private AutoAttendant getAttendant(String attendantId) {
         String operatorQuery = "from AutoAttendant a where a.systemId = :operator";
-        List operatorList = getHibernateTemplate().findByNamedParam(operatorQuery,
-                OPERATOR_CONSTANT, attendantId);
+        List operatorList = getHibernateTemplate().findByNamedParam(operatorQuery, OPERATOR_CONSTANT, attendantId);
 
         return (AutoAttendant) DaoUtils.requireOneOrZero(operatorList, operatorQuery);
     }
@@ -333,8 +329,7 @@ public abstract class DialPlanContextImpl extends SipxHibernateDaoSupport implem
         attendant.setValueStorage(clearUnsavedValueStorage(attendant.getValueStorage()));
         getHibernateTemplate().refresh(attendant);
 
-        Collection<AttendantRule> attendantRules = getHibernateTemplate().loadAll(
-                AttendantRule.class);
+        Collection<AttendantRule> attendantRules = getHibernateTemplate().loadAll(AttendantRule.class);
         Collection affectedRules = new ArrayList();
         for (AttendantRule rule : attendantRules) {
             if (rule.checkAttendant(attendant)) {
@@ -356,9 +351,9 @@ public abstract class DialPlanContextImpl extends SipxHibernateDaoSupport implem
         if (enabled && attendant == null) {
             throw new UserException("Select special auto attendant to be used.");
         }
-        AutoAttendant aa = attendant != null ? attendant
-                : getAttendant(AutoAttendant.AFTERHOUR_ID);
-        SpecialAutoAttendantMode mode = new SpecialAutoAttendantMode(enabled, aa);
+        AutoAttendant aa = attendant != null ? attendant : getAttendant(AutoAttendant.AFTERHOUR_ID);
+        SpecialAutoAttendantMode mode = createSpecialAutoAttendantMode(); 
+        mode.generate(enabled, aa);
         m_sipxReplicationContext.replicate(mode);
     }
 
@@ -380,9 +375,14 @@ public abstract class DialPlanContextImpl extends SipxHibernateDaoSupport implem
     }
 
     public ConfigGenerator generateDialPlan(EmergencyRouting emergencyRouting) {
-        ConfigGenerator generator = (ConfigGenerator) m_beanFactory.getBean(
-                ConfigGenerator.BEAN_NAME, ConfigGenerator.class);
+        ConfigGenerator generator = createConfigGenerator();
         generator.generate(this, emergencyRouting);
+        return generator;
+    }
+
+    private ConfigGenerator createConfigGenerator() {
+        ConfigGenerator generator = (ConfigGenerator) m_beanFactory.getBean(ConfigGenerator.BEAN_NAME,
+                ConfigGenerator.class);
         return generator;
     }
 
@@ -390,17 +390,15 @@ public abstract class DialPlanContextImpl extends SipxHibernateDaoSupport implem
         EmergencyRouting emergencyRouting = getEmergencyRouting();
         ConfigGenerator generator = getGenerator(emergencyRouting);
         generator.activate(m_sipxReplicationContext, m_scriptsDirectory);
-
-        applyEmergencyRouting(emergencyRouting);
+        generator.activateEmergencyRules(m_sipxReplicationContext, emergencyRouting, m_coreContext.getDomainName());
 
         // notify the world we are done with activating dial plan
         m_sipxReplicationContext.publishEvent(new DialPlanActivatedEvent(this));
     }
 
     public void applyEmergencyRouting(EmergencyRouting emergencyRouting) {
-        EmergencyRoutingRules rules = new EmergencyRoutingRules();
-        rules.generate(emergencyRouting, m_coreContext.getDomainName());
-        m_sipxReplicationContext.replicate(rules);
+        ConfigGenerator generator = createConfigGenerator();
+        generator.activateEmergencyRules(m_sipxReplicationContext, emergencyRouting, m_coreContext.getDomainName());
     }
 
     public void storeEmergencyRouting(EmergencyRouting emergencyRouting) {
@@ -418,8 +416,8 @@ public abstract class DialPlanContextImpl extends SipxHibernateDaoSupport implem
     }
 
     public void removeRoutingException(Serializable routingExceptionId) {
-        RoutingException re = (RoutingException) getHibernateTemplate().load(
-                RoutingException.class, routingExceptionId);
+        RoutingException re = (RoutingException) getHibernateTemplate()
+                .load(RoutingException.class, routingExceptionId);
         getEmergencyRouting().removeException(re);
         getHibernateTemplate().saveOrUpdate(re);
     }
@@ -458,8 +456,7 @@ public abstract class DialPlanContextImpl extends SipxHibernateDaoSupport implem
             String task = dbEvent.getTask();
             if (task.equals("dial-plans")) {
                 resetToFactoryDefault(m_defaultDialPlanId);
-            } else if (task.equals(AutoAttendant.OPERATOR_ID)
-                    || task.equals(AutoAttendant.AFTERHOUR_ID)) {
+            } else if (task.equals(AutoAttendant.OPERATOR_ID) || task.equals(AutoAttendant.AFTERHOUR_ID)) {
                 createOperator(task);
             }
         }
@@ -485,8 +482,7 @@ public abstract class DialPlanContextImpl extends SipxHibernateDaoSupport implem
      * but pick the most likely one.
      */
     public String getVoiceMail() {
-        List<InternalRule> rules = DialPlan.getDialingRuleByType(getDialPlan().getRules(),
-                InternalRule.class);
+        List<InternalRule> rules = DialPlan.getDialingRuleByType(getDialPlan().getRules(), InternalRule.class);
         if (rules.isEmpty()) {
             return InternalRule.DEFAULT_VOICEMAIL;
         }
@@ -501,8 +497,7 @@ public abstract class DialPlanContextImpl extends SipxHibernateDaoSupport implem
      * default emergency address. see: @link http://track.sipfoundry.org/browse/XCF-1883
      */
     public EmergencyInfo getLikelyEmergencyInfo() {
-        List<EmergencyRule> rules = DialPlan.getDialingRuleByType(getDialPlan().getRules(),
-                EmergencyRule.class);
+        List<EmergencyRule> rules = DialPlan.getDialingRuleByType(getDialPlan().getRules(), EmergencyRule.class);
         for (EmergencyRule rule : rules) {
             if (rule.isEnabled() && !rule.getUseMediaServer()) {
                 for (Gateway candidate : rule.getGateways()) {
@@ -511,8 +506,8 @@ public abstract class DialPlanContextImpl extends SipxHibernateDaoSupport implem
                     // see http://list.sipfoundry.org/archive/sipx-dev/msg09644.html
                     if (StringUtils.isBlank(candidate.getRoute())) {
                         int port = candidate.getAddressPort();
-                        return new EmergencyInfo(candidate.getAddress(), port == 0 ? null : port,
-                                rule.getEmergencyNumber());
+                        return new EmergencyInfo(candidate.getAddress(), port == 0 ? null : port, rule
+                                .getEmergencyNumber());
                     }
                 }
             }
@@ -570,13 +565,11 @@ public abstract class DialPlanContextImpl extends SipxHibernateDaoSupport implem
     }
 
     private Collection getAutoAttendantsWithName(String alias) {
-        return getHibernateTemplate().findByNamedQueryAndNamedParam("autoAttendantIdsWithName",
-                VALUE, alias);
+        return getHibernateTemplate().findByNamedQueryAndNamedParam("autoAttendantIdsWithName", VALUE, alias);
     }
 
     private Collection<BeanId> getBeanIdsOfRulesWithAutoAttendantAlias(String alias) {
-        Collection<Object[]> objs = getHibernateTemplate().findByNamedQuery(
-                "attendantRuleIdsAndAttendantAliases");
+        Collection<Object[]> objs = getHibernateTemplate().findByNamedQuery("attendantRuleIdsAndAttendantAliases");
         Collection<BeanId> bids = new ArrayList<BeanId>();
         for (Object[] idAndAliases : objs) {
             Integer id = (Integer) idAndAliases[0];
@@ -605,13 +598,12 @@ public abstract class DialPlanContextImpl extends SipxHibernateDaoSupport implem
     }
 
     private Collection getInternalRulesWithVoiceMailExtension(String extension) {
-        return getHibernateTemplate().findByNamedQueryAndNamedParam(
-                "internalRuleIdsWithVoiceMailExtension", VALUE, extension);
+        return getHibernateTemplate().findByNamedQueryAndNamedParam("internalRuleIdsWithVoiceMailExtension", VALUE,
+                extension);
     }
 
     private Collection getAttendantRulesWithExtension(String extension) {
-        return getHibernateTemplate().findByNamedQueryAndNamedParam(
-                "attendantRuleIdsWithExtension", VALUE, extension);
+        return getHibernateTemplate().findByNamedQueryAndNamedParam("attendantRuleIdsWithExtension", VALUE, extension);
     }
 
     public void setSettingDao(SettingDao settingDao) {
@@ -623,8 +615,7 @@ public abstract class DialPlanContextImpl extends SipxHibernateDaoSupport implem
     }
 
     public AutoAttendant newAutoAttendantWithDefaultGroup() {
-        AutoAttendant aa = (AutoAttendant) m_beanFactory.getBean(AutoAttendant.BEAN_NAME,
-                AutoAttendant.class);
+        AutoAttendant aa = (AutoAttendant) m_beanFactory.getBean(AutoAttendant.BEAN_NAME, AutoAttendant.class);
 
         // All auto attendants share same group: default
         Set groups = aa.getGroups();
@@ -636,8 +627,7 @@ public abstract class DialPlanContextImpl extends SipxHibernateDaoSupport implem
     }
 
     public Setting getAttendantSettingModel() {
-        AutoAttendant aa = (AutoAttendant) m_beanFactory.getBean(AutoAttendant.BEAN_NAME,
-                AutoAttendant.class);
+        AutoAttendant aa = (AutoAttendant) m_beanFactory.getBean(AutoAttendant.BEAN_NAME, AutoAttendant.class);
         return aa.getSettings();
     }
 

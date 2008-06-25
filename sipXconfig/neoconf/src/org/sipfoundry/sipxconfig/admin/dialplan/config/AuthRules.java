@@ -119,8 +119,4 @@ public class AuthRules extends RulesXmlFile {
     public void end() {
         generateNoAccess(m_gateways);
     }
-
-    public ConfigFileType getType() {
-        return ConfigFileType.AUTH_RULES;
-    }
 }

@@ -66,8 +66,4 @@ public class NatTraversalRules extends TemplateConfigurationFile {
 
         return context;
     }
-
-    public ConfigFileType getType() {
-        return ConfigFileType.NAT_TRAVERSAL_RULES;
-    }
 }

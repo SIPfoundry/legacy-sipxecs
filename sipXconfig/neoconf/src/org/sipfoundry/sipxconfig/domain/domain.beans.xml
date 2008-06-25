@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" 
-	"http://www.springframework.org/dtd/spring-beans.dtd">
-<beans>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
 
   <bean id="domainManager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
     <property name="proxyInterfaces">
@@ -15,7 +14,7 @@
   <bean id="domainManagerImpl" class="org.sipfoundry.sipxconfig.domain.DomainManagerImpl">
     <property name="sessionFactory" ref="sessionFactory" />
     <property name="replicationContext" ref="sipxReplicationContext" />
-    <property name="sipxServiceManager" ref="sipxServiceManager" /> 
+    <property name="sipxServiceManager" ref="sipxServiceManager" />
 
     <!-- initialize for tests only: the real value gets set by sipxconfig.properties.in -->
     <property name="initialDomain" value="example.org" />
@@ -39,8 +38,10 @@
     <lookup-method name="createDomainConfiguration" bean="domainConfiguration" />
   </bean>
 
-  <bean id="domainConfiguration" class="org.sipfoundry.sipxconfig.domain.DomainConfiguration" singleton="false">
+  <bean id="domainConfiguration" class="org.sipfoundry.sipxconfig.domain.DomainConfiguration" scope="prototype"
+    parent="defaultConfigurationFile">
     <property name="velocityEngine" ref="velocityEngine" />
     <property name="template" value="commserver/domain-config.vm" />
+    <property name="name" value="domain-config" />
   </bean>
 </beans>

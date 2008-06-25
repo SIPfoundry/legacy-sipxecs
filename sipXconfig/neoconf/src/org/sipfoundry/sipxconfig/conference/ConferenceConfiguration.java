@@ -16,7 +16,6 @@ import org.apache.commons.collections.CollectionUtils;
 import org.dom4j.Document;
 import org.dom4j.Element;
 import org.dom4j.io.OutputFormat;
-import org.sipfoundry.sipxconfig.admin.dialplan.config.ConfigFileType;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.XmlFile;
 
 public class ConferenceConfiguration extends XmlFile {
@@ -39,15 +38,12 @@ public class ConferenceConfiguration extends XmlFile {
 
     private Document m_document;
 
-    ConferenceConfiguration(Bridge bridge) {
-        m_bridge = bridge;
-    }
-    
     public Document getDocument() {
         return m_document;
     }
         
-    public void generate(List conferences) {
+    public void generate(Bridge bridge, List conferences) {
+        m_bridge = bridge;
         m_document = FACTORY.createDocument();
         Element configuration = m_document.addElement("configuration");
         configuration.addAttribute(NAME, "conference.conf");
@@ -160,9 +156,5 @@ public class ConferenceConfiguration extends XmlFile {
         format.setOmitEncoding(true);
         format.setSuppressDeclaration(true);
         return format;
-    }
-
-    public ConfigFileType getType() {
-        return ConfigFileType.CONFERENCE_CONFIGURATION;
     }
 }

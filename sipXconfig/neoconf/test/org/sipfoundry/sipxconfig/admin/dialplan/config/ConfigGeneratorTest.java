@@ -9,24 +9,24 @@
  */
 package org.sipfoundry.sipxconfig.admin.dialplan.config;
 
-import static org.easymock.EasyMock.expectLastCall;
-
 import java.io.StringWriter;
 import java.util.Collections;
 
 import org.custommonkey.xmlunit.XMLTestCase;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.dom4j.Document;
-import org.easymock.EasyMock;
-import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRuleProvider;
 import org.sipfoundry.sipxconfig.admin.dialplan.EmergencyRouting;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDeviceManager;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcManager;
-import org.sipfoundry.sipxconfig.nattraversal.NatTraversal;
-import org.sipfoundry.sipxconfig.nattraversal.NatTraversalManager;
+
+import static org.easymock.EasyMock.createNiceMock;
+import static org.easymock.EasyMock.createStrictMock;
+import static org.easymock.EasyMock.expectLastCall;
+import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.verify;
 
 /**
  * ConfigGeneratorTest
@@ -37,78 +37,77 @@ public class ConfigGeneratorTest extends XMLTestCase {
     }
 
     public void testGetFileContent() throws Exception {
-        IMocksControl planCtrl = EasyMock.createStrictControl();
-        DialPlanContext dialPlanContext = planCtrl.createMock(DialPlanContext.class);
-        DialingRuleProvider dialingRuleProvider = planCtrl.createMock(DialingRuleProvider.class);
+        DialPlanContext dialPlanContext = createStrictMock(DialPlanContext.class);
+        DialingRuleProvider dialingRuleProvider = createStrictMock(DialingRuleProvider.class);
         dialingRuleProvider.getDialingRules();
-        planCtrl.andReturn(Collections.EMPTY_LIST);
+        expectLastCall().andReturn(Collections.EMPTY_LIST);
         dialPlanContext.getGenerationRules();
-        planCtrl.andReturn(Collections.EMPTY_LIST);
+        expectLastCall().andReturn(Collections.EMPTY_LIST);
         dialPlanContext.getAttendantRules();
-        planCtrl.andReturn(Collections.EMPTY_LIST);
-        planCtrl.replay();
+        expectLastCall().andReturn(Collections.EMPTY_LIST);
+
+        SbcManager sbcManager = createNiceMock(SbcManager.class);
+
+        SbcDeviceManager sbcDeviceManager = createNiceMock(SbcDeviceManager.class);
+        
+        replay(dialingRuleProvider, dialPlanContext, sbcDeviceManager, sbcManager);
 
         EmergencyRouting er = new EmergencyRouting();
 
-        ConfigGenerator generator = createConfigGenerator();
+        ConfigGenerator generator = new ConfigGenerator();
         generator.setDialingRuleProvider(dialingRuleProvider);
-        generator.generate(dialPlanContext, er);
 
         AuthRules authRules = new AuthRules();
-        checkConfigFileGeneration(generator, authRules, ConfigFileType.AUTH_RULES);
+        authRules.setName("authrules.xml.in");
+        generator.setAuthRules(authRules);
+
         MappingRules mappingRules = new MappingRules();
-        checkConfigFileGeneration(generator, mappingRules, ConfigFileType.MAPPING_RULES);
+        mappingRules.setName("mappingrules.xml.in");
+        generator.setMappingRules(mappingRules);
+
         FallbackRules fallbackRules = new FallbackRules();
-        checkConfigFileGeneration(generator, fallbackRules, ConfigFileType.FALLBACK_RULES);
-        planCtrl.verify();
+        fallbackRules.setName("fallbackrules.xml.in");
+        generator.setFallbackRules(fallbackRules);
+
+        ForwardingRules forwardingRules = new ForwardingRules();
+        forwardingRules.setName("fallbackrules.xml.in");
+        forwardingRules.setVelocityEngine(TestHelper.getVelocityEngine());
+        forwardingRules.setSbcManager(sbcManager);
+
+        
+        generator.setForwardingRules(forwardingRules);
+        
+        generator.generate(dialPlanContext, er);
+
+        checkConfigFileGeneration(generator, authRules, "authrules.xml.in");
+        checkConfigFileGeneration(generator, mappingRules, "mappingrules.xml.in");
+        checkConfigFileGeneration(generator, fallbackRules, "fallbackrules.xml.in");
+
+        verify(dialingRuleProvider, dialPlanContext);
     }
 
     /**
      * Execute test for a single configuration type. Tries to generate it directly and generate
      * pretty formatted text through generator.
      */
-    private void checkConfigFileGeneration(ConfigGenerator generator, RulesXmlFile configFile,
-            ConfigFileType type) throws Exception {
+    private void checkConfigFileGeneration(ConfigGenerator generator, RulesXmlFile configFile, String name)
+            throws Exception {
         configFile.begin();
         configFile.end();
         Document document = configFile.getDocument();
         StringWriter writer = new StringWriter();
         document.write(writer);
-        String actualXml = generator.getFileContent(type);
+        String actualXml = generator.getFileContent(name);
         String expectedXml = writer.getBuffer().toString();
 
         // The XML diff is getting confused by whitespace, so remove it
         actualXml = removeTroublesomeWhitespace(actualXml);
         expectedXml = removeTroublesomeWhitespace(expectedXml);
 
-        assertXMLEqual("Comparing: " + type, expectedXml, actualXml);
+        assertXMLEqual("Comparing: " + name, expectedXml, actualXml);
     }
 
     private String removeTroublesomeWhitespace(String text) {
         return text.replaceAll("\\n\\s*", "");
-    }
-
-    public static ConfigGenerator createConfigGenerator() {
-        SbcManager sbcManager = EasyMock.createNiceMock(SbcManager.class);
-
-        SbcDeviceManager sbcDeviceManager = EasyMock.createNiceMock(SbcDeviceManager.class);
-
-        NatTraversalManager natTraversalManager = EasyMock.createNiceMock(NatTraversalManager.class);
-        NatTraversal natTraversal = new NatTraversal();
-        natTraversalManager.getNatTraversal();
-        expectLastCall().andReturn(natTraversal);
-
-        EasyMock.replay(sbcManager, sbcDeviceManager, natTraversalManager);
-
-        ConfigGenerator generator = new ConfigGenerator();
-        generator.getForwardingRules().setVelocityEngine(TestHelper.getVelocityEngine());
-        generator.getForwardingRules().setSbcManager(sbcManager);
-
-        generator.getNatTraversalRules().setSbcManager(sbcManager);
-        generator.getNatTraversalRules().setNatTraversalManager(natTraversalManager);
-        generator.getNatTraversalRules().setSbcDeviceManager(sbcDeviceManager);
-        generator.getNatTraversalRules().setVelocityEngine(TestHelper.getVelocityEngine());
-
-        return generator;
     }
 }

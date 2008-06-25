@@ -13,7 +13,7 @@ import java.io.OutputStream;
 
 import org.sipfoundry.sipxconfig.admin.ConfigurationFile;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
-import org.sipfoundry.sipxconfig.admin.dialplan.config.ConfigFileType;
+import org.springframework.beans.factory.annotation.Required;
 
 /**
  * Special type profile location that is using replication context to push profiles
@@ -21,19 +21,27 @@ import org.sipfoundry.sipxconfig.admin.dialplan.config.ConfigFileType;
 public class ReplicatedProfileLocation extends MemoryProfileLocation {
 
     private SipxReplicationContext m_replicationContext;
-    private ConfigFileType m_type;
+    private String m_directory;
+    private String m_name;
 
+    @Required
     public void setReplicationContext(SipxReplicationContext replicationContext) {
         m_replicationContext = replicationContext;
     }
-
-    public void setType(ConfigFileType type) {
-        m_type = type;
+    
+    @Required
+    public void setName(String name) {
+        m_name = name;
+    }
+    
+    @Required
+    public void setDirectory(String directory) {
+        m_directory = directory;
     }
 
     public void closeOutput(OutputStream stream) {
         super.closeOutput(stream);
-        ConfigurationFile configuration = new InMemoryConfiguration(m_type, toString());
+        ConfigurationFile configuration = new InMemoryConfiguration(m_directory, m_name, toString());
         m_replicationContext.replicate(configuration);
     }
 

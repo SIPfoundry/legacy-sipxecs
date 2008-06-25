@@ -10,15 +10,10 @@
 package org.sipfoundry.sipxconfig.service;
 
 import org.apache.velocity.VelocityContext;
-import org.sipfoundry.sipxconfig.admin.dialplan.config.ConfigFileType;
 
 public class SipxProxyConfiguration extends SipxServiceConfiguration {
 
     private SipxService m_service;
-    
-    public ConfigFileType getType() {
-        return ConfigFileType.PROXY_CONFIG;
-    }
     
     public void generate(SipxService service) {
         m_service = service;

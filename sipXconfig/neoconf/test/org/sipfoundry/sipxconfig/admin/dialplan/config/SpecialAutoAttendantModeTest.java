@@ -29,7 +29,8 @@ public class SpecialAutoAttendantModeTest extends XMLTestCase {
         AutoAttendant aa = new AutoAttendant();
         aa.setSystemId("abc");
 
-        SpecialAutoAttendantMode file = new SpecialAutoAttendantMode(false, aa);
+        SpecialAutoAttendantMode file = new SpecialAutoAttendantMode();
+        file.generate(false, aa);
         String expected = "<organizationprefs><specialoperation>false</specialoperation><autoattendant>abc</autoattendant></organizationprefs>";
 
         assertXMLEqual(expected, file.getFileContent());
@@ -42,7 +43,8 @@ public class SpecialAutoAttendantModeTest extends XMLTestCase {
         InputStream referenceXmlStream = getClass().getResourceAsStream(
                 "organizationprefs.test.xml");
 
-        SpecialAutoAttendantMode file = new SpecialAutoAttendantMode(true, aa);
+        SpecialAutoAttendantMode file = new SpecialAutoAttendantMode();
+        file.generate(true, aa);        
         String generatedXml = file.getFileContent();
         assertXMLEqual(new InputStreamReader(referenceXmlStream), new StringReader(generatedXml));
     }

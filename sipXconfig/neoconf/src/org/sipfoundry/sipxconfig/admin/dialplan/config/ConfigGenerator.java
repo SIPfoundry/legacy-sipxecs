@@ -9,13 +9,12 @@
  */
 package org.sipfoundry.sipxconfig.admin.dialplan.config;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
+import org.sipfoundry.sipxconfig.admin.AbstractConfigurationFile;
 import org.sipfoundry.sipxconfig.admin.ConfigurationFile;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.AttendantRule;
@@ -23,7 +22,7 @@ import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRuleProvider;
 import org.sipfoundry.sipxconfig.admin.dialplan.EmergencyRouting;
 import org.sipfoundry.sipxconfig.admin.dialplan.IDialingRule;
-import org.sipfoundry.sipxconfig.common.UserException;
+import org.springframework.beans.factory.annotation.Required;
 
 /**
  * ConfigGenerator
@@ -36,54 +35,48 @@ public class ConfigGenerator {
     private FallbackRules m_fallbackRules;
     private ForwardingRules m_forwardingRules;
     private NatTraversalRules m_natTraversalRules;
+
     private DialingRuleProvider m_dialingRuleProvider;
-    private List<XmlFile> m_attendantScheduleFiles = new ArrayList<XmlFile>();
-    private Map<ConfigFileType, ConfigurationFile> m_files = new HashMap<ConfigFileType, ConfigurationFile>();
+    private EmergencyRoutingRules m_emergencyRoutingRules;
+    private List<AbstractConfigurationFile> m_attendantScheduleFiles = new ArrayList<AbstractConfigurationFile>();
 
-    public ConfigGenerator() {
-        // this is usually overwritten by spring configuration file
-        setMappingRules(new MappingRules());
-        setAuthRules(new AuthRules());
-        setFallbackRules(new FallbackRules());
-        setForwardingRules(new ForwardingRules());
-        setNatTraversalRules(new NatTraversalRules());
-    }
-
-    public ForwardingRules getForwardingRules() {
-        return m_forwardingRules;
-    }
-
-    public NatTraversalRules getNatTraversalRules() {
-        return m_natTraversalRules;
-    }
-
+    @Required
     public void setForwardingRules(ForwardingRules forwardingRules) {
         m_forwardingRules = forwardingRules;
-        m_files.put(m_forwardingRules.getType(), m_forwardingRules);
     }
 
+    @Required
     public void setNatTraversalRules(NatTraversalRules natTraversalRules) {
         m_natTraversalRules = natTraversalRules;
-        m_files.put(m_natTraversalRules.getType(), m_natTraversalRules);
     }
 
+    @Required
     public void setAuthRules(AuthRules authRules) {
         m_authRules = authRules;
-        m_files.put(ConfigFileType.AUTH_RULES, m_authRules);
     }
 
+    @Required
     public void setMappingRules(MappingRules mappingRules) {
         m_mappingRules = mappingRules;
-        m_files.put(ConfigFileType.MAPPING_RULES, mappingRules);
     }
 
+    @Required
     public void setFallbackRules(FallbackRules fallbackRules) {
         m_fallbackRules = fallbackRules;
-        m_files.put(ConfigFileType.FALLBACK_RULES, m_fallbackRules);
     }
 
+    @Required
+    public void setEmergencyRoutingRules(EmergencyRoutingRules emergencyRoutingRules) {
+        m_emergencyRoutingRules = emergencyRoutingRules;
+    }
+
+    @Required
     public void setDialingRuleProvider(DialingRuleProvider dialingRuleProvider) {
         m_dialingRuleProvider = dialingRuleProvider;
+    }
+
+    private List< ? extends ConfigurationFile> getRulesFiles() {
+        return Arrays.asList(m_mappingRules, m_authRules, m_fallbackRules, m_forwardingRules, m_natTraversalRules);
     }
 
     private void generate(EmergencyRouting er) {
@@ -146,26 +139,29 @@ public class ConfigGenerator {
      * 
      * @param type type of the configuration file
      */
-    public String getFileContent(ConfigFileType type) {
-        ConfigurationFile file = m_files.get(type);
-        return file.getFileContent();
+    public String getFileContent(String name) {
+        for (ConfigurationFile file : getRulesFiles()) {
+            if (name.equals(file.getName())) {
+                return file.getFileContent();
+            }
+        }
+
+        return StringUtils.EMPTY;
     }
 
     public void activate(SipxReplicationContext sipxReplicationContext, String scriptsDirectory) {
-        for (ConfigurationFile file : m_files.values()) {
+        for (ConfigurationFile file : getRulesFiles()) {
             sipxReplicationContext.replicate(file);
         }
-        activateAttendantRules(scriptsDirectory);
+        for (AbstractConfigurationFile file : m_attendantScheduleFiles) {
+            file.setDirectory(scriptsDirectory);
+            sipxReplicationContext.replicate(file);
+        }
     }
 
-    private void activateAttendantRules(String scriptsDirectory) {
-        File vxmlDir = new File(scriptsDirectory);
-        try {
-            for (XmlFile file : m_attendantScheduleFiles) {
-                file.writeToFile(vxmlDir, file.getFileBaseName());
-            }
-        } catch (IOException e) {
-            throw new UserException("Error when generating auto attendant schedule.", e);
-        }
+    public void activateEmergencyRules(SipxReplicationContext sipxReplicationContext, EmergencyRouting er,
+            String domainName) {
+        m_emergencyRoutingRules.generate(er, domainName);
+        sipxReplicationContext.replicate(m_emergencyRoutingRules);
     }
 }

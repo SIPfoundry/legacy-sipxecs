@@ -16,7 +16,6 @@ import org.apache.commons.collections.CollectionUtils;
 import org.dom4j.Document;
 import org.dom4j.Element;
 import org.dom4j.io.OutputFormat;
-import org.sipfoundry.sipxconfig.admin.dialplan.config.ConfigFileType;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.XmlFile;
 
 public class ConferenceAdmission extends XmlFile {
@@ -56,10 +55,14 @@ public class ConferenceAdmission extends XmlFile {
                 applicationData = applicationData + "+" + accessCode;
             }
 
-            m_parent.addElement("extension").addAttribute(NAME, conference.getExtension()).addElement(
-                    "condition").addAttribute("field", "destination_number").addAttribute("expression",
-                    "^" + conference.getName() + "$").addElement("action").addAttribute("application",
-                    "conference").addAttribute("data", applicationData);
+            Element extension = m_parent.addElement("extension");
+            extension.addAttribute(NAME, conference.getExtension());
+            Element condition = extension.addElement("condition");
+            condition.addAttribute("field", "destination_number");
+            condition.addAttribute("expression", "^" + conference.getName() + "$");
+            Element action = condition.addElement("action");
+            action.addAttribute("application", "conference");
+            action.addAttribute("data", applicationData);
         }
     }
 
@@ -69,9 +72,5 @@ public class ConferenceAdmission extends XmlFile {
         format.setOmitEncoding(true);
         format.setSuppressDeclaration(true);
         return format;
-    }
-
-    public ConfigFileType getType() {
-        return ConfigFileType.CONFERENCE_ADMINSION;
     }
 }

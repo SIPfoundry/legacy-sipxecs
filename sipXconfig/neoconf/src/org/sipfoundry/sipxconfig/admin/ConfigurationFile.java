@@ -12,19 +12,14 @@ package org.sipfoundry.sipxconfig.admin;
 import java.io.IOException;
 import java.io.Writer;
 
-import org.sipfoundry.sipxconfig.admin.dialplan.config.ConfigFileType;
-
 public interface ConfigurationFile {
-
-    public abstract ConfigFileType getType();
-
     /**
      * Writes document to specified writer
      * 
-     * @param writer
+     * @param writer destination for file content.
      * @throws IOException
      */
-    public void write(Writer writer) throws IOException;
+    void write(Writer writer) throws IOException;
 
     /**
      * Retrieves configuration file content as string
@@ -32,5 +27,19 @@ public interface ConfigurationFile {
      * Use only for preview, use write function to dump it to the file.
      * 
      */
-    public String getFileContent();
+    String getFileContent();
+
+    /**
+     * Returns the name of the file.
+     * 
+     * This is just the last name in the pathname's name sequence.
+     */
+    String getName();
+
+    /**
+     * Return fully qualified name of the configuration file
+     * 
+     * @return full path of the configuration file on the destination system
+     */
+    String getPath();
 }

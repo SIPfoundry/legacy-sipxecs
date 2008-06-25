@@ -67,8 +67,8 @@ public class ConferenceConfigurationTest extends XMLTestCase {
         bridge.addConference(conf);       
         conferences.add(conf);
         
-        ConferenceConfiguration config = new ConferenceConfiguration(bridge);
-        config.generate(conferences);
+        ConferenceConfiguration config = new ConferenceConfiguration();
+        config.generate(bridge, conferences);
         String generatedXml = config.getFileContent();
         System.err.println(generatedXml);
         InputStream referenceXml = ConferenceAdmissionTest.class

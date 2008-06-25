@@ -55,7 +55,6 @@
     class="org.sipfoundry.sipxconfig.admin.commserver.imdb.ReplicationManagerImpl">
     <property name="fileApiProvider" ref="fileApiProvider"/>
     <property name="imdbApiProvider" ref="imdbProvider"/>
-    <property name="configDirectory" value="${sysdir.etc}"/>
   </bean>
 
   <bean id="sipxReplicationContextImpl"

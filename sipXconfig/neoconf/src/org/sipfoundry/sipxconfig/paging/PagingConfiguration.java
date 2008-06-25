@@ -13,7 +13,6 @@ import java.util.List;
 
 import org.apache.velocity.VelocityContext;
 import org.sipfoundry.sipxconfig.admin.TemplateConfigurationFile;
-import org.sipfoundry.sipxconfig.admin.dialplan.config.ConfigFileType;
 
 public class PagingConfiguration extends TemplateConfigurationFile {
 
@@ -46,9 +45,5 @@ public class PagingConfiguration extends TemplateConfigurationFile {
         context.put("logLevel", m_logLevel);
         context.put("sipTraceLevel", m_sipTraceLevel);
         return context;
-    }
-
-    public ConfigFileType getType() {
-        return ConfigFileType.PAGING_CONFIG;
     }
 }

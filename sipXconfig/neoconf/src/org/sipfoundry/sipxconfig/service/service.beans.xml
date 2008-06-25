@@ -74,9 +74,10 @@
   </bean>
   
   <bean id="sipxProxyConfiguration" class="org.sipfoundry.sipxconfig.service.SipxProxyConfiguration" 
-    scope="prototype">
+    scope="prototype" parent="defaultConfigurationFile">
     <property name="velocityEngine" ref="velocityEngine" />
     <property name="template" value="sipxproxy/sipXproxy-config.vm" />
+    <property name="name" value="sipXproxy-config"/>
   </bean>
   
   <bean id="sipxRegistrarService" class="org.sipfoundry.sipxconfig.service.SipxRegistrarService" 
@@ -90,9 +91,10 @@
   </bean>
   
   <bean id="sipxRegistrarConfiguration" class="org.sipfoundry.sipxconfig.service.SipxRegistrarConfiguration" 
-    scope="prototype">
+    scope="prototype" parent="defaultConfigurationFile">
     <property name="velocityEngine" ref="velocityEngine" />
     <property name="template" value="sipxregistrar/registrar-config.vm" />
+    <property name="name" value="registrar-config"/>
   </bean>
   
   <bean id="sipxRegistrarInitializer" class="org.sipfoundry.sipxconfig.service.SipxRegistrarServiceInitializer">

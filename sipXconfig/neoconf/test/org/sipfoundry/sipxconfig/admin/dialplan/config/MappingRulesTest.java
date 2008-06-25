@@ -27,8 +27,8 @@ import org.dom4j.VisitorSupport;
 import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.XmlUnitHelper;
+import org.sipfoundry.sipxconfig.admin.AbstractConfigurationFile;
 import org.sipfoundry.sipxconfig.admin.dialplan.AutoAttendant;
-import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.admin.dialplan.ExchangeMediaServer;
 import org.sipfoundry.sipxconfig.admin.dialplan.IDialingRule;
@@ -61,8 +61,7 @@ public class MappingRulesTest extends XMLTestCase {
                 "http://www.sipfoundry.org/sipX/schema/xml/urlmap-00-00");
 
         assertXpathExists("/mappings/hostMatch/hostPattern", xml);
-        assertXpathEvaluatesTo("${SIPXCHANGE_DOMAIN_NAME}", "/mappings/hostMatch/hostPattern",
-                xml);
+        assertXpathEvaluatesTo("${SIPXCHANGE_DOMAIN_NAME}", "/mappings/hostMatch/hostPattern", xml);
         assertXpathEvaluatesTo("${MY_FULL_HOSTNAME}", "/mappings/hostMatch/hostPattern[2]", xml);
         assertXpathEvaluatesTo("${MY_HOSTNAME}", "/mappings/hostMatch/hostPattern[3]", xml);
         assertXpathEvaluatesTo("${MY_IP_ADDR}", "/mappings/hostMatch/hostPattern[4]", xml);
@@ -153,14 +152,12 @@ public class MappingRulesTest extends XMLTestCase {
 
     public void testGenerate() throws Exception {
         UrlTransform voicemail = new UrlTransform();
-        voicemail
-                .setUrl("<sip:{digits}@{mediaserver};"
-                        + "play={voicemail}/sipx-cgi/voicemail/mediaserver.cgi?action=deposit&mailbox={digits}>;q=0.1");
+        voicemail.setUrl("<sip:{digits}@{mediaserver};"
+                + "play={voicemail}/sipx-cgi/voicemail/mediaserver.cgi?action=deposit&mailbox={digits}>;q=0.1");
 
         UrlTransform voicemail2 = new UrlTransform();
-        voicemail2
-                .setUrl("<sip:{digits}@testserver;"
-                        + "play={voicemail}/sipx-cgi/voicemail/mediaserver.cgi?action=deposit&mailbox={digits}>;q=0.001");
+        voicemail2.setUrl("<sip:{digits}@testserver;"
+                + "play={voicemail}/sipx-cgi/voicemail/mediaserver.cgi?action=deposit&mailbox={digits}>;q=0.001");
 
         IMocksControl control = EasyMock.createNiceControl();
         IDialingRule rule = control.createMock(IDialingRule.class);
@@ -197,15 +194,13 @@ public class MappingRulesTest extends XMLTestCase {
 
         String domDoc = XmlUnitHelper.asString(document);
 
-        assertXpathEvaluatesTo("my rule description",
-                "/mappings/hostMatch/userMatch/description", domDoc);
+        assertXpathEvaluatesTo("my rule description", "/mappings/hostMatch/userMatch/description", domDoc);
         assertXpathEvaluatesTo("x.", "/mappings/hostMatch/userMatch/userPattern", domDoc);
-        assertXpathEvaluatesTo("Voicemail",
-                "/mappings/hostMatch/userMatch/permissionMatch/permission", domDoc);
-        assertXpathEvaluatesTo(voicemail.getUrl(),
-                "/mappings/hostMatch/userMatch/permissionMatch/transform/url", domDoc);
-        assertXpathEvaluatesTo(voicemail2.getUrl(),
-                "/mappings/hostMatch/userMatch/permissionMatch/transform[2]/url", domDoc);
+        assertXpathEvaluatesTo("Voicemail", "/mappings/hostMatch/userMatch/permissionMatch/permission", domDoc);
+        assertXpathEvaluatesTo(voicemail.getUrl(), "/mappings/hostMatch/userMatch/permissionMatch/transform/url",
+                domDoc);
+        assertXpathEvaluatesTo(voicemail2.getUrl(), "/mappings/hostMatch/userMatch/permissionMatch/transform[2]/url",
+                domDoc);
 
         control.verify();
     }
@@ -262,31 +257,29 @@ public class MappingRulesTest extends XMLTestCase {
         rules.add(new MappingRule.VoicemailFallback(exchangeMediaServer));
         rules.add(new VoicemailRedirectRule());
 
-        IMocksControl controlPlan = EasyMock.createStrictControl();
-        DialPlanContext plan = controlPlan.createMock(DialPlanContext.class);
-        plan.getGenerationRules();
-        controlPlan.andReturn(rules);
-        plan.getAttendantRules();
-        controlPlan.andReturn(Collections.EMPTY_LIST);
 
-        EasyMock.replay(plan);
+        MappingRules mappingRules = new MappingRules();
+        mappingRules.begin();
+        for (DialingRule rule : rules) {
+            mappingRules.generate(rule);
+        }
+        mappingRules.end();
 
-        ConfigGenerator generator = ConfigGeneratorTest.createConfigGenerator();
-        generator.generate(plan, null);
+        String generatedXml = mappingRules.getFileContent();
 
-        String generatedXml = generator.getFileContent(ConfigFileType.MAPPING_RULES);
-
-        InputStream referenceXmlStream = MappingRulesTest.class
-                .getResourceAsStream("mappingrules-multiple-servers.test.xml");
+        InputStream referenceXmlStream = getClass().getResourceAsStream("mappingrules-multiple-servers.test.xml");
 
         assertXMLEqual(new InputStreamReader(referenceXmlStream), new StringReader(generatedXml));
-        EasyMock.verify(plan, lc);
+        EasyMock.verify(lc);
     }
 
     public void testEquals() throws Exception {
-        XmlFile f1 = new MappingRules();
-        XmlFile f2 = new MappingRules();
-        XmlFile f3 = new FallbackRules();
+        AbstractConfigurationFile f1 = new MappingRules();
+        f1.setName("mappingrules.xml.in");
+        AbstractConfigurationFile f2 = new MappingRules();
+        f2.setName("mappingrules.xml.in");
+        AbstractConfigurationFile f3 = new FallbackRules();
+        f3.setName("fallbackrules.xml.in");
         assertEquals(f1, f2);
         assertNotSame(f1, f2);
         assertEquals(f1.hashCode(), f2.hashCode());

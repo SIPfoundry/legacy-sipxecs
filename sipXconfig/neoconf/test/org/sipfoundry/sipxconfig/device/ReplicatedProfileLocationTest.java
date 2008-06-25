@@ -16,7 +16,6 @@ import junit.framework.JUnit4TestAdapter;
 import org.junit.Test;
 import org.sipfoundry.sipxconfig.admin.ConfigurationFile;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
-import org.sipfoundry.sipxconfig.admin.dialplan.config.ConfigFileType;
 
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.eq;
@@ -32,14 +31,15 @@ public class ReplicatedProfileLocationTest {
 
     @Test
     public void testGetOutput() throws Exception {
-        ConfigurationFile config = new InMemoryConfiguration(ConfigFileType.ORBITS, "abcd");
+        ConfigurationFile config = new InMemoryConfiguration("/etc/sipxpbx", "orbits.xml", "abcd");
         SipxReplicationContext rc = createMock(SipxReplicationContext.class);
         rc.replicate(eq(config));
         expectLastCall();
         replay(rc);
 
         ReplicatedProfileLocation location = new ReplicatedProfileLocation();
-        location.setType(ConfigFileType.ORBITS);
+        location.setName("orbits.xml");
+        location.setDirectory("/etc/sipxpbx");
         location.setReplicationContext(rc);
 
         OutputStream output = location.getOutput("abc.txt");

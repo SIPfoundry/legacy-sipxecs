@@ -110,8 +110,4 @@ public class MappingRules extends RulesXmlFile {
     public void end() {
         m_mappings.add(m_hostMatch);
     }
-
-    public ConfigFileType getType() {
-        return ConfigFileType.MAPPING_RULES;
-    }
 }

@@ -112,8 +112,4 @@ public class EmergencyRoutingRules extends XmlFile {
             urlParams.setText(transport);
         }
     }
-
-    public ConfigFileType getType() {
-        return ConfigFileType.E911_RULES;
-    }
 }

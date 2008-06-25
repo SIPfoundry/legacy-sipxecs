@@ -36,8 +36,6 @@ public class ReplicationManagerImpl implements ReplicationManager {
 
     private String m_hostname;
 
-    private String m_configDirectory;
-
     public void setFileApiProvider(ApiProvider<FileApi> fileApiProvider) {
         m_fileApiProvider = fileApiProvider;
     }
@@ -48,10 +46,6 @@ public class ReplicationManagerImpl implements ReplicationManager {
 
     public void setHostname(String hostname) {
         m_hostname = hostname;
-    }
-
-    public void setConfigDirectory(String configDirectory) {
-        m_configDirectory = configDirectory;
     }
 
     /**
@@ -114,9 +108,9 @@ public class ReplicationManagerImpl implements ReplicationManager {
                 String content = encodeBase64(payloadBytes);
 
                 FileApi api = m_fileApiProvider.getApi(locations[i].getProcessMonitorUrl());
-                success = api.replace(m_hostname, getPath(file), PERMISSIONS, content);
+                success = api.replace(m_hostname, file.getPath(), PERMISSIONS, content);
             } catch (XmlRpcRemoteException e) {
-                LOG.error("File replication failed: " + file.getType().getName(), e);
+                LOG.error("File replication failed: " + file.getName(), e);
             } catch (UnsupportedEncodingException e) {
                 LOG.error("UTF-8 encoding should be always supported.");
                 throw new RuntimeException(e);
@@ -126,11 +120,6 @@ public class ReplicationManagerImpl implements ReplicationManager {
             }
         }
         return success;
-    }
-
-    private String getPath(ConfigurationFile file) {
-        // FIXME: not all files end up in config directory
-        return m_configDirectory + "/" + file.getType().getName();
     }
 
     public void setEnabled(boolean enabled) {

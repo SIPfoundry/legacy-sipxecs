@@ -6,7 +6,7 @@
 	  - P R O P E R T I E S
 	  -->
   <inject property="dialPlanContext" object="spring:dialPlanContext"/>
-  <property name="selected">@org.sipfoundry.sipxconfig.admin.dialplan.config.ConfigFileType@MAPPING_RULES</property>
+  <property name="selected" initial-value="literal:mappingrules.xml.in"/>
   <property name="showAdvanced" persist="session"  initial-value="false"/>
   <!--
      - B E A N S

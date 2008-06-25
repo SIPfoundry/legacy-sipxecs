@@ -22,7 +22,7 @@ import org.apache.velocity.app.VelocityEngine;
  * Common base class for all configuration files generators that use Velocity templating engine
  * TemplateConfigurationFile
  */
-public abstract class TemplateConfigurationFile implements ConfigurationFile {
+public abstract class TemplateConfigurationFile extends AbstractConfigurationFile {
     private static final Log LOG = LogFactory.getLog(TemplateConfigurationFile.class);
 
     private VelocityEngine m_velocityEngine;

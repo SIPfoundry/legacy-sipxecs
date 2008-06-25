@@ -80,10 +80,6 @@ public class ForwardingRules extends XmlFile {
         }
     }
 
-    public ConfigFileType getType() {
-        return ConfigFileType.FORWARDING_RULES;
-    }
-
     @Override
     public Document getDocument() {
         return m_doc;

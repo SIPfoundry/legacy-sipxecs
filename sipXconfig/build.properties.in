@@ -34,6 +34,8 @@ sipxconfig.upload.dir=@SIPX_VARDIR@/upload
 sipxconfig.phonebook.dir=@SIPX_VARDIR@/phonebook
 sipxvxml.data.dir=@SIPX_VXMLDATADIR@
 www.dir=@wwwdir@
+freeswitch.prefix.dir=@FREESWITCH_PREFIX@
+
 sipxpbx.user=@SIPXPBXUSER@
 acd.history.test.db=SIPXACD_HISTORY_TEST
 acd.history.db.schema=${top.dir}/report/etc/schema.sql

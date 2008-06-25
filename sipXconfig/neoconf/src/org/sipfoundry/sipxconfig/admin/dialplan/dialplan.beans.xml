@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
-<beans>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
 
   <!--
     - D I A L   P L A N S
   -->
 
-  <bean id="sipXMediaServer" class="org.sipfoundry.sipxconfig.admin.dialplan.SipXMediaServer" singleton="false">
+  <bean id="sipXMediaServer" class="org.sipfoundry.sipxconfig.admin.dialplan.SipXMediaServer" scope="prototype">
     <property name="label" value="Internal Voicemail Server" />
     <property name="hostname" value="{mediaserver}" />
     <property name="serverExtension" value="101" />
@@ -14,12 +14,12 @@
   </bean>
 
   <bean id="exchangeUmMediaServer" class="org.sipfoundry.sipxconfig.admin.dialplan.ExchangeMediaServer"
-    singleton="false">
+    scope="prototype">
     <property name="label" value="Exchange Voicemail Server" />
     <property name="localizationContext" ref="localizationContext" />
   </bean>
 
-  <bean id="mediaServerFactory" class="org.sipfoundry.sipxconfig.admin.dialplan.MediaServerFactory" singleton="true">
+  <bean id="mediaServerFactory" class="org.sipfoundry.sipxconfig.admin.dialplan.MediaServerFactory" scope="singleton">
     <property name="beanIds">
       <list>
         <value>sipXMediaServer</value>
@@ -89,11 +89,11 @@
     <property name="permissionName" value="LocalDialing" />
   </bean>
 
-  <bean id="defaultCustomRule" class="org.sipfoundry.sipxconfig.admin.dialplan.CustomDialingRule" singleton="false">
+  <bean id="defaultCustomRule" class="org.sipfoundry.sipxconfig.admin.dialplan.CustomDialingRule" scope="prototype">
     <property name="permissionManager" ref="permissionManager" />
   </bean>
 
-  <bean id="defaultDialPlan" class="org.sipfoundry.sipxconfig.admin.dialplan.DialPlan" singleton="false"
+  <bean id="defaultDialPlan" class="org.sipfoundry.sipxconfig.admin.dialplan.DialPlan" scope="prototype"
     abstract="true">
   </bean>
 
@@ -130,6 +130,7 @@
     <property name="defaultDialPlanId" value="na.dialPlan" />
     <property name="vxmlGenerator" ref="vxml" />
     <lookup-method name="getGatewayContext" bean="gatewayContext" />
+    <lookup-method name="createSpecialAutoAttendantMode" bean="specialAutoAttendantMode" />
   </bean>
 
   <bean id="dialPlanContext" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
@@ -148,19 +149,42 @@
 
   <bean id="attendantSaveDefaultGroup" factory-bean="dialPlanContextImpl" factory-method="createGroupSaveListener">
   </bean>
-  <bean id="mappingRules" class="org.sipfoundry.sipxconfig.admin.dialplan.config.MappingRules" />
-  <bean id="fallbackRules" class="org.sipfoundry.sipxconfig.admin.dialplan.config.FallbackRules" />
-  <bean id="authRules" class="org.sipfoundry.sipxconfig.admin.dialplan.config.AuthRules" />
-  <bean id="forwardingRules" class="org.sipfoundry.sipxconfig.admin.dialplan.config.ForwardingRules">
+
+  <bean id="mappingRules" class="org.sipfoundry.sipxconfig.admin.dialplan.config.MappingRules"
+    parent="defaultConfigurationFile">
+    <property name="name" value="mappingrules.xml.in" />
+  </bean>
+
+  <bean id="fallbackRules" class="org.sipfoundry.sipxconfig.admin.dialplan.config.FallbackRules"
+    parent="defaultConfigurationFile">
+    <property name="name" value="fallbackrules.xml.in" />
+  </bean>
+
+  <bean id="authRules" class="org.sipfoundry.sipxconfig.admin.dialplan.config.AuthRules"
+    parent="defaultConfigurationFile">
+    <property name="name" value="authrules.xml.in" />
+  </bean>
+
+  <bean id="forwardingRules" class="org.sipfoundry.sipxconfig.admin.dialplan.config.ForwardingRules"
+    parent="defaultConfigurationFile">
+    <property name="name" value="forwardingrules.xml.in" />
     <property name="velocityEngine" ref="velocityEngine" />
     <property name="sbcManager" ref="sbcManager" />
   </bean>
-  <bean id="natTraversalRules" class="org.sipfoundry.sipxconfig.admin.dialplan.config.NatTraversalRules">
+
+  <bean id="natTraversalRules" class="org.sipfoundry.sipxconfig.admin.dialplan.config.NatTraversalRules"
+    parent="defaultConfigurationFile">
+    <property name="name" value="nattraversalrules.xml" />
     <property name="velocityEngine" ref="velocityEngine" />
     <property name="sbcManager" ref="sbcManager" />
     <property name="sbcDeviceManager" ref="sbcDeviceManager" />
     <property name="natTraversalManager" ref="natTraversalManager" />
     <property name="template" value="nattraversal/nattraversalrules.vm" />
+  </bean>
+
+  <bean id="emergencyRoutingRules" class="org.sipfoundry.sipxconfig.admin.dialplan.config.EmergencyRoutingRules"
+    parent="defaultConfigurationFile">
+    <property name="name" value="e911rules.xml" />
   </bean>
 
   <bean id="dialingRuleCollector" class="org.sipfoundry.sipxconfig.admin.dialplan.DialingRuleCollector" />
@@ -182,13 +206,16 @@
     <property name="natTraversalRules">
       <ref local="natTraversalRules" />
     </property>
+    <property name="emergencyRoutingRules">
+      <ref local="emergencyRoutingRules" />
+    </property>
     <property name="dialingRuleProvider">
       <ref local="dialingRuleCollector" />
     </property>
   </bean>
 
   <!-- A T T E N D A N T -->
-  <bean id="autoAttendant" class="org.sipfoundry.sipxconfig.admin.dialplan.AutoAttendant" singleton="false"
+  <bean id="autoAttendant" class="org.sipfoundry.sipxconfig.admin.dialplan.AutoAttendant" scope="prototype"
     parent="beanWithSettings">
     <property name="vxmlGenerator" ref="vxml" />
   </bean>
@@ -234,4 +261,10 @@
       </list>
     </property>
   </bean>
+
+  <bean id="specialAutoAttendantMode" class="org.sipfoundry.sipxconfig.admin.dialplan.config.SpecialAutoAttendantMode"
+    scope="prototype" parent="defaultConfigurationFile">
+    <property name="name" value="organizationprefs.xml" />
+  </bean>
 </beans>
+

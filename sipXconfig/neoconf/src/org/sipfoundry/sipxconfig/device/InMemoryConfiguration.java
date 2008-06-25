@@ -10,24 +10,19 @@ package org.sipfoundry.sipxconfig.device;
 import java.io.IOException;
 import java.io.Writer;
 
-import org.sipfoundry.sipxconfig.admin.ConfigurationFile;
-import org.sipfoundry.sipxconfig.admin.dialplan.config.ConfigFileType;
+import org.sipfoundry.sipxconfig.admin.AbstractConfigurationFile;
 
-public class InMemoryConfiguration implements ConfigurationFile {
+public class InMemoryConfiguration extends AbstractConfigurationFile {
     private final String m_content;
-    private final ConfigFileType m_type;
 
-    public InMemoryConfiguration(ConfigFileType type, String content) {
-        m_type = type;
+    public InMemoryConfiguration(String directory, String name, String content) {
+        setDirectory(directory);
+        setName(name);
         m_content = content;
     }
 
     public String getFileContent() {
         return new String(m_content);
-    }
-
-    public ConfigFileType getType() {
-        return m_type;
     }
 
     public void write(Writer writer) throws IOException {
@@ -36,7 +31,7 @@ public class InMemoryConfiguration implements ConfigurationFile {
 
     public boolean equals(Object obj) {
         InMemoryConfiguration o = (InMemoryConfiguration) obj;
-        return m_content.equals(o.m_content) && m_type.equals(o.m_type);
+        return m_content.equals(o.m_content);
     }
 
     public int hashCode() {

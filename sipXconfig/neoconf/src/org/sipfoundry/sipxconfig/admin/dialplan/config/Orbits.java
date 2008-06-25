@@ -19,6 +19,7 @@ import org.dom4j.Document;
 import org.dom4j.Element;
 import org.sipfoundry.sipxconfig.admin.parkorbit.BackgroundMusic;
 import org.sipfoundry.sipxconfig.admin.parkorbit.ParkOrbit;
+import org.springframework.beans.factory.annotation.Required;
 
 public class Orbits extends XmlFile {
     private static final String NAMESPACE = "http://www.sipfoundry.org/sipX/schema/xml/orbits-00-00";
@@ -80,11 +81,8 @@ public class Orbits extends XmlFile {
         return m_audioDirectory;
     }
 
+    @Required
     public void setAudioDirectory(String audioDirectory) {
         m_audioDirectory = audioDirectory;
-    }
-
-    public ConfigFileType getType() {
-        return ConfigFileType.ORBITS;
     }
 }

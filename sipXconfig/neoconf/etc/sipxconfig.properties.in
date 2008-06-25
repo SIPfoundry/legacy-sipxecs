@@ -91,6 +91,7 @@ sysdir.build_number=0000
 sysdir.comment=opendev
 sysdir.user=@sipxpbx.user@
 sysdir.doc=@www.dir@/doc
+sysdir.freeswitch=@freeswitch.prefix.dir@
 acdContextImpl.audioServerUrl=http://${CONFIG_SERVER_ADDR}/phone/acd/audio
 # ACD server defaults - can be changed in UI
 acdServer.host=${MY_FULL_HOSTNAME}

@@ -81,7 +81,7 @@ public class AttendantScheduleFileTest extends XMLTestCase {
         AttendantScheduleFile file = new AttendantScheduleFile();
         file.generate(rule);
 
-        assertEquals("aa_-1-schedule.xml", file.getFileBaseName());
+        assertEquals("aa_-1-schedule.xml", file.getName());
 
         String generatedXml = file.getFileContent();
 

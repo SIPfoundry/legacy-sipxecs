@@ -14,12 +14,12 @@ import org.dom4j.Element;
 import org.sipfoundry.sipxconfig.admin.dialplan.AutoAttendant;
 
 public class SpecialAutoAttendantMode extends XmlFile {
-    private final AutoAttendant m_attendant;
-    private final boolean m_enabled;
+    private AutoAttendant m_attendant;
+    private boolean m_enabled;
 
-    public SpecialAutoAttendantMode(boolean enabled, AutoAttendant attendant) {
-        m_enabled = enabled;
+    public void generate(boolean enabled, AutoAttendant attendant) {
         m_attendant = attendant;
+        m_enabled = enabled;
     }
 
     public Document getDocument() {
@@ -29,9 +29,5 @@ public class SpecialAutoAttendantMode extends XmlFile {
         Element aa = op.addElement("autoattendant");
         aa.setText(m_attendant.getSystemName());
         return document;
-    }
-
-    public ConfigFileType getType() {
-        return ConfigFileType.ORGANIZATION_PREFS;
     }
 }

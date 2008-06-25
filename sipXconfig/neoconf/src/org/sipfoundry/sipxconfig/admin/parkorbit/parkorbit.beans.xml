@@ -1,17 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" 
-	"http://www.springframework.org/dtd/spring-beans.dtd">
-<beans>
-  <bean id="orbitsGenerator" class="org.sipfoundry.sipxconfig.admin.dialplan.config.Orbits">
+<beans xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+
+  <bean id="orbitsGenerator" class="org.sipfoundry.sipxconfig.admin.dialplan.config.Orbits"
+    parent="defaultConfigurationFile">
+    <property name="name" value="orbits.xml"/>
   </bean>
 
   <bean id="org.sipfoundry.sipxconfig.admin.parkorbit.ParkOrbit"
-    class="org.sipfoundry.sipxconfig.admin.parkorbit.ParkOrbit" singleton="false"
-    parent="beanWithSettings">
+    class="org.sipfoundry.sipxconfig.admin.parkorbit.ParkOrbit" scope="prototype" parent="beanWithSettings">
   </bean>
 
-  <bean id="parkOrbitContextImpl"
-    class="org.sipfoundry.sipxconfig.admin.parkorbit.ParkOrbitContextImpl">
+  <bean id="parkOrbitContextImpl" class="org.sipfoundry.sipxconfig.admin.parkorbit.ParkOrbitContextImpl">
     <property name="sessionFactory" ref="sessionFactory" />
     <property name="replicationContext" ref="sipxReplicationContext" />
     <property name="aliasManager" ref="aliasManager" />
@@ -21,16 +22,13 @@
     </property>
   </bean>
 
-  <bean id="parkOrbitContext" class="org.springframework.aop.framework.ProxyFactoryBean"
-    parent="abstractDao">
-    <property name="proxyInterfaces"
-      value="org.sipfoundry.sipxconfig.admin.parkorbit.ParkOrbitContext" />
+  <bean id="parkOrbitContext" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
+    <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.admin.parkorbit.ParkOrbitContext" />
     <property name="target">
       <ref local="parkOrbitContextImpl" />
     </property>
   </bean>
 
-  <bean id="parkOrbitSaveDefaultGroup" factory-bean="parkOrbitContextImpl"
-    factory-method="createGroupSaveListener">
+  <bean id="parkOrbitSaveDefaultGroup" factory-bean="parkOrbitContextImpl" factory-method="createGroupSaveListener">
   </bean>
 </beans>

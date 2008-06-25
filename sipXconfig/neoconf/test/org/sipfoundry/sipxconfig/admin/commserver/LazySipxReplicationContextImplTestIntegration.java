@@ -28,7 +28,9 @@ public class LazySipxReplicationContextImplTestIntegration extends TestCase {
     public void testGenerateAll() throws Exception {
         int lazyIterations = 20;
         XmlFile mr = new MappingRules();
+        mr.setName("mappingrules.xml.in");
         XmlFile orbits = new Orbits();
+        orbits.setName("orbits.xml");
         
         ApplicationEvent event = new DialPlanActivatedEvent(this);
        

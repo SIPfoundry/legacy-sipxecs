@@ -10,7 +10,6 @@
 package org.sipfoundry.sipxconfig.service;
 
 import org.apache.velocity.VelocityContext;
-import org.sipfoundry.sipxconfig.admin.dialplan.config.ConfigFileType;
 
 public class SipxRegistrarConfiguration extends SipxServiceConfiguration {
 
@@ -21,10 +20,6 @@ public class SipxRegistrarConfiguration extends SipxServiceConfiguration {
         m_service = service;
     }
 
-    public ConfigFileType getType() {
-        return ConfigFileType.REGISTRAR_CONFIG;
-    }
-    
     @Override
     protected VelocityContext setupContext() {
         VelocityContext context = super.setupContext();

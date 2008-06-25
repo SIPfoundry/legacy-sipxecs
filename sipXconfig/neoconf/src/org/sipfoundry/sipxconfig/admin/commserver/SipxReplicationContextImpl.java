@@ -69,7 +69,7 @@ public class SipxReplicationContextImpl implements ApplicationEventPublisherAwar
     }
 
     public void replicate(ConfigurationFile file) {
-        Serializable jobId = m_jobContext.schedule("File replication: " + file.getType());
+        Serializable jobId = m_jobContext.schedule("File replication: " + file.getName());
         boolean success = false;
         try {
             m_jobContext.start(jobId);
