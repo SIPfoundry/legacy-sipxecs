@@ -895,8 +895,7 @@ RegistrationDB::getUnexpiredContacts (
                 OsSysLog::add(FAC_DB, PRI_DEBUG,
                               "RegistrationDB::getUnexpiredContacts Record found "
                               "uri = '%s', contact = '%s', instance_id = '%s', "
-                              "gruu = '%s'",
-                              "path = '%s'",
+                              "gruu = '%s', path = '%s'",
                               uriValue->data(), contactValue->data(),
                               instanceIdValue->data(), gruuValue->data(), pathValue->data());
 
