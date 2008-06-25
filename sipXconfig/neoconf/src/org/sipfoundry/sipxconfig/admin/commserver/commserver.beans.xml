@@ -47,6 +47,7 @@
     class="org.sipfoundry.sipxconfig.xmlrpc.XmlRpcApiProvider">
     <property name="methodNamePrefix" value="ImdbTable." />
     <property name="secure" value="true" />
+    <property name="timeout" value="15000" />
     <property name="serviceInterface"
       value="org.sipfoundry.sipxconfig.admin.commserver.imdb.ImdbApi" />
   </bean>

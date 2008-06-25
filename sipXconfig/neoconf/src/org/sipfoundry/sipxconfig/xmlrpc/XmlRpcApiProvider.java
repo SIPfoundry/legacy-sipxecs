@@ -17,6 +17,7 @@ public class XmlRpcApiProvider<T> implements ApiProvider<T>, InitializingBean {
     private boolean m_secure;
     private Class m_serviceInterface;
     private XmlRpcMarshaller m_marshaller;
+    private long m_timeout;
 
     public T getApi(String serviceUrl) {
         XmlRpcProxyFactoryBean factory = new XmlRpcProxyFactoryBean();
@@ -27,6 +28,9 @@ public class XmlRpcApiProvider<T> implements ApiProvider<T>, InitializingBean {
         }
         factory.setServiceInterface(m_serviceInterface);
         factory.setServiceUrl(serviceUrl);
+        if (m_timeout > 0) {
+            factory.setTimeout(m_timeout);
+        }
         factory.afterPropertiesSet();
         return (T) factory.getObject();
     }
@@ -45,6 +49,10 @@ public class XmlRpcApiProvider<T> implements ApiProvider<T>, InitializingBean {
 
     public void setServiceInterface(Class serviceInterface) {
         m_serviceInterface = serviceInterface;
+    }
+
+    public void setTimeout(long timeout) {
+        m_timeout = timeout;
     }
 
     public void afterPropertiesSet() throws Exception {
