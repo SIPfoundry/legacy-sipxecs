@@ -2,7 +2,11 @@ include $(top_srcdir)/config/subdir.am
 
 EXTRA_DIST = \
     sipXvxml.process.xml.in \
+    sipXvxml-process.xml.in \
     mediaserver-config.in.in
+
+SIPX_PROCESSDIR = \
+	sipXvxml
 
 install-data-hook : $(DESTDIR)$(SIPX_PROCDIR)/sipXvxml.process.xml
 	@echo "Localize $< -> $@"

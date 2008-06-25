@@ -89,6 +89,8 @@ rm -rf $RPM_BUILD_ROOT
 %attr(4755,root,root) %{_bindir}/sipXvxml
 %attr(755,root,root) %{_bindir}/sipXvxml.sh
 %attr(755,root,root) %{_bindir}/%name-config
+%attr(644,root,root) %{_datadir}/sipx/process.d/sipXvxml-process.xml
+
 # A lot of these files are installed in ../include/ itself, which needs to be changed.
 %{_includedir}
 

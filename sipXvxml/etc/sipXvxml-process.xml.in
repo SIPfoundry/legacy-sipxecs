@@ -1,0 +1,25 @@
+<?xml version='1.0' encoding='iso-8859-1' standalone='yes'?>
+<sipXecs-process xmlns='http://www.sipfoundry.org/sipX/schema/xml/sipXecs-process-01-00'>
+  <name>MediaServer</name>
+  <version>@VERSION@</version>
+  <commands>
+    <configtest>
+      <execute>@SIPX_BINDIR@/sipXvxml.sh</execute>
+      <parameter>--configtest</parameter>
+    </configtest>
+    <start>
+      <execute>@SIPX_BINDIR@/sipXvxml.sh</execute>
+    </start>
+    <stop>
+      <execute>@SIPX_BINDIR@/sipXvxml.sh</execute>
+      <parameter>--stop</parameter>
+    </stop>
+  </commands>
+  <status isService='true'>
+    <pid>@SIPX_RUNDIR@/sipXvxml.pid</pid>
+    <log>@SIPX_LOGDIR@/sipXvxml.log</log>
+  </status>
+  <resources>
+    <osconfig>@SIPX_CONFDIR@/domain-config</osconfig>
+  </resources>
+</sipXecs-process>

@@ -15,6 +15,10 @@ do
             Action=CONFIGTEST
             ;;
 
+        --stop)
+            Action=STOP
+            ;;
+
         *)
             Args="$Args $1"
             ;;
@@ -57,6 +61,8 @@ then
   done
 fi
 
+pidfile=@SIPX_RUNDIR@/sipXvxml.pid
+
 case ${Action} in
    RUN)
      # Create the voicemail directories if they do not already exist.
@@ -95,7 +101,7 @@ case ${Action} in
          fi
      fi
 
-     echo $$ > @SIPX_RUNDIR@/sipXvxml.pid
+     echo $$ > ${pidfile}
      exec @bindir@/sipXvxml $Args
      ;;
 
@@ -103,6 +109,11 @@ case ${Action} in
      #@bindir@/sipx-validate-xml @SIPX_CONFDIR@/?.xml
      #Status=$(($Status+$?))
      ;;
+
+   STOP)
+     sipx_stop sipXvxml ${pidfile}
+     ;;
+
 esac
 
 exit $Status
