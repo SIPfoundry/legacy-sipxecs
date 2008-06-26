@@ -9,7 +9,7 @@
  */
 package org.sipfoundry.sipxconfig.admin.commserver.imdb;
 
-import java.nio.charset.Charset;
+import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,7 +35,7 @@ public class ReplicationManagerImplTest extends TestCase {
         new Location(), new Location()
     };
 
-    public void testReplicateFile() {
+    public void testReplicateFile() throws Exception {
         ReplicationManagerImpl replicationManager = new ReplicationManagerImpl();
         replicationManager.setHostname("localhost");
 
@@ -102,9 +102,8 @@ public class ReplicationManagerImplTest extends TestCase {
         verify(imdbApi);
     }
 
-    private String encode(String content) {
-        Charset ascii = Charset.forName("US-ASCII");
-        byte[] encoded = Base64.encodeBase64(content.getBytes(ascii));
-        return new String(encoded, ascii);
+    private String encode(String content) throws UnsupportedEncodingException {
+        byte[] encoded = Base64.encodeBase64(content.getBytes("US-ASCII"));
+        return new String(encoded, "US-ASCII");
     }
 }
