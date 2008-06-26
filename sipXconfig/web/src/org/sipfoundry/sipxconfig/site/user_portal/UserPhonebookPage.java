@@ -22,6 +22,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hivemind.Messages;
 import org.apache.lucene.queryParser.ParseException;
+import org.apache.tapestry.IAsset;
+import org.apache.tapestry.annotations.Asset;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.event.PageBeginRenderListener;
@@ -53,6 +55,9 @@ public abstract class UserPhonebookPage extends UserBasePage implements PageBegi
     @InjectObject("spring:domainManager")
     public abstract DomainManager getDomainManager();
 
+    @Asset("/images/phone_sound.png")
+    public abstract IAsset getCallIcon();
+
     @Persist
     public abstract void setQuery(String query);
 
@@ -78,6 +83,8 @@ public abstract class UserPhonebookPage extends UserBasePage implements PageBegi
     public abstract void setSipIdsForCurrentEntry(String value);
 
     public abstract void setCurrentNumber(String number);
+
+    public abstract void setCurrentFirstName(String firstName);
 
     public void pageBeginRender(PageEvent event) {
         super.pageBeginRender(event);
@@ -143,6 +150,7 @@ public abstract class UserPhonebookPage extends UserBasePage implements PageBegi
         AliasSorter aliasSorter = new AliasSorter(user, entry);
         Messages messages = getMessages();
         setCurrentNumber(entry.getNumber());
+        setCurrentFirstName(entry.getFirstName());
         setExtensionsForCurrentEntry(aliasSorter.getExtensions(messages));
         setSipIdsForCurrentEntry(aliasSorter.getSipIds(messages));
     }
