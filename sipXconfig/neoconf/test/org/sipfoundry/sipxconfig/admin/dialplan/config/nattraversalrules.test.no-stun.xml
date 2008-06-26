@@ -9,7 +9,9 @@
 
     <behindnat>true</behindnat>
 
-    <publicaddress/>
+    <useSTUN>false</useSTUN>
+
+    <publicaddress>1.2.3.4</publicaddress>
 
     <proxyhostport>${MY_IP_ADDR}:${PROXY_SERVER_SIP_PORT}</proxyhostport>
 

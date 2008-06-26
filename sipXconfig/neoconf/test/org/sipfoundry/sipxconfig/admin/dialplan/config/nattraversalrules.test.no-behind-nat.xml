@@ -7,17 +7,19 @@
 
     <state>enabled</state>
 
-    <behindnat>true</behindnat>
-
-    <useSTUN>false</useSTUN>
-
-    <publicaddress>1.2.3.4</publicaddress>
+    <behindnat>false</behindnat>
 
     <proxyhostport>${MY_IP_ADDR}:${PROXY_SERVER_SIP_PORT}</proxyhostport>
 
     <relayaggressiveness>Aggressive</relayaggressiveness>
 
     <concurrentrelays>2</concurrentrelays>
+
+    <mediarelaypublicaddress>1.2.3.4</mediarelaypublicaddress>
+
+    <mediarelaynativeaddress>11.12.21.1</mediarelaynativeaddress>
+
+    <mediarelayxml-rpc-port>4321</mediarelayxml-rpc-port>
 
   </info>
 

@@ -7,7 +7,13 @@
 
     <state>enabled</state>
 
-    <behindnat>false</behindnat>
+    <behindnat>true</behindnat>
+
+    <useSTUN>true</useSTUN>
+
+    <STUNServer>stun01.sipphone.com</STUNServer>
+
+    <STUNRefreshInterval>26</STUNRefreshInterval>
 
     <proxyhostport>${MY_IP_ADDR}:${PROXY_SERVER_SIP_PORT}</proxyhostport>
 

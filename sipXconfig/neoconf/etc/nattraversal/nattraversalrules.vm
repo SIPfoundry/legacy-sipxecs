@@ -6,7 +6,14 @@
 	<state>${state}</state>
 	<behindnat>${behindnat}</behindnat>
 #if(${behindnat})
+#if(${publicaddress}=="")
+    <useSTUN>true</useSTUN>
+    <STUNServer>${STUNServer}</STUNServer>
+    <STUNRefreshInterval>${STUNRefreshInterval}</STUNRefreshInterval>
+#else
+    <useSTUN>false</useSTUN>
     <publicaddress>${publicaddress}</publicaddress>
+#end
 #end
 	<proxyhostport>${dollar}{MY_IP_ADDR}:${dollar}{PROXY_SERVER_SIP_PORT}</proxyhostport>
 	<relayaggressiveness>${relayaggressiveness}</relayaggressiveness>
@@ -18,11 +25,11 @@
 #end
   </info>
   <localtopology>
-    #foreach($subnet in ${sbc.routes.subnets})
+#foreach($subnet in ${sbc.routes.subnets})
       <ipV4subnet>$subnet</ipV4subnet>
-    #end
-    #foreach($domain in ${sbc.routes.domains})
+#end
+#foreach($domain in ${sbc.routes.domains})
       <dnsWildcard>$domain</dnsWildcard>
-    #end
+#end
   </localtopology>
 </nattraversal>

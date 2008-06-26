@@ -47,6 +47,7 @@ public class NatTraversalRulesTest extends XMLTestCase {
         m_natTraversal.setEnabled(true);
         m_natTraversal.getSettings().getSetting(NatTraversal.INFO_AGGRESSIVENESS).setTypedValue("Aggressive");
         m_natTraversal.getSettings().getSetting(NatTraversal.INFO_MAXCONCRELAYS).setTypedValue(Integer.parseInt("2"));
+        m_natTraversal.getSettings().getSetting(NatTraversal.INFO_REFRESHINTERVAL).setTypedValue(Integer.parseInt("26"));
 
         m_natTraversalManager = createNiceMock(NatTraversalManager.class);
         m_natTraversalManager.getNatTraversal();
@@ -54,8 +55,8 @@ public class NatTraversalRulesTest extends XMLTestCase {
 
     }
 
-    public void testGenerate() throws Exception {
-        m_natTraversal.setBehindnat(true);
+    public void testGenerateNoBehindNat() throws Exception {
+        m_natTraversal.setBehindnat(false);
 
         m_sbcDeviceManager = createNiceMock(SbcDeviceManager.class);
         m_bridgeSbc = new BridgeSbc(); 
@@ -72,15 +73,15 @@ public class NatTraversalRulesTest extends XMLTestCase {
 
         String generatedXml = rules.getFileContent();
 
-        InputStream referenceXmlStream = NatTraversalRulesTest.class.getResourceAsStream("nattraversalrules.test.xml");
+        InputStream referenceXmlStream = NatTraversalRulesTest.class.getResourceAsStream("nattraversalrules.test.no-behind-nat.xml");
 
         assertXMLEqual(new InputStreamReader(referenceXmlStream), new StringReader(generatedXml));
 
     }
 
     public void testGenerateNoPublicAddress() throws Exception {
-        m_natTraversal.setBehindnat(false);
-
+        m_natTraversal.setBehindnat(true);
+        m_natTraversal.getSettings().getSetting(NatTraversal.INFO_PUBLICADDRESS).setTypedValue("");
         m_sbcDeviceManager = createNiceMock(SbcDeviceManager.class);
         m_bridgeSbc = new BridgeSbc(); 
         m_bridgeSbc.setModelFilesContext(TestHelper.getModelFilesContext());
@@ -104,7 +105,7 @@ public class NatTraversalRulesTest extends XMLTestCase {
 
     public void testGenerateNoSbcBridge() throws Exception {
         m_natTraversal.setBehindnat(true);
-
+        m_natTraversal.getSettings().getSetting(NatTraversal.INFO_PUBLICADDRESS).setTypedValue("1.2.3.4");
         m_sbcDeviceManager = createNiceMock(SbcDeviceManager.class);
         m_bridgeSbc = null;
         m_sbcDeviceManager.getBridgeSbc();
@@ -118,6 +119,31 @@ public class NatTraversalRulesTest extends XMLTestCase {
 
         InputStream referenceXmlStream = NatTraversalRulesTest.class
                 .getResourceAsStream("nattraversalrules.test.no-sbc-bridge.xml");
+
+        assertXMLEqual(new InputStreamReader(referenceXmlStream), new StringReader(generatedXml));
+    }
+
+    public void testGenerateNoStunServer() throws Exception {
+        m_natTraversal.setBehindnat(true);
+        m_natTraversal.getSettings().getSetting(NatTraversal.INFO_PUBLICADDRESS).setTypedValue("1.2.3.4");
+
+        m_sbcDeviceManager = createNiceMock(SbcDeviceManager.class);
+        m_bridgeSbc = new BridgeSbc();
+        m_bridgeSbc.setModelFilesContext(TestHelper.getModelFilesContext());
+        m_bridgeSbc.getSettings().getSetting("bridge-configuration/external-address").setTypedValue("1.2.3.4");
+        m_bridgeSbc.getSettings().getSetting("bridge-configuration/local-address").setTypedValue("11.12.21.1");
+        m_bridgeSbc.getSettings().getSetting("bridge-configuration/external-port").setTypedValue("4321");
+        m_sbcDeviceManager.getBridgeSbc();
+        expectLastCall().andReturn(m_bridgeSbc);
+
+        EasyMock.replay(m_sbcManager, m_sbcDeviceManager, m_natTraversalManager);
+
+        NatTraversalRules rules = generate(m_sbcManager, m_natTraversalManager, m_sbcDeviceManager);
+
+        String generatedXml = rules.getFileContent();
+
+        InputStream referenceXmlStream = NatTraversalRulesTest.class
+                .getResourceAsStream("nattraversalrules.test.no-stun.xml");
 
         assertXMLEqual(new InputStreamReader(referenceXmlStream), new StringReader(generatedXml));
     }

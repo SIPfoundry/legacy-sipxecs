@@ -9,7 +9,6 @@
  */
 package org.sipfoundry.sipxconfig.nattraversal;
 
-import org.sipfoundry.sipxconfig.setting.AbstractSetting;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettings;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
@@ -18,6 +17,8 @@ public class NatTraversal extends BeanWithSettings {
     public static final String INFO_AGGRESSIVENESS = "nattraversal-info/aggressiveness";
     public static final String INFO_MAXCONCRELAYS = "nattraversal-info/max-concurrent-relays";
     public static final String INFO_PUBLICADDRESS = "nattraversal-info/publicaddress";
+    public static final String INFO_STUNSERVER = "nattraversal-info/stun-server-address";
+    public static final String INFO_REFRESHINTERVAL = "nattraversal-info/stun-refresh-interval";
 
     private String m_settingsFile;
     private boolean m_enabled;
@@ -33,16 +34,24 @@ public class NatTraversal extends BeanWithSettings {
         return settings;
     }
 
-    public AbstractSetting getInfoPublicAddress() {
-        return (AbstractSetting) getSettings().getSetting(INFO_PUBLICADDRESS);
+    public Setting getInfoPublicAddress() {
+        return getSettings().getSetting(INFO_PUBLICADDRESS);
     }
 
-    public AbstractSetting getInfoAggressiveness() {
-        return (AbstractSetting) getSettings().getSetting(INFO_AGGRESSIVENESS);
+    public Setting getInfoAggressiveness() {
+        return getSettings().getSetting(INFO_AGGRESSIVENESS);
     }
 
-    public AbstractSetting getInfoMaxConcRelays() {
-        return (AbstractSetting) getSettings().getSetting(INFO_MAXCONCRELAYS);
+    public Setting getInfoMaxConcRelays() {
+        return getSettings().getSetting(INFO_MAXCONCRELAYS);
+    }
+
+    public Setting getInfoSTUNServer() {
+        return getSettings().getSetting(INFO_STUNSERVER);
+    }
+
+    public Setting getInfoSTUNRefreshInterval() {
+        return getSettings().getSetting(INFO_REFRESHINTERVAL);
     }
 
     public boolean isBehindnat() {

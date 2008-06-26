@@ -18,6 +18,8 @@ import org.sipfoundry.sipxconfig.admin.dialplan.sbc.bridge.BridgeSbc;
 import org.sipfoundry.sipxconfig.nattraversal.NatTraversal;
 import org.sipfoundry.sipxconfig.nattraversal.NatTraversalManager;
 
+import static org.apache.commons.lang.StringUtils.EMPTY;
+
 public class NatTraversalRules extends TemplateConfigurationFile {
     private SbcManager m_sbcManager;
     private SbcDeviceManager m_sbcDeviceManager;
@@ -46,10 +48,14 @@ public class NatTraversalRules extends TemplateConfigurationFile {
 
         Object publicAddress = natTraversal.getInfoPublicAddress().getTypedValue();
         Object maxConcRelays = natTraversal.getInfoMaxConcRelays().getTypedValue();
+        Object stunServer = natTraversal.getInfoSTUNServer().getTypedValue();
+        Object stunRefreshInterval = natTraversal.getInfoSTUNRefreshInterval().getTypedValue();
 
-        context.put("publicaddress", publicAddress == null ? "" : publicAddress);
+        context.put("publicaddress", publicAddress == null ? EMPTY : publicAddress);
         context.put("relayaggressiveness", natTraversal.getInfoAggressiveness().getTypedValue());
         context.put("maxconcurrentrelays", maxConcRelays == null ? 0 : maxConcRelays);
+        context.put("STUNServer", stunServer == null ? EMPTY : stunServer);
+        context.put("STUNRefreshInterval", stunRefreshInterval == null ? EMPTY : stunRefreshInterval);
 
         BridgeSbc sbcBridge = m_sbcDeviceManager.getBridgeSbc();
 

@@ -75,13 +75,6 @@ public abstract class NatTraversalPage extends BasePage implements PageBeginRend
             natTraversal = getNatTraversalManager().getNatTraversal();
             setNatTraversal(natTraversal);
         }
-
-        if (getNatTraversal().isBehindnat()) {
-            getNatTraversal().getInfoPublicAddress().setEnabled(true);
-        } else {
-            getNatTraversal().getInfoPublicAddress().setEnabled(false);
-            getNatTraversal().getInfoPublicAddress().setValue("");
-        }
     }
 
     public IPage activate(IRequestCycle cycle) {
