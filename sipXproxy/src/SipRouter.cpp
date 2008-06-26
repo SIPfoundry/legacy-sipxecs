@@ -17,6 +17,7 @@
 #include "os/OsSysLog.h"
 #include "os/OsEventMsg.h"
 #include "utl/UtlRandom.h"
+#include "net/SignedUrl.h"
 #include "net/SipUserAgent.h"
 #include "net/SipXauthIdentity.h"
 #include "sipdb/ResultSet.h"
@@ -79,6 +80,7 @@ SipRouter::SipRouter(SipUserAgent& sipUserAgent,
    mSharedSecret = new SharedSecret(domainConfiguration);   
    RouteState::setSecret(mSharedSecret->data());
    SipXauthIdentity::setSecret(mSharedSecret->data());
+   SignedUrl::setSecret(mSharedSecret->data());
 
    // Register to get incoming requests
    OsMsgQ* queue = getMessageQueue();
@@ -645,6 +647,7 @@ bool SipRouter::addPathHeaderIfNATRegisterRequest( SipMessage& sipRequest ) cons
       {
          // Add Path header to the message
          Url pathUri( mRouteHostPort );
+         SignedUrl::sign( pathUri );
          UtlString pathUriString;      
          pathUri.toString( pathUriString );
          sipRequest.addPathUri( pathUriString );

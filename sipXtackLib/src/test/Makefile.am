@@ -33,6 +33,7 @@ testsuite_SOURCES = \
     net/HttpMessageTest.cpp \
     net/SipMessageTest.cpp \
     net/SdpBodyTest.cpp \
+    net/SignedUrlTest.cpp \
     net/SipContactDbTest.cpp \
     net/SipUserAgentTest.cpp \
     net/SipServerShutdownTest.cpp \

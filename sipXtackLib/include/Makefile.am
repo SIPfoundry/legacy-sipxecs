@@ -44,6 +44,7 @@ nobase_include_HEADERS =  \
     net/SdpBody.h \
     net/SdpCodecFactory.h \
     net/SdpCodec.h \
+    net/SignedUrl.h \
     net/SipClient.h \
     net/SipClientTcp.h \
     net/SipClientTls.h \

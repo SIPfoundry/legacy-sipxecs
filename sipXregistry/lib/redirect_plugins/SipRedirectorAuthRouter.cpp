@@ -14,6 +14,9 @@
 #include "os/OsSysLog.h"
 #include "net/Url.h"
 #include "net/SipMessage.h"
+#include "net/SignedUrl.h"
+#include "sipXecsService/SipXecsService.h"
+#include "sipXecsService/SharedSecret.h"
 #include "SipRedirectorAuthRouter.h"
 
 // EXTERNAL FUNCTIONS
@@ -89,6 +92,12 @@ SipRedirectorAuthRouter::initialize(OsConfigDb& configDb,
                                     int redirectorNo,
                                     const UtlString& localDomainHost)
 {
+   // Get the secret to be used by signed Url
+   OsConfigDb domainConfiguration;
+   domainConfiguration.loadFromFile(SipXecsService::domainConfigPath());
+   UtlString* sharedSecret = new SharedSecret(domainConfiguration);   
+   SignedUrl::setSecret(sharedSecret->data());
+   delete sharedSecret;
    return OS_SUCCESS;
 }
 
@@ -140,35 +149,65 @@ RedirectPlugin::LookUpStatus SipRedirectorAuthRouter::lookUp(
 
             // Prepend sipXproxy route to Route header parameter 
             // to ensure that sipXproxy sees the INVITE resulting 
-            // from 302 Moved Temporarily recursion.  Please refer to 
+            // from 302 Moved Temporarily recursion unless a 
+            // signed route header already exists. Please refer to 
             // SipRedirectorAuthRouter.h for more details.
             UtlString checkedRoute(mAuthUrl);
-
+            bool bAddRouteToSipXProxy;
             UtlString routeValue;
-            if ( contactUri.getHeaderParameter(SIP_ROUTE_FIELD, routeValue))
+            
+            if ( contactUri.getHeaderParameter(SIP_ROUTE_FIELD, routeValue) )
             {
-               // there is already a Route header parameterin the contact; append it to the 
-               // sipXproxy route.
-               checkedRoute.append(SIP_MULTIFIELD_SEPARATOR);
-               checkedRoute.append(routeValue);
+               OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                             "%s::lookUp contact %d Route value is '%s'",
+                             mLogName.data(), contactNumber, routeValue.data() );
+               
+               // Check if the first entry of the Route header parameter carries a valid
+               // signature.URL parameter.  If it does, this indicates that the Route
+               // was added by a trusted sipXproxy component, as such there is no need
+               // to add a Route to the sipXproxy.  
+               Url routeUrl( routeValue );
+               if( SignedUrl::isUrlSigned(  routeUrl ) )
+               {
+                  OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                                "%s::lookUp contact %d Route not properly signed - no new route added",
+                                mLogName.data(), contactNumber );               
+                  bAddRouteToSipXProxy = false;
+               }
+               else
+               {
+                  // there is already a Route header parameter in the contact but it is not signed
+                  // append it to the sipXproxy route to make sure it sees INVITE resulting from 
+                  // 302 recursion.
+                  checkedRoute.append(SIP_MULTIFIELD_SEPARATOR);
+                  checkedRoute.append(routeValue);
+                  contactUri.setHeaderParameter(SIP_ROUTE_FIELD, checkedRoute);
+                  bAddRouteToSipXProxy = true;                  
+               }
             }
-            contactUri.setHeaderParameter(SIP_ROUTE_FIELD, checkedRoute);
-
-            // and put the modified contact back into the message
-            UtlString modifiedContact;
-            contactUri.toString(modifiedContact);
-            response.setContactField(modifiedContact, contactNumber);
-
-            OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                          "%s::lookUp modified:\n"
-                          "   '%s'\n"
-                          "in '%s'\n"
-                          "to '%s'\n"
-                          "in '%s'\n",
-                          mLogName.data(),
-                          routeValue.data(), contact.data(),
-                          checkedRoute.data(), modifiedContact.data()
-                          );
+            else
+            {
+               contactUri.setHeaderParameter(SIP_ROUTE_FIELD, checkedRoute);
+               bAddRouteToSipXProxy = true;
+            }
+            
+            if( bAddRouteToSipXProxy )
+            {
+               // and put the modified contact back into the message
+               UtlString modifiedContact;
+               contactUri.toString(modifiedContact);
+               response.setContactField(modifiedContact, contactNumber);
+               OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                             "%s::lookUp modified:\n"
+                             "   '%s'\n"
+                             "in '%s'\n"
+                             "to '%s'\n"
+                             "in '%s'\n",
+                             mLogName.data(),
+                             routeValue.data(), contact.data(),
+                             checkedRoute.data(), modifiedContact.data()
+                             );
+            }
          } // loop over all contacts
       }
       else

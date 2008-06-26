@@ -42,10 +42,12 @@
  * 
  *  To avoid these problems, the SipRedirectorAuthRouter
  *  adds a Route header pointing to sipXproxy to every
- *  Contact header contained in the 3xx response.  This
- *  ensures that INVITEs are routed to the sipXproxy component
- *  by sipXtack instead of being sent to the request target.
- * 
+ *  Contact header contained in the 3xx response with the 
+ *  exception of Contacts that already contain a properly 
+ *  signed Route header pointing to a sipXproxy.  This
+ *  ensures that INVITEs are routed to the auth proxy function
+ *  of the sipXproxy component by sipXtack instead of being sent
+ *  directly to the request target.
  */   
 class SipRedirectorAuthRouter : public RedirectPlugin
 {
