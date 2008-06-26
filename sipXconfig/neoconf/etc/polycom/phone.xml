@@ -162,6 +162,50 @@
         </setting>
       </group>
     </group>
+    <group name="CALL_WAITING">
+      <setting name="type">
+        <type refid="tone-pattern" />
+        <value>chord</value>
+      </setting>
+      <setting name="value">
+        <type>
+          <integer />
+        </type>
+        <value>6</value>
+      </setting>
+    </group>
+    <group name="LONG_CALL_WAITING">
+      <setting name="1-type">
+        <type refid="tone-pattern" />
+        <value>chord</value>
+      </setting>
+      <setting name="1-value">
+        <type>
+          <integer />
+        </type>
+        <value>6</value>
+      </setting>
+      <setting name="2-type">
+        <type refid="tone-pattern" />
+        <value>silence</value>
+      </setting>
+      <setting name="2-value">
+        <type>
+          <integer />
+        </type>
+        <value>150</value>
+      </setting>
+      <setting name="3-type">
+        <type refid="tone-pattern" />
+        <value>chord</value>
+      </setting>
+      <setting name="3-value">
+        <type>
+          <integer />
+        </type>
+        <value>6</value>
+      </setting>
+    </group>
     <group name="ringType" advanced="yes">
       <profileName>rt</profileName>
       <group name="RING_ANSWER">

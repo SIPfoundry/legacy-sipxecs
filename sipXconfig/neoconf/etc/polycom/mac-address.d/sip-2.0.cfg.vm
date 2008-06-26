@@ -1006,19 +1006,27 @@
           se.pat.callProg.5.inst.2.type="chord"
           se.pat.callProg.5.inst.2.value="1"
         />
+#set ($setting_type = $cfg.EndpointSettings.getSetting('se/CALL_WAITING/type'))
+#set ($setting_value = $cfg.EndpointSettings.getSetting('se/CALL_WAITING/value'))
         <CALLWAITING
           se.pat.callProg.6.name="call waiting"
-          se.pat.callProg.6.inst.1.type="chord"
-          se.pat.callProg.6.inst.1.value="6"
+          se.pat.callProg.6.inst.1.type="$!{setting_type.Value}"
+          se.pat.callProg.6.inst.1.value="$!{setting_value.Value}"
         />
+#set ($setting_type1 = $cfg.EndpointSettings.getSetting('se/LONG_CALL_WAITING/1-type'))
+#set ($setting_value1 = $cfg.EndpointSettings.getSetting('se/LONG_CALL_WAITING/1-value'))
+#set ($setting_type2 = $cfg.EndpointSettings.getSetting('se/LONG_CALL_WAITING/2-type'))
+#set ($setting_value2 = $cfg.EndpointSettings.getSetting('se/LONG_CALL_WAITING/2-value'))
+#set ($setting_type3 = $cfg.EndpointSettings.getSetting('se/LONG_CALL_WAITING/3-type'))
+#set ($setting_value3 = $cfg.EndpointSettings.getSetting('se/LONG_CALL_WAITING/3-value'))
         <CALLWAITINGLONG
           se.pat.callProg.7.name="long call waiting"
-          se.pat.callProg.7.inst.1.type="chord"
-          se.pat.callProg.7.inst.1.value="6"
-          se.pat.callProg.7.inst.2.type="silence"
-          se.pat.callProg.7.inst.2.value="150"
-          se.pat.callProg.7.inst.3.type="chord"
-          se.pat.callProg.7.inst.3.value="6"
+          se.pat.callProg.7.inst.1.type="$!{setting_type1.Value}"
+          se.pat.callProg.7.inst.1.value="$!{setting_value1.Value}"
+          se.pat.callProg.7.inst.2.type="$!{setting_type2.Value}"
+          se.pat.callProg.7.inst.2.value="$!{setting_value2.Value}"
+          se.pat.callProg.7.inst.3.type="$!{setting_type3.Value}"
+          se.pat.callProg.7.inst.3.value="$!{setting_value3.Value}"
         />
         <CONFIRMATION
           se.pat.callProg.8.name="confirmation"
