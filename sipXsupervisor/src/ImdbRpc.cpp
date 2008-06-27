@@ -333,7 +333,7 @@ bool ImdbRpcReplaceTable::execute(const HttpRequestContext& requestContext,
 
                // Verify that at least the first row of table data is of the correct type.
                if (   !pIMDBTableData->isEmpty() /* an empty table is allowed */
-                   && pIMDBTableData->at(0)->isInstanceOf(UtlHashMap::TYPE)
+                   && !pIMDBTableData->at(0)->isInstanceOf(UtlHashMap::TYPE)
                    )
                {
                   // the table data list was non-empty but the first item was not a UtlHashMap
