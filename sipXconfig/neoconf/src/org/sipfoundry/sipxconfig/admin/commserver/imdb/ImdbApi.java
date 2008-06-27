@@ -7,11 +7,12 @@
  */
 package org.sipfoundry.sipxconfig.admin.commserver.imdb;
 
+import java.util.List;
 import java.util.Map;
 
 public interface ImdbApi {
 
-    boolean replace(String hostname, String tableName, Map<String, String>[] records);
+    boolean replace(String hostname, String tableName, Map<String, ? >[] records);
 
-    Map<String, String>[] retrieve(String hostname, String tableName);
+    List<Map<String, ? >> read(String hostname, String tableName);
 }

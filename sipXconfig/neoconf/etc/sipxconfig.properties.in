@@ -36,8 +36,7 @@ phoneDefaults.authorizationRealm=${SIPXCHANGE_REALM}
 phoneDefaults.fullyQualifiedDomainName=${MY_FULL_HOSTNAME}
 polycom.defaultVersionId=1.6
 # imdb/sipdb location for https access
-registrationContext.server=${MY_FULL_HOSTNAME}
-registrationContext.port=${CONFIG_SERVER_HTTPS_PORT}
+registrationContext.hostname=${MY_FULL_HOSTNAME}
 domainManagerImpl.authorizationRealm=${SIPXCHANGE_REALM}
 domainManagerImpl.initialDomain=${SIPXCHANGE_DOMAIN_NAME}
 domainManagerImpl.initialAlias=${PROXY_SERVER_ADDR}

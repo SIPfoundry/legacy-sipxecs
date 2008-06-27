@@ -9,53 +9,47 @@
  */
 package org.sipfoundry.sipxconfig.admin.commserver;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
-import org.apache.commons.digester.Digester;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sipfoundry.sipxconfig.admin.commserver.imdb.ImdbXmlHelper;
+import org.sipfoundry.sipxconfig.admin.commserver.imdb.ImdbApi;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.RegistrationItem;
 import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.common.User;
-
-import org.xml.sax.SAXException;
+import org.sipfoundry.sipxconfig.xmlrpc.ApiProvider;
+import org.sipfoundry.sipxconfig.xmlrpc.XmlRpcRemoteException;
 
 public class RegistrationContextImpl implements RegistrationContext {
     public static final Log LOG = LogFactory.getLog(RegistrationContextImpl.class);
 
-    private static final String REGISTRATION_URL = "https://{0}:{1}/sipdb/registration.xml";
+    private LocationsManager m_locationsManager;
 
-    private String m_server;
+    private ApiProvider<ImdbApi> m_imdbApiProvider;
 
-    private String m_port;
+    private String m_hostname;
 
     /**
      * @see org.sipfoundry.sipxconfig.admin.commserver.RegistrationContext#getRegistrations()
      */
     public List<RegistrationItem> getRegistrations() {
         try {
-            URL url = new URL(getUrl());
-            InputStream is = url.openStream();
-            List<RegistrationItem> registrations = getRegistrations(is);
-            return registrations;
-        } catch (FileNotFoundException e) {
+            Location[] location = m_locationsManager.getLocations();
+            if (location.length == 0) {
+                LOG.warn("No locations configured");
+                return Collections.<RegistrationItem> emptyList();
+            }
+            ImdbApi imdb = m_imdbApiProvider.getApi(location[0].getProcessMonitorUrl());
+            List<Map<String, ? >> registrations = imdb.read(m_hostname, "registration");
+            return getRegistrations(registrations);
+        } catch (XmlRpcRemoteException e) {
             // we are handling this separately - server returns FileNotFound even if everything is
             // OK but we have no registrations present
-            LOG.info("No registrations found on the server" + e.getMessage());
-            return Collections.<RegistrationItem>emptyList();
-        } catch (IOException e) {
-            LOG.error("Retrieving active registrations failed", e);
-            return Collections.<RegistrationItem>emptyList();
-        } catch (SAXException e) {
-            throw new RuntimeException(e);
+            LOG.warn("Cannot retrieve registrations.", e);
+            return Collections.<RegistrationItem> emptyList();
         }
     }
 
@@ -63,9 +57,17 @@ public class RegistrationContextImpl implements RegistrationContext {
         return getRegistrationsByUser(getRegistrations(), user);
     }
 
-    List<RegistrationItem> getRegistrations(InputStream is) throws IOException, SAXException {
-        Digester digester = ImdbXmlHelper.configureDigester(RegistrationItem.class);
-        return (List<RegistrationItem>) digester.parse(is);
+    List<RegistrationItem> getRegistrations(List<Map<String, ? >> registrations) {
+        List<RegistrationItem> items = new ArrayList<RegistrationItem>(registrations.size());
+        for (Map<String, ? > r : registrations) {
+            RegistrationItem item = new RegistrationItem();
+            item.setContact((String) r.get("contact"));
+            item.setPrimary((String) r.get("primary"));
+            item.setExpires((Integer) r.get("expires"));
+            item.setUri((String) r.get("uri"));
+            items.add(item);
+        }
+        return items;
     }
 
     List<RegistrationItem> getRegistrationsByUser(List<RegistrationItem> registrations, User user) {
@@ -78,18 +80,15 @@ public class RegistrationContextImpl implements RegistrationContext {
         return result;
     }
 
-    String getUrl() {
-        Object[] params = {
-            m_server, m_port
-        };
-        return MessageFormat.format(REGISTRATION_URL, params);
+    public void setLocationsManager(LocationsManager locationsManager) {
+        m_locationsManager = locationsManager;
     }
 
-    public void setPort(String port) {
-        m_port = port;
+    public void setImdbApiProvider(ApiProvider<ImdbApi> imdbApiProvider) {
+        m_imdbApiProvider = imdbApiProvider;
     }
 
-    public void setServer(String server) {
-        m_server = server;
+    public void setHostname(String hostname) {
+        m_hostname = hostname;
     }
 }

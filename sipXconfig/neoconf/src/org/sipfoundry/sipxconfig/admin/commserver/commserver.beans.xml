@@ -169,5 +169,7 @@
 
   <bean id="registrationContext"
     class="org.sipfoundry.sipxconfig.admin.commserver.RegistrationContextImpl">
+    <property name="locationsManager" ref="locationsManager" />
+    <property name="imdbApiProvider" ref="imdbProvider" />
   </bean>
 </beans>

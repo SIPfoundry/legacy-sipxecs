@@ -9,9 +9,11 @@
  */
 package org.sipfoundry.sipxconfig.admin.commserver;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import junit.framework.TestCase;
 
@@ -22,13 +24,39 @@ public class RegistrationContextImplTest extends TestCase {
 
     private RegistrationContextImpl m_builder;
 
+    private Object[][] DATA = {
+        {
+            "063b4c2f5e11bf66a232762a7cf9e73a", "2395", "3000@example.org",
+            "\"John Doe\"<sip:john.doe@example.org;LINEID=f57f2117d5997f8d03d8395732f463f3>",
+            2000
+        },
+        {
+            "063b4c2f5e11bf66a232762a7cf9e73b", "2399", "3001@example.org",
+            "\"John Doe\"<sip:jane.doe@example.org>", 2001
+        }
+    };
+
+    private String[] FIELDS = {
+        "callid", "cseq", "uri", "contact", "expires"
+    };
+
+    private List<Map<String, ?>> m_data;
+
     protected void setUp() throws Exception {
         m_builder = new RegistrationContextImpl();
+
+        m_data = new ArrayList<Map<String, ?>>();
+        for (int i = 0; i < DATA.length; i++) {
+            Map<String, Object> item = new HashMap<String, Object>();
+            for (int f = 0; f < FIELDS.length; f++) {
+                item.put(FIELDS[f], DATA[i][f]);                
+            }
+            m_data.add(item);
+        }
     }
 
     public void testGetRegistrations() throws Exception {
-        InputStream is = getClass().getResourceAsStream("registration.test.xml");
-        List registrations = m_builder.getRegistrations(is);
+        List registrations = m_builder.getRegistrations(m_data);
         assertEquals(2, registrations.size());
         for (int i = 0; i < 2; i++) {
             RegistrationItem ri = (RegistrationItem) registrations.get(i);
@@ -39,8 +67,7 @@ public class RegistrationContextImplTest extends TestCase {
     }
 
     public void testGetRegistrationsByUser() throws Exception {
-        InputStream is = getClass().getResourceAsStream("registration.test.xml");
-        List<RegistrationItem> registrations = m_builder.getRegistrations(is);
+        List<RegistrationItem> registrations = m_builder.getRegistrations(m_data);
         User user = new User();
         user.setUserName("3000");
         registrations = m_builder.getRegistrationsByUser(registrations, user);
@@ -52,17 +79,7 @@ public class RegistrationContextImplTest extends TestCase {
     }
 
     public void testGetRegistrationsEmpty() throws Exception {
-        String xml = "<items/>";
-        InputStream stream = new ByteArrayInputStream(xml.getBytes());
-        List registrations = m_builder.getRegistrations(stream);
+        List registrations = m_builder.getRegistrations(Collections.<Map<String, ?>>emptyList());
         assertTrue(registrations.isEmpty());
     }
-
-    public void testGetUrl() throws Exception {
-        m_builder.setServer("localhost");
-        m_builder.setPort("8888");
-
-        assertEquals("https://localhost:8888/sipdb/registration.xml", m_builder.getUrl());
-    }
-
 }

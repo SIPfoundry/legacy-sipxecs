@@ -2,4 +2,5 @@
 - : domainInitializer.initialDomain=${SIPXCHANGE_DOMAIN_NAME}
 - : coreContextImpl.authorizationRealm=${SIPXCHANGE_REALM}
 - : sip.fromServerName=${MY_FULL_HOSTNAME}
-
+- : registrationContext.port=${CONFIG_SERVER_HTTPS_PORT}
+- : registrationContext.server=${MY_FULL_HOSTNAME}
