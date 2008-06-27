@@ -752,7 +752,7 @@ bool XmlRpcDispatch::parseStruct(TiXmlNode* subNode, UtlHashMap*& members)
 
 bool XmlRpcDispatch::parseArray(TiXmlNode* subNode, UtlSList*& array)
 {
-   bool result = false;
+   bool arrayIsOk = true;
    
    // array
    UtlString paramValue;
@@ -760,10 +760,12 @@ bool XmlRpcDispatch::parseArray(TiXmlNode* subNode, UtlSList*& array)
    if (dataNode)
    {
       UtlSList* pList = new UtlSList();
-      for (TiXmlNode* valueNode = dataNode->FirstChild("value");
-           valueNode; 
+      TiXmlNode* valueNode;
+      for ((valueNode = dataNode->FirstChild("value"), arrayIsOk = true);
+           valueNode && arrayIsOk; 
            valueNode = valueNode->NextSibling("value"))
       {
+         
          // four-byte signed integer                         
          TiXmlNode* arrayElement = valueNode->FirstChild("i4");
          if (arrayElement)
@@ -772,12 +774,10 @@ bool XmlRpcDispatch::parseArray(TiXmlNode* subNode, UtlSList*& array)
             {
                paramValue = arrayElement->FirstChild()->Value();
                pList->insert(new UtlInt(atoi(paramValue)));
-               result = true;
             }
             else
             {
-               result = false;
-               break;
+               arrayIsOk = false;
             }
          }
          else
@@ -789,12 +789,10 @@ bool XmlRpcDispatch::parseArray(TiXmlNode* subNode, UtlSList*& array)
                {
                   paramValue = arrayElement->FirstChild()->Value();
                   pList->insert(new UtlInt(atol(paramValue)));
-                  result = true;
                }
                else
                {
-                  result = false;
-                  break;
+                  arrayIsOk = false;
                }
             }
             else
@@ -806,12 +804,10 @@ bool XmlRpcDispatch::parseArray(TiXmlNode* subNode, UtlSList*& array)
                   {
                      paramValue = arrayElement->FirstChild()->Value();
                      pList->insert(new UtlLongLongInt(strtoll(paramValue, 0, 0)));
-                     result = true;
                   }
                   else
                   {
-                     result = false;
-                     break;
+                     arrayIsOk = false;
                   }
                }
                else
@@ -823,12 +819,10 @@ bool XmlRpcDispatch::parseArray(TiXmlNode* subNode, UtlSList*& array)
                      {
                         paramValue = arrayElement->FirstChild()->Value();
                         pList->insert(new UtlBool((atoi(paramValue)==1)));
-                        result = true;
                      }
                      else
                      {
-                        result = false;
-                        break;
+                        arrayIsOk = false;
                      }
                   }
                   else
@@ -845,8 +839,6 @@ bool XmlRpcDispatch::parseArray(TiXmlNode* subNode, UtlSList*& array)
                         {
                            pList->insert(new UtlString());
                         }
-                        
-                        result = true;
                      }
                      else
                      {
@@ -857,12 +849,10 @@ bool XmlRpcDispatch::parseArray(TiXmlNode* subNode, UtlSList*& array)
                            {
                               paramValue = arrayElement->FirstChild()->Value();
                               pList->insert(new UtlString(paramValue));
-                              result = true;
                            }
                            else
                            {
-                              result = false;
-                              break;
+                              arrayIsOk = false;
                            }
                         }
                         else
@@ -871,10 +861,9 @@ bool XmlRpcDispatch::parseArray(TiXmlNode* subNode, UtlSList*& array)
                            if (arrayElement)
                            {
                               UtlHashMap* members;
-                              if (parseStruct(arrayElement, members))
+                              if ((arrayIsOk=parseStruct(arrayElement, members)))
                               {
                                  pList->insert(members);
-                                 result = true;
                               }
                            }
                            else
@@ -883,10 +872,9 @@ bool XmlRpcDispatch::parseArray(TiXmlNode* subNode, UtlSList*& array)
                               if (arrayElement)
                               {
                                  UtlSList* subArray;
-                                 if (parseArray(arrayElement, subArray))
+                                 if ((arrayIsOk=parseArray(arrayElement, subArray)))
                                  {
                                     pList->insert(subArray);
-                                    result = true;
                                  }
                               }
                               else
@@ -899,10 +887,9 @@ bool XmlRpcDispatch::parseArray(TiXmlNode* subNode, UtlSList*& array)
                                  }
                                  else
                                  {
+                                    // assume an empty string element
                                     pList->insert(new UtlString());
                                  }
-                                 
-                                 result = true;
                               }
                            }
                         }
@@ -912,11 +899,25 @@ bool XmlRpcDispatch::parseArray(TiXmlNode* subNode, UtlSList*& array)
             }
          }
       }
-      
-      array = pList;
+
+      if (arrayIsOk)
+      {
+         array = pList;
+      }
+      else
+      {
+         cleanUp(pList);
+         delete pList;
+      }
+
+   }
+   else
+   {
+      arrayIsOk=false;
    }
    
-   return result;
+   
+   return arrayIsOk;
 }
 
 void XmlRpcDispatch::cleanUp(UtlHashMap* map)

@@ -164,6 +164,7 @@ class XmlRpcTest : public CppUnit::TestCase
    CPPUNIT_TEST(testXmlRpcResponseParse);
    CPPUNIT_TEST(testXmlRpcResponseSetting);
    CPPUNIT_TEST(testIllFormattedXmlRpcRequest);   
+   CPPUNIT_TEST(testXmlRpcEmptyArrayParse);   
    CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -696,6 +697,39 @@ public:
 
          ASSERT_STR_EQUAL(faultResponse, body.data());
       }
+
+   void testXmlRpcEmptyArrayParse()
+      {
+         const char *ref =
+            "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+            "<methodCall>\n"
+            "<methodName>getStatus</methodName>\n"
+            "<params>\n"
+            "<param><value><array><data></data></array></value></param>\n"
+            "</params>\n"
+            "</methodCall>\n"
+            ;
+
+
+         XmlRpcDispatch dispatch(8200, false, "/RPC2");
+
+         dispatch.addMethod("getStatus", AddExtension::get);
+
+         UtlString requestContent(ref);
+         XmlRpcResponse response;
+         XmlRpcMethodContainer* method;
+         UtlSList params;
+
+         bool result = dispatch.parseXmlRpcRequest(requestContent, method, params, response);
+         CPPUNIT_ASSERT(result == true);
+         CPPUNIT_ASSERT(!params.isEmpty());
+
+         UtlSList* arrayParam;
+         CPPUNIT_ASSERT(arrayParam = dynamic_cast<UtlSList*>(params.at(0)));
+         CPPUNIT_ASSERT(arrayParam->isEmpty());
+      }
+
+
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(XmlRpcTest);
