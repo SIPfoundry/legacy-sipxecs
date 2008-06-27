@@ -331,43 +331,49 @@ bool ImdbRpcReplaceTable::execute(const HttpRequestContext& requestContext,
             {
                UtlSList* pIMDBTableData = dynamic_cast<UtlSList*>(params.at(2));
 
-               // Verify that the table data is of the correct type.
-               if (!pIMDBTableData->at(0) || !pIMDBTableData->at(0)->isInstanceOf(UtlHashMap::TYPE))
+               // Verify that at least the first row of table data is of the correct type.
+               if (   !pIMDBTableData->isEmpty() /* an empty table is allowed */
+                   && pIMDBTableData->at(0)->isInstanceOf(UtlHashMap::TYPE)
+                   )
                {
+                  // the table data list was non-empty but the first item was not a UtlHashMap
                   handleMissingExecuteParam(name(), PARAM_NAME_IMDB_TABLE_DATA, response, status);
                }
-
-               WatchDog* pWatchDog = ((WatchDog *)userData);
-
-               if(validCaller(requestContext, *pCallingHostname, response, *pWatchDog, name()))
+               else
                {
-                  // we've validated the parm types and the caller.
-                  // steps are to clear the existing table and then insert each record individually.
-                  clearTable( *pIMDBTable );         
+                  WatchDog* pWatchDog = ((WatchDog *)userData);
 
-                  UtlSListIterator tableRecordItor(*pIMDBTableData);
-                  UtlHashMap*      tableRecord;
-                  UtlBool method_result(true);
-                  UtlBoolean insert_result;
-                  while ( (tableRecord = dynamic_cast <UtlHashMap*> (tableRecordItor())))
+                  if(validCaller(requestContext, *pCallingHostname, response, *pWatchDog, name()))
                   {
-                     // records are committed as soon as they're added.
-                     insert_result = insertTableRecord(*pIMDBTable, *tableRecord);
-                     if ( ( FALSE == insert_result ) && ( true == method_result.getValue() ) ) {
-                        method_result = false;
+                     // we've validated the parm types and the caller.
+                     // steps are to clear the existing table
+                     // and then insert each record individually.
+                     clearTable( *pIMDBTable );         
+
+                     UtlSListIterator tableRecordItor(*pIMDBTableData);
+                     UtlHashMap*      tableRecord;
+                     UtlBool method_result(true);
+                     UtlBoolean insert_result;
+                     while ( (tableRecord = dynamic_cast <UtlHashMap*> (tableRecordItor())))
+                     {
+                        // records are committed as soon as they're added.
+                        insert_result = insertTableRecord(*pIMDBTable, *tableRecord);
+                        if ( ( FALSE == insert_result ) && ( true == method_result.getValue() ) )
+                        {
+                           method_result = false;
+                        }
                      }
+
+                     if ( method_result.getValue() == true )
+                     {
+                        storeTable( *pIMDBTable );         
+                     }
+
+                     // Construct and set the response.
+                     response.setResponse(&method_result);
+                     status = XmlRpcMethod::OK;
+                     result = true;
                   }
-
-                  if ( method_result.getValue() == true ) {
-                     storeTable( *pIMDBTable );         
-                  }
-
-                  // Construct and set the response.
-                  response.setResponse(&method_result);
-                  status = XmlRpcMethod::OK;
-                  result = true;
-
-                  
                }
             }
          }

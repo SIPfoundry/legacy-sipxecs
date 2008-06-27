@@ -155,7 +155,8 @@ private:
     <tr>
        <td>array</td>
        <td>IMDBTableRecords</td>
-       <td>Array of table records to be inserted.  Records are represented using XML-RPC structs</td>
+       <td>Array of table records to be inserted (may be empty, which clears the table).
+           Records are represented using XML-RPC structs</td>
     </tr>
  </table>
  
