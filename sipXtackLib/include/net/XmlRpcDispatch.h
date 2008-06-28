@@ -132,21 +132,6 @@ protected:
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
 
-   /// Parse a value in the XML-RPC request
-   bool parseValue(TiXmlNode* valueNode, int index, UtlSList& params);
-
-   /// Parse an array in the XML-RPC request
-   bool parseArray(TiXmlNode* valueNode, UtlSList*& array);
-
-   /// Parse a struct in the XML-RPC request
-   bool parseStruct(TiXmlNode* valueNode, UtlHashMap*& memebers);
-
-   /// Clean up the memory in a struct
-   void cleanUp(UtlHashMap* members);
-   
-   /// Clean up the memory in an array
-   void cleanUp(UtlSList* array);
-   
    /// Http server for handling the HTTP POST request  
    HttpServer* mpHttpServer;
    

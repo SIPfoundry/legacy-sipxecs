@@ -121,18 +121,6 @@ protected:
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
 
-   /// Parse a value in the XML-RPC response
-   bool parseValue(TiXmlNode* valueNode);
-
-   /// Parse an array in the XML-RPC response
-   bool parseArray(TiXmlNode* valueNode, UtlSList* array);
-
-   /// Parse a struct in the XML-RPC response
-   bool parseStruct(TiXmlNode* valueNode, UtlHashMap* memebers);
-
-   // Clean up the memory in a UtlContainable
-   void cleanUp(UtlContainable* value);
-   
    /// The name of the method this is a response to
    UtlString   mMethod;
    

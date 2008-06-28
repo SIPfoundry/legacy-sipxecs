@@ -406,7 +406,7 @@ public:
          XmlRpcMethod* addEx = methodGet();
 
          addEx->execute(context, params, NULL, newResponse, status);
-         dispatch.cleanUp(&params);
+         XmlRpcBody::cleanUp(&params);
 
          responseBody = newResponse.getBody();
 
@@ -639,7 +639,7 @@ public:
             "</methodCall>\n"
             ;
             
-         const char *faultResponse =
+         const char *faultResponse1 =
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
             "<methodResponse><!--  -->\n"
             "<fault>\n"
@@ -648,7 +648,39 @@ public:
             "<name>faultCode</name><value><int>-5</int></value>\n"
             "</member>\n"
             "<member>\n"
-            "<name>faultString</name><value><string>Empty param value </string></value>\n"
+            "<name>faultString</name><value><string>'int' element is empty in param 1</string></value>\n"
+            "</member>\n"
+            "</struct></value>\n"
+            "</fault>\n"
+            "</methodResponse>\n"
+            ;
+
+         const char *faultResponse2 =
+            "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+            "<methodResponse><!--  -->\n"
+            "<fault>\n"
+            "<value><struct>\n"
+            "<member>\n"
+            "<name>faultCode</name><value><int>-5</int></value>\n"
+            "</member>\n"
+            "<member>\n"
+            "<name>faultString</name><value><string>'int' element is empty in value 2 of array in param 0</string></value>\n"
+            "</member>\n"
+            "</struct></value>\n"
+            "</fault>\n"
+            "</methodResponse>\n"
+            ;
+
+         const char *faultResponse3 =
+            "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+            "<methodResponse><!--  -->\n"
+            "<fault>\n"
+            "<value><struct>\n"
+            "<member>\n"
+            "<name>faultCode</name><value><int>-5</int></value>\n"
+            "</member>\n"
+            "<member>\n"
+            "<name>faultString</name><value><string>'int' element is empty in member 'rtp-port' in 'struct' element in param 0</string></value>\n"
             "</member>\n"
             "</struct></value>\n"
             "</fault>\n"
@@ -665,7 +697,7 @@ public:
          dispatch.addMethod("addExtension", AddExtension::get, NULL);
          bool result = dispatch.parseXmlRpcRequest(requestContent1, method, params, response1);
          CPPUNIT_ASSERT(result == false);
-         dispatch.cleanUp(&params);
+         XmlRpcBody::cleanUp(&params);
 
          XmlRpcBody *responseBody = response1.getBody();
 
@@ -673,29 +705,29 @@ public:
          ssize_t length;
          responseBody->getBytes(&body, &length);
 
-         ASSERT_STR_EQUAL(faultResponse, body.data());
+         ASSERT_STR_EQUAL(faultResponse1, body.data());
 
          UtlString requestContent2(ref2);
          XmlRpcResponse response2;
          result = dispatch.parseXmlRpcRequest(requestContent2, method, params, response2);
          CPPUNIT_ASSERT(result == false);
-         dispatch.cleanUp(&params);
+         XmlRpcBody::cleanUp(&params);
 
          responseBody = response2.getBody();
          responseBody->getBytes(&body, &length);
 
-         ASSERT_STR_EQUAL(faultResponse, body.data());
+         ASSERT_STR_EQUAL(faultResponse2, body.data());
 
          UtlString requestContent3(ref3);
          XmlRpcResponse response3;
          result = dispatch.parseXmlRpcRequest(requestContent3, method, params, response3);
          CPPUNIT_ASSERT(result == false);
-         dispatch.cleanUp(&params);
+         XmlRpcBody::cleanUp(&params);
 
          responseBody = response3.getBody();
          responseBody->getBytes(&body, &length);
 
-         ASSERT_STR_EQUAL(faultResponse, body.data());
+         ASSERT_STR_EQUAL(faultResponse3, body.data());
       }
 
    void testXmlRpcEmptyArrayParse()

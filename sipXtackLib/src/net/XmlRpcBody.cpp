@@ -25,6 +25,8 @@
 // EXTERNAL VARIABLES
 // CONSTANTS
 const char* XmlVersion = XML_VERSION_1_0;
+const int MAX_VALUE_NESTING_DEPTH = 5; // maximum nesting of arrays, structs, values
+
 // STATIC VARIABLE INITIALIZATIONS
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
@@ -203,6 +205,390 @@ bool XmlRpcBody::addStruct(UtlHashMap* members)
    return result;
 }
 
+UtlContainable* XmlRpcBody::parseValue(TiXmlNode* valueNode, ///< pointer to the <value> node
+                                       int nestDepth,        ///< current level of recursion
+                                       UtlString& errorTxt   ///< explanation of parse error if any
+                                       )
+{
+   UtlContainable* value = NULL;
+   if (++nestDepth <= MAX_VALUE_NESTING_DEPTH)
+   {
+      UtlString paramValue;
+                        
+      // four-byte signed integer
+      TiXmlNode* typeNode = valueNode->FirstChild("i4");
+      if (typeNode)
+      {
+         if (typeNode->FirstChild())
+         {
+            paramValue = typeNode->FirstChild()->Value();
+            value = new UtlInt(atoi(paramValue));
+         }
+         else
+         {
+            OsSysLog::add(FAC_XMLRPC, PRI_ERR, "XmlRpcBody::parseValue"
+                          " 'i4' element is empty");
+            errorTxt.append("'i4' element is empty");
+         }
+      }
+      else
+      {         
+         typeNode = valueNode->FirstChild("int");
+         if (typeNode)
+         {
+            if (typeNode->FirstChild())
+            {
+               paramValue = typeNode->FirstChild()->Value();
+               value = new UtlInt(atol(paramValue));
+            }
+            else
+            {
+               OsSysLog::add(FAC_XMLRPC, PRI_ERR, "XmlRpcBody::parseValue"
+                             " 'int' element is empty");
+               errorTxt.append("'int' element is empty");
+            }
+         }
+         else
+         {         
+            typeNode = valueNode->FirstChild("i8");
+            if (typeNode)
+            {
+               if (typeNode->FirstChild())
+               {
+                  paramValue = typeNode->FirstChild()->Value();
+               
+                  // We could use "atoll" here but it is obsolete,
+                  // "strtoll" is the recommended function
+                  // See http://www.delorie.com/gnu/docs/glibc/libc_423.html .
+                  value = new UtlLongLongInt(strtoll(paramValue, 0, 0));
+               }
+               else
+               {
+                  OsSysLog::add(FAC_XMLRPC, PRI_ERR, "XmlRpcBody::parseValue"
+                                " 'i8' element is empty");
+                  errorTxt.append("'i8' element is empty");
+               }
+            }
+            else
+            {
+               typeNode = valueNode->FirstChild("boolean");
+               if (typeNode)
+               {
+                  if (typeNode->FirstChild())
+                  {
+                     paramValue = typeNode->FirstChild()->Value();
+                     value = new UtlBool((atoi(paramValue)==1));
+                  }
+                  else
+                  {
+                     OsSysLog::add(FAC_XMLRPC, PRI_ERR, "XmlRpcBody::parseValue"
+                                   " 'boolean' element is empty");
+                     errorTxt.append("'boolean' element is empty");
+                  }
+               }
+               else
+               {
+                  // string
+                  // Note: In the string case, we allow a null string
+                  typeNode = valueNode->FirstChild("string");            
+                  if (typeNode)
+                  {
+                     if (typeNode->FirstChild())
+                     {
+                        paramValue = typeNode->FirstChild()->Value();
+                        value = new UtlString(paramValue);
+                     }
+                     else
+                     {
+                        value = new UtlString();
+                     }
+                  }
+                  else
+                  {
+                     // dateTime.iso8601
+                     typeNode = valueNode->FirstChild("dateTime.iso8601");            
+                     if (typeNode)
+                     {
+                        if (typeNode->FirstChild())
+                        {
+                           paramValue = typeNode->FirstChild()->Value(); // need to change to UtlDateTime
+                           value = new UtlString(paramValue);
+                        }
+                        else
+                        {
+                           OsSysLog::add(FAC_XMLRPC, PRI_ERR, "XmlRpcBody::parseValue"
+                                         " 'dateTime.iso8601' element is empty");
+                           errorTxt.append("'dateTime.iso8601' element is empty");
+                        }
+                     }
+                     else
+                     {
+                        // struct
+                        typeNode = valueNode->FirstChild("struct");            
+                        if (typeNode)
+                        {
+                           if (!(value=parseStruct(typeNode, nestDepth, errorTxt)))
+                           {
+                              OsSysLog::add(FAC_XMLRPC, PRI_ERR, "XmlRpcBody::parseValue"
+                                            " error parsing 'struct' content");
+                              errorTxt.append(" in 'struct' element");
+                           }
+                        }
+                        else
+                        {
+                           // array
+                           typeNode = valueNode->FirstChild("array");            
+                           if (typeNode)
+                           {
+                              if (!(value=parseArray(typeNode, nestDepth, errorTxt)))
+                              {
+                                 OsSysLog::add(FAC_XMLRPC, PRI_ERR, "XmlRpcBody::parseValue"
+                                               " error parsing 'array' content");
+                              }
+                           }
+                           else
+                           {
+                              // Default case for string
+                              if (valueNode->FirstChild())
+                              {
+                                 paramValue = valueNode->FirstChild()->Value();
+                                 value = new UtlString(paramValue);
+                              }
+                              else
+                              {
+                                 value = new UtlString();
+                              }
+                           }
+                        }
+                     }
+                  }
+               }
+            }
+         }
+      }
+   }
+   else
+   {
+      char errMsg[200];
+      sprintf(errMsg, "parameter nesting depth exceeds maximum allowed (%d)",
+              MAX_VALUE_NESTING_DEPTH);
+      errorTxt.append(errMsg);
+      OsSysLog::add(FAC_XMLRPC, PRI_ERR, "XmlRpcBody::parseValue %s",
+                    errMsg
+                    );
+   }
+
+   return value;
+}
+
+
+UtlHashMap* XmlRpcBody::parseStruct(TiXmlNode* structNode, ///< pointer to the <struct> node
+                                    int nestDepth,         ///< current level of recursion
+                                    UtlString& errorTxt    ///< explanation of parse error if any
+                                    )
+{
+   UtlHashMap* returnedStruct = NULL;
+
+   if (++nestDepth <= MAX_VALUE_NESTING_DEPTH)
+   {
+      // struct
+      returnedStruct = new UtlHashMap();
+      UtlString name;
+      UtlString paramValue;
+      TiXmlNode* memberValue;
+      bool structIsOk = true;
+      TiXmlNode* memberNode;
+      for ((structIsOk = true, memberNode = structNode->FirstChild("member"));
+           structIsOk && memberNode; 
+           memberNode = memberNode->NextSibling("member"))
+      {
+         TiXmlNode* memberName = memberNode->FirstChild("name");
+         if (memberName)
+         {
+            if (memberName->FirstChild())
+            {
+               name = memberName->FirstChild()->Value();
+         
+               memberValue = memberNode->FirstChild("value");        
+               if (memberValue)
+               {
+                  UtlContainable* value;
+                  if ((value=parseValue(memberValue, nestDepth, errorTxt)))
+                  {
+                     returnedStruct->insertKeyAndValue(new UtlString(name), value);
+                  }
+                  else
+                  {
+                     OsSysLog::add(FAC_XMLRPC, PRI_ERR, "XmlRpcBody::parseStruct"
+                                   " error parsing member/value"
+                                   );
+                     errorTxt.append(" in member '");
+                     errorTxt.append(name);
+                     errorTxt.append("'");
+                     structIsOk = false;
+                  }
+               }
+               else
+               {
+                  OsSysLog::add(FAC_XMLRPC, PRI_ERR, "XmlRpcBody::parseStruct"
+                                " 'member' element does not have a 'value' child"
+                                );
+                  errorTxt.append(" 'member' element name '");
+                  errorTxt.append(name);
+                  errorTxt.append("' does not have a value");
+                  structIsOk=false;
+               }
+            }
+            else
+            {
+               OsSysLog::add(FAC_XMLRPC, PRI_ERR, "XmlRpcBody::parseStruct"
+                             " 'name' element is empty"
+                             );
+               errorTxt.append( "'name' element is empty");
+               structIsOk = false;
+            }
+         }
+         else
+         {
+            OsSysLog::add(FAC_XMLRPC, PRI_ERR, "XmlRpcBody::parseStruct"
+                          " 'member' element does not have a 'name' child"
+                          );
+            errorTxt.append("'member' element does not have a 'name' child");
+            structIsOk=false;
+         }
+      }
+   
+      if (!structIsOk)
+      {
+         cleanUp(returnedStruct);
+         delete returnedStruct;
+         returnedStruct=NULL;
+      }
+   }
+   else
+   {
+      char errMsg[200];
+      sprintf(errMsg, "parameter nesting depth exceeds maximum allowed (%d)",
+              MAX_VALUE_NESTING_DEPTH);
+      errorTxt.append(errMsg);
+      OsSysLog::add(FAC_XMLRPC, PRI_ERR, "XmlRpcBody::parseStruct %s",
+                    errMsg
+                    );
+   }
+   
+   return returnedStruct;   
+}
+
+UtlSList* XmlRpcBody::parseArray(TiXmlNode* arrayNode, ///< pointer to the <array> node
+                                 int nestDepth,        ///< current level of recursion
+                                 UtlString& errorTxt   ///< explanation of parse error if any
+                                 )
+{
+   UtlSList* pList = NULL;
+   if (++nestDepth <= MAX_VALUE_NESTING_DEPTH)
+   {
+      pList = new UtlSList();
+      bool arrayIsOk = true;
+   
+      // array
+      UtlString paramValue;
+      TiXmlNode* dataNode = arrayNode->FirstChild("data");
+      if (dataNode)
+      {
+         TiXmlNode* valueNode;
+         int index = 0;
+         for (valueNode = dataNode->FirstChild("value");
+              valueNode && arrayIsOk; 
+              valueNode = valueNode->NextSibling("value"))
+         {
+            UtlContainable* value;
+            if ((value=parseValue(valueNode, nestDepth, errorTxt)))
+            {
+               pList->append(value);
+               index++;
+            }
+            else
+            {
+               char errMsg[200];
+               sprintf(errMsg, " in value %d of array", index);
+               OsSysLog::add(FAC_XMLRPC, PRI_ERR, "XmlRpcBody::parseArray %s",
+                             errMsg
+                             );
+               errorTxt.append(errMsg);
+               arrayIsOk = false;
+            }
+         }
+      }
+      else
+      {
+         OsSysLog::add(FAC_XMLRPC, PRI_ERR, "XmlRpcBody::parseArray"
+                       " 'array' element does not have 'data' child");
+         errorTxt.append("'array' element does not have 'data' child");
+         arrayIsOk=false;
+      }
+   
+      if (!arrayIsOk)
+      {
+         cleanUp(pList);
+         delete pList;
+         pList = NULL;
+      }
+   }
+   else
+   {
+      char errMsg[200];
+      sprintf(errMsg, "parameter nesting depth exceeds maximum allowed (%d)",
+              MAX_VALUE_NESTING_DEPTH);
+      errorTxt.append(errMsg);
+      OsSysLog::add(FAC_XMLRPC, PRI_ERR, "XmlRpcBody::parseArray %s",
+                    errMsg
+                    );
+   }
+
+   return pList;
+}
+
+void XmlRpcBody::cleanUp(UtlContainable* value)
+{
+   if (value)
+   {
+      if (value->isInstanceOf(UtlHashMap::TYPE))
+      {
+         UtlHashMap* map = dynamic_cast<UtlHashMap*>(value);
+         cleanUp(map);
+      }
+      else if (value->isInstanceOf(UtlSList::TYPE))
+      {
+         UtlSList* array = dynamic_cast<UtlSList*>(value);
+         cleanUp(array);
+      }
+   }
+}
+
+void XmlRpcBody::cleanUp(UtlHashMap* map)
+{
+   UtlHashMapIterator iterator(*map);
+
+   UtlString*      pName;
+   while ((pName = dynamic_cast<UtlString*>(iterator())))
+   {
+      UtlContainable* key;
+      UtlContainable* value;
+
+      key = map->removeKeyAndValue(pName, value);
+      cleanUp(value);
+      delete key;
+   }
+}
+
+void XmlRpcBody::cleanUp(UtlSList* array) 
+{
+   UtlContainable *value;
+   while ((value = array->get()))
+   {
+      cleanUp(value);
+   }
+}
 
 /* ============================ INQUIRY =================================== */
 

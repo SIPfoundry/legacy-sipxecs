@@ -12,7 +12,9 @@
 
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
+#include <xmlparser/tinyxml.h>
 #include <net/HttpBody.h>
+#include <utl/UtlHashMap.h>
 
 // DEFINES
 #define CONTENT_TYPE_TEXT_XML "text/xml"
@@ -124,6 +126,46 @@ class XmlRpcBody : public HttpBody
    
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
   protected:
+   
+   friend class XmlRpcDispatch;
+   friend class XmlRpcResponse;
+   friend class XmlRpcTest;
+
+   /// Parse a value in the XML-RPC request
+   static
+      UtlContainable* parseValue(TiXmlNode* valueNode, ///< pointer to the <value> node
+                                 int nestDepth,        ///< current level of recursion
+                                 UtlString& errorTxt   ///< explanation of parse error if any
+                                 );
+   ///< @returns NULL and sets errorTxt if there was a parse error
+
+   /// Parse an array in the XML-RPC request
+   static
+      UtlSList* parseArray(TiXmlNode* arrayNode, ///< pointer to the <array> node
+                           int nestDepth,        ///< current level of recursion
+                           UtlString& errorTxt   ///< explanation of parse error if any
+                           );
+   ///< @returns NULL and sets errorTxt if there was a parse error
+
+   /// Parse a struct in the XML-RPC request
+   static
+      UtlHashMap* parseStruct(TiXmlNode* structNode, ///< pointer to the <struct> node
+                              int nestDepth,         ///< current level of recursion
+                              UtlString& errorTxt    ///< explanation of parse error if any
+                              );
+   ///< @returns NULL and sets errorTxt if there was a parse error
+   
+   /// Clean up the memory in any value, but not the value object itself
+   static
+      void cleanUp(UtlContainable* value);
+   
+   /// Clean up the memory in a struct, but not the UtlHashMap object itself
+   static
+      void cleanUp(UtlHashMap* members);
+   
+   /// Clean up the memory in an array, but not the UtlSList object itself
+   static
+      void cleanUp(UtlSList* array);
    
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
