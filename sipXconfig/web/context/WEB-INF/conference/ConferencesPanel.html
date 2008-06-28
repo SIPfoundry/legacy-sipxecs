@@ -8,8 +8,9 @@
             </a>
         </li>
     </ul>
+    
 	<table jwcid="@common/Table" id="conference:list" class="component"
-        columns="* name,!owner,enabled,extension,description,active"
+        columns="ognl:tableColumns"
         source="ognl:conferences"
         row="ognl:currentRow"
         selections="ognl:selections">
@@ -21,7 +22,6 @@
 		<span jwcid="ownerColumnValue@Block">
 		    <span jwcid="@If" condition="ognl:currentRow.hasOwner">
 		      <span jwcid="@Insert" value="ognl:currentRow.owner.displayName" />
-		      (<span jwcid="@Insert" value="ognl:currentRow.owner.userName" />)
 		    </span>
 		</span>
         <span jwcid="enabledColumnValue@Block">
@@ -45,12 +45,14 @@
                 value="message:button.unlock"
                 action="listener:unlockConferences" />        
         </li>
-        <li>
-            <input jwcid="delete@Submit" id="conference:delete"
-                selected="ognl:rowsToDelete"
-                tag="ognl:selections.allSelected"
-                value="message:button.delete"
-            />
-        </li>
+        <span jwcid="@If" condition="ognl:enableDelete">
+            <li>
+                <input jwcid="delete@Submit" id="conference:delete"
+                    selected="ognl:rowsToDelete"
+                    tag="ognl:selections.allSelected"
+                    value="message:button.delete"
+                />
+            </li>
+        </span>
     </ul>
 </fieldset>

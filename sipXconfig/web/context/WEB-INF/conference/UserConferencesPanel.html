@@ -1,6 +1,10 @@
 <div>
     <h3>Conferences for <span jwcid="@Insert" value="ognl:user.displayName" /></h3>
-        <table jwcid="@common/Table" columns="literal:* name,description,extension"
-               source="ognl:conferenceBridgeContext.findConferencesByOwner(user)"
-               row="ognl:currentRow" />
+    <fieldset jwcid="@conference/ConferencesPanel" 
+              conferences="ognl:conferenceBridgeContext.findConferencesByOwner(user)" 
+              showOwner="false" enableDelete="false" 
+              addListener="listener:addConference" 
+              selectListener="listener:selectConference" 
+              selectActiveListener="listener:selectActiveConference" />
+              
 </div>

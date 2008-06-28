@@ -124,9 +124,9 @@ public abstract class UserNavigation extends BeanNavigation<User> {
         return page;
     }
 
-    public IPage viewUserConferences(User user) {
+    public IPage viewUserConferences(Integer userId) {
         UserConferences page = getUserConferencesPage();
-        page.setUser(user);
+        page.setUserId(userId);
         page.setReturnPage(ManageUsers.PAGE);
         return page;
     }

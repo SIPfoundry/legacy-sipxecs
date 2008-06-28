@@ -55,6 +55,12 @@ public abstract class ConferencesPanel extends TablePanel {
     @Parameter(required = true)
     public abstract Collection<Conference> getConferences();
 
+    @Parameter(defaultValue = "ognl:true")
+    public abstract boolean getShowOwner();
+
+    @Parameter(defaultValue = "ognl:true")
+    public abstract boolean getEnableDelete();
+    
     @Parameter
     public abstract boolean isChanged();
 
@@ -64,6 +70,17 @@ public abstract class ConferencesPanel extends TablePanel {
 
     protected void removeRows(Collection selectedRows) {
         getConferenceBridgeContext().removeConferences(selectedRows);
+    }
+    
+    public String getTableColumns() {
+        // "* name,!owner,enabled,extension,description,active"
+        StringBuilder columns = new StringBuilder("* name,");
+        if (getShowOwner()) {
+            columns.append("!owner,");
+        }
+        columns.append("enabled,extension,description,active");
+        
+        return columns.toString();
     }
 
     public void calculateActiveValue(RequestCycle cycle, int id) {

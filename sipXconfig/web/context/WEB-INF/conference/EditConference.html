@@ -1,4 +1,4 @@
-<div jwcid="@common/Border">
+<div jwcid="@common/Border" restricted="false">
   <h2><span key="title">Conference</span></h2>
   <span jwcid="@common/TabNavigation" tabNames="ognl:tabNames" selectedTab="ognl:tab"/>
   <div id="settings-content">
@@ -7,8 +7,30 @@
   </div>
   <div jwcid="configTab@Block">
     <form jwcid="form" id="conference:form">
-      <fieldset jwcid="itemCommon"/>
-      <fieldset jwcid="@conference/ConferenceOwnerPanel" conference="ognl:conference" />
+      <span jwcid="@If" condition="ognl:userSession.isAdmin()">
+         <fieldset jwcid="itemCommon"/>
+         <fieldset jwcid="@conference/ConferenceOwnerPanel" conference="ognl:conference" />
+      </span>
+      <span jwcid="@Else">
+	      <table>
+	          <tr>
+	              <td><label>Name</label></td>
+	              <td><span jwcid="@Insert" value="ognl:conference.name" /></td>
+	          </tr>
+	          <tr>
+	              <td><label>Extension</label></td>
+	              <td><span jwcid="@Insert" value="ognl:conference.extension" /></td>
+	          </tr>
+		      <tr jwcid="@common/FieldPanel" for="item:description"  
+		          field="component:description" label="message:description">
+			      <textarea jwcid="description@TextArea" id="item:description"
+			        value="ognl:conference.description"
+			        validators="validators:maxLength=255[Maximum allowed characters is 255]"
+			        cols="45" rows="5">
+			      </textarea>      
+		      </tr>
+	      </table>
+      </span>
       <fieldset jwcid="settingsFieldset"/>
       <span jwcid="formActions"/>
     </form>

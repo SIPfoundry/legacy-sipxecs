@@ -15,20 +15,29 @@ import java.util.Collection;
 import java.util.List;
 
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.tapestry.PageRedirectException;
 import org.apache.tapestry.annotations.InitialValue;
+import org.apache.tapestry.annotations.InjectState;
 import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.conference.Bridge;
 import org.sipfoundry.sipxconfig.conference.Conference;
 import org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext;
+import org.sipfoundry.sipxconfig.site.UserSession;
+import org.sipfoundry.sipxconfig.site.vm.ManageVoicemail;
 
 public abstract class EditConference extends PageWithCallback implements PageBeginRenderListener {
     public static final String PAGE = "conference/EditConference";
 
+    private static final Log LOG = LogFactory.getLog(EditConference.class);
+    
     public abstract ConferenceBridgeContext getConferenceBridgeContext();
 
     public abstract Serializable getBridgeId();
@@ -51,6 +60,9 @@ public abstract class EditConference extends PageWithCallback implements PageBeg
 
     public abstract Collection<Integer> getSelectedUsers();
 
+    @InjectState(value = "userSession")
+    public abstract UserSession getUserSession();
+    
     @Persist
     @InitialValue(value = "literal:config")
     public abstract void setTab(String tab);
@@ -67,8 +79,20 @@ public abstract class EditConference extends PageWithCallback implements PageBeg
         }
 
         setConference(conference);
+        
+        UserSession currentUser = getUserSession();
+        if (!isAuthorized(currentUser, conference)) {
+            LOG.warn(String.format("Unauthorized attempt to edit conference \"%s\" by user %s",
+                conference.getName(), currentUser.getUser(getCoreContext()).getUserName()));
+            throw new PageRedirectException(ManageVoicemail.PAGE);
+        }
     }
 
+    public boolean isAuthorized(UserSession user, Conference conference) {
+        User conferenceOwner = conference.getOwner();
+        return (user.isAdmin() || (conferenceOwner != null && conferenceOwner.getId().equals(user.getUserId())));
+    }
+    
     public List<String> getTabNames() {
         String[] tabs = new String[] {
             "config"

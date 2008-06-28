@@ -10,8 +10,10 @@
 package org.sipfoundry.sipxconfig.site.conference;
 
 import org.apache.tapestry.BaseComponent;
+import org.apache.tapestry.IPage;
 import org.apache.tapestry.annotations.ComponentClass;
 import org.apache.tapestry.annotations.InjectObject;
+import org.apache.tapestry.annotations.InjectPage;
 import org.apache.tapestry.annotations.Parameter;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.conference.Conference;
@@ -23,11 +25,25 @@ public abstract class UserConferencesPanel extends BaseComponent {
     @InjectObject(value = "spring:conferenceBridgeContext")
     public abstract ConferenceBridgeContext getConferenceBridgeContext();
     
+    @InjectPage(EditConference.PAGE)
+    public abstract EditConference getEditConferencePage();
+    
     @Parameter(required = true)
     public abstract void setUser(User user);
     public abstract User getUser();
     
     public abstract Conference getCurrentRow();
     public abstract void setCurrentRow(Conference currentRow);
+ 
+    public IPage selectConference(Integer conferenceId) {
+        EditConference editConferencePage = getEditConferencePage();
+        editConferencePage.setConferenceId(conferenceId);
+        editConferencePage.setReturnPage(getPage());
+        return editConferencePage;
+    }
+    
+    public IPage selectActiveConference(Integer conferenceId) {
+        return selectConference(conferenceId);
+    }
     
 }

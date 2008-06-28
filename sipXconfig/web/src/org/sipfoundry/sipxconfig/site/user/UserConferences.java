@@ -9,12 +9,8 @@
  */
 package org.sipfoundry.sipxconfig.site.user;
 
-import org.sipfoundry.sipxconfig.common.User;
-import org.sipfoundry.sipxconfig.components.PageWithCallback;
+import org.sipfoundry.sipxconfig.site.user_portal.UserBasePage;
 
-public abstract class UserConferences extends PageWithCallback {
+public abstract class UserConferences extends UserBasePage {
     public static final String PAGE = "user/UserConferences";
-    
-    public abstract User getUser();
-    public abstract void setUser(User user);
 }

@@ -4,6 +4,7 @@
 <page-specification class="org.sipfoundry.sipxconfig.site.conference.EditConference">
   <description>Edit Conference</description>
   <inject property="conferenceBridgeContext" object="spring:conferenceBridgeContext"/>
+  <inject property="coreContext" object="spring:coreContext" />
   <property name="bridgeId"  persist="session"/>
   <property name="conferenceId"  persist="session"/>
   <property name="conference" />
@@ -17,9 +18,9 @@
     <binding name="listener" value="listener:formSubmit"></binding>
   </component>
   <component id="itemCommon" type="common/ItemCommon">
-    <binding name="item" value="conference"/>
-    <binding name="useEnabled" value="true"/>
-    <binding name="useExtension" value="true"/>
+    <binding name="item" value="conference" />
+    <binding name="useEnabled" value="true" />
+    <binding name="useExtension" value="true" />
   </component>
   <component id="settingsFieldset" type="setting/SettingsFieldset">
     <binding name="settings" value="conference.settings"/>

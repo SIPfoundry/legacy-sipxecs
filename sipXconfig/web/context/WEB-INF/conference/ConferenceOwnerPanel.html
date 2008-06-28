@@ -11,12 +11,12 @@
                 <img jwcid="@Image" image="asset:userIcon" align="absmiddle" />
                 <span jwcid="@Insert" value="ognl:conference.owner.displayName" />
                 (<span jwcid="@Insert" value="ognl:conference.owner.userName" />)
-                <input jwcid="@Submit" listener="listener:changeOwner" value="message:label.changeOwner" />
-                <input jwcid="@Submit" listener="listener:unassign" value="message:label.unassign" />
+                <input id="changeOwner" jwcid="@Submit" listener="listener:changeOwner" value="message:label.changeOwner" />
+                <input id="unassign" jwcid="@Submit" listener="listener:unassign" value="message:label.unassign" />
             </span>
             <span jwcid="@Else">
             (none)
-            <input jwcid="@Submit" listener="listener:changeOwner" value="message:label.assignOwner" />
+            <input id="assign" jwcid="@Submit" listener="listener:changeOwner" value="message:label.assignOwner" />
             </span>
         </tr>
     </table>
