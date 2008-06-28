@@ -61,5 +61,50 @@ public class FreeswitchApiResultParserTest {
             Assert.assertEquals(expectedLocked[n], conference.isLocked());
         }
     }
+    
+    @Test
+    public void testGetConferenceMembers() {
+        String resultString =
+            "2;sofia/eng.bluesocket.com/201@192.168.100.233;f69d2b1f-4841-40a4-8e0f-847d1aeef2f0;201;201;hear|speak;0;0;300\n" +
+            "1;sofia/eng.bluesocket.com/200@192.168.100.233;a5b6cdbe-7cbf-48a7-a52d-98b871eb2491;Joe Attardi;200;hear|speak|floor;0;0;300\n";
+        
+        List<ActiveConferenceMember> members = m_parser.getConferenceMembers(resultString);
+        Assert.assertEquals(2, members.size());
+        Assert.assertEquals("201 (201@192.168.100.233)", members.get(0).getName());
+        Assert.assertEquals("Joe Attardi (200@192.168.100.233)", members.get(1).getName());
+    }
 
+    @Test(expected = NoSuchMemberException.class)
+    public void testVerifyMemberActionInvalid() {
+        ActiveConferenceMember member = new ActiveConferenceMember();
+        member.setName("201 (201@192.168.100.233)");
+        String resultString = "Non-Existant ID 4\n";
+        m_parser.verifyMemberAction(resultString, member);        
+    }
+    
+    @Test
+    public void testVerifyMemberActionValid() {
+        ActiveConferenceMember member = new ActiveConferenceMember();
+        member.setName("201 (201@192.168.100.233)");        
+        String resultString = "OK mute 1\n";
+        Assert.assertTrue(m_parser.verifyMemberAction(resultString, member));
+    }
+    
+    @Test(expected = NoSuchConferenceException.class)
+    public void testVerifyConferenceActionInvalid() {
+        Conference conference = new Conference();
+        conference.setName("conference-301");
+        String resultString = "Conference conference-301 not found\n";
+        m_parser.verifyConferenceAction(resultString, conference);
+    }
+    
+    @Test
+    public void testVerifyConferenceActionValid() {
+        Conference conference = new Conference();
+        conference.setName("conference-301");
+        String resultString =
+            "2;sofia/eng.bluesocket.com/201@192.168.100.233;f69d2b1f-4841-40a4-8e0f-847d1aeef2f0;201;201;hear|speak;0;0;300\n" +
+            "1;sofia/eng.bluesocket.com/200@192.168.100.233;a5b6cdbe-7cbf-48a7-a52d-98b871eb2491;Joe Attardi;200;hear|speak|floor;0;0;300\n";
+        Assert.assertTrue(m_parser.verifyConferenceAction(resultString, conference));
+    }
 }

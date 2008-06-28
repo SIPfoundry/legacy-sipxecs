@@ -30,13 +30,13 @@ public class FreeswitchApiResultParserImpl implements FreeswitchApiResultParser 
 
     private static final String MEMBER_DELIMITER = ";";
 
-    private static final Pattern CONFERENCE_NOT_FOUND_PATTERN = Pattern.compile("Conference ([\\w ]+) not found\\n");
+    private static final Pattern CONFERENCE_NOT_FOUND_PATTERN = Pattern.compile("Conference (.+) not found\\n");
 
     private static final Pattern CONFERENCE_NAME_PATTERN = Pattern
             .compile("Conference ([\\w ]+) \\((\\d+) members?( locked)?\\)");
 
     // the misspelling is intentional - typo in freeswitch API
-    private static final Pattern INVALID_MEMBER_PATTERN = Pattern.compile("Non-Existant ID [\\d]+\\n");
+    private static final Pattern INVALID_MEMBER_PATTERN = Pattern.compile("Non-Exist[ae]nt ID [\\d]+\\n");
 
     /**
      * Verifies that a member action was completed successfully and that the target member exists.
