@@ -2,6 +2,8 @@
 <sipxbridge-config xmlns="http://www.sipfoundry.org/sipX/schema/xml/sipxbridge-00-00">
 
   <bridge-configuration>
+    <global-address>98.65.1.5</global-address>
+    <global-port>5060</global-port>
     <external-address>10.1.1.5</external-address>
     <external-port>5080</external-port>
     <local-address>192.168.5.240</local-address>
@@ -14,6 +16,7 @@
     <rtp-port-range>25000:25500</rtp-port-range>
     <is-reinvite-supported>true</is-reinvite-supported>
     <allowed-codec-name>PCMU</allowed-codec-name>
+    <route-inbound-calls-to-extension>operator</route-inbound-calls-to-extension>
     <log-level>INFO</log-level>
     <log-directory>/var/log/sipxpbx/</log-directory>
   </bridge-configuration>
@@ -26,9 +29,9 @@
     <password>1234</password>
     <display-name>John User</display-name>
     <use-global-addressing>false</use-global-addressing>
-    <route-inbound-calls-to-extension>operator</route-inbound-calls-to-extension>
     <use-rport>false</use-rport>
     <register-on-initialization>true</register-on-initialization>
+    <registration-interval>600</registration-interval>
     <use-registration-for-caller-id>true</use-registration-for-caller-id>
     <sip-keepalive-method>CR-LF</sip-keepalive-method>
     <rtp-keepalive-method>USE-EMPTY-PACKET</rtp-keepalive-method>

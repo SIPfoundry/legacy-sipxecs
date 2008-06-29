@@ -15,16 +15,6 @@
   <group name="itsp-account">
     <label>ITSP Account</label>
     <description>The information that is specific to a given ITSP account.</description>
-    <setting name="max-number-of-concurrent-calls" advanced="yes">
-      <label>Maximum calls</label>
-      <type>
-        <integer />
-      </type>
-      <description>
-        The maximum number of concurrent calls allowed via the given ITSP. This is a way of doing a coarse granularity
-        of QOS on a per ITSP basis. When the limit is reached, sipXbridge will return "Service Unavailable".
-      </description>
-    </setting>
     <setting name="outbound-proxy" hidden="yes">
       <description>If the ITSP specifies an outbound proxy, enter it here.</description>
     </setting>
@@ -51,7 +41,7 @@
     <setting name="user-name">
       <label>User</label>
       <type>
-        <string required="yes"></string>
+        <string />
       </type>
       <description>The user name attached to the account.</description>
     </setting>
@@ -72,14 +62,6 @@
       <value>false</value>
       <description>If checked, use the global address for SIP and SDP.</description>
     </setting>
-    <setting name="route-inbound-calls-to-extension">
-      <label>Incoming calls destination</label>
-      <value>operator</value>
-      <description>
-        Determines where to send inbound calls. If empty, inbound calls are directly routed to the specified number in
-        the inbound request and have to be redirected by aliases or dial plan rules.
-      </description>
-    </setting>
     <setting name="use-rport" advanced="yes">
       <label>Rport parameter</label>
       <type refid="switch" />
@@ -92,12 +74,20 @@
       <description>Defines whether or not to register with the given ITSP on initialization.</description>
     </setting>
     <setting name="outbound-registrar" advanced="yes">
-      <description>Registrar domain ( if different from proxy domain ). Determines how the request URI for the outbound
-	REGISTER request is constructed.
-       </description>
+      <description>
+        Registrar domain ( if different from proxy domain ). Determines how the request URI for the outbound REGISTER
+        request is constructed.
+      </description>
     </setting>
     <setting name="outbound-registrar-route" advanced="yes">
-      <description>Route to the Registrar ( if different from the ITSP proxy ).  </description>
+      <description>Route to the Registrar ( if different from the ITSP proxy ).</description>
+    </setting>
+    <setting name="registration-interval" advanced="yes">
+      <type>
+        <integer />
+      </type>
+      <value>600</value>
+      <description>Registration Interval (seconds)</description>
     </setting>
     <setting name="use-registration-for-caller-id" advanced="yes">
       <label>Use Registration for caller-ID</label>

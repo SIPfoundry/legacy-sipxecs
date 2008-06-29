@@ -14,9 +14,22 @@
   </type>
   <group name="bridge-configuration">
     <label>SIP</label>
+    <setting name="global-address">
+      <label>Public Address</label>
+      <description>Set this if your ITSP requires a globally routable address to be specificed and if you do not wish to use STUN
+	to determine that address. If you enter a public address here, any STUN settings will be ignored. 
+     </description>
+    </setting>
+    <setting name="global-port">
+      <label>Public Port</label>
+      <type>
+        <integer />
+      </type>
+      <description>Set this if your ITSP requires you to specify a publicly routable ITSP facing port. </description>
+    </setting>
     <setting name="external-address">
       <label>External address</label>
-      <description>The ITSP facing address. The ITSP will send signaling here. This can be a local address. If you have only one interface on your machine
+      <description>The ITSP facing address. This is the NATed public address. If you have only one interface on your machine
       it will be the same as your local address.
      </description>
     </setting>
@@ -26,8 +39,7 @@
         <integer required="yes" />
       </type>
       <value>5080</value>
-      <description>The ITSP facing port. The ITSP will send signaling here.
-	Must be different from local-port if local-address is the same as external-address. </description>
+      <description>The ITSP facing port on your machine.  This is the NATed global port. </description>
     </setting>
     <setting name="local-address" hidden="yes">
       <type>
@@ -44,12 +56,6 @@
     </setting>
     <setting name="sipx-proxy-domain" hidden="yes">
       <description>The sipXecs proxy domain.</description>
-    </setting>
-    <setting name="global-address">
-      <label>Public Address</label>
-      <description>This setting is relevant if your ITSP requires a public address to be specificed and if you do not wish to use STUN
-	to determine that address. If you enter a public address here, any STUN settings will be ignored.
-     </description>
     </setting>
     <setting name="stun-server-address">
       <label>STUN server</label>
@@ -140,9 +146,9 @@
     <setting name="is-reinvite-supported" advanced="yes" >
       <label>re-INVITE Support</label>
       <type refid="switch" />
-      <value>true</value>
+      <value>false</value>
       <description>
-        If checked, reINVITE is supported by the ITSP. This allows sipxbridge to delay codec
+        If checked, re-INVITE is supported by the ITSP. This allows sipxbridge to delay codec
         choice for call setup when dealing with call transfers and can give you a wider range
 	of codecs to chose from.
       </description>
@@ -169,10 +175,21 @@
         to allow only this codec through.
       </description>
     </setting>
+    <setting name="route-inbound-calls-to-extension">
+      <label>Incoming calls destination</label>
+      <value>operator</value>
+      <description>
+        Determines where to send inbound calls. If empty, inbound calls are directly routed to the specified number in
+        the inbound request and have to be redirected by aliases or dial plan rules.
+      </description>
+    </setting>
     <setting name="log-level" advanced="yes">
       <label>Logging level</label>
       <type>
         <enum>
+          <option>
+            <value>OFF</value>
+          </option>
           <option>
             <value>INFO</value>
           </option>
@@ -190,6 +207,7 @@
       <value>INFO</value>
       <description>Log configuration. Defaults to INFO level.</description>
     </setting>
+
 
     <setting name="log-directory" hidden="yes">
       <description>Log directory. The log file name is hard coded to "sipxbridge.log".</description>
