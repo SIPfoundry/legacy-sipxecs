@@ -36,13 +36,13 @@
 
 Summary:        JAIN-SIP reference implementation
 Name:           jain-sip
-Version:        1.2.71
+Version:        1.2.73
 Release:        2
 Group:          Development/Java
 License:        Apache Software License 2.0
 URL:            https://jain-sip.dev.java.net/
 BuildArch:      noarch
-Source0:        jain-sip-src-1.2.71.tar.gz
+Source0:        jain-sip-src-1.2.73.tar.gz
 Patch0:			build-fix.patch
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root
 
@@ -119,6 +119,9 @@ rm -rf $RPM_BUILD_ROOT
 # -----------------------------------------------------------------------------
 
 %changelog
+* Sun Jun 29 2008 Damian Krzeminski <damian at pingtel.com> 0:1.2.73-2jpp
+- Update to 1.2.73
+
 * Thu May 28 2008 Damian Krzeminski <damian at pingtel.com> 0:1.2.71-2jpp
 - Install integrated jain-sip-sdp.jar 
 - Install only one javadoc for the entire package
