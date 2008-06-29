@@ -11,12 +11,15 @@ package org.sipfoundry.sipxconfig.site.user;
 
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.event.PageEvent;
 import org.sipfoundry.sipxconfig.admin.forwarding.ForwardingContext;
 import org.sipfoundry.sipxconfig.admin.forwarding.UserGroupSchedule;
+import org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.site.setting.EditGroup;
@@ -28,16 +31,22 @@ public abstract class UserGroupSettings extends GroupSettings {
     public static final String PAGE = "user/UserGroupSettings";
 
     private static final String SCHEDULES = "Schedules";
-
+    private static final String CONFERENCE = "conference";
+    
+    private static final Log LOG = LogFactory.getLog(UserGroupSettings.class);
+    
     @InjectObject(value = "spring:forwardingContext")
     public abstract ForwardingContext getForwardingContext();
 
+    @InjectObject(value = "spring:conferenceBridgeContext")
+    public abstract ConferenceBridgeContext getConferenceBridgeContext();
+    
     public abstract void setSchedules(List<UserGroupSchedule> schedules);
 
     public abstract List<UserGroupSchedule> getSchedules();
 
     public abstract boolean getChanged();
-
+    
     public IPage editGroupName(IRequestCycle cycle) {
         EditGroup page = (EditGroup) cycle.getPage(EditGroup.PAGE);
         page.editGroup(getGroupId(), PAGE);
@@ -102,4 +111,11 @@ public abstract class UserGroupSettings extends GroupSettings {
         return false;
     }
 
+    public void editConferenceSettings() {
+        setParentSettingName(CONFERENCE);
+    }
+    
+    public boolean isConferenceTabActive() {
+        return (CONFERENCE.equalsIgnoreCase(getParentSettingName()));
+    }
 }

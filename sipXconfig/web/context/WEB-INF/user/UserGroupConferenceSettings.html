@@ -1,0 +1,24 @@
+<form jwcid="conferences@Form" delegate="ognl:validator">
+    <h3><span key="title">Automatic Conference Assignment</span></h3>
+    <table>
+        <tr jwcid="@common/FieldPanel" field="component:enableConferences"
+            for="conferences:enable" label="message:label.enabled">
+            <input id="conferences:enable" jwcid="enableConferences@Checkbox" value="ognl:conferenceEnabled" />
+        </tr>
+        <tr jwcid="@common/FieldPanel" field="component:conferenceOffset"
+            for="conferences:offset" label="message:label.offset"
+            description="message:description.offset">
+            <input id="conferences:offset" jwcid="conferenceOffset@TextField" value="ognl:conferenceOffset" />
+        </tr>                 
+        <tr jwcid="@common/FieldPanel" field="component:bridgeSelect" 
+            for="bridgeSelect" label="message:label.bridgeSelect" description="message:description.bridgeSelect">
+            <select id="bridgeSelect" jwcid="bridgeSelect@PropertySelection" model="ognl:conferenceBridgesModel" 
+                    value="ognl:bridge" />
+        </tr>
+    </table>
+    <ul class="form-actions">
+      <li><input id="submit:ok" jwcid="@Submit" value="OK" action="listener:ok" /></li>
+      <li><input id="submit:apply" jwcid="@Submit" value="Apply" action="listener:apply" /></li>
+      <li><input id="submit:cancel" jwcid="@Submit" value="Cancel" action="listener:cancel" /></li>
+    </ul>
+</form>

@@ -1,4 +1,5 @@
 <div jwcid="@common/Border">
+
   <h2>
     <span key="title">Group Settings</span>
   </h2>
@@ -11,7 +12,7 @@
   <span jwcid="@If" condition="ognl:parentSettingName.equals('personal-attendant')">
     <span jwcid="@common/QuickHelp" value="message:quick.help.personalAttendant"/>
   </span>
-  <span jwcid="@common/ErrorMsg"/>
+  
   <div jwcid="@common/LeftNavigation">
     <span jwcid="settingsNavigation@setting/SettingsNavigation" bean="ognl:bean"
       source="ognl:settings.values" activeSetting="ognl:parentSetting"
@@ -21,8 +22,16 @@
           <span key="link.schedules">Schedules</span>
         </a>
       </span>
+      <span jwcid="@common/Tab" isActive="ognl:conferenceTabActive">
+      	<a id="link:conferences" jwcid="editConferenceSettings@DirectLink" listener="listener:editConferenceSettings">
+      		<span key="conference.link">Conference Assignment</span>
+      	</a>
+      </span>
     </span>
   </div>
+  
+  <span jwcid="@common/ErrorMsg"/>
+  
   <span jwcid="@If" condition="ognl:scheduleTabActive">
     <span jwcid="@common/QuickHelp" value="message:quick.help.schedule"/>
     <form jwcid="userSchedules@Form" delegate="bean:validator">
@@ -43,6 +52,11 @@
       </table>
     </form>
   </span>
+  
+  <span jwcid="@If" condition="ognl:conferenceTabActive">
+      <form jwcid="@user/UserGroupConferenceSettings" settings="ognl:settings" group="ognl:group" validator="bean:validator" />
+  </span>
+  
   <span jwcid="@Else">
     <span jwcid="settingsForm@setting/SettingsForm" settings="ognl:parentSetting"
       cancelListener="listener:cancel" okListener="listener:ok"

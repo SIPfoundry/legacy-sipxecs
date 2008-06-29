@@ -40,7 +40,7 @@
         <type refid="enable-disable" />
         <value>ENABLE</value>
       </setting>
-    </group>
+    </group> 
     <group name="call-handling">
       <setting name="900Dialing">
         <type refid="enable-disable" />
@@ -101,10 +101,26 @@
       <value>0</value>
     </setting>
   </group>
+  <group name="conference" hidden="yes">
+    <setting name="enabled">
+     <type>
+         <enum>
+           <option><value>true</value></option>
+           <option><value>false</value></option>
+         </enum>
+     </type>
+     <value>false</value>
+    </setting>
+    <setting name="offset">
+      <type><integer /></type>
+    </setting>
+    <setting name="bridgeId">
+      <type><integer /></type>
+    </setting>
+  </group>  
   <group name="personal-attendant">
     <setting name="operator">
       <type refid="sip-uri"/>
     </setting>
   </group>
-  
 </model>

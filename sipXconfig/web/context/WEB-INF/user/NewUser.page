@@ -8,6 +8,7 @@
   <property name="user" />
   <inject property="settingDao" object="spring:settingDao"/>
   <inject property="coreContext" object="spring:coreContext"/>
+  <inject property="conferenceBridgeContext" object="spring:conferenceBridgeContext" />
   <inject property="mailboxManager" object="spring:mailboxManager"/>
   <property name="stay" />
   <property name="buttonPressed" />

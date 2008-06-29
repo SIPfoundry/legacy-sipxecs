@@ -16,16 +16,20 @@ import net.sourceforge.jwebunit.junit.WebTestCase;
 
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 import org.sipfoundry.sipxconfig.site.TestPage;
+import org.sipfoundry.sipxconfig.site.conference.ConferenceTestHelper;
 
 public class UserConferencesTestUi extends WebTestCase {
 
     private static final String TEST_CONFERENCE_NAME = "200-test-conf";
+    
+    private ConferenceTestHelper m_helper;
     
     public static Test suite() throws Exception {
         return SiteTestHelper.webTestSuite(UserConferencesTestUi.class);
     }    
     
     protected void setUp() throws Exception {
+        m_helper = new ConferenceTestHelper(getTester());
         getTestContext().setBaseUrl(getBaseUrl());
         SiteTestHelper.home(tester);
         SiteTestHelper.setScriptingEnabled(tester, true);
@@ -33,7 +37,7 @@ public class UserConferencesTestUi extends WebTestCase {
     
     public void testUserConferences() {
         // First create a test bridge and conference, assigned to the test user.
-        createTestBridge();
+        m_helper.createBridge("testbridge");
         createTestConference();
         
         // Test that the conference appears under the user's conference list, and that the name and extension
@@ -52,16 +56,6 @@ public class UserConferencesTestUi extends WebTestCase {
         
     }
     
-    private void createTestBridge() {
-        clickLink("resetConferenceBridgeContext");               
-        clickLink("EditBridge");
-        
-        setWorkingForm("form");
-        setTextField("item:name", "testbridge");
-        checkCheckbox("item:enabled");
-        clickButton("form:apply");
-    }
-
     private void createTestConference() {
         clickLink("link:conferences");
         setWorkingForm("form");

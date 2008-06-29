@@ -21,7 +21,12 @@
 		</span>
 		<span jwcid="ownerColumnValue@Block">
 		    <span jwcid="@If" condition="ognl:currentRow.hasOwner">
-		      <span jwcid="@Insert" value="ognl:currentRow.owner.displayName" />
+		      <span jwcid="@If" condition="ognl:currentRow.owner.displayName != null">
+		          <span jwcid="@Insert" value="ognl:currentRow.owner.displayName" />
+		      </span>
+		      <span jwcid="@Else">
+		          <span jwcid="@Insert" value="ognl:currentRow.owner.userName" />
+		      </span>
 		    </span>
 		</span>
         <span jwcid="enabledColumnValue@Block">
