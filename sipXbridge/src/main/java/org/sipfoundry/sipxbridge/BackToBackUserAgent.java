@@ -389,10 +389,7 @@ public class BackToBackUserAgent {
                     ((DialogApplicationData) replacedDialog.getApplicationData()).peerDialog,
                     this.referingDialogPeer);
 
-            //DialogApplicationData replacedDialogPeerApplicationData = DialogApplicationData
-            //        .get(replacedDialogPeerDialog);
-            //replacedDialogPeerApplicationData.setRtpSession(DialogApplicationData
-            //        .getRtpSession(replacedDialog));
+         
 
             Dialog mohDialog = ((DialogApplicationData) referingDialog.getApplicationData()).musicOnHoldDialog;
 
@@ -504,8 +501,7 @@ public class BackToBackUserAgent {
                 hisRtcpBridge.resume();
             }
 
-            // BUGBUG -- we need to assign this otherwise the bridge will
-            // just be hanging.
+          
             newBridge.start();
 
             if (Gateway.isRtcpRelayingSupported()) {

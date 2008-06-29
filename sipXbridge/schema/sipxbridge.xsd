@@ -33,6 +33,25 @@
 
 	<xs:complexType name="BridgeConfiguration">
 		<xs:sequence>
+			<xs:element name="global-address" type="xs:string"
+				maxOccurs="1" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+						The publicly routable address of the bridge ( only relevant if global addressing
+						is needed by any of the associated ITSPs).If something is specified, then the stun 
+						parameters are ignored. If neither STUN nor global address is specified and global
+						addressing is needed by an ITSP then it is a configuration error.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="global-port" type="xs:integer"
+				minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+						The global ITSP facing port (if required by ITSP). 
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
 			<xs:element name="external-address" type="xs:string"
 				minOccurs="1" maxOccurs="1">
 				<xs:annotation>
@@ -208,17 +227,6 @@
 				</xs:annotation>
 			</xs:element>
 
-			<xs:element name="global-address" type="xs:string"
-				maxOccurs="1" minOccurs="0">
-				<xs:annotation>
-					<xs:documentation xml:lang="en">
-						The publicly routable address of the bridge ( only relevant if global addressing
-						is needed by any of the associated ITSPs).If something is specified, then the stun 
-						parameters are ignored. If neither STUN nor global address is specified and global
-						addressing is needed by an ITSP then it is a configuration error.
-					</xs:documentation>
-				</xs:annotation>
-			</xs:element>
 
 			<xs:element name="log-directory" type="xs:string" maxOccurs="1" minOccurs="0" 
 				default="/var/log/sipxpbx">
@@ -226,6 +234,16 @@
 					<xs:documentation xml:lang="en">
 						Log directory. Defaults to /var/log/sipxbpx. The log file name is hard coded
 						to "sipxbridge.log". 
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="route-inbound-calls-to-extension" type="xs:string"
+				maxOccurs="1" minOccurs="0" >
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+						Where to send inbound calls. If nothing is specified, inbound calls are 
+						directly routed to the specified number in the inbound request. 
+						You can specify the SIPX auto attendant name  ( operator ) here.
 					</xs:documentation>
 				</xs:annotation>
 			</xs:element>
@@ -240,18 +258,6 @@
 			</xs:documentation>
 		</xs:annotation>
 		<xs:sequence>
-			<xs:element name="max-number-of-concurrent-calls" type="xs:positiveInteger"
-				maxOccurs="1" minOccurs="0">
-				<xs:annotation>
-					<xs:documentation xml:lang="en">
-						The maximum number of concurrent calls allowed via the given
-						ITSP. If this tag is not present, it means no restriction is imposed.  
-						This is a way of doing a coarse granuarity of QOS on the ITSP. 
-						When the limit is reached, sipxbridge will return "Service Unavailable"
-						for any further calls directed at this ITSP.
-					</xs:documentation>
-				</xs:annotation>
-			</xs:element>
 
 			<xs:element name="outbound-registrar" type="xs:string"
 				maxOccurs="1" minOccurs="0">
@@ -332,7 +338,7 @@
 			</xs:element>
 
 			<xs:element name="user-name" type="xs:string" maxOccurs="1"
-				minOccurs="1">
+				minOccurs="0">
 				<xs:annotation>
 					<xs:documentation xml:lang="en">
 						The authentication user name attached to the account.
@@ -340,7 +346,7 @@
 				</xs:annotation>
 			</xs:element>
 			<xs:element name="password" type="xs:string" maxOccurs="1"
-				minOccurs="1">
+				minOccurs="0">
 				<xs:annotation>
 					<xs:documentation xml:lang="en">
 						The password for the account.
@@ -371,16 +377,6 @@
 			</xs:element>
 
 
-			<xs:element name="route-inbound-calls-to-extension" type="xs:string"
-				maxOccurs="1" minOccurs="0" >
-				<xs:annotation>
-					<xs:documentation xml:lang="en">
-						Where to send inbound calls. If nothing is specified, inbound calls are 
-						directly routed to the specified number in the inbound request. 
-						You can specify the SIPX auto attendant name  ( operator ) here.
-					</xs:documentation>
-				</xs:annotation>
-			</xs:element>
 
 			<xs:element name="use-rport" type="xs:boolean" maxOccurs="1" minOccurs="0"
 				default="false">
