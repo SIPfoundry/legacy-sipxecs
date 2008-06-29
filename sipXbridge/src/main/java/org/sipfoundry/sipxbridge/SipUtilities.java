@@ -106,7 +106,7 @@ public class SipUtilities {
      */
     public static ViaHeader createViaHeader(SipProvider sipProvider, ItspAccountInfo itspAccount) {
         try {
-            if (!itspAccount.isGlobalAddressingUsed()) {
+            if (itspAccount != null && !itspAccount.isGlobalAddressingUsed()) {
                 ListeningPoint listeningPoint = sipProvider.getListeningPoint(itspAccount
                         .getOutboundTransport());
                 String host = listeningPoint.getIPAddress();
@@ -120,10 +120,10 @@ public class SipUtilities {
             } else {
                 // Check -- what other parameters need to be set for NAT
                 // traversal here?
-
+                String transport = itspAccount != null ? itspAccount.getOutboundTransport() :
+                    Gateway.DEFAULT_ITSP_TRANSPORT;
                 return ProtocolObjects.headerFactory.createViaHeader(Gateway.getGlobalAddress(),
-                        sipProvider.getListeningPoint(itspAccount.getOutboundTransport())
-                                .getPort(), itspAccount.getOutboundTransport(), null);
+                        Gateway.getGlobalPort(), transport, null);
 
             }
 
@@ -139,7 +139,7 @@ public class SipUtilities {
     public static ContactHeader createContactHeader(SipProvider provider,
             ItspAccountInfo itspAccount) {
         try {
-            if (!itspAccount.isGlobalAddressingUsed()) {
+            if (itspAccount != null && !itspAccount.isGlobalAddressingUsed()) {
 
                 ListeningPoint lp = provider
                         .getListeningPoint(itspAccount.getOutboundTransport());
@@ -155,13 +155,15 @@ public class SipUtilities {
                 return ch;
 
             } else {
-
+                // Nothing is known about this ITSP. We just use global addressing.
+                
                 ContactHeader contactHeader = ProtocolObjects.headerFactory.createContactHeader();
-                SipURI sipUri = ProtocolObjects.addressFactory.createSipURI(itspAccount
-                        .getUserName(), Gateway.getGlobalAddress());
-                sipUri.setPort(provider.getListeningPoint(itspAccount.getOutboundTransport())
-                        .getPort());
-                sipUri.setTransportParam(itspAccount.getOutboundTransport());
+                String userName = itspAccount != null ? itspAccount.getUserName() : null;
+                SipURI sipUri = ProtocolObjects.addressFactory.createSipURI(userName, Gateway.getGlobalAddress());           
+                sipUri.setPort(Gateway.getGlobalPort());
+                String transport = itspAccount != null ? itspAccount.getOutboundTransport() :
+                    "udp";
+                sipUri.setTransportParam(transport);
                 Address address = ProtocolObjects.addressFactory.createAddress(sipUri);
                 contactHeader.setAddress(address);
                 contactHeader.removeParameter("expires");
@@ -180,6 +182,9 @@ public class SipUtilities {
     public static ContactHeader createContactHeader(String user, SipProvider provider,
             String transport) {
         try {
+            if ( transport == null ) {
+                transport = "udp";
+            }
             ListeningPoint lp = provider.getListeningPoint(transport);
             String ipAddress = lp.getIPAddress();
             int port = lp.getPort();
@@ -716,10 +721,14 @@ public class SipUtilities {
     }
 
     public static SipProvider getPeerProvider(SipProvider provider, String transport) {
-        if (provider == Gateway.getLanProvider())
+        if ( transport == null ) {
+            transport = Gateway.DEFAULT_ITSP_TRANSPORT;
+        }
+        if (provider == Gateway.getLanProvider()) {
             return Gateway.getWanProvider(transport);
-        else
+        } else {
             return Gateway.getLanProvider();
+        }
     }
 
     public static void fixupSdpAddresses(SessionDescription sessionDescription,
@@ -760,7 +769,13 @@ public class SipUtilities {
 
     }
 
-    public static void incrementSdpVersion(SessionDescription sessionDescription) {
+    
+    /**
+     * Increment the session version.
+     * 
+     * @param sessionDescription
+     */
+    public static void incrementSessionVersion(SessionDescription sessionDescription) {
         try {
             long version = sessionDescription.getOrigin().getSessionVersion();
             sessionDescription.getOrigin().setSessionVersion(++version);
@@ -769,6 +784,29 @@ public class SipUtilities {
             throw new RuntimeException("Unexepcted exception", ex);
         }
 
+    }
+
+    /**
+     * Fix up request to use global addressing.
+     * 
+     * @param request
+     */
+    public static void setGlobalAddresses(Request request) {
+        try {
+          SipURI sipUri = 
+              ProtocolObjects.addressFactory.createSipURI(null,  Gateway.getGlobalAddress());
+          
+          ContactHeader contactHeader = (ContactHeader) request.getHeader(ContactHeader.NAME);
+          contactHeader.getAddress().setURI(sipUri);
+          ViaHeader viaHeader = (ViaHeader) request.getHeader(ViaHeader.NAME);
+          viaHeader.setHost(Gateway.getGlobalAddress());
+          viaHeader.setPort(Gateway.getGlobalPort());
+        } catch ( Exception ex) {
+            logger.error("Unexpected exception ", ex);
+            throw new RuntimeException("Unexepcted exception", ex);
+        }
+         
+        
     }
 
 }

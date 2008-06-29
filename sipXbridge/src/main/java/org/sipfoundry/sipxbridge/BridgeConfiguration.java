@@ -21,6 +21,7 @@ import org.apache.log4j.Logger;
  */
 public class BridgeConfiguration {
     private String globalAddress;
+    private int globalPort = -1;
     private String externalAddress;
     private String localAddress;
     private int externalPort = 5080;
@@ -40,6 +41,7 @@ public class BridgeConfiguration {
     private String codecName = "PCMU";
     private boolean reInviteSupported = true;
     private int maxCalls = -1;
+    private String autoAttendantName = null;
 
     private static Logger logger = Logger.getLogger(BridgeConfiguration.class);
 
@@ -56,7 +58,21 @@ public class BridgeConfiguration {
                     + externalAddress);
         }
     }
+    
+    
+    public boolean isInboundCallsRoutedToAutoAttendant() {
+        return this.autoAttendantName != null;
+    }
 
+    public void setAutoAttendantName(String autoAttendantName) {
+        this.autoAttendantName = autoAttendantName;
+    }
+    
+    
+    
+    public String getAutoAttendantName() {
+       return this.autoAttendantName;
+    }
     /**
      * @return the externalAddress
      */
@@ -356,6 +372,20 @@ public class BridgeConfiguration {
      */
     public String getGlobalAddress() {
         return globalAddress;
+    }
+
+    /**
+     * @param globalPort the globalPort to set
+     */
+    public void setGlobalPort(int globalPort) {
+        this.globalPort = globalPort;
+    }
+
+    /**
+     * @return the globalPort
+     */
+    public int getGlobalPort() {
+        return globalPort;
     }
 
 }

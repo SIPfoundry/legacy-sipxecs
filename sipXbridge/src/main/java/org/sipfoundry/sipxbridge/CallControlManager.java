@@ -46,6 +46,7 @@ import javax.sip.message.Request;
 import javax.sip.message.Response;
 
 import org.apache.log4j.Logger;
+import org.sipfoundry.sipxbridge.symmitron.KeepaliveMethod;
 
 /**
  * Processes INVITE, REFER, ACK and BYE
@@ -110,7 +111,7 @@ public class CallControlManager {
                 logger.debug("Re-INVITE proessing !! ");
                 DialogApplicationData dat = (DialogApplicationData) dialog.getApplicationData();
 
-                RtpSession lanRtpSession = dat.rtpSession;
+                RtpSession lanRtpSession = dat.getRtpSession();
                 SessionDescription newDescription = lanRtpSession.reAssignSessionParameters(
                         request, dialog);
 
@@ -141,7 +142,8 @@ public class CallControlManager {
             BackToBackUserAgent btobua = null;
 
             if ((DialogApplicationData) dialog.getApplicationData() != null) {
-                btobua = ((DialogApplicationData) dialog.getApplicationData()).backToBackUserAgent;
+                btobua = ((DialogApplicationData) dialog.getApplicationData())
+                        .getBackToBackUserAgent();
             } else {
 
                 btobua = Gateway.getCallControlManager().getBackToBackUserAgent(provider,
@@ -156,6 +158,7 @@ public class CallControlManager {
                     serverTransaction.sendResponse(response);
                     return;
                 }
+
                 DialogApplicationData.attach(btobua, dialog);
             }
 
@@ -176,7 +179,7 @@ public class CallControlManager {
             }
 
         } catch (Exception ex) {
-            logger.error("Error processing request", ex);
+            logger.error("Error processing request " + requestEvent.getRequest(), ex);
             sendInternalError(serverTransaction, ex);
         }
     }
@@ -228,27 +231,14 @@ public class CallControlManager {
                             .createAllowHeader(types);
                     response.addHeader(allowHeader);
                 }
-                ViaHeader via = (ViaHeader) request.getHeader(ViaHeader.NAME);
-                String host = via.getHost();
-                int port = via.getPort();
-                ItspAccountInfo itspAccount = Gateway.getAccountManager().getItspAccount(host,
-                        port);
-                if (itspAccount == null) {
-                    response = ProtocolObjects.messageFactory.createResponse(Response.NOT_FOUND,
-                            request);
-                    serverTransaction.sendResponse(response);
-                    return;
-                }
-                contactHeader = SipUtilities.createContactHeader(null, provider, itspAccount
-                        .getOutboundTransport());
+                contactHeader = SipUtilities.createContactHeader(null, provider, null);
             }
 
             AcceptHeader acceptHeader = ProtocolObjects.headerFactory.createAcceptHeader(
                     "application", "sdp");
             response.setHeader(contactHeader);
             response.setHeader(acceptHeader);
-            // BUGBUG need to look at locale of the incoming request. This is
-            // chauvinistic :-)
+            // Should probably have a configurable option for this.
             Locale locale = Locale.ENGLISH;
             AcceptLanguageHeader acceptLanguage = ProtocolObjects.headerFactory
                     .createAcceptLanguageHeader(locale);
@@ -259,7 +249,7 @@ public class CallControlManager {
                 // We add our session description to the response.
                 DialogApplicationData dat = DialogApplicationData.get(dialog);
                 if (dat != null) {
-                    BackToBackUserAgent b2bua = dat.backToBackUserAgent;
+                    BackToBackUserAgent b2bua = dat.getBackToBackUserAgent();
                     RtpSession sym = null;
                     if (provider == Gateway.getLanProvider())
                         sym = b2bua.getLanRtpSession(dialog);
@@ -339,7 +329,6 @@ public class CallControlManager {
 
             Response response = ProtocolObjects.messageFactory.createResponse(Response.ACCEPTED,
                     request);
-            SupportedHeader sh = ProtocolObjects.headerFactory.createSupportedHeader("replaces");
             ServerTransaction serverTransaction = requestEvent.getServerTransaction();
 
             ContactHeader cth = SipUtilities.createContactHeader(null, provider, Gateway
@@ -351,7 +340,7 @@ public class CallControlManager {
              * Now Re-INVITE to the new location where REFER is pointing.
              */
             DialogApplicationData dat = (DialogApplicationData) dialog.getApplicationData();
-            BackToBackUserAgent btobua = dat.backToBackUserAgent;
+            BackToBackUserAgent btobua = dat.getBackToBackUserAgent();
 
             if (Gateway.isReInviteSupported()) {
                 // The ITSP supports re-invite. Send him a Re-INVITE
@@ -403,6 +392,8 @@ public class CallControlManager {
                 logger.debug("Could not find peer dialog -- not forwarding ACK!");
                 return;
             }
+            
+           
 
             /*
              * Forward the ACK if we have not already done so.
@@ -411,6 +402,7 @@ public class CallControlManager {
             DialogApplicationData dat = (DialogApplicationData) dialog.getApplicationData();
 
             if (dat != null
+                    && dialog.getState() == DialogState.CONFIRMED
                     && dat.lastResponse != null
                     && dat.lastResponse.getStatusCode() == Response.OK
                     && ((CSeqHeader) dat.lastResponse.getHeader(CSeqHeader.NAME)).getMethod()
@@ -458,11 +450,14 @@ public class CallControlManager {
                     .getApplicationData();
             ClientTransaction ct = tad.clientTransaction;
             ItspAccountInfo itspAccount = btobua.getItspAccountInfo();
+            String transport = itspAccount != null ? itspAccount.getOutboundTransport() :
+                Gateway.DEFAULT_ITSP_TRANSPORT;
             if (ct.getState() == TransactionState.CALLING
                     || ct.getState() == TransactionState.PROCEEDING) {
                 Request cancelRequest = ct.createCancel();
+                
                 SipProvider provider = SipUtilities.getPeerProvider((SipProvider) requestEvent
-                        .getSource(), itspAccount.getOutboundTransport());
+                        .getSource(), transport);
                 ClientTransaction clientTransaction = provider
                         .getNewClientTransaction(cancelRequest);
                 clientTransaction.sendRequest();
@@ -475,8 +470,7 @@ public class CallControlManager {
                 if (peerDialog != null) {
                     Request byeRequest = peerDialog.createRequest(Request.BYE);
                     SipProvider provider = SipUtilities.getPeerProvider(
-                            (SipProvider) requestEvent.getSource(), itspAccount
-                                    .getOutboundTransport());
+                            (SipProvider) requestEvent.getSource(), transport);
                     ClientTransaction byeCt = provider.getNewClientTransaction(byeRequest);
                     peerDialog.sendRequest(byeCt);
                 }
@@ -521,14 +515,15 @@ public class CallControlManager {
     private void sendSdpAnswerInAck(Response response, Dialog dialog) throws Exception {
         logger.debug("sendSdpAnswerInAck " + response);
         DialogApplicationData dat = (DialogApplicationData) dialog.getApplicationData();
-        BackToBackUserAgent b2bua = dat.backToBackUserAgent;
+        BackToBackUserAgent b2bua = dat.getBackToBackUserAgent();
+        Dialog peerDialog = DialogApplicationData.getPeerDialog(dialog);
+        DialogApplicationData peerDialogApplicationData = (DialogApplicationData) peerDialog
+                .getApplicationData();
+        peerDialogApplicationData.isSdpAnswerPending = false;
         if (response.getContentLength().getContentLength() != 0) {
-            Dialog peerDialog = DialogApplicationData.getPeerDialog(dialog);
+
             SessionDescription sd = SipUtilities.cleanSessionDescription(SipUtilities
                     .getSessionDescription(response), Gateway.getCodecName());
-
-            DialogApplicationData peerDialogApplicationData = (DialogApplicationData) peerDialog
-                    .getApplicationData();
 
             /*
              * Got a Response to our SDP query. Shuffle to the other end.
@@ -544,7 +539,7 @@ public class CallControlManager {
                     b2bua.getWanRtcpSession(peerDialog).getReceiver().setSessionDescription(sd,
                             false);
                 }
-                SipUtilities.incrementSdpVersion(sd);
+                SipUtilities.incrementSessionVersion(sd);
 
             } else {
                 b2bua.getLanRtpSession(peerDialog).getReceiver().setSessionDescription(sd, true);
@@ -552,7 +547,7 @@ public class CallControlManager {
                     b2bua.getLanRtcpSession(peerDialog).getReceiver().setSessionDescription(sd,
                             false);
                 }
-                SipUtilities.incrementSdpVersion(sd);
+                SipUtilities.incrementSessionVersion(sd);
             }
 
             if (Gateway.isReInviteSupported()) {
@@ -560,7 +555,6 @@ public class CallControlManager {
                         .createContentTypeHeader("application", "sdp"));
                 peerDialog.sendAck(ackRequest);
             }
-            peerDialogApplicationData.isSdpAnswerPending = false;
 
         } else {
             logger.error("ERROR  0 contentLength ");
@@ -580,19 +574,36 @@ public class CallControlManager {
         logger.debug("processInviteResponse : " + ((SIPResponse) response).getFirstLine());
 
         Dialog dialog = responseEvent.getDialog();
+
         try {
             if (responseEvent.getClientTransaction() == null) {
                 logger.debug("Could not find client transaction -- must be stray response.");
+                if (response.getStatusCode() == 200 && dialog != null) {
+                    Request ack = dialog.createAck(((CSeqHeader) response
+                            .getHeader(CSeqHeader.NAME)).getSeqNumber());
+
+                    dialog.sendAck(ack);
+
+                }
+                return;
+            } else if (((TransactionApplicationData) responseEvent.getClientTransaction()
+                    .getApplicationData()).operation == Operation.SESSION_TIMER
+                    && dialog != null) {
                 if (response.getStatusCode() == 200) {
                     Request ack = dialog.createAck(((CSeqHeader) response
                             .getHeader(CSeqHeader.NAME)).getSeqNumber());
                     dialog.sendAck(ack);
 
+                } else {
+                    BackToBackUserAgent b2bua = DialogApplicationData.get(dialog)
+                            .getBackToBackUserAgent();
+                    b2bua.tearDown();
                 }
                 return;
+
             }
         } catch (Exception ex) {
-            logger.error("Unexpected error sending ACK for 200 OK");
+            logger.error("Unexpected error sending ACK for 200 OK", ex);
             return;
         }
         DialogApplicationData dat = (DialogApplicationData) dialog.getApplicationData();
@@ -613,7 +624,7 @@ public class CallControlManager {
             }
 
         }
-        BackToBackUserAgent b2bua = dat.backToBackUserAgent;
+        BackToBackUserAgent b2bua = dat.getBackToBackUserAgent();
 
         if (b2bua == null) {
             logger.fatal("Could not find a BackToBackUA -- dropping the response");
@@ -672,7 +683,7 @@ public class CallControlManager {
                      * Store away our incoming response - get ready for ACK
                      */
                     dat.lastResponse = response;
-                    dat.backToBackUserAgent = b2bua;
+                    dat.setBackToBackUserAgent(b2bua);
 
                     dialog.setApplicationData(dat);
 
@@ -738,7 +749,7 @@ public class CallControlManager {
                         DialogApplicationData dialogApplicationData = (DialogApplicationData) dialog
                                 .getApplicationData();
 
-                        RtpSession rtpSession = dialogApplicationData.rtpSession;
+                        RtpSession rtpSession = dialogApplicationData.getRtpSession();
                         RtpTransmitterEndpoint hisEndpoint = null;
                         if (rtpSession != null) {
                             hisEndpoint = rtpSession.getTransmitter();
@@ -753,7 +764,7 @@ public class CallControlManager {
                         RtpTransmitterEndpoint hisRtcpEndpoint = null;
 
                         if (Gateway.isRtcpRelayingSupported()) {
-                            RtpSession rtcpSession = dialogApplicationData.rtcpSession;
+                            RtpSession rtcpSession = dialogApplicationData.getRtcpSession();
                             if (rtcpSession != null) {
                                 hisRtcpEndpoint = rtcpSession.getTransmitter();
                             }
@@ -769,7 +780,8 @@ public class CallControlManager {
                         hisEndpoint.setSessionDescription(sessionDescription, true);
 
                         if (tad.operation == Operation.SEND_INVITE_TO_ITSP) {
-                            if (!tad.itspAccountInfo.getRtpKeepaliveMethod().equals("NONE")) {
+                            if (!tad.itspAccountInfo.getRtpKeepaliveMethod().equals(
+                                    KeepaliveMethod.NONE)) {
                                 hisEndpoint.setMaxSilence(Gateway.getMediaKeepaliveMilisec(),
                                         tad.itspAccountInfo.getRtpKeepaliveMethod());
                                 if (Gateway.isRtcpRelayingSupported()) {
@@ -797,11 +809,7 @@ public class CallControlManager {
                         if (tad.backToBackUa.getRtcpBridge() != null) {
                             tad.backToBackUa.getRtcpBridge().start();
                         }
-                        dialogApplicationData.codecName = SipUtilities.getCodecName(newResponse);
-                        if (logger.isDebugEnabled()) {
-                            logger.debug("dialog = " + dialog + " codec = "
-                                    + dialogApplicationData.codecName);
-                        }
+                       
 
                     }
                     if (logger.isDebugEnabled() && response.getStatusCode() == 200) {
@@ -819,13 +827,6 @@ public class CallControlManager {
                      * outbound RTP stream. Fix up the media session using the port in the
                      * incoming sdp answer.
                      */
-                    /*
-                     * Record the codec name that was used for call setup.
-                     */
-                    if (response.getStatusCode() == 200
-                            && response.getContentLength().getContentLength() != 0) {
-                        dat.codecName = SipUtilities.getCodecName(response);
-                    }
                     ContentTypeHeader cth = (ContentTypeHeader) response
                             .getHeader(ContentTypeHeader.NAME);
                     Dialog referDialog = tad.referingDialog;
@@ -841,9 +842,9 @@ public class CallControlManager {
                         logger.debug("Processing ReferRedirection Response");
 
                         RtpSession rtpSession = ((DialogApplicationData) referDialog
-                                .getApplicationData()).rtpSession;
+                                .getApplicationData()).getRtpSession();
                         RtpSession rtcpSession = ((DialogApplicationData) referDialog
-                                .getApplicationData()).rtcpSession;
+                                .getApplicationData()).getRtcpSession();
                         if (rtpSession != null) {
 
                             /*
@@ -865,8 +866,10 @@ public class CallControlManager {
                             if (b2bua.getRtcpBridge() != null) {
                                 b2bua.getRtcpBridge().addSym(rtcpSession);
                             }
-                            ((DialogApplicationData) dialog.getApplicationData()).rtpSession = rtpSession;
-                            ((DialogApplicationData) dialog.getApplicationData()).rtcpSession = rtcpSession;
+                            ((DialogApplicationData) dialog.getApplicationData())
+                                    .setRtpSession(rtpSession);
+                            ((DialogApplicationData) dialog.getApplicationData())
+                                    .setRtcpSession(rtcpSession);
                         } else {
                             logger
                                     .debug("Processing ReferRedirection: Could not find RtpSession for referred dialog");
@@ -1050,7 +1053,9 @@ public class CallControlManager {
             } else {
                 /*
                  * Check the Via header of the inbound request to see if this is an account we
-                 * know about (TODO -- do a better job of authenticating inbound requests ).
+                 * know about. This will be the case when there is a registration for the request
+                 * and we have a hop to its proxy. If we know where the request is coming from, we
+                 * can set up various response fields accordingly.
                  */
                 ViaHeader viaHeader = (ViaHeader) request.getHeader(ViaHeader.NAME);
                 String host = viaHeader.getHost();
@@ -1061,8 +1066,9 @@ public class CallControlManager {
             if (this.backToBackUserAgentTable.containsKey(callId)) {
                 b2bua = this.backToBackUserAgentTable.get(callId);
             } else {
-                if (accountInfo == null)
-                    return null;
+                // if (accountInfo == null) {
+                // return null;
+                // }
                 b2bua = new BackToBackUserAgent(provider, request, dialog, accountInfo);
 
                 DialogApplicationData.attach(b2bua, dialog);
@@ -1085,10 +1091,9 @@ public class CallControlManager {
         } else if (dialog.getApplicationData() == null) {
             logger.debug("null dialog application data -- returning null");
             return null;
-
-        } else
-            return ((DialogApplicationData) dialog.getApplicationData()).backToBackUserAgent;
-
+        } else {
+            return ((DialogApplicationData) dialog.getApplicationData()).getBackToBackUserAgent();
+        }
     }
 
     /**

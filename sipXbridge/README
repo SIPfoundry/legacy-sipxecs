@@ -48,9 +48,24 @@ Here are my linux firewall rules:
 iptables -t nat -A PREROUTING -p udp --dport 15000:15500 -j DNAT --to-destination 192.168.5.240
 iptables -A FORWARD -i $EXTIF -o $INTIF0 -d 192.168.5.240 -p udp --dport 15000:15500 -j ACCEPT
 
-Here, my sipxbridge runs in the port range 15000 to 15600 
-EXTIF is my WAN-facing interface ( eth3 ).
-INTIF is my WAN-facing interface ( eth0 ).
+Some ITSPs (notably bandwidth.com ) do not accept REGISTER. You will
+have to provide them with a static IP address and configure your firewall
+to forward packets to sipxbridge. Such providers will send signaling to
+port 5060.
+
+iptables -t nat -A PREROUTING -i $EXTIF -p udp --dport 5060 -j DNAT --to-destination 192.168.5.240:5080
+iptables -A FORWARD -i $EXTIF -o $INTIF0 -d 192.168.5.240 -p udp --dport 5080 -j ACCEPT
+iptables -t nat -A POSTROUING -s 192.168.5.240 -o $EXTIF -j MASQUERADE
+iptables -A FORWARD -p udp --sport 5060 -o eth0 -j ACCEPT
+iptables -A FORWARD -i eth3 -o eth0 -m state --state ESTABLISHED,RELATED -j ACCEPT
+iptables -A FORWARD -i eth0 -o eth3 -m state --state ESTABLISHED,RELATED -j ACCEPT
+
+
+Here, my sipxbridge runs on 192.168.5.240 and accepts inbound signaling on port 5080.
+It sends media in the port range 15000 to 15500 
+
+EXTIF is my WAN-facing interface of the NAT ( eth3 ).
+INTIF is my LAN-facing interface of the NAT ( eth0 ).
 
 Warnings and disclaimers
 ------------------------

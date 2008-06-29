@@ -15,6 +15,7 @@ import java.util.TimerTask;
 import javax.sip.address.SipURI;
 
 import org.apache.log4j.Logger;
+import org.sipfoundry.sipxbridge.symmitron.KeepaliveMethod;
 import org.xbill.DNS.Lookup;
 import org.xbill.DNS.Record;
 import org.xbill.DNS.SRVRecord;
@@ -83,10 +84,7 @@ public class ItspAccountInfo implements gov.nist.javax.sip.clientauthutils.UserC
      */
     private boolean rportUsed = false;
 
-    /**
-     * Route inbound calls to auto attendant.
-     */
-    private String autoAttendantName = null;
+   
     /**
      * Whether or not to register on gateway initialization
      */
@@ -114,7 +112,7 @@ public class ItspAccountInfo implements gov.nist.javax.sip.clientauthutils.UserC
 
     private CrLfTimerTask crlfTimerTask;
 
-    private String rtpKeepaliveMethod = "USE-EMPTY-PACKET";
+    private KeepaliveMethod rtpKeepaliveMethod = KeepaliveMethod.USE_EMPTY_PACKET;
 
     private boolean useRegistrationForCallerId = true;
 
@@ -299,17 +297,7 @@ public class ItspAccountInfo implements gov.nist.javax.sip.clientauthutils.UserC
         }
     }
 
-    public boolean isInboundCallsRoutedToAutoAttendant() {
-        return this.autoAttendantName != null;
-    }
-
-    public void setAutoAttendantName(String autoAttendantName) {
-        this.autoAttendantName = autoAttendantName;
-    }
-
-    public String getAutoAttendantName() {
-        return this.autoAttendantName;
-    }
+   
 
     public int getRegistrationInterval() {
         return registrationInterval;
@@ -489,13 +477,13 @@ public class ItspAccountInfo implements gov.nist.javax.sip.clientauthutils.UserC
      * @param rtpKeepaliveMethod the rtpKeepaliveMethod to set
      */
     public void setRtpKeepaliveMethod(String rtpKeepaliveMethod) {
-        this.rtpKeepaliveMethod = rtpKeepaliveMethod;
+        this.rtpKeepaliveMethod = KeepaliveMethod.valueOfString(rtpKeepaliveMethod);
     }
 
     /**
      * @return the rtpKeepaliveMethod
      */
-    public String getRtpKeepaliveMethod() {
+    public KeepaliveMethod getRtpKeepaliveMethod() {
         return rtpKeepaliveMethod;
     }
 

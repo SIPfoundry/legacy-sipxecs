@@ -112,6 +112,8 @@ class TransactionApplicationData {
      
     Object continuationData;
 
+    String itspTransport;
+
    
     
    

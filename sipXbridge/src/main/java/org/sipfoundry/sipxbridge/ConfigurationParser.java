@@ -50,8 +50,14 @@ public class ConfigurationParser {
                 "stun-server-address"), "setStunServerAddress", 0);
         digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG,
                 "stun-interval"), "setGlobalAddressRediscoveryPeriod", 0);
+        
         digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG,
         "global-address"), "setGlobalAddress", 0);  
+        digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG,
+        "global-port"), "setGlobalPort", 0,
+        new Class[] { Integer.class });
+        
+        
         digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG,
                 "allowed-codec-name"), "setCodecName", 0);
         digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG,
@@ -77,6 +83,9 @@ public class ConfigurationParser {
         digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG,
         "is-reinvite-supported"), "setReInviteSupported", 0,
         new Class[] { Boolean.class });
+        digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG,
+        "route-inbound-calls-to-extension"), "setAutoAttendantName", 0,
+        new Class[] { String.class });
         /*
          * ITSP configuration support parameters.
          */
@@ -122,9 +131,7 @@ public class ConfigurationParser {
         
         
 
-        digester.addCallMethod(String.format("%s/%s", ITSP_CONFIG,
-                "route-inbound-calls-to-extension"), "setAutoAttendantName", 0,
-                new Class[] { String.class });
+       
         digester.addCallMethod(String.format("%s/%s", ITSP_CONFIG,
                 "register-on-initialization"), "setRegisterOnInitialization",
                 0, new Class[] { Boolean.class });

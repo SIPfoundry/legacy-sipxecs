@@ -11,6 +11,7 @@ import javax.sip.Dialog;
 import javax.sip.ServerTransaction;
 import javax.sip.message.Response;
 
+import org.apache.log4j.Logger;
 import org.sipfoundry.sipxbridge.symmitron.Sym;
 
 /**
@@ -22,6 +23,8 @@ import org.sipfoundry.sipxbridge.symmitron.Sym;
  */
 class DialogApplicationData {
 
+    private static Logger logger = Logger.getLogger(DialogApplicationData.class);
+    
     /*
      * Whether or not to forward requests to the PeerDialogs of this dialog (
      * assuming the state of the Dialog is not TERMINATED).
@@ -41,7 +44,7 @@ class DialogApplicationData {
     /*
      * The B2BUA associated with the dialog.
      */
-    BackToBackUserAgent backToBackUserAgent;
+    private BackToBackUserAgent backToBackUserAgent;
 
     /*
      * The replaced dialog (for Consultative XFer processing ).
@@ -57,20 +60,21 @@ class DialogApplicationData {
      * Rtp session associated with this call leg.
      */
 
-    RtpSession rtpSession;
+    private RtpSession rtpSession;
     
-    /*
-     * The Negotiated codec for the call leg ( extracted from the response ).
-     */
-    String codecName;
-
     /*
      * The RTCP session.
      */
-    RtpSession rtcpSession;
+    private RtpSession rtcpSession;
     
     
     boolean isSdpAnswerPending;
+
+    
+    /*
+     * Account information for the outbound dialog.
+     */
+    ItspAccountInfo itspInfo; 
    
 
     
@@ -98,13 +102,58 @@ class DialogApplicationData {
         if ( backToBackUserAgent == null ) 
             throw new NullPointerException("Null back2back ua");
         DialogApplicationData dat = new DialogApplicationData();
-        dat.backToBackUserAgent = backToBackUserAgent;
+        dat.setBackToBackUserAgent(backToBackUserAgent);
         dialog.setApplicationData(dat);
         return dat;
     }
 
     public static DialogApplicationData get(Dialog dialog) {
         return (DialogApplicationData) dialog.getApplicationData();
+    }
+
+    /**
+     * @param rtpSession the rtpSession to set
+     */
+    public void setRtpSession(RtpSession rtpSession) {
+        if ( this.rtpSession != null ) {
+            logger.warn("Resetting RTP session ", new Exception());
+        }
+        this.rtpSession = rtpSession;
+    }
+
+    /**
+     * @return the rtpSession
+     */
+    public RtpSession getRtpSession() {
+        return rtpSession;
+    }
+
+    /**
+     * @param rtcpSession the rtcpSession to set
+     */
+    public void setRtcpSession(RtpSession rtcpSession) {
+        this.rtcpSession = rtcpSession;
+    }
+
+    /**
+     * @return the rtcpSession
+     */
+    public RtpSession getRtcpSession() {
+        return rtcpSession;
+    }
+
+    /**
+     * @param backToBackUserAgent the backToBackUserAgent to set
+     */
+    public void setBackToBackUserAgent(BackToBackUserAgent backToBackUserAgent) {
+        this.backToBackUserAgent = backToBackUserAgent;
+    }
+
+    /**
+     * @return the backToBackUserAgent
+     */
+    public BackToBackUserAgent getBackToBackUserAgent() {
+        return backToBackUserAgent;
     }
     
 

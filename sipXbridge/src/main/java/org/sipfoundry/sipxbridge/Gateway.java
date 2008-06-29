@@ -166,6 +166,10 @@ class Gateway {
      */
     private static final int MAX_REGISTRATION_TIMER = 10000;
 
+    
+    protected static final String DEFAULT_ITSP_TRANSPORT = "udp";
+    
+
     private static boolean isTlsSupportEnabled = false;
 
     private static int callCount;
@@ -709,16 +713,16 @@ class Gateway {
 
                 }
                 if (dat != null) {
-                    BackToBackUserAgent b2bua = dat.backToBackUserAgent;
+                    BackToBackUserAgent b2bua = dat.getBackToBackUserAgent();
                     if (b2bua != null) {
                         b2bua.removeDialog(dialog);
 
                     }
 
-                    if (dat.backToBackUserAgent != null
-                            && dat.backToBackUserAgent.getCreatingDialog() == dialog) {
+                    if (dat.getBackToBackUserAgent() != null
+                            && dat.getBackToBackUserAgent().getCreatingDialog() == dialog) {
 
-                        ItspAccountInfo itspAccountInfo = dat.backToBackUserAgent
+                        ItspAccountInfo itspAccountInfo = dat.getBackToBackUserAgent()
                                 .getItspAccountInfo();
 
                         Gateway.decrementCallCount();
@@ -740,6 +744,7 @@ class Gateway {
 
     /**
      * Get the global address of bridge.
+     * This is the publicly routable address of the bridge.
      * 
      * @return
      */
@@ -749,6 +754,18 @@ class Gateway {
                 : Gateway.accountManager.getBridgeConfiguration().getGlobalAddress();
     }
 
+    /**
+     * Get the global port of the bridge. 
+     * This is the publicly routable port of the bridge.
+     * 
+     * @return
+     */
+    public static int getGlobalPort() {
+        return Gateway.accountManager.getBridgeConfiguration().getGlobalPort() != -1 ? 
+                Gateway.accountManager.getBridgeConfiguration().getGlobalPort() :
+                    Gateway.accountManager.getBridgeConfiguration().getExternalPort();
+    }
+    
     /**
      * Get the web server port.
      * 
@@ -836,7 +853,21 @@ class Gateway {
     public static Timer getTimer() {
         return timer;
     }
+    public static String getSessionTimerMethod() {
+        
+        return Request.OPTIONS;
+    }
+    
+    public static boolean isInboundCallsRoutedToAutoAttendant() {
+        return accountManager.getBridgeConfiguration().isInboundCallsRoutedToAutoAttendant();
+     }
+    
+    public static String getAutoAttendantName() {
+        return accountManager.getBridgeConfiguration().getAutoAttendantName();
+    }
 
+    
+    
     /**
      * The main method for the Bridge.
      * 
@@ -864,9 +895,9 @@ class Gateway {
                 SipStackExt sipStack = (SipStackExt) ProtocolObjects.sipStack;
                 for (Dialog dialog : sipStack.getDialogs()) {
                     DialogApplicationData dat = DialogApplicationData.get(dialog);
-                    if (dat != null && dat.backToBackUserAgent != null) {
-                        dat.backToBackUserAgent.tearDown();
-                        dat.backToBackUserAgent = null;
+                    if (dat != null && dat.getBackToBackUserAgent() != null) {
+                        dat.getBackToBackUserAgent().tearDown();
+                        dat.setBackToBackUserAgent(null);
                     }
                 }
                 Thread.sleep(10000);
@@ -901,6 +932,13 @@ class Gateway {
         }
 
     }
+
+   
+   
+
+   
+
+   
 
    
 

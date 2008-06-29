@@ -382,7 +382,8 @@ public class SymmitronServer implements Symmitron {
 
             transmitter.setIpAddressAndPort(ipAddress, port);
             transmitter.computeAutoDiscoveryFlag();
-            transmitter.setMaxSilence(keepAliveTime, keepaliveMethod);
+            KeepaliveMethod method = KeepaliveMethod.valueOfString(keepaliveMethod);
+            transmitter.setMaxSilence(keepAliveTime, method);
 
             byte[] keepAliveBytes = null;
             if (keepAlivePacketData.equals("")) {

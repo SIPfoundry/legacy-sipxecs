@@ -34,7 +34,7 @@ public class SymTransmitterEndpoint extends SymEndpoint {
 
     private AutoDiscoveryFlag remoteAddressAutoDiscovered = AutoDiscoveryFlag.NO_AUTO_DISCOVERY;
 
-    private String keepaliveMethod = "USE-EMPTY-PACKET";
+    private KeepaliveMethod keepaliveMethod = KeepaliveMethod.USE_EMPTY_PACKET;
 
     private KeepaliveTimerTask keepaliveTimerTask;
 
@@ -75,12 +75,12 @@ public class SymTransmitterEndpoint extends SymEndpoint {
                 if (now - lastPacketSentTime < maxSilence) {
                     return;
                 }
-                if (keepaliveMethod.equals("USE-EMPTY-PACKET")) {
+                if (keepaliveMethod.equals(KeepaliveMethod.USE_EMPTY_PACKET)) {
                     if (datagramChannel != null && getSocketAddress() != null
                             && datagramChannel.isOpen() && getSocketAddress() != null)
                         datagramChannel.send(emptyBuffer, getSocketAddress());
 
-                } else if (keepaliveMethod.equals("REPLAY-LAST-SENT-PACKET")) {
+                } else if (keepaliveMethod.equals(KeepaliveMethod.REPLAY_LAST_SENT_PACKET)) {
                     if (keepAliveBuffer != null && datagramChannel != null
                             && getSocketAddress() != null && datagramChannel.isOpen()
                             && getSocketAddress() != null) {
@@ -133,12 +133,12 @@ public class SymTransmitterEndpoint extends SymEndpoint {
         if (this.datagramChannel != null) {
             this.datagramChannel.send(byteBuffer, this.getSocketAddress());
         }
-        if (keepaliveMethod.equals("REPLAY-LAST-SENT-PACKET")) {
+        if (keepaliveMethod.equals(KeepaliveMethod.REPLAY_LAST_SENT_PACKET)) {
             this.keepAliveBuffer = byteBuffer;
         }
     }
 
-    public void setMaxSilence(int maxSilence, String keepaliveMethod) {
+    public void setMaxSilence(int maxSilence, KeepaliveMethod keepaliveMethod) {
         logger.debug("RtpEndpoint : setMaxSilence " + maxSilence);
         if (this.earlyMediaStarted) {
             logger.debug("early media started !");
@@ -146,7 +146,7 @@ public class SymTransmitterEndpoint extends SymEndpoint {
         }
         this.maxSilence = maxSilence;
         this.keepaliveMethod = keepaliveMethod;
-        if (maxSilence != 0 && !keepaliveMethod.equals("NONE")) {
+        if (maxSilence != 0 && !keepaliveMethod.equals(KeepaliveMethod.NONE)) {
             this.startKeepaliveTimer();
         }
     }

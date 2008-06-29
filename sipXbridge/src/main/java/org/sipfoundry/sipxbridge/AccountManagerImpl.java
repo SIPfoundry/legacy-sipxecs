@@ -189,12 +189,35 @@ public class AccountManagerImpl implements gov.nist.javax.sip.clientauthutils.Ac
         return this.domainNameToProxyAddressMap.get(host);
     }
 
+    /**
+     * Get an ITSP account based on the host and port of the indbound request.
+     * 
+     * @param host
+     * @param port
+     * @return
+     */
     public ItspAccountInfo getItspAccount(String host, int port) {
         int nport = port == -1 ? 5060 : port;
 
         for (HopImpl hop : this.domainNameToProxyAddressMap.values()) {
             if (hop.getHost().equals(host) && hop.getPort() == nport)
                 return hop.getItspAccountInfo();
+        }
+        return null;
+    }
+
+    /**
+     * Find the account info corresponding to a request URI.
+     * 
+     * @param requestURI
+     * @return
+     */
+    public ItspAccountInfo getItspAccount(SipURI requestURI) {
+        String host = requestURI.getHost();
+        for ( ItspAccountInfo accountInfo : this.getItspAccounts()) {
+            if ( host.endsWith( accountInfo.getSipDomain())) {
+                return accountInfo;
+            }
         }
         return null;
     }

@@ -108,21 +108,21 @@ public class RtpSession extends Sym {
 
                 }
                 SipUtilities.setDuplexity(this.getReceiver().getSessionDescription(), "recvonly");
-                SipUtilities.incrementSdpVersion(this.getReceiver().getSessionDescription());
+                SipUtilities.incrementSessionVersion(this.getReceiver().getSessionDescription());
                 return this.getReceiver().getSessionDescription();
             } else if (newport == oldPort && oldIpAddress.equals(newIpAddress)) {
                 if (attribute == null || attribute.equals("sendrecv")) {
                     logger.debug("Remove media on hold!");
                     SipUtilities.setDuplexity(this.getReceiver().getSessionDescription(),
                             "sendrecv");
-                    SipUtilities.incrementSdpVersion(this.getReceiver().getSessionDescription());
+                    SipUtilities.incrementSessionVersion(this.getReceiver().getSessionDescription());
                     this.getTransmitter().setOnHold(false);
 
                     DialogApplicationData dat = (DialogApplicationData) dialog
                             .getApplicationData();
                     if (dat.musicOnHoldDialog != null
                             && dat.musicOnHoldDialog.getState() != DialogState.TERMINATED) {
-                        BackToBackUserAgent b2bua = dat.backToBackUserAgent;
+                        BackToBackUserAgent b2bua = dat.getBackToBackUserAgent();
                         b2bua.sendByeToMohServer(dat.musicOnHoldDialog);
                     }
                 } else if (attribute != null && attribute.equals("sendonly")) {
@@ -154,7 +154,7 @@ public class RtpSession extends Sym {
                     SipUtilities.setDuplexity(this.getReceiver().getSessionDescription(),
                             "recvonly");
 
-                    SipUtilities.incrementSdpVersion(this.getReceiver().getSessionDescription());
+                    SipUtilities.incrementSessionVersion(this.getReceiver().getSessionDescription());
                 } else if (attribute != null && attribute.equals("inactive")) {
                     logger.debug("Setting media on hold. -- saw an inactive Session attribute");
                     this.getTransmitter().setOnHold(true);
@@ -176,7 +176,7 @@ public class RtpSession extends Sym {
                     SipUtilities.setDuplexity(this.getReceiver().getSessionDescription(),
                             "inactive");
 
-                    SipUtilities.incrementSdpVersion(this.getReceiver().getSessionDescription());
+                    SipUtilities.incrementSessionVersion(this.getReceiver().getSessionDescription());
                 }
                 return this.getReceiver().getSessionDescription();
             } else {

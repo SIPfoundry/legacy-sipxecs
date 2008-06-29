@@ -67,16 +67,16 @@ public class SipListenerImpl implements SipListener {
 
         }
         if (dat != null) {
-            BackToBackUserAgent b2bua = dat.backToBackUserAgent;
+            BackToBackUserAgent b2bua = dat.getBackToBackUserAgent();
             if (b2bua != null) {
                 b2bua.removeDialog(dte.getDialog());
 
             }
 
-            if (dat.backToBackUserAgent != null
-                    && dat.backToBackUserAgent.getCreatingDialog() == dte.getDialog()) {
+            if (dat.getBackToBackUserAgent() != null
+                    && dat.getBackToBackUserAgent().getCreatingDialog() == dte.getDialog()) {
 
-                ItspAccountInfo itspAccountInfo = dat.backToBackUserAgent.getItspAccountInfo();
+                ItspAccountInfo itspAccountInfo = dat.getBackToBackUserAgent().getItspAccountInfo();
 
                 Gateway.decrementCallCount();
 
@@ -179,7 +179,7 @@ public class SipListenerImpl implements SipListener {
 
                 if (response.getStatusCode() == Response.CALL_OR_TRANSACTION_DOES_NOT_EXIST) {
                     Dialog dialog = responseEvent.getClientTransaction().getDialog();
-                    BackToBackUserAgent b2bua = DialogApplicationData.get(dialog).backToBackUserAgent;
+                    BackToBackUserAgent b2bua = DialogApplicationData.get(dialog).getBackToBackUserAgent();
                     b2bua.tearDown();
                 }
 
@@ -240,8 +240,8 @@ public class SipListenerImpl implements SipListener {
                     DialogApplicationData peerDialogApplicationData = (DialogApplicationData) dialogApplicationData.peerDialog
                             .getApplicationData();
                     peerDialogApplicationData.peerDialog = newClientTransaction.getDialog();
-                    newDialogApplicationData.rtpSession = dialogApplicationData.rtpSession;
-                    newDialogApplicationData.rtcpSession = dialogApplicationData.rtcpSession;
+                    newDialogApplicationData.setRtpSession(dialogApplicationData.getRtpSession());
+                    newDialogApplicationData.setRtcpSession(dialogApplicationData.getRtcpSession());
 
                     if (logger.isDebugEnabled()) {
                         logger.debug("SipListenerImpl: New Dialog = "
@@ -297,7 +297,7 @@ public class SipListenerImpl implements SipListener {
                 if (request.getMethod().equals(Request.OPTIONS)) {
                     ClientTransaction clientTransaction = timeoutEvent.getClientTransaction();
                     Dialog dialog = clientTransaction.getDialog();
-                    BackToBackUserAgent b2bua = DialogApplicationData.get(dialog).backToBackUserAgent;
+                    BackToBackUserAgent b2bua = DialogApplicationData.get(dialog).getBackToBackUserAgent();
                     b2bua.tearDown();
                 } else if (request.getMethod().equals(Request.REGISTER)) {
                     Gateway.getRegistrationManager().processTimeout(timeoutEvent);
@@ -345,7 +345,7 @@ public class SipListenerImpl implements SipListener {
             DialogApplicationData dat = (DialogApplicationData) dialog.getApplicationData();
             if (dat == null)
                 return; // Nothing to do must be MOH Dialog.
-            BackToBackUserAgent b2bua = dat.backToBackUserAgent;
+            BackToBackUserAgent b2bua = dat.getBackToBackUserAgent();
             if (b2bua != null && dialog == b2bua.getCreatingDialog()
                     && b2bua.getItspAccountInfo() != null) {
                 b2bua.getItspAccountInfo().incrementCallCount();
