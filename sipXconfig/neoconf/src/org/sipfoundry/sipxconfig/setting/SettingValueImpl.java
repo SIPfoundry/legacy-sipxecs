@@ -38,9 +38,6 @@ public class SettingValueImpl implements SettingValue {
         }
         
         SettingValue value = (SettingValue) ovalue;
-        if (value == null) {
-            return false;
-        }
         String svalue = value.getValue();
         if (m_value == null) {
             return svalue == null;

@@ -40,7 +40,8 @@ public abstract class BackupPlan extends BeanWithId implements ApplicationContex
     public static final String CONFIGURATION_ARCHIVE = "configuration.tar.gz";
     public static final FilenameFilter BACKUP_FILE_FILTER = new FilenameFilter() {
         public boolean accept(File dir, String name) {
-            return name.equalsIgnoreCase(VOICEMAIL_ARCHIVE) || name.equalsIgnoreCase(CONFIGURATION_ARCHIVE);
+            return name.equalsIgnoreCase(VOICEMAIL_ARCHIVE)
+                    || name.equalsIgnoreCase(CONFIGURATION_ARCHIVE);
         }
     };
     private static final SimpleDateFormat FILE_NAME_FORMAT = new SimpleDateFormat("yyyyMMddHHmm");
@@ -62,9 +63,7 @@ public abstract class BackupPlan extends BeanWithId implements ApplicationContex
 
     private Collection<DailyBackupSchedule> m_schedules = new ArrayList<DailyBackupSchedule>(0);
 
-
     private Timer m_timer;
-
 
     protected File createBackupDirectory(File rootBackupDir) {
         File backupDir = getNextBackupDir(rootBackupDir);
@@ -80,10 +79,8 @@ public abstract class BackupPlan extends BeanWithId implements ApplicationContex
             File[] backupFiles = getBackupFiles(backupDir);
             sendEmail(backupFiles);
             return backupFiles;
-        } else {
-            return null;
         }
-
+        return null;
     }
 
     public File[] perform(String rootBackupPath, String binPath) {
@@ -122,8 +119,10 @@ public abstract class BackupPlan extends BeanWithId implements ApplicationContex
             return;
         }
         Locale locale = Locale.getDefault();
-        String subject = m_applicationContext.getMessage("backup.subject", ArrayUtils.EMPTY_OBJECT_ARRAY, locale);
-        String body = m_applicationContext.getMessage("backup.body", ArrayUtils.EMPTY_OBJECT_ARRAY, locale);
+        String subject = m_applicationContext.getMessage("backup.subject",
+                ArrayUtils.EMPTY_OBJECT_ARRAY, locale);
+        String body = m_applicationContext.getMessage("backup.body",
+                ArrayUtils.EMPTY_OBJECT_ARRAY, locale);
         m_mailSenderContext.sendMail(m_emailAddress, m_emailFromAddress, subject, body, confFile);
     }
 
@@ -164,8 +163,10 @@ public abstract class BackupPlan extends BeanWithId implements ApplicationContex
         m_backupScript = script;
     }
 
-    private boolean perform(File workingDir, File binDir) throws IOException, InterruptedException {
-        ProcessBuilder pb = new ProcessBuilder(binDir.getPath() + File.separator + m_backupScript, "-n");
+    private boolean perform(File workingDir, File binDir) throws IOException,
+            InterruptedException {
+        ProcessBuilder pb = new ProcessBuilder(
+                binDir.getPath() + File.separator + m_backupScript, "-n");
         if (!isVoicemail()) {
             // Configuration only.
             pb.command().add("-c");
@@ -295,6 +296,7 @@ public abstract class BackupPlan extends BeanWithId implements ApplicationContex
     public void setEmailFromAddress(String emailFromAddress) {
         m_emailFromAddress = emailFromAddress;
     }
+
     public Timer getTimer() {
         return m_timer;
     }

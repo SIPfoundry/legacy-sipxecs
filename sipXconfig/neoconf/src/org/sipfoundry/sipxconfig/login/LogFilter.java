@@ -38,7 +38,7 @@ public class LogFilter implements Serializable {
     }
 
     private boolean matchQuery(String token, String query) {
-        if (query == null || (query != null && StringUtils.trim(token).equals(query))) {
+        if (query == null || StringUtils.trim(token).equals(query)) {
             // filter disabled or query string match
             return true;
         }

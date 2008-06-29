@@ -211,9 +211,6 @@ public class AdminContextImpl extends HibernateDaoSupport implements AdminContex
         for (String directoryName : directoryNames) {
             backupFolders[i++] = new File(getFtpBackupDirectory() + File.separator + directoryName);
         }
-        if (backupFolders == null) {
-            return Collections.emptyList();
-        }
         List<Map<Type, BackupBean>> backupBeans = new ArrayList<Map<Type, BackupBean>>();
         for (File backupFolder : backupFolders) {
             String [] names = ftpContext.list(backupFolder.getName());

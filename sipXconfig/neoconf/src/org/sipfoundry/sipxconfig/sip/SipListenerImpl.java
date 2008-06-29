@@ -47,12 +47,12 @@ class SipListenerImpl implements SipListener {
     public void processRequest(RequestEvent requestEvent) {
         try {
             ServerTransaction serverTransaction = requestEvent.getServerTransaction();
-            LOG.debug("SipListenerImpl: processing incoming request "
-                    + serverTransaction.getRequest().getMethod());
             if (serverTransaction == null) {
                 LOG.debug("processRequest : NULL ServerTransaction -- dropping request");
                 return;
             }
+            LOG.debug("SipListenerImpl: processing incoming request "
+                    + serverTransaction.getRequest().getMethod());
             Request request = requestEvent.getRequest();
             if (request.getMethod().equals(Request.BYE)) {
                 Response response = m_stackBean.createResponse(request, Response.OK);
