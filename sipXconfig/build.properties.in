@@ -35,6 +35,7 @@ sipxconfig.phonebook.dir=@SIPX_VARDIR@/phonebook
 sipxvxml.data.dir=@SIPX_VXMLDATADIR@
 www.dir=@wwwdir@
 freeswitch.prefix.dir=@FREESWITCH_PREFIX@
+xargs.replace=@XARGS_REPLACE@
 
 sipxpbx.user=@SIPXPBXUSER@
 acd.history.test.db=SIPXACD_HISTORY_TEST

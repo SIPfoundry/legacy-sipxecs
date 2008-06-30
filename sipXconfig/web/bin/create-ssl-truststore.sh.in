@@ -19,12 +19,6 @@ openssl="@openssl@"
 while [ $# -ne 0 ]
 do
     case ${1} in
-        ##
-        ## handle the 'end of options' marker
-        ##
-        --)
-            ;;
-
         --checksum)
             shift
             if [ -z "${1}" ]; then
@@ -59,7 +53,7 @@ do
         ##
         ## handle an unknown switch
         ##
-        -*)
+        *)
             Action=USAGE
             break
             ;;
@@ -77,7 +71,8 @@ Usage:
        [--truststore truststore]  filename of truststore, default is cacerts
        [--checksum checksumfile]  create a checksum of contents and compare with previous run
                                    to avoid recreating same truststore avoiding running keytool
-       CA certificate files...    all the certificates and CRL to be included
+       [--ca-patch directory]     name of the directory containing certificates and CRL to be 
+                                   included in the truststore
 
    example :
      create-ssl-truststore.sh --ca-path /etc/authorites
@@ -92,7 +87,7 @@ if [ "${Action}" = "CHECKSUM" ]; then
   else
     MD5SUM=md5sum
   fi
-  Checksum=`find $CaPath -type f -name \*cr[lt] | xargs -I F cat "F" | $MD5SUM | awk '{print $1}'`
+  Checksum=`find $CaPath -type f -name '*.cr[lt]' | xargs @xargs.replace@F cat "F" | $MD5SUM | awk '{print $1}'`
   if [ -f $CertificatesChecksum ]; then
     if [ -f "$TrustStore" ]; then
       PreviousChecksum=`cat $CertificatesChecksum`
@@ -106,7 +101,7 @@ fi
 
 rm "$TrustStore" 2> /dev/null
 
-find $CaPath \( -type f -name \*cr[lt] \) | \
+find $CaPath \( -type f -name '*.cr[lt]' \) | \
 while read Certificate
 do
     caname="`$openssl x509 -noout -text -in "$Certificate" |\

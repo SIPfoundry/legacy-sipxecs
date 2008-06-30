@@ -196,6 +196,7 @@
       <replacefilter token="@openssl@" property="openssl"/>
       <replacefilter token="@bin.dir@" property="bin.dir"/>
       <replacefilter token="@bash@" property="bash"/>
+      <replacefilter token="@xargs.replace@" property="xargs.replace"/>
     </replace>
     <chmod file="${dest.dir}${bin.dir}/ssl-cert/create-ssl-truststore.sh" perm="ugo+x"/>
 
