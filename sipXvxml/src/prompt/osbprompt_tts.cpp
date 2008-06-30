@@ -21,6 +21,7 @@
 
 // APPLICATION INCLUDES
 #include "os/OsSysLog.h"
+#include "os/OsFileSystem.h"
 #include "osbprompt_tts.h"
 #include "xmlparser/tinyxml.h"
 // EXTERNAL FUNCTIONS
@@ -67,10 +68,26 @@ OSBpromptTTS::OSBpromptTTS(const VXIchar* text, const VXIchar* baseUrl, const VX
 #endif //TEST
 
    mPrompts = 0;
+   mDayFirst = FALSE;
    // Extract the text to be rendered from the XML.
    parse(text);
    // Set mBaseUrl, the directory of prompts to be used.
    parseBaseUrl(baseUrl, glbBaseUrl);
+   if ((mFormat.index("date:dm") != UtlString::UTLSTRING_NOT_FOUND) ||
+       (mFormat.index("date:md") != UtlString::UTLSTRING_NOT_FOUND))
+   {
+      // Determine the date format to be used for this language. By default, the
+      // MDY order is used - if the file DATE_DMY exists in the directory with
+      // voice prompts, the DMY order is used.
+      static char urlPrefix[] = "file://";
+      if (mBaseUrl.index(urlPrefix) == 0)
+      {
+         UtlString baseDirectory = mBaseUrl;
+         baseDirectory.remove(0, sizeof(urlPrefix) - 1);
+         OsFile dmyFile(baseDirectory + "DATE_DMY");
+         mDayFirst = dmyFile.exists();
+      }
+   }
    OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG,
                  "OSBpromptTTS::OSBpromptTTS: mBaseUrl = '%s'",
                  mBaseUrl.data());
@@ -740,6 +757,14 @@ int OSBpromptTTS::getDateFrom(UtlString& mon, UtlString& day, UtlString& year, U
    mCount = 0;
    mPrompts = new Url[3]; // max 3 prompts for month, day, year
    UtlString urlstr;
+   if (mDayFirst && !day.isNull())
+   {
+      getOrdinalUrlHelper(day, urlstr);
+      mPrompts[mCount++] = Url(urlstr);
+      OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG,
+                    "OSBpromptTTS::getDateFrom: mPrompts[%d] = '%s'",
+                    mCount - 1, mPrompts[mCount - 1].toString().data());
+   }
    if (!mon.isNull())
    {
       urlstr = mBaseUrl + UtlString(MONTH[atoi(mon.data()) - 1]);
@@ -748,9 +773,8 @@ int OSBpromptTTS::getDateFrom(UtlString& mon, UtlString& day, UtlString& year, U
                     "OSBpromptTTS::getDateFrom: mPrompts[%d] = '%s'",
                     mCount - 1, mPrompts[mCount - 1].toString().data());
    }
-   if (!day.isNull())
+   if (!mDayFirst && !day.isNull())
    {
-      UtlString urlstr;
       getOrdinalUrlHelper(day, urlstr);
       mPrompts[mCount++] = Url(urlstr);
       OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG,

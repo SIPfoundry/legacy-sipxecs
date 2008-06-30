@@ -76,6 +76,7 @@ class OSBpromptTTS
    UtlString          mFormat;
    UtlString          mLocale;
    Url               *mPrompts;
+   UtlBoolean         mDayFirst;
 
    OSBpromptTTS(const OSBpromptTTS& rOSBpromptTTS);
    //:Copy constructor
