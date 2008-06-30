@@ -10,7 +10,7 @@
 Action=CREATE
 TrustStore="cacert"
 Password="changeit"
-Certificates=""
+CaPath=""
 CertificatesChecksum=""
 Checksum=""
 PreviousChecksum=""
@@ -46,6 +46,16 @@ do
             TrustStore=${1}
             ;;
 
+        --ca-path)
+            shift
+            if [ -z "${1}" ]; then
+                echo "Missing CA directory: $@" 1>&2
+                ACTION=USAGE
+                break
+            fi
+            CaPath=${1}
+            ;;
+
         ##
         ## handle an unknown switch
         ##
@@ -54,17 +64,13 @@ do
             break
             ;;
 
-        *)
-            Certificates="$@"
-            break
-            ;;
     esac           
 
     shift # always consume 1
 done
 
 
-if [ "${Action}" = "USAGE" -o -z "${Certificates}" ]; then
+if [ "${Action}" = "USAGE" -o -z "${CaPath}" ]; then
     cat <<EOF
 Usage:
    create-ssl-truststore.sh 
@@ -74,7 +80,7 @@ Usage:
        CA certificate files...    all the certificates and CRL to be included
 
    example :
-     find /etc/authorites | egrep -i "(.crt|.crl)$" | xargs create-ssl-truststore.sh
+     create-ssl-truststore.sh --ca-path /etc/authorites
 
 EOF
     exit 1
@@ -86,7 +92,7 @@ if [ "${Action}" = "CHECKSUM" ]; then
   else
     MD5SUM=md5sum
   fi
-  Checksum=`cat $Certificates | $MD5SUM | awk '{print $1}'`
+  Checksum=`find $CaPath -type f -name \*cr[lt] | xargs -I F cat "F" | $MD5SUM | awk '{print $1}'`
   if [ -f $CertificatesChecksum ]; then
     if [ -f "$TrustStore" ]; then
       PreviousChecksum=`cat $CertificatesChecksum`
@@ -99,7 +105,9 @@ if [ "${Action}" = "CHECKSUM" ]; then
 fi
 
 rm "$TrustStore" 2> /dev/null
-for Certificate in $Certificates
+
+find $CaPath \( -type f -name \*cr[lt] \) | \
+while read Certificate
 do
     caname="`$openssl x509 -noout -text -in "$Certificate" |\
          grep Subject: | sed -e 's;.*CN=;;' -e 's;/Em.*;;'`" || exit 1

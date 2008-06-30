@@ -80,8 +80,8 @@ createAuthoritiesTruststore() {
     if [ -d $AuthoritiesDir ]
     then
       TrustStore=$SslDir/.authorities.jks
-      Certificates=`find $AuthoritiesDir | egrep -i '.(crt|crl)$'`
-      @bin.dir@/ssl-cert/create-ssl-truststore.sh --checksum $SslDir/.authorities-contents.md5 --truststore $TrustStore  $Certificates
+      @bin.dir@/ssl-cert/create-ssl-truststore.sh --checksum $SslDir/.authorities-contents.md5 \
+          --truststore $TrustStore --ca-path $AuthoritiesDir
       # password on command line is not security issue. catrust and directory has appropriate
       # permissions, password is required by keystores
       TrustStoreOpts="\
