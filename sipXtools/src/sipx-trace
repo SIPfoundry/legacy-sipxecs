@@ -15,7 +15,7 @@ Password=
 
 DefaultPrefix="/"
 DefaultComponents="sipXproxy sipregistrar"
-AllComponents=FALSE
+AllComponents=TRUE
 Components=""
 
 dump=cat
@@ -81,6 +81,7 @@ do
                 Action=USAGE
                 break
             else
+                AllComponents=FALSE
                 Components="${Components} ${2}"
                 shift # consume the switch ( for n values, consume n-1 )
             fi
