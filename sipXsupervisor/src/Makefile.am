@@ -38,5 +38,12 @@ noinst_HEADERS = \
 	FileRpc.h \
 	DependencyList.h \
 	processXMLCommon.h \
+	ProcessManager.h \
+	ProcessCmd.h \
+	Process.h \
+	SipxResource.h \
+	ProcessResource.h \
+	FileResource.h \
+	ImdbResource.h \
+	SqldbResource.h \
 	WatchDog.h
-

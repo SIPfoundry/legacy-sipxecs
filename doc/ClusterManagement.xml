@@ -26,8 +26,13 @@
     </abstract>
     <revhistory>
       <revision>
-        <revnumber>0.3</revnumber>
+        <revnumber>0.4</revnumber>
         <date><?dbtimestamp format="Y-m-d X"?></date>
+        <revremark>removed some detail that has moved into doxygen documentation</revremark>
+      </revision>
+      <revision>
+        <revnumber>0.3</revnumber>
+        <date>2008-06-17</date>
         <revremark>reworked initial setup, simplified process states</revremark>
       </revision>
       <revision>
@@ -247,7 +252,26 @@
             for the new system in &sipxconfig; on the master system, and
             selects the 'Push Configuration' function.  This transmits the 
             prepared configuration from the master system to the
-            distributed system (see <xref linkend='super.xmlrpc.setup'/>).
+            distributed system.
+          </para>
+
+          <para>
+            The Distributed System Setup Interface is available only in a newly
+            installed system that has not yet been configured.  It allows
+            &sipxconfig; to push an initial system configuration to a new
+            distributed system.  The interface is a simple HTTP
+            PUT operation for a URL on the distributed system.  It is not
+            authenticated, since no certificate is available yet.
+            <note>
+              <para>The construction of the full URL for this request is
+              TBD</para>
+            </note>
+          </para>
+
+          <para>
+            The entity accepted by this PUT request is a gzipped tar file
+            containing system configuration files to be installed as root from
+            the root of the file system.  
           </para>
 
         </section>
@@ -433,7 +457,7 @@
         <para>
           All configuration for each &sipxecs; service is created by
           &sipxconfig; and replicated to the system where the service runs
-          through &sipxsuper; (see <xref linkend='super.xmlrpc.replication'/>).
+          through &sipxsuper;.
         </para>
       </section>
 
@@ -458,8 +482,7 @@
                 <para>
                   If it is running on a distributed system, it first
                   invokes a Distributed System Checkin method provided by
-                  &sipxconfig; on the master system (see <xref
-                  linkend='config.checkin'/>); the service does not provide
+                  &sipxconfig; on the master system; the service does not provide
                   any information to the distributed system, and cannot
                   fail, so the &sipxsuper; proceeds as follows regardless
                   of the result.  The purpose of this checkin is to notify
@@ -480,8 +503,7 @@
                 <para>
                   Compares the version of the process as specified by the
                   process definition against the version written by
-                  &sipxconfig; when it configured the service (see <xref
-                  linkend='super.xmlrpc.setcfgver'/>).  If the versions match
+                  &sipxconfig; when it configured the service  If the versions match
                   exactly, then &sipxsuper; proceeds to the next step; if not,
                   the state of the service is set to
                   ConfigurationVersionMismatch and no further attempt is made
@@ -534,8 +556,7 @@
 
         <para>
           A set of XML RPC operations is provided by &sipxsuper; to
-          provide the current status of each enabled service (see <xref
-          linkend='super.xmlrpc.process'/>. 
+          provide the current status of each enabled service. 
         </para>
 
      </section>
@@ -566,7 +587,8 @@
                   </listitem>
                 </varlistentry>
               </variablelist>
-              See <xref linkend="process.fsm"/> for an illustration of process states.
+              See the documentation of the sipXconfig Process class for an
+              illustration of process states.
             </para>
           </listitem>
 
@@ -575,8 +597,7 @@
               The configuration version stamp.
             </para>
             <para>
-              This value is set by &sipxconfig; (see <xref
-              linkend='super.xmlrpc.setcfgver'/>) when all configuration for
+              This value is set by &sipxconfig; when all configuration for
               the process has been replicated to the system.  It records
               the version of the process for which the replicated
               configuration is intended.  This value is used to check that
@@ -668,7 +689,8 @@
                 </varlistentry>
 
               </variablelist>
-              See <xref linkend="process.fsm"/> for an illustration of process states.
+
+              Additional may be defined in the implementation.
             </para>
           </listitem>
         </itemizedlist>
@@ -686,136 +708,11 @@
           </para>
         </note> 
 
-        <figure id='process.fsm'>
-          <title>Service Process State Machine</title>
-          <mediaobject>
-            <imageobject>
-              <imagedata format='SVG' width='80%' scalefit='1' fileref='process_state.svg'/>
-            </imageobject>
-            <imageobject>
-              <imagedata format='PNG' width='80%' scalefit='1' fileref='process_state.png'/>
-            </imageobject>
-          </mediaobject>
-        </figure>
 
       </section>
 
     </section>
 
   </section>
-
-  <appendix id='super.xmlrpc'>
-    <title>&sipxsuper; XML-RPC Interfaces</title>
-
-    <para>
-      The following XML RPC methods are provided by &sipxsuper; to allow
-      the &sipxconfig; on the master system to configure, enable, and disable
-      services; these operations change the local state so that the
-      &sipxsuper; will always attempt to start the same set of services
-      that were enabled when &sipxconfig; last set them.
-    </para>
-
-    <section id='super.xmlrpc.replication'>
-      <title>Configuration, Version Control, and Resource Replication</title>
-
-      <section id='super.xmlrpc.setcfgver'>
-        <title>Configuration Version Methods</title>
-
-        <para>
-          To get the current configuration version stamp for a process:
-        </para>
-
-        <methodsynopsis>
-          <type>string</type>
-          <methodname>GetConfigVersion</methodname>
-          <methodparam>
-            <type>string</type>
-            <parameter>
-              <replaceable>
-                Service name
-              </replaceable>
-            </parameter>
-          </methodparam>
-        </methodsynopsis>
-
-        <para>
-          To set the configuration version stamp for a process:
-        </para>
-
-        <methodsynopsis>
-          <void/>
-          <methodname>SetConfigVersion</methodname>
-          <methodparam>
-            <type>string</type>
-            <parameter>
-              <replaceable>
-                Service name
-              </replaceable>
-            </parameter>
-          </methodparam>
-
-          <methodparam>
-            <type>string</type>
-            <parameter>
-              <replaceable>
-                Version stamp value for which the current configuration is intended
-              </replaceable>
-            </parameter>
-          </methodparam>
-        </methodsynopsis>
-
-      </section>
-    </section>
-
-    <section id='super.xmlrpc.process'>
-      <title>Process Management</title>
-      <para>
-        <emphasis>TBD</emphasis>
-      </para>
-
-    </section>
-
-    <section id='super.xmlrpc.setup'>
-      <title>Distributed System Setup</title>
-      <para>
-        The Distributed System Setup Interface is available only in a newly
-        installed system that has not yet been configured.  It allows
-        &sipxconfig; to push an initial system configuration to a new
-        distributed system.  The interface is a simple HTTP
-        PUT operation for a URL on the distributed system.  It is not
-        authenticated, since no certificate is available yet.
-        <note>
-          <para>The construction of the full URL for this request is
-          TBD</para>
-        </note>
-      </para>
-
-      <para>
-        The entity accepted by this PUT request is a gzipped tar file
-        containing system configuration files to be installed as root from
-        the root of the file system.  
-      </para>
-
-    </section>
-
-
-  </appendix>
-
-  <appendix id='config.if'>
-    <title>&sipxconfig; Distributed System Interfaces</title>
-
-    <para>
-      The following methods are provided by &sipxconfig; for the
-      &sipxsuper; on a distributed system to invoke:
-    </para>
-
-    <section id='config.checkin'>
-      <title>Distributed System Checkin Interface</title>
-      <para>
-        <emphasis>TBD</emphasis>
-      </para>
-    </section>
-
-  </appendix>
 
 </article>

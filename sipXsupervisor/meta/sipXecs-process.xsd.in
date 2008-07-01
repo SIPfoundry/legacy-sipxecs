@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='iso-8859-1' standalone='yes'?>
 <!--
 - XML Schema for sipXecs supervisor process configuration: 
--    @SIPX_CONFDIR@/process.d/*.process.xml
+-    @SIPX_DATADIR@/process.d/*-process.xml
 -->
 <schema
     xmlns:proc='http://www.sipfoundry.org/sipX/schema/xml/sipXecs-process-01-00'
@@ -193,7 +193,22 @@
     </annotation>
     <simpleContent>
       <extension base='string'>
-        <attribute name='required' type='boolean' default='true' />
+        <attribute name='required' type='boolean' default='true'>
+          <annotation>
+            <documentation>
+              If this is false, the resource is not required to start the process, but
+              may be accessed by the configuration system.
+            </documentation>
+          </annotation>
+        </attribute>
+        <attribute name='configAccess' type='proc:ConfigAccess' default='read-write'>
+          <annotation>
+            <documentation>
+              Declares the kind of access granted to the configuration system to this resource.
+              The access granted is the most permissive allowed by any process definition.
+            </documentation>
+          </annotation>
+        </attribute>
       </extension>
     </simpleContent>
   </complexType>
@@ -209,19 +224,6 @@
       <enumeration value='read-write'/>
     </restriction>
   </simpleType>
-
-  <complexType name='Database'>
-    <annotation>
-      <documentation>
-        Describes a single object that must exist for this process to execute.
-      </documentation>
-    </annotation>
-    <simpleContent>
-      <extension base='proc:Resource'>
-        <attribute name='configAccess' type='proc:ConfigAccess' default='read-write'/>
-      </extension>
-    </simpleContent>
-  </complexType>
 
   <element name='resource' type='proc:Resource' abstract='true'/>
 
@@ -255,7 +257,7 @@
     </annotation>
   </element>
 
-  <element name='osconfig' type='proc:Database' substitutionGroup='proc:resource'>
+  <element name='osconfig' type='proc:Resource' substitutionGroup='proc:resource'>
     <annotation>
       <documentation>
         Content is the full path to an OsConfigDB file.
@@ -263,7 +265,7 @@
     </annotation>
   </element>
 
-  <element name='imdb' type='proc:Database' substitutionGroup='proc:resource'>
+  <element name='imdb' type='proc:Resource' substitutionGroup='proc:resource'>
     <annotation>
       <documentation>
         Content is the name of a SipDB table.
@@ -271,7 +273,7 @@
     </annotation>
   </element>
 
-  <element name='sqldb' type='proc:Database' substitutionGroup='proc:resource'>
+  <element name='sqldb' type='proc:Resource' substitutionGroup='proc:resource'>
     <annotation>
       <documentation>
         Content is the name of a Postgres database.
