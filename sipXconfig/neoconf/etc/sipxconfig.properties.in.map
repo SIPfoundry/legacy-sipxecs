@@ -1,6 +1,7 @@
 # Delete parameters that refer to removed Spring beans
-- : domainInitializer.initialDomain=${SIPXCHANGE_DOMAIN_NAME}
-- : coreContextImpl.authorizationRealm=${SIPXCHANGE_REALM}
-- : sip.fromServerName=${MY_FULL_HOSTNAME}
-- : registrationContext.port=${CONFIG_SERVER_HTTPS_PORT}
-- : registrationContext.server=${MY_FULL_HOSTNAME}
+- : domainInitializer.initialDomain
+- : coreContextImpl.authorizationRealm
+- : sip.fromServerName
+- : registrationContext.port
+- : registrationContext.server
+
