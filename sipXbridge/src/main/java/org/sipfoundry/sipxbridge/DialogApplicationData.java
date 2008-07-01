@@ -75,6 +75,9 @@ class DialogApplicationData {
      * Account information for the outbound dialog.
      */
     ItspAccountInfo itspInfo; 
+    
+    
+    boolean isOriginatedBySipxbridge;
    
 
     

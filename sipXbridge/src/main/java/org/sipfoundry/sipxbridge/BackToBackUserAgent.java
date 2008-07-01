@@ -121,7 +121,8 @@ public class BackToBackUserAgent {
             for (Dialog dialog : dialogTable) {
                 try {
                     Request request;
-                    if (dialog.getState() == DialogState.CONFIRMED) {
+                    if (dialog.getState() == DialogState.CONFIRMED
+                            && DialogApplicationData.get(dialog).peerDialog != null) {
                         if (method.equalsIgnoreCase(Request.INVITE)) {
                             request = dialog.createRequest(Request.INVITE);
                             DialogApplicationData dat = DialogApplicationData.get(dialog);
@@ -241,9 +242,9 @@ public class BackToBackUserAgent {
                 PortRange portRange = SymmitronServer.getPortManager().allocate(2, Parity.EVEN);
                 RtpReceiverEndpoint mediaEndpoint = new RtpReceiverEndpoint(portRange
                         .getLowerBound());
-                mediaEndpoint.setIpAddress(itspAccountInfo == null ||
-                        itspAccountInfo.isGlobalAddressingUsed() ? Gateway
-                        .getGlobalAddress() : Gateway.getLocalAddress());
+                mediaEndpoint.setIpAddress(itspAccountInfo == null
+                        || itspAccountInfo.isGlobalAddressingUsed() ? Gateway.getGlobalAddress()
+                        : Gateway.getLocalAddress());
                 rtpSession.setReceiver(mediaEndpoint);
                 SessionDescription sd = SdpFactory.getInstance().createSessionDescription(
                         this.rtpBridge.sessionDescription.toString());
@@ -258,9 +259,9 @@ public class BackToBackUserAgent {
                     rtcpSession = new RtpSession();
                     RtpReceiverEndpoint endpoint = new RtpReceiverEndpoint(portRange
                             .getLowerBound() + 1);
-                    endpoint.setIpAddress(itspAccountInfo == null ||
-                            itspAccountInfo.isGlobalAddressingUsed() ? Gateway
-                                    .getGlobalAddress() : Gateway.getLocalAddress());
+                    endpoint.setIpAddress(itspAccountInfo == null
+                            || itspAccountInfo.isGlobalAddressingUsed() ? Gateway
+                            .getGlobalAddress() : Gateway.getLocalAddress());
                     rtcpSession.setReceiver(endpoint);
                     sd = SdpFactory.getInstance().createSessionDescription(
                             this.rtpBridge.sessionDescription.toString());
@@ -293,12 +294,14 @@ public class BackToBackUserAgent {
     public void tearDown() throws Exception {
 
         for (Dialog dialog : this.dialogTable) {
-
-            Request byeRequest = dialog.createRequest(Request.BYE);
-            SipProvider provider = ((DialogExt) dialog).getSipProvider();
-            ClientTransaction ct = provider.getNewClientTransaction(byeRequest);
-            dialog.sendRequest(ct);
+            if (dialog.getState() != DialogState.TERMINATED) {
+                Request byeRequest = dialog.createRequest(Request.BYE);
+                SipProvider provider = ((DialogExt) dialog).getSipProvider();
+                ClientTransaction ct = provider.getNewClientTransaction(byeRequest);
+                dialog.sendRequest(ct);
+            }
         }
+        this.sessionTimerTask.cancel();
 
     }
 
@@ -365,7 +368,7 @@ public class BackToBackUserAgent {
                         .debug("replacedDialogPeerDialog = "
                                 + ((DialogApplicationData) replacedDialog.getApplicationData()).peerDialog);
                 logger.debug("referingDialogPeerDialog = " + this.referingDialogPeer);
-               
+
             }
 
             if (replacedDialogPeerDialog.getState() == DialogState.TERMINATED) {
@@ -388,8 +391,6 @@ public class BackToBackUserAgent {
             this.pairDialogs(
                     ((DialogApplicationData) replacedDialog.getApplicationData()).peerDialog,
                     this.referingDialogPeer);
-
-         
 
             Dialog mohDialog = ((DialogApplicationData) referingDialog.getApplicationData()).musicOnHoldDialog;
 
@@ -427,14 +428,15 @@ public class BackToBackUserAgent {
                 this.getRtcpBridge().pause();
             }
             Set<Sym> myrtpSessions = this.getRtpBridge().getSyms();
-            
-            Set<Sym> myrtcpSessions = Gateway.isRtcpRelayingSupported()?
-                    this.getRtcpBridge().getSyms() : null;
+
+            Set<Sym> myrtcpSessions = Gateway.isRtcpRelayingSupported() ? this.getRtcpBridge()
+                    .getSyms() : null;
 
             DialogApplicationData replacedDialogApplicationData = (DialogApplicationData) replacedDialog
                     .getApplicationData();
 
-            Bridge hisBridge = replacedDialogApplicationData.getBackToBackUserAgent().getRtpBridge();
+            Bridge hisBridge = replacedDialogApplicationData.getBackToBackUserAgent()
+                    .getRtpBridge();
             Bridge hisRtcpBridge = replacedDialogApplicationData.getBackToBackUserAgent()
                     .getRtcpBridge();
 
@@ -501,7 +503,6 @@ public class BackToBackUserAgent {
                 hisRtcpBridge.resume();
             }
 
-          
             newBridge.start();
 
             if (Gateway.isRtcpRelayingSupported()) {
@@ -558,22 +559,22 @@ public class BackToBackUserAgent {
                 DialogApplicationData replacedDialogPeerDialogApplicationData = DialogApplicationData
                         .get(replacedDialogPeerDialog);
                 Request reInvite = replacedDialogPeerDialog.createRequest(Request.INVITE);
-               
+
                 ItspAccountInfo accountInfo = replacedDialogPeerDialogApplicationData.itspInfo;
                 if (accountInfo == null || accountInfo.isGlobalAddressingUsed()) {
                     SipUtilities.setGlobalAddresses(reInvite);
-                    replacedDialogPeerDialogApplicationData.getRtpSession().getReceiver().setIpAddress(Gateway.getGlobalAddress());
+                    replacedDialogPeerDialogApplicationData.getRtpSession().getReceiver()
+                            .setIpAddress(Gateway.getGlobalAddress());
                 }
-                
+
                 SessionDescription sessionDescription = SipUtilities
                         .getSessionDescription(lastResponse);
-             
-                
+
                 replacedDialogPeerDialogApplicationData.getRtpSession().getReceiver()
                         .setSessionDescription(sessionDescription, true);
-                
+
                 SipUtilities.incrementSessionVersion(sessionDescription);
-                
+
                 reInvite.setContent(sessionDescription.toString(), ProtocolObjects.headerFactory
                         .createContentTypeHeader("application", "sdp"));
                 SipProvider wanProvider = ((DialogExt) replacedDialogPeerDialog).getSipProvider();
@@ -627,7 +628,18 @@ public class BackToBackUserAgent {
     public void removeDialog(Dialog dialog) {
 
         this.dialogTable.remove(dialog);
-        if (this.dialogTable.isEmpty()) {
+        
+        int count = 0;
+        
+        for ( Dialog d : dialogTable) {
+            DialogApplicationData dat = DialogApplicationData.get(d);
+            if ( ! dat.isOriginatedBySipxbridge ) count ++;
+        }
+        
+        if (count == 0) {
+            for ( Dialog d : dialogTable) {
+                d.delete();
+            }
             if (Gateway.isRtcpRelayingSupported()) {
                 this.rtcpBridge.stop();
             } else {
@@ -642,6 +654,8 @@ public class BackToBackUserAgent {
                 }
             }
             this.rtpBridge.stop();
+            this.sessionTimerTask.cancel();
+            dialogTable.clear();
 
         }
         if (logger.isDebugEnabled()) {
@@ -784,6 +798,9 @@ public class BackToBackUserAgent {
              * We terminate the dialog. There is no peer.
              */
             dialogApplicationData.peerDialog = null;
+            
+            newDialogApplicationData.isOriginatedBySipxbridge = true;
+            
             /*
              * Record the referDialog so that when responses for the Client transaction come in we
              * can NOTIFY the referrer.
@@ -793,7 +810,8 @@ public class BackToBackUserAgent {
             ct.getDialog().setApplicationData(newDialogApplicationData);
             TransactionApplicationData tad = new TransactionApplicationData(
                     Operation.REFER_INVITE_TO_SIPX_PROXY);
-            tad.backToBackUa = ((DialogApplicationData) dialog.getApplicationData()).getBackToBackUserAgent();
+            tad.backToBackUa = ((DialogApplicationData) dialog.getApplicationData())
+                    .getBackToBackUserAgent();
             tad.referingDialog = dialog;
             ct.setApplicationData(tad);
             // Stamp the via header with our stamp so that we know we Referred
@@ -849,8 +867,8 @@ public class BackToBackUserAgent {
                 uri = ProtocolObjects.addressFactory.createSipURI(incomingRequestURI.getUser(),
                         Gateway.getSipxProxyDomain());
             } else {
-                uri = ProtocolObjects.addressFactory.createSipURI(Gateway
-                        .getAutoAttendantName(), Gateway.getSipxProxyDomain());
+                uri = ProtocolObjects.addressFactory.createSipURI(Gateway.getAutoAttendantName(),
+                        Gateway.getSipxProxyDomain());
             }
             uri.setTransportParam(Gateway.getSipxProxyTransport());
 
@@ -927,13 +945,11 @@ public class BackToBackUserAgent {
                 rtcpEndpoint.setSessionDescription(sessionDescription, false);
             }
 
-            KeepaliveMethod keepaliveMethod = this.itspAccountInfo != null ?
-                    this.itspAccountInfo.getRtpKeepaliveMethod() : KeepaliveMethod.USE_EMPTY_PACKET;
-                        
-                    
+            KeepaliveMethod keepaliveMethod = this.itspAccountInfo != null ? this.itspAccountInfo
+                    .getRtpKeepaliveMethod() : KeepaliveMethod.USE_EMPTY_PACKET;
+
             if (!keepaliveMethod.equals(KeepaliveMethod.NONE)) {
-                rtpEndpoint.setMaxSilence(Gateway.getMediaKeepaliveMilisec(),
-                        keepaliveMethod);
+                rtpEndpoint.setMaxSilence(Gateway.getMediaKeepaliveMilisec(), keepaliveMethod);
                 if (rtcpEndpoint != null) {
                     rtcpEndpoint.setMaxSilence(Gateway.getMediaKeepaliveMilisec(),
                             keepaliveMethod);
@@ -956,8 +972,7 @@ public class BackToBackUserAgent {
 
             TransactionApplicationData tad = new TransactionApplicationData(
                     Operation.SEND_INVITE_TO_SIPX_PROXY);
-            
-           
+
             SipProvider provider = (SipProvider) requestEvent.getSource();
             String transport = ((ViaHeader) request.getHeader(ViaHeader.NAME)).getTransport();
             tad.clientTransaction = ct;
@@ -1171,11 +1186,10 @@ public class BackToBackUserAgent {
 
         Request incomingRequest = serverTransaction.getRequest();
         Dialog incomingDialog = serverTransaction.getDialog();
-        SipProvider itspProvider = Gateway.getWanProvider(itspAccountInfo == null ?
-                Gateway.DEFAULT_ITSP_TRANSPORT :
-                itspAccountInfo.getOutboundTransport());
+        SipProvider itspProvider = Gateway
+                .getWanProvider(itspAccountInfo == null ? Gateway.DEFAULT_ITSP_TRANSPORT
+                        : itspAccountInfo.getOutboundTransport());
 
-        
         if (Gateway.getCallLimit() != -1 && Gateway.getCallCount() >= Gateway.getCallLimit()) {
             try {
                 serverTransaction.sendResponse(ProtocolObjects.messageFactory.createResponse(
@@ -1246,7 +1260,6 @@ public class BackToBackUserAgent {
                     this.referingDialog).getReceiver().getSessionDescription() : this
                     .getWanRtpSession(outboundDialog).getReceiver().getSessionDescription();
 
-          
             SipUtilities.fixupSdpAddresses(sd, itspAccountInfo.isGlobalAddressingUsed());
             String codecName = Gateway.getCodecName();
 
@@ -1264,11 +1277,10 @@ public class BackToBackUserAgent {
             /*
              * Indicate that we will be transmitting first.
              */
-            //MediaDescription mediaDescription = (MediaDescription) sd.getMediaDescriptions(true)
-            //        .get(0);
-
+            // MediaDescription mediaDescription = (MediaDescription)
+            // sd.getMediaDescriptions(true)
+            // .get(0);
             // mediaDescription.setAttribute("direction", "active");
-
             ContentTypeHeader cth = ProtocolObjects.headerFactory.createContentTypeHeader(
                     "application", "sdp");
 

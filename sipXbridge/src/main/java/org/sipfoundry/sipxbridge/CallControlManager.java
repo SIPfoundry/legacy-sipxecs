@@ -154,7 +154,8 @@ public class CallControlManager {
                  */
                 if (btobua == null) {
                     Response response = ProtocolObjects.messageFactory.createResponse(
-                            Response.BAD_GATEWAY, request);
+                            Response.NOT_FOUND, request);
+                    response.setReasonPhrase("Could not find account record for ITSP");
                     serverTransaction.sendResponse(response);
                     return;
                 }
@@ -165,8 +166,17 @@ public class CallControlManager {
             // This method was seen from the LAN side.
             // Create a WAN side association and send the INVITE on its way.
             if (provider == Gateway.getLanProvider()) {
-                String toDomain = Gateway.getAccountManager().getAccount(
-                        (SipURI) request.getRequestURI()).getSipDomain();
+                ItspAccountInfo account = Gateway.getAccountManager().getAccount(
+                        (SipURI) request.getRequestURI());
+                if (account == null) {
+                    Response response = ProtocolObjects.messageFactory.createResponse(
+                            Response.NOT_FOUND, request);
+                    response.setReasonPhrase("Could not find account record for ITSP");
+                    serverTransaction.sendResponse(response);
+                    return;
+
+                }
+                String toDomain = account.getSipDomain();
 
                 boolean isPhone = ((SipURI) request.getRequestURI()).getParameter("user") != null
                         && ((SipURI) request.getRequestURI()).getParameter("user")
@@ -392,8 +402,6 @@ public class CallControlManager {
                 logger.debug("Could not find peer dialog -- not forwarding ACK!");
                 return;
             }
-            
-           
 
             /*
              * Forward the ACK if we have not already done so.
@@ -450,12 +458,12 @@ public class CallControlManager {
                     .getApplicationData();
             ClientTransaction ct = tad.clientTransaction;
             ItspAccountInfo itspAccount = btobua.getItspAccountInfo();
-            String transport = itspAccount != null ? itspAccount.getOutboundTransport() :
-                Gateway.DEFAULT_ITSP_TRANSPORT;
+            String transport = itspAccount != null ? itspAccount.getOutboundTransport()
+                    : Gateway.DEFAULT_ITSP_TRANSPORT;
             if (ct.getState() == TransactionState.CALLING
                     || ct.getState() == TransactionState.PROCEEDING) {
                 Request cancelRequest = ct.createCancel();
-                
+
                 SipProvider provider = SipUtilities.getPeerProvider((SipProvider) requestEvent
                         .getSource(), transport);
                 ClientTransaction clientTransaction = provider
@@ -809,7 +817,6 @@ public class CallControlManager {
                         if (tad.backToBackUa.getRtcpBridge() != null) {
                             tad.backToBackUa.getRtcpBridge().start();
                         }
-                       
 
                     }
                     if (logger.isDebugEnabled() && response.getStatusCode() == 200) {
@@ -904,22 +911,26 @@ public class CallControlManager {
 
                     }
 
+                    if (response.getContentLength().getContentLength() != 0) {
+                        Dialog peerDialog = DialogApplicationData.getPeerDialog(dialog);
+                        if (DialogApplicationData.get(peerDialog).isSdpAnswerPending ) {
+                            this.sendSdpAnswerInAck(response, dialog);
+                        } else {
+                            logger.debug("Not sending SdpAnswer");
+                        }
+                    }
+                    
+                    
                     /*
                      * We directly send ACK.
                      */
                     if (response.getStatusCode() == Response.OK) {
 
                         b2bua.addDialog(dialog);
-                        Thread.sleep(100);
+                        // Thread.sleep(100);
                         Request ackRequest = dialog.createAck(((CSeqHeader) response
                                 .getHeader(CSeqHeader.NAME)).getSeqNumber());
                         dialog.sendAck(ackRequest);
-                        Dialog peerDialog = DialogApplicationData.getPeerDialog(dialog);
-                        if (DialogApplicationData.get(peerDialog).isSdpAnswerPending) {
-                            this.sendSdpAnswerInAck(response, dialog);
-                        } else {
-                            logger.debug("Not sending SdpAnswer");
-                        }
 
                     }
 
@@ -1066,9 +1077,7 @@ public class CallControlManager {
             if (this.backToBackUserAgentTable.containsKey(callId)) {
                 b2bua = this.backToBackUserAgentTable.get(callId);
             } else {
-                // if (accountInfo == null) {
-                // return null;
-                // }
+               
                 b2bua = new BackToBackUserAgent(provider, request, dialog, accountInfo);
 
                 DialogApplicationData.attach(b2bua, dialog);

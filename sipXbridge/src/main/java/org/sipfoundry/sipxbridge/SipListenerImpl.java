@@ -51,8 +51,7 @@ public class SipListenerImpl implements SipListener {
     public void processDialogTerminated(DialogTerminatedEvent dte) {
 
         logger.debug("DialogTerminatedEvent " + dte.getDialog());
-        CallIdHeader cid = dte.getDialog().getCallId();
-
+      
         DialogApplicationData dat = DialogApplicationData.get(dte.getDialog());
         if (dat != null && dat.musicOnHoldDialog != null
                 && dat.musicOnHoldDialog.getState() != DialogState.TERMINATED) {
@@ -88,8 +87,9 @@ public class SipListenerImpl implements SipListener {
 
     }
 
-    public void processIOException(IOExceptionEvent arg0) {
-        // TODO Auto-generated method stub
+    public void processIOException(IOExceptionEvent ioex) {
+       logger.error("Got an unexpected IOException " +
+               ioex.getHost() + ":" + ioex.getPort() + "/" + ioex.getTransport() );
 
     }
 
@@ -170,8 +170,7 @@ public class SipListenerImpl implements SipListener {
                 logger.debug("Discarding response -- no transaction context information");
                 return;
             }
-            ClientTransaction ctx = responseEvent.getClientTransaction();
-
+           
             ItspAccountInfo accountInfo = ((TransactionApplicationData) responseEvent
                     .getClientTransaction().getApplicationData()).itspAccountInfo;
 
@@ -301,6 +300,12 @@ public class SipListenerImpl implements SipListener {
                     b2bua.tearDown();
                 } else if (request.getMethod().equals(Request.REGISTER)) {
                     Gateway.getRegistrationManager().processTimeout(timeoutEvent);
+                } else if ( request.getMethod().equals(Request.BYE) ) {
+                    ClientTransaction clientTransaction = timeoutEvent.getClientTransaction();
+                    Dialog dialog = clientTransaction.getDialog();
+                    BackToBackUserAgent b2bua = DialogApplicationData.get(dialog).getBackToBackUserAgent();
+                    dialog.delete();
+                    b2bua.removeDialog(dialog);
                 } else if (request.getMethod().equals(Request.INVITE)) {
                     /*
                      * If this is a refer request -- grab the MOH Dialog and kill it. Otherwise we
@@ -318,8 +323,7 @@ public class SipListenerImpl implements SipListener {
                             mohDialog.sendRequest(byetx);
                         }
                     }
-                    // TODO -- re-invite to the old dialog to take him off hold.
-                    // What a mess!
+                   
                 }
             }
         } catch (Exception ex) {
