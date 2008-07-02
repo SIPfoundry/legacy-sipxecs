@@ -41,7 +41,7 @@ public class SipxServiceManagerImplTestIntegration extends IntegrationTestCase {
     public void testGetAllServices() {
         Collection<SipxService> allServices = m_out.getAllServices();
         assertNotNull(allServices);
-        assertEquals(2, allServices.size());
+        assertEquals(3, allServices.size());
     }
 
     public void testStoreService() {

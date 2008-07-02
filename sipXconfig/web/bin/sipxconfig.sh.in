@@ -33,10 +33,7 @@ Args=""
 
 TEST_WRITE_ACCESS="\
   @sipxpbx.conf.dir@/config.defs \
-  @sipxpbx.conf.dir@/sipXproxy-config.in \
-  @sipxpbx.conf.dir@/registrar-config.in \
   @sipxpbx.conf.dir@/sipxpresence-config.in \
-  @sipxpbx.conf.dir@/sipxpark-config.in \
   @sipxpbx.conf.dir@/status-config.in \
   @sipxpbx.conf.dir@/callresolver-config.in \
   @sipxpbx.conf.dir@/sipxdialog-config.in \

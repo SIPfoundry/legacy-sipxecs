@@ -166,7 +166,6 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/sipxpark
 %attr(755,root,root) %{_bindir}/sipxpark-config
 
-%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx/sipxpark-config.in
 
 %attr(755,root,root) %{_bindir}/sipxpage.sh
 %attr(755,root,root) %{_bindir}/sipxpage-config

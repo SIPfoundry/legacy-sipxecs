@@ -269,6 +269,7 @@
 	<antcall target="backup-ftp" />
     <antcall target="user-conferences" />
 	<antcall target="discovered-devices"/>
+  	<antcall target="add-park-service"/>
     <!-- When freezing schema uncomment this line -->
     <!-- sipx-version version="8" -->
   </target>
@@ -663,6 +664,10 @@
 
   <target name="discovered-devices" unless="discovered-devices">
     <db-patch patch="discovered-devices"/>
+  </target>
+
+  <target name="add-park-service" unless="add-park-service">
+    <db-patch patch="add-park-service"/>
   </target>
 
   <!-- 

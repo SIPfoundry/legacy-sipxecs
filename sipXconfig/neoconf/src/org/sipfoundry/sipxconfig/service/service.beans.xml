@@ -106,4 +106,20 @@
       </list>
     </property>    
   </bean>
+  
+  <bean id="sipxParkService" class="org.sipfoundry.sipxconfig.service.SipxParkService" 
+    parent="sipxService" scope="prototype">
+    <property name="beanId" value="sipxParkService" />
+    <property name="modelFilesContext" ref="modelFilesContext" />
+    <property name="modelName" value="sipxpark.xml" />
+    <property name="modelDir" value="sipxpark" />
+    <property name="configuration" ref="sipxParkConfiguration" />
+  </bean>
+  
+  <bean id="sipxParkConfiguration" class="org.sipfoundry.sipxconfig.service.SipxParkConfiguration" 
+    scope="prototype" parent="defaultConfigurationFile">
+    <property name="velocityEngine" ref="velocityEngine" />
+    <property name="template" value="sipxpark/sipxpark-config.vm" />
+    <property name="name" value="sipxpark-config"/>
+  </bean>
 </beans>

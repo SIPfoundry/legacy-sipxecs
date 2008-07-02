@@ -104,11 +104,6 @@
     </setting>
   </group>
   <group name="Logging">
-    <setting name="SIP_PARK_LOG_LEVEL">
-      <profileName>sipxpark-config.in</profileName>
-      <type refid="loglevel" />
-      <value>NOTICE</value>
-    </setting>
     <setting name="SIP_STATUS_LOG_LEVEL">
       <profileName>status-config.in</profileName>
       <type refid="loglevel" />
@@ -164,18 +159,6 @@
       <profileName>callresolver-config.in</profileName>
       <type refid="enablestate" />
       <value>DISABLE</value>
-    </setting>
-  </group>
-  <group name="park" hidden="yes">
-    <setting name="SIP_REGISTRAR_PARK_SERVER">
-      <profileName>registrar-config</profileName>
-    </setting>
-    <setting name="SIP_PARK_DOMAIN_NAME">
-      <profileName>sipxpark-config</profileName>
-    </setting>
-    <setting name="SIP_PARK_UDP_PORT">
-      <profileName>sipxpark-config</profileName>
-      <type refid="port-number" />
     </setting>
   </group>
 </model>
