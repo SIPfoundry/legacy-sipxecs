@@ -20,12 +20,14 @@
 
   <!-- used to directly inject values from sipxconfig.properties file -->
   <!-- invalid keys are ignored to allow for easier upgrades and file changes -->
-  <bean id="overrider" class="org.springframework.beans.factory.config.PropertyOverrideConfigurer">
+  <bean class="org.springframework.beans.factory.config.PropertyOverrideConfigurer">
     <property name="location">
       <ref local="sipxconfig.properties" />
     </property>
     <property name="ignoreInvalidKeys" value="true" />
   </bean>
+
+  <bean class="org.springframework.beans.factory.annotation.RequiredAnnotationBeanPostProcessor"/>
 
   <!--
     - P O S T G R E S

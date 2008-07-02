@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.test;
@@ -48,7 +48,7 @@ public final class TestUtil {
 
     /**
      * If you want to use a date in a unit test that eventually
-     * 
+     *
      * @param usDate typical US date representation
      * @return local date
      */
@@ -100,12 +100,12 @@ public final class TestUtil {
     /**
      * Use ClassLoader.getSystemResource() when you can gets you a stream and can work from jars,
      * but when you need a filename use this. Example:
-     * 
+     *
      * <pre>
-     *              
-     *               # Test file in same directory as JUnit test source file 
+     *
+     *               # Test file in same directory as JUnit test source file
      *               String testFile = TestUtil.getTestSourceDirectory(getClass()) + &quot;/test-file&quot;;
-     *               
+     *
      * </pre>
      */
     public static String getTestSourceDirectory(Class testClass) {
@@ -201,6 +201,9 @@ public final class TestUtil {
         sysProps.setProperty("sipxconfig.db.user", "postgres");
         sysProps.setProperty("mrtgTemplateConfig.filename", etcDirectory + "/mrtg-t.cfg");
         sysProps.setProperty("mrtgConfig.filename", etcDirectory + "/mrtg.cfg");
+
+        sysProps.setProperty("sip.proxyHost", "localhost");
+        sysProps.setProperty("sip.proxyPort", "5060");
 
         File vmDir = new File(outputDirectory + "/mailstore");
         if (!vmDir.exists()) {
