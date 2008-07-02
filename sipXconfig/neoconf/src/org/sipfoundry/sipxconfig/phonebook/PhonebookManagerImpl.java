@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.phonebook;
@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import org.apache.commons.collections.Closure;
+import org.apache.commons.lang.StringUtils;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
@@ -213,7 +214,7 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
      * first and last name of each entry are searched using a prefix search (R, Rob, and Robert
      * all match the first name "Robert"). Additionally, for all entries that coorespond to User
      * objects, the aliases of that user object will be searched.
-     * 
+     *
      * @param queryString The string to search for. Can not be null
      */
     public Collection<PhonebookEntry> search(Collection<Phonebook> phonebooks, String queryString) {
@@ -325,7 +326,7 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
     }
 
     static class CsvPhonebookEntryMaker implements Closure {
-        private Map<String, PhonebookEntry> m_entries;
+        private final Map<String, PhonebookEntry> m_entries;
 
         CsvPhonebookEntryMaker(Map entries) {
             m_entries = entries;
@@ -343,7 +344,7 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
      * public for Velocity doesn't reject object
      */
     public static class StringArrayPhonebookEntry implements PhonebookEntry {
-        private String[] m_row;
+        private final String[] m_row;
 
         StringArrayPhonebookEntry(String... row) {
             if (row.length < 3) {
@@ -375,7 +376,7 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
      * public so Velocity doesn't reject object
      */
     public static class UserPhonebookEntry implements PhonebookEntry {
-        private User m_user;
+        private final User m_user;
 
         UserPhonebookEntry(User user) {
             m_user = user;
@@ -390,7 +391,7 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
         }
 
         public String getNumber() {
-            return m_user.getUserName();
+            return StringUtils.defaultIfEmpty(m_user.getExtension(true), m_user.getUserName());
         }
     }
 

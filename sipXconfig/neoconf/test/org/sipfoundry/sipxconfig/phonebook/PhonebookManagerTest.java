@@ -32,6 +32,7 @@ import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookManagerImpl.CsvFileFormatError;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookManagerImpl.PhoneEntryComparator;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookManagerImpl.StringArrayPhonebookEntry;
+import org.sipfoundry.sipxconfig.phonebook.PhonebookManagerImpl.UserPhonebookEntry;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.test.PhonebookTestHelper;
 import org.sipfoundry.sipxconfig.test.TestUtil;
@@ -235,8 +236,8 @@ public class PhonebookManagerTest extends TestCase {
         assertTrue(entriesThatMatchUsername.contains(testEntry));
 
         // test searching by username in all caps
-        Collection<PhonebookEntry> entriesThatMatchUsernameCaps = out.search(
-                Collections.singletonList(new Phonebook()), username.toUpperCase());
+        Collection<PhonebookEntry> entriesThatMatchUsernameCaps = out.search(Collections
+                .singletonList(new Phonebook()), username.toUpperCase());
 
         assertEquals(1, entriesThatMatchUsernameCaps.size());
         assertTrue(entriesThatMatchUsernameCaps.contains(testEntry));
@@ -286,5 +287,19 @@ public class PhonebookManagerTest extends TestCase {
 
         out.search(Collections.singletonList(new Phonebook()), "300");
         out.search(Collections.singletonList(new Phonebook()), "nulluser");
+    }
+
+    public void testUserPhoneBookEntry() throws Exception {
+        User user = new User();
+        UserPhonebookEntry entry = new PhonebookManagerImpl.UserPhonebookEntry(user);
+
+        user.setUserName("500");
+        assertEquals("500", entry.getNumber());
+
+        user.setUserName("abcd");
+        assertEquals("abcd", entry.getNumber());
+
+        user.setAliasesString("501");
+        assertEquals("501", entry.getNumber());
     }
 }

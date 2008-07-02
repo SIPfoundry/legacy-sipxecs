@@ -35,23 +35,18 @@
       </ul>
       <table jwcid="@common/Table" id="userPhonebook:phonebookTable"
         source="ognl:phonebookEntries"
-        columns="* firstName,lastName,extensions,sipIds"
+        columns="* firstName,lastName,phoneNumber"
         row="ognl:phonebookEntry"
         usePager="ognl:true"
         volatile="ognl:true">
-        <span jwcid="firstNameColumnValue@Block">
+        <span jwcid="phoneNumberColumnValue@Block">
           <span jwcid="@ImageSubmit"
             image="asset:callIcon"
+            title="message:tooltip.call"
             action="listener:call"
             parameters="ognl:currentNumber"
             asyn="ognl:true" />
-          <span jwcid="@Insert" value="ognl:currentFirstName"/>
-        </span>
-        <span jwcid="extensionsColumnValue@Block">
-          <span jwcid="@Insert" value="ognl:extensionsForCurrentEntry"/>
-        </span>
-        <span jwcid="sipIdsColumnValue@Block">
-          <span jwcid="@Insert" value="ognl:sipIdsForCurrentEntry"/>
+          <span jwcid="@Insert" value="ognl:currentNumber"/>
         </span>
       </table>
     </fieldset>
