@@ -3,6 +3,40 @@ SIPfoundry Issue Tracker at:
 
         http://track.sipfoundry.org/browse?XCF
 
+Version 3.11.3
+
+** Bug
+    * [XCF-1857] - sipx 3.8 displays port numbers with a comma (eg x,xxx rather than xxxx)
+    * [XCF-2455] - AssetSelector problems after Tapestry upgrade to 1.4.1
+    * [XCF-2460] - Integer validators do not allow empty values for non-required fields
+    * [XCF-2482] - for parameters that accept an integer range, blank space is not validated and profile shows up as '0.0'
+    * [XCF-2607] - Conference bridge configuration files do not get correctly created or replicated
+    * [XCF-2620] - provide GUI for configuring Polycom CallWaiting beep
+    * [XCF-2629] - initial replication of nattraversal rules always fails
+    * [XCF-2650] - FreeSWITCH : Internal Exception Occured in Conference Bridge.
+    * [XCF-2655] - "All sipxecs Services" are missing on Services page in the build 3.11.4-012944
+
+** Improvement
+    * [XCF-828] - Allow automatic creation of a conference bridge extension per user
+    * [XCF-2546] - Various problems in dial plan templates - cleanup required
+    * [XCF-2553] - Change the destination directory for third party localization files
+    * [XCF-2602] - integrate dynamic and configuration UI for conference control
+
+** New Feature
+    * [XCF-2181] - Provide management for NAT traversal feature
+    * [XCF-2420] - Configure MRTG stats for HA distrib server
+    * [XCF-2432] - pluggable mechanism for running phone discovery in the background
+    * [XCF-2442] - generate registrar-config file
+    * [XCF-2507] - Add Intercom and Pagin Support for Aastra Phones 
+    * [XCF-2522] - Make directory on user portal interactive (click-do-dial)
+    * [XCF-2523] - Enable URI dialing from the user portal
+    * [XCF-2580] - Add configuration parameters for Audicode Stand-Alone Survivability feature
+    * [XCF-2614] - Use new replication XML RPC methods instead of replication cgi
+    * [XCF-2621] - dynamic conference control for freeswitch conferences in user portal
+
+** Task
+    * [XCF-2610] - fix ListBridges page
+    * [XCF-2642] - Modify gen-ssl-keys.sh utility to generate web-only certificates
 
 
 Version 3.11.3
