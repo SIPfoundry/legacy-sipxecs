@@ -17,8 +17,12 @@ import java.util.List;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.tapestry.IAsset;
+import org.apache.tapestry.IPage;
 import org.apache.tapestry.PageRedirectException;
+import org.apache.tapestry.annotations.Asset;
 import org.apache.tapestry.annotations.InitialValue;
+import org.apache.tapestry.annotations.InjectPage;
 import org.apache.tapestry.annotations.InjectState;
 import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.event.PageBeginRenderListener;
@@ -41,9 +45,14 @@ public abstract class EditConference extends PageWithCallback implements PageBeg
     public abstract ConferenceBridgeContext getConferenceBridgeContext();
 
     public abstract Serializable getBridgeId();
-
     public abstract void setBridgeId(Serializable bridgeId);
 
+    public abstract Bridge getBridge();
+    public abstract void setBridge(Bridge bridge);
+    
+    public abstract Bridge getTestBridge();
+    public abstract void setTestBridge(Bridge testBridge);    
+    
     public abstract Serializable getConferenceId();
 
     public abstract void setConferenceId(Serializable id);
@@ -60,8 +69,14 @@ public abstract class EditConference extends PageWithCallback implements PageBeg
 
     public abstract Collection<Integer> getSelectedUsers();
 
+    @Asset("/images/breadcrumb_separator.png")
+    public abstract IAsset getBreadcrumbSeparator();
+    
     @InjectState(value = "userSession")
     public abstract UserSession getUserSession();
+
+    @InjectPage(EditBridge.PAGE)
+    public abstract EditBridge getEditBridgePage();
     
     @Persist
     @InitialValue(value = "literal:config")
@@ -69,6 +84,7 @@ public abstract class EditConference extends PageWithCallback implements PageBeg
 
     public void pageBeginRender(PageEvent event_) {
         if (getConference() != null) {
+            setBridge(getConference().getBridge());
             return;
         }
         Conference conference = null;
@@ -78,6 +94,10 @@ public abstract class EditConference extends PageWithCallback implements PageBeg
             conference = getConferenceBridgeContext().newConference();
         }
 
+        if (getBridge() == null && getBridgeId() != null) {
+            setBridge(getConferenceBridgeContext().loadBridge(getBridgeId()));
+        }
+        
         setConference(conference);
         
         UserSession currentUser = getUserSession();
@@ -134,5 +154,12 @@ public abstract class EditConference extends PageWithCallback implements PageBeg
         if (getChanged()) {
             setConference(null);
         }
+    }
+    
+    
+    public IPage viewBridge(Integer bridgeId) {
+        EditBridge page = getEditBridgePage();
+        page.setBridgeId(bridgeId);
+        return page;
     }
 }

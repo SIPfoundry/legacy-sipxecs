@@ -1,7 +1,16 @@
 <div jwcid="@common/Border" restricted="false">
-  <h2><span key="title">Conference</span></h2>
   <span jwcid="@common/TabNavigation" tabNames="ognl:tabNames" selectedTab="ognl:tab"/>
   <div id="settings-content">
+    <div id="breadcrumbs">
+        <a jwcid="@PageLink" page="conference/ListBridges"><span key="crumb.conferenceBridges" /></a>
+        <img jwcid="@Image" image="asset:breadcrumbSeparator" align="absmiddle" /> 
+        <a jwcid="@DirectLink" listener="listener:viewBridge" parameters="ognl:bridge.id">
+            <span jwcid="@Insert" value="ognl:bridge.name" />
+        </a>
+        <img jwcid="@Image" image="asset:breadcrumbSeparator" align="absmiddle" />
+        <span jwcid="@If" condition="ognl:conference.isNew()"><span key="crumb.newConference"/></span>     
+        <span jwcid="@Else"><span jwcid="@Insert" value="ognl:conference.name" /></span>
+    </div>  
     <span jwcid="@common/ErrorMsg"/>
     <span jwcid="@RenderBlock" block="ognl:components.get(tab + 'Tab')" />
   </div>
@@ -35,7 +44,7 @@
       <span jwcid="formActions"/>
     </form>
   </div>
-  <div jwcid="participantsTab@Block">
-     <div jwcid="@conference/ActiveConferenceControl" conference="ognl:conference" />
+  <div jwcid="participantsTab@Block">     
+     <div jwcid="@conference/ActiveConferenceControl" conference="ognl:conference" />     
   </div>
 </div>

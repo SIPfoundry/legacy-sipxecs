@@ -11,7 +11,9 @@ package org.sipfoundry.sipxconfig.site.conference;
 
 import java.io.Serializable;
 
+import org.apache.tapestry.IAsset;
 import org.apache.tapestry.IPage;
+import org.apache.tapestry.annotations.Asset;
 import org.apache.tapestry.annotations.InitialValue;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.InjectPage;
@@ -44,6 +46,9 @@ public abstract class EditBridge extends PageWithCallback implements PageBeginRe
     @InitialValue("literal:config")
     public abstract void setTab(String tab);
 
+    @Asset("/images/breadcrumb_separator.png")
+    public abstract IAsset getBreadcrumbSeparator();    
+    
     public void pageBeginRender(PageEvent event_) {
         if (getBridge() != null) {
             return;
@@ -98,6 +103,7 @@ public abstract class EditBridge extends PageWithCallback implements PageBeginRe
     private IPage activateEditConferencePage(Integer id, String tab) {
         EditConference editConference = getEditConferencePage();
         editConference.setBridgeId(getBridgeId());
+        editConference.setTestBridge(getBridge());
         editConference.setConferenceId(id);
         if (tab != null) {
             editConference.setTab(tab);

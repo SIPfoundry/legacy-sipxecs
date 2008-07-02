@@ -1,8 +1,13 @@
 <div jwcid="@common/Border">
-<h2><span key="title">Conference Bridge</span></h2>
-  <span jwcid="@common/TabNavigation" tabNames="ognl:{'config','conferences'}" selectedTab="ognl:tab"/>
+  <span jwcid="tabNavigation@common/TabNavigation" tabNames="ognl:{'config','conferences'}" selectedTab="ognl:tab"/>
   <div id="settings-content">
-    <span jwcid="@common/ErrorMsg"/>
+    <div id="breadcrumbs">
+        <a jwcid="@PageLink" page="conference/ListBridges"><span key="crumb.conferenceBridges" /></a>
+        <img jwcid="@Image" image="asset:breadcrumbSeparator" align="absmiddle" />
+        <span jwcid="@If" condition="ognl:bridge.isNew"><span key="crumb.newConferenceBridge" /></span>
+        <span jwcid="@Else"><span jwcid="@Insert" value="ognl:bridge.name" /></span>
+    </div>  
+    <span jwcid="@common/ErrorMsg"/> 
     <form jwcid="form" id="bridge:form">
       <span jwcid="@RenderBlock" block="ognl:components.get(tab + 'Tab')" />
       <span jwcid="formActions"/>
