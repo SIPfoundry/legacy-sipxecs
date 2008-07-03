@@ -88,7 +88,7 @@ SipPersistentSubscriptionMgr::SipPersistentSubscriptionMgr(
             }
             else if (value->getContainableType() == UtlInt::TYPE)
             {
-               XmlDecimal(out, (int) (*(dynamic_cast <UtlInt*> (value))));
+               out.appendNumber((int) (*(dynamic_cast <UtlInt*> (value))));
             }
             else
             {

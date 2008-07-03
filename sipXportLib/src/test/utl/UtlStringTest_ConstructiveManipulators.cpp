@@ -72,6 +72,7 @@ class UtlStringTest_ConstructiveManipulators : public UtlStringTest
     CPPUNIT_TEST(testEfficientMemoryCopy);
     CPPUNIT_TEST(testSubstringAssign);
     CPPUNIT_TEST(testNull);
+    CPPUNIT_TEST(testAppendNumber);
     CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -1532,6 +1533,36 @@ public:
          t.append((const char *) NULL);
          ASSERT_STR_EQUAL_MESSAGE("Append NULL",
                                   "123", t.data());
+      }
+
+   void testAppendNumber()
+      {
+         UtlString base("Number: ");
+
+         UtlString t;
+         t = base;
+         t.appendNumber(12);
+         ASSERT_STR_EQUAL("Number: 12", t.data());
+
+         t = base;
+         t.appendNumber(12, "%03d");
+         ASSERT_STR_EQUAL("Number: 012", t.data());
+
+         t = base;
+         t.appendNumber(12, "%08x");
+         ASSERT_STR_EQUAL("Number: 0000000c", t.data());
+
+         t.remove(0);
+         t.appendNumber(12);
+         ASSERT_STR_EQUAL("12", t.data());
+
+         t.remove(0);
+         t.appendNumber(12, "%03d");
+         ASSERT_STR_EQUAL("012", t.data());
+
+         t.remove(0);
+         t.appendNumber(12, "%08x");
+         ASSERT_STR_EQUAL("0000000c", t.data());
       }
    
 } ;

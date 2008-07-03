@@ -219,7 +219,7 @@ void ResourceCached::generateBody(UtlString& rlmi,
       UtlString contentBodyPartCid;
       // Use the count of parts in 'body' to generate a unique identifier for
       // each part.
-      XmlDecimal(contentBodyPartCid, body.getMultipartCount());
+      contentBodyPartCid.appendNumber(body.getMultipartCount());
       contentBodyPartCid += "@";
       contentBodyPartCid += getResourceListServer()->getDomainName();
 
@@ -242,7 +242,7 @@ void ResourceCached::generateBody(UtlString& rlmi,
       // The consolidated dialog events need to have persistent
       // version numbers, as they all have the same instance id.
       // So we use a global version number in the ResourceListSet.
-      XmlDecimal(dialog_event, getResourceListSet()->getVersion());
+      dialog_event.appendNumber(getResourceListSet()->getVersion());
       dialog_event += "\"";
       dialog_event += STATE_EQUAL;
       dialog_event += "\"full\"";

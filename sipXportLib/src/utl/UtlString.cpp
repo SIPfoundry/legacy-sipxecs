@@ -29,6 +29,9 @@ const char* UtlString::ssNull = "";
 const ssize_t UtlString::UTLSTRING_NOT_FOUND = -1;
 const ssize_t UtlString::UTLSTRING_TO_END = -1;
 
+const size_t  UtlString::MAX_NUMBER_STRING_SIZE = 256; // maximum size text output for appendNumber
+
+
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
 /* ============================ CREATORS ================================== */
@@ -264,6 +267,26 @@ UtlString& UtlString::append(const UtlString& str, size_t position, size_t lengt
    }
    
    return *this;
+}
+
+UtlString& UtlString::appendNumber(int value, const char* format)
+{
+   char conversionString[MAX_NUMBER_STRING_SIZE];
+   conversionString[0]='\000';
+
+   int formatResult = snprintf(conversionString,MAX_NUMBER_STRING_SIZE,format,value);
+   if ((0 < formatResult) || ((int)MAX_NUMBER_STRING_SIZE < formatResult))
+   {
+      append(conversionString);
+   }
+   else
+   {
+      append("(UtlString::appendNumber format error using '");
+      append(format);
+      append("')");
+   }
+
+   return(*this);
 }
 
 UtlString& UtlString::insert(size_t position, const char* source)

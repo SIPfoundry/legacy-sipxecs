@@ -242,7 +242,7 @@ HttpBody* ResourceList::generateBody(UtlBoolean consolidated) const
    XmlEscape(rlmi,
              consolidated ? mResourceListNameCons : mResourceListName);
    rlmi += "\" version=\"";
-   XmlDecimal(rlmi, mVersion);
+   rlmi.appendNumber(mVersion);
    rlmi += "\" fullState=\"true\">\r\n";
 
    // If we implemented names for resource lists, <name> elements would go here.

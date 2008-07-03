@@ -77,16 +77,4 @@ bool XmlUnEscape(UtlString& destination, const UtlString& source);
  * @returns true for success, false if an error was returned from any UtlString operation.
  */
 
-/// Append decimal string onto destination string
-bool XmlDecimal(UtlString& destination,
-                int source,
-                const char* format = NULL);
-/**<
- * The source value is converted into a decimal string according to
- * "format".  The decimal string is appended to the destination string.  
- * "format" defaults to "%d", and must generate no more than 20 characters,
- * (excluding the ending NUL).
- * @returns true for success, false if an error was returned from any UtlString operation.
- */
-
 #endif    // _XmlContent_h_

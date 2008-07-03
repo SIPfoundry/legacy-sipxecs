@@ -27,7 +27,6 @@ class XmlContentTest : public CppUnit::TestCase
     CPPUNIT_TEST(testUnNamedEnt);
     CPPUNIT_TEST(testUnNumericEnt);
     CPPUNIT_TEST(testStringNoNewline);
-    CPPUNIT_TEST(testDecimal);
     CPPUNIT_TEST(testWriter);
     CPPUNIT_TEST_SUITE_END();
 
@@ -160,25 +159,6 @@ public:
          CPPUNIT_ASSERT_MESSAGE("Parse of test_string failed.", result != 0);
       }
 
-   void testDecimal()
-      {
-         UtlString s;
-         s = "";
-         XmlDecimal(s, 1);
-         CPPUNIT_ASSERT_EQUAL(s, UtlString("1"));
-         XmlDecimal(s, -1);
-         CPPUNIT_ASSERT_EQUAL(s, UtlString("1-1"));
-         XmlDecimal(s, 12);
-         CPPUNIT_ASSERT_EQUAL(s, UtlString("1-112"));
-         XmlDecimal(s, 1234567890);
-         CPPUNIT_ASSERT_EQUAL(s, UtlString("1-1121234567890"));
-         s = "";
-         XmlDecimal(s, 1, "%020d");
-         CPPUNIT_ASSERT_EQUAL(s, UtlString("00000000000000000001"));
-         s = "";
-         XmlDecimal(s, (unsigned int) 0xFFFFFFFF, "%u");
-         CPPUNIT_ASSERT_EQUAL(s, UtlString("4294967295"));
-      }
 
    // Test that TiXmlUtlStringWriter works.
    void testWriter()

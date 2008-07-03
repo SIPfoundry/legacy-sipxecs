@@ -304,7 +304,7 @@ void RegisterEventServer::generateContent(const UtlString& aorString,
    content.append("<?xml version=\"1.0\"?>\r\n"
                   "<reginfo xmlns=\"urn:ietf:params:xml:ns:reg\" "
                   "version=\"");
-   XmlDecimal(content, version);
+   content.appendNumber(version);
    content.append("\" state=\"full\">\r\n");
    content.append("  <registration aor=\"");
    XmlEscape(content, aorString);
@@ -376,7 +376,7 @@ void RegisterEventServer::generateContent(const UtlString& aorString,
       content.append("\" callid=\"");
       XmlEscape(content, *callid);
       content.append("\" cseq=\"");
-      XmlDecimal(content, cseq);
+      content.appendNumber(cseq);
       content.append("\">\r\n");
 
       UtlString contact_addrspec;

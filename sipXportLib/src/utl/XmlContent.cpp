@@ -283,28 +283,4 @@ bool XmlUnEscape(UtlString& destination, const UtlString& source)
    return resultOk;
 }
 
-/// Append decimal string onto destination string
-/**
- * The source value is converted into a decimal string according to
- * "format".  The decimal string is appended to the destination string.  
- * "format" defaults to "%d", and must generate no more than 20 characters
- * (excluding the ending NUL).
- * @returns true for success, false if an error was returned from any UtlString operation.
- */
-bool XmlDecimal(UtlString& destination,
-                int source,
-                const char* format)
-{
-   // Buffer in which to build the decimal string.
-   char buffer[20 + 1];
 
-   // Build the decimal string.
-   sprintf(buffer,
-           format != NULL ? format : "%d",
-           source);
-
-   // Append it to the destination.
-   destination.append(buffer);
-
-   return TRUE;
-}

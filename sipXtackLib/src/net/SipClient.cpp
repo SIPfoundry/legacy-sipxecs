@@ -379,13 +379,13 @@ void SipClient::getClientNames(UtlString& clientNames) const
     clientNames.append(" remote Via address: ");
     clientNames.append(mRemoteViaAddress);
     clientNames.append(":");
-    XmlDecimal(clientNames, mRemoteViaPort);
+    clientNames.appendNumber(mRemoteViaPort);
 
     // received address
     clientNames.append(" received address: ");
     clientNames.append(mReceivedAddress);
     clientNames.append(":");
-    XmlDecimal(clientNames, mRemoteReceivedPort);
+    clientNames.appendNumber(mRemoteReceivedPort);
 }
 
 long SipClient::getLastTouchedTime() const
@@ -659,7 +659,7 @@ int SipClient::run(void* runArg)
                logMessage.append("----Remote Host:");
                logMessage.append(fromIpAddress);
                logMessage.append("---- Port: ");
-               XmlDecimal(logMessage,
+               logMessage.appendNumber(
                           portIsValid(fromPort) ? fromPort : defaultPort());
                logMessage.append("----\n");
 
@@ -810,7 +810,7 @@ void SipClient::preprocessMessage(SipMessage& msg,
       logMessage.append("----Remote Host:");
       logMessage.append(fromIpAddress);
       logMessage.append("---- Port: ");
-      XmlDecimal(logMessage,
+      logMessage.appendNumber(
                  portIsValid(fromPort) ? fromPort : defaultPort());
       logMessage.append("----\n");
 

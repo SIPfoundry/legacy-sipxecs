@@ -387,7 +387,7 @@ void ResourceInstance::generateBody(UtlString& rlmi,
          UtlString contentBodyPartCid;
          // Use the count of parts in 'body' to generate a unique identifier for
          // each part.
-         XmlDecimal(contentBodyPartCid, body.getMultipartCount());
+         contentBodyPartCid.appendNumber(body.getMultipartCount());
          contentBodyPartCid += "@";
          contentBodyPartCid += getResourceListServer()->getDomainName();
 

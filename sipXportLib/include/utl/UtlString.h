@@ -53,6 +53,8 @@ public:
                                            *   indicates that the substring should extend
                                            *   to the end of the string. */
 
+    static const size_t  MAX_NUMBER_STRING_SIZE; ///< maximum size text output for appendNumber
+
     /**
      * Flags to the various strip methods
      */
@@ -381,6 +383,12 @@ public:
 
     /// Append a single character to the end of this string.
     UtlString& append(const char c);
+
+    /// Append a string representation of the value to the string
+    UtlString& appendNumber(int value, const char* format = "%d");
+    /**< MAX_NUMBER_STRING_SIZE is the maximum size text representation of the value allowed
+     *   If this size is exceeded an error string is appended in place of the number
+     */
 
 ///@}
 // ================================================================
