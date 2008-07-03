@@ -24,6 +24,44 @@ void textContentShallow(UtlString& string,
    }
 }
 
+bool textContent(UtlString& string,
+                 TiXmlNode *node)
+{
+   bool allTextContent = true;
+   
+   // save the original length of the string so that we can return to it in case of an error.
+   size_t originalLength = string.length();
+
+   // Iterate through all the children.
+   for (TiXmlNode* child = node->FirstChild();
+        allTextContent && child;
+        child = child->NextSibling())
+   {
+      // Examine the text nodes.
+      switch (child->Type())
+      {
+      case TiXmlNode::TEXT:
+         string.append(child->Value());
+         break;
+         
+      case TiXmlNode::COMMENT:
+         // this is allowed but ignored
+         break;
+
+      default:
+         allTextContent = false;
+      }
+   }
+
+   if (!allTextContent)
+   {
+      string.remove(originalLength);
+   }
+
+   return allTextContent;
+}
+
+
 void textContentDeep(UtlString& string,
                      TiXmlNode *node)
 {
