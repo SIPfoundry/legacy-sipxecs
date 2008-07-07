@@ -16,7 +16,10 @@ import java.util.concurrent.ConcurrentMap;
 import org.apache.log4j.Logger;
 import org.xbill.DNS.*;
 
+import javax.sip.ClientTransaction;
 import javax.sip.address.SipURI;
+import javax.sip.message.Request;
+
 import gov.nist.javax.sip.clientauthutils.*;
 
 /**
@@ -137,34 +140,12 @@ public class AccountManagerImpl implements gov.nist.javax.sip.clientauthutils.Ac
      * @param domainName - the domain name for which we want creds.
      * 
      */
-    public UserCredentials getCredentials(SipURI sipUri, String authRealm) {
+    public UserCredentials getCredentials(ClientTransaction ctx, String authRealm) {
 
-        logger.debug("AccountManagerImpl : getCredentials sipUri = " + sipUri + " realm = "
-                + authRealm);
-        logger.debug("sipUri.getHost() " + sipUri.getHost());
-        ItspAccountInfo retval = null;
-        for (ItspAccountInfo itspAccountInfo : this.itspAccounts.values()) {
-            if (sipUri.getHost().endsWith(itspAccountInfo.getSipDomain())) {
-                retval =  itspAccountInfo;
-            } else {
-                logger.debug("domain = " + itspAccountInfo.getSipDomain());
-            }
-        }
-
-        /*
-         * UserCredentials retval = this.itspAccounts.get(authRealm); if (retval == null) { //
-         * Maybe he is coming in with an address instead of a domain name. // do a reverse lookup.
-         * String realDomainName = this.addressToDomainNameMap.get(authRealm); if (realDomainName ==
-         * null) { // Check to see if we have any creds based upon his URI. String host =
-         * sipUri.getHost(); retval = this.itspAccounts.get(host); } else { retval =
-         * this.itspAccounts.get(realDomainName); } }
-         */
-        if (retval == null) {
-            if (logger.isDebugEnabled()) {
-                logger.debug("No creds for account " + sipUri + " realm " + authRealm);
-            }
-        }
-        return retval;
+        TransactionApplicationData tad = (TransactionApplicationData) ctx.getApplicationData();
+        
+        return tad.itspAccountInfo;
+        
 
     }
 

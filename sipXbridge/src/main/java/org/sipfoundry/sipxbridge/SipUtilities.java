@@ -219,11 +219,12 @@ public class SipUtilities {
         if (itspAccount.getOutboundTransport().equalsIgnoreCase("tcp")) {
             requestUri.setTransportParam("tcp");
         }
+        String proxyDomain = itspAccount.getProxyDomain();
         SipURI fromUri = ProtocolObjects.addressFactory.createSipURI(itspAccount.getUserName(),
-                registrar);
+                proxyDomain);
 
         SipURI toUri = ProtocolObjects.addressFactory.createSipURI(itspAccount.getUserName(),
-                registrar);
+                proxyDomain);
 
         Address fromAddress = ProtocolObjects.addressFactory.createAddress(fromUri);
         fromAddress.setDisplayName(itspAccount.getDisplayName());

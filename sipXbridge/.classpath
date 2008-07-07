@@ -17,6 +17,6 @@
 	<classpathentry kind="lib" path="lib/commons-beanutils.jar"/>
 	<classpathentry kind="lib" path="tools/junit-3.8.1.jar"/>
 	<classpathentry kind="lib" path="tools/sipunit.jar"/>
-	<classpathentry kind="lib" path="lib/jain-sip-sdp-1.2.73.jar"/>
+	<classpathentry kind="lib" path="lib/jain-sip-sdp-1.2.74.jar"/>
 	<classpathentry kind="output" path="classes"/>
 </classpath>

@@ -228,7 +228,7 @@ public class SimpleCallSetupTest extends AbstractSipSignalingTest {
     public void testInboundCallFromItsp()  throws Exception {
         SipPhone sipPhone = sipStack.createSipPhone("127.0.0.1", "udp", this.accountManager.getBridgeConfiguration().getLocalPort(),
                 "sip:"+ 
-                this.accountManager.getDefaultAccount().getAutoAttendantName()+
+                this.accountManager.getBridgeConfiguration().getAutoAttendantName()+
                 "@"+this.accountManager.getBridgeConfiguration().getSipxProxyDomain());
         PhoneResponder responder = new PhoneResponder (sipPhone);
         new Thread(responder).start();

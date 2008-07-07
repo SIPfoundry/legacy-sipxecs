@@ -18,7 +18,7 @@ conf.dir=@SIPX_CONFDIR@
 # U T I L
 sipxbridge.lib.dir=${data.dir}/sipxpbx/lib/sipXbridge
 log4j=${src.dir}/lib/log4j-1.2.14.jar
-jainsip=${src.dir}/lib/jain-sip-sdp-1.2.73.jar
+jainsip=${src.dir}/lib/jain-sip-sdp-1.2.74.jar
 dnsjava=${src.dir}/lib/dnsjava-2.0.6.jar
 stun4j=${src.dir}/lib/Stun4J.jar
 junit=${src.dir}/tools/junit-3.8.1.jar
