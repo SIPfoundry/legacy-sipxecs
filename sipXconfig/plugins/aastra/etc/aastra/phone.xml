@@ -23,7 +23,26 @@
       </setting>
       <setting name="sip_transport_protocol">
         <profileName>sip transport protocol</profileName>
-        <type refid="trprot" />
+        <type>
+          <enum>
+            <option>
+              <label>UDP and TCP</label>
+              <value>0</value>
+            </option>
+            <option>
+              <label>UDP</label>
+              <value>1</value>
+            </option>
+            <option>
+              <label>TCP</label>
+              <value>2</value>
+            </option>
+            <option>
+              <label>TLS</label>
+              <value>3</value>
+            </option>
+          </enum>
+        </type>
         <value>0</value>
       </setting>
       <setting name="sip_symmetric_udp_signaling" advanced="yes">
