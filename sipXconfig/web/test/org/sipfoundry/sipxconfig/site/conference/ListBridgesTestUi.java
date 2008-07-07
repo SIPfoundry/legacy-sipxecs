@@ -40,7 +40,7 @@ public class ListBridgesTestUi extends ListWebTestCase {
     protected Object[] getExpectedTableRow(String[] paramValues) {
         Object[] expected = super.getExpectedTableRow(paramValues);
         expected = ArrayUtils.add(expected, 2, "Disabled");
-        expected = ArrayUtils.add(expected, "");
+        expected = ArrayUtils.add(expected, "0 ( )");
         return expected;
     }
 

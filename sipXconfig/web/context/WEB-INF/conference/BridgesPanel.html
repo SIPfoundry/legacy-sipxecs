@@ -17,10 +17,15 @@
       <span jwcid="@common/EnabledColumn" value="ognl:currentRow.enabled"/>
     </span>    
     <span jwcid="activeConferencesColumnValue@Block">
+         <a jwcid="@DirectLink" class="goLink" listener="ognl:selectActiveListener"
+            parameters="ognl:currentRow.id">
+            <span jwcid="@Insert" value="ognl:currentRow.conferences.size()" />
+            (
       <span jwcid="@conference/ActiveValue" itemId="ognl:currentRow.id"
-        calculateListener="listener:calculateActiveValue"
-        activateListener="ognl:selectActiveListener"/>
-    </span>
+        calculateListener="listener:calculateActiveValue"/>            
+            )
+         </a>
+    </span> 
   </table>
   <ul class="component-submit">
     <li>

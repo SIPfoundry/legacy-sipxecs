@@ -35,7 +35,7 @@ public abstract class ListBridges extends BasePage {
     }
 
     public IPage edit(Integer bridgeId) {
-        return activateEditPage(bridgeId, null);
+        return activateEditPage(bridgeId, "config");
     }
 
     public IPage active(Integer bridgeId) {

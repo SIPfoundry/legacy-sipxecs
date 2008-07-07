@@ -2,9 +2,9 @@
   <span jwcid="tabNavigation@common/TabNavigation" tabNames="ognl:{'config','conferences'}" selectedTab="ognl:tab"/>
   <div id="settings-content">
     <div id="breadcrumbs">
-        <a jwcid="@PageLink" page="conference/ListBridges"><span key="crumb.conferenceBridges" /></a>
+        <a jwcid="@PageLink" page="conference/ListBridges"><span key="crumb.conferencing" /></a>
         <img jwcid="@Image" image="asset:breadcrumbSeparator" align="absmiddle" />
-        <span jwcid="@If" condition="ognl:bridge.isNew"><span key="crumb.newConferenceBridge" /></span>
+        <span jwcid="@If" condition="ognl:bridge.isNew"><span key="crumb.newConferenceServer" /></span>
         <span jwcid="@Else"><span jwcid="@Insert" value="ognl:bridge.name" /></span>
     </div>  
     <span jwcid="@common/ErrorMsg"/> 

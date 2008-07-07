@@ -48,7 +48,7 @@ public abstract class ActiveValue extends BaseComponent {
     @Parameter(required = true)
     public abstract IActionListener getCalculateListener();
 
-    @Parameter(required = true)
+    @Parameter(required = false)
     public abstract IActionListener getActivateListener();
 
     @InitialValue("-1")
@@ -86,10 +86,8 @@ public abstract class ActiveValue extends BaseComponent {
     public Block getBlock() {
         String blockName = "loading";
         int count = getActiveCount();
-        if (count > 0) {
-            blockName = "active";
-        } else if (count == 0) {
-            blockName = "inactive";
+        if (count >= 0) {
+            blockName = getActivateListener() != null ? "link" : "noLink";
         }
         return (Block) getComponent(blockName);
     }

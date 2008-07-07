@@ -1,20 +1,18 @@
-<div jwcid="cell">
-  <div jwcid="@RenderBlock" block="ognl:block" />
-</div>
+<span jwcid="cell"><div jwcid="@RenderBlock" block="ognl:block" /></span>
 <span jwcid="loading@Block">
-  <div jwcid="throbber@Any">
+  <span jwcid="throbber@Any">
       <img jwcid="@Image" image="asset:loadingImage" />
-  </div>
+  </span>
   <span jwcid="@Script"
     scriptAsset="asset:script"
     compClientId="clientId:throbber"
     updateCompClientId="clientId:cell"
     parameters="ognl:itemId"/>
 </span>
-<span jwcid="inactive@Block">
-    <span key="label.inactive"/>
+<span jwcid="noLink@Block">
+    <span jwcid="@Insert" value="ognl:activeLabel" />
 </span>
-<span jwcid="active@Block">
+<span jwcid="link@Block">
     <span jwcid="@DirectLink" class="goLink"
         listener="ognl:activateListener"
         parameters="ognl:itemId">
