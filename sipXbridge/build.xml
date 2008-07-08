@@ -112,9 +112,11 @@
 <!-- BUILD a Jar file -->
 	<target name="jar" depends="compile-exclude-tests" description="create a jar file" >
 		<mkdir dir="${build.dir}/dist" />
+		<copy file="${build.dir}/config.properties" todir="${classes}" />
 		<jar jarfile="${build.dir}/dist/sipXbridge.jar">
 			<fileset dir="${classes}" >
 				<include name="**/*.class" />
+				<include name="config.properties" />
 			</fileset>
 		</jar>
 	</target>

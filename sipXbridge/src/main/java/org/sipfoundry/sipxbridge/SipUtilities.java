@@ -9,39 +9,32 @@ package org.sipfoundry.sipxbridge;
 import gov.nist.javax.sdp.MediaDescriptionImpl;
 
 import java.text.ParseException;
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Properties;
 import java.util.Vector;
 
 import javax.sdp.Attribute;
 import javax.sdp.Connection;
-import javax.sdp.Media;
 import javax.sdp.MediaDescription;
 import javax.sdp.Origin;
 import javax.sdp.SdpException;
 import javax.sdp.SdpFactory;
 import javax.sdp.SdpParseException;
 import javax.sdp.SessionDescription;
-import javax.sip.ClientTransaction;
-import javax.sip.Dialog;
 import javax.sip.InvalidArgumentException;
 import javax.sip.ListeningPoint;
 import javax.sip.SipProvider;
 import javax.sip.Transaction;
 import javax.sip.address.Address;
 import javax.sip.address.SipURI;
-import javax.sip.address.TelURL;
-import javax.sip.address.URI;
-import javax.sip.header.AuthorizationHeader;
 import javax.sip.header.CSeqHeader;
 import javax.sip.header.CallIdHeader;
 import javax.sip.header.ContactHeader;
 import javax.sip.header.ExpiresHeader;
 import javax.sip.header.FromHeader;
 import javax.sip.header.Header;
-import javax.sip.header.HeaderFactory;
 import javax.sip.header.MaxForwardsHeader;
 import javax.sip.header.RouteHeader;
 import javax.sip.header.SupportedHeader;
@@ -49,7 +42,6 @@ import javax.sip.header.ToHeader;
 import javax.sip.header.UserAgentHeader;
 import javax.sip.header.ViaHeader;
 import javax.sip.message.Message;
-import javax.sip.message.MessageFactory;
 import javax.sip.message.Request;
 import javax.sip.message.Response;
 
@@ -63,19 +55,31 @@ import org.apache.log4j.Logger;
 public class SipUtilities {
 
     private static Logger logger = Logger.getLogger(SipUtilities.class);
+    private static UserAgentHeader userAgent;
 
     /**
      * Create a UA header
      */
     public static UserAgentHeader createUserAgentHeader() {
-        try {
-            LinkedList<String> tokens = new LinkedList<String>();
-            UserAgentHeader userAgent = (UserAgentHeader) ProtocolObjects.headerFactory
-                    .createHeader(UserAgentHeader.NAME,
-                            "sipXecs/3.11.3 sipXecs/sipxbridge (Linux)");
+        if (userAgent != null) {
             return userAgent;
-        } catch (ParseException ex) {
-            throw new RuntimeException("Unexpected exception ", ex);
+        } else {
+            try {
+                Properties configProperties = new Properties();
+
+                configProperties.load(SipUtilities.class.getClassLoader().getResourceAsStream(
+                        "config.properties"));
+                userAgent = (UserAgentHeader) ProtocolObjects.headerFactory.createHeader(
+                        UserAgentHeader.NAME, String.format(
+                                "sipXecs/%s sipXecs/sipxbridge (Linux)", configProperties
+                                        .get("version")));
+
+                return userAgent;
+            } catch (Exception ex) {
+               
+                logger.error("Unexpected exception", ex);
+                throw new RuntimeException("Unexpected exception ", ex);
+            }
         }
     }
 
@@ -120,8 +124,8 @@ public class SipUtilities {
             } else {
                 // Check -- what other parameters need to be set for NAT
                 // traversal here?
-                String transport = itspAccount != null ? itspAccount.getOutboundTransport() :
-                    Gateway.DEFAULT_ITSP_TRANSPORT;
+                String transport = itspAccount != null ? itspAccount.getOutboundTransport()
+                        : Gateway.DEFAULT_ITSP_TRANSPORT;
                 return ProtocolObjects.headerFactory.createViaHeader(Gateway.getGlobalAddress(),
                         Gateway.getGlobalPort(), transport, null);
 
@@ -156,13 +160,14 @@ public class SipUtilities {
 
             } else {
                 // Nothing is known about this ITSP. We just use global addressing.
-                
+
                 ContactHeader contactHeader = ProtocolObjects.headerFactory.createContactHeader();
                 String userName = itspAccount != null ? itspAccount.getUserName() : null;
-                SipURI sipUri = ProtocolObjects.addressFactory.createSipURI(userName, Gateway.getGlobalAddress());           
+                SipURI sipUri = ProtocolObjects.addressFactory.createSipURI(userName, Gateway
+                        .getGlobalAddress());
                 sipUri.setPort(Gateway.getGlobalPort());
-                String transport = itspAccount != null ? itspAccount.getOutboundTransport() :
-                    "udp";
+                String transport = itspAccount != null ? itspAccount.getOutboundTransport()
+                        : "udp";
                 sipUri.setTransportParam(transport);
                 Address address = ProtocolObjects.addressFactory.createAddress(sipUri);
                 contactHeader.setAddress(address);
@@ -182,7 +187,7 @@ public class SipUtilities {
     public static ContactHeader createContactHeader(String user, SipProvider provider,
             String transport) {
         try {
-            if ( transport == null ) {
+            if (transport == null) {
                 transport = "udp";
             }
             ListeningPoint lp = provider.getListeningPoint(transport);
@@ -722,7 +727,7 @@ public class SipUtilities {
     }
 
     public static SipProvider getPeerProvider(SipProvider provider, String transport) {
-        if ( transport == null ) {
+        if (transport == null) {
             transport = Gateway.DEFAULT_ITSP_TRANSPORT;
         }
         if (provider == Gateway.getLanProvider()) {
@@ -770,7 +775,6 @@ public class SipUtilities {
 
     }
 
-    
     /**
      * Increment the session version.
      * 
@@ -794,20 +798,19 @@ public class SipUtilities {
      */
     public static void setGlobalAddresses(Request request) {
         try {
-          SipURI sipUri = 
-              ProtocolObjects.addressFactory.createSipURI(null,  Gateway.getGlobalAddress());
-          
-          ContactHeader contactHeader = (ContactHeader) request.getHeader(ContactHeader.NAME);
-          contactHeader.getAddress().setURI(sipUri);
-          ViaHeader viaHeader = (ViaHeader) request.getHeader(ViaHeader.NAME);
-          viaHeader.setHost(Gateway.getGlobalAddress());
-          viaHeader.setPort(Gateway.getGlobalPort());
-        } catch ( Exception ex) {
+            SipURI sipUri = ProtocolObjects.addressFactory.createSipURI(null, Gateway
+                    .getGlobalAddress());
+
+            ContactHeader contactHeader = (ContactHeader) request.getHeader(ContactHeader.NAME);
+            contactHeader.getAddress().setURI(sipUri);
+            ViaHeader viaHeader = (ViaHeader) request.getHeader(ViaHeader.NAME);
+            viaHeader.setHost(Gateway.getGlobalAddress());
+            viaHeader.setPort(Gateway.getGlobalPort());
+        } catch (Exception ex) {
             logger.error("Unexpected exception ", ex);
             throw new RuntimeException("Unexepcted exception", ex);
         }
-         
-        
+
     }
 
 }
