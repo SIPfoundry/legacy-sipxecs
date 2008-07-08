@@ -11,7 +11,8 @@
 
 // APPLICATION INCLUDES
 #include "utl/UtlSList.h"
-#include "os/FS.h"
+#include "os/OsFS.h"
+#include "ProcessTask.h"
 
 // DEFINES
 // CONSTANTS
@@ -20,6 +21,7 @@
 class SipxResource;
 class ProcessResource;
 class ProcessTask;
+class ProcessCmd;
 
 class ProcessTest;
 
@@ -147,7 +149,7 @@ class Process : public UtlString
    State getState();
 
    /// Return whether or not the service for this process should be Running.
-   boolean isEnabled();
+   bool isEnabled();
    /**< @returns true if the desired state of this service is Running;
     *            this does not indicate anything about the current state of
     *            the service: for that see getState
@@ -222,40 +224,46 @@ class Process : public UtlString
 
   private:
 
-   OsBSem      mLock;                   ///< must be held to access to other member variables.
+   OsBSem           mLock;          ///< must be held to access to other member variables.
 
-   UtlString   mVersion;                /**< Version of the process definition.
-                                         *   For comparison with the configuration version.
-                                         *   The Process may not be started unless they match.
-                                         */
-   UtlSList    mRequiredStartResources; /**< lists SipxResource objects that are required
-                                         *   to be ready before starting this service.
-                                         *   These objects are owned by the SipxResourceManager,
-                                         *   so they are _not_ deleted when this Process
-                                         *   is destructed (but they are removed from
-                                         *   this list).
-                                         */
-   UtlSList    mWaitForStopResources;   /**< lists SipxResource objects that this process should
-                                         *   wait until they are _not_ ready before stopping
-                                         *   this service.
-                                         *   These objects are owned by the SipxResourceManager,
-                                         *   so they are _not_ deleted when this Process
-                                         *   is destructed (but they are removed from
-                                         *   this list).
-                                         */
+   UtlString        mVersion;       /**< Version of the process definition.
+                                     *   For comparison with the configuration version.
+                                     *   The Process may not be started unless they match.
+                                     */
+   State            mDesiredState;  ///< May be only Running or Disabled.
 
-   State       mDesiredState;           ///< May be only Running or Disabled.
-   ProcessCmd* mConfigtest;
-   ProcessCmd* mStart;
-   ProcessCmd* mReconfigure;
-   ProcessCmd* mStop;
+   ProcessTask*     mpProcessTask;  ///< Receives timer events for this service.
 
-   ProcessResource* mMyResource;        ///< The SipxResource that corresponds to this Process. 
+   ProcessCmd*      mConfigtest;    ///< from the sipXecs-process/commands/configtest element
+   ProcessCmd*      mStart;         ///< from the sipXecs-process/commands/start element
+   ProcessCmd*      mStop;          ///< from the sipXecs-process/commands/stop element
+   ProcessCmd*      mReconfigure;   ///< from the sipXecs-process/commands/reconfigure element
+
+   UtlString        mPidFile;       ///< from the sipXecs-process/status/pid element
+   UtlSList         mLogFiles;      ///< from the sipXecs-process/status/log elements (UtlStrings)
    
-   ProcessTask mProcessTask;            ///< Receives timer events for this service.
+   ProcessResource* mMyResource;    ///< The SipxResource that corresponds to this Process. 
+   
+   UtlSList         mRequiredStart; /**< Lists SipxResource objects that are required
+                                     *   to be ready before starting this service.
+                                     *   These objects are owned by the SipxResourceManager,
+                                     *   so they are _not_ deleted when this Process
+                                     *   is destructed (but they are removed from
+                                     *   this list).
+                                     */
+   UtlSList         mWaitForStop;   /**< lists SipxResource objects that this process should
+                                     *   wait until they are _not_ ready before stopping
+                                     *   this service.
+                                     *   These objects are owned by the SipxResourceManager,
+                                     *   so they are _not_ deleted when this Process
+                                     *   is destructed (but they are removed from
+                                     *   this list).
+                                     */
 
    /// constructor
-   Process(const char* processName);
+   Process(const UtlString& name,
+           const UtlString& version
+           );
 
    // @cond INCLUDENOCOPY
    /// There is no copy constructor.

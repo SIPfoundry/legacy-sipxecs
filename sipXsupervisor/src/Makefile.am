@@ -23,6 +23,10 @@ sipxsupervisor_SOURCES =  \
 	FileRpc.cpp \
 	DependencyList.cpp \
 	processXMLCommon.cpp \
+	ProcessManager.cpp \
+	Process.cpp \
+	ProcessCmd.cpp \
+	SipxResource.cpp \
    WatchDog.cpp
 
 sipxsupervisor_LDADD = \
@@ -40,6 +44,7 @@ noinst_HEADERS = \
 	processXMLCommon.h \
 	ProcessManager.h \
 	ProcessCmd.h \
+	ProcessTask.h \
 	Process.h \
 	SipxResource.h \
 	ProcessResource.h \

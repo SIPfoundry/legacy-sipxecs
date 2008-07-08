@@ -10,11 +10,15 @@
 // SYSTEM INCLUDES
 
 // APPLICATION INCLUDES
+#include "os/OsFS.h"
+#include "utl/UtlString.h"
+#include "utl/UtlSList.h"
 
 // DEFINES
 // CONSTANTS
 // TYPEDEFS
 // FORWARD DECLARATIONS
+class TiXmlElement;
 
 /// Represents a command as defined by the Command type in sipXecs-process.xsd
 /**
@@ -29,9 +33,7 @@ class ProcessCmd
   public:
 
    /// initializes by parsing a Command type element from sipXecs-process schema
-   static ProcessCmd* parseCommandDefinition(const char*         user
-                                             const char*         workingDirectory
-                                             const TiXmlElement* definition
+   static ProcessCmd* parseCommandDefinition(const TiXmlElement* definition ///< any 'Command' type 
                                              );
    ///< @returns NULL if the element contents are invalid.
 
@@ -43,8 +45,8 @@ class ProcessCmd
 
   protected:
 
-   ProcessCmd(const char*         user
-              const char*         workingDirectory
+   ProcessCmd(const char* user,
+              const char* workingDirectory
               );
 
   private:

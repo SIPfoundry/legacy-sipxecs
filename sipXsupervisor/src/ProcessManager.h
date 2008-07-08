@@ -10,6 +10,7 @@
 // SYSTEM INCLUDES
 
 // APPLICATION INCLUDES
+#include "utl/UtlHashBag.h"
 
 // DEFINES
 // CONSTANTS
@@ -38,11 +39,11 @@ class ProcessManager
    friend class ProcessManagerTest;
       
    /// Parse the XML of a process definition
-   instantiateProcesses(const OsPath& processDefinitionDirectory);
+   void instantiateProcesses(const OsPath& processDefinitionDirectory);
    
   private:
 
-   UtlHashMap mProcesses;
+   UtlHashBag mProcesses;
    
    // @cond INCLUDENOCOPY
    /// There is no copy constructor.
