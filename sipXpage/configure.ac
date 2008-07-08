@@ -20,6 +20,7 @@ AC_CONFIG_FILES([Makefile])
 AC_CONFIG_FILES([src/Makefile])
 AC_CONFIG_FILES([etc/Makefile])
 AC_CONFIG_FILES([bin/Makefile])
+AC_CONFIG_FILES([audio/Makefile])
 
 SFAC_INIT_FLAGS
 CHECK_GENERATE_MANPAGES

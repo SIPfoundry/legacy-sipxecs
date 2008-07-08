@@ -72,6 +72,10 @@ sipXsupervisor : sipXcommserverLib sipXpbx
 sipXbridge : 
 	@echo sipXbridge
 
+.PHONY: sipXpage
+sipXpage : 
+	@echo sipXpage
+
 .PHONY: sipXecs
 sipXecs : sipXproxy sipXregistry sipXpublisher sipXvxml sipXconfig sipXpbx sipXsupervisor doc
 	@echo sipXecs

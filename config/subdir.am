@@ -44,6 +44,7 @@ LocalizeSipXconfig = sed \
 		  -e 's,@JAVA\@,@JAVA@,g' \
 		  -e 's,@JAVA_HOME\@,@JAVA_HOME@,g' \
 		  -e 's,@SIPFOUNDRY_ORG\@,@SIPFOUNDRY_ORG@,g' \
+		  -e 's,@SIPXPAGE_LIBDIR\@,@SIPXPAGE_LIBDIR@,g' \
 		  -e 's,@SIPXBRIDGE_LIBDIR\@,@SIPXBRIDGE_LIBDIR@,g' \
 		  -e 's,@SIPXCONFIG_LIBDIR\@,@SIPXCONFIG_LIBDIR@,g' \
 		  -e 's,@SIPXPBXUSER\@,@SIPXPBXUSER@,g' \

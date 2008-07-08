@@ -8,8 +8,6 @@
   <property name="build.dir" value="${top.build.dir}"/>
   <import file="ant-targets.xml"/>
 
-  <property name="sipxpage.lib.dir" value="${lib.dir}/sipXpage"/>
-
   <path id="base.path" >
     <pathelement location="${JainSipApi.jar}"/>
     <pathelement location="${JainSipRi.jar}"/>

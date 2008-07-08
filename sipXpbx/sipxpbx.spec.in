@@ -130,7 +130,6 @@ rm -rf $RPM_BUILD_ROOT
 %attr(644,root,root) %{_datadir}/sipx/process.d/sipxpark-process.xml
 %attr(644,root,root) %{_datadir}/sipx/process.d/sipxpresence-process.xml
 %attr(644,root,root) %{_datadir}/sipx/process.d/sipxrls-process.xml
-%attr(644,root,root) %{_datadir}/sipx/process.d/sipxpage-process.xml
 
 # The configuration directory needs to be writeable because
 # config files are generated from templates via config.defs
@@ -139,7 +138,6 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) %attr(644,root,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx/process.d/sipxpark.process.xml
 %config(noreplace) %attr(644,root,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx/process.d/sipxpresence.process.xml
 %config(noreplace) %attr(644,root,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx/process.d/sipxrls.process.xml
-%config(noreplace) %attr(644,root,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx/process.d/sipxpage.process.xml
 
 %config(noreplace) %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_bindir}/httpd-sipxchange-config.sh
 
@@ -159,7 +157,6 @@ rm -rf $RPM_BUILD_ROOT
 
 %config(noreplace) %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_localstatedir}/sipxdata/mediaserver
 %config(noreplace) %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_localstatedir}/sipxdata/parkserver
-%config(noreplace) %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_localstatedir}/sipxdata/sipxpage
 %config(noreplace) %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_localstatedir}/sipxdata/sipxpresence
 
 %attr(755,root,root) %{_bindir}/sipxpark.sh
@@ -167,12 +164,6 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/sipxpark-config
 
 %config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx/sipxpark-config.in
-
-%attr(755,root,root) %{_bindir}/sipxpage.sh
-%attr(755,root,root) %{_bindir}/sipxpage-config
-%attr(644,root,root) %{_libdir}/sipXpage/*.jar
-
-%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx/sipxpage.properties.in
 
 %attr(755,root,root) %{_bindir}/sipxdialog.sh
 %attr(755,root,root) %{_bindir}/sipxdialog
@@ -210,7 +201,6 @@ sipx-upgrade -p sipxpbx -c
 
 %post
 sipx-upgrade -p sipxpbx -u --bdir %{_bindir}  --ddir %{_datadir} --cdir %{_sysconfdir} --sdir %{_localstatedir}
-%{_libexecdir}/sipx-disable-on-distributed sipxpage
 rm -f %{_bindir}/backup-mailstore.sh
 rm -f %{_bindir}/restore-configs.sh 
 rm -f %{_bindir}/restore-mailstore.sh

@@ -10,7 +10,6 @@ SUBDIRS = . \
     etc \
     meta \
     sipXdialog \
-    sipXpage \
     sipXpark \
     sipXpresence \
     sipXrls \

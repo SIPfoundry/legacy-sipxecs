@@ -18,6 +18,7 @@ conf.dir=@SIPX_CONFDIR@
 debuglevel=lines
 
 # U T I L
+sipxpage.lib.dir=${data.dir}/sipxpbx/lib/sipXpage
 JainSipApi.jar=${src.dir}/lib/jain-sip-api-1.2.jar
 JainSipRi.jar=${src.dir}/lib/jain-sip-ri-1.2.92.jar
 sip-sdp.jar=${src.dir}/lib/sip-sdp-1.0.jar
