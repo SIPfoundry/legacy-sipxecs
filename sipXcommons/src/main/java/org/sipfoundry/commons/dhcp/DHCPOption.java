@@ -9,8 +9,7 @@ import java.util.LinkedList;
 import java.io.DataInputStream;
 import java.io.IOException;
 
-import org.sipfoundry.preflight.JournalService;
-import org.sipfoundry.preflight.NetworkResources;
+import org.sipfoundry.commons.util.JournalService;
 
 /**
  * [Enter descriptive text here]

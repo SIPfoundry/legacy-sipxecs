@@ -6,7 +6,7 @@ import javax.sip.header.*;
 import javax.sip.message.*;
 
 import org.sipfoundry.commons.ao.ActiveObjectGroupImpl;
-import org.sipfoundry.preflight.JournalService;
+import org.sipfoundry.commons.util.JournalService;
 
 import java.util.*;
 import java.text.*;

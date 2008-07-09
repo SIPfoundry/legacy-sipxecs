@@ -193,7 +193,6 @@ public class SipFoundryLayout extends Layout {
         return true;
     }
 
-    @Override
     public void activateOptions() {
         // No options
         return;
