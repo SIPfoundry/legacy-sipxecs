@@ -418,20 +418,17 @@ public abstract class DHCPOption {
                     networkResources.routers = routerOption.getServerList();
                     break;
                 case TIME_SERVER:
-                    // TimeServerOption timeServerOption =
-                    // (TimeServerOption)option;
+                    // TimeServerOption timeServerOption = (TimeServerOption)option;
                     break;
                 case NAME_SERVER:
-                    // NameServerOption nameServerOption =
-                    // (NameServerOption)option;
+                    // NameServerOption nameServerOption = (NameServerOption)option;
                     break;
                 case DOMAIN_NAME_SERVER:
                     DomainNameServerOption domainNameServerOption = (DomainNameServerOption) option;
                     networkResources.domainNameServers = domainNameServerOption.getServerList();
                     break;
                 case LOG_SERVER:
-                    // LogServerOption logServerOption =
-                    // (LogServerOption)option;
+                    // LogServerOption logServerOption = (LogServerOption)option;
                     break;
                 case HOST_NAME:
                     // HostNameOption hostNameOption = (HostNameOption)option;
@@ -445,51 +442,41 @@ public abstract class DHCPOption {
                     networkResources.ntpServers = ntpServerOption.getServerList();
                     break;
                 case LEASE_TIME:
-                    // LeaseTimeOption leaseTimeOption =
-                    // (LeaseTimeOption)option;
+                    // LeaseTimeOption leaseTimeOption = (LeaseTimeOption)option;
                     break;
                 case REQUESTED_ADDRESS:
-                    // RequestedAddressOption requestedAddressOption =
-                    // (RequestedAddressOption)option;
+                    // RequestedAddressOption requestedAddressOption = (RequestedAddressOption)option;
                     break;
                 case DHCP_MESSAGE_TYPE:
-                    // MessageTypeOption messageTypeOption =
-                    // (MessageTypeOption)option;
+                    // MessageTypeOption messageTypeOption = (MessageTypeOption)option;
                     break;
                 case SERVER_IDENTIFIER:
-                    // ServerIdentifierOption serverIdentifierOption =
-                    // (ServerIdentifierOption)option;
+                    // ServerIdentifierOption serverIdentifierOption = (ServerIdentifierOption)option;
                     break;
                 case PARAMETER_REQUEST:
-                    // ParameterRequestOption parameterRequestOption =
-                    // (ParameterRequestOption)option;
+                    // ParameterRequestOption parameterRequestOption = (ParameterRequestOption)option;
                     break;
                 case ERROR_MESSAGE:
                     // MessageOption messageOption = (MessageOption)option;
                     break;
                 case MESSAGE_SIZE:
-                    // MessageSizeOption messageSizeOption =
-                    // (MessageSizeOption)option;
+                    // MessageSizeOption messageSizeOption = (MessageSizeOption)option;
                     break;
                 case VENDOR_IDENTIFIER:
-                    // VendorIdentifierOption vendorIdentifierOption =
-                    // (VendorIdentifierOption)option;
+                    // VendorIdentifierOption vendorIdentifierOption = (VendorIdentifierOption)option;
                     break;
                 case CLIENT_IDENTIFIER:
-                    // ClientIdentifierOption clientIdentifierOption =
-                    // (ClientIdentifierOption)option;
+                    // ClientIdentifierOption clientIdentifierOption = (ClientIdentifierOption)option;
                     break;
                 case TFTP_SERVER:
                     TFTPServerOption tftpServerOption = (TFTPServerOption) option;
                     networkResources.configServer = tftpServerOption.getServerName();
                     break;
                 case SMTP_SERVER:
-                    // SMTPServerOption smtpServerOption =
-                    // (SMTPServerOption)option;
+                    // SMTPServerOption smtpServerOption = (SMTPServerOption)option;
                     break;
                 case WWW_SERVER:
-                    // WWWServerOption wwwServerOption =
-                    // (WWWServerOption)option;
+                    // WWWServerOption wwwServerOption = (WWWServerOption)option;
                     break;
                 default:
             }
