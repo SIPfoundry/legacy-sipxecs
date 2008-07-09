@@ -536,31 +536,20 @@ public class ItspAccountInfo implements gov.nist.javax.sip.clientauthutils.UserC
 
     }
 
-    /**
-     * @param outboundRegistrar the outboundRegistrar to set
-     */
-    public void setOutboundRegistrar(String outboundRegistrar) {
-        this.outboundRegistrar = outboundRegistrar;
-    }
+    
 
-    /**
-     * @return the outboundRegistrar
-     */
-    public String getOutboundRegistrar() {
-        return this.outboundRegistrar;
-    }
-
+    
     /**
      * @param outboundRegistrarRoute the outboundRegistrarRoute to set
      */
-    public void setOutboundRegistrarRoute(String outboundRegistrarRoute) {
+    public void setOutboundRegistrar(String outboundRegistrarRoute) {
         this.outboundRegistrarRoute = outboundRegistrarRoute;
     }
 
     /**
      * @return the outboundRegistrarRoute
      */
-    public String getOutboundRegistrarRoute() {
+    public String getOutboundRegistrar() {
         return outboundRegistrarRoute;
     }
 

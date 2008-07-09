@@ -224,6 +224,10 @@ public class SipUtilities {
         if (itspAccount.getOutboundTransport().equalsIgnoreCase("tcp")) {
             requestUri.setTransportParam("tcp");
         }
+        
+        /*
+         * We register with From and To headers set to the proxy domain.
+         */
         String proxyDomain = itspAccount.getProxyDomain();
         SipURI fromUri = ProtocolObjects.addressFactory.createSipURI(itspAccount.getUserName(),
                 proxyDomain);
@@ -265,7 +269,7 @@ public class SipUtilities {
             request.addHeader(header);
         }
 
-        if (itspAccount.getOutboundRegistrarRoute() != null) {
+        if (itspAccount.getOutboundRegistrar() != null) {
             String outboundRegistrarRoute = itspAccount.getOutboundProxy();
             SipURI routeUri = ProtocolObjects.addressFactory.createSipURI(null,
                     outboundRegistrarRoute);
@@ -438,8 +442,7 @@ public class SipUtilities {
              */
             if (itspAccount.isRegisterOnInitialization()
                     && itspAccount.isUseRegistrationForCallerId()) {
-                String domain = itspAccount.getOutboundRegistrar() != null ? itspAccount
-                        .getOutboundRegistrar() : itspAccount.getOutboundProxy();
+                String domain =  itspAccount.getProxyDomain();
                 SipURI fromUri = ProtocolObjects.addressFactory.createSipURI(itspAccount
                         .getUserName(), domain);
                 fromUri.removeParameter("user");
