@@ -16,22 +16,24 @@
     <label>SIP</label>
     <setting name="global-address">
       <label>Public Address</label>
-      <description>Set this if your ITSP requires a globally routable address to be specificed and if you do not wish to use STUN
-	to determine that address. If you enter a public address here, any STUN settings will be ignored. 
-     </description>
+      <description>
+        Set this if your ITSP requires a globally routable address to be specified and if you do not wish to use STUN to
+        determine that address. If you enter a public address here, any STUN settings will be ignored.
+      </description>
     </setting>
     <setting name="global-port">
       <label>Public Port</label>
       <type>
         <integer />
       </type>
-      <description>Set this if your ITSP requires you to specify a publicly routable ITSP facing port. </description>
+      <description>Set this if your ITSP requires you to specify a publicly routable ITSP facing port.</description>
     </setting>
     <setting name="external-address">
       <label>External address</label>
-      <description>The ITSP facing address. This is the NATed public address. If you have only one interface on your machine
-      it will be the same as your local address.
-     </description>
+      <description>
+        External address is address of the external arm of sipXbridge. Normally this is an IP address on the internal
+        LAN. If sipxbridge runs in your DMZ this is the same as your public address.
+      </description>
     </setting>
     <setting name="external-port">
       <label>External port</label>
@@ -39,7 +41,7 @@
         <integer required="yes" />
       </type>
       <value>5080</value>
-      <description>The ITSP facing port on your machine.  This is the NATed global port. </description>
+      <description>The ITSP facing port on your machine. This is the NATed global port.</description>
     </setting>
     <setting name="local-address" hidden="yes">
       <type>
@@ -60,8 +62,9 @@
     <setting name="stun-server-address">
       <label>STUN server</label>
       <value>stun01.sipphone.com</value>
-      <description>The stun server address used to determine the global address of the bridge. If you enter a static global address, this
-	field is ignored.
+      <description>
+        The stun server address used to determine the global address of the bridge. If you enter a static global
+        address, this field is ignored.
       </description>
     </setting>
     <setting name="sip-keepalive-seconds" advanced="yes">
@@ -91,8 +94,8 @@
         <integer />
       </type>
       <description>
-        Port for external XML/RPC requests to be directed. If not specified, the XML RPC server is not started.
-	The XML RPC interface is used by sipxconfig to report status to the user.
+        Port for external XML/RPC requests to be directed. If not specified, the XML RPC server is not started. The XML
+        RPC interface is used by sipxconfig to report status to the user.
       </description>
     </setting>
     <setting name="max-number-of-concurrent-calls">
@@ -103,7 +106,7 @@
       <description>
         The maximum number of concurrent calls allowed via the given bridge overall. When the limit is reached,
         sipxbridge will return "Service Unavailable". If nothing is specified, no limit is placed on the max number of
-        concurrent calls. 
+        concurrent calls.
       </description>
     </setting>
     <setting name="music-on-hold-support-enabled">
@@ -143,17 +146,16 @@
       <description>End of the RTP ports range.</description>
     </setting>
     <setting name="rtp-port-range" hidden="yes"></setting>
-    <setting name="is-reinvite-supported" advanced="yes" >
+    <setting name="is-reinvite-supported" advanced="yes">
       <label>re-INVITE Support</label>
       <type refid="switch" />
       <value>false</value>
       <description>
-        If checked, re-INVITE is supported by the ITSP. This allows sipxbridge to delay codec
-        choice for call setup when dealing with call transfers and can give you a wider range
-	of codecs to chose from.
+        If checked, re-INVITE is supported by the ITSP. This allows sipxbridge to delay codec choice for call setup when
+        dealing with call transfers and can give you a wider range of codecs to chose from.
       </description>
     </setting>
-    <setting name="allowed-codec-name" advanced="yes" >
+    <setting name="allowed-codec-name" advanced="yes">
       <label>Allowed Codec Name</label>
       <type>
         <enum>
@@ -170,9 +172,9 @@
       </type>
       <value>PCMU</value>
       <description>
-        The codec for the SDP Offer that is allowable. This parameter is ONLY relevant if the ITSPs do NOT support ReINVITE.
-	Otherwise it is ignored. If is-reinvite-supported flag is set to "false" then SDP offers and answers are filtered
-        to allow only this codec through.
+        The codec for the SDP Offer that is allowable. This parameter is ONLY relevant if the ITSPs do NOT support
+        ReINVITE. Otherwise it is ignored. If is-reinvite-supported flag is set to "false" then SDP offers and answers
+        are filtered to allow only this codec through.
       </description>
     </setting>
     <setting name="route-inbound-calls-to-extension">

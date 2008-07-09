@@ -15,8 +15,11 @@
   <group name="itsp-account">
     <label>ITSP Account</label>
     <description>The information that is specific to a given ITSP account.</description>
-    <setting name="outbound-proxy" hidden="yes">
-      <description>If the ITSP specifies an outbound proxy, enter it here.</description>
+    <setting name="outbound-proxy" advanced="yes">
+      <description>
+        If the ITSP specifies an outbound proxy, enter it here. If nothing is specified, the route to the outbound proxy
+        is determined by DNS lookup on the proxy domain. The outbound proxy setting is used to route the initial INVITE.
+      </description>
     </setting>
     <setting name="outbound-transport" hidden="yes">
       <!--  set automatically from SipTrunk.getAddressTransport -->
@@ -32,7 +35,7 @@
       </type>
       <description>The outbound proxy transport.</description>
     </setting>
-    <setting name="proxy-domain" advanced="yes">
+    <setting name="proxy-domain">
       <description>The outbound proxy address.</description>
     </setting>
     <setting name="authentication-realm" advanced="yes">
@@ -74,13 +77,7 @@
       <description>Defines whether or not to register with the given ITSP on initialization.</description>
     </setting>
     <setting name="outbound-registrar" advanced="yes">
-      <description>
-        Registrar domain ( if different from proxy domain ). Determines how the request URI for the outbound REGISTER
-        request is constructed.
-      </description>
-    </setting>
-    <setting name="outbound-registrar-route" advanced="yes">
-      <description>Route to the Registrar ( if different from the ITSP proxy ).</description>
+      <description>Registrar route (if different from proxy). Determines where to send REGISTER request.</description>
     </setting>
     <setting name="registration-interval" advanced="yes">
       <type>
@@ -115,8 +112,7 @@
       </type>
       <value>CR-LF</value>
       <description>
-        Defines the mechanism to use for SIP keepalive. If undefined, REGISTER is used if the account is marked
-        register-on-initialization else CR-LF (empty SIP message) is used.
+        Defines the mechanism to use for SIP keepalive. If nothing specified, CR-LF (empty SIP message) is used.
       </description>
     </setting>
     <setting name="rtp-keepalive-method" advanced="yes">
