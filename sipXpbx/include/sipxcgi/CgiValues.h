@@ -13,7 +13,7 @@
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
 #include <cgicc/Cgicc.h>
-#include <string>
+#include <string.h>
 #include <vector>
 
 // DEFINES

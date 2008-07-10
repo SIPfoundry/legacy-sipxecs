@@ -13,7 +13,7 @@
 #include <cppunit/Message.h>
 #include <cppunit/Exception.h>
 #include <iostream>
-#include <string>
+#include <string.h>
 #include <cstdarg>
 
 // Application Includes

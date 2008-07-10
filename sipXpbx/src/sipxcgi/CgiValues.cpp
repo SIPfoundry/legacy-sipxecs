@@ -7,7 +7,7 @@
 // $$
 //////////////////////////////////////////////////////////////////////////////
 #include <cgicc/Cgicc.h>
-#include <string>
+#include <string.h>
 #include <sipxcgi/CgiValues.h>
 
 // EXTERNAL FUNCTIONS

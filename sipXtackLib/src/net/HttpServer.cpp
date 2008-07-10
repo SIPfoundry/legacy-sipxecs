@@ -295,7 +295,7 @@ int HttpServer::run(void* runArg)
                     // Read the http request from the socket
                     request.read(requestSocket);
                     
-                    // Send out of resources message
+                    // Send out-of-resources message
                     response.setResponseFirstHeaderLine(HTTP_PROTOCOL_VERSION,
                                                         HTTP_OUT_OF_RESOURCES_CODE,
                                                         HTTP_OUT_OF_RESOURCES_TEXT);
