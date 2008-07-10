@@ -52,7 +52,6 @@ LocalizeSipXconfig = sed \
 		  -e 's,@SIPX_BINDIR\@,@SIPX_BINDIR@,g' \
 		  -e 's,@SIPX_CONFDIR\@,@SIPX_CONFDIR@,g' \
 		  -e 's,@SIPX_CONFIGPHONEDIR\@,@SIPX_CONFIGPHONEDIR@,g' \
-		  -e 's,@SIPX_BACKUPDIR\@,@SIPX_BACKUPDIR@,g' \
 		  -e 's,@SIPX_DATADIR\@,@SIPX_DATADIR@,g' \
 		  -e 's,@SIPX_DBDIR\@,@SIPX_DBDIR@,g' \
 		  -e 's,@SIPX_DOCDIR\@,@SIPX_DOCDIR@,g' \

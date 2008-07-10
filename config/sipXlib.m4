@@ -98,8 +98,6 @@ AC_DEFUN([SFAC_SIPX_GLOBAL_OPTS],
 
     AC_SUBST(SIPX_PARKMUSICDIR,[${localstatedir}/sipxdata/parkserver/music])
 
-    # temporary - see http://track.sipfoundry.org/browse/XPB-93
-    AC_SUBST(SIPX_BACKUPDIR, [${localstatedir}/sipxdata/backup])
     AC_SUBST(SIPX_CONFIGPHONEDIR, [${localstatedir}/sipxdata/configserver/phone])
 
     ## Used in a number of different project and subjective where this should really go
