@@ -118,9 +118,7 @@ class DialogApplicationData {
      * @param rtpSession the rtpSession to set
      */
     public void setRtpSession(RtpSession rtpSession) {
-        if ( this.rtpSession != null ) {
-            logger.warn("Resetting RTP session ", new Exception());
-        }
+      
         this.rtpSession = rtpSession;
     }
 

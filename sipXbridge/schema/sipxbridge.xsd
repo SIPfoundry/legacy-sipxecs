@@ -269,15 +269,6 @@
 					</xs:documentation>
 				</xs:annotation>
 			</xs:element>
-			<xs:element name="outbound-registrar-route" type="xs:string"
-				maxOccurs="1" minOccurs="0">
-				<xs:annotation>
-					<xs:documentation xml:lang="en">
-						Route to the outbound registrar. If not specified,
-						use the same route as the route to the proxy.
-					</xs:documentation>
-				</xs:annotation>
-			</xs:element>
 
 			<xs:element name="registration-interval" type="xs:integer"
 				maxOccurs="1" minOccurs="0">
@@ -420,7 +411,6 @@
 					<xs:restriction base="xs:string">
 						<xs:enumeration value="NONE" />
 						<xs:enumeration value="REGISTER" />
-						<xs:enumeration value="OPTIONS" />
 						<xs:enumeration value="CR-LF" />
 					</xs:restriction>
 				</xs:simpleType>

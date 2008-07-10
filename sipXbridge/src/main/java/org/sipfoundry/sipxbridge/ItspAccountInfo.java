@@ -7,12 +7,9 @@
 package org.sipfoundry.sipxbridge;
 
 import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.TimerTask;
-
-import javax.sip.address.SipURI;
 
 import org.apache.log4j.Logger;
 import org.sipfoundry.sipxbridge.symmitron.KeepaliveMethod;
@@ -32,12 +29,15 @@ public class ItspAccountInfo implements gov.nist.javax.sip.clientauthutils.UserC
 
     private static Logger logger = Logger.getLogger(ItspAccountInfo.class);
 
-    private String outboundRegistrar;
-
     /**
-     * The proxy + registrar for the account.
+     * The outbound registrar for the account.
      */
     private String outboundProxy;
+    
+    /**
+     * The Inbound proxy for the account
+     */
+    private String inboundProxy;
 
     /**
      * The proxy + registrar port.
@@ -550,7 +550,22 @@ public class ItspAccountInfo implements gov.nist.javax.sip.clientauthutils.UserC
      * @return the outboundRegistrarRoute
      */
     public String getOutboundRegistrar() {
-        return outboundRegistrarRoute;
+        return outboundRegistrarRoute != null ? this.outboundRegistrarRoute :
+                this.getInboundProxy();
+    }
+
+    /**
+     * @param inboundProxy the inboundProxy to set
+     */
+    public void setInboundProxy(String inboundProxy) {
+        this.inboundProxy = inboundProxy;
+    }
+
+    /**
+     * @return the inboundProxy
+     */
+    public String getInboundProxy() {
+        return inboundProxy == null ? getOutboundProxy() : inboundProxy;
     }
 
 }

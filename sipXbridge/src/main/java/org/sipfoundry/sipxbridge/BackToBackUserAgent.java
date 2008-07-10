@@ -242,9 +242,9 @@ public class BackToBackUserAgent {
                 PortRange portRange = SymmitronServer.getPortManager().allocate(2, Parity.EVEN);
                 RtpReceiverEndpoint mediaEndpoint = new RtpReceiverEndpoint(portRange
                         .getLowerBound());
-                mediaEndpoint.setIpAddress(itspAccountInfo == null
-                        || itspAccountInfo.isGlobalAddressingUsed() ? Gateway.getGlobalAddress()
-                        : Gateway.getLocalAddress());
+                mediaEndpoint.setIpAddress((itspAccountInfo == null && Gateway.getGlobalAddress() != null)
+                                || (itspAccountInfo != null && itspAccountInfo.isGlobalAddressingUsed()) ? Gateway
+                                .getGlobalAddress() : Gateway.getLocalAddress());
                 rtpSession.setReceiver(mediaEndpoint);
                 SessionDescription sd = SdpFactory.getInstance().createSessionDescription(
                         this.rtpBridge.sessionDescription.toString());
@@ -259,9 +259,9 @@ public class BackToBackUserAgent {
                     rtcpSession = new RtpSession();
                     RtpReceiverEndpoint endpoint = new RtpReceiverEndpoint(portRange
                             .getLowerBound() + 1);
-                    endpoint.setIpAddress(itspAccountInfo == null
-                            || itspAccountInfo.isGlobalAddressingUsed() ? Gateway
-                            .getGlobalAddress() : Gateway.getLocalAddress());
+                    endpoint.setIpAddress((itspAccountInfo == null && Gateway.getGlobalAddress() != null)
+                                    ||(itspAccountInfo != null && itspAccountInfo.isGlobalAddressingUsed()) ? Gateway
+                                    .getGlobalAddress() : Gateway.getLocalAddress());
                     rtcpSession.setReceiver(endpoint);
                     sd = SdpFactory.getInstance().createSessionDescription(
                             this.rtpBridge.sessionDescription.toString());
@@ -561,7 +561,8 @@ public class BackToBackUserAgent {
                 Request reInvite = replacedDialogPeerDialog.createRequest(Request.INVITE);
 
                 ItspAccountInfo accountInfo = replacedDialogPeerDialogApplicationData.itspInfo;
-                if (accountInfo == null || accountInfo.isGlobalAddressingUsed()) {
+                if ((itspAccountInfo == null && Gateway.getGlobalAddress() != null)
+                        || (accountInfo != null && accountInfo.isGlobalAddressingUsed())) {
                     SipUtilities.setGlobalAddresses(reInvite);
                     replacedDialogPeerDialogApplicationData.getRtpSession().getReceiver()
                             .setIpAddress(Gateway.getGlobalAddress());
@@ -628,16 +629,17 @@ public class BackToBackUserAgent {
     public void removeDialog(Dialog dialog) {
 
         this.dialogTable.remove(dialog);
-        
+
         int count = 0;
-        
-        for ( Dialog d : dialogTable) {
+
+        for (Dialog d : dialogTable) {
             DialogApplicationData dat = DialogApplicationData.get(d);
-            if ( ! dat.isOriginatedBySipxbridge ) count ++;
+            if (!dat.isOriginatedBySipxbridge)
+                count++;
         }
-        
+
         if (count == 0) {
-            for ( Dialog d : dialogTable) {
+            for (Dialog d : dialogTable) {
                 d.delete();
             }
             if (Gateway.isRtcpRelayingSupported()) {
@@ -798,9 +800,9 @@ public class BackToBackUserAgent {
              * We terminate the dialog. There is no peer.
              */
             dialogApplicationData.peerDialog = null;
-            
+
             newDialogApplicationData.isOriginatedBySipxbridge = true;
-            
+
             /*
              * Record the referDialog so that when responses for the Client transaction come in we
              * can NOTIFY the referrer.
@@ -1535,6 +1537,16 @@ public class BackToBackUserAgent {
      */
     public Dialog getCreatingDialog() {
         return creatingDialog;
+    }
+
+    /**
+     * Set the ITSP account info.
+     * 
+     * @param account
+     */
+    public void setItspAccount(ItspAccountInfo account) {
+       this.itspAccountInfo = account;
+        
     }
 
 }

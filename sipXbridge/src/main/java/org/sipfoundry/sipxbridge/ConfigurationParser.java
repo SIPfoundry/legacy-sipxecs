@@ -96,6 +96,10 @@ public class ConfigurationParser {
             "outbound-registrar"), "setOutboundRegistrar", 0);
         digester.addCallMethod(String.format("%s/%s", ITSP_CONFIG,
                 "outbound-proxy"), "setOutboundProxy", 0);
+        
+        digester.addCallMethod(String.format("%s/%s", ITSP_CONFIG,
+        "inbound-proxy"), "setInboundProxy", 0);
+
         digester.addCallMethod(String.format("%s/%s", ITSP_CONFIG,
                 "outbound-proxy-port"), "setProxyPort", 0,
                 new Class[] { Integer.class });

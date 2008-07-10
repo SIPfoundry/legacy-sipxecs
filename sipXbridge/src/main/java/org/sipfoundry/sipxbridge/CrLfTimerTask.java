@@ -33,7 +33,7 @@ public class CrLfTimerTask extends TimerTask {
         try {
             ListeningPointExt listeningPoint = (ListeningPointExt) provider.getListeningPoint("udp");
             listeningPoint.sendHeartbeat
-                (InetAddress.getByName(accountInfo.getOutboundProxy()).getHostAddress(),
+                (InetAddress.getByName(accountInfo.getInboundProxy()).getHostAddress(),
                     Gateway.getSipKeepaliveSeconds());
         } catch (Exception ex) {
             logger.error("Unexpected parse exception",ex);

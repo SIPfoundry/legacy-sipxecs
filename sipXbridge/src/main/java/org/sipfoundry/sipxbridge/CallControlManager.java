@@ -176,6 +176,8 @@ public class CallControlManager {
                     return;
 
                 }
+                // This case occurs when in and outbound proxy are different.
+                btobua.setItspAccount(account);
                 String toDomain = account.getSipDomain();
 
                 boolean isPhone = ((SipURI) request.getRequestURI()).getParameter("user") != null

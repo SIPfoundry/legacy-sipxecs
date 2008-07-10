@@ -143,16 +143,20 @@ public class SipUtilities {
     public static ContactHeader createContactHeader(SipProvider provider,
             ItspAccountInfo itspAccount) {
         try {
-            if (itspAccount != null && !itspAccount.isGlobalAddressingUsed()) {
-
+            if ((itspAccount != null && !itspAccount.isGlobalAddressingUsed()) || 
+                 Gateway.getGlobalAddress() == null ) {
+                String transport = itspAccount != null ? 
+                        itspAccount.getOutboundTransport() :
+                            Gateway.DEFAULT_ITSP_TRANSPORT;
+                String userName = itspAccount != null ? itspAccount.getUserName() :
+                    null;
                 ListeningPoint lp = provider
-                        .getListeningPoint(itspAccount.getOutboundTransport());
+                        .getListeningPoint(transport);
                 String ipAddress = lp.getIPAddress();
                 int port = lp.getPort();
-                SipURI sipUri = ProtocolObjects.addressFactory.createSipURI(itspAccount
-                        .getUserName(), ipAddress);
+                SipURI sipUri = ProtocolObjects.addressFactory.createSipURI(userName, ipAddress);
                 sipUri.setPort(port);
-                sipUri.setTransportParam(itspAccount.getOutboundTransport());
+                sipUri.setTransportParam(transport);
                 Address address = ProtocolObjects.addressFactory.createAddress(sipUri);
                 ContactHeader ch = ProtocolObjects.headerFactory.createContactHeader(address);
                 ch.removeParameter("expires");
@@ -175,7 +179,7 @@ public class SipUtilities {
                 return contactHeader;
             }
         } catch (Exception ex) {
-            logger.fatal("Unexpected exception creating contact header");
+            logger.fatal("Unexpected exception creating contact header",ex);
             throw new RuntimeException("Unexpected error creating contact header", ex);
         }
 
@@ -213,8 +217,7 @@ public class SipUtilities {
     private static Request createRegistrationRequestTemplate(ItspAccountInfo itspAccount,
             SipProvider sipProvider) throws ParseException, InvalidArgumentException {
 
-        String registrar = itspAccount.getOutboundRegistrar() != null ? itspAccount
-                .getOutboundRegistrar() : itspAccount.getOutboundProxy();
+        String registrar = itspAccount.getOutboundRegistrar() ;
 
         SipURI requestUri = ProtocolObjects.addressFactory.createSipURI(null, registrar);
         int port = itspAccount.getProxyPort();
@@ -270,7 +273,7 @@ public class SipUtilities {
         }
 
         if (itspAccount.getOutboundRegistrar() != null) {
-            String outboundRegistrarRoute = itspAccount.getOutboundProxy();
+            String outboundRegistrarRoute = itspAccount.getOutboundRegistrar();
             SipURI routeUri = ProtocolObjects.addressFactory.createSipURI(null,
                     outboundRegistrarRoute);
             routeUri.setLrParam();
