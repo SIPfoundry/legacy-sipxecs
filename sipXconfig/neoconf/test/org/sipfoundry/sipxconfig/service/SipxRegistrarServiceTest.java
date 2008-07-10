@@ -9,14 +9,12 @@
  */
 package org.sipfoundry.sipxconfig.service;
 
-import java.io.InputStream;
 import java.util.Arrays;
 
 import junit.framework.TestCase;
 
+import org.easymock.EasyMock;
 import org.sipfoundry.sipxconfig.TestHelper;
-import org.sipfoundry.sipxconfig.admin.commserver.SipxServer;
-import org.sipfoundry.sipxconfig.admin.commserver.SipxServerTest;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
@@ -30,26 +28,6 @@ public class SipxRegistrarServiceTest extends TestCase {
         m_out.setModelDir("sipxregistrar");
         m_out.setModelName("sipxregistrar.xml");
         m_out.setModelFilesContext(TestHelper.getModelFilesContext());
-        
-        // set up files for sipxserver to read - copied from SipxServerTest
-        InputStream configDefs = SipxServerTest.class.getResourceAsStream("config.defs");
-        TestHelper
-                .copyStreamToDirectory(configDefs, TestHelper.getTestDirectory(), "config.defs");
-        InputStream sipxpresence = SipxServerTest.class
-                .getResourceAsStream("sipxpresence-config.test.in");
-        TestHelper.copyStreamToDirectory(sipxpresence, TestHelper.getTestDirectory(),
-                "sipxpresence-config.in");
-        InputStream registrar = SipxServerTest.class
-                .getResourceAsStream("registrar-config.test.in");
-        TestHelper.copyStreamToDirectory(registrar, TestHelper.getTestDirectory(),
-                "registrar-config");
-        // we read server location from sipxpresence-config
-        sipxpresence = SipxServerTest.class.getResourceAsStream("sipxpresence-config.test.in");
-        TestHelper.copyStreamToDirectory(sipxpresence, TestHelper.getTestDirectory(),
-                "sipxpresence-config");
-        registrar = SipxServerTest.class.getResourceAsStream("registrar-config.test.in");
-        TestHelper.copyStreamToDirectory(registrar, TestHelper.getTestDirectory(),
-                "registrar-config.in");
     }
     
     public void testSetFullHostname() {
@@ -101,18 +79,22 @@ public class SipxRegistrarServiceTest extends TestCase {
     }
     
     public void testValidateDuplicateCodes() {
-        SipxServer sipxServer = SipxServerTest.setUpSipxServer();
-        m_out.setSipxServer(sipxServer);
+        SipxService presenceService = new SipxPresenceService();
+        presenceService.setModelDir("sipxpresence");
+        presenceService.setModelName("sipxpresence.xml");
+        presenceService.setModelFilesContext(TestHelper.getModelFilesContext());
+        
+        SipxServiceManager serviceManager = EasyMock.createMock(SipxServiceManager.class);
+        serviceManager.getServiceByBeanId(SipxPresenceService.BEAN_ID);
+        EasyMock.expectLastCall().andReturn(presenceService).anyTimes();
+        EasyMock.replay(serviceManager);
+        m_out.setSipxServiceManager(serviceManager);
         
         Setting registrarSettings = m_out.getSettings();
-        Setting serverSettings = sipxServer.getSettings();
+        Setting presenceSettings = presenceService.getSettings();
         
-        serverSettings.getSetting("presence/SIP_PRESENCE_SIGN_IN_CODE").setValue("*123");
+        presenceSettings.getSetting("presence-config/SIP_PRESENCE_SIGN_IN_CODE").setValue("*123");
         registrarSettings.getSetting("call-pick-up/SIP_REDIRECT.180-PICKUP.DIRECTED_CALL_PICKUP_CODE").setValue("*123");
-        System.out.println("Directed call pickup (registrarSettings): " + registrarSettings.getSetting("call-pick-up/SIP_REDIRECT.180-PICKUP.DIRECTED_CALL_PICKUP_CODE").getValue());
-        
-        Setting newRegistrarSettings = m_out.getSettings();
-        System.out.println("Directed call pickup (newRegistrarSettings): " + newRegistrarSettings.getSetting("call-pick-up/SIP_REDIRECT.180-PICKUP.DIRECTED_CALL_PICKUP_CODE").getValue());
         
         try {
             m_out.validate();

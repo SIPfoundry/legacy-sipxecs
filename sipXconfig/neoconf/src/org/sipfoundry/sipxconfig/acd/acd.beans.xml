@@ -20,7 +20,7 @@
     <property name="acdContext">
       <ref local="acdContextImpl"/>
     </property>
-    <property name="sipxServer" ref="sipxServer"/>
+    <property name="sipxServiceManager" ref="sipxServiceManager"/>
   </bean>
   <bean id="acdAgent" class="org.sipfoundry.sipxconfig.acd.AcdAgent" parent="acdComponent"
     singleton="false"/>

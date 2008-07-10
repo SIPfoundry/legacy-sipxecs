@@ -87,7 +87,7 @@
     <property name="modelName" value="sipxregistrar.xml" />
     <property name="modelDir" value="sipxregistrar" />
     <property name="configuration" ref="sipxRegistrarConfiguration" />
-    <property name="sipxServer" ref="sipxServer" />
+    <property name="sipxServiceManager" ref="sipxServiceManager" />
   </bean>
   
   <bean id="sipxRegistrarConfiguration" class="org.sipfoundry.sipxconfig.service.SipxRegistrarConfiguration" 
@@ -121,5 +121,21 @@
     <property name="velocityEngine" ref="velocityEngine" />
     <property name="template" value="sipxpark/sipxpark-config.vm" />
     <property name="name" value="sipxpark-config"/>
+  </bean>
+  
+  <bean id="sipxPresenceService" class="org.sipfoundry.sipxconfig.service.SipxPresenceService" 
+    parent="sipxService" scope="prototype">
+    <property name="beanId" value="sipxPresenceService" />
+    <property name="modelFilesContext" ref="modelFilesContext" />
+    <property name="modelName" value="sipxpresence.xml" />
+    <property name="modelDir" value="sipxpresence" />
+    <property name="configuration" ref="sipxPresenceConfiguration" />
+  </bean>
+  
+  <bean id="sipxPresenceConfiguration" class="org.sipfoundry.sipxconfig.service.SipxPresenceConfiguration" 
+    scope="prototype" parent="defaultConfigurationFile">
+    <property name="velocityEngine" ref="velocityEngine" />
+    <property name="template" value="sipxpresence/sipxpresence-config.vm" />
+    <property name="name" value="sipxpresence-config"/>
   </bean>
 </beans>

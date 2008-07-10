@@ -2,8 +2,6 @@
 <!DOCTYPE page-specification PUBLIC "-//Apache Software Foundation//Tapestry Specification 4.0//EN" "http://jakarta.apache.org/tapestry/dtd/Tapestry_4_0.dtd">
 <page-specification class="org.sipfoundry.sipxconfig.site.user_portal.ManagePresence">
   <description>Change Presence Server Status</description>
-  <inject property="presenceServer" object="spring:presenceServer"/>
-  <inject property="coreContext" object="spring:coreContext"/>
   <inject property="userSession" type="state" object="userSession"/>
   <inject property="tapestry" object="spring:tapestry"/>
 

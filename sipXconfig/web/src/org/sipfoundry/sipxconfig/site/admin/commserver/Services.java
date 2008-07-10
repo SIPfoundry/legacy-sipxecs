@@ -37,6 +37,7 @@ import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.domain.DomainConfigReplicatedEvent;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.site.service.EditParkService;
+import org.sipfoundry.sipxconfig.site.service.EditPresenceService;
 import org.sipfoundry.sipxconfig.site.service.EditProxyService;
 import org.sipfoundry.sipxconfig.site.service.EditRegistrarService;
 
@@ -48,6 +49,7 @@ public abstract class Services extends BasePage implements PageBeginRenderListen
         SERVICE_MAP.put("SIPXProxy", EditProxyService.PAGE);
         SERVICE_MAP.put("SIPRegistrar", EditRegistrarService.PAGE);
         SERVICE_MAP.put("ParkServer", EditParkService.PAGE);
+        SERVICE_MAP.put("PresenceServer", EditPresenceService.PAGE);
     }
 
     @InjectObject(value = "service:tapestry.ognl.ExpressionEvaluator")

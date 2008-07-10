@@ -6,12 +6,8 @@
     class="org.sipfoundry.sipxconfig.admin.commserver.SipxServer"
     parent="beanWithSettings">
     <property name="configDirectory" value="${sysdir.etc}" />
-    <property name="coreContext" ref="coreContext" />
-    <property name="sipxReplicationContext"
-      ref="sipxReplicationContext" />
     <!-- default music-on-hold user -->
     <property name="mohUser" value="~~mh~" />
-    <property name="sipxServiceManager" ref="sipxServiceManager" />
   </bean>
 
   <bean id="locationsManager"

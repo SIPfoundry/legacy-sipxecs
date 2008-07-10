@@ -16,6 +16,8 @@ import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.admin.commserver.Server;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.service.SipxPresenceService;
+import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 
 public class AcdServerTest extends BeanWithSettingsTestCase {
 
@@ -27,6 +29,20 @@ public class AcdServerTest extends BeanWithSettingsTestCase {
         m_server.setHost("localhost");
         m_server.setPort(8110);
         initializeBeanWithSettings(m_server);
+        
+        SipxPresenceService presenceService = org.easymock.classextension.EasyMock.createMock(SipxPresenceService.class);
+        presenceService.getPresenceServerUri();
+        org.easymock.classextension.EasyMock.expectLastCall().andReturn("sip:presence.com:5130").atLeastOnce();
+        presenceService.getPresenceServiceUri();
+        org.easymock.classextension.EasyMock.expectLastCall().andReturn("sip:presence.com:8111/RPC2").atLeastOnce();
+        org.easymock.classextension.EasyMock.replay(presenceService);
+        
+        SipxServiceManager sipxServiceManager = EasyMock.createMock(SipxServiceManager.class);
+        sipxServiceManager.getServiceByBeanId(SipxPresenceService.BEAN_ID);
+        EasyMock.expectLastCall().andReturn(presenceService).atLeastOnce();
+        EasyMock.replay(sipxServiceManager);
+        
+        m_server.setSipxServiceManager(sipxServiceManager);
     }
 
     public void testGetSettingsModel() throws Exception {
@@ -193,15 +209,6 @@ public class AcdServerTest extends BeanWithSettingsTestCase {
         mc.andReturn("mydomain.org").atLeastOnce();
         mc.replay();
 
-        IMocksControl sipxServerCtrl = EasyMock.createControl();
-        Server sipxServer = sipxServerCtrl.createMock(Server.class);
-        sipxServer.getPresenceServerUri();
-        sipxServerCtrl.andReturn("sip:presence.com:5130").atLeastOnce();
-        sipxServer.getPresenceServiceUri();
-        sipxServerCtrl.andReturn("sip:presence.com:8111/RPC2").atLeastOnce();
-        sipxServerCtrl.replay();
-
-        m_server.setSipxServer(sipxServer);
         m_server.setCoreContext(coreContext);
 
         assertEquals("mydomain.org", m_server.getSettingValue("acd-server/domain"));
@@ -211,6 +218,5 @@ public class AcdServerTest extends BeanWithSettingsTestCase {
                 .getSettingValue("acd-server/presence-service-uri"));
 
         mc.verify();
-        sipxServerCtrl.verify();
     }
 }

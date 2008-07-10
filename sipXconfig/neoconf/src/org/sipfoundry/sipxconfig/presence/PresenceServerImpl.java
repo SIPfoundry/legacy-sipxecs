@@ -14,10 +14,11 @@ import java.util.Hashtable;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sipfoundry.sipxconfig.admin.commserver.SipxServer;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.service.SipxPresenceService;
+import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.sipfoundry.sipxconfig.xmlrpc.XmlRpcProxyFactoryBean;
 import org.sipfoundry.sipxconfig.xmlrpc.XmlRpcRemoteException;
 
@@ -28,15 +29,16 @@ public class PresenceServerImpl implements PresenceServer {
     public static final String OBJECT_CLASS_KEY = "object-class";
     private static final Log LOG = LogFactory.getLog(PresenceServerImpl.class);
     private CoreContext m_coreContext;
-    private SipxServer m_sipxServer;
+    private SipxPresenceService m_sipxPresenceService;
     private boolean m_enabled;
 
     public void setCoreContext(CoreContext coreContext) {
         m_coreContext = coreContext;
     }
 
-    public void setSipxServer(SipxServer sipxServer) {
-        m_sipxServer = sipxServer;
+    public void setSipxServiceManager(SipxServiceManager sipxServiceManager) {
+        m_sipxPresenceService = (SipxPresenceService) sipxServiceManager
+                .getServiceByBeanId(SipxPresenceService.BEAN_ID);
     }
 
     public boolean isEnabled() {
@@ -75,7 +77,7 @@ public class PresenceServerImpl implements PresenceServer {
         }
         XmlRpcProxyFactoryBean factory = new XmlRpcProxyFactoryBean();
         factory.setServiceInterface(SignIn.class);
-        factory.setServiceUrl(m_sipxServer.getPresenceServiceUri());
+        factory.setServiceUrl(m_sipxPresenceService.getPresenceServiceUri());
         factory.afterPropertiesSet();
         SignIn api = (SignIn) factory.getObject();
         return userAction(api, action, user);

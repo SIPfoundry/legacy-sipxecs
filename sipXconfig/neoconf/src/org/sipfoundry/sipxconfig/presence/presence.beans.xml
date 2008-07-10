@@ -4,7 +4,7 @@
 <beans>
   
   <bean id="presenceServer" class="org.sipfoundry.sipxconfig.presence.PresenceServerImpl">
-    <property name="sipxServer" ref="sipxServer"/>
+    <property name="sipxServiceManager" ref="sipxServiceManager"/>
     <property name="coreContext" ref="coreContext"/>
   </bean>
   

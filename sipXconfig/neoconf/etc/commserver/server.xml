@@ -41,11 +41,6 @@
       </false>
     </boolean>
   </type>
-  <type id="feature-code">
-    <string>
-      <pattern>[0-9*#]+</pattern>
-    </string>
-  </type>
   <type id="port-number">
     <integer required="yes" min="1024" max="65534" />
   </type>
@@ -70,47 +65,9 @@
       <value />
     </setting>
   </group>
-  <group name="presence">
-    <setting name="SIP_PRESENCE_SIGN_IN_CODE">
-      <profileName>sipxpresence-config.in</profileName>
-      <type refid="feature-code" />
-      <value>*88</value>
-    </setting>
-    <setting name="SIP_PRESENCE_SIGN_OUT_CODE">
-      <profileName>sipxpresence-config.in</profileName>
-      <type refid="feature-code" />
-      <value>*86</value>
-    </setting>
-    <setting name="PRESENCE_SERVER_SIP_PORT" advanced="yes">
-      <profileName>config.defs</profileName>
-      <type refid="port-number" />
-      <value>5130</value>
-    </setting>
-    <setting name="PRESENCE_SERVER_HTTP_PORT" advanced="yes">
-      <profileName>config.defs</profileName>
-      <type refid="port-number" />
-      <value>8111</value>
-    </setting>
-    <setting name="SIP_PRESENCE_DOMAIN_NAME" hidden="yes">
-      <!-- treat as read-only: we are taking this from sipxpresence-config and not from sipxpresence-config.in -->
-      <profileName>sipxpresence-config</profileName>
-      <value />
-    </setting>
-    <setting name="SIP_PRESENCE_HTTP_PORT" hidden="yes">
-      <!-- treat as read-only: we are taking this from sipxpresence-config and not from sipxpresence-config.in -->
-      <profileName>sipxpresence-config</profileName>
-      <type refid="port-number" />
-      <value>8111</value>
-    </setting>
-  </group>
   <group name="Logging">
     <setting name="SIP_STATUS_LOG_LEVEL">
       <profileName>status-config.in</profileName>
-      <type refid="loglevel" />
-      <value>NOTICE</value>
-    </setting>
-    <setting name="SIP_PRESENCE_LOG_LEVEL">
-      <profileName>sipxpresence-config.in</profileName>
       <type refid="loglevel" />
       <value>NOTICE</value>
     </setting>

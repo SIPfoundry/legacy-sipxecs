@@ -18,6 +18,8 @@ import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.commserver.Server;
+import org.sipfoundry.sipxconfig.service.SipxPresenceService;
+import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 
 public class AcdServerTestDb extends TestCase {
 
@@ -25,6 +27,20 @@ public class AcdServerTestDb extends TestCase {
 
     protected void setUp() throws Exception {
         m_server = (AcdServer) TestHelper.getApplicationContext().getBean("acdServer");
+        
+        SipxPresenceService presenceService = org.easymock.classextension.EasyMock.createMock(SipxPresenceService.class);
+        presenceService.getPresenceServerUri();
+        org.easymock.classextension.EasyMock.expectLastCall().andReturn("sip:presence.com:5130").atLeastOnce();
+        presenceService.getPresenceServiceUri();
+        org.easymock.classextension.EasyMock.expectLastCall().andReturn("sip:presence.com:8111/RPC2").atLeastOnce();
+        org.easymock.classextension.EasyMock.replay(presenceService);
+        
+        SipxServiceManager sipxServiceManager = EasyMock.createMock(SipxServiceManager.class);
+        sipxServiceManager.getServiceByBeanId(SipxPresenceService.BEAN_ID);
+        EasyMock.expectLastCall().andReturn(presenceService).atLeastOnce();
+        EasyMock.replay(sipxServiceManager);
+        
+        m_server.setSipxServiceManager(sipxServiceManager);
     }
 
     public void testDeploy() {
@@ -58,7 +74,6 @@ public class AcdServerTestDb extends TestCase {
 
         XmlRpcSettings xmlRpc = new XmlRpcSettings(provisioning);
 
-        m_server.setSipxServer(sipxServer);
         m_server.deploy(xmlRpc);
 
         mc.verify();

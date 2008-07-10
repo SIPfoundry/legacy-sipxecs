@@ -5,7 +5,6 @@
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  * 
- * $
  */
 package org.sipfoundry.sipxconfig.service;
 
@@ -16,7 +15,6 @@ import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.admin.commserver.ConflictingFeatureCodeValidator;
-import org.sipfoundry.sipxconfig.admin.commserver.SipxServer;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
 public class SipxRegistrarService extends SipxService {
@@ -31,7 +29,7 @@ public class SipxRegistrarService extends SipxService {
     private String m_orbitServerSipSrvOrHostport;
     private String m_voicemailHttpsPort;
     private String m_proxyServerSipHostport;
-    private SipxServer m_server;
+    private SipxServiceManager m_sipxServiceManager;
 
     public String getRegistrarSipPort() {
         return m_registrarSipPort;
@@ -81,8 +79,8 @@ public class SipxRegistrarService extends SipxService {
         m_proxyServerSipHostport = serverSipHostport;
     }
 
-    public void setSipxServer(SipxServer sipxServer) {
-        m_server = sipxServer;
+    public void setSipxServiceManager(SipxServiceManager sipxServiceManager) {
+        m_sipxServiceManager = sipxServiceManager;
     }
 
     @Override
@@ -128,8 +126,9 @@ public class SipxRegistrarService extends SipxService {
      * Validates the data in this service and throws a UserException if there is a problem
      */
     public void validate() {
+        SipxService presenceService = m_sipxServiceManager.getServiceByBeanId(SipxPresenceService.BEAN_ID);
         new ConflictingFeatureCodeValidator().validate(Arrays.asList(new Setting[] {
-            getSettings(), m_server.getSettings()
+            getSettings(), presenceService.getSettings()
         }));
     }
 

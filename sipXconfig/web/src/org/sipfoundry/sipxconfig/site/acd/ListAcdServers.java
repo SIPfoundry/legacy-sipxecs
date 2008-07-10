@@ -18,7 +18,7 @@ import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.acd.AcdContext;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
-import org.sipfoundry.sipxconfig.site.admin.commserver.ServerSettings;
+import org.sipfoundry.sipxconfig.site.service.EditPresenceService;
 
 public abstract class ListAcdServers extends BasePage implements PageBeginRenderListener {
 
@@ -49,8 +49,7 @@ public abstract class ListAcdServers extends BasePage implements PageBeginRender
     }
 
     public IPage activatePresenceServerPage(IRequestCycle cycle) {
-        ServerSettings page = (ServerSettings) cycle.getPage(ServerSettings.PAGE);
-        page.setParentSettingName("presence");
+        EditPresenceService page = (EditPresenceService) cycle.getPage(EditPresenceService.PAGE);
         return page;
     }
 

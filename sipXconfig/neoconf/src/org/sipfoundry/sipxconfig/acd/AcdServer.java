@@ -19,10 +19,9 @@ import java.util.Set;
 import org.apache.commons.lang.enums.ValuedEnum;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import org.sipfoundry.sipxconfig.admin.commserver.Server;
+import org.sipfoundry.sipxconfig.service.SipxPresenceService;
+import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.sipfoundry.sipxconfig.setting.SettingEntry;
-
 
 public class AcdServer extends AcdComponent {
     public static final Log LOG = LogFactory.getLog(AcdServer.class);
@@ -47,7 +46,7 @@ public class AcdServer extends AcdComponent {
     // TODO: only needed to create AcdAudio - we may be able to remove this dependency
     private transient AcdContext m_acdContext;
 
-    private transient Server m_sipxServer;
+    private transient SipxServiceManager m_sipxServiceManager;
 
     private int m_port;
 
@@ -150,9 +149,12 @@ public class AcdServer extends AcdComponent {
 
     public static class AcdServerDefaults {
         private AcdServer m_server;
+        private SipxPresenceService m_presenceService;
 
         AcdServerDefaults(AcdServer server) {
             m_server = server;
+            m_presenceService = (SipxPresenceService) m_server.m_sipxServiceManager
+                    .getServiceByBeanId(SipxPresenceService.BEAN_ID);
         }
 
         @SettingEntry(path = DOMAIN)
@@ -162,12 +164,12 @@ public class AcdServer extends AcdComponent {
 
         @SettingEntry(path = PRESENCE_SERVER_URI)
         public String getPresenceServerUri() {
-            return m_server.m_sipxServer.getPresenceServerUri();
+            return m_presenceService.getPresenceServerUri();
         }
 
         @SettingEntry(path = PRESENCE_SERVICE_URI)
         public String getPresenceServiceUri() {
-            return m_server.m_sipxServer.getPresenceServiceUri();
+            return m_presenceService.getPresenceServiceUri();
         }
     }
 
@@ -279,8 +281,8 @@ public class AcdServer extends AcdComponent {
         m_acdContext = acdContext;
     }
 
-    public void setSipxServer(Server sipxServer) {
-        m_sipxServer = sipxServer;
+    public void setSipxServiceManager(SipxServiceManager sipxServiceManager) {
+        m_sipxServiceManager = sipxServiceManager;
     }
 
     /**

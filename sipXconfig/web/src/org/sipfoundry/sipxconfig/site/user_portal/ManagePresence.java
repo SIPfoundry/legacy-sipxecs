@@ -12,6 +12,7 @@ package org.sipfoundry.sipxconfig.site.user_portal;
 import org.apache.tapestry.IComponent;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.annotations.InjectComponent;
+import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
@@ -22,10 +23,12 @@ import org.sipfoundry.sipxconfig.site.UserSession;
 
 public abstract class ManagePresence extends BasePage {
 
+    @InjectObject(value = "spring:presenceServer")
     public abstract PresenceServer getPresenceServer();
 
     public abstract UserSession getUserSession();
 
+    @InjectObject(value = "spring:coreContext")
     public abstract CoreContext getCoreContext();
     
     @InjectComponent(value = "actions")

@@ -14,10 +14,6 @@ import org.sipfoundry.sipxconfig.setting.Setting;
 public interface Server {
     Setting getSettings();
     
-    String getPresenceServerUri();
-
-    String getPresenceServiceUri();
-    
     String getPagingLogLevel();
 
     /**

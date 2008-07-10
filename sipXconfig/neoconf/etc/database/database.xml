@@ -270,6 +270,7 @@
     <antcall target="user-conferences" />
 	<antcall target="discovered-devices"/>
   	<antcall target="add-park-service"/>
+  	<antcall target="add-presence-service"/>
     <!-- When freezing schema uncomment this line -->
     <!-- sipx-version version="8" -->
   </target>
@@ -668,6 +669,10 @@
 
   <target name="add-park-service" unless="add-park-service">
     <db-patch patch="add-park-service"/>
+  </target>
+	
+  <target name="add-presence-service" unless="add-presence-service">
+    <db-patch patch="add-presence-service"/>
   </target>
 
   <!-- 
