@@ -31,7 +31,6 @@
     <use-global-addressing>false</use-global-addressing>
     <use-rport>false</use-rport>
     <register-on-initialization>true</register-on-initialization>
-    <registration-interval>600</registration-interval>
     <use-registration-for-caller-id>true</use-registration-for-caller-id>
     <sip-keepalive-method>CR-LF</sip-keepalive-method>
     <rtp-keepalive-method>USE-EMPTY-PACKET</rtp-keepalive-method>

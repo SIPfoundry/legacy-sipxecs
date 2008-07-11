@@ -85,13 +85,6 @@
     <setting name="outbound-registrar" advanced="yes">
       <description>Registrar route (if different from proxy). Determines where to send REGISTER request.</description>
     </setting>
-    <setting name="registration-interval" advanced="yes">
-      <type>
-        <integer />
-      </type>
-      <value>600</value>
-      <description>Registration Interval (seconds)</description>
-    </setting>
     <setting name="use-registration-for-caller-id" advanced="yes">
       <label>Use Registration for caller-ID</label>
       <type refid="switch"></type>
