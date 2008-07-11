@@ -44,9 +44,6 @@
     <setting name="proxy-domain">
       <description>The ITSP proxy domain.</description>
     </setting>
-    <setting name="authentication-realm" advanced="yes">
-      <description>If undefined, sipxbridge will read the domain from the authentication challenge.</description>
-    </setting>
     <setting name="user-name">
       <label>User</label>
       <type>
