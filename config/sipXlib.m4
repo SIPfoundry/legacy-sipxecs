@@ -98,8 +98,6 @@ AC_DEFUN([SFAC_SIPX_GLOBAL_OPTS],
 
     AC_SUBST(SIPX_PARKMUSICDIR,[${localstatedir}/sipxdata/parkserver/music])
 
-    AC_SUBST(SIPX_CONFIGPHONEDIR, [${localstatedir}/sipxdata/configserver/phone])
-
     ## Used in a number of different project and subjective where this should really go
     ## INSTALL instruction assume default, otherwise safe to change/override
     AC_ARG_VAR(wwwdir, [Web root for web content, default is ${datadir}/www. \

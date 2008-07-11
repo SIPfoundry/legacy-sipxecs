@@ -27,9 +27,9 @@ CoreDumpDirectory @SIPX_LOGDIR@
 </Directory>
 
 # Where hard and soft phones get their profile information
-Alias /phone/ "@SIPX_CONFIGPHONEDIR@/"
+Alias /phone/ "@SIPX_VARDIR@/configserver/phone/"
 
-<Directory "@SIPX_CONFIGPHONEDIR@/">
+<Directory "@SIPX_VARDIR@/configserver/phone/">
     Options -Indexes
     AllowOverride None
     Order allow,deny

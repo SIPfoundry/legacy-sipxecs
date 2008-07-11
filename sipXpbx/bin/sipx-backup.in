@@ -138,7 +138,7 @@ then
     @SIPX_CONFDIR@/*.in \
     @SIPX_CONFDIR@/sipxacd.xml \
     @SIPX_CONFDIR@/ssl/authorities/* \
-    @SIPX_CONFIGPHONEDIR@/acd/audio/* \
+    @SIPX_VARDIR@/configserver/phone/acd/audio/* \
     @SIPX_PARKMUSICDIR@/* \
     @SIPX_VXMLDATADIR@/prompts/* \
     @SIPX_PAGEMUSICDIR@/* \

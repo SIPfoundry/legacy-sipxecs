@@ -33,7 +33,6 @@
         <replacefilter token="@bindir@" value="${install.dir}/bin"/>
         <replacefilter token="@libdir@" value="${install.dir}/lib"/>
     	<replacefilter token="@localstatedir@" value="${install.dir}/lib"/>
-    	<replacefilter token="@SIPX_CONFIGPHONEDIR@" value="${install.dir}/var/phone"/>
 	<replacefilter token="@SIPX_DOWNLOADDIR@" value="${install.dir}/var/ftpBackup"/>
     	<replacefilter token="@SIPXCONFIG_LIBDIR@" value="${install.dir}/lib"/>
     	<replacefilter token="@SIPX_BINDIR@" value="${install.dir}/bin"/>
