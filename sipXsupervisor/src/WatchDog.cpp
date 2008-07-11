@@ -107,6 +107,7 @@ WatchDog::operator=(const WatchDog& rhs)
 UtlBoolean WatchDog::handleMessage(OsMsg &rMsg)
 {
    intptr_t    eventData;
+   void*       userDataVoid;
    intptr_t    userData;
    int         loop;
 
@@ -122,15 +123,14 @@ UtlBoolean WatchDog::handleMessage(OsMsg &rMsg)
 
    if (rMsg.getMsgType() == OsMsg::OS_EVENT)
    {
-      //for now I'll leave these here... although im not using them now
-       // I may in the near future
       pEventMsg = (OsEventMsg*) &rMsg;
       pEventMsg->getEventData(eventData);
-      pEventMsg->getUserData((void*&)userData);
+      pEventMsg->getUserData(userDataVoid);
+      userData = (intptr_t)userDataVoid;
 
       // Lock out other threads.
       OsLock mutex(mLock);   
-
+      
       if (userData == USER_PROCESS_EVENT)
       {
           //here we need to loop through all the process objects and call

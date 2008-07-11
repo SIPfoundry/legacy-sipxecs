@@ -15,22 +15,23 @@
 // TYPEDEFS
 // FORWARD DECLARATIONS
 
-void XmlErrorMsg(const TiXmlDocument* parserDoc, UtlString& errorMsg)
+void XmlErrorMsg(const TiXmlDocument& parserDoc, UtlString& errorMsg)
 {
    errorMsg.remove(0);
-   errorMsg.append(parserDoc->ErrorDesc());
+   errorMsg.append(parserDoc.ErrorDesc());
 
-   int row = const_cast<TiXmlDocument*>(parserDoc)->ErrorRow();
-   if (row)
+   int row = const_cast<TiXmlDocument*>(&parserDoc)->ErrorRow();
+   int col = const_cast<TiXmlDocument*>(&parserDoc)->ErrorCol();
+   if (row && (row != 1 || col != 1)) /* row 1 column 1 is what you get when it doesn't know */ 
    {
       errorMsg.append(" at line ");
       errorMsg.appendNumber(row);
       errorMsg.append(" column ");
-      errorMsg.appendNumber(const_cast<TiXmlDocument*>(parserDoc)->ErrorCol());
+      errorMsg.appendNumber(col);
    }
 
    // If available, add the file name from which the xml was loaded.
-   const char* xmlDocumentName = parserDoc->Value();
+   const char* xmlDocumentName = parserDoc.Value();
    if (xmlDocumentName)
    {
       errorMsg.append(" in '");

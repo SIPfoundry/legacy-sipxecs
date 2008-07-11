@@ -10,6 +10,7 @@
 // SYSTEM INCLUDES
 
 // APPLICATION INCLUDES
+#include "utl/UtlHashBag.h"
 #include "SipxResource.h"
 
 // DEFINES
@@ -19,40 +20,48 @@
 
 /// Represents a File as a SipxResource
 /**
- * Created either:
- * - As a side effect of creating a Process when parsing a 'sipXecs-process' element
- *   (in the 'findProcessResource' method).
- * - By a 'File' element listed as in the 'resources' element in some other File definition
- *   (using the 'parse' method)
+ * Created as a side effect of creating a Process when parsing a 'sipXecs-process' element
+ *   (in the 'findProcessResource' method).  @see the Process class documentation.
+ *
+ * To locate a particular FileResource, call FileResourceManager::find.
+ *
+ * At present, this class is used for both 'file' and 'osconfigdb' resource types; they
+ * are in fact both files, but in the future we may take advantage of other ways of manipulating
+ * an OsConfigDb (see ConfigRPC), so we make the distinction in the definition.
+ * If we make that change, the osconfigdb element parsing will be moved to a SipxResource
+ * subclass of its own.
  */
 class FileResource : public SipxResource
 {
   public:
 
 // ================================================================
-/** @name           Creation Methods
+/** @name           Creation
  *
  */
 ///@{
+   /// Public name of the resource element parsed by this parser.
+   static const char* FileResourceTypeName;       ///< name of 'file' resource element
+   static const char* OsconfigdbResourceTypeName; ///< name of 'osconfigdb' resource element
+
    /// Factory method that parses a 'file' or 'osconfigdb' resource description element.
    static
-      SipxResource* parse(TiXmlElement* resourceElement, ///< the child element of 'resources'.
-                          Process* currentProcess        ///< Process whose resources are being read.
-                          );
+      bool parse(const TiXmlDocument& processDefinitionDoc, ///< process definition document
+                 TiXmlElement* resourceElement, ///< the child element of 'resources'.
+                 Process* currentProcess        ///< Process whose resources are being read.
+                 );
    /**<
     * This is called by SipxResource::parse with any 'file' or 'osconfigdb' child of
     * the 'resources' element in a process definition.  
     *
-    * @returns NULL if the element was in any way invalid.
+    * @returns false if the element was in any way invalid.
     */
 
-   /// Return an existing FileResource or NULL if no FileResource is found.
+   /// Log files are resources too - this creates a log file resource
    static
-      FileResource* find(const char* fileName /**< full path to the file */);
+      FileResource* logFileResource(const UtlString& logFilePath, Process* currentProcess);
+   ///< a log file resource is read-only and not required
    
-   /// get a description of the FileResource (for use in logging)
-   virtual void getDescription(UtlString&  description /**< returned description */);
-
 ///@}   
 // ================================================================
 /** @name           Status Operations
@@ -60,20 +69,14 @@ class FileResource : public SipxResource
  */
 ///@{
 
+   /// get a description of the FileResource (for use in logging)
+   virtual void appendDescription(UtlString&  description /**< returned description */);
+
    /// Whether or not the FileResource is ready for use by a Process.
-   virtual boolean isReadyToStart();
+   virtual bool isReadyToStart();
 
 ///@}
-// ================================================================
-/** @name           Configuration Control Methods
- *
- */
-///@{
 
-   /// Whether or not the FileResource may be written by configuration update methods.
-   virtual boolean isWriteable();
-
-///@}
 // ================================================================
 /** @name           Container Support Operations
  *
@@ -90,23 +93,15 @@ class FileResource : public SipxResource
 
 ///@}
 
-
   protected:
    
    /// constructor
    FileResource(const char* uniqueId);
 
-   /// Do any special handling when a resource is required by the process.
-   virtual void requiredBy(Process* currentProcess);
-   /**< this base class calls currentProcess->requireResourceToStart */
-   
    /// destructor
    virtual ~FileResource();
 
   private:
-
-   static OsBSem     mFileResourceTableLock;
-   static UtlHashMap mFileResourceTable;
 
    // @cond INCLUDENOCOPY
    /// There is no copy constructor.

@@ -594,8 +594,8 @@ int main(int argc, char* argv[])
     enableConsoleOutput(true);
 
     UtlString argString;
-    const char * sipxpbxuser = (char *)SIPXPBXUSER;
-    const char * sipxpbxgroup = (char *)SIPXPBXGROUP;
+    const char * sipxpbxuser = SipXecsService::User();
+    const char * sipxpbxgroup = SipXecsService::Group();
     for (int argIndex = 1; argIndex < argc; argIndex++) 
     {
         bool usageExit = false;

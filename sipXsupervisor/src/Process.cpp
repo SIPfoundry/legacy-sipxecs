@@ -15,6 +15,9 @@
 #include "xmlparser/ExtractContent.h"
 #include "ProcessCmd.h"
 #include "SipxResource.h"
+#include "FileResource.h"
+#include "ProcessResource.h"
+#include "ProcessResourceManager.h"
 #include "Process.h"
 
 // DEFINES
@@ -39,9 +42,22 @@ Process::Process(const UtlString& name, const UtlString& version) :
    mConfigtest(NULL),
    mStart(NULL),
    mStop(NULL),
-   mReconfigure(NULL),
-   mMyResource(NULL)
+   mReconfigure(NULL)
 {
+   ProcessResource* myResource;
+   ProcessResourceManager* processResourceManager = ProcessResourceManager::getInstance();
+   
+   if (!(myResource = processResourceManager->find(name.data())))
+   {
+      myResource = new ProcessResource(name.data());
+      processResourceManager->save(myResource);
+   }
+   else
+   {
+      /* the resource has already been created by some other Process
+       * listing this one as a resource.
+       */
+   }
 };
 
 /// Read a process definition and return a process if definition is valid.
@@ -87,9 +103,9 @@ Process* Process::createFromDefinition(const OsPath& definitionFile)
                    )
                {
                   definitionValid = false;
-                  XmlErrorMsg(&processDefinitionDoc,errorMsg);
+                  XmlErrorMsg(processDefinitionDoc,errorMsg);
                   OsSysLog::add(FAC_WATCHDOG, PRI_ERR, "Process::createFromDefinition "
-                                "'name' element content is invalid.  %s",
+                                "'name' element content is invalid %s",
                                 errorMsg.data()
                                 );
                }
@@ -97,86 +113,95 @@ Process* Process::createFromDefinition(const OsPath& definitionFile)
             else
             {
                definitionValid = false;
-               XmlErrorMsg(&processDefinitionDoc,errorMsg);
+               XmlErrorMsg(processDefinitionDoc,errorMsg);
                OsSysLog::add(FAC_WATCHDOG, PRI_ERR, "Process::createFromDefinition "
-                             "required 'name' element is missing.  %s",
+                             "required 'name' element is missing %s",
                              errorMsg.data()
                              );
             }
    
             // Get the 'version' element
-            if (   definitionValid
-                && (versionElement = nameElement->NextSiblingElement())
-                && (0 == strcmp("version",versionElement->Value())))
+            if ( definitionValid )
             {
-               if (   textContent(version, versionElement)
-                   && ! version.isNull()
-                   )
+               if (   (versionElement = nameElement->NextSiblingElement())
+                   && (0 == strcmp("version",versionElement->Value())))
+               {
+                  if (   ! textContent(version, versionElement)
+                      || version.isNull()
+                      )
+                  {
+                     definitionValid = false;
+                     XmlErrorMsg(processDefinitionDoc,errorMsg);
+                     OsSysLog::add(FAC_WATCHDOG, PRI_ERR, "Process::createFromDefinition "
+                                   "'version' element content is invalid %s",
+                                   errorMsg.data()
+                                   );
+                  }
+               }
+               else
                {
                   definitionValid = false;
-                  XmlErrorMsg(&processDefinitionDoc,errorMsg);
+                  XmlErrorMsg(processDefinitionDoc,errorMsg);
                   OsSysLog::add(FAC_WATCHDOG, PRI_ERR, "Process::createFromDefinition "
-                                "'version' element content is invalid.  %s",
+                                "required 'version' element is missing %s",
                                 errorMsg.data()
                                 );
                }
             }
-            else
-            {
-               XmlErrorMsg(&processDefinitionDoc,errorMsg);
-               OsSysLog::add(FAC_WATCHDOG, PRI_ERR, "Process::createFromDefinition "
-                             "required 'version' element is missing.  %s",
-                             errorMsg.data()
-                             );
-            }
 
             // Get the 'commands' element
-            if (   definitionValid
-                && (commandsElement = versionElement->NextSiblingElement())
-                && (0 == strcmp("commands",commandsElement->Value())))
+            if ( definitionValid )
             {
-               // defer parsing commands until Process object is created below
-            }
-            else
-            {
-               definitionValid = false;
-               XmlErrorMsg(&processDefinitionDoc,errorMsg);
-               OsSysLog::add(FAC_WATCHDOG, PRI_ERR, "Process::createFromDefinition "
-                             "required 'commands' element is missing.  %s",
-                             errorMsg.data()
-                             );
+               if (   (commandsElement = versionElement->NextSiblingElement())
+                   && (0 == strcmp("commands",commandsElement->Value())))
+               {
+                  // defer parsing commands until Process object is created below
+               }
+               else
+               {
+                  definitionValid = false;
+                  XmlErrorMsg(processDefinitionDoc,errorMsg);
+                  OsSysLog::add(FAC_WATCHDOG, PRI_ERR, "Process::createFromDefinition "
+                                "required 'commands' element is missing %s",
+                                errorMsg.data()
+                                );
+               }
             }
 
             // Get the 'status' element
-            if (   definitionValid
-                && (statusElement = commandsElement->NextSiblingElement())
-                && (0 == strcmp("status",statusElement->Value())))
+            if ( definitionValid )
             {
-               // defer parsing status until Process object is created below
-            }
-            else
-            {
-               definitionValid = false;
-               XmlErrorMsg(&processDefinitionDoc,errorMsg);
-               OsSysLog::add(FAC_WATCHDOG, PRI_ERR, "Process::createFromDefinition "
-                             "required 'status' element is missing.  %s",
-                             errorMsg.data()
-                             );
+               if (   (statusElement = commandsElement->NextSiblingElement())
+                   && (0 == strcmp("status",statusElement->Value())))
+               {
+                  // defer parsing status until Process object is created below
+               }
+               else
+               {
+                  definitionValid = false;
+                  XmlErrorMsg(processDefinitionDoc,errorMsg);
+                  OsSysLog::add(FAC_WATCHDOG, PRI_ERR, "Process::createFromDefinition "
+                                "required 'status' element is missing %s",
+                                errorMsg.data()
+                                );
+               }
             }
 
             // Get the 'resources' element
-            if (   definitionValid
-                && (resourcesElement = statusElement->NextSiblingElement()))
+            if ( definitionValid )
             {
-               const char* elementName = resourcesElement->Value();
-               if (0 != strcmp("resources",elementName))
+               if ((resourcesElement = statusElement->NextSiblingElement()))
                {
-                  definitionValid = false;
-                  XmlErrorMsg(&processDefinitionDoc,errorMsg);
-                  OsSysLog::add(FAC_WATCHDOG, PRI_ERR, "Process::createFromDefinition "
-                                "invalid '%s' element: expected 'resources'  %s",
-                                elementName, errorMsg.data()
-                             );
+                  const char* elementName = resourcesElement->Value();
+                  if (0 != strcmp("resources",elementName))
+                  {
+                     definitionValid = false;
+                     XmlErrorMsg(processDefinitionDoc,errorMsg);
+                     OsSysLog::add(FAC_WATCHDOG, PRI_ERR, "Process::createFromDefinition "
+                                   "invalid '%s' element: expected 'resources'  %s",
+                                   elementName, errorMsg.data()
+                                   );
+                  }
                }
             }
 
@@ -198,12 +223,13 @@ Process* Process::createFromDefinition(const OsPath& definitionFile)
                       && (0 == strcmp("configtest",configtestCmdElement->Value())))
                   {
                      if (! (process->mConfigtest =
-                            ProcessCmd::parseCommandDefinition(configtestCmdElement)))
+                            ProcessCmd::parseCommandDefinition(processDefinitionDoc,
+                                                               configtestCmdElement)))
                      {
                         definitionValid = false;
-                        XmlErrorMsg(&processDefinitionDoc,errorMsg);
+                        XmlErrorMsg(processDefinitionDoc,errorMsg);
                         OsSysLog::add(FAC_WATCHDOG, PRI_ERR, "Process::createFromDefinition "
-                                      "'configtest' element is invalid.  %s",
+                                      "'configtest' content is invalid %s",
                                       errorMsg.data()
                                       );
                      }
@@ -211,9 +237,9 @@ Process* Process::createFromDefinition(const OsPath& definitionFile)
                   else
                   {
                      definitionValid = false;
-                     XmlErrorMsg(&processDefinitionDoc,errorMsg);
+                     XmlErrorMsg(processDefinitionDoc,errorMsg);
                      OsSysLog::add(FAC_WATCHDOG, PRI_ERR, "Process::createFromDefinition "
-                                   "required 'configtest' element is missing.  %s",
+                                   "required 'configtest' element is missing %s",
                                    errorMsg.data()
                                    );
                   }
@@ -226,12 +252,13 @@ Process* Process::createFromDefinition(const OsPath& definitionFile)
                          && (0 == strcmp("start",startCmdElement->Value())))
                      {
                         if (! (process->mStart =
-                               ProcessCmd::parseCommandDefinition(startCmdElement)))
+                               ProcessCmd::parseCommandDefinition(processDefinitionDoc,
+                                                                  startCmdElement)))
                         {
                            definitionValid = false;
-                           XmlErrorMsg(&processDefinitionDoc,errorMsg);
+                           XmlErrorMsg(processDefinitionDoc,errorMsg);
                            OsSysLog::add(FAC_WATCHDOG, PRI_ERR, "Process::createFromDefinition "
-                                         "'start' element is invalid.  %s",
+                                         "'start' content is invalid %s",
                                          errorMsg.data()
                                          );
                         }
@@ -239,9 +266,9 @@ Process* Process::createFromDefinition(const OsPath& definitionFile)
                      else
                      {
                         definitionValid = false;
-                        XmlErrorMsg(&processDefinitionDoc,errorMsg);
+                        XmlErrorMsg(processDefinitionDoc,errorMsg);
                         OsSysLog::add(FAC_WATCHDOG, PRI_ERR, "Process::createFromDefinition "
-                                      "required 'start' element is missing.  %s",
+                                      "required 'start' element is missing %s",
                                       errorMsg.data()
                                       );
                      }
@@ -255,12 +282,13 @@ Process* Process::createFromDefinition(const OsPath& definitionFile)
                          && (0 == strcmp("stop",stopCmdElement->Value())))
                      {
                         if (! (process->mStop =
-                               ProcessCmd::parseCommandDefinition(stopCmdElement)))
+                               ProcessCmd::parseCommandDefinition(processDefinitionDoc,
+                                                                  stopCmdElement)))
                         {
                            definitionValid = false;
-                           XmlErrorMsg(&processDefinitionDoc,errorMsg);
+                           XmlErrorMsg(processDefinitionDoc,errorMsg);
                            OsSysLog::add(FAC_WATCHDOG, PRI_ERR, "Process::createFromDefinition "
-                                         "'stop' element is invalid.  %s",
+                                         "'stop' content is invalid %s",
                                          errorMsg.data()
                                          );
                         }
@@ -268,9 +296,9 @@ Process* Process::createFromDefinition(const OsPath& definitionFile)
                      else
                      {
                         definitionValid = false;
-                        XmlErrorMsg(&processDefinitionDoc,errorMsg);
+                        XmlErrorMsg(processDefinitionDoc,errorMsg);
                         OsSysLog::add(FAC_WATCHDOG, PRI_ERR, "Process::createFromDefinition "
-                                      "required 'stop' element is missing.  %s",
+                                      "required 'stop' element is missing %s",
                                       errorMsg.data()
                                       );
                      }
@@ -284,12 +312,13 @@ Process* Process::createFromDefinition(const OsPath& definitionFile)
                          && (0 == strcmp("reconfigure",reconfigureCmdElement->Value())))
                      {
                         if (!(process->mReconfigure =
-                              ProcessCmd::parseCommandDefinition(reconfigureCmdElement)))
+                              ProcessCmd::parseCommandDefinition(processDefinitionDoc,
+                                                                 reconfigureCmdElement)))
                         {
                            definitionValid = false;
-                           XmlErrorMsg(&processDefinitionDoc,errorMsg);
+                           XmlErrorMsg(processDefinitionDoc,errorMsg);
                            OsSysLog::add(FAC_WATCHDOG, PRI_ERR, "Process::createFromDefinition "
-                                         "'reconfigure' element is invalid.  %s",
+                                         "'reconfigure' content is invalid %s",
                                          errorMsg.data()
                                          );
                         }
@@ -321,18 +350,16 @@ Process* Process::createFromDefinition(const OsPath& definitionFile)
                               if (   textContent(process->mPidFile, statusChildElement)
                                   && !process->mPidFile.isNull())
                               {
-                                 // @TODO ? try to validate the path?
-
                                  // advance to the statusChildElement to the first log element, if any
                                  statusChildElement = statusChildElement->NextSiblingElement();
                               }
                               else
                               {
                                  definitionValid = false;
-                                 XmlErrorMsg(&processDefinitionDoc,errorMsg);
+                                 XmlErrorMsg(processDefinitionDoc,errorMsg);
                                  OsSysLog::add(FAC_WATCHDOG, PRI_ERR, "Process::createFromDefinition "
                                                "'pid' element is empty"
-                                               " - if present, it must be a pathname.  %s",
+                                               " - if present, it must be a pathname %s",
                                                errorMsg.data()
                                                );
 
@@ -350,34 +377,32 @@ Process* Process::createFromDefinition(const OsPath& definitionFile)
                         {
                            if (0 == strcmp("log",statusChildElement->Value()))
                            {
-                              UtlString* logPath = new UtlString;
-                              if (textContent(*logPath, statusChildElement) && !logPath->isNull())
+                              UtlString logPath;
+                              if (textContent(logPath, statusChildElement) && !logPath.isNull())
                               {
-                                 // @TODO ? try to validate the path?
-
-                                 process->mLogFiles.append(logPath);
+                                 FileResource* logFileResource =
+                                    FileResource::logFileResource(logPath, process);
+                                 
+                                 process->mLogFiles.append(logFileResource);
                               
                                  // advance to the statusChildElement to the first log element, if any
                                  statusChildElement = statusChildElement->NextSiblingElement();
                               }
                               else
                               {
-                                 delete logPath;
-
                                  definitionValid = false;
-                                 XmlErrorMsg(&processDefinitionDoc,errorMsg);
+                                 XmlErrorMsg(processDefinitionDoc,errorMsg);
                                  OsSysLog::add(FAC_WATCHDOG, PRI_ERR, "Process::createFromDefinition "
                                                "'log' element is empty"
-                                               " - if present, it must be a pathname.  %s",
+                                               " - if present, it must be a pathname %s",
                                                errorMsg.data()
                                                );
-
                               }
                            }
                            else
                            {
                               definitionValid = false;
-                              XmlErrorMsg(&processDefinitionDoc,errorMsg);
+                              XmlErrorMsg(processDefinitionDoc,errorMsg);
                               OsSysLog::add(FAC_WATCHDOG, PRI_ERR, "Process::createFromDefinition "
                                             "'%s' element is invalid here: expected 'log'",
                                             statusChildElement->Value()                
@@ -389,9 +414,9 @@ Process* Process::createFromDefinition(const OsPath& definitionFile)
                      {
                         definitionValid = false;
                      
-                        XmlErrorMsg(&processDefinitionDoc,errorMsg);
+                        XmlErrorMsg(processDefinitionDoc,errorMsg);
                         OsSysLog::add(FAC_WATCHDOG, PRI_ERR, "Process::createFromDefinition "
-                                      "required 'status' element is missing.  %s",
+                                      "required 'status' element is missing %s",
                                       errorMsg.data()
                                       );
                      }
@@ -409,7 +434,7 @@ Process* Process::createFromDefinition(const OsPath& definitionFile)
                         {
                            TiXmlElement* resourceElement;
                            for (resourceElement = resourcesElement->FirstChildElement();
-                                definitionValid && resourcesElement;
+                                definitionValid && resourceElement;
                                 resourceElement = resourceElement->NextSiblingElement()
                                 )
                            {
@@ -423,13 +448,14 @@ Process* Process::createFromDefinition(const OsPath& definitionFile)
                                * methods on the new process is called to add the new
                                * resource to the appropriate list.
                                */
-                              definitionValid = SipxResource::parse(resourceElement, process);
+                              definitionValid =
+                                 SipxResource::parse(processDefinitionDoc,resourceElement,process);
                            }
                         }
                         else
                         {
                            definitionValid = false;
-                           XmlErrorMsg(&processDefinitionDoc,errorMsg);
+                           XmlErrorMsg(processDefinitionDoc,errorMsg);
                            OsSysLog::add(FAC_WATCHDOG, PRI_ERR, "Process::createFromDefinition "
                                          "'%s' element is invalid here: expected 'resources'",
                                          resourcesElement->Value()                
@@ -439,23 +465,19 @@ Process* Process::createFromDefinition(const OsPath& definitionFile)
                      else
                      {
                         definitionValid = false;
-                     
-                        XmlErrorMsg(&processDefinitionDoc,errorMsg);
+                        XmlErrorMsg(processDefinitionDoc,errorMsg);
                         OsSysLog::add(FAC_WATCHDOG, PRI_ERR, "Process::createFromDefinition "
-                                      "required 'resources' element is missing.  %s",
+                                      "required 'resources' element is missing %s",
                                       errorMsg.data()
                                       );
                      }
                   }
                   
-                  if (definitionValid)
+                  if (!definitionValid)
                   {
-                     // Process object has been successfully created.
-                     // @TODO 
-                  }
-                  else
-                  {
+                     // something is wrong, so get rid of the invalid Process object
                      delete process;
+                     process = NULL;
                   }
                }
                else
@@ -467,9 +489,9 @@ Process* Process::createFromDefinition(const OsPath& definitionFile)
          }
          else
          {
-            XmlErrorMsg(&processDefinitionDoc,errorMsg);
+            XmlErrorMsg(processDefinitionDoc,errorMsg);
             OsSysLog::add(FAC_WATCHDOG, PRI_ERR, "Process::createFromDefinition "
-                          "invalid document type '%s' in namespace '%s'\n"
+                          "invalid root element '%s' in namespace '%s'\n"
                           "should be '%s' in namespace '%s' %s",
                           rootElementName, definitionNamespace,
                           SipXecsProcessRootElement, SipXecsProcessNamespace,
@@ -480,7 +502,7 @@ Process* Process::createFromDefinition(const OsPath& definitionFile)
       }
       else
       {
-         XmlErrorMsg(&processDefinitionDoc,errorMsg);
+         XmlErrorMsg(processDefinitionDoc,errorMsg);
          OsSysLog::add(FAC_WATCHDOG, PRI_ERR, "Process::createFromDefinition "
                        "root element not found in '%s': %s",
                        definitionFile.data(), errorMsg.data()
@@ -490,7 +512,7 @@ Process* Process::createFromDefinition(const OsPath& definitionFile)
    else
    {
       UtlString errorMsg;
-      XmlErrorMsg(&processDefinitionDoc,errorMsg);
+      XmlErrorMsg(processDefinitionDoc,errorMsg);
       OsSysLog::add(FAC_WATCHDOG, PRI_ERR, "Process::createFromDefinition failed to load '%s': %s",
                     definitionFile.data(), errorMsg.data()
                     );
@@ -578,4 +600,27 @@ Process::State Process::readPersistentState()
 /// destructor
 Process::~Process()
 {
+   OsLock mutex(mLock);
+
+   // @TODO shut down task
+   if (mConfigtest)
+   {
+      delete mConfigtest;
+   }
+   if (mStart)
+   {
+      delete mStart;
+   }
+   if (mStop)
+   {
+      delete mStop;
+   }
+   if (mReconfigure)
+   {
+      delete mReconfigure;
+   }
+
+   mRequiredStart.removeAll();
+   mWaitForStop.removeAll();
+   
 };

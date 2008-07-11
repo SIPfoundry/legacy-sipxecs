@@ -12,6 +12,7 @@
 // APPLICATION INCLUDES
 #include "utl/UtlString.h"
 #include "utl/UtlSList.h"
+#include "xmlparser/tinyxml.h"
 
 // DEFINES
 // CONSTANTS
@@ -32,8 +33,9 @@ class Process;
  *
  * - A Process definition can declare that a resource is 'required', which means that:
  *   - The Process can not start before that SipxResource is "ready"
- *     The definition of "ready" differs depending on the subclass of SipxResource.
  *   - The Process can not stop before that SipxResource is no longer "in use".
+ *
+ *   The definitions of "ready" and "in use" differ depending on the subclass of SipxResource.
  */
 class SipxResource : public UtlString
 {
@@ -44,7 +46,8 @@ class SipxResource : public UtlString
 
    /// Factory method that parses a resource description element.
    static
-      bool parse(TiXmlElement* resourceElement, ///< some child element of 'resources'.
+      bool parse(const TiXmlDocument& processDefinitionDoc, ///< process definition document
+                 TiXmlElement* resourceElement, ///< some child element of 'resources'.
                  Process* currentProcess        ///< Process whose resources are being read.
                  );
    /**<
@@ -56,7 +59,7 @@ class SipxResource : public UtlString
     */
    
    /// get a description of the SipxResource (for use in logging)
-   virtual void getDescription(UtlString&  description /**< returned description */);
+   virtual void appendDescription(UtlString&  description /**< returned description */);
    
 // ================================================================
 /** @name           Status Operations
@@ -81,7 +84,7 @@ class SipxResource : public UtlString
 ///@{
 
    /// Whether or not the SipxResource may be written by configuration update methods.
-   bool isWriteable();
+   virtual bool isWriteable();
 
 ///@}
 // ================================================================
@@ -107,7 +110,9 @@ class SipxResource : public UtlString
    SipxResource(const char* uniqueId);
 
    /// Parses attributes common to all SipxResource classes.
-   bool parseAttribute(const TiXmlAttribute* attribute);
+   bool parseAttribute(const TiXmlDocument& document,  ///< document being parsed (for error mess)
+                       const TiXmlAttribute* attribute ///< attribute to be parsed.
+                       );
    /**<
     * This method should be called for each attribute child of a 'resource' type node.
     * @returns true iff the attribute was recognized and handled by the SipxResource class.
@@ -119,9 +124,12 @@ class SipxResource : public UtlString
    virtual void requiredBy(Process* currentProcess);
    /**< this base class calls currentProcess->requireResourceToStart */
          
-   bool mWritable; ///< from the 'configAccess' attribute.
+   bool mFirstDefinition; ///< true only until saved in the appropriate ResourceManager
+   
+   bool mWritableImplicit; ///< true if no definition had an explicit 'configAccess' attribute.
+   bool mWritable; ///< the value from the 'configAccess' attribute.
 
-   UtlSList mUsedBy;  ///< Process objects that use this SipxResource.
+   UtlSList mUsedBy;  ///< ProcessResource objects that use this SipxResource.
    
   private:
 

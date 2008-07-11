@@ -1,0 +1,11 @@
+<?xml version='1.0' encoding='iso-8859-1' standalone='yes'?>
+<sipXecs-process xmlns='http://www.sipfoundry.org/sipX/schema/xml/sipXecs-process-01-00'>
+  <name>Name</name>
+  <version>Version</version>
+  <commands>
+  </commands>
+  <status>
+  </status>
+  <resources>
+  </resources>
+</sipXecs-process>

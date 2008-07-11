@@ -10,6 +10,8 @@
 // SYSTEM INCLUDES
 
 // APPLICATION INCLUDES
+#include "utl/UtlHashMap.h"
+
 #include "SipxResource.h"
 
 // DEFINES
@@ -30,20 +32,24 @@ class ProcessResource : public SipxResource
   public:
 
 // ================================================================
-/** @name           Creation Methods
+/** @name           Creation 
  *
  */
 ///@{
+   /// Public name of the resource element parsed by this parser.
+   static const char* ProcessResourceTypeName;
+   
    /// Factory method that parses a 'process' resource description element.
    static
-      SipxResource* parse(TiXmlElement* resourceElement, ///< some child element of 'resources'.
-                          Process* currentProcess        ///< Process whose resources are being read.
-                          );
+      bool parse(const TiXmlDocument& processDefinitionDoc, ///< process definition document
+                 TiXmlElement* resourceElement, ///< some child element of 'resources'.
+                 Process* currentProcess        ///< Process whose resources are being read.
+                 );
    /**<
     * This is called by SipxResource::parse with any 'process' child of the 'resources' element
     * in a process definition.  
     *
-    * @returns NULL if the element was in any way invalid.
+    * @returns false if the element was in any way invalid.
     */
 
    /// Return an existing ProcessResource, or if none exists, create one.
@@ -55,9 +61,19 @@ class ProcessResource : public SipxResource
     */
    
    /// get a description of the ProcessResource (for use in logging)
-   virtual void getDescription(UtlString&  description /**< returned description */);
+   virtual void appendDescription(UtlString&  description /**< returned description */);
 
 ///@}   
+// ================================================================
+/** @name           Configuration Control Methods
+ *
+ */
+///@{
+
+   /// A ProcessResource may not written by configuration update methods.
+   bool isWriteable();
+
+///@}
 // ================================================================
 /** @name           Status Operations
  *
@@ -65,20 +81,10 @@ class ProcessResource : public SipxResource
 ///@{
 
    /// Whether or not the ProcessResource is ready for use by a Process.
-   virtual boolean isReadyToStart();
+   virtual bool isReadyToStart();
 
    /// Whether or not it is safe to stop a Process using the ProcessResource.
-   virtual boolean isSafeToStop();
-
-///@}
-// ================================================================
-/** @name           Configuration Control Methods
- *
- */
-///@{
-
-   /// Whether or not the ProcessResource may be written by configuration update methods.
-   virtual boolean isWriteable();
+   virtual bool isSafeToStop();
 
 ///@}
 // ================================================================
@@ -99,6 +105,7 @@ class ProcessResource : public SipxResource
 
 
   protected:
+   friend class Process;
    
    /// constructor
    ProcessResource(const char* uniqueId);
@@ -111,11 +118,6 @@ class ProcessResource : public SipxResource
    virtual ~ProcessResource();
 
   private:
-
-   Process*   mProcess;
-
-   static OsBSem     mProcessResourceTableLock;
-   static UtlHashMap mProcessResourceTable;
 
    // @cond INCLUDENOCOPY
    /// There is no copy constructor.

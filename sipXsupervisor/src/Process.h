@@ -29,12 +29,49 @@ class ProcessTest;
 /**
  * A Process object represents the process that is providing some
  * sipXecs service.  It is instantiated by the ProcessManager by calling
- * the createFromDefinition method, passing the path to an XML
- * process definition file (see sipXcommserverLib/meta/sipXecs-process.xsd.in).
+ * the Process::createFromDefinition method, passing the path to an XML
+ * process definition file.
  *
- * Each Process has a paired ProcessResource.
+ * To locate a particular Process object, call ProcessManager::find.
+ *
+ * @par(Process and Resource creation)
+ *
+ * Process objects are created by the createFromDefinition, called from
+ * ProcessManager::instantiateProcesses with each process definition document (see
+ * sipXsupervisor/meta/sipXecs-process.xsd.in). 
+ *
+ * The parsing of the 'resources' element is delegated to SipxResource::parse,
+ * which in turn delegates it to the appropriate resource subclass.  The connections
+ * from a Process to the SipxResources it depends on are created by callbacks from
+ * those resource parsing routines:
+ 
+ * @msc
+ *    Process, SipxResource, xxxResource;
+ *
+ *               ---    [label="Undefined State (parsing definition)"];
+ *    Process        =>     SipxResource                     [label="SipxResource::parse"];
+ *                          SipxResource =>   xxxResource    [label="xxxResource::parse"];
+ *    Process           <=                    xxxResource    [label="requireResourceToStart"];
+ * Process -> Process                                 [label="insert in mRequiredStart"];
+ *    Process           >>                    xxxResource    ;
+ *    Process           <=                    xxxResource    [label="checkResourceBeforeStop"];
+ * Process -> Process                                 [label="insert in mWaitForStop"];
+ *    Process           >>                    xxxResource    ;
+ *                          SipxResource <<   xxxResource    [label="(bool)"];
+ *    Process        <<     SipxResource                     [label="(bool)"];
+ *
+ * @endmsc
+ *
+ * @note If the SipxResource::parse returns 'false', the definition is considered invalid,
+ *       and the Process object is discarded, so any dependencies that go with it are also
+ *       eliminated.  It is possible that this will result in 'orphaned' SipxResource objects.
+ *
+ * Each Process object has a paired ProcessResource object.
  *
  * @par(Process State Machine:)
+ *
+ * The following shows the states and transition events for a Process:
+ *
  * @dot
  * digraph map {
  * rankdir=LR;
@@ -96,19 +133,6 @@ class ProcessTest;
  * };
  * @enddot
  *
- * @msc
- *    Process,          SipxResource;
- *               ---               [label="Undefined"];
- *    Process    =>     SipxResource   [label="SipxResource::parse"];
- *    SipxResource   =>     Process    [label="requireSipxResourceToStart"];
- *    SipxResource   <<     Process    ;
- *    SipxResource   =>     Process    [label="checkSipxResourceBeforeStop"];
- *    SipxResource   <<     Process    ;
- *    Process    <<     SipxResource   [label="SipxResource*"];
- *               ---               [label="Testing"];
- *    Process    =>     SipxResource   [label="isReadyToStart"];
- *    Process    <<     SipxResource   [label="true"];
- * @endmsc
  */
 class Process : public UtlString
 {
@@ -207,12 +231,11 @@ class Process : public UtlString
 
 ///@}
 
-  protected:
-   friend class SipxResourceManager;
-
    void requireResourceToStart(const SipxResource* requiredResource);
 
    void checkResourceBeforeStop(const SipxResource* requiredResource);
+
+  protected:
 
    /// Save the persistent desired state.
    void persistDesiredState(State persistentState ///< may only be Disabled or Running
@@ -240,9 +263,10 @@ class Process : public UtlString
    ProcessCmd*      mReconfigure;   ///< from the sipXecs-process/commands/reconfigure element
 
    UtlString        mPidFile;       ///< from the sipXecs-process/status/pid element
-   UtlSList         mLogFiles;      ///< from the sipXecs-process/status/log elements (UtlStrings)
-   
-   ProcessResource* mMyResource;    ///< The SipxResource that corresponds to this Process. 
+   UtlSList         mLogFiles;      /**< from the sipXecs-process/status/log elements
+                                     *   this is a list of FileResource objects created using
+                                     *   the FileResource::logFileResource constructor
+                                     */
    
    UtlSList         mRequiredStart; /**< Lists SipxResource objects that are required
                                      *   to be ready before starting this service.
@@ -272,6 +296,8 @@ class Process : public UtlString
    /// There is no assignment operator.
    Process& operator=(const Process& noassignmentoperator);
    // @endcond     
+
+   friend class ProcessDefinitionParserTest;
 };
 
 #endif // _PROCESS_H_

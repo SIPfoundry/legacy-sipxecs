@@ -1,0 +1,22 @@
+<?xml version='1.0' encoding='iso-8859-1' standalone='yes'?>
+<sipXecs-process xmlns='http://www.sipfoundry.org/sipX/schema/xml/sipXecs-process-01-00'>
+  <name>Name</name>
+  <version>Version</version>
+  <commands>
+    <configtest>
+      <execute></execute>
+      <parameter>--configtest</parameter>
+    </configtest>
+    <start>
+      <execute>@SIPX_BINDIR@/badprocess.sh</execute>
+    </start>
+    <stop>
+      <execute>@SIPX_BINDIR@/badprocess.sh</execute>
+      <parameter>--stop</parameter>
+    </stop>
+  </commands>
+  <status>
+  </status>
+  <resources>
+  </resources>
+</sipXecs-process>

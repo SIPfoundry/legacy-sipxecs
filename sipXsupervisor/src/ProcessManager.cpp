@@ -17,17 +17,23 @@
 // CONSTANTS
 const char* PROCESS_DEFINITION_NAME_PATTERN = "*-process.xml";
 
-// TYPEDEFS
+// STATICS
+OsBSem          ProcessManager::sSingletonLock(OsBSem::Q_PRIORITY, OsBSem::FULL);
+ProcessManager* ProcessManager::spSingleton;
+
 // FORWARD DECLARATIONS
 
 /// constructor
-ProcessManager::ProcessManager()
+ProcessManager::ProcessManager() :
+   mProcessTableLock(OsBSem::Q_PRIORITY, OsBSem::FULL)
 {
 };
 
 /// Locate a Process object by name.
 Process* ProcessManager::findProcess(const UtlString& processName)
 {
+   OsLock tableMutex(mProcessTableLock);
+
    return dynamic_cast<Process*>(mProcesses.find(&processName));
 }
 
@@ -68,5 +74,10 @@ void ProcessManager::instantiateProcesses(const OsPath& processDefinitionDirecto
 /// destructor
 ProcessManager::~ProcessManager()
 {
+   OsLock tableMutex(mProcessTableLock);
+
+   OsSysLog::add(FAC_WATCHDOG, PRI_CRIT, "ProcessManager::~ "
+                 "delete %d Process objects", mProcesses.entries());
+
    mProcesses.destroyAll();
 };

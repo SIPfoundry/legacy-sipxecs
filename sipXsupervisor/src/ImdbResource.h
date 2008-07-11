@@ -10,6 +10,7 @@
 // SYSTEM INCLUDES
 
 // APPLICATION INCLUDES
+#include "utl/UtlHashMap.h"
 #include "SipxResource.h"
 
 // DEFINES
@@ -26,20 +27,24 @@ class ImdbResource : public SipxResource
   public:
 
 // ================================================================
-/** @name           Creation Methods
+/** @name           Creation
  *
  */
 ///@{
+   /// Public name of the resource element parsed by this parser.
+   static const char* ImdbResourceTypeName;
+   
    /// Factory method that parses an 'imdb' resource description element.
    static
-      SipxResource* parse(TiXmlElement* resourceElement, ///< the child element of 'resources'.
-                          Process* currentProcess        ///< Process whose resources are being read.
-                          );
+      bool parse(const TiXmlDocument& processDefinitionDoc, ///< process definition document
+                 TiXmlElement* resourceElement, ///< the child element of 'resources'.
+                 Process* currentProcess        ///< Process whose resources are being read.
+                 );
    /**<
     * This is called by SipxResource::parse with any 'imdb' child of
     * the 'resources' element in a process definition.  
     *
-    * @returns NULL if the element was in any way invalid.
+    * @returns false if the element was in any way invalid.
     */
 
    /// Return an existing ImdbResource or NULL if no ImdbResource is found.
@@ -47,7 +52,7 @@ class ImdbResource : public SipxResource
       ImdbResource* find(const char* imdbName /**< imdb table name */);
    
    /// get a description of the ImdbResource (for use in logging)
-   virtual void getDescription(UtlString&  description /**< returned description */);
+   virtual void appendDescription(UtlString&  description /**< returned description */);
 
 ///@}   
 // ================================================================
@@ -57,17 +62,7 @@ class ImdbResource : public SipxResource
 ///@{
 
    /// Whether or not the ImdbResource is ready for use by a Process.
-   virtual boolean isReadyToStart();
-
-///@}
-// ================================================================
-/** @name           Configuration Control Methods
- *
- */
-///@{
-
-   /// Whether or not the ImdbResource may be written by configuration update methods.
-   virtual boolean isWriteable();
+   virtual bool isReadyToStart();
 
 ///@}
 // ================================================================
@@ -92,9 +87,9 @@ class ImdbResource : public SipxResource
    /// constructor
    ImdbResource(const char* uniqueId);
 
-   /// Do any special handling when a resource is required by the process.
-   virtual void requiredBy(Process* currentProcess);
-   /**< this base class calls currentProcess->requireResourceToStart */
+   // Do any special handling when a resource is required by the process.
+   // virtual void requiredBy(Process* currentProcess);
+   /* at present, there is none, so let the base class to this */
    
    /// destructor
    virtual ~ImdbResource();

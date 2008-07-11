@@ -33,7 +33,11 @@ class ProcessCmd
   public:
 
    /// initializes by parsing a Command type element from sipXecs-process schema
-   static ProcessCmd* parseCommandDefinition(const TiXmlElement* definition ///< any 'Command' type 
+   static ProcessCmd* parseCommandDefinition(const TiXmlDocument& processDefinitionDoc,
+                                             ///< the process definition document
+                                             const TiXmlElement* commandElement /**< any 'Command'
+                                                                                 *   type element
+                                                                                 */
                                              );
    ///< @returns NULL if the element contents are invalid.
 
@@ -45,10 +49,10 @@ class ProcessCmd
 
   protected:
 
-   ProcessCmd(const char* user,
-              const char* workingDirectory
+   ProcessCmd(const UtlString& execute,
+              const UtlString& workingDirectory,
+              const UtlString& user
               );
-
   private:
 
    OsPath      mWorkingDirectory; ///< Directory from which all process commands are exec'd
@@ -63,6 +67,8 @@ class ProcessCmd
    /// There is no assignment operator.
    ProcessCmd& operator=(const ProcessCmd& noassignmentoperator);
    // @endcond     
+
+   friend class ProcessDefinitionParserTest;
 };
 
 #endif // _PROCESSCMD_H_

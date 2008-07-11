@@ -10,6 +10,7 @@
 // SYSTEM INCLUDES
 
 // APPLICATION INCLUDES
+#include "utl/UtlHashMap.h"
 #include "SipxResource.h"
 
 // DEFINES
@@ -26,20 +27,24 @@ class SqldbResource : public SipxResource
   public:
 
 // ================================================================
-/** @name           Creation Methods
+/** @name           Creation 
  *
  */
 ///@{
+   /// Public name of the resource element parsed by this parser.
+   static const char* SqldbResourceTypeName;
+   
    /// Factory method that parses an 'sqldb' resource description element.
    static
-      SipxResource* parse(TiXmlElement* resourceElement, ///< the child element of 'resources'.
-                          Process* currentProcess        ///< Process whose resources are being read.
-                          );
+      bool parse(const TiXmlDocument& processDefinitionDoc, ///< process definition document
+                 TiXmlElement* resourceElement, ///< the child element of 'resources'.
+                 Process* currentProcess        ///< Process whose resources are being read.
+                 );
    /**<
     * This is called by SipxResource::parse with any 'sqldb' child of
     * the 'resources' element in a process definition.  
     *
-    * @returns NULL if the element was in any way invalid.
+    * @returns false if the element was in any way invalid.
     */
 
    /// Return an existing SqldbResource or NULL if no SqldbResource is found.
@@ -47,7 +52,7 @@ class SqldbResource : public SipxResource
       SqldbResource* find(const char* sqldbName /**< sqldb table name */);
    
    /// get a description of the SqldbResource (for use in logging)
-   virtual void getDescription(UtlString&  description /**< returned description */);
+   virtual void appendDescription(UtlString&  description /**< returned description */);
 
 ///@}   
 // ================================================================
@@ -57,17 +62,7 @@ class SqldbResource : public SipxResource
 ///@{
 
    /// Whether or not the SqldbResource is ready for use by a Process.
-   virtual boolean isReadyToStart();
-
-///@}
-// ================================================================
-/** @name           Configuration Control Methods
- *
- */
-///@{
-
-   /// Whether or not the SqldbResource may be written by configuration update methods.
-   virtual boolean isWriteable();
+   virtual bool isReadyToStart();
 
 ///@}
 // ================================================================
@@ -92,9 +87,9 @@ class SqldbResource : public SipxResource
    /// constructor
    SqldbResource(const char* uniqueId);
 
-   /// Do any special handling when a resource is required by the process.
-   virtual void requiredBy(Process* currentProcess);
-   /**< this base class calls currentProcess->requireResourceToStart */
+   // Do any special handling when a resource is required by the process.
+   // virtual void requiredBy(Process* currentProcess);
+   /* at present, not needed, so let the base class do this */
    
    /// destructor
    virtual ~SqldbResource();

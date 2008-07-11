@@ -19,6 +19,6 @@
 // FORWARD DECLARATIONS
 
 /// Get the TiXml error description with row and column numbers (and file name if available)
-void XmlErrorMsg(const TiXmlDocument* parserDoc, UtlString& errorMsg);
+void XmlErrorMsg(const TiXmlDocument& parserDoc, UtlString& errorMsg);
 
 #endif // _XMLERRORMSG_H_

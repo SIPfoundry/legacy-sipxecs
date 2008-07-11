@@ -26,9 +26,9 @@ class ProcessManager
 {
   public:
 
-   /// constructor
-   ProcessManager();
-
+   /// Singleton accessor
+   static ProcessManager* getInstance();
+   
    /// destructor
    virtual ~ProcessManager();
 
@@ -43,8 +43,15 @@ class ProcessManager
    
   private:
 
-   UtlHashBag mProcesses;
+   static OsBSem sSingletonLock;       ///< protects access to spSingleton
+   static ProcessManager* spSingleton; ///< pointer to the one ProcessManager
    
+   OsBSem     mProcessTableLock;  ///< protects access to mProcesses
+   UtlHashBag mProcesses;              ///< contains all Process objects
+   
+   /// constructor
+   ProcessManager();
+
    // @cond INCLUDENOCOPY
    /// There is no copy constructor.
    ProcessManager(const ProcessManager& nocopyconstructor);
