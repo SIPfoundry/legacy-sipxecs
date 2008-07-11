@@ -35,8 +35,14 @@
       </type>
       <description>The outbound proxy transport.</description>
     </setting>
+    <setting name="inbound-proxy" advanced="yes">
+      <description>
+        If the ITSP specifies an inbound proxy, that is different from the outbound proxy, enter it here. Otherwise this
+        setting is assumed to be identical to the outbound proxy.
+      </description>
+    </setting>
     <setting name="proxy-domain">
-      <description>The outbound proxy address.</description>
+      <description>The ITSP proxy domain.</description>
     </setting>
     <setting name="authentication-realm" advanced="yes">
       <description>If undefined, sipxbridge will read the domain from the authentication challenge.</description>
