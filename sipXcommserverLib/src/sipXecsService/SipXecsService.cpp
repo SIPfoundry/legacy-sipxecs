@@ -24,6 +24,9 @@ const char* SipXecsService::DefaultTmpDir           = SIPX_TMPDIR;
 const char* SipXecsService::DefaultDatabaseDir      = SIPX_DBDIR;
 const char* SipXecsService::DefaultVarDir           = SIPX_VARDIR;
 
+const char* SipXecsService::DefaultUser             = SIPXPBXUSER;
+const char* SipXecsService::DefaultGroup            = SIPXPBXGROUP;
+
 DirectoryType SipXecsService::ConfigurationDirType = "SIPX_CONFDIR";
 DirectoryType SipXecsService::LocalStateDirType    = "SIPX_VARDIR";
 DirectoryType SipXecsService::LogDirType           = "SIPX_LOGDIR";
@@ -166,7 +169,19 @@ OsPath SipXecsService::domainConfigPath()
    return Path(ConfigurationDirType, DomainConfigurationName);
 }
 
+/// Default user name for a sipXecs service
+const char* SipXecsService::User()
+{
+   return DefaultUser;
+}
 
+/// Default process group name for a sipXecs service
+const char* SipXecsService::Group()
+{
+   return DefaultGroup;
+}
+
+   
 /// destructor
 SipXecsService::~SipXecsService()
 {

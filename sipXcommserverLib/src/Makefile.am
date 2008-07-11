@@ -28,6 +28,9 @@ libsipXcommserver_la_LDFLAGS = \
 	-version-info ${version_Current}:${version_Revision}:${version_Age} \
 	@ODBC_LDFLAGS@
 
+# @TODO - ideally, these would be passed only to the SipXecsService build,
+#         which could be done by reorganizing this so that each subdirectory
+#         built a convenience library and this level just linked them together.
 libsipXcommserver_la_CXXFLAGS = \
 	-DSIPX_CONFDIR=\"@SIPX_CONFDIR@\" \
 	-DSIPX_LOGDIR=\"@SIPX_LOGDIR@\" \
@@ -35,6 +38,8 @@ libsipXcommserver_la_CXXFLAGS = \
 	-DSIPX_RUNDIR=\"@SIPX_RUNDIR@\" \
 	-DSIPX_TMPDIR=\"@SIPX_TMPDIR@\" \
 	-DSIPX_DBDIR=\"@SIPX_DBDIR@\" \
+	-DSIPXPBXUSER=\"@SIPXPBXUSER@\" \
+	-DSIPXPBXGROUP=\"@SIPXPBXGROUP@\" \
 	@ODBC_CXXFLAGS@
 
 libsipXcommserver_la_LIBADD = \

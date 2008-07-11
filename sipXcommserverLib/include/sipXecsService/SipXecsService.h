@@ -60,6 +60,12 @@ class SipXecsService
       static const char* DEFAULT_LANGUAGE; ///< default language used by voice applications
    };
 
+   /// Default user name for a sipXecs service
+   static const char* User();
+
+   /// Default process group name for a sipXecs service
+   static const char* Group();
+   
   protected:
 
    /// constructor
@@ -79,6 +85,9 @@ class SipXecsService
    static const char* DefaultTmpDir;
    static const char* DefaultDatabaseDir;
    static const char* DefaultVarDir;
+
+   static const char* DefaultUser;
+   static const char* DefaultGroup;
 
    UtlString  mServiceName;
 
