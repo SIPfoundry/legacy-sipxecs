@@ -819,7 +819,7 @@
       <profileName>admin password</profileName>
       <type>
         <string>
-          <pattern>\d*</pattern>
+          <pattern>\d{0,9}</pattern>
         </string>
       </type>
       <value>22222</value>
@@ -828,7 +828,7 @@
       <profileName>user password</profileName>
       <type>
         <string password="yes">
-          <pattern>\d*</pattern>
+          <pattern>\d{0,9}</pattern>
         </string>
       </type>
       <value />
