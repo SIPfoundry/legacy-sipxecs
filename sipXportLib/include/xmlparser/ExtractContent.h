@@ -10,7 +10,7 @@ void textContentShallow(UtlString& string, ///< replaced with TEXT content of no
 
 /// Get the content of an XML element, which must be a leaf element with only text content.
 bool textContent(UtlString& string, ///< TEXT content of node is appended to this.
-                 TiXmlNode *node);
+                 const TiXmlNode *node);
 /**<
  * @returns true iff all child nodes are of TiXmlNode::TEXT and/or TiXmlNode::COMMENT type;
  *          if any other types are encountered, returns false

@@ -25,7 +25,7 @@ void textContentShallow(UtlString& string,
 }
 
 bool textContent(UtlString& string,
-                 TiXmlNode *node)
+                 const TiXmlNode *node)
 {
    bool allTextContent = true;
    
@@ -33,7 +33,7 @@ bool textContent(UtlString& string,
    size_t originalLength = string.length();
 
    // Iterate through all the children.
-   for (TiXmlNode* child = node->FirstChild();
+   for (const TiXmlNode* child = node->FirstChild();
         allTextContent && child;
         child = child->NextSibling())
    {
