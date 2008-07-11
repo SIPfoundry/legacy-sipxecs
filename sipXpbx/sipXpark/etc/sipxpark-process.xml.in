@@ -15,7 +15,7 @@
       <parameter>--stop</parameter>
     </stop>
   </commands>
-  <status isService='true'>
+  <status>
     <pid>@SIPX_RUNDIR@/sipxpark.pid</pid>
     <log>@SIPX_LOGDIR@/sipxpark.log</log>
   </status>

@@ -151,16 +151,6 @@
         <element ref='proc:pid' minOccurs='0' maxOccurs='1'/>
         <element ref='proc:log' minOccurs='0' maxOccurs='unbounded'/>
       </sequence>
-      <attribute name="isService" type="boolean">
-        <annotation>
-          <documentation>
-            Whether or not this process should continue to run (and therefor have a pid
-            file) after the start command is executed.  The value 'true' means that a
-            pid file should exist and a process with the specified pid should be running; 
-            the value 'false' means that the command just executes and exits.
-          </documentation>
-        </annotation>
-      </attribute>
     </complexType>
   </element>
 
@@ -171,7 +161,6 @@
         this file should be created by the process as soon as possible after
         it starts, and deleted when it exits.
         Defaults to SIPX_RUNDIR/*name*.pid where *name* is the value of the name element.
-        This is not expected to exist if the isService attribute is 'false'.
       </documentation>
     </annotation>
   </element>
@@ -252,7 +241,6 @@
     <annotation>
       <documentation>
         Content is the name of a sipXecs-process that must be running.
-        This may not name a process whose 'isService' attribute is false.
       </documentation>
     </annotation>
   </element>

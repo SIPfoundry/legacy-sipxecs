@@ -15,7 +15,7 @@
       <parameter>--stop</parameter>
     </stop>
   </commands>
-  <status isService='true'>
+  <status>
     <pid>@sipxpbx.run.dir@/sipxconfig.pid</pid>
     <log>@sipxpbx.log.dir@/sipxconfig.log</log>
   </status>
