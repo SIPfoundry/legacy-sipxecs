@@ -56,6 +56,9 @@ public abstract class ConferencesPanel extends TablePanel {
     public abstract Collection<Conference> getConferences();
 
     @Parameter(defaultValue = "ognl:true")
+    public abstract boolean getEnableAdd();
+    
+    @Parameter(defaultValue = "ognl:true")
     public abstract boolean getShowOwner();
 
     @Parameter(defaultValue = "ognl:true")

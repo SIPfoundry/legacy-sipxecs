@@ -53,12 +53,13 @@ public abstract class EditConference extends PageWithCallback implements PageBeg
     public abstract Bridge getTestBridge();
     public abstract void setTestBridge(Bridge testBridge);    
     
+    public abstract Integer getOwnerId();
+    public abstract void setOwnerId(Integer ownerId);
+    
     public abstract Serializable getConferenceId();
-
     public abstract void setConferenceId(Serializable id);
 
     public abstract Conference getConference();
-
     public abstract void setConference(Conference acdServer);
 
     public abstract boolean getChanged();
@@ -92,6 +93,9 @@ public abstract class EditConference extends PageWithCallback implements PageBeg
             conference = getConferenceBridgeContext().loadConference(getConferenceId());
         } else {
             conference = getConferenceBridgeContext().newConference();
+            if (getOwnerId() != null) {
+                conference.setOwner(getCoreContext().loadUser(getOwnerId()));
+            }
         }
 
         if (getBridge() == null && getBridgeId() != null) {
@@ -140,7 +144,11 @@ public abstract class EditConference extends PageWithCallback implements PageBeg
 
         if (conference.isNew()) {
             // associate with bridge
-            Bridge bridge = getConferenceBridgeContext().loadBridge(getBridgeId());
+            Bridge bridge = getBridge();
+            if (bridge == null) {
+                bridge = getConferenceBridgeContext().loadBridge(getBridgeId());
+            }
+            
             bridge.addConference(conference);
             getConferenceBridgeContext().store(bridge);
             Integer id = conference.getId();

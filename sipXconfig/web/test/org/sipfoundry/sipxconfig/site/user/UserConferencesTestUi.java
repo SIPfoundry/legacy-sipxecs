@@ -33,11 +33,32 @@ public class UserConferencesTestUi extends WebTestCase {
         getTestContext().setBaseUrl(getBaseUrl());
         SiteTestHelper.home(tester);
         SiteTestHelper.setScriptingEnabled(tester, true);
+        clickLink("resetConferenceBridgeContext");
+        m_helper.createBridge("testbridge");
     }    
     
+    /**
+     * Tests that the "Add Conference" link on the User Conferences page is only present
+     * when viewed by a superadmin user.
+     */
+    public void testAddLink() {
+        // As a superadmin
+        SiteTestHelper.home(tester);
+        clickLink("ManageUsers");
+        clickLinkWithText("testuser");
+        clickLink("userConferencesLink");
+        assertLinkPresent("conference:add");
+        
+        // As a regular user
+        SiteTestHelper.home(tester, false);
+        clickLink("loginFirstTestUser");
+        clickLink("EditMyInformation");
+        clickLink("link:conferences");
+        assertLinkNotPresent("conference:add");
+    }
+    
     public void testUserConferences() {
-        // First create a test bridge and conference, assigned to the test user.
-        m_helper.createBridge("testbridge");
+        // First create a test conference, assigned to the test user.        
         createTestConference();
         
         // Test that the conference appears under the user's conference list, and that the name and extension
@@ -57,6 +78,9 @@ public class UserConferencesTestUi extends WebTestCase {
     }
     
     private void createTestConference() {
+        SiteTestHelper.home(tester);        
+        clickLink("ListBridges");
+        clickLinkWithText("testbridge");
         clickLink("link:conferences");
         setWorkingForm("form");
         SiteTestHelper.clickSubmitLink(tester, "conference:add");

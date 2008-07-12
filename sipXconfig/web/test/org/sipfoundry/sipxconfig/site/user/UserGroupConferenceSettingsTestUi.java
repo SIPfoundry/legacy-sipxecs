@@ -80,14 +80,23 @@ public class UserGroupConferenceSettingsTestUi extends WebTestCase {
         clickLinkWithText("seedGroup0");
         clickLink("link:conferences");
         checkCheckbox("conferences:enable");
+        selectOptionByValue("bridgeSelect", "");
+        setTextField("conferences:offset", "");
         submit("submit:apply");
         SiteTestHelper.assertUserError(tester);
 
         setTextField("conferences:offset", "1000");
+        selectOptionByValue("bridgeSelect", "");
         submit("submit:apply");
         SiteTestHelper.assertUserError(tester);
 
+        setTextField("conferences:offset", "");
         selectOption("bridgeSelect", "testbridge");
+        submit("submit:apply");
+        SiteTestHelper.assertUserError(tester);
+        
+        selectOption("bridgeSelect", "testbridge");
+        setTextField("conferences:offset", "1000");
         submit("submit:apply");
         SiteTestHelper.assertNoUserError(tester);
 

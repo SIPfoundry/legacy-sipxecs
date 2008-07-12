@@ -1,13 +1,15 @@
 <fieldset>
+    <span jwcid="@If" condition="ognl:enableAdd">
     <ul class="component-links">
         <li>
             <a jwcid="addLink@LinkSubmit"  id="conference:add"
                 selected="ognl:action"
                 tag="ognl:addListener">
-                <span key="add_link">Add New Line</span>
+                <span key="add_link">Add New Conference</span>
             </a>
         </li>
     </ul>
+    </span>
     
 	<table jwcid="@common/Table" id="conference:list" class="component"
         columns="ognl:tableColumns"

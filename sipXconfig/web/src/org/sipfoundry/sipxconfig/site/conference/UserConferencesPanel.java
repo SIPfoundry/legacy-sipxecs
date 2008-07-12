@@ -14,10 +14,12 @@ import org.apache.tapestry.IPage;
 import org.apache.tapestry.annotations.ComponentClass;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.InjectPage;
+import org.apache.tapestry.annotations.InjectState;
 import org.apache.tapestry.annotations.Parameter;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.conference.Conference;
 import org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext;
+import org.sipfoundry.sipxconfig.site.UserSession;
 
 @ComponentClass(allowBody = false, allowInformalParameters = false)
 public abstract class UserConferencesPanel extends BaseComponent {
@@ -27,6 +29,18 @@ public abstract class UserConferencesPanel extends BaseComponent {
     
     @InjectPage(EditConference.PAGE)
     public abstract EditConference getEditConferencePage();
+    
+    @InjectState(value = "userSession")
+    public abstract UserSession getUserSession();    
+    
+    public IPage addConference() {
+        EditConference editConference = getEditConferencePage();
+        editConference.setBridgeId(null);
+        editConference.setConferenceId(null);
+        editConference.setOwnerId(getUser().getId());
+        editConference.setReturnPage(getPage());
+        return editConference;
+    }       
     
     @Parameter(required = true)
     public abstract void setUser(User user);
