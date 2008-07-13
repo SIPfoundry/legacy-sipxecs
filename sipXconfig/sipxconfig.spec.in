@@ -292,7 +292,10 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) %{sipxpbxconf}/sipxconference/*
 %config(noreplace) %{sipxpbxconf}/sipxproxy/*
 %config(noreplace) %{sipxpbxconf}/sipxregistrar/*
-%config(noreplace) %(sipxconfdir)/sipxpresence/*
+%dir %{sipxpbxconf}/sipxpresence
+%config(noreplace) %{sipxpbxconf}/sipxpresence/sipxpresence-config.vm
+%config(noreplace) %{sipxpbxconf}/sipxpresence/sipxpresence.properties
+%config(noreplace) %{sipxpbxconf}/sipxpresence/sipxpresence.xml
 %dir %{sipxpbxconf}/sipxpark
 %config(noreplace) %{sipxpbxconf}/sipxpark/*
 %dir %{sipxpbxconf}/sipxvxml
@@ -300,6 +303,7 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) %{sipxpbxconf}/test.d/*
 %config(noreplace) %{sipxpbxconf}/unmanagedPhone/*
 %config(noreplace) %{sipxpbxconf}/mailbox/*
+
 
 %define audiocodesdir %{_localstatedir}/sipxdata/audiocodes
 %dir %attr(775,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{audiocodesdir}
