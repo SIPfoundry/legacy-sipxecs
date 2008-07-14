@@ -6,6 +6,7 @@ include $(top_srcdir)/config/doxygen.am
 
 EXTRA_DIST = \
 	Doxyfile.project.in \
+	uml.png \
 	footer.html
 
 DOCBOOK_XML_DOCS =

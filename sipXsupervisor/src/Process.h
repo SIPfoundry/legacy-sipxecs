@@ -32,6 +32,8 @@ class ProcessTest;
  * the Process::createFromDefinition method, passing the path to an XML
  * process definition file.
  *
+ * @image html uml.png "Overview of Processes and SipxResources"
+ *
  * To locate a particular Process object, call ProcessManager::find.
  *
  * @par(Process and Resource creation)
