@@ -361,6 +361,8 @@ int main(int argc, char* argv[])
 
    UtlString domainName;
    configDb.get(CONFIG_SETTING_DOMAIN_NAME, domainName);
+   // Normalize SIP domain name to all lower case.
+   domainName.toLower();
 
    // Create the SipPersistentSubscriptionMgr.
    SipPersistentSubscriptionMgr subscriptionMgr(SUBSCRIPTION_COMPONENT_PRESENCE,

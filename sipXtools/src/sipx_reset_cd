@@ -602,7 +602,7 @@ def screen_ask_net ():
        f = screen_setup("Enter the network settings", netExplanation, sg)
        f.run()
 
-       HostName=e1.value()
+       HostName=e1.value().lower()
        IpAddress=e2.value()
        NetMask=e3.value()
        Gateway=e4.value()
