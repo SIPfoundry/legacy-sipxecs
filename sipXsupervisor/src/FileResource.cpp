@@ -14,6 +14,7 @@
 #include "xmlparser/XmlErrorMsg.h"
 #include "xmlparser/ExtractContent.h"
 
+#include "Process.h"
 #include "FileResourceManager.h"
 #include "FileResource.h"
 
@@ -53,7 +54,7 @@ bool FileResource::parse(const TiXmlDocument& fileDefinitionDoc, ///< process de
          FileResource* fileResource;
          if (!(fileResource = fileResourceMgr->find(path)))
          {
-            fileResource = new FileResource(path);
+            fileResource = new FileResource(path, currentProcess);
          }
 
          for ( const TiXmlAttribute* attribute = resourceElement->FirstAttribute();
@@ -62,7 +63,9 @@ bool FileResource::parse(const TiXmlDocument& fileDefinitionDoc, ///< process de
               )
          {
             if (!(resourceIsValid =
-                  fileResource->SipxResource::parseAttribute(fileDefinitionDoc, attribute)))
+                  fileResource->SipxResource::parseAttribute(fileDefinitionDoc,
+                                                             attribute, currentProcess)
+                  ))
             {
                OsSysLog::add(FAC_WATCHDOG, PRI_ERR, "FileResource::parse "
                              "invalid attribute '%s'",
@@ -107,7 +110,9 @@ bool FileResource::parse(const TiXmlDocument& fileDefinitionDoc, ///< process de
 FileResource* FileResource::logFileResource(const UtlString& logFilePath, Process* currentProcess)
 {
    // a log file resource is read-only and not required
-   FileResource* logFile = new FileResource(logFilePath.data());
+   FileResource* logFile = new FileResource(logFilePath.data(), currentProcess);
+   currentProcess->resourceIsOptional(logFile); // logs are never required 
+   
    logFile->mWritableImplicit = false;
    logFile->mWritable = false;
 
@@ -145,8 +150,8 @@ UtlContainableType FileResource::getContainableType() const
 }
 
 /// constructor
-FileResource::FileResource(const char* uniqueId) :
-   SipxResource(uniqueId)
+FileResource::FileResource(const char* uniqueId, Process* currentProcess) :
+   SipxResource(uniqueId, currentProcess)
 {
 }
 

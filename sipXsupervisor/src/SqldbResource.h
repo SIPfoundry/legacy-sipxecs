@@ -85,12 +85,8 @@ class SqldbResource : public SipxResource
   protected:
    
    /// constructor
-   SqldbResource(const char* uniqueId);
+   SqldbResource(const char* uniqueId, Process* currentProcess);
 
-   // Do any special handling when a resource is required by the process.
-   // virtual void requiredBy(Process* currentProcess);
-   /* at present, not needed, so let the base class do this */
-   
    /// destructor
    virtual ~SqldbResource();
 

@@ -52,7 +52,7 @@ bool ImdbResource::parse(const TiXmlDocument& imdbDefinitionDoc, ///< imdb defin
          ImdbResource* imdbResource;
          if (!(imdbResource = imdbResourceMgr->find(tableName)))
          {
-            imdbResource = new ImdbResource(tableName);
+            imdbResource = new ImdbResource(tableName, currentProcess);
          }
 
          for ( const TiXmlAttribute* attribute = resourceElement->FirstAttribute();
@@ -61,7 +61,9 @@ bool ImdbResource::parse(const TiXmlDocument& imdbDefinitionDoc, ///< imdb defin
               )
          {
             if (!(resourceIsValid =
-                  imdbResource->SipxResource::parseAttribute(imdbDefinitionDoc, attribute)))
+                  imdbResource->SipxResource::parseAttribute(imdbDefinitionDoc,
+                                                             attribute, currentProcess)
+                  ))
             {
                OsSysLog::add(FAC_WATCHDOG, PRI_ERR, "ImdbResource::parse "
                              "invalid attribute '%s'",
@@ -125,8 +127,8 @@ UtlContainableType ImdbResource::getContainableType() const
 }
 
 /// constructor
-ImdbResource::ImdbResource(const char* uniqueId) :
-   SipxResource(uniqueId)
+ImdbResource::ImdbResource(const char* uniqueId, Process* currentProcess) :
+   SipxResource(uniqueId, currentProcess)
 {
 }
 

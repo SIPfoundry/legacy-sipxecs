@@ -21,6 +21,7 @@
 class TiXmlElement;
 class TiXmlAttribute;
 class Process;
+class ProcessDefinitionParserTest;
 
 /// Abstract base class for things upon which Process objects are dependant.
 /**
@@ -107,11 +108,12 @@ class SipxResource : public UtlString
   protected:
    
    /// constructor
-   SipxResource(const char* uniqueId);
+   SipxResource(const char* uniqueId, Process* currentProcess);
 
    /// Parses attributes common to all SipxResource classes.
    bool parseAttribute(const TiXmlDocument& document,  ///< document being parsed (for error mess)
-                       const TiXmlAttribute* attribute ///< attribute to be parsed.
+                       const TiXmlAttribute* attribute,///< attribute to be parsed.
+                       Process* currentProcess         ///< Process whose resources are being read.
                        );
    /**<
     * This method should be called for each attribute child of a 'resource' type node.
@@ -120,10 +122,6 @@ class SipxResource : public UtlString
     * as one specific to its subclass.
     */
 
-   /// Do any special handling when a resource is required by the process.
-   virtual void requiredBy(Process* currentProcess);
-   /**< this base class calls currentProcess->requireResourceToStart */
-         
    bool mFirstDefinition; ///< true only until saved in the appropriate ResourceManager
    
    bool mWritableImplicit; ///< true if no definition had an explicit 'configAccess' attribute.
@@ -142,6 +140,8 @@ class SipxResource : public UtlString
    /// There is no assignment operator.
    SipxResource& operator=(const SipxResource& noassignmentoperator);
    // @endcond     
+
+   friend class ProcessDefinitionParserTest;
 };
 
 #endif // _RESOURCE_H_

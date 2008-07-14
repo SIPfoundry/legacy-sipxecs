@@ -50,13 +50,15 @@ class ProcessTest;
  *
  *               ---    [label="Undefined State (parsing definition)"];
  *    Process        =>     SipxResource                     [label="SipxResource::parse"];
+ *    Process           <=  SipxResource                     [label="requireResource"];
+ * Process -> Process                                 [label="insert in mRequiredResources"];
+ *    Process           >>  SipxResource                     ;
  *                          SipxResource =>   xxxResource    [label="xxxResource::parse"];
- *    Process           <=                    xxxResource    [label="requireResourceToStart"];
- * Process -> Process                                 [label="insert in mRequiredStart"];
- *    Process           >>                    xxxResource    ;
- *    Process           <=                    xxxResource    [label="checkResourceBeforeStop"];
- * Process -> Process                                 [label="insert in mWaitForStop"];
- *    Process           >>                    xxxResource    ;
+ *                          SipxResource <=   xxxResource    [label="parseAttribute"];
+ *    Process           <=  SipxResource                     [label="resourceIsOptional"];
+ * Process -> Process                                 [label="remove from mRequiredResources"];
+ *    Process           >>  SipxResource                     ;
+ *                          SipxResource >>   xxxResource    ;
  *                          SipxResource <<   xxxResource    [label="(bool)"];
  *    Process        <<     SipxResource                     [label="(bool)"];
  *
@@ -64,7 +66,9 @@ class ProcessTest;
  *
  * @note If the SipxResource::parse returns 'false', the definition is considered invalid,
  *       and the Process object is discarded, so any dependencies that go with it are also
- *       eliminated.  It is possible that this will result in 'orphaned' SipxResource objects.
+ *       eliminated.  This leaves the ProcessResource for this Process name, and possibly
+ *       other SipxResource objects is created 'orphaned', but since they only retain the
+ *       pointer to the ProcessResource (which continues to exist), this is ok.
  *
  * Each Process object has a paired ProcessResource object.
  *
@@ -230,12 +234,37 @@ class Process : public UtlString
    static const UtlContainableType TYPE;    ///< Class type used for runtime checking 
 
 ///@}
+// ================================================================
+/** @name           Resource Connection Operations
+ *
+ */
+///@{
 
-   void requireResourceToStart(const SipxResource* requiredResource);
+   /// Get the resource for this process.
+   ProcessResource* resource();
+   /**<
+    * Using the resource provides a level of indirection in references to a
+    * process.  This is important, since the actual Process object may never
+    * be created if there is some error in the definition.  Since it's difficult
+    * to unwind all the side effects of parsing a process definition, the other
+    * resources that need to track what Process objects they are associated with
+    * instead keep a pointer to the ProcessResource for it, which continues to
+    * exist (owned by the ProcessResourceManager) even if the Process object does not.
+    */
 
-   void checkResourceBeforeStop(const SipxResource* requiredResource);
+   /// Add this to the list of objects whose status is checked before starting or stopping.
+   void requireResource(SipxResource* resource);
 
+   /// Remove this from the list of objects whose status is checked before starting or stopping.   
+   void resourceIsOptional(SipxResource* resource);
+
+///@}
   protected:
+// ================================================================
+/** @name           Persistent State Manipulation
+ *
+ */
+///@{
 
    /// Save the persistent desired state.
    void persistDesiredState(State persistentState ///< may only be Disabled or Running
@@ -245,15 +274,20 @@ class Process : public UtlString
    State readPersistentState();
    ///< @returns Disabled if no persistent desired state is set.
 
+///@}
+
   private:
 
    OsBSem           mLock;          ///< must be held to access to other member variables.
+
+   ProcessResource* mSelfResource;  ///< the ProcessResource for this Process.
 
    UtlString        mVersion;       /**< Version of the process definition.
                                      *   For comparison with the configuration version.
                                      *   The Process may not be started unless they match.
                                      */
    State            mDesiredState;  ///< May be only Running or Disabled.
+   State            mState;         ///< actual state of the process.
 
    ProcessTask*     mpProcessTask;  ///< Receives timer events for this service.
 
@@ -268,16 +302,10 @@ class Process : public UtlString
                                      *   the FileResource::logFileResource constructor
                                      */
    
-   UtlSList         mRequiredStart; /**< Lists SipxResource objects that are required
-                                     *   to be ready before starting this service.
-                                     *   These objects are owned by the SipxResourceManager,
-                                     *   so they are _not_ deleted when this Process
-                                     *   is destructed (but they are removed from
-                                     *   this list).
-                                     */
-   UtlSList         mWaitForStop;   /**< lists SipxResource objects that this process should
+   UtlSList         mRequiredResources; /**< Lists SipxResource objects that are required
+                                     *   to be ready before starting this service, and
                                      *   wait until they are _not_ ready before stopping
-                                     *   this service.
+                                     *
                                      *   These objects are owned by the SipxResourceManager,
                                      *   so they are _not_ deleted when this Process
                                      *   is destructed (but they are removed from

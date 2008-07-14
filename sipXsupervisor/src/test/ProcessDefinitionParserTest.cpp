@@ -217,6 +217,14 @@ public:
          ASSERT_STR_EQUAL("Good", process->data());
          ASSERT_STR_EQUAL("1.0.0", process->mVersion.data());
 
+         ProcessResource* processResource;
+         CPPUNIT_ASSERT(processResource = ProcessResourceManager::getInstance()->find("Good"));
+         CPPUNIT_ASSERT(processResource == process->resource());
+         CPPUNIT_ASSERT( ! processResource->isWriteable());
+         description.remove(0);
+         processResource->appendDescription(description);
+         ASSERT_STR_EQUAL("process 'Good'",description.data());
+         
          ASSERT_STR_EQUAL("/bin/goodprocess1.sh", process->mConfigtest->mExecutable.data());
          ASSERT_STR_EQUAL("/var/log/goodprocess", process->mConfigtest->mWorkingDirectory.data());
          ASSERT_STR_EQUAL(defaultUser, process->mConfigtest->mUser.data());
@@ -240,7 +248,6 @@ public:
          CPPUNIT_ASSERT(paramValue =
                         dynamic_cast<UtlString*>(process->mStop->mParameters.last()));
          ASSERT_STR_EQUAL("--really",paramValue->data());
-
          
          FileResource* fileResource;
          CPPUNIT_ASSERT((fileResource =
@@ -249,13 +256,17 @@ public:
          description.remove(0);
          fileResource->appendDescription(description);
          ASSERT_STR_EQUAL("file '/var/log/goodprocess.log'",description.data());
-         
+         CPPUNIT_ASSERT(!process->mRequiredResources.containsReference(fileResource));
+         CPPUNIT_ASSERT(fileResource->mUsedBy.containsReference(processResource));
+
          CPPUNIT_ASSERT((fileResource =
                          FileResourceManager::getInstance()->find("/etc/sipxpbx/goodprocess.xml")));
          CPPUNIT_ASSERT( fileResource->isWriteable());
          description.remove(0);
          fileResource->appendDescription(description);
          ASSERT_STR_EQUAL("file '/etc/sipxpbx/goodprocess.xml'",description.data());
+         CPPUNIT_ASSERT(process->mRequiredResources.containsReference(fileResource));
+         CPPUNIT_ASSERT(fileResource->mUsedBy.containsReference(processResource));
 
          CPPUNIT_ASSERT((fileResource =
                          FileResourceManager::getInstance()->find("/etc/sipxpbx/goodprocess-config")));
@@ -263,6 +274,7 @@ public:
          description.remove(0);
          fileResource->appendDescription(description);
          ASSERT_STR_EQUAL("file '/etc/sipxpbx/goodprocess-config'",description.data());
+         CPPUNIT_ASSERT(fileResource->mUsedBy.containsReference(processResource));
 
          ImdbResource* imdbResource;
          CPPUNIT_ASSERT((imdbResource =
@@ -271,6 +283,7 @@ public:
          description.remove(0);
          imdbResource->appendDescription(description);
          ASSERT_STR_EQUAL("imdb 'goodtable'",description.data());
+         CPPUNIT_ASSERT(imdbResource->mUsedBy.containsReference(processResource));
 
          SqldbResource* sqldbResource;
          CPPUNIT_ASSERT((sqldbResource =
@@ -279,14 +292,7 @@ public:
          description.remove(0);
          sqldbResource->appendDescription(description);
          ASSERT_STR_EQUAL("SQL database 'GOOD'",description.data());
-
-         ProcessResource* processResource;
-         CPPUNIT_ASSERT((processResource =
-                         ProcessResourceManager::getInstance()->find("Good")));
-         CPPUNIT_ASSERT( ! processResource->isWriteable());
-         description.remove(0);
-         processResource->appendDescription(description);
-         ASSERT_STR_EQUAL("process 'Good'",description.data());
+         CPPUNIT_ASSERT(sqldbResource->mUsedBy.containsReference(processResource));
       };
    
 };

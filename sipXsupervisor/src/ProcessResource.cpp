@@ -55,7 +55,7 @@ bool ProcessResource::parse(const TiXmlDocument& processDefinitionDoc, ///< proc
          ProcessResource* processResource;
          if (!(processResource = processResourceMgr->find(processName)))
          {
-            processResource = new ProcessResource(processName);
+            processResource = new ProcessResource(processName, NULL);
          }
 
          for ( const TiXmlAttribute* attribute = resourceElement->FirstAttribute();
@@ -64,7 +64,9 @@ bool ProcessResource::parse(const TiXmlDocument& processDefinitionDoc, ///< proc
               )
          {
             if (!(resourceIsValid =
-                  processResource->SipxResource::parseAttribute(processDefinitionDoc, attribute)))
+                  processResource->SipxResource::parseAttribute(processDefinitionDoc,
+                                                                attribute, currentProcess)
+                  ))
             {
                OsSysLog::add(FAC_WATCHDOG, PRI_ERR, "ProcessResource::parse "
                              "invalid attribute '%s'",
@@ -132,16 +134,6 @@ bool ProcessResource::isSafeToStop()
    return ! isReadyToStart();
 }
 
-/// Do any special handling when a resource is required by the process.
-void ProcessResource::requiredBy(Process* currentProcess)
-{
-   // do the default thing (require this process before starting)
-   this->SipxResource::requiredBy(currentProcess);
-
-   // also require that this process stop first
-   currentProcess->checkResourceBeforeStop(this);
-}
-
 // Determine whether or not the values in a containable are comparable.
 UtlContainableType ProcessResource::getContainableType() const
 {
@@ -149,8 +141,8 @@ UtlContainableType ProcessResource::getContainableType() const
 }
 
 /// constructor
-ProcessResource::ProcessResource(const char* uniqueId) :
-   SipxResource(uniqueId)
+ProcessResource::ProcessResource(const char* uniqueId, Process* currentProcess) :
+   SipxResource(uniqueId, currentProcess)
 {
    mWritable=false;
 }

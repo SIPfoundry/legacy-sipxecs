@@ -52,7 +52,7 @@ bool SqldbResource::parse(const TiXmlDocument& sqldbDefinitionDoc, ///< sqldb de
          SqldbResource* sqldbResource;
          if (!(sqldbResource = sqldbResourceMgr->find(databaseName)))
          {
-            sqldbResource = new SqldbResource(databaseName);
+            sqldbResource = new SqldbResource(databaseName, currentProcess);
          }
 
          for ( const TiXmlAttribute* attribute = resourceElement->FirstAttribute();
@@ -61,7 +61,9 @@ bool SqldbResource::parse(const TiXmlDocument& sqldbDefinitionDoc, ///< sqldb de
               )
          {
             if (!(resourceIsValid =
-                  sqldbResource->SipxResource::parseAttribute(sqldbDefinitionDoc, attribute)))
+                  sqldbResource->SipxResource::parseAttribute(sqldbDefinitionDoc,
+                                                              attribute, currentProcess)
+                  ))
             {
                OsSysLog::add(FAC_WATCHDOG, PRI_ERR, "SqldbResource::parse "
                              "invalid attribute '%s'",
@@ -125,8 +127,8 @@ UtlContainableType SqldbResource::getContainableType() const
 }
 
 /// constructor
-SqldbResource::SqldbResource(const char* uniqueId) :
-   SipxResource(uniqueId)
+SqldbResource::SqldbResource(const char* uniqueId, Process* currentProcess) :
+   SipxResource(uniqueId, currentProcess)
 {
 }
 

@@ -14,6 +14,8 @@
 #include "xmlparser/XmlErrorMsg.h"
 #include "xmlparser/ExtractContent.h"
 
+#include "Process.h"
+
 #include "ProcessResource.h"
 #include "FileResource.h"
 #include "ImdbResource.h"
@@ -127,17 +129,28 @@ UtlContainableType SipxResource::getContainableType() const
 }
 
 /// constructor
-SipxResource::SipxResource(const char* uniqueId) :
+SipxResource::SipxResource(const char* uniqueId, Process* currentProcess) :
    UtlString(uniqueId),
    mFirstDefinition(true),
    mWritableImplicit(true),
    mWritable(false)
 {
+   // when a Process creates its own ProcessResource, it passes NULL rather than require itself...
+   if (currentProcess)
+   {
+      mUsedBy.append(currentProcess->resource());
+      currentProcess->requireResource(this);
+   }
+
+   
 }
 
 
 /// Parses attributes common to all SipxResource classes.
-bool SipxResource::parseAttribute(const TiXmlDocument& document, const TiXmlAttribute* attribute)
+bool SipxResource::parseAttribute(const TiXmlDocument& document,
+                                  const TiXmlAttribute* attribute,
+                                  Process* currentProcess
+                                  )
 {
    /**<
     * This method should be called for each attribute child of a 'resource' type node.
@@ -156,11 +169,11 @@ bool SipxResource::parseAttribute(const TiXmlDocument& document, const TiXmlAttr
    {
       if (0==attributeValue.compareTo("true", UtlString::ignoreCase))
       {
-         // @TODO make this required
          attributeIsValid = true;
       }
       else if (0==attributeValue.compareTo("false", UtlString::ignoreCase))
       {
+         currentProcess->resourceIsOptional(this);
          attributeIsValid = true;
       }
       else
@@ -204,13 +217,6 @@ bool SipxResource::parseAttribute(const TiXmlDocument& document, const TiXmlAttr
    }
 
    return attributeIsValid;
-}
-
-/// Do any special handling when a resource is required by the process.
-void SipxResource::requiredBy(Process* currentProcess)
-{
-   /**< this base class calls currentProcess->requireResourceToStart */
-   // @TODO
 }
 
 /// destructor

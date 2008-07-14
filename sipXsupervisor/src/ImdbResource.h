@@ -85,12 +85,8 @@ class ImdbResource : public SipxResource
   protected:
    
    /// constructor
-   ImdbResource(const char* uniqueId);
+   ImdbResource(const char* uniqueId, Process* currentProcess);
 
-   // Do any special handling when a resource is required by the process.
-   // virtual void requiredBy(Process* currentProcess);
-   /* at present, there is none, so let the base class to this */
-   
    /// destructor
    virtual ~ImdbResource();
 

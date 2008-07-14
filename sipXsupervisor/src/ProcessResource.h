@@ -108,12 +108,8 @@ class ProcessResource : public SipxResource
    friend class Process;
    
    /// constructor
-   ProcessResource(const char* uniqueId);
+   ProcessResource(const char* uniqueId, Process* currentProcess);
 
-   /// Do any special handling when a resource is required by the process.
-   virtual void requiredBy(Process* currentProcess);
-   /**< this base class calls currentProcess->requireResourceToStart */
-   
    /// destructor
    virtual ~ProcessResource();
 

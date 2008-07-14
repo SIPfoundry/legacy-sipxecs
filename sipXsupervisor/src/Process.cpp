@@ -44,13 +44,16 @@ Process::Process(const UtlString& name, const UtlString& version) :
    mStop(NULL),
    mReconfigure(NULL)
 {
-   ProcessResource* myResource;
+   /*
+    * Get the ProcessResource for this Process; it may have already been created
+    * by some other Process that declared this one as a resource.
+    */
    ProcessResourceManager* processResourceManager = ProcessResourceManager::getInstance();
-   
-   if (!(myResource = processResourceManager->find(name.data())))
+   if (!(mSelfResource = processResourceManager->find(name.data())))
    {
-      myResource = new ProcessResource(name.data());
-      processResourceManager->save(myResource);
+      // No other Process has declared this one as a resource yet, so create the ProcessResource 
+      mSelfResource = new ProcessResource(name.data(), NULL);
+      processResourceManager->save(mSelfResource);
    }
    else
    {
@@ -521,17 +524,28 @@ Process* Process::createFromDefinition(const OsPath& definitionFile)
    return process;
 }
 
+/// Return the ProcessResource for this Process.
+ProcessResource* Process::resource()
+{
+   OsLock mutex(mLock);
+   
+   return mSelfResource;
+}
 
 /// Return the current state of the Process.
 Process::State Process::getState()
 {
-   return Undefined;            // @TODO 
+   OsLock mutex(mLock);
+   
+   return mState;
 }
 
 /// Return whether or not the service for this process should be Running.
 bool Process::isEnabled()
 {
-   return false;                // @TODO 
+   OsLock mutex(mLock);
+   
+   return mDesiredState == Running;
 }
 /**< @returns true if the desired state of this service is Running;
  *            this does not indicate anything about the current state of
@@ -541,17 +555,20 @@ bool Process::isEnabled()
 /// Set the persistent desired state of the Process to Running.
 void Process::enable()
 {
+   // @TODO 
 }
 
 /// Set the persistent desired state of the Process to Disabled.
 void Process::disable()
 {
+   // @TODO 
 }
 
 /// Shutting down sipXsupervisor, so shut down the service.
 void Process::shutdown()
 {
    //This does not affect the persistent state of the service.
+   // @TODO 
 }
 
 
@@ -559,6 +576,7 @@ void Process::shutdown()
 /// Notify the Process that some configuration change has occurred.
 void Process::configurationChange(const SipxResource& changedResource)
 {
+   // @TODO 
 }
    
 /// Notify the Process that the version stamp value of the configuration has changed.
@@ -569,6 +587,7 @@ void Process::configurationVersionChange()
 /// Compare actual process state to the desired state, and attempt to change it if needed.
 void Process::checkService()
 {
+   // @TODO 
 }
    
 /// Determine whether or not the values in a containable are comparable.
@@ -577,23 +596,32 @@ UtlContainableType Process::getContainableType() const
    return TYPE;
 }
 
-void Process::requireResourceToStart(const SipxResource* requiredResource)
+void Process::requireResource(SipxResource* resource)
 {
+   OsLock mutex(mLock);
+
+   mRequiredResources.append(resource);
 }
 
-void Process::checkResourceBeforeStop(const SipxResource* requiredResource)
+void Process::resourceIsOptional(SipxResource* resource)
 {
+   OsLock mutex(mLock);
+
+   mRequiredResources.removeReference(resource);
 }
 
 /// Save the persistent desired state.
 void Process::persistDesiredState(State persistentState ///< may only be Disabled or Running
                                   )
 {
+   // @TODO 
 }
 
 /// Read the persistent desired state.
 Process::State Process::readPersistentState()
 {
+   OsLock mutex(mLock);
+   
    return mDesiredState;
 }
 
@@ -620,7 +648,5 @@ Process::~Process()
       delete mReconfigure;
    }
 
-   mRequiredStart.removeAll();
-   mWaitForStop.removeAll();
-   
+   mRequiredResources.removeAll();
 };
