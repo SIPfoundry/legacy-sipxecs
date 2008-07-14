@@ -130,6 +130,8 @@
     <property name="modelName" value="sipxpresence.xml" />
     <property name="modelDir" value="sipxpresence" />
     <property name="configuration" ref="sipxPresenceConfiguration" />
+    <property name="sipxServiceManager" ref="sipxServiceManager" />
+    <property name="coreContext" ref="coreContext" />
   </bean>
   
   <bean id="sipxPresenceConfiguration" class="org.sipfoundry.sipxconfig.service.SipxPresenceConfiguration" 
