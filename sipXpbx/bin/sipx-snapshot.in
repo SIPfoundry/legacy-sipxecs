@@ -289,11 +289,13 @@ Usage:
 
     The --file switch is used to specify the name of a file to include
     among the files archived.  --file may be used multiple times.
+    The argument to --file can be a wildcard, if it is quoted.
 
     The --comment switch is used to specify the name of a file to include
     among the files archived, but it will be at the top level of the saved
     file structure, rather than placed according to its full file name.
     --comment may be used multiple times.
+    The argument to --comment can be a wildcard, if it is quoted.
 
     The --delete-logs option has been removed.
 
@@ -338,7 +340,7 @@ cat > $Work.copy-files <<EOF
 /etc/ntp/step-tickers
 /etc/hosts
 /etc/crontab
-/var/run/sipxpbx
+@SIPX_RUNDIR@
 /var/log/yum.log
 /etc/yum.conf
 /etc/yum
@@ -355,7 +357,7 @@ case ${Logs} in
         trap "rm -rf ${cutDir} 2>/dev/null" 0
         cat /dev/null > ${cutDir}/extract.log
         echo ${cutDir}/extract.log >> $Work.copy-files
-        for log in @SIPX_LOGDIR@/*.log
+        for log in @SIPX_LOGDIR@/*log
         do
           if hasTimestamps ${log}
           then
@@ -376,13 +378,13 @@ case ${Logs} in
         done
         ;;
     current)
-        for log in @SIPX_LOGDIR@/*.log
+        for log in @SIPX_LOGDIR@/*log
         do
           echo $log >> $Work.copy-files
         done
         ;;
     all)
-        for log in @SIPX_LOGDIR@/*.log  @SIPX_LOGDIR@/*.log.*
+        for log in @SIPX_LOGDIR@/*log  @SIPX_LOGDIR@/*log.*
         do
           echo $log >> $Work.copy-files
         done
@@ -661,7 +663,7 @@ then
     for file in `find $Work -name credential.xml`
     do
       perl -pi \
-            -e 's|<passtoken>[^<]*</passtoken>|<passtoken>ELIDED</passtoken>|' \
+            -e 's|<passtoken>[^<]*</passtoken>|<passtoken>ELIDED</passtoken>|;' \
             -e 's|<pintoken>[^<]*</pintoken>|<pintoken>ELIDED</pintoken>|' \
            ${file}
     done
