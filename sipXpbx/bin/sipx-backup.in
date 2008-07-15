@@ -139,7 +139,7 @@ then
     @SIPX_CONFDIR@/sipxacd.xml \
     @SIPX_CONFDIR@/ssl/authorities/* \
     @SIPX_VARDIR@/configserver/phone/acd/audio/* \
-    @SIPX_PARKMUSICDIR@/* \
+    @SIPX_VARDIR@/parkserver/music/* \
     @SIPX_VXMLDATADIR@/prompts/* \
     @SIPX_PAGEMUSICDIR@/* \
     $SIPX_CERTDB_DIR/* \

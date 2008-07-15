@@ -2,7 +2,7 @@
 
 bin_PROGRAMS = sipxpark
 
-audio_path=@SIPX_PARKMUSICDIR@
+audio_path=@SIPX_VARDIR@/parkserver/music
 
 AUDIO_DIST = \
 	audio/default.wav
@@ -22,7 +22,7 @@ sipxpark_CXXFLAGS = \
         -DSIPX_RUNDIR=\"@SIPX_RUNDIR@\" \
         -DSIPX_TMPDIR=\"@SIPX_TMPDIR@\" \
         -DSIPX_CONFDIR=\"@SIPX_CONFDIR@\"\
-        -DSIPX_PARKMUSICDIR=\"@SIPX_PARKMUSICDIR@\"
+        -DSIPX_VARDIR=\"@SIPX_VARDIR@\"
 
 sipxpark_SOURCES =  \
 	../../config/sipxpbx-buildstamp.h \

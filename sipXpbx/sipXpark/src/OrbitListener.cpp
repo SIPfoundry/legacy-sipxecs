@@ -42,7 +42,7 @@
 // of the transfer.
 #define TAO_TRANSFER_ENDED_TRANSFER_CALLID 11
 
-#define DEFAULT_MOH_AUDIO                  "file://"SIPX_PARKMUSICDIR"/default.wav"
+#define DEFAULT_MOH_AUDIO                  "file://"SIPX_VARDIR"/parkserver/music/default.wav"
 #define MOH_USER_PART                      "moh"
 
 #define CALL_RETRIEVE_URI_PARM             "operation"

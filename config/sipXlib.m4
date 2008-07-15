@@ -96,8 +96,6 @@ AC_DEFUN([SFAC_SIPX_GLOBAL_OPTS],
     # temporary - see http://track.sipfoundry.org/browse/XPB-33
     AC_SUBST(SIPX_VXMLDATADIR,[${localstatedir}/sipxdata/mediaserver/data])
 
-    AC_SUBST(SIPX_PARKMUSICDIR,[${localstatedir}/sipxdata/parkserver/music])
-
     ## Used in a number of different project and subjective where this should really go
     ## INSTALL instruction assume default, otherwise safe to change/override
     AC_ARG_VAR(wwwdir, [Web root for web content, default is ${datadir}/www. \

@@ -39,7 +39,6 @@
     	<replacefilter token="@SIPX_DATADIR@" value="${install.dir}/var/data"/>
     	<replacefilter token="@SIPX_CONFDIR@" value="${install.dir}/etc"/>
     	<replacefilter token="@SIPX_VXMLDATADIR@" value="${install.dir}/var/vxml"/>
-    	<replacefilter token="@SIPX_PARKMUSICDIR@" value="${install.dir}/var/park"/>
     	<replacefilter token="@wwwdir@" value="${install.dir}/var/www"/>
     	<replacefilter token="@SIPXPBXUSER@" value="sipxchange"/>
     	<replacefilter token="@SIPX_LOGDIR@" value="${install.dir}/var/log"/>
