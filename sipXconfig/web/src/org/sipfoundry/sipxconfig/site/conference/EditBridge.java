@@ -10,6 +10,8 @@
 package org.sipfoundry.sipxconfig.site.conference;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.tapestry.IAsset;
 import org.apache.tapestry.IPage;
@@ -92,6 +94,16 @@ public abstract class EditBridge extends PageWithCallback implements PageBeginRe
         return activateEditConferencePage(null, null);
     }
 
+    public List<String> getTabNames() {
+        List<String> tabNames = new ArrayList<String>();
+        tabNames.add("config");
+        if (!getBridge().isNew()) {
+            tabNames.add("conferences");
+        }
+
+        return tabNames;
+    }
+    
     public IPage editConference(Integer id) {
         return activateEditConferencePage(id, "config");
     }
