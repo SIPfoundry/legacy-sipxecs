@@ -6,12 +6,7 @@
  */
 package org.sipfoundry.sipxbridge;
 
-import java.io.File;
-import java.io.FileReader;
-import java.net.URL;
-
 import org.apache.commons.digester.Digester;
-import org.apache.log4j.Logger;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
@@ -56,7 +51,9 @@ public class ConfigurationParser {
         digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG,
         "global-port"), "setGlobalPort", 0,
         new Class[] { Integer.class });
-        
+        digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG,
+        "xml-rpc-port"), "setXmlRpcPort", 0,
+        new Class[] { Integer.class });
         
         digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG,
                 "allowed-codec-name"), "setCodecName", 0);
@@ -144,14 +141,23 @@ public class ConfigurationParser {
                 new Class[] { Boolean.class });
 
       
-        
-        // BUGBUG -- compensation for sipxconfig bug
         digester.addCallMethod(String.format("%s/%s", ITSP_CONFIG,
                 "max-number-of-concurrent-calls"), "setMaxCalls", 0);
 
     }
+    
+    
+    
+    /**
+     * Create an account manager structure and initialize it with the
+     * information pointed to by the given URL.
+     * 
+     * @param url -- the rul from where to fetch the config file.
+     * 
+     * @return
+     */
 
-    public AccountManagerImpl createAccountManager(String url) {
+    AccountManagerImpl createAccountManager(String url) {
         // Create a Digester instance
         Digester digester = new Digester();
         digester.setSchema("file:schema/sipxbridge.xsd");

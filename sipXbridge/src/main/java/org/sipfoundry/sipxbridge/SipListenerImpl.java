@@ -209,7 +209,7 @@ public class SipListenerImpl implements SipListener {
                 if (logger.isDebugEnabled()) {
                     logger.debug("SipListenerImpl : dialog = " + dialog);
                 }
-                BackToBackUserAgent b2bua = Gateway.getCallControlManager()
+                BackToBackUserAgent b2bua = DialogApplicationData
                         .getBackToBackUserAgent(responseEvent.getDialog());
                 if (b2bua != null)
                     b2bua.removeDialog(dialog);

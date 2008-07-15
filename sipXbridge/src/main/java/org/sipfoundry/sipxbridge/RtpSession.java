@@ -1,3 +1,10 @@
+/*
+ *  Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.
+ *  Contributors retain copyright to elements licensed under a Contributor Agreement.
+ *  Licensed to the User under the LGPL license.
+ *
+ */
+
 package org.sipfoundry.sipxbridge;
 
 import java.io.IOException;
@@ -12,7 +19,7 @@ import javax.sip.message.Request;
 import org.apache.log4j.Logger;
 import org.sipfoundry.sipxbridge.symmitron.Sym;
 
-public class RtpSession extends Sym {
+class RtpSession extends Sym {
 
     private static Logger logger = Logger.getLogger(RtpSession.class);
 
@@ -95,7 +102,7 @@ public class RtpSession extends Sym {
                      */
                     Dialog mohDialog;
                     try {
-                        mohDialog = Gateway.getCallControlManager()
+                        mohDialog = DialogApplicationData
                                 .getBackToBackUserAgent(dialog).sendInviteToMohServer(
                                         (SessionDescription) this.getReceiver()
                                                 .getSessionDescription().clone());
@@ -139,7 +146,7 @@ public class RtpSession extends Sym {
                     if (Gateway.getMusicOnHoldAddress() != null) {
                         Dialog mohDialog;
                         try {
-                            mohDialog = Gateway.getCallControlManager().getBackToBackUserAgent(
+                            mohDialog = DialogApplicationData.getBackToBackUserAgent(
                                     dialog).sendInviteToMohServer(
                                     (SessionDescription) this.getReceiver()
                                             .getSessionDescription().clone());
@@ -162,7 +169,7 @@ public class RtpSession extends Sym {
                     if (Gateway.getMusicOnHoldAddress() != null) {
                         Dialog mohDialog;
                         try {
-                            mohDialog = Gateway.getCallControlManager().getBackToBackUserAgent(
+                            mohDialog = DialogApplicationData.getBackToBackUserAgent(
                                     dialog).sendInviteToMohServer(
                                     (SessionDescription) this.getReceiver()
                                             .getSessionDescription().clone());

@@ -18,7 +18,7 @@ conf.dir=/usr/local/sipx/etc/sipxpbx
 
 # U T I L
 log4j=${src.dir}/lib/log4j-1.2.14.jar
-jainsip=${src.dir}/lib/jain-sip-sdp-1.2.jar
+jainsip=${src.dir}/lib/jain-sip-sdp-1.2.74.jar
 dnsjava=${src.dir}/lib/dnsjava-2.0.6.jar
 stun4j=${src.dir}/lib/Stun4J.jar
 junit=${src.dir}/tools/junit-3.8.1.jar

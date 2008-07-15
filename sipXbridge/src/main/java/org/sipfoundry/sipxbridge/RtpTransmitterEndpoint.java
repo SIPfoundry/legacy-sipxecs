@@ -1,3 +1,9 @@
+/*
+ *  Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.
+ *  Contributors retain copyright to elements licensed under a Contributor Agreement.
+ *  Licensed to the User under the LGPL license.
+ *
+ */
 package org.sipfoundry.sipxbridge;
 
 import java.net.InetAddress;
@@ -9,7 +15,7 @@ import javax.sdp.SessionDescription;
 import org.apache.log4j.Logger;
 import org.sipfoundry.sipxbridge.symmitron.SymTransmitterEndpoint;
 
-public class RtpTransmitterEndpoint extends SymTransmitterEndpoint {
+class RtpTransmitterEndpoint extends SymTransmitterEndpoint {
     
     private static Logger logger = Logger.getLogger(RtpTransmitterEndpoint.class);
     
@@ -28,7 +34,7 @@ public class RtpTransmitterEndpoint extends SymTransmitterEndpoint {
         return sessionDescription;
     }
     
-    public void setSessionDescription(SessionDescription sessionDescription, boolean isRtpSession) {
+    void setSessionDescription(SessionDescription sessionDescription, boolean isRtpSession) {
         if (this.sessionDescription != null) {
             logger.debug("WARNING -- replacing session description");
 

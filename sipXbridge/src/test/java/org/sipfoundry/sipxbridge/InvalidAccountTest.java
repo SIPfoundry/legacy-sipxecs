@@ -2,25 +2,22 @@ package org.sipfoundry.sipxbridge;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileReader;
-import java.net.URL;
 import java.util.Properties;
+
+import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
 import org.apache.xmlrpc.XmlRpcException;
 import org.apache.xmlrpc.client.XmlRpcClient;
-import org.apache.xmlrpc.client.XmlRpcClientConfigImpl;
-import org.sipfoundry.sipxbridge.Gateway;
-import org.sipfoundry.sipxbridge.GatewayState;
-
-import junit.framework.TestCase;
+import org.sipfoundry.sipxbridge.xmlrpc.RegistrationRecord;
+import org.sipfoundry.sipxbridge.xmlrpc.SipXbridgeXmlRpcClient;
 
 public class InvalidAccountTest extends TestCase {
 
     private static Logger logger = Logger.getLogger(InvalidAccountTest.class);
     private static String serverAddress;
     private static  int port ;
-    private XmlRpcClient client;
+    private SipXbridgeXmlRpcClient client;
 
     /*
      * (non-Javadoc)
@@ -36,31 +33,39 @@ public class InvalidAccountTest extends TestCase {
         Gateway.setConfigurationFileName(properties.getProperty("org.sipfoundry.gateway.badAccount"));
        
         Gateway.parseConfigurationFile();
-        Gateway.initializeSymmitron();
+        Gateway.startXmlRpcServer();
+        System.out.println("Web server started");
+        client = new SipXbridgeXmlRpcClient
+            (Gateway.getAccountManager().getBridgeConfiguration().getExternalAddress(),
+                    Gateway.getAccountManager().getBridgeConfiguration().getXmlRpcPort());
+        
         
        
 
     }
 
-    public void testBadAccountInfo() {
+    public void testBadAccountInfo() throws Exception {
         try {
-            String retval = (String) client.execute("sipXbridge.start",
-                    (Object[]) null);
-            assertTrue("State must be INITIALIZING", retval
-                    .equals(GatewayState.STOPPED.toString()));
-
-        } catch (XmlRpcException e) {
-            e.printStackTrace();
-            logger.error("Unexpected exeption ", e);
-            fail("Unexpected exception");
-
+            client.start();
+            System.out.println("SipXbridge Started");
+            Thread.sleep(2000);
+            RegistrationRecord[] registrationRecords = client.getRegistrationRecords();
+            System.out.println("accountState is " + registrationRecords[0].getRegistrationStatus());
+            assertEquals(registrationRecords.length, 1 );
+            assertTrue ("Should not be authenticated ", registrationRecords[0].getRegistrationStatus().equals(AccountState.AUTHENTICATION_FAILED.toString()) ||
+                    registrationRecords[0].getRegistrationStatus().equals(AccountState.AUTHENTICATING.toString()) );
+            
+        } catch ( Exception ex) {
+            ex.printStackTrace();
+            throw ex;
         }
+        
     }
 
     protected void tearDown() throws Exception {
         super.tearDown();
-        //client.execute("sipXbridge.stop", (Object[]) null);
-        Gateway.stop();
+        client.stop();
+        Gateway.stopXmlRpcServer();
     }
 
 }

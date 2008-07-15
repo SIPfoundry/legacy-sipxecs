@@ -1,13 +1,18 @@
+/*
+ *  Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.
+ *  Contributors retain copyright to elements licensed under a Contributor Agreement.
+ *  Licensed to the User under the LGPL license.
+ *
+ */
+
 package org.sipfoundry.sipxbridge;
 
 import gov.nist.javax.sip.ListeningPointExt;
 
 import java.net.InetAddress;
-import java.text.ParseException;
 import java.util.TimerTask;
 
 import javax.sip.SipProvider;
-import javax.sip.message.Request;
 
 import org.apache.log4j.Logger;
 
@@ -17,13 +22,12 @@ import org.apache.log4j.Logger;
  * @author mranga
  *
  */
-public class CrLfTimerTask extends TimerTask {
+class CrLfTimerTask extends TimerTask {
     private static Logger logger = Logger.getLogger(CrLfTimerTask.class);
-    private ItspAccountInfo accountInfo;
+    private ItspAccountInfo accountInfo; 
+    private SipProvider provider;
     
-    SipProvider provider;
-    
-    public CrLfTimerTask(SipProvider provider, ItspAccountInfo accountInfo) {
+    CrLfTimerTask(SipProvider provider, ItspAccountInfo accountInfo) {
         this.provider = provider;
         this.accountInfo  = accountInfo;
     }

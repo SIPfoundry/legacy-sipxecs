@@ -60,6 +60,7 @@ import org.sipfoundry.sipxbridge.symmitron.PortRange;
 import org.sipfoundry.sipxbridge.symmitron.PortRangeManager;
 import org.sipfoundry.sipxbridge.symmitron.Sym;
 import org.sipfoundry.sipxbridge.symmitron.SymmitronServer;
+import org.sipfoundry.sipxbridge.xmlrpc.CallRecord;
 
 /**
  * A class that represents an ongoing call. Each call Id points at one of these structures. It can
@@ -94,15 +95,24 @@ public class BackToBackUserAgent {
 
     private Dialog referingDialogPeer;
 
+    /*
+     * The Dialog that created this B2BUA.
+     */
     private Dialog creatingDialog;
 
     private SessionTimerTask sessionTimerTask;
+
+    private CallRecord callRecord;
 
     private static Logger logger = Logger.getLogger(BackToBackUserAgent.class);
 
     private static final String ORIGINATOR = "originator";
 
     private static final String SIPXBRIDGE = "sipxbridge";
+
+    // /////////////////////////////////////////////////////////////////
+    // Inner classes.
+    // ////////////////////////////////////////////////////////////////
 
     class SessionTimerTask extends TimerTask {
 
@@ -156,6 +166,9 @@ public class BackToBackUserAgent {
 
     }
 
+    // ///////////////////////////////////////////////////////////////////////
+    // Private methods.
+    // ///////////////////////////////////////////////////////////////////////
     private void pairDialogs(Dialog dialog1, Dialog dialog2) {
         DialogApplicationData dad1 = DialogApplicationData.get(dialog1);
 
@@ -164,6 +177,10 @@ public class BackToBackUserAgent {
         dad1.peerDialog = dialog2;
         dad2.peerDialog = dialog1;
     }
+
+    // ////////////////////////////////////////////////////////////////////////
+    // Package local methods.
+    // ////////////////////////////////////////////////////////////////////////
 
     /**
      * Retrieve a Sym for the Lan RTP session.
@@ -242,9 +259,11 @@ public class BackToBackUserAgent {
                 PortRange portRange = SymmitronServer.getPortManager().allocate(2, Parity.EVEN);
                 RtpReceiverEndpoint mediaEndpoint = new RtpReceiverEndpoint(portRange
                         .getLowerBound());
-                mediaEndpoint.setIpAddress((itspAccountInfo == null && Gateway.getGlobalAddress() != null)
-                                || (itspAccountInfo != null && itspAccountInfo.isGlobalAddressingUsed()) ? Gateway
-                                .getGlobalAddress() : Gateway.getLocalAddress());
+                mediaEndpoint
+                        .setIpAddress((itspAccountInfo == null && Gateway.getGlobalAddress() != null)
+                                || (itspAccountInfo != null && itspAccountInfo
+                                        .isGlobalAddressingUsed()) ? Gateway.getGlobalAddress()
+                                : Gateway.getLocalAddress());
                 rtpSession.setReceiver(mediaEndpoint);
                 SessionDescription sd = SdpFactory.getInstance().createSessionDescription(
                         this.rtpBridge.sessionDescription.toString());
@@ -259,8 +278,10 @@ public class BackToBackUserAgent {
                     rtcpSession = new RtpSession();
                     RtpReceiverEndpoint endpoint = new RtpReceiverEndpoint(portRange
                             .getLowerBound() + 1);
-                    endpoint.setIpAddress((itspAccountInfo == null && Gateway.getGlobalAddress() != null)
-                                    ||(itspAccountInfo != null && itspAccountInfo.isGlobalAddressingUsed()) ? Gateway
+                    endpoint
+                            .setIpAddress((itspAccountInfo == null && Gateway.getGlobalAddress() != null)
+                                    || (itspAccountInfo != null && itspAccountInfo
+                                            .isGlobalAddressingUsed()) ? Gateway
                                     .getGlobalAddress() : Gateway.getLocalAddress());
                     rtcpSession.setReceiver(endpoint);
                     sd = SdpFactory.getInstance().createSessionDescription(
@@ -284,25 +305,8 @@ public class BackToBackUserAgent {
 
     }
 
-    public RtpSession getWanRtcpSession(Dialog dialog) {
+    RtpSession getWanRtcpSession(Dialog dialog) {
         return DialogApplicationData.getRtcpSession(dialog);
-    }
-
-    /**
-     * Terminate the two sides of the bridge
-     */
-    public void tearDown() throws Exception {
-
-        for (Dialog dialog : this.dialogTable) {
-            if (dialog.getState() != DialogState.TERMINATED) {
-                Request byeRequest = dialog.createRequest(Request.BYE);
-                SipProvider provider = ((DialogExt) dialog).getSipProvider();
-                ClientTransaction ct = provider.getNewClientTransaction(byeRequest);
-                dialog.sendRequest(ct);
-            }
-        }
-        this.sessionTimerTask.cancel();
-
     }
 
     /**
@@ -354,7 +358,7 @@ public class BackToBackUserAgent {
      * @throws SipException
      * @throws InvalidArgumentException
      */
-    public void handleSpriralInviteWithReplaces(RequestEvent requestEvent, Dialog replacedDialog,
+    void handleSpriralInviteWithReplaces(RequestEvent requestEvent, Dialog replacedDialog,
             ServerTransaction serverTransaction, String toDomain, boolean isphone)
             throws SipException {
         /* The inbound INVITE */
@@ -595,13 +599,19 @@ public class BackToBackUserAgent {
 
     }
 
-    // /////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // Public methods.
-    // /////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
     private BackToBackUserAgent(Request request, ItspAccountInfo itspAccountInfo)
             throws IOException {
         this.itspAccountInfo = itspAccountInfo;
+        this.callRecord = new CallRecord();
+        String fromAddress = SipUtilities.getFromAddress(request);
+        callRecord.setFromAddress(fromAddress);
+        String toAddress = SipUtilities.getToAddress(request);
+        callRecord.setToAddress(toAddress);
+        String requestUri = request.getRequestURI().toString();
+        callRecord.setRequestURI(requestUri);
+        String callId = SipUtilities.getCallId(request);
+        callRecord.setCallId(callId);
+
         rtpBridge = new RtpBridge(request);
         if (Gateway.isRtcpRelayingSupported()) {
             this.rtcpBridge = new RtpBridge(request);
@@ -609,7 +619,7 @@ public class BackToBackUserAgent {
 
     }
 
-    public BackToBackUserAgent(SipProvider provider, Request request, Dialog dialog,
+    BackToBackUserAgent(SipProvider provider, Request request, Dialog dialog,
             ItspAccountInfo itspAccountInfo) throws IOException {
         this(request, itspAccountInfo);
         dialogTable.add(dialog);
@@ -626,7 +636,7 @@ public class BackToBackUserAgent {
     /**
      * Remove a dialog from the table ( the dialog terminates ).
      */
-    public void removeDialog(Dialog dialog) {
+    void removeDialog(Dialog dialog) {
 
         this.dialogTable.remove(dialog);
 
@@ -675,7 +685,7 @@ public class BackToBackUserAgent {
      * 
      * @return the itsp account info.
      */
-    public ItspAccountInfo getItspAccountInfo() {
+    ItspAccountInfo getItspAccountInfo() {
         return itspAccountInfo;
     }
 
@@ -685,7 +695,7 @@ public class BackToBackUserAgent {
      * @param provider
      * @param dialog
      */
-    public void addDialog(Dialog dialog) {
+    void addDialog(Dialog dialog) {
         this.dialogTable.add(dialog);
 
     }
@@ -698,7 +708,7 @@ public class BackToBackUserAgent {
      * @param referRequest -- the refer request.
      * @param dialog - the re-Invite dialog.
      */
-    public void referInviteToSipxProxy(Request referRequest, Dialog dialog,
+    void referInviteToSipxProxy(Request referRequest, Dialog dialog,
             SessionDescription sessionDescription) {
         logger.debug("referInviteToSipxProxy: sendingReInvite to refered-to location");
         try {
@@ -851,8 +861,7 @@ public class BackToBackUserAgent {
      * @param itspAccountInfo -- the ITSP account that is sending this inbound request.
      */
 
-    public void sendInviteToSipxProxy(RequestEvent requestEvent,
-            ServerTransaction serverTransaction) {
+    void sendInviteToSipxProxy(RequestEvent requestEvent, ServerTransaction serverTransaction) {
         Request request = requestEvent.getRequest();
 
         try {
@@ -1031,7 +1040,7 @@ public class BackToBackUserAgent {
      * @return the dialog generated as a result of sending the invite to the MOH server.
      * 
      */
-    public Dialog sendInviteToMohServer(SessionDescription sessionDescription) {
+    Dialog sendInviteToMohServer(SessionDescription sessionDescription) {
 
         Dialog retval = null;
 
@@ -1124,7 +1133,7 @@ public class BackToBackUserAgent {
      * @param musicOnHoldDialog
      * @throws SipException
      */
-    public void sendByeToMohServer(Dialog musicOnHoldDialog) throws SipException {
+    void sendByeToMohServer(Dialog musicOnHoldDialog) throws SipException {
         Request byeRequest = musicOnHoldDialog.createRequest(Request.BYE);
         SipProvider lanProvider = Gateway.getLanProvider();
         ClientTransaction ctx = lanProvider.getNewClientTransaction(byeRequest);
@@ -1140,7 +1149,7 @@ public class BackToBackUserAgent {
      * @param continuationData
      * @throws Exception
      */
-    public void querySdpFromPeerDialog(RequestEvent requestEvent, Operation continuation,
+    void querySdpFromPeerDialog(RequestEvent requestEvent, Operation continuation,
             Object continuationData) throws Exception {
         try {
             Dialog dialog = requestEvent.getDialog();
@@ -1171,7 +1180,7 @@ public class BackToBackUserAgent {
 
             }
         } catch (Exception ex) {
-
+            logger.error("Exception occured. tearing down call! ", ex);
             this.tearDown();
         }
 
@@ -1183,7 +1192,7 @@ public class BackToBackUserAgent {
      * @throws SipException
      * @throws Exception
      */
-    public void sendInviteToItsp(RequestEvent requestEvent, ServerTransaction serverTransaction,
+    void sendInviteToItsp(RequestEvent requestEvent, ServerTransaction serverTransaction,
             String toDomain, boolean isphone) throws GatewayConfigurationException, SipException {
 
         Request incomingRequest = serverTransaction.getRequest();
@@ -1447,7 +1456,7 @@ public class BackToBackUserAgent {
      * @param dialog
      * @throws SipException
      */
-    public void processBye(RequestEvent requestEvent) throws SipException {
+    void processBye(RequestEvent requestEvent) throws SipException {
         Dialog dialog = requestEvent.getDialog();
         ServerTransaction st = requestEvent.getServerTransaction();
 
@@ -1517,25 +1526,30 @@ public class BackToBackUserAgent {
      * 
      * @return
      */
-    public boolean isEmpty() {
+    boolean isEmpty() {
         return this.dialogTable.isEmpty();
     }
 
     /**
      * @return the rtpBridge
      */
-    public Bridge getRtpBridge() {
+    Bridge getRtpBridge() {
         return rtpBridge;
     }
 
-    public Bridge getRtcpBridge() {
+    /**
+     * Get the RTCP bridge.
+     * 
+     * @return
+     */
+    Bridge getRtcpBridge() {
         return rtcpBridge;
     }
 
     /**
      * @return the creatingDialog
      */
-    public Dialog getCreatingDialog() {
+    Dialog getCreatingDialog() {
         return creatingDialog;
     }
 
@@ -1544,9 +1558,38 @@ public class BackToBackUserAgent {
      * 
      * @param account
      */
-    public void setItspAccount(ItspAccountInfo account) {
-       this.itspAccountInfo = account;
-        
+    void setItspAccount(ItspAccountInfo account) {
+        this.itspAccountInfo = account;
+
+    }
+
+    // ///////////////////////////////////////////////////////////////////////
+    // Public methods - invoked by xml rpc server.
+    // //////////////////////////////////////////////////////////////////////
+
+    /**
+     * Get the call record.
+     */
+    public CallRecord getCallRecord() {
+        return callRecord;
+    }
+
+    /**
+     * Terminate the two sides of the bridge. This method is invoked by xml rpc interface and is
+     * hence public.
+     */
+    public void tearDown() throws Exception {
+
+        for (Dialog dialog : this.dialogTable) {
+            if (dialog.getState() != DialogState.TERMINATED) {
+                Request byeRequest = dialog.createRequest(Request.BYE);
+                SipProvider provider = ((DialogExt) dialog).getSipProvider();
+                ClientTransaction ct = provider.getNewClientTransaction(byeRequest);
+                dialog.sendRequest(ct);
+            }
+        }
+        this.sessionTimerTask.cancel();
+
     }
 
 }

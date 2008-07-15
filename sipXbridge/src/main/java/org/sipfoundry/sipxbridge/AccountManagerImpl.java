@@ -6,21 +6,18 @@
  */
 package org.sipfoundry.sipxbridge;
 
+import gov.nist.javax.sip.clientauthutils.UserCredentials;
+
 import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.Collection;
 import java.util.Hashtable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import org.apache.log4j.Logger;
-import org.xbill.DNS.*;
-
 import javax.sip.ClientTransaction;
 import javax.sip.address.SipURI;
-import javax.sip.message.Request;
 
-import gov.nist.javax.sip.clientauthutils.*;
+import org.apache.log4j.Logger;
 
 /**
  * Keeps a mapping of account ID to ItspAccountInfo and a mapping of account ID to sip pbx account
@@ -52,31 +49,19 @@ public class AccountManagerImpl implements gov.nist.javax.sip.clientauthutils.Ac
 
     }
 
-    /**
-     * Add the Bridge config.
-     */
-    public void setBridgeConfiguration(BridgeConfiguration bridgeConfiguration) {
-        this.bridgeConfiguration = bridgeConfiguration;
-    }
-
+    // //////////////////////////////////////////////////////////////////
+    // Package local methods.
+    // //////////////////////////////////////////////////////////////////
     /**
      * @return the bridgeConfiguration
      */
-    public BridgeConfiguration getBridgeConfiguration() {
+    BridgeConfiguration getBridgeConfiguration() {
         return bridgeConfiguration;
     }
 
-    /**
-     * Add an ITSP account to the databse.
-     */
-    public void addItspAccount(ItspAccountInfo accountInfo) throws GatewayConfigurationException {
+   
 
-        String key = accountInfo.getAuthenticationRealm();
-        this.itspAccounts.put(key, accountInfo);
-
-    }
-
-    public void lookupItspAccountAddresses() throws GatewayConfigurationException {
+    void lookupItspAccountAddresses() throws GatewayConfigurationException {
         try {
             for (ItspAccountInfo accountInfo : this.getItspAccounts()) {
                 accountInfo.lookupAccount();
@@ -97,7 +82,7 @@ public class AccountManagerImpl implements gov.nist.javax.sip.clientauthutils.Ac
     /**
      * Start the failure timout timers for each of the accounts we manage.
      */
-    public void startAuthenticationFailureTimers() {
+    void startAuthenticationFailureTimers() {
 
         for (ItspAccountInfo itspAccountInfo : this.getItspAccounts()) {
             itspAccountInfo.startFailureCounterScanner();
@@ -107,7 +92,7 @@ public class AccountManagerImpl implements gov.nist.javax.sip.clientauthutils.Ac
     /**
      * Update the mapping in our table ( after an srv rescan )
      */
-    public void setHopToItsp(String domain, HopImpl proxyHop) {
+    void setHopToItsp(String domain, HopImpl proxyHop) {
         this.addressToDomainNameMap.put(proxyHop.getHost(), domain);
 
         this.domainNameToProxyAddressMap.put(domain, proxyHop);
@@ -116,14 +101,14 @@ public class AccountManagerImpl implements gov.nist.javax.sip.clientauthutils.Ac
     /**
      * Get the default outbound ITSP account for outbound calls.
      */
-    public ItspAccountInfo getDefaultAccount() {
+    ItspAccountInfo getDefaultAccount() {
         return itspAccounts.values().iterator().next();
     }
 
     /**
      * Get the outbound ITSP account for a specific outbund SipURI.
      */
-    public ItspAccountInfo getAccount(SipURI sipUri) {
+    ItspAccountInfo getAccount(SipURI sipUri) {
         for (ItspAccountInfo accountInfo : itspAccounts.values()) {
 
             if (sipUri.getHost().endsWith(accountInfo.getProxyDomain())) {
@@ -134,27 +119,11 @@ public class AccountManagerImpl implements gov.nist.javax.sip.clientauthutils.Ac
     }
 
     /**
-     * Get the user creds for a userName:domainName pair.
-     * 
-     * @param userName - the name of the user for whom we want the acct.
-     * @param domainName - the domain name for which we want creds.
-     * 
-     */
-    public UserCredentials getCredentials(ClientTransaction ctx, String authRealm) {
-
-        TransactionApplicationData tad = (TransactionApplicationData) ctx.getApplicationData();
-        
-        return tad.itspAccountInfo;
-        
-
-    }
-
-    /**
      * Get a collection of Itsp accounts.
      * 
      * @return
      */
-    public Collection<ItspAccountInfo> getItspAccounts() {
+    Collection<ItspAccountInfo> getItspAccounts() {
 
         return itspAccounts.values();
     }
@@ -166,7 +135,7 @@ public class AccountManagerImpl implements gov.nist.javax.sip.clientauthutils.Ac
      * @return hop to the itsp account.
      */
 
-    public HopImpl getHopToItsp(String host) {
+    HopImpl getHopToItsp(String host) {
         return this.domainNameToProxyAddressMap.get(host);
     }
 
@@ -177,7 +146,7 @@ public class AccountManagerImpl implements gov.nist.javax.sip.clientauthutils.Ac
      * @param port
      * @return
      */
-    public ItspAccountInfo getItspAccount(String host, int port) {
+    ItspAccountInfo getItspAccount(String host, int port) {
         int nport = port == -1 ? 5060 : port;
 
         for (HopImpl hop : this.domainNameToProxyAddressMap.values()) {
@@ -193,14 +162,48 @@ public class AccountManagerImpl implements gov.nist.javax.sip.clientauthutils.Ac
      * @param requestURI
      * @return
      */
-    public ItspAccountInfo getItspAccount(SipURI requestURI) {
+    ItspAccountInfo getItspAccount(SipURI requestURI) {
         String host = requestURI.getHost();
-        for ( ItspAccountInfo accountInfo : this.getItspAccounts()) {
-            if ( host.endsWith( accountInfo.getSipDomain())) {
+        for (ItspAccountInfo accountInfo : this.getItspAccounts()) {
+            if (host.endsWith(accountInfo.getSipDomain())) {
                 return accountInfo;
             }
         }
         return null;
+    }
+
+    // //////////////////////////////////////////////////////////////////
+    // Public methods.
+    // //////////////////////////////////////////////////////////////////
+    /**
+     * Add the Bridge config.
+     */
+    public void setBridgeConfiguration(BridgeConfiguration bridgeConfiguration) {
+        this.bridgeConfiguration = bridgeConfiguration;
+    }
+    
+    /**
+     * Add an ITSP account to the account database ( method is accessed by the digester).
+     */
+    public void addItspAccount(ItspAccountInfo accountInfo) throws GatewayConfigurationException {
+
+        String key = accountInfo.getAuthenticationRealm();
+        this.itspAccounts.put(key, accountInfo);
+
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see gov.nist.javax.sip.clientauthutils.AccountManager#getCredentials(javax.sip.ClientTransaction,
+     *      java.lang.String)
+     */
+    public UserCredentials getCredentials(ClientTransaction ctx, String authRealm) {
+
+        TransactionApplicationData tad = (TransactionApplicationData) ctx.getApplicationData();
+
+        return tad.itspAccountInfo;
+
     }
 
 }

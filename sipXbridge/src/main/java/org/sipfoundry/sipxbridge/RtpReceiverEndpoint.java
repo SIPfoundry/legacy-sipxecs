@@ -1,3 +1,9 @@
+/*
+ *  Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.
+ *  Contributors retain copyright to elements licensed under a Contributor Agreement.
+ *  Licensed to the User under the LGPL license.
+ *
+ */
 package org.sipfoundry.sipxbridge;
 
 import java.io.IOException;
@@ -13,7 +19,7 @@ import javax.sdp.SessionDescription;
 import org.apache.log4j.Logger;
 import org.sipfoundry.sipxbridge.symmitron.SymReceiverEndpoint;
 
-public class RtpReceiverEndpoint extends SymReceiverEndpoint {
+class RtpReceiverEndpoint extends SymReceiverEndpoint {
 
     private Origin origin;
 
@@ -27,7 +33,7 @@ public class RtpReceiverEndpoint extends SymReceiverEndpoint {
 
     private int sessionVersion;
 
-    public RtpReceiverEndpoint(int port) throws IOException {
+    RtpReceiverEndpoint(int port) throws IOException {
         super(port);
         try {
             this.sessionId = Math.abs(new Random().nextLong());
@@ -54,11 +60,11 @@ public class RtpReceiverEndpoint extends SymReceiverEndpoint {
         }
     }
 
-    public SessionDescription getSessionDescription() {
+    SessionDescription getSessionDescription() {
         return this.sessionDescription;
     }
 
-    public void setSessionDescription(SessionDescription sessionDescription, boolean isRtp) {
+    void setSessionDescription(SessionDescription sessionDescription, boolean isRtp) {
         if (this.sessionDescription != null && logger.isDebugEnabled()) {
             logger.debug("Old SD  = " + this.sessionDescription);
             logger.debug("newSD = " + sessionDescription);

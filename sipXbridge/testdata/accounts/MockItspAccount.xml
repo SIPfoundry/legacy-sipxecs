@@ -14,6 +14,7 @@
     <rtp-port-range>25000:25500</rtp-port-range>
     <log-level>DEBUG</log-level>
     <log-directory>/tmp/</log-directory>
+    <xml-rpc-port>8088</xml-rpc-port>
   </bridge-configuration>
 
   <itsp-account>
@@ -30,7 +31,7 @@
     <use-rport>false</use-rport>
     <register-on-initialization>true</register-on-initialization>
     <is-reinvite-supported>false</is-reinvite-supported>
-    <sip-keepalive-method>REGISTER</sip-keepalive-method>
+    <sip-keepalive-method>NONE</sip-keepalive-method>
     <rtp-keepalive-method>REPLAY-LAST-SENT-PACKET</rtp-keepalive-method>
   </itsp-account>
 

@@ -99,6 +99,7 @@ public class RegistrationManager {
             throws GatewayConfigurationException, SipException {
 
         Response response = responseEvent.getResponse();
+        logger.debug("registrationManager.processResponse() " + response.getStatusCode());
         ClientTransaction ct = responseEvent.getClientTransaction();
 
         if (response.getStatusCode() == Response.OK) {
@@ -106,10 +107,11 @@ public class RegistrationManager {
                     .getHeader(ContactHeader.NAME);
             int time = 0;
 
-            if (contactHeader != null)
+            if (contactHeader != null) {
                 time = contactHeader.getExpires();
-            else
+            } else {
                 time = ct.getRequest().getExpires().getExpires();
+            }
             ItspAccountInfo itspAccount = ((TransactionApplicationData) ct
                     .getApplicationData()).itspAccountInfo;
             if ( itspAccount.getSipKeepaliveMethod().equals("REGISTER")) {

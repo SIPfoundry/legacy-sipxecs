@@ -1,3 +1,9 @@
+/*
+ *  Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.
+ *  Contributors retain copyright to elements licensed under a Contributor Agreement.
+ *  Licensed to the User under the LGPL license.
+ *
+ */
 package org.sipfoundry.sipxbridge;
 
 import java.io.IOException;
@@ -9,7 +15,7 @@ import javax.sip.message.Request;
 
 import org.sipfoundry.sipxbridge.symmitron.Bridge;
 
-public class RtpBridge extends Bridge {
+class RtpBridge extends Bridge {
     
     SessionDescription sessionDescription;
     
@@ -19,7 +25,7 @@ public class RtpBridge extends Bridge {
      * @param itspAccountInfo
      * @throws IOException
      */
-    public RtpBridge(Request request) throws IOException {
+    RtpBridge(Request request) throws IOException {
         super();
         try {
 

@@ -9,9 +9,6 @@ package org.sipfoundry.sipxbridge;
 import gov.nist.javax.sip.SipStackImpl;
 import gov.nist.javax.sip.message.MessageFactoryImpl;
 
-import java.io.File;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Properties;
 
 import javax.sip.SipException;
@@ -22,6 +19,7 @@ import javax.sip.header.HeaderFactory;
 import javax.sip.header.UserAgentHeader;
 import javax.sip.message.MessageFactory;
 
+import org.apache.log4j.Logger;
 import org.sipfoundry.log4j.SipFoundryAppender;
 import org.sipfoundry.log4j.SipFoundryLayout;
 import org.sipfoundry.log4j.SipFoundryLogRecordFactory;
@@ -33,6 +31,7 @@ import org.sipfoundry.log4j.SipFoundryLogRecordFactory;
  * 
  */
 public class ProtocolObjects {
+    private static final Logger logger = Logger.getLogger(ProtocolObjects.class);
     public static final HeaderFactory headerFactory;
     public static final MessageFactory messageFactory;
     public static final AddressFactory addressFactory;
@@ -71,7 +70,9 @@ public class ProtocolObjects {
                     new SipFoundryLayout(), Gateway.getLogFile()));
 
         } catch (Exception ex) {
-            throw new RuntimeException("Error loading factories", ex);
+            ex.printStackTrace();
+            logger.error("Error loading factories ", ex);
+            throw new GatewayConfigurationException("Error loading factories", ex);
         }
 
     }

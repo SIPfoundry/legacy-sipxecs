@@ -8,11 +8,9 @@
 package org.sipfoundry.sipxbridge;
 
 import javax.sip.Dialog;
-import javax.sip.ServerTransaction;
 import javax.sip.message.Response;
 
 import org.apache.log4j.Logger;
-import org.sipfoundry.sipxbridge.symmitron.Sym;
 
 /**
  * Store information that is specific to a Dialog. This is a temporary holding
@@ -85,22 +83,35 @@ class DialogApplicationData {
 
     }
 
+    
+    static BackToBackUserAgent getBackToBackUserAgent(Dialog dialog) {
+        if (dialog == null) {
+            logger.debug("null dialog -- returning null ");
+            return null;
+        } else if (dialog.getApplicationData() == null) {
+            logger.debug("null dialog application data -- returning null");
+            return null;
+        } else {
+            return ((DialogApplicationData) dialog.getApplicationData()).getBackToBackUserAgent();
+        }
+    }
+    
     /**
      * Conveniance methods
      */
-    public static Dialog getPeerDialog(Dialog dialog) {
+     static Dialog getPeerDialog(Dialog dialog) {
         return ((DialogApplicationData) dialog.getApplicationData()).peerDialog;
     }
 
-    public static RtpSession getRtpSession(Dialog dialog) {
+     static RtpSession getRtpSession(Dialog dialog) {
         return ((DialogApplicationData) dialog.getApplicationData()).rtpSession;
     }
     
-    public static RtpSession getRtcpSession(Dialog dialog) {
+     static RtpSession getRtcpSession(Dialog dialog) {
         return ((DialogApplicationData) dialog.getApplicationData()).rtcpSession;
     }
 
-    public static DialogApplicationData attach(
+     static DialogApplicationData attach(
             BackToBackUserAgent backToBackUserAgent, Dialog dialog) {
         if ( backToBackUserAgent == null ) 
             throw new NullPointerException("Null back2back ua");
@@ -110,14 +121,14 @@ class DialogApplicationData {
         return dat;
     }
 
-    public static DialogApplicationData get(Dialog dialog) {
+     static DialogApplicationData get(Dialog dialog) {
         return (DialogApplicationData) dialog.getApplicationData();
     }
 
     /**
      * @param rtpSession the rtpSession to set
      */
-    public void setRtpSession(RtpSession rtpSession) {
+     void setRtpSession(RtpSession rtpSession) {
       
         this.rtpSession = rtpSession;
     }
@@ -125,35 +136,35 @@ class DialogApplicationData {
     /**
      * @return the rtpSession
      */
-    public RtpSession getRtpSession() {
+     RtpSession getRtpSession() {
         return rtpSession;
     }
 
     /**
      * @param rtcpSession the rtcpSession to set
      */
-    public void setRtcpSession(RtpSession rtcpSession) {
+     void setRtcpSession(RtpSession rtcpSession) {
         this.rtcpSession = rtcpSession;
     }
 
     /**
      * @return the rtcpSession
      */
-    public RtpSession getRtcpSession() {
+     RtpSession getRtcpSession() {
         return rtcpSession;
     }
 
     /**
      * @param backToBackUserAgent the backToBackUserAgent to set
      */
-    public void setBackToBackUserAgent(BackToBackUserAgent backToBackUserAgent) {
+     void setBackToBackUserAgent(BackToBackUserAgent backToBackUserAgent) {
         this.backToBackUserAgent = backToBackUserAgent;
     }
 
     /**
      * @return the backToBackUserAgent
      */
-    public BackToBackUserAgent getBackToBackUserAgent() {
+     BackToBackUserAgent getBackToBackUserAgent() {
         return backToBackUserAgent;
     }
     

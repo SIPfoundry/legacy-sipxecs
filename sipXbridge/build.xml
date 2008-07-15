@@ -147,17 +147,18 @@
 <!-- mkdir dir="${junit.reports}" / -->
 </target>
 
-<target name='test' depends="mkreportdir" description="unit tests">
+<target name='invalidAccountTest' depends="compile,mkreportdir" description="unit tests">
+	<copy file="config.properties.test" toFile="${classes}/config.properties" />
+	<copy file="config.properties.test" toFile="config.properties" />
 
-<!-- 
-<junit fork="yes" showoutput="yes">
-	<classpath refid="project.class.path" />
-	<jvmarg value="-Dlog4j.configuration=log4j.properties" />
-
-	<formatter type="xml" />
-	<test name="test.org.sipfoundry.sipxbridge.SimpleCallSetupTest" todir="${junit.reports}" />
-</junit>
--->
+	<!-- Test for behavior when you try to access an invalid account -->
+	<junit fork="yes" showoutput="yes">
+		<classpath refid="project.class.path" />
+		<!-- jvmarg value="-Dlog4j.configuration=log4j.properties" / -->
+		<jvmarg value="-Dbuild.dir=./" />
+		<formatter type="xml" />
+		<test name="org.sipfoundry.sipxbridge.InvalidAccountTest" todir="${junit.reports}" />
+	</junit>
 </target>
 
 

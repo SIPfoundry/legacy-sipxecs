@@ -116,7 +116,7 @@ public class SimpleCallSetupTest extends AbstractSipSignalingTest {
         for (ItspAccountInfo itspAccount : Gateway.getAccountManager()
                 .getItspAccounts()) {
             if (itspAccount.getState() != AccountState.AUTHENTICATED) {
-                fail("Could not REGISTER");
+                fail("Could not REGISTER " + itspAccount + " state = " + itspAccount.getState());
             }
         }
     }
@@ -293,6 +293,7 @@ public class SimpleCallSetupTest extends AbstractSipSignalingTest {
     public void tearDown() throws Exception {
         mockItsp.stop();
         sipStack.dispose();
+        Gateway.stopXmlRpcServer();
         Gateway.stop();
         for ( SipPhone phone : this.caller) {
             phone.dispose();
@@ -312,14 +313,11 @@ public class SimpleCallSetupTest extends AbstractSipSignalingTest {
         sipStack.setTraceEnabled(true);
 
         System.out.println("localAddr = " + localAddr);
-        System.out.println("localPort = " + localPort);
-
+       
         this.mockItsp = new MockItsp(this);
 
         this.mockItsp.init(1000);
-        Gateway.parseConfigurationFile();
-        Gateway.initializeSymmitron();
-        Gateway.start();
+       
 
     }
 

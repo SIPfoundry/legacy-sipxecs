@@ -13,6 +13,7 @@ import gov.nist.javax.sip.stack.SIPDialog;
 import gov.nist.javax.sip.stack.SIPServerTransaction;
 
 import java.text.ParseException;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.Locale;
 import java.util.Random;
@@ -54,7 +55,7 @@ import org.sipfoundry.sipxbridge.symmitron.KeepaliveMethod;
  * @author M. Ranganathan
  * 
  */
-public class CallControlManager {
+class CallControlManager {
 
     private static Logger logger = Logger.getLogger(CallControlManager.class);
 
@@ -64,7 +65,7 @@ public class CallControlManager {
      * Send Internal error to the other side.
      * 
      */
-    public static void sendInternalError(ServerTransaction st, Exception ex) {
+    static void sendInternalError(ServerTransaction st, Exception ex) {
         try {
             Request request = st.getRequest();
             Response response = ProtocolObjects.messageFactory.createResponse(
@@ -378,7 +379,7 @@ public class CallControlManager {
             logger.error("Unexpected exception while processing REFER", ex);
             if (tad != null) {
                 ServerTransaction serverTransaction = tad.serverTransaction;
-                this.sendInternalError(serverTransaction, ex);
+                sendInternalError(serverTransaction, ex);
             }
         }
 
@@ -389,7 +390,7 @@ public class CallControlManager {
      */
     private void processAck(RequestEvent requestEvent) {
         try {
-            BackToBackUserAgent btobua = getBackToBackUserAgent(requestEvent.getDialog());
+            BackToBackUserAgent btobua = DialogApplicationData.getBackToBackUserAgent(requestEvent.getDialog());
 
             if (btobua == null) {
                 logger.debug("Could not find B2BUA -- not forwarding ACK ");
@@ -439,7 +440,7 @@ public class CallControlManager {
     private void processCancel(RequestEvent requestEvent) {
 
         Dialog dialog = requestEvent.getDialog();
-        BackToBackUserAgent btobua = this.getBackToBackUserAgent(requestEvent.getDialog());
+        BackToBackUserAgent btobua = DialogApplicationData.getBackToBackUserAgent(requestEvent.getDialog());
 
         try {
             Response cancelOk = SipUtilities.createResponse(requestEvent.getServerTransaction(),
@@ -496,7 +497,7 @@ public class CallControlManager {
      */
     private void processBye(RequestEvent requestEvent) {
         try {
-            BackToBackUserAgent b2bua = this.getBackToBackUserAgent(requestEvent.getDialog());
+            BackToBackUserAgent b2bua = DialogApplicationData.getBackToBackUserAgent(requestEvent.getDialog());
 
             if (b2bua != null) {
 
@@ -941,7 +942,7 @@ public class CallControlManager {
                      */
                     if (dat.musicOnHoldDialog != null
                             && dat.musicOnHoldDialog.getState() != DialogState.TERMINATED) {
-                        this.getBackToBackUserAgent(dialog).sendByeToMohServer(
+                        DialogApplicationData.getBackToBackUserAgent(dialog).sendByeToMohServer(
                                 dat.musicOnHoldDialog);
                     }
 
@@ -1006,9 +1007,9 @@ public class CallControlManager {
         } catch (Exception ex) {
             // Some other exception occured during processing of the request.
             logger.error("Exception while processing inbound response ", ex);
-            if (serverTransaction != null)
+            if (serverTransaction != null) {
                 sendInternalError(serverTransaction, ex);
-            // TODO tear down dialogs so the sip stack does not bloat.
+            }
         }
 
     }
@@ -1041,17 +1042,14 @@ public class CallControlManager {
         }
     }
 
-    // ///////////////////////////////////////////////////////////////////////////////////////////////////
-    // Public methods.
-    // //////////////////////////////////////////////////////////////////////////////////////////////////
-
+  
     /**
      * Get a new B2bua for a given call Id.
      * 
      * @param callId -- callId for which we want our user agent.
      */
 
-    public synchronized BackToBackUserAgent getBackToBackUserAgent(SipProvider provider,
+    synchronized BackToBackUserAgent getBackToBackUserAgent(SipProvider provider,
             Request request, Dialog dialog, boolean callOriginatedFromLan) throws Exception {
 
         String callId = SipUtilities.getCallId(request);
@@ -1095,22 +1093,12 @@ public class CallControlManager {
 
     }
 
-    BackToBackUserAgent getBackToBackUserAgent(Dialog dialog) {
-        if (dialog == null) {
-            logger.debug("null dialog -- returning null ");
-            return null;
-        } else if (dialog.getApplicationData() == null) {
-            logger.debug("null dialog application data -- returning null");
-            return null;
-        } else {
-            return ((DialogApplicationData) dialog.getApplicationData()).getBackToBackUserAgent();
-        }
-    }
+    
 
     /**
      * Process an incoming request.
      */
-    public void processRequest(RequestEvent requestEvent) {
+    void processRequest(RequestEvent requestEvent) {
         Request request = requestEvent.getRequest();
         String method = request.getMethod();
         if (method.equals(Request.INVITE)) {
@@ -1132,7 +1120,7 @@ public class CallControlManager {
     /**
      * Process an incoming response
      */
-    public void processResponse(ResponseEvent responseEvent) {
+    void processResponse(ResponseEvent responseEvent) {
         Response response = responseEvent.getResponse();
         String method = ((CSeqHeader) response.getHeader(CSeqHeader.NAME)).getMethod();
         if (method.equals(Request.INVITE)) {
@@ -1146,7 +1134,7 @@ public class CallControlManager {
         }
     }
 
-    public void stop() {
+    void stop() {
         /*
          * The following code assumes that the sip stack is being used just for this service.
          */
@@ -1161,7 +1149,7 @@ public class CallControlManager {
      * 
      * @param backToBackUserAgent
      */
-    public void removeBackToBackUserAgent(BackToBackUserAgent backToBackUserAgent) {
+    void removeBackToBackUserAgent(BackToBackUserAgent backToBackUserAgent) {
         for (Iterator<String> keyIterator = this.backToBackUserAgentTable.keySet().iterator(); keyIterator
                 .hasNext();) {
             String key = keyIterator.next();
@@ -1183,6 +1171,26 @@ public class CallControlManager {
 
         logger.debug("B2BUATable = " + this.backToBackUserAgentTable);
 
+    }
+    
+    /**
+     * Get the Back to back user agent set.
+     */
+    Collection<BackToBackUserAgent> getBackToBackUserAgents() {
+        return this.backToBackUserAgentTable.values();
+    }
+
+    /**
+     * Get the B2BUA for a given callId. This method is used by the XML RPC interface
+     * to cancel a call hence needs to be public.
+     * 
+     * @param callId
+     * @return
+     */
+    public BackToBackUserAgent getBackToBackUserAgent(String callId) {
+        
+        return this.backToBackUserAgentTable.get(callId);
+        
     }
 
 }

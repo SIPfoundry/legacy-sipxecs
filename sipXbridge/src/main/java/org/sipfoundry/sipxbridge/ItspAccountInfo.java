@@ -13,6 +13,7 @@ import java.util.TimerTask;
 
 import org.apache.log4j.Logger;
 import org.sipfoundry.sipxbridge.symmitron.KeepaliveMethod;
+import org.sipfoundry.sipxbridge.xmlrpc.RegistrationRecord;
 import org.xbill.DNS.Lookup;
 import org.xbill.DNS.Record;
 import org.xbill.DNS.SRVRecord;
@@ -30,7 +31,7 @@ public class ItspAccountInfo implements gov.nist.javax.sip.clientauthutils.UserC
     private static Logger logger = Logger.getLogger(ItspAccountInfo.class);
 
     /**
-     * The outbound registrar for the account.
+     * The outbound proxy for the account.
      */
     private String outboundProxy;
     
@@ -38,11 +39,26 @@ public class ItspAccountInfo implements gov.nist.javax.sip.clientauthutils.UserC
      * The Inbound proxy for the account
      */
     private String inboundProxy;
+    
+    /**
+     * The port for the inbound proxy.
+     */
+    private int inboundProxyPort = 5060;
 
     /**
      * The proxy + registrar port.
      */
-    private int proxyPort = 5060;
+    private int outboundProxyPort = 5060;
+    
+    /**
+     * The outbound Registrar
+     */
+    private String outboundRegistrar;
+    
+    /**
+     * The outbound registrar port.
+     */
+    private int outboundRegistrarPort = 5060;
 
     /**
      * User name for the account.
@@ -109,18 +125,34 @@ public class ItspAccountInfo implements gov.nist.javax.sip.clientauthutils.UserC
      * NAT keepalive method.
      */
     private String sipKeepaliveMethod = "CR-LF";
+    
+    /*
+     * Timer task that periodically sends out CRLF
+     */
 
     private CrLfTimerTask crlfTimerTask;
+    
+    /*
+     * The Keepalive method.
+     */
 
     private KeepaliveMethod rtpKeepaliveMethod = KeepaliveMethod.USE_EMPTY_PACKET;
+    
+    /*
+     * Whether or not to use registration for caller id when sending out invite.
+     */
 
     private boolean useRegistrationForCallerId = true;
+    
+    /*
+     * Number of concurrent calls.
+     */
 
     private int maxCalls = -1;
 
     private int callCount = 0;
 
-    private String outboundRegistrarRoute;
+   
 
     private boolean crLfTimerTaskStarted;
 
@@ -211,7 +243,7 @@ public class ItspAccountInfo implements gov.nist.javax.sip.clientauthutils.UserC
     }
 
     public int getProxyPort() {
-        return proxyPort;
+        return outboundProxyPort;
     }
 
     public String getUserName() {
@@ -245,7 +277,7 @@ public class ItspAccountInfo implements gov.nist.javax.sip.clientauthutils.UserC
      */
 
     public void setPort(int port) {
-        this.proxyPort = port;
+        this.outboundProxyPort = port;
 
     }
 
@@ -311,7 +343,7 @@ public class ItspAccountInfo implements gov.nist.javax.sip.clientauthutils.UserC
      * @param proxyPort the proxyPort to set
      */
     public void setProxyPort(int proxyPort) {
-        this.proxyPort = proxyPort;
+        this.outboundProxyPort = proxyPort;
     }
 
     /**
@@ -543,15 +575,23 @@ public class ItspAccountInfo implements gov.nist.javax.sip.clientauthutils.UserC
      * @param outboundRegistrarRoute the outboundRegistrarRoute to set
      */
     public void setOutboundRegistrar(String outboundRegistrarRoute) {
-        this.outboundRegistrarRoute = outboundRegistrarRoute;
+        this.outboundRegistrar = outboundRegistrarRoute;
     }
 
     /**
      * @return the outboundRegistrarRoute
      */
     public String getOutboundRegistrar() {
-        return outboundRegistrarRoute != null ? this.outboundRegistrarRoute :
+        return outboundRegistrar != null ? this.outboundRegistrar :
                 this.getInboundProxy();
+    }
+    
+    /**
+     * @return the outboundRegistrar port.
+     */
+    public int getOutboundRegistrarPort() {
+        return outboundRegistrar != null ? this.outboundRegistrarPort :
+            this.getInboundProxyPort();
     }
 
     /**
@@ -566,6 +606,23 @@ public class ItspAccountInfo implements gov.nist.javax.sip.clientauthutils.UserC
      */
     public String getInboundProxy() {
         return inboundProxy == null ? getOutboundProxy() : inboundProxy;
+    }
+    
+    /**
+     * @return the inbound proxy port.
+     */
+    public int getInboundProxyPort() {
+        return inboundProxy != null ? inboundProxyPort : this.getProxyPort();
+    }
+    
+    /**
+     * @return the registration record for this account
+     */
+    public RegistrationRecord getRegistrationRecord() {
+        RegistrationRecord retval = new RegistrationRecord();
+        retval.setRegisteredAddress(this.getProxyDomain());
+        retval.setRegistrationStatus(this.state.toString());
+        return retval;
     }
 
 }

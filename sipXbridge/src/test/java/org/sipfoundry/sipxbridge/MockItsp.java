@@ -329,6 +329,7 @@ public class MockItsp implements SipListener {
 
     public MockItsp(AbstractSipSignalingTest abstractSipSignalingTest)
             throws Exception {
+        System.out.println("Creating MockITSP");
         this.abstractSipSignalingTest = abstractSipSignalingTest;
         this.accountInfo = abstractSipSignalingTest.accountInfo;
         this.bridgeConfig = abstractSipSignalingTest.accountManager
@@ -372,6 +373,7 @@ public class MockItsp implements SipListener {
     }
 
     public void processRequest(RequestEvent requestEvent) {
+        System.out.println("ProcessRequest " + requestEvent.getRequest().getMethod());
         try {
             Request request = requestEvent.getRequest();
             ServerTransaction st = requestEvent.getServerTransaction();

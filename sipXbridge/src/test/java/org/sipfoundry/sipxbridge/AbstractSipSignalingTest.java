@@ -12,6 +12,7 @@ import java.io.FileInputStream;
 import java.util.Properties;
 
 import org.cafesip.sipunit.SipTestCase;
+import org.sipfoundry.sipxbridge.xmlrpc.SipXbridgeXmlRpcClient;
 
 public abstract class AbstractSipSignalingTest extends SipTestCase {
     protected int sipxProxyPort = 5060;
@@ -21,6 +22,7 @@ public abstract class AbstractSipSignalingTest extends SipTestCase {
     protected ItspAccountInfo accountInfo;
     protected AccountManagerImpl accountManager;
     protected String sipxProxyAddress;
+    protected SipXbridgeXmlRpcClient client;
   
   
     @Override
@@ -30,10 +32,18 @@ public abstract class AbstractSipSignalingTest extends SipTestCase {
                 "testdata/selftest.properties")));
         String accountName = properties
                 .getProperty("org.sipfoundry.gateway.mockItspAccount");
-        Gateway.setConfigurationFileName(accountName);
         System.out.println("config file name " + accountName);
+        Gateway.setConfigurationFileName(accountName);
         Gateway.parseConfigurationFile();
-        Gateway.initializeSymmitron();
+     
+        Gateway.startXmlRpcServer();
+        Gateway.start();
+        System.out.println("Web server started");
+        this.client = new SipXbridgeXmlRpcClient
+            (Gateway.getAccountManager().getBridgeConfiguration().getExternalAddress(),
+                    Gateway.getAccountManager().getBridgeConfiguration().getXmlRpcPort());
+        
+      
         accountManager = Gateway.getAccountManager();
         accountInfo = accountManager.getDefaultAccount();
         sipxProxyAddress = properties.getProperty("org.sipfoundry.gateway.mockSipxProxyAddress");     
