@@ -255,6 +255,7 @@
   <target name="version7" description="upgrade from version 6" unless="version8">
     <antcall target="callgroup-credentials" />
     <antcall target="AA-transfer-out" />
+    <antcall target="migrate-audiocodes-mediant" />
   	<antcall target="sbc-reference-sbc-device" />
   	<antcall target="gateway-reference-sbc-device" />
     <antcall target="sbc-device-add-port" />
@@ -613,6 +614,10 @@
       'transfer_to_extension';
     </sipx-sql>
     <mark-patch-applied patch="AA-transfer-out" />
+  </target>
+
+  <target name="migrate-audiocodes-mediant" unless="migrate-audiocodes-mediant">
+    <db-patch patch="migrate-audiocodes-mediant"/>
   </target>
 
   <target name="sbc-reference-sbc-device" unless="sbc-reference-sbc-device">
