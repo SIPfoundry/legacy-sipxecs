@@ -128,14 +128,14 @@ public abstract class AbstractSymmitronTestCase extends TestCase {
     }
     
     protected void setRemoteEndpoint( String sym, int destinationPort) throws Exception {
-        Object[] params = new Object[7];
+        Object[] params = new Object[6];
         params[0] = clientHandle;
         params[1] = sym;
         params[2] = serverAddress;
         params[3] = new Integer(destinationPort);
         params[4] = new Integer(500);
         params[5] = "USE-EMPTY-PACKET";
-        params[6] = "";
+      
         Map retval = (Map)client.execute("sipXrelay.setDestination", params);
         if ( retval.get(Symmitron.STATUS_CODE).equals(Symmitron.ERROR)) {
             throw new Exception("Error in processing request " +
@@ -146,14 +146,14 @@ public abstract class AbstractSymmitronTestCase extends TestCase {
     
     protected void setRemoteEndpointNoKeepAlive(String sym , int destinationPort)
         throws Exception {
-        Object[] params = new Object[7];
+        Object[] params = new Object[6];
         params[0] = clientHandle;
         params[1] = sym;
         params[2] = serverAddress;
         params[3] = new Integer(destinationPort);
         params[4] = new Integer(500);
         params[5] = "NONE";
-        params[6] = "";
+       
         Map retval = (Map)client.execute("sipXrelay.setDestination", params);
         if ( retval.get(Symmitron.STATUS_CODE).equals(Symmitron.ERROR)) {
             throw new Exception("Error in processing request " +
@@ -163,14 +163,14 @@ public abstract class AbstractSymmitronTestCase extends TestCase {
     }
     
     protected void setAutoDiscover( String sym) throws Exception {
-        Object[] params = new Object[7];
+        Object[] params = new Object[6];
         params[0] = clientHandle;
         params[1] = sym;
         params[2] = "";
         params[3] = 0;
         params[4] = new Integer(500);
         params[5] = "USE-EMPTY-PACKET";
-        params[6] = "";
+      
       
         Map retval = (Map)client.execute("sipXrelay.setDestination", params);
         if ( retval.get(Symmitron.STATUS_CODE).equals(Symmitron.ERROR)) {

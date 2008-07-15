@@ -24,7 +24,6 @@ import org.apache.xmlrpc.server.XmlRpcServer;
 import org.apache.xmlrpc.server.XmlRpcServerConfigImpl;
 import org.apache.xmlrpc.webserver.WebServer;
 
-import sun.misc.UUDecoder;
 
 /**
  * The SIPXbridge XML RPC handler.
@@ -349,8 +348,7 @@ public class SymmitronServer implements Symmitron {
      *      java.lang.String, int , int, java.lang.String, byte[], boolean)
      */
     public Map<String, Object> setDestination(String controllerHandle, String symId,
-            String ipAddress, int port, int keepAliveTime, String keepaliveMethod,
-            String keepAlivePacketData) {
+            String ipAddress, int port, int keepAliveTime, String keepaliveMethod) {
         try {
             this.checkForControllerReboot(controllerHandle);
 
@@ -386,12 +384,13 @@ public class SymmitronServer implements Symmitron {
             transmitter.setMaxSilence(keepAliveTime, method);
 
             byte[] keepAliveBytes = null;
-            if (keepAlivePacketData.equals("")) {
-                keepAliveBytes = null;
-            } else {
-                UUDecoder decoder = new UUDecoder();
-                decoder.decodeBuffer(keepAlivePacketData);
-            }
+            
+            // if (keepAlivePacketData.equals("")) {
+            //     keepAliveBytes = null;
+            // } else {
+            //     UUDecoder decoder = new UUDecoder();
+            //     decoder.decodeBuffer(keepAlivePacketData);
+            // }
 
             transmitter.setKeepalivePayload(keepAliveBytes);
 

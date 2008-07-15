@@ -37,6 +37,12 @@ public class SipXbridgeXmlRpcClient {
     }
 
    
+    /**
+     * Gets an array of Registration records - one record for each account
+     * that requires registration.
+     * 
+     * @return an array of registration records.
+     */
 
     public RegistrationRecord[] getRegistrationRecords() {
         Map retval = null;
@@ -65,6 +71,28 @@ public class SipXbridgeXmlRpcClient {
         
         return registrationRecords;
         
+    }
+    
+    
+    /**
+     * Get a count of the number of ongoing calls.
+     * 
+     * @return the number of ongoing calls.
+     */
+    public int getCallCount() {
+        Map retval = null;
+        try {
+            retval = (Map) client.execute(SipXbridgeXmlRpcServer.SERVER + "."
+                    + "getCallCount", (Object[]) null);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            throw new SipXbridgeClientException(ex);
+        }
+        if (retval.get(SipXbridgeXmlRpcServer.STATUS_CODE).equals(SipXbridgeXmlRpcServer.ERROR)) {
+            throw new SipXbridgeClientException("Error in processing request "
+                    + retval.get(SipXbridgeXmlRpcServer.ERROR_INFO));
+        }
+        return Integer.parseInt((String)retval.get(SipXbridgeXmlRpcServer.CALL_COUNT));
     }
 
     

@@ -54,13 +54,12 @@ public interface SipXbridgeXmlRpcServer {
      */
     public static final String REGISTRATION_RECORDS = "registrationRecords";
     
-    
     /**
-     * Returns the records of ongoing calls.
-     * 
-     * @return
+     * Data element for number of ongoing calls.
      */
-    public Map<String,Object> getCallRecords();
+    public static final String CALL_COUNT = "callCount";
+    
+    
     
     /**
      * Returns the registration status of each account that 
@@ -68,10 +67,12 @@ public interface SipXbridgeXmlRpcServer {
      */
     public Map<String,Object> getRegistrationStatus();
     
+    
     /**
-     * Hangup an ongoing call.
+     * Returns the number of ongoing calls.
+     * 
      */
-    public Map<String,Object> hangUpCall(String callId);
+    public Map<String,Object> getCallCount();
     
     /**
      * Start the bridge.

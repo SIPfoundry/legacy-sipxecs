@@ -156,26 +156,26 @@ public class SymmitronTest extends AbstractSymmitronTestCase {
          * byte[] keepAlivePacketData, boolean autoDiscoverFlag)
          */
 
-        params = new Object[7];
+        params = new Object[6];
         params[0] = clientHandle;
         params[1] = sym1;
         params[2] = serverAddress;
         params[3] = new Integer(destinationPort1);
         params[4] = new Integer(500);
         params[5] = "USE-EMPTY-PACKET";
-        params[6] = "";
+  
 
         retval = (Map) client.execute("sipXrelay.setDestination", params);
         super.checkStandardMap(retval);
 
-        params = new Object[7];
+        params = new Object[6];
         params[0] = clientHandle;
         params[1] = sym2;
         params[2] = serverAddress;
         params[3] = new Integer(destinationPort2);
         params[4] = new Integer(500);
         params[5] = "USE-EMPTY-PACKET";
-        params[6] = "";
+       
 
         retval = (Map) client.execute("sipXrelay.setDestination", params);
         super.checkStandardMap(retval);

@@ -10,7 +10,7 @@ public class RegistrationRecord {
     private String registeredAddress;
     private static String REGISTERED_ADDRESS = "registeredAddress";
     private String registrationStatus;
-    private static final String REGISTRATION_STATUS = "registrationStatus";
+    private static final String REGISTRATION_STATUS = "registrationStatus";  
     
     
     public static RegistrationRecord create(Map<String,String> map) {

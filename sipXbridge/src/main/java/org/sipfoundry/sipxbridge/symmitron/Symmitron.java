@@ -367,12 +367,8 @@ public interface Symmitron {
      * 
      * @param keepAliveMethod --
      *            can be one of the following "NONE",
-     *            "USE-LAST-SENT","USE-EMPTY-PACKET" "USE-SPECIFIED-PAYLOAD"
+     *            "USE-LAST-SENT","USE-EMPTY-PACKET" 
      * 
-     * @param keepAlivePacketData --
-     *            the keep alive packet data. This parameter is relevant if
-     *            USE-SPECIFIED-PAYLOAD is specified. This is a uuencoded
-     *            string. It is uudecoded to extract the keepalive data.
      * 
      * 
      * 
@@ -381,8 +377,7 @@ public interface Symmitron {
      */
     public Map<String, Object> setDestination(String controllerHandle,
             String symId, String destinationIpAddress, int destinationPort,
-            int keepAliveTime, String keepaliveMethod,
-            String keepAlivePacketData);
+            int keepAliveTime, String keepaliveMethod);
 
     /**
      * Remove a sym from a bridge.
