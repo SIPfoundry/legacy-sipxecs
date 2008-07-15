@@ -28,6 +28,20 @@ public class EditBridgeTestUi extends ListWebTestCase {
         setAddLinkSubmit(true);
     }
 
+    public void testTabNames() {
+        SiteTestHelper.home(tester);
+        clickLink("EditBridge");
+        assertLinkPresent("link:config");
+        assertLinkNotPresent("link:conferences");
+        
+        new ConferenceTestHelper(tester).createBridge("testCreateBridge");
+        SiteTestHelper.home(tester);
+        clickLink("ListBridges");
+        clickLinkWithText("testCreateBridge");
+        assertLinkPresent("link:config");
+        assertLinkPresent("link:conferences");
+    }
+    
     public void setUp() {
         getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
         SiteTestHelper.home(getTester());
