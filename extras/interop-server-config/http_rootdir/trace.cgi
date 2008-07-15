@@ -78,8 +78,8 @@ else
         ' The trace can be displayed using the sipXecs "sipviewer" application.',
         ' You can download ', 
         $query->a({href=>"sipviewer-install.jar"},'an installer for the application.'),
-        ' The installer is a java jar file; execute it on your system to install sipviewer;',
-        ' it should work on any system with java installed.'
+        ' The installer is a Java jar file; execute it on your system to install sipviewer;',
+        ' it should work on any system with Java installed.'
         );
     print $query->hr();
     print $query->p(
