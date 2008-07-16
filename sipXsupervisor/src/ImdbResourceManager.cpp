@@ -79,7 +79,7 @@ ImdbResourceManager::~ImdbResourceManager()
    OsLock tableMutex(mImdbResourceTableLock);
 
    OsSysLog::add(FAC_WATCHDOG, PRI_CRIT, "ImdbResourceManager::~ "
-                 "delete %d ImdbResources", mImdbResourceTable.entries());
+                 "delete %zu ImdbResources", mImdbResourceTable.entries());
 
    mImdbResourceTable.destroyAll();
 }

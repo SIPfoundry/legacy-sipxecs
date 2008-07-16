@@ -79,7 +79,7 @@ FileResourceManager::~FileResourceManager()
    OsLock tableMutex(mFileResourceTableLock);
 
    OsSysLog::add(FAC_WATCHDOG, PRI_CRIT, "FileResourceManager::~ "
-                 "delete %d FileResources", mFileResourceTable.entries());
+                 "delete %zu FileResources", mFileResourceTable.entries());
 
    mFileResourceTable.destroyAll();
 }
