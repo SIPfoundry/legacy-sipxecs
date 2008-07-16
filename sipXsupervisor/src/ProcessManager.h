@@ -35,12 +35,12 @@ class ProcessManager
    /// Locate a Process object by name.
    Process* findProcess(const UtlString& processName);
 
-  protected:
-   friend class ProcessManagerTest;
-      
    /// Parse the XML of a process definition
    void instantiateProcesses(const OsPath& processDefinitionDirectory);
    
+  protected:
+   friend class ProcessManagerTest;
+      
   private:
 
    static OsBSem sSingletonLock;       ///< protects access to spSingleton

@@ -65,7 +65,7 @@ bool SipxResource::parse(const TiXmlDocument& processDefinitionDoc,
          SqldbResource::parse(processDefinitionDoc, resourceElement, currentProcess);
    }
    else if (   (0==strcmp(resourceTypeName,FileResource::FileResourceTypeName))
-            || (0==strcmp(resourceTypeName,FileResource::OsconfigdbResourceTypeName))
+            || (0==strcmp(resourceTypeName,FileResource::OsconfigResourceTypeName))
             )
    {
       resourceElementIsValid =

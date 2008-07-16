@@ -16,16 +16,18 @@
 #include <signal.h>
 
 // APPLICATION INCLUDES
-#include "net/NameValueTokenizer.h"
-#include "processXMLCommon.h"
-#include "WatchDog.h"
 #include "os/OsSysLog.h"
 #include "os/OsConfigDb.h"
 #include "os/OsTask.h"
-#include "EmailReporter.h"
+#include "net/NameValueTokenizer.h"
 #include "sipdb/SIPDBManager.h"
 #include "sipXecsService/SipXecsService.h"
+
 #include "config/sipxsupervisor-buildstamp.h"
+#include "EmailReporter.h"
+#include "processXMLCommon.h"
+#include "ProcessManager.h"
+#include "WatchDog.h"
 
 //The worker who does all the checking... based on OsServerTask
 WatchDog *pDog;
@@ -810,7 +812,24 @@ int main(int argc, char* argv[])
     OsSysLog::add(FAC_WATCHDOG, PRI_INFO, 
                   "Process check occurs every %d seconds.", gnCheckPeriod);
     
-    // Create the list of processes to watch.
+    // Get the Watchdog XML-RPC server settings.
+    UtlSList allowedPeers;
+    int port;
+    rc = initXMLRPCsettings(port, allowedPeers);
+    if (OS_SUCCESS != rc)
+    {
+       OsSysLog::add(FAC_WATCHDOG, PRI_CRIT, 
+                     "initXMLRPCsettings() failed, rc = %d.", (int)rc);
+       return 11;
+    }
+    
+    // Read the process definitions.
+    UtlString processDefinitionDirectory =
+       SipXecsService::Path(SipXecsService::DataDirType, "process.d");
+    ProcessManager* processManager = ProcessManager::getInstance();
+    processManager->instantiateProcesses(processDefinitionDirectory);
+
+    // @TODO - old style - to be removed: Create the list of processes to watch.
     rc = createProcessList(watchdogXMLDoc, processXMLDoc, gpProcessList, gnProcessCount);
     if (OS_SUCCESS != rc)
     {
@@ -822,17 +841,6 @@ int main(int argc, char* argv[])
         osPrintf("Couldn't load process list: Error in '%s' and/or '%s/ProcessDefinitions.xml'.\n",
                  strWatchDogFilename.data(), processXMLPath.data());
         return 10;
-    }
-    
-    // Get the Watchdog XML-RPC server settings.
-    UtlSList allowedPeers;
-    int port;
-    rc = initXMLRPCsettings(port, allowedPeers);
-    if (OS_SUCCESS != rc)
-    {
-        OsSysLog::add(FAC_WATCHDOG, PRI_CRIT, 
-           "initXMLRPCsettings() failed, rc = %d.", (int)rc);
-        return 11;
     }
     
     // Create the "watchdog" which will monitor the process list.

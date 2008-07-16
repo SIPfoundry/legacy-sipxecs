@@ -23,6 +23,7 @@
 
 #include "Process.h"
 #include "ProcessCmd.h"
+#include "ProcessManager.h"
 #include "FileResource.h"
 #include "FileResourceManager.h"
 #include "ImdbResource.h"
@@ -213,6 +214,11 @@ public:
 
          testContext.inputFilePath("goodprocess.xml", path);
          CPPUNIT_ASSERT((process = Process::createFromDefinition(path)));
+         /*
+          * Cannot check ProcessManager::findProcess("Good") because
+          * the Process is only saved in ProcessManager::instantiateProcesses,
+          * which this test didn't use.
+          */
 
          ASSERT_STR_EQUAL("Good", process->data());
          ASSERT_STR_EQUAL("1.0.0", process->mVersion.data());

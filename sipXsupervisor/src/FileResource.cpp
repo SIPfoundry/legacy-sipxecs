@@ -23,19 +23,19 @@
 const UtlContainableType FileResource::TYPE = "FileResource";
 
 const char* FileResource::FileResourceTypeName = "file";
-const char* FileResource::OsconfigdbResourceTypeName = "osconfigdb";
+const char* FileResource::OsconfigResourceTypeName = "osconfig";
 
 // TYPEDEFS
 // FORWARD DECLARATIONS
 
-// Factory method that parses a 'file' or 'osconfigdb' resource description element.
+// Factory method that parses a 'file' or 'osconfig' resource description element.
 bool FileResource::parse(const TiXmlDocument& fileDefinitionDoc, ///< process definition document
-                         TiXmlElement* resourceElement, // 'file' or 'osconfigdb' element
+                         TiXmlElement* resourceElement, // 'file' or 'osconfig' element
                          Process* currentProcess        // whose resources are being read.
                          )
 {
    /*
-    * This is called by SipxResource::parse with any 'file' or 'osconfigdb' child of
+    * This is called by SipxResource::parse with any 'file' or 'osconfig' child of
     * the 'resources' element in a process definition.
     *
     * @returns NULL if the element was in any way invalid.

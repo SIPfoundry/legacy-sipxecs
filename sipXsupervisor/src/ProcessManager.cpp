@@ -15,13 +15,26 @@
 
 // DEFINES
 // CONSTANTS
-const char* PROCESS_DEFINITION_NAME_PATTERN = "*-process.xml";
+const char* PROCESS_DEFINITION_NAME_PATTERN = ".*-process.xml";
 
 // STATICS
 OsBSem          ProcessManager::sSingletonLock(OsBSem::Q_PRIORITY, OsBSem::FULL);
 ProcessManager* ProcessManager::spSingleton;
 
 // FORWARD DECLARATIONS
+
+/// Singleton accessor
+ProcessManager* ProcessManager::getInstance()
+{
+   OsLock mutex(sSingletonLock);
+
+   if (!spSingleton)
+   {
+      spSingleton = new ProcessManager();
+   }
+   return spSingleton;
+}
+
 
 /// constructor
 ProcessManager::ProcessManager() :
@@ -32,6 +45,10 @@ ProcessManager::ProcessManager() :
 /// Locate a Process object by name.
 Process* ProcessManager::findProcess(const UtlString& processName)
 {
+   OsSysLog::add(FAC_WATCHDOG, PRI_DEBUG,"ProcessManager::findProcess "
+                 "searching for '%s'", processName.data()
+                 );
+
    OsLock tableMutex(mProcessTableLock);
 
    return dynamic_cast<Process*>(mProcesses.find(&processName));
@@ -56,12 +73,19 @@ void ProcessManager::instantiateProcesses(const OsPath& processDefinitionDirecto
         )
    {
       Process*  newProcess;
-
+      OsPath processDefinitionPath( processDefinitionDirectory
+                                   +OsPath::separator
+                                   +processDefinitionFile
+                                   );
       OsSysLog::add(FAC_WATCHDOG, PRI_DEBUG,"ProcessManager::instantiateProcesses reading %s",
-                    processDefinitionFile.data()
+                    processDefinitionPath.data()
                     );
-      if ((newProcess = Process::createFromDefinition(processDefinitionFile)))
+      if ((newProcess = Process::createFromDefinition(processDefinitionPath)))
       {
+         OsLock mutex(mProcessTableLock);
+         
+         OsSysLog::add(FAC_WATCHDOG, PRI_NOTICE, "ProcessManager::instantiateProcesses "
+                       "create Process monitor '%s'", newProcess->data());
          mProcesses.insert(newProcess);
       }
       else
@@ -76,8 +100,8 @@ ProcessManager::~ProcessManager()
 {
    OsLock tableMutex(mProcessTableLock);
 
-   OsSysLog::add(FAC_WATCHDOG, PRI_CRIT, "ProcessManager::~ "
-                 "delete %zu Process objects", mProcesses.entries());
+   OsSysLog::add(FAC_WATCHDOG, PRI_NOTICE, "ProcessManager::~ "
+                 "delete %d Process objects", mProcesses.entries());
 
    mProcesses.destroyAll();
 };

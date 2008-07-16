@@ -25,10 +25,10 @@
  *
  * To locate a particular FileResource, call FileResourceManager::find.
  *
- * At present, this class is used for both 'file' and 'osconfigdb' resource types; they
+ * At present, this class is used for both 'file' and 'osconfig' resource types; they
  * are in fact both files, but in the future we may take advantage of other ways of manipulating
  * an OsConfigDb (see ConfigRPC), so we make the distinction in the definition.
- * If we make that change, the osconfigdb element parsing will be moved to a SipxResource
+ * If we make that change, the osconfig element parsing will be moved to a SipxResource
  * subclass of its own.
  */
 class FileResource : public SipxResource
@@ -42,16 +42,16 @@ class FileResource : public SipxResource
 ///@{
    /// Public name of the resource element parsed by this parser.
    static const char* FileResourceTypeName;       ///< name of 'file' resource element
-   static const char* OsconfigdbResourceTypeName; ///< name of 'osconfigdb' resource element
+   static const char* OsconfigResourceTypeName;   ///< name of 'osconfig' resource element
 
-   /// Factory method that parses a 'file' or 'osconfigdb' resource description element.
+   /// Factory method that parses a 'file' or 'osconfig' resource description element.
    static
       bool parse(const TiXmlDocument& processDefinitionDoc, ///< process definition document
                  TiXmlElement* resourceElement, ///< the child element of 'resources'.
                  Process* currentProcess        ///< Process whose resources are being read.
                  );
    /**<
-    * This is called by SipxResource::parse with any 'file' or 'osconfigdb' child of
+    * This is called by SipxResource::parse with any 'file' or 'osconfig' child of
     * the 'resources' element in a process definition.  
     *
     * @returns false if the element was in any way invalid.
