@@ -22,8 +22,8 @@
   <resources>
     <osconfig>@SIPX_CONFDIR@/domain-config</osconfig>
     <osconfig>@SIPX_CONFDIR@/sipXproxy-config</osconfig>
-    <file>@SIPX_CONFDIR@/forwardingrules.xml</file>
-    <file>@SIPX_CONFDIR@/authrules.xml</file>
+    <file>@SIPX_CONFDIR@/forwardingrules.xml.in</file>
+    <file>@SIPX_CONFDIR@/authrules.xml.in</file>
     <imdb>credential</imdb>
     <imdb>permission</imdb>
     <imdb>caller-alias</imdb>

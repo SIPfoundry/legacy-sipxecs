@@ -18,7 +18,6 @@
 #include "net/XmlRpcDispatch.h"
 #include "net/XmlRpcMethod.h"
 #include "net/XmlRpcRequest.h"
-#include "WatchDog.h"
 
 #include "sipdb/ResultSet.h"
 #include "sipdb/SIPDBManager.h"
@@ -30,8 +29,10 @@
 #include "sipdb/ExtensionDB.h"
 #include "sipdb/AuthexceptionDB.h"
 
+#include "WatchDog.h"
 #include "ImdbRpc.h"
-
+#include "ImdbResource.h"
+#include "ImdbResourceManager.h"
 
 // DEFINES
 #define  URI            "uri"
@@ -297,7 +298,8 @@ bool ImdbRpcReplaceTable::execute(const HttpRequestContext& requestContext,
 {
    bool result = false;
    status = XmlRpcMethod::FAILED;
-
+   UtlString faultMsg;
+   
    // Verify that the number of parameters expected is correct.
    if (3 != params.entries())
    {
@@ -315,65 +317,97 @@ bool ImdbRpcReplaceTable::execute(const HttpRequestContext& requestContext,
       {
          UtlString* pCallingHostname = dynamic_cast<UtlString*>(params.at(0));
 
-         if (!params.at(1) || !params.at(1)->isInstanceOf(UtlString::TYPE))
+         WatchDog* pWatchDog = ((WatchDog *)userData);
+         if(validCaller(requestContext, *pCallingHostname, response, *pWatchDog, name()))
          {
-            handleMissingExecuteParam(name(), PARAM_NAME_IMDB_TABLE, response, status);
-         }
-         else
-         {
-            UtlString* pIMDBTable = dynamic_cast<UtlString*>(params.at(1));
-
-            if (!params.at(2) || !params.at(2)->isInstanceOf(UtlSList::TYPE))
+            if (!params.at(1) || !params.at(1)->isInstanceOf(UtlString::TYPE))
             {
-               handleMissingExecuteParam(name(), PARAM_NAME_IMDB_TABLE_DATA, response, status);
+               handleMissingExecuteParam(name(), PARAM_NAME_IMDB_TABLE, response, status);
             }
             else
             {
-               UtlSList* pIMDBTableData = dynamic_cast<UtlSList*>(params.at(2));
+               UtlString* pIMDBTable = dynamic_cast<UtlString*>(params.at(1));
 
-               // Verify that at least the first row of table data is of the correct type.
-               if (   !pIMDBTableData->isEmpty() /* an empty table is allowed */
-                   && !pIMDBTableData->at(0)->isInstanceOf(UtlHashMap::TYPE)
-                   )
+               // find the ImdbResource object for this table
+               ImdbResource* imdbResource; 
+               if ((imdbResource = ImdbResourceManager::getInstance()->find(pIMDBTable->data())))
                {
-                  // the table data list was non-empty but the first item was not a UtlHashMap
-                  handleMissingExecuteParam(name(), PARAM_NAME_IMDB_TABLE_DATA, response, status);
+                  if (imdbResource->isWriteable())
+                  {
+                     if (!params.at(2) || !params.at(2)->isInstanceOf(UtlSList::TYPE))
+                     {
+                        handleMissingExecuteParam(name(), PARAM_NAME_IMDB_TABLE_DATA,
+                                                  response, status);
+                     }
+                     else
+                     {
+                        UtlSList* pIMDBTableData = dynamic_cast<UtlSList*>(params.at(2));
+
+                        // Verify that at least the first row of table data is of the correct type.
+                        if (   !pIMDBTableData->isEmpty() /* an empty table is allowed */
+                            && !pIMDBTableData->at(0)->isInstanceOf(UtlHashMap::TYPE)
+                            )
+                        {
+                           // the table data list was non-empty but the first item was not a UtlHashMap
+                           handleMissingExecuteParam(name(), PARAM_NAME_IMDB_TABLE_DATA,
+                                                     response, status);
+                        }
+                        else
+                        {
+                           // we've validated the caller and the parm types.
+                           // steps are to clear the existing table
+                           // and then insert each record individually.
+                           clearTable( *pIMDBTable );         
+
+                           UtlSListIterator tableRecordItor(*pIMDBTableData);
+                           UtlHashMap*      tableRecord;
+                           UtlBool method_result(true);
+                           UtlBoolean insert_result;
+                           while ( (tableRecord = dynamic_cast <UtlHashMap*> (tableRecordItor())))
+                           {
+                              // records are committed as soon as they're added.
+                              insert_result = insertTableRecord(*pIMDBTable, *tableRecord);
+                              if (   ( FALSE == insert_result )
+                                  && ( true == method_result.getValue()))
+                              {
+                                 method_result = false; // @TODO this isn't very satisfactory.
+                              }
+                           }
+
+                           if ( method_result.getValue() == true )
+                           {
+                              storeTable( *pIMDBTable );
+
+                              imdbResource->modified();
+                           }
+
+                           // Construct and set the response.
+                           response.setResponse(&method_result);
+                           status = XmlRpcMethod::OK;
+                           result = true;
+                        }
+                     }
+                  }
+                  else
+                  {
+                     faultMsg.append("IMDB table '");
+                     faultMsg.append(*pIMDBTable);
+                     faultMsg.append("' is not writable (configAccess='read-only')");
+                     OsSysLog::add(FAC_WATCHDOG, PRI_ERR, "ImdbRpc::replaceFile %s",
+                                   faultMsg.data());
+                     result = false;
+                     response.setFault(ImdbRpcMethod::InvalidParameter, faultMsg);
+                  }
                }
                else
                {
-                  WatchDog* pWatchDog = ((WatchDog *)userData);
-
-                  if(validCaller(requestContext, *pCallingHostname, response, *pWatchDog, name()))
-                  {
-                     // we've validated the parm types and the caller.
-                     // steps are to clear the existing table
-                     // and then insert each record individually.
-                     clearTable( *pIMDBTable );         
-
-                     UtlSListIterator tableRecordItor(*pIMDBTableData);
-                     UtlHashMap*      tableRecord;
-                     UtlBool method_result(true);
-                     UtlBoolean insert_result;
-                     while ( (tableRecord = dynamic_cast <UtlHashMap*> (tableRecordItor())))
-                     {
-                        // records are committed as soon as they're added.
-                        insert_result = insertTableRecord(*pIMDBTable, *tableRecord);
-                        if ( ( FALSE == insert_result ) && ( true == method_result.getValue() ) )
-                        {
-                           method_result = false;
-                        }
-                     }
-
-                     if ( method_result.getValue() == true )
-                     {
-                        storeTable( *pIMDBTable );         
-                     }
-
-                     // Construct and set the response.
-                     response.setResponse(&method_result);
-                     status = XmlRpcMethod::OK;
-                     result = true;
-                  }
+                  faultMsg.append("IMDB table '");
+                  faultMsg.append(*pIMDBTable);
+                  faultMsg.append("' is not declared as a resource by any sipXecs process");
+                  OsSysLog::add(FAC_WATCHDOG, PRI_ERR, "ImdbRpc::replaceFile %s",
+                                faultMsg.data());
+                  result = false;
+                  response.setFault(ImdbRpcMethod::InvalidParameter, faultMsg);
                }
             }
          }
@@ -385,31 +419,35 @@ bool ImdbRpcReplaceTable::execute(const HttpRequestContext& requestContext,
 
 void ImdbRpcReplaceTable::clearTable(UtlString& tableName)
 {
-
-    if ( tableName == CREDENTIAL ){
+    if ( tableName == CREDENTIAL )
+    {
         CredentialDB::getInstance()->removeAllRows();
     }
-
-    else if ( tableName == ALIAS ){
+    else if ( tableName == ALIAS )
+    {
         AliasDB::getInstance()->removeAllRows();
     }
-
-    else if ( tableName == PERMISSION ){
+    else if ( tableName == PERMISSION )
+    {
         PermissionDB::getInstance()->removeAllRows();
     }
-
-    else if ( tableName == EXTENSION ){
+    else if ( tableName == EXTENSION )
+    {
        ExtensionDB::getInstance()->removeAllRows();
     }
-
-    else if ( tableName == AUTHEXCEPTION ){
+    else if ( tableName == AUTHEXCEPTION )
+    {
        AuthexceptionDB::getInstance()->removeAllRows();
     }
-
-    else if ( tableName == CALLER_ALIAS ){
+    else if ( tableName == CALLER_ALIAS )
+    {
        CallerAliasDB::getInstance()->removeAllRows();
     }
-
+    else
+    {
+       OsSysLog::add(FAC_WATCHDOG, PRI_CRIT, "ImdbRpcReplaceTable::clearTable "
+                     "invalid table name '%s'", tableName.data());
+    }
 }
 
 
@@ -464,31 +502,34 @@ bool ImdbRpcRetrieveTable::execute(const HttpRequestContext& requestContext,
       {
          UtlString* pCallingHostname = dynamic_cast<UtlString*>(params.at(0));
 
-         if (!params.at(1) || !params.at(1)->isInstanceOf(UtlString::TYPE))
-         {
-            handleMissingExecuteParam(name(), PARAM_NAME_IMDB_TABLE, response, status);
-         }
-         else
-         {
-            UtlBool method_result(true);
-            UtlString* pIMDBTable = dynamic_cast<UtlString*>(params.at(1));
+         WatchDog* pWatchDog = ((WatchDog *)userData);
 
-            WatchDog* pWatchDog = ((WatchDog *)userData);
-
-            if(validCaller(requestContext, *pCallingHostname, response, *pWatchDog, name()))
+         if(validCaller(requestContext, *pCallingHostname, response, *pWatchDog, name()))
+         {
+            if (!params.at(1) || !params.at(1)->isInstanceOf(UtlString::TYPE))
             {
-                 OsSysLog::add(FAC_WATCHDOG, PRI_INFO,
-                             "ImdbRpc::retrieveTable"
-                             " host %s requested IMDB Table retrieval",
-                             pCallingHostname->data()
-                            );
+               handleMissingExecuteParam(name(), PARAM_NAME_IMDB_TABLE, response, status);
+            }
+            else
+            {
+               UtlString faultMsg;
 
-                  // Check the resource permissions. To be added when available.
+               UtlString* pIMDBTable = dynamic_cast<UtlString*>(params.at(1));
 
-                  // Get the records from the appropriate IMDB table.  (This dynamically allocates memory.)
+               ImdbResource* imdbResource;
+               if ((imdbResource = ImdbResourceManager::getInstance()->find(pIMDBTable->data())))
+               {
+                  
+                  OsSysLog::add(FAC_WATCHDOG, PRI_INFO,
+                                "ImdbRpc::retrieveTable"
+                                " '%s' read table '%s'",
+                                pCallingHostname->data(), pIMDBTable->data()
+                                );
+
+                  // Get the records from the appropriate IMDB table.
                   ResultSet   imdb_tabledata;
 
-                  readTable( *pIMDBTable, &imdb_tabledata );
+                  readTable( *pIMDBTable, &imdb_tabledata ); // (This dynamically allocates memory.)
 
                   // Construct and set the response.
                   response.setResponse(&imdb_tabledata);
@@ -497,7 +538,17 @@ bool ImdbRpcRetrieveTable::execute(const HttpRequestContext& requestContext,
 
                   // Delete the new'd objects 
                   imdb_tabledata.destroyAll();
-
+               }
+               else
+               {
+                  faultMsg.append("IMDB table '");
+                  faultMsg.append(*pIMDBTable);
+                  faultMsg.append("' is not declared as a resource by any sipXecs process");
+                  OsSysLog::add(FAC_WATCHDOG, PRI_INFO, "ImdbRpc::retrieveTable %s",
+                                faultMsg.data());
+                  result = false;
+                  response.setFault(ImdbRpcMethod::InvalidParameter, faultMsg);
+               }
             }
          }
       }
@@ -591,58 +642,96 @@ bool ImdbRpcAddTableRecords::execute(const HttpRequestContext& requestContext,
       {
          UtlString* pCallingHostname = dynamic_cast<UtlString*>(params.at(0));
 
-         if (!params.at(1) || !params.at(1)->isInstanceOf(UtlString::TYPE))
+         WatchDog* pWatchDog = ((WatchDog *)userData);
+         if(validCaller(requestContext, *pCallingHostname, response, *pWatchDog, name()))
          {
-            handleMissingExecuteParam(name(), PARAM_NAME_IMDB_TABLE, response, status);
-         }
-         else
-         {
-            UtlString* pIMDBTable = dynamic_cast<UtlString*>(params.at(1));
-
-            if (!params.at(2) || !params.at(2)->isInstanceOf(UtlSList::TYPE))
+            if (!params.at(1) || !params.at(1)->isInstanceOf(UtlString::TYPE))
             {
-               handleMissingExecuteParam(name(), PARAM_NAME_IMDB_TABLE_DATA, response, status);
+               handleMissingExecuteParam(name(), PARAM_NAME_IMDB_TABLE, response, status);
             }
             else
             {
-               UtlSList* pIMDBTableData = dynamic_cast<UtlSList*>(params.at(2));
+               UtlString* pIMDBTable = dynamic_cast<UtlString*>(params.at(1));
 
-               // Verify that the table data is of the correct type.
-               if (!pIMDBTableData->at(0) || !pIMDBTableData->at(0)->isInstanceOf(UtlHashMap::TYPE))
+               UtlString faultMsg;
+
+               // find the ImdbResource object for this table
+               ImdbResource* imdbResource; 
+               if ((imdbResource = ImdbResourceManager::getInstance()->find(pIMDBTable->data())))
                {
-                  handleMissingExecuteParam(name(), PARAM_NAME_IMDB_TABLE_DATA, response, status);
-               }
-
-               WatchDog* pWatchDog = ((WatchDog *)userData);
-
-               if(validCaller(requestContext, *pCallingHostname, response, *pWatchDog, name()))
-               {
-                  // we've validated the parm types and the caller.
-
-                  UtlSListIterator tableRecordItor(*pIMDBTableData);
-                  UtlHashMap*      tableRecord;
-                  UtlBool method_result(true);
-                  UtlBoolean insert_result;
-                  while ( (tableRecord = dynamic_cast <UtlHashMap*> (tableRecordItor())))
+                  if (imdbResource->isWriteable())
                   {
-                     // records are committed as soon as they're added.
-                     insert_result = insertTableRecord(*pIMDBTable, *tableRecord);
-                     if ( ( FALSE == insert_result ) && ( true == method_result.getValue() ) ) {
-                        method_result = false;
+                     if (!params.at(2) || !params.at(2)->isInstanceOf(UtlSList::TYPE))
+                     {
+                        handleMissingExecuteParam(name(), PARAM_NAME_IMDB_TABLE_DATA,
+                                                  response, status);
+                     }
+                     else
+                     {
+                        UtlSList* pIMDBTableData = dynamic_cast<UtlSList*>(params.at(2));
+
+                        // Verify that the table data is of the correct type.
+                        if (   !pIMDBTableData->at(0)
+                            || !pIMDBTableData->at(0)->isInstanceOf(UtlHashMap::TYPE))
+                        {
+                           handleMissingExecuteParam(name(), PARAM_NAME_IMDB_TABLE_DATA,
+                                                     response, status);
+                        }
+                        else
+                        {
+                           // we've validated the parm types and the caller.
+
+                           UtlSListIterator tableRecordItor(*pIMDBTableData);
+                           UtlHashMap*      tableRecord;
+                           UtlBool method_result(true);
+                           UtlBoolean insert_result;
+                           while ( (tableRecord = dynamic_cast <UtlHashMap*> (tableRecordItor())))
+                           {
+                              // records are committed as soon as they're added.
+                              insert_result = insertTableRecord(*pIMDBTable, *tableRecord);
+                              if (   ( FALSE == insert_result )
+                                  && ( true == method_result.getValue() ) )
+                              {
+                                 method_result = false; // @TODO not very satisfactory
+                              }
+                           }
+
+                           // If we successfully added the new rows,
+                           // write out the table to an XML file.
+                           if ( method_result.getValue() == true )
+                           {
+                              storeTable( *pIMDBTable );
+
+                              imdbResource->modified();
+                           }
+
+                           // Construct and set the response.
+                           response.setResponse(&method_result);
+                           status = XmlRpcMethod::OK;
+                           result = true;
+                        }
                      }
                   }
-
-                  // If we successfully added the new rows, write out the table to an XML file.
-                  if ( method_result.getValue() == true ) {
-                     storeTable( *pIMDBTable );
+                  else
+                  {
+                     faultMsg.append("IMDB table '");
+                     faultMsg.append(*pIMDBTable);
+                     faultMsg.append("' is not writable (configAccess='read-only')");
+                     OsSysLog::add(FAC_WATCHDOG, PRI_ERR, "ImdbRpcAddTableRecords::execute %s",
+                                   faultMsg.data());
+                     result = false;
+                     response.setFault(ImdbRpcMethod::InvalidParameter, faultMsg);
                   }
-
-                  // Construct and set the response.
-                  response.setResponse(&method_result);
-                  status = XmlRpcMethod::OK;
-                  result = true;
-
-                  
+               }
+               else
+               {
+                  faultMsg.append("IMDB table '");
+                  faultMsg.append(*pIMDBTable);
+                  faultMsg.append("' is not declared as a resource by any sipXecs process");
+                  OsSysLog::add(FAC_WATCHDOG, PRI_ERR, "ImdbRpcAddTableRecords::execute %s",
+                                faultMsg.data());
+                  result = false;
+                  response.setFault(ImdbRpcMethod::InvalidParameter, faultMsg);
                }
             }
          }
@@ -704,58 +793,92 @@ bool ImdbRpcDeleteTableRecords::execute(const HttpRequestContext& requestContext
       {
          UtlString* pCallingHostname = dynamic_cast<UtlString*>(params.at(0));
 
-         if (!params.at(1) || !params.at(1)->isInstanceOf(UtlString::TYPE))
-         {
-            handleMissingExecuteParam(name(), PARAM_NAME_IMDB_TABLE, response, status);
-         }
-         else
-         {
-            UtlString* pIMDBTable = dynamic_cast<UtlString*>(params.at(1));
+         WatchDog* pWatchDog = ((WatchDog *)userData);
 
-            if (!params.at(2) || !params.at(2)->isInstanceOf(UtlSList::TYPE))
+         if(validCaller(requestContext, *pCallingHostname, response, *pWatchDog, name()))
+         {
+            if (!params.at(1) || !params.at(1)->isInstanceOf(UtlString::TYPE))
             {
-               handleMissingExecuteParam(name(), PARAM_NAME_IMDB_TABLE_DATA, response, status);
+               handleMissingExecuteParam(name(), PARAM_NAME_IMDB_TABLE, response, status);
             }
             else
             {
-               UtlSList* pIMDBTableDataKeys = dynamic_cast<UtlSList*>(params.at(2));
+               UtlString* pIMDBTable = dynamic_cast<UtlString*>(params.at(1));
 
-               // Verify that the table data is of the correct type.
-               if (!pIMDBTableDataKeys->at(0) || !pIMDBTableDataKeys->at(0)->isInstanceOf(UtlHashMap::TYPE))
+               // find the ImdbResource object for this table
+               UtlString faultMsg;
+               ImdbResource* imdbResource; 
+               if ((imdbResource = ImdbResourceManager::getInstance()->find(pIMDBTable->data())))
                {
-                  handleMissingExecuteParam(name(), PARAM_NAME_IMDB_TABLE_DATA, response, status);
-               }
-
-               WatchDog* pWatchDog = ((WatchDog *)userData);
-
-               if(validCaller(requestContext, *pCallingHostname, response, *pWatchDog, name()))
-               {
-                  // we've validated the parm types and the caller.
-
-                  UtlSListIterator tableRecordKeysItor(*pIMDBTableDataKeys);
-                  UtlHashMap*      tableRecordKeys;
-                  UtlBool method_result(true);
-                  UtlBoolean delete_result;
-                  while ( (tableRecordKeys = dynamic_cast <UtlHashMap*> (tableRecordKeysItor())))
+                  if (imdbResource->isWriteable())
                   {
-                     // record deletion is immediate.
-                     delete_result = deleteTableRecord(*pIMDBTable, *tableRecordKeys);
-                     if ( ( FALSE == delete_result ) && ( true == method_result.getValue() ) ) {
-                        method_result = false;
+
+                     if (!params.at(2) || !params.at(2)->isInstanceOf(UtlSList::TYPE))
+                     {
+                        handleMissingExecuteParam(name(), PARAM_NAME_IMDB_TABLE_DATA,
+                                                  response, status);
+                     }
+                     else
+                     {
+                        UtlSList* pIMDBTableDataKeys = dynamic_cast<UtlSList*>(params.at(2));
+
+                        // Verify that the table data is of the correct type.
+                        if (   !pIMDBTableDataKeys->at(0)
+                            || !pIMDBTableDataKeys->at(0)->isInstanceOf(UtlHashMap::TYPE))
+                        {
+                           handleMissingExecuteParam(name(), PARAM_NAME_IMDB_TABLE_DATA,
+                                                     response, status);
+                        }
+
+                        // we've validated the parm types and the caller.
+
+                        UtlSListIterator tableRecordKeysItor(*pIMDBTableDataKeys);
+                        UtlHashMap*      tableRecordKeys;
+                        UtlBool method_result(true);
+                        UtlBoolean delete_result;
+                        while ((tableRecordKeys=dynamic_cast<UtlHashMap*>(tableRecordKeysItor())))
+                        {
+                           // record deletion is immediate.
+                           delete_result = deleteTableRecord(*pIMDBTable, *tableRecordKeys);
+                           if (   ( FALSE == delete_result )
+                               && ( true == method_result.getValue()))
+                           {
+                              method_result = false;
+                           }
+                        }
+
+                        // If we successfully deleted the rows, write out the table to an XML file.
+                        if ( method_result.getValue() == true )
+                        {
+                           storeTable( *pIMDBTable );
+                        }
+
+                        // Construct and set the response.
+                        response.setResponse(&method_result);
+                        status = XmlRpcMethod::OK;
+                        result = true;
                      }
                   }
-
-                  // If we successfully deleted the rows, write out the table to an XML file.
-                  if ( method_result.getValue() == true ) {
-                     storeTable( *pIMDBTable );
+                  else
+                  {
+                     faultMsg.append("IMDB table '");
+                     faultMsg.append(*pIMDBTable);
+                     faultMsg.append("' is not writable (configAccess='read-only')");
+                     OsSysLog::add(FAC_WATCHDOG, PRI_ERR, "ImdbRpcDeleteTableRecords::execute %s",
+                                   faultMsg.data());
+                     result = false;
+                     response.setFault(ImdbRpcMethod::InvalidParameter, faultMsg);
                   }
-
-                  // Construct and set the response.
-                  response.setResponse(&method_result);
-                  status = XmlRpcMethod::OK;
-                  result = true;
-
-                  
+               }
+               else
+               {
+                  faultMsg.append("IMDB table '");
+                  faultMsg.append(*pIMDBTable);
+                  faultMsg.append("' is not declared as a resource by any sipXecs process");
+                  OsSysLog::add(FAC_WATCHDOG, PRI_ERR, "ImdbRpcDeleteTableRecords::execute %s",
+                                faultMsg.data());
+                  result = false;
+                  response.setFault(ImdbRpcMethod::InvalidParameter, faultMsg);
                }
             }
          }

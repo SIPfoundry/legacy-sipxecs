@@ -209,7 +209,11 @@ protected:
 private:
 
    /// Create/Replace the file.
-   bool replicateFile( UtlString& path_and_name, UtlInt& file_permissions, UtlString& file_content);
+   bool replicateFile(UtlString& path_and_name,
+                      UtlInt& file_permissions, 
+                      UtlString& file_content,  ///< base64 of file contents
+                      UtlString& errorMsg       ///< set iff return == false
+                      );
 
 };
 

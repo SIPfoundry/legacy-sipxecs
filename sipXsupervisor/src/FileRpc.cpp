@@ -20,8 +20,10 @@
 #include "net/XmlRpcMethod.h"
 #include "net/XmlRpcRequest.h"
 #include "net/NetBase64Codec.h"
-#include "WatchDog.h"
 
+#include "WatchDog.h"
+#include "FileResource.h"
+#include "FileResourceManager.h"
 #include "FileRpc.h"
 
 // DEFINES
@@ -242,35 +244,62 @@ bool FileRpcReplaceFile::execute(const HttpRequestContext& requestContext,
                   }
 
                   // Check the resource permissions.  To be added when available.
- 
-                  // Check that the file permissions is within a valid range.
-                  if ( ( pfilePermissions->getValue() <= minPermissions ) || ( pfilePermissions->getValue() > maxPermissions ))
+                  FileResource* fileResource =
+                     FileResourceManager::getInstance()->find(pfileName->data());
+                  if (!fileResource)
                   {
+                     UtlString faultMsg;
+                     faultMsg.append("File '");
+                     faultMsg.append(*pfileName);
+                     faultMsg.append("' not declared as a resource by any sipXecs process");
+                     OsSysLog::add(FAC_WATCHDOG, PRI_ERR, "FileRpc::replaceFile %s",
+                                   faultMsg.data());
+                     result=false;
+                     response.setFault(FileRpcMethod::InvalidParameter, faultMsg);
+                  }
+                  else if (!fileResource->isWriteable())
+                  {
+                     UtlString faultMsg;
+                     faultMsg.append("File '");
+                     faultMsg.append(*pfileName);
+                     faultMsg.append("' is not writeable (configAccess='read-only')");
+                     OsSysLog::add(FAC_WATCHDOG, PRI_ERR, "FileRpc::replaceFile %s",
+                                   faultMsg.data());
+                     result=false;
+                     response.setFault(FileRpcMethod::InvalidParameter, faultMsg);
+                  }
+                  else if (   ( pfilePermissions->getValue() <= minPermissions )
+                           || ( pfilePermissions->getValue() > maxPermissions ))
+                  {
+                     UtlString faultMsg;
+                     faultMsg.appendNumber(pfilePermissions->getValue(),"File permissions %04o");
+                     faultMsg.appendNumber(minPermissions,"not within valid range (%04o - ");
+                     faultMsg.appendNumber(maxPermissions,"%04o)");
+                     OsSysLog::add(FAC_WATCHDOG, PRI_ERR, "FileRpc::replaceFile %s",
+                                   faultMsg.data());
                      result = false;
-                     method_result.setValue(false);
-                     OsSysLog::add(FAC_WATCHDOG, PRI_INFO,
-                                   "FileRpc::replaceFile"
-                                   " File permissions not within valid range");
+                     response.setFault(FileRpcMethod::InvalidParameter, faultMsg);
                   }
                   else
                   {
                      // Write out the file.
                      UtlString* pfileData = dynamic_cast<UtlString*>(params.at(3));
-                     if ( replicateFile( *pfileName, *pfilePermissions, *pfileData ) )
+                     UtlString faultMsg;
+                     if((result=replicateFile(*pfileName,*pfilePermissions,*pfileData,faultMsg )))
                      {
-                        result = true;
+                        // Construct and set the response.
+                        response.setResponse(&method_result);
+                        status = XmlRpcMethod::OK;
+
+                        // Tell anyone who cares that this changed
+                        fileResource->modified();
                      }
                      else
                      {
                         // Replication failed.
-                        result = false;
-                        method_result.setValue(false);
+                        response.setFault(FileRpcMethod::InvalidParameter, faultMsg);
                      }
                   }
-
-                  // Construct and set the response.
-                  response.setResponse(&method_result);
-                  status = XmlRpcMethod::OK;
                }
             }
          }
@@ -280,12 +309,15 @@ bool FileRpcReplaceFile::execute(const HttpRequestContext& requestContext,
    return result;
 }
 
-bool FileRpcReplaceFile::replicateFile(UtlString& path_and_name, UtlInt& file_permissions, UtlString& file_content)
+bool FileRpcReplaceFile::replicateFile(UtlString& path_and_name,
+                                       UtlInt&    file_permissions,
+                                       UtlString& file_content,
+                                       UtlString& errorMsg
+                                       )
 {
    OsStatus rc;
-   bool     result;
-
-   result = false;
+   bool     result = false;
+   errorMsg.remove(0);
 
    UtlString temporaryLocation(path_and_name);
    temporaryLocation += ".new";
@@ -299,7 +331,12 @@ bool FileRpcReplaceFile::replicateFile(UtlString& path_and_name, UtlInt& file_pe
 
       if ( !NetBase64Codec::decode( file_content, pdecodedData ))
       {
-         result = false;
+         // Write failed.
+         errorMsg.append("Failed to decode file data from base64 for '");
+         errorMsg.append(path_and_name);
+         errorMsg.append("'");
+         OsSysLog::add(FAC_WATCHDOG, PRI_INFO, "FileRpcReplaceFile::replicateFile %s",
+                       errorMsg.data());
       }
       else
       {
@@ -311,10 +348,8 @@ bool FileRpcReplaceFile::replicateFile(UtlString& path_and_name, UtlInt& file_pe
             if (rc == OS_SUCCESS)
             {
                int int_rc;
-               OsSysLog::add(FAC_WATCHDOG, PRI_INFO,
-                                   "FileRpc::replaceFile"
-                                   " updated file: %s", temporaryLocation.data());
-
+               OsSysLog::add(FAC_WATCHDOG, PRI_INFO, "FileRpcReplaceFile::replicateFile"
+                                   " updated file '%s'", path_and_name.data());
                rc = temporaryFile.remove(TRUE);
 
                // Change the permissions on the file as indicated.
@@ -324,31 +359,35 @@ bool FileRpcReplaceFile::replicateFile(UtlString& path_and_name, UtlInt& file_pe
             else
             {
                // Write succeeded, but rename failed.
-               OsSysLog::add(FAC_WATCHDOG, PRI_INFO,
-                                   "FileRpc::replaceFile"
-                                   " Failure to rename temporary file: %s", temporaryLocation.data());
-               result = false;
+               errorMsg.append("Failed to rename temporary file from '");
+               errorMsg.append(temporaryLocation);
+               errorMsg.append("' to '");
+               errorMsg.append(path_and_name);
+               errorMsg.append("'");
+               OsSysLog::add(FAC_WATCHDOG, PRI_INFO, "FileRpcReplaceFile::replicateFile %s",
+                             errorMsg.data());
             }
          }
          else
          {
-               // Write failed.
-               OsSysLog::add(FAC_WATCHDOG, PRI_INFO,
-                                   "FileRpc::replaceFile"
-                                   " Failure to write to temporary file: %s", temporaryLocation.data());
-               result = false;
+            // Write failed.
+            errorMsg.append("Failed to write to temporary file '");
+            errorMsg.append(temporaryLocation);
+            errorMsg.append("'");
+            OsSysLog::add(FAC_WATCHDOG, PRI_INFO, "FileRpcReplaceFile::replicateFile %s",
+                          errorMsg.data());
          }
       }
    }
    else
    {
       // Open failed.
-      OsSysLog::add(FAC_WATCHDOG, PRI_INFO,
-                           "FileRpc::replaceFile"
-                           " Failure to create temporary file: %s", temporaryLocation.data());
-      result = false;
+      errorMsg.append("Failed to create temporary file '");
+      errorMsg.append(temporaryLocation);
+      errorMsg.append("'");
+      OsSysLog::add(FAC_WATCHDOG, PRI_INFO, "FileRpcReplaceFile::replicateFile %s",
+                    errorMsg.data());
    }
-
 
    return result;
 }
