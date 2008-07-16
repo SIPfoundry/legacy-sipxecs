@@ -189,7 +189,7 @@ fi
 %dir %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx
 %dir %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx/ssl
 %dir %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx/ssl/authorities
-%dir %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_datadir}/sipxpbx
+%dir %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_datadir}/sipxecs
 %dir %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_localstatedir}/log/sipxpbx
 %dir %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_localstatedir}/run/sipxpbx
 %dir %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_localstatedir}/sipxdata
