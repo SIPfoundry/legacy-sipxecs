@@ -30,7 +30,6 @@ Requires: sipxcalllib >= 3.11
 Requires: sipxcommserverlib >= 3.11
 Requires: sipxtools >= 3.11
 
-# replication cgi 
 Requires: httpd >= 2.0
 
 # sending email - an smtp listener must be running on localhost
@@ -125,7 +124,6 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_sysconfdir}/cron.daily/sipx-core-clean
 
 %attr(755,root,root) %{_datadir}/www/cgi-bin/voicemail/mediaserver.cgi
-%attr(755,root,root) %{_datadir}/www/cgi-bin/replication/replication.cgi
 
 %attr(644,root,root) %{_datadir}/sipxecs/process.d/sipxpark-process.xml
 %attr(644,root,root) %{_datadir}/sipxecs/process.d/sipxpresence-process.xml
