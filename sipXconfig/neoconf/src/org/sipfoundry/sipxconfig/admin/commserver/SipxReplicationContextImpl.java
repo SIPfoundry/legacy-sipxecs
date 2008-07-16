@@ -54,7 +54,7 @@ public class SipxReplicationContextImpl implements ApplicationEventPublisherAwar
             if (success) {
                 m_jobContext.success(jobId);
             } else {
-                LOG.error("Replicatiion failure: " + dataSet.getName());
+                LOG.error("Replication failure: " + dataSet.getName());
                 // there is not really a good info here - advise user to consult log?
                 m_jobContext.failure(jobId, null, null);
             }
