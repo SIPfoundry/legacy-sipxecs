@@ -77,31 +77,34 @@ PDF_INTERMEDIATES=$(foreach doc,$(DOCBOOK_XML_DOCS),$(foreach intform,$(PDF_INTE
 		-c /usr/share/sgml/openjade/catalog \
 		-o $@ /usr/share/sgml/docbook/dsssl-stylesheets/dtds/decls/xml.dcl $<
 
-%.pdf %.out %.aux %.log: %.tex
-	@if [ -e $*.prior.aux ]; \
-	then \
-	   echo -n "save prior aux data: "; \
-		cp -pvf $*.prior.aux $*.pprior.aux; \
-	fi
-	@if [ -e $*.aux ]; \
-	then \
-	   echo -n "save current aux data: "; \
-	   cp -pvf $*.aux $*.prior.aux; \
-	fi
-	-$(PDFJADETEX) $< > $*.pdfjadetex.log
-	@if   ! cmp $*.aux $*.prior.aux > /dev/null 2>&1 \
-	&& ! cmp $*.aux $*.pprior.aux > /dev/null 2>&1; \
-	then \
-	   echo -n "Found undefined references: "; \
-		if expr $(MAKELEVEL) '<' 4 > /dev/null; \
+%.pdf: %.tex
+	@echo "$< -> $@" ; \
+	iterations=0 ; \
+	rm -f $*.aux $*.prior.aux $*.pprior.aux ; \
+	while test $${iterations} -lt 3 \
+			&& echo "$(PDFJADETEX) $< > $*.pdfjadetex.log " \
+			&& $(PDFJADETEX) $< > $*.pdfjadetex.log \
+			&& ! cmp $*.aux $*.prior.aux  > /dev/null 2>&1 \
+			&& ! cmp $*.aux $*.pprior.aux > /dev/null 2>&1 \
+	; do \
+		echo "  Found undefined references (iteration $${iterations}) "; \
+		if [ -e $*.prior.aux ]; \
 		then \
-			echo "compiling again..."; \
-			rm -vf $@; \
-			$(MAKE) $@; \
-		else \
-			echo "error: recompilation limit exceeded"; \
-			exit 1; \
+	   	echo -n "    save prior aux data: "; \
+			cp -pvf $*.prior.aux $*.pprior.aux; \
 		fi; \
+		if [ -e $*.aux ]; \
+		then \
+			echo -n "    save current aux data: "; \
+			cp -pvf $*.aux $*.prior.aux; \
+		fi; \
+		iterations=$$(($$iterations + 1)) ; \
+	done ; \
+	if test $${iterations} -gt 3 ; \
+	then \
+		echo "error: recompilation limit ($${iterations}) exceeded"; \
+		rm -f $@ ; \
+		exit 1 ; \
 	fi
 
 OUTPUT_FORMS+=pdf
