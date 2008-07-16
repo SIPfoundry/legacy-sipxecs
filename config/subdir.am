@@ -59,9 +59,7 @@ LocalizeSipXconfig = sed \
 		  -e 's,@SIPX_TMPDIR\@,@SIPX_TMPDIR@,g' \
 		  -e 's,@SIPX_INCDIR\@,@SIPX_INCDIR@,g' \
 		  -e 's,@SIPX_LIBDIR\@,@SIPX_LIBDIR@,g' \
-		  -e 's,@SIPX_PROCDIR\@,@SIPX_PROCDIR@,g' \
 		  -e 's,@SIPX_PROCESSDIR\@,@SIPX_PROCESSDIR@,g' \
-		  -e 's,@SIPX_SETUPDIR\@,@SIPX_SETUPDIR@,g' \
 		  -e 's,@SIPX_LIBEXECDIR\@,@SIPX_LIBEXECDIR@,g' \
 		  -e 's,@SIPX_VARDIR\@,@SIPX_VARDIR@,g' \
 		  -e 's,@SIPX_SCHEMADIR\@,@SIPX_SCHEMADIR@,g' \
@@ -101,14 +99,14 @@ $(foreach proc,$(SIPX_PROCESS_DEFS),$(proc)-process.xml) : % : %.in
 ################################################################
 # Install old style watchdog process definition
 #   to be deleted after conversion to the new defintions above.
-$(DESTDIR)$(SIPX_PROCDIR)/%.process.xml : %.process.xml $(DESTDIR)$(SIPX_PROCDIR)
+$(DESTDIR)$(SIPX_CONFDIR)/process.d/%.process.xml : %.process.xml $(DESTDIR)$(SIPX_CONFDIR)/process.d
 	$(INSTALL) -D -m 644 $< $@
 
 %.process.xml : %.process.xml.in
 	@echo "Localize old-style watchdog process definition: $@"
 	@$(LocalizeSipXconfig) $< > $@
 
-$(DESTDIR)$(SIPX_PROCDIR) :
-	$(INSTALL) -d $(DESTDIR)$(SIPX_PROCDIR)
+$(DESTDIR)$(SIPX_CONFDIR)/process.d :
+	$(INSTALL) -d $(DESTDIR)$(SIPX_CONFDIR)/process.d
 ################################################################
 

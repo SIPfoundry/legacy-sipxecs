@@ -11,7 +11,7 @@ EXTRA_DIST = \
     sipstatus.process.xml.in \
     sipstatus-process.xml.in
 
-install-data-hook : $(DESTDIR)$(SIPX_PROCDIR)/sipstatus.process.xml
+install-data-hook : $(DESTDIR)$(SIPX_CONFDIR)/process.d/sipstatus.process.xml
 	@for f in $(ETC_FILES); \
 	do \
 		if ! test -f $(DESTDIR)$(sysconfdir)/sipxpbx/$$f; \

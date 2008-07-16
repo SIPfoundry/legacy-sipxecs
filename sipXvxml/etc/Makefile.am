@@ -8,7 +8,7 @@ EXTRA_DIST = \
 SIPX_PROCESS_DEFS = \
 	sipXvxml
 
-install-data-hook : $(DESTDIR)$(SIPX_PROCDIR)/sipXvxml.process.xml
+install-data-hook : $(DESTDIR)$(SIPX_CONFDIR)/process.d/sipXvxml.process.xml
 	@echo "Localize $< -> $@"
 	@$(LocalizeSipXconfig) $(srcdir)/mediaserver-config.in.in > mediaserver-config.in ; \
 	if ! test -f $(DESTDIR)$(sysconfdir)/sipxpbx/mediaserver-config.in ; \

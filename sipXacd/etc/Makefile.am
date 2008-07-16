@@ -6,4 +6,4 @@ EXTRA_DIST = \
 
 SIPX_PROCESS_DEFS=sipxacd
 
-install-data-hook : $(DESTDIR)$(SIPX_PROCDIR)/sipxacd.process.xml
+install-data-hook : $(DESTDIR)$(SIPX_CONFDIR)/process.d/sipxacd.process.xml

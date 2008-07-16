@@ -9,14 +9,14 @@ EXTRA_DIST = \
 	sipxrls.process.xml.in
 
 install-data-hook : \
-	$(DESTDIR)$(SIPX_PROCDIR)/sipxrls.process.xml \
+	$(DESTDIR)$(SIPX_CONFDIR)/process.d/sipxrls.process.xml \
 	$(DESTDIR)$(SIPX_CONFDIR)/sipxrls-config.in	
 
 sipxrls.process.xml.local : $(srcdir)/sipxrls.process.xml.in
 	@echo "Localize $< -> $@"
 	@$(LocalizeSipXconfig) $< > $@
 
-$(DESTDIR)$(SIPX_PROCDIR)/sipxrls.process.xml: sipxrls.process.xml.local
+$(DESTDIR)$(SIPX_CONFDIR)/process.d/sipxrls.process.xml: sipxrls.process.xml.local
 	@if ! test -f $@; \
 	then \
 	  	echo "Installing default $@"; \

@@ -18,7 +18,7 @@ EXTRA_DIST = \
 install-data-hook : \
 	$(foreach etcfile,$(editetc_IN),$(DESTDIR)$(sysconfdir)/sipxpbx/$(etcfile)) \
 	editetc \
-	$(DESTDIR)$(SIPX_PROCDIR)/sipregistrar.process.xml
+	$(DESTDIR)$(SIPX_CONFDIR)/process.d/sipregistrar.process.xml
 
 SIPX_PROCESS_DEFS=sipXregistry
 

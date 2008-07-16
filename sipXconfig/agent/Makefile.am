@@ -17,7 +17,7 @@ INSTALL_GEM = install-gem
 endif
 
 install : \
-	$(DESTDIR)$(SIPX_PROCDIR)/sipxconfig-agent.process.xml \
+	$(DESTDIR)$(SIPX_CONFDIR)/process.d/sipxconfig-agent.process.xml \
 	$(DESTDIR)$(SIPX_PROCESSDIR)/sipxconfig-agent-process.xml \
 	$(INSTALL_GEM) \
 	$(DESTDIR)$(bindir)/sipxconfig-agent

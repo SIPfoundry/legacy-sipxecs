@@ -7,5 +7,5 @@ EXTRA_DIST = \
     sipxpresence-process.xml.in \
     sipxpresence.process.xml.in
 
-install-data-hook : $(DESTDIR)$(SIPX_PROCDIR)/sipxpresence.process.xml
+install-data-hook : $(DESTDIR)$(SIPX_CONFDIR)/process.d/sipxpresence.process.xml
 

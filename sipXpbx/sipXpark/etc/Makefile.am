@@ -7,5 +7,5 @@ EXTRA_DIST = \
     sipxpark-process.xml.in \
     sipxpark.process.xml.in
 
-install-data-hook : $(DESTDIR)$(SIPX_PROCDIR)/sipxpark.process.xml
+install-data-hook : $(DESTDIR)$(SIPX_CONFDIR)/process.d/sipxpark.process.xml
 

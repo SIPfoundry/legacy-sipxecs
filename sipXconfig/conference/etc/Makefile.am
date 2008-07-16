@@ -10,7 +10,7 @@ EXTRA_DIST = \
 
 ### if ENABLE_CONFERENCE
 PROCESS_XML_FILES = \
-	$(DESTDIR)$(SIPX_PROCDIR)/freeswitch.process.xml
+	$(DESTDIR)$(SIPX_CONFDIR)/process.d/freeswitch.process.xml
 
 SIPX_PROCESS_DEFS = \
 	freeswitch
