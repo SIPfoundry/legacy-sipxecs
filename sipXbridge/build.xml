@@ -32,7 +32,7 @@
 	<property name="junit.reports" value="${src.dir}/junit" />
 
 <!-- The libraries -->
-	<path id="project.class.path">
+	<path id="base.path">
 		<pathelement location="${classes}" />
 		<pathelement location="${log4j}" />
 		<pathelement location="${jainsip}" />
@@ -89,7 +89,7 @@
 			debug="${javac.debug}"
 			optimize= "${javac.optimize}"
 			debuglevel = "${javac.debuglevel}"
-		 	classpathref="project.class.path" deprecation="off" />
+		 	classpathref="base.path" deprecation="off" />
 			<assertions>
 				<enable />
 			</assertions>
@@ -103,7 +103,7 @@
 			debug="${javac.debug}"
 			optimize= "${javac.optimize}"
 			debuglevel = "${javac.debuglevel}"
-		 	classpathref="project.class.path" deprecation="off" />
+		 	classpathref="base.path" deprecation="off" />
 			<assertions>
 				<enable />
 			</assertions>
@@ -153,7 +153,7 @@
 
 	<!-- Test for behavior when you try to access an invalid account -->
 	<junit fork="yes" showoutput="yes">
-		<classpath refid="project.class.path" />
+		<classpath refid="base.path" />
 		<!-- jvmarg value="-Dlog4j.configuration=log4j.properties" / -->
 		<jvmarg value="-Dbuild.dir=./" />
 		<formatter type="xml" />
