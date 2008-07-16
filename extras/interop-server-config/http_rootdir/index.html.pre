@@ -768,6 +768,7 @@ From a fourth UA, pick up this call by calling
 <code>*781<span class='group'>gg</span>n</code>, as appropriate.
 The fourth UA will be talking to the third UA.
 Hang up this call.
+The second UA's BLF should indicate that the first UA is idle.
 </p>
 
 <p>
@@ -780,7 +781,8 @@ The second UA's BLF should indicate that the first UA is busy.
 
 <p>
 This test shows whether a UA sends comprehensive status information,
-and whether a second UA's BLF correctly displays status information.
+and whether a second UA's BLF correctly and comprehensively displays
+status information.
 </p>
 
 <p>
