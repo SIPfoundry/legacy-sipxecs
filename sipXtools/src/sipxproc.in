@@ -54,6 +54,9 @@ def usage_exit(error_code=1)
   -e|--restartAll     Restart all the monitored processes
   -l|--state          Current state of all monitored processes
   -g|--getAliasByPID  Get the monitored process with the specified PID
+  -c|--getConfigVersion Get the configuration version of the specified service
+  -u|--setConfigVersion Set the configuration version of the specified service
+  -v|--serviceVersion The service version value to update
 
 __EOU__
 
@@ -71,6 +74,9 @@ if __FILE__ == $0
       ['--restartAll','-e',    GetoptLong::NO_ARGUMENT],
       ['--state','-l',         GetoptLong::NO_ARGUMENT],
       ['--getAliasByPID','-g', GetoptLong::REQUIRED_ARGUMENT],
+      ['--getConfigVersion','-c', GetoptLong::REQUIRED_ARGUMENT],
+      ['--setConfigVersion','-u', GetoptLong::REQUIRED_ARGUMENT],
+      ['--serviceVersion','-v',       GetoptLong::REQUIRED_ARGUMENT],
       ['--host','-n',          GetoptLong::REQUIRED_ARGUMENT],
       ['--port','-p',          GetoptLong::REQUIRED_ARGUMENT],
       ['--help','-h',          GetoptLong::NO_ARGUMENT]
@@ -85,6 +91,7 @@ action = 'getStateAll'
 
 opts = GetoptLong.new(*OptSet)
 argument = nil
+serviceversion = nil
 aliaslist = []
 block = nil
 begin
@@ -96,6 +103,19 @@ begin
             # One integer argument must be specified.
             action = name.gsub(/--/, '')
             argument = arg.to_i
+         when '--getConfigVersion'
+            # One string argument must be specified.
+            action = name.gsub(/--/, '')
+            argument = arg
+            aliaslist.push(argument)
+         when '--setConfigVersion'
+            # One string arguments must be specified.
+            action = name.gsub(/--/, '')
+            argument = arg
+            aliaslist.push(argument)
+         when '--serviceVersion'
+            # One string arguments must be specified.
+            serviceversion = arg
          when '--start', '--stop', '--restart'
             # One string argument must be specified.
             action = name.gsub(/--/, '')
@@ -132,6 +152,11 @@ when 'start', 'stop', 'restart'
     params.push(block)
 when 'getalisbypid'
     params.push(argument)
+when 'getConfigVersion'
+    params.push(argument)
+when 'setConfigVersion'
+    params.push(argument)
+    params.push(serviceversion)
 else
    # No parms required for all other actions
 end

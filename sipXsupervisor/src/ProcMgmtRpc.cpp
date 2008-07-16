@@ -33,6 +33,8 @@ const char* ProcMgmtRpcMethod::PARAM_NAME_CALLING_HOST = "callingHostname";
 const char* ProcMgmtRpcMethod::PARAM_NAME_ALIAS = "alias";
 const char* ProcMgmtRpcMethod::PARAM_NAME_BLOCK = "blockForStateChange";
 const char* ProcMgmtRpcMethod::PARAM_NAME_PID = "pid";
+const char* ProcMgmtRpcMethod::PARAM_NAME_SERVICE = "service";
+const char* ProcMgmtRpcMethod::PARAM_NAME_SERVICE_VERSION = "serviceVersion";
 int ProcMgmtRpcMethod::SINGLE_BLOCK_MAX = 15;
 int ProcMgmtRpcMethod::LIST_BLOCK_MAX = 45;
 
@@ -855,6 +857,193 @@ bool ProcMgmtRpcGetAliasByPID::execute(const HttpRequestContext& requestContext,
          }
       }
    }
+
+   return result;
+}
+
+/*****************************************************************
+ **** ProcMgmtRpcGetConfigVersion
+ *****************************************************************/
+
+const char* ProcMgmtRpcGetConfigVersion::METHOD_NAME = "ProcMgmtRpc.getConfigVersion";
+
+const char* ProcMgmtRpcGetConfigVersion::name()
+{
+   return METHOD_NAME;
+}
+
+ProcMgmtRpcGetConfigVersion::ProcMgmtRpcGetConfigVersion()
+{
+}
+
+XmlRpcMethod* ProcMgmtRpcGetConfigVersion::get()
+{
+   return new ProcMgmtRpcGetConfigVersion();
+}
+
+void ProcMgmtRpcGetConfigVersion::registerSelf(WatchDog & watchdog)
+{
+   registerMethod(METHOD_NAME, ProcMgmtRpcGetConfigVersion::get, watchdog);
+}
+
+bool ProcMgmtRpcGetConfigVersion::execute(const HttpRequestContext& requestContext,
+                                       UtlSList& params,
+                                       void* userData,
+                                       XmlRpcResponse& response,
+                                       ExecutionStatus& status)
+{
+   bool result = false;
+   status = XmlRpcMethod::FAILED;
+
+   if (2 != params.entries())
+   {
+      handleExtraExecuteParam(name(), response, status);
+   }
+   else
+   {
+      if (!params.at(0) || !params.at(0)->isInstanceOf(UtlString::TYPE))
+      {
+         handleMissingExecuteParam(name(), PARAM_NAME_CALLING_HOST, response, status);
+      }
+      else
+      {
+         UtlString* pCallingHostname = dynamic_cast<UtlString*>(params.at(0));
+
+         if (!params.at(1) || !params.at(1)->isInstanceOf(UtlString::TYPE))
+         {
+            handleMissingExecuteParam(name(), PARAM_NAME_SERVICE, response, status);
+         }
+         else
+         {
+            UtlString* pserviceName = dynamic_cast<UtlString*>(params.at(1));
+            WatchDog* pWatchDog = ((WatchDog *)userData);
+
+            if(validCaller(requestContext, *pCallingHostname, response, *pWatchDog, name()))
+            {
+                OsSysLog::add(FAC_WATCHDOG, PRI_INFO,
+                              "ProcMgmtRpc::getConfigVersion"
+                              " host %s requested service configuration version",
+                              pCallingHostname->data()
+                              );
+
+                if ( pWatchDog->isValidService( *pserviceName ) )
+                {
+                   // Query the current version for the service as obtained from the service configuration file.
+                   UtlString service_version = pWatchDog->getServiceVersion( *pserviceName );
+
+                   // Construct and set the response.
+                   response.setResponse(&service_version);
+                   status = XmlRpcMethod::OK;
+                   result = true;
+                }
+                else
+                {
+                   // Invalid service name.
+                   handleMissingExecuteParam(name(), PARAM_NAME_SERVICE, response, status);
+                }
+            }
+         }
+      }
+   }  // param.entries
+
+   return result;
+
+}
+
+/*****************************************************************
+ **** ProcMgmtRpcSetConfigVersion
+ *****************************************************************/
+
+const char* ProcMgmtRpcSetConfigVersion::METHOD_NAME = "ProcMgmtRpc.setConfigVersion";
+
+const char* ProcMgmtRpcSetConfigVersion::name()
+{
+   return METHOD_NAME;
+}
+
+ProcMgmtRpcSetConfigVersion::ProcMgmtRpcSetConfigVersion()
+{
+}
+
+XmlRpcMethod* ProcMgmtRpcSetConfigVersion::get()
+{
+   return new ProcMgmtRpcSetConfigVersion();
+}
+
+void ProcMgmtRpcSetConfigVersion::registerSelf(WatchDog & watchdog)
+{
+   registerMethod(METHOD_NAME, ProcMgmtRpcSetConfigVersion::get, watchdog);
+}
+
+bool ProcMgmtRpcSetConfigVersion::execute(const HttpRequestContext& requestContext,
+                                       UtlSList& params,
+                                       void* userData,
+                                       XmlRpcResponse& response,
+                                       ExecutionStatus& status)
+{
+   bool result = false;
+   status = XmlRpcMethod::FAILED;
+
+   if (3 != params.entries())
+   {
+      handleExtraExecuteParam(name(), response, status);
+   }
+   else
+   {
+      UtlBool service_version_setting(false);
+      if (!params.at(0) || !params.at(0)->isInstanceOf(UtlString::TYPE))
+      {
+         handleMissingExecuteParam(name(), PARAM_NAME_CALLING_HOST, response, status);
+      }
+      else
+      {
+         UtlString* pCallingHostname = dynamic_cast<UtlString*>(params.at(0));
+
+         if (!params.at(1) || !params.at(1)->isInstanceOf(UtlString::TYPE))
+         {
+            handleMissingExecuteParam(name(), PARAM_NAME_SERVICE, response, status);
+         }
+         else
+         {
+            UtlString* pserviceName = dynamic_cast<UtlString*>(params.at(1));
+
+            if (!params.at(2) || !params.at(2)->isInstanceOf(UtlString::TYPE))
+            {
+               handleMissingExecuteParam(name(), PARAM_NAME_SERVICE_VERSION, response, status);
+            }
+            else
+            {
+               UtlString* pserviceVersion = dynamic_cast<UtlString*>(params.at(2));
+
+               WatchDog* pWatchDog = ((WatchDog *)userData);
+
+               if(validCaller(requestContext, *pCallingHostname, response, *pWatchDog, name()))
+               {
+                   OsSysLog::add(FAC_WATCHDOG, PRI_INFO,
+                                 "ProcMgmtRpc::setConfigVersion"
+                                 " host %s requested setting service configuration version",
+                                 pCallingHostname->data()
+                                 );
+
+                   if ( pWatchDog->isValidService( *pserviceName ) )
+                   {
+                      // Write the new version number to the appropriate service configuration file.
+                      service_version_setting = pWatchDog->setServiceVersion( *pserviceName, *pserviceVersion );
+
+                      response.setResponse(&service_version_setting);
+                      status = XmlRpcMethod::OK;
+                      result = true;
+                   }
+                   else
+                   {
+                      // Invalid service name.
+                      handleMissingExecuteParam(name(), PARAM_NAME_SERVICE, response, status);
+                   }
+               }
+            }
+         }
+      }
+   }  // param.entries
 
    return result;
 }
