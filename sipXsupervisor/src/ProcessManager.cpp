@@ -101,7 +101,7 @@ ProcessManager::~ProcessManager()
    OsLock tableMutex(mProcessTableLock);
 
    OsSysLog::add(FAC_WATCHDOG, PRI_NOTICE, "ProcessManager::~ "
-                 "delete %d Process objects", mProcesses.entries());
+                 "delete %zu Process objects", mProcesses.entries());
 
    mProcesses.destroyAll();
 };
