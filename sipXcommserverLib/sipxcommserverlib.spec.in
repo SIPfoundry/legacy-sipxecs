@@ -177,10 +177,10 @@ fi
 %attr(755,root,root) %{_libdir}/libsipXcommserver.so*
 %{_libexecdir}/sipx-utils.sh
 %attr(755,root,root) %{_libexecdir}/sipx-disable-on-distributed
-%{_datadir}/sipx/schema/xml.xsd
-%{_datadir}/sipx/schema/authrules.xsd
-%{_datadir}/sipx/schema/registration.xsd
-%{_datadir}/sipx/schema/urlmap.xsd
+%{_datadir}/sipxecs/schema/xml.xsd
+%{_datadir}/sipxecs/schema/authrules.xsd
+%{_datadir}/sipxecs/schema/registration.xsd
+%{_datadir}/sipxecs/schema/urlmap.xsd
 %config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx/config.defs
 %attr(755,root,root) %{_sysconfdir}/sipxpbx/config.defs.map
 

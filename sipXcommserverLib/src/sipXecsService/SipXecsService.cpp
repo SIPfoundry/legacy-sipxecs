@@ -23,6 +23,7 @@ const char* SipXecsService::DefaultRunDir           = SIPX_RUNDIR;
 const char* SipXecsService::DefaultTmpDir           = SIPX_TMPDIR;
 const char* SipXecsService::DefaultDatabaseDir      = SIPX_DBDIR;
 const char* SipXecsService::DefaultVarDir           = SIPX_VARDIR;
+const char* SipXecsService::DefaultDataDir          = SIPX_DATADIR;
 
 const char* SipXecsService::DefaultUser             = SIPXPBXUSER;
 const char* SipXecsService::DefaultGroup            = SIPXPBXGROUP;
@@ -34,6 +35,7 @@ DirectoryType SipXecsService::RunDirType           = "SIPX_RUNDIR";
 DirectoryType SipXecsService::TmpDirType           = "SIPX_TMPDIR"; 
 DirectoryType SipXecsService::DatabaseDirType      = "SIPX_DBDIR";
 DirectoryType SipXecsService::VarDirType           = "SIPX_VARDIR";
+DirectoryType SipXecsService::DataDirType          = "SIPX_DATADIR";
 
 // lookup keys for the domain configuration
 const char* SipXecsService::DomainDbKey::SIP_DOMAIN_NAME = "SIP_DOMAIN_NAME";
@@ -98,6 +100,10 @@ const char* SipXecsService::defaultDir(DirectoryType pathType)
    else if (VarDirType == pathType)
    {
       returnDir = DefaultVarDir;
+   }
+   else if (DataDirType == pathType)
+   {
+      returnDir = DefaultDataDir;
    }
    else 
    {

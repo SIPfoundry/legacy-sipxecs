@@ -41,5 +41,5 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}
 %attr(755,root,root) %{_libdir}
 %attr(755,root,root) %{_libdir}/preflight
-%attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_datadir}/sipxpbx/preflight
+%attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_datadir}/sipxecs/preflight
 %{_mandir}/man1

@@ -16,7 +16,7 @@ conf.dir=@SIPX_CONFDIR@
 # when debug is on. 
 
 # U T I L
-sipxbridge.lib.dir=${data.dir}/sipxpbx/lib/sipXbridge
+sipxbridge.lib.dir=${data.dir}/java/sipXecs/sipXbridge
 log4j=${src.dir}/lib/log4j-1.2.14.jar
 jainsip=${src.dir}/lib/jain-sip-sdp-1.2.74.jar
 dnsjava=${src.dir}/lib/dnsjava-2.0.6.jar

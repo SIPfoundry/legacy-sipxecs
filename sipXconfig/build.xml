@@ -34,7 +34,6 @@
         <replacefilter token="@libdir@" value="${install.dir}/lib"/>
     	<replacefilter token="@localstatedir@" value="${install.dir}/lib"/>
 	<replacefilter token="@SIPX_DOWNLOADDIR@" value="${install.dir}/var/ftpBackup"/>
-    	<replacefilter token="@SIPXCONFIG_LIBDIR@" value="${install.dir}/lib"/>
     	<replacefilter token="@SIPX_BINDIR@" value="${install.dir}/bin"/>
     	<replacefilter token="@SIPX_DATADIR@" value="${install.dir}/var/data"/>
     	<replacefilter token="@SIPX_CONFDIR@" value="${install.dir}/etc"/>
@@ -69,7 +68,7 @@
 
   <target name="remove-jars" description="Remove all jars from lib dir">
     <delete failonerror="false">
-      <fileset dir="${dest.dir}${sipxpbx.data.dir}/lib">
+      <fileset dir="${dest.dir}${sipxecs.java.dir}/sipXconfig">
         <include name="*.jar"/>
         <include name="*.war"/>
       </fileset>

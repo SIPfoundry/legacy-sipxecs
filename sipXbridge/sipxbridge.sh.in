@@ -54,7 +54,7 @@ case ${Action} in
      echo $$ > @SIPX_RUNDIR@/sipxbridge.pid
 
      JavaCmd=`@SIPX_BINDIR@/sipx-config --java`
-     LibPath=`perl -e 'print join(":", @ARGV);' @datadir@/sipxpbx/lib/sipXbridge/*.jar`
+     LibPath=`perl -e 'print join(":", @ARGV);' @SIPX_JAVADIR@/sipXbridge/*.jar`
      ClassPath=$LibPath
      exec $JavaCmd -Dconf.dir=@SIPX_CONFDIR@  \
          -Dsipxbridge.command=$Args \

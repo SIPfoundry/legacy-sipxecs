@@ -12,7 +12,7 @@ Vendor: SIPfoundry
 Packager: SIPfoundry <sipx-dev@sipfoundry.org>
 Url: http://www.sipfoundry.org
 
-%define sipxconfiglib %{_datadir}/sipxpbx/lib
+%define sipxconfiglib %{_datadir}/java/sipXecs/sipXconfig
 
 Requires: sipxsupervisor
 Requires: sipxproxy

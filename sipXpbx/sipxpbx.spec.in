@@ -127,9 +127,9 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_datadir}/www/cgi-bin/voicemail/mediaserver.cgi
 %attr(755,root,root) %{_datadir}/www/cgi-bin/replication/replication.cgi
 
-%attr(644,root,root) %{_datadir}/sipx/process.d/sipxpark-process.xml
-%attr(644,root,root) %{_datadir}/sipx/process.d/sipxpresence-process.xml
-%attr(644,root,root) %{_datadir}/sipx/process.d/sipxrls-process.xml
+%attr(644,root,root) %{_datadir}/sipxecs/process.d/sipxpark-process.xml
+%attr(644,root,root) %{_datadir}/sipxecs/process.d/sipxpresence-process.xml
+%attr(644,root,root) %{_datadir}/sipxecs/process.d/sipxrls-process.xml
 
 # The configuration directory needs to be writeable because
 # config files are generated from templates via config.defs
@@ -177,13 +177,13 @@ rm -rf $RPM_BUILD_ROOT
 
 %config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx/sipxrls-config.in
 
-%attr(755,root,root) %{_datadir}/sipx/schema/resource-lists.xsd
+%attr(755,root,root) %{_datadir}/sipxecs/schema/resource-lists.xsd
 
 %attr(755,root,root) %{_bindir}/sipxpresence.sh
 %attr(755,root,root) %{_bindir}/sipxpresence
 %attr(755,root,root) %{_bindir}/sipxpresence-config
 
-%attr(755,root,root) %{_datadir}/sipx/schema/presence-state.xsd
+%attr(755,root,root) %{_datadir}/sipxecs/schema/presence-state.xsd
 
 %{upgrade_archive_dir}/%{this_archive}
 

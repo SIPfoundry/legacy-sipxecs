@@ -76,8 +76,8 @@
     </copy>
 
     <!-- copy jars and war -->
-    <mkdir dir="${dest.dir}${sipxpbx.data.dir}/lib" />
-    <copy todir="${dest.dir}${sipxpbx.data.dir}/lib">
+    <mkdir dir="${dest.dir}${sipxecs.java.dir}/sipXconfig" />
+    <copy todir="${dest.dir}${sipxecs.java.dir}/sipXconfig">
       <fileset file="${plugin.jar}" />
     </copy>
   </target>

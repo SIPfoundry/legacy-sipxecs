@@ -44,14 +44,12 @@ LocalizeSipXconfig = sed \
 		  -e 's,@JAVA\@,@JAVA@,g' \
 		  -e 's,@JAVA_HOME\@,@JAVA_HOME@,g' \
 		  -e 's,@SIPFOUNDRY_ORG\@,@SIPFOUNDRY_ORG@,g' \
-		  -e 's,@SIPXPAGE_LIBDIR\@,@SIPXPAGE_LIBDIR@,g' \
-		  -e 's,@SIPXBRIDGE_LIBDIR\@,@SIPXBRIDGE_LIBDIR@,g' \
-		  -e 's,@SIPXCONFIG_LIBDIR\@,@SIPXCONFIG_LIBDIR@,g' \
 		  -e 's,@SIPXPBXUSER\@,@SIPXPBXUSER@,g' \
 		  -e 's,@SIPXPBXGROUP\@,@SIPXPBXGROUP@,g' \
 		  -e 's,@SIPX_BINDIR\@,@SIPX_BINDIR@,g' \
 		  -e 's,@SIPX_CONFDIR\@,@SIPX_CONFDIR@,g' \
 		  -e 's,@SIPX_DATADIR\@,@SIPX_DATADIR@,g' \
+		  -e 's,@SIPX_JAVADIR\@,@SIPX_JAVADIR@,g' \
 		  -e 's,@SIPX_DBDIR\@,@SIPX_DBDIR@,g' \
 		  -e 's,@SIPX_DOCDIR\@,@SIPX_DOCDIR@,g' \
 		  -e 's,@SIPX_LOGDIR\@,@SIPX_LOGDIR@,g' \

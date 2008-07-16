@@ -77,7 +77,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/sipstatus.sh
 %attr(755,root,root) %{_bindir}/sipstatus
 %attr(755,root,root) %{_bindir}/%name-config
-%attr(755,root,root) %{_datadir}/sipx/process.d/sipstatus-process.xml
+%attr(755,root,root) %{_datadir}/sipxecs/process.d/sipstatus-process.xml
 
 # The configuration directory needs to be writeable because
 # config files are generated from templates via config.defs

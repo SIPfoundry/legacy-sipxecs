@@ -53,8 +53,8 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(644,root,root,755)
 %config(noreplace) %attr(644,root,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx/process.d/sipxbridge.process.xml
 %config(noreplace) %attr(644,root,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx/process.d/sipxrelay.process.xml
-%attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_datadir}/sipxpbx/lib/sipXbridge
-%attr(644,root,root) %{_datadir}/sipx/process.d/sipxbridge-process.xml
-%attr(644,root,root) %{_datadir}/sipx/process.d/sipxrelay-process.xml
+%attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_datadir}/java/sipXecs/sipXbridge
+%attr(644,root,root) %{_datadir}/sipxecs/process.d/sipxbridge-process.xml
+%attr(644,root,root) %{_datadir}/sipxecs/process.d/sipxrelay-process.xml
 %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_bindir}/sipxbridge.sh
 %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_bindir}/sipxrelay.sh

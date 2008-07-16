@@ -25,9 +25,6 @@ SFAC_INIT_FLAGS
 AC_PATH_PROG([OPENSSL],[openssl])
 AC_PATH_PROG([BASH],[bash])
 
-# Jar files to all of sipXconfig. 
-AC_SUBST(SIPXCONFIG_LIBDIR, [${SIPX_DATADIR}/lib])
-
 AC_SUBST(SIPX_DOWNLOADDIR, [${localstatedir}/sipxdata/ftpBackup])
 
 AC_ARG_VAR(SIPFOUNDRY_ORG, [If you plan to publish manual to www.sipfoundry.org, set this to where you keep your local copy of http://scm.sipfoundry.org/rep/sipfoundry.org])

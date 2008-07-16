@@ -100,10 +100,10 @@ rm -rf $RPM_BUILD_ROOT
 
 %config(noreplace) %attr(644,root,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx/sipxsupervisor-config.in
 
-%attr(755,root,root) %{_datadir}/sipx/schema/sipXecs-process.xsd
-%attr(755,root,root) %{_datadir}/sipx/schema/watchdog.xsd
-%attr(755,root,root) %{_datadir}/sipx/schema/watchdogprocess.xsd
-%attr(755,root,root) %{_datadir}/sipx/schema/processdefinitions.xsd
+%attr(755,root,root) %{_datadir}/sipxecs/schema/sipXecs-process.xsd
+%attr(755,root,root) %{_datadir}/sipxecs/schema/watchdog.xsd
+%attr(755,root,root) %{_datadir}/sipxecs/schema/watchdogprocess.xsd
+%attr(755,root,root) %{_datadir}/sipxecs/schema/processdefinitions.xsd
 
 %{upgrade_archive_dir}/%{this_archive}
 

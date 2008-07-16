@@ -99,7 +99,7 @@
       <replacefilter token="@sipxpbx.bin.dir@" property="sipxpbx.bin.dir" />
       <replacefilter token="@sipxpbx.conf.dir@" property="sipxpbx.conf.dir" />
       <replacefilter token="@sipxpbx.log.dir@" property="sipxpbx.log.dir" />
-      <replacefilter token="@sipxpbx.data.dir@" property="sipxpbx.data.dir" />
+      <replacefilter token="@sipxecs.java.dir@" property="sipxecs.java.dir" />
       <replacefilter token="@sipxpbx.var.dir@" property="sipxpbx.var.dir" />
       <replacefilter token="@sipxconfig.db.user@" property="sipxconfig.db.user" />
       <replacefilter token="@sipxconfig.upload.dir@" property="sipxconfig.upload.dir" />
@@ -136,8 +136,8 @@
   	</replace>
 
     <!-- copy jars and war -->
-    <mkdir dir="${dest.dir}${sipxpbx.data.dir}/lib" />
-    <copy todir="${dest.dir}${sipxpbx.data.dir}/lib">
+    <mkdir dir="${dest.dir}${sipxecs.java.dir}/sipXconfig" />
+    <copy todir="${dest.dir}${sipxecs.java.dir}/sipXconfig">
       <fileset file="${sipxconfig.jar}" />
       <fileset file="${jetty.jar}" />
       <fileset file="${servlet.jar}" />

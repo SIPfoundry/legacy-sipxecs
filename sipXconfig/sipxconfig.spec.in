@@ -12,9 +12,8 @@ Url:      http://www.sipfoundry.org/
 %define sipxpbxlog %{_localstatedir}/log/sipxpbx
 %define sipxpbxrun %{_localstatedir}/run/sipxpbx
 %define sipxpbxconf %{_sysconfdir}/sipxpbx
-%define sipxpbxdata %{_datadir}/sipxpbx
 %define sipxpbxvarlib %{_var}/lib/sipxpbx
-%define sipxconfiglib %{_datadir}/sipxpbx/lib
+%define sipxconfiglib %{_datadir}/sipXecs/sipXconfig
 %define tftproot /tftpboot
 %define freeswitchdir @FREESWITCH_PREFIX@
 
@@ -232,7 +231,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/sipx-upgrade-3.6-mailstore-report
 %attr(755,root,root) %{_bindir}/ssl-cert/create-ssl-keystore.sh
 %attr(755,root,root) %{_bindir}/ssl-cert/create-ssl-truststore.sh
-%attr(644,root,root) %{_datadir}/sipx/process.d/sipxconfig-process.xml
+%attr(644,root,root) %{_datadir}/sipxecs/process.d/sipxconfig-process.xml
 
 # Because of generation of data and profiles
 %dir %attr(775,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{phonedir}
@@ -242,7 +241,6 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) %{phonedir}/profile/tftproot/*
 %config(noreplace) %{phonedir}/profile/docroot/*
 
-%{sipxpbxdata}
 %dir %{_localstatedir}
 %{upgrade_archive_dir}/%{this_archive}
 %{upgrade_archive_dir}/%{name}-previous.tgz
@@ -420,7 +418,7 @@ sipx-mrtg-init -e > /dev/null
 %files conference
 %defattr(644,@SIPXPBXUSER@,@SIPXPBXUSER@,755)
 %config(noreplace) %{sipxpbxconf}/process.d/freeswitch.process.xml
-%attr(644,root,root) %{_datadir}/sipx/process.d/freeswitch-process.xml
+%attr(644,root,root) %{_datadir}/sipxecs/process.d/freeswitch-process.xml
 %{sipxpbxconf}/freeswitch_config.defs
 %dir %attr(775,@SIPXPBXUSER@,@SIPXPBXUSER@) %{freeswitchdir}
 %{freeswitchdir}/conf/freeswitch.xml.in
@@ -446,7 +444,7 @@ fi
 
 %defattr(644,@SIPXPBXUSER@,@SIPXPBXUSER@,755)
 %config(noreplace) %{sipxpbxconf}/process.d/sipxconfig-agent.process.xml
-%attr(644,root,root) %{_datadir}/sipx/process.d/sipxconfig-agent-process.xml
+%attr(644,root,root) %{_datadir}/sipxecs/process.d/sipxconfig-agent-process.xml
 
 %post agent
 gem install --no-rdoc --local %{sipxpbxvarlib}/sipXconfig-agent-*.gem >/dev/null

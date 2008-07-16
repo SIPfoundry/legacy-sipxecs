@@ -61,7 +61,7 @@ audiocodesFxs.configDirectory=@sipxpbx.var.dir@
 #    be helpful to post a note on sipx-dev@list.sipfoundry.org as to why 
 #    you could not accomplish what you needed using the normal mechanisms.
 # external aliases
-externalAliases.addinsDirectory=@sipxpbx.data.dir@
+externalAliases.addinsDirectory=@sipxecs.java.dir@
 externalAliases.aliasAddins=
 # external additions to internal call mapping rules
 mappingRules.externalRulesFileName=
@@ -83,7 +83,7 @@ sysdir.bin=@sipxpbx.bin.dir@
 sysdir.etc=@sipxpbx.conf.dir@
 sysdir.var=@sipxpbx.var.dir@
 sysdir.log=@sipxpbx.log.dir@
-sysdir.share=@sipxpbx.data.dir@
+sysdir.share=@sipxecs.java.dir@
 sysdir.phone=@sipxconfig.phone.dir@
 sysdir.tmp=@sipxpbx.tmp.dir@
 sysdir.version=@version@

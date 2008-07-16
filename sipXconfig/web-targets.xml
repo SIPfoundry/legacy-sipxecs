@@ -61,7 +61,7 @@
   <target name="install" depends="war">
     <mkdir dir="${dest.dir}${sipxpbx.conf.dir}"/>
   
-    <copy todir="${dest.dir}${sipxpbx.data.dir}/lib">
+    <copy todir="${dest.dir}${sipxecs.java.dir}/sipXconfig">
       <fileset file="${backport-util-concurrent.jar}"/>
       <fileset file="${tapestry.jar}"/>
       <fileset file="${tapestry-contrib.jar}"/>

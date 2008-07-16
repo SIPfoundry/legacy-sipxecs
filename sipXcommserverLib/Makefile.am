@@ -33,14 +33,19 @@ SUBDIRS = \
 # upgraded, which will be at the end of the 3.9 development period.
 install-data-hook: install-common-dirs upgrade-subscription-db
 
+COMMON_DIRS = \
+	$(sysconfdir)/sipxpbx \
+	$(datadir)/sipxecs \
+	$(localstatedir)/log/sipxpbx \
+	$(localstatedir)/run/sipxpbx \
+	$(localstatedir)/sipxdata/tmp \
+	$(localstatedir)/sipxdata/sipdb
+
 .PHONY: install-common-dirs
-install-common-dirs:
-	$(INSTALL) -d -m 755 $(DESTDIR)$(sysconfdir)/sipxpbx
-	$(INSTALL) -d -m 755 $(DESTDIR)$(datadir)/sipxpbx
-	$(INSTALL) -d -m 755 $(DESTDIR)$(localstatedir)/log/sipxpbx
-	$(INSTALL) -d -m 755 $(DESTDIR)$(localstatedir)/run/sipxpbx
-	$(INSTALL) -d -m 755 $(DESTDIR)$(localstatedir)/sipxdata/tmp
-	$(INSTALL) -d -m 755 $(DESTDIR)$(localstatedir)/sipxdata/sipdb
+install-common-dirs: $(foreach dir,$(COMMON_DIRS),$(DESTDIR)$(dir))
+
+$(foreach dir,$(COMMON_DIRS),$(DESTDIR)$(dir)) : % :
+	$(INSTALL) -d -m 755 $@
 
 .PHONY: upgrade-subscription-db
 upgrade-subscription-db:

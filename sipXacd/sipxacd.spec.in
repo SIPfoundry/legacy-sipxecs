@@ -68,7 +68,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/sipxacd.sh
 %attr(755,root,root) %{_bindir}/sipxacd-config
 %attr(755,root,root) %{_bindir}/sipxacd
-%attr(644,root,root) %{_datadir}/sipx/process.d/sipxacd-process.xml
+%attr(644,root,root) %{_datadir}/sipxecs/process.d/sipxacd-process.xml
 %config(noreplace) %{_sysconfdir}/sipxpbx/process.d/sipxacd.process.xml
 
 %files devel

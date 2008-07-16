@@ -88,7 +88,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/syslog2siptrace
 %attr(755,root,root) %{_libdir}/libsipXtack.la
 %attr(755,root,root) %{_libdir}/libsipXtack.so*
-%attr(755,root,root) %{_datadir}/sipx/schema/sip_types.xsd
+%attr(755,root,root) %{_datadir}/sipxecs/schema/sip_types.xsd
 %{_libdir}/sipviewer/*.jar
 
 %files devel
