@@ -79,7 +79,7 @@ SqldbResourceManager::~SqldbResourceManager()
    OsLock tableMutex(mSqldbResourceTableLock);
 
    OsSysLog::add(FAC_WATCHDOG, PRI_CRIT, "SqldbResourceManager::~ "
-                 "delete %d SqldbResources", mSqldbResourceTable.entries());
+                 "delete %zu SqldbResources", mSqldbResourceTable.entries());
 
    mSqldbResourceTable.destroyAll();
 }

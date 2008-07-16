@@ -79,7 +79,7 @@ ProcessResourceManager::~ProcessResourceManager()
    OsLock tableMutex(mProcessResourceTableLock);
 
    OsSysLog::add(FAC_WATCHDOG, PRI_CRIT, "ProcessResourceManager::~ "
-                 "delete %d ProcessResources", mProcessResourceTable.entries());
+                 "delete %zu ProcessResources", mProcessResourceTable.entries());
 
    mProcessResourceTable.destroyAll();
 }
