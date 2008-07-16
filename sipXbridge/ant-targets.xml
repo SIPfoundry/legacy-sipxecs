@@ -228,12 +228,19 @@
 
   <target name="realtest" depends="compile.test" unless="subdirs"
        description="run junit tests">
+    <copy todir="${build.dir}/testdata" >
+	<fileset dir="${src.dir}/testdata"/>
+    </copy>
 
-    <!-- junit fork="yes" haltonfailure="yes" printsummary="on">
+    <junit fork="yes" haltonfailure="yes" printsummary="on">
       <classpath>
         <pathelement path="${classpath}"/>
         <pathelement location="${classes.dir}"/>
         <pathelement location="${test.classes.dir}"/>
+        <pathelement location="${src.dir}/tools/SipUnit.jar"/>
+        <fileset dir="${src.dir}/lib"> 
+	    <include name="**/*.jar" />
+	</fileset>
       </classpath>
       <formatter type="plain"/>
       <formatter type="xml"/>
@@ -243,7 +250,7 @@
           <patternset refid="test.classes"/>
         </fileset>
       </batchtest>
-    </junit -->
+    </junit>
   </target>
 
 
@@ -263,12 +270,18 @@
 
   <target name="realregression" depends="compile.test" unless="subdirs"
        description="run regression junit tests">
-
-    <!-- junit fork="yes" haltonfailure="yes" printsummary="on">
+    <copy todir="${build.dir}/testdata" >
+	<fileset dir="${src.dir}/testdata"/>
+    </copy>
+    <junit fork="yes" haltonfailure="yes" printsummary="on">
       <classpath>
         <pathelement path="${classpath}"/>
         <pathelement location="${classes.dir}"/>
         <pathelement location="${test.classes.dir}"/>
+        <pathelement location="${src.dir}/tools/SipUnit.jar"/>
+        <fileset dir="${src.dir}/lib"> 
+		<include name="**/*.jar" />
+	</fileset>
       </classpath>
       <formatter type="plain"/>
       <formatter type="xml"/>
@@ -278,7 +291,7 @@
           <patternset refid="regression.classes"/>
         </fileset>
       </batchtest>
-    </junit -->
+    </junit>
   </target>
 
 

@@ -51,6 +51,13 @@
 		<pathelement location="${ws-commons-util}" />
 	</path>
 
+ 	<patternset id="test.classes">
+  		<include name="**/symmitron/SymmitronTest.class"/>
+	</patternset>
+
+ 	<patternset id="regression.classes">
+  		<include name="**/symmitron/SymmitronTest.class"/>
+	</patternset>
 
   	<!--
     	- I N I T
