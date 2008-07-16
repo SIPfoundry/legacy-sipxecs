@@ -808,7 +808,7 @@
     </group>
   </group>
   <group name="web_server">
-    <setting name="web_interface_enabled">
+    <setting name="web_interface_enabled" hidden="yes">
       <profileName>web interface enabled</profileName>
       <type>
         <boolean />

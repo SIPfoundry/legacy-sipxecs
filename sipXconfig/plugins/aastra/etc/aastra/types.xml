@@ -131,16 +131,20 @@
       <value></value>
     </option>
     <option>
+      <label>lang_fr_ca.txt</label>
       <value>lang_fr_ca.txt</value>
     </option>
     <option>
+      <label>lang_es_mx.txt</label>
       <value>lang_es_mx.txt</value>
     </option>
     <option>
+      <label>lang_de.txt</label>
       <value>lang_de.txt</value>
     </option>
     <option>
-      <value>lang_it</value>
+      <label>lang_it.txt</label>
+      <value>lang_it.txt</value>
     </option>
   </enum>
 </type>
