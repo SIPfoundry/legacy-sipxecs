@@ -13,6 +13,8 @@
 #include "xmlparser/tinyxml.h"
 #include "xmlparser/XmlErrorMsg.h"
 #include "xmlparser/ExtractContent.h"
+#include "sipXecsService/SipXecsService.h"
+
 #include "ProcessCmd.h"
 #include "SipxResource.h"
 #include "FileResource.h"
@@ -29,6 +31,23 @@ const char* SipXecsProcessRootElement = "sipXecs-process";
 const char* SipXecsProcessNamespace =
    "http://www.sipfoundry.org/sipX/schema/xml/sipXecs-process-01-00";
 
+const char* ProcessStateDir = "process-state";
+
+const char* ProcessStateName[/* State value */] = // must match Process::State
+{
+   "Undefined",
+   "Disabled",
+   "Testing",
+   "ResourceRequired",
+   "ConfigurationMismatch",
+   "ConfigurationTestFailed",
+   "Starting",
+   "Running",
+   "AwaitingReferences",
+   "Stopping",
+   "Failed"
+};
+
 // TYPEDEFS
 // FORWARD DECLARATIONS
 
@@ -38,6 +57,7 @@ Process::Process(const UtlString& name, const UtlString& version) :
    mLock(OsBSem::Q_PRIORITY, OsBSem::FULL),
    mVersion(version),
    mDesiredState(Undefined),
+   mState(Undefined),
    mpProcessTask(NULL),
    mConfigtest(NULL),
    mStart(NULL),
@@ -476,7 +496,17 @@ Process* Process::createFromDefinition(const OsPath& definitionFile)
                      }
                   }
                   
-                  if (!definitionValid)
+                  if (definitionValid)
+                  {
+                     process->mDesiredState = process->readPersistentState();
+
+                     if (Undefined == process->mDesiredState)
+                     {
+                        process->mDesiredState = Disabled; // processes are assumed to be disabled.
+                        process->persistDesiredState();
+                     }
+                  }
+                  else
                   {
                      // something is wrong, so get rid of the invalid Process object
                      delete process;
@@ -545,7 +575,7 @@ bool Process::isEnabled()
 {
    OsLock mutex(mLock);
    
-   return mDesiredState == Running;
+   return (Running == mDesiredState);
 }
 /**< @returns true if the desired state of this service is Running;
  *            this does not indicate anything about the current state of
@@ -555,22 +585,27 @@ bool Process::isEnabled()
 /// Set the persistent desired state of the Process to Running.
 void Process::enable()
 {
-   // @TODO 
+   mDesiredState = Running;
+   persistDesiredState();
+
+   checkService();
 }
 
 /// Set the persistent desired state of the Process to Disabled.
 void Process::disable()
 {
-   // @TODO 
+   mDesiredState = Disabled;
+   persistDesiredState();
+
+   checkService();
 }
 
 /// Shutting down sipXsupervisor, so shut down the service.
 void Process::shutdown()
 {
    //This does not affect the persistent state of the service.
-   // @TODO 
+   // @TODO - trigger fsm shutdown event
 }
-
 
 
 /// Notify the Process that some configuration change has occurred.
@@ -610,19 +645,110 @@ void Process::resourceIsOptional(SipxResource* resource)
    mRequiredResources.removeReference(resource);
 }
 
-/// Save the persistent desired state.
-void Process::persistDesiredState(State persistentState ///< may only be Disabled or Running
-                                  )
+/// Translate the string from of the state name to the enum
+Process::State Process::state(const UtlString& stringStateValue)
 {
-   // @TODO 
+   int stateValue;
+   for ( stateValue = Failed;
+         (   stateValue > Undefined
+          && 0 != stringStateValue.compareTo(ProcessStateName[stateValue], UtlString::matchCase)
+          );
+         stateValue--
+        )
+   {}
+   return static_cast<State>(stateValue);
+}
+   
+/// Translate the string from of the state name to the enum
+const char* Process::state(State stateValue)
+{
+   const char* stateName = NULL;
+   if ( stateValue >= Undefined && stateValue <= Failed )
+   {
+      stateName = ProcessStateName[stateValue];
+   }
+   else
+   {
+      stateName = "INVALID_STATE_VALUE";
+   }
+   return stateName;
+}
+
+/// Save the persistent desired state.
+void Process::persistDesiredState()
+{
+   OsPath persistentStateDirPath  // normally {prefix}/var/sipxecs/process-state
+      = SipXecsService::Path(SipXecsService::VarDirType, ProcessStateDir);
+   
+   OsDir persistentStateDir(persistentStateDirPath);
+
+   if (!persistentStateDir.exists())
+   {
+      if (OS_SUCCESS == OsFileSystem::createDir(persistentStateDirPath, TRUE /* create parents */))
+      {
+         OsSysLog::add(FAC_WATCHDOG, PRI_DEBUG, "Process::persistDesiredState "
+                       "created directory '%s'",
+                       persistentStateDirPath.data());
+      }
+      else
+      {
+         OsSysLog::add(FAC_WATCHDOG, PRI_CRIT, "Process::persistDesiredState "
+                       "directory create failed for '%s'",
+                       persistentStateDirPath.data());
+      }
+   }
+
+   OsPath persistentStatePath(persistentStateDirPath + OsPath::separator + data());
+   OsFile persistentStateFile(persistentStatePath);
+   
+   if (OS_SUCCESS==persistentStateFile.open(OsFile::CREATE))
+   {
+      UtlString persistentState(state(mDesiredState));
+      
+      size_t bytesWritten;
+      if (OS_SUCCESS != persistentStateFile.write(persistentState.data(),
+                                                  persistentState.length(),
+                                                  bytesWritten))
+      {
+         OsSysLog::add(FAC_WATCHDOG, PRI_CRIT, "Process::persistDesiredState "
+                       "write to '%s' failed", persistentStatePath.data());
+      }
+   }
+   else
+   {
+      OsSysLog::add(FAC_WATCHDOG, PRI_ERR, "Process::persistDesiredState open of '%s' failed",
+                    persistentStatePath.data());
+   }
 }
 
 /// Read the persistent desired state.
 Process::State Process::readPersistentState()
 {
-   OsLock mutex(mLock);
+   State persistentState = Undefined;
+
+   OsPath persistentStatePath(SipXecsService::Path(SipXecsService::VarDirType, ProcessStateDir)
+                              + OsPath::separator + data());
+   OsFile persistentStateFile(persistentStatePath);
    
-   return mDesiredState;
+   if (OS_SUCCESS == persistentStateFile.open(OsFile::READ_ONLY))
+   {
+      UtlString persistentStateString;
+      
+      if (OS_SUCCESS != persistentStateFile.readLine(persistentStateString))
+      {
+         OsSysLog::add(FAC_WATCHDOG, PRI_ERR, "Process::readPersistentState read failed");
+      }
+
+      persistentState = state(persistentStateString);
+   }
+   else
+   {
+      OsSysLog::add(FAC_WATCHDOG, PRI_WARNING,
+                    "Process::readPersistentState open of '%s' failed",
+                    persistentStatePath.data());
+   }
+
+   return persistentState;
 }
 
 /// destructor

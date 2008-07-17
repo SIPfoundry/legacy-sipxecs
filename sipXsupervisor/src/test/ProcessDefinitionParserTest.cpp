@@ -204,6 +204,8 @@ public:
          FileTestContext testContext(TEST_DATA_DIR "processDef",
                                      TEST_WORK_DIR "processDef"
                                      );
+         testContext.setSipxDir(SipXecsService::VarDirType, "var");
+
          UtlString  path;
          Process*   process;
          UtlString* paramValue;
@@ -225,7 +227,7 @@ public:
 
          ProcessResource* processResource;
          CPPUNIT_ASSERT(processResource = ProcessResourceManager::getInstance()->find("Good"));
-         CPPUNIT_ASSERT(processResource == process->resource());
+         CPPUNIT_ASSERT_EQUAL(processResource, process->resource());
          CPPUNIT_ASSERT( ! processResource->isWriteable());
          description.remove(0);
          processResource->appendDescription(description);

@@ -17,6 +17,7 @@ testsuite_LDADD = \
    ../libsipXsupervisor.la
 
 testsuite_SOURCES = \
+	 ProcessStateTest.cpp \
     ProcessDefinitionParserTest.cpp
 
 EXTRA_DIST = \

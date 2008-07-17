@@ -23,7 +23,8 @@ class ProcessResource;
 class ProcessTask;
 class ProcessCmd;
 
-class ProcessTest;
+class ProcessDefinitionParserTest;
+class ProcessStateTest;
 
 /// Manage a single sipXecs service process.
 /**
@@ -160,6 +161,7 @@ class Process : public UtlString
 ///@{
 
    /// The current condition of the service this Process object controls.
+   //    if you modify this, you must also modify the ProcessStateNames constant in Process.ccp
    typedef enum
    {
       Undefined,               ///< Process definition is still being parsed.
@@ -261,21 +263,27 @@ class Process : public UtlString
    void resourceIsOptional(SipxResource* resource);
 
 ///@}
-  protected:
 // ================================================================
 /** @name           Persistent State Manipulation
  *
  */
 ///@{
 
+   /// Translate the string from of the state name to the enum
+   static State state(const UtlString& stringStateValue);
+   
+   /// Translate the string from of the state name to the enum
+   static const char* state(State stateValue);
+
+  protected:
+
    /// Save the persistent desired state.
-   void persistDesiredState(State persistentState ///< may only be Disabled or Running
-                            );
+   void persistDesiredState();
 
    /// Read the persistent desired state.
    State readPersistentState();
-   ///< @returns Disabled if no persistent desired state is set.
-
+   ///< @returns Undefined if no persistent desired state is set.
+   
 ///@}
 
   private:
@@ -328,6 +336,7 @@ class Process : public UtlString
    // @endcond     
 
    friend class ProcessDefinitionParserTest;
+   friend class ProcessStateTest;
 };
 
 #endif // _PROCESS_H_
