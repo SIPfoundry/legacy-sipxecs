@@ -233,6 +233,9 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/ssl-cert/create-ssl-truststore.sh
 %attr(644,root,root) %{_datadir}/sipxecs/process.d/sipxconfig-process.xml
 
+# Jar files are in here, but declaring the directory includes them all implicitly
+%{_datadir}/sipXecs/sipXconfig
+
 # Because of generation of data and profiles
 %dir %attr(775,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{phonedir}
 %dir %attr(775,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{phonedir}/profile
