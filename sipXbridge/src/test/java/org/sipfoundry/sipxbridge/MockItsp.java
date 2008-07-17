@@ -63,9 +63,9 @@ import org.cafesip.sipunit.SipCall;
 import org.cafesip.sipunit.SipPhone;
 import org.cafesip.sipunit.SipRequest;
 import org.cafesip.sipunit.SipTestCase;
-import org.sipfoundry.log4j.SipFoundryAppender;
-import org.sipfoundry.log4j.SipFoundryLayout;
-import org.sipfoundry.log4j.SipFoundryLogRecordFactory;
+import org.sipfoundry.commons.log4j.SipFoundryAppender;
+import org.sipfoundry.commons.log4j.SipFoundryLayout;
+import org.sipfoundry.commons.log4j.SipFoundryLogRecordFactory;
 
 /**
  * Test ITSP. This is endpoint that mocks ITSP behavior.
