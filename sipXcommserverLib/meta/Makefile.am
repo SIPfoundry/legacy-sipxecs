@@ -25,14 +25,14 @@ $(PREVIOUS_CONFIG) : $(srcdir)/$(SIPX30_CONFIG)
 	$(INSTALL) -D -m 644 $(srcdir)/$(SIPX30_CONFIG) $(PREVIOUS_CONFIG)
 
 .PHONY: install-schema
-install-schema: $(foreach xsd,$(schemas) $(processed_schemas),$(DESTDIR)@SIPX_SCHEMADIR@/$(xsd))
+install-schema: $(foreach xsd,$(schemas) $(processed_schemas),$(DESTDIR)@SIPX_DATADIR@/schema/$(xsd))
 
 # Unprocessed schemas will be in $(srcdir).
-$(foreach xsd,$(schemas),$(DESTDIR)@SIPX_SCHEMADIR@/$(xsd)): $(DESTDIR)@SIPX_SCHEMADIR@/% : $(srcdir)/%
+$(foreach xsd,$(schemas),$(DESTDIR)@SIPX_DATADIR@/schema/$(xsd)): $(DESTDIR)@SIPX_DATADIR@/schema/% : $(srcdir)/%
 	$(INSTALL) -D -m 644 $< $@
 
 # Processed schemas will be in ".".
-$(foreach xsd,$(processed_schemas),$(DESTDIR)@SIPX_SCHEMADIR@/$(xsd)): $(DESTDIR)@SIPX_SCHEMADIR@/% : %
+$(foreach xsd,$(processed_schemas),$(DESTDIR)@SIPX_DATADIR@/schema/$(xsd)): $(DESTDIR)@SIPX_DATADIR@/schema/% : %
 	$(INSTALL) -D -m 644 $< $@
 
 $(foreach xsd,$(processed_schemas),$(xsd)): % : $(srcdir)/%.in

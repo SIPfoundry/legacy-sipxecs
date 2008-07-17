@@ -57,10 +57,8 @@ LocalizeSipXconfig = sed \
 		  -e 's,@SIPX_TMPDIR\@,@SIPX_TMPDIR@,g' \
 		  -e 's,@SIPX_INCDIR\@,@SIPX_INCDIR@,g' \
 		  -e 's,@SIPX_LIBDIR\@,@SIPX_LIBDIR@,g' \
-		  -e 's,@SIPX_PROCESSDIR\@,@SIPX_PROCESSDIR@,g' \
 		  -e 's,@SIPX_LIBEXECDIR\@,@SIPX_LIBEXECDIR@,g' \
 		  -e 's,@SIPX_VARDIR\@,@SIPX_VARDIR@,g' \
-		  -e 's,@SIPX_SCHEMADIR\@,@SIPX_SCHEMADIR@,g' \
 		  -e 's,@SIPX_UPGRADEDIR\@,@SIPX_UPGRADEDIR@,g' \
 		  -e 's,@SIPX_VXMLDATADIR\@,@SIPX_VXMLDATADIR@,g' \
 		  -e 's,@XPRESSA_BUILD_NUMBER\@,@XPRESSA_BUILD_NUMBER@,g' \
@@ -84,10 +82,10 @@ LocalizeSipXconfig = sed \
 # SIPX_PROCESS_DEFS : the process definition file name without '-process.xml'
 
 install-data-hook: \
-	$(foreach proc,$(SIPX_PROCESS_DEFS),$(DESTDIR)$(SIPX_PROCESSDIR)/$(proc)-process.xml)
+	$(foreach proc,$(SIPX_PROCESS_DEFS),$(DESTDIR)$(SIPX_DATADIR)/process.d/$(proc)-process.xml)
 
-$(foreach proc,$(SIPX_PROCESS_DEFS),$(DESTDIR)$(SIPX_PROCESSDIR)/$(proc)-process.xml) \
-	: $(DESTDIR)$(SIPX_PROCESSDIR)/% : % 
+$(foreach proc,$(SIPX_PROCESS_DEFS),$(DESTDIR)$(SIPX_DATADIR)/process.d/$(proc)-process.xml) \
+	: $(DESTDIR)$(SIPX_DATADIR)/process.d/% : % 
 	$(INSTALL) -D -m 644 $< $@
 
 $(foreach proc,$(SIPX_PROCESS_DEFS),$(proc)-process.xml) : % : %.in

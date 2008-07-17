@@ -1,7 +1,7 @@
 #!@BASH@
 ### -*- mode: shell-script;-*-
 
-SchemaDir="@SIPX_SCHEMADIR@"
+SchemaDir="@SIPX_DATADIR@"/schema
 Action=CHECK
 SchemaFile=
 XmlFiles=
@@ -87,7 +87,7 @@ Usage:
             [ { -s|--schema-dir } <schema-directory> ]
             <xml-file> ...
 
-    schema-directory defaults to '@SIPX_SCHEMADIR@'.
+    schema-directory defaults to '${SchemaDir}'.
 
  To create a catalog of the schemas in a directory:
 

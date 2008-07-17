@@ -11,12 +11,12 @@
 
   <import 
       namespace="http://www.sipfoundry.org/sipX/schema/xml/sip-00-01" 
-      schemaLocation="@SIPX_SCHEMADIR@/sip_types.xsd"
+      schemaLocation="@SIPX_DATADIR@/schema/sip_types.xsd"
       />
 
   <import 
       namespace="http://www.w3.org/XML/1998/namespace" 
-      schemaLocation="@SIPX_SCHEMADIR@/xml.xsd"
+      schemaLocation="@SIPX_DATADIR@/schema/xml.xsd"
       />
 
   <annotation>

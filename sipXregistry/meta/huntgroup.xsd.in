@@ -11,7 +11,7 @@
 
   <import 
       namespace="http://www.sipfoundry.org/sipX/schema/xml/sip-00-01" 
-      schemaLocation="@SIPX_SCHEMADIR@/sip_types.xsd"
+      schemaLocation="@SIPX_DATADIR@/schema/sip_types.xsd"
       />
 
   <annotation>

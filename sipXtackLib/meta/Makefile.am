@@ -11,7 +11,7 @@ EXTRA_DATA = \
 install-data-hook : install-schema
 
 .PHONY: install-schema
-install-schema: $(foreach xsd,$(schemas),$(DESTDIR)@SIPX_SCHEMADIR@/$(xsd))
+install-schema: $(foreach xsd,$(schemas),$(DESTDIR)@SIPX_DATADIR@/schema/$(xsd))
 
-$(foreach xsd,$(schemas),$(DESTDIR)@SIPX_SCHEMADIR@/%: $(srcdir)/%)
+$(foreach xsd,$(schemas),$(DESTDIR)@SIPX_DATADIR@/schema/%: $(srcdir)/%)
 	$(INSTALL) -D -m 644 $< $@

@@ -37,9 +37,9 @@ BUILT_SOURCES = config.properties
 
 install-data-hook : \
 	$(DESTDIR)$(SIPX_CONFDIR)/process.d/sipxbridge.process.xml \
-	$(DESTDIR)$(SIPX_PROCESSDIR)/sipxbridge-process.xml \
+	$(DESTDIR)$(SIPX_DATADIR)/process.d/sipxbridge-process.xml \
 	$(DESTDIR)$(SIPX_CONFDIR)/process.d/sipxrelay.process.xml \
-	$(DESTDIR)$(SIPX_PROCESSDIR)/sipxrelay-process.xml
+	$(DESTDIR)$(SIPX_DATADIR)/process.d/sipxrelay-process.xml
 
 $(DESTDIR)$(SIPX_CONFDIR)/process.d/sipxbridge.process.xml : sipxbridge.process.xml
 	$(INSTALL) -D -m 644 $< $@
@@ -55,10 +55,10 @@ sipxrelay.process.xml : sipxrelay.process.xml.in
 	@echo "Localize $< -> $@"
 	@$(LocalizeSipXconfig) $< > $@
 
-$(DESTDIR)$(SIPX_PROCESSDIR)/sipxbridge-process.xml : sipxbridge-process.xml
+$(DESTDIR)$(SIPX_DATADIR)/process.d/sipxbridge-process.xml : sipxbridge-process.xml
 	$(INSTALL) -D -m 644 $< $@
 
-$(DESTDIR)$(SIPX_PROCESSDIR)/sipxrelay-process.xml : sipxrelay-process.xml
+$(DESTDIR)$(SIPX_DATADIR)/process.d/sipxrelay-process.xml : sipxrelay-process.xml
 	$(INSTALL) -D -m 644 $< $@
 
 sipxbridge-process.xml : sipxbridge-process.xml.in

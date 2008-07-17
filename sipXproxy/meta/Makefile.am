@@ -16,9 +16,9 @@ EXTRA_DIST = \
 install-data-hook : install-schema $(PREVIOUS_CONFIG)
 
 .PHONY: install-schema
-install-schema: $(foreach xsd,$(schemas),$(DESTDIR)@SIPX_SCHEMADIR@/$(xsd))
+install-schema: $(foreach xsd,$(schemas),$(DESTDIR)@SIPX_DATADIR@/schema/$(xsd))
 
-$(foreach xsd,$(schemas),$(DESTDIR)@SIPX_SCHEMADIR@/$(xsd)): $(DESTDIR)@SIPX_SCHEMADIR@/% : $(srcdir)/%
+$(foreach xsd,$(schemas),$(DESTDIR)@SIPX_DATADIR@/schema/$(xsd)): $(DESTDIR)@SIPX_DATADIR@/schema/% : $(srcdir)/%
 	$(INSTALL) -D -m 644 $< $@
 
 $(PREVIOUS_CONFIG) : $(srcdir)/$(SIPX30_CONFIG)
