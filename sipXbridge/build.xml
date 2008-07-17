@@ -34,6 +34,7 @@
 <!-- The libraries -->
 	<path id="base.path">
 		<pathelement location="${classes}" />
+		<pathelement location="${sipxcommons}" />
 		<pathelement location="${log4j}" />
 		<pathelement location="${jainsip}" />
 		<pathelement location="${junit}" />
@@ -129,12 +130,9 @@
 	</target>
 
      <target name="install">
-    	<mkdir dir="${dest.dir}${sipxbridge.lib.dir}"/>
-    	<copy file="${build.dir}/dist/sipXbridge.jar" todir="${dest.dir}${sipxbridge.lib.dir}"/>
-    	<copy todir="${dest.dir}${sipxbridge.lib.dir}">
-		<fileset file="${log4j}" />
-		<fileset file="${jainsip}" />
-		<fileset file="${dnsjava}" />
+    	<mkdir dir="${dest.dir}${sipxbridge.dir}"/>
+    	<copy file="${build.dir}/dist/sipXbridge.jar" todir="${dest.dir}${sipxbridge.dir}"/>
+    	<copy todir="${dest.dir}${sipxbridge.dir}">
 		<fileset file="${stun4j}" />
 		<fileset file="${commons-logging-api}" />
 		<fileset file="${commons-logging}" />

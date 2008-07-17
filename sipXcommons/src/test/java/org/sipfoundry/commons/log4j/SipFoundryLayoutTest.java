@@ -1,4 +1,4 @@
-package log4j;
+package org.sipfoundry.commons.log4j;
 
 import junit.framework.TestCase;
 

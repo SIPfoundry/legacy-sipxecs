@@ -20,9 +20,9 @@ import javax.sip.header.UserAgentHeader;
 import javax.sip.message.MessageFactory;
 
 import org.apache.log4j.Logger;
-import org.sipfoundry.log4j.SipFoundryAppender;
-import org.sipfoundry.log4j.SipFoundryLayout;
-import org.sipfoundry.log4j.SipFoundryLogRecordFactory;
+import org.sipfoundry.commons.log4j.SipFoundryAppender;
+import org.sipfoundry.commons.log4j.SipFoundryLayout;
+import org.sipfoundry.commons.log4j.SipFoundryLogRecordFactory;
 
 /**
  * Sip Protocol objects.

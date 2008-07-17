@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!-- sipXcommons Build Script  -->
+
+<project name="sipxcommons" default="jar" basedir="." xmlns:cpptasks="antlib:org.sf.net.antcontrib.cpptasks">
+  <patternset id="test.classes" excludes="**"/>
+  <property name="top.build.dir" value="${basedir}/.."/>
+  <property name="build.dir" value="${top.build.dir}/sipxcommons"/>
+  <property name="one-jar.dist.dir" value="${build.dir}/dist"/>
+  <property name="compiler" value="${cc}"/>
+
+  <import file="ant-targets.xml"/>
+
+  <path id="base.path" >
+    <pathelement location="${JainSip.jar}"/>
+    <pathelement location="${junit.jar}"/>
+    <pathelement location="${log4j.jar}"/>
+  </path>
+  <property name="classpath" refid="base.path" />
+
+  <!-- J N I -->
+  <target name="jni" depends="compile" description="create RockSaw JNI library" >
+    <taskdef resource="cpptasks.tasks" classpath="${cpptasks.jar}"/>
+    <typedef resource="cpptasks.types" classpath="${cpptasks.jar}"/>
+    <cc outfile="${build.dir}/dist/librocksaw.so">
+      <fileset dir="${src.dir}/src/main/native/posix" includes="RawSocket.c"/>
+      <includepath path="${jdk.include}"/>
+      <includepath path="${jdk.include}/linux"/>
+      <defineset define="_REENTRANT"/>
+      <compilerarg value="-Wall"/>
+      <compilerarg value="-O2"/>
+      <compilerarg value="-pipe"/>
+      <compilerarg value="-ansi"/>
+      <compilerarg value="-pthread"/>
+      <compilerarg value="-fpic"/>
+      <linkerarg value="-shared"/>
+    </cc>
+  </target>
+
+  <!-- J A R -->
+  <target name="jar" depends="jni" description="create jar file" >
+    <jar jarfile="${build.dir}/dist/sipxcommons.jar">
+      <fileset dir="${classes.dir}" >
+        <include name="**/*.class" />
+      </fileset>
+    </jar>
+  </target>
+
+
+  <!-- I N S T A L L -->
+  <target name="install">
+    <delete dir="${dest.dir}${sipxcommons.dir}"/>
+    <mkdir dir="${dest.dir}$sipxcommons.dir}"/>
+    <copy todir="${dest.dir}${sipxcommons.dir}">
+       <fileset file="${build.dir}/dist/*.jar"/>
+       <fileset file="${build.dir}/dist/*.o"/>
+       <fileset file="${build.dir}/dist/*.so"/>
+       <fileset file="${JainSip.jar}"/>
+       <fileset file="${dnsjava.jar}"/>
+       <fileset file="${junit.jar}"/>
+       <fileset file="${log4j.jar}"/>
+       <fileset file="${src.dir}/lib/ArpTable.dll"/>
+       <fileset file="${src.dir}/lib/rocksaw.dll"/>
+    </copy>
+  </target>
+    
+  <target name="uninstall">
+    <delete dir="${dest.dir}${sipxcommons.dir}"/>
+  </target>
+
+</project>

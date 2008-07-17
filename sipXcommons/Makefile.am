@@ -3,17 +3,6 @@ include config/project.am
 
 RPMS = $(RPM)
 
-audio_path=@SIPX_VARDIR@/sipxpage/music
-
-AUDIO_DIST = \
-   audio/attention.wav \
-   audio/fanfare.wav \
-   audio/fluffy.wav \
-   audio/notice.wav \
-   audio/nowhearthis.wav \
-   audio/reveille.wav \
-   audio/TadaTada.wav
-
 EXTRA_DIST = \
    config/sipX-config.in \
    config/sipX-buildstamp.cpp.in \
@@ -21,7 +10,7 @@ EXTRA_DIST = \
    config/svn-version \
    BUILDSTAMP \
    SVN-VERSION \
-   sipxpage.spec \
+   sipxcommons.spec \
    config.properties.in \
    lib \
    src
@@ -29,10 +18,7 @@ EXTRA_DIST = \
 
 SUBDIRS = \
    . \
-   src \
-   bin \
-   etc \
-   audio
+   src
 
 # BUILT_SOURCES is special autoconf variable to be checked on every make
 BUILT_SOURCES = config.properties

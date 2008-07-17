@@ -5,6 +5,7 @@ top.dir=@abs_top_srcdir@
 src.dir=@abs_srcdir@
 java=@JAVA@
 java.home=@JAVA_HOME@
+jdk.include=@JAVA_HOME@/include
 optimize=@JAVAC_OPTIMIZED@
 deprecation=false
 debug=@JAVAC_DEBUG@
@@ -17,11 +18,12 @@ conf.dir=@SIPX_CONFDIR@
 # when debug is on
 debuglevel=lines
 
-# U T I L
-sipxpage.dir=@SIPX_JAVADIR@/sipXpage
+# Destination directory for runtime files.
 sipxcommons.dir=@SIPX_JAVADIR@/sipXcommons
-sipxcommons.jar=${sipxcommons.dir}/sipxcommons.jar
-JainSip.jar=${sipxcommons.dir}/jain-sip-sdp-1.2.74.jar
-junit.jar=${sipxcommons.dir}/junit-4.4.jar
-log4j.jar=${sipxcommons.dir}/log4j-1.2.15.jar
 
+# Third parth JAR files.
+cpptasks.jar=${src.dir}/lib/cpptasks-1.0b4.jar
+JainSip.jar=${src.dir}/lib/jain-sip-sdp-1.2.74.jar
+junit.jar=${src.dir}/lib/junit-4.4.jar
+log4j.jar=${src.dir}/lib/log4j-1.2.15.jar
+dnsjava.jar=${src.dir}/lib/dnsjava-2.0.6.jar

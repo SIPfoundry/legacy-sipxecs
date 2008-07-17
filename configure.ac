@@ -33,6 +33,7 @@ then
   AC_CONFIG_SUBDIRS(sipXsupervisor)
   AC_CONFIG_SUBDIRS(sipXbridge)
   AC_CONFIG_SUBDIRS(sipXcommserverLib)
+  AC_CONFIG_SUBDIRS(sipXcommons)
   AC_CONFIG_SUBDIRS(sipXproxy)
   AC_CONFIG_SUBDIRS(sipXpublisher)
   AC_CONFIG_SUBDIRS(sipXregistry)

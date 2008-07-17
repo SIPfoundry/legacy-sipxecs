@@ -5,7 +5,7 @@ doc : sipXcommserverLib
 	@echo doc
 
 .PHONY: sipXtools
-sipXtools :
+sipXtools : sipXcommons
 	@echo sipXtools
 
 .PHONY: sipXbuild
@@ -35,6 +35,10 @@ sipXcallLib : sipXmediaAdapterLib
 .PHONY: sipXcommserverLib
 sipXcommserverLib : sipXtackLib
 	@echo sipXcommserverLib
+
+.PHONY: sipXcommons
+sipXcommons : sipXcommserverLib
+	@echo sipXcommons
 
 .PHONY: sipXpublisher
 sipXpublisher : sipXcommserverLib
@@ -69,11 +73,11 @@ sipXsupervisor : sipXcommserverLib sipXpbx
 	@echo sipXsupervisor
 
 .PHONY: sipXbridge
-sipXbridge : 
+sipXbridge : sipXcommons
 	@echo sipXbridge
 
 .PHONY: sipXpage
-sipXpage : 
+sipXpage : sipXcommons
 	@echo sipXpage
 
 .PHONY: sipXecs

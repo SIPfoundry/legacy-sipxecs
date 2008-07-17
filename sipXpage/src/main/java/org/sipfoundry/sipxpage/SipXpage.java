@@ -11,13 +11,13 @@ import javax.sip.SipFactory;
 import javax.sip.SipProvider;
 import javax.sip.SipStack;
 
-import log4j.SipFoundryLayout;
+import org.sipfoundry.commons.log4j.SipFoundryLayout;
 
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 
 import sipxpage.Configuration.PageGroupConfig;
-import util.Hostname;
+import org.sipfoundry.commons.util.Hostname;
 
 public class SipXpage implements LegListener
 {

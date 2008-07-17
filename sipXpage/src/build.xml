@@ -9,11 +9,9 @@
   <import file="ant-targets.xml"/>
 
   <path id="base.path" >
-    <pathelement location="${JainSipApi.jar}"/>
-    <pathelement location="${JainSipRi.jar}"/>
+    <pathelement location="${sipxcommons.jar}"/>
+    <pathelement location="${JainSip.jar}"/>
     <pathelement location="${junit.jar}"/>
-    <pathelement location="${nist-sdp.jar}"/>
-    <pathelement location="${sip-sdp.jar}"/>
     <pathelement location="${log4j.jar}"/>
   </path>
   <property name="classpath" refid="base.path" />
@@ -31,27 +29,19 @@
 
   <!--
     -  I N S T A L L
-    -->
+  -->
   <target name="install">
 
-    <!-- BINARIES/LIB/SCRIPTS -->
-    <delete dir="${dest.dir}${sipxpage.lib.dir}"/>
-    <mkdir dir="${dest.dir}${sipxpage.lib.dir}"/>
-    <copy file="${build.dir}/dist/sipXpage.jar" todir="${dest.dir}${sipxpage.lib.dir}"/>
-    <copy todir="${dest.dir}${sipxpage.lib.dir}">
-       <fileset file="${JainSipApi.jar}"/>
-       <fileset file="${JainSipRi.jar}"/>
-       <fileset file="${junit.jar}"/>
-       <fileset file="${nist-sdp.jar}"/>
-       <fileset file="${sip-sdp.jar}"/>
-       <fileset file="${log4j.jar}"/>
-    </copy>
+  <!-- BINARIES/LIB/SCRIPTS -->
+  <delete dir="${dest.dir}${sipxpage.dir}"/>
+  <mkdir dir="${dest.dir}${sipxpage.dir}"/>
+  <copy file="${build.dir}/dist/sipXpage.jar" todir="${dest.dir}${sipxpage.dir}"/>
 
   </target>
 
   <target name="uninstall">
     <delete file="${dest.dir}${bin.dir}/sipxpage.sh"/>
-    <delete dir="${dest.dir}${sipxpage.lib.dir}"/>
+    <delete dir="${dest.dir}${sipxpage.dir}"/>
   </target>
 
 </project>
