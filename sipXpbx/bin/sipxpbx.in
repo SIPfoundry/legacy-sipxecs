@@ -312,24 +312,6 @@ EOF
     return $ssl_status
 }
 
-global_firewall_check () {
-    local firewall_status
-    firewall_status=0
-
-    if test -e /proc/net/ip_tables_names; then
-        cat <<EOF
-    The iptables firewall is running. Turn it off before starting sipXecs.
-    Fedora/RedHat/CentOS:
-       service iptables stop
-    SuSE:
-       Use YaST
-EOF
-        firewall_status=1
-    fi
-
-    return $firewall_status
-}
-
 global_selinux_check () {
     local selinux_status
     selinux_status=0
@@ -592,8 +574,6 @@ do_check() {
 
     ## Check to see that SSL is configured.- THIS SHOULD BE FIRST
     globaltest "ssl" "MUST_PASS" "TLS/SSL configuration"
-
-    globaltest "firewall" "MAY_FAIL" "Firewall configuration"
 
     globaltest "maxfds" "MAY_FAIL" "Per-process file descriptor limits"
 
