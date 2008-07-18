@@ -207,9 +207,6 @@ class Process : public UtlString
    /// Notify the Process that some configuration change has occurred.
    void configurationChange(const SipxResource& changedResource);
    
-   /// Notify the Process that the version stamp value of the configuration has changed.
-   void configurationVersionChange();
-   
    /// Compare actual process state to the desired state, and attempt to change it if needed.
    void checkService();
    
@@ -277,14 +274,37 @@ class Process : public UtlString
 
   protected:
 
-   /// Save the persistent desired state.
+   /// Save the persistent desired state from mDesiredState.
    void persistDesiredState();
+   ///< caller must be holding mLock.
 
-   /// Read the persistent desired state.
-   State readPersistentState();
-   ///< @returns Undefined if no persistent desired state is set.
+   /// Read the persistent desired state into mDesiredState.
+   void readPersistentState();
+   ///< sets mDesiredState to Undefined if no persistent desired state is set.
    
 ///@}
+// ================================================================
+/** @name           Configuration Version Manipulation
+ *
+ */
+///@{
+  public:
+
+   /// Check whether or not the configuration version matches the process version.
+   bool configurationVersionMatches();
+   
+   /// Set the version stamp value of the configuration.
+   void setConfigurationVersion(const UtlString& version);
+   ///< this class persists this value.
+
+  protected:
+
+   /// Read version stamp value of the configuration into mConfigVersion.
+   void readConfigurationVersion();
+   ///< caller must be holding mLock.
+
+///@}
+// ================================================================
 
   private:
 
@@ -293,6 +313,10 @@ class Process : public UtlString
    ProcessResource* mSelfResource;  ///< the ProcessResource for this Process.
 
    UtlString        mVersion;       /**< Version of the process definition.
+                                     *   For comparison with the configuration version.
+                                     *   The Process may not be started unless they match.
+                                     */
+   UtlString        mConfigVersion; /**< Version of the process definition.
                                      *   For comparison with the configuration version.
                                      *   The Process may not be started unless they match.
                                      */
@@ -337,6 +361,7 @@ class Process : public UtlString
 
    friend class ProcessDefinitionParserTest;
    friend class ProcessStateTest;
+   friend class ProcessVersionTest;
 };
 
 #endif // _PROCESS_H_

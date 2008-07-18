@@ -32,6 +32,7 @@ const char* SipXecsProcessNamespace =
    "http://www.sipfoundry.org/sipX/schema/xml/sipXecs-process-01-00";
 
 const char* ProcessStateDir = "process-state";
+const char* ProcessConfigVersionDir = "process-cfgver";
 
 const char* ProcessStateName[/* State value */] = // must match Process::State
 {
@@ -498,7 +499,8 @@ Process* Process::createFromDefinition(const OsPath& definitionFile)
                   
                   if (definitionValid)
                   {
-                     process->mDesiredState = process->readPersistentState();
+                     process->readPersistentState();
+                     process->readConfigurationVersion();
 
                      if (Undefined == process->mDesiredState)
                      {
@@ -585,6 +587,8 @@ bool Process::isEnabled()
 /// Set the persistent desired state of the Process to Running.
 void Process::enable()
 {
+   OsLock mutex(mLock);
+   
    mDesiredState = Running;
    persistDesiredState();
 
@@ -594,6 +598,8 @@ void Process::enable()
 /// Set the persistent desired state of the Process to Disabled.
 void Process::disable()
 {
+   OsLock mutex(mLock);
+   
    mDesiredState = Disabled;
    persistDesiredState();
 
@@ -603,6 +609,8 @@ void Process::disable()
 /// Shutting down sipXsupervisor, so shut down the service.
 void Process::shutdown()
 {
+   OsLock mutex(mLock);
+   
    //This does not affect the persistent state of the service.
    // @TODO - trigger fsm shutdown event
 }
@@ -614,15 +622,137 @@ void Process::configurationChange(const SipxResource& changedResource)
    // @TODO 
 }
    
-/// Notify the Process that the version stamp value of the configuration has changed.
-void Process::configurationVersionChange()
+void Process::readConfigurationVersion()
 {
+   // caller must be holding mLock
+
+   OsPath persistentConfigVersionPath(SipXecsService::Path(SipXecsService::VarDirType,
+                                                           ProcessConfigVersionDir)
+                                      + OsPath::separator + data());
+   OsFile persistentConfigVersionFile(persistentConfigVersionPath);
+
+   if (OS_SUCCESS == persistentConfigVersionFile.open(OsFile::READ_ONLY))
+   {
+      if (OS_SUCCESS == persistentConfigVersionFile.readLine(mConfigVersion))
+      {
+         OsSysLog::add(FAC_WATCHDOG, PRI_INFO,
+                       "Process[%s]::readConfigurationVersion mConfigVersion='%s'",
+                       data(), mConfigVersion.data());
+      }
+      else
+      {
+         // apparently, open read-only can return success when the file is not there.
+         OsSysLog::add(FAC_WATCHDOG, PRI_ERR,
+                       "Process[%s]::readConfigurationVersion read of '%s' failed"
+                       " (ok if process has never been configured)",
+                       data(), persistentConfigVersionPath.data());
+      }
+
+      persistentConfigVersionFile.close();
+   }
+   else
+   {
+      OsSysLog::add(FAC_WATCHDOG, PRI_WARNING,
+                    "Process[%s]::readConfigurationVersion open of '%s' failed"
+                    " (ok if process has never been configured)",
+                    data(), persistentConfigVersionPath.data());
+   }
+}
+
+/// Check whether or not the configuration version matches the process version.
+bool Process::configurationVersionMatches()
+{
+   OsLock mutex(mLock);
+   bool versionMatches = (0==mConfigVersion.compareTo(mVersion, UtlString::matchCase));
+
+   if (versionMatches) 
+   {
+      OsSysLog::add(FAC_WATCHDOG, PRI_DEBUG, "Process[%s]::configurationVersionMatches true",
+                    data());
+   }
+   else
+   {
+      OsSysLog::add(FAC_WATCHDOG, PRI_INFO, "Process[%s]::configurationVersionMatches false:"
+                    " process '%s' != config '%s'",
+                    data(), mVersion.data(), mConfigVersion.data());
+   }
+   
+   return versionMatches;
+}
+
+   
+
+/// Set the version stamp value of the configuration.
+void Process::setConfigurationVersion(const UtlString& newConfigVersion)
+{
+   OsLock mutex(mLock);
+   
+   if (0!=newConfigVersion.compareTo(mConfigVersion,UtlString::matchCase))
+   {
+      OsSysLog::add(FAC_WATCHDOG, PRI_INFO, "Process[%s]::setConfigurationVersion"
+                    " '%s' -> '%s'", data(), mConfigVersion.data(), newConfigVersion.data());
+
+      mConfigVersion = newConfigVersion;
+      
+      OsPath persistentConfigVersionDirPath  // normally {prefix}/var/sipxecs/process-state
+         = SipXecsService::Path(SipXecsService::VarDirType, ProcessConfigVersionDir);
+   
+      OsDir persistentConfigVersionDir(persistentConfigVersionDirPath);
+      OsPath persistentConfigVersionPath(persistentConfigVersionDirPath
+                                         + OsPath::separator + data());
+      OsFile persistentConfigVersionFile(persistentConfigVersionPath);
+
+      if (!persistentConfigVersionDir.exists()) // does the directory exist?
+      {
+         if (OS_SUCCESS==OsFileSystem::createDir(persistentConfigVersionDirPath,
+                                                 TRUE /* create parents */))
+         {
+            OsSysLog::add(FAC_WATCHDOG, PRI_DEBUG, "Process::setConfigurationVersion "
+                          "created directory '%s'",
+                          persistentConfigVersionDirPath.data());
+         }
+         else 
+         {
+            OsSysLog::add(FAC_WATCHDOG, PRI_CRIT, "Process[%s]::setConfigurationVersion "
+                          "directory create failed for '%s'",
+                          data(), persistentConfigVersionDirPath.data());
+         }
+      }
+
+      if (OS_SUCCESS==persistentConfigVersionFile.open(OsFile::CREATE))
+      {
+         size_t bytesWritten;
+         if (OS_SUCCESS!=persistentConfigVersionFile.write(mConfigVersion.data(),
+                                                           mConfigVersion.length(),
+                                                           bytesWritten))
+         {
+            OsSysLog::add(FAC_WATCHDOG, PRI_ERR, "Process[%s]::setConfigurationVersion "
+                          "write to '%s' failed", data(), persistentConfigVersionPath.data());
+         }
+      }
+      else
+      {
+         OsSysLog::add(FAC_WATCHDOG, PRI_ERR,
+                       "Process[%s]::setConfigurationVersion create of '%s' failed",
+                       data(), persistentConfigVersionPath.data());
+      }
+
+      checkService();
+   }
+   else
+   {
+      OsSysLog::add(FAC_WATCHDOG, PRI_DEBUG,
+                    "Process[%s]::setConfigurationVersion new value '%s' matches existing value.",
+                    data(),mConfigVersion.data());
+   }
+   
 }
    
 /// Compare actual process state to the desired state, and attempt to change it if needed.
 void Process::checkService()
 {
    // @TODO 
+   OsSysLog::add(FAC_WATCHDOG, PRI_DEBUG, "Process[%s]::checkService called.", data());
 }
    
 /// Determine whether or not the values in a containable are comparable.
@@ -677,6 +807,8 @@ const char* Process::state(State stateValue)
 /// Save the persistent desired state.
 void Process::persistDesiredState()
 {
+   // caller must be holding mLock.
+
    OsPath persistentStateDirPath  // normally {prefix}/var/sipxecs/process-state
       = SipXecsService::Path(SipXecsService::VarDirType, ProcessStateDir);
    
@@ -721,10 +853,12 @@ void Process::persistDesiredState()
    }
 }
 
-/// Read the persistent desired state.
-Process::State Process::readPersistentState()
+/// Read the persistent desired state into mDesiredState.
+void Process::readPersistentState()
 {
-   State persistentState = Undefined;
+   OsLock mutex(mLock);
+   
+   mDesiredState = Undefined;
 
    OsPath persistentStatePath(SipXecsService::Path(SipXecsService::VarDirType, ProcessStateDir)
                               + OsPath::separator + data());
@@ -733,13 +867,12 @@ Process::State Process::readPersistentState()
    if (OS_SUCCESS == persistentStateFile.open(OsFile::READ_ONLY))
    {
       UtlString persistentStateString;
-      
       if (OS_SUCCESS != persistentStateFile.readLine(persistentStateString))
       {
          OsSysLog::add(FAC_WATCHDOG, PRI_ERR, "Process::readPersistentState read failed");
       }
 
-      persistentState = state(persistentStateString);
+      mDesiredState = state(persistentStateString);
    }
    else
    {
@@ -747,8 +880,6 @@ Process::State Process::readPersistentState()
                     "Process::readPersistentState open of '%s' failed",
                     persistentStatePath.data());
    }
-
-   return persistentState;
 }
 
 /// destructor
@@ -757,6 +888,7 @@ Process::~Process()
    OsLock mutex(mLock);
 
    // @TODO shut down task
+
    if (mConfigtest)
    {
       delete mConfigtest;

@@ -139,8 +139,8 @@ public:
 
          process->enable();
          CPPUNIT_ASSERT(process->isEnabled());
+         CPPUNIT_ASSERT_EQUAL(Process::Running, process->mDesiredState);
          CPPUNIT_ASSERT_EQUAL(Process::Undefined, process->getState());
-         CPPUNIT_ASSERT_EQUAL(Process::Running, process->readPersistentState());
       };
    
    

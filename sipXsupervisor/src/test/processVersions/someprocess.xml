@@ -1,0 +1,22 @@
+<?xml version='1.0' encoding='iso-8859-1' standalone='yes'?>
+<sipXecs-process xmlns='http://www.sipfoundry.org/sipX/schema/xml/sipXecs-process-01-00'>
+  <name>Some</name>
+  <version>1.0.0</version>
+  <commands>
+    <configtest>
+      <execute>/bin/someprocess1.sh</execute>
+    </configtest>
+    <start>
+      <execute>/bin/someprocess2.sh</execute>
+    </start>
+    <stop>
+      <execute>/bin/someprocess3.sh</execute>
+    </stop>
+  </commands>
+  <status>
+    <pid>/var/run/someprocess.pid</pid>
+  </status>
+  <resources>
+    <file>/etc/sipxpbx/someprocess.xml</file>
+  </resources>
+</sipXecs-process>

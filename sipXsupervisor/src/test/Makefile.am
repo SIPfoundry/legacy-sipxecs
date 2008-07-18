@@ -17,8 +17,9 @@ testsuite_LDADD = \
    ../libsipXsupervisor.la
 
 testsuite_SOURCES = \
+    ProcessDefinitionParserTest.cpp \
 	 ProcessStateTest.cpp \
-    ProcessDefinitionParserTest.cpp
+	 ProcessVersionsTest.cpp
 
 EXTRA_DIST = \
     processDef/badconfigaccess.xml \
@@ -52,7 +53,9 @@ EXTRA_DIST = \
     processDef/unknownresource.xml \
     processDef/unknownstatus1.xml \
     processDef/unknownstatus2.xml \
-    processDef/versionnottext.xml
+    processDef/versionnottext.xml \
+	 processState/newprocess.xml \
+	 processVersions/someprocess.xml
 
 clean: clean-workdir
 
