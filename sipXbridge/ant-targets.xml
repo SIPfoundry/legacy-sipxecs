@@ -231,16 +231,30 @@
     <copy todir="${build.dir}/testdata" >
 	<fileset dir="${src.dir}/testdata"/>
     </copy>
-<!--
     <junit fork="yes" haltonfailure="yes" printsummary="on">
       <classpath>
         <pathelement path="${classpath}"/>
         <pathelement location="${classes.dir}"/>
         <pathelement location="${test.classes.dir}"/>
         <pathelement location="${src.dir}/tools/SipUnit.jar"/>
-        <fileset dir="${src.dir}/lib"> 
-	    <include name="**/*.jar" />
-	</fileset>
+	<pathelement location="${classes}" />
+        <pathelement location="${sipxcommons}" />
+        <pathelement location="${log4j}" />
+        <pathelement location="${jainsip}" />
+        <pathelement location="${junit}" />
+        <pathelement location="${sipunit}" />
+        <pathelement location="${dnsjava}" />
+        <pathelement location="${stun4j}" />
+        <pathelement location="${commons-logging-api}" />
+        <pathelement location="${commons-logging}" />
+        <pathelement location="${commons-digester}" />
+        <pathelement location="${commons-collections}" />
+        <pathelement location="${commons-beanutils}" />
+        <pathelement location="${xml-rpc-common}" />
+        <pathelement location="${xml-rpc-server}" />
+        <pathelement location="${xml-rpc-client}" />
+        <pathelement location="${ws-commons-util}" />
+
       </classpath>
       <formatter type="plain"/>
       <formatter type="xml"/>
@@ -251,7 +265,6 @@
         </fileset>
       </batchtest>
     </junit>
--->
   </target>
 
 
@@ -280,9 +293,23 @@
         <pathelement location="${classes.dir}"/>
         <pathelement location="${test.classes.dir}"/>
         <pathelement location="${src.dir}/tools/SipUnit.jar"/>
-        <fileset dir="${src.dir}/lib"> 
-		<include name="**/*.jar" />
-	</fileset>
+	<pathelement location="${classes}" />
+        <pathelement location="${sipxcommons}" />
+        <pathelement location="${log4j}" />
+        <pathelement location="${jainsip}" />
+        <pathelement location="${junit}" />
+        <pathelement location="${sipunit}" />
+        <pathelement location="${dnsjava}" />
+        <pathelement location="${stun4j}" />
+        <pathelement location="${commons-logging-api}" />
+        <pathelement location="${commons-logging}" />
+        <pathelement location="${commons-digester}" />
+        <pathelement location="${commons-collections}" />
+        <pathelement location="${commons-beanutils}" />
+        <pathelement location="${xml-rpc-common}" />
+        <pathelement location="${xml-rpc-server}" />
+        <pathelement location="${xml-rpc-client}" />
+        <pathelement location="${ws-commons-util}" />
       </classpath>
       <formatter type="plain"/>
       <formatter type="xml"/>

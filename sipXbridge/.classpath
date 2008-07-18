@@ -3,8 +3,6 @@
 	<classpathentry kind="src" path="src/main/java"/>
 	<classpathentry kind="src" path="src/test/java"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="lib/dnsjava-2.0.6.jar"/>
-	<classpathentry kind="lib" path="lib/log4j-1.2.14.jar"/>
 	<classpathentry kind="lib" path="lib/Stun4J.jar"/>
 	<classpathentry kind="lib" path="lib/commons-collections-3.2.jar"/>
 	<classpathentry kind="lib" path="lib/commons-digester-1.8.jar"/>
@@ -17,6 +15,9 @@
 	<classpathentry kind="lib" path="lib/commons-beanutils.jar"/>
 	<classpathentry kind="lib" path="tools/junit-3.8.1.jar"/>
 	<classpathentry kind="lib" path="tools/sipunit.jar"/>
-	<classpathentry kind="lib" path="lib/jain-sip-sdp-1.2.74.jar"/>
+	<classpathentry kind="lib" path="/home/mranga/sipfoundry/git/sipXcommons/lib/jain-sip-sdp-1.2.74.jar"/>
+	<classpathentry kind="lib" path="/home/mranga/sipfoundry/git/sipXcommons/lib/log4j-1.2.15.jar"/>
+	<classpathentry kind="lib" path="/home/mranga/sipfoundry/git/sipXcommons/lib/dnsjava-2.0.6.jar"/>
+	<classpathentry kind="lib" path="/usr/local/sipx/share/java/sipXecs/sipXcommons/sipxcommons.jar"/>
 	<classpathentry kind="output" path="classes"/>
 </classpath>
