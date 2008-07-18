@@ -13,41 +13,19 @@
 
   <property name="prebuilt.windows.launcher" value="${src.dir}/bin/Preflight.exe"/>
 
-  <property name="preflight.lib.dir" value="${lib.dir}/preflight"/>
-
   <path id="base.path" >
     <pathelement location="${dnsjava.jar}"/>
     <pathelement location="${CommonsCli.jar}"/>
     <pathelement location="${CommonsNet.jar}"/>
-    <pathelement location="${JainSipApi.jar}"/>
-    <pathelement location="${JainSipRi.jar}"/>
+    <pathelement location="${jainsip.jar}"/>
     <pathelement location="${swt.jar}"/>
     <pathelement location="${junit.jar}"/>
     <pathelement location="${log4j.jar}"/>
   </path>
   <property name="classpath" refid="base.path" />
 
-  <!-- J N I -->
-  <target name="jni" depends="compile" description="create RockSaw JNI library" >
-    <taskdef resource="cpptasks.tasks" classpath="${cpptasks.jar}"/>
-    <typedef resource="cpptasks.types" classpath="${cpptasks.jar}"/>
-    <cc outfile="${build.dir}/dist/librocksaw.so">
-      <fileset dir="${src.dir}/src/main/native/posix" includes="RawSocket.c"/>
-      <includepath path="${jdk.include}"/>
-      <includepath path="${jdk.include}/linux"/>
-      <defineset define="_REENTRANT"/>
-      <compilerarg value="-Wall"/>
-      <compilerarg value="-O2"/>
-      <compilerarg value="-pipe"/>
-      <compilerarg value="-ansi"/>
-      <compilerarg value="-pthread"/>
-      <compilerarg value="-fpic"/>
-      <linkerarg value="-shared"/>
-    </cc>
-  </target>
-
   <!-- J A R -->
-  <target name="jar" depends="jni" description="create jar file" >
+  <target name="jar" depends="compile" description="create jar file" >
     <taskdef name="one-jar" classname="com.simontuffs.onejar.ant.OneJarTask" classpath="${one-jar.jar}" onerror="report"/>
     <one-jar destfile="${build.dir}/dist/preflight.jar" manifest="${src.dir}/preflight.mf" >
       <main>
@@ -56,18 +34,18 @@
         </fileset>
       </main>
       <lib>
+        <fileset file="${sipxcommons.jar}" />
         <fileset file="${dnsjava.jar}" />
         <fileset file="${CommonsCli.jar}" />
         <fileset file="${CommonsNet.jar}" />
-        <fileset file="${JainSipApi.jar}" />
-        <fileset file="${JainSipRi.jar}" />
+        <fileset file="${jainsip.jar}" />
         <fileset file="${swt.jar}" />
         <fileset file="${log4j.jar}" />
       </lib>
       <binlib>
-        <fileset dir="${src.dir}/lib" >
-          <include name="*.dll" />
-        </fileset>
+        <fileset file="${ArpTable.dll}" />
+        <fileset file="${rocksaw.dll}" />
+        <fileset file="${rocksaw.lib}" />
       </binlib>
       <fileset dir="${src.dir}">
         <include name="icons/**"/>
@@ -91,7 +69,7 @@
     <cc outfile="${build.dir}/dist/preflight">
       <fileset dir="${src.dir}/src/main/native/posix" includes="preflight.c"/>
       <defineset>
-        <define name="SIPX_LIBDIR" value='"${preflight.lib.dir}"'/>
+        <define name="SIPX_LIBDIR" value='"${preflight.dir}"'/>
       </defineset>
     </cc>
   </target>
@@ -132,28 +110,27 @@
   <!-- I N S T A L L -->
   <target name="install">
     <antcall target="posix-install"/>
-    <mkdir dir="${dest.dir}${sipx.data.dir}/preflight"/>
     <antcall target="windows-install"/>
   </target>
 
   <target name="posix-install">
     <!-- Posix Launcher -->
-    <mkdir dir="${dest.dir}${preflight.lib.dir}"/>
-    <copy file="${build.dir}/dist/librocksaw.so" todir="${dest.dir}${lib.dir}"/>
-    <copy file="${build.dir}/dist/preflight.jar" todir="${dest.dir}${preflight.lib.dir}"/>
+    <mkdir dir="${dest.dir}${preflight.dir}"/>
+    <copy file="${build.dir}/dist/preflight.jar" todir="${dest.dir}${preflight.dir}"/>
     <copy file="${build.dir}/dist/preflight" todir="${dest.dir}${bin.dir}"/>
     <chmod file="${dest.dir}${bin.dir}/preflight" perm="ugo+x" />
   </target>
     
   <target name="windows-install" if="has.windows.prerequisites" depends="test-for-windows-prerequisites">
     <!-- Windows Installer -->
+    <mkdir dir="${dest.dir}${sipx.data.dir}/preflight"/>
     <copy file="${build.dir}/dist/preflight_installer.exe" todir="${dest.dir}${sipx.data.dir}/preflight"/>
     <chmod file="${dest.dir}${sipx.data.dir}/preflight/preflight_installer.exe" perm="ugo+x" />
   </target>
 
   <target name="uninstall">
     <delete file="${dest.dir}${bin.dir}/preflight"/>
-    <delete file="${dest.dir}${preflight.lib.dir}/preflight.jar"/>
+    <delete file="${dest.dir}${preflight.dir}/preflight.jar"/>
     <delete file="${dest.dir}${sipx.data.dir}/preflight/preflight_installer.exe"/>
   </target>
 

@@ -59,6 +59,7 @@
        <fileset file="${dnsjava.jar}"/>
        <fileset file="${junit.jar}"/>
        <fileset file="${log4j.jar}"/>
+       <fileset file="${cpptasks.jar}"/>
        <fileset file="${src.dir}/lib/ArpTable.dll"/>
        <fileset file="${src.dir}/lib/rocksaw.dll"/>
     </copy>
