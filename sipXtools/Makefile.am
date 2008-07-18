@@ -2,8 +2,7 @@
 include config/project.am
 
 SUBDIRS = \
-	src \
-	preflight
+	src
 
 EXTRA_DIST = \
     config/sipX-config.in \
