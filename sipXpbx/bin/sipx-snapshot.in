@@ -200,10 +200,13 @@ do
     shift # always consume 1 argument
 done
 
-# Set the working file tree.
+# Establish the work directory, which will mirror the parts of the
+# file system that we are interested in, with $Work corresponding to /.
 # Since the destination location may not be able to hold the uncompressed
 # data, place it in a recognized temporary location.
-Work=${TMPDIR:-/tmp}/sipx-snapshot.$$
+Work=`mktemp -d -t sipx-snapshot.XXXXXX`
+trap "rm -rf $Work* 2>/dev/null" 0
+
 if [ ${Tar} = YES ]
 then
   # Set default ToFile if necessary.
@@ -303,10 +306,6 @@ USAGE
     exit
 fi
 
-# Establish the work directory, which will mirror the parts of the
-# file system that we are interested in, with $Work corresponding to /.
-rm -rf $Work
-mkdir  $Work
 
 # File into which to record random system configuration information.
 SystemConfig=${Work}/SystemConfig
@@ -653,7 +652,7 @@ then
       cp -pR --dereference ${file} ${Work}${file}
     else
       echo Missing or not a file/directory: ${file} >> ${SystemConfig}
-      ls -ld ${file} >> ${SystemConfig}
+      ls -ld ${file} >> ${SystemConfig} 2> /dev/null
     fi
   done
 
