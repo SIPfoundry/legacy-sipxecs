@@ -47,8 +47,22 @@ void FileTestContext::inputFile(const char* filename)
    OsPath input(inputPath);
    OsPath working(workingPath);
 
+   OsPath workingDirPath(working.getDirName());
+   workingDirPath.strip(UtlString::trailing, OsPath::separator(0));
+   OsDir workingDir(workingDirPath);
+
+   if (!workingDir.exists())
+   {
+      UtlString msg;
+      msg.append("FileTestContext::inputFile failed to create working directory '");
+      msg.append(working.getDirName().data());
+      msg.append("'");
+      CPPUNIT_ASSERT_EQUAL_MESSAGE(msg.data(),
+                                   OS_SUCCESS,OsFileSystem::createDir(workingDirPath,TRUE));
+   }
+   
    UtlString msg;
-   msg.append("copy failed from '");
+   msg.append("FileTestContext::inputFile copy failed from '");
    msg.append(inputPath);
    msg.append("' -> '");
    msg.append(workingPath);
@@ -57,6 +71,10 @@ void FileTestContext::inputFile(const char* filename)
                                 OS_SUCCESS,
                                 OsFileSystem::copy(input, working)
                                 );
+
+   OsSysLog::add(FAC_UNIT_TEST, PRI_NOTICE, "FileTestContext::inputFile '%s' -> '%s'",
+                 inputPath.data(), workingPath.data());
+
 }
 
 void FileTestContext::setSipxDir(DirectoryType dirType, const char* subDir)
