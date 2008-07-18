@@ -270,7 +270,7 @@ then
     then
         cat <<EOF
 
-  Your sipX SSL security is now configured.
+  Your TLS/SSL security is now configured.
 
 EOF
 
