@@ -50,7 +50,7 @@
   <!-- I N S T A L L -->
   <target name="install">
     <delete dir="${dest.dir}${sipxcommons.dir}"/>
-    <mkdir dir="${dest.dir}$sipxcommons.dir}"/>
+    <mkdir dir="${dest.dir}${sipxcommons.dir}"/>
     <copy todir="${dest.dir}${sipxcommons.dir}">
        <fileset file="${build.dir}/dist/*.jar"/>
        <fileset file="${build.dir}/dist/*.o"/>
