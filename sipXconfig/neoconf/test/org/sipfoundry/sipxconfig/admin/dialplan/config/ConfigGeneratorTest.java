@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.admin.dialplan.config;
@@ -19,6 +19,7 @@ import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRuleProvider;
 import org.sipfoundry.sipxconfig.admin.dialplan.EmergencyRouting;
+import org.sipfoundry.sipxconfig.admin.dialplan.attendant.AutoAttendantsConfig;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDeviceManager;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcManager;
 
@@ -49,7 +50,7 @@ public class ConfigGeneratorTest extends XMLTestCase {
         SbcManager sbcManager = createNiceMock(SbcManager.class);
 
         SbcDeviceManager sbcDeviceManager = createNiceMock(SbcDeviceManager.class);
-        
+
         replay(dialingRuleProvider, dialPlanContext, sbcDeviceManager, sbcManager);
 
         EmergencyRouting er = new EmergencyRouting();
@@ -73,10 +74,11 @@ public class ConfigGeneratorTest extends XMLTestCase {
         forwardingRules.setName("fallbackrules.xml.in");
         forwardingRules.setVelocityEngine(TestHelper.getVelocityEngine());
         forwardingRules.setSbcManager(sbcManager);
-
-        
         generator.setForwardingRules(forwardingRules);
-        
+
+        AutoAttendantsConfig autoAttendantsConfig = new AutoAttendantsConfig();
+        generator.setAutoAttendantConfig(autoAttendantsConfig );
+
         generator.generate(dialPlanContext, er);
 
         checkConfigFileGeneration(generator, authRules, "authrules.xml.in");

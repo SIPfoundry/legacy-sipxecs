@@ -1,0 +1,60 @@
+Name: @PACKAGE@
+Version: @VERSION@
+Release: %{buildno}
+
+Summary: IVR using FreeSwitch for sipX
+License: LGPL
+Group: Productivity/Telephony/SIP/Servers
+Vendor: SIPfoundry
+Packager: SIPfoundry <sipx-dev@sipfoundry.org>
+Url: http://www.sipfoundry.org/sipXbridge
+
+Source: %name-%version.tar.gz
+
+Requires: sipxcommserverlib >= 3.11
+Requires: sipxcommons >= 3.11
+# does not work with w/gcj - require -ibm or -sun depending on a platform
+%ifarch ppc ppc64
+Requires: java-ibm >= 1.5
+
+# required. this handle certs when using ibm's jvm
+# note anaconda in fc6ppc doesn't seem to know to pull this in
+# could be the bizarre versioning (i.e. lack of it)
+Requires: java-ibm-unrestricted
+
+%else
+Requires: java-sun >= 1.5
+%endif
+
+Prefix: %_prefix
+BuildRoot: %{_tmppath}/%name-%version-root
+
+%description
+IVR subystem that uses FreeSWITCH as a media server.
+
+%prep
+%setup -q
+
+%build
+%configure @CONFIGURE_OPTIONS@
+cp config.log %name.configlog
+make all
+
+%install
+
+rm -rf $RPM_BUILD_ROOT
+make DESTDIR=$RPM_BUILD_ROOT install
+
+%clean
+rm -rf $RPM_BUILD_ROOT
+
+%post
+%{_libexecdir}/sipx-disable-on-distributed sipxivr
+
+%files
+%defattr(644,root,root,755)
+%attr(755,sipxchange,sipxchange) %{_libdir}/sipXivr
+%config(noreplace) %attr(644,root,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx/process.d/sipxivr.process.xml
+%attr(644,root,root) %{_datadir}/sipx/process.d/sipxivr-process.xml
+%attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_bindir}/sipxivr.sh
+%attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_bindir}/sipxivr-config

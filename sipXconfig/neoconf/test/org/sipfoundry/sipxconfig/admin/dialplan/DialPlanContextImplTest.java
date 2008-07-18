@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.admin.dialplan;
@@ -15,6 +15,7 @@ import java.util.Collections;
 import junit.framework.TestCase;
 
 import org.sipfoundry.sipxconfig.TestHelper;
+import org.sipfoundry.sipxconfig.admin.dialplan.attendant.AutoAttendantsConfig;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.AuthRules;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.ConfigGenerator;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.FallbackRules;
@@ -44,6 +45,7 @@ public class DialPlanContextImplTest extends TestCase {
         cg.setAuthRules(new AuthRules());
         cg.setMappingRules(new MappingRules());
         cg.setFallbackRules(new FallbackRules());
+        cg.setAutoAttendantConfig(new AutoAttendantsConfig());
 
         ForwardingRules forwardingRules = new ForwardingRules();
         cg.setForwardingRules(forwardingRules);
@@ -61,7 +63,7 @@ public class DialPlanContextImplTest extends TestCase {
         BeanFactory bf = createMock(ListableBeanFactory.class);
         for(int i = 0; i < 3; i++) {
             bf.getBean(ConfigGenerator.BEAN_NAME, ConfigGenerator.class);
-            expectLastCall().andReturn(createConfigGenerator());            
+            expectLastCall().andReturn(createConfigGenerator());
         }
         replay(bf);
 
@@ -146,6 +148,7 @@ public class DialPlanContextImplTest extends TestCase {
         emergency.setUseMediaServer(false);
         emergency.setEnabled(true);
         Gateway gatewayWithSbc = new Gateway() {
+            @Override
             public String getRoute() {
                 return "sbc.example.org";
             }
@@ -179,25 +182,29 @@ public class DialPlanContextImplTest extends TestCase {
     }
 
     private static class MockDialPlanContextImpl extends DialPlanContextImpl {
-        private DialPlan m_plan;
+        private final DialPlan m_plan;
 
         MockDialPlanContextImpl(DialPlan plan) {
             m_plan = plan;
             setHibernateTemplate(createMock(HibernateTemplate.class));
         }
 
+        @Override
         DialPlan getDialPlan() {
             return m_plan;
         }
 
+        @Override
         public EmergencyRouting getEmergencyRouting() {
             return new EmergencyRouting();
         }
 
+        @Override
         public GatewayContext getGatewayContext() {
             return null;
         }
 
+        @Override
         public SpecialAutoAttendantMode createSpecialAutoAttendantMode() {
             return null;
         }

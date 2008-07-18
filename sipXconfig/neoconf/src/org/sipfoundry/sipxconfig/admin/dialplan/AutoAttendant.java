@@ -1,13 +1,15 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.admin.dialplan;
+
+import java.io.File;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -59,7 +61,7 @@ public class AutoAttendant extends BeanWithGroups implements NamedObject {
 
     /**
      * Certain auto attendants like the operator are system known.
-     * 
+     *
      * @return null if attendant is not system known
      */
     public String getSystemId() {
@@ -80,9 +82,9 @@ public class AutoAttendant extends BeanWithGroups implements NamedObject {
 
     /**
      * Check is this is a permanent attendant.
-     * 
+     *
      * You cannot delete operator or afterhour attendant.
-     * 
+     *
      * @return true for operator or afterhour, false otherwise
      */
     public boolean isPermanent() {
@@ -107,6 +109,10 @@ public class AutoAttendant extends BeanWithGroups implements NamedObject {
 
     public void setPrompt(String prompt) {
         m_prompt = prompt;
+    }
+
+    public File getPromptFile() {
+        return new File(m_vxmlGenerator.getPromptsDirectory(), m_prompt);
     }
 
     public String getName() {
@@ -138,19 +144,20 @@ public class AutoAttendant extends BeanWithGroups implements NamedObject {
         m_menu.reset(isPermanent());
     }
 
+    @Override
     public void initialize() {
-        AudioDirectorySetter audioDirectorySetter = new AudioDirectorySetter(m_vxmlGenerator
-                .getPromptsDirectory());
+        AudioDirectorySetter audioDirectorySetter = new AudioDirectorySetter(m_vxmlGenerator.getPromptsDirectory());
         getSettings().acceptVisitor(audioDirectorySetter);
     }
 
     private static class AudioDirectorySetter extends AbstractSettingVisitor {
-        private String m_audioDirectory;
+        private final String m_audioDirectory;
 
         public AudioDirectorySetter(String directory) {
             m_audioDirectory = directory;
         }
 
+        @Override
         public void visitSetting(Setting setting) {
             SettingType type = setting.getType();
             if (type instanceof FileSetting) {

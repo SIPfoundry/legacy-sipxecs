@@ -15,7 +15,7 @@
     <!-- Event Handlers -->
     <!-- <load module="mod_cdr"/> -->
     <!-- <load module="mod_event_multicast"/> -->
-    <!-- <load module="mod_event_socket"/> -->
+    <load module="mod_event_socket"/> 
     <!-- <load module="mod_xmpp_event"/> -->
     <!-- <load module="mod_zeroconf"/> -->
 
@@ -36,8 +36,9 @@
     <load module="mod_conference"/>
     <load module="mod_dptools"/>
     <load module="mod_echo"/>
-    <!--<load module="mod_park"/>-->
+    <load module="mod_park"/>
     <load module="mod_playback"/>
+    <load module="mod_tone_stream"/>
 
     <!-- Dialplan Interfaces -->
     <!-- <load module="mod_dialplan_directory"/> -->

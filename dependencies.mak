@@ -80,6 +80,10 @@ sipXbridge : sipXcommons
 sipXpage : sipXcommons
 	@echo sipXpage
 
+.PHONY: sipXivr
+sipXivr : sipXcommons
+	@echo sipXivr
+
 .PHONY: sipXecs
 sipXecs : sipXproxy sipXregistry sipXpublisher sipXvxml sipXconfig sipXpbx sipXsupervisor doc
 	@echo sipXecs

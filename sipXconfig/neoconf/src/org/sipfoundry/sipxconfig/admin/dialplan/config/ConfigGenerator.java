@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.admin.dialplan.config;
@@ -22,6 +22,7 @@ import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRuleProvider;
 import org.sipfoundry.sipxconfig.admin.dialplan.EmergencyRouting;
 import org.sipfoundry.sipxconfig.admin.dialplan.IDialingRule;
+import org.sipfoundry.sipxconfig.admin.dialplan.attendant.AutoAttendantsConfig;
 import org.springframework.beans.factory.annotation.Required;
 
 /**
@@ -35,10 +36,11 @@ public class ConfigGenerator {
     private FallbackRules m_fallbackRules;
     private ForwardingRules m_forwardingRules;
     private NatTraversalRules m_natTraversalRules;
+    private AutoAttendantsConfig m_autoAttendantConfig;
 
     private DialingRuleProvider m_dialingRuleProvider;
     private EmergencyRoutingRules m_emergencyRoutingRules;
-    private List<AbstractConfigurationFile> m_attendantScheduleFiles = new ArrayList<AbstractConfigurationFile>();
+    private final List<AbstractConfigurationFile> m_attendantScheduleFiles = new ArrayList<AbstractConfigurationFile>();
 
     @Required
     public void setForwardingRules(ForwardingRules forwardingRules) {
@@ -75,8 +77,14 @@ public class ConfigGenerator {
         m_dialingRuleProvider = dialingRuleProvider;
     }
 
+    @Required
+    public void setAutoAttendantConfig(AutoAttendantsConfig autoAttendantConfig) {
+        m_autoAttendantConfig = autoAttendantConfig;
+    }
+
     private List< ? extends ConfigurationFile> getRulesFiles() {
-        return Arrays.asList(m_mappingRules, m_authRules, m_fallbackRules, m_forwardingRules, m_natTraversalRules);
+        return Arrays.asList(m_mappingRules, m_authRules, m_fallbackRules, m_forwardingRules, m_natTraversalRules,
+                m_autoAttendantConfig);
     }
 
     private void generate(EmergencyRouting er) {
@@ -91,6 +99,7 @@ public class ConfigGenerator {
     }
 
     public void generate(DialPlanContext plan, EmergencyRouting er) {
+        m_autoAttendantConfig.generate(plan);
         generateXmlFromDialingRules(plan, er);
 
         List<AttendantRule> attendantRules = plan.getAttendantRules();
@@ -134,9 +143,9 @@ public class ConfigGenerator {
 
     /**
      * Retrieves configuration file content as stream.
-     * 
+     *
      * Use only for preview, use write function to dump it to the file.
-     * 
+     *
      * @param type type of the configuration file
      */
     public String getFileContent(String name) {

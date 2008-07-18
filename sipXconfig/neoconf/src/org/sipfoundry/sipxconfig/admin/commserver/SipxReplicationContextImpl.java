@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.admin.commserver;
@@ -40,6 +40,8 @@ public class SipxReplicationContextImpl implements ApplicationEventPublisherAwar
     private ReplicationManager m_replicationManager;
     private JobContext m_jobContext;
     private LocationsManager m_locationsManager;
+    // should be replicated every time aliases are replicated
+    private ConfigurationFile m_validUsersConfig;
 
     public void generate(DataSet dataSet) {
         Serializable jobId = m_jobContext.schedule("Data replication: " + dataSet.getName());
@@ -58,6 +60,10 @@ public class SipxReplicationContextImpl implements ApplicationEventPublisherAwar
                 // there is not really a good info here - advise user to consult log?
                 m_jobContext.failure(jobId, null, null);
             }
+        }
+        // replication valid users when aliases are replicated
+        if (DataSet.ALIAS.equals(dataSet)) {
+            replicate(m_validUsersConfig);
         }
     }
 
@@ -110,9 +116,14 @@ public class SipxReplicationContextImpl implements ApplicationEventPublisherAwar
     public void setJobContext(JobContext jobContext) {
         m_jobContext = jobContext;
     }
+
     @Required
     public void setLocationsManager(LocationsManager locationsManager) {
         m_locationsManager = locationsManager;
+    }
+
+    public void setValidUsersConfig(ConfigurationFile validUsersConfig) {
+        m_validUsersConfig = validUsersConfig;
     }
 
     public void setApplicationEventPublisher(ApplicationEventPublisher applicationEventPublisher) {

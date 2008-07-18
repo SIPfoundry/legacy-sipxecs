@@ -291,6 +291,7 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) %{sipxpbxconf}/nt1535/*
 %config(noreplace) %{sipxpbxconf}/sipxbridge/*
 %config(noreplace) %{sipxpbxconf}/sipxconference/*
+%config(noreplace) %{sipxpbxconf}/sipxivr/*
 %config(noreplace) %{sipxpbxconf}/sipxproxy/*
 %config(noreplace) %{sipxpbxconf}/sipxregistrar/*
 %dir %{sipxpbxconf}/sipxpresence

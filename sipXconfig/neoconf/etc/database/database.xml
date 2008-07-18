@@ -269,9 +269,10 @@
 	<antcall target="nat-traversal" />
 	<antcall target="backup-ftp" />
     <antcall target="user-conferences" />
-	<antcall target="discovered-devices"/>
-  	<antcall target="add-park-service"/>
-  	<antcall target="add-presence-service"/>
+    <antcall target="discovered-devices"/>
+    <antcall target="add-park-service"/>
+    <antcall target="add-presence-service"/>
+    <antcall target="add-ivr-service"/>
     <!-- When freezing schema uncomment this line -->
     <!-- sipx-version version="8" -->
   </target>
@@ -678,6 +679,10 @@
 	
   <target name="add-presence-service" unless="add-presence-service">
     <db-patch patch="add-presence-service"/>
+  </target>
+
+  <target name="add-ivr-service" unless="add-ivr-service">
+    <db-patch patch="add-ivr-service"/>
   </target>
 
   <!-- 

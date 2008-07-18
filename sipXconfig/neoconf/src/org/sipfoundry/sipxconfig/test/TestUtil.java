@@ -159,6 +159,9 @@ public final class TestUtil {
         // HACK: sysdir.bin is not a real directory when testing
         final String domainName = "sipfoundry.org";
         final String realm = "realm";
+        final String vxmlDir = outputDirectory + "/vxml";
+        final String mailstoreDir = outputDirectory + "/mailstore";
+
         sysProps.setProperty("sysdir.bin", outputDirectory + "/bin");
         sysProps.setProperty("sysdir.etc", etcDirectory);
         sysProps.setProperty("sysdir.data", outputDirectory);
@@ -169,6 +172,11 @@ public final class TestUtil {
         sysProps.setProperty("sysdir.log", outputDirectory);
         sysProps.setProperty("sysdir.doc", outputDirectory);
         sysProps.setProperty("sysdir.freeswitch", outputDirectory + "/freeswitch");
+        sysProps.setProperty("sysdir.mailstore", mailstoreDir);
+        sysProps.setProperty("sysdir.vxml", vxmlDir);
+        sysProps.setProperty("sysdir.vxml.prompts", vxmlDir + "/prompts");
+        sysProps.setProperty("sysdir.vxml.scripts", vxmlDir + "/scripts");
+
         sysProps.setProperty("phoneDefaults.tftpServer", "tftp.sipfoundry.org");
         sysProps.setProperty("phoneDefaults.authorizationRealm", realm);
         sysProps.setProperty("phoneDefaults.fullyQualifiedDomainName", "pbx." + domainName);
@@ -193,7 +201,7 @@ public final class TestUtil {
                 + "/phonebook");
         sysProps.setProperty("audiocodesGatewayModel.configDirectory", etcDirectory);
         sysProps.setProperty("audiocodesFxs.configDirectory", etcDirectory);
-        final String vxmlDir = outputDirectory + "/vxml";
+
         sysProps.setProperty("vxml.scriptsDirectory", vxmlDir);
         sysProps.setProperty("dialPlanContextImpl.scriptsDirectory", vxmlDir);
         sysProps.setProperty("monitoringContextImpl.enabled", Boolean.toString(true));
@@ -205,7 +213,7 @@ public final class TestUtil {
         sysProps.setProperty("sip.proxyHost", "localhost");
         sysProps.setProperty("sip.proxyPort", "5060");
 
-        File vmDir = new File(outputDirectory + "/mailstore");
+        File vmDir = new File(mailstoreDir);
         if (!vmDir.exists()) {
             if (!vmDir.mkdirs()) {
                 throw new RuntimeException("Could not create voicemail store "

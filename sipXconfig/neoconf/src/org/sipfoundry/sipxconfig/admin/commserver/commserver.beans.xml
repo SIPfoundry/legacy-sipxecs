@@ -59,6 +59,7 @@
     <property name="replicationManager" ref="replicationManagerImpl" />
     <property name="jobContext" ref="jobContext" />
     <property name="locationsManager" ref="locationsManager" />
+    <property name="validUsersConfig" ref="validUsersConfig" />
   </bean>
 
   <bean id="sipxReplicationContextDao"
@@ -153,6 +154,12 @@
     <property name="gatewayContext" ref="gatewayContext" />
     <property name="anonymousAlias"
       value="sip:anonymous@anonymous.invalid" />
+  </bean>
+  <bean id="validUsersConfig" parent="defaultConfigurationFile"
+    class="org.sipfoundry.sipxconfig.admin.dialplan.attendant.ValidUsersConfig">
+    <property name="name" value="validusers.xml" />
+    <property name="coreContext" ref="coreContext" />
+    <property name="domainManager" ref="domainManager" />
   </bean>
 
   <bean id="replicationTrigger"

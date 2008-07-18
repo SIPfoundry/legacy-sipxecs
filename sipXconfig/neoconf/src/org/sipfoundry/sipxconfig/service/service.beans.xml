@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN 2.0//EN"
-  "http://www.springframework.org/dtd/spring-beans-2.0.dtd">
-<beans>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:util="http://www.springframework.org/schema/util"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+    http://www.springframework.org/schema/util
+    http://www.springframework.org/schema/util/spring-util-2.0.xsd">
 
   <bean id="nakedServiceDescriptorSource" class="org.sipfoundry.sipxconfig.device.BeanFactoryModelSource">
     <constructor-arg>
@@ -47,56 +50,56 @@
     <property name="serviceManager" ref="serviceManager" />
     <property name="servicesSource" ref="serviceDescriptorSource" />
   </bean>
-  
+
   <bean id="sipxServiceManagerImpl" class="org.sipfoundry.sipxconfig.service.SipxServiceManagerImpl">
     <property name="sessionFactory" ref="sessionFactory" />
     <property name="sipxReplicationContext" ref="sipxReplicationContext" />
   </bean>
-  
+
   <bean id="sipxServiceManager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
     <property name="proxyInterfaces">
       <value>org.sipfoundry.sipxconfig.service.SipxServiceManager</value>
     </property>
-    <property name="target" ref="sipxServiceManagerImpl"/>
+    <property name="target" ref="sipxServiceManagerImpl" />
   </bean>
-  
-  <bean id="sipxService" class="org.sipfoundry.sipxconfig.service.SipxService" 
-    abstract="true">
-  </bean>
-  
-  <bean id="sipxProxyService" class="org.sipfoundry.sipxconfig.service.SipxProxyService" 
-    parent="sipxService" scope="prototype">
-    <property name="beanId" value="sipxProxyService" />
+
+  <bean id="sipxService" class="org.sipfoundry.sipxconfig.service.SipxService" abstract="true">
     <property name="modelFilesContext" ref="modelFilesContext" />
+    <property name="confDir" value="${sysdir.etc}" />
+    <property name="logDir" value="${sysdir.etc}" />
+  </bean>
+
+  <bean id="sipxProxyService" class="org.sipfoundry.sipxconfig.service.SipxProxyService" parent="sipxService"
+    scope="prototype">
+    <property name="beanId" value="sipxProxyService" />
     <property name="modelName" value="sipxproxy.xml" />
     <property name="modelDir" value="sipxproxy" />
     <property name="configuration" ref="sipxProxyConfiguration" />
   </bean>
-  
-  <bean id="sipxProxyConfiguration" class="org.sipfoundry.sipxconfig.service.SipxProxyConfiguration" 
-    scope="prototype" parent="defaultConfigurationFile">
+
+  <bean id="sipxProxyConfiguration" class="org.sipfoundry.sipxconfig.service.SipxProxyConfiguration" scope="prototype"
+    parent="defaultConfigurationFile">
     <property name="velocityEngine" ref="velocityEngine" />
     <property name="template" value="sipxproxy/sipXproxy-config.vm" />
-    <property name="name" value="sipXproxy-config"/>
+    <property name="name" value="sipXproxy-config" />
   </bean>
-  
-  <bean id="sipxRegistrarService" class="org.sipfoundry.sipxconfig.service.SipxRegistrarService" 
-    parent="sipxService" scope="prototype">
+
+  <bean id="sipxRegistrarService" class="org.sipfoundry.sipxconfig.service.SipxRegistrarService" parent="sipxService"
+    scope="prototype">
     <property name="beanId" value="sipxRegistrarService" />
-    <property name="modelFilesContext" ref="modelFilesContext" />
     <property name="modelName" value="sipxregistrar.xml" />
     <property name="modelDir" value="sipxregistrar" />
     <property name="configuration" ref="sipxRegistrarConfiguration" />
     <property name="sipxServiceManager" ref="sipxServiceManager" />
   </bean>
-  
-  <bean id="sipxRegistrarConfiguration" class="org.sipfoundry.sipxconfig.service.SipxRegistrarConfiguration" 
+
+  <bean id="sipxRegistrarConfiguration" class="org.sipfoundry.sipxconfig.service.SipxRegistrarConfiguration"
     scope="prototype" parent="defaultConfigurationFile">
     <property name="velocityEngine" ref="velocityEngine" />
     <property name="template" value="sipxregistrar/registrar-config.vm" />
-    <property name="name" value="registrar-config"/>
+    <property name="name" value="registrar-config" />
   </bean>
-  
+
   <bean id="sipxRegistrarInitializer" class="org.sipfoundry.sipxconfig.service.SipxRegistrarServiceInitializer">
     <property name="domainManager" ref="domainManager" />
     <property name="sipxServiceManager" ref="sipxServiceManager" />
@@ -104,29 +107,27 @@
       <list>
         <value>initialize_sipx_registrar_service</value>
       </list>
-    </property>    
+    </property>
   </bean>
-  
-  <bean id="sipxParkService" class="org.sipfoundry.sipxconfig.service.SipxParkService" 
-    parent="sipxService" scope="prototype">
+
+  <bean id="sipxParkService" class="org.sipfoundry.sipxconfig.service.SipxParkService" parent="sipxService"
+    scope="prototype">
     <property name="beanId" value="sipxParkService" />
-    <property name="modelFilesContext" ref="modelFilesContext" />
     <property name="modelName" value="sipxpark.xml" />
     <property name="modelDir" value="sipxpark" />
     <property name="configuration" ref="sipxParkConfiguration" />
   </bean>
-  
-  <bean id="sipxParkConfiguration" class="org.sipfoundry.sipxconfig.service.SipxParkConfiguration" 
-    scope="prototype" parent="defaultConfigurationFile">
+
+  <bean id="sipxParkConfiguration" class="org.sipfoundry.sipxconfig.service.SipxParkConfiguration" scope="prototype"
+    parent="defaultConfigurationFile">
     <property name="velocityEngine" ref="velocityEngine" />
     <property name="template" value="sipxpark/sipxpark-config.vm" />
-    <property name="name" value="sipxpark-config"/>
+    <property name="name" value="sipxpark-config" />
   </bean>
   
   <bean id="sipxPresenceService" class="org.sipfoundry.sipxconfig.service.SipxPresenceService" 
     parent="sipxService" scope="prototype">
     <property name="beanId" value="sipxPresenceService" />
-    <property name="modelFilesContext" ref="modelFilesContext" />
     <property name="modelName" value="sipxpresence.xml" />
     <property name="modelDir" value="sipxpresence" />
     <property name="configuration" ref="sipxPresenceConfiguration" />
@@ -139,5 +140,23 @@
     <property name="velocityEngine" ref="velocityEngine" />
     <property name="template" value="sipxpresence/sipxpresence-config.vm" />
     <property name="name" value="sipxpresence-config"/>
+  </bean>
+
+  <bean id="sipxIvrService" class="org.sipfoundry.sipxconfig.service.SipxIvrService" parent="sipxService"
+    scope="prototype">
+    <property name="beanId" value="sipxIvrService" />
+    <property name="modelName" value="sipxivr.xml" />
+    <property name="modelDir" value="sipxivr" />
+    <property name="configuration" ref="sipxIvrConfiguration" />
+    <property name="mailstoreDir" value="${sysdir.mailstore}" />
+    <property name="scriptsDir" value="${sysdir.vxml.scripts}" />
+    <property name="vxmlDir" value="${sysdir.vxml}" />
+  </bean>
+
+  <bean id="sipxIvrConfiguration" class="org.sipfoundry.sipxconfig.service.SipxIvrConfiguration" scope="prototype"
+    parent="defaultConfigurationFile">
+    <property name="velocityEngine" ref="velocityEngine" />
+    <property name="template" value="sipxivr/sipxivr.properties.vm" />
+    <property name="name" value="sipxivr.properties" />
   </bean>
 </beans>

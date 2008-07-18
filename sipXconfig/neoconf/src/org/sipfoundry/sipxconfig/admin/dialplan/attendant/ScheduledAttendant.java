@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.admin.dialplan.attendant;
@@ -30,15 +30,17 @@ public class ScheduledAttendant implements Cloneable {
 
     public void setAttendant(AutoAttendant attendant) {
         m_attendant = attendant;
+        setEnabled(attendant != null);
     }
-    
+
+    @Override
     public Object clone() throws CloneNotSupportedException {
         return super.clone();
     }
 
     /**
      * Check if the attendant in question is referenced by this schedule
-     * 
+     *
      * @param attendant
      * @return true if any references have been found false otherwise
      */

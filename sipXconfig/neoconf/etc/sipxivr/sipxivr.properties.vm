@@ -1,0 +1,11 @@
+#set($ivr=${service.getSettings().getSetting('ivr')})
+log.level=$ivr.getSetting('log.level').Value
+log.file=${service.logDir}/sipxivr.log
+
+freeswitch.eventSocketPort=$ivr.getSetting('freeswitch.eventSocketPort').Value
+
+ivr.mailstoreDirectory=${service.mailstoreDir}
+ivr.scriptsDirectory=${service.scriptsDir}
+ivr.organizationPrefs=${service.vxmlDir}/organizationprefs.xml
+ivr.operatorAddr=sip:operator@${service.domainName}
+ivr.sipxchangeDomainName=${service.domainName}

@@ -182,6 +182,11 @@
     <property name="template" value="nattraversal/nattraversalrules.vm" />
   </bean>
 
+  <bean id="autoAttendantsConfig" class="org.sipfoundry.sipxconfig.admin.dialplan.attendant.AutoAttendantsConfig"
+    parent="defaultConfigurationFile">
+    <property name="name" value="autoattendants.xml" />
+  </bean>
+
   <bean id="emergencyRoutingRules" class="org.sipfoundry.sipxconfig.admin.dialplan.config.EmergencyRoutingRules"
     parent="defaultConfigurationFile">
     <property name="name" value="e911rules.xml" />
@@ -211,6 +216,9 @@
     </property>
     <property name="dialingRuleProvider">
       <ref local="dialingRuleCollector" />
+    </property>
+    <property name="autoAttendantConfig">
+      <ref local="autoAttendantsConfig"/>
     </property>
   </bean>
 

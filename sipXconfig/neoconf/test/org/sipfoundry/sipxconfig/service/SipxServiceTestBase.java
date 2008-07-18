@@ -1,15 +1,17 @@
 /*
  *
  *
- * Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ * Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  *
  */
 package org.sipfoundry.sipxconfig.service;
 
 import junit.framework.TestCase;
+
+import org.sipfoundry.sipxconfig.TestHelper;
 
 public class SipxServiceTestBase extends TestCase {
     protected void initCommonAttributes(SipxService service) {
@@ -19,5 +21,8 @@ public class SipxServiceTestBase extends TestCase {
         service.setDomainName("example.org");
         service.setRealm("realm.example.org");
         service.setSipPort("5060");
+        service.setLogDir("/var/log/sipxpbx");
+        service.setConfDir("/etc/sipxpbx");
+        service.setModelFilesContext(TestHelper.getModelFilesContext());
     }
 }

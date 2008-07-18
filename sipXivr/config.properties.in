@@ -1,0 +1,25 @@
+
+# G E N E R A L
+version=@VERSION@
+top.dir=@abs_top_srcdir@
+src.dir=@abs_srcdir@
+java=@JAVA@
+java.home=@JAVA_HOME@
+optimize=@JAVAC_OPTIMIZED@
+deprecation=false
+debug=@JAVAC_DEBUG@
+bin.dir=@bindir@
+lib.dir=@libdir@
+prefix.dir=@prefix@
+conf.dir=@SIPX_CONFDIR@
+
+# comma-separated combination of 'lines' 'source' and 'var' only valid
+# when debug is on
+debuglevel=lines
+
+# U T I L
+sipxivr.lib.dir=@SIPX_JAVADIR@/sipXivr
+sipxcommons.dir=@SIPX_JAVADIR@/sipXcommons
+sipxcommons.jar=${sipxcommons.dir}/sipxcommons.jar
+junit.jar=${sipxcommons.dir}/junit-4.4.jar
+log4j.jar=${sipxcommons.dir}/log4j-1.2.15.jar

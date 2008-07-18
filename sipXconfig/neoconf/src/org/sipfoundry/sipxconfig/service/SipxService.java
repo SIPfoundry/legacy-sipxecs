@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.service;
@@ -24,6 +24,8 @@ public class SipxService extends BeanWithSettings {
     private String m_fullHostname;
     private String m_domainName;
     private String m_realm;
+    private String m_logDir;
+    private String m_confDir;
 
     public String getBeanId() {
         return m_beanId;
@@ -78,7 +80,7 @@ public class SipxService extends BeanWithSettings {
     }
 
     public void setHostname(String hostname) {
-        this.m_hostname = hostname;
+        m_hostname = hostname;
     }
 
     public String getFullHostname() {
@@ -86,7 +88,7 @@ public class SipxService extends BeanWithSettings {
     }
 
     public void setFullHostname(String fullHostname) {
-        this.m_fullHostname = fullHostname;
+        m_fullHostname = fullHostname;
     }
 
     public String getDomainName() {
@@ -94,7 +96,7 @@ public class SipxService extends BeanWithSettings {
     }
 
     public void setDomainName(String domainName) {
-        this.m_domainName = domainName;
+        m_domainName = domainName;
     }
 
     public String getRealm() {
@@ -102,9 +104,25 @@ public class SipxService extends BeanWithSettings {
     }
 
     public void setRealm(String realm) {
-        this.m_realm = realm;
+        m_realm = realm;
     }
-    
+
+    public void setLogDir(String logDir) {
+        m_logDir = logDir;
+    }
+
+    public String getLogDir() {
+        return m_logDir;
+    }
+
+    public void setConfDir(String confDir) {
+        m_confDir = confDir;
+    }
+
+    public String getConfDir() {
+        return m_confDir;
+    }
+
     /**
      * Override this method to perform validation
      */
@@ -112,6 +130,7 @@ public class SipxService extends BeanWithSettings {
         // no validation is done by default
     }
 
+    @Override
     protected Setting loadSettings() {
         return getModelFilesContext().loadModelFile(m_modelName, m_modelDir);
     }
