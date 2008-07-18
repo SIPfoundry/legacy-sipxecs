@@ -231,7 +231,7 @@
     <copy todir="${build.dir}/testdata" >
 	<fileset dir="${src.dir}/testdata"/>
     </copy>
-
+<!--
     <junit fork="yes" haltonfailure="yes" printsummary="on">
       <classpath>
         <pathelement path="${classpath}"/>
@@ -251,6 +251,7 @@
         </fileset>
       </batchtest>
     </junit>
+-->
   </target>
 
 
