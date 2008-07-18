@@ -24,19 +24,15 @@ import org.apache.log4j.spi.LoggingEvent;
  */
 public class SipFoundryAppender extends FileAppender {
 
-    long nextTimeCheck = 0L;
+    long m_nextTimeCheck = 0L;
 
-    public void append(LoggingEvent event) {
+    public void doAppend(LoggingEvent event) {
         long now = System.currentTimeMillis();
-        if (now > nextTimeCheck) {
-            nextTimeCheck = now + 15000; // Check again in 15 seconds
+        if (now > m_nextTimeCheck) {
+            m_nextTimeCheck = now + 15000; // Check again in 15 seconds
             closeFile(); // Close current file.
             activateOptions(); // Reopen it
         }
         super.append(event);
-    }
-
-    public SipFoundryAppender(Layout layout, String file) throws IOException {
-        super(layout, file);
     }
 }
