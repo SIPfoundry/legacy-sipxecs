@@ -54,9 +54,9 @@ public class SipXpage implements LegListener
       props.setProperty("log4j.rootLogger","warn, file") ;
       props.setProperty("log4j.logger.org.sipfoundry.sipxpage", 
             SipFoundryLayout.mapSipFoundry2log4j(config.logLevel).toString()) ;
-      props.setProperty("log4j.appender.file", "log4j.SipFoundryAppender") ;
+      props.setProperty("log4j.appender.file", "org.sipfoundry.commons.log4j.SipFoundryAppender") ;
       props.setProperty("log4j.appender.file.File", "./sipxpage.log") ;
-      props.setProperty("log4j.appender.file.layout","log4j.SipFoundryLayout") ;
+      props.setProperty("log4j.appender.file.layout","org.sipfoundry.commons.log4j.SipFoundryLayout") ;
       props.setProperty("log4j.appender.file.layout.facility","sipXpage") ;
       PropertyConfigurator.configure(props) ;
 
