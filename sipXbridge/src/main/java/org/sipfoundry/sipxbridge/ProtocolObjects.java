@@ -66,8 +66,10 @@ public class ProtocolObjects {
             ((SipStackImpl) sipStack)
                     .setAddressResolver(new ProxyAddressResolver());
           
-            ((SipStackImpl) sipStack).addLogAppender(new SipFoundryAppender(
-                    new SipFoundryLayout(), Gateway.getLogFile()));
+            SipFoundryAppender sfa = new SipFoundryAppender();
+            sfa.setFile(Gateway.getLogFile());
+            sfa.setLayout(new SipFoundryLayout());
+            ((SipStackImpl) sipStack).addLogAppender(sfa);
 
         } catch (Exception ex) {
             ex.printStackTrace();

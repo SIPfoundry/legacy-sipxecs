@@ -132,9 +132,11 @@ public class MockItsp implements SipListener {
                     .setAddressResolver(new ProxyAddressResolver());
 
             accountManager = Gateway.getAccountManager();
-
-            logger.addAppender(new SipFoundryAppender(new SipFoundryLayout(),
-                    Gateway.getLogFile()));
+            SipFoundryAppender sfa = new SipFoundryAppender();
+            sfa.setFile(Gateway.getLogFile());
+            sfa.setLayout(new SipFoundryLayout());
+            ((SipStackImpl) sipStack).addLogAppender(sfa);
+            logger.addAppender(sfa);
 
         } catch (Exception ex) {
             throw new RuntimeException("Error loading factories", ex);
