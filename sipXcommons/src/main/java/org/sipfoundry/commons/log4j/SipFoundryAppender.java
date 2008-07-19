@@ -26,13 +26,31 @@ public class SipFoundryAppender extends FileAppender {
 
     long m_nextTimeCheck = 0L;
 
-    public void doAppend(LoggingEvent event) {
+    // Duplicate the parent's constructors
+    public SipFoundryAppender() {
+        super();
+    }
+
+    public SipFoundryAppender(Layout layout, String filename, boolean append) throws IOException {
+        super(layout, filename, append);
+    }
+
+    public SipFoundryAppender(Layout layout, String filename) throws IOException {
+        super(layout, filename);
+    }
+
+    public SipFoundryAppender(Layout layout, String filename, boolean append, boolean bufferedIO, int bufferSize) throws IOException {
+        super(layout, filename, append, bufferedIO, bufferSize);
+    }
+
+    @Override
+    public void subAppend(LoggingEvent event) {
         long now = System.currentTimeMillis();
         if (now > m_nextTimeCheck) {
             m_nextTimeCheck = now + 15000; // Check again in 15 seconds
             closeFile(); // Close current file.
             activateOptions(); // Reopen it
         }
-        super.append(event);
+        super.subAppend(event);
     }
 }
