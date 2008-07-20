@@ -63,7 +63,7 @@ class SipListenerImpl implements SipListener {
                 serverTransaction.sendResponse(response);
                 SubscriptionStateHeader subscriptionState = 
                         (SubscriptionStateHeader) request.getHeader(SubscriptionStateHeader.NAME);
-                if (subscriptionState.getState().equals(SubscriptionStateHeader.TERMINATED)) {
+                if (subscriptionState.getState().equalsIgnoreCase(SubscriptionStateHeader.TERMINATED)) {
                     Dialog dialog = requestEvent.getDialog();
                     m_stackBean.tearDownDialog(dialog);
                 }
