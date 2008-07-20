@@ -203,21 +203,14 @@ class CallControlManager {
      */
     private void processOptions(RequestEvent requestEvent) {
         SipProvider provider = (SipProvider) requestEvent.getSource();
-        ServerTransaction serverTransaction = requestEvent.getServerTransaction();
         Request request = requestEvent.getRequest();
 
         try {
-            if (serverTransaction == null) {
-                serverTransaction = provider.getNewServerTransaction(requestEvent.getRequest());
-            }
 
             Response response = ProtocolObjects.messageFactory.createResponse(Response.OK,
                     request);
 
-            /*
-             * We accept REFERs only from SIPX for now.
-             */
-
+           
             ContactHeader contactHeader = null;
             if (provider == Gateway.getLanProvider()) {
                 for (String types : new String[] {
@@ -256,7 +249,7 @@ class CallControlManager {
             AcceptLanguageHeader acceptLanguage = ProtocolObjects.headerFactory
                     .createAcceptLanguageHeader(locale);
             response.setHeader(acceptLanguage);
-            Dialog dialog = serverTransaction.getDialog();
+            Dialog dialog = requestEvent.getDialog();
             if (dialog != null) {
                 // This is an In-dialog request.
                 // We add our session description to the response.
@@ -264,10 +257,11 @@ class CallControlManager {
                 if (dat != null) {
                     BackToBackUserAgent b2bua = dat.getBackToBackUserAgent();
                     RtpSession sym = null;
-                    if (provider == Gateway.getLanProvider())
+                    if (provider == Gateway.getLanProvider()) {
                         sym = b2bua.getLanRtpSession(dialog);
-                    else
+                    } else {
                         sym = b2bua.getWanRtpSession(dialog);
+                    }
                     SessionDescription sd = sym.getReceiver().getSessionDescription();
                     if (sd != null) {
                         response.setContent(sd.toString(), ProtocolObjects.headerFactory
@@ -277,7 +271,7 @@ class CallControlManager {
 
             }
 
-            serverTransaction.sendResponse(response);
+            provider.sendResponse(response);
         } catch (Exception ex) {
             logger.error("Internal error processing request ", ex);
             try {
@@ -288,12 +282,8 @@ class CallControlManager {
                             + ex.getStackTrace()[0].getLineNumber());
                 }
 
-                if (serverTransaction != null) {
-                    serverTransaction.sendResponse(response);
-                } else {
-                    provider.sendResponse(response);
+                provider.sendResponse(response);
 
-                }
             } catch (Exception e) {
                 throw new RuntimeException("Check gateway configuration", e);
             }
@@ -390,7 +380,8 @@ class CallControlManager {
      */
     private void processAck(RequestEvent requestEvent) {
         try {
-            BackToBackUserAgent btobua = DialogApplicationData.getBackToBackUserAgent(requestEvent.getDialog());
+            BackToBackUserAgent btobua = DialogApplicationData
+                    .getBackToBackUserAgent(requestEvent.getDialog());
 
             if (btobua == null) {
                 logger.debug("Could not find B2BUA -- not forwarding ACK ");
@@ -440,7 +431,8 @@ class CallControlManager {
     private void processCancel(RequestEvent requestEvent) {
 
         Dialog dialog = requestEvent.getDialog();
-        BackToBackUserAgent btobua = DialogApplicationData.getBackToBackUserAgent(requestEvent.getDialog());
+        BackToBackUserAgent btobua = DialogApplicationData.getBackToBackUserAgent(requestEvent
+                .getDialog());
 
         try {
             Response cancelOk = SipUtilities.createResponse(requestEvent.getServerTransaction(),
@@ -497,7 +489,8 @@ class CallControlManager {
      */
     private void processBye(RequestEvent requestEvent) {
         try {
-            BackToBackUserAgent b2bua = DialogApplicationData.getBackToBackUserAgent(requestEvent.getDialog());
+            BackToBackUserAgent b2bua = DialogApplicationData.getBackToBackUserAgent(requestEvent
+                    .getDialog());
 
             if (b2bua != null) {
 
@@ -916,14 +909,13 @@ class CallControlManager {
 
                     if (response.getContentLength().getContentLength() != 0) {
                         Dialog peerDialog = DialogApplicationData.getPeerDialog(dialog);
-                        if (DialogApplicationData.get(peerDialog).isSdpAnswerPending ) {
+                        if (DialogApplicationData.get(peerDialog).isSdpAnswerPending) {
                             this.sendSdpAnswerInAck(response, dialog);
                         } else {
                             logger.debug("Not sending SdpAnswer");
                         }
                     }
-                    
-                    
+
                     /*
                      * We directly send ACK.
                      */
@@ -1042,7 +1034,6 @@ class CallControlManager {
         }
     }
 
-  
     /**
      * Get a new B2bua for a given call Id.
      * 
@@ -1077,7 +1068,7 @@ class CallControlManager {
             if (this.backToBackUserAgentTable.containsKey(callId)) {
                 b2bua = this.backToBackUserAgentTable.get(callId);
             } else {
-               
+
                 b2bua = new BackToBackUserAgent(provider, request, dialog, accountInfo);
 
                 DialogApplicationData.attach(b2bua, dialog);
@@ -1092,8 +1083,6 @@ class CallControlManager {
         return b2bua;
 
     }
-
-    
 
     /**
      * Process an incoming request.
@@ -1172,7 +1161,7 @@ class CallControlManager {
         logger.debug("B2BUATable = " + this.backToBackUserAgentTable);
 
     }
-    
+
     /**
      * Get the Back to back user agent set.
      */
@@ -1181,16 +1170,16 @@ class CallControlManager {
     }
 
     /**
-     * Get the B2BUA for a given callId. This method is used by the XML RPC interface
-     * to cancel a call hence needs to be public.
+     * Get the B2BUA for a given callId. This method is used by the XML RPC interface to cancel a
+     * call hence needs to be public.
      * 
      * @param callId
      * @return
      */
     public BackToBackUserAgent getBackToBackUserAgent(String callId) {
-        
+
         return this.backToBackUserAgentTable.get(callId);
-        
+
     }
 
 }
