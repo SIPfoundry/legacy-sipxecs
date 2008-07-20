@@ -9,10 +9,10 @@
  */
 package org.sipfoundry.sipxconfig.sip;
 
-import javax.sip.address.SipURI;
-
 import gov.nist.javax.sip.clientauthutils.AccountManager;
 import gov.nist.javax.sip.clientauthutils.UserCredentials;
+
+import javax.sip.ClientTransaction;
 
 import org.sipfoundry.sipxconfig.common.User;
 
@@ -24,7 +24,9 @@ class AccountManagerImpl implements AccountManager {
         m_userCredentials = new UserCredentialsImpl(user, realm);
     }
 
-    public UserCredentials getCredentials(SipURI sipUri, String realm) {
-        return m_userCredentials;
+    public UserCredentials getCredentials(ClientTransaction clientTransaction, String realm) {
+        TransactionApplicationData tad = (TransactionApplicationData) clientTransaction
+                .getApplicationData();
+        return tad.getUserCredentials();
     }
 }

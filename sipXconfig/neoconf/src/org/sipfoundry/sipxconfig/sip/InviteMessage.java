@@ -50,20 +50,20 @@ public class InviteMessage extends JainSipMessage {
         m_toAddrSpec = toAddressSpec;
         m_fromAddrSpec = fromAddressSpec;
         m_operator = operator;
-        // TODO: not sure what to do next with user credentials info...
         m_userCredentials = userCredentials;
     }
 
     @Override
     public ClientTransaction createAndSend() {
         try {
-            Request request = createRequest(Request.INVITE, m_fromAddrSpec, m_toAddrSpec);
+            Request request = createRequest(Request.INVITE, m_userCredentials.getUserName(), m_fromAddrSpec, m_toAddrSpec);
             AllowHeader allowHeader = getHelper().createAllowHeader(METHODS);
             request.addHeader(allowHeader);
             String sdpBody = getHelper().formatWithIpAddress(SDP_BODY_FORMAT);
             request.setContent(sdpBody, getHelper().createContentTypeHeader());
             ClientTransaction ctx = getSipProvider().getNewClientTransaction(request);
             TransactionApplicationData tad = new TransactionApplicationData(m_operator, getHelper(), this);
+            tad.setUserCredentials(m_userCredentials);
             ctx.setApplicationData(tad);
             if (m_dialog == null) {
                 ctx.sendRequest();
@@ -86,4 +86,6 @@ public class InviteMessage extends JainSipMessage {
     public String getFromAddrSpec() {
         return m_fromAddrSpec;
     }
+    
+   
 }

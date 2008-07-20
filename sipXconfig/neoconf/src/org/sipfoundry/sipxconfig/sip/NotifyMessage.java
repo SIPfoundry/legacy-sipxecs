@@ -9,6 +9,8 @@
  */
 package org.sipfoundry.sipxconfig.sip;
 
+import static org.sipfoundry.sipxconfig.common.SpecialUser.SpecialUserType.CONFIG_SERVER;
+
 import java.text.ParseException;
 import java.util.EventObject;
 
@@ -45,7 +47,7 @@ class NotifyMessage extends JainSipMessage {
 
     public ClientTransaction createAndSend() {
         try {
-            Request request = createRequest(Request.NOTIFY, null, m_addrSpec);
+            Request request = createRequest(Request.NOTIFY, CONFIG_SERVER.getUserName(), null, m_addrSpec);
             getHelper().addEventHeader(request, m_eventType);
             getHelper().addHeader(request, SubscriptionStateHeader.NAME, SubscriptionStateHeader.ACTIVE);
             ClientTransaction clientTx = getSipProvider().getNewClientTransaction(request);

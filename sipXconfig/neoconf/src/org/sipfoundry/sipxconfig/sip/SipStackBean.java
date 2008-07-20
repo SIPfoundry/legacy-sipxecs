@@ -240,8 +240,8 @@ public class SipStackBean implements InitializingBean {
         return m_hostName;
     }
 
-    private SipURI createOurSipUri() throws ParseException {
-        return m_addressFactory.createSipURI(CONFIG_SERVER.getUserName(), m_hostName);
+    private SipURI createOurSipUri(String userName) throws ParseException {
+        return m_addressFactory.createSipURI(userName, m_hostName);
     }
 
     private FromHeader createFromHeader(SipURI fromAddress) throws ParseException {
@@ -275,10 +275,10 @@ public class SipStackBean implements InitializingBean {
         return m_headerFactory.createViaHeader(host, port, transport, null);
     }
 
-    final Request createRequest(String requestType, String fromAddrSpec, String addrSpec) throws ParseException {
+    final Request createRequest(String requestType, String userName, String fromAddrSpec, String addrSpec) throws ParseException {
         SipURI fromUri;
         if (fromAddrSpec == null) {
-            fromUri = createOurSipUri();
+            fromUri = createOurSipUri(userName);
         } else {
             fromUri = (SipURI) m_addressFactory.createURI(fromAddrSpec);
         }
