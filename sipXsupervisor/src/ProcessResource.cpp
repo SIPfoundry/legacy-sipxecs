@@ -134,7 +134,9 @@ Process* ProcessResource::getProcess()
 // Whether or not the ProcessResource is ready for use by a Process.
 bool ProcessResource::isReadyToStart()
 {
-   return false; // @TODO
+   Process* myProcess = getProcess();
+
+   return (myProcess && Process::Running == myProcess->getState());
 }
 
 // Whether or not it is safe to stop a Process using the ProcessResource.

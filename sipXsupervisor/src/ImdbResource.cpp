@@ -14,6 +14,8 @@
 #include "xmlparser/XmlErrorMsg.h"
 #include "xmlparser/ExtractContent.h"
 
+#include "sipdb/SIPDBManager.h"
+
 #include "ImdbResourceManager.h"
 #include "ImdbResource.h"
 
@@ -23,7 +25,7 @@ const UtlContainableType ImdbResource::TYPE = "ImdbResource";
 
 const char* ImdbResource::ImdbResourceTypeName = "imdb";
 
-// TYPEDEFS
+// STATICS
 // FORWARD DECLARATIONS
 
 // Factory method that parses a 'imdb' resource description element.
@@ -117,7 +119,14 @@ void ImdbResource::appendDescription(UtlString&  description /**< returned descr
 // Whether or not the ImdbResource is ready for use by a Imdb.
 bool ImdbResource::isReadyToStart()
 {
-   return false; // @TODO
+   OsLock mutex(mLock);
+
+   if (NULL == mDatabase)
+   {
+      mDatabase = SIPDBManager::getInstance()->getDatabase(*this);
+   }
+   
+   return (NULL != mDatabase);
 }
 
 // Determine whether or not the values in a containable are comparable.
@@ -128,13 +137,18 @@ UtlContainableType ImdbResource::getContainableType() const
 
 /// constructor
 ImdbResource::ImdbResource(const char* uniqueId, Process* currentProcess) :
-   SipxResource(uniqueId, currentProcess)
+   SipxResource(uniqueId, currentProcess),
+   mLock(OsBSem::Q_PRIORITY, OsBSem::FULL),
+   mDatabase(NULL)
 {
 }
 
 /// destructor
 ImdbResource::~ImdbResource()
 {
+   OsLock mutex(mLock);
+   SIPDBManager::getInstance()->removeDatabase(*this);
+   mDatabase = NULL;
 }
 
 

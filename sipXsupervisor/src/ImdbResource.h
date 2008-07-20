@@ -17,6 +17,7 @@
 // CONSTANTS
 // TYPEDEFS
 // FORWARD DECLARATIONS
+class dbDatabase;
 
 /// Represents a Imdb as a SipxResource
 /**
@@ -92,9 +93,9 @@ class ImdbResource : public SipxResource
 
   private:
 
-   static OsBSem     mImdbResourceTableLock;
-   static UtlHashMap mImdbResourceTable;
-
+   OsBSem      mLock;
+   dbDatabase* mDatabase;
+   
    // @cond INCLUDENOCOPY
    /// There is no copy constructor.
    ImdbResource(const ImdbResource& nocopyconstructor);

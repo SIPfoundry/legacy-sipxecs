@@ -118,8 +118,6 @@ FileResource* FileResource::logFileResource(const UtlString& logFilePath, Proces
 
    logFile->mFirstDefinition = false;
 
-   //@TODO logFile->mUsedBy.append(currentProcess);
-
    FileResourceManager* fileResourceMgr = FileResourceManager::getInstance();
    fileResourceMgr->save(logFile);
 
@@ -140,7 +138,8 @@ void FileResource::appendDescription(UtlString&  description /**< returned descr
 // Whether or not the FileResource is ready for use by a Process.
 bool FileResource::isReadyToStart()
 {
-   return false; // @TODO
+   OsPath filePath(*this);
+   return OsFileSystem::exists(filePath);
 }
 
 // Determine whether or not the values in a containable are comparable.

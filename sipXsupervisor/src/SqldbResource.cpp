@@ -117,7 +117,7 @@ void SqldbResource::appendDescription(UtlString&  description /**< returned desc
 // Whether or not the SqldbResource is ready for use by a Sqldb.
 bool SqldbResource::isReadyToStart()
 {
-   return false; // @TODO
+   return true; // @TODO
 }
 
 // Determine whether or not the values in a containable are comparable.
