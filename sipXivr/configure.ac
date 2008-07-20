@@ -7,6 +7,7 @@ AC_INIT(sipXivr, 3.11.5, sipx-dev@list.sipfoundry.org)
 AC_CONFIG_AUX_DIR(config)
 m4_include([config/general.m4])
 m4_include([config/sipXlib.m4])
+m4_include([config/java.m4])
 
 SFAC_SIPX_INSTALL_PREFIX
 AM_INIT_AUTOMAKE(foreign)

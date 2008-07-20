@@ -207,7 +207,7 @@ bool cAlarmServer::loadAlarmData(TiXmlElement* element, cAlarmData* data)
 bool cAlarmServer::loadAlarmStrings(const UtlString& stringsFile)
 {
    // load file in English for fallback
-   loadAlarmStringsFile(stringsFile);
+   bool loadResult = loadAlarmStringsFile(stringsFile);
    
    // load localized version if available
    if (!mLanguage.isNull() && mLanguage.compareTo("en"))
@@ -220,15 +220,17 @@ bool cAlarmServer::loadAlarmStrings(const UtlString& stringsFile)
          UtlString langSuffix = mLanguage;
          langSuffix.insert(0, "_");
          localStringsFile = localStringsFile.insert(pos, langSuffix);
-         loadAlarmStringsFile(localStringsFile);
+         loadResult = loadAlarmStringsFile(localStringsFile);
       }
       else
       {
          OsSysLog::add(FAC_ALARM, PRI_NOTICE, 
                "stringsFile %s is not .xml, not loading local language", stringsFile.data());
+         loadResult = false;
       }   
    }
 
+   return loadResult;
 }
 
 bool cAlarmServer::loadAlarmStringsFile(const UtlString& stringsFile)

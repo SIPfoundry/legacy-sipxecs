@@ -4,10 +4,9 @@ INCLUDES = \
 
 ## All tests under this GNU variable should run relatively quickly
 ## and of course require no setup
+TESTS = testsuite alarm_testsuite
 
-TESTS = testsuite alarm_testsuite sandbox
-
-check_PROGRAMS = testsuite alarm_testsuite
+check_PROGRAMS = testsuite alarm_testsuite sandbox
 
 testsuite_CXXFLAGS = @CPPUNIT_CFLAGS@ \
     -DTEST_DATA_DIR=\"@abs_top_srcdir@/src/test/\" \
@@ -26,11 +25,11 @@ alarm_testsuite_CXXFLAGS = \
     -DTEST_DATA_DIR=\"@abs_top_srcdir@/src/test\" \
     -DTEST_WORK_DIR=\"@abs_builddir@\" \
     -DETC_DIR=\"@abs_top_srcdir@/etc\" \
-        -DSIPX_CONFDIR=\"@SIPX_CONFDIR@\" \
-        -DSIPX_LOGDIR=\"@SIPX_LOGDIR@\" \
-        -DSIPX_RUNDIR=\"@SIPX_RUNDIR@\" \
-        -DSIPX_TMPDIR=\"@SIPX_TMPDIR@\" \
-        -DSIPX_DBDIR=\"@SIPX_DBDIR@\" 
+    -DSIPX_CONFDIR=\"@SIPX_CONFDIR@\" \
+    -DSIPX_LOGDIR=\"@SIPX_LOGDIR@\" \
+    -DSIPX_RUNDIR=\"@SIPX_RUNDIR@\" \
+    -DSIPX_TMPDIR=\"@SIPX_TMPDIR@\" \
+    -DSIPX_DBDIR=\"@SIPX_DBDIR@\" 
 
 alarm_testsuite_LDADD = \
     @SIPXCOMMSERVERTEST_LIBS@ \
@@ -84,7 +83,6 @@ EXTRA_DATA = \
 	 processState/newprocess.xml \
 	 processVersions/someprocess.xml
 
-
 EXTRA_DIST = \
     $(EXTRA_DATA)
 
@@ -104,6 +102,7 @@ sandbox_CXXFLAGS = $(alarm_testsuite_CXXFLAGS) -pg
 sandbox_SOURCES = \
     AlarmLocalizationTest.cpp \
     AlarmServerTest.cpp
+
 
 clean: clean-workdir
 

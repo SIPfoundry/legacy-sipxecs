@@ -16,7 +16,7 @@ sipxsupervisor_LDADD = \
 	libsipXsupervisor.la \
    libsipXalarms.la
 
-noinst_LTLIBRARIES = libsipXsupervisor.la
+noinst_LTLIBRARIES = libsipXsupervisor.la libsipXalarms.la
 
 libsipXsupervisor_la_SOURCES =  \
 	$(top_builddir)/config/sipxsupervisor-buildstamp.h \
@@ -70,14 +70,14 @@ noinst_HEADERS = \
 	WatchDog.h
 
 libsipXsupervisor_la_LIBADD = \
-   @SIPXCOMMSERVER_LIBS@
-
-noinst_LTLIBRARIES = libsipXalarms.la
+	 @SIPXCOMMSERVER_LIBS@ \
+    @SIPXTACK_LIBS@
 
 libsipXalarms_la_CXXFLAGS = $(sipxsupervisor_CXXFLAGS)
 
 libsipXalarms_la_LIBADD = \
-   @SIPXCOMMSERVER_LIBS@
+	 @SIPXCOMMSERVER_LIBS@ \
+    @SIPXTACK_LIBS@
 
 libsipXalarms_la_SOURCES = \
 	AlarmUtils.cpp \
