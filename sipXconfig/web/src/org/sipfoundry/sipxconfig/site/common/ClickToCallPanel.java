@@ -1,7 +1,7 @@
 /*
  *
  *
- * Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.
+ * Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  */
@@ -38,6 +38,6 @@ public abstract class ClickToCallPanel extends BaseComponent {
         String userAddrSpec = getUser().getAddrSpec(domain);
         String number = getNumber();
         String destAddrSpec = SipUri.fix(number, domain);
-        getSipService().sendRefer(getUser(), userAddrSpec, destAddrSpec);
+        getSipService().sendRefer(userAddrSpec, destAddrSpec);
     }
 }

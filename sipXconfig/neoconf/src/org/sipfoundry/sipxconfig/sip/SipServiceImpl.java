@@ -1,28 +1,22 @@
 /*
- *
- *
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
+ * 
+ * 
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- *
+ * 
  * $
  */
 package org.sipfoundry.sipxconfig.sip;
 
-import gov.nist.javax.sip.clientauthutils.UserCredentials;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sipfoundry.sipxconfig.common.User;
-import org.sipfoundry.sipxconfig.domain.DomainManager;
-import org.springframework.beans.factory.annotation.Required;
 
 public class SipServiceImpl extends SipStackBean implements SipService {
 
     static final Log LOG = LogFactory.getLog(SipServiceImpl.class);
 
-    private DomainManager m_domainManager;
-
+  
     public void sendCheckSync(String addrSpec) {
         AbstractMessage message = new NotifyMessage(this, addrSpec, "check-sync");
         message.createAndSend();
@@ -35,16 +29,11 @@ public class SipServiceImpl extends SipStackBean implements SipService {
     }
 
 
-    public void sendRefer(User user, String sourceAddrSpec, String destinationAddrSpec) {
-        UserCredentials credentials = new UserCredentialsImpl(user, m_domainManager.getAuthorizationRealm());
+    public void sendRefer(String sourceAddrSpec, String destinationAddrSpec) {
         LOG.debug("sendRefer: source = " + sourceAddrSpec + " dest = " + destinationAddrSpec);
-        AbstractMessage message = new InviteMessage(this, credentials, destinationAddrSpec, sourceAddrSpec,
+        AbstractMessage message = new InviteMessage(this, destinationAddrSpec, sourceAddrSpec,
                 Operator.SEND_3PCC_REFER_CALL_SETUP);
         message.createAndSend();
     }
 
-    @Required
-    public void setDomainManager(DomainManager domainManager) {
-        m_domainManager = domainManager;
-    }
 }

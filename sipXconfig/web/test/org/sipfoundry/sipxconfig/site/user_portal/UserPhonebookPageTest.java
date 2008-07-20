@@ -35,7 +35,6 @@ public class UserPhonebookPageTest extends TestCase {
     private UserPhonebookPage m_out;
     private PhonebookTestHelper m_testHelper;
 
-    @Override
     public void setUp() {
         m_portalUser = new User();
         m_portalUser.setName("portalUser");
@@ -82,8 +81,8 @@ public class UserPhonebookPageTest extends TestCase {
 
     public void testCall() {
         SipService sipService = createMock(SipService.class);
-        sipService.sendRefer(m_portalUser, "sip:portalUser@example.com", "sip:123@example.com");
-        sipService.sendRefer(m_portalUser, "sip:portalUser@example.com", "sip:123@example.org");
+        sipService.sendRefer("sip:portalUser@example.com", "sip:123@example.com");
+        sipService.sendRefer("sip:portalUser@example.com", "sip:123@example.org");
         replay(sipService);
 
         PropertyUtils.write(m_out, "sipService", sipService);

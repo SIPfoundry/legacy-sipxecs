@@ -47,7 +47,7 @@
     <setting name="user-name">
       <label>User</label>
       <type>
-        <string/>
+        <string />
       </type>
       <description>The user name attached to the account.</description>
     </setting>

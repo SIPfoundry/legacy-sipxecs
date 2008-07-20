@@ -19,7 +19,6 @@
     <property name="transport" value="udp" />
     <property name="port" value="5180" />
     <property name="logAppender" ref="sfLogAppender"/>
-    <property name="domainManager" ref="domainManager"/>
     <property name="properties">
       <value>
         javax.sip.STACK_NAME=sipXconfig

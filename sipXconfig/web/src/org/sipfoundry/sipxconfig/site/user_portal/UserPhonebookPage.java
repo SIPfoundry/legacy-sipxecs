@@ -1,10 +1,10 @@
 /*
- *
- *
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
+ * 
+ * 
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- *
+ * 
  * $
  */
 package org.sipfoundry.sipxconfig.site.user_portal;
@@ -61,7 +61,6 @@ public abstract class UserPhonebookPage extends UserBasePage implements PageBegi
 
     public abstract void setCurrentNumber(String number);
 
-    @Override
     public void pageBeginRender(PageEvent event) {
         super.pageBeginRender(event);
 
@@ -84,14 +83,14 @@ public abstract class UserPhonebookPage extends UserBasePage implements PageBegi
 
     /**
      * Implements click to call link
-     *
+     * 
      * @param number number to call - refer is sent to current user
      */
     public void call(String number) {
         String domain = getDomainManager().getDomain().getName();
         String userAddrSpec = getUser().getAddrSpec(domain);
         String destAddrSpec = SipUri.fix(number, domain);
-        getSipService().sendRefer(getUser(), userAddrSpec, destAddrSpec);
+        getSipService().sendRefer(userAddrSpec, destAddrSpec);
     }
 
     /**
@@ -114,7 +113,7 @@ public abstract class UserPhonebookPage extends UserBasePage implements PageBegi
     /**
      * Called whenever new row is about to displayed. Sorts entries into extensions (that look
      * like phone numbers) and sipIds (that look like SIP usernames)
-     *
+     * 
      * @param entry phone book entry
      */
     public void setPhonebookEntry(PhonebookEntry entry) {
