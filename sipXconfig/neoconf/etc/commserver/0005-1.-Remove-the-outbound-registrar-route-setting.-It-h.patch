@@ -1,0 +1,69 @@
+From 7092299a59c829ca7cdc6ce5850fdcdd01a13533 Mon Sep 17 00:00:00 2001
+From: M. Ranganathan <mranga@sipxpbx.example.com>
+Date: Tue, 8 Jul 2008 21:38:03 -0400
+Subject: [PATCH] 1. Remove the outbound-registrar-route setting. It has the same semantics as outbound-registrar. Registration From and To addresses are set to the ITSP proxy domain.
+ 2. Move the ITSP proxy domain to the main configuration page.
+ 3. Move the outbound-proxy to the advanced section.
+
+---
+ sipXconfig/neoconf/etc/commserver/siptrunk.xml |   21 +++++++++++----------
+ 1 files changed, 11 insertions(+), 10 deletions(-)
+
+diff --git a/sipXconfig/neoconf/etc/commserver/siptrunk.xml b/sipXconfig/neoconf/etc/commserver/siptrunk.xml
+index b18b5c9..705ddac 100644
+--- a/sipXconfig/neoconf/etc/commserver/siptrunk.xml
++++ b/sipXconfig/neoconf/etc/commserver/siptrunk.xml
+@@ -15,8 +15,12 @@
+   <group name="itsp-account">
+     <label>ITSP Account</label>
+     <description>The information that is specific to a given ITSP account.</description>
+-    <setting name="outbound-proxy" hidden="yes">
+-      <description>If the ITSP specifies an outbound proxy, enter it here.</description>
++    <setting name="outbound-proxy" advanced="yes" >
++      <description>If the ITSP specifies an outbound proxy, enter it here.
++      If nothing is specified, the route to the outbound proxy is determined by DNS 
++      lookup on the proxy domain. The outbound proxy setting is used to route the 
++      initial INVITE.
++      </description>
+     </setting>
+     <setting name="outbound-transport" hidden="yes">
+       <!--  set automatically from SipTrunk.getAddressTransport -->
+@@ -32,7 +36,7 @@
+       </type>
+       <description>The outbound proxy transport.</description>
+     </setting>
+-    <setting name="proxy-domain" advanced="yes">
++    <setting name="proxy-domain">
+       <description>The outbound proxy address.</description>
+     </setting>
+     <setting name="authentication-realm" advanced="yes">
+@@ -75,13 +79,10 @@
+     </setting>
+     <setting name="outbound-registrar" advanced="yes">
+       <description>
+-        Registrar domain ( if different from proxy domain ). Determines how the request URI for the outbound REGISTER
+-        request is constructed.
++        Registrar route (if different from proxy). 
++        Determines where to send REGISTER request.
+       </description>
+     </setting>
+-    <setting name="outbound-registrar-route" advanced="yes">
+-      <description>Route to the Registrar ( if different from the ITSP proxy ).</description>
+-    </setting>
+     <setting name="registration-interval" advanced="yes">
+       <type>
+         <integer />
+@@ -122,8 +123,8 @@
+       </type>
+       <value>CR-LF</value>
+       <description>
+-        Defines the mechanism to use for SIP keepalive. If undefined, REGISTER is used if the account is marked
+-        register-on-initialization else CR-LF (empty SIP message) is used.
++        Defines the mechanism to use for SIP keepalive. 
++        If nothing specified, CR-LF (empty SIP message) is used.
+       </description>
+     </setting>
+     <setting name="rtp-keepalive-method" advanced="yes">
+-- 
+1.5.4.1
+

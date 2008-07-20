@@ -1,0 +1,55 @@
+From 40e4c93be12c9d2e5cbb161a18bc3cc0d13e3e58 Mon Sep 17 00:00:00 2001
+From: M. Ranganathan <mranga@sipxpbx.example.com>
+Date: Thu, 3 Jul 2008 21:16:28 -0400
+Subject: [PATCH] XCF-2670
+ Fixed authentication to use in Dialog response to authentication challenge.
+ Fixed call flow to send BYE when a NOTIFY with terminated state is received.
+
+---
+ .../sipfoundry/sipxconfig/sip/SipListenerImpl.java |    2 +-
+ .../sipxconfig/sip/TransactionApplicationData.java |    9 ++++++++-
+ 2 files changed, 9 insertions(+), 2 deletions(-)
+
+diff --git a/sipXconfig/neoconf/src/org/sipfoundry/sipxconfig/sip/SipListenerImpl.java b/sipXconfig/neoconf/src/org/sipfoundry/sipxconfig/sip/SipListenerImpl.java
+index 0c6e0ca..d2016f7 100644
+--- a/sipXconfig/neoconf/src/org/sipfoundry/sipxconfig/sip/SipListenerImpl.java
++++ b/sipXconfig/neoconf/src/org/sipfoundry/sipxconfig/sip/SipListenerImpl.java
+@@ -63,7 +63,7 @@ class SipListenerImpl implements SipListener {
+                 serverTransaction.sendResponse(response);
+                 SubscriptionStateHeader subscriptionState = 
+                         (SubscriptionStateHeader) request.getHeader(SubscriptionStateHeader.NAME);
+-                if (subscriptionState.getState().equals(SubscriptionStateHeader.TERMINATED)) {
++                if (subscriptionState.getState().equalsIgnoreCase(SubscriptionStateHeader.TERMINATED)) {
+                     Dialog dialog = requestEvent.getDialog();
+                     m_stackBean.tearDownDialog(dialog);
+                 }
+diff --git a/sipXconfig/neoconf/src/org/sipfoundry/sipxconfig/sip/TransactionApplicationData.java b/sipXconfig/neoconf/src/org/sipfoundry/sipxconfig/sip/TransactionApplicationData.java
+index 89ca25e..7c70b54 100644
+--- a/sipXconfig/neoconf/src/org/sipfoundry/sipxconfig/sip/TransactionApplicationData.java
++++ b/sipXconfig/neoconf/src/org/sipfoundry/sipxconfig/sip/TransactionApplicationData.java
+@@ -16,6 +16,7 @@ import java.util.concurrent.TimeUnit;
+ 
+ import javax.sip.ClientTransaction;
+ import javax.sip.Dialog;
++import javax.sip.DialogState;
+ import javax.sip.InvalidArgumentException;
+ import javax.sip.ResponseEvent;
+ import javax.sip.SipException;
+@@ -86,7 +87,13 @@ class TransactionApplicationData {
+                 m_counter++;
+                 if (ctx != null) {
+                     ctx.setApplicationData(this);
+-                    ctx.sendRequest();
++                    if (dialog.getState() == DialogState.CONFIRMED) {
++                        dialog.sendRequest(ctx);
++                    } else if (dialog.getState() != DialogState.TERMINATED){
++                       ctx.sendRequest();
++                    } else {
++                        ctx.terminate();
++                    }
+                 }
+             } else if (m_operator == Operator.SEND_NOTIFY) {
+                 // We ignore 1xx responses. 2xx and above are put into the queue.
+-- 
+1.5.4.1
+
