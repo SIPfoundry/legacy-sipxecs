@@ -18,6 +18,7 @@
 #include "os/OsDateTime.h"
 #include "net/XmlRpcDispatch.h"
 #include "ProcMgmtRpc.h"
+#include "AlarmRpc.h"
 #include "ImdbRpc.h"
 #include "FileRpc.h"
 #include "utl/UtlBool.h"
@@ -145,14 +146,6 @@ UtlBoolean WatchDog::handleMessage(OsMsg &rMsg)
       }
       else
       {
-          //here we need to loop through all the process objects and request reports to be sent
-          //yes, I could put the report call in the loop below with check, but I'd rather 
-          //have all processes flush and report before adding any new ones.
-          for (loop = 0;loop < mnProcessCount;loop++)
-          {
-             mpProcessList[loop]->sendReports();
-          }
-
           //here we need to loop through all the process objects and call
           //their check method
           for (loop = 0;loop < mnProcessCount;loop++)
@@ -202,6 +195,9 @@ void WatchDog::startRpcServer()
 
    FileRpcReplaceFile::registerSelf(*this);
 
+   AlarmRpcGetAlarmCount::registerSelf(*this);
+   AlarmRpcRaiseAlarm::registerSelf(*this);
+   AlarmRpcReloadAlarms::registerSelf(*this);
    
 }
 

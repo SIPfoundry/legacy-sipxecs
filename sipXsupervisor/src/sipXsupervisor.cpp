@@ -16,18 +16,18 @@
 #include <signal.h>
 
 // APPLICATION INCLUDES
+#include "net/NameValueTokenizer.h"
+#include "processXMLCommon.h"
+#include "WatchDog.h"
 #include "os/OsSysLog.h"
 #include "os/OsConfigDb.h"
 #include "os/OsTask.h"
-#include "net/NameValueTokenizer.h"
+#include "AlarmServer.h"
 #include "sipdb/SIPDBManager.h"
 #include "sipXecsService/SipXecsService.h"
 
 #include "config/sipxsupervisor-buildstamp.h"
-#include "EmailReporter.h"
-#include "processXMLCommon.h"
-#include "ProcessManager.h"
-#include "WatchDog.h"
+#define DEBUG
 
 //The worker who does all the checking... based on OsServerTask
 WatchDog *pDog;
@@ -295,8 +295,6 @@ OsStatus createProcessList(TiXmlDocument &watchdogDoc, TiXmlDocument &processDoc
 
                 TiXmlElement *nextProcessElement = dbProcessNode->ToElement();
 
-                EmailReporter *pEmailReporter = NULL;
-
                 const char *pAliasStr = nextProcessElement->Attribute("name");
 
                 if ( pAliasStr )
@@ -324,14 +322,6 @@ OsStatus createProcessList(TiXmlDocument &watchdogDoc, TiXmlDocument &processDoc
 
                     }
 
-                    //now get & set the max reports value
-                    const char *pMaxReportsStr = nextProcessElement->Attribute("max_reports");
-                    if ( pMaxReportsStr )
-                    {
-                        processList[numProcesses]->setMaxReports(atoi(pMaxReportsStr));
-
-                    }
-
                     //now get if restart is enabled
                     const char *pRestartEnableStr = nextProcessElement->Attribute("restart");
                     if ( pRestartEnableStr )
@@ -344,54 +334,6 @@ OsStatus createProcessList(TiXmlDocument &watchdogDoc, TiXmlDocument &processDoc
 
                     }
 
-                    //now get if report is enabled
-                    const char *pReportEnableStr = nextProcessElement->Attribute("report");
-                    if ( pReportEnableStr )
-                    {
-                        UtlBoolean enabled = FALSE;
-                        if ( strcmp(pReportEnableStr,"enable") == 0 )
-                            enabled = TRUE;
-
-                        processList[numProcesses]->enableReports(enabled);
-
-                    }
-
-
-                    //now add reporters if enabled
-                    if ( processList[numProcesses]->isReportsEnabled() )
-                    {
-                        for ( TiXmlNode *dbNode = dbProcessNode->FirstChild( "failure_contact" );
-                            dbNode;
-                            dbNode = dbNode->NextSibling( "failure_contact" ) )
-                        {
-                            TiXmlElement *nextContactElement = dbNode->ToElement();
-
-                            UtlString contact;
-                            const char*  payLoadData = nextContactElement->FirstChild()->Value();
-                            if ( payLoadData )
-                            {
-                                contact = payLoadData;
-                            }
-
-                            const char *pMethodStr = nextContactElement->Attribute("method");
-                            if ( pMethodStr )
-                            {
-                                if ( strcmp(pMethodStr,"email") == 0 )
-                                {
-                                    if ( pEmailReporter == NULL )
-                                        pEmailReporter = new EmailReporter();
-
-                                    pEmailReporter->addContact(contact);
-
-                                }
-                            }
-                        }
-
-
-                        //now add the reporter to our process object
-                        pEmailReporter->setEmailExecuteCommand(gEmailExecuteStr);
-                        processList[numProcesses]->AddReporter(pEmailReporter);
-                    }
 
                     numProcesses++;
 
@@ -508,6 +450,8 @@ void cleanup()
         delete SIPDBManager::getInstance();
     }
 
+    cAlarmServer::getInstance()->cleanup();
+    
     OsSysLog::add(FAC_WATCHDOG,PRI_ALERT,"Execution Completed.");
 
     //cause main loop to exit
@@ -776,6 +720,12 @@ int main(int argc, char* argv[])
           "WatchDogMain preloadAllDatabase() failed, rc = %d", (int)rc); 
     }
         
+    if (!cAlarmServer::getInstance()->init())
+    {
+       OsSysLog::add(FAC_WATCHDOG, PRI_ERR,
+             "WatchDogMain failed to init AlarmServer");
+    }
+    
     // Determine the ProcessDefinitions XML file path.
     UtlString processXMLPath;
     rc = getProcessXMLPath(watchdogXMLDoc, processXMLPath);

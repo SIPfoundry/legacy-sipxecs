@@ -6,11 +6,16 @@ pkgconfdir = @SIPX_CONFDIR@
 pbxconf_files = \
     WatchDog.xml \
     ProcessDefinitions.xml \
+    alarm-config.xml.in \
     resourcemap.xml \
     sipxsupervisor-config.in
 
+alarmdir = @SIPX_CONFDIR@/alarms
+alarm_DATA = \
+    sipXalarms-config.xml
+
 EXTRA_DIST = \
-	$(foreach file,$(pbxconf_files),$(file).in)
+	$(foreach file,$(pbxconf_files),$(file).in) $(alarm_DATA)
 
 install-data-hook : \
 	$(foreach file,$(pbxconf_files),$(DESTDIR)$(sysconfdir)/sipxpbx/$(file))

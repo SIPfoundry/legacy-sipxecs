@@ -18,7 +18,6 @@
 #include "processXMLCommon.h"
 
 // DEFINES
-#define MAX_REPORTERS 100
 // MACROS
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -26,7 +25,6 @@
 // STRUCTS
 // TYPEDEFS
 // FORWARD DECLARATIONS
-class FailureReporterBase;
 class OsProcessMgr;
 
 //:Class short description which may consist of multiple lines (note the ':')
@@ -53,21 +51,13 @@ public:
    MonitoredProcess& operator=(const MonitoredProcess& rhs);
      //:Assignment operator
 
-   OsStatus AddReporter(FailureReporterBase *pReporter);
-   //: Added a reporter (to send messages to users) to process object
-
    void setAlias(UtlString &rAliasStr);
    void setMaxRestarts(int nMaxRestartCount);
-   void setMaxReports(int nMaxReportCount);
    void setMaxRestartPeriod(int nMaxRestartPeriod); //in secs
-   void enableReports(UtlBoolean bEnable);
    void enableRestart(UtlBoolean bEnable);
    void resetStoppedState();
    //:causes entry in alias file to be removed.
    //:next check() will restart.
-
-   OsStatus sendReports();
-   //: Causes all reporters to flush and report.
 
 /* ============================ ACCESSORS ================================= */
    UtlString getAlias();
@@ -82,9 +72,6 @@ public:
    //: Will restart if there is a problem.  It won't restart if max restarts has 
    //: been reached.
 
-   UtlBoolean isReportsEnabled();
-   //: Returns TRUE if reports are enabled.
-
    UtlBoolean isRestartEnabled();
    //: Returns TRUE if restarts are enabled.
 
@@ -95,17 +82,12 @@ protected:
 private:
    UtlString mAliasStr;
    UtlBoolean mbRestartEnabled;
-   UtlBoolean mbReportEnabled;
    int mnMaxRestartsPeriod;  //when max restarts occurs in this time, its a failure
    int mnMaxRestarts;  //what is the maximum number of restarts allowed
    int mnTotalRestarts; //how many times have we restarted so far
-   int mnMaxReports;    //what is the maximum number of reports to send
-   int mnTotalReports;  //how many reports we have sent so far
    int mnMaxRestartElapsedSecs;
    int mnLastProcessState;
    TiXmlDocument  *mpProcessDoc; //pointer to XML doc containing the process we will monitor
-   FailureReporterBase *mpReporters[MAX_REPORTERS];
-   int mNumReporters;
    UtlBoolean mbStartedOnce;
    //has watchdog started just process once
    //we dont want to send reports

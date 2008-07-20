@@ -213,6 +213,7 @@ fi
 %{_includedir}/odbc/*
 %{_includedir}/persist/*
 %{_includedir}/sipdb/*
+%{_includedir}/alarm/*
 %{_includedir}/sipXecsService/*
 %{_includedir}/testlib/*
 

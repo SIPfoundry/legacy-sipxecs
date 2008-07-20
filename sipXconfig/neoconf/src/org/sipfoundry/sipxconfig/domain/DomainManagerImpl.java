@@ -29,6 +29,7 @@ public abstract class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> 
     private SipxReplicationContext m_replicationContext;
     private SipxServiceManager m_sipxServiceManager;
     private String m_authorizationRealm;
+    private String m_alarmServerUrl;
     private String m_initialDomain;
     private String m_initialAlias;
 
@@ -101,7 +102,7 @@ public abstract class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> 
         }
         DomainConfiguration domainConfiguration = createDomainConfiguration();
         domainConfiguration.generate(existingDomain, m_authorizationRealm,
-                getExistingLocalization().getLanguage());
+                getExistingLocalization().getLanguage(), m_alarmServerUrl);
         m_replicationContext.replicate(domainConfiguration);
         m_replicationContext.publishEvent(new DomainConfigReplicatedEvent(this));
     }
@@ -157,6 +158,14 @@ public abstract class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> 
 
     public void setAuthorizationRealm(String authorizationRealm) {
         m_authorizationRealm = authorizationRealm;
+    }
+
+    public String getAlarmServerUrl() {
+        return m_alarmServerUrl;
+    }
+
+    public void setAlarmServerUrl(String alarmServerUrl) {
+        m_alarmServerUrl = alarmServerUrl;
     }
 
     public void setInitialDomain(String initialDomain) {

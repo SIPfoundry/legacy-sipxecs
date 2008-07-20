@@ -113,6 +113,23 @@
       ref="processManagerApiProvider" />
   </bean>
 
+  <bean id="alarmApiProvider"
+    class="org.sipfoundry.sipxconfig.xmlrpc.XmlRpcApiProvider">
+    <property name="methodNamePrefix" value="Alarm." />
+    <property name="secure" value="true" />
+    <property name="serviceInterface"
+      value="org.sipfoundry.sipxconfig.admin.commserver.AlarmApi" />
+  </bean>
+
+  <bean id="sipxAlarmContext"
+    class="org.sipfoundry.sipxconfig.admin.commserver.SipxAlarmContextImpl">
+    <!-- real value injected by sipxconfig.properties -->
+    <property name="host" value="localhost" />
+    <property name="locationsManager" ref="locationsManager" />
+    <property name="alarmApiProvider"
+      ref="alarmApiProvider" />
+  </bean>
+
   <bean id="dataSetGenerator" abstract="true"
     class="org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSetGenerator">
     <property name="coreContext" ref="coreContext" />

@@ -2,3 +2,4 @@ SIP_DOMAIN_NAME : ${domain.Name}
 SIP_REALM : ${realm}
 SHARED_SECRET : ${domain.SharedSecret}
 DEFAULT_LANGUAGE : $language
+ALARM_SERVER_URL : https://${domain.Name}:8092

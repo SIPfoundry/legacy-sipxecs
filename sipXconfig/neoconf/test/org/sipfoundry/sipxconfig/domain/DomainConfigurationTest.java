@@ -24,6 +24,7 @@ public class DomainConfigurationTest extends TestCase {
     private Domain m_domain;
     private String m_language;
     private String m_realm;
+    private String m_alarmServerUrl;
     private DomainConfiguration m_out;
     private String m_referenceConfig;
 
@@ -33,6 +34,7 @@ public class DomainConfigurationTest extends TestCase {
         m_domain.setSharedSecret("mySecret");
         m_language = "en";
         m_realm = "realm.example.com";
+        m_alarmServerUrl = "https://domain.example.com:8092";
 
         m_out = new DomainConfiguration();
         m_out.setTemplate("commserver/domain-config.vm");
@@ -45,7 +47,7 @@ public class DomainConfigurationTest extends TestCase {
 
     public void testWrite() throws Exception {
         StringWriter actualConfigWriter = new StringWriter();
-        m_out.generate(m_domain, m_realm, m_language);
+        m_out.generate(m_domain, m_realm, m_language, m_alarmServerUrl);
         m_out.write(actualConfigWriter);
 
         Reader actualConfigReader = new StringReader(actualConfigWriter.toString());

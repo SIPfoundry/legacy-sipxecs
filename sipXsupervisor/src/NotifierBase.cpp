@@ -1,6 +1,6 @@
 // 
 // 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 // 
@@ -10,7 +10,7 @@
 // SYSTEM INCLUDES
 
 // APPLICATION INCLUDES
-#include "FailureReporterBase.h"
+#include "NotifierBase.h"
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -22,25 +22,25 @@
 /* ============================ CREATORS ================================== */
 
 // Constructor
-FailureReporterBase::FailureReporterBase()
+NotifierBase::NotifierBase()
 {
 }
 
 // Copy constructor
-FailureReporterBase::FailureReporterBase(const FailureReporterBase& rFailureReporterBase)
+NotifierBase::NotifierBase(const NotifierBase& rNotifierBase)
 {
 }
 
 // Destructor
-FailureReporterBase::~FailureReporterBase()
+NotifierBase::~NotifierBase()
 {
 }
 
 /* ============================ MANIPULATORS ============================== */
 
 // Assignment operator
-FailureReporterBase& 
-FailureReporterBase::operator=(const FailureReporterBase& rhs)
+NotifierBase& 
+NotifierBase::operator=(const NotifierBase& rhs)
 {
    if (this == &rhs)            // handle the assignment to self case
       return *this;

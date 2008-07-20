@@ -48,8 +48,9 @@
 
 // Constructor
 OsSysLogTask::OsSysLogTask(const int maxInMemoryLogEntries /* = 0 */,
-                           const int options /* = OsSysLog:OPT_NONE */)
-   : OsServerTask("syslog", NULL, 1000, 250)
+                           const int options /* = OsSysLog:OPT_NONE */,
+                           const char *taskName /* = "syslog"*/)
+   : OsServerTask(taskName, NULL, 1000, 250)
    , mConsoleEnabled(FALSE)
    , mpRingBuffer(NULL)
    , mLogCount(0)

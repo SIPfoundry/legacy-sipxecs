@@ -59,6 +59,7 @@ class SipXecsService
       static const char* SIP_REALM;        ///< the realm value used to authenticate
       static const char* SHARED_SECRET;    ///< shared secret for generating authentication hashes
       static const char* DEFAULT_LANGUAGE; ///< default language used by voice applications
+      static const char* ALARM_SERVER_URL; ///< address of the Alarm Server
    };
 
    /// Default user name for a sipXecs service
@@ -87,7 +88,6 @@ class SipXecsService
    static const char* DefaultDatabaseDir;
    static const char* DefaultVarDir;
    static const char* DefaultDataDir;
-
    static const char* DefaultUser;
    static const char* DefaultGroup;
 

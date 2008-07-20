@@ -6,6 +6,7 @@ SUBDIRS = \
 	test
 
 LOCAL_SHELLSCRIPTS = \
+	sipx-alarm \
 	sipx-servtest \
 	sipx-readroute \
 	expire-spread \

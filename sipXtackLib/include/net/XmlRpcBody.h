@@ -116,7 +116,7 @@ class XmlRpcBody : public HttpBody
                          ) const;
 
    /// Add a value to the XML-RPC content
-   bool addValue(UtlContainable* value);
+   bool addValue(const UtlContainable* value);
 
    /// Add an array to the XML-RPC content
    bool addArray(UtlSList* array); ///< array of elements

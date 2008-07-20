@@ -52,6 +52,8 @@ libsipXcommserver_la_LIBADD = \
 libsipXcommserver_la_SOURCES = \
     $(top_builddir)/config/sipxcommserverlib-buildstamp.h \
     $(top_builddir)/config/sipxcommserverlib-buildstamp.cpp \
+    alarm/Alarm.cpp \
+    alarm/AlarmRequestTask.cpp \
     digitmaps/UrlMapping.cpp \
     digitmaps/Patterns.cpp \
     filereader/OrbitFileReader.cpp \

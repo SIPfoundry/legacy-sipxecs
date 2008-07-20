@@ -25,7 +25,7 @@ done
 
 CONFIG_DEFS="@SIPX_CONFDIR@/config.defs"
 
-CONFIG_FILES="@SIPX_CONFDIR@/sipxsupervisor-config"
+CONFIG_FILES="@SIPX_CONFDIR@/sipxsupervisor-config @SIPX_CONFDIR@/alarm-config.xml @SIPX_CONFDIR@/AlarmDefinitions.xml"
 
 # If the "config.defs" file exists and the <name>.in file exists for a
 # configuration file, then run the config preprocessor to generate the
@@ -54,6 +54,13 @@ case ${Action} in
         for procspec in @SIPX_CONFDIR@/process.d/*.process.xml
         do
           @SIPX_BINDIR@/sipx-validate-xml $procspec
+          Status=$(($Status+$?))
+        done
+        @SIPX_BINDIR@/sipx-validate-xml @SIPX_CONFDIR@/alarm-config.xml
+        Status=$(($Status+$?))
+        for alarmspec in @SIPX_CONFDIR@/alarms/*.xml
+        do
+          @SIPX_BINDIR@/sipx-validate-xml $alarmspec
           Status=$(($Status+$?))
         done
         ;;

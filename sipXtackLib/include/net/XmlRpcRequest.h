@@ -93,7 +93,7 @@ public:
     */
 
    /// Add an atomic param to the XML-RPC request
-   bool addParam(UtlContainable* value); ///< value for the param
+   bool addParam(const UtlContainable* value); ///< value for the param
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:

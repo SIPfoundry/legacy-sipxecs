@@ -87,7 +87,7 @@ void XmlRpcBody::getBytes(UtlString* bytes, ssize_t* length) const
    *length = bytes->length();
 }
 
-bool XmlRpcBody::addValue(UtlContainable* value)
+bool XmlRpcBody::addValue(const UtlContainable* value)
 {
    bool result = false;
 

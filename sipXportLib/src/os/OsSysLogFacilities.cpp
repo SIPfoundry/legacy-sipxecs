@@ -69,6 +69,7 @@ const char* OsSysLog::sFacilityNames[] =
    "XMLRPC",
    "FSM",
    "NAT",
+   "ALARM",
    "UNKNOWN",
 } ;
 

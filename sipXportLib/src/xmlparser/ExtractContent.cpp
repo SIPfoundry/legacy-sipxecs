@@ -10,6 +10,8 @@ void textContentShallow(UtlString& string,
 {
    // Clear the string.
    string.remove(0);
+   if ( !node )
+      return;
 
    // Iterate through all the children.
    for (TiXmlNode* child = node->FirstChild(); child;

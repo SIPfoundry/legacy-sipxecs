@@ -13,17 +13,18 @@ sipxsupervisor_SOURCES =  \
 sipxsupervisor_CXXFLAGS =
 
 sipxsupervisor_LDADD = \
-	libsipXsupervisor.la
+	libsipXsupervisor.la \
+   libsipXalarms.la
 
 noinst_LTLIBRARIES = libsipXsupervisor.la
 
 libsipXsupervisor_la_SOURCES =  \
 	$(top_builddir)/config/sipxsupervisor-buildstamp.h \
 	$(top_builddir)/config/sipxsupervisor-buildstamp.cpp \
-   EmailReporter.cpp \
-   FailureReporterBase.cpp \
-   MonitoredProcess.cpp \
+	sipXsupervisor.cpp \
+	MonitoredProcess.cpp \
 	ProcMgmtRpc.cpp \
+	AlarmRpc.cpp \
 	ImdbRpc.cpp \
 	FileRpc.cpp \
 	DependencyList.cpp \
@@ -42,15 +43,10 @@ libsipXsupervisor_la_SOURCES =  \
 	FileResourceManager.cpp \
    WatchDog.cpp
 
-libsipXsupervisor_la_LIBADD = \
-	 @SIPXCOMMSERVER_LIBS@ \
-    @SIPXTACK_LIBS@
-
 noinst_HEADERS = \
-	EmailReporter.h \
-	FailureReporterBase.h \
 	MonitoredProcess.h \
 	ProcMgmtRpc.h \
+	AlarmRpc.h \
 	ImdbRpc.h \
 	FileRpc.h \
 	DependencyList.h \
@@ -72,3 +68,29 @@ noinst_HEADERS = \
 	ImdbResource.h \
 	SqldbResource.h \
 	WatchDog.h
+
+libsipXsupervisor_la_LIBADD = \
+   @SIPXCOMMSERVER_LIBS@
+
+noinst_LTLIBRARIES = libsipXalarms.la
+
+libsipXalarms_la_CXXFLAGS = $(sipxsupervisor_CXXFLAGS)
+
+libsipXalarms_la_LIBADD = \
+   @SIPXCOMMSERVER_LIBS@
+
+libsipXalarms_la_SOURCES = \
+	AlarmUtils.cpp \
+	EmailNotifier.cpp \
+	EmailSendTask.cpp \
+	LogNotifier.cpp \
+	NotifierBase.cpp \
+	AlarmData.cpp \
+	AlarmServer.cpp \
+	AlarmUtils.h \
+	EmailNotifier.h \
+	EmailSendTask.h \
+	LogNotifier.h \
+	NotifierBase.h \
+	AlarmData.h \
+	AlarmServer.h

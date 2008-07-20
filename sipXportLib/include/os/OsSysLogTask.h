@@ -50,7 +50,8 @@ public:
 /* ============================ CREATORS ================================== */
 
    OsSysLogTask(const int maxInMemoryLogEntries = 0,
-                const int options = OsSysLog::OPT_NONE);
+                const int options = OsSysLog::OPT_NONE,
+                const char *taskName = "syslog");
      //:Default constructor
 
    virtual ~OsSysLogTask();

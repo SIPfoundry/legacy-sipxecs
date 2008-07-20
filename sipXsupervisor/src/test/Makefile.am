@@ -4,9 +4,10 @@ INCLUDES = \
 
 ## All tests under this GNU variable should run relatively quickly
 ## and of course require no setup
-TESTS = testsuite
 
-check_PROGRAMS = testsuite
+TESTS = testsuite alarm_testsuite sandbox
+
+check_PROGRAMS = testsuite alarm_testsuite
 
 testsuite_CXXFLAGS = @CPPUNIT_CFLAGS@ \
     -DTEST_DATA_DIR=\"@abs_top_srcdir@/src/test/\" \
@@ -21,7 +22,33 @@ testsuite_SOURCES = \
 	 ProcessStateTest.cpp \
 	 ProcessVersionsTest.cpp
 
-EXTRA_DIST = \
+alarm_testsuite_CXXFLAGS = \
+    -DTEST_DATA_DIR=\"@abs_top_srcdir@/src/test\" \
+    -DTEST_WORK_DIR=\"@abs_builddir@\" \
+    -DETC_DIR=\"@abs_top_srcdir@/etc\" \
+        -DSIPX_CONFDIR=\"@SIPX_CONFDIR@\" \
+        -DSIPX_LOGDIR=\"@SIPX_LOGDIR@\" \
+        -DSIPX_RUNDIR=\"@SIPX_RUNDIR@\" \
+        -DSIPX_TMPDIR=\"@SIPX_TMPDIR@\" \
+        -DSIPX_DBDIR=\"@SIPX_DBDIR@\" 
+
+alarm_testsuite_LDADD = \
+    @SIPXCOMMSERVERTEST_LIBS@ \
+    @SIPXCOMMSERVER_LIBS@ \
+    ../libsipXalarms.la
+
+alarm_testsuite_SOURCES = \
+    AlarmServerTest.cpp \
+    AlarmLocalizationTest.cpp
+
+EXTRA_DATA = \
+    alarm-server/alarm-config.xml \
+    alarm-server/test-alarms-config.xml \
+    alarm-server/test-alarms-strings.xml \
+    alarm-localization/alarm-config.xml \
+    alarm-localization/test-localization-config.xml \
+    alarm-localization/test-localization-strings.xml \
+    alarm-localization/test-localization-strings_fr.xml \
     processDef/badconfigaccess.xml \
     processDef/badexecute.xml \
     processDef/badfileattr.xml \
@@ -56,6 +83,27 @@ EXTRA_DIST = \
     processDef/versionnottext.xml \
 	 processState/newprocess.xml \
 	 processVersions/someprocess.xml
+
+
+EXTRA_DIST = \
+    $(EXTRA_DATA)
+
+# [DEBUG ASSISTANT] List a single unit test to isolate a unit test for
+# debugging or when developing a new unit test. As courtesy remove all
+# unit tests before checking in, although forgetting to has no ill
+# effects. To build and run:
+#
+#   cd src/test
+#   make sandbox
+#   ./sandbox
+#
+#sandbox_LDFLAGS = $(alarm_testsuite_LDFLAGS)
+sandbox_LDADD = $(alarm_testsuite_LDADD)
+
+sandbox_CXXFLAGS = $(alarm_testsuite_CXXFLAGS) -pg
+sandbox_SOURCES = \
+    AlarmLocalizationTest.cpp \
+    AlarmServerTest.cpp
 
 clean: clean-workdir
 

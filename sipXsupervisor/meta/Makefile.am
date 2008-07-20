@@ -4,11 +4,17 @@ schemas = \
 	sipXecs-process.xsd \
 	watchdog.xsd \
 	watchdogprocess.xsd \
-	processdefinitions.xsd
+	processdefinitions.xsd \
+   alarm.xsd
+
+alarmdir = @SIPX_DATADIR@/alarms
+alarm_DATA = \
+   alarms/alarm-strings.xml \
+   alarms/sipXalarms-strings.xml
 
 EXTRA_DATA = $(foreach xsd,$(schemas),$(xsd).in)
 
-EXTRA_DIST = $(EXTRA_DATA)
+EXTRA_DIST = $(EXTRA_DATA) $(alarm_DATA)
 
 install-data-hook : install-schema
 
@@ -23,5 +29,5 @@ $(foreach xsd,$(schemas),$(xsd)): % : $(srcdir)/%.in
 	@$(LocalizeSipXconfig) $< > $@
 
 DISTCLEANFILES = \
-	$(schemas)
+	$(schemas) $(alarm_DATA)
 

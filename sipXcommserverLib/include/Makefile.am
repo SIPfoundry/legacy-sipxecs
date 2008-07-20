@@ -34,6 +34,8 @@ nobase_include_HEADERS =  \
     sipdb/SIPXAuthHelper.h \
     sipdb/SubscriptionDB.h \
     sipdb/SubscriptionRow.h \
+    alarm/Alarm.h \
+    alarm/AlarmRequestTask.h \
     digitmaps/UrlMapping.h \
     digitmaps/Patterns.h \
     fastdb/array.h \

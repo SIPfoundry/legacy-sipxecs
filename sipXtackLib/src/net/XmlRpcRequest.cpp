@@ -132,7 +132,7 @@ bool XmlRpcRequest::execute(XmlRpcResponse& response)
 
 /* ============================ ACCESSORS ================================= */
 
-bool XmlRpcRequest::addParam(UtlContainable* value)
+bool XmlRpcRequest::addParam(const UtlContainable* value)
 {
    bool result = false;
    mpRequestBody->append(BEGIN_PARAM);  

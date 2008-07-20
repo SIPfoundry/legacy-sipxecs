@@ -10,10 +10,10 @@
 // SYSTEM INCLUDES
 
 // APPLICATION INCLUDES
-#include "FailureReporterBase.h"
 #include "MonitoredProcess.h"
 #include "os/OsSysLog.h"
 #include "os/OsTask.h"
+#include "alarm/Alarm.h"
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -31,16 +31,12 @@ extern int gnCheckPeriod;
 // Constructor
 MonitoredProcess::MonitoredProcess(TiXmlDocument *processDoc) :
 mbRestartEnabled(FALSE),
-mbReportEnabled(FALSE),
 mnMaxRestartsPeriod(300),
 mnMaxRestarts(0),
 mnTotalRestarts(0),
-mnMaxReports(0),
-mnTotalReports(0),
 mnMaxRestartElapsedSecs(0),
 mnLastProcessState(-1),
 mpProcessDoc(NULL),
-mNumReporters(0),
 mbStartedOnce(FALSE)
 {
     if ( processDoc != NULL )
@@ -57,10 +53,6 @@ MonitoredProcess::MonitoredProcess(const MonitoredProcess& rMonitoredProcess)
 // Destructor
 MonitoredProcess::~MonitoredProcess()
 {
-    //remove all the reporters
-    for ( int loop = 0;loop < mNumReporters;loop++ )
-        delete mpReporters[loop];
-
 }
 
 /* ============================ MANIPULATORS ============================== */
@@ -90,16 +82,6 @@ void MonitoredProcess::setMaxRestartPeriod(int nMaxRestartPeriod)
     mnMaxRestartsPeriod = nMaxRestartPeriod;
 }
 
-void MonitoredProcess::setMaxReports(int nMaxReportCount)
-{
-    mnMaxReports = nMaxReportCount;
-}
-
-void MonitoredProcess::enableReports(UtlBoolean bEnable)
-{
-    mbReportEnabled = bEnable;
-}
-
 void MonitoredProcess::enableRestart(UtlBoolean bEnable)
 {
     mbRestartEnabled = bEnable;
@@ -122,42 +104,6 @@ void MonitoredProcess::resetStoppedState()
     }
 }
 
-//adds reporters (objects will tell users of interesting events) to the process
-//under watch
-OsStatus MonitoredProcess::AddReporter(FailureReporterBase *pReporter)
-{
-    OsStatus retval = OS_FAILED;
-    if ( mNumReporters < MAX_REPORTERS )
-    {
-
-        OsSysLog::add(FAC_WATCHDOG,PRI_INFO,"Adding reporter to process alias %s",
-                      mAliasStr.data());
-        mpReporters[mNumReporters] = pReporter;
-        mNumReporters++;
-        retval = OS_SUCCESS;
-    } else
-        OsSysLog::add(FAC_WATCHDOG,PRI_ERR,"MAX_REPORTERS reached for process alias %s",
-                      mAliasStr.data());
-    return retval;
-}
-
-OsStatus MonitoredProcess::sendReports()
-{
-    OsStatus retval = OS_FAILED;
-
-    OsSysLog::add(FAC_WATCHDOG,PRI_DEBUG," Flushing (Sending) reports STARTED for alias %s",
-                  mAliasStr.data());
-
-    for ( int loop = 0; loop < mNumReporters;loop++ )
-    {
-        mpReporters[loop]->send();
-    }
-
-    OsSysLog::add(FAC_WATCHDOG,PRI_DEBUG," Send reports COMPLETE for alias %s",
-                  mAliasStr.data());
-
-    return retval;
-}
 /* ============================ ACCESSORS ================================= */
 UtlString MonitoredProcess::getAlias()
 {
@@ -165,11 +111,6 @@ UtlString MonitoredProcess::getAlias()
 }
 
 /* ============================ INQUIRY =================================== */
-UtlBoolean MonitoredProcess::isReportsEnabled()
-{
-    return mbReportEnabled;
-}
-
 UtlBoolean MonitoredProcess::isRestartEnabled()
 {
     return mbRestartEnabled;
@@ -375,17 +316,6 @@ OsStatus MonitoredProcess::check()
 
                 UtlString verb = "start";
 
-                if ( mbStartedOnce ) //dont send mail first time
-                {
-                    msgStr = mAliasStr;
-                    msgStr.append(" was found in a non-running state.");
-
-                    for ( int loop = 0; loop < mNumReporters;loop++ )
-                    {
-                        mpReporters[loop]->report(mAliasStr,msgStr);
-                    }
-                }
-
                 OsSysLog::add(FAC_WATCHDOG,PRI_INFO,"Attempting %s startup...", mAliasStr.data());
                 mnTotalRestarts++;
                 if ( startstopProcessTree(*doc,mAliasStr,verb) == OS_SUCCESS )
@@ -396,13 +326,7 @@ OsStatus MonitoredProcess::check()
 
                     if ( mbStartedOnce ) //dont send mail first time
                     {
-                        msgStr = mAliasStr;
-                        msgStr.append(" was successfully restarted.");
-
-                        for ( int loop = 0; loop < mNumReporters;loop++ )
-                        {
-                            mpReporters[loop]->report(mAliasStr,msgStr);
-                        }
+                        Alarm::raiseAlarm("PROCESS_RESTARTED", mAliasStr);
                     }
                     mbStartedOnce = TRUE;
 
@@ -411,14 +335,7 @@ OsStatus MonitoredProcess::check()
                     sprintf(msgbuf,"%s failed restarting.", mAliasStr.data());
                     OsSysLog::add(FAC_WATCHDOG,PRI_ERR,msgbuf);
 
-                    msgStr = mAliasStr;
-                    msgStr.append(" failed restart.");
-
-                    for ( int loop = 0; loop < mNumReporters;loop++ )
-                    {
-                        mpReporters[loop]->report(mAliasStr,msgStr);
-                    }
-
+                    Alarm::raiseAlarm("PROCESS_FAILED_RESTART", mAliasStr);
                 }
 
             } else
@@ -429,13 +346,8 @@ OsStatus MonitoredProcess::check()
                 OsSysLog::add(FAC_WATCHDOG,PRI_ERR,msg);
                 mbRestartEnabled = FALSE;
                 mbStartedOnce = TRUE; //so it wont keep changing the state
-                UtlString msgStr = msg;
 
-                //store message
-                for ( int loop = 0; loop < mNumReporters;loop++ )
-                {
-                    mpReporters[loop]->report(mAliasStr,msgStr);
-                }
+                Alarm::raiseAlarm("PROCESS_FAILED", mAliasStr);
 
                 pProcessMgr->setAliasState(mAliasStr,PROCESS_FAILED);
             }

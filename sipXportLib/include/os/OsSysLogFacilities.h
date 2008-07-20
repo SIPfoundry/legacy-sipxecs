@@ -26,10 +26,10 @@
 //
 // NOTE: If you need a new facility, please first look for an enum value
 //       that is available for re-use.  (e.g. FAC_AVAILABLE_FOR_REUSE)
-//       If no enum valuess are available for re-use, then add a new one, 
+//       If no enum values are available for re-use, then add a new one, 
 //       but please: 
 //        1) Insert it before the FAC_MAX_FACILITY.
-//        2) Update OsSysLogFacilties.cpp to include the
+//        2) Update OsSysLogFacilities.cpp to include the
 //           string name.
 //        3) Update the !enum comments below.
 //         
@@ -37,7 +37,7 @@
 //       Instead, please: 
 //        1) Rename the enum value to flag it as available for re-use.
 //           (e.g. FAC_AVAILABLE_FOR_REUSE)
-//        2) Update OsSysLogFacilties.cpp to change the string name
+//        2) Update OsSysLogFacilities.cpp to change the string name
 //           to "UNUSED".
 //        3) Update the !enum comments below.
 // 
@@ -88,6 +88,7 @@ enum tagOsSysLogFacility
    FAC_XMLRPC,             ///< XML RPC related
    FAC_FSM,                ///< Finite State Machine tracking
    FAC_NAT,                ///< NAT Traversal related
+   FAC_ALARM,              ///< Alarms
    FAC_MAX_FACILITY        ///< Last Facility (used to for length)
 
    //
@@ -95,9 +96,9 @@ enum tagOsSysLogFacility
    //
    // NOTE:  If adding a facility, please:
    //        1) Insert it before FAC_MAX_FACILITY.
-   //        2) Updatd OsSysLogFacilties.cpp to include the
+   //        2) Update OsSysLogFacilities.cpp to include the
    //           string name.
-   //        3) Update the !enum comments below.
+   //        3) Update the !enum comments above.
    //
    // *** READ THIS ***
    //

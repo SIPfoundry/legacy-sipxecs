@@ -22,6 +22,7 @@ use Net::Ping;
 $CRLF = "\r\n";
 $SipVersion = '2.0';
 $VERSION = '@SIPX_VERSION@';
+$BINDIR = "@SIPX_BINDIR@";
 
 ## Globals
 # %Child holds pids for each UAS, indexed by $server:$port
@@ -850,6 +851,7 @@ sub Failure
         # first failure for this test
         $ErrorCount++;
 
+        system("$BINDIR/sipx-alarm --alarmId SERVTEST_FAILURE \"$Test\" \"$error\"");
         if (@EmailAddrs)
         {
             &SendEmail(\@EmailAddrs, "$TestId failed $Test", $error) ;
