@@ -129,7 +129,7 @@ FileResource* FileResource::logFileResource(const UtlString& logFilePath, Proces
 
 
 // get a description of the FileResource (for use in logging)
-void FileResource::appendDescription(UtlString&  description /**< returned description */)
+void FileResource::appendDescription(UtlString&  description /**< returned description */) const
 {
    description.append("file '");
    description.append(data());

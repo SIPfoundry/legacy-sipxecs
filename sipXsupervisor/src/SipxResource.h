@@ -60,7 +60,7 @@ class SipxResource : public UtlString
     */
    
    /// get a description of the SipxResource (for use in logging)
-   virtual void appendDescription(UtlString&  description /**< returned description */);
+   virtual void appendDescription(UtlString&  description /**< returned description */) const;
    
 // ================================================================
 /** @name           Status Operations

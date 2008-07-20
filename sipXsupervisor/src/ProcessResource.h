@@ -18,6 +18,7 @@
 // CONSTANTS
 // TYPEDEFS
 // FORWARD DECLARATIONS
+class Process;
 
 /// Represents a Process as a SipxResource
 /**
@@ -52,16 +53,8 @@ class ProcessResource : public SipxResource
     * @returns false if the element was in any way invalid.
     */
 
-   /// Return an existing ProcessResource, or if none exists, create one.
-   static
-      ProcessResource* find(const char* processName);
-   /**<
-    * @note the fact that a ProcessResource exists does not ensure that the
-    *         corresponding Process element exists.
-    */
-   
    /// get a description of the ProcessResource (for use in logging)
-   virtual void appendDescription(UtlString&  description /**< returned description */);
+   virtual void appendDescription(UtlString&  description /**< returned description */) const;
 
 ///@}   
 // ================================================================
@@ -73,6 +66,9 @@ class ProcessResource : public SipxResource
    /// A ProcessResource may not written by configuration update methods.
    bool isWriteable();
 
+   /// If possible, get the corresponding Process object.
+   Process* getProcess();
+   
 ///@}
 // ================================================================
 /** @name           Status Operations

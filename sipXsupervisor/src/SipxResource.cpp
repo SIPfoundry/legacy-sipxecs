@@ -9,6 +9,7 @@
 
 // APPLICATION INCLUDES
 #include "os/OsSysLog.h"
+#include "utl/UtlSListIterator.h"
 
 #include "xmlparser/tinyxml.h"
 #include "xmlparser/XmlErrorMsg.h"
@@ -82,7 +83,7 @@ bool SipxResource::parse(const TiXmlDocument& processDefinitionDoc,
 }
 
 /// get a description of the SipxResource (for use in logging)
-void SipxResource::appendDescription(UtlString&  description /**< returned description */)
+void SipxResource::appendDescription(UtlString&  description /**< returned description */) const
 {
    OsSysLog::add(FAC_WATCHDOG, PRI_CRIT, "SipxResource::appendDescription called.");
    description.append("[ERROR - SipxResource::appendDescription called]");
@@ -113,7 +114,23 @@ bool SipxResource::isSafeToStop()
 /// Some change has been made to this resource; notify any Processes that use it.
 void SipxResource::modified()
 {
-   // @TODO
+   UtlSListIterator processResources(mUsedBy);
+   ProcessResource* processResource;
+
+   while ((processResource = dynamic_cast<ProcessResource*>(processResources())))
+   {
+      Process* process;
+      if ((process=processResource->getProcess()))
+      {
+         process->configurationChange(*this);
+      }
+      else
+      {
+         /* there is no process for this process resource
+          * - can happen when a definition is invalid, and has already been logged.
+          */
+      }
+   }   
 }
 
 /// Whether or not the SipxResource may be written by configuration update methods.

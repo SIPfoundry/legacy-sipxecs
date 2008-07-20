@@ -619,7 +619,13 @@ void Process::shutdown()
 /// Notify the Process that some configuration change has occurred.
 void Process::configurationChange(const SipxResource& changedResource)
 {
-   // @TODO 
+   UtlString changedResourceDescription;
+   changedResource.appendDescription(changedResourceDescription);
+   
+   OsSysLog::add(FAC_WATCHDOG, PRI_DEBUG, "Process[%s]::configurationChange(%s)",
+                 data(), changedResourceDescription.data());
+   
+   checkService();
 }
    
 void Process::readConfigurationVersion()

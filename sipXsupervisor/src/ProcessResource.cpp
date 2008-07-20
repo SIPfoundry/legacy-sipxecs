@@ -14,6 +14,7 @@
 #include "xmlparser/XmlErrorMsg.h"
 #include "xmlparser/ExtractContent.h"
 
+#include "ProcessManager.h"
 #include "Process.h"
 
 #include "ProcessResourceManager.h"
@@ -109,7 +110,7 @@ bool ProcessResource::parse(const TiXmlDocument& processDefinitionDoc, ///< proc
 
 
 // get a description of the ProcessResource (for use in logging)
-void ProcessResource::appendDescription(UtlString&  description /**< returned description */)
+void ProcessResource::appendDescription(UtlString&  description /**< returned description */) const
 {
    description.append("process '");
    description.append(data());
@@ -121,6 +122,14 @@ bool ProcessResource::isWriteable()
 {
    return false;
 }
+
+/// If possible, get the corresponding Process object.
+Process* ProcessResource::getProcess()
+{
+   // return the Process that has the same name as this ProcessResource. 
+   return ProcessManager::getInstance()->findProcess(*this); 
+}
+   
 
 // Whether or not the ProcessResource is ready for use by a Process.
 bool ProcessResource::isReadyToStart()

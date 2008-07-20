@@ -52,7 +52,7 @@ class ImdbResource : public SipxResource
       ImdbResource* find(const char* imdbName /**< imdb table name */);
    
    /// get a description of the ImdbResource (for use in logging)
-   virtual void appendDescription(UtlString&  description /**< returned description */);
+   virtual void appendDescription(UtlString&  description /**< returned description */) const;
 
 ///@}   
 // ================================================================

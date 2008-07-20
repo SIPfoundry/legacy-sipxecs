@@ -106,7 +106,7 @@ bool ImdbResource::parse(const TiXmlDocument& imdbDefinitionDoc, ///< imdb defin
 
 
 // get a description of the ImdbResource (for use in logging)
-void ImdbResource::appendDescription(UtlString&  description /**< returned description */)
+void ImdbResource::appendDescription(UtlString&  description /**< returned description */) const
 {
    description.append("imdb '");
    description.append(data());

@@ -70,7 +70,7 @@ class FileResource : public SipxResource
 ///@{
 
    /// get a description of the FileResource (for use in logging)
-   virtual void appendDescription(UtlString&  description /**< returned description */);
+   virtual void appendDescription(UtlString&  description /**< returned description */) const;
 
    /// Whether or not the FileResource is ready for use by a Process.
    virtual bool isReadyToStart();

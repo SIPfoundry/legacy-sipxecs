@@ -106,7 +106,7 @@ bool SqldbResource::parse(const TiXmlDocument& sqldbDefinitionDoc, ///< sqldb de
 
 
 // get a description of the SqldbResource (for use in logging)
-void SqldbResource::appendDescription(UtlString&  description /**< returned description */)
+void SqldbResource::appendDescription(UtlString&  description /**< returned description */) const
 {
    description.append("SQL database '");
    description.append(data());
