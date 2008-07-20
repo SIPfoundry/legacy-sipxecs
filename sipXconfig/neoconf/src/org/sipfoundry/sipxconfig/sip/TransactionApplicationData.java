@@ -16,7 +16,6 @@ import java.util.concurrent.TimeUnit;
 
 import javax.sip.ClientTransaction;
 import javax.sip.Dialog;
-import javax.sip.DialogState;
 import javax.sip.InvalidArgumentException;
 import javax.sip.ResponseEvent;
 import javax.sip.SipException;
@@ -87,13 +86,7 @@ class TransactionApplicationData {
                 m_counter++;
                 if (ctx != null) {
                     ctx.setApplicationData(this);
-                    if (dialog.getState() == DialogState.CONFIRMED) {
-                        dialog.sendRequest(ctx);
-                    } else if (dialog.getState() != DialogState.TERMINATED){
-                       ctx.sendRequest();
-                    } else {
-                        ctx.terminate();
-                    }
+                    ctx.sendRequest();
                 }
             } else if (m_operator == Operator.SEND_NOTIFY) {
                 // We ignore 1xx responses. 2xx and above are put into the queue.
