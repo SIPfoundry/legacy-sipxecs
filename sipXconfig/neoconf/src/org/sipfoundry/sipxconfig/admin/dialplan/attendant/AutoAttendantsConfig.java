@@ -92,11 +92,14 @@ public class AutoAttendantsConfig extends XmlFile {
 
         Element dtmfEl = aaEl.addElement("dtmf");
 
-        // FIXME: no initialTimeout parameter
-        // addSettingValue(dtmfEl, "initialTimeout", autoAttendant, "dtmf/???");
-        addSettingValue(dtmfEl, "interDigitTimeout", autoAttendant, "dtmf/interDigitTimeout");
-        // FIXME: we have overallDigitTimeout parameter
-        // addSettingValue(dtmfEl, "extraDigitTimeout", autoAttendant, "dtmf/???");
+        // FIXME: initialTimeout parameter is actually misnamed 
+        // "overallDigitTimeout" which is incorrectly described, 
+        // as VoiceXML doesn't have such a concept.
+        addSettingValue(dtmfEl, "initialTimeout", autoAttendant, "dtmf/overallDigitTimeout");
+        String idt = "dtmf/interDigitTimeout"; // To prevent checkStyle warning
+        addSettingValue(dtmfEl, "interDigitTimeout", autoAttendant, idt);
+        // FIXME: extraDigitTimeout needs to be added.  For now use interDigitTimeout
+        addSettingValue(dtmfEl, "extraDigitTimeout", autoAttendant, idt);
         addSettingValue(dtmfEl, "maximumDigits", autoAttendant, "dtmf/maxDigits");
 
         Element irEl = aaEl.addElement("invalidResponse");
@@ -106,6 +109,7 @@ public class AutoAttendantsConfig extends XmlFile {
         irEl.addElement("transferOnFailures").setText(transfer.toString());
         if (transfer.booleanValue()) {
             addSettingValue(irEl, "transferUrl", autoAttendant, "onfail/transfer-extension");
+            // FIXME: this should be the full path of the uploaded transferPrompt
             addSettingValue(irEl, "transferPrompt", autoAttendant, "onfail/transfer-prompt");
         }
     }

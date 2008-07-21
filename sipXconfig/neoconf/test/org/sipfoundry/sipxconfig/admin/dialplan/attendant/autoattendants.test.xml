@@ -23,7 +23,9 @@
       </menuItem>
     </menuItems>
     <dtmf>
+      <initialTimeout>7</initialTimeout>
       <interDigitTimeout>3</interDigitTimeout>
+      <extraDigitTimeout>3</extraDigitTimeout>
       <maximumDigits>10</maximumDigits>
     </dtmf>
     <invalidResponse>
@@ -52,7 +54,9 @@
       </menuItem>
     </menuItems>
     <dtmf>
+      <initialTimeout>7</initialTimeout>
       <interDigitTimeout>3</interDigitTimeout>
+      <extraDigitTimeout>3</extraDigitTimeout>
       <maximumDigits>10</maximumDigits>
     </dtmf>
     <invalidResponse>
