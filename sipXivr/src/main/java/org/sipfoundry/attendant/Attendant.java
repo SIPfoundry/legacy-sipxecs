@@ -192,8 +192,6 @@ public class Attendant {
             name = m_schedules.getAttendant(now);
             if (name == null) {
                 LOG.error("Cannot determine which attendant to use from schedule.") ;
-                // TODO remove this...just for hacking
-                name = "Operator" ;
             } else {
                 LOG.info(String.format("Attendant %s determined from schedule", name));
             }

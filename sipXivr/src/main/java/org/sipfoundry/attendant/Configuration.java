@@ -149,12 +149,11 @@ public class Configuration {
      * Load the autoattendants.xml file
      */
     void loadXML() {
+    	LOG.info("Loading autoattendants.xml configuration");
         String path = System.getProperty("conf.dir");
         if (path == null) {
             LOG.fatal("Cannot get System Property conf.dir!  Check jvm argument -Dconf.dir=") ;
-            // System.exit(1);
-            // TODO Let it slide for development
-            path = "/usr/local/ecs/main/etc/sipxpbx" ;
+            System.exit(1);
         }
         
         Document autoAttendantsDoc = null;

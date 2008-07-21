@@ -38,9 +38,7 @@ public class Configuration {
         String path = System.getProperty("conf.dir");
         if (path == null) {
             System.err.println("Cannot get System Property conf.dir!  Check jvm argument -Dconf.dir=") ;
-            // System.exit(1);
-            // TODO Let it slide for development
-            path = "/usr/local/ecs/main/etc/sipxpbx";
+            System.exit(1);
         }
         String name = "sipxivr.properties";
         InputStream inStream;

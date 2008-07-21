@@ -68,10 +68,11 @@ public class ValidUsersXML {
      * Load the validusers.xml file
      */
     void loadXML() {
+    	LOG.info("Loading validusers.xml configuration");
         String path = System.getProperty("conf.dir");
         if (path == null) {
-            // TODO cause trouble if this isn't found.  Let it slide for development
-            path = "/usr/local/ecs/main/etc/sipxpbx" ;
+            LOG.fatal("Cannot get System Property conf.dir!  Check jvm argument -Dconf.dir=") ;
+            System.exit(1);
         }
         
         Document validUsers = null;
