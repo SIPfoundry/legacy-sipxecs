@@ -1,5 +1,7 @@
 include $(top_srcdir)/config/subdir.am
 
+SUBDIRS = alarms
+ 
 schemas = \
 	sipXecs-process.xsd \
 	watchdog.xsd \
@@ -7,14 +9,9 @@ schemas = \
 	processdefinitions.xsd \
    alarm.xsd
 
-alarmdir = @SIPX_DATADIR@/alarms
-alarm_DATA = \
-   alarms/alarm-strings.xml \
-   alarms/sipXalarms-strings.xml
-
 EXTRA_DATA = $(foreach xsd,$(schemas),$(xsd).in)
 
-EXTRA_DIST = $(EXTRA_DATA) $(alarm_DATA)
+EXTRA_DIST = $(EXTRA_DATA)
 
 install-data-hook : install-schema
 
@@ -28,6 +25,6 @@ $(foreach xsd,$(schemas),$(xsd)): % : $(srcdir)/%.in
 	@echo "Localize $< -> $@"
 	@$(LocalizeSipXconfig) $< > $@
 
-DISTCLEANFILES = \
-	$(schemas) $(alarm_DATA)
+CLEANFILES = \
+	$(schemas)
 
