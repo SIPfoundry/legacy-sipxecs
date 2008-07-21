@@ -13,13 +13,24 @@
 
   <path id="base.path" >
     <pathelement location="${JainSip.jar}"/>
+    <pathelement location="${jibx-run.jar}"/>
+    <pathelement location="${xpp3.jar}"/>
     <pathelement location="${junit.jar}"/>
     <pathelement location="${log4j.jar}"/>
   </path>
   <property name="classpath" refid="base.path" />
 
+  <!-- JiBX binding compiler task definition -->
+  <taskdef name="jibx-bind" classname="org.jibx.binding.ant.CompileTask">
+    <classpath>
+       <fileset file="${jibx-bind.jar}"/>
+       <fileset file="${jibx-run.jar}"/>
+       <fileset file="${bcel.jar}"/>
+    </classpath>
+  </taskdef>
+
   <!-- J N I -->
-  <target name="jni" depends="compile" description="create RockSaw JNI library" >
+  <target name="jni" description="create RockSaw JNI library" >
     <taskdef resource="cpptasks.tasks" classpath="${cpptasks.jar}"/>
     <typedef resource="cpptasks.types" classpath="${cpptasks.jar}"/>
     <cc outfile="${build.dir}/dist/librocksaw.so">
@@ -37,8 +48,24 @@
     </cc>
   </target>
 
+  <!-- X M L  B I N D -->
+  <target name="xml-bind" depends="compile" description="create XML bindings" >
+    <jibx-bind verbose="false" load="true" binding="${src.dir}/src/main/xml/org/sipfoundry/commons/dialoginfo/binding.xml">
+      <classpath>
+        <pathelement path="${classes.dir}"/>
+        <pathelement location="${jibx-run.jar}"/>
+      </classpath>
+    </jibx-bind>
+    <jibx-bind verbose="false" load="true" binding="${src.dir}/src/main/xml/org/sipfoundry/commons/reginfo/binding.xml">
+      <classpath>
+        <pathelement path="${classes.dir}"/>
+        <pathelement location="${jibx-run.jar}"/>
+      </classpath>
+    </jibx-bind>
+  </target>
+
   <!-- J A R -->
-  <target name="jar" depends="jni" description="create jar file" >
+  <target name="jar" depends="xml-bind, jni" description="create jar file" >
     <jar jarfile="${build.dir}/dist/sipxcommons.jar">
       <fileset dir="${classes.dir}" >
         <include name="**/*.class" />
