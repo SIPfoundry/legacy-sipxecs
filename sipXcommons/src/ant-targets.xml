@@ -107,7 +107,7 @@
   <target name="compile" depends="init" unless="subdirs"
       description="[internal] Compile all files in src directory">
 
-    <javac srcdir="${src.dir}"
+    <javac srcdir="${src.dir}/src/main/java"
         destdir="${classes.dir}"
         classpathref="base.path"
         debug="${debug}"
@@ -115,8 +115,7 @@
         optimize="${optimize}"
         includes="**/*.java"
         source="1.5"
-        target="1.5"
-        excludes="test/**"/>
+        target="1.5"/>
   </target>
 
 
@@ -165,16 +164,15 @@
 
 
   <!-- C O M P I L E  T E S T S -->
-  <target name="compile.test" depends="compile,init" unless="subdirs"
+  <target name="compile.test" depends="xml-bind,compile,init" unless="subdirs"
         description="[internal] compile tests">
 
-    <javac srcdir="${src.dir}/"
+    <javac srcdir="${src.dir}/src/test/java"
        destdir="${test.classes.dir}"
        classpathref="base.path"
        debug="${debug}"
        deprecation="on"
-       optimize="${optimize}"
-       includes="test/**">
+       optimize="${optimize}">
       <classpath>
         <pathelement path="${classes.dir}"/>
       </classpath>
@@ -219,7 +217,7 @@
   <target name="realtest" depends="compile.test" unless="subdirs"
        description="run junit tests">
 
-    <junit fork="yes" haltonfailure="yes" printsummary="on">
+    <junit fork="yes" haltonfailure="no" printsummary="on">
       <classpath>
         <pathelement path="${classpath}"/>
         <pathelement location="${classes.dir}"/>
@@ -229,9 +227,7 @@
       <formatter type="xml"/>
       <sysproperty key="basedir" value="${basedir}"/>
       <batchtest todir="${test.results.dir}">
-        <fileset dir="${test.classes.dir}">
-          <patternset refid="test.classes"/>
-        </fileset>
+        <fileset dir="${test.classes.dir}"/>
       </batchtest>
     </junit>
   </target>
