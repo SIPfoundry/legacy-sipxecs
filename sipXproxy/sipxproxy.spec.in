@@ -17,7 +17,7 @@ Requires: sipxpbx >= 3.11
 Prefix:    %_prefix
 BuildRoot: %{_tmppath}/%name-%version-root
 
-# should match sipXlib.m4:SIPX_UPGRADEDIR
+# should match sipXlib.m4:SIPX_VARDIR/upgrade
 %define upgrade_archive_dir %{_localstatedir}/sipxdata/upgrade
 %define this_archive %{name}-%{version}-%{release}.tgz
 %define this_archive_cdr %{name}-cdr-%{version}-%{release}.tgz

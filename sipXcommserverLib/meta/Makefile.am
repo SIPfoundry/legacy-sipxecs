@@ -14,7 +14,7 @@ EXTRA_DATA = \
 # supporting upgrade from 3.0, you can delete this file and respective
 # installation target
 SIPX30_CONFIG = @PACKAGE@-3.0.tgz
-PREVIOUS_CONFIG = $(DESTDIR)@SIPX_UPGRADEDIR@/@PACKAGE@-previous.tgz
+PREVIOUS_CONFIG = $(DESTDIR)@SIPX_VARDIR@/upgrade/@PACKAGE@-previous.tgz
 EXTRA_DIST = \
 	$(EXTRA_DATA) \
 	$(SIPX30_CONFIG)

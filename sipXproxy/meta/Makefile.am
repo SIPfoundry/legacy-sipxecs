@@ -4,7 +4,7 @@ include $(top_srcdir)/config/subdir.am
 # supporting upgrade from 3.0, you can delete this file and respective
 # installation target
 SIPX30_CONFIG = @PACKAGE@-3.0.tgz
-PREVIOUS_CONFIG = $(DESTDIR)@SIPX_UPGRADEDIR@/@PACKAGE@-previous.tgz
+PREVIOUS_CONFIG = $(DESTDIR)@SIPX_VARDIR@/upgrade/@PACKAGE@-previous.tgz
 
 schemas = \
 	forwardingrules.xsd

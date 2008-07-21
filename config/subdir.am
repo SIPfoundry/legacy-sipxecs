@@ -59,7 +59,6 @@ LocalizeSipXconfig = sed \
 		  -e 's,@SIPX_LIBDIR\@,@SIPX_LIBDIR@,g' \
 		  -e 's,@SIPX_LIBEXECDIR\@,@SIPX_LIBEXECDIR@,g' \
 		  -e 's,@SIPX_VARDIR\@,@SIPX_VARDIR@,g' \
-		  -e 's,@SIPX_UPGRADEDIR\@,@SIPX_UPGRADEDIR@,g' \
 		  -e 's,@SIPX_VXMLDATADIR\@,@SIPX_VXMLDATADIR@,g' \
 		  -e 's,@XPRESSA_BUILD_NUMBER\@,@XPRESSA_BUILD_NUMBER@,g' \
 		  -e 's,@XPRESSA_BUILD_COMMENT\@,@XPRESSA_BUILD_COMMENT@,g' \

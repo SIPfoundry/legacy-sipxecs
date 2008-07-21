@@ -80,18 +80,15 @@ AC_DEFUN([SFAC_SIPX_GLOBAL_OPTS],
     AC_SUBST(SIPX_DOCDIR,  [${datadir}/doc/sipxecs])
     AC_SUBST(SIPX_JAVADIR, [${datadir}/java/sipXecs])
     AC_SUBST(SIPX_VARDIR,  [${localstatedir}/sipxdata])
-    AC_SUBST(SIPX_TMPDIR,    [${localstatedir}/sipxdata/tmp])
-    AC_SUBST(SIPX_DBDIR,     [${localstatedir}/sipxdata/sipdb])
-    AC_SUBST(SIPX_UPGRADEDIR,[${localstatedir}/sipxdata/upgrade])
+    AC_SUBST(SIPX_TMPDIR,  [${localstatedir}/sipxdata/tmp])
+    AC_SUBST(SIPX_DBDIR,   [${localstatedir}/sipxdata/sipdb])
     AC_SUBST(SIPX_LOGDIR,  [${localstatedir}/log/sipxpbx])
     AC_SUBST(SIPX_RUNDIR,  [${localstatedir}/run/sipxpbx])
     AC_SUBST(SIPX_VARLIB,  [${localstatedir}/lib/sipxpbx])
+    AC_SUBST(SIPX_VXMLDATADIR,[${localstatedir}/sipxdata/mediaserver/data])
 
     # Freeswitch prefix directory
     AC_SUBST(FREESWITCH_PREFIX,  [/usr/local/freeswitch])
-
-    # temporary - see http://track.sipfoundry.org/browse/XPB-33
-    AC_SUBST(SIPX_VXMLDATADIR,[${localstatedir}/sipxdata/mediaserver/data])
 
     ## Used in a number of different project and subjective where this should really go
     ## INSTALL instruction assume default, otherwise safe to change/override
