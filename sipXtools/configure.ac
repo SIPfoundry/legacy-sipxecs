@@ -28,6 +28,7 @@ AC_CONFIG_FILES([
   src/Makefile 
   src/test/Makefile 
   src/man/Makefile 
+  preflight/Makefile
 ])
 
 AC_OUTPUT

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
+ * Copyright (C) 2007 - 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  */
@@ -10,6 +10,7 @@ import java.net.*;
 import java.util.*;
 
 import org.sipfoundry.commons.dhcp.*;
+import org.sipfoundry.commons.util.JournalService;
 
 import static org.sipfoundry.commons.dhcp.DHCPOption.Code.*;
 import static org.sipfoundry.commons.dhcp.HardwareAddressType.*;

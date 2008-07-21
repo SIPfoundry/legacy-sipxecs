@@ -1,23 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
+	<classpathentry combineaccessrules="false" kind="src" path="/sipxcommons"/>
 	<classpathentry kind="src" path="src/main/java"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="src" path="src/test/java" output="target/test-classes"/>
+	<classpathentry kind="src" output="target/test-classes" path="src/test/java"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/3"/>
 	<classpathentry kind="lib" path="lib/commons-net-1.4.1.jar">
 		<attributes>
 			<attribute name="javadoc_location" value="http://commons.apache.org/net/apidocs/"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="lib/dnsjava-2.0.5.jar"/>
-	<classpathentry kind="lib" path="lib/log4j-1.2.14.jar"/>
 	<classpathentry kind="lib" path="lib/commons-cli-1.1.jar">
 		<attributes>
 			<attribute name="javadoc_location" value="http://commons.apache.org/cli/api-release/"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="lib/jain-sip-api-1.2.jar"/>
-	<classpathentry kind="lib" path="lib/jain-sip-ri-1.2.92.jar"/>
 	<classpathentry kind="lib" path="lib/swt-win32-3.3.jar"/>
+	<classpathentry kind="lib" path="/sipxcommons/lib/dnsjava-2.0.6.jar"/>
+	<classpathentry kind="lib" path="/sipxcommons/lib/jain-sip-sdp-1.2.74.jar"/>
+	<classpathentry kind="lib" path="/sipxcommons/lib/log4j-1.2.15.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

@@ -7,13 +7,11 @@ AC_INIT(sipXivr, 3.11.5, sipx-dev@list.sipfoundry.org)
 AC_CONFIG_AUX_DIR(config)
 m4_include([config/general.m4])
 m4_include([config/sipXlib.m4])
-m4_include([config/java.m4])
 
 SFAC_SIPX_INSTALL_PREFIX
 AM_INIT_AUTOMAKE(foreign)
 SFAC_AUTOMAKE_VERSION([1.6])
 CHECK_AUTOCONF
-CHECK_JAIN_SIP
 
 # CHECK_RPM_DEBUG
 
@@ -24,10 +22,6 @@ AC_CONFIG_FILES([bin/Makefile])
 
 SFAC_INIT_FLAGS
 CHECK_GENERATE_MANPAGES
-
-# Jar files to all of sipXivr. 
-AC_SUBST(SIPXPAGE_LIBDIR, [${SIPX_DATADIR}/sipXivr/lib])
-
 
 # Java
 CHECK_JDK

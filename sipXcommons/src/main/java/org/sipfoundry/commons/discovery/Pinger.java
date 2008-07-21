@@ -1,7 +1,11 @@
+/**
+ * Copyright (C) 2007 - 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.
+ * Contributors retain copyright to elements licensed under a Contributor Agreement.
+ * Licensed to the User under the LGPL license.
+ */
 package org.sipfoundry.commons.discovery;
 
 import static org.savarese.rocksaw.net.RawSocket.PF_INET;
-import static org.savarese.rocksaw.net.RawSocket.getProtocolByName;
 
 import java.io.IOException;
 import java.io.InterruptedIOException;
@@ -74,7 +78,7 @@ public class Pinger {
         sendPacket.computeICMPChecksum();
 
         try {
-            socket.open(PF_INET, getProtocolByName("icmp"));
+            socket.open(PF_INET, 1);    // ICMP Socket.
         } catch (IOException e) {
             return false;
         }

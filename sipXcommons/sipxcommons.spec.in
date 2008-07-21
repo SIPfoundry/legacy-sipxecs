@@ -22,7 +22,7 @@ Requires: java-ibm >= 1.5
 Requires: java-ibm-unrestricted
 
 %else
-Requires: java-sun >= 1.5
+Requires: java-sun >= 1.6
 %endif
 
 Prefix: %_prefix

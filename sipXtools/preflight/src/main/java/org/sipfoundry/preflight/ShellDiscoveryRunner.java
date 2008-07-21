@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
+ * Copyright (C) 2007 - 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  */
@@ -10,9 +10,13 @@ import java.net.UnknownHostException;
 import java.util.LinkedList;
 
 import org.eclipse.swt.widgets.*;
-import static org.sipfoundry.preflight.ResultCode.*;
+
+import org.sipfoundry.commons.dhcp.NetworkResources;
 import org.sipfoundry.commons.discovery.Device;
 import org.sipfoundry.commons.discovery.DiscoveryService;
+import org.sipfoundry.commons.util.JournalService;
+
+import static org.sipfoundry.preflight.ResultCode.*;
 
 /**
  * [Enter descriptive text here]
@@ -21,7 +25,6 @@ import org.sipfoundry.commons.discovery.DiscoveryService;
  * @author Mardy Marshall
  */
 public class ShellDiscoveryRunner {
-    private final Display display;
     private final JournalService journalService;
     private final DiscoveryService ds;
     private String localHostAddress = "0.0.0.0";
@@ -29,7 +32,6 @@ public class ShellDiscoveryRunner {
     private boolean active;
 
     ShellDiscoveryRunner(Display display, JournalService journalService) {
-        this.display = display;
         this.journalService = journalService;
 
         InetAddress inetAddress;
