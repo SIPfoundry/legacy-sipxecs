@@ -204,6 +204,7 @@ class CallControlManager {
     private void processOptions(RequestEvent requestEvent) {
         SipProvider provider = (SipProvider) requestEvent.getSource();
         Request request = requestEvent.getRequest();
+        ServerTransaction st = requestEvent.getServerTransaction();
 
         try {
 
@@ -271,7 +272,16 @@ class CallControlManager {
 
             }
 
-            provider.sendResponse(response);
+            //
+            // If In-Dialog, then the stack will create a server transaction for you to respond
+            // stateufully. Hence that ST should be used to respond. If out of dialog, then
+            // we simply respond statelessly ( no need to create a Server Transaction ).
+             
+            if ( st == null ) {
+                provider.sendResponse(response);
+            } else {
+                st.sendResponse(response);
+            }
         } catch (Exception ex) {
             logger.error("Internal error processing request ", ex);
             try {
@@ -282,10 +292,14 @@ class CallControlManager {
                             + ex.getStackTrace()[0].getLineNumber());
                 }
 
-                provider.sendResponse(response);
+                if ( st != null ) {
+                    st.sendResponse(response);
+                } else {
+                    provider.sendResponse(response);
+                }
 
             } catch (Exception e) {
-                throw new RuntimeException("Check gateway configuration", e);
+                throw new GatewayConfigurationException("Check gateway configuration", e);
             }
         }
 
