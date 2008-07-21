@@ -1,76 +1,16 @@
-
-Welcome to sipxbridge -- the little bridge that could.
-
-THIS IS AN EARLY (BETA) RELEASE. 
-
 SipXbridge is ITSP bridge geared towards the needs of the SIPX PBX system.
 It aims to provide media and signaling gatewaying functionality  between
 SIP endpoints inside a firewall /NAT and an external ITSP gateway.
 
+The following wiki page will give you details on how to configure and run sipxbridge.
 
-Start sipx and configure sipx to use sipxbridge
-----------------------------------------------
-
-- sipxbridge will start as a service when you start sipx.
-
-- configure sipxbridge using sipxconfig. Sipxbridge is configured as an SBC. 
-The settings will vary according to your ITSP.
-
-- Set up a dial plan to use sipxbridge as your sbc. You can set up 
-a prefix ( say 91 + number ) to direct your calls to sipxbridge.
-
-- On your pstn phone, dial your ITSP provided  number for inbound (to sipx) 
-calls. Dial 91your-phone-number for outbound calls.
-
-- Try a few call transfers etc.
-
-Firewall/NAT considerations
----------------------------
-
-Some ITSPs work without any NAT configuration needed. They work by
-ignoring the SIP/SDP port information -- relying instead on the remote
-address of the incoming datagram packet. Such ITSPs require no NAT
-configuration. Other ITSPs will send packets to the specified ports if
-you use global addresses and will look at the inbound UDP to determine
-ports if you use local addresses in your signaling.  Yet other ITSPs
-are more particular. They will expect you to provide a valid port in
-your singaling and only send packets to the specified port. To cover
-all cases, you need to
-
-1. Configure sipxbridge to use the mechanism that your ITSP expects to see.
-2. Possibly configure your NAT/Firewall to forward inbound packets from your ITSP.
-
-To configure your NAT/Firewall, you need to set up port forwarding in
-the port range that sipxbridge uses.
-
-Here are my linux firewall rules:
-
-iptables -t nat -A PREROUTING -p udp --dport 15000:15500 -j DNAT --to-destination 192.168.5.240
-iptables -A FORWARD -i $EXTIF -o $INTIF0 -d 192.168.5.240 -p udp --dport 15000:15500 -j ACCEPT
-
-Some ITSPs (notably bandwidth.com ) do not accept REGISTER. You will
-have to provide them with a static IP address and configure your firewall
-to forward packets to sipxbridge. Such providers will send signaling to
-port 5060.
-
-iptables -t nat -A PREROUTING -i $EXTIF -p udp --dport 5060 -j DNAT --to-destination 192.168.5.240:5080
-iptables -A FORWARD -i $EXTIF -o $INTIF0 -d 192.168.5.240 -p udp --dport 5080 -j ACCEPT
-iptables -t nat -A POSTROUING -s 192.168.5.240 -o $EXTIF -j MASQUERADE
-iptables -A FORWARD -p udp --sport 5060 -o eth0 -j ACCEPT
-iptables -A FORWARD -i eth3 -o eth0 -m state --state ESTABLISHED,RELATED -j ACCEPT
-iptables -A FORWARD -i eth0 -o eth3 -m state --state ESTABLISHED,RELATED -j ACCEPT
+http://sipx-wiki.calivia.com/index.php/SIP_Trunking_with_sipXecs:_Overview_and_Configuration
 
 
-Here, my sipxbridge runs on 192.168.5.240 and accepts inbound signaling on port 5080.
-It sends media in the port range 15000 to 15500 
-
-EXTIF is my WAN-facing interface of the NAT ( eth3 ).
-INTIF is my LAN-facing interface of the NAT ( eth0 ).
 
 Warnings and disclaimers
 ------------------------
 
 THIS IS  NOT YET PRODUCTION READY.
 
-It has only been minimally tested.
 
