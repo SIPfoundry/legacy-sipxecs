@@ -42,6 +42,9 @@ class ProcessManager
    /// Parse the XML of a process definition
    void instantiateProcesses(const OsPath& processDefinitionDirectory);
 
+   /// Activate all process monitors
+   void startProcesses();
+
    /// Fill in a map of process names and states (as UtlStrings)
    void getAllProcessStates(UtlHashMap& processStates ///< key->name, value->state string
                             );

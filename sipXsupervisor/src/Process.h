@@ -204,11 +204,22 @@ class Process : public UtlString
  */
 ///@{
 
+   /// Begin monitoring the process and getting it to the desired state.
+   void start();
+   /**< Before this call, state changes and events modify the
+    *   internal state of the object but don't actually change
+    *   the corresponding system process (if any).
+    */
+
    /// Notify the Process that some configuration change has occurred.
    void configurationChange(const SipxResource& changedResource);
+
+   /// Signal the ProcessTask to do a checkService call.
+   void triggerServiceCheck();
    
    /// Compare actual process state to the desired state, and attempt to change it if needed.
    void checkService();
+   ///< This should be called only from the ProcessTask thread.
    
 // ================================================================
 /** @name           Destructor

@@ -10,6 +10,7 @@
 // SYSTEM INCLUDES
 
 // APPLICATION INCLUDES
+#include "os/OsMsg.h"
 #include "os/OsTask.h"
 
 // DEFINES
@@ -17,9 +18,28 @@
 // TYPEDEFS
 // FORWARD DECLARATIONS
 
+class ProcessMsg : public OsMsg
+{
+   /// Events sent to the task
+   typedef enum 
+   {
+      Startup,
+      ConfigurationChange,
+      ConfigurationVersionUpdate,
+      CheckState
+   } MonitorEvent;
+
+  ProcessMsg(MonitorEvent event) :
+   OsMsg(USER_START, event)
+   {
+   };
+};
+
+
 /// Task for handling asyncronous events in process managment
 /**
- * 
+ * This provides the thread from which all actual manipulation of
+ * the system process takes place.
  */
 class ProcessTask : public OsTask
 {
