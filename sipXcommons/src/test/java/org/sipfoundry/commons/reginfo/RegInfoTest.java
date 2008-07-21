@@ -43,7 +43,7 @@ public class RegInfoTest  extends TestCase
     }
 
     /**
-     * Rigourous Test :-)
+     * Rigorous Test :-)
      */
     public void testApp() {
 		try {

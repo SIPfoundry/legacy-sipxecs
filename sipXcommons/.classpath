@@ -7,5 +7,6 @@
 	<classpathentry kind="lib" path="lib/log4j-1.2.15.jar"/>
 	<classpathentry kind="lib" path="lib/jain-sip-sdp-1.2.74.jar"/>
 	<classpathentry kind="lib" path="lib/jibx-run-1.1.6a.jar"/>
+	<classpathentry kind="lib" path="lib/xpp3-1.1.4c.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>
