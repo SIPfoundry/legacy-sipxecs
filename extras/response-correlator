@@ -11,6 +11,8 @@
 # --all means to report on all transactions, not just the ones with one Via.
 # --ignore-date means to ignore the Date: header inserted by the UAC (in case
 #       it is incorrect).
+# --progress[=n] means to print # on stderr every n (default 1000) input lines
+#	processed.
 while (1) {
     if ($ARGV[0] eq '--csv') {
 	$csv = 1;
@@ -21,12 +23,18 @@ while (1) {
     } elsif ($ARGV[0] eq '--ignore-date') {
 	$ignore_date = 1;
 	shift @ARGV;
+    } elsif ($ARGV[0] =~ /^--progress(=(\d+))?$/) {
+	$progress = $2 || 1000;
+	shift @ARGV;
     } else {
 	last;
     }
 }
 
 $= = 1_000_000;
+
+# Do not buffer stderr.
+$oldfh = select(STDERR); $| = 1; select($oldfh);
 
 # Table to translate the alphabetic months (from RFC 3261, section
 # 25.1, production 'month') into two-digit numeric months.
@@ -56,6 +64,13 @@ while (<>) {
 	    print STDERR "\t", $_;
 	}
     }
+
+    # Handle the progress indicator.
+    $total_lines++;
+    if ($progress) {
+	print STDERR '#' if $total_lines % $progress == 0;
+    }
+
     if (($method, $uri) = /:INCOMING:.*---- Port:[ \d]*----\\n([A-Z0-9]+) ((sips?:|UNKNOWN|tel:)[^ ]*)/) {
 	# Incoming request.
 	if ($all_transactions || !/branch=.*branch=/) {
@@ -135,6 +150,8 @@ while (<>) {
     }
 }
 
+print STDERR "\n" if $progress;
+
 if ($csv) {
     print "\"Branch\",\"Sort time\",\"First time\",\"Request time\",",
           "\"Request received\",\"Provisional response\",\"Provisional sent\",",
@@ -181,7 +198,7 @@ foreach $branch (sort { $sortdate{$a} cmp $sortdate{$b} } keys(%sortdate)) {
     } else {
 	# Trim relatively constant parts off the beginning of the branch value.
 	$branch_print = $branch;
-	1 while $branch_print =~ s/^(z9hG4bK|-|sipX)//;
+	1 while $branch_print =~ s/^(z9hG4bK|-|sipXecs|sipX)//i;
 
 	# Do the formatted print.
 	write STDOUT;
