@@ -56,7 +56,7 @@ OsStatus getSettings(TiXmlDocument &doc, int &rCheckPeriod)
 {
     OsStatus retval = OS_FAILED;
 
-    OsSysLog::add(FAC_WATCHDOG,PRI_INFO,"Getting check_period settings");
+    OsSysLog::add(FAC_SUPERVISOR,PRI_INFO,"Getting check_period settings");
 
     TiXmlElement*rootElement = doc.RootElement();
     if (rootElement)
@@ -78,7 +78,7 @@ OsStatus getSettings(TiXmlDocument &doc, int &rCheckPeriod)
                     rCheckPeriod = atoi(pCheckStr);
 
 
-                OsSysLog::add(FAC_WATCHDOG,PRI_INFO,"Getting email settings");
+                OsSysLog::add(FAC_SUPERVISOR,PRI_INFO,"Getting email settings");
 
                 TiXmlNode *emailitem = settingsItem->FirstChild("email");
 
@@ -98,27 +98,27 @@ OsStatus getSettings(TiXmlDocument &doc, int &rCheckPeriod)
                     }
                     else
                     {
-                        OsSysLog::add(FAC_WATCHDOG,PRI_ERR,"Can not read email execute setting");
+                        OsSysLog::add(FAC_SUPERVISOR,PRI_ERR,"Can not read email execute setting");
                     }
                 }
                 else
                 {
-                    OsSysLog::add(FAC_WATCHDOG,PRI_ERR,"Can not read email settings");
+                    OsSysLog::add(FAC_SUPERVISOR,PRI_ERR,"Can not read email settings");
                 }
             }
             else
             {
-                OsSysLog::add(FAC_WATCHDOG,PRI_ERR,"Can not read health settings");
+                OsSysLog::add(FAC_SUPERVISOR,PRI_ERR,"Can not read health settings");
             }
         }
         else
         {
-            OsSysLog::add(FAC_WATCHDOG,PRI_ERR,"Can not read settings node");
+            OsSysLog::add(FAC_SUPERVISOR,PRI_ERR,"Can not read settings node");
         }
     }
     else
     {
-            OsSysLog::add(FAC_WATCHDOG,PRI_ERR,"Can not read root element in getSettings!");
+            OsSysLog::add(FAC_SUPERVISOR,PRI_ERR,"Can not read root element in getSettings!");
     }
 
     return retval;
@@ -140,14 +140,14 @@ OsStatus initXMLRPCsettings(int & port, UtlSList& allowedPeers)
     bool configLoaded = ( configDb.loadFromFile(fileName) == OS_SUCCESS );
     if (!configLoaded)
     {
-        OsSysLog::add(FAC_WATCHDOG,PRI_ERR,"Can not open '%s'!", fileName.data());
+        OsSysLog::add(FAC_SUPERVISOR,PRI_ERR,"Can not open '%s'!", fileName.data());
     }
     else
     {
         port = configDb.getPort("SIP_WATCHDOG_XMLRPC_PORT");
         if (PORT_NONE == port)
         {
-            OsSysLog::add(FAC_WATCHDOG,PRI_ERR,"Can not read SIP_WATCHDOG_XMLRPC_PORT!");
+            OsSysLog::add(FAC_SUPERVISOR,PRI_ERR,"Can not read SIP_WATCHDOG_XMLRPC_PORT!");
         }
         else
         {
@@ -155,7 +155,7 @@ OsStatus initXMLRPCsettings(int & port, UtlSList& allowedPeers)
             configDb.get("SIP_WATCHDOG_XMLRPC_PEERS", peerNames);
             if (peerNames.isNull())
             {
-                OsSysLog::add(FAC_WATCHDOG,PRI_ERR,
+                OsSysLog::add(FAC_SUPERVISOR,PRI_ERR,
                               "Can not read SIP_WATCHDOG_XMLRPC_PEERS!");
             }
             else
@@ -175,7 +175,7 @@ OsStatus initXMLRPCsettings(int & port, UtlSList& allowedPeers)
                 
                 if (OS_SUCCESS != retval)
                 {
-                    OsSysLog::add(FAC_WATCHDOG,PRI_ERR,"No peers found.");
+                    OsSysLog::add(FAC_SUPERVISOR,PRI_ERR,"No peers found.");
                 }
             }
         }
@@ -230,7 +230,7 @@ OsStatus initLogfile(TiXmlDocument &doc)
                         logging_level = PRI_EMERG;
                     else
                     {
-                       OsSysLog::add(FAC_WATCHDOG, PRI_CRIT,
+                       OsSysLog::add(FAC_SUPERVISOR, PRI_CRIT,
                                      "initLogfile: Incomprehensible logging level string '%s'!",
                                      pLevelStr);
 #ifdef DEBUG
@@ -252,7 +252,7 @@ OsStatus initLogfile(TiXmlDocument &doc)
 
                         if ( retval == OS_SUCCESS )
                         {
-                           OsSysLog::add(FAC_WATCHDOG, PRI_NOTICE,
+                           OsSysLog::add(FAC_SUPERVISOR, PRI_NOTICE,
                                          ">>>>> Starting sipxsupervisor version %s",
                                          SipXsupervisorVersion);
                         }
@@ -267,10 +267,10 @@ OsStatus initLogfile(TiXmlDocument &doc)
             }
         }
         else
-            OsSysLog::add(FAC_WATCHDOG,PRI_ALERT,"Couldn't get health element in init logfile");
+            OsSysLog::add(FAC_SUPERVISOR,PRI_ALERT,"Couldn't get health element in init logfile");
     }
     else
-        OsSysLog::add(FAC_WATCHDOG,PRI_ALERT,"Couldn't get root Element in init logfile");
+        OsSysLog::add(FAC_SUPERVISOR,PRI_ALERT,"Couldn't get root Element in init logfile");
 
 
     return retval;
@@ -344,7 +344,7 @@ OsStatus createProcessList(TiXmlDocument &watchdogDoc, TiXmlDocument &processDoc
         }
     }
     else
-        OsSysLog::add(FAC_WATCHDOG,PRI_ALERT,"Couldn't get root Element in createProcessList");
+        OsSysLog::add(FAC_SUPERVISOR,PRI_ALERT,"Couldn't get root Element in createProcessList");
 
     return retval;
 
@@ -402,13 +402,13 @@ OsStatus getProcessXMLPath(TiXmlDocument &doc, UtlString &rProcessXMLPath)
         }
         else
         {
-            OsSysLog::add(FAC_WATCHDOG,PRI_ALERT,
+            OsSysLog::add(FAC_SUPERVISOR,PRI_ALERT,
                           "Couldn't get settings Element in getProcessXMLPath");
         }
     }
     else
     {
-        OsSysLog::add(FAC_WATCHDOG,PRI_ALERT,"Couldn't get root Element in getProcessXMLPath");
+        OsSysLog::add(FAC_SUPERVISOR,PRI_ALERT,"Couldn't get root Element in getProcessXMLPath");
     }
 
     return retval;
@@ -441,11 +441,11 @@ void cleanup()
         OsStatus rc = SIPDBManager::getInstance()->releaseAllDatabase();
         if (OS_SUCCESS == rc)
         {
-            OsSysLog::add(FAC_WATCHDOG, PRI_INFO, "Released the preloaded the databases.");
+            OsSysLog::add(FAC_SUPERVISOR, PRI_INFO, "Released the preloaded the databases.");
         }
         else
         {
-            OsSysLog::add(FAC_WATCHDOG, PRI_ERR, 
+            OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, 
                           "releaseAllDatabase() failed, rc = %d.", (int)rc); 
         }
         delete SIPDBManager::getInstance();
@@ -453,7 +453,7 @@ void cleanup()
 
     cAlarmServer::getInstance()->cleanup();
     
-    OsSysLog::add(FAC_WATCHDOG,PRI_ALERT,"Execution Completed.");
+    OsSysLog::add(FAC_SUPERVISOR,PRI_ALERT,"Execution Completed.");
 
     //cause main loop to exit
     gbDone = TRUE;
@@ -468,31 +468,31 @@ void sig_routine(int sig)
 #ifdef DEBUG
        osPrintf("Execution USER ABORTED!\n");
 #endif /* DEBUG */
-       OsSysLog::add(FAC_WATCHDOG,PRI_ALERT,"Execution USER ABORTED!");
+       OsSysLog::add(FAC_SUPERVISOR,PRI_ALERT,"Execution USER ABORTED!");
        break;
     case SIGABRT:
 #ifdef DEBUG
        osPrintf("Execution ABORTED!\n");
 #endif /* DEBUG */
-       OsSysLog::add(FAC_WATCHDOG,PRI_ALERT,"Execution ABORTED!");
+       OsSysLog::add(FAC_SUPERVISOR,PRI_ALERT,"Execution ABORTED!");
        break;
     case SIGTERM:
 #ifdef DEBUG
        osPrintf("Execution TERMINATED!\n");
 #endif /* DEBUG */
-       OsSysLog::add(FAC_WATCHDOG,PRI_ALERT,"Execution TERMINATED!");
+       OsSysLog::add(FAC_SUPERVISOR,PRI_ALERT,"Execution TERMINATED!");
        break;
     case SIGKILL:
 #ifdef DEBUG
        osPrintf("Execution KILLED!\n");
 #endif /* DEBUG */
-       OsSysLog::add(FAC_WATCHDOG,PRI_ALERT,"Execution KILLED!");
+       OsSysLog::add(FAC_SUPERVISOR,PRI_ALERT,"Execution KILLED!");
        break;
     default:
 #ifdef DEBUG
        osPrintf("Received unexpected signal %d, shutting down.\n", sig);
 #endif /* DEBUG */
-       OsSysLog::add(FAC_WATCHDOG,PRI_EMERG,"UNEXPECTED SIGNAL: %d shutting down!", sig);
+       OsSysLog::add(FAC_SUPERVISOR,PRI_EMERG,"UNEXPECTED SIGNAL: %d shutting down!", sig);
        break;
     }
     gbDone = TRUE;
@@ -517,7 +517,7 @@ public:
        res = awaitSignal(sig_num);
        if (res != OS_SUCCESS)
        {
-          OsSysLog::add(FAC_WATCHDOG,PRI_ALERT,"awaitSignal() errno=%d", errno);
+          OsSysLog::add(FAC_SUPERVISOR,PRI_ALERT,"awaitSignal() errno=%d", errno);
        }
 
        // Call the original signal handler.  Pass -1 on error from awaitSignal
@@ -692,7 +692,7 @@ int main(int argc, char* argv[])
     // All relevant log messages from this point on must use OsSysLog::add().
     enableConsoleOutput(false);
     fflush(NULL); // Flush all output so children don't get a buffer of output
-    OsSysLog::add(FAC_WATCHDOG, PRI_INFO, "Loaded WatchDog XML from: %s",
+    OsSysLog::add(FAC_SUPERVISOR, PRI_INFO, "Loaded WatchDog XML from: %s",
                   strWatchDogFilename.data());
 
     //set our exit routine
@@ -714,17 +714,17 @@ int main(int argc, char* argv[])
     {
        // The databases must be released on exit.
        gbPreloadedDatabases = TRUE;
-       OsSysLog::add(FAC_WATCHDOG, PRI_INFO, "Preloaded databases.");
+       OsSysLog::add(FAC_SUPERVISOR, PRI_INFO, "Preloaded databases.");
     }
     else
     {
-       OsSysLog::add(FAC_WATCHDOG, PRI_ERR,
+       OsSysLog::add(FAC_SUPERVISOR, PRI_ERR,
           "WatchDogMain preloadAllDatabase() failed, rc = %d", (int)rc); 
     }
         
     if (!cAlarmServer::getInstance()->init())
     {
-       OsSysLog::add(FAC_WATCHDOG, PRI_ERR,
+       OsSysLog::add(FAC_SUPERVISOR, PRI_ERR,
              "WatchDogMain failed to init AlarmServer");
     }
     
@@ -733,11 +733,11 @@ int main(int argc, char* argv[])
     rc = getProcessXMLPath(watchdogXMLDoc, processXMLPath);
     if (OS_SUCCESS != rc)
     {
-        OsSysLog::add(FAC_WATCHDOG, PRI_CRIT, 
+        OsSysLog::add(FAC_SUPERVISOR, PRI_CRIT, 
            "getProcessXMLPath() failed, rc = %d.", (int)rc);
         return 7; 
     }
-    OsSysLog::add(FAC_WATCHDOG, PRI_INFO, 
+    OsSysLog::add(FAC_SUPERVISOR, PRI_INFO, 
        "Using ProcessDefinitions XML from: %s", 
           processXMLPath.data());
 
@@ -747,7 +747,7 @@ int main(int argc, char* argv[])
     rc = initProcessXMLLayer(processXMLPath, processXMLDoc, gstrErrorMsg);
     if (OS_SUCCESS != rc)
     {
-        OsSysLog::add(FAC_WATCHDOG, PRI_CRIT, 
+        OsSysLog::add(FAC_SUPERVISOR, PRI_CRIT, 
            "initProcessXMLLayer() failed, rc = %d, msg='%s'.",
               (int)rc, gstrErrorMsg.data());
         return 8;
@@ -757,11 +757,11 @@ int main(int argc, char* argv[])
     rc = getSettings(watchdogXMLDoc, gnCheckPeriod);
     if (OS_SUCCESS != rc)
     {
-        OsSysLog::add(FAC_WATCHDOG, PRI_CRIT, 
+        OsSysLog::add(FAC_SUPERVISOR, PRI_CRIT, 
            "getSettings() failed, rc = %d.", (int)rc);
         return 9;
     }
-    OsSysLog::add(FAC_WATCHDOG, PRI_INFO, 
+    OsSysLog::add(FAC_SUPERVISOR, PRI_INFO, 
                   "Process check occurs every %d seconds.", gnCheckPeriod);
     
     // Get the Watchdog XML-RPC server settings.
@@ -770,7 +770,7 @@ int main(int argc, char* argv[])
     rc = initXMLRPCsettings(port, allowedPeers);
     if (OS_SUCCESS != rc)
     {
-       OsSysLog::add(FAC_WATCHDOG, PRI_CRIT, 
+       OsSysLog::add(FAC_SUPERVISOR, PRI_CRIT, 
                      "initXMLRPCsettings() failed, rc = %d.", (int)rc);
        return 11;
     }
@@ -788,7 +788,7 @@ int main(int argc, char* argv[])
         // Apparently this is a common case, so send useful information to the console too.
         // Note that "ProcessDefinitions.xml" is fixed as the last component of the process XML 
         // file name.  See loadProcessXML in processCommon.cpp.
-        OsSysLog::add(FAC_WATCHDOG, PRI_CRIT, "createProcessList() failed, rc = %d.", (int)rc);        
+        OsSysLog::add(FAC_SUPERVISOR, PRI_CRIT, "createProcessList() failed, rc = %d.", (int)rc);        
         enableConsoleOutput(true);
         osPrintf("Couldn't load process list: Error in '%s' and/or '%s/ProcessDefinitions.xml'.\n",
                  strWatchDogFilename.data(), processXMLPath.data());

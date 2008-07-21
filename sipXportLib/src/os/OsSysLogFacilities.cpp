@@ -42,7 +42,7 @@ const char* OsSysLog::sFacilityNames[] =
    "JNI",
    "JAVA",
    "LOG",
-   "WATCHDOG",
+   "SUPERVISOR",
    "OUTGOING",
    "INCOMING",
    "INCOMING_PARSED",

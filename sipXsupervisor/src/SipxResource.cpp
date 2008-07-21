@@ -74,7 +74,7 @@ bool SipxResource::parse(const TiXmlDocument& processDefinitionDoc,
    }
    else
    {
-      OsSysLog::add(FAC_WATCHDOG, PRI_ERR, "SipxResource::parse unknown resource type '%s'",
+      OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "SipxResource::parse unknown resource type '%s'",
                     resourceTypeName);
       resourceElementIsValid = false;
    }
@@ -85,7 +85,7 @@ bool SipxResource::parse(const TiXmlDocument& processDefinitionDoc,
 /// get a description of the SipxResource (for use in logging)
 void SipxResource::appendDescription(UtlString&  description /**< returned description */) const
 {
-   OsSysLog::add(FAC_WATCHDOG, PRI_CRIT, "SipxResource::appendDescription called.");
+   OsSysLog::add(FAC_SUPERVISOR, PRI_CRIT, "SipxResource::appendDescription called.");
    description.append("[ERROR - SipxResource::appendDescription called]");
 }
 
@@ -99,7 +99,7 @@ void SipxResource::appendDescription(UtlString&  description /**< returned descr
 /// Whether or not the SipxResource is ready for use by a Process.
 bool SipxResource::isReadyToStart()
 {
-   OsSysLog::add(FAC_WATCHDOG, PRI_CRIT, "SipxResource::isReadyToStart called.");
+   OsSysLog::add(FAC_SUPERVISOR, PRI_CRIT, "SipxResource::isReadyToStart called.");
    return false;
 }
 
@@ -196,7 +196,7 @@ bool SipxResource::parseAttribute(const TiXmlDocument& document,
       else
       {
          XmlErrorMsg(document, errorMsg);
-         OsSysLog::add(FAC_WATCHDOG, PRI_ERR, "SipxResource::parseAttribute "
+         OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "SipxResource::parseAttribute "
                        "invalid value '%s' for '%s' attribute %s",
                        attributeValue.data(), RequiredAttributeName, errorMsg.data());
       }
@@ -221,14 +221,14 @@ bool SipxResource::parseAttribute(const TiXmlDocument& document,
       else
       {
          XmlErrorMsg(document, errorMsg);
-         OsSysLog::add(FAC_WATCHDOG, PRI_ERR, "SipxResource::parseAttribute "
+         OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "SipxResource::parseAttribute "
                        "invalid value '%s' for '%s' attribute %s",
                        attributeValue.data(), ConfigAccessAttributeName, errorMsg.data());
       }
    }
    else
    {
-      OsSysLog::add(FAC_WATCHDOG, PRI_DEBUG, "SipxResource::parseAttribute "
+      OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG, "SipxResource::parseAttribute "
                     "unrecognized attribute '%s'",
                     attributeName.data());
    }

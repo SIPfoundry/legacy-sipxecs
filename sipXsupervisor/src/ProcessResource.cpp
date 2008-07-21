@@ -69,7 +69,7 @@ bool ProcessResource::parse(const TiXmlDocument& processDefinitionDoc, ///< proc
                                                                 attribute, currentProcess)
                   ))
             {
-               OsSysLog::add(FAC_WATCHDOG, PRI_ERR, "ProcessResource::parse "
+               OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "ProcessResource::parse "
                              "invalid attribute '%s'",
                              attribute->Name());
             }
@@ -92,7 +92,7 @@ bool ProcessResource::parse(const TiXmlDocument& processDefinitionDoc, ///< proc
       {
          resourceIsValid = false;
          XmlErrorMsg(processDefinitionDoc, errorMsg);
-         OsSysLog::add(FAC_WATCHDOG, PRI_ERR, "ProcessResource::parse "
+         OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "ProcessResource::parse "
                        "process element is empty %s",
                        errorMsg.data());
       }
@@ -100,7 +100,7 @@ bool ProcessResource::parse(const TiXmlDocument& processDefinitionDoc, ///< proc
    else
    {
       XmlErrorMsg(processDefinitionDoc, errorMsg);
-      OsSysLog::add(FAC_WATCHDOG, PRI_ERR, "ProcessResource::parse "
+      OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "ProcessResource::parse "
                     "invalid content in process element %s",
                     errorMsg.data());
    }

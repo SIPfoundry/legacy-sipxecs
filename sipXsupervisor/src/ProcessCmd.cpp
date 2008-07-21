@@ -55,7 +55,7 @@ ProcessCmd* ProcessCmd::parseCommandDefinition(const TiXmlDocument& processDefin
          {
             definitionValid = false;
             XmlErrorMsg(processDefinitionDoc,errorMsg);
-            OsSysLog::add(FAC_WATCHDOG, PRI_ERR, "ProcessCmd::parseCommandDefinition "
+            OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "ProcessCmd::parseCommandDefinition "
                           "'defaultDir' element is empty"
                           " - if present, it must be a pathname %s",
                           errorMsg.data()
@@ -91,7 +91,7 @@ ProcessCmd* ProcessCmd::parseCommandDefinition(const TiXmlDocument& processDefin
          {
             definitionValid = false;
             XmlErrorMsg(processDefinitionDoc,errorMsg);
-            OsSysLog::add(FAC_WATCHDOG, PRI_ERR, "ProcessCmd::parseCommandDefinition "
+            OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "ProcessCmd::parseCommandDefinition "
                           "'user' element is empty"
                           " - if present, it must be a valid username %s",
                           errorMsg.data()
@@ -125,7 +125,7 @@ ProcessCmd* ProcessCmd::parseCommandDefinition(const TiXmlDocument& processDefin
          {
             definitionValid = false;
             XmlErrorMsg(processDefinitionDoc,errorMsg);
-            OsSysLog::add(FAC_WATCHDOG, PRI_ERR, "ProcessCmd::parseCommandDefinition "
+            OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "ProcessCmd::parseCommandDefinition "
                           "'execute' element is empty"
                           " - it must be a valid executable %s",
                           errorMsg.data()
@@ -137,7 +137,7 @@ ProcessCmd* ProcessCmd::parseCommandDefinition(const TiXmlDocument& processDefin
       {
          definitionValid = false;
          XmlErrorMsg(processDefinitionDoc,errorMsg);
-         OsSysLog::add(FAC_WATCHDOG, PRI_ERR, "ProcessCmd::parseCommandDefinition "
+         OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "ProcessCmd::parseCommandDefinition "
                        "'execute' element is missing %s",
                        errorMsg.data()
                        );
@@ -168,7 +168,7 @@ ProcessCmd* ProcessCmd::parseCommandDefinition(const TiXmlDocument& processDefin
 
                   definitionValid = false;
                   XmlErrorMsg(processDefinitionDoc,errorMsg);
-                  OsSysLog::add(FAC_WATCHDOG, PRI_ERR, "ProcessCmd::parseCommandDefinition "
+                  OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "ProcessCmd::parseCommandDefinition "
                                 "'parameter' element is empty"
                                 " - if present, it must have text content %s",
                                 errorMsg.data()
@@ -179,7 +179,7 @@ ProcessCmd* ProcessCmd::parseCommandDefinition(const TiXmlDocument& processDefin
             {
                definitionValid = false;
                XmlErrorMsg(processDefinitionDoc,errorMsg);
-               OsSysLog::add(FAC_WATCHDOG, PRI_ERR, "ProcessCmd::parseCommandDefinition "
+               OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "ProcessCmd::parseCommandDefinition "
                              "'%s' element is invalid here: expected 'parameter'",
                              commandChildElement->Value()
                              );
@@ -194,7 +194,7 @@ ProcessCmd* ProcessCmd::parseCommandDefinition(const TiXmlDocument& processDefin
       }
       else
       {
-         OsSysLog::add(FAC_WATCHDOG, PRI_CRIT, "ProcessCmd::parseCommandDefinition "
+         OsSysLog::add(FAC_SUPERVISOR, PRI_CRIT, "ProcessCmd::parseCommandDefinition "
                        "unable to allocate ProcessCmd'"
                        );
       }
@@ -206,7 +206,7 @@ ProcessCmd* ProcessCmd::parseCommandDefinition(const TiXmlDocument& processDefin
 /// Execute the command.
 void ProcessCmd::execute()
 {
-   OsSysLog::add(FAC_WATCHDOG, PRI_NOTICE, "ProcessCmd::execute "
+   OsSysLog::add(FAC_SUPERVISOR, PRI_NOTICE, "ProcessCmd::execute "
                  "STUB - NOT IMPLEMENTED");
 }
 

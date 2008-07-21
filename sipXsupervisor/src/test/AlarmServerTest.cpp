@@ -169,7 +169,7 @@ public:
       OsSysLog::setOutputFile(0, mLogFile);
       OsSysLog::setLoggingPriority(PRI_DEBUG);  
       
-      OsSysLog::add(FAC_WATCHDOG, PRI_DEBUG, "AlarmServerTest::setUp");
+      OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG, "AlarmServerTest::setUp");
       
       // set up parallel directory structure to match actual
       mAlarmTestContext = new FileTestContext(TEST_DATA_DIR "/alarm-server",
@@ -198,7 +198,7 @@ public:
    
    void tearDown()
    {   
-      OsSysLog::add(FAC_WATCHDOG, PRI_DEBUG, "AlarmServerTest::tearDown");
+      OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG, "AlarmServerTest::tearDown");
       cAlarmServer::getInstance()->cleanup();
       delete mAlarmTestContext;
       delete mAlarmTestContext2;
@@ -324,14 +324,14 @@ public:
    
    void testReloadAlarms()
    {
-      OsSysLog::add(FAC_WATCHDOG, PRI_DEBUG, "AlarmServerTest::testReloadAlarms");
+      OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG, "AlarmServerTest::testReloadAlarms");
       bool rc=cAlarmServer::getInstance()->reloadAlarms();
       CPPUNIT_ASSERT_EQUAL((int)true, (int)rc);
    }
    
    void testParameterSubstitution()
    {
-      OsSysLog::add(FAC_WATCHDOG, PRI_DEBUG, "AlarmServerTest::testParameterSubstitution");
+      OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG, "AlarmServerTest::testParameterSubstitution");
       UtlString localhost("localhost");
       UtlString alarmId("PARAMETER_SUBSTITUTION");
       UtlSList alarmParams;

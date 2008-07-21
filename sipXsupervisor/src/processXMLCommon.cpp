@@ -717,7 +717,7 @@ OsStatus getGlobalDependentDelay(TiXmlDocument &doc)
             printf("ERROR: delay not set in xml file!\n");
     }
     else
-        OsSysLog::add(FAC_WATCHDOG,PRI_ALERT,"Couldn't get root Element in getGlobalDependentDelay");
+        OsSysLog::add(FAC_SUPERVISOR,PRI_ALERT,"Couldn't get root Element in getGlobalDependentDelay");
 
 
     return retval;
@@ -975,7 +975,7 @@ OsStatus findSubDocs(OsPath &path, TiXmlDocument &rootDoc, ProcessSubDoc addSubD
         bool success = subdoc.LoadFile(pathCopy + OsPath::separator + subdocName);
         if (!success) {
             // failed to load the process xml file.  Log the issue, skip over it and continue.
-            OsSysLog::add(FAC_WATCHDOG,PRI_ALERT,"Failed to load process xml file %s", subdocName.data());
+            OsSysLog::add(FAC_SUPERVISOR,PRI_ALERT,"Failed to load process xml file %s", subdocName.data());
 
             status = subdocs.findNext(subdocName);
         } else {
@@ -990,7 +990,7 @@ OsStatus findSubDocs(OsPath &path, TiXmlDocument &rootDoc, ProcessSubDoc addSubD
                }
             } else {
                // Invalid document format.  Log the issue and continue to the next process xml file.
-               OsSysLog::add(FAC_WATCHDOG,PRI_ALERT,"Invalid process xml file %s", subdocName.data());
+               OsSysLog::add(FAC_SUPERVISOR,PRI_ALERT,"Invalid process xml file %s", subdocName.data());
             }
             if (status == OS_SUCCESS) 
             {

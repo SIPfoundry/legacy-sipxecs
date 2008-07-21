@@ -61,13 +61,13 @@ void ProcessResourceManager::save(ProcessResource* processResource)
 
    if (!mProcessResourceTable.find(processResource))
    {
-      OsSysLog::add(FAC_WATCHDOG, PRI_INFO, "ProcessResourceManager::save"
+      OsSysLog::add(FAC_SUPERVISOR, PRI_INFO, "ProcessResourceManager::save"
                     " ProcessResource('%s')", processResource->data());
       mProcessResourceTable.insert(processResource);
    }
    else
    {
-      OsSysLog::add(FAC_WATCHDOG, PRI_CRIT, "ProcessResourceManager::save"
+      OsSysLog::add(FAC_SUPERVISOR, PRI_CRIT, "ProcessResourceManager::save"
                     " duplicate ProcessResource('%s')", processResource->data());
    }
 }
@@ -78,7 +78,7 @@ ProcessResourceManager::~ProcessResourceManager()
 {
    OsLock tableMutex(mProcessResourceTableLock);
 
-   OsSysLog::add(FAC_WATCHDOG, PRI_CRIT, "ProcessResourceManager::~ "
+   OsSysLog::add(FAC_SUPERVISOR, PRI_CRIT, "ProcessResourceManager::~ "
                  "delete %zu ProcessResources", mProcessResourceTable.entries());
 
    mProcessResourceTable.destroyAll();

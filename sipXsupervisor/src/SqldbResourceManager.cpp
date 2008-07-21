@@ -61,13 +61,13 @@ void SqldbResourceManager::save(SqldbResource* sqldbResource)
 
    if (!mSqldbResourceTable.find(sqldbResource))
    {
-      OsSysLog::add(FAC_WATCHDOG, PRI_INFO, "SqldbResourceManager::save "
+      OsSysLog::add(FAC_SUPERVISOR, PRI_INFO, "SqldbResourceManager::save "
                     "SqldbResource('%s')", sqldbResource->data());
       mSqldbResourceTable.insert(sqldbResource);
    }
    else
    {
-      OsSysLog::add(FAC_WATCHDOG, PRI_CRIT, "SqldbResourceManager::save "
+      OsSysLog::add(FAC_SUPERVISOR, PRI_CRIT, "SqldbResourceManager::save "
                     "duplicate SqldbResource('%s')", sqldbResource->data());
    }
 }
@@ -78,7 +78,7 @@ SqldbResourceManager::~SqldbResourceManager()
 {
    OsLock tableMutex(mSqldbResourceTableLock);
 
-   OsSysLog::add(FAC_WATCHDOG, PRI_CRIT, "SqldbResourceManager::~ "
+   OsSysLog::add(FAC_SUPERVISOR, PRI_CRIT, "SqldbResourceManager::~ "
                  "delete %zu SqldbResources", mSqldbResourceTable.entries());
 
    mSqldbResourceTable.destroyAll();

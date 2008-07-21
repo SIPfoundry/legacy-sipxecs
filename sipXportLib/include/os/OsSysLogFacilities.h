@@ -61,7 +61,7 @@ enum tagOsSysLogFacility
    FAC_JNI,                ///< JNI Layer related
    FAC_JAVA,               ///< Java related
    FAC_LOG,                ///< OsSysLog related
-   FAC_WATCHDOG,           ///< WatchDog related
+   FAC_SUPERVISOR,         ///< sipXsupervisor 
    FAC_SIP_OUTGOING,       ///< Outgoing SIP messages
    FAC_SIP_INCOMING,       ///< Incoming SIP messages
    FAC_SIP_INCOMING_PARSED,///< Incoming SIP messages after being parsed

@@ -362,7 +362,7 @@ UtlString WatchDog::getAliasByPid(const PID pid)
    OsStatus rc = OsProcessMgr::getInstance()->getAliasByPID(pid, alias);
    if (OS_SUCCESS != rc)
    {
-      OsSysLog::add(FAC_WATCHDOG,PRI_INFO,"getAliasByPID(%ld) failed, OsStatus = %d", (long)pid, rc);
+      OsSysLog::add(FAC_SUPERVISOR,PRI_INFO,"getAliasByPID(%ld) failed, OsStatus = %d", (long)pid, rc);
    }
    
    return alias;
@@ -383,7 +383,7 @@ PID WatchDog::getPidByAlias(const UtlString &alias)
    }
    else
    {
-      OsSysLog::add(FAC_WATCHDOG,PRI_INFO,"getProcessByAlias(%s) failed, OsStatus = %d", alias.data(), rc);
+      OsSysLog::add(FAC_SUPERVISOR,PRI_INFO,"getProcessByAlias(%s) failed, OsStatus = %d", alias.data(), rc);
    }
    
    return result;
@@ -414,12 +414,12 @@ UtlString WatchDog::getServiceVersion(const UtlString &service)
       }
       else
       {
-         OsSysLog::add(FAC_WATCHDOG,PRI_INFO,"getServiceVersion(%s) failed in getting process info, OsStatus = %d", service.data(), rc);
+         OsSysLog::add(FAC_SUPERVISOR,PRI_INFO,"getServiceVersion(%s) failed in getting process info, OsStatus = %d", service.data(), rc);
       }
    }
    else
    {
-      OsSysLog::add(FAC_WATCHDOG,PRI_INFO,"getServiceVersion(%s) failed, OsStatus = %d", service.data(), rc);
+      OsSysLog::add(FAC_SUPERVISOR,PRI_INFO,"getServiceVersion(%s) failed, OsStatus = %d", service.data(), rc);
    }
    
    return result;
@@ -450,12 +450,12 @@ UtlBoolean WatchDog::setServiceVersion(const UtlString &service, const UtlString
       }
       else
       {
-         OsSysLog::add(FAC_WATCHDOG,PRI_INFO,"getServiceVersion(%s) failed in getting process info, OsStatus = %d", service.data(), rc);
+         OsSysLog::add(FAC_SUPERVISOR,PRI_INFO,"getServiceVersion(%s) failed in getting process info, OsStatus = %d", service.data(), rc);
       }
    }
    else
    {
-      OsSysLog::add(FAC_WATCHDOG,PRI_INFO,"getServiceVersion(%s) failed, OsStatus = %d", service.data(), rc);
+      OsSysLog::add(FAC_SUPERVISOR,PRI_INFO,"getServiceVersion(%s) failed, OsStatus = %d", service.data(), rc);
    }
    
    return result;
@@ -487,7 +487,7 @@ bool WatchDog::isValidAlias(const UtlString& alias)
 
    if (!alias_found)
    {
-      OsSysLog::add(FAC_WATCHDOG,PRI_INFO,"isValidAlias, no match found: '%s'",alias.data());
+      OsSysLog::add(FAC_SUPERVISOR,PRI_INFO,"isValidAlias, no match found: '%s'",alias.data());
    }
 
    return alias_found;

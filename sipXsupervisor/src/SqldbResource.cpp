@@ -65,7 +65,7 @@ bool SqldbResource::parse(const TiXmlDocument& sqldbDefinitionDoc, ///< sqldb de
                                                               attribute, currentProcess)
                   ))
             {
-               OsSysLog::add(FAC_WATCHDOG, PRI_ERR, "SqldbResource::parse "
+               OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "SqldbResource::parse "
                              "invalid attribute '%s'",
                              attribute->Name());
             }
@@ -88,7 +88,7 @@ bool SqldbResource::parse(const TiXmlDocument& sqldbDefinitionDoc, ///< sqldb de
       {
          resourceIsValid = false;
          XmlErrorMsg(sqldbDefinitionDoc, errorMsg);
-         OsSysLog::add(FAC_WATCHDOG, PRI_ERR, "SqldbResource::parse "
+         OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "SqldbResource::parse "
                        "sqldb element is empty %s",
                        errorMsg.data());
       }
@@ -96,7 +96,7 @@ bool SqldbResource::parse(const TiXmlDocument& sqldbDefinitionDoc, ///< sqldb de
    else
    {
       XmlErrorMsg(sqldbDefinitionDoc, errorMsg);
-      OsSysLog::add(FAC_WATCHDOG, PRI_ERR, "SqldbResource::parse "
+      OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "SqldbResource::parse "
                     "invalid content in sqldb element %s",
                     errorMsg.data());
    }

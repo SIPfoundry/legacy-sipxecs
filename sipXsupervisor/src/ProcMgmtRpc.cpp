@@ -91,7 +91,7 @@ bool ProcMgmtRpcMethod::validCaller(const HttpRequestContext& requestContext,
       {
          // Watchdog says it is one of the allowed peers.
          result = true;
-         OsSysLog::add(FAC_WATCHDOG, PRI_DEBUG,
+         OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG,
                        "ProcMgmtRpcMethod::validCaller '%s' peer authenticated for %s",
                        peerName.data(), callingMethod
                        );
@@ -105,7 +105,7 @@ bool ProcMgmtRpcMethod::validCaller(const HttpRequestContext& requestContext,
          faultMsg.append("'");
          response.setFault(ProcMgmtRpcMethod::UnconfiguredPeer, faultMsg.data());
             
-         OsSysLog::add(FAC_WATCHDOG, PRI_ERR,
+         OsSysLog::add(FAC_SUPERVISOR, PRI_ERR,
                        "%s failed - '%s' not a configured peer",
                        callingMethod, peerName.data()
                        );
@@ -116,7 +116,7 @@ bool ProcMgmtRpcMethod::validCaller(const HttpRequestContext& requestContext,
       // ssl says not authenticated - provide only a generic error
       response.setFault(XmlRpcResponse::AuthenticationRequired, "TLS Peer Authentication Failure");
             
-      OsSysLog::add(FAC_WATCHDOG, PRI_ERR,
+      OsSysLog::add(FAC_SUPERVISOR, PRI_ERR,
                     "%s failed: '%s' failed SSL authentication",
                     callingMethod, peerName.data()
                     );
@@ -137,7 +137,7 @@ void ProcMgmtRpcMethod::handleMissingExecuteParam(const char* methodName,
    faultMsg += "' parameter is missing or invalid type";
    status = XmlRpcMethod::FAILED;
    response.setFault(ProcMgmtRpcMethod::InvalidParameter, faultMsg);
-   OsSysLog::add(FAC_WATCHDOG, PRI_ERR, faultMsg);
+   OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, faultMsg);
 }
 
 void ProcMgmtRpcMethod::handleExtraExecuteParam(const char* methodName,
@@ -149,7 +149,7 @@ void ProcMgmtRpcMethod::handleExtraExecuteParam(const char* methodName,
    faultMsg += " has too many parameters";
    status = XmlRpcMethod::FAILED;
    response.setFault(ProcMgmtRpcMethod::InvalidParameter, faultMsg);
-   OsSysLog::add(FAC_WATCHDOG, PRI_ERR, faultMsg);
+   OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, faultMsg);
 }
 
 bool ProcMgmtRpcMethod::executeSetUserRequestState(const HttpRequestContext& requestContext,
@@ -203,7 +203,7 @@ bool ProcMgmtRpcMethod::executeSetUserRequestState(const HttpRequestContext& req
                   {
                      requestedState = "<unknown>";
                   }
-                  OsSysLog::add(FAC_WATCHDOG, PRI_INFO,
+                  OsSysLog::add(FAC_SUPERVISOR, PRI_INFO,
                                 "ProcMgmtRpc::setUserRequestState"
                                 " host %s state '%s' %s",
                                 pCallingHostname->data(),
@@ -454,7 +454,7 @@ bool ProcMgmtRpcMethod::executeSetUserRequestStateAll(const HttpRequestContext& 
             {
                requestedState = "<unknown>";
             }
-            OsSysLog::add(FAC_WATCHDOG, PRI_INFO,
+            OsSysLog::add(FAC_SUPERVISOR, PRI_INFO,
                           "ProcMgmtRpc::setUserRequestStateAll"
                           " host %s requested state '%s'",
                           pCallingHostname->data(),
@@ -544,7 +544,7 @@ bool ProcMgmtRpcGetStateAll::execute(const HttpRequestContext& requestContext,
 
          if(validCaller(requestContext, *pCallingHostname, response, *pWatchDog, name()))
          {
-            OsSysLog::add(FAC_WATCHDOG, PRI_INFO,
+            OsSysLog::add(FAC_SUPERVISOR, PRI_INFO,
                           "ProcMgmtRpc::getUserRequestStateAll"
                           " host %s requested process states",
                           pCallingHostname->data()
@@ -841,7 +841,7 @@ bool ProcMgmtRpcGetAliasByPID::execute(const HttpRequestContext& requestContext,
                // Attempt to find the alias, which will be blank is there is a failure.
                UtlString alias = pWatchDog->getAliasByPid(pPID->getValue());
 
-               OsSysLog::add(FAC_WATCHDOG, PRI_INFO,
+               OsSysLog::add(FAC_SUPERVISOR, PRI_INFO,
                              "ProcMgmtRpc::getUserRequestState"
                              " host %s requested process state for %" PRIdPTR " (%s)",
                              pCallingHostname->data(),
@@ -920,7 +920,7 @@ bool ProcMgmtRpcGetConfigVersion::execute(const HttpRequestContext& requestConte
 
             if(validCaller(requestContext, *pCallingHostname, response, *pWatchDog, name()))
             {
-                OsSysLog::add(FAC_WATCHDOG, PRI_INFO,
+                OsSysLog::add(FAC_SUPERVISOR, PRI_INFO,
                               "ProcMgmtRpc::getConfigVersion"
                               " host %s requested service configuration version",
                               pCallingHostname->data()
@@ -1019,7 +1019,7 @@ bool ProcMgmtRpcSetConfigVersion::execute(const HttpRequestContext& requestConte
 
                if(validCaller(requestContext, *pCallingHostname, response, *pWatchDog, name()))
                {
-                   OsSysLog::add(FAC_WATCHDOG, PRI_INFO,
+                   OsSysLog::add(FAC_SUPERVISOR, PRI_INFO,
                                  "ProcMgmtRpc::setConfigVersion"
                                  " host %s requested setting service configuration version",
                                  pCallingHostname->data()

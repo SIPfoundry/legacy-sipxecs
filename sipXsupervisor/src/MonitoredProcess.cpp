@@ -167,17 +167,17 @@ void MonitoredProcess::ApplyUserRequestedState()
         if (userRequestedState == USER_PROCESS_RESTART)
             verb = "restart";
 
-        OsSysLog::add(FAC_WATCHDOG,PRI_INFO,"User has requested a %s on process %s",
+        OsSysLog::add(FAC_SUPERVISOR,PRI_INFO,"User has requested a %s on process %s",
                       verb.data(),mAliasStr.data());
         
         if ( startstopProcessTree(*doc,mAliasStr,verb) == OS_SUCCESS )
         {
-            OsSysLog::add(FAC_WATCHDOG,PRI_INFO,"[SUCCESS] User with %s on process %s",
+            OsSysLog::add(FAC_SUPERVISOR,PRI_INFO,"[SUCCESS] User with %s on process %s",
                           verb.data(),mAliasStr.data());
 
         }
         else
-            OsSysLog::add(FAC_WATCHDOG,PRI_INFO,"[FAILED] User could not %s process %s",
+            OsSysLog::add(FAC_SUPERVISOR,PRI_INFO,"[FAILED] User could not %s process %s",
                           verb.data(),mAliasStr.data());
     }
 }
@@ -211,7 +211,7 @@ OsStatus MonitoredProcess::check()
             else
             {
                 stateToString(mnLastProcessState,lastStateStr);
-                OsSysLog::add(FAC_WATCHDOG,PRI_NOTICE,"Process %s state changed: %s --> %s",
+                OsSysLog::add(FAC_SUPERVISOR,PRI_NOTICE,"Process %s state changed: %s --> %s",
                             mAliasStr.data(), lastStateStr.data(),currentStateStr.data() );
             }
         }
@@ -219,7 +219,7 @@ OsStatus MonitoredProcess::check()
         mnLastProcessState = processstate;
 
         //if debug level is set then monitor all states
-         OsSysLog::add(FAC_WATCHDOG,PRI_DEBUG,"Process %s in %s state.",
+         OsSysLog::add(FAC_SUPERVISOR,PRI_DEBUG,"Process %s in %s state.",
                        mAliasStr.data(),currentStateStr.data());
 
 
@@ -231,7 +231,7 @@ OsStatus MonitoredProcess::check()
 #endif /* DEBUG */
             //wait up to STARTING_TIME seconds to see if we can get the process info
             //if after STARTING_TIME seconds we can't, then consider this process a ghost
-            OsSysLog::add(FAC_WATCHDOG,PRI_WARNING,
+            OsSysLog::add(FAC_SUPERVISOR,PRI_WARNING,
                           "Process %s found in non-running state. (Waiting for it to start).",
                           mAliasStr.data());
             int trycount = 0;
@@ -252,7 +252,7 @@ OsStatus MonitoredProcess::check()
             }
 
             if (bIsGhost)             
-                OsSysLog::add(FAC_WATCHDOG,PRI_WARNING,
+                OsSysLog::add(FAC_SUPERVISOR,PRI_WARNING,
                               "Process %s found in non-running state "
                               "(it was in STARTING state for more than %d seconds).",
                               mAliasStr.data(), STARTING_TIME);
@@ -274,24 +274,24 @@ OsStatus MonitoredProcess::check()
         if ( processstate == PROCESS_STARTED && mbRestartEnabled )
         {
             UtlBoolean bVerified = FALSE;
-            OsSysLog::add(FAC_WATCHDOG,PRI_INFO,"Process %s [running]", mAliasStr.data());
+            OsSysLog::add(FAC_SUPERVISOR,PRI_INFO,"Process %s [running]", mAliasStr.data());
 
             //now check if the process can be verified as running
             if ( processstate == PROCESS_STARTED && VerifyProcess(mAliasStr) == OS_SUCCESS )
             {
-               OsSysLog::add(FAC_WATCHDOG,PRI_DEBUG,
+               OsSysLog::add(FAC_SUPERVISOR,PRI_DEBUG,
                              "Process %s [verified]", mAliasStr.data());
                 bVerified = TRUE;
             } else
             {
-               OsSysLog::add(FAC_WATCHDOG,PRI_ERR,"Process %s [verify failed]", mAliasStr.data());
+               OsSysLog::add(FAC_SUPERVISOR,PRI_ERR,"Process %s [verify failed]", mAliasStr.data());
             }
 
             if ( !bVerified )
             {
                if ( processstate != PROCESS_STARTED )
                {
-                  OsSysLog::add(FAC_WATCHDOG,PRI_INFO,"Process %s [pending]", mAliasStr.data());
+                  OsSysLog::add(FAC_SUPERVISOR,PRI_INFO,"Process %s [pending]", mAliasStr.data());
                }
                else
                {
@@ -316,11 +316,11 @@ OsStatus MonitoredProcess::check()
 
                 UtlString verb = "start";
 
-                OsSysLog::add(FAC_WATCHDOG,PRI_INFO,"Attempting %s startup...", mAliasStr.data());
+                OsSysLog::add(FAC_SUPERVISOR,PRI_INFO,"Attempting %s startup...", mAliasStr.data());
                 mnTotalRestarts++;
                 if ( startstopProcessTree(*doc,mAliasStr,verb) == OS_SUCCESS )
                 {
-                    OsSysLog::add(FAC_WATCHDOG,PRI_NOTICE,
+                    OsSysLog::add(FAC_SUPERVISOR,PRI_NOTICE,
                                   "Process %s [started]", mAliasStr.data());
                     retval = OS_SUCCESS;
 
@@ -333,7 +333,7 @@ OsStatus MonitoredProcess::check()
                 } else
                 {
                     sprintf(msgbuf,"%s failed restarting.", mAliasStr.data());
-                    OsSysLog::add(FAC_WATCHDOG,PRI_ERR,msgbuf);
+                    OsSysLog::add(FAC_SUPERVISOR,PRI_ERR,msgbuf);
 
                     Alarm::raiseAlarm("PROCESS_FAILED_RESTART", mAliasStr);
                 }
@@ -343,7 +343,7 @@ OsStatus MonitoredProcess::check()
                 char msg[256];
                 sprintf(msg,"%s Failed MAX restarts. Process can not be restarted!",
                         mAliasStr.data());
-                OsSysLog::add(FAC_WATCHDOG,PRI_ERR,msg);
+                OsSysLog::add(FAC_SUPERVISOR,PRI_ERR,msg);
                 mbRestartEnabled = FALSE;
                 mbStartedOnce = TRUE; //so it wont keep changing the state
 

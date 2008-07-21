@@ -61,13 +61,13 @@ void ImdbResourceManager::save(ImdbResource* imdbResource)
 
    if (!mImdbResourceTable.find(imdbResource))
    {
-      OsSysLog::add(FAC_WATCHDOG, PRI_INFO, "ImdbResourceManager::save "
+      OsSysLog::add(FAC_SUPERVISOR, PRI_INFO, "ImdbResourceManager::save "
                     "ImdbResource('%s')", imdbResource->data());
       mImdbResourceTable.insert(imdbResource);
    }
    else
    {
-      OsSysLog::add(FAC_WATCHDOG, PRI_CRIT, "ImdbResourceManager::save "
+      OsSysLog::add(FAC_SUPERVISOR, PRI_CRIT, "ImdbResourceManager::save "
                     "duplicate ImdbResource('%s')", imdbResource->data());
    }
 }
@@ -78,7 +78,7 @@ ImdbResourceManager::~ImdbResourceManager()
 {
    OsLock tableMutex(mImdbResourceTableLock);
 
-   OsSysLog::add(FAC_WATCHDOG, PRI_CRIT, "ImdbResourceManager::~ "
+   OsSysLog::add(FAC_SUPERVISOR, PRI_CRIT, "ImdbResourceManager::~ "
                  "delete %zu ImdbResources", mImdbResourceTable.entries());
 
    mImdbResourceTable.destroyAll();

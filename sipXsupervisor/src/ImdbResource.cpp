@@ -67,7 +67,7 @@ bool ImdbResource::parse(const TiXmlDocument& imdbDefinitionDoc, ///< imdb defin
                                                              attribute, currentProcess)
                   ))
             {
-               OsSysLog::add(FAC_WATCHDOG, PRI_ERR, "ImdbResource::parse "
+               OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "ImdbResource::parse "
                              "invalid attribute '%s'",
                              attribute->Name());
             }
@@ -90,7 +90,7 @@ bool ImdbResource::parse(const TiXmlDocument& imdbDefinitionDoc, ///< imdb defin
       {
          resourceIsValid = false;
          XmlErrorMsg(imdbDefinitionDoc, errorMsg);
-         OsSysLog::add(FAC_WATCHDOG, PRI_ERR, "ImdbResource::parse "
+         OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "ImdbResource::parse "
                        "imdb element is empty %s",
                        errorMsg.data());
       }
@@ -98,7 +98,7 @@ bool ImdbResource::parse(const TiXmlDocument& imdbDefinitionDoc, ///< imdb defin
    else
    {
       XmlErrorMsg(imdbDefinitionDoc, errorMsg);
-      OsSysLog::add(FAC_WATCHDOG, PRI_ERR, "ImdbResource::parse "
+      OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "ImdbResource::parse "
                     "invalid content in imdb element %s",
                     errorMsg.data());
    }

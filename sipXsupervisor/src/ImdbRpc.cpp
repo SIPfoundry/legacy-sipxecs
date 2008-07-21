@@ -120,7 +120,7 @@ bool ImdbRpcMethod::validCaller(const HttpRequestContext& requestContext,
       {
          // sipXsupervisor says it is one of the allowed peers.
          result = true;
-         OsSysLog::add(FAC_WATCHDOG, PRI_DEBUG,
+         OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG,
                        "ImdbMethod::validCaller '%s' peer authenticated for %s",
                        peerName.data(), callingMethod
                        );
@@ -134,7 +134,7 @@ bool ImdbRpcMethod::validCaller(const HttpRequestContext& requestContext,
          faultMsg.append("'");
          response.setFault(ImdbRpcMethod::UnconfiguredPeer, faultMsg.data());
             
-         OsSysLog::add(FAC_WATCHDOG, PRI_ERR,
+         OsSysLog::add(FAC_SUPERVISOR, PRI_ERR,
                        "%s failed - '%s' not a configured peer",
                        callingMethod, peerName.data()
                        );
@@ -145,7 +145,7 @@ bool ImdbRpcMethod::validCaller(const HttpRequestContext& requestContext,
       // ssl says not authenticated - provide only a generic error
       response.setFault(XmlRpcResponse::AuthenticationRequired, "TLS Peer Authentication Failure");
             
-      OsSysLog::add(FAC_WATCHDOG, PRI_ERR,
+      OsSysLog::add(FAC_SUPERVISOR, PRI_ERR,
                     "%s failed: '%s' failed SSL authentication",
                     callingMethod, peerName.data()
                     );
@@ -166,7 +166,7 @@ void ImdbRpcMethod::handleMissingExecuteParam(const char* methodName,
    faultMsg += "' parameter is missing or invalid type";
    status = XmlRpcMethod::FAILED;
    response.setFault(ImdbRpcMethod::InvalidParameter, faultMsg);
-   OsSysLog::add(FAC_WATCHDOG, PRI_ERR, faultMsg);
+   OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, faultMsg);
 }
 
 void ImdbRpcMethod::handleExtraExecuteParam(const char* methodName,
@@ -178,7 +178,7 @@ void ImdbRpcMethod::handleExtraExecuteParam(const char* methodName,
    faultMsg += " has incorrect number of parameters";
    status = XmlRpcMethod::FAILED;
    response.setFault(ImdbRpcMethod::InvalidParameter, faultMsg);
-   OsSysLog::add(FAC_WATCHDOG, PRI_ERR, faultMsg);
+   OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, faultMsg);
 }
 
 
@@ -393,7 +393,7 @@ bool ImdbRpcReplaceTable::execute(const HttpRequestContext& requestContext,
                      faultMsg.append("IMDB table '");
                      faultMsg.append(*pIMDBTable);
                      faultMsg.append("' is not writable (configAccess='read-only')");
-                     OsSysLog::add(FAC_WATCHDOG, PRI_ERR, "ImdbRpc::replaceFile %s",
+                     OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "ImdbRpc::replaceFile %s",
                                    faultMsg.data());
                      result = false;
                      response.setFault(ImdbRpcMethod::InvalidParameter, faultMsg);
@@ -404,7 +404,7 @@ bool ImdbRpcReplaceTable::execute(const HttpRequestContext& requestContext,
                   faultMsg.append("IMDB table '");
                   faultMsg.append(*pIMDBTable);
                   faultMsg.append("' is not declared as a resource by any sipXecs process");
-                  OsSysLog::add(FAC_WATCHDOG, PRI_ERR, "ImdbRpc::replaceFile %s",
+                  OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "ImdbRpc::replaceFile %s",
                                 faultMsg.data());
                   result = false;
                   response.setFault(ImdbRpcMethod::InvalidParameter, faultMsg);
@@ -445,7 +445,7 @@ void ImdbRpcReplaceTable::clearTable(UtlString& tableName)
     }
     else
     {
-       OsSysLog::add(FAC_WATCHDOG, PRI_CRIT, "ImdbRpcReplaceTable::clearTable "
+       OsSysLog::add(FAC_SUPERVISOR, PRI_CRIT, "ImdbRpcReplaceTable::clearTable "
                      "invalid table name '%s'", tableName.data());
     }
 }
@@ -520,7 +520,7 @@ bool ImdbRpcRetrieveTable::execute(const HttpRequestContext& requestContext,
                if ((imdbResource = ImdbResourceManager::getInstance()->find(pIMDBTable->data())))
                {
                   
-                  OsSysLog::add(FAC_WATCHDOG, PRI_INFO,
+                  OsSysLog::add(FAC_SUPERVISOR, PRI_INFO,
                                 "ImdbRpc::retrieveTable"
                                 " '%s' read table '%s'",
                                 pCallingHostname->data(), pIMDBTable->data()
@@ -544,7 +544,7 @@ bool ImdbRpcRetrieveTable::execute(const HttpRequestContext& requestContext,
                   faultMsg.append("IMDB table '");
                   faultMsg.append(*pIMDBTable);
                   faultMsg.append("' is not declared as a resource by any sipXecs process");
-                  OsSysLog::add(FAC_WATCHDOG, PRI_INFO, "ImdbRpc::retrieveTable %s",
+                  OsSysLog::add(FAC_SUPERVISOR, PRI_INFO, "ImdbRpc::retrieveTable %s",
                                 faultMsg.data());
                   result = false;
                   response.setFault(ImdbRpcMethod::InvalidParameter, faultMsg);
@@ -717,7 +717,7 @@ bool ImdbRpcAddTableRecords::execute(const HttpRequestContext& requestContext,
                      faultMsg.append("IMDB table '");
                      faultMsg.append(*pIMDBTable);
                      faultMsg.append("' is not writable (configAccess='read-only')");
-                     OsSysLog::add(FAC_WATCHDOG, PRI_ERR, "ImdbRpcAddTableRecords::execute %s",
+                     OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "ImdbRpcAddTableRecords::execute %s",
                                    faultMsg.data());
                      result = false;
                      response.setFault(ImdbRpcMethod::InvalidParameter, faultMsg);
@@ -728,7 +728,7 @@ bool ImdbRpcAddTableRecords::execute(const HttpRequestContext& requestContext,
                   faultMsg.append("IMDB table '");
                   faultMsg.append(*pIMDBTable);
                   faultMsg.append("' is not declared as a resource by any sipXecs process");
-                  OsSysLog::add(FAC_WATCHDOG, PRI_ERR, "ImdbRpcAddTableRecords::execute %s",
+                  OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "ImdbRpcAddTableRecords::execute %s",
                                 faultMsg.data());
                   result = false;
                   response.setFault(ImdbRpcMethod::InvalidParameter, faultMsg);
@@ -864,7 +864,7 @@ bool ImdbRpcDeleteTableRecords::execute(const HttpRequestContext& requestContext
                      faultMsg.append("IMDB table '");
                      faultMsg.append(*pIMDBTable);
                      faultMsg.append("' is not writable (configAccess='read-only')");
-                     OsSysLog::add(FAC_WATCHDOG, PRI_ERR, "ImdbRpcDeleteTableRecords::execute %s",
+                     OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "ImdbRpcDeleteTableRecords::execute %s",
                                    faultMsg.data());
                      result = false;
                      response.setFault(ImdbRpcMethod::InvalidParameter, faultMsg);
@@ -875,7 +875,7 @@ bool ImdbRpcDeleteTableRecords::execute(const HttpRequestContext& requestContext
                   faultMsg.append("IMDB table '");
                   faultMsg.append(*pIMDBTable);
                   faultMsg.append("' is not declared as a resource by any sipXecs process");
-                  OsSysLog::add(FAC_WATCHDOG, PRI_ERR, "ImdbRpcDeleteTableRecords::execute %s",
+                  OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "ImdbRpcDeleteTableRecords::execute %s",
                                 faultMsg.data());
                   result = false;
                   response.setFault(ImdbRpcMethod::InvalidParameter, faultMsg);

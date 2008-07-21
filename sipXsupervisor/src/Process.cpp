@@ -129,7 +129,7 @@ Process* Process::createFromDefinition(const OsPath& definitionFile)
                {
                   definitionValid = false;
                   XmlErrorMsg(processDefinitionDoc,errorMsg);
-                  OsSysLog::add(FAC_WATCHDOG, PRI_ERR, "Process::createFromDefinition "
+                  OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "Process::createFromDefinition "
                                 "'name' element content is invalid %s",
                                 errorMsg.data()
                                 );
@@ -139,7 +139,7 @@ Process* Process::createFromDefinition(const OsPath& definitionFile)
             {
                definitionValid = false;
                XmlErrorMsg(processDefinitionDoc,errorMsg);
-               OsSysLog::add(FAC_WATCHDOG, PRI_ERR, "Process::createFromDefinition "
+               OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "Process::createFromDefinition "
                              "required 'name' element is missing %s",
                              errorMsg.data()
                              );
@@ -157,7 +157,7 @@ Process* Process::createFromDefinition(const OsPath& definitionFile)
                   {
                      definitionValid = false;
                      XmlErrorMsg(processDefinitionDoc,errorMsg);
-                     OsSysLog::add(FAC_WATCHDOG, PRI_ERR, "Process::createFromDefinition "
+                     OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "Process::createFromDefinition "
                                    "'version' element content is invalid %s",
                                    errorMsg.data()
                                    );
@@ -167,7 +167,7 @@ Process* Process::createFromDefinition(const OsPath& definitionFile)
                {
                   definitionValid = false;
                   XmlErrorMsg(processDefinitionDoc,errorMsg);
-                  OsSysLog::add(FAC_WATCHDOG, PRI_ERR, "Process::createFromDefinition "
+                  OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "Process::createFromDefinition "
                                 "required 'version' element is missing %s",
                                 errorMsg.data()
                                 );
@@ -186,7 +186,7 @@ Process* Process::createFromDefinition(const OsPath& definitionFile)
                {
                   definitionValid = false;
                   XmlErrorMsg(processDefinitionDoc,errorMsg);
-                  OsSysLog::add(FAC_WATCHDOG, PRI_ERR, "Process::createFromDefinition "
+                  OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "Process::createFromDefinition "
                                 "required 'commands' element is missing %s",
                                 errorMsg.data()
                                 );
@@ -205,7 +205,7 @@ Process* Process::createFromDefinition(const OsPath& definitionFile)
                {
                   definitionValid = false;
                   XmlErrorMsg(processDefinitionDoc,errorMsg);
-                  OsSysLog::add(FAC_WATCHDOG, PRI_ERR, "Process::createFromDefinition "
+                  OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "Process::createFromDefinition "
                                 "required 'status' element is missing %s",
                                 errorMsg.data()
                                 );
@@ -222,7 +222,7 @@ Process* Process::createFromDefinition(const OsPath& definitionFile)
                   {
                      definitionValid = false;
                      XmlErrorMsg(processDefinitionDoc,errorMsg);
-                     OsSysLog::add(FAC_WATCHDOG, PRI_ERR, "Process::createFromDefinition "
+                     OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "Process::createFromDefinition "
                                    "invalid '%s' element: expected 'resources'  %s",
                                    elementName, errorMsg.data()
                                    );
@@ -253,7 +253,7 @@ Process* Process::createFromDefinition(const OsPath& definitionFile)
                      {
                         definitionValid = false;
                         XmlErrorMsg(processDefinitionDoc,errorMsg);
-                        OsSysLog::add(FAC_WATCHDOG, PRI_ERR, "Process::createFromDefinition "
+                        OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "Process::createFromDefinition "
                                       "'configtest' content is invalid %s",
                                       errorMsg.data()
                                       );
@@ -263,7 +263,7 @@ Process* Process::createFromDefinition(const OsPath& definitionFile)
                   {
                      definitionValid = false;
                      XmlErrorMsg(processDefinitionDoc,errorMsg);
-                     OsSysLog::add(FAC_WATCHDOG, PRI_ERR, "Process::createFromDefinition "
+                     OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "Process::createFromDefinition "
                                    "required 'configtest' element is missing %s",
                                    errorMsg.data()
                                    );
@@ -282,7 +282,7 @@ Process* Process::createFromDefinition(const OsPath& definitionFile)
                         {
                            definitionValid = false;
                            XmlErrorMsg(processDefinitionDoc,errorMsg);
-                           OsSysLog::add(FAC_WATCHDOG, PRI_ERR, "Process::createFromDefinition "
+                           OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "Process::createFromDefinition "
                                          "'start' content is invalid %s",
                                          errorMsg.data()
                                          );
@@ -292,7 +292,7 @@ Process* Process::createFromDefinition(const OsPath& definitionFile)
                      {
                         definitionValid = false;
                         XmlErrorMsg(processDefinitionDoc,errorMsg);
-                        OsSysLog::add(FAC_WATCHDOG, PRI_ERR, "Process::createFromDefinition "
+                        OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "Process::createFromDefinition "
                                       "required 'start' element is missing %s",
                                       errorMsg.data()
                                       );
@@ -312,7 +312,7 @@ Process* Process::createFromDefinition(const OsPath& definitionFile)
                         {
                            definitionValid = false;
                            XmlErrorMsg(processDefinitionDoc,errorMsg);
-                           OsSysLog::add(FAC_WATCHDOG, PRI_ERR, "Process::createFromDefinition "
+                           OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "Process::createFromDefinition "
                                          "'stop' content is invalid %s",
                                          errorMsg.data()
                                          );
@@ -322,7 +322,7 @@ Process* Process::createFromDefinition(const OsPath& definitionFile)
                      {
                         definitionValid = false;
                         XmlErrorMsg(processDefinitionDoc,errorMsg);
-                        OsSysLog::add(FAC_WATCHDOG, PRI_ERR, "Process::createFromDefinition "
+                        OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "Process::createFromDefinition "
                                       "required 'stop' element is missing %s",
                                       errorMsg.data()
                                       );
@@ -342,7 +342,7 @@ Process* Process::createFromDefinition(const OsPath& definitionFile)
                         {
                            definitionValid = false;
                            XmlErrorMsg(processDefinitionDoc,errorMsg);
-                           OsSysLog::add(FAC_WATCHDOG, PRI_ERR, "Process::createFromDefinition "
+                           OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "Process::createFromDefinition "
                                          "'reconfigure' content is invalid %s",
                                          errorMsg.data()
                                          );
@@ -382,7 +382,7 @@ Process* Process::createFromDefinition(const OsPath& definitionFile)
                               {
                                  definitionValid = false;
                                  XmlErrorMsg(processDefinitionDoc,errorMsg);
-                                 OsSysLog::add(FAC_WATCHDOG, PRI_ERR, "Process::createFromDefinition "
+                                 OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "Process::createFromDefinition "
                                                "'pid' element is empty"
                                                " - if present, it must be a pathname %s",
                                                errorMsg.data()
@@ -417,7 +417,7 @@ Process* Process::createFromDefinition(const OsPath& definitionFile)
                               {
                                  definitionValid = false;
                                  XmlErrorMsg(processDefinitionDoc,errorMsg);
-                                 OsSysLog::add(FAC_WATCHDOG, PRI_ERR, "Process::createFromDefinition "
+                                 OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "Process::createFromDefinition "
                                                "'log' element is empty"
                                                " - if present, it must be a pathname %s",
                                                errorMsg.data()
@@ -428,7 +428,7 @@ Process* Process::createFromDefinition(const OsPath& definitionFile)
                            {
                               definitionValid = false;
                               XmlErrorMsg(processDefinitionDoc,errorMsg);
-                              OsSysLog::add(FAC_WATCHDOG, PRI_ERR, "Process::createFromDefinition "
+                              OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "Process::createFromDefinition "
                                             "'%s' element is invalid here: expected 'log'",
                                             statusChildElement->Value()                
                                             );
@@ -440,7 +440,7 @@ Process* Process::createFromDefinition(const OsPath& definitionFile)
                         definitionValid = false;
                      
                         XmlErrorMsg(processDefinitionDoc,errorMsg);
-                        OsSysLog::add(FAC_WATCHDOG, PRI_ERR, "Process::createFromDefinition "
+                        OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "Process::createFromDefinition "
                                       "required 'status' element is missing %s",
                                       errorMsg.data()
                                       );
@@ -481,7 +481,7 @@ Process* Process::createFromDefinition(const OsPath& definitionFile)
                         {
                            definitionValid = false;
                            XmlErrorMsg(processDefinitionDoc,errorMsg);
-                           OsSysLog::add(FAC_WATCHDOG, PRI_ERR, "Process::createFromDefinition "
+                           OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "Process::createFromDefinition "
                                          "'%s' element is invalid here: expected 'resources'",
                                          resourcesElement->Value()                
                                          );
@@ -491,7 +491,7 @@ Process* Process::createFromDefinition(const OsPath& definitionFile)
                      {
                         definitionValid = false;
                         XmlErrorMsg(processDefinitionDoc,errorMsg);
-                        OsSysLog::add(FAC_WATCHDOG, PRI_ERR, "Process::createFromDefinition "
+                        OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "Process::createFromDefinition "
                                       "required 'resources' element is missing %s",
                                       errorMsg.data()
                                       );
@@ -522,7 +522,7 @@ Process* Process::createFromDefinition(const OsPath& definitionFile)
                }
                else
                {
-                  OsSysLog::add(FAC_WATCHDOG, PRI_CRIT, "Process::createFromDefinition "
+                  OsSysLog::add(FAC_SUPERVISOR, PRI_CRIT, "Process::createFromDefinition "
                                 "failed to create Process object for '%s'", name.data());
                }
             }
@@ -530,7 +530,7 @@ Process* Process::createFromDefinition(const OsPath& definitionFile)
          else
          {
             XmlErrorMsg(processDefinitionDoc,errorMsg);
-            OsSysLog::add(FAC_WATCHDOG, PRI_ERR, "Process::createFromDefinition "
+            OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "Process::createFromDefinition "
                           "invalid root element '%s' in namespace '%s'\n"
                           "should be '%s' in namespace '%s' %s",
                           rootElementName, definitionNamespace,
@@ -543,7 +543,7 @@ Process* Process::createFromDefinition(const OsPath& definitionFile)
       else
       {
          XmlErrorMsg(processDefinitionDoc,errorMsg);
-         OsSysLog::add(FAC_WATCHDOG, PRI_ERR, "Process::createFromDefinition "
+         OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "Process::createFromDefinition "
                        "root element not found in '%s': %s",
                        definitionFile.data(), errorMsg.data()
                        );
@@ -553,7 +553,7 @@ Process* Process::createFromDefinition(const OsPath& definitionFile)
    {
       UtlString errorMsg;
       XmlErrorMsg(processDefinitionDoc,errorMsg);
-      OsSysLog::add(FAC_WATCHDOG, PRI_ERR, "Process::createFromDefinition failed to load '%s': %s",
+      OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "Process::createFromDefinition failed to load '%s': %s",
                     definitionFile.data(), errorMsg.data()
                     );
    }
@@ -627,7 +627,7 @@ void Process::configurationChange(const SipxResource& changedResource)
    UtlString changedResourceDescription;
    changedResource.appendDescription(changedResourceDescription);
    
-   OsSysLog::add(FAC_WATCHDOG, PRI_DEBUG, "Process[%s]::configurationChange(%s)",
+   OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG, "Process[%s]::configurationChange(%s)",
                  data(), changedResourceDescription.data());
    
    checkService();
@@ -646,14 +646,14 @@ void Process::readConfigurationVersion()
    {
       if (OS_SUCCESS == persistentConfigVersionFile.readLine(mConfigVersion))
       {
-         OsSysLog::add(FAC_WATCHDOG, PRI_INFO,
+         OsSysLog::add(FAC_SUPERVISOR, PRI_INFO,
                        "Process[%s]::readConfigurationVersion mConfigVersion='%s'",
                        data(), mConfigVersion.data());
       }
       else
       {
          // apparently, open read-only can return success when the file is not there.
-         OsSysLog::add(FAC_WATCHDOG, PRI_ERR,
+         OsSysLog::add(FAC_SUPERVISOR, PRI_ERR,
                        "Process[%s]::readConfigurationVersion read of '%s' failed"
                        " (ok if process has never been configured)",
                        data(), persistentConfigVersionPath.data());
@@ -663,7 +663,7 @@ void Process::readConfigurationVersion()
    }
    else
    {
-      OsSysLog::add(FAC_WATCHDOG, PRI_WARNING,
+      OsSysLog::add(FAC_SUPERVISOR, PRI_WARNING,
                     "Process[%s]::readConfigurationVersion open of '%s' failed"
                     " (ok if process has never been configured)",
                     data(), persistentConfigVersionPath.data());
@@ -678,12 +678,12 @@ bool Process::configurationVersionMatches()
 
    if (versionMatches) 
    {
-      OsSysLog::add(FAC_WATCHDOG, PRI_DEBUG, "Process[%s]::configurationVersionMatches true",
+      OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG, "Process[%s]::configurationVersionMatches true",
                     data());
    }
    else
    {
-      OsSysLog::add(FAC_WATCHDOG, PRI_INFO, "Process[%s]::configurationVersionMatches false:"
+      OsSysLog::add(FAC_SUPERVISOR, PRI_INFO, "Process[%s]::configurationVersionMatches false:"
                     " process '%s' != config '%s'",
                     data(), mVersion.data(), mConfigVersion.data());
    }
@@ -700,7 +700,7 @@ void Process::setConfigurationVersion(const UtlString& newConfigVersion)
    
    if (0!=newConfigVersion.compareTo(mConfigVersion,UtlString::matchCase))
    {
-      OsSysLog::add(FAC_WATCHDOG, PRI_INFO, "Process[%s]::setConfigurationVersion"
+      OsSysLog::add(FAC_SUPERVISOR, PRI_INFO, "Process[%s]::setConfigurationVersion"
                     " '%s' -> '%s'", data(), mConfigVersion.data(), newConfigVersion.data());
 
       mConfigVersion = newConfigVersion;
@@ -718,13 +718,13 @@ void Process::setConfigurationVersion(const UtlString& newConfigVersion)
          if (OS_SUCCESS==OsFileSystem::createDir(persistentConfigVersionDirPath,
                                                  TRUE /* create parents */))
          {
-            OsSysLog::add(FAC_WATCHDOG, PRI_DEBUG, "Process::setConfigurationVersion "
+            OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG, "Process::setConfigurationVersion "
                           "created directory '%s'",
                           persistentConfigVersionDirPath.data());
          }
          else 
          {
-            OsSysLog::add(FAC_WATCHDOG, PRI_CRIT, "Process[%s]::setConfigurationVersion "
+            OsSysLog::add(FAC_SUPERVISOR, PRI_CRIT, "Process[%s]::setConfigurationVersion "
                           "directory create failed for '%s'",
                           data(), persistentConfigVersionDirPath.data());
          }
@@ -737,13 +737,13 @@ void Process::setConfigurationVersion(const UtlString& newConfigVersion)
                                                            mConfigVersion.length(),
                                                            bytesWritten))
          {
-            OsSysLog::add(FAC_WATCHDOG, PRI_ERR, "Process[%s]::setConfigurationVersion "
+            OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "Process[%s]::setConfigurationVersion "
                           "write to '%s' failed", data(), persistentConfigVersionPath.data());
          }
       }
       else
       {
-         OsSysLog::add(FAC_WATCHDOG, PRI_ERR,
+         OsSysLog::add(FAC_SUPERVISOR, PRI_ERR,
                        "Process[%s]::setConfigurationVersion create of '%s' failed",
                        data(), persistentConfigVersionPath.data());
       }
@@ -752,7 +752,7 @@ void Process::setConfigurationVersion(const UtlString& newConfigVersion)
    }
    else
    {
-      OsSysLog::add(FAC_WATCHDOG, PRI_DEBUG,
+      OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG,
                     "Process[%s]::setConfigurationVersion new value '%s' matches existing value.",
                     data(),mConfigVersion.data());
    }
@@ -763,7 +763,7 @@ void Process::setConfigurationVersion(const UtlString& newConfigVersion)
 void Process::checkService()
 {
    // @TODO 
-   OsSysLog::add(FAC_WATCHDOG, PRI_DEBUG, "Process[%s]::checkService called.", data());
+   OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG, "Process[%s]::checkService called.", data());
 }
    
 /// Determine whether or not the values in a containable are comparable.
@@ -829,13 +829,13 @@ void Process::persistDesiredState()
    {
       if (OS_SUCCESS == OsFileSystem::createDir(persistentStateDirPath, TRUE /* create parents */))
       {
-         OsSysLog::add(FAC_WATCHDOG, PRI_DEBUG, "Process::persistDesiredState "
+         OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG, "Process::persistDesiredState "
                        "created directory '%s'",
                        persistentStateDirPath.data());
       }
       else
       {
-         OsSysLog::add(FAC_WATCHDOG, PRI_CRIT, "Process::persistDesiredState "
+         OsSysLog::add(FAC_SUPERVISOR, PRI_CRIT, "Process::persistDesiredState "
                        "directory create failed for '%s'",
                        persistentStateDirPath.data());
       }
@@ -853,13 +853,13 @@ void Process::persistDesiredState()
                                                   persistentState.length(),
                                                   bytesWritten))
       {
-         OsSysLog::add(FAC_WATCHDOG, PRI_CRIT, "Process::persistDesiredState "
+         OsSysLog::add(FAC_SUPERVISOR, PRI_CRIT, "Process::persistDesiredState "
                        "write to '%s' failed", persistentStatePath.data());
       }
    }
    else
    {
-      OsSysLog::add(FAC_WATCHDOG, PRI_ERR, "Process::persistDesiredState open of '%s' failed",
+      OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "Process::persistDesiredState open of '%s' failed",
                     persistentStatePath.data());
    }
 }
@@ -880,14 +880,14 @@ void Process::readPersistentState()
       UtlString persistentStateString;
       if (OS_SUCCESS != persistentStateFile.readLine(persistentStateString))
       {
-         OsSysLog::add(FAC_WATCHDOG, PRI_ERR, "Process::readPersistentState read failed");
+         OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "Process::readPersistentState read failed");
       }
 
       mDesiredState = state(persistentStateString);
    }
    else
    {
-      OsSysLog::add(FAC_WATCHDOG, PRI_WARNING,
+      OsSysLog::add(FAC_SUPERVISOR, PRI_WARNING,
                     "Process::readPersistentState open of '%s' failed",
                     persistentStatePath.data());
    }

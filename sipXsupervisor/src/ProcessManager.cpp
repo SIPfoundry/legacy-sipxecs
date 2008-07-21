@@ -50,7 +50,7 @@ void ProcessManager::save(Process* process)
    // called from within Process::createFromDefinition
    OsLock mutex(mProcessTableLock);
          
-   OsSysLog::add(FAC_WATCHDOG, PRI_NOTICE, "ProcessManager::save "
+   OsSysLog::add(FAC_SUPERVISOR, PRI_NOTICE, "ProcessManager::save "
                  " Process '%s'", process->data());
    mProcesses.insert(process);
 }
@@ -60,7 +60,7 @@ void ProcessManager::save(Process* process)
 /// Locate a Process object by name.
 Process* ProcessManager::findProcess(const UtlString& processName)
 {
-   OsSysLog::add(FAC_WATCHDOG, PRI_DEBUG,"ProcessManager::findProcess "
+   OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG,"ProcessManager::findProcess "
                  "searching for '%s'", processName.data()
                  );
 
@@ -76,7 +76,7 @@ void ProcessManager::instantiateProcesses(const OsPath& processDefinitionDirecto
    OsPath    processDefinitionFile;
    OsStatus  iteratorStatus;
    
-   OsSysLog::add(FAC_WATCHDOG, PRI_DEBUG,"ProcessManager::instantiateProcesses searching %s",
+   OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG,"ProcessManager::instantiateProcesses searching %s",
                  processDefinitionDirectory.data()
                  );
 
@@ -91,7 +91,7 @@ void ProcessManager::instantiateProcesses(const OsPath& processDefinitionDirecto
                                    +OsPath::separator
                                    +processDefinitionFile
                                    );
-      OsSysLog::add(FAC_WATCHDOG, PRI_DEBUG,"ProcessManager::instantiateProcesses reading %s",
+      OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG,"ProcessManager::instantiateProcesses reading %s",
                     processDefinitionPath.data()
                     );
 
@@ -121,7 +121,7 @@ ProcessManager::~ProcessManager()
 {
    OsLock tableMutex(mProcessTableLock);
 
-   OsSysLog::add(FAC_WATCHDOG, PRI_NOTICE, "ProcessManager::~ "
+   OsSysLog::add(FAC_SUPERVISOR, PRI_NOTICE, "ProcessManager::~ "
                  "delete %zu Process objects", mProcesses.entries());
 
    mProcesses.destroyAll();

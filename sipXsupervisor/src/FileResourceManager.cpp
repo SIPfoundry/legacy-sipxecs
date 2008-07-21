@@ -61,13 +61,13 @@ void FileResourceManager::save(FileResource* fileResource)
 
    if (!mFileResourceTable.find(fileResource))
    {
-      OsSysLog::add(FAC_WATCHDOG, PRI_INFO, "FileResourceManager::save "
+      OsSysLog::add(FAC_SUPERVISOR, PRI_INFO, "FileResourceManager::save "
                     "FileResource('%s')", fileResource->data());
       mFileResourceTable.insert(fileResource);
    }
    else
    {
-      OsSysLog::add(FAC_WATCHDOG, PRI_CRIT, "FileResourceManager::save "
+      OsSysLog::add(FAC_SUPERVISOR, PRI_CRIT, "FileResourceManager::save "
                     "duplicate FileResource('%s')", fileResource->data());
    }
 }
@@ -78,7 +78,7 @@ FileResourceManager::~FileResourceManager()
 {
    OsLock tableMutex(mFileResourceTableLock);
 
-   OsSysLog::add(FAC_WATCHDOG, PRI_CRIT, "FileResourceManager::~ "
+   OsSysLog::add(FAC_SUPERVISOR, PRI_CRIT, "FileResourceManager::~ "
                  "delete %zu FileResources", mFileResourceTable.entries());
 
    mFileResourceTable.destroyAll();
