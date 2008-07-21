@@ -161,34 +161,57 @@ public:
          {
             // Cut each handle into the Call-Id, to-tag, and from-tag.
             const char* a1 = strchr(a, ',');
-            CPPUNIT_ASSERT(a1);
-            const char* a2 = strchr(a1+1, ',');
-            CPPUNIT_ASSERT(a2);
-            const char* b1 = strchr(b, ',');
-            CPPUNIT_ASSERT(b1);
-            const char* b2 = strchr(b1+1, ',');
-            CPPUNIT_ASSERT(b2);
-
-            // The first segments have to be the same.
-            ssize_t n;
-            n = a1 - a;
-            if (b1 - b == n && strncmp(a, b, n) == 0)
+            if (!a1)
             {
-               // Cross-compare the second and third segments.
-               n = a2 - (a1+1);
-               if ((ssize_t)strlen(b2+1) == n && strncmp(a1+1, b2+1, n) == 0)
-               {
-                  n = strlen(a2+1);
-                  result = b2 - (b1+1) == n && strncmp(a2+1, b1+1, n) == 0;
-               }
-               else
-               {
-                  result = FALSE;
-               }
+               result = FALSE;
             }
             else
             {
-               result = FALSE;
+               const char* a2 = strchr(a1+1, ',');
+               if (!a2)
+               {
+                  result = FALSE;
+               }
+               else
+               {
+                  const char* b1 = strchr(b, ',');
+                  if (!b1)
+                  {
+                     result = FALSE;
+                  }
+                  else
+                  {
+                     const char* b2 = strchr(b1+1, ',');
+                     if (!b2)
+                     {
+                        result = FALSE;
+                     }
+                     else
+                     {                        
+                        // The first segments have to be the same.
+                        ssize_t n;
+                        n = a1 - a;
+                        if (b1 - b == n && strncmp(a, b, n) == 0)
+                        {
+                           // Cross-compare the second and third segments.
+                           n = a2 - (a1+1);
+                           if ((ssize_t)strlen(b2+1) == n && strncmp(a1+1, b2+1, n) == 0)
+                           {
+                              n = strlen(a2+1);
+                              result = b2 - (b1+1) == n && strncmp(a2+1, b1+1, n) == 0;
+                           }
+                           else
+                           {
+                              result = FALSE;
+                           }
+                        }
+                        else
+                        {
+                           result = FALSE;
+                        }
+                     }
+                  }
+               }
             }
          }
 
@@ -323,9 +346,21 @@ public:
          // Wait 1 second for the callbacks to happen.
          OsTask::delay(1000);
 
-         CPPUNIT_ASSERT_MESSAGE("Early dialog handles are different.",
+         UtlString earlyDialogMsg("Early dialog handles are different");
+         earlyDialogMsg.append(" \n  sub:    '");
+         earlyDialogMsg.append(smClientSubEarlyDialog);
+         earlyDialogMsg.append("'\n  notify: '");
+         earlyDialogMsg.append(smClientNotifyEarlyDialog);
+         earlyDialogMsg.append("'");
+         CPPUNIT_ASSERT_MESSAGE(earlyDialogMsg.data(),
                                 compareHandles(smClientSubEarlyDialog.data(),
                                                smClientNotifyEarlyDialog.data()));
+         UtlString establishedDialogMsg("Established dialog handles are different");
+         establishedDialogMsg.append(" \n  sub:    '");
+         establishedDialogMsg.append(smClientSubEstablishedDialog);
+         establishedDialogMsg.append("'\n  notify: '");
+         establishedDialogMsg.append(smClientNotifyEstablishedDialog);
+         establishedDialogMsg.append("'");
          CPPUNIT_ASSERT_MESSAGE("Established dialog handles are different.",
                                 compareHandles(smClientSubEstablishedDialog.data(),
                                                smClientNotifyEstablishedDialog.data()));
