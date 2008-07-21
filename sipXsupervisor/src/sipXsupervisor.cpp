@@ -596,13 +596,13 @@ int main(int argc, char* argv[])
     // Drop privileges down to the specified user & group
     if (NULL == sipxpbxuser || 0 == strlen(sipxpbxuser))
     {
-       osPrintf("WatchDogMain: Failed to setuid(%s), username not defined.\n",
+       osPrintf("sipXsupervisor: Failed to setuid(%s), username not defined.\n",
           sipxpbxuser);
        return 2;
     }
     if (NULL == sipxpbxgroup || 0 == strlen(sipxpbxgroup))
     {
-       osPrintf("WatchDogMain: Failed to setgid(%s), groupname not defined.\n",
+       osPrintf("sipXsupervisor: Failed to setgid(%s), groupname not defined.\n",
           sipxpbxgroup);
        return 2;
     }
@@ -618,7 +618,7 @@ int main(int argc, char* argv[])
        else
        {
           osPrintf(
-             "WatchDogMain: getgrnam(%s) failed, user does not exist.",
+             "sipXsupervisor: getgrnam(%s) failed, user does not exist.",
                 sipxpbxgroup);
        }
        return 3;
@@ -635,7 +635,7 @@ int main(int argc, char* argv[])
        else
        {
           osPrintf(
-             "WatchDogMain: getpwnam(%s) failed, user does not exist.",
+             "sipXsupervisor: getpwnam(%s) failed, user does not exist.",
                 sipxpbxuser);
        }
        return 3;
@@ -644,14 +644,14 @@ int main(int argc, char* argv[])
     // Change group first, cause once user is changed this cannot be done.
     if (0 != setgid(grp->gr_gid))
     {
-       osPrintf("WatchDogMain: setgid(%d) failed, errno = %d.",
+       osPrintf("sipXsupervisor: setgid(%d) failed, errno = %d.",
           (int)grp->gr_gid, errno);
        return 4;
     }
 
     if (0 != setuid(pwd->pw_uid))
     {
-       osPrintf("WatchDogMain: setuid(%d) failed, errno = %d.",
+       osPrintf("sipXsupervisor: setuid(%d) failed, errno = %d.",
           (int)pwd->pw_uid, errno);
        return 4;
     }
@@ -659,7 +659,7 @@ int main(int argc, char* argv[])
 
 # if 0
 // Only output problems.  This keeps the startup output clean.
-    osPrintf("WatchDogMain: Dropped privileges with setuid(%s)/setgid(%s).", 
+    osPrintf("sipXsupervisor: Dropped privileges with setuid(%s)/setgid(%s).", 
        sipxpbxuser, sipxpbxgroup);
 #endif
                               
@@ -719,13 +719,13 @@ int main(int argc, char* argv[])
     else
     {
        OsSysLog::add(FAC_SUPERVISOR, PRI_ERR,
-          "WatchDogMain preloadAllDatabase() failed, rc = %d", (int)rc); 
+          "sipXsupervisor preloadAllDatabase() failed, rc = %d", (int)rc); 
     }
         
     if (!cAlarmServer::getInstance()->init())
     {
        OsSysLog::add(FAC_SUPERVISOR, PRI_ERR,
-             "WatchDogMain failed to init AlarmServer");
+             "sipXsupervisor failed to init AlarmServer");
     }
     
     // Determine the ProcessDefinitions XML file path.
