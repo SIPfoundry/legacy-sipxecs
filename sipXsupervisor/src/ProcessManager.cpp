@@ -9,7 +9,9 @@
 // INCLUDES
 #include "os/OsFS.h"
 #include "os/OsSysLog.h"
+#include "utl/UtlHashBagIterator.h"
 #include "xmlparser/tinyxml.h"
+
 #include "Process.h"
 #include "ProcessManager.h"
 
@@ -42,6 +44,19 @@ ProcessManager::ProcessManager() :
 {
 };
 
+/// Save a process definition.
+void ProcessManager::save(Process* process)
+{
+   // called from within Process::createFromDefinition
+   OsLock mutex(mProcessTableLock);
+         
+   OsSysLog::add(FAC_WATCHDOG, PRI_NOTICE, "ProcessManager::save "
+                 " Process '%s'", process->data());
+   mProcesses.insert(process);
+}
+
+
+
 /// Locate a Process object by name.
 Process* ProcessManager::findProcess(const UtlString& processName)
 {
@@ -72,7 +87,6 @@ void ProcessManager::instantiateProcesses(const OsPath& processDefinitionDirecto
          iteratorStatus = definitions.findNext(processDefinitionFile)
         )
    {
-      Process*  newProcess;
       OsPath processDefinitionPath( processDefinitionDirectory
                                    +OsPath::separator
                                    +processDefinitionFile
@@ -80,18 +94,25 @@ void ProcessManager::instantiateProcesses(const OsPath& processDefinitionDirecto
       OsSysLog::add(FAC_WATCHDOG, PRI_DEBUG,"ProcessManager::instantiateProcesses reading %s",
                     processDefinitionPath.data()
                     );
-      if ((newProcess = Process::createFromDefinition(processDefinitionPath)))
-      {
-         OsLock mutex(mProcessTableLock);
-         
-         OsSysLog::add(FAC_WATCHDOG, PRI_NOTICE, "ProcessManager::instantiateProcesses "
-                       "create Process monitor '%s'", newProcess->data());
-         mProcesses.insert(newProcess);
-      }
-      else
-      {
-         // parsing the file failed - createFromDefinition will have logged any error.
-      }
+
+      Process::createFromDefinition(processDefinitionPath);
+   }
+}
+
+// Fill in a map of process names and states (as UtlStrings)
+void ProcessManager::getAllProcessStates(UtlHashMap& processStates //< key->name, value->state string
+                         )
+{
+   processStates.destroyAll();
+   Process* process;
+
+   OsLock mutex(mProcessTableLock);
+   UtlHashBagIterator processes(mProcesses);
+   while ((process = dynamic_cast<Process*>(processes())))
+   {
+      processStates.insertKeyAndValue(new UtlString(process->data()),
+                                      new UtlString(Process::state(process->getState()))
+                                      );
    }
 }
 

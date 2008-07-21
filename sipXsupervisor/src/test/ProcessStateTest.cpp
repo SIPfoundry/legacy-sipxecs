@@ -18,6 +18,7 @@
 #include "testlib/FileTestContext.h"
 
 #include "Process.h"
+#include "ProcessManager.h"
 
 // DEFINES
 // CONSTANTS
@@ -124,23 +125,56 @@ public:
                                      );
          testContext.setSipxDir(SipXecsService::VarDirType, "var");
 
+         UtlHashMap status;
+         ProcessManager::getInstance()->getAllProcessStates(status);
+
+         size_t existingProcesses = status.entries();
+
          UtlString  path;
-         Process*   process;
-
+         Process*   process1;
+         Process*   process2;
+         
          testContext.inputFilePath("newprocess.xml", path);
-         CPPUNIT_ASSERT((process = Process::createFromDefinition(path)));
+         CPPUNIT_ASSERT((process1 = Process::createFromDefinition(path)));
 
-         ASSERT_STR_EQUAL("New", process->data());
-         ASSERT_STR_EQUAL("1.0.0", process->mVersion.data());
+         ASSERT_STR_EQUAL("New", process1->data());
+         ASSERT_STR_EQUAL("1.0.0", process1->mVersion.data());
 
-         CPPUNIT_ASSERT_EQUAL(Process::Undefined, process->getState());
-         CPPUNIT_ASSERT_EQUAL(Process::Disabled, process->mDesiredState);
-         CPPUNIT_ASSERT(!process->isEnabled());
+         CPPUNIT_ASSERT_EQUAL(Process::Disabled, process1->getState());
+         CPPUNIT_ASSERT_EQUAL(Process::Disabled, process1->mDesiredState);
+         CPPUNIT_ASSERT(!process1->isEnabled());
 
-         process->enable();
-         CPPUNIT_ASSERT(process->isEnabled());
-         CPPUNIT_ASSERT_EQUAL(Process::Running, process->mDesiredState);
-         CPPUNIT_ASSERT_EQUAL(Process::Undefined, process->getState());
+         testContext.inputFilePath("another-process.xml", path);
+         CPPUNIT_ASSERT((process2 = Process::createFromDefinition(path)));
+
+         ASSERT_STR_EQUAL("Nother", process2->data());
+         ASSERT_STR_EQUAL("1.0.0", process2->mVersion.data());
+
+         CPPUNIT_ASSERT_EQUAL(Process::Disabled, process2->getState());
+         CPPUNIT_ASSERT_EQUAL(Process::Disabled, process2->mDesiredState);
+
+         process1->enable();
+         CPPUNIT_ASSERT(process1->isEnabled());
+         CPPUNIT_ASSERT_EQUAL(Process::Running, process1->mDesiredState);
+         CPPUNIT_ASSERT_EQUAL(Process::Disabled, process1->getState());
+
+         process2->enable();
+         process2->mState = Process::Running; // HACK
+         CPPUNIT_ASSERT_EQUAL(Process::Running, process2->getState());
+         CPPUNIT_ASSERT(process2->isEnabled());
+
+         ProcessManager::getInstance()->getAllProcessStates(status);
+
+         CPPUNIT_ASSERT_EQUAL(existingProcesses + 2U, status.entries());
+         UtlString* statusValue;
+
+         UtlString process1name("New");
+         CPPUNIT_ASSERT(statusValue = dynamic_cast<UtlString*>(status.findValue(&process1name)));
+         ASSERT_STR_EQUAL("Disabled", statusValue->data());
+
+         UtlString process2name("Nother");
+         CPPUNIT_ASSERT(statusValue = dynamic_cast<UtlString*>(status.findValue(&process2name)));
+         ASSERT_STR_EQUAL("Running", statusValue->data());
       };
    
    

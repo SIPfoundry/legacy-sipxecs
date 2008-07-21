@@ -11,7 +11,7 @@
 
 // APPLICATION INCLUDES
 #include "utl/UtlHashBag.h"
-
+#include "utl/UtlHashMap.h"
 // DEFINES
 // CONSTANTS
 // TYPEDEFS
@@ -32,12 +32,21 @@ class ProcessManager
    /// destructor
    virtual ~ProcessManager();
 
+   /// Save a process definition.
+   void save(Process* process);
+   ///< called from within Process::createFromDefinition
+
    /// Locate a Process object by name.
    Process* findProcess(const UtlString& processName);
 
    /// Parse the XML of a process definition
    void instantiateProcesses(const OsPath& processDefinitionDirectory);
-   
+
+   /// Fill in a map of process names and states (as UtlStrings)
+   void getAllProcessStates(UtlHashMap& processStates ///< key->name, value->state string
+                            );
+   ///< @note The caller is responsible for destroying the map contents.
+
   protected:
    friend class ProcessManagerTest;
       

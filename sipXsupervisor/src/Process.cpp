@@ -20,6 +20,7 @@
 #include "FileResource.h"
 #include "ProcessResource.h"
 #include "ProcessResourceManager.h"
+#include "ProcessManager.h"
 #include "Process.h"
 
 // DEFINES
@@ -506,6 +507,10 @@ Process* Process::createFromDefinition(const OsPath& definitionFile)
                      {
                         process->mDesiredState = Disabled; // processes are assumed to be disabled.
                         process->persistDesiredState();
+
+                        process->mState = Disabled; // nothing more need be done when disabled.
+
+                        ProcessManager::getInstance()->save(process);
                      }
                   }
                   else
