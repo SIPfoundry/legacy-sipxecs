@@ -14,6 +14,7 @@
   <property name="prebuilt.windows.launcher" value="${src.dir}/bin/Preflight.exe"/>
 
   <path id="base.path" >
+    <pathelement location="${sipxcommons.jar}"/>
     <pathelement location="${dnsjava.jar}"/>
     <pathelement location="${CommonsCli.jar}"/>
     <pathelement location="${CommonsNet.jar}"/>
