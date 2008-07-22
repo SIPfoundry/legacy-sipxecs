@@ -21,21 +21,21 @@
 
 #include "sipXecsService/SipXecsService.h"
 
-#include "Process.h"
-#include "ProcessCmd.h"
-#include "ProcessManager.h"
+#include "SipxProcess.h"
+#include "SipxProcessCmd.h"
+#include "SipxProcessManager.h"
 #include "FileResource.h"
 #include "FileResourceManager.h"
 #include "ImdbResource.h"
 #include "ImdbResourceManager.h"
 #include "SqldbResource.h"
 #include "SqldbResourceManager.h"
-#include "ProcessResource.h"
-#include "ProcessResourceManager.h"
+#include "SipxProcessResource.h"
+#include "SipxProcessResourceManager.h"
 
-class ProcessDefinitionParserTest : public CppUnit::TestCase
+class SipxProcessDefinitionParserTest : public CppUnit::TestCase
 {
-   CPPUNIT_TEST_SUITE(ProcessDefinitionParserTest);
+   CPPUNIT_TEST_SUITE(SipxProcessDefinitionParserTest);
    CPPUNIT_TEST(badXml);
    CPPUNIT_TEST(badNames);
    CPPUNIT_TEST(badVersions);
@@ -54,16 +54,16 @@ public:
                                      TEST_WORK_DIR "processDef"
                                      );
          UtlString badXmlPath;
-         Process* process;
+         SipxProcess* process;
 
          testContext.inputFilePath("notwellformed.xml", badXmlPath);
-         CPPUNIT_ASSERT(NULL == (process = Process::createFromDefinition(badXmlPath)));
+         CPPUNIT_ASSERT(NULL == (process = SipxProcess::createFromDefinition(badXmlPath)));
 
          testContext.inputFilePath("badNamespace.xml", badXmlPath);
-         CPPUNIT_ASSERT(NULL == (process = Process::createFromDefinition(badXmlPath)));
+         CPPUNIT_ASSERT(NULL == (process = SipxProcess::createFromDefinition(badXmlPath)));
 
          testContext.inputFilePath("badRoot.xml", badXmlPath);
-         CPPUNIT_ASSERT(NULL == (process = Process::createFromDefinition(badXmlPath)));
+         CPPUNIT_ASSERT(NULL == (process = SipxProcess::createFromDefinition(badXmlPath)));
       };
 
    void badNames()
@@ -72,16 +72,16 @@ public:
                                      TEST_WORK_DIR "processDef"
                                      );
          UtlString path;
-         Process* process;
+         SipxProcess* process;
 
          testContext.inputFilePath("noname.xml", path);
-         CPPUNIT_ASSERT(NULL == (process = Process::createFromDefinition(path)));
+         CPPUNIT_ASSERT(NULL == (process = SipxProcess::createFromDefinition(path)));
 
          testContext.inputFilePath("emptyname.xml", path);
-         CPPUNIT_ASSERT(NULL == (process = Process::createFromDefinition(path)));
+         CPPUNIT_ASSERT(NULL == (process = SipxProcess::createFromDefinition(path)));
 
          testContext.inputFilePath("namenottext.xml", path);
-         CPPUNIT_ASSERT(NULL == (process = Process::createFromDefinition(path)));
+         CPPUNIT_ASSERT(NULL == (process = SipxProcess::createFromDefinition(path)));
       };
 
    void badVersions()
@@ -90,16 +90,16 @@ public:
                                      TEST_WORK_DIR "processDef"
                                      );
          UtlString path;
-         Process* process;
+         SipxProcess* process;
 
          testContext.inputFilePath("noversion.xml", path);
-         CPPUNIT_ASSERT(NULL == (process = Process::createFromDefinition(path)));
+         CPPUNIT_ASSERT(NULL == (process = SipxProcess::createFromDefinition(path)));
 
          testContext.inputFilePath("emptyversion.xml", path);
-         CPPUNIT_ASSERT(NULL == (process = Process::createFromDefinition(path)));
+         CPPUNIT_ASSERT(NULL == (process = SipxProcess::createFromDefinition(path)));
 
          testContext.inputFilePath("versionnottext.xml", path);
-         CPPUNIT_ASSERT(NULL == (process = Process::createFromDefinition(path)));
+         CPPUNIT_ASSERT(NULL == (process = SipxProcess::createFromDefinition(path)));
       };
 
    void badCommands()
@@ -108,31 +108,31 @@ public:
                                      TEST_WORK_DIR "processDef"
                                      );
          UtlString path;
-         Process* process;
+         SipxProcess* process;
 
          testContext.inputFilePath("nocommands.xml", path);
-         CPPUNIT_ASSERT(NULL == (process = Process::createFromDefinition(path)));
+         CPPUNIT_ASSERT(NULL == (process = SipxProcess::createFromDefinition(path)));
 
          testContext.inputFilePath("emptycommands.xml", path);
-         CPPUNIT_ASSERT(NULL == (process = Process::createFromDefinition(path)));
+         CPPUNIT_ASSERT(NULL == (process = SipxProcess::createFromDefinition(path)));
 
          testContext.inputFilePath("noconfigtest.xml", path);
-         CPPUNIT_ASSERT(NULL == (process = Process::createFromDefinition(path)));
+         CPPUNIT_ASSERT(NULL == (process = SipxProcess::createFromDefinition(path)));
 
          testContext.inputFilePath("nostart.xml", path);
-         CPPUNIT_ASSERT(NULL == (process = Process::createFromDefinition(path)));
+         CPPUNIT_ASSERT(NULL == (process = SipxProcess::createFromDefinition(path)));
 
          testContext.inputFilePath("noexecute.xml", path);
-         CPPUNIT_ASSERT(NULL == (process = Process::createFromDefinition(path)));
+         CPPUNIT_ASSERT(NULL == (process = SipxProcess::createFromDefinition(path)));
 
          testContext.inputFilePath("emptyexecute.xml", path);
-         CPPUNIT_ASSERT(NULL == (process = Process::createFromDefinition(path)));
+         CPPUNIT_ASSERT(NULL == (process = SipxProcess::createFromDefinition(path)));
 
          testContext.inputFilePath("badexecute.xml", path);
-         CPPUNIT_ASSERT(NULL == (process = Process::createFromDefinition(path)));
+         CPPUNIT_ASSERT(NULL == (process = SipxProcess::createFromDefinition(path)));
 
          testContext.inputFilePath("notaparameter.xml", path);
-         CPPUNIT_ASSERT(NULL == (process = Process::createFromDefinition(path)));
+         CPPUNIT_ASSERT(NULL == (process = SipxProcess::createFromDefinition(path)));
 
       };
 
@@ -142,31 +142,31 @@ public:
                                      TEST_WORK_DIR "processDef"
                                      );
          UtlString path;
-         Process* process;
+         SipxProcess* process;
 
          testContext.inputFilePath("nostatus.xml", path);
-         CPPUNIT_ASSERT(NULL == (process = Process::createFromDefinition(path)));
+         CPPUNIT_ASSERT(NULL == (process = SipxProcess::createFromDefinition(path)));
 
          testContext.inputFilePath("unknownstatus1.xml", path);
-         CPPUNIT_ASSERT(NULL == (process = Process::createFromDefinition(path)));
+         CPPUNIT_ASSERT(NULL == (process = SipxProcess::createFromDefinition(path)));
 
          testContext.inputFilePath("emptypid.xml", path);
-         CPPUNIT_ASSERT(NULL == (process = Process::createFromDefinition(path)));
+         CPPUNIT_ASSERT(NULL == (process = SipxProcess::createFromDefinition(path)));
 
          testContext.inputFilePath("badpid.xml", path);
-         CPPUNIT_ASSERT(NULL == (process = Process::createFromDefinition(path)));
+         CPPUNIT_ASSERT(NULL == (process = SipxProcess::createFromDefinition(path)));
 
          testContext.inputFilePath("unknownstatus2.xml", path);
-         CPPUNIT_ASSERT(NULL == (process = Process::createFromDefinition(path)));
+         CPPUNIT_ASSERT(NULL == (process = SipxProcess::createFromDefinition(path)));
 
          testContext.inputFilePath("emptylog.xml", path);
-         CPPUNIT_ASSERT(NULL == (process = Process::createFromDefinition(path)));
+         CPPUNIT_ASSERT(NULL == (process = SipxProcess::createFromDefinition(path)));
 
          testContext.inputFilePath("badlog.xml", path);
-         CPPUNIT_ASSERT(NULL == (process = Process::createFromDefinition(path)));
+         CPPUNIT_ASSERT(NULL == (process = SipxProcess::createFromDefinition(path)));
 
          testContext.inputFilePath("notalog.xml", path);
-         CPPUNIT_ASSERT(NULL == (process = Process::createFromDefinition(path)));
+         CPPUNIT_ASSERT(NULL == (process = SipxProcess::createFromDefinition(path)));
       };
 
    void badResources()
@@ -175,28 +175,28 @@ public:
                                      TEST_WORK_DIR "processDef"
                                      );
          UtlString path;
-         Process* process;
+         SipxProcess* process;
 
          testContext.inputFilePath("notresources.xml", path);
-         CPPUNIT_ASSERT(NULL == (process = Process::createFromDefinition(path)));
+         CPPUNIT_ASSERT(NULL == (process = SipxProcess::createFromDefinition(path)));
 
          testContext.inputFilePath("unknownresource.xml", path);
-         CPPUNIT_ASSERT(NULL == (process = Process::createFromDefinition(path)));
+         CPPUNIT_ASSERT(NULL == (process = SipxProcess::createFromDefinition(path)));
 
          testContext.inputFilePath("emptyfile.xml", path);
-         CPPUNIT_ASSERT(NULL == (process = Process::createFromDefinition(path)));
+         CPPUNIT_ASSERT(NULL == (process = SipxProcess::createFromDefinition(path)));
 
          testContext.inputFilePath("badfile.xml", path);
-         CPPUNIT_ASSERT(NULL == (process = Process::createFromDefinition(path)));
+         CPPUNIT_ASSERT(NULL == (process = SipxProcess::createFromDefinition(path)));
 
          testContext.inputFilePath("badfileattr.xml", path);
-         CPPUNIT_ASSERT(NULL == (process = Process::createFromDefinition(path)));
+         CPPUNIT_ASSERT(NULL == (process = SipxProcess::createFromDefinition(path)));
 
          testContext.inputFilePath("badconfigaccess.xml", path);
-         CPPUNIT_ASSERT(NULL == (process = Process::createFromDefinition(path)));
+         CPPUNIT_ASSERT(NULL == (process = SipxProcess::createFromDefinition(path)));
 
          testContext.inputFilePath("badrequired.xml", path);
-         CPPUNIT_ASSERT(NULL == (process = Process::createFromDefinition(path)));
+         CPPUNIT_ASSERT(NULL == (process = SipxProcess::createFromDefinition(path)));
 
       };
 
@@ -208,7 +208,7 @@ public:
          testContext.setSipxDir(SipXecsService::VarDirType, "var");
 
          UtlString  path;
-         Process*   process;
+         SipxProcess*   process;
          UtlString* paramValue;
          UtlString  description;
 
@@ -220,18 +220,18 @@ public:
           * update the duplicateProcess test below.  That test retrieves the
           * defintion that this one creates (having verified that another file
           * that defines a process with the same name has failed to create a
-          * new Process).
+          * new SipxProcess).
           */
 
          testContext.inputFilePath("goodprocess.xml", path);
-         CPPUNIT_ASSERT((process = Process::createFromDefinition(path)));
-         CPPUNIT_ASSERT_EQUAL(process, ProcessManager::getInstance()->findProcess("Good"));
+         CPPUNIT_ASSERT((process = SipxProcess::createFromDefinition(path)));
+         CPPUNIT_ASSERT_EQUAL(process, SipxProcessManager::getInstance()->findProcess("Good"));
          
          ASSERT_STR_EQUAL("Good", process->data());
          ASSERT_STR_EQUAL("1.0.0", process->mVersion.data());
 
-         ProcessResource* processResource;
-         CPPUNIT_ASSERT(processResource = ProcessResourceManager::getInstance()->find("Good"));
+         SipxProcessResource* processResource;
+         CPPUNIT_ASSERT(processResource = SipxProcessResourceManager::getInstance()->find("Good"));
          CPPUNIT_ASSERT_EQUAL(processResource, process->resource());
          CPPUNIT_ASSERT( ! processResource->isWriteable());
          description.remove(0);
@@ -316,7 +316,7 @@ public:
          testContext.setSipxDir(SipXecsService::VarDirType, "var");
 
          UtlString  path;
-         Process*   process;
+         SipxProcess*   process;
          UtlString* paramValue;
          UtlString  description;
 
@@ -324,20 +324,20 @@ public:
          const char* defaultDir  = SipXecsService::Path(SipXecsService::LogDirType,"");
 
          testContext.inputFilePath("dupprocess.xml", path);
-         CPPUNIT_ASSERT(!(process = Process::createFromDefinition(path)));
-         CPPUNIT_ASSERT((process = ProcessManager::getInstance()->findProcess("Good")));
+         CPPUNIT_ASSERT(!(process = SipxProcess::createFromDefinition(path)));
+         CPPUNIT_ASSERT((process = SipxProcessManager::getInstance()->findProcess("Good")));
 
          /*
           * All of the results below should match those in goodProcess above,
-          * since it is the Process object created by that test that we should
+          * since it is the SipxProcess object created by that test that we should
           * have gotten back.
           */
 
          ASSERT_STR_EQUAL("Good", process->data());
          ASSERT_STR_EQUAL("1.0.0", process->mVersion.data());
 
-         ProcessResource* processResource;
-         CPPUNIT_ASSERT(processResource = ProcessResourceManager::getInstance()->find("Good"));
+         SipxProcessResource* processResource;
+         CPPUNIT_ASSERT(processResource = SipxProcessResourceManager::getInstance()->find("Good"));
          CPPUNIT_ASSERT_EQUAL(processResource, process->resource());
          CPPUNIT_ASSERT( ! processResource->isWriteable());
          description.remove(0);
@@ -418,4 +418,4 @@ public:
 
 
 
-CPPUNIT_TEST_SUITE_REGISTRATION(ProcessDefinitionParserTest);
+CPPUNIT_TEST_SUITE_REGISTRATION(SipxProcessDefinitionParserTest);

@@ -12,72 +12,72 @@
 // APPLICATION INCLUDES
 #include "utl/UtlSList.h"
 #include "os/OsFS.h"
-#include "ProcessTask.h"
+#include "SipxProcessTask.h"
 
 // DEFINES
 // CONSTANTS
 // TYPEDEFS
 // FORWARD DECLARATIONS
 class SipxResource;
-class ProcessResource;
-class ProcessTask;
-class ProcessCmd;
+class SipxProcessResource;
+class SipxProcessTask;
+class SipxProcessCmd;
 
-class ProcessDefinitionParserTest;
-class ProcessStateTest;
+class SipxProcessDefinitionParserTest;
+class SipxProcessStateTest;
 
 /// Manage a single sipXecs service process.
 /**
- * A Process object represents the process that is providing some
- * sipXecs service.  It is instantiated by the ProcessManager by calling
- * the Process::createFromDefinition method, passing the path to an XML
+ * A SipxProcess object represents the process that is providing some
+ * sipXecs service.  It is instantiated by the SipxProcessManager by calling
+ * the SipxProcess::createFromDefinition method, passing the path to an XML
  * process definition file.
  *
- * @image html uml.png "Overview of Processes and SipxResources"
+ * @image html uml.png "Overview of SipxProcesses and SipxResources"
  *
- * To locate a particular Process object, call ProcessManager::find.
+ * To locate a particular SipxProcess object, call SipxProcessManager::find.
  *
- * @par(Process and Resource creation)
+ * @par(SipxProcess and Resource creation)
  *
- * Process objects are created by the createFromDefinition, called from
- * ProcessManager::instantiateProcesses with each process definition document (see
+ * SipxProcess objects are created by the createFromDefinition, called from
+ * SipxProcessManager::instantiateProcesses with each process definition document (see
  * sipXsupervisor/meta/sipXecs-process.xsd.in). 
  *
  * The parsing of the 'resources' element is delegated to SipxResource::parse,
  * which in turn delegates it to the appropriate resource subclass.  The connections
- * from a Process to the SipxResources it depends on are created by callbacks from
+ * from a SipxProcess to the SipxResources it depends on are created by callbacks from
  * those resource parsing routines:
  
  * @msc
- *    Process, SipxResource, xxxResource;
+ *    SipxProcess, SipxResource, xxxResource;
  *
  *               ---    [label="Undefined State (parsing definition)"];
- *    Process        =>     SipxResource                     [label="SipxResource::parse"];
- *    Process           <=  SipxResource                     [label="requireResource"];
- * Process -> Process                                 [label="insert in mRequiredResources"];
- *    Process           >>  SipxResource                     ;
+ *    SipxProcess        =>     SipxResource                     [label="SipxResource::parse"];
+ *    SipxProcess           <=  SipxResource                     [label="requireResource"];
+ * SipxProcess -> SipxProcess                                 [label="insert in mRequiredResources"];
+ *    SipxProcess           >>  SipxResource                     ;
  *                          SipxResource =>   xxxResource    [label="xxxResource::parse"];
  *                          SipxResource <=   xxxResource    [label="parseAttribute"];
- *    Process           <=  SipxResource                     [label="resourceIsOptional"];
- * Process -> Process                                 [label="remove from mRequiredResources"];
- *    Process           >>  SipxResource                     ;
+ *    SipxProcess           <=  SipxResource                     [label="resourceIsOptional"];
+ * SipxProcess -> SipxProcess                                 [label="remove from mRequiredResources"];
+ *    SipxProcess           >>  SipxResource                     ;
  *                          SipxResource >>   xxxResource    ;
  *                          SipxResource <<   xxxResource    [label="(bool)"];
- *    Process        <<     SipxResource                     [label="(bool)"];
+ *    SipxProcess        <<     SipxResource                     [label="(bool)"];
  *
  * @endmsc
  *
  * @note If the SipxResource::parse returns 'false', the definition is considered invalid,
- *       and the Process object is discarded, so any dependencies that go with it are also
- *       eliminated.  This leaves the ProcessResource for this Process name, and possibly
+ *       and the SipxProcess object is discarded, so any dependencies that go with it are also
+ *       eliminated.  This leaves the SipxProcessResource for this SipxProcess name, and possibly
  *       other SipxResource objects is created 'orphaned', but since they only retain the
- *       pointer to the ProcessResource (which continues to exist), this is ok.
+ *       pointer to the SipxProcessResource (which continues to exist), this is ok.
  *
- * Each Process object has a paired ProcessResource object.
+ * Each SipxProcess object has a paired SipxProcessResource object.
  *
- * @par(Process State Machine:)
+ * @par(SipxProcess State Machine:)
  *
- * The following shows the states and transition events for a Process:
+ * The following shows the states and transition events for a SipxProcess:
  *
  * @dot
  * digraph map {
@@ -141,7 +141,7 @@ class ProcessStateTest;
  * @enddot
  *
  */
-class Process : public UtlString
+class SipxProcess : public UtlString
 {
   public:
 
@@ -151,7 +151,7 @@ class Process : public UtlString
  */
 ///@{
    /// Read a process definition and return a process if definition is valid.
-   static Process* createFromDefinition(const OsPath& definitionFile);
+   static SipxProcess* createFromDefinition(const OsPath& definitionFile);
 
 ///@}
 // ================================================================
@@ -160,16 +160,16 @@ class Process : public UtlString
  */
 ///@{
 
-   /// The current condition of the service this Process object controls.
-   //    if you modify this, you must also modify the ProcessStateNames constant in Process.ccp
+   /// The current condition of the service this SipxProcess object controls.
+   //    if you modify this, you must also modify the SipxProcessStateNames constant in SipxProcess.ccp
    typedef enum
    {
-      Undefined,               ///< Process definition is still being parsed.
-      Disabled,                ///< Process is not started when instantiated.
+      Undefined,               ///< SipxProcess definition is still being parsed.
+      Disabled,                ///< SipxProcess is not started when instantiated.
       Testing,                 ///< Checking resources to see if it can start.
       ResourceRequired,        ///< Waiting for some resource.
-      ConfigurationMismatch,   ///< The stored configuration version does not match this Process
-      ConfigurationTestFailed, ///< The stored configuration version does not match this Process
+      ConfigurationMismatch,   ///< The stored configuration version does not match this SipxProcess
+      ConfigurationTestFailed, ///< The stored configuration version does not match this SipxProcess
       Starting,                ///< Start command executed, service is not yet running.
       Running,                 ///< Service is running.
       AwaitingReferences,      ///< Waiting for dependent processes to stop before Stopping.
@@ -177,7 +177,7 @@ class Process : public UtlString
       Failed                   ///< Service process exitted unexpectedly.
    } State;
    
-   /// Return the current state of the Process.
+   /// Return the current state of the SipxProcess.
    State getState();
 
    /// Return whether or not the service for this process should be Running.
@@ -187,10 +187,10 @@ class Process : public UtlString
     *            the service: for that see getState
     */
 
-   /// Set the persistent desired state of the Process to Running.
+   /// Set the persistent desired state of the SipxProcess to Running.
    void enable();
 
-   /// Set the persistent desired state of the Process to Disabled.
+   /// Set the persistent desired state of the SipxProcess to Disabled.
    void disable();
 
    /// Shutting down sipXsupervisor, so shut down the service.
@@ -211,15 +211,15 @@ class Process : public UtlString
     *   the corresponding system process (if any).
     */
 
-   /// Notify the Process that some configuration change has occurred.
+   /// Notify the SipxProcess that some configuration change has occurred.
    void configurationChange(const SipxResource& changedResource);
 
-   /// Signal the ProcessTask to do a checkService call.
+   /// Signal the SipxProcessTask to do a checkService call.
    void triggerServiceCheck();
    
    /// Compare actual process state to the desired state, and attempt to change it if needed.
    void checkService();
-   ///< This should be called only from the ProcessTask thread.
+   ///< This should be called only from the SipxProcessTask thread.
    
 // ================================================================
 /** @name           Destructor
@@ -228,7 +228,7 @@ class Process : public UtlString
 ///@{
 
    /// destructor
-   virtual ~Process();
+   virtual ~SipxProcess();
 
 ///@}
 // ================================================================
@@ -253,15 +253,15 @@ class Process : public UtlString
 ///@{
 
    /// Get the resource for this process.
-   ProcessResource* resource();
+   SipxProcessResource* resource();
    /**<
     * Using the resource provides a level of indirection in references to a
-    * process.  This is important, since the actual Process object may never
+    * process.  This is important, since the actual SipxProcess object may never
     * be created if there is some error in the definition.  Since it's difficult
     * to unwind all the side effects of parsing a process definition, the other
-    * resources that need to track what Process objects they are associated with
-    * instead keep a pointer to the ProcessResource for it, which continues to
-    * exist (owned by the ProcessResourceManager) even if the Process object does not.
+    * resources that need to track what SipxProcess objects they are associated with
+    * instead keep a pointer to the SipxProcessResource for it, which continues to
+    * exist (owned by the SipxProcessResourceManager) even if the SipxProcess object does not.
     */
 
    /// Add this to the list of objects whose status is checked before starting or stopping.
@@ -321,25 +321,25 @@ class Process : public UtlString
 
    OsBSem           mLock;          ///< must be held to access to other member variables.
 
-   ProcessResource* mSelfResource;  ///< the ProcessResource for this Process.
+   SipxProcessResource* mSelfResource;  ///< the SipxProcessResource for this SipxProcess.
 
    UtlString        mVersion;       /**< Version of the process definition.
                                      *   For comparison with the configuration version.
-                                     *   The Process may not be started unless they match.
+                                     *   The SipxProcess may not be started unless they match.
                                      */
    UtlString        mConfigVersion; /**< Version of the process definition.
                                      *   For comparison with the configuration version.
-                                     *   The Process may not be started unless they match.
+                                     *   The SipxProcess may not be started unless they match.
                                      */
    State            mDesiredState;  ///< May be only Running or Disabled.
    State            mState;         ///< actual state of the process.
 
-   ProcessTask*     mpProcessTask;  ///< Receives timer events for this service.
+   SipxProcessTask*     mpProcessTask;  ///< Receives timer events for this service.
 
-   ProcessCmd*      mConfigtest;    ///< from the sipXecs-process/commands/configtest element
-   ProcessCmd*      mStart;         ///< from the sipXecs-process/commands/start element
-   ProcessCmd*      mStop;          ///< from the sipXecs-process/commands/stop element
-   ProcessCmd*      mReconfigure;   ///< from the sipXecs-process/commands/reconfigure element
+   SipxProcessCmd*      mConfigtest;    ///< from the sipXecs-process/commands/configtest element
+   SipxProcessCmd*      mStart;         ///< from the sipXecs-process/commands/start element
+   SipxProcessCmd*      mStop;          ///< from the sipXecs-process/commands/stop element
+   SipxProcessCmd*      mReconfigure;   ///< from the sipXecs-process/commands/reconfigure element
 
    UtlString        mPidFile;       ///< from the sipXecs-process/status/pid element
    UtlSList         mLogFiles;      /**< from the sipXecs-process/status/log elements
@@ -352,29 +352,29 @@ class Process : public UtlString
                                      *   wait until they are _not_ ready before stopping
                                      *
                                      *   These objects are owned by the SipxResourceManager,
-                                     *   so they are _not_ deleted when this Process
+                                     *   so they are _not_ deleted when this SipxProcess
                                      *   is destructed (but they are removed from
                                      *   this list).
                                      */
    OsPath           mDefinitionFile; ///< path to *-process.xml file that defined this process.
    
    /// constructor
-   Process(const UtlString& name,
+   SipxProcess(const UtlString& name,
            const UtlString& version,
            const OsPath&    definitionPath
            );
 
    // @cond INCLUDENOCOPY
    /// There is no copy constructor.
-   Process(const Process& nocopyconstructor);
+   SipxProcess(const SipxProcess& nocopyconstructor);
 
    /// There is no assignment operator.
-   Process& operator=(const Process& noassignmentoperator);
+   SipxProcess& operator=(const SipxProcess& noassignmentoperator);
    // @endcond     
 
-   friend class ProcessDefinitionParserTest;
-   friend class ProcessStateTest;
-   friend class ProcessVersionTest;
+   friend class SipxProcessDefinitionParserTest;
+   friend class SipxProcessStateTest;
+   friend class SipxProcessVersionTest;
 };
 
 #endif // _PROCESS_H_

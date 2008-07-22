@@ -16,48 +16,48 @@
 // CONSTANTS
 // TYPEDEFS
 // FORWARD DECLARATIONS
-class ProcessResource;
+class SipxProcessResource;
 
-/// Owns all existing ProcessResource objects.
+/// Owns all existing SipxProcessResource objects.
 /**
- * This is a singleton class: use the ProcessResourceManager::getInstance method to get a
+ * This is a singleton class: use the SipxProcessResourceManager::getInstance method to get a
  * pointer to the one object.
  */
-class ProcessResourceManager
+class SipxProcessResourceManager
 {
   public:
 
    /// Singleton accessor
-   static ProcessResourceManager* getInstance();
+   static SipxProcessResourceManager* getInstance();
    
-   /// Return an existing ProcessResource or NULL if no ProcessResource is found for 'process'.
-   ProcessResource* find(const char* process /**< name of the process */);
+   /// Return an existing SipxProcessResource or NULL if no SipxProcessResource is found for 'process'.
+   SipxProcessResource* find(const char* process /**< name of the process */);
    
    /// Add the new fileResource to those available in the system.
-   void save(ProcessResource* processResource /**< new ProcessResource object */);
+   void save(SipxProcessResource* processResource /**< new SipxProcessResource object */);
    
    /// destructor
-   ~ProcessResourceManager();
+   ~SipxProcessResourceManager();
 
   protected:
 
   private:
 
    /// constructor
-   ProcessResourceManager();
+   SipxProcessResourceManager();
 
    static OsBSem sSingletonLock;            ///< protects access to spSingleton
-   static ProcessResourceManager* spSingleton; ///< pointer to the one ProcessResourceManager
+   static SipxProcessResourceManager* spSingleton; ///< pointer to the one SipxProcessResourceManager
    
    OsBSem     mProcessResourceTableLock;
-   UtlHashBag mProcessResourceTable; ///< contains ProcessResource objects
+   UtlHashBag mProcessResourceTable; ///< contains SipxProcessResource objects
 
    // @cond INCLUDENOCOPY
    /// There is no copy constructor.
-   ProcessResourceManager(const ProcessResourceManager& nocopyconstructor);
+   SipxProcessResourceManager(const SipxProcessResourceManager& nocopyconstructor);
 
    /// There is no assignment operator.
-   ProcessResourceManager& operator=(const ProcessResourceManager& noassignmentoperator);
+   SipxProcessResourceManager& operator=(const SipxProcessResourceManager& noassignmentoperator);
    // @endcond     
 };
 

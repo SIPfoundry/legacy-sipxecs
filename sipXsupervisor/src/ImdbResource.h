@@ -39,7 +39,7 @@ class ImdbResource : public SipxResource
    static
       bool parse(const TiXmlDocument& processDefinitionDoc, ///< process definition document
                  TiXmlElement* resourceElement, ///< the child element of 'resources'.
-                 Process* currentProcess        ///< Process whose resources are being read.
+                 SipxProcess* currentProcess        ///< SipxProcess whose resources are being read.
                  );
    /**<
     * This is called by SipxResource::parse with any 'imdb' child of
@@ -62,7 +62,7 @@ class ImdbResource : public SipxResource
  */
 ///@{
 
-   /// Whether or not the ImdbResource is ready for use by a Process.
+   /// Whether or not the ImdbResource is ready for use by a SipxProcess.
    virtual bool isReadyToStart();
 
 ///@}
@@ -86,7 +86,7 @@ class ImdbResource : public SipxResource
   protected:
    
    /// constructor
-   ImdbResource(const char* uniqueId, Process* currentProcess);
+   ImdbResource(const char* uniqueId, SipxProcess* currentProcess);
 
    /// destructor
    virtual ~ImdbResource();

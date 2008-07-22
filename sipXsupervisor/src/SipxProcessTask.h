@@ -18,7 +18,7 @@
 // TYPEDEFS
 // FORWARD DECLARATIONS
 
-class ProcessMsg : public OsMsg
+class SipxProcessMsg : public OsMsg
 {
    /// Events sent to the task
    typedef enum 
@@ -29,7 +29,7 @@ class ProcessMsg : public OsMsg
       CheckState
    } MonitorEvent;
 
-  ProcessMsg(MonitorEvent event) :
+  SipxProcessMsg(MonitorEvent event) :
    OsMsg(USER_START, event)
    {
    };
@@ -41,12 +41,12 @@ class ProcessMsg : public OsMsg
  * This provides the thread from which all actual manipulation of
  * the system process takes place.
  */
-class ProcessTask : public OsTask
+class SipxProcessTask : public OsTask
 {
   public:
 
    /// constructor
-   ProcessTask(const UtlString& name);
+   SipxProcessTask(const UtlString& name);
 
    /// Spawn a new task and invoke its run() method..
    virtual UtlBoolean start(void);
@@ -54,7 +54,7 @@ class ProcessTask : public OsTask
    virtual int run(void* pArg);
 
    /// destructor
-   virtual ~ProcessTask();
+   virtual ~SipxProcessTask();
 
   protected:
 
@@ -62,10 +62,10 @@ class ProcessTask : public OsTask
 
    // @cond INCLUDENOCOPY
    /// There is no copy constructor.
-   ProcessTask(const ProcessTask& nocopyconstructor);
+   SipxProcessTask(const SipxProcessTask& nocopyconstructor);
 
    /// There is no assignment operator.
-   ProcessTask& operator=(const ProcessTask& noassignmentoperator);
+   SipxProcessTask& operator=(const SipxProcessTask& noassignmentoperator);
    // @endcond     
 };
 

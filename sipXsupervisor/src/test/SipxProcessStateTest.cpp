@@ -17,17 +17,17 @@
 #include "sipxunit/TestUtilities.h"
 #include "testlib/FileTestContext.h"
 
-#include "Process.h"
-#include "ProcessManager.h"
+#include "SipxProcess.h"
+#include "SipxProcessManager.h"
 
 // DEFINES
 // CONSTANTS
 // TYPEDEFS
 // FORWARD DECLARATIONS
 
-class ProcessStateTest : public CppUnit::TestCase
+class SipxProcessStateTest : public CppUnit::TestCase
 {
-   CPPUNIT_TEST_SUITE(ProcessStateTest);
+   CPPUNIT_TEST_SUITE(SipxProcessStateTest);
    CPPUNIT_TEST(stringToState);
    CPPUNIT_TEST(stateToString);
    CPPUNIT_TEST(stateSetting);
@@ -38,84 +38,84 @@ public:
    void stringToState()
       {
          UtlString strUndefined("Undefined");
-         CPPUNIT_ASSERT_EQUAL(Process::Undefined,
-                              Process::state(strUndefined));
+         CPPUNIT_ASSERT_EQUAL(SipxProcess::Undefined,
+                              SipxProcess::state(strUndefined));
 
          UtlString strDisabled("Disabled");
-         CPPUNIT_ASSERT_EQUAL(Process::Disabled,
-                              Process::state(strDisabled));
+         CPPUNIT_ASSERT_EQUAL(SipxProcess::Disabled,
+                              SipxProcess::state(strDisabled));
 
          UtlString strTesting("Testing");
-         CPPUNIT_ASSERT_EQUAL(Process::Testing,
-                              Process::state(strTesting));
+         CPPUNIT_ASSERT_EQUAL(SipxProcess::Testing,
+                              SipxProcess::state(strTesting));
 
          UtlString strResourceRequired("ResourceRequired");
-         CPPUNIT_ASSERT_EQUAL(Process::ResourceRequired,
-                              Process::state(strResourceRequired));
+         CPPUNIT_ASSERT_EQUAL(SipxProcess::ResourceRequired,
+                              SipxProcess::state(strResourceRequired));
 
          UtlString strConfigurationMismatch("ConfigurationMismatch");
-         CPPUNIT_ASSERT_EQUAL(Process::ConfigurationMismatch,
-                              Process::state(strConfigurationMismatch));
+         CPPUNIT_ASSERT_EQUAL(SipxProcess::ConfigurationMismatch,
+                              SipxProcess::state(strConfigurationMismatch));
 
          UtlString strConfigurationTestFailed("ConfigurationTestFailed");
-         CPPUNIT_ASSERT_EQUAL(Process::ConfigurationTestFailed,
-                              Process::state(strConfigurationTestFailed));
+         CPPUNIT_ASSERT_EQUAL(SipxProcess::ConfigurationTestFailed,
+                              SipxProcess::state(strConfigurationTestFailed));
 
          UtlString strStarting("Starting");
-         CPPUNIT_ASSERT_EQUAL(Process::Starting,
-                              Process::state(strStarting));
+         CPPUNIT_ASSERT_EQUAL(SipxProcess::Starting,
+                              SipxProcess::state(strStarting));
 
          UtlString strRunning("Running");
-         CPPUNIT_ASSERT_EQUAL(Process::Running,
-                              Process::state(strRunning));
+         CPPUNIT_ASSERT_EQUAL(SipxProcess::Running,
+                              SipxProcess::state(strRunning));
 
          UtlString strAwaitingReferences("AwaitingReferences");
-         CPPUNIT_ASSERT_EQUAL(Process::AwaitingReferences,
-                              Process::state(strAwaitingReferences));
+         CPPUNIT_ASSERT_EQUAL(SipxProcess::AwaitingReferences,
+                              SipxProcess::state(strAwaitingReferences));
 
          UtlString strStopping("Stopping");
-         CPPUNIT_ASSERT_EQUAL(Process::Stopping,
-                              Process::state(strStopping));
+         CPPUNIT_ASSERT_EQUAL(SipxProcess::Stopping,
+                              SipxProcess::state(strStopping));
 
          UtlString strFailed("Failed");
-         CPPUNIT_ASSERT_EQUAL(Process::Failed,
-                              Process::state(strFailed));
+         CPPUNIT_ASSERT_EQUAL(SipxProcess::Failed,
+                              SipxProcess::state(strFailed));
       };
 
    void stateToString()
       {
          ASSERT_STR_EQUAL("Undefined",
-                          Process::state(Process::Undefined));
+                          SipxProcess::state(SipxProcess::Undefined));
 
          ASSERT_STR_EQUAL("Disabled",
-                          Process::state(Process::Disabled));
+                          SipxProcess::state(SipxProcess::Disabled));
 
          ASSERT_STR_EQUAL("Testing",
-                          Process::state(Process::Testing));
+                          SipxProcess::state(SipxProcess::Testing));
 
          ASSERT_STR_EQUAL("ResourceRequired",
-                          Process::state(Process::ResourceRequired));
+                          SipxProcess::state(SipxProcess::ResourceRequired));
 
          ASSERT_STR_EQUAL("ConfigurationMismatch",
-                          Process::state(Process::ConfigurationMismatch));
+                          SipxProcess::state(SipxProcess::ConfigurationMismatch));
 
          ASSERT_STR_EQUAL("ConfigurationTestFailed",
-                          Process::state(Process::ConfigurationTestFailed));
+                          SipxProcess::state(SipxProcess::ConfigurationTestFailed));
 
          ASSERT_STR_EQUAL("Starting",
-                          Process::state(Process::Starting));
+                          SipxProcess::state(SipxProcess::Starting));
 
          ASSERT_STR_EQUAL("Running",
-                          Process::state(Process::Running));
+                          SipxProcess::state(SipxProcess::Running));
 
          ASSERT_STR_EQUAL("AwaitingReferences",
-                          Process::state(Process::AwaitingReferences));
+                          SipxProcess::state(SipxProcess::AwaitingReferences));
 
          ASSERT_STR_EQUAL("Stopping",
-                          Process::state(Process::Stopping));
+                          SipxProcess::state(SipxProcess::Stopping));
 
          ASSERT_STR_EQUAL("Failed",
-                          Process::state(Process::Failed));
+                          SipxProcess::state(SipxProcess::Failed));
       };
 
    void stateSetting()
@@ -126,44 +126,44 @@ public:
          testContext.setSipxDir(SipXecsService::VarDirType, "var");
 
          UtlHashMap status;
-         ProcessManager::getInstance()->getAllProcessStates(status);
+         SipxProcessManager::getInstance()->getAllProcessStates(status);
 
          size_t existingProcesses = status.entries();
 
          UtlString  path;
-         Process*   process1;
-         Process*   process2;
+         SipxProcess*   process1;
+         SipxProcess*   process2;
          
          testContext.inputFilePath("newprocess.xml", path);
-         CPPUNIT_ASSERT((process1 = Process::createFromDefinition(path)));
+         CPPUNIT_ASSERT((process1 = SipxProcess::createFromDefinition(path)));
 
          ASSERT_STR_EQUAL("New", process1->data());
          ASSERT_STR_EQUAL("1.0.0", process1->mVersion.data());
 
-         CPPUNIT_ASSERT_EQUAL(Process::Disabled, process1->getState());
-         CPPUNIT_ASSERT_EQUAL(Process::Disabled, process1->mDesiredState);
+         CPPUNIT_ASSERT_EQUAL(SipxProcess::Disabled, process1->getState());
+         CPPUNIT_ASSERT_EQUAL(SipxProcess::Disabled, process1->mDesiredState);
          CPPUNIT_ASSERT(!process1->isEnabled());
 
          testContext.inputFilePath("another-process.xml", path);
-         CPPUNIT_ASSERT((process2 = Process::createFromDefinition(path)));
+         CPPUNIT_ASSERT((process2 = SipxProcess::createFromDefinition(path)));
 
          ASSERT_STR_EQUAL("Nother", process2->data());
          ASSERT_STR_EQUAL("1.0.0", process2->mVersion.data());
 
-         CPPUNIT_ASSERT_EQUAL(Process::Disabled, process2->getState());
-         CPPUNIT_ASSERT_EQUAL(Process::Disabled, process2->mDesiredState);
+         CPPUNIT_ASSERT_EQUAL(SipxProcess::Disabled, process2->getState());
+         CPPUNIT_ASSERT_EQUAL(SipxProcess::Disabled, process2->mDesiredState);
 
          process1->enable();
          CPPUNIT_ASSERT(process1->isEnabled());
-         CPPUNIT_ASSERT_EQUAL(Process::Running, process1->mDesiredState);
-         CPPUNIT_ASSERT_EQUAL(Process::Disabled, process1->getState());
+         CPPUNIT_ASSERT_EQUAL(SipxProcess::Running, process1->mDesiredState);
+         CPPUNIT_ASSERT_EQUAL(SipxProcess::Disabled, process1->getState());
 
          process2->enable();
-         process2->mState = Process::Running; // HACK
-         CPPUNIT_ASSERT_EQUAL(Process::Running, process2->getState());
+         process2->mState = SipxProcess::Running; // HACK
+         CPPUNIT_ASSERT_EQUAL(SipxProcess::Running, process2->getState());
          CPPUNIT_ASSERT(process2->isEnabled());
 
-         ProcessManager::getInstance()->getAllProcessStates(status);
+         SipxProcessManager::getInstance()->getAllProcessStates(status);
 
          CPPUNIT_ASSERT_EQUAL(existingProcesses + 2U, status.entries());
          UtlString* statusValue;
@@ -182,4 +182,4 @@ public:
 
 
 
-CPPUNIT_TEST_SUITE_REGISTRATION(ProcessStateTest);
+CPPUNIT_TEST_SUITE_REGISTRATION(SipxProcessStateTest);

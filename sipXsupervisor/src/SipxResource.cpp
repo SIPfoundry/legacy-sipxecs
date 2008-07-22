@@ -15,9 +15,9 @@
 #include "xmlparser/XmlErrorMsg.h"
 #include "xmlparser/ExtractContent.h"
 
-#include "Process.h"
+#include "SipxProcess.h"
 
-#include "ProcessResource.h"
+#include "SipxProcessResource.h"
 #include "FileResource.h"
 #include "ImdbResource.h"
 #include "SqldbResource.h"
@@ -37,11 +37,11 @@ const char* ConfigAccessAttributeName = "configAccess";
 /// Factory method that parses a resource description element.
 bool SipxResource::parse(const TiXmlDocument& processDefinitionDoc,
                          TiXmlElement* resourceElement, ///< some child element of 'resources'.
-                         Process* currentProcess        ///< Process whose resources are being read.
+                         SipxProcess* currentProcess        ///< SipxProcess whose resources are being read.
                          )
 {
    /*
-    * This is called by Process::createFromDefinition with each child of the 'resources' element
+    * This is called by SipxProcess::createFromDefinition with each child of the 'resources' element
     * in a process definition.  Based on the element name, this method calls the 'parse'
     * method in the appropriate subclass.
     *
@@ -50,10 +50,10 @@ bool SipxResource::parse(const TiXmlDocument& processDefinitionDoc,
    bool resourceElementIsValid = false;
    const char* resourceTypeName = resourceElement->Value();
 
-   if (0==strcmp(resourceTypeName,ProcessResource::ProcessResourceTypeName))
+   if (0==strcmp(resourceTypeName,SipxProcessResource::SipxProcessResourceTypeName))
    {
       resourceElementIsValid =
-         ProcessResource::parse(processDefinitionDoc, resourceElement, currentProcess);
+         SipxProcessResource::parse(processDefinitionDoc, resourceElement, currentProcess);
    }
    else if (0==strcmp(resourceTypeName,ImdbResource::ImdbResourceTypeName))
    {
@@ -96,7 +96,7 @@ void SipxResource::appendDescription(UtlString&  description /**< returned descr
  */
 ///@{
 
-/// Whether or not the SipxResource is ready for use by a Process.
+/// Whether or not the SipxResource is ready for use by a SipxProcess.
 bool SipxResource::isReadyToStart()
 {
    OsSysLog::add(FAC_SUPERVISOR, PRI_CRIT, "SipxResource::isReadyToStart called.");
@@ -104,22 +104,22 @@ bool SipxResource::isReadyToStart()
 }
 
 
-/// Whether or not it is safe to stop a Process using the SipxResource.
+/// Whether or not it is safe to stop a SipxProcess using the SipxResource.
 bool SipxResource::isSafeToStop()
 {
    return true;   // assume this is ok
 }
 
 
-/// Some change has been made to this resource; notify any Processes that use it.
+/// Some change has been made to this resource; notify any SipxProcesses that use it.
 void SipxResource::modified()
 {
    UtlSListIterator processResources(mUsedBy);
-   ProcessResource* processResource;
+   SipxProcessResource* processResource;
 
-   while ((processResource = dynamic_cast<ProcessResource*>(processResources())))
+   while ((processResource = dynamic_cast<SipxProcessResource*>(processResources())))
    {
-      Process* process;
+      SipxProcess* process;
       if ((process=processResource->getProcess()))
       {
          process->configurationChange(*this);
@@ -146,13 +146,13 @@ UtlContainableType SipxResource::getContainableType() const
 }
 
 /// constructor
-SipxResource::SipxResource(const char* uniqueId, Process* currentProcess) :
+SipxResource::SipxResource(const char* uniqueId, SipxProcess* currentProcess) :
    UtlString(uniqueId),
    mFirstDefinition(true),
    mWritableImplicit(true),
    mWritable(false)
 {
-   // when a Process creates its own ProcessResource, it passes NULL rather than require itself...
+   // when a SipxProcess creates its own SipxProcessResource, it passes NULL rather than require itself...
    if (currentProcess)
    {
       mUsedBy.append(currentProcess->resource());
@@ -166,7 +166,7 @@ SipxResource::SipxResource(const char* uniqueId, Process* currentProcess) :
 /// Parses attributes common to all SipxResource classes.
 bool SipxResource::parseAttribute(const TiXmlDocument& document,
                                   const TiXmlAttribute* attribute,
-                                  Process* currentProcess
+                                  SipxProcess* currentProcess
                                   )
 {
    /**<

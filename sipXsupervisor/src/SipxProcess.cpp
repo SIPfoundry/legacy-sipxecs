@@ -15,27 +15,27 @@
 #include "xmlparser/ExtractContent.h"
 #include "sipXecsService/SipXecsService.h"
 
-#include "ProcessCmd.h"
+#include "SipxProcessCmd.h"
 #include "SipxResource.h"
 #include "FileResource.h"
-#include "ProcessResource.h"
-#include "ProcessResourceManager.h"
-#include "ProcessManager.h"
-#include "Process.h"
+#include "SipxProcessResource.h"
+#include "SipxProcessResourceManager.h"
+#include "SipxProcessManager.h"
+#include "SipxProcess.h"
 
 // DEFINES
 // CONSTANTS
 
-const UtlContainableType Process::TYPE = "Process";
+const UtlContainableType SipxProcess::TYPE = "SipxProcess";
 
 const char* SipXecsProcessRootElement = "sipXecs-process";
 const char* SipXecsProcessNamespace =
    "http://www.sipfoundry.org/sipX/schema/xml/sipXecs-process-01-00";
 
-const char* ProcessStateDir = "process-state";
-const char* ProcessConfigVersionDir = "process-cfgver";
+const char* SipxProcessStateDir = "process-state";
+const char* SipxProcessConfigVersionDir = "process-cfgver";
 
-const char* ProcessStateName[/* State value */] = // must match Process::State
+const char* SipxProcessStateName[/* State value */] = // must match SipxProcess::State
 {
    "Undefined",
    "Disabled",
@@ -54,7 +54,7 @@ const char* ProcessStateName[/* State value */] = // must match Process::State
 // FORWARD DECLARATIONS
 
 /// constructor
-Process::Process(const UtlString& name, const UtlString& version, const OsPath& definitionFile) :
+SipxProcess::SipxProcess(const UtlString& name, const UtlString& version, const OsPath& definitionFile) :
    UtlString(name),
    mLock(OsBSem::Q_PRIORITY, OsBSem::FULL),
    mVersion(version),
@@ -68,29 +68,29 @@ Process::Process(const UtlString& name, const UtlString& version, const OsPath& 
    mDefinitionFile(definitionFile)
 {
    /*
-    * Get the ProcessResource for this Process; it may have already been created
-    * by some other Process that declared this one as a resource.
+    * Get the SipxProcessResource for this SipxProcess; it may have already been created
+    * by some other SipxProcess that declared this one as a resource.
     */
-   ProcessResourceManager* processResourceManager = ProcessResourceManager::getInstance();
+   SipxProcessResourceManager* processResourceManager = SipxProcessResourceManager::getInstance();
    if (!(mSelfResource = processResourceManager->find(name.data())))
    {
-      // No other Process has declared this one as a resource yet, so create the ProcessResource 
-      mSelfResource = new ProcessResource(name.data(), NULL);
+      // No other SipxProcess has declared this one as a resource yet, so create the SipxProcessResource 
+      mSelfResource = new SipxProcessResource(name.data(), NULL);
       processResourceManager->save(mSelfResource);
    }
    else
    {
-      /* the resource has already been created by some other Process
+      /* the resource has already been created by some other SipxProcess
        * listing this one as a resource.
        */
    }
 };
 
 /// Read a process definition and return a process if definition is valid.
-Process* Process::createFromDefinition(const OsPath& definitionFile)
+SipxProcess* SipxProcess::createFromDefinition(const OsPath& definitionFile)
 {
-   Process* process = NULL;
-   ProcessManager* processManager = ProcessManager::getInstance();
+   SipxProcess* process = NULL;
+   SipxProcessManager* processManager = SipxProcessManager::getInstance();
    
    UtlString errorMsg;
 
@@ -131,7 +131,7 @@ Process* Process::createFromDefinition(const OsPath& definitionFile)
                {
                   definitionValid = false;
                   XmlErrorMsg(processDefinitionDoc,errorMsg);
-                  OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "Process::createFromDefinition "
+                  OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "SipxProcess::createFromDefinition "
                                 "'name' element content is invalid %s",
                                 errorMsg.data()
                                 );
@@ -140,7 +140,7 @@ Process* Process::createFromDefinition(const OsPath& definitionFile)
                {
                   definitionValid = false;
                   XmlErrorMsg(processDefinitionDoc,errorMsg);
-                  OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "Process::createFromDefinition "
+                  OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "SipxProcess::createFromDefinition "
                                 "duplicate process name '%s'\n"
                                 "  %s\n"
                                 "  previously defined in '%s'",
@@ -153,7 +153,7 @@ Process* Process::createFromDefinition(const OsPath& definitionFile)
             {
                definitionValid = false;
                XmlErrorMsg(processDefinitionDoc,errorMsg);
-               OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "Process::createFromDefinition "
+               OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "SipxProcess::createFromDefinition "
                              "required 'name' element is missing %s",
                              errorMsg.data()
                              );
@@ -171,7 +171,7 @@ Process* Process::createFromDefinition(const OsPath& definitionFile)
                   {
                      definitionValid = false;
                      XmlErrorMsg(processDefinitionDoc,errorMsg);
-                     OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "Process::createFromDefinition "
+                     OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "SipxProcess::createFromDefinition "
                                    "'version' element content is invalid %s",
                                    errorMsg.data()
                                    );
@@ -181,7 +181,7 @@ Process* Process::createFromDefinition(const OsPath& definitionFile)
                {
                   definitionValid = false;
                   XmlErrorMsg(processDefinitionDoc,errorMsg);
-                  OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "Process::createFromDefinition "
+                  OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "SipxProcess::createFromDefinition "
                                 "required 'version' element is missing %s",
                                 errorMsg.data()
                                 );
@@ -194,13 +194,13 @@ Process* Process::createFromDefinition(const OsPath& definitionFile)
                if (   (commandsElement = versionElement->NextSiblingElement())
                    && (0 == strcmp("commands",commandsElement->Value())))
                {
-                  // defer parsing commands until Process object is created below
+                  // defer parsing commands until SipxProcess object is created below
                }
                else
                {
                   definitionValid = false;
                   XmlErrorMsg(processDefinitionDoc,errorMsg);
-                  OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "Process::createFromDefinition "
+                  OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "SipxProcess::createFromDefinition "
                                 "required 'commands' element is missing %s",
                                 errorMsg.data()
                                 );
@@ -213,13 +213,13 @@ Process* Process::createFromDefinition(const OsPath& definitionFile)
                if (   (statusElement = commandsElement->NextSiblingElement())
                    && (0 == strcmp("status",statusElement->Value())))
                {
-                  // defer parsing status until Process object is created below
+                  // defer parsing status until SipxProcess object is created below
                }
                else
                {
                   definitionValid = false;
                   XmlErrorMsg(processDefinitionDoc,errorMsg);
-                  OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "Process::createFromDefinition "
+                  OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "SipxProcess::createFromDefinition "
                                 "required 'status' element is missing %s",
                                 errorMsg.data()
                                 );
@@ -236,7 +236,7 @@ Process* Process::createFromDefinition(const OsPath& definitionFile)
                   {
                      definitionValid = false;
                      XmlErrorMsg(processDefinitionDoc,errorMsg);
-                     OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "Process::createFromDefinition "
+                     OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "SipxProcess::createFromDefinition "
                                    "invalid '%s' element: expected 'resources'  %s",
                                    elementName, errorMsg.data()
                                    );
@@ -245,10 +245,10 @@ Process* Process::createFromDefinition(const OsPath& definitionFile)
             }
 
             /* All the required top level elements have been found, so create
-             * the Process object and invoke the parsers for the components. */
+             * the SipxProcess object and invoke the parsers for the components. */
             if (definitionValid)
             {
-               if ((process = new Process(name, version, definitionFile)))
+               if ((process = new SipxProcess(name, version, definitionFile)))
                {
                   // Parse the 'commands' elements
                   TiXmlElement* configtestCmdElement;
@@ -262,12 +262,12 @@ Process* Process::createFromDefinition(const OsPath& definitionFile)
                       && (0 == strcmp("configtest",configtestCmdElement->Value())))
                   {
                      if (! (process->mConfigtest =
-                            ProcessCmd::parseCommandDefinition(processDefinitionDoc,
+                            SipxProcessCmd::parseCommandDefinition(processDefinitionDoc,
                                                                configtestCmdElement)))
                      {
                         definitionValid = false;
                         XmlErrorMsg(processDefinitionDoc,errorMsg);
-                        OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "Process::createFromDefinition "
+                        OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "SipxProcess::createFromDefinition "
                                       "'configtest' content is invalid %s",
                                       errorMsg.data()
                                       );
@@ -277,7 +277,7 @@ Process* Process::createFromDefinition(const OsPath& definitionFile)
                   {
                      definitionValid = false;
                      XmlErrorMsg(processDefinitionDoc,errorMsg);
-                     OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "Process::createFromDefinition "
+                     OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "SipxProcess::createFromDefinition "
                                    "required 'configtest' element is missing %s",
                                    errorMsg.data()
                                    );
@@ -291,12 +291,12 @@ Process* Process::createFromDefinition(const OsPath& definitionFile)
                          && (0 == strcmp("start",startCmdElement->Value())))
                      {
                         if (! (process->mStart =
-                               ProcessCmd::parseCommandDefinition(processDefinitionDoc,
+                               SipxProcessCmd::parseCommandDefinition(processDefinitionDoc,
                                                                   startCmdElement)))
                         {
                            definitionValid = false;
                            XmlErrorMsg(processDefinitionDoc,errorMsg);
-                           OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "Process::createFromDefinition "
+                           OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "SipxProcess::createFromDefinition "
                                          "'start' content is invalid %s",
                                          errorMsg.data()
                                          );
@@ -306,7 +306,7 @@ Process* Process::createFromDefinition(const OsPath& definitionFile)
                      {
                         definitionValid = false;
                         XmlErrorMsg(processDefinitionDoc,errorMsg);
-                        OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "Process::createFromDefinition "
+                        OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "SipxProcess::createFromDefinition "
                                       "required 'start' element is missing %s",
                                       errorMsg.data()
                                       );
@@ -321,12 +321,12 @@ Process* Process::createFromDefinition(const OsPath& definitionFile)
                          && (0 == strcmp("stop",stopCmdElement->Value())))
                      {
                         if (! (process->mStop =
-                               ProcessCmd::parseCommandDefinition(processDefinitionDoc,
+                               SipxProcessCmd::parseCommandDefinition(processDefinitionDoc,
                                                                   stopCmdElement)))
                         {
                            definitionValid = false;
                            XmlErrorMsg(processDefinitionDoc,errorMsg);
-                           OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "Process::createFromDefinition "
+                           OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "SipxProcess::createFromDefinition "
                                          "'stop' content is invalid %s",
                                          errorMsg.data()
                                          );
@@ -336,7 +336,7 @@ Process* Process::createFromDefinition(const OsPath& definitionFile)
                      {
                         definitionValid = false;
                         XmlErrorMsg(processDefinitionDoc,errorMsg);
-                        OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "Process::createFromDefinition "
+                        OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "SipxProcess::createFromDefinition "
                                       "required 'stop' element is missing %s",
                                       errorMsg.data()
                                       );
@@ -351,12 +351,12 @@ Process* Process::createFromDefinition(const OsPath& definitionFile)
                          && (0 == strcmp("reconfigure",reconfigureCmdElement->Value())))
                      {
                         if (!(process->mReconfigure =
-                              ProcessCmd::parseCommandDefinition(processDefinitionDoc,
+                              SipxProcessCmd::parseCommandDefinition(processDefinitionDoc,
                                                                  reconfigureCmdElement)))
                         {
                            definitionValid = false;
                            XmlErrorMsg(processDefinitionDoc,errorMsg);
-                           OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "Process::createFromDefinition "
+                           OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "SipxProcess::createFromDefinition "
                                          "'reconfigure' content is invalid %s",
                                          errorMsg.data()
                                          );
@@ -396,7 +396,7 @@ Process* Process::createFromDefinition(const OsPath& definitionFile)
                               {
                                  definitionValid = false;
                                  XmlErrorMsg(processDefinitionDoc,errorMsg);
-                                 OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "Process::createFromDefinition "
+                                 OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "SipxProcess::createFromDefinition "
                                                "'pid' element is empty"
                                                " - if present, it must be a pathname %s",
                                                errorMsg.data()
@@ -431,7 +431,7 @@ Process* Process::createFromDefinition(const OsPath& definitionFile)
                               {
                                  definitionValid = false;
                                  XmlErrorMsg(processDefinitionDoc,errorMsg);
-                                 OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "Process::createFromDefinition "
+                                 OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "SipxProcess::createFromDefinition "
                                                "'log' element is empty"
                                                " - if present, it must be a pathname %s",
                                                errorMsg.data()
@@ -442,7 +442,7 @@ Process* Process::createFromDefinition(const OsPath& definitionFile)
                            {
                               definitionValid = false;
                               XmlErrorMsg(processDefinitionDoc,errorMsg);
-                              OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "Process::createFromDefinition "
+                              OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "SipxProcess::createFromDefinition "
                                             "'%s' element is invalid here: expected 'log'",
                                             statusChildElement->Value()                
                                             );
@@ -454,7 +454,7 @@ Process* Process::createFromDefinition(const OsPath& definitionFile)
                         definitionValid = false;
                      
                         XmlErrorMsg(processDefinitionDoc,errorMsg);
-                        OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "Process::createFromDefinition "
+                        OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "SipxProcess::createFromDefinition "
                                       "required 'status' element is missing %s",
                                       errorMsg.data()
                                       );
@@ -495,7 +495,7 @@ Process* Process::createFromDefinition(const OsPath& definitionFile)
                         {
                            definitionValid = false;
                            XmlErrorMsg(processDefinitionDoc,errorMsg);
-                           OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "Process::createFromDefinition "
+                           OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "SipxProcess::createFromDefinition "
                                          "'%s' element is invalid here: expected 'resources'",
                                          resourcesElement->Value()                
                                          );
@@ -505,7 +505,7 @@ Process* Process::createFromDefinition(const OsPath& definitionFile)
                      {
                         definitionValid = false;
                         XmlErrorMsg(processDefinitionDoc,errorMsg);
-                        OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "Process::createFromDefinition "
+                        OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "SipxProcess::createFromDefinition "
                                       "required 'resources' element is missing %s",
                                       errorMsg.data()
                                       );
@@ -524,27 +524,27 @@ Process* Process::createFromDefinition(const OsPath& definitionFile)
 
                         process->mState = Disabled; // nothing more need be done when disabled.
 
-                        ProcessManager::getInstance()->save(process);
+                        SipxProcessManager::getInstance()->save(process);
                      }
                   }
                   else
                   {
-                     // something is wrong, so get rid of the invalid Process object
+                     // something is wrong, so get rid of the invalid SipxProcess object
                      delete process;
                      process = NULL;
                   }
                }
                else
                {
-                  OsSysLog::add(FAC_SUPERVISOR, PRI_CRIT, "Process::createFromDefinition "
-                                "failed to create Process object for '%s'", name.data());
+                  OsSysLog::add(FAC_SUPERVISOR, PRI_CRIT, "SipxProcess::createFromDefinition "
+                                "failed to create SipxProcess object for '%s'", name.data());
                }
             }
          }
          else
          {
             XmlErrorMsg(processDefinitionDoc,errorMsg);
-            OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "Process::createFromDefinition "
+            OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "SipxProcess::createFromDefinition "
                           "invalid root element '%s' in namespace '%s'\n"
                           "should be '%s' in namespace '%s' %s",
                           rootElementName, definitionNamespace,
@@ -557,7 +557,7 @@ Process* Process::createFromDefinition(const OsPath& definitionFile)
       else
       {
          XmlErrorMsg(processDefinitionDoc,errorMsg);
-         OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "Process::createFromDefinition "
+         OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "SipxProcess::createFromDefinition "
                        "root element not found in '%s': %s",
                        definitionFile.data(), errorMsg.data()
                        );
@@ -567,7 +567,7 @@ Process* Process::createFromDefinition(const OsPath& definitionFile)
    {
       UtlString errorMsg;
       XmlErrorMsg(processDefinitionDoc,errorMsg);
-      OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "Process::createFromDefinition failed to load '%s': %s",
+      OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "SipxProcess::createFromDefinition failed to load '%s': %s",
                     definitionFile.data(), errorMsg.data()
                     );
    }
@@ -575,16 +575,16 @@ Process* Process::createFromDefinition(const OsPath& definitionFile)
    return process;
 }
 
-/// Return the ProcessResource for this Process.
-ProcessResource* Process::resource()
+/// Return the SipxProcessResource for this SipxProcess.
+SipxProcessResource* SipxProcess::resource()
 {
    OsLock mutex(mLock);
    
    return mSelfResource;
 }
 
-/// Return the current state of the Process.
-Process::State Process::getState()
+/// Return the current state of the SipxProcess.
+SipxProcess::State SipxProcess::getState()
 {
    OsLock mutex(mLock);
    
@@ -592,7 +592,7 @@ Process::State Process::getState()
 }
 
 /// Return whether or not the service for this process should be Running.
-bool Process::isEnabled()
+bool SipxProcess::isEnabled()
 {
    OsLock mutex(mLock);
    
@@ -603,8 +603,8 @@ bool Process::isEnabled()
  *            the service: for that see getState
  */
 
-/// Set the persistent desired state of the Process to Running.
-void Process::enable()
+/// Set the persistent desired state of the SipxProcess to Running.
+void SipxProcess::enable()
 {
    OsLock mutex(mLock);
    
@@ -614,8 +614,8 @@ void Process::enable()
    checkService();
 }
 
-/// Set the persistent desired state of the Process to Disabled.
-void Process::disable()
+/// Set the persistent desired state of the SipxProcess to Disabled.
+void SipxProcess::disable()
 {
    OsLock mutex(mLock);
    
@@ -626,7 +626,7 @@ void Process::disable()
 }
 
 /// Shutting down sipXsupervisor, so shut down the service.
-void Process::shutdown()
+void SipxProcess::shutdown()
 {
    OsLock mutex(mLock);
    
@@ -635,24 +635,24 @@ void Process::shutdown()
 }
 
 
-/// Notify the Process that some configuration change has occurred.
-void Process::configurationChange(const SipxResource& changedResource)
+/// Notify the SipxProcess that some configuration change has occurred.
+void SipxProcess::configurationChange(const SipxResource& changedResource)
 {
    UtlString changedResourceDescription;
    changedResource.appendDescription(changedResourceDescription);
    
-   OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG, "Process[%s]::configurationChange(%s)",
+   OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG, "SipxProcess[%s]::configurationChange(%s)",
                  data(), changedResourceDescription.data());
    
    checkService();
 }
    
-void Process::readConfigurationVersion()
+void SipxProcess::readConfigurationVersion()
 {
    // caller must be holding mLock
 
    OsPath persistentConfigVersionPath(SipXecsService::Path(SipXecsService::VarDirType,
-                                                           ProcessConfigVersionDir)
+                                                           SipxProcessConfigVersionDir)
                                       + OsPath::separator + data());
    OsFile persistentConfigVersionFile(persistentConfigVersionPath);
 
@@ -661,14 +661,14 @@ void Process::readConfigurationVersion()
       if (OS_SUCCESS == persistentConfigVersionFile.readLine(mConfigVersion))
       {
          OsSysLog::add(FAC_SUPERVISOR, PRI_INFO,
-                       "Process[%s]::readConfigurationVersion mConfigVersion='%s'",
+                       "SipxProcess[%s]::readConfigurationVersion mConfigVersion='%s'",
                        data(), mConfigVersion.data());
       }
       else
       {
          // apparently, open read-only can return success when the file is not there.
          OsSysLog::add(FAC_SUPERVISOR, PRI_ERR,
-                       "Process[%s]::readConfigurationVersion read of '%s' failed"
+                       "SipxProcess[%s]::readConfigurationVersion read of '%s' failed"
                        " (ok if process has never been configured)",
                        data(), persistentConfigVersionPath.data());
       }
@@ -678,26 +678,26 @@ void Process::readConfigurationVersion()
    else
    {
       OsSysLog::add(FAC_SUPERVISOR, PRI_WARNING,
-                    "Process[%s]::readConfigurationVersion open of '%s' failed"
+                    "SipxProcess[%s]::readConfigurationVersion open of '%s' failed"
                     " (ok if process has never been configured)",
                     data(), persistentConfigVersionPath.data());
    }
 }
 
 /// Check whether or not the configuration version matches the process version.
-bool Process::configurationVersionMatches()
+bool SipxProcess::configurationVersionMatches()
 {
    OsLock mutex(mLock);
    bool versionMatches = (0==mConfigVersion.compareTo(mVersion, UtlString::matchCase));
 
    if (versionMatches) 
    {
-      OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG, "Process[%s]::configurationVersionMatches true",
+      OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG, "SipxProcess[%s]::configurationVersionMatches true",
                     data());
    }
    else
    {
-      OsSysLog::add(FAC_SUPERVISOR, PRI_INFO, "Process[%s]::configurationVersionMatches false:"
+      OsSysLog::add(FAC_SUPERVISOR, PRI_INFO, "SipxProcess[%s]::configurationVersionMatches false:"
                     " process '%s' != config '%s'",
                     data(), mVersion.data(), mConfigVersion.data());
    }
@@ -708,19 +708,19 @@ bool Process::configurationVersionMatches()
    
 
 /// Set the version stamp value of the configuration.
-void Process::setConfigurationVersion(const UtlString& newConfigVersion)
+void SipxProcess::setConfigurationVersion(const UtlString& newConfigVersion)
 {
    OsLock mutex(mLock);
    
    if (0!=newConfigVersion.compareTo(mConfigVersion,UtlString::matchCase))
    {
-      OsSysLog::add(FAC_SUPERVISOR, PRI_INFO, "Process[%s]::setConfigurationVersion"
+      OsSysLog::add(FAC_SUPERVISOR, PRI_INFO, "SipxProcess[%s]::setConfigurationVersion"
                     " '%s' -> '%s'", data(), mConfigVersion.data(), newConfigVersion.data());
 
       mConfigVersion = newConfigVersion;
       
       OsPath persistentConfigVersionDirPath  // normally {prefix}/var/sipxecs/process-state
-         = SipXecsService::Path(SipXecsService::VarDirType, ProcessConfigVersionDir);
+         = SipXecsService::Path(SipXecsService::VarDirType, SipxProcessConfigVersionDir);
    
       OsDir persistentConfigVersionDir(persistentConfigVersionDirPath);
       OsPath persistentConfigVersionPath(persistentConfigVersionDirPath
@@ -732,13 +732,13 @@ void Process::setConfigurationVersion(const UtlString& newConfigVersion)
          if (OS_SUCCESS==OsFileSystem::createDir(persistentConfigVersionDirPath,
                                                  TRUE /* create parents */))
          {
-            OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG, "Process::setConfigurationVersion "
+            OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG, "SipxProcess::setConfigurationVersion "
                           "created directory '%s'",
                           persistentConfigVersionDirPath.data());
          }
          else 
          {
-            OsSysLog::add(FAC_SUPERVISOR, PRI_CRIT, "Process[%s]::setConfigurationVersion "
+            OsSysLog::add(FAC_SUPERVISOR, PRI_CRIT, "SipxProcess[%s]::setConfigurationVersion "
                           "directory create failed for '%s'",
                           data(), persistentConfigVersionDirPath.data());
          }
@@ -751,14 +751,14 @@ void Process::setConfigurationVersion(const UtlString& newConfigVersion)
                                                            mConfigVersion.length(),
                                                            bytesWritten))
          {
-            OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "Process[%s]::setConfigurationVersion "
+            OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "SipxProcess[%s]::setConfigurationVersion "
                           "write to '%s' failed", data(), persistentConfigVersionPath.data());
          }
       }
       else
       {
          OsSysLog::add(FAC_SUPERVISOR, PRI_ERR,
-                       "Process[%s]::setConfigurationVersion create of '%s' failed",
+                       "SipxProcess[%s]::setConfigurationVersion create of '%s' failed",
                        data(), persistentConfigVersionPath.data());
       }
 
@@ -767,33 +767,33 @@ void Process::setConfigurationVersion(const UtlString& newConfigVersion)
    else
    {
       OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG,
-                    "Process[%s]::setConfigurationVersion new value '%s' matches existing value.",
+                    "SipxProcess[%s]::setConfigurationVersion new value '%s' matches existing value.",
                     data(),mConfigVersion.data());
    }
    
 }
    
 /// Compare actual process state to the desired state, and attempt to change it if needed.
-void Process::checkService()
+void SipxProcess::checkService()
 {
    // @TODO 
-   OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG, "Process[%s]::checkService called.", data());
+   OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG, "SipxProcess[%s]::checkService called.", data());
 }
    
 /// Determine whether or not the values in a containable are comparable.
-UtlContainableType Process::getContainableType() const
+UtlContainableType SipxProcess::getContainableType() const
 {
    return TYPE;
 }
 
-void Process::requireResource(SipxResource* resource)
+void SipxProcess::requireResource(SipxResource* resource)
 {
    OsLock mutex(mLock);
 
    mRequiredResources.append(resource);
 }
 
-void Process::resourceIsOptional(SipxResource* resource)
+void SipxProcess::resourceIsOptional(SipxResource* resource)
 {
    OsLock mutex(mLock);
 
@@ -801,12 +801,12 @@ void Process::resourceIsOptional(SipxResource* resource)
 }
 
 /// Translate the string from of the state name to the enum
-Process::State Process::state(const UtlString& stringStateValue)
+SipxProcess::State SipxProcess::state(const UtlString& stringStateValue)
 {
    int stateValue;
    for ( stateValue = Failed;
          (   stateValue > Undefined
-          && 0 != stringStateValue.compareTo(ProcessStateName[stateValue], UtlString::matchCase)
+          && 0 != stringStateValue.compareTo(SipxProcessStateName[stateValue], UtlString::matchCase)
           );
          stateValue--
         )
@@ -815,12 +815,12 @@ Process::State Process::state(const UtlString& stringStateValue)
 }
    
 /// Translate the string from of the state name to the enum
-const char* Process::state(State stateValue)
+const char* SipxProcess::state(State stateValue)
 {
    const char* stateName = NULL;
    if ( stateValue >= Undefined && stateValue <= Failed )
    {
-      stateName = ProcessStateName[stateValue];
+      stateName = SipxProcessStateName[stateValue];
    }
    else
    {
@@ -830,12 +830,12 @@ const char* Process::state(State stateValue)
 }
 
 /// Save the persistent desired state.
-void Process::persistDesiredState()
+void SipxProcess::persistDesiredState()
 {
    // caller must be holding mLock.
 
    OsPath persistentStateDirPath  // normally {prefix}/var/sipxecs/process-state
-      = SipXecsService::Path(SipXecsService::VarDirType, ProcessStateDir);
+      = SipXecsService::Path(SipXecsService::VarDirType, SipxProcessStateDir);
    
    OsDir persistentStateDir(persistentStateDirPath);
 
@@ -843,13 +843,13 @@ void Process::persistDesiredState()
    {
       if (OS_SUCCESS == OsFileSystem::createDir(persistentStateDirPath, TRUE /* create parents */))
       {
-         OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG, "Process::persistDesiredState "
+         OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG, "SipxProcess::persistDesiredState "
                        "created directory '%s'",
                        persistentStateDirPath.data());
       }
       else
       {
-         OsSysLog::add(FAC_SUPERVISOR, PRI_CRIT, "Process::persistDesiredState "
+         OsSysLog::add(FAC_SUPERVISOR, PRI_CRIT, "SipxProcess::persistDesiredState "
                        "directory create failed for '%s'",
                        persistentStateDirPath.data());
       }
@@ -867,25 +867,25 @@ void Process::persistDesiredState()
                                                   persistentState.length(),
                                                   bytesWritten))
       {
-         OsSysLog::add(FAC_SUPERVISOR, PRI_CRIT, "Process::persistDesiredState "
+         OsSysLog::add(FAC_SUPERVISOR, PRI_CRIT, "SipxProcess::persistDesiredState "
                        "write to '%s' failed", persistentStatePath.data());
       }
    }
    else
    {
-      OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "Process::persistDesiredState open of '%s' failed",
+      OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "SipxProcess::persistDesiredState open of '%s' failed",
                     persistentStatePath.data());
    }
 }
 
 /// Read the persistent desired state into mDesiredState.
-void Process::readPersistentState()
+void SipxProcess::readPersistentState()
 {
    OsLock mutex(mLock);
    
    mDesiredState = Undefined;
 
-   OsPath persistentStatePath(SipXecsService::Path(SipXecsService::VarDirType, ProcessStateDir)
+   OsPath persistentStatePath(SipXecsService::Path(SipXecsService::VarDirType, SipxProcessStateDir)
                               + OsPath::separator + data());
    OsFile persistentStateFile(persistentStatePath);
    
@@ -894,7 +894,7 @@ void Process::readPersistentState()
       UtlString persistentStateString;
       if (OS_SUCCESS != persistentStateFile.readLine(persistentStateString))
       {
-         OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "Process::readPersistentState read failed");
+         OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "SipxProcess::readPersistentState read failed");
       }
 
       mDesiredState = state(persistentStateString);
@@ -902,13 +902,13 @@ void Process::readPersistentState()
    else
    {
       OsSysLog::add(FAC_SUPERVISOR, PRI_WARNING,
-                    "Process::readPersistentState open of '%s' failed",
+                    "SipxProcess::readPersistentState open of '%s' failed",
                     persistentStatePath.data());
    }
 }
 
 /// destructor
-Process::~Process()
+SipxProcess::~SipxProcess()
 {
    OsLock mutex(mLock);
 

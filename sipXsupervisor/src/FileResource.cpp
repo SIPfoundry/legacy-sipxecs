@@ -14,7 +14,7 @@
 #include "xmlparser/XmlErrorMsg.h"
 #include "xmlparser/ExtractContent.h"
 
-#include "Process.h"
+#include "SipxProcess.h"
 #include "FileResourceManager.h"
 #include "FileResource.h"
 
@@ -31,7 +31,7 @@ const char* FileResource::OsconfigResourceTypeName = "osconfig";
 // Factory method that parses a 'file' or 'osconfig' resource description element.
 bool FileResource::parse(const TiXmlDocument& fileDefinitionDoc, ///< process definition document
                          TiXmlElement* resourceElement, // 'file' or 'osconfig' element
-                         Process* currentProcess        // whose resources are being read.
+                         SipxProcess* currentProcess        // whose resources are being read.
                          )
 {
    /*
@@ -107,7 +107,7 @@ bool FileResource::parse(const TiXmlDocument& fileDefinitionDoc, ///< process de
 }
 
 /// Log files are resources too - this creates a log file resource
-FileResource* FileResource::logFileResource(const UtlString& logFilePath, Process* currentProcess)
+FileResource* FileResource::logFileResource(const UtlString& logFilePath, SipxProcess* currentProcess)
 {
    // a log file resource is read-only and not required
    FileResource* logFile = new FileResource(logFilePath.data(), currentProcess);
@@ -135,7 +135,7 @@ void FileResource::appendDescription(UtlString&  description /**< returned descr
 }
 
 
-// Whether or not the FileResource is ready for use by a Process.
+// Whether or not the FileResource is ready for use by a SipxProcess.
 bool FileResource::isReadyToStart()
 {
    OsPath filePath(*this);
@@ -149,7 +149,7 @@ UtlContainableType FileResource::getContainableType() const
 }
 
 /// constructor
-FileResource::FileResource(const char* uniqueId, Process* currentProcess) :
+FileResource::FileResource(const char* uniqueId, SipxProcess* currentProcess) :
    SipxResource(uniqueId, currentProcess)
 {
 }

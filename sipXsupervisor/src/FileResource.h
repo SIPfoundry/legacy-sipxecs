@@ -20,8 +20,8 @@
 
 /// Represents a File as a SipxResource
 /**
- * Created as a side effect of creating a Process when parsing a 'sipXecs-process' element
- *   (in the 'findProcessResource' method).  @see the Process class documentation.
+ * Created as a side effect of creating a SipxProcess when parsing a 'sipXecs-process' element
+ *   (in the 'findProcessResource' method).  @see the SipxProcess class documentation.
  *
  * To locate a particular FileResource, call FileResourceManager::find.
  *
@@ -48,7 +48,7 @@ class FileResource : public SipxResource
    static
       bool parse(const TiXmlDocument& processDefinitionDoc, ///< process definition document
                  TiXmlElement* resourceElement, ///< the child element of 'resources'.
-                 Process* currentProcess        ///< Process whose resources are being read.
+                 SipxProcess* currentProcess        ///< SipxProcess whose resources are being read.
                  );
    /**<
     * This is called by SipxResource::parse with any 'file' or 'osconfig' child of
@@ -59,7 +59,7 @@ class FileResource : public SipxResource
 
    /// Log files are resources too - this creates a log file resource
    static
-      FileResource* logFileResource(const UtlString& logFilePath, Process* currentProcess);
+      FileResource* logFileResource(const UtlString& logFilePath, SipxProcess* currentProcess);
    ///< a log file resource is read-only and not required
    
 ///@}   
@@ -72,7 +72,7 @@ class FileResource : public SipxResource
    /// get a description of the FileResource (for use in logging)
    virtual void appendDescription(UtlString&  description /**< returned description */) const;
 
-   /// Whether or not the FileResource is ready for use by a Process.
+   /// Whether or not the FileResource is ready for use by a SipxProcess.
    virtual bool isReadyToStart();
 
 ///@}
@@ -96,7 +96,7 @@ class FileResource : public SipxResource
   protected:
    
    /// constructor
-   FileResource(const char* uniqueId, Process* currentProcess);
+   FileResource(const char* uniqueId, SipxProcess* currentProcess);
 
    /// destructor
    virtual ~FileResource();

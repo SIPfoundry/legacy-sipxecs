@@ -14,25 +14,25 @@
 #include "xmlparser/XmlErrorMsg.h"
 #include "xmlparser/ExtractContent.h"
 
-#include "ProcessManager.h"
-#include "Process.h"
+#include "SipxProcessManager.h"
+#include "SipxProcess.h"
 
-#include "ProcessResourceManager.h"
-#include "ProcessResource.h"
+#include "SipxProcessResourceManager.h"
+#include "SipxProcessResource.h"
 
 // DEFINES
 // CONSTANTS
-const UtlContainableType ProcessResource::TYPE = "ProcessResource";
+const UtlContainableType SipxProcessResource::TYPE = "SipxProcessResource";
 
-const char* ProcessResource::ProcessResourceTypeName = "process";
+const char* SipxProcessResource::SipxProcessResourceTypeName = "process";
 
 // TYPEDEFS
 // FORWARD DECLARATIONS
 
 // Factory method that parses a 'process' resource description element.
-bool ProcessResource::parse(const TiXmlDocument& processDefinitionDoc, ///< process definition document
+bool SipxProcessResource::parse(const TiXmlDocument& processDefinitionDoc, ///< process definition document
                             TiXmlElement* resourceElement, // 'process' element
-                            Process* currentProcess        // whose resources are being read.
+                            SipxProcess* currentProcess        // whose resources are being read.
                             )
 {
    /*
@@ -51,12 +51,12 @@ bool ProcessResource::parse(const TiXmlDocument& processDefinitionDoc, ///< proc
       if (!processName.isNull())
       {
 
-         ProcessResourceManager* processResourceMgr = ProcessResourceManager::getInstance();
+         SipxProcessResourceManager* processResourceMgr = SipxProcessResourceManager::getInstance();
 
-         ProcessResource* processResource;
+         SipxProcessResource* processResource;
          if (!(processResource = processResourceMgr->find(processName)))
          {
-            processResource = new ProcessResource(processName, NULL);
+            processResource = new SipxProcessResource(processName, NULL);
          }
 
          for ( const TiXmlAttribute* attribute = resourceElement->FirstAttribute();
@@ -69,7 +69,7 @@ bool ProcessResource::parse(const TiXmlDocument& processDefinitionDoc, ///< proc
                                                                 attribute, currentProcess)
                   ))
             {
-               OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "ProcessResource::parse "
+               OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "SipxProcessResource::parse "
                              "invalid attribute '%s'",
                              attribute->Name());
             }
@@ -92,7 +92,7 @@ bool ProcessResource::parse(const TiXmlDocument& processDefinitionDoc, ///< proc
       {
          resourceIsValid = false;
          XmlErrorMsg(processDefinitionDoc, errorMsg);
-         OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "ProcessResource::parse "
+         OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "SipxProcessResource::parse "
                        "process element is empty %s",
                        errorMsg.data());
       }
@@ -100,7 +100,7 @@ bool ProcessResource::parse(const TiXmlDocument& processDefinitionDoc, ///< proc
    else
    {
       XmlErrorMsg(processDefinitionDoc, errorMsg);
-      OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "ProcessResource::parse "
+      OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "SipxProcessResource::parse "
                     "invalid content in process element %s",
                     errorMsg.data());
    }
@@ -109,56 +109,56 @@ bool ProcessResource::parse(const TiXmlDocument& processDefinitionDoc, ///< proc
 }
 
 
-// get a description of the ProcessResource (for use in logging)
-void ProcessResource::appendDescription(UtlString&  description /**< returned description */) const
+// get a description of the SipxProcessResource (for use in logging)
+void SipxProcessResource::appendDescription(UtlString&  description /**< returned description */) const
 {
    description.append("process '");
    description.append(data());
    description.append("'");
 }
 
-/// A ProcessResource may not written by configuration update methods.
-bool ProcessResource::isWriteable()
+/// A SipxProcessResource may not written by configuration update methods.
+bool SipxProcessResource::isWriteable()
 {
    return false;
 }
 
-/// If possible, get the corresponding Process object.
-Process* ProcessResource::getProcess()
+/// If possible, get the corresponding SipxProcess object.
+SipxProcess* SipxProcessResource::getProcess()
 {
-   // return the Process that has the same name as this ProcessResource. 
-   return ProcessManager::getInstance()->findProcess(*this); 
+   // return the SipxProcess that has the same name as this SipxProcessResource. 
+   return SipxProcessManager::getInstance()->findProcess(*this); 
 }
    
 
-// Whether or not the ProcessResource is ready for use by a Process.
-bool ProcessResource::isReadyToStart()
+// Whether or not the SipxProcessResource is ready for use by a SipxProcess.
+bool SipxProcessResource::isReadyToStart()
 {
-   Process* myProcess = getProcess();
+   SipxProcess* myProcess = getProcess();
 
-   return (myProcess && Process::Running == myProcess->getState());
+   return (myProcess && SipxProcess::Running == myProcess->getState());
 }
 
-// Whether or not it is safe to stop a Process using the ProcessResource.
-bool ProcessResource::isSafeToStop()
+// Whether or not it is safe to stop a SipxProcess using the SipxProcessResource.
+bool SipxProcessResource::isSafeToStop()
 {
    return ! isReadyToStart();
 }
 
 // Determine whether or not the values in a containable are comparable.
-UtlContainableType ProcessResource::getContainableType() const
+UtlContainableType SipxProcessResource::getContainableType() const
 {
    return TYPE;
 }
 
 /// constructor
-ProcessResource::ProcessResource(const char* uniqueId, Process* currentProcess) :
+SipxProcessResource::SipxProcessResource(const char* uniqueId, SipxProcess* currentProcess) :
    SipxResource(uniqueId, currentProcess)
 {
    mWritable=false;
 }
 
 /// destructor
-ProcessResource::~ProcessResource()
+SipxProcessResource::~SipxProcessResource()
 {
 }

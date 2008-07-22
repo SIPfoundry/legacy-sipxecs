@@ -1,4 +1,4 @@
-## Process this file with automake to produce Makefile.in
+## SipxProcess this file with automake to produce Makefile.in
 include $(top_srcdir)/config/subdir.am
 
 SUBDIRS = test
@@ -29,15 +29,15 @@ libsipXsupervisor_la_SOURCES =  \
 	FileRpc.cpp \
 	DependencyList.cpp \
 	processXMLCommon.cpp \
-	ProcessManager.cpp \
-	ProcessResourceManager.cpp \
-	ProcessResource.cpp \
+	SipxProcessManager.cpp \
+	SipxProcessResourceManager.cpp \
+	SipxProcessResource.cpp \
 	ImdbResourceManager.cpp \
 	ImdbResource.cpp \
 	SqldbResourceManager.cpp \
 	SqldbResource.cpp \
-	Process.cpp \
-	ProcessCmd.cpp \
+	SipxProcess.cpp \
+	SipxProcessCmd.cpp \
 	SipxResource.cpp \
 	FileResource.cpp \
 	FileResourceManager.cpp \
@@ -51,13 +51,13 @@ noinst_HEADERS = \
 	FileRpc.h \
 	DependencyList.h \
 	processXMLCommon.h \
-	ProcessManager.h \
-	ProcessCmd.h \
-	ProcessTask.h \
-	Process.h \
+	SipxProcessManager.h \
+	SipxProcessCmd.h \
+	SipxProcessTask.h \
+	SipxProcess.h \
 	SipxResource.h \
-	ProcessResource.h \
-	ProcessResourceManager.h \
+	SipxProcessResource.h \
+	SipxProcessResourceManager.h \
 	FileResource.h \
 	FileResourceManager.h \
 	ImdbResource.h \

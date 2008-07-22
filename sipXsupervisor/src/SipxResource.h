@@ -20,10 +20,10 @@
 // FORWARD DECLARATIONS
 class TiXmlElement;
 class TiXmlAttribute;
-class Process;
-class ProcessDefinitionParserTest;
+class SipxProcess;
+class SipxProcessDefinitionParserTest;
 
-/// Abstract base class for things upon which Process objects are dependant.
+/// Abstract base class for things upon which SipxProcess objects are dependant.
 /**
  * SipxResources are declared by an element belonging to the resource class in the
  * sipXecs-process schema (a sub-element of the 'resources' element in a 'process' document).
@@ -32,9 +32,9 @@ class ProcessDefinitionParserTest;
  * - Only something that is declared to be a resource can be written using the configuration
  *   replication methods (@see FileRpcMethod and ImdbRpcMethod).
  *
- * - A Process definition can declare that a resource is 'required', which means that:
- *   - The Process can not start before that SipxResource is "ready"
- *   - The Process can not stop before that SipxResource is no longer "in use".
+ * - A SipxProcess definition can declare that a resource is 'required', which means that:
+ *   - The SipxProcess can not start before that SipxResource is "ready"
+ *   - The SipxProcess can not stop before that SipxResource is no longer "in use".
  *
  *   The definitions of "ready" and "in use" differ depending on the subclass of SipxResource.
  */
@@ -49,10 +49,10 @@ class SipxResource : public UtlString
    static
       bool parse(const TiXmlDocument& processDefinitionDoc, ///< process definition document
                  TiXmlElement* resourceElement, ///< some child element of 'resources'.
-                 Process* currentProcess        ///< Process whose resources are being read.
+                 SipxProcess* currentProcess        ///< SipxProcess whose resources are being read.
                  );
    /**<
-    * This is called by Process::createFromDefinition with each child of the 'resources' element
+    * This is called by SipxProcess::createFromDefinition with each child of the 'resources' element
     * in a process definition.  Based on the element name, this method calls the 'parse'
     * method in the appropriate subclass.
     *
@@ -68,13 +68,13 @@ class SipxResource : public UtlString
  */
 ///@{
 
-   /// Whether or not the SipxResource is ready for use by a Process.
+   /// Whether or not the SipxResource is ready for use by a SipxProcess.
    virtual bool isReadyToStart();
 
-   /// Whether or not it is safe to stop a Process using the SipxResource.
+   /// Whether or not it is safe to stop a SipxProcess using the SipxResource.
    virtual bool isSafeToStop();
 
-   /// Some change has been made to this resource; notify any Processes that use it.
+   /// Some change has been made to this resource; notify any SipxProcesses that use it.
    virtual void modified();
 
 ///@}
@@ -108,12 +108,12 @@ class SipxResource : public UtlString
   protected:
    
    /// constructor
-   SipxResource(const char* uniqueId, Process* currentProcess);
+   SipxResource(const char* uniqueId, SipxProcess* currentProcess);
 
    /// Parses attributes common to all SipxResource classes.
    bool parseAttribute(const TiXmlDocument& document,  ///< document being parsed (for error mess)
                        const TiXmlAttribute* attribute,///< attribute to be parsed.
-                       Process* currentProcess         ///< Process whose resources are being read.
+                       SipxProcess* currentProcess         ///< SipxProcess whose resources are being read.
                        );
    /**<
     * This method should be called for each attribute child of a 'resource' type node.
@@ -127,7 +127,7 @@ class SipxResource : public UtlString
    bool mWritableImplicit; ///< true if no definition had an explicit 'configAccess' attribute.
    bool mWritable; ///< the value from the 'configAccess' attribute.
 
-   UtlSList mUsedBy;  ///< ProcessResource objects that use this SipxResource.
+   UtlSList mUsedBy;  ///< SipxProcessResource objects that use this SipxResource.
    
   private:
 
@@ -141,7 +141,7 @@ class SipxResource : public UtlString
    SipxResource& operator=(const SipxResource& noassignmentoperator);
    // @endcond     
 
-   friend class ProcessDefinitionParserTest;
+   friend class SipxProcessDefinitionParserTest;
 };
 
 #endif // _RESOURCE_H_

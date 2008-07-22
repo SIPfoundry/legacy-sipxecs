@@ -18,17 +18,17 @@
 // CONSTANTS
 // TYPEDEFS
 // FORWARD DECLARATIONS
-class Process;
+class SipxProcess;
 
-/// Represents a Process as a SipxResource
+/// Represents a SipxProcess as a SipxResource
 /**
  * Created either:
- * - As a side effect of creating a Process when parsing a 'sipXecs-process' element
+ * - As a side effect of creating a SipxProcess when parsing a 'sipXecs-process' element
  *   (in the 'findProcessResource' method).
  * - By a 'process' element listed as in the 'resources' element in some other process definition
  *   (using the 'parse' method)
  */
-class ProcessResource : public SipxResource
+class SipxProcessResource : public SipxResource
 {
   public:
 
@@ -38,13 +38,13 @@ class ProcessResource : public SipxResource
  */
 ///@{
    /// Public name of the resource element parsed by this parser.
-   static const char* ProcessResourceTypeName;
+   static const char* SipxProcessResourceTypeName;
    
    /// Factory method that parses a 'process' resource description element.
    static
       bool parse(const TiXmlDocument& processDefinitionDoc, ///< process definition document
                  TiXmlElement* resourceElement, ///< some child element of 'resources'.
-                 Process* currentProcess        ///< Process whose resources are being read.
+                 SipxProcess* currentProcess        ///< SipxProcess whose resources are being read.
                  );
    /**<
     * This is called by SipxResource::parse with any 'process' child of the 'resources' element
@@ -53,7 +53,7 @@ class ProcessResource : public SipxResource
     * @returns false if the element was in any way invalid.
     */
 
-   /// get a description of the ProcessResource (for use in logging)
+   /// get a description of the SipxProcessResource (for use in logging)
    virtual void appendDescription(UtlString&  description /**< returned description */) const;
 
 ///@}   
@@ -63,11 +63,11 @@ class ProcessResource : public SipxResource
  */
 ///@{
 
-   /// A ProcessResource may not written by configuration update methods.
+   /// A SipxProcessResource may not written by configuration update methods.
    bool isWriteable();
 
-   /// If possible, get the corresponding Process object.
-   Process* getProcess();
+   /// If possible, get the corresponding SipxProcess object.
+   SipxProcess* getProcess();
    
 ///@}
 // ================================================================
@@ -76,10 +76,10 @@ class ProcessResource : public SipxResource
  */
 ///@{
 
-   /// Whether or not the ProcessResource is ready for use by a Process.
+   /// Whether or not the SipxProcessResource is ready for use by a SipxProcess.
    virtual bool isReadyToStart();
 
-   /// Whether or not it is safe to stop a Process using the ProcessResource.
+   /// Whether or not it is safe to stop a SipxProcess using the SipxProcessResource.
    virtual bool isSafeToStop();
 
 ///@}
@@ -101,22 +101,22 @@ class ProcessResource : public SipxResource
 
 
   protected:
-   friend class Process;
+   friend class SipxProcess;
    
    /// constructor
-   ProcessResource(const char* uniqueId, Process* currentProcess);
+   SipxProcessResource(const char* uniqueId, SipxProcess* currentProcess);
 
    /// destructor
-   virtual ~ProcessResource();
+   virtual ~SipxProcessResource();
 
   private:
 
    // @cond INCLUDENOCOPY
    /// There is no copy constructor.
-   ProcessResource(const ProcessResource& nocopyconstructor);
+   SipxProcessResource(const SipxProcessResource& nocopyconstructor);
 
    /// There is no assignment operator.
-   ProcessResource& operator=(const ProcessResource& noassignmentoperator);
+   SipxProcessResource& operator=(const SipxProcessResource& noassignmentoperator);
    // @endcond     
 };
 

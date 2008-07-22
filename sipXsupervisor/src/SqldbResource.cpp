@@ -29,7 +29,7 @@ const char* SqldbResource::SqldbResourceTypeName = "sqldb";
 // Factory method that parses a 'sqldb' resource description element.
 bool SqldbResource::parse(const TiXmlDocument& sqldbDefinitionDoc, ///< sqldb definition document
                           TiXmlElement* resourceElement, // 'sqldb' element
-                          Process* currentProcess        // whose resources are being read.
+                          SipxProcess* currentProcess        // whose resources are being read.
                           )
 {
    /*
@@ -127,7 +127,7 @@ UtlContainableType SqldbResource::getContainableType() const
 }
 
 /// constructor
-SqldbResource::SqldbResource(const char* uniqueId, Process* currentProcess) :
+SqldbResource::SqldbResource(const char* uniqueId, SipxProcess* currentProcess) :
    SipxResource(uniqueId, currentProcess)
 {
 }

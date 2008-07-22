@@ -17,9 +17,9 @@ testsuite_LDADD = \
    ../libsipXsupervisor.la
 
 testsuite_SOURCES = \
-    ProcessDefinitionParserTest.cpp \
-	 ProcessStateTest.cpp \
-	 ProcessVersionsTest.cpp
+    SipxProcessDefinitionParserTest.cpp \
+	 SipxProcessStateTest.cpp \
+	 SipxProcessVersionsTest.cpp
 
 alarm_testsuite_CXXFLAGS = \
     -DTEST_DATA_DIR=\"@abs_top_srcdir@/src/test\" \

@@ -28,12 +28,12 @@ class TiXmlElement;
  *
  * To execute the command, the execute method is called (it does not return any status).
  */
-class ProcessCmd
+class SipxProcessCmd
 {
   public:
 
    /// initializes by parsing a Command type element from sipXecs-process schema
-   static ProcessCmd* parseCommandDefinition(const TiXmlDocument& processDefinitionDoc,
+   static SipxProcessCmd* parseCommandDefinition(const TiXmlDocument& processDefinitionDoc,
                                              ///< the process definition document
                                              const TiXmlElement* commandElement /**< any 'Command'
                                                                                  *   type element
@@ -45,11 +45,11 @@ class ProcessCmd
    void execute();
    
    /// destructor
-   virtual ~ProcessCmd();
+   virtual ~SipxProcessCmd();
 
   protected:
 
-   ProcessCmd(const UtlString& execute,
+   SipxProcessCmd(const UtlString& execute,
               const UtlString& workingDirectory,
               const UtlString& user
               );
@@ -62,13 +62,13 @@ class ProcessCmd
    
    // @cond INCLUDENOCOPY
    /// There is no copy constructor.
-   ProcessCmd(const ProcessCmd& nocopyconstructor);
+   SipxProcessCmd(const SipxProcessCmd& nocopyconstructor);
 
    /// There is no assignment operator.
-   ProcessCmd& operator=(const ProcessCmd& noassignmentoperator);
+   SipxProcessCmd& operator=(const SipxProcessCmd& noassignmentoperator);
    // @endcond     
 
-   friend class ProcessDefinitionParserTest;
+   friend class SipxProcessDefinitionParserTest;
 };
 
 #endif // _PROCESSCMD_H_

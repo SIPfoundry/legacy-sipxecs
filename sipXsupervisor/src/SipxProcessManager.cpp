@@ -12,71 +12,71 @@
 #include "utl/UtlHashBagIterator.h"
 #include "xmlparser/tinyxml.h"
 
-#include "Process.h"
-#include "ProcessManager.h"
+#include "SipxProcess.h"
+#include "SipxProcessManager.h"
 
 // DEFINES
 // CONSTANTS
 const char* PROCESS_DEFINITION_NAME_PATTERN = ".*-process.xml";
 
 // STATICS
-OsBSem          ProcessManager::sSingletonLock(OsBSem::Q_PRIORITY, OsBSem::FULL);
-ProcessManager* ProcessManager::spSingleton;
+OsBSem          SipxProcessManager::sSingletonLock(OsBSem::Q_PRIORITY, OsBSem::FULL);
+SipxProcessManager* SipxProcessManager::spSingleton;
 
 // FORWARD DECLARATIONS
 
 /// Singleton accessor
-ProcessManager* ProcessManager::getInstance()
+SipxProcessManager* SipxProcessManager::getInstance()
 {
    OsLock mutex(sSingletonLock);
 
    if (!spSingleton)
    {
-      spSingleton = new ProcessManager();
+      spSingleton = new SipxProcessManager();
    }
    return spSingleton;
 }
 
 
 /// constructor
-ProcessManager::ProcessManager() :
+SipxProcessManager::SipxProcessManager() :
    mProcessTableLock(OsBSem::Q_PRIORITY, OsBSem::FULL)
 {
 };
 
 /// Save a process definition.
-void ProcessManager::save(Process* process)
+void SipxProcessManager::save(SipxProcess* process)
 {
-   // called from within Process::createFromDefinition
+   // called from within SipxProcess::createFromDefinition
    OsLock mutex(mProcessTableLock);
          
-   OsSysLog::add(FAC_SUPERVISOR, PRI_NOTICE, "ProcessManager::save "
-                 " Process '%s'", process->data());
+   OsSysLog::add(FAC_SUPERVISOR, PRI_NOTICE, "SipxProcessManager::save "
+                 " SipxProcess '%s'", process->data());
    mProcesses.insert(process);
 }
 
 
 
-/// Locate a Process object by name.
-Process* ProcessManager::findProcess(const UtlString& processName)
+/// Locate a SipxProcess object by name.
+SipxProcess* SipxProcessManager::findProcess(const UtlString& processName)
 {
-   OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG,"ProcessManager::findProcess "
+   OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG,"SipxProcessManager::findProcess "
                  "searching for '%s'", processName.data()
                  );
 
    OsLock tableMutex(mProcessTableLock);
 
-   return dynamic_cast<Process*>(mProcesses.find(&processName));
+   return dynamic_cast<SipxProcess*>(mProcesses.find(&processName));
 }
 
-/// Find process definitions and instantiate Process objects for each.
-void ProcessManager::instantiateProcesses(const OsPath& processDefinitionDirectory)
+/// Find process definitions and instantiate SipxProcess objects for each.
+void SipxProcessManager::instantiateProcesses(const OsPath& processDefinitionDirectory)
 {
    OsFileIterator definitions(processDefinitionDirectory);
    OsPath    processDefinitionFile;
    OsStatus  iteratorStatus;
    
-   OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG,"ProcessManager::instantiateProcesses searching %s",
+   OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG,"SipxProcessManager::instantiateProcesses searching %s",
                  processDefinitionDirectory.data()
                  );
 
@@ -91,38 +91,38 @@ void ProcessManager::instantiateProcesses(const OsPath& processDefinitionDirecto
                                    +OsPath::separator
                                    +processDefinitionFile
                                    );
-      OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG,"ProcessManager::instantiateProcesses reading %s",
+      OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG,"SipxProcessManager::instantiateProcesses reading %s",
                     processDefinitionPath.data()
                     );
 
-      Process::createFromDefinition(processDefinitionPath);
+      SipxProcess::createFromDefinition(processDefinitionPath);
    }
 }
 
 // Fill in a map of process names and states (as UtlStrings)
-void ProcessManager::getAllProcessStates(UtlHashMap& processStates //< key->name, value->state string
+void SipxProcessManager::getAllProcessStates(UtlHashMap& processStates //< key->name, value->state string
                          )
 {
    processStates.destroyAll();
-   Process* process;
+   SipxProcess* process;
 
    OsLock mutex(mProcessTableLock);
    UtlHashBagIterator processes(mProcesses);
-   while ((process = dynamic_cast<Process*>(processes())))
+   while ((process = dynamic_cast<SipxProcess*>(processes())))
    {
       processStates.insertKeyAndValue(new UtlString(process->data()),
-                                      new UtlString(Process::state(process->getState()))
+                                      new UtlString(SipxProcess::state(process->getState()))
                                       );
    }
 }
 
 /// destructor
-ProcessManager::~ProcessManager()
+SipxProcessManager::~SipxProcessManager()
 {
    OsLock tableMutex(mProcessTableLock);
 
-   OsSysLog::add(FAC_SUPERVISOR, PRI_NOTICE, "ProcessManager::~ "
-                 "delete %zu Process objects", mProcesses.entries());
+   OsSysLog::add(FAC_SUPERVISOR, PRI_NOTICE, "SipxProcessManager::~ "
+                 "delete %zu SipxProcess objects", mProcesses.entries());
 
    mProcesses.destroyAll();
 };

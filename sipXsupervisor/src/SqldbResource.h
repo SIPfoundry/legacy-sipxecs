@@ -38,7 +38,7 @@ class SqldbResource : public SipxResource
    static
       bool parse(const TiXmlDocument& processDefinitionDoc, ///< process definition document
                  TiXmlElement* resourceElement, ///< the child element of 'resources'.
-                 Process* currentProcess        ///< Process whose resources are being read.
+                 SipxProcess* currentProcess        ///< SipxProcess whose resources are being read.
                  );
    /**<
     * This is called by SipxResource::parse with any 'sqldb' child of
@@ -61,7 +61,7 @@ class SqldbResource : public SipxResource
  */
 ///@{
 
-   /// Whether or not the SqldbResource is ready for use by a Process.
+   /// Whether or not the SqldbResource is ready for use by a SipxProcess.
    virtual bool isReadyToStart();
 
 ///@}
@@ -85,7 +85,7 @@ class SqldbResource : public SipxResource
   protected:
    
    /// constructor
-   SqldbResource(const char* uniqueId, Process* currentProcess);
+   SqldbResource(const char* uniqueId, SipxProcess* currentProcess);
 
    /// destructor
    virtual ~SqldbResource();

@@ -15,7 +15,7 @@
 
 #include "sipXecsService/SipXecsService.h"
 
-#include "ProcessCmd.h"
+#include "SipxProcessCmd.h"
 
 // DEFINES
 // CONSTANTS
@@ -23,11 +23,11 @@
 // FORWARD DECLARATIONS
 
 /// initializes by parsing a Command type element from sipXecs-process schema
-ProcessCmd* ProcessCmd::parseCommandDefinition(const TiXmlDocument& processDefinitionDoc,
+SipxProcessCmd* SipxProcessCmd::parseCommandDefinition(const TiXmlDocument& processDefinitionDoc,
                                                const TiXmlElement* commandElement // any 'Command'
                                                )
 {
-   ProcessCmd* processCmd = NULL;
+   SipxProcessCmd* processCmd = NULL;
 
    bool      definitionValid = true;
    UtlString errorMsg;
@@ -55,7 +55,7 @@ ProcessCmd* ProcessCmd::parseCommandDefinition(const TiXmlDocument& processDefin
          {
             definitionValid = false;
             XmlErrorMsg(processDefinitionDoc,errorMsg);
-            OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "ProcessCmd::parseCommandDefinition "
+            OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "SipxProcessCmd::parseCommandDefinition "
                           "'defaultDir' element is empty"
                           " - if present, it must be a pathname %s",
                           errorMsg.data()
@@ -91,7 +91,7 @@ ProcessCmd* ProcessCmd::parseCommandDefinition(const TiXmlDocument& processDefin
          {
             definitionValid = false;
             XmlErrorMsg(processDefinitionDoc,errorMsg);
-            OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "ProcessCmd::parseCommandDefinition "
+            OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "SipxProcessCmd::parseCommandDefinition "
                           "'user' element is empty"
                           " - if present, it must be a valid username %s",
                           errorMsg.data()
@@ -125,7 +125,7 @@ ProcessCmd* ProcessCmd::parseCommandDefinition(const TiXmlDocument& processDefin
          {
             definitionValid = false;
             XmlErrorMsg(processDefinitionDoc,errorMsg);
-            OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "ProcessCmd::parseCommandDefinition "
+            OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "SipxProcessCmd::parseCommandDefinition "
                           "'execute' element is empty"
                           " - it must be a valid executable %s",
                           errorMsg.data()
@@ -137,7 +137,7 @@ ProcessCmd* ProcessCmd::parseCommandDefinition(const TiXmlDocument& processDefin
       {
          definitionValid = false;
          XmlErrorMsg(processDefinitionDoc,errorMsg);
-         OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "ProcessCmd::parseCommandDefinition "
+         OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "SipxProcessCmd::parseCommandDefinition "
                        "'execute' element is missing %s",
                        errorMsg.data()
                        );
@@ -147,7 +147,7 @@ ProcessCmd* ProcessCmd::parseCommandDefinition(const TiXmlDocument& processDefin
 
    if (definitionValid)
    {
-      if ((processCmd = new ProcessCmd(execute, defaultDir, user)))
+      if ((processCmd = new SipxProcessCmd(execute, defaultDir, user)))
       {
          // sipXecs-process/commands/<Command>/parameter
          while (definitionValid && commandChildElement)
@@ -168,7 +168,7 @@ ProcessCmd* ProcessCmd::parseCommandDefinition(const TiXmlDocument& processDefin
 
                   definitionValid = false;
                   XmlErrorMsg(processDefinitionDoc,errorMsg);
-                  OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "ProcessCmd::parseCommandDefinition "
+                  OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "SipxProcessCmd::parseCommandDefinition "
                                 "'parameter' element is empty"
                                 " - if present, it must have text content %s",
                                 errorMsg.data()
@@ -179,7 +179,7 @@ ProcessCmd* ProcessCmd::parseCommandDefinition(const TiXmlDocument& processDefin
             {
                definitionValid = false;
                XmlErrorMsg(processDefinitionDoc,errorMsg);
-               OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "ProcessCmd::parseCommandDefinition "
+               OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "SipxProcessCmd::parseCommandDefinition "
                              "'%s' element is invalid here: expected 'parameter'",
                              commandChildElement->Value()
                              );
@@ -194,8 +194,8 @@ ProcessCmd* ProcessCmd::parseCommandDefinition(const TiXmlDocument& processDefin
       }
       else
       {
-         OsSysLog::add(FAC_SUPERVISOR, PRI_CRIT, "ProcessCmd::parseCommandDefinition "
-                       "unable to allocate ProcessCmd'"
+         OsSysLog::add(FAC_SUPERVISOR, PRI_CRIT, "SipxProcessCmd::parseCommandDefinition "
+                       "unable to allocate SipxProcessCmd'"
                        );
       }
    }
@@ -204,19 +204,19 @@ ProcessCmd* ProcessCmd::parseCommandDefinition(const TiXmlDocument& processDefin
 }
 
 /// Execute the command.
-void ProcessCmd::execute()
+void SipxProcessCmd::execute()
 {
-   OsSysLog::add(FAC_SUPERVISOR, PRI_NOTICE, "ProcessCmd::execute "
+   OsSysLog::add(FAC_SUPERVISOR, PRI_NOTICE, "SipxProcessCmd::execute "
                  "STUB - NOT IMPLEMENTED");
 }
 
 
 /// destructor
-ProcessCmd::~ProcessCmd()
+SipxProcessCmd::~SipxProcessCmd()
 {
 }
 
-ProcessCmd::ProcessCmd(const UtlString& execute,
+SipxProcessCmd::SipxProcessCmd(const UtlString& execute,
                        const UtlString& workingDirectory,
                        const UtlString& user
                        ) :

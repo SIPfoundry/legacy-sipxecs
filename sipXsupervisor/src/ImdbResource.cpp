@@ -31,7 +31,7 @@ const char* ImdbResource::ImdbResourceTypeName = "imdb";
 // Factory method that parses a 'imdb' resource description element.
 bool ImdbResource::parse(const TiXmlDocument& imdbDefinitionDoc, ///< imdb definition document
                          TiXmlElement* resourceElement, // 'imdb' element
-                         Process* currentProcess        // whose resources are being read.
+                         SipxProcess* currentProcess        // whose resources are being read.
                          )
 {
    /*
@@ -136,7 +136,7 @@ UtlContainableType ImdbResource::getContainableType() const
 }
 
 /// constructor
-ImdbResource::ImdbResource(const char* uniqueId, Process* currentProcess) :
+ImdbResource::ImdbResource(const char* uniqueId, SipxProcess* currentProcess) :
    SipxResource(uniqueId, currentProcess),
    mLock(OsBSem::Q_PRIORITY, OsBSem::FULL),
    mDatabase(NULL)

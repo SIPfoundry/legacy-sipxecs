@@ -17,16 +17,16 @@
 #include "sipxunit/TestUtilities.h"
 #include "testlib/FileTestContext.h"
 
-#include "Process.h"
+#include "SipxProcess.h"
 
 // DEFINES
 // CONSTANTS
 // TYPEDEFS
 // FORWARD DECLARATIONS
 
-class ProcessVersionTest : public CppUnit::TestCase
+class SipxProcessVersionTest : public CppUnit::TestCase
 {
-   CPPUNIT_TEST_SUITE(ProcessVersionTest);
+   CPPUNIT_TEST_SUITE(SipxProcessVersionTest);
    CPPUNIT_TEST(versionStartup);
    CPPUNIT_TEST(versionSetting);
    CPPUNIT_TEST_SUITE_END();
@@ -42,10 +42,10 @@ public:
          testContext.inputFile("var/process-cfgver/Past");
 
          UtlString  path;
-         Process*   process;
+         SipxProcess*   process;
 
          testContext.inputFilePath("pastprocess.xml", path);
-         CPPUNIT_ASSERT((process = Process::createFromDefinition(path)));
+         CPPUNIT_ASSERT((process = SipxProcess::createFromDefinition(path)));
 
          ASSERT_STR_EQUAL("Past", process->data());
          ASSERT_STR_EQUAL("1.0.0", process->mVersion.data());
@@ -61,10 +61,10 @@ public:
          testContext.setSipxDir(SipXecsService::VarDirType, "var");
 
          UtlString  path;
-         Process*   process;
+         SipxProcess*   process;
 
          testContext.inputFilePath("someprocess.xml", path);
-         CPPUNIT_ASSERT((process = Process::createFromDefinition(path)));
+         CPPUNIT_ASSERT((process = SipxProcess::createFromDefinition(path)));
 
          ASSERT_STR_EQUAL("Some", process->data());
          ASSERT_STR_EQUAL("1.0.0", process->mVersion.data());
@@ -89,4 +89,4 @@ public:
 
 
 
-CPPUNIT_TEST_SUITE_REGISTRATION(ProcessVersionTest);
+CPPUNIT_TEST_SUITE_REGISTRATION(SipxProcessVersionTest);

@@ -16,28 +16,28 @@
 // CONSTANTS
 // TYPEDEFS
 // FORWARD DECLARATIONS
-class Process;
+class SipxProcess;
 
-/// Instantiates Process objects and provides access to them.
+/// Instantiates SipxProcess objects and provides access to them.
 /**
  * 
  */
-class ProcessManager
+class SipxProcessManager
 {
   public:
 
    /// Singleton accessor
-   static ProcessManager* getInstance();
+   static SipxProcessManager* getInstance();
    
    /// destructor
-   virtual ~ProcessManager();
+   virtual ~SipxProcessManager();
 
    /// Save a process definition.
-   void save(Process* process);
-   ///< called from within Process::createFromDefinition
+   void save(SipxProcess* process);
+   ///< called from within SipxProcess::createFromDefinition
 
-   /// Locate a Process object by name.
-   Process* findProcess(const UtlString& processName);
+   /// Locate a SipxProcess object by name.
+   SipxProcess* findProcess(const UtlString& processName);
 
    /// Parse the XML of a process definition
    void instantiateProcesses(const OsPath& processDefinitionDirectory);
@@ -51,25 +51,25 @@ class ProcessManager
    ///< @note The caller is responsible for destroying the map contents.
 
   protected:
-   friend class ProcessManagerTest;
+   friend class SipxProcessManagerTest;
       
   private:
 
    static OsBSem sSingletonLock;       ///< protects access to spSingleton
-   static ProcessManager* spSingleton; ///< pointer to the one ProcessManager
+   static SipxProcessManager* spSingleton; ///< pointer to the one SipxProcessManager
    
    OsBSem     mProcessTableLock;  ///< protects access to mProcesses
-   UtlHashBag mProcesses;              ///< contains all Process objects
+   UtlHashBag mProcesses;              ///< contains all SipxProcess objects
    
    /// constructor
-   ProcessManager();
+   SipxProcessManager();
 
    // @cond INCLUDENOCOPY
    /// There is no copy constructor.
-   ProcessManager(const ProcessManager& nocopyconstructor);
+   SipxProcessManager(const SipxProcessManager& nocopyconstructor);
 
    /// There is no assignment operator.
-   ProcessManager& operator=(const ProcessManager& noassignmentoperator);
+   SipxProcessManager& operator=(const SipxProcessManager& noassignmentoperator);
    // @endcond     
 };
 

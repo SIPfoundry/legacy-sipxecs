@@ -22,7 +22,7 @@
 class WatchDog;
 
 /**
- The base class for all Process Management XML-RPC Methods.
+ The base class for all SipxProcess Management XML-RPC Methods.
  */
 class ProcMgmtRpcMethod : public XmlRpcMethod
 {
@@ -429,7 +429,7 @@ protected:
  it then optionally blocks for the state to be equal to the requested state. 
 
  \par
- Processes monitored by the watchdog may be configured as not user stop-able.  (i.e. The
+ SipxProcesses monitored by the watchdog may be configured as not user stop-able.  (i.e. The
  "KeepAlive" process.)  Calling this method for such a process will fail, even if the
  process is already stopped.  
 

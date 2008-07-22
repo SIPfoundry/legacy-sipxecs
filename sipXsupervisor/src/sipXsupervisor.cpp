@@ -25,7 +25,7 @@
 #include "AlarmServer.h"
 #include "sipdb/SIPDBManager.h"
 #include "sipXecsService/SipXecsService.h"
-#include "ProcessManager.h"
+#include "SipxProcessManager.h"
 #include "config/sipxsupervisor-buildstamp.h"
 
 #define DEBUG
@@ -778,7 +778,7 @@ int main(int argc, char* argv[])
     // Read the process definitions.
     UtlString processDefinitionDirectory =
        SipXecsService::Path(SipXecsService::DataDirType, "process.d");
-    ProcessManager* processManager = ProcessManager::getInstance();
+    SipxProcessManager* processManager = SipxProcessManager::getInstance();
     processManager->instantiateProcesses(processDefinitionDirectory);
 
     // @TODO - old style - to be removed: Create the list of processes to watch.
