@@ -8,6 +8,7 @@
  */
 package org.sipfoundry.sipxivr;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -30,10 +31,29 @@ public class Configuration {
     private String m_sipxchangeDomainName; // The domain name of this system (from config.defs?)
     private String m_voicemailUrl; // URL for voicemail access
 
-    public Configuration() {
-        properties();
+    private static Configuration s_current;
+    private static File s_propertiesFile;
+    private static long s_lastModified;
+    
+    private Configuration() {
     }
-
+    
+    /**
+     * Load new Configuration object if the underlying properties files have changed since the last
+     * time
+     * 
+     * @return
+     */
+    public static Configuration update(boolean load) {
+        if (s_current == null || s_propertiesFile.lastModified() != s_lastModified) {
+            s_current = new Configuration();
+            if (load) {
+                s_current.properties();
+            }
+        }
+        return s_current;
+    }
+    
     void properties() {
         String path = System.getProperty("conf.dir");
         if (path == null) {
@@ -44,7 +64,9 @@ public class Configuration {
         InputStream inStream;
         Properties props = null;
         try {
-            inStream = new FileInputStream(path + "/" + name);
+        	s_propertiesFile = new File(path + "/" + name);
+            s_lastModified = s_propertiesFile.lastModified();
+            inStream = new FileInputStream(s_propertiesFile);
             props = new Properties();
             props.load(inStream);
         } catch (FileNotFoundException e) {

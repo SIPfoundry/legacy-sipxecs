@@ -110,7 +110,7 @@ public class SipXivr implements Runnable {
      */
     static void init() throws Throwable {
         // Load the configuration
-        s_config = new Configuration();
+        s_config = Configuration.update(true);
 
         // Configure log4j
         Properties props = new Properties();

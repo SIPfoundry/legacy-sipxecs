@@ -61,7 +61,7 @@ public class AttendantTest extends TestCase {
     public void testGoodbye() {
         FreeSwitchEventSocketEmulator fses = new FreeSwitchEventSocketEmulator();
         Hashtable<String, String> params = new Hashtable<String, String>();
-        Configuration ivrConfig = new Configuration();
+        Configuration ivrConfig = Configuration.update(false);
 
         Attendant a = new Attendant(ivrConfig, fses, params);
         a.setAttendantBundle(new MyResources());
