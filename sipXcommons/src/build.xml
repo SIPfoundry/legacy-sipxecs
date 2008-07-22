@@ -25,6 +25,7 @@
     <classpath>
        <fileset file="${jibx-bind.jar}"/>
        <fileset file="${jibx-run.jar}"/>
+       <fileset file="${xpp3.jar}"/>
        <fileset file="${bcel.jar}"/>
     </classpath>
   </taskdef>
