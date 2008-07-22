@@ -8,9 +8,9 @@ EXTRA_DATA = \
 
 EXTRA_DIST = $(EXTRA_DATA)
 
-install-data-hook : $(foreach alarmfile,$(schemas),$(DESTDIR)@SIPX_DATADIR@/alarms/$(alarmfile))
+install-data-hook : $(foreach alarmfile,$(EXTRA_DATA),$(DESTDIR)@SIPX_DATADIR@/alarms/$(alarmfile))
 
-$(foreach alarmfile,$(alarms),$(DESTDIR)$(alarmdir)/$(alarmfile)): $(DESTDIR)$(alarmdir)/% : %
+$(foreach alarmfile,$(EXTRA_DATA),$(DESTDIR)$(alarmdir)/$(alarmfile)): $(DESTDIR)$(alarmdir)/% : %
 	$(INSTALL) -D -m 644 $< $@
 
 
