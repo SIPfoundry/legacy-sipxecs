@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.service;
@@ -41,7 +41,7 @@ public class SipxServiceManagerImplTestIntegration extends IntegrationTestCase {
     public void testGetAllServices() {
         Collection<SipxService> allServices = m_out.getAllServices();
         assertNotNull(allServices);
-        assertEquals(4, allServices.size());
+        assertEquals(5, allServices.size());
     }
 
     public void testStoreService() {
@@ -50,6 +50,7 @@ public class SipxServiceManagerImplTestIntegration extends IntegrationTestCase {
         service.setModelName("sipxproxy.xml");
         service.setModelFilesContext(m_modelFilesContext);
         SipxProxyConfiguration sipxProxyConfiguration = new SipxProxyConfiguration() {
+            @Override
             public void generate(SipxService s) {
                 // do nothing
             }
@@ -76,6 +77,7 @@ public class SipxServiceManagerImplTestIntegration extends IntegrationTestCase {
         m_modelFilesContext = context;
     }
 
+    @Override
     public void setSessionFactory(SessionFactory sessionFactory) {
         m_sessionFactory = sessionFactory;
     }

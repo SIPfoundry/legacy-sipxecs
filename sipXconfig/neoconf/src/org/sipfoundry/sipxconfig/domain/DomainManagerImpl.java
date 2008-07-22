@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.domain;
@@ -23,11 +23,8 @@ import org.sipfoundry.sipxconfig.service.SipxRegistrarService;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.springframework.dao.support.DataAccessUtils;
 
-public abstract class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> implements
-        DomainManager {
+public abstract class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> implements DomainManager {
 
-    private SipxReplicationContext m_replicationContext;
-    private SipxServiceManager m_sipxServiceManager;
     private String m_authorizationRealm;
     private String m_alarmServerUrl;
     private String m_initialDomain;
@@ -40,13 +37,9 @@ public abstract class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> 
 
     protected abstract DomainConfiguration createDomainConfiguration();
 
-    public void setReplicationContext(SipxReplicationContext context) {
-        m_replicationContext = context;
-    }
+    protected abstract SipxReplicationContext getReplicationContext();
 
-    public void setSipxServiceManager(SipxServiceManager sipxServiceManager) {
-        m_sipxServiceManager = sipxServiceManager;
-    }
+    protected abstract SipxServiceManager getSipxServiceManager();
 
     /**
      * @return non-null unless test environment
@@ -80,19 +73,19 @@ public abstract class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> 
      * idea. Ideally sipx server should get those parameters from domain manager whenever it needs
      * that. Sadly SipxServer is responsible for generating some configuration files that still
      * needs those info and we need to kick it to make sure everything gets updated.
-     * 
+     *
      * @param domain domain that have been changed
      */
     private void updateServer(Domain domain) {
         SipxServer sipxServer = getServer();
         sipxServer.setDomainName(domain.getName());
-        sipxServer.applySettings();
 
-        SipxRegistrarService registrarService = (SipxRegistrarService) m_sipxServiceManager
-                .getServiceByBeanId(SipxRegistrarService.BEAN_ID);
+        SipxRegistrarService registrarService = (SipxRegistrarService) getSipxServiceManager().getServiceByBeanId(
+                SipxRegistrarService.BEAN_ID);
+        sipxServer.applySettings();
         registrarService.setDomainName(domain.getName());
         registrarService.setRegistrarDomainAliases(domain.getAliases());
-        m_replicationContext.replicate(registrarService.getConfiguration());
+        getReplicationContext().replicate(registrarService.getConfiguration());
     }
 
     public void replicateDomainConfig() {
@@ -103,8 +96,8 @@ public abstract class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> 
         DomainConfiguration domainConfiguration = createDomainConfiguration();
         domainConfiguration.generate(existingDomain, m_authorizationRealm,
                 getExistingLocalization().getLanguage(), m_alarmServerUrl);
-        m_replicationContext.replicate(domainConfiguration);
-        m_replicationContext.publishEvent(new DomainConfigReplicatedEvent(this));
+        getReplicationContext().replicate(domainConfiguration);
+        getReplicationContext().publishEvent(new DomainConfigReplicatedEvent(this));
     }
 
     protected Domain getExistingDomain() {
@@ -134,7 +127,7 @@ public abstract class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> 
      * exist a new domain will be created and initialized with a 'm_initialDomain' name. If domain
      * does exist we make sure it has secret initialed - new secret is created if the secret is
      * empty.
-     * 
+     *
      * It is save to call this function many times. Only the first call should result in actually
      * saving and replicating the domain
      */

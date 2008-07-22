@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.domain;
@@ -36,43 +36,53 @@ public class DomainManagerImplTest extends TestCase {
         server.setDomainName("goose");
         //server.setRegistrarDomainAliases(null);
         server.applySettings();
-        
+
         HibernateTemplate db = createMock(HibernateTemplate.class);
         db.findByNamedQuery("domain");
         expectLastCall().andReturn(Collections.EMPTY_LIST);
         db.saveOrUpdate(domain);
         db.flush();
-        replay(server, db);
-        // TEST DELETE EXISTING
-        DomainManagerImpl mgr = new DomainManagerImpl() {
-            public void replicateDomainConfig() {
-                // do not replicate anything - it's just a test
-            }
-            
-            protected DomainConfiguration createDomainConfiguration() {
-                return new DomainConfiguration();
-            }
-            
-            protected SipxServer getServer() {
-                return server;
-            }
-        };
-        
         SipxRegistrarService registrarService = new SipxRegistrarService();
         registrarService.setSettings(TestHelper.loadSettings("sipxregistrar/sipxregistrar.xml"));
-        
+
         final SipxServiceManager serviceManager = EasyMock.createMock(SipxServiceManager.class);
         serviceManager.getServiceByBeanId(SipxRegistrarService.BEAN_ID);
         EasyMock.expectLastCall().andReturn(registrarService).anyTimes();
-        EasyMock.replay(serviceManager);
-        mgr.setSipxServiceManager(serviceManager);
-        
-        SipxReplicationContext replicationContext = EasyMock.createMock(SipxReplicationContext.class);
+
+        final SipxReplicationContext replicationContext = EasyMock.createMock(SipxReplicationContext.class);
         replicationContext.replicate(null);
         EasyMock.expectLastCall().anyTimes();
-        EasyMock.replay(replicationContext);
-        mgr.setReplicationContext(replicationContext);
-        
+
+        replay(server, db, replicationContext, serviceManager);
+        // TEST DELETE EXISTING
+        DomainManagerImpl mgr = new DomainManagerImpl() {
+            @Override
+            public void replicateDomainConfig() {
+                // do not replicate anything - it's just a test
+            }
+
+            @Override
+            protected DomainConfiguration createDomainConfiguration() {
+                return new DomainConfiguration();
+            }
+
+            @Override
+            protected SipxServer getServer() {
+                return server;
+            }
+
+            @Override
+            protected SipxReplicationContext getReplicationContext() {
+                return replicationContext;
+            }
+
+            @Override
+            protected SipxServiceManager getSipxServiceManager() {
+                return serviceManager;
+            }
+        };
+
+
         mgr.setHibernateTemplate(db);
         mgr.saveDomain(domain);
 
@@ -87,7 +97,7 @@ public class DomainManagerImplTest extends TestCase {
         server.applySettings();
 
         db.saveOrUpdate(domain);
-        db.flush();        
+        db.flush();
         replay(server, db);
 
         mgr.saveDomain(domain);
