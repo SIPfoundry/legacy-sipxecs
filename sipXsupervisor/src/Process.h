@@ -356,10 +356,12 @@ class Process : public UtlString
                                      *   is destructed (but they are removed from
                                      *   this list).
                                      */
-
+   OsPath           mDefinitionFile; ///< path to *-process.xml file that defined this process.
+   
    /// constructor
    Process(const UtlString& name,
-           const UtlString& version
+           const UtlString& version,
+           const OsPath&    definitionPath
            );
 
    // @cond INCLUDENOCOPY

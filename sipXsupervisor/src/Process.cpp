@@ -54,7 +54,7 @@ const char* ProcessStateName[/* State value */] = // must match Process::State
 // FORWARD DECLARATIONS
 
 /// constructor
-Process::Process(const UtlString& name, const UtlString& version) :
+Process::Process(const UtlString& name, const UtlString& version, const OsPath& definitionFile) :
    UtlString(name),
    mLock(OsBSem::Q_PRIORITY, OsBSem::FULL),
    mVersion(version),
@@ -64,7 +64,8 @@ Process::Process(const UtlString& name, const UtlString& version) :
    mConfigtest(NULL),
    mStart(NULL),
    mStop(NULL),
-   mReconfigure(NULL)
+   mReconfigure(NULL),
+   mDefinitionFile(definitionFile)
 {
    /*
     * Get the ProcessResource for this Process; it may have already been created
@@ -89,6 +90,7 @@ Process::Process(const UtlString& name, const UtlString& version) :
 Process* Process::createFromDefinition(const OsPath& definitionFile)
 {
    Process* process = NULL;
+   ProcessManager* processManager = ProcessManager::getInstance();
    
    UtlString errorMsg;
 
@@ -133,6 +135,18 @@ Process* Process::createFromDefinition(const OsPath& definitionFile)
                                 "'name' element content is invalid %s",
                                 errorMsg.data()
                                 );
+               }
+               else if ((process = processManager->findProcess(name)))
+               {
+                  definitionValid = false;
+                  XmlErrorMsg(processDefinitionDoc,errorMsg);
+                  OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "Process::createFromDefinition "
+                                "duplicate process name '%s'\n"
+                                "  %s\n"
+                                "  previously defined in '%s'",
+                                name.data(), errorMsg.data(), process->mDefinitionFile.data()
+                                );
+                  process = NULL; // so that we don't return or delete it
                }
             }
             else
@@ -234,7 +248,7 @@ Process* Process::createFromDefinition(const OsPath& definitionFile)
              * the Process object and invoke the parsers for the components. */
             if (definitionValid)
             {
-               if ((process = new Process(name, version)))
+               if ((process = new Process(name, version, definitionFile)))
                {
                   // Parse the 'commands' elements
                   TiXmlElement* configtestCmdElement;
