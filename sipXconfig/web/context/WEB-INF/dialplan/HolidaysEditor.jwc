@@ -14,10 +14,11 @@
     <binding name="index" value="dayIndex"/>
     <binding name="listener" value="listener:onDayRender"/>
   </component>
-  <component id="datePicker" type="DatePicker">
+  <component id="datePicker" type="DropdownDatePicker">
     <binding name="value" value="holidayDay"/>
     <binding name="validators" value="validators:maxDate=01/01/2099,minDate=01/01/2000"/>
     <binding name="displayName" value="message:label.holiday"/>
+    <binding name="adjustWeeks" value="true"/>
   </component>
   <component id="add" type="LinkSubmit">
     <binding name="tag" value="new java.util.Date()"/>
