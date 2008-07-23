@@ -494,7 +494,7 @@ void sipxFireCallEvent(const void* pSrc,
         SIPX_LINE hLine = SIPX_LINE_NULL ;
         UtlVoidPtr* ptr = NULL;
 
-        SIPX_INSTANCE_DATA* pInst ;
+        SIPX_INSTANCE_DATA* pInst = NULL;
         UtlString callId ;
         UtlString remoteAddress ;
         UtlString lineId ;
@@ -562,19 +562,21 @@ void sipxFireCallEvent(const void* pSrc,
                 }        
             }
             hCall = sipxCallLookupHandle(szCallId, pSrc);
-            if (0 == hCall)
+            if (SIPX_CALL_NULL == hCall)
             {
                 OsSysLog::add(FAC_SIPXTAPI, PRI_WARNING, "sipxFireCallEvent - No call found for szCallId=%s, pSrc=%p", szCallId, pSrc);
 #ifdef DUMP_CALLS                    
                 sipxDumpCalls();
 #endif                
-            }
-            
-            if (!sipxCallGetCommonData(hCall, &pInst, &callId, &remoteAddress, &lineId))
+            } 
+            else if (!sipxCallGetCommonData(hCall, &pInst, &callId, &remoteAddress, &lineId))
             {
-                // osPrintf("event sipXtapiEvents: Unable to find call data for handle: %d\n", hCall) ;
-                // osPrintf("event callid=%s address=%s", szCallId, szRemoteAddress) ;
-                // osPrintf("event M=%s m=%s\n", MajorEventToString(major), MinorEventToString(minor)) ;
+                // When unable to get the common data, the call has been torn
+                // down.  Since we are not holding a global call lock, it is
+                // possible for the call to be torn down between getting the
+                // handle lock and the common data.  At this point, there is
+                // no need to continue processing.
+                hCall = SIPX_CALL_NULL ;
             }
         }
 
@@ -583,7 +585,8 @@ void sipxFireCallEvent(const void* pSrc,
         SIPX_CALLSTATE_EVENT lastEvent ;
         SIPX_CALLSTATE_CAUSE lastCause ;
         SIPX_INTERNAL_CALLSTATE state ;
-        if (sipxCallGetState(hCall, lastEvent, lastCause, state))
+        if (hCall != SIPX_CALL_NULL &&
+            sipxCallGetState(hCall, lastEvent, lastCause, state))
         {
             if ((lastEvent == major) && (lastCause == minor))
             {
@@ -594,7 +597,7 @@ void sipxFireCallEvent(const void* pSrc,
 
         // Only proceed if this isn't a duplicate event and we have a valid 
         // call handle.
-        if (!bDuplicateEvent && hCall != 0)
+        if (!bDuplicateEvent && hCall != SIPX_CALL_NULL)
         {
             // Find Line
             UtlString requestUri; 
@@ -669,9 +672,9 @@ void sipxFireCallEvent(const void* pSrc,
                 }
             }
             sipxCallSetState(hCall, (SIPX_CALLSTATE_EVENT) major, (SIPX_CALLSTATE_CAUSE) minor) ;
-        #ifdef DEBUG_SIPXTAPI_EVENTS
-                ReportCallback(hCall, hLine, major, minor, NULL) ;
-        #endif
+#ifdef DEBUG_SIPXTAPI_EVENTS
+            ReportCallback(hCall, hLine, major, minor, NULL) ;
+#endif
 
             // If this is a DESTROY message, free up resources after all listeners
             // have been notified.
