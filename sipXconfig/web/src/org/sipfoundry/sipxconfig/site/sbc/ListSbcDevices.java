@@ -107,8 +107,10 @@ public abstract class ListSbcDevices extends BasePage {
     }
 
     public void propagateAll() {
-        Collection gatewayIds = getSbcDeviceManager().getAllSbcDeviceIds();
-        setGenerateProfileIds(gatewayIds);
+        Collection ids = getSbcDeviceManager().getAllSbcDeviceIds();
+        if (!ids.isEmpty()) {
+            setGenerateProfileIds(ids);
+        }
     }
 
     public void restart() {

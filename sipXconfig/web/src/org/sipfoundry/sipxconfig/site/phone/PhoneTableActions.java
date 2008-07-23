@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.site.phone;
@@ -49,20 +49,23 @@ public abstract class PhoneTableActions extends BaseComponent {
     public abstract RestartManager getRestartManager();
 
     public void generateProfiles() {
-        Collection phoneIds = getSelections().getAllSelected();
-        setGenerateProfileIds(phoneIds);
+        Collection ids = getSelections().getAllSelected();
+        if (!ids.isEmpty()) {
+            setGenerateProfileIds(ids);
+        }
     }
 
     public void generateAllProfiles() {
-        Collection phoneIds = getPhoneContext().getAllPhoneIds();
-        setGenerateProfileIds(phoneIds);
+        Collection ids = getPhoneContext().getAllPhoneIds();
+        if (!ids.isEmpty()) {
+            setGenerateProfileIds(ids);
+        }
     }
 
     public void restart() {
         Collection phoneIds = getSelections().getAllSelected();
         getRestartManager().restart(phoneIds);
-        String msg = getMessages().format("msg.success.restart",
-                Integer.toString(phoneIds.size()));
+        String msg = getMessages().format("msg.success.restart", Integer.toString(phoneIds.size()));
         TapestryUtils.recordSuccess(this, msg);
     }
 

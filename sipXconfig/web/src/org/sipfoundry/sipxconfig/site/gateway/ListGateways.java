@@ -94,7 +94,9 @@ public abstract class ListGateways extends BasePage {
 
     public void propagateAll() {
         Collection gatewayIds = getGatewayContext().getAllGatewayIds();
-        setGenerateProfileIds(gatewayIds);
+        if (!gatewayIds.isEmpty()) {
+            setGenerateProfileIds(gatewayIds);
+        }
     }
 
     public IPropertySelectionModel getGatewaySelectionModel() {
