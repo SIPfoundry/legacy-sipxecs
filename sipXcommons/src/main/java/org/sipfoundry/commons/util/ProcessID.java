@@ -6,22 +6,22 @@
 package org.sipfoundry.commons.util;
 
 /**
- * Determine the host name of the machine running the JVM.
+ * Determine the process ID of the running JVM.
  * <p>
- * Using a native method, determine and return the host name of
- * the local machine running the JVM.
+ * Using a native method, determine and return the process ID
+ * of the running JVM.
  * 
  * @author Mardy Marshall
  */
-public class Hostname {
+public class ProcessID {
     static {
         try {
-            LibraryLoader.loadLibrary("hostname");
+            LibraryLoader.loadLibrary("processid");
         } catch (UnsatisfiedLinkError e) {
             e.printStackTrace();
         }
     }
 
-    public native static String get();
+    public native static int get();
 }
 

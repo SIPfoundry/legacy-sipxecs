@@ -24,6 +24,8 @@ import java.io.InterruptedIOException;
 import java.net.InetAddress;
 import java.net.SocketException;
 
+import org.sipfoundry.commons.util.LibraryLoader;
+
 /**
  * <p>The RawSocket class provides a strictly utilitarian API for
  * performing I/O with IPv4 and IPv6 raw sockets.  The API is
@@ -79,7 +81,7 @@ public class RawSocket {
   private native static void __RockSawShutdown();
 
   static {
-    System.loadLibrary("rocksaw");
+    LibraryLoader.loadLibrary("rocksaw");
     if(__RockSawStartup() != 0)
       throw new UnsatisfiedLinkError(__getErrorMessage());
 
