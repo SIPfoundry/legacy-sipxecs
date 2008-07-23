@@ -2,7 +2,7 @@
   <h2>
     <span key="title">ACD Reports</span>
   </h2>
-  
+  <span jwcid="@common/ErrorMsg"/>
     <div jwcid="@common/LeftNavigation" renderCondition="ognl:acdHistoricalStats.enabled">
         <span jwcid="@common/TabControl">
           <span jwcid="@For" source="ognl:acdHistoricalStats.reports" value="ognl:availableReportsIndexItem" index="ognl:reportIndex">

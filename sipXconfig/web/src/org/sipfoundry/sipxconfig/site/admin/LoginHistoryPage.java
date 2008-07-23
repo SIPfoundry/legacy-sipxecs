@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.site.admin;
@@ -59,6 +59,7 @@ public abstract class LoginHistoryPage extends UserBasePage implements PageBegin
 
     public abstract void setLoginHistory(String log);
 
+    @Override
     public void pageBeginRender(PageEvent event_) {
 
         if (!TapestryUtils.isValid(this)) {
@@ -72,6 +73,11 @@ public abstract class LoginHistoryPage extends UserBasePage implements PageBegin
         if (getStartDate() == null) {
             Date startTime = CdrHistory.getDefaultStartTime(getEndDate());
             setStartDate(startTime);
+        }
+
+        if (getStartDate().after(getEndDate())) {
+            getValidator().record(new UserException(false, "log.invalidDates"), getMessages());
+            return;
         }
 
         retrieveLogs();
