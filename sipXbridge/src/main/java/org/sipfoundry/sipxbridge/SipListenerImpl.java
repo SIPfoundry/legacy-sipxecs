@@ -230,7 +230,8 @@ public class SipListenerImpl implements SipListener {
                             .getApplicationData();
 
                     DialogApplicationData newDialogApplicationData = DialogApplicationData
-                            .attach(b2bua, newClientTransaction.getDialog());
+                            .attach(b2bua, newClientTransaction.getDialog(),
+                                        newClientTransaction.getRequest());
                     newDialogApplicationData.peerDialog = dialogApplicationData.peerDialog;
                     newClientTransaction.getDialog().setApplicationData(newDialogApplicationData);
                     /*
@@ -240,8 +241,7 @@ public class SipListenerImpl implements SipListener {
                             .getApplicationData();
                     peerDialogApplicationData.peerDialog = newClientTransaction.getDialog();
                     newDialogApplicationData.setRtpSession(dialogApplicationData.getRtpSession());
-                    newDialogApplicationData.setRtcpSession(dialogApplicationData.getRtcpSession());
-
+                    
                     if (logger.isDebugEnabled()) {
                         logger.debug("SipListenerImpl: New Dialog = "
                                 + newClientTransaction.getDialog());

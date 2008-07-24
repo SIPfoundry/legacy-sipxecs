@@ -15,6 +15,11 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Random;
 import java.util.Timer;
+import java.util.TimerTask;
+
+import net.java.stun4j.StunAddress;
+import net.java.stun4j.client.NetworkConfigurationDiscoveryProcess;
+import net.java.stun4j.client.StunDiscoveryReport;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -23,7 +28,9 @@ import org.apache.xmlrpc.server.PropertyHandlerMapping;
 import org.apache.xmlrpc.server.XmlRpcServer;
 import org.apache.xmlrpc.server.XmlRpcServerConfigImpl;
 import org.apache.xmlrpc.webserver.WebServer;
-
+import org.sipfoundry.sipxbridge.BridgeConfiguration;
+import org.sipfoundry.sipxbridge.Gateway;
+import org.sipfoundry.sipxbridge.GatewayConfigurationException;
 
 /**
  * The SIPXbridge XML RPC handler.
@@ -76,8 +83,49 @@ public class SymmitronServer implements Symmitron {
     private static WebServer webServer;
 
     private static InetAddress localAddressByName;
-    
+
     private static SymmitronConfig symmitronConfig;
+
+    private static final int STUN_PORT = 3478;
+
+    /**
+     * Discover our address using stun.
+     * 
+     * @throws GatewayConfigurationException
+     */
+    static void discoverAddress() throws GatewayConfigurationException {
+        try {
+
+            String stunServerAddress = symmitronConfig.getStunServerAddress();
+
+            if (stunServerAddress != null) {
+
+                // Todo -- deal with the situation when this port may be taken.
+                StunAddress localStunAddress = new StunAddress(symmitronConfig.getLocalAddress(),
+                        STUN_PORT + 1);
+
+                StunAddress serverStunAddress = new StunAddress(stunServerAddress, STUN_PORT);
+
+                NetworkConfigurationDiscoveryProcess addressDiscovery = new NetworkConfigurationDiscoveryProcess(
+                        localStunAddress, serverStunAddress);
+                java.util.logging.LogManager logManager = java.util.logging.LogManager
+                        .getLogManager();
+                java.util.logging.Logger log = logManager
+                        .getLogger(NetworkConfigurationDiscoveryProcess.class.getName());
+                log.setLevel(java.util.logging.Level.OFF);
+
+                addressDiscovery.start();
+                StunDiscoveryReport report = addressDiscovery.determineAddress();
+                String globalAddress = report.getPublicAddress().getSocketAddress().getAddress()
+                        .getHostAddress();
+                logger.debug("Stun report = " + report);
+                symmitronConfig.setPublicAddress(globalAddress);
+
+            }
+        } catch (Exception ex) {
+            throw new GatewayConfigurationException("Error discovering  address", ex);
+        }
+    }
 
     private Map<String, Object> createErrorMap(int errorCode, String reason) {
         Map<String, Object> retval = new HashMap<String, Object>();
@@ -117,18 +165,18 @@ public class SymmitronServer implements Symmitron {
         return portRangeManager;
     }
 
-
-    
-    public static void setSymmitronConfig (SymmitronConfig symmitronConfig) throws IOException {
+    public static void setSymmitronConfig(SymmitronConfig symmitronConfig) throws IOException {
         SymmitronServer.symmitronConfig = symmitronConfig;
         String logFileName = symmitronConfig.getLogFileName();
-        if ( logFileName != null ) {
+        if (logFileName != null) {
             String dirName = symmitronConfig.getLogFileDirectory() + "/sipxrelay.log";
             Logger logger = Logger.getLogger(SymmitronServer.class.getPackage().getName());
-            logger.addAppender(new org.apache.log4j.FileAppender (new org.apache.log4j.SimpleLayout(), dirName));
+            logger.addAppender(new org.apache.log4j.FileAppender(
+                    new org.apache.log4j.SimpleLayout(), dirName));
             logger.setLevel(Level.toLevel(symmitronConfig.getLogLevel()));
         }
-        portRangeManager = new PortRangeManager(symmitronConfig.getPortRangeLowerBound(), symmitronConfig.getPortRangeUpperBound());
+        portRangeManager = new PortRangeManager(symmitronConfig.getPortRangeLowerBound(),
+                symmitronConfig.getPortRangeUpperBound());
     }
 
     public static String getLocalAddress() {
@@ -142,15 +190,15 @@ public class SymmitronServer implements Symmitron {
         return localAddressByName;
     }
 
-    public static void startWebServer()
-            throws XmlRpcException, IOException {
+    public static void startWebServer() throws XmlRpcException, IOException {
 
         if (!isWebServerRunning) {
-            
+
             isWebServerRunning = true;
-            
+
             logger.debug("Starting xml rpc server on port " + symmitronConfig.getXmlRpcPort());
-            webServer = new WebServer(symmitronConfig.getXmlRpcPort(), InetAddress.getByName(symmitronConfig.getLocalAddress()));
+            webServer = new WebServer(symmitronConfig.getXmlRpcPort(), InetAddress
+                    .getByName(symmitronConfig.getLocalAddress()));
 
             PropertyHandlerMapping handlerMapping = new PropertyHandlerMapping();
 
@@ -216,7 +264,8 @@ public class SymmitronServer implements Symmitron {
      */
     public Map getRtpPortRange() {
 
-        PortRange portRange = new PortRange(symmitronConfig.getPortRangeLowerBound(), symmitronConfig.getPortRangeUpperBound());
+        PortRange portRange = new PortRange(symmitronConfig.getPortRangeLowerBound(),
+                symmitronConfig.getPortRangeUpperBound());
 
         return portRange.toMap();
 
@@ -274,6 +323,32 @@ public class SymmitronServer implements Symmitron {
             return createErrorMap(PROCESSING_ERROR, ex.getMessage());
         }
 
+    }
+
+    public Map<String, Object> getPublicAddress(String controllerHandle) {
+        try {
+            checkForControllerReboot(controllerHandle);
+            Map<String, Object> retval = createSuccessMap();
+            logger.debug("getExternalAddress : " + symmitronConfig.getPublicAddress());
+
+            retval.put(PUBLIC_ADDRESS, symmitronConfig.getPublicAddress());
+
+            return retval;
+        } catch (Exception ex) {
+            return createErrorMap(PROCESSING_ERROR, ex.getMessage());
+        }
+    }
+
+    public Map<String, Object> getExternalAddress(String controllerHandle) {
+        try {
+            checkForControllerReboot(controllerHandle);
+            Map<String, Object> retval = createSuccessMap();
+            logger.debug("getExternalAddress : " + symmitronConfig.getExternalAddress());
+            retval.put(EXTERNAL_ADDRESS, symmitronConfig.getExternalAddress());
+            return retval;
+        } catch (Exception ex) {
+            return createErrorMap(PROCESSING_ERROR, ex.getMessage());
+        }
     }
 
     /*
@@ -384,13 +459,6 @@ public class SymmitronServer implements Symmitron {
             transmitter.setMaxSilence(keepAliveTime, method);
 
             byte[] keepAliveBytes = null;
-            
-            // if (keepAlivePacketData.equals("")) {
-            //     keepAliveBytes = null;
-            // } else {
-            //     UUDecoder decoder = new UUDecoder();
-            //     decoder.decodeBuffer(keepAlivePacketData);
-            // }
 
             transmitter.setKeepalivePayload(keepAliveBytes);
 
@@ -484,6 +552,7 @@ public class SymmitronServer implements Symmitron {
         try {
             this.checkForControllerReboot(controllerHandle);
             Bridge bridge = bridgeMap.get(bridgeId);
+            logger.debug("addSym: " + bridgeId + " symId " + symId);
             if (bridge == null) {
                 return this.createErrorMap(SESSION_NOT_FOUND, "Specified Bridge was not found "
                         + bridgeId);
@@ -525,6 +594,7 @@ public class SymmitronServer implements Symmitron {
         }
 
         Map<String, Object> retval = this.createSuccessMap();
+        logger.debug("createBridge: returning " + bridge.getId());
         retval.put(BRIDGE_ID, bridge.getId());
         return retval;
 
@@ -740,24 +810,36 @@ public class SymmitronServer implements Symmitron {
      * Test method - stop the xml rpc server.
      */
     static void stopXmlRpcServer() {
-       SymmitronServer.webServer.shutdown();    
+        SymmitronServer.webServer.shutdown();
     }
-    
-    
-    public static void main ( String [] args ) throws Exception {
-        String configurationFile = System.getProperty("conf.dir",
-        "/etc/sipxpbx")
-        + "/sipxrelay.xml";
-        
+
+    public static void main(String[] args) throws Exception {
+        String configDir = System.getProperty("conf.dir", "/etc/sipxpbx");
+        String installRoot = configDir.substring(0, configDir.indexOf("/etc/sipxpbx"));
+        String configurationFile = configDir + "/nattraversalrules.xml";
+
         // Wait for the configuration file to become available.
         while (!new File(configurationFile).exists()) {
             Thread.sleep(5 * 1000);
         }
         SymmitronConfig config = new SymmitronConfigParser().parse("file:" + configurationFile);
+        if (config.getLogFileDirectory() == null) {
+            config.setLogFileDirectory(installRoot + "/var/log/sipxpbx");
+        }
         config.setLogFileName("sipxrelay.log");
+        if (config.getPublicAddress() == null && config.getStunServerAddress() != null) {
+            timer.schedule(new TimerTask() {
+
+                @Override
+                public void run() {
+                    discoverAddress();
+
+                }
+
+            }, 0, config.getRediscoveryTime());
+        }
         SymmitronServer.setSymmitronConfig(config);
         SymmitronServer.startWebServer();
     }
-    
 
 }

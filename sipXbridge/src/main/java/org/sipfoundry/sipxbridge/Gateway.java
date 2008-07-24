@@ -15,7 +15,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.HashSet;
+import java.util.Hashtable;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -28,26 +28,21 @@ import javax.sip.SipProvider;
 import javax.sip.address.Address;
 import javax.sip.address.Hop;
 import javax.sip.address.SipURI;
-import javax.sip.header.CallIdHeader;
 import javax.sip.message.Request;
 
 import net.java.stun4j.StunAddress;
 import net.java.stun4j.client.NetworkConfigurationDiscoveryProcess;
 import net.java.stun4j.client.StunDiscoveryReport;
 
-import org.apache.log4j.Appender;
 import org.apache.log4j.Logger;
 import org.apache.xmlrpc.XmlRpcException;
 import org.apache.xmlrpc.server.PropertyHandlerMapping;
 import org.apache.xmlrpc.server.XmlRpcServer;
 import org.apache.xmlrpc.server.XmlRpcServerConfigImpl;
 import org.apache.xmlrpc.webserver.WebServer;
-import org.sipfoundry.commons.log4j.SipFoundryAppender;
-import org.sipfoundry.commons.log4j.SipFoundryLayout;
-import org.sipfoundry.sipxbridge.symmitron.PortRangeManager;
-import org.sipfoundry.sipxbridge.symmitron.SymmitronServer;
+import org.sipfoundry.sipxbridge.symmitron.SymmitronClient;
 import org.sipfoundry.sipxbridge.symmitron.SymmitronConfig;
-import org.sipfoundry.sipxbridge.xmlrpc.CallRecord;
+import org.sipfoundry.sipxbridge.symmitron.SymmitronConfigParser;
 import org.sipfoundry.sipxbridge.xmlrpc.SipXbridgeXmlRpcServer;
 import org.xbill.DNS.Lookup;
 import org.xbill.DNS.Record;
@@ -159,8 +154,6 @@ public class Gateway {
      */
     static GatewayState state = GatewayState.STOPPED;
 
-   
-
     /*
      * The time for REGISTER requests.
      */
@@ -173,7 +166,10 @@ public class Gateway {
     private static int callCount;
 
     private static boolean isWebServerRunning;
-    
+
+    private static Hashtable<String, SymmitronClient> symmitronClients = new Hashtable<String, SymmitronClient>();
+
+    private static String configurationPath;
 
     private Gateway() {
 
@@ -189,32 +185,22 @@ public class Gateway {
 
     }
 
-    /**
-     * Start the xml rpc server.
-     * 
-     */
-    static void initializeSymmitron() {
-        try {
-
-            BridgeConfiguration bridgeConfiguration = accountManager.getBridgeConfiguration();
-
-            SymmitronConfig symmitronConfig = new SymmitronConfig();
-
-            symmitronConfig.setLocalAddress(bridgeConfiguration.getExternalAddress());
-            symmitronConfig.setPortRangeLowerBound(bridgeConfiguration.getRtpPortLowerBound());
-            symmitronConfig.setPortRangeUpperBound(bridgeConfiguration.getRtpPortUpperBound());
-            SymmitronServer.setSymmitronConfig(symmitronConfig);
-
-        } catch (Exception ex) {
-            logger.error("Error starting xml rpc server", ex);
-            ex.printStackTrace();
-            throw new RuntimeException("Bad configuration file");
+    
+    static SymmitronClient initializeSymmitron(String address) {
+        SymmitronClient symmitronClient = symmitronClients.get(address);
+        if (symmitronClients != null) {
+            SymmitronConfig symconfig = new SymmitronConfigParser()
+                    .parse(Gateway.configurationPath + "/nattraversalrules.xml");
+            int symmitronPort = symconfig.getXmlRpcPort();
+            symmitronClient = new SymmitronClient(address, symmitronPort);
         }
+        symmitronClients.put(address, symmitronClient);
+        return symmitronClient;
     }
 
     static void stopXmlRpcServer() {
         try {
-            if ( webServer != null ) {
+            if (webServer != null) {
                 webServer.shutdown();
             }
             isWebServerRunning = false;
@@ -223,12 +209,11 @@ public class Gateway {
         }
     }
 
-    public static void startXmlRpcServer() throws GatewayConfigurationException{
+    public static void startXmlRpcServer() throws GatewayConfigurationException {
         BridgeConfiguration bridgeConfig = accountManager.getBridgeConfiguration();
 
-     
-        if (!isWebServerRunning && bridgeConfig.getXmlRpcPort() != 0 ) {
-          
+        if (!isWebServerRunning && bridgeConfig.getXmlRpcPort() != 0) {
+
             isWebServerRunning = true;
 
             logger.debug("Starting xml rpc server on port " + bridgeConfig.getXmlRpcPort());
@@ -236,14 +221,15 @@ public class Gateway {
                 webServer = new WebServer(bridgeConfig.getXmlRpcPort(), InetAddress
                         .getByName(bridgeConfig.getLocalAddress()));
             } catch (UnknownHostException e) {
-               logger.error("Error creating web server", e);
-               throw new GatewayConfigurationException("Error creating web server", e);
+                logger.error("Error creating web server", e);
+                throw new GatewayConfigurationException("Error creating web server", e);
             }
 
             PropertyHandlerMapping handlerMapping = new PropertyHandlerMapping();
 
             try {
-                handlerMapping.addHandler(SipXbridgeXmlRpcServer.SERVER, SipXbridgeXmlRpcServerImpl.class);
+                handlerMapping.addHandler(SipXbridgeXmlRpcServer.SERVER,
+                        SipXbridgeXmlRpcServerImpl.class);
             } catch (XmlRpcException e) {
                 logger.error("Error configuring RPC Server", e);
                 throw new GatewayConfigurationException("Error configuring RPC Server", e);
@@ -345,7 +331,7 @@ public class Gateway {
             int externalPort = bridgeConfiguration.getExternalPort();
             String externalAddress = bridgeConfiguration.getExternalAddress();
             logger.debug("External Address:port = " + externalAddress + ":" + externalPort);
-
+           
             ListeningPoint externalUdpListeningPoint = ProtocolObjects.sipStack
                     .createListeningPoint(externalAddress, externalPort, "udp");
             ListeningPoint externalTcpListeningPoint = ProtocolObjects.sipStack
@@ -362,7 +348,7 @@ public class Gateway {
 
             int localPort = bridgeConfiguration.getLocalPort();
             String localIpAddress = bridgeConfiguration.getLocalAddress();
-       
+
             SipURI mohUri = accountManager.getBridgeConfiguration().getMusicOnHoldName() == null ? null
                     : ProtocolObjects.addressFactory.createSipURI(accountManager
                             .getBridgeConfiguration().getMusicOnHoldName(), Gateway
@@ -375,7 +361,8 @@ public class Gateway {
             gatewayFromAddress = ProtocolObjects.addressFactory
                     .createAddress(ProtocolObjects.addressFactory.createSipURI(SIPXBRIDGE_USER,
                             domain));
-
+            logger.debug("Local Address:port " + localIpAddress + ":" + localPort);
+            
             ListeningPoint internalUdpListeningPoint = ProtocolObjects.sipStack
                     .createListeningPoint(localIpAddress, localPort, "udp");
 
@@ -399,7 +386,7 @@ public class Gateway {
 
         } catch (Throwable ex) {
             ex.printStackTrace();
-            logger.error("Cannot initialize gateway",ex);
+            logger.error("Cannot initialize gateway", ex);
             throw new GatewayConfigurationException("Cannot initialize gateway", ex);
         }
 
@@ -661,6 +648,7 @@ public class Gateway {
      * @throws Exception
      */
     static void startSipListener() throws GatewayConfigurationException {
+        
         try {
             SipListenerImpl listener = new SipListenerImpl();
             getWanProvider("udp").addSipListener(listener);
@@ -674,7 +662,7 @@ public class Gateway {
         }
 
     }
-    
+
     static void startAddressDiscovery() {
         boolean globalAddressing = false;
 
@@ -706,22 +694,18 @@ public class Gateway {
             logger.debug("Global rediscovery not needed.");
         }
     }
-    
-    
-    
 
     static void start() throws GatewayConfigurationException {
         if (Gateway.getState() != GatewayState.STOPPED) {
             return;
         }
-        
+
         Gateway.state = GatewayState.INITIALIZING;
-        initializeSymmitron();
-        initializeSipListeningPoints();       
-        startAddressDiscovery();     
+        initializeSipListeningPoints();
+        startAddressDiscovery();
         startSipListener();
         registerWithItsp();
-  
+
     }
 
     /**
@@ -776,11 +760,10 @@ public class Gateway {
             logger.error("Unexepcted exception occured while stopping bridge", ex);
 
         }
-        //Tear down the sip stack.
+        // Tear down the sip stack.
         ProtocolObjects.stop();
         Gateway.state = GatewayState.STOPPED;
     }
-    
 
     /**
      * Get the global address of bridge. This is the publicly routable address of the bridge.
@@ -831,8 +814,8 @@ public class Gateway {
      * 
      */
     static String getLogFile() {
-        return Gateway.getAccountManager().getBridgeConfiguration().getLogFileDirectory() +
-        "/sipxbridge.log";
+        return Gateway.getAccountManager().getBridgeConfiguration().getLogFileDirectory()
+                + "/sipxbridge.log";
     }
 
     /**
@@ -882,10 +865,6 @@ public class Gateway {
         return accountManager.getBridgeConfiguration().isReInviteSupported();
     }
 
-    static boolean isRtcpRelayingSupported() {
-        return false;
-    }
-
     /**
      * @return the timer
      */
@@ -904,7 +883,14 @@ public class Gateway {
     static String getAutoAttendantName() {
         return accountManager.getBridgeConfiguration().getAutoAttendantName();
     }
-    
+
+    static SymmitronClient getSymmitronClient(String address) {
+        SymmitronClient symmitronClient = symmitronClients.get(address);
+        if (symmitronClient == null) {
+            symmitronClient =  initializeSymmitron(address);
+        }
+        return symmitronClient;
+    }
 
     /**
      * The main method for the Bridge.
@@ -917,6 +903,7 @@ public class Gateway {
             Gateway.isTlsSupportEnabled = System.getProperty("sipxbridge.enableTls", "false")
                     .equals("true");
 
+            Gateway.configurationPath = System.getProperty("conf.dir", "/etc/sipxpbx");
             Gateway.configurationFile = System.getProperty("conf.dir", "/etc/sipxpbx")
                     + "/sipxbridge.xml";
             String command = System.getProperty("sipxbridge.command", "start");
@@ -928,7 +915,7 @@ public class Gateway {
                 }
                 Gateway.parseConfigurationFile();
                 startXmlRpcServer();
-               
+
                 Gateway.start();
             } else if (command.equals("stop")) {
                 SipStackExt sipStack = (SipStackExt) ProtocolObjects.sipStack;

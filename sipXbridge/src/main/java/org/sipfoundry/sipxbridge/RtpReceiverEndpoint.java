@@ -17,9 +17,10 @@ import javax.sdp.SdpFactory;
 import javax.sdp.SessionDescription;
 
 import org.apache.log4j.Logger;
-import org.sipfoundry.sipxbridge.symmitron.SymReceiverEndpoint;
+import org.sipfoundry.sipxbridge.symmitron.SymEndpointInterface;
 
-class RtpReceiverEndpoint extends SymReceiverEndpoint {
+
+class RtpReceiverEndpoint implements SymEndpointInterface {
 
     private Origin origin;
 
@@ -33,8 +34,13 @@ class RtpReceiverEndpoint extends SymReceiverEndpoint {
 
     private int sessionVersion;
 
-    RtpReceiverEndpoint(int port) throws IOException {
-        super(port);
+    private SymEndpointInterface symReceiverEndpoint;
+
+    private String ipAddress;
+
+    RtpReceiverEndpoint(SymEndpointInterface symReceiverEndpoint)  {
+        this.symReceiverEndpoint = symReceiverEndpoint;
+        this.ipAddress = symReceiverEndpoint.getIpAddress();
         try {
             this.sessionId = Math.abs(new Random().nextLong());
             this.sessionVersion = 1;
@@ -47,24 +53,25 @@ class RtpReceiverEndpoint extends SymReceiverEndpoint {
         }
     }
 
-    @Override
-    public void setIpAddress(String ipAddress) {
-
-        super.setIpAddress(ipAddress);
-        try {
-            String address = this.getIpAddress();
-            origin = SdpFactory.getInstance().createOrigin(originatorName, sessionId,
-                    sessionVersion, "IN", "IP4", address);
-        } catch (Exception ex) {
-            throw new RuntimeException("Unexpected exception creating origin ", ex);
-        }
+    
+    public String getIpAddress() {
+        return this.ipAddress;
     }
+    
+    public int getPort() {
+        return this.symReceiverEndpoint.getPort();
+    }
+    
+    public void setIpAddress(String ipAddress) {
+        this.ipAddress = ipAddress;
+    }
+   
 
     SessionDescription getSessionDescription() {
         return this.sessionDescription;
     }
 
-    void setSessionDescription(SessionDescription sessionDescription, boolean isRtp) {
+    void setSessionDescription(SessionDescription sessionDescription) {
         if (this.sessionDescription != null && logger.isDebugEnabled()) {
             logger.debug("Old SD  = " + this.sessionDescription);
             logger.debug("newSD = " + sessionDescription);
@@ -82,26 +89,29 @@ class RtpReceiverEndpoint extends SymReceiverEndpoint {
             this.sessionDescription.setOrigin(origin);
 
             if (connection != null) {
-                connection.setAddress(this.ipAddress);
+                connection.setAddress(this.getIpAddress());
             }
 
             Vector mds = sessionDescription.getMediaDescriptions(true);
             for (int i = 0; i < mds.size(); i++) {
                 MediaDescription mediaDescription = (MediaDescription) mds.get(i);
                 if (mediaDescription.getConnection() != null) {
-                    mediaDescription.getConnection().setAddress(this.ipAddress);
+                    mediaDescription.getConnection().setAddress(this.getIpAddress());
                 }
 
-                mediaDescription.getMedia().setMediaPort(port);
+                mediaDescription.getMedia().setMediaPort(this.getPort());
             }
 
             if (logger.isDebugEnabled()) {
-                logger.debug("Setting ipAddress : " + ipAddress);
-                logger.debug("Setting port " + port);
+                logger.debug("Setting ipAddress : " + this.getIpAddress());
+                logger.debug("Setting port " + this.getPort());
             }
         } catch (Exception ex) {
             logger.error("Unexpected exception ", ex);
             throw new RuntimeException("Unexpected exception", ex);
         }
     }
+
+
+    
 }

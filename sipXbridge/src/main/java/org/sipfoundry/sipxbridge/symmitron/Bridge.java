@@ -23,8 +23,8 @@ import org.sipfoundry.sipxbridge.BridgeState;
  * @author M. Ranganathan <mranga@pingtel.com>
  * 
  */
-public class Bridge {
-    private static Logger logger = Logger.getLogger(Bridge.class);
+final class Bridge implements BridgeInterface {
+    private static Logger logger = Logger.getLogger(Bridge.class.getPackage().getName());
 
     ConcurrentSet sessions = new ConcurrentSet(this);
 
@@ -35,8 +35,6 @@ public class Bridge {
     private static DataShuffler dataShuffler;
 
     private BridgeState state = BridgeState.INITIAL;
-
-   
 
     private String id;
 
@@ -73,8 +71,6 @@ public class Bridge {
         id = "bridge:" + Long.toString(Math.abs(new Random().nextLong()));
     }
 
-   
-
     /**
      * Constructor when we are given a media map
      */
@@ -87,20 +83,20 @@ public class Bridge {
     // Public Methods.
     // ///////////////////////////////////////////////////////////////////////////////////////////
 
-    /**
-     * Get my Id.
+    /*
+     * (non-Javadoc)
      * 
-     * @return myId
+     * @see org.sipfoundry.sipxbridge.symmitron.BridgeInterface#getId()
      */
     public String getId() {
 
         return this.id;
     }
 
-    /**
-     * Starts the data shuffler running
+    /*
+     * (non-Javadoc)
      * 
-     * 
+     * @see org.sipfoundry.sipxbridge.symmitron.BridgeInterface#start()
      */
 
     public void start() throws IllegalStateException {
@@ -113,9 +109,10 @@ public class Bridge {
 
     }
 
-    /**
-     * Stops the data shuffler from running and kills all syms.
+    /*
+     * (non-Javadoc)
      * 
+     * @see org.sipfoundry.sipxbridge.symmitron.BridgeInterface#stop()
      */
     public void stop() {
         if (logger.isDebugEnabled()) {
@@ -129,10 +126,10 @@ public class Bridge {
 
     }
 
-    /**
-     * Pauses the bridge.
+    /*
+     * (non-Javadoc)
      * 
-     * 
+     * @see org.sipfoundry.sipxbridge.symmitron.BridgeInterface#pause()
      */
     public void pause() {
 
@@ -147,10 +144,10 @@ public class Bridge {
 
     }
 
-    /**
-     * Resumes the operation of the bridge.
+    /*
+     * (non-Javadoc)
      * 
-     * 
+     * @see org.sipfoundry.sipxbridge.symmitron.BridgeInterface#resume()
      */
 
     public void resume() {
@@ -164,22 +161,22 @@ public class Bridge {
         }
     }
 
-    /**
-     * Gets the current state.
+    /*
+     * (non-Javadoc)
      * 
-     * @return
+     * @see org.sipfoundry.sipxbridge.symmitron.BridgeInterface#getState()
      */
     public BridgeState getState() {
         return this.state;
     }
 
-    /**
-     * Add a sym to this bridge.
+    /*
+     * (non-Javadoc)
      * 
-     * @param sym
+     * @see org.sipfoundry.sipxbridge.symmitron.BridgeInterface#addSym(org.sipfoundry.sipxbridge.symmitron.Sym)
      */
-    public void addSym(Sym sym) {
-        this.sessions.add(sym);
+    public void addSym(SymInterface sym) {
+        this.sessions.add((Sym) sym);
         if (sym.getTransmitter() != null) {
             if (this.parity == null) {
                 if (sym.getTransmitter().getPort() % 2 == 0) {
@@ -188,36 +185,47 @@ public class Bridge {
                     this.parity = Parity.ODD;
                 }
             } else {
-                if ( this.parity == Parity.EVEN && sym.getTransmitter().getPort() %2  != 0 ) {
-                    logger.warn("Unexpected mixing of odd and even parity " + this.parity);     
-                } else if ( sym.getTransmitter().getPort() %2 != 1 ) {
+                if (this.parity == Parity.EVEN && sym.getTransmitter().getPort() % 2 != 0) {
+                    logger.warn("Unexpected mixing of odd and even parity " + this.parity);
+                } else if (sym.getTransmitter().getPort() % 2 != 1) {
                     logger.warn("Unexpected mixing of odd and even parity" + this.parity);
                 }
             }
         }
 
-        sym.setBridge(this);
+        ((Sym) sym).setBridge(this);
         if (logger.isDebugEnabled()) {
             logger.debug("addSymSession : " + sym);
             logger.debug("addSymSession : " + this);
         }
     }
 
-    /**
-     * Remove a Sym from this bridge.
+    /*
+     * (non-Javadoc)
      * 
-     * @param rtpSession
+     * @see org.sipfoundry.sipxbridge.symmitron.BridgeInterface#removeSym(org.sipfoundry.sipxbridge.symmitron.Sym)
      */
-    public void removeSym(Sym rtpSession) {
-        logger.debug("RtpBridge: removing RtpSession " + rtpSession.getId());
-        this.sessions.remove(rtpSession);
+    public void removeSym(SymInterface symSession) {
+        try {
+            Sym sym = (Sym) symSession;
+            logger.debug("RtpBridge: removing RtpSession " + sym.getId());
+            this.sessions.remove(sym);
 
-        if (logger.isDebugEnabled()) {
-            logger.debug("removeSymSession : " + rtpSession);
-            logger.debug("removeSymSession : " + this);
+            if (logger.isDebugEnabled()) {
+                logger.debug("removeSymSession : " + sym);
+                logger.debug("removeSymSession : " + this);
+            }
+        } catch (RuntimeException ex) {
+            logger.error("unexpected exception", ex);
+            throw ex;
         }
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.sipfoundry.sipxbridge.symmitron.BridgeInterface#getSyms()
+     */
     public Set<Sym> getSyms() {
         return this.sessions;
     }
@@ -230,6 +238,11 @@ public class Bridge {
         return this.creationTime;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.sipfoundry.sipxbridge.symmitron.BridgeInterface#toString()
+     */
     @Override
     public String toString() {
         StringBuffer retval = new StringBuffer();

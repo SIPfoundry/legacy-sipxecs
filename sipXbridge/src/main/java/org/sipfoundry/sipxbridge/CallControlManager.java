@@ -12,6 +12,7 @@ import gov.nist.javax.sip.message.SIPResponse;
 import gov.nist.javax.sip.stack.SIPDialog;
 import gov.nist.javax.sip.stack.SIPServerTransaction;
 
+import java.io.IOException;
 import java.text.ParseException;
 import java.util.Collection;
 import java.util.Iterator;
@@ -62,10 +63,34 @@ class CallControlManager {
     private ConcurrentHashMap<String, BackToBackUserAgent> backToBackUserAgentTable = new ConcurrentHashMap<String, BackToBackUserAgent>();
 
     /**
+     * Send gateway internal error.
+     */
+    static void sendInternalError(ServerTransaction st, Exception ex) {
+        try {
+            Request request = st.getRequest();
+            Response response = ProtocolObjects.messageFactory.createResponse(
+                    Response.SERVER_INTERNAL_ERROR, request);
+            if (logger.isDebugEnabled()) {
+                String message = "Exception occured at " + ex.getMessage() + " at "
+                        + ex.getStackTrace()[0].getFileName() + ":"
+                        + ex.getStackTrace()[0].getLineNumber();
+
+                response.setReasonPhrase(message);
+            } else {
+                response.setReasonPhrase(ex.getCause().getMessage());
+            }
+            st.sendResponse(response);
+
+        } catch (Exception e) {
+            throw new RuntimeException("Check gateway configuration", e);
+        }
+    }
+
+    /**
      * Send Internal error to the other side.
      * 
      */
-    static void sendInternalError(ServerTransaction st, Exception ex) {
+    static void sendBadRequestError(ServerTransaction st, Exception ex) {
         try {
             Request request = st.getRequest();
             Response response = ProtocolObjects.messageFactory.createResponse(
@@ -161,7 +186,7 @@ class CallControlManager {
                     return;
                 }
 
-                DialogApplicationData.attach(btobua, dialog);
+                DialogApplicationData.attach(btobua, dialog, request);
             }
 
             // This method was seen from the LAN side.
@@ -191,9 +216,12 @@ class CallControlManager {
 
             }
 
+        } catch (RuntimeException ex) {
+            logger.error("Error processing request" + requestEvent.getRequest(), ex);
+            sendInternalError(serverTransaction, ex);
         } catch (Exception ex) {
             logger.error("Error processing request " + requestEvent.getRequest(), ex);
-            sendInternalError(serverTransaction, ex);
+            sendBadRequestError(serverTransaction, ex);
         }
     }
 
@@ -211,7 +239,6 @@ class CallControlManager {
             Response response = ProtocolObjects.messageFactory.createResponse(Response.OK,
                     request);
 
-           
             ContactHeader contactHeader = null;
             if (provider == Gateway.getLanProvider()) {
                 for (String types : new String[] {
@@ -276,8 +303,8 @@ class CallControlManager {
             // If In-Dialog, then the stack will create a server transaction for you to respond
             // stateufully. Hence that ST should be used to respond. If out of dialog, then
             // we simply respond statelessly ( no need to create a Server Transaction ).
-             
-            if ( st == null ) {
+
+            if (st == null) {
                 provider.sendResponse(response);
             } else {
                 st.sendResponse(response);
@@ -292,7 +319,7 @@ class CallControlManager {
                             + ex.getStackTrace()[0].getLineNumber());
                 }
 
-                if ( st != null ) {
+                if (st != null) {
                     st.sendResponse(response);
                 } else {
                     provider.sendResponse(response);
@@ -383,7 +410,7 @@ class CallControlManager {
             logger.error("Unexpected exception while processing REFER", ex);
             if (tad != null) {
                 ServerTransaction serverTransaction = tad.serverTransaction;
-                sendInternalError(serverTransaction, ex);
+                sendBadRequestError(serverTransaction, ex);
             }
         }
 
@@ -552,19 +579,14 @@ class CallControlManager {
             if (((DialogExt) dialog).getSipProvider() == Gateway.getLanProvider()) {
                 // We did a SDP query. So we need to put an SDP
                 // Answer in the response.
-                b2bua.getWanRtpSession(peerDialog).getReceiver().setSessionDescription(sd, true);
-                if (Gateway.isRtcpRelayingSupported()) {
-                    b2bua.getWanRtcpSession(peerDialog).getReceiver().setSessionDescription(sd,
-                            false);
-                }
+               
+                b2bua.getWanRtpSession(peerDialog).getReceiver().setSessionDescription(sd);
+
                 SipUtilities.incrementSessionVersion(sd);
 
             } else {
-                b2bua.getLanRtpSession(peerDialog).getReceiver().setSessionDescription(sd, true);
-                if (Gateway.isRtcpRelayingSupported()) {
-                    b2bua.getLanRtcpSession(peerDialog).getReceiver().setSessionDescription(sd,
-                            false);
-                }
+                b2bua.getLanRtpSession(peerDialog).getReceiver().setSessionDescription(sd);
+
                 SipUtilities.incrementSessionVersion(sd);
             }
 
@@ -587,6 +609,8 @@ class CallControlManager {
     private void processInviteResponse(ResponseEvent responseEvent) {
 
         ServerTransaction serverTransaction = null;
+        BackToBackUserAgent b2bua = null;
+
         SipProvider provider = (SipProvider) responseEvent.getSource();
         Response response = responseEvent.getResponse();
         logger.debug("processInviteResponse : " + ((SIPResponse) response).getFirstLine());
@@ -613,8 +637,7 @@ class CallControlManager {
                     dialog.sendAck(ack);
 
                 } else {
-                    BackToBackUserAgent b2bua = DialogApplicationData.get(dialog)
-                            .getBackToBackUserAgent();
+                    b2bua = DialogApplicationData.get(dialog).getBackToBackUserAgent();
                     b2bua.tearDown();
                 }
                 return;
@@ -642,7 +665,7 @@ class CallControlManager {
             }
 
         }
-        BackToBackUserAgent b2bua = dat.getBackToBackUserAgent();
+        b2bua = dat.getBackToBackUserAgent();
 
         if (b2bua == null) {
             logger.fatal("Could not find a BackToBackUA -- dropping the response");
@@ -774,64 +797,35 @@ class CallControlManager {
                         }
 
                         if (hisEndpoint == null) {
-                            hisEndpoint = new RtpTransmitterEndpoint();
+                            hisEndpoint = new RtpTransmitterEndpoint(rtpSession, b2bua
+                                    .getSymmitronClient());
 
                         }
+
                         tad.outgoingSession.setTransmitter(hisEndpoint);
 
-                        RtpTransmitterEndpoint hisRtcpEndpoint = null;
-
-                        if (Gateway.isRtcpRelayingSupported()) {
-                            RtpSession rtcpSession = dialogApplicationData.getRtcpSession();
-                            if (rtcpSession != null) {
-                                hisRtcpEndpoint = rtcpSession.getTransmitter();
-                            }
-
-                            if (hisRtcpEndpoint == null) {
-                                hisRtcpEndpoint = new RtpTransmitterEndpoint();
-
-                            }
-                            tad.outgoingRtcpSession.setTransmitter(hisRtcpEndpoint);
-                            hisRtcpEndpoint.setSessionDescription(sessionDescription, false);
-                        }
-
-                        hisEndpoint.setSessionDescription(sessionDescription, true);
+                        hisEndpoint.setSessionDescription(sessionDescription);
+                        int keepaliveInterval;
+                        KeepaliveMethod keepaliveMethod;
 
                         if (tad.operation == Operation.SEND_INVITE_TO_ITSP) {
-                            if (!tad.itspAccountInfo.getRtpKeepaliveMethod().equals(
-                                    KeepaliveMethod.NONE)) {
-                                hisEndpoint.setMaxSilence(Gateway.getMediaKeepaliveMilisec(),
-                                        tad.itspAccountInfo.getRtpKeepaliveMethod());
-                                if (Gateway.isRtcpRelayingSupported()) {
-                                    hisRtcpEndpoint.setMaxSilence(Gateway
-                                            .getMediaKeepaliveMilisec(), tad.itspAccountInfo
-                                            .getRtpKeepaliveMethod());
-                                }
-                            }
+                            keepaliveInterval = Gateway.getMediaKeepaliveMilisec();
+                            keepaliveMethod = tad.itspAccountInfo.getRtpKeepaliveMethod();
+
+                        } else {
+                            keepaliveInterval = 0;
+                            keepaliveMethod = KeepaliveMethod.NONE;
                         }
+                        hisEndpoint.setIpAddressAndPort(keepaliveInterval, keepaliveMethod);
 
                         RtpReceiverEndpoint incomingEndpoint = tad.incomingSession.getReceiver();
                         newSd = SdpFactory.getInstance().createSessionDescription(
                                 new String(response.getRawContent()));
-                        incomingEndpoint.setSessionDescription(newSd, true);
+                        incomingEndpoint.setSessionDescription(newSd);
                         newResponse.setContent(newSd.toString(), cth);
-                        if (Gateway.isRtcpRelayingSupported()) {
-                            RtpReceiverEndpoint incomingRtcpEndpoint = tad.incomingRtcpSession
-                                    .getReceiver();
-                            newSd = SdpFactory.getInstance().createSessionDescription(
-                                    new String(response.getRawContent()));
-                            incomingRtcpEndpoint.setSessionDescription(newSd, false);
-                        }
 
                         tad.backToBackUa.getRtpBridge().start();
-                        if (tad.backToBackUa.getRtcpBridge() != null) {
-                            tad.backToBackUa.getRtcpBridge().start();
-                        }
 
-                    }
-                    if (logger.isDebugEnabled() && response.getStatusCode() == 200) {
-                        logger.debug("Here is the bridge after forwarding Response");
-                        logger.debug(tad.backToBackUa.getRtpBridge().toString());
                     }
 
                     serverTransaction.sendResponse(newResponse);
@@ -860,33 +854,23 @@ class CallControlManager {
 
                         RtpSession rtpSession = ((DialogApplicationData) referDialog
                                 .getApplicationData()).getRtpSession();
-                        RtpSession rtcpSession = ((DialogApplicationData) referDialog
-                                .getApplicationData()).getRtcpSession();
+
                         if (rtpSession != null) {
 
                             /*
                              * Note that we are just pointing the transmitter to another location.
                              * The receiver stays as is.
                              */
-                            rtpSession.getTransmitter().setSessionDescription(sessionDescription,
-                                    true);
-                            if (Gateway.isRtcpRelayingSupported()) {
-
-                                rtcpSession.getTransmitter().setSessionDescription(
-                                        sessionDescription, false);
-                            }
+                            rtpSession.getTransmitter().setSessionDescription(sessionDescription);
 
                             /*
                              * Grab the RTP session previously pointed at by the REFER dialog.
                              */
                             b2bua.getRtpBridge().addSym(rtpSession);
-                            if (b2bua.getRtcpBridge() != null) {
-                                b2bua.getRtcpBridge().addSym(rtcpSession);
-                            }
+
                             ((DialogApplicationData) dialog.getApplicationData())
                                     .setRtpSession(rtpSession);
-                            ((DialogApplicationData) dialog.getApplicationData())
-                                    .setRtcpSession(rtcpSession);
+
                         } else {
                             logger
                                     .debug("Processing ReferRedirection: Could not find RtpSession for referred dialog");
@@ -1013,8 +997,16 @@ class CallControlManager {
         } catch (Exception ex) {
             // Some other exception occured during processing of the request.
             logger.error("Exception while processing inbound response ", ex);
+
             if (serverTransaction != null) {
-                sendInternalError(serverTransaction, ex);
+                sendBadRequestError(serverTransaction, ex);
+            }
+            if (b2bua != null) {
+                try {
+                    b2bua.tearDown();
+                } catch (Exception e) {
+                    logger.error("unexpected exception", e);
+                }
             }
         }
 
@@ -1085,11 +1077,14 @@ class CallControlManager {
 
                 b2bua = new BackToBackUserAgent(provider, request, dialog, accountInfo);
 
-                DialogApplicationData.attach(b2bua, dialog);
+                DialogApplicationData.attach(b2bua, dialog, request);
 
                 this.backToBackUserAgentTable.put(callId, b2bua);
             }
 
+        } catch (IOException ex) {
+            logger.error("unepxected exception", ex);
+            throw new RuntimeException("IOException -- check symmitron", ex);
         } catch (Exception ex) {
             logger.error("unexpected exception ", ex);
             throw new RuntimeException("Unepxected exception cloning");

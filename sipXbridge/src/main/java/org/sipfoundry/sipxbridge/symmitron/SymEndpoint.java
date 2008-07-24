@@ -6,6 +6,9 @@
  */
 package org.sipfoundry.sipxbridge.symmitron;
 
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.UnknownHostException;
 import java.nio.channels.DatagramChannel;
 import java.util.HashMap;
 import java.util.Map;
@@ -17,7 +20,7 @@ import java.util.Random;
  * @author M. Ranganathan
  * 
  */
-public abstract class SymEndpoint implements SymEndpointInterface {
+abstract class SymEndpoint implements SymEndpointInterface {
 
     private String id;
 
@@ -47,6 +50,11 @@ public abstract class SymEndpoint implements SymEndpointInterface {
             return retval;
         
 
+    }
+    
+    public void setIpAddressAndPort(String ipAddress, int port) throws UnknownHostException {
+        this.ipAddress = ipAddress;
+        this.port = port;
     }
 
     /**
@@ -108,7 +116,7 @@ public abstract class SymEndpoint implements SymEndpointInterface {
     }
 
     /**
-     * @return the rtpSession
+     * @return the sym session.
      */
     public Sym getSym() {
         return sym;

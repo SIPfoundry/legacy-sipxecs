@@ -10,52 +10,82 @@ import org.apache.commons.digester.Digester;
 import org.xml.sax.InputSource;
 
 public class SymmitronConfigParser {
-    private static final String BRIDGE_CONFIG = "sipxrelay-config";
-  
+
+    /*
+     * <?xml version="1.0" encoding="UTF-8"?> <nattraversal
+     * xmlns="http://www.sipfoundry.org/sipX/schema/xml/nattraversalrules-00-00"> <info>
+     * <state>enabled</state> <behindnat>true</behindnat> <useSTUN>false</useSTUN>
+     * <publicaddress>68.33.195.46</publicaddress>
+     * <proxyhostport>${MY_IP_ADDR}:${PROXY_SERVER_SIP_PORT}</proxyhostport>
+     * <relayaggressiveness>Aggressive</relayaggressiveness> <concurrentrelays>50</concurrentrelays>
+     * <port-range>30000:40000</port-range> <log-directory>/usr/local/sipxpbx</log-directory>
+     * <log-level>DEBUG</log-level> <mediarelaypublicaddress>sipxpbx.example.com</mediarelaypublicaddress>
+     * <mediarelaynativeaddress>sipxpbx.example.com</mediarelaynativeaddress>
+     * <mediarelayxml-rpc-port>5080</mediarelayxml-rpc-port> </info> <localtopology>
+     * <ipV4subnet>10.0.0.0/8</ipV4subnet> <ipV4subnet>172.16.0.0/12</ipV4subnet>
+     * <ipV4subnet>192.168.0.0/16</ipV4subnet> <dnsWildcard>*.example.com</dnsWildcard>
+     * </localtopology> </nattraversal>
+     * 
+     */
+    private static final String BRIDGE_CONFIG = "nattraversal/info";
+   
     /**
      * Add the digester rules.
      * 
      * @param digester
      */
     private static void addRules(Digester digester) {
-        digester.addObjectCreate("sipxrelay-config", SymmitronConfig.class);
-        
-        digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG,
-        "xml-rpc-port"), "setXmlRpcPort", 0,
-        new Class[] { Integer.class });
-        
-        digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG,
-        "port-range"), "setPortRange", 0);
-        digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG,
-        "external-address"), "setExternalAddress", 0);
-        digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG,
-        "local-address"), "setLocalAddress", 0);
-        digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG,
-        "log-level"), "setLogLevel", 0);
-        digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG,
-        "log-directory"), "setLogFileDirectory", 0);
-    }
-    
-    public SymmitronConfig parse(String url) {
-        // Create a Digester instance
-        Digester digester = new Digester();
-        digester.setSchema("file:schema/sipxrelay.xsd");
+        digester.addObjectCreate("nattraversal", SymmitronConfig.class);
 
-        addRules(digester);
-        // Process the input file.
+        digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG, "mediarelayxml-rpc-port"),
+                "setXmlRpcPort", 0, new Class[] {
+                    Integer.class
+                });
+        digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG, 
+                "useSTUN"), "setUseStun", 0, new Class[] {
+                    Boolean.class
+                });
+        digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG, "port-range"),
+                "setPortRange", 0);
+        digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG, "stun-server-address"),
+                "setStunServerAddress", 0);
+        digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG, "publicaddress"),
+                "setPublicAddress", 0);
+        digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG, "mediarelaypublicaddress"),
+                "setExternalAddress", 0);
+        digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG, "mediarelaynativeaddress"),
+                "setLocalAddress", 0);
+        digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG, "log-level"), "setLogLevel",
+                0);
+        digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG, "log-directory"),
+                "setLogFileDirectory", 0);
+    }
+
+    public SymmitronConfig parse(String url) {
         try {
-            InputSource inputSource = new InputSource(url);
-            digester.parse(inputSource);
-            return (SymmitronConfig) digester.getRoot();
-        } catch (java.io.IOException ioe) {
-            // Note that we do not have a debug file here so we need to print to stderr.
-            ioe.printStackTrace(System.err);
-            throw new RuntimeException("Intiialzation exception", ioe);
-        } catch (org.xml.sax.SAXException se) {
-             se.printStackTrace(System.err);
-             throw new RuntimeException("Intiialzation exception", se);
+            // Create a Digester instance
+            Digester digester = new Digester();
+            // digester.setSchema("file:schema/sipxrelay.xsd");
+
+            addRules(digester);
+            // Process the input file.
+            try {
+                InputSource inputSource = new InputSource(url);
+                digester.parse(inputSource);
+                return (SymmitronConfig) digester.getRoot();
+            } catch (java.io.IOException ioe) {
+                // Note that we do not have a debug file here so we need to print to stderr.
+                ioe.printStackTrace(System.err);
+                throw new RuntimeException("Intiialzation exception", ioe);
+            } catch (org.xml.sax.SAXException se) {
+                se.printStackTrace(System.err);
+                throw new RuntimeException("Intiialzation exception", se);
+            }
+        } catch (RuntimeException ex) {
+            System.err.println("unexpected exception " + ex);
+            throw ex;
         }
 
     }
-  
+
 }

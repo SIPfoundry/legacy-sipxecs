@@ -42,6 +42,7 @@ class ConcurrentSet implements Set<Sym> {
         }
         bridgeMap.put(channel, bridge);
         return true;
+        
     }
     
     public static Bridge getBridge(DatagramChannel channel) {

@@ -200,6 +200,16 @@ public interface Symmitron {
      * The number of packets processed.
      */
     public static final String PACKETS_PROCESSED = "packets-processed";
+    
+    /**
+     * The public address of the bridge.
+     */
+    public static final String PUBLIC_ADDRESS = "public-address";
+    
+    /**
+     * The external address of the bridge.
+     */
+    public static final String EXTERNAL_ADDRESS = "external-address";
 
     /**
      * Successful return.
@@ -226,7 +236,8 @@ public interface Symmitron {
     public static final int ILLEGAL_STATE = 5;
 
     public static final int PORTS_NOT_AVAILABLE = 6;
-
+    
+ 
     /**
      * Starting port for Sym allocation.
      * 
@@ -234,6 +245,7 @@ public interface Symmitron {
     public static final int EVEN = 1;
     public static final int ODD = 2;
 
+    
     /**
      * Sign in to symmmitron. This allows remote hosts to sign into symmitron.
      * Returns a controllerHandle that is used in subsequent interactions with
@@ -262,6 +274,16 @@ public interface Symmitron {
      * @return -- a standard map
      */
     public Map<String, Object> signOut(String controllerHandle);
+    
+    /**
+     * Get the public address of the symmitron. This is the address discovered by STUN
+     * or the configured address
+     * 
+     * @param controllerHandle -- instance handle of the controller.
+     * 
+     * @return -- a standard map.
+     */
+    public Map<String,Object> getPublicAddress(String controllerHandle);
 
     /**
      * Allocate a set of syms. This returns with the receivers end running. This

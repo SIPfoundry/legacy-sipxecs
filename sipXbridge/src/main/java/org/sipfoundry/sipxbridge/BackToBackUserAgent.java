@@ -9,6 +9,7 @@ package org.sipfoundry.sipxbridge;
 import gov.nist.javax.sdp.MediaDescriptionImpl;
 import gov.nist.javax.sip.DialogExt;
 import gov.nist.javax.sip.SipStackExt;
+import gov.nist.javax.sip.SipStackImpl;
 import gov.nist.javax.sip.header.extensions.ReplacesHeader;
 
 import java.io.IOException;
@@ -53,12 +54,14 @@ import javax.sip.message.Request;
 import javax.sip.message.Response;
 
 import org.apache.log4j.Logger;
-import org.sipfoundry.sipxbridge.symmitron.Bridge;
+import org.sipfoundry.sipxbridge.symmitron.BridgeInterface;
 import org.sipfoundry.sipxbridge.symmitron.KeepaliveMethod;
 import org.sipfoundry.sipxbridge.symmitron.Parity;
 import org.sipfoundry.sipxbridge.symmitron.PortRange;
 import org.sipfoundry.sipxbridge.symmitron.PortRangeManager;
-import org.sipfoundry.sipxbridge.symmitron.Sym;
+import org.sipfoundry.sipxbridge.symmitron.SymImpl;
+import org.sipfoundry.sipxbridge.symmitron.SymInterface;
+import org.sipfoundry.sipxbridge.symmitron.SymmitronClient;
 import org.sipfoundry.sipxbridge.symmitron.SymmitronServer;
 import org.sipfoundry.sipxbridge.xmlrpc.CallRecord;
 
@@ -79,8 +82,6 @@ public class BackToBackUserAgent {
     private ItspAccountInfo itspAccountInfo;
 
     private RtpBridge rtpBridge;
-
-    private Bridge rtcpBridge; // TODO - manage this.
 
     /*
      * This is just a table of dialogs that reference this B2bua. When the table is empty the
@@ -109,6 +110,8 @@ public class BackToBackUserAgent {
     private static final String ORIGINATOR = "originator";
 
     private static final String SIPXBRIDGE = "sipxbridge";
+
+    private SymmitronClient symmitronClient;
 
     // /////////////////////////////////////////////////////////////////
     // Inner classes.
@@ -196,35 +199,18 @@ public class BackToBackUserAgent {
             DialogApplicationData dialogApplicationData = DialogApplicationData.get(dialog);
 
             if (dialogApplicationData.getRtpSession() == null) {
-                RtpSession sym = new RtpSession();
-                PortRange portRange = SymmitronServer.getPortManager().allocate(2, Parity.EVEN);
-                RtpReceiverEndpoint endpoint = new RtpReceiverEndpoint(portRange.getLowerBound());
-                endpoint.setIpAddress(Gateway.getLocalAddress());
-                sym.setReceiver(endpoint);
+                SymImpl symImpl = symmitronClient.createEvenSym();
+                RtpSession rtpSession = new RtpSession(symImpl);
 
-                dialogApplicationData.setRtpSession(sym);
+               // RtpReceiverEndpoint endpoint = new RtpReceiverEndpoint(symImpl.getReceiver());
+
+                dialogApplicationData.setRtpSession(rtpSession);
                 SessionDescription sd = SdpFactory.getInstance().createSessionDescription(
                         this.rtpBridge.sessionDescription.toString());
-                sym.getReceiver().setSessionDescription(
-                        SipUtilities.cleanSessionDescription(sd, Gateway.getCodecName()), true);
+                rtpSession.getReceiver().setSessionDescription(
+                        SipUtilities.cleanSessionDescription(sd, Gateway.getCodecName()));
 
-                this.rtpBridge.addSym(sym);
-
-                if (Gateway.isRtcpRelayingSupported()) {
-                    // Add a SYM to the rtcp bridge.
-                    sym = new RtpSession();
-                    endpoint = new RtpReceiverEndpoint(portRange.getLowerBound() + 1);
-                    endpoint.setIpAddress(Gateway.getLocalAddress());
-                    sym.setReceiver(endpoint);
-                    sd = SdpFactory.getInstance().createSessionDescription(
-                            this.rtpBridge.sessionDescription.toString());
-                    sym.getReceiver().setSessionDescription(
-                            SipUtilities.cleanSessionDescription(sd, Gateway.getCodecName()),
-                            false);
-                    dialogApplicationData.setRtcpSession(sym);
-
-                    this.rtcpBridge.addSym(sym);
-                }
+                this.rtpBridge.addSym(rtpSession);
 
             }
             logger.debug("getLanRtpSession : " + dialog + " rtpSession = "
@@ -237,10 +223,6 @@ public class BackToBackUserAgent {
         }
     }
 
-    RtpSession getLanRtcpSession(Dialog dialog) {
-        return DialogApplicationData.getRtcpSession(dialog);
-    }
-
     /**
      * RTP session that is connected to the WAN Side.
      * 
@@ -249,64 +231,33 @@ public class BackToBackUserAgent {
     RtpSession getWanRtpSession(Dialog dialog) {
         try {
             RtpSession rtpSession = DialogApplicationData.getRtpSession(dialog);
-            RtpSession rtcpSession = DialogApplicationData.getRtcpSession(dialog);
             if (rtpSession == null) {
-                rtpSession = new RtpSession();
 
-                /*
-                 * Allocate a receiver.
-                 */
-                PortRange portRange = SymmitronServer.getPortManager().allocate(2, Parity.EVEN);
-                RtpReceiverEndpoint mediaEndpoint = new RtpReceiverEndpoint(portRange
-                        .getLowerBound());
-                mediaEndpoint
-                        .setIpAddress((itspAccountInfo == null && Gateway.getGlobalAddress() != null)
-                                || (itspAccountInfo != null && itspAccountInfo
-                                        .isGlobalAddressingUsed()) ? Gateway.getGlobalAddress()
-                                : Gateway.getLocalAddress());
-                rtpSession.setReceiver(mediaEndpoint);
+                SymImpl symImpl = symmitronClient.createEvenSym();
+                rtpSession = new RtpSession(symImpl);
+                /* RtpReceiverEndpoint mediaEndpoint = new RtpReceiverEndpoint(symImpl.getReceiver());
+                mediaEndpoint*/
+                String ipAddress = 
+                    (itspAccountInfo == null 
+                            ||  itspAccountInfo.isGlobalAddressingUsed()) ? symmitronClient
+                                .getPublicAddress() : symmitronClient.getExternalAddress();
+
                 SessionDescription sd = SdpFactory.getInstance().createSessionDescription(
                         this.rtpBridge.sessionDescription.toString());
                 String codecName = Gateway.getCodecName();
+                rtpSession.getReceiver().setIpAddress(ipAddress);
                 rtpSession.getReceiver().setSessionDescription(
-                        SipUtilities.cleanSessionDescription(sd, codecName), true);
+                        SipUtilities.cleanSessionDescription(sd, codecName));
                 DialogApplicationData.get(dialog).setRtpSession(rtpSession);
                 this.rtpBridge.addSym(rtpSession);
-
-                if (Gateway.isRtcpRelayingSupported()) {
-                    // Add a SYM to the rtcp bridge.
-                    rtcpSession = new RtpSession();
-                    RtpReceiverEndpoint endpoint = new RtpReceiverEndpoint(portRange
-                            .getLowerBound() + 1);
-                    endpoint
-                            .setIpAddress((itspAccountInfo == null && Gateway.getGlobalAddress() != null)
-                                    || (itspAccountInfo != null && itspAccountInfo
-                                            .isGlobalAddressingUsed()) ? Gateway
-                                    .getGlobalAddress() : Gateway.getLocalAddress());
-                    rtcpSession.setReceiver(endpoint);
-                    sd = SdpFactory.getInstance().createSessionDescription(
-                            this.rtpBridge.sessionDescription.toString());
-                    rtcpSession.getReceiver().setSessionDescription(
-                            SipUtilities.cleanSessionDescription(sd, codecName), false);
-                    DialogApplicationData.get(dialog).setRtcpSession(rtcpSession);
-
-                    this.rtcpBridge.addSym(rtcpSession);
-                }
 
             }
             logger.debug("getWanRtpSession : " + dialog + " rtpSession = " + rtpSession);
             return rtpSession;
         } catch (SdpParseException ex) {
             throw new RuntimeException("Unexpected exception -- FIXME", ex);
-        } catch (IOException ex) {
-            logger.error("IOException occured while allocating sym", ex);
-            return null;
         }
 
-    }
-
-    RtpSession getWanRtcpSession(Dialog dialog) {
-        return DialogApplicationData.getRtcpSession(dialog);
     }
 
     /**
@@ -413,13 +364,10 @@ public class BackToBackUserAgent {
 
             if (logger.isDebugEnabled()) {
                 logger.debug("referingDialog = " + referingDialog);
-                logger.debug("rtpBridgeDump = " + this.getRtpBridge());
                 logger.debug("replacedDialog = " + replacedDialog);
 
                 DialogApplicationData dat = (DialogApplicationData) replacedDialog
                         .getApplicationData();
-                logger.debug("replacedDialog rtpBridgeDump = "
-                        + dat.getBackToBackUserAgent().getRtpBridge().toString());
 
             }
 
@@ -427,71 +375,35 @@ public class BackToBackUserAgent {
              * We need to form a new bridge. Remove the refering dialog from our rtp bridge.
              * Remove the replacedDialog from its rtpBridge and form a new bridge.
              */
-            this.getRtpBridge().pause();
-            if (Gateway.isRtcpRelayingSupported()) {
-                this.getRtcpBridge().pause();
-            }
-            Set<Sym> myrtpSessions = this.getRtpBridge().getSyms();
+            rtpBridge.pause();
 
-            Set<Sym> myrtcpSessions = Gateway.isRtcpRelayingSupported() ? this.getRtcpBridge()
-                    .getSyms() : null;
-
+            Set<RtpSession> myrtpSessions = this.rtpBridge.getSyms();
             DialogApplicationData replacedDialogApplicationData = (DialogApplicationData) replacedDialog
                     .getApplicationData();
-
-            Bridge hisBridge = replacedDialogApplicationData.getBackToBackUserAgent()
-                    .getRtpBridge();
-            Bridge hisRtcpBridge = replacedDialogApplicationData.getBackToBackUserAgent()
-                    .getRtcpBridge();
-
+            RtpBridge hisBridge = replacedDialogApplicationData.getBackToBackUserAgent().rtpBridge;
             hisBridge.pause();
-            if (Gateway.isRtcpRelayingSupported()) {
-                hisRtcpBridge.pause();
-            }
-            Set<Sym> hisRtpSessions = hisBridge.getSyms();
-            Set<Sym> hisRtcpSessions = null;
-            if (Gateway.isRtcpRelayingSupported()) {
-                hisRtcpSessions = hisRtcpBridge.getSyms();
-            }
-            Bridge newBridge = new Bridge();
-            Bridge newRtcpBridge = new Bridge();
 
-            for (Sym sym : myrtpSessions) {
+            Set<RtpSession> hisRtpSessions = hisBridge.getSyms();
+            BridgeInterface bridge = symmitronClient.createBridge();
+
+            RtpBridge newBridge = new RtpBridge(bridge);
+
+            for (Iterator<RtpSession> it = myrtpSessions.iterator(); it.hasNext();) {
+                RtpSession sym = it.next();
                 if (sym != DialogApplicationData.getRtpSession(replacedDialog)
                         && sym != DialogApplicationData.getRtpSession(referingDialog)) {
                     newBridge.addSym(sym);
+                    it.remove();
                 }
             }
 
-            for (Sym sym : hisRtpSessions) {
+            for (Iterator<RtpSession> it = hisRtpSessions.iterator(); it.hasNext();) {
+                RtpSession sym = it.next();
                 if (sym != DialogApplicationData.getRtpSession(replacedDialog)
                         && sym != DialogApplicationData.getRtpSession(referingDialog)) {
                     newBridge.addSym(sym);
+                    it.remove();
                 }
-            }
-
-            if (Gateway.isRtcpRelayingSupported()) {
-                for (Sym sym : myrtcpSessions) {
-                    if (sym != DialogApplicationData.getRtcpSession(replacedDialog)
-                            && sym != DialogApplicationData.getRtcpSession(referingDialog)) {
-                        newRtcpBridge.addSym(sym);
-                    }
-                }
-
-                for (Sym sym : hisRtcpSessions) {
-                    if (sym != DialogApplicationData.getRtcpSession(replacedDialog)
-                            && sym != DialogApplicationData.getRtcpSession(referingDialog)) {
-                        newRtcpBridge.addSym(sym);
-                    }
-                }
-            }
-
-            if (logger.isDebugEnabled()) {
-                logger.debug("---> After replacement :");
-                logger.debug("newRtpBridge = " + newBridge);
-                logger.debug("myRtpBridge = " + this.getRtpBridge());
-                logger.debug("hisRtpBridge = " + hisBridge);
-
             }
 
             /*
@@ -499,19 +411,10 @@ public class BackToBackUserAgent {
              */
 
             this.rtpBridge.resume();
-            if (Gateway.isRtcpRelayingSupported()) {
-                this.rtcpBridge.resume();
-            }
+
             hisBridge.resume();
-            if (Gateway.isRtcpRelayingSupported()) {
-                hisRtcpBridge.resume();
-            }
 
             newBridge.start();
-
-            if (Gateway.isRtcpRelayingSupported()) {
-                newRtcpBridge.start();
-            }
 
             if (logger.isDebugEnabled()) {
                 logger.debug("replacedDialog State " + replacedDialog.getState());
@@ -527,16 +430,6 @@ public class BackToBackUserAgent {
                 byeCtx.setApplicationData(tad);
                 replacedDialog.sendRequest(byeCtx);
 
-            }
-
-            if (logger.isDebugEnabled()) {
-
-                logger.debug("rtpBridgeDump = " + this.getRtpBridge());
-
-                DialogApplicationData appdata = (DialogApplicationData) replacedDialog
-                        .getApplicationData();
-                logger.debug("replacedDialog rtpBridgeDump = "
-                        + appdata.getBackToBackUserAgent().getRtpBridge().toString());
             }
 
             Response response = ProtocolObjects.messageFactory.createResponse(Response.OK,
@@ -576,7 +469,7 @@ public class BackToBackUserAgent {
                         .getSessionDescription(lastResponse);
 
                 replacedDialogPeerDialogApplicationData.getRtpSession().getReceiver()
-                        .setSessionDescription(sessionDescription, true);
+                        .setSessionDescription(sessionDescription);
 
                 SipUtilities.incrementSessionVersion(sessionDescription);
 
@@ -594,13 +487,14 @@ public class BackToBackUserAgent {
         } catch (Exception ex) {
             logger.error("Unexpected internal error occured", ex);
 
-            CallControlManager.sendInternalError(serverTransaction, ex);
+            CallControlManager.sendBadRequestError(serverTransaction, ex);
         }
 
     }
 
     private BackToBackUserAgent(Request request, ItspAccountInfo itspAccountInfo)
             throws IOException {
+
         this.itspAccountInfo = itspAccountInfo;
         this.callRecord = new CallRecord();
         String fromAddress = SipUtilities.getFromAddress(request);
@@ -612,16 +506,22 @@ public class BackToBackUserAgent {
         String callId = SipUtilities.getCallId(request);
         callRecord.setCallId(callId);
 
-        rtpBridge = new RtpBridge(request);
-        if (Gateway.isRtcpRelayingSupported()) {
-            this.rtcpBridge = new RtpBridge(request);
-        }
-
     }
 
     BackToBackUserAgent(SipProvider provider, Request request, Dialog dialog,
             ItspAccountInfo itspAccountInfo) throws IOException {
         this(request, itspAccountInfo);
+        // Received this reuqest from the LAN
+        // The symmitron to use is the symmitron that runs where the request
+        // originated from.
+        if (provider == Gateway.getLanProvider()) {
+            String address = ((ViaHeader) request.getHeader(ViaHeader.NAME)).getHost();
+            this.symmitronClient = Gateway.getSymmitronClient(address);
+        } else {
+            this.symmitronClient = Gateway.getSymmitronClient(Gateway.getLocalAddress());
+        }
+        BridgeInterface bridge = symmitronClient.createBridge();
+        rtpBridge = new RtpBridge(request, bridge);
         dialogTable.add(dialog);
         this.creatingDialog = dialog;
 
@@ -652,19 +552,7 @@ public class BackToBackUserAgent {
             for (Dialog d : dialogTable) {
                 d.delete();
             }
-            if (Gateway.isRtcpRelayingSupported()) {
-                this.rtcpBridge.stop();
-            } else {
-                // Remove the odd port allocation.
-                for (Sym sym : rtpBridge.getSyms()) {
-                    if (sym.getReceiver() != null) {
-                        int evenPort = sym.getReceiver().getPort();
-                        int oddPort = evenPort + 1;
-                        PortRangeManager portRangeManager = SymmitronServer.getPortManager();
-                        portRangeManager.free(new PortRange(oddPort, oddPort + 1));
-                    }
-                }
-            }
+
             this.rtpBridge.stop();
             this.sessionTimerTask.cancel();
             dialogTable.clear();
@@ -773,11 +661,7 @@ public class BackToBackUserAgent {
 
             RtpSession lanRtpSession = this.getLanRtpSession(dialog);
             if (sessionDescription != null) {
-                lanRtpSession.getReceiver().setSessionDescription(sessionDescription, true);
-                if (Gateway.isRtcpRelayingSupported()) {
-                    RtpSession lanRtcpSession = this.getLanRtcpSession(dialog);
-                    lanRtcpSession.getReceiver().setSessionDescription(sessionDescription, false);
-                }
+                lanRtpSession.getReceiver().setSessionDescription(sessionDescription);
             }
 
             SessionDescription sd = lanRtpSession.getReceiver().getSessionDescription();
@@ -789,7 +673,7 @@ public class BackToBackUserAgent {
             ClientTransaction ct = Gateway.getLanProvider().getNewClientTransaction(newRequest);
 
             DialogApplicationData newDialogApplicationData = DialogApplicationData.attach(this,
-                    ct.getDialog());
+                    ct.getDialog(), ct.getRequest());
             DialogApplicationData dialogApplicationData = (DialogApplicationData) dialog
                     .getApplicationData();
 
@@ -942,30 +826,18 @@ public class BackToBackUserAgent {
                 }
                 logger.debug("Clean session description = " + sessionDescription);
             }
-
-            RtpTransmitterEndpoint rtpEndpoint = new RtpTransmitterEndpoint();
             RtpSession incomingSession = this.getWanRtpSession(inboundDialog);
-            incomingSession.setTransmitter(rtpEndpoint);
-            rtpEndpoint.setSessionDescription(sessionDescription, true);
-            RtpTransmitterEndpoint rtcpEndpoint = null;
-            RtpSession incomingRtcpSession = null;
-            if (Gateway.isRtcpRelayingSupported()) {
-                incomingRtcpSession = this.getWanRtcpSession(inboundDialog);
-                rtcpEndpoint = new RtpTransmitterEndpoint();
-                incomingRtcpSession.setTransmitter(rtcpEndpoint);
-                rtcpEndpoint.setSessionDescription(sessionDescription, false);
-            }
 
+            RtpTransmitterEndpoint rtpEndpoint = new RtpTransmitterEndpoint(incomingSession,
+                    symmitronClient);
+            incomingSession.setTransmitter(rtpEndpoint);
+            rtpEndpoint.setSessionDescription(sessionDescription);
             KeepaliveMethod keepaliveMethod = this.itspAccountInfo != null ? this.itspAccountInfo
                     .getRtpKeepaliveMethod() : KeepaliveMethod.USE_EMPTY_PACKET;
 
-            if (!keepaliveMethod.equals(KeepaliveMethod.NONE)) {
-                rtpEndpoint.setMaxSilence(Gateway.getMediaKeepaliveMilisec(), keepaliveMethod);
-                if (rtcpEndpoint != null) {
-                    rtcpEndpoint.setMaxSilence(Gateway.getMediaKeepaliveMilisec(),
-                            keepaliveMethod);
-                }
-            }
+            int keepaliveInterval = Gateway.getMediaKeepaliveMilisec();
+            rtpEndpoint.setIpAddressAndPort(keepaliveInterval, keepaliveMethod);
+
             ContentTypeHeader cth = ProtocolObjects.headerFactory.createContentTypeHeader(
                     "application", "sdp");
             /*
@@ -975,7 +847,7 @@ public class BackToBackUserAgent {
 
             Dialog outboundDialog = ct.getDialog();
 
-            DialogApplicationData.attach(this, outboundDialog);
+            DialogApplicationData.attach(this, outboundDialog, ct.getRequest());
             pairDialogs(inboundDialog, outboundDialog);
 
             newRequest.setContent(this.getLanRtpSession(outboundDialog).getReceiver()
@@ -989,7 +861,6 @@ public class BackToBackUserAgent {
             tad.clientTransaction = ct;
             tad.clientTransactionProvider = Gateway.getLanProvider();
             tad.incomingSession = incomingSession;
-            tad.incomingRtcpSession = incomingRtcpSession;
             tad.outgoingSession = this.getLanRtpSession(outboundDialog);
             tad.serverTransaction = serverTransaction;
             tad.serverTransactionProvider = provider;
@@ -1110,7 +981,8 @@ public class BackToBackUserAgent {
             tad.backToBackUa = this;
             ct.setApplicationData(tad);
             this.addDialog(ct.getDialog());
-            DialogApplicationData dat = DialogApplicationData.attach(this, ct.getDialog());
+            DialogApplicationData dat = DialogApplicationData.attach(this, ct.getDialog(), ct
+                    .getRequest());
 
             ct.sendRequest();
             retval = ct.getDialog();
@@ -1264,14 +1136,17 @@ public class BackToBackUserAgent {
             ClientTransaction ct = itspProvider.getNewClientTransaction(outgoingRequest);
             Dialog outboundDialog = ct.getDialog();
 
-            DialogApplicationData.attach(this, outboundDialog);
+            DialogApplicationData.attach(this, outboundDialog, outgoingRequest);
             DialogApplicationData.get(outboundDialog).itspInfo = itspAccountInfo;
 
             SessionDescription sd = spiral ? DialogApplicationData.getRtpSession(
                     this.referingDialog).getReceiver().getSessionDescription() : this
                     .getWanRtpSession(outboundDialog).getReceiver().getSessionDescription();
 
-            SipUtilities.fixupSdpAddresses(sd, itspAccountInfo.isGlobalAddressingUsed());
+            String address = itspAccountInfo.isGlobalAddressingUsed() ? this.symmitronClient
+                    .getPublicAddress() : this.symmitronClient.getExternalAddress();
+
+            SipUtilities.fixupSdpAddresses(sd, address);
             String codecName = Gateway.getCodecName();
 
             SessionDescription newSd = SipUtilities.cleanSessionDescription(sd, codecName);
@@ -1288,10 +1163,7 @@ public class BackToBackUserAgent {
             /*
              * Indicate that we will be transmitting first.
              */
-            // MediaDescription mediaDescription = (MediaDescription)
-            // sd.getMediaDescriptions(true)
-            // .get(0);
-            // mediaDescription.setAttribute("direction", "active");
+
             ContentTypeHeader cth = ProtocolObjects.headerFactory.createContentTypeHeader(
                     "application", "sdp");
 
@@ -1324,7 +1196,6 @@ public class BackToBackUserAgent {
             tad.serverTransactionProvider = Gateway.getLanProvider();
             tad.itspAccountInfo = itspAccountInfo;
             tad.outgoingSession = this.getWanRtpSession(outboundDialog);
-            tad.outgoingRtcpSession = this.getWanRtcpSession(outboundDialog);
             tad.backToBackUa = this;
             tad.clientTransaction = ct;
 
@@ -1335,16 +1206,17 @@ public class BackToBackUserAgent {
 
             if (!spiral) {
                 tad.incomingSession = this.getLanRtpSession(incomingDialog);
-                RtpTransmitterEndpoint rtpEndpoint = new RtpTransmitterEndpoint();
+                RtpTransmitterEndpoint rtpEndpoint = new RtpTransmitterEndpoint(
+                        tad.incomingSession, symmitronClient);
+                KeepaliveMethod keepAliveMethod = itspAccountInfo.getRtpKeepaliveMethod();
+                int keepAliveInterval = Gateway.getMediaKeepaliveMilisec();
+                String ipAddress = SipUtilities
+                        .getSessionDescriptionMediaIpAddress(sessionDescription);
+                int port = SipUtilities.getSessionDescriptionMediaPort(sessionDescription);
+                rtpEndpoint.setIpAddressAndPort(ipAddress, port, keepAliveInterval,
+                        keepAliveMethod);
                 tad.incomingSession.setTransmitter(rtpEndpoint);
-                rtpEndpoint.setSessionDescription(sessionDescription, true);
-                if (Gateway.isRtcpRelayingSupported()) {
-                    tad.incomingRtcpSession = DialogApplicationData
-                            .getRtcpSession(incomingDialog);
-                    RtpTransmitterEndpoint rtcpEndpoint = new RtpTransmitterEndpoint();
-                    tad.incomingRtcpSession.setTransmitter(rtcpEndpoint);
-                    rtcpEndpoint.setSessionDescription(sessionDescription, false);
-                }
+                rtpEndpoint.setSessionDescription(sessionDescription);
 
             } else if (spiral && replacesHeader == null) {
                 /*
@@ -1352,53 +1224,33 @@ public class BackToBackUserAgent {
                  * already own this port). Note here that we set the early media flag.
                  */
                 this.rtpBridge.pause(); // Pause to block inbound packets.
-                if (rtcpBridge != null) {
-                    this.rtcpBridge.pause();
-                }
+
                 tad.operation = Operation.SPIRAL_BLIND_TRANSFER_INVITE_TO_ITSP;
                 RtpSession rtpSession = DialogApplicationData.getRtpSession(this.referingDialog);
-                RtpSession rtcpSession = DialogApplicationData
-                        .getRtcpSession(this.referingDialog);
                 if (rtpSession == null) {
                     Response errorResponse = ProtocolObjects.messageFactory.createResponse(
                             Response.SESSION_NOT_ACCEPTABLE, incomingRequest);
                     errorResponse.setReasonPhrase("Could not RtpSession for refering dialog");
                     serverTransaction.sendResponse(errorResponse);
                     this.rtpBridge.resume();
-                    if (rtcpBridge != null) {
-                        this.rtcpBridge.resume();
-                    }
+
                     return;
                 }
                 tad.referingDialog = referingDialog;
-                RtpTransmitterEndpoint rtpEndpoint = new RtpTransmitterEndpoint();
+                RtpTransmitterEndpoint rtpEndpoint = new RtpTransmitterEndpoint(rtpSession,
+                        symmitronClient);
                 rtpSession.setTransmitter(rtpEndpoint);
-                rtpEndpoint.setSessionDescription(sessionDescription, true);
-                RtpTransmitterEndpoint rtcpEndpoint = null;
-                if (Gateway.isRtcpRelayingSupported()) {
-                    rtcpEndpoint = new RtpTransmitterEndpoint();
-                    rtcpEndpoint.setSessionDescription(sessionDescription, false);
-                    rtcpSession.setTransmitter(rtcpEndpoint);
-                }
-                if (!tad.itspAccountInfo.getRtpKeepaliveMethod().equals("NONE")) {
-                    rtpEndpoint.setMaxSilence(Gateway.getMediaKeepaliveMilisec(),
-                            tad.itspAccountInfo.getRtpKeepaliveMethod());
-                    if (rtcpEndpoint != null) {
-                        rtcpEndpoint.setMaxSilence(Gateway.getMediaKeepaliveMilisec(),
-                                tad.itspAccountInfo.getRtpKeepaliveMethod());
-                    }
-                }
+                rtpEndpoint.setSessionDescription(sessionDescription);
+                int keepaliveInterval = Gateway.getMediaKeepaliveMilisec();
+                KeepaliveMethod keepaliveMethod = tad.itspAccountInfo.getRtpKeepaliveMethod();
+                rtpEndpoint.setIpAddressAndPort(keepaliveInterval, keepaliveMethod);
+
                 /*
                  * The RTP session now belongs to the ClientTransaction.
                  */
                 this.rtpBridge.addSym(rtpSession);
-                if (rtcpBridge != null) {
-                    this.rtcpBridge.addSym(rtcpSession);
-                }
+
                 this.rtpBridge.resume(); /* Resume operation. */
-                if (rtcpBridge != null) {
-                    this.rtcpBridge.resume();
-                }
 
             } else {
                 logger.fatal("Internal error -- case not covered");
@@ -1533,17 +1385,8 @@ public class BackToBackUserAgent {
     /**
      * @return the rtpBridge
      */
-    Bridge getRtpBridge() {
+    RtpBridge getRtpBridge() {
         return rtpBridge;
-    }
-
-    /**
-     * Get the RTCP bridge.
-     * 
-     * @return
-     */
-    Bridge getRtcpBridge() {
-        return rtcpBridge;
     }
 
     /**
@@ -1561,6 +1404,10 @@ public class BackToBackUserAgent {
     void setItspAccount(ItspAccountInfo account) {
         this.itspAccountInfo = account;
 
+    }
+
+    SymmitronClient getSymmitronClient() {
+        return symmitronClient;
     }
 
     // ///////////////////////////////////////////////////////////////////////

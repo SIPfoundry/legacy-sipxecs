@@ -27,7 +27,7 @@ class DataShuffler implements Runnable {
     // The buffer into which we'll read data when it's available
     private static ByteBuffer readBuffer = ByteBuffer.allocate(8192);
     private static Selector selector;
-    private static Logger logger = Logger.getLogger(DataShuffler.class);
+    private static Logger logger = Logger.getLogger(DataShuffler.class.getPackage().getName());
 
     private static boolean initializeSelectors = true;
 

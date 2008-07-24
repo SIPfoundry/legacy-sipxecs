@@ -17,33 +17,47 @@ import javax.sip.SipException;
 import javax.sip.message.Request;
 
 import org.apache.log4j.Logger;
-import org.sipfoundry.sipxbridge.symmitron.Sym;
+import org.sipfoundry.sipxbridge.symmitron.SymImpl;
+import org.sipfoundry.sipxbridge.symmitron.SymInterface;
 
-class RtpSession extends Sym {
+class RtpSession  {
 
     private static Logger logger = Logger.getLogger(RtpSession.class);
+    
+    private SymImpl symImpl;
+    
+    private RtpReceiverEndpoint rtpReceiverEndpoint;
+    
+    private RtpTransmitterEndpoint rtpTransmitterEndpoint;
+    
 
-    public RtpSession() {
-        super();
+    public RtpSession(SymImpl symImpl) {
+        this.symImpl = symImpl;
+        this.rtpReceiverEndpoint = new RtpReceiverEndpoint(symImpl.getReceiver());
+    }
+    
+    public SymImpl getSym() {
+        return this.symImpl;
     }
 
-    @Override
+    public String getId() {
+        return symImpl.getId();
+    }
+    
+ 
     public RtpReceiverEndpoint getReceiver() {
-        return (RtpReceiverEndpoint) super.getReceiver();
+        return this.rtpReceiverEndpoint;
     }
 
-    @Override
     public RtpTransmitterEndpoint getTransmitter() {
-        return (RtpTransmitterEndpoint) super.getTransmitter();
+        return rtpTransmitterEndpoint;
     }
 
     protected void setTransmitter(RtpTransmitterEndpoint endpoint) {
-        super.setTransmitter(endpoint);
+        this.rtpTransmitterEndpoint = endpoint;
+        symImpl.setTransmitter(endpoint.getSymTransmitter());
     }
 
-    protected void setReceiver(RtpReceiverEndpoint receiverEndpoint) {
-        super.setReceiver(receiverEndpoint);
-    }
 
     /**
      * Reassign the session parameters ( possibly putting the media on hold and playing music ).
@@ -198,9 +212,8 @@ class RtpSession extends Sym {
                 }
 
                 SessionDescription retval = this.getReceiver().getSessionDescription();
-                this.getTransmitter().setIpAddress(newIpAddress);
-                this.getTransmitter().setPort(newport);
-                this.getTransmitter().connect();
+                this.getTransmitter().setIpAddressAndPort(newIpAddress,newport);
+               
                 return retval;
             }
         } catch (IOException ex) {

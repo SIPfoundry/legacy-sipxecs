@@ -31,11 +31,6 @@ public interface SymEndpointInterface {
      */
     public String getIpAddress();
 
-    /**
-     * The unique id for this endpoint.
-     * 
-     * @return -- an identifier for this endpoint.
-     */
-    public String getId();
+   
 
 }

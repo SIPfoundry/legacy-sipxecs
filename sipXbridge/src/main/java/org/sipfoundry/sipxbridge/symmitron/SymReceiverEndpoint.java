@@ -20,7 +20,7 @@ import org.apache.log4j.Logger;
  * @author mranga
  * 
  */
-public class SymReceiverEndpoint extends SymEndpoint {
+final class SymReceiverEndpoint extends SymEndpoint {
 
     private static Logger logger = Logger.getLogger(SymReceiverEndpoint.class);
     

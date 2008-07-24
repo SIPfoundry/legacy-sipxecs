@@ -19,7 +19,7 @@ import org.apache.log4j.Logger;
  * @author M. Ranganathan
  * 
  */
-public class Sym implements SymInterface, Serializable {
+final class Sym implements SymInterface, Serializable {
 
     private static final long serialVersionUID = -2762988912663901623L;
 

@@ -736,14 +736,14 @@ class SipUtilities {
         }
     }
 
-    static void fixupSdpAddresses(SessionDescription sessionDescription, boolean useGlobalAddress) {
+    static void fixupSdpAddresses(SessionDescription sessionDescription, String address) {
         try {
             Connection connection = sessionDescription.getConnection();
-            String address = useGlobalAddress ? Gateway.getGlobalAddress() : Gateway
-                    .getLocalAddress();
+            
 
-            if (connection != null)
+            if (connection != null) {
                 connection.setAddress(address);
+            }
 
             Origin origin = sessionDescription.getOrigin();
             origin.setAddress(address);

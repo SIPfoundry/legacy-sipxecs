@@ -9,7 +9,6 @@ package org.sipfoundry.sipxbridge;
 import javax.sdp.SessionDescription;
 import javax.sip.ServerTransaction;
 
-import org.sipfoundry.sipxbridge.symmitron.Sym;
 
 /**
  * An internal class that is used to wait for an SDP answer after sending out an
@@ -24,7 +23,7 @@ class PendingSdpAnswer {
      * The outgoing rtp session ( this is fixed up when we get an sdp response).
      */
 
-    Sym outgoingSession;
+    //Sym outgoingSession;
 
     /*
      * The Sdp Offer that was sent to us from the Client Tx.

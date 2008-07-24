@@ -22,7 +22,8 @@ import org.apache.log4j.Logger;
  * @author mranga
  * 
  */
-public class SymTransmitterEndpoint extends SymEndpoint {
+final class SymTransmitterEndpoint extends SymEndpoint
+    implements SymTransmitterEndpointInterface {
 
     private long lastPacketSentTime;
 

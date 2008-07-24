@@ -8,6 +8,7 @@
 package org.sipfoundry.sipxbridge;
 
 import javax.sip.Dialog;
+import javax.sip.message.Request;
 import javax.sip.message.Response;
 
 import org.apache.log4j.Logger;
@@ -60,10 +61,6 @@ class DialogApplicationData {
 
     private RtpSession rtpSession;
     
-    /*
-     * The RTCP session.
-     */
-    private RtpSession rtcpSession;
     
     
     boolean isSdpAnswerPending;
@@ -76,6 +73,9 @@ class DialogApplicationData {
     
     
     boolean isOriginatedBySipxbridge;
+
+   
+    Request request;
    
 
     
@@ -107,15 +107,14 @@ class DialogApplicationData {
         return ((DialogApplicationData) dialog.getApplicationData()).rtpSession;
     }
     
-     static RtpSession getRtcpSession(Dialog dialog) {
-        return ((DialogApplicationData) dialog.getApplicationData()).rtcpSession;
-    }
+     
 
      static DialogApplicationData attach(
-            BackToBackUserAgent backToBackUserAgent, Dialog dialog) {
+            BackToBackUserAgent backToBackUserAgent, Dialog dialog, Request request) {
         if ( backToBackUserAgent == null ) 
             throw new NullPointerException("Null back2back ua");
         DialogApplicationData dat = new DialogApplicationData();
+        dat.request = request;
         dat.setBackToBackUserAgent(backToBackUserAgent);
         dialog.setApplicationData(dat);
         return dat;
@@ -140,19 +139,7 @@ class DialogApplicationData {
         return rtpSession;
     }
 
-    /**
-     * @param rtcpSession the rtcpSession to set
-     */
-     void setRtcpSession(RtpSession rtcpSession) {
-        this.rtcpSession = rtcpSession;
-    }
-
-    /**
-     * @return the rtcpSession
-     */
-     RtpSession getRtcpSession() {
-        return rtcpSession;
-    }
+    
 
     /**
      * @param backToBackUserAgent the backToBackUserAgent to set

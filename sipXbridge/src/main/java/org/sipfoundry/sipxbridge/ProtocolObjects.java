@@ -57,7 +57,6 @@ public class ProtocolObjects {
                     Gateway.getLogLevel());
             stackProperties.setProperty(
                     "gov.nist.javax.sip.LOG_MESSAGE_CONTENT", "true");
-            // UNCOMMENT
             stackProperties.setProperty("gov.nist.javax.sip.LOG_FACTORY",
                     SipFoundryLogRecordFactory.class.getName());
             

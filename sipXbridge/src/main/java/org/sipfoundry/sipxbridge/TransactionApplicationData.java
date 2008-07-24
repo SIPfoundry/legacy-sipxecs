@@ -8,12 +8,8 @@ package org.sipfoundry.sipxbridge;
 
 import javax.sip.ClientTransaction;
 import javax.sip.Dialog;
-import javax.sip.RequestEvent;
 import javax.sip.ServerTransaction;
 import javax.sip.SipProvider;
-import javax.sip.message.Request;
-
-import org.sipfoundry.sipxbridge.symmitron.Sym;
 
 /**
  * The information we stow away on a pending transaction completion. This is
@@ -52,11 +48,7 @@ class TransactionApplicationData {
      */
     RtpSession outgoingSession;
     
-    /*
-     * The Pending outgoing Rtcp session ( awaiting completion after the response comes in ).
-     */
-    RtpSession outgoingRtcpSession;
-
+    
     /*
      * The ITSP account information.
      */

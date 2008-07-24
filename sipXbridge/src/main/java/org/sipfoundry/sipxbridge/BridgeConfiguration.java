@@ -42,6 +42,8 @@ public class BridgeConfiguration {
     private boolean reInviteSupported = true;
     private int maxCalls = -1;
     private String autoAttendantName = null;
+    private String symmitronAddress;
+    private int symmitronPort;
 
     private static Logger logger = Logger.getLogger(BridgeConfiguration.class);
 
@@ -386,6 +388,19 @@ public class BridgeConfiguration {
      */
     public int getGlobalPort() {
         return globalPort;
+    }
+
+
+    public void setSymmitronAddress(String symmitronAddress) {
+        this.symmitronAddress = symmitronAddress;
+    }
+    
+    public String getSymmitronAddress() {
+        return symmitronAddress;  
+    }
+    
+    public int getSymmitronPort() {
+        return this.symmitronPort;
     }
 
 }

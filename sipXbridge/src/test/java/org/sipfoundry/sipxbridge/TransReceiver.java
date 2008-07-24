@@ -354,7 +354,7 @@ public class TransReceiver {
         if (server) {
             Gateway.setConfigurationFileName(accountName);
             Gateway.parseConfigurationFile();
-            Gateway.initializeSymmitron();
+            Gateway.initializeSymmitron(Gateway.getAccountManager().getBridgeConfiguration().getExternalAddress());
             port = Gateway.getAccountManager().getBridgeConfiguration()
                     .getXmlRpcPort();
             serverAddress = Gateway.getAccountManager()
