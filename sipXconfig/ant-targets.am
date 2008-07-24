@@ -29,3 +29,6 @@ install :
 
 check :
 	$(ANT_CMD) $(ANT_FLAGS) test style
+
+precommit :
+	$(ANT_CMD) $(ANT_FLAGS) precommit

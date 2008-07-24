@@ -50,6 +50,9 @@ SUBDIRS = \
 install-exec-hook :
 	$(ANT_CMD) $(ANT_FLAGS) remove-jars
 
+precommit :
+	$(ANT_CMD) $(ANT_FLAGS) precommit
+
 EXTRA_DIST = \
     config/sipX-config.in \
     config/sipX-buildstamp.cpp.in \
@@ -91,3 +94,4 @@ _top.build.dir :
 
 DISTCLEANFILES = \
 	$(CONFIG_DISTCLEANFILES)
+
