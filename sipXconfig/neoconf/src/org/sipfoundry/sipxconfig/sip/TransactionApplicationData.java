@@ -1,10 +1,10 @@
 /*
  *
  *
- * Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ * Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  *
  */
 package org.sipfoundry.sipxconfig.sip;
@@ -16,6 +16,7 @@ import java.util.concurrent.TimeUnit;
 
 import javax.sip.ClientTransaction;
 import javax.sip.Dialog;
+import javax.sip.DialogState;
 import javax.sip.InvalidArgumentException;
 import javax.sip.ResponseEvent;
 import javax.sip.SipException;
@@ -34,19 +35,19 @@ import org.apache.commons.logging.LogFactory;
 /**
  * Transaction context data. Register one of these per transaction to track data that is specific
  * to a transaction.
- * 
+ *
  */
 class TransactionApplicationData {
 
     private static final Log LOG = LogFactory.getLog(TransactionApplicationData.class);
 
-    private Operator m_operator;
+    private final Operator m_operator;
 
-    private SynchronousQueue<EventObject> m_queue = new SynchronousQueue<EventObject>();
+    private final SynchronousQueue<EventObject> m_queue = new SynchronousQueue<EventObject>();
 
-    private JainSipMessage m_message;
+    private final JainSipMessage m_message;
 
-    private SipStackBean m_helper;
+    private final SipStackBean m_helper;
 
     private int m_counter;
 
@@ -58,7 +59,7 @@ class TransactionApplicationData {
 
     /**
      * Blocks until transaction completes or timeout elapses
-     * 
+     *
      * @return false if timeout, true if response received
      * @throws InterruptedException
      */
@@ -83,7 +84,13 @@ class TransactionApplicationData {
                 m_counter++;
                 if (ctx != null) {
                     ctx.setApplicationData(this);
-                    ctx.sendRequest();
+                    if (dialog.getState() == DialogState.CONFIRMED) {
+                        dialog.sendRequest(ctx);
+                    } else if (dialog.getState() != DialogState.TERMINATED) {
+                        ctx.sendRequest();
+                    } else {
+                        ctx.terminate();
+                    }
                 }
             } else if (m_operator == Operator.SEND_NOTIFY) {
                 // We ignore 1xx responses. 2xx and above are put into the queue.
@@ -111,8 +118,8 @@ class TransactionApplicationData {
                         ClientTransaction ctx = m_helper.getSipProvider().getNewClientTransaction(referRequest);
 
                         // And send it to the other side.
-                        TransactionApplicationData tad = new TransactionApplicationData(Operator.SEND_REFER, m_helper,
-                                null);
+                        TransactionApplicationData tad = new TransactionApplicationData(Operator.SEND_REFER,
+                                m_helper, null);
                         ctx.setApplicationData(tad);
                         dialog.sendRequest(ctx);
                     }
