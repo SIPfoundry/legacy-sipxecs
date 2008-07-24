@@ -1,4 +1,4 @@
-FS_VER = 1.0.0
+FS_VER = 1.0.1
 FS_REL = 1
 FS_URL=http://files.freeswitch.org
 
