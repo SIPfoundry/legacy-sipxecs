@@ -15,6 +15,21 @@
           <span jwcid="logsPanel" for="snapshot:logs">
             <span jwcid="logsCheck" id="snapshot:logs"/>
           </span>
+	  <span jwcid="@common/FieldPanel" field="component:filterTime"
+		  for="snapshot:filterTime"
+		  label="message:label.filterTime"
+		  description="message:description.filterTime">
+		<span jwcid="filterTime@Checkbox"
+                id="snapshot:filterTime"
+		value="ognl:snapshot.filterTime"
+		displayName="message:label.filterTime" />
+          </span>
+	  <span jwcid="startDate@common/DateTimeEditor"
+		datetime="ognl:startDate"
+		    label="message:label.startDate" />
+          <span jwcid="endDate@common/DateTimeEditor"
+		    datetime="ognl:endDate"
+			label="message:label.endDate" />
           <span jwcid="wwwPanel" for="snapshot:www">
             <span jwcid="wwwCheck" id="snapshot:www"/>
           </span>

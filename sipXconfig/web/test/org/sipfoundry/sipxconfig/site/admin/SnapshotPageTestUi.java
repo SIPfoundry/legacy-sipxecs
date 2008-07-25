@@ -34,6 +34,11 @@ public class SnapshotPageTestUi extends WebTestCase {
         assertCheckboxSelected("snapshot:www");
         assertCheckboxSelected("snapshot:logs");
         assertCheckboxNotSelected("snapshot:credentials");
+        assertCheckboxNotSelected("snapshot:filterTime");
+        assertElementPresent("datetime:date");
+        assertElementPresent("datetime:time");
+        assertElementPresent("datetime:date_0");
+        assertElementPresent("datetime:time_0");
         clickButton("form:apply");
         SiteTestHelper.assertNoException(getTester());
         SiteTestHelper.assertUserError(getTester());

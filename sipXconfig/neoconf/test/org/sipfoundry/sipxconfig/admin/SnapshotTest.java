@@ -10,6 +10,7 @@
 package org.sipfoundry.sipxconfig.admin;
 
 import java.io.File;
+import java.util.Date;
 
 import junit.framework.TestCase;
 
@@ -19,18 +20,32 @@ public class SnapshotTest extends TestCase {
 
     public void testGetCmdLine() {
         Snapshot snapshot = new Snapshot();
+        Date startDate = new Date(1215779686450l);// Fri Jul 11 12:34:46 UTC 2008
+        Date endDate = new Date(1215779810971l); // Fri Jul 11 12:36:50 UTC 2008
 
-        String cmdLine = StringUtils.join(snapshot.getCmdLine(""), ' ');
-        assertEquals(File.separator + "sipx-snapshot --logs current sipx-configuration.tar.gz", cmdLine);
+        String cmdLine = StringUtils.join(snapshot.getCmdLine("", startDate, endDate), ' ');
+        assertEquals(File.separator + "sipx-snapshot --logs current sipx-configuration.tar.gz",
+                cmdLine);
+
+        snapshot.setFilterTime(true);
+        cmdLine = StringUtils.join(snapshot.getCmdLine("", startDate, endDate), ' ');
+        assertEquals(File.separator
+                + "sipx-snapshot --logs current --log-start '2008-07-11 12:34:46' "
+                + "--log-stop '2008-07-11 12:36:50' sipx-configuration.tar.gz", cmdLine);
 
         snapshot.setCredentials(true);
         snapshot.setWww(false);
-        cmdLine = StringUtils.join(snapshot.getCmdLine(""), ' ');
-        assertEquals(File.separator + "sipx-snapshot --logs current --credentials --no-www sipx-configuration.tar.gz", cmdLine);
+        cmdLine = StringUtils.join(snapshot.getCmdLine("", startDate, endDate), ' ');
+        assertEquals(
+                File.separator
+                        + "sipx-snapshot --logs current --log-start '2008-07-11 12:34:46' "
+                        + "--log-stop '2008-07-11 12:36:50' --credentials --no-www sipx-configuration.tar.gz",
+                cmdLine);
 
         snapshot.setLogs(false);
-        cmdLine = StringUtils.join(snapshot.getCmdLine("xyz"), ' ');
-        assertEquals("xyz" + File.separator + "sipx-snapshot --logs none --credentials --no-www sipx-configuration.tar.gz",
+        cmdLine = StringUtils.join(snapshot.getCmdLine("xyz", startDate, endDate), ' ');
+        assertEquals("xyz" + File.separator
+                + "sipx-snapshot --logs none --credentials --no-www sipx-configuration.tar.gz",
                 cmdLine);
     }
 }
