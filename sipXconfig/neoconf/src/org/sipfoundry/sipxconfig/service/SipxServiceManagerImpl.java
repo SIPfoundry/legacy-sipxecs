@@ -11,6 +11,8 @@ package org.sipfoundry.sipxconfig.service;
 
 import java.util.Collection;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
@@ -21,6 +23,7 @@ public class SipxServiceManagerImpl extends SipxHibernateDaoSupport<SipxService>
         SipxServiceManager, ApplicationContextAware {
 
     private static final String QUERY_BY_BEAN_ID = "service-by-bean-id";
+    private static final Log LOG = LogFactory.getLog(SipxServiceManagerImpl.class);
     private SipxReplicationContext m_replicationContext;
     private ApplicationContext m_applicationContext;
 
@@ -28,20 +31,20 @@ public class SipxServiceManagerImpl extends SipxHibernateDaoSupport<SipxService>
         String query = QUERY_BY_BEAN_ID;
         Collection<SipxService> services = getHibernateTemplate().findByNamedQueryAndNamedParam(
                 query, "beanId", beanId);
-        
+
         // this is to handle a problem in unit tests where beans retrieved from hibernate
         // do not have their spring attributes set
         for (SipxService sipxService : services) {
             ensureBeanIsInitialized(sipxService);
         }
-        
+
         return DaoUtils.requireOneOrZero(services, query);
     }
 
     public Collection<SipxService> getAllServices() {
         return getHibernateTemplate().loadAll(SipxService.class);
     }
-    
+
     private void ensureBeanIsInitialized(SipxService sipxService) {
         if (sipxService.getModelFilesContext() == null) {
             String beanId = sipxService.getBeanId();
@@ -56,13 +59,18 @@ public class SipxServiceManagerImpl extends SipxHibernateDaoSupport<SipxService>
         saveBeanWithSettings(service);
         replicateServiceConfig(service);
     }
-    
+
     public void replicateServiceConfig(SipxService service) {
         SipxServiceConfiguration configuration = service.getConfiguration();
+        if (configuration == null) {
+            LOG.warn("Unable to replicate service: " + service.getBeanId()
+                    + ". No configuration object defined.");
+            return;
+        }
         configuration.generate(service);
         m_replicationContext.replicate(configuration);
     }
-    
+
     public void setSipxReplicationContext(SipxReplicationContext replicationContext) {
         m_replicationContext = replicationContext;
     }

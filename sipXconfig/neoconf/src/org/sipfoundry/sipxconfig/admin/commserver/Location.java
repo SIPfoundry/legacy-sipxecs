@@ -9,10 +9,12 @@
  */
 package org.sipfoundry.sipxconfig.admin.commserver;
 
+import java.util.Collection;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.sipfoundry.sipxconfig.common.BeanWithId;
+import org.sipfoundry.sipxconfig.service.SipxService;
 
 public class Location extends BeanWithId {
     private static final String HTTP_PREFIX = "https://";
@@ -22,6 +24,7 @@ public class Location extends BeanWithId {
     private String m_name;
     private String m_sipDomain;
     private String m_address;
+    private Collection<SipxService> m_sipxServices;
 
     public String getName() {
         return m_name;
@@ -63,5 +66,13 @@ public class Location extends BeanWithId {
 
     public void setSipDomain(String sipDomain) {
         m_sipDomain = sipDomain;
+    }
+    
+    public void setSipxServices(Collection<SipxService> sipxServices) {
+        m_sipxServices = sipxServices;
+    }
+    
+    public Collection<SipxService> getSipxServices() {
+        return m_sipxServices;
     }
 }

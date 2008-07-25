@@ -1,0 +1,9 @@
+insert into sipx_service (sipx_service_id, bean_id) values (nextval('sipx_service_seq'), 'sipxRlsService');
+insert into sipx_service (sipx_service_id, bean_id) values (nextval('sipx_service_seq'), 'sipxMediaService');
+insert into sipx_service (sipx_service_id, bean_id) values (nextval('sipx_service_seq'), 'sipxStatusService');
+insert into sipx_service (sipx_service_id, bean_id) values (nextval('sipx_service_seq'), 'sipxCallResolverService');
+insert into sipx_service (sipx_service_id, bean_id) values (nextval('sipx_service_seq'), 'sipxPageService');
+insert into sipx_service (sipx_service_id, bean_id) values (nextval('sipx_service_seq'), 'sipxConfigService');
+insert into sipx_service (sipx_service_id, bean_id) values (nextval('sipx_service_seq'), 'sipxConfigAgentService');
+insert into sipx_service (sipx_service_id, bean_id) values (nextval('sipx_service_seq'), 'sipxAcdService');
+insert into sipx_service (sipx_service_id, bean_id) values (nextval('sipx_service_seq'), 'sipxBridgeService');

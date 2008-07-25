@@ -9,10 +9,11 @@
  */
 package org.sipfoundry.sipxconfig.service;
 
+import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessModel.ProcessName;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettings;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
-public class SipxService extends BeanWithSettings {
+public abstract class SipxService extends BeanWithSettings {
 
     private String m_beanId;
     private String m_modelName;
@@ -27,6 +28,8 @@ public class SipxService extends BeanWithSettings {
     private String m_logDir;
     private String m_confDir;
 
+    public abstract ProcessName getProcessName();
+    
     public String getBeanId() {
         return m_beanId;
     }
@@ -34,7 +37,7 @@ public class SipxService extends BeanWithSettings {
     public void setBeanId(String beanId) {
         m_beanId = beanId;
     }
-
+    
     public String getModelName() {
         return m_modelName;
     }

@@ -22,8 +22,11 @@ public interface SipxProcessContext {
     /**
      * Return an array containing a ServiceStatus entry for each process on the first server
      * machine. This is a first step towards providing status for all server machines.
+     * @param onlyActiveServices If true, only return status information for the services
+     * that the location parameter lists in its services list.  If false, return all service status 
+     * information available.
      */
-    public ServiceStatus[] getStatus(Location location);
+    public ServiceStatus[] getStatus(Location location, boolean onlyActiveServices);
 
     /**
      * Apply the specified command to the named services. This method handles only commands that

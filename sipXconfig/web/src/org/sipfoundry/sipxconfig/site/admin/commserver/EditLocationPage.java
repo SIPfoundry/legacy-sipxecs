@@ -9,7 +9,11 @@
  */
 package org.sipfoundry.sipxconfig.site.admin.commserver;
 
+import java.util.Arrays;
+import java.util.Collection;
+
 import org.apache.tapestry.annotations.Bean;
+import org.apache.tapestry.annotations.InitialValue;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.event.PageBeginRenderListener;
@@ -36,6 +40,13 @@ public abstract class EditLocationPage extends PageWithCallback implements PageB
     public abstract void setLocationBean(Location location);
     public abstract Location getLocationBean();
     
+    public abstract Collection<String> getAvailableTabNames();
+    public abstract void setAvailableTabNames(Collection<String> tabNames);
+    
+    @Persist
+    @InitialValue(value = "literal:configureLocation")
+    public abstract String getTab();
+    
     public void pageBeginRender(PageEvent event) {
         if (getLocationBean() == null) {
             if (getLocationId() != null) {
@@ -45,6 +56,8 @@ public abstract class EditLocationPage extends PageWithCallback implements PageB
                 setLocationBean(new Location());
             }
         }
+        
+        setAvailableTabNames(Arrays.asList(new String[] {"configureLocation", "listServices"}));
     }
     
     public void saveLocation() {

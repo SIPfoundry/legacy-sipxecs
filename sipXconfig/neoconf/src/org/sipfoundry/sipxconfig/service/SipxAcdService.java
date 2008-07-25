@@ -11,22 +11,13 @@ package org.sipfoundry.sipxconfig.service;
 
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessModel.ProcessName;
 
-public class SipxParkService extends SipxService {
-    public static final String BEAN_ID = "sipxParkService";
-    private static final ProcessName PROCESS_NAME = ProcessName.PARK_SERVER;
-    
-    private String m_parkServerSipPort;
-    
-    public String getParkServerSipPort() {
-        return m_parkServerSipPort;
-    }
-    
-    public void setParkServerSipPort(String parkServerSipPort) {
-        m_parkServerSipPort = parkServerSipPort;
-    }
+public class SipxAcdService extends SipxService {
 
+    private static final ProcessName PROCESS_NAME = ProcessName.ACD_SERVER;
+    
     @Override
     public ProcessName getProcessName() {
         return PROCESS_NAME;
     }
+
 }

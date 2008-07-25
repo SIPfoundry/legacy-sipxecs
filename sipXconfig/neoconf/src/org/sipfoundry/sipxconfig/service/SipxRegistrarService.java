@@ -15,6 +15,7 @@ import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.admin.commserver.ConflictingFeatureCodeValidator;
+import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessModel.ProcessName;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
 public class SipxRegistrarService extends SipxService {
@@ -22,6 +23,8 @@ public class SipxRegistrarService extends SipxService {
 
     private static final String USER_CONFIGURED_DOMAIN_ALIASES = "domain/USER_CONFIGURED_DOMAIN_ALIASES";
     private static final String SIP_REGISTRAR_DOMAIN_ALIASES = "domain/SIP_REGISTRAR_DOMAIN_ALIASES";
+
+    private static final ProcessName PROCESS_NAME = ProcessName.REGISTRAR;
 
     private String m_registrarSipPort;
     private String m_registrarEventSipPort;
@@ -137,5 +140,10 @@ public class SipxRegistrarService extends SipxService {
             return false;
         }
         return getSettings() != null;
+    }
+
+    @Override
+    public ProcessName getProcessName() {
+        return PROCESS_NAME;
     }
 }

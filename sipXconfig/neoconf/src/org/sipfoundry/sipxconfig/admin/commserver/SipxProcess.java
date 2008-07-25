@@ -38,7 +38,7 @@ public class SipxProcess {
         String name = m_processName.getName();
         ServiceStatus[] servStatus = null;
         for (Location location : m_locationsManager.getLocations()) {
-            servStatus = m_sipxProcessContext.getStatus(location);
+            servStatus = m_sipxProcessContext.getStatus(location, false);
             for (ServiceStatus status : servStatus) {
                 if (status.getServiceName().equals(name)) {
                     enabled |= status.getStatus().equals(Status.STARTED);

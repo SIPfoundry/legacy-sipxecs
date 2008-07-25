@@ -23,6 +23,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessModel.ProcessName;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.service.SipxService;
 import org.sipfoundry.sipxconfig.xmlrpc.ApiProvider;
 import org.sipfoundry.sipxconfig.xmlrpc.XmlRpcRemoteException;
 import org.springframework.beans.factory.annotation.Required;
@@ -63,13 +64,18 @@ public class SipxProcessContextImpl implements SipxProcessContext, ApplicationLi
      * Read service status values from the process monitor and return them in an array.
      * ClassCastException or NoSuchElementException (both RuntimeException subclasses) could be
      * thrown from this method, but only if things have gone horribly wrong.
+     * 
+     * @param onlyActiveServices If true, only return status information for the services that the
+     *        location parameter lists in its services list. If false, return all service status
+     *        information available.
      */
-    public ServiceStatus[] getStatus(Location location) {
+    public ServiceStatus[] getStatus(Location location, boolean onlyActiveServices) {
         try {
             // Break the result into the keys and values.
-            ProcessManagerApi api = m_processManagerApiProvider.getApi(location.getProcessMonitorUrl());
+            ProcessManagerApi api = m_processManagerApiProvider.getApi(location
+                    .getProcessMonitorUrl());
             Map<String, String> result = api.getStateAll(m_host);
-            return extractStatus(result, location);
+            return extractStatus(result, location, onlyActiveServices);
         } catch (XmlRpcRemoteException e) {
             throw new UserException(e.getCause());
         }
@@ -78,20 +84,34 @@ public class SipxProcessContextImpl implements SipxProcessContext, ApplicationLi
     /**
      * Loop through the key-value pairs and construct the ServiceStatus.
      */
-    private ServiceStatus[] extractStatus(Map<String, String> statusAll, Location location) {
+    private ServiceStatus[] extractStatus(Map<String, String> statusAll, Location location,
+            boolean onlyActiveServices) {
         List<ServiceStatus> serviceStatusList = new ArrayList(statusAll.size());
         for (Map.Entry<String, String> entry : statusAll.entrySet()) {
+            String name = entry.getKey();
+
+            List<String> locationServiceProcesses = new ArrayList<String>();
+            for (SipxService sipxService : location.getSipxServices()) {
+                if (sipxService.getProcessName() != null) {
+                    locationServiceProcesses.add(sipxService.getProcessName().getName());
+                }
+            }
+
+            if (onlyActiveServices && !locationServiceProcesses.contains(name)) {
+                continue;
+            }
+
             String status = entry.getValue();
             ServiceStatus.Status st = ServiceStatus.Status.getEnum(status);
             if (st == null) {
                 st = ServiceStatus.Status.UNKNOWN;
             }
 
-            String name = entry.getKey();
             Process process = m_processModel.getProcess(name);
             if (process == null) {
                 // Ignore unknown processes
-                LOG.warn("Unknown process name " + name + " received from: " + location.getProcessMonitorUrl());
+                LOG.warn("Unknown process name " + name + " received from: "
+                        + location.getProcessMonitorUrl());
             } else {
                 serviceStatusList.add(new ServiceStatus(process, st));
             }
@@ -116,7 +136,8 @@ public class SipxProcessContextImpl implements SipxProcessContext, ApplicationLi
                 processNames[i++] = process.getName();
             }
 
-            ProcessManagerApi api = m_processManagerApiProvider.getApi(location.getProcessMonitorUrl());
+            ProcessManagerApi api = m_processManagerApiProvider.getApi(location
+                    .getProcessMonitorUrl());
             switch (command) {
             case RESTART:
                 api.restart(m_host, processNames, true);

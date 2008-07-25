@@ -9,8 +9,11 @@
  */
 package org.sipfoundry.sipxconfig.service;
 
+import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessModel.ProcessName;
+
 public class SipxProxyService extends SipxService {
     public static final String BEAN_ID = "sipxProxyService";
+    public static final ProcessName PROCESS_NAME = ProcessName.PROXY;
 
     private String m_secureSipPort;
     private String m_callResolverCallStateDb;
@@ -38,5 +41,10 @@ public class SipxProxyService extends SipxService {
 
     public void setSipSrvOrHostport(String sipSrvOrHostport) {
         this.m_sipSrvOrHostport = sipSrvOrHostport;
+    }
+
+    @Override
+    public ProcessName getProcessName() {
+        return PROCESS_NAME;
     }
 }

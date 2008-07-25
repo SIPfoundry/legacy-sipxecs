@@ -16,6 +16,7 @@ import java.util.Collection;
 
 import org.sipfoundry.sipxconfig.admin.commserver.AliasProvider;
 import org.sipfoundry.sipxconfig.admin.commserver.ConflictingFeatureCodeValidator;
+import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessModel.ProcessName;
 import org.sipfoundry.sipxconfig.admin.forwarding.AliasMapping;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.SipUri;
@@ -31,6 +32,8 @@ public class SipxPresenceService extends SipxService implements AliasProvider {
     // domain name
     private static final String PRESENCE_SERVER_LOCATION = "presence-config/SIP_PRESENCE_DOMAIN_NAME";
     private static final String PRESENCE_API_PORT = "presence-config/SIP_PRESENCE_HTTP_PORT";
+
+    private static final ProcessName PROCESS_NAME = ProcessName.PRESENCE_SERVER;
     
     private SipxServiceManager m_sipxServiceManager;
     private CoreContext m_coreContext;
@@ -98,5 +101,10 @@ public class SipxPresenceService extends SipxService implements AliasProvider {
     
     public String getPresenceServerUri() {
         return SipUri.format(getPresenceServerLocation(), getPresenceServerPort());
+    }
+
+    @Override
+    public ProcessName getProcessName() {
+        return PROCESS_NAME;
     }
 }

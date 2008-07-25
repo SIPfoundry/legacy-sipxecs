@@ -1,0 +1,36 @@
+<fieldset>
+  <table jwcid="tableView@common/Table" id="services"
+    source="ognl:serviceStatus" selections="ognl:selections"
+    columns="* serviceName, status" usePager="ognl:false"
+    converter="bean:serverStatusConverter" row="ognl:currentRow">
+    <span jwcid="statusColumnValue@Block">
+      <span jwcid="viewStatusLabel@Insert"
+      value="ognl:messages.getMessage('status.' + currentRow.status.name)" />
+    </span>
+    <span jwcid="serviceNameColumnValue@Block">
+      <span jwcid="@If" condition="ognl:currentRowHasServiceLink">
+        <a jwcid="@DirectLink" listener="listener:editService"
+          parameters="ognl:currentRow.serviceName" >
+          <span jwcid="@Insert" value="ognl:currentRow.serviceName" />
+        </a>
+      </span>
+      <span jwcid="@Else">
+        <span jwcid="@Insert" value="ognl:currentRow.serviceName" />
+      </span>
+    </span>
+  </table>
+</fieldset>
+<ul class="component-submit">
+  <li><input jwcid="startButton@Submit" type="submit"
+    id="services:start" action="listener:start"
+    value="message:button.start" /></li>
+  <li><input jwcid="stopButton@Submit" type="submit"
+    id="services:stop" action="listener:stop"
+    value="message:button.stop" /></li>
+  <li><input jwcid="restartButton@Submit" type="submit"
+    id="services:restart" action="listener:restart"
+    value="message:button.restart" /></li>
+  <li><input jwcid="refreshButton@Submit" type="submit"
+    id="services:refresh" action="listener:refresh"
+    value="message:button.refresh" /></li>
+</ul>

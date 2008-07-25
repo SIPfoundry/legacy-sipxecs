@@ -7,6 +7,7 @@
  */
 package org.sipfoundry.sipxconfig.service;
 
+import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessModel.ProcessName;
 import org.springframework.beans.factory.annotation.Required;
 
 public class SipxIvrService extends SipxService {
@@ -39,5 +40,10 @@ public class SipxIvrService extends SipxService {
 
     public String getScriptsDir() {
         return m_scriptsDir;
+    }
+
+    @Override
+    public ProcessName getProcessName() {
+        return null;
     }
 }

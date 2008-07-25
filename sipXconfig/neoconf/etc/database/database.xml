@@ -273,6 +273,8 @@
     <antcall target="add-park-service"/>
     <antcall target="add-presence-service"/>
     <antcall target="add-ivr-service"/>
+  	<antcall target="location-sipx-service"/>
+  	<antcall target="add-additional-sipx-services"/>
     <!-- When freezing schema uncomment this line -->
     <!-- sipx-version version="8" -->
   </target>
@@ -683,6 +685,14 @@
 
   <target name="add-ivr-service" unless="add-ivr-service">
     <db-patch patch="add-ivr-service"/>
+  </target>
+  
+  <target name="location-sipx-service" unless="location-sipx-service">
+    <db-patch patch="location-sipx-service"/>
+  </target>
+
+  <target name="add-additional-sipx-services" unless="add-additional-sipx-services">
+    <db-patch patch="add-additional-sipx-services"/>
   </target>
 
   <!-- 

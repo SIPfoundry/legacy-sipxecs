@@ -26,6 +26,9 @@ import junit.framework.TestCase;
 import org.easymock.EasyMock;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext.Command;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessModel.ProcessName;
+import org.sipfoundry.sipxconfig.service.SipxProxyService;
+import org.sipfoundry.sipxconfig.service.SipxRegistrarService;
+import org.sipfoundry.sipxconfig.service.SipxService;
 import org.sipfoundry.sipxconfig.xmlrpc.ApiProvider;
 
 public class SipxProcessContextImplTest extends TestCase {
@@ -43,6 +46,9 @@ public class SipxProcessContextImplTest extends TestCase {
     protected void setUp() throws Exception {
         m_locationsManager = EasyMock.createNiceMock(LocationsManager.class);
         Location location = new Location();
+        location.setSipxServices(Arrays.asList(new SipxService[] {
+                new SipxRegistrarService(), new SipxProxyService()
+        }));
         m_locationsManager.getLocations();
         EasyMock.expectLastCall().andReturn(new Location[] {location}).anyTimes();
         EasyMock.replay(m_locationsManager);
@@ -74,7 +80,7 @@ public class SipxProcessContextImplTest extends TestCase {
         m_processContextImpl.setProcessManagerApiProvider(provider);
         replay(provider, api);
 
-        ServiceStatus[] resultServiceStatus = m_processContextImpl.getStatus(location);
+        ServiceStatus[] resultServiceStatus = m_processContextImpl.getStatus(location, false);
 
         assertEquals(result.size(), resultServiceStatus.length);
         for (ServiceStatus serviceStatus : resultServiceStatus) {
@@ -84,6 +90,45 @@ public class SipxProcessContextImplTest extends TestCase {
         verify(provider, api);
     }
 
+    public void testGetStatusForServices() {
+        Location location = m_locationsManager.getLocations()[0];
+
+        Map<String, String> result = new HashMap<String, String>();
+        result.put(ProcessName.REGISTRAR.getName(), "Starting");
+        result.put(ProcessName.MEDIA_SERVER.getName(), "Started");
+        result.put(ProcessName.PRESENCE_SERVER.getName(), "Stopped");
+        result.put(ProcessName.PROXY.getName(), "Failed");
+        result.put(ProcessName.ACD_SERVER.getName(), "Unknown");
+
+        ProcessManagerApi api = createMock(ProcessManagerApi.class);
+        api.getStateAll("localhost");
+        expectLastCall().andReturn(result);
+
+        ApiProvider provider = createMock(ApiProvider.class);
+        provider.getApi(location.getProcessMonitorUrl());
+        expectLastCall().andReturn(api);
+
+        m_processContextImpl.setProcessManagerApiProvider(provider);
+        replay(provider, api);
+
+        ServiceStatus[] resultServiceStatus = m_processContextImpl.getStatus(location, true);
+
+        Map<String, String> expectedServices= new HashMap();
+        expectedServices.put(ProcessName.REGISTRAR.getName(), "Starting");
+        expectedServices.put(ProcessName.PROXY.getName(), "Failed");
+        
+        assertEquals(expectedServices.keySet().size(), resultServiceStatus.length);
+        for (ServiceStatus serviceStatus : resultServiceStatus) {
+            if (! expectedServices.containsKey(serviceStatus.getServiceName())) {
+                fail("Expected service not in result list");
+            }
+            String expectedStatus = expectedServices.get(serviceStatus.getServiceName());
+            assertEquals(expectedStatus, serviceStatus.getStatus().getName());
+        }
+        
+        verify(provider, api);
+    }
+    
     public void testManageServicesSingleLocation() {
         Location location = m_locationsManager.getLocations()[0];
 
@@ -107,6 +152,8 @@ public class SipxProcessContextImplTest extends TestCase {
         m_processContextImpl.manageServices(location, Arrays.asList(PROCESSES), Command.RESTART);
         verify(provider, api);
     }
+    
+    
 
     public void testManageServices() {
         ProcessManagerApi api = createStrictMock(ProcessManagerApi.class);

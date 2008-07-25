@@ -41,7 +41,10 @@ public class SipxServiceManagerImplTestIntegration extends IntegrationTestCase {
     public void testGetAllServices() {
         Collection<SipxService> allServices = m_out.getAllServices();
         assertNotNull(allServices);
-        assertEquals(5, allServices.size());
+        
+        // There should be at least 5 services returned.  This assertion means
+        // we don't need to update the test each time we add a new service
+        assertTrue(allServices.size() > 5);
     }
 
     public void testStoreService() {
