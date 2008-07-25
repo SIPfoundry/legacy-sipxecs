@@ -123,6 +123,69 @@ public class ValidatorsTest extends TestCase {
         }
     }
 
+    public void testValidIPv4() throws ValidatorException {
+        Pattern p = (Pattern) m_context.getBean("validIPv4");
+        p.validate(m_field, m_validationMessages, "10.1.1.0");
+        p.validate(m_field, m_validationMessages, "192.1.15.149");
+        p.validate(m_field, m_validationMessages, "111.11.111.11");
+        try {
+            p.validate(m_field, m_validationMessages, "192.168.0.256");
+            fail("Should throw a ValidatorException");
+        } catch (ValidatorException expected) {
+            // successful test
+            assertTrue(true);
+        }
+        try {
+            p.validate(m_field, m_validationMessages, "192.168.0.1.1");
+            fail("Should throw a ValidatorException");
+        } catch (ValidatorException expected) {
+            // successful test
+            assertTrue(true);
+        }
+        try {
+            p.validate(m_field, m_validationMessages, "111.11.1");
+            fail("Should throw a ValidatorException");
+        } catch (ValidatorException expected) {
+            // successful test
+            assertTrue(true);
+        }
+        try {
+            p.validate(m_field, m_validationMessages, "111.11.1.abc");
+            fail("Should throw a ValidatorException");
+        } catch (ValidatorException expected) {
+            // successful test
+            assertTrue(true);
+        }
+        try {
+            p.validate(m_field, m_validationMessages, "@.11.1.11");
+            fail("Should throw a ValidatorException");
+        } catch (ValidatorException expected) {
+            // successful test
+            assertTrue(true);
+        }
+        try {
+            p.validate(m_field, m_validationMessages, "user123");
+            fail("Should throw a ValidatorException");
+        } catch (ValidatorException expected) {
+            // successful test
+            assertTrue(true);
+        }
+        try {
+            p.validate(m_field, m_validationMessages, "1-1-1-1");
+            fail("Should throw a ValidatorException");
+        } catch (ValidatorException expected) {
+            // successful test
+            assertTrue(true);
+        }
+        try {
+            p.validate(m_field, m_validationMessages, "111111111");
+            fail("Should throw a ValidatorException");
+        } catch (ValidatorException expected) {
+            // successful test
+            assertTrue(true);
+        }
+    }
+
     public void testValidExtensions() throws ValidatorException {
         Pattern p = (Pattern) m_context.getBean("validExtensions");
         p.validate(m_field, m_validationMessages, "123");

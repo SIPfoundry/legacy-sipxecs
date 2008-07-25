@@ -43,6 +43,10 @@
       <value>Please enter valid DNS host name or IP address, for example server.domain.org, 10.1.1.25</value>
     </property>
   </bean>
+  <bean name="validIPv4" class="org.apache.tapestry.form.validator.Pattern">
+    <property name="pattern" value="^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$" />
+    <property name="message" value="Please enter a valid IPv4  address, for example: 10.1.1.0" />
+  </bean>
   <!-- distribution lists validator - space-separated list of extensions, can be empty -->
   <bean name="validExtensions" class="org.apache.tapestry.form.validator.Pattern">
     <property name="pattern">

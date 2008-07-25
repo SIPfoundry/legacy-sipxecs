@@ -15,12 +15,12 @@
             <tr jwcid="@common/FieldPanel"
               field="component:user"
                   label="message:logs.user">
-              <td jwcid="user@TextField" value="ognl:queryUser" displayName="message:logs.user" />
+              <td jwcid="user@TextField" value="ognl:queryUser" displayName="message:logs.user" validators="spring-validators:validSipUserId"/>
             </tr>
             <tr jwcid="@common/FieldPanel"
               field="component:remoteip"
                   label="message:logs.ip">
-              <td jwcid="remoteip@TextField" value="ognl:queryIp" displayName="message:logs.ip" validators="spring-validators:validHostOrIp"/>
+              <td jwcid="remoteip@TextField" value="ognl:queryIp" displayName="message:logs.ip" validators="spring-validators:validIPv4"/>
             </tr>
             <tr>
               <td>
