@@ -24,7 +24,7 @@ import org.apache.log4j.Logger;
  */
 public class PortRangeManager {
     
-    private static Logger logger  = Logger.getLogger(PortRangeManager.class);
+    private static Logger logger  = Logger.getLogger(PortRangeManager.class.getPackage().getName());
 
     TreeMap<Integer, PortRange> portRangeLowboundMap;
 

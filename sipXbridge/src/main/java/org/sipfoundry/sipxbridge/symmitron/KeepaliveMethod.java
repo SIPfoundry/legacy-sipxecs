@@ -2,7 +2,7 @@ package org.sipfoundry.sipxbridge.symmitron;
 
 public enum KeepaliveMethod {
     
-    USE_EMPTY_PACKET,NONE, REPLAY_LAST_SENT_PACKET, USE_SPECIFIED_PAYLOAD;
+    USE_EMPTY_PACKET,NONE, REPLAY_LAST_SENT_PACKET, USE_SPECIFIED_PAYLOAD, USE_DUMMY_RTP_PAYLOAD;
     
     private static final String USE_EMPTY_PACKET_NAME = "USE-EMPTY-PACKET";
     
@@ -11,6 +11,8 @@ public enum KeepaliveMethod {
     private static final String REPLAY_LAST_SENT_PACKET_NAME = "REPLAY-LAST-SENT-PACKET";
     
     private static final String USE_SPECIFIED_PAYLOAD_NAME = "USE-SPECIFIED-PAYLOAD";
+    
+    private static final String USE_DUMMY_RTP_PAYLOAD_NAME ="USE-DUMMY-RTP-PAYLOAD";
     
     
     @Override 
@@ -23,6 +25,8 @@ public enum KeepaliveMethod {
             return REPLAY_LAST_SENT_PACKET_NAME;
         } else if ( this.equals(USE_SPECIFIED_PAYLOAD)) {
             return USE_SPECIFIED_PAYLOAD_NAME;
+        } else if ( this.equals(USE_DUMMY_RTP_PAYLOAD)) {
+            return USE_DUMMY_RTP_PAYLOAD_NAME;
         } else {
             throw new RuntimeException("Bad value") ;
         }
@@ -38,6 +42,9 @@ public enum KeepaliveMethod {
             return USE_EMPTY_PACKET;
         } else if ( methodName.equals(USE_SPECIFIED_PAYLOAD_NAME)) {
             return USE_SPECIFIED_PAYLOAD;
+        } else if ( methodName.equals(USE_DUMMY_RTP_PAYLOAD_NAME)) {
+            return USE_DUMMY_RTP_PAYLOAD;
+        
         } else {
             throw new IllegalArgumentException("Bad value " + methodName);
         }

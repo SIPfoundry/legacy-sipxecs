@@ -410,7 +410,6 @@
 				<xs:simpleType>
 					<xs:restriction base="xs:string">
 						<xs:enumeration value="NONE" />
-						<xs:enumeration value="REGISTER" />
 						<xs:enumeration value="CR-LF" />
 					</xs:restriction>
 				</xs:simpleType>
@@ -428,6 +427,7 @@
 						<xs:enumeration value="NONE" />
 						<xs:enumeration value="USE-EMPTY-PACKET" />
 						<xs:enumeration value="REPLAY-LAST-SENT-PACKET" />
+						<xs:enumeration value="USE-DUMMY-RTP-PAYLOAD" />
 					</xs:restriction>
 				</xs:simpleType>
 			</xs:element>

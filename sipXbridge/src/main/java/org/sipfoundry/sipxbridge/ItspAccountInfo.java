@@ -136,7 +136,7 @@ public class ItspAccountInfo implements gov.nist.javax.sip.clientauthutils.UserC
      * The Keepalive method.
      */
 
-    private KeepaliveMethod rtpKeepaliveMethod = KeepaliveMethod.USE_EMPTY_PACKET;
+    private KeepaliveMethod rtpKeepaliveMethod = KeepaliveMethod.USE_DUMMY_RTP_PAYLOAD;
     
     /*
      * Whether or not to use registration for caller id when sending out invite.

@@ -12,6 +12,7 @@ import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.nio.channels.ClosedChannelException;
+import java.nio.channels.DatagramChannel;
 import java.util.TimerTask;
 
 import org.apache.log4j.Logger;
@@ -22,8 +23,7 @@ import org.apache.log4j.Logger;
  * @author mranga
  * 
  */
-final class SymTransmitterEndpoint extends SymEndpoint
-    implements SymTransmitterEndpointInterface {
+final class SymTransmitterEndpoint extends SymEndpoint implements SymTransmitterEndpointInterface {
 
     private long lastPacketSentTime;
 
@@ -39,7 +39,8 @@ final class SymTransmitterEndpoint extends SymEndpoint
 
     private KeepaliveTimerTask keepaliveTimerTask;
 
-    private static Logger logger = Logger.getLogger(SymTransmitterEndpoint.class);
+    private static Logger logger = Logger.getLogger(SymTransmitterEndpoint.class.getPackage()
+            .getName());
 
     protected boolean onHold = false;
 
@@ -48,6 +49,8 @@ final class SymTransmitterEndpoint extends SymEndpoint
     private int maxSilence;
 
     long packetsSent;
+
+    private static final boolean checkForSelfRouting = true;
 
     // private InetAddress inetAddress;
 
@@ -74,17 +77,21 @@ final class SymTransmitterEndpoint extends SymEndpoint
                     return;
                 long now = System.currentTimeMillis();
                 if (now - lastPacketSentTime < maxSilence) {
+                   
                     return;
                 }
                 if (keepaliveMethod.equals(KeepaliveMethod.USE_EMPTY_PACKET)) {
                     if (datagramChannel != null && getSocketAddress() != null
-                            && datagramChannel.isOpen() && getSocketAddress() != null)
+                            && datagramChannel.isOpen() && getSocketAddress() != null) {
+                        lastPacketSentTime = now;
                         datagramChannel.send(emptyBuffer, getSocketAddress());
+                    }
 
                 } else if (keepaliveMethod.equals(KeepaliveMethod.REPLAY_LAST_SENT_PACKET)) {
                     if (keepAliveBuffer != null && datagramChannel != null
                             && getSocketAddress() != null && datagramChannel.isOpen()
                             && getSocketAddress() != null) {
+                        lastPacketSentTime = now;
                         datagramChannel.send((ByteBuffer) keepAliveBuffer, getSocketAddress());
 
                     }
@@ -101,6 +108,37 @@ final class SymTransmitterEndpoint extends SymEndpoint
         }
 
     }
+    
+    
+    private static byte[] createDummyRtpPacket() {
+        
+        byte[] octets = new byte[32];
+        // Fill in static RTP header bytes
+        octets[0] = (byte) 0x80; // V=2, CC=0
+        octets[1] = (byte) 19; // M=0, unknown payload type(uLaw)
+        return octets;
+
+    }
+
+    private static boolean isPacketSelfRouted(InetAddress destination, int port) {
+        try {
+            if (port >= SymmitronServer.getRangeLowerBound()
+                    && port < SymmitronServer.getRangeUpperBound()) {
+                if (!destination.equals(SymmitronServer.getLocalInetAddress())
+                        && !destination.equals(SymmitronServer.getPublicInetAddress())) {
+                    return false;
+                } else {
+                    logger.debug("Self routed!");
+                    return true;
+                }
+            } else {
+                return false;
+            }
+        } catch (Exception ex) {
+            throw new RuntimeException("Unexpected exception ", ex);
+        }
+
+    }
 
     private void startKeepaliveTimer() {
 
@@ -109,7 +147,7 @@ final class SymTransmitterEndpoint extends SymEndpoint
             return;
         this.earlyMediaStarted = true;
         this.keepaliveTimerTask = new KeepaliveTimerTask();
-        SymmitronServer.timer.schedule(this.keepaliveTimerTask, this.maxSilence / 2,
+        SymmitronServer.timer.schedule(this.keepaliveTimerTask, this.maxSilence,
                 this.maxSilence);
 
     }
@@ -127,9 +165,32 @@ final class SymTransmitterEndpoint extends SymEndpoint
 
     public void send(ByteBuffer byteBuffer) throws IOException {
 
-        if (logger.isDebugEnabled())
+        if (logger.isDebugEnabled()) {
             logger.debug("Sending to " + this.getSocketAddress());
+        }
+
+        InetAddress remoteAddress = this.getSocketAddress().getAddress();
+        int remotePort = this.getSocketAddress().getPort();
         this.lastPacketSentTime = System.currentTimeMillis();
+
+        /*
+         * Check if the packet is self-routed. If so route it back.
+         */
+        if (checkForSelfRouting && isPacketSelfRouted(remoteAddress, remotePort)) {
+            DatagramChannel channel = DataShuffler.getSelfRoutedDatagramChannel(remoteAddress,
+                    remotePort);
+
+            if (channel != null) {
+
+                Bridge bridge = ConcurrentSet.getBridge(channel);
+                if (bridge != null) {
+                    DataShuffler.send(bridge, channel, (InetSocketAddress) this.datagramChannel
+                            .socket().getLocalSocketAddress());
+                    return;
+
+                }
+            }
+        }
 
         if (this.datagramChannel != null) {
             this.datagramChannel.send(byteBuffer, this.getSocketAddress());
@@ -140,13 +201,16 @@ final class SymTransmitterEndpoint extends SymEndpoint
     }
 
     public void setMaxSilence(int maxSilence, KeepaliveMethod keepaliveMethod) {
-        logger.debug("RtpEndpoint : setMaxSilence " + maxSilence);
+        logger.debug("RtpEndpoint : setMaxSilence " + maxSilence + " keepaliveMethod = " + keepaliveMethod);
         if (this.earlyMediaStarted) {
             logger.debug("early media started !");
             return;
         }
         this.maxSilence = maxSilence;
         this.keepaliveMethod = keepaliveMethod;
+        if (keepaliveMethod == KeepaliveMethod.USE_DUMMY_RTP_PAYLOAD) {
+            this.keepalivePayload = createDummyRtpPacket();       
+        }
         if (maxSilence != 0 && !keepaliveMethod.equals(KeepaliveMethod.NONE)) {
             this.startKeepaliveTimer();
         }
@@ -267,11 +331,10 @@ final class SymTransmitterEndpoint extends SymEndpoint
     }
 
     public void connect() throws IOException {
-       /*
-       if (this.datagramChannel.isConnected()) {
-            this.datagramChannel.disconnect();
-        }
-        this.datagramChannel.connect(socketAddress);*/
+        /*
+         * if (this.datagramChannel.isConnected()) { this.datagramChannel.disconnect(); }
+         * this.datagramChannel.connect(socketAddress);
+         */
 
     }
 

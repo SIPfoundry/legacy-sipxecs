@@ -37,8 +37,7 @@ public class SymmitronTest extends AbstractSymmitronTestCase {
             while (true) {
                 try {
                     byte[] data = new byte[1024];
-                    DatagramPacket datagramPacket = new DatagramPacket(data,
-                            data.length);
+                    DatagramPacket datagramPacket = new DatagramPacket(data, data.length);
                     this.datagramSocket.receive(datagramPacket);
                     counter++;
                     // System.out.println("Got something ");
@@ -65,8 +64,7 @@ public class SymmitronTest extends AbstractSymmitronTestCase {
             super.start();
             String[] myHandle = new String[1];
             myHandle[0] = clientHandle;
-            Map retval = (Map) client.execute("sipXrelay.signIn",
-                    (Object[]) myHandle);
+            Map retval = (Map) client.execute("sipXrelay.signIn", (Object[]) myHandle);
             client.execute("sipXrelay.signOut", (Object[]) myHandle);
 
         } catch (Exception ex) {
@@ -115,8 +113,7 @@ public class SymmitronTest extends AbstractSymmitronTestCase {
     public void testCreateBridge() throws Exception {
         Object[] args = new Object[1];
         args[0] = clientHandle;
-        Map retval = (Map) super.client
-                .execute("sipXrelay.createBridge", args);
+        Map retval = (Map) super.client.execute("sipXrelay.createBridge", args);
         super.checkStandardMap(retval);
         assertNotNull(retval.get(Symmitron.BRIDGE_ID));
         String bridgeId = (String) retval.get(Symmitron.BRIDGE_ID);
@@ -151,9 +148,9 @@ public class SymmitronTest extends AbstractSymmitronTestCase {
         super.checkStandardMap(retval);
 
         /*
-         * setDestination(String controllerHandle, String symId, String
-         * ipAddress, int port, int keepAliveTime, String keepaliveMethod,
-         * byte[] keepAlivePacketData, boolean autoDiscoverFlag)
+         * setDestination(String controllerHandle, String symId, String ipAddress, int port, int
+         * keepAliveTime, String keepaliveMethod, byte[] keepAlivePacketData, boolean
+         * autoDiscoverFlag)
          */
 
         params = new Object[6];
@@ -163,7 +160,6 @@ public class SymmitronTest extends AbstractSymmitronTestCase {
         params[3] = new Integer(destinationPort1);
         params[4] = new Integer(500);
         params[5] = "USE-EMPTY-PACKET";
-  
 
         retval = (Map) client.execute("sipXrelay.setDestination", params);
         super.checkStandardMap(retval);
@@ -175,18 +171,17 @@ public class SymmitronTest extends AbstractSymmitronTestCase {
         params[3] = new Integer(destinationPort2);
         params[4] = new Integer(500);
         params[5] = "USE-EMPTY-PACKET";
-       
 
         retval = (Map) client.execute("sipXrelay.setDestination", params);
         super.checkStandardMap(retval);
 
-        DatagramSocket datagramSocket1 = new DatagramSocket(destinationPort1,
-                InetAddress.getByName(serverAddress));
+        DatagramSocket datagramSocket1 = new DatagramSocket(destinationPort1, InetAddress
+                .getByName(serverAddress));
 
         new Thread(new Listener(datagramSocket1)).start();
 
-        DatagramSocket datagramSocket2 = new DatagramSocket(destinationPort2,
-                InetAddress.getByName(serverAddress));
+        DatagramSocket datagramSocket2 = new DatagramSocket(destinationPort2, InetAddress
+                .getByName(serverAddress));
 
         new Thread(new Listener(datagramSocket2)).start();
 
@@ -250,13 +245,13 @@ public class SymmitronTest extends AbstractSymmitronTestCase {
         retval = (Map) client.execute("sipXrelay.addSym", args);
         super.checkStandardMap(retval);
 
-        DatagramSocket datagramSocket1 = new DatagramSocket(destinationPort1,
-                InetAddress.getByName(serverAddress));
+        DatagramSocket datagramSocket1 = new DatagramSocket(destinationPort1, InetAddress
+                .getByName(serverAddress));
 
         new Thread(new Listener(datagramSocket1)).start();
 
-        DatagramSocket datagramSocket2 = new DatagramSocket(destinationPort2,
-                InetAddress.getByName(serverAddress));
+        DatagramSocket datagramSocket2 = new DatagramSocket(destinationPort2, InetAddress
+                .getByName(serverAddress));
 
         new Thread(new Listener(datagramSocket2)).start();
 
@@ -275,8 +270,8 @@ public class SymmitronTest extends AbstractSymmitronTestCase {
 
         byte[] data = new byte[1024];
         DatagramSocket datagramSocket = new DatagramSocket();
-        DatagramPacket datagramPacket = new DatagramPacket(data, data.length,
-                InetAddress.getByName(ipAddr), port1);
+        DatagramPacket datagramPacket = new DatagramPacket(data, data.length, InetAddress
+                .getByName(ipAddr), port1);
         for (int i = 0; i < 1000; i++) {
 
             Thread.sleep(10);
@@ -285,8 +280,8 @@ public class SymmitronTest extends AbstractSymmitronTestCase {
         Thread.sleep(100);
         assertTrue("Counter is " + counter, counter >= 1000);
         this.counter = 0;
-        datagramPacket = new DatagramPacket(data, data.length, InetAddress
-                .getByName(ipAddr), port2);
+        datagramPacket = new DatagramPacket(data, data.length, InetAddress.getByName(ipAddr),
+                port2);
         for (int i = 0; i < 1000; i++) {
             Thread.sleep(10);
             datagramSocket1.send(datagramPacket);
@@ -301,8 +296,7 @@ public class SymmitronTest extends AbstractSymmitronTestCase {
 
     }
 
-    public void testSendDataThroughBridgeRemoteAddressAutoDiscovered()
-            throws Exception {
+    public void testSendDataThroughBridgeRemoteAddressAutoDiscovered() throws Exception {
         int destinationPort1 = 26000;
         int destinationPort2 = 27000;
 
@@ -338,13 +332,13 @@ public class SymmitronTest extends AbstractSymmitronTestCase {
         retval = (Map) client.execute("sipXrelay.addSym", args);
         super.checkStandardMap(retval);
 
-        DatagramSocket datagramSocket1 = new DatagramSocket(destinationPort1,
-                InetAddress.getByName(serverAddress));
+        DatagramSocket datagramSocket1 = new DatagramSocket(destinationPort1, InetAddress
+                .getByName(serverAddress));
 
         new Thread(new Listener(datagramSocket1)).start();
 
-        DatagramSocket datagramSocket2 = new DatagramSocket(destinationPort2,
-                InetAddress.getByName(serverAddress));
+        DatagramSocket datagramSocket2 = new DatagramSocket(destinationPort2, InetAddress
+                .getByName(serverAddress));
 
         new Thread(new Listener(datagramSocket2)).start();
 
@@ -363,8 +357,8 @@ public class SymmitronTest extends AbstractSymmitronTestCase {
 
         byte[] data = new byte[1024];
         for (int i = 0; i < 1000; i++) {
-            DatagramPacket datagramPacket = new DatagramPacket(data,
-                    data.length, InetAddress.getByName(ipAddr), port);
+            DatagramPacket datagramPacket = new DatagramPacket(data, data.length, InetAddress
+                    .getByName(ipAddr), port);
             Thread.sleep(10);
             datagramSocket2.send(datagramPacket);
         }
@@ -372,8 +366,8 @@ public class SymmitronTest extends AbstractSymmitronTestCase {
         assertTrue(" Counter is " + counter, counter >= 1000);
         counter = 0;
         for (int i = 0; i < 1000; i++) {
-            DatagramPacket datagramPacket = new DatagramPacket(data,
-                    data.length, InetAddress.getByName(ipAddr), port);
+            DatagramPacket datagramPacket = new DatagramPacket(data, data.length, InetAddress
+                    .getByName(ipAddr), port);
             Thread.sleep(10);
             datagramSocket1.send(datagramPacket);
         }
@@ -429,13 +423,13 @@ public class SymmitronTest extends AbstractSymmitronTestCase {
         retval = (Map) client.execute("sipXrelay.addSym", args);
         super.checkStandardMap(retval);
 
-        DatagramSocket datagramSocket1 = new DatagramSocket(destinationPort1,
-                InetAddress.getByName(serverAddress));
+        DatagramSocket datagramSocket1 = new DatagramSocket(destinationPort1, InetAddress
+                .getByName(serverAddress));
 
         new Thread(new Listener(datagramSocket1)).start();
 
-        DatagramSocket datagramSocket2 = new DatagramSocket(destinationPort2,
-                InetAddress.getByName(serverAddress));
+        DatagramSocket datagramSocket2 = new DatagramSocket(destinationPort2, InetAddress
+                .getByName(serverAddress));
 
         new Thread(new Listener(datagramSocket2)).start();
 
@@ -455,8 +449,8 @@ public class SymmitronTest extends AbstractSymmitronTestCase {
         byte[] data = new byte[1024];
         DatagramSocket datagramSocket = new DatagramSocket();
         for (int i = 0; i < 1000; i++) {
-            DatagramPacket datagramPacket = new DatagramPacket(data,
-                    data.length, InetAddress.getByName(ipAddr), port);
+            DatagramPacket datagramPacket = new DatagramPacket(data, data.length, InetAddress
+                    .getByName(ipAddr), port);
             Thread.sleep(10);
             datagramSocket.send(datagramPacket);
         }
@@ -472,8 +466,8 @@ public class SymmitronTest extends AbstractSymmitronTestCase {
         this.counter = 0;
 
         for (int i = 0; i < 1000; i++) {
-            DatagramPacket datagramPacket = new DatagramPacket(data,
-                    data.length, InetAddress.getByName(ipAddr), port);
+            DatagramPacket datagramPacket = new DatagramPacket(data, data.length, InetAddress
+                    .getByName(ipAddr), port);
             Thread.sleep(10);
             datagramSocket.send(datagramPacket);
         }
@@ -483,8 +477,8 @@ public class SymmitronTest extends AbstractSymmitronTestCase {
         super.resumeBridge(bridge);
         counter = 0;
         for (int i = 0; i < 1000; i++) {
-            DatagramPacket datagramPacket = new DatagramPacket(data,
-                    data.length, InetAddress.getByName(ipAddr), port);
+            DatagramPacket datagramPacket = new DatagramPacket(data, data.length, InetAddress
+                    .getByName(ipAddr), port);
             Thread.sleep(10);
             datagramSocket.send(datagramPacket);
         }
@@ -535,13 +529,13 @@ public class SymmitronTest extends AbstractSymmitronTestCase {
         retval = (Map) client.execute("sipXrelay.addSym", args);
         super.checkStandardMap(retval);
 
-        DatagramSocket datagramSocket1 = new DatagramSocket(destinationPort1,
-                InetAddress.getByName(serverAddress));
+        DatagramSocket datagramSocket1 = new DatagramSocket(destinationPort1, InetAddress
+                .getByName(serverAddress));
 
         new Thread(new Listener(datagramSocket1)).start();
 
-        DatagramSocket datagramSocket2 = new DatagramSocket(destinationPort2,
-                InetAddress.getByName(serverAddress));
+        DatagramSocket datagramSocket2 = new DatagramSocket(destinationPort2, InetAddress
+                .getByName(serverAddress));
 
         new Thread(new Listener(datagramSocket2)).start();
 
@@ -553,8 +547,8 @@ public class SymmitronTest extends AbstractSymmitronTestCase {
         byte[] data = new byte[1024];
         DatagramSocket datagramSocket = new DatagramSocket();
         for (int i = 0; i < 1000; i++) {
-            DatagramPacket datagramPacket = new DatagramPacket(data,
-                    data.length, InetAddress.getByName(ipAddr), port);
+            DatagramPacket datagramPacket = new DatagramPacket(data, data.length, InetAddress
+                    .getByName(ipAddr), port);
             Thread.sleep(10);
             datagramSocket.send(datagramPacket);
         }
@@ -571,8 +565,8 @@ public class SymmitronTest extends AbstractSymmitronTestCase {
         this.counter = 0;
 
         for (int i = 0; i < 1000; i++) {
-            DatagramPacket datagramPacket = new DatagramPacket(data,
-                    data.length, InetAddress.getByName(ipAddr), port);
+            DatagramPacket datagramPacket = new DatagramPacket(data, data.length, InetAddress
+                    .getByName(ipAddr), port);
             Thread.sleep(10);
             datagramSocket.send(datagramPacket);
         }
@@ -603,13 +597,13 @@ public class SymmitronTest extends AbstractSymmitronTestCase {
         super.addSym(bridge, sym1);
         super.addSym(bridge, sym2);
 
-        DatagramSocket datagramSocket1 = new DatagramSocket(destinationPort1,
-                InetAddress.getByName(serverAddress));
+        DatagramSocket datagramSocket1 = new DatagramSocket(destinationPort1, InetAddress
+                .getByName(serverAddress));
 
         new Thread(new Listener(datagramSocket1)).start();
 
-        DatagramSocket datagramSocket2 = new DatagramSocket(destinationPort2,
-                InetAddress.getByName(serverAddress));
+        DatagramSocket datagramSocket2 = new DatagramSocket(destinationPort2, InetAddress
+                .getByName(serverAddress));
 
         new Thread(new Listener(datagramSocket2)).start();
 
@@ -619,8 +613,8 @@ public class SymmitronTest extends AbstractSymmitronTestCase {
 
         byte[] data = new byte[1024];
         for (int i = 0; i < 1000; i++) {
-            DatagramPacket datagramPacket = new DatagramPacket(data,
-                    data.length, InetAddress.getByName(ipAddr), port);
+            DatagramPacket datagramPacket = new DatagramPacket(data, data.length, InetAddress
+                    .getByName(ipAddr), port);
             Thread.sleep(10);
             datagramSocket1.send(datagramPacket);
         }
@@ -635,8 +629,8 @@ public class SymmitronTest extends AbstractSymmitronTestCase {
         this.counter = 0;
 
         for (int i = 0; i < 1000; i++) {
-            DatagramPacket datagramPacket = new DatagramPacket(data,
-                    data.length, InetAddress.getByName(ipAddr), port);
+            DatagramPacket datagramPacket = new DatagramPacket(data, data.length, InetAddress
+                    .getByName(ipAddr), port);
             Thread.sleep(10);
             datagramSocket1.send(datagramPacket);
         }
@@ -653,8 +647,8 @@ public class SymmitronTest extends AbstractSymmitronTestCase {
         this.counter = 0;
 
         for (int i = 0; i < 1000; i++) {
-            DatagramPacket datagramPacket = new DatagramPacket(data,
-                    data.length, InetAddress.getByName(ipAddr), port);
+            DatagramPacket datagramPacket = new DatagramPacket(data, data.length, InetAddress
+                    .getByName(ipAddr), port);
             Thread.sleep(10);
             datagramSocket1.send(datagramPacket);
         }
@@ -704,13 +698,13 @@ public class SymmitronTest extends AbstractSymmitronTestCase {
         SymInterface sym = super.getSym(sym1);
         String ipAddr = sym.getReceiver().getIpAddress();
         int port = sym.getReceiver().getPort();
-        DatagramSocket datagramSocket1 = new DatagramSocket(destinationPort1,
-                InetAddress.getByName(serverAddress));
+        DatagramSocket datagramSocket1 = new DatagramSocket(destinationPort1, InetAddress
+                .getByName(serverAddress));
         byte[] data = new byte[1024];
 
         for (int i = 0; i < 1000; i++) {
-            DatagramPacket datagramPacket = new DatagramPacket(data,
-                    data.length, InetAddress.getByName(ipAddr), port);
+            DatagramPacket datagramPacket = new DatagramPacket(data, data.length, InetAddress
+                    .getByName(ipAddr), port);
             Thread.sleep(10);
             datagramSocket1.send(datagramPacket);
         }
@@ -776,13 +770,13 @@ public class SymmitronTest extends AbstractSymmitronTestCase {
         retval = (Map) client.execute("sipXrelay.addSym", args);
         super.checkStandardMap(retval);
 
-        DatagramSocket datagramSocket1 = new DatagramSocket(destinationPort1,
-                InetAddress.getByName(serverAddress));
+        DatagramSocket datagramSocket1 = new DatagramSocket(destinationPort1, InetAddress
+                .getByName(serverAddress));
 
         new Thread(new Listener(datagramSocket1)).start();
 
-        DatagramSocket datagramSocket2 = new DatagramSocket(destinationPort2,
-                InetAddress.getByName(serverAddress));
+        DatagramSocket datagramSocket2 = new DatagramSocket(destinationPort2, InetAddress
+                .getByName(serverAddress));
 
         new Thread(new Listener(datagramSocket2)).start();
 
@@ -801,8 +795,8 @@ public class SymmitronTest extends AbstractSymmitronTestCase {
 
         byte[] data = new byte[1024];
         DatagramSocket datagramSocket = new DatagramSocket();
-        DatagramPacket datagramPacket = new DatagramPacket(data, data.length,
-                InetAddress.getByName(ipAddr), port1);
+        DatagramPacket datagramPacket = new DatagramPacket(data, data.length, InetAddress
+                .getByName(ipAddr), port1);
         for (int i = 0; i < 1000; i++) {
 
             Thread.sleep(10);
@@ -811,8 +805,8 @@ public class SymmitronTest extends AbstractSymmitronTestCase {
         Thread.sleep(100);
         assertTrue("Counter is " + counter, counter >= 1000);
         this.counter = 0;
-        datagramPacket = new DatagramPacket(data, data.length, InetAddress
-                .getByName(ipAddr), port2);
+        datagramPacket = new DatagramPacket(data, data.length, InetAddress.getByName(ipAddr),
+                port2);
         for (int i = 0; i < 1000; i++) {
             Thread.sleep(10);
             datagramSocket1.send(datagramPacket);
@@ -850,6 +844,182 @@ public class SymmitronTest extends AbstractSymmitronTestCase {
             super.signIn();
         }
 
+    }
+
+    public void testSelfRouting() throws Exception {
+        int destinationPort1 = 26000;
+        int destinationPort2 = 27000;
+
+        String sym1 = super.createEvenSym();
+        String sym2 = super.createEvenSym();
+
+        Object[] args = new Object[2];
+        args[0] = clientHandle;
+        args[1] = sym1;
+        Map retval = (Map) client.execute("sipXrelay.getSym", args);
+        super.checkStandardMap(retval);
+        Map symSession = (Map) retval.get(Symmitron.SYM_SESSION);
+        Map receiverSession = (Map) symSession.get("receiver");
+        String ipAddr = (String) receiverSession.get("ipAddress");
+        int port1 = (Integer) receiverSession.get("port");
+
+        args = new Object[2];
+        args[0] = clientHandle;
+        args[1] = sym2;
+        retval = (Map) client.execute("sipXrelay.getSym", args);
+        super.checkStandardMap(retval);
+        symSession = (Map) retval.get(Symmitron.SYM_SESSION);
+        receiverSession = (Map) symSession.get("receiver");
+        ipAddr = (String) receiverSession.get("ipAddress");
+        int port2 = (Integer) receiverSession.get("port");
+
+        String bridge1 = super.createBridge();
+        
+        args = new Object[3];
+        args[0] = clientHandle;
+        args[1] = bridge1;
+        args[2] = sym1;
+        retval = (Map) client.execute("sipXrelay.addSym", args);
+        super.checkStandardMap(retval);
+
+        args = new Object[3];
+        args[0] = clientHandle;
+        args[1] = bridge1;
+        args[2] = sym2;
+        retval = (Map) client.execute("sipXrelay.addSym", args);
+        super.checkStandardMap(retval);
+       
+
+        args = new Object[3];
+        args[0] = clientHandle;
+        args[1] = bridge1;
+        args[2] = sym1;
+        retval = (Map) client.execute("sipXrelay.addSym", args);
+        super.checkStandardMap(retval);
+
+        args = new Object[3];
+        args[0] = clientHandle;
+        args[1] = bridge1;
+        args[2] = sym2;
+        retval = (Map) client.execute("sipXrelay.addSym", args);
+        super.checkStandardMap(retval);
+
+        // Create a second bridge with two syms.
+        String sym3 = super.createEvenSym();
+      
+
+        String sym4 = super.createEvenSym();
+         
+        args = new Object[2];
+        args[0] = clientHandle;
+        args[1] = sym3;
+        retval = (Map) client.execute("sipXrelay.getSym", args);
+        super.checkStandardMap(retval);
+        symSession = (Map) retval.get(Symmitron.SYM_SESSION);
+        receiverSession = (Map) symSession.get("receiver");
+        ipAddr = (String) receiverSession.get("ipAddress");
+        int port3 = (Integer) receiverSession.get("port");
+       
+        args = new Object[2];
+        args[0] = clientHandle;
+        args[1] = sym4;
+        retval = (Map) client.execute("sipXrelay.getSym", args);
+        super.checkStandardMap(retval);
+        symSession = (Map) retval.get(Symmitron.SYM_SESSION);
+        receiverSession = (Map) symSession.get("receiver");
+        ipAddr = (String) receiverSession.get("ipAddress");
+        int port4 = (Integer) receiverSession.get("port");
+        String bridge2 = super.createBridge();
+        args = new Object[3];
+        args[0] = clientHandle;
+        args[1] = bridge2;
+        args[2] = sym3;
+        retval = (Map) client.execute("sipXrelay.addSym", args);
+        super.checkStandardMap(retval);
+
+        args = new Object[3];
+        args[0] = clientHandle;
+        args[1] = bridge2;
+        args[2] = sym4;
+        retval = (Map) client.execute("sipXrelay.addSym", args);
+        super.checkStandardMap(retval);
+        
+        
+        
+        
+        
+
+        super.setRemoteEndpoint(sym3, port2);
+        super.setRemoteEndpoint(sym2, port3);
+        super.setRemoteEndpoint(sym1, destinationPort1);
+        super.setRemoteEndpoint(sym4,destinationPort2);
+         
+        
+        
+        
+
+        DatagramSocket datagramSocket1 = new DatagramSocket(destinationPort1, InetAddress
+                .getByName(serverAddress));
+
+        new Thread(new Listener(datagramSocket1)).start();
+
+        DatagramSocket datagramSocket2 = new DatagramSocket(destinationPort2, InetAddress
+                .getByName(serverAddress));
+
+        new Thread(new Listener(datagramSocket2)).start();
+
+        Thread.sleep(2000);
+
+        assertTrue("Should see a non zero counter", counter != 0);
+
+        args = new Object[2];
+        args[0] = clientHandle;
+        args[1] = bridge1;
+        retval = (Map) client.execute("sipXrelay.startBridge", args);
+
+        super.checkStandardMap(retval);
+        
+        args = new Object[2];
+        args[0] = clientHandle;
+        args[1] = bridge2;
+        retval = (Map) client.execute("sipXrelay.startBridge", args);
+
+        super.checkStandardMap(retval);
+
+
+        this.counter = 0;
+
+        byte[] data = new byte[1024];
+        DatagramSocket datagramSocket = new DatagramSocket();
+        System.out.println("Sending to " + port1);
+        DatagramPacket datagramPacket = new DatagramPacket(data, data.length, InetAddress
+                .getByName(ipAddr), port1);
+        for (int i = 0; i < 1000; i++) {
+
+            Thread.sleep(10);
+            datagramSocket.send(datagramPacket);
+        }
+        Thread.sleep(100);
+        assertTrue("Counter is " + counter, counter >= 1000);
+        this.counter = 0;
+        datagramPacket = new DatagramPacket(data, data.length, InetAddress.getByName(ipAddr),
+                port4);
+        System.out.println("Sending to " + port4);
+        
+        for (int i = 0; i < 1000; i++) {
+            Thread.sleep(10);
+            datagramSocket.send(datagramPacket);
+        }
+        
+        
+        assertTrue("Counter is " + counter, counter >= 1000);
+
+        datagramSocket1.close();
+        datagramSocket2.close();
+        datagramSocket.close();
+
+        super.destroyBridge(bridge1);
+        super.destroyBridge(bridge2);
     }
 
 }

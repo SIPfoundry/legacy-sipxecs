@@ -62,7 +62,7 @@ public class SymmitronClient {
 
     }
 
-    public SymImpl createEvenSym() throws SymmitronException {
+    public synchronized SymImpl createEvenSym() throws SymmitronException {
         int count = 1;
         Object[] args = new Object[3];
         args[0] = clientHandle;
@@ -103,7 +103,7 @@ public class SymmitronClient {
 
     }
 
-    protected String createNewBridge() throws SymmitronException {
+    public synchronized String createNewBridge() throws SymmitronException {
         Object[] args = new Object[1];
         args[0] = this.clientHandle;
         Map retval;
@@ -123,7 +123,7 @@ public class SymmitronClient {
         return (String) retval.get(Symmitron.BRIDGE_ID);
     }
     
-    public String getPublicAddress() throws SymmitronException {
+    public synchronized String getPublicAddress() throws SymmitronException {
         Object[] args = new Object[1];
         args[0] = this.clientHandle;
         Map retval;
@@ -142,7 +142,7 @@ public class SymmitronClient {
         return (String ) retval.get(Symmitron.PUBLIC_ADDRESS);
     }
     
-    public String getExternalAddress() throws SymmitronException {
+    public synchronized String getExternalAddress() throws SymmitronException {
         Object[] args = new Object[1];
         args[0] = this.clientHandle;
         Map retval;
@@ -161,7 +161,7 @@ public class SymmitronClient {
         return (String ) retval.get(Symmitron.EXTERNAL_ADDRESS);
     }
 
-    protected void destroyBridge(String bridgeId) throws SymmitronException {
+    public synchronized void destroyBridge(String bridgeId) throws SymmitronException {
         Object[] args = new Object[2];
         args[0] = this.clientHandle;
         args[1] = bridgeId;
@@ -181,7 +181,7 @@ public class SymmitronClient {
     }
 
     
-    protected void setRemoteEndpoint(SymImpl sym, String ipAddress, int destinationPort,
+    public synchronized void setRemoteEndpoint(SymImpl sym, String ipAddress, int destinationPort,
             int keepAliveInterval, KeepaliveMethod keepAliveMethod) throws SymmitronException {
         try {
             Object[] params = new Object[6];
@@ -204,7 +204,7 @@ public class SymmitronClient {
 
     }
 
-    protected void addSym(String bridge, SymInterface sym) throws SymmitronException {
+    public synchronized void addSym(String bridge, SymInterface sym) throws SymmitronException {
         Object[] params = new Object[3];
         if ( sym == null || sym.getId() == null ) {
             throw new SymmitronException(new NullPointerException("null sym"));
@@ -230,7 +230,7 @@ public class SymmitronClient {
         }
     }
 
-    protected void removeSym(String bridge, SymInterface sym) throws SymmitronException {
+    public synchronized void removeSym(String bridge, SymInterface sym) throws SymmitronException {
         Object[] parms = new Object[3];
         parms[0] = clientHandle;
         parms[1] = bridge;
@@ -254,7 +254,7 @@ public class SymmitronClient {
     /**
      * Get a Sym.
      */
-    protected SymInterface getSym(String symId) throws SymmitronException {
+    public synchronized SymInterface getSym(String symId) throws SymmitronException {
         Object[] args = new Object[2];
         args[0] = clientHandle;
         args[1] = symId;
@@ -303,7 +303,7 @@ public class SymmitronClient {
         return symImpl;
     }
 
-    public void pauseBridge(String bridge) throws SymmitronException {
+    public synchronized void pauseBridge(String bridge) throws SymmitronException {
         Object[] args = new Object[2];
         args[0] = clientHandle;
         args[1] = bridge;
@@ -321,7 +321,7 @@ public class SymmitronClient {
         }
     }
 
-    public void setOnHold(String symId, boolean holdFlag) throws SymmitronException {
+    public synchronized void setOnHold(String symId, boolean holdFlag) throws SymmitronException {
 
         Object[] args = new Object[2];
         args[0] = clientHandle;
@@ -355,7 +355,7 @@ public class SymmitronClient {
         }
     }
 
-    public void resumeBridge(String bridge) throws SymmitronException {
+    public synchronized void resumeBridge(String bridge) throws SymmitronException {
         Object[] args = new Object[2];
         args[0] = clientHandle;
         args[1] = bridge;
@@ -373,7 +373,7 @@ public class SymmitronClient {
         }
     }
 
-    public void startBridge(String bridge) throws SymmitronException {
+    public synchronized void startBridge(String bridge) throws SymmitronException {
         Object[] args = new Object[2];
         args[0] = clientHandle;
         args[1] = bridge;
@@ -394,7 +394,7 @@ public class SymmitronClient {
     }
 
 
-    protected void signIn() throws SymmitronException {
+    public synchronized void signIn() throws SymmitronException {
 
         String[] myHandle = new String[1];
         myHandle[0] = clientHandle;
@@ -407,7 +407,7 @@ public class SymmitronClient {
         }
     }
 
-    protected void signOut() throws SymmitronException {
+    public synchronized void signOut() throws SymmitronException {
         String[] myHandle = new String[1];
         myHandle[0] = clientHandle;
         try {
@@ -419,7 +419,7 @@ public class SymmitronClient {
 
     }
 
-    public void destroySym(SymImpl sym) throws SymmitronException {
+    public synchronized void destroySym(SymImpl sym) throws SymmitronException {
         try {
             Object[] args = new Object[2];
             args[0] = clientHandle;
@@ -432,10 +432,7 @@ public class SymmitronClient {
 
     }
 
-    // ////////////////////////////////////////////////////////////////
-    // PUBLIC methods
-    // ////////////////////////////////////////////////////////////////
-
+   
     public BridgeInterface createBridge() throws SymmitronException {
         return new BridgeImpl(this);
     }

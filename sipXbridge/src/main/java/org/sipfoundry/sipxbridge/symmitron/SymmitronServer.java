@@ -28,8 +28,6 @@ import org.apache.xmlrpc.server.PropertyHandlerMapping;
 import org.apache.xmlrpc.server.XmlRpcServer;
 import org.apache.xmlrpc.server.XmlRpcServerConfigImpl;
 import org.apache.xmlrpc.webserver.WebServer;
-import org.sipfoundry.sipxbridge.BridgeConfiguration;
-import org.sipfoundry.sipxbridge.Gateway;
 import org.sipfoundry.sipxbridge.GatewayConfigurationException;
 
 /**
@@ -40,7 +38,7 @@ import org.sipfoundry.sipxbridge.GatewayConfigurationException;
  */
 public class SymmitronServer implements Symmitron {
 
-    private static Logger logger = Logger.getLogger(SymmitronServer.class);
+    private static Logger logger = Logger.getLogger(SymmitronServer.class.getPackage().getName());
 
     protected static Timer timer = new Timer();
 
@@ -84,6 +82,8 @@ public class SymmitronServer implements Symmitron {
 
     private static InetAddress localAddressByName;
 
+    private static InetAddress publicAddress;
+
     private static SymmitronConfig symmitronConfig;
 
     private static final int STUN_PORT = 3478;
@@ -116,10 +116,10 @@ public class SymmitronServer implements Symmitron {
 
                 addressDiscovery.start();
                 StunDiscoveryReport report = addressDiscovery.determineAddress();
-                String globalAddress = report.getPublicAddress().getSocketAddress().getAddress()
-                        .getHostAddress();
+                publicAddress = report.getPublicAddress().getSocketAddress().getAddress();
                 logger.debug("Stun report = " + report);
-                symmitronConfig.setPublicAddress(globalAddress);
+                String publicAddr = publicAddress.getHostAddress();
+                symmitronConfig.setPublicAddress(publicAddr);
 
             }
         } catch (Exception ex) {
@@ -165,8 +165,32 @@ public class SymmitronServer implements Symmitron {
         return portRangeManager;
     }
 
+    public static String getLocalAddress() {
+        return symmitronConfig.getLocalAddress();
+    }
+
+    public static InetAddress getLocalInetAddress() throws UnknownHostException {
+        if (SymmitronServer.localAddressByName == null) {
+            SymmitronServer.localAddressByName = InetAddress.getByName(getLocalAddress());
+        }
+        return localAddressByName;
+    }
+
+    public static int getRangeLowerBound() {
+
+        return symmitronConfig.getPortRangeLowerBound();
+    }
+
+    public static int getRangeUpperBound() {
+
+        return symmitronConfig.getPortRangeUpperBound();
+    }
+
     public static void setSymmitronConfig(SymmitronConfig symmitronConfig) throws IOException {
         SymmitronServer.symmitronConfig = symmitronConfig;
+        if (symmitronConfig.getPublicAddress() != null) {
+            publicAddress = InetAddress.getByName(symmitronConfig.getPublicAddress());
+        }
         String logFileName = symmitronConfig.getLogFileName();
         if (logFileName != null) {
             String dirName = symmitronConfig.getLogFileDirectory() + "/sipxrelay.log";
@@ -177,17 +201,6 @@ public class SymmitronServer implements Symmitron {
         }
         portRangeManager = new PortRangeManager(symmitronConfig.getPortRangeLowerBound(),
                 symmitronConfig.getPortRangeUpperBound());
-    }
-
-    public static String getLocalAddress() {
-        return symmitronConfig.getLocalAddress();
-    }
-
-    public static InetAddress getLocalAddressByName() throws UnknownHostException {
-        if (SymmitronServer.localAddressByName == null) {
-            SymmitronServer.localAddressByName = InetAddress.getByName(getLocalAddress());
-        }
-        return localAddressByName;
     }
 
     public static void startWebServer() throws XmlRpcException, IOException {
@@ -269,6 +282,10 @@ public class SymmitronServer implements Symmitron {
 
         return portRange.toMap();
 
+    }
+
+    public static InetAddress getPublicInetAddress() {
+        return publicAddress;
     }
 
     /**
@@ -381,7 +398,8 @@ public class SymmitronServer implements Symmitron {
             retval.put(SYM_SESSION, hmapArray);
 
             return retval;
-        } catch (Exception ex) {
+        } catch (Throwable ex) {
+            logger.error("error creating syms", ex);
             return createErrorMap(PROCESSING_ERROR, ex.getMessage());
 
         }
@@ -410,7 +428,7 @@ public class SymmitronServer implements Symmitron {
                 return createErrorMap(SESSION_NOT_FOUND, "");
 
             }
-        } catch (Exception ex) {
+        } catch (Throwable ex) {
             logger.error("Error processing request " + symId);
             return createErrorMap(PROCESSING_ERROR, ex.getMessage());
         }
@@ -467,8 +485,8 @@ public class SymmitronServer implements Symmitron {
             }
             return retval;
 
-        } catch (Exception ex) {
-            ex.printStackTrace();
+        } catch (Throwable ex) {
+
             logger.error("Processing Error", ex);
 
             return createErrorMap(PROCESSING_ERROR, ex.getMessage());
@@ -486,7 +504,7 @@ public class SymmitronServer implements Symmitron {
             }
             rtpBridge.start();
             return createSuccessMap();
-        } catch (Exception ex) {
+        } catch (Throwable ex) {
             logger.error("Processing Error", ex);
             return createErrorMap(PROCESSING_ERROR, ex.getMessage());
         }
@@ -506,7 +524,7 @@ public class SymmitronServer implements Symmitron {
             }
             rtpSession.getTransmitter().setOnHold(true);
             return this.createSuccessMap();
-        } catch (Exception ex) {
+        } catch (Throwable ex) {
             logger.error("Processing Error", ex);
             return createErrorMap(PROCESSING_ERROR, ex.getMessage());
         }
@@ -536,7 +554,7 @@ public class SymmitronServer implements Symmitron {
 
             rtpBridge.removeSym(rtpSession);
             return this.createSuccessMap();
-        } catch (Exception ex) {
+        } catch (Throwable ex) {
             logger.error("Processing Error", ex);
             return createErrorMap(PROCESSING_ERROR, ex.getMessage());
         }
@@ -567,7 +585,7 @@ public class SymmitronServer implements Symmitron {
 
             bridge.addSym(sym);
             return this.createSuccessMap();
-        } catch (Exception ex) {
+        } catch (Throwable ex) {
             logger.error("Processing Error", ex);
             return createErrorMap(PROCESSING_ERROR, ex.getMessage());
         }
@@ -579,102 +597,128 @@ public class SymmitronServer implements Symmitron {
      * @see org.sipfoundry.sipxbridge.Symmitron#createBridge(java.lang.String, boolean)
      */
     public Map<String, Object> createBridge(String controllerHandle) {
+        try {
+            this.checkForControllerReboot(controllerHandle);
 
-        this.checkForControllerReboot(controllerHandle);
+            Bridge bridge = new Bridge();
+            bridgeMap.put(bridge.getId(), bridge);
+            HashSet<Bridge> bridges = bridgeResourceMap.get(controllerHandle);
+            if (bridges != null) {
+                bridges.add(bridge);
+            } else {
+                bridges = new HashSet<Bridge>();
+                bridges.add(bridge);
+                bridgeResourceMap.put(controllerHandle, bridges);
+            }
 
-        Bridge bridge = new Bridge();
-        bridgeMap.put(bridge.getId(), bridge);
-        HashSet<Bridge> bridges = bridgeResourceMap.get(controllerHandle);
-        if (bridges != null) {
-            bridges.add(bridge);
-        } else {
-            bridges = new HashSet<Bridge>();
-            bridges.add(bridge);
-            bridgeResourceMap.put(controllerHandle, bridges);
+            Map<String, Object> retval = this.createSuccessMap();
+            logger.debug("createBridge: returning " + bridge.getId());
+            retval.put(BRIDGE_ID, bridge.getId());
+            return retval;
+        } catch (Throwable ex) {
+            logger.error("Processing Error", ex);
+            return createErrorMap(PROCESSING_ERROR, ex.getMessage());
         }
-
-        Map<String, Object> retval = this.createSuccessMap();
-        logger.debug("createBridge: returning " + bridge.getId());
-        retval.put(BRIDGE_ID, bridge.getId());
-        return retval;
 
     }
 
     public Map<String, Object> pauseBridge(String controllerHandle, String bridgeId) {
-        this.checkForControllerReboot(controllerHandle);
-        Bridge bridge = bridgeMap.get(bridgeId);
-        if (bridge == null) {
-            return this.createErrorMap(SESSION_NOT_FOUND, "Bridge corresponding to " + bridgeId
-                    + " not found");
+        try {
+            this.checkForControllerReboot(controllerHandle);
+            Bridge bridge = bridgeMap.get(bridgeId);
+            if (bridge == null) {
+                return this.createErrorMap(SESSION_NOT_FOUND, "Bridge corresponding to "
+                        + bridgeId + " not found");
+            }
+            bridge.pause();
+            return this.createSuccessMap();
+        } catch (Throwable ex) {
+            logger.error("Processing Error", ex);
+            return createErrorMap(PROCESSING_ERROR, ex.getMessage());
         }
-        bridge.pause();
-        return this.createSuccessMap();
     }
 
     public Map<String, Object> resumeBridge(String controllerHandle, String bridgeId) {
-        this.checkForControllerReboot(controllerHandle);
-        Bridge rtpBridge = bridgeMap.get(bridgeId);
-        if (rtpBridge == null) {
-            return this.createErrorMap(SESSION_NOT_FOUND, "Bridge corresponding to " + bridgeId
-                    + " not found");
+        try {
+            this.checkForControllerReboot(controllerHandle);
+            Bridge rtpBridge = bridgeMap.get(bridgeId);
+            if (rtpBridge == null) {
+                return this.createErrorMap(SESSION_NOT_FOUND, "Bridge corresponding to "
+                        + bridgeId + " not found");
+            }
+            rtpBridge.resume();
+            return this.createSuccessMap();
+        } catch (Throwable ex) {
+            logger.error("Processing Error", ex);
+            return createErrorMap(PROCESSING_ERROR, ex.getMessage());
         }
-        rtpBridge.resume();
-        return this.createSuccessMap();
     }
 
     public Map<String, Object> resumeSym(String controllerHandle, String sessionId) {
-
-        this.checkForControllerReboot(controllerHandle);
-        Sym rtpSession = sessionMap.get(sessionId);
-        if (rtpSession == null) {
-            return this.createErrorMap(SESSION_NOT_FOUND, "Specified sym was not found "
-                    + sessionId);
+        try {
+            this.checkForControllerReboot(controllerHandle);
+            Sym rtpSession = sessionMap.get(sessionId);
+            if (rtpSession == null) {
+                return this.createErrorMap(SESSION_NOT_FOUND, "Specified sym was not found "
+                        + sessionId);
+            }
+            if (rtpSession.getTransmitter() == null) {
+                return this.createErrorMap(ILLEGAL_STATE,
+                        "transmitter is not assigned for rtp session " + sessionId);
+            }
+            rtpSession.getTransmitter().setOnHold(false);
+            return this.createSuccessMap();
+        } catch (Throwable ex) {
+            logger.error("Processing Error", ex);
+            return createErrorMap(PROCESSING_ERROR, ex.getMessage());
         }
-        if (rtpSession.getTransmitter() == null) {
-            return this.createErrorMap(ILLEGAL_STATE,
-                    "transmitter is not assigned for rtp session " + sessionId);
-        }
-        rtpSession.getTransmitter().setOnHold(false);
-        return this.createSuccessMap();
     }
 
     public Map<String, Object> getSymStatistics(String controllerHandle, String symId) {
+        try {
+            Sym sym = sessionMap.get(symId);
+            if (sym == null) {
+                return this.createErrorMap(SESSION_NOT_FOUND, "Specified sym was not found "
+                        + symId);
+            }
+            Map<String, Object> retval = new HashMap<String, Object>();
+            retval.put(Symmitron.SESSION_STATE, sym.getState().toString());
+            retval.put(Symmitron.CREATION_TIME, new Long(sym.getCreationTime()));
+            retval.put(Symmitron.LAST_PACKET_RECEIVED, new Long(sym.getLastPacketTime()));
+            retval.put(Symmitron.CURRENT_TIME_OF_DAY, new Long(System.currentTimeMillis())
+                    .toString());
+            if (sym.getTransmitter() != null)
+                retval.put(Symmitron.PACKETS_SENT,
+                        new Long(sym.getTransmitter().getPacketsSent()));
+            else
+                retval.put(Symmitron.PACKETS_RECEIVED, new Long(0));
+            retval.put(Symmitron.PACKETS_RECEIVED, new Long(sym.getPacketsReceived()));
 
-        Sym sym = sessionMap.get(symId);
-        if (sym == null) {
-            return this.createErrorMap(SESSION_NOT_FOUND, "Specified sym was not found " + symId);
+            return null;
+        } catch (Throwable ex) {
+            logger.error("Processing Error", ex);
+            return createErrorMap(PROCESSING_ERROR, ex.getMessage());
         }
-        Map<String, Object> retval = new HashMap<String, Object>();
-        retval.put(Symmitron.SESSION_STATE, sym.getState().toString());
-        retval.put(Symmitron.CREATION_TIME, new Long(sym.getCreationTime()));
-        retval.put(Symmitron.LAST_PACKET_RECEIVED, new Long(sym.getLastPacketTime()));
-        retval
-                .put(Symmitron.CURRENT_TIME_OF_DAY, new Long(System.currentTimeMillis())
-                        .toString());
-        if (sym.getTransmitter() != null)
-            retval.put(Symmitron.PACKETS_SENT, new Long(sym.getTransmitter().getPacketsSent()));
-        else
-            retval.put(Symmitron.PACKETS_RECEIVED, new Long(0));
-        retval.put(Symmitron.PACKETS_RECEIVED, new Long(sym.getPacketsReceived()));
-
-        return null;
     }
 
     public Map<String, Object> getBridgeStatistics(String controllerHandle, String bridgeId) {
-
-        Bridge bridge = bridgeMap.get(bridgeId);
-        if (bridge == null) {
-            return this.createErrorMap(SESSION_NOT_FOUND, "Specified bridge was not found "
-                    + bridgeId);
+        try {
+            Bridge bridge = bridgeMap.get(bridgeId);
+            if (bridge == null) {
+                return this.createErrorMap(SESSION_NOT_FOUND, "Specified bridge was not found "
+                        + bridgeId);
+            }
+            Map<String, Object> retval = new HashMap<String, Object>();
+            retval.put(Symmitron.BRIDGE_STATE, bridge.getState().toString());
+            retval.put(Symmitron.CREATION_TIME, new Long(bridge.getCreationTime()));
+            retval.put(Symmitron.LAST_PACKET_RECEIVED, new Long(bridge.getLastPacketTime()));
+            retval.put(Symmitron.CURRENT_TIME_OF_DAY, new Long(System.currentTimeMillis())
+                    .toString());
+            return retval;
+        } catch (Throwable ex) {
+            logger.error("Processing Error", ex);
+            return createErrorMap(PROCESSING_ERROR, ex.getMessage());
         }
-        Map<String, Object> retval = new HashMap<String, Object>();
-        retval.put(Symmitron.BRIDGE_STATE, bridge.getState().toString());
-        retval.put(Symmitron.CREATION_TIME, new Long(bridge.getCreationTime()));
-        retval.put(Symmitron.LAST_PACKET_RECEIVED, new Long(bridge.getLastPacketTime()));
-        retval
-                .put(Symmitron.CURRENT_TIME_OF_DAY, new Long(System.currentTimeMillis())
-                        .toString());
-        return retval;
     }
 
     public Map<String, Object> signOut(String controllerHandle) {
@@ -696,7 +740,7 @@ public class SymmitronServer implements Symmitron {
             sessionResourceMap.remove(controllerHandle);
 
             return this.createSuccessMap();
-        } catch (Exception ex) {
+        } catch (Throwable ex) {
             logger.error("Processing Error", ex);
             return createErrorMap(PROCESSING_ERROR, ex.getMessage());
         }
@@ -724,7 +768,7 @@ public class SymmitronServer implements Symmitron {
                         "Sym with the given Id was not found");
             }
 
-        } catch (Exception ex) {
+        } catch (Throwable ex) {
             logger.error("Processing Error", ex);
             return createErrorMap(PROCESSING_ERROR, ex.getMessage());
         }
@@ -751,7 +795,7 @@ public class SymmitronServer implements Symmitron {
                 }
             }
             return retval;
-        } catch (Exception ex) {
+        } catch (Throwable ex) {
             logger.error("Processing Error", ex);
             return createErrorMap(PROCESSING_ERROR, ex.getMessage());
         }
@@ -771,38 +815,43 @@ public class SymmitronServer implements Symmitron {
                 return this.createErrorMap(SESSION_NOT_FOUND,
                         "Requested SYM Session was not found");
             }
-        } catch (Exception ex) {
+        } catch (Throwable ex) {
             logger.error("Processing Error", ex);
             return createErrorMap(PROCESSING_ERROR, ex.getMessage());
         }
     }
 
     public Map<String, Object> destroyBridge(String controllerHandle, String bridgeId) {
-        logger.debug("destroyBridge: " + bridgeId);
-        this.checkForControllerReboot(controllerHandle);
-        Bridge bridge = bridgeMap.get(bridgeId);
-        if (bridge != null) {
-            bridgeMap.remove(bridgeId);
-            HashSet<Bridge> bridges = bridgeResourceMap.get(controllerHandle);
-            bridges.remove(bridge);
-            if (bridges.isEmpty()) {
-                bridgeResourceMap.remove(controllerHandle);
-            }
-            for (Sym sym : bridge.getSyms()) {
-                sym.close();
-                sessionMap.remove(sym.getId());
-                HashSet<Sym> syms = sessionResourceMap.get(controllerHandle);
-                syms.remove(sym);
-                if (syms.isEmpty()) {
-                    sessionResourceMap.remove(controllerHandle);
+        try {
+            logger.debug("destroyBridge: " + bridgeId);
+            this.checkForControllerReboot(controllerHandle);
+            Bridge bridge = bridgeMap.get(bridgeId);
+            if (bridge != null) {
+                bridgeMap.remove(bridgeId);
+                HashSet<Bridge> bridges = bridgeResourceMap.get(controllerHandle);
+                bridges.remove(bridge);
+                if (bridges.isEmpty()) {
+                    bridgeResourceMap.remove(controllerHandle);
                 }
+                for (Sym sym : bridge.getSyms()) {
+                    sym.close();
+                    sessionMap.remove(sym.getId());
+                    HashSet<Sym> syms = sessionResourceMap.get(controllerHandle);
+                    syms.remove(sym);
+                    if (syms.isEmpty()) {
+                        sessionResourceMap.remove(controllerHandle);
+                    }
+
+                }
+                return this.createSuccessMap();
+            } else {
+                return this.createErrorMap(SESSION_NOT_FOUND,
+                        "Bridge with the given ID was not found");
 
             }
-            return this.createSuccessMap();
-        } else {
-            return this.createErrorMap(SESSION_NOT_FOUND,
-                    "Bridge with the given ID was not found");
-
+        } catch (Throwable ex) {
+            logger.error("Processing Error", ex);
+            return createErrorMap(PROCESSING_ERROR, ex.getMessage());
         }
     }
 

@@ -10,12 +10,12 @@ import java.net.InetAddress;
 
 public class SymmitronConfig {
 
-    private int portRangeLowerBound = 15000;
-    private int portRangeUpperBound = 15500;
+    private int portRangeLowerBound = 25000;
+    private int portRangeUpperBound = 25500;
     private int xmlRpcPort = 8089;
     private String localAddress;
     private String externalAddress;
-    private String logFileName = null;
+    private String logFileName = "sipxrelay.log";
     private String logFileDirectory = null;
     private String logLevel = "DEBUG";
     private String publicAddress;

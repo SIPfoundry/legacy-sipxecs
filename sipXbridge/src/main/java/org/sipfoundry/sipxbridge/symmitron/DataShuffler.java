@@ -11,7 +11,9 @@
 package org.sipfoundry.sipxbridge.symmitron;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.DatagramChannel;
@@ -38,21 +40,19 @@ class DataShuffler implements Runnable {
     private static void initializeSelector() {
 
         try {
-            if ( selector != null ) selector.close();
+            if (selector != null)
+                selector.close();
             selector = Selector.open();
-            
 
             for (Bridge bridge : ConcurrentSet.getBridges()) {
 
                 for (Sym session : bridge.sessions) {
                     try {
                         if (session.getReceiver() != null
-                                && session.getReceiver().getDatagramChannel()
-                                        .isOpen()) {
-                            session.getReceiver().getDatagramChannel()
-                                    .configureBlocking(false);
-                            session.getReceiver().getDatagramChannel()
-                                    .register(selector, SelectionKey.OP_READ);
+                                && session.getReceiver().getDatagramChannel().isOpen()) {
+                            session.getReceiver().getDatagramChannel().configureBlocking(false);
+                            session.getReceiver().getDatagramChannel().register(selector,
+                                    SelectionKey.OP_READ);
                         }
                     } catch (ClosedChannelException ex) {
                         // Avoid loading any closed channels in our select set.
@@ -65,6 +65,82 @@ class DataShuffler implements Runnable {
         } catch (IOException ex) {
             logger.error("Unepxected exception", ex);
             return;
+        }
+
+    }
+
+    public static void send(Bridge bridge, DatagramChannel datagramChannel,
+            InetSocketAddress remoteAddress) throws UnknownHostException {
+        try {
+
+            for (Sym sym : bridge.sessions) {
+                if (datagramChannel == sym.getReceiver().getDatagramChannel()) {
+                    if (logger.isDebugEnabled()) {
+                        logger.debug("got something on " + sym.getReceiver().getIpAddress() + ":"
+                                + sym.getReceiver().getPort());
+                        if (remoteAddress != null) {
+                            if (logger.isDebugEnabled())
+                                logger.debug("remoteIpAddressAndPort : "
+                                        + remoteAddress.getAddress().getHostAddress() + ":"
+                                        + remoteAddress.getPort());
+                        }
+                    }
+                    sym.lastPacketTime = System.currentTimeMillis();
+                    sym.packetsReceived++;
+
+                    bridge.lastPacketTime = sym.lastPacketTime;
+
+                    /*
+                     * Set the remote port of the transmitter side of the connection. This allows
+                     * for NAT reboots ( port can change while in progress. This is not relevant
+                     * for the LAN side.
+                     */
+                    if (sym.getTransmitter() != null) {
+                        AutoDiscoveryFlag autoDiscoveryFlag = sym.getTransmitter()
+                                .getAutoDiscoveryFlag();
+
+                        if (autoDiscoveryFlag != AutoDiscoveryFlag.NO_AUTO_DISCOVERY) {
+                            if (remoteAddress != null) {
+                                if (autoDiscoveryFlag == AutoDiscoveryFlag.IP_ADDRESS_AND_PORT) {
+                                    sym.getTransmitter().setIpAddressAndPort(
+                                            remoteAddress.getAddress().getHostAddress(),
+                                            remoteAddress.getPort());
+                                } else if (autoDiscoveryFlag == AutoDiscoveryFlag.PORT_ONLY) {
+                                    sym.getTransmitter().setPort(remoteAddress.getPort());
+                                }
+                            }
+                        }
+
+                    }
+
+                    continue;
+                }
+                SymTransmitterEndpoint writeChannel = sym.getTransmitter();
+                if (writeChannel == null)
+                    continue;
+
+                try {
+
+                    /*
+                     * No need for header rewrite. Just flip and push out.
+                     */
+                    if (!writeChannel.isOnHold()) {
+                        writeChannel.send((ByteBuffer) readBuffer.flip());
+                        sym.getTransmitter().packetsSent++;
+
+                    } else {
+                        if (logger.isDebugEnabled()) {
+                            logger.debug("WriteChannel on hold." + writeChannel.getIpAddress()
+                                    + ":" + writeChannel.getPort() + " Not forwarding");
+                        }
+                    }
+
+                } catch (Exception ex) {
+                    logger.error("Unexpected error shuffling bytes", ex);
+                }
+            }
+        } finally {
+
         }
 
     }
@@ -86,8 +162,7 @@ class DataShuffler implements Runnable {
 
                 // Iterate over the set of keys for which events are
                 // available
-                Iterator<SelectionKey> selectedKeys = selector.selectedKeys()
-                        .iterator();
+                Iterator<SelectionKey> selectedKeys = selector.selectedKeys().iterator();
                 while (selectedKeys.hasNext()) {
                     SelectionKey key = (SelectionKey) selectedKeys.next();
                     selectedKeys.remove();
@@ -97,8 +172,7 @@ class DataShuffler implements Runnable {
                     }
                     if (key.isReadable()) {
                         readBuffer.clear();
-                        DatagramChannel datagramChannel = (DatagramChannel) key
-                                .channel();
+                        DatagramChannel datagramChannel = (DatagramChannel) key.channel();
                         if (!datagramChannel.isOpen()) {
                             selector.keys().remove(key);
                             continue;
@@ -112,117 +186,12 @@ class DataShuffler implements Runnable {
                         bridge.processingCount++;
                         if (bridge.getState() != BridgeState.RUNNING) {
                             if (logger.isDebugEnabled()) {
-                                logger
-                                        .debug("RtpBridge:Discarding packet. Bridge state is "
-                                                + bridge.getState());
+                                logger.debug("RtpBridge:Discarding packet. Bridge state is "
+                                        + bridge.getState());
                             }
                             continue;
                         }
-
-                        try {
-
-                            for (Sym sym : bridge.sessions) {
-                                if (datagramChannel == sym.getReceiver()
-                                        .getDatagramChannel()) {
-                                    if (logger.isDebugEnabled()) {
-                                        logger.debug("got something on "
-                                                + sym.getReceiver()
-                                                        .getIpAddress() + ":"
-                                                + sym.getReceiver().getPort());
-                                        if (remoteAddress != null) {
-                                            if (logger.isDebugEnabled())
-                                                logger
-                                                        .debug("remoteIpAddressAndPort : "
-                                                                + remoteAddress
-                                                                        .getAddress()
-                                                                        .getHostAddress()
-                                                                + ":"
-                                                                + remoteAddress
-                                                                        .getPort());
-                                        }
-                                    }
-                                    sym.lastPacketTime = System
-                                            .currentTimeMillis();
-                                    sym.packetsReceived++;
-
-                                    bridge.lastPacketTime = sym.lastPacketTime;
-
-                                    /*
-                                     * Set the remote port of the transmitter
-                                     * side of the connection. This allows for
-                                     * NAT reboots ( port can change while in
-                                     * progress. This is not relevant for the
-                                     * LAN side.
-                                     */
-                                    if (sym.getTransmitter() != null) {
-                                        AutoDiscoveryFlag autoDiscoveryFlag = sym
-                                                .getTransmitter()
-                                                .getAutoDiscoveryFlag();
-
-                                        if (autoDiscoveryFlag != AutoDiscoveryFlag.NO_AUTO_DISCOVERY) {
-                                            if (remoteAddress != null) {
-                                                if (autoDiscoveryFlag == AutoDiscoveryFlag.IP_ADDRESS_AND_PORT) {
-                                                    sym
-                                                            .getTransmitter()
-                                                            .setIpAddressAndPort(
-                                                                    remoteAddress
-                                                                            .getAddress()
-                                                                            .getHostAddress(),
-                                                                    remoteAddress
-                                                                            .getPort());
-                                                } else if (autoDiscoveryFlag == AutoDiscoveryFlag.PORT_ONLY) {
-                                                    sym
-                                                            .getTransmitter()
-                                                            .setPort(
-                                                                    remoteAddress
-                                                                            .getPort());
-                                                }
-                                            }
-                                        }
-
-                                    }
-
-                                    continue;
-                                }
-                                SymTransmitterEndpoint writeChannel = sym
-                                        .getTransmitter();
-                                if (writeChannel == null)
-                                    continue;
-
-                                try {
-
-                                    /*
-                                     * No need for header rewrite. Just flip and
-                                     * push out.
-                                     */
-                                    if (!writeChannel.isOnHold()) {
-                                        writeChannel
-                                                .send((ByteBuffer) readBuffer
-                                                        .flip());
-                                        sym.getTransmitter().packetsSent++;
-
-                                    } else {
-                                        if (logger.isDebugEnabled()) {
-                                            logger
-                                                    .debug("WriteChannel on hold."
-                                                            + writeChannel
-                                                                    .getIpAddress()
-                                                            + ":"
-                                                            + writeChannel
-                                                                    .getPort()
-                                                            + " Not forwarding");
-                                        }
-                                    }
-
-                                } catch (Exception ex) {
-                                    logger.error(
-                                            "Unexpected error shuffling bytes",
-                                            ex);
-                                }
-                            }
-                        } finally {
-
-                        }
+                        this.send(bridge, datagramChannel, remoteAddress);
 
                     }
                 }
@@ -233,7 +202,7 @@ class DataShuffler implements Runnable {
                         rtpSession.close();
                     }
                 }
-                if ( bridge != null )
+                if (bridge != null)
                     bridge.setState(BridgeState.TERMINATED);
                 continue;
             }
@@ -249,5 +218,27 @@ class DataShuffler implements Runnable {
         }
 
     }
+
+    public static DatagramChannel getSelfRoutedDatagramChannel(InetAddress ipAddress, int port) {
+        // Iterate over the set of keys for which events are
+        // available
+        for (Iterator<SelectionKey> selectedKeys = selector.selectedKeys().iterator(); selectedKeys
+                .hasNext();) {
+            SelectionKey key = selectedKeys.next();
+            if (!key.isValid()) {
+                continue;
+            }
+            DatagramChannel datagramChannel = (DatagramChannel) key.channel();
+            if (datagramChannel.socket().getLocalAddress().equals(ipAddress)
+                    && datagramChannel.socket().getLocalPort() == port) {
+                return datagramChannel;
+            }
+
+        }
+        return null;
+
+    }
+
+   
 
 }

@@ -23,7 +23,7 @@ final class Sym implements SymInterface, Serializable {
 
     private static final long serialVersionUID = -2762988912663901623L;
 
-    private static Logger logger = Logger.getLogger(Sym.class);
+    private static Logger logger = Logger.getLogger(Sym.class.getPackage().getName());
 
     private String id;
 

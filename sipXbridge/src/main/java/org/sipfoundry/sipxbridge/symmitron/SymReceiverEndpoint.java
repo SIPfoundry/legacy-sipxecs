@@ -22,7 +22,7 @@ import org.apache.log4j.Logger;
  */
 final class SymReceiverEndpoint extends SymEndpoint {
 
-    private static Logger logger = Logger.getLogger(SymReceiverEndpoint.class);
+    private static Logger logger = Logger.getLogger(SymReceiverEndpoint.class.getPackage().getName());
     
     private  InetSocketAddress socketAddress;
 
