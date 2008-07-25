@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.acd;
@@ -13,7 +13,6 @@ import java.util.Set;
 
 import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
-import org.sipfoundry.sipxconfig.admin.commserver.Server;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.service.SipxPresenceService;
@@ -23,25 +22,26 @@ public class AcdServerTest extends BeanWithSettingsTestCase {
 
     private AcdServer m_server;
 
+    @Override
     protected void setUp() throws Exception {
         super.setUp();
         m_server = new AcdServer();
         m_server.setHost("localhost");
         m_server.setPort(8110);
         initializeBeanWithSettings(m_server);
-        
+
         SipxPresenceService presenceService = org.easymock.classextension.EasyMock.createMock(SipxPresenceService.class);
         presenceService.getPresenceServerUri();
-        org.easymock.classextension.EasyMock.expectLastCall().andReturn("sip:presence.com:5130").atLeastOnce();
+        EasyMock.expectLastCall().andReturn("sip:presence.com:5130").atLeastOnce();
         presenceService.getPresenceServiceUri();
-        org.easymock.classextension.EasyMock.expectLastCall().andReturn("sip:presence.com:8111/RPC2").atLeastOnce();
+        EasyMock.expectLastCall().andReturn("sip:presence.com:8111/RPC2").atLeastOnce();
         org.easymock.classextension.EasyMock.replay(presenceService);
-        
+
         SipxServiceManager sipxServiceManager = EasyMock.createMock(SipxServiceManager.class);
         sipxServiceManager.getServiceByBeanId(SipxPresenceService.BEAN_ID);
         EasyMock.expectLastCall().andReturn(presenceService).atLeastOnce();
         EasyMock.replay(sipxServiceManager);
-        
+
         m_server.setSipxServiceManager(sipxServiceManager);
     }
 
@@ -51,7 +51,7 @@ public class AcdServerTest extends BeanWithSettingsTestCase {
 
     /**
      * It can be only enabled temporarily when ACD server is up.
-     * 
+     *
      */
     public void _testAcdXmlRpc() {
         XmlRpcSettings xmlRpc = new XmlRpcSettings(null);

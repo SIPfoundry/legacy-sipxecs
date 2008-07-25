@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.acd;
@@ -21,55 +21,62 @@ import org.sipfoundry.sipxconfig.admin.commserver.Server;
 import org.sipfoundry.sipxconfig.service.SipxPresenceService;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 
+import static org.easymock.EasyMock.anyObject;
+import static org.easymock.EasyMock.expectLastCall;
+import static org.easymock.classextension.EasyMock.createMock;
+import static org.easymock.classextension.EasyMock.createNiceControl;
+import static org.easymock.classextension.EasyMock.replay;
+
 public class AcdServerTestDb extends TestCase {
 
     private AcdServer m_server;
 
+    @Override
     protected void setUp() throws Exception {
         m_server = (AcdServer) TestHelper.getApplicationContext().getBean("acdServer");
-        
-        SipxPresenceService presenceService = org.easymock.classextension.EasyMock.createMock(SipxPresenceService.class);
+
+        SipxPresenceService presenceService = createMock(SipxPresenceService.class);
         presenceService.getPresenceServerUri();
-        org.easymock.classextension.EasyMock.expectLastCall().andReturn("sip:presence.com:5130").atLeastOnce();
+        expectLastCall().andReturn("sip:presence.com:5130").atLeastOnce();
         presenceService.getPresenceServiceUri();
-        org.easymock.classextension.EasyMock.expectLastCall().andReturn("sip:presence.com:8111/RPC2").atLeastOnce();
-        org.easymock.classextension.EasyMock.replay(presenceService);
-        
-        SipxServiceManager sipxServiceManager = EasyMock.createMock(SipxServiceManager.class);
+        expectLastCall().andReturn("sip:presence.com:8111/RPC2").atLeastOnce();
+        replay(presenceService);
+
+        SipxServiceManager sipxServiceManager = createMock(SipxServiceManager.class);
         sipxServiceManager.getServiceByBeanId(SipxPresenceService.BEAN_ID);
         EasyMock.expectLastCall().andReturn(presenceService).atLeastOnce();
         EasyMock.replay(sipxServiceManager);
-        
+
         m_server.setSipxServiceManager(sipxServiceManager);
     }
 
     public void testDeploy() {
-        IMocksControl sipxServerCtrl = EasyMock.createNiceControl();
+        IMocksControl sipxServerCtrl = createNiceControl();
         Server sipxServer = sipxServerCtrl.createMock(Server.class);
         sipxServerCtrl.replay();
 
         Map results = new Hashtable();
         results.put("resultCode", Provisioning.SUCCESS);
 
-        IMocksControl mc = EasyMock.createNiceControl();
+        IMocksControl mc = createNiceControl();
         Provisioning provisioning = mc.createMock(Provisioning.class);
-        
-        EasyMock.anyObject();
+
+        anyObject();
         provisioning.delete(null);
         mc.andReturn(results).anyTimes();
-        
-        EasyMock.anyObject();
+
+        anyObject();
         provisioning.create(null);
         mc.andReturn(results).anyTimes();
-        
-        EasyMock.anyObject();
+
+        anyObject();
         provisioning.set(null);
         mc.andReturn(results).anyTimes();
-        
-        EasyMock.anyObject();
+
+        anyObject();
         provisioning.get(null);
         mc.andReturn(results).anyTimes();
-        
+
         mc.replay();
 
         XmlRpcSettings xmlRpc = new XmlRpcSettings(provisioning);
