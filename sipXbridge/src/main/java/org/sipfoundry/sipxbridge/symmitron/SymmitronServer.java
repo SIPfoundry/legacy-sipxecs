@@ -476,10 +476,6 @@ public class SymmitronServer implements Symmitron {
             KeepaliveMethod method = KeepaliveMethod.valueOfString(keepaliveMethod);
             transmitter.setMaxSilence(keepAliveTime, method);
 
-            byte[] keepAliveBytes = null;
-
-            transmitter.setKeepalivePayload(keepAliveBytes);
-
             if (sym.getTransmitter() == null) {
                 sym.setTransmitter(transmitter);
             }

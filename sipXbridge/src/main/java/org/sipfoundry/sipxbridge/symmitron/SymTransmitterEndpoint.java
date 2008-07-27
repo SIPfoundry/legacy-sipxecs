@@ -27,7 +27,7 @@ final class SymTransmitterEndpoint extends SymEndpoint implements SymTransmitter
 
     private long lastPacketSentTime;
 
-    private transient byte[] keepalivePayload = null;
+  //  private transient byte[] keepalivePayload = null;
 
     private ByteBuffer keepAliveBuffer = null;
 
@@ -87,10 +87,11 @@ final class SymTransmitterEndpoint extends SymEndpoint implements SymTransmitter
                         datagramChannel.send(emptyBuffer, getSocketAddress());
                     }
 
-                } else if (keepaliveMethod.equals(KeepaliveMethod.REPLAY_LAST_SENT_PACKET)) {
+                } else if (keepaliveMethod.equals(KeepaliveMethod.REPLAY_LAST_SENT_PACKET)
+                    || keepaliveMethod.equals(KeepaliveMethod.USE_DUMMY_RTP_PAYLOAD)) {
                     if (keepAliveBuffer != null && datagramChannel != null
-                            && getSocketAddress() != null && datagramChannel.isOpen()
-                            && getSocketAddress() != null) {
+                            && getSocketAddress() != null && datagramChannel.isOpen()) {
+                        logger.debug("Sending keepalive");
                         lastPacketSentTime = now;
                         datagramChannel.send((ByteBuffer) keepAliveBuffer, getSocketAddress());
 
@@ -110,15 +111,7 @@ final class SymTransmitterEndpoint extends SymEndpoint implements SymTransmitter
     }
     
     
-    private static byte[] createDummyRtpPacket() {
-        
-        byte[] octets = new byte[32];
-        // Fill in static RTP header bytes
-        octets[0] = (byte) 0x80; // V=2, CC=0
-        octets[1] = (byte) 19; // M=0, unknown payload type(uLaw)
-        return octets;
-
-    }
+   
 
     private static boolean isPacketSelfRouted(InetAddress destination, int port) {
         try {
@@ -142,12 +135,13 @@ final class SymTransmitterEndpoint extends SymEndpoint implements SymTransmitter
 
     private void startKeepaliveTimer() {
 
-        logger.debug("startEarlyMediaThread " + this.toString());
-        if (earlyMediaStarted)
+        if (earlyMediaStarted) {
             return;
+        }
+        logger.debug("startEarlyMediaThread " + this.toString());
         this.earlyMediaStarted = true;
         this.keepaliveTimerTask = new KeepaliveTimerTask();
-        SymmitronServer.timer.schedule(this.keepaliveTimerTask, this.maxSilence,
+        SymmitronServer.timer.schedule(this.keepaliveTimerTask, 0,
                 this.maxSilence);
 
     }
@@ -208,22 +202,16 @@ final class SymTransmitterEndpoint extends SymEndpoint implements SymTransmitter
         }
         this.maxSilence = maxSilence;
         this.keepaliveMethod = keepaliveMethod;
-        if (keepaliveMethod == KeepaliveMethod.USE_DUMMY_RTP_PAYLOAD) {
-            this.keepalivePayload = createDummyRtpPacket();       
+        if (keepaliveMethod == KeepaliveMethod.USE_DUMMY_RTP_PAYLOAD ||
+                keepaliveMethod == KeepaliveMethod.REPLAY_LAST_SENT_PACKET) {
+            this.keepAliveBuffer = DummyRtpPacket.createDummyRtpPacket();       
         }
         if (maxSilence != 0 && !keepaliveMethod.equals(KeepaliveMethod.NONE)) {
             this.startKeepaliveTimer();
         }
     }
 
-    public void setKeepalivePayload(byte[] keepAlivePacketData) {
-        this.keepalivePayload = keepAlivePacketData;
-
-    }
-
-    public byte[] getKeepalivePayload() {
-        return this.keepalivePayload;
-    }
+ 
 
     public void stopKeepalive() {
         if (this.keepaliveTimerTask != null)
