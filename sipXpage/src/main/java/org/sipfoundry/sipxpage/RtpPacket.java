@@ -34,6 +34,22 @@ public class RtpPacket implements Comparable<RtpPacket>
       return packet ;
    }
    
+   public int hashCode()
+   {
+	   return (int)sequenceNumber;
+   }
+   
+   public boolean equals(Object a)
+   {
+	   try {
+		   RtpPacket r = (RtpPacket)a;
+		   return r.sequenceNumber == sequenceNumber;
+	   } catch (Throwable t) {
+		   // Anything goes wrong (most likely Cast Class Exception)
+		   return false ;
+	   }
+   }
+   
    public int compareTo(RtpPacket a)
    {
       return RtpPacket.compareSequence(sequenceNumber, a.getSequenceNumber()) ;

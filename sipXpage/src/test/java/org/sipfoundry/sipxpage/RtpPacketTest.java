@@ -1,6 +1,8 @@
 package sipxpage;
 
 import java.net.DatagramPacket;
+import java.util.PriorityQueue;
+import java.util.Queue;
 
 import junit.framework.TestCase;
 
@@ -32,6 +34,34 @@ public class RtpPacketTest extends TestCase
    }
 
 
+   public void testEquals()
+   {
+      byte[] octets = new byte[10] ;
+      DatagramPacket p = new DatagramPacket(octets,10) ;
+      RtpPacket a, b;
+
+      long sequenceNumber = 0L ;
+      setSequenceNumber(p, sequenceNumber) ;
+      a = new RtpPacket(p) ;
+      boolean e = a.equals(a);
+      assertTrue(e);
+
+      sequenceNumber = 42L ;
+      setSequenceNumber(p, sequenceNumber) ;
+      b = new RtpPacket(p) ;
+      
+      e = a.equals(b);
+      assertFalse(e) ;
+
+      sequenceNumber = 0L ;
+      setSequenceNumber(p, sequenceNumber) ;
+      b = new RtpPacket(p) ;
+      
+      e = a.equals(b);
+      assertTrue(e) ;
+
+   }
+   
    public void testCompareTo()
    {
       byte[] octets = new byte[10] ;
@@ -90,5 +120,38 @@ public class RtpPacketTest extends TestCase
          assertEquals(1, b.compareTo(a)) ; 
          assertEquals(-1, b.compareTo(c)) ; 
       }
+   }
+
+public void testQueue() {
+      byte[] octets = new byte[10] ;
+      DatagramPacket p = new DatagramPacket(octets,10) ;
+      RtpPacket a, b, c, d ;
+
+      long sequenceNumber = 42L ;
+      setSequenceNumber(p, sequenceNumber) ;
+      a = new RtpPacket(p) ;
+
+      sequenceNumber = 43L ;
+      setSequenceNumber(p, sequenceNumber) ;
+      b = new RtpPacket(p) ;
+
+      sequenceNumber = 42L ;
+      setSequenceNumber(p, sequenceNumber) ;
+      c = new RtpPacket(p) ;
+
+      sequenceNumber = 44L ;
+      setSequenceNumber(p, sequenceNumber) ;
+      d = new RtpPacket(p) ;
+
+      Queue<RtpPacket> q = new PriorityQueue<RtpPacket>();
+      q.add(a);
+      q.add(b);
+      
+      assertTrue(q.contains(a));
+      assertTrue(q.contains(b));
+      assertTrue(q.contains(c));
+      assertFalse(q.contains(d));
+      assertTrue(q.remove(c));
+      assertFalse(q.remove(a));
    }
 }

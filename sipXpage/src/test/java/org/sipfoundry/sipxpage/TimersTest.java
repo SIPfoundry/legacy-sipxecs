@@ -1,5 +1,6 @@
 package sipxpage;
 
+import java.util.Properties;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
@@ -7,6 +8,7 @@ import junit.framework.TestCase;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.apache.log4j.PropertyConfigurator;
 
 public class TimersTest extends TestCase
 {
@@ -38,6 +40,14 @@ public class TimersTest extends TestCase
  
    public void setUp()
    {
+       Properties props = new Properties();
+       props.setProperty("log4j.rootLogger", "debug, cons");
+       props.setProperty("log4j.appender.cons", "org.apache.log4j.ConsoleAppender");
+       props.setProperty("log4j.appender.cons.layout", "org.sipfoundry.commons.log4j.SipFoundryLayout");
+       props.setProperty("log4j.appender.cons.layout.facility", "sipXpage");
+
+       PropertyConfigurator.configure(props);
+
       LOG.setLevel(Level.ALL) ;
       t = Timers.start(-1) ;
       legListener = new testListener(this) ;

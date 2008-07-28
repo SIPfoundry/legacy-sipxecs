@@ -32,6 +32,9 @@ public class Timers implements Runnable
    private Timers(int rhythm)
    {
       this.rhythm = rhythm ;
+
+      LOG.debug(String.format("Timers::Timers(%d)", rhythm)) ; 
+      timerQueue = new PriorityQueue<Timer>() ;
       
       if (rhythm > 0)
       {
@@ -44,7 +47,6 @@ public class Timers implements Runnable
          // fixedRate calling thread.  This allows the unitTest to call beat()
          // directly without interfearence from real time.
       }
-      timerQueue = new PriorityQueue<Timer>() ;
    }
    
    /**
@@ -206,7 +208,7 @@ public class Timers implements Runnable
     * @param mS in how many mS to fire the timer
     * @param legListener the listener that gets the event
     */
-   public static void addTimer(String timerName, int mS, LegListener legListener)
+   public static synchronized void addTimer(String timerName, int mS, LegListener legListener)
    {
       if (me != null)
       {
@@ -218,7 +220,7 @@ public class Timers implements Runnable
     * @param timerName remove this name from the timer list for legListener
     * @param legListener the listener that gets the event
     */
-   public static void removeTimer(String timerName, LegListener legListener)
+   public static synchronized void removeTimer(String timerName, LegListener legListener)
    {
       if (me != null)
       {

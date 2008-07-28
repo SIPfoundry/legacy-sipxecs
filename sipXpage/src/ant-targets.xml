@@ -31,6 +31,10 @@
   <property name="test.results.dir" value="${build.dir}/test-results" />
   <property name="test.classes.dir" value="${build.dir}/tests"/>
 
+  <!-- Default patterns for unittest naming schema -->
+  <patternset id="test.classes" includes="**/*Test.class" /> 
+
+
   <!--
     - Use this variable when copying anything at install time.
     -   Example: tofile="${dest.dir}${lib.dir}/myfile"
