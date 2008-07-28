@@ -5,7 +5,10 @@
  */
 package org.sipfoundry.commons.util;
 
-import java.lang.reflect.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * Load the specified sipXcommons native library.
@@ -14,21 +17,21 @@ import java.lang.reflect.*;
  * @author Mardy Marshall
  */
 public class LibraryLoader {
-    static final String sipXcommons = "sipXcommons";
+    static final String sipxcommons = "sipxcommons";
 
     public static void loadLibrary(String libname) throws UnsatisfiedLinkError {
-        String sipXcommonsClassPath = null;
+        String sipXcommonsJarPath = null;
         String absoluteLibPath = null;
+        String mappedLibName = System.mapLibraryName(libname);
+        FileOutputStream fileOutputStream = null;
+        InputStream inputStream = null;
+        String libraryFile = null;
 
         try {
-            // First attempt to simply load the library.
             System.loadLibrary(libname);
         } catch (UnsatisfiedLinkError e1) {
-            // Since it threw an exception, try to see if the library is listed in
-            // the classpath. If it is, then try to load the library directly. If
-            // not, then update the native library path to include the sipXcommons
-            // directory and try again. To determine the path, parse the
-            // "java.class.path" and search for sipXcommons.
+            // First see if the library is listed in the classpath. If it is, then
+            // try to load the library directly.
             String javaClassPaths = System.getProperty("java.class.path");
             if (javaClassPaths != null) {
                 String pathSeparator = System.getProperty("path.separator");
@@ -37,7 +40,7 @@ public class LibraryLoader {
                 }
                 String javaClassPathList[] = javaClassPaths.split(pathSeparator);
                 for (int i = 0; i < javaClassPathList.length; i++) {
-                    if (javaClassPathList[i].contains(libname)) {
+                    if (javaClassPathList[i].contains(mappedLibName)) {
                         absoluteLibPath = javaClassPathList[i];
                         break;
                     }
@@ -58,48 +61,59 @@ public class LibraryLoader {
                     }
                 }
 
-                // Direct loading of the library didn't work so update the library path.
+                // Direct loading of the library didn't work so try loading from the directory
+                // where the sipxcommons.jar file resides. If the library is not found, then
+                // try extracting the library from the sipxcommons.jar file and then loading.
                 for (int i = 0; i < javaClassPathList.length; i++) {
-                    if (javaClassPathList[i].contains(sipXcommons)) {
-                        sipXcommonsClassPath = javaClassPathList[i].substring(0, javaClassPathList[i].indexOf(sipXcommons) + sipXcommons.length());
+                    if (javaClassPathList[i].contains(sipxcommons) && javaClassPathList[i].contains(".jar")) {
+                        sipXcommonsJarPath = javaClassPathList[i].substring(0, javaClassPathList[i].indexOf(sipxcommons));
                         break;
                     }
                 }
 
-                if (sipXcommonsClassPath == null) {
+                if (sipXcommonsJarPath == null) {
                     throw new UnsatisfiedLinkError("Failed to determine sipXcommons library path");
                 }
 
-                // Now that the sipXcommons class path has been determined, add it
-                // to the default class loaders "user_paths" field.
-                try {
-                    // Get a copy of the user_paths field.
-                    Field user_paths_field = ClassLoader.class.getDeclaredField("usr_paths");
-                    user_paths_field.setAccessible(true);
-                    String[] user_paths_copy = (String[]) user_paths_field.get(null);
-                    // Scan it to see if the sipXcommons path is already included.
-                    for (int i = 0; i < user_paths_copy.length; i++) {
-                        if (sipXcommonsClassPath.equals(user_paths_copy[i])) {
-                            // If it is, no sense going any further.
-                            throw new UnsatisfiedLinkError("Failed to load library: " + libname);
+                libraryFile = sipXcommonsJarPath + mappedLibName;
+                File file = new File(libraryFile);
+                if (!file.exists()) {
+                    try {
+                        inputStream = LibraryLoader.class.getResourceAsStream("/" + mappedLibName);
+                        if (inputStream != null) {
+                            int read;
+                            byte[] buffer = new byte[4096];
+                            fileOutputStream = new FileOutputStream(libraryFile);
+                            while ((read = inputStream.read(buffer)) != -1) {
+                                fileOutputStream.write(buffer, 0, read);
+                            }
+                            fileOutputStream.close();
+                            inputStream.close();
+                        }
+                    } catch (Throwable e) {
+                        try {
+                            if (fileOutputStream != null) {
+                                fileOutputStream.close();
+                            }
+                        } catch (IOException e2) {
+                        }
+                        try {
+                            if (inputStream != null) {
+                                inputStream.close();
+                            }
+                        } catch (IOException e2) {
                         }
                     }
-                    // Append the sipXcommons path and update the user_paths field.
-                    String[] updated_user_paths = new String[user_paths_copy.length + 1];
-                    System.arraycopy(user_paths_copy, 0, updated_user_paths, 0, user_paths_copy.length);
-                    updated_user_paths[user_paths_copy.length] = sipXcommonsClassPath;
-                    user_paths_field.set(null, updated_user_paths);
-                } catch (IllegalAccessException e2) {
-                    throw new UnsatisfiedLinkError("Failed to get permissions to set library path");
-                } catch (NoSuchFieldException e3) {
-                    throw new UnsatisfiedLinkError("Failed to get field handle to set library path");
                 }
+
+                // Now try loading.
                 try {
-                    System.loadLibrary(libname);
+                    System.load(libraryFile);
                 } catch (UnsatisfiedLinkError e4) {
-                    throw new UnsatisfiedLinkError("Failed to load library: " + libname);
+                    throw new UnsatisfiedLinkError("Failed to load library: " + mappedLibName);
                 } catch (SecurityException e5) {
-                    throw new UnsatisfiedLinkError("Security error: checkLink method doesn't allow loading of the specified dynamic library");
+                    throw new UnsatisfiedLinkError(
+                            "Security error: checkLink method doesn't allow loading of the specified dynamic library");
                 }
             }
         }

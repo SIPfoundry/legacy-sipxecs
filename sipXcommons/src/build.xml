@@ -7,7 +7,7 @@
   <property file="${top.build.dir}/config.properties"/>
 
   <property name="top.build.dir" value="${basedir}/.."/>
-  <property name="build.dir" value="${top.build.dir}/sipxcommons"/>
+  <property name="build.dir" value="${top.build.dir}"/>
 
   <property name="src.dir" value="src" />
   <property name="classes.dir" value="${build.dir}/classes" />
@@ -31,16 +31,15 @@
   <!-- JiBX binding compiler task definition -->
   <taskdef name="jibx-bind" classname="org.jibx.binding.ant.CompileTask">
     <classpath>
-       <fileset file="${jibx-bind.jar}"/>
-       <fileset file="${jibx-run.jar}"/>
-       <fileset file="${xpp3.jar}"/>
-       <fileset file="${bcel.jar}"/>
+      <fileset file="${jibx-bind.jar}"/>
+      <fileset file="${jibx-run.jar}"/>
+      <fileset file="${xpp3.jar}"/>
+      <fileset file="${bcel.jar}"/>
     </classpath>
   </taskdef>
 
   <!-- I N I T - Create output directories. -->
   <target name="init" description="create standard output directories">
-    <echo>entering ${ant.project.name}</echo>
     <mkdir dir="${build.dir}" />
     <mkdir dir="${classes.dir}" />
     <mkdir dir="${dist.dir}" />
@@ -52,31 +51,31 @@
   <!-- C O M P I L E -->
   <target name="compile" depends="init" description="Compile all files in src directory">
     <javac srcdir="${src.dir}/src/main/java"
-        destdir="${classes.dir}"
-        classpathref="base.path"
-        debug="${debug}"
-        deprecation="${deprecation}"
-        optimize="${optimize}"
-        includes="**/*.java"
-        source="1.5"
-        target="1.5"/>
+           destdir="${classes.dir}"
+           classpathref="base.path"
+           debug="${debug}"
+           deprecation="${deprecation}"
+           optimize="${optimize}"
+           includes="**/*.java"
+           source="1.5"
+           target="1.5"/>
   </target>
 
   <!-- C O M P I L E  T E S T S -->
   <target name="compile.test" depends="xml-bind,compile,jni,init" description="Compile unit tests">
     <javac srcdir="${src.dir}/src/test/java"
-       destdir="${test.classes.dir}"
-       classpathref="base.path"
-       debug="${debug}"
-       deprecation="on"
-       optimize="${optimize}"
-       includes="**/*.java"
-       excludes="**/PingerTest.java"
-       source="1.5"
-       target="1.5">
-       <classpath>
-         <pathelement path="${classes.dir}"/>
-       </classpath>
+           destdir="${test.classes.dir}"
+           classpathref="base.path"
+           debug="${debug}"
+           deprecation="on"
+           optimize="${optimize}"
+           includes="**/*.java"
+           excludes="**/PingerTest.java"
+           source="1.5"
+           target="1.5">
+           <classpath>
+             <pathelement path="${classes.dir}"/>
+           </classpath>
     </javac>
   </target>
 
@@ -157,15 +156,15 @@
     <delete dir="${dest.dir}${sipxcommons.dir}"/>
     <mkdir dir="${dest.dir}${sipxcommons.dir}"/>
     <copy todir="${dest.dir}${sipxcommons.dir}">
-       <fileset file="${build.dir}/dist/*.jar"/>
-       <fileset file="${build.dir}/dist/*.so"/>
-       <fileset file="${JainSip.jar}"/>
-       <fileset file="${dnsjava.jar}"/>
-       <fileset file="${junit.jar}"/>
-       <fileset file="${log4j.jar}"/>
-       <fileset file="${cpptasks.jar}"/>
-       <fileset file="${src.dir}/lib/ArpTable.dll"/>
-       <fileset file="${src.dir}/lib/rocksaw.dll"/>
+      <fileset file="${build.dir}/dist/*.jar"/>
+      <fileset file="${build.dir}/dist/*.so"/>
+      <fileset file="${JainSip.jar}"/>
+      <fileset file="${dnsjava.jar}"/>
+      <fileset file="${junit.jar}"/>
+      <fileset file="${log4j.jar}"/>
+      <fileset file="${cpptasks.jar}"/>
+      <fileset file="${src.dir}/lib/ArpTable.dll"/>
+      <fileset file="${src.dir}/lib/rocksaw.dll"/>
     </copy>
   </target>
     
