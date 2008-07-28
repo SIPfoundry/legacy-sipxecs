@@ -77,10 +77,16 @@ do
                     current|none|all)
                         :
                         ;;
+                    [1-9]*)
+                        if ! expr ${Logs} : '[1-9][0-9]*$' >/dev/null
+                        then
+                            echo "invalid selector for ${1}: '${2}'" 1>&2
+                            Action=USAGE
+                        fi
+                        ;;
                     *)
                         echo "invalid selector for ${1}: '${2}'" 1>&2
                         Action=USAGE
-                        break
                         ;;
                 esac
             fi
@@ -224,7 +230,7 @@ Usage:
 
     sipx-snapshot [ --include-secrets | -c  | --credentials ]
                   [ -nw | --no-www ]
-                  [ -l  | --logs {current|all|none} ]
+                  [ -l  | --logs {current|all|nnn|none} ]
                   [ --log-start <date-time> [ --log-stop <date-time> ]]
                   [ --core <core-file> ] ...
                   [ --file <file-name> ] ...
@@ -266,6 +272,7 @@ Usage:
     The --logs switch selects which logs are saved:
                current - saves all the current logs (not those saved by logrotate)
                all     - saves all logs in the sipx log directory (large!)
+               nnn     - saves all logs from the specified set of past logs
                none    - does not include any logs (not recommended)
 
     The --log-start and --log-stop switches allow you to limit the log file
@@ -381,6 +388,14 @@ case ${Logs} in
         do
           echo $log >> $Work.copy-files
         done
+        ;;
+    [1-9]*)
+        if ! ls -1 @SIPX_LOGDIR@/*log.${Logs}{,.gz} 2>/dev/null |
+             grep '.' >> $Work.copy-files
+        then
+            echo "Can't find any log files for past day ${Logs}:" >&2
+            echo "    @SIPX_LOGDIR@/*log.${Logs}{,.gz}: No such file or directory" >&2
+        fi
         ;;
     all)
         for log in @SIPX_LOGDIR@/*log  @SIPX_LOGDIR@/*log.*
