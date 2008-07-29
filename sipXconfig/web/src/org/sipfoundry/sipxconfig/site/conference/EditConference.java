@@ -60,7 +60,7 @@ public abstract class EditConference extends PageWithCallback implements PageBeg
     public abstract void setConferenceId(Serializable id);
 
     public abstract Conference getConference();
-    public abstract void setConference(Conference acdServer);
+    public abstract void setConference(Conference conference);
 
     public abstract boolean getChanged();
 
@@ -84,25 +84,32 @@ public abstract class EditConference extends PageWithCallback implements PageBeg
     public abstract void setTab(String tab);
 
     public void pageBeginRender(PageEvent event_) {
-        if (getConference() != null) {
-            setBridge(getConference().getBridge());
-            return;
+        if (!getRequestCycle().isRewinding() && getSelectedUsers() == null) {
+            setConference(null);
         }
-        Conference conference = null;
-        if (getConferenceId() != null) {
-            conference = getConferenceBridgeContext().loadConference(getConferenceId());
-        } else {
-            conference = getConferenceBridgeContext().newConference();
-            if (getOwnerId() != null) {
-                conference.setOwner(getCoreContext().loadUser(getOwnerId()));
+        
+        Conference conference = getConference();
+        if (conference == null) {
+            if (getConferenceId() != null) {
+                conference = getConferenceBridgeContext().loadConference(getConferenceId());
+            } else {
+                conference = getConferenceBridgeContext().newConference();
+                if (getOwnerId() != null) {
+                    conference.setOwner(getCoreContext().loadUser(getOwnerId()));
+                }
             }
         }
 
-        if (getBridge() == null && getBridgeId() != null) {
-            setBridge(getConferenceBridgeContext().loadBridge(getBridgeId()));
+        Bridge bridge = getBridge();
+        if (bridge == null && conference != null) {
+            bridge = conference.getBridge();
+        }
+        if (bridge == null && getBridgeId() != null) {
+            bridge = getConferenceBridgeContext().loadBridge(getBridgeId());
         }
         
         setConference(conference);
+        setBridge(bridge);
         
         UserSession currentUser = getUserSession();
         if (!isAuthorized(currentUser, conference)) {

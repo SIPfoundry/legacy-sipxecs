@@ -33,6 +33,29 @@ public class EditConferenceTestUi extends WebTestCase {
         m_helper.createBridge("testbridge");
     }
 
+    public void testSetOwner() {
+        SiteTestHelper.home(tester);
+        clickLink("ListBridges");
+        clickLinkWithText("testbridge");
+        clickLink("link:conferences");
+        SiteTestHelper.clickSubmitLink(tester, "conference:add");
+        checkCheckbox("item:enabled");
+        setTextField("item:name", "OwnerTestConf");
+        setTextField("item:extension", "9999");
+        setTextField("item:description", "test description 123");
+        setTextField("setting:participant-code", "12345");
+        clickButton("assign");
+        clickButton("user:search");
+        checkCheckbox("checkbox");
+        clickButton("user:select");
+        
+        // Make sure we didn't lose all the settings
+        assertTextFieldEquals("item:name", "OwnerTestConf");
+        assertTextFieldEquals("item:extension", "9999");
+        assertTextFieldEquals("item:description", "test description 123");
+        assertTextFieldEquals("setting:participant-code", "12345");
+    }
+    
     /**
      * Tests adding a conference from a User Conferences page.
      * This Edit Conference page should have an owner assigned, and should
