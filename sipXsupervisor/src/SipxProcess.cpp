@@ -514,18 +514,26 @@ SipxProcess* SipxProcess::createFromDefinition(const OsPath& definitionFile)
                   
                   if (definitionValid)
                   {
+                     process->mState = Disabled;
+
+                     SipxProcessManager::getInstance()->save(process);
+
                      process->readPersistentState();
-                     process->readConfigurationVersion();
 
-                     if (Undefined == process->mDesiredState)
                      {
-                        process->mDesiredState = Disabled; // processes are assumed to be disabled.
-                        process->persistDesiredState();
-
-                        process->mState = Disabled; // nothing more need be done when disabled.
-
-                        SipxProcessManager::getInstance()->save(process);
-                     }
+                        OsLock mutex(process->mLock);
+                        /*
+                         * Now that the SipxProcessManager could return this, locking is
+                         * important.  Both persistDesiredState and readConfigurationVersion
+                         * require that the lock be held.
+                         */
+                        if (Undefined == process->mDesiredState)
+                        {
+                           process->mDesiredState = Disabled; // default is disabled.
+                           process->persistDesiredState();
+                        }
+                        process->readConfigurationVersion();
+                     } // end lock
                   }
                   else
                   {
