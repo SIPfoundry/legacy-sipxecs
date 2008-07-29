@@ -154,7 +154,7 @@ export QA_RPATHS=$[ 0x0001|0x0002 ]
 PASSTHRU_CODEC_MODULES="codecs/mod_g729 codecs/mod_g723_1 codecs/mod_amr"
 SPIDERMONKEY_MODULES="languages/mod_spidermonkey languages/mod_spidermonkey_curl languages/mod_spidermonkey_core_db languages/mod_spidermonkey_odbc languages/mod_spidermonkey_socket languages/mod_spidermonkey_teletone"
 APPLICATIONS_MODULES="applications/mod_commands applications/mod_conference applications/mod_dptools applications/mod_enum applications/mod_esf applications/mod_expr applications/mod_fifo applications/mod_limit applications/mod_rss applications/mod_voicemail applications/mod_fsv"
-ASR_TTS_MODULES="asr_tts/mod_openmrcp asr_tts/mod_pocketsphinx asr_tts/mod_flite"
+ASR_TTS_MODULES="asr_tts/mod_openmrcp"
 CODECS_MODULES="codecs/mod_ilbc codecs/mod_h26x codecs/mod_voipcodecs codecs/mod_speex"
 DIALPLANS_MODULES="dialplans/mod_dialplan_asterisk dialplans/mod_dialplan_directory dialplans/mod_dialplan_xml"
 DIRECTORIES_MODULES=
@@ -290,10 +290,6 @@ chkconfig --add freeswitch
 %dir %attr(0750, %{fs_user}, daemon) %{prefix}/conf/sip_profiles/internal
 %dir %attr(0750, %{fs_user}, daemon) %{prefix}/conf/sip_profiles/external
 %dir %attr(0750, %{fs_user}, daemon) %{prefix}/conf/jingle_profiles
-%dir %attr(0750, %{fs_user}, daemon) %{prefix}/grammar
-%dir %attr(0750, %{fs_user}, daemon) %{prefix}/grammar/model
-%dir %attr(0750, %{fs_user}, daemon) %{prefix}/grammar/model/communicator
-%dir %attr(0750, %{fs_user}, daemon) %{prefix}/grammar/model/wsj1
 %ifos linux
 %config(noreplace) %attr(0644, %{fs_user}, daemon) /etc/monit.d/freeswitch.monitrc
 %endif
@@ -302,7 +298,6 @@ chkconfig --add freeswitch
 %config(noreplace) %attr(0640, %{fs_user}, daemon) %{prefix}/conf/*.ttml
 %config(noreplace) %attr(0640, %{fs_user}, daemon) %{prefix}/conf/*.xml
 %config(noreplace) %attr(0640, %{fs_user}, daemon) %{prefix}/conf/*.conf
-%config(noreplace) %attr(0640, %{fs_user}, daemon) %{prefix}/conf/cmudict.0.6d
 %config(noreplace) %attr(0640, %{fs_user}, daemon) %{prefix}/conf/autoload_configs/acl.conf.xml
 %config(noreplace) %attr(0640, %{fs_user}, daemon) %{prefix}/conf/autoload_configs/alsa.conf.xml
 %config(noreplace) %attr(0640, %{fs_user}, daemon) %{prefix}/conf/autoload_configs/conference.conf.xml
@@ -321,7 +316,7 @@ chkconfig --add freeswitch
 %config(noreplace) %attr(0640, %{fs_user}, daemon) %{prefix}/conf/autoload_configs/logfile.conf.xml
 %config(noreplace) %attr(0640, %{fs_user}, daemon) %{prefix}/conf/autoload_configs/modules.conf.xml
 %config(noreplace) %attr(0640, %{fs_user}, daemon) %{prefix}/conf/autoload_configs/openmrcp.conf.xml
-%config(noreplace) %attr(0640, %{fs_user}, daemon) %{prefix}/conf/autoload_configs/pocketsphinx.conf.xml
+%config(noreplace) %attr(0640, freeswitch, daemon) %{prefix}/conf/autoload_configs/pocketsphinx.conf.xml
 %config(noreplace) %attr(0640, %{fs_user}, daemon) %{prefix}/conf/autoload_configs/portaudio.conf.xml
 %config(noreplace) %attr(0640, %{fs_user}, daemon) %{prefix}/conf/autoload_configs/post_load_modules.conf.xml
 %config(noreplace) %attr(0640, %{fs_user}, daemon) %{prefix}/conf/autoload_configs/python.conf.xml
@@ -346,9 +341,6 @@ chkconfig --add freeswitch
 %config(noreplace) %attr(0640, %{fs_user}, daemon) %{prefix}/conf/sip_profiles/external/*.xml
 %config(noreplace) %attr(0640, %{fs_user}, daemon) %{prefix}/conf/sip_profiles/nat/*.xml
 %config(noreplace) %attr(0640, %{fs_user}, daemon) %{prefix}/conf/jingle_profiles/*.xml
-%config(noreplace) %attr(0640, %{fs_user}, daemon) %{prefix}/grammar/Makefile
-%config(noreplace) %attr(0640, %{fs_user}, daemon) %{prefix}/grammar/model/communicator/*
-%config(noreplace) %attr(0640, %{fs_user}, daemon) %{prefix}/grammar/model/wsj1/*
 %config(noreplace) %attr(0640, %{fs_user}, daemon) %{prefix}/htdocs/*
 %ifos linux
 /etc/ld.so.conf.d/*
@@ -374,7 +366,6 @@ chkconfig --add freeswitch
 %{prefix}/mod/mod_rss.so*
 %{prefix}/mod/mod_voicemail.so*
 %{prefix}/mod/mod_openmrcp.so*
-%{prefix}/mod/mod_pocketsphinx.so*
 %{prefix}/mod/mod_flite.so*
 %{prefix}/mod/mod_ilbc.so* 
 %{prefix}/mod/mod_h26x.so*
