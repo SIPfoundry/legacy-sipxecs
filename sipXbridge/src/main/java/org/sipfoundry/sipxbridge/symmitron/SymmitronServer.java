@@ -221,6 +221,7 @@ public class SymmitronServer implements Symmitron {
 
             XmlRpcServerConfigImpl serverConfig = new XmlRpcServerConfigImpl();
             serverConfig.setKeepAliveEnabled(true);
+            serverConfig.setEnabledForExceptions(true);
 
             server.setConfig(serverConfig);
             server.setHandlerMapping(handlerMapping);

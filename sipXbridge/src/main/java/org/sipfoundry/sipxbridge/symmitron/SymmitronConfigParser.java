@@ -45,13 +45,18 @@ public class SymmitronConfigParser {
                 "useSTUN"), "setUseStun", 0, new Class[] {
                     Boolean.class
                 });
+        digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG, "rediscovery-time"),
+                "setRediscoveryTime", 0, new Class[] {
+                    Integer.class
+                });
+        
         digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG, "port-range"),
                 "setPortRange", 0);
         digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG, "stun-server-address"),
                 "setStunServerAddress", 0);
         digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG, "publicaddress"),
                 "setPublicAddress", 0);
-        digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG, "mediarelaypublicaddress"),
+        digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG, "mediarelayexternaladdress"),
                 "setExternalAddress", 0);
         digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG, "mediarelaynativeaddress"),
                 "setLocalAddress", 0);

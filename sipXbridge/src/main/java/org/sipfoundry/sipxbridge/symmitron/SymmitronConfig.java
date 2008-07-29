@@ -101,7 +101,12 @@ public class SymmitronConfig {
     }
 
     public String getExternalAddress() {
-        return externalAddress;
+        /* If external address defined - return it */
+        if ( externalAddress != null ) {
+            return externalAddress;
+        } else {
+            return this.localAddress;
+        }
     }
 
     public void setExternalAddress(String externalAddress) {
