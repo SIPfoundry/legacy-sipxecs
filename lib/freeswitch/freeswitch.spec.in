@@ -366,7 +366,6 @@ chkconfig --add freeswitch
 %{prefix}/mod/mod_rss.so*
 %{prefix}/mod/mod_voicemail.so*
 %{prefix}/mod/mod_openmrcp.so*
-%{prefix}/mod/mod_flite.so*
 %{prefix}/mod/mod_ilbc.so* 
 %{prefix}/mod/mod_h26x.so*
 %{prefix}/mod/mod_voipcodecs.so* 
