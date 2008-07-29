@@ -1,0 +1,46 @@
+
+This list is the authoritative record of what ports are reserved by sipXecs components.
+All ports are assumed to be both UDP and TCP (even where the component only uses one of them).
+
+Please maintain this list sorted by port number.
+
+Port    Component         Use
+
+
+5060    sipXproxy         SIP
+5061    sipXproxy         SIP/TLS
+
+5070    sipXregistrar     SIP
+5071    sipXregistrar     SIP/TLS
+5075    sipXregistrar     SIP registration event sending
+
+5100    sipXvxml          SIP
+5101    sipXvxml          SIP/TLS
+
+5110    sipXpublisher     SIP
+5111    sipXpublisher     SIP/TLS
+
+5120    sipXpark          SIP
+5121    sipXpark          SIP/TLS
+
+5130    sipXpresence      SIP
+
+5140    sipXrls           SIP
+5141    sipXrls           SIP/TLS
+
+5160    sipXpage          SIP
+5161    sipXpage          SIP/TLS
+
+8090    sipXconfig        HTTP 
+8091    sipXconfig        HTTPS
+
+8100    sipXpublisher     HTTP (voicemail store interface)
+8101    sipXpublisher     HTTPS (voicemail store interface)
+
+8110    sipXacd           XML-RPC/HTTPS provisioning
+
+8111    sipXpresence      HTTP
+
+8130    sipXconfig        call resolver remote data
+8443    sipXconfig        SSL web UI
+
