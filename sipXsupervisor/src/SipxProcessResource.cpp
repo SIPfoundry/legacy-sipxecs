@@ -56,8 +56,9 @@ bool SipxProcessResource::parse(const TiXmlDocument& processDefinitionDoc, ///< 
          SipxProcessResource* processResource;
          if (!(processResource = processResourceMgr->find(processName)))
          {
-            processResource = new SipxProcessResource(processName, NULL);
+            processResource = new SipxProcessResource(processName);
          }
+         // do not register this resource as used by itself
 
          for ( const TiXmlAttribute* attribute = resourceElement->FirstAttribute();
                resourceIsValid && attribute;
@@ -152,8 +153,8 @@ UtlContainableType SipxProcessResource::getContainableType() const
 }
 
 /// constructor
-SipxProcessResource::SipxProcessResource(const char* uniqueId, SipxProcess* currentProcess) :
-   SipxResource(uniqueId, currentProcess)
+SipxProcessResource::SipxProcessResource(const char* uniqueId) :
+   SipxResource(uniqueId)
 {
    mWritable=false;
 }

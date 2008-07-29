@@ -146,20 +146,25 @@ UtlContainableType SipxResource::getContainableType() const
 }
 
 /// constructor
-SipxResource::SipxResource(const char* uniqueId, SipxProcess* currentProcess) :
+SipxResource::SipxResource(const char* uniqueId) :
    UtlString(uniqueId),
    mFirstDefinition(true),
    mWritableImplicit(true),
    mWritable(false)
 {
-   // when a SipxProcess creates its own SipxProcessResource, it passes NULL rather than require itself...
+}
+
+void SipxResource::usedBy(SipxProcess* currentProcess)
+{
+   /*
+    * When a SipxProcess creates its own SipxProcessResource,
+    * it passes NULL rather than require itself...
+    */
    if (currentProcess)
    {
       mUsedBy.append(currentProcess->resource());
       currentProcess->requireResource(this);
    }
-
-   
 }
 
 

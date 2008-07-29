@@ -86,7 +86,7 @@ class ImdbResource : public SipxResource
   protected:
    
    /// constructor
-   ImdbResource(const char* uniqueId, SipxProcess* currentProcess);
+   ImdbResource(const char* uniqueId);
 
    /// destructor
    virtual ~ImdbResource();

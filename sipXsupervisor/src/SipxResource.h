@@ -62,6 +62,10 @@ class SipxResource : public UtlString
    /// get a description of the SipxResource (for use in logging)
    virtual void appendDescription(UtlString&  description /**< returned description */) const;
    
+   /// record that a resource is used by a particular SipxProcess
+   void usedBy(SipxProcess* currentProcess);
+   
+
 // ================================================================
 /** @name           Status Operations
  *
@@ -108,7 +112,7 @@ class SipxResource : public UtlString
   protected:
    
    /// constructor
-   SipxResource(const char* uniqueId, SipxProcess* currentProcess);
+   SipxResource(const char* uniqueId);
 
    /// Parses attributes common to all SipxResource classes.
    bool parseAttribute(const TiXmlDocument& document,  ///< document being parsed (for error mess)
@@ -142,6 +146,7 @@ class SipxResource : public UtlString
    // @endcond     
 
    friend class SipxProcessDefinitionParserTest;
+   friend class SipxResourceUseTest;
 };
 
 #endif // _RESOURCE_H_

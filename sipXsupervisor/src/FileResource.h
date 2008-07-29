@@ -96,7 +96,7 @@ class FileResource : public SipxResource
   protected:
    
    /// constructor
-   FileResource(const char* uniqueId, SipxProcess* currentProcess);
+   FileResource(const char* uniqueId);
 
    /// destructor
    virtual ~FileResource();

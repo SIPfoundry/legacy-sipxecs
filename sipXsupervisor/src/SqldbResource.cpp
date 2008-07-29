@@ -52,9 +52,10 @@ bool SqldbResource::parse(const TiXmlDocument& sqldbDefinitionDoc, ///< sqldb de
          SqldbResource* sqldbResource;
          if (!(sqldbResource = sqldbResourceMgr->find(databaseName)))
          {
-            sqldbResource = new SqldbResource(databaseName, currentProcess);
+            sqldbResource = new SqldbResource(databaseName);
          }
-
+         sqldbResource->usedBy(currentProcess);
+         
          for ( const TiXmlAttribute* attribute = resourceElement->FirstAttribute();
                resourceIsValid && attribute;
                attribute = attribute->Next()
@@ -127,8 +128,8 @@ UtlContainableType SqldbResource::getContainableType() const
 }
 
 /// constructor
-SqldbResource::SqldbResource(const char* uniqueId, SipxProcess* currentProcess) :
-   SipxResource(uniqueId, currentProcess)
+SqldbResource::SqldbResource(const char* uniqueId) :
+   SipxResource(uniqueId)
 {
 }
 

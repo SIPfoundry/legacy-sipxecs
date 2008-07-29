@@ -375,6 +375,7 @@ class SipxProcess : public UtlString
    friend class SipxProcessDefinitionParserTest;
    friend class SipxProcessStateTest;
    friend class SipxProcessVersionTest;
+   friend class SipxResourceUseTest;
 };
 
 #endif // _PROCESS_H_

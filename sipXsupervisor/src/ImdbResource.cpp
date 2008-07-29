@@ -54,9 +54,10 @@ bool ImdbResource::parse(const TiXmlDocument& imdbDefinitionDoc, ///< imdb defin
          ImdbResource* imdbResource;
          if (!(imdbResource = imdbResourceMgr->find(tableName)))
          {
-            imdbResource = new ImdbResource(tableName, currentProcess);
+            imdbResource = new ImdbResource(tableName);
          }
-
+         imdbResource->usedBy(currentProcess);
+         
          for ( const TiXmlAttribute* attribute = resourceElement->FirstAttribute();
                resourceIsValid && attribute;
                attribute = attribute->Next()
@@ -136,8 +137,8 @@ UtlContainableType ImdbResource::getContainableType() const
 }
 
 /// constructor
-ImdbResource::ImdbResource(const char* uniqueId, SipxProcess* currentProcess) :
-   SipxResource(uniqueId, currentProcess),
+ImdbResource::ImdbResource(const char* uniqueId) :
+   SipxResource(uniqueId),
    mLock(OsBSem::Q_PRIORITY, OsBSem::FULL),
    mDatabase(NULL)
 {

@@ -85,7 +85,7 @@ class SqldbResource : public SipxResource
   protected:
    
    /// constructor
-   SqldbResource(const char* uniqueId, SipxProcess* currentProcess);
+   SqldbResource(const char* uniqueId);
 
    /// destructor
    virtual ~SqldbResource();

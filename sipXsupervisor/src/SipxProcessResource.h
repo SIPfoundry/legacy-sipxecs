@@ -104,7 +104,7 @@ class SipxProcessResource : public SipxResource
    friend class SipxProcess;
    
    /// constructor
-   SipxProcessResource(const char* uniqueId, SipxProcess* currentProcess);
+   SipxProcessResource(const char* uniqueId);
 
    /// destructor
    virtual ~SipxProcessResource();

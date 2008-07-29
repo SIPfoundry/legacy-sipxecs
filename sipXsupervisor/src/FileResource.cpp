@@ -54,8 +54,10 @@ bool FileResource::parse(const TiXmlDocument& fileDefinitionDoc, ///< process de
          FileResource* fileResource;
          if (!(fileResource = fileResourceMgr->find(path)))
          {
-            fileResource = new FileResource(path, currentProcess);
+            fileResource = new FileResource(path);
          }
+
+         fileResource->usedBy(currentProcess); 
 
          for ( const TiXmlAttribute* attribute = resourceElement->FirstAttribute();
                resourceIsValid && attribute;
@@ -82,7 +84,9 @@ bool FileResource::parse(const TiXmlDocument& fileDefinitionDoc, ///< process de
             }
             else
             {
+               currentProcess->resourceIsOptional(fileResource); // get off the required list
                delete fileResource;
+               fileResource = NULL;
             }
          }
       }
@@ -110,7 +114,8 @@ bool FileResource::parse(const TiXmlDocument& fileDefinitionDoc, ///< process de
 FileResource* FileResource::logFileResource(const UtlString& logFilePath, SipxProcess* currentProcess)
 {
    // a log file resource is read-only and not required
-   FileResource* logFile = new FileResource(logFilePath.data(), currentProcess);
+   FileResource* logFile = new FileResource(logFilePath.data());
+   logFile->usedBy(currentProcess);
    currentProcess->resourceIsOptional(logFile); // logs are never required 
    
    logFile->mWritableImplicit = false;
@@ -149,8 +154,8 @@ UtlContainableType FileResource::getContainableType() const
 }
 
 /// constructor
-FileResource::FileResource(const char* uniqueId, SipxProcess* currentProcess) :
-   SipxResource(uniqueId, currentProcess)
+FileResource::FileResource(const char* uniqueId) :
+   SipxResource(uniqueId)
 {
 }
 

@@ -19,7 +19,8 @@ testsuite_LDADD = \
 testsuite_SOURCES = \
     SipxProcessDefinitionParserTest.cpp \
 	 SipxProcessStateTest.cpp \
-	 SipxProcessVersionsTest.cpp
+	 SipxProcessVersionsTest.cpp \
+	 SipxResourceUseTest.cpp
 
 alarm_testsuite_CXXFLAGS = \
     -DTEST_DATA_DIR=\"@abs_top_srcdir@/src/test\" \
