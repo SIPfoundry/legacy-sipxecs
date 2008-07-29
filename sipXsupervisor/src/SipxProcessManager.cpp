@@ -100,7 +100,7 @@ void SipxProcessManager::instantiateProcesses(const OsPath& processDefinitionDir
 }
 
 // Fill in a map of process names and states (as UtlStrings)
-void SipxProcessManager::getAllProcessStates(UtlHashMap& processStates //< key->name, value->state string
+void SipxProcessManager::getProcessStateAll(UtlHashMap& processStates //< key->name, value->state string
                          )
 {
    processStates.destroyAll();

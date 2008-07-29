@@ -74,14 +74,9 @@ SipxProcess::SipxProcess(const UtlString& name, const UtlString& version, const 
    SipxProcessResourceManager* processResourceManager = SipxProcessResourceManager::getInstance();
    if (!(mSelfResource = processResourceManager->find(name.data())))
    {
-<<<<<<< HEAD:sipXsupervisor/src/SipxProcess.cpp
-      // No other SipxProcess has declared this one as a resource yet, so create the SipxProcessResource 
-      mSelfResource = new SipxProcessResource(name.data(), NULL);
-=======
       // No other SipxProcess has declared this one as a resource yet,
       // so create the SipxProcessResource 
       mSelfResource = new SipxProcessResource(name.data());
->>>>>>> 5359385... fix list of processes used by a resource that is shared:sipXsupervisor/src/SipxProcess.cpp
       processResourceManager->save(mSelfResource);
    }
    else

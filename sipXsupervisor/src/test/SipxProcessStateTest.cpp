@@ -126,7 +126,7 @@ public:
          testContext.setSipxDir(SipXecsService::VarDirType, "var");
 
          UtlHashMap status;
-         SipxProcessManager::getInstance()->getAllProcessStates(status);
+         SipxProcessManager::getInstance()->getProcessStateAll(status);
 
          size_t existingProcesses = status.entries();
 
@@ -163,7 +163,7 @@ public:
          CPPUNIT_ASSERT_EQUAL(SipxProcess::Running, process2->getState());
          CPPUNIT_ASSERT(process2->isEnabled());
 
-         SipxProcessManager::getInstance()->getAllProcessStates(status);
+         SipxProcessManager::getInstance()->getProcessStateAll(status);
 
          CPPUNIT_ASSERT_EQUAL(existingProcesses + 2U, status.entries());
          UtlString* statusValue;

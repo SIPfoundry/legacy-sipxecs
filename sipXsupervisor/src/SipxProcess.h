@@ -13,6 +13,7 @@
 #include "utl/UtlSList.h"
 #include "os/OsFS.h"
 #include "SipxProcessTask.h"
+#include "os/OsProcess.h"
 
 // DEFINES
 // CONSTANTS
@@ -341,6 +342,7 @@ class SipxProcess : public UtlString
    SipxProcessCmd*      mStop;          ///< from the sipXecs-process/commands/stop element
    SipxProcessCmd*      mReconfigure;   ///< from the sipXecs-process/commands/reconfigure element
 
+   OsProcess*       mpProcessInfo;  ///< object used to remember forked process's info
    UtlString        mPidFile;       ///< from the sipXecs-process/status/pid element
    UtlSList         mLogFiles;      /**< from the sipXecs-process/status/log elements
                                      *   this is a list of FileResource objects created using

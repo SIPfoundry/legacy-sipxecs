@@ -46,7 +46,7 @@ class SipxProcessManager
    void startProcesses();
 
    /// Fill in a map of process names and states (as UtlStrings)
-   void getAllProcessStates(UtlHashMap& processStates ///< key->name, value->state string
+   void getProcessStateAll(UtlHashMap& processStates ///< key->name, value->state string
                             );
    ///< @note The caller is responsible for destroying the map contents.
 
