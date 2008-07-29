@@ -1,8 +1,6 @@
-include $(top_srcdir)/config/subdir.am
-
 audio_path=@SIPX_VARDIR@/sipxpage/music
 
-EXTRA_DIST = \
+AUDIO_DIST = \
    attention.wav \
    fanfare.wav \
    fluffy.wav \
@@ -11,16 +9,13 @@ EXTRA_DIST = \
    reveille.wav \
    TadaTada.wav
 
-install-data-hook :
-       @for f in $(EXTRA_DIST) ; \
-       do \
-          target=`basename $$f` ; \
-          if [ -f $(DESTDIR)$(audio_path)/$$target ]; \
-          then \
-             echo "Using existing $(audio_path)/$$target"; \
-          else \
-             echo ""; echo "Installing default $(audio_path)/$$target"; \
-             echo "Using: $(srcdir)/$$f"; \
-             $(INSTALL) -D -m 644 $(srcdir)/$$f $(DESTDIR)$(audio_path)/$$target; \
-          fi; \
-       done
+EXTRA_DIST = \
+	$(AUDIO_DIST)
+
+install-data-hook : install-audio
+
+.PHONY: install-audio
+install-audio : $(foreach audio,$(AUDIO_DIST),$(DESTDIR)$(audio_path)/$(audio))
+
+$(foreach audio,$(AUDIO_DIST),$(DESTDIR)$(audio_path)/$(audio)) : $(DESTDIR)$(audio_path)/% : $(srcdir)/%
+	$(INSTALL) -D -m 644 $< $@
