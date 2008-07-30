@@ -441,7 +441,7 @@ chkconfig --add freeswitch
 %config(noreplace) %attr(0640, %{fs_user}, daemon) %{prefix}/conf/lang/en/*.xml
 %config(noreplace) %attr(0640, %{fs_user}, daemon) %{prefix}/conf/lang/en/demo/*.xml
 %config(noreplace) %attr(0640, %{fs_user}, daemon) %{prefix}/conf/lang/en/vm/*.xml
-%{prefix}/mod/mod_say_en.so*
+%{prefix}/mod/mod_say_*.so*
 
 %changelog
 * Thu May 22 2008 - michal.bielicki@voiceworks.pl
