@@ -63,7 +63,7 @@
       <noInputCount>2</noInputCount>
       <invalidResponseCount>2</invalidResponseCount>
       <transferOnFailures>true</transferOnFailures>
-      <transferUrl>999</transferUrl>
+      <transferUrl>sip:999@example.org</transferUrl>
     </invalidResponse>
   </autoattendant>
   <schedules/>

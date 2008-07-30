@@ -25,7 +25,10 @@ import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.attendant.WorkingTime.WorkingHours;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.XmlFile;
 import org.sipfoundry.sipxconfig.common.DialPad;
+import org.sipfoundry.sipxconfig.common.SipUri;
+import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettings;
+import org.springframework.beans.factory.annotation.Required;
 
 public class AutoAttendantsConfig extends XmlFile {
 
@@ -34,6 +37,8 @@ public class AutoAttendantsConfig extends XmlFile {
     private static final String NAMESPACE = "http://www.sipfoundry.org/sipX/schema/xml/autoattendants-00-00";
 
     private DialPlanContext m_dialPlanContext;
+
+    private DomainManager m_domainManager;
 
     @Override
     public Document getDocument() {
@@ -111,7 +116,11 @@ public class AutoAttendantsConfig extends XmlFile {
         Boolean transfer = (Boolean) autoAttendant.getSettingTypedValue("onfail/transfer");
         irEl.addElement("transferOnFailures").setText(transfer.toString());
         if (transfer.booleanValue()) {
-            addSettingValue(irEl, "transferUrl", autoAttendant, "onfail/transfer-extension");
+            String value = autoAttendant.getSettingValue("onfail/transfer-extension");
+            if (value != null) {
+                String transferUrl = SipUri.fix(value, m_domainManager.getDomain().getName());
+                irEl.addElement("transferUrl").setText(transferUrl);
+            }
             // FIXME: this should be the full path of the uploaded transferPrompt
             addSettingValue(irEl, "transferPrompt", autoAttendant, "onfail/transfer-prompt");
         }
@@ -161,5 +170,10 @@ public class AutoAttendantsConfig extends XmlFile {
 
     public void generate(DialPlanContext dialPlanContext) {
         m_dialPlanContext = dialPlanContext;
+    }
+
+    @Required
+    public void setDomainManager(DomainManager domainManager) {
+        m_domainManager = domainManager;
     }
 }

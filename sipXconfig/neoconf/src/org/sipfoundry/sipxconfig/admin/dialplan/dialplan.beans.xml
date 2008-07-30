@@ -185,6 +185,7 @@
   <bean id="autoAttendantsConfig" class="org.sipfoundry.sipxconfig.admin.dialplan.attendant.AutoAttendantsConfig"
     parent="defaultConfigurationFile">
     <property name="name" value="autoattendants.xml" />
+    <property name="domainManager" ref="domainManager" />
   </bean>
 
   <bean id="emergencyRoutingRules" class="org.sipfoundry.sipxconfig.admin.dialplan.config.EmergencyRoutingRules"

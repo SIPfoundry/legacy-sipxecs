@@ -7,11 +7,6 @@
  */
 package org.sipfoundry.sipxconfig.admin.dialplan.attendant;
 
-import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.expectLastCall;
-import static org.easymock.EasyMock.replay;
-import static org.easymock.EasyMock.verify;
-
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.StringReader;
@@ -30,12 +25,28 @@ import org.sipfoundry.sipxconfig.admin.dialplan.AutoAttendant;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.VxmlGenerator;
 import org.sipfoundry.sipxconfig.common.DialPad;
+import org.sipfoundry.sipxconfig.domain.Domain;
+import org.sipfoundry.sipxconfig.domain.DomainManager;
+
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.expectLastCall;
+import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.verify;
 
 public class AutoAttendantsConfigTest extends XMLTestCase {
+
+    private DomainManager m_domainManager;
 
     @Override
     protected void setUp() throws Exception {
         XMLUnit.setIgnoreWhitespace(true);
+
+        Domain domain = new Domain();
+        domain.setName("example.org");
+        m_domainManager = createMock(DomainManager.class);
+        m_domainManager.getDomain();
+        expectLastCall().andReturn(domain);
+        replay(m_domainManager);
     }
 
     public void testGenerateEmpty() throws Exception {
@@ -48,6 +59,7 @@ public class AutoAttendantsConfigTest extends XMLTestCase {
         replay(dialPlanContext);
 
         AutoAttendantsConfig autoAttendantsConfig = new AutoAttendantsConfig();
+        autoAttendantsConfig.setDomainManager(m_domainManager);
         autoAttendantsConfig.generate(dialPlanContext);
 
         String generatedXml = autoAttendantsConfig.getFileContent();
@@ -97,6 +109,7 @@ public class AutoAttendantsConfigTest extends XMLTestCase {
         replay(dialPlanContext);
 
         AutoAttendantsConfig autoAttendantsConfig = new AutoAttendantsConfig();
+        autoAttendantsConfig.setDomainManager(m_domainManager);
         autoAttendantsConfig.generate(dialPlanContext);
 
         String generatedXml = autoAttendantsConfig.getFileContent();
@@ -146,6 +159,7 @@ public class AutoAttendantsConfigTest extends XMLTestCase {
         replay(dialPlanContext);
 
         AutoAttendantsConfig autoAttendantsConfig = new AutoAttendantsConfig();
+        autoAttendantsConfig.setDomainManager(m_domainManager);
         autoAttendantsConfig.generate(dialPlanContext);
 
         String generatedXml = autoAttendantsConfig.getFileContent();
