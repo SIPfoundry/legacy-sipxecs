@@ -16,10 +16,19 @@ import java.io.StringWriter;
 
 import org.apache.commons.io.IOUtils;
 import org.sipfoundry.sipxconfig.TestHelper;
+import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
+
+import static org.easymock.EasyMock.*;
 
 public class SipxIvrConfigurationTest extends SipxServiceTestBase {
 
     public void testWrite() throws Exception {
+        DialPlanContext dialPlanContext = createMock(DialPlanContext.class);
+        dialPlanContext.getVoiceMail();
+        expectLastCall().andReturn("101");
+
+        replay(dialPlanContext);
+
         SipxIvrConfiguration out = new SipxIvrConfiguration();
         out.setVelocityEngine(TestHelper.getVelocityEngine());
         out.setTemplate("sipxivr/sipxivr.properties.vm");
@@ -27,6 +36,7 @@ public class SipxIvrConfigurationTest extends SipxServiceTestBase {
         SipxIvrService ivrService = new SipxIvrService();
         ivrService.setModelDir("sipxivr");
         ivrService.setModelName("sipxivr.xml");
+        ivrService.setDialPlanContext(dialPlanContext);
         initCommonAttributes(ivrService);
 
         ivrService.setMailstoreDir("/var/sipxdata/mediaserver/data/mailstore");
@@ -46,5 +56,7 @@ public class SipxIvrConfigurationTest extends SipxServiceTestBase {
         String actualConfig = IOUtils.toString(actualConfigReader);
 
         assertEquals(referenceConfig, actualConfig);
+
+        verify(dialPlanContext);
     }
 }

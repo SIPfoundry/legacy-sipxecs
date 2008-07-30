@@ -8,12 +8,15 @@
 package org.sipfoundry.sipxconfig.service;
 
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessModel.ProcessName;
+import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
+import org.sipfoundry.sipxconfig.common.SipUri;
 import org.springframework.beans.factory.annotation.Required;
 
 public class SipxIvrService extends SipxService {
     private String m_vxmlDir;
     private String m_mailstoreDir;
     private String m_scriptsDir;
+    private DialPlanContext m_dialPlanContext;
 
     @Required
     public void setMailstoreDir(String mailstoreDirectory) {
@@ -40,6 +43,15 @@ public class SipxIvrService extends SipxService {
 
     public String getScriptsDir() {
         return m_scriptsDir;
+    }
+
+    public void setDialPlanContext(DialPlanContext dialPlanContext) {
+        m_dialPlanContext = dialPlanContext;
+    }
+
+    public String getVoicemailUrl() {
+        String voiceMail = m_dialPlanContext.getVoiceMail();
+        return SipUri.fix(voiceMail, getDomainName());
     }
 
     @Override

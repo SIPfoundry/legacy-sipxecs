@@ -151,6 +151,7 @@
     <property name="mailstoreDir" value="${sysdir.mailstore}" />
     <property name="scriptsDir" value="${sysdir.vxml.scripts}" />
     <property name="vxmlDir" value="${sysdir.vxml}" />
+    <property name="dialPlanContext" ref="dialPlanContext" />
   </bean>
 
   <bean id="sipxIvrConfiguration" class="org.sipfoundry.sipxconfig.service.SipxIvrConfiguration" scope="prototype"
