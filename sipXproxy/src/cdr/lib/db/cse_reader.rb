@@ -18,7 +18,14 @@ class CseReader < Dao
     super(database_url, purge_age, 'call_state_events', log)
     @last_read_id = nil
     @last_read_time = nil
+    @last_cse_event_time = nil
     log.debug("Polling CSE DB every #{polling_interval} seconds.")
+    @poll_time = polling_interval
+    @synch_time = 120
+    if @synch_time < @poll_time
+       @synch_time = @poll_time
+    end
+    @synch_timeslice = @synch_time / @poll_time
     @stop = Terminator.new(polling_interval)
   end
 
@@ -36,6 +43,7 @@ class CseReader < Dao
       else
         @last_read_time ||= start_time
         @last_read_id ||= start_id
+        @last_cse_loop_read = 0
         loop do
           check_purge(dbh)
           first_id = @last_read_id
@@ -67,15 +75,35 @@ class CseReader < Dao
     params = [start_id, start_time, stop_time].find_all { | i | i }
     # FIXME: converting Timestamp to strings for now, not sure why it's not working without conversion yet
     params = params.collect{ | i | i.to_s }
+    reccount = 0
     dbh.prepare(sql) do | sth |
       sth.execute(*params)
       sth.fetch do |row|
         cse = CseReader.cse_from_row(row)
         @last_read_id = cse.id
+        reccount += 1
         # since we have last_read_id we do not need time
         @last_read_time = nil
+        @last_cse_event_time = cse.event_time
         cse_queue << cse
       end
+    end
+    if ( reccount == 0 )
+       @last_cse_loop_read += 1
+       if ( @last_cse_loop_read >= @synch_timeslice ) &&  (@last_cse_event_time)
+          # no new CSEs.  Inject a synchronize event with a suggested event time as the polling time in order to advance the last event time in the state.
+          # A CSE with a nil cse_id is the trigger that indicates that the cse is a time synch event.
+          cse = CallStateEvent.new
+          @last_cse_event_time = cse.event_time = DBI::Timestamp.new(@last_cse_event_time.to_time() + @synch_time )
+          log.debug("Injecting synchronize event: new time #{cse.event_time}")
+          cse_queue << cse
+
+          # re-init the no cse's read loop counter because we've sent a time synch event.
+          @last_cse_loop_read = 0
+       end
+    else
+       # re-init the cse's read loop counter because we've succeeded in reading an actual new cse.
+       @last_cse_loop_read = 0
     end
   end
 
