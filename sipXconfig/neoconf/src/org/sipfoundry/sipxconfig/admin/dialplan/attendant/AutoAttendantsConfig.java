@@ -95,14 +95,14 @@ public class AutoAttendantsConfig extends XmlFile {
 
         Element dtmfEl = aaEl.addElement("dtmf");
 
-        // FIXME: initialTimeout parameter is actually misnamed 
-        // "overallDigitTimeout" which is incorrectly described, 
+        // FIXME: initialTimeout parameter is actually misnamed
+        // "overallDigitTimeout" which is incorrectly described,
         // as VoiceXML doesn't have such a concept.
-        addSettingValue(dtmfEl, "initialTimeout", autoAttendant, "dtmf/overallDigitTimeout");
+        addSettingValueMillis(dtmfEl, "initialTimeout", autoAttendant, "dtmf/overallDigitTimeout");
         String idt = "dtmf/interDigitTimeout"; // To prevent checkStyle warning
-        addSettingValue(dtmfEl, "interDigitTimeout", autoAttendant, idt);
-        // FIXME: extraDigitTimeout needs to be added.  For now use interDigitTimeout
-        addSettingValue(dtmfEl, "extraDigitTimeout", autoAttendant, idt);
+        addSettingValueMillis(dtmfEl, "interDigitTimeout", autoAttendant, idt);
+        // FIXME: extraDigitTimeout needs to be added. For now use interDigitTimeout
+        addSettingValueMillis(dtmfEl, "extraDigitTimeout", autoAttendant, idt);
         addSettingValue(dtmfEl, "maximumDigits", autoAttendant, "dtmf/maxDigits");
 
         Element irEl = aaEl.addElement("invalidResponse");
@@ -114,6 +114,24 @@ public class AutoAttendantsConfig extends XmlFile {
             addSettingValue(irEl, "transferUrl", autoAttendant, "onfail/transfer-extension");
             // FIXME: this should be the full path of the uploaded transferPrompt
             addSettingValue(irEl, "transferPrompt", autoAttendant, "onfail/transfer-prompt");
+        }
+    }
+
+    /**
+     * Retrieves the setting value, rescales it to millis (multiplying by 1000), and adds to
+     * element.
+     *
+     * @param parent element to which new element is added
+     * @param name the name of newly added element
+     * @param bean the bean from which setting value is read
+     * @param settingName the name of the setting; in this case it has to be integer setting
+     *        expressed in seconds
+     */
+    private void addSettingValueMillis(Element parent, String name, BeanWithSettings bean, String settingName) {
+        Integer value = (Integer) bean.getSettingTypedValue(settingName);
+        if (value != null) {
+            long millisValue = value * 1000;
+            parent.addElement(name).setText(Long.toString(millisValue));
         }
     }
 
