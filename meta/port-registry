@@ -28,8 +28,18 @@ Port    Component         Use
 5140    sipXrls           SIP
 5141    sipXrls           SIP/TLS
 
+5150    sipXacd           SIP
+5151    sipXacd           SIP/TLS
+5152    sipXacd           Presence Monitor XML-RPC(?)
+
 5160    sipXpage          SIP
 5161    sipXpage          SIP/TLS
+
+8021    FreeSWITCH        event_socket inteface
+
+8080    FreeSWITCH        FreeSWITCH XML-RPC
+
+8084    sipXivr           event_socket interface
 
 8090    sipXconfig        HTTP 
 8091    sipXconfig        HTTPS
@@ -44,3 +54,10 @@ Port    Component         Use
 8130    sipXconfig        call resolver remote data
 8443    sipXconfig        SSL web UI
 
+8500... sipXpage          RTP/RTCP ports
+
+9000... sipXvxml          RTP/RTCP ports
+
+10000...sipXacd           RTP/RTCP ports
+
+15060   FreeSWITCH        SIP
