@@ -32,6 +32,8 @@ CONFIG_DEFS="@SIPX_CONFDIR@/config.defs"
 
 CONFIG_FILES="\
   @SIPX_CONFDIR@/sipxivr.properties \
+  @SIPX_CONFDIR@/autoattendants.xml \
+  @SIPX_CONFDIR@/validusers.xml \
   "
 
 # If the "config.defs" file exists and the <name>.in file exists for a
@@ -66,7 +68,11 @@ case ${Action} in
      ;;
 
    CONFIGTEST)
-     Status=0
+     # check validity of xml files
+     @bindir@/sipx-validate-xml @SIPX_CONFDIR@/autoattendants.xml
+     Status=$(($Status+$?))
+     @bindir@/sipx-validate-xml @SIPX_CONFDIR@/validusers.xml
+     Status=$(($Status+$?))
 
      # Check that the log file is writable.
      logfile="@SIPX_LOGDIR@/sipxivr.log"
