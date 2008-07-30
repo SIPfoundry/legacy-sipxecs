@@ -15,6 +15,7 @@ import java.util.Map;
 
 import org.dom4j.Document;
 import org.dom4j.Element;
+import org.dom4j.QName;
 import org.sipfoundry.sipxconfig.admin.dialplan.AttendantMenu;
 import org.sipfoundry.sipxconfig.admin.dialplan.AttendantMenuAction;
 import org.sipfoundry.sipxconfig.admin.dialplan.AttendantMenuItem;
@@ -30,13 +31,15 @@ public class AutoAttendantsConfig extends XmlFile {
 
     // please note: US locale always...
     private static final SimpleDateFormat HOLIDAY_FORMAT = new SimpleDateFormat("dd-MMM-yyyy", Locale.US);
+    private static final String NAMESPACE = "http://www.sipfoundry.org/sipX/schema/xml/autoattendants-00-00";
 
     private DialPlanContext m_dialPlanContext;
 
     @Override
     public Document getDocument() {
         Document document = FACTORY.createDocument();
-        Element aasEl = document.addElement("autoattendants");
+        QName autoAttendantsName = FACTORY.createQName("autoattendants", NAMESPACE);
+        Element aasEl = document.addElement(autoAttendantsName);
         List<AutoAttendant> autoAttendants = m_dialPlanContext.getAutoAttendants();
         for (AutoAttendant autoAttendant : autoAttendants) {
             generateAttendants(aasEl, autoAttendant);

@@ -11,6 +11,7 @@ import java.util.List;
 
 import org.dom4j.Document;
 import org.dom4j.Element;
+import org.dom4j.QName;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.XmlFile;
 import org.sipfoundry.sipxconfig.admin.forwarding.AliasMapping;
 import org.sipfoundry.sipxconfig.common.CoreContext;
@@ -21,6 +22,8 @@ import org.springframework.beans.factory.annotation.Required;
 
 public class ValidUsersConfig extends XmlFile {
 
+    private static final String NAMESPACE = "http://www.sipfoundry.org/sipX/schema/xml/validusers-00-00";
+
     private CoreContext m_coreContext;
 
     private DomainManager m_domainManager;
@@ -28,7 +31,8 @@ public class ValidUsersConfig extends XmlFile {
     @Override
     public Document getDocument() {
         Document document = FACTORY.createDocument();
-        Element usersEl = document.addElement("validusers");
+        QName validUsersName = FACTORY.createQName("validusers", NAMESPACE);
+        Element usersEl = document.addElement(validUsersName);
         // FIXME: should be paging here...
         List<User> users = m_coreContext.loadUsers();
         for (User user : users) {

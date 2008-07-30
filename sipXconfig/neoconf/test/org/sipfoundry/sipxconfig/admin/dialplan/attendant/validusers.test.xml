@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<validusers>
+<validusers xmlns='http://www.sipfoundry.org/sipX/schema/xml/validusers-00-00'>
   <user>
     <identity>301@example.com</identity>
     <userName>301</userName>
