@@ -10,7 +10,6 @@ require 'thread'
 
 require 'cdr'
 require 'call_state_event'
-require 'dbi'
 
 # Maintains currently processed CDRs.
 class State
@@ -81,19 +80,7 @@ class State
   # Analyze CSE, add CDR to queue if completed
   def accept(cse)
     @generation += 1
-
-    if ( !cse.id )
-       if (@last_event_time)
-          # Synchronize event in order to trigger advancing last_event_time
-          if ( @last_event_time.to_time() < cse.event_time.to_time() )
-             @last_event_time = cse.event_time
-             @log.debug("CSE last event time updated to #{@last_event_time}") if @log
-          end
-       end                 
-       return
-    else
-       @last_event_time = cse.event_time
-    end
+    @last_event_time = cse.event_time
 
     @log.debug("CSE #{cse.event_type}") if @log
 
@@ -149,7 +136,7 @@ class State
     return unless max_call_len > 0
     @cdrs.delete_if do | call_id, cdr |
       start_time = cdr.start_time
-      if start_time && (@last_event_time.to_time() - start_time.to_time() > max_call_len)
+      if start_time && (@last_event_time - start_time > max_call_len)
         cdr.force_finish
         notify(cdr)
         true                
@@ -164,7 +151,7 @@ class State
     @failed_calls.delete_if do |key, value|
       cdr = value.cdr
       start_time = cdr.start_time
-      notify(cdr) if start_time && (@last_event_time.to_time() - start_time.to_time() > max_wait_time)
+      notify(cdr) if start_time && (@last_event_time - start_time > max_wait_time)
     end
   end
 
