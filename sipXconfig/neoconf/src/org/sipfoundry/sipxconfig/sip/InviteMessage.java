@@ -1,13 +1,15 @@
 /*
  *
  *
- * Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ * Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  *
  */
 package org.sipfoundry.sipxconfig.sip;
+
+import gov.nist.javax.sip.clientauthutils.UserCredentials;
 
 import java.text.ParseException;
 import java.util.Arrays;
@@ -29,24 +31,30 @@ public class InviteMessage extends JainSipMessage {
     private static final List<String> METHODS = Arrays.asList(Request.INVITE, Request.ACK, Request.OPTIONS,
             Request.CANCEL, Request.BYE, Request.REFER, Request.NOTIFY);
 
-    private String m_toAddrSpec;
+    private final String m_toAddrSpec;
 
-    private String m_fromAddrSpec;
+    private final String m_fromAddrSpec;
 
-    private Operator m_operator;
+    private final Operator m_operator;
 
     private Dialog m_dialog;
+
+    private final UserCredentials m_userCredentials;
 
     /**
      * @param toAddressSpec the target for the 3pcc.
      */
-    public InviteMessage(SipStackBean helper, String fromAddressSpec, String toAddressSpec, Operator operator) {
+    public InviteMessage(SipStackBean helper, UserCredentials userCredentials, String fromAddressSpec,
+            String toAddressSpec, Operator operator) {
         super(helper);
         m_toAddrSpec = toAddressSpec;
         m_fromAddrSpec = fromAddressSpec;
         m_operator = operator;
+        // TODO: not sure what to do next with user credentials info...
+        m_userCredentials = userCredentials;
     }
 
+    @Override
     public ClientTransaction createAndSend() {
         try {
             Request request = createRequest(Request.INVITE, m_fromAddrSpec, m_toAddrSpec);
