@@ -12,6 +12,8 @@ package org.sipfoundry.sipxconfig.conference;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.xmlrpc.ApiProvider;
 import org.sipfoundry.sipxconfig.xmlrpc.XmlRpcRemoteException;
 import org.springframework.beans.factory.annotation.Required;
@@ -19,7 +21,8 @@ import org.springframework.beans.factory.annotation.Required;
 public class ActiveConferenceContextImpl implements ActiveConferenceContext {
 
     private static final String COMMAND_LIST = "list";
-
+    private static final Log LOG = LogFactory.getLog(ActiveConferenceContextImpl.class);
+    
     private ApiProvider<FreeswitchApi> m_freeswitchApiProvider;
     private ConferenceBridgeContext m_conferenceBridgeContext;
     private FreeswitchApiResultParser m_freeswitchApiParser = new FreeswitchApiResultParserImpl();
@@ -35,6 +38,7 @@ public class ActiveConferenceContextImpl implements ActiveConferenceContext {
     }
 
     public int getActiveConferenceCount(Bridge bridge) {
+        LOG.debug("Requesting count of active conferences from bridge " + bridge.getName());
         FreeswitchApi api = m_freeswitchApiProvider.getApi(bridge.getServiceUri());
         String result = null;
         try {
@@ -43,10 +47,13 @@ public class ActiveConferenceContextImpl implements ActiveConferenceContext {
             throw new FreeswitchApiConnectException(bridge, xrre);
         }
 
-        return m_freeswitchApiParser.getActiveConferenceCount(result);
+        int conferenceCount = m_freeswitchApiParser.getActiveConferenceCount(result);
+        LOG.debug(String.format("Bridge \"%s\" reports %d active conferences.", bridge.getName(), conferenceCount));
+        return conferenceCount;
     }
 
     public List<ActiveConference> getActiveConferences(Bridge bridge) {
+        LOG.debug("Requesting list of active conferences from bridge " + bridge.getName());
         FreeswitchApi api = m_freeswitchApiProvider.getApi(bridge.getServiceUri());
         String result = null;
         try {
@@ -63,10 +70,12 @@ public class ActiveConferenceContextImpl implements ActiveConferenceContext {
             }
         }
 
+        LOG.debug(String.format("Bridge \"%s\" reports the following active conferences: %s", bridge.getName(), conferences));
         return conferences;
     }
 
     public List<ActiveConferenceMember> getConferenceMembers(Conference conference) {
+        LOG.debug("Requesting list of members for conference \"" + conference.getName() + "\"");
         Bridge bridge = conference.getBridge();
         String conferenceName = conference.getName();
         FreeswitchApi api = m_freeswitchApiProvider.getApi(bridge.getServiceUri());
@@ -82,6 +91,8 @@ public class ActiveConferenceContextImpl implements ActiveConferenceContext {
             throw new FreeswitchApiConnectException(bridge, xrre);
         }
 
+        LOG.debug(String.format("Bridge \"%s\" reports the following members for conference \"%s\": %s", 
+                bridge.getName(), conference.getName(), members));
         return members;
     }
 
@@ -114,6 +125,8 @@ public class ActiveConferenceContextImpl implements ActiveConferenceContext {
     }
 
     private boolean conferenceAction(Conference conference, String command) {
+        LOG.debug(String.format("Executing command \"%s\" on conference \"%s\"", 
+                command, conference.getName()));        
         Bridge bridge = conference.getBridge();
         String conferenceName = conference.getName();
         FreeswitchApi api = m_freeswitchApiProvider.getApi(bridge.getServiceUri());
@@ -127,15 +140,24 @@ public class ActiveConferenceContextImpl implements ActiveConferenceContext {
     }
 
     private boolean memberAction(Conference conference, ActiveConferenceMember member, String command) {
+        LOG.debug(String.format("Executing command '%s' (conference='%s', member='%s')...", 
+                command, conference.getName(), member.getName()));
         Bridge bridge = conference.getBridge();
         String conferenceName = conference.getName();
         FreeswitchApi api = m_freeswitchApiProvider.getApi(bridge.getServiceUri());
 
+        String result = "";
         try {
-            String result = api.conference(String.format("%s %s %d", conferenceName, command, member.getId()));
+            result = api.conference(String.format("%s %s %d", conferenceName, command, member.getId()));
             return m_freeswitchApiParser.verifyMemberAction(result, member);
         } catch (XmlRpcRemoteException xrre) {
             throw new FreeswitchApiConnectException(bridge, xrre);
+        } finally {
+            LOG.debug(String.format("Command '%s' (conference='%s', member='%s') completed with result: '%s'", 
+                    command, conference.getName(), member.getName(), result));
+//            LOG.debug("Pausing for 1.5 seconds to let FreeSWITCH catch up...");
+//            try { Thread.sleep(1000); }
+//            catch (InterruptedException ie) { LOG.debug("Interrupted"); }
         }
     }
 }

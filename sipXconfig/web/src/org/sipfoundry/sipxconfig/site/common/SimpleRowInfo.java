@@ -9,6 +9,8 @@
  */
 package org.sipfoundry.sipxconfig.site.common;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.common.PrimaryKeySource;
 import org.sipfoundry.sipxconfig.components.RowInfo;
 
@@ -18,11 +20,18 @@ import org.sipfoundry.sipxconfig.components.RowInfo;
  */
 public class SimpleRowInfo implements RowInfo {
 
+    private static final Log LOG = LogFactory.getLog(SimpleRowInfo.class);
+    
     public Object getSelectId(Object row) {
-        return ((PrimaryKeySource) row).getPrimaryKey();
+        if (row != null) {
+            return ((PrimaryKeySource) row).getPrimaryKey();
+        } else {
+            LOG.debug("SimpleRowInfo was passed a null row!");
+            return -1;
+        }
     }
 
     public boolean isSelectable(Object row) {
-        return true;
+        return (row != null);
     }
 }

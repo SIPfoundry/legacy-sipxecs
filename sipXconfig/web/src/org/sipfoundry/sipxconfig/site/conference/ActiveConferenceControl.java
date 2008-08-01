@@ -16,6 +16,8 @@ import java.util.List;
 
 import org.apache.commons.collections.Closure;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IAsset;
 import org.apache.tapestry.annotations.Asset;
@@ -36,6 +38,8 @@ import org.sipfoundry.sipxconfig.conference.Conference;
 import org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext;
 
 public abstract class ActiveConferenceControl extends BaseComponent {
+    private static final Log LOG = LogFactory.getLog(ActiveConferenceControl.class);
+    
     @Bean
     public abstract SelectMap getSelections();
 
@@ -90,19 +94,25 @@ public abstract class ActiveConferenceControl extends BaseComponent {
     }
 
     public List<ActiveConferenceMember> getMembers() {
+        LOG.debug("Getting member list for table display");
         List<ActiveConferenceMember> members = getMembersCached();
         if (members != null) {
+            LOG.debug("Using cached member list");
             return members;
         }
         members = Collections.emptyList();
         try {
             Conference conference = getConference();
             if (conference != null && conference.isEnabled()) {
+                LOG.debug("Requesting latest member list");
                 members = getActiveConferenceContext().getConferenceMembers(conference);
             }
         } catch (UserException e) {
             recordFailure(e);
         }
+        
+        LOG.debug("Using member list: " + members);
+        
         setMembersCached(members);
         return members;
     }
