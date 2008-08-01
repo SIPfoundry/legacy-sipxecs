@@ -107,6 +107,9 @@
 <type id="fkey-context">
   <enum>
     <option>
+      <value>active</value>
+    </option>
+    <option>
       <value>1</value>
     </option>
     <option>

@@ -1672,4 +1672,198 @@
       <value>on</value>
     </setting>
   </group>
+  <group name="fkeys">
+    <group name="fkey0">
+      <setting name="context">
+        <type refid="fkey-context" />
+        <value>active</value>
+      </setting>
+      <setting name="type">
+        <type refid="fkey" />
+        <value>line</value>
+      </setting>
+      <setting name="number">
+        <type>
+          <integer />
+        </type>
+        <value></value>
+      </setting>
+    </group>
+    <group name="fkey1">
+      <setting name="context">
+        <type refid="fkey-context" />
+        <value>active</value>
+      </setting>
+      <setting name="type">
+        <type refid="fkey" />
+        <value>line</value>
+      </setting>
+      <setting name="number">
+        <type>
+          <integer />
+        </type>
+        <value></value>
+      </setting>
+    </group>
+    <group name="fkey2">
+      <setting name="context">
+        <type refid="fkey-context" />
+        <value>active</value>
+      </setting>
+      <setting name="type">
+        <type refid="fkey" />
+        <value>line</value>
+      </setting>
+      <setting name="number">
+        <type>
+          <integer />
+        </type>
+        <value></value>
+      </setting>
+    </group>
+    <group name="fkey3">
+      <setting name="context">
+        <type refid="fkey-context" />
+        <value>active</value>
+      </setting>
+      <setting name="type">
+        <type refid="fkey" />
+        <value>line</value>
+      </setting>
+      <setting name="number">
+        <type>
+          <integer />
+        </type>
+        <value></value>
+      </setting>
+    </group>
+    <group name="fkey4">
+      <setting name="context">
+        <type refid="fkey-context" />
+        <value>active</value>
+      </setting>
+      <setting name="type">
+        <type refid="fkey" />
+        <value>line</value>
+      </setting>
+      <setting name="number">
+        <type>
+          <integer />
+        </type>
+        <value></value>
+      </setting>
+    </group>
+    <group name="fkey5">
+      <setting name="context">
+        <type refid="fkey-context" />
+        <value>active</value>
+      </setting>
+      <setting name="type">
+        <type refid="fkey" />
+        <value>line</value>
+      </setting>
+      <setting name="number">
+        <type>
+          <integer />
+        </type>
+        <value></value>
+      </setting>
+    </group>
+    <group name="fkey6" unless="snom300">
+      <setting name="context">
+        <type refid="fkey-context" />
+        <value>active</value>
+      </setting>
+      <setting name="type">
+        <type refid="fkey" />
+        <value>line</value>
+      </setting>
+      <setting name="number">
+        <type>
+          <integer />
+        </type>
+        <value></value>
+      </setting>
+    </group>
+    <group name="fkey7" unless="snom300">
+      <setting name="context">
+        <type refid="fkey-context" />
+        <value>active</value>
+      </setting>
+      <setting name="type">
+        <type refid="fkey" />
+        <value>line</value>
+      </setting>
+      <setting name="number">
+        <type>
+          <integer />
+        </type>
+        <value></value>
+      </setting>
+    </group>
+    <group name="fkey8" unless="snom300">
+      <setting name="context">
+        <type refid="fkey-context" />
+        <value>active</value>
+      </setting>
+      <setting name="type">
+        <type refid="fkey" />
+        <value>line</value>
+      </setting>
+      <setting name="number">
+        <type>
+          <integer />
+        </type>
+        <value></value>
+      </setting>
+    </group>
+    <group name="fkey9" unless="snom300">
+      <setting name="context">
+        <type refid="fkey-context" />
+        <value>active</value>
+      </setting>
+      <setting name="type">
+        <type refid="fkey" />
+        <value>line</value>
+      </setting>
+      <setting name="number">
+        <type>
+          <integer />
+        </type>
+        <value></value>
+      </setting>
+    </group>
+    <group name="fkey10" unless="snom300">
+      <setting name="context">
+        <type refid="fkey-context" />
+        <value>active</value>
+      </setting>
+      <setting name="type">
+        <type refid="fkey" />
+        <value>line</value>
+      </setting>
+      <setting name="number">
+        <type>
+          <integer />
+        </type>
+        <value></value>
+      </setting>
+    </group>
+    <group name="fkey11" unless="snom300">
+      <setting name="context">
+        <type refid="fkey-context" />
+        <value>active</value>
+      </setting>
+      <setting name="type">
+        <type refid="fkey" />
+        <value>line</value>
+      </setting>
+      <setting name="number">
+        <type>
+          <integer />
+        </type>
+        <value></value>
+      </setting>
+    </group>
+  </group>
 </model>
