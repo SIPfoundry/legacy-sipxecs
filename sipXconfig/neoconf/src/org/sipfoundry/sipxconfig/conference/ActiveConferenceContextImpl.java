@@ -70,7 +70,8 @@ public class ActiveConferenceContextImpl implements ActiveConferenceContext {
             }
         }
 
-        LOG.debug(String.format("Bridge \"%s\" reports the following active conferences: %s", bridge.getName(), conferences));
+        LOG.debug(String.format("Bridge \"%s\" reports the following active conferences: %s", 
+                bridge.getName(), conferences));
         return conferences;
     }
 
