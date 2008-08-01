@@ -1,10 +1,10 @@
 /*
  *
  *
- * Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ * Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  *
  */
 package org.sipfoundry.sipxconfig.sip;
@@ -22,14 +22,16 @@ import javax.sip.message.Request;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import static org.sipfoundry.sipxconfig.common.SpecialUser.SpecialUserType.CONFIG_SERVER;
+
 class NotifyMessage extends JainSipMessage {
     private static final Log LOG = LogFactory.getLog(NotifyMessage.class);
     private static final String TIMEOUT_ERROR_MESSAGE = "Timed out waiting for response";
     private static final String TRANSACTION_ERROR_MESSAGE = "Error returned by transaction ";
     private static final String UNEXPECTED_EVENT = "Unexpected event -- ignoring";
 
-    private String m_addrSpec;
-    private String m_eventType;
+    private final String m_addrSpec;
+    private final String m_eventType;
 
     public NotifyMessage(SipStackBean helper, String addrSpec, String eventType, String contentType, byte[] payload) {
         super(helper, contentType, payload);
@@ -43,9 +45,10 @@ class NotifyMessage extends JainSipMessage {
         m_eventType = eventType;
     }
 
+    @Override
     public ClientTransaction createAndSend() {
         try {
-            Request request = createRequest(Request.NOTIFY, null, m_addrSpec);
+            Request request = createRequest(Request.NOTIFY, CONFIG_SERVER.getUserName(), null, m_addrSpec);
             getHelper().addEventHeader(request, m_eventType);
             getHelper().addHeader(request, SubscriptionStateHeader.NAME, SubscriptionStateHeader.ACTIVE);
             ClientTransaction clientTx = getSipProvider().getNewClientTransaction(request);

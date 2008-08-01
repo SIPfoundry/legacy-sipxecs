@@ -27,6 +27,7 @@ import javax.sip.header.ReferToHeader;
 import javax.sip.message.Request;
 import javax.sip.message.Response;
 
+import gov.nist.javax.sip.clientauthutils.UserCredentials;
 import gov.nist.javax.sip.header.extensions.ReferredByHeader;
 
 import org.apache.commons.logging.Log;
@@ -50,6 +51,8 @@ class TransactionApplicationData {
     private final SipStackBean m_helper;
 
     private int m_counter;
+    
+    private UserCredentials m_userCredentials;
 
     public TransactionApplicationData(Operator operator, SipStackBean stackBean, JainSipMessage message) {
         m_operator = operator;
@@ -118,8 +121,9 @@ class TransactionApplicationData {
                         ClientTransaction ctx = m_helper.getSipProvider().getNewClientTransaction(referRequest);
 
                         // And send it to the other side.
-                        TransactionApplicationData tad = new TransactionApplicationData(Operator.SEND_REFER,
-                                m_helper, null);
+                        TransactionApplicationData tad = new TransactionApplicationData(Operator.SEND_REFER, m_helper,
+                                null);
+                        tad.setUserCredentials(m_userCredentials);
                         ctx.setApplicationData(tad);
                         dialog.sendRequest(ctx);
                     }
@@ -154,5 +158,13 @@ class TransactionApplicationData {
             Dialog dialog = ctx.getDialog();
             m_helper.tearDownDialog(dialog);
         }
+    }
+    
+    public UserCredentials getUserCredentials() {
+        return m_userCredentials;
+    }
+    
+    public void setUserCredentials(UserCredentials userCredentials) {
+        m_userCredentials = userCredentials;
     }
 }

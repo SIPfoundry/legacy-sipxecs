@@ -1,10 +1,10 @@
 /*
  *
  *
- * Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ * Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  *
  */
 package org.sipfoundry.sipxconfig.sip;
@@ -66,12 +66,9 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.log4j.Appender;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.SipUri;
-import org.sipfoundry.sipxconfig.common.User;
 import org.springframework.beans.factory.BeanInitializationException;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Required;
-
-import static org.sipfoundry.sipxconfig.common.SpecialUser.SpecialUserType.CONFIG_SERVER;
 
 /**
  * Spring adapter for JAIN SIP factories
@@ -110,7 +107,7 @@ public class SipStackBean implements InitializingBean {
 
     private ListeningPoint m_listeningPoint;
 
-    private CallId m_id = new CallId();
+    private final CallId m_id = new CallId();
 
     private SipListenerImpl m_sipListener;
 
@@ -120,7 +117,7 @@ public class SipStackBean implements InitializingBean {
 
     private AuthenticationHelper m_authenticationHelper;
 
-    private Timer m_timer = new Timer();
+    private final Timer m_timer = new Timer();
 
     public void afterPropertiesSet() {
         SipFactory factory = SipFactory.getInstance();
@@ -160,13 +157,7 @@ public class SipStackBean implements InitializingBean {
     private AuthenticationHelper createAuthenticationHelper(SipStack stack) {
         if (stack instanceof SipStackImpl) {
             SipStackImpl impl = (SipStackImpl) stack;
-            User user = getCoreContext().getSpecialUser(CONFIG_SERVER);
-            if (user == null) {
-                LOG.warn("No credentials for: " + CONFIG_SERVER);
-                return null;
-            }
-            String authorizationRealm = getCoreContext().getAuthorizationRealm();
-            AccountManagerImpl accountManager = new AccountManagerImpl(user, authorizationRealm);
+            AccountManagerImpl accountManager = new AccountManagerImpl();
             return impl.getAuthenticationHelper(accountManager, m_headerFactory);
         }
         return null;
@@ -240,8 +231,8 @@ public class SipStackBean implements InitializingBean {
         return m_hostName;
     }
 
-    private SipURI createOurSipUri() throws ParseException {
-        return m_addressFactory.createSipURI(CONFIG_SERVER.getUserName(), m_hostName);
+    private SipURI createOurSipUri(String userName) throws ParseException {
+        return m_addressFactory.createSipURI(userName, m_hostName);
     }
 
     private FromHeader createFromHeader(SipURI fromAddress) throws ParseException {
@@ -275,10 +266,11 @@ public class SipStackBean implements InitializingBean {
         return m_headerFactory.createViaHeader(host, port, transport, null);
     }
 
-    final Request createRequest(String requestType, String fromAddrSpec, String addrSpec) throws ParseException {
+    final Request createRequest(String requestType, String userName, String fromAddrSpec, String addrSpec)
+        throws ParseException {
         SipURI fromUri;
         if (fromAddrSpec == null) {
-            fromUri = createOurSipUri();
+            fromUri = createOurSipUri(userName);
         } else {
             fromUri = (SipURI) m_addressFactory.createURI(fromAddrSpec);
         }
@@ -411,7 +403,7 @@ public class SipStackBean implements InitializingBean {
 
     /**
      * We set up a timer to terminate the INVITE dialog if we do not see a 200 OK in the transfer.
-     * 
+     *
      * @param dialog dialog to terminate
      */
     public void scheduleTerminate(Dialog dialog) {
