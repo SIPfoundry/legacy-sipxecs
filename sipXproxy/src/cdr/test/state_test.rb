@@ -7,6 +7,7 @@
 
 require 'test/unit'
 require 'thread'
+require 'dbi'
 
 $:.unshift File.join(File.dirname(__FILE__), '..', 'lib')
 require 'state'
@@ -40,7 +41,7 @@ class StateTest < Test::Unit::TestCase
   class DummyCse
     attr_reader :call_id, :event_time
     
-    def initialize(call_id, event_time = Time.at(1000))
+    def initialize(call_id, event_time = DBI::Timestamp.new(2000,1,1,1,1,0))
       @call_id = call_id
       @event_time = event_time
     end    
@@ -217,9 +218,9 @@ class StateTest < Test::Unit::TestCase
   
   def test_retire_long_calls
     out_queue = []
-    cse1 = DummyCse.new('id1', Time.at(1000))    
-    cse2 = DummyCse.new('id2', Time.at(1100))    
-    cse3 = DummyCse.new('id3', Time.at(1200))    
+    cse1 = DummyCse.new('id1', DBI::Timestamp.new(2000,1,1,10,1,1))    
+    cse2 = DummyCse.new('id2', DBI::Timestamp.new(2000,1,1,10,2,41)) # cse1 time + 100 seconds
+    cse3 = DummyCse.new('id3', DBI::Timestamp.new(2000,1,1,10,4,21)) # cse1 time to 200 seconds   
     in_queue = [
     cse1, cse2, cse3, [:retire_long_calls, 150]
     ]
@@ -239,8 +240,8 @@ class StateTest < Test::Unit::TestCase
     out_queue = []
     MockCdr.results(true, false, false)
     state = State.new([], out_queue, MockCdr)
-    state.accept(DummyCse.new('id1', Time.at(1000)))
-    state.accept(DummyCse.new('id2', Time.at(1151)))
+    state.accept(DummyCse.new('id1', DBI::Timestamp.new(2000,1,1,10,1,0)))
+    state.accept(DummyCse.new('id2', DBI::Timestamp.new(2000,1,1,10,3,31)))
     assert_equal(0, out_queue.size)
     
     state.flush_failed_calls(160)
