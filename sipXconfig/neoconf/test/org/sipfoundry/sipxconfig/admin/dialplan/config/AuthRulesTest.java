@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.admin.dialplan.config;
@@ -25,10 +25,7 @@ import org.easymock.IMocksControl;
 import org.junit.Assert;
 import org.junit.Test;
 import org.sipfoundry.sipxconfig.XmlUnitHelper;
-import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
-import org.sipfoundry.sipxconfig.admin.dialplan.EmergencyRouting;
 import org.sipfoundry.sipxconfig.admin.dialplan.IDialingRule;
-import org.sipfoundry.sipxconfig.admin.dialplan.RoutingException;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
 
@@ -104,47 +101,6 @@ public class AuthRulesTest {
         Assert.assertEquals(1, authRules.uniqueGateways);
 
         control.verify();
-    }
-
-    /**
-     * Tests that emergency dialing rules for caller-sensitive emergency routing
-     * have the correct external number set in the <userPattern> element of the
-     * generated auth configuration.
-     */
-    @Test
-    public void testGenerateEmergencyDialingRules() throws Exception {
-        Gateway gateway = new Gateway();
-        gateway.setUniqueId();
-        gateway.setAddress("10.1.2.3");
-
-        Gateway exceptionGateway = new Gateway();
-        exceptionGateway.setUniqueId();
-        exceptionGateway.setAddress("10.1.2.4");
-
-        EmergencyRouting emergencyRouting = new EmergencyRouting();
-        emergencyRouting.setDefaultGateway(gateway);
-        emergencyRouting.setExternalNumber("911");
-
-        RoutingException exception = new RoutingException("500", "999", exceptionGateway);
-        emergencyRouting.addException(exception);
-
-        List<DialingRule> emergencyRules = emergencyRouting.asDialingRulesList();
-
-        MockAuthRules authRules = new MockAuthRules();
-        authRules.begin();
-        for (DialingRule emergencyRule : emergencyRules) {
-           authRules.generate(emergencyRule);
-        }
-        authRules.end();
-
-        Document doc = authRules.getDocument();
-        String domDoc = XmlUnitHelper.asString(doc);
-
-        XMLAssert.assertXpathEvaluatesTo(gateway.getAddress(), "/mappings/hostMatch/hostPattern", domDoc);
-        XMLAssert.assertXpathEvaluatesTo(emergencyRouting.getExternalNumber(), "/mappings/hostMatch/userMatch/userPattern", domDoc);
-
-        XMLAssert.assertXpathEvaluatesTo(exceptionGateway.getAddress(), "/mappings/hostMatch[2]/hostPattern", domDoc);
-        XMLAssert.assertXpathEvaluatesTo(exception.getExternalNumber(), "/mappings/hostMatch[2]/userMatch/userPattern", domDoc);
     }
 
     @Test

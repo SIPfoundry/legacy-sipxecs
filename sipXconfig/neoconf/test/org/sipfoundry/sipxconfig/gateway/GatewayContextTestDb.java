@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.gateway;
@@ -18,7 +18,6 @@ import org.dbunit.dataset.ITable;
 import org.sipfoundry.sipxconfig.SipxDatabaseTestCase;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
-import org.sipfoundry.sipxconfig.admin.dialplan.EmergencyRouting;
 import org.sipfoundry.sipxconfig.admin.dialplan.InternationalRule;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDeviceManager;
 import org.sipfoundry.sipxconfig.common.UserException;
@@ -39,9 +38,10 @@ public class GatewayContextTestDb extends SipxDatabaseTestCase {
     private GatewayModel m_genericModel;
 
     private GatewayModel m_genericSipTrunk;
-    
+
     private SbcDeviceManager m_sbcDeviceManager;
 
+    @Override
     protected void setUp() throws Exception {
         m_appContext = TestHelper.getApplicationContext();
         m_context = (GatewayContext) m_appContext.getBean(GatewayContext.CONTEXT_BEAN_NAME);
@@ -202,22 +202,6 @@ public class GatewayContextTestDb extends SipxDatabaseTestCase {
         assertEquals(gateway, rule.getGateways().get(0));
     }
 
-    public void testDeleteGatewayInUseByEmergencyRouting() {
-        Gateway g1 = new Gateway(m_genericModel);
-        g1.setAddress("10.1.1.1");
-        m_context.storeGateway(g1);
-
-        EmergencyRouting emergencyRouting = m_dialPlanContext.getEmergencyRouting();
-        emergencyRouting.setDefaultGateway(g1);
-        m_dialPlanContext.storeEmergencyRouting(emergencyRouting);
-
-        // remove gateway
-        m_context.deleteGateways(Collections.singletonList(g1.getId()));
-
-        emergencyRouting = m_dialPlanContext.getEmergencyRouting();
-        assertNull(emergencyRouting.getDefaultGateway());
-    }
-
     public void testAllGateways() throws Exception {
         Collection<GatewayModel> models = m_modelSource.getModels();
         for (GatewayModel model : models) {
@@ -282,7 +266,7 @@ public class GatewayContextTestDb extends SipxDatabaseTestCase {
         assertEquals("10.1.2.2", sipTrunk.getSbcDevice().getAddress());
 
         m_sbcDeviceManager.deleteSbcDevice(sipTrunk.getSbcDevice().getId());
-        sipTrunk = (SipTrunk) m_context.getGateway(1002);        
+        sipTrunk = (SipTrunk) m_context.getGateway(1002);
         assertNotNull(sipTrunk);
         assertNull(sipTrunk.getSbcDevice());
     }

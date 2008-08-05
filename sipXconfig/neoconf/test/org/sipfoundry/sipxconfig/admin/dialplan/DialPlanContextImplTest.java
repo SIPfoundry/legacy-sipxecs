@@ -70,11 +70,9 @@ public class DialPlanContextImplTest extends TestCase {
         DialPlanContextImpl manager = new MockDialPlanContextImpl(new DialPlan());
         manager.setBeanFactory(bf);
 
-        EmergencyRouting emergencyRouting = manager.getEmergencyRouting();
-
-        final ConfigGenerator g1 = manager.getGenerator(emergencyRouting);
-        final ConfigGenerator g2 = manager.generateDialPlan(emergencyRouting);
-        final ConfigGenerator g3 = manager.getGenerator(emergencyRouting);
+        final ConfigGenerator g1 = manager.getGenerator();
+        final ConfigGenerator g2 = manager.generateDialPlan();
+        final ConfigGenerator g3 = manager.getGenerator();
         assertNotNull(g1);
         assertNotNull(g2);
         assertNotSame(g1, g2);
@@ -130,22 +128,12 @@ public class DialPlanContextImplTest extends TestCase {
         plan.setRules(Arrays.asList(rules));
         assertNull(manager.getLikelyEmergencyInfo());
 
-        // caller sensitive routing
-        Gateway gateway = new Gateway();
-        gateway.setAddress("pstn.example.org");
-        gateway.setAddressPort(9050);
-        emergency.setGateways(Collections.singletonList(gateway));
-        emergency.setUseMediaServer(true);
-        emergency.setEnabled(true);
-        assertNull(manager.getLikelyEmergencyInfo());
 
         // disabled rule
-        emergency.setUseMediaServer(false);
         emergency.setEnabled(false);
         assertNull(manager.getLikelyEmergencyInfo());
 
         // gateway has routing (e.g. SBC)
-        emergency.setUseMediaServer(false);
         emergency.setEnabled(true);
         Gateway gatewayWithSbc = new Gateway() {
             @Override
@@ -192,11 +180,6 @@ public class DialPlanContextImplTest extends TestCase {
         @Override
         DialPlan getDialPlan() {
             return m_plan;
-        }
-
-        @Override
-        public EmergencyRouting getEmergencyRouting() {
-            return new EmergencyRouting();
         }
 
         @Override

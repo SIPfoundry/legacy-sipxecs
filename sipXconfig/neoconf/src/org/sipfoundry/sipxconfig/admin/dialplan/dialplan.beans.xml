@@ -46,7 +46,6 @@
     <property name="name" value="Emergency" />
     <property name="description" value="Emergency dialing plan" />
     <property name="enabled" value="false" />
-    <property name="mediaServerFactory" ref="mediaServerFactory" />
   </bean>
 
   <bean id="defaultLongDistanceRule" class="org.sipfoundry.sipxconfig.admin.dialplan.LongDistanceRule"
@@ -188,11 +187,6 @@
     <property name="domainManager" ref="domainManager" />
   </bean>
 
-  <bean id="emergencyRoutingRules" class="org.sipfoundry.sipxconfig.admin.dialplan.config.EmergencyRoutingRules"
-    parent="defaultConfigurationFile">
-    <property name="name" value="e911rules.xml" />
-  </bean>
-
   <bean id="dialingRuleCollector" class="org.sipfoundry.sipxconfig.admin.dialplan.DialingRuleCollector" />
 
   <bean id="dialPlanConfigGenerator" class="org.sipfoundry.sipxconfig.admin.dialplan.config.ConfigGenerator"
@@ -211,9 +205,6 @@
     </property>
     <property name="natTraversalRules">
       <ref local="natTraversalRules" />
-    </property>
-    <property name="emergencyRoutingRules">
-      <ref local="emergencyRoutingRules" />
     </property>
     <property name="dialingRuleProvider">
       <ref local="dialingRuleCollector" />

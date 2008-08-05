@@ -275,6 +275,7 @@
     <antcall target="add-ivr-service"/>
   	<antcall target="location-sipx-service"/>
   	<antcall target="add-additional-sipx-services"/>
+  	<antcall target="remove-user-based-dialing"/>
     <!-- When freezing schema uncomment this line -->
     <!-- sipx-version version="8" -->
   </target>
@@ -693,6 +694,10 @@
 
   <target name="add-additional-sipx-services" unless="add-additional-sipx-services">
     <db-patch patch="add-additional-sipx-services"/>
+  </target>
+
+  <target name="remove-user-based-dialing" unless="remove-user-based-dialing">
+    <db-patch patch="remove-user-based-dialing"/>
   </target>
 
   <!-- 

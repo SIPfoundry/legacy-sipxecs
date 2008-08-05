@@ -21,7 +21,7 @@
                             holiday_attendant_enabled="false" working_time_attendant_enabled="false" />
 
     <dialing_rule dialing_rule_id="4" name="EmergencyRule" position="4" enabled="true" dial_plan_id="0" />
-    <emergency_dialing_rule emergency_dialing_rule_id="4" emergency_number="911" optional_prefix="1" use_media_server="false"/>
+    <emergency_dialing_rule emergency_dialing_rule_id="4" emergency_number="911" optional_prefix="1" />
 
     <dialing_rule dialing_rule_id="5" name="InternalRule" position="5" enabled="true" dial_plan_id="0" />
     <internal_dialing_rule internal_dialing_rule_id="5" local_extension_len="3" />

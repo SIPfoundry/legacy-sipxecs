@@ -1,10 +1,10 @@
 /*
  *
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.site.dialplan;
@@ -12,8 +12,6 @@ package org.sipfoundry.sipxconfig.site.dialplan;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.tapestry.IPage;
-import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.callback.ICallback;
@@ -81,7 +79,7 @@ public abstract class EditDialRule extends BasePage implements PageBeginRenderLi
     public abstract List getAvailableSchedules();
 
     public abstract void setAvailableSchedules(List schedules);
-    
+
     public String getEmergencyConfigurableDeviceList() {
         StringBuilder sb = new StringBuilder();
         sb.append("<ul>");
@@ -122,22 +120,5 @@ public abstract class EditDialRule extends BasePage implements PageBeginRenderLi
         // Ignore the callback passed to us for now because we're navigating
         // to unexpected places. Always go to the EditFlexibleDialPlan plan.
         setCallback(new PageCallback(EditFlexibleDialPlan.PAGE));
-    }
-
-    /**
-     * Go to emergency routing page. Set callback to return to this page. Used only in
-     * EditEmergencyRouting rule
-     */
-    public IPage emergencyRouting(IRequestCycle cycle) {
-        DialRuleCommon dialRuleCommon = (DialRuleCommon) getComponent("dialRuleCommon");
-        if (!dialRuleCommon.isValid()) {
-            return null;
-        }
-        dialRuleCommon.saveValid();
-        EditEmergencyRouting page = (EditEmergencyRouting) cycle
-                .getPage(EditEmergencyRouting.PAGE);
-        PageCallback callback = new PageCallback(getPage());
-        page.setCallback(callback);
-        return page;
     }
 }

@@ -8,7 +8,6 @@
     <binding name="ruleId" value="ruleId" />
     <binding name="rule" value="rule" />
     <binding name="callback" value="callback" />
-    <binding name="renderGateways" value="!rule.useMediaServer" />
   </component>
 
   <component id="pstnPrefixLabel" type="common/FieldPanel">
@@ -32,23 +31,5 @@
     <binding name="value" value="rule.emergencyNumber" />
     <binding name="validators" value="spring-validators:validSipUserId,required" />
     <binding name="displayName" value="message:label.number" />
-  </component>
-
-  <component id="callerSensitiveRoutingLabel" type="common/FieldPanel">
-    <binding name="field" value="components.callerSensitiveRouting" />
-    <binding name="label" value="message:label.callerSensitive" />
-    <binding name="description" value="message:description.callerSensitive" />
-  </component>
-  <component id="callerSensitiveRouting" type="Checkbox">
-    <binding name="value" value="rule.useMediaServer" />
-    <binding name="onchange" value="literal:javascript:this.form.submit();" />
-  </component>
-
-  <component id="renderCallerSensistiveLink" type="If">
-    <binding name="condition" value="rule.useMediaServer" />
-  </component>
-
-  <component id="emergencyRoutingLink" type="LinkSubmit">
-    <binding name="action" value="listener:emergencyRouting" />
   </component>
 </page-specification>

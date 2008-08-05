@@ -15,15 +15,12 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 import java.util.TimeZone;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Transformer;
 import org.apache.commons.lang.ArrayUtils;
-import org.apache.commons.lang.StringUtils;
-import org.dbunit.database.IDatabaseConnection;
 import org.dbunit.dataset.FilteredDataSet;
 import org.dbunit.dataset.IDataSet;
 import org.dbunit.dataset.ITable;
@@ -55,6 +52,7 @@ public class DialPlanContextTestDb extends SipxDatabaseTestCase {
     private GatewayContext m_gatewayContext;
     private ForwardingContext m_fwdContext;
 
+    @Override
     protected void setUp() throws Exception {
         ApplicationContext appContext = TestHelper.getApplicationContext();
         m_gatewayContext = (GatewayContext) appContext.getBean(GatewayContext.CONTEXT_BEAN_NAME);
@@ -184,49 +182,6 @@ public class DialPlanContextTestDb extends SipxDatabaseTestCase {
         IDataSet set = TestHelper.getConnection().createDataSet();
         ITable table = set.getTable("dialing_rule");
         assertEquals(ruleIds.size() * 2, table.getRowCount());
-    }
-
-    public void testGetEmergencyRouting() throws Exception {
-        TestHelper.insertFlat("admin/dialplan/emergency_routing.db.xml");
-        EmergencyRouting emergencyRouting = m_context.getEmergencyRouting();
-
-        assertEquals("9100", emergencyRouting.getExternalNumber());
-        Gateway defaultGateway = emergencyRouting.getDefaultGateway();
-        assertNotNull(defaultGateway);
-        assertTrue(defaultGateway.getName().startsWith("x"));
-
-        Collection exceptions = emergencyRouting.getExceptions();
-        assertEquals(2, exceptions.size());
-
-        for (Iterator i = exceptions.iterator(); i.hasNext();) {
-            RoutingException e = (RoutingException) i.next();
-            assertNotNull(e.getGateway());
-            assertTrue(e.getExternalNumber().startsWith("9"));
-            String[] callers = StringUtils.split(e.getCallers(), ", ");
-            assertEquals(2, callers.length);
-        }
-    }
-
-    public void testAddRoutingException() throws Exception {
-        TestHelper.insertFlat("admin/dialplan/emergency_routing.db.xml");
-        RoutingException re = new RoutingException();
-        EmergencyRouting er = m_context.getEmergencyRouting();
-        er.addException(re);
-        m_context.storeEmergencyRouting(er);
-
-        IDatabaseConnection db = TestHelper.getConnection();
-        assertEquals(3, db.getRowCount("routing_exception"));
-    }
-
-    public void testRemoveRoutingException() throws Exception {
-        TestHelper.insertFlat("admin/dialplan/emergency_routing.db.xml");
-
-        EmergencyRouting er = m_context.getEmergencyRouting();
-        RoutingException re = er.getExceptions().iterator().next();
-        m_context.removeRoutingException(re.getId());
-
-        IDatabaseConnection db = TestHelper.getConnection();
-        assertEquals(1, db.getRowCount("routing_exception"));
     }
 
     public void testIsAliasInUse() throws Exception {

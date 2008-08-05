@@ -10,13 +10,10 @@
 package org.sipfoundry.sipxconfig.admin.dialplan;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
-import org.sipfoundry.sipxconfig.admin.dialplan.MediaServer.Operation;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.FullTransform;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.Transform;
-import org.sipfoundry.sipxconfig.admin.dialplan.config.UrlTransform;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
 
 /**
@@ -27,8 +24,6 @@ public class EmergencyRule extends DialingRule {
 
     private String m_emergencyNumber;
     private String m_optionalPrefix;
-    private boolean m_useMediaServer;
-    private MediaServerFactory m_mediaServerFactory;
 
     @Override
     public String[] getPatterns() {
@@ -67,19 +62,9 @@ public class EmergencyRule extends DialingRule {
         return transforms.toArray(new Transform[transforms.size()]);
     }
 
-    public Transform[] getMediaServerTransforms() {
-        UrlTransform transform = new UrlTransform();
-        MediaServer mediaServer = m_mediaServerFactory.createDefault();
-        String url = mediaServer.buildUrl(CallDigits.FIXED_DIGITS, Operation.SOS, null);
-        transform.setUrl(url);
-        return new Transform[] {
-            transform
-        };
-    }
-
     @Override
     public Transform[] getTransforms() {
-        return m_useMediaServer ? getMediaServerTransforms() : getStandardTransforms();
+        return getStandardTransforms();
     }
 
     @Override
@@ -98,26 +83,6 @@ public class EmergencyRule extends DialingRule {
         return true;
     }
 
-    @Override
-    public void appendToGenerationRules(List<DialingRule> rules) {
-        if (!isEnabled()) {
-            return;
-        }
-        if (!m_useMediaServer) {
-            super.appendToGenerationRules(rules);
-            return;
-        }
-        try {
-            DialingRule rule = (DialingRule) clone();
-            rule.setGateways(Collections.<Gateway> emptyList());
-            rule.setDescription(getDescription());
-            rules.add(rule);
-        } catch (CloneNotSupportedException e) {
-            // should never happen
-            throw new RuntimeException(e);
-        }
-    }
-
     public String getEmergencyNumber() {
         return m_emergencyNumber;
     }
@@ -132,17 +97,5 @@ public class EmergencyRule extends DialingRule {
 
     public void setOptionalPrefix(String optionalPrefix) {
         m_optionalPrefix = optionalPrefix;
-    }
-
-    public boolean getUseMediaServer() {
-        return m_useMediaServer;
-    }
-
-    public void setUseMediaServer(boolean useMediaServer) {
-        m_useMediaServer = useMediaServer;
-    }
-
-    public void setMediaServerFactory(MediaServerFactory mediaServerFactory) {
-        m_mediaServerFactory = mediaServerFactory;
     }
 }

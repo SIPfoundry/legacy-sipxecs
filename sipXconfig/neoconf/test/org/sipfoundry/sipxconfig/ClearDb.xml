@@ -86,10 +86,6 @@
   <table name="meetme_conference"/>
   <table name="meetme_participant"/>
 	
-  <!-- routing exceptions -->
-  <table name="emergency_routing"/>
-  <table name="routing_exception"/>
-  
   <!-- ldap -->
   <table name="cron_schedule"/>
   <table name="ldap_connection"/>

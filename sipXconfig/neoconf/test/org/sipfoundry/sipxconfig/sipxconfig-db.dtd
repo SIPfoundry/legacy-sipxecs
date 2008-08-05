@@ -206,14 +206,6 @@
     emergency_dialing_rule_id CDATA #REQUIRED
     optional_prefix CDATA #IMPLIED
     emergency_number CDATA #IMPLIED
-    use_media_server CDATA #IMPLIED
->
-
-<!ELEMENT emergency_routing EMPTY>
-<!ATTLIST emergency_routing
-    emergency_routing_id CDATA #REQUIRED
-    gateway_id CDATA #IMPLIED
-    external_number CDATA #IMPLIED
 >
 
 <!ELEMENT extension_pool EMPTY>
@@ -545,15 +537,6 @@
     user_id CDATA #REQUIRED
     enabled CDATA #REQUIRED
     schedule_id CDATA #IMPLIED
->
-
-<!ELEMENT routing_exception EMPTY>
-<!ATTLIST routing_exception
-    routing_exception_id CDATA #REQUIRED
-    gateway_id CDATA #IMPLIED
-    external_number CDATA #IMPLIED
-    callers CDATA #IMPLIED
-    emergency_routing_id CDATA #IMPLIED
 >
 
 <!ELEMENT sbc EMPTY>

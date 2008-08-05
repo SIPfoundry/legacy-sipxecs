@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.site.dialplan;
@@ -77,7 +77,7 @@ public abstract class EditFlexibleDialPlan extends BasePage {
 
     /**
      * Moves selected dialing rules up and down.
-     * 
+     *
      * Pressing moveUp/moveDown buttons sets moveStep property. selectedRows property represents
      * all the rows with checked check boxes.
      */
@@ -91,7 +91,7 @@ public abstract class EditFlexibleDialPlan extends BasePage {
 
     public IPage activate(IRequestCycle cycle) {
         DialPlanContext manager = getDialPlanContext();
-        manager.generateDialPlan(manager.getEmergencyRouting());
+        manager.generateDialPlan();
         ActivateDialPlan activate = (ActivateDialPlan) cycle.getPage(ActivateDialPlan.PAGE);
         activate.setReturnPage(PAGE);
         return activate;

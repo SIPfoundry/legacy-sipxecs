@@ -58,7 +58,6 @@
       <key column="emergency_dialing_rule_id" />
       <property name="optionalPrefix" />
       <property name="emergencyNumber" />
-      <property name="useMediaServer" />
     </joined-subclass>
 
     <joined-subclass name="InternalRule" table="internal_dialing_rule">
@@ -134,37 +133,6 @@
         </array>
       </component>
     </joined-subclass>
-
-  </class>
-
-  <class name="EmergencyRouting" table="emergency_routing">
-    <id name="id" column="emergency_routing_id" type="int" unsaved-value="-1">
-      <generator class="sequence">
-        <param name="sequence">dialing_rule_seq</param>
-      </generator>
-    </id>
-    <many-to-one name="defaultGateway" class="org.sipfoundry.sipxconfig.gateway.Gateway"
-      not-null="false" column="gateway_id" foreign-key="fk_emergency_routing_gateway" />
-    <property name="externalNumber" />
-    <bag name="exceptions" table="routing_exception" cascade="all,delete-orphan" inverse="true">
-      <key column="emergency_routing_id" />
-      <one-to-many class="RoutingException" />
-    </bag>
-  </class>
-
-  <class name="RoutingException" table="routing_exception">
-    <id name="id" column="routing_exception_id" type="int" unsaved-value="-1">
-      <generator class="sequence">
-        <param name="sequence">dialing_rule_seq</param>
-      </generator>
-    </id>
-    <many-to-one name="gateway" class="org.sipfoundry.sipxconfig.gateway.Gateway" not-null="false"
-      column="gateway_id" foreign-key="fk_routing_exception_gateway" />
-    <property name="externalNumber" />
-    <property name="callers" />
-
-    <many-to-one name="emergencyRouting" column="emergency_routing_id" class="EmergencyRouting"
-      not-null="true" foreign-key="fk_emergency_routing_routing_exception" />
 
   </class>
 

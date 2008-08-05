@@ -18,7 +18,6 @@ import org.dom4j.Document;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRuleProvider;
-import org.sipfoundry.sipxconfig.admin.dialplan.EmergencyRouting;
 import org.sipfoundry.sipxconfig.admin.dialplan.attendant.AutoAttendantsConfig;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDeviceManager;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcManager;
@@ -53,8 +52,6 @@ public class ConfigGeneratorTest extends XMLTestCase {
 
         replay(dialingRuleProvider, dialPlanContext, sbcDeviceManager, sbcManager);
 
-        EmergencyRouting er = new EmergencyRouting();
-
         ConfigGenerator generator = new ConfigGenerator();
         generator.setDialingRuleProvider(dialingRuleProvider);
 
@@ -79,7 +76,7 @@ public class ConfigGeneratorTest extends XMLTestCase {
         AutoAttendantsConfig autoAttendantsConfig = new AutoAttendantsConfig();
         generator.setAutoAttendantConfig(autoAttendantsConfig );
 
-        generator.generate(dialPlanContext, er);
+        generator.generate(dialPlanContext);
 
         checkConfigFileGeneration(generator, authRules, "authrules.xml.in");
         checkConfigFileGeneration(generator, mappingRules, "mappingrules.xml.in");

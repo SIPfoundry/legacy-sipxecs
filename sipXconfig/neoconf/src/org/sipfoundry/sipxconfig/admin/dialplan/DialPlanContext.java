@@ -1,15 +1,14 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.admin.dialplan;
 
-import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
 
@@ -28,11 +27,11 @@ public interface DialPlanContext extends DataObjectSource, AliasOwner {
 
     public abstract void clear();
 
-    public abstract ConfigGenerator generateDialPlan(EmergencyRouting emergencyRouting);
+    public abstract ConfigGenerator generateDialPlan();
 
     public abstract void activateDialPlan();
 
-    public abstract ConfigGenerator getGenerator(EmergencyRouting emergencyRouting);
+    public abstract ConfigGenerator getGenerator();
 
     public abstract void storeAutoAttendant(AutoAttendant attendant);
 
@@ -61,7 +60,7 @@ public interface DialPlanContext extends DataObjectSource, AliasOwner {
 
     /**
      * Gets all of the dialing rules using a particular gateway.
-     * 
+     *
      * @param gatewayId The ID of the gateway.
      * @return A List of the DialingRules for that gateway.
      */
@@ -69,7 +68,7 @@ public interface DialPlanContext extends DataObjectSource, AliasOwner {
 
     /**
      * Gets all of the dialing rules that can be added to a particular gateway.
-     * 
+     *
      * @param gatewayId The ID of the gateway
      * @return A List of the DialingRules that can be added to the gateway
      */
@@ -100,14 +99,6 @@ public interface DialPlanContext extends DataObjectSource, AliasOwner {
     public String getVoiceMail();
 
     public EmergencyInfo getLikelyEmergencyInfo();
-
-    public abstract void applyEmergencyRouting(EmergencyRouting emergencyRouting);
-
-    public abstract void storeEmergencyRouting(EmergencyRouting emergencyRouting);
-
-    public abstract EmergencyRouting getEmergencyRouting();
-
-    public abstract void removeRoutingException(Serializable routingExceptionId);
 
     public Group getDefaultAutoAttendantGroup();
 

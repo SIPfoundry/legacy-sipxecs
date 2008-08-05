@@ -20,7 +20,6 @@ import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.AttendantRule;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRuleProvider;
-import org.sipfoundry.sipxconfig.admin.dialplan.EmergencyRouting;
 import org.sipfoundry.sipxconfig.admin.dialplan.IDialingRule;
 import org.sipfoundry.sipxconfig.admin.dialplan.attendant.AutoAttendantsConfig;
 import org.springframework.beans.factory.annotation.Required;
@@ -39,7 +38,6 @@ public class ConfigGenerator {
     private AutoAttendantsConfig m_autoAttendantConfig;
 
     private DialingRuleProvider m_dialingRuleProvider;
-    private EmergencyRoutingRules m_emergencyRoutingRules;
     private final List<AbstractConfigurationFile> m_attendantScheduleFiles = new ArrayList<AbstractConfigurationFile>();
 
     @Required
@@ -68,11 +66,6 @@ public class ConfigGenerator {
     }
 
     @Required
-    public void setEmergencyRoutingRules(EmergencyRoutingRules emergencyRoutingRules) {
-        m_emergencyRoutingRules = emergencyRoutingRules;
-    }
-
-    @Required
     public void setDialingRuleProvider(DialingRuleProvider dialingRuleProvider) {
         m_dialingRuleProvider = dialingRuleProvider;
     }
@@ -87,20 +80,9 @@ public class ConfigGenerator {
                 m_autoAttendantConfig);
     }
 
-    private void generate(EmergencyRouting er) {
-        if (er == null) {
-            return;
-        }
-        List<IDialingRule> rules = er.asDialingRulesList();
-        for (IDialingRule rule : rules) {
-            m_authRules.generate(rule);
-        }
-
-    }
-
-    public void generate(DialPlanContext plan, EmergencyRouting er) {
+    public void generate(DialPlanContext plan) {
         m_autoAttendantConfig.generate(plan);
-        generateXmlFromDialingRules(plan, er);
+        generateXmlFromDialingRules(plan);
 
         List<AttendantRule> attendantRules = plan.getAttendantRules();
         for (AttendantRule ar : attendantRules) {
@@ -112,8 +94,7 @@ public class ConfigGenerator {
         }
     }
 
-    /** Given the DialPlanContext and the EmergencyRouting, generate XML */
-    private void generateXmlFromDialingRules(DialPlanContext plan, EmergencyRouting er) {
+    private void generateXmlFromDialingRules(DialPlanContext plan) {
         // Get rules from dialing rule providers and the dial plan
         List<IDialingRule> rules = new ArrayList<IDialingRule>();
         if (m_dialingRuleProvider != null) {
@@ -125,8 +106,6 @@ public class ConfigGenerator {
         m_authRules.begin();
         m_fallbackRules.begin();
         m_forwardingRules.begin();
-
-        generate(er);
 
         for (IDialingRule rule : rules) {
             m_mappingRules.generate(rule);
@@ -166,11 +145,5 @@ public class ConfigGenerator {
             file.setDirectory(scriptsDirectory);
             sipxReplicationContext.replicate(file);
         }
-    }
-
-    public void activateEmergencyRules(SipxReplicationContext sipxReplicationContext, EmergencyRouting er,
-            String domainName) {
-        m_emergencyRoutingRules.generate(er, domainName);
-        sipxReplicationContext.replicate(m_emergencyRoutingRules);
     }
 }
