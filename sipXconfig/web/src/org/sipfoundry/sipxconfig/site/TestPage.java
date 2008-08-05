@@ -33,6 +33,8 @@ import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
+import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDescriptor;
+import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDevice;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDeviceManager;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcManager;
 import org.sipfoundry.sipxconfig.admin.forwarding.ForwardingContext;
@@ -159,6 +161,9 @@ public abstract class TestPage extends BasePage {
     @InjectObject(value = "spring:sbcDeviceManager")
     public abstract SbcDeviceManager getSbcDeviceManager();
 
+    @InjectObject(value = "spring:sipXbridgeSbcModel")
+    public abstract SbcDescriptor getSbcDescriptor();
+
     @InjectObject(value = "spring:speedDialManager")
     public abstract SpeedDialManager getSpeedDialManager();
 
@@ -181,6 +186,11 @@ public abstract class TestPage extends BasePage {
 
     public void initNatTraversal() {
         getNatTraversalManager().saveDefaultNatTraversal();
+        getSbcDeviceManager().clear();
+        getSbcDescriptor().setModelId("sipXbridgeSbcModel");
+        SbcDevice bridge = getSbcDeviceManager().newSbcDevice(getSbcDescriptor());
+        bridge.setName("bridge");
+        getSbcDeviceManager().storeSbcDevice(bridge);
         getSbcManager().clear();
     }
 

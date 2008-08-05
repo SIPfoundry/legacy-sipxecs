@@ -176,7 +176,6 @@
     <property name="name" value="nattraversalrules.xml" />
     <property name="velocityEngine" ref="velocityEngine" />
     <property name="sbcManager" ref="sbcManager" />
-    <property name="sbcDeviceManager" ref="sbcDeviceManager" />
     <property name="natTraversalManager" ref="natTraversalManager" />
     <property name="template" value="nattraversal/nattraversalrules.vm" />
   </bean>

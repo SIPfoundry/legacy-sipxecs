@@ -11,18 +11,27 @@ package org.sipfoundry.sipxconfig.nattraversal;
 
 import java.util.List;
 
+import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDeviceManager;
+import org.sipfoundry.sipxconfig.admin.dialplan.sbc.bridge.BridgeSbc;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
+import org.sipfoundry.sipxconfig.common.UserException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 
 import static org.springframework.dao.support.DataAccessUtils.singleResult;
-
+/**
+ * Make this class abstract - the functionality of this class has to be used only through
+ * "natTraversalManager" proxy defined in nattraversal.beans.xml
+ */
 public class NatTraversalManagerImpl extends SipxHibernateDaoSupport<NatTraversal> implements NatTraversalManager,
         BeanFactoryAware {
 
     private BeanFactory m_beanFactory;
 
+    private SbcDeviceManager m_sbcDeviceManager;
+
     public void store(NatTraversal natTraversal) {
+        checkForRTPPortRangeOverlap(natTraversal);
         saveBeanWithSettings(natTraversal);
     }
 
@@ -51,7 +60,29 @@ public class NatTraversalManagerImpl extends SipxHibernateDaoSupport<NatTraversa
         }
     }
 
+    private void checkForRTPPortRangeOverlap(NatTraversal natTraversal) {
+        int rangeStartNat = Integer.parseInt(natTraversal.getSettingValue(NatTraversal.RTP_PORT_START));
+        int rangeEndNat = Integer.parseInt(natTraversal.getSettingValue(NatTraversal.RTP_PORT_END));
+        if (rangeStartNat > rangeEndNat) {
+            throw new UserException(false, "error.startEndRtp");
+        }
+
+        BridgeSbc bridge = m_sbcDeviceManager.getBridgeSbc();
+        if (bridge != null) {
+            int rangeStartBridge = Integer.parseInt(bridge.getSettingValue(BridgeSbc.RTP_PORT_START));
+            int rangeEndBridge = Integer.parseInt(bridge.getSettingValue(BridgeSbc.RTP_PORT_END));
+            if (!(rangeEndBridge < rangeStartNat || rangeEndNat < rangeStartBridge)) {
+                throw new UserException(false, "error.rtpRangeOverlap");
+            }
+        }
+    }
+
     public void setBeanFactory(BeanFactory beanFactory) {
         m_beanFactory = beanFactory;
     }
+
+    public void setSbcDeviceManager(SbcDeviceManager sbcDeviceManager) {
+        m_sbcDeviceManager = sbcDeviceManager;
+    }
+
 }

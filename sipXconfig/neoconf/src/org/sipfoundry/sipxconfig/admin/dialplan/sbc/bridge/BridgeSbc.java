@@ -27,6 +27,11 @@ import org.sipfoundry.sipxconfig.setting.SettingEntry;
 import org.springframework.beans.factory.annotation.Required;
 
 public class BridgeSbc extends SbcDevice {
+
+    public static final String RTP_PORT_START = "bridge-configuration/rtp-port-range-start";
+
+    public static final String RTP_PORT_END = "bridge-configuration/rtp-port-range-end";
+
     private GatewayContext m_gatewayContext;
     
     private SipxProcessContext m_processContext;
@@ -108,8 +113,8 @@ public class BridgeSbc extends SbcDevice {
 
         @SettingEntry(path = "bridge-configuration/rtp-port-range")
         public String getRtpPortRange() {
-            String start = m_device.getSettingValue("bridge-configuration/rtp-port-range-start");
-            String end = m_device.getSettingValue("bridge-configuration/rtp-port-range-end");
+            String start = m_device.getSettingValue(RTP_PORT_START);
+            String end = m_device.getSettingValue(RTP_PORT_END);
             return String.format("%s:%s", start, end);
         }
 

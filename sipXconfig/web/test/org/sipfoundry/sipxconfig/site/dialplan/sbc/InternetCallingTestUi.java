@@ -33,6 +33,7 @@ public class InternetCallingTestUi extends WebTestCase {
 
         clickLink("resetInternetCalling");
         clickLink("InternetCalling");
+        clickLink("link:internetCalling");
     }
 
     public void testDisplayEdit() throws Exception {

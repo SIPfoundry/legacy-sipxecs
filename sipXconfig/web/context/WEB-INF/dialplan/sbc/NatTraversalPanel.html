@@ -1,0 +1,29 @@
+<h2><span key="title">NAT Traversal</span></h2>
+<div class="help">
+  <b><span key="label.quickLinks">Quick Links</span></b>
+  <ul>
+    <li>
+      <a jwcid="@PageLink" page="admin/JobStatusPage" href="#"><span key="label.jobStatus">Job Status</span></a>
+    </li>
+  </ul>
+</div>
+<span jwcid="@common/QuickHelp" value="message:quick.help"/>
+<fieldset>
+  <table>
+    <tbody>
+      <span jwcid="@common/FieldPanel" for="enabled"
+        label="message:label.enableNatTraversal"
+        field="component:enabled"
+        description="message:description.enableNatTraversal">
+        <input jwcid="enabled@Checkbox" value="ognl:natTraversal.enabled"/>
+      </span>
+      <span jwcid="@common/FieldPanel" for="behindnat"
+        label="message:label.behindnat"
+        field="component:behindnat"
+        description="message:description.behindnat">
+        <input jwcid="behindnat@Checkbox" value="ognl:natTraversal.behindnat"/>
+      </span>
+    </tbody>
+  </table>
+</fieldset>
+<fieldset jwcid="settings@setting/SettingsFieldset" settings="ognl:natTraversal.settings" renderGroupTitle="false"/>

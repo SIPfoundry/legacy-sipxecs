@@ -15,9 +15,11 @@ import org.sipfoundry.sipxconfig.IntegrationTestCase;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.bridge.BridgeSbc;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.device.ModelSource;
+import org.sipfoundry.sipxconfig.nattraversal.NatTraversalManager;
 
 public class SbcDeviceManagerImplTestIntegration extends IntegrationTestCase {
     private SbcDeviceManager m_sdm;
+    private NatTraversalManager m_natManager;
 
     private ModelSource<SbcDescriptor> m_modelSource;
 
@@ -89,6 +91,7 @@ public class SbcDeviceManagerImplTestIntegration extends IntegrationTestCase {
     }
 
     public void testSaveErrorMaxAllowed() {
+        m_natManager.saveDefaultNatTraversal();
         SbcDescriptor model = m_modelSource.getModel("sipXbridgeSbcModel");
         model.setMaxAllowed(1);
         SbcDevice newSbcDevice = m_sdm.newSbcDevice(model);
@@ -124,6 +127,10 @@ public class SbcDeviceManagerImplTestIntegration extends IntegrationTestCase {
 
     public void setSbcDeviceManager(SbcDeviceManager sdm) {
         m_sdm = sdm;
+    }
+
+    public void setNatTraversalManager(NatTraversalManager natManager) {
+        m_natManager = natManager;
     }
 
     public void setSbcModelSource(ModelSource<SbcDescriptor> modelSource) {

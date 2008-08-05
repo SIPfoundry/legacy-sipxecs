@@ -31,6 +31,7 @@
   <bean id="sbcDeviceManagerImpl" class="org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDeviceManagerImpl">
     <property name="sessionFactory" ref="sessionFactory" />
     <property name="daoEventPublisher" ref="daoEventPublisher" />
+    <lookup-method name="getNatTraversalManager" bean="natTraversalManager" />
   </bean>
 
   <bean id="sbcDeviceManagerSbcDeviceDelete" factory-bean="sbcDeviceManagerImpl"

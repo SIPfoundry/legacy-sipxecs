@@ -13,13 +13,13 @@
     <setting name="stun-server-address">
       <value>stun01.sipphone.com</value>
     </setting>
-    <setting name="stun-refresh-interval" advanced="yes">
+    <setting name="rediscovery-time" advanced="yes">
       <type>
         <integer required="yes" />
       </type>
       <value>60</value>
     </setting>
-    <setting name="aggressiveness">
+    <setting name="relayaggressiveness">
       <type>
         <enum>
           <option>
@@ -33,11 +33,72 @@
         </enum>
       </type>
     </setting>
-    <setting name="max-concurrent-relays">
+    <setting name="concurrentrelays">
       <type>
         <integer min="1" max="50" required="yes" />
       </type>
       <value>50</value>
+    </setting>
+  </group>
+  <group name="nattraversal-bridge">
+    <setting name="mediarelayexternaladdress" advanced="yes">
+      <type>
+        <ipaddr />
+      </type>
+      <value></value>
+    </setting>
+    <setting name="mediarelaynativeaddress" advanced="yes">
+      <type>
+        <ipaddr />
+      </type>
+      <value></value>
+    </setting>
+    <setting name="mediarelayxml-rpc-port" advanced="yes">
+      <type>
+        <integer />
+      </type>
+      <value>9090</value>
+    </setting>
+  </group>
+  <group name="nattraversal-symmitron">
+    <setting name="port-range-start" advanced="yes">
+      <profileName>$ignore$</profileName>
+      <type>
+        <integer required="yes" />
+      </type>
+      <value>30000</value>
+    </setting>
+    <setting name="port-range-end" advanced="yes">
+      <profileName>$ignore$</profileName>
+      <type>
+        <integer required="yes" />
+      </type>
+      <value>30500</value>
+    </setting>
+    <setting name="port-range" hidden="yes"></setting>
+    <setting name="log-level" advanced="yes">
+      <type>
+        <enum>
+          <option>
+            <value>OFF</value>
+          </option>
+          <option>
+            <value>INFO</value>
+          </option>
+          <option>
+            <value>WARN</value>
+          </option>
+          <option>
+            <value>ERROR</value>
+          </option>
+          <option>
+            <value>DEBUG</value>
+          </option>
+        </enum>
+      </type>
+      <value>INFO</value>
+    </setting>
+    <setting name="log-directory" hidden="yes">
     </setting>
   </group>
 </model>

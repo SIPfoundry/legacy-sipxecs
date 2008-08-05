@@ -12,6 +12,8 @@ package org.sipfoundry.sipxconfig.site.dialplan.sbc;
 import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.annotations.Bean;
+import org.apache.tapestry.annotations.InitialValue;
+import org.apache.tapestry.annotations.InjectComponent;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.event.PageBeginRenderListener;
@@ -26,8 +28,13 @@ import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.site.dialplan.ActivateDialPlan;
 
 public abstract class InternetCalling extends BasePage implements PageBeginRenderListener {
+    public static final String PAGE = "dialplan/sbc/InternetCalling";
+
     @InjectObject(value = "spring:sbcManager")
     public abstract SbcManager getSbcManager();
+
+    @InjectComponent(value = "natTraversalComponent")
+    public abstract NatTraversalPanel getNatTraversalPanel();
 
     public abstract Sbc getSbc();
 
@@ -42,6 +49,10 @@ public abstract class InternetCalling extends BasePage implements PageBeginRende
 
     @Persist
     public abstract boolean isAdvanced();
+
+    @Persist
+    @InitialValue(value = "literal:internetCalling")
+    public abstract String getTab();
 
     public void pageBeginRender(PageEvent event_) {
         Sbc sbc = getSbc();
@@ -59,7 +70,9 @@ public abstract class InternetCalling extends BasePage implements PageBeginRende
         if (!TapestryUtils.isValid(this)) {
             return null;
         }
+
         saveValid();
+        getNatTraversalPanel().saveValid();
 
         ActivateDialPlan dialPlans = (ActivateDialPlan) cycle.getPage(ActivateDialPlan.PAGE);
         dialPlans.setReturnPage(this);
@@ -74,4 +87,5 @@ public abstract class InternetCalling extends BasePage implements PageBeginRende
         sbc.setSbcDevice(getSelectedSbcDevice());
         getSbcManager().saveSbc(sbc);
     }
+
 }

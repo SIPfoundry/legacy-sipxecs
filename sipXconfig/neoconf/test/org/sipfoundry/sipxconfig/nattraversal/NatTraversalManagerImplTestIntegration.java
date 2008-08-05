@@ -19,21 +19,21 @@ public class NatTraversalManagerImplTestIntegration extends IntegrationTestCase 
         assertTrue(natTraversal != null);
 
         //test default values
-        assertTrue(natTraversal.getSettingValue(NatTraversal.INFO_MAXCONCRELAYS).equals("50"));
+        assertTrue(natTraversal.getSettingValue("nattraversal-info/concurrentrelays").equals("50"));
         assertFalse(natTraversal.isBehindnat());
         assertFalse(natTraversal.isEnabled());
 
         //test update NatTraversal
         natTraversal.setEnabled(true);
-        natTraversal.setSettingValue(NatTraversal.INFO_MAXCONCRELAYS, "21");
-        natTraversal.setSettingValue(NatTraversal.INFO_AGGRESSIVENESS, "Conservative");
+        natTraversal.setSettingValue("nattraversal-info/concurrentrelays", "21");
+        natTraversal.setSettingValue("nattraversal-info/relayaggressiveness", "Conservative");
 
         m_natTraversalManager.store(natTraversal);
 
         NatTraversal natTraversalUpdated = m_natTraversalManager.getNatTraversal();
         assertTrue(natTraversalUpdated != null);
-        assertTrue(natTraversalUpdated.getSettingValue(NatTraversal.INFO_MAXCONCRELAYS).equals("21"));
-        assertTrue(natTraversalUpdated.getSettingValue(NatTraversal.INFO_AGGRESSIVENESS).equals("Conservative"));
+        assertTrue(natTraversalUpdated.getSettingValue("nattraversal-info/concurrentrelays").equals("21"));
+        assertTrue(natTraversalUpdated.getSettingValue("nattraversal-info/relayaggressiveness").equals("Conservative"));
         assertTrue(natTraversalUpdated.isEnabled());
 
         flush();

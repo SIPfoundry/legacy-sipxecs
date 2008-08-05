@@ -24,7 +24,7 @@ public class NatTraversalTestDb extends SipxDatabaseTestCase {
                                         getBean("natTraversal");
         natTraversal.setEnabled(true);
         natTraversal.setBehindnat(false);
-        natTraversal.getSettings().getSetting(NatTraversal.INFO_MAXCONCRELAYS).setValue("2");
+        natTraversal.getSettings().getSetting("nattraversal-info/concurrentrelays").setValue("2");
         ValueStorage valueStorage = (ValueStorage)natTraversal.getValueStorage();
 
         m_natTraversalManager.store(natTraversal);
@@ -45,6 +45,6 @@ public class NatTraversalTestDb extends SipxDatabaseTestCase {
 
         Assertion.assertEquals(expectedConf, actualNatTraversal);
         assertEquals("2", natTraversal.getSettings().
-                getSetting(NatTraversal.INFO_MAXCONCRELAYS).getValue());
+                getSetting("nattraversal-info/concurrentrelays").getValue());
     }
 }

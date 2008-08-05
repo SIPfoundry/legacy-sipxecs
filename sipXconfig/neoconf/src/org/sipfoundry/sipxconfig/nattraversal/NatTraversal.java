@@ -9,20 +9,24 @@
  */
 package org.sipfoundry.sipxconfig.nattraversal;
 
-import org.sipfoundry.sipxconfig.setting.BeanWithSettings;
+import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDeviceManager;
+import org.sipfoundry.sipxconfig.admin.dialplan.sbc.bridge.BridgeSbc;
+import org.sipfoundry.sipxconfig.setting.BeanWithGroups;
 import org.sipfoundry.sipxconfig.setting.Setting;
+import org.sipfoundry.sipxconfig.setting.SettingEntry;
 
-public class NatTraversal extends BeanWithSettings {
+public class NatTraversal extends BeanWithGroups {
+
+    public static final String RTP_PORT_START = "nattraversal-symmitron/port-range-start";
+    public static final String RTP_PORT_END = "nattraversal-symmitron/port-range-end";
+
     public static final String BEAN_NAME = "natTraversal";
-    public static final String INFO_AGGRESSIVENESS = "nattraversal-info/aggressiveness";
-    public static final String INFO_MAXCONCRELAYS = "nattraversal-info/max-concurrent-relays";
-    public static final String INFO_PUBLICADDRESS = "nattraversal-info/publicaddress";
-    public static final String INFO_STUNSERVER = "nattraversal-info/stun-server-address";
-    public static final String INFO_REFRESHINTERVAL = "nattraversal-info/stun-refresh-interval";
-
     private String m_settingsFile;
     private boolean m_enabled;
     private boolean m_behindnat;
+    private String m_logDirectory;
+    private SbcDeviceManager m_sbcDeviceManager;
+    private String m_proxyAddress;
 
     public NatTraversal() {
         super();
@@ -34,24 +38,17 @@ public class NatTraversal extends BeanWithSettings {
         return settings;
     }
 
-    public Setting getInfoPublicAddress() {
-        return getSettings().getSetting(INFO_PUBLICADDRESS);
+    @Override
+    public void initialize() {
+        addDefaultBeanSettingHandler(new Defaults(this));
     }
 
-    public Setting getInfoAggressiveness() {
-        return getSettings().getSetting(INFO_AGGRESSIVENESS);
+    public void setSbcDeviceManager(SbcDeviceManager sbcDeviceManager) {
+        m_sbcDeviceManager = sbcDeviceManager;
     }
 
-    public Setting getInfoMaxConcRelays() {
-        return getSettings().getSetting(INFO_MAXCONCRELAYS);
-    }
-
-    public Setting getInfoSTUNServer() {
-        return getSettings().getSetting(INFO_STUNSERVER);
-    }
-
-    public Setting getInfoSTUNRefreshInterval() {
-        return getSettings().getSetting(INFO_REFRESHINTERVAL);
+    public SbcDeviceManager getSbcDeviceManager() {
+        return m_sbcDeviceManager;
     }
 
     public boolean isBehindnat() {
@@ -68,6 +65,60 @@ public class NatTraversal extends BeanWithSettings {
 
     public void setEnabled(boolean enabled) {
         m_enabled = enabled;
+    }
+
+    public static class Defaults {
+        private NatTraversal m_natTraversal;
+
+        Defaults(NatTraversal natTraversal) {
+            m_natTraversal = natTraversal;
+        }
+
+        @SettingEntry(path = "nattraversal-symmitron/port-range")
+        public String getRtpPortRange() {
+            String start = m_natTraversal.getSettingValue(RTP_PORT_START);
+            String end = m_natTraversal.getSettingValue(RTP_PORT_END);
+            return String.format("%s:%s", start, end);
+        }
+
+        @SettingEntry(path = "nattraversal-bridge/mediarelayexternaladdress")
+        public String getSymmitronLocalAddress() {
+            //Don't make sbc bridge a member in NatTraversal because you may end up having two bridge
+            //references in the hibernate session when sbc bridge makes port range validation for instance
+            BridgeSbc bridge = m_natTraversal.getSbcDeviceManager().getBridgeSbc();
+            return bridge != null ? bridge.getSettingValue("bridge-configuration/external-address")
+                    : m_natTraversal.getProxyAddress();
+        }
+
+        @SettingEntry(path = "nattraversal-bridge/mediarelaynativeaddress")
+        public String getSymmitronExternalAddress() {
+            //Don't make sbc bridge a member in NatTraversal because you may end up having two bridge
+            //references in the hibernate session when sbc bridge makes port range validation for instance
+            BridgeSbc bridge = m_natTraversal.getSbcDeviceManager().getBridgeSbc();
+            return bridge != null ? bridge.getSettingValue("bridge-configuration/local-address")
+                    : m_natTraversal.getProxyAddress();
+        }
+
+        @SettingEntry(path = "nattraversal-symmitron/log-directory")
+        public String getLogDirectory() {
+            return m_natTraversal.getLogDirectory();
+        }
+
+    }
+
+    public void setLogDirectory(String logDirectory) {
+        m_logDirectory = logDirectory;
+    }
+
+    public String getLogDirectory() {
+        return m_logDirectory;
+    }
+    public String getProxyAddress() {
+        return m_proxyAddress;
+    }
+
+    public void setProxyAddress(String proxyAddress) {
+        m_proxyAddress = proxyAddress;
     }
 
 }
