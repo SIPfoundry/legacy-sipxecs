@@ -132,13 +132,22 @@
       value="org.sipfoundry.sipxconfig.admin.commserver.AlarmApi" />
   </bean>
 
-  <bean id="sipxAlarmContext"
-    class="org.sipfoundry.sipxconfig.admin.commserver.SipxAlarmContextImpl">
-    <!-- real value injected by sipxconfig.properties -->
+  <bean id="alarmContextImpl" class="org.sipfoundry.sipxconfig.common.AlarmContextImpl">
     <property name="host" value="localhost" />
-    <property name="locationsManager" ref="locationsManager" />
-    <property name="alarmApiProvider"
-      ref="alarmApiProvider" />
+    <property name="alarmServerUrl" value="https://localhost:8092/RPC2" />
+    <property name="alarmApiProvider" ref="alarmApiProvider" />
+  </bean>
+
+  <bean id="alarmContext" class="org.springframework.aop.framework.ProxyFactoryBean">
+    <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.common.AlarmContext"/>
+    <property name="interceptorNames">
+      <list>
+        <value>backgroundTaskInterceptor</value>
+      </list>
+    </property>
+    <property name="target">
+      <ref local="alarmContextImpl" />
+    </property>
   </bean>
 
   <bean id="dataSetGenerator" abstract="true"

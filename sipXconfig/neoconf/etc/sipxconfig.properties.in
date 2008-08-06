@@ -110,7 +110,8 @@ mailboxManagerImpl.mediaServerCgiUrl=https://${VOICEMAIL_SERVER_HOSTNAME}:${VOIC
 cdrManagerImpl.cdrAgentHost=${CALLRESOLVER_AGENT_ADDR}
 cdrManagerImpl.cdrAgentPort=${CALLRESOLVER_AGENT_PORT}
 sipxProcessContext.host=${MY_FULL_HOSTNAME}
-sipxAlarmContext.host=${MY_FULL_HOSTNAME}
+alarmContextImpl.host=${MY_FULL_HOSTNAME}
+alarmContextImpl.alarmServerUrl=https://${SIPXCHANGE_DOMAIN_NAME}:8092/RPC2
 sbcDeviceManagerImpl.localIpAddress=${MY_IP_ADDR}
 
 replicationManagerImpl.hostname=${MY_FULL_HOSTNAME}

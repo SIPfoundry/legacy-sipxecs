@@ -21,7 +21,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sipfoundry.sipxconfig.admin.Alarm;
+import org.sipfoundry.sipxconfig.common.AlarmContext;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.Md5Encoder;
 import org.sipfoundry.sipxconfig.common.User;
@@ -32,6 +32,7 @@ public class LoginContextImpl implements LoginContext {
 
     private static final Log LOG = LogFactory.getLog("login");
 
+    private AlarmContext m_alarmContext;
     private CoreContext m_coreContext;
 
     private String m_logDirectory;
@@ -79,7 +80,7 @@ public class LoginContextImpl implements LoginContext {
             LOG.info(LoginEvent.formatLogToRecord(LoginEvent.SUCCESS, userNameOrAlias, remoteIp));
         } else {
             LOG.warn(LoginEvent.formatLogToRecord(LoginEvent.FAILURE, userNameOrAlias, remoteIp));
-            Alarm.raiseAlarm("LOGIN_FAILED", userNameOrAlias);
+            m_alarmContext.raiseAlarm("LOGIN_FAILED", userNameOrAlias);
         }
 
     }
@@ -122,6 +123,10 @@ public class LoginContextImpl implements LoginContext {
             IOUtils.closeQuietly(input);
         }
         return contents.toArray(new LoginEvent[contents.size()]);
+    }
+
+    public void setAlarmContext(AlarmContext alarmContext) {
+        m_alarmContext = alarmContext;
     }
 
     public void setCoreContext(CoreContext coreContext) {

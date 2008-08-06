@@ -9,10 +9,7 @@
  */
 package org.sipfoundry.sipxconfig.admin.commserver;
 
-import java.util.Vector;
-
 public interface AlarmApi {
-    Boolean     raiseAlarm(String host, String alarmId, String alarmParam);
-    Boolean     raiseAlarm(String host, String alarmId, Vector<String> alarmParams);
+    Boolean     raiseAlarm(String host, String alarmId, String... alarmParam);
     Boolean     reloadAlarms(String host);
 }

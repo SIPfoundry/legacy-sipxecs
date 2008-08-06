@@ -78,8 +78,4 @@
   <bean id="defaultConfigurationFile" abstract="true">
     <property name="directory" value="${sysdir.etc}"/>
   </bean>
-
-  <bean id="alarm" class="org.sipfoundry.sipxconfig.admin.Alarm">
-    <property name="alarmContext" ref="sipxAlarmContext" />
-  </bean>
 </beans>

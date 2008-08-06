@@ -7,6 +7,9 @@
     <property name="coreContext">
       <ref bean="coreContext" />
     </property>
+    <property name="alarmContext">
+      <ref bean="alarmContext" />
+    </property>
     <property name="logDirectory" value="${sysdir.log}" />
   </bean>
 
