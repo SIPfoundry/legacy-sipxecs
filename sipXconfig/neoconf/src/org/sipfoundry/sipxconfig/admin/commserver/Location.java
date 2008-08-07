@@ -10,6 +10,7 @@
 package org.sipfoundry.sipxconfig.admin.commserver;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -72,7 +73,25 @@ public class Location extends BeanWithId {
         m_sipxServices = sipxServices;
     }
     
+    /**
+     * Returns an unmodifiable collection of sipx services for this location.  To add or remove
+     * services on this location, use the Location's addService or removeService methods.
+     */
     public Collection<SipxService> getSipxServices() {
-        return m_sipxServices;
+        if (m_sipxServices == null) {
+            return Collections.unmodifiableCollection(Collections.<SipxService>emptyList());
+        } else {
+            return Collections.unmodifiableCollection(m_sipxServices);
+        }
+    }
+    
+    public void removeService(SipxService sipxService) {
+        m_sipxServices.remove(sipxService);
+    }
+    
+    public void addService(SipxService sipxService) {
+        if (!m_sipxServices.contains(sipxService)) {
+            m_sipxServices.add(sipxService);
+        }
     }
 }

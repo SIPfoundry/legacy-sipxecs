@@ -16,6 +16,7 @@ import org.apache.tapestry.IPage;
 import org.apache.tapestry.annotations.Bean;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.InjectPage;
+import org.apache.tapestry.callback.PageCallback;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.html.BasePage;
@@ -31,6 +32,9 @@ public abstract class LocationsPage extends BasePage implements PageBeginRenderL
     
     @InjectPage(value = EditLocationPage.PAGE)
     public abstract EditLocationPage getEditLocationPage();
+    
+    @InjectPage(value = AddLocationPage.PAGE)
+    public abstract AddLocationPage getAddLocationPage();
     
     @Bean
     public abstract SelectMap getSelections();
@@ -55,13 +59,14 @@ public abstract class LocationsPage extends BasePage implements PageBeginRenderL
     public IPage editLocation(int locationId) {
         EditLocationPage editLocationPage = getEditLocationPage();
         editLocationPage.setLocationId(new Integer(locationId));
-        editLocationPage.setReturnPage(getPage());
+        editLocationPage.setCallback(new PageCallback(LocationsPage.PAGE));
         return editLocationPage;
     }
     
     public IPage addLocation() {
-        EditLocationPage addLocationPage = getEditLocationPage();
+        AddLocationPage addLocationPage = getAddLocationPage();
         addLocationPage.setReturnPage(getPage());
+        addLocationPage.setCallback(new PageCallback(LocationsPage.PAGE));
         return addLocationPage;
     }
     

@@ -9,6 +9,7 @@
  */
 package org.sipfoundry.sipxconfig.site.admin.commserver;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -20,14 +21,14 @@ import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.annotations.Bean;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Parameter;
-import org.apache.tapestry.event.PageBeginRenderListener;
-import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.services.ExpressionEvaluator;
 import org.apache.tapestry.valid.IValidationDelegate;
 import org.apache.tapestry.valid.ValidatorException;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
+import org.sipfoundry.sipxconfig.admin.commserver.Process;
 import org.sipfoundry.sipxconfig.admin.commserver.ServiceStatus;
+import org.sipfoundry.sipxconfig.admin.commserver.ServiceStatus.Status;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext.Command;
 import org.sipfoundry.sipxconfig.common.UserException;
@@ -37,12 +38,14 @@ import org.sipfoundry.sipxconfig.components.SelectMap;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.domain.DomainConfigReplicatedEvent;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
+import org.sipfoundry.sipxconfig.service.SipxService;
+import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.sipfoundry.sipxconfig.site.service.EditParkService;
 import org.sipfoundry.sipxconfig.site.service.EditPresenceService;
 import org.sipfoundry.sipxconfig.site.service.EditProxyService;
 import org.sipfoundry.sipxconfig.site.service.EditRegistrarService;
 
-public abstract class ServicesTable extends BaseComponent implements PageBeginRenderListener {
+public abstract class ServicesTable extends BaseComponent {
 
     public static final Map<String, String> SERVICE_MAP = new HashMap<String, String>();
     static {
@@ -63,6 +66,9 @@ public abstract class ServicesTable extends BaseComponent implements PageBeginRe
 
     @InjectObject(value = "spring:domainManager")
     public abstract DomainManager getDomainManager();
+    
+    @InjectObject(value = "spring:sipxServiceManager")
+    public abstract SipxServiceManager getSipxServiceManager();
 
     @Bean
     public abstract SelectMap getSelections();
@@ -83,8 +89,11 @@ public abstract class ServicesTable extends BaseComponent implements PageBeginRe
     public abstract void setServiceStatus(Object[] serviceStatus);
 
     public abstract Object[] getServiceStatus();
-
-    public void pageBeginRender(PageEvent event_) {
+    
+    @Override
+    protected void prepareForRender(IRequestCycle cycle) {
+        super.prepareForRender(cycle);
+        
         Object[] serviceStatus = getServiceStatus();
         if (serviceStatus == null) {
             serviceStatus = retrieveServiceStatus(getServiceLocation());
@@ -102,7 +111,13 @@ public abstract class ServicesTable extends BaseComponent implements PageBeginRe
         } catch (UserException e) {
             IValidationDelegate validator = TapestryUtils.getValidator(this);
             validator.record(new ValidatorException(e.getMessage()));
-            return ArrayUtils.EMPTY_OBJECT_ARRAY;
+            
+            Collection<ServiceStatus> serviceStatusList = new ArrayList<ServiceStatus>();
+            for (SipxService sipxService : location.getSipxServices()) {
+                Process process = getSipxProcessContext().getProcess(sipxService.getProcessName());
+                serviceStatusList.add(new ServiceStatus(process, Status.UNKNOWN));
+            }
+            return serviceStatusList.toArray();
         }
     }
 
@@ -122,6 +137,27 @@ public abstract class ServicesTable extends BaseComponent implements PageBeginRe
     public void refresh() {
         setServiceStatus(null);
     }
+    
+    public void removeService() {
+        manageServices(SipxProcessContext.Command.STOP);
+        Collection<Process> selectedProcesses = getSelections().getAllSelected();
+        for (Process process : selectedProcesses) {
+            getServiceLocation().removeService(getSipxServiceForProcess(process));
+        }
+        getLocationsManager().storeLocation(getServiceLocation());
+        refresh();
+    }
+    
+    private SipxService getSipxServiceForProcess(Process process) {
+        Collection<SipxService> allServices = getServiceLocation().getSipxServices();
+        for (SipxService sipxService : allServices) {
+            if (sipxService.getProcessName().getName().equals(process.getName())) {
+                return sipxService;
+            }
+        }
+        
+        return null;
+    }
 
     public void start() {
         manageServices(SipxProcessContext.Command.START);
@@ -137,9 +173,9 @@ public abstract class ServicesTable extends BaseComponent implements PageBeginRe
         manageServices(SipxProcessContext.Command.RESTART);
         refresh();
     }
-
+    
     private void manageServices(SipxProcessContext.Command operation) {
-        Collection services = getSelections().getAllSelected();
+        Collection<Process> services = getSelections().getAllSelected();
         if (services == null) {
             return;
         }

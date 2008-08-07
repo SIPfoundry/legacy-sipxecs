@@ -1,0 +1,29 @@
+<fieldset>
+  <table>
+    <tbody>
+      <tr jwcid="@common/FieldPanel"
+        for="location:name"
+        label="message:label.name"
+        field="component:name"
+        description="message:description.name" >
+        <input jwcid="name@TextField"
+          id="location:name"
+          value="ognl:locationBean.name"
+          validators="spring-validators:required"
+          displayName="message:label.name"/>
+      </tr>
+      <tr jwcid="@common/FieldPanel"
+        for="location:address"
+        label="message:label.address"
+        field="component:address"
+        description="message:description.address" >
+        <input jwcid="address@TextField"
+          id="location:address"
+          value="ognl:locationBean.address"
+          validators="spring-validators:required,validHostOrIp"
+          displayName="message:label.address"/>
+      </tr>
+    </tbody>
+  </table>
+</fieldset>
+<ul jwcid="@common/FormActions" listener="listener:saveLocation" callback="ognl:callback"/>

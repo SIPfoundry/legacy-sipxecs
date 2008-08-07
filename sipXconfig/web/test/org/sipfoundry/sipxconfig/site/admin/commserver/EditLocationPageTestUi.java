@@ -1,10 +1,9 @@
 package org.sipfoundry.sipxconfig.site.admin.commserver;
 
 import junit.framework.Test;
+import net.sourceforge.jwebunit.junit.WebTestCase;
 
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
-
-import net.sourceforge.jwebunit.junit.WebTestCase;
 
 public class EditLocationPageTestUi extends WebTestCase {
 
