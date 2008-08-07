@@ -39,7 +39,7 @@ polycom.defaultVersionId=1.6
 # imdb/sipdb location for https access
 registrationContext.hostname=${MY_FULL_HOSTNAME}
 domainManagerImpl.authorizationRealm=${SIPXCHANGE_REALM}
-domainManagerImpl.alarmServerUrl=https://${SIPXCHANGE_DOMAIN_NAME}:8092
+domainManagerImpl.alarmServerUrl=https://${MY_FULL_HOSTNAME}:8092
 domainManagerImpl.initialDomain=${SIPXCHANGE_DOMAIN_NAME}
 domainManagerImpl.initialAlias=${PROXY_SERVER_ADDR}
 adminContextImpl.backupDirectory=@sipxpbx.backup.dir@
@@ -111,7 +111,7 @@ cdrManagerImpl.cdrAgentHost=${CALLRESOLVER_AGENT_ADDR}
 cdrManagerImpl.cdrAgentPort=${CALLRESOLVER_AGENT_PORT}
 sipxProcessContext.host=${MY_FULL_HOSTNAME}
 alarmContextImpl.host=${MY_FULL_HOSTNAME}
-alarmApi.alarmServerUrl=https://${SIPXCHANGE_DOMAIN_NAME}:8092/RPC2
+alarmApi.serviceUrl=https://${MY_FULL_HOSTNAME}:8092/RPC2
 sbcDeviceManagerImpl.localIpAddress=${MY_IP_ADDR}
 
 replicationManagerImpl.hostname=${MY_FULL_HOSTNAME}
