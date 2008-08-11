@@ -15,10 +15,32 @@
   <group name="itsp-account">
     <label>ITSP Account</label>
     <description>The information that is specific to a given ITSP account.</description>
-    <setting name="outbound-proxy" advanced="yes">
+    <setting name="proxy-domain">
+      <label>ITSP server domain name</label>
       <description>
-        If the ITSP specifies an outbound proxy, enter it here. If nothing is specified, the route to the outbound proxy
-        is determined by DNS lookup on the proxy domain. The outbound proxy setting is used to route the initial INVITE.
+        The domain name of the ITSP. This domain name is used to look up via DNS SRV the address of the SIP server the
+        ITSP uses. If the ITSP does not provide this lookup mechanism specify a server address below.
+      </description>
+    </setting>
+    <setting name="user-name">
+      <label>User name</label>
+      <type>
+        <string />
+      </type>
+      <description>The authentication user name attached to the account.</description>
+    </setting>
+    <setting name="password">
+      <label>Password</label>
+      <type>
+        <string password="yes"></string>
+      </type>
+      <description>The password for the account.</description>
+    </setting>
+    <setting name="outbound-proxy" advanced="yes">
+      <label>ITSP server address</label>
+      <description>
+        If the ITSP specifies a server address or name or an outbound proxy, enter it here. If nothing is specified, the
+        route to the ITSP's server (outbound proxy) is determined by DNS lookup on the ITSP domain.
       </description>
     </setting>
     <setting name="outbound-transport" hidden="yes">
@@ -36,42 +58,31 @@
       <description>The outbound proxy transport.</description>
     </setting>
     <setting name="inbound-proxy" advanced="yes">
+      <label>Inbound ITSP server address</label>
       <description>
-        If the ITSP specifies an inbound proxy, that is different from the outbound proxy, enter it here. Otherwise this
-        setting is assumed to be identical to the outbound proxy.
+        If the ITSP specifies an inbound proxy or server that is different from the ITSP server address or outbound
+        proxy above, enter it here. Otherwise this setting is assumed to be identical to the ITSP server or outbound
+        proxy.
       </description>
     </setting>
-    <setting name="proxy-domain">
-      <description>The ITSP proxy domain.</description>
-    </setting>
-    <setting name="user-name">
-      <label>User</label>
-      <type>
-        <string />
-      </type>
-      <description>The user name attached to the account.</description>
-    </setting>
-    <setting name="password">
-      <label>Password</label>
-      <type>
-        <string password="yes"></string>
-      </type>
-      <description>The password for the account.</description>
-    </setting>
-    <setting name="display-name" advanced="yes">
-      <label>Display name</label>
-      <description>The optional display name for this account.</description>
-    </setting>
     <setting name="use-global-addressing" advanced="yes">
-      <label>Global addressing</label>
+      <label>Use public address for call setup</label>
       <type refid="switch" />
       <value>false</value>
-      <description>If checked, use the global address for SIP and SDP.</description>
+      <description>
+        If checked, use the sipXbridge public address for SIP signaling and media (SDP). Otherwise, the local (LAN)
+        address will be used. Using the local address assumes that the ITSP provides NAT traversal functionality.
+      </description>
     </setting>
     <setting name="use-rport" advanced="yes">
-      <label>Rport parameter</label>
+      <label>Set RPort Parameter</label>
       <type refid="switch" />
       <value>false</value>
+      <description>
+        If checked then the rport parameter will be set in outbound SIP requests; thus indicating to the ITSP server
+        that the SIP request is originating from behind a Symmetric NAT and that the server should respond to the remote
+        address and port of the incoming signaling as defined in RFC 3581.
+      </description>
     </setting>
     <setting name="register-on-initialization" advanced="yes">
       <label>Register on initialization</label>
@@ -80,20 +91,27 @@
       <description>Defines whether or not to register with the given ITSP on initialization.</description>
     </setting>
     <setting name="outbound-registrar" advanced="yes">
-      <description>Registrar route (if different from proxy). Determines where to send REGISTER request.</description>
+      <label>Registrar address</label>
+      <description>
+        Registrar address (if different from ITSP server address). Determines where to send REGISTER request.
+      </description>
     </setting>
     <setting name="registration-interval" advanced="yes">
+      <label>Registration interval</label>
       <type>
         <integer />
       </type>
       <value>600</value>
-      <description>Registration Interval (seconds)</description>
+      <description>Registration interval (seconds)</description>
     </setting>
     <setting name="use-registration-for-caller-id" advanced="yes">
       <label>Use Registration for caller-ID</label>
       <type refid="switch"></type>
       <value>true</value>
-      <description>Defines whether or not to use the Registration username and domain as a caller ID.</description>
+      <description>
+        Defines whether or not to use the ITSP's registration user name and domain as caller ID as required by some
+        ITSPs. If not set, the user can specify a desired caller-ID for the ITSP account under the Caller-ID tab.
+      </description>
     </setting>
     <setting name="sip-keepalive-method" advanced="yes">
       <label>Method to use for SIP keepalive.</label>
@@ -104,10 +122,6 @@
             <value>NONE</value>
           </option>
           <option>
-            <label>SIP REGISTER Request</label>
-            <value>REGISTER</value>
-          </option>
-          <option>
             <label>Empty SIP message</label>
             <value>CR-LF</value>
           </option>
@@ -115,7 +129,7 @@
       </type>
       <value>CR-LF</value>
       <description>
-        Defines the mechanism to use for SIP keepalive. If nothing specified, CR-LF (empty SIP message) is used.
+        Defines the mechanism to use for SIP keepalive. If nothing is specified, CR-LF (empty SIP message) is used.
       </description>
     </setting>
     <setting name="rtp-keepalive-method" advanced="yes">
@@ -137,7 +151,7 @@
         </enum>
       </type>
       <value>USE-EMPTY-PACKET</value>
-      <description>Defines the mechanism to use for RTP keepalive.</description>
+      <description>Defines the mechanism to use for media (RTP) keepalive.</description>
     </setting>
   </group>
 </model>

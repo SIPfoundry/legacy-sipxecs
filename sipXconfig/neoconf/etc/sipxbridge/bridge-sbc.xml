@@ -15,24 +15,25 @@
   <group name="bridge-configuration">
     <label>SIP</label>
     <setting name="global-address">
-      <label>Public Address</label>
+      <label>Public address</label>
       <description>
-        Set this if your ITSP requires a globally routable address to be specified and if you do not wish to use STUN to
-        determine that address. If you enter a public address here, any STUN settings will be ignored.
+        This is your public (Internet) address. Set this if your ITSP requires a public address and if you do not wish
+        to use STUN to determine that address. If you enter a public address here, any STUN settings will be ignored.
       </description>
     </setting>
     <setting name="global-port">
-      <label>Public Port</label>
+      <label>Public port</label>
       <type>
         <integer />
       </type>
-      <description>Set this if your ITSP requires you to specify a publicly routable ITSP facing port.</description>
+      <description>Set this if your ITSP requires a specific port.</description>
     </setting>
     <setting name="external-address">
       <label>External address</label>
       <description>
-        External address is address of the external arm of sipXbridge. Normally this is an IP address on the internal
-        LAN. If sipxbridge runs in your DMZ this is the same as your public address.
+        This is the address of the external arm of sipXbridge facing the ITSP. Normally this is an IP address on the
+        internal LAN. If sipxbridge runs in your DMZ or is connected to the Internet then this is the same as your
+        public address.
       </description>
     </setting>
     <setting name="external-port">
@@ -41,20 +42,23 @@
         <integer required="yes" />
       </type>
       <value>5080</value>
-      <description>The ITSP facing port on your machine. This is the NATed global port.</description>
+      <description>
+        The ITSP facing port of sipXbridge that corresponds to the external address on your machine. This is the NATed
+        global port.
+      </description>
     </setting>
     <setting name="local-address" hidden="yes">
       <type>
         <string required="yes"></string>
       </type>
-      <description>The SIPX proxy facing address. The SIPX proxy will send signaling here.</description>
+      <description>The sipXecs proxy facing address. The sipXecs proxy will send signaling here.</description>
     </setting>
     <setting name="local-port" hidden="yes">
       <type>
         <integer required="yes" />
       </type>
       <value>5090</value>
-      <description>The SIPX proxy facing port. The SIPX proxy will send signaling here.</description>
+      <description>The sipXecs proxy facing port. The sipXecs proxy will send signaling here.</description>
     </setting>
     <setting name="sipx-proxy-domain" hidden="yes">
       <description>The sipXecs proxy domain.</description>
@@ -63,8 +67,8 @@
       <label>STUN server</label>
       <value>stun01.sipphone.com</value>
       <description>
-        The stun server address used to determine the global address of the bridge. If you enter a static global
-        address, this field is ignored.
+        The STUN server address used to determine the public address of sipXbridge. If you enter a static public address
+        above, this field is ignored.
       </description>
     </setting>
     <setting name="sip-keepalive-seconds" advanced="yes">
@@ -74,7 +78,8 @@
       </type>
       <value>20</value>
       <description>
-        Keepalive timer for SIP Signaling. sipXbridge will re-register with each ITSP to keep the NAT pinhole open
+        Keep-alive timer for SIP signaling in seconds. sipXbridge will periodically re-register with each ITSP to keep
+        the NAT pinhole open.
       </description>
     </setting>
     <setting name="media-keepalive-seconds" advanced="yes">
@@ -84,8 +89,8 @@
       </type>
       <value>1</value>
       <description>
-        Keepalive timer for RTP. Each RTP stream facing the ITSP will start a timer that runs with this timeout (in
-        seconds). If packets are not seen in the specified interval, the keepalive timer will send packets.
+        Keep-alive timer for media (RTP) in seconds. If no media flows and after the time interval expired, sipXbridge
+        will insert dummy media to keep the NAT pinhole open for the media ports.
       </description>
     </setting>
     <setting name="xml-rpc-port" advanced="yes" hidden="yes">
@@ -94,8 +99,8 @@
         <integer />
       </type>
       <description>
-        Port for external XML/RPC requests to be directed. If not specified, the XML RPC server is not started. The XML
-        RPC interface is used by sipxconfig to report status to the user.
+        Port for external XML/RPC requests. If not specified, the XML RPC server is not started. The XML RPC interface
+        is used by sipXconfig to report status to the user.
       </description>
     </setting>
     <setting name="max-number-of-concurrent-calls">
@@ -104,9 +109,9 @@
         <integer />
       </type>
       <description>
-        The maximum number of concurrent calls allowed via the given bridge overall. When the limit is reached,
-        sipxbridge will return "Service Unavailable". If nothing is specified, no limit is placed on the max number of
-        concurrent calls.
+        The maximum number of concurrent calls allowed via the given bridge and for all configured ITSPs. When the limit
+        is reached, sipXbridge will return "Service Unavailable". If nothing is specified, no limit is placed on the
+        max. number of concurrent calls.
       </description>
     </setting>
     <setting name="music-on-hold-support-enabled">
@@ -123,8 +128,9 @@
       </type>
       <value>false</value>
       <description>
-        If checked sipXbridge Music On Hold support is enabled. Phones should disable their MOH support if sipXbridge
-        support for MOH is enabled.
+        If checked sipXbridge Music On Hold support (MoH) is enabled. Phones should disable their MoH support if
+        sipXbridge support for MOH is enabled. This feature allows playing MoH for phones that do not support MoH as
+        required by sipXecs only for calls that go through sipXbridge.
       </description>
     </setting>
     <setting name="rtp-port-range-start" advanced="yes">
@@ -147,16 +153,18 @@
     </setting>
     <setting name="rtp-port-range" hidden="yes"></setting>
     <setting name="is-reinvite-supported" advanced="yes">
-      <label>re-INVITE Support</label>
+      <label>re-INVITE support</label>
       <type refid="switch" />
       <value>false</value>
       <description>
-        If checked, re-INVITE is supported by the ITSP. This allows sipxbridge to delay codec choice for call setup when
-        dealing with call transfers and can give you a wider range of codecs to chose from.
+        If checked, media re-negotiation is supported for all ITSPs that are configured. If set, sipXbridge can
+        re-negotiate the choice of codec when an ongoing call is transferred. This gives greater flexibility but can
+        also result in failed transfers if the re-negotiation fails. This setting applies for all ITSPs that are
+        configured on this instance of sipXbridge.
       </description>
     </setting>
     <setting name="allowed-codec-name" advanced="yes">
-      <label>Allowed Codec Name</label>
+      <label>Allowed codec</label>
       <type>
         <enum>
           <option>
@@ -172,9 +180,9 @@
       </type>
       <value>PCMU</value>
       <description>
-        The codec for the SDP Offer that is allowable. This parameter is ONLY relevant if the ITSPs do NOT support
-        ReINVITE. Otherwise it is ignored. If is-reinvite-supported flag is set to "false" then SDP offers and answers
-        are filtered to allow only this codec through.
+        The codec for the SDP offer that is allowed. This parameter is ONLY relevant if the ITSPs do NOT support
+        re-INVITE. Otherwise it is ignored. If the re-INVITE-supported flag is set to "false" then SDP offers and
+        answers are filtered to allow only this codec through.
       </description>
     </setting>
     <setting name="route-inbound-calls-to-extension">
@@ -182,7 +190,11 @@
       <value>operator</value>
       <description>
         Determines where to send inbound calls. If empty, inbound calls are directly routed to the specified number in
-        the inbound request and have to be redirected by aliases or dial plan rules.
+        the inbound request and have to be redirected by aliases or dial plan rules. This setting applies to all ITSPs
+        since it is not reliably possible to detect from which ITSP a call arrives if several ITSPs are configured. For
+        incoming calls the ITSP domain is mapped to the own domain (i.e. if a call arrives with sip:1234@myitsp.com,
+        then sipXbridge will map it to sip:1234@mydomain.com. An alias or user ID 1234 needs to exist or an alternative
+        value can be specified in this field.)
       </description>
     </setting>
     <setting name="log-level" advanced="yes">

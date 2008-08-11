@@ -22,12 +22,11 @@
   </bridge-configuration>
 
   <itsp-account>
-    <outbound-proxy>itsp.example.com</outbound-proxy>
-    <outbound-transport>UDP</outbound-transport>
     <proxy-domain>itsp.example.com</proxy-domain>
     <user-name>juser</user-name>
     <password>1234</password>
-    <display-name>John User</display-name>
+    <outbound-proxy>itsp.example.com</outbound-proxy>
+    <outbound-transport>UDP</outbound-transport>
     <use-global-addressing>false</use-global-addressing>
     <use-rport>false</use-rport>
     <register-on-initialization>true</register-on-initialization>
