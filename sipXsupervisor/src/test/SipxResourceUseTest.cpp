@@ -234,7 +234,7 @@ public:
          fileResource->appendDescription(description);
          ASSERT_STR_EQUAL("file '/etc/sipxpbx/common.xml'",description.data());
 
-         CPPUNIT_ASSERT_EQUAL(2U, fileResource->mUsedBy.entries());
+         CPPUNIT_ASSERT_EQUAL((size_t)2, fileResource->mUsedBy.entries());
       };
    
 };
