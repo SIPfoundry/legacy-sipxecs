@@ -12,7 +12,6 @@ package org.sipfoundry.sipxconfig.site.service;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.annotations.Bean;
 import org.apache.tapestry.annotations.InjectObject;
-import org.apache.tapestry.callback.PageCallback;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
@@ -20,7 +19,6 @@ import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.service.SipxParkService;
 import org.sipfoundry.sipxconfig.service.SipxService;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
-import org.sipfoundry.sipxconfig.site.admin.commserver.Services;
 
 public abstract class EditParkService extends PageWithCallback implements PageBeginRenderListener {
     public static final String PAGE = "service/EditParkService";
@@ -38,10 +36,6 @@ public abstract class EditParkService extends PageWithCallback implements PageBe
         if (getParkService() == null) {
             SipxService parkService = getSipxServiceManager().getServiceByBeanId(SipxParkService.BEAN_ID);
             setParkService(parkService);
-        }
-        
-        if (getCallback() == null) {
-            setCallback(new PageCallback(Services.PAGE));
         }
     }
     

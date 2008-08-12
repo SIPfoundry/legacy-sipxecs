@@ -12,7 +12,6 @@ package org.sipfoundry.sipxconfig.site.service;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.annotations.Bean;
 import org.apache.tapestry.annotations.InjectObject;
-import org.apache.tapestry.callback.PageCallback;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
@@ -22,7 +21,6 @@ import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.service.SipxPresenceService;
 import org.sipfoundry.sipxconfig.service.SipxService;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
-import org.sipfoundry.sipxconfig.site.admin.commserver.Services;
 
 public abstract class EditPresenceService extends PageWithCallback implements PageBeginRenderListener {
     public static final String PAGE = "service/EditPresenceService";
@@ -45,10 +43,6 @@ public abstract class EditPresenceService extends PageWithCallback implements Pa
             SipxService proxyService = getSipxServiceManager().getServiceByBeanId(
                     SipxPresenceService.BEAN_ID);
             setPresenceService(proxyService);
-        }
-        
-        if (getCallback() == null) {
-            setCallback(new PageCallback(Services.PAGE));
         }
     }
     
