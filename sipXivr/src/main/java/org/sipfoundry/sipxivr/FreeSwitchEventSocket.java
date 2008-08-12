@@ -34,7 +34,7 @@ public class FreeSwitchEventSocket extends FreeSwitchEventSocketInterface {
     }
 
     /**
-     * Given the socket from a FreeSwitch "outbound" call, To the "connect" dance to collect all
+     * Given the socket from a FreeSwitch "outbound" call, do the "connect" dance to collect all
      * the variables FreeSwitch reports.
      * 
      * Enable FreeSwitch to report async events of interest.

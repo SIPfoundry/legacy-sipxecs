@@ -134,7 +134,8 @@ public class FreeSwitchEvent {
      * onNull instead.
      * 
      * @param name
-     * @return "_NULL_" if not found, "" if no value, or the value.
+     * @param onNull The value to return if not found
+     * @return onNull if not found, "" if no value, or the value.
      */
     public String getHeader(String name, String onNull) {
         String header = getHeader(name);
