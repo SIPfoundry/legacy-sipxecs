@@ -23,7 +23,7 @@
          <fieldset jwcid="@conference/ConferenceOwnerPanel" conference="ognl:conference" />
          <span jwcid="@If" condition="ognl:conference.isNew() && bridgeId == null">
          <table>
-            <div jwcid="@conference/BridgeSelector" bridge="ognl:bridge" />
+            <div jwcid="@conference/BridgeSelector" bridge="ognl:bridge" validators="validators:required[%error.bridgeSelect]" />
          </table>
          </span>         
       </span>

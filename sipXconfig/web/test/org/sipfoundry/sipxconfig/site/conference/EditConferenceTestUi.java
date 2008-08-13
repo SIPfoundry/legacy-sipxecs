@@ -88,4 +88,25 @@ public class EditConferenceTestUi extends WebTestCase {
         assertTextPresent("(none)");
     }
 
+    /**
+     * Tests to ensure a validation error is displayed when no conference bridge is selected.
+     */
+    public void testBridgeValidation() {
+       SiteTestHelper.home(tester);
+       clickLink("resetCoreContext");
+       SiteTestHelper.home(tester);
+       clickLink("ManageUsers");
+       clickLinkWithText("testuser");
+       clickLink("userConferencesLink");
+       SiteTestHelper.clickSubmitLink(tester, "conference:add");
+       setTextField("item:name", "test101");
+       setTextField("item:extension", "1101");
+       checkCheckbox("item:enabled");
+       
+       // Deselect the conference bridge
+       selectOptionByValue("bridgeSelect", "");
+       submit("form:ok");
+       SiteTestHelper.assertUserError(tester);
+    }
+    
 }

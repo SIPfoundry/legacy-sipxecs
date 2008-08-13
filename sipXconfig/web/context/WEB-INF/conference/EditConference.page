@@ -7,7 +7,7 @@
   <inject property="coreContext" object="spring:coreContext" />
   <property name="bridgeId"  persist="session"/>
   <property name="conferenceId"  persist="session"/>
-  <property name="conference" persist="session" />
+  <property name="conference" />
   <property name="changed" />
   <!--
      - B E A N S

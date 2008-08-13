@@ -59,6 +59,10 @@ public abstract class EditConference extends PageWithCallback implements PageBeg
     public abstract Serializable getConferenceId();
     public abstract void setConferenceId(Serializable id);
 
+    @Persist("session")
+    public abstract Conference getTransientConference();
+    public abstract void setTransientConference(Conference transientConference);
+    
     public abstract Conference getConference();
     public abstract void setConference(Conference conference);
 
@@ -84,10 +88,11 @@ public abstract class EditConference extends PageWithCallback implements PageBeg
     public abstract void setTab(String tab);
 
     public void pageBeginRender(PageEvent event_) {
-        if (!getRequestCycle().isRewinding() && getSelectedUsers() == null) {
-            setConference(null);
+        if (getTransientConference() != null) {
+            setConference(getTransientConference());
+            setTransientConference(null);
         }
-        
+
         Conference conference = getConference();
         if (conference == null) {
             if (getConferenceId() != null) {

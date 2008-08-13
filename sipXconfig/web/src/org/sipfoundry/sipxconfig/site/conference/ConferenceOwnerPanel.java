@@ -58,9 +58,11 @@ public abstract class ConferenceOwnerPanel extends BaseComponent {
     }
     
     public IPage changeOwner(IRequestCycle cycle) {
+        IPage page = getPage();
+        PropertyUtils.write(page, "transientConference", getConference());
         SelectUsers selectUsersPage = (SelectUsers) cycle.getPage(SelectUsers.PAGE);
         SelectUsersCallback callback = new SelectUsersCallback(getPage());
-        callback.setIdsPropertyName(CALLBACK_PROPERTY_NAME);
+        callback.setIdsPropertyName(CALLBACK_PROPERTY_NAME);        
         selectUsersPage.setCallback(callback);
         return selectUsersPage;
     }

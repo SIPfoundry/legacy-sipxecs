@@ -9,6 +9,7 @@
  */
 package org.sipfoundry.sipxconfig.site.conference;
 
+import java.util.Collection;
 import java.util.List;
 
 import org.apache.tapestry.BaseComponent;
@@ -17,6 +18,8 @@ import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Parameter;
 import org.apache.tapestry.form.BeanPropertySelectionModel;
 import org.apache.tapestry.form.IPropertySelectionModel;
+import org.apache.tapestry.form.validator.Validator;
+import org.apache.tapestry.valid.IValidationDelegate;
 import org.sipfoundry.sipxconfig.components.ExtraOptionModelDecorator;
 import org.sipfoundry.sipxconfig.conference.Bridge;
 import org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext;
@@ -24,6 +27,12 @@ import org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext;
 @ComponentClass(allowBody = false, allowInformalParameters = false)
 public abstract class BridgeSelector extends BaseComponent {
 
+    @Parameter(required = false)
+    public abstract IValidationDelegate getValidator();    
+    
+    @Parameter(required = false)
+    public abstract Collection<Validator> getValidators();
+    
     @Parameter(required = true)
     public abstract Bridge getBridge();
     public abstract void setBridge(Bridge bridge);
