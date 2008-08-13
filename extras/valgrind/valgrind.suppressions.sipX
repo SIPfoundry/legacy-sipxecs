@@ -347,10 +347,12 @@
 }
 
 #################################################################
-# This next entry suppresses leak reports for the blocks used to track contents in UtlContainers.
-# The UtlLink and UtlPair objects are never returned to the heap; instead they are maintained
-# in a pool for reuse.  This saves the overhead of what would be very frequent calls to the 
-# heap for the same very small objects, and should reduce the chances of heap fragmentation.
+# This next set of entries suppresses leak reports for the blocks used
+# to track contents in UtlContainers.  The UtlLink and UtlPair objects
+# are never returned to the heap; instead they are maintained in a
+# pool for reuse.  This saves the overhead of what would be very
+# frequent calls to the heap for the same very small objects, and
+# should reduce the chances of heap fragmentation.
 #
 {
    UtlContainer/UtlPair
