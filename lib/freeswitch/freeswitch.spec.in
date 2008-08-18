@@ -1,5 +1,6 @@
 %define _prefix   /usr/local/freeswitch
 %define prefix    %{_prefix}
+%define fs_user   @SIPXPBXUSER@
 
 Name:         sipx-freeswitch
 Summary:      FreeSWITCH open source telephony platform (sipX integration)
@@ -16,6 +17,7 @@ Prefix:       %{prefix}
 #AutoReqProv:  no
 
 Requires: sipxcommserverlib >= 3.11
+
 %if 0%{?suse_version} > 100
 #BuildRequires: openldap2-devel
 BuildRequires: lzo-devel
