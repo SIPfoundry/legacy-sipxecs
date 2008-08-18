@@ -2,7 +2,8 @@
 # Example(to override):
 #   make rhel5 DESTDIR=~/my-output
 # will put RPMS in ~/my-output/RPM
-DESTDIR = $(abspath dist)
+#DESTDIR = $(abspath dist)
+DESTDIR=/home/mardy/rpmbuild
 
 ARCH = $(shell uname -p)
 
@@ -55,8 +56,8 @@ fc6 : $(CUSTOM_PACKAGES) jakarta-commons-net
 .PHONY: fc8 fc7
 fc8 fc7 : $(CUSTOM_PACKAGES)
 
-.PHONY: rhel5 centos5 rhel4
-rhel5 centos5 rhel4 : w3c-libwww $(CUSTOM_PACKAGES) jakarta-commons-net
+.PHONY: rhel5 centos5 rhel4 suse10.2
+rhel5 centos5 rhel4 suse10.2 : w3c-libwww $(CUSTOM_PACKAGES) jakarta-commons-net
 
 .PHONY: conference
 conference : freeswitch
