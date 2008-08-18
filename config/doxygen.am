@@ -61,7 +61,7 @@ $(DESTDIR)@SIPX_DOCDIR@/@PACKAGE@ : @PACKAGE@
 	rm -rf $(DESTDIR)@SIPX_DOCDIR@/@PACKAGE@
 	$(INSTALL) -d $(DESTDIR)@SIPX_DOCDIR@/@PACKAGE@
 	@echo "copying ./@PACKAGE@ to $(DESTDIR)@SIPX_DOCDIR@/@PACKAGE@"
-	tar -c --mode=u=rw,go=r -f - --exclude='.?*' @PACKAGE@ \
+	tar -c --mode=u+rw,go-w+r -f - --exclude='.?*' @PACKAGE@ \
 	| \
 	( cd $(DESTDIR)@SIPX_DOCDIR@ > /dev/null \
 	; tar -x -f - \
