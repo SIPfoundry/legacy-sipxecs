@@ -25,5 +25,6 @@ public class EditProxyServiceTestUi extends WebTestCase {
         SiteTestHelper.home(tester);
         clickLink("editProxyService");
         SiteTestHelper.assertNoException(tester);
+        assertTextPresent("SIPX_PROXY_DEFAULT_SERIAL_EXPIRES");
     }
 }

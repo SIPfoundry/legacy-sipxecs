@@ -25,5 +25,14 @@ public class EditRegistrarServiceTestUi extends WebTestCase {
         SiteTestHelper.home(tester);
         clickLink("editRegistrarService");
         SiteTestHelper.assertNoException(tester);
+        assertTextPresent("SIP_REDIRECT.200-ENUM.ADD_PREFIX");
+    }
+    
+    public void testNoDuplicateCodes() {
+        getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
+        SiteTestHelper.home(tester);
+        clickLink("editRegistrarService");
+        
+        SiteTestHelper.dumpPage(tester);
     }
 }

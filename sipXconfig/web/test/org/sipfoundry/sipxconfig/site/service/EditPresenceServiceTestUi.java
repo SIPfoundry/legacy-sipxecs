@@ -6,17 +6,17 @@ import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 
 import net.sourceforge.jwebunit.junit.WebTestCase;
 
-public class EditParkServiceTestUi extends WebTestCase {
+public class EditPresenceServiceTestUi extends WebTestCase {
     
     public static Test suite() throws Exception {
-        return SiteTestHelper.webTestSuite(EditParkServiceTestUi.class);
+        return SiteTestHelper.webTestSuite(EditPresenceServiceTestUi.class);
     }
     
     public void testDisplay() {
         getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
         SiteTestHelper.home(tester);
-        clickLink("editParkService");
+        clickLink("editPresenceService");
         SiteTestHelper.assertNoException(tester);
-        assertTextPresent("SIP_PARK_LOG_LEVEL");
+        assertTextPresent("SIP_PRESENCE_SIGN_IN_CODE");
     }
 }
