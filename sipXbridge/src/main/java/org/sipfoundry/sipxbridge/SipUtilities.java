@@ -446,27 +446,34 @@ class SipUtilities {
             String toUser = requestUri.getUser();
             String toDomain = itspAccount.getProxyDomain();
             String fromUser = ((SipURI) from.getAddress().getURI()).getUser();
+            String fromDisplayName = from.getAddress().getDisplayName();
             PAssertedIdentityHeader paiHeader = null;
             if (!fromUser.equalsIgnoreCase("anonymous")) {
+                Address fromAddress = null;
+                
                 if (itspAccount.isRegisterOnInitialization()
                         && itspAccount.isUseRegistrationForCallerId()) {
                     String domain = itspAccount.getProxyDomain();
                     SipURI fromUri = ProtocolObjects.addressFactory
                             .createSipURI(fromUser, domain);
                     fromUri.removeParameter("user");
+                    fromAddress = ProtocolObjects.addressFactory.createAddress(fromUri);
                     fromHeader = ProtocolObjects.headerFactory.createFromHeader(
-                            ProtocolObjects.addressFactory.createAddress(fromUri), new Long(Math
+                            fromAddress, new Long(Math
                                     .abs(new java.util.Random().nextLong())).toString());
+                   
                 } else if (itspAccount.useGlobalAddressForCallerId()) {
                     String domain = Gateway.getGlobalAddress();
                     SipURI fromUri = ProtocolObjects.addressFactory
                             .createSipURI(fromUser, domain);
                     fromUri.removeParameter("user");
+                    fromAddress =  ProtocolObjects.addressFactory.createAddress(fromUri);
                     fromHeader = ProtocolObjects.headerFactory.createFromHeader(
-                            ProtocolObjects.addressFactory.createAddress(fromUri), new Long(Math
+                           fromAddress, new Long(Math
                                     .abs(new java.util.Random().nextLong())).toString());
 
                 }
+                fromAddress.setDisplayName(fromDisplayName);
             } else {
                 String domain = "anonymous.invalid";
                 SipURI fromUri = ProtocolObjects.addressFactory.createSipURI(fromUser, domain);

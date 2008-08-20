@@ -411,21 +411,22 @@ class CallControlManager {
             DialogApplicationData dat = (DialogApplicationData) dialog.getApplicationData();
             BackToBackUserAgent btobua = dat.getBackToBackUserAgent();
 
+           
+            Response response = ProtocolObjects.messageFactory.createResponse(Response.ACCEPTED,
+                    request);
+            ServerTransaction serverTransaction = requestEvent.getServerTransaction();
+            serverTransaction.sendResponse(response);
+            
+            
+            ContactHeader cth = SipUtilities.createContactHeader(null, provider, Gateway
+                    .getSipxProxyTransport());
+            response.setHeader(cth);
+            
             /*
              * Stop the Music on hold.
              */
 
-            Response response = ProtocolObjects.messageFactory.createResponse(Response.ACCEPTED,
-                    request);
-            ServerTransaction serverTransaction = requestEvent.getServerTransaction();
-
-            ContactHeader cth = SipUtilities.createContactHeader(null, provider, Gateway
-                    .getSipxProxyTransport());
-            response.setHeader(cth);
-            serverTransaction.sendResponse(response);
-
-            if (Gateway.isReInviteSupported()
-            /* && !btobua.getLanRtpSession(dialog).getReceiver().isSdpQueried() */) {
+            if (Gateway.isReInviteSupported()) {
                 // The ITSP supports re-invite. Send him a Re-INVITE
                 // to determine what codec was negotiated.
                 ReferInviteToSipxProxyContinuationData continuation = new ReferInviteToSipxProxyContinuationData(
