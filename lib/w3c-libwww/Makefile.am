@@ -2,11 +2,7 @@
 
 ARCH = $(shell uname -p)
 
-ifeq ($(ARCH),ppc)
-  LIBWWW_TARGET_ARCH = ppc
-else
-  LIBWWW_TARGET_ARCH = i386
-endif 
+LIBWWW_TARGET_ARCH = i386
 
 W3C_RPM_URL = $(FC6_EXTRAS_URL)/6/$(LIBWWW_TARGET_ARCH)
 
