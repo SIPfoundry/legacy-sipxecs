@@ -873,6 +873,7 @@ public class Gateway {
     }
 
     static String getSessionTimerMethod() {
+        //return null;
         return Request.OPTIONS;
     }
 

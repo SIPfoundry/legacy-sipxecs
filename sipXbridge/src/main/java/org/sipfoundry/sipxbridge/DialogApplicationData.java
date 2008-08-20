@@ -7,6 +7,7 @@
 
 package org.sipfoundry.sipxbridge;
 
+import javax.sdp.SessionDescription;
 import javax.sip.Dialog;
 import javax.sip.message.Request;
 import javax.sip.message.Response;
@@ -76,7 +77,14 @@ class DialogApplicationData {
 
    
     Request request;
-   
+
+    String sessionDescription;
+
+    long lastAckSent;
+
+    boolean sendReInviteOnResume;
+
+  
 
     
     private DialogApplicationData() {

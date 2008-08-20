@@ -59,7 +59,10 @@ public class SipListenerImpl implements SipListener {
                 SipProvider provider = ((DialogExt) dat.musicOnHoldDialog).getSipProvider();
                 Request byeRequest = dat.musicOnHoldDialog.createRequest(Request.BYE);
                 ClientTransaction ctx = provider.getNewClientTransaction(byeRequest);
+                TransactionApplicationData tad = new TransactionApplicationData(Operation.SEND_BYE_TO_MOH_SERVER);
+                ctx.setApplicationData(tad);
                 dat.musicOnHoldDialog.sendRequest(ctx);
+               
             } catch (Exception ex) {
                 logger.error("Exception in dialog termination processing", ex);
             }
@@ -163,6 +166,9 @@ public class SipListenerImpl implements SipListener {
                  */
 
                 logger.debug("Discarding response - no client tx state found");
+                /*
+                 * TODO -- what if the DIALOG exists but the transaction does not.
+                 */
                 return;
             }
             // Processing an OK for a NOTIFY -- do nothing.

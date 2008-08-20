@@ -144,6 +144,8 @@ public class ItspAccountInfo implements gov.nist.javax.sip.clientauthutils.UserC
 
     private boolean useRegistrationForCallerId = true;
     
+    
+    
     /*
      * Number of concurrent calls.
      */
@@ -157,6 +159,13 @@ public class ItspAccountInfo implements gov.nist.javax.sip.clientauthutils.UserC
     private boolean crLfTimerTaskStarted;
 
     protected  RegistrationTimerTask registrationTimerTask;
+    
+    /*
+     * Whether or not to use the global address for the caller Id when sending out 
+     * INVITE.
+     */
+
+    private boolean useGlobalAddressForCallerId = true;
 
     /**
      * This task runs periodically depending upon the timeout of the lookup specified.
@@ -581,10 +590,12 @@ public class ItspAccountInfo implements gov.nist.javax.sip.clientauthutils.UserC
     /**
      * @return the outboundRegistrarRoute
      */
-    public String getOutboundRegistrar() {
+   public String getOutboundRegistrar() {
         return outboundRegistrar != null ? this.outboundRegistrar :
                 this.getInboundProxy();
     }
+    
+    
     
     /**
      * @return the outboundRegistrar port.
@@ -623,6 +634,10 @@ public class ItspAccountInfo implements gov.nist.javax.sip.clientauthutils.UserC
         retval.setRegisteredAddress(this.getProxyDomain());
         retval.setRegistrationStatus(this.state.toString());
         return retval;
+    }
+
+    public boolean useGlobalAddressForCallerId() {
+        return this.globalAddressingUsed && this.useGlobalAddressForCallerId;
     }
 
 }

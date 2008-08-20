@@ -162,7 +162,11 @@ final class SymTransmitterEndpoint extends SymEndpoint implements SymTransmitter
         if (logger.isDebugEnabled()) {
             logger.debug("Sending to " + this.getSocketAddress());
         }
-
+        
+        if ( this.getSocketAddress() == null ) {
+            logger.debug("Cannot send -- remote address is null!");
+            return;
+        }
         InetAddress remoteAddress = this.getSocketAddress().getAddress();
         int remotePort = this.getSocketAddress().getPort();
         this.lastPacketSentTime = System.currentTimeMillis();

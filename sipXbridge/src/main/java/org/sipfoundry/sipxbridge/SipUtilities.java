@@ -7,12 +7,16 @@
 package org.sipfoundry.sipxbridge;
 
 import gov.nist.javax.sdp.MediaDescriptionImpl;
+import gov.nist.javax.sip.header.HeaderFactoryExt;
+import gov.nist.javax.sip.header.ims.PAssertedIdentityHeader;
 
 import java.text.ParseException;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 import java.util.Vector;
 
 import javax.sdp.Attribute;
@@ -212,7 +216,7 @@ class SipUtilities {
     static Request createRegistrationRequestTemplate(ItspAccountInfo itspAccount,
             SipProvider sipProvider) throws ParseException, InvalidArgumentException {
 
-        String registrar = itspAccount.getOutboundRegistrar();
+        String registrar = itspAccount.getProxyDomain();
 
         SipURI requestUri = ProtocolObjects.addressFactory.createSipURI(null, registrar);
         int port = itspAccount.getProxyPort();
@@ -267,11 +271,12 @@ class SipUtilities {
             request.addHeader(header);
         }
 
-        if (itspAccount.getOutboundRegistrar() != null) {
+        if (itspAccount.getOutboundRegistrar() != null
+                && !itspAccount.getProxyDomain().equals(itspAccount.getOutboundRegistrar())) {
             String outboundRegistrarRoute = itspAccount.getOutboundRegistrar();
             SipURI routeUri = ProtocolObjects.addressFactory.createSipURI(null,
                     outboundRegistrarRoute);
-            routeUri.setPort(itspAccount.getOutboundRegistrarPort());
+            routeUri.setPort(itspAccount.getInboundProxyPort());
             routeUri.setLrParam();
             Address routeAddress = ProtocolObjects.addressFactory.createAddress(routeUri);
             RouteHeader routeHeader = ProtocolObjects.headerFactory
@@ -429,30 +434,63 @@ class SipUtilities {
     }
 
     static Request createInviteRequest(SipURI requestUri, SipProvider sipProvider,
-            ItspAccountInfo itspAccount, FromHeader from, String toUser, String toDomain,
-            boolean isphone) throws GatewayConfigurationException {
+            ItspAccountInfo itspAccount, FromHeader from, boolean isphone)
+            throws GatewayConfigurationException {
         try {
-            FromHeader fromHeader = null;
+            FromHeader fromHeader = from;
 
             /*
              * If the account requires a register on init, then use the From header that was
              * Registered.
              */
-            if (itspAccount.isRegisterOnInitialization()
-                    && itspAccount.isUseRegistrationForCallerId()) {
-                String domain = itspAccount.getProxyDomain();
-                SipURI fromUri = ProtocolObjects.addressFactory.createSipURI(itspAccount
-                        .getUserName(), domain);
-                fromUri.removeParameter("user");
+            String toUser = requestUri.getUser();
+            String toDomain = itspAccount.getProxyDomain();
+            String fromUser = ((SipURI) from.getAddress().getURI()).getUser();
+            PAssertedIdentityHeader paiHeader = null;
+            if (!fromUser.equalsIgnoreCase("anonymous")) {
+                if (itspAccount.isRegisterOnInitialization()
+                        && itspAccount.isUseRegistrationForCallerId()) {
+                    String domain = itspAccount.getProxyDomain();
+                    SipURI fromUri = ProtocolObjects.addressFactory
+                            .createSipURI(fromUser, domain);
+                    fromUri.removeParameter("user");
+                    fromHeader = ProtocolObjects.headerFactory.createFromHeader(
+                            ProtocolObjects.addressFactory.createAddress(fromUri), new Long(Math
+                                    .abs(new java.util.Random().nextLong())).toString());
+                } else if (itspAccount.useGlobalAddressForCallerId()) {
+                    String domain = Gateway.getGlobalAddress();
+                    SipURI fromUri = ProtocolObjects.addressFactory
+                            .createSipURI(fromUser, domain);
+                    fromUri.removeParameter("user");
+                    fromHeader = ProtocolObjects.headerFactory.createFromHeader(
+                            ProtocolObjects.addressFactory.createAddress(fromUri), new Long(Math
+                                    .abs(new java.util.Random().nextLong())).toString());
+
+                }
+            } else {
+                String domain = "anonymous.invalid";
+                SipURI fromUri = ProtocolObjects.addressFactory.createSipURI(fromUser, domain);
                 fromHeader = ProtocolObjects.headerFactory.createFromHeader(
                         ProtocolObjects.addressFactory.createAddress(fromUri), new Long(Math
                                 .abs(new java.util.Random().nextLong())).toString());
 
-                toDomain = domain;
-                toUser = requestUri.getUser();
+                if (itspAccount.isRegisterOnInitialization()
+                        && itspAccount.isUseRegistrationForCallerId()) {
+                    domain = itspAccount.getProxyDomain();
+                    fromUri = ProtocolObjects.addressFactory.createSipURI(fromUser, domain);
+                    fromUri.removeParameter("user");
+                    paiHeader = ((HeaderFactoryExt) ProtocolObjects.headerFactory)
+                            .createPAssertedIdentityHeader(ProtocolObjects.addressFactory
+                                    .createAddress(fromUri));
+                } else if (itspAccount.useGlobalAddressForCallerId()) {
+                    domain = Gateway.getGlobalAddress();
+                    fromUri = ProtocolObjects.addressFactory.createSipURI(fromUser, domain);
+                    fromUri.removeParameter("user");
+                    paiHeader = ((HeaderFactoryExt) ProtocolObjects.headerFactory)
+                            .createPAssertedIdentityHeader(ProtocolObjects.addressFactory
+                                    .createAddress(fromUri));
 
-            } else {
-                fromHeader = from;
+                }
             }
 
             if (!isphone) {
@@ -490,6 +528,10 @@ class SipUtilities {
             Request request = ProtocolObjects.messageFactory.createRequest(requestUri,
                     Request.INVITE, callid, cseqHeader, fromHeader, toHeader, list, maxForwards);
 
+            if (paiHeader != null) {
+                request.setHeader(paiHeader);
+            }
+
             Gateway.getAuthenticationHelper().setAuthenticationHeaders(request);
 
             ContactHeader contactHeader = createContactHeader(sipProvider, itspAccount);
@@ -524,6 +566,27 @@ class SipUtilities {
         SessionDescription sd = SdpFactory.getInstance().createSessionDescription(messageString);
         return sd;
 
+    }
+
+    static Set<Integer> getMediaFormats(SessionDescription sessionDescription) {
+        try {
+            Vector mediaDescriptions = sessionDescription.getMediaDescriptions(true);
+
+            HashSet<Integer> retval = new HashSet<Integer>();
+            for (Iterator it = mediaDescriptions.iterator(); it.hasNext();) {
+                MediaDescription mediaDescription = (MediaDescription) it.next();
+                Vector formats = mediaDescription.getMedia().getMediaFormats(true);
+                for (Iterator it1 = formats.iterator(); it1.hasNext();) {
+                    Object format = it1.next();
+                    int fmt = new Integer(format.toString());
+                    retval.add(fmt);
+                }
+            }
+            return retval;
+        } catch (Exception ex) {
+            logger.fatal("Unexpected exception!", ex);
+            throw new RuntimeException("Unexpected exception getting media formats", ex);
+        }
     }
 
     /**
@@ -739,7 +802,6 @@ class SipUtilities {
     static void fixupSdpAddresses(SessionDescription sessionDescription, String address) {
         try {
             Connection connection = sessionDescription.getConnection();
-            
 
             if (connection != null) {
                 connection.setAddress(address);
@@ -815,7 +877,7 @@ class SipUtilities {
         FromHeader fromHeader = (FromHeader) message.getHeader(FromHeader.NAME);
         return fromHeader.getAddress().toString();
     }
-    
+
     public static String getToAddress(Message message) {
         ToHeader toHeader = (ToHeader) message.getHeader(ToHeader.NAME);
         return toHeader.getAddress().toString();
