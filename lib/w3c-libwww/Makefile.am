@@ -1,13 +1,22 @@
 # Mostly for centos 5 support
-W3C_RPM_URL = $(FC6_EXTRAS_URL)/6/$(RPM_TARGET_ARCH)
+
+ARCH = $(shell uname -p)
+
+ifeq ($(ARCH),ppc)
+  LIBWWW_TARGET_ARCH = ppc
+else
+  LIBWWW_TARGET_ARCH = i386
+endif 
+
+W3C_RPM_URL = $(FC6_EXTRAS_URL)/6/$(LIBWWW_TARGET_ARCH)
 
 W3C_LIBSRC=$(LIBSRC)/w3c-libwww
 VER = 5.4.1
 REL = 0.4.20060206cvs
 
 RPMS = \
-	w3c-libwww-$(VER)-$(REL).fc6.$(RPM_TARGET_ARCH).rpm \
-	w3c-libwww-devel-$(VER)-$(REL).fc6.$(RPM_TARGET_ARCH).rpm
+	w3c-libwww-$(VER)-$(REL).fc6.$(LIBWWW_TARGET_ARCH).rpm \
+	w3c-libwww-devel-$(VER)-$(REL).fc6.$(LIBWWW_TARGET_ARCH).rpm
 
 all : $(foreach RPM,$(RPMS),$(DEST_RPM)/$(RPM))
 
