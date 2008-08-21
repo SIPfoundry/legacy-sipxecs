@@ -12,8 +12,8 @@
     <stun-server-address>stun01.sipphone.com</stun-server-address>
     <sip-keepalive-seconds>20</sip-keepalive-seconds>
     <media-keepalive-seconds>1</media-keepalive-seconds>
+    <xml-rpc-port>8088</xml-rpc-port>
     <music-on-hold-support-enabled>false</music-on-hold-support-enabled>
-    <rtp-port-range>25000:25500</rtp-port-range>
     <is-reinvite-supported>true</is-reinvite-supported>
     <allowed-codec-name>PCMU</allowed-codec-name>
     <route-inbound-calls-to-extension>operator</route-inbound-calls-to-extension>

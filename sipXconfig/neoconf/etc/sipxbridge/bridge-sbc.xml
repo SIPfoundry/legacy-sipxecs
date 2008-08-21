@@ -98,6 +98,7 @@
       <type>
         <integer />
       </type>
+      <value>8088</value>
       <description>
         Port for external XML/RPC requests. If not specified, the XML RPC server is not started. The XML RPC interface
         is used by sipXconfig to report status to the user.
@@ -133,25 +134,6 @@
         required by sipXecs only for calls that go through sipXbridge.
       </description>
     </setting>
-    <setting name="rtp-port-range-start" advanced="yes">
-      <label>Start RTP port</label>
-      <profileName>$ignore$</profileName>
-      <type>
-        <integer required="yes" />
-      </type>
-      <value>25000</value>
-      <description>Start of the RTP ports range.</description>
-    </setting>
-    <setting name="rtp-port-range-end" advanced="yes">
-      <label>End RTP port</label>
-      <profileName>$ignore$</profileName>
-      <type>
-        <integer required="yes" />
-      </type>
-      <value>25500</value>
-      <description>End of the RTP ports range.</description>
-    </setting>
-    <setting name="rtp-port-range" hidden="yes"></setting>
     <setting name="is-reinvite-supported" advanced="yes">
       <label>re-INVITE support</label>
       <type refid="switch" />
@@ -171,6 +153,9 @@
             <value>PCMU</value>
           </option>
           <option>
+            <value>PCMA</value>
+          </option>
+          <option>
             <value>G729</value>
           </option>
           <option>
@@ -180,7 +165,7 @@
       </type>
       <value>PCMU</value>
       <description>
-        The codec for the SDP offer that is allowed. This parameter is ONLY relevant if the ITSPs do NOT support
+        The codec for the SDP offer / answer that is allowed. This parameter is ONLY relevant if the ITSPs do NOT support
         re-INVITE. Otherwise it is ignored. If the re-INVITE-supported flag is set to "false" then SDP offers and
         answers are filtered to allow only this codec through.
       </description>
