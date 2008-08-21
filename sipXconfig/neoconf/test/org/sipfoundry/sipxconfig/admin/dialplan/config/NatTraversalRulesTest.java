@@ -31,6 +31,7 @@ public class NatTraversalRulesTest extends XMLTestCase {
     private NatTraversal m_natTraversal;
     private BridgeSbc m_bridgeSbc;
 
+    @Override
     protected void setUp() throws Exception {
         XmlUnitHelper.setNamespaceAware(false);
         XMLUnit.setIgnoreWhitespace(true);

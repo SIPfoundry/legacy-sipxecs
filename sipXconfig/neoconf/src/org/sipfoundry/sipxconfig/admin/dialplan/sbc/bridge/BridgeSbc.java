@@ -1,10 +1,10 @@
 /*
  *
  *
- * Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ * Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  *
  */
 package org.sipfoundry.sipxconfig.admin.dialplan.sbc.bridge;
@@ -28,19 +28,15 @@ import org.springframework.beans.factory.annotation.Required;
 
 public class BridgeSbc extends SbcDevice {
 
-    public static final String RTP_PORT_START = "bridge-configuration/rtp-port-range-start";
-
-    public static final String RTP_PORT_END = "bridge-configuration/rtp-port-range-end";
-
     private GatewayContext m_gatewayContext;
-    
+
     private SipxProcessContext m_processContext;
 
     @Required
     public void setGatewayContext(GatewayContext gatewayContext) {
         m_gatewayContext = gatewayContext;
     }
-    
+
     @Required
     public void setProcessContext(SipxProcessContext processContext) {
         m_processContext = processContext;
@@ -51,10 +47,12 @@ public class BridgeSbc extends SbcDevice {
         return getModelFilesContext().loadModelFile("bridge-sbc.xml", "sipxbridge");
     }
 
+    @Override
     protected ProfileContext createContext() {
         return new Context(this, "sipxbridge/bridge.xml.vm");
     }
 
+    @Override
     public String getProfileFilename() {
         return "sipxbridge.xml";
     }
@@ -79,6 +77,7 @@ public class BridgeSbc extends SbcDevice {
             super(device, profileTemplate);
         }
 
+        @Override
         public Map<String, Object> getContext() {
             Map<String, Object> context = super.getContext();
             BridgeSbc device = getDevice();
@@ -88,8 +87,8 @@ public class BridgeSbc extends SbcDevice {
     }
 
     public static class Defaults {
-        private DeviceDefaults m_defaults;
-        private SbcDevice m_device;
+        private final DeviceDefaults m_defaults;
+        private final SbcDevice m_device;
 
         Defaults(DeviceDefaults defaults, SbcDevice device) {
             m_defaults = defaults;
@@ -111,19 +110,12 @@ public class BridgeSbc extends SbcDevice {
             return m_defaults.getDomainName();
         }
 
-        @SettingEntry(path = "bridge-configuration/rtp-port-range")
-        public String getRtpPortRange() {
-            String start = m_device.getSettingValue(RTP_PORT_START);
-            String end = m_device.getSettingValue(RTP_PORT_END);
-            return String.format("%s:%s", start, end);
-        }
-
         @SettingEntry(path = "bridge-configuration/log-directory")
         public String getLogDirectory() {
             return m_defaults.getLogDirectory() + "/";
         }
     }
-    
+
     @Override
     public void restart() {
         Process p = new Process(ProcessName.SBC_BRIDGE);

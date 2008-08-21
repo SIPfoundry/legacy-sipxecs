@@ -11,7 +11,6 @@
 
   <bean id="natTraversalManagerImpl" class="org.sipfoundry.sipxconfig.nattraversal.NatTraversalManagerImpl">
     <property name="sessionFactory" ref="sessionFactory" />
-    <property name="sbcDeviceManager" ref="sbcDeviceManager" />
   </bean>
 
   <bean id="natTraversalManager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">

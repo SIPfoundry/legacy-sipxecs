@@ -1,17 +1,16 @@
 package org.sipfoundry.sipxconfig.site.dialplan.sbc;
 
 import junit.framework.Test;
-
-import org.sipfoundry.sipxconfig.common.InitializationTask;
-import org.sipfoundry.sipxconfig.nattraversal.NatTraversalManager;
-import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 import net.sourceforge.jwebunit.junit.WebTestCase;
+
+import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 
 public class NatTraversalTestUi extends WebTestCase {
     public static Test suite() throws Exception {
         return SiteTestHelper.webTestSuite(NatTraversalTestUi.class);
     }
 
+    @Override
     public void setUp() {
         getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
         SiteTestHelper.home(getTester());
@@ -46,11 +45,6 @@ public class NatTraversalTestUi extends WebTestCase {
         //start higher than end
         setTextField("setting:port-range-start", "20000");
         setTextField("setting:port-range-end", "19000");
-        clickButton("form:apply");
-        SiteTestHelper.assertUserError(tester);
-        //overlap
-        setTextField("setting:port-range-start", "20000");
-        setTextField("setting:port-range-end", "30000");
         clickButton("form:apply");
         SiteTestHelper.assertUserError(tester);
     }

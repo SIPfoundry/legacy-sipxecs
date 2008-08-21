@@ -21,18 +21,12 @@ import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.common.event.DaoEventPublisher;
 import org.sipfoundry.sipxconfig.common.event.SbcDeviceDeleteListener;
-import org.sipfoundry.sipxconfig.nattraversal.NatTraversal;
-import org.sipfoundry.sipxconfig.nattraversal.NatTraversalManager;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.orm.hibernate3.HibernateCallback;
 
-/**
- * Make this class abstract - the functionality of this class has to be used only through
- * "sbcDeviceManager" proxy defined in sbc.beans.xml
- */
-public abstract class SbcDeviceManagerImpl extends SipxHibernateDaoSupport<SbcDevice> implements
+public class SbcDeviceManagerImpl extends SipxHibernateDaoSupport<SbcDevice> implements
         SbcDeviceManager, BeanFactoryAware {
 
     private static final String SBC_ID = "sbcId";
@@ -140,31 +134,12 @@ public abstract class SbcDeviceManagerImpl extends SipxHibernateDaoSupport<SbcDe
                 checkForDuplicateNames(sbc);
             }
         }
-
-        if (sbc instanceof BridgeSbc) {
-            checkForRTPPortRangeOverlap((BridgeSbc) sbc);
-        }
         saveBeanWithSettings(sbc);
     }
 
     private void checkForDuplicateNames(SbcDevice sbc) {
         if (isNameInUse(sbc)) {
             throw new UserException("error.duplicateSbcName");
-        }
-    }
-
-    private void checkForRTPPortRangeOverlap(BridgeSbc bridge) {
-        NatTraversal natTraversal = getNatTraversalManager().getNatTraversal();
-        int rangeStartBridge = (Integer) bridge.getSettingTypedValue(BridgeSbc.RTP_PORT_START);
-        int rangeEndBridge = (Integer) bridge.getSettingTypedValue(BridgeSbc.RTP_PORT_END);
-        int rangeStartNat = (Integer) natTraversal.getSettingTypedValue(NatTraversal.RTP_PORT_START);
-        int rangeEndNat = (Integer) natTraversal.getSettingTypedValue(NatTraversal.RTP_PORT_END);
-        if (rangeStartBridge > rangeEndBridge) {
-            throw new UserException(false, "error.startEndRtp");
-        }
-        if (!(rangeEndBridge < rangeStartNat || rangeEndNat < rangeStartBridge)) {
-            String error = bridge.isNew() ? "error.defaultRtpValues" : "error.rtpRangeOverlap";
-            throw new UserException(false, error);
         }
     }
 
@@ -221,7 +196,4 @@ public abstract class SbcDeviceManagerImpl extends SipxHibernateDaoSupport<SbcDe
     public String getLocalIpAddress() {
         return m_localIpAddress;
     }
-
-    /* delayed injection - working around circular reference */
-    public abstract NatTraversalManager getNatTraversalManager();
 }

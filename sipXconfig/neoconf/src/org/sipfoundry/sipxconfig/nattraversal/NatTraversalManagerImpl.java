@@ -11,8 +11,6 @@ package org.sipfoundry.sipxconfig.nattraversal;
 
 import java.util.List;
 
-import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDeviceManager;
-import org.sipfoundry.sipxconfig.admin.dialplan.sbc.bridge.BridgeSbc;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.springframework.beans.factory.BeanFactory;
@@ -27,8 +25,6 @@ public class NatTraversalManagerImpl extends SipxHibernateDaoSupport<NatTraversa
         BeanFactoryAware {
 
     private BeanFactory m_beanFactory;
-
-    private SbcDeviceManager m_sbcDeviceManager;
 
     public void store(NatTraversal natTraversal) {
         checkForRTPPortRangeOverlap(natTraversal);
@@ -66,23 +62,9 @@ public class NatTraversalManagerImpl extends SipxHibernateDaoSupport<NatTraversa
         if (rangeStartNat > rangeEndNat) {
             throw new UserException(false, "error.startEndRtp");
         }
-
-        BridgeSbc bridge = m_sbcDeviceManager.getBridgeSbc();
-        if (bridge != null) {
-            int rangeStartBridge = Integer.parseInt(bridge.getSettingValue(BridgeSbc.RTP_PORT_START));
-            int rangeEndBridge = Integer.parseInt(bridge.getSettingValue(BridgeSbc.RTP_PORT_END));
-            if (!(rangeEndBridge < rangeStartNat || rangeEndNat < rangeStartBridge)) {
-                throw new UserException(false, "error.rtpRangeOverlap");
-            }
-        }
     }
 
     public void setBeanFactory(BeanFactory beanFactory) {
         m_beanFactory = beanFactory;
     }
-
-    public void setSbcDeviceManager(SbcDeviceManager sbcDeviceManager) {
-        m_sbcDeviceManager = sbcDeviceManager;
-    }
-
 }
