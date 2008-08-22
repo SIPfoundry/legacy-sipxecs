@@ -11,7 +11,7 @@ _sip._tcp.{INTEROP_ALIAS_TCP}. IN SRV	1 1 5060 {SIPXCHANGE_DOMAIN_NAME}.
 _sip._udp.{INTEROP_ALIAS_UDP}. IN SRV	1 1 5060 {SIPXCHANGE_DOMAIN_NAME}.
 
 INTEROP_ALIAS_TCP and INTEROP_ALIAS_UDP are defined in config.defs.in.
-Their default value is the `hostname -f` prefixed by "udp" and "tcp".
+Their default value is the `hostname -f` prefixed with "udp." and "tcp.".
 
 * To load or update the sipX code from a set of RPMs:
 
