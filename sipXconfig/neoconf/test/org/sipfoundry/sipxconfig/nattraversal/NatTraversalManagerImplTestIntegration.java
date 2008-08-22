@@ -1,12 +1,29 @@
 package org.sipfoundry.sipxconfig.nattraversal;
 
 import org.sipfoundry.sipxconfig.IntegrationTestCase;
+import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDescriptor;
+import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDevice;
+import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDeviceManager;
+import org.sipfoundry.sipxconfig.admin.dialplan.sbc.bridge.BridgeSbc;
+import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.device.ModelSource;
 
 public class NatTraversalManagerImplTestIntegration extends IntegrationTestCase {
+
     private NatTraversalManager m_natTraversalManager;
+    private ModelSource<SbcDescriptor> m_modelSource;
+    private SbcDeviceManager m_sdm;
 
     public void setNatTraversalManager(NatTraversalManager natTraversalManager) {
         m_natTraversalManager = natTraversalManager;
+    }
+
+    public void setSbcModelSource(ModelSource<SbcDescriptor> modelSource) {
+        m_modelSource = modelSource;
+    }
+
+    public void setSbcDeviceManager(SbcDeviceManager sdm) {
+        m_sdm = sdm;
     }
 
     public void testOneNatTraversalRecord() throws Exception {
@@ -37,6 +54,30 @@ public class NatTraversalManagerImplTestIntegration extends IntegrationTestCase 
         assertTrue(natTraversalUpdated.isEnabled());
 
         flush();
+    }
+
+    public void testCheckForRTPPortRangeOverlap() {
+        m_natTraversalManager.saveDefaultNatTraversal();
+        //there is no sbc bridge
+        NatTraversal natTraversal = m_natTraversalManager.getNatTraversal();
+        //test start port must be lower than end port
+        natTraversal.setSettingValue(NatTraversal.RTP_PORT_START, "100");
+        natTraversal.setSettingValue(NatTraversal.RTP_PORT_END, "80");
+        try {
+            m_natTraversalManager.store(natTraversal);
+            fail("Start port should be lower than end port");
+        } catch (UserException e) {
+            //ok start port is lower than end port
+        }
+        //test start port is lower than end port
+        natTraversal.setSettingValue(NatTraversal.RTP_PORT_START, "100");
+        natTraversal.setSettingValue(NatTraversal.RTP_PORT_END, "200");
+        try {
+            m_natTraversalManager.store(natTraversal);
+            //ok Start port is lower than end port
+        } catch (UserException e) {
+            fail("Start port is lower than end port - there should be no exception");
+        }
     }
 
 }
