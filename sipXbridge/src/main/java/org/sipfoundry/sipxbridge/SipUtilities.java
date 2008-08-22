@@ -151,6 +151,9 @@ class SipUtilities {
                 String transport = itspAccount != null ? itspAccount.getOutboundTransport()
                         : Gateway.DEFAULT_ITSP_TRANSPORT;
                 String userName = itspAccount != null ? itspAccount.getUserName() : null;
+                if ( userName == null ) {
+                    userName = "sipxbridge";
+                }
                 ListeningPoint lp = provider.getListeningPoint(transport);
                 String ipAddress = lp.getIPAddress();
                 int port = lp.getPort();
@@ -167,6 +170,9 @@ class SipUtilities {
 
                 ContactHeader contactHeader = ProtocolObjects.headerFactory.createContactHeader();
                 String userName = itspAccount != null ? itspAccount.getUserName() : null;
+                if ( userName == null ) {
+                    userName = "sipxbridge";
+                }
                 SipURI sipUri = ProtocolObjects.addressFactory.createSipURI(userName, Gateway
                         .getGlobalAddress());
                 sipUri.setPort(Gateway.getGlobalPort());
@@ -196,9 +202,8 @@ class SipUtilities {
             ListeningPoint lp = provider.getListeningPoint(transport);
             String ipAddress = lp.getIPAddress();
             int port = lp.getPort();
-            SipURI sipUri = ProtocolObjects.addressFactory.createSipURI(null, ipAddress);
-            if (user != null)
-                sipUri.setUser(user);
+            SipURI sipUri = ProtocolObjects.addressFactory.createSipURI(user, ipAddress);
+           
             sipUri.setPort(port);
             sipUri.setTransportParam(transport);
             Address address = ProtocolObjects.addressFactory.createAddress(sipUri);

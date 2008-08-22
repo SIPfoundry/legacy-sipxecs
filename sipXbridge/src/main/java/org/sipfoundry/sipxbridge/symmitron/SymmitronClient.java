@@ -19,6 +19,7 @@ import org.apache.log4j.Logger;
 import org.apache.xmlrpc.XmlRpcException;
 import org.apache.xmlrpc.client.XmlRpcClient;
 import org.apache.xmlrpc.client.XmlRpcClientConfigImpl;
+import org.apache.xmlrpc.client.XmlRpcCommonsTransportFactory;
 
 /**
  * Wrapper for the client methods of the Symmitron.
@@ -50,6 +51,7 @@ public class SymmitronClient {
         try {
             config.setServerURL(new URL("http://" + serverAddress + ":" + port));
             config.setEnabledForExceptions(true);
+           
         } catch (Exception e) {
             logger.error(e);
             throw new SymmitronException(e);
@@ -57,6 +59,7 @@ public class SymmitronClient {
         
         this.client = new XmlRpcClient();
         client.setConfig(config);
+        client.setMaxThreads(32);
         clientHandle = "sipxbridge:" + Math.abs(new Random().nextLong());
         this.signIn();
         logger.debug("signedIn : " + "http://" + serverAddress + ":" + port);

@@ -84,7 +84,7 @@ class DialogApplicationData {
 
     boolean sendReInviteOnResume;
 
-  
+    
 
     
     private DialogApplicationData() {

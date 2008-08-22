@@ -126,7 +126,10 @@ class CallControlManager {
             response.setContent(newDescription, ProtocolObjects.headerFactory
                     .createContentTypeHeader("application", "sdp"));
         }
-        ContactHeader contactHeader = SipUtilities.createContactHeader("sipxbridge", Gateway
+        
+        ToHeader toHeader = (ToHeader) request.getHeader(ToHeader.NAME);
+        String userName =  ((SipURI) toHeader.getAddress().getURI()).getUser();
+        ContactHeader contactHeader = SipUtilities.createContactHeader(userName, Gateway
                 .getLanProvider(), Gateway.getSipxProxyTransport());
         response.setHeader(contactHeader);
         response.setReasonPhrase("RTP Session Parameters Changed");
@@ -827,6 +830,7 @@ class CallControlManager {
                         contactHeader = SipUtilities.createContactHeader(
                                 tad.serverTransactionProvider, tad.itspAccountInfo);
                     }
+                    
 
                     newResponse.setHeader(contactHeader);
                     ToHeader newToHeader = (ToHeader) newResponse.getHeader(ToHeader.NAME);
