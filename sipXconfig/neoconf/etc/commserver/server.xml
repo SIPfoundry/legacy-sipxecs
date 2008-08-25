@@ -76,11 +76,6 @@
       <type refid="loglevel" />
       <value>NOTICE</value>
     </setting>
-    <setting name="SIP_RLS_LOG_LEVEL">
-      <profileName>sipxrls-config.in</profileName>
-      <type refid="loglevel" />
-      <value>NOTICE</value>
-    </setting>
     <setting name="log.level">
       <profileName>sipxpage.properties.in</profileName>
       <type refid="loglevel" />

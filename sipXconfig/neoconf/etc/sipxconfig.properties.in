@@ -18,6 +18,7 @@ sipxRegistrarService.voicemailHttpsPort=${VOICEMAIL_SERVER_HTTPS_PORT}
 sipxRegistrarService.orbitServerSipSrvOrHostport=${ORBIT_SERVER_SIP_SRV_OR_HOSTPORT}
 sipxRegistrarService.proxyServerSipHostport=${PROXY_SERVER_SIP_HOSTPORT}
 sipxParkService.parkServerSipPort=${ORBIT_SERVER_SIP_PORT}
+sipxRlsService.rlsPort=${RLS_SIP_PORT}
 
 sip.proxyHost=${PROXY_SERVER_ADDR}
 sip.proxyPort=${PROXY_SERVER_SIP_PORT}

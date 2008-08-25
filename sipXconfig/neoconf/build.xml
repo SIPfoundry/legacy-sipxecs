@@ -129,6 +129,11 @@
       <replacefilter token="@sipxpbx.lib.dir@" property="sipxpbx.lib.dir" />
     </replace>
   	
+  	<replace file="${dest.dir}${sipxpbx.conf.dir}/sipxrls/sipxrls-config.vm"
+             propertyfile="${top.build.dir}/build.properties">
+  		<replacefilter token="@sipxpbx.conf.dir@" property="sipxpbx.conf.dir" />
+  	</replace>
+  	
   	<replace file="${dest.dir}${sipxpbx.conf.dir}/sipxregistrar/registrar-config.vm"
   	        propertyfile="${top.build.dir}/build.properties">
         <replacefilter token="@sipxpbx.conf.dir@" property="sipxpbx.conf.dir" />

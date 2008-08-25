@@ -164,7 +164,17 @@
   <bean id="sipxRlsService" class="org.sipfoundry.sipxconfig.service.SipxRlsService"
     scope="prototype" parent="sipxService">
     <property name="beanId" value="sipxRlsService"/>
+    <property name="modelName" value="sipxrls.xml" />
+    <property name="modelDir" value="sipxrls" />
+    <property name="configuration" ref="sipxRlsConfiguration" />
   </bean>
+  
+  <bean id="sipxRlsConfiguration" class="org.sipfoundry.sipxconfig.service.SipxRlsConfiguration"
+    scope="prototype" parent="defaultConfigurationFile">
+    <property name="velocityEngine" ref="velocityEngine" />
+    <property name="template" value="sipxrls/sipxrls-config.vm" />
+    <property name="name" value="sipxrls-config" />
+  </bean>  
   
   <bean id="sipxMediaService" class="org.sipfoundry.sipxconfig.service.SipxMediaService"
     scope="prototype" parent="sipxService">
