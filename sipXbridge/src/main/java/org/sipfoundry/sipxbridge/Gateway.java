@@ -521,21 +521,7 @@ public class Gateway {
         return accountManager.getBridgeConfiguration().getLogLevel();
     }
 
-    /**
-     * @return the upper bound of the port range we are allowing for RTP.
-     * 
-     */
-    static int getRtpPortRangeUpperBound() {
-
-        return accountManager.getBridgeConfiguration().getRtpPortUpperBound();
-    }
-
-    /**
-     * @return the lower bound of the port range for RTP.
-     */
-    static int getRtpPortRangeLowerBound() {
-        return accountManager.getBridgeConfiguration().getRtpPortLowerBound();
-    }
+   
 
     /**
      * Get the timeout for media.

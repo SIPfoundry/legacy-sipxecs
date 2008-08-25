@@ -217,20 +217,7 @@ public class BridgeConfiguration {
         return logLevel;
     }
 
-    /**
-     * @return the lower bound of the rtp port space.
-     */
-    public int getRtpPortLowerBound() {
-        return this.rtpPortLowerBound;
-    }
-
-    /**
-     * @return the upper bound of the rtp port space.
-     */
-    public int getRtpPortUpperBound() {
-        return this.rtpPortUpperBound;
-    }
-
+  
     /**
      * @return Return the MOH UserName or null if no MOH is supported.
      */
