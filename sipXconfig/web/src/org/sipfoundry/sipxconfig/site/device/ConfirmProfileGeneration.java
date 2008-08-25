@@ -1,11 +1,11 @@
 /*
  *
  *
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
- * 
+ *
+ *
  */
 package org.sipfoundry.sipxconfig.site.device;
 
@@ -31,7 +31,7 @@ public abstract class ConfirmProfileGeneration extends BaseComponent {
 
     public void generate() {
         Collection<Integer> deviceIds = getDeviceIds();
-        getProfileManager().generateProfiles(deviceIds, getRestart());
+        getProfileManager().generateProfiles(deviceIds, getRestart(), null);
         String msg = getMessages().format("msg.success.profiles", deviceIds.size());
         TapestryUtils.recordSuccess(this, msg);
         setDeviceIds(null);

@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.api;
@@ -131,7 +131,7 @@ public class PhoneServiceImpl implements PhoneService {
         org.sipfoundry.sipxconfig.phone.Phone[] myPhones = phoneSearch(managePhone.getSearch());
         Collection ids = CollectionUtils.collect(Arrays.asList(myPhones), new BeanWithId.BeanToId());
         if (Boolean.TRUE.equals(managePhone.getGenerateProfiles())) {
-            m_profileManager.generateProfiles(ids, true);
+            m_profileManager.generateProfiles(ids, true, null);
         } else if (Boolean.TRUE.equals(managePhone.getRestart())) {
             m_restartManager.restart(ids, null);
         } else {

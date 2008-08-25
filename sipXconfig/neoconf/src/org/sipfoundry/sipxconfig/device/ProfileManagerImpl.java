@@ -1,16 +1,17 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.device;
 
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.Date;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -26,17 +27,17 @@ public class ProfileManagerImpl implements ProfileManager {
 
     private DeviceSource m_deviceSource;
 
-    public final void generateProfiles(Collection<Integer> devices, boolean restart) {
+    public final void generateProfiles(Collection<Integer> devices, boolean restart, Date restartTime) {
         for (Integer id : devices) {
-            generateProfile(id, restart);
+            generateProfile(id, restart, restartTime);
         }
     }
 
-    public final void generateProfile(Integer id, boolean restart) {
+    public final void generateProfile(Integer id, boolean restart, Date restartTime) {
         Device d = m_deviceSource.loadDevice(id);
         generate(d);
         if (restart) {
-            m_restartManager.restart(id, null);
+            m_restartManager.restart(id, restartTime);
         }
     }
 

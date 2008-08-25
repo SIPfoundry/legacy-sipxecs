@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.site.speeddial;
@@ -43,11 +43,12 @@ public abstract class SpeedDialPage extends UserBasePage {
     public abstract SpeedDial getSpeedDial();
 
     public abstract void setSpeedDial(SpeedDial speedDial);
-    
+
     public abstract void setValidationEnabled(boolean enabled);
-    
+
     public abstract boolean isValidationEnabled();
 
+    @Override
     public void pageBeginRender(PageEvent event) {
         super.pageBeginRender(event);
 
@@ -61,7 +62,7 @@ public abstract class SpeedDialPage extends UserBasePage {
         setSpeedDial(speedDial);
         setSavedUserId(userId);
     }
-    
+
     public void onSubmit() {
         // XCF-1435 - Unless attempting to save data (e.g. onApply and the like)
         // clear all form errors
@@ -81,14 +82,14 @@ public abstract class SpeedDialPage extends UserBasePage {
             speedDialManager.saveSpeedDial(getSpeedDial());
         }
     }
-    
+
     public void onUpdatePhones() {
         setValidationEnabled(true);
         if (TapestryUtils.isValid(this)) {
             onApply();
             Collection<Phone> phones = getPhoneContext().getPhonesByUserId(getUserId());
             Collection<Integer> ids = DataCollectionUtil.extractPrimaryKeys(phones);
-            getProfileManager().generateProfiles(ids, true);
+            getProfileManager().generateProfiles(ids, true, null);
         }
     }
 }

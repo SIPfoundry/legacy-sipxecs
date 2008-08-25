@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.device;
@@ -79,7 +79,7 @@ public class ProfileManagerImplTest extends TestCase {
         pm.setDeviceSource(source);
         pm.setRestartManager(restartManager);
 
-        pm.generateProfiles(Arrays.asList(ids), true);
+        pm.generateProfiles(Arrays.asList(ids), true, null);
 
         verify(jobContext, phone, source, restartManager);
     }
@@ -119,7 +119,7 @@ public class ProfileManagerImplTest extends TestCase {
         pm.setDeviceSource(source);
         pm.setRestartManager(restartManager);
 
-        pm.generateProfile(phoneId, true);
+        pm.generateProfile(phoneId, true, null);
 
         verify(jobContext, phone, source, restartManager);
     }
@@ -158,7 +158,7 @@ public class ProfileManagerImplTest extends TestCase {
         pm.setDeviceSource(source);
         pm.setRestartManager(restartManager);
 
-        pm.generateProfile(phoneId, false);
+        pm.generateProfile(phoneId, false, null);
 
         verify(jobContext, phone, source, restartManager);
     }
