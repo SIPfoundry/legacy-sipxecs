@@ -19,6 +19,7 @@ import javax.sip.Dialog;
 import javax.sip.DialogState;
 import javax.sip.ServerTransaction;
 import javax.sip.SipException;
+import javax.sip.SipProvider;
 import javax.sip.header.AcceptHeader;
 import javax.sip.header.ContentTypeHeader;
 import javax.sip.message.Request;
@@ -113,7 +114,7 @@ class RtpSession {
      * @param dialog
      * @throws Exception
      */
-    void sendMohReInviteToItsp(ServerTransaction serverTransaction, Dialog dialog) throws Exception {
+    void forwardReInvite(ServerTransaction serverTransaction, Dialog dialog) throws Exception {
         SessionDescription sd = this.getReceiver().getSessionDescription();
         logger.debug("sendMohReInviteToItsp" + sd);
         SipUtilities.setDuplexity(sd,"sendrecv");
@@ -130,7 +131,19 @@ class RtpSession {
         peerDat.sessionDescription = sd.toString();
 
         Request newInvite = peerDialog.createRequest(Request.INVITE);
-
+        
+        SipProvider sipProvider = ((DialogExt) peerDialog).getSipProvider();
+        
+        /*
+         * Sending request to ITSP - make the addressing global if required.
+         */
+        if ( sipProvider != Gateway.getLanProvider()) {
+            if ( peerDat.itspInfo == null || peerDat.itspInfo.isGlobalAddressingUsed()) {
+                SipUtilities.setGlobalAddresses(newInvite);
+            }
+            
+        }
+ 
         newInvite.removeHeader(PAssertedIdentityHeader.NAME);
         AcceptHeader acceptHeader = ProtocolObjects.headerFactory.createAcceptHeader(
                 "application", "sdp");
@@ -142,7 +155,7 @@ class RtpSession {
         ClientTransaction ctx = ((DialogExt) peerDialog).getSipProvider()
                 .getNewClientTransaction(newInvite);
         TransactionApplicationData tad = new TransactionApplicationData(
-                Operation.SEND_MOH_REINIVTE_TO_ITSP);
+                Operation.FORWARD_REINVITE);
         
         
         tad.serverTransaction = serverTransaction;
@@ -181,10 +194,14 @@ class RtpSession {
             //SipUtilities.setDuplexity(sd,"sendrecv");
             //SipUtilities.incrementSessionVersion(sd);
                
-           
-            if ( Gateway.isReInviteSupported() && dat.musicOnHoldDialog != null ) {
+            SipProvider provider = ((DialogExt) dialog).getSipProvider();
+            
+            if ( Gateway.isReInviteSupported() && dat.musicOnHoldDialog != null  ) {
                 // Send Re-INVITE to the ITSP.
-                this.sendMohReInviteToItsp(serverTransaction, dialog);
+                this.forwardReInvite(serverTransaction, dialog);
+            } else if ( provider != Gateway.getLanProvider() ) {
+                // RE-INVITE was received from WAN side. Just forward it.
+                this.forwardReInvite(serverTransaction, dialog);
             }
         } catch (Exception ex) {
             throw new RuntimeException(ex);

@@ -36,6 +36,7 @@ import javax.sip.address.SipURI;
 import javax.sip.header.CSeqHeader;
 import javax.sip.header.CallIdHeader;
 import javax.sip.header.ContactHeader;
+import javax.sip.header.ContentTypeHeader;
 import javax.sip.header.ExpiresHeader;
 import javax.sip.header.FromHeader;
 import javax.sip.header.Header;
@@ -872,6 +873,7 @@ class SipUtilities {
         try {
             SipURI sipUri = ProtocolObjects.addressFactory.createSipURI(null, Gateway
                     .getGlobalAddress());
+            sipUri.setPort(Gateway.getGlobalPort());
 
             ContactHeader contactHeader = (ContactHeader) request.getHeader(ContactHeader.NAME);
             contactHeader.getAddress().setURI(sipUri);
@@ -884,6 +886,21 @@ class SipUtilities {
         }
 
     }
+    
+    static void setGlobalAddress(Response response) {
+        try {
+            SipURI sipUri = ProtocolObjects.addressFactory.createSipURI(null, Gateway
+                    .getGlobalAddress());
+            sipUri.setPort(Gateway.getGlobalPort());
+
+            ContactHeader contactHeader = (ContactHeader) response.getHeader(ContactHeader.NAME);
+            contactHeader.getAddress().setURI(sipUri);
+           
+        } catch (Exception ex) {
+            logger.error("Unexpected exception ", ex);
+            throw new RuntimeException("Unexepcted exception", ex);
+        }
+    }
 
     public static String getFromAddress(Message message) {
         FromHeader fromHeader = (FromHeader) message.getHeader(FromHeader.NAME);
@@ -893,6 +910,17 @@ class SipUtilities {
     public static String getToAddress(Message message) {
         ToHeader toHeader = (ToHeader) message.getHeader(ToHeader.NAME);
         return toHeader.getAddress().toString();
+    }
+
+    public static boolean isSdpQuery(Request request) {
+         return request.getMethod().equals(Request.INVITE) &&
+               request.getContentLength().getContentLength() == 0 ;
+              
+    }
+
+    public static String getToUser(Message message ) {
+        return ((SipURI)((ToHeader) message.getHeader(ToHeader.NAME)).getAddress().getURI()).getUser();
+       
     }
 
 }

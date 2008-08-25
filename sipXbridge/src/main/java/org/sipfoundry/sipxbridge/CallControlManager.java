@@ -126,11 +126,10 @@ class CallControlManager {
             response.setContent(newDescription, ProtocolObjects.headerFactory
                     .createContentTypeHeader("application", "sdp"));
         }
-        
+
         ToHeader toHeader = (ToHeader) request.getHeader(ToHeader.NAME);
-        String userName =  ((SipURI) toHeader.getAddress().getURI()).getUser();
-        ContactHeader contactHeader = SipUtilities.createContactHeader(userName, Gateway
-                .getLanProvider(), Gateway.getSipxProxyTransport());
+        String userName = ((SipURI) toHeader.getAddress().getURI()).getUser();
+        ContactHeader contactHeader = SipUtilities.createContactHeader(userName, provider, Gateway.getSipxProxyTransport());
         response.setHeader(contactHeader);
         response.setReasonPhrase("RTP Session Parameters Changed");
 
@@ -170,7 +169,9 @@ class CallControlManager {
             if (dialog.getState() == DialogState.CONFIRMED) {
                 logger.debug("Re-INVITE proessing !! ");
                 DialogApplicationData dat = (DialogApplicationData) dialog.getApplicationData();
-                RtpSession lanRtpSession = dat.getRtpSession();
+                RtpSession rtpSession = dat.getRtpSession();
+                Dialog peerDialog = dat.peerDialog;
+                SipProvider peerDialogProvider = ((DialogExt) peerDialog).getSipProvider();
 
                 // See if we need to re-INVITE MOH server. If the session
                 // is already set up with right codec we do not need to do that.
@@ -183,7 +184,15 @@ class CallControlManager {
                             null);
                     return;
                 } else {
-                    if (lanRtpSession.isHoldRequest(request)) {
+                    if (SipUtilities.isSdpQuery(request)) {
+                        Request newRequest = peerDialog.createRequest(Request.INVITE);
+                        ClientTransaction ctx = peerDialogProvider.getNewClientTransaction(newRequest);
+                        TransactionApplicationData tad = new TransactionApplicationData(Operation.QUERY_SDP_FROM_PEER_DIALOG);
+                        tad.serverTransaction = serverTransaction;
+                        ctx.setApplicationData(tad);
+                        peerDialog.sendRequest(ctx);                       
+                        return;
+                    } else if (rtpSession.isHoldRequest(request)) {
                         dat.sendReInviteOnResume = true;
                         ReInviteProcessingContinuationData continuationData = new ReInviteProcessingContinuationData(
                                 dialog, provider, serverTransaction, request);
@@ -193,8 +202,8 @@ class CallControlManager {
                     } else {
                         /* Say BYE to MOH server and continue processing. */
                         dat.sendReInviteOnResume = false;
-                        lanRtpSession.reAssignSessionParameters(request, serverTransaction,
-                                dialog, null);
+                        rtpSession.reAssignSessionParameters(request, serverTransaction, dialog,
+                                null);
 
                         return;
                     }
@@ -414,17 +423,15 @@ class CallControlManager {
             DialogApplicationData dat = (DialogApplicationData) dialog.getApplicationData();
             BackToBackUserAgent btobua = dat.getBackToBackUserAgent();
 
-           
             Response response = ProtocolObjects.messageFactory.createResponse(Response.ACCEPTED,
                     request);
             ServerTransaction serverTransaction = requestEvent.getServerTransaction();
             serverTransaction.sendResponse(response);
-            
-            
+
             ContactHeader cth = SipUtilities.createContactHeader(null, provider, Gateway
                     .getSipxProxyTransport());
             response.setHeader(cth);
-            
+
             /*
              * Stop the Music on hold.
              */
@@ -753,6 +760,8 @@ class CallControlManager {
                     /*
                      * Send him a PRACK at this point??
                      */
+                    
+                  
 
                     if (response.getContentLength().getContentLength() == 0) {
                         logger.error("DROPPING CALL -- Expecting a content length != 0 ");
@@ -762,8 +771,21 @@ class CallControlManager {
                     SessionDescription sd = SipUtilities.getSessionDescription(response);
 
                     dat.lastResponse = response;
-
-                    if (operation == Operation.REFER_INVITE_TO_SIPX_PROXY) {
+                    if ( operation == null ) {
+                        ServerTransaction st = tad.serverTransaction;
+                        Request serverRequest = st.getRequest();
+                        Response newResponse = ProtocolObjects.messageFactory.createResponse(Response.OK, serverRequest);
+                        Dialog peerDialog = dat.peerDialog;
+                        RtpSession wanRtpSession = b2bua.getWanRtpSession(peerDialog);
+                        wanRtpSession.getReceiver().setSessionDescription(sd);
+                        DialogApplicationData peerDat = DialogApplicationData.get(peerDialog);
+                        ContactHeader contactHeader = (ContactHeader) peerDat.request.getHeader(ContactHeader.NAME);
+                        ContentTypeHeader cth = ProtocolObjects.headerFactory.createContentTypeHeader("application", "sdp");
+                        newResponse.setContent(sd.toString(), cth  );
+                        newResponse.setHeader(contactHeader);
+                        dat.isSdpAnswerPending = true;
+                        st.sendResponse(newResponse);
+                    } else if (operation == Operation.REFER_INVITE_TO_SIPX_PROXY) {
 
                         ReferInviteToSipxProxyContinuationData continuation = (ReferInviteToSipxProxyContinuationData) tad.continuationData;
                         b2bua.getLanRtpSession(continuation.dialog).getReceiver().setSdpQueried(
@@ -830,7 +852,6 @@ class CallControlManager {
                         contactHeader = SipUtilities.createContactHeader(
                                 tad.serverTransactionProvider, tad.itspAccountInfo);
                     }
-                    
 
                     newResponse.setHeader(contactHeader);
                     ToHeader newToHeader = (ToHeader) newResponse.getHeader(ToHeader.NAME);
@@ -1028,7 +1049,7 @@ class CallControlManager {
                         }
 
                     }
-                } else if (tad.operation.equals(Operation.SEND_MOH_REINIVTE_TO_ITSP)) {
+                } else if (tad.operation.equals(Operation.FORWARD_REINVITE)) {
 
                     /*
                      * Store away our incoming response - get ready for ACKL
@@ -1061,9 +1082,17 @@ class CallControlManager {
                         ContentTypeHeader cth = ProtocolObjects.headerFactory
                                 .createContentTypeHeader("application", "sdp");
                         Dialog peerDialog = DialogApplicationData.getPeerDialog(dialog);
+                        SipProvider peerProvider = ((DialogExt)peerDialog).getSipProvider();
                         RtpSession rtpSession = b2bua.getLanRtpSession(peerDialog);
                         rtpSession.getReceiver().setSessionDescription(sd);
                         newResponse.setContent(sd.toString(), cth);
+                        if ( peerProvider != Gateway.getLanProvider()) {
+                            DialogApplicationData peerDat = DialogApplicationData.get(peerDialog);
+                            if ( peerDat.itspInfo == null || peerDat.itspInfo.isGlobalAddressingUsed()) {
+                                SipUtilities.setGlobalAddress(newResponse);
+                            }
+                        }
+                      
                         serverTransaction.sendResponse(newResponse);
                     } else {
                         Request ack = dialog.createAck(SipUtilities.getSeqNumber(response));
@@ -1174,7 +1203,7 @@ class CallControlManager {
                 if (peerDialog.getState() != DialogState.TERMINATED) {
                     DialogApplicationData peerDat = DialogApplicationData.get(peerDialog);
                     RtpSession rtpSession = peerDat.getRtpSession();
-                    rtpSession.sendMohReInviteToItsp(null, dialog);
+                    rtpSession.forwardReInvite(null, dialog);
                 } else {
                     logger.debug("peerDialog is TERMINATED " + peerDialog);
                 }
