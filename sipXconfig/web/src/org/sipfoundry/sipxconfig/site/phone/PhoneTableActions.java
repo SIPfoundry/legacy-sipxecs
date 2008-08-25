@@ -64,7 +64,7 @@ public abstract class PhoneTableActions extends BaseComponent {
 
     public void restart() {
         Collection phoneIds = getSelections().getAllSelected();
-        getRestartManager().restart(phoneIds);
+        getRestartManager().restart(phoneIds, null);
         String msg = getMessages().format("msg.success.restart", Integer.toString(phoneIds.size()));
         TapestryUtils.recordSuccess(this, msg);
     }

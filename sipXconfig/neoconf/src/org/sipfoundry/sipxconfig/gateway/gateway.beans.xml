@@ -62,18 +62,13 @@
     </property>
   </bean>
 
-  <bean id="eagerGatewayRestartManager" class="org.sipfoundry.sipxconfig.device.RestartManagerImpl">
+  <bean id="gatewayRestartManager" class="org.sipfoundry.sipxconfig.device.ScheduledRestartManagerImpl">
     <property name="deviceSource">
       <ref local="gatewaySource" />
     </property>
     <property name="jobContext" ref="jobContext" />
-  </bean>
-
-  <bean id="gatewayRestartManager" class="org.sipfoundry.sipxconfig.device.LazyRestartManagerImpl" init-method="init">
-    <property name="target">
-      <ref local="eagerGatewayRestartManager" />
-    </property>
     <property name="sleepInterval" value="5000" />
+    <property name="executorService" ref="restartExecutorService" />
   </bean>
 
   <bean id="eagerGatewayProfileManager" class="org.sipfoundry.sipxconfig.device.ProfileManagerImpl">

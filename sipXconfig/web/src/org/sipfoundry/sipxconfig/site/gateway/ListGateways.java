@@ -86,7 +86,7 @@ public abstract class ListGateways extends BasePage {
     public void restart() {
         Collection<Integer> ids = getGatewayTable().getSelections().getAllSelected();
         if (!ids.isEmpty()) {
-            getRestartManager().restart(ids);
+            getRestartManager().restart(ids, null);
             String msg = getMessages().format("msg.success.restart", Integer.toString(ids.size()));
             TapestryUtils.recordSuccess(this, msg);
         }

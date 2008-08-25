@@ -79,18 +79,13 @@
     </property>
   </bean>
 
-  <bean id="eagerSbcRestartManager" class="org.sipfoundry.sipxconfig.device.RestartManagerImpl">
+  <bean id="sbcRestartManager" class="org.sipfoundry.sipxconfig.device.ScheduledRestartManagerImpl">
     <property name="deviceSource">
       <ref local="sbcDeviceSource" />
     </property>
     <property name="jobContext" ref="jobContext" />
-  </bean>
-
-  <bean id="sbcRestartManager" class="org.sipfoundry.sipxconfig.device.LazyRestartManagerImpl" init-method="init">
-    <property name="target">
-      <ref local="eagerSbcRestartManager" />
-    </property>
     <property name="sleepInterval" value="5000" />
+    <property name="executorService" ref="restartExecutorService" />
   </bean>
 
   <bean id="eagerSbcProfileManager" class="org.sipfoundry.sipxconfig.device.ProfileManagerImpl">

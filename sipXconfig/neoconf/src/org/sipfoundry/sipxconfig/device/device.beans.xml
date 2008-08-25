@@ -32,4 +32,7 @@
     <property name="templateRoot" value="${sysdir.etc}" />
     <property name="velocityEngine" ref="velocityEngine" />
   </bean>
+  
+  <bean id="restartExecutorService" class="org.springframework.scheduling.concurrent.ScheduledExecutorFactoryBean">
+  </bean>
 </beans>

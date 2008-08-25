@@ -36,7 +36,7 @@ public class ProfileManagerImpl implements ProfileManager {
         Device d = m_deviceSource.loadDevice(id);
         generate(d);
         if (restart) {
-            m_restartManager.restart(id);
+            m_restartManager.restart(id, null);
         }
     }
 

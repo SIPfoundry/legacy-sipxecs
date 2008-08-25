@@ -47,18 +47,13 @@
     <property name="phoneContext" ref="phoneContext" />
   </bean>
 
-  <bean id="eagerPhoneRestartManager" class="org.sipfoundry.sipxconfig.device.RestartManagerImpl">
+  <bean id="phoneRestartManager" class="org.sipfoundry.sipxconfig.device.ScheduledRestartManagerImpl">
     <property name="deviceSource">
       <ref local="phoneSource" />
     </property>
     <property name="jobContext" ref="jobContext" />
-  </bean>
-
-  <bean id="phoneRestartManager" class="org.sipfoundry.sipxconfig.device.LazyRestartManagerImpl" init-method="init">
-    <property name="target">
-      <ref local="eagerPhoneRestartManager" />
-    </property>
     <property name="sleepInterval" value="5000" />
+    <property name="executorService" ref="restartExecutorService" />    
   </bean>
 
   <bean id="eagerPhoneProfileManager" class="org.sipfoundry.sipxconfig.device.ProfileManagerImpl">

@@ -118,7 +118,7 @@ public abstract class ListSbcDevices extends BasePage {
         if (ids.isEmpty()) {
             return;
         }
-        getRestartManager().restart(ids);
+        getRestartManager().restart(ids, null);
         String msg = getMessages().format("msg.success.restart", Integer.toString(ids.size()));
         TapestryUtils.recordSuccess(this, msg);
     }

@@ -69,8 +69,8 @@ public class ProfileManagerImplTest extends TestCase {
         expect(source.loadDevice(ids[1])).andReturn(phone);
 
         RestartManager restartManager = createMock(RestartManager.class);
-        restartManager.restart(ids[0]);
-        restartManager.restart(ids[1]);
+        restartManager.restart(ids[0], null);
+        restartManager.restart(ids[1], null);
 
         replay(jobContext, phone, source, restartManager);
 
@@ -110,7 +110,7 @@ public class ProfileManagerImplTest extends TestCase {
         expect(source.loadDevice(phoneId)).andReturn(phone);
 
         RestartManager restartManager = createMock(RestartManager.class);
-        restartManager.restart(phoneId);
+        restartManager.restart(phoneId, null);
 
         replay(jobContext, phone, source, restartManager);
 

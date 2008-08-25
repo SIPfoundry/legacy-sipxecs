@@ -133,7 +133,7 @@ public class PhoneServiceImpl implements PhoneService {
         if (Boolean.TRUE.equals(managePhone.getGenerateProfiles())) {
             m_profileManager.generateProfiles(ids, true);
         } else if (Boolean.TRUE.equals(managePhone.getRestart())) {
-            m_restartManager.restart(ids);
+            m_restartManager.restart(ids, null);
         } else {
             for (int i = 0; i < myPhones.length; i++) {
 
