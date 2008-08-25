@@ -190,6 +190,9 @@ class CallControlManager {
                         TransactionApplicationData tad = new TransactionApplicationData(Operation.QUERY_SDP_FROM_PEER_DIALOG);
                         tad.serverTransaction = serverTransaction;
                         ctx.setApplicationData(tad);
+                        DialogApplicationData peerDat = DialogApplicationData.get(peerDialog);
+                        // Record that we queried the answer from the peer dialog so we can send the Ack along.
+                        peerDat.isSdpAnswerPending = true;
                         peerDialog.sendRequest(ctx);                       
                         return;
                     } else if (rtpSession.isHoldRequest(request)) {
@@ -491,11 +494,17 @@ class CallControlManager {
             /*
              * Forward the ACK if we have not already done so.
              */
+            
+            Request inboundAck = requestEvent.getRequest();
 
             DialogApplicationData dat = (DialogApplicationData) dialog.getApplicationData();
+            
+            if ( dat.isSdpAnswerPending && inboundAck.getContentLength().getContentLength() == 0 ) {
+                logger.debug("sdpAnswer is pending and none is in ACK -- not forwarding ACK");
+                return;
+            }
 
-            if (dat != null
-                    && (!dat.isSdpAnswerPending)
+            if (dat != null           
                     && dialog.getState() == DialogState.CONFIRMED
                     && dat.lastResponse != null
                     && dat.lastResponse.getStatusCode() == Response.OK
@@ -503,11 +512,33 @@ class CallControlManager {
                             .equals(Request.INVITE)) {
                 logger.debug("createAck: " + dialog);
                 Request ack = dialog.createAck(SipUtilities.getSeqNumber(dat.lastResponse));
+                    
+                /*
+                 * This case happens in loopback calls. We can query sdp from a peer that is in the pbx.
+                 */
+              
+                 if ( inboundAck.getContentLength().getContentLength() != 0 ) {
+                      
+                    ContentTypeHeader cth = ProtocolObjects.headerFactory.createContentTypeHeader("application", "sdp");
+                    SessionDescription sd = SipUtilities.getSessionDescription(inboundAck);
+                    SipUtilities.incrementSessionVersion(sd);
+                    dat.getRtpSession().getReceiver().setSessionDescription(sd);
+                    ack.setContent(sd.toString(),cth );
+                 } 
+              
                 dialog.sendAck(ack);
+                    
+               
+               
+                
                 /*
                  * Setting this to null here handles the case of Re-invitations.
                  */
                 dat.lastResponse = null;
+                
+                /*
+                 * Just to record the call completion time statistics for later.
+                 */
                 dat.lastAckSent = System.currentTimeMillis();
 
             }
@@ -1023,8 +1054,10 @@ class CallControlManager {
 
                     if (response.getStatusCode() == Response.OK && dat.musicOnHoldDialog != null
                             && dat.musicOnHoldDialog.getState() != DialogState.TERMINATED) {
+                        
+                        b2bua.sendByeToMohServer(dat.musicOnHoldDialog);
 
-                        if (!Gateway.isReInviteSupported()) {
+                       /* if (!Gateway.isReInviteSupported()) {
                             b2bua.sendByeToMohServer(dat.musicOnHoldDialog);
                         } else {
 
@@ -1032,6 +1065,7 @@ class CallControlManager {
                             DialogApplicationData peerDat = DialogApplicationData.get(peerDialog);
                             peerDat.getRtpSession().removeHold(null, peerDialog);
                         }
+                        */
 
                     }
 

@@ -670,8 +670,8 @@ public class BackToBackUserAgent {
              */
             ToHeader toHeader = (ToHeader) newRequest.getHeader(ToHeader.NAME);
             toHeader.removeParameter("tag");
-            SipURI toUri = (SipURI) toHeader.getAddress().getURI();
-            toHeader.setAddress(((ReferredByHeader)referRequest.getHeader(ReferredByHeader.NAME)).getAddress());
+            //toHeader.setAddress(((ReferredByHeader)referRequest.getHeader(ReferredByHeader.NAME)).getAddress());
+            toHeader.getAddress().setURI(uri);
             FromHeader fromHeader = (FromHeader) newRequest.getHeader(FromHeader.NAME);
             fromHeader.setTag(Integer.toString(Math.abs(new Random().nextInt())));
             ContentTypeHeader cth = ProtocolObjects.headerFactory.createContentTypeHeader(
