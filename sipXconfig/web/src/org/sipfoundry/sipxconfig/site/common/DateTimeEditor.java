@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.site.common;
@@ -46,17 +46,21 @@ public abstract class DateTimeEditor extends BaseComponent {
 
     public abstract void setDate(Date date);
 
+    @Override
     protected void renderComponent(IMarkupWriter writer, IRequestCycle cycle) {
-        Date datetime = getDatetime();
-        setDate(new Date(datetime.getTime()));
+        if (!TapestryUtils.isRewinding(cycle, this)) {
+            Date datetime = getDatetime();
+            setDate(new Date(datetime.getTime()));
 
-        Calendar calendar = Calendar.getInstance(getPage().getLocale());
-        calendar.setTime(datetime);
-        setTime(new TimeOfDay(calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE)));
+            Calendar calendar = Calendar.getInstance(getPage().getLocale());
+            calendar.setTime(datetime);
+            setTime(new TimeOfDay(calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE)));
+        }
 
         super.renderComponent(writer, cycle);
+
         if (TapestryUtils.isRewinding(cycle, this) && TapestryUtils.isValid(this)) {
-            datetime = toDateTime(getDate(), getTime(), getPage().getLocale());
+            Date  datetime = toDateTime(getDate(), getTime(), getPage().getLocale());
             setDatetime(datetime);
         }
     }

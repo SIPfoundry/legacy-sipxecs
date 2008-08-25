@@ -10,8 +10,10 @@
 package org.sipfoundry.sipxconfig.site.device;
 
 import java.util.Collection;
+import java.util.Date;
 
 import org.apache.tapestry.BaseComponent;
+import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.annotations.InitialValue;
 import org.apache.tapestry.annotations.Parameter;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
@@ -29,9 +31,20 @@ public abstract class ConfirmProfileGeneration extends BaseComponent {
     @InitialValue(value = "true")
     public abstract boolean getRestart();
 
+    public abstract void setRestartDate(Date restartDate);
+
+    public abstract Date getRestartDate();
+
+    @Override
+    protected void prepareForRender(IRequestCycle cycle) {
+        if (getRestartDate() == null) {
+            setRestartDate(new Date());
+        }
+    }
+
     public void generate() {
         Collection<Integer> deviceIds = getDeviceIds();
-        getProfileManager().generateProfiles(deviceIds, getRestart(), null);
+        getProfileManager().generateProfiles(deviceIds, getRestart(), getRestartDate());
         String msg = getMessages().format("msg.success.profiles", deviceIds.size());
         TapestryUtils.recordSuccess(this, msg);
         setDeviceIds(null);
