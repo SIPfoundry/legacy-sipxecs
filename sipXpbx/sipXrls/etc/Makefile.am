@@ -4,13 +4,11 @@ SIPX_PROCESS_DEFS = \
 	sipxrls
 
 EXTRA_DIST = \
-   sipxrls-config.in.in \
 	sipxrls-process.xml.in \
 	sipxrls.process.xml.in
 
 install-data-hook : \
-	$(DESTDIR)$(SIPX_CONFDIR)/process.d/sipxrls.process.xml \
-	$(DESTDIR)$(SIPX_CONFDIR)/sipxrls-config.in	
+	$(DESTDIR)$(SIPX_CONFDIR)/process.d/sipxrls.process.xml
 
 sipxrls.process.xml.local : $(srcdir)/sipxrls.process.xml.in
 	@echo "Localize $< -> $@"
@@ -27,21 +25,4 @@ $(DESTDIR)$(SIPX_CONFDIR)/process.d/sipxrls.process.xml: sipxrls.process.xml.loc
 			; $(INSTALL) -D -m 644 $< $@.NEW; \
 			); \
 	fi
-
-sipxrls-config.in.local : $(srcdir)/sipxrls-config.in.in
-	@echo "Localize $< -> $@"
-	@$(LocalizeSipXconfig) $< > $@
-
-$(DESTDIR)$(SIPX_CONFDIR)/sipxrls-config.in : sipxrls-config.in.local
-	@if ! test -f $@; \
-	then \
-	  	echo "Installing default $@"; \
-		$(INSTALL) -D -m 644 $< $@; \
-	else \
-		diff $< @ > /dev/null 2>&1 \
-		|| (  echo "Using existing $@ - new file is $@.NEW" \
-			; $(INSTALL) -D -m 644 $< $@.NEW; \
-			); \
-	fi
-
 

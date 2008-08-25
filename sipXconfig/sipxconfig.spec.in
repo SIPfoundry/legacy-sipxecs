@@ -300,6 +300,8 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) %{sipxpbxconf}/sipxpresence/sipxpresence.xml
 %dir %{sipxpbxconf}/sipxpark
 %config(noreplace) %{sipxpbxconf}/sipxpark/*
+%dir %{sipxpbxconf}/sipxrls
+%config(noreplace) %{sipxpbxconf}/sipxrls/*
 %dir %{sipxpbxconf}/sipxvxml
 %config(noreplace) %{sipxpbxconf}/sipxvxml/*
 %config(noreplace) %{sipxpbxconf}/test.d/*

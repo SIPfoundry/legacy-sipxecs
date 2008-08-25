@@ -173,8 +173,6 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/sipxrls
 %attr(755,root,root) %{_bindir}/sipxrls-config
 
-%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx/sipxrls-config.in
-
 %attr(755,root,root) %{_datadir}/sipxecs/schema/resource-lists.xsd
 
 %attr(755,root,root) %{_bindir}/sipxpresence.sh
