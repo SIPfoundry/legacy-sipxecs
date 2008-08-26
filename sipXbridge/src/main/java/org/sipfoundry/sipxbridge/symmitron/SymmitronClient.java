@@ -14,6 +14,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Map;
 import java.util.Random;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import org.apache.log4j.Logger;
 import org.apache.xmlrpc.XmlRpcException;
@@ -33,20 +35,59 @@ public class SymmitronClient {
     private XmlRpcClient client;
 
     private String serverHandle;
+    
+    private SymmitronResetHandler resetHandler;
+    
+    private static Timer timer = new Timer();
 
-    private void checkForServerReboot(Map map) throws SymmitronException {
+    private boolean checkForServerReboot(Map map) throws SymmitronException {
       
         String handle = (String) map.get(Symmitron.INSTANCE_HANDLE);
         
         if (! handle.equals(serverHandle)) {
             clientHandle = "sipxbridge:" + Math.abs(new Random().nextLong());
             this.signIn();
-            throw new SymmitronException("Symmitron reboot");
+            return true;
+        } else {
+            return false;
         }
         
     }
     
-    public SymmitronClient(String serverAddress, int port) throws SymmitronException {
+  
+    class ResetHandlerTimerTask extends TimerTask {
+
+        @Override
+        public void run() {
+            
+            Object[] args = new Object[1];
+            args[0] = clientHandle;
+            Map retval ;
+            String currentServerHandle = serverHandle;
+            try {
+                retval = (Map) client.execute("sipXrelay.ping", args);
+            } catch (XmlRpcException e) {
+                logger.error("XmlRpcException ", e);
+                if (resetHandler != null) {
+                    resetHandler.reset(currentServerHandle);              
+                }
+                return;
+            }
+            
+            if ( checkForServerReboot(retval) ) {
+                resetHandler.reset(currentServerHandle);
+            }
+            
+            
+        }
+        
+    }
+    
+    public String getServerHandle() {
+        return this.serverHandle;
+    }
+    
+    public SymmitronClient(String serverAddress, int port, SymmitronResetHandler resetHandler) throws SymmitronException {
         XmlRpcClientConfigImpl config = new XmlRpcClientConfigImpl();
         try {
             config.setServerURL(new URL("http://" + serverAddress + ":" + port));
@@ -56,13 +97,15 @@ public class SymmitronClient {
             logger.error(e);
             throw new SymmitronException(e);
         }
-        
+        this.resetHandler  = resetHandler;
         this.client = new XmlRpcClient();
         client.setConfig(config);
         client.setMaxThreads(32);
         clientHandle = "sipxbridge:" + Math.abs(new Random().nextLong());
         this.signIn();
         logger.debug("signedIn : " + "http://" + serverAddress + ":" + port);
+        // ping the server continually. 
+        timer.schedule(new ResetHandlerTimerTask(), 0, 3000);
 
     }
 
@@ -80,8 +123,7 @@ public class SymmitronClient {
             logger.error(e);
             throw new SymmitronException(e);
         }
-        this.checkForServerReboot(retval);
-        if (retval.get(Symmitron.STATUS_CODE).equals(Symmitron.ERROR)) {
+         if (retval.get(Symmitron.STATUS_CODE).equals(Symmitron.ERROR)) {
             throw new SymmitronException("Error in processing request "
                     + retval.get(Symmitron.ERROR_INFO));
         }
@@ -117,8 +159,7 @@ public class SymmitronClient {
             logger.error("XmlRpcException ", e);
             throw new SymmitronException(e);
         }
-        this.checkForServerReboot(retval);
-        
+         
         if (retval.get(Symmitron.STATUS_CODE).equals(Symmitron.ERROR)) {
             throw new SymmitronException("Error in processing request "
                     + retval.get(Symmitron.ERROR_INFO));
@@ -137,8 +178,7 @@ public class SymmitronClient {
             logger.error("XmlRpcException ", e);
             throw new SymmitronException(e);
         }
-        this.checkForServerReboot(retval);
-        
+         
         if (retval.get(Symmitron.STATUS_CODE).equals(Symmitron.ERROR)) {
             throw new SymmitronException("Error in processing request "
                     + retval.get(Symmitron.ERROR_INFO));
@@ -156,8 +196,7 @@ public class SymmitronClient {
             logger.error("XmlRpcException ", e);
             throw new SymmitronException(e);
         }
-        this.checkForServerReboot(retval);
-        
+         
         if (retval.get(Symmitron.STATUS_CODE).equals(Symmitron.ERROR)) {
             throw new SymmitronException("Error in processing request "
                     + retval.get(Symmitron.ERROR_INFO));
@@ -176,7 +215,6 @@ public class SymmitronClient {
             logger.error(e);
             throw new SymmitronException(e);
         }
-        this.checkForServerReboot(retval);
         
         // Could not find the bridge -- silently log the error and dont
         // scream about it.
@@ -204,7 +242,7 @@ public class SymmitronClient {
                 throw new SymmitronException("Error in processing request "
                         + retval.get(Symmitron.ERROR_INFO));
             }
-            this.checkForServerReboot(retval);
+            
         } catch (XmlRpcException ex) {
             throw new SymmitronException("RPC error in executing method", ex);
         }
@@ -230,7 +268,6 @@ public class SymmitronClient {
             throw new SymmitronException(e);
 
         }
-        this.checkForServerReboot(retval);
         if (retval.get(Symmitron.STATUS_CODE).equals(Symmitron.ERROR)) {
             throw new SymmitronException("Error in processing request "
                     + retval.get(Symmitron.ERROR_INFO));
@@ -250,7 +287,6 @@ public class SymmitronClient {
             throw new SymmitronException(e);
 
         }
-        this.checkForServerReboot(retval);
         if (retval.get(Symmitron.STATUS_CODE).equals(Symmitron.ERROR)) {
             throw new SymmitronException("Error in processing request "
                     + retval.get(Symmitron.ERROR_INFO));
@@ -273,7 +309,6 @@ public class SymmitronClient {
                 throw new SymmitronException("Error in processing request ", ex);
             }
         }
-        this.checkForServerReboot(retval);
         if (retval.get(Symmitron.STATUS_CODE).equals(Symmitron.ERROR)) {
             throw new SymmitronException("Error in processing request "
                     + retval.get(Symmitron.ERROR_INFO));
@@ -321,7 +356,6 @@ public class SymmitronClient {
             logger.error(e);
             throw new SymmitronException(e);
         }
-        this.checkForServerReboot(retval);
         if (retval.get(Symmitron.STATUS_CODE).equals(Symmitron.ERROR)) {
             throw new SymmitronException("Error in processing request "
                     + retval.get(Symmitron.ERROR_INFO));
@@ -341,7 +375,6 @@ public class SymmitronClient {
                 logger.error(e);
                 throw new SymmitronException(e);
             }
-            this.checkForServerReboot(retval);
             if (retval.get(Symmitron.STATUS_CODE).equals(Symmitron.ERROR)) {
                 throw new SymmitronException("Error in processing request "
                         + retval.get(Symmitron.ERROR_INFO));
@@ -354,7 +387,6 @@ public class SymmitronClient {
                 logger.error(e);
                 throw new SymmitronException(e);
             }
-            this.checkForServerReboot(retval);
             if (retval.get(Symmitron.STATUS_CODE).equals(Symmitron.ERROR)) {
                 throw new SymmitronException("Error in processing request "
                         + retval.get(Symmitron.ERROR_INFO));
@@ -373,7 +405,6 @@ public class SymmitronClient {
             logger.error(e);
             throw new SymmitronException(e);
         }
-        this.checkForServerReboot(retval);
         if (retval.get(Symmitron.STATUS_CODE).equals(Symmitron.ERROR)) {
             throw new SymmitronException("Error in processing request "
                     + retval.get(Symmitron.ERROR_INFO));
@@ -392,7 +423,6 @@ public class SymmitronClient {
             throw new SymmitronException(e);
         }
         
-        checkForServerReboot(retval);
         if (retval.get(Symmitron.STATUS_CODE).equals(Symmitron.ERROR)) {
             throw new SymmitronException("Error in processing request "
                     + retval.get(Symmitron.ERROR_INFO));
@@ -432,7 +462,6 @@ public class SymmitronClient {
             args[0] = clientHandle;
             args[1] = sym;
             Map retval = (Map) client.execute("sipXrelay.destroySym", args);
-            this.checkForServerReboot(retval);
         } catch (XmlRpcException ex) {
             logger.error(ex);
             throw new SymmitronException(ex);

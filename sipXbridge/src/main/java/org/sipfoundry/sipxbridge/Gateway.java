@@ -192,7 +192,7 @@ public class Gateway {
             SymmitronConfig symconfig = new SymmitronConfigParser()
                     .parse(Gateway.configurationPath + "/nattraversalrules.xml");
             int symmitronPort = symconfig.getXmlRpcPort();
-            symmitronClient = new SymmitronClient(address, symmitronPort);
+            symmitronClient = new SymmitronClient(address, symmitronPort, callControlManager);
         }
         symmitronClients.put(address, symmitronClient);
         return symmitronClient;

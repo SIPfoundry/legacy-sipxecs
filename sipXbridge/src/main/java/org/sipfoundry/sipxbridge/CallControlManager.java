@@ -51,6 +51,7 @@ import javax.sip.message.Response;
 
 import org.apache.log4j.Logger;
 import org.sipfoundry.sipxbridge.symmitron.KeepaliveMethod;
+import org.sipfoundry.sipxbridge.symmitron.SymmitronResetHandler;
 
 /**
  * Processes INVITE, REFER, ACK and BYE
@@ -58,7 +59,7 @@ import org.sipfoundry.sipxbridge.symmitron.KeepaliveMethod;
  * @author M. Ranganathan
  * 
  */
-class CallControlManager {
+class CallControlManager implements SymmitronResetHandler {
 
     private static Logger logger = Logger.getLogger(CallControlManager.class);
 
@@ -563,6 +564,11 @@ class CallControlManager {
             Response cancelOk = SipUtilities.createResponse(requestEvent.getServerTransaction(),
                     Response.OK);
             requestEvent.getServerTransaction().sendResponse(cancelOk);
+            
+            if ( requestEvent.getServerTransaction() == null ) {
+                logger.debug("Null ServerTx: Late arriving cancel" );
+                return;
+            }
             ServerTransaction inviteServerTransaction = ((SIPServerTransaction) requestEvent
                     .getServerTransaction()).getCanceledInviteTransaction();
 
@@ -1396,6 +1402,22 @@ class CallControlManager {
 
         return this.backToBackUserAgentTable.get(callId);
 
+    }
+
+     /**
+      * The Reset handler for the symmitron.
+      */
+    public void reset(String serverHandle) {
+      for ( BackToBackUserAgent btobua : this.backToBackUserAgentTable.values()) {
+          if ( serverHandle.equals(btobua.getSymmitronServerHandle())) {
+              try {
+                  btobua.tearDown();
+              } catch (Exception ex) {
+                  logger.error("Error tearing down call " ,ex);
+              }
+          }
+      }
+        
     }
 
 }

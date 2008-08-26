@@ -119,6 +119,7 @@ public class SymmitronServer implements Symmitron {
                 publicAddress = report.getPublicAddress().getSocketAddress().getAddress();
                 logger.debug("Stun report = " + report);
                 String publicAddr = publicAddress.getHostAddress();
+                logger.debug("publicAddress = " + publicAddr);
                 symmitronConfig.setPublicAddress(publicAddr);
 
             }
@@ -347,7 +348,7 @@ public class SymmitronServer implements Symmitron {
         try {
             checkForControllerReboot(controllerHandle);
             Map<String, Object> retval = createSuccessMap();
-            logger.debug("getExternalAddress : " + symmitronConfig.getPublicAddress());
+            logger.debug("getPublicAddress : " + symmitronConfig.getPublicAddress());
 
             retval.put(PUBLIC_ADDRESS, symmitronConfig.getPublicAddress());
 
@@ -873,6 +874,7 @@ public class SymmitronServer implements Symmitron {
             config.setLogFileDirectory(installRoot + "/var/log/sipxpbx");
         }
         config.setLogFileName("sipxrelay.log");
+        SymmitronServer.setSymmitronConfig(config);
         if (config.getPublicAddress() == null && config.getStunServerAddress() != null) {
             timer.schedule(new TimerTask() {
 
@@ -882,9 +884,9 @@ public class SymmitronServer implements Symmitron {
 
                 }
 
-            }, 0, config.getRediscoveryTime());
+            }, 0, config.getRediscoveryTime()*1000);
         }
-        SymmitronServer.setSymmitronConfig(config);
+    
         SymmitronServer.startWebServer();
     }
 

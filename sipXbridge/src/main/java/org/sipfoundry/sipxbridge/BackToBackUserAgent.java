@@ -117,6 +117,8 @@ public class BackToBackUserAgent {
 
     private SymmitronClient symmitronClient;
 
+    private String symmitronServerHandle;
+
     // /////////////////////////////////////////////////////////////////
     // Inner classes.
     // ////////////////////////////////////////////////////////////////
@@ -515,6 +517,7 @@ public class BackToBackUserAgent {
         callRecord.setRequestURI(requestUri);
         String callId = SipUtilities.getCallId(request);
         callRecord.setCallId(callId);
+        
 
     }
 
@@ -530,7 +533,9 @@ public class BackToBackUserAgent {
         } else {
             this.symmitronClient = Gateway.getSymmitronClient(Gateway.getLocalAddress());
         }
+        
         BridgeInterface bridge = symmitronClient.createBridge();
+        this.symmitronServerHandle = symmitronClient.getServerHandle();
         rtpBridge = new RtpBridge(request, bridge);
         dialogTable.add(dialog);
         this.creatingDialog = dialog;
@@ -1468,6 +1473,15 @@ public class BackToBackUserAgent {
         }
         this.sessionTimerTask.cancel();
 
+    }
+
+   
+
+    /**
+     * @return the symmitronServerHandle
+     */
+    String getSymmitronServerHandle() {
+        return symmitronServerHandle;
     }
 
 }
