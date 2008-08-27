@@ -33,6 +33,7 @@ import javax.sip.ServerTransaction;
 import javax.sip.SipProvider;
 import javax.sip.TransactionAlreadyExistsException;
 import javax.sip.TransactionState;
+import javax.sip.address.Address;
 import javax.sip.address.SipURI;
 import javax.sip.header.AcceptHeader;
 import javax.sip.header.AcceptLanguageHeader;
@@ -1063,16 +1064,6 @@ class CallControlManager implements SymmitronResetHandler {
                         
                         b2bua.sendByeToMohServer(dat.musicOnHoldDialog);
 
-                       /* if (!Gateway.isReInviteSupported()) {
-                            b2bua.sendByeToMohServer(dat.musicOnHoldDialog);
-                        } else {
-
-                            Dialog peerDialog = DialogApplicationData.getPeerDialog(dialog);
-                            DialogApplicationData peerDat = DialogApplicationData.get(peerDialog);
-                            peerDat.getRtpSession().removeHold(null, peerDialog);
-                        }
-                        */
-
                     }
 
                 } else if (tad.operation.equals(Operation.SEND_INVITE_TO_MOH_SERVER)) {
@@ -1146,6 +1137,31 @@ class CallControlManager implements SymmitronResetHandler {
 
                     dialog.sendAck(ack);
                     this.sendSdpAnswerInAck(response, dialog);
+                    
+                } else if ( tad.operation == Operation.HANDLE_INVITE_WITH_REPLACES) {
+                    
+                    serverTransaction = tad.serverTransaction;
+                    Dialog replacedDialog = tad.replacedDialog;
+                    SessionDescription sdes = SipUtilities.getSessionDescription(response);
+                    Request request = serverTransaction.getRequest();
+                    Dialog peerDialog = serverTransaction.getDialog();
+                    SipProvider peerProvider = ((DialogExt) peerDialog).getSipProvider();
+                    ContactHeader contactHeader = SipUtilities.createContactHeader(null, peerProvider, "udp");
+                    
+                    Response okResponse = ProtocolObjects.messageFactory.createResponse(Response.OK,request);
+                    okResponse.setHeader(contactHeader);
+                    RtpSession rtpSession = b2bua.getLanRtpSession(replacedDialog);
+                    
+                    rtpSession.getReceiver().setSessionDescription(sdes);
+                    ContentTypeHeader cth = ProtocolObjects.headerFactory.createContentTypeHeader("application", "sdp");
+                    okResponse.setContent(sdes.toString(), cth);
+                    
+                    serverTransaction.sendResponse(okResponse);
+                    Request byeRequest = replacedDialog.createRequest(Request.BYE);
+                    SipProvider lanProvider = ((DialogExt) replacedDialog).getSipProvider();
+                    ClientTransaction byeCtx = lanProvider.getNewClientTransaction(byeRequest);
+                    replacedDialog.sendRequest(byeCtx);
+                    
                 } else {
                     logger.fatal("CallControlManager: Unknown Case in if statement ");
                 }

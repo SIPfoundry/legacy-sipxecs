@@ -26,12 +26,6 @@ class DialogApplicationData {
     private static Logger logger = Logger.getLogger(DialogApplicationData.class);
     
     /*
-     * Whether or not to forward requests to the PeerDialogs of this dialog (
-     * assuming the state of the Dialog is not TERMINATED).
-     */
-    boolean forwarding = true;
-
-    /*
      * The Peer Dialog of this Dialog.
      */
     Dialog peerDialog;
@@ -46,11 +40,7 @@ class DialogApplicationData {
      */
     private BackToBackUserAgent backToBackUserAgent;
 
-    /*
-     * The replaced dialog (for Consultative XFer processing ).
-     */
-    Dialog replacedDialog;
-
+  
     /*
      * The MOH server dialog
      */
@@ -83,9 +73,6 @@ class DialogApplicationData {
     long lastAckSent;
 
     boolean sendReInviteOnResume;
-
-    
-
     
     private DialogApplicationData() {
 

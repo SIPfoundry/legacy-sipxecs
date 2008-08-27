@@ -146,7 +146,7 @@ public class BackToBackUserAgent {
                         if (method.equalsIgnoreCase(Request.INVITE)) {
                             request = dialog.createRequest(Request.INVITE);
                             DialogApplicationData dat = DialogApplicationData.get(dialog);
-                            if ( currentTimeMilis < dat.lastAckSent - 100 ) {
+                            if (currentTimeMilis < dat.lastAckSent - 100) {
                                 continue;
                             }
                             RtpSession rtpSession = dat.getRtpSession();
@@ -158,7 +158,6 @@ public class BackToBackUserAgent {
                             request = dialog.createRequest(Request.OPTIONS);
                         }
 
-                        
                         DialogExt dialogExt = (DialogExt) dialog;
                         ClientTransaction ctx = dialogExt.getSipProvider()
                                 .getNewClientTransaction(request);
@@ -166,7 +165,7 @@ public class BackToBackUserAgent {
                                 Operation.SESSION_TIMER);
                         tad.itspAccountInfo = itspAccountInfo;
                         ctx.setApplicationData(tad);
-                        
+
                         dialog.sendRequest(ctx);
 
                     }
@@ -214,7 +213,7 @@ public class BackToBackUserAgent {
                 SymImpl symImpl = symmitronClient.createEvenSym();
                 RtpSession rtpSession = new RtpSession(symImpl);
 
-               // RtpReceiverEndpoint endpoint = new RtpReceiverEndpoint(symImpl.getReceiver());
+                // RtpReceiverEndpoint endpoint = new RtpReceiverEndpoint(symImpl.getReceiver());
 
                 dialogApplicationData.setRtpSession(rtpSession);
                 SessionDescription sd = SdpFactory.getInstance().createSessionDescription(
@@ -247,12 +246,13 @@ public class BackToBackUserAgent {
 
                 SymImpl symImpl = symmitronClient.createEvenSym();
                 rtpSession = new RtpSession(symImpl);
-                /* RtpReceiverEndpoint mediaEndpoint = new RtpReceiverEndpoint(symImpl.getReceiver());
-                mediaEndpoint*/
-                String ipAddress = 
-                    (itspAccountInfo == null 
-                            ||  itspAccountInfo.isGlobalAddressingUsed()) ? symmitronClient
-                                .getPublicAddress() : symmitronClient.getExternalAddress();
+                /*
+                 * RtpReceiverEndpoint mediaEndpoint = new
+                 * RtpReceiverEndpoint(symImpl.getReceiver()); mediaEndpoint
+                 */
+                String ipAddress = (itspAccountInfo == null || itspAccountInfo
+                        .isGlobalAddressingUsed()) ? symmitronClient.getPublicAddress()
+                        : symmitronClient.getExternalAddress();
 
                 SessionDescription sd = SdpFactory.getInstance().createSessionDescription(
                         this.rtpBridge.sessionDescription.toString());
@@ -517,7 +517,6 @@ public class BackToBackUserAgent {
         callRecord.setRequestURI(requestUri);
         String callId = SipUtilities.getCallId(request);
         callRecord.setCallId(callId);
-        
 
     }
 
@@ -533,7 +532,7 @@ public class BackToBackUserAgent {
         } else {
             this.symmitronClient = Gateway.getSymmitronClient(Gateway.getLocalAddress());
         }
-        
+
         BridgeInterface bridge = symmitronClient.createBridge();
         this.symmitronServerHandle = symmitronClient.getServerHandle();
         rtpBridge = new RtpBridge(request, bridge);
@@ -569,7 +568,7 @@ public class BackToBackUserAgent {
             }
 
             this.rtpBridge.stop();
-            if ( sessionTimerTask != null ) {
+            if (sessionTimerTask != null) {
                 this.sessionTimerTask.cancel();
             }
             dialogTable.clear();
@@ -661,8 +660,6 @@ public class BackToBackUserAgent {
             ((gov.nist.javax.sip.address.SipURIExt) uri).removeHeaders();
 
             newRequest.setRequestURI(uri);
-            
-           
 
             SupportedHeader sh = ProtocolObjects.headerFactory.createSupportedHeader("replaces");
             newRequest.setHeader(sh);
@@ -675,7 +672,7 @@ public class BackToBackUserAgent {
              */
             ToHeader toHeader = (ToHeader) newRequest.getHeader(ToHeader.NAME);
             toHeader.removeParameter("tag");
-            //toHeader.setAddress(((ReferredByHeader)referRequest.getHeader(ReferredByHeader.NAME)).getAddress());
+            // toHeader.setAddress(((ReferredByHeader)referRequest.getHeader(ReferredByHeader.NAME)).getAddress());
             toHeader.getAddress().setURI(uri);
             FromHeader fromHeader = (FromHeader) newRequest.getHeader(FromHeader.NAME);
             fromHeader.setTag(Integer.toString(Math.abs(new Random().nextInt())));
@@ -705,7 +702,8 @@ public class BackToBackUserAgent {
             if (logger.isDebugEnabled()) {
                 logger.debug("referInviteToSipxProxy peerDialog = "
                         + newDialogApplicationData.peerDialog);
-                logger.debug("referInviteToSipxProxy mohDialog = " + dialogApplicationData.musicOnHoldDialog);
+                logger.debug("referInviteToSipxProxy mohDialog = "
+                        + dialogApplicationData.musicOnHoldDialog);
             }
 
             this.referingDialogPeer = dialogApplicationData.peerDialog;
@@ -726,8 +724,6 @@ public class BackToBackUserAgent {
              * can NOTIFY the referrer.
              */
             this.referingDialog = dialog;
-            
-          
 
             ct.getDialog().setApplicationData(newDialogApplicationData);
             TransactionApplicationData tad = new TransactionApplicationData(
@@ -986,8 +982,6 @@ public class BackToBackUserAgent {
              * Create a new client transaction.
              */
             ClientTransaction ct = Gateway.getLanProvider().getNewClientTransaction(newRequest);
-            
-         
 
             MediaDescription mediaDescription = (MediaDescription) sessionDescription
                     .getMediaDescriptions(true).get(0);
@@ -995,7 +989,6 @@ public class BackToBackUserAgent {
             ContentTypeHeader cth = ProtocolObjects.headerFactory.createContentTypeHeader(
                     "application", "sdp");
 
-           
             newRequest.setContent(sessionDescription.toString(), cth);
 
             TransactionApplicationData tad = new TransactionApplicationData(
@@ -1012,9 +1005,7 @@ public class BackToBackUserAgent {
             this.addDialog(ct.getDialog());
             DialogApplicationData dat = DialogApplicationData.attach(this, ct.getDialog(), ct
                     .getRequest());
-           
 
-            
             retval = ct;
 
         } catch (InvalidArgumentException ex) {
@@ -1040,7 +1031,8 @@ public class BackToBackUserAgent {
         Request byeRequest = musicOnHoldDialog.createRequest(Request.BYE);
         SipProvider lanProvider = Gateway.getLanProvider();
         ClientTransaction ctx = lanProvider.getNewClientTransaction(byeRequest);
-        TransactionApplicationData tad = new TransactionApplicationData(Operation.SEND_BYE_TO_MOH_SERVER);
+        TransactionApplicationData tad = new TransactionApplicationData(
+                Operation.SEND_BYE_TO_MOH_SERVER);
         ctx.setApplicationData(tad);
         musicOnHoldDialog.sendRequest(ctx);
 
@@ -1138,7 +1130,7 @@ public class BackToBackUserAgent {
             logger.debug("sendInviteToItsp: spiral=" + spiral);
         }
         try {
-            if (spiral && replacesHeader != null) {
+            if (replacesHeader != null) {
 
                 Dialog replacedDialog = ((SipStackExt) ProtocolObjects.sipStack)
                         .getReplacesDialog(replacesHeader);
@@ -1152,8 +1144,12 @@ public class BackToBackUserAgent {
                     return;
                 }
 
-                handleSpriralInviteWithReplaces(requestEvent, replacedDialog, serverTransaction,
-                        toDomain, isphone);
+                if (spiral) {
+                    handleSpriralInviteWithReplaces(requestEvent, replacedDialog,
+                            serverTransaction, toDomain, isphone);
+                } else {
+                    handleInviteWithReplaces(requestEvent, replacedDialog, serverTransaction);
+                }
 
                 return;
             }
@@ -1168,7 +1164,7 @@ public class BackToBackUserAgent {
 
             Request outgoingRequest = SipUtilities.createInviteRequest(
                     (SipURI) incomingRequestUri.clone(), itspProvider, itspAccountInfo,
-                    fromHeader,  isphone);
+                    fromHeader, isphone);
             ClientTransaction ct = itspProvider.getNewClientTransaction(outgoingRequest);
             Dialog outboundDialog = ct.getDialog();
 
@@ -1338,6 +1334,63 @@ public class BackToBackUserAgent {
 
     }
 
+    private void handleInviteWithReplaces(RequestEvent requestEvent, Dialog replacedDialog,
+            ServerTransaction serverTransaction)
+            throws Exception {
+        Request request = requestEvent.getRequest();
+        SessionDescription sd = SipUtilities.getSessionDescription(request);
+
+        try {
+            RtpSession rtpSession = this.getLanRtpSession(replacedDialog);
+            String ipAddress = SipUtilities.getSessionDescriptionMediaIpAddress(sd);
+            int port = SipUtilities.getSessionDescriptionMediaPort(sd);
+            rtpSession.getTransmitter().setIpAddressAndPort(ipAddress, port);
+         
+            if (Gateway.isReInviteSupported()) {
+                DialogApplicationData replacedDialogApplicationData = DialogApplicationData
+                        .get(replacedDialog);
+                Dialog peerDialog = replacedDialogApplicationData.peerDialog;
+                DialogApplicationData peerDat = DialogApplicationData
+                        .get(peerDialog);
+
+                Request reInvite = peerDialog.createRequest(Request.INVITE);
+              
+                RtpSession wanRtpSession = peerDat.getRtpSession();
+                wanRtpSession.getTransmitter().setSessionDescription(sd);
+                ContentTypeHeader contentTypeHeader = ProtocolObjects.headerFactory.createContentTypeHeader("application", "sdp");
+                reInvite.setContent(sd.toString(), contentTypeHeader);
+                
+                SipProvider provider = ((DialogExt) peerDialog).getSipProvider();
+                ClientTransaction ctx = provider.getNewClientTransaction(reInvite);
+                TransactionApplicationData tad = new TransactionApplicationData(Operation.HANDLE_INVITE_WITH_REPLACES);
+                tad.serverTransaction = serverTransaction;
+                tad.replacedDialog = replacedDialog;
+                ctx.setApplicationData(tad);
+                // send the in-dialog re-invite to the other side.
+                peerDialog.sendRequest(ctx);   
+            } else {
+                // Re-INVITE is not supported.
+                // Remap the transmitter side and hang up the replaced dialog.
+                Response okResponse = ProtocolObjects.messageFactory.createResponse(Response.OK,request);
+                SessionDescription sdes = rtpSession.getReceiver().getSessionDescription();
+                ContentTypeHeader cth = ProtocolObjects.headerFactory.createContentTypeHeader("application", "sdp");
+                
+                okResponse.setContent(sdes.toString(), cth);
+                Request byeRequest = replacedDialog.createRequest(Request.BYE);
+                SipProvider provider = ((DialogExt) replacedDialog).getSipProvider();
+                ClientTransaction byeCtx = provider.getNewClientTransaction(byeRequest);
+                replacedDialog.sendRequest(byeCtx);
+            }
+        } catch (Exception ex) {
+            try {
+                this.tearDown();
+            } catch (Exception e) {
+                logger.error("Unexpected exception ", e);
+            }
+        }
+
+    }
+
     /**
      * Handle a bye on one of the dialogs of this b2bua.
      * 
@@ -1474,8 +1527,6 @@ public class BackToBackUserAgent {
         this.sessionTimerTask.cancel();
 
     }
-
-   
 
     /**
      * @return the symmitronServerHandle
