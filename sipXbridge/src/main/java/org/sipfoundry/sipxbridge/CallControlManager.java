@@ -8,6 +8,7 @@ package org.sipfoundry.sipxbridge;
 
 import gov.nist.javax.sip.DialogExt;
 import gov.nist.javax.sip.SipStackImpl;
+import gov.nist.javax.sip.TransactionExt;
 import gov.nist.javax.sip.header.ims.PAssertedIdentityHeader;
 import gov.nist.javax.sip.message.SIPResponse;
 import gov.nist.javax.sip.stack.SIPDialog;
@@ -30,6 +31,7 @@ import javax.sip.InvalidArgumentException;
 import javax.sip.RequestEvent;
 import javax.sip.ResponseEvent;
 import javax.sip.ServerTransaction;
+import javax.sip.SipException;
 import javax.sip.SipProvider;
 import javax.sip.TransactionAlreadyExistsException;
 import javax.sip.TransactionState;
@@ -1013,26 +1015,11 @@ class CallControlManager implements SymmitronResetHandler {
                      * redirected party at this point.
                      */
 
-                    if (referDialog.getState() != DialogState.TERMINATED) {
-                        Request notifyRequest = referDialog.createRequest(Request.NOTIFY);
-                        EventHeader eventHeader = ProtocolObjects.headerFactory
-                                .createEventHeader("refer");
-                        notifyRequest.addHeader(eventHeader);
-                        SubscriptionStateHeader subscriptionStateHeader = ProtocolObjects.headerFactory
-                                .createSubscriptionStateHeader("active");
-                        notifyRequest.addHeader(subscriptionStateHeader);
-                        // Content-Type: message/sipfrag;version=2.0
-                        ContentTypeHeader contentTypeHeader = ProtocolObjects.headerFactory
-                                .createContentTypeHeader("message", "sipfrag");
-                        // contentTypeHeader.setParameter("version", "2.0");
-                        String content = ((SIPResponse) response).getStatusLine().toString();
-                        notifyRequest.setContent(content, contentTypeHeader);
-                        SipProvider referProvider = ((SIPDialog) referDialog).getSipProvider();
-                        ClientTransaction ctx = referProvider
-                                .getNewClientTransaction(notifyRequest);
-                        referDialog.sendRequest(ctx);
-
+                    if ( referDialog.getState() != DialogState.TERMINATED) {
+                        this.notifyReferDialog(referDialog,response);
                     }
+                    
+                    
 
                     if (response.getContentLength().getContentLength() != 0) {
                         Dialog peerDialog = DialogApplicationData.getPeerDialog(dialog);
@@ -1140,27 +1127,40 @@ class CallControlManager implements SymmitronResetHandler {
                     
                 } else if ( tad.operation == Operation.HANDLE_INVITE_WITH_REPLACES) {
                     
+                    dat.lastResponse = response; 
                     serverTransaction = tad.serverTransaction;
                     Dialog replacedDialog = tad.replacedDialog;
-                    SessionDescription sdes = SipUtilities.getSessionDescription(response);
-                    Request request = serverTransaction.getRequest();
-                    Dialog peerDialog = serverTransaction.getDialog();
-                    SipProvider peerProvider = ((DialogExt) peerDialog).getSipProvider();
+                     Request request = serverTransaction.getRequest();
+                    SipProvider peerProvider = ((TransactionExt) serverTransaction).getSipProvider();
                     ContactHeader contactHeader = SipUtilities.createContactHeader(null, peerProvider, "udp");
+                   
+                    Response serverResponse = ProtocolObjects.messageFactory.createResponse(response.getStatusCode(),request);
+                    serverResponse.setHeader(contactHeader);
+                    if ( response.getContentLength().getContentLength() != 0    ) {               
+                        SessionDescription sdes = SipUtilities.getSessionDescription(response);                 
+                        RtpSession rtpSession = b2bua.getLanRtpSession(replacedDialog);                 
+                        rtpSession.getReceiver().setSessionDescription(sdes);                     
+                        ContentTypeHeader cth = ProtocolObjects.headerFactory.createContentTypeHeader("application", "sdp");
+                        serverResponse.setContent(sdes.toString(), cth);
+                    }
+                      
+                    DialogApplicationData serverDat = DialogApplicationData.get(serverTransaction.getDialog());
+                    serverDat.peerDialog = dialog;
+                    serverTransaction.sendResponse(serverResponse);
+                    serverDat.setRtpSession( DialogApplicationData.get(replacedDialog).getRtpSession());
                     
-                    Response okResponse = ProtocolObjects.messageFactory.createResponse(Response.OK,request);
-                    okResponse.setHeader(contactHeader);
-                    RtpSession rtpSession = b2bua.getLanRtpSession(replacedDialog);
+                    if (replacedDialog.getState() != DialogState.TERMINATED) {
+                        DialogApplicationData replacedDat =   DialogApplicationData.get(replacedDialog);
+                        replacedDat.setRtpSession(null);
+                        replacedDat.peerDialog = null;
+                    }
                     
-                    rtpSession.getReceiver().setSessionDescription(sdes);
-                    ContentTypeHeader cth = ProtocolObjects.headerFactory.createContentTypeHeader("application", "sdp");
-                    okResponse.setContent(sdes.toString(), cth);
-                    
-                    serverTransaction.sendResponse(okResponse);
-                    Request byeRequest = replacedDialog.createRequest(Request.BYE);
-                    SipProvider lanProvider = ((DialogExt) replacedDialog).getSipProvider();
-                    ClientTransaction byeCtx = lanProvider.getNewClientTransaction(byeRequest);
-                    replacedDialog.sendRequest(byeCtx);
+                    if ( response.getStatusCode() == Response.OK) {
+                        SipProvider lanProvider = ((DialogExt)replacedDialog).getSipProvider();
+                        Request byeRequest = replacedDialog.createRequest(Request.BYE);
+                          ClientTransaction byeCtx = lanProvider.getNewClientTransaction(byeRequest);
+                        replacedDialog.sendRequest(byeCtx);
+                    } 
                     
                 } else {
                     logger.fatal("CallControlManager: Unknown Case in if statement ");
@@ -1224,6 +1224,29 @@ class CallControlManager implements SymmitronResetHandler {
             }
         }
 
+    }
+
+    private void notifyReferDialog(Dialog referDialog, Response response) throws SipException, ParseException {
+            Request notifyRequest = referDialog.createRequest(Request.NOTIFY);
+            EventHeader eventHeader = ProtocolObjects.headerFactory
+                    .createEventHeader("refer");
+            notifyRequest.addHeader(eventHeader);
+            SubscriptionStateHeader subscriptionStateHeader = ProtocolObjects.headerFactory
+                    .createSubscriptionStateHeader("active");
+            notifyRequest.addHeader(subscriptionStateHeader);
+            // Content-Type: message/sipfrag;version=2.0
+            ContentTypeHeader contentTypeHeader = ProtocolObjects.headerFactory
+                    .createContentTypeHeader("message", "sipfrag");
+            // contentTypeHeader.setParameter("version", "2.0");
+            String content = ((SIPResponse) response).getStatusLine().toString();
+            notifyRequest.setContent(content, contentTypeHeader);
+            SipProvider referProvider = ((SIPDialog) referDialog).getSipProvider();
+            ClientTransaction ctx = referProvider
+                    .getNewClientTransaction(notifyRequest);
+            referDialog.sendRequest(ctx);
+       
+        
+        
     }
 
     private void processCancelResponse(ResponseEvent responseEvent) {

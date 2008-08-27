@@ -15,9 +15,9 @@
 	<classpathentry kind="lib" path="lib/commons-beanutils.jar"/>
 	<classpathentry kind="lib" path="tools/junit-3.8.1.jar"/>
 	<classpathentry kind="lib" path="tools/sipunit.jar"/>
-	<classpathentry kind="lib" path="/home/mranga/sipfoundry/git/sipXcommons/lib/jain-sip-sdp-1.2.74.jar"/>
 	<classpathentry kind="lib" path="/home/mranga/sipfoundry/git/sipXcommons/lib/log4j-1.2.15.jar"/>
 	<classpathentry kind="lib" path="/home/mranga/sipfoundry/git/sipXcommons/lib/dnsjava-2.0.6.jar"/>
 	<classpathentry kind="lib" path="/usr/local/sipx/share/java/sipXecs/sipXcommons/sipxcommons.jar"/>
+	<classpathentry kind="lib" path="/home/mranga/sipfoundry/git/sipXcommons/lib/jain-sip-sdp-1.2.79.jar"/>
 	<classpathentry kind="output" path="classes"/>
 </classpath>

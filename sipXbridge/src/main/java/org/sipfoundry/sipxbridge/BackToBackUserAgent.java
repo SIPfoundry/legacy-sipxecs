@@ -10,6 +10,7 @@ import gov.nist.javax.sdp.MediaDescriptionImpl;
 import gov.nist.javax.sip.DialogExt;
 import gov.nist.javax.sip.SipStackExt;
 import gov.nist.javax.sip.SipStackImpl;
+import gov.nist.javax.sip.TransactionExt;
 import gov.nist.javax.sip.header.extensions.ReferredByHeader;
 import gov.nist.javax.sip.header.extensions.ReplacesHeader;
 
@@ -1356,7 +1357,7 @@ public class BackToBackUserAgent {
                 Request reInvite = peerDialog.createRequest(Request.INVITE);
               
                 RtpSession wanRtpSession = peerDat.getRtpSession();
-                wanRtpSession.getTransmitter().setSessionDescription(sd);
+                wanRtpSession.getReceiver().setSessionDescription(sd);
                 ContentTypeHeader contentTypeHeader = ProtocolObjects.headerFactory.createContentTypeHeader("application", "sdp");
                 reInvite.setContent(sd.toString(), contentTypeHeader);
                 
@@ -1374,7 +1375,9 @@ public class BackToBackUserAgent {
                 Response okResponse = ProtocolObjects.messageFactory.createResponse(Response.OK,request);
                 SessionDescription sdes = rtpSession.getReceiver().getSessionDescription();
                 ContentTypeHeader cth = ProtocolObjects.headerFactory.createContentTypeHeader("application", "sdp");
-                
+                SipProvider txProvider = ((TransactionExt) serverTransaction).getSipProvider();
+                ContactHeader contactHeader = SipUtilities.createContactHeader(null, txProvider, "udp");
+                okResponse.setHeader(contactHeader);
                 okResponse.setContent(sdes.toString(), cth);
                 Request byeRequest = replacedDialog.createRequest(Request.BYE);
                 SipProvider provider = ((DialogExt) replacedDialog).getSipProvider();

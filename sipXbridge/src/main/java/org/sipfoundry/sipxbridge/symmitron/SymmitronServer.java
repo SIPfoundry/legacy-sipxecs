@@ -861,33 +861,48 @@ public class SymmitronServer implements Symmitron {
     }
 
     public static void main(String[] args) throws Exception {
-        String configDir = System.getProperty("conf.dir", "/etc/sipxpbx");
-        String installRoot = configDir.substring(0, configDir.indexOf("/etc/sipxpbx"));
-        String configurationFile = configDir + "/nattraversalrules.xml";
+        try {
+            String configDir = System.getProperty("conf.dir", "/etc/sipxpbx");
+            String installRoot = configDir.substring(0, configDir.indexOf("/etc/sipxpbx"));
+            String configurationFile = configDir + "/nattraversalrules.xml";
 
-        // Wait for the configuration file to become available.
-        while (!new File(configurationFile).exists()) {
-            Thread.sleep(5 * 1000);
-        }
-        SymmitronConfig config = new SymmitronConfigParser().parse("file:" + configurationFile);
-        if (config.getLogFileDirectory() == null) {
-            config.setLogFileDirectory(installRoot + "/var/log/sipxpbx");
-        }
-        config.setLogFileName("sipxrelay.log");
-        SymmitronServer.setSymmitronConfig(config);
-        if (config.getPublicAddress() == null && config.getStunServerAddress() != null) {
-            timer.schedule(new TimerTask() {
+            // Wait for the configuration file to become available.
+            while (!new File(configurationFile).exists()) {
+                Thread.sleep(5 * 1000);
+            }
+            SymmitronConfig config = new SymmitronConfigParser().parse("file:"
+                    + configurationFile);
+            if (config.getLogFileDirectory() == null) {
+                config.setLogFileDirectory(installRoot + "/var/log/sipxpbx");
+            }
+            config.setLogFileName("sipxrelay.log");
+            SymmitronServer.setSymmitronConfig(config);
+            if (config.getPublicAddress() == null && config.getStunServerAddress() != null) {
+                timer.schedule(new TimerTask() {
 
-                @Override
+                    @Override
+                    public void run() {
+                        discoverAddress();
+
+                    }
+
+                }, 0, config.getRediscoveryTime() * 1000);
+            }
+
+            Runtime.getRuntime().addShutdownHook(new Thread() {
                 public void run() {
-                    discoverAddress();
+
+                    logger.fatal("RECEIVED SHUTDOWN SIGNAL");
 
                 }
+            });
 
-            }, 0, config.getRediscoveryTime()*1000);
+            SymmitronServer.startWebServer();
+
+        } catch (Throwable th) {
+            logger.fatal("Exitting main! ", th);
+            System.exit(-1);
         }
-    
-        SymmitronServer.startWebServer();
     }
 
 }
