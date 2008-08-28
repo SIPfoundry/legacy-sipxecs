@@ -191,7 +191,7 @@ class DataShuffler implements Runnable {
                             }
                             continue;
                         }
-                        this.send(bridge, datagramChannel, remoteAddress);
+                        send(bridge, datagramChannel, remoteAddress);
 
                     }
                 }
@@ -222,7 +222,7 @@ class DataShuffler implements Runnable {
     public static DatagramChannel getSelfRoutedDatagramChannel(InetAddress ipAddress, int port) {
         // Iterate over the set of keys for which events are
         // available
-        for (Iterator<SelectionKey> selectedKeys = selector.selectedKeys().iterator(); selectedKeys
+        for (Iterator<SelectionKey> selectedKeys = selector.keys().iterator(); selectedKeys
                 .hasNext();) {
             SelectionKey key = selectedKeys.next();
             if (!key.isValid()) {

@@ -175,12 +175,23 @@ final class SymTransmitterEndpoint extends SymEndpoint implements SymTransmitter
          * Check if the packet is self-routed. If so route it back.
          */
         if (checkForSelfRouting && isPacketSelfRouted(remoteAddress, remotePort)) {
-            DatagramChannel channel = DataShuffler.getSelfRoutedDatagramChannel(remoteAddress,
+            if ( logger.isDebugEnabled() ) {
+                logger.debug("remoteAddress = " + remoteAddress);
+            }
+            InetAddress farEnd =  ( SymmitronServer.getPublicInetAddress() != null &&
+                    remoteAddress.equals(SymmitronServer.getPublicInetAddress()) ? 
+                    SymmitronServer.getLocalInetAddress() : remoteAddress );
+            DatagramChannel channel = DataShuffler.getSelfRoutedDatagramChannel(farEnd,
                     remotePort);
 
             if (channel != null) {
-
+                if ( logger.isDebugEnabled()) {
+                    logger.debug("selfRoutedDatagramChannel = " + channel);
+                }
                 Bridge bridge = ConcurrentSet.getBridge(channel);
+                if (logger.isDebugEnabled()) {
+                    logger.debug("selfRoutedBridge = " + bridge);
+                }
                 if (bridge != null) {
                     DataShuffler.send(bridge, channel, (InetSocketAddress) this.datagramChannel
                             .socket().getLocalSocketAddress());

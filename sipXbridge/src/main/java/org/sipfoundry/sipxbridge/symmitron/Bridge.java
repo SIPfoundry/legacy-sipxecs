@@ -246,14 +246,14 @@ final class Bridge implements BridgeInterface {
     @Override
     public String toString() {
         StringBuffer retval = new StringBuffer();
-        retval.append("Bridge = [ \n");
-        retval.append("id = " + this.getId() + "\n");
+        retval.append("Bridge = [ ");
+        retval.append("id = " + this.getId() );
         for (Sym rtpSession : this.sessions) {
-            retval.append("{\n");
+            retval.append("{");
             retval.append(rtpSession);
-            retval.append("}\n");
+            retval.append("}");
         }
-        retval.append(" ] \n");
+        retval.append(" ]");
         return retval.toString();
     }
 
