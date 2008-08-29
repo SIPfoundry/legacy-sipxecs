@@ -13,6 +13,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 
+import org.apache.tapestry.annotations.Bean;
 import org.apache.tapestry.annotations.InitialValue;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Persist;
@@ -23,10 +24,14 @@ import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcess;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessModel;
+import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 
 public abstract class CdrPage extends BasePage implements PageBeginRenderListener {
     private static final String ACTIVE_TAB = "active";
     private static final String HISTORIC_TAB = "historic";
+
+    @Bean
+    public abstract SipxValidationDelegate getValidator();
 
     @Persist
     @InitialValue(value = "literal:active")

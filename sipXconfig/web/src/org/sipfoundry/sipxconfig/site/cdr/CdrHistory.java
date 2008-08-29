@@ -14,21 +14,17 @@ import java.util.Date;
 
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.tapestry.BaseComponent;
-import org.apache.tapestry.annotations.Bean;
 import org.apache.tapestry.annotations.InitialValue;
 import org.apache.tapestry.annotations.Parameter;
 import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
+import org.apache.tapestry.valid.ValidatorException;
 import org.sipfoundry.sipxconfig.cdr.CdrSearch;
 import org.sipfoundry.sipxconfig.common.User;
-import org.sipfoundry.sipxconfig.common.UserException;
-import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
+import org.sipfoundry.sipxconfig.components.TapestryUtils;
 
 public abstract class CdrHistory extends BaseComponent implements PageBeginRenderListener {
-    @Bean
-    public abstract SipxValidationDelegate getValidator();
-
     @Persist
     public abstract Date getStartTime();
 
@@ -66,7 +62,9 @@ public abstract class CdrHistory extends BaseComponent implements PageBeginRende
         }
 
         if (getStartTime().after(getEndTime())) {
-            getValidator().record(new UserException(false, "message.invalidDates"), getMessages());
+            TapestryUtils.getValidator(getPage()).record(
+                    new ValidatorException(getMessages().getMessage("message.invalidDates")));
+            return;
         }
     }
 
