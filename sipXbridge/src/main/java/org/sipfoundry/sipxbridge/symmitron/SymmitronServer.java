@@ -28,6 +28,9 @@ import org.apache.xmlrpc.server.PropertyHandlerMapping;
 import org.apache.xmlrpc.server.XmlRpcServer;
 import org.apache.xmlrpc.server.XmlRpcServerConfigImpl;
 import org.apache.xmlrpc.webserver.WebServer;
+import org.sipfoundry.commons.log4j.SipFoundryAppender;
+import org.sipfoundry.commons.log4j.SipFoundryLayout;
+import org.sipfoundry.sipxbridge.Gateway;
 import org.sipfoundry.sipxbridge.GatewayConfigurationException;
 
 /**
@@ -196,8 +199,10 @@ public class SymmitronServer implements Symmitron {
         if (logFileName != null) {
             String dirName = symmitronConfig.getLogFileDirectory() + "/sipxrelay.log";
             Logger logger = Logger.getLogger(SymmitronServer.class.getPackage().getName());
-            logger.addAppender(new org.apache.log4j.FileAppender(
-                    new org.apache.log4j.SimpleLayout(), dirName));
+            
+            SipFoundryAppender sfa = new SipFoundryAppender(new SipFoundryLayout(),dirName);
+            logger.addAppender(sfa);
+            
             logger.setLevel(Level.toLevel(symmitronConfig.getLogLevel()));
         }
         portRangeManager = new PortRangeManager(symmitronConfig.getPortRangeLowerBound(),

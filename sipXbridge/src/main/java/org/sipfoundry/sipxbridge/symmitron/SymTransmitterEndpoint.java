@@ -159,9 +159,7 @@ final class SymTransmitterEndpoint extends SymEndpoint implements SymTransmitter
 
     public void send(ByteBuffer byteBuffer) throws IOException {
 
-        if (logger.isDebugEnabled()) {
-            logger.debug("Sending to " + this.getSocketAddress());
-        }
+       
         
         if ( this.getSocketAddress() == null ) {
             logger.debug("Cannot send -- remote address is null!");
@@ -176,7 +174,7 @@ final class SymTransmitterEndpoint extends SymEndpoint implements SymTransmitter
          */
         if (checkForSelfRouting && isPacketSelfRouted(remoteAddress, remotePort)) {
             if ( logger.isDebugEnabled() ) {
-                logger.debug("remoteAddress = " + remoteAddress);
+                logger.debug("SymTransmitterEndpoint:remoteAddress = " + remoteAddress);
             }
             InetAddress farEnd =  ( SymmitronServer.getPublicInetAddress() != null &&
                     remoteAddress.equals(SymmitronServer.getPublicInetAddress()) ? 
@@ -186,15 +184,14 @@ final class SymTransmitterEndpoint extends SymEndpoint implements SymTransmitter
 
             if (channel != null) {
                 if ( logger.isDebugEnabled()) {
-                    logger.debug("selfRoutedDatagramChannel = " + channel);
+                    logger.debug("SymTransmitterEndpoint:selfRoutedDatagramChannel = " + channel);
                 }
                 Bridge bridge = ConcurrentSet.getBridge(channel);
                 if (logger.isDebugEnabled()) {
-                    logger.debug("selfRoutedBridge = " + bridge);
+                    logger.debug("SymTransmitterEndpoint:selfRoutedBridge = " + bridge);
                 }
                 if (bridge != null) {
-                    DataShuffler.send(bridge, channel, (InetSocketAddress) this.datagramChannel
-                            .socket().getLocalSocketAddress());
+                    DataShuffler.send(bridge, channel, new InetSocketAddress(farEnd, port));
                     return;
 
                 }
@@ -202,6 +199,7 @@ final class SymTransmitterEndpoint extends SymEndpoint implements SymTransmitter
         }
 
         if (this.datagramChannel != null) {
+            logger.debug("SymTransmitterEndpoint:actually sending to " + this.getSocketAddress());
             this.datagramChannel.send(byteBuffer, this.getSocketAddress());
         }
         if (keepaliveMethod.equals(KeepaliveMethod.REPLAY_LAST_SENT_PACKET)) {
