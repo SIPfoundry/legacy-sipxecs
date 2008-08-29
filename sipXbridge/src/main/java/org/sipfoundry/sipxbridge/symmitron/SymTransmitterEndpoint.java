@@ -191,7 +191,7 @@ final class SymTransmitterEndpoint extends SymEndpoint implements SymTransmitter
                     logger.debug("SymTransmitterEndpoint:selfRoutedBridge = " + bridge);
                 }
                 if (bridge != null) {
-                    byteBuffer.flip();
+                   
                     DataShuffler.send(bridge, channel, new InetSocketAddress(farEnd, port));
                     return;
 
