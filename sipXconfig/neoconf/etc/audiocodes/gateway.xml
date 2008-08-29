@@ -1781,7 +1781,7 @@
     <setting name='PPPoERecoverDfgwAddress' advanced='yes'>
       <label>PPPoE Recovery Default Gateway</label>
       <value>10.4.10.1</value>
-      <description>Deault gateway to use when IP address negotiation/assignment fails in PPPoE mode.</description>
+      <description>Default gateway to use when IP address negotiation/assignment fails in PPPoE mode.</description>
     </setting>
     <setting name='EnableSyslog' advanced='yes'>
       <label>Syslog Output Enabled</label>
@@ -1789,7 +1789,7 @@
         <boolean />
       </type>
       <value>0</value>
-      <description>Enable/disably Syslog facility for diagnostics</description>
+      <description>Enable/disable Syslog facility for diagnostics</description>
     </setting>
     <setting name='SyslogServerIP' advanced='yes'>
       <label>Syslog Server IP address</label>
