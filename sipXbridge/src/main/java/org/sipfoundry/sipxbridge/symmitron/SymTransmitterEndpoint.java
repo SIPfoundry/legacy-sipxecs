@@ -200,8 +200,9 @@ final class SymTransmitterEndpoint extends SymEndpoint implements SymTransmitter
         }
 
         if (this.datagramChannel != null) {
-            logger.debug("SymTransmitterEndpoint:actually sending to " + this.getSocketAddress());
-            this.datagramChannel.send(byteBuffer, this.getSocketAddress());
+            int bytesSent = this.datagramChannel.send(byteBuffer, this.getSocketAddress());
+            logger.debug("SymTransmitterEndpoint:actually sending to " + this.getSocketAddress() + " sent " + bytesSent + " bytes " );
+            
         }
         if (keepaliveMethod.equals(KeepaliveMethod.REPLAY_LAST_SENT_PACKET)) {
             this.keepAliveBuffer = byteBuffer;
