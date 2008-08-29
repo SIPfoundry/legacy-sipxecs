@@ -72,7 +72,7 @@ class DataShuffler implements Runnable {
     public static void send(Bridge bridge, DatagramChannel datagramChannel,
             InetSocketAddress remoteAddress) throws UnknownHostException {
         try {
-
+            readBuffer.flip();
             for (Sym sym : bridge.sessions) {
                 if (datagramChannel == sym.getReceiver().getDatagramChannel()) {
                     if (logger.isDebugEnabled()) {
@@ -125,7 +125,7 @@ class DataShuffler implements Runnable {
                      * No need for header rewrite. Just flip and push out.
                      */
                     if (!writeChannel.isOnHold()) {
-                        writeChannel.send((ByteBuffer) readBuffer.flip());
+                        writeChannel.send((ByteBuffer) readBuffer);
                         sym.getTransmitter().packetsSent++;
 
                     } else {
