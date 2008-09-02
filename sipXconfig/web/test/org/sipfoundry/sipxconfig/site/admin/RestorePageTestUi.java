@@ -146,22 +146,71 @@ public class RestorePageTestUi extends WebTestCase {
 
     }
 
-    public void testFtpCheckBox() throws Exception {
+    public void testBackupPlanComboBox() throws Exception {
         SiteTestHelper.assertNoException(getTester());
         clickLink("link:restore");
-        setWorkingForm("render");
-        assertElementPresent("ftp:checkbox");
+        setWorkingForm("renderForm");
+        assertElementPresent("backupPlan:type");
         SiteTestHelper.assertNoException(getTester());
+    }
+
+    //FIXME: commented because this test needs Ajax capabilities (DOJO based) not supported by the current
+    //version of httpunit
+    public void _testToggleFtpPanel() {
+        SiteTestHelper.assertNoException(getTester());
+        clickLink("link:restore");
+        setWorkingForm("renderForm");
+        assertElementPresent("backupPlan:type");
+        selectOption("backupPlan:type","Ftp");
+        assertElementPresent("link");
+        setWorkingForm("configurationForm");
+        assertElementNotPresent("ftp:address");
+        assertElementNotPresent("ftp:user");
+        assertElementNotPresent("ftp:password");
+        clickButton("link");
+        assertElementPresent("ftp:address");
+        assertElementPresent("ftp:user");
+        assertElementPresent("ftp:password");
+        SiteTestHelper.assertNoException(getTester());
+        setWorkingForm("renderForm");
+        selectOption("backupPlan:type","Local");
+        assertElementNotPresent("link");
+        setWorkingForm("configurationForm");
+        assertElementNotPresent("ftp:address");
+        assertElementNotPresent("ftp:user");
+        assertElementNotPresent("ftp:password");
+        SiteTestHelper.assertNoException(tester);
+    }
+    //FIXME: commented because this test needs Ajax capabilities (DOJO based) not supported by the current
+    //version of httpunit
+    public void _testApplyFtpPanel() {
+        SiteTestHelper.assertNoException(getTester());
+        setWorkingForm("renderForm");
+        selectOption("backupPlan:type","Ftp");
+        clickButton("link");
+        setWorkingForm("configurationForm");
+        setTextField("ftp:address","address");
+        setTextField("ftp:user", "user");
+        setTextField("ftp:password", "password");
+        clickButton("form:apply");
+        //refresh the panel - read again the data
+        //hide panel
+        clickButton("link");
+        //show panel
+        clickButton("link");
+        tester.assertTextFieldEquals("ftp:address", "address");
+        tester.assertTextFieldEquals("ftp:user", "user");
+        tester.assertTextFieldEquals("ftp:password", "password");
     }
 
     public void testErrorConnectFtpServer() throws Exception {
         SiteTestHelper.assertNoException(getTester());
         clickLink("link:restore");
-        setWorkingForm("render");
-        checkCheckbox("ftp:checkbox");
+        setWorkingForm("renderForm");
+        selectOption("backupPlan:type","Ftp");
         submitForm();
         SiteTestHelper.assertUserError(getTester());
-        uncheckCheckbox("ftp:checkbox");
+        selectOption("backupPlan:type","Local");
         submitForm();
         SiteTestHelper.assertNoException(getTester());
     }

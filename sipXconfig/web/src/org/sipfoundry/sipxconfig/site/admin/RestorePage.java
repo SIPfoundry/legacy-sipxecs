@@ -28,6 +28,7 @@ import org.apache.tapestry.annotations.InjectPage;
 import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
+import org.apache.tapestry.form.IPropertySelectionModel;
 import org.apache.tapestry.request.IUploadFile;
 import org.apache.tapestry.valid.IValidationDelegate;
 import org.apache.tapestry.valid.ValidatorException;
@@ -35,11 +36,14 @@ import org.sipfoundry.sipxconfig.admin.AdminContext;
 import org.sipfoundry.sipxconfig.admin.BackupBean;
 import org.sipfoundry.sipxconfig.admin.BackupBean.Type;
 import org.sipfoundry.sipxconfig.admin.BackupPlan;
+import org.sipfoundry.sipxconfig.admin.FtpBackupPlan;
 import org.sipfoundry.sipxconfig.admin.FtpRestore;
+import org.sipfoundry.sipxconfig.admin.LocalBackupPlan;
 import org.sipfoundry.sipxconfig.admin.Restore;
 import org.sipfoundry.sipxconfig.admin.ftp.FtpConfiguration;
 import org.sipfoundry.sipxconfig.admin.ftp.FtpContext;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.components.NamedValuesSelectionModel;
 import org.sipfoundry.sipxconfig.components.SelectMap;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.site.common.AssetSelector;
@@ -83,23 +87,28 @@ public abstract class RestorePage extends UserBasePage implements PageBeginRende
     @InjectPage(value = WaitingPage.PAGE)
     public abstract WaitingPage getWaitingPage();
 
-    @InjectPage(value = BackupRestoreConfigurationPage.PAGE)
-    public abstract BackupRestoreConfigurationPage getBackupRestoreConfigurationPage();
-
     @Persist
     @InitialValue(value = "literal:restore")
     public abstract String getTab();
 
-    @Persist(value = "session")
-    public abstract boolean isFtp();
+    @Persist
+    @InitialValue(value = LocalBackupPlan.TYPE)
+    public abstract String getBackupPlanType();
 
-    public abstract void setFtp(boolean ftp);
+    @Persist
+    @InitialValue(value = "literal:none")
+    public abstract String getConfiguration();
+    public abstract void setConfiguration(String configuration);
+
+    public IPropertySelectionModel getBackupPlanTypeModel() {
+        return new NamedValuesSelectionModel(new Object[] {LocalBackupPlan.TYPE, FtpBackupPlan.TYPE},
+            new String[] {getMessages().getMessage("backupPlan.type.local"),
+                getMessages().getMessage("backupPlan.type.ftp")
+            }
+        );
+    }
 
     public void pageBeginRender(PageEvent event_) {
-        if (getBackups() != null) {
-            return;
-        }
-        getBackupRestoreConfigurationPage().setLaunchingPage(PAGE);
         if (getTab() != null && getTab().equals("restore")) {
             backupSetting();
         }
@@ -109,9 +118,11 @@ public abstract class RestorePage extends UserBasePage implements PageBeginRende
         AdminContext context = getAdminContext();
         // get corresonding backups depending on getBackupRestoreConfigurationPage setting
         try {
-            if (isFtp()) {
+            if (getBackupPlanType().equals(FtpBackupPlan.TYPE)) {
+                setConfiguration("configuration");
                 setBackups(context.getFtpBackups());
             } else {
+                setConfiguration("none");
                 setBackups(context.getBackups());
             }
         } catch (UserException ex) {
@@ -137,12 +148,6 @@ public abstract class RestorePage extends UserBasePage implements PageBeginRende
         return Type.values();
     }
 
-    public void refreshBackupSource() {
-        //remove previous errors since the restore source is changed (FTP or local)
-        TapestryUtils.getValidator(this).clear();
-        backupSetting();
-    }
-
     public IPage restore() {
         Collection<File> selectedFiles = getSelections().getAllSelected();
         List<BackupBean> selectedBackups = new ArrayList<BackupBean>();
@@ -156,7 +161,7 @@ public abstract class RestorePage extends UserBasePage implements PageBeginRende
                             "message.invalidSelection")));
             return null;
         }
-        return setupWaitingPage(selectedBackups, isFtp());
+        return setupWaitingPage(selectedBackups, getBackupPlanType());
     }
 
     public IPage uploadAndRestoreFiles() {
@@ -176,7 +181,7 @@ public abstract class RestorePage extends UserBasePage implements PageBeginRende
             if (selectedBackups.isEmpty()) {
                 throw new ValidatorException(getMessages().getMessage("message.noFileToRestore"));
             }
-            return setupWaitingPage(selectedBackups, false);
+            return setupWaitingPage(selectedBackups, LocalBackupPlan.TYPE);
         } catch (ValidatorException e) {
             validator.record(e);
             return null;
@@ -188,10 +193,10 @@ public abstract class RestorePage extends UserBasePage implements PageBeginRende
 
     }
 
-    private IPage setupWaitingPage(List<BackupBean> selectedBackups, boolean fromFtp) {
+    private IPage setupWaitingPage(List<BackupBean> selectedBackups, String backupPlanType) {
         Restore restore = null;
         FtpConfiguration configuration = getAdminContext().getFtpConfiguration();
-        if (fromFtp) {
+        if (backupPlanType.equals(FtpBackupPlan.TYPE)) {
             FtpRestore ftpRestore = getFtpRestore();
             FtpContext ftpContext = ftpRestore.getFtpContext();
             ftpContext.setHost(configuration.getHost());

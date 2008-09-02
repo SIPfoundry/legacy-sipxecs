@@ -10,5 +10,5 @@
 package org.sipfoundry.sipxconfig.admin;
 
 public class LocalBackupPlan extends BackupPlan {
-
+    public static final String TYPE = "L";
 }

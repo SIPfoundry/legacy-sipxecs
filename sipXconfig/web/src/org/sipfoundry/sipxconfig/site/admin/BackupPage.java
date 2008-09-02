@@ -14,7 +14,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import org.apache.tapestry.annotations.InjectPage;
+import org.apache.tapestry.annotations.InitialValue;
 import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
@@ -23,8 +23,11 @@ import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.admin.AdminContext;
 import org.sipfoundry.sipxconfig.admin.BackupPlan;
 import org.sipfoundry.sipxconfig.admin.DailyBackupSchedule;
+import org.sipfoundry.sipxconfig.admin.FtpBackupPlan;
+import org.sipfoundry.sipxconfig.admin.LocalBackupPlan;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.components.ExtraOptionModelDecorator;
+import org.sipfoundry.sipxconfig.components.NamedValuesSelectionModel;
 import org.sipfoundry.sipxconfig.components.ObjectSelectionModel;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 
@@ -51,14 +54,28 @@ public abstract class BackupPage extends BasePage implements PageBeginRenderList
 
     public abstract void setBackupLimitSelectionModel(IPropertySelectionModel model);
 
-    @InjectPage(value = BackupRestoreConfigurationPage.PAGE)
-    public abstract BackupRestoreConfigurationPage getBackupRestoreConfigurationPage();
-    @Persist(value = "session")
-    public abstract boolean isFtp();
-    public abstract void setFtp(boolean ftp);
+    @Persist
+    @InitialValue(value = LocalBackupPlan.TYPE)
+    public abstract String getBackupPlanType();
+
+    @Persist
+    @InitialValue(value = "literal:none")
+    public abstract String getConfiguration();
+
+    public abstract void setConfiguration(String configuration);
+
+    public abstract void setBackupPlanType(String type);
+
+    public IPropertySelectionModel getBackupPlanTypeModel() {
+        return new NamedValuesSelectionModel(new Object[] {LocalBackupPlan.TYPE, FtpBackupPlan.TYPE},
+            new String[] {getMessages().getMessage("backupPlan.type.local"),
+                getMessages().getMessage("backupPlan.type.ftp")
+            }
+        );
+    }
 
     public void pageBeginRender(PageEvent event_) {
-        getBackupRestoreConfigurationPage().setLaunchingPage(PAGE);
+        //getBackupRestoreConfigurationPage().setLaunchingPage(PAGE);
         List urls = getBackupFiles();
         if (urls == null) {
             setBackupFiles(Collections.EMPTY_LIST);
@@ -66,9 +83,15 @@ public abstract class BackupPage extends BasePage implements PageBeginRenderList
 
         // every plan has at least 1 schedule, thought of having this somewhere in
         // library, but you could argue it's application specific.
-        //get the backup Plan depending on the BackupRestoreConfiguration page setting
-        BackupPlan plan = isFtp() ? getAdminContext().getFtpConfiguration().getBackupPlan()
-                : getAdminContext().getLocalBackupPlan();
+        BackupPlan plan = null;
+        if (getBackupPlanType() != null && getBackupPlanType().equals(FtpBackupPlan.TYPE)) {
+            plan = getAdminContext().getFtpConfiguration().getBackupPlan();
+            setConfiguration("configuration");
+        } else {
+            plan = getAdminContext().getLocalBackupPlan();
+            setConfiguration("none");
+        }
+
         if (plan.getSchedules().isEmpty()) {
             DailyBackupSchedule schedule = new DailyBackupSchedule();
             plan.addSchedule(schedule);

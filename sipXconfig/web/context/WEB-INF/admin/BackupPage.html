@@ -1,16 +1,5 @@
 <div jwcid="@common/Border">
   <h2><span key="title">Backup</span></h2>
-  <div class="help">
-      <b><span key="label.quickLinks">Quick Links</span></b>
-       <ul>
-         <li>
-         <a jwcid="ftpConfiguration@PageLink" page="admin/BackupRestoreConfigurationPage" href="#">
-		<span key="configurationPage">Configuration</span>
-         </a>
-         </li>
-      </ul>
-  </div>
-  <span jwcid="@common/QuickHelp" value="message:ftp.configuration">configuration is...</span>
   <p jwcid="@If" condition="ognl:backupFiles.empty">
     <div jwcid="@common/QuickHelp" value="message:description" />
   </p>
@@ -22,16 +11,33 @@
     </ul>
   </p>
   <span jwcid="errors" />
+  <form jwcid="backupPlan@Form">
+    <table>
+      <tbody>
+         <tr jwcid="@common/FieldPanel"
+             for="backupPlan:type"
+             field="component:type"
+             label="message:backupPlan.label"
+             description="message:backupPlan.description">
+                <select jwcid="type@PropertySelection"
+                  model="ognl:backupPlanTypeModel"
+                  value="ognl:backupPlanType"
+                  id="backupPlan:type"
+                  onchange="javascript:this.form.submit();"/>
+          </tr>
+        </tbody>
+      </table>
+  </form>
+
+  <span jwcid="configurationPanel@Block">
+     <span jwcid="configuration@admin/BackupRestoreConfigurationPanel"/>
+  </span>
+  <span jwcid="nonePanel@Block"/>
+  <span jwcid="@RenderBlock" block="ognl:components.get(configuration+'Panel')" />
+
   <form jwcid="form">
-      <input jwcid="@Checkbox"
-	id="ftp:checkbox"
-	value="ognl:ftp"
-	onchange="javascript:this.form.submit();"/>
-	  <label for="ftp:checkbox">
-	    <span key="ftp.label">FTP server</span>
-	  </label>
       <fieldset>
-      <legend><span key="label.files"></span></legend>
+      <legend><span key="label.files"/></legend>
       <table>
         <tbody>
           <tr>

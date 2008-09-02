@@ -20,6 +20,8 @@ import org.sipfoundry.sipxconfig.admin.ftp.FtpContext;
 import org.sipfoundry.sipxconfig.admin.ftp.FtpContextImpl;
 
 public class FtpBackupPlan extends BackupPlan {
+    public static final String TYPE = "F";
+
     private static final Log LOG = LogFactory.getLog(FtpBackupPlan.class);
     private FtpContext m_ftpContext;
 

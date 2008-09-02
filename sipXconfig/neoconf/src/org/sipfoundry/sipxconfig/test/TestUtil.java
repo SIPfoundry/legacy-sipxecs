@@ -185,6 +185,7 @@ public final class TestUtil {
                 "jdbc:postgresql://localhost/SIPXACD_HISTORY_TEST");
         sysProps.setProperty("acdHistoricalStatsImpl.enabled", Boolean.toString(true));
         sysProps.setProperty("adminContextImpl.backupDirectory", outputDirectory + "/backup");
+        sysProps.setProperty("adminContextImpl.ftpBackupDirectory", outputDirectory + "/ftpBackup");
         sysProps.setProperty("domainManagerImpl.authorizationRealm", realm);
         sysProps.setProperty("domainManagerImpl.alarmServerUrl", "https://" + domainName + ":8092");
         sysProps.setProperty("domainManagerImpl.initialAlias", "alias.example.org");

@@ -9,24 +9,20 @@
  */
 package org.sipfoundry.sipxconfig.site.admin;
 
+import org.apache.tapestry.BaseComponent;
+import org.apache.tapestry.annotations.ComponentClass;
 import org.apache.tapestry.annotations.InjectObject;
-import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
-import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.admin.AdminContext;
 import org.sipfoundry.sipxconfig.admin.ftp.FtpConfiguration;
+import org.sipfoundry.sipxconfig.components.TapestryUtils;
 
-public abstract class BackupRestoreConfigurationPage extends BasePage implements PageBeginRenderListener {
-
-    public static final String PAGE = "admin/BackupRestoreConfigurationPage";
+@ComponentClass
+public abstract class BackupRestoreConfigurationPanel extends BaseComponent implements PageBeginRenderListener {
 
     @InjectObject(value = "spring:adminContext")
     public abstract AdminContext getAdminContext();
-
-    @Persist(value = "session")
-    public abstract String getLaunchingPage();
-    public abstract void setLaunchingPage(String page);
 
     public abstract String getAddress();
     public abstract void setAddress(String address);
@@ -45,23 +41,14 @@ public abstract class BackupRestoreConfigurationPage extends BasePage implements
         setAddress(ftpConfiguration.getHost());
         setUser(ftpConfiguration.getUserId());
         setPassword(ftpConfiguration.getPassword());
+
     }
-
-    public String onOk() {
-
+    public void onApply() {
+        TapestryUtils.getValidator(this).clear();
         getFtpConfiguration().setHost(getAddress());
         getFtpConfiguration().setUserId(getUser());
         getFtpConfiguration().setPassword(getPassword());
         getAdminContext().storeFtpConfiguration(getFtpConfiguration());
-
-        return getLaunchingPage();
     }
-
-    public String onCancel() {
-        return getLaunchingPage();
-
-    }
-
-
 
 }

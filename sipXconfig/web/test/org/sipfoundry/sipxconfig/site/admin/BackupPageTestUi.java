@@ -21,6 +21,7 @@ public class BackupPageTestUi extends WebTestCase {
 
     public void setUp() {
         getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
+        SiteTestHelper.setScriptingEnabled(tester, true);
         SiteTestHelper.home(tester);
         clickLink("BackupPage");
     }
@@ -40,10 +41,10 @@ public class BackupPageTestUi extends WebTestCase {
      */
     public void testFtpBackupNowError() {
         SiteTestHelper.assertNoException(tester);
-        checkCheckbox("ftp:checkbox");
+        selectOption("backupPlan:type","Ftp");
         clickButton("backup:now");
         SiteTestHelper.assertUserError(tester);
-        uncheckCheckbox("ftp:checkbox");
+        selectOption("backupPlan:type","Local");
         SiteTestHelper.assertNoException(tester);
     }
 
@@ -52,6 +53,7 @@ public class BackupPageTestUi extends WebTestCase {
      */
     public void testOk() {
         SiteTestHelper.assertNoException(tester);
+        setWorkingForm("form");
         checkCheckbox("backup:check:voicemail");
         checkCheckbox("backup:check:configs");
         selectOption("backup:limit", "10");
@@ -60,6 +62,7 @@ public class BackupPageTestUi extends WebTestCase {
         setTextField("dailyScheduledTime", "3:24 AM");
         clickButton("backup:ok");
         SiteTestHelper.assertNoUserError(tester);
+        setWorkingForm("form");
         assertCheckboxSelected("backup:check:voicemail");
         assertCheckboxSelected("backup:check:configs");
         assertSelectedOptionEquals("backup:limit", "10");
@@ -70,6 +73,7 @@ public class BackupPageTestUi extends WebTestCase {
 
     public void testEmptyPlan() {
         SiteTestHelper.assertNoException(tester);
+        setWorkingForm("form");
         uncheckCheckbox("backup:check:voicemail");
         uncheckCheckbox("backup:check:configs");
         selectOption("backup:limit", "10");
@@ -82,6 +86,7 @@ public class BackupPageTestUi extends WebTestCase {
 
     public void testEmptyTime() {
         SiteTestHelper.assertNoException(tester);
+        setWorkingForm("form");
         checkCheckbox("backup:check:voicemail");
         checkCheckbox("backup:check:configs");
         selectOption("backup:limit", "10");
@@ -102,18 +107,60 @@ public class BackupPageTestUi extends WebTestCase {
     }
 
    /**
-    * Tests if the ftp checkbox field is present
+    * Tests if the backup plan combo-box is present
     */
-    public void testFtpCheckBox() {
+    public void testBackupPlanComboBox() {
         SiteTestHelper.assertNoException(getTester());
-        assertElementPresent("ftp:checkbox");
+        assertElementPresent("backupPlan:type");
         SiteTestHelper.assertNoException(getTester());
     }
-    /**
-     * Tests if the ftp configuration quick link is present
-     */
-    public void testFtpConfQuickLink() {
-        assertLinkPresent("ftpConfiguration");
+
+    //FIXME: commented because this test needs Ajax capabilities (DOJO based) not supported by the current
+    //version of httpunit
+    public void _testToggleFtpPanel() {
+        SiteTestHelper.assertNoException(getTester());
+        setWorkingForm("backupPlan");
+        assertElementPresent("backupPlan:type");
+        selectOption("backupPlan:type","Ftp");
+        assertElementPresent("link");
+        assertElementNotPresent("ftp:address");
+        assertElementNotPresent("ftp:user");
+        assertElementNotPresent("ftp:password");
+        clickButton("link");
+        setWorkingForm("configurationForm");
+        assertElementPresent("ftp:address");
+        assertElementPresent("ftp:user");
+        assertElementPresent("ftp:password");
+        SiteTestHelper.assertNoException(getTester());
+        setWorkingForm("backupPlan");
+        selectOption("backupPlan:type","Local");
+        assertElementNotPresent("link");
+        setWorkingForm("configurationForm");
+        assertElementNotPresent("ftp:address");
+        assertElementNotPresent("ftp:user");
+        assertElementNotPresent("ftp:password");
+        SiteTestHelper.assertNoException(tester);
+    }
+    //FIXME: commented because this test needs Ajax capabilities (DOJO based) not supported by the current
+    //version of httpunit
+    public void _testApplyFtpPanel() {
+        SiteTestHelper.assertNoException(getTester());
+        setWorkingForm("backupPlan");
+        selectOption("backupPlan:type","Ftp");
+        clickButton("link");
+        setWorkingForm("configurationForm");
+        setTextField("ftp:address","address");
+        setTextField("ftp:user", "user");
+        setTextField("ftp:password", "password");
+        clickButton("form:apply");
+        //refresh the panel - read again the data
+        //hide panel
+        clickButton("link");
+        //show panel
+        clickButton("link");
+        tester.assertTextFieldEquals("ftp:address", "address");
+        tester.assertTextFieldEquals("ftp:user", "user");
+        tester.assertTextFieldEquals("ftp:password", "password");
     }
 
     public void testTimeFormat() {
