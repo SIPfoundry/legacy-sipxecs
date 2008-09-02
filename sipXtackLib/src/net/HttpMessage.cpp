@@ -1138,7 +1138,7 @@ int HttpMessage::read(OsSocket* inSocket, ssize_t bufferSize,
    // Remember to empty the list of parsed header values, as we will use it
    // to parse the headers on the HTTP response we are going to read.
    mNameValues.destroyAll();
-
+   
    //the following code if enabled will test the effect of messages coming in a
    //fragmented way.  This should NOT be enabled in a released build as
    //performance will be severely affected.
@@ -1251,7 +1251,25 @@ int HttpMessage::read(OsSocket* inSocket, ssize_t bufferSize,
                           bytesRead, (int)bytesRead, buffer);
 #           endif
 
+            
             allBytes->append(buffer, bytesRead); // move from temporary buffer into UtlString
+            if ( bytesRead == bufferSize )
+            {
+               // we filled the buffer in the one read. We need to empty the socket buffer completely so read
+               // again until we get nothing back or the buffer is not completely filled.
+               int morebytesRead = bytesRead;
+               while ( morebytesRead == bufferSize )
+               {
+                 morebytesRead = inSocket->read(buffer, bufferSize,
+                                           &remoteHost, &remotePort);
+                 if ( morebytesRead > 0 )
+                 {
+                    allBytes->append(buffer, morebytesRead); // move from temporary buffer into UtlString
+                    bytesRead += morebytesRead;
+                 }
+               }
+            }
+               
 
             if (mSendAddress.isNull())
             {
@@ -1262,7 +1280,7 @@ int HttpMessage::read(OsSocket* inSocket, ssize_t bufferSize,
          bytesTotal += bytesRead;
          saveCountForKeepAlive = bytesRead;     // save this for keep alive special case
          bytesRead = 0;
-
+         
          if (bytesTotal > 0)
          {
             // If we have not yet found the end of the headers
