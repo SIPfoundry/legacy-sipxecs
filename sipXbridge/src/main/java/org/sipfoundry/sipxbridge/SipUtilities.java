@@ -152,7 +152,7 @@ class SipUtilities {
                 String transport = itspAccount != null ? itspAccount.getOutboundTransport()
                         : Gateway.DEFAULT_ITSP_TRANSPORT;
                 String userName = itspAccount != null ? itspAccount.getUserName() : null;
-                if ( userName == null ) {
+                if (userName == null) {
                     userName = "sipxbridge";
                 }
                 ListeningPoint lp = provider.getListeningPoint(transport);
@@ -171,7 +171,7 @@ class SipUtilities {
 
                 ContactHeader contactHeader = ProtocolObjects.headerFactory.createContactHeader();
                 String userName = itspAccount != null ? itspAccount.getUserName() : null;
-                if ( userName == null ) {
+                if (userName == null) {
                     userName = "sipxbridge";
                 }
                 SipURI sipUri = ProtocolObjects.addressFactory.createSipURI(userName, Gateway
@@ -204,7 +204,7 @@ class SipUtilities {
             String ipAddress = lp.getIPAddress();
             int port = lp.getPort();
             SipURI sipUri = ProtocolObjects.addressFactory.createSipURI(user, ipAddress);
-           
+
             sipUri.setPort(port);
             sipUri.setTransportParam(transport);
             Address address = ProtocolObjects.addressFactory.createAddress(sipUri);
@@ -456,7 +456,7 @@ class SipUtilities {
             PAssertedIdentityHeader paiHeader = null;
             if (!fromUser.equalsIgnoreCase("anonymous")) {
                 Address fromAddress = null;
-                
+
                 if (itspAccount.isRegisterOnInitialization()
                         && itspAccount.isUseRegistrationForCallerId()) {
                     String domain = itspAccount.getProxyDomain();
@@ -464,19 +464,17 @@ class SipUtilities {
                             .createSipURI(fromUser, domain);
                     fromUri.removeParameter("user");
                     fromAddress = ProtocolObjects.addressFactory.createAddress(fromUri);
-                    fromHeader = ProtocolObjects.headerFactory.createFromHeader(
-                            fromAddress, new Long(Math
-                                    .abs(new java.util.Random().nextLong())).toString());
-                   
+                    fromHeader = ProtocolObjects.headerFactory.createFromHeader(fromAddress,
+                            new Long(Math.abs(new java.util.Random().nextLong())).toString());
+
                 } else if (itspAccount.useGlobalAddressForCallerId()) {
                     String domain = Gateway.getGlobalAddress();
                     SipURI fromUri = ProtocolObjects.addressFactory
                             .createSipURI(fromUser, domain);
                     fromUri.removeParameter("user");
-                    fromAddress =  ProtocolObjects.addressFactory.createAddress(fromUri);
-                    fromHeader = ProtocolObjects.headerFactory.createFromHeader(
-                           fromAddress, new Long(Math
-                                    .abs(new java.util.Random().nextLong())).toString());
+                    fromAddress = ProtocolObjects.addressFactory.createAddress(fromUri);
+                    fromHeader = ProtocolObjects.headerFactory.createFromHeader(fromAddress,
+                            new Long(Math.abs(new java.util.Random().nextLong())).toString());
 
                 }
                 fromAddress.setDisplayName(fromDisplayName);
@@ -603,6 +601,35 @@ class SipUtilities {
     }
 
     /**
+     * Get the set of codecs supported by given sd.
+     */
+    static HashSet<Integer> getCodecNumbers(SessionDescription sessionDescription) {
+
+        try {
+            Vector mediaDescriptions = sessionDescription.getMediaDescriptions(true);
+            HashSet<Integer> retval = new HashSet<Integer>();
+
+            for (Iterator it = mediaDescriptions.iterator(); it.hasNext();) {
+
+                MediaDescription mediaDescription = (MediaDescription) it.next();
+                Vector formats = mediaDescription.getMedia().getMediaFormats(true);
+                for (Iterator it1 = formats.iterator(); it1.hasNext();) {
+                    Object format = it1.next();
+                    int fmt = new Integer(format.toString());
+                    if (RtpPayloadTypes.isPayload(fmt)) {
+                        retval.add(fmt);
+                    }
+                }
+            }
+            return retval;
+        } catch (Exception ex) {
+            logger.fatal("Unexpected exception!", ex);
+            throw new RuntimeException("Unexpected exception cleaning SDP", ex);
+        }
+
+    }
+
+    /**
      * Cleans the Session description to include only the specified codec.This processing can be
      * applied on the outbound INVITE to make sure that call transfers will work in the absence of
      * re-invites. It removes all the SRTP related fields as well.
@@ -614,8 +641,9 @@ class SipUtilities {
     static SessionDescription cleanSessionDescription(SessionDescription sessionDescription,
             String codec) {
         try {
-            if (codec == null)
+            if (codec == null) {
                 return sessionDescription;
+            }
             /*
              * No codec specified -- return the incoming session description.
              */
@@ -673,20 +701,51 @@ class SipUtilities {
         }
     }
 
-    static String getCodecName(Response response) {
+    public static void cleanSessionDescription(SessionDescription sessionDescription,
+            HashSet<Integer> codecs) {
         try {
-            if (response.getContentLength().getContentLength() == 0)
-                return null;
+            Vector mediaDescriptions = sessionDescription.getMediaDescriptions(true);
 
-            SessionDescription sd = getSessionDescription(response);
-            Vector mediaDescriptions = sd.getMediaDescriptions(true);
-            MediaDescription mediaDescription = (MediaDescription) sd.getMediaDescriptions(true)
-                    .get(0);
-            String attribute = mediaDescription.getAttribute("rtpmap");
-            String[] attributes = attribute.split(" ");
-            String[] pt = attributes[1].split("/");
-            return pt[0];
+            for (Iterator it = mediaDescriptions.iterator(); it.hasNext();) {
 
+                MediaDescription mediaDescription = (MediaDescription) it.next();
+                Vector formats = mediaDescription.getMedia().getMediaFormats(true);
+
+                for (Iterator it1 = formats.iterator(); it1.hasNext();) {
+                    Object format = it1.next();
+                    int fmt = new Integer(format.toString());
+                    if (!codecs.contains(fmt) && RtpPayloadTypes.isPayload(fmt))
+                        it1.remove();
+
+                }
+
+                Vector attributes = mediaDescription.getAttributes(true);
+
+                for (Iterator it1 = attributes.iterator(); it1.hasNext();) {
+                    Attribute attr = (Attribute) it1.next();
+                    if (logger.isDebugEnabled()) {
+                        logger.debug("attrName = " + attr.getName());
+                    }
+                    if (attr.getName().equalsIgnoreCase("rtpmap")) {
+                        String attribute = attr.getValue();
+                        String[] attrs = attribute.split(" ");
+                        String[] pt = attrs[1].split("/");
+                        if (logger.isDebugEnabled()) {
+                            logger.debug("pt == " + pt[0]);
+                        }
+
+                        if (RtpPayloadTypes.isPayload(pt[0])
+                                && !codecs.contains(RtpPayloadTypes.getPayloadType(pt[0]))) {
+                            it1.remove();
+                        }
+                    } else if (attr.getName().equalsIgnoreCase("crypto")) {
+                        it1.remove();
+                    } else if (attr.getName().equalsIgnoreCase("encryption")) {
+                        it1.remove();
+                    }
+                }
+
+            }
         } catch (Exception ex) {
             logger.fatal("Unexpected exception!", ex);
             throw new RuntimeException("Unexpected exception cleaning SDP", ex);
@@ -886,7 +945,7 @@ class SipUtilities {
         }
 
     }
-    
+
     static void setGlobalAddress(Response response) {
         try {
             SipURI sipUri = ProtocolObjects.addressFactory.createSipURI(null, Gateway
@@ -895,7 +954,7 @@ class SipUtilities {
 
             ContactHeader contactHeader = (ContactHeader) response.getHeader(ContactHeader.NAME);
             contactHeader.getAddress().setURI(sipUri);
-           
+
         } catch (Exception ex) {
             logger.error("Unexpected exception ", ex);
             throw new RuntimeException("Unexepcted exception", ex);
@@ -913,14 +972,32 @@ class SipUtilities {
     }
 
     public static boolean isSdpQuery(Request request) {
-         return request.getMethod().equals(Request.INVITE) &&
-               request.getContentLength().getContentLength() == 0 ;
-              
+        return request.getMethod().equals(Request.INVITE)
+                && request.getContentLength().getContentLength() == 0;
+
     }
 
-    public static String getToUser(Message message ) {
-        return ((SipURI)((ToHeader) message.getHeader(ToHeader.NAME)).getAddress().getURI()).getUser();
-       
+    public static String getToUser(Message message) {
+        return ((SipURI) ((ToHeader) message.getHeader(ToHeader.NAME)).getAddress().getURI())
+                .getUser();
+
+    }
+
+    public static HashSet<Integer> getCommonCodec(SessionDescription sd1, SessionDescription sd2) {
+
+        Set<Integer> codecSet1 = getMediaFormats(sd1);
+        Set<Integer> codecSet2 = getMediaFormats(sd2);
+        HashSet<Integer> union = new HashSet<Integer>();
+        union.addAll(codecSet1);
+        union.addAll(codecSet2);
+        HashSet<Integer> retval = new HashSet<Integer>();
+        for (int codec : union) {
+            if (codecSet1.contains(codec) && codecSet2.contains(codec)) {
+                retval.add(codec);
+            }
+        }
+        return retval;
+
     }
 
 }

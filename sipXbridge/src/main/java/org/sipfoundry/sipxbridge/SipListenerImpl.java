@@ -237,7 +237,7 @@ public class SipListenerImpl implements SipListener {
 
                     DialogApplicationData newDialogApplicationData = DialogApplicationData
                             .attach(b2bua, newClientTransaction.getDialog(),
-                                        newClientTransaction.getRequest());
+                                      newClientTransaction,  newClientTransaction.getRequest());
                     newDialogApplicationData.peerDialog = dialogApplicationData.peerDialog;
                     newClientTransaction.getDialog().setApplicationData(newDialogApplicationData);
                     /*

@@ -221,9 +221,11 @@ class DataShuffler implements Runnable {
 
     }
 
-    public static DatagramChannel getSelfRoutedDatagramChannel(InetAddress ipAddress, int port) {
+    public static DatagramChannel getSelfRoutedDatagramChannel (InetSocketAddress farEnd) {
         // Iterate over the set of keys for which events are
         // available
+        InetAddress ipAddress = farEnd.getAddress();
+        int port = farEnd.getPort();
         for (Iterator<SelectionKey> selectedKeys = selector.keys().iterator(); selectedKeys
                 .hasNext();) {
             SelectionKey key = selectedKeys.next();

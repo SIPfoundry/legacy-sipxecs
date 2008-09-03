@@ -184,7 +184,19 @@ public class BackToBackUserAgent {
     // ///////////////////////////////////////////////////////////////////////
     // Private methods.
     // ///////////////////////////////////////////////////////////////////////
-    private void pairDialogs(Dialog dialog1, Dialog dialog2) {
+
+    // ////////////////////////////////////////////////////////////////////////
+    // Package local methods.
+    // ////////////////////////////////////////////////////////////////////////
+
+    /**
+     * Create a dialog to dialog association.
+     * 
+     * @param dialog1 - first dialog.
+     * @param dialog2 - second dialog.
+     * 
+     */
+    void pairDialogs(Dialog dialog1, Dialog dialog2) {
         DialogApplicationData dad1 = DialogApplicationData.get(dialog1);
 
         DialogApplicationData dad2 = DialogApplicationData.get(dialog2);
@@ -192,10 +204,6 @@ public class BackToBackUserAgent {
         dad1.peerDialog = dialog2;
         dad2.peerDialog = dialog1;
     }
-
-    // ////////////////////////////////////////////////////////////////////////
-    // Package local methods.
-    // ////////////////////////////////////////////////////////////////////////
 
     /**
      * Retrieve a Sym for the Lan RTP session.
@@ -694,7 +702,7 @@ public class BackToBackUserAgent {
             ClientTransaction ct = Gateway.getLanProvider().getNewClientTransaction(newRequest);
 
             DialogApplicationData newDialogApplicationData = DialogApplicationData.attach(this,
-                    ct.getDialog(), ct.getRequest());
+                    ct.getDialog(), ct, ct.getRequest());
             DialogApplicationData dialogApplicationData = (DialogApplicationData) dialog
                     .getApplicationData();
 
@@ -870,7 +878,7 @@ public class BackToBackUserAgent {
 
             Dialog outboundDialog = ct.getDialog();
 
-            DialogApplicationData.attach(this, outboundDialog, ct.getRequest());
+            DialogApplicationData.attach(this, outboundDialog, ct, ct.getRequest());
             pairDialogs(inboundDialog, outboundDialog);
 
             newRequest.setContent(this.getLanRtpSession(outboundDialog).getReceiver()
@@ -1004,7 +1012,7 @@ public class BackToBackUserAgent {
             tad.backToBackUa = this;
             ct.setApplicationData(tad);
             this.addDialog(ct.getDialog());
-            DialogApplicationData dat = DialogApplicationData.attach(this, ct.getDialog(), ct
+            DialogApplicationData dat = DialogApplicationData.attach(this, ct.getDialog(), ct, ct
                     .getRequest());
 
             retval = ct;
@@ -1169,7 +1177,7 @@ public class BackToBackUserAgent {
             ClientTransaction ct = itspProvider.getNewClientTransaction(outgoingRequest);
             Dialog outboundDialog = ct.getDialog();
 
-            DialogApplicationData.attach(this, outboundDialog, outgoingRequest);
+            DialogApplicationData.attach(this, outboundDialog, ct, outgoingRequest);
             DialogApplicationData.get(outboundDialog).itspInfo = itspAccountInfo;
 
             SessionDescription sd = spiral ? DialogApplicationData.getRtpSession(
@@ -1335,56 +1343,144 @@ public class BackToBackUserAgent {
 
     }
 
-    private void handleInviteWithReplaces(RequestEvent requestEvent, Dialog replacedDialog,
-            ServerTransaction serverTransaction)
-            throws Exception {
+    /**
+     * Handle an incoming INVITE with a replaces header.
+     * 
+     * @param requestEvent
+     * @param replacedDialog
+     * @param serverTransaction
+     * @throws Exception
+     */
+    void handleInviteWithReplaces(RequestEvent requestEvent, Dialog replacedDialog,
+            ServerTransaction serverTransaction) throws Exception {
         Request request = requestEvent.getRequest();
         SessionDescription sd = SipUtilities.getSessionDescription(request);
+        logger.debug("handleInviteWithReplaces: replacedDialog = " + replacedDialog);
+        String address = ((ViaHeader) request.getHeader(ViaHeader.NAME)).getHost();
+        DialogApplicationData inviteDat = DialogApplicationData
+                .get(serverTransaction.getDialog());
+        Dialog dialog = serverTransaction.getDialog();
 
         try {
             RtpSession rtpSession = this.getLanRtpSession(replacedDialog);
             String ipAddress = SipUtilities.getSessionDescriptionMediaIpAddress(sd);
             int port = SipUtilities.getSessionDescriptionMediaPort(sd);
-            rtpSession.getTransmitter().setIpAddressAndPort(ipAddress, port);
-         
-            if (Gateway.isReInviteSupported()) {
+            if (rtpSession.getTransmitter() != null) {
+                // Already has a transmitter then simply redirect the transmitter
+                // to the new location.
+                rtpSession.getTransmitter().setIpAddressAndPort(ipAddress, port);
+            } else {
+                RtpTransmitterEndpoint transmitter = new RtpTransmitterEndpoint(rtpSession,
+                        Gateway.getSymmitronClient(address));
+                transmitter.setIpAddressAndPort(ipAddress, port);
+                rtpSession.setTransmitter(transmitter);
+            }
+
+            if (Gateway.isReInviteSupported()
+                    && replacedDialog.getState() == DialogState.CONFIRMED) {
                 DialogApplicationData replacedDialogApplicationData = DialogApplicationData
                         .get(replacedDialog);
                 Dialog peerDialog = replacedDialogApplicationData.peerDialog;
-                DialogApplicationData peerDat = DialogApplicationData
-                        .get(peerDialog);
+                DialogApplicationData peerDat = DialogApplicationData.get(peerDialog);
 
                 Request reInvite = peerDialog.createRequest(Request.INVITE);
-              
+
                 RtpSession wanRtpSession = peerDat.getRtpSession();
                 wanRtpSession.getReceiver().setSessionDescription(sd);
-                ContentTypeHeader contentTypeHeader = ProtocolObjects.headerFactory.createContentTypeHeader("application", "sdp");
+                ContentTypeHeader contentTypeHeader = ProtocolObjects.headerFactory
+                        .createContentTypeHeader("application", "sdp");
                 reInvite.setContent(sd.toString(), contentTypeHeader);
-                
+
                 SipProvider provider = ((DialogExt) peerDialog).getSipProvider();
                 ClientTransaction ctx = provider.getNewClientTransaction(reInvite);
-                TransactionApplicationData tad = new TransactionApplicationData(Operation.HANDLE_INVITE_WITH_REPLACES);
+                TransactionApplicationData tad = new TransactionApplicationData(
+                        Operation.HANDLE_INVITE_WITH_REPLACES);
                 tad.serverTransaction = serverTransaction;
                 tad.replacedDialog = replacedDialog;
                 ctx.setApplicationData(tad);
                 // send the in-dialog re-invite to the other side.
-                peerDialog.sendRequest(ctx);   
+                peerDialog.sendRequest(ctx);
             } else {
-                // Re-INVITE is not supported.
-                // Remap the transmitter side and hang up the replaced dialog.
-                Response okResponse = ProtocolObjects.messageFactory.createResponse(Response.OK,request);
+                /*
+                 * Re-INVITE is not supported. Remap the transmitter side and hang up the replaced
+                 * dialog.
+                 */
+               
+                
+
+              
                 SessionDescription sdes = rtpSession.getReceiver().getSessionDescription();
-                ContentTypeHeader cth = ProtocolObjects.headerFactory.createContentTypeHeader("application", "sdp");
+            
+                HashSet<Integer> codecs = null;
+                
+                
+                 
+                if (replacedDialog.getState() != DialogState.CONFIRMED) {
+                    codecs = SipUtilities.getCommonCodec(sdes,sd);
+                    
+                    if ( codecs.size() == 0 ) {
+                        Response errorResponse = ProtocolObjects.messageFactory.createResponse(Response.NOT_ACCEPTABLE_HERE,
+                                request);
+                        serverTransaction.sendResponse(errorResponse);
+                        return;
+
+                    }
+                    SipUtilities.cleanSessionDescription(sdes, codecs);
+                }
+                
+                
+                Response okResponse = ProtocolObjects.messageFactory.createResponse(Response.OK,
+                        request);
+               
+
+                ContentTypeHeader cth = ProtocolObjects.headerFactory.createContentTypeHeader(
+                        "application", "sdp");
                 SipProvider txProvider = ((TransactionExt) serverTransaction).getSipProvider();
-                ContactHeader contactHeader = SipUtilities.createContactHeader(null, txProvider, "udp");
+                ContactHeader contactHeader = SipUtilities.createContactHeader(null, txProvider,
+                        "udp");
                 okResponse.setHeader(contactHeader);
                 okResponse.setContent(sdes.toString(), cth);
                 Request byeRequest = replacedDialog.createRequest(Request.BYE);
                 SipProvider provider = ((DialogExt) replacedDialog).getSipProvider();
                 ClientTransaction byeCtx = provider.getNewClientTransaction(byeRequest);
+                inviteDat.rtpSession = rtpSession;
+
                 replacedDialog.sendRequest(byeCtx);
+                serverTransaction.sendResponse(okResponse);
+
+                /*
+                 * The following condition happens during call pickup.
+                 */
+                if (replacedDialog.getState() != DialogState.CONFIRMED) {
+                    /*
+                     * The other side has not been sent an SDP answer yet. Extract the OFFER from
+                     * the inbound INVITE and send it as an answer.
+                     */
+                    DialogApplicationData replacedDialogApplicationData = DialogApplicationData
+                            .get(dialog);
+                    Dialog peerDialog = replacedDialogApplicationData.peerDialog;
+                    DialogApplicationData peerDat = DialogApplicationData.get(peerDialog);
+                    RtpSession wanRtpSession = peerDat.getRtpSession();
+                    SipProvider wanProvider = ((DialogExt) peerDialog).getSipProvider();
+                    ContactHeader contact = SipUtilities.createContactHeader(null, wanProvider,
+                            "udp");
+                    wanRtpSession.getReceiver().setSessionDescription(sd);
+
+                    SipUtilities.cleanSessionDescription(sd, codecs);
+
+                    ServerTransaction peerSt = ((ServerTransaction) peerDat.transaction);
+                    Response peerOk = ProtocolObjects.messageFactory.createResponse(Response.OK,
+                            peerSt.getRequest());
+                    peerOk.setHeader(contact);
+                    peerOk.setContent(sd.toString(), cth);
+                    peerSt.sendResponse(peerOk);
+                    this.getRtpBridge().start();
+
+                }
+
             }
         } catch (Exception ex) {
+            logger.error("Unexpected exception -- tearing down call ", ex);
             try {
                 this.tearDown();
             } catch (Exception e) {

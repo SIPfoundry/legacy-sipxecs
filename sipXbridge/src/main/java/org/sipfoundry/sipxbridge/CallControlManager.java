@@ -7,8 +7,10 @@
 package org.sipfoundry.sipxbridge;
 
 import gov.nist.javax.sip.DialogExt;
+import gov.nist.javax.sip.SipStackExt;
 import gov.nist.javax.sip.SipStackImpl;
 import gov.nist.javax.sip.TransactionExt;
+import gov.nist.javax.sip.header.extensions.ReplacesHeader;
 import gov.nist.javax.sip.header.ims.PAssertedIdentityHeader;
 import gov.nist.javax.sip.message.SIPResponse;
 import gov.nist.javax.sip.stack.SIPDialog;
@@ -223,10 +225,38 @@ class CallControlManager implements SymmitronResetHandler {
             if ((DialogApplicationData) dialog.getApplicationData() != null) {
                 btobua = ((DialogApplicationData) dialog.getApplicationData())
                         .getBackToBackUserAgent();
+            } else if ( request.getHeader(ReplacesHeader.NAME) != null){
+                /*
+                 * Incoming INVITE (out of dialog ) with a  replaces header.
+                 * This implies call pickup attempt.
+                 * 
+                 */
+                ReplacesHeader replacesHeader = (ReplacesHeader) request.getHeader(ReplacesHeader.NAME);
+                Dialog replacesDialog = ((SipStackExt) ProtocolObjects.sipStack).getReplacesDialog(replacesHeader);
+                if ( replacesDialog == null ) {
+                    Response response = ProtocolObjects.messageFactory.createResponse(
+                            Response.NOT_FOUND, request);
+                    response.setReasonPhrase("Could not find account record for ITSP");
+                    serverTransaction.sendResponse(response);
+                    return; 
+                }
+                BackToBackUserAgent b2bua = DialogApplicationData.getBackToBackUserAgent(replacesDialog);
+                DialogApplicationData dat = DialogApplicationData.get(replacesDialog);
+                DialogApplicationData.attach(b2bua, dialog, serverTransaction, request);
+                
+                Dialog peerDialog = dat.peerDialog;
+                dat.peerDialog = null;
+                b2bua.pairDialogs(dialog,peerDialog);
+                
+                TransactionApplicationData tad = new TransactionApplicationData(Operation.HANDLE_INVITE_WITH_REPLACES);
+                tad.serverTransaction = (ServerTransaction) DialogApplicationData.get(peerDialog).transaction;
+                b2bua.handleInviteWithReplaces(requestEvent, replacesDialog, serverTransaction);
+                return;
+                
             } else {
 
                 btobua = Gateway.getCallControlManager().getBackToBackUserAgent(provider,
-                        request, dialog, Gateway.getLanProvider() == requestEvent.getSource());
+                        request,serverTransaction, dialog,  Gateway.getLanProvider() == requestEvent.getSource());
                 /*
                  * Make sure we know about the incoming request. Otherwise we return an error
                  * here.
@@ -239,7 +269,7 @@ class CallControlManager implements SymmitronResetHandler {
                     return;
                 }
 
-                DialogApplicationData.attach(btobua, dialog, request);
+                DialogApplicationData.attach(btobua, dialog, serverTransaction, request);
             }
 
             // This method was seen from the LAN side.
@@ -585,6 +615,9 @@ class CallControlManager implements SymmitronResetHandler {
             }
             TransactionApplicationData tad = (TransactionApplicationData) inviteServerTransaction
                     .getApplicationData();
+            if ( tad == null ) {
+                return;
+            }
             ClientTransaction ct = tad.clientTransaction;
             ItspAccountInfo itspAccount = btobua.getItspAccountInfo();
             String transport = itspAccount != null ? itspAccount.getOutboundTransport()
@@ -1299,7 +1332,7 @@ class CallControlManager implements SymmitronResetHandler {
      */
 
     synchronized BackToBackUserAgent getBackToBackUserAgent(SipProvider provider,
-            Request request, Dialog dialog, boolean callOriginatedFromLan) throws Exception {
+            Request request, ServerTransaction serverTransaction, Dialog dialog, boolean callOriginatedFromLan) throws Exception {
 
         String callId = SipUtilities.getCallId(request);
         // BackToBackUserAgent b2bua = callTable.get(callId);
@@ -1329,7 +1362,7 @@ class CallControlManager implements SymmitronResetHandler {
 
                 b2bua = new BackToBackUserAgent(provider, request, dialog, accountInfo);
 
-                DialogApplicationData.attach(b2bua, dialog, request);
+                DialogApplicationData.attach(b2bua, dialog, serverTransaction, request);
 
                 this.backToBackUserAgentTable.put(callId, b2bua);
             }

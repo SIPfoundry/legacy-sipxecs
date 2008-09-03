@@ -56,6 +56,8 @@ final class SymTransmitterEndpoint extends SymEndpoint implements SymTransmitter
 
     private InetSocketAddress socketAddress;
 
+    private InetSocketAddress farEnd;
+
     /**
      * The keepalive timer task.
      * 
@@ -110,12 +112,29 @@ final class SymTransmitterEndpoint extends SymEndpoint implements SymTransmitter
 
     }
 
-    private static boolean isPacketSelfRouted(InetAddress destination, int port) {
+    private void setFarEnd() {
         try {
+            InetAddress remoteAddress = this.getSocketAddress().getAddress();
+            int remotePort = this.getSocketAddress().getPort();
+            InetAddress farEndAddress = (SymmitronServer.getPublicInetAddress() != null
+                    && remoteAddress.equals(SymmitronServer.getPublicInetAddress()) ? SymmitronServer
+                    .getLocalInetAddress()
+                    : remoteAddress);
+            this.farEnd = new InetSocketAddress(farEndAddress, remotePort);
+        } catch (Exception ex) {
+            logger.error("Unexpected exception in setting far end address", ex);
+
+        }
+
+    }
+
+    private static boolean isPacketSelfRouted(InetSocketAddress destinationSockaddr) {
+        try {
+            int port = destinationSockaddr.getPort();
+            InetAddress destination = destinationSockaddr.getAddress();
             if (port >= SymmitronServer.getRangeLowerBound()
                     && port < SymmitronServer.getRangeUpperBound()) {
-                if (!destination.equals(SymmitronServer.getLocalInetAddress())
-                        && !destination.equals(SymmitronServer.getPublicInetAddress())) {
+                if (!destination.equals(SymmitronServer.getLocalInetAddress())) {
                     return false;
                 } else {
                     logger.debug("Self routed!");
@@ -159,23 +178,17 @@ final class SymTransmitterEndpoint extends SymEndpoint implements SymTransmitter
             logger.debug("Cannot send -- remote address is null!");
             return;
         }
-        InetAddress remoteAddress = this.getSocketAddress().getAddress();
-        int remotePort = this.getSocketAddress().getPort();
         this.lastPacketSentTime = System.currentTimeMillis();
 
         /*
          * Check if the packet is self-routed. If so route it back.
          */
-        if (checkForSelfRouting && isPacketSelfRouted(remoteAddress, remotePort)) {
+        if (checkForSelfRouting && isPacketSelfRouted(this.farEnd)) {
             if (logger.isDebugEnabled()) {
-                logger.debug("SymTransmitterEndpoint:remoteAddress = " + remoteAddress);
+                logger.debug("SymTransmitterEndpoint:remoteAddress = " + this.farEnd);
             }
-            InetAddress farEnd = (SymmitronServer.getPublicInetAddress() != null
-                    && remoteAddress.equals(SymmitronServer.getPublicInetAddress()) ? SymmitronServer
-                    .getLocalInetAddress()
-                    : remoteAddress);
-            DatagramChannel channel = DataShuffler.getSelfRoutedDatagramChannel(farEnd,
-                    remotePort);
+
+            DatagramChannel channel = DataShuffler.getSelfRoutedDatagramChannel(this.farEnd);
 
             if (channel != null) {
                 if (logger.isDebugEnabled()) {
@@ -187,7 +200,7 @@ final class SymTransmitterEndpoint extends SymEndpoint implements SymTransmitter
                 }
                 if (bridge != null) {
 
-                    DataShuffler.send(bridge, channel, new InetSocketAddress(farEnd, port));
+                    DataShuffler.send(bridge, channel, this.farEnd);
                     return;
 
                 }
@@ -329,6 +342,7 @@ final class SymTransmitterEndpoint extends SymEndpoint implements SymTransmitter
      */
     protected void setSocketAddress(InetSocketAddress socketAddress) {
         this.socketAddress = socketAddress;
+        this.setFarEnd();
 
     }
 

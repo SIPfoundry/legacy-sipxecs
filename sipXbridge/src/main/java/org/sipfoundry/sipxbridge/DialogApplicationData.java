@@ -9,6 +9,8 @@ package org.sipfoundry.sipxbridge;
 
 import javax.sdp.SessionDescription;
 import javax.sip.Dialog;
+import javax.sip.ServerTransaction;
+import javax.sip.Transaction;
 import javax.sip.message.Request;
 import javax.sip.message.Response;
 
@@ -50,7 +52,7 @@ class DialogApplicationData {
      * Rtp session associated with this call leg.
      */
 
-    private RtpSession rtpSession;
+    RtpSession rtpSession;
     
     
     
@@ -73,6 +75,8 @@ class DialogApplicationData {
     long lastAckSent;
 
     boolean sendReInviteOnResume;
+
+    Transaction transaction;
     
     private DialogApplicationData() {
 
@@ -105,13 +109,16 @@ class DialogApplicationData {
      
 
      static DialogApplicationData attach(
-            BackToBackUserAgent backToBackUserAgent, Dialog dialog, Request request) {
+            BackToBackUserAgent backToBackUserAgent, Dialog dialog, Transaction transaction,
+            Request request) {
         if ( backToBackUserAgent == null ) 
             throw new NullPointerException("Null back2back ua");
         DialogApplicationData dat = new DialogApplicationData();
+        dat.transaction = transaction;
         dat.request = request;
         dat.setBackToBackUserAgent(backToBackUserAgent);
         dialog.setApplicationData(dat);
+        
         return dat;
     }
 

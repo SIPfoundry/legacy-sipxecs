@@ -38,7 +38,7 @@ class RtpTransmitterEndpoint {
 
     private int keepAliveInterval;
 
-    private KeepaliveMethod keepAliveMethod;
+    private KeepaliveMethod keepAliveMethod = KeepaliveMethod.NONE;
 
     public RtpTransmitterEndpoint(RtpSession rtpSession, SymmitronClient symmitronClient) {
         this.rtpSession = rtpSession;
@@ -67,6 +67,7 @@ class RtpTransmitterEndpoint {
     public void setIpAddressAndPort(String ipAddress, int port) throws UnknownHostException {
         this.ipAddress = ipAddress;
         this.port = port;
+       
         this.symTransmitter.setIpAddressAndPort(ipAddress, port,keepAliveInterval, keepAliveMethod);
 
     }

@@ -21,27 +21,32 @@ public class RtpPayloadTypes {
 
     private static Hashtable<String, Integer> payloadTypes = new Hashtable<String, Integer>();
 
-    private static HashSet<Integer> payloadTypeByInt = new HashSet<Integer>();
+    private static Hashtable<Integer,String> payloadTypeByInt = new Hashtable<Integer,String>();
     
     private static Logger logger = Logger.getLogger(RtpPayloadTypes.class);
+    
+    private static void putPayload(String name, int value) {
+        payloadTypes.put(name, value);
+        payloadTypeByInt.put(value, name);
+    }
 
     static {
-        payloadTypes.put("PCMU", 0);
-        payloadTypes.put("GSM", 3);
-        payloadTypes.put("G723", 4);
-        payloadTypes.put("DVI4", 5);
-        payloadTypes.put("LPC", 7);
-        payloadTypes.put("PCMA", 8);
-        payloadTypes.put("G722", 9);
-        payloadTypes.put("QCELP", 12);
-        payloadTypes.put("CN", 13);
-        payloadTypes.put("MPA", 14);
-        payloadTypes.put("G728", 15);
-        payloadTypes.put("DVI4", 16);
-        payloadTypes.put("G729", 18);
-        payloadTypes.put("G726-32", 17); // Phoney
-        payloadTypeByInt.addAll(payloadTypes.values());
-
+        putPayload("PCMU", 0);
+        putPayload("GSM", 3);
+        putPayload("G723", 4);
+        putPayload("DVI4", 5);
+        putPayload("LPC", 7);
+        putPayload("PCMA", 8);
+        putPayload("G722", 9);
+        putPayload("QCELP", 12);
+        putPayload("CN", 13);
+        putPayload("MPA", 14);
+        putPayload("G728", 15);
+        putPayload("DVI4", 16);
+        putPayload("G729", 18);
+        putPayload("G726-32", 17); // Phoney
+        
+        
     }
 
     public static boolean isPayload(String payloadType) {
@@ -49,7 +54,7 @@ public class RtpPayloadTypes {
     }
     
     public static boolean isPayload(int payloadType) {
-        return payloadTypeByInt.contains(payloadType);
+        return payloadTypeByInt.containsKey(payloadType);
         
     }
     
@@ -61,6 +66,16 @@ public class RtpPayloadTypes {
                     + " returning 0");
             return 0;
 
+        }
+    }
+    
+    public static String getPayloadType(int payloadType) {
+        if ( payloadTypeByInt.containsKey(payloadType)) {
+            return payloadTypeByInt.get(payloadType);
+        } else {
+            logger.warn("Cannot find payload type " + payloadType
+                    + " returning 0");
+            return null;
         }
     }
 
