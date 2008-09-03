@@ -27,7 +27,7 @@ final class SymTransmitterEndpoint extends SymEndpoint implements SymTransmitter
 
     private long lastPacketSentTime;
 
-  //  private transient byte[] keepalivePayload = null;
+    // private transient byte[] keepalivePayload = null;
 
     private ByteBuffer keepAliveBuffer = null;
 
@@ -77,7 +77,7 @@ final class SymTransmitterEndpoint extends SymEndpoint implements SymTransmitter
                     return;
                 long now = System.currentTimeMillis();
                 if (now - lastPacketSentTime < maxSilence) {
-                   
+
                     return;
                 }
                 if (keepaliveMethod.equals(KeepaliveMethod.USE_EMPTY_PACKET)) {
@@ -88,7 +88,7 @@ final class SymTransmitterEndpoint extends SymEndpoint implements SymTransmitter
                     }
 
                 } else if (keepaliveMethod.equals(KeepaliveMethod.REPLAY_LAST_SENT_PACKET)
-                    || keepaliveMethod.equals(KeepaliveMethod.USE_DUMMY_RTP_PAYLOAD)) {
+                        || keepaliveMethod.equals(KeepaliveMethod.USE_DUMMY_RTP_PAYLOAD)) {
                     if (keepAliveBuffer != null && datagramChannel != null
                             && getSocketAddress() != null && datagramChannel.isOpen()) {
                         logger.debug("Sending keepalive");
@@ -109,9 +109,6 @@ final class SymTransmitterEndpoint extends SymEndpoint implements SymTransmitter
         }
 
     }
-    
-    
-   
 
     private static boolean isPacketSelfRouted(InetAddress destination, int port) {
         try {
@@ -141,8 +138,7 @@ final class SymTransmitterEndpoint extends SymEndpoint implements SymTransmitter
         logger.debug("startEarlyMediaThread " + this.toString());
         this.earlyMediaStarted = true;
         this.keepaliveTimerTask = new KeepaliveTimerTask();
-        SymmitronServer.timer.schedule(this.keepaliveTimerTask, 0,
-                this.maxSilence);
+        SymmitronServer.timer.schedule(this.keepaliveTimerTask, 0, this.maxSilence);
 
     }
 
@@ -159,9 +155,7 @@ final class SymTransmitterEndpoint extends SymEndpoint implements SymTransmitter
 
     public void send(ByteBuffer byteBuffer) throws IOException {
 
-       
-        
-        if ( this.getSocketAddress() == null ) {
+        if (this.getSocketAddress() == null) {
             logger.debug("Cannot send -- remote address is null!");
             return;
         }
@@ -173,17 +167,18 @@ final class SymTransmitterEndpoint extends SymEndpoint implements SymTransmitter
          * Check if the packet is self-routed. If so route it back.
          */
         if (checkForSelfRouting && isPacketSelfRouted(remoteAddress, remotePort)) {
-            if ( logger.isDebugEnabled() ) {
+            if (logger.isDebugEnabled()) {
                 logger.debug("SymTransmitterEndpoint:remoteAddress = " + remoteAddress);
             }
-            InetAddress farEnd =  ( SymmitronServer.getPublicInetAddress() != null &&
-                    remoteAddress.equals(SymmitronServer.getPublicInetAddress()) ? 
-                    SymmitronServer.getLocalInetAddress() : remoteAddress );
+            InetAddress farEnd = (SymmitronServer.getPublicInetAddress() != null
+                    && remoteAddress.equals(SymmitronServer.getPublicInetAddress()) ? SymmitronServer
+                    .getLocalInetAddress()
+                    : remoteAddress);
             DatagramChannel channel = DataShuffler.getSelfRoutedDatagramChannel(farEnd,
                     remotePort);
 
             if (channel != null) {
-                if ( logger.isDebugEnabled()) {
+                if (logger.isDebugEnabled()) {
                     logger.debug("SymTransmitterEndpoint:selfRoutedDatagramChannel = " + channel);
                 }
                 Bridge bridge = ConcurrentSet.getBridge(channel);
@@ -191,7 +186,7 @@ final class SymTransmitterEndpoint extends SymEndpoint implements SymTransmitter
                     logger.debug("SymTransmitterEndpoint:selfRoutedBridge = " + bridge);
                 }
                 if (bridge != null) {
-                   
+
                     DataShuffler.send(bridge, channel, new InetSocketAddress(farEnd, port));
                     return;
 
@@ -201,8 +196,11 @@ final class SymTransmitterEndpoint extends SymEndpoint implements SymTransmitter
 
         if (this.datagramChannel != null) {
             int bytesSent = this.datagramChannel.send(byteBuffer, this.getSocketAddress());
-            logger.debug("SymTransmitterEndpoint:actually sending to " + this.getSocketAddress() + " sent " + bytesSent + " bytes " );
-            
+            if (logger.isDebugEnabled()) {
+                logger.debug("SymTransmitterEndpoint:actually sending to "
+                        + this.getSocketAddress() + " sent " + bytesSent + " bytes ");
+            }
+
         }
         if (keepaliveMethod.equals(KeepaliveMethod.REPLAY_LAST_SENT_PACKET)) {
             this.keepAliveBuffer = byteBuffer;
@@ -210,23 +208,24 @@ final class SymTransmitterEndpoint extends SymEndpoint implements SymTransmitter
     }
 
     public void setMaxSilence(int maxSilence, KeepaliveMethod keepaliveMethod) {
-        logger.debug("RtpEndpoint : setMaxSilence " + maxSilence + " keepaliveMethod = " + keepaliveMethod);
+        if (logger.isDebugEnabled()) {
+            logger.debug("RtpEndpoint : setMaxSilence " + maxSilence + " keepaliveMethod = "
+                    + keepaliveMethod);
+        }
         if (this.earlyMediaStarted) {
             logger.debug("early media started !");
             return;
         }
         this.maxSilence = maxSilence;
         this.keepaliveMethod = keepaliveMethod;
-        if (keepaliveMethod == KeepaliveMethod.USE_DUMMY_RTP_PAYLOAD ||
-                keepaliveMethod == KeepaliveMethod.REPLAY_LAST_SENT_PACKET) {
-            this.keepAliveBuffer = DummyRtpPacket.createDummyRtpPacket();       
+        if (keepaliveMethod == KeepaliveMethod.USE_DUMMY_RTP_PAYLOAD
+                || keepaliveMethod == KeepaliveMethod.REPLAY_LAST_SENT_PACKET) {
+            this.keepAliveBuffer = DummyRtpPacket.createDummyRtpPacket();
         }
         if (maxSilence != 0 && !keepaliveMethod.equals(KeepaliveMethod.NONE)) {
             this.startKeepaliveTimer();
         }
     }
-
- 
 
     public void stopKeepalive() {
         if (this.keepaliveTimerTask != null)
