@@ -159,6 +159,11 @@
         generates are described under Key and Certificate Installation below.
       </para>
       <para>
+        gen-ssl-keys.sh is usually installed as /usr/bin/ssl-cert/gen-ssl-keys.sh.
+        It may be in a different location if sipXecs is built with a non-standard
+        directory prefix.
+      </para>
+      <para>
         To use gen-ssl-keys.sh:
         <itemizedlist>
           <listitem>
@@ -281,6 +286,10 @@
           install-cert.sh <replaceable>server-key-file</replaceable>
         </screen>
       </informalexample>
+      <para>
+        (Similarly to gen-ssl-keys.sh, install-cert.sh is usually installed
+        as /usr/bin/ssl-cert/install-cert.sh.)
+      </para>
       <para>
         If the installation fails, it may be because you need to install a 
         root certificate from the CA.  If the install script detects that
