@@ -1,7 +1,7 @@
 <!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
 <html>
 <head>
-<title>Pingtel Interop Online</title>
+<title>Nortel Networks Interop Online</title>
 <style>
 body
 {
@@ -59,9 +59,13 @@ width="133" align="left" />
 <hr>
 
 <p>
-This test server is provided by <a
-href='http://www.pingtel.com/'>Pingtel</a> for open interoperability
-testing of SIP user agents.  It is the sipXpbx <a href='http://www.sipfoundry.org/sipXpbx/'>sipXpbx open source software</a>
+This test server is provided by
+<a href='http://www.nortel.com'>Nortel Networks</a> (which has acquired <a
+href='http://www.pingtel.com/'>Pingtel</a>), in cooperation with the
+<a href='http://www.sipfoundry.org'>SIPfoundry</a>, for open interoperability
+testing of SIP user agents.
+This server runs the
+<a href='http://www.sipfoundry.org/sipXpbs'>sipXecs open source software</a>
 with a <a href='#config'>custom configuration</a>.  This configuration
 is designed to exercise issues we have found are important to
 interoperability between User Agents and Proxies.
@@ -73,10 +77,10 @@ The restart process takes approximately 2 minutes.
 <a href='config-version.html'>Display the configuration version running on this server</a>
 </p>
 <p>
-This server is freely available to all, <strong>but Pingtel does not
+This server is freely available to all, <strong>but Nortel Networks does not
 provide any free support for diagnosing problems you have with these
 tests.</strong>  If you are in need of help, consulting is available
-for a fee; contact &lt;<a href='mailto:%69%6E%74%65%72%6F%70%2D%63%6F%6E%66%69%67%40%70%69%6E%67%74%65%6C%2E%63%6F%6D'><b>interop-config</b><i>(at)</i><b>pingtel</b><i>(dot)</i><b>com</b></a>&gt;.
+for a fee; contact &lt;<a href='mailto:%50%54%49%6e%74%72%6f%70%40%6e%6f%72%74%65%6c%2e%63%6f%6d'><b>PTIntrop</b><i>(at)</i><b>nortel</b><i>(dot)</i><b>com</b></a>&gt;.
 </p>
 
 <blockquote>
@@ -84,9 +88,9 @@ for a fee; contact &lt;<a href='mailto:%69%6E%74%65%72%6F%70%2D%63%6F%6E%66%69%6
 <strong>NOTE WELL:</strong>  All communication with this server is
 logged and used under the
 "<a href="https://www.sipit.net/FirstTimers">SIPit rules</a>":
-It may be used by Pingtel for internal testing and
+It may be used by Nortel Networks for internal testing and
 development, and aggregate information may be released to other
-parties.  Pingtel will not deliberately release to other parties any
+parties.  Nortel Networks will not deliberately release to other parties any
 information identifiable to a specific user, product, or
 company.
 </p>
