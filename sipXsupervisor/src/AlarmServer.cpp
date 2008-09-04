@@ -12,6 +12,7 @@
 #include <climits>
 // APPLICATION INCLUDES
 #include "xmlparser/ExtractContent.h"
+#include "xmlparser/XmlErrorMsg.h"
 #include "os/OsDateTime.h"
 #include "os/OsFS.h"
 #include "os/OsLock.h"
@@ -241,7 +242,9 @@ bool cAlarmServer::loadAlarmStringsFile(const UtlString& stringsFile)
    TiXmlHandle docHandle( &doc );
    if (!doc.LoadFile())
    {
-      OsSysLog::add(FAC_ALARM, PRI_ERR, "failed to load alarm strings file %s", stringsFile.data());
+      UtlString errorMsg;
+      XmlErrorMsg( doc, errorMsg );
+      OsSysLog::add(FAC_ALARM, PRI_ERR, "failed to load alarm strings file: %s", errorMsg.data());
       return false;
    }
 
@@ -352,7 +355,9 @@ bool cAlarmServer::loadAlarmConfig(const UtlString& alarmFile)
    TiXmlHandle docHandle( &doc );
    if (!doc.LoadFile())
    {
-      OsSysLog::add(FAC_ALARM, PRI_ERR, "failed to load alarm config file %s", alarmFile.data());
+      UtlString errorMsg;
+      XmlErrorMsg( doc, errorMsg );
+      OsSysLog::add(FAC_ALARM, PRI_ERR, "failed to load alarm config file %s", errorMsg.data());
       return false;
    }
 
@@ -438,7 +443,9 @@ bool cAlarmServer::loadAlarmDefinitions(const UtlString& alarmFile)
    TiXmlHandle docHandle( &doc );
    if (!doc.LoadFile())
    {
-      OsSysLog::add(FAC_ALARM, PRI_ERR, "failed to load alarm file %s", alarmFile.data());
+      UtlString errorMsg;
+      XmlErrorMsg( doc, errorMsg );
+      OsSysLog::add(FAC_ALARM, PRI_ERR, "failed to load alarm file: %s", errorMsg.data());
       return false;
    }
 
@@ -502,20 +509,15 @@ bool cAlarmServer::loadAlarms()
    // load alarm strings and local language version from ${datadir}/alarms/*.xml
    UtlString alarmStringsDir = SipXecsService::Path(SipXecsService::DataDirType);
    alarmStringsDir.append("/alarms/");
-   OsSysLog::add(FAC_ALARM, PRI_INFO, "looking for alarm string files in %s", alarmDefDir.data());
+   OsSysLog::add(FAC_ALARM, PRI_INFO, "looking for alarm string files in %s",
+                 alarmStringsDir.data());
    OsFileIterator stringFiles(alarmStringsDir);
    
-   // for each "base" file (no '_') in the ${datadir}/alarms, load alarm strings
-   for (status=stringFiles.findFirst(entry, ".*\\.xml$", OsFileIterator::FILES), numFound=0;
+   // for each "base" file (*-strings.xml) in the ${datadir}/alarms, load alarm strings
+   for (status=stringFiles.findFirst(entry, ".*-strings\\.xml$", OsFileIterator::FILES), numFound=0;
         status == OS_SUCCESS;
         status = stringFiles.findNext(entry) )
    {
-      //:KLUDGE: skip all files containing "_", as they are assumed to be localized versions
-      if (entry.contains("_"))
-      {
-         OsSysLog::add(FAC_ALARM, PRI_DEBUG, " skipping alarm strings file %s", entry.data());
-         continue;
-      }
       loadAlarmStrings(alarmStringsDir + entry);
    }
 
