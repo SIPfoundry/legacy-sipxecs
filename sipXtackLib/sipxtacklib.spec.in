@@ -74,7 +74,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(644,root,root,755)
-%doc CONTRIBUTORS INSTALL README NEWS TODO ChangeLog %name.configlog
+%doc CONTRIBUTORS README NEWS TODO ChangeLog %name.configlog
 %docdir doc/license
 %attr(755,root,root) %{_bindir}/dialogdisplay
 %attr(755,root,root) %{_bindir}/dialogwatch

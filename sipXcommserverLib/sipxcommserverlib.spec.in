@@ -156,7 +156,7 @@ fi
 
 %files
 %defattr(644,root,root,755)
-%doc CONTRIBUTORS INSTALL README NEWS TODO ChangeLog %name.configlog
+%doc CONTRIBUTORS README NEWS TODO ChangeLog %name.configlog
 %attr(755,root,root) %{_bindir}/configpp
 %attr(755,root,root) %{_bindir}/config-defs
 %attr(755,root,root) %{_bindir}/get_def_addr

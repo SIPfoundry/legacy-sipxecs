@@ -103,7 +103,7 @@ rm -rf $RPM_BUILD_ROOT
 %files
 %defattr(644,root,root,755)
 
-%doc CONTRIBUTORS INSTALL README NEWS TODO ChangeLog %name.configlog
+%doc CONTRIBUTORS README NEWS TODO ChangeLog %name.configlog
 
 %attr(755,root,root) %{_bindir}/blat
 %attr(755,root,root) %{_bindir}/analyze_483s

@@ -85,7 +85,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(644,root,root,755)
-%doc CONTRIBUTORS INSTALL NEWS README ChangeLog %name.configlog
+%doc CONTRIBUTORS NEWS README ChangeLog %name.configlog
 %attr(4755,root,root) %{_bindir}/sipXvxml
 %attr(755,root,root) %{_bindir}/sipXvxml.sh
 %attr(755,root,root) %{_bindir}/%name-config

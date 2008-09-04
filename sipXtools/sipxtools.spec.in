@@ -38,7 +38,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(644,root,root,755)
-%doc CONTRIBUTORS LICENSE INSTALL README NEWS TODO ChangeLog %name.configlog
+%doc CONTRIBUTORS LICENSE README NEWS TODO ChangeLog %name.configlog
 %attr(755,root,root) %{_bindir}
 %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_datadir}/java/sipXecs/sipXtools
 %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_datadir}/sipxecs/preflight

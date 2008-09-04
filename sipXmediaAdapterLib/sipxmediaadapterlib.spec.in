@@ -77,13 +77,13 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(644,root,root,755)
-%doc CONTRIBUTORS INSTALL README NEWS TODO ChangeLog %name.configlog
+%doc CONTRIBUTORS README NEWS TODO ChangeLog %name.configlog
 %attr(755,root,root) %{_libdir}/libsipXmediaProcessing.la
 %attr(755,root,root) %{_libdir}/libsipXmediaProcessing.so*
 
 %files devel
 %defattr(644,root,root,755)
-%doc CONTRIBUTORS INSTALL README NEWS TODO ChangeLog %name.configlog
+%doc CONTRIBUTORS README NEWS TODO ChangeLog %name.configlog
 %docdir %{_datadir}/doc/sipxecs/%name
 %{_datadir}/doc/sipxecs/%name
 

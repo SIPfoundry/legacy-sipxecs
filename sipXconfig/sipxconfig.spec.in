@@ -223,7 +223,7 @@ rm -rf $RPM_BUILD_ROOT
 # WARNING: Do use @ SIPX_CONFDIR @ because prefix used and 'make dist'
 # typically does not RPM's prefix
 
-%doc CONTRIBUTORS INSTALL README NEWS NOTICE TODO ChangeLog %name.configlog
+%doc CONTRIBUTORS README NEWS NOTICE TODO ChangeLog %name.configlog
 %attr(755,root,root) %{_bindir}/sipxconfig.sh
 %attr(755,root,root) %{sipxpbxconf}/setup.d/sipxconfig-setup
 %attr(755,root,root) %{_bindir}/sipxconfig-config
