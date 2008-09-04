@@ -30,6 +30,7 @@ import org.apache.xmlrpc.server.XmlRpcServerConfigImpl;
 import org.apache.xmlrpc.webserver.WebServer;
 import org.sipfoundry.commons.log4j.SipFoundryAppender;
 import org.sipfoundry.commons.log4j.SipFoundryLayout;
+import org.sipfoundry.sipxbridge.BridgeState;
 import org.sipfoundry.sipxbridge.Gateway;
 import org.sipfoundry.sipxbridge.GatewayConfigurationException;
 
@@ -640,7 +641,7 @@ public class SymmitronServer implements Symmitron {
             return createErrorMap(PROCESSING_ERROR, ex.getMessage());
         }
     }
-
+    
     public Map<String, Object> resumeBridge(String controllerHandle, String bridgeId) {
         try {
             this.checkForControllerReboot(controllerHandle);

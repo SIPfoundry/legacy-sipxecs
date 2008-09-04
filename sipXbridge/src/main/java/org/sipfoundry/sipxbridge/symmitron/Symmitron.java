@@ -569,6 +569,8 @@ public interface Symmitron {
      * @return A map containing the statistics for the bridge. A map containing
      *         the following statistics is returned.
      *         <ul>
+     *
+     *         <li><it>bridge-state</it> -- current time of day.
      *         <li><it>current-time-of-day</it> -- current time of day.
      *         <li><it>creation-time</it> -- time this bridge was created.
      *         <li><it>bridge-state</it> -- the bridge state.
@@ -580,6 +582,9 @@ public interface Symmitron {
      */
     public Map<String, Object> getBridgeStatistics(String controllerHandle,
             String bridgeId);
+    
+    
+   
     
     
   

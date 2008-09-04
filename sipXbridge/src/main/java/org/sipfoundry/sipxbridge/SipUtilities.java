@@ -1000,4 +1000,17 @@ class SipUtilities {
 
     }
 
+    public static void setSessionDescription(Message message,
+            SessionDescription sessionDescription) {
+        try {
+            ContentTypeHeader cth = ProtocolObjects.headerFactory.createContentTypeHeader(
+                    "application", "sdp");
+            message.setContent(sessionDescription.toString(), cth);
+        } catch (Exception ex) {
+            logger.error("Unexpected exception", ex);
+            throw new RuntimeException(ex);
+        }
+
+    }
+
 }

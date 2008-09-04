@@ -245,11 +245,12 @@ class CallControlManager implements SymmitronResetHandler {
                 DialogApplicationData.attach(b2bua, dialog, serverTransaction, request);
                 
                 Dialog peerDialog = dat.peerDialog;
-                dat.peerDialog = null;
+                logger.debug("replacesDialogState = " + replacesDialog.getState());
+                if ( replacesDialog.getState() != DialogState.CONFIRMED) {
+                    dat.peerDialog = null;
+                }
                 b2bua.pairDialogs(dialog,peerDialog);
                 
-                TransactionApplicationData tad = new TransactionApplicationData(Operation.HANDLE_INVITE_WITH_REPLACES);
-                tad.serverTransaction = (ServerTransaction) DialogApplicationData.get(peerDialog).transaction;
                 b2bua.handleInviteWithReplaces(requestEvent, replacesDialog, serverTransaction);
                 return;
                 
@@ -1005,17 +1006,18 @@ class CallControlManager implements SymmitronResetHandler {
                     ContentTypeHeader cth = (ContentTypeHeader) response
                             .getHeader(ContentTypeHeader.NAME);
                     Dialog referDialog = tad.referingDialog;
-
+                    Dialog peerDialog = DialogApplicationData.getPeerDialog(dialog);
+                    DialogApplicationData peerDat = DialogApplicationData.get(peerDialog);
+              
                     if (response.getRawContent() != null
                             && cth.getContentType().equals("application")
                             && cth.getContentSubType().equals("sdp")) {
                         /*
                          * The incoming media session.
                          */
-                        SessionDescription sessionDescription = SdpFactory.getInstance()
-                                .createSessionDescription(new String(response.getRawContent()));
-                        logger.debug("Processing ReferRedirection Response");
-
+                        
+                        SessionDescription sessionDescription = SipUtilities.getSessionDescription(response);
+                        
                         RtpSession rtpSession = ((DialogApplicationData) referDialog
                                 .getApplicationData()).getRtpSession();
 
@@ -1034,6 +1036,18 @@ class CallControlManager implements SymmitronResetHandler {
 
                             ((DialogApplicationData) dialog.getApplicationData())
                                     .setRtpSession(rtpSession);
+                            
+                            if ( peerDat.transaction instanceof ServerTransaction ) {
+                                
+                                
+                                Request request = ((ServerTransaction)peerDat.transaction).getRequest();
+                                Response forwardedResponse  = ProtocolObjects.messageFactory.createResponse(response.getStatusCode(),request);
+                                SipUtilities.setSessionDescription(forwardedResponse,sessionDescription);
+                                ContactHeader contact = SipUtilities.createContactHeader(((TransactionExt)peerDat.transaction).getSipProvider(),
+                                        peerDat.itspInfo);
+                                forwardedResponse.setHeader(contact);
+                                ((ServerTransaction) peerDat.transaction).sendResponse(forwardedResponse);
+                            }
 
                         } else {
                             logger
@@ -1048,20 +1062,21 @@ class CallControlManager implements SymmitronResetHandler {
                      * redirected party at this point.
                      */
 
-                    if ( referDialog.getState() != DialogState.TERMINATED) {
+                    if ( referDialog.getState() == DialogState.CONFIRMED) {
                         this.notifyReferDialog(referDialog,response);
                     }
                     
-                    
+                   
 
                     if (response.getContentLength().getContentLength() != 0) {
-                        Dialog peerDialog = DialogApplicationData.getPeerDialog(dialog);
-                        if (DialogApplicationData.get(peerDialog).isSdpAnswerPending) {
+                          if (peerDat.isSdpAnswerPending &&
+                                peerDialog.getState() == DialogState.CONFIRMED) {
                             this.sendSdpAnswerInAck(response, dialog);
-                        } else {
-                            logger.debug("Not sending SdpAnswer");
-                        }
+                        } 
                     }
+                    
+                   
+                    
 
                     /*
                      * We directly send ACK.

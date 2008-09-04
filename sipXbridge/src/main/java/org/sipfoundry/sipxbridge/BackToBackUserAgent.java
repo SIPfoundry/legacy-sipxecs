@@ -824,6 +824,7 @@ public class BackToBackUserAgent {
 
             ViaHeader viaHeader = SipUtilities.createViaHeader(Gateway.getLanProvider(), Gateway
                     .getSipxProxyTransport());
+            viaHeader.setParameter(ORIGINATOR, SIPXBRIDGE);
 
             List<ViaHeader> viaList = new LinkedList<ViaHeader>();
 
@@ -901,6 +902,8 @@ public class BackToBackUserAgent {
             ct.setApplicationData(tad);
             serverTransaction.setApplicationData(tad);
             this.addDialog(ct.getDialog());
+            this.referingDialog = ct.getDialog();
+            this.referingDialogPeer = serverTransaction.getDialog();
 
             ct.sendRequest();
 
@@ -1264,7 +1267,10 @@ public class BackToBackUserAgent {
                  * This is a spiral. We are going to reuse the port in the incoming INVITE (we
                  * already own this port). Note here that we set the early media flag.
                  */
-                this.rtpBridge.pause(); // Pause to block inbound packets.
+               
+                if ( this.rtpBridge.getState() == BridgeState.RUNNING) {
+                    this.rtpBridge.pause(); // Pause to block inbound packets.
+                }
 
                 tad.operation = Operation.SPIRAL_BLIND_TRANSFER_INVITE_TO_ITSP;
                 RtpSession rtpSession = DialogApplicationData.getRtpSession(this.referingDialog);
@@ -1273,7 +1279,9 @@ public class BackToBackUserAgent {
                             Response.SESSION_NOT_ACCEPTABLE, incomingRequest);
                     errorResponse.setReasonPhrase("Could not RtpSession for refering dialog");
                     serverTransaction.sendResponse(errorResponse);
-                    this.rtpBridge.resume();
+                    if ( this.rtpBridge.getState() == BridgeState.PAUSED) {
+                        this.rtpBridge.resume();
+                    }
 
                     return;
                 }
@@ -1290,8 +1298,12 @@ public class BackToBackUserAgent {
                  * The RTP session now belongs to the ClientTransaction.
                  */
                 this.rtpBridge.addSym(rtpSession);
-
-                this.rtpBridge.resume(); /* Resume operation. */
+                
+                if ( this.rtpBridge.getState() == BridgeState.PAUSED ) {
+                    this.rtpBridge.resume(); /* Resume operation. */
+                } else if ( rtpBridge.getState() == BridgeState.INITIAL ) {
+                    this.rtpBridge.start();
+                }
 
             } else {
                 logger.fatal("Internal error -- case not covered");
@@ -1411,11 +1423,12 @@ public class BackToBackUserAgent {
               
                 SessionDescription sdes = rtpSession.getReceiver().getSessionDescription();
             
-                HashSet<Integer> codecs = null;
-                
+               
+                String selectedCodec = null;
                 
                  
                 if (replacedDialog.getState() != DialogState.CONFIRMED) {
+                    HashSet<Integer> codecs = null;
                     codecs = SipUtilities.getCommonCodec(sdes,sd);
                     
                     if ( codecs.size() == 0 ) {
@@ -1425,7 +1438,8 @@ public class BackToBackUserAgent {
                         return;
 
                     }
-                    SipUtilities.cleanSessionDescription(sdes, codecs);
+                    selectedCodec = RtpPayloadTypes.getPayloadType(codecs.iterator().next());
+                    SipUtilities.cleanSessionDescription(sdes, selectedCodec);
                 }
                 
                 
@@ -1462,11 +1476,11 @@ public class BackToBackUserAgent {
                     DialogApplicationData peerDat = DialogApplicationData.get(peerDialog);
                     RtpSession wanRtpSession = peerDat.getRtpSession();
                     SipProvider wanProvider = ((DialogExt) peerDialog).getSipProvider();
-                    ContactHeader contact = SipUtilities.createContactHeader(null, wanProvider,
-                            "udp");
+                    ContactHeader contact = SipUtilities.createContactHeader(wanProvider,
+                            peerDat.itspInfo);
                     wanRtpSession.getReceiver().setSessionDescription(sd);
 
-                    SipUtilities.cleanSessionDescription(sd, codecs);
+                    SipUtilities.cleanSessionDescription(sd, selectedCodec);
 
                     ServerTransaction peerSt = ((ServerTransaction) peerDat.transaction);
                     Response peerOk = ProtocolObjects.messageFactory.createResponse(Response.OK,

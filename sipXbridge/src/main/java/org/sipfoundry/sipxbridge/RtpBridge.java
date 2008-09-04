@@ -71,4 +71,8 @@ class RtpBridge  {
     public void stop() {
        bridge.stop();
     }
+    
+    public BridgeState getState() {
+        return this.bridge.getState();
+    }
 }

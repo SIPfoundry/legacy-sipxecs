@@ -215,7 +215,9 @@ final class Sym implements SymInterface, Serializable {
     }
     
     public void setInactivityTimeout( int inactivityTimeout ) {
-        this.inactivityTimeout = inactivityTimeout;
+        if ( inactivityTimeout > 0 ) {
+            this.inactivityTimeout = inactivityTimeout;
+        }
     }
     
     public boolean isTimedOut() {
