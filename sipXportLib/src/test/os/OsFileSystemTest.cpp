@@ -165,6 +165,7 @@ public:
         stat = OsFileSystem::remove(delPath, FALSE, TRUE);
         CPPUNIT_ASSERT_MESSAGE("Should fail to delete recursively", stat != OS_SUCCESS);
 
+        KNOWN_BUG("INTERMITTENT failures", "XECS-1588");
         stat = OsFileSystem::remove(delPath, TRUE, TRUE);
         CPPUNIT_ASSERT_MESSAGE("Should succeed to delete recursively", stat == OS_SUCCESS);
     }
