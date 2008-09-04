@@ -93,6 +93,9 @@ RPMs, install the sipX signing key:
 	wget --no-check-certificate https://secure2.pingtel.com/RPM-GPG-KEY-pingtel
 	sudo rpm --import RPM-GPG-KEY-pingtel
 
+Note that installing the sipX RPMs will set init to run sipX in
+runlevels 3 and 5 (normal operation states).
+
 * To load or update the Interop sipX configuration:
 
 Install the perl-XML-Parser RPM to provide XML/Parser.pm.

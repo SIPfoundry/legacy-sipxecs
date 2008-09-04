@@ -5,13 +5,15 @@
 # http://sipxecs.sipfoundry.org/rep/sipXecs/main/sipXcommserverLib/meta/setsipxpasswd
 SETSIPXPASSWD=setsipxpasswd
 
+# The user/group under which sipX runs.
+SIPX_USER=sipx
+SIPX_GROUP=sipx
+
 # The names of the destination directories.
 # These values are the defaults for RPM installation, but can be retargeted.
 # See http://www.sipfoundry.org/sipX/doc/filesystem.html.
 # Note that changing these values is not completely supported yet --
 # some of the installed files would need to be adjusted.
-SIPX_USER=sipx
-SIPX_GROUP=sipx
 SIPX_BINDIR=/usr/bin
 SIPX_CONFDIR=/etc/sipxpbx
 SIPX_DATADIR=/var/sipxdata
@@ -37,7 +39,15 @@ CONFIG_FILES_EDITED=$(subst .pre,,$(subst sipx_confdir,$(SIPX_CONFDIR),$(wildcar
 DOC_FILES_EDITED=$(subst .pre,,$(subst http_rootdir,$(HTTP_ROOTDIR),$(wildcard http_rootdir/*.pre)))
 SIPDB_FILES_EDITED=$(subst .pre,,$(subst sipx_dbdir,$(SIPX_DATADIR)/sipdb,$(wildcard sipx_dbdir/*.pre))) $(SIPX_DATADIR)/sipdb/credential.xml.in $(SIPX_DATADIR)/sipdb/permission.xml
 
-install: $(CONFIG_FILES) $(DOC_FILES) $(SIPDB_FILES) $(CONFIG_FILES_EDITED) $(DOC_FILES_EDITED) $(SIPDB_FILES_EDITED) $(SIPX_DATADIR)/sipdb/credential.xml $(HTTP_ROOTDIR)/config-version.html
+# A shared secret value (144 random bits in base 64), in case domain-config needs to be generated.
+SECRET=$(shell openssl rand -base64 48)$(shell openssl rand -base64 48)$(shell openssl rand -base64 48)
+
+install: $(CONFIG_FILES) $(DOC_FILES) $(SIPDB_FILES) \
+	$(CONFIG_FILES_EDITED) $(DOC_FILES_EDITED) $(SIPDB_FILES_EDITED) \
+	$(SIPX_DATADIR)/sipdb/credential.xml \
+	$(HTTP_ROOTDIR)/config-version.html \
+	$(SIPX_CONFDIR)/sipXproxy-config \
+	$(SIPX_CONFDIR)/registrar-config
 
 # Print the lists of files.
 debug:
@@ -100,6 +110,7 @@ $(CONFIG_FILES_EDITED) $(DOC_FILES_EDITED) $(SIPDB_FILES_EDITED): %: %.pre $(SIP
 			-e 's!@SIPX_RUNDIR@!$(SIPX_RUNDIR)!g' \
 			-e 's!@HTTP_ROOTDIR@!$(HTTP_ROOTDIR)!g' \
 			-e 's!@HTTP_MODULEDIR@!$(HTTP_MODULEDIR)!g' \
+			-e 's!@SECRET@!$(SECRET)!g' \
 		<$< >$@"
 	chmod a+r $@
 	[[ $@ != *.cgi ]] || chmod a+x $@
@@ -114,20 +125,23 @@ $(SIPX_DATADIR)/sipdb/credential.xml: $(SIPX_DATADIR)/sipdb/credential.xml.in $(
 # This rule runs the script credential.xml.in.pre.script to generate
 # credential.xml.in.pre.
 $(SIPX_DATADIR)/sipdb/credential.xml.in.pre: $(SIPX_DATADIR)/sipdb/credential.xml.in.pre.script
-	sh $(SIPX_DATADIR)/sipdb/credential.xml.in.pre.script \
-		>$(SIPX_DATADIR)/sipdb/credential.xml.in.pre
+	sh $< >$@
 
 # This rule runs the script permission.xml.pre.script to generate
 # permission.xml.pre.
 $(SIPX_DATADIR)/sipdb/permission.xml.pre: $(SIPX_DATADIR)/sipdb/permission.xml.pre.script
-	sh $(SIPX_DATADIR)/sipdb/permission.xml.pre.script \
-		>$(SIPX_DATADIR)/sipdb/permission.xml.pre
+	sh $< >$@
 
 # This rule runs the script resource-lists.xml.pre.script to generate
 # resource-lists.xml.pre.
 $(SIPX_CONFDIR)/resource-lists.xml.pre: $(SIPX_CONFDIR)/resource-lists.xml.pre.script
-	sh $(SIPX_CONFDIR)/resource-lists.xml.pre.script \
-		>$(SIPX_CONFDIR)/resource-lists.xml.pre
+	sh $< >$@
+
+# Do substitutions from config.defs for files that no longer have them done by the .sh scripts.
+$(SIPX_CONFDIR)/sipXproxy-config: $(SIPX_CONFDIR)/sipXproxy-config.in
+	configpp --defs $(SIPX_CONFDIR)/config.defs --in $< --out $@
+$(SIPX_CONFDIR)/registrar-config: $(SIPX_CONFDIR)/registrar-config.in
+	configpp --defs $(SIPX_CONFDIR)/config.defs --in $< --out $@
 
 # This rule edits config-version.html.in to generate config-version.html.
 $(HTTP_ROOTDIR)/config-version.html: $(HTTP_ROOTDIR)/config-version.html.in
