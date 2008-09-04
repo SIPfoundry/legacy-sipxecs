@@ -34,6 +34,7 @@
     lifecycle="request">
     <set name="model" value="bean:barePermissionTypeModel" />
     <set name="extraLabel" value="message:label.noPermission" />
+    <set name="extraOption" value="ognl:null" />
   </bean>
 
   <!--
