@@ -46,8 +46,9 @@ install: $(CONFIG_FILES) $(DOC_FILES) $(SIPDB_FILES) \
 	$(CONFIG_FILES_EDITED) $(DOC_FILES_EDITED) $(SIPDB_FILES_EDITED) \
 	$(SIPX_DATADIR)/sipdb/credential.xml \
 	$(HTTP_ROOTDIR)/config-version.html \
-	$(SIPX_CONFDIR)/sipXproxy-config \
-	$(SIPX_CONFDIR)/registrar-config
+	$(SIPX_CONFDIR)/nattraversalrules.xml \
+	$(SIPX_CONFDIR)/registrar-config \
+	$(SIPX_CONFDIR)/sipXproxy-config
 
 # Print the lists of files.
 debug:
