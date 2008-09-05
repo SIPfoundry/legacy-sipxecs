@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.device;
@@ -19,8 +19,8 @@ import org.sipfoundry.sipxconfig.admin.dialplan.InternalRule;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.service.ConfiguredService;
 import org.sipfoundry.sipxconfig.service.ServiceDescriptor;
-import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.sipfoundry.sipxconfig.service.ServiceManager;
+import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.sipfoundry.sipxconfig.service.UnmanagedService;
 
 /**
@@ -55,7 +55,7 @@ public class DeviceDefaults {
     private ServiceManager m_serviceManager;
 
     private String m_defaultNtpService = "pool.ntp.org";
-    
+
     private String m_logDirectory;
 
     private SipxServiceManager m_sipxServiceManager;
@@ -98,7 +98,7 @@ public class DeviceDefaults {
 
     /**
      * Find IP address (or FQDN) of the specific type of server.
-     * 
+     *
      * @param index 0-based index of the server (0 == Primary, 1 = Secondary, etc._
      * @param s service descriptor
      * @return null if service is not defineds
@@ -141,7 +141,7 @@ public class DeviceDefaults {
 
     /**
      * URL where phone profiles are delivered from apache web server.
-     * 
+     *
      * @return generated url if not set
      */
     public String getProfileRootUrl() {
@@ -179,20 +179,20 @@ public class DeviceDefaults {
 
         return m_dialPlanContext.getVoiceMail();
     }
-    
+
     private EmergencyInfo getLikelyEmergencyInfo() {
         if (m_dialPlanContext == null) {
             return null;
-        }        
-               
-        return m_dialPlanContext.getLikelyEmergencyInfo();        
+        }
+
+        return m_dialPlanContext.getLikelyEmergencyInfo();
     }
-    
+
     public String getEmergencyAddress() {
         EmergencyInfo info = getLikelyEmergencyInfo();
         return info == null ? null : info.getAddress();
     }
-    
+
     public Integer getEmergencyPort() {
         EmergencyInfo info = getLikelyEmergencyInfo();
         return info == null ? null : info.getPort();
@@ -234,7 +234,7 @@ public class DeviceDefaults {
     public SipxServer getSipxServer() {
         return m_sipxServer;
     }
-    
+
     public void setLogDirectory(String logDirectory) {
         m_logDirectory = logDirectory;
     }

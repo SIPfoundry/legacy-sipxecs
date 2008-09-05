@@ -1,20 +1,17 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.phone.polycom;
 
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
 
 import org.apache.commons.io.IOUtils;
-import org.custommonkey.xmlunit.Diff;
 import org.custommonkey.xmlunit.XMLTestCase;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.sipfoundry.sipxconfig.TestHelper;
@@ -33,6 +30,7 @@ public class PhoneConfigurationTest extends XMLTestCase {
     private MemoryProfileLocation m_location;
     private PhoneTestDriver m_testDriver;
 
+    @Override
     protected void setUp() throws Exception {
         XMLUnit.setIgnoreWhitespace(true);
         phone = new PolycomPhone();

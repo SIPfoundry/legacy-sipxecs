@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  */
 package org.sipfoundry.sipxconfig.service;
 
@@ -128,6 +128,7 @@ public class SipxRegistrarService extends SipxService {
     /**
      * Validates the data in this service and throws a UserException if there is a problem
      */
+    @Override
     public void validate() {
         SipxService presenceService = m_sipxServiceManager.getServiceByBeanId(SipxPresenceService.BEAN_ID);
         new ConflictingFeatureCodeValidator().validate(Arrays.asList(new Setting[] {
@@ -145,5 +146,9 @@ public class SipxRegistrarService extends SipxService {
     @Override
     public ProcessName getProcessName() {
         return PROCESS_NAME;
+    }
+
+    public String getDirectedCallPickupCode() {
+        return getSettingValue("call-pick-up/SIP_REDIRECT.180-PICKUP.DIRECTED_CALL_PICKUP_CODE");
     }
 }

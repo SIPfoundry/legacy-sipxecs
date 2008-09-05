@@ -27,6 +27,8 @@ import org.sipfoundry.sipxconfig.device.DeviceTimeZone;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookManager;
 import org.sipfoundry.sipxconfig.service.ServiceDescriptor;
 import org.sipfoundry.sipxconfig.service.ServiceManager;
+import org.sipfoundry.sipxconfig.service.SipxRegistrarService;
+import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.sipfoundry.sipxconfig.service.UnmanagedService;
 import org.sipfoundry.sipxconfig.setting.ModelFilesContextImpl;
 import org.sipfoundry.sipxconfig.setting.XmlModelBuilder;
@@ -36,9 +38,9 @@ public class PhoneTestDriver {
 
     public String serialNumber = "0004f200e06b";
 
-    private IMocksControl m_phoneContextControl;
+    private final IMocksControl m_phoneContextControl;
 
-    private PhoneContext m_phoneContext;
+    private final PhoneContext m_phoneContext;
 
     public Phone phone;
 
@@ -46,7 +48,7 @@ public class PhoneTestDriver {
 
     public IMocksControl sipControl;
 
-    private List<Line> m_lines = new ArrayList<Line>();
+    private final List<Line> m_lines = new ArrayList<Line>();
 
     public static PhoneTestDriver supplyTestData(Phone _phone) {
         return supplyTestData(_phone, true);
@@ -114,19 +116,32 @@ public class PhoneTestDriver {
         defaults.setAuthorizationRealm("realm.sipfoundry.org");
         defaults.setSipxServer(SipxServerTest.setUpSipxServer());
         defaults.setLogDirectory("/var/log/sipxpbx");
+
+        SipxRegistrarService registrarService = new SipxRegistrarService();
+        registrarService.setModelName("sipxregistrar.xml");
+        registrarService.setModelDir("sipxregistrar");
+        registrarService.setModelFilesContext(TestHelper.getModelFilesContext());
+
+        SipxServiceManager sipxServiceManager = EasyMock.createNiceMock(SipxServiceManager.class);
+        sipxServiceManager.getServiceByBeanId(SipxRegistrarService.BEAN_ID);
+        EasyMock.expectLastCall().andReturn(registrarService);
+        EasyMock.replay(sipxServiceManager);
+        defaults.setSipxServiceManager(sipxServiceManager);
+
         ServiceManager serviceManager = EasyMock.createNiceMock(ServiceManager.class);
         EasyMock.replay(serviceManager);
         defaults.setServiceManager(serviceManager);
 
         return defaults;
     }
-    
+
     public static void supplyVitalEmergencyData(Phone phone) {
-        DeviceDefaults defaults = phone.getPhoneContext().getPhoneDefaults();        
+        DeviceDefaults defaults = phone.getPhoneContext().getPhoneDefaults();
         IMocksControl dpControl = EasyMock.createNiceControl();
         DialPlanContext dpContext = dpControl.createMock(DialPlanContext.class);
         dpContext.getLikelyEmergencyInfo();
-        EmergencyInfo emergency = new EmergencyInfo("emergency.example.org", 8060, "sos") {};
+        EmergencyInfo emergency = new EmergencyInfo("emergency.example.org", 8060, "sos") {
+        };
         dpControl.andReturn(emergency).anyTimes();
         dpContext.getVoiceMail();
         dpControl.andReturn("101").anyTimes();
@@ -146,8 +161,8 @@ public class PhoneTestDriver {
         supplyVitalTestData(control, true, phoneContext, phone);
     }
 
-    public static void supplyVitalTestData(IMocksControl control,
-            boolean phonebookManagementEnabled, PhoneContext phoneContext, Phone phone) {
+    public static void supplyVitalTestData(IMocksControl control, boolean phonebookManagementEnabled,
+            PhoneContext phoneContext, Phone phone) {
         DeviceDefaults defaults = getDeviceDefaults();
 
         IMocksControl phonebookManagerControl = EasyMock.createNiceControl();

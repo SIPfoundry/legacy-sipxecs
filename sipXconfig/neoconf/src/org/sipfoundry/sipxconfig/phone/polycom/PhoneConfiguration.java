@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.phone.polycom;
@@ -26,13 +26,10 @@ public class PhoneConfiguration extends ProfileContext {
     private static final int TEMPLATE_DEFAULT_LINE_COUNT = 6;
 
     public PhoneConfiguration(Device device) {
-        super(device, getPhoneTemplate(device));
+        super(device, PHONE_TEMPLATE);
     }
 
-    public static String getPhoneTemplate(Device device) {
-        return String.format(PHONE_TEMPLATE);
-    }
-
+    @Override
     public Map<String, Object> getContext() {
         Map context = super.getContext();
         context.put("lines", getLines());

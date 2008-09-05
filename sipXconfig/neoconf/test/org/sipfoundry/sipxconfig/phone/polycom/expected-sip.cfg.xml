@@ -2008,7 +2008,7 @@
     call.singleKeyPressConference="0"
     call.localConferenceCallHold="0"
     call.disableAutoResumeCentralConference="0"
-    call.directedCallPickupString="*97"
+    call.directedCallPickupString="*78"
     call.stickyAutoLineSeize=""
     call.stickyAutoLineSeize.onHookDialing=""
     call.cellPhoneAutoBridging="disabled"

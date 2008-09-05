@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.phone;
@@ -40,13 +40,14 @@ public class PhoneTestDb extends SipxDatabaseTestCase {
 
     private ModelSource<PhoneModel> phoneModelSource;
 
+    @Override
     protected void setUp() throws Exception {
         ApplicationContext app = TestHelper.getApplicationContext();
         context = (PhoneContext) app.getBean(PhoneContext.CONTEXT_BEAN_NAME);
         settingDao = (SettingDao) app.getBean(SettingDao.CONTEXT_NAME);
         core = (CoreContext) app.getBean(CoreContext.CONTEXT_BEAN_NAME);
         phoneModelSource = (ModelSource<PhoneModel>) app.getBean("nakedPhoneModelSource");
-        
+
         TestHelper.cleanInsert("ClearDb.xml");
     }
 
@@ -225,7 +226,6 @@ public class PhoneTestDb extends SipxDatabaseTestCase {
         Phone phone = context.loadPhone(1000);
         assertSame(PolycomModel.VER_2_0, phone.getDeviceVersion());
 
-        phone.setDeviceVersion(PolycomModel.VER_1_6);
         context.storePhone(phone);
 
         // assert db update expected
