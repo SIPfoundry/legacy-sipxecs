@@ -36,7 +36,7 @@
     </group>
   </group>
   <group name="up">
-    <setting name="analogHeadsetOption" unless="1.6">
+    <setting name="analogHeadsetOption">
         <type>
             <boolean />
         </type>
@@ -48,7 +48,7 @@
       </type>
       <value>0</value>
     </setting>
-    <setting name="handsfreeMode" unless="1.6">
+    <setting name="handsfreeMode">
         <type>
             <boolean />
         </type>
@@ -84,7 +84,7 @@
       </type>
       <value>1</value>
     </setting>
-    <setting name="idleTimeout" unless="1.6">
+    <setting name="idleTimeout">
       <type>
         <integer min="0" max="65536" />
       </type>
@@ -234,7 +234,7 @@
     </group>
   </group>
   <group name="voice">
-    <setting name="txPacketFilter" unless="1.6">
+    <setting name="txPacketFilter">
       <type>
         <boolean />
       </type>
@@ -489,7 +489,7 @@
       </setting>
     </group>
   </group>
-   <group name="qualityMonitoring" unless="1.6">
+   <group name="qualityMonitoring">
     <group name="collector">
       <setting name="enable.periodic">
         <type><boolean /></type>
@@ -773,7 +773,7 @@
       <value />
     </setting>
   </group>
-  <group name="tcpIpApp.keepalive.tcp" unless="1.6">
+  <group name="tcpIpApp.keepalive.tcp">
     <setting name="idleTransmitInterval">
       <type>
         <integer min="10" max="7200" />
@@ -883,29 +883,35 @@
       </type>
       <value>24</value>
     </setting>
-    <setting name="dialtoneTimeout" unless="1.6">
+    <setting name="dialtoneTimeout">
       <type>
         <integer min="0" max="65536" />
       </type>
       <value>60</value>
     </setting>
-    <setting name="transfer.blindPreferred" unless="1.6">
+    <setting name="transfer.blindPreferred">
       <type>
         <boolean />
       </type>
       <value />
     </setting>
-    <setting name="singleKeyPressConference" unless="1.6">
+    <setting name="singleKeyPressConference">
       <type><boolean /></type>
       <value>0</value>
     </setting>
-    <setting name="localConferenceCallHold" unless="1.6">
+    <setting name="localConferenceCallHold">
       <type><boolean /></type>
       <value>0</value>
     </setting>
-    <setting name="disableAutoResumeCentralConference" unless="1.6">
+    <setting name="disableAutoResumeCentralConference">
         <type><boolean /></type>
         <value>0</value>
+    </setting>
+    <setting name="directedCallPickupString">
+      <type>
+        <string />
+      </type>
+      <value />
     </setting>
     <group name="shared">
       <setting name="disableDivert">
@@ -926,7 +932,7 @@
         </type>
         <value>0</value>
       </setting>
-      <setting name="exposeAutoHolds" unless="1.6">
+      <setting name="exposeAutoHolds">
         <type>
           <boolean />
         </type>
@@ -955,7 +961,7 @@
     </setting>
   </group>
   <group name="directory">
-    <setting name="dir.local.readonly" unless="1.6">
+    <setting name="dir.local.readonly">
       <type>
         <boolean />
       </type>
@@ -989,7 +995,7 @@
         <value>50</value>
       </setting>
     </group>
-    <group name="8mb" unless="1.6">
+    <group name="8mb">
       <setting name="dir.local.volatile.8meg">
         <type>
           <boolean />
@@ -1012,7 +1018,7 @@
       </setting>
     </group>
   </group>
-  <group name="presence" unless="1.6">
+  <group name="presence">
     <setting name="pres.reg">
       <type>
         <string />
@@ -1087,8 +1093,8 @@
       <setting name="ib" copy-of="so" />
       <setting name="sotet" copy-of="so" />
       <setting name="ttrs" copy-of="so" />
-      <setting name="usb" copy-of="so" unless="1.6" />
-      <setting name="srtp" copy-of="so" unless="1.6" />
+      <setting name="usb" copy-of="so" />
+      <setting name="srtp" copy-of="so" />
     </group>
     <group name="render">
       <setting name="level">
@@ -1229,7 +1235,7 @@
     </group>
   </group>
   <group name="license">
-    <setting name="polling.time" unless="1.6">
+    <setting name="polling.time">
       <type>
         <string>
           <pattern>\d{2}:\d{2}</pattern>
@@ -1311,12 +1317,6 @@
       </type>
       <value>1</value>
     </setting>
-    <setting name="cpt-settings" if="1.6">
-      <type>
-        <boolean />
-      </type>
-      <value>0</value>
-    </setting>
     <setting name="call-park">
       <type>
         <boolean />
@@ -1347,26 +1347,25 @@
       </type>
       <value>0</value>
     </setting>
-    <!-- should be feature number 15 (16 in 1.6.5 firmware oddly enough) -->
     <setting name="acd-agent-availability">
       <type>
         <boolean />
       </type>
       <value>0</value>
     </setting>
-    <setting name="nway-conference" unless="1.6">
+    <setting name="nway-conference" advanced="yes">
       <type>
         <boolean />
       </type>
-      <value>0</value>
+      <value>1</value>
     </setting>
-    <setting name="call-recording" unless="1.6">
+    <setting name="call-recording" advanced="yes">
       <type>
         <boolean />
       </type>
-      <value>0</value>
+      <value>1</value>
     </setting>
-    <setting name="corporate-directory" unless="1.6">
+    <setting name="corporate-directory">
       <type>
         <boolean />
       </type>
@@ -1402,13 +1401,13 @@
         </type>
         <value />
       </setting>
-      <setting name="idleTimeout" unless="1.6">
+      <setting name="idleTimeout">
         <type>
           <integer min="0" max="10" />
         </type>
         <value />
       </setting>
-      <setting name="statusbar" unless="1.6">
+      <setting name="statusbar">
         <type>
           <boolean />
         </type>
@@ -1454,13 +1453,13 @@
   </group>
   <group name="voIpProt.SIP">
     <group name="serverFeatureControl">
-      <setting name="cf" unless="1.6">
+      <setting name="cf">
         <type>
           <boolean />
         </type>
         <value>0</value>
       </setting>
-      <setting name="dnd" unless="1.6">
+      <setting name="dnd">
         <type>
           <boolean />
         </type>
@@ -1476,7 +1475,7 @@
       </setting>
     </group>
     <group name="protocol">
-      <setting name="csta" unless="1.6">
+      <setting name="csta">
         <type><boolean/></type>
         <value>0</value>
       </setting>
@@ -1492,7 +1491,7 @@
         </type>
         <value>0</value>
       </setting>
-      <setting name="useSendonlyHold" unless="1.6">
+      <setting name="useSendonlyHold">
         <type>
           <boolean />
         </type>
@@ -1504,14 +1503,7 @@
         </type>
         <value>0</value>
       </setting>
-      <!-- This is obsolete in 2.0 -->
-      <setting name="WM50" if="1.6">
-        <type>
-          <boolean />
-        </type>
-        <value>0</value>
-      </setting>
-      <setting name="ms-forking" unless="1.6">
+      <setting name="ms-forking">
         <type>
           <boolean />
         </type>
@@ -1534,6 +1526,12 @@
         </type>
         <value>1</value>
       </setting>
+      <setting name="musicOnHold.uri">
+      <type>
+         <string />
+       </type>
+       <value />
+    </setting>
     </group>
     <group name="alertInfo">
       <group name="1">
@@ -1618,7 +1616,7 @@
         <value />
       </setting>
     </group>
-    <group name="dialog" unless="1.6">
+    <group name="dialog">
       <setting name="useSDP" advanced="yes">
         <type>
           <boolean />
@@ -1667,10 +1665,6 @@
       </type>
       <value />
     </setting>
-    <setting name="maxIpAddress" if="1.6">
-      <type />
-      <value />
-    </setting>
   </group>
   <!-- SIMILIAR SECTION EXISTS IN line.xml to control dialplans per line -->
   <group name="dialplan">
@@ -1701,9 +1695,7 @@
         <!--string compatible with the digit map feature of MGCP described in 2.1.5 of RFC 3435. String
           is limited to 512 bytes and 20 segments; a comma is also allowed; when reached in the digit map, a comma will
           turn dial tone back on.-->
-        <value>
-          [2-9]11|0T|100|101|011xxx.T|9011xxx.T|1[2-9]xxxxxxxxx|91[2-9]xxxxxxxxx|9[2-9]xxxxxx|*xx|[8]xxx|[2-7]xx
-        </value>
+        <value />
       </setting>
       <setting name="digitmap.timeOut">
         <type>
@@ -1829,13 +1821,13 @@
       </type>
       <value />
     </setting>
-    <setting name="keepalive.interval" unless="1.6" advanced="yes">
+    <setting name="keepalive.interval" advanced="yes">
       <type>
         <integer min="0" max="3600" />
       </type>
     </setting>
   </group>
-  <group name="attendant" unless="1.6">
+  <group name="attendant">
     <setting name="uri">
       <type>
         <string />
@@ -1847,13 +1839,13 @@
       <value />
     </setting>
   </group>
-  <group name="roaming_buddies" unless="1.6">
+  <group name="roaming_buddies">
     <setting name="reg">
       <type refid="reg-server-index" />
       <value />
     </setting>
   </group>
-  <group name="roaming_privacy" unless="1.6">
+  <group name="roaming_privacy">
     <setting name="reg">
       <type refid="reg-server-index" />
       <value />

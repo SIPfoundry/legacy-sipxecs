@@ -22,7 +22,7 @@ import org.sipfoundry.sipxconfig.setting.SettingUtil;
  * Responsible for generating ipmid.cfg
  */
 public class SipConfiguration extends ProfileContext {
-    private static final String SIP_TEMPLATE = PolycomPhone.TEMPLATE_DIR + "/sip-%s.cfg.vm";
+    private static final String SIP_TEMPLATE = PolycomPhone.TEMPLATE_DIR + "/sip.cfg.vm";
     private static PatternSettingFilter s_callSettings = new PatternSettingFilter();
 
     static {
@@ -36,7 +36,7 @@ public class SipConfiguration extends ProfileContext {
     }
 
     public static String getSipTemplate(PolycomPhone device) {
-        return String.format(SIP_TEMPLATE, device.getDeviceVersion().getVersionId());
+        return String.format(SIP_TEMPLATE);
     }
 
     @Override

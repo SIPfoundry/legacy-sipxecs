@@ -7,6 +7,7 @@
     <property name="domainManager" ref="domainManager" />
     <property name="sipxServer" ref="sipxServer" />
     <property name="serviceManager" ref="serviceManager" />
+    <property name="sipxServiceManager" ref="sipxServiceManager" />
     <property name="logDirectory" value="${sysdir.log}"></property>
   </bean>
 

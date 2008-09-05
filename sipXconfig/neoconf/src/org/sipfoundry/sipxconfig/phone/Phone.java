@@ -46,6 +46,8 @@ public abstract class Phone extends Device {
 
     private PhoneModel m_model;
 
+    private String m_profileDir;
+
     protected Phone() {
     }
 
@@ -219,4 +221,13 @@ public abstract class Phone extends Device {
     public void setPhonebookManager(PhonebookManager phonebookManager) {
         m_phonebookManager = phonebookManager;
     }
+
+    public String getProfileDir() {
+        return m_profileDir;
+    }
+
+    public void setProfileDir(String profileDir) {
+        m_profileDir = profileDir;
+    }
+
 }

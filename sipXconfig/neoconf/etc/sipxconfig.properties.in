@@ -36,7 +36,6 @@ locationsMigrationTrigger.hostname=${MY_FULL_HOSTNAME}
 phoneDefaults.tftpServer=${CONFIG_SERVER_ADDR}
 phoneDefaults.authorizationRealm=${SIPXCHANGE_REALM}
 phoneDefaults.fullyQualifiedDomainName=${MY_FULL_HOSTNAME}
-polycom.defaultVersionId=1.6
 # imdb/sipdb location for https access
 registrationContext.hostname=${MY_FULL_HOSTNAME}
 domainManagerImpl.authorizationRealm=${SIPXCHANGE_REALM}

@@ -49,12 +49,6 @@ public class SipConfigurationTest extends XMLTestCase {
         m_pg = pg;
     }
 
-    public void testGenerateProfile16() throws Exception {
-        phone.setDeviceVersion(PolycomModel.VER_1_6);
-        phone.beforeProfileGeneration();
-        assertProfileEquals("expected-sip.cfg.xml");
-    }
-
     public void testGenerateProfile20() throws Exception {
         initSettings();
         phone.setDeviceVersion(PolycomModel.VER_2_0);
@@ -64,7 +58,7 @@ public class SipConfigurationTest extends XMLTestCase {
 
         m_pg.generate(m_location, cfg, null, "profile");
 
-        InputStream expected = getClass().getResourceAsStream("expected-sip-3.0.0.cfg.xml");
+        InputStream expected = getClass().getResourceAsStream("expected-sip.cfg.xml");
 
         assertEquals(IOUtils.toString(expected), m_location.toString());
         expected.close();

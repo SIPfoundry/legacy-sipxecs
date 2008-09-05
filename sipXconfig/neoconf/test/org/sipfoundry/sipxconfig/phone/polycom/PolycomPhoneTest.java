@@ -50,8 +50,10 @@ public class PolycomPhoneTest extends TestCase {
         m_phone.setProfileGenerator(profileGenerator);
     }
 
+    // Firmware version 1.6 is no longer supported. For firmware version 2.0 and beyound,
+    // as the formats are compatible, thus version selection is no longer needed at this point.
     public void testVersionArray() {
-        assertSame(new PolycomModel().getVersions()[0], PolycomModel.VER_1_6);
+       // assertSame(new PolycomModel().getVersions()[0], PolycomModel.VER_1_6);
     }
 
     /**

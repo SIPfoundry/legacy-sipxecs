@@ -46,23 +46,6 @@ public class PhoneConfigurationTest extends XMLTestCase {
         m_pg = pg;
     }
 
-    public void testGenerateProfileVersion16() throws Exception {
-        phone.setDeviceVersion(PolycomModel.VER_1_6);
-        m_testDriver.getPrimaryLine().setSettingValue("reg/label", "Joe & Joe");
-        phone.beforeProfileGeneration();
-
-        PhoneConfiguration cfg = new PhoneConfiguration(phone);
-        m_pg.generate(m_location, cfg, null, "profile");
-
-        InputStream expectedPhoneStream = getClass().getResourceAsStream("expected-phone.cfg.xml");
-        Reader expectedXml = new InputStreamReader(expectedPhoneStream);
-        Reader generatedXml = m_location.getReader();
-
-        Diff phoneDiff = new Diff(expectedXml, generatedXml);
-        assertXMLEqual(phoneDiff, true);
-        expectedPhoneStream.close();
-    }
-
     /**
      * Test 2.x profile generation. It's slightly different since we are comparing generated XML
      * line by line. XML comparison is good enough but it's harder to see what parameters are
@@ -76,7 +59,7 @@ public class PhoneConfigurationTest extends XMLTestCase {
 
         m_pg.generate(m_location, cfg, null, "profile");
 
-        InputStream expectedPhoneStream = getClass().getResourceAsStream("expected-phone-3.0.0.cfg.xml");
+        InputStream expectedPhoneStream = getClass().getResourceAsStream("expected-phone.cfg.xml");
         assertEquals(IOUtils.toString(expectedPhoneStream), m_location.toString());
         expectedPhoneStream.close();
     }

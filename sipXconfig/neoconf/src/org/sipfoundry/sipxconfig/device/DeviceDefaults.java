@@ -19,6 +19,7 @@ import org.sipfoundry.sipxconfig.admin.dialplan.InternalRule;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.service.ConfiguredService;
 import org.sipfoundry.sipxconfig.service.ServiceDescriptor;
+import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.sipfoundry.sipxconfig.service.ServiceManager;
 import org.sipfoundry.sipxconfig.service.UnmanagedService;
 
@@ -57,12 +58,22 @@ public class DeviceDefaults {
     
     private String m_logDirectory;
 
+    private SipxServiceManager m_sipxServiceManager;
+
     public void setDefaultNtpService(String defaultNtpService) {
         m_defaultNtpService = defaultNtpService;
     }
 
     public void setServiceManager(ServiceManager serviceManager) {
         m_serviceManager = serviceManager;
+    }
+
+    public void setSipxServiceManager(SipxServiceManager sipxServiceManager) {
+        m_sipxServiceManager = sipxServiceManager;
+    }
+
+    public SipxServiceManager getSipxServiceManager() {
+        return m_sipxServiceManager;
     }
 
     public void setDialPlanContext(DialPlanContext dialPlanContext) {

@@ -2,7 +2,12 @@
 <!-- Default SIP Configuration File-->
 <!-- Revision: 1.12  Date: 2003/06/17 15:26:10  -->
 <APPLICATION APP_FILE_PATH="${cfg.SipBinaryFilename}"
-    CONFIG_FILES="${cfg.SipFilename}, ${cfg.PhoneFilename}" 
+    #if(${cfg.LicenseFilename})
+       CONFIG_FILES="${cfg.LicenseFilename}, ${cfg.SipFilename}, ${cfg.PhoneFilename}"
+    #else
+       CONFIG_FILES="${cfg.SipFilename}, ${cfg.PhoneFilename}"
+    #end
+
     MISC_FILES="" LOG_FILE_DIRECTORY="">
 
   <APPLICATION_SPIP300 APP_FILE_PATH_SPIP300="sip_212.ld" CONFIG_FILES_SPIP300="${cfg.SipFilename}, ${cfg.PhoneFilename}"/>

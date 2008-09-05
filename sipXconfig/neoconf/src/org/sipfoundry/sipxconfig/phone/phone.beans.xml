@@ -80,6 +80,9 @@
     <property name="phonebookManager" ref="phonebookManager" />
     <property name="profileGenerator" ref="velocityProfileGenerator" />
     <property name="sipService" ref="sip" />
+    <property name="profileDir">
+      <value>${sysdir.phone}/profile/tftproot</value>
+    </property>
   </bean>
 
   <bean id="abstractPhoneModel" abstract="true" class="org.sipfoundry.sipxconfig.phone.PhoneModel">

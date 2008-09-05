@@ -22,7 +22,7 @@ import org.sipfoundry.sipxconfig.setting.SettingEntry;
  * For now x = 1, always, because we only provide a single ring configuration.
  * 
  * Similarly there can be many ring classes. We rely on the default ring classes defined in
- * sip-1.6.cfg.vm and sip-2.0.cfg.vm rather than creating new ones.
+ * sip-2.0.cfg.vm rather than creating new ones.
  * 
  * See sections 4.6.1.1.3.2 "Alert Information <alertInfo/>" and 4.6.1.7.2 "Ring type <ringType/>"
  * in the Polycom admin manual.

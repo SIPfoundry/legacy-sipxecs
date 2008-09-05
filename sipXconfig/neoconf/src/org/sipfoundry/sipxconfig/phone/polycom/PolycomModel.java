@@ -17,19 +17,12 @@ import org.sipfoundry.sipxconfig.phone.PhoneModel;
  */
 public final class PolycomModel extends PhoneModel {
     
-    /** Firmware 1.6 */
-    public static final DeviceVersion VER_1_6 = new DeviceVersion(PolycomPhone.BEAN_ID, "1.6");
-
-    /** Firmware 2.0 */
+    /** Firmware 2.0 or beyond */
     public static final DeviceVersion VER_2_0 = new DeviceVersion(PolycomPhone.BEAN_ID, "2.0");
 
     
     public PolycomModel() {
         super(PolycomPhone.BEAN_ID);
-        setVersions(new DeviceVersion[] { 
-            VER_1_6, 
-            VER_2_0
-        });
         setEmergencyConfigurable(true);
     }    
 }

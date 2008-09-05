@@ -158,7 +158,6 @@
     nat.${setting.ProfileName}="$!{setting.Value}"
 #end
   />
-#if($phone.DeviceVersion.VersionId != '1.6')
   <attendant
 #set ($group = $cfg.EndpointSettings.getSetting('attendant'))
 #foreach ($setting in $cfg.getSettings($group))
@@ -177,7 +176,6 @@
     roaming_privacy.${setting.ProfileName}="$!{setting.Value}"
 #end
   />
-#end
 #set ($group = $cfg.EndpointSettings.getSetting('up'))
   <user_preferences
     up.analogHeadsetOption="$!group.getSetting('analogHeadsetOption').value"

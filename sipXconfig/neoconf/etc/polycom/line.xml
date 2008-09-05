@@ -26,12 +26,12 @@
       <type />
       <value>private</value>
     </setting>
-    <setting name="lcs" unless="1.6" hidden="yes"></setting>
-    <setting name="bargeInEnabled" unless="1.6">
+    <setting name="lcs" hidden="yes"></setting>
+    <setting name="bargeInEnabled">
       <type><boolean /></type>
       <value>0</value>
     </setting>
-    <setting name="csta" unless="1.6">
+    <setting name="csta">
       <type>
         <enum>
           <option>
@@ -66,7 +66,7 @@
       </type>
       <value />
     </setting>
-    <setting name="auth.optimizedInFailover" hidden="yes" unless="1.6"></setting>
+    <setting name="auth.optimizedInFailover" hidden="yes"></setting>
     <setting name="ringType">
       <type>
         <integer min="1" max="22" />
@@ -85,36 +85,42 @@
       </type>
       <value />
     </setting>
-    <setting name="lcs" unless="1.6">
+    <setting name="lcs">
       <type>
         <string />
       </type>
     </setting>
-    <setting name="outboundProxy.address" unless="1.6">
+    <setting name="outboundProxy.address">
       <type>
         <string />
       </type>
       <value />
     </setting>
-    <setting name="outboundProxy.port" unless="1.6">
+    <setting name="outboundProxy.port">
       <type>
         <integer min="0" max="65535" />
       </type>
       <value />
     </setting>
-    <setting name="outboundProxy.transport" unless="1.6">
+    <setting name="outboundProxy.transport">
       <type refid="transport" />
       <value>DNSnaptr</value>
     </setting>
-    <setting name="serverFeatureControl.cf" unless="1.6">
+    <setting name="serverFeatureControl.cf">
       <type>
         <boolean />
       </type>
     </setting>
-    <setting name="serverFeatureControl.dnd" unless="1.6">
+    <setting name="serverFeatureControl.dnd">
       <type>
         <boolean />
       </type>
+    </setting>
+    <setting name="musicOnHold.uri">
+      <type>
+        <string />
+      </type>
+      <value />
     </setting>
     <group name="server">
       <group name="1">
@@ -140,7 +146,7 @@
           <type />
           <value />
         </setting>
-        <setting name="expires.overlap" unless="1.6">
+        <setting name="expires.overlap">
           <profileName>server.1.expires.overlap</profileName>
           <type>
             <integer min="5" max="65535" />
@@ -173,7 +179,7 @@
           </type>
           <value />
         </setting>
-        <setting name="lcs" unless="1.6" hidden="yes">
+        <setting name="lcs" hidden="yes">
           <profileName>server.1.lcs</profileName>
         </setting>
       </group>
@@ -204,7 +210,7 @@
           </type>
           <value />
         </setting>
-        <setting name="expires.overlap" unless="1.6">
+        <setting name="expires.overlap">
           <profileName>server.2.expires.overlap</profileName>
           <type>
             <integer min="5" max="65535" />
@@ -231,7 +237,7 @@
           <type />
           <value />
         </setting>
-        <setting name="lcs" unless="1.6" hidden="yes">
+        <setting name="lcs" hidden="yes">
           <profileName>server.2.lcs</profileName>
         </setting>
       </group>

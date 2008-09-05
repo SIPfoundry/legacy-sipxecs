@@ -12,6 +12,8 @@ package org.sipfoundry.sipxconfig.phone.polycom;
 import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
 import org.sipfoundry.sipxconfig.device.DeviceTimeZone;
+import org.sipfoundry.sipxconfig.service.SipxRegistrarService;
+import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingEntry;
 import org.sipfoundry.sipxconfig.speeddial.SpeedDial;
 
@@ -148,10 +150,19 @@ public class PolycomPhoneDefaults {
         return isDstEnabled() ? getZone().getStopTime() / 3600 : 0;
     }
 
+    @SettingEntry(paths = {"voIpProt.SIP/protocol/musicOnHold.uri", "voIpProt/reg/musicOnHold.uri" })
+    public String getMohUrl() {
+        String mohUri = m_defaults.getSipxServer().getMusicOnHoldUri(
+                    m_defaults.getDomainName());
+        return SipUri.stripSipPrefix(mohUri);
+
+    }
+
     @SettingEntry(path = "voIpProt/server/1/address")
     public String getRegistrationServer() {
         return m_defaults.getDomainName();
     }
+
 
     @SettingEntry(path = "attendant/uri")
     public String getAttendantUri() {
@@ -169,4 +180,14 @@ public class PolycomPhoneDefaults {
         }
         return null;
     }
+
+    @SettingEntry(path = "call/directedCallPickupString")
+    public String getDirectedCallPickupString() {
+        SipxRegistrarService registrarService =
+           (SipxRegistrarService) m_defaults.getSipxServiceManager().getServiceByBeanId(SipxRegistrarService.BEAN_ID);
+
+        Setting registrarSettings = registrarService.getSettings();
+        return registrarSettings.getSetting("call-pick-up/SIP_REDIRECT.180-PICKUP.DIRECTED_CALL_PICKUP_CODE").getValue();
+    }
+
 }

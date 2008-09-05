@@ -478,11 +478,6 @@
     <property name="polycom-to-id" value="2.0" />
     <antcall target="migrate-polycom" />
   </target>
-  <target name="polycom-1.6" description="Migrate all polycom phones to generate 1.6 profiles">
-    <property name="polycom-from-id" value="2.0" />
-    <property name="polycom-to-id" value="1.6" />
-    <antcall target="migrate-polycom" />
-  </target>
   <target name="migrate-polycom">
     <sipx-sql>
       update phone set device_version_id = 'polycom${polycom-to-id}'
