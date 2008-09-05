@@ -3,7 +3,6 @@ include $(top_srcdir)/config/subdir.am
 SIPX_PROCESS_DEFS = sipstatus
 
 ETC_FILES = \
-    status-config.in \
     status-plugin.xml.in
 
 EXTRA_DIST = \
