@@ -45,8 +45,4 @@ public class SipxServerTest extends TestCase {
         server.setMohUser("~~mh~");
         return server;
     }
-
-    public void testGetPagingLogLevel() {
-        assertEquals("NOTICE", m_server.getPagingLogLevel());
-    }
 }

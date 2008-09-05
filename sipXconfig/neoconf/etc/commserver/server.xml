@@ -66,18 +66,8 @@
     </setting>
   </group>
   <group name="Logging">
-    <setting name="SIP_STATUS_LOG_LEVEL">
-      <profileName>status-config.in</profileName>
-      <type refid="loglevel" />
-      <value>NOTICE</value>
-    </setting>
     <setting name="SIP_CALLRESOLVER_LOG_LEVEL">
       <profileName>callresolver-config.in</profileName>
-      <type refid="loglevel" />
-      <value>NOTICE</value>
-    </setting>
-    <setting name="log.level">
-      <profileName>sipxpage.properties.in</profileName>
       <type refid="loglevel" />
       <value>NOTICE</value>
     </setting>

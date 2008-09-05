@@ -161,6 +161,21 @@
     <property name="name" value="sipxivr.properties" />
   </bean>
   
+  <bean id="sipxStatusService" class="org.sipfoundry.sipxconfig.service.SipxStatusService"
+    scope="prototype" parent="sipxService">
+    <property name="beanId" value="sipxStatusService"/>
+    <property name="modelName" value="sipxstatus.xml" />
+    <property name="modelDir" value="sipxstatus" />
+    <property name="configuration" ref="sipxStatusConfiguration" />
+  </bean>
+  
+  <bean id="sipxStatusConfiguration" class="org.sipfoundry.sipxconfig.service.SipxStatusConfiguration" 
+    scope="prototype" parent="defaultConfigurationFile">
+    <property name="velocityEngine" ref="velocityEngine" />
+    <property name="template" value="sipxstatus/status-config.vm" />
+    <property name="name" value="status-config"/>
+  </bean>
+  
   <bean id="sipxRlsService" class="org.sipfoundry.sipxconfig.service.SipxRlsService"
     scope="prototype" parent="sipxService">
     <property name="beanId" value="sipxRlsService"/>
@@ -179,11 +194,6 @@
   <bean id="sipxMediaService" class="org.sipfoundry.sipxconfig.service.SipxMediaService"
     scope="prototype" parent="sipxService">
     <property name="beanId" value="sipxMediaService"/>
-  </bean>
-  
-  <bean id="sipxStatusService" class="org.sipfoundry.sipxconfig.service.SipxStatusService"
-    scope="prototype" parent="sipxService">
-    <property name="beanId" value="sipxStatusService"/>
   </bean>
   
   <bean id="sipxCallResolverService" class="org.sipfoundry.sipxconfig.service.SipxCallResolverService"

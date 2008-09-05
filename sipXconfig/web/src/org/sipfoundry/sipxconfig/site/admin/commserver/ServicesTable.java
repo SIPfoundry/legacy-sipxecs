@@ -45,6 +45,7 @@ import org.sipfoundry.sipxconfig.site.service.EditPresenceService;
 import org.sipfoundry.sipxconfig.site.service.EditProxyService;
 import org.sipfoundry.sipxconfig.site.service.EditRegistrarService;
 import org.sipfoundry.sipxconfig.site.service.EditResourceListService;
+import org.sipfoundry.sipxconfig.site.service.EditStatusService;
 
 public abstract class ServicesTable extends BaseComponent {
 
@@ -55,6 +56,7 @@ public abstract class ServicesTable extends BaseComponent {
         SERVICE_MAP.put("ParkServer", EditParkService.PAGE);
         SERVICE_MAP.put("PresenceServer", EditPresenceService.PAGE);
         SERVICE_MAP.put("ResourceListServer", EditResourceListService.PAGE);
+        SERVICE_MAP.put("SIPStatus", EditStatusService.PAGE);
     }
 
     @InjectObject(value = "service:tapestry.ognl.ExpressionEvaluator")
