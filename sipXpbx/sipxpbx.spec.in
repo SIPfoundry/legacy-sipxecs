@@ -129,8 +129,6 @@ rm -rf $RPM_BUILD_ROOT
 %attr(644,root,root) %{_datadir}/sipxecs/process.d/sipxpresence-process.xml
 %attr(644,root,root) %{_datadir}/sipxecs/process.d/sipxrls-process.xml
 
-%dir %attr(775,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx/setup.d
-
 # The configuration directory needs to be writeable because
 # config files are generated from templates via config.defs
 %config(noreplace) %attr(644,root,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx/voicemail.xml.in

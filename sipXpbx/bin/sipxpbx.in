@@ -281,8 +281,7 @@ module_setup () {
 
     ## sorting alphabetically to provide a reliable order,
     ## no sophisticated dependency order is required at this time
-    ## (This form of ls gives no error if setup.d contains no files.)
-    for f in `ls -1 @SIPX_CONFDIR@/setup.d | sort`
+    for f in `ls -1 @SIPX_CONFDIR@/setup.d 2>/dev/null | sort`
     do
         $f
     done
