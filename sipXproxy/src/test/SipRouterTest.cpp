@@ -126,7 +126,8 @@ public:
          mUserAgent->allowExtension("100rel");
          mUserAgent->allowExtension("replaces");
          SipMessage testMsg(message, strlen(message));
-         CPPUNIT_ASSERT(mSipRouter->proxyMessage(testMsg));
+         SipMessage testRsp;
+         CPPUNIT_ASSERT_EQUAL(SipRouter::SendRequest, mSipRouter->proxyMessage(testMsg, testRsp));
       }
 
    void testUnsupportedOptionAlone()
@@ -146,7 +147,8 @@ public:
          mUserAgent->allowExtension("100rel");
          mUserAgent->allowExtension("replaces");
          SipMessage testMsg(message, strlen(message));
-         CPPUNIT_ASSERT(!mSipRouter->proxyMessage(testMsg));
+         SipMessage testRsp;
+         CPPUNIT_ASSERT_EQUAL(SipRouter::SendResponse,mSipRouter->proxyMessage(testMsg, testRsp));
       }
 
    void testUnsupportedOptionFirst()
@@ -166,7 +168,8 @@ public:
          mUserAgent->allowExtension("100rel");
          mUserAgent->allowExtension("replaces");
          SipMessage testMsg(message, strlen(message));
-         CPPUNIT_ASSERT(!mSipRouter->proxyMessage(testMsg));
+         SipMessage testRsp;
+         CPPUNIT_ASSERT_EQUAL(SipRouter::SendResponse,mSipRouter->proxyMessage(testMsg, testRsp));
       }
 
    void testUnsupportedOptionMiddle()
@@ -186,7 +189,8 @@ public:
          mUserAgent->allowExtension("100rel");
          mUserAgent->allowExtension("replaces");
          SipMessage testMsg(message, strlen(message));
-         CPPUNIT_ASSERT(!mSipRouter->proxyMessage(testMsg));
+         SipMessage testRsp;
+         CPPUNIT_ASSERT_EQUAL(SipRouter::SendResponse,mSipRouter->proxyMessage(testMsg, testRsp));
       }
 
    void testUnsupportedOptionLast()
@@ -206,7 +210,8 @@ public:
          mUserAgent->allowExtension("100rel");
          mUserAgent->allowExtension("replaces");
          SipMessage testMsg(message, strlen(message));
-         CPPUNIT_ASSERT(!mSipRouter->proxyMessage(testMsg));
+         SipMessage testRsp;
+         CPPUNIT_ASSERT_EQUAL(SipRouter::SendResponse,mSipRouter->proxyMessage(testMsg, testRsp));
       }
    
    void testGenericProxy()
@@ -223,8 +228,9 @@ public:
             "Content-Length: 0\r\n"
             "\r\n";
          SipMessage testMsg(message, strlen(message));
+         SipMessage testRsp;
          
-         CPPUNIT_ASSERT(mSipRouter->proxyMessage(testMsg));
+         CPPUNIT_ASSERT_EQUAL(SipRouter::SendRequest,mSipRouter->proxyMessage(testMsg, testRsp));
 
          UtlString proxiedMsg;
          ssize_t msgLen;
@@ -261,8 +267,9 @@ public:
             "\r\n";
 
          SipMessage testMsg(message, strlen(message));
+         SipMessage testRsp;
          
-         CPPUNIT_ASSERT(mSipRouter->proxyMessage(testMsg));
+         CPPUNIT_ASSERT_EQUAL(SipRouter::SendRequest,mSipRouter->proxyMessage(testMsg, testRsp));
 
          UtlString proxiedMsg;
          ssize_t msgLen;
@@ -299,8 +306,9 @@ public:
             "\r\n";
 
          SipMessage testMsg(message, strlen(message));
+         SipMessage testRsp;
          
-         CPPUNIT_ASSERT(mSipRouter->proxyMessage(testMsg));
+         CPPUNIT_ASSERT_EQUAL(SipRouter::SendRequest,mSipRouter->proxyMessage(testMsg, testRsp));
 
          UtlString proxiedMsg;
          ssize_t msgLen;
@@ -344,8 +352,9 @@ public:
             "\r\n";
 
          SipMessage testMsg(message, strlen(message));
+         SipMessage testRsp;
          
-         CPPUNIT_ASSERT(mSipRouter->proxyMessage(testMsg));
+         CPPUNIT_ASSERT_EQUAL(SipRouter::SendRequest,mSipRouter->proxyMessage(testMsg, testRsp));
 
          UtlString proxiedMsg;
          ssize_t msgLen;
@@ -382,8 +391,9 @@ public:
             "\r\n";
 
          SipMessage testMsg(message, strlen(message));
+         SipMessage testRsp;
          
-         CPPUNIT_ASSERT(mSipRouter->proxyMessage(testMsg));
+         CPPUNIT_ASSERT_EQUAL(SipRouter::SendRequest,mSipRouter->proxyMessage(testMsg, testRsp));
 
          UtlString proxiedMsg;
          ssize_t msgLen;
@@ -431,8 +441,9 @@ public:
             "\r\n";
 
          SipMessage testMsg(message, strlen(message));
+         SipMessage testRsp;
          
-         CPPUNIT_ASSERT(mSipRouter->proxyMessage(testMsg));
+         CPPUNIT_ASSERT_EQUAL(SipRouter::SendRequest,mSipRouter->proxyMessage(testMsg, testRsp));
 
          // UtlString proxiedMsg;
          // ssize_t msgLen;
@@ -476,8 +487,9 @@ public:
             "\r\n";
 
          SipMessage testMsg(message, strlen(message));
+         SipMessage testRsp;
          
-         CPPUNIT_ASSERT(mSipRouter->proxyMessage(testMsg));
+         CPPUNIT_ASSERT_EQUAL(SipRouter::SendRequest,mSipRouter->proxyMessage(testMsg, testRsp));
 
          // UtlString proxiedMsg;
          // ssize_t msgLen;
@@ -531,8 +543,9 @@ public:
           "\r\n";
 
        SipMessage testMsg(message, strlen(message));
+       SipMessage testRsp;
        
-       CPPUNIT_ASSERT(mSipRouter->proxyMessage(testMsg));
+       CPPUNIT_ASSERT_EQUAL(SipRouter::SendRequest,mSipRouter->proxyMessage(testMsg, testRsp));
 
        // UtlString proxiedMsg;
        // ssize_t msgLen;
@@ -585,8 +598,9 @@ public:
          "\r\n";
 
       SipMessage testMsg(message, strlen(message));
+      SipMessage testRsp;
       
-      CPPUNIT_ASSERT(mSipRouter->proxyMessage(testMsg));
+      CPPUNIT_ASSERT_EQUAL(SipRouter::SendRequest,mSipRouter->proxyMessage(testMsg, testRsp));
 
       // UtlString proxiedMsg;
       // ssize_t msgLen;
@@ -637,8 +651,9 @@ public:
          "\r\n";
 
       SipMessage testMsg(message, strlen(message));
+      SipMessage testRsp;
       
-      CPPUNIT_ASSERT(mSipRouter->proxyMessage(testMsg));
+      CPPUNIT_ASSERT_EQUAL(SipRouter::SendRequest,mSipRouter->proxyMessage(testMsg, testRsp));
 
       // UtlString proxiedMsg;
       // ssize_t msgLen;
@@ -682,9 +697,9 @@ public:
          "\r\n";
 
       SipMessage testMsg(message, strlen(message));
+      SipMessage testRsp;
       
-      CPPUNIT_ASSERT(mSipRouter->proxyMessage(testMsg));
-
+      CPPUNIT_ASSERT_EQUAL(SipRouter::SendRequest,mSipRouter->proxyMessage(testMsg, testRsp));
       // UtlString proxiedMsg;
       // ssize_t msgLen;
       // testMsg.getBytes(&proxiedMsg, &msgLen);

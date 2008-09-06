@@ -238,13 +238,30 @@ SipRouter::handleMessage( OsMsg& eventMessage )
              }
              else
              {
-                if (proxyMessage(*sipRequest))
+                SipMessage sipResponse;
+                switch (proxyMessage(*sipRequest, sipResponse))
                 {
+                case SendRequest:
                    // sipRequest may have been rewritten entirely by proxyMessage().
                    // clear timestamps, protocol, and port information
                    // so send will recalculate it
                    sipRequest->resetTransport();
                    mpSipUserAgent->send(*sipRequest);
+                   break;
+
+                case SendResponse:
+                   sipResponse.resetTransport();
+                   mpSipUserAgent->send(sipResponse);
+                   break;
+
+                case DoNothing:
+                   // this message is just ignored
+                   break;
+
+                default:
+                   OsSysLog::add(FAC_SIP, PRI_CRIT,
+                                 "SipRouter::proxyMessage returned invalid action");
+                   assert(false);
                 }
              }
          }
@@ -259,11 +276,12 @@ SipRouter::handleMessage( OsMsg& eventMessage )
    return(TRUE);
 }
 
-bool SipRouter::proxyMessage(SipMessage& sipRequest)
+SipRouter::ProxyAction SipRouter::proxyMessage(SipMessage& sipRequest, SipMessage& sipResponse)
 {
+   ProxyAction returnedAction = SendRequest;
+
    bool bRequestShouldBeAuthorized         = true;
    bool bForwardingRulesShouldBeEvaluated  = true;
-   bool bRequestShouldBeProxied            = true;
    bool bRequestHasProprietarySpiralHeader = true;
 
    /*
@@ -292,69 +310,68 @@ bool SipRouter::proxyMessage(SipMessage& sipRequest)
          // dialog-forming request or an in-dialog request sent directly by the UAC
          if( !routeState.isFound() )
          {
-             if(isPAIdentityApplicable(sipRequest))
-             {
-                 Url fromUrl;
-                 UtlString userId;
-                 UtlString authTypeDB;
-                 UtlString passTokenDB;
+            if(isPAIdentityApplicable(sipRequest))
+            {
+               Url fromUrl;
+               UtlString userId;
+               UtlString authTypeDB;
+               UtlString passTokenDB;
 
-                 sipRequest.getFromUrl(fromUrl); 
+               sipRequest.getFromUrl(fromUrl); 
           
-                 bRequestShouldBeAuthorized = false;
+               bRequestShouldBeAuthorized = false;
 
-                 // If the identity portion of the From header can be found in the
-                 // identity column of the credentials database, then a request
-                 // should be challenged for authentication and when authenticated
-                 // the PAI should be added by the proxy before passing it on to
-                 // other components.
-                 if(CredentialDB::getInstance()->getCredential(fromUrl,
-                                                                mRealm,
-                                                                userId,
-                                                           passTokenDB,
-                                                           authTypeDB))
-                 {
-                     SipMessage authResponse;
-                     UtlString authUser;
-                     mpSipUserAgent->setServerHeader(authResponse);
-           
-                     if (!isAuthenticated(sipRequest,authUser))
-                     {
-                         // challenge the originator
-                         authenticationChallenge(sipRequest, authResponse);
-                         mpSipUserAgent->send(authResponse);
-                         bRequestShouldBeProxied = false;
-                         bRequestShouldBeAuthorized = false;
-                         bForwardingRulesShouldBeEvaluated = false;
-                     } 
-                     else
-                     {
-                         sipRequest.setHeaderValue(SIPX_SPIRAL_HEADER, "true", 0 );
-                         bRequestShouldBeAuthorized        = false;
-                         bForwardingRulesShouldBeEvaluated = true;
-
-                         SipXauthIdentity pAssertedIdentity;
-                         UtlString fromIdentity;
-                         fromUrl.getIdentity(fromIdentity);
-                         pAssertedIdentity.setIdentity(fromIdentity);
-                         // Sign P-Asserted-Identity header  to prevent from forgery 
-                         // and insert it into sipMessage
-                         pAssertedIdentity.insert(sipRequest,
-                             SipXauthIdentity::PAssertedIdentityHeaderName);
-                     }
-                  } 
-               }
-               else
+               // If the identity portion of the From header can be found in the
+               // identity column of the credentials database, then a request
+               // should be challenged for authentication and when authenticated
+               // the PAI should be added by the proxy before passing it on to
+               // other components.
+               if(CredentialDB::getInstance()->getCredential(fromUrl,
+                                                             mRealm,
+                                                             userId,
+                                                             passTokenDB,
+                                                             authTypeDB))
                {
-                   // the request is not spiraling and does not bear a RouteState.  
-                   // Do not authorize the request right away.  Evaluate the 
-                   // Forwarding Rules and let the request spiral.   The request
-                   // will eventually get authorized as it spirals back to us.
-                   // Add proprietary header indicating that the request is 
-                   // spiraling.
-                   sipRequest.setHeaderValue(SIPX_SPIRAL_HEADER, "true", 0 );
-                   bForwardingRulesShouldBeEvaluated = true;
-               }
+                  UtlString authUser;
+                  if (!isAuthenticated(sipRequest,authUser))
+                  {
+                     // challenge the originator
+                     authenticationChallenge(sipRequest, sipResponse);
+
+                     returnedAction = SendResponse;
+                     bRequestShouldBeAuthorized = false;
+                     bForwardingRulesShouldBeEvaluated = false;
+                  } 
+                  else
+                  {
+                     // already authenticated
+                     sipRequest.setHeaderValue(SIPX_SPIRAL_HEADER, "true", 0 );
+                     bRequestShouldBeAuthorized        = false;
+                     bForwardingRulesShouldBeEvaluated = true;
+
+                     SipXauthIdentity pAssertedIdentity;
+                     UtlString fromIdentity;
+                     fromUrl.getIdentity(fromIdentity);
+                     pAssertedIdentity.setIdentity(fromIdentity);
+                     // Sign P-Asserted-Identity header  to prevent from forgery 
+                     // and insert it into sipMessage
+                     pAssertedIdentity.insert(sipRequest,
+                                              SipXauthIdentity::PAssertedIdentityHeaderName);
+                  }
+               } 
+            }
+            else
+            {
+               // the request is not spiraling and does not bear a RouteState.  
+               // Do not authorize the request right away.  Evaluate the 
+               // Forwarding Rules and let the request spiral.   The request
+               // will eventually get authorized as it spirals back to us.
+               // Add proprietary header indicating that the request is 
+               // spiraling.
+               sipRequest.setHeaderValue(SIPX_SPIRAL_HEADER, "true", 0 );
+               bForwardingRulesShouldBeEvaluated = true;
+            }
+
             // the request is not spiraling and does not bear a RouteState.  
             // Do not authorize the request right away.  Evaluate the 
             // Forwarding Rules and let the request spiral.   The request
@@ -444,7 +461,8 @@ bool SipRouter::proxyMessage(SipMessage& sipRequest)
                         
             // see if we have a mapping for the normalized request uri
             if (   mpForwardingRules 
-                && (mpForwardingRules->getRoute(normalizedRequestUri, sipRequest, mappedTo, routeType, authRequired)==OS_SUCCESS)
+                && (mpForwardingRules->getRoute(normalizedRequestUri, sipRequest,
+                                                mappedTo, routeType, authRequired)==OS_SUCCESS)
                 )
             {
                bMatchingForwardingRuleFound = true;
@@ -580,25 +598,20 @@ bool SipRouter::proxyMessage(SipMessage& sipRequest)
          case AuthPlugin::DENY:
          {
             // Either not authenticated or not authorized
-            SipMessage authResponse;
-            mpSipUserAgent->setServerHeader(authResponse);
-            
             if (requestIsAuthenticated)
             {
                // Rewrite sipRequest as the authorization-needed response so our caller
                // can send it.
-               authResponse.setResponseData(&sipRequest,
-                                            SIP_FORBIDDEN_CODE,
-                                            rejectReason.data());
+               sipResponse.setResponseData(&sipRequest,
+                                           SIP_FORBIDDEN_CODE,
+                                           rejectReason.data());
             }
             else
             {
-               // There was no authentication, so challenge to see if authenticated request would work
-               authenticationChallenge(sipRequest, authResponse);
+               // There was no authentication, so challenge
+               authenticationChallenge(sipRequest, sipResponse);
             }
-            mpSipUserAgent->send(authResponse);
-            
-            bRequestShouldBeProxied = false;
+            returnedAction = SendResponse;
          }
          break;
          
@@ -615,7 +628,8 @@ bool SipRouter::proxyMessage(SipMessage& sipRequest)
          break;
 
          default:
-            OsSysLog::add(FAC_SIP, PRI_CRIT, "SipRouter::proxyMessage plugin returned invalid result %d",
+            OsSysLog::add(FAC_SIP, PRI_CRIT,
+                          "SipRouter::proxyMessage plugin returned invalid result %d",
                           finalAuthResult);
             break;
          }
@@ -646,16 +660,13 @@ bool SipRouter::proxyMessage(SipMessage& sipRequest)
    else
    {
       // The request has a Proxy-Require that we don't support; return an error
-      bRequestShouldBeProxied = false;
-      
-      SipMessage response;
-      response.setRequestBadExtension(&sipRequest, disallowedExtensions.data());
-      mpSipUserAgent->setServerHeader(response);
-      mpSipUserAgent->send(response);
+      sipResponse.setRequestBadExtension(&sipRequest, disallowedExtensions.data());
+      returnedAction = SendResponse;
    }
    
-   if( bRequestShouldBeProxied )
+   switch ( returnedAction )
    {
+   case SendRequest:
       // Decrement max forwards
       int maxForwards;
       if ( sipRequest.getMaxForwards(maxForwards) )
@@ -667,8 +678,18 @@ bool SipRouter::proxyMessage(SipMessage& sipRequest)
          maxForwards = mpSipUserAgent->getMaxForwards();
       }
       sipRequest.setMaxForwards(maxForwards);
+      break;
+
+   case SendResponse:
+      mpSipUserAgent->setServerHeader(sipResponse);
+      break;
+
+   case DoNothing:
+   default:
+      break;
    }
-   return bRequestShouldBeProxied;
+   
+   return returnedAction;
 }
 
 // Get the canonical form of our SIP domain name

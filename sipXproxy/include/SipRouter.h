@@ -81,9 +81,23 @@ class SipRouter : public OsServerTask
 
    virtual UtlBoolean handleMessage(OsMsg& rMsg);
 
-   /// Modify the message as needed to be proxied
-   bool proxyMessage(SipMessage& sipRequest);
-   ///< @returns true if message should be sent, false if not
+   /// Action to be taken by the caller of proxyAction method
+   typedef enum
+   {
+      SendRequest,
+      SendResponse,
+      DoNothing
+   } ProxyAction;
+   
+   /// Examine a request to be proxied, and either modify it for forwarding or create a response.
+   ProxyAction proxyMessage(SipMessage&  request,  /**< request to be proxied
+                                                    *   iff return is SendRequest */
+                            SipMessage&  response  /**< response to be sent
+                                                    *   iff return is SendResponse */
+                            );
+   /**< the caller must pass either request or response
+    *   to SipUserAgent::send as directed by the return code
+    */
 
    /// @returns true iff the domain of url is a valid form of the domain name for this proxy.
    bool isLocalDomain(const Url& url ///< a url to be tested
