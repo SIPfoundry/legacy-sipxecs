@@ -39,7 +39,8 @@ proxytest_LDADD = \
 
 EXTRA_DATA = \
    rulesdata/simple.xml \
-   rulesdata/routing.xml
+   siproutertestdata/routing.xml \
+   siproutertestdata/credential.xml
 
 EXTRA_DIST = \
   $(EXTRA_DATA) \

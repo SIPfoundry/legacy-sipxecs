@@ -11,11 +11,13 @@
 #include <sipxunit/TestUtilities.h>
 #include "testlib/SipDbTestContext.h"
 
+
 #include <os/OsDefs.h>
 #include <os/OsConfigDb.h>
 #include <os/OsSysLog.h>
 #include <net/SipMessage.h>
 #include <net/SipUserAgent.h>
+#include "sipdb/CredentialDB.h"
 #include "ForwardRules.h"
 #include "SipRouter.h"
 #include "CallerAlias.h"
@@ -50,6 +52,8 @@ class SipRouterTest : public CppUnit::TestCase
    CPPUNIT_TEST(testProxyEndOfSpiralRequest);
    CPPUNIT_TEST(testInDialogRequestSelf);
    CPPUNIT_TEST(testInDialogRequestOther);
+   CPPUNIT_TEST(testProxyChallengeLocal);
+   
    CPPUNIT_TEST_SUITE_END();
 
 private:
@@ -70,6 +74,8 @@ public:
       {
          // prevent the test from using any installed configuration files
          TestDbContext.setSipxDir(SipXecsService::ConfigurationDirType);
+         TestDbContext.setSipxDir(SipXecsService::DatabaseDirType);
+         TestDbContext.inputFile("credential.xml");
 
          // Construct a SipUserAgent to provide the isMyHostAlias recognizer
          mUserAgent = new SipUserAgent(SIP_PORT, // udp port
@@ -88,7 +94,8 @@ public:
          mUserAgent->setHostAliases(externalAlias);
 
          UtlString rulesFile;
-         TestDbContext.inputFilePath("/rulesdata/routing.xml", rulesFile);
+         TestDbContext.inputFilePath("routing.xml", rulesFile);
+
          CPPUNIT_ASSERT(OS_SUCCESS ==
                         mForwardingRules.loadMappings(rulesFile,
                                                       MediaServer, VoiceMail, LocalHost));
@@ -107,6 +114,8 @@ public:
       {
          delete mSipRouter;
          delete mUserAgent;
+
+         CredentialDB::getInstance()->releaseInstance();
       }
 
    void testSupportedOptions()
@@ -734,6 +743,34 @@ public:
       int maxForwards;
       CPPUNIT_ASSERT(testMsg.getMaxForwards(maxForwards) && maxForwards == 19);
     }
+
+   void testProxyChallengeLocal()
+      {
+         const char* message =
+            "INVITE sip:user@external.example.net SIP/2.0\r\n"
+            "Via: SIP/2.0/TCP 10.1.1.3:33855\r\n"
+            "To: sip:user@example.com\r\n"
+            "From: Mighty Hunter <sip:mightyhunter@example.com>; tag=30543f3483e1cb11ecb40866edd3295b\r\n"
+            "Call-Id: f88dfabce84b6a2787ef024a7dbe8749\r\n"
+            "Cseq: 1 INVITE\r\n"
+            "Max-Forwards: 20\r\n"
+            "Contact: mightyhunter@127.0.0.1\r\n"
+            "Content-Length: 0\r\n"
+            "\r\n";
+
+         SipMessage testMsg(message, strlen(message));
+         SipMessage testRsp;
+       
+         CPPUNIT_ASSERT_EQUAL(SipRouter::SendResponse,mSipRouter->proxyMessage(testMsg, testRsp));
+
+         ssize_t msgSize;
+         UtlString challenge;
+         testRsp.getBytes(&challenge, &msgSize);
+         OsSysLog::add(FAC_SIP, PRI_INFO, "Returned Challenge:\n%s", challenge.data());
+
+         CPPUNIT_ASSERT_EQUAL(HTTP_PROXY_UNAUTHORIZED_CODE, testRsp.getResponseStatusCode());
+      }
+
 };
 
 const char* SipRouterTest::VoiceMail   = "Voicemail";
@@ -750,5 +787,5 @@ const char* SipRouterTest::SipRouterConfiguration =
 
 CPPUNIT_TEST_SUITE_REGISTRATION(SipRouterTest);
 
-SipDbTestContext  SipRouterTest::TestDbContext(TEST_DATA_DIR, TEST_WORK_DIR "/siproutertest_context");
+SipDbTestContext  SipRouterTest::TestDbContext(TEST_DATA_DIR "/siproutertestdata", TEST_WORK_DIR "/siproutertestdata");
 

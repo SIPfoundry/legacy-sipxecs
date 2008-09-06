@@ -338,6 +338,10 @@ SipRouter::ProxyAction SipRouter::proxyMessage(SipMessage& sipRequest, SipMessag
                      // challenge the originator
                      authenticationChallenge(sipRequest, sipResponse);
 
+                     OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipRouter::proxyMessage "
+                                   " From '%s' is unauthenticated local user - challenge for PAI",
+                                   fromUrl.toString().data());
+
                      returnedAction = SendResponse;
                      bRequestShouldBeAuthorized = false;
                      bForwardingRulesShouldBeEvaluated = false;
@@ -358,7 +362,13 @@ SipRouter::ProxyAction SipRouter::proxyMessage(SipMessage& sipRequest, SipMessag
                      pAssertedIdentity.insert(sipRequest,
                                               SipXauthIdentity::PAssertedIdentityHeaderName);
                   }
-               } 
+               }
+               else
+               {
+                  OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipRouter::proxyMessage "
+                                " From '%s' not local to realm '%s' - do not challenge",
+                                fromUrl.toString().data(), mRealm.data());
+               }
             }
             else
             {
