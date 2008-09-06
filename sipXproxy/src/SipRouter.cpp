@@ -292,6 +292,69 @@ bool SipRouter::proxyMessage(SipMessage& sipRequest)
          // dialog-forming request or an in-dialog request sent directly by the UAC
          if( !routeState.isFound() )
          {
+             if(isPAIdentityApplicable(sipRequest))
+             {
+                 Url fromUrl;
+                 UtlString userId;
+                 UtlString authTypeDB;
+                 UtlString passTokenDB;
+
+                 sipRequest.getFromUrl(fromUrl); 
+          
+                 bRequestShouldBeAuthorized = false;
+
+                 // If the identity portion of the From header can be found in the
+                 // identity column of the credentials database, then a request
+                 // should be challenged for authentication and when authenticated
+                 // the PAI should be added by the proxy before passing it on to
+                 // other components.
+                 if(CredentialDB::getInstance()->getCredential(fromUrl,
+                                                                mRealm,
+                                                                userId,
+                                                           passTokenDB,
+                                                           authTypeDB))
+                 {
+                     SipMessage authResponse;
+                     UtlString authUser;
+                     mpSipUserAgent->setServerHeader(authResponse);
+           
+                     if (!isAuthenticated(sipRequest,authUser))
+                     {
+                         // challenge the originator
+                         authenticationChallenge(sipRequest, authResponse);
+                         mpSipUserAgent->send(authResponse);
+                         bRequestShouldBeProxied = false;
+                         bRequestShouldBeAuthorized = false;
+                         bForwardingRulesShouldBeEvaluated = false;
+                     } 
+                     else
+                     {
+                         sipRequest.setHeaderValue(SIPX_SPIRAL_HEADER, "true", 0 );
+                         bRequestShouldBeAuthorized        = false;
+                         bForwardingRulesShouldBeEvaluated = true;
+
+                         SipXauthIdentity pAssertedIdentity;
+                         UtlString fromIdentity;
+                         fromUrl.getIdentity(fromIdentity);
+                         pAssertedIdentity.setIdentity(fromIdentity);
+                         // Sign P-Asserted-Identity header  to prevent from forgery 
+                         // and insert it into sipMessage
+                         pAssertedIdentity.insert(sipRequest,
+                             SipXauthIdentity::PAssertedIdentityHeaderName);
+                     }
+                  } 
+               }
+               else
+               {
+                   // the request is not spiraling and does not bear a RouteState.  
+                   // Do not authorize the request right away.  Evaluate the 
+                   // Forwarding Rules and let the request spiral.   The request
+                   // will eventually get authorized as it spirals back to us.
+                   // Add proprietary header indicating that the request is 
+                   // spiraling.
+                   sipRequest.setHeaderValue(SIPX_SPIRAL_HEADER, "true", 0 );
+                   bForwardingRulesShouldBeEvaluated = true;
+               }
             // the request is not spiraling and does not bear a RouteState.  
             // Do not authorize the request right away.  Evaluate the 
             // Forwarding Rules and let the request spiral.   The request
@@ -301,6 +364,7 @@ bool SipRouter::proxyMessage(SipMessage& sipRequest)
             sipRequest.setHeaderValue( SIPX_SPIRAL_HEADER, "true", 0 );
             bRequestShouldBeAuthorized        = false;
             bForwardingRulesShouldBeEvaluated = true;
+
             // If the UA sending this request is located behind 
             // a NAT and the request is a REGISTER then add a
             // Path header to this proxy to make sure that all subsequent 
@@ -433,7 +497,8 @@ bool SipRouter::proxyMessage(SipMessage& sipRequest)
          bool requestIsAuthenticated = false;
          
          // Use the identity found in the SipX-Auth-Identity header if found
-         SipXauthIdentity sipxIdentity(sipRequest, SipXauthIdentity::allowUnbound); 
+         SipXauthIdentity sipxIdentity(sipRequest,SipXauthIdentity::AuthIdentityHeaderName,
+             SipXauthIdentity::allowUnbound); 
          if ((requestIsAuthenticated = sipxIdentity.getIdentity(authUser)))
          {
             // found identity in request
@@ -445,7 +510,7 @@ bool SipRouter::proxyMessage(SipMessage& sipRequest)
             // Can't completely remove identity info, since it may be required
             // further if the request spirals. Normalize authIdentity to only leave
             // the most recent info in the request 
-            SipXauthIdentity::normalize(sipRequest);
+            SipXauthIdentity::normalize(sipRequest, SipXauthIdentity::AuthIdentityHeaderName);
          }
          else
          {
@@ -825,4 +890,56 @@ void SipRouter::authenticationChallenge(const SipMessage& sipRequest, ///< messa
                                     HttpMessage::PROXY);
 }
 
-/* ============================ FUNCTIONS ================================= */
+// P-Asserted-Identity header is only applicable for INVITE, REFER, BYE,
+// OPTIONS, and SUBSCRIBE 
+bool SipRouter::isPAIdentityApplicable(const SipMessage& sipRequest) 
+                                     
+{
+   bool result = false;
+   
+   // Currently we only support SIP uri in P-Asserted-Identity, 
+   // therefore only 1 P-Asserted-Identity is allowed.
+   if(!sipRequest.getHeaderValue(0, SipXauthIdentity::PAssertedIdentityHeaderName))
+   { 
+       UtlString method;
+
+       sipRequest.getRequestMethod(&method);
+
+       if (0==method.compareTo(SIP_INVITE_METHOD, UtlString::ignoreCase))
+       {
+           UtlString toTag;
+           Url toUrl;
+
+           sipRequest.getToUrl(toUrl);
+           toUrl.getFieldParameter("tag", toTag);
+
+           if (toTag.isNull())
+            {
+                result = true;
+            }
+       }else if (0==method.compareTo(SIP_REFER_METHOD, UtlString::ignoreCase))
+       {
+            result = true;
+       }
+       else if (0==method.compareTo(SIP_BYE_METHOD, UtlString::ignoreCase))
+       {
+            result = true;
+       }
+       else if (0==method.compareTo(SIP_OPTIONS_METHOD, UtlString::ignoreCase))
+       {
+            result = true;
+       }
+       else if (0==method.compareTo(SIP_SUBSCRIBE_METHOD, UtlString::ignoreCase))
+       {
+            result = true;
+       }
+       else if (0==method.compareTo(SIP_NOTIFY_METHOD, UtlString::ignoreCase))
+       {
+            result = true;
+       }
+
+   }
+   
+   return result;
+   
+}

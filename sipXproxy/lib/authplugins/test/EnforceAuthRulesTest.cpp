@@ -502,7 +502,7 @@ public:
 
          SipXauthIdentity authIdentity;
          authIdentity.setIdentity("mightyhunter@enforce.example.com");
-         authIdentity.insert(notOkMsg);
+         authIdentity.insert(notOkMsg, SipXauthIdentity::AuthIdentityHeaderName);
          rejectReason.remove(0);
 
          // confirm that mightyhunter can't call boat
@@ -519,7 +519,7 @@ public:
          CPPUNIT_ASSERT(!rejectReason.compareTo("Requires fishing"));
 
          // check that the authidentity is still present
-         SipXauthIdentity testIdentity(notOkMsg);
+         SipXauthIdentity testIdentity(notOkMsg, SipXauthIdentity::AuthIdentityHeaderName);
          UtlString testIdentityString;
          CPPUNIT_ASSERT(testIdentity.getIdentity(testIdentityString));
          ASSERT_STR_EQUAL(testIdentityString,
@@ -572,7 +572,7 @@ public:
          RouteState allowedRouteState( allowedMsg, noRemovedRoutes, routeName );
 
          rejectReason.remove(0);
-         authIdentity.insert(allowedMsg);
+         authIdentity.insert(allowedMsg, SipXauthIdentity::AuthIdentityHeaderName);
          
          CPPUNIT_ASSERT(AuthPlugin::ALLOW
                         == enforcer->authorizeAndModify(NULL,
@@ -587,7 +587,7 @@ public:
          CPPUNIT_ASSERT(rejectReason.isNull());
 
          // check that the authidentity is still present
-         SipXauthIdentity testIdentity1(notOkMsg);
+         SipXauthIdentity testIdentity1(notOkMsg, SipXauthIdentity::AuthIdentityHeaderName);
          CPPUNIT_ASSERT(testIdentity1.getIdentity(testIdentityString));
          ASSERT_STR_EQUAL(testIdentityString,
                           "mightyhunter@enforce.example.com");

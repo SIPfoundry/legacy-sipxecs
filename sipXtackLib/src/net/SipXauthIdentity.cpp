@@ -16,7 +16,8 @@
 // CONSTANTS
 const char* SipXauthIdentity::SignatureFieldSeparator = ":";
 const char* SipXauthIdentity::SignatureUrlParamName = "signature";
-const char* SipXauthIdentity::AuthIdentityHeaderName = "X-Sipx-Authidentity";
+SipXauthIdentity::HeaderName SipXauthIdentity::AuthIdentityHeaderName = "X-Sipx-Authidentity";
+SipXauthIdentity::HeaderName SipXauthIdentity::PAssertedIdentityHeaderName = "P-Asserted-Identity";
 
 // STATIC VARIABLES
 UtlString   SipXauthIdentity::sSignatureSecret;
@@ -60,6 +61,7 @@ SipXauthIdentity::~SipXauthIdentity()
 
 /// Decode the identity from a message.
 SipXauthIdentity::SipXauthIdentity(const SipMessage& message,
+                                   HeaderName headerName,
                                    DialogRule bindRule
                                    )
   : mIsValidIdentity(FALSE)
@@ -75,21 +77,21 @@ SipXauthIdentity::SipXauthIdentity(const SipMessage& message,
 
    bool foundIdentityHeader = false;
 
-   int idHeaderCount = message.getCountHeaderFields(SipXauthIdentity::AuthIdentityHeaderName);
+   int idHeaderCount = message.getCountHeaderFields(headerName);
    if (1==idHeaderCount)
    {
       foundIdentityHeader =
-         decode(message.getHeaderValue(0, SipXauthIdentity::AuthIdentityHeaderName),
+         decode(message.getHeaderValue(0, headerName),
                 callId, fromTag, bindRule);
    }
    else if (idHeaderCount>1)
    {
       OsSysLog::add(FAC_SIP, PRI_DEBUG,
                     "SipXauthIdentity::SipXauthIdentity:"
-                    " '%d' occurrences of SipXauthIdentity in request to '%s'",
-                    idHeaderCount, rUri.data());
+                    " '%d' occurrences of %s in request to '%s'",
+                    idHeaderCount, headerName, rUri.data());
       foundIdentityHeader =
-         decode(message.getHeaderValue(idHeaderCount-1, SipXauthIdentity::AuthIdentityHeaderName),
+         decode(message.getHeaderValue(idHeaderCount-1, headerName),
                 callId, fromTag, bindRule);
    }
 
@@ -97,8 +99,8 @@ SipXauthIdentity::SipXauthIdentity(const SipMessage& message,
    {
       OsSysLog::add(FAC_SIP, PRI_DEBUG,
                     "SipXauthIdentity::SipXauthIdentity:"
-                    " found SipXauthIdentity '%s' in request to '%s'",
-                    mIdentity.data(), rUri.data());
+                    " found %s '%s' in request to '%s'",
+                    headerName, mIdentity.data(), rUri.data());
    }
 }
 
@@ -126,29 +128,29 @@ void SipXauthIdentity::setIdentity(const UtlString&  identityValue)
 }
 
 /// Remove identity info from a message.
-void SipXauthIdentity::remove(SipMessage & message)
+void SipXauthIdentity::remove(SipMessage & message, HeaderName headerName)
 {
-   int idHeaderCount = message.getCountHeaderFields(SipXauthIdentity::AuthIdentityHeaderName);
+   int idHeaderCount = message.getCountHeaderFields(headerName);
    if (idHeaderCount>0)
    {
       UtlString rUri;
       message.getRequestUri(&rUri);
       OsSysLog::add(FAC_SIP, PRI_WARNING,
                     "SipXauthIdentity::remove"
-                    ": '%d' occurrances of SipXauthIdentity in request to '%s'",
-                    idHeaderCount, rUri.data());
+                    ": '%d' occurrances of %s in request to '%s'",
+                    idHeaderCount, headerName, rUri.data());
       for (int i = idHeaderCount - 1;i>=0;i--)
       {
-         message.removeHeader(SipXauthIdentity::AuthIdentityHeaderName, i);
+         message.removeHeader(headerName, i);
       }
    }
 }
 
 
 /// Normalize identity info in a message.
-void SipXauthIdentity::normalize(SipMessage & message)
+void SipXauthIdentity::normalize(SipMessage & message,  HeaderName headerName)
 {
-   int idHeaderCount = message.getCountHeaderFields(SipXauthIdentity::AuthIdentityHeaderName);
+   int idHeaderCount = message.getCountHeaderFields(headerName);
    if (idHeaderCount>1)
    {
       UtlString rUri;
@@ -160,7 +162,8 @@ void SipXauthIdentity::normalize(SipMessage & message)
       // Remove all BUT the last header
       for (int i = idHeaderCount - 2;i>=0;i--)
       {
-         message.removeHeader(SipXauthIdentity::AuthIdentityHeaderName, i);
+         //message.removeHeader(SipXauthIdentity::AuthIdentityHeaderName, i);
+         message.removeHeader(headerName, i);
       }
    }
 }
@@ -249,7 +252,9 @@ bool SipXauthIdentity::encodeUri(Url             & uri,     ///< target URI to g
 
 
 /// Add identity info to a message.
-bool SipXauthIdentity::insert(SipMessage & message, const OsDateTime * timestamp)
+bool SipXauthIdentity::insert(SipMessage & message,
+                              HeaderName headerName,
+                              const OsDateTime * timestamp)
 {
    // Don't proceed if the encapsulated identity is invalid
    if (!mIsValidIdentity)
@@ -260,7 +265,7 @@ bool SipXauthIdentity::insert(SipMessage & message, const OsDateTime * timestamp
    else
    {
       // make sure no existing identity in the message
-      remove(message);
+      remove(message, headerName);
 
       // set Call-Id and from-tag for the signature calculation
       UtlString callId;
@@ -279,7 +284,16 @@ bool SipXauthIdentity::insert(SipMessage & message, const OsDateTime * timestamp
 
       UtlString value;
       encode(value, callId, fromTag, *timestamp);
-      message.addHeaderField(SipXauthIdentity::AuthIdentityHeaderName, value.data());
+
+      // Insert displayName if it is an P-Asserted-Identity header.
+      if (headerName == SipXauthIdentity::PAssertedIdentityHeaderName)
+      { 
+          UtlString displayName; 
+          fromUrl.getDisplayName(displayName);
+          value.prepend(displayName.data());
+      }
+
+      message.addHeaderField(headerName, value.data());
    }
    
    return mIsValidIdentity;

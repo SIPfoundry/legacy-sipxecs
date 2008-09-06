@@ -147,6 +147,10 @@ class SipRouter : public OsServerTask
    ForwardRules* mpForwardingRules;      ///< Holds to forwarding rules instructions
    PluginHooks   mAuthPlugins;           ///< decision making modules from configuration 
 
+   /// P-Asserted-Identity header is only applicable for INVITE, REFER, BYE,
+   /// OPTIONS, NOTIFY, and SUBSCRIBE
+   bool isPAIdentityApplicable(const SipMessage& sipRequest);
+
    // @cond INCLUDENOCOPY
 
    // There is no copy constructor.

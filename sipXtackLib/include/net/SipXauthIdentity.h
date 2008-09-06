@@ -24,44 +24,61 @@ class SipXauthIdentityTest;
 
 /// Maintain sipXauthIdentity information
 /**
- * This class encapsulates SipXauthIdentity information, which is used by upstream proxies to
- * instruct sipXauthproxy that a request needs to be routed based on the permisssions of an
- * identity different from that of the request originator.
- *
- * It can be used for a veriety of purposes, but at least initially it is used to allow
- * privileged users to forward their calls to destinations that require permissions.
+ * This class encapsulates SipXauthIdentity and P-Asserted-Identity information. SipXauthIdentity 
+ * is used by upstream proxies to instruct sipXauthproxy that a request needs to be routed based 
+ * on the permisssions of an by upstream proxies to instruct sipXauthproxy that a request needs to
+ * be routed based on the permisssions of an identity different from that of the request originator.
+ * P-Asserted-Identity is to communicate the identity of the subscribers as described in RFC3325.
+ * Given the lack of TLS support for many SIP elements deployed today, to ensure the security and 
+ * prevent from forgery, replay, and falsification, P-Asserted-Identity is also encapsulated in the 
+ * same manner as SipXauthIdentity.
+ * 
+ * SipXauthIdentity can be used for a veriety of purposes, but at least initially it is used to 
+ * allow privileged users to forward their calls to destinations that require permissions.
  *
  * SipXauthIdentity information is carried in X-Sipx-Authidentity header of the follwoing format:
  *
  *     X-Sipx-Authidentity: <identity;signature=<timestamp>:<signature-hash>>
  *
+ * P-Asserted-Identity information is carried in P-Asserted-Identity header of the follwoing format:
+ *
+ *     P-Asserted-Identity: 'displayName' <identity;signature=<timestamp>:<signature-hash>>
  * where
+ * - "displayName" is a displayName of the subscriber.
  * - "identity" is a user identity in addr-spec format as a SIP-URI.
  * - "timestamp" is epoch seconds as hex without "0x" prefix indicating the 
  *   time the signature was generated.
  * - "signature-hash" is MD5(<timestamp><secret><from-tag><call-id><identity>)
  * 
- * The value of X-Sipx-Authidentity header is signed using MD5. The signature
- * is calculated over the content of the header value, signature timestamp, data from the SIP message
- * and a unique secret, known only to sipXecs components in a given installation.
+ * The value of X-Sipx-Authidentity and P-Asserted-Identity headers are signed using MD5. The 
+ * signature is calculated over the content of the header value, signature timestamp, data from 
+ * the SIP message and a unique secret, known only to sipXecs components in a given installation.
  * This should prevent (or minimize) the replay attacks on the system making it
- * relatively difficuilt to spoof the X-Sipx-Authidentity header
+ * relatively difficuilt to spoof the X-Sipx-Authidentity and P-Asserted-Identity headers.
  *
  * Signature includes a timestamp as epoch seconds indicating when the signature was calculated.
  * Signature validation fails if the signature is older then a configurable mout of time.
- * Timestamp validation can be disabled and it is disabled by default untill non-zero duration interval
- * is specified via a call to setSignatureValidityInterval.
+ * Timestamp validation can be disabled and it is disabled by default untill non-zero duration
+ * interval is specified via a call to setSignatureValidityInterval.
  *
- * To access the sipXauthIdentity information in a message, construct a SipXauthIdentity object
- * passing the SipMessage to the SipXauthIdentity constructor.
- * Use getIdentity/setIdentity method to get and set identity
- * Use remove and insert methods to remove and put the identity info from/into the message.
+ * To access the sipXauthIdentity or P-Asserted-Identity information in a message, construct a 
+ * SipXauthIdentity object passing the SipMessage and header type( sipXauthIdentity or 
+ * P-Asserted-Identity to the SipXauthIdentity constructor, Use getIdentity/setIdentity method 
+ * to get and set identity. Use getIdentity/setIdentity method to get and set identity.Use remove
+ * and insert methods to remove and put the identity info from/into the message.
  *
  * @nosubgrouping
  */
 class SipXauthIdentity
 {
   public:
+
+   typedef const char* HeaderName;
+
+   // Currently, valid HeaderName are AuthIdentityHeaderName or PAssertedIdentityHeaderName
+   // references outside the class will need to be qualified by the class name.
+   static HeaderName AuthIdentityHeaderName;
+   static HeaderName PAssertedIdentityHeaderName;
 
    /// Default Constructor
    SipXauthIdentity();
@@ -83,8 +100,11 @@ class SipXauthIdentity
     */
    ///@{
 
-   /// Constructor which decodes SipXauthIdentity from a received message.
+   /// Constructor which decodes SipXauthIdentity or P-Asserted-Identity from a received message.
    SipXauthIdentity(const SipMessage& message, ///< message to scan for an identity header
+                    HeaderName headerName,    /**<headerName for the identity,
+                                               * either SipXauthIdentity or P-Asserted-Identity
+                                               */
                     DialogRule bindRule = requireDialogBinding
                     );
    /**<
@@ -119,13 +139,13 @@ class SipXauthIdentity
     */
 
    /// Remove identity info from a message.
-   static void remove(SipMessage & request);
+   static void remove(SipMessage & request, HeaderName headerName);
    /**<
     * Remove identity information from the SIP request
     */
 
    /// Normalize identity info in a message.
-   static void normalize(SipMessage & request);
+   static void normalize(SipMessage & request, HeaderName headerName);
    /**<
     * Remove all but most recent identity information from the SIP request
     * If the request contains info on multiple identities, remove all but
@@ -133,8 +153,11 @@ class SipXauthIdentity
     */
 
    /// Add identity info to a message.
-   bool insert(SipMessage       & request,           ///< message to add identity info to
-               const OsDateTime * timestamp = NULL   ///< timestamp for generated identity
+   bool insert(SipMessage       & request,         ///< message to add identity info to
+               HeaderName      headerName,         /**<headerName for the identity,
+                                                    * either SipXauthIdentity or P-Asserted-Identity
+                                                    */
+               const OsDateTime * timestamp = NULL  ///< timestamp for generated identity
                );
    /**<
     * Generates new identity information based on the stored identity
@@ -255,7 +278,6 @@ class SipXauthIdentity
   private:
    static const char* SignatureFieldSeparator;
    static const char* SignatureUrlParamName;
-   static const char* AuthIdentityHeaderName;
 
    UtlString  mIdentity;
    bool       mIsValidIdentity;

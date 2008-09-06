@@ -91,10 +91,11 @@ public:
             "Content-Length: 0\r\n"
             "\r\n";
          SipMessage noIdentitySipMessage(noIdentityMessage, strlen(noIdentityMessage));
-         SipXauthIdentity noIdentity(noIdentitySipMessage);
+         SipXauthIdentity noXAuthIdentity(noIdentitySipMessage, 
+             SipXauthIdentity::AuthIdentityHeaderName);
 
          identityString = "badcontent";
-         CPPUNIT_ASSERT(!noIdentity.getIdentity(identityString));
+         CPPUNIT_ASSERT(!noXAuthIdentity.getIdentity(identityString));
          CPPUNIT_ASSERT(identityString.isNull());
 
          // test an INVITE with invalid identity
@@ -107,15 +108,24 @@ public:
             "Cseq: 1 INVITE\r\n"
             "Max-Forwards: 20\r\n"
             "X-Sipx-Authidentity: Blah-Blah\r\n"
+            "P-Asserted-Identity: Blah-Blah\r\n"
             "Contact: caller@127.0.0.1\r\n"
             "Content-Length: 0\r\n"
             "\r\n";
-         SipMessage invalidIdentitySipMessage(invalidIdentityMessage, strlen(invalidIdentityMessage));
-         SipXauthIdentity invalidIdentity(invalidIdentitySipMessage);
+         SipMessage invalidIdentitySipMessage(invalidIdentityMessage,
+             strlen(invalidIdentityMessage));
+
+         SipXauthIdentity invalidXAuthIdentity(invalidIdentitySipMessage,
+             SipXauthIdentity::AuthIdentityHeaderName);
+
+         SipXauthIdentity invalidPAIdentity(invalidIdentitySipMessage,
+             SipXauthIdentity::PAssertedIdentityHeaderName);
 
          identityString = "";
-         CPPUNIT_ASSERT(!invalidIdentity.getIdentity(identityString));
+         CPPUNIT_ASSERT(!invalidXAuthIdentity.getIdentity(identityString));
+         CPPUNIT_ASSERT(!invalidPAIdentity.getIdentity(identityString));
 
+       
          // test an INVITE with invalid identity
          const char* invalidIdentityMessage1 =
             "INVITE sip:user@somewhere.example.com SIP/2.0\r\n"
@@ -126,14 +136,22 @@ public:
             "Cseq: 1 INVITE\r\n"
             "Max-Forwards: 20\r\n"
             "X-Sipx-Authidentity: sip:user@domain;signature=\"Blah-Blah\"\r\n"
+            "P-Asserted-Identity: sip:user@domain;signature=\"Blah-Blah\"\r\n"
             "Contact: caller@127.0.0.1\r\n"
             "Content-Length: 0\r\n"
             "\r\n";
-         SipMessage invalidIdentitySipMessage1(invalidIdentityMessage1, strlen(invalidIdentityMessage1));
-         SipXauthIdentity invalidIdentity1(invalidIdentitySipMessage1);
+         SipMessage invalidIdentitySipMessage1(invalidIdentityMessage1,
+             strlen(invalidIdentityMessage1));
+
+         SipXauthIdentity invalidXAuthIdentity1(invalidIdentitySipMessage1,
+             SipXauthIdentity::AuthIdentityHeaderName);
+
+         SipXauthIdentity invalidPAIdentity1(invalidIdentitySipMessage1,
+             SipXauthIdentity::PAssertedIdentityHeaderName);
 
          identityString = "";
-         CPPUNIT_ASSERT(!invalidIdentity1.getIdentity(identityString));
+         CPPUNIT_ASSERT(!invalidXAuthIdentity1.getIdentity(identityString));
+         CPPUNIT_ASSERT(!invalidPAIdentity1.getIdentity(identityString));
 
          // test an INVITE with invalid identity
          const char* invalidIdentityMessage2 =
@@ -145,14 +163,22 @@ public:
             "Cseq: 1 INVITE\r\n"
             "Max-Forwards: 20\r\n"
             "X-Sipx-Authidentity: sip:user@domain;signature=\"Blah-Blah\", sip:anotheruser@anotherdomain;signature=\"Blah-Blah-Blah\"\r\n"
+            "P-Asserted-Identity: sip:user@domain;signature=\"Blah-Blah\", sip:anotheruser@anotherdomain;signature=\"Blah-Blah-Blah\"\r\n"
             "Contact: caller@127.0.0.1\r\n"
             "Content-Length: 0\r\n"
             "\r\n";
-         SipMessage invalidIdentitySipMessage2(invalidIdentityMessage2, strlen(invalidIdentityMessage2));
-         SipXauthIdentity invalidIdentity2(invalidIdentitySipMessage2);
+         SipMessage invalidIdentitySipMessage2(invalidIdentityMessage2,
+             strlen(invalidIdentityMessage2));
+ 
+         SipXauthIdentity invalidXAuthIdentity2(invalidIdentitySipMessage2,
+             SipXauthIdentity::AuthIdentityHeaderName);
+
+         SipXauthIdentity invalidPAIdentity2(invalidIdentitySipMessage2,
+             SipXauthIdentity::PAssertedIdentityHeaderName);
 
          identityString = "";
-         CPPUNIT_ASSERT(!invalidIdentity2.getIdentity(identityString));
+         CPPUNIT_ASSERT(!invalidXAuthIdentity2.getIdentity(identityString));
+         CPPUNIT_ASSERT(!invalidPAIdentity2.getIdentity(identityString));
 
          // test an INVITE with valid identity
          const char* validIdentityMessage =
@@ -166,16 +192,26 @@ public:
             "X-Sipx-Authidentity: <sip:identity@example.com;signature=46A55D33%3A"
             "56681beb4f29fc796f6ae9d0ad0269d2" // MD5: 46A55D33+testsecret+30543f3483e1cb11ecb40866edd3295b+f88dfabce84b6a2787ef024a7dbe8749+identity@example.com
             ">\r\n"
+            "P-Asserted-Identity: <sip:identity@example.com;signature=46A55D33%3A"
+            "56681beb4f29fc796f6ae9d0ad0269d2" // MD5: 46A55D33+testsecret+30543f3483e1cb11ecb40866edd3295b+f88dfabce84b6a2787ef024a7dbe8749+identity@example.com
+            ">\r\n"
             "Contact: caller@127.0.0.1\r\n"
             "Content-Length: 0\r\n"
             "\r\n";
          SipMessage validIdentitySipMessage(validIdentityMessage, strlen(validIdentityMessage));
-         SipXauthIdentity validIdentity(validIdentitySipMessage);
+
+         SipXauthIdentity validXAuthIdentity(validIdentitySipMessage,
+             SipXauthIdentity::AuthIdentityHeaderName);
+
+         SipXauthIdentity validPAIdentity(validIdentitySipMessage,
+             SipXauthIdentity::PAssertedIdentityHeaderName);
 
          identityString = "";
-         CPPUNIT_ASSERT(validIdentity.getIdentity(identityString));
+         CPPUNIT_ASSERT(validXAuthIdentity.getIdentity(identityString));
          ASSERT_STR_EQUAL("identity@example.com", identityString.data());
 
+         CPPUNIT_ASSERT(validPAIdentity.getIdentity(identityString));
+         ASSERT_STR_EQUAL("identity@example.com", identityString.data());
          // test an INVITE with more then one identity, last identity invalid
          // (signature is not tested.)
          const char* identitiesMessage =
@@ -192,7 +228,9 @@ public:
             "Content-Length: 0\r\n"
             "\r\n";
          SipMessage identitiesSipMessage(identitiesMessage, strlen(identitiesMessage));
-         SipXauthIdentity identities(identitiesSipMessage);
+
+         SipXauthIdentity identities(identitiesSipMessage,
+             SipXauthIdentity::AuthIdentityHeaderName);
 
          identityString = "";
          CPPUNIT_ASSERT(!identities.getIdentity(identityString));
@@ -215,7 +253,9 @@ public:
             "Content-Length: 0\r\n"
             "\r\n";
          SipMessage identitiesSipMessage1(identitiesMessage1, strlen(identitiesMessage1));
-         SipXauthIdentity identities1(identitiesSipMessage1);
+
+         SipXauthIdentity identities1(identitiesSipMessage1,
+             SipXauthIdentity::AuthIdentityHeaderName);
 
          identityString = "";
          CPPUNIT_ASSERT(identities1.getIdentity(identityString));
@@ -238,7 +278,9 @@ public:
             "Content-Length: 0\r\n"
             "\r\n";
          SipMessage identitiesSipMessage2(identitiesMessage2, strlen(identitiesMessage2));
-         SipXauthIdentity identities2(identitiesSipMessage2);
+
+         SipXauthIdentity identities2(identitiesSipMessage2,
+             SipXauthIdentity::AuthIdentityHeaderName);
 
          identityString = "";
          CPPUNIT_ASSERT(identities2.getIdentity(identityString));
@@ -261,7 +303,9 @@ public:
             "Content-Length: 0\r\n"
             "\r\n";
          SipMessage identitiesSipMessage3(identitiesMessage3, strlen(identitiesMessage3));
-         SipXauthIdentity identities3(identitiesSipMessage3);
+
+         SipXauthIdentity identities3(identitiesSipMessage3,
+             SipXauthIdentity::AuthIdentityHeaderName);
 
          identityString = "";
          CPPUNIT_ASSERT(identities3.getIdentity(identityString));
@@ -284,14 +328,25 @@ public:
             "X-Sipx-Authidentity: <sip:identity@example.com;signature=46A55D33%3A%3A"
             "56681beb4f29fc796f6ae9d0ad0269d2" // MD5: 46A55D33+testsecret+identity@example.com
             ">\r\n"
+            "P-Asserted-Identity: Caller <sip:identity@example.com;signature=46A55D33%3A%3A"
+            "56681beb4f29fc796f6ae9d0ad0269d2" // MD5: 46A55D33+testsecret+identity@example.com
+            ">\r\n"
             "Contact: caller@127.0.0.1\r\n"
             "Content-Length: 0\r\n"
             "\r\n";
          SipMessage validIdentitySipMessage(validIdentityMessage, strlen(validIdentityMessage));
-         SipXauthIdentity validIdentity(validIdentitySipMessage, SipXauthIdentity::allowUnbound);
+         SipXauthIdentity validXAuthIdentity(validIdentitySipMessage,
+                                             SipXauthIdentity::AuthIdentityHeaderName,
+                                             SipXauthIdentity::allowUnbound);
+         SipXauthIdentity validPAIdentity(validIdentitySipMessage,
+                                             SipXauthIdentity::PAssertedIdentityHeaderName,  
+                                             SipXauthIdentity::allowUnbound);
 
          identityString = "";
-         CPPUNIT_ASSERT(validIdentity.getIdentity(identityString));
+         CPPUNIT_ASSERT(validXAuthIdentity.getIdentity(identityString));
+         ASSERT_STR_EQUAL("identity@example.com", identityString.data());
+
+         CPPUNIT_ASSERT(validPAIdentity.getIdentity(identityString));
          ASSERT_STR_EQUAL("identity@example.com", identityString.data());
       }
 
@@ -404,20 +459,40 @@ public:
             "\r\n";
          SipMessage noIdentitySipMessage(noIdentityMessage, strlen(noIdentityMessage));
          SipMessage yesIdentitySipMessage(noIdentityMessage, strlen(noIdentityMessage));
-         SipXauthIdentity identity(noIdentitySipMessage);
 
-         identity.setIdentity("identity@example.com");
+         SipXauthIdentity xAuthIdentity(noIdentitySipMessage,
+             SipXauthIdentity::AuthIdentityHeaderName);
+
+         SipXauthIdentity pAIdentity(noIdentitySipMessage,
+             SipXauthIdentity::PAssertedIdentityHeaderName);
+
+         xAuthIdentity.setIdentity("identity@example.com");
+         pAIdentity.setIdentity("identity@example.com");
          identityString = "badcontent";
-         CPPUNIT_ASSERT(identity.getIdentity(identityString));
+         CPPUNIT_ASSERT(xAuthIdentity.getIdentity(identityString));
          ASSERT_STR_EQUAL("identity@example.com", identityString.data());
 
-         identity.insert(yesIdentitySipMessage);
-
-         SipXauthIdentity validIdentity(yesIdentitySipMessage);
-         identityString = "badcontent";
-         CPPUNIT_ASSERT(validIdentity.getIdentity(identityString));
+         CPPUNIT_ASSERT(pAIdentity.getIdentity(identityString));
          ASSERT_STR_EQUAL("identity@example.com", identityString.data());
 
+         xAuthIdentity.insert(yesIdentitySipMessage,SipXauthIdentity::AuthIdentityHeaderName);
+         pAIdentity.insert(yesIdentitySipMessage,SipXauthIdentity::PAssertedIdentityHeaderName);
+
+         SipXauthIdentity validXAuthIdentity(yesIdentitySipMessage,
+             SipXauthIdentity::AuthIdentityHeaderName);
+
+         SipXauthIdentity validPAIdentity(yesIdentitySipMessage,
+             SipXauthIdentity::PAssertedIdentityHeaderName);
+
+         identityString = "badcontent";
+         CPPUNIT_ASSERT(validXAuthIdentity.getIdentity(identityString));
+         ASSERT_STR_EQUAL("identity@example.com", identityString.data());
+
+   
+         CPPUNIT_ASSERT(validPAIdentity.getIdentity(identityString));
+         ASSERT_STR_EQUAL("identity@example.com", identityString.data());
+
+         
          // test an INVITE with valid identity
          const char* identityMessage =
             "INVITE sip:user@somewhere.example.com SIP/2.0\r\n"
@@ -427,6 +502,9 @@ public:
             "X-Sipx-Authidentity: <sip:identity@example.com;signature=46A55D33%3A"
             "56681beb4f29fc796f6ae9d0ad0269d2" // MD5: 46A55D33+testsecret+30543f3483e1cb11ecb40866edd3295b+f88dfabce84b6a2787ef024a7dbe8749+identity@example.com
             ">\r\n"
+            "P-Asserted-Identity: <sip:identity@example.com;signature=46A55D33%3A"
+            "56681beb4f29fc796f6ae9d0ad0269d2" // MD5: 46A55D33+testsecret+30543f3483e1cb11ecb40866edd3295b+f88dfabce84b6a2787ef024a7dbe8749+identity@example.com
+            ">\r\n"
             "Call-Id: f88dfabce84b6a2787ef024a7dbe8749\r\n"
             "Cseq: 1 INVITE\r\n"
             "Max-Forwards: 20\r\n"
@@ -434,19 +512,38 @@ public:
             "Content-Length: 0\r\n"
             "\r\n";
          SipMessage identitySipMessage(identityMessage, strlen(identityMessage));
-         SipXauthIdentity identity1(identitySipMessage);
+         SipXauthIdentity xAuthIdentity1(identitySipMessage,
+             SipXauthIdentity::AuthIdentityHeaderName);
 
-         CPPUNIT_ASSERT(identity1.getIdentity(identityString));
+         SipXauthIdentity pAIdentity1(identitySipMessage,
+             SipXauthIdentity::PAssertedIdentityHeaderName);
+
+         CPPUNIT_ASSERT(xAuthIdentity1.getIdentity(identityString));
          ASSERT_STR_EQUAL("identity@example.com", identityString.data());
  
-         // set different identity
-         identity1.setIdentity("anotheridentity@example.net");
-         // insert new identity into message
-         identity1.insert(identitySipMessage);
+         CPPUNIT_ASSERT(pAIdentity1.getIdentity(identityString));
+         ASSERT_STR_EQUAL("identity@example.com", identityString.data());
 
-         SipXauthIdentity identity2(identitySipMessage);
-         CPPUNIT_ASSERT(identity2.getIdentity(identityString));
+
+         // set different identity
+         xAuthIdentity1.setIdentity("anotheridentity@example.net");
+         pAIdentity1.setIdentity("anotheridentity@example.net");
+         // insert new identity into message
+         xAuthIdentity1.insert(identitySipMessage, SipXauthIdentity::AuthIdentityHeaderName);
+         pAIdentity1.insert(identitySipMessage, SipXauthIdentity::PAssertedIdentityHeaderName);
+
+         SipXauthIdentity xAuthIdentity2(identitySipMessage,
+             SipXauthIdentity::AuthIdentityHeaderName);
+
+         CPPUNIT_ASSERT(xAuthIdentity2.getIdentity(identityString));
          ASSERT_STR_EQUAL("anotheridentity@example.net", identityString.data());
+
+         SipXauthIdentity pAIdentity2(identitySipMessage,
+             SipXauthIdentity::PAssertedIdentityHeaderName);
+
+         CPPUNIT_ASSERT(xAuthIdentity2.getIdentity(identityString));
+         ASSERT_STR_EQUAL("anotheridentity@example.net", identityString.data());
+
       }
 
    void testIdentityEncodeUriBound()
@@ -470,7 +567,7 @@ public:
             "Content-Length: 0\r\n"
             "\r\n";
          SipMessage noIdentitySipMessage(noIdentityMessage, strlen(noIdentityMessage));
-         SipXauthIdentity identity(noIdentitySipMessage);
+         SipXauthIdentity identity(noIdentitySipMessage, SipXauthIdentity::AuthIdentityHeaderName);
 
          identity.setIdentity("identity@example.com");
          identityString = "badcontent";
@@ -534,13 +631,27 @@ public:
             "\r\n";
          SipMessage noIdentitySipMessage(noIdentityMessage, strlen(noIdentityMessage));
          SipMessage yesIdentitySipMessage(noIdentityMessage, strlen(noIdentityMessage));
-         SipXauthIdentity noIdentity(noIdentitySipMessage);
 
-         noIdentity.remove(noIdentitySipMessage);
+         SipXauthIdentity noXAuthIdentity(noIdentitySipMessage,
+             SipXauthIdentity::AuthIdentityHeaderName);
 
-         SipXauthIdentity validIdentity(noIdentitySipMessage);
+         SipXauthIdentity noPAIdentity(noIdentitySipMessage,
+             SipXauthIdentity::PAssertedIdentityHeaderName);
+
+         noXAuthIdentity.remove(noIdentitySipMessage, SipXauthIdentity::AuthIdentityHeaderName);
+         noPAIdentity.remove(noIdentitySipMessage, SipXauthIdentity::PAssertedIdentityHeaderName);
+
+         SipXauthIdentity validXAuthIdentity(noIdentitySipMessage,
+             SipXauthIdentity::AuthIdentityHeaderName);
+
+         SipXauthIdentity validPAIdentity(noIdentitySipMessage,
+             SipXauthIdentity::PAssertedIdentityHeaderName);
+
          identityString = "badcontent";
-         CPPUNIT_ASSERT(!validIdentity.getIdentity(identityString));
+         CPPUNIT_ASSERT(!validXAuthIdentity.getIdentity(identityString));
+         CPPUNIT_ASSERT(identityString.isNull());
+
+         CPPUNIT_ASSERT(!validPAIdentity.getIdentity(identityString));
          CPPUNIT_ASSERT(identityString.isNull());
 
          // test an INVITE with valid identity
@@ -552,6 +663,9 @@ public:
             "X-Sipx-Authidentity: <sip:identity@example.com;signature=46A55D33%3A"
             "56681beb4f29fc796f6ae9d0ad0269d2" // MD5: 46A55D33+testsecret+30543f3483e1cb11ecb40866edd3295b+f88dfabce84b6a2787ef024a7dbe8749+identity@example.com
             ">\r\n"
+            "P-Asserted-Identity: <sip:identity@example.com;signature=46A55D33%3A"
+            "56681beb4f29fc796f6ae9d0ad0269d2" // MD5: 46A55D33+testsecret+30543f3483e1cb11ecb40866edd3295b+f88dfabce84b6a2787ef024a7dbe8749+identity@example.com
+            ">\r\n"
             "Call-Id: f88dfabce84b6a2787ef024a7dbe8749\r\n"
             "Cseq: 1 INVITE\r\n"
             "Max-Forwards: 20\r\n"
@@ -559,17 +673,37 @@ public:
             "Content-Length: 0\r\n"
             "\r\n";
          SipMessage identitySipMessage(identityMessage, strlen(identityMessage));
-         SipXauthIdentity identity1(identitySipMessage);
 
-         CPPUNIT_ASSERT(identity1.getIdentity(identityString));
+         SipXauthIdentity xAuthIdentity1(identitySipMessage,
+             SipXauthIdentity::AuthIdentityHeaderName);
+
+         SipXauthIdentity pAIdentity1(identitySipMessage,
+             SipXauthIdentity::PAssertedIdentityHeaderName);
+
+         CPPUNIT_ASSERT(xAuthIdentity1.getIdentity(identityString));
          ASSERT_STR_EQUAL("identity@example.com", identityString.data());
 
-         SipXauthIdentity::remove(identitySipMessage);
+         CPPUNIT_ASSERT(pAIdentity1.getIdentity(identityString));
+         ASSERT_STR_EQUAL("identity@example.com", identityString.data());
 
-         SipXauthIdentity identity2(identitySipMessage);
+         SipXauthIdentity::remove(identitySipMessage, SipXauthIdentity::AuthIdentityHeaderName);
+
+         SipXauthIdentity::remove(identitySipMessage,
+             SipXauthIdentity::PAssertedIdentityHeaderName);
+
+         SipXauthIdentity xAuthIdentity2(identitySipMessage,
+             SipXauthIdentity::AuthIdentityHeaderName);
+
+         SipXauthIdentity pAIdentity2(identitySipMessage,
+             SipXauthIdentity::PAssertedIdentityHeaderName);
+
          identityString = "badcontent";
-         CPPUNIT_ASSERT(!identity2.getIdentity(identityString));
+         CPPUNIT_ASSERT(!xAuthIdentity2.getIdentity(identityString));
          CPPUNIT_ASSERT(identityString.isNull());
+    
+         CPPUNIT_ASSERT(!pAIdentity2.getIdentity(identityString));
+         CPPUNIT_ASSERT(identityString.isNull());
+
       }
 
    void testIdentityNormalize()
@@ -594,13 +728,27 @@ public:
             "\r\n";
          SipMessage noIdentitySipMessage(noIdentityMessage, strlen(noIdentityMessage));
          SipMessage yesIdentitySipMessage(noIdentityMessage, strlen(noIdentityMessage));
-         SipXauthIdentity noIdentity(noIdentitySipMessage);
+         SipXauthIdentity noXAuthIdentity(noIdentitySipMessage,
+             SipXauthIdentity::AuthIdentityHeaderName);
+         SipXauthIdentity noPAIdentity(noIdentitySipMessage,
+             SipXauthIdentity::PAssertedIdentityHeaderName);
 
-         noIdentity.normalize(noIdentitySipMessage);
+         noXAuthIdentity.normalize(noIdentitySipMessage, SipXauthIdentity::AuthIdentityHeaderName);
 
-         SipXauthIdentity validIdentity(noIdentitySipMessage);
+         noPAIdentity.normalize(noIdentitySipMessage,
+             SipXauthIdentity::PAssertedIdentityHeaderName);
+
+         SipXauthIdentity validXAuthIdentity(noIdentitySipMessage,
+             SipXauthIdentity::AuthIdentityHeaderName);
+
+         SipXauthIdentity validPAIdentity(noIdentitySipMessage,
+             SipXauthIdentity::PAssertedIdentityHeaderName);
+
          identityString = "badcontent";
-         CPPUNIT_ASSERT(!validIdentity.getIdentity(identityString));
+         CPPUNIT_ASSERT(!validXAuthIdentity.getIdentity(identityString));
+         CPPUNIT_ASSERT(identityString.isNull());
+
+         CPPUNIT_ASSERT(!validPAIdentity.getIdentity(identityString));
          CPPUNIT_ASSERT(identityString.isNull());
 
          // test an INVITE with one valid identity
@@ -620,14 +768,14 @@ public:
             "Content-Length: 0\r\n"
             "\r\n";
          SipMessage identitySipMessage(identityMessage, strlen(identityMessage));
-         SipXauthIdentity identity1(identitySipMessage);
+         SipXauthIdentity identity1(identitySipMessage, SipXauthIdentity::AuthIdentityHeaderName);
 
          CPPUNIT_ASSERT(identity1.getIdentity(identityString));
          ASSERT_STR_EQUAL("id@example.com", identityString.data());
 
-         SipXauthIdentity::remove(identitySipMessage);
+         SipXauthIdentity::remove(identitySipMessage, SipXauthIdentity::AuthIdentityHeaderName);
 
-         SipXauthIdentity identity2(identitySipMessage);
+         SipXauthIdentity identity2(identitySipMessage, SipXauthIdentity::AuthIdentityHeaderName);
          identityString = "badcontent";
          CPPUNIT_ASSERT(!identity2.getIdentity(identityString));
          CPPUNIT_ASSERT(identityString.isNull());
@@ -651,14 +799,14 @@ public:
             "Content-Length: 0\r\n"
             "\r\n";
          SipMessage identitySipMessage1(identityMessage1, strlen(identityMessage1));
-         SipXauthIdentity id(identitySipMessage1);
+         SipXauthIdentity id(identitySipMessage1, SipXauthIdentity::AuthIdentityHeaderName);
 
          CPPUNIT_ASSERT(id.getIdentity(identityString));
          ASSERT_STR_EQUAL("id@example.com", identityString.data());
 
-         SipXauthIdentity::remove(identitySipMessage1);
+         SipXauthIdentity::remove(identitySipMessage1, SipXauthIdentity::AuthIdentityHeaderName);
 
-         SipXauthIdentity ident(identitySipMessage1);
+         SipXauthIdentity ident(identitySipMessage1, SipXauthIdentity::AuthIdentityHeaderName);
          identityString = "badcontent";
          CPPUNIT_ASSERT(!ident.getIdentity(identityString));
          CPPUNIT_ASSERT(identityString.isNull());
@@ -689,44 +837,83 @@ public:
             "Content-Length: 0\r\n"
             "\r\n";
          SipMessage identitySipMessage(identityMessage, strlen(identityMessage));
-         SipXauthIdentity identity(identitySipMessage);
 
-         identity.setIdentity("temporaryidentity@example.com");
+         SipXauthIdentity xAuthIdentity(identitySipMessage,
+             SipXauthIdentity::AuthIdentityHeaderName);
+
+         SipXauthIdentity pAIdentity(identitySipMessage,
+             SipXauthIdentity::PAssertedIdentityHeaderName);
+
+         xAuthIdentity.setIdentity("temporaryidentity@example.com");
          identityString = "badcontent";
-         CPPUNIT_ASSERT(identity.getIdentity(identityString));
+         CPPUNIT_ASSERT(xAuthIdentity.getIdentity(identityString));
          ASSERT_STR_EQUAL("temporaryidentity@example.com", identityString.data());
 
          OsDateTime now;
          OsDateTime::getCurTime(now);
-         identity.insert(identitySipMessage, &now);
+         xAuthIdentity.insert(identitySipMessage,SipXauthIdentity::AuthIdentityHeaderName, &now);
+         pAIdentity.insert(identitySipMessage,SipXauthIdentity::PAssertedIdentityHeaderName, &now);
 
          OsTask::delay(4000);
 
          // Identity should expire by now
-         SipXauthIdentity expiredIdentity(identitySipMessage);
+         SipXauthIdentity expiredXAuthIdentity(identitySipMessage,
+             SipXauthIdentity::AuthIdentityHeaderName);
+   
+         SipXauthIdentity expiredPAIdentity(identitySipMessage,
+             SipXauthIdentity::PAssertedIdentityHeaderName);
+
          identityString = "badcontent";
-         CPPUNIT_ASSERT(!expiredIdentity.getIdentity(identityString));
+         CPPUNIT_ASSERT(!expiredXAuthIdentity.getIdentity(identityString));
          CPPUNIT_ASSERT(identityString.isNull());
 
-         SipXauthIdentity::remove(identitySipMessage);
+         CPPUNIT_ASSERT(!expiredPAIdentity.getIdentity(identityString));
+         CPPUNIT_ASSERT(identityString.isNull());
+
+         SipXauthIdentity::remove(identitySipMessage, SipXauthIdentity::AuthIdentityHeaderName);
+
+         SipXauthIdentity::remove(identitySipMessage,
+             SipXauthIdentity::PAssertedIdentityHeaderName);
 
          // insert expired identity
-         expiredIdentity.setIdentity("expiredidentity@temp.com");
-         expiredIdentity.insert(identitySipMessage, &now);
+         expiredXAuthIdentity.setIdentity("expiredidentity@temp.com");
+         expiredXAuthIdentity.insert(identitySipMessage,
+             SipXauthIdentity::AuthIdentityHeaderName, &now);
+
+         expiredPAIdentity.setIdentity("expiredidentity@temp.com");
+         expiredPAIdentity.insert(identitySipMessage,
+             SipXauthIdentity::PAssertedIdentityHeaderName, &now);
 
          // Identity should be expired already
-         SipXauthIdentity expiredIdentity1(identitySipMessage);
+         SipXauthIdentity expiredXAuthIdentity1(identitySipMessage,
+             SipXauthIdentity::AuthIdentityHeaderName);
+
+         SipXauthIdentity expiredPAIdentity1(identitySipMessage,
+             SipXauthIdentity::PAssertedIdentityHeaderName);
+
          identityString = "badcontent";
-         CPPUNIT_ASSERT(!expiredIdentity1.getIdentity(identityString));
+
+         CPPUNIT_ASSERT(!expiredXAuthIdentity1.getIdentity(identityString));
+         CPPUNIT_ASSERT(identityString.isNull());
+
+         CPPUNIT_ASSERT(!expiredPAIdentity1.getIdentity(identityString));
          CPPUNIT_ASSERT(identityString.isNull());
 
          // validity 1 hour
          SipXauthIdentity::setSignatureValidityInterval(OsTime(3600,0));
 
          // identity should be still valid
-         SipXauthIdentity validIdentity(identitySipMessage);
+         SipXauthIdentity validXAuthIdentity(identitySipMessage,
+             SipXauthIdentity::AuthIdentityHeaderName);
+
+         SipXauthIdentity validPAIdentity(identitySipMessage,
+             SipXauthIdentity::PAssertedIdentityHeaderName);
+
          identityString = "badcontent";
-         CPPUNIT_ASSERT(validIdentity.getIdentity(identityString));
+         CPPUNIT_ASSERT(validXAuthIdentity.getIdentity(identityString));
+         ASSERT_STR_EQUAL("expiredidentity@temp.com", identityString.data());
+
+         CPPUNIT_ASSERT(validPAIdentity.getIdentity(identityString));
          ASSERT_STR_EQUAL("expiredidentity@temp.com", identityString.data());
 
          // reset validity back to 0
