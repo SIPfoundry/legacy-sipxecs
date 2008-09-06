@@ -149,6 +149,9 @@ public:
          SipMessage testMsg(message, strlen(message));
          SipMessage testRsp;
          CPPUNIT_ASSERT_EQUAL(SipRouter::SendResponse,mSipRouter->proxyMessage(testMsg, testRsp));
+         CPPUNIT_ASSERT_EQUAL(SIP_BAD_EXTENSION_CODE, testRsp.getResponseStatusCode());
+         ASSERT_STR_EQUAL("DavesInsanitySauce",testRsp.getHeaderValue(0, SIP_UNSUPPORTED_FIELD));
+         CPPUNIT_ASSERT(!testRsp.getHeaderValue(1, SIP_UNSUPPORTED_FIELD));
       }
 
    void testUnsupportedOptionFirst()
@@ -170,6 +173,9 @@ public:
          SipMessage testMsg(message, strlen(message));
          SipMessage testRsp;
          CPPUNIT_ASSERT_EQUAL(SipRouter::SendResponse,mSipRouter->proxyMessage(testMsg, testRsp));
+         CPPUNIT_ASSERT_EQUAL(SIP_BAD_EXTENSION_CODE, testRsp.getResponseStatusCode());
+         ASSERT_STR_EQUAL("DavesInsanitySauce",testRsp.getHeaderValue(0, SIP_UNSUPPORTED_FIELD));
+         CPPUNIT_ASSERT(!testRsp.getHeaderValue(1, SIP_UNSUPPORTED_FIELD));
       }
 
    void testUnsupportedOptionMiddle()
@@ -191,6 +197,9 @@ public:
          SipMessage testMsg(message, strlen(message));
          SipMessage testRsp;
          CPPUNIT_ASSERT_EQUAL(SipRouter::SendResponse,mSipRouter->proxyMessage(testMsg, testRsp));
+         CPPUNIT_ASSERT_EQUAL(SIP_BAD_EXTENSION_CODE, testRsp.getResponseStatusCode());
+         ASSERT_STR_EQUAL("DavesInsanitySauce",testRsp.getHeaderValue(0, SIP_UNSUPPORTED_FIELD));
+         CPPUNIT_ASSERT(!testRsp.getHeaderValue(1, SIP_UNSUPPORTED_FIELD));
       }
 
    void testUnsupportedOptionLast()
@@ -212,6 +221,9 @@ public:
          SipMessage testMsg(message, strlen(message));
          SipMessage testRsp;
          CPPUNIT_ASSERT_EQUAL(SipRouter::SendResponse,mSipRouter->proxyMessage(testMsg, testRsp));
+         CPPUNIT_ASSERT_EQUAL(SIP_BAD_EXTENSION_CODE, testRsp.getResponseStatusCode());
+         ASSERT_STR_EQUAL("DavesInsanitySauce",testRsp.getHeaderValue(0, SIP_UNSUPPORTED_FIELD));
+         CPPUNIT_ASSERT(!testRsp.getHeaderValue(1, SIP_UNSUPPORTED_FIELD));
       }
    
    void testGenericProxy()
