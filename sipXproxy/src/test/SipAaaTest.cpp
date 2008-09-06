@@ -132,15 +132,15 @@ public:
          const char authRules[] =
             "<?xml version='1.0' encoding='UTF-8' standalone='yes'?>"
             "<mappings xmlns='http://www.sipfoundry.org/sipX/schema/xml/urlauth-00-00'>"
-	       "<hostMatch>"
-		 "<hostPattern>somewhere.com</hostPattern>"
-		 "<userMatch>"
-		   "<userPattern>.</userPattern>"
-		   "<permissionMatch>"
-		     "<permission>NoAccess</permission>"
-		   "</permissionMatch>"
-		 "</userMatch>"
-	       "</hostMatch>"
+               "<hostMatch>"
+                 "<hostPattern>somewhere.com</hostPattern>"
+                 "<userMatch>"
+                   "<userPattern>.</userPattern>"
+                   "<permissionMatch>"
+                     "<permission>NoAccess</permission>"
+                   "</permissionMatch>"
+                 "</userMatch>"
+               "</hostMatch>"
             "</mappings>";
          SipAaa aaa(*mUserAgent, "TestRealm", routeName, authRules);
 
@@ -213,15 +213,15 @@ public:
          const char authRules[] =
             "<?xml version='1.0' encoding='UTF-8' standalone='yes'?>"
             "<mappings xmlns='http://www.sipfoundry.org/sipX/schema/xml/urlauth-00-00'>"
-	       "<hostMatch>"
-		 "<hostPattern>somewhere.com</hostPattern>"
-		 "<userMatch>"
-		   "<userPattern>.</userPattern>"
-		   "<permissionMatch>"
-		     "<permission>NoAccess</permission>"
-		   "</permissionMatch>"
-		 "</userMatch>"
-	       "</hostMatch>"
+               "<hostMatch>"
+                 "<hostPattern>somewhere.com</hostPattern>"
+                 "<userMatch>"
+                   "<userPattern>.</userPattern>"
+                   "<permissionMatch>"
+                     "<permission>NoAccess</permission>"
+                   "</permissionMatch>"
+                 "</userMatch>"
+               "</hostMatch>"
             "</mappings>";
          SipAaa aaa(*mUserAgent, "TestRealm", routeName, authRules);
 
@@ -255,15 +255,15 @@ public:
          const char authRules[] =
             "<?xml version='1.0' encoding='UTF-8' standalone='yes'?>"
             "<mappings xmlns='http://www.sipfoundry.org/sipX/schema/xml/urlauth-00-00'>"
-	       "<hostMatch>"
-		 "<hostPattern>somewhere.com</hostPattern>"
-		 "<userMatch>"
-		   "<userPattern>.</userPattern>"
-		   "<permissionMatch>"
-		     "<permission>NoAccess</permission>"
-		   "</permissionMatch>"
-		 "</userMatch>"
-	       "</hostMatch>"
+               "<hostMatch>"
+                 "<hostPattern>somewhere.com</hostPattern>"
+                 "<userMatch>"
+                   "<userPattern>.</userPattern>"
+                   "<permissionMatch>"
+                     "<permission>NoAccess</permission>"
+                   "</permissionMatch>"
+                 "</userMatch>"
+               "</hostMatch>"
             "</mappings>";
          SipAaa aaa(*mUserAgent, "TestRealm", routeName, authRules);
 
