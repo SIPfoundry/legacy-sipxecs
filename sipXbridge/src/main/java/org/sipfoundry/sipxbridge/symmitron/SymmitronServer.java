@@ -678,6 +678,7 @@ public class SymmitronServer implements Symmitron {
         }
     }
 
+    
     public Map<String, Object> getSymStatistics(String controllerHandle, String symId) {
         try {
             Sym sym = sessionMap.get(symId);
@@ -685,20 +686,12 @@ public class SymmitronServer implements Symmitron {
                 return this.createErrorMap(SESSION_NOT_FOUND, "Specified sym was not found "
                         + symId);
             }
-            Map<String, Object> retval = new HashMap<String, Object>();
-            retval.put(Symmitron.SESSION_STATE, sym.getState().toString());
-            retval.put(Symmitron.CREATION_TIME, new Long(sym.getCreationTime()));
-            retval.put(Symmitron.LAST_PACKET_RECEIVED, new Long(sym.getLastPacketTime()));
-            retval.put(Symmitron.CURRENT_TIME_OF_DAY, new Long(System.currentTimeMillis())
-                    .toString());
-            if (sym.getTransmitter() != null)
-                retval.put(Symmitron.PACKETS_SENT,
-                        new Long(sym.getTransmitter().getPacketsSent()));
-            else
-                retval.put(Symmitron.PACKETS_RECEIVED, new Long(0));
-            retval.put(Symmitron.PACKETS_RECEIVED, new Long(sym.getPacketsReceived()));
+          
+           Map<String,Object> stats = sym.getStats();
 
-            return null;
+           Map<String,Object> retval = this.createSuccessMap();
+           retval.putAll(stats);
+           return retval;
         } catch (Throwable ex) {
             logger.error("Processing Error", ex);
             return createErrorMap(PROCESSING_ERROR, ex.getMessage());
@@ -718,6 +711,13 @@ public class SymmitronServer implements Symmitron {
             retval.put(Symmitron.LAST_PACKET_RECEIVED, new Long(bridge.getLastPacketTime()));
             retval.put(Symmitron.CURRENT_TIME_OF_DAY, new Long(System.currentTimeMillis())
                     .toString());
+            Map<String,Object> symStats = new HashMap<String,Object>();
+            for ( Sym sym : bridge.getSyms() ) {
+                Map<String,Object> stats = sym.getStats();
+                symStats.put(sym.getId(), stats);
+                
+            }
+            retval.put(Symmitron.SYM_SESSION_STATS, symStats);
             return retval;
         } catch (Throwable ex) {
             logger.error("Processing Error", ex);

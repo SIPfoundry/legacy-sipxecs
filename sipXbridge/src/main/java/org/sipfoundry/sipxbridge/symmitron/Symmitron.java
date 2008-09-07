@@ -544,11 +544,7 @@ public interface Symmitron {
      *         <ul>
      *         <li><it>current-time-of-day</it> - the current time of day (
      *         according to symitrons clock )
-     *         <li><it>sym</it> - pointer to a hash map containing the sym (
-     *         note that this contains the current receiver port.
      *         <li><it>creation-time</it> - time this session was created.
-     *         <li><it>idle-timer-starts</it> - number of times ( from start
-     *         of session ) that the idle timer kicked in.
      *         <li><it>packets-sent</it> - number of packets sent.
      *         <li><it>packets-received</it> - number of packets received.
      *         </ul>
@@ -570,7 +566,6 @@ public interface Symmitron {
      *         the following statistics is returned.
      *         <ul>
      *
-     *         <li><it>bridge-state</it> -- current time of day.
      *         <li><it>current-time-of-day</it> -- current time of day.
      *         <li><it>creation-time</it> -- time this bridge was created.
      *         <li><it>bridge-state</it> -- the bridge state.

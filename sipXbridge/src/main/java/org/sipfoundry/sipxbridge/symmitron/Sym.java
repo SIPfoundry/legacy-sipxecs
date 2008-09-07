@@ -8,13 +8,13 @@ package org.sipfoundry.sipxbridge.symmitron;
 
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 
 import org.apache.log4j.Logger;
 
 /**
- * Representation of a media session. A media sesison is a pair of media
- * endpoints.
+ * Representation of a media session. A media sesison is a pair of media endpoints.
  * 
  * @author M. Ranganathan
  * 
@@ -30,7 +30,7 @@ final class Sym implements SymInterface, Serializable {
     private long creationTime;
 
     long lastPacketTime;
-    
+
     private int inactivityTimeout = -1;
 
     /*
@@ -53,11 +53,8 @@ final class Sym implements SymInterface, Serializable {
     public Sym() {
         id = "sym:" + Math.abs(new Random().nextLong());
         this.creationTime = System.currentTimeMillis();
-      
 
     }
-
-   
 
     public HashMap<String, Object> toMap() {
         HashMap<String, Object> retval = new HashMap<String, Object>();
@@ -95,8 +92,7 @@ final class Sym implements SymInterface, Serializable {
     }
 
     /**
-     * Set the remote endpoint and connect the datagram socket to the remote
-     * socket address.
+     * Set the remote endpoint and connect the datagram socket to the remote socket address.
      * 
      * @param hisEndpoint
      */
@@ -139,7 +135,7 @@ final class Sym implements SymInterface, Serializable {
                     this.transmitter.getDatagramChannel().close();
                     ConcurrentSet.removeChannel(this.transmitter.getDatagramChannel());
                 } else {
-                   logger.debug("transmitter datagram channel is null"); 
+                    logger.debug("transmitter datagram channel is null");
                 }
                 this.transmitter.stopKeepalive();
                 this.transmitter = null;
@@ -157,15 +153,14 @@ final class Sym implements SymInterface, Serializable {
         sbuf.append("RtpSession = [ ");
         sbuf.append("id = " + this.id);
         if (this.receiver != null) {
-            sbuf.append(" RECEIVER : " + this.getReceiver().getIpAddress()
-                    + ":" + this.getReceiver().getPort());
+            sbuf.append(" RECEIVER : " + this.getReceiver().getIpAddress() + ":"
+                    + this.getReceiver().getPort());
         } else {
             sbuf.append("NO RECEIVER");
         }
 
         if (this.transmitter != null) {
-            sbuf.append(": TRANSMITTER : "
-                    + this.getTransmitter().getIpAddress() + ":"
+            sbuf.append(": TRANSMITTER : " + this.getTransmitter().getIpAddress() + ":"
                     + this.getTransmitter().getPort());
         } else {
             sbuf.append(": NO TRANSMITTER ");
@@ -185,11 +180,8 @@ final class Sym implements SymInterface, Serializable {
         return this.id;
     }
 
-   
-
     /**
-     * @param rtpBridge
-     *            the rtpBridge to set
+     * @param rtpBridge the rtpBridge to set
      */
     public void setBridge(Bridge bridge) {
         this.bridge = bridge;
@@ -213,22 +205,41 @@ final class Sym implements SymInterface, Serializable {
     public long getLastPacketTime() {
         return this.lastPacketTime;
     }
-    
-    public void setInactivityTimeout( int inactivityTimeout ) {
-        if ( inactivityTimeout > 0 ) {
+
+    public void setInactivityTimeout(int inactivityTimeout) {
+        if (inactivityTimeout > 0) {
             this.inactivityTimeout = inactivityTimeout;
         }
     }
-    
+
     public boolean isTimedOut() {
-        if ( this.inactivityTimeout == -1) return false;
+        if (this.inactivityTimeout == -1)
+            return false;
         long time = System.currentTimeMillis();
-        return time -lastPacketTime > this.inactivityTimeout;
+        return time - lastPacketTime > this.inactivityTimeout;
     }
 
     public long getPacketsReceived() {
-        
+
         return this.packetsReceived;
+    }
+
+    public Map<String, Object> getStats() {
+        Map<String, Object> retval = new HashMap<String, Object>();
+        retval.put(Symmitron.SESSION_STATE, this.getState().toString());
+        retval.put(Symmitron.CREATION_TIME, new Long(this.getCreationTime()));
+        retval.put(Symmitron.LAST_PACKET_RECEIVED, new Long(this.getLastPacketTime()));
+        retval
+                .put(Symmitron.CURRENT_TIME_OF_DAY, new Long(System.currentTimeMillis())
+                        .toString());
+        if (this.getTransmitter() != null) {
+            retval.put(Symmitron.PACKETS_SENT, new Long(this.getTransmitter().getPacketsSent()));
+        } else {
+            retval.put(Symmitron.PACKETS_SENT, new Long(0));
+        }
+        retval.put(Symmitron.PACKETS_RECEIVED, new Long(this.getPacketsReceived()));
+        return retval;
+        
     }
 
 }

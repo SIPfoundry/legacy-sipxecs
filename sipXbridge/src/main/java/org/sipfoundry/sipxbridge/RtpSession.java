@@ -37,10 +37,24 @@ class RtpSession {
     private RtpReceiverEndpoint rtpReceiverEndpoint;
 
     private RtpTransmitterEndpoint rtpTransmitterEndpoint;
+    
+    private int referenceCount;
 
     public RtpSession(SymImpl symImpl) {
         this.symImpl = symImpl;
         this.rtpReceiverEndpoint = new RtpReceiverEndpoint(symImpl.getReceiver());
+    }
+    
+    public void incrementReferenceCount() {
+        this.referenceCount ++;
+    }
+    
+    public void decrementReferenceCount() {
+        this.referenceCount --;
+    }
+    
+    public int getReferenceCount() {
+        return this.referenceCount;
     }
 
     public SymImpl getSym() {
@@ -230,7 +244,7 @@ class RtpSession {
             ClientTransaction mohCtx;
             try {
                 mohCtx = DialogApplicationData.getBackToBackUserAgent(dialog)
-                        .sendInviteToMohServer(
+                        .createClientTxToMohServer(
                                 (SessionDescription) this.getReceiver()
                                         .getSessionDescription().clone());
             } catch (CloneNotSupportedException e) {

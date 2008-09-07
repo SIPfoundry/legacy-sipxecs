@@ -15,12 +15,13 @@ import javax.sip.ServerTransaction;
  * the Replaces Header. This data is used to continue the processing
  * after the SDP response to the INVITE with no SDP has been received.
  */
-class HandleSpiralInviteWithReplacesContinuationData {
+class HandleSpiralInviteWithReplacesContinuationData  implements ContinuationData {
     RequestEvent requestEvent;
     Dialog replacedDialog;
     ServerTransaction serverTransaction;
     String toDomain;
     boolean isPhone;
+    private Operation operation;
 
     public HandleSpiralInviteWithReplacesContinuationData(
             RequestEvent requestEvent, Dialog replacedDialog,
@@ -31,6 +32,19 @@ class HandleSpiralInviteWithReplacesContinuationData {
         this.serverTransaction = serverTransaction;
         this.toDomain = toDomain;
         this.isPhone = isphone;
+        this.operation = Operation.HANDLE_SPIRAL_INVITE_WITH_REPLACES;
 
+    }
+
+   
+    public RequestEvent getRequestEvent() {
+       return requestEvent;
+    }
+
+
+   
+    public Operation getOperation() {
+       
+        return operation;
     }
 }

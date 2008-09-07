@@ -183,7 +183,8 @@ final class SymTransmitterEndpoint extends SymEndpoint implements SymTransmitter
         /*
          * Check if the packet is self-routed. If so route it back.
          */
-        if (checkForSelfRouting && isPacketSelfRouted(this.farEnd)) {
+        if (checkForSelfRouting && this.farEnd != null &&
+            isPacketSelfRouted(this.farEnd)) {
             if (logger.isDebugEnabled()) {
                 logger.debug("SymTransmitterEndpoint:remoteAddress = " + this.farEnd);
             }
@@ -342,7 +343,9 @@ final class SymTransmitterEndpoint extends SymEndpoint implements SymTransmitter
      */
     protected void setSocketAddress(InetSocketAddress socketAddress) {
         this.socketAddress = socketAddress;
-        this.setFarEnd();
+        if ( socketAddress != null ) {
+            this.setFarEnd();
+        }
 
     }
 

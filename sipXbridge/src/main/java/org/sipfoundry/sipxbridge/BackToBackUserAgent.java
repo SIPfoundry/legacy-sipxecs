@@ -669,7 +669,14 @@ public class BackToBackUserAgent {
             ((gov.nist.javax.sip.address.SipURIExt) uri).removeHeaders();
 
             newRequest.setRequestURI(uri);
-
+            
+            if ( referRequest.getHeader(ReferredByHeader.NAME) != null ) {
+                newRequest.setHeader(referRequest.getHeader(ReferredByHeader.NAME));
+            }
+            
+            CallIdHeader callId = Gateway.getLanProvider().getNewCallId();
+            newRequest.setHeader(callId);
+            
             SupportedHeader sh = ProtocolObjects.headerFactory.createSupportedHeader("replaces");
             newRequest.setHeader(sh);
 
@@ -705,9 +712,18 @@ public class BackToBackUserAgent {
                     ct.getDialog(), ct, ct.getRequest());
             DialogApplicationData dialogApplicationData = (DialogApplicationData) dialog
                     .getApplicationData();
-
+            
+            
+            newDialogApplicationData.rtpSession = dialogApplicationData.rtpSession;
             newDialogApplicationData.peerDialog = dialogApplicationData.peerDialog;
-            newDialogApplicationData.musicOnHoldDialog = dialogApplicationData.musicOnHoldDialog;
+           // newDialogApplicationData.musicOnHoldDialog = dialogApplicationData.musicOnHoldDialog;
+          
+            if (dialogApplicationData.musicOnHoldDialog != null ) {
+                this.sendByeToMohServer(dialogApplicationData.musicOnHoldDialog);
+                dialogApplicationData.musicOnHoldDialog = null;
+                Thread.sleep(100);
+            }
+            
             if (logger.isDebugEnabled()) {
                 logger.debug("referInviteToSipxProxy peerDialog = "
                         + newDialogApplicationData.peerDialog);
@@ -945,7 +961,7 @@ public class BackToBackUserAgent {
      * @return the dialog generated as a result of sending the invite to the MOH server.
      * 
      */
-    ClientTransaction sendInviteToMohServer(SessionDescription sessionDescription) {
+    ClientTransaction createClientTxToMohServer(SessionDescription sessionDescription) {
 
         ClientTransaction retval = null;
 
@@ -1059,7 +1075,7 @@ public class BackToBackUserAgent {
      * @throws Exception
      */
     void querySdpFromPeerDialog(RequestEvent requestEvent, Operation continuation,
-            Object continuationData) throws Exception {
+            ContinuationData continuationData) throws Exception {
         try {
             Dialog dialog = requestEvent.getDialog();
             Dialog peerDialog = DialogApplicationData.getPeerDialog(dialog);

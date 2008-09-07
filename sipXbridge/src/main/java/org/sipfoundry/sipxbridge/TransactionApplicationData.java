@@ -101,8 +101,11 @@ class TransactionApplicationData {
      */
     BackToBackUserAgent backToBackUa;
 
-     
-    Object continuationData;
+    
+    /*
+     * For the next step of the SBC state machine.
+     */
+    ContinuationData continuationData;
 
     String itspTransport;
 

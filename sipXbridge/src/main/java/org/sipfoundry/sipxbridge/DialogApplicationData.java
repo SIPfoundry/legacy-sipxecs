@@ -130,8 +130,14 @@ class DialogApplicationData {
      * @param rtpSession the rtpSession to set
      */
      void setRtpSession(RtpSession rtpSession) {
-      
+        if ( rtpSession != this.rtpSession  && this.rtpSession != null) {
+            this.rtpSession.decrementReferenceCount();
+        }
         this.rtpSession = rtpSession;
+        
+        if ( rtpSession != null )  {
+            rtpSession.incrementReferenceCount();
+        }
     }
 
     /**
