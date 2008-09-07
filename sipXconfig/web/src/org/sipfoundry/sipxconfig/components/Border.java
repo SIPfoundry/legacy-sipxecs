@@ -1,16 +1,16 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.components;
 
+import java.text.DateFormat;
 import java.text.Format;
-import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Date;
 
@@ -89,7 +89,7 @@ public abstract class Border extends BaseComponent implements PageValidateListen
     @Deprecated
     @Parameter(defaultValue = "false")
     public abstract boolean getUseDojo();
-    
+
     @Parameter
     public abstract IRender getShellDelegate();
 
@@ -98,14 +98,14 @@ public abstract class Border extends BaseComponent implements PageValidateListen
 
     /**
      * Gets the {@code Block} being used as the navigation area.
-     * 
+     *
      * @return the {@code Block} that will be rendered in the navigation area.
      */
     public abstract Block getNavigationBlock();
 
     /**
      * Sets a {@code Block} component to be used as the left navigation block.
-     * 
+     *
      * @param navigationBlock The {@code Block} to render in the navigation area.
      */
     public abstract void setNavigationBlock(Block navigationBlock);
@@ -203,7 +203,7 @@ public abstract class Border extends BaseComponent implements PageValidateListen
     }
 
     public Format getDateFormat() {
-        return new SimpleDateFormat("EEE dd MMM yyyy h:mm a", getPage().getLocale());
+        return DateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.DEFAULT, getPage().getLocale());
     }
 
     public Date getDate() {
