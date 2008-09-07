@@ -46,7 +46,9 @@ public class SchedulesTableTestUi extends WebTestCase {
 
         // go to rings and add ring with "userSchedule" schedule
         clickLink("link:forwarding");
+        setWorkingForm("callForwardingForm");
         SiteTestHelper.clickSubmitLink(tester, "addRingLink");
+        assertElementPresent("forward");
         setTextField("forward", "200");
         selectOption("schedule", "userSchedule");
         submit("form:apply");
@@ -54,6 +56,7 @@ public class SchedulesTableTestUi extends WebTestCase {
 
         // go to schedules and delete "userSchedule" schedule
         clickLink("link:schedules");
+        setWorkingForm("userSchedules");
         int rowCount = SiteTestHelper.getRowCount(tester, "schedule:list");
         assertEquals(3, rowCount);
         SiteTestHelper.selectRow(tester, 0, true);
@@ -96,6 +99,7 @@ public class SchedulesTableTestUi extends WebTestCase {
         clickLink("loginFirstTestUser");
         clickLink("toggleNavigation");
         clickLink("menu.callForwarding");
+        setWorkingForm("callForwardingForm");
         SiteTestHelper.clickSubmitLink(tester, "addRingLink");
         setTextField("forward", "200");
         selectOption("schedule", "groupSchedule");

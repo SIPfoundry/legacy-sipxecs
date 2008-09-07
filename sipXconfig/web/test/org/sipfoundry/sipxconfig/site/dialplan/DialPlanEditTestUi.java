@@ -287,7 +287,7 @@ public class DialPlanEditTestUi extends WebTestCase {
         SiteTestHelper.assertNoException(tester);
         clickLink("link:schedules");
         clickLink("addSchedule");
-        setWorkingForm("Form");
+        setWorkingForm("editScheduleForm");
         setTextField("item:name", "customRuleSchedule");
         setTextField("item:description", "Schedule for a custom rule");
         SiteTestHelper.clickSubmitLink(tester, "addPeriod");
@@ -301,7 +301,7 @@ public class DialPlanEditTestUi extends WebTestCase {
         SiteTestHelper.assertNoException(tester);
         clickLink("link:schedules");
         clickLink("addSchedule");
-        setWorkingForm("Form");
+        setWorkingForm("editScheduleForm");
         setTextField("item:name", "generalSchedule");
         setTextField("item:description", "Schedule for a rule");
         SiteTestHelper.clickSubmitLink(tester, "addPeriod");

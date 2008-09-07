@@ -407,6 +407,14 @@ ul.component-pager li
 	margin:0 5px;
 }
 
+div.date
+{
+    clear:right;
+    float:right;
+    margin:19px 7px;
+    padding:0px;
+    font-weight:bold;
+}
 
 div.right-column,
 div.help

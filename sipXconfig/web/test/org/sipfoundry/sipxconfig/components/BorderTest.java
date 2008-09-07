@@ -11,6 +11,7 @@ package org.sipfoundry.sipxconfig.components;
 
 import junit.framework.TestCase;
 
+import org.apache.tapestry.IAsset;
 import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRender;
 import org.apache.tapestry.IRequestCycle;
@@ -206,6 +207,10 @@ public class BorderTest extends TestCase {
         }
 
         public IRender getShellDelegate() {
+            return null;
+        }
+
+        public IAsset getBorderDateScript() {
             return null;
         }
     }

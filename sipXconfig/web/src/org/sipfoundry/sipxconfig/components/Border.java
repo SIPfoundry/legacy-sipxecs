@@ -9,7 +9,10 @@
  */
 package org.sipfoundry.sipxconfig.components;
 
+import java.text.Format;
+import java.text.SimpleDateFormat;
 import java.util.Collection;
+import java.util.Date;
 
 import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IAsset;
@@ -20,6 +23,7 @@ import org.apache.tapestry.IRender;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.PageRedirectException;
 import org.apache.tapestry.Tapestry;
+import org.apache.tapestry.annotations.Asset;
 import org.apache.tapestry.annotations.ComponentClass;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.InjectState;
@@ -66,6 +70,9 @@ public abstract class Border extends BaseComponent implements PageValidateListen
 
     @InjectState(value = "userSession")
     public abstract UserSession getUserSession();
+
+    @Asset("context:/WEB-INF/common/BorderDate.script")
+    public abstract IAsset getBorderDateScript();
 
     /**
      * When true - page does not require login
@@ -195,4 +202,11 @@ public abstract class Border extends BaseComponent implements PageValidateListen
         return getTapestry().getStylesheets(this);
     }
 
+    public Format getDateFormat() {
+        return new SimpleDateFormat("EEE dd MMM yyyy h:mm a", getPage().getLocale());
+    }
+
+    public Date getDate() {
+        return new Date();
+    }
 }

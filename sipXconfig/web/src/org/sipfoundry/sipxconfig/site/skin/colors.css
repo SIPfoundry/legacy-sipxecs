@@ -193,6 +193,11 @@ tr.odd-unheard, tr.even-unheard
         font-weight: bold;
 }
 
+div.date
+{
+	color: #FFFFFF;
+}
+
 div.help
 {
 	color: #355563;

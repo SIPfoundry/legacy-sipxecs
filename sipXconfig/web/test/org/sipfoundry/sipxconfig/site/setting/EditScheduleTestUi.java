@@ -30,6 +30,7 @@ public class EditScheduleTestUi extends WebTestCase {
         clickLink("toggleNavigation");
         clickLink("menu.callForwarding");
         clickLink("link:schedules");
+        setWorkingForm("userSchedules");
     }
 
     public void testAddDeleteSchedule() throws Exception {
@@ -39,6 +40,7 @@ public class EditScheduleTestUi extends WebTestCase {
         SiteTestHelper.clickSubmitLink(tester, "addPeriod");
         clickButton("form:ok");
         SiteTestHelper.assertNoUserError(tester);
+        setWorkingForm("userSchedules");
         checkCheckbox("checkbox");
         clickButton("schedule:delete");
         SiteTestHelper.assertNoUserError(tester);
@@ -54,7 +56,7 @@ public class EditScheduleTestUi extends WebTestCase {
         setTextField("to", "11:00 AM");
         clickButton("form:apply");
         SiteTestHelper.assertNoUserError(tester);
-
+        setWorkingForm("editScheduleForm");
         SiteTestHelper.clickSubmitLink(tester, "addPeriod");
         selectOption("day_0", "Monday");
         setTextField("from_0", "7:00 AM");
@@ -62,6 +64,7 @@ public class EditScheduleTestUi extends WebTestCase {
         clickButton("form:apply");
         SiteTestHelper.assertUserError(tester);
         clickButton("form:cancel");
+        setWorkingForm("userSchedules");
         checkCheckbox("checkbox");
         clickButton("schedule:delete");
         SiteTestHelper.assertNoUserError(tester);
@@ -111,6 +114,7 @@ public class EditScheduleTestUi extends WebTestCase {
         setTextField("item:name", "schedule name with spaces");
         SiteTestHelper.clickSubmitLink(tester, "addPeriod");
         clickButton("form:ok");
+        setWorkingForm("userSchedules");
         SiteTestHelper.assertNoUserError(tester);
         checkCheckbox("checkbox");
         clickButton("schedule:delete");

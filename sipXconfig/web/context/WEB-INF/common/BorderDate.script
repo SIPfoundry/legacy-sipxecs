@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<!DOCTYPE script PUBLIC
+	"-//Apache Software Foundation//Tapestry Script Specification 3.0//EN"
+	"http://jakarta.apache.org/tapestry/dtd/Script_3_0.dtd">
+<script>
+<body>
+<![CDATA[
+dojo.require("tapestry.form");
+
+function setRefreshTimer() {
+	setTimeout('refreshDate()', 30000);
+}
+
+function refreshDate() {
+	tapestry.form.submitAsync(dojo.byId("refreshForm"));
+	setTimeout('refreshDate()', 30000);
+}
+
+
+
+]]>
+</body>
+<initialization>
+setRefreshTimer()
+</initialization>
+</script>
