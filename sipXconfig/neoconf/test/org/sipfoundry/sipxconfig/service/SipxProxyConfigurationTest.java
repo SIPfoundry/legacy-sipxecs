@@ -15,6 +15,7 @@ import java.io.StringReader;
 import java.io.StringWriter;
 
 import org.apache.commons.io.IOUtils;
+import org.easymock.classextension.EasyMock;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
@@ -37,7 +38,17 @@ public class SipxProxyConfigurationTest extends SipxServiceTestBase {
 
         proxyService.setSecureSipPort("5061");
         proxyService.setSipSrvOrHostport("sipsrv.example.org");
-        proxyService.setCallResolverCallStateDb("CALL_RESOLVER_DB");
+
+        SipxCallResolverService callResolverService = new SipxCallResolverService();
+        Setting callResolverSettings = TestHelper.loadSettings("sipxcallresolver/sipxcallresolver.xml");
+        callResolverSettings.getSetting("callresolver").getSetting("CALLRESOLVER_CALL_STATE_DB").setValue("DISABLE");
+        callResolverService.setSettings(callResolverSettings);
+
+        SipxServiceManager sipxServiceManager = EasyMock.createMock(SipxServiceManager.class);
+        sipxServiceManager.getServiceByBeanId(SipxCallResolverService.BEAN_ID);
+        EasyMock.expectLastCall().andReturn(callResolverService).atLeastOnce();
+        EasyMock.replay(sipxServiceManager);
+        out.setSipxServiceManager(sipxServiceManager);
         
         out.generate(proxyService);
         

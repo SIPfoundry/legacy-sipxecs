@@ -12,7 +12,7 @@ SIPX_PROXY_TCP_PORT : ${proxyService.sipPort}
 SIPX_PROXY_UDP_PORT : ${proxyService.sipPort}
 SIPX_PROXY_CALL_STATE :
 SIPX_PROXY_CALL_STATE_LOG :
-SIPX_PROXY_CALL_STATE_DB : ${proxyService.callResolverCallStateDb}
+SIPX_PROXY_CALL_STATE_DB : $callResolverSettings.getSetting('CALLRESOLVER_CALL_STATE_DB').Value
 
 SIPX_PROXY_AUTHENTICATE_ALGORITHM :
 SIPX_PROXY_AUTHENTICATE_REALM : ${proxyService.realm}

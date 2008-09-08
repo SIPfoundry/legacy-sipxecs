@@ -294,12 +294,12 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) %{sipxpbxconf}/sipxivr/*
 %config(noreplace) %{sipxpbxconf}/sipxproxy/*
 %config(noreplace) %{sipxpbxconf}/sipxregistrar/*
+%dir %{sipxpbxconf}/sipxcallresolver
+%config(noreplace) %{sipxpbxconf}/sipxcallresolver/*
 %dir %{sipxpbxconf}/sipxpresence
-%config(noreplace) %{sipxpbxconf}/sipxpresence/sipxpresence-config.vm
+%config(noreplace) %{sipxpbxconf}/sipxpresence/*
 %dir %{sipxpbxconf}/sipxstatus
 %config(noreplace) %{sipxpbxconf}/sipxstatus/*
-%config(noreplace) %{sipxpbxconf}/sipxpresence/sipxpresence.properties
-%config(noreplace) %{sipxpbxconf}/sipxpresence/sipxpresence.xml
 %dir %{sipxpbxconf}/sipxpark
 %config(noreplace) %{sipxpbxconf}/sipxpark/*
 %dir %{sipxpbxconf}/sipxrls

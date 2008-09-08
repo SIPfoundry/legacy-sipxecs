@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE model 
-    PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN" 
+<!DOCTYPE model
+    PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN"
     "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd">
 <model>
   <type id="loglevel">
@@ -41,33 +41,32 @@
       </false>
     </boolean>
   </type>
-  <type id="port-number">
-    <integer required="yes" min="1024" max="65534" />
-  </type>
-  <group name="domain">
-    <setting name="SIPXCHANGE_DOMAIN_NAME" hidden="yes">
-      <profileName>config.defs</profileName>
-      <type />
-      <value />
+  <group name="callresolver">
+    <setting name="CALLRESOLVER_CALL_STATE_DB">
+      <type refid="enablestate" />
+      <value>ENABLE</value>
     </setting>
-  </group>
-  <group name="voice-mail">
-    <setting name="VOICEMAIL_AGE_LIMIT">
-      <profileName>config.defs</profileName>
+    <setting name="SIP_CALLRESOLVER_PURGE">
+      <type refid="enablestate" />
+      <value>ENABLE</value>
+    </setting>
+    <setting name="SIP_CALLRESOLVER_PURGE_AGE_CDR">
       <type>
-        <integer min="1" max="365" required="yes" />
+        <integer min="1" max="365" />
+      </type>
+      <value>35</value>
+    </setting>
+    <setting name="SIP_CALLRESOLVER_PURGE_AGE_CSE" advanced="yes">
+      <type>
+        <integer min="1" max="365" />
       </type>
       <value>7</value>
     </setting>
-    <setting name="SMTP_SERVER" hidden="yes">
-      <profileName>config.defs</profileName>
-      <type />
-      <value />
+    <setting name="SIP_CALLRESOLVER_CALL_DIRECTION" hidden="yes">
+      <type refid="enablestate" />
+      <value>DISABLE</value>
     </setting>
-  </group>
-  <group name="Logging">
-    <setting name="log.level">
-      <profileName>sipxpage.properties.in</profileName>
+    <setting name="SIP_CALLRESOLVER_LOG_LEVEL">
       <type refid="loglevel" />
       <value>NOTICE</value>
     </setting>

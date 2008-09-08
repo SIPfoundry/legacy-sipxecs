@@ -40,6 +40,7 @@ import org.sipfoundry.sipxconfig.domain.DomainConfigReplicatedEvent;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.service.SipxService;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
+import org.sipfoundry.sipxconfig.site.service.EditCallResolverService;
 import org.sipfoundry.sipxconfig.site.service.EditParkService;
 import org.sipfoundry.sipxconfig.site.service.EditPresenceService;
 import org.sipfoundry.sipxconfig.site.service.EditProxyService;
@@ -55,6 +56,7 @@ public abstract class ServicesTable extends BaseComponent {
         SERVICE_MAP.put("SIPRegistrar", EditRegistrarService.PAGE);
         SERVICE_MAP.put("ParkServer", EditParkService.PAGE);
         SERVICE_MAP.put("PresenceServer", EditPresenceService.PAGE);
+        SERVICE_MAP.put("CallResolver", EditCallResolverService.PAGE);
         SERVICE_MAP.put("ResourceListServer", EditResourceListService.PAGE);
         SERVICE_MAP.put("SIPStatus", EditStatusService.PAGE);
     }

@@ -17,7 +17,6 @@ Args=""
 : ${AuthoritiesDir:=${SslDir}/authorities}
 : ${ConfigDefs:=${ConfDir}/config.defs}
 : ${Configpp:=@bindir@/configpp}
-: ${ConfigFiles:=${ConfDir}/callresolver-config}
 : ${PidFile:=@SIPX_RUNDIR@/sipxcallresolver.pid}
 : ${LibDir:=@SIPX_LIBDIR@}
 : ${Psql:=psql}
@@ -76,22 +75,6 @@ postgresService() {
     else
         # SUSE, Fedora, FreeBSD and others use the name postgresql
         echo -e postgresql
-    fi
-}
-
-# Search/replace variables used in config.defs into config files
-runConfigpp() {    
-    # If the "config.defs" file exists and the <name>.in file exists for a
-    # configuration file, then run the config preprocessor to generate the
-    # fully resolved configuration file.
-    if [ -f "$ConfigDefs" ]
-    then
-      for i in $ConfigFiles ; do
-        if [ -f "${i}.in" ]
-          then
-            ${Configpp} --defs "${ConfigDefs}" --in "${i}.in" --out "$i"
-          fi
-      done
     fi
 }
 
@@ -156,7 +139,7 @@ databaseCommand() {
 # Check if call resolver is configured for HA
 HAcheck() {
    # Quietly check if we're setup for HA - we have to do database tests differently
-   resolveConfig=`cat @SIPX_CONFDIR@/callresolver-config.in | grep SIP_CALLRESOLVER_CSE_HOSTS`
+   resolveConfig=`cat @SIPX_CONFDIR@/callresolver-config | grep SIP_CALLRESOLVER_CSE_HOSTS`
    host_list=`expr match "$resolveConfig" '.*CSE_HOSTS\s*:\s*\(.*\)'`
    
    ha_with_localhost=0   
@@ -312,7 +295,7 @@ ERROR
    if [ ${Action} = CONFIGTEST ]; then
       resolveOk=1
 
-      resolveConfig=`sipx_config_value  @SIPX_CONFDIR@/callresolver-config.in SIP_CALLRESOLVER_PURGE`
+      resolveConfig=`sipx_config_value  @SIPX_CONFDIR@/callresolver-config SIP_CALLRESOLVER_PURGE`
       if ! test "${resolveConfig}" = "ENABLE"; then
       cat <<ERROR
 
@@ -323,7 +306,7 @@ Add the line:
 
    SIP_CALLRESOLVER_PURGE  : ENABLE
 
-to @SIPX_CONFDIR@/callresolver-config.in
+to @SIPX_CONFDIR@/sipxcallresolver/callresolver-config.vm
 
 ERROR
          resolveOk=0

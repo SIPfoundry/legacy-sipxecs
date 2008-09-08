@@ -82,6 +82,7 @@
     <property name="velocityEngine" ref="velocityEngine" />
     <property name="template" value="sipxproxy/sipXproxy-config.vm" />
     <property name="name" value="sipXproxy-config" />
+    <property name="sipxServiceManager" ref="sipxServiceManager" />
   </bean>
 
   <bean id="sipxRegistrarService" class="org.sipfoundry.sipxconfig.service.SipxRegistrarService" parent="sipxService"
@@ -142,6 +143,21 @@
     <property name="name" value="sipxpresence-config"/>
   </bean>
 
+  <bean id="sipxCallResolverService" class="org.sipfoundry.sipxconfig.service.SipxCallResolverService"
+    parent="sipxService" scope="prototype">
+    <property name="beanId" value="sipxCallResolverService" />
+    <property name="modelName" value="sipxcallresolver.xml" />
+    <property name="modelDir" value="sipxcallresolver" />
+    <property name="configuration" ref="sipxCallResolverConfiguration" />
+  </bean>
+
+  <bean id="sipxCallResolverConfiguration" class="org.sipfoundry.sipxconfig.service.SipxCallResolverConfiguration"
+    scope="prototype" parent="defaultConfigurationFile">
+    <property name="velocityEngine" ref="velocityEngine" />
+    <property name="template" value="sipxcallresolver/callresolver-config.vm" />
+    <property name="name" value="sipxcallresolver-config"/>
+  </bean>
+
   <bean id="sipxIvrService" class="org.sipfoundry.sipxconfig.service.SipxIvrService" parent="sipxService"
     scope="prototype">
     <property name="beanId" value="sipxIvrService" />
@@ -194,11 +210,6 @@
   <bean id="sipxMediaService" class="org.sipfoundry.sipxconfig.service.SipxMediaService"
     scope="prototype" parent="sipxService">
     <property name="beanId" value="sipxMediaService"/>
-  </bean>
-  
-  <bean id="sipxCallResolverService" class="org.sipfoundry.sipxconfig.service.SipxCallResolverService"
-    scope="prototype" parent="sipxService">
-    <property name="beanId" value="sipxCallResolverService"/>
   </bean>
   
   <bean id="sipxPageService" class="org.sipfoundry.sipxconfig.service.SipxPageService"
