@@ -4,8 +4,8 @@
 // Licensed to the User under the LGPL license.
 // 
 //////////////////////////////////////////////////////////////////////////////
-#ifndef _SIPXPROCESSCMD_H_
-#define _SIPXPROCESSCMD_H_
+#ifndef _PROCESSCMD_H_
+#define _PROCESSCMD_H_
 
 // SYSTEM INCLUDES
 
@@ -71,4 +71,4 @@ class SipxProcessCmd
    friend class SipxProcessDefinitionParserTest;
 };
 
-#endif // _SIPXPROCESSCMD_H_
+#endif // _PROCESSCMD_H_

@@ -32,7 +32,6 @@ libsipXsupervisor_la_SOURCES =  \
 	SipxProcessManager.cpp \
 	SipxProcessResourceManager.cpp \
 	SipxProcessResource.cpp \
-	SipxProcessTask.cpp \
 	ImdbResourceManager.cpp \
 	ImdbResource.cpp \
 	SqldbResourceManager.cpp \

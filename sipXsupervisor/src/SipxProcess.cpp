@@ -50,26 +50,11 @@ const char* SipxProcessStateName[/* State value */] = // must match SipxProcess:
    "Failed"
 };
 
-const char* SipxProcessEventName[/* Event value */] = // must match SipxProcess::Event
-{
-   "Startup",
-   "ConfigurationChange",
-   "ConfigurationVersionUpdate",
-   "TestPass",
-   "TestFail",
-   "CheckState",
-   "ProcessRunning",
-   "ProcessExit",
-   "Shutdown"
-};
-
 // TYPEDEFS
 // FORWARD DECLARATIONS
 
 /// constructor
-SipxProcess::SipxProcess(const UtlString& name,
-                         const UtlString& version,
-                         const OsPath& definitionFile) :
+SipxProcess::SipxProcess(const UtlString& name, const UtlString& version, const OsPath& definitionFile) :
    UtlString(name),
    mLock(OsBSem::Q_PRIORITY, OsBSem::FULL),
    mVersion(version),
@@ -342,8 +327,7 @@ SipxProcess* SipxProcess::createFromDefinition(const OsPath& definitionFile)
                         {
                            definitionValid = false;
                            XmlErrorMsg(processDefinitionDoc,errorMsg);
-                           OsSysLog::add(FAC_SUPERVISOR, PRI_ERR,
-                                         "SipxProcess::createFromDefinition "
+                           OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "SipxProcess::createFromDefinition "
                                          "'stop' content is invalid %s",
                                          errorMsg.data()
                                          );
@@ -406,15 +390,14 @@ SipxProcess* SipxProcess::createFromDefinition(const OsPath& definitionFile)
                               if (   textContent(process->mPidFile, statusChildElement)
                                   && !process->mPidFile.isNull())
                               {
-                                 // advance the statusChildElement to the first log element, if any
+                                 // advance to the statusChildElement to the first log element, if any
                                  statusChildElement = statusChildElement->NextSiblingElement();
                               }
                               else
                               {
                                  definitionValid = false;
                                  XmlErrorMsg(processDefinitionDoc,errorMsg);
-                                 OsSysLog::add(FAC_SUPERVISOR, PRI_ERR,
-                                               "SipxProcess::createFromDefinition "
+                                 OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "SipxProcess::createFromDefinition "
                                                "'pid' element is empty"
                                                " - if present, it must be a pathname %s",
                                                errorMsg.data()
@@ -442,15 +425,14 @@ SipxProcess* SipxProcess::createFromDefinition(const OsPath& definitionFile)
                                  
                                  process->mLogFiles.append(logFileResource);
                               
-                                 // advance the statusChildElement to the first log element, if any
+                                 // advance to the statusChildElement to the first log element, if any
                                  statusChildElement = statusChildElement->NextSiblingElement();
                               }
                               else
                               {
                                  definitionValid = false;
                                  XmlErrorMsg(processDefinitionDoc,errorMsg);
-                                 OsSysLog::add(FAC_SUPERVISOR, PRI_ERR,
-                                               "SipxProcess::createFromDefinition "
+                                 OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "SipxProcess::createFromDefinition "
                                                "'log' element is empty"
                                                " - if present, it must be a pathname %s",
                                                errorMsg.data()
@@ -461,8 +443,7 @@ SipxProcess* SipxProcess::createFromDefinition(const OsPath& definitionFile)
                            {
                               definitionValid = false;
                               XmlErrorMsg(processDefinitionDoc,errorMsg);
-                              OsSysLog::add(FAC_SUPERVISOR, PRI_ERR,
-                                            "SipxProcess::createFromDefinition "
+                              OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "SipxProcess::createFromDefinition "
                                             "'%s' element is invalid here: expected 'log'",
                                             statusChildElement->Value()                
                                             );
@@ -515,8 +496,7 @@ SipxProcess* SipxProcess::createFromDefinition(const OsPath& definitionFile)
                         {
                            definitionValid = false;
                            XmlErrorMsg(processDefinitionDoc,errorMsg);
-                           OsSysLog::add(FAC_SUPERVISOR, PRI_ERR,
-                                         "SipxProcess::createFromDefinition "
+                           OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "SipxProcess::createFromDefinition "
                                          "'%s' element is invalid here: expected 'resources'",
                                          resourcesElement->Value()                
                                          );
@@ -596,8 +576,7 @@ SipxProcess* SipxProcess::createFromDefinition(const OsPath& definitionFile)
    {
       UtlString errorMsg;
       XmlErrorMsg(processDefinitionDoc,errorMsg);
-      OsSysLog::add(FAC_SUPERVISOR, PRI_ERR,
-                    "SipxProcess::createFromDefinition failed to load '%s': %s",
+      OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "SipxProcess::createFromDefinition failed to load '%s': %s",
                     definitionFile.data(), errorMsg.data()
                     );
    }
@@ -641,7 +620,7 @@ void SipxProcess::enable()
    mDesiredState = Running;
    persistDesiredState();
 
-   triggerServiceCheck(CheckState);
+   checkService();
 }
 
 /// Set the persistent desired state of the SipxProcess to Disabled.
@@ -652,7 +631,7 @@ void SipxProcess::disable()
    mDesiredState = Disabled;
    persistDesiredState();
 
-   triggerServiceCheck(CheckState);
+   checkService();
 }
 
 /// Shutting down sipXsupervisor, so shut down the service.
@@ -674,7 +653,7 @@ void SipxProcess::configurationChange(const SipxResource& changedResource)
    OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG, "SipxProcess[%s]::configurationChange(%s)",
                  data(), changedResourceDescription.data());
    
-   triggerServiceCheck(ConfigurationChange);
+   checkService();
 }
    
 void SipxProcess::readConfigurationVersion()
@@ -792,7 +771,7 @@ void SipxProcess::setConfigurationVersion(const UtlString& newConfigVersion)
                        data(), persistentConfigVersionPath.data());
       }
 
-      triggerServiceCheck(ConfigurationVersionUpdate);
+      checkService();
    }
    else
    {
@@ -802,310 +781,14 @@ void SipxProcess::setConfigurationVersion(const UtlString& newConfigVersion)
    }
    
 }
-
-
-/// Tell the SipxProcessTask thread to check the service process.
-void SipxProcess::triggerServiceCheck(Event event)
+   
+/// Compare actual process state to the desired state, and attempt to change it if needed.
+void SipxProcess::checkService()
 {
    // @TODO 
-   OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG, "SipxProcess[%s]::triggerServiceCheck called.", data());
+   OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG, "SipxProcess[%s]::checkService called.", data());
 }
    
-/// Check that all resources on the mRequiredResources list are ready so this can start.
-bool SipxProcess::resourcesAreReady()
-{
-   return false;                // @TODO 
-}
-
-
-/// Compare actual process state to the desired state, and attempt to change it if needed.
-void SipxProcess::checkService(Event event)
-{
-   bool waiting = false;
-   while (!waiting)
-   {
-      OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG, "SipxProcess[%s]::checkService "
-                    " mState=%s  mDesiredState=%s event=%s",
-                    data(), state(mState), state(mDesiredState), eventName(event));
-
-      OsLock mutex(mLock); // note that is taken here and released at the bottom of the loop.
-      switch (mState)
-      {
-      case Undefined:
-      case Disabled:
-         {
-            switch (event)
-            {
-            case Startup:
-            case ConfigurationChange:
-            case ConfigurationVersionUpdate:
-               if (Running==mDesiredState)
-               {
-                  mState = ConfigurationMismatch; 
-               }
-               else
-               {
-                  waiting = true;
-               }
-               break;
-
-            case TestPass:
-            case TestFail:
-            case ProcessRunning:
-               unexpectedEvent("checkService",event);
-               waiting = true;
-               break;
-
-            case CheckState:
-            case ProcessExit:
-            case Shutdown:
-               // no-op
-               waiting = true;
-               break;
-
-            default:
-               OsSysLog::add(FAC_SUPERVISOR, PRI_CRIT,
-                             "SipxProcess[%s]::checkService invalid event %d",
-                             data(), event);
-               waiting = true;
-            }
-            break;
-
-         case ConfigurationMismatch:
-            {
-               if (Running == mDesiredState)
-               {
-                  if (configurationVersionMatches())
-                  {
-                     mState = ResourceRequired;
-                  }
-                  else
-                  {
-                     waiting = true;
-                  }
-               }
-               else
-               {
-                  unexpectedEvent("checkService",event);
-               }
-            }
-            break;
-
-         case ResourceRequired:
-            {
-               if (Running == mDesiredState)
-               {
-                  if (resourcesAreReady())
-                  {
-                     mState = Testing;
-                     // @TODO trigger configtest
-                  }
-
-                  waiting = true;
-               }
-               else
-               {
-                  unexpectedEvent("checkService",event);
-               }
-            }
-            break;
-
-         case Testing:
-            {
-               // @TODO - wait for successful test completion
-
-               // HACK - just pretend the test passed:
-               mState = Starting;
-               // @TODO execute start command
-               waiting = true;
-            }
-            break;
-
-         case ConfigurationTestFailed:
-            {
-               switch (event)
-               {
-               case ConfigurationChange:
-               case ConfigurationVersionUpdate:
-                  if (Running==mDesiredState)
-                  {
-                     mState = ConfigurationMismatch; 
-                  }
-                  else
-                  {
-                     waiting = true;
-                  }
-                  break;
-
-               case Startup:
-               case ProcessRunning:
-                  unexpectedEvent("checkService",event);
-                  waiting = true;
-                  break;
-
-               case CheckState:
-                  // @TODO - rerun the test
-                  waiting = true;
-                  break;
-               
-               case TestPass:
-                  if (Running == mDesiredState)
-                  {
-                     // @TODO - execute the start command
-                     waiting = true;
-                  }
-                  else
-                  {
-                     // @TODO - return indication that the test passed
-                     mState = mDesiredState;
-                  }
-                  break;
-               
-               case ProcessExit:
-               case TestFail:
-                  if (Running == mDesiredState)
-                  {
-                     // @TODO - restart the health timer to retry
-                     waiting = true;
-                  }
-                  else
-                  {
-                     // @TODO - return indication that the test failed
-                     mState = mDesiredState;
-                  }
-                  break;
-               
-               case Shutdown:
-                  // no-op
-                  waiting = true;
-                  break;
-
-               default:
-                  OsSysLog::add(FAC_SUPERVISOR, PRI_CRIT,
-                                "SipxProcess[%s]::checkService invalid event %d",
-                                data(), event);
-                  waiting = true;
-               }
-            }
-            break;
-
-         case Starting:
-            {
-               switch (event)
-               {
-               case ConfigurationChange:
-               case ConfigurationVersionUpdate:
-                  if (Running==mDesiredState)
-                  {
-                     mState = ConfigurationMismatch; 
-                  }
-                  else
-                  {
-                     waiting = true;
-                  }
-                  break;
-
-               case Startup:
-                  unexpectedEvent("checkService",event);
-                  waiting = true;
-                  break;
-
-               case ProcessRunning:
-               case CheckState:
-                  if (Running == mDesiredState)
-                  {
-                     if (false)    // @TODO is our system process executing?
-                     {
-                        mState = Running;
-                     }
-                  }
-                  waiting = true;
-                  break;
-               
-               case TestPass:
-                  if (Running == mDesiredState)
-                  {
-                     // @TODO - execute the start command
-                     waiting = true;
-                  }
-                  else
-                  {
-                     // @TODO - return indication that the test passed
-                     mState = mDesiredState;
-                  }
-                  break;
-               
-               case ProcessExit:
-               case TestFail:
-                  if (Running == mDesiredState)
-                  {
-                     // @TODO - restart the health timer to retry
-                     waiting = true;
-                  }
-                  else
-                  {
-                     // @TODO - return indication that the test failed
-                     mState = mDesiredState;
-                  }
-                  break;
-               
-               case Shutdown:
-                  // no-op
-                  waiting = true;
-                  break;
-
-               default:
-                  OsSysLog::add(FAC_SUPERVISOR, PRI_CRIT,
-                                "SipxProcess[%s]::checkService invalid event %d",
-                                data(), event);
-                  waiting = true;
-               }
-            
-               waiting = true;
-            }
-            break;
-
-         case Running:
-            {
-               if (false)          // @TODO is our system process executing?
-               {
-                  mState = Failed;
-               }
-               else
-               {
-                  waiting = true;
-               }
-            }         
-            break;
-
-         case AwaitingReferences:
-            {
-               // @TODO
-            }
-            break;
-
-         case Stopping:
-            {
-               // @TODO
-            }
-            break;
-
-         case Failed:
-            {
-               // @TODO
-            }
-            break;
-
-         default:
-            OsSysLog::add(FAC_SUPERVISOR, PRI_CRIT, "SipxProcess::checkService invalid mState '%d'",
-                          mState);
-            break;
-         }
-      }
-   }
-}
-
-
 /// Determine whether or not the values in a containable are comparable.
 UtlContainableType SipxProcess::getContainableType() const
 {
@@ -1126,23 +809,6 @@ void SipxProcess::resourceIsOptional(SipxResource* resource)
    mRequiredResources.removeReference(resource);
 }
 
-/// Translate enum of the event to the string
-const char* SipxProcess::eventName(Event event)
-{
-   const char* eventName = NULL;
-   if ( event >= Startup && event <= Shutdown )
-   {
-      eventName = SipxProcessEventName[event];
-   }
-   else
-   {
-      eventName = "INVALID_EVENT_VALUE";
-   }
-   return eventName;
-}
-
-
-
 /// Translate the string from of the state name to the enum
 SipxProcess::State SipxProcess::state(const UtlString& stringStateValue)
 {
@@ -1157,7 +823,7 @@ SipxProcess::State SipxProcess::state(const UtlString& stringStateValue)
    return static_cast<State>(stateValue);
 }
    
-/// Translate enum of the state to the string
+/// Translate the string from of the state name to the enum
 const char* SipxProcess::state(State stateValue)
 {
    const char* stateName = NULL;
@@ -1249,16 +915,6 @@ void SipxProcess::readPersistentState()
                     persistentStatePath.data());
    }
 }
-
-void SipxProcess::unexpectedEvent(const char* methodName, Event event)
-{
-   OsSysLog::add(FAC_SUPERVISOR, PRI_ERR,
-                 "SipxProcess[%s]::%s %s event unexpected; states: current=%s desired=%s",
-                 data(), methodName, eventName(event), state(mState), state(mDesiredState)
-                 );
-}
-
-
 
 /// destructor
 SipxProcess::~SipxProcess()

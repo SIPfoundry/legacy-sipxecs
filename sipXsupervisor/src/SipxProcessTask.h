@@ -4,28 +4,32 @@
 // Licensed to the User under the LGPL license.
 // 
 //////////////////////////////////////////////////////////////////////////////
-#ifndef _SIPXPROCESSTASK_H_
-#define _SIPXPROCESSTASK_H_
+#ifndef _PROCESSTASK_H_
+#define _PROCESSTASK_H_
 
 // SYSTEM INCLUDES
 
 // APPLICATION INCLUDES
 #include "os/OsMsg.h"
-#include "os/OsServerTask.h"
-
-#include "SipxProcess.h"
+#include "os/OsTask.h"
 
 // DEFINES
 // CONSTANTS
-// FORWARD DECLARATIONS
-
 // TYPEDEFS
+// FORWARD DECLARATIONS
 
 class SipxProcessMsg : public OsMsg
 {
    /// Events sent to the task
+   typedef enum 
+   {
+      Startup,
+      ConfigurationChange,
+      ConfigurationVersionUpdate,
+      CheckState
+   } MonitorEvent;
 
-  SipxProcessMsg(SipxProcess::Event event) :
+  SipxProcessMsg(MonitorEvent event) :
    OsMsg(USER_START, event)
    {
    };
@@ -37,12 +41,12 @@ class SipxProcessMsg : public OsMsg
  * This provides the thread from which all actual manipulation of
  * the system process takes place.
  */
-class SipxProcessTask : public OsServerTask
+class SipxProcessTask : public OsTask
 {
   public:
 
    /// constructor
-   SipxProcessTask(const UtlString& name, SipxProcess* process);
+   SipxProcessTask(const UtlString& name);
 
    /// Spawn a new task and invoke its run() method..
    virtual UtlBoolean start(void);
@@ -56,8 +60,6 @@ class SipxProcessTask : public OsServerTask
 
   private:
 
-   SipxProcess* mpProcess;
-   
    // @cond INCLUDENOCOPY
    /// There is no copy constructor.
    SipxProcessTask(const SipxProcessTask& nocopyconstructor);
@@ -67,4 +69,4 @@ class SipxProcessTask : public OsServerTask
    // @endcond     
 };
 
-#endif // _SIPXPROCESSTASK_H_
+#endif // _PROCESSTASK_H_
