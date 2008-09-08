@@ -3,7 +3,49 @@ SIPfoundry Issue Tracker at:
 
         http://track.sipfoundry.org/browse?XCF
 
-Version 3.11.3
+
+Version 3.11.5
+
+** Bug
+    * [XCF-1821] - "Send Profiles" with no profiles selected shows the wrong message 
+    * [XCF-1973] - Textfields in Login History page are not validated
+    * [XCF-2473] - Date Picker doesn't work in CDRs Historic, ACD Historic Reports and Login History pages.
+    * [XCF-2573] - "Working Time Attendant" in DialPlans Attendant does not display names of days of the week
+    * [XCF-2585] - CDR Historic Page,ACD Reports,Login History accepts end date ahead of start date
+    * [XCF-2645] - FreeSWITCH : Internal Exception Occured while trying to add a conference without configuring the conference Bridge. 
+    * [XCF-2648] - FreeSWITCH : All the entries in conference page disappear after Assigning an Owner for a conference.
+    * [XCF-2670] - call set up by sipXconfig does not get disconnected if the 'callee' disconnects the call
+    * [XCF-2671] - Click to dial should use the identity of the caller when authenticating REFER
+    * [XCF-2672] - Clicking 'Refresh' on conference participants page with stale data results in an exception
+    * [XCF-2674] - Clicking on 'Add New Conference'  link on User portal results in Internal exception
+    * [XCF-2688] - Grandstream - Typo-Error under User Options. 
+    * [XCF-2689] - Exception in Gateways page.
+    * [XCF-2697] - Typo error in Network screen of AudioCodes digital gateways.
+    * [XCF-2701] - sipxregistrar/registrar-config.vm uses deprecated routing URI for Park Server
+    * [XCF-2708] - Typo error : NAT Traversal page Helptext
+    * [XCF-2724] - Typo error on Voicemail dialplan page
+    * [XCF-2730] - Call Detail Recording Page not being displayed
+    * [XCF-2735] - nattraversalrules.xml contains wrong proxy host port information
+    * [XCF-2779] - Typo in the error message displayed for FTP Backup
+
+** Improvement
+    * [XCF-1706] - add support to configure snom Function keys
+    * [XCF-2644] - improve navigation on conference related screens
+    * [XCF-2754] - Polish translation patch for 3.10
+
+** New Feature
+    * [XCF-1098] - Scheduled Device (phone, gateway) reboot from sipxconfig
+    * [XCF-2044] - Allow backup / restore to and from an FTP server
+    * [XCF-2167] - Add optional start and stop time qualifiers to snapshot page to limit log size
+    * [XCF-2636] - Create symmitron ( sipxrelay ) configuration page (or integrate into NAT traversal page ) and generate corresponding xml file.
+    * [XCF-2673] - Add support for managing sipxpark-config
+    * [XCF-2681] - Generate callresolver-config
+    * [XCF-2684] - Generate sipxpresence-config
+    * [XCF-2685] - Generate sipxrls-config
+    * [XCF-2686] - Generate status-config
+
+
+Version 3.11.4
 
 ** Bug
     * [XCF-1857] - sipx 3.8 displays port numbers with a comma (eg x,xxx rather than xxxx)
