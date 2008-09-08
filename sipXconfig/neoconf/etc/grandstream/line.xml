@@ -249,7 +249,7 @@
 			<value>0</value>
 		</setting>
                 <setting name="P298-P438-P538-P638-P1738-P1838" if="gsPhone.*">
-                        <label>Allow Auto-Anser by Call-Info</label>
+                        <label>Allow Auto-Answer by Call-Info</label>
                         <type>
                                 <boolean/>
                         </type>
@@ -281,12 +281,12 @@
                         <description>Refer-to use target contact.</description>
                 </setting>
                 <setting name="P137-P487-P587-P687-P1787-P1887" if="gsPhone.*">
-                        <label>Disble Multiple Media Attributes</label>
+                        <label>Disable Multiple Media Attributes</label>
                         <type>
                                 <boolean/>
                         </type>
                         <value>0</value>
-                        <description>Disble multiple media attributes in SDP.</description>
+                        <description>Disable multiple media attributes in SDP.</description>
                 </setting>
 		<setting name="P65-P421-P521-P621-P1721-P1821" if="gsPhone.*">
 			<label>Send Anonymous</label>
