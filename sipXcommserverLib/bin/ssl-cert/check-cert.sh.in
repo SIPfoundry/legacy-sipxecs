@@ -121,8 +121,10 @@ Usage:
     Always returns a failure if any certificate has expired.
     
     The --name option may be repeated any number of times, and if it is
-    given, the commonName attribute of the certificate must equal one of
-    the names.
+    given, the certificate must declare at least one of the names as a
+    valid subject name.  If the certificate uses the subjectAltName
+    extension to declare subjects, then only those names are used; if not
+    then the certificate common name is used.
 
     The acceptable certificate authorities must be installed in the
          ${CAdir}
@@ -158,6 +160,31 @@ EOF
     ExitStatus=1
     FailedCerts="${Certificates}"
 fi
+
+cert_names () {
+    # print the unique names in the certificate, translating a URI:sip: form to just the domain
+    local certFile
+    certFile=$1
+    local subjectAltNameValues
+    subjectAltNameValues=`\
+        ${openssl} x509 -in "${certFile}" -text \
+                        -nameopt RFC2253,multiline -certopt no_pubkey,no_sigdump -noout \
+        | grep --after-context=1 'X509v3 Subject Alternative Name:' \
+        | tail -n 1`
+    if [ -z "${subjectAltNameValues}" ] 
+    then
+        # no subjectAltName values in certificate, so output just the common name
+        ${openssl} x509 -in "${certFile}" -subject -nameopt RFC2253,multiline -noout \
+        | perl -ne 'use English; m/^ +commonName += / && print $POSTMATCH' \
+        | tr A-Z a-z
+    else
+        # there are subjectAltName values, so use only those and ignore the common name
+        echo ${subjectAltNameValues} \
+        | perl -ne 's/\bURI:sip://g, s/\bDNS://g; print join "\n", split ",";' \
+        | tr A-Z a-z \
+        | sort -u
+    fi
+}
 
 numCertsTested=0
 for Certificate in ${Certificates}
@@ -202,22 +229,24 @@ do
     rm -f ${CheckFile}
 
     # Check subject name if any correct answers are provided
-    cert_name=`${openssl} x509 -in "${Certificate}" -subject -nameopt RFC2253,multiline -noout \
-               | perl -ne 'use English; m/^ +commonName += / && print $POSTMATCH' \
-               | tr A-Z a-z
-               `
     if [ -n "${Names}" ]
     then
+        CertNames=`cert_names ${Certificate}` # extract unique names from the certificate (above)
         UniqueNames=`for n in ${Names}; do echo $n | tr A-Z a-z; done | sort -u`
         Matched="NO"
-        for name in ${UniqueNames}
+        for tgtName in ${UniqueNames}
         do 
-          if [ "${name}" = "${cert_name}" ]; then Matched="YES"; fi
+            for crtName in ${CertNames}
+            do
+                if [ "${tgtName}" = "${crtName}" ]; then Matched="YES"; fi
+            done
         done
         if [ "${Matched}" = "NO" ]
         then
-            echo -n "SSL certificate '${Certificate}' name '${cert_name}' is not one of: " 1>&2
-            for name in ${UniqueNames}; do echo -n "'${name}' " 1>&2; done
+            echo "SSL certificate '${Certificate}' subject is not one of: " 1>&2
+            for name in ${UniqueNames}; do echo "    ${name}" 1>&2; done
+            echo "  Actual subject names are: " 1>&2
+            for name in ${CertNames}; do echo "    ${name}" 1>&2; done
             echo "" 1>&2
             ExitStatus=1
             FailedCerts="${FailedCerts} ${Certificate}"
@@ -296,6 +325,8 @@ then
 fi
 
 exit ${ExitStatus}
+
+
 # DUMP x509v3 = openssl x509 -in /opt/ssl-sipit/ssl.crt -text -certopt ca_default -certopt no_sigdump -certopt no_validity -certopt no_serial -certopt no_subject -certopt no_signame -noout
 #         X509v3 extensions:
 #             X509v3 Basic Constraints: 
