@@ -134,6 +134,9 @@ void FileTestContext::workingFileFromTemplate(
 
    CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, workingFile.flush());
 
+   OsSysLog::add(FAC_UNIT_TEST, PRI_NOTICE, "FileTestContext::workingFileFromTemplate '%s' -> '%s'",
+                 templateName, workingPath.data());
+
    inputFile.close();
    workingFile.close();
 }
@@ -156,6 +159,9 @@ void FileTestContext::removeWorkingFile(const char* filename)
       msg.append(working);
       msg.append("'");
       CPPUNIT_ASSERT_EQUAL_MESSAGE(msg.data(),OS_SUCCESS,removeStatus);
+
+      OsSysLog::add(FAC_UNIT_TEST, PRI_NOTICE, "FileTestContext::removeWorkingFile '%s'",
+                    filename);
    }
 }
 
@@ -165,8 +171,8 @@ void FileTestContext::makeCleanWorkingDir()
    OsPath makefileInWorkingDir(makefilePath);
 
    UtlString message;
-   message.append("FileTestContext::makeCleanWorkingDir - the test working dir must be a new diretory\n"
-                  "directory\n    ");
+   message.append("FileTestContext::makeCleanWorkingDir"
+                  "- the test working dir must be a new directory\n");
    message.append(mTestWorkingDir);
    message.append("\n  contains a Makefile, so it is not a good working directory");
    
@@ -181,11 +187,15 @@ void FileTestContext::makeCleanWorkingDir()
 void FileTestContext::workingFilePath(const char* filename, UtlString& path)
 {
    path = mTestWorkingDir+OsPath::separator+filename;
+   OsSysLog::add(FAC_UNIT_TEST, PRI_NOTICE, "FileTestContext::workingFilePath '%s' -> '%s'",
+                 filename, path.data());
 }
 
 void FileTestContext::inputFilePath(const char* filename, UtlString& path)
 {
    path = mTestInputDir+OsPath::separator+filename;
+   OsSysLog::add(FAC_UNIT_TEST, PRI_NOTICE, "FileTestContext::inputFilePath '%s' -> '%s'",
+                 filename, path.data());
 }
 
 /// destructor
