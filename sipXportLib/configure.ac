@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.57)
-AC_INIT(sipXportLib, 3.11.5, sipx-dev@list.sipfoundry.org)
+AC_INIT(sipXportLib, 3.11.6, sipx-dev@list.sipfoundry.org)
 
 
 AC_CONFIG_AUX_DIR(config)
