@@ -5,7 +5,7 @@
   <description>Panel for editing working hours for a single day in a week.</description>
   <parameter name="workingHours"  required="yes" />
   <component id="dayLabel" type="Insert">
-    <binding name="value" value="getMessage('label.' + workingHours.day.name)"/>
+    <binding name="value" value="getMessages().getMessage('label.' + workingHours.day.name)"/>
   </component>
   <component id="enabled" type="Checkbox">
     <binding name="value" value="workingHours.enabled"/>

@@ -76,7 +76,7 @@
   <component id="workingTimeAttendant" type="PropertySelection">
     <binding name="value" value="rule.workingTimeAttendant.attendant" />
     <binding name="model" value="tapestry.instructUserToSelect(beans.autoAttendants, messages)" />
-    <binding name="submitOnChange" value="true" />
+    <binding name="onchange" value="literal:javascript:this.form.submit();" />
   </component>
   <component id="workingHours" type="For">
     <binding name="source" value="rule.workingTimeAttendant.workingHours" />
