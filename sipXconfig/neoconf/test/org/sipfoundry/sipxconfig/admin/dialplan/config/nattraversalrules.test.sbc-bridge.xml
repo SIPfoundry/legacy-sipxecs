@@ -9,7 +9,7 @@
     <stun-server-address>stun01.sipphone.com</stun-server-address>
     <rediscovery-time>60</rediscovery-time>
     <publicaddress>1.2.3.4</publicaddress>
-    <proxyhostport>${MY_IP_ADDR}:${PROXY_SERVER_SIP_PORT}</proxyhostport>
+    <proxyhostport>11.126.12.15:5060</proxyhostport>
     <relayaggressiveness>Aggressive</relayaggressiveness>
     <concurrentrelays>50</concurrentrelays>
     <mediarelayexternaladdress>11.12.13.14</mediarelayexternaladdress>

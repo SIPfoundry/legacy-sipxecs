@@ -1,29 +1,14 @@
 package org.sipfoundry.sipxconfig.nattraversal;
 
 import org.sipfoundry.sipxconfig.IntegrationTestCase;
-import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDescriptor;
-import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDevice;
-import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDeviceManager;
-import org.sipfoundry.sipxconfig.admin.dialplan.sbc.bridge.BridgeSbc;
 import org.sipfoundry.sipxconfig.common.UserException;
-import org.sipfoundry.sipxconfig.device.ModelSource;
 
 public class NatTraversalManagerImplTestIntegration extends IntegrationTestCase {
 
     private NatTraversalManager m_natTraversalManager;
-    private ModelSource<SbcDescriptor> m_modelSource;
-    private SbcDeviceManager m_sdm;
 
     public void setNatTraversalManager(NatTraversalManager natTraversalManager) {
         m_natTraversalManager = natTraversalManager;
-    }
-
-    public void setSbcModelSource(ModelSource<SbcDescriptor> modelSource) {
-        m_modelSource = modelSource;
-    }
-
-    public void setSbcDeviceManager(SbcDeviceManager sdm) {
-        m_sdm = sdm;
     }
 
     public void testOneNatTraversalRecord() throws Exception {

@@ -8,7 +8,7 @@
     <useSTUN>false</useSTUN>
     <stun-server-address>stun01.sipphone.com</stun-server-address>
     <rediscovery-time>26</rediscovery-time>
-    <proxyhostport>${MY_IP_ADDR}:${PROXY_SERVER_SIP_PORT}</proxyhostport>
+    <proxyhostport>11.126.12.15:5060</proxyhostport>
     <relayaggressiveness>Aggressive</relayaggressiveness>
     <concurrentrelays>2</concurrentrelays>
     <mediarelayexternaladdress>11.126.12.15</mediarelayexternaladdress>

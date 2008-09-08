@@ -21,6 +21,9 @@ sipxParkService.parkServerSipPort=${ORBIT_SERVER_SIP_PORT}
 sipxCallResolverService.agentPort=${CALLRESOLVER_AGENT_PORT}
 sipxRlsService.rlsPort=${RLS_SIP_PORT}
 
+natTraversal.proxyAddress=${PROXY_SERVER_ADDR}
+natTraversal.proxyServerSipHostport=${PROXY_SERVER_SIP_HOSTPORT}
+
 sip.proxyHost=${PROXY_SERVER_ADDR}
 sip.proxyPort=${PROXY_SERVER_SIP_PORT}
 sip.hostName=${MY_FULL_HOSTNAME}

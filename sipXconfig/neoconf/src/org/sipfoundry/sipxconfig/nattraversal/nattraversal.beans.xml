@@ -6,7 +6,6 @@
     scope="prototype">
     <property name="logDirectory" value="${sysdir.log}"></property>
     <property name="sbcDeviceManager" ref="sbcDeviceManager"/>
-    <property name="proxyAddress" value="${sip.proxyHost}"></property>
   </bean>
 
   <bean id="natTraversalManagerImpl" class="org.sipfoundry.sipxconfig.nattraversal.NatTraversalManagerImpl">

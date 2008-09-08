@@ -50,6 +50,7 @@ public class NatTraversalRulesTest extends XMLTestCase {
         m_natTraversal.getSettings().getSetting("nattraversal-info/concurrentrelays").setValue("2");
         m_natTraversal.getSettings().getSetting("nattraversal-info/rediscovery-time").setValue("26");
         m_natTraversal.setProxyAddress("11.126.12.15");
+        m_natTraversal.setProxyServerSipHostport("11.126.12.15:5060");
         m_natTraversal.setLogDirectory("/usr/local/sipx/var/log/sipxpbx");
 
         m_natTraversalManager = createNiceMock(NatTraversalManager.class);
@@ -70,8 +71,7 @@ public class NatTraversalRulesTest extends XMLTestCase {
         m_natTraversal.setSbcDeviceManager(m_sbcDeviceManager);
         EasyMock.replay(m_sbcManager, m_sbcDeviceManager, m_natTraversalManager);
 
-        NatTraversalRules rules = generate(m_sbcManager, m_natTraversalManager,
-                m_sbcDeviceManager);
+        NatTraversalRules rules = generate(m_sbcManager, m_natTraversalManager);
 
         String generatedXml = rules.getFileContent();
 
@@ -91,8 +91,7 @@ public class NatTraversalRulesTest extends XMLTestCase {
         m_natTraversal.setSbcDeviceManager(m_sbcDeviceManager);
         EasyMock.replay(m_sbcManager, m_sbcDeviceManager, m_natTraversalManager);
 
-        NatTraversalRules rules = generate(m_sbcManager, m_natTraversalManager,
-                m_sbcDeviceManager);
+        NatTraversalRules rules = generate(m_sbcManager, m_natTraversalManager);
 
         String generatedXml = rules.getFileContent();
 
@@ -113,6 +112,7 @@ public class NatTraversalRulesTest extends XMLTestCase {
         natTraversal.setBehindnat(true);
         natTraversal.getSettings().getSetting("nattraversal-info/publicaddress").setValue("1.2.3.4");
         natTraversal.setProxyAddress("11.126.12.15");
+        natTraversal.setProxyServerSipHostport("11.126.12.15:5060");
         natTraversal.setLogDirectory("/usr/local/sipx/var/log/sipxpbx");
         m_sbcDeviceManager = createNiceMock(SbcDeviceManager.class);
         m_bridgeSbc = new BridgeSbc();
@@ -130,8 +130,7 @@ public class NatTraversalRulesTest extends XMLTestCase {
 
         EasyMock.replay(m_sbcManager, m_sbcDeviceManager, natTraversalManager);
 
-        NatTraversalRules rules = generate(m_sbcManager, natTraversalManager,
-                m_sbcDeviceManager);
+        NatTraversalRules rules = generate(m_sbcManager, natTraversalManager);
 
         String generatedXml = rules.getFileContent();
 
@@ -151,8 +150,7 @@ public class NatTraversalRulesTest extends XMLTestCase {
         m_natTraversal.setSbcDeviceManager(m_sbcDeviceManager);
         EasyMock.replay(m_sbcManager, m_sbcDeviceManager, m_natTraversalManager);
 
-        NatTraversalRules rules = generate(m_sbcManager, m_natTraversalManager,
-                m_sbcDeviceManager);
+        NatTraversalRules rules = generate(m_sbcManager, m_natTraversalManager);
 
         String generatedXml = rules.getFileContent();
 
@@ -162,8 +160,7 @@ public class NatTraversalRulesTest extends XMLTestCase {
         assertXMLEqual(new InputStreamReader(referenceXmlStream), new StringReader(generatedXml));
     }
 
-    private static NatTraversalRules generate(SbcManager sbcManager, NatTraversalManager natTraversalManager,
-            SbcDeviceManager sbcDeviceManager) {
+    private static NatTraversalRules generate(SbcManager sbcManager, NatTraversalManager natTraversalManager) {
         NatTraversalRules rules = new NatTraversalRules();
         rules.setVelocityEngine(TestHelper.getVelocityEngine());
         rules.setTemplate("nattraversal/nattraversalrules.vm");

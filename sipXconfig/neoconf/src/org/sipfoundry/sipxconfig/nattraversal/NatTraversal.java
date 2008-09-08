@@ -27,6 +27,7 @@ public class NatTraversal extends BeanWithGroups {
     private String m_logDirectory;
     private SbcDeviceManager m_sbcDeviceManager;
     private String m_proxyAddress;
+    private String m_proxyServerSipHostport;
 
     public NatTraversal() {
         super();
@@ -120,5 +121,15 @@ public class NatTraversal extends BeanWithGroups {
     public void setProxyAddress(String proxyAddress) {
         m_proxyAddress = proxyAddress;
     }
+
+    public String getProxyServerSipHostport() {
+        return m_proxyServerSipHostport;
+    }
+
+    public void setProxyServerSipHostport(String proxyServerSipHostport) {
+        m_proxyServerSipHostport = proxyServerSipHostport;
+    }
+
+
 
 }

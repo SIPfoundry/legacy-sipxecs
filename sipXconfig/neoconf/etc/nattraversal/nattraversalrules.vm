@@ -33,7 +33,7 @@
 #if(${behindnat})
 #emit_setting($publicaddress)
 #end
-    <proxyhostport>${dollar}{MY_IP_ADDR}:${dollar}{PROXY_SERVER_SIP_PORT}</proxyhostport>
+    <proxyhostport>$nattraversal.proxyServerSipHostport</proxyhostport>
 #set($relayaggressiveness = $nattraversal.Settings.getSetting("nattraversal-info/relayaggressiveness"))
 #emit_setting($relayaggressiveness)
 #set($concurrentrelays = $nattraversal.Settings.getSetting("nattraversal-info/concurrentrelays"))
