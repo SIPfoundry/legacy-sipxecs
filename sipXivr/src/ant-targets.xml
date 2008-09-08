@@ -118,6 +118,7 @@
         includes="src/main/**/*.java"
         source="1.5"
         target="1.5"
+        encoding="utf8"
         excludes="src/test/**"/>
   </target>
 
@@ -178,7 +179,9 @@
        optimize="${optimize}"
        includes="src/test/**/*.java"
        source="1.5"
-       target="1.5">
+       target="1.5"
+       encoding="utf8"
+      >
       <classpath>
         <pathelement path="${classes.dir}"/>
       </classpath>
