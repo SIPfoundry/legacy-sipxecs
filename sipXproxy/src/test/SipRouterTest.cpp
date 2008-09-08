@@ -36,7 +36,6 @@ class SipRouterTest : public CppUnit::TestCase
 {
    CPPUNIT_TEST_SUITE(SipRouterTest);
 
-   CPPUNIT_TEST(initMustBeFirst);
    CPPUNIT_TEST(testSupportedOptions);
    CPPUNIT_TEST(testUnsupportedOptionAlone);
    CPPUNIT_TEST(testUnsupportedOptionFirst);
@@ -76,6 +75,7 @@ public:
          // prevent the test from using any installed configuration files
          TestDbContext.setSipxDir(SipXecsService::ConfigurationDirType);
          TestDbContext.setSipxDir(SipXecsService::DatabaseDirType);
+         TestDbContext.inputFile("credential.xml");
 
          // Construct a SipUserAgent to provide the isMyHostAlias recognizer
          mUserAgent = new SipUserAgent(SIP_PORT, // udp port
@@ -118,12 +118,6 @@ public:
          CredentialDB::getInstance()->releaseInstance();
       }
 
-   void initMustBeFirst()
-      {
-         // done in a test so that the copy only happens once.
-         TestDbContext.inputFile("credential.xml");
-      }
-   
    void testSupportedOptions()
       {
          const char* message =
