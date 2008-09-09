@@ -2,8 +2,7 @@
 # Example(to override):
 #   make rhel5 DESTDIR=~/my-output
 # will put RPMS in ~/my-output/RPM
-#DESTDIR = $(abspath dist)
-DESTDIR=/home/mardy/rpmbuild
+DESTDIR = $(abspath dist)
 
 ARCH = $(shell uname -p)
 
