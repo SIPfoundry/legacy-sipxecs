@@ -147,6 +147,17 @@
   		<replacefilter token="@www.dir@" property="www.dir" />
     </replace>
 
+    <!-- mrtg configuration files -->
+    <replace file="${dest.dir}${sipxpbx.conf.dir}/mrtg/mrtg.cfg"
+            propertyfile="${top.build.dir}/build.properties">
+        <replacefilter token="@sipxpbx.var.dir@" property="sipxpbx.conf.dir" />
+    </replace>
+
+    <replace file="${dest.dir}${sipxpbx.conf.dir}/mrtg/mrtg-t.cfg"
+            propertyfile="${top.build.dir}/build.properties">
+        <replacefilter token="@sipxpbx.var.dir@" property="sipxpbx.conf.dir" />
+    </replace>
+
     <!-- copy jars and war -->
     <mkdir dir="${dest.dir}${sipxecs.java.dir}/sipXconfig" />
     <copy todir="${dest.dir}${sipxecs.java.dir}/sipXconfig">
@@ -210,6 +221,9 @@
     <mkdir dir="${dest.dir}${sipxpbx.var.dir}/audiocodes" />
     <copy todir="${dest.dir}${sipxpbx.var.dir}/audiocodes" file="etc/audiocodes/MP11x-02-1-FXS_16KHZ.dat" />
     <copy todir="${dest.dir}${sipxpbx.var.dir}/audiocodes" file="etc/audiocodes/usa_tones_12.dat" />
+
+    <!-- mrtg work dir -->
+    <mkdir dir="${dest.dir}${sipxpbx.var.dir}/mrtg" />
   </target>
 
   <!-- D E F A U L T -->

@@ -417,12 +417,13 @@ fi
 sipx-snmp-init > /dev/null
 
 %files mrtg
-%defattr(644,root,root,755)
-%attr(755,root,root) %{_bindir}/sipx-mrtg-init
-%attr(755,root,root) %{_bindir}/sipx-mrtg-start
-
-%post mrtg
-sipx-mrtg-init -e > /dev/null
+%defattr(644,@SIPXPBXUSER@,@SIPXPBXUSER@,755)
+%attr(755,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_bindir}/sipx-mrtg-init
+%attr(755,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_bindir}/sipx-mrtg-startup
+%config(noreplace) %{sipxpbxconf}/sipxconfig.properties.in
+%dir %attr(775,@SIPXPBXUSER@,@SIPXPBXUSER@) %{sipxpbxconf}/mrtg
+%config(noreplace) %{sipxpbxconf}/mrtg/*
+%dir %attr(775,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_localstatedir}/sipxdata/mrtg
 
 %files conference
 %defattr(644,@SIPXPBXUSER@,@SIPXPBXUSER@,755)
