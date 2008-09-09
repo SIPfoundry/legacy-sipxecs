@@ -41,7 +41,7 @@ Requires: stunnel
 Requires: ruby
 Requires: ruby-dbi
 
-Requires: ruby-gems
+Requires: rubygems
 %if %{_vendor} == redhat
 Requires: ruby-libs
 Requires: ruby-postgres >= 0.7.1

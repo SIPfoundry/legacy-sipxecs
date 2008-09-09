@@ -35,7 +35,7 @@ AC_TARGETS = \
 	java-ibm \
 	java-sun \
 	ruby-dbi \
-	ruby-gems \
+	rubygems \
 	ruby-postgres \
 	w3c-libwww \
 	xerces-c \
@@ -48,7 +48,7 @@ $(AC_TARGETS) :
 	$(MAKE) $@.bld
 
 # required on all platforms
-CUSTOM_PACKAGES = cgicc xerces-c ruby-dbi ruby-gems ruby-postgres $(JAVA_PKG) rrdtool jain-sip conference dnsjava
+CUSTOM_PACKAGES = cgicc xerces-c ruby-dbi rubygems ruby-postgres $(JAVA_PKG) rrdtool jain-sip conference dnsjava
 
 .PHONY: fc6
 fc6 : $(CUSTOM_PACKAGES) jakarta-commons-net

@@ -31,7 +31,7 @@ Requires: sipxcommserverlib >= 3.11
 Requires: sipxpbx >= 3.11
 Requires: postgresql-server
 Requires: ruby
-Requires: ruby-gems
+Requires: rubygems
 
 %if %{_vendor} == suse
 Requires: apache2-prefork
@@ -147,7 +147,7 @@ Summary: Provides conference bridge server for %{name}
 %package agent
 Requires: sipxcommserverlib
 Requires: ruby
-Requires: ruby-gems
+Requires: rubygems
 
 %if %{_vendor} == redhat
 # irb is for file-tail gem
@@ -170,7 +170,7 @@ Group: Productivity/Telephony/SIP/Servers
 Vendor: SIPfoundry
 Summary: Aggregates data from sipxconfig-agent into a database for reporting tools
 
-Requires: ruby-gems
+Requires: rubygems
 %if %{_vendor} == redhat
 Requires: ruby-postgres
 %endif

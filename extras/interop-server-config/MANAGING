@@ -45,7 +45,7 @@ fail), so you have to inspect the output of rpm for messages like
 this:
 
 	package xerces-c-2.7.0-3 is already installed
-	package ruby-gems-0.8.11-2 is already installed
+	package rubygems-0.8.11-2 is already installed
 	package cgicc-3.2.3-2 is already installed
 
 Rename these RPMs to have a different extension (or delete them), and
