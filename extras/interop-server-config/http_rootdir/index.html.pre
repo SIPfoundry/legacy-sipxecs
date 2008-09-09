@@ -179,6 +179,8 @@ The database of current registration information can be seen on the
 Confirm that your UA is refreshing its registration correctly - note
 that the registrar randomizes the expiration time of each register
 request, so it will normally be less than the requested time.
+If the UA does not pay attention to the registration time granted,
+the UA's registration will repeatedly appear and disappear.
 </p>
 
 <p>
@@ -598,9 +600,9 @@ For example:
 
 <p>
 User agents that provide "music on hold" via the technique of
-<a href="http://tools.ietf.org/wg/sipping/draft-ietf-sipping-service-examples/draft-ietf-sipping-service-examples-10.txt">draft-ietf-sipping-service-examples-10</a>
+<a href="http://www.ietf.org/internet-drafts/draft-worley-service-example-02.txt">http://www.ietf.org/internet-drafts/draft-worley-service-example-02.txt</a>
 can use the URI <code>sip:~~mh~@@SIPXCHANGE_DOMAIN_NAME@</code> as an
-audio source.
+audio source.  (This source should work with other MoH techniques as well.)
 </p>
 
 <h3><a name='double-hold'>16</a>. Double-Hold Scenarios</h3>
