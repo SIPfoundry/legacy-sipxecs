@@ -36,14 +36,13 @@
 
 Summary:        JAIN-SIP reference implementation
 Name:           jain-sip
-Version:        1.2.74
-Release:        2
+Version:        1.2.80
+Release:        1
 Group:          Development/Java
 License:        Apache Software License 2.0
 URL:            https://jain-sip.dev.java.net/
 BuildArch:      noarch
-Source0:        jain-sip-src-1.2.74.tar.gz
-Patch0:	        build-fix.patch
+Source0:        jain-sip-src-1.2.80.tar.gz
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root
 
 BuildRequires:  jpackage-utils >= 0:1.7.3
@@ -71,7 +70,6 @@ Javadoc for %{name}.
 %prep
 rm -rf $RPM_BUILD_ROOT
 %setup -q -n jain-sip
-%patch -p1
 
 # -----------------------------------------------------------------------------
 
@@ -119,6 +117,10 @@ rm -rf $RPM_BUILD_ROOT
 # -----------------------------------------------------------------------------
 
 %changelog
+* Tue Sep 9 2008 Damian Krzeminski <damian at pingtel.com> 0:1.2.80-1jpp
+- Update to 1.2.80
+- Remove patching (patch folded directly into jain-sip).
+
 * Thu Jul 24 2008 Damian Krzeminski <damian at pingtel.com> 0:1.2.74-2jpp
 - Update to 1.2.74
 
