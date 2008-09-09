@@ -126,7 +126,8 @@ SipUserAgent::SipUserAgent(int sipTcpPort,
                            int queueSize,
                            UtlBoolean bUseNextAvailablePort,
                            UtlBoolean doUaMessageChecks,
-                           UtlBoolean bForceSymmetricSignaling
+                           UtlBoolean bForceSymmetricSignaling,
+                           OptionsRequestHandlePref howTohandleOptionsRequest
                            ) 
         : SipUserAgentBase(sipTcpPort, sipUdpPort, sipTlsPort, queueSize)
         , mSipTcpServer(NULL)
@@ -153,6 +154,8 @@ SipUserAgent::SipUserAgent(int sipTcpPort,
                  
     // Get pointer to line manager
     mpLineMgr = lineMgr;
+    
+    mHandleOptionsRequests = howTohandleOptionsRequest;
 
    // Create and start the SIP TLS, TCP and UDP Servers
 #ifdef SIP_TLS
@@ -2013,10 +2016,11 @@ void SipUserAgent::dispatch(SipMessage* message, int messageType)
                }
             }
 
-            // Process Options requests :TODO: - this does not route in the redirect server
+            // Process Options requests 
             else if(isUaTransaction &&
                     !message->isResponse() &&
-                    method.compareTo(SIP_OPTIONS_METHOD) == 0)
+                    (method.compareTo(SIP_OPTIONS_METHOD) == 0) &&
+                    mHandleOptionsRequests == HANDLE_OPTIONS_AUTOMATICALLY)
             {
                // Send an OK, the allowed field will get added to all final responces.
                response = new SipMessage();         // Options 200 response

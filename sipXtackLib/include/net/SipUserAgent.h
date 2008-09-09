@@ -165,6 +165,12 @@ public:
         UNSPECIFIED = 0,
         SHUTDOWN_MESSAGE = 10
     };
+    
+    enum OptionsRequestHandlePref
+    {
+        HANDLE_OPTIONS_AUTOMATICALLY,
+        PASS_OPTIONS_TO_CONSUMER
+    };
 
 /* ============================ CREATORS ================================== */
 
@@ -228,6 +234,10 @@ public:
      *        never generate.
      * \param forceSymmetricSignaling - impose that the same local 
      *        IP:Port be used for sending and receiving SIP signaling
+     * \param howTohandleOptionsRequest - Incoming OPTIONS requests can
+     *        either be handled automatically by the SipUserAgent class
+     *        or it can be passed up to the consumer. The default is to
+     *        handle it locally.
      */
     SipUserAgent(int sipTcpPort = SIP_PORT,
                 int sipUdpPort = SIP_PORT,
@@ -253,7 +263,8 @@ public:
                 int queueSize = OsServerTask::DEF_MAX_MSGS,
                 UtlBoolean bUseNextAvailablePort = FALSE,
                 UtlBoolean doUaMessageChecks = TRUE,
-                UtlBoolean forceSymmetricSignaling = TRUE
+                UtlBoolean forceSymmetricSignaling = TRUE,
+                OptionsRequestHandlePref howTohandleOptionsRequest = HANDLE_OPTIONS_AUTOMATICALLY
                  );
 
     //! Destructor
@@ -782,6 +793,7 @@ private:
      */
     UtlBoolean mDoUaMessageChecks;
     UtlBoolean mbForceSymmetricSignaling;
+    OptionsRequestHandlePref mHandleOptionsRequests;
 
     void garbageCollection();
 

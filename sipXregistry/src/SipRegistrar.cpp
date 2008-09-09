@@ -291,7 +291,9 @@ UtlBoolean SipRegistrar::operationalPhase()
                                     SIPUA_DEFAULT_SERVER_UDP_BUFFER_SIZE, // socket layer read buffer size
                                     SIPUA_DEFAULT_SERVER_OSMSG_QUEUE_SIZE, // OsServerTask message queue size
                                     FALSE,  // do not use next available port
-                                    FALSE   // do not do UA message checks for METHOD, requires, etc...
+                                    FALSE,  // do not do UA message checks for METHOD, requires, etc...
+                                    TRUE,
+                                    SipUserAgent::PASS_OPTIONS_TO_CONSUMER
                                     );
 
    if ( mSipUserAgent )
@@ -467,6 +469,74 @@ UtlBoolean SipRegistrar::handleMessage( OsMsg& eventMessage )
                 {
                     //send to Register Thread
                     sendToRegistrarServer(eventMessage);
+                }
+                else if ( method.compareTo(SIP_OPTIONS_METHOD) == 0 )
+                {
+                    UtlString requestUri;                    
+                    message->getRequestUri(&requestUri);
+
+                    // Check if the OPTIONS request URI is addressed to a user or 
+                    // to the domain.
+                    if (!requestUri.contains("@"))
+                    {
+                        UtlString contentEncoding;
+                        message->getContentEncodingField(&contentEncoding);
+                        
+                        UtlString disallowedExtensions;
+                        
+                        int extensionIndex = 0;
+                        UtlString extension;
+
+                        disallowedExtensions.remove(0);
+                        while(message->getRequireExtension(extensionIndex, &extension))
+                        {
+                            if(!(mSipUserAgent->isExtensionAllowed(extension.data())) )
+                            {
+                                if(!disallowedExtensions.isNull())
+                                {
+                                    disallowedExtensions.append(SIP_MULTIFIELD_SEPARATOR);
+                                    disallowedExtensions.append(SIP_SINGLE_SPACE);
+                                }
+                                disallowedExtensions.append(extension.data());
+                            }
+                            extensionIndex++;
+                        }
+
+                        //delete leading and trailing white spaces
+                        disallowedExtensions = disallowedExtensions.strip(UtlString::both);
+                        
+                        SipMessage response;
+                        
+                        // Check if the extensions are supported
+                        if(!disallowedExtensions.isNull() )
+                        {
+                           // error response - bad extension
+                           response.setRequestBadExtension(message,
+                                                           disallowedExtensions);
+                        }
+                        // Check if the encoding is supported
+                        // i.e. no encoding
+                        else if(!contentEncoding.isNull())
+                        {
+                           // error response - content encoding
+                           response.setRequestBadContentEncoding(message,"");
+                        }
+                        else
+                        {
+                            // Send an OK, the allowed field will get added to all final responses.
+                            // Options 200 response
+                            response.setResponseData(message,
+                                                     SIP_OK_CODE,
+                                                     SIP_OK_TEXT);
+                        }
+                        
+                        mSipUserAgent->send(response);
+                    }
+                    else
+                    {
+                        //OPTIONS is addressed to a user, send to redirect thread
+                        sendToRedirectServer(eventMessage);
+                    }
                 }
                 else
                 {
