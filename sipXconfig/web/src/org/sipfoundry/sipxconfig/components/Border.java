@@ -203,7 +203,7 @@ public abstract class Border extends BaseComponent implements PageValidateListen
     }
 
     public Format getDateFormat() {
-        return DateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.DEFAULT, getPage().getLocale());
+        return DateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.SHORT, getPage().getLocale());
     }
 
     public Date getDate() {
