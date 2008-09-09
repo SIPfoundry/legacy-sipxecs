@@ -1,0 +1,173 @@
+#!@BASH@
+
+# Look for the INTERACTIVE flag first, before processing any other command-line arguments.
+INTERACTIVE="no"
+for arg in "$@"
+do
+  case $arg in
+    --interactive)
+      INTERACTIVE="yes"
+      ;;
+    esac
+done
+
+if test $INTERACTIVE = "no"; then
+  # Re-direct stderr and stdout to a log file.
+  rm -rf @SIPX_LOGDIR@/sipx-mrtg-startup.log
+  exec 3<>@SIPX_LOGDIR@/sipx-mrtg-startup.log
+  exec 2>&3
+  exec 1>&3
+  echo `date`
+fi
+
+SIPXPBXUSER=@SIPXPBXUSER@
+SIPXPBXGROUP=@SIPXPBXGROUP@
+SIPX_VARDIR=@SIPX_VARDIR@
+SIPX_CONFDIR=@SIPX_CONFDIR@
+SIPX_RUNDIR=@SIPX_RUNDIR@
+
+MRTG_CONFIG_FILE="$SIPX_CONFDIR/mrtg/mrtg.cfg"
+MRTG_PID_FILE="$SIPX_RUNDIR/mrtg.pid"
+MRTG_TARGETS_FILE="$SIPX_CONFDIR/mrtg/nr-targets"
+MRTG_BIN=@MRTG_BINARY@
+
+MRTG_COMMAND="env LANG=C LC_ALL=C $MRTG_BIN --user $SIPXPBXUSER --group $SIPXPBXGROUP $MRTG_CONFIG_FILE --lock-file $MRTG_CONFIG_FILE.l --confcache-file $MRTG_CONFIG_FILE.ok --pid-file $MRTG_PID_FILE"
+
+usage() {
+  echo
+  echo Usage: $0
+  echo
+  echo "   Watchdog for mrtg"
+  echo
+  echo "Parameters:"
+  echo "   -c|--config-file              PATH to mrtg configuration file."
+  echo "   -p|--pid-file                 PATH to mrtg PID file."
+  echo "   -t|--target-file              PATH to a file which has the number of targets to monitor."
+  echo "   -h|--help                     Display this help text."
+  echo
+}
+
+construct_command() # construct the command which runs mrtg
+{
+  MRTG_COMMAND="env LANG=C LC_ALL=C $MRTG_BIN --user $SIPXPBXUSER --group $SIPXPBXGROUP $MRTG_CONFIG_FILE --lock-file $MRTG_CONFIG_FILE.l --confcache-file $MRTG_CONFIG_FILE.ok --pid-file $MRTG_PID_FILE"
+}
+
+# Check if the process is alive
+proc_alive() # pid
+{
+  2>/dev/null kill -0 $1
+  echo $?
+}
+
+# start function
+# We wait after the fork and see if the .pid file was created
+do_start() { # process-name
+  echo "Starting: $MRTG_BIN "
+  # first we construct the command
+  construct_command
+  # then we execute it
+  exec $MRTG_COMMAND < /dev/null &
+
+  for ticks in 3 2 1 0
+  do
+    sleep 1
+    test -e $MRTG_PID_FILE && break || echo -n "."
+  done
+
+  if [ -e $MRTG_PID_FILE ]
+  then
+    echo success
+  else
+    STATUS=1
+    echo failure
+  fi
+
+  echo
+  return $STATUS
+}
+
+# stop function.
+do_stop() {
+  echo "Stopping: $MRTG_BIN "
+  STATUS=0
+
+  if [ ! -r ${MRTG_PID_FILE} ]
+  then
+    echo "   (Not started) "
+  else
+    PID=`cat ${MRTG_PID_FILE} 2> /dev/null`
+
+    if [ `proc_alive $PID` -ne 0 ]
+    then
+      echo "   (Started but not running) "
+      rm -f ${MRTG_PID_FILE}
+    else
+      echo ""
+      kill $PID 2> /dev/null
+    fi
+  fi
+  # clean stop
+  if [ -r ${MRTG_CONFIG_FILE}.l ]
+  then
+    #echo "deleting ${MRTG_CONFIG_FILE}.l ..."
+    rm ${MRTG_CONFIG_FILE}.l
+  fi
+
+  if [ -r ${MRTG_CONFIG_FILE}.ok ]
+  then
+    #echo "deleting ${MRTG_CONFIG_FILE}.ok ..."
+    rm ${MRTG_CONFIG_FILE}.ok
+  fi
+}
+
+
+# Process the command-line arguments.
+while [ $# -ne 0 ]
+do
+  case ${1} in
+    -h|--help)
+      usage
+      exit
+      ;;
+
+    -c|--config-file)
+      MRTG_CONFIG_FILE=${1}
+      ;;
+
+    -p|--pid-file)
+      MRTG_PID_FILE=${1}
+      ;;
+
+    -t|--target-file)
+      MRTG_TARGETS_FILE=${1}
+      ;;
+
+    *)
+      echo "Unknown option: ${1}"
+      bad_usage
+      ;;
+    esac
+  shift # always consume one argument
+done
+
+do_stop #If it's not started, this should not do anything
+
+# Check if the target file exists
+if test -r $MRTG_TARGETS_FILE; then
+  NR_OF_TARGETS=`cat ${MRTG_TARGETS_FILE} 2> /dev/null`
+else
+  #targets file does not exist => don't start mrtg
+  exit
+fi
+
+if test -z $NR_OF_TARGETS; then
+  # No need to keep mrtg running if we don't monitor anything
+  exit
+fi
+
+if test $NR_OF_TARGETS -eq 0; then
+  # No need to keep mrtg running if we don't monitor anything
+  exit
+fi
+
+do_start #start mrtg

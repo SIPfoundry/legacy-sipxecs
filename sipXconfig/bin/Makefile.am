@@ -13,7 +13,9 @@ setupbin_IN = $(foreach file,$(setupbin_SCRIPTS),$(file).in)
 
 editscripts_IN = \
 	sipx-mrtg-init \
-	sipx-snmp-init
+	sipx-snmp-init \
+	sipx-mrtg-startup
+
 
 ruby_scripts = \
 	sipx-upgrade-3.6-mailstore \
@@ -56,4 +58,5 @@ $(foreach file,$(editscripts_IN),$(DESTDIR)$(bindir)/$(file)) : $(DESTDIR)$(bind
 
 $(foreach file,$(editscripts_IN),$(file)) : % : %.in
 	@echo "Localize $< -> $@"
-	@$(LocalizeSipXconfig) $< > $@
+	$(LocalizeSipXconfig) \
+	-e 's,@MRTG_BINARY\@,@MRTG_BINARY@,g' $< > $@

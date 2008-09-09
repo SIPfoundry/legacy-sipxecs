@@ -9,7 +9,9 @@
  */
 package org.sipfoundry.sipxconfig.admin.monitoring;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,12 +21,13 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
+import org.sipfoundry.sipxconfig.common.ApplicationInitializedEvent;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.context.ApplicationEvent;
+import org.springframework.context.ApplicationListener;
 
-public class MonitoringContextImpl implements MonitoringContext, InitializingBean {
+public class MonitoringContextImpl implements MonitoringContext, InitializingBean, ApplicationListener {
     private static final Log LOG = LogFactory.getLog(MonitoringContextImpl.class);
-
-    private static final String COMMAND = "env LANG=C";
 
     private LocationsManager m_locationsManager;
 
@@ -32,13 +35,15 @@ public class MonitoringContextImpl implements MonitoringContext, InitializingBea
 
     private MRTGConfig m_mrtgConfig;
 
-    private MRTGConfig m_mrtgRrdConfig;
-
     private RRDToolGraphUpdater m_rrdToolGraphUpdater;
 
     private boolean m_enabled;
 
     private String m_communitySnmp;
+
+    private String m_mrtgStartupScript;
+
+    private String m_mrtgNoOfTargetsFile;
 
     /**
      * set and load mrtg config file object
@@ -52,13 +57,6 @@ public class MonitoringContextImpl implements MonitoringContext, InitializingBea
      */
     public void setMrtgTemplateConfig(MRTGConfig templateConfig) {
         m_templateMrtgConfig = templateConfig;
-    }
-
-    /**
-     * set and load mrtg rrd config file object
-     */
-    public void setMrtgRrdConfig(MRTGConfig rrdConfig) {
-        m_mrtgRrdConfig = rrdConfig;
     }
 
     /**
@@ -176,6 +174,14 @@ public class MonitoringContextImpl implements MonitoringContext, InitializingBea
         return null;
     }
 
+    public String getMrtgStartupScript() {
+        return m_mrtgStartupScript;
+    }
+
+    public void setMrtgStartupScript(String mrtgStartupScript) {
+        m_mrtgStartupScript = mrtgStartupScript;
+    }
+
     /**
      * use this one until sipXconfig will be able to configure SNMP agent, see XCF-1952
      * 
@@ -230,15 +236,14 @@ public class MonitoringContextImpl implements MonitoringContext, InitializingBea
         // reload template mrtg config
         loadTemplateMrtgConfig();
 
-        // write all targets to config file
-        writeTargetsToConfigFiles(allTargets);
+        // write all targets to config file and restart mrtg
+        writeTargetsToConfigFilesAndRestartMrtg(allTargets);
+    }
 
-        // workaround, force to generate new rrd files
+    private void execMrtgStartupScript() {
         Runtime rt = Runtime.getRuntime();
         try {
-            // run: env LANG=C /usr/bin/mrtg /etc/mrtg/mrtg-rrd.cfg
-            rt.exec(COMMAND + MonitoringUtil.SPACE + MonitoringUtil.MRTG_DIR + MonitoringUtil.SPACE
-                    + m_mrtgRrdConfig.getFilename());
+            rt.exec(m_mrtgStartupScript); // this should use the defaul parameters ...
         } catch (IOException e) {
             LOG.error(e);
         }
@@ -274,6 +279,9 @@ public class MonitoringContextImpl implements MonitoringContext, InitializingBea
 
         // if mrtg.cfg does not exists do nothing
         if (!(new File(m_mrtgConfig.getFilename())).exists()) {
+            // in case the cfg file was deleted before restart ...
+            writeNoOfTargetsFile(0);
+            execMrtgStartupScript();
             return;
         }
 
@@ -307,9 +315,9 @@ public class MonitoringContextImpl implements MonitoringContext, InitializingBea
             }
         }
 
-        // writes targets to config file if needed
+        // writes targets to config file if needed and restarts mrtg
         if (shouldWriteConfigFile) {
-            writeTargetsToConfigFiles(targetsToWrite);
+            writeTargetsToConfigFilesAndRestartMrtg(targetsToWrite);
         }
 
     }
@@ -321,22 +329,25 @@ public class MonitoringContextImpl implements MonitoringContext, InitializingBea
         return m_templateMrtgConfig.getWorkingDir();
     }
 
+    private boolean writeTargetsToConfigFilesAndRestartMrtg(List<MRTGTarget> targets) {
+        boolean toReturn = writeTargetsToConfigFiles(targets);
+        execMrtgStartupScript();
+        return toReturn;
+    }
+
     /**
-     * writes targets to the mrtg.cfg and mrtg-rrd.cfg files
+     * writes targets to the mrtg.cfg and restart mrtg
      */
     private boolean writeTargetsToConfigFiles(List<MRTGTarget> targets) {
         try {
+            m_mrtgConfig.setRunAsDaemon(m_templateMrtgConfig.getRunAsDaemon());
+            m_mrtgConfig.setInterval(m_templateMrtgConfig.getInterval());
             m_mrtgConfig.setIPV6(m_templateMrtgConfig.getIPV6());
             m_mrtgConfig.setWorkingDir(m_templateMrtgConfig.getWorkingDir());
             m_mrtgConfig.setMibs(m_templateMrtgConfig.getMibs());
             m_mrtgConfig.setTargets(targets);
             boolean writeResult = m_mrtgConfig.writeFile();
-
-            m_mrtgRrdConfig.setIPV6(m_templateMrtgConfig.getIPV6());
-            m_mrtgRrdConfig.setWorkingDir(m_templateMrtgConfig.getWorkingDir());
-            m_mrtgRrdConfig.setMibs(m_templateMrtgConfig.getMibs());
-            m_mrtgRrdConfig.setTargets(targets);
-            m_mrtgRrdConfig.writeFile();
+            writeNoOfTargetsFile(targets.size());
 
             // reload mrtg config object
             if (writeResult) {
@@ -347,6 +358,7 @@ public class MonitoringContextImpl implements MonitoringContext, InitializingBea
             LOG.error(e);
             return false;
         }
+
         return true;
     }
 
@@ -372,5 +384,33 @@ public class MonitoringContextImpl implements MonitoringContext, InitializingBea
 
     public void setCommunitySnmp(String communitySnmp) {
         m_communitySnmp = communitySnmp;
+    }
+
+    /**
+     * start mrtg after app is initialized
+     */
+    public void onApplicationEvent(ApplicationEvent event) {
+        if (event instanceof ApplicationInitializedEvent) {
+            execMrtgStartupScript(); // start MRTG
+        }
+    }
+
+    public String getMrtgNoOfTargetsFile() {
+        return m_mrtgNoOfTargetsFile;
+    }
+
+    public void setMrtgNoOfTargetsFile(String mrtgNoOfTargetsFile) {
+        m_mrtgNoOfTargetsFile = mrtgNoOfTargetsFile;
+    }
+
+    public void writeNoOfTargetsFile(int noOfTargets) {
+        try {
+            BufferedWriter mrtgFileWriter = new BufferedWriter(new FileWriter(getMrtgNoOfTargetsFile()));
+            mrtgFileWriter.write(String.valueOf(noOfTargets));
+            mrtgFileWriter.flush();
+            mrtgFileWriter.close();
+        } catch (IOException e) {
+            LOG.error(e);
+        }
     }
 }

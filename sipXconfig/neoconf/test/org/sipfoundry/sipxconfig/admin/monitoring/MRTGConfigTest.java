@@ -125,7 +125,9 @@ public class MRTGConfigTest extends TestCase {
         targets.add(m_mrtgConfig.getTargets().get(0));
         m_mrtgConfig.setTargets(targets);
         String m_mrtgConfigString = StringUtils.remove(m_mrtgConfig.toString(), eol);
-        String outputToCompare = "workdir: /mrtg"
+        String outputToCompare = "RunAsDaemon: Yes"
+                + "Interval: 5"
+                + "workdir: /mrtg"
                 + "LoadMibs: /usr/share/snmp/mibs/UCD-SNMP-MIB.txt, /usr/share/snmp/mibs/TCP-MIB.txt"
                 + "EnableIPv6: no"
                 + "LogFormat: rrdtool"
@@ -140,7 +142,9 @@ public class MRTGConfigTest extends TestCase {
         m_mrtgConfig.setTargets(targets);
         String m_mrtgConfigString = StringUtils.remove(m_mrtgConfig.toString(), System
                 .getProperty("line.separator"));
-        String outputToCompare = "workdir: /mrtg"
+        String outputToCompare =  "RunAsDaemon: Yes"
+                + "Interval: 5"
+                + "workdir: /mrtg"
                 + "LoadMibs: /usr/share/snmp/mibs/UCD-SNMP-MIB.txt, /usr/share/snmp/mibs/TCP-MIB.txt"
                 + "EnableIPv6: no" + "LogFormat: rrdtool" + "PathAdd: /usr/bin"
                 + "## #maxbytes[]: 10000000000";
@@ -172,7 +176,9 @@ public class MRTGConfigTest extends TestCase {
         targets.add(customTarget);
         m_mrtgConfig.setTargets(targets);
         String m_mrtgConfigString = StringUtils.remove(m_mrtgConfig.toString(), eol);
-        String outputToCompare = "workdir: /mrtg"
+        String outputToCompare =  "RunAsDaemon: Yes"
+                + "Interval: 5"
+                + "workdir: /mrtg"
                 + "LoadMibs: /usr/share/snmp/mibs/UCD-SNMP-MIB.txt, /usr/share/snmp/mibs/TCP-MIB.txt"
                 + "EnableIPv6: no"
                 + "LogFormat: rrdtool"

@@ -20,6 +20,8 @@ import java.util.List;
 import org.apache.commons.lang.StringUtils;
 
 public class MRTGConfig {
+    private static final String RUN_AS_DAEMON_TOKEN = "RunAsDaemon";
+    private static final String INTERVAL_TOKEN = "Interval";
     private static final String WORK_DIR_TOKEN = "workdir";
     private static final String TARGET_TOKEN = "target";
     private static final String TITLE_TOKEN = "title";
@@ -50,6 +52,8 @@ public class MRTGConfig {
     private static final String EOL = System.getProperty("line.separator");
 
     private String m_workingDir;
+    private String m_runAsDaemon = "Yes";
+    private String m_interval = "5";
     private String m_filename = StringUtils.EMPTY;
     private String m_ipv6 = StringUtils.EMPTY;
     private String m_logFormat = DEFAULT_LOG_FORMAT;
@@ -152,6 +156,10 @@ public class MRTGConfig {
                 setLogFormat(parseSimpleEntry(line));
             } else if (line.startsWith(PATH_ADD_TOKEN)) {
                 setPathAdd(parseSimpleEntry(line));
+            } else if (line.startsWith(RUN_AS_DAEMON_TOKEN)) {
+                setRunAsDaemon(parseSimpleEntry(line));
+            } else if (line.startsWith(INTERVAL_TOKEN)) {
+                setInterval(parseSimpleEntry(line));
             } else {
                 String targetId = parseTargetId(line);
                 if (targetId != null) {
@@ -213,6 +221,22 @@ public class MRTGConfig {
 
     public String getWorkingDir() {
         return m_workingDir;
+    }
+
+    public String getInterval() {
+        return m_interval;
+    }
+
+    public void setInterval(String interval) {
+        m_interval = interval;
+    }
+
+    public String getRunAsDaemon() {
+        return m_runAsDaemon;
+    }
+
+    public void setRunAsDaemon(String runAsDaemon) {
+        m_runAsDaemon = runAsDaemon;
     }
 
     public List<String> getHosts() {
@@ -331,6 +355,8 @@ public class MRTGConfig {
     }
 
     private void dumpHeader(StringBuilder buf) {
+        appendTokenValue(buf, RUN_AS_DAEMON_TOKEN, getRunAsDaemon());
+        appendTokenValue(buf, INTERVAL_TOKEN, getInterval());
         appendTokenValue(buf, WORK_DIR_TOKEN, getWorkingDir());
         for (String mib : m_mibs) {
             appendTokenValue(buf, LOADMIBS_TOKEN, mib);

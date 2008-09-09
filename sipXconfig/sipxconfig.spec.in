@@ -419,6 +419,7 @@ sipx-snmp-init > /dev/null
 %files mrtg
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_bindir}/sipx-mrtg-init
+%attr(755,root,root) %{_bindir}/sipx-mrtg-start
 
 %post mrtg
 sipx-mrtg-init -e > /dev/null

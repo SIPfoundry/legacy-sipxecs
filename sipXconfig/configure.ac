@@ -84,6 +84,10 @@ else
   MRTG_ENABLED="mrtg-enabled=false"
 fi
 
+AC_ARG_WITH(mrtg-binary-location,[  --with-mrtg-binary-location=PFX   Location where mrtg is installed (optional)],
+            mrtg_binary_location="$withval/mrtg", mrtg_binary_location="/usr/bin/mrtg")
+AC_SUBST(MRTG_BINARY, $mrtg_binary_location)
+
 AC_ARG_ENABLE(ruby-bindings,
   AC_HELP_STRING([--enable-ruby-bindings], [Build optional ruby bindings to web services]),
   enable_ruby_binding=yes,)

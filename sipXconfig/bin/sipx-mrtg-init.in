@@ -9,6 +9,7 @@ usage() {
   echo Parameters:
   echo "   -e|--enable                   Enable Monitoring Context."
   echo "   -d|--disable                  Disable Monitoring Context."
+  echo "   --mrtg-binary PATH            In case mrtg is not installed in the default location (Eg. --mrtg-binary /usr/local/bin/mrtg )."
   echo "   -h|--help                     Display this help text."
   echo
 }
@@ -23,10 +24,17 @@ SIPX_USER=@SIPXPBXUSER@
 SIPX_VARDIR=@SIPX_VARDIR@
 SIPX_CONFDIR=@SIPX_CONFDIR@
 SIPXCONFIG_PROPERTIES_IN=$SIPX_CONFDIR/sipxconfig.properties.in
+SIPX_MRTG_CONF_DIR=$SIPX_CONFDIR/mrtg/
 
+#In case the rrd tool is located somewhere else
+#there could be an if/else which would set it depending on the platform
+DEFAULT_PATH_ADD="/usr/bin"
 
 ENABLE_MONITORING="false"
 DISABLE_MONITORING="false"
+
+CHANGE_MRTG_BINARY="false"
+MRTG_BINARY_OLD=@MRTG_BINARY@
 
 
 # Process the command-line arguments.
@@ -54,6 +62,22 @@ do
       fi
       ;;
 
+    --mrtg-binary)
+      if [ -z "${2}" ]
+      then
+        echo "No argument specified for ${1}."
+        bad_usage
+      elif [ -f "${2}" ]
+      then
+        MRTG_BINARY=${2}
+        CHANGE_MRTG_BINARY="true"
+        shift
+      else
+        echo "${2} does not exist. Using default: $MRTG_BINARY"
+        shift
+      fi
+      ;;
+
     *)
       echo "Unknown option: ${1}"
       bad_usage
@@ -74,28 +98,36 @@ if test $DISABLE_MONITORING = "true"; then
   exit 0
 fi
 
+if test $CHANGE_MRTG_BINARY = "true"; then
+  sed -e "s,MRTG_BIN=$MRTG_BINARY_OLD,MRTG_BIN=$MRTG_BINARY,g" -i.orig @SIPX_BINDIR@/sipx-mrtg-startup
+fi
+
 #########################################
 # MRTG CONFIGURATION 
 #########################################
 
-if [ -d /etc/mrtg ]
+if [ -d $SIPX_MRTG_CONF_DIR ]
 then
-  chown $SIPX_USER:$SIPX_USER /etc/mrtg/
-  cd /etc/mrtg
+  cd $SIPX_MRTG_CONF_DIR
   if [ -f mrtg.cfg ]
   then 
     mv mrtg.cfg mrtg.cfg.old
   fi
-  cat > ./mrtg.cfg <<EOF
+else
+  mkdir -p $SIPX_MRTG_CONF_DIR
+fi
+
+cat > ./mrtg.cfg <<EOF
 WorkDir: $SIPX_VARDIR/mrtg
 
 EOF
-  chown $SIPX_USER:$SIPX_USER ./mrtg.cfg
 
-  cat > ./mrtg-t.cfg <<EOF
+cat > ./mrtg-t.cfg <<EOF
 EnableIPv6: no
 LoadMibs: /usr/share/snmp/mibs/UCD-SNMP-MIB.txt, /usr/share/snmp/mibs/TCP-MIB.txt
 workdir : $SIPX_VARDIR/mrtg
+RunAsDaemon: Yes
+Interval: 5
 
 #
 # Server CPU Load
@@ -204,16 +236,14 @@ options[disk]: gauge,growright,nopercent
 unscaled[disk]: ymwd
 
 LogFormat: rrdtool
-PathAdd: /usr/bin
+PathAdd: $DEFAULT_PATH_ADD
 
 EOF
 
-  chown $SIPX_USER:$SIPX_USER ./mrtg-t.cfg
-else
-  echo "Directory /etc/mrtg does not exist. Please verify your mrtg instalation"
-  echo "Exiting ..."
-  exit
+if [ ! -d $SIPX_VARDIR/mrtg/ ]
+then
+	mkdir -p $SIPX_VARDIR/mrtg/
 fi
 
-mkdir -p $SIPX_VARDIR/mrtg
-chown $SIPX_USER:$SIPX_USER $SIPX_VARDIR/mrtg/
+chown -R $SIPX_USER:$SIPX_USER $SIPX_VARDIR/mrtg/
+chown -R $SIPX_USER:$SIPX_USER $SIPX_CONFDIR/mrtg/

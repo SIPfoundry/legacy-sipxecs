@@ -20,21 +20,16 @@
     <property name="mrtgConfig">
       <ref bean="mrtgConfig" />
     </property>
-    <property name="mrtgRrdConfig">
-      <ref bean="mrtgRrdConfig" />
-    </property>
+    <property name="mrtgStartupScript" value="${sysdir.bin}/sipx-mrtg-startup"/>
+    <property name="mrtgNoOfTargetsFile" value="${sysdir.etc}/mrtg/nr-targets"/>
     <property name="communitySnmp" value="sipxecs" />
   </bean>
 
   <bean id="mrtgTemplateConfig" class="org.sipfoundry.sipxconfig.admin.monitoring.MRTGConfig">
-    <property name="filename" value="/etc/mrtg/mrtg-t.cfg" />
+    <property name="filename" value="${sysdir.etc}/mrtg/mrtg-t.cfg"/>
   </bean>
 
   <bean id="mrtgConfig" class="org.sipfoundry.sipxconfig.admin.monitoring.MRTGConfig">
-    <property name="filename" value="/etc/mrtg/mrtg.cfg" />
-  </bean>
-
-  <bean id="mrtgRrdConfig" class="org.sipfoundry.sipxconfig.admin.monitoring.MRTGConfig">
-    <property name="filename" value="/etc/mrtg/mrtg-rrd.cfg" />
+    <property name="filename" value="${sysdir.etc}/mrtg/mrtg.cfg"/>
   </bean>
 </beans>

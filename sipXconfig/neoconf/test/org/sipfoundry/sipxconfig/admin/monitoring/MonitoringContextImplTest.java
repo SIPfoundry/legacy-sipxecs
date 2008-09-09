@@ -24,7 +24,6 @@ public class MonitoringContextImplTest extends TestCase {
     private MonitoringContextImpl m_monitoringContextImpl;
     private LocationsManager m_locationsManager;
     private MRTGConfig m_mrtgConfig;
-    private MRTGConfig m_mrtgRrdConfig;
     private MRTGConfig m_mrtgTemplateConfig;
 
     protected void setUp() {
@@ -43,10 +42,8 @@ public class MonitoringContextImplTest extends TestCase {
         m_monitoringContextImpl.setLocationsManager(m_locationsManager);
 
         m_mrtgConfig = new MRTGConfig(TestUtil.getTestSourceDirectory(getClass()) + "/" + "mrtg.cfg");
-        m_mrtgRrdConfig = new MRTGConfig(TestUtil.getTestSourceDirectory(getClass()) + "/" + "mrtg-rrd.cfg");
         m_mrtgTemplateConfig = new MRTGConfig(TestUtil.getTestSourceDirectory(getClass()) + "/" + "mrtg-t.cfg");
         m_monitoringContextImpl.setMrtgConfig(m_mrtgConfig);
-        m_monitoringContextImpl.setMrtgRrdConfig(m_mrtgRrdConfig);
         m_monitoringContextImpl.setMrtgTemplateConfig(m_mrtgTemplateConfig);
         try {
             m_monitoringContextImpl.afterPropertiesSet();
@@ -138,9 +135,9 @@ public class MonitoringContextImplTest extends TestCase {
         InputStream mrtg_cfg = MonitoringContextImpl.class.getResourceAsStream("mrtg.cfg.test2");
         TestHelper.copyStreamToDirectory(mrtg_cfg, TestHelper.getTestDirectory(), "mrtg.cfg.test2");
         m_mrtgConfig = new MRTGConfig(TestHelper.getTestDirectory() + "/" + "mrtg.cfg.test2");
-        m_mrtgRrdConfig = new MRTGConfig(TestHelper.getTestDirectory() + "/" + "mrtg-rrd.cfg");
         m_monitoringContextImpl.setMrtgConfig(m_mrtgConfig);
-        m_monitoringContextImpl.setMrtgRrdConfig(m_mrtgRrdConfig);
+        m_monitoringContextImpl.setMrtgStartupScript("echo");
+        m_monitoringContextImpl.setMrtgNoOfTargetsFile(TestHelper.getTestDirectory() + "/" + "nr-targets");
         m_monitoringContextImpl.afterPropertiesSet();
         // should not have any targets => no hosts
         assertEquals(0, m_monitoringContextImpl.getHosts().size());
