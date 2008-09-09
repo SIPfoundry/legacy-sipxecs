@@ -13,11 +13,20 @@ import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessModel.ProcessName;
 
 public class SipxMediaService extends SipxService {
 
+    private static final String BEAN_ID = "sipxMediaService";
     private static final ProcessName PROCESS_NAME = ProcessName.MEDIA_SERVER;
+    private int m_httpPort;
     
     @Override
     public ProcessName getProcessName() {
         return PROCESS_NAME;
     }
-
+    
+    public int getHttpPort() {
+        return m_httpPort;
+    }
+    
+    public void setHttpPort(int httpPort) {
+        m_httpPort = httpPort;
+    }
 }

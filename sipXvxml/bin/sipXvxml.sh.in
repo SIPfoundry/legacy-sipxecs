@@ -30,7 +30,6 @@ done
 CONFIG_DEFS="@SIPX_CONFDIR@/config.defs"
 
 CONFIG_FILES="\
-  @SIPX_CONFDIR@/mediaserver-config \
   @SIPX_CONFDIR@/voicemail.xml \
   "
 

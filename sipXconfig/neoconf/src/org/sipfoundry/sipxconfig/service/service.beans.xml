@@ -210,7 +210,17 @@
   <bean id="sipxMediaService" class="org.sipfoundry.sipxconfig.service.SipxMediaService"
     scope="prototype" parent="sipxService">
     <property name="beanId" value="sipxMediaService"/>
+    <property name="modelName" value="mediaserver.xml" />
+    <property name="modelDir" value="sipxvxml" />
+    <property name="configuration" ref="sipxMediaConfiguration" />
   </bean>
+  
+  <bean id="sipxMediaConfiguration" class="org.sipfoundry.sipxconfig.service.SipxMediaConfiguration"
+    scope="prototype" parent="defaultConfigurationFile">
+    <property name="velocityEngine" ref="velocityEngine" />
+    <property name="template" value="sipxvxml/mediaserver-config.vm" />
+    <property name="name" value="mediaserver-config" />
+  </bean>  
   
   <bean id="sipxPageService" class="org.sipfoundry.sipxconfig.service.SipxPageService"
     scope="prototype" parent="sipxService">

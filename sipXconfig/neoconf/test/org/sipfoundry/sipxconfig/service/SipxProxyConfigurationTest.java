@@ -9,13 +9,7 @@
  */
 package org.sipfoundry.sipxconfig.service;
 
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.io.StringReader;
-import java.io.StringWriter;
-
-import org.apache.commons.io.IOUtils;
-import org.easymock.classextension.EasyMock;
+import org.easymock.EasyMock;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
@@ -25,7 +19,20 @@ public class SipxProxyConfigurationTest extends SipxServiceTestBase {
         SipxProxyConfiguration out = new SipxProxyConfiguration();
         out.setVelocityEngine(TestHelper.getVelocityEngine());
         out.setTemplate("sipxproxy/sipXproxy-config.vm");
-        
+
+        SipxCallResolverService callResolverService = new SipxCallResolverService();
+        Setting callResolverSettings = TestHelper
+                .loadSettings("sipxcallresolver/sipxcallresolver.xml");
+        callResolverSettings.getSetting("callresolver").getSetting("CALLRESOLVER_CALL_STATE_DB")
+                .setValue("DISABLE");
+        callResolverService.setSettings(callResolverSettings);
+
+        SipxServiceManager sipxServiceManager = EasyMock.createMock(SipxServiceManager.class);
+        sipxServiceManager.getServiceByBeanId(SipxCallResolverService.BEAN_ID);
+        EasyMock.expectLastCall().andReturn(callResolverService).atLeastOnce();
+        EasyMock.replay(sipxServiceManager);
+        out.setSipxServiceManager(sipxServiceManager);
+
         SipxProxyService proxyService = new SipxProxyService();
         initCommonAttributes(proxyService);
         Setting settings = TestHelper.loadSettings("sipxproxy/sipxproxy.xml");
@@ -39,30 +46,11 @@ public class SipxProxyConfigurationTest extends SipxServiceTestBase {
         proxyService.setSecureSipPort("5061");
         proxyService.setSipSrvOrHostport("sipsrv.example.org");
 
-        SipxCallResolverService callResolverService = new SipxCallResolverService();
-        Setting callResolverSettings = TestHelper.loadSettings("sipxcallresolver/sipxcallresolver.xml");
-        callResolverSettings.getSetting("callresolver").getSetting("CALLRESOLVER_CALL_STATE_DB").setValue("DISABLE");
-        callResolverService.setSettings(callResolverSettings);
+        proxyService.setCallResolverCallStateDb("CALL_RESOLVER_DB");
 
-        SipxServiceManager sipxServiceManager = EasyMock.createMock(SipxServiceManager.class);
-        sipxServiceManager.getServiceByBeanId(SipxCallResolverService.BEAN_ID);
-        EasyMock.expectLastCall().andReturn(callResolverService).atLeastOnce();
-        EasyMock.replay(sipxServiceManager);
-        out.setSipxServiceManager(sipxServiceManager);
-        
         out.generate(proxyService);
-        
-        StringWriter actualConfigWriter = new StringWriter();
-        out.write(actualConfigWriter);
-        
-        Reader referenceConfigReader = new InputStreamReader(SipxProxyConfigurationTest.class
-                .getResourceAsStream("expected-proxy-config"));
-        String referenceConfig = IOUtils.toString(referenceConfigReader);
-        
-        Reader actualConfigReader = new StringReader(actualConfigWriter.toString());
-        String actualConfig = IOUtils.toString(actualConfigReader);
 
-        assertEquals(referenceConfig, actualConfig);
-        
+        assertCorrectFileGeneration(out, "expected-proxy-config");
+
     }
 }

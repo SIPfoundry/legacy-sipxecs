@@ -120,8 +120,10 @@ public abstract class ServicesTable extends BaseComponent {
             
             Collection<ServiceStatus> serviceStatusList = new ArrayList<ServiceStatus>();
             for (SipxService sipxService : location.getSipxServices()) {
-                Process process = getSipxProcessContext().getProcess(sipxService.getProcessName());
-                serviceStatusList.add(new ServiceStatus(process, Status.UNKNOWN));
+                if (sipxService.getProcessName() != null) {
+                    Process process = getSipxProcessContext().getProcess(sipxService.getProcessName());
+                    serviceStatusList.add(new ServiceStatus(process, Status.UNKNOWN));
+                }
             }
             return serviceStatusList.toArray();
         }

@@ -9,8 +9,14 @@
  */
 package org.sipfoundry.sipxconfig.service;
 
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.io.StringReader;
+import java.io.StringWriter;
+
 import junit.framework.TestCase;
 
+import org.apache.commons.io.IOUtils;
 import org.sipfoundry.sipxconfig.TestHelper;
 
 public class SipxServiceTestBase extends TestCase {
@@ -24,5 +30,20 @@ public class SipxServiceTestBase extends TestCase {
         service.setLogDir("/var/log/sipxpbx");
         service.setConfDir("/etc/sipxpbx");
         service.setModelFilesContext(TestHelper.getModelFilesContext());
+    }
+
+    public void assertCorrectFileGeneration(SipxServiceConfiguration configuration,
+            String expectedFileName) throws Exception {
+        StringWriter actualConfigWriter = new StringWriter();
+        configuration.write(actualConfigWriter);
+
+        Reader referenceConfigReader = new InputStreamReader(configuration.getClass()
+                .getResourceAsStream(expectedFileName));
+        String referenceConfig = IOUtils.toString(referenceConfigReader);
+
+        Reader actualConfigReader = new StringReader(actualConfigWriter.toString());
+        String actualConfig = IOUtils.toString(actualConfigReader);
+
+        assertEquals(referenceConfig, actualConfig);
     }
 }
