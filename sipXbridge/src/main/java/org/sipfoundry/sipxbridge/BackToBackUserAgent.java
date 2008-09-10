@@ -646,7 +646,7 @@ public class BackToBackUserAgent {
                         "Replaces", decodedReplaces);
             }
             uri.removeParameter("Replaces");
-            uri.setHost(Gateway.getSipxProxyDomain());
+           // uri.setHost(Gateway.getSipxProxyDomain());
             uri.removePort();
             if (replacesHeader != null) {
                 newRequest.addHeader(replacesHeader);
@@ -721,7 +721,7 @@ public class BackToBackUserAgent {
             if (dialogApplicationData.musicOnHoldDialog != null ) {
                 this.sendByeToMohServer(dialogApplicationData.musicOnHoldDialog);
                 dialogApplicationData.musicOnHoldDialog = null;
-                Thread.sleep(100);
+                
             }
             
             if (logger.isDebugEnabled()) {

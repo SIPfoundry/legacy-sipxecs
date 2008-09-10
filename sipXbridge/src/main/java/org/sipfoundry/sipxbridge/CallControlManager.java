@@ -1310,6 +1310,11 @@ class CallControlManager implements SymmitronResetHandler {
                         } else {
                             b2bua.tearDown();
                         }
+                    }  else {
+                        Dialog referDialog = tad.referingDialog;
+                        if ( referDialog != null && referDialog.getState() == DialogState.CONFIRMED )  {
+                            this.notifyReferDialog(referDialog, response);
+                        }
                     }
                 }
             }
