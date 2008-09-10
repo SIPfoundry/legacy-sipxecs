@@ -7,7 +7,7 @@ Group: Applications/Databases
 URL: http://oss.oetiker.ch/rrdtool/
 Source0: http://oss.oetiker.ch/%{name}/pub/%{name}-%{version}.tar.gz
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
-BuildRequires: gcc-c++, openssl-devel, freetype-devel
+BuildRequires: gcc-c++, openssl-devel, freetype
 BuildRequires: libpng-devel, zlib-devel, libart_lgpl-devel >= 2.0
 %if "%{?fedora}" >= "7"
 BuildRequires: perl-devel
