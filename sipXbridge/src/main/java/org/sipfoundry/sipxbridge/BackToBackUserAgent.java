@@ -809,8 +809,14 @@ public class BackToBackUserAgent {
                 uri = ProtocolObjects.addressFactory.createSipURI(incomingRequestURI.getUser(),
                         Gateway.getSipxProxyDomain());
             } else {
-                uri = ProtocolObjects.addressFactory.createSipURI(Gateway.getAutoAttendantName(),
+                String destination = Gateway.getAutoAttendantName();
+                if ( destination.indexOf("@") == -1) {
+                    uri = ProtocolObjects.addressFactory.createSipURI(destination,
                         Gateway.getSipxProxyDomain());
+                } else {
+                    logger.warn("routing to domain other than proxy domain!"  );
+                    uri = (SipURI) ProtocolObjects.addressFactory.createURI("sip:"+destination);
+                }
             }
             uri.setTransportParam(Gateway.getSipxProxyTransport());
 

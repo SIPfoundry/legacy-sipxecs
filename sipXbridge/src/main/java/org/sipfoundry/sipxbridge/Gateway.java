@@ -185,7 +185,6 @@ public class Gateway {
 
     }
 
-    
     static SymmitronClient initializeSymmitron(String address) {
         SymmitronClient symmitronClient = symmitronClients.get(address);
         if (symmitronClients != null) {
@@ -331,7 +330,7 @@ public class Gateway {
             int externalPort = bridgeConfiguration.getExternalPort();
             String externalAddress = bridgeConfiguration.getExternalAddress();
             logger.debug("External Address:port = " + externalAddress + ":" + externalPort);
-           
+
             ListeningPoint externalUdpListeningPoint = ProtocolObjects.sipStack
                     .createListeningPoint(externalAddress, externalPort, "udp");
             ListeningPoint externalTcpListeningPoint = ProtocolObjects.sipStack
@@ -362,7 +361,7 @@ public class Gateway {
                     .createAddress(ProtocolObjects.addressFactory.createSipURI(SIPXBRIDGE_USER,
                             domain));
             logger.debug("Local Address:port " + localIpAddress + ":" + localPort);
-            
+
             ListeningPoint internalUdpListeningPoint = ProtocolObjects.sipStack
                     .createListeningPoint(localIpAddress, localPort, "udp");
 
@@ -395,6 +394,10 @@ public class Gateway {
     static AccountManagerImpl getAccountManager() {
         return Gateway.accountManager;
 
+    }
+
+    static BridgeConfiguration getBridgeConfiguration() {
+        return accountManager.getBridgeConfiguration();
     }
 
     static RegistrationManager getRegistrationManager() {
@@ -521,8 +524,6 @@ public class Gateway {
         return accountManager.getBridgeConfiguration().getLogLevel();
     }
 
-   
-
     /**
      * Get the timeout for media.
      * 
@@ -634,7 +635,7 @@ public class Gateway {
      * @throws Exception
      */
     static void startSipListener() throws GatewayConfigurationException {
-        
+
         try {
             SipListenerImpl listener = new SipListenerImpl();
             getWanProvider("udp").addSipListener(listener);
@@ -859,7 +860,7 @@ public class Gateway {
     }
 
     static String getSessionTimerMethod() {
-        //return null;
+        // return null;
         return Request.OPTIONS;
     }
 
@@ -872,9 +873,14 @@ public class Gateway {
     }
 
     static SymmitronClient getSymmitronClient(String address) {
-        SymmitronClient symmitronClient = symmitronClients.get(address);
+        String lookupAddress = address;
+        if (Gateway.getBridgeConfiguration().getSymmitronHost() != null) {
+            lookupAddress = Gateway.getBridgeConfiguration().getSymmitronHost();
+        }
+
+        SymmitronClient symmitronClient = symmitronClients.get(lookupAddress);
         if (symmitronClient == null) {
-            symmitronClient =  initializeSymmitron(address);
+            symmitronClient = initializeSymmitron(lookupAddress);
         }
         return symmitronClient;
     }

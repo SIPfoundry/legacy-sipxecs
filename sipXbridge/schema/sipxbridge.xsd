@@ -247,6 +247,16 @@
 					</xs:documentation>
 				</xs:annotation>
 			</xs:element>
+			<xs:element name="sipxrelay-host" type="xs:string"
+				maxOccurs="1" minOccurs="0" >
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+                                              Where sipxrelay is running. If not specified, it is assumed to be colocated with sipxbridge 
+					      and outbound calls will use the relay location of the via header of the outbound INVITE.
+					      Note that nattraversalrules.xml specifes the xml-rpc port of sipxrelay.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
 		</xs:sequence>
 	</xs:complexType>
 

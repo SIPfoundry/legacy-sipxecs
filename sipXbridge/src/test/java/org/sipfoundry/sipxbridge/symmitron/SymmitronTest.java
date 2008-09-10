@@ -842,7 +842,7 @@ public class SymmitronTest extends AbstractSymmitronTestCase {
         assertTrue("Must be in INITIAL state",bridgeState.equals(BridgeState.RUNNING.toString()));        
         packetsReceived  = ( String ) retval.get(Symmitron.PACKETS_RECEIVED);
         assertNotNull(packetsReceived);
-       assertEquals("Must be 2000 packets received",Integer.parseInt(packetsReceived),2000);
+        assertEquals("Must be 2000 packets received",Integer.parseInt(packetsReceived),2000);
         packetsSent  = ( String ) retval.get(Symmitron.PACKETS_SENT);
         assertNotNull(packetsSent);
         assertEquals("Must be 2000 packets received",Integer.parseInt(packetsSent),2000);

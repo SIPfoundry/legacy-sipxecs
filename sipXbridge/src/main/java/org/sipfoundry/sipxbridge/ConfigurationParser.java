@@ -83,10 +83,9 @@ public class ConfigurationParser {
         digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG,
         "route-inbound-calls-to-extension"), "setAutoAttendantName", 0,
         new Class[] { String.class });
+       
         digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG,
-        "symmitron-port"), "setSymmitronPort", 0,
-        new Class[] { Integer.class });
-        
+        "sipxrelay-host"), "setSymmitronHost", 0);
         
         /*
          * ITSP configuration support parameters.
