@@ -27,9 +27,10 @@ libraries.
 [ "$RPM_BUILD_ROOT" = "/" ] && printf "Error: RPM_BUILD_ROOT is bogus\n" && exit 99
 rm -rf "$RPM_BUILD_ROOT" 
 cd /var/tmp/ruby-gems_raw && find . -print0 | cpio -pvud0 "$RPM_BUILD_ROOT"
-%ifarch x86_64
-mv "$RPM_BUILD_ROOT"/usr/lib "$RPM_BUILD_ROOT"%{_libdir}
-%endif
+set -xv
+if test "%{_arch}" = "x86_64" ; then
+    mv "$RPM_BUILD_ROOT"/usr/lib "$RPM_BUILD_ROOT"%{_libdir}
+fi
 
 %clean
 [ "$RPM_BUILD_ROOT" != "/" ] && [ -d "$RPM_BUILD_ROOT" ] && rm -rf $RPM_BUILD_ROOT;
