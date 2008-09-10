@@ -37,7 +37,11 @@ BuildRequires: pkgconfig
 BuildRequires: termcap
 BuildRequires: unixODBC-devel
 BuildRequires: gdbm-devel
+%if 0%{?suse_version} > 100
+BuildRequires: db40-devel
+%else
 BuildRequires: db4-devel
+%endif
 
 %if %{?suse_version:1}0
 %if 0%{?suse_version} > 910
