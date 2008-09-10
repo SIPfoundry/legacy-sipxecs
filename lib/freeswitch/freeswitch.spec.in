@@ -38,7 +38,7 @@ BuildRequires: termcap
 BuildRequires: unixODBC-devel
 BuildRequires: gdbm-devel
 %if 0%{?suse_version} > 100
-BuildRequires: db40-devel
+BuildRequires: db43-devel
 %else
 BuildRequires: db4-devel
 %endif
