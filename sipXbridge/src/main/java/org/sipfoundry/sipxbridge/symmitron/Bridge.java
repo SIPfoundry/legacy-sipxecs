@@ -38,13 +38,15 @@ final class Bridge implements BridgeInterface {
 
     private String id;
 
-    long processingCount = 0;
+    long pakcetsReceived = 0;
 
     private long creationTime = System.currentTimeMillis();
 
     long lastPacketTime;
 
     private Parity parity;
+
+    long packetsSent = 0;
 
     static {
         dataShuffler = new DataShuffler();

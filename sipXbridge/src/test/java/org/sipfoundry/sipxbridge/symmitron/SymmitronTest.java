@@ -13,6 +13,7 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.Map;
 
+import org.sipfoundry.sipxbridge.BridgeState;
 import org.sipfoundry.sipxbridge.symmitron.SymInterface;
 import org.sipfoundry.sipxbridge.symmitron.Symmitron;
 
@@ -725,7 +726,7 @@ public class SymmitronTest extends AbstractSymmitronTestCase {
      * 
      * @throws Exception
      */
-    private void sendDataThroughBridgeNoDestroy() throws Exception {
+    private String sendDataThroughBridgeNoDestroy() throws Exception {
         int destinationPort1 = 26000;
         int destinationPort2 = 27000;
 
@@ -753,6 +754,23 @@ public class SymmitronTest extends AbstractSymmitronTestCase {
         int port2 = (Integer) receiverSession.get("port");
 
         String bridge = super.createBridge();
+        
+        
+        args = new Object[2];
+        args[0] = clientHandle;
+        args[1] = bridge;
+        retval = (Map) client.execute("sipXrelay.getBridgeStatistics", args);
+        
+        String bridgeState  = (String) retval.get(Symmitron.BRIDGE_STATE);
+        assertTrue("Must be in INITIAL state",bridgeState.equals(BridgeState.INITIAL.toString()));        
+        String packetsReceived  = ( String ) retval.get(Symmitron.PACKETS_RECEIVED);
+        assertNotNull(packetsReceived);
+        assertEquals("Must be 0 packets received",Integer.parseInt(packetsReceived),0);
+        String packetsSent  = ( String ) retval.get(Symmitron.PACKETS_SENT);
+        assertNotNull(packetsSent);
+        assertEquals("Must be 0 packets received",Integer.parseInt(packetsSent),0);
+        
+        
         super.setRemoteEndpoint(sym1, destinationPort1);
         super.setRemoteEndpoint(sym2, destinationPort2);
 
@@ -812,10 +830,30 @@ public class SymmitronTest extends AbstractSymmitronTestCase {
             datagramSocket1.send(datagramPacket);
         }
         assertTrue("Counter is " + counter, counter >= 1000);
-
+        
+        args = new Object[2];
+        args[0] = clientHandle;
+        args[1] = bridge;
+        retval = (Map) client.execute("sipXrelay.getBridgeStatistics", args);
+        
+        retval = (Map) client.execute("sipXrelay.getBridgeStatistics", args);
+        
+        bridgeState  = (String) retval.get(Symmitron.BRIDGE_STATE);
+        assertTrue("Must be in INITIAL state",bridgeState.equals(BridgeState.RUNNING.toString()));        
+        packetsReceived  = ( String ) retval.get(Symmitron.PACKETS_RECEIVED);
+        assertNotNull(packetsReceived);
+       assertEquals("Must be 2000 packets received",Integer.parseInt(packetsReceived),2000);
+        packetsSent  = ( String ) retval.get(Symmitron.PACKETS_SENT);
+        assertNotNull(packetsSent);
+        assertEquals("Must be 2000 packets received",Integer.parseInt(packetsSent),2000);
+        
+        System.out.println("Pakets sent = " + packetsSent + " packets received " + packetsReceived);
+      
         datagramSocket1.close();
         datagramSocket2.close();
         datagramSocket.close();
+        
+        return bridge;
 
     }
 
@@ -1020,6 +1058,15 @@ public class SymmitronTest extends AbstractSymmitronTestCase {
 
         super.destroyBridge(bridge1);
         super.destroyBridge(bridge2);
+    }
+    
+    public void testBridgeStatistics() throws Exception {
+    
+       String bridge =  this.sendDataThroughBridgeNoDestroy();
+        System.out.println("Done!");
+       super.destroyBridge(bridge);
+     
+
     }
 
 }

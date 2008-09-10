@@ -128,6 +128,7 @@ class DataShuffler implements Runnable {
                      */
                     if (!writeChannel.isOnHold()) {
                         writeChannel.send((ByteBuffer) bufferToSend);
+                        bridge.packetsSent++;
                         sym.getTransmitter().packetsSent++;
 
                     } else {
@@ -185,7 +186,7 @@ class DataShuffler implements Runnable {
                         InetSocketAddress remoteAddress = (InetSocketAddress) datagramChannel
                                 .receive(readBuffer);
 
-                        bridge.processingCount++;
+                        bridge.pakcetsReceived++;
                         if (bridge.getState() != BridgeState.RUNNING) {
                             if (logger.isDebugEnabled()) {
                                 logger.debug("RtpBridge:Discarding packet. Bridge state is "

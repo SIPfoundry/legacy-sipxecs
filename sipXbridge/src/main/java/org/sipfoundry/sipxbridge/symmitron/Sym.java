@@ -226,18 +226,17 @@ final class Sym implements SymInterface, Serializable {
 
     public Map<String, Object> getStats() {
         Map<String, Object> retval = new HashMap<String, Object>();
+      
         retval.put(Symmitron.SESSION_STATE, this.getState().toString());
-        retval.put(Symmitron.CREATION_TIME, new Long(this.getCreationTime()));
-        retval.put(Symmitron.LAST_PACKET_RECEIVED, new Long(this.getLastPacketTime()));
-        retval
-                .put(Symmitron.CURRENT_TIME_OF_DAY, new Long(System.currentTimeMillis())
-                        .toString());
+        retval.put(Symmitron.CREATION_TIME, new Long(this.getCreationTime()).toString());
+        retval.put(Symmitron.LAST_PACKET_RECEIVED, new Long(this.getLastPacketTime()).toString());
+        
         if (this.getTransmitter() != null) {
-            retval.put(Symmitron.PACKETS_SENT, new Long(this.getTransmitter().getPacketsSent()));
+            retval.put(Symmitron.PACKETS_SENT, new Long(this.getTransmitter().getPacketsSent()).toString());
         } else {
-            retval.put(Symmitron.PACKETS_SENT, new Long(0));
+            retval.put(Symmitron.PACKETS_SENT, "0");
         }
-        retval.put(Symmitron.PACKETS_RECEIVED, new Long(this.getPacketsReceived()));
+        retval.put(Symmitron.PACKETS_RECEIVED, new Long(this.getPacketsReceived()).toString());
         return retval;
         
     }

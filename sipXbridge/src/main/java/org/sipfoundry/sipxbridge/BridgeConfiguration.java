@@ -44,6 +44,7 @@ public class BridgeConfiguration {
     private String autoAttendantName = null;
     private String symmitronAddress;
     private int symmitronPort;
+    private boolean useFixedSymmitronAddress;
 
     private static Logger logger = Logger.getLogger(BridgeConfiguration.class);
 

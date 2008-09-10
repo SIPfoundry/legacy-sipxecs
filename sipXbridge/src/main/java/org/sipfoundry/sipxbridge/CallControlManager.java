@@ -57,6 +57,7 @@ import javax.sip.message.Response;
 
 import org.apache.log4j.Logger;
 import org.sipfoundry.sipxbridge.symmitron.KeepaliveMethod;
+import org.sipfoundry.sipxbridge.symmitron.SymmitronException;
 import org.sipfoundry.sipxbridge.symmitron.SymmitronResetHandler;
 
 /**
@@ -1446,9 +1447,12 @@ class CallControlManager implements SymmitronResetHandler {
         } catch (IOException ex) {
             logger.error("unepxected exception", ex);
             throw new RuntimeException("IOException -- check symmitron", ex);
+        } catch ( SymmitronException ex) {
+            logger.error("Error contacting symmitron", ex);
+            throw new RuntimeException("SipXrelay Exception ",ex);
         } catch (Exception ex) {
             logger.error("unexpected exception ", ex);
-            throw new RuntimeException("Unepxected exception cloning");
+            throw new RuntimeException("Unepxected exception processing request",ex);
         }
         return b2bua;
 

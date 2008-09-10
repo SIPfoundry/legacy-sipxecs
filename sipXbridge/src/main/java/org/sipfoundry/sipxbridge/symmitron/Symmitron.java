@@ -569,11 +569,11 @@ public interface Symmitron {
      *         <li><it>current-time-of-day</it> -- current time of day.
      *         <li><it>creation-time</it> -- time this bridge was created.
      *         <li><it>bridge-state</it> -- the bridge state.
-     *         <li><it>packets-processed</it> -- the number of packets
+     *         <li><it>packets-received</it> -- the number of packets
      *         processed.
-     *         <li><it>sym-stats</it> -- a collection of statistics for the
-     *         individual sym Sessions that are part of this Bridge.
-     *         </ul>
+     *         <li><it>last-packet-received</it> -- the last packet reception time.
+     *         <li><it>sym-stats</it> -- an array of sym statistics for each of the syms.
+     *          </ul>
      */
     public Map<String, Object> getBridgeStatistics(String controllerHandle,
             String bridgeId);

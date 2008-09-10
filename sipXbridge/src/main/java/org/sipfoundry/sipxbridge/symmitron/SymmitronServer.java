@@ -16,6 +16,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.ConcurrentHashMap;
 
 import net.java.stun4j.StunAddress;
 import net.java.stun4j.client.NetworkConfigurationDiscoveryProcess;
@@ -51,27 +52,27 @@ public class SymmitronServer implements Symmitron {
     /*
      * Map that pairs the SymSession id with the SymSession
      */
-    private static HashMap<String, Sym> sessionMap = new HashMap<String, Sym>();
+    private static Map<String, Sym> sessionMap = new ConcurrentHashMap<String, Sym>();
 
     /*
      * Map that pairs the rtpSesion owner with the rtp session
      */
-    private static HashMap<String, HashSet<Sym>> sessionResourceMap = new HashMap<String, HashSet<Sym>>();
+    private static Map<String, HashSet<Sym>> sessionResourceMap = new ConcurrentHashMap<String, HashSet<Sym>>();
 
     /*
      * A map that pairs the RtpBridge id with the rtp Bridge.
      */
-    private static HashMap<String, Bridge> bridgeMap = new HashMap<String, Bridge>();
+    private static Map<String, Bridge> bridgeMap = new ConcurrentHashMap<String, Bridge>();
 
     /*
      * A map that pairs the owner with the RtpBridge
      */
-    private static HashMap<String, HashSet<Bridge>> bridgeResourceMap = new HashMap<String, HashSet<Bridge>>();
+    private static Map<String, HashSet<Bridge>> bridgeResourceMap = new ConcurrentHashMap<String, HashSet<Bridge>>();
 
     /*
      * A map of component name to instance handle.
      */
-    private static HashMap<String, String> instanceTable = new HashMap<String, String>();
+    private static Map<String, String> instanceTable = new ConcurrentHashMap<String, String>();
 
     private static PortRangeManager portRangeManager;
 
@@ -229,6 +230,7 @@ public class SymmitronServer implements Symmitron {
             XmlRpcServerConfigImpl serverConfig = new XmlRpcServerConfigImpl();
             serverConfig.setKeepAliveEnabled(true);
             serverConfig.setEnabledForExceptions(true);
+            server.setMaxThreads(4);
 
             server.setConfig(serverConfig);
             server.setHandlerMapping(handlerMapping);
@@ -240,6 +242,8 @@ public class SymmitronServer implements Symmitron {
      * The RPC handler for sipxbridge.
      */
     public SymmitronServer() {
+        
+        logger.error("creating SymmitronServer");
 
     }
 
@@ -700,24 +704,30 @@ public class SymmitronServer implements Symmitron {
 
     public Map<String, Object> getBridgeStatistics(String controllerHandle, String bridgeId) {
         try {
+            this.checkForControllerReboot(controllerHandle);
+            
+            logger.debug("getBridgeStatistics : " + controllerHandle 
+                    + " bridgeId " + bridgeId);
+            
             Bridge bridge = bridgeMap.get(bridgeId);
             if (bridge == null) {
                 return this.createErrorMap(SESSION_NOT_FOUND, "Specified bridge was not found "
                         + bridgeId);
             }
-            Map<String, Object> retval = new HashMap<String, Object>();
+            Map<String,Object> retval = this.createSuccessMap();
             retval.put(Symmitron.BRIDGE_STATE, bridge.getState().toString());
-            retval.put(Symmitron.CREATION_TIME, new Long(bridge.getCreationTime()));
-            retval.put(Symmitron.LAST_PACKET_RECEIVED, new Long(bridge.getLastPacketTime()));
-            retval.put(Symmitron.CURRENT_TIME_OF_DAY, new Long(System.currentTimeMillis())
-                    .toString());
-            Map<String,Object> symStats = new HashMap<String,Object>();
+            retval.put(Symmitron.CREATION_TIME, new Long(bridge.getCreationTime()).toString());
+            retval.put(Symmitron.LAST_PACKET_RECEIVED, new Long(bridge.getLastPacketTime()).toString());
+            retval.put(Symmitron.CURRENT_TIME_OF_DAY, new Long(System.currentTimeMillis()).toString());
+            retval.put(Symmitron.PACKETS_RECEIVED, new Long(bridge.pakcetsReceived).toString());
+            retval.put(Symmitron.PACKETS_SENT, new Long(bridge.packetsSent).toString());
+            Map[] symStats = new Map[bridge.getSyms().size()];
+            int i = 0;
             for ( Sym sym : bridge.getSyms() ) {
-                Map<String,Object> stats = sym.getStats();
-                symStats.put(sym.getId(), stats);
-                
+                symStats[i++] = sym.getStats();
             }
             retval.put(Symmitron.SYM_SESSION_STATS, symStats);
+            logger.debug("bridgeStats = " + retval);
             return retval;
         } catch (Throwable ex) {
             logger.error("Processing Error", ex);
