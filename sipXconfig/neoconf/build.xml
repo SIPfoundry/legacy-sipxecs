@@ -150,12 +150,12 @@
     <!-- mrtg configuration files -->
     <replace file="${dest.dir}${sipxpbx.conf.dir}/mrtg/mrtg.cfg"
             propertyfile="${top.build.dir}/build.properties">
-        <replacefilter token="@sipxpbx.var.dir@" property="sipxpbx.conf.dir" />
+        <replacefilter token="@sipxpbx.var.dir@" property="sipxpbx.var.dir" />
     </replace>
 
     <replace file="${dest.dir}${sipxpbx.conf.dir}/mrtg/mrtg-t.cfg"
             propertyfile="${top.build.dir}/build.properties">
-        <replacefilter token="@sipxpbx.var.dir@" property="sipxpbx.conf.dir" />
+        <replacefilter token="@sipxpbx.var.dir@" property="sipxpbx.var.dir" />
     </replace>
 
     <!-- copy jars and war -->
