@@ -59,6 +59,12 @@
       </type>
       <value>9090</value>
     </setting>
+    <setting name="publicport" advanced="yes">
+      <type>
+        <integer min="1024" max="65535" required="yes" />
+      </type>
+      <value>5060</value>
+    </setting>
   </group>
   <group name="nattraversal-symmitron">
     <setting name="port-range-start" advanced="yes">
@@ -98,7 +104,6 @@
       </type>
       <value>INFO</value>
     </setting>
-    <setting name="log-directory" hidden="yes">
-    </setting>
+    <setting name="log-directory" hidden="yes"></setting>
   </group>
 </model>

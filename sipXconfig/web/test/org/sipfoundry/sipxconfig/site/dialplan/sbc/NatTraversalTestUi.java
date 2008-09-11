@@ -49,6 +49,21 @@ public class NatTraversalTestUi extends WebTestCase {
         SiteTestHelper.assertUserError(tester);
     }
 
+    public void testPublicPortErrors() {
+        SiteTestHelper.assertNoException(tester);
+        assertButtonPresent("form:apply");
+        assertLinkPresent("setting:toggle");
+        SiteTestHelper.clickSubmitLink(tester, "setting:toggle");
+        //lower that 1024 value
+        setTextField("setting:publicport", "-12");
+        clickButton("form:apply");
+        SiteTestHelper.assertUserError(tester);
+        //higher that 65536 value
+        setTextField("setting:publicport", "700000");
+        clickButton("form:apply");
+        SiteTestHelper.assertUserError(tester);
+    }
+
     public void testApplySettings() {
         SiteTestHelper.assertNoException(tester);
         assertButtonPresent("form:apply");
@@ -59,6 +74,7 @@ public class NatTraversalTestUi extends WebTestCase {
         setTextField("setting:concurrentrelays", "20");
         //relay setting:
         setTextField("setting:mediarelayexternaladdress","11.12.13.15");
+        setTextField("setting:publicport","2544");
         clickButton("form:apply");
         SiteTestHelper.assertNoUserError(tester);
         clickButton("cancel");
@@ -67,6 +83,7 @@ public class NatTraversalTestUi extends WebTestCase {
         tester.assertTextFieldEquals("setting:mediarelayexternaladdress","11.12.13.15");
         tester.assertCheckboxSelected("enabled");
         tester.assertSelectedOptionEquals("setting:relayaggressiveness", "Conservative");
+        tester.assertTextFieldEquals("setting:publicport", "2544");
 
     }
 }

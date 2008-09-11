@@ -15,6 +15,7 @@
     <mediarelayexternaladdress>11.12.13.14</mediarelayexternaladdress>
     <mediarelaynativeaddress>21.22.23.24</mediarelaynativeaddress>
     <mediarelayxml-rpc-port>9090</mediarelayxml-rpc-port>
+    <publicport>1234</publicport>
     <port-range>30000:30500</port-range>
     <log-level>INFO</log-level>
     <log-directory>/usr/local/sipx/var/log/sipxpbx</log-directory>
