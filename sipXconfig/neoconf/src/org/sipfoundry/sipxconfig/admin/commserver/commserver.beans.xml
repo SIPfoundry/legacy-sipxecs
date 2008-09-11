@@ -10,10 +10,17 @@
     <property name="mohUser" value="~~mh~" />
   </bean>
 
-  <bean id="locationsManager"
+  <bean id="locationsManagerImpl"
     class="org.sipfoundry.sipxconfig.admin.commserver.LocationsManagerImpl">
-    <property name="sessionFactory">
-      <ref bean="sessionFactory" />
+    <property name="sessionFactory" ref="sessionFactory" />
+  </bean>
+  
+  <bean id="locationsManager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
+    <property name="proxyInterfaces">
+      <value>org.sipfoundry.sipxconfig.admin.commserver.LocationsManager</value>
+    </property>
+    <property name="target">
+      <ref local="locationsManagerImpl" />
     </property>
   </bean>
 

@@ -21,6 +21,11 @@
           value="ognl:selectedSipxService" 
           onchange="javascript:this.form.submit();"/>
       </li>
+      <li>
+        <a jwcid="activate@LinkSubmit" id="services:activate" listener="listener:activate">
+          <span key="link.activate">Activate</span>
+        </a>
+      </li>
     </ul>
     <span jwcid="servicesTable@admin/commserver/ServicesTable" serviceLocation="ognl:locationBean"/>
   </div>

@@ -104,6 +104,12 @@ public abstract class EditLocationPage extends PageWithCallback implements
         ServicesTable servicesTable = (ServicesTable) getComponent("servicesTable");
         servicesTable.refresh();
     }
+    
+    public void activate() {
+        for (SipxService service : getLocationBean().getSipxServices()) {
+            getSipxServiceManager().replicateServiceConfig(service);
+        }
+    }
 
     public IPropertySelectionModel getSipxServiceSelectionModel() {
         ObjectSelectionModel model = new ObjectSelectionModel();
