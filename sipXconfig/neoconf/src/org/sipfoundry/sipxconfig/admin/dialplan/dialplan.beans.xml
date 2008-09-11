@@ -128,6 +128,9 @@
     <property name="sipxReplicationContext" ref="sipxReplicationContext" />
     <property name="defaultDialPlanId" value="na.dialPlan" />
     <property name="vxmlGenerator" ref="vxml" />
+    <property name="sbcDeviceManager" ref="sbcDeviceManager" />
+    <property name="sbcProfileManager" ref="sbcProfileManager" />
+    <lookup-method name="getGatewayProfileManager" bean="gatewayProfileManager" />
     <lookup-method name="getGatewayContext" bean="gatewayContext" />
     <lookup-method name="createSpecialAutoAttendantMode" bean="specialAutoAttendantMode" />
   </bean>

@@ -22,6 +22,7 @@ import org.sipfoundry.sipxconfig.admin.NameInUseException;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.ConfigGenerator;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.SpecialAutoAttendantMode;
+import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDeviceManager;
 import org.sipfoundry.sipxconfig.alias.AliasManager;
 import org.sipfoundry.sipxconfig.common.BeanId;
 import org.sipfoundry.sipxconfig.common.CoreContext;
@@ -31,6 +32,7 @@ import org.sipfoundry.sipxconfig.common.InitializationTask;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.common.event.EntitySaveListener;
+import org.sipfoundry.sipxconfig.device.ProfileManager;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
 import org.sipfoundry.sipxconfig.gateway.GatewayContext;
 import org.sipfoundry.sipxconfig.setting.Group;
@@ -71,8 +73,15 @@ public abstract class DialPlanContextImpl extends SipxHibernateDaoSupport implem
 
     private VxmlGenerator m_vxmlGenerator;
 
+    private SbcDeviceManager m_sbcDeviceManager;
+
+    private ProfileManager m_sbcProfileManager;
+
     /* delayed injection - working around circular reference */
     public abstract GatewayContext getGatewayContext();
+
+    /* delayed injection - working around circular reference */
+    public abstract ProfileManager getGatewayProfileManager();
 
     public abstract SpecialAutoAttendantMode createSpecialAutoAttendantMode();
 
@@ -389,6 +398,12 @@ public abstract class DialPlanContextImpl extends SipxHibernateDaoSupport implem
         ConfigGenerator generator = getGenerator();
         generator.activate(m_sipxReplicationContext, m_scriptsDirectory);
 
+        //push gateway/sbc devices generation when activating dial plan
+        Collection<Integer> gatewayIds = getGatewayContext().getAllGatewayIds();
+        getGatewayProfileManager().generateProfiles(gatewayIds, true, null);
+        Collection<Integer> sbcIds = m_sbcDeviceManager.getAllSbcDeviceIds();
+        m_sbcProfileManager.generateProfiles(sbcIds, true, null);
+
         // notify the world we are done with activating dial plan
         m_sipxReplicationContext.publishEvent(new DialPlanActivatedEvent(this));
     }
@@ -622,6 +637,14 @@ public abstract class DialPlanContextImpl extends SipxHibernateDaoSupport implem
 
     public void setVxmlGenerator(VxmlGenerator vxmlGenerator) {
         m_vxmlGenerator = vxmlGenerator;
+    }
+
+    public void setSbcDeviceManager(SbcDeviceManager sbcDeviceManager) {
+        m_sbcDeviceManager = sbcDeviceManager;
+    }
+
+    public void setSbcProfileManager(ProfileManager sbcProfileManager) {
+        m_sbcProfileManager = sbcProfileManager;
     }
 
     public AutoAttendant createSystemAttendant(String systemId) {

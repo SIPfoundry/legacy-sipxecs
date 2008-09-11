@@ -23,6 +23,7 @@ import org.sipfoundry.sipxconfig.admin.dialplan.config.ForwardingRules;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.MappingRules;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.SpecialAutoAttendantMode;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcManager;
+import org.sipfoundry.sipxconfig.device.ProfileManager;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
 import org.sipfoundry.sipxconfig.gateway.GatewayContext;
 import org.springframework.beans.factory.BeanFactory;
@@ -184,6 +185,11 @@ public class DialPlanContextImplTest extends TestCase {
 
         @Override
         public GatewayContext getGatewayContext() {
+            return null;
+        }
+
+        @Override
+        public ProfileManager getGatewayProfileManager() {
             return null;
         }
 
