@@ -160,7 +160,7 @@ UtlString& UtlString::operator+=(const char c)
 }
 
 // Get the character at position N.
-char UtlString::operator()(size_t N)
+char UtlString::operator()(size_t N) const
 {
     char foundChar = '\0';
 

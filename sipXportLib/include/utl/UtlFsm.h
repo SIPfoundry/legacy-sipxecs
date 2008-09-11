@@ -16,7 +16,7 @@
 #include "os/OsSysLog.h"
 
 // DEFINES
-#define LOG_STATE_CHANGES
+//#define LOG_STATE_CHANGES
 
 // MACROS
 // EXTERNAL FUNCTIONS
@@ -33,13 +33,13 @@
     * \par
     * The approach is inspired by the State pattern described in GoF 
     * (_Design Patterns_ by Gamma et al.). In their pattern, a Context
-    * class maintains a pointer to a State class and delegates state-
-    * dependent operations to the State class. The State class is abstract,
-    * and its subclasses implement individual states. Thus, Context actually
+    * class maintains a pointer to a State object and delegates state-
+    * dependent operations to the State object. The State class is abstract,
+    * and its subclasses implement individual states. Thus, Context object actually
     * points to a subclass of State. In their sample code, the State class 
     * has a protected operation called ChangeState, which is called by 
     * subclasses when the state machine hits an external transition.
-    * The State's ChangeState operation simply asks the Context class to 
+    * The State's ChangeState operation simply asks the Context object to 
     * change the pointer.
     *
     * \par
@@ -254,12 +254,12 @@
       static void ChangeState( StateMachineType& sm, 
             StateType* transitionSource, StateType* transitionTarget )
       {
-         #ifdef LOG_STATE_CHANGES
-         OsSysLog::add(FAC_FSM, PRI_CRIT,
+#ifdef LOG_STATE_CHANGES
+         OsSysLog::add(FAC_FSM, PRI_DEBUG,
                "ChangeState( FSM = %s, current state = %s. new state = %s )", sm.name(),  
                                             transitionSource->name(), 
                                             transitionTarget->name() );
-         #endif
+#endif
          Exit( sm, transitionSource );
          ParentExit( sm, transitionSource->GetParent( sm ), transitionTarget );
          sm.SetCurrentState( GetMostNestedInitialState( sm, transitionTarget ) );

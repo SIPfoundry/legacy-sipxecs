@@ -180,7 +180,7 @@ public:
      */
 
     /// Get the character at position N.
-    char operator()(size_t N);
+    char operator()(size_t N) const;
     /**
      * @returns the nth character (zero based)
      * @code

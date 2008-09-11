@@ -27,6 +27,7 @@ testsuite_CXXFLAGS = \
 testsuite_SOURCES = \
     utl/UtlChainTest.cpp \
     utl/UtlLinkTest.cpp \
+    utl/UtlFsmTest.cpp \
     utl/UtlContainableTestStub.cpp \
     utl/UtlContainableTestStub.h \
     utl/UtlVoidPtr.cpp \
