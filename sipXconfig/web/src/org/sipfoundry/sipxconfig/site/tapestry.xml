@@ -21,7 +21,7 @@
   <!-- phone validator - only digits, at least one -->
   <bean name="validPhone" class="org.apache.tapestry.form.validator.Pattern">
     <property name="pattern">
-      <value>^\d+$</value>
+      <value>^[\d*]+$</value>
     </property>
     <property name="message">
       <value>Please enter digits only, for example: 123</value>
@@ -29,7 +29,7 @@
   </bean>
   <bean name="validPhoneOrAor" class="org.apache.tapestry.form.validator.Pattern">
     <property name="pattern">
-      <value>^(\d+|(\w|(\w[&SIP_USER_UNRESERVED;\w]*\w))@\w[-._\w]*\w\.\w{2,6})$</value>
+      <value>^([\d*]+|([&SIP_USER_CHARS;]|&SIP_USER_ESCAPED;)+@\w[-._\w]*\w\.\w{2,6})$</value>
     </property>
     <property name="message">
       <value>Please enter digits or sip address only, for example: 123 or john@example.com</value>
@@ -59,7 +59,7 @@
   <!-- phone sequence validator - comma-separated list of area codes, can be empty -->
   <bean name="validPhoneSequence" class="org.apache.tapestry.form.validator.Pattern">
     <property name="pattern">
-      <value>^(\d+(\s*,?\s*))*$</value>
+      <value>^([\d*]+(\s*,?\s*))*$</value>
     </property>
     <property name="message">
       <value>Please enter a comma-separated list of numbers, for example: 508, 212, 333</value>

@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.site;
@@ -29,9 +29,9 @@ public class ValidatorsTest extends TestCase {
     private ApplicationContext m_context;
     private IFormComponent m_field;
 
+    @Override
     protected void setUp() {
-        m_context = new ClassPathXmlApplicationContext(
-                "org/sipfoundry/sipxconfig/site/tapestry.xml");
+        m_context = new ClassPathXmlApplicationContext("org/sipfoundry/sipxconfig/site/tapestry.xml");
 
         m_validationMessagesControl = EasyMock.createNiceControl();
         m_validationMessages = m_validationMessagesControl.createMock(ValidationMessages.class);
@@ -42,11 +42,45 @@ public class ValidatorsTest extends TestCase {
         fieldControl.replay();
     }
 
+    public void testValidPhone() throws ValidatorException {
+        Pattern p = (Pattern) m_context.getBean("validPhone");
+        p.validate(m_field, m_validationMessages, "123");
+        p.validate(m_field, m_validationMessages, "*123");
+        p.validate(m_field, m_validationMessages, "*12*3");
+
+        try {
+            p.validate(m_field, m_validationMessages, "@123");
+            fail("Should throw a ValidatorException");
+        } catch (ValidatorException expected) {
+            // successful test
+            assertTrue(true);
+        }
+    }
+
+    public void testValidPhoneSequence() throws ValidatorException {
+        Pattern p = (Pattern) m_context.getBean("validPhoneSequence");
+        p.validate(m_field, m_validationMessages, "123 345");
+        p.validate(m_field, m_validationMessages, "*123");
+        p.validate(m_field, m_validationMessages, "*12*3 **");
+
+        try {
+            p.validate(m_field, m_validationMessages, "@123 12");
+            fail("Should throw a ValidatorException");
+        } catch (ValidatorException expected) {
+            // successful test
+            assertTrue(true);
+        }
+    }
+
     public void testValidPhoneOrAor() throws ValidatorException {
         Pattern p = (Pattern) m_context.getBean("validPhoneOrAor");
         p.validate(m_field, m_validationMessages, "123");
+        p.validate(m_field, m_validationMessages, "*123");
         p.validate(m_field, m_validationMessages, "abc@abc.com");
         p.validate(m_field, m_validationMessages, "a@abc.com");
+        p.validate(m_field, m_validationMessages, "a*c@abc.com");
+        p.validate(m_field, m_validationMessages, "*c@abc.com");
+        p.validate(m_field, m_validationMessages, "$a@abc.com");
     }
 
     public void testValidHostOrIp() throws ValidatorException {
