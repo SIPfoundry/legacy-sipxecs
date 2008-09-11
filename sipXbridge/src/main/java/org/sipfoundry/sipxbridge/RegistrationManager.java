@@ -159,7 +159,15 @@ public class RegistrationManager {
         ClientTransaction ctx = timeoutEvent.getClientTransaction();
         ItspAccountInfo itspAccount = ((TransactionApplicationData) ctx
                 .getApplicationData()).itspAccountInfo;
-        itspAccount.setState(AccountState.AUTHENTICATION_FAILED);
+        /*
+         * Try again to register after 30 seconds ( maybe somebody pulled the
+         * plug).
+         */
+        if ( itspAccount.registrationTimerTask == null ) {
+            TimerTask ttask = new RegistrationTimerTask(itspAccount);
+            Gateway.getTimer().schedule(ttask, 30 * 1000);
+        }
+       
 
     }
 

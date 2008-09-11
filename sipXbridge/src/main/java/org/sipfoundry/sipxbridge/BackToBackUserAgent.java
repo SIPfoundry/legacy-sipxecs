@@ -646,7 +646,7 @@ public class BackToBackUserAgent {
                         "Replaces", decodedReplaces);
             }
             uri.removeParameter("Replaces");
-           // uri.setHost(Gateway.getSipxProxyDomain());
+
             uri.removePort();
             if (replacesHeader != null) {
                 newRequest.addHeader(replacesHeader);
@@ -669,14 +669,14 @@ public class BackToBackUserAgent {
             ((gov.nist.javax.sip.address.SipURIExt) uri).removeHeaders();
 
             newRequest.setRequestURI(uri);
-            
-            if ( referRequest.getHeader(ReferredByHeader.NAME) != null ) {
+
+            if (referRequest.getHeader(ReferredByHeader.NAME) != null) {
                 newRequest.setHeader(referRequest.getHeader(ReferredByHeader.NAME));
             }
-            
+
             CallIdHeader callId = Gateway.getLanProvider().getNewCallId();
             newRequest.setHeader(callId);
-            
+
             SupportedHeader sh = ProtocolObjects.headerFactory.createSupportedHeader("replaces");
             newRequest.setHeader(sh);
 
@@ -712,18 +712,18 @@ public class BackToBackUserAgent {
                     ct.getDialog(), ct, ct.getRequest());
             DialogApplicationData dialogApplicationData = (DialogApplicationData) dialog
                     .getApplicationData();
-            
-            
+
             newDialogApplicationData.rtpSession = dialogApplicationData.rtpSession;
             newDialogApplicationData.peerDialog = dialogApplicationData.peerDialog;
-           // newDialogApplicationData.musicOnHoldDialog = dialogApplicationData.musicOnHoldDialog;
-          
-            if (dialogApplicationData.musicOnHoldDialog != null ) {
+            // newDialogApplicationData.musicOnHoldDialog =
+            // dialogApplicationData.musicOnHoldDialog;
+
+            if (dialogApplicationData.musicOnHoldDialog != null) {
                 this.sendByeToMohServer(dialogApplicationData.musicOnHoldDialog);
                 dialogApplicationData.musicOnHoldDialog = null;
-                
+
             }
-            
+
             if (logger.isDebugEnabled()) {
                 logger.debug("referInviteToSipxProxy peerDialog = "
                         + newDialogApplicationData.peerDialog);
@@ -810,12 +810,12 @@ public class BackToBackUserAgent {
                         Gateway.getSipxProxyDomain());
             } else {
                 String destination = Gateway.getAutoAttendantName();
-                if ( destination.indexOf("@") == -1) {
-                    uri = ProtocolObjects.addressFactory.createSipURI(destination,
-                        Gateway.getSipxProxyDomain());
+                if (destination.indexOf("@") == -1) {
+                    uri = ProtocolObjects.addressFactory.createSipURI(destination, Gateway
+                            .getSipxProxyDomain());
                 } else {
-                    logger.warn("routing to domain other than proxy domain!"  );
-                    uri = (SipURI) ProtocolObjects.addressFactory.createURI("sip:"+destination);
+                    logger.warn("routing to domain other than proxy domain!");
+                    uri = (SipURI) ProtocolObjects.addressFactory.createURI("sip:" + destination);
                 }
             }
             uri.setTransportParam(Gateway.getSipxProxyTransport());
@@ -830,19 +830,29 @@ public class BackToBackUserAgent {
 
             fromHeader.setParameter("tag", Long.toString(Math.abs(new Random().nextLong())));
 
-            ToHeader toHeader = (ToHeader) request.getHeader(ToHeader.NAME).clone();
-
+        
             /*
              * Change the domain of the inbound request to that of the sipx proxy. Change the user
              * part if routed to specific extension.
              */
-            ((SipURI) toHeader.getAddress().getURI()).setHost(Gateway.getSipxProxyDomain());
-            ((SipURI) toHeader.getAddress().getURI()).removePort();
-            if (Gateway.isInboundCallsRoutedToAutoAttendant()) {
-                ((SipURI) toHeader.getAddress().getURI()).setUser(Gateway.getAutoAttendantName());
+            String autoAttendantName = Gateway.getAutoAttendantName();
+            ToHeader toHeader = null;
+            if (autoAttendantName != null && autoAttendantName.indexOf("@") != -1) {
+                SipURI toUri = (SipURI) ProtocolObjects.addressFactory.createURI("sip:" + autoAttendantName);
+                Address toAddress = ProtocolObjects.addressFactory.createAddress(toUri);
+                toHeader = ProtocolObjects.headerFactory.createToHeader(toAddress, null);
+            } else {
+                toHeader = (ToHeader) request.getHeader(ToHeader.NAME).clone();
+                ((SipURI) toHeader.getAddress().getURI()).setHost(Gateway.getSipxProxyDomain());
+                ((SipURI) toHeader.getAddress().getURI()).removePort();
+                if (Gateway.isInboundCallsRoutedToAutoAttendant()) {
+                    ((SipURI) toHeader.getAddress().getURI()).setUser(Gateway
+                            .getAutoAttendantName());
+                }
+                toHeader.removeParameter("tag");
             }
 
-            toHeader.removeParameter("tag");
+           
 
             ViaHeader viaHeader = SipUtilities.createViaHeader(Gateway.getLanProvider(), Gateway
                     .getSipxProxyTransport());
@@ -1289,8 +1299,8 @@ public class BackToBackUserAgent {
                  * This is a spiral. We are going to reuse the port in the incoming INVITE (we
                  * already own this port). Note here that we set the early media flag.
                  */
-               
-                if ( this.rtpBridge.getState() == BridgeState.RUNNING) {
+
+                if (this.rtpBridge.getState() == BridgeState.RUNNING) {
                     this.rtpBridge.pause(); // Pause to block inbound packets.
                 }
 
@@ -1301,7 +1311,7 @@ public class BackToBackUserAgent {
                             Response.SESSION_NOT_ACCEPTABLE, incomingRequest);
                     errorResponse.setReasonPhrase("Could not RtpSession for refering dialog");
                     serverTransaction.sendResponse(errorResponse);
-                    if ( this.rtpBridge.getState() == BridgeState.PAUSED) {
+                    if (this.rtpBridge.getState() == BridgeState.PAUSED) {
                         this.rtpBridge.resume();
                     }
 
@@ -1320,10 +1330,10 @@ public class BackToBackUserAgent {
                  * The RTP session now belongs to the ClientTransaction.
                  */
                 this.rtpBridge.addSym(rtpSession);
-                
-                if ( this.rtpBridge.getState() == BridgeState.PAUSED ) {
+
+                if (this.rtpBridge.getState() == BridgeState.PAUSED) {
                     this.rtpBridge.resume(); /* Resume operation. */
-                } else if ( rtpBridge.getState() == BridgeState.INITIAL ) {
+                } else if (rtpBridge.getState() == BridgeState.INITIAL) {
                     this.rtpBridge.start();
                 }
 
@@ -1439,23 +1449,18 @@ public class BackToBackUserAgent {
                  * Re-INVITE is not supported. Remap the transmitter side and hang up the replaced
                  * dialog.
                  */
-               
-                
 
-              
                 SessionDescription sdes = rtpSession.getReceiver().getSessionDescription();
-            
-               
+
                 String selectedCodec = null;
-                
-                 
+
                 if (replacedDialog.getState() != DialogState.CONFIRMED) {
                     HashSet<Integer> codecs = null;
-                    codecs = SipUtilities.getCommonCodec(sdes,sd);
-                    
-                    if ( codecs.size() == 0 ) {
-                        Response errorResponse = ProtocolObjects.messageFactory.createResponse(Response.NOT_ACCEPTABLE_HERE,
-                                request);
+                    codecs = SipUtilities.getCommonCodec(sdes, sd);
+
+                    if (codecs.size() == 0) {
+                        Response errorResponse = ProtocolObjects.messageFactory.createResponse(
+                                Response.NOT_ACCEPTABLE_HERE, request);
                         serverTransaction.sendResponse(errorResponse);
                         return;
 
@@ -1463,11 +1468,9 @@ public class BackToBackUserAgent {
                     selectedCodec = RtpPayloadTypes.getPayloadType(codecs.iterator().next());
                     SipUtilities.cleanSessionDescription(sdes, selectedCodec);
                 }
-                
-                
+
                 Response okResponse = ProtocolObjects.messageFactory.createResponse(Response.OK,
                         request);
-               
 
                 ContentTypeHeader cth = ProtocolObjects.headerFactory.createContentTypeHeader(
                         "application", "sdp");
