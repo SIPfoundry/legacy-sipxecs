@@ -9,7 +9,9 @@
  */
 package org.sipfoundry.sipxconfig.components;
 
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Comparator;
 
 import ognl.Ognl;
 import ognl.OgnlException;
@@ -29,7 +31,7 @@ public class ObjectSelectionModel implements IPropertySelectionModel {
 
     private String m_valueExpression;
 
-    public void setCollection(Collection objects) {
+    public void setCollection(Collection< ? > objects) {
         m_objects = objects.toArray();
     }
 
@@ -37,6 +39,10 @@ public class ObjectSelectionModel implements IPropertySelectionModel {
         m_objects = objects.clone();
     }
 
+    public void sortBy(Comparator comparator) {
+        Arrays.sort(m_objects, comparator);
+    }
+    
     /**
      * Will run expression on each object in collection to build label text
      */

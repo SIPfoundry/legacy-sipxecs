@@ -22,6 +22,7 @@ import org.sipfoundry.sipxconfig.components.ExtraOptionModelDecorator;
 import org.sipfoundry.sipxconfig.components.ObjectSelectionModel;
 import org.sipfoundry.sipxconfig.components.TapestryContext;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
+import org.sipfoundry.sipxconfig.device.DeviceDescriptor;
 import org.sipfoundry.sipxconfig.device.ModelSource;
 import org.sipfoundry.sipxconfig.phone.PhoneModel;
 
@@ -71,6 +72,7 @@ public abstract class ModelSelector extends BaseComponent {
         ObjectSelectionModel model = new ObjectSelectionModel();
         model.setCollection(getPhoneModelSource().getModels());
         model.setLabelExpression("label");
+        model.sortBy(DeviceDescriptor.LABEL_COMPARATOR);
 
         return getTapestryContext().addExtraOption(model, getMessages(), "label.addNewPhone");
     }

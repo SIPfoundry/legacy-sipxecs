@@ -489,7 +489,7 @@
       </setting>
     </group>
   </group>
-   <group name="qualityMonitoring">
+   <group name="qualityMonitoring" if="voiceQualityMonitoring">
     <group name="collector">
       <setting name="enable.periodic">
         <type><boolean /></type>
@@ -895,13 +895,23 @@
       </type>
       <value />
     </setting>
-    <setting name="singleKeyPressConference">
+    <setting name="singleKeyPressConference" if="singleKeyPressConference">
       <type><boolean /></type>
       <value>0</value>
     </setting>
-    <setting name="localConferenceCallHold">
+    <setting name="singleKeyPressConference_hidden" hidden="yes" unless="singleKeyPressConference">
+      <profileName>singleKeyPressConference</profileName>
+      <type><boolean /></type>
+      <value>0</value>      
+    </setting>
+    <setting name="localConferenceCallHold" if="localConferenceCallHold">
       <type><boolean /></type>
       <value>0</value>
+    </setting>
+    <setting name="localConferenceCallHold_hidden" hidden="yes" unless="localConferenceCallHold">
+      <profileName>localConferenceCallHold</profileName>
+      <type><boolean /></type>
+      <value>0</value>      
     </setting>
     <setting name="disableAutoResumeCentralConference">
         <type><boolean /></type>
@@ -1281,11 +1291,18 @@
       </type>
       <value>1</value>
     </setting>
-    <setting name="calllist">
+    <setting name="calllist" if="disableCallList">
       <type>
         <boolean />
       </type>
       <value>1</value>
+    </setting>
+    <setting name="calllist_hidden" hidden="yes" unless="disableCallList">
+      <profileName>calllist</profileName>
+      <type>
+        <boolean />
+      </type>
+      <value>1</value>    
     </setting>
     <setting name="ring-download">
       <type>
@@ -1293,29 +1310,50 @@
       </type>
       <value>1</value>
     </setting>
-    <setting name="calllist-received">
+    <setting name="calllist-received" if="disableCallList">
       <type>
         <boolean />
       </type>
       <value>1</value>
     </setting>
-    <setting name="calllist-placed">
+    <setting name="calllist-received_hidden" hidden="yes" unless="disableCallList">
+      <profileName>calllist-received</profileName>
+      <type>
+        <boolean />
+      </type>
+      <value>1</value>    
+    </setting>    
+    <setting name="calllist-placed" if="disableCallList">
       <type>
         <boolean />
       </type>
       <value>1</value>
     </setting>
-    <setting name="calllist-missed">
+    <setting name="calllist-placed_hidden" hidden="yes" unless="disableCallList">
+      <profileName>calllist-placed</profileName>
+      <type>
+        <boolean />
+      </type>
+      <value>1</value>    
+    </setting>    
+    <setting name="calllist-missed" if="disableCallList">
       <type>
         <boolean />
       </type>
       <value>1</value>
     </setting>
-    <setting name="url-dialing">
+    <setting name="calllist-missed_hidden" hidden="yes" unless="disableCallList">
+      <profileName>calllist-missed</profileName>
       <type>
         <boolean />
       </type>
-      <value>1</value>
+      <value>1</value>    
+    </setting>    
+    <setting name="url-dialing" hidden="yes">
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
     </setting>
     <setting name="call-park">
       <type>
@@ -1353,12 +1391,26 @@
       </type>
       <value>0</value>
     </setting>
-    <setting name="nway-conference" advanced="yes">
+    <setting name="nway-conference" if="nway-conference" unless="polycom7000">
       <type>
         <boolean />
       </type>
       <value>1</value>
     </setting>
+    <setting name="nway-conference_hidden" hidden="yes" unless="nway-conference">
+      <profileName>nway-conference</profileName>
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+    </setting>       
+    <setting name="nway-conference_hidden_ip7000" hidden="yes" if="polycom7000">
+      <profileName>nway-conference</profileName>
+      <type>
+        <boolean />
+      </type>
+      <value>1</value>
+    </setting>        
     <setting name="call-recording" advanced="yes">
       <type>
         <boolean />
@@ -1429,6 +1481,39 @@
       </setting>
     </group>
   </group>
+  <group name="pnet" if="polycom7000">
+     <setting name="role">
+       <type>
+          <enum>
+            <option>
+               <label>Automatic</label>
+               <value>auto</value>
+            </option>
+            <option>
+               <label>Standalone</label>
+               <value>standAlone</value>
+            </option>
+            <option>
+               <label>Master Only</label>
+               <value>masterOnly</value>
+            </option>
+            <option>
+               <label>Master Preferred</label>
+               <value>masterPreferred</value>
+            </option>
+            <option>
+               <label>Slave Only</label>
+               <value>slaveOnly</value>
+            </option>
+            <option>
+               <label>Slave Preferred</label>
+               <value>slavePreferred</value>
+            </option>
+          </enum>
+       </type>
+       <value>auto</value>
+     </setting>
+   </group>  
   <group name="voIpProt">
     <!-- server.1 and server.3 not defined, these are adaquately
       handled at line level -->

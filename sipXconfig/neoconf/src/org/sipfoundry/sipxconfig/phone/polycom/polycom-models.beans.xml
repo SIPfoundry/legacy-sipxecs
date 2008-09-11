@@ -5,15 +5,19 @@
   <bean id="polycomModel" parent="abstractPhoneModel" class="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel"
     abstract="true" >
 	<property name="vendor" value="Polycom"/>
+	<property name="qualityMonitoringSupported" value="true" />
+    <property name="disableCallListSupported" value="true" />  
   </bean>
 
   <bean id="polycom300" parent="polycomModel">
     <property name="label" value="Polycom SoundPoint IP 300/301" />
     <property name="maxLineCount" value="2" />
+    <property name="qualityMonitoringSupported" value="false" />
   </bean>
   <bean id="polycom330" parent="polycomModel">
     <property name="label" value="Polycom SoundPoint IP 320/330" />
     <property name="maxLineCount" value="2" />
+    <property name="disableCallListSupported" value="false" />
   </bean>
   <bean id="polycom430" parent="polycomModel">
     <property name="label" value="Polycom SoundPoint IP 430" />
@@ -25,6 +29,9 @@
   </bean>
   <bean id="polycom550" parent="polycomModel">
     <property name="label" value="Polycom SoundPoint IP 550/560" />
+    <property name="nwayConferenceSupported" value="true" />
+    <property name="localConferenceCallHoldSupported" value="true" />
+    <property name="singleKeyPressConferenceSupported" value="true" />
     <property name="maxLineCount" value="4" />
   </bean>
   <bean id="polycom600" parent="polycomModel">
@@ -33,10 +40,29 @@
   </bean>
   <bean id="polycom650" parent="polycomModel">
     <property name="label" value="Polycom SoundPoint IP 650/670" />
+    <property name="nwayConferenceSupported" value="true" />
+    <property name="localConferenceCallHoldSupported" value="true" />
+    <property name="singleKeyPressConferenceSupported" value="true" />
     <property name="maxLineCount" value="12" />
   </bean>
   <bean id="polycom4000" parent="polycomModel">
-    <property name="label" value="Polycom SoundStation IP 4000/6000/7000" />
+    <property name="label" value="Polycom SoundStation IP 4000" />
+    <property name="singleKeyPressConferenceSupported" value="false" />
+    <property name="maxLineCount" value="1" />
+  </bean>
+  <bean id="polycom6000" parent="polycomModel">
+    <property name="label" value="Polycom SoundStation IP 6000" />
+    <property name="qualityMonitoringSupported" value="false" />
+    <property name="singleKeyPressConferenceSupported" value="false" />
+    <property name="maxLineCount" value="1" />
+  </bean>
+  <bean id="polycom7000" parent="polycomModel">
+    <property name="label" value="Polycom SoundStation IP 7000" />
+    <property name="qualityMonitoringSupported" value="false" />
+    <property name="localConferenceCallHoldSupported" value="true" />
+    <property name="singleKeyPressConferenceSupported" value="true" />
+    <property name="nwayConferenceSupported" value="true" />
+    <property name="disableCallListSupported" value="false" />    
     <property name="maxLineCount" value="1" />
   </bean>
   <bean id="polycom" class="org.sipfoundry.sipxconfig.phone.polycom.PolycomPhone" singleton="false"

@@ -9,6 +9,7 @@
  */
 package org.sipfoundry.sipxconfig.device;
 
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -16,6 +17,8 @@ import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 
 public abstract class DeviceDescriptor {
+
+    public static final LabelComparator LABEL_COMPARATOR = new LabelComparator();
 
     private String m_modelFilePath;
 
@@ -157,8 +160,8 @@ public abstract class DeviceDescriptor {
      * 
      * &lt;setting name="dinosaur" unless="not-extinct"/&gt;
      */
-    public Set getDefinitions() {
-        Set definitions = new HashSet();
+    public Set<String> getDefinitions() {
+        Set<String> definitions = new HashSet<String>();
         definitions.add(getModelId());
         return definitions;
     }
@@ -218,5 +221,19 @@ public abstract class DeviceDescriptor {
 
     public void setVendor(String vendor) {
         m_vendor = vendor;
+    }
+    
+    private static class LabelComparator implements Comparator<DeviceDescriptor> {
+        public int compare(DeviceDescriptor o1, DeviceDescriptor o2) {
+            if (o1 == null && o2 == null) {
+                return 0;
+            } else if (o1 == null) {
+                return -1;
+            } else if (o2 == null) {
+                return 1;
+            } else {
+                return o1.getLabel().compareToIgnoreCase(o2.getLabel());
+            }
+        }
     }
 }

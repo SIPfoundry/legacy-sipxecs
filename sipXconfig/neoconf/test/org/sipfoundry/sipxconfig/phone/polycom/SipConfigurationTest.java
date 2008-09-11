@@ -36,6 +36,7 @@ public class SipConfigurationTest extends TestCase {
         PolycomModel model = new PolycomModel();
         model.setMaxLineCount(6);
         model.setModelId("polycom600");
+        model.setQualityMonitoringSupported(true);
         phone = new PolycomPhone();
         phone.setModel(model);
         tester = PhoneTestDriver.supplyTestData(phone);
