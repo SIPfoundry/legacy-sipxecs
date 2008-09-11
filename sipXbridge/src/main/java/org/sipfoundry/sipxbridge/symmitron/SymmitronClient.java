@@ -41,6 +41,7 @@ public class SymmitronClient {
 
     private static Timer timer = new Timer();
 
+
     private boolean checkForServerReboot(Map map) throws SymmitronException {
 
         String handle = (String) map.get(Symmitron.INSTANCE_HANDLE);
@@ -81,18 +82,16 @@ public class SymmitronClient {
         }
 
     }
-    
-    
 
     public String getServerHandle() {
         return this.serverHandle;
     }
-  
 
     public SymmitronClient(String serverAddress, int port, SymmitronResetHandler resetHandler)
             throws SymmitronException {
         XmlRpcClientConfigImpl config = new XmlRpcClientConfigImpl();
         try {
+            logger.debug("Trying to sign in " + "http://" + serverAddress + ":" + port);
             config.setServerURL(new URL("http://" + serverAddress + ":" + port));
             config.setEnabledForExceptions(true);
 
@@ -113,45 +112,44 @@ public class SymmitronClient {
     }
 
     public SymImpl createEvenSym() throws SymmitronException {
-      
-            int count = 1;
-            Object[] args = new Object[3];
-            args[0] = clientHandle;
-            args[1] = new Integer(count);
-            args[2] = Symmitron.EVEN;
 
-            Map retval;
-            try {
-                retval = (Map) client.execute("sipXrelay.createSyms", args);
-            } catch (XmlRpcException e) {
-                logger.error(e);
-                
-                throw new SymmitronException(e);
-            }
-            if (retval.get(Symmitron.STATUS_CODE).equals(Symmitron.ERROR)) {
-                throw new SymmitronException("Error in processing request "
-                        + retval.get(Symmitron.ERROR_INFO));
-            }
-            Object[] syms = (Object[]) retval.get(Symmitron.SYM_SESSION);
-            Map sym = (Map) syms[0];
-            String id = (String) sym.get("id");
-            SymImpl symImpl = new SymImpl(id, this);
+        int count = 1;
+        Object[] args = new Object[3];
+        args[0] = clientHandle;
+        args[1] = new Integer(count);
+        args[2] = Symmitron.EVEN;
 
-            Map receiverSession = (Map) sym.get("receiver");
-            if (receiverSession != null && !receiverSession.isEmpty()) {
-                String ipAddr = (String) receiverSession.get("ipAddress");
-                int port = (Integer) receiverSession.get("port");
-                String tid = (String) receiverSession.get("id");
+        Map retval;
+        try {
+            retval = (Map) client.execute("sipXrelay.createSyms", args);
+        } catch (XmlRpcException e) {
+            logger.error(e);
 
-                SymEndpointImpl receiverEndpoint = new SymEndpointImpl(this);
-                receiverEndpoint.setIpAddress(ipAddr);
-                receiverEndpoint.setPort(port);
-                receiverEndpoint.setId(tid);
-                symImpl.setReceiver(receiverEndpoint);
-            }
+            throw new SymmitronException(e);
+        }
+        if (retval.get(Symmitron.STATUS_CODE).equals(Symmitron.ERROR)) {
+            throw new SymmitronException("Error in processing request "
+                    + retval.get(Symmitron.ERROR_INFO));
+        }
+        Object[] syms = (Object[]) retval.get(Symmitron.SYM_SESSION);
+        Map sym = (Map) syms[0];
+        String id = (String) sym.get("id");
+        SymImpl symImpl = new SymImpl(id, this);
 
-            return symImpl;
-        
+        Map receiverSession = (Map) sym.get("receiver");
+        if (receiverSession != null && !receiverSession.isEmpty()) {
+            String ipAddr = (String) receiverSession.get("ipAddress");
+            int port = (Integer) receiverSession.get("port");
+            String tid = (String) receiverSession.get("id");
+
+            SymEndpointImpl receiverEndpoint = new SymEndpointImpl(this);
+            receiverEndpoint.setIpAddress(ipAddr);
+            receiverEndpoint.setPort(port);
+            receiverEndpoint.setId(tid);
+            symImpl.setReceiver(receiverEndpoint);
+        }
+
+        return symImpl;
 
     }
 
@@ -164,7 +162,7 @@ public class SymmitronClient {
                 retval = (Map) client.execute("sipXrelay.createBridge", args);
             } catch (XmlRpcException e) {
                 logger.error("XmlRpcException ", e);
-               
+
                 throw new SymmitronException(e);
             }
 
@@ -190,7 +188,7 @@ public class SymmitronClient {
         try {
             retval = (Map) client.execute("sipXrelay.getPublicAddress", args);
         } catch (XmlRpcException e) {
-            
+
             logger.error("XmlRpcException ", e);
             throw new SymmitronException(e);
         }
@@ -209,7 +207,7 @@ public class SymmitronClient {
         try {
             retval = (Map) client.execute("sipXrelay.getExternalAddress", args);
         } catch (XmlRpcException e) {
-           
+
             logger.error("XmlRpcException ", e);
             throw new SymmitronException(e);
         }
@@ -376,8 +374,7 @@ public class SymmitronClient {
                     + retval.get(Symmitron.ERROR_INFO));
         }
     }
-    
-   
+
     public void setOnHold(String symId, boolean holdFlag) throws SymmitronException {
 
         Object[] args = new Object[2];
@@ -450,13 +447,16 @@ public class SymmitronClient {
 
         String[] myHandle = new String[1];
         myHandle[0] = clientHandle;
+
         try {
             Map retval = (Map) client.execute("sipXrelay.signIn", (Object[]) myHandle);
             this.serverHandle = (String) retval.get(Symmitron.INSTANCE_HANDLE);
         } catch (XmlRpcException e) {
             logger.error(e);
             throw new SymmitronException(e);
+
         }
+
     }
 
     public void signOut() throws SymmitronException {

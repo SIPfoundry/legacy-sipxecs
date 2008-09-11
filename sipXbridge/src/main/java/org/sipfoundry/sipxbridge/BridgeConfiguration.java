@@ -43,6 +43,7 @@ public class BridgeConfiguration {
     private int maxCalls = -1;
     private String autoAttendantName = null;
     private String symmitronHost;
+    private int symmitronXmlRpcPort = 0;
   
     private static Logger logger = Logger.getLogger(BridgeConfiguration.class);
 
@@ -383,6 +384,26 @@ public class BridgeConfiguration {
     
     public String getSymmitronHost() {
         return symmitronHost;  
+    }
+
+
+    /**
+     * @param symmitronXmlRpcPort the symmitronXmlRpcPort to set
+     */
+     public void setSymmitronXmlRpcPort(String symmitronXmlRpcPort) {
+        try {
+            this.symmitronXmlRpcPort = Integer.parseInt(symmitronXmlRpcPort) ;
+        } catch ( NumberFormatException ex) {
+            logger.error("Bad config parameter " , ex);
+        }
+    }
+
+
+    /**
+     * @return the symmitronXmlRpcPort
+     */
+    public int getSymmitronXmlRpcPort() {
+        return symmitronXmlRpcPort;
     }
     
    

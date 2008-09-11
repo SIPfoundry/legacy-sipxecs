@@ -59,8 +59,7 @@ public class ConfigurationParser {
                 "allowed-codec-name"), "setCodecName", 0);
         digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG,
                 "sipx-proxy-domain"), "setSipxProxyDomain", 0);
-        digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG,
-                "rtp-port-range"), "setPortRange", 0);
+      
         digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG,
                 "music-on-hold-support-enabled"),
                 "setMusicOnHoldSupportEnabled", 0,
@@ -86,6 +85,10 @@ public class ConfigurationParser {
        
         digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG,
         "sipxrelay-host"), "setSymmitronHost", 0);
+        digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG,
+        "sipxrelay-xml-rpc-port"), "setSymmitronXmlRpcPort",0);
+        
+        
         
         /*
          * ITSP configuration support parameters.

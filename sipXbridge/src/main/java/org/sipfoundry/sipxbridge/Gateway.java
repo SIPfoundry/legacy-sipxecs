@@ -43,6 +43,7 @@ import org.apache.xmlrpc.webserver.WebServer;
 import org.sipfoundry.sipxbridge.symmitron.SymmitronClient;
 import org.sipfoundry.sipxbridge.symmitron.SymmitronConfig;
 import org.sipfoundry.sipxbridge.symmitron.SymmitronConfigParser;
+import org.sipfoundry.sipxbridge.symmitron.SymmitronException;
 import org.sipfoundry.sipxbridge.xmlrpc.SipXbridgeXmlRpcServer;
 import org.xbill.DNS.Lookup;
 import org.xbill.DNS.Record;
@@ -188,9 +189,14 @@ public class Gateway {
     static SymmitronClient initializeSymmitron(String address) {
         SymmitronClient symmitronClient = symmitronClients.get(address);
         if (symmitronClients != null) {
-            SymmitronConfig symconfig = new SymmitronConfigParser()
+            int symmitronPort ;
+            if ( Gateway.getBridgeConfiguration().getSymmitronXmlRpcPort() != 0 ) {
+                symmitronPort = Gateway.getBridgeConfiguration().getSymmitronXmlRpcPort();
+            } else {
+                SymmitronConfig symconfig = new SymmitronConfigParser()
                     .parse(Gateway.configurationPath + "/nattraversalrules.xml");
-            int symmitronPort = symconfig.getXmlRpcPort();
+                symmitronPort = symconfig.getXmlRpcPort();
+            }
             symmitronClient = new SymmitronClient(address, symmitronPort, callControlManager);
         }
         symmitronClients.put(address, symmitronClient);
@@ -670,13 +676,12 @@ public class Gateway {
         if (globalAddressing) {
             if (Gateway.getGlobalAddress() == null) {
                 discoverAddress();
+                startRediscoveryTimer();
             } else {
                 Gateway.accountManager.getBridgeConfiguration().setStunServerAddress(null);
             }
 
-            if (Gateway.accountManager.getBridgeConfiguration().getStunServerAddress() != null) {
-                startRediscoveryTimer();
-            }
+           
         } else {
             logger.debug("Global rediscovery not needed.");
         }
@@ -686,12 +691,42 @@ public class Gateway {
         if (Gateway.getState() != GatewayState.STOPPED) {
             return;
         }
-
         Gateway.state = GatewayState.INITIALIZING;
+           
+        /*
+         * If specified, try to contact symmitron.
+         */
+        if ( Gateway.getBridgeConfiguration().getSymmitronHost() != null ) {
+            int i ;
+            for ( i = 0 ; i < 8 ; i ++ ) {
+                try {
+                    Gateway.initializeSymmitron(Gateway.getBridgeConfiguration().getSymmitronHost());
+                } catch ( SymmitronException ex) {
+                    logger.error("Symmitron not started -- retrying!");
+                    try {
+                        Thread.sleep(30000);
+                        continue;
+                    } catch (InterruptedException e) {
+                        
+                    }
+                    
+                }
+                break;
+            }
+            if ( i == 8 ) {
+                logger.fatal("Coould not contact symmitron - please start symmitron on " + 
+                        Gateway.getBridgeConfiguration().getSymmitronHost() );
+                        
+            }
+        }
+        
         initializeSipListeningPoints();
         startAddressDiscovery();
         startSipListener();
         registerWithItsp();
+        
+        
+        
 
     }
 
@@ -936,6 +971,7 @@ public class Gateway {
                         logger.error("Configuration error -- no global address or stun server");
                         System.exit(-1);
                     }
+                    
                     // TODO -- check for availability of the ports.
 
                     System.exit(0);
