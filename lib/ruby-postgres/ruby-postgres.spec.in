@@ -29,7 +29,7 @@ provides for C programs.
 %setup -q -n ruby-%{rname}-%{version} 
 
 %build
-ruby extconf.rb
+ruby extconf.rb @POSTGRESQL_INLCLUDE@
 make
 
 %install

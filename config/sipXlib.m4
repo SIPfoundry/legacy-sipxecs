@@ -656,8 +656,7 @@ AC_DEFUN([CHECK_POSTGRES],
     [POSTGRESQL_USER=${withval}],[POSTGRESQL_USER=postgres])
   AC_SUBST([POSTGRESQL_USER])
   if test -f /usr/include/pgsql/libpq-fe.h ; then
-    AC_SUBST(POSTGRES_INCLUDE,/usr/include/pgsql)
-    AC_MSG_RESULT(\$POSTGRES_INCLUDE = $POSTGRES_INCLUDE)
+    AC_SUBST(POSTGRESQL_INLCLUDE,--with-pgsql-include-dir=/usr/include/pgsql)
   fi
 ])
 
