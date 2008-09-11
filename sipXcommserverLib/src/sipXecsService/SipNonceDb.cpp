@@ -176,9 +176,8 @@ UtlString SipNonceDb::nonceSignature(const UtlString& callId,
 
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
                  "SipNonceDb::nonceSignature: callId='%s' fromTag='%s' realm='%s' "
-                 "timestamp='%s' secret='%s'",
-                 callId.data(), fromTag.data(), realm.data(),
-                 timestamp, mpNonceSignatureSecret->data()
+                 "timestamp='%s'",
+                 callId.data(), fromTag.data(), realm.data(), timestamp
                  );
     
    // Create the signature value by hashing the timestamp with
