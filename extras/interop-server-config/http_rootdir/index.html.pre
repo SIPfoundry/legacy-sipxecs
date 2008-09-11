@@ -1,7 +1,7 @@
 <!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-<title>Nortel Networks Interop Online</title>
+<title>sipXecs Interop Online</title>
 <style type="text/css">
 body
 {
@@ -48,13 +48,14 @@ img
 </head>
 
 <body>
+<div>
 <a href="http://sipxecs.sipfoundry.org/">
 <img src="logo.png" alt="sipXecs" border="0" height="80" width="190" align="left" />
 </a>
-
 <h1 align="right">
 &nbsp;Interop Online
 </h1>
+</div>
 <hr />
 
 <p>
@@ -63,7 +64,7 @@ This test server is provided by
 href='http://www.pingtel.com/'>Pingtel</a>), in cooperation with the
 <a href='http://www.sipfoundry.org/sipX'>SIPfoundry sipXecs project</a>, for open interoperability
 testing of SIP user agents.
-This server runs the
+This server runs a development version of the
 <a href='http://www.sipfoundry.org/sipX'>sipXecs open source software</a>
 with a <a href='#config'>custom configuration</a>.  This configuration
 is designed to exercise issues we have found are important to
@@ -75,8 +76,10 @@ The restart process takes approximately 2 minutes.
 A similarly configured interoperability test server is available for
 the <a href='http://products.nortel.com/go/product_content.jsp?segId=0&amp;parId=0&amp;prod_id=63420'>
 Nortel SCS 500</a>, which is derived in part from the sipXecs open
-source project.
+source project.  That server runs a stable released version, and is
+available at <a href='http://interop.scs500demo.com'>interop.scs500demo.com</a>.
 </p>
+
 <p>
 <a href='sipx-version.cgi'>Display the sipX version running on this server</a><br />
 <a href='config-version.html'>Display the configuration version running on this server</a>
