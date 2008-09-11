@@ -150,14 +150,6 @@
 			</xs:element>
 
 
-			<xs:element name="rtp-port-range" type="xs:string"
-				maxOccurs="1" minOccurs="0" default="25000:25500">
-				<xs:annotation>
-					<xs:documentation xml:lang="en">
-						Range of RTP ports that belong to sipxbridge.
-					</xs:documentation>
-				</xs:annotation>
-			</xs:element>
 
 			
 			<xs:element name="log-level" maxOccurs="1" minOccurs="0"
@@ -254,6 +246,24 @@
                                               Where sipxrelay is running. If not specified, it is assumed to be colocated with sipxbridge 
 					      and outbound calls will use the relay location of the via header of the outbound INVITE.
 					      Note that nattraversalrules.xml specifes the xml-rpc port of sipxrelay.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="sipxrelay-xml-rpc-port" type="xs:integer"  
+				maxOccurs="1" minOccurs="0" >
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+                                              Where sipxrelay is running. If not specified, it is assumed to be colocated with sipxbridge 
+					      and outbound calls will use the relay location of the via header of the outbound INVITE.
+					      Note that nattraversalrules.xml specifes the xml-rpc port of sipxrelay.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="xml-rpc-port" type="xs:integer"  
+				maxOccurs="1" minOccurs="0" >
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+						The port for sipxconfig to talk to this instance of sipxbridge.
 					</xs:documentation>
 				</xs:annotation>
 			</xs:element>
