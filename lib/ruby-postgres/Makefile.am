@@ -16,6 +16,6 @@ $(RPM_SOURCES_DIR)/$(TARBALL) :
 	cp $(srcdir)/ruby-postgres-0.7.1.tar.gz $(RPM_SOURCES_DIR)/$(TARBALL)
 
 $(RPM) : $(RPM_SOURCES_DIR)/$(TARBALL)
-	rpmbuild -ba $(srcdir)/ruby-postgres.spec
+	rpmbuild -ba ruby-postgres.spec
 	cp @RPMBUILD_TOPDIR@/RPMS/@RPM_TARGET_ARCH@/$(@F) $@
 
