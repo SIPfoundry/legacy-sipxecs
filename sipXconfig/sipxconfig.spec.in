@@ -310,10 +310,11 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) %{sipxpbxconf}/unmanagedPhone/*
 %config(noreplace) %{sipxpbxconf}/mailbox/*
 
-
 %define audiocodesdir %{_localstatedir}/sipxdata/audiocodes
 %dir %attr(775,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{audiocodesdir}
 %config(noreplace) %{audiocodesdir}/*
+
+%dir %attr(775,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_localstatedir}/sipxdata/configserver/web-cert
 
 %pre
 sipx-upgrade -p sipxconfig -c

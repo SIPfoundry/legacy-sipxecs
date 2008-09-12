@@ -139,6 +139,11 @@
     </property>
   </bean>
 
+  <bean name="validCountryName" class="org.apache.tapestry.form.validator.Pattern">
+    <property name="pattern" value="[A-Z]{2}"/>
+    <property name="message" value="Please enter only two letters in uppercase, for example US, UK"/>
+  </bean>
+
   <!-- T R A N S L A T O R S -->
   <bean name="validTime" class="org.sipfoundry.sipxconfig.components.DateWithTimezoneTranslator">
     <!-- timezone has to match w/DailyBackupSchedule, at least for Backup page -->

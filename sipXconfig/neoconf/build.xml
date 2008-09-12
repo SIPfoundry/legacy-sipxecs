@@ -224,6 +224,9 @@
 
     <!-- mrtg work dir -->
     <mkdir dir="${dest.dir}${sipxpbx.var.dir}/mrtg" />
+
+    <!-- WEB certificates -->
+    <mkdir dir="${dest.dir}${sipxpbx.var.dir}/configserver/web-cert" />
   </target>
 
   <!-- D E F A U L T -->
