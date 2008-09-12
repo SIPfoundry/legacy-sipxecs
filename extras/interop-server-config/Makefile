@@ -143,6 +143,8 @@ $(SIPX_CONFDIR)/sipXproxy-config: $(SIPX_CONFDIR)/sipXproxy-config.in
 	configpp --defs $(SIPX_CONFDIR)/config.defs --in $< --out $@
 $(SIPX_CONFDIR)/registrar-config: $(SIPX_CONFDIR)/registrar-config.in
 	configpp --defs $(SIPX_CONFDIR)/config.defs --in $< --out $@
+$(SIPX_CONFDIR)/nattraversalrules.xml: $(SIPX_CONFDIR)/nattraversalrules.xml.in
+	configpp --defs $(SIPX_CONFDIR)/config.defs --in $< --out $@
 
 # This rule edits config-version.html.in to generate config-version.html.
 $(HTTP_ROOTDIR)/config-version.html: $(HTTP_ROOTDIR)/config-version.html.in
