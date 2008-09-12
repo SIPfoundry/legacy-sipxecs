@@ -17,7 +17,6 @@ import junit.framework.TestCase;
 import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.TestHelper;
-import org.sipfoundry.sipxconfig.admin.commserver.Server;
 import org.sipfoundry.sipxconfig.service.SipxPresenceService;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 
@@ -52,7 +51,6 @@ public class AcdServerTestDb extends TestCase {
 
     public void testDeploy() {
         IMocksControl sipxServerCtrl = createNiceControl();
-        Server sipxServer = sipxServerCtrl.createMock(Server.class);
         sipxServerCtrl.replay();
 
         Map results = new Hashtable();

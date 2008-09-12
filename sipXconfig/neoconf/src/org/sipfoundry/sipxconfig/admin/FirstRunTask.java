@@ -1,7 +1,7 @@
 /*
  *
  *
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  */
@@ -18,7 +18,6 @@ import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.common.ApplicationInitializedEvent;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
-import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
@@ -29,7 +28,6 @@ public class FirstRunTask implements ApplicationListener {
     private CoreContext m_coreContext;
     private AdminContext m_adminContext;
     private DomainManager m_domainManager;
-    private SipxServiceManager m_serviceManager;
     private DialPlanContext m_dialPlanContext;
     private SipxProcessContext m_processContext;
     private String m_taskName;
@@ -41,7 +39,7 @@ public class FirstRunTask implements ApplicationListener {
         m_dialPlanContext.replicateAutoAttendants();
         m_dialPlanContext.activateDialPlan();
         m_coreContext.initializeSpecialUsers();
-        
+
         List restartable = m_processContext.getRestartable();
         m_processContext.restartOnEvent(restartable, DialPlanActivatedEvent.class);
     }
@@ -79,10 +77,6 @@ public class FirstRunTask implements ApplicationListener {
 
     public void setAdminContext(AdminContext adminContext) {
         m_adminContext = adminContext;
-    }
-    
-    public void setSipxServiceManager(SipxServiceManager serviceManager) {
-        m_serviceManager = serviceManager;
     }
 
     @Required

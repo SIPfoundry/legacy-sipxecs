@@ -64,7 +64,6 @@
     <property name="domainManager" ref="domainManager" />
     <property name="dialPlanContext" ref="dialPlanContext" />
     <property name="processContext" ref="sipxProcessContext" />
-    <property name="sipxServiceManager" ref="sipxServiceManager" />
     <property name="taskName" value="first-run" />
   </bean>
 

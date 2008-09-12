@@ -121,7 +121,6 @@
     - D I A L P L A N  C O N T E X T
   -->
   <bean id="dialPlanContextImpl" class="org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContextImpl">
-    <property name="coreContext" ref="coreContext" />
     <property name="aliasManager" ref="aliasManager" />
     <property name="sessionFactory" ref="sessionFactory" />
     <property name="settingDao" ref="settingDao" />

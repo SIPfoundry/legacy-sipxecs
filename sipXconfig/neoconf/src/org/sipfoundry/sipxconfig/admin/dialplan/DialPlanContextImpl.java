@@ -25,7 +25,6 @@ import org.sipfoundry.sipxconfig.admin.dialplan.config.SpecialAutoAttendantMode;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDeviceManager;
 import org.sipfoundry.sipxconfig.alias.AliasManager;
 import org.sipfoundry.sipxconfig.common.BeanId;
-import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
 import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
 import org.sipfoundry.sipxconfig.common.InitializationTask;
@@ -56,8 +55,6 @@ public abstract class DialPlanContextImpl extends SipxHibernateDaoSupport implem
     private static final String VALUE = "value";
     private static final String AUTO_ATTENDANT = "auto attendant";
     private static final String DIALING_RULE = "dialing rule";
-
-    private CoreContext m_coreContext;
 
     private AliasManager m_aliasManager;
 
@@ -414,10 +411,6 @@ public abstract class DialPlanContextImpl extends SipxHibernateDaoSupport implem
 
     public void setSipxReplicationContext(SipxReplicationContext sipxReplicationContext) {
         m_sipxReplicationContext = sipxReplicationContext;
-    }
-
-    public void setCoreContext(CoreContext coreContext) {
-        m_coreContext = coreContext;
     }
 
     public void setAliasManager(AliasManager aliasManager) {

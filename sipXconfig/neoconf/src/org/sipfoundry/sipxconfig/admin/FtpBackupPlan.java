@@ -25,6 +25,7 @@ public class FtpBackupPlan extends BackupPlan {
     private static final Log LOG = LogFactory.getLog(FtpBackupPlan.class);
     private FtpContext m_ftpContext;
 
+    @Override
     public File[] perform(String rootBackupPath, String binPath) {
         String errorMsg = "Errors when creating ftp backup.";
         try {
@@ -34,7 +35,7 @@ public class FtpBackupPlan extends BackupPlan {
 
             File backupDir = createBackupDirectory(rootBackupDir);
             File[] backupFiles = executeBackup(backupDir, new File(binPath));
-            uploadBackupsFtp(backupDir, backupFiles);
+            uploadBackupsFtp(backupDir);
             purgeOld(rootBackupDir);
             return backupFiles;
         } catch (IOException e) {
@@ -45,12 +46,13 @@ public class FtpBackupPlan extends BackupPlan {
         return null;
     }
 
-    private void uploadBackupsFtp(File backupDir, File[] backupFiles) {
+    private void uploadBackupsFtp(File backupDir) {
         m_ftpContext.openConnection();
         m_ftpContext.upload(backupDir.getAbsolutePath());
         m_ftpContext.closeConnection();
     }
 
+    @Override
     protected void purgeOld(File rootBackupDir) {
         m_ftpContext.openConnection();
         if (getLimitedCount() == null) {
