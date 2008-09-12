@@ -9,24 +9,21 @@
  */
 package org.sipfoundry.sipxconfig.admin;
 
+import java.io.File;
 import java.util.Properties;
 
 public interface WebCertificateManager {
-    public static final String CONTEXT_BEAN_NAME = "webCertificateManager";
+    Properties loadCertPropertiesFile();
 
-    public Properties loadCertPropertiesFile();
+    String readCSRFile();
 
-    public String readCSRFile();
+    void writeCertPropertiesFile(Properties properties);
 
-    public void writeCertPropertiesFile(Properties properties);
+    void generateCSRFile();
 
-    public void generateCSRFile();
+    File getCRTFile();
 
-    public String getCRTFilePath();
+    void writeCRTFile(String crt);
 
-    public void writeCRTFile(String crt);
-
-    public String getDomainName();
-
-    public void copyKeyAndCertificate();
+    void copyKeyAndCertificate();
 }

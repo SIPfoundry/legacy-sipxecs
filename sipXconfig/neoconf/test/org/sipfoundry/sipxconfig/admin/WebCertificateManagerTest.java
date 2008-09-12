@@ -20,7 +20,6 @@ import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxServer;
 import org.sipfoundry.sipxconfig.domain.Domain;
 import org.sipfoundry.sipxconfig.domain.DomainConfiguration;
-import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.domain.DomainManagerImpl;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.sipfoundry.sipxconfig.test.TestUtil;
@@ -28,45 +27,53 @@ import org.sipfoundry.sipxconfig.test.TestUtil;
 public class WebCertificateManagerTest extends TestCase {
 
     private WebCertificateManagerImpl manager;
+    private DomainManagerMock domainManager;
 
     private class DomainManagerMock extends DomainManagerImpl {
+        @Override
         public Domain getDomain() {
             return new DomainMock();
         }
 
+        @Override
         protected SipxServer getServer() {
             return null;
         }
 
+        @Override
         protected DomainConfiguration createDomainConfiguration() {
             return null;
         }
 
+        @Override
         protected SipxReplicationContext getReplicationContext() {
             return null;
         }
 
+        @Override
         protected SipxServiceManager getSipxServiceManager() {
             return null;
         }
     }
 
     private class DomainMock extends Domain {
+        @Override
         public String getName() {
             return "test.org";
         }
     }
 
+    @Override
     protected void setUp() {
         manager = new WebCertificateManagerImpl();
         manager.setCertDirectory(TestUtil.getTestSourceDirectory(this.getClass()));
         manager.setSslDirectory(TestUtil.getTestSourceDirectory(this.getClass()));
-        DomainManager domainManager = new DomainManagerMock();
+        domainManager = new DomainManagerMock();
         manager.setDomainManager(domainManager);
     }
 
     public void testWriteAndLoadCertPropertiesFile() {
-        //write properties to file
+        // write properties to file
         Properties prop1 = new Properties();
         prop1.put("countryName", "US");
         prop1.put("stateOrProvinceName", "Texas");
@@ -75,7 +82,7 @@ public class WebCertificateManagerTest extends TestCase {
         prop1.put("serverEmail", "test@test.org");
         manager.writeCertPropertiesFile(prop1);
 
-        //load properties from file
+        // load properties from file
         Properties prop2 = manager.loadCertPropertiesFile();
         assertEquals("US", prop2.get("countryName"));
         assertEquals("Texas", prop2.get("stateOrProvinceName"));
@@ -84,24 +91,17 @@ public class WebCertificateManagerTest extends TestCase {
         assertEquals("test@test.org", prop2.get("serverEmail"));
     }
 
-    public void testGetDomainName() {
-        assertEquals("test.org", manager.getDomainName());
-    }
-
     public void testGetCRTFilePath() {
-        assertEquals(TestUtil.getTestSourceDirectory(this.getClass())+ File.separator + manager.getDomainName() + "-web.crt", manager.getCRTFilePath());
+        assertEquals(TestUtil.getTestSourceDirectory(this.getClass()) + File.separator
+                + domainManager.getDomain().getName() + "-web.crt", manager.getCRTFile().getPath());
     }
 
-    public void testWriteCRTFile() {
-        try {
-            String certificate = new String("TEST");
-            manager.writeCRTFile(certificate);
-            BufferedReader reader = new BufferedReader(new FileReader(manager.getCRTFilePath()));
-            String line = reader.readLine();
-            assertEquals("TEST", line);
-            assertNull(reader.readLine());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    public void testWriteCRTFile() throws Exception {
+        String certificate = new String("TEST");
+        manager.writeCRTFile(certificate);
+        BufferedReader reader = new BufferedReader(new FileReader(manager.getCRTFile()));
+        String line = reader.readLine();
+        assertEquals("TEST", line);
+        assertNull(reader.readLine());
     }
 }

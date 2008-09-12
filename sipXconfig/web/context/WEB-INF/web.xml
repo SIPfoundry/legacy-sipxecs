@@ -16,6 +16,7 @@
       classpath:/org/sipfoundry/sipxconfig/admin/dialplan/sbc/sbc.beans.xml
       classpath:/org/sipfoundry/sipxconfig/admin/localization/localization.beans.xml
       classpath:/org/sipfoundry/sipxconfig/admin/callgroup/callgroup.beans.xml
+      classpath:/org/sipfoundry/sipxconfig/admin/certificates.beans.xml
       classpath:/org/sipfoundry/sipxconfig/admin/parkorbit/parkorbit.beans.xml
       classpath:/org/sipfoundry/sipxconfig/admin/commserver/commserver.beans.xml
       classpath:/org/sipfoundry/sipxconfig/admin/mail/mail.beans.xml
@@ -59,7 +60,6 @@
       classpath:/org/sipfoundry/sipxconfig/rest/rest.beans.xml
       classpath:/org/sipfoundry/sipxconfig/admin/monitoring/monitoring.beans.xml
       classpath:/org/sipfoundry/sipxconfig/nattraversal/nattraversal.beans.xml
-      classpath:/org/sipfoundry/sipxconfig/admin/certificates.beans.xml
     </param-value>
   </context-param>
 

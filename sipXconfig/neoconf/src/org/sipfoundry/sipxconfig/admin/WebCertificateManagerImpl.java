@@ -13,14 +13,14 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.Enumeration;
 import java.util.Properties;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
 
@@ -28,6 +28,7 @@ import org.sipfoundry.sipxconfig.domain.DomainManager;
  * Backup provides Java interface to backup scripts
  */
 public class WebCertificateManagerImpl implements WebCertificateManager {
+    private static final Log LOG = LogFactory.getLog(WebCertificateManager.class);
 
     private static final String PROPERTIES_FILE = "webCert.properties";
     private static final String DOUBLE_QUOTES = "\"";
@@ -44,24 +45,12 @@ public class WebCertificateManagerImpl implements WebCertificateManager {
 
     private DomainManager m_domainManager;
 
-    public String getBinDirectory() {
-        return m_binDirectory;
-    }
-
     public void setBinDirectory(String binDirectory) {
         m_binDirectory = binDirectory;
     }
 
-    public String getCertDirectory() {
-        return m_certDirectory;
-    }
-
     public void setCertDirectory(String certDirectory) {
         m_certDirectory = certDirectory;
-    }
-
-    public String getSslDirectory() {
-        return m_sslDirectory;
     }
 
     public void setSslDirectory(String sslDirectory) {
@@ -73,9 +62,8 @@ public class WebCertificateManagerImpl implements WebCertificateManager {
     }
 
     public Properties loadCertPropertiesFile() {
-        String path = getCertDirectory() + File.separator + PROPERTIES_FILE;
+        File propertiesFile = new File(m_certDirectory, PROPERTIES_FILE);
         try {
-            File propertiesFile = new File(path);
             FileInputStream propertiesStream = new FileInputStream(propertiesFile);
             Properties properties = new Properties();
             properties.load(propertiesStream);
@@ -83,34 +71,19 @@ public class WebCertificateManagerImpl implements WebCertificateManager {
             while (propertiesEnum.hasMoreElements()) {
                 String key = (String) propertiesEnum.nextElement();
                 String value = properties.getProperty(key);
-                value = value.replace(DOUBLE_QUOTES, "");
+                value = StringUtils.strip(value, DOUBLE_QUOTES);
                 properties.setProperty(key, value);
             }
             return properties;
         } catch (FileNotFoundException e) {
             return null;
         } catch (IOException e) {
-            throw new UserException(false, READ_ERROR, path);
-        }
-    }
-
-    public String readCSRFile() {
-        String path = getCertDirectory() + File.separator + getDomainName() + "-web.csr";
-        try {
-            File csrFile = new File(path);
-            FileReader csrReader = new FileReader(csrFile);
-            char[] csrArray = new char[(int) csrFile.length()];
-            csrReader.read(csrArray);
-            return new String(csrArray);
-        } catch (FileNotFoundException e) {
-            return null;
-        } catch (IOException e) {
-            throw new UserException(false, READ_ERROR, path);
+            throw new UserException(false, READ_ERROR, propertiesFile.getPath());
         }
     }
 
     public void writeCertPropertiesFile(Properties properties) {
-        String path = getCertDirectory() + File.separator + PROPERTIES_FILE;
+        File propertiesFile = new File(m_certDirectory, PROPERTIES_FILE);
         try {
             Enumeration<Object> propertiesEnum = properties.keys();
             while (propertiesEnum.hasMoreElements()) {
@@ -119,87 +92,80 @@ public class WebCertificateManagerImpl implements WebCertificateManager {
                 value = DOUBLE_QUOTES + value + DOUBLE_QUOTES;
                 properties.setProperty(key, value);
             }
-            File propertiesFile = new File(path);
             FileOutputStream propertiesStream = new FileOutputStream(propertiesFile);
             properties.store(propertiesStream, null);
-        } catch (Exception e) {
-            throw new UserException(false, WRITE_ERROR, path);
+        } catch (IOException e) {
+            throw new UserException(false, WRITE_ERROR, propertiesFile.getPath());
+        }
+    }
+
+    public String readCSRFile() {
+        File csrFile = new File(m_certDirectory, getDomainName() + "-web.csr");
+        try {
+            return FileUtils.readFileToString(csrFile, "US-ASCII");
+        } catch (FileNotFoundException e) {
+            return null;
+        } catch (IOException e) {
+            throw new UserException(false, READ_ERROR, csrFile.getPath());
         }
     }
 
     public void generateCSRFile() {
         try {
-            String path = getBinDirectory() + File.separator + "ssl-cert" + File.separator;
             Runtime runtime = Runtime.getRuntime();
-            StringBuilder builder = new StringBuilder();
-            builder.append("/bin/bash ").append("./gen-ssl-keys.sh ").append("--csr ").append(
-                    "--web-only ").append("--defaults ").append(
-                    "--parameters webCert.properties ").append("--workdir ").append(
-                    getCertDirectory());
-            Process proc = runtime.exec(builder.toString(), null, new File(path));
+            String[] cmdLine = new String[] {
+                m_binDirectory + "/ssl-cert/gen-ssl-keys.sh", "--csr", "--web-only", "--defaults", "--parameters",
+                PROPERTIES_FILE, "--workdir", m_certDirectory
+            };
+            Process proc = runtime.exec(cmdLine);
+            LOG.debug("Executing: " + StringUtils.join(cmdLine, " "));
             proc.waitFor();
             if (proc.exitValue() != 0) {
-                throw new UserException(false, SCRIPT_ERROR, "Script finished with exit code "
-                        + proc.exitValue());
+                throw new UserException(false, SCRIPT_ERROR, "Script finished with exit code " + proc.exitValue());
             }
-        } catch (Exception e) {
+        } catch (IOException e) {
+            throw new UserException(false, SCRIPT_ERROR, e.getMessage());
+        } catch (InterruptedException e) {
             throw new UserException(false, SCRIPT_ERROR, e.getMessage());
         }
     }
 
-    public String getCRTFilePath() {
-        return getCertDirectory() + File.separator + getDomainName() + "-web.crt";
+    public File getCRTFile() {
+        return new File(m_certDirectory, getDomainName() + "-web.crt");
     }
 
     public void writeCRTFile(String crt) {
-        String path = getCRTFilePath();
+        File crtFile = getCRTFile();
         try {
-            FileWriter writer = new FileWriter(path);
-            writer.write(crt);
-            writer.flush();
-            writer.close();
-        } catch (Exception e) {
-            throw new UserException(false, WRITE_ERROR, path);
+            FileUtils.writeStringToFile(crtFile, crt);
+        } catch (IOException e) {
+            throw new UserException(false, WRITE_ERROR, crtFile.getPath());
         }
-    }
-
-    public String getDomainName() {
-        return m_domainManager.getDomain().getName();
     }
 
     public void copyKeyAndCertificate() {
-        File sourceCertificate = new File(getCRTFilePath());
-        File sourceKey = new File(getCertDirectory() + File.separator + getDomainName()
-                + "-web.key");
-        if (sourceCertificate.exists() && sourceKey.exists()) {
-            try {
-                File destinationCertificate = new File(getSslDirectory() + File.separator
-                        + "ssl-web.crt");
-                File destinationKey = new File(getSslDirectory() + File.separator + "ssl-web.key");
-
-                // copy the certificate
-                InputStream inCertificate = new FileInputStream(sourceCertificate);
-                OutputStream outCertificate = new FileOutputStream(destinationCertificate);
-                byte[] buf = new byte[1024];
-                int len;
-                while ((len = inCertificate.read(buf)) > 0) {
-                    outCertificate.write(buf, 0, len);
-                }
-                inCertificate.close();
-                outCertificate.close();
-
-                // copy the key
-                InputStream inKey = new FileInputStream(sourceKey);
-                OutputStream outKey = new FileOutputStream(destinationKey);
-                buf = new byte[1024];
-                while ((len = inKey.read(buf)) > 0) {
-                    outKey.write(buf, 0, len);
-                }
-                inKey.close();
-                outKey.close();
-            } catch (Exception e) {
-                throw new UserException(false, COPY_ERROR);
-            }
+        File sourceCertificate = getCRTFile();
+        if (!sourceCertificate.exists()) {
+            return;
         }
+
+        File sourceKey = new File(m_certDirectory, getDomainName() + "-web.key");
+        if (!sourceKey.exists()) {
+            return;
+        }
+
+        try {
+            File destinationCertificate = new File(m_sslDirectory, "ssl-web.crt");
+            File destinationKey = new File(m_sslDirectory, "ssl-web.key");
+
+            FileUtils.copyFile(sourceCertificate, destinationCertificate);
+            FileUtils.copyFile(sourceKey, destinationKey);
+        } catch (Exception e) {
+            throw new UserException(false, COPY_ERROR);
+        }
+    }
+
+    private String getDomainName() {
+        return m_domainManager.getDomain().getName();
     }
 }

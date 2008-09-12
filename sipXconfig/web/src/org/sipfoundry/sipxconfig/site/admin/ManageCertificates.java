@@ -9,7 +9,6 @@
  */
 package org.sipfoundry.sipxconfig.site.admin;
 
-import java.io.File;
 import java.util.Properties;
 
 import org.apache.tapestry.annotations.Bean;
@@ -24,6 +23,7 @@ import org.sipfoundry.sipxconfig.admin.WebCertificateManager;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
+import org.sipfoundry.sipxconfig.domain.DomainManager;
 
 public abstract class ManageCertificates extends BasePage implements PageBeginRenderListener {
 
@@ -42,6 +42,9 @@ public abstract class ManageCertificates extends BasePage implements PageBeginRe
 
     @InjectObject(value = "spring:webCertificateManagerImpl")
     public abstract WebCertificateManager getWebCertificateManager();
+
+    @InjectObject(value = "spring:domainManager")
+    public abstract DomainManager getDomainManager();
 
     @Persist
     @InitialValue(value = "literal:generate")
@@ -87,10 +90,9 @@ public abstract class ManageCertificates extends BasePage implements PageBeginRe
             return;
         }
 
-        setServer(getWebCertificateManager().getDomainName());
+        setServer(getDomainManager().getDomain().getName());
 
-        SipxValidationDelegate validator = (SipxValidationDelegate) TapestryUtils
-                .getValidator(this);
+        SipxValidationDelegate validator = (SipxValidationDelegate) TapestryUtils.getValidator(this);
 
         try {
             // load properties
@@ -117,26 +119,21 @@ public abstract class ManageCertificates extends BasePage implements PageBeginRe
             return;
         }
 
-        SipxValidationDelegate validator = (SipxValidationDelegate) TapestryUtils
-                .getValidator(this);
+        SipxValidationDelegate validator = (SipxValidationDelegate) TapestryUtils.getValidator(this);
 
-        try {
-            // write properties file
-            Properties properties = new Properties();
-            properties.setProperty(COUNTRY_PROP, getCountry());
-            properties.setProperty(STATE_PROP, getState());
-            properties.setProperty(LOCALITY_PROP, getLocality());
-            properties.setProperty(ORGANIZATION_PROP, getOrganization());
-            properties.setProperty(EMAIL_PROP, getEmail());
-            getWebCertificateManager().writeCertPropertiesFile(properties);
+        // write properties file
+        Properties properties = new Properties();
+        properties.setProperty(COUNTRY_PROP, getCountry());
+        properties.setProperty(STATE_PROP, getState());
+        properties.setProperty(LOCALITY_PROP, getLocality());
+        properties.setProperty(ORGANIZATION_PROP, getOrganization());
+        properties.setProperty(EMAIL_PROP, getEmail());
+        getWebCertificateManager().writeCertPropertiesFile(properties);
 
-            // generate key and csr files
-            getWebCertificateManager().generateCSRFile();
+        // generate key and csr files
+        getWebCertificateManager().generateCSRFile();
 
-            validator.recordSuccess(getMessages().getMessage("msg.generateSuccess"));
-        } catch (UserException e) {
-            validator.record(e, getMessages());
-        }
+        validator.recordSuccess(getMessages().getMessage("msg.generateSuccess"));
     }
 
     public void importCertificate() {
@@ -148,8 +145,7 @@ public abstract class ManageCertificates extends BasePage implements PageBeginRe
         IUploadFile uploadFile = getUploadFile();
         String certificate = getCertificate();
 
-        SipxValidationDelegate validator = (SipxValidationDelegate) TapestryUtils
-                .getValidator(this);
+        SipxValidationDelegate validator = (SipxValidationDelegate) TapestryUtils.getValidator(this);
 
         if (uploadFile == null && certificate == null) {
             validator.record(new UserException(false, "msg.selectOneSource"), getMessages());
@@ -157,7 +153,7 @@ public abstract class ManageCertificates extends BasePage implements PageBeginRe
         }
 
         if (uploadFile != null) {
-            uploadFile.write(new File(getWebCertificateManager().getCRTFilePath()));
+            uploadFile.write(getWebCertificateManager().getCRTFile());
         } else if (certificate != null) {
             getWebCertificateManager().writeCRTFile(certificate);
         }
@@ -168,10 +164,10 @@ public abstract class ManageCertificates extends BasePage implements PageBeginRe
     }
 
     public boolean getUploadDisabled() {
-        return getImportMethodSelected() == UPLOAD ? false : true;
+        return getImportMethodSelected() != UPLOAD;
     }
 
     public boolean getTextDisabled() {
-        return getImportMethodSelected() == TEXT ? false : true;
+        return getImportMethodSelected() != TEXT;
     }
 }
