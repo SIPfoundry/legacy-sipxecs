@@ -43,8 +43,8 @@
 ######################################
 ## Overridden environment variables ##
 ######################################
-VXILOG                                  Environment     @SIPX_LOGDIR@
-VXITMP                                  Environment     @SIPX_TMPDIR@
+VXILOG                                  Environment     @sipxpbx.log.dir@
+VXITMP                                  Environment     @sipxpbx.tmp.dir@
 
 ###############################
 ## Base client configuration ##
@@ -79,7 +79,7 @@ client.inet.cacheEntryExpTimeSec        VXIInteger      86400
 client.inet.userAgent                   VXIString       sipXvxml/1.0
 client.inet.acceptCookies               VXIInteger      1
 ## client.prompt.baseUrl                   VXIString       http://localhost:${MEDIA_SERVER_HTTP_PORT}/stdprompts/
-client.prompt.baseUrl                   VXIString       file:///@wwwdir@/doc/stdprompts/
+client.prompt.baseUrl                   VXIString       file:///@www.dir@/doc/stdprompts/
 
 ### Controls HTAnchor patch
 ### n is an integer equal or greater then zero.
@@ -94,7 +94,7 @@ client.jsi.maxBranches                  VXIInteger      100000
 
 ### VoiceXML Interpreter
 ## client.vxi.beepURI                      VXIString       http://localhost:${MEDIA_SERVER_HTTP_PORT}/stdprompts/beep.wav
-client.vxi.beepURI                      VXIString       file:///@wwwdir@/doc/stdprompts/beep.wav
+client.vxi.beepURI                      VXIString       file:///@www.dir@/doc/stdprompts/beep.wav
 
 #######################################
 ## testClient specific configuration ##
@@ -102,7 +102,7 @@ client.vxi.beepURI                      VXIString       file:///@wwwdir@/doc/std
 ##
 ## Overridden if a URI is specified on the command line
 client.vxmlURL                          VXIString       http://localhost:${mediaService.httpPort}/vm_vxml/ 
-## client.vxmlURL                          VXIString        file:///@wwwdir@/doc/vm_vxml/ 
+## client.vxmlURL                          VXIString        file:///@www.dir@/doc/vm_vxml/ 
 
 ################################
 ## Autothrottle configuration ##
