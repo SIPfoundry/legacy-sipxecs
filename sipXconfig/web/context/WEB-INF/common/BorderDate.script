@@ -12,7 +12,7 @@ function setRefreshTimer() {
 }
 
 function refreshDate() {
-	tapestry.form.submitAsync(dojo.byId("refreshForm"));
+	tapestry.form.submitAsync(dojo.byId("dateForm"));
 	setTimeout('refreshDate()', 30000);
 }
 

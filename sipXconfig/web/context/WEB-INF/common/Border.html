@@ -7,9 +7,9 @@
   <body jwcid="@Body">
     <div jwcid="@If" condition="ognl:userSession.navigationVisible" renderTag="false">
       <span jwcid="@Script" scriptAsset="asset:borderDateScript"/>
-      <form jwcid="refreshForm@Form" id="refreshForm"
-			updateComponents="ognl:{'refreshedContent'}">
-        <div jwcid="@Any" id="refreshedContent" class="date">
+      <form jwcid="dateForm@Form" id="dateForm"
+			updateComponents="ognl:{'dateContent'}">
+        <div jwcid="@Any" id="dateContent" class="date">
           <span jwcid="currentDate@Insert" value="ognl:date" format="ognl:dateFormat">21 August 2008</span>
         </div>
       </form>
