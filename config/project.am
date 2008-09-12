@@ -4,29 +4,34 @@ include config/dist.am
 
 all: BUILDSTAMP
 
-## BUILDSTAMP records the subversion revision, date/time, and which builder built this
-##   it also creates the cpp file config/sipX-buildstamp.cpp with the same information.
+## BUILDSTAMP records the subversion revision, date/time, which builder built
+## this, and the repository branch (if it is not main).
+## It also creates a C source file config/sipX-buildstamp.cpp containing
+## the same information.
 defaultBuilder := $(shell (uname -n; id -un))
-BUILDER ?= $(defaultBuilder)
+BUILDER := $(defaultBuilder)
+BRANCH := $(shell svn info 2>/dev/null | sed -e '/branches/!d' \
+                                             -e 's%^.*/branches/%branches/%' \
+                                             -e 's%/%:%g' )
+sipxBuildTime := $(shell date -u +%Y-%m-%dT%H:%M:%S)
+SIPX_BUILDSTAMP := $(sipxBuildTime) $(BUILDER) $(BRANCH)
 
 .PHONY: BUILDSTAMP
 BUILDSTAMP: 
 	@echo -n "Generating BUILDSTAMP: " 
 	@test -d config || mkdir config
-	@sipxBuildTime=`date -u +%Y-%m-%dT%H:%M:%S` ; \
-	SIPX_BUILDSTAMP="$${sipxBuildTime} $(BUILDER)" ; \
-	echo "$${SIPX_BUILDSTAMP}" > BUILDSTAMP ; \
-	${LocalizeSipXconfig} \
+	@echo "$(SIPX_BUILDSTAMP)" > BUILDSTAMP
+	@${LocalizeSipXconfig} \
 		-e "s/@SIPX_VERSION\@/$(SIPX_VERSION)/" \
-		-e "s/@SIPX_BUILDSTAMP\@/$${SIPX_BUILDSTAMP}/" \
+		-e "s/@SIPX_BUILDSTAMP\@/$(SIPX_BUILDSTAMP)/" \
 		-e "s/sipx/SipX/" \
 	    $(srcdir)/config/sipX-buildstamp.cpp.in \
-	> config/@PACKAGE@-buildstamp.cpp ; \
-	${LocalizeSipXconfig} \
+	> config/@PACKAGE@-buildstamp.cpp
+	@${LocalizeSipXconfig} \
 		-e "s/sipx/SipX/" \
 	    $(srcdir)/config/sipX-buildstamp.h.in \
-	> config/@PACKAGE@-buildstamp.h; \
-	echo "$${SIPX_BUILDSTAMP}"
+	> config/@PACKAGE@-buildstamp.h
+	@echo "$(SIPX_BUILDSTAMP)"
 
 # automake doesn't like this inside the conditional
 .PHONY : doc
