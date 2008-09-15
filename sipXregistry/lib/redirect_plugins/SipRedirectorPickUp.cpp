@@ -1005,6 +1005,7 @@ void SipRedirectorPrivateStoragePickUp::processNotifyDialogElement(
    mTargetDialogLocalURI =
       !local_target.isNull() ? local_target : local_identity;
    mTargetDialogLocalIdentity = local_identity;   
+   mTargetDialogRemoteIdentity = remote_identity;   
 }
 
 void SipRedirectorPrivateStoragePickUp::processNotifyLocalRemoteElement(

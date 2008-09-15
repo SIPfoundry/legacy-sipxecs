@@ -108,7 +108,7 @@ SipRegistrar::SipRegistrar(OsConfigDb* configDb) :
    if (mProxyNormalPort == PORT_DEFAULT)
    {
       mProxyNormalPort = SIP_PORT;
-   }  
+   }
     
    // Domain Name
    mConfigDb->get("SIP_REGISTRAR_DOMAIN_NAME", mDefaultDomain);

@@ -123,7 +123,7 @@ SipRedirectorRegDB::lookUp(
       UtlString qvalueKey("qvalue");
       UtlString pathKey("path");
       UtlString contact = *((UtlString*) record.findValue(&contactKey));
-      UtlString qvalue  = *((UtlString*) record.findValue(&qvalueKey));
+      UtlString qvalue = *((UtlString*) record.findValue(&qvalueKey));
       UtlString pathVector = *((UtlString*) record.findValue(&pathKey));
       OsSysLog::add(FAC_SIP, PRI_DEBUG,
                     "%s::lookUp contact = '%s', qvalue = '%s', path = '%s'",

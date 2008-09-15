@@ -128,7 +128,7 @@ RedirectPlugin::LookUpStatus SipRedirectorAuthRouter::lookUp(
       int contacts = response.getCountHeaderFields(SIP_CONTACT_FIELD);
       if (   (method.compareTo(SIP_INVITE_METHOD, UtlString::ignoreCase) == 0)
           && (contacts)
-          )
+         )
       {
          /*
           * Loop through each contact in the response,
