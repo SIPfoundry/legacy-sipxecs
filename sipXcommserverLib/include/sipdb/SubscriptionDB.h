@@ -37,6 +37,7 @@ class dbFieldDescriptor;
 class UtlHashMap;
 class TiXmlNode;
 class ResultSet;
+class UtlSList;
 
 class SubscriptionDB
 {
@@ -111,6 +112,13 @@ public:
         const int& timeNow,
         ResultSet& rResultSet );
 
+    /// Return a list of contact fields that are unexpired and contain a specified substring.
+    /// The caller is responsible for de-allocating the memory for the entries contained in the 
+    /// list.
+    void getUnexpiredContactsFieldsContaining ( UtlString& substringToMatch
+                                               ,const int& timeNow
+                                               ,UtlSList& matchingContactFields ) const;
+    
     // Updates the XML version ('version') and NOTIFY cseq ('updatedNotifyCseq')
     // in the subscription DB.
     // Does not have event and event-id parameters, because all subscriptions

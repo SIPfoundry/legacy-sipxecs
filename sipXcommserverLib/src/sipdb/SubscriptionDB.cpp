@@ -13,6 +13,7 @@
 
 // APPLICATION INCLUDES
 #include "utl/UtlInt.h"
+#include "utl/UtlSList.h"
 #include "os/OsLock.h"
 #include "os/OsDateTime.h"
 #include "os/OsFS.h"
@@ -911,6 +912,43 @@ SubscriptionDB::updateNotifyUnexpiredSubscription (
         // Commit rows to memory - multiprocess workaround
         m_pFastDB->detach(0);
     }
+}
+
+void
+SubscriptionDB::getUnexpiredContactsFieldsContaining (
+   UtlString& substringToMatch,
+   const int& timeNow,   
+   UtlSList& matchingContactFields ) const
+{
+   // Clear the results
+   matchingContactFields.destroyAll();
+   if ( m_pFastDB != NULL )
+   {
+       // Thread Local Storage
+       m_pFastDB->attach();
+       
+       dbCursor< SubscriptionRow > cursor;
+       UtlString queryString = "contact like '%" + substringToMatch + "%' and expires>";
+       queryString.appendNumber( timeNow );
+       dbQuery query;
+       query = queryString;
+
+       if ( cursor.select(query) > 0 )
+       {
+           // Copy all the unexpired contacts into the result list
+           do
+           {
+               UtlString* contactValue = new UtlString(cursor->contact);
+               matchingContactFields.append( contactValue );
+           } while ( cursor.next() );
+       }
+
+        m_pFastDB->detach(0);
+   }
+   else
+   {
+      OsSysLog::add(FAC_DB, PRI_CRIT, "SubscriptionDB::getUnexpiredContactsFieldsContaining failed - no DB");
+   }
 }
 
 UtlBoolean
