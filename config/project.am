@@ -10,9 +10,10 @@ all: BUILDSTAMP
 ## the same information.
 defaultBuilder := $(shell (uname -n; id -un))
 BUILDER := $(defaultBuilder)
-BRANCH := $(shell svn info 2>/dev/null | sed -e '/branches/!d' \
-                                             -e 's%^.*/branches/%branches/%' \
-                                             -e 's%/%:%g' )
+BRANCH := $(shell svn info 2>/dev/null | \
+                  sed -e '/branches/!d' \
+                      -e 's%^.*/branches/%branches/%' \
+                      -e 's%/%:%g' )
 sipxBuildTime := $(shell date -u +%Y-%m-%dT%H:%M:%S)
 SIPX_BUILDSTAMP := $(sipxBuildTime) $(BUILDER) $(BRANCH)
 
