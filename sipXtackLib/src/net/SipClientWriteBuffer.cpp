@@ -180,7 +180,6 @@ void SipClientWriteBuffer::insertMessage(UtlString* keepAlive)
 }
 
 
-
 /// Write as much of the buffered messages as can be written.
 // Executed by the thread.
 void SipClientWriteBuffer::writeMore()

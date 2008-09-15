@@ -555,9 +555,9 @@ int SipClient::run(void* runArg)
       // if we would be spinning trying to service the socket.
       if ((fds[0].revents & POLLIN) != 0)
       {
-         // Poll finished because the pipe is ready to read, 
-         // (one byte in pipe means message available in queue.)
-         // only a SipClient with a derived SipClientWriteBuffer 
+         // Poll finished because the pipe is ready to read.
+         // (One byte in pipe means message available in queue.)
+         // Only a SipClient with a derived SipClientWriteBuffer 
          // uses the pipe in the Sip message send process
 
          // Receive the message.

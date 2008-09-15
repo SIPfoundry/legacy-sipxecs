@@ -1237,7 +1237,10 @@ void SipxProcess::readPersistentState()
       UtlString persistentStateString;
       if (OS_SUCCESS != persistentStateFile.readLine(persistentStateString))
       {
-         OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "SipxProcess::readPersistentState read failed");
+         OsSysLog::add(FAC_SUPERVISOR, PRI_ERR,
+                       "SipxProcess::readPersistentState read failed. "
+                       "persistentStatePath = '%s'",
+                       persistentStatePath.data());
       }
 
       mDesiredState = state(persistentStateString);

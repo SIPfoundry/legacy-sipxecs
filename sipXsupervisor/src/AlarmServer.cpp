@@ -281,7 +281,9 @@ bool cAlarmServer::loadAlarmStringsFile(const UtlString& stringsFile)
    }
    else
    {
-      OsSysLog::add(FAC_ALARM, PRI_DEBUG, "no settings in alarm config file %s", stringsFile.data());
+      OsSysLog::add(FAC_ALARM, PRI_DEBUG,
+                    "no <settings> element in alarm config file '%s'",
+                    stringsFile.data());
    }
 
    //load alarm description strings
@@ -367,7 +369,9 @@ bool cAlarmServer::loadAlarmConfig(const UtlString& alarmFile)
    TiXmlElement* settingsElement = alarmServerHandle.FirstChildElement("settings").Element();
    if (!settingsElement)
    {
-      OsSysLog::add(FAC_ALARM, PRI_ERR, "no settings in alarm config file %s", alarmFile.data());
+      OsSysLog::add(FAC_ALARM, PRI_ERR,
+                    "no <settings> element in alarm config file '%s'",
+                    alarmFile.data());
       return false;
    }
 
