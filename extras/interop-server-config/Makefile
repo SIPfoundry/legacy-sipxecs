@@ -45,7 +45,7 @@ SECRET:=$(shell openssl rand -base64 48)$(shell openssl rand -base64 48)$(shell 
 install: $(CONFIG_FILES) $(DOC_FILES) $(SIPDB_FILES) \
 	$(CONFIG_FILES_EDITED) $(DOC_FILES_EDITED) $(SIPDB_FILES_EDITED) \
 	$(SIPX_DATADIR)/sipdb/credential.xml \
-	$(HTTP_ROOTDIR)/config-version.html \
+	$(HTTP_ROOTDIR)/sipx-version.cgi \
 	$(SIPX_CONFDIR)/nattraversalrules.xml \
 	$(SIPX_CONFDIR)/registrar-config \
 	$(SIPX_CONFDIR)/sipXproxy-config
@@ -146,8 +146,8 @@ $(SIPX_CONFDIR)/registrar-config: $(SIPX_CONFDIR)/registrar-config.in
 $(SIPX_CONFDIR)/nattraversalrules.xml: $(SIPX_CONFDIR)/nattraversalrules.xml.in
 	configpp --defs $(SIPX_CONFDIR)/config.defs --in $< --out $@
 
-# This rule edits config-version.html.in to generate config-version.html.
-$(HTTP_ROOTDIR)/config-version.html: $(HTTP_ROOTDIR)/config-version.html.in
+# This rule edits sipx-version.cgi.in to generate sipx-version.cgi.
+$(HTTP_ROOTDIR)/sipx-version.cgi: $(HTTP_ROOTDIR)/sipx-version.cgi.in
 	WCROOT="`svn info | grep '^URL:'`" ;\
 	SVNVERSION=`svnversion` ;\
 	sed \
@@ -155,9 +155,9 @@ $(HTTP_ROOTDIR)/config-version.html: $(HTTP_ROOTDIR)/config-version.html.in
 		-e 's!@SVNVERSION@!'$$SVNVERSION'!g' \
 		<$< >$@
 	chmod a+r $@
-# An additional dependency for config-version.html to force it to be regenerated
+# An additional dependency for sipx-version.cgi to force it to be regenerated
 # every time config.defs is touched (which includes every time the
 # configuration is updated by following the standard instructions).
-$(HTTP_ROOTDIR)/config-version.html: $(SIPX_CONFDIR)/config.defs
+$(HTTP_ROOTDIR)/sipx-version.cgi: $(SIPX_CONFDIR)/config.defs
 
 .PHONY: install debug

@@ -81,8 +81,7 @@ available at <a href='http://interop.scs500demo.com'>interop.scs500demo.com</a>.
 </p>
 
 <p>
-<a href='sipx-version.cgi'>Display the sipX version running on this server</a><br />
-<a href='config-version.html'>Display the configuration version running on this server</a>
+<a href='sipx-version.cgi'>Display the configuration running on this server</a><br />
 </p>
 <p>
 This server is freely available to all, <strong>but Nortel Networks does not
@@ -925,8 +924,7 @@ Since there is not and never will be a SIP extension named
 <h2><a name='config'>How this server is configured</a></h2>
 
 <p>
-<a href='sipx-version.cgi'>Display the sipX version running on this server</a><br />
-<a href='config-version.html'>Display the configuration version running on this server</a>
+<a href='sipx-version.cgi'>Display the configuration running on this server</a><br />
 </p>
 <p>
 This server uses a

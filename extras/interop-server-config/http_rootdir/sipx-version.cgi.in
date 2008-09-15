@@ -3,5 +3,8 @@ echo "Content-Type: text/plain"
 echo ""
 sipx-config --version
 echo ""
+echo "Configuration version:"
+echo "  @WCROOT@"
+echo "  Revision(s): @SVNVERSION@"
+echo ""
 cat /etc/fedora-release
-
