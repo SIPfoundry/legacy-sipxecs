@@ -308,23 +308,7 @@ main(int argc, char* argv[] )
    bool configLoaded = ( configDb->loadFromFile(fileName) == OS_SUCCESS );
    if (!configLoaded)
    {
-      configDb->set("SIP_REGISTRAR_UDP_PORT", "5070");
-      configDb->set("SIP_REGISTRAR_TCP_PORT", "5070");
-      configDb->set("SIP_REGISTRAR_TLS_PORT", "5071");
-      configDb->set("SIP_REGISTRAR_PROXY_PORT", "5060");
-      configDb->set("SIP_REGISTRAR_MAX_EXPIRES", "");
-      configDb->set("SIP_REGISTRAR_MIN_EXPIRES", "");
-      configDb->set("SIP_REGISTRAR_DOMAIN_NAME", "");
-      //configDb->set("SIP_REGISTRAR_AUTHENTICATE_SCHEME", "");
-      configDb->set("SIP_REGISTRAR_AUTHENTICATE_ALGORITHM", "");
-      configDb->set("SIP_REGISTRAR_AUTHENTICATE_QOP", "");
-      configDb->set("SIP_REGISTRAR_AUTHENTICATE_REALM", "");
-
-      configDb->set("SIP_REGISTRAR_MEDIA_SERVER", "");
-      configDb->set("SIP_REGISTRAR_VOICEMAIL_SERVER", "");
-      configDb->set(CONFIG_SETTING_LOG_DIR, "");
-      configDb->set(CONFIG_SETTING_LOG_LEVEL, "");
-      configDb->set(CONFIG_SETTING_LOG_CONSOLE, "");
+      exit(1);
    }
 
    initSysLog(configDb) ;

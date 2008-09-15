@@ -351,7 +351,7 @@ proxy( int argc, char* argv[] )
 
     if(OS_SUCCESS != configDb.loadFromFile(ConfigfileName))
     {      
-       osPrintf("Failed to open config file: %s\n", ConfigfileName.data());
+       exit(1);
     }
     // Initialize the OsSysLog...
     initSysLog(&configDb);

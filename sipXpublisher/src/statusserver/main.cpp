@@ -292,7 +292,10 @@ main(int argc, char* argv[] )
       OsPathBase::separator +
       CONFIG_SETTINGS_FILE;
 
-    configDb.loadFromFile(fileName) ;
+    if (configDb.loadFromFile(fileName) != OS_SUCCESS)
+    {
+       exit(1);
+    }
     initSysLog(&configDb) ;
 
     // Fetch Pointer to the OsServer task object, note that
