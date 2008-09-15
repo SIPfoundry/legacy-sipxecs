@@ -16,6 +16,7 @@ import java.nio.channels.DatagramChannel;
 import java.util.TimerTask;
 
 import org.apache.log4j.Logger;
+import org.sipfoundry.sipxbridge.BridgeState;
 
 /**
  * Transmitter endpoint.
@@ -26,8 +27,6 @@ import org.apache.log4j.Logger;
 final class SymTransmitterEndpoint extends SymEndpoint implements SymTransmitterEndpointInterface {
 
     private long lastPacketSentTime;
-
-    // private transient byte[] keepalivePayload = null;
 
     private ByteBuffer keepAliveBuffer = null;
 
@@ -51,8 +50,6 @@ final class SymTransmitterEndpoint extends SymEndpoint implements SymTransmitter
     long packetsSent;
 
     private static final boolean checkForSelfRouting = true;
-
-    // private InetAddress inetAddress;
 
     private InetSocketAddress socketAddress;
 
@@ -82,6 +79,15 @@ final class SymTransmitterEndpoint extends SymEndpoint implements SymTransmitter
 
                     return;
                 }
+                Bridge bridge = ConcurrentSet.getBridge(datagramChannel);
+                if ( bridge == null || bridge.getState() == BridgeState.INITIAL ||
+                        bridge.getState() == BridgeState.TERMINATED) {
+                    if ( logger.isDebugEnabled()) {
+                        logger.debug("Bridge is not in running state " + bridge.getState());
+                    }
+                    return;
+                }
+                
                 if (keepaliveMethod.equals(KeepaliveMethod.USE_EMPTY_PACKET)) {
                     if (datagramChannel != null && getSocketAddress() != null
                             && datagramChannel.isOpen() && getSocketAddress() != null) {
@@ -91,7 +97,8 @@ final class SymTransmitterEndpoint extends SymEndpoint implements SymTransmitter
 
                 } else if (keepaliveMethod.equals(KeepaliveMethod.REPLAY_LAST_SENT_PACKET)
                         || keepaliveMethod.equals(KeepaliveMethod.USE_DUMMY_RTP_PAYLOAD)) {
-                    if (keepAliveBuffer != null && datagramChannel != null
+                    
+                     if (keepAliveBuffer != null && datagramChannel != null
                             && getSocketAddress() != null && datagramChannel.isOpen()) {
                         logger.debug("Sending keepalive");
                         lastPacketSentTime = now;

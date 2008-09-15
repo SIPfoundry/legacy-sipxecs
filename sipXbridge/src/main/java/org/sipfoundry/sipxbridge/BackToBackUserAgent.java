@@ -138,6 +138,7 @@ public class BackToBackUserAgent {
             if (dialogTable.isEmpty()) {
                 this.cancel();
             }
+
             for (Dialog dialog : dialogTable) {
                 try {
                     Request request;
@@ -175,6 +176,7 @@ public class BackToBackUserAgent {
                     this.cancel();
 
                 }
+
             }
 
         }
@@ -830,7 +832,6 @@ public class BackToBackUserAgent {
 
             fromHeader.setParameter("tag", Long.toString(Math.abs(new Random().nextLong())));
 
-        
             /*
              * Change the domain of the inbound request to that of the sipx proxy. Change the user
              * part if routed to specific extension.
@@ -838,7 +839,8 @@ public class BackToBackUserAgent {
             String autoAttendantName = Gateway.getAutoAttendantName();
             ToHeader toHeader = null;
             if (autoAttendantName != null && autoAttendantName.indexOf("@") != -1) {
-                SipURI toUri = (SipURI) ProtocolObjects.addressFactory.createURI("sip:" + autoAttendantName);
+                SipURI toUri = (SipURI) ProtocolObjects.addressFactory.createURI("sip:"
+                        + autoAttendantName);
                 Address toAddress = ProtocolObjects.addressFactory.createAddress(toUri);
                 toHeader = ProtocolObjects.headerFactory.createToHeader(toAddress, null);
             } else {
@@ -851,8 +853,6 @@ public class BackToBackUserAgent {
                 }
                 toHeader.removeParameter("tag");
             }
-
-           
 
             ViaHeader viaHeader = SipUtilities.createViaHeader(Gateway.getLanProvider(), Gateway
                     .getSipxProxyTransport());

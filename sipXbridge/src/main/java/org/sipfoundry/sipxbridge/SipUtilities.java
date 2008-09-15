@@ -488,7 +488,8 @@ class SipUtilities {
                 if (itspAccount.isRegisterOnInitialization()
                         && itspAccount.isUseRegistrationForCallerId()) {
                     domain = itspAccount.getProxyDomain();
-                    fromUri = ProtocolObjects.addressFactory.createSipURI(fromUser, domain);
+                    String realFromUser = itspAccount.getUserName();
+                    fromUri = ProtocolObjects.addressFactory.createSipURI(realFromUser, domain);
                     fromUri.removeParameter("user");
                     paiHeader = ((HeaderFactoryExt) ProtocolObjects.headerFactory)
                             .createPAssertedIdentityHeader(ProtocolObjects.addressFactory

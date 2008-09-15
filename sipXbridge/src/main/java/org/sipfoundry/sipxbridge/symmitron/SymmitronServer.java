@@ -243,7 +243,7 @@ public class SymmitronServer implements Symmitron {
      */
     public SymmitronServer() {
         
-        logger.error("creating SymmitronServer");
+        logger.debug("creating SymmitronServer");
 
     }
 
