@@ -1,5 +1,5 @@
-VXILOG                                  Environment     @SIPX_LOGDIR@
-VXITMP                                  Environment     @SIPX_TMPDIR@
+VXILOG                                  Environment     @sipxpbx.log.dir@
+VXITMP                                  Environment     @sipxpbx.tmp.dir@
 
 mediaserver.max.active.calls            VXIInteger      300
 
@@ -21,14 +21,14 @@ client.inet.cacheEntryMaxSizeMB         VXIInteger      4
 client.inet.cacheEntryExpTimeSec        VXIInteger      86400
 client.inet.userAgent                   VXIString       sipXvxml/1.0
 client.inet.acceptCookies               VXIInteger      1
-client.prompt.baseUrl                   VXIString       file:///@wwwdir@/doc/stdprompts/
+client.prompt.baseUrl                   VXIString       file:///@www.dir@/doc/stdprompts/
 
 
 client.jsi.runtimeSizeBytes             VXIInteger      16384000
 client.jsi.contextSizeBytes             VXIInteger      131072
 client.jsi.maxBranches                  VXIInteger      100000
 
-client.vxi.beepURI                      VXIString       file:///@wwwdir@/doc/stdprompts/beep.wav
+client.vxi.beepURI                      VXIString       file:///@www.dir@/doc/stdprompts/beep.wav
 
 client.vxmlURL                          VXIString       http://localhost:8090/vm_vxml/ 
 
