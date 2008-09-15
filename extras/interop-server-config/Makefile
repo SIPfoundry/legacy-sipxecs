@@ -40,7 +40,7 @@ DOC_FILES_EDITED=$(subst .pre,,$(subst http_rootdir,$(HTTP_ROOTDIR),$(wildcard h
 SIPDB_FILES_EDITED=$(subst .pre,,$(subst sipx_dbdir,$(SIPX_DATADIR)/sipdb,$(wildcard sipx_dbdir/*.pre))) $(SIPX_DATADIR)/sipdb/credential.xml.in $(SIPX_DATADIR)/sipdb/permission.xml
 
 # A shared secret value (144 random bits in base 64), in case domain-config needs to be generated.
-SECRET=$(shell openssl rand -base64 48)$(shell openssl rand -base64 48)$(shell openssl rand -base64 48)
+SECRET:=$(shell openssl rand -base64 48)$(shell openssl rand -base64 48)$(shell openssl rand -base64 48)
 
 install: $(CONFIG_FILES) $(DOC_FILES) $(SIPDB_FILES) \
 	$(CONFIG_FILES_EDITED) $(DOC_FILES_EDITED) $(SIPDB_FILES_EDITED) \
