@@ -9,11 +9,11 @@
 ### Licensed to the User under the LGPL license.
 ###
 
-require 'getargs.pl';
+use Getopt::Long;
 use Socket;
 use Digest::MD5 qw(md5_hex);
 
-$VERSION = '0.03';
+$VERSION = '0.04';
 
 #') fix the perl indenting funnies caused by the above
 
@@ -35,17 +35,17 @@ $HELP = <<HELP;
     Sends a request to SIP server <server> with the specified <method> and
     <request-uri>, and displays the response(s).
 
-    (Note some options start with triple-dash.)
-
-        ---verbose
+        --verbose
            Prints the message it is sending before sending it.
-        ---timeout <seconds> (not implemented yet)
-        ---show1xx|-1
+           Also prints authentication responses and requests.
+        --timeout <seconds> (not implemented yet)
+        --show1xx|-1
            Also output provisional responses.
-        ---symmetric <port>
+        --symmetric <port>
            Use symmetric signalling (send and listen on the same port)
-        ---credentials <username> <password>
+        --credentials <username> <password>
            Specify credentials for Digest authentication.
+           Will be applied to the realm in any challenge.
         -t|--to <to>
            'To' header value
         -f|--from <from>
@@ -68,20 +68,22 @@ $HELP = <<HELP;
            'Expires' header value
         --event <event>
            'Event' header value
-        ---header '<header-name: header-value>'
+        --header '<header-name>: <header-value>'
            Arbitrary header string (do not use for those specified above)
-        ---use-via-name
-           Use the system name in the via, not the IP address
-        ---transport
+           (May be used multiple times.)
+        --use-via-name
+           Use the name of this host in the via, not its IP address
+        --transport
            Use specified transport, (valid: tcp, udp; default: tcp) 
 
     (Options with one dash set the SIP short-form header with the same name.
-    Options with two dashes set the SIP long-form header with the same name.
-    Options with three dashs are specific to $0.)
+    Options with two dashes set the SIP long-form header with the same name,
+    or are specific to $0.)
 
     <server>
-      The server to which the request is sent.  This may include
-      the port number as specified in a URL (port defaults to $SipPort).
+      The server (host name) to which the request is sent.  This may include
+      the port number after ':' (port defaults to $SipPort).
+      Does not perform RFC 3263 (SRV, NAPTR, etc.) lookup.
       Valid examples:
          sipxchange.pingtel.com
          myserver.example.com:5000
@@ -91,37 +93,56 @@ $HELP = <<HELP;
       The SIP request method (this is upcased before sending).
 
     <request-uri>
-      The URI sent to the server.
+      The request URI sent to the server.
 HELP
 
-## Legal Values
+$mini_HELP =<<HELP;
+    Use --help to get usage information.
+HELP
 
-    &getargs('h', 'help',          0, 'HELP',
-             '-', '--verbose',     0, 'ShowRequest',
-             '-', '--timeout',     1, 'Timeout',
-             '-', '--show1xx',     0, 'Show1xx',
-             '-', '--symmetric',   1, 'SymmetricPort',
-             '-', '--credentials', 2, 'Credentials',
-             '-', 't|to',          1, 'To',
-             '-', 'f|from',        1, 'From',
-             '-', 'i|call-id',     1, 'CallId',
-             '-', 'm|contact',     1, 'Contact',
-             '-', '-max-forwards', 1, 'MaxForwards',
-             '-', '-user-agent',   1, 'UserAgent',
-             '-', '-cseq',         1, 'Cseq',
-             '-', '-route',        1, 'Route',
-             '-', '-expires',      1, 'Expires',
-             '-', '-event',        1, 'Event',
-             '-', '--header',      1, 'Header',
-             '-', '--use-via-name',0, 'UseViaName',
-             '-', '--transport',   1, 'TransportIn',
-             'm', 'server',        1, 'Server',
-             'm', 'method',        1, 'Method',
-             'm', 'request-uri',   1, 'Target',
-             )
-    || exit 1;
+## Process arguments.
 
-die "--timeout is not implemented" if $Timeout;
+$result = GetOptions(# First argument must be all word chars.
+		     'help'              => \$help,
+		     'verbose'           => \$ShowRequest,
+		     'timeout=i'         => \$Timeout,
+		     '1|show1xx'         => \$Show1xx,
+		     'symmetric=i'       => \$SymmetricPort,
+		     'credentials=s{2}'  => \@Credentials,
+		     't|to=s'            => \$To,
+		     'f|from=s'          => \$From,
+		     'i|call-id=s'       => \$CallId,
+		     'm|contact=s'       => \$Contact,
+		     'max-forwards=i'    => \$MaxForwards,
+		     'user-agent=s'      => \$UserAgent,
+		     'cseq=i'            => \$Cseq,
+		     'route=s'           => \$Route,
+		     'expires=i'         => \$Expires,
+		     'event=s'           => \$Event,
+		     'header=s'          => \@Header,
+		     'use-via-name'      => \$UseViaName,
+		     'transport=s'       => \$TransportIn,
+    )
+    || do { print STDERR $mini_HELP; exit 1; };
+
+if ($help)
+{
+    print STDERR $HELP;
+    exit 0;
+}
+
+if ($#ARGV != 2)
+{
+    print STDERR "$0: requires three arguments: server, method, target\n";
+    print STDERR $mini_HELP;
+    exit 1;
+}
+($Server, $Method, $Target) = @ARGV;
+die "server argument is mandatory\n" unless $Server;
+die "method argument is mandatory\n" unless $Method;
+die "target argument is mandatory\n" unless $Target;
+
+die "--timeout is not implemented\n" if $Timeout;
 
 if ( $Server =~ m/([^:]+):(\d+)/ )
 {
@@ -164,7 +185,9 @@ if ( $SymmetricPort )
         || die "Bind to INADDR_ANY:$SymmetricPort failed: $!\n";
 }
 
-$serverAddr = sockaddr_in( $Port, inet_aton( $Server ) );
+$x = inet_aton( $Server )
+    || die "Error looking up or translating '$Server': $?\n";
+$serverAddr = sockaddr_in( $Port, $x );
 
 connect( SIP, $serverAddr )
     || die "Connect to $Server:$Port failed: $!\n";
@@ -208,7 +231,7 @@ if ( ! $From )
 
 if ( ! $Contact )
 {
-    $Contact = "<sip:sipsend\@$MySystem:$MyPort;transport=$Transport>";
+    $Contact = "<sip:sipsend\@$MySystem:$myPort;transport=$Transport>";
 }
 
 if ( ! $CallId )
@@ -225,7 +248,7 @@ $UserAgent = $DefaultUserAgent unless $UserAgent;
 $Request = &SipRequest;
 
 
-print STDERR "Sending: to $Server:$Port \n$Request" if ( $ShowRequest );
+print STDERR "Sending to $Server:$Port:\n$Request\n" if $ShowRequest;
 
 print SIP $Request;
 
@@ -287,7 +310,7 @@ while ( $StatusClass < 2 )
             elsif ( $RspContentLength < 0 )
             {
                 $Rsp .= $_;
-                print $Rsp;
+                print STDERR $Rsp, "\n";
                 die "Lost stream syncronization\n";
             }
         }
@@ -296,6 +319,7 @@ while ( $StatusClass < 2 )
 
         last if $RspState eq 'Done';
     }
+    # A response has been accumulated, or the connection was closed.
 
     if ( $RspState ne 'Done' )
     {
@@ -308,24 +332,31 @@ while ( $StatusClass < 2 )
     {
         if ( @Credentials )
         {
-            print STDERR "Challenge: $Rsp" if $ShowRequest;
+            print STDERR "Challenge:\n$Rsp\n" if $ShowRequest || $Show1xx;
 
             &AuthenticateRequest;
             $Cseq++;
             $Request = &SipRequest;
 
-            print STDERR "Sending:\n$Request" if $ShowRequest;
+            print STDERR "Authenticated request:\n$Request\n" if $ShowRequest || $Show1xx;
             print SIP $Request;
 
-            $StatusClass = 0; # wait for another response
             $AuthState = 'Attempted';
+
+	    # Go to the top of the loop to get the response.
+	    # (Skip the print below.)
+	    redo;
        }
     }
+
+    # Show responses.
+    print $Rsp, "\n" if $Show1xx;
 }
 
 close SIP;
 
-    print $Rsp;
+# Show the final response unless it was shown above.
+print $Rsp, "\n" unless $Show1xx;
 
 exit 0;
 
@@ -360,7 +391,7 @@ sub SipRequest
     $request .= "Date: $Date" . $CRLF;
     $request .= "Content-Length: 0" . $CRLF; # TBD - body from stdin?
 
-    $request .= $Header . $CRLF if ( $Header );
+    $request .= join($CRLF, @Header) . $CRLF if ( @Header );
     $request .= $CRLF;
 
     return $request;
