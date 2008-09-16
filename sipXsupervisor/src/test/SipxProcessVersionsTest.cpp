@@ -99,12 +99,15 @@ public:
          testContext.inputFilePath("genericprocess.xml", path);
          CPPUNIT_ASSERT((process = SipxProcess::createFromDefinition(path)));
 
-         ASSERT_STR_EQUAL("", process->getConfigurationVersion());
+         UtlString version;
+         process->getConfigurationVersion(version);
+         ASSERT_STR_EQUAL("", version.data());
 
          UtlString newCfgVersion("2.1.0");
          process->setConfigurationVersion(newCfgVersion);
 
-         ASSERT_STR_EQUAL("2.1.0", process->getConfigurationVersion());
+         process->getConfigurationVersion(version);
+         ASSERT_STR_EQUAL("2.1.0", version.data());
 
       };
    

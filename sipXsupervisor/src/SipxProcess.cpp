@@ -312,7 +312,8 @@ SipxProcess* SipxProcess::createFromDefinition(const OsPath& definitionFile)
                         {
                            definitionValid = false;
                            XmlErrorMsg(processDefinitionDoc,errorMsg);
-                           OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "SipxProcess::createFromDefinition "
+                           OsSysLog::add(FAC_SUPERVISOR, PRI_ERR,
+                                         "SipxProcess::createFromDefinition "
                                          "'start' content is invalid %s",
                                          errorMsg.data()
                                          );
@@ -373,7 +374,8 @@ SipxProcess* SipxProcess::createFromDefinition(const OsPath& definitionFile)
                         {
                            definitionValid = false;
                            XmlErrorMsg(processDefinitionDoc,errorMsg);
-                           OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "SipxProcess::createFromDefinition "
+                           OsSysLog::add(FAC_SUPERVISOR, PRI_ERR,
+                                         "SipxProcess::createFromDefinition "
                                          "'reconfigure' content is invalid %s",
                                          errorMsg.data()
                                          );
@@ -797,7 +799,8 @@ void SipxProcess::setConfigurationVersion(const UtlString& newConfigVersion)
    else
    {
       OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG,
-                    "SipxProcess[%s]::setConfigurationVersion new value '%s' matches existing value.",
+                    "SipxProcess[%s]::setConfigurationVersion "
+                    "new value '%s' matches existing value.",
                     data(),mConfigVersion.data());
    }
    
@@ -806,18 +809,16 @@ void SipxProcess::setConfigurationVersion(const UtlString& newConfigVersion)
 
 
 /// Get the version stamp value of the configuration.
-UtlString SipxProcess::getConfigurationVersion()
+void SipxProcess::getConfigurationVersion(UtlString& version)
 {
-   UtlString version("");
+   version.remove(0);
    OsLock mutex(mLock);
    
-   if (mConfigVersion)
+   if (!mConfigVersion.isNull())
    {
       OsSysLog::add(FAC_SUPERVISOR, PRI_INFO, "SipxProcess[%s]::getConfigurationVersion"
                     " '%s'", data(), mConfigVersion.data());
       version = mConfigVersion;
-
-      
    }
    else
    {
@@ -825,8 +826,6 @@ UtlString SipxProcess::getConfigurationVersion()
                     "SipxProcess[%s]::getConfigurationVersion - no value set",
                     data());
    }
-
-   return version;
 }
 
 /// Tell the SipxProcessTask thread to check the service process.

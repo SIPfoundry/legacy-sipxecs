@@ -343,7 +343,7 @@ class SipxProcess : public UtlString
    ///< this class persists this value.
 
    /// Get the version stamp value of the configuration.
-   UtlString getConfigurationVersion();
+   void getConfigurationVersion(UtlString& version);
 
   protected:
 

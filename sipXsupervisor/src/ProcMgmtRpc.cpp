@@ -932,8 +932,10 @@ bool ProcMgmtRpcGetConfigVersion::execute(const HttpRequestContext& requestConte
                 SipxProcess* pProcess = pProcessManager->findProcess( *pserviceName );
                 if ( pProcess )
                 {
-                   // Query the current version for the service as obtained from the service configuration file.
-                   UtlString service_version = pProcess->getConfigurationVersion();
+                   /* Query the current version for the service as obtained
+                    * from the service configuration file. */
+                   UtlString service_version;
+                   pProcess->getConfigurationVersion(service_version);
 
                    // Construct and set the response.
                    response.setResponse(&service_version);
@@ -1026,8 +1028,9 @@ bool ProcMgmtRpcSetConfigVersion::execute(const HttpRequestContext& requestConte
                {
                    OsSysLog::add(FAC_SUPERVISOR, PRI_INFO,
                                  "ProcMgmtRpc::setConfigVersion"
-                                 " host %s requested setting service configuration version for %s",
-                                 pCallingHostname->data(), pserviceName->data()
+                                 " host %s setting service '%s' configuration version to '%s'",
+                                 pCallingHostname->data(), pserviceName->data(),
+                                 pserviceVersion->data()
                                  );
 
                    SipxProcess* pProcess = pProcessManager->findProcess( *pserviceName );
