@@ -192,7 +192,7 @@ run on the same machine it's default setup it to point to localhost.
 
 %build
 
-%configure --enable-rpmbuild --enable-reports --enable-agent --enable-conference @CONFIGURE_OPTIONS@
+%configure --enable-rpmbuild --enable-reports --enable-agent --enable-conference --enable-mrtg @CONFIGURE_OPTIONS@
 cp config.log %name.configlog
 make
 
