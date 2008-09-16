@@ -20,7 +20,7 @@
     <log>@SIPX_LOGDIR@/sipxcallresolver.log</log>
   </status>
   <resources>
-    <file>@SIPX_CONFDIR@/sipxcallresolver-config</file>
+    <file>@SIPX_CONFDIR@/callresolver-config</file>
     <file>@SIPX_CONFDIR@/ssl/ssl.crt</file>
     <file>@SIPX_CONFDIR@/ssl/ssl.key</file>
   </resources>
