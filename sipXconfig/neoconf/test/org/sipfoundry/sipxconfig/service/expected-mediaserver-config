@@ -9,13 +9,13 @@ mediaserver.udp.port                    VXIInteger      5100
 mediaserver.tcp.port                    VXIInteger      5100
 mediaserver.bindip                      VXIString       192.168.1.1
 
-client.log.dir                          VXIString       \$(VXILOG)
-client.log.filename                     VXIString       \$(VXILOG)/vxmlengine.log
+client.log.dir                          VXIString       $(VXILOG)
+client.log.filename                     VXIString       $(VXILOG)/vxmlengine.log
 mediaserver.log.level                   VXIString       NOTICE
 
 client.log.logToStdout                  VXIInteger      0
 
-client.inet.cacheDir                    VXIString       \$(VXITMP)/cache_sbinet
+client.inet.cacheDir                    VXIString       $(VXITMP)/cache_sbinet
 client.inet.cacheTotalSizeMB            VXIInteger      40
 client.inet.cacheEntryMaxSizeMB         VXIInteger      4
 client.inet.cacheEntryExpTimeSec        VXIInteger      86400
