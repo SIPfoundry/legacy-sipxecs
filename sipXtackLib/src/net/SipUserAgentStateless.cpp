@@ -93,8 +93,8 @@ UtlBoolean SipUserAgentStateless::send(SipMessage& message,
         UtlBoolean receivedSet;
         UtlBoolean maddrSet;
         UtlBoolean receivedPortSet;
-        message.getLastVia(&sendAddress, &sendPort, &sendProtocol, &receivedPort,
-            &receivedSet, &maddrSet, &receivedPortSet);
+        message.getTopVia(&sendAddress, &sendPort, &sendProtocol, &receivedPort,
+                          &receivedSet, &maddrSet, &receivedPortSet);
         if(receivedPortSet && portIsValid(receivedPort))
         {
             sendPort = receivedPort;

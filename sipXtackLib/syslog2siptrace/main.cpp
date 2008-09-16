@@ -265,9 +265,9 @@ void getMessageData(UtlString& content,
                 UtlString protocol;
                 int viaPortNum;
 
-                sipMsg.getLastVia(&viaAddress,
-                                  &viaPortNum,
-                                  &protocol);
+                sipMsg.getTopVia(&viaAddress,
+                                 &viaPortNum,
+                                 &protocol);
                 char numBuff[30];
 
                 /*

@@ -378,7 +378,7 @@ void SipRedirectServer::processRedirect(const SipMessage* message,
                UtlString lastViaProtocol;
                OsSocket::IpProtocolSocketType viaProtocol = OsSocket::UNKNOWN;
 
-               ackCopy.getLastVia(&lastViaAddress, &lastViaPort, &lastViaProtocol);
+               ackCopy.getTopVia(&lastViaAddress, &lastViaPort, &lastViaProtocol);
                SipMessage::convertProtocolStringToEnum(lastViaProtocol.data(), viaProtocol);
 
 

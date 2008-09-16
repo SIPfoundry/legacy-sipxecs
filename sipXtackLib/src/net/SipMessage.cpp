@@ -2075,7 +2075,7 @@ void SipMessage::setLastViaTag(const char* tagValue,
      UtlString lastVia;
    //get last via field and remove it
     getViaFieldSubField(&lastVia, 0);
-   removeLastVia();
+   removeTopVia();
    //update the last via and add the updated field
     //setUriParameter(&lastVia, tagName, receivedFromIpAddress);
 
@@ -2185,8 +2185,8 @@ void SipMessage::setReceivedViaParams(const UtlString& fromIpAddress,
 
    // Check that the via is set to the address from whence
    // this message came
-   getLastVia(&lastAddress, &lastPort, &lastProtocol,
-              &receivedPort, &receivedSet, &maddrSet, &receivedPortSet);
+   getTopVia(&lastAddress, &lastPort, &lastProtocol,
+             &receivedPort, &receivedSet, &maddrSet, &receivedPortSet);
 
    // The via address is different from that of the sockets
    if(lastAddress.compareTo(fromIpAddress) != 0)
@@ -2756,8 +2756,8 @@ UtlBoolean SipMessage::getResponseSendAddress(UtlString& address,
     UtlBoolean receivedPortSet;
 
     // use the via as the place to send the response
-    getLastVia(&address, &port, &protocol, &receivedPort,
-        &receivedSet, &maddrSet, &receivedPortSet);
+    getTopVia(&address, &port, &protocol, &receivedPort,
+              &receivedSet, &maddrSet, &receivedPortSet);
 
     // If the sender of the request indicated support of
     // rport (i.e. received port) send this response back to
@@ -2849,9 +2849,9 @@ UtlBoolean SipMessage::getWarningCode(int* warningCode, int index) const
    return(value != NULL);
 }
 
-UtlBoolean SipMessage::removeLastVia()
+UtlBoolean SipMessage::removeTopVia()
 {
-   //do not remove the whole via header line . Remove only the first subfield
+   // Do not remove the whole via header line. Remove only the first subfield.
    UtlBoolean fieldFound = FALSE;
    UtlString NewViaHeader;
    UtlString viaField;
@@ -2866,10 +2866,9 @@ UtlBoolean SipMessage::removeLastVia()
       }
    }
 
-
    NameValuePair viaHeaderField(SIP_VIA_FIELD);
 
-   //remove whole line
+   // Remove whole line.
    NameValuePair* nv = dynamic_cast <NameValuePair*> (mNameValues.find(&viaHeaderField));
    if(nv)
    {
@@ -2878,7 +2877,7 @@ UtlBoolean SipMessage::removeLastVia()
       nv = NULL;
       fieldFound = TRUE;
    }
-   //add updated line
+   // Add updated line.
    if ( !NewViaHeader.isNull())
    {
       addViaField( NewViaHeader);
@@ -2914,13 +2913,13 @@ UtlBoolean SipMessage::getViaFieldSubField(UtlString* viaSubField, int subFieldI
    return retVal;
 }
 
-void SipMessage::getLastVia(UtlString* address,
-                            int* port,
-                            UtlString* protocol,
-                            int* receivedPort,
-                            UtlBoolean* receivedSet,
-                            UtlBoolean* maddrSet,
-                            UtlBoolean* receivedPortSet) const
+void SipMessage::getTopVia(UtlString* address,
+                           int* port,
+                           UtlString* protocol,
+                           int* receivedPort,
+                           UtlBoolean* receivedSet,
+                           UtlBoolean* maddrSet,
+                           UtlBoolean* receivedPortSet) const
 {
    UtlString Via;
 

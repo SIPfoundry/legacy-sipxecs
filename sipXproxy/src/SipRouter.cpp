@@ -738,7 +738,7 @@ bool SipRouter::addPathHeaderIfNATRegisterRequest( SipMessage& sipRequest ) cons
       int        privatePort;
       UtlBoolean bReceivedSet;
       
-      sipRequest.getLastVia( &privateAddress, &privatePort, &protocol, NULL, &bReceivedSet );
+      sipRequest.getTopVia( &privateAddress, &privatePort, &protocol, NULL, &bReceivedSet );
       if( bReceivedSet )
       {
          // Add Path header to the message

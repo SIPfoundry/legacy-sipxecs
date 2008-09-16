@@ -849,7 +849,7 @@ UtlBoolean SipLineMgr::buildAuthenticatedRequest(
 #           endif
 
             // Get rid of the via as another will be added.
-            newAuthRequest->removeLastVia();
+            newAuthRequest->removeTopVia();
             if(scheme.compareTo(HTTP_DIGEST_AUTHENTICATION, UtlString::ignoreCase) == 0)
             {
                 UtlString responseHash;

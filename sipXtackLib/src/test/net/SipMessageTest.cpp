@@ -121,13 +121,13 @@ class SipMessageTest : public CppUnit::TestCase
          UtlBoolean maddrSet;
          UtlBoolean receivePortSet;
          
-         testMsg.getLastVia(&viaAddress,
-                            &viaPort,
-                            &protocol,
-                            &recievedPort,
-                            &receivedSet,
-                            &maddrSet,
-                            &receivePortSet);
+         testMsg.getTopVia(&viaAddress,
+                           &viaPort,
+                           &protocol,
+                           &recievedPort,
+                           &receivedSet,
+                           &maddrSet,
+                           &receivePortSet);
 
          ASSERT_STR_EQUAL("sipx.local",viaAddress.data());
          CPPUNIT_ASSERT_EQUAL(33855, viaPort);
@@ -162,15 +162,15 @@ class SipMessageTest : public CppUnit::TestCase
          UtlBoolean maddrSet;
          UtlBoolean receivePortSet;
          
-         testMsg.removeLastVia();
+         testMsg.removeTopVia();
 
-         testMsg.getLastVia(&viaAddress,
-                            &viaPort,
-                            &protocol,
-                            &recievedPort,
-                            &receivedSet,
-                            &maddrSet,
-                            &receivePortSet);
+         testMsg.getTopVia(&viaAddress,
+                           &viaPort,
+                           &protocol,
+                           &recievedPort,
+                           &receivedSet,
+                           &maddrSet,
+                           &receivePortSet);
 
          ASSERT_STR_EQUAL("sipx.remote",viaAddress.data());
          CPPUNIT_ASSERT_EQUAL(9999, viaPort);
@@ -205,13 +205,13 @@ class SipMessageTest : public CppUnit::TestCase
          UtlBoolean maddrSet;
          UtlBoolean receivePortSet;
          
-         testMsg.getLastVia(&viaAddress,
-                            &viaPort,
-                            &protocol,
-                            &recievedPort,
-                            &receivedSet,
-                            &maddrSet,
-                            &receivePortSet);
+         testMsg.getTopVia(&viaAddress,
+                           &viaPort,
+                           &protocol,
+                           &recievedPort,
+                           &receivedSet,
+                           &maddrSet,
+                           &receivePortSet);
 
          ASSERT_STR_EQUAL("10.1.1.3",viaAddress.data());
          CPPUNIT_ASSERT_EQUAL(33855, viaPort);
@@ -245,13 +245,13 @@ class SipMessageTest : public CppUnit::TestCase
          UtlBoolean maddrSet;
          UtlBoolean receivePortSet;
          
-         testMsg.getLastVia(&viaAddress,
-                            &viaPort,
-                            &protocol,
-                            &recievedPort,
-                            &receivedSet,
-                            &maddrSet,
-                            &receivePortSet);
+         testMsg.getTopVia(&viaAddress,
+                           &viaPort,
+                           &protocol,
+                           &recievedPort,
+                           &receivedSet,
+                           &maddrSet,
+                           &receivePortSet);
 
          ASSERT_STR_EQUAL("10.1.1.3",viaAddress.data());
          CPPUNIT_ASSERT_EQUAL(33855, viaPort);
@@ -333,13 +333,13 @@ class SipMessageTest : public CppUnit::TestCase
             sprintf(message, message_template, tests[i].string);
             SipMessage sipMessage(message, strlen(message));
 
-            sipMessage.getLastVia(&viaAddress,
-                                  &viaPort,
-                                  &protocol,
-                                  &receivedPort,
-                                  &receivedSet,
-                                  &maddrSet,
-                                  &receivedPortSet);
+            sipMessage.getTopVia(&viaAddress,
+                                 &viaPort,
+                                 &protocol,
+                                 &receivedPort,
+                                 &receivedSet,
+                                 &maddrSet,
+                                 &receivedPortSet);
             CPPUNIT_ASSERT_EQUAL_MESSAGE(tests[i].string, tests[i].port,
 					 viaPort);
             CPPUNIT_ASSERT_EQUAL_MESSAGE(tests[i].string, tests[i].rportSet,

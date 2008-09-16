@@ -1748,7 +1748,7 @@ UtlBoolean SipTransaction::handleChildIncoming(//SipTransaction& child,
             {
                 // Forward immediately
                 SipMessage response(incomingMessage);
-                response.removeLastVia();
+                response.removeTopVia();
                 response.resetTransport();
                 response.clearDNSField();
 #ifdef TEST_PRINT
@@ -2029,7 +2029,7 @@ UtlBoolean SipTransaction::handleChildIncoming(//SipTransaction& child,
                     {
                         // Resend the ACK
                         SipMessage ackCopy(*mpAck);
-                        ackCopy.removeLastVia();
+                        ackCopy.removeTopVia();
                         userAgent.sendStatelessRequest(ackCopy,
                                                        mSendToAddress,
                                                        mSendToPort,
@@ -2063,7 +2063,7 @@ UtlBoolean SipTransaction::handleChildIncoming(//SipTransaction& child,
                 {
                     // Resend the ACK
                     SipMessage ackCopy(*mpAck);
-                    ackCopy.removeLastVia();
+                    ackCopy.removeTopVia();
                     userAgent.sendStatelessRequest(ackCopy,
                                                    mSendToAddress,
                                                    mSendToPort,
@@ -2600,7 +2600,7 @@ UtlBoolean SipTransaction::recurseDnsSrvChildren(SipUserAgent& userAgent,
 
                 // Clear the address and port of the previous send
                 // of the parent request.
-                recursedRequest.removeLastVia(); // the fake via for identifying this TX
+                recursedRequest.removeTopVia(); // the fake via for identifying this TX
                 recursedRequest.resetTransport();
                 recursedRequest.clearDNSField();
 
@@ -2885,7 +2885,7 @@ UtlBoolean SipTransaction::recurseChildren(SipUserAgent& userAgent,
 
                     // Clear the address and port of the previous send
                     // of the parent request.
-                    recursedRequest.removeLastVia();
+                    recursedRequest.removeTopVia();
                     recursedRequest.resetTransport();
                     recursedRequest.clearDNSField();
 
@@ -3123,7 +3123,7 @@ UtlBoolean SipTransaction::findBestResponse(SipMessage& bestResponse)
             {
                bestResponse = *(childResponse);
 
-               bestResponse.removeLastVia();
+               bestResponse.removeTopVia();
                bestResponse.resetTransport();
                bestResponse.clearDNSField();
                responseFound = TRUE;
@@ -3137,7 +3137,7 @@ UtlBoolean SipTransaction::findBestResponse(SipMessage& bestResponse)
             {
                 bestResponse = *(childResponse);
 
-                bestResponse.removeLastVia();
+                bestResponse.removeTopVia();
                 bestResponse.resetTransport();
                 bestResponse.clearDNSField();
                 responseFound = TRUE;
@@ -3150,7 +3150,7 @@ UtlBoolean SipTransaction::findBestResponse(SipMessage& bestResponse)
                 // An untried 3xx response
                 bestResponse = *(childResponse);
 
-                bestResponse.removeLastVia();
+                bestResponse.removeTopVia();
                 bestResponse.resetTransport();
                 bestResponse.clearDNSField();
                 responseFound = TRUE;
@@ -3175,7 +3175,7 @@ UtlBoolean SipTransaction::findBestResponse(SipMessage& bestResponse)
                         SIP_SERVER_INTERNAL_ERROR_TEXT);
                 }
 
-                bestResponse.removeLastVia();
+                bestResponse.removeTopVia();
                 bestResponse.resetTransport();
                 bestResponse.clearDNSField();
 

@@ -911,15 +911,15 @@ public:
     // Using BOTTOM_SUBFIELD as the subfieldIndex returns the last subfield
     UtlBoolean getViaFieldSubField(UtlString* viaSubField, int subFieldIndex) const;
 
-    void getLastVia(UtlString* viaAddress,
-                    int* viaPort,
-                    UtlString* protocol,
-                    int* recievedPort = NULL,
-                    UtlBoolean* receivedSet = NULL,
-                    UtlBoolean* maddrSet = NULL,
-                    UtlBoolean* receivedPortSet = NULL) const;
+    void getTopVia(UtlString* viaAddress,
+                   int* viaPort,
+                   UtlString* protocol,
+                   int* recievedPort = NULL,
+                   UtlBoolean* receivedSet = NULL,
+                   UtlBoolean* maddrSet = NULL,
+                   UtlBoolean* receivedPortSet = NULL) const;
 
-    UtlBoolean removeLastVia();
+    UtlBoolean removeTopVia();
 
     /// Get the To header as a character string.
     void getToField(UtlString* toField) const;

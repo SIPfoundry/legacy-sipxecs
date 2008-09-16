@@ -546,7 +546,7 @@ SipRefreshMgr::sendRequest (
    
     // Reset the transport data and the via fields
     request.resetTransport();
-    request.removeLastVia();
+    request.removeTopVia();
     request.setDateField();
 
     bIsUnregOrUnsub = isExpiresZero(&request) ;

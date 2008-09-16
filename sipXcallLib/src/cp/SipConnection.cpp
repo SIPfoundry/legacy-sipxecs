@@ -2070,7 +2070,7 @@ UtlBoolean SipConnection::extendSessionReinvite()
 
         // Reset the transport states
         reinvite.resetTransport();
-        reinvite.removeLastVia();
+        reinvite.removeTopVia();
 
         //remove all routes
         UtlString route;

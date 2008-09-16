@@ -208,9 +208,9 @@ void writeMessageXml(UtlBoolean isOutgoing,
             UtlString protocol;
             int viaPortNum;
 
-            sipMsg.getLastVia(&viaAddress,
-                              &viaPortNum,
-                              &protocol);
+            sipMsg.getTopVia(&viaAddress,
+                             &viaPortNum,
+                             &protocol);
             char numBuff[30];
             sprintf(numBuff, "%d", viaPortNum);
             UtlString viaPort(numBuff);

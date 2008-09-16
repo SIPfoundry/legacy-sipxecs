@@ -1269,7 +1269,7 @@ void SipRefreshManager::setForResend(RefreshDialogState& state,
                       lastRequest.data());
        
         // Remove old vias
-        state.mpLastRequest->removeLastVia();
+        state.mpLastRequest->removeTopVia();
 
         // Remove old routes
         UtlString route;

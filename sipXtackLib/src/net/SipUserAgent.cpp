@@ -1279,7 +1279,7 @@ UtlBoolean SipUserAgent::sendStatelessResponse(SipMessage& rresponse)
 
     // Forward via the server tranaction
     SipMessage responseCopy(rresponse);
-    responseCopy.removeLastVia();
+    responseCopy.removeTopVia();
     responseCopy.resetTransport();
     responseCopy.clearDNSField();
 
@@ -1292,9 +1292,9 @@ UtlBoolean SipUserAgent::sendStatelessResponse(SipMessage& rresponse)
     UtlBoolean receivedPortSet;
 
     // use the via as the place to send the response
-    responseCopy.getLastVia(&sendAddress, &sendPort, &sendProtocol,
-        &receivedPort, &receivedSet, &maddrSet,
-        &receivedPortSet);
+    responseCopy.getTopVia(&sendAddress, &sendPort, &sendProtocol,
+                           &receivedPort, &receivedSet, &maddrSet,
+                           &receivedPortSet);
 
     // If the sender of the request indicated support of
     // rport (i.e. received port) send this response back to
@@ -1644,8 +1644,8 @@ void SipUserAgent::dispatch(SipMessage* message, int messageType)
                UtlBoolean receivedSet;
                UtlBoolean maddrSet;
                UtlBoolean receivedPortSet;
-               message->getLastVia(&natAddress, &dummyPort, &dummyProtocol,
-                                   &natPort, &receivedSet, &maddrSet, &receivedPortSet);
+               message->getTopVia(&natAddress, &dummyPort, &dummyProtocol,
+                                  &natPort, &receivedSet, &maddrSet, &receivedPortSet);
                if(receivedPortSet)
                {
                   Url newContact;

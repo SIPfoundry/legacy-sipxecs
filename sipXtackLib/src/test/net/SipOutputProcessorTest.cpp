@@ -91,7 +91,7 @@ public:
       // comparison.  These headers are Date: Via: and User-Agent:.
       // We also remove the To-tag, as it is not predictable.
       SipMessage tmpMessage1( mMessage );
-      tmpMessage1.removeLastVia();
+      tmpMessage1.removeTopVia();
       tmpMessage1.removeHeader( HTTP_DATE_FIELD, 0 );
       tmpMessage1.removeHeader( HTTP_USER_AGENT_FIELD, 0 );
 
@@ -105,7 +105,7 @@ public:
       tmpMessage1.setRawToField(toField);
 
       SipMessage tmpMessage2( rhs.mMessage );
-      tmpMessage2.removeLastVia();
+      tmpMessage2.removeTopVia();
       tmpMessage2.removeHeader( HTTP_DATE_FIELD, 0 );
       tmpMessage2.removeHeader( HTTP_USER_AGENT_FIELD, 0 );
       

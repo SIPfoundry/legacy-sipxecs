@@ -867,9 +867,9 @@ void SipClient::preprocessMessage(SipMessage& msg,
       // from the Via that the other end provided.
 
       // Get the addresses from the topmost Via.
-      msg.getLastVia(&lastAddress, &lastPort, &lastProtocol,
-                     &receivedPort, &receivedSet, &maddrSet,
-                     &receivedPortSet);
+      msg.getTopVia(&lastAddress, &lastPort, &lastProtocol,
+                    &receivedPort, &receivedSet, &maddrSet,
+                    &receivedPortSet);
 
       // :QUERY: Should this test be clientSocket->isConnected()?
       if (   (   mSocketType == OsSocket::TCP
