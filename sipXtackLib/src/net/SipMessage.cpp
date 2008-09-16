@@ -2069,89 +2069,103 @@ void SipMessage::addViaField(const char* viaField, UtlBoolean afterOtherVias)
     }
 }
 
-void SipMessage::setLastViaTag(const char* tagValue,
-                               const char* tagName)
+void SipMessage::setTopViaTag(const char* tagValue,
+                              const char* tagName)
 {
-     UtlString lastVia;
+   setViaTag( tagValue, tagName, 0 );
+}
+
+UtlBoolean SipMessage::setViaTag(const char* tagValue,
+                                 const char* tagName,
+                                 int subFieldIndex)
+{
+   UtlBoolean success = FALSE;
+   UtlString selectedVia;
    //get last via field and remove it
-    getViaFieldSubField(&lastVia, 0);
-   removeTopVia();
-   //update the last via and add the updated field
-    //setUriParameter(&lastVia, tagName, receivedFromIpAddress);
-
-    //parse all name=value pairs into a collectable object
-    UtlSList list;
-    parseViaParameters(lastVia,list);
-
-    //create an iterator to walk the list
-    UtlSListIterator iterator(list);
-   NameValuePair* nvPair;
-    UtlString newVia;
-    UtlBoolean bFoundTag = FALSE;
-    UtlString value;
-
-    while ((nvPair = dynamic_cast <NameValuePair*> (iterator())))
+   if( getViaFieldSubField(&selectedVia, subFieldIndex) )
    {
-        value.remove(0);
-
-        //only if we have something in our newVia string do we add a semicolon
-        if (newVia.length())
+      //parse all name=value pairs into a collectable object
+      UtlSList list;
+      parseViaParameters(selectedVia,list);
+   
+      //create an iterator to walk the list
+      UtlSListIterator iterator(list);
+      NameValuePair* nvPair;
+      UtlString newVia;
+      UtlBoolean bFoundTag = FALSE;
+      UtlString value;
+   
+      while ((nvPair = dynamic_cast <NameValuePair*> (iterator())))
+      {
+         value.remove(0);
+   
+         //only if we have something in our newVia string do we add a semicolon
+         if (newVia.length())
+         {
             newVia.append(";");
-
-        //always append the name part of the value pair
-        newVia.append(nvPair->data());
-
-        UtlString strPairName = nvPair->data();
-        UtlString strTagName = tagName;
-
-        //convert both to upper
-        strPairName.toUpper();
-        strTagName.toUpper();
-
-        //if the value we are looking for is found, then we are going to replace the value with this value
-        if (strTagName == strPairName)
-        {
+         }
+   
+         //always append the name part of the value pair
+         newVia.append(nvPair->data());
+   
+         UtlString strPairName = nvPair->data();
+         UtlString strTagName = tagName;
+   
+         //convert both to upper
+         strPairName.toUpper();
+         strTagName.toUpper();
+   
+         //if the value we are looking for is found, then we are going to replace the value with this value
+         if (strTagName == strPairName)
+         {
             if (tagValue)
-                value = tagValue;
+            {
+               value = tagValue;
+            }
             else
-                //the value could come in as NULL.  In this case make it be an empty string
-                value = "";
-
+            {
+               //the value could come in as NULL.  In this case make it be an empty string
+               value = "";
+            }
+   
             bFoundTag = TRUE;
-        }
-        else
+         }
+         else
+         {
             //ok we didn't find the one we are looking for
             value = nvPair->getValue();
-
-        //if the value has a length then append it
-        if (value.length())
-        {
+         }
+   
+         //if the value has a length then append it
+         if (value.length())
+         {
             newVia.append("=");
             newVia.append(value);
-        }
-
-   }
-
-    //if we didn't find the tag we are looking for after looping, then
-    //we should add the name and value pair at the end
-    if (!bFoundTag)
-    {
-        //add a semicolon before our new name value pair is added
-        newVia.append(";");
-        newVia.append(tagName);
-
-        //only if it is non-NULL and has a length do we add the equal and value
-        //So, if the value is "" we will only put the name (without equal)
-        if (tagValue  && strlen(tagValue))
-        {
+         }
+      }
+   
+      //if we didn't find the tag we are looking for after looping, then
+      //we should add the name and value pair at the end
+      if (!bFoundTag)
+      {
+         //add a semicolon before our new name value pair is added
+         newVia.append(";");
+         newVia.append(tagName);
+   
+         //only if it is non-NULL and has a length do we add the equal and value
+         //So, if the value is "" we will only put the name (without equal)
+         if (tagValue  && strlen(tagValue))
+         {
             newVia.append("=");
             newVia.append(tagValue);
-        }
-    }
-
-    addViaField(newVia);
-
-    list.destroyAll();
+         }
+      }
+      
+      // at this point newVia contains the new via string with the new tag.
+      success = setFieldSubfield( SIP_VIA_FIELD, subFieldIndex, newVia );
+      list.destroyAll();
+   }
+   return success;
 }
 
 void SipMessage::setViaFromRequest(const SipMessage* request)
@@ -2189,10 +2203,13 @@ void SipMessage::setReceivedViaParams(const UtlString& fromIpAddress,
              &receivedPort, &receivedSet, &maddrSet, &receivedPortSet);
 
    // The via address is different from that of the sockets
+   UtlBoolean receivedTagAdded = false;
    if(lastAddress.compareTo(fromIpAddress) != 0)
    {
       // Add a receive from tag
-      setLastViaTag(fromIpAddress.data());
+
+      setTopViaTag(fromIpAddress.data());
+      receivedTagAdded = true;
    }
 
    // If the rport tag is present the sender wants to
@@ -2203,11 +2220,16 @@ void SipMessage::setReceivedViaParams(const UtlString& fromIpAddress,
       tempLastPort = 5060;
    }
 
-   if (receivedPortSet)
+   if (receivedPortSet || receivedTagAdded)
    {
+      // The rport tag (see RFC3581) is added if the endpoint explicitly requested it or  
+      // if we detected that the IP address advertized in the Via does not match the IP
+      // address that the request was received from.  The latter case is normally  
+      // indicative of the presence of a NAT in the network - given that, the rport
+      // is unilaterally added to help NAT traversal.
       char portString[20];
       sprintf(portString, "%d", fromPort);
-      setLastViaTag(portString, "rport");
+      setTopViaTag(portString, "rport");
    }
 }
 
@@ -3768,6 +3790,29 @@ UtlBoolean SipMessage::buildRouteField(UtlString* routeFld) const
     return(recordRouteFound);
 }
 
+void SipMessage::setSipXNatRoute(const char* routeUri)
+{
+   setHeaderValue(SIP_SIPX_NAT_ROUTE_FIELD, routeUri );
+}
+
+bool SipMessage::getSipXNatRoute(UtlString* uriString)
+{
+   bool result = false;
+   uriString->remove( 0 );
+   const char *pUri = getHeaderValue( 0, SIP_SIPX_NAT_ROUTE_FIELD );
+   if( pUri )
+   {
+      *uriString = pUri;
+      result = true;
+   }
+   return result;
+}
+
+void SipMessage::removeSipXNatRoute( void )
+{
+   removeHeader( SIP_SIPX_NAT_ROUTE_FIELD, 0 );
+}
+
 UtlBoolean SipMessage::getPathUri(int index, UtlString* pathUri) const
 {
    UtlString pathField;
@@ -3907,7 +3952,7 @@ UtlBoolean SipMessage::getFieldSubfield(const char* fieldName, int addressIndex,
    }
    
    // If we were looking for the last subfield, set 'uri' to return
-   // to the last one we found.
+   // the last one we found.
    if( addressIndex == BOTTOM_SUBFIELD && !urlBackup.isNull() )
    {
       uri->append( urlBackup.data() );
@@ -3917,60 +3962,54 @@ UtlBoolean SipMessage::getFieldSubfield(const char* fieldName, int addressIndex,
    return(uriFound);
 }
 
-/*UtlBoolean SipMessage::setFieldSubfield(const char* fieldName,
-                              int addressIndex, const char* subFieldValue) const
+UtlBoolean SipMessage::setFieldSubfield(const char* fieldName,
+	   				int addressIndex,
+					const UtlString& newSubfieldValue)
 {
-   UtlBoolean uriFound = FALSE;
+   UtlBoolean bfieldToModifyFound = FALSE;
    UtlString url;
-   int fieldIndex = 0;
-   int subFieldIndex = 0;
+   UtlString modifiedField;
    int index = 0;
-   const char* value = getHeaderValue(fieldIndex, fieldName);
+   int fieldIndex = 0;
+   const char* field = getHeaderValue(fieldIndex, fieldName);
 
-   uri->remove(0);
-
-   while(value && index <= addressIndex)
+   while( !bfieldToModifyFound && field )
    {
-      subFieldIndex = 0;
-      NameValueTokenizer::getSubField(value, subFieldIndex,
-         SIP_MULTIFIELD_SEPARATOR, &url);
-#ifdef TEST
-      osPrintf("Got field: \"%s\" subfield[%d]: %s\n", fieldName,
-         fieldIndex, url.data());
-#endif
-
-      while(!url.isNull() && index < addressIndex)
+      ssize_t subFieldIndex = 0;
+      modifiedField.remove(0);
+      while( NameValueTokenizer::getSubField( field, subFieldIndex, SIP_MULTIFIELD_SEPARATOR, &url ) && !url.isNull() )
       {
+         if( subFieldIndex != 0 )
+         {
+            modifiedField.append( SIP_MULTIFIELD_SEPARATOR );
+         }
+
+         if( index == addressIndex )
+         {
+            // we found the subfield we need to modify - append the new subfield value
+            modifiedField.append( newSubfieldValue );
+            bfieldToModifyFound = TRUE;
+         }
+         else
+         {
+            modifiedField.append( url );            
+         }         
          subFieldIndex++;
          index++;
-         NameValueTokenizer::getSubField(value, subFieldIndex,
-            SIP_MULTIFIELD_SEPARATOR, &url);
-#ifdef TEST
-         osPrintf("Got field: \"%s\" subfield[%d]: %s\n", fieldName,
-            fieldIndex, url.data());
-#endif
       }
 
-      if(index == addressIndex && !url.isNull())
+      if( bfieldToModifyFound )
       {
-         url.remove(0);
-         url.append(subFieldValue.data());
-
-         uriFound = TRUE;
-            break;
+         setHeaderValue( fieldName, modifiedField, fieldIndex );
       }
-      else if(index > addressIndex)
+      else
       {
-         break;
+         fieldIndex++;
+         field = getHeaderValue(fieldIndex, fieldName);
       }
-
-      fieldIndex++;
-      value = getHeaderValue(fieldIndex, fieldName);
    }
-
-   return(uriFound);
+   return( bfieldToModifyFound );
 }
-*/
 
 UtlBoolean SipMessage::getContentEncodingField(UtlString* contentEncodingField) const
 {

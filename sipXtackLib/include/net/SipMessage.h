@@ -27,28 +27,29 @@ class SipUserAgent;
 // DEFINES
 
 // SIP extensions
-#define SIP_CALL_CONTROL_EXTENSION "sip-cc"
-#define SIP_SESSION_TIMER_EXTENSION "timer"
-#define SIP_REPLACES_EXTENSION "replaces"
+// Keep in alphabetical order by extension.
 #define SIP_JOIN_EXTENSION "join"
 #define SIP_PATH_EXTENSION "path"
+#define SIP_REPLACES_EXTENSION "replaces"
+#define SIP_CALL_CONTROL_EXTENSION "sip-cc"
+#define SIP_SESSION_TIMER_EXTENSION "timer"
 
 // SIP Methods
-#define SIP_INVITE_METHOD "INVITE"
+// Keep in alphabetical order by method.
 #define SIP_ACK_METHOD "ACK"
 #define SIP_BYE_METHOD "BYE"
 #define SIP_CANCEL_METHOD "CANCEL"
 #define SIP_INFO_METHOD "INFO"
+#define SIP_INVITE_METHOD "INVITE"
+#define SIP_MESSAGE_METHOD "MESSAGE"
 #define SIP_NOTIFY_METHOD "NOTIFY"
 #define SIP_OPTIONS_METHOD "OPTIONS"
+#define SIP_PRACK_METHOD "PRACK"
+#define SIP_PUBLISH_METHOD "PUBLISH"
 #define SIP_REFER_METHOD "REFER"
 #define SIP_REGISTER_METHOD "REGISTER"
 #define SIP_SUBSCRIBE_METHOD "SUBSCRIBE"
-
-//Simple Methods
-#define SIP_MESSAGE_METHOD "MESSAGE"
-#define SIP_DO_METHOD "DO"
-#define SIP_PUBLISH_METHOD "PUBLISH"
+#define SIP_UPDATE_METHOD "UPDATE"
 
 // SIP Fields
 // Keep in alphabetical order by field name.
@@ -78,8 +79,11 @@ class SipUserAgent;
 #define SIP_SHORT_FROM_FIELD "F"
 #define SIP_GR_FIELD "GR"
 #define SIP_MAX_FORWARDS_FIELD "MAX-FORWARDS"
+#define SIP_MIN_EXPIRES_FIELD "MIN-EXPIRES"
+#define SIP_PATH_FIELD "PATH"
 #define SIP_PROXY_REQUIRE_FIELD "PROXY-REQUIRE"
 #define SIP_Q_FIELD "Q"
+#define SIP_RACK_FIELD "RACK"
 #define SIP_RECORD_ROUTE_FIELD "RECORD-ROUTE"
 #define SIP_REFER_TO_FIELD "REFER-TO"
 #define SIP_SHORT_REFER_TO_FIELD "R"
@@ -92,6 +96,7 @@ class SipUserAgent;
 #define SIP_REQUIRE_FIELD "REQUIRE"
 #define SIP_RETRY_AFTER_FIELD "RETRY-AFTER"
 #define SIP_ROUTE_FIELD "ROUTE"
+#define SIP_RSEQ_FIELD "RSEQ"
 #define SIP_SERVER_FIELD "SERVER"
 #define SIP_SESSION_EXPIRES_FIELD "SESSION-EXPIRES"
 #define SIP_IF_MATCH_FIELD "SIP-IF-MATCH"
@@ -108,8 +113,7 @@ class SipUserAgent;
 #define SIP_VIA_FIELD "VIA"
 #define SIP_SHORT_VIA_FIELD "V"
 #define SIP_WARNING_FIELD "WARNING"
-#define SIP_MIN_EXPIRES_FIELD "MIN-EXPIRES"
-#define SIP_PATH_FIELD "PATH"
+#define SIP_SIPX_NAT_ROUTE_FIELD "X-Sipx-Nat-Route"
 
 ///custom fields
 #define SIP_LINE_IDENTIFIER "LINEID"
@@ -798,6 +802,11 @@ public:
     UtlBoolean getFieldSubfield(const char* fieldName, int subfieldIndex,
                                 UtlString* subfieldValue) const;
 
+    // Modify the value of a specific subfield 
+    UtlBoolean setFieldSubfield(const char* fieldName,
+                                int addressIndex,
+                                const UtlString& newSubfieldValue);
+
     // Get the Contact field, but in URI (addr-spec) format (despite
     // that the Contact: header value has name-addr format).
     UtlBoolean getContactUri(int addressIndex, UtlString* uri) const;
@@ -832,8 +841,16 @@ public:
 
     void addViaField(const char* viaField, UtlBoolean afterOtherVias = TRUE);
 
-    void setLastViaTag(const char* tagValue,
-                       const char* tagName = "received");
+    // Set the specified Via-parameter to the specified value on the
+    // top (first) Via in the message.
+    void setTopViaTag(const char* tagValue,
+                      const char* tagName = "received");
+
+    // Set the specified Via-parameter to the specified value on the
+    // specified Via in the message.
+    UtlBoolean setViaTag(const char* tagValue,
+                         const char* tagName,
+                         int subFieldIndex);
 
     void setCallIdField(const char* callId = NULL);
 
@@ -1038,6 +1055,27 @@ public:
 
     UtlBoolean buildRouteField(UtlString* routeField) const;
 
+    /// That method is used to add to a message a special 'NAT' route that can
+    /// be used to alter the destination of the message.  More specifically,
+    /// if present in a message, the NAT route takesprecedence over the 
+    /// Request-URI and specifies the endpoint that will be the recipient
+    /// of the message provided that the message contains no Route: headers.
+    /// 
+    /// Notes: 
+    ///  1- NAT route takes precedence over the message's Request-URI
+    ///  2- The message's Route set takes precedence over the NAT route
+    ///  3- The stack removes any NAT route headers from all incoming messages
+    ///     to remove the possibility that malicious endpoints exploit that
+    ///     functionality to steer their messages to endpoints (PSTN gateways)
+    ///     that they normally do not have access to.
+    ///  4- The stack does not remove the NAT route from outgoing messages to
+    ///     allow for easier troubleshooting using network traces.
+    void setSipXNatRoute(const char* routeUri);
+
+    bool getSipXNatRoute(UtlString* uriString);
+
+    void removeSipXNatRoute( void );
+    
     /// Adjust route values as required when receiving at a proxy.
     void normalizeProxyRoutes(const SipUserAgent* sipUA, ///< used to check isMyHostAlias
                               Url& requestUri,           ///< returns normalized request uri

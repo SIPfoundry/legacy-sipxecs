@@ -1598,6 +1598,12 @@ void SipUserAgent::dispatch(SipMessage* message, int messageType)
 
       message->logTimeEvent("DISPATCHING");
 
+      // Ensure that the incoming message does not contain
+      // a sipX NAT Route header. If these are seen in 
+      // incoming messages, it could cause erratic routing
+      // behavior.
+      message->removeSipXNatRoute();
+      
       UtlBoolean isUaTransaction = mIsUaTransactionByDefault;
       enum SipTransaction::messageRelationship relationship;
 #ifdef TRANSACTION_MATCH_DEBUG // enable only for transaction match debugging - log is confusing otherwise
@@ -3366,7 +3372,7 @@ void SipUserAgent::setMaxTcpSocketIdleTime(int idleTimeSeconds)
     }
 }
 
-void SipUserAgent::setHostAliases(UtlString& aliases)
+void SipUserAgent::setHostAliases(const UtlString& aliases)
 {
     UtlString aliasString;
 

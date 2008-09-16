@@ -605,7 +605,7 @@ void SipUdpServer::sendKeepalives()
 
    // Mark the via so the receiver knows we support and want the
    // received port to be set
-   pingMessage.setLastViaTag("", "rport");
+   pingMessage.setTopViaTag("", "rport");
 #           ifdef TEST_PRINT            
    osPrintf("Sending ping to %s %d, From: %s\n",
             mPingAddress.data(), mPingPort, mPingContact.data());

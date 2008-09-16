@@ -288,19 +288,21 @@ UtlBoolean SipClient::sendTo(SipMessage& message,
 
    if (clientSocket)
    {
-      // we are about to post a message that will cause the 
-      // SIP message to be sent, notify the user agent so 
-	  // that it can offer the message to all its registered
-	  // output processors.
-      mpSipUserAgent->executeAllSipOutputProcessors( message, address, port );      
+      // If port == PORT_NONE, get the correct default port for this
+      // transport method.
+      int portToSendTo = ( port == PORT_NONE ? defaultPort() : port );
+
+      // We are about to post a message that will cause the 
+      // SIP message to be sent.  Notify the user agent so 
+      // that it can offer the message to all its registered
+      // output processors.
+      mpSipUserAgent->executeAllSipOutputProcessors( message, address, portToSendTo );      
       
       // Create message to queue.
-      // If port == PORT_NONE, apply the correct default port for this
-      // transport method before assembling the SipClientSendMsg.
       SipClientSendMsg sendMsg(OsMsg::OS_EVENT,
                                SipClientSendMsg::SIP_CLIENT_SEND,
                                message, address,
-                               port == PORT_NONE ? defaultPort() : port);
+                               portToSendTo );
 
       // Post the message to the task's queue.
       OsStatus status = postMessage(sendMsg, OsTime::NO_WAIT);

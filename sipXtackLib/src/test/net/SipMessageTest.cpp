@@ -60,7 +60,11 @@ class SipMessageTest : public CppUnit::TestCase
       CPPUNIT_TEST(testPathFieldManipulations);
       CPPUNIT_TEST(testRouteFieldManipulations);
       CPPUNIT_TEST(test200ResponseToRequestWithPath);
+      CPPUNIT_TEST(testSipXNatRoute);
       CPPUNIT_TEST(testGetFieldSubfield);
+      CPPUNIT_TEST(testSetFieldSubfield_SingleSubfields);
+      CPPUNIT_TEST(testSetFieldSubfield_Mixed);
+      CPPUNIT_TEST(testSetViaTag);
       CPPUNIT_TEST_SUITE_END();
 
       public:
@@ -2516,6 +2520,39 @@ class SipMessageTest : public CppUnit::TestCase
  
       CPPUNIT_ASSERT(finalResponse.getPathUri(3, &tmpString)==FALSE);
    }
+   
+   void testSipXNatRoute()
+   {
+       const char* InviteMsg =
+          "INVITE sip:sipx.local SIP/2.0\r\n"
+          "To: sip:sipx.local\r\n"
+          "From: Sip Send <sip:sender@example.org>; tag=ORIG-TAG\r\n"
+          "Call-ID: f88dfabce84b6a2787ef024a7dbe8749\r\n"
+          "Cseq: 1 INVITE\r\n"
+          "Max-Forwards: 20\r\n"
+          "Contact: me@127.0.0.1\r\n"
+          "Content-Length: 0\r\n"
+          "\r\n";
+  
+       SipMessage sipmsg( InviteMsg, strlen( InviteMsg ) );
+       const UtlString temporaryRoute( "47.135.162.145:10491;transport=udp" );
+       UtlString getResult;
+       
+       // message does not contain a SipX NAT Route - attempt to get it must fail  
+       CPPUNIT_ASSERT( sipmsg.getSipXNatRoute( &getResult ) == false );
+       CPPUNIT_ASSERT( getResult.isNull() );      
+
+       // set the SipX NAT Route and try to read it back
+       sipmsg.setSipXNatRoute( temporaryRoute );
+       CPPUNIT_ASSERT( sipmsg.getSipXNatRoute( &getResult ) == true );
+       CPPUNIT_ASSERT( !getResult.isNull() );
+       CPPUNIT_ASSERT( getResult.compareTo( temporaryRoute ) == 0 );
+       
+       // remove the SipX NAT Route - attempt to get it must fail 
+       sipmsg.removeSipXNatRoute();
+       CPPUNIT_ASSERT( sipmsg.getSipXNatRoute( &getResult ) == false );
+       CPPUNIT_ASSERT( getResult.isNull() );      
+   }
 
    void testGetFieldSubfield()
    {
@@ -2539,6 +2576,207 @@ class SipMessageTest : public CppUnit::TestCase
       CPPUNIT_ASSERT(!msg.getFieldSubfield(SIP_SUPPORTED_FIELD, 3, &value));
       CPPUNIT_ASSERT(msg.getFieldSubfield(SIP_SUPPORTED_FIELD, BOTTOM_SUBFIELD, &value));
       ASSERT_STR_EQUAL("c", value.data());
+   }
+   
+   void testSetFieldSubfield_SingleSubfields()
+   {
+      const char* InviteMsg =
+         "INVITE sip:sipx.local SIP/2.0\r\n"
+         "DummyHeader: subfield 0\r\n"
+         "To: sip:sipx.local\r\n"
+         "DummyHeader: subfield 1\r\n"
+         "From: Sip Send <sip:sender@example.org>; tag=ORIG-TAG\r\n"
+         "DummyHeader: subfield 2\r\n"
+         "Call-ID: f88dfabce84b6a2787ef024a7dbe8749\r\n"
+         "DummyHeader: subfield 3\r\n"
+         "Cseq: 1 INVITE\r\n"
+         "DummyHeader: subfield 4\r\n"
+         "Max-Forwards: 20\r\n"
+         "DummyHeader: subfield 5\r\n"
+         "Contact: me@127.0.0.1\r\n"
+         "DummyHeader: subfield 6\r\n"
+         "Content-Length: 0\r\n"
+         "DummyHeader: subfield 7\r\n"
+         "\r\n";
+ 
+      SipMessage sipmsg( InviteMsg, strlen( InviteMsg ) );
+
+      CPPUNIT_ASSERT(sipmsg.setFieldSubfield( "DummyHeader", 0, "How About This Value") );
+      CPPUNIT_ASSERT(sipmsg.setFieldSubfield( "DummyHeader", 1, "Or That One") );
+      CPPUNIT_ASSERT(sipmsg.setFieldSubfield( "DummyHeader", 2, "Maybe This One Then") );
+      CPPUNIT_ASSERT(sipmsg.setFieldSubfield( "DummyHeader", 3, "Im Serious") );
+      CPPUNIT_ASSERT(sipmsg.setFieldSubfield( "DummyHeader", 4, "Ok Thats Enough") );
+      CPPUNIT_ASSERT(sipmsg.setFieldSubfield( "DummyHeader", 5, "What Else") );
+      CPPUNIT_ASSERT(sipmsg.setFieldSubfield( "DummyHeader", 6, "Im Asking") );
+      CPPUNIT_ASSERT(sipmsg.setFieldSubfield( "DummyHeader", 7, "Never Mind") );
+      CPPUNIT_ASSERT(!sipmsg.setFieldSubfield( "DummyHeader", 8, "Forget About It") );
+      
+      const char* ReferenceMsg =
+         "INVITE sip:sipx.local SIP/2.0\r\n"
+         "DummyHeader: How About This Value\r\n"
+         "To: sip:sipx.local\r\n"
+         "DummyHeader: Or That One\r\n"
+         "From: Sip Send <sip:sender@example.org>; tag=ORIG-TAG\r\n"
+         "DummyHeader: Maybe This One Then\r\n"
+         "Call-ID: f88dfabce84b6a2787ef024a7dbe8749\r\n"
+         "DummyHeader: Im Serious\r\n"
+         "Cseq: 1 INVITE\r\n"
+         "DummyHeader: Ok Thats Enough\r\n"
+         "Max-Forwards: 20\r\n"
+         "DummyHeader: What Else\r\n"
+         "Contact: me@127.0.0.1\r\n"
+         "DummyHeader: Im Asking\r\n"
+         "Content-Length: 0\r\n"
+         "DummyHeader: Never Mind\r\n"
+         "\r\n";
+ 
+      SipMessage refsipmsg( ReferenceMsg, strlen( ReferenceMsg ) );
+
+      UtlString modifiedMsgString, referenceMsgString;
+      ssize_t msgLen;
+      sipmsg.getBytes(&modifiedMsgString, &msgLen);
+      refsipmsg.getBytes(&referenceMsgString, &msgLen);
+
+      ASSERT_STR_EQUAL(referenceMsgString.data(), modifiedMsgString.data());
+   }
+   void testSetFieldSubfield_Mixed()
+   {
+      
+      const char* InviteMsg =
+         "INVITE sip:sipx.local SIP/2.0\r\n"
+         "DummyHeader: subfield 0,   subfield 1, subfield 2\r\n"
+         "To: sip:sipx.local\r\n"
+         "DummyHeader: subfield3\r\n"
+         "From: Sip Send <sip:sender@example.org>; tag =ORIG-TAG\r\n"
+         "DummyHeader: subfield 4,       subfield 5,    subfield 6\r\n"
+         "Call-ID: f88dfabce84b6a2787ef024a7dbe8749\r\n"
+         "DummyHeader: subfield7\r\n"
+         "Cseq: 1 INVITE\r\n"
+         "DummyHeader: subfield 8    ,    subfield 9 ,subfield 10\r\n"
+         "Max-Forwards: 20\r\n"
+         "DummyHeader: subfield11\r\n"
+         "Contact: me@127.0.0.1\r\n"
+         "DummyHeader: subfield 12  ,  subfield 13,  subfield 14\r\n"
+         "Content-Length: 0\r\n"
+         "DummyHeader: subfield 15\r\n"
+         "\r\n";
+ 
+      SipMessage sipmsg( InviteMsg, strlen( InviteMsg ) );
+
+      CPPUNIT_ASSERT(sipmsg.setFieldSubfield( "DummyHeader", 0, "etre") );
+      CPPUNIT_ASSERT(sipmsg.setFieldSubfield( "DummyHeader", 1, "paraitre") );
+      CPPUNIT_ASSERT(sipmsg.setFieldSubfield( "DummyHeader", 2, "sembler") );
+      CPPUNIT_ASSERT(sipmsg.setFieldSubfield( "DummyHeader", 3, "demeurer") );
+      CPPUNIT_ASSERT(sipmsg.setFieldSubfield( "DummyHeader", 4, "rester") );
+      CPPUNIT_ASSERT(sipmsg.setFieldSubfield( "DummyHeader", 5, "passerpour") );
+      CPPUNIT_ASSERT(sipmsg.setFieldSubfield( "DummyHeader", 6, "mais") );
+      CPPUNIT_ASSERT(sipmsg.setFieldSubfield( "DummyHeader", 7, "ou") );
+      CPPUNIT_ASSERT(sipmsg.setFieldSubfield( "DummyHeader", 8, "et") );
+      CPPUNIT_ASSERT(sipmsg.setFieldSubfield( "DummyHeader", 9, "donc") );
+      CPPUNIT_ASSERT(sipmsg.setFieldSubfield( "DummyHeader", 10, "car") );
+      CPPUNIT_ASSERT(sipmsg.setFieldSubfield( "DummyHeader", 11, "ni") );
+      CPPUNIT_ASSERT(sipmsg.setFieldSubfield( "DummyHeader", 12, "or") );
+      CPPUNIT_ASSERT(sipmsg.setFieldSubfield( "DummyHeader", 13, "bonne") );
+      CPPUNIT_ASSERT(sipmsg.setFieldSubfield( "DummyHeader", 14, "question") );
+      CPPUNIT_ASSERT(sipmsg.setFieldSubfield( "DummyHeader", 15, "Charlemagne") );
+      CPPUNIT_ASSERT(!sipmsg.setFieldSubfield( "DummyHeader", 16, "Charlemagne") );
+      
+      const char* ReferenceMsg =
+         "INVITE sip:sipx.local SIP/2.0\r\n"
+         "DummyHeader: etre,paraitre,sembler\r\n"
+         "To: sip:sipx.local\r\n"
+         "DummyHeader: demeurer\r\n"
+         "From: Sip Send <sip:sender@example.org>; tag =ORIG-TAG\r\n"
+         "DummyHeader: rester,passerpour,mais\r\n"
+         "Call-ID: f88dfabce84b6a2787ef024a7dbe8749\r\n"
+         "DummyHeader: ou\r\n"
+         "Cseq: 1 INVITE\r\n"
+         "DummyHeader: et,donc,car\r\n"
+         "Max-Forwards: 20\r\n"
+         "DummyHeader: ni\r\n"
+         "Contact: me@127.0.0.1\r\n"
+         "DummyHeader: or,bonne,question\r\n"
+         "Content-Length: 0\r\n"
+         "DummyHeader: Charlemagne\r\n"
+         "\r\n";
+ 
+      SipMessage refsipmsg( ReferenceMsg, strlen( ReferenceMsg ) );
+
+      UtlString modifiedMsgString, referenceMsgString;
+      ssize_t msgLen;
+      sipmsg.getBytes(&modifiedMsgString, &msgLen);
+      refsipmsg.getBytes(&referenceMsgString, &msgLen);
+
+      ASSERT_STR_EQUAL(referenceMsgString.data(), modifiedMsgString.data());
+   }
+   
+   void testSetViaTag()
+   {
+      const char* SimpleMessage =
+         "REGISTER sip:sipx.local SIP/2.0\r\n"
+         "Via: SIP/2.0/TCP sipx.local1:33855;branch=z9hG4bK-10ca3d;test=1\r\n"
+         "Via: SIP/2.0/UDP sipx.local2:3355;branch=z9hG4bK-10cb6f93ea3d;test=2\r\n"
+         "Via: SIP/2.0/UDP sipx.local3:3385;branch=z9hG4bK-10cb6f938a;test=3\r\n"
+         "Via: SIP/2.0/TCP sipx.local4:1234;branch=z9hG4bK-10cb6f;test=4,SIP/2.0/UDP sipx.local5:1312;branch=z9hG4bK-10cb6f9378;test=5\r\n"
+         "Via: SIP/2.0/UDP sipx.local6:6546;branch=z9hG4bK-10cb6f9310ef4dc78ea3d;test=6\r\n"
+         "Via: SIP/2.0/TCP sipx.local7:4372;branch=z9hG4bK-10cb6f98e10ef4dc78ea3d;test=7\r\n"
+         "To: sip:sipx.local\r\n"
+         "From: Sip Send <sip:sipsend@pingtel.org>; tag=30543f3483e1cb11ecb40866edd3295b\r\n"
+         "Call-Id: f88dfabce84b6a2787ef024a7dbe8749\r\n"
+         "Cseq: 1 REGISTER\r\n"
+         "Max-Forwards: 20\r\n"
+         "User-Agent: sipsend/0.01\r\n"
+         "Contact: me@127.0.0.1\r\n"
+         "Expires: 300\r\n"
+         "Date: Fri, 16 Jul 2004 02:16:15 GMT\r\n"
+         "Content-Length: 0\r\n"
+         "\r\n";
+      SipMessage testMsg( SimpleMessage, strlen( SimpleMessage ) );
+      
+      CPPUNIT_ASSERT( testMsg.setViaTag( "new1", "test", 0 ) );
+      CPPUNIT_ASSERT( testMsg.setViaTag( "12", "test2", 0 ) );
+      CPPUNIT_ASSERT( testMsg.setViaTag( "new2", "test", 1 ) );
+      CPPUNIT_ASSERT( testMsg.setViaTag( "22", "test2", 1 ) );
+      CPPUNIT_ASSERT( testMsg.setViaTag( "new3", "test", 2 ) );
+      CPPUNIT_ASSERT( testMsg.setViaTag( "32", "test2", 2 ) );
+      CPPUNIT_ASSERT( testMsg.setViaTag( "new4", "test", 3 ) );
+      CPPUNIT_ASSERT( testMsg.setViaTag( "42", "test2", 3 ) );
+      CPPUNIT_ASSERT( testMsg.setViaTag( "new5", "test", 4 ) );
+      CPPUNIT_ASSERT( testMsg.setViaTag( "52", "test2", 4 ) );
+      CPPUNIT_ASSERT( testMsg.setViaTag( "new6", "test", 5 ) );
+      CPPUNIT_ASSERT( testMsg.setViaTag( "62", "test2", 5 ) );
+      CPPUNIT_ASSERT( testMsg.setViaTag( "new7", "test", 6 ) );
+      CPPUNIT_ASSERT( testMsg.setViaTag( "72", "test2", 6 ) );
+      CPPUNIT_ASSERT( !testMsg.setViaTag( "new7", "test", 7 ) );
+      CPPUNIT_ASSERT( !testMsg.setViaTag( "72", "test2", 7 ) );
+
+      const char* ReferenceMessage =
+         "REGISTER sip:sipx.local SIP/2.0\r\n"
+         "Via: SIP/2.0/TCP sipx.local1:33855;branch=z9hG4bK-10ca3d;test=new1;test2=12\r\n"
+         "Via: SIP/2.0/UDP sipx.local2:3355;branch=z9hG4bK-10cb6f93ea3d;test=new2;test2=22\r\n"
+         "Via: SIP/2.0/UDP sipx.local3:3385;branch=z9hG4bK-10cb6f938a;test=new3;test2=32\r\n"
+         "Via: SIP/2.0/TCP sipx.local4:1234;branch=z9hG4bK-10cb6f;test=new4;test2=42,SIP/2.0/UDP sipx.local5:1312;branch=z9hG4bK-10cb6f9378;test=new5;test2=52\r\n"
+         "Via: SIP/2.0/UDP sipx.local6:6546;branch=z9hG4bK-10cb6f9310ef4dc78ea3d;test=new6;test2=62\r\n"
+         "Via: SIP/2.0/TCP sipx.local7:4372;branch=z9hG4bK-10cb6f98e10ef4dc78ea3d;test=new7;test2=72\r\n"
+         "To: sip:sipx.local\r\n"
+         "From: Sip Send <sip:sipsend@pingtel.org>; tag=30543f3483e1cb11ecb40866edd3295b\r\n"
+         "Call-Id: f88dfabce84b6a2787ef024a7dbe8749\r\n"
+         "Cseq: 1 REGISTER\r\n"
+         "Max-Forwards: 20\r\n"
+         "User-Agent: sipsend/0.01\r\n"
+         "Contact: me@127.0.0.1\r\n"
+         "Expires: 300\r\n"
+         "Date: Fri, 16 Jul 2004 02:16:15 GMT\r\n"
+         "Content-Length: 0\r\n"
+         "\r\n";
+      SipMessage refMsg( ReferenceMessage, strlen( ReferenceMessage ) );
+
+      UtlString modifiedMsgString, referenceMsgString;
+      ssize_t msgLen;
+      testMsg.getBytes(&modifiedMsgString, &msgLen);
+      refMsg.getBytes(&referenceMsgString, &msgLen);
+
+      ASSERT_STR_EQUAL(referenceMsgString.data(), modifiedMsgString.data());  
    }
 };
 

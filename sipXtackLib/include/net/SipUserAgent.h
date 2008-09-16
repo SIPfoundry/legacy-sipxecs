@@ -555,7 +555,7 @@ public:
      * \param aliases - space or comma separated of the format:
      *        "sip:host:port" or "host:port"
      */
-    void setHostAliases(UtlString& aliases);
+    void setHostAliases(const UtlString& aliases);
 
     //! Flag to recurse only one contact in a 300 response
     void setRecurseOnlyOne300Contact(UtlBoolean recurseOnlyOne);
@@ -651,6 +651,10 @@ public:
                                 int port,
                                 OsSocket::IpProtocolSocketType protocol);
 
+    UtlBoolean sendSymmetricUdp(SipMessage& message,
+                                const char* serverAddress,
+                                int port);
+
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
 
@@ -690,10 +694,6 @@ protected:
     UtlBoolean sendUdp(SipMessage* message,
                        const char* serverAddress,
                        int port);
-
-    UtlBoolean sendSymmetricUdp(SipMessage& message,
-                                const char* serverAddress,
-                                int port);
 
     int getReliableTransportTimeout();
 

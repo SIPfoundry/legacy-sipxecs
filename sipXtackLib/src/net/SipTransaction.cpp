@@ -798,31 +798,36 @@ void SipTransaction::prepareRequestForSend(SipMessage& request,
 #           endif
         }   // end "there is a route"
 
-        // No proxy, no route URI, try to use URI from message
+        // No proxy, no route URI, check for an X-sipX-NAT-Route header then
+        // try to use URI from message if none found.
         if(toAddress.isNull())
         {
-                    UtlString uriString;
-                    request.getRequestUri(&uriString);
-                    Url requestUri(uriString, TRUE);
+           UtlString uriString;
+           request.getSipXNatRoute(&uriString);
+           if( uriString.isNull() )
+           {
+              request.getRequestUri(&uriString);
+           }
+           Url requestUri(uriString, TRUE);
 
-                    requestUri.getHostAddress(toAddress);
-                    port = requestUri.getHostPort();
-                    requestUri.getUrlParameter("transport", protocol);
-                    if(requestUri.getUrlParameter("maddr", maddr) &&
-                            !maddr.isNull())
-                    {
-                            toAddress = maddr;
-                    }
-#         ifdef ROUTE_DEBUG
-          OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                        "SipTransaction::prepareRequestForSend %p - "
-                        "   using request URI address: %s:%d via '%s'",
-                        &request, toAddress.data(), port, protocol.data()
-                        );
-#         endif
+           requestUri.getHostAddress(toAddress);
+           port = requestUri.getHostPort();
+           requestUri.getUrlParameter("transport", protocol);
+           if(requestUri.getUrlParameter("maddr", maddr) &&
+              !maddr.isNull())
+           {
+              toAddress = maddr;
+           }
+#          ifdef ROUTE_DEBUG
+           OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                         "SipTransaction::prepareRequestForSend %p - "
+                         "   using request URI address: %s:%d via '%s'",
+                         &request, toAddress.data(), port, protocol.data()
+                         );
+#          endif
         }
 
-        // No proxy, route URI, or message URI, use the To field
+        // No proxy, route URI, temporary sipX route or message URI, use the To field
         if(toAddress.isNull())
         {
            request.getToAddress(&toAddress, &port, &protocol);
