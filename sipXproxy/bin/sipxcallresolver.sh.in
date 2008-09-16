@@ -136,29 +136,6 @@ databaseCommand() {
    esac
 }
 
-# Check if call resolver is configured for HA
-HAcheck() {
-   # Quietly check if we're setup for HA - we have to do database tests differently
-   resolveConfig=`cat @SIPX_CONFDIR@/callresolver-config | grep SIP_CALLRESOLVER_CSE_HOSTS`
-   host_list=`expr match "$resolveConfig" '.*CSE_HOSTS\s*:\s*\(.*\)'`
-   
-   ha_with_localhost=0   
-
-   if [ -z "$host_list" ]; then
-      # Normal setup
-      return 1
-   else
-      if expr match "$host_list" '.*localhost.*' >/dev/null; then
-         # HA setup with localhost
-         ha_with_localhost=1 
-      else
-         # HA setup without localhost
-         ha_with_localhost=0
-      fi
-      return 0
-   fi
-}
-
 # Return false if postgres is 
 #  1. not running 
 #  2. running but not setup to communicate w/java or ${Psql} command
@@ -293,11 +270,17 @@ ERROR
    
    # Don't check configuration of call resolver for distributed machines
    if [ ${Action} = CONFIGTEST ]; then
-      resolveOk=1
+       
+      if [ ! -f @SIPX_CONFDIR@/callresolver-config ]; then
+          echo "  Call resolver configuration '@SIPX_CONFDIR@/callresolver-config' not found" 1>&2
+          resolveOk=0          
+          Status=1
+      else
+          resolveOk=1
 
-      resolveConfig=`sipx_config_value  @SIPX_CONFDIR@/callresolver-config SIP_CALLRESOLVER_PURGE`
-      if ! test "${resolveConfig}" = "ENABLE"; then
-      cat <<ERROR
+          resolveConfig=`sipx_config_value  @SIPX_CONFDIR@/callresolver-config SIP_CALLRESOLVER_PURGE`
+          if ! test "${resolveConfig}" = "ENABLE"; then
+              cat <<ERROR
 
 Warning: callresolver is not configured for purging old records.
 This will prevent the call resolver from automatically purging old database 
@@ -309,8 +292,9 @@ Add the line:
 to @SIPX_CONFDIR@/sipxcallresolver/callresolver-config.vm
 
 ERROR
-         resolveOk=0
-         Status=1
+              resolveOk=0
+              Status=1
+          fi
       fi
       
       if [ $resolveOk = 1 ]; then
