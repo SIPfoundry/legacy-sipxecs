@@ -17,6 +17,8 @@
 #include "net/XmlRpcMethod.h"
 #include "net/XmlRpcRequest.h"
 #include "WatchDog.h"
+#include "SipxProcessManager.h"
+#include "SipxProcess.h"
 
 #include "ProcMgmtRpc.h"
 
@@ -917,6 +919,7 @@ bool ProcMgmtRpcGetConfigVersion::execute(const HttpRequestContext& requestConte
          {
             UtlString* pserviceName = dynamic_cast<UtlString*>(params.at(1));
             WatchDog* pWatchDog = ((WatchDog *)userData);
+            SipxProcessManager* pProcessManager = SipxProcessManager::getInstance();
 
             if(validCaller(requestContext, *pCallingHostname, response, *pWatchDog, name()))
             {
@@ -926,10 +929,11 @@ bool ProcMgmtRpcGetConfigVersion::execute(const HttpRequestContext& requestConte
                               pCallingHostname->data()
                               );
 
-                if ( pWatchDog->isValidService( *pserviceName ) )
+                SipxProcess* pProcess = pProcessManager->findProcess( *pserviceName );
+                if ( pProcess )
                 {
                    // Query the current version for the service as obtained from the service configuration file.
-                   UtlString service_version = pWatchDog->getServiceVersion( *pserviceName );
+                   UtlString service_version = pProcess->getConfigurationVersion();
 
                    // Construct and set the response.
                    response.setResponse(&service_version);
@@ -1016,21 +1020,24 @@ bool ProcMgmtRpcSetConfigVersion::execute(const HttpRequestContext& requestConte
                UtlString* pserviceVersion = dynamic_cast<UtlString*>(params.at(2));
 
                WatchDog* pWatchDog = ((WatchDog *)userData);
+               SipxProcessManager* pProcessManager = SipxProcessManager::getInstance();
 
                if(validCaller(requestContext, *pCallingHostname, response, *pWatchDog, name()))
                {
                    OsSysLog::add(FAC_SUPERVISOR, PRI_INFO,
                                  "ProcMgmtRpc::setConfigVersion"
-                                 " host %s requested setting service configuration version",
-                                 pCallingHostname->data()
+                                 " host %s requested setting service configuration version for %s",
+                                 pCallingHostname->data(), pserviceName->data()
                                  );
 
-                   if ( pWatchDog->isValidService( *pserviceName ) )
+                   SipxProcess* pProcess = pProcessManager->findProcess( *pserviceName );
+                   if ( pProcess )
                    {
-                      // Write the new version number to the appropriate service configuration file.
-                      service_version_setting = pWatchDog->setServiceVersion( *pserviceName, *pserviceVersion );
+                      // Write the version number to the appropriate process.
+                      pProcess->setConfigurationVersion( *pserviceVersion ); 
 
-                      response.setResponse(&service_version_setting);
+                      UtlBool method_result(true);
+                      response.setResponse(&method_result);
                       status = XmlRpcMethod::OK;
                       result = true;
                    }

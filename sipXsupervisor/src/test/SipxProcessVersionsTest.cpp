@@ -29,6 +29,7 @@ class SipxProcessVersionTest : public CppUnit::TestCase
    CPPUNIT_TEST_SUITE(SipxProcessVersionTest);
    CPPUNIT_TEST(versionStartup);
    CPPUNIT_TEST(versionSetting);
+   CPPUNIT_TEST(versionGetting);
    CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -82,6 +83,29 @@ public:
          ASSERT_STR_EQUAL("1.0.0", process->mVersion.data());
          ASSERT_STR_EQUAL("2.1.0", process->mConfigVersion.data());
          CPPUNIT_ASSERT(!process->configurationVersionMatches());
+
+      };
+   
+   void versionGetting()
+      {
+         FileTestContext testContext(TEST_DATA_DIR "processVersions",
+                                     TEST_WORK_DIR "processVersions"
+                                     );
+         testContext.setSipxDir(SipXecsService::VarDirType, "var");
+
+         UtlString  path;
+         SipxProcess*   process;
+
+         testContext.inputFilePath("genericprocess.xml", path);
+         CPPUNIT_ASSERT((process = SipxProcess::createFromDefinition(path)));
+
+         ASSERT_STR_EQUAL("", process->getConfigurationVersion());
+
+         UtlString newCfgVersion("2.1.0");
+         process->setConfigurationVersion(newCfgVersion);
+
+         ASSERT_STR_EQUAL("2.1.0", process->getConfigurationVersion());
+
       };
    
    

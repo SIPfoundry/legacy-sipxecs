@@ -178,31 +178,6 @@ public:
    /// responsible for deleting the new'd memory.
    void getPidsByAliasList(const UtlSList& alias_list, UtlHashMap& pids);
 
-   /// Returns the configuration version of the specified service.
-   UtlString getServiceVersion(const UtlString &service);
-   /**<
-    * Logs (at the PRI_INFO level) if the lookup failed.
-    * 
-    * Locks the semaphore while using the OsProcessMgr singleton.
-    * 
-    * \param service The name of the service for which the version is to be returned.
-    * \return The version if a matching service name was found, blank otherwise.
-    * \see OsProcessMgr
-    */
-
-   /// Sets the configuration version of the specified service.
-   UtlBoolean setServiceVersion(const UtlString &service, const UtlString &version);
-   /**<
-    * Logs (at the PRI_INFO level) if the lookup failed.
-    * 
-    * Locks the semaphore while using the OsProcessMgr singleton.
-    * 
-    * \param service The name of the service for which the version is to be returned.
-    * \param version The version to be written to the appropriate service definition file.
-    * \return The true if there was success in replacing the version and false otherwise.
-    * \see OsProcessMgr
-    */
-
    /// Whether or not the specified peer is allowed to make XML-RPC Process Manamgement requests.
    bool isAllowedPeer(const UtlString& peer) const;
    /**<

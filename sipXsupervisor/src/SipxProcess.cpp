@@ -804,6 +804,31 @@ void SipxProcess::setConfigurationVersion(const UtlString& newConfigVersion)
 }
 
 
+
+/// Get the version stamp value of the configuration.
+UtlString SipxProcess::getConfigurationVersion()
+{
+   UtlString version("");
+   OsLock mutex(mLock);
+   
+   if (mConfigVersion)
+   {
+      OsSysLog::add(FAC_SUPERVISOR, PRI_INFO, "SipxProcess[%s]::getConfigurationVersion"
+                    " '%s'", data(), mConfigVersion.data());
+      version = mConfigVersion;
+
+      
+   }
+   else
+   {
+      OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG,
+                    "SipxProcess[%s]::getConfigurationVersion - no value set",
+                    data());
+   }
+
+   return version;
+}
+
 /// Tell the SipxProcessTask thread to check the service process.
 void SipxProcess::triggerServiceCheck(Event event)
 {
