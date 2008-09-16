@@ -28,8 +28,6 @@ import org.sipfoundry.sipxivr.PromptList;
 import org.sipfoundry.sipxivr.Sleep;
 import org.sipfoundry.sipxivr.TextToPrompts;
 import org.sipfoundry.sipxivr.Transfer;
-import org.sipfoundry.sipxivr.User;
-import org.sipfoundry.sipxivr.ValidUsersXML;
 
 
 public class Attendant {

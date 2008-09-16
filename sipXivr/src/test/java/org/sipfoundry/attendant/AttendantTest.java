@@ -17,7 +17,6 @@ import org.sipfoundry.sipxivr.Configuration;
 import org.sipfoundry.sipxivr.FreeSwitchEvent;
 import org.sipfoundry.sipxivr.TextToPrompts_en;
 import org.sipfoundry.sipxivr.FreeSwitchEventSocketEmulator;
-import org.sipfoundry.sipxivr.ValidUsersXML;
 
 import junit.framework.TestCase;
 
