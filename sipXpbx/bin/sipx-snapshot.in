@@ -21,6 +21,7 @@ ToFile=
 Logs=current
 LogStart=
 LogStop=
+IncludeCallRecords="FALSE"
 
 DefaultTarFile="sipx-configuration-`hostname -f`.tar.gz"
 
@@ -154,6 +155,10 @@ do
             shift
             ;;
 
+        --cdr)
+            IncludeCallRecords="TRUE"
+            ;;
+
         --file)
             if [ -z "${2}" ]
             then
@@ -230,6 +235,7 @@ Usage:
 
     sipx-snapshot [ --include-secrets | -c  | --credentials ]
                   [ -nw | --no-www ]
+                  [ --cdr ]
                   [ -l  | --logs {current|all|nnn|none} ]
                   [ --log-start <date-time> [ --log-stop <date-time> ]]
                   [ --core <core-file> ] ...
@@ -288,6 +294,9 @@ Usage:
     from the snapshot; the default is to include them.  (deprecated but
     left in for backward compatibility - use '--logs none').
 
+    The --cdr switch includes the data from call detail records; this is
+    useful for debugging problems with the CDR system itself.
+
     The --core switch is used to specify the name of a core file to
     include among the files archived.  If the file name does not contain
     a /, it is searched for in @SIPX_LOGDIR@, otherwise it is searched for
@@ -317,8 +326,10 @@ fi
 # File into which to record random system configuration information.
 SystemConfig=${Work}/SystemConfig
 
-# File into which the sipXconfig database is dumped
+# Files into which the postgres databases are dumped
 ConfigDb=${Work}/SIPXCONFIG
+CallStateDb=${Work}/SIPXCSE
+CallDetailDb=${Work}/SIPXCDR
 
 function hasTimestamps () {
    # looks for a timestamp like "2008-01-17T09:02:09.451460Z": on the first line
@@ -645,8 +656,14 @@ echo "" >> ${SystemConfig}
 
 if [ "${Action}" = "SNAPSHOT" ]
 then
-  # Record the database contents
-  pg_dump -d SIPXCONFIG -U postgres --attribute-inserts > ${ConfigDb}
+  # Record the sipXconfig database contents
+  pg_dump -d SIPXCONFIG -U @POSTGRESQL_USER@ --attribute-inserts > ${ConfigDb}
+
+  if [ "${IncludeCallRecords}" = "TRUE" ]
+  then
+      # Record the call state event and detail record database contents
+      pg_dump -d SIPXCDR -U @POSTGRESQL_USER@ --attribute-inserts > ${CallDetailDb} 2> /dev/null
+  fi
 
   # Copy all the files and directories that should be copied.
   for file in `sort -u $Work.copy-files`
