@@ -14,7 +14,7 @@ Vendor:       http://www.voiceworks.pl/
 Source0:      %{name}-%{version}.tar.gz
 Prefix:       %{prefix}
 
-#AutoReqProv:  no
+AutoReqProv:  yes
 
 Requires: sipxcommserverlib >= 3.11
 
