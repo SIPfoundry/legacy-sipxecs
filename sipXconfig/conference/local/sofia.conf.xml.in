@@ -30,6 +30,7 @@
 	<!--<param name="auth-calls" value="true"/>-->
 	<!-- on authed calls, authenticate *all* the packets not just invite -->
 	<!--<param name="auth-all-packets" value="true"/>-->
+        <param name="accept-blind-auth" value="true"/>
 
 	<!-- optional ; -->
 	<!-- <param name="ext-rtp-ip" value="stun:stun.server.com"/>-->
