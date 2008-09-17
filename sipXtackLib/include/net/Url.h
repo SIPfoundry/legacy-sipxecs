@@ -22,6 +22,8 @@
 class UtlDList;
 
 // DEFINES
+#define ROUTE_TO_REGISTRAR_MARKER_URI_PARAM ("x-sipx-routetoreg")
+
 // MACROS
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES

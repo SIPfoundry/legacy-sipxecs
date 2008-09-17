@@ -37,9 +37,9 @@
 const char* AuthPlugin::Factory = "getAuthPlugin";
 const char* AuthPlugin::Prefix  = "SIPX_PROXY";
 // The period of time in seconds that nonces are valid, in seconds.
-#define NONCE_EXPIRATION_PERIOD    (60 * 5)     // five minutes
-#define SIPX_SPIRAL_HEADER  ("X-SipX-Spiral")
- 
+#define NONCE_EXPIRATION_PERIOD             (60 * 5)     // five minutes
+#define SIPX_SPIRAL_HEADER                  ("X-SipX-Spiral")
+
 // STRUCTS
 // TYPEDEFS
 // FORWARD DECLARATIONS
@@ -480,6 +480,19 @@ SipRouter::ProxyAction SipRouter::proxyMessage(SipMessage& sipRequest, SipMessag
                {
                   // Yes, so add a loose route to the mapped server
                   Url nextHopUrl(mappedTo);
+
+                  // Check if the route points to the Registrar by
+                  // testing for the preseonce of the
+                  // 'x-sipx-routetoreg' custom URL parameter.  If the
+                  // parameter is found, it indicates that the request
+                  // is spiraling.
+                  UtlString dummyString;
+                  if( nextHopUrl.getUrlParameter( ROUTE_TO_REGISTRAR_MARKER_URI_PARAM, dummyString ) )
+                  {
+                     // bMessageIsSpiraling = true;
+                     nextHopUrl.removeUrlParameter( ROUTE_TO_REGISTRAR_MARKER_URI_PARAM );
+                  }
+                  
                   nextHopUrl.setUrlParameter("lr", NULL);
                   UtlString routeString;
                   nextHopUrl.toString(routeString);

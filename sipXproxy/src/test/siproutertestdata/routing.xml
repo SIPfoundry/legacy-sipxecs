@@ -29,7 +29,7 @@
     </methodMatch>
 
     <!-- All other requests go to the SIP registry service -->
-    <routeTo>registrar.example.com</routeTo>
+    <routeTo>&lt;registrar.example.com;x-sipx-routetoreg&gt;</routeTo>
 
   </route>
 </routes>
