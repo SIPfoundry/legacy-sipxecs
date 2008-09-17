@@ -51,8 +51,8 @@ testsuite_SOURCES = \
     net/SipProxyMessageTest.cpp \
     net/SipXauthIdentityTest.cpp \
     net/XmlRpcTest.cpp \
-    net/SipOutputProcessorTest.cpp 
-    
+    net/SipOutputProcessorTest.cpp \
+    net/SipxNatRouteTest.cpp
 
 $(srcdir)/net/SipXauthIdentityTest.cpp: net/SipXauthIdentityTest.cpp.in
 	$(srcdir)/net/refresh-hashes <$(srcdir)/net/SipXauthIdentityTest.cpp.in >$(srcdir)/net/SipXauthIdentityTest.cpp
@@ -72,6 +72,4 @@ EXTRA_DIST = \
 
 sandbox_LDADD = $(testsuite_LDADD)
 sandbox_CXXFLAGS = $(testsuite_CXXFLAGS)
-sandbox_SOURCES = \
-	net/SipXauthIdentityTest.cpp \
-	net/SipOutputProcessorTest.cpp
+sandbox_SOURCES = 

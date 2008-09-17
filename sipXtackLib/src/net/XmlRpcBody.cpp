@@ -25,7 +25,7 @@
 // EXTERNAL VARIABLES
 // CONSTANTS
 const char* XmlVersion = XML_VERSION_1_0;
-const int MAX_VALUE_NESTING_DEPTH = 5; // maximum nesting of arrays, structs, values
+const int MAX_VALUE_NESTING_DEPTH = 12; // maximum nesting of arrays, structs, values
 
 // STATIC VARIABLE INITIALIZATIONS
 
