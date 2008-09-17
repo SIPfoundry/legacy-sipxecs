@@ -136,7 +136,7 @@ public class SymmitronServer implements Symmitron {
     private Map<String, Object> createErrorMap(int errorCode, String reason) {
         Map<String, Object> retval = new HashMap<String, Object>();
         retval.put(STATUS_CODE, ERROR);
-        retval.put(ERROR_CODE, errorCode);
+        retval.put(ERROR_CODE,  new Integer(errorCode).toString());
         retval.put(ERROR_INFO, reason);
 
         retval.put(INSTANCE_HANDLE, myHandle);

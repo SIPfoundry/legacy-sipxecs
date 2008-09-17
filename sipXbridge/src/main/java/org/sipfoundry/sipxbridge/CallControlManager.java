@@ -315,7 +315,7 @@ class CallControlManager implements SymmitronResetHandler {
             // Create a WAN side association and send the INVITE on its way.
             if (provider == Gateway.getLanProvider()) {
                 ItspAccountInfo account = Gateway.getAccountManager().getAccount(
-                        (SipURI) request.getRequestURI());
+                         request);
                 if (account == null) {
                     Response response = ProtocolObjects.messageFactory.createResponse(
                             Response.NOT_FOUND, request);
@@ -1424,7 +1424,7 @@ class CallControlManager implements SymmitronResetHandler {
             ItspAccountInfo accountInfo = null;
             if (callOriginatedFromLan) {
                 accountInfo = Gateway.getAccountManager().getAccount(
-                        (SipURI) request.getRequestURI());
+                        request);
             } else {
                 /*
                  * Check the Via header of the inbound request to see if this is an account we

@@ -7,15 +7,19 @@
 package org.sipfoundry.sipxbridge;
 
 import gov.nist.javax.sip.clientauthutils.UserCredentials;
+import gov.nist.javax.sip.header.ims.PAssertedIdentityHeader;
 
 import java.net.InetAddress;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import javax.sip.ClientTransaction;
 import javax.sip.address.SipURI;
+import javax.sip.header.FromHeader;
+import javax.sip.message.Request;
 
 import org.apache.log4j.Logger;
 
@@ -30,7 +34,7 @@ public class AccountManagerImpl implements gov.nist.javax.sip.clientauthutils.Ac
 
     private static Logger logger = Logger.getLogger(AccountManagerImpl.class);
 
-    private Hashtable<String, ItspAccountInfo> itspAccounts = new Hashtable<String, ItspAccountInfo>();
+    private HashSet<ItspAccountInfo> itspAccounts = new HashSet<ItspAccountInfo>();
 
     /*
      * A concurrent hash map is need here because of dynamic updates of these records. It is read
@@ -58,8 +62,6 @@ public class AccountManagerImpl implements gov.nist.javax.sip.clientauthutils.Ac
     BridgeConfiguration getBridgeConfiguration() {
         return bridgeConfiguration;
     }
-
-   
 
     void lookupItspAccountAddresses() throws GatewayConfigurationException {
         try {
@@ -102,17 +104,44 @@ public class AccountManagerImpl implements gov.nist.javax.sip.clientauthutils.Ac
      * Get the default outbound ITSP account for outbound calls.
      */
     ItspAccountInfo getDefaultAccount() {
-        return itspAccounts.values().iterator().next();
+        return itspAccounts.iterator().next();
     }
 
     /**
      * Get the outbound ITSP account for a specific outbund SipURI.
      */
-    ItspAccountInfo getAccount(SipURI sipUri) {
-        for (ItspAccountInfo accountInfo : itspAccounts.values()) {
+    ItspAccountInfo getAccount(Request request) {
+
+        SipURI sipUri = (SipURI) request.getRequestURI();
+
+        for (ItspAccountInfo accountInfo : itspAccounts) {
 
             if (sipUri.getHost().endsWith(accountInfo.getProxyDomain())) {
-                return accountInfo;
+                if (accountInfo.getCallerId() == null) {
+                    return accountInfo;
+                } else {
+                    String callerId = accountInfo.getCallerId();
+                    FromHeader fromHeader = (FromHeader) request.getHeader(FromHeader.NAME);
+
+                    String userStr = ((SipURI) fromHeader.getAddress().getURI()).getUser();
+                    String domainStr = ((SipURI) fromHeader.getAddress().getURI()).getHost();
+                    if (userStr.equals("anonymous") && domainStr.equals("invalid")) {
+                        PAssertedIdentityHeader pai = (PAssertedIdentityHeader) request
+                                .getHeader(PAssertedIdentityHeader.NAME);
+                        if (pai == null) {
+                            logger
+                                    .warn("Anonymous call without P-Asserted-Identity ");
+                            // BUGBUG - this is really a mistake we should reject
+                            // the call if the PAI header is missing 
+                            return accountInfo;
+                        }
+                        userStr = ((SipURI) pai.getAddress().getURI()).getUser();
+                    }
+                    if (callerId.startsWith(userStr)) {
+                        return accountInfo;
+                    }
+
+                }
             }
         }
         return null;
@@ -125,7 +154,7 @@ public class AccountManagerImpl implements gov.nist.javax.sip.clientauthutils.Ac
      */
     Collection<ItspAccountInfo> getItspAccounts() {
 
-        return itspAccounts.values();
+        return itspAccounts;
     }
 
     /**
@@ -156,22 +185,6 @@ public class AccountManagerImpl implements gov.nist.javax.sip.clientauthutils.Ac
         return null;
     }
 
-    /**
-     * Find the account info corresponding to a request URI.
-     * 
-     * @param requestURI
-     * @return
-     */
-    ItspAccountInfo getItspAccount(SipURI requestURI) {
-        String host = requestURI.getHost();
-        for (ItspAccountInfo accountInfo : this.getItspAccounts()) {
-            if (host.endsWith(accountInfo.getSipDomain())) {
-                return accountInfo;
-            }
-        }
-        return null;
-    }
-
     // //////////////////////////////////////////////////////////////////
     // Public methods.
     // //////////////////////////////////////////////////////////////////
@@ -181,15 +194,12 @@ public class AccountManagerImpl implements gov.nist.javax.sip.clientauthutils.Ac
     public void setBridgeConfiguration(BridgeConfiguration bridgeConfiguration) {
         this.bridgeConfiguration = bridgeConfiguration;
     }
-    
+
     /**
      * Add an ITSP account to the account database ( method is accessed by the digester).
      */
     public void addItspAccount(ItspAccountInfo accountInfo) throws GatewayConfigurationException {
-
-        String key = accountInfo.getAuthenticationRealm();
-        this.itspAccounts.put(key, accountInfo);
-
+        this.itspAccounts.add(accountInfo);
     }
 
     /*

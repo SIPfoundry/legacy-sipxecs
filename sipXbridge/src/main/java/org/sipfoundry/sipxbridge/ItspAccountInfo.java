@@ -639,5 +639,16 @@ public class ItspAccountInfo implements gov.nist.javax.sip.clientauthutils.UserC
     public boolean useGlobalAddressForCallerId() {
         return this.globalAddressingUsed && this.useGlobalAddressForCallerId;
     }
+    
+    public String getCallerId() {
+        if (this.isRegisterOnInitialization() && this.useRegistrationForCallerId) {
+            return this.getUserName() + "@" + this.getOutboundRegistrar();
+        } else if ( this.useGlobalAddressForCallerId()) {
+            return  this.getUserName() + "@" + Gateway.getGlobalAddress();
+        } else {
+            return null;
+        }
+       
+    }
 
 }
