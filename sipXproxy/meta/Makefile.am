@@ -7,7 +7,8 @@ SIPX30_CONFIG = @PACKAGE@-3.0.tgz
 PREVIOUS_CONFIG = $(DESTDIR)@SIPX_VARDIR@/upgrade/@PACKAGE@-previous.tgz
 
 schemas = \
-	forwardingrules.xsd
+    forwardingrules.xsd \
+    nattraversalrules.xsd 
 
 EXTRA_DIST = \
 	$(SIPX30_CONFIG) \

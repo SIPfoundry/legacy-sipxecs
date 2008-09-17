@@ -32,6 +32,7 @@ done
 CONFIG_DEFS="@SIPX_CONFDIR@/config.defs"
 
 CONFIG_FILES="\
+  @SIPX_CONFDIR@/nattraversalrules.xml \
   @SIPX_CONFDIR@/forwardingrules.xml \
   @SIPX_CONFDIR@/authrules.xml \
   "
@@ -67,10 +68,12 @@ case ${Action} in
      status1=$?
      @bindir@/sipx-validate-xml @SIPX_CONFDIR@/authrules.xml
      status2=$?
-     myDomain=`. ${CONFIG_DEFS}; echo ${SIPXCHANGE_DOMAIN_NAME} | tr A-Z a-z`
+     @bindir@/sipx-validate-xml @SIPX_CONFDIR@/nattraversalrules.xml
      status3=$?
+     myDomain=`. ${CONFIG_DEFS}; echo ${SIPXCHANGE_DOMAIN_NAME} | tr A-Z a-z`
+     status4=$?
       
-     Status=$((${status1}+${status2}+${status3}))
+     Status=$((${status1}+${status2}+${status3}+${status4}))
 
      # Check that the log file is writable.
      logfile="@SIPX_LOGDIR@/sipXproxy.log"

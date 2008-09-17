@@ -115,6 +115,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(644,root,root) %{_datadir}/sipxecs/process.d/sipxcallresolver-process.xml
 %attr(644,root,root) %{_datadir}/sipxecs/process.d/sipxcallresolver-agent-process.xml
 %attr(755,root,root) %{_datadir}/sipxecs/schema/forwardingrules.xsd
+%attr(755,root,root) %{_datadir}/sipxecs/schema/nattraversalrules.xsd
 
 %attr(755,root,root) %{_libdir}/authplugins/libEnforceAuthRules.la
 %attr(755,root,root) %{_libdir}/authplugins/libEnforceAuthRules.a
