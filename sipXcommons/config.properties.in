@@ -20,14 +20,3 @@ debuglevel=lines
 
 # Destination directory for runtime files.
 sipxcommons.dir=@SIPX_JAVADIR@/sipXcommons
-
-# Third parth JAR files.
-jibx-bind.jar=${src.dir}/lib/jibx-bind-1.1.6a.jar
-jibx-run.jar=${src.dir}/lib/jibx-run-1.1.6a.jar
-bcel.jar=${src.dir}/lib/bcel-5.2.jar
-xpp3.jar=${src.dir}/lib/xpp3-1.1.4c.jar
-cpptasks.jar=${src.dir}/lib/cpptasks-1.0b5.jar
-JainSip.jar=${src.dir}/lib/jain-sip-sdp-1.2.79.jar
-junit.jar=${src.dir}/lib/junit-4.4.jar
-log4j.jar=${src.dir}/lib/log4j-1.2.15.jar
-dnsjava.jar=${src.dir}/lib/dnsjava-2.0.6.jar

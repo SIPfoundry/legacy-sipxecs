@@ -21,7 +21,7 @@ debuglevel=lines
 sipxpage.dir=@SIPX_JAVADIR@/sipXpage
 sipxcommons.dir=@SIPX_JAVADIR@/sipXcommons
 sipxcommons.jar=${sipxcommons.dir}/sipxcommons.jar
-JainSip.jar=${sipxcommons.dir}/jain-sip-sdp-1.2.79.jar
-junit.jar=${sipxcommons.dir}/junit-4.4.jar
-log4j.jar=${sipxcommons.dir}/log4j-1.2.15.jar
+JainSip.jar=${sipxcommons.dir}/jain-sip-sdp.jar
+junit.jar=${sipxcommons.dir}/junit.jar
+log4j.jar=${sipxcommons.dir}/log4j.jar
 

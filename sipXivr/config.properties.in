@@ -21,5 +21,5 @@ debuglevel=lines
 sipxivr.lib.dir=@SIPX_JAVADIR@/sipXivr
 sipxcommons.dir=@SIPX_JAVADIR@/sipXcommons
 sipxcommons.jar=${sipxcommons.dir}/sipxcommons.jar
-junit.jar=${sipxcommons.dir}/junit-4.4.jar
-log4j.jar=${sipxcommons.dir}/log4j-1.2.15.jar
+junit.jar=${sipxcommons.dir}/junit.jar
+log4j.jar=${sipxcommons.dir}/log4j.jar
