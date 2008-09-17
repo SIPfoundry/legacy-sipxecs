@@ -148,6 +148,7 @@
       <fileset dir="${classes.dir}" >
         <include name="**/*.class" />
       </fileset>
+      <fileset file="${build.dir}/dist/*.so"/>
     </jar>
   </target>
 

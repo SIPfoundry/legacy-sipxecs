@@ -64,14 +64,12 @@ public class RegInfoTest  extends TestCase
 			// marshal object back out to file (with nice indentation, as UTF-8)
 			IMarshallingContext mctx = bfact.createMarshallingContext();
 			mctx.setIndent(0, "\r\n", ' ');
-			// FileOutputStream out = new FileOutputStream("target/out.xml");
-			FileOutputStream out = new FileOutputStream("out.xml");
+			FileOutputStream out = new FileOutputStream("target/out.xml");
 			mctx.marshalDocument(reginfo, "UTF-8", null, out);
 
 			 // unmarshal reginfo from file
 			IUnmarshallingContext uctx = bfact.createUnmarshallingContext();
-			// FileInputStream in = new FileInputStream("target/out.xml");
-			FileInputStream in = new FileInputStream("out.xml");
+			FileInputStream in = new FileInputStream("target/out.xml");
 			Reginfo unmarshaledReginfo = (Reginfo)uctx.unmarshalDocument(in, null);
 			assertTrue(reginfo.getState().compareTo(unmarshaledReginfo.getState()) == 0);
 		} catch (FileNotFoundException e) {
