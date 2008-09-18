@@ -36,6 +36,8 @@ install-data-hook: install-common-dirs upgrade-subscription-db
 COMMON_DIRS = \
 	$(sysconfdir)/sipxpbx \
 	$(datadir)/sipxecs \
+	$(libexecdir)/sipXecs \
+	$(libexecdir)/sipXecs/setup.d \
 	$(localstatedir)/log/sipxpbx \
 	$(localstatedir)/run/sipxpbx \
 	$(localstatedir)/sipxdata/tmp \

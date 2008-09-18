@@ -6,7 +6,7 @@ bin_SCRIPTS = \
 	$(sh_scripts) \
 	$(ruby_scripts)
 
-setupbindir = @SIPX_CONFDIR@/setup.d
+setupbindir = @SIPX_LIBEXECDIR@/setup.d
 setupbin_SCRIPTS = \
 	sipxconfig-setup
 setupbin_IN = $(foreach file,$(setupbin_SCRIPTS),$(file).in)

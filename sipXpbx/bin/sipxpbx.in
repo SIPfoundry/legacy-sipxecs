@@ -281,7 +281,7 @@ module_setup () {
 
     ## sorting alphabetically to provide a reliable order,
     ## no sophisticated dependency order is required at this time
-    for f in `ls -1 @SIPX_CONFDIR@/setup.d/* 2>/dev/null | sort`
+    for f in `ls -1 @SIPX_LIBEXECDIR@/setup.d/* 2>/dev/null | sort`
     do
         $f
     done

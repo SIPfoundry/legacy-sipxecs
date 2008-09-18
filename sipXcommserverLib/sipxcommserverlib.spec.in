@@ -195,6 +195,8 @@ fi
 %dir %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_localstatedir}/sipxdata
 %dir %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_localstatedir}/sipxdata/tmp
 %dir %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_localstatedir}/sipxdata/sipdb
+%dir %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_libexecdir}/sipXecs
+%dir %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_libexecdir}/sipXecs/setup.d
 
 %{upgrade_archive_dir}/%{this_archive}
 %{upgrade_archive_dir}/%{name}-previous.tgz

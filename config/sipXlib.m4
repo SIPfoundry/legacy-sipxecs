@@ -65,7 +65,7 @@ AC_DEFUN([SFAC_SIPX_GLOBAL_OPTS],
 
     AC_SUBST(SIPX_INCDIR, [${includedir}])
     AC_SUBST(SIPX_LIBDIR, [${libdir}])
-    AC_SUBST(SIPX_LIBEXECDIR, [${libexecdir}])
+    AC_SUBST(SIPX_LIBEXECDIR, [${libexecdir}/sipXecs])
 
     ## NOTE: These are not expanded (e.g. contain $(prefix)) and are only
     ## fit for Makefiles. You can however write a Makefile that transforms

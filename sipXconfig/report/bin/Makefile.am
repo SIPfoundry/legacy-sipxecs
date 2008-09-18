@@ -6,7 +6,7 @@ edit = $(LocalizeSipXconfig) \
 	-e 's,@GEM_LIB_DIR\@,$(GEM_LIB_DIR),g'
 
 # NOTE: using automake variable naming magic
-setupbindir = @SIPX_CONFDIR@/setup.d
+setupbindir = @SIPX_LIBEXECDIR@/setup.d
 
 setupbin_SCRIPTS = \
 	sipxconfig-report-setup

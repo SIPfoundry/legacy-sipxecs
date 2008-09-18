@@ -6,7 +6,7 @@ SIPX_SYSCONFDIR=$(sysconfdir)
 bin_SCRIPTS = \
 	${PACKAGE}-config
 
-setupbindir = @SIPX_CONFDIR@/setup.d
+setupbindir = @SIPX_LIBEXECDIR@/setup.d
 setupbin_SCRIPTS = \
     sipxcallresolver-setup
 setupbin_IN = $(foreach file,$(setupbin_SCRIPTS),$(file).in)
