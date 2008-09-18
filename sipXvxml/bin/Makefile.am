@@ -5,6 +5,7 @@ bin_SCRIPTS = \
 
 EXTRA_DIST = \
     sipXvxml.sh.in \
+    sipXvxml_setup.sh.in \
     $(bin_SCRIPTS)
 
 $(top_builddir)/BUILDSTAMP:
@@ -17,7 +18,20 @@ ${PACKAGE}-config: $(top_srcdir)/config/sipX-config.in $(top_builddir)/BUILDSTAM
 	  > ${PACKAGE}-config
 	chmod +x ${PACKAGE}-config
 
-install-exec-hook :
+install-exec-hook : \
+	$(DESTDIR)$(bindir)/sipXvxml.sh \
+	$(DESTDIR)$(libexecdir)/sipXecs/setup.d/sipXvxml_setup.sh
+
+$(DESTDIR)$(bindir)/sipXvxml.sh : sipXvxml.sh
+	$(INSTALL) -D -m 755 $< $@
+
+sipXvxml.sh : sipXvxml.sh.in
 	@echo "Localize $< -> $@"
-	@$(LocalizeSipXconfig) $(srcdir)/sipXvxml.sh.in > sipXvxml.sh
-	$(INSTALL) -D -m 755 sipXvxml.sh $(DESTDIR)$(bindir)/sipXvxml.sh
+	@$(LocalizeSipXconfig) $< > $@
+
+$(DESTDIR)$(libexecdir)/sipXecs/setup.d/sipXvxml_setup.sh : sipXvxml.sh
+	$(INSTALL) -D -m 755 $< $@
+
+sipXvxml.sh : sipXvxml.sh.in
+	@echo "Localize $< -> $@"
+	@$(LocalizeSipXconfig) $< > $@
