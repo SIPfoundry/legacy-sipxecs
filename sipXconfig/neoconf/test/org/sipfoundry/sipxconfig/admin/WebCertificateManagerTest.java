@@ -89,6 +89,10 @@ public class WebCertificateManagerTest extends TestCase {
         assertEquals("Austin", prop2.get("localityName"));
         assertEquals("Test Organization", prop2.get("organizationName"));
         assertEquals("test@test.org", prop2.get("serverEmail"));
+        
+        //cleanup
+        File propertiesFile = new File(TestUtil.getTestSourceDirectory(this.getClass()),"webCert.properties");
+        assertTrue(propertiesFile.delete());
     }
 
     public void testGetCRTFilePath() {
