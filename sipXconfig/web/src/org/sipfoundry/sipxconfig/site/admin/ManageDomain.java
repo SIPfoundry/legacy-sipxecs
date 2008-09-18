@@ -25,6 +25,8 @@ import org.sipfoundry.sipxconfig.components.TapestryContext;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.domain.Domain;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
+import org.sipfoundry.sipxconfig.service.SipxRegistrarService;
+import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.sipfoundry.sipxconfig.site.dialplan.ActivateDialPlan;
 
 /**
@@ -38,6 +40,9 @@ public abstract class ManageDomain extends PageWithCallback implements PageBegin
     
     @InjectObject (value = "spring:domainManager")
     public abstract DomainManager getDomainManager();
+    
+    @InjectObject (value = "spring:sipxServiceManager")
+    public abstract SipxServiceManager getSipxServiceManager();
     
     @InitialValue (value = "ognl:domainManager.domain")
     public abstract Domain getDomain();
@@ -85,6 +90,12 @@ public abstract class ManageDomain extends PageWithCallback implements PageBegin
         d.getAliases().clear();
         d.getAliases().addAll(getAliases());
         getDomainManager().saveDomain(d);
+        
+        //force domain name replication in registrar-config
+        SipxRegistrarService registrarService = (SipxRegistrarService) getSipxServiceManager().getServiceByBeanId(
+                SipxRegistrarService.BEAN_ID);        
+        registrarService.setDomainName(d.getName());
+        getSipxServiceManager().replicateServiceConfig(registrarService);
 
         ActivateDialPlan dialPlans = (ActivateDialPlan) cycle.getPage(ActivateDialPlan.PAGE);
         dialPlans.setReturnPage(PAGE);

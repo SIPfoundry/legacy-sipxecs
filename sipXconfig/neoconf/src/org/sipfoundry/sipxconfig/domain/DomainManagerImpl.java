@@ -83,8 +83,7 @@ public abstract class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> 
         SipxRegistrarService registrarService = (SipxRegistrarService) getSipxServiceManager().getServiceByBeanId(
                 SipxRegistrarService.BEAN_ID);
         sipxServer.applySettings();
-        registrarService.setDomainName(domain.getName());
-        getReplicationContext().replicate(registrarService.getConfiguration());
+        registrarService.setDomainName(domain.getName());        
     }
 
     public void replicateDomainConfig() {
