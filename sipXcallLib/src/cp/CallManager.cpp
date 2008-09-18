@@ -535,17 +535,16 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
                             // send a BUSY_HERE SIP (486) message back to the sender.
                             if(getCallStackSize() >= mMaxCalls)
                             {
-                                OsSysLog::add(FAC_CP, PRI_INFO,
-                                              "CallManager::handleMessage callStack: sending 486 to INVITE, entries = %ld",
-                                              (long)callStack.entries());
                                 if( (sipMsg->isResponse() == FALSE) &&
                                     (method.compareTo(SIP_ACK_METHOD,UtlString::ignoreCase) != 0) )
 
                                 {
-                                    OsSysLog::add(FAC_CP, PRI_DEBUG,
-                                                  "CallManager - number of current calls (%d) >= limit (%d)",
+                                    OsSysLog::add(FAC_CP, PRI_ERR,
+                                                  "CallManager::handleMessage"
+                                                  " number of current calls (%d) >= limit (%d):"
+                                                  " sending 486 to INVITE",
                                                   getCallStackSize(), mMaxCalls);
-                                                  
+
                                     SipMessage busyHereResponse;
                                     busyHereResponse.setInviteBusyData(sipMsg);
                                     sipUserAgent->send(busyHereResponse);
