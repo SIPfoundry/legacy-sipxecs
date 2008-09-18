@@ -222,8 +222,6 @@ bool AlarmRpcRaiseAlarm::execute(const HttpRequestContext& requestContext,
                }
 
                // Construct and set the response.
-               OsSysLog::add(FAC_ALARM, PRI_DEBUG,
-                     "AlarmRpc::raiseAlarm: finished handling alarm");
                response.setResponse(&method_result);
                status = XmlRpcMethod::OK;
                result = true;

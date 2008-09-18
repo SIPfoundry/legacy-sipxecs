@@ -2,6 +2,7 @@
 <alarm_server xmlns="http://www.sipfoundry.org/sipX/schema/xml/alarm-00-00">
    <definitions>
       <alarm id="TEST_LOG">
+         <shorttitle>Short title for test log</shorttitle>
          <description>This is a test of the log function.  Single parameter should be here: {0}, 
             and that's all that is required</description>
          <resolution>This also tests parameter insertion, and single quote.</resolution>

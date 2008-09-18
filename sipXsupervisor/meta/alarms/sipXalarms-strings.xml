@@ -1,67 +1,48 @@
 <?xml version="1.0" encoding="utf-8" ?>
 
 <!-- INSTRUCTIONS FOR DESIGNERS WISHING TO ADD AN ALARM
-  Each alarm is defined in the AlarmDefinitions.xml file, and identified by its
+  Each alarm is defined in the etc/sipXalarms-config.xml file, and identified by its
   unique id, which is an internal (not customer-visible) string.
-  Strings containing the alarm description, and suggested actions to resolve it, must
-  be added in this file.  These strings can be localized for different languages.
-  Parameters provided at runtime can be inserted into the strings using placeholders
+  Strings containing the alarm description, a short title for the alarm,
+  and suggested actions to resolve it, must be added in this file.  
+  These strings can be localized for different languages (into sipXalarms-strings_xx.xml).
+
+  Parameters provided at runtime can be inserted into the description string using placeholders
   of the form {n}.
   -->
 
 <alarm_server xmlns="http://www.sipfoundry.org/sipX/schema/xml/alarm-00-00">
    <definitions>
-      <alarm id="ALARM_FILE_REP_FAILED">
-         <description>Failed to replicate file {0}.</description>
-         <resolution>Check that the destination is online.
-                     Check that the file and destination directory exist.</resolution>
-      </alarm>
-      <alarm id="SELINUX_CONFIG">
-         <description>selinux status is {0}.</description>
-         <resolution>selinux status must be 'Permissive' or 'Disabled' for sipxpbx;
-                     this may cause apache to fail.  Edit /etc/selinux/config and restart your system.
-         </resolution>
-      </alarm>
-      <alarm id="CONFIG_PROBLEMS_FOUND">
-         <description>sipXpbx configuration problems found.  See file {0} for details. </description>
-         <resolution>Depending on the situation, it may be necessary to adjust some configuration files or settings.\n
-                     If the build provided new versions of some of the configuration files,
-                     you can compare the files, merge them, and delete the .NEW file to suppress these warnings.
-         </resolution>
-      </alarm>
       <alarm id="SERVTEST_FAILURE">
+         <shorttitle>sipx-servtest failed</shorttitle>
          <description>sipx-servtest test {0} failed with msg '{1}'.</description>
          <resolution></resolution>
       </alarm>
       <alarm id="PROCESS_RESTARTED">
+         <shorttitle>Restarting process</shorttitle>
          <description>Process {0} was found in a non-running state.  Attempting to restart the process.</description>
          <resolution>No action required.</resolution>
       </alarm>
       <alarm id="PROCESS_FAILED_RESTART">
+         <shorttitle>Process failed restart</shorttitle>
          <description>Process {0} was found in a non-running state.  Process failed restart.</description>
          <resolution>The system will retry several times.</resolution>
       </alarm>
       <alarm id="PROCESS_FAILED">
+         <shorttitle>Process cannot be restarted!</shorttitle>
          <description>Process {0} was found in a non-running state, and failed MAX restarts.  Process cannot be restarted!</description>
          <resolution>If the process is required, check logs for more details.</resolution>
       </alarm>
-      <alarm id="ALARM_PROCESS_STOPPED">
-         <description>Process {0} stopped</description>
-         <resolution>If condition recurs, check logs for more details.</resolution>
-      </alarm>
       <alarm id="LOGIN_FAILED">
+         <shorttitle>Login failed</shorttitle>
          <description>Login attempt as '{0}' failed several times in a short period.</description>
          <resolution>If condition recurs, may indicate an attempt to break in. </resolution>
-      </alarm>
-      <alarm id="ALARM_BACKUP_FAILED">
-         <description>Backup failed</description>
-         <resolution>Check permissions, disk usage...</resolution>
       </alarm>
 
       <!-- Add new alarms above this line.
           Notes:
-            Make sure the block begins with the 'alarm' tag and ends with '/alarm'.
-            'id='         must match definition in AlarmDefinitions.xml
+            'id='         must match definition in etc/sipXalarms-config.xml
+            'shorttitle'  contains a short title to be used in email subject headers.
             'description' contains text to be sent in alarm notifications.  Parameters may be 
                           inserted at runtime by using placeholders of the format {0}, {1}, etc.  
                           XML reserved characters (&lt;, &gt;, &amp;) should be escaped as in 

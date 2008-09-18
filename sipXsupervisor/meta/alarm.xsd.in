@@ -278,6 +278,7 @@
         <element ref='h:filter' minOccurs='0' />
         <element ref='h:description' minOccurs='0' />
         <element ref='h:resolution' minOccurs='0' />
+        <element ref='h:shorttitle' minOccurs='0' />
       </sequence>
       <attribute name="id" type="string" use="required"/>
     </complexType>
@@ -349,6 +350,18 @@
       <attribute name="min_threshold" type="integer"/>
       <attribute name="max_reports" type="integer"/>
     </complexType>
+  </element>
+
+  <element name="shorttitle">
+    <annotation>
+      <documentation>
+        A short title for the alarm condition.  
+      </documentation>
+    </annotation>
+    <simpleType>
+      <restriction base="string">
+      </restriction>
+    </simpleType>
   </element>
 
   <element name="description">

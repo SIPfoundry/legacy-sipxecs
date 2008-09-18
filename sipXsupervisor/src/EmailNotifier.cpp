@@ -101,8 +101,14 @@ OsStatus EmailNotifier::handleAlarm(const OsTime alarmTime,
    MailMessage message( mEmailStrFrom, mReplyTo, mSmtpServer );
    message.Body(body);
    
-   assembleMsg(mEmailStrSubject, alarmData->getCode(), tempStr);
+   UtlSList subjectParams;
+   UtlString codeStr(alarmData->getCode());
+   UtlString titleStr(alarmData->getShortTitle());
+   subjectParams.append(&codeStr);
+   subjectParams.append(&titleStr);
+   assembleMsg(mEmailStrSubject, subjectParams, tempStr);
    message.Subject(tempStr);
+   subjectParams.destroyAll();
 
    //execute the mail command for each user
    UtlSListIterator iterator(mContacts);

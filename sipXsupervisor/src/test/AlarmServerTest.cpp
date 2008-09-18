@@ -22,6 +22,7 @@ typedef struct
    const char* code;
    const char* component;
    const OsSysLogPriority severity;
+   const char* shorttitle;
    const char* description;
    const char* resolution;
    const bool actions[cAlarmData::eActionMax];
@@ -36,6 +37,7 @@ alarmRowData expectedResult[] =
       "SCF00011",
       "alarmTest",
       PRI_ALERT,
+      "Short title for test log",
       "This is a test of the log function. Single parameter should be here: {0}, and that's all that is required",
       "This also tests parameter insertion, and single quote.",
       { true, true, false },
@@ -47,6 +49,7 @@ alarmRowData expectedResult[] =
       "SCF33321",
       "backup",
       PRI_CRIT,
+      "NO_LOG",
       "This should not be logged",
       "Set log=true in actions element",
       { false, true, false },
@@ -59,6 +62,7 @@ alarmRowData expectedResult[] =
       "backup",
       PRI_CRIT,
       "MISSING_DESCRIPTION",
+      "MISSING_DESCRIPTION",
       "Add description. Default should be id.",
       { true, true, false },
       INT_MAX,
@@ -69,6 +73,7 @@ alarmRowData expectedResult[] =
       "SCF00021",
       "backup",
       PRI_NOTICE,
+      "DUPLICATE_ID",
       "Strings from the second instance of the duplicate id over-write the first by design. "
         "However the rest of the data comes from the first instance.",
       "The duplicate id is flagged in sipXsupervisor.log",
@@ -81,6 +86,7 @@ alarmRowData expectedResult[] =
      "SCF00031",
      "backup",
      PRI_NOTICE,
+     "DUPLICATE_CODE_1",
      "This is the first instance of the duplicate code.",
      "",
      { true, true, false },
@@ -91,6 +97,7 @@ alarmRowData expectedResult[] =
      "SCF00031",
      "backup",
      PRI_CRIT,
+     "DUPLICATE_CODE_2",
      "This is the second instance of the duplicate code.",
      "It should cause a test failure, but how?",
      { true, true, false },
@@ -102,6 +109,7 @@ alarmRowData expectedResult[] =
       "SCF33321",
       "backup",
       PRI_WARNING,
+      "UNKNOWN_SEVERITY",
       "Unknown severity.",
       "Severity should be one of 'debug info notice warning error crit alert emerg'",
       { true, true, false },
@@ -113,6 +121,7 @@ alarmRowData expectedResult[] =
       "SCF23089",
       "sipXsupervisor",
       PRI_WARNING,
+      "PARAMETER_SUBSTITUTION",
       "Parameter {1}, then parameter {0}",
       "Check for bugs in assembleMsg!",
       { true, true, false },
@@ -124,6 +133,7 @@ alarmRowData expectedResult[] =
       "SCF39289",
       "sipXsupervisor",
       PRI_DEBUG,
+      "SPECIAL_CHARACTERS",
       "Print special characters such as <, >, and & properly.",
       "Text must be escaped in the strings file, and unescaped before sending notifications.",
       { true, true, false },
@@ -135,6 +145,7 @@ alarmRowData expectedResult[] =
       "AAA00001",
       "alarmTest",
       PRI_ERR,
+      "DIFF_CONFIG_XML",
       "The config data for this alarm is in a separate file.",
       "The alarm server should load it and handle it normally.",
       { true, true, false },
@@ -249,6 +260,7 @@ public:
          CPPUNIT_ASSERT_MESSAGE(msg, alarmData!=0);
          ASSERT_STR_EQUAL_MESSAGE(msg, expectedResult[i].code, alarmData->getCode().data());
          CPPUNIT_ASSERT_EQUAL_MESSAGE(msg, (int)expectedResult[i].severity, (int)alarmData->getSeverity());
+         ASSERT_STR_EQUAL_MESSAGE(msg, expectedResult[i].shorttitle, alarmData->getShortTitle().data());
          ASSERT_STR_EQUAL_MESSAGE(msg, expectedResult[i].description, alarmData->getDescription().data());
          ASSERT_STR_EQUAL_MESSAGE(msg, expectedResult[i].resolution, alarmData->getResolution().data());
          for (int j=0; j<cAlarmData::eActionMax; j++)

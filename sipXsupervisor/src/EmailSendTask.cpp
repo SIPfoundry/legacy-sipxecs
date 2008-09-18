@@ -61,7 +61,6 @@ EmailSendTask* EmailSendTask::getInstance()
 
 void EmailSendTask::sendMessage(const MailMessage& msg)
 {
-   OsSysLog::add(FAC_ALARM, PRI_INFO, "EmailSendTask::sendMessage()");
    AsynchEmailMsg message( msg );
    postMessage( message );
 }

@@ -37,7 +37,7 @@ const UtlString cAlarmServer::alarmIdKey = "alarmId";
 cAlarmServer*   cAlarmServer::spAlarmServer = 0;
 OsMutex         cAlarmServer::sLockMutex (OsMutex::Q_FIFO);
 
-#define DEBUG
+//#define DEBUG
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
@@ -46,7 +46,7 @@ cAlarmServer::cAlarmServer() :
    mLanguage(""),
    mAlarmCount(0)
 {
-   OsSysLog::setLoggingPriorityForFacility(FAC_ALARM, PRI_DEBUG);
+   OsSysLog::setLoggingPriorityForFacility(FAC_ALARM, PRI_NOTICE);
    for (int i=0; i<cAlarmData::eActionMax; i++)
    {
       mpNotifiers[i] = 0;
@@ -192,6 +192,7 @@ bool cAlarmServer::loadAlarmData(TiXmlElement* element, cAlarmData* data)
    data->setCode(codeStr);
    data->setSeverity(sevToSyslogPri(sevStr));
    data->setComponent(compStr);
+   data->setShortTitle(idStr);  // default fallback title is internal id
    data->setDescription(idStr); // default fallback description is internal id
    data->setResolution(resStr);
    data->actions[cAlarmData::eActionLog] = actLog;
@@ -312,7 +313,19 @@ bool cAlarmServer::loadAlarmStringsFile(const UtlString& stringsFile)
             continue;
          }
 
-         TiXmlElement* codeElement = element->FirstChildElement("description");
+         TiXmlElement* codeElement = element->FirstChildElement("shorttitle");
+         if (codeElement)
+         {
+            textContentShallow(descStr, codeElement);
+            if (!descStr.isNull())
+            {
+               UtlString tempStr;
+               XmlUnEscape(tempStr, descStr);
+               alarmData->setShortTitle(tempStr);
+            }
+         }
+         
+         codeElement = element->FirstChildElement("description");
          if (codeElement)
          {
             textContentShallow(descStr, codeElement);
@@ -538,6 +551,8 @@ bool cAlarmServer::loadAlarms()
             count, alarmKey->data(), alarm->getCode().data(),
             OsSysLog::sPriorityNames[alarm->getSeverity()], 
             alarm->actions[cAlarmData::eActionLog], alarm->actions[cAlarmData::eActionEmail]);
+      OsSysLog::add(FAC_ALARM, PRI_DEBUG, 
+            "           Title:%s", alarm->getShortTitle().data());
       OsSysLog::add(FAC_ALARM, PRI_DEBUG, 
             "           Description:%s", alarm->getDescription().data());
       OsSysLog::add(FAC_ALARM, PRI_DEBUG, 

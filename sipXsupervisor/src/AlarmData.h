@@ -56,6 +56,7 @@ public:
    const UtlString& getId() const             { return m_alarmId; }
    const UtlString& getCode() const           { return m_code; }
    const UtlString& getComponent() const      { return m_component; }
+   const UtlString& getShortTitle() const     { return m_shortTitle; }
    const UtlString& getDescription() const    { return m_description; }
    const OsSysLogPriority getSeverity() const { return m_severity; }
    const UtlString& getResolution() const     { return m_resolution; }
@@ -67,6 +68,7 @@ public:
    void       setCode(const UtlString& newStr);
    void       setComponent(const UtlString& newStr);
    void       setSeverity(const OsSysLogPriority newSev);
+   void       setShortTitle(const UtlString& newStr);
    void       setDescription(const UtlString& newStr);
    void       setResolution(const UtlString& newStr);
    void       setTime(OsTime now);
@@ -86,6 +88,7 @@ private:
    OsSysLogPriority m_severity;    ///< alarm severity
    
    // these are the strings which can be translated
+   UtlString m_shortTitle;         ///< short title for alarm
    UtlString m_description;        ///< string including parameter placeholders
    UtlString m_resolution;         ///< suggested actions to resolve the problem
    

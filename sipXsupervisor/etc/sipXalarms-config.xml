@@ -1,81 +1,54 @@
 <?xml version="1.0"?>
 
 <!-- INSTRUCTIONS FOR DESIGNERS WISHING TO ADD AN ALARM
-  Each sipX alarm is defined in the alarm_definitions section below.
+  Each sipX alarm is defined in the definitions section below.
   Each alarm should have a unique id, which is an internal (not customer-visible) string.
   Each alarm also has a unique code, which is customer-visible, and should be of the form
-     SPXnnnnn where nnn is a sequential number.  Add new alarms at the end of the file.
+  "SPXnnnnn" where nnn is a sequential number.  Add new alarms at the end of the file.
   The severity, component, and actions for each alarm are specified here.
-  Current action are log and email, and the default for both is "true" if not specified.
+  Current actions are log and email, and the default for both is "true" if not specified.
   Strings containing the alarm description, and suggested actions to resolve it, must
-  be added in the AlarmStrings.xml.in file.  These strings could be localized for
-  different languages.
+  be added in the meta/alarms/sipXalarms-strings.xml file.
   -->
 
 <alarm_server xmlns="http://www.sipfoundry.org/sipX/schema/xml/alarm-00-00">
 
-   <!-- Per-alarm definitions.  Only the action are (or could be) configurable. -->
+   <!-- Per-alarm definitions.  Only the actions are (or could be) configurable. -->
    <definitions>
-
-      <alarm id="CONFIG_PROBLEMS_FOUND">
-         <code>SPX00001</code>
-         <severity>warning</severity>
-         <component>sipxpbx</component>
-         <action log="true"
-                  email="false"
-                  />
-      </alarm>
-      <alarm id="SELINUX_CONFIG">
-         <code>SPX00002</code>
-         <severity>warning</severity>
-         <component>sipxpbx</component>
-         <action log="true"
-                  email="false"
-                  />
-      </alarm>
       <alarm id="SERVTEST_FAILURE">
-         <code>SPX00003</code>
+         <code>SPX00001</code>
          <severity>warning</severity>
          <component>sipxserv-test</component>
          <action log="true"
-                  email="true"
-                  />
+                 email="true"
+                 />
       </alarm>
-
       <alarm id="PROCESS_RESTARTED">
-         <code>SPX00004</code>
+         <code>SPX00002</code>
          <severity>warning</severity>
          <component>sipXsupervisor</component>
          <action log="true"
-                  email="false"
+                 email="false"
                   />
       </alarm>
       <alarm id="PROCESS_FAILED_RESTART">
-         <code>SPX00005</code>
+         <code>SPX00003</code>
          <severity>error</severity>
          <component>sipXsupervisor</component>
          <action log="true"
-                  email="true"
+                 email="true"
                   />
       </alarm>
       <alarm id="PROCESS_FAILED">
-         <code>SPX00006</code>
+         <code>SPX00004</code>
          <severity>crit</severity>
          <component>sipXsupervisor</component>
          <action log="true"
-                  email="true"
-                  />
-      </alarm>
-      <alarm id="ALARM_FILE_REP_FAILED">
-         <code>SPX00007</code>
-         <severity>warning</severity>
-         <component>sipXconfig</component>
-         <action log="true"
-                  email="false"
+                 email="true"
                   />
       </alarm>
       <alarm id="LOGIN_FAILED">
-         <code>SPX00008</code>
+         <code>SPX00005</code>
          <severity>warning</severity>
          <component>sipXconfig</component>
          <action log="true"
@@ -84,14 +57,9 @@
          <filter min_threshold="3"
                  />
       </alarm>
-      <alarm id="ALARM_BACKUP_FAILED">
-         <code>SPX00009</code>
-         <severity>crit</severity>
-         <component>backup</component>
-      </alarm>
 
       <!-- Add new alarms above this line.
-          Remember to add strings into AlarmStrings.xml also.
+          Remember to add strings into meta/alarms/sipXalarms-strings.xml also.
           Notes:
             Make sure the block begins with the 'alarm' tag and ends with '/alarm'.
             'id=' the id can be any unique string (no spaces).  This is how the alarm is raised 
@@ -100,7 +68,7 @@
             'severity' is one of debug, info, notice, warning, err, crit
             'component' as appropriate (e.g. sipXconfig, sipXregistrar, etc)
             'action' is optional.  Default for all notifiers is "true".
-            'filter' specifies thresholds:
+            'filter' specifies optional rudimentary thresholds:
                'min_threshold' means the alarm should only be reported after this many occurrences
                                in a short time.  Default is 0 (i.e. report always).
                'max_reports'   means the alarm should only be reported this many times

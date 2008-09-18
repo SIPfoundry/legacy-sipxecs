@@ -25,6 +25,7 @@ cAlarmData::cAlarmData() :
    m_alarmId(""),
    m_code(""),
    m_component(""),
+   m_shortTitle(""),
    m_description(""),
    m_resolution("")
 {
@@ -58,6 +59,11 @@ void cAlarmData::setComponent(const UtlString& newStr)
 void  cAlarmData::setSeverity(const OsSysLogPriority newSev)
 {
    m_severity = newSev;
+}
+
+void cAlarmData::setShortTitle(const UtlString& newStr)
+{
+   m_shortTitle = newStr;
 }
 
 void cAlarmData::setDescription(const UtlString& newStr)
