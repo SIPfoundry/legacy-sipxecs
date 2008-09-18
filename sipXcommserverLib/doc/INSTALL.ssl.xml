@@ -104,6 +104,11 @@
     <section>
       <title>Running gen-ssl-keys.sh</title>
       <para>
+        gen-ssl-keys.sh is usually installed as /usr/bin/ssl-cert/gen-ssl-keys.sh.
+        It may be in a different location if sipXecs is built with a non-standard
+        directory prefix.  Adjust the examples below to fit your installation.
+      </para>
+      <para>
         The gen-ssl-keys.sh script can be run in a few different ways depending
         on how you want to manage your certificates:
         <itemizedlist>
@@ -112,7 +117,7 @@
               To generate a self-signed certificate for a single system:
               <informalexample>
                 <screen>
-                  gen-ssl-keys.sh
+                  /usr/bin/ssl-cert/gen-ssl-keys.sh
                 </screen>
               </informalexample>
             </para>
@@ -123,7 +128,7 @@
               with a public or private certificate authority:
               <informalexample>
                 <screen>
-                  gen-ssl-keys.sh --csr
+                  /usr/bin/ssl-cert/gen-ssl-keys.sh --csr
                 </screen>
               </informalexample>
             </para>
@@ -134,7 +139,7 @@
               to sign certificates for multiple systems:
               <informalexample>
                 <screen>
-                  gen-ssl-keys.sh --new-ca
+                  /usr/bin/ssl-cert/gen-ssl-keys.sh --new-ca
                 </screen>
               </informalexample>
             </para>
@@ -157,11 +162,6 @@
         gen-ssl-keys.sh is "safe"; it does not modify any part of your sipX
         configuration.  The actual installation of the certificates and key it
         generates are described under Key and Certificate Installation below.
-      </para>
-      <para>
-        gen-ssl-keys.sh is usually installed as /usr/bin/ssl-cert/gen-ssl-keys.sh.
-        It may be in a different location if sipXecs is built with a non-standard
-        directory prefix.
       </para>
       <para>
         To use gen-ssl-keys.sh:
@@ -283,7 +283,8 @@
       </para>
       <informalexample>
         <screen>
-          install-cert.sh <replaceable>server-key-file</replaceable>
+          # Must be ROOT
+          /usr/bin/ssl-cert/install-cert.sh <replaceable>server-key-file</replaceable>
         </screen>
       </informalexample>
       <para>
@@ -327,7 +328,8 @@
             </para>
             <informalexample>
               <screen>
-                install-cert.sh
+                # Must be ROOT
+                /usr/bin/ssl-cert/install-cert.sh
               </screen>
             </informalexample>
           </listitem>

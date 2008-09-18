@@ -296,7 +296,9 @@ global_ssl_check () {
     SSL key and/or certificate not found (@SIPX_CONFDIR@/ssl/ssl.{key,crt})
 
     Run setup wizard or see the instructions in
-        @SIPX_DOCDIR@/INSTALL.ssl
+        @SIPX_DOCDIR@/INSTALL.ssl.txt
+          - OR -
+        @SIPX_DOCDIR@INSTALL.ssl.html
 EOF
         ssl_status=1
     else
