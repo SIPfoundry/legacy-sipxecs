@@ -392,6 +392,12 @@ make_root_writable_only() { # ( FILE )
     fi
 }
 
+# Check if the process is alive
+proc_alive() # pid
+{
+   2>/dev/null kill -0 $1
+   return $?
+}
 
 sipx_stop() {
    proc_name=$1; shift
@@ -404,14 +410,14 @@ sipx_stop() {
    if [ -r ${pidFile} ]
    then
        PID=`cat ${pidFile} 2> /dev/null`
-       if [ `proc_alive $PID` -eq 0 ]
+       if proc_alive "$PID"
        then
           for ticks in `seq 19 -1 0`
           do
              sleep 1
-             test `proc_alive $PID` -eq 0 && echo -n "." || break
+             proc_alive "$PID" && echo -n "." || break
           done
-          if [ `proc_alive $PID` -eq 0 ]
+          if proc_alive "$PID"
           then
               # It didn't die!  Try to get a core dump
               echo ""
@@ -421,9 +427,9 @@ sipx_stop() {
               for ticks in `seq 55 -5 0`
               do
                  sleep 5
-                 test `proc_alive $PID` -eq 0 && echo -n " $ticks" || break
+                 proc_alive "$PID" && echo -n " $ticks" || break
               done
-              if [ `proc_alive $PID` -eq 0 ]
+              if proc_alive "$PID"
               then
                   echo ""
                   echo    "    $proc_name did not abort."
@@ -432,13 +438,13 @@ sipx_stop() {
                   for ticks in `seq 55 -5 0`
                   do
                      sleep 5
-                     test `proc_alive $PID` -eq 0 && echo -n " $ticks" || break
+                     proc_alive "$PID" && echo -n " $ticks" || break
                   done
               fi
           fi
        fi
 
-       if [ `proc_alive $PID` -eq 0 ]
+       if proc_alive "$PID"
        then
            # Holy fluff!  It didn't die!  The end is nigh!
            echo ""

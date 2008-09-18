@@ -29,9 +29,9 @@ sipXvxml.sh : sipXvxml.sh.in
 	@echo "Localize $< -> $@"
 	@$(LocalizeSipXconfig) $< > $@
 
-$(DESTDIR)$(libexecdir)/sipXecs/setup.d/sipXvxml_setup.sh : sipXvxml.sh
+$(DESTDIR)$(libexecdir)/sipXecs/setup.d/sipXvxml_setup.sh : sipXvxml_setup.sh
 	$(INSTALL) -D -m 755 $< $@
 
-sipXvxml.sh : sipXvxml.sh.in
+sipXvxml_setup.sh : sipXvxml_setup.sh.in
 	@echo "Localize $< -> $@"
 	@$(LocalizeSipXconfig) $< > $@

@@ -91,13 +91,6 @@ process_command() {
   echo -n "${proc_cmd}"
 }
 
-# Check if the process is alive
-proc_alive() # pid
-{
-   2>/dev/null kill -0 $1
-   echo $?
-}
-
 # Low-level start function.
 # We wait after the fork and see if the .pid file was created
 start() { # process-name
@@ -153,7 +146,7 @@ stop() {
    else
        PID=`cat ${pidFile} 2> /dev/null`
 
-       if [ `proc_alive $PID` -ne 0 ]
+       if ! proc_alive $PID
        then
           echo "(Started but not running) "
           rm -f ${pidFile}
@@ -227,7 +220,7 @@ configtest() { # process-name  process-wd  process-command
         status=1
     fi
 
-    test "$status" = 0 && echo "    OK"
+    test $status -eq 0 && echo "    OK"
     # This assures that our return is either 0 or 1, regardless of what
     # $status was.
     return $?
@@ -235,7 +228,7 @@ configtest() { # process-name  process-wd  process-command
 
 
 # Shut down sipXecs services
-stop_sipx () {
+stopAllSipX () {
 
     # Iterate through the list of processes, above killing each one
     for process in ${sipx_processes[@]}
@@ -617,7 +610,7 @@ do_check() {
             configtest $process >> ${steperrfile} 2>&1
         else
             echo -n " (Disabled) "
-            status=0
+            :
         fi
         finish_check $?
     done
@@ -638,7 +631,7 @@ do_stop() {
 
    echo "Stopping sipXpbx: "
 
-   stop_sipx
+   stopAllSipX
 
    # The following line is so that the GUI
    # detects a successful shutdown properly
@@ -671,7 +664,7 @@ do_start() {
         if test -e @bindir@/preflight
         then
             is_file_owned_by_username @bindir@/preflight "root"
-            if [ $? != 0 ]
+            if [ $? -ne 0 ]
             then
                 chown root @bindir@/preflight
             fi
@@ -686,7 +679,7 @@ do_start() {
         if test -e @bindir@/sipx-sudo-restore
         then
             is_file_owned_by_username  @bindir@/sipx-sudo-restore "root"
-            if [ $? != 0 ]
+            if [ $? -ne 0 ]
             then
                 chown root @bindir@/sipx-sudo-restore
             fi
@@ -714,9 +707,10 @@ do_start() {
         echo
 }
 
-## display the status of a process
+## display and return the status of a process (disabled returns ok [0])
 status() { # process-name
    proc_name=$1
+   local proc_status=0
 
    echo -n "Checking $proc_name: "
    if ! sipx_service_is_enabled ${proc_name} > /dev/null 2>&1
@@ -725,28 +719,35 @@ status() { # process-name
    elif [ ! -r @SIPX_RUNDIR@/$proc_name.pid ]
    then
       echo "[Not Running] "
+      proc_status=1
    else
        PID=`cat @SIPX_RUNDIR@/$proc_name.pid 2> /dev/null`
-
-       if [ `proc_alive $PID` -eq 0 ]
+       if proc_alive "$PID"
        then
           echo_success; echo ''
        else
           echo_failure; echo ''
+          proc_status=1
        fi
    fi
+   return ${proc_status}
 }
 
 do_status() {
-
+    local sys_status
+    sys_status=0
     # Iterate through the list of processes, display the status of each one
     for process in ${sipx_processes[@]}
     do
         status $process
+        sys_status=$((${sys_status} + $?))
     done
+    return ${sys_status}
 }
 
 export PATH=$PATH:@bindir@
+
+ExitStatus=0
 
 # See how we were called.
 case "$1" in
@@ -756,21 +757,24 @@ case "$1" in
         then
             echo "   Found @SIPX_RUNDIR@/sipxsupervisor.pid..."
             echo "         checking for running sipxsupervisor process..."
-            runningdog=`cat @SIPX_RUNDIR@/sipxsupervisor.pid 2>/dev/null`
-            if [ -n "$runningdog" -a `proc_alive $runningdog` -eq 0 ]
+            running_super=`cat @SIPX_RUNDIR@/sipxsupervisor.pid 2>/dev/null`
+            if [ -n "${running_super}" ] && proc_alive ${running_super}
             then
-                echo -n " The sipXecs sipxsupervisor may already be running (pid $runningdog)."
+                echo -n " The sipXecs sipxsupervisor may already be running (pid ${running_super})."
                 echo -n " Try stop or restart."
                 echo_failure
-                echo
+                echo ""
+                ExitStatus=1
             else
                 # stale pid file found? - do stop just in case
                 echo " sipxsupervisor not found - running restart to clean locks."
                 do_stop
                 do_start
+                ExitStatus=$?
             fi
         else
             do_start
+            ExitStatus=$?
         fi
         ;;
   stop)
@@ -778,17 +782,20 @@ case "$1" in
         ;;
   status)
         do_status
+        ExitStatus=$?
         ;;
   configtest)
         do_check
+        ExitStatus=$?
         ;;
   restart)
         do_stop
         do_start
+        ExitStatus=$?
         ;;
   *)
         echo $"Usage: $0 {start|stop|status|configtest|restart}"
         exit 1
 esac
 
-exit $?
+exit ${ExitStatus}

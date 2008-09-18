@@ -49,7 +49,7 @@ make DESTDIR=$RPM_BUILD_ROOT install
 rm -rf $RPM_BUILD_ROOT
 
 %post
-%{_libexecdir}/sipx-disable-on-distributed sipxivr
+%{_libexecdir}/sipXecs/sipx-disable-on-distributed sipxivr
 
 %files
 %defattr(644,root,root,755)

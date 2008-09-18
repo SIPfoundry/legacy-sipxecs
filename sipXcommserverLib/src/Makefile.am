@@ -5,12 +5,12 @@ SUBDIRS = fastdb sipdb . xsdvalid test sipxrestorebinary
 
 INCLUDES = -I$(top_srcdir)/include
 
-libexec_SCRIPTS = \
+SipXscripts = \
 	sipx-disable-on-distributed \
 	sipx-utils.sh
 
 EXTRA_DIST = \
-	$(foreach sipxScript,$(libexec_SCRIPTS),$(sipxScript).in)
+	$(foreach sipxScript,$(SipXscripts),$(sipxScript).in)
 
 lib_LTLIBRARIES = libsipXcommserver.la
 
@@ -65,7 +65,16 @@ libsipXcommserver_la_SOURCES = \
     sipXecsService/SipNonceDb.cpp \
 	 sipXecsService/SharedSecret.cpp
 
-$(foreach sipxScript,$(libexec_SCRIPTS),$(sipxScript)) : % : $(srcdir)/%.in
+all: $(foreach sipxScript,$(SipXscripts),$(sipxScript))
+
+install-exec-hook: \
+	$(foreach sipxScript,$(SipXscripts),$(DESTDIR)$(libexecdir)/sipXecs/$(sipxScript)) 
+
+$(foreach sipxScript,$(SipXscripts),$(DESTDIR)$(libexecdir)/sipXecs/$(sipxScript)) : \
+		$(DESTDIR)$(libexecdir)/sipXecs/% : %
+	$(INSTALL) -D -m 755 $< $@
+
+$(foreach sipxScript,$(SipXscripts),$(sipxScript)) : % : $(srcdir)/%.in
 	@echo "Localize $< -> $@"
 	@$(LocalizeSipXconfig) $< > $@
 	chmod +x $@

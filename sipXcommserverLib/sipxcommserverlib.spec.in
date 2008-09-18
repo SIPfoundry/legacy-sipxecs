@@ -175,8 +175,8 @@ fi
 %attr(755,root,root) %{_bindir}/ssl-cert/ca_rehash
 %attr(755,root,root) %{_libdir}/libsipXcommserver.la
 %attr(755,root,root) %{_libdir}/libsipXcommserver.so*
-%{_libexecdir}/sipx-utils.sh
-%attr(755,root,root) %{_libexecdir}/sipx-disable-on-distributed
+%attr(755,root,root) %{_libexecdir}/sipXecs/sipx-utils.sh
+%attr(755,root,root) %{_libexecdir}/sipXecs/sipx-disable-on-distributed
 %{_datadir}/sipxecs/schema/xml.xsd
 %{_datadir}/sipxecs/schema/authrules.xsd
 %{_datadir}/sipxecs/schema/registration.xsd

@@ -1,4 +1,5 @@
 #!/bin/bash
+. @SIPX_LIBEXECDIR@/sipx-utils.sh
 
 # Ensure that sipXvxml is owned by root and
 # that the UID permission bit is set.
