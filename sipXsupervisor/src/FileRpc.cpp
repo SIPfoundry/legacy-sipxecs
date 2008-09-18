@@ -235,69 +235,62 @@ bool FileRpcReplaceFile::execute(const HttpRequestContext& requestContext,
 
                   if(validCaller(requestContext, *pCallingHostname, response, *pWatchDog, name()))
                   {
-                     OsSysLog::add(FAC_SUPERVISOR, PRI_INFO,
-                                   "FileRpc::replaceFile"
-                                   " host %s requested process states",
-                                   pCallingHostname->data()
-                                   );
-
-                  }
-
-                  // Check the resource permissions.  To be added when available.
-                  FileResource* fileResource =
-                     FileResourceManager::getInstance()->find(pfileName->data());
-                  if (!fileResource)
-                  {
-                     UtlString faultMsg;
-                     faultMsg.append("File '");
-                     faultMsg.append(*pfileName);
-                     faultMsg.append("' not declared as a resource by any sipXecs process");
-                     OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "FileRpc::replaceFile %s",
-                                   faultMsg.data());
-                     result=false;
-                     response.setFault(FileRpcMethod::InvalidParameter, faultMsg);
-                  }
-                  else if (!fileResource->isWriteable())
-                  {
-                     UtlString faultMsg;
-                     faultMsg.append("File '");
-                     faultMsg.append(*pfileName);
-                     faultMsg.append("' is not writeable (configAccess='read-only')");
-                     OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "FileRpc::replaceFile %s",
-                                   faultMsg.data());
-                     result=false;
-                     response.setFault(FileRpcMethod::InvalidParameter, faultMsg);
-                  }
-                  else if (   ( pfilePermissions->getValue() <= minPermissions )
-                           || ( pfilePermissions->getValue() > maxPermissions ))
-                  {
-                     UtlString faultMsg;
-                     faultMsg.appendNumber(pfilePermissions->getValue(),"File permissions %04o");
-                     faultMsg.appendNumber(minPermissions,"not within valid range (%04o - ");
-                     faultMsg.appendNumber(maxPermissions,"%04o)");
-                     OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "FileRpc::replaceFile %s",
-                                   faultMsg.data());
-                     result = false;
-                     response.setFault(FileRpcMethod::InvalidParameter, faultMsg);
-                  }
-                  else
-                  {
-                     // Write out the file.
-                     UtlString* pfileData = dynamic_cast<UtlString*>(params.at(3));
-                     UtlString faultMsg;
-                     if((result=replicateFile(*pfileName,*pfilePermissions,*pfileData,faultMsg )))
+                     // Check the resource permissions.  To be added when available.
+                     FileResource* fileResource =
+                        FileResourceManager::getInstance()->find(pfileName->data());
+                     if (!fileResource)
                      {
-                        // Construct and set the response.
-                        response.setResponse(&method_result);
-                        status = XmlRpcMethod::OK;
-
-                        // Tell anyone who cares that this changed
-                        fileResource->modified();
+                        UtlString faultMsg;
+                        faultMsg.append("File '");
+                        faultMsg.append(*pfileName);
+                        faultMsg.append("' not declared as a resource by any sipXecs process");
+                        OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "FileRpc::replaceFile %s",
+                                      faultMsg.data());
+                        result=false;
+                        response.setFault(FileRpcMethod::InvalidParameter, faultMsg);
+                     }
+                     else if (!fileResource->isWriteable())
+                     {
+                        UtlString faultMsg;
+                        faultMsg.append("File '");
+                        faultMsg.append(*pfileName);
+                        faultMsg.append("' is not writeable (configAccess='read-only')");
+                        OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "FileRpc::replaceFile %s",
+                                      faultMsg.data());
+                        result=false;
+                        response.setFault(FileRpcMethod::InvalidParameter, faultMsg);
+                     }
+                     else if (   ( pfilePermissions->getValue() <= minPermissions )
+                              || ( pfilePermissions->getValue() > maxPermissions ))
+                     {
+                        UtlString faultMsg;
+                        faultMsg.appendNumber(pfilePermissions->getValue(),"File permissions %04o");
+                        faultMsg.appendNumber(minPermissions,"not within valid range (%04o - ");
+                        faultMsg.appendNumber(maxPermissions,"%04o)");
+                        OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "FileRpc::replaceFile %s",
+                                      faultMsg.data());
+                        result = false;
+                        response.setFault(FileRpcMethod::InvalidParameter, faultMsg);
                      }
                      else
                      {
-                        // Replication failed.
-                        response.setFault(FileRpcMethod::InvalidParameter, faultMsg);
+                        // Write out the file.
+                        UtlString* pfileData = dynamic_cast<UtlString*>(params.at(3));
+                        UtlString faultMsg;
+                        if((result=replicateFile(*pfileName,*pfilePermissions,*pfileData,faultMsg )))
+                        {
+                           // Construct and set the response.
+                           response.setResponse(&method_result);
+                           status = XmlRpcMethod::OK;
+
+                           // Tell anyone who cares that this changed
+                           fileResource->modified();
+                        }
+                        else
+                        {
+                           // Replication failed.
+                           response.setFault(FileRpcMethod::InvalidParameter, faultMsg);
+                        }
                      }
                   }
                }
