@@ -16,7 +16,9 @@ import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.admin.commserver.ConflictingFeatureCodeValidator;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessModel.ProcessName;
+import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.setting.Setting;
+import org.sipfoundry.sipxconfig.setting.SettingEntry;
 
 public class SipxRegistrarService extends SipxService {
     public static final String BEAN_ID = "sipxRegistrarService";
@@ -25,7 +27,7 @@ public class SipxRegistrarService extends SipxService {
     private static final String SIP_REGISTRAR_DOMAIN_ALIASES = "domain/SIP_REGISTRAR_DOMAIN_ALIASES";
 
     private static final ProcessName PROCESS_NAME = ProcessName.REGISTRAR;
-
+    
     private String m_registrarSipPort;
     private String m_registrarEventSipPort;
     private String m_mediaServerSipSrvOrHostport;
@@ -33,6 +35,7 @@ public class SipxRegistrarService extends SipxService {
     private String m_voicemailHttpsPort;
     private String m_proxyServerSipHostport;
     private SipxServiceManager m_sipxServiceManager;
+    private DomainManager m_domainManager;
 
     public String getRegistrarSipPort() {
         return m_registrarSipPort;
@@ -86,43 +89,51 @@ public class SipxRegistrarService extends SipxService {
         m_sipxServiceManager = sipxServiceManager;
     }
 
-    @Override
-    public void setFullHostname(String fullHostname) {
-        super.setFullHostname(fullHostname);
-        if (settingsLoaded()) {
-            setRegistrarDomainAliases(null);
-        }
+    public DomainManager getDomainManager() {
+        return m_domainManager;
+    }
+
+    public void setDomainManager(DomainManager manager) {
+        m_domainManager = manager;
     }
 
     @Override
-    public void setIpAddress(String ipAddress) {
-        super.setIpAddress(ipAddress);
-        if (settingsLoaded()) {
-            setRegistrarDomainAliases(null);
-        }
+    public void initialize() {
+        addDefaultBeanSettingHandler(new Defaults(this));
     }
+    
+    public static class Defaults {
+        private SipxRegistrarService m_sipxRegistrarService;
 
-    public void setRegistrarDomainAliases(Collection<String> aliases) {
-        Setting domainAliasSetting = getSettings().getSetting(SIP_REGISTRAR_DOMAIN_ALIASES);
-        Setting userConfiguredAliasSetting = getSettings().getSetting(USER_CONFIGURED_DOMAIN_ALIASES);
-
-        if (aliases != null) {
-            userConfiguredAliasSetting.setValue(StringUtils.join(aliases, ' '));
+        Defaults(SipxRegistrarService sipxRegistrarService) {
+            m_sipxRegistrarService = sipxRegistrarService;
+        }
+        
+        @SettingEntry(path = SIP_REGISTRAR_DOMAIN_ALIASES)
+        public String getSipRegistrarDomainAliases() {
+            Collection<String> aliases = m_sipxRegistrarService.getDomainManager().getDomain().getAliases();
+            List<String> allAliases = new ArrayList<String>();
+            if (m_sipxRegistrarService.getFullHostname() != null) {
+                allAliases.add(m_sipxRegistrarService.getFullHostname());
+            }
+            if (m_sipxRegistrarService.getIpAddress() != null) {
+                allAliases.add(m_sipxRegistrarService.getIpAddress());
+            }
+            if (aliases != null) {
+                allAliases.addAll(aliases);
+            }
+            return StringUtils.join(allAliases, ' ');
         }
 
-        List<String> allAliases = new ArrayList<String>();
-        if (getFullHostname() != null) {
-            allAliases.add(getFullHostname());
+        @SettingEntry(path = USER_CONFIGURED_DOMAIN_ALIASES)
+        public String getUserConfiguredDomainAliases() {
+            Collection<String> aliases = m_sipxRegistrarService.getDomainManager().getDomain().getAliases();
+            if (aliases != null) {
+                return StringUtils.join(aliases, ' ');
+            } else {
+                return null;
+            }
         }
-        if (getIpAddress() != null) {
-            allAliases.add(getIpAddress());
-        }
-
-        if (userConfiguredAliasSetting.getValue() != null) {
-            allAliases.addAll(Arrays.asList(StringUtils.split(userConfiguredAliasSetting.getValue())));
-        }
-        String aliasesString = StringUtils.join(allAliases.iterator(), ' ');
-        domainAliasSetting.setValue(aliasesString);
     }
 
     /**
@@ -130,17 +141,11 @@ public class SipxRegistrarService extends SipxService {
      */
     @Override
     public void validate() {
-        SipxService presenceService = m_sipxServiceManager.getServiceByBeanId(SipxPresenceService.BEAN_ID);
+        SipxService presenceService = m_sipxServiceManager
+                .getServiceByBeanId(SipxPresenceService.BEAN_ID);
         new ConflictingFeatureCodeValidator().validate(Arrays.asList(new Setting[] {
             getSettings(), presenceService.getSettings()
         }));
-    }
-
-    private boolean settingsLoaded() {
-        if (getModelFilesContext() == null || getModelDir() == null || getModelName() == null) {
-            return false;
-        }
-        return getSettings() != null;
     }
 
     @Override

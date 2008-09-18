@@ -13,10 +13,13 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
-import java.util.Arrays;
 
 import org.apache.commons.io.IOUtils;
+import org.easymock.EasyMock;
+import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.TestHelper;
+import org.sipfoundry.sipxconfig.domain.Domain;
+import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
 public class SipxRegistrarConfigurationTest extends SipxServiceTestBase {
@@ -26,10 +29,21 @@ public class SipxRegistrarConfigurationTest extends SipxServiceTestBase {
         out.setVelocityEngine(TestHelper.getVelocityEngine());
         out.setTemplate("sipxregistrar/registrar-config.vm");
 
+        
         SipxRegistrarService registrarService = new SipxRegistrarService();
-        Setting settings = TestHelper.loadSettings("sipxregistrar/sipxregistrar.xml");
-        registrarService.setSettings(settings);
+        registrarService.setModelDir("sipxregistrar");
+        registrarService.setModelName("sipxregistrar.xml");
+        registrarService.setModelFilesContext(TestHelper.getModelFilesContext());
         initCommonAttributes(registrarService);
+        
+        Domain domain = new Domain();
+        domain.addAlias("another.example.org");
+        IMocksControl domainManagerControl = EasyMock.createControl();
+        DomainManager domainManager = domainManagerControl.createMock(DomainManager.class);
+        domainManager.getDomain();
+        EasyMock.expectLastCall().andReturn(domain).anyTimes();
+        EasyMock.replay(domainManager);
+        registrarService.setDomainManager(domainManager);
         
         setSettingValuesForGroup(registrarService, "logging", new String[] {
             "SIP_REGISTRAR_LOG_LEVEL"
@@ -61,7 +75,6 @@ public class SipxRegistrarConfigurationTest extends SipxServiceTestBase {
         registrarService.setVoicemailHttpsPort("443");
         registrarService.setRegistrarSipPort("5070");
         registrarService.setRegistrarEventSipPort("5075");
-        registrarService.setRegistrarDomainAliases(Arrays.asList(new String[] {"another.example.org"}));
 
         out.generate(registrarService);
 

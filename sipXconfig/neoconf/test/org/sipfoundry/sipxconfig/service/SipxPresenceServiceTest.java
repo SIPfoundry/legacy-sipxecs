@@ -18,6 +18,8 @@ import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.forwarding.AliasMapping;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.domain.Domain;
+import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
 import junit.framework.TestCase;
@@ -41,10 +43,17 @@ public class SipxPresenceServiceTest extends TestCase {
     }
 
     public void testValidateDuplicateCodes() {
-        SipxService registrarService = new SipxRegistrarService();
+        SipxRegistrarService registrarService = new SipxRegistrarService();
         registrarService.setModelDir("sipxregistrar");
         registrarService.setModelName("sipxregistrar.xml");
         registrarService.setModelFilesContext(TestHelper.getModelFilesContext());
+        IMocksControl domainManagerControl = EasyMock.createControl();
+        DomainManager domainManager = domainManagerControl.createMock(DomainManager.class);
+        domainManager.getDomain();
+        EasyMock.expectLastCall().andReturn(new Domain()).anyTimes();
+        EasyMock.replay(domainManager);
+        registrarService.setDomainManager(domainManager);
+        
 
         SipxServiceManager serviceManager = EasyMock.createMock(SipxServiceManager.class);
         serviceManager.getServiceByBeanId(SipxRegistrarService.BEAN_ID);

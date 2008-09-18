@@ -25,6 +25,9 @@ public class SipxRegistrarConfiguration extends SipxServiceConfiguration {
         VelocityContext context = super.setupContext();
         context.put("settings", m_service.getSettings());
         context.put("registrarService", m_service);
+        
+        String domainAliases = m_service.getSettings().getSetting("domain/SIP_REGISTRAR_DOMAIN_ALIASES").getValue();
+        
         return context;
     }
 }

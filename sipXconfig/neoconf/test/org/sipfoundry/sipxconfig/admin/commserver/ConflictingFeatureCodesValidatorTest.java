@@ -13,7 +13,11 @@ import java.util.Arrays;
 
 import junit.framework.TestCase;
 
+import org.easymock.EasyMock;
+import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.TestHelper;
+import org.sipfoundry.sipxconfig.domain.Domain;
+import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.service.SipxPresenceService;
 import org.sipfoundry.sipxconfig.service.SipxRegistrarService;
 import org.sipfoundry.sipxconfig.setting.Setting;
@@ -31,6 +35,12 @@ public class ConflictingFeatureCodesValidatorTest extends TestCase {
         m_registrarService.setModelDir("sipxregistrar");
         m_registrarService.setModelName("sipxregistrar.xml");
         m_registrarService.setModelFilesContext(TestHelper.getModelFilesContext());
+        IMocksControl domainManagerControl = EasyMock.createControl();
+        DomainManager domainManager = domainManagerControl.createMock(DomainManager.class);
+        domainManager.getDomain();
+        EasyMock.expectLastCall().andReturn(new Domain()).anyTimes();
+        EasyMock.replay(domainManager);
+        m_registrarService.setDomainManager(domainManager);
         
         m_presenceService = new SipxPresenceService();
         m_presenceService.setModelDir("sipxpresence");

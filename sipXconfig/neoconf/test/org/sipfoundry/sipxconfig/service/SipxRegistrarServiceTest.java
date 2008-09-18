@@ -9,13 +9,14 @@
  */
 package org.sipfoundry.sipxconfig.service;
 
-import java.util.Arrays;
-
 import junit.framework.TestCase;
 
 import org.easymock.EasyMock;
+import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.domain.Domain;
+import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
 public class SipxRegistrarServiceTest extends TestCase {
@@ -28,6 +29,14 @@ public class SipxRegistrarServiceTest extends TestCase {
         m_out.setModelDir("sipxregistrar");
         m_out.setModelName("sipxregistrar.xml");
         m_out.setModelFilesContext(TestHelper.getModelFilesContext());
+        
+        IMocksControl domainManagerControl = EasyMock.createControl();
+        DomainManager domainManager = domainManagerControl.createMock(DomainManager.class);
+        domainManager.getDomain();
+        EasyMock.expectLastCall().andReturn(new Domain()).anyTimes();
+        EasyMock.replay(domainManager);
+        
+        m_out.setDomainManager(domainManager);
     }
     
     public void testSetFullHostname() {
@@ -47,35 +56,6 @@ public class SipxRegistrarServiceTest extends TestCase {
         m_out.setIpAddress("2.2.2.2");
         String domainAliasesSettingValue = m_out.getSettings().getSetting(SIP_REGISTRAR_DOMAIN_ALIASES).getValue();
         assertEquals("sipx.example.org 2.2.2.2", domainAliasesSettingValue);
-        
-        m_out.setRegistrarDomainAliases(Arrays.asList(new String[] {"my.example.org", "another.example.org"}));
-        domainAliasesSettingValue = m_out.getSettings().getSetting(SIP_REGISTRAR_DOMAIN_ALIASES).getValue();
-        assertEquals("sipx.example.org 2.2.2.2 my.example.org another.example.org", domainAliasesSettingValue);
-    }
-    
-    public void testSetFullHostnameAndIpAddressBeforeSettingsLoaded() {
-        SipxRegistrarService registrarService = new SipxRegistrarService();
-        registrarService.setFullHostname("sipx.example.org");
-        registrarService.setIpAddress("3.3.3.3");
-        registrarService.setModelDir("sipxregistrar");
-        registrarService.setModelName("sipxregistrar.xml");
-        registrarService.setModelFilesContext(TestHelper.getModelFilesContext());
-        
-        registrarService.setRegistrarDomainAliases(Arrays.asList(new String[] {"my.example.org", "another.example.org"}));
-        String domainAliasesSettingValue = registrarService.getSettings().getSetting(SIP_REGISTRAR_DOMAIN_ALIASES).getValue();
-        assertEquals("sipx.example.org 3.3.3.3 my.example.org another.example.org", domainAliasesSettingValue);
-    }
-    
-    public void testSetRegistrarDomainAliases() {
-        m_out.setFullHostname("sipx.example.org");
-        m_out.setIpAddress("1.1.1.1");
-        m_out.setRegistrarDomainAliases(Arrays.asList(new String[] {"my.example.org", "another.example.org"}));
-        String domainAliasesSettingValue = m_out.getSettings().getSetting(SIP_REGISTRAR_DOMAIN_ALIASES).getValue();
-        assertEquals("sipx.example.org 1.1.1.1 my.example.org another.example.org", domainAliasesSettingValue);
-        
-        m_out.setRegistrarDomainAliases(Arrays.asList(new String[] {"yours.example.org"}));
-        domainAliasesSettingValue = m_out.getSettings().getSetting(SIP_REGISTRAR_DOMAIN_ALIASES).getValue();
-        assertEquals("sipx.example.org 1.1.1.1 yours.example.org", domainAliasesSettingValue);
     }
     
     public void testValidateDuplicateCodes() {

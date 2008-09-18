@@ -2,8 +2,7 @@ SIP_REGISTRAR_BIND_IP : $!{registrarService.ipAddress}
 SIP_REGISTRAR_AUTHENTICATE_ALGORITHM : 
 SIP_REGISTRAR_AUTHENTICATE_REALM : $!{registrarService.realm}
 SIP_REGISTRAR_DOMAIN_NAME : $!{registrarService.domainName}
-#set ($domainAliases = $settings.getSetting('domain'))
-SIP_REGISTRAR_DOMAIN_ALIASES : $!domainAliases.getSetting('SIP_REGISTRAR_DOMAIN_ALIASES').Value
+SIP_REGISTRAR_DOMAIN_ALIASES : $settings.getSetting('domain').getSetting('SIP_REGISTRAR_DOMAIN_ALIASES').Value
 SIP_REGISTRAR_PROXY_PORT : $!{registrarService.sipPort}
 SIP_REGISTRAR_LOG_CONSOLE : 
 SIP_REGISTRAR_LOG_DIR : 

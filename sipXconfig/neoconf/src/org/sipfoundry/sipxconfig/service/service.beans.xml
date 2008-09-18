@@ -92,6 +92,7 @@
     <property name="modelDir" value="sipxregistrar" />
     <property name="configuration" ref="sipxRegistrarConfiguration" />
     <property name="sipxServiceManager" ref="sipxServiceManager" />
+    <property name="domainManager" ref="domainManager" />
   </bean>
 
   <bean id="sipxRegistrarConfiguration" class="org.sipfoundry.sipxconfig.service.SipxRegistrarConfiguration"
@@ -99,16 +100,6 @@
     <property name="velocityEngine" ref="velocityEngine" />
     <property name="template" value="sipxregistrar/registrar-config.vm" />
     <property name="name" value="registrar-config" />
-  </bean>
-
-  <bean id="sipxRegistrarInitializer" class="org.sipfoundry.sipxconfig.service.SipxRegistrarServiceInitializer">
-    <property name="domainManager" ref="domainManager" />
-    <property name="sipxServiceManager" ref="sipxServiceManager" />
-    <property name="taskNames">
-      <list>
-        <value>initialize_sipx_registrar_service</value>
-      </list>
-    </property>
   </bean>
 
   <bean id="sipxParkService" class="org.sipfoundry.sipxconfig.service.SipxParkService" parent="sipxService"
