@@ -1,25 +1,38 @@
-# Mostly for centos 5 support
+PACKAGE = w3c-libwww
+VERSION = 5.4.1
+RELEASE = 0
 
-ARCH = $(shell uname -p)
+SRC_DIR = $(srcdir)/src
+SRC_TARBALL= $(PACKAGE)-$(VERSION)-$(RELEASE).tar.gz
+SRC_SPEC_FILE=$(PACKAGE).spec
 
-LIBWWW_TARGET_ARCH = i386
+RPMS = w3c-libwww-$(VERSION)-$(RELEASE).@RPM_TARGET_ARCH@.rpm \
+	   w3c-libwww-devel-$(VERSION)-$(RELEASE).@RPM_TARGET_ARCH@.rpm \
+	   w3c-libwww-apps-$(VERSION)-$(RELEASE).@RPM_TARGET_ARCH@.rpm
 
-W3C_RPM_URL = $(FC6_EXTRAS_URL)/6/$(LIBWWW_TARGET_ARCH)
+all : PRINT_HEADER $(RPMS) PRINT_FOOTER
 
-W3C_LIBSRC=$(LIBSRC)/w3c-libwww
-VER = 5.4.1
-REL = 0.4.20060206cvs
+$(RPMS) : build-rpms
+	cp -f @RPMBUILD_TOPDIR@/RPMS/@RPM_TARGET_ARCH@/$@ $(DEST_RPM)/
 
-RPMS = \
-	w3c-libwww-$(VER)-$(REL).fc6.$(LIBWWW_TARGET_ARCH).rpm \
-	w3c-libwww-devel-$(VER)-$(REL).fc6.$(LIBWWW_TARGET_ARCH).rpm
+build-rpms : 
+	cp $(SRC_DIR)/$(SRC_TARBALL) @RPMBUILD_TOPDIR@/SOURCES/
+	cp $(SRC_DIR)/$(SRC_SPEC_FILE) @RPMBUILD_TOPDIR@/SPECS/
+	rpmbuild -ba @RPMBUILD_TOPDIR@/SPECS/$(SRC_SPEC_FILE)
+.PHONY: build-rpms
 
-all : $(foreach RPM,$(RPMS),$(DEST_RPM)/$(RPM))
+PRINT_HEADER :
+	@printf "\n================================================================================\n"
+	@printf "Building Package:\n"
+	@printf "\tNAME = %s\n" "$(PACKAGE)"
+	@printf "\tVERSION = %s\n" "$(VERSION)"
+	@printf "\tRELEASE = %s\n" "$(RELEASE)"
+	@printf "\tARCH = %s\n" "@RPM_TARGET_ARCH@"
+	@printf "\tStarted building of %s at %s\n" "$(PACKAGE)" "$(shell date)"
+	@printf "================================================================================\n"
 
-# simply download, no need to patch/recompile
-$(W3C_LIBSRC)/% :
-	$(DOWNLOAD_FILE) $@ $(W3C_RPM_URL)/$*
-
-# simply download, no need to patch/recompile
-$(DEST_RPM)/% : $(W3C_LIBSRC)/%
-	cp $< $@
+PRINT_FOOTER :
+	@printf "\n================================================================================\n"
+	@printf "Finished Building Package %s at %s\n" "$(PACKAGE)" "$(shell date)"
+	@printf "\tBinary RPMS can be found under %s\n" "$(DEST_DIR)"
+	@printf "================================================================================\n"
