@@ -23,6 +23,9 @@
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
+#define SIPX_PUBLIC_CONTACT_URL_PARAM  ("sipX-pubcontact")
+#define SIPX_NO_NAT_URL_PARAM          ("sipX-nonat")
+
 // STRUCTS
 // TYPEDEFS
 // FORWARD DECLARATIONS
@@ -31,6 +34,7 @@ class OsConfigDb;
 class SipMessage;
 class RouteState;
 class ForwardRules;
+class SipOutputProcessor;
 
 /// SipRouter implements the main message handling responsible for the forking
 /// authorization and forwarding of SIP messages.
@@ -102,7 +106,17 @@ class SipRouter : public OsServerTask
    /// @returns true iff the domain of url is a valid form of the domain name for this proxy.
    bool isLocalDomain(const Url& url ///< a url to be tested
                       ) const;
+
+   /// Adds a new host alias to the list of aliases for proxy.  This method
+   /// is meant to be used by plugins that require special aliases.
+   void addHostAlias( const UtlString& hostAliasToAdd );
    
+   void addSipOutputProcessor( SipOutputProcessor *pProcessor );
+
+   UtlBoolean removeSipOutputProcessor( SipOutputProcessor *pProcessor );
+   
+   void sendUdpKeepAlive( SipMessage& keepAliveMsg, const char* serverAddress, int port );
+
    /// Get the canonical form of our SIP domain name.
    void getDomain(UtlString& canonicalDomain) const;
    
@@ -137,6 +151,8 @@ class SipRouter : public OsServerTask
     *  @returns true iff sipRequest was modified.
     */
    bool addPathHeaderIfNATRegisterRequest( SipMessage& sipRequest ) const;
+
+   bool addNatMappingInfoToContacts( SipMessage& sipRequest ) const;
    
    /// Verifies if the proxy supports all the extensions listed in the Proxy-Require
    /// header of an incoming request.

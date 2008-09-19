@@ -31,12 +31,19 @@ extern "C" AuthPlugin* getAuthPlugin(const UtlString& pluginName)
 
 /// constructor
 TransferControl::TransferControl(const UtlString& pluginName ///< the name for this instance
-                                   )
-   : AuthPlugin(pluginName)
+   )
+   : AuthPlugin(pluginName),
+     mpSipRouter(NULL)
 {
    OsSysLog::add(FAC_SIP,PRI_INFO,"TransferControl plugin instantiated '%s'",
                  mInstanceName.data());
 };
+
+void 
+TransferControl::announceAssociatedSipRouter( SipRouter* sipRouter )
+{
+   mpSipRouter = sipRouter;
+}
 
 /// Read (or re-read) the authorization rules.
 void
@@ -59,20 +66,20 @@ TransferControl::readConfig( OsConfigDb& configDb /**< a subhash of the individu
 }
 
 AuthPlugin::AuthResult
-TransferControl::authorizeAndModify(const SipRouter* sipRouter,  ///< for access to proxy information
-                                    const UtlString& id, /**< The authenticated identity of the
-                                                          *   request originator, if any (the null
-                                                          *   string if not).
-                                                          *   This is in the form of a SIP uri
-                                                          *   identity value as used in the
-                                                          *   credentials database (user@domain)
-                                                          *   without the scheme or any parameters.
-                                                          */
+TransferControl::authorizeAndModify(const UtlString& id,    /**< The authenticated identity of the
+                                                             *   request originator, if any (the null
+                                                             *   string if not).
+                                                             *   This is in the form of a SIP uri
+                                                             *   identity value as used in the
+                                                             *   credentials database (user@domain)
+                                                             *   without the scheme or any parameters.
+                                                             */
                                     const Url&  requestUri, ///< parsed target Uri
                                     RouteState& routeState, ///< the state for this request.  
                                     const UtlString& method,///< the request method
                                     AuthResult  priorResult,///< results from earlier plugins.
                                     SipMessage& request,    ///< see AuthPlugin wrt modifying
+                                    bool bSpiralingRequest, ///< request spiraling indication 
                                     UtlString&  reason      ///< rejection reason
                                     )
 {
@@ -120,7 +127,7 @@ TransferControl::authorizeAndModify(const SipRouter* sipRouter,  ///< for access
                else if (id.isNull())
                {
                   // UnAuthenticated REFER without Replaces
-                  if (sipRouter->isLocalDomain(target))
+                  if (mpSipRouter->isLocalDomain(target))
                   {
                      OsSysLog::add(FAC_AUTH, PRI_INFO, "TransferControl[%s]::authorizeAndModify "
                                    "challenging transfer in call '%s'",

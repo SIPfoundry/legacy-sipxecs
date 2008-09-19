@@ -75,22 +75,23 @@ class AuthPlugin : public Plugin
       
    /// Called by SipRouter::proxyMessage for each request to authorize and/or modify before sending.
    virtual
-      AuthResult authorizeAndModify(const SipRouter* sipRouter,  ///< for access to proxy information
-                                    const UtlString& id,   /**< The authenticated identity of the
-                                                            *   request originator, if any
-                                                            *   (the null string if not).
-                                                            *   This is in the form of a SIP uri
-                                                            *   identity value as used in the
-                                                            *   credentials database (user@domain)
-                                                            *   without the scheme or any
-                                                            *   parameters.
-                                                            */
-                                    const Url&  requestUri, ///< parsed target Uri
-                                    RouteState& routeState, ///< the state for this request.  
-                                    const UtlString& method,///< the request method
-                                    AuthResult  priorResult,///< results from earlier plugins.
-                                    SipMessage& request,    ///< see below regarding modifying this
-                                    UtlString&  reason      ///< rejection reason
+      AuthResult authorizeAndModify(const UtlString& id,     /**< The authenticated identity of the
+                                                              *   request originator, if any
+                                                              *   (the null string if not).
+                                                              *   This is in the form of a SIP uri
+                                                              *   identity value as used in the
+                                                              *   credentials database (user@domain)
+                                                              *   without the scheme or any
+                                                              *   parameters.
+                                                              */
+                                    const Url&  requestUri,  ///< parsed target Uri
+                                    RouteState& routeState,  ///< the state for this request.  
+                                    const UtlString& method, ///< the request method
+                                    AuthResult  priorResult, ///< results from earlier plugins.
+                                    SipMessage& request,     ///< see below regarding modifying this
+                                    bool bSpiralingRequest,  ///< true if request is still spiraling through proxy
+                                                             ///< false if request is ready to be sent to target
+                                    UtlString&  reason       ///< rejection reason
                                     ) = 0;
    /**<
     * This method may do any combination of:
@@ -151,12 +152,27 @@ class AuthPlugin : public Plugin
     *      is sent).
     *   - '407 Proxy Authentication Required' if no valid user
     *     authentication was found.
+    * 
+    * NOTE about the bSpiralingRequest parameter:
+    *   This parameter is set to true by the caller if the request is
+    *   to be sent next to this proxy (spiraled), and false otherwise.
+    *   Plug-ins that are only concerned with requests that will be
+    *   sent to a target other than this proxy and are not concerned
+    *   with intermediate requests that are still spiraling through
+    *   sipXproxy can use this flag to only process those requests
+    *   that have finished spiraling. 
     */
 
    /// Read (or re-read) whatever configuration the plugin requires.
    virtual void readConfig( OsConfigDb& configDb /**< a subhash of the individual configuration
                                                   * parameters for this instance of this plugin. */
                            ) = 0;
+   
+   /// Used to announce the SIP Router instance that is logically associated with this Auth Plugin.
+   /// Plugins that need to interact with their associated SIP Router can override this method
+   /// and save the passed pointer for later use. 
+   virtual void announceAssociatedSipRouter( SipRouter* sipRouter ){};
+
    /**<
     * @note
     * The parent service may call the readConfig method at any time to

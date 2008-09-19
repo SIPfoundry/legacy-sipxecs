@@ -85,6 +85,7 @@ public:
          configDb.set("SIPX_PROXY_HOSTPORT", "sipx.example.edu");
 
          testSipRouter = new SipRouter(testUserAgent, mForwardingRules, configDb);
+         xferctl->announceAssociatedSipRouter( testSipRouter );
       }
 
    // Test that an in-dialog request without a replaces header is not affected
@@ -114,16 +115,17 @@ public:
          UtlString rejectReason(unmodifiedRejectReason);
          
          UtlString method("INFO");
+         bool bSpiralingRequest = false;
          AuthPlugin::AuthResult priorResult = AuthPlugin::CONTINUE;
          
          CPPUNIT_ASSERT(AuthPlugin::CONTINUE
-                        == xferctl->authorizeAndModify(testSipRouter,
-                                                       identity,
+                        == xferctl->authorizeAndModify(identity,
                                                        requestUri,
                                                        routeState,
                                                        method,
                                                        priorResult,
                                                        testMsg,
+                                                       bSpiralingRequest,
                                                        rejectReason
                                                        ));
          ASSERT_STR_EQUAL(unmodifiedRejectReason, rejectReason.data());
@@ -163,16 +165,17 @@ public:
          UtlString rejectReason(unmodifiedRejectReason);
          
          UtlString method("REFER");
+         bool bSpiralingRequest = false;
          AuthPlugin::AuthResult priorResult = AuthPlugin::CONTINUE;
          
          CPPUNIT_ASSERT(AuthPlugin::CONTINUE
-                        == xferctl->authorizeAndModify(testSipRouter,
-                                                       identity,
+                        == xferctl->authorizeAndModify(identity,
                                                        requestUri,
                                                        routeState,
                                                        method,
                                                        priorResult,
                                                        testMsg,
+                                                       bSpiralingRequest,
                                                        rejectReason
                                                        ));
          ASSERT_STR_EQUAL(unmodifiedRejectReason, rejectReason.data());
@@ -217,16 +220,17 @@ public:
          UtlString rejectReason(unmodifiedRejectReason);
          
          UtlString method("INVITE");
+         bool bSpiralingRequest = false;
          AuthPlugin::AuthResult priorResult = AuthPlugin::CONTINUE;
          
          CPPUNIT_ASSERT(AuthPlugin::CONTINUE
-                        == xferctl->authorizeAndModify(testSipRouter,
-                                                       identity,
+                        == xferctl->authorizeAndModify(identity,
                                                        requestUri,
                                                        routeState,
                                                        method,
                                                        priorResult,
                                                        testMsg,
+                                                       bSpiralingRequest,
                                                        rejectReason
                                                        ));
          ASSERT_STR_EQUAL(unmodifiedRejectReason, rejectReason.data());
@@ -266,16 +270,17 @@ public:
          UtlString rejectReason(unmodifiedRejectReason);
          
          UtlString method("INVITE");
+         bool bSpiralingRequest = false;
          AuthPlugin::AuthResult priorResult = AuthPlugin::CONTINUE;
          
          CPPUNIT_ASSERT(AuthPlugin::ALLOW
-                        == xferctl->authorizeAndModify(testSipRouter,
-                                                       identity,
+                        == xferctl->authorizeAndModify(identity,
                                                        requestUri,
                                                        routeState,
                                                        method,
                                                        priorResult,
                                                        testMsg,
+                                                       bSpiralingRequest,
                                                        rejectReason
                                                        ));
          ASSERT_STR_EQUAL(unmodifiedRejectReason, rejectReason.data());
@@ -315,16 +320,17 @@ public:
          UtlString rejectReason(unmodifiedRejectReason);
          
          UtlString method("REFER");
+         bool bSpiralingRequest = false;
          AuthPlugin::AuthResult priorResult = AuthPlugin::CONTINUE;
          
          CPPUNIT_ASSERT(AuthPlugin::ALLOW
-                        == xferctl->authorizeAndModify(testSipRouter,
-                                                       identity,
+                        == xferctl->authorizeAndModify(identity,
                                                        requestUri,
                                                        routeState,
                                                        method,
                                                        priorResult,
                                                        testMsg,
+                                                       bSpiralingRequest,
                                                        rejectReason
                                                        ));
          ASSERT_STR_EQUAL(unmodifiedRejectReason, rejectReason.data());
@@ -378,16 +384,17 @@ public:
          UtlString rejectReason(unmodifiedRejectReason);
          
          UtlString method("REFER");
+         bool bSpiralingRequest = false;
          AuthPlugin::AuthResult priorResult = AuthPlugin::CONTINUE;
          
          CPPUNIT_ASSERT(AuthPlugin::DENY
-                        == xferctl->authorizeAndModify(testSipRouter,
-                                                       identity,
+                        == xferctl->authorizeAndModify(identity,
                                                        requestUri,
                                                        routeState,
                                                        method,
                                                        priorResult,
                                                        testMsg,
+                                                       bSpiralingRequest,
                                                        rejectReason
                                                        ));
          ASSERT_STR_EQUAL(unmodifiedRejectReason, rejectReason.data());
@@ -422,16 +429,17 @@ public:
          UtlString rejectReason(unmodifiedRejectReason);
          
          UtlString method("REFER");
+         bool bSpiralingRequest = false;
          AuthPlugin::AuthResult priorResult = AuthPlugin::CONTINUE;
          
          CPPUNIT_ASSERT(AuthPlugin::CONTINUE
-                        == xferctl->authorizeAndModify(testSipRouter,
-                                                       identity,
+                        == xferctl->authorizeAndModify(identity,
                                                        requestUri,
                                                        routeState,
                                                        method,
                                                        priorResult,
                                                        testMsg,
+                                                       bSpiralingRequest,
                                                        rejectReason
                                                        ));
          ASSERT_STR_EQUAL(unmodifiedRejectReason, rejectReason.data());
@@ -481,16 +489,17 @@ public:
          UtlString rejectReason(unmodifiedRejectReason);
          
          UtlString method("REFER");
+         bool bSpiralingRequest = false;
          AuthPlugin::AuthResult priorResult = AuthPlugin::CONTINUE;
          
          CPPUNIT_ASSERT(AuthPlugin::ALLOW
-                        == xferctl->authorizeAndModify(testSipRouter,
-                                                       identity,
+                        == xferctl->authorizeAndModify(identity,
                                                        requestUri,
                                                        routeState,
                                                        method,
                                                        priorResult,
                                                        testMsg,
+                                                       bSpiralingRequest,
                                                        rejectReason
                                                        ));
          ASSERT_STR_EQUAL(unmodifiedRejectReason, rejectReason.data());

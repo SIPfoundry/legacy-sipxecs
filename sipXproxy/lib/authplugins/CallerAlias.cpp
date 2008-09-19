@@ -61,7 +61,8 @@ extern "C" AuthPlugin* getAuthPlugin(const UtlString& pluginName)
 /// constructor
 CallerAlias::CallerAlias(const UtlString& pluginName ///< the name for this instance
                          )
-   : AuthPlugin(pluginName)
+   : AuthPlugin(pluginName),
+     mpSipRouter( 0 )
 {
 };
 
@@ -86,20 +87,20 @@ CallerAlias::readConfig( OsConfigDb& configDb /**< a subhash of the individual c
 }
 
 AuthPlugin::AuthResult
-CallerAlias::authorizeAndModify(const SipRouter* sipRouter,  ///< for access to proxy information
-                                const UtlString& id, /**< The authenticated identity of the
-                                                      *   request originator, if any (the null
-                                                      *   string if not).
-                                                      *   This is in the form of a SIP uri
-                                                      *   identity value as used in the
-                                                      *   credentials database (user@domain)
-                                                      *   without the scheme or any parameters.
-                                                      */
+CallerAlias::authorizeAndModify(const UtlString& id,    /**< The authenticated identity of the
+                                                         *   request originator, if any (the null
+                                                         *   string if not).
+                                                         *   This is in the form of a SIP uri
+                                                         *   identity value as used in the
+                                                         *   credentials database (user@domain)
+                                                         *   without the scheme or any parameters.
+                                                         */
                                 const Url&  requestUri, ///< parsed target Uri
                                 RouteState& routeState, ///< the state for this request.  
                                 const UtlString& method,///< the request method
                                 AuthResult  priorResult,///< results from earlier plugins.
                                 SipMessage& request,    ///< see AuthPlugin regarding modifying
+                                bool bSpiralingRequest, ///< spiraling indication 
                                 UtlString&  reason      ///< rejection reason
                                 )
 {
@@ -170,7 +171,7 @@ CallerAlias::authorizeAndModify(const SipRouter* sipRouter,  ///< for access to 
              * Determine whether the identity is one for which this proxy
              * is authoritative; if not, we will not use wildcard matches.
              */
-            bool identityIsLocal = sipRouter->isLocalDomain(fromUrl);
+            bool identityIsLocal = mpSipRouter->isLocalDomain(fromUrl);
             
             // now we have callerIdentity set; use for looking up each contact.
             OsSysLog::add(FAC_SIP, PRI_DEBUG,
@@ -274,8 +275,12 @@ CallerAlias::authorizeAndModify(const SipRouter* sipRouter,  ///< for access to 
          }
       }
    }
-
    return AuthPlugin::CONTINUE;
+}
+
+void CallerAlias::announceAssociatedSipRouter( SipRouter* sipRouter )
+{
+   mpSipRouter = sipRouter;
 }
 
 /// destructor

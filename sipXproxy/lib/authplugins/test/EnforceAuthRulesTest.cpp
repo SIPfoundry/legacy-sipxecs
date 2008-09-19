@@ -122,16 +122,17 @@ public:
          UtlString rejectReason(unmodifiedRejectReason);
          
          UtlString method("INVITE");
+         const bool bSpiralingRequest = false;
          AuthPlugin::AuthResult priorResult = AuthPlugin::CONTINUE;
          
          CPPUNIT_ASSERT(AuthPlugin::ALLOW
-                        == enforcer->authorizeAndModify(NULL,
-                                                        identity,
+                        == enforcer->authorizeAndModify(identity,
                                                         requestUri,
                                                         routeState,
                                                         method,
                                                         priorResult,
                                                         testMsg,
+                                                        bSpiralingRequest,
                                                         rejectReason
                                                         ));
          ASSERT_STR_EQUAL(unmodifiedRejectReason, rejectReason.data());
@@ -149,13 +150,13 @@ public:
          
          // now simulate a spiral with the same message
          CPPUNIT_ASSERT(AuthPlugin::ALLOW
-                        == enforcer->authorizeAndModify(NULL,
-                                                        identity,
+                        == enforcer->authorizeAndModify(identity,
                                                         requestUri,
                                                         spiraledRouteState,
                                                         method,
                                                         priorResult,
                                                         testMsg,
+                                                        bSpiralingRequest,
                                                         rejectReason
                                                         ));
          ASSERT_STR_EQUAL(unmodifiedRejectReason, rejectReason.data());
@@ -205,16 +206,17 @@ public:
          UtlString rejectReason(unmodifiedRejectReason);
          
          UtlString method("INVITE");
+         const bool bSpiralingRequest = false;
          AuthPlugin::AuthResult priorResult = AuthPlugin::CONTINUE;
 
          CPPUNIT_ASSERT(AuthPlugin::ALLOW
-                        == enforcer->authorizeAndModify(NULL,
-                                                        identity,
+                        == enforcer->authorizeAndModify(identity,
                                                         requestUri,
                                                         routeState,
                                                         method,
                                                         priorResult,
                                                         testMsg,
+                                                        bSpiralingRequest,
                                                         rejectReason
                                                         ));
          ASSERT_STR_EQUAL(unmodifiedRejectReason, rejectReason.data());
@@ -235,13 +237,13 @@ public:
 
          // now simulate a spiral with the same message
          CPPUNIT_ASSERT(AuthPlugin::ALLOW
-                        == enforcer->authorizeAndModify(NULL,
-                                                        identity,
+                        == enforcer->authorizeAndModify(identity,
                                                         requestUri,
                                                         spiraledRouteState,
                                                         method,
                                                         priorResult,
                                                         testMsg,
+                                                        bSpiralingRequest,
                                                         rejectReason
                                                         ));
          ASSERT_STR_EQUAL(unmodifiedRejectReason, rejectReason.data());
@@ -287,16 +289,17 @@ public:
          UtlString rejectReason(unmodifiedRejectReason);
          
          UtlString method("ACK");
+         const bool bSpiralingRequest = false;
          AuthPlugin::AuthResult priorResult = AuthPlugin::ALLOW;
 
          CPPUNIT_ASSERT(AuthPlugin::ALLOW
-                        == enforcer->authorizeAndModify(NULL,
-                                                        identity,
+                        == enforcer->authorizeAndModify(identity,
                                                         requestUri,
                                                         routeState,
                                                         method,
                                                         priorResult,
                                                         testMsg,
+                                                        bSpiralingRequest,
                                                         rejectReason
                                                         ));
          ASSERT_STR_EQUAL(unmodifiedRejectReason, rejectReason.data());
@@ -308,13 +311,13 @@ public:
 
          // now simulate a spiral with the same message
          CPPUNIT_ASSERT(AuthPlugin::ALLOW
-                        == enforcer->authorizeAndModify(NULL,
-                                                        identity,
+                        == enforcer->authorizeAndModify(identity,
                                                         requestUri,
                                                         routeState,
                                                         method,
                                                         priorResult,
                                                         testMsg,
+                                                        bSpiralingRequest,
                                                         rejectReason
                                                         ));
          ASSERT_STR_EQUAL(unmodifiedRejectReason, rejectReason.data());
@@ -358,16 +361,17 @@ public:
          UtlString rejectReason(unmodifiedRejectReason);
          
          UtlString method("INVITE");
+         const bool bSpiralingRequest = false;
          AuthPlugin::AuthResult priorResult = AuthPlugin::ALLOW; // SipRouter passes this for responses
 
          CPPUNIT_ASSERT(AuthPlugin::ALLOW
-                        == enforcer->authorizeAndModify(NULL,
-                                                        identity,
+                        == enforcer->authorizeAndModify(identity,
                                                         requestUri,
                                                         routeState,
                                                         method,
                                                         priorResult,
                                                         testMsg,
+                                                        bSpiralingRequest,
                                                         rejectReason
                                                         ));
          ASSERT_STR_EQUAL(unmodifiedRejectReason, rejectReason.data());
@@ -406,16 +410,17 @@ public:
          UtlString rejectReason;
          
          UtlString method("INVITE");
+         const bool bSpiralingRequest = false;
          AuthPlugin::AuthResult priorResult = AuthPlugin::CONTINUE;
          
          CPPUNIT_ASSERT(AuthPlugin::DENY
-                        == enforcer->authorizeAndModify(NULL,
-                                                        identity,
+                        == enforcer->authorizeAndModify(identity,
                                                         requestUri,
                                                         routeState,
                                                         method,
                                                         priorResult,
                                                         testMsg,
+                                                        bSpiralingRequest,
                                                         rejectReason
                                                         ));
          ASSERT_STR_EQUAL("", rejectReason.data());
@@ -425,13 +430,13 @@ public:
          identity = "user@example.com";
          
          CPPUNIT_ASSERT(AuthPlugin::DENY
-                        == enforcer->authorizeAndModify(NULL,
-                                                        identity,
+                        == enforcer->authorizeAndModify(identity,
                                                         requestUri,
                                                         routeState,
                                                         method,
                                                         priorResult,
                                                         testMsg,
+                                                        bSpiralingRequest,
                                                         rejectReason
                                                         ));
          ASSERT_STR_EQUAL("Requires NoAccess", rejectReason.data());
@@ -463,17 +468,18 @@ public:
          RouteState okRouteState( okMsg, noRemovedRoutes, routeName );
 
          UtlString method("INVITE");
+         const bool bSpiralingRequest = false;
          AuthPlugin::AuthResult priorResult = AuthPlugin::CONTINUE;
 
          // confirm that supercaster can call boat
          CPPUNIT_ASSERT(AuthPlugin::ALLOW
-                        == enforcer->authorizeAndModify(NULL,
-                                                        identity,
+                        == enforcer->authorizeAndModify(identity,
                                                         okRequestUri,
                                                         okRouteState,
                                                         method,
                                                         priorResult,
                                                         okMsg,
+                                                        bSpiralingRequest,
                                                         rejectReason
                                                         ));
          CPPUNIT_ASSERT(rejectReason.isNull());
@@ -507,13 +513,13 @@ public:
 
          // confirm that mightyhunter can't call boat
          CPPUNIT_ASSERT(AuthPlugin::DENY
-                        == enforcer->authorizeAndModify(NULL,
-                                                        identity,
+                        == enforcer->authorizeAndModify(identity,
                                                         okRequestUri,
                                                         okRouteState,
                                                         method,
                                                         priorResult,
                                                         notOkMsg,
+                                                        bSpiralingRequest,
                                                         rejectReason
                                                         ));
          CPPUNIT_ASSERT(!rejectReason.compareTo("Requires fishing"));
@@ -543,13 +549,13 @@ public:
 
          // confirm that supercaster cannot call lodge
          CPPUNIT_ASSERT(AuthPlugin::DENY
-                        == enforcer->authorizeAndModify(NULL,
-                                                        identity,
+                        == enforcer->authorizeAndModify(identity,
                                                         noprivRequestUri,
                                                         noprivRouteState,
                                                         method,
                                                         priorResult,
                                                         noprivMsg,
+                                                        bSpiralingRequest,
                                                         rejectReason
                                                         ));
          ASSERT_STR_EQUAL("Requires hunting", rejectReason.data());
@@ -575,13 +581,13 @@ public:
          authIdentity.insert(allowedMsg, SipXauthIdentity::AuthIdentityHeaderName);
          
          CPPUNIT_ASSERT(AuthPlugin::ALLOW
-                        == enforcer->authorizeAndModify(NULL,
-                                                        identity,
+                        == enforcer->authorizeAndModify(identity,
                                                         noprivRequestUri,
                                                         allowedRouteState,
                                                         method,
                                                         priorResult,
                                                         allowedMsg,
+                                                        bSpiralingRequest,
                                                         rejectReason
                                                         ));
          CPPUNIT_ASSERT(rejectReason.isNull());
@@ -603,13 +609,13 @@ public:
          allowedMsg.addHeaderField("X-Sipx-Authidentity", "<sip:mightyhunter@enforce.example.com;signature=46A66059%3Ab1b86dffc2e38191cdfad0500bf9a209>");
 
          CPPUNIT_ASSERT(AuthPlugin::DENY
-                        == enforcer->authorizeAndModify(NULL,
-                                                        identity,
+                        == enforcer->authorizeAndModify(identity,
                                                         noprivRequestUri,
                                                         allowedRouteState,
                                                         method,
                                                         priorResult,
                                                         allowedMsg,
+                                                        bSpiralingRequest,
                                                         rejectReason
                                                         ));
          ASSERT_STR_EQUAL("Requires hunting", rejectReason.data());
@@ -644,17 +650,18 @@ public:
          RouteState okRouteState( okMsg, noRemovedRoutes, routeName );
 
          UtlString method("INVITE");
+         const bool bSpiralingRequest = false;
          AuthPlugin::AuthResult priorResult = AuthPlugin::CONTINUE;
          
          // confirm that supercaster can call boat
          CPPUNIT_ASSERT(AuthPlugin::ALLOW
-                        == enforcer->authorizeAndModify(NULL,
-                                                        identity,
+                        == enforcer->authorizeAndModify(identity,
                                                         okRequestUri,
                                                         okRouteState,
                                                         method,
                                                         priorResult,
                                                         okMsg,
+                                                        bSpiralingRequest,
                                                         rejectReason
                                                         ));
          CPPUNIT_ASSERT(rejectReason.isNull());
@@ -696,13 +703,13 @@ public:
          // even though it is not authenticated.
          UtlString noIdentity;
          CPPUNIT_ASSERT(AuthPlugin::ALLOW
-                        == enforcer->authorizeAndModify(NULL,
-                                                        noIdentity,
+                        == enforcer->authorizeAndModify(noIdentity,
                                                         indialogRequestUri,
                                                         indialogRouteState,
                                                         method,
                                                         priorResult,
                                                         indialogForwardMsg,
+                                                        bSpiralingRequest,
                                                         rejectReason
                                                         ));
          CPPUNIT_ASSERT(rejectReason.isNull());
@@ -736,17 +743,18 @@ public:
          RouteState okRouteState( okMsg, noRemovedRoutes, routeName );
 
          UtlString method("INVITE");
+         const bool bSpiralingRequest = false;
          AuthPlugin::AuthResult priorResult = AuthPlugin::CONTINUE;
          
          // confirm that supercaster can call boat
          CPPUNIT_ASSERT(AuthPlugin::ALLOW
-                        == enforcer->authorizeAndModify(NULL,
-                                                        identity,
+                        == enforcer->authorizeAndModify(identity,
                                                         okRequestUri,
                                                         okRouteState,
                                                         method,
                                                         priorResult,
                                                         okMsg,
+                                                        bSpiralingRequest,
                                                         rejectReason
                                                         ));
          CPPUNIT_ASSERT(rejectReason.isNull());
@@ -789,13 +797,13 @@ public:
          // not allowed even though it is not authenticated.
          UtlString noIdentity;
          CPPUNIT_ASSERT(AuthPlugin::DENY
-                        == enforcer->authorizeAndModify(NULL,
-                                                        noIdentity,
+                        == enforcer->authorizeAndModify(noIdentity,
                                                         newdialogRequestUri,
                                                         newdialogRouteState,
                                                         method,
                                                         priorResult,
                                                         newdialogForwardMsg,
+                                                        bSpiralingRequest,
                                                         rejectReason
                                                         ));
          CPPUNIT_ASSERT(rejectReason.isNull());

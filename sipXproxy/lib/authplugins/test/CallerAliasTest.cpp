@@ -83,6 +83,7 @@ public:
          configDb.set("SIPX_PROXY_HOSTPORT", "sipx.example.edu");
 
          testSipRouter = new SipRouter(testUserAgent, mForwardingRules, configDb);
+         converter->announceAssociatedSipRouter( testSipRouter );
       }
 
    // 
@@ -115,15 +116,16 @@ public:
          
          UtlString method("INVITE");
          AuthPlugin::AuthResult priorResult = AuthPlugin::CONTINUE;
+         bool bSpiralingRequest = false;
          
          CPPUNIT_ASSERT(AuthPlugin::CONTINUE
-                        == converter->authorizeAndModify(testSipRouter,
-                                                         identity,
+                        == converter->authorizeAndModify(identity,
                                                          requestUri,
                                                          routeState,
                                                          method,
                                                          priorResult,
                                                          testMsg,
+                                                         bSpiralingRequest,
                                                          rejectReason
                                                          ));
          ASSERT_STR_EQUAL(unmodifiedRejectReason, rejectReason.data());
@@ -140,13 +142,13 @@ public:
          // now simulate a spiral with the same message
          RouteState spiraledRouteState(testMsg, noRemovedRoutes, routeName);
          CPPUNIT_ASSERT(AuthPlugin::CONTINUE
-                        == converter->authorizeAndModify(testSipRouter,
-                                                         identity,
+                        == converter->authorizeAndModify(identity,
                                                          requestUri,
                                                          spiraledRouteState,
                                                          method,
                                                          priorResult,
                                                          testMsg,
+                                                         bSpiralingRequest,
                                                          rejectReason
                                                         ));
          ASSERT_STR_EQUAL(unmodifiedRejectReason, rejectReason.data());
@@ -194,16 +196,17 @@ public:
          UtlString rejectReason(unmodifiedRejectReason);
          
          UtlString method("INVITE");
+         bool bSpiralingRequest = false;
          AuthPlugin::AuthResult priorResult = AuthPlugin::CONTINUE;
 
          CPPUNIT_ASSERT(AuthPlugin::CONTINUE
-                        == converter->authorizeAndModify(testSipRouter,
-                                                         identity,
+                        == converter->authorizeAndModify(identity,
                                                          requestUri,
                                                          routeState,
                                                          method,
                                                          priorResult,
                                                          testMsg,
+                                                         bSpiralingRequest,
                                                          rejectReason
                                                          ));
          ASSERT_STR_EQUAL(unmodifiedRejectReason, rejectReason.data());
@@ -252,13 +255,13 @@ public:
          method = "ACK";
          
          CPPUNIT_ASSERT(AuthPlugin::CONTINUE
-                        == converter->authorizeAndModify(testSipRouter,
-                                                         identity,
+                        == converter->authorizeAndModify(identity,
                                                          requestUri,
                                                          ackRouteState,
                                                          method,
                                                          priorResult,
                                                          ackMsg,
+                                                         bSpiralingRequest,
                                                          rejectReason
                                                          ));
          ASSERT_STR_EQUAL(unmodifiedRejectReason, rejectReason.data());
@@ -295,13 +298,13 @@ public:
          RouteState reverseRouteState( reverseMsg, removedRoutes, routeName );
 
          CPPUNIT_ASSERT(AuthPlugin::CONTINUE
-                        == converter->authorizeAndModify(testSipRouter,
-                                                         identity,
+                        == converter->authorizeAndModify(identity,
                                                          requestUri,
                                                          reverseRouteState,
                                                          infoMethod,
                                                          priorResult,
                                                          reverseMsg,
+                                                         bSpiralingRequest,
                                                          rejectReason
                                                          ));
          ASSERT_STR_EQUAL(unmodifiedRejectReason, rejectReason.data());
@@ -351,16 +354,17 @@ public:
          UtlString rejectReason(unmodifiedRejectReason);
          
          UtlString method("INVITE");
+         bool bSpiralingRequest = false;         
          AuthPlugin::AuthResult priorResult = AuthPlugin::CONTINUE;
          
          CPPUNIT_ASSERT(AuthPlugin::CONTINUE
-                        == converter->authorizeAndModify(testSipRouter,
-                                                         identity,
+                        == converter->authorizeAndModify(identity,
                                                          requestUri,
                                                          routeState,
                                                          method,
                                                          priorResult,
                                                          testMsg,
+                                                         bSpiralingRequest,
                                                          rejectReason
                                                          ));
          ASSERT_STR_EQUAL(unmodifiedRejectReason, rejectReason.data());
@@ -409,13 +413,13 @@ public:
          method = "ACK";
 
          CPPUNIT_ASSERT(AuthPlugin::CONTINUE
-                        == converter->authorizeAndModify(testSipRouter,
-                                                         identity,
+                        == converter->authorizeAndModify(identity,
                                                          requestUri,
                                                          ackRouteState,
                                                          method,
                                                          priorResult,
                                                          ackMsg,
+                                                         bSpiralingRequest,
                                                          rejectReason
                                                          ));
          ASSERT_STR_EQUAL(unmodifiedRejectReason, rejectReason.data());
@@ -452,13 +456,13 @@ public:
          method = "INFO";
          
          CPPUNIT_ASSERT(AuthPlugin::CONTINUE
-                        == converter->authorizeAndModify(testSipRouter,
-                                                         identity,
+                        == converter->authorizeAndModify(identity,
                                                          requestUri,
                                                          reverseRouteState,
                                                          method,
                                                          priorResult,
                                                          reverseMsg,
+                                                         bSpiralingRequest,
                                                          rejectReason
                                                          ));
          ASSERT_STR_EQUAL(unmodifiedRejectReason, rejectReason.data());

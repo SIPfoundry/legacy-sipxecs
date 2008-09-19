@@ -33,11 +33,18 @@ extern "C" AuthPlugin* getAuthPlugin(const UtlString& pluginName)
 MSFT_ExchangeTransferHack::MSFT_ExchangeTransferHack(const UtlString& pluginName ///< the name for this instance
                                                      )
    : AuthPlugin(pluginName)
-   , mUserAgentRegEx(NULL)     
+   , mUserAgentRegEx(NULL)
+   , mpSipRouter(NULL)
 {
    OsSysLog::add(FAC_SIP,PRI_INFO,"MSFT_ExchangeTransferHack plugin instantiated '%s'",
                  mInstanceName.data());
 };
+
+void 
+MSFT_ExchangeTransferHack::announceAssociatedSipRouter( SipRouter* sipRouter )
+{
+   mpSipRouter = sipRouter;
+}
 
 /// Read (or re-read) the configuration.
 void
@@ -101,13 +108,13 @@ MSFT_ExchangeTransferHack::readConfig( OsConfigDb& configDb /**< a subhash of th
 }
 
 AuthPlugin::AuthResult
-MSFT_ExchangeTransferHack::authorizeAndModify(const SipRouter* sipRouter,
-                                              const UtlString& id,
+MSFT_ExchangeTransferHack::authorizeAndModify(const UtlString& id,
                                               const Url&  requestUri,
                                               RouteState& routeState,
                                               const UtlString& method,
                                               AuthResult  priorResult,
                                               SipMessage& request,
+                                              bool bSpiralingRequest,  
                                               UtlString&  reason
                                               )
 {
@@ -162,7 +169,7 @@ MSFT_ExchangeTransferHack::authorizeAndModify(const SipRouter* sipRouter,
                            // The domains are the same; this is the bug we're looking for...
 
                            UtlString correctDomain;
-                           sipRouter->getDomain(correctDomain);
+                           mpSipRouter->getDomain(correctDomain);
                            target.setHostAddress(correctDomain);
                            target.setHostPort(PORT_NONE);
 

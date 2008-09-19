@@ -191,8 +191,17 @@ void SipRouter::readConfig(OsConfigDb& configDb, const Url& defaultUri)
                     "SIPX_PROXY_DOMAIN_NAME : %s", mDomainName.data());
    }
     
-   // Load and configure all authorization plugins
+   // Load, instantiate and configure all authorization plugins
    mAuthPlugins.readConfig(configDb);
+   
+   // Announce the associated SIP Router to all newly instantiated authorization plugins
+   PluginIterator authPlugins(mAuthPlugins);
+   AuthPlugin* authPlugin;
+   UtlString authPluginName;
+   while ((authPlugin = dynamic_cast<AuthPlugin*>(authPlugins.next(&authPluginName))))
+   {
+      authPlugin->announceAssociatedSipRouter( this );
+   }
 }
 
 // Destructor
@@ -203,6 +212,7 @@ SipRouter::~SipRouter()
    {
       mpSipUserAgent->removeMessageObserver(*getMessageQueue());
    }
+   delete mSharedSecret;
 }
 
 /* ============================ MANIPULATORS ============================== */
@@ -295,7 +305,7 @@ SipRouter::ProxyAction SipRouter::proxyMessage(SipMessage& sipRequest, SipMessag
       Url normalizedRequestUri;
       UtlSList removedRoutes;
       sipRequest.normalizeProxyRoutes(mpSipUserAgent,
-                                      normalizedRequestUri, ///< returns normalized request uri
+                                      normalizedRequestUri, // returns normalized request uri
                                       &removedRoutes        // route headers popped 
                                       );
       
@@ -585,13 +595,13 @@ SipRouter::ProxyAction SipRouter::proxyMessage(SipMessage& sipRequest, SipMessag
          AuthPlugin::AuthResult pluginResult;
          while ((authPlugin = dynamic_cast<AuthPlugin*>(authPlugins.next(&authPluginName))))
          {
-            pluginResult = authPlugin->authorizeAndModify(this,
-                                                          authUser,
+            pluginResult = authPlugin->authorizeAndModify(authUser,
                                                           normalizedRequestUri,
                                                           routeState,
                                                           method,
                                                           finalAuthResult,
                                                           sipRequest,
+                                                          false, // bMessageIsSpiraling
                                                           rejectReason
                                                           );
 
@@ -733,9 +743,42 @@ bool SipRouter::isLocalDomain(const Url& url ///< a url to be tested
            );
 }
 
+void SipRouter::addHostAlias( const UtlString& hostAliasToAdd )
+{
+   mpSipUserAgent->setHostAliases( hostAliasToAdd );
+}
+
+void SipRouter::addSipOutputProcessor( SipOutputProcessor *pProcessor )
+{
+   if( mpSipUserAgent )
+   {
+      mpSipUserAgent->addSipOutputProcessor( pProcessor );
+   }
+}
+
+UtlBoolean SipRouter::removeSipOutputProcessor( SipOutputProcessor *pProcessor )
+{
+   bool rc = false;
+
+   if( mpSipUserAgent )
+   {
+      rc = mpSipUserAgent->removeSipOutputProcessor( pProcessor );
+   }
+   return rc;
+}
+   
+void SipRouter::sendUdpKeepAlive( SipMessage& keepAliveMsg, const char* serverAddress, int port )
+{
+   if( mpSipUserAgent )
+   {
+      mpSipUserAgent->sendSymmetricUdp( keepAliveMsg, serverAddress, port );
+   }
+}
+
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
+
 bool SipRouter::addPathHeaderIfNATRegisterRequest( SipMessage& sipRequest ) const 
 {
    bool bMessageModified = false;
@@ -764,6 +807,72 @@ bool SipRouter::addPathHeaderIfNATRegisterRequest( SipMessage& sipRequest ) cons
       }
    }
    return bMessageModified;
+}
+
+bool SipRouter::addNatMappingInfoToContacts( SipMessage& sipRequest ) const 
+{
+   // Check if top via header has a 'received' parameter.  Presence of such
+   // a header would indicate that the registering user is located behind
+   // a NAT.
+   UtlString  privateAddress, protocol;
+   int        privatePort;
+   UtlBoolean bReceivedSet;
+   UtlString  natUrlParameterName;
+   UtlString  natUrlParameterValue;
+   
+   sipRequest.getTopVia( &privateAddress, &privatePort, &protocol, NULL, &bReceivedSet );
+   if( bReceivedSet )
+   {
+      UtlString publicAddress;
+      int publicPort;
+      
+      // get the user's public IP address and port as received
+      // by the sipXtack
+      sipRequest.getSendAddress( &publicAddress, &publicPort );
+      
+      // Add public address:port info in custom Contact URL parameter
+      UtlString publicContactParamValue;
+      char portString[21];
+      sprintf( portString, "%d", publicPort );               
+      publicContactParamValue.append( publicAddress );
+      publicContactParamValue.append( ":" );
+      publicContactParamValue.append( portString );
+
+      // Get the contact's transport protocol and add it to
+      // custom Contact URL parameter
+      UtlString contact;
+      UtlString transport;
+      sipRequest.getContactEntry(0, &contact);
+      Url contactUri( contact );
+      if( contactUri.getUrlParameter( "transport", transport, 0 ) )
+      {
+         publicContactParamValue.append( ";transport=" );
+         publicContactParamValue.append( transport );
+      }
+
+      natUrlParameterName  = SIPX_PUBLIC_CONTACT_URL_PARAM;
+      natUrlParameterValue = publicContactParamValue;
+   }
+   else
+   {
+      // no NAT detected between registering user and sipXecs
+      natUrlParameterName  = SIPX_NO_NAT_URL_PARAM;
+      natUrlParameterValue = "";         
+   }
+
+   UtlString contact;
+   for (int contactNumber = 0;
+        sipRequest.getContactEntry(contactNumber, &contact);
+        contactNumber++ )
+   {
+      Url contactUri(contact);
+      contactUri.setUrlParameter( natUrlParameterName, natUrlParameterValue );
+
+      UtlString modifiedContact;
+      contactUri.toString(modifiedContact);
+      sipRequest.setContactField(modifiedContact, contactNumber);
+   }
+   return true;
 }
 
 bool SipRouter::areAllExtensionsSupported( const SipMessage& sipRequest, 
@@ -940,11 +1049,22 @@ bool SipRouter::isPAIdentityApplicable(const SipMessage& sipRequest)
                                      
 {
    bool result = false;
+   bool requestIsAuthenticated = false;
    
-   // Currently we only support SIP uri in P-Asserted-Identity, 
-   // therefore only 1 P-Asserted-Identity is allowed.
-   if(!sipRequest.getHeaderValue(0, SipXauthIdentity::PAssertedIdentityHeaderName))
+   // If the request contains P-Asserted-Identity header and is not signed,
+   // we will not trust it. 
+   if (sipRequest.getHeaderValue(0, SipXauthIdentity::PAssertedIdentityHeaderName))
    { 
+       // Check to see if P-Asserted-Identity is signed. If signed, it has been
+       // authenticated.
+       UtlString authUser;
+
+       SipXauthIdentity sipxIdentity(sipRequest,SipXauthIdentity::PAssertedIdentityHeaderName);
+       requestIsAuthenticated = sipxIdentity.getIdentity(authUser);
+   }      
+      
+   if (!requestIsAuthenticated) 
+   {
        UtlString method;
 
        sipRequest.getRequestMethod(&method);
@@ -983,7 +1103,6 @@ bool SipRouter::isPAIdentityApplicable(const SipMessage& sipRequest)
        }
 
    }
-   
+
    return result;
-   
 }

@@ -130,20 +130,20 @@ EnforceAuthRules::readConfig( OsConfigDb& configDb /**< a subhash of the individ
 }
 
 AuthPlugin::AuthResult
-EnforceAuthRules::authorizeAndModify(const SipRouter* sipRouter,  ///< for access to proxy information
-                                     const UtlString& id, /**< The authenticated identity of the
-                                                           *   request originator, if any (the null
-                                                           *   string if not).
-                                                           *   This is in the form of a SIP uri
-                                                           *   identity value as used in the
-                                                           *   credentials database (user@domain)
-                                                           *   without the scheme or any parameters.
-                                                           */
+EnforceAuthRules::authorizeAndModify(const UtlString& id,    /**< The authenticated identity of the
+                                                              *   request originator, if any (the null
+                                                              *   string if not).
+                                                              *   This is in the form of a SIP uri
+                                                              *   identity value as used in the
+                                                              *   credentials database (user@domain)
+                                                              *   without the scheme or any parameters.
+                                                              */
                                      const Url&  requestUri, ///< parsed target Uri
                                      RouteState& routeState, ///< the state for this request.  
                                      const UtlString& method,///< the request method
                                      AuthResult  priorResult,///< results from earlier plugins.
                                      SipMessage& request,    ///< see AuthPlugin wrt modifying
+                                     bool bSpiralingRequest, ///< request spiraling indication 
                                      UtlString&  reason      ///< rejection reason
                                      )
 {

@@ -38,20 +38,20 @@ class EnforceAuthRules : public AuthPlugin
 
    /// Called for any request - enforces the restrictions specified by authrules.
    virtual
-      AuthResult authorizeAndModify(const SipRouter* sipRouter,  ///< for access to proxy information
-                                    const UtlString& id, /**< The authenticated identity of the
-                                                          *   request originator, if any (the null
-                                                          *   string if not).
-                                                          *   This is in the form of a SIP uri
-                                                          *   identity value as used in the
-                                                          *   credentials database (user@domain)
-                                                          *   without the scheme or any parameters.
-                                                          */
+      AuthResult authorizeAndModify(const UtlString& id,    /**< The authenticated identity of the
+                                                             *   request originator, if any (the null
+                                                             *   string if not).
+                                                             *   This is in the form of a SIP uri
+                                                             *   identity value as used in the
+                                                             *   credentials database (user@domain)
+                                                             *   without the scheme or any parameters.
+                                                             */
                                     const Url&  requestUri, ///< parsed target Uri
                                     RouteState& routeState, ///< the state for this request.  
                                     const UtlString& method,///< the request method
                                     AuthResult  priorResult,///< results from earlier plugins.
                                     SipMessage& request,    ///< see AuthPlugin regarding modifying
+                                    bool bSpiralingRequest, ///< request spiraling indication 
                                     UtlString&  reason      ///< rejection reason
                                     );
    /**<
