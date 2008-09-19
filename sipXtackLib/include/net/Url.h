@@ -23,6 +23,8 @@ class UtlDList;
 
 // DEFINES
 #define ROUTE_TO_REGISTRAR_MARKER_URI_PARAM ("x-sipx-routetoreg")
+#define SIPX_PUBLIC_CONTACT_URI_PARAM       ("x-sipX-pubcontact")
+#define SIPX_NO_NAT_URI_PARAM               ("x-sipX-nonat")
 
 // MACROS
 // EXTERNAL FUNCTIONS

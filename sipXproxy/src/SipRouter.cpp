@@ -850,13 +850,13 @@ bool SipRouter::addNatMappingInfoToContacts( SipMessage& sipRequest ) const
          publicContactParamValue.append( transport );
       }
 
-      natUrlParameterName  = SIPX_PUBLIC_CONTACT_URL_PARAM;
+      natUrlParameterName  = SIPX_PUBLIC_CONTACT_URI_PARAM;
       natUrlParameterValue = publicContactParamValue;
    }
    else
    {
       // no NAT detected between registering user and sipXecs
-      natUrlParameterName  = SIPX_NO_NAT_URL_PARAM;
+      natUrlParameterName  = SIPX_NO_NAT_URI_PARAM;
       natUrlParameterValue = "";         
    }
 
