@@ -161,10 +161,12 @@
       <fileset file="${build.dir}/dist/*.so"/>
       <fileset file="${src.dir}/lib/bcel.jar"/>
       <fileset file="${src.dir}/lib/commons-beanutils.jar"/>
+      <fileset file="${src.dir}/lib/commons-cli.jar"/>
       <fileset file="${src.dir}/lib/commons-collections.jar"/>
       <fileset file="${src.dir}/lib/commons-digester.jar"/>
       <fileset file="${src.dir}/lib/commons-logging.jar"/>
       <fileset file="${src.dir}/lib/commons-logging-api.jar"/>
+      <fileset file="${src.dir}/lib/commons-net.jar"/>
       <fileset file="${src.dir}/lib/cpptasks.jar"/>
       <fileset file="${src.dir}/lib/dnsjava.jar"/>
       <fileset file="${src.dir}/lib/jain-sip-sdp.jar"/>
