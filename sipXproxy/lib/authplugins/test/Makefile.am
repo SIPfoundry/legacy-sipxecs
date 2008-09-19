@@ -1,12 +1,20 @@
 ## All tests under this GNU variable should run relatively quickly
 ## and of course require no setup
-TESTS = enforcerulestest calleraliastest transfercontroltest msftxferhacktest
+TESTS = \
+	calleraliastest \
+	enforcerulestest \
+	msftxferhacktest \
+	nattraversalagenttests \
+	nattraversaltests \
+	transfercontroltest
 
 check_PROGRAMS = \
 	calleraliastest \
-	transfercontroltest \
+	enforcerulestest \
 	msftxferhacktest \
-	enforcerulestest 
+	nattraversalagenttests \
+	nattraversaltests \
+	transfercontroltest
 # sandbox
 
 COMMON_CXX_FLAGS = \
@@ -14,13 +22,14 @@ COMMON_CXX_FLAGS = \
 	-DTEST_DATA_DIR=\"@abs_top_srcdir@/lib/authplugins/test\" \
 	-I$(top_srcdir)/include \
 	-I$(top_srcdir)/lib/authplugins \
+	-I$(top_srcdir)/lib/authplugins/NatTraversalAgent \
 	-I$(top_srcdir)/src
 
 COMMON_LIBS = \
 	$(top_builddir)/src/libsipXproxy.la \
-   @SIPXUNIT_LIBS@ \
-   @SIPXCOMMSERVERTEST_LIBS@ \
-   @SIPXCOMMSERVER_LIBS@
+	@SIPXUNIT_LIBS@ \
+	@SIPXCOMMSERVERTEST_LIBS@ \
+	@SIPXCOMMSERVER_LIBS@
 
 enforcerulestest_CXXFLAGS = \
 	$(COMMON_CXX_FLAGS)
@@ -51,6 +60,44 @@ transfercontroltest_SOURCES = \
 
 transfercontroltest_LDADD = \
 	$(COMMON_LIBS)
+
+nattraversaltests_CXXFLAGS = \
+    $(COMMON_CXX_FLAGS)
+
+nattraversaltests_SOURCES = \
+    NatTraversalRulesTest.cpp \
+    NatTraversalAgentDataTypesTest.cpp \
+    SessionContextTest.cpp \
+    DialogTrackerTest.cpp \
+    $(top_srcdir)/lib/authplugins/NatTraversalAgent/NatTraversalRules.cpp \
+    $(top_srcdir)/lib/authplugins/NatTraversalAgent/CallTracker.cpp \
+    $(top_srcdir)/lib/authplugins/NatTraversalAgent/NatMaintainer.cpp \
+    $(top_srcdir)/lib/authplugins/NatTraversalAgent/SessionContext.cpp \
+    $(top_srcdir)/lib/authplugins/NatTraversalAgent/DialogTracker.cpp \
+    $(top_srcdir)/lib/authplugins/NatTraversalAgent/DialogTrackerStates.cpp \
+    $(top_srcdir)/lib/authplugins/NatTraversalAgent/NatTraversalAgentDataTypes.cpp \
+    $(top_srcdir)/lib/authplugins/NatTraversalAgent/MediaRelay.cpp
+
+nattraversaltests_LDADD = \
+    $(COMMON_LIBS)
+
+nattraversalagenttests_CXXFLAGS = \
+    $(COMMON_CXX_FLAGS) -D_nat_unit_tests_
+
+nattraversalagenttests_SOURCES = \
+    NatTraversalAgentTest.cpp \
+    DummyMediaRelay.cpp \
+    $(top_srcdir)/lib/authplugins/NatTraversalAgent/NatTraversalRules.cpp \
+    $(top_srcdir)/lib/authplugins/NatTraversalAgent/CallTracker.cpp \
+    $(top_srcdir)/lib/authplugins/NatTraversalAgent/SessionContext.cpp \
+    $(top_srcdir)/lib/authplugins/NatTraversalAgent/DialogTracker.cpp \
+    $(top_srcdir)/lib/authplugins/NatTraversalAgent/DialogTrackerStates.cpp \
+    $(top_srcdir)/lib/authplugins/NatTraversalAgent/NatTraversalAgentDataTypes.cpp \
+    $(top_srcdir)/lib/authplugins/NatTraversalAgent/NatTraversalAgent.cpp \
+    $(top_srcdir)/lib/authplugins/NatTraversalAgent/NatMaintainer.cpp 
+
+nattraversalagenttests_LDADD = \
+    $(COMMON_LIBS)
 
 msftxferhacktest_CXXFLAGS = \
 	$(COMMON_CXX_FLAGS)
