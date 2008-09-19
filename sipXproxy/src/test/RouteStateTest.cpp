@@ -42,6 +42,7 @@ class RouteStateTest : public CppUnit::TestCase
    CPPUNIT_TEST(testSpiraledState);
    CPPUNIT_TEST(testNewDialogState);
    CPPUNIT_TEST(testAppendedState);
+   CPPUNIT_TEST(testAddCopy);
 
    CPPUNIT_TEST_SUITE_END();
 
@@ -466,7 +467,7 @@ public:
          ASSERT_STR_EQUAL(Value2, readValue.data());
          
          // since the state was in a Route, not a Record-Route, this should be
-         CPPUNIT_ASSERT_EQUAL((ssize_t)UTL_NOT_FOUND, routedState.mRecordRouteIndex);
+         CPPUNIT_ASSERT( routedState.mRecordRouteIndices.empty() );
 
          removedHeaders.destroyAll();
       }
@@ -495,8 +496,9 @@ public:
          CPPUNIT_ASSERT(routeState.isMutable());
          CPPUNIT_ASSERT(!routeState.isFound());
          
-         CPPUNIT_ASSERT_EQUAL((ssize_t)0, routeState.mRecordRouteIndex);
-
+         CPPUNIT_ASSERT( routeState.mRecordRouteIndices.size() == 1 );
+         CPPUNIT_ASSERT( routeState.mRecordRouteIndices[0] == 0 );
+         
          routeState.setParameter("plugin","param1","dummyvalue");
          
          SipMessage outputSipMessage(sipMessage);
@@ -555,7 +557,8 @@ public:
          ASSERT_STR_EQUAL(Value2, readValue.data());
          
          // since the state was in a Route, not a Record-Route, this should be
-         CPPUNIT_ASSERT_EQUAL((ssize_t)1, spiraledState.mRecordRouteIndex);
+         CPPUNIT_ASSERT( spiraledState.mRecordRouteIndices.size() == 1 );
+         CPPUNIT_ASSERT( spiraledState.mRecordRouteIndices[0] == 1 );
 
          removedRoutes.destroyAll();
       }
@@ -668,6 +671,55 @@ public:
          ASSERT_STR_EQUAL(appendedRoutedMessage, outputMessage.data());
       }
 
+   void testAddCopy()
+      {
+         UtlSList removedRoutes;
+         
+         const char* spiraledMessage =
+            "INVITE sip:user@somewhere.com SIP/2.0\r\n"
+            "Via: SIP/2.0/TCP 10.1.1.3:33855\r\n"
+            "To: sip:user@somewhere.com\r\n"
+            "From: Caller <sip:caller@example.org>; tag=30543f3483e1cb11ecb40866edd3295b\r\n"
+            "Call-Id: f88dfabce84b6a2787ef024a7dbe8749\r\n"
+            "Cseq: 1 INVITE\r\n"
+            "Record-Route: <sip:other.example.com;lr>\r\n"
+            "Record-Route: <sip:myhost.example.com;lr;sipXecs-rs=plugin*param1~dmFsdWUx.plugin2*~dmFsdWUy!6cedf2bb36711d2e69b3012ab3d1e16d>\r\n"
+            "Max-Forwards: 20\r\n"
+            "Contact: caller@127.0.0.1\r\n"
+            "Content-Length: 0\r\n"
+            "\r\n";
+         SipMessage spiraledSipMessage(spiraledMessage, strlen(spiraledMessage));
+
+         UtlString myRouteName("myhost.example.com");
+         RouteState routeState(spiraledSipMessage, removedRoutes, myRouteName);
+         
+         // request the addition of a copy and then update the route state
+         routeState.addCopy();
+         routeState.update( &spiraledSipMessage );
+
+         // turn resultin message into a string for comparison
+         UtlString msgBytes;
+         ssize_t msgLen;
+         spiraledSipMessage.getBytes(&msgBytes, &msgLen);
+         
+         UtlString expectedMessage =
+            "INVITE sip:user@somewhere.com SIP/2.0\r\n"
+            "Via: SIP/2.0/TCP 10.1.1.3:33855\r\n"
+            "To: sip:user@somewhere.com\r\n"
+            "From: Caller <sip:caller@example.org>; tag=30543f3483e1cb11ecb40866edd3295b\r\n"
+            "Call-Id: f88dfabce84b6a2787ef024a7dbe8749\r\n"
+            "Cseq: 1 INVITE\r\n"
+            "Record-Route: <sip:myhost.example.com;lr;sipXecs-rs=plugin%2Aparam1%7EdmFsdWUx.plugin2%2A%7EdmFsdWUy%216cedf2bb36711d2e69b3012ab3d1e16d>\r\n"
+            "Record-Route: <sip:other.example.com;lr>\r\n"
+            "Record-Route: <sip:myhost.example.com;lr;sipXecs-rs=plugin%2Aparam1%7EdmFsdWUx.plugin2%2A%7EdmFsdWUy%216cedf2bb36711d2e69b3012ab3d1e16d>\r\n"
+            "Max-Forwards: 20\r\n"
+            "Contact: caller@127.0.0.1\r\n"
+            "Content-Length: 0\r\n"
+            "\r\n";
+         
+         CPPUNIT_ASSERT(expectedMessage.compareTo( msgBytes ) == 0 );
+      }
+   
 
 };
    

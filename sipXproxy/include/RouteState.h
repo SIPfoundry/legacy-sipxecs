@@ -9,6 +9,7 @@
 #define _ROUTESTATE_H_
 
 // SYSTEM INCLUDES
+#include <vector>
 
 // APPLICATION INCLUDES
 #include "utl/UtlString.h"
@@ -116,7 +117,7 @@ class RouteState
    bool getParameter(const char* pluginInstance,
                      const char* parameterName, 
                      UtlString&  parameterValue  ///< output
-                     );
+                     ) const;
    /**<
     * @returns true if the parameter was found in the state, false if not.
     *
@@ -196,6 +197,14 @@ class RouteState
     * the updated route state is recorded.
     */
 
+   /** 
+    * The addCopy method is used to add another Record-Route w/
+    * a RouteState to a request that already has one.  The logic
+    * here ensures that all copies of the RouteState contain
+    * all the same parameters and that they remain synchronized.
+    */
+   void addCopy( void );
+   
    /// Add or update the state in the Record-Route header.
    void update(SipMessage* request         ///< message to add state too, if state was modified
                );
@@ -248,13 +257,13 @@ class RouteState
                               * - Any state in the request was in a Route header
                               *   (not a Record-Route header).
                               */
-   ssize_t     mRecordRouteIndex; /**<
-                                  * Used only if mMayBeMutable == true
-                                  * This is the index of the Record-Route header that
-                                  * contains a route matching the mRouteHostPort.  That
-                                  * Record-Route header may or may not contain
-                                  * Route State parameters.
-                                  */
+   std::vector<size_t> mRecordRouteIndices; /**<
+                                             * Used only if mMayBeMutable == true
+                                             * This is a list of  Record-Route header indices that 
+                                             * contain a hostport matching the mRouteHostPort.  These
+                                             * Record-Route headers may or may not contain
+                                             * Route State parameters.
+                                             */
    bool       mModified; /**<
                           * Used only if mMayBeMutable == true
                           * Tracks whether or not any changes have been made to the state,
@@ -265,6 +274,8 @@ class RouteState
                                  * Indicates if a RouteState has been found in the route set supplied
                                  * at construction time.
                                  */
+   
+   bool       mAddCopyRequested;
    
    UtlSortedList mValues; ///< contains NameValuePair objects
 

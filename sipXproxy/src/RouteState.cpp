@@ -110,10 +110,12 @@ RouteState::RouteState(const SipMessage& message,      ///< normalized incoming 
                        ) :
    mRouteHostPort(routeHostPort),
    mMayBeMutable(false),
-   mRecordRouteIndex(UTL_NOT_FOUND),
    mModified(false),
-   mFoundRouteState(false)
+   mFoundRouteState(false),
+   mAddCopyRequested( false )
 {
+   mRecordRouteIndices.clear();
+   
    message.getCallIdField(&mCallId);
 
    Url fromUrl;
@@ -146,11 +148,12 @@ RouteState::RouteState(const SipMessage& message,      ///< normalized incoming 
       UtlString recordRoute;
 
       for (int rrNum = 0;
-           !mFoundRouteState && message.getRecordRouteUri(rrNum, &recordRoute);
+           message.getRecordRouteUri(rrNum, &recordRoute);
            rrNum++
            )
       {
          Url recordRouteUrl(recordRoute);
+
          if (recordRoute.contains(UrlParameterName)) // quick test before doing a full url parse
          {
             UtlString routeStateValue;
@@ -160,20 +163,23 @@ RouteState::RouteState(const SipMessage& message,      ///< normalized incoming 
                 * Got some value for the parameter we expect;
                 * parse it and check the signature - if this returns true, we've got it.
                 */
-                mFoundRouteState = decode(routeStateValue); 
-               if (mFoundRouteState)
+               bool foundRouteState;
+               foundRouteState = decode(routeStateValue);
+               if (foundRouteState)
                {
-                  mRecordRouteIndex = rrNum; // save this for when we need to update it
+                  mRecordRouteIndices.push_back( rrNum ); // save this for when we need to update it
                }
+               mFoundRouteState |= foundRouteState;
             }
          }
          else
          {
             UtlString recordRouteHostAndPort;
             recordRouteUrl.getHostWithPort( recordRouteHostAndPort );
+            //TODO: improvement = compare against list of aliases instead of mRouteHostPort
             if( recordRouteHostAndPort.compareTo( mRouteHostPort ) == 0 )
             {
-               mRecordRouteIndex = rrNum; // save this for when we need to update it
+               mRecordRouteIndices.push_back( rrNum ); // save this for when we need to update it
             }
          }
       }
@@ -453,7 +459,7 @@ bool RouteState::decode(const UtlString& stateToken)
 bool RouteState::getParameter(const char* pluginInstance,
                               const char* parameterName, 
                               UtlString&  parameterValue  ///< output
-                              )
+                              ) const
 {
    bool foundParameter = false;
 
@@ -577,6 +583,11 @@ void RouteState::unsetParameter(const char* pluginInstance,
    }
 }
 
+void RouteState::addCopy( void )
+{
+   mAddCopyRequested = true;
+}
+
 /// Add or update the state in the Record-Route header.
 void RouteState::update(SipMessage* request )
 {
@@ -585,29 +596,50 @@ void RouteState::update(SipMessage* request )
     */
    if (mMayBeMutable)
    {
-      if (mModified)
+      if (mModified || mAddCopyRequested)
       {
-         Url route(mRouteHostPort);
-         route.setUrlParameter("lr",NULL);
-
+         UtlString routeValue;
          UtlString newRouteStateToken;
          encode(newRouteStateToken);
-         route.setUrlParameter(UrlParameterName, newRouteStateToken.data());
 
-         UtlString routeValue;
+         Url route(mRouteHostPort);
+         route.setUrlParameter("lr",NULL);
+         route.setUrlParameter(UrlParameterName, newRouteStateToken.data());
          route.toString(routeValue);
 
-         if (UTL_NOT_FOUND == mRecordRouteIndex)
+         if( mRecordRouteIndices.empty() )
          {
             // we did not have our own Record-Route in the header, so push ours on top
+
             request->addRecordRouteUri(routeValue.data());
             OsSysLog::add(FAC_SIP, PRI_DEBUG, "RouteState::update adding new route state");
          }
          else
          {
-            // overwrite our own header in place
-            request->setRecordRouteField(routeValue.data(), mRecordRouteIndex);
-            OsSysLog::add(FAC_SIP, PRI_DEBUG, "RouteState::update rewriting route state");
+            // keep the existing Record-routes and simply replace the RouteState
+            // URL parameter.  This is done to preserve any modifications that
+            // may have been made to the Record-route header by other components.
+            std::vector<size_t>::iterator pos;
+            for( pos = mRecordRouteIndices.begin(); pos != mRecordRouteIndices.end(); ++pos )
+            {
+               request->getRecordRouteUri( *pos, &routeValue );
+               Url recordRouteUrl( routeValue );
+               recordRouteUrl.setUrlParameter( UrlParameterName, newRouteStateToken.data() );
+               recordRouteUrl.toString( routeValue );
+               request->setRecordRouteField( routeValue.data(), *pos );
+               OsSysLog::add( FAC_SIP, PRI_DEBUG, "RouteState::update rewriting route state for RR index %d", *pos );
+            }
+         }
+         
+         if( mAddCopyRequested == true )
+         {
+            // A plugin as asked to add a new Record-Route header carrying a copy of the route state.
+            // Skip the addition if the top Record-Route header is already pointing to us.
+            if( mRecordRouteIndices.empty() || mRecordRouteIndices[0] != 0 )
+            {
+               request->addRecordRouteUri(routeValue.data());
+               OsSysLog::add(FAC_SIP, PRI_DEBUG, "RouteState::update adding a copy of the route state");
+            }
          }
       }
       else
@@ -615,6 +647,7 @@ void RouteState::update(SipMessage* request )
          // no changes made, so don't bother rewriting.
          OsSysLog::add(FAC_SIP, PRI_DEBUG, "RouteState::update no state changes");
       }
+      
    }
    else
    {
