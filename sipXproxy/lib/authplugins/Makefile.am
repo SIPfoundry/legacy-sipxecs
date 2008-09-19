@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 
-SUBDIRS = . test
+SUBDIRS = . NatTraversalAgent test
 
 AUTHPLUGIN_COMMON_CXX_FLAGS = \
 	-I$(top_builddir)/config \

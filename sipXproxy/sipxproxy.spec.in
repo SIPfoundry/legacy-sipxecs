@@ -129,6 +129,10 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_libdir}/authplugins/libTransferControl.a
 %attr(755,root,root) %{_libdir}/authplugins/libTransferControl.so*
 
+%attr(755,root,root) %{_libdir}/authplugins/libNatTraversalAgent.la
+%attr(755,root,root) %{_libdir}/authplugins/libNatTraversalAgent.a
+%attr(755,root,root) %{_libdir}/authplugins/libNatTraversalAgent.so*
+
 %attr(755,root,root) %{_libdir}/authplugins/libMSFT_ExchangeTransferHack.la
 %attr(755,root,root) %{_libdir}/authplugins/libMSFT_ExchangeTransferHack.a
 %attr(755,root,root) %{_libdir}/authplugins/libMSFT_ExchangeTransferHack.so*
