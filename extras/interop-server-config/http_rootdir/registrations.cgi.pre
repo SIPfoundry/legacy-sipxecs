@@ -178,13 +178,18 @@ print &p(&table({-border => 1, -style => 'border-collapse: collapse; border: 2px
                     ), "\n",
                 $table_body)),
     "\n";
+my($d) = `date -u '+%Y-%m-%dT%H:%M:%SZ'`;
+chomp($d);
+print &p("Data taken from $registration_file at $d.");
 
 # Print the boilerplate.
 print <<EOF;
 <h2>Fields</h2>
 <dl>
 <dt>AOR</dt><dd>is the address of record for which the contact is registered.</dd>
-<dt>Contact</dt><dd>is the contact address which is registered.</dd>
+<dt>Contact</dt><dd>is the contact address which is registered.
+The <code>x-sipX-nonat</code> and <code>x-sipX-pubcontact</code> URI parameters
+are added by sipX's NAT traversal support.</dd>
 <dt>User-Agent</dt><dd>is the value from the User-Agent header in the REGISTER.</dd>
 <dt>q</dt><dd>is the q-value which shows the preference of this contact for this AOR
 (1.0 = highest, 0.0 = lowest); a value shown in italics (<i>1.0</i>) means that no q parameter was supplied and the value is implicit.</dd>
