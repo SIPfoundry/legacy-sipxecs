@@ -465,6 +465,7 @@ public class Gateway {
 
             } else {
                 SRVRecord record = (SRVRecord) records[0];
+                
                 int port = record.getPort();
                 String resolvedName = record.getTarget().toString();
                 // Sometimes the DNS (on linux) appends a "." to the end of the
@@ -478,6 +479,7 @@ public class Gateway {
                 return new HopImpl(resolvedName, port, getSipxProxyTransport());
             }
 
+       
         } catch (TextParseException ex) {
             logger.error("Problem looking up proxy address -- stopping gateway");
             return null;
@@ -589,7 +591,9 @@ public class Gateway {
             Gateway.accountManager.startAuthenticationFailureTimers();
 
             for (ItspAccountInfo itspAccount : Gateway.accountManager.getItspAccounts()) {
-                if (itspAccount.isRegisterOnInitialization()) {
+               
+                if (itspAccount.isRegisterOnInitialization() &&
+                        itspAccount.getState() != AccountState.INVALID ) {
                     Gateway.registrationManager.sendRegistrer(itspAccount);
                 }
 
@@ -605,14 +609,19 @@ public class Gateway {
                 } catch (InterruptedException ex) {
                     throw new RuntimeException("Unexpected exception registering", ex);
                 }
-
+                
+                /*
+                 * Check all accounts - if they are Authenticated we are done.
+                 */
+                boolean allAuthenticated = true;
                 for (ItspAccountInfo itspAccount : Gateway.accountManager.getItspAccounts()) {
                     if (itspAccount.isRegisterOnInitialization()
                             && itspAccount.getState() == AccountState.AUTHENTICATING) {
-                        continue;
+                        allAuthenticated = false;
+                        break;
                     }
                 }
-                break;
+                if (allAuthenticated) break;
 
             }
 
@@ -622,16 +631,20 @@ public class Gateway {
              */
             for (ItspAccountInfo itspAccount : Gateway.getAccountManager().getItspAccounts()) {
                 if (!itspAccount.isRegisterOnInitialization()
-                        && itspAccount.getSipKeepaliveMethod().equals("CR-LF")) {
+                        && itspAccount.getSipKeepaliveMethod().equals("CR-LF")
+                        && itspAccount.getState() != AccountState.INVALID) {
                     itspAccount.startCrLfTimerTask();
 
                 }
             }
 
-            Gateway.state = GatewayState.INITIALIZED;
+        } catch (GatewayConfigurationException ex) {
+            logger.fatal(ex);
+            throw ex;
 
-        } catch (SipException ex) {
-            throw new GatewayConfigurationException("Error in Registering ", ex);
+        } catch (Exception ex) {
+            logger.fatal(ex);
+            throw new GatewayConfigurationException(ex.getMessage());
         }
     }
 
@@ -720,9 +733,19 @@ public class Gateway {
             }
         }
         
+        System.out.println("connected to symmitron");
+        
         initializeSipListeningPoints();
+        
+        System.out.println("Listeningpoint initialized");
+        
         startAddressDiscovery();
+        
+        System.out.println("startAddressDiscovery");
+        
         startSipListener();
+        // Can start sending outbound calls.
+        Gateway.state = GatewayState.INITIALIZED;
         registerWithItsp();
         
         

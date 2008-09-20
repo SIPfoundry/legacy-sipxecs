@@ -22,12 +22,15 @@ import gov.nist.core.net.AddressResolver;
  * 
  */
 public class ProxyAddressResolver implements AddressResolver {
+    private static Logger logger = Logger.getLogger(ProxyAddressResolver.class);
    
     private static AccountManagerImpl accountManager = Gateway
             .getAccountManager();
 
     public Hop resolveAddress(Hop hop) {
-
+        if ( logger.isDebugEnabled()) {
+            logger.debug("resolveAddress " + hop.getHost());
+        }
         if ( hop.getHost().equals("127.0.0.1")) { 
             return hop; // For testing only.
         } else if (hop.getHost().equals(Gateway.getSipxProxyDomain())) {

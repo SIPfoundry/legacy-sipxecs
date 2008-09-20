@@ -323,6 +323,12 @@ class CallControlManager implements SymmitronResetHandler {
                     serverTransaction.sendResponse(response);
                     return;
 
+                } else if ( account.getState() == AccountState.INVALID ) {
+                    Response response = ProtocolObjects.messageFactory.createResponse(
+                            Response.BAD_GATEWAY, request);
+                    response.setReasonPhrase("Configuration problem for ITSP - check logs");
+                    serverTransaction.sendResponse(response);
+                    return;
                 }
                 // This case occurs when in and outbound proxy are different.
                 btobua.setItspAccount(account);
@@ -1425,6 +1431,10 @@ class CallControlManager implements SymmitronResetHandler {
             if (callOriginatedFromLan) {
                 accountInfo = Gateway.getAccountManager().getAccount(
                         request);
+                
+                if ( accountInfo.getState() == AccountState.INVALID ) {
+                    return null;
+                }
             } else {
                 /*
                  * Check the Via header of the inbound request to see if this is an account we

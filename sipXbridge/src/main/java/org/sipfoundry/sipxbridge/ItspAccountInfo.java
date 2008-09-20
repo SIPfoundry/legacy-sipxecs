@@ -65,10 +65,7 @@ public class ItspAccountInfo implements gov.nist.javax.sip.clientauthutils.UserC
      */
     private String userName;
 
-    /**
-     * The display name for the account.
-     */
-    private String displayName;
+    
 
     /**
      * The display name for the account.
@@ -259,9 +256,7 @@ public class ItspAccountInfo implements gov.nist.javax.sip.clientauthutils.UserC
         return userName;
     }
 
-    public String getDisplayName() {
-        return displayName;
-    }
+   
 
     public String getPassword() {
         return password;
@@ -301,7 +296,7 @@ public class ItspAccountInfo implements gov.nist.javax.sip.clientauthutils.UserC
 
     }
 
-    public void lookupAccount() throws GatewayConfigurationException {
+    public void lookupAccount() throws TextParseException,GatewayConfigurationException {
         // User has already specified an outbound proxy so just bail out.
         if (this.outboundProxy != null)
             return;
@@ -329,12 +324,11 @@ public class ItspAccountInfo implements gov.nist.javax.sip.clientauthutils.UserC
             }
 
         } catch (TextParseException ex) {
-
-            throw new GatewayConfigurationException("Problem with domain name lookup", ex);
-        } catch (RuntimeException ex) {
-            ex.printStackTrace();
+                throw ex;
+        } catch (Exception ex) {
+            
             logger.fatal("Exception in processing -- could not add ITSP account ", ex);
-            throw ex;
+            throw new GatewayConfigurationException("Problem with domain name lookup", ex);
         }
     }
 
@@ -355,13 +349,7 @@ public class ItspAccountInfo implements gov.nist.javax.sip.clientauthutils.UserC
         this.outboundProxyPort = proxyPort;
     }
 
-    /**
-     * @param displayName the displayName to set
-     */
-    public void setDisplayName(String displayName) {
-        this.displayName = displayName;
-    }
-
+   
     /**
      * @param password the password to set
      */

@@ -60,10 +60,15 @@ public class ProtocolObjects {
             stackProperties.setProperty("gov.nist.javax.sip.LOG_FACTORY",
                     SipFoundryLogRecordFactory.class.getName());
             
+            
+            stackProperties.setProperty("javax.sip.ROUTER_PATH", ProxyRouter.class.getName());
+            
             sipStack = ProtocolObjects.sipFactory
                     .createSipStack(stackProperties);
-            ((SipStackImpl) sipStack)
-                    .setAddressResolver(new ProxyAddressResolver());
+           ((SipStackImpl) sipStack)
+                 .setAddressResolver(new ProxyAddressResolver());
+            
+            
           
             SipFoundryAppender sfa = new SipFoundryAppender(new SipFoundryLayout(),Gateway.getLogFile());
          

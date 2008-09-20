@@ -244,12 +244,12 @@ class SipUtilities {
                 proxyDomain);
 
         Address fromAddress = ProtocolObjects.addressFactory.createAddress(fromUri);
-        fromAddress.setDisplayName(itspAccount.getDisplayName());
+      
         FromHeader fromHeader = ProtocolObjects.headerFactory.createFromHeader(fromAddress,
                 new Long(Math.abs(new java.util.Random().nextLong())).toString());
 
         Address toAddress = ProtocolObjects.addressFactory.createAddress(toUri);
-        toAddress.setDisplayName(itspAccount.getDisplayName());
+       
         ToHeader toHeader = ProtocolObjects.headerFactory.createToHeader(toAddress, null);
 
         CallIdHeader callid = sipProvider.getNewCallId();
@@ -343,12 +343,12 @@ class SipUtilities {
                     itspAccount.getSipDomain());
 
             Address fromAddress = ProtocolObjects.addressFactory.createAddress(fromUri);
-            fromAddress.setDisplayName(itspAccount.getDisplayName());
+           
             FromHeader fromHeader = ProtocolObjects.headerFactory.createFromHeader(fromAddress,
                     new Long(Math.abs(new java.util.Random().nextLong())).toString());
 
             Address toAddress = ProtocolObjects.addressFactory.createAddress(toUri);
-            toAddress.setDisplayName(itspAccount.getDisplayName());
+          
             ToHeader toHeader = ProtocolObjects.headerFactory.createToHeader(toAddress, null);
 
             CallIdHeader callid = sipProvider.getNewCallId();
@@ -408,7 +408,7 @@ class SipUtilities {
 
         } catch (InvalidArgumentException ex) {
             logger.error("An unexpected exception occured", ex);
-            throw new RuntimeException("Internal error", ex);
+            throw new GatewayConfigurationException("Internal error", ex);
         }
 
     }

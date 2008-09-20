@@ -10,6 +10,7 @@ import gov.nist.javax.sip.clientauthutils.UserCredentials;
 import gov.nist.javax.sip.header.ims.PAssertedIdentityHeader;
 
 import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Hashtable;
@@ -22,6 +23,7 @@ import javax.sip.header.FromHeader;
 import javax.sip.message.Request;
 
 import org.apache.log4j.Logger;
+import org.xbill.DNS.TextParseException;
 
 /**
  * Keeps a mapping of account ID to ItspAccountInfo and a mapping of account ID to sip pbx account
@@ -64,8 +66,10 @@ public class AccountManagerImpl implements gov.nist.javax.sip.clientauthutils.Ac
     }
 
     void lookupItspAccountAddresses() throws GatewayConfigurationException {
-        try {
-            for (ItspAccountInfo accountInfo : this.getItspAccounts()) {
+
+        for (ItspAccountInfo accountInfo : this.getItspAccounts()) {
+          
+            try {
                 accountInfo.lookupAccount();
                 this.addressToDomainNameMap.put(InetAddress.getByName(
                         accountInfo.getOutboundProxy()).getHostAddress(), accountInfo
@@ -75,10 +79,16 @@ public class AccountManagerImpl implements gov.nist.javax.sip.clientauthutils.Ac
                         InetAddress.getByName(accountInfo.getOutboundProxy()).getHostAddress(),
                         accountInfo.getProxyPort(), accountInfo.getOutboundTransport(),
                         accountInfo));
+            } catch (TextParseException ex) {
+                accountInfo.setState(AccountState.INVALID);
+                logger.error("Error looking up address " + accountInfo.getProxyDomain());
+                logger.error("Error looking up gateway configuration" , ex);
+            } catch (UnknownHostException ex) {
+                accountInfo.setState(AccountState.INVALID);
+                logger.error("Unknown host exception looking up name",ex);
             }
-        } catch (Exception ex) {
-            throw new GatewayConfigurationException("Check configuration of ITSP Accounts ", ex);
         }
+
     }
 
     /**
@@ -129,10 +139,9 @@ public class AccountManagerImpl implements gov.nist.javax.sip.clientauthutils.Ac
                         PAssertedIdentityHeader pai = (PAssertedIdentityHeader) request
                                 .getHeader(PAssertedIdentityHeader.NAME);
                         if (pai == null) {
-                            logger
-                                    .warn("Anonymous call without P-Asserted-Identity ");
+                            logger.warn("Anonymous call without P-Asserted-Identity ");
                             // BUGBUG - this is really a mistake we should reject
-                            // the call if the PAI header is missing 
+                            // the call if the PAI header is missing
                             return accountInfo;
                         }
                         userStr = ((SipURI) pai.getAddress().getURI()).getUser();

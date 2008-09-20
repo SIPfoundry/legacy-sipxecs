@@ -41,7 +41,6 @@ public class SymmitronClient {
 
     private static Timer timer = new Timer();
 
-
     private boolean checkForServerReboot(Map map) throws SymmitronException {
 
         String handle = (String) map.get(Symmitron.INSTANCE_HANDLE);
@@ -65,8 +64,11 @@ public class SymmitronClient {
             args[0] = clientHandle;
             Map retval;
             String currentServerHandle = serverHandle;
+
             try {
-                retval = (Map) client.execute("sipXrelay.ping", args);
+                synchronized (SymmitronClient.this) {
+                    retval = (Map) client.execute("sipXrelay.ping", args);
+                }
             } catch (XmlRpcException e) {
                 logger.error("XmlRpcException ", e);
                 if (resetHandler != null) {
@@ -239,8 +241,9 @@ public class SymmitronClient {
         }
     }
 
-    public synchronized void setRemoteEndpoint(SymImpl sym, String ipAddress, int destinationPort,
-            int keepAliveInterval, KeepaliveMethod keepAliveMethod) throws SymmitronException {
+    public synchronized void setRemoteEndpoint(SymImpl sym, String ipAddress,
+            int destinationPort, int keepAliveInterval, KeepaliveMethod keepAliveMethod)
+            throws SymmitronException {
         try {
             Object[] params = new Object[6];
             params[0] = clientHandle;

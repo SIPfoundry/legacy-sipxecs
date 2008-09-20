@@ -37,8 +37,7 @@ public class RegistrationManager {
 
     }
 
-    public void sendRegistrer(ItspAccountInfo itspAccount) throws SipException,
-            GatewayConfigurationException {
+    public void sendRegistrer(ItspAccountInfo itspAccount) throws SipException {
         Request request = SipUtilities.createRegistrationRequest(provider,
                 itspAccount);
         ClientTransaction ct = provider.getNewClientTransaction(request);
