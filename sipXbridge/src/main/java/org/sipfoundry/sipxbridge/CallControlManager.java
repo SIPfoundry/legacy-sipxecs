@@ -771,6 +771,13 @@ class CallControlManager implements SymmitronResetHandler {
 
                 SipUtilities.incrementSessionVersion(sd);
             }
+            
+            // HACK ALERT -- some ITSPs look at sendonly and start playing 
+            // their own MOH. This hack is to get around that nasty behavior.
+            if ( SipUtilities.getSessionDescriptionMediaAttributeDuplexity(sd)
+                    .equals("sendonly") ) {
+                SipUtilities.setDuplexity(sd, "sendrecv");
+            }
 
             if (Gateway.isReInviteSupported()) {
                 ackRequest.setContent(sd.toString(), ProtocolObjects.headerFactory
