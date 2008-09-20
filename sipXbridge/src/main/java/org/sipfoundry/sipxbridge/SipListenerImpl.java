@@ -104,14 +104,37 @@ public class SipListenerImpl implements SipListener {
     public void processRequest(RequestEvent requestEvent) {
 
         logger.debug("Gateway: got an invoming request " + requestEvent.getRequest());
-        if (Gateway.getState() == GatewayState.STOPPING) {
-            logger.debug("Gateway is stopping -- returning");
-            return;
-        }
-
         Request request = requestEvent.getRequest();
         String method = request.getMethod();
         SipProvider provider = (SipProvider) requestEvent.getSource();
+        if (Gateway.getState() == GatewayState.STOPPING) {
+            logger.debug("Gateway is stopping -- returning");
+            return;
+        } else if ( Gateway.getState() == GatewayState.INITIALIZING) {
+            logger.debug("Rejecting request -- gateway is initializing" );
+            try {
+                Response response = ProtocolObjects.messageFactory.createResponse(
+                        Response.SERVICE_UNAVAILABLE, request);
+                response.setReasonPhrase("Gateway is initializing -- try later");
+                ServerTransaction st = requestEvent.getServerTransaction();
+                if (st == null) {
+                    st = provider.getNewServerTransaction(request);
+
+                }
+                st.sendResponse(response);
+                return;
+            } catch (TransactionAlreadyExistsException ex) {
+                logger.error("transaction already exists", ex);
+                return;
+            } catch (SipException ex) {
+                throw new RuntimeException("Unexpected exceptione", ex);
+            } catch (Exception ex) {
+                logger.error("Unexpected exception ", ex);
+                throw new RuntimeException("unexpected exception", ex);
+            } 
+        }
+
+      
 
         if (method.equals(Request.INVITE) || method.equals(Request.ACK)
                 || method.equals(Request.CANCEL) || method.equals(Request.BYE)
@@ -132,14 +155,10 @@ public class SipListenerImpl implements SipListener {
                 logger.error("transaction already exists", ex);
             } catch (SipException ex) {
                 throw new RuntimeException("Unexpected exceptione", ex);
-            } catch (ParseException ex) {
+            } catch (Exception ex) {
                 logger.error("Unexpected exception ", ex);
                 throw new RuntimeException("unexpected exception", ex);
-            } catch (InvalidArgumentException ex) {
-                logger.error("Unexpected exception ", ex);
-                throw new RuntimeException("unexpected exception", ex);
-
-            }
+            } 
         }
 
     }
@@ -210,15 +229,32 @@ public class SipListenerImpl implements SipListener {
 
             if (response.getStatusCode() == Response.PROXY_AUTHENTICATION_REQUIRED
                     || response.getStatusCode() == Response.UNAUTHORIZED) {
+                
+                
                 SipProvider provider = (SipProvider) responseEvent.getSource();
+                
+              
                 Dialog dialog = responseEvent.getDialog();
                 if (logger.isDebugEnabled()) {
                     logger.debug("SipListenerImpl : dialog = " + dialog);
                 }
                 BackToBackUserAgent b2bua = DialogApplicationData
                         .getBackToBackUserAgent(responseEvent.getDialog());
-                if (b2bua != null)
+                if (b2bua != null) {
                     b2bua.removeDialog(dialog);
+                }
+                
+                if ( provider == Gateway.getLanProvider() ) {
+                    // Unexpected challenge from LAN side.
+                    // We are not configured to handle challenge for inbound calling
+                    // If we get such a challenge, we just decline the call.
+                   ServerTransaction stx  =  ((TransactionApplicationData) responseEvent
+                            .getClientTransaction().getApplicationData()).serverTransaction;
+                   Response errorResponse = SipUtilities.createResponse(stx, Response.DECLINE);
+                   stx.sendResponse(errorResponse);
+                   stx.getDialog().delete();
+                   return;
+                }
 
                 ClientTransaction newClientTransaction = Gateway.getAuthenticationHelper()
                         .handleChallenge(response, responseEvent.getClientTransaction(),

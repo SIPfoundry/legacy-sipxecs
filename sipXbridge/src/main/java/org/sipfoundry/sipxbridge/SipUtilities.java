@@ -477,7 +477,9 @@ class SipUtilities {
                             new Long(Math.abs(new java.util.Random().nextLong())).toString());
 
                 }
-                fromAddress.setDisplayName(fromDisplayName);
+                if ( fromDisplayName != null ) {
+                    fromAddress.setDisplayName(fromDisplayName);
+                }
             } else {
                 String domain = "anonymous.invalid";
                 SipURI fromUri = ProtocolObjects.addressFactory.createSipURI(fromUser, domain);

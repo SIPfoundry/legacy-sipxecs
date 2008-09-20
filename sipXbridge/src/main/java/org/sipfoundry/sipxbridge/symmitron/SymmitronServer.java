@@ -391,8 +391,10 @@ public class SymmitronServer implements Symmitron {
 
             PortRange portRange = SymmitronServer.getPortManager().allocate(count,
                     parity == ODD ? Parity.ODD : Parity.EVEN);
-            if (portRange == null)
+            if (portRange == null) {
+                logger.error("Ports not available " + count + " parity " + parity);
                 return createErrorMap(PORTS_NOT_AVAILABLE, "Ports not available");
+            }
 
             Map<String, Object> retval = createSuccessMap();
             HashMap[] hmapArray = new HashMap[count];
