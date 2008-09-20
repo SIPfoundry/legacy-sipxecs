@@ -1440,6 +1440,7 @@ class CallControlManager implements SymmitronResetHandler {
                         request);
                 
                 if ( accountInfo.getState() == AccountState.INVALID ) {
+                    logger.error("Could not find an itsp account -- the account is not valid");
                     return null;
                 }
             } else {

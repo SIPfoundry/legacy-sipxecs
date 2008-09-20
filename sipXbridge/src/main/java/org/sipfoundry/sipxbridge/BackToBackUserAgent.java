@@ -1542,12 +1542,7 @@ public class BackToBackUserAgent {
             if (this.itspAccountInfo != null
                     && provider == Gateway.getWanProvider(itspAccountInfo.getOutboundTransport())) {
                 FromHeader fromHeader = (FromHeader) bye.getHeader(FromHeader.NAME);
-                try {
-                    fromHeader.getAddress().setDisplayName(itspAccountInfo.getDisplayName());
-                } catch (ParseException e) {
-
-                    logger.error("unexpected error setting display name", e);
-                }
+               
                 if (itspAccountInfo.isRportUsed()) {
                     ViaHeader via = (ViaHeader) bye.getHeader(ViaHeader.NAME);
                     try {
