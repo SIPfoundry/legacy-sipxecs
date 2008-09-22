@@ -13,7 +13,7 @@ bin_SCRIPTS = \
 	 sipx-archive-common \
     ipcclean.pl
 
-libexec_SCRIPTS = \
+SipxLibexecScripts = \
     sipx-strip-db-secrets.pl
 
 $(top_builddir)/BUILDSTAMP:
@@ -55,6 +55,7 @@ install-exec-hook : $(DESTDIR)@SERVICEDIR@/sipxpbx \
                     $(DESTDIR)@DAILYDIR@/voicemail_clean \
                     $(DESTDIR)@DAILYDIR@/sipx-core-clean \
                     $(DESTDIR)@DAILYDIR@/sipx-chkspace \
+						  $(foreach sipxScript,$(SipxLibexecScripts),$(DESTDIR)@SIPX_LIBEXECDIR@/$(sipxScript)) \
 						  remove-obsolete-bins
 
 .PHONY: remove-obsolete-bins
@@ -64,6 +65,13 @@ remove-obsolete-bins:
 	rm -f $(DESTDIR)$(bindir)/restore-configs.sh
 	rm -f $(DESTDIR)$(bindir)/restore-mailstore.sh
 	rm -f $(DESTDIR)$(bindir)/backup-configs.sh
+
+$(foreach sipxScript,$(SipxLibexecScripts),$(DESTDIR)@SIPX_LIBEXECDIR@/$(sipxScript)) : $(DESTDIR)@SIPX_LIBEXECDIR@/% : %
+	$(INSTALL) -D -m 755 $< $@
+
+$(foreach sipxScript,$(SipxLibexecScripts),$(sipxScript)) : % : $(srcdir)/%.in
+	$(LocalizeSipXconfig) $< > $@
+	chmod +x $@
 
 $(DESTDIR)@SERVICEDIR@/sipxpbx: $(DESTDIR)@SERVICEDIR@ sipxpbx
 	$(INSTALL) -D -m 755 sipxpbx $(DESTDIR)@SERVICEDIR@/sipxpbx
