@@ -22,9 +22,13 @@
 class UtlDList;
 
 // DEFINES
-#define ROUTE_TO_REGISTRAR_MARKER_URI_PARAM ("x-sipx-routetoreg")
-#define SIPX_PUBLIC_CONTACT_URI_PARAM       ("x-sipX-pubcontact")
+
+// sip:/sips: URI parameters
+#define SIP_GRUU_URI_PARAM                  ("gr")
+#define SIPX_DONE_URI_PARAM                 ("x-sipX-done")
 #define SIPX_NO_NAT_URI_PARAM               ("x-sipX-nonat")
+#define SIPX_PUBLIC_CONTACT_URI_PARAM       ("x-sipX-pubcontact")
+#define ROUTE_TO_REGISTRAR_MARKER_URI_PARAM ("x-sipX-routetoreg")
 
 // MACROS
 // EXTERNAL FUNCTIONS

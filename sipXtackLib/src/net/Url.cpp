@@ -35,8 +35,6 @@
 // EXTERNAL VARIABLES
 // CONSTANTS
 
-const char* SIP_GRUU_URL_PARAMETER = "gr";
-
 /* =========================================================================
  * IMPORTANT NOTE:
  *   If you change any of the following regular expressions, enable the
@@ -1937,7 +1935,7 @@ bool Url::isGRUU() const
    // for now we just test to see if it has the standard gruu marker parameter
    UtlString valueNotUsed;
    return (   ( SipUrlScheme == mScheme || SipsUrlScheme == mScheme )
-           && getUrlParameter(SIP_GRUU_URL_PARAMETER, valueNotUsed)
+           && getUrlParameter(SIP_GRUU_URI_PARAM, valueNotUsed)
            );
 }
 
@@ -1946,7 +1944,7 @@ void Url::setGRUU(const UtlString& uniqueId)
 {
    if ( SipUrlScheme == mScheme || SipsUrlScheme == mScheme )
    {
-      setUrlParameter(SIP_GRUU_URL_PARAMETER, uniqueId.data());
+      setUrlParameter(SIP_GRUU_URI_PARAM, uniqueId.data());
    }
    else
    {
