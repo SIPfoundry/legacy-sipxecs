@@ -38,7 +38,6 @@
 // DEFINES
 #define NAT_TRAVERSAL_RULES_FILENAME         "nattraversalrules.xml"
 #define NAT_TRAVERSAL_AGENT_OUTPUT_PROC_PRIO (100)
-#define SIPX_DONE_URI_PARAM                  "SipX-Done"
 #define MAX_MEDIA_RELAY_INIT_ATTEMPTS        (3)
 #define NAT_RULES_FILENAME_CONFIG_PARAM      ("NATRULES")
 
