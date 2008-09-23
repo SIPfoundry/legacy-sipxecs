@@ -193,7 +193,7 @@ sub process_log_file {
 	    ($path) = /\nPath:\s*(.*)\n/i;
 
 	    # Get the GRUU.
-	    ($gruu) = $contact =~ /;gruu=([^;]*)/i;
+	    ($gruu) = $contact =~ /;gr=([^;]*)/i;
             # Remove quotes on GRUU.
 	    $gruu = $1 if $gruu =~ /^"(.*)"$/;
 
