@@ -26,8 +26,8 @@ endif
 	    --target=$(ARCH)
 
 AC_TARGETS = \
-	cgicc \
 	cppunit \
+	cgicc \
 	dnsjava \
 	jain-sip \
 	jakarta-commons-net \
@@ -47,7 +47,7 @@ $(AC_TARGETS) :
 	$(MAKE) $@.bld
 
 # required on all platforms
-CUSTOM_PACKAGES = cgicc xerces-c ruby-dbi rubygems ruby-postgres $(JAVA_PKG) rrdtool jain-sip conference dnsjava
+CUSTOM_PACKAGES = cppunit cgicc xerces-c ruby-dbi rubygems ruby-postgres $(JAVA_PKG) rrdtool jain-sip conference dnsjava
 
 .PHONY: fc6
 fc6 : $(CUSTOM_PACKAGES) jakarta-commons-net
