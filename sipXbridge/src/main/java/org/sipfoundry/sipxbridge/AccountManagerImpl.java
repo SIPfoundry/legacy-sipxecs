@@ -153,6 +153,10 @@ public class AccountManagerImpl implements gov.nist.javax.sip.clientauthutils.Ac
                 }
             }
         }
+        // Fallback -- cannot find calling line id. 
+        for (ItspAccountInfo accountInfo : itspAccounts) { 
+            if (sipUri.getHost().endsWith(accountInfo.getProxyDomain())) return accountInfo;
+        }
         return null;
     }
 

@@ -25,6 +25,7 @@ import javax.sip.TransactionAlreadyExistsException;
 import javax.sip.TransactionTerminatedEvent;
 import javax.sip.header.CSeqHeader;
 import javax.sip.header.ToHeader;
+import javax.sip.header.ViaHeader;
 import javax.sip.message.Request;
 import javax.sip.message.Response;
 
@@ -47,7 +48,7 @@ public class SipListenerImpl implements SipListener {
     public void processDialogTerminated(DialogTerminatedEvent dte) {
 
         logger.debug("DialogTerminatedEvent " + dte.getDialog());
-      
+
         DialogApplicationData dat = DialogApplicationData.get(dte.getDialog());
         if (dat != null && dat.musicOnHoldDialog != null
                 && dat.musicOnHoldDialog.getState() != DialogState.TERMINATED) {
@@ -55,10 +56,11 @@ public class SipListenerImpl implements SipListener {
                 SipProvider provider = ((DialogExt) dat.musicOnHoldDialog).getSipProvider();
                 Request byeRequest = dat.musicOnHoldDialog.createRequest(Request.BYE);
                 ClientTransaction ctx = provider.getNewClientTransaction(byeRequest);
-                TransactionApplicationData tad = new TransactionApplicationData(Operation.SEND_BYE_TO_MOH_SERVER);
+                TransactionApplicationData tad = new TransactionApplicationData(
+                        Operation.SEND_BYE_TO_MOH_SERVER);
                 ctx.setApplicationData(tad);
                 dat.musicOnHoldDialog.sendRequest(ctx);
-               
+
             } catch (Exception ex) {
                 logger.error("Exception in dialog termination processing", ex);
             }
@@ -74,7 +76,8 @@ public class SipListenerImpl implements SipListener {
             if (dat.getBackToBackUserAgent() != null
                     && dat.getBackToBackUserAgent().getCreatingDialog() == dte.getDialog()) {
 
-                ItspAccountInfo itspAccountInfo = dat.getBackToBackUserAgent().getItspAccountInfo();
+                ItspAccountInfo itspAccountInfo = dat.getBackToBackUserAgent()
+                        .getItspAccountInfo();
 
                 Gateway.decrementCallCount();
 
@@ -87,8 +90,8 @@ public class SipListenerImpl implements SipListener {
     }
 
     public void processIOException(IOExceptionEvent ioex) {
-       logger.error("Got an unexpected IOException " +
-               ioex.getHost() + ":" + ioex.getPort() + "/" + ioex.getTransport() );
+        logger.error("Got an unexpected IOException " + ioex.getHost() + ":" + ioex.getPort()
+                + "/" + ioex.getTransport());
 
     }
 
@@ -99,38 +102,59 @@ public class SipListenerImpl implements SipListener {
      */
     public void processRequest(RequestEvent requestEvent) {
 
-        logger.debug("Gateway: got an invoming request " + requestEvent.getRequest());
+        if (logger.isDebugEnabled()) {
+            logger.debug("Gateway: got an invoming request " + requestEvent.getRequest());
+        }
         Request request = requestEvent.getRequest();
         String method = request.getMethod();
         SipProvider provider = (SipProvider) requestEvent.getSource();
-        if (Gateway.getState() == GatewayState.STOPPING) {
-            logger.debug("Gateway is stopping -- returning");
-            return;
-        } else if ( Gateway.getState() == GatewayState.INITIALIZING) {
-            logger.debug("Rejecting request -- gateway is initializing" );
-            try {
+
+        ViaHeader viaHeader = (ViaHeader) request.getHeader(ViaHeader.NAME);
+
+        try {
+
+            if (Gateway.getState() == GatewayState.STOPPING) {
+                logger.debug("Gateway is stopping -- returning");
+                return;
+            } else if (Gateway.getState() == GatewayState.INITIALIZING) {
+                logger.debug("Rejecting request -- gateway is initializing");
+
                 Response response = ProtocolObjects.messageFactory.createResponse(
                         Response.SERVICE_UNAVAILABLE, request);
                 response.setReasonPhrase("Gateway is initializing -- try later");
                 ServerTransaction st = requestEvent.getServerTransaction();
                 if (st == null) {
                     st = provider.getNewServerTransaction(request);
-
                 }
+
                 st.sendResponse(response);
                 return;
-            } catch (TransactionAlreadyExistsException ex) {
-                logger.error("transaction already exists", ex);
-                return;
-            } catch (SipException ex) {
-                throw new RuntimeException("Unexpected exceptione", ex);
-            } catch (Exception ex) {
-                logger.error("Unexpected exception ", ex);
-                throw new RuntimeException("unexpected exception", ex);
-            } 
-        }
 
-      
+            } else if (provider == Gateway.getLanProvider()
+                    && (viaHeader.getReceived() != null || !Gateway.isAddressFromProxy(viaHeader
+                            .getHost()))) {
+                ServerTransaction st = requestEvent.getServerTransaction();
+                if (st == null) {
+                    st = provider.getNewServerTransaction(request);
+
+                }
+
+                Response forbidden = SipUtilities.createResponse(st, Response.FORBIDDEN);
+                forbidden.setReasonPhrase("Request not issued from SIPX proxy server");
+                st.sendResponse(forbidden);
+                return;
+
+            }
+
+        } catch (TransactionAlreadyExistsException ex) {
+            logger.error("transaction already exists", ex);
+            return;
+        } catch (SipException ex) {
+            throw new RuntimeException("Unexpected exceptione", ex);
+        } catch (Exception ex) {
+            logger.error("Unexpected exception ", ex);
+            throw new RuntimeException("unexpected exception", ex);
+        }
 
         if (method.equals(Request.INVITE) || method.equals(Request.ACK)
                 || method.equals(Request.CANCEL) || method.equals(Request.BYE)
@@ -154,7 +178,7 @@ public class SipListenerImpl implements SipListener {
             } catch (Exception ex) {
                 logger.error("Unexpected exception ", ex);
                 throw new RuntimeException("unexpected exception", ex);
-            } 
+            }
         }
 
     }
@@ -191,7 +215,7 @@ public class SipListenerImpl implements SipListener {
                 logger.debug("Discarding response -- no transaction context information");
                 return;
             }
-           
+
             ItspAccountInfo accountInfo = ((TransactionApplicationData) responseEvent
                     .getClientTransaction().getApplicationData()).itspAccountInfo;
 
@@ -199,7 +223,8 @@ public class SipListenerImpl implements SipListener {
 
                 if (response.getStatusCode() == Response.CALL_OR_TRANSACTION_DOES_NOT_EXIST) {
                     Dialog dialog = responseEvent.getClientTransaction().getDialog();
-                    BackToBackUserAgent b2bua = DialogApplicationData.get(dialog).getBackToBackUserAgent();
+                    BackToBackUserAgent b2bua = DialogApplicationData.get(dialog)
+                            .getBackToBackUserAgent();
                     b2bua.tearDown();
                 }
 
@@ -225,11 +250,9 @@ public class SipListenerImpl implements SipListener {
 
             if (response.getStatusCode() == Response.PROXY_AUTHENTICATION_REQUIRED
                     || response.getStatusCode() == Response.UNAUTHORIZED) {
-                
-                
+
                 SipProvider provider = (SipProvider) responseEvent.getSource();
-                
-              
+
                 Dialog dialog = responseEvent.getDialog();
                 if (logger.isDebugEnabled()) {
                     logger.debug("SipListenerImpl : dialog = " + dialog);
@@ -239,17 +262,17 @@ public class SipListenerImpl implements SipListener {
                 if (b2bua != null) {
                     b2bua.removeDialog(dialog);
                 }
-                
-                if ( provider == Gateway.getLanProvider() ) {
+
+                if (provider == Gateway.getLanProvider()) {
                     // Unexpected challenge from LAN side.
                     // We are not configured to handle challenge for inbound calling
                     // If we get such a challenge, we just decline the call.
-                   ServerTransaction stx  =  ((TransactionApplicationData) responseEvent
+                    ServerTransaction stx = ((TransactionApplicationData) responseEvent
                             .getClientTransaction().getApplicationData()).serverTransaction;
-                   Response errorResponse = SipUtilities.createResponse(stx, Response.DECLINE);
-                   stx.sendResponse(errorResponse);
-                   stx.getDialog().delete();
-                   return;
+                    Response errorResponse = SipUtilities.createResponse(stx, Response.DECLINE);
+                    stx.sendResponse(errorResponse);
+                    stx.getDialog().delete();
+                    return;
                 }
 
                 ClientTransaction newClientTransaction = Gateway.getAuthenticationHelper()
@@ -269,7 +292,7 @@ public class SipListenerImpl implements SipListener {
 
                     DialogApplicationData newDialogApplicationData = DialogApplicationData
                             .attach(b2bua, newClientTransaction.getDialog(),
-                                      newClientTransaction,  newClientTransaction.getRequest());
+                                    newClientTransaction, newClientTransaction.getRequest());
                     newDialogApplicationData.peerDialog = dialogApplicationData.peerDialog;
                     newClientTransaction.getDialog().setApplicationData(newDialogApplicationData);
                     /*
@@ -279,7 +302,7 @@ public class SipListenerImpl implements SipListener {
                             .getApplicationData();
                     peerDialogApplicationData.peerDialog = newClientTransaction.getDialog();
                     newDialogApplicationData.setRtpSession(dialogApplicationData.getRtpSession());
-                    
+
                     if (logger.isDebugEnabled()) {
                         logger.debug("SipListenerImpl: New Dialog = "
                                 + newClientTransaction.getDialog());
@@ -334,14 +357,16 @@ public class SipListenerImpl implements SipListener {
                 if (request.getMethod().equals(Request.OPTIONS)) {
                     ClientTransaction clientTransaction = timeoutEvent.getClientTransaction();
                     Dialog dialog = clientTransaction.getDialog();
-                    BackToBackUserAgent b2bua = DialogApplicationData.get(dialog).getBackToBackUserAgent();
+                    BackToBackUserAgent b2bua = DialogApplicationData.get(dialog)
+                            .getBackToBackUserAgent();
                     b2bua.tearDown();
                 } else if (request.getMethod().equals(Request.REGISTER)) {
                     Gateway.getRegistrationManager().processTimeout(timeoutEvent);
-                } else if ( request.getMethod().equals(Request.BYE) ) {
+                } else if (request.getMethod().equals(Request.BYE)) {
                     ClientTransaction clientTransaction = timeoutEvent.getClientTransaction();
                     Dialog dialog = clientTransaction.getDialog();
-                    BackToBackUserAgent b2bua = DialogApplicationData.get(dialog).getBackToBackUserAgent();
+                    BackToBackUserAgent b2bua = DialogApplicationData.get(dialog)
+                            .getBackToBackUserAgent();
                     dialog.delete();
                     b2bua.removeDialog(dialog);
                 } else if (request.getMethod().equals(Request.INVITE)) {
@@ -361,7 +386,7 @@ public class SipListenerImpl implements SipListener {
                             mohDialog.sendRequest(byetx);
                         }
                     }
-                   
+
                 }
             }
         } catch (Exception ex) {

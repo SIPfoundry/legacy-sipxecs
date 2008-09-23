@@ -47,6 +47,7 @@ import javax.sip.header.CSeqHeader;
 import javax.sip.header.ContactHeader;
 import javax.sip.header.ContentTypeHeader;
 import javax.sip.header.EventHeader;
+import javax.sip.header.FromHeader;
 import javax.sip.header.SubscriptionStateHeader;
 import javax.sip.header.SupportedHeader;
 import javax.sip.header.ToHeader;
@@ -202,8 +203,14 @@ class CallControlManager implements SymmitronResetHandler {
                 }
             }
             Dialog dialog = serverTransaction.getDialog();
-
-            if (dialog.getState() == DialogState.CONFIRMED) {
+            
+            if ( dialog.getState() == DialogState.TERMINATED ) {
+                logger.debug("Got a stray request on a terminated dialog!");
+                Response response = SipUtilities.createResponse(serverTransaction,Response.SERVER_INTERNAL_ERROR);
+                serverTransaction.sendResponse(response);
+                return;
+                
+            } else  if (dialog.getState() == DialogState.CONFIRMED) {
                 logger.debug("Re-INVITE proessing !! ");
                 DialogApplicationData dat = (DialogApplicationData) dialog.getApplicationData();
                 RtpSession rtpSession = dat.getRtpSession();
@@ -252,7 +259,7 @@ class CallControlManager implements SymmitronResetHandler {
                     }
                 }
 
-            }
+            } 
 
             BackToBackUserAgent btobua = null;
 
@@ -314,8 +321,9 @@ class CallControlManager implements SymmitronResetHandler {
             // This method was seen from the LAN side.
             // Create a WAN side association and send the INVITE on its way.
             if (provider == Gateway.getLanProvider()) {
-                ItspAccountInfo account = Gateway.getAccountManager().getAccount(
-                         request);
+                String toDomain = null;
+                // outbound call. better check for valid account
+                ItspAccountInfo account = Gateway.getAccountManager().getAccount(request);
                 if (account == null) {
                     Response response = ProtocolObjects.messageFactory.createResponse(
                             Response.NOT_FOUND, request);
@@ -323,7 +331,7 @@ class CallControlManager implements SymmitronResetHandler {
                     serverTransaction.sendResponse(response);
                     return;
 
-                } else if ( account.getState() == AccountState.INVALID ) {
+                } else if (account.getState() == AccountState.INVALID) {
                     Response response = ProtocolObjects.messageFactory.createResponse(
                             Response.BAD_GATEWAY, request);
                     response.setReasonPhrase("Configuration problem for ITSP - check logs");
@@ -332,7 +340,7 @@ class CallControlManager implements SymmitronResetHandler {
                 }
                 // This case occurs when in and outbound proxy are different.
                 btobua.setItspAccount(account);
-                String toDomain = account.getSipDomain();
+                toDomain = account.getSipDomain();
 
                 boolean isPhone = ((SipURI) request.getRequestURI()).getParameter("user") != null
                         && ((SipURI) request.getRequestURI()).getParameter("user")
@@ -771,11 +779,10 @@ class CallControlManager implements SymmitronResetHandler {
 
                 SipUtilities.incrementSessionVersion(sd);
             }
-            
-            // HACK ALERT -- some ITSPs look at sendonly and start playing 
+
+            // HACK ALERT -- some ITSPs look at sendonly and start playing
             // their own MOH. This hack is to get around that nasty behavior.
-            if ( SipUtilities.getSessionDescriptionMediaAttributeDuplexity(sd)
-                    .equals("sendonly") ) {
+            if (SipUtilities.getSessionDescriptionMediaAttributeDuplexity(sd).equals("sendonly")) {
                 SipUtilities.setDuplexity(sd, "sendrecv");
             }
 
@@ -919,12 +926,12 @@ class CallControlManager implements SymmitronResetHandler {
                     } else if (operation == Operation.REFER_INVITE_TO_SIPX_PROXY) {
 
                         ReferInviteToSipxProxyContinuationData continuation = (ReferInviteToSipxProxyContinuationData) tad.continuationData;
-                        b2bua.getLanRtpSession(continuation.getDialog()).getReceiver().setSdpQueried(
-                                true);
+                        b2bua.getLanRtpSession(continuation.getDialog()).getReceiver()
+                                .setSdpQueried(true);
                         b2bua.getLanRtpSession(continuation.getDialog()).getReceiver()
                                 .setSessionDescription(sd);
-                        b2bua.referInviteToSipxProxy(continuation.getRequest(), continuation.getDialog(),
-                                sd);
+                        b2bua.referInviteToSipxProxy(continuation.getRequest(), continuation
+                                .getDialog(), sd);
                     } else if (operation == Operation.SEND_INVITE_TO_MOH_SERVER) {
 
                         ReInviteProcessingContinuationData continuation = (ReInviteProcessingContinuationData) tad.continuationData;
@@ -1280,11 +1287,13 @@ class CallControlManager implements SymmitronResetHandler {
                     logger.fatal("CallControlManager: Unknown Case in if statement ");
                 }
             } else if (response.getStatusCode() == Response.REQUEST_PENDING) {
-                // A glare condition was detected. Start a timer and retry the operation after timeout
+                // A glare condition was detected. Start a timer and retry the operation after
+                // timeout
                 // later.
                 TransactionApplicationData tad = (TransactionApplicationData) responseEvent
                         .getClientTransaction().getApplicationData();
-                if (tad.continuationData == null || tad.continuationData.getOperation() != Operation.REFER_INVITE_TO_SIPX_PROXY) {
+                if (tad.continuationData == null
+                        || tad.continuationData.getOperation() != Operation.REFER_INVITE_TO_SIPX_PROXY) {
                     logger.warn("Unexpected REQUEST_PENDING");
                     b2bua.tearDown();
                     return;
@@ -1323,9 +1332,10 @@ class CallControlManager implements SymmitronResetHandler {
                         } else {
                             b2bua.tearDown();
                         }
-                    }  else {
+                    } else {
                         Dialog referDialog = tad.referingDialog;
-                        if ( referDialog != null && referDialog.getState() == DialogState.CONFIRMED )  {
+                        if (referDialog != null
+                                && referDialog.getState() == DialogState.CONFIRMED) {
                             this.notifyReferDialog(referDialog, response);
                         }
                     }
@@ -1436,10 +1446,12 @@ class CallControlManager implements SymmitronResetHandler {
 
             ItspAccountInfo accountInfo = null;
             if (callOriginatedFromLan) {
-                accountInfo = Gateway.getAccountManager().getAccount(
-                        request);
-                
-                if ( accountInfo.getState() == AccountState.INVALID ) {
+                accountInfo = Gateway.getAccountManager().getAccount(request);
+                if (accountInfo == null) {
+                    logger.error("Could not find iTSP account - check caller ID/domain");
+                    return null;
+                }
+                if (accountInfo.getState() == AccountState.INVALID) {
                     logger.error("Could not find an itsp account -- the account is not valid");
                     return null;
                 }
@@ -1470,12 +1482,12 @@ class CallControlManager implements SymmitronResetHandler {
         } catch (IOException ex) {
             logger.error("unepxected exception", ex);
             throw new RuntimeException("IOException -- check symmitron", ex);
-        } catch ( SymmitronException ex) {
+        } catch (SymmitronException ex) {
             logger.error("Error contacting symmitron", ex);
-            throw new RuntimeException("SipXrelay Exception ",ex);
+            throw new RuntimeException("SipXrelay Exception ", ex);
         } catch (Exception ex) {
             logger.error("unexpected exception ", ex);
-            throw new RuntimeException("Unepxected exception processing request",ex);
+            throw new RuntimeException("Unepxected exception processing request", ex);
         }
         return b2bua;
 

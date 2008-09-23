@@ -15,6 +15,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -172,6 +173,8 @@ public class Gateway {
 
     private static String configurationPath;
 
+    private static HashSet<String> proxyAddressTable = new HashSet<String>();
+
     private Gateway() {
 
     }
@@ -189,12 +192,12 @@ public class Gateway {
     static SymmitronClient initializeSymmitron(String address) {
         SymmitronClient symmitronClient = symmitronClients.get(address);
         if (symmitronClients != null) {
-            int symmitronPort ;
-            if ( Gateway.getBridgeConfiguration().getSymmitronXmlRpcPort() != 0 ) {
+            int symmitronPort;
+            if (Gateway.getBridgeConfiguration().getSymmitronXmlRpcPort() != 0) {
                 symmitronPort = Gateway.getBridgeConfiguration().getSymmitronXmlRpcPort();
             } else {
                 SymmitronConfig symconfig = new SymmitronConfigParser()
-                    .parse(Gateway.configurationPath + "/nattraversalrules.xml");
+                        .parse(Gateway.configurationPath + "/nattraversalrules.xml");
                 symmitronPort = symconfig.getXmlRpcPort();
             }
             symmitronClient = new SymmitronClient(address, symmitronPort, callControlManager);
@@ -289,7 +292,7 @@ public class Gateway {
                         .getHostAddress();
                 logger.debug("Stun report = " + report);
                 if (report.getPublicAddress().getPort() != STUN_PORT) {
-                    System.out.println("WARNING External port != internal port ");
+                    logger.debug("WARNING External port != internal port ");
                 }
 
             }
@@ -319,6 +322,52 @@ public class Gateway {
 
         };
         Gateway.getTimer().schedule(ttask, rediscoveryTime * 1000, rediscoveryTime * 1000);
+    }
+
+    /**
+     * Get the proxy addresses. This is done once at startup. We cannot accecpt inbound INVITE
+     * from other addresses than the ones on this list.
+     */
+
+    static void getSipxProxyAddresses() throws GatewayConfigurationException {
+        try {
+           
+            
+            Record[] records = new Lookup("_sip._" + getSipxProxyTransport() + "."
+                    + getSipxProxyDomain(), Type.SRV).run();
+            
+          
+            if (records == null) {
+                logger.debug("SRV record lookup returned null");
+                Gateway.sipxProxyAddress = getSipxProxyDomain();
+                
+                Gateway.proxyAddressTable.add(InetAddress.getByName(sipxProxyAddress)
+                        .getHostAddress());
+            } else {
+                for (Record rec : records) {
+                    SRVRecord record = (SRVRecord) rec;
+                    int port = record.getPort();
+                    String resolvedName = record.getTarget().toString();
+                    // Sometimes the DNS (on linux) appends a "." to the end of the
+                    // record.
+                    // The library ought to strip this.
+                    if (resolvedName.endsWith(".")) {
+                        resolvedName = resolvedName.substring(0, resolvedName.lastIndexOf('.'));
+                    }
+                    String ipAddress = InetAddress.getByName(resolvedName).getHostAddress();
+                   
+                    Gateway.proxyAddressTable.add(ipAddress);
+                }
+            }
+            
+            logger.debug("proxy address table = " + proxyAddressTable);
+        } catch (Exception ex) {
+            throw new GatewayConfigurationException("Cannot do address lookup ", ex);
+        }
+    }
+
+    static boolean isAddressFromProxy(String address) {
+        return proxyAddressTable.contains(address);
     }
 
     /**
@@ -465,7 +514,7 @@ public class Gateway {
 
             } else {
                 SRVRecord record = (SRVRecord) records[0];
-                
+
                 int port = record.getPort();
                 String resolvedName = record.getTarget().toString();
                 // Sometimes the DNS (on linux) appends a "." to the end of the
@@ -479,7 +528,6 @@ public class Gateway {
                 return new HopImpl(resolvedName, port, getSipxProxyTransport());
             }
 
-       
         } catch (TextParseException ex) {
             logger.error("Problem looking up proxy address -- stopping gateway");
             return null;
@@ -591,9 +639,9 @@ public class Gateway {
             Gateway.accountManager.startAuthenticationFailureTimers();
 
             for (ItspAccountInfo itspAccount : Gateway.accountManager.getItspAccounts()) {
-               
-                if (itspAccount.isRegisterOnInitialization() &&
-                        itspAccount.getState() != AccountState.INVALID ) {
+
+                if (itspAccount.isRegisterOnInitialization()
+                        && itspAccount.getState() != AccountState.INVALID) {
                     Gateway.registrationManager.sendRegistrer(itspAccount);
                 }
 
@@ -609,7 +657,7 @@ public class Gateway {
                 } catch (InterruptedException ex) {
                     throw new RuntimeException("Unexpected exception registering", ex);
                 }
-                
+
                 /*
                  * Check all accounts - if they are Authenticated we are done.
                  */
@@ -621,7 +669,8 @@ public class Gateway {
                         break;
                     }
                 }
-                if (allAuthenticated) break;
+                if (allAuthenticated)
+                    break;
 
             }
 
@@ -694,7 +743,6 @@ public class Gateway {
                 Gateway.accountManager.getBridgeConfiguration().setStunServerAddress(null);
             }
 
-           
         } else {
             logger.debug("Global rediscovery not needed.");
         }
@@ -705,51 +753,46 @@ public class Gateway {
             return;
         }
         Gateway.state = GatewayState.INITIALIZING;
-           
+
         /*
          * If specified, try to contact symmitron.
          */
-        if ( Gateway.getBridgeConfiguration().getSymmitronHost() != null ) {
-            int i ;
-            for ( i = 0 ; i < 8 ; i ++ ) {
+        if (Gateway.getBridgeConfiguration().getSymmitronHost() != null) {
+            int i;
+            for (i = 0; i < 8; i++) {
                 try {
-                    Gateway.initializeSymmitron(Gateway.getBridgeConfiguration().getSymmitronHost());
-                } catch ( SymmitronException ex) {
+                    Gateway.initializeSymmitron(Gateway.getBridgeConfiguration()
+                            .getSymmitronHost());
+                } catch (SymmitronException ex) {
                     logger.error("Symmitron not started -- retrying!");
                     try {
                         Thread.sleep(30000);
                         continue;
                     } catch (InterruptedException e) {
-                        
+
                     }
-                    
+
                 }
                 break;
             }
-            if ( i == 8 ) {
-                logger.fatal("Coould not contact symmitron - please start symmitron on " + 
-                        Gateway.getBridgeConfiguration().getSymmitronHost() );
-                        
+            if (i == 8) {
+                logger.fatal("Coould not contact symmitron - please start symmitron on "
+                        + Gateway.getBridgeConfiguration().getSymmitronHost());
+
             }
         }
-        
-        System.out.println("connected to symmitron");
-        
+
+      
         initializeSipListeningPoints();
         
-        System.out.println("Listeningpoint initialized");
-        
+        getSipxProxyAddresses();
+
         startAddressDiscovery();
-        
-        System.out.println("startAddressDiscovery");
-        
+
         startSipListener();
         // Can start sending outbound calls.
         Gateway.state = GatewayState.INITIALIZED;
         registerWithItsp();
-        
-        
-        
 
     }
 
@@ -994,7 +1037,7 @@ public class Gateway {
                         logger.error("Configuration error -- no global address or stun server");
                         System.exit(-1);
                     }
-                    
+
                     // TODO -- check for availability of the ports.
 
                     System.exit(0);
