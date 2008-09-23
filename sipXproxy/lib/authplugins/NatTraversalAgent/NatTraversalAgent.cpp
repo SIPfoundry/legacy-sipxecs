@@ -733,4 +733,3 @@ NatTraversalAgent::~NatTraversalAgent()
       mpRegistrationDB = 0;
    }
 }
-

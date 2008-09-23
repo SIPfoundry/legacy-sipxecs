@@ -1888,6 +1888,7 @@ public:
          Url url7(url, Url::AddrSpec);
          CPPUNIT_ASSERT(url7.isGRUU());
          
+         // Note that the URI parameter below is 'gruu', not 'gr'.
          url = "sip:user@example.edu;gruu=sk33tyzzx";
          Url url8(url, Url::AddrSpec);
          CPPUNIT_ASSERT(! url8.isGRUU());

@@ -39,7 +39,7 @@ RegistrationRow regdata[] =
       "3",
       "",
       "1111",
-      "sip:181@example.com;gruu",
+      "sip:181@example.com;gr",
       "<sip:visitme.com>,<sip:overhere.com>,<sip:comemyway.com>"
    },
    {
@@ -50,7 +50,7 @@ RegistrationRow regdata[] =
       "2",
       "0.8",
       "2222",
-      "sip:182@example.com;gruu",
+      "sip:182@example.com;gr",
       "<sip:visitme.com>,<sip:overhere.com>,<sip:comemyway.com>"
    },
    {
@@ -61,7 +61,7 @@ RegistrationRow regdata[] =
       "1",
       "0.2",
       "3333",
-      "sip:183@example.com;gruu",
+      "sip:183@example.com;gr",
       "<sip:visitme.com>,<sip:overhere.com>,<sip:comemyway.com>"
    }
 };
@@ -141,7 +141,7 @@ public:
             "<value><array><data>\n"
             "<value><struct>\n"
             "<member>\n"
-            "<name>gruu</name><value><string>sip:181@example.com;gruu</string></value>\n"
+            "<name>gruu</name><value><string>sip:181@example.com;gr</string></value>\n"
             "</member>\n"
             "<member>\n"
             "<name>path</name><value><string>&lt;sip:visitme.com&gt;,&lt;sip:overhere.com&gt;,&lt;sip:comemyway.com&gt;</string></value>\n"
@@ -170,7 +170,7 @@ public:
             "</struct></value>\n"
             "<value><struct>\n"
             "<member>\n"
-            "<name>gruu</name><value><string>sip:182@example.com;gruu</string></value>\n"
+            "<name>gruu</name><value><string>sip:182@example.com;gr</string></value>\n"
             "</member>\n"
             "<member>\n"
             "<name>path</name><value><string>&lt;sip:visitme.com&gt;,&lt;sip:overhere.com&gt;,&lt;sip:comemyway.com&gt;</string></value>\n"
@@ -199,7 +199,7 @@ public:
             "</struct></value>\n"
             "<value><struct>\n"
             "<member>\n"
-            "<name>gruu</name><value><string>sip:183@example.com;gruu</string></value>\n"
+            "<name>gruu</name><value><string>sip:183@example.com;gr</string></value>\n"
             "</member>\n"
             "<member>\n"
             "<name>path</name><value><string>&lt;sip:visitme.com&gt;,&lt;sip:overhere.com&gt;,&lt;sip:comemyway.com&gt;</string></value>\n"
