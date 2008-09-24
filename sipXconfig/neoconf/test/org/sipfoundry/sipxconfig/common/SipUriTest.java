@@ -158,6 +158,26 @@ public class SipUriTest extends TestCase {
         assertNull(SipUri.fix(null, "example.org"));
     }
 
+    public void testFixWithDisplayName() {
+        assertEquals("sip:123@example.org", SipUri.fixWithDisplayName("123", "", "",
+                "example.org"));
+        assertEquals("\"display name\"<sip:123@example.org>", SipUri.fixWithDisplayName("123",
+                "display name", "", "example.org"));
+        assertEquals("sip:123@example.org;key=value", SipUri.fixWithDisplayName("123", "",
+                "key=value", "example.org"));
+        assertEquals("\"display name\"<sip:123@example.org;key=value>", SipUri
+                .fixWithDisplayName("123", "display name", "key=value", "example.org"));
+        assertEquals("sip:name@sipfoundry.org", SipUri.fixWithDisplayName("name@sipfoundry.org",
+                "", "", "example.org"));
+        assertEquals("\"display name\"<sip:name@sipfoundry.org>", SipUri.fixWithDisplayName(
+                "name@sipfoundry.org", "display name", "", "example.org"));
+        assertEquals("sip:name@sipfoundry.org;key=value", SipUri.fixWithDisplayName(
+                "name@sipfoundry.org", "", "key=value", "example.org"));
+        assertEquals("\"display name\"<sip:name@sipfoundry.org;key=value>", SipUri
+                .fixWithDisplayName("name@sipfoundry.org", "display name", "key=value",
+                        "example.org"));
+    }
+
     public void testUrlParams() {
         Map urlParams = new TreeMap();
         urlParams.put("a-key", "aa");

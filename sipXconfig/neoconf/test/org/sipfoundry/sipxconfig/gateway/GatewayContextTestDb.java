@@ -131,6 +131,10 @@ public class GatewayContextTestDb extends SipxDatabaseTestCase {
         info.setIgnoreUserInfo(true);
         info.setTransformUserExtension(true);
         info.setAddPrefix("4321");
+        info.setEnableCallerId(true);
+        info.setCallerId("user@domain.com");
+        info.setDisplayName("display name");
+        info.setUrlParameters("param=value");
         g1.setCallerAliasInfo(info);
 
         m_context.storeGateway(g1);
@@ -144,6 +148,10 @@ public class GatewayContextTestDb extends SipxDatabaseTestCase {
         assertTrue(g1.getCallerAliasInfo().isAnonymous());
         assertTrue(g1.getCallerAliasInfo().isIgnoreUserInfo());
         assertTrue(g1.getCallerAliasInfo().isTransformUserExtension());
+        assertTrue(g1.getCallerAliasInfo().isEnableCallerId());
+        assertEquals("user@domain.com", g1.getCallerAliasInfo().getCallerId());
+        assertEquals("display name", g1.getCallerAliasInfo().getDisplayName());
+        assertEquals("param=value", g1.getCallerAliasInfo().getUrlParameters());
     }
 
     public void testSaveLoadUpdateGateway() throws Exception {

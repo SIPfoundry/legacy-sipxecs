@@ -153,6 +153,35 @@ public final class SipUri {
         return format(candidate, domain, false);
     }
 
+    public static String fixWithDisplayName(String candidate, String displayName,
+            String urlParams, String domain) {
+        StringBuilder uri = new StringBuilder();
+        boolean needsWrapping = StringUtils.isNotBlank(displayName);
+        if (needsWrapping) {
+            uri.append('"');
+            uri.append(displayName);
+            uri.append('"');
+        }
+
+        String addParams = "";
+        if (StringUtils.isNotBlank(urlParams)) {
+            addParams = ";" + urlParams;
+        }
+
+        if (matches(candidate)) {
+            if (needsWrapping) {
+                String format = "<sip:%s>";
+                uri.append(String.format(format, candidate + addParams));
+            } else {
+                uri.append(normalize(candidate) + addParams);
+            }
+        } else {
+            uri.append(format(candidate, domain + addParams, needsWrapping));
+        }
+
+        return uri.toString();
+    }
+
     public static String extractUser(String uri) {
         if (uri == null) {
             return null;

@@ -25,6 +25,14 @@ public class GatewayCallerAliasInfo implements Cloneable {
 
     private int m_keepDigits;
 
+    private String m_callerId;
+
+    private String m_displayName;
+
+    private String m_urlParameters;
+
+    private boolean m_enableCallerId;
+
     /**
      * Transforms user extension into from header
      * 
@@ -100,5 +108,37 @@ public class GatewayCallerAliasInfo implements Cloneable {
 
     public Object clone() throws CloneNotSupportedException {
         return super.clone();
+    }
+
+    public String getCallerId() {
+        return m_callerId;
+    }
+
+    public void setCallerId(String callerId) {
+        m_callerId = callerId;
+    }
+
+    public String getDisplayName() {
+        return m_displayName;
+    }
+
+    public void setDisplayName(String displayName) {
+        m_displayName = displayName;
+    }
+
+    public String getUrlParameters() {
+        return m_urlParameters;
+    }
+
+    public void setUrlParameters(String urlParameters) {
+        m_urlParameters = urlParameters;
+    }
+
+    public boolean isEnableCallerId() {
+        return m_enableCallerId;
+    }
+
+    public void setEnableCallerId(boolean enableCallerId) {
+        m_enableCallerId = enableCallerId;
     }
 }

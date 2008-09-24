@@ -276,6 +276,7 @@
   	<antcall target="location-sipx-service"/>
   	<antcall target="add-additional-sipx-services"/>
   	<antcall target="remove-user-based-dialing"/>
+	<antcall target="caller-alias-add-sip-uri"/>
     <!-- When freezing schema uncomment this line -->
     <!-- sipx-version version="8" -->
   </target>
@@ -695,7 +696,11 @@
     <db-patch patch="remove-user-based-dialing"/>
   </target>
 
-  <!-- 
+  <target name="caller-alias-add-sip-uri" unless="caller-alias-add-sip-uri">
+    <db-patch patch="caller-alias-add-sip-uri"/>
+  </target>
+
+  <!--
     Migration Targets Legend
     
     migrate-2.8          - PDS to SIPXCONFIG, 2.8 release to 3.0 release

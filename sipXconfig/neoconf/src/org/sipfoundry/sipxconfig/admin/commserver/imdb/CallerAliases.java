@@ -56,6 +56,11 @@ public class CallerAliases extends DataSetGenerator {
         if (gatewayInfo.isAnonymous()) {
             return m_anonymousAlias;
         }
+        String callerId = gatewayInfo.getCallerId();
+        if (gatewayInfo.isEnableCallerId() && callerId != null) {
+            return SipUri.fixWithDisplayName(callerId, gatewayInfo.getDisplayName(), gatewayInfo
+                    .getUrlParameters(), sipDomain);
+        }
         String defaultExternalNumber = gatewayInfo.getDefaultCallerAlias();
         if (defaultExternalNumber != null) {
             return SipUri.format(defaultExternalNumber, sipDomain, false);
