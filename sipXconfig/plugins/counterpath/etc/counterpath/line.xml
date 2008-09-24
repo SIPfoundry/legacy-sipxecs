@@ -1,0 +1,544 @@
+<?xml version="1.0"?>
+<!DOCTYPE model PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN"
+  "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd">
+<model>
+  <type id="true-false">
+    <boolean>
+      <true>
+        <value>true</value>
+      </true>
+      <false>
+        <value>false</value>
+      </false>
+    </boolean>
+  </type>
+  <group name="registration">
+    <label>Registration</label>
+    <setting name="username">
+      <label>User name</label>
+      <value></value>
+      <description>The username for the SIP account.</description>
+    </setting>
+    <setting name="display_name">
+      <label>Display name</label>
+      <value></value>
+      <description>The name that will be displayed for this account on the user’s phone.</description>
+    </setting>
+    <setting name="domain">
+      <label>SIP domain</label>
+      <value></value>
+      <description>The domain for the proxy (account).</description>
+    </setting>
+    <setting name="enabled" advanced="yes">
+      <label>Enabled</label>
+      <type refid="true-false"/>
+      <value>true</value>
+      <description>Set to true to enable the account.
+If you allow multiple accounts, enable and disable accounts as appropriate, to control this initial behavior (the user will be able to change it).
+Otherwise, leave this setting as the default.</description>
+    </setting>
+    <setting name="register" advanced="yes">
+      <label>Register</label>
+      <type refid="true-false"/>
+      <value>true</value>
+      <description>Set to true if you want to allow the user to register with your SIP registrar, so that they can receive incoming calls.</description>
+    </setting>
+    <setting name="reregister_in_seconds" advanced="yes">
+      <label>Re-register interval</label>
+      <type>
+        <integer />
+      </type>
+      <value>3600</value>
+      <description>The time interval between the application’s attempts to reregister in order to refresh the account registration (in seconds). A value of 0 means not to reregister after the initial registration.
+This value is placed in the “Expires” header field of the register message.</description>
+    </setting>
+    <setting name="password" advanced="yes">
+      <label>Password</label>
+      <type>
+        <string password="yes"/>
+      </type>
+      <value/>
+      <description>The password for the SIP account.</description>
+    </setting>
+    <setting name="authorization_username" advanced="yes">
+      <label>Authorization user name</label>
+      <value></value>
+      <description>The authorization username for the SIP account.
+An authorization name is useful, for example, if you allow usernames that are short and therefore easy to guess. The authorization user name is used in place of the user name to register the account with the SIP registrar. It provides an added layer of security.</description>
+    </setting>
+  </group>
+  <group name="mwi_notification">
+    <label>MWI Notification</label>
+    <setting name="subscribe_to_message_waiting">
+      <label>Subscribe to message waiting</label>
+      <type refid="true-false"/>
+      <value>true</value>
+      <description>Set to true to instruct the application to subscribe to be notified when there is a voicemail for the end user. When there is a voicemail, the application will display a MWI to notify the user.
+Set to false if your server will notify the application (without the application subscribing) when there is a voicemail for the end user, or
+you do not want the application to be involved in handling voicemail.</description>
+    </setting>
+    <setting name="message_waiting_maximum_time_before_resubscribe_in_seconds">
+      <label>Maximum time before resubscribe</label>
+      <type>
+        <integer />
+      </type>
+      <value>180</value>
+      <description>The maximum wait time between attempts to resubscribe (in seconds). Once this maximum is reached, the application will wait this time for all subsequent attempts.</description>
+    </setting>
+    <setting name="message_waiting_minimum_time_before_resubscribe_in_seconds">
+      <label>Minimum time before resubscribe</label>
+      <type>
+        <integer />
+      </type>
+      <value>60</value>
+      <description>If the resubscribe fails, the application will wait this amount of time (in seconds), then attempt to resubscribe. If the second attempt fails, the application will wait twice this time and try again, then four times this time, and so on, until resubscribe succeeds.</description>
+    </setting>
+    <setting name="message_waiting_refresh_interval_in_seconds">
+      <label>Refresh interval</label>
+      <type>
+        <integer />
+      </type>
+      <value>300</value>
+      <description>The time interval between the application’s attempts to resubscribe in order to refresh the MWI information (in seconds). A value of 0 means not to resubscribe after the initial subscription.</description>
+    </setting>
+  </group>
+
+  <group name="presence">
+    <label>Presence</label>
+    <setting name="presence_operating_mode">
+      <label>Presence mode</label>
+      <type>
+        <enum>
+          <option>
+            <label>Disabled</label>
+            <value>0</value>
+          </option>
+          <option>
+            <label>With presence agent</label>
+            <value>1</value>
+          </option>
+          <option>
+            <label>Peer-to-peer</label>
+            <value>2</value>
+          </option>
+        </enum>
+      </type>
+      <value>2</value>
+      <description>Specify the operating mode for presence: </description>
+    </setting>
+    <setting name="presence_p2p_poll_time_in_seconds">
+      <label>Poll time</label>
+      <type>
+        <integer />
+      </type>
+      <value>300</value>
+      <description>If Presence mode is With presence agent or Peer-to-peer, enter the polling time for presence: the time used to retry a SUBSCRIBE request should a first one be unsuccessful (in seconds).</description>
+    </setting>
+    <setting name="presence_server_refresh_interval_in_seconds">
+      <label>Refresh interval</label>
+      <type>
+        <integer />
+      </type>
+      <value>3600</value>
+      <description>If Presence mode is With presence agent or Peer-to-peer, enter the refresh time for presence: the  interval at which the subscription must be refreshed  (in seconds). This setting is the "expires=" in the SUBSCRIBE message.</description>
+    </setting>
+  </group>
+
+  <group name="resources">
+    <label>Resources</label>
+    <setting name="resource_list_method">
+      <label>Resource list method</label>
+      <type>
+        <enum>
+          <option>
+            <label>Local</label>
+            <value>local</value>
+          </option>
+          <option>
+            <label>WebDAV</label>
+            <value>webdav</value>
+          </option>
+          <option>
+            <label>XCAP</label>
+            <value>xcap</value>
+          </option>
+        </enum>
+      </type>
+      <value>local</value>
+      <description>The method for storing the resource list, that is, the contacts in the Contacts tab and Addresses tab.
+- Local: Store on the the application computer only, in the location for application data for the application. You specify the location of this folder during branding.
+- WebDAV: To store locally and on a remote WebDAV location. The location and login information are provided in other “resource_” the application settings.
+- XCAP: To store locally and on a remote XCAP location. Login information is provided in other “resource_” the application settings.</description>
+    </setting>
+
+    <setting name="resource_list_use_sip_credentials">
+      <label>Use SIP credentials</label>
+      <type refid="true-false"/>
+      <value>true</value>
+      <description>Set to true if the application is to log into the remote storage using the SIP login information (settings “username” and “password”).
+Set to false if different login information is required.
+Not used if Resource list method is “Local”.</description>
+    </setting>
+    <setting name="resource_lists_poll_time">
+      <label>Poll time</label>
+      <type>
+        <integer />
+      </type>
+      <value>600</value>
+      <description>Used only if Resource list method is “Web DAV” (in seconds), to check if the document has changed on the remote storage.</description>
+    </setting>
+  </group>
+
+<!-- not supported in CMC Enterprise yet
+  <group name="security">
+    <label>Security</label>
+    <setting name="security_outgoing_tls">
+      <label>Outgoing TLS</label>
+      <type refid="true-false"/>
+      <value>true</value>
+      <description>Set to true to force the transport to  TLS for outgoing messages (overriding the value in the transport the application setting). This setting must be true in order to support secure media for outgoing messages. If you set false and set Outgoiing SRTP to true (to request security), the message may not be secure because the transport used may not be TLS.</description>
+    </setting>
+    <setting name="security_outgoing_srtp">
+      <label>Outgoing SRTP</label>
+      <type refid="true-false"/>
+      <value>true</value>
+      <description>Set to true to always send INVITEs with secure media.
+If true, then Outgoing TLS must be true, to force the application to use TLS transport.
+This setting is only read if the transport the application setting is “encrypted” or “TLS”.</description>
+    </setting>
+    <setting name="security_outgoing_fallback">
+      <label>Outgoing fallback</label>
+      <type refid="true-false"/>
+      <value>true</value>
+      <description>Set to true to allow outgoing messages with unsecured media, if an INVITE with secure media requested fails.
+If Outgoing TLS is true, the application will send an INVITE with secure media; if the INVITE is rejected, the application will retry with no security. This setting is ignored if Outgoing TLS is false (secure media not requested).
+This setting is only read if the transport the application setting is “encrypted” or “TLS”.</description>
+    </setting>
+    <setting name="security_incoming_level_max">
+      <label>Maximum level for incoming security</label>
+      <type>
+        <integer />
+      </type>
+      <value>5</value>
+      <description>This setting is only read if the transport the application setting is “encrypted” or “TLS”.</description>
+    </setting>
+  </group>
+-->
+
+  <group name="network">
+    <label>Network</label>
+    <group name="network_rtp_session">
+      <label>RTP session</label>
+      <setting name="enable_session_timer">
+        <label>Enable session timer</label>
+        <type refid="true-false"/>
+        <value>false</value>
+        <description>A session timer is a mechanism to detect whether a call session is still active from the signalling point of view. When the timer expires, a refresh is sent from one party to the other. The timer is then reset.
+Set to true to enable session timer.
+Set to false to disable session timer; refreshes will never be sent.</description>
+      </setting>
+      <setting name="default_session_refresh_interval_in_seconds">
+        <label>Default session refresh interval</label>
+        <type>
+          <integer />
+        </type>
+        <value>60</value>
+        <description>The interval for the timer, in seconds. Ignored if Enable session timer is false.</description>
+      </setting>
+      <setting name="prefered_session_fresher">
+        <label>Prefered session fresher</label>
+        <type>
+          <enum>
+            <option>
+              <label>None</label>
+              <value>0</value>
+            </option>
+            <option>
+              <label>Local refreshes</label>
+              <value>1</value>
+            </option>
+            <option>
+              <label>Remote refreshes</label>
+              <value>2</value>
+            </option>
+            <option>
+              <label>UAC refreshes</label>
+              <value>3</value>
+            </option>
+            <option>
+              <label>UAS refreshes</label>
+              <value>4</value>
+            </option>
+          </enum>
+        </type>
+        <value>0</value>
+        <description>The party that should send the refresh (see the Enable session timer setting). The preference is not a guarantee that the refresh will be performed by the specified party.
+None. Valid only if enable_sesion_timer is false.
+Local refreshes. The local the application sends.
+Remote refreshes. The other party sends.
+UAC refreshes. The user agent client sends.
+UAS refreshes. The user agent server sends.</description>
+      </setting>
+    </group>
+    <group name="network_firewall">
+      <label>Firewall</label>
+      <setting name="ice_enabled">
+        <label>Enable ICE</label>
+        <type refid="true-false"/>
+        <value>true</value>
+        <description>Set to true to enable Interactive Conectivity Establishment (ICE) procedure for establishing calls.</description>
+      </setting>
+      <setting name="outbound_proxy">
+        <label>Outbound proxy</label>
+        <value></value>
+        <description>If Use outbound proxy is Always or Automatic, enter the domain name or IP address of the firewall outbound proxy.</description>
+      </setting>
+      <setting name="override_sip_listen_port">
+        <label>Override SIP listen port</label>
+        <type refid="true-false"/>
+        <value>false</value>
+        <description>Set to true to force the application to read the value in Listen SIP port.
+Set to false to let the application discover the listening port.</description>
+      </setting>
+      <setting name="override_stun_server">
+        <label>Override STUN server</label>
+        <type refid="true-false"/>
+        <value>false</value>
+        <description>Set to true to force the application to read the value in stun_server.
+Set to false if the STUN server can be discovered via the domain address
+Set to false if you do not provide a STUN server for your users.</description>
+      </setting>
+      <setting name="sip_port_range_enable">
+        <label>Port range enable</label>
+        <type refid="true-false"/>
+        <value>false</value>
+        <description>Set to true to force the application to use transport ports within a specific range (as specified by Port range min and Port range max).
+Set to false to enable the application to use transport ports in the full standard range of 1025 to 65535.</description>
+      </setting>
+      <setting name="sip_port_range_min">
+        <label>Port range min</label>
+        <type>
+          <integer />
+        </type>
+        <value></value>
+        <description>If Port range enable is true, enter the port value of the lower port in the range.</description>
+      </setting>
+      <setting name="sip_port_range_max">
+        <label>Port range max</label>
+        <type>
+          <integer />
+        </type>
+        <value></value>
+        <description>If Port range enable is true, enter the port value of the upper port in the range.</description>
+      </setting>
+      <setting name="send_internal_ip_address">
+        <label>Send internal IP address</label>
+        <type refid="true-false"/>
+        <value>false</value>
+        <description>Set to true to send the computer’s internal IP address in the c-line in the SIP message header. Set to false to allow discovery to determine which IP address to put in the c-line.</description>
+      </setting>
+      <setting name="send_sip_keep_alive_messages">
+        <label>Send SIP keep alive messages</label>
+        <type refid="true-false"/>
+        <value>true</value>
+        <description>Set to true to send SIP keepalive messages in order to maintain a “pinhole” through your firewall for SIP messaging.</description>
+      </setting>
+      <setting name="sip_tcp_port_keep_alive_time_in_seconds">
+        <label>SIP TCP port keep alive time</label>
+        <type>
+          <integer />
+        </type>
+        <value>30</value>
+        <description>Keepalive time for TCP signaling transport (in seconds).
+The value in this setting is used only if keep alive is enabled for the account and the transport in use for the account is TCP.</description>
+      </setting>
+      <setting name="sip_udp_port_keep_alive_time_in_seconds">
+        <label>SIP UDP port keep alive time</label>
+        <type>
+          <integer />
+        </type>
+        <value>30</value>
+        <description>Keepalive time for UDP signaling transport (in seconds).
+The value in this setting is used only if keep alive is enabled for the account and the transport in use for the account is UDP.</description>
+      </setting>
+      <setting name="stun_server">
+        <label>STUN server</label>
+        <value></value>
+        <description>If Override STUN server is true, enter the domain name or IP address of the STUN server.</description>
+      </setting>
+      <setting name="turn_enabled">
+        <label>TURN enabled</label>
+        <type refid="true-false"/>
+        <value>false</value>
+        <description>Set to true to instruct the application to use TURN.</description>
+      </setting>
+      <setting name="turn_server">
+        <label>TURN server</label>
+        <value></value>
+        <description>Host or domain name for TURN server.
+Or leave blank to instruct the application to use the TURN domain to obtain the address of the TURN server.</description>
+      </setting>
+      <setting name="turn_domain">
+        <label>TURN domain</label>
+        <value></value>
+        <description>The domain for the TURN server. Leave blank to use the SIP domain.</description>
+      </setting>
+      <setting name="turn_use_sip_credentials">
+        <label>Use SIP credentials for TURN</label>
+        <type refid="true-false"/>
+        <value>true</value>
+        <description>Set to true to instruct the application to log into the TURN server using the user’s SIP user name and password.
+If this setting is false, the user must be provided with a separate TURN user name and password. They will enter this information in the the application account settings window.</description>
+      </setting>
+      <setting name="turn_username">
+        <label>TURN username</label>
+        <value></value>
+        <description>Username for logging on to the TURN server. Only used when Use SIP credentials for TURN is false.</description>
+      </setting>
+      <setting name="turn_password">
+        <label>TURN password</label>
+        <value></value>
+        <description>Password for logging on to the TURN server. Only used when Use SIP credentials for TURN is false.</description>
+      </setting>
+      <setting name="use_outbound_proxy">
+        <label>Use outbound proxy</label>
+        <type>
+          <enum>
+            <option>
+              <label>Never</label>
+              <value>0</value>
+            </option>
+            <option>
+              <label>Always</label>
+              <value>1</value>
+            </option>
+            <option>
+              <label>Automatic</label>
+              <value>0XFFFFFFFF</value>
+            </option>
+          </enum>
+        </type>
+        <value>0XFFFFFFFF</value>
+        <description>Specifies whether you have a firewall outbound proxy. Enter:
+- Never if you do not have a firewall outbound proxy.
+- Always if you have a firewall outbound proxy and want the application to always send traffic to that proxy.
+- Automatic if you have a firewall outbound proxy and want the application to send traffic to that proxy when it detects that the the application computer is behind a firewall that is likely to have issues with SIP.</description>
+      </setting>
+    </group>
+    <group name="sip_signaling">
+      <label>SIP signaling</label>
+      <setting name="maximum_time_before_reregistration_in_seconds">
+        <label>Maximum time before re-registration</label>
+        <type>
+          <integer />
+        </type>
+        <value>1800</value>
+        <description>The maximum wait time between attempts to reregister. Once this maximum is reached, the application will wait this time for all subsequent attempts. </description>
+      </setting>
+      <setting name="minimum_time_before_reregistration_in_seconds">
+        <label>Minimum time before re-registration</label>
+        <type>
+          <integer />
+        </type>
+        <value>20</value>
+        <description>If the reregistration fails, the application will wait this amount of time, then attempt to reregister. If the second attempt fails, the application will wait twice this time and try again, then four times this time, and so on, until reregistration succeeds.</description>
+      </setting>
+      <setting name="use_proxy_for_outbound_calls">
+        <label>Use proxy for outbound calls</label>
+        <type refid="true-false"/>
+        <value>false</value>
+        <description>Set to true to direct outbound traffic to your proxy or your outbound proxy.
+This setting (a) and Override outbound proxy (b) and proxy (c) work together as follows:
+a   b   c   Result
+F   F       Outbound traffic does not go via OBP. It goes directly to the target domain.
+-   T   value  Outbound traffic goes via the OBP specified in setting c.
+T  F             Outbound traffic goes via the domain proxy (the domain setting).</description>
+      </setting>
+      <setting name="override_outbound_proxy">
+        <label>Override outbound proxy</label>
+        <type refid="true-false"/>
+        <value>false</value>
+        <description>True or False, see Use proxy for outbound calls for details.</description>
+      </setting>
+      <setting name="proxy">
+        <label>Proxy</label>
+        <value></value>
+        <description>The domain name, host name, or IP address of the outbound proxy. See the Use proxy for outbound calls  setting for details. If empty, domain host name will be queried via DNS (NAPTR/srv) to figure out the actual proxy server.</description>
+      </setting>
+      <setting name="transport">
+        <label>Transport</label>
+        <type>
+          <enum>
+            <option>
+              <label>Automatic</label>
+              <value>auto</value>
+            </option>
+            <option>
+              <label>Encrypted</label>
+              <value>encrypted</value>
+            </option>
+            <option>
+              <label>TCP</label>
+              <value>tcp</value>
+            </option>
+            <option>
+              <label>UDP</label>
+              <value>udp</value>
+            </option>
+            <option>
+              <label>TLS</label>
+              <value>tls</value>
+            </option>
+          </enum>
+        </type>
+        <value>automatic</value>
+        <description>The transport to use for signaling. Value must be entered in lowercase.
+Automatic: the application sets up the transport based on the capabilities of the network and the the application computer. The preferred method will be obtained via DNS (NAPTR/srv) queries.
+Encrypted: TLS will be used, in order to support encryption.
+TCP: This transport provides no signalling security.
+UDP This transport provides no signalling security.
+TLS: Choose this option if you want to request media encryption.
+The value here affects the type of signaling and media encryption that can be supported.</description>
+      </setting>
+      <setting name="enable_rinstance">
+        <label>Enable rinstance</label>
+        <type refid="true-false"/>
+        <value>true</value>
+        <description>Enables sending rinstance parameter for the contact header so that the application knows the correct “expires time” to use if multiple the application clients are runing in different locations using the same account.</description>
+      </setting>
+
+    </group>
+  </group>
+
+  <group name="voicemail">
+    <label>Voicemail</label>
+    <setting name="forward_always">
+      <label>Forward always</label>
+      <type refid="true-false"/>
+      <value>false</value>
+      <description>Set to true to forward incoming calls to the address specified in forward_always_uri</description>
+    </setting>
+    <setting name="forward_always_uri">
+      <label>Forward always URI</label>
+      <value></value>
+      <description>The address to use for Forward Always.</description>
+    </setting>
+    <setting name="forward_busy">
+      <label>Forward busy</label>
+      <type refid="true-false"/>
+      <value>false</value>
+      <description>Set to true to forward incoming calls to the address specified in forward_busy  _uri, if another call is already established.</description>
+    </setting>
+    <setting name="forward_busy_uri">
+      <label>Forward busy URI</label>
+      <value></value>
+      <description>The address to use for Forward Busy.</description>
+    </setting>
+    <setting name="voicemail_url">
+      <label>Voicemail URL</label>
+      <value></value>
+      <description>The number to phone to conect to voicemail in order to listen to voicemail messages.</description>
+    </setting>
+  </group>
+
+</model>

@@ -1,0 +1,33 @@
+## Velocity macros
+## only emit not null setting
+#macro(generate_setting $setting)
+#if($setting.profileName == $setting.name)
+#if($setting.value)
+${setting.name}="${setting.value}"
+#else
+${setting.name}=""
+#end
+#end
+#end
+[DATA]
+Success=1
+
+[SETTINGS]
+
+#foreach ($line in $phone.lines)
+#set ($i = $velocityCount - 1)
+#foreach ($setting in $line_leaf_settings.get($i))
+proxies:proxy${i}:#generate_setting($setting)
+#end
+#end
+
+#foreach ($setting in $phone_leaf_settings)
+#generate_setting($setting)
+#end
+
+#foreach ($setting in $phone_leaf_settings)
+#if($setting.profileName == "codec_name" && $setting.value != "0.0")
+codecs:${setting.name}:enabled="true"
+codecs:${setting.name}:priority="${setting.value}"
+#end
+#end

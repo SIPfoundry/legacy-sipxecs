@@ -24,12 +24,35 @@
       </New>
     </Arg>
   </Call>
-  
+
   <Set name="rootWebApp">sipxconfig</Set>
   <Call name="addWebApplication">
     <Arg>/sipxconfig</Arg>
     <Arg><SystemProperty name="jetty.lib.dir"/>/sipxconfig.war</Arg>
     <Set name="extractWAR">true</Set>
+  </Call>
+
+  <Call name="addWebApplication">
+    <Arg>/cmcprov</Arg>
+    <Arg><SystemProperty name="jetty.lib.dir"/>/cmcprov.war</Arg>
+    <Set name="extractWAR">true</Set>
+  </Call>
+
+  <Call name="addListener">
+    <Arg>
+      <New class="org.mortbay.http.SocketListener">
+        <Set name="Port">12000</Set>
+        <Set name="PoolName">P2</Set>
+        <Set name="MinThreads">20</Set>
+        <Set name="MaxThreads">200</Set>
+      </New>
+    </Arg>
+  </Call>
+
+  <Call name="addWebApplication">
+	  <Arg>/cmcprov</Arg>
+	  <Arg><SystemProperty name="jetty.lib.dir"/>/cmcprov.war</Arg>
+	  <Set name="extractWAR">true</Set>
   </Call>
 
 </Configure>

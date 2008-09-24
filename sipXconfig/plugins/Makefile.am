@@ -7,7 +7,9 @@ SUBDIRS = \
 	lg-nortel \
 	linksys \
 	mitel \
-        nortel
+        nortel \
+        counterpath \
+        counterpath/cmcprov
 
 EXTRA_DIST = \
 	$(SUBDIRS) \

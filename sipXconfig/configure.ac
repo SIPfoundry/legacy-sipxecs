@@ -127,6 +127,8 @@ AC_CONFIG_FILES([
     plugins/linksys/Makefile
     plugins/mitel/Makefile
     plugins/nortel/Makefile
+    plugins/counterpath/Makefile
+    plugins/counterpath/cmcprov/Makefile
 ])
 
 AC_OUTPUT
