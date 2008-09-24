@@ -20,6 +20,7 @@ import javax.sip.Dialog;
 import javax.sip.DialogState;
 import javax.sip.DialogTerminatedEvent;
 import javax.sip.IOExceptionEvent;
+import javax.sip.InvalidArgumentException;
 import javax.sip.ListeningPoint;
 import javax.sip.RequestEvent;
 import javax.sip.ResponseEvent;
@@ -275,7 +276,7 @@ public class LegSipListener implements SipListener
       {
          displayName = fromHeader.getAddress().getURI().toString() ;
       }
-      leg.setDisplayName(fromHeader.getAddress().getDisplayName()) ;
+      leg.setDisplayName(displayName) ;
       
       InetSocketAddress localRtpAddress = new
          InetSocketAddress(udpListeningPoint.getIPAddress(), leg.getRtpPort()) ;
@@ -649,15 +650,17 @@ public class LegSipListener implements SipListener
                triggerLegEvent(dialog, "dialog connected") ;
                try
                {
-                  Request request = dialog.createRequest(Request.ACK) ;
+                  Request request = dialog.createAck(((CSeqHeader)response.getHeader(CSeqHeader.NAME)).getSeqNumber());
                   // Add user agent
                   request.addHeader(userAgent);
       
-                  // Send Ack
+                  // Send ACK
                   printOutMessage(request) ;            
                   dialog.sendAck(request);
                } catch (SipException e)
                {
+                  LOG.warn("LegSipListener::processResponse", e) ;
+               } catch (InvalidArgumentException e) {
                   LOG.warn("LegSipListener::processResponse", e) ;
                }
             }
