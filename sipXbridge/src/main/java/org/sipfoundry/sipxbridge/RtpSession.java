@@ -154,6 +154,7 @@ class RtpSession {
         if ( sipProvider != Gateway.getLanProvider()) {
             if ( peerDat.itspInfo == null || peerDat.itspInfo.isGlobalAddressingUsed()) {
                 SipUtilities.setGlobalAddresses(newInvite);
+                SipUtilities.fixupSdpAddresses(sd, Gateway.getGlobalAddress());
             }
             
         }

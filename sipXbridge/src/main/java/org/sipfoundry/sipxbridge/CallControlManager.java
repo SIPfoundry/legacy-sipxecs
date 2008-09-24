@@ -153,29 +153,39 @@ class CallControlManager implements SymmitronResetHandler {
         DialogApplicationData dat = (DialogApplicationData) dialog.getApplicationData();
 
         RtpSession lanRtpSession = dat.getRtpSession();
+        
+        
         SessionDescription newDescription = lanRtpSession.reAssignSessionParameters(request,
                 serverTransaction, dialog, peerDialog);
+        
+        /*
+         * The request originated from the LAN side. Otherwise, the request originated
+         * from WAN we sent it along to the phone on the previous step.
+         */
+        if (provider == Gateway.getLanProvider()) {
+            Response response = ProtocolObjects.messageFactory.createResponse(Response.OK,
+                    request);
+            SupportedHeader sh = ProtocolObjects.headerFactory.createSupportedHeader("replaces");
+            response.setHeader(sh);
+            if (newDescription != null) {
+                response.setContent(newDescription, ProtocolObjects.headerFactory
+                        .createContentTypeHeader("application", "sdp"));
+            }
 
-        Response response = ProtocolObjects.messageFactory.createResponse(Response.OK, request);
-        SupportedHeader sh = ProtocolObjects.headerFactory.createSupportedHeader("replaces");
-        response.setHeader(sh);
-        if (newDescription != null) {
-            response.setContent(newDescription, ProtocolObjects.headerFactory
-                    .createContentTypeHeader("application", "sdp"));
-        }
+            ToHeader toHeader = (ToHeader) request.getHeader(ToHeader.NAME);
+            String userName = ((SipURI) toHeader.getAddress().getURI()).getUser();
+            ContactHeader contactHeader = SipUtilities.createContactHeader(userName, provider,
+                    Gateway.getSipxProxyTransport());
+            response.setHeader(contactHeader);
+            response.setReasonPhrase("RTP Session Parameters Changed");
 
-        ToHeader toHeader = (ToHeader) request.getHeader(ToHeader.NAME);
-        String userName = ((SipURI) toHeader.getAddress().getURI()).getUser();
-        ContactHeader contactHeader = SipUtilities.createContactHeader(userName, provider,
-                Gateway.getSipxProxyTransport());
-        response.setHeader(contactHeader);
-        response.setReasonPhrase("RTP Session Parameters Changed");
 
-        if (serverTransaction != null) {
-            serverTransaction.sendResponse(response);
-        } else {
-            provider.sendResponse(response);
+            if (serverTransaction != null) {
+                serverTransaction.sendResponse(response);
+            } else {
+                provider.sendResponse(response);
 
+            }
         }
         return;
     }
@@ -203,14 +213,15 @@ class CallControlManager implements SymmitronResetHandler {
                 }
             }
             Dialog dialog = serverTransaction.getDialog();
-            
-            if ( dialog.getState() == DialogState.TERMINATED ) {
+
+            if (dialog.getState() == DialogState.TERMINATED) {
                 logger.debug("Got a stray request on a terminated dialog!");
-                Response response = SipUtilities.createResponse(serverTransaction,Response.SERVER_INTERNAL_ERROR);
+                Response response = SipUtilities.createResponse(serverTransaction,
+                        Response.SERVER_INTERNAL_ERROR);
                 serverTransaction.sendResponse(response);
                 return;
-                
-            } else  if (dialog.getState() == DialogState.CONFIRMED) {
+
+            } else if (dialog.getState() == DialogState.CONFIRMED) {
                 logger.debug("Re-INVITE proessing !! ");
                 DialogApplicationData dat = (DialogApplicationData) dialog.getApplicationData();
                 RtpSession rtpSession = dat.getRtpSession();
@@ -220,7 +231,7 @@ class CallControlManager implements SymmitronResetHandler {
                 // See if we need to re-INVITE MOH server. If the session
                 // is already set up with right codec we do not need to do that.
 
-                if (!dat.sendReInviteOnResume
+                if (!dat.sendReInviteOnResume && provider == Gateway.getLanProvider()
                         && ((!Gateway.isReInviteSupported()) || Gateway.getMusicOnHoldAddress() == null)) {
                     // Can handle this request locally without re-Inviting server (optimization)
 
@@ -259,7 +270,7 @@ class CallControlManager implements SymmitronResetHandler {
                     }
                 }
 
-            } 
+            }
 
             BackToBackUserAgent btobua = null;
 
@@ -537,6 +548,8 @@ class CallControlManager implements SymmitronResetHandler {
                 // to determine what codec was negotiated.
                 ReferInviteToSipxProxyContinuationData continuation = new ReferInviteToSipxProxyContinuationData(
                         requestEvent);
+                
+               // btobua.referingDialog = dialog;
 
                 btobua.querySdpFromPeerDialog(requestEvent, Operation.REFER_INVITE_TO_SIPX_PROXY,
                         continuation);
@@ -1605,6 +1618,17 @@ class CallControlManager implements SymmitronResetHandler {
             }
         }
 
+    }
+
+    /**
+     * Set the back to back ua for a given call id.
+     * 
+     * @param callId
+     * @param backToBackUserAgent
+     */
+    public void setBackToBackUserAgent(String callId, BackToBackUserAgent backToBackUserAgent) {
+       this.backToBackUserAgentTable.put(callId, backToBackUserAgent);
+        
     }
 
 }

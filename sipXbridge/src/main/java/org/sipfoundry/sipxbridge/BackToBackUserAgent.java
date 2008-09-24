@@ -90,7 +90,7 @@ public class BackToBackUserAgent {
     /*
      * The REFER dialog currently in progress.
      */
-    private Dialog referingDialog;
+    Dialog referingDialog;
 
     private Dialog referingDialogPeer;
 
@@ -618,7 +618,8 @@ public class BackToBackUserAgent {
      */
     void referInviteToSipxProxy(Request referRequest, Dialog dialog,
             SessionDescription sessionDescription) {
-        logger.debug("referInviteToSipxProxy: sendingReInvite to refered-to location");
+        logger.debug("referInviteToSipxProxy: " + this);
+        
         try {
 
             /*
@@ -671,6 +672,7 @@ public class BackToBackUserAgent {
 
             CallIdHeader callId = Gateway.getLanProvider().getNewCallId();
             newRequest.setHeader(callId);
+            Gateway.getCallControlManager().setBackToBackUserAgent(callId.getCallId(),this);
 
             SupportedHeader sh = ProtocolObjects.headerFactory.createSupportedHeader("replaces");
             newRequest.setHeader(sh);
@@ -1132,6 +1134,7 @@ public class BackToBackUserAgent {
     void sendInviteToItsp(RequestEvent requestEvent, ServerTransaction serverTransaction,
             String toDomain, boolean isphone) throws GatewayConfigurationException, SipException {
 
+        logger.debug("sendInviteToItsp: " + this);
         Request incomingRequest = serverTransaction.getRequest();
         Dialog incomingDialog = serverTransaction.getDialog();
         SipProvider itspProvider = Gateway

@@ -103,6 +103,8 @@ class DialogApplicationData {
     }
 
      static RtpSession getRtpSession(Dialog dialog) {
+        logger.debug("DialogApplicationData.getRtpSession " + dialog);
+        
         return ((DialogApplicationData) dialog.getApplicationData()).rtpSession;
     }
     
