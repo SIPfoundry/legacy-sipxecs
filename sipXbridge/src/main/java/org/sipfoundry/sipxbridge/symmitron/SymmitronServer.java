@@ -275,8 +275,8 @@ public class SymmitronServer implements Symmitron {
             bridge.stop();
         }
 
-        timer.cancel();
-        timer = new Timer();
+        timer.purge();
+    
 
         status = "STOPPED";
         return status;

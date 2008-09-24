@@ -108,11 +108,8 @@ final class SymTransmitterEndpoint extends SymEndpoint implements SymTransmitter
                 }
             } catch (ClosedChannelException ex) {
                 logger.warn("Exitting early media thread due to closed channel", ex);
-                this.cancel();
-
-            } catch (Exception ex) {
-                logger.fatal("Unexpected exception in sending early media ", ex);
-                this.cancel();
+            } catch (Throwable ex) {
+                logger.error("Unexpected exception in sending early media ", ex);
             }
 
         }
