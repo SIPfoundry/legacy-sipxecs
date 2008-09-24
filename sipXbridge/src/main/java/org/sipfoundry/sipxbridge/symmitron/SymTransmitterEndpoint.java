@@ -70,24 +70,24 @@ final class SymTransmitterEndpoint extends SymEndpoint implements SymTransmitter
         }
 
         public void run() {
+
+            if (datagramChannel == null)
+                return;
+            long now = System.currentTimeMillis();
+            if (now - lastPacketSentTime < maxSilence) {
+
+                return;
+            }
+            Bridge bridge = ConcurrentSet.getBridge(datagramChannel);
+            if (bridge == null || bridge.getState() == BridgeState.INITIAL
+                    || bridge.getState() == BridgeState.TERMINATED) {
+                if (logger.isDebugEnabled()) {
+                    logger.debug("Bridge is not in running state " + bridge.getState());
+                }
+                return;
+            }
             try {
 
-                if (datagramChannel == null)
-                    return;
-                long now = System.currentTimeMillis();
-                if (now - lastPacketSentTime < maxSilence) {
-
-                    return;
-                }
-                Bridge bridge = ConcurrentSet.getBridge(datagramChannel);
-                if ( bridge == null || bridge.getState() == BridgeState.INITIAL ||
-                        bridge.getState() == BridgeState.TERMINATED) {
-                    if ( logger.isDebugEnabled()) {
-                        logger.debug("Bridge is not in running state " + bridge.getState());
-                    }
-                    return;
-                }
-                
                 if (keepaliveMethod.equals(KeepaliveMethod.USE_EMPTY_PACKET)) {
                     if (datagramChannel != null && getSocketAddress() != null
                             && datagramChannel.isOpen() && getSocketAddress() != null) {
@@ -97,8 +97,8 @@ final class SymTransmitterEndpoint extends SymEndpoint implements SymTransmitter
 
                 } else if (keepaliveMethod.equals(KeepaliveMethod.REPLAY_LAST_SENT_PACKET)
                         || keepaliveMethod.equals(KeepaliveMethod.USE_DUMMY_RTP_PAYLOAD)) {
-                    
-                     if (keepAliveBuffer != null && datagramChannel != null
+
+                    if (keepAliveBuffer != null && datagramChannel != null
                             && getSocketAddress() != null && datagramChannel.isOpen()) {
                         logger.debug("Sending keepalive");
                         lastPacketSentTime = now;
@@ -107,9 +107,15 @@ final class SymTransmitterEndpoint extends SymEndpoint implements SymTransmitter
                     }
                 }
             } catch (ClosedChannelException ex) {
+                /*
+                 * This is not an error. Somebody closed socket. Just bail.
+                 */
                 logger.warn("Exitting early media thread due to closed channel", ex);
-            } catch (Throwable ex) {
+            } catch (Exception ex) {
                 logger.error("Unexpected exception in sending early media ", ex);
+                if ( bridge != null ) {
+                    bridge.stop();
+                }
             }
 
         }
@@ -148,6 +154,7 @@ final class SymTransmitterEndpoint extends SymEndpoint implements SymTransmitter
                 return false;
             }
         } catch (Exception ex) {
+            logger.error("Unexpected exception",ex);
             throw new RuntimeException("Unexpected exception ", ex);
         }
 
@@ -187,8 +194,7 @@ final class SymTransmitterEndpoint extends SymEndpoint implements SymTransmitter
         /*
          * Check if the packet is self-routed. If so route it back.
          */
-        if (checkForSelfRouting && this.farEnd != null &&
-            isPacketSelfRouted(this.farEnd)) {
+        if (checkForSelfRouting && this.farEnd != null && isPacketSelfRouted(this.farEnd)) {
             if (logger.isDebugEnabled()) {
                 logger.debug("SymTransmitterEndpoint:remoteAddress = " + this.farEnd);
             }
@@ -347,7 +353,7 @@ final class SymTransmitterEndpoint extends SymEndpoint implements SymTransmitter
      */
     protected void setSocketAddress(InetSocketAddress socketAddress) {
         this.socketAddress = socketAddress;
-        if ( socketAddress != null ) {
+        if (socketAddress != null) {
             this.setFarEnd();
         }
 

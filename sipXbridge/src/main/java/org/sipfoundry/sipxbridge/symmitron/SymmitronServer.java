@@ -98,7 +98,7 @@ public class SymmitronServer implements Symmitron {
      * 
      * @throws GatewayConfigurationException
      */
-    static void discoverAddress() throws GatewayConfigurationException {
+    static void discoverAddress()  {
         try {
 
             String stunServerAddress = symmitronConfig.getStunServerAddress();
@@ -121,6 +121,10 @@ public class SymmitronServer implements Symmitron {
 
                 addressDiscovery.start();
                 StunDiscoveryReport report = addressDiscovery.determineAddress();
+                if ( report == null ) {
+                    logger.error("No stun report - could not do address discovery");
+                    return;
+                }
                 publicAddress = report.getPublicAddress().getSocketAddress().getAddress();
                 logger.debug("Stun report = " + report);
                 String publicAddr = publicAddress.getHostAddress();
@@ -129,8 +133,8 @@ public class SymmitronServer implements Symmitron {
 
             }
         } catch (Exception ex) {
-            throw new GatewayConfigurationException("Error discovering  address", ex);
-        }
+            logger.error("Error discovering  address -- could be networking is bad", ex);
+        } 
     }
 
     private Map<String, Object> createErrorMap(int errorCode, String reason) {
