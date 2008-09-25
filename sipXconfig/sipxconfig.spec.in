@@ -285,6 +285,8 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) %{sipxpbxconf}/polycom/*
 %dir %{sipxpbxconf}/snom
 %config(noreplace) %{sipxpbxconf}/snom/*
+%dir %{sipxpbxconf}/counterpath
+%config(noreplace) %{sipxpbxconf}/counterpath/*
 %config(noreplace) %{sipxpbxconf}/mitel/*
 %config(noreplace) %{sipxpbxconf}/nattraversal/*
 %config(noreplace) %{sipxpbxconf}/nortel/*
