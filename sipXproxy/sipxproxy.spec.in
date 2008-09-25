@@ -141,8 +141,6 @@ rm -rf $RPM_BUILD_ROOT
 # config files are generated from templates via config.defs
 %dir %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx
 
-%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx/forwardingrules.xml.in
-%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx/authrules.xml.in
 %config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx/process.d/sipXproxy.process.xml
 
 %{upgrade_archive_dir}/%{this_archive}
