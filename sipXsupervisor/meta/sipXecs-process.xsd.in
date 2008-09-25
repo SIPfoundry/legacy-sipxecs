@@ -174,30 +174,34 @@
     </annotation>
   </element>
 
-  <complexType name='Resource'>
+  <attributeGroup name='ResourceAttributes'>
+    <attribute name='required' type='boolean' default='true'>
+      <annotation>
+        <documentation>
+          If this is false, the resource is not required to start the process, but
+          may be accessed by the configuration system.
+        </documentation>
+      </annotation>
+    </attribute>
+    <attribute name='configAccess' type='proc:ConfigAccess' default='read-write'>
+      <annotation>
+        <documentation>
+          Declares the kind of access granted to the configuration system to this resource.
+          The access granted is the most permissive allowed by any process definition.
+        </documentation>
+      </annotation>
+    </attribute>
+  </attributeGroup>
+
+  <complexType name='SimpleResource' mixed='false'>
     <annotation>
       <documentation>
-        Describes a single object that must exist for this process to execute.
+        Describes a single named object that must exist for this process to execute.
       </documentation>
     </annotation>
     <simpleContent>
       <extension base='string'>
-        <attribute name='required' type='boolean' default='true'>
-          <annotation>
-            <documentation>
-              If this is false, the resource is not required to start the process, but
-              may be accessed by the configuration system.
-            </documentation>
-          </annotation>
-        </attribute>
-        <attribute name='configAccess' type='proc:ConfigAccess' default='read-write'>
-          <annotation>
-            <documentation>
-              Declares the kind of access granted to the configuration system to this resource.
-              The access granted is the most permissive allowed by any process definition.
-            </documentation>
-          </annotation>
-        </attribute>
+        <attributeGroup ref='proc:ResourceAttributes'/>
       </extension>
     </simpleContent>
   </complexType>
@@ -260,22 +264,7 @@
       <element ref='proc:dbdriver' minOccurs='0' maxOccurs='1'/>
       <element ref='proc:userpassword' minOccurs='0' maxOccurs='1'/>
     </sequence>
-    <attribute name='required' type='boolean' default='true'>
-          <annotation>
-            <documentation>
-              If this is false, the resource is not required to start the process, but
-              may be accessed by the configuration system.
-            </documentation>
-          </annotation>
-     </attribute>
-      <attribute name='configAccess' type='proc:ConfigAccess' default='read-write'>
-          <annotation>
-            <documentation>
-              Declares the kind of access granted to the configuration system to this resource.
-              The access granted is the most permissive allowed by any process definition.
-            </documentation>
-          </annotation>
-     </attribute>
+    <attributeGroup ref='proc:ResourceAttributes'/>
   </complexType>
 
   <simpleType name='ConfigAccess'>
@@ -290,9 +279,6 @@
     </restriction>
   </simpleType>
 
-  <element name='resource' type='proc:Resource' abstract='true'/>
-  <element name='DBresource' type='proc:DBResource' abstract='true'/>
-
   <element name='resources'>
     <annotation>
       <documentation>
@@ -301,13 +287,18 @@
     </annotation>
     <complexType>
       <sequence>
-        <element ref='proc:resource' minOccurs='0' maxOccurs='unbounded' />
-        <element ref='proc:DBresource' minOccurs='0' maxOccurs='unbounded' />
+        <choice minOccurs='0' maxOccurs='unbounded'>
+          <element ref='proc:file'/>
+          <element ref='proc:osconfig'/>
+          <element ref='proc:imdb'/>
+          <element ref='proc:process'/>
+          <element ref='proc:sqldb'/>
+        </choice>
       </sequence>
     </complexType>
   </element>
 
-  <element name='file' type='proc:Resource' substitutionGroup='proc:resource'>
+  <element name='file' type='proc:SimpleResource'>
     <annotation>
       <documentation>
         Content is the full path to a file.
@@ -315,7 +306,7 @@
     </annotation>
   </element>
 
-  <element name='process' type='proc:Resource' substitutionGroup='proc:resource'>
+  <element name='process' type='proc:SimpleResource'>
     <annotation>
       <documentation>
         Content is the name of a sipXecs-process that must be running.
@@ -323,7 +314,7 @@
     </annotation>
   </element>
 
-  <element name='osconfig' type='proc:Resource' substitutionGroup='proc:resource'>
+  <element name='osconfig' type='proc:SimpleResource'>
     <annotation>
       <documentation>
         Content is the full path to an OsConfigDB file.
@@ -331,7 +322,7 @@
     </annotation>
   </element>
 
-  <element name='imdb' type='proc:Resource' substitutionGroup='proc:resource'>
+  <element name='imdb' type='proc:SimpleResource'>
     <annotation>
       <documentation>
         Content is the name of a SipDB table.
@@ -339,7 +330,7 @@
     </annotation>
   </element>
 
-  <element name='sqldb' type='proc:DBResource' substitutionGroup='proc:DBresource'>
+  <element name='sqldb' type='proc:DBResource'>
     <annotation>
       <documentation>
         SQL database and connection information.

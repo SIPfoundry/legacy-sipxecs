@@ -300,11 +300,11 @@ public:
 
          SqldbResource* sqldbResource;
          CPPUNIT_ASSERT((sqldbResource =
-                         SqldbResourceManager::getInstance()->find("GOODlocalhostpostgres")));
+                         SqldbResourceManager::getInstance()->find("GOODdbserverdbuser")));
          CPPUNIT_ASSERT( sqldbResource->isWriteable());
          description.remove(0);
          sqldbResource->appendDescription(description);
-         ASSERT_STR_EQUAL("SQL database 'GOODlocalhostpostgres'",description.data());
+         ASSERT_STR_EQUAL("SQL database 'GOODdbserverdbuser'",description.data());
          CPPUNIT_ASSERT(sqldbResource->mUsedBy.containsReference(processResource));
       };
 
@@ -406,11 +406,11 @@ public:
 
          SqldbResource* sqldbResource;
          CPPUNIT_ASSERT((sqldbResource =
-                         SqldbResourceManager::getInstance()->find("GOODlocalhostpostgres")));
+                         SqldbResourceManager::getInstance()->find("GOODdbserverdbuser")));
          CPPUNIT_ASSERT( sqldbResource->isWriteable());
          description.remove(0);
          sqldbResource->appendDescription(description);
-         ASSERT_STR_EQUAL("SQL database 'GOODlocalhostpostgres'",description.data());
+         ASSERT_STR_EQUAL("SQL database 'GOODdbserverdbuser'",description.data());
          CPPUNIT_ASSERT(sqldbResource->mUsedBy.containsReference(processResource));
       };
    

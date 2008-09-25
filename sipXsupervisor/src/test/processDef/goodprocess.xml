@@ -27,7 +27,11 @@
     <osconfig required='false'>/etc/sipxpbx/goodprocess-config</osconfig>
     <imdb configAccess='read-only'>goodtable</imdb>
     <sqldb>
+       <server>dbserver</server>
        <dbname>GOOD</dbname>
+       <username>dbuser</username>
+       <dbdriver>{dbdriver}</dbdriver>
+       <userpassword>dbpassword</userpassword>
     </sqldb>
   </resources>
 </sipXecs-process>

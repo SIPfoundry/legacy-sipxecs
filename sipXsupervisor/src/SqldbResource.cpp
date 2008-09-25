@@ -173,7 +173,8 @@ bool SqldbResource::parse(const TiXmlDocument& sqldbDefinitionDoc, ///< sqldb de
        }
        else
        {
-          // 'dbdriver' is an optional element.  Setup the database driver to use the default of {PostgreSQL}
+          /* 'dbdriver' is an optional element.
+           * Setup the database driver to use the default of {PostgreSQL} */
           dbDriver = "{PostgreSQL}";
        }
     }
@@ -268,23 +269,27 @@ void SqldbResource::appendDescription(UtlString&  description /**< returned desc
 // Whether or not the SqldbResource is ready for use by a Sqldb.
 bool SqldbResource::isReadyToStart()
 {
+   bool dbIsReady;
+   
    // Check to ensure that we can connect to the database.
    OdbcHandle dbHandle = odbcConnect(mDbName, mServer, mUser, mDbDriver, mPassword);
    if (dbHandle)
    {
       odbcDisconnect(dbHandle);
-      OsSysLog::add(FAC_SUPERVISOR, PRI_NOTICE, "SqldbResource::isReadyToStart "
-                     "Successfully connected to database %s",
+      OsSysLog::add(FAC_SUPERVISOR, PRI_INFO, "SqldbResource::isReadyToStart "
+                     "Successfully connected to database '%s'",
                      mDbName.data());
-      return true;
+      dbIsReady = true;
    }
    else
    {
       OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "SqldbResource::isReadyToStart "
-                     "Unable to connect to database %s",
+                     "Unable to connect to database '%s'",
                      mDbName.data());
-      return false;
+      dbIsReady = false;
    }
+
+   return dbIsReady;
 }
 
 // Determine whether or not the values in a containable are comparable.
