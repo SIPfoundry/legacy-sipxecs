@@ -61,16 +61,21 @@ case ${Action} in
 
 
    CONFIGTEST)
+     sipx_config_exists @SIPX_CONFDIR@/domain-config || exit 1
+     sipx_config_exists @SIPX_CONFDIR@/registrar-config || exit 1
+
      # check validity of xml routing rules
-     @bindir@/sipx-validate-xml @SIPX_CONFDIR@/mappingrules.xml
+     sipx_config_exists @SIPX_CONFDIR@/mappingrules.xml \
+         && @bindir@/sipx-validate-xml @SIPX_CONFDIR@/mappingrules.xml
      Status=$(($Status+$?))
-     @bindir@/sipx-validate-xml @SIPX_CONFDIR@/fallbackrules.xml
-     Status=$(($Status+$?))
-     ! test -e @SIPX_DBDIR@/huntgroup.xml \
-     || @bindir@/sipx-validate-xml @SIPX_DBDIR@/huntgroup.xml
+     sipx_config_exists @SIPX_CONFDIR@/mappingrules.xml \
+         && @bindir@/sipx-validate-xml @SIPX_CONFDIR@/fallbackrules.xml
      Status=$(($Status+$?))
      ! test -e @SIPX_DBDIR@/alias.xml \
      || @bindir@/sipx-validate-xml @SIPX_DBDIR@/alias.xml
+     Status=$(($Status+$?))
+     ! test -e @SIPX_DBDIR@/huntgroup.xml \
+     || @bindir@/sipx-validate-xml @SIPX_DBDIR@/huntgroup.xml
      Status=$(($Status+$?))
 
      # if this system is configured for HA, check that both have valid routes

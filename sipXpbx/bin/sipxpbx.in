@@ -651,9 +651,6 @@ do_start() {
         # Clean up IMDB and all its dependent files.
         rm -f @SIPX_TMPDIR@/imdb.*
 
-        ## Check configuration
-        do_check || echo "Attempting to start despite configuration problems"
-
         ### Start the programs.
 
         echo ""

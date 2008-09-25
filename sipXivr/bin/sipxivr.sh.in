@@ -9,6 +9,8 @@ Action=RUN
 Status=0
 Args=""
 
+. @SIPX_LIBEXECDIR@/sipx-utils.sh
+
 while [ $# -ne 0 ]
 do
     case ${1} in
@@ -68,6 +70,9 @@ case ${Action} in
      ;;
 
    CONFIGTEST)
+     sipx_config_exists @SIPX_CONFDIR@/sipxivr.properties 
+     Status=$(($Status+$?))
+
      # check validity of xml files
      @bindir@/sipx-validate-xml @SIPX_CONFDIR@/autoattendants.xml
      Status=$(($Status+$?))
@@ -78,8 +83,8 @@ case ${Action} in
      logfile="@SIPX_LOGDIR@/sipxivr.log"
      if [ -e $logfile -a ! -w $logfile ]
      then
-	 echo "Log file '$logfile' exists but is not writable by user '@SIPXPBXUSER@'." >&2
-	 Status=1
+         echo "Log file '$logfile' exists but is not writable." >&2
+         Status=1
      fi
 
      ;;

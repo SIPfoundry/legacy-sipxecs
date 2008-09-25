@@ -214,27 +214,22 @@ ERROR
 # This can be a scenario for logging failures.
 proxyCheck() {
    ok=0
-   echo -n "Checking for running sipXproxy..."
    # FreeBSD does not support 'ps -C cmd'
    procs=`ps -U @SIPXPBXUSER@`
    if expr match "$procs" '.*sipXproxy.*' >/dev/null; then
       # At least one sipXproxy is running, check for another one
       if expr match "$procs" '.*sipXproxy.*sipXproxy.*' >/dev/null; then
          cat <<ERROR
- failed.         
-Found at least two sipXproxy processes. 
-This is a potential cause of CSE logging failures!
+Multiple proxy check failed:
+  Found at least two running sipXproxy processes. 
+  This is a potential cause of CSE logging failures!
 
 ERROR
          # FreeBSD does not support 'ps -C cmd'
          ps -U @SIPXPBXUSER@ | grep sipXproxy
          echo
          ok=1
-      else
-         echo " ok"
       fi
-   else
-      echo " not running (ok)"   
    fi
 
    return $ok
@@ -251,28 +246,20 @@ configCheck() {
       Status=1
    fi
  
-   echo "Checking configuration..."   
    if ! cat @SIPX_CONFDIR@/config.defs | grep CALLRESOLVER_CALL_STATE_DB | grep ENABLE >/dev/null ; then
       cat <<ERROR
 
-Warning: proxy is not configured to log call state events to a database.
-Add the line:
-
-   CALLRESOLVER_CALL_STATE_DB : ENABLE
-   
-to @SIPX_CONFDIR@/config.defs if Call Details are desired.
+  Warning: proxy is not configured to log call state events to a database:
+  No Call Detail Records will be generated.
 
 ERROR
       Status=1
-   else
-      echo "  proxy configured for logging"
    fi
    
    # Don't check configuration of call resolver for distributed machines
    if [ ${Action} = CONFIGTEST ]; then
        
-      if [ ! -f @SIPX_CONFDIR@/callresolver-config ]; then
-          echo "  Call resolver configuration '@SIPX_CONFDIR@/callresolver-config' not found" 1>&2
+      if ! sipx_config_exists @SIPX_CONFDIR@/callresolver-config ; then
           resolveOk=0          
           Status=1
       else
@@ -282,14 +269,14 @@ ERROR
           if ! test "${resolveConfig}" = "ENABLE"; then
               cat <<ERROR
 
-Warning: callresolver is not configured for purging old records.
-This will prevent the call resolver from automatically purging old database 
-records on a regular basis. 
-Add the line:
+  Warning: callresolver is not configured for purging old records.
+  This will prevent the call resolver from automatically purging old database 
+  records on a regular basis. 
+  Add the line:
 
-   SIP_CALLRESOLVER_PURGE  : ENABLE
+     SIP_CALLRESOLVER_PURGE  : ENABLE
 
-to @SIPX_CONFDIR@/sipxcallresolver/callresolver-config.vm
+  to @SIPX_CONFDIR@/sipxcallresolver/callresolver-config.vm
 
 ERROR
               resolveOk=0
@@ -297,28 +284,16 @@ ERROR
           fi
       fi
       
-      if [ $resolveOk = 1 ]; then
-         echo "  call resolver configuration ok"
-      fi   
-   
-      echo -n "${CallResolverMain}..."
-      if [ -f ${CallResolverMain} ]; then
-         echo " ok"
-      else 
+      if [ ! -f ${CallResolverMain} ]; then
          cat <<ERROR
 
-  Error: ${CallResolverMain} not found.
+  Error: ${CallResolverMain} not found (installation error).
 
 ERROR
          Status=1
       fi   
    fi
-   # Print out a success message if everything is OK, to give the user some feedback.
-   # If there is an error then the test will yield an error message.
-   if [ $Status = 0 ]
-   then
-       echo "The config test succeeded."
-   fi   
+
 }
 
 

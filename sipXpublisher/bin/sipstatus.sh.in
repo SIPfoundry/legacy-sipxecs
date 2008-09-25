@@ -8,6 +8,8 @@ Action=RUN
 Status=0
 Args=""
 
+. @SIPX_LIBEXECDIR@/sipx-utils.sh
+
 while [ $# -ne 0 ]
 do
     case ${1} in
@@ -52,8 +54,10 @@ case ${Action} in
    CONFIGTEST)
      Status=0
 
-     #@bindir@/sipx-validate-xml @SIPX_CONFDIR@/status-plugin.xml
-     #Status=$(($Status+$?))
+     sipx_config_exists @SIPX_CONFDIR@/status-config
+     Status=$(($Status+$?))
+     sipx_config_exists @SIPX_CONFDIR@/status-plugin.xml
+     Status=$(($Status+$?))
 
      # Check that the log file is writable.
      logfile="@SIPX_LOGDIR@/sipstatus.log"

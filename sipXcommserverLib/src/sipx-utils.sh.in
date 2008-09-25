@@ -151,10 +151,21 @@ sipx_system_is_master() {
     fi
 }
 
+sipx_config_exists() { # ( CONFIG-FILE )
+    local exists=0
+    if ! test -f "$1"
+    then 
+        echo "Configuration file not found: '$1'" 1>&2
+        exists=1
+    fi
+    return ${exists}
+}
+
 sipx_config_value() { # ( CONFIG-FILE, DIRECTIVE )
 #   prints the value of DIRECTIVE from CONFIG-FILE
 #   list values have any commas removed
-    perl -n \
+    sipx_config_exists "$1" \
+    && perl -n \
         -e 'use English;' \
         -e 's/#.*$//;' \
         -e "/^\\s*$2\\s*:\\s*/ && print join( ' ', split( /[\\s,]+/, \$POSTMATCH ));" \

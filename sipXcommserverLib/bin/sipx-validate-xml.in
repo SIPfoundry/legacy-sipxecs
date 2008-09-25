@@ -6,6 +6,8 @@ Action=CHECK
 SchemaFile=
 XmlFiles=
 
+. @SIPX_LIBEXECDIR@/sipx-utils.sh
+
 while [ $# -ne 0 ]
 do
     case ${1} in
@@ -127,13 +129,11 @@ case $Action in
     CHECK)
         for xml in ${XmlFiles}
         do
-            echo "==== ${xml}:"        >> ${ResultFile}
-            if test -r "${xml}"
+            if sipx_config_exists "${xml}" 2>> ${ResultFile}
             then
                 @SIPX_BINDIR@/xsdvalid -S ${SchemaFile} ${xml} >> ${ResultFile} 2>&1
                 ExitStatus=$((${ExitStatus} + $?))
             else
-                echo "   Not readable." >> ${ResultFile}
                 ExitStatus=$((${ExitStatus} + 1))
             fi
         done
@@ -147,7 +147,7 @@ fi
 
 if [ ${ExitStatus} -ne 0 ]
 then
-    cat ${ResultFile}
+    cat ${ResultFile} | sed 's/^/   /'
 fi
 
 rm -f ${ResultFile}

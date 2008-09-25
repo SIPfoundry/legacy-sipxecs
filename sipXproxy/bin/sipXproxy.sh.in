@@ -63,17 +63,17 @@ case ${Action} in
      ;;
 
    CONFIGTEST)
-     # check validity of xml routing rules, authorization rules and domain
+     myDomain=`sipx_config_value @SIPX_CONFDIR@/domain-config SIP_DOMAIN_NAME`
+     Status=$((${Status} + $?))
+     sipx_config_exists @SIPX_CONFDIR@/sipXproxy-config
+     Status=$((${Status} + $?))
+     # check validity of xml routing rules, and authorization rules
      @bindir@/sipx-validate-xml @SIPX_CONFDIR@/forwardingrules.xml
-     status1=$?
+     Status=$((${Status} + $?))
      @bindir@/sipx-validate-xml @SIPX_CONFDIR@/authrules.xml
-     status2=$?
+     Status=$((${Status} + $?))
      @bindir@/sipx-validate-xml @SIPX_CONFDIR@/nattraversalrules.xml
-     status3=$?
-     myDomain=`. ${CONFIG_DEFS}; echo ${SIPXCHANGE_DOMAIN_NAME} | tr A-Z a-z`
-     status4=$?
-      
-     Status=$((${status1}+${status2}+${status3}+${status4}))
+     Status=$((${Status} + $?))
 
      # Check that the log file is writable.
      logfile="@SIPX_LOGDIR@/sipXproxy.log"
