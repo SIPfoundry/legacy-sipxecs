@@ -51,7 +51,9 @@ case ${Action} in
      myDomain=`sipx_config_value @SIPX_CONFDIR@/domain-config SIP_DOMAIN_NAME`
      Status=$((${Status} + $?))
      sipx_config_exists @SIPX_CONFDIR@/sipXproxy-config
-     Status=$((${Status} + $?))
+     proxy_config_status=$?
+     Status=$((${Status} + ${proxy_config_status}))
+
      # check validity of xml routing rules, and authorization rules
      @bindir@/sipx-validate-xml @SIPX_CONFDIR@/forwardingrules.xml
      Status=$((${Status} + $?))
@@ -68,12 +70,17 @@ case ${Action} in
          Status=1
      fi
 
-     myIp=`. ${CONFIG_DEFS}; echo ${MY_IP_ADDR}`
-     if ! sip_resolves_to ${myDomain} ${myIp}
+     if [ ${proxy_config_status} -eq 0 ]
      then
-         echo "    SIP route to SIPXCHANGE_DOMAIN_NAME '${myDomain}' is not to my IP address: ${myIp}" 1>&2
-         echo "    See the installation guide on setting the DNS SRV records and domain names" 1>&2
-         Status=1
+         myIp=`sipx_config_value @SIPX_CONFDIR@/sipXproxy-config SIPX_PROXY_BIND_IP 2> /dev/null`
+         if ! sip_resolves_to ${myDomain} ${myIp}
+         then
+             cat <<ERROR
+    SIP route to SIPXCHANGE_DOMAIN_NAME '${myDomain}' is not to my IP address: ${myIp}
+    See the installation guide on setting the DNS SRV records and domain names
+ERROR
+             Status=1
+         fi
      fi
      ;;
 esac

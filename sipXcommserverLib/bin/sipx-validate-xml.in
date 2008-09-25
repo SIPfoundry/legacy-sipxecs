@@ -129,7 +129,7 @@ case $Action in
     CHECK)
         for xml in ${XmlFiles}
         do
-            if sipx_config_exists "${xml}" 2>> ${ResultFile}
+            if sipx_config_exists "${xml}" >> ${ResultFile}
             then
                 @SIPX_BINDIR@/xsdvalid -S ${SchemaFile} ${xml} >> ${ResultFile} 2>&1
                 ExitStatus=$((${ExitStatus} + $?))
@@ -147,7 +147,7 @@ fi
 
 if [ ${ExitStatus} -ne 0 ]
 then
-    cat ${ResultFile} | sed 's/^/   /'
+    cat ${ResultFile}
 fi
 
 rm -f ${ResultFile}

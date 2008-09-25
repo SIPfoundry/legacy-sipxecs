@@ -178,7 +178,7 @@ globaltest () { # test_name must_pass test_string
     start_check "${test_string}"
     global_${test_name}_check >> ${steperrfile} 2>&1
     test_status=$?
-    finish_check $test_status
+    finish_check $test_status "${test_string}"
     ## abort if the test failed and must_pass
     if test ${test_status} -ne 0 -a "${must_pass}" = "MUST_PASS"
     then
@@ -243,25 +243,26 @@ stopAllSipX () {
 
 start_check() {
     echo -n "Checking $1:"
-    echo "Check $1" >  ${steperrfile}
-    echo -n "   "   >> ${steperrfile}
+    cat /dev/null >  ${steperrfile}
 }
 
 finish_check() {
     local check_status
     check_status=$1
+    local test_name=$2
 
     STATUS=$(($STATUS+$check_status))
 
     if [ $check_status -eq 0 ]
     then
         echo_success
-        cat /dev/null > ${steperrfile}
     else
         echo_failure
-        cat ${steperrfile} >> ${errfile}
-        echo ""            >> ${errfile}
+        echo "Check ${test_name}"    >> ${errfile}
+        sed 's/^/  /' ${steperrfile} >> ${errfile}
+        echo ""                      >> ${errfile}
     fi
+    cat /dev/null > ${steperrfile}
     echo ""
 }
 
@@ -604,15 +605,15 @@ do_check() {
     # Iterate through the processes and let each shell script do its own checks
     for process in ${sipx_processes[@]}
     do
-        start_check "$process"
-        if sipx_service_is_enabled "$process" > /dev/null 2>&1
+        start_check "${process}"
+        if sipx_service_is_enabled "${process}" > /dev/null 2>&1
         then
-            configtest $process >> ${steperrfile} 2>&1
+            configtest "${process}" >> ${steperrfile} 2>&1
         else
             echo -n " (Disabled) "
             :
         fi
-        finish_check $?
+        finish_check $? "${process}"
     done
 
     log_results

@@ -53,11 +53,9 @@ case ${Action} in
      if [ $Status -eq 0 ]
      then
          # check validity of xml routing rules
-         sipx_config_exists @SIPX_CONFDIR@/mappingrules.xml \
-             && @bindir@/sipx-validate-xml @SIPX_CONFDIR@/mappingrules.xml
+         @bindir@/sipx-validate-xml @SIPX_CONFDIR@/mappingrules.xml
          Status=$(($Status+$?))
-         sipx_config_exists @SIPX_CONFDIR@/mappingrules.xml \
-             && @bindir@/sipx-validate-xml @SIPX_CONFDIR@/fallbackrules.xml
+         @bindir@/sipx-validate-xml @SIPX_CONFDIR@/fallbackrules.xml
          Status=$(($Status+$?))
          ! test -e @SIPX_DBDIR@/alias.xml \
          || @bindir@/sipx-validate-xml @SIPX_DBDIR@/alias.xml

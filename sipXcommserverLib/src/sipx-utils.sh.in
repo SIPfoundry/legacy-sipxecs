@@ -155,7 +155,7 @@ sipx_config_exists() { # ( CONFIG-FILE )
     local exists=0
     if ! test -f "$1"
     then 
-        echo "Configuration file not found: '$1'" 1>&2
+        echo "Configuration file not found: '$1'" 
         exists=1
     fi
     return ${exists}
