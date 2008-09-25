@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.phone.lg_nortel;
@@ -16,14 +16,14 @@ import org.sipfoundry.sipxconfig.setting.SettingEntry;
 
 /**
  * Default parameters for LgNortelPhone
- * 
+ *
  * The following parameters: outbound_proxy_server, outbound_proxy_port, SIP_service_domain are
  * intentionally *not* set here. Phones use per-line parameters to find proxy and set SIP domain.
  */
 public class LgNortelPhoneDefaults {
 
-    private DeviceDefaults m_defaults;
-    private int m_lines;
+    private final DeviceDefaults m_defaults;
+    private final int m_lines;
 
     public LgNortelPhoneDefaults(DeviceDefaults defaults, int lines) {
         m_defaults = defaults;
@@ -55,6 +55,11 @@ public class LgNortelPhoneDefaults {
         return getTimezoneFromRawOffsetSeconds(getZone().getOffset());
     }
 
+    @SettingEntry(path = "VOIP/outbound_proxy_server")
+    public String getOutboundProxyServer() {
+        return m_defaults.getDomainName();
+    }
+
     private static int getTimezoneFromRawOffsetSeconds(int offset) {
         switch (offset) {
         case -43200:  // GMT-12:00 Int.Date Line, West
@@ -77,10 +82,10 @@ public class LgNortelPhoneDefaults {
 
         case -21600:  // GMT-06:00 Central Standard
             return 5;
-        
+
         case -18000:  // GMT-05:00 Eastern Standard
             return 9;
-        
+
         case -14400:  // GMT-04:00 Atlantic Standard
             return 12;
 
@@ -157,18 +162,18 @@ public class LgNortelPhoneDefaults {
             return 23;
         }
     }
-    
+
     @SettingEntry(path = "NETTIME/dst_auto_adjust")
     public boolean getUseDst() {
         return getZone().isUsingDaylightTime();
     }
-    
+
 
     @SettingEntry(path = "NETTIME/dst_start_month")
     public Integer getStartMonth() {
         return nullUnlessDst(getZone().getStartMonth());
     }
-    
+
     private Integer nullUnlessDst(int i) {
         return (getUseDst() ? i : null);
     }
@@ -221,15 +226,15 @@ public class LgNortelPhoneDefaults {
     }
 
     @SettingEntry(path = "VOIP/message_url")
-    public String getVoicemailExtension() {        
+    public String getVoicemailExtension() {
         return m_defaults.getVoiceMail();
     }
-    
+
     @SettingEntry(path = "DIAL/emergency_number")
     public String getEmergencyNumber() {
         return m_defaults.getEmergencyNumber();
     }
-    
+
     @SettingEntry(path = "DIAL/emergency_address")
     public String getEmergencyAddress() {
         return m_defaults.getEmergencyAddress();
@@ -242,7 +247,7 @@ public class LgNortelPhoneDefaults {
 
     /**
      * Adjusts week of month value for LG phones.
-     * 
+     *
      * In case of LG phones '7' means last month of the week.
      */
     private int adjustWeekOfMonth(int week) {

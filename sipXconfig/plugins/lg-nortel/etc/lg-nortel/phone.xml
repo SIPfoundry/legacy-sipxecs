@@ -170,7 +170,7 @@
     </setting>
   </group>
   <group name='VOIP'>
-    <setting name='outbound_proxy_server' />
+    <setting name='outbound_proxy_server' advanced="yes"/>
     <setting name='outbound_proxy_port' advanced="yes">
       <type refid="restricted-port-number" />
       <value>5060</value>

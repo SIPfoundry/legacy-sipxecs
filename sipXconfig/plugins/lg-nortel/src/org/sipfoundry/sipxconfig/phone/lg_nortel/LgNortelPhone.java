@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.phone.lg_nortel;
@@ -89,13 +89,14 @@ public class LgNortelPhone extends Phone {
     }
 
     static class LgNortelProfileContext extends ProfileContext {
-        private SpeedDial m_speeddial;
+        private final SpeedDial m_speeddial;
 
         LgNortelProfileContext(LgNortelPhone phone, SpeedDial speeddial, String profileTemplate) {
             super(phone, profileTemplate);
             m_speeddial = speeddial;
         }
 
+        @Override
         public Map<String, Object> getContext() {
             Map<String, Object> context = super.getContext();
             Phone phone = (Phone) getDevice();
@@ -139,10 +140,12 @@ public class LgNortelPhone extends Phone {
             super(name, "text/csv");
         }
 
+        @Override
         protected ProfileFilter createFilter(Device device) {
             return null;
         }
 
+        @Override
         protected ProfileContext createContext(Device device) {
             LgNortelPhone phone = (LgNortelPhone) device;
             return phone.getPhonebook();
