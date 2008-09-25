@@ -27,6 +27,8 @@
     <file>/etc/sipxpbx/common.xml</file>
     <osconfig required='false'>/etc/sipxpbx/firstprocess-config</osconfig>
     <imdb configAccess='read-only'>firsttable</imdb>
-    <sqldb>FIRST</sqldb>
+    <sqldb>
+       <dbname>FIRST</dbname>
+    </sqldb>
   </resources>
 </sipXecs-process>

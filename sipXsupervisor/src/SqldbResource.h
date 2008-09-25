@@ -12,6 +12,7 @@
 // APPLICATION INCLUDES
 #include "utl/UtlHashMap.h"
 #include "SipxResource.h"
+#include "odbc/OdbcWrapper.h"
 
 // DEFINES
 // CONSTANTS
@@ -81,7 +82,6 @@ class SqldbResource : public SipxResource
 
 ///@}
 
-
   protected:
    
    /// constructor
@@ -89,6 +89,12 @@ class SqldbResource : public SipxResource
 
    /// destructor
    virtual ~SqldbResource();
+
+   UtlString   mUser;             ///< User that is used for database connectivity.
+   UtlString   mPassword;         ///< User password that is used for database connectivity.
+   UtlString   mDbDriver;         ///< Database Driver that is used for connectivity.
+   UtlString   mServer;           ///< Database server location.
+   UtlString   mDbName;           ///< Database name.
 
   private:
 

@@ -202,6 +202,82 @@
     </simpleContent>
   </complexType>
 
+  <element name="server" type="string" default='localhost'>
+    <annotation>
+      <documentation>
+        Server where the database resides.
+        Defaults to the local server (localhost).
+      </documentation>
+    </annotation>
+  </element>
+
+  <element name="dbname" type="string" default='SIPXCDR'>
+    <annotation>
+      <documentation>
+        Name of the database to be used.
+        Defaults to the CDR database SIPXCDR.
+      </documentation>
+    </annotation>
+  </element>
+
+  <element name="username" type="string" default='postgres'>
+    <annotation>
+      <documentation>
+        Username to connect to the database.
+        Defaults to the user 'postgres'.
+      </documentation>
+    </annotation>
+  </element>
+
+  <element name="dbdriver" type="string" default='{PostgreSQL}'>
+    <annotation>
+      <documentation>
+        Database driver used for the database type.
+        Defaults to the {PostgreSQL} driver.
+      </documentation>
+    </annotation>
+  </element>
+
+  <element name="userpassword" type="string" default=''>
+    <annotation>
+      <documentation>
+        User password to connect to the database.
+        Defaults to no password.
+      </documentation>
+    </annotation>
+  </element>
+
+  <complexType name='DBResource'>
+    <annotation>
+      <documentation>
+        Describes a single database object that must exist for this process to execute.
+      </documentation>
+    </annotation>
+    <sequence>
+      <element ref='proc:server' minOccurs='0' maxOccurs='1'/>
+      <element ref='proc:dbname' minOccurs='1' maxOccurs='1'/>
+      <element ref='proc:username' minOccurs='0' maxOccurs='1'/>
+      <element ref='proc:dbdriver' minOccurs='0' maxOccurs='1'/>
+      <element ref='proc:userpassword' minOccurs='0' maxOccurs='1'/>
+    </sequence>
+    <attribute name='required' type='boolean' default='true'>
+          <annotation>
+            <documentation>
+              If this is false, the resource is not required to start the process, but
+              may be accessed by the configuration system.
+            </documentation>
+          </annotation>
+     </attribute>
+      <attribute name='configAccess' type='proc:ConfigAccess' default='read-write'>
+          <annotation>
+            <documentation>
+              Declares the kind of access granted to the configuration system to this resource.
+              The access granted is the most permissive allowed by any process definition.
+            </documentation>
+          </annotation>
+     </attribute>
+  </complexType>
+
   <simpleType name='ConfigAccess'>
     <annotation>
       <documentation>
@@ -215,6 +291,7 @@
   </simpleType>
 
   <element name='resource' type='proc:Resource' abstract='true'/>
+  <element name='DBresource' type='proc:DBResource' abstract='true'/>
 
   <element name='resources'>
     <annotation>
@@ -225,6 +302,7 @@
     <complexType>
       <sequence>
         <element ref='proc:resource' minOccurs='0' maxOccurs='unbounded' />
+        <element ref='proc:DBresource' minOccurs='0' maxOccurs='unbounded' />
       </sequence>
     </complexType>
   </element>
@@ -261,10 +339,10 @@
     </annotation>
   </element>
 
-  <element name='sqldb' type='proc:Resource' substitutionGroup='proc:resource'>
+  <element name='sqldb' type='proc:DBResource' substitutionGroup='proc:DBresource'>
     <annotation>
       <documentation>
-        Content is the name of a Postgres database.
+        SQL database and connection information.
       </documentation>
     </annotation>
   </element>

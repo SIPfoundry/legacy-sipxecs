@@ -122,11 +122,11 @@ public:
 
          SqldbResource* sqldbResource;
          CPPUNIT_ASSERT((sqldbResource =
-                         SqldbResourceManager::getInstance()->find("FIRST")));
+                         SqldbResourceManager::getInstance()->find("FIRSTlocalhostpostgres")));
          CPPUNIT_ASSERT( sqldbResource->isWriteable());
          description.remove(0);
          sqldbResource->appendDescription(description);
-         ASSERT_STR_EQUAL("SQL database 'FIRST'",description.data());
+         ASSERT_STR_EQUAL("SQL database 'FIRSTlocalhostpostgres'",description.data());
          CPPUNIT_ASSERT(sqldbResource->mUsedBy.containsReference(processResource));
       };
 
@@ -209,11 +209,11 @@ public:
 
          SqldbResource* sqldbResource;
          CPPUNIT_ASSERT((sqldbResource =
-                         SqldbResourceManager::getInstance()->find("SECOND")));
+                         SqldbResourceManager::getInstance()->find("SECONDlocalhostpostgres")));
          CPPUNIT_ASSERT( sqldbResource->isWriteable());
          description.remove(0);
          sqldbResource->appendDescription(description);
-         ASSERT_STR_EQUAL("SQL database 'SECOND'",description.data());
+         ASSERT_STR_EQUAL("SQL database 'SECONDlocalhostpostgres'",description.data());
          CPPUNIT_ASSERT(sqldbResource->mUsedBy.containsReference(processResource));
       };
 

@@ -27,6 +27,8 @@
     <file>/etc/sipxpbx/common.xml</file>
     <osconfig required='false'>/etc/sipxpbx/secondprocess-config</osconfig>
     <imdb configAccess='read-only'>secondtable</imdb>
-    <sqldb>SECOND</sqldb>
+    <sqldb>
+       <dbname>SECOND</dbname>
+    </sqldb>
   </resources>
 </sipXecs-process>

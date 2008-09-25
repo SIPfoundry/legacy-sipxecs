@@ -26,6 +26,8 @@
     <file>/etc/sipxpbx/goodprocess.xml</file>
     <osconfig required='false'>/etc/sipxpbx/goodprocess-config</osconfig>
     <imdb configAccess='read-only'>goodtable</imdb>
-    <sqldb>GOOD</sqldb>
+    <sqldb>
+       <dbname>GOOD</dbname>
+    </sqldb>
   </resources>
 </sipXecs-process>

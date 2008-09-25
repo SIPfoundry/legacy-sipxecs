@@ -39,68 +39,218 @@ bool SqldbResource::parse(const TiXmlDocument& sqldbDefinitionDoc, ///< sqldb de
     * @returns NULL if the element was in any way invalid.
     */
    UtlString errorMsg;
-   bool resourceIsValid;
+   bool resourceIsValid = true;
+   bool validResourceParm;
+   
+   TiXmlElement*    dbElement;
 
    UtlString databaseName;
-   resourceIsValid = textContent(databaseName, resourceElement);
-   if (resourceIsValid)
+   UtlString serverName;
+   UtlString userName;
+   UtlString dbDriver;
+   UtlString userPassword;
+
+   SqldbResource* sqldbResource;
+   SqldbResourceManager* sqldbManager = SqldbResourceManager::getInstance();
+
+   dbElement = resourceElement->FirstChildElement();
+   if (dbElement)
    {
-      if (!databaseName.isNull())
+      if (0 == strcmp("server",dbElement->Value()))
       {
-         SqldbResourceManager* sqldbResourceMgr = SqldbResourceManager::getInstance();
-
-         SqldbResource* sqldbResource;
-         if (!(sqldbResource = sqldbResourceMgr->find(databaseName)))
+         validResourceParm = textContent(serverName, dbElement);
+         if (validResourceParm && !serverName.isNull())
          {
-            sqldbResource = new SqldbResource(databaseName);
+            // advance to the next element, if any.
+            dbElement = dbElement->NextSiblingElement();
          }
-         sqldbResource->usedBy(currentProcess);
-         
-         for ( const TiXmlAttribute* attribute = resourceElement->FirstAttribute();
-               resourceIsValid && attribute;
-               attribute = attribute->Next()
-              )
+         else
          {
-            if (!(resourceIsValid =
-                  sqldbResource->SipxResource::parseAttribute(sqldbDefinitionDoc,
-                                                              attribute, currentProcess)
-                  ))
-            {
-               OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "SqldbResource::parse "
-                             "invalid attribute '%s'",
-                             attribute->Name());
-            }
-         }
-
-         if ( sqldbResource->mFirstDefinition ) // existing resources are in the manager already
-         {
-            if (resourceIsValid)
-            {
-               sqldbResource->mFirstDefinition = false;
-               sqldbResourceMgr->save(sqldbResource);
-            }
-            else
-            {
-               delete sqldbResource;
-            }
+            resourceIsValid = false;
+            XmlErrorMsg(sqldbDefinitionDoc, errorMsg);
+            OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "SqldbResource::parse "
+                          "'server' element is empty"
+                          " - if present, it must be a machine name or localhost %s",
+                          errorMsg.data()
+                          );
          }
       }
       else
       {
-         resourceIsValid = false;
-         XmlErrorMsg(sqldbDefinitionDoc, errorMsg);
-         OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "SqldbResource::parse "
-                       "sqldb element is empty %s",
-                       errorMsg.data());
+         // 'server' is an optional element.  Setup the server to use the default of localhost
+         serverName = "localhost";
       }
-   }
-   else
-   {
-      XmlErrorMsg(sqldbDefinitionDoc, errorMsg);
-      OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "SqldbResource::parse "
-                    "invalid content in sqldb element %s",
-                    errorMsg.data());
-   }
+    }
+    else
+    {
+       resourceIsValid = false;
+       XmlErrorMsg(sqldbDefinitionDoc, errorMsg);
+       OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "SqldbResource::parse "
+                          "no elements are present %s",
+                          errorMsg.data()
+                          );
+    }
+        
+    if (resourceIsValid && dbElement)
+    {
+       if (0 == strcmp("dbname",dbElement->Value()))
+       {
+          validResourceParm = textContent(databaseName, dbElement);
+          if (validResourceParm && !databaseName.isNull())
+          {
+             // advance to the next element, if any.
+             dbElement = dbElement->NextSiblingElement();
+          }
+          else
+          {
+             resourceIsValid = false;
+             XmlErrorMsg(sqldbDefinitionDoc, errorMsg);
+             OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "SqldbResource::parse "
+                           "'dbname' element is empty"
+                           " - if present it must contain a valid sql database name"
+                           );
+          }
+       }
+       else
+       {
+          resourceIsValid = false;
+          XmlErrorMsg(sqldbDefinitionDoc, errorMsg);
+          OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "SqldbResource::parse "
+                        "'dbname' element is missing %s",
+                        errorMsg.data()
+                        );
+       }
+    }
+
+    if (resourceIsValid)
+    {
+       if (dbElement && (0 == strcmp("username",dbElement->Value())))
+       {
+          validResourceParm = textContent(userName, dbElement);
+          if (validResourceParm && !userName.isNull())
+          {
+             // advance to the next element, if any.
+             dbElement = dbElement->NextSiblingElement();
+          }
+          else
+          {
+             resourceIsValid = false;
+             XmlErrorMsg(sqldbDefinitionDoc, errorMsg);
+             OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "SqldbResource::parse "
+                           "'username' element is empty"
+                           " - if present, it must be a valid database user name %s",
+                           errorMsg.data()
+                           );
+          }
+       }
+       else
+       {
+          // 'username' is an optional element.  Setup the username to use the default of postgres
+          userName = "postgres";
+       }
+    }
+
+    if (resourceIsValid)
+    {
+       if (dbElement && (0 == strcmp("dbdriver",dbElement->Value())))
+       {
+          validResourceParm = textContent(dbDriver, dbElement);
+          if (validResourceParm && !dbDriver.isNull())
+          {
+             // advance to the next element, if any.
+             dbElement = dbElement->NextSiblingElement();
+          }
+          else
+          {
+             resourceIsValid = false;
+             XmlErrorMsg(sqldbDefinitionDoc, errorMsg);
+             OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "SqldbResource::parse "
+                           "'dbdriver' element is empty"
+                           " - if present, it must be a valid database driver name %s",
+                           errorMsg.data()
+                           );
+          }
+       }
+       else
+       {
+          // 'dbdriver' is an optional element.  Setup the database driver to use the default of {PostgreSQL}
+          dbDriver = "{PostgreSQL}";
+       }
+    }
+    if (resourceIsValid)
+    {
+       if (dbElement && (0 == strcmp("userpassword",dbElement->Value())))
+       {
+          validResourceParm = textContent(userPassword, dbElement);
+          if (!validResourceParm || userPassword.isNull())
+          {
+             resourceIsValid = false;
+             XmlErrorMsg(sqldbDefinitionDoc, errorMsg);
+             OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "SqldbResource::parse "
+                           "'userpassword' element is empty"
+                           " - if present, it must be a valid password string %s",
+                           errorMsg.data()
+                           );
+          }
+       }
+       else
+       {
+          // 'userpassword' is an optional element.  Setup the password to be an empty string
+          userPassword = "";
+       }
+    }
+
+    if (resourceIsValid)
+    {
+       if (!(sqldbResource = sqldbManager->find(databaseName + serverName + userName)))
+       {
+          sqldbResource = new SqldbResource(databaseName + serverName + userName );
+       } 
+       sqldbResource->usedBy(currentProcess);
+
+       for ( const TiXmlAttribute* attribute = resourceElement->FirstAttribute();
+             resourceIsValid && attribute;
+             attribute = attribute->Next()
+            )
+       {
+          if (!(resourceIsValid =
+                sqldbResource->SipxResource::parseAttribute(sqldbDefinitionDoc,
+                                                            attribute, currentProcess)
+                ))
+          {
+             OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "SqldbResource::parse "
+                           "invalid attribute '%s'",
+                           attribute->Name());
+          }
+       }
+
+       if ( sqldbResource->mFirstDefinition ) // existing resources are in the manager already
+       {
+          if (resourceIsValid)
+          {
+             sqldbResource->mFirstDefinition = false;
+             sqldbResource->mUser = userName;
+             sqldbResource->mPassword = userPassword;
+             sqldbResource->mDbDriver = dbDriver;
+             sqldbResource->mServer = serverName;
+             sqldbResource->mDbName = databaseName;
+             OsSysLog::add(FAC_SUPERVISOR, PRI_NOTICE, "SqldbResource::parse "
+                                  "databaseName = %s, username = %s, password = %s, driver = %s, server = %s",
+                                  sqldbResource->mDbName.data(),
+                                  sqldbResource->mUser.data(),
+                                  sqldbResource->mPassword.data(),
+                                  sqldbResource->mDbDriver.data(),
+                                  sqldbResource->mServer.data()
+                                  );
+             sqldbManager->save(sqldbResource);
+          }
+       }
+       else
+       {
+          delete sqldbResource;
+       }
+
+    }
 
    return resourceIsValid;
 }
@@ -118,7 +268,23 @@ void SqldbResource::appendDescription(UtlString&  description /**< returned desc
 // Whether or not the SqldbResource is ready for use by a Sqldb.
 bool SqldbResource::isReadyToStart()
 {
-   return true; // @TODO
+   // Check to ensure that we can connect to the database.
+   OdbcHandle dbHandle = odbcConnect(mDbName, mServer, mUser, mDbDriver, mPassword);
+   if (dbHandle)
+   {
+      odbcDisconnect(dbHandle);
+      OsSysLog::add(FAC_SUPERVISOR, PRI_NOTICE, "SqldbResource::isReadyToStart "
+                     "Successfully connected to database %s",
+                     mDbName.data());
+      return true;
+   }
+   else
+   {
+      OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "SqldbResource::isReadyToStart "
+                     "Unable to connect to database %s",
+                     mDbName.data());
+      return false;
+   }
 }
 
 // Determine whether or not the values in a containable are comparable.
