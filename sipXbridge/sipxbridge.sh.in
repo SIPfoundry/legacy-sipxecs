@@ -28,26 +28,11 @@ do
     shift # always consume 1
 done
 
-CONFIG_DEFS="@SIPX_CONFDIR@/config.defs"
-
 CONFIG_FILES="\
   @SIPX_CONFDIR@/sipxbridge.xml \
   "
 
 . @SIPX_LIBEXECDIR@/sipx-utils.sh || exit 1
-
-# If the "config.defs" file exists and the <name>.in file exists for a
-# configuration file, then run the config preprocessor to generate the
-# fully resolved configuration file.
-if [ -f "$CONFIG_DEFS" ]
-then
-  for i in $CONFIG_FILES ; do
-    if [ -f "${i}.in" ]
-    then
-       @SIPX_BINDIR@/configpp --defs "${CONFIG_DEFS}" --in "${i}.in" --out "$i"
-    fi
-  done
-fi
 
 case ${Action} in
    RUN)
