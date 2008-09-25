@@ -29,25 +29,10 @@ done
 
 . @SIPX_LIBEXECDIR@/sipx-utils.sh || exit 1
 
-CONFIG_DEFS="@SIPX_CONFDIR@/config.defs"
-
 CONFIG_FILES="\
   @SIPX_CONFDIR@/mappingrules.xml \
   @SIPX_CONFDIR@/fallbackrules.xml \
   "
-
-# If the "config.defs" file exists and the <name>.in file exists for a
-# configuration file, then run the config preprocessor to generate the
-# fully resolved configuration file.
-if [ -f "$CONFIG_DEFS" ]
-then
-  for i in $CONFIG_FILES ; do
-    if [ -f "${i}.in" ]
-    then
-       @bindir@/configpp --defs "${CONFIG_DEFS}" --in "${i}.in" --out "$i"
-    fi
-  done
-fi
 
 case ${Action} in
    RUN)
@@ -61,53 +46,57 @@ case ${Action} in
 
 
    CONFIGTEST)
-     sipx_config_exists @SIPX_CONFDIR@/domain-config || exit 1
-     sipx_config_exists @SIPX_CONFDIR@/registrar-config || exit 1
-
-     # check validity of xml routing rules
-     sipx_config_exists @SIPX_CONFDIR@/mappingrules.xml \
-         && @bindir@/sipx-validate-xml @SIPX_CONFDIR@/mappingrules.xml
+     sipx_config_exists @SIPX_CONFDIR@/domain-config
      Status=$(($Status+$?))
-     sipx_config_exists @SIPX_CONFDIR@/mappingrules.xml \
-         && @bindir@/sipx-validate-xml @SIPX_CONFDIR@/fallbackrules.xml
+     sipx_config_exists @SIPX_CONFDIR@/registrar-config
      Status=$(($Status+$?))
-     ! test -e @SIPX_DBDIR@/alias.xml \
-     || @bindir@/sipx-validate-xml @SIPX_DBDIR@/alias.xml
-     Status=$(($Status+$?))
-     ! test -e @SIPX_DBDIR@/huntgroup.xml \
-     || @bindir@/sipx-validate-xml @SIPX_DBDIR@/huntgroup.xml
-     Status=$(($Status+$?))
-
-     # if this system is configured for HA, check that both have valid routes
-     SyncWith=`sipx_config_value @SIPX_CONFDIR@/registrar-config SIP_REGISTRAR_SYNC_WITH \
-               | tr A-Z a-z`
-     if [ -n "$SyncWith" ]
+     if [ $Status -eq 0 ]
      then
-         myRegDomain=`sipx_config_value @SIPX_CONFDIR@/registrar-config SIP_REGISTRAR_DOMAIN_NAME \
-                      | tr A-Z a-z`
-         myHostName=`sipx_config_value @SIPX_CONFDIR@/registrar-config SIP_REGISTRAR_NAME \
-                     | tr A-Z a-z`
-         if [ "$myRegDomain" = "$myHostName" ]
+         # check validity of xml routing rules
+         sipx_config_exists @SIPX_CONFDIR@/mappingrules.xml \
+             && @bindir@/sipx-validate-xml @SIPX_CONFDIR@/mappingrules.xml
+         Status=$(($Status+$?))
+         sipx_config_exists @SIPX_CONFDIR@/mappingrules.xml \
+             && @bindir@/sipx-validate-xml @SIPX_CONFDIR@/fallbackrules.xml
+         Status=$(($Status+$?))
+         ! test -e @SIPX_DBDIR@/alias.xml \
+         || @bindir@/sipx-validate-xml @SIPX_DBDIR@/alias.xml
+         Status=$(($Status+$?))
+         ! test -e @SIPX_DBDIR@/huntgroup.xml \
+         || @bindir@/sipx-validate-xml @SIPX_DBDIR@/huntgroup.xml
+         Status=$(($Status+$?))
+
+         # if this system is configured for HA, check that both have valid routes
+         SyncWith=`sipx_config_value @SIPX_CONFDIR@/registrar-config SIP_REGISTRAR_SYNC_WITH \
+                   | tr A-Z a-z`
+         if [ -n "$SyncWith" ]
          then
-             cat <<EOF
+             myRegDomain=`sipx_config_value @SIPX_CONFDIR@/registrar-config SIP_REGISTRAR_DOMAIN_NAME \
+                          | tr A-Z a-z`
+             myHostName=`sipx_config_value @SIPX_CONFDIR@/registrar-config SIP_REGISTRAR_NAME \
+                         | tr A-Z a-z`
+             if [ "$myRegDomain" = "$myHostName" ]
+             then
+                 cat <<EOF
     In redundant configuration, SIP_REGISTRAR_NAME ($myHostName)
                should not equal SIP_REGISTRAR_DOMAIN_NAME ($(myRegDomain)
 EOF
-             Status=$(($Status+1))
-         fi
-         for h in ${SyncWith}
-         do
-           if ! sip_resolves_to $myRegDomain $h 
-           then
-               cat <<EOF
+                 Status=$(($Status+1))
+             fi
+             for h in ${SyncWith}
+             do
+               if ! sip_resolves_to $myRegDomain $h 
+               then
+                   cat <<EOF
     Warning: SIP Domain '$myRegDomain' does not resolve to registrar host '$h'
              This is ok only if the proxy on $h is configured to forward to the 
              correct set of registrars.  The recommended configuration is to always
              run a registrar on each host that runs a proxy.
 EOF
-               Status=1
-           fi
-         done
+                   Status=1
+               fi
+             done
+         fi
      fi
      
      # Check that the log file is writable.
