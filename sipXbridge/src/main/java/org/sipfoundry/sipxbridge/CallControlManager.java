@@ -153,14 +153,13 @@ class CallControlManager implements SymmitronResetHandler {
         DialogApplicationData dat = (DialogApplicationData) dialog.getApplicationData();
 
         RtpSession lanRtpSession = dat.getRtpSession();
-        
-        
+
         SessionDescription newDescription = lanRtpSession.reAssignSessionParameters(request,
                 serverTransaction, dialog, peerDialog);
-        
+
         /*
-         * The request originated from the LAN side. Otherwise, the request originated
-         * from WAN we sent it along to the phone on the previous step.
+         * The request originated from the LAN side. Otherwise, the request originated from WAN we
+         * sent it along to the phone on the previous step.
          */
         if (provider == Gateway.getLanProvider()) {
             Response response = ProtocolObjects.messageFactory.createResponse(Response.OK,
@@ -178,7 +177,6 @@ class CallControlManager implements SymmitronResetHandler {
                     Gateway.getSipxProxyTransport());
             response.setHeader(contactHeader);
             response.setReasonPhrase("RTP Session Parameters Changed");
-
 
             if (serverTransaction != null) {
                 serverTransaction.sendResponse(response);
@@ -231,7 +229,8 @@ class CallControlManager implements SymmitronResetHandler {
                 // See if we need to re-INVITE MOH server. If the session
                 // is already set up with right codec we do not need to do that.
 
-                if (!dat.sendReInviteOnResume && provider == Gateway.getLanProvider()
+                if (!dat.sendReInviteOnResume
+                        && provider == Gateway.getLanProvider()
                         && ((!Gateway.isReInviteSupported()) || Gateway.getMusicOnHoldAddress() == null)) {
                     // Can handle this request locally without re-Inviting server (optimization)
 
@@ -548,8 +547,8 @@ class CallControlManager implements SymmitronResetHandler {
                 // to determine what codec was negotiated.
                 ReferInviteToSipxProxyContinuationData continuation = new ReferInviteToSipxProxyContinuationData(
                         requestEvent);
-                
-               // btobua.referingDialog = dialog;
+
+                // btobua.referingDialog = dialog;
 
                 btobua.querySdpFromPeerDialog(requestEvent, Operation.REFER_INVITE_TO_SIPX_PROXY,
                         continuation);
@@ -946,6 +945,26 @@ class CallControlManager implements SymmitronResetHandler {
                         b2bua.referInviteToSipxProxy(continuation.getRequest(), continuation
                                 .getDialog(), sd);
                     } else if (operation == Operation.SEND_INVITE_TO_MOH_SERVER) {
+                        /*
+                         * This is a query for MOH server. Lets see if he returned a codec that
+                         * park server handle in the query
+                         */
+
+                        if (!SipUtilities.isCodecSupported(sd, Gateway.getParkServerCodecs())) {
+                            /*
+                             * If codec is not supported by park server then we simply do not
+                             * forward the answer to the park server in an INIVTE. We just replay
+                             * the old respose.
+                             */
+                            long cseq = SipUtilities.getSeqNumber(response);
+                            Request ack = dialog.createAck(cseq);
+
+                            SessionDescription ackSd = dat.getRtpSession().getReceiver()
+                                    .getSessionDescription();
+                            SipUtilities.setSessionDescription(ack, ackSd);
+                            dialog.sendAck(ack);
+                            return;
+                        }
 
                         ReInviteProcessingContinuationData continuation = (ReInviteProcessingContinuationData) tad.continuationData;
                         b2bua.getLanRtpSession(continuation.dialog).getReceiver()
@@ -1115,7 +1134,13 @@ class CallControlManager implements SymmitronResetHandler {
                             ((DialogApplicationData) dialog.getApplicationData())
                                     .setRtpSession(rtpSession);
 
-                            if (peerDat.transaction instanceof ServerTransaction) {
+                            /*
+                             * Check if we need to forward that response and do so if needed.
+                             * see issue 1718
+                             */
+                            if (peerDat.transaction != null
+                                    && peerDat.transaction instanceof ServerTransaction
+                                    && peerDat.transaction.getState() != TransactionState.TERMINATED) {
 
                                 Request request = ((ServerTransaction) peerDat.transaction)
                                         .getRequest();
@@ -1627,8 +1652,8 @@ class CallControlManager implements SymmitronResetHandler {
      * @param backToBackUserAgent
      */
     public void setBackToBackUserAgent(String callId, BackToBackUserAgent backToBackUserAgent) {
-       this.backToBackUserAgentTable.put(callId, backToBackUserAgent);
-        
+        this.backToBackUserAgentTable.put(callId, backToBackUserAgent);
+
     }
 
 }

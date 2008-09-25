@@ -453,6 +453,9 @@ class SipUtilities {
             String toDomain = itspAccount.getProxyDomain();
             String fromUser = ((SipURI) from.getAddress().getURI()).getUser();
             String fromDisplayName = from.getAddress().getDisplayName();
+            if ( fromDisplayName == null ) {
+                fromDisplayName = "sipxbridge";
+            }
             PAssertedIdentityHeader paiHeader = null;
             if (!fromUser.equalsIgnoreCase("anonymous")) {
                 Address fromAddress = null;
@@ -1014,6 +1017,25 @@ class SipUtilities {
             throw new RuntimeException(ex);
         }
 
+    }
+
+    /**
+     * Return true if the session description contains at least one codec
+     * of the specified set.
+     * 
+     * @param sd
+     * @param codecSet
+     * @return
+     */
+    public static boolean isCodecSupported(SessionDescription sd, HashSet<Integer> codecSet) {
+       
+     
+        
+        HashSet<Integer> codecs = SipUtilities.getCodecNumbers(sd);
+        for ( int codecNumber : codecSet) {
+            if ( codecs.contains(codecNumber)) return true;
+        }
+        return false;
     }
 
 }

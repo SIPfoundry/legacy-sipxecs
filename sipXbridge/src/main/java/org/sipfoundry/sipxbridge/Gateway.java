@@ -174,6 +174,9 @@ public class Gateway {
     private static String configurationPath;
 
     private static HashSet<String> proxyAddressTable = new HashSet<String>();
+    
+    private static HashSet<Integer> parkServerCodecs = new HashSet<Integer>();
+    
 
     private Gateway() {
 
@@ -528,8 +531,8 @@ public class Gateway {
                 return new HopImpl(resolvedName, port, getSipxProxyTransport());
             }
 
-        } catch (TextParseException ex) {
-            logger.error("Problem looking up proxy address -- stopping gateway");
+        } catch (Exception ex) {
+            logger.error("Problem looking up proxy address",ex);
             return null;
         }
 
@@ -753,6 +756,9 @@ public class Gateway {
             return;
         }
         Gateway.state = GatewayState.INITIALIZING;
+        
+        parkServerCodecs.add(RtpPayloadTypes.getPayloadType("PCMU"));
+        parkServerCodecs.add(RtpPayloadTypes.getPayloadType("PCMA"));
 
         /*
          * If specified, try to contact symmitron.
@@ -948,6 +954,11 @@ public class Gateway {
 
     }
 
+    /**
+     * Whether or not delayed offer answer model is supported on Re-INVITE
+     * 
+     * @return true if supported.
+     */
     static boolean isReInviteSupported() {
 
         return accountManager.getBridgeConfiguration().isReInviteSupported();
@@ -960,19 +971,39 @@ public class Gateway {
         return timer;
     }
 
+    /**
+     * Session keepalive timer.
+     * 
+     * @return
+     */
     static String getSessionTimerMethod() {
-        // return null;
         return Request.OPTIONS;
     }
 
+    /**
+     * Returns true if inbound calls go to an auto attendant.
+     * 
+     * @return
+     */
     static boolean isInboundCallsRoutedToAutoAttendant() {
         return accountManager.getBridgeConfiguration().isInboundCallsRoutedToAutoAttendant();
     }
 
+    /**
+     * Place where you want to direct calls ( assuming that you have such a place ).
+     * 
+     * @return - the address of auto attendant.
+     */
     static String getAutoAttendantName() {
         return accountManager.getBridgeConfiguration().getAutoAttendantName();
     }
 
+    /**
+     * The XML rpc client connection to the symmitron.
+     * 
+     * @param address - the address ( extracted from the Via header).
+     * @return -- the client to talk to the symmitron. 
+     */
     static SymmitronClient getSymmitronClient(String address) {
         String lookupAddress = address;
         if (Gateway.getBridgeConfiguration().getSymmitronHost() != null) {
@@ -984,6 +1015,17 @@ public class Gateway {
             symmitronClient = initializeSymmitron(lookupAddress);
         }
         return symmitronClient;
+    }
+    
+    
+    /**
+     * The set of codecs handled by the park server.
+     * 
+     * @return
+     */
+    static HashSet<Integer> getParkServerCodecs() {
+        
+        return parkServerCodecs;
     }
 
     /**
@@ -1053,5 +1095,7 @@ public class Gateway {
         }
 
     }
+
+   
 
 }
