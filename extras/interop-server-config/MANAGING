@@ -25,7 +25,7 @@ First, load the desired RPMs into a directory on the interop server.
     RPMs for the desired version.  E.g.:
 
 	    wget --no-parent -r -nd \
-		    http://falcon.pingtel.com/ecs/main/FC/6/i386/010020/RPM
+		    http://falcon.us.nortel.com/ecs/main/FC/8/i386/010020/RPM
 
     Create a destination directory on interop (e.g., ~/010020) and upload
     the RPMs to it:
