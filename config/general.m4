@@ -306,20 +306,26 @@ AC_DEFUN([CHECK_SSL],
         AC_SUBST(SSL_LIBS,"-lssl -lcrypto")
     fi
 
-## openssl-devel rpm installs kerbose in another dir
+## openSUSE installs kerberos as part of krb5-devel in /usr/include
     AC_MSG_CHECKING(for extra kerberos includes)
     krb_found="no"
-    for krbdir in $openssl_path ; do
-      if test -f "$krbdir/kerberos/include/krb5.h"; then
-        krb_found="yes"
-        break;
-      fi
-    done
-    if test x_$krb_found = x_yes; then
-        AC_MSG_RESULT($krbdir/kerberos/include)
-        SSL_CFLAGS="$SSL_CFLAGS -I$krbdir/kerberos/include"
-    else
-        AC_MSG_RESULT(['kerberos/include/krb5.h' not found - looked in $openssl_path])
+    if test -f "/usr/include/krb5.h"; then
+      krb_found="yes"
+      AC_MSG_RESULT(/usr/include/krb5.h)
+    fi
+## openssl-devel rpm sometimes installs kerberos in another dir
+    if test x_$krb_found = x_no; then
+      for krbdir in $openssl_path ; do
+        if test -f "$krbdir/kerberos/include/krb5.h"; then
+          krb_found="yes"
+          AC_MSG_RESULT($krbdir/kerberos/include)
+          SSL_CFLAGS="$SSL_CFLAGS -I$krbdir/kerberos/include"
+          break;
+        fi
+      done
+    fi
+    if test x_$krb_found = x_no; then
+        AC_MSG_RESULT(['kerberos krb5.h' not found - looked in /usr/include $openssl_path])
     fi
 
     AC_SUBST(SSL_CFLAGS,"$SSL_CFLAGS")
@@ -561,7 +567,7 @@ AC_DEFUN([CHECK_APACHE2],
                  apache2_mod_override="$withval"
                 ],
                [ apache2_mod_search_path="/usr/local/apache2/modules /usr/apache2/modules /etc/httpd/modules /usr/lib/httpd/modules 
-/usr/lib/apache2-prefork /usr/lib/apache2/modules /usr/lib64/apache2-prefork"
+/usr/lib/apache2-prefork /usr/lib/apache2/modules /usr/lib64/apache2 /usr/lib64/apache2-prefork"
                  apache2_mod_override=""
                 ]
               )
