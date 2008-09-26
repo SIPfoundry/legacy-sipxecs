@@ -21,5 +21,6 @@
   </status>
   <resources>
     <osconfig>@SIPX_CONFDIR@/domain-config</osconfig>
+    <osconfig>@SIPX_CONFDIR@/sipxpresence-config</osconfig>
   </resources>
 </sipXecs-process>
