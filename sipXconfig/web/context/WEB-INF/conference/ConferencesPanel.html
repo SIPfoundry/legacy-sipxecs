@@ -10,11 +10,22 @@
         </li>
     </ul>
     </span>
-    
+    <ul jwcid="@If"
+      condition="ognl:renderFilter"
+      class="component-submit">
+      <li>
+        <span jwcid="@setting/GroupFilter"
+          selectedGroupId="ognl:selectedGroupId"
+          groups="ognl:coreContext.groups"
+          queryText="ognl:queryText"
+          searchMode="ognl:searchMode"/>
+      </li>
+    </ul>
 	<table jwcid="@common/Table" id="conference:list" class="component"
         columns="ognl:tableColumns"
-        source="ognl:conferences"
+        source="ognl:filteredConferences"
         row="ognl:currentRow"
+        usePager="ognl:true"
         selections="ognl:selections">
 		<span jwcid="nameColumnValue@Block">
 			<a jwcid="@DirectLink" listener="ognl:selectListener" parameters="ognl:currentRow.id">

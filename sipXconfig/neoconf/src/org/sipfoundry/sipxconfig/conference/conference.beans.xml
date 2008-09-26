@@ -87,4 +87,8 @@
     <property name="sleepInterval" value="15000" />
   </bean>
 
+  <bean id="identity" class="org.sipfoundry.sipxconfig.conference.BridgeConferenceIdentityImpl">
+    <property name="sessionFactory" ref="sessionFactory" />
+  </bean>
+
 </beans>

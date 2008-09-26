@@ -17,12 +17,15 @@ import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 
 public class EditBridgeTestUi extends ListWebTestCase {
 
+	private ConferenceTestHelper m_conferenceHelper;
+
     public static Test suite() throws Exception {
         return SiteTestHelper.webTestSuite(EditBridgeTestUi.class);
     }
 
     public EditBridgeTestUi() {
         super("EditBridge", "resetConferenceBridgeContext", "conference");
+        setPager(true);
         setHasDuplicate(false);
         setExactCheck(false);
         setAddLinkSubmit(true);
@@ -33,8 +36,7 @@ public class EditBridgeTestUi extends ListWebTestCase {
         clickLink("EditBridge");
         assertLinkPresent("link:config");
         assertLinkNotPresent("link:conferences");
-        
-        new ConferenceTestHelper(tester).createBridge("testCreateBridge");
+        m_conferenceHelper.createBridge("testCreateBridge");
         SiteTestHelper.home(tester);
         clickLink("ListBridges");
         clickLinkWithText("testCreateBridge");
@@ -52,6 +54,7 @@ public class EditBridgeTestUi extends ListWebTestCase {
         setTextField("item:name", "bridge_test");
         clickButton("form:apply");
         clickLink("link:conferences");
+        m_conferenceHelper = new ConferenceTestHelper(tester);
         SiteTestHelper.assertNoUserError(tester);
     }
 
@@ -72,4 +75,45 @@ public class EditBridgeTestUi extends ListWebTestCase {
         expected = ArrayUtils.add(expected, 2, "Disabled");
         return ArrayUtils.add(expected, "");
     }
+
+    // 2 = 1 thead (columns) + 1 tfoot (pager)
+    //Table row counting will be the true value+2
+    public void testGroupFilter() throws Exception {
+	SiteTestHelper.home(getTester());
+	clickLink("resetConferenceBridgeContext");
+        SiteTestHelper.seedGroup(tester, "NewUserGroup", 2);
+        m_conferenceHelper.createBridge("groupFilterTestBridge");
+        m_conferenceHelper.groupConferenceAutomation("seedGroup0", "groupFilterTestBridge");
+        m_conferenceHelper.groupConferenceAutomation("seedGroup1", "groupFilterTestBridge");
+        m_conferenceHelper.addUserToGroup(3, "seedGroup1",12200);
+        m_conferenceHelper.addUserToGroup(2, "seedGroup0",13300);
+
+        SiteTestHelper.home(tester);
+        clickLink("ListBridges");
+        clickLinkWithText("groupFilterTestBridge");
+        clickLink("link:conferences");
+
+        // all conferences
+        SiteTestHelper.selectOption(tester, "group:filter", "- all -");
+        int tableCount = SiteTestHelper.getRowCount(tester, "conference:list");
+        assertEquals(7, tableCount);
+
+        //filter User Group seedGroup0 conferences
+        SiteTestHelper.selectOption(tester, "group:filter", "seedGroup0");
+        SiteTestHelper.assertNoException(tester);
+        tableCount = SiteTestHelper.getRowCount(tester, "conference:list");
+        assertEquals(4, tableCount);
+
+        //filter User Group seedGroup1 conferences
+        SiteTestHelper.selectOption(tester, "group:filter", "seedGroup1");
+        SiteTestHelper.assertNoException(tester);
+        tableCount = SiteTestHelper.getRowCount(tester, "conference:list");
+        assertEquals(5, tableCount);
+
+        // back to all conferences
+        SiteTestHelper.selectOption(tester, "group:filter", "- all -");
+        tableCount = SiteTestHelper.getRowCount(tester, "conference:list");
+        assertEquals(7, tableCount);
+    }
+
 }

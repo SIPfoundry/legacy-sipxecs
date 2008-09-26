@@ -30,6 +30,12 @@
     <fieldset jwcid="settingsFieldset"/>
   </div>
   <div jwcid="conferencesTab@Block">
-    <span jwcid="conferencePanel"/>
+    <span jwcid="@conference/ConferencesPanel"
+      bridge="ognl:bridge"
+      addListener="listener:addConference"
+      selectListener="listener:editConference"
+      selectActiveListener="listener:activeConferences"
+      renderFilter="true"
+      changed="ognl:changed"/>
   </div>
 </div>

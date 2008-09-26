@@ -17,6 +17,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import org.hibernate.Criteria;
+import org.hibernate.Session;
+import org.hibernate.criterion.Order;
+import org.hibernate.criterion.Projections;
+import org.hibernate.criterion.Restrictions;
 import org.sipfoundry.sipxconfig.admin.ExtensionInUseException;
 import org.sipfoundry.sipxconfig.admin.NameInUseException;
 import org.sipfoundry.sipxconfig.alias.AliasManager;
@@ -27,6 +32,7 @@ import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
+import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 public class ConferenceBridgeContextImpl extends HibernateDaoSupport implements BeanFactoryAware,
@@ -35,6 +41,7 @@ public class ConferenceBridgeContextImpl extends HibernateDaoSupport implements 
     private static final String VALUE = "value";
     private static final String CONFERENCE_IDS_WITH_ALIAS = "conferenceIdsWithAlias";
     private static final String CONFERENCE_BY_NAME = "conferenceByName";
+    private static final String OWNER = "owner";
 
     private AliasManager m_aliasManager;
     private BeanFactory m_beanFactory;
@@ -178,7 +185,61 @@ public class ConferenceBridgeContextImpl extends HibernateDaoSupport implements 
     
     public List<Conference> findConferencesByOwner(User owner) {
         List<Conference> conferences = getHibernateTemplate().findByNamedQueryAndNamedParam(
-                "conferencesByOwner", "owner", owner);
+                "conferencesByOwner", OWNER, owner);
         return conferences;
+    }
+
+    private Criteria filterConferencesCriteria(final Integer bridgeId, final Integer  ownerGroupId, Session session) {
+        Criteria criteria = session.createCriteria(Conference.class);
+        criteria.createCriteria("bridge", "b").
+            add(Restrictions.eq("b.id", bridgeId));
+        if (ownerGroupId != null) {
+            criteria.createCriteria(OWNER, "o").
+                createCriteria("groups" , "g").
+                    add(Restrictions.eq("g.id", ownerGroupId));
+        }
+        return criteria;
+    }
+
+    public List<Conference> filterConferences(final Integer bridgeId, final Integer  ownerGroupId) {
+        HibernateCallback callback = new HibernateCallback() {
+            public Object doInHibernate(Session session) {
+                Criteria criteria = filterConferencesCriteria(bridgeId, ownerGroupId, session);
+                return criteria.list();
+            }
+        };
+        return getHibernateTemplate().executeFind(callback);
+    }
+
+    public int countFilterConferences(final Integer bridgeId, final Integer  ownerGroupId) {
+        HibernateCallback callback = new HibernateCallback() {
+            public Object doInHibernate(Session session) {
+                Criteria criteria = filterConferencesCriteria(bridgeId, ownerGroupId, session);
+                criteria.setProjection(Projections.rowCount());
+                List results = criteria.list();
+                return results;
+            }
+        };
+        List list = getHibernateTemplate().executeFind(callback);
+        Integer count = (Integer) list.get(0);
+        return count.intValue();
+    }
+
+    public List<Conference> filterConferencesByPage(final Integer bridgeId, final Integer  ownerGroupId,
+        final int firstRow, final int pageSize, final String[] orderBy, final boolean orderAscending) {
+
+        HibernateCallback callback = new HibernateCallback() {
+            public Object doInHibernate(Session session) {
+                Criteria criteria = filterConferencesCriteria(bridgeId, ownerGroupId, session);
+                criteria.setFirstResult(firstRow);
+                criteria.setMaxResults(pageSize);
+                for (int i = 0; i < orderBy.length; i++) {
+                    Order order = orderAscending ? Order.asc(orderBy[i]) : Order.desc(orderBy[i]);
+                    criteria.addOrder(order);
+                }
+                return criteria.list();
+            }
+        };
+        return getHibernateTemplate().executeFind(callback);
     }
 }

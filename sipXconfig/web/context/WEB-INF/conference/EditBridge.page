@@ -41,13 +41,6 @@
     <binding name="settings" value="bridge.settings"/>
     <binding name="renderGroupTitle" value="false"/>
   </component>
-  <component id="conferencePanel" type="conference/ConferencesPanel">
-    <binding name="conferences" value="bridge.conferences"/>
-    <binding name="addListener" value="listener:addConference"/>
-    <binding name="selectListener" value="listener:editConference"/>
-    <binding name="selectActiveListener" value="listener:activeConferences"/>
-    <binding name="changed" value="changed"/>
-  </component>
   <component id="formActions" type="common/FormActions">
     <binding name="listener" value="listener:apply"/>
     <binding name="callback" value="callback"/>

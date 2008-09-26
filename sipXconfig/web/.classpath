@@ -2,59 +2,59 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="test"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
-	<classpathentry kind="src" path="/sipXconfig-neoconf"/>
-	<classpathentry kind="var" path="SIPX_CONFIG/lib/bsf-2.4.0.jar"/>
-	<classpathentry kind="var" path="SIPX_CONFIG/lib/commons-beanutils-1.7.0.jar"/>
-	<classpathentry kind="var" path="SIPX_CONFIG/lib/commons-codec-1.3.jar" sourcepath="LIB_SRC/commons-codec/src.zip"/>
-	<classpathentry kind="var" path="SIPX_CONFIG/lib/commons-collections-3.2.jar"/>
-	<classpathentry kind="var" path="SIPX_CONFIG/lib/commons-discovery-0.4.jar"/>
-	<classpathentry kind="var" path="SIPX_CONFIG/lib/commons-lang-2.3.jar"/>
-	<classpathentry kind="var" path="SIPX_CONFIG/lib/commons-logging-1.1.jar"/>
-	<classpathentry kind="var" path="SIPX_CONFIG/lib/commons-pool-1.3.jar"/>
-	<classpathentry kind="var" path="SIPX_CONFIG/lib/easymock-2.2.jar"/>
-	<classpathentry kind="var" path="SIPX_CONFIG/lib/htmlunit-1.14.jar"/>
-	<classpathentry kind="var" path="SIPX_CONFIG/lib/jakarta-oro-2.0.8.jar" sourcepath="/LIB_SRC/oro/src.zip"/>
-	<classpathentry kind="var" path="SIPX_CONFIG/lib/javassist-3.6.ga.jar" sourcepath="/LIB_SRC/javassist/3.0/src.zip"/>
-	<classpathentry kind="var" path="SIPX_CONFIG/lib/ognl-2.7.2.jar" sourcepath="LIB_SRC/ognl/ognl-2.6.7-dist.zip"/>
-	<classpathentry kind="var" path="SIPX_CONFIG/lib/javax.servlet.jar" sourcepath="JRE_SRC"/>
-	<classpathentry kind="var" path="SIPX_CONFIG/lib/sipx-jwebunit-core-1.4.1.jar" sourcepath="/LIB_SRC/jwebunit/1.4.1/jwebunit-1.4.1-sources.zip">
+	<classpathentry exported="true" kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry exported="true" kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
+	<classpathentry exported="true" kind="src" path="/sipXconfig-neoconf"/>
+	<classpathentry exported="true" kind="var" path="SIPX_CONFIG/lib/bsf-2.4.0.jar"/>
+	<classpathentry exported="true" kind="var" path="SIPX_CONFIG/lib/commons-beanutils-1.7.0.jar"/>
+	<classpathentry exported="true" kind="var" path="SIPX_CONFIG/lib/commons-codec-1.3.jar" sourcepath="LIB_SRC/commons-codec/src.zip"/>
+	<classpathentry exported="true" kind="var" path="SIPX_CONFIG/lib/commons-collections-3.2.jar"/>
+	<classpathentry exported="true" kind="var" path="SIPX_CONFIG/lib/commons-discovery-0.4.jar"/>
+	<classpathentry exported="true" kind="var" path="SIPX_CONFIG/lib/commons-lang-2.3.jar"/>
+	<classpathentry exported="true" kind="var" path="SIPX_CONFIG/lib/commons-logging-1.1.jar"/>
+	<classpathentry exported="true" kind="var" path="SIPX_CONFIG/lib/commons-pool-1.3.jar"/>
+	<classpathentry exported="true" kind="var" path="SIPX_CONFIG/lib/easymock-2.2.jar"/>
+	<classpathentry exported="true" kind="var" path="SIPX_CONFIG/lib/htmlunit-1.14.jar"/>
+	<classpathentry exported="true" kind="var" path="SIPX_CONFIG/lib/jakarta-oro-2.0.8.jar" sourcepath="/LIB_SRC/oro/src.zip"/>
+	<classpathentry exported="true" kind="var" path="SIPX_CONFIG/lib/javassist-3.6.ga.jar" sourcepath="/LIB_SRC/javassist/3.0/src.zip"/>
+	<classpathentry exported="true" kind="var" path="SIPX_CONFIG/lib/ognl-2.7.2.jar" sourcepath="LIB_SRC/ognl/ognl-2.6.7-dist.zip"/>
+	<classpathentry exported="true" kind="var" path="SIPX_CONFIG/lib/javax.servlet.jar" sourcepath="JRE_SRC"/>
+	<classpathentry exported="true" kind="var" path="SIPX_CONFIG/lib/sipx-jwebunit-core-1.4.1.jar" sourcepath="/LIB_SRC/jwebunit/1.4.1/jwebunit-1.4.1-sources.zip">
 		<attributes>
 			<attribute name="javadoc_location" value="http://jwebunit.sourceforge.net/apidocs"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="var" path="SIPX_CONFIG/lib/tapestry-framework-4.1.5.jar" sourcepath="/LIB_SRC/tapestry/4.1.5/src.zip"/>
-	<classpathentry kind="var" path="SIPX_CONFIG/lib/jetty-5.1.4.jar" sourcepath="LIB_SRC/jetty/src.zip"/>
-	<classpathentry kind="var" path="SIPX_CONFIG/lib/jasper-compiler-4.1.31.jar"/>
-	<classpathentry kind="var" path="SIPX_CONFIG/lib/jasper-runtime-4.1.31.jar"/>
-	<classpathentry kind="var" path="SIPX_CONFIG/lib/javax.servlet.jsp.jar"/>
-	<classpathentry kind="var" path="SIPX_CONFIG/lib/spring-2.0.4.jar"/>
-	<classpathentry kind="var" path="SIPX_CONFIG/lib/javamail-1.3.2.jar"/>
-	<classpathentry kind="var" path="SIPX_CONFIG/lib/axis-1.4.jar"/>
-	<classpathentry kind="var" path="SIPX_CONFIG/lib/wsdl4j-1.5.1.jar"/>
-	<classpathentry kind="var" path="SIPX_CONFIG/lib/saaj.jar"/>
-	<classpathentry kind="var" path="SIPX_CONFIG/lib/jaxrpc.jar"/>
-	<classpathentry kind="var" path="SIPX_CONFIG/lib/axis-ant-1.3.jar"/>
-	<classpathentry kind="var" path="SIPX_CONFIG/lib/easymockclassextension-2.2.1.jar"/>
-	<classpathentry kind="var" path="SIPX_BUILD/web/dist/server-bindings.jar"/>
-	<classpathentry kind="var" path="SIPX_CONFIG/lib/lucene-core-2.0.0.jar"/>
-	<classpathentry kind="var" path="SIPX_CONFIG/lib/hivemind-1.1.1.jar" sourcepath="LIB_SRC/hivemind/1.1.1/src.zip"/>
-	<classpathentry kind="var" path="SIPX_CONFIG/lib/hivemind-lib-1.1.1.jar" sourcepath="LIB_SRC/hivemind/1.1.1/src.zip"/>
-	<classpathentry kind="var" path="SIPX_CONFIG/lib/tapestry-contrib-4.1.5.jar" sourcepath="/LIB_SRC/tapestry/4.1.5/src.zip"/>
-	<classpathentry kind="var" path="SIPX_CONFIG/lib/js-1.7R1.jar"/>
-	<classpathentry kind="var" path="SIPX_CONFIG/lib/commons-fileupload-1.2.jar"/>
-	<classpathentry kind="var" path="SIPX_CONFIG/lib/tapestry-annotations-4.1.5.jar" sourcepath="/LIB_SRC/tapestry/4.1.5/src.zip"/>
-	<classpathentry kind="var" path="SIPX_CONFIG/lib/postgresql-8.2-504.jdbc3.jar" sourcepath="/LIB_SRC/pgsql/8.2/src.zip"/>
-	<classpathentry kind="var" path="SIPX_CONFIG/lib/restlet-1.0.1.jar" sourcepath="/LIB_SRC/restlet/1.0.1/src.zip"/>
-	<classpathentry kind="var" path="SIPX_CONFIG/lib/restlet-noelios-impl-1.0.1.jar"/>
-	<classpathentry kind="var" path="SIPX_CONFIG/lib/restlet-spring-1.0.1.jar" sourcepath="/LIB_SRC/restlet/1.0.1/src.zip"/>
-	<classpathentry kind="var" path="SIPX_CONFIG/lib/restlet-servlet-2.4-1.0.1.jar" sourcepath="/LIB_SRC/restlet/1.0.1/src.zip"/>
-	<classpathentry kind="var" path="SIPX_CONFIG/lib/sipx-jwebunit-htmlunit-plugin-1.4.1.jar" sourcepath="/LIB_SRC/jwebunit/1.4.1/src/jwebunit-htmlunit-plugin-1.4.1-sources.jar"/>
-	<classpathentry kind="var" path="SIPX_CONFIG/lib/regexp-1.3.jar"/>
-	<classpathentry kind="var" path="SIPX_CONFIG/lib/commons-httpclient-3.0.1.jar"/>
-	<classpathentry kind="var" path="SIPX_CONFIG/lib/nekohtml-0.9.5.jar"/>
-	<classpathentry kind="var" path="SIPX_CONFIG/lib/backport-util-concurrent-3.1.jar"/>
-	<classpathentry kind="var" path="SIPX_CONFIG/lib/cssparser-0.9.4.jar"/>
+	<classpathentry exported="true" kind="var" path="SIPX_CONFIG/lib/tapestry-framework-4.1.5.jar" sourcepath="/LIB_SRC/tapestry/4.1.5/src.zip"/>
+	<classpathentry exported="true" kind="var" path="SIPX_CONFIG/lib/jetty-5.1.4.jar" sourcepath="LIB_SRC/jetty/src.zip"/>
+	<classpathentry exported="true" kind="var" path="SIPX_CONFIG/lib/jasper-compiler-4.1.31.jar"/>
+	<classpathentry exported="true" kind="var" path="SIPX_CONFIG/lib/jasper-runtime-4.1.31.jar"/>
+	<classpathentry exported="true" kind="var" path="SIPX_CONFIG/lib/javax.servlet.jsp.jar"/>
+	<classpathentry exported="true" kind="var" path="SIPX_CONFIG/lib/spring-2.0.4.jar"/>
+	<classpathentry exported="true" kind="var" path="SIPX_CONFIG/lib/javamail-1.3.2.jar"/>
+	<classpathentry exported="true" kind="var" path="SIPX_CONFIG/lib/axis-1.4.jar"/>
+	<classpathentry exported="true" kind="var" path="SIPX_CONFIG/lib/wsdl4j-1.5.1.jar"/>
+	<classpathentry exported="true" kind="var" path="SIPX_CONFIG/lib/saaj.jar"/>
+	<classpathentry exported="true" kind="var" path="SIPX_CONFIG/lib/jaxrpc.jar"/>
+	<classpathentry exported="true" kind="var" path="SIPX_CONFIG/lib/axis-ant-1.3.jar"/>
+	<classpathentry exported="true" kind="var" path="SIPX_CONFIG/lib/easymockclassextension-2.2.1.jar"/>
+	<classpathentry exported="true" kind="var" path="SIPX_BUILD/web/dist/server-bindings.jar"/>
+	<classpathentry exported="true" kind="var" path="SIPX_CONFIG/lib/lucene-core-2.0.0.jar"/>
+	<classpathentry exported="true" kind="var" path="SIPX_CONFIG/lib/hivemind-1.1.1.jar" sourcepath="LIB_SRC/hivemind/1.1.1/src.zip"/>
+	<classpathentry exported="true" kind="var" path="SIPX_CONFIG/lib/hivemind-lib-1.1.1.jar" sourcepath="LIB_SRC/hivemind/1.1.1/src.zip"/>
+	<classpathentry exported="true" kind="var" path="SIPX_CONFIG/lib/tapestry-contrib-4.1.5.jar" sourcepath="/LIB_SRC/tapestry/4.1.5/src.zip"/>
+	<classpathentry exported="true" kind="var" path="SIPX_CONFIG/lib/js-1.7R1.jar"/>
+	<classpathentry exported="true" kind="var" path="SIPX_CONFIG/lib/commons-fileupload-1.2.jar"/>
+	<classpathentry exported="true" kind="var" path="SIPX_CONFIG/lib/tapestry-annotations-4.1.5.jar" sourcepath="/LIB_SRC/tapestry/4.1.5/src.zip"/>
+	<classpathentry exported="true" kind="var" path="SIPX_CONFIG/lib/postgresql-8.2-504.jdbc3.jar" sourcepath="/LIB_SRC/pgsql/8.2/src.zip"/>
+	<classpathentry exported="true" kind="var" path="SIPX_CONFIG/lib/restlet-1.0.1.jar" sourcepath="/LIB_SRC/restlet/1.0.1/src.zip"/>
+	<classpathentry exported="true" kind="var" path="SIPX_CONFIG/lib/restlet-noelios-impl-1.0.1.jar"/>
+	<classpathentry exported="true" kind="var" path="SIPX_CONFIG/lib/restlet-spring-1.0.1.jar" sourcepath="/LIB_SRC/restlet/1.0.1/src.zip"/>
+	<classpathentry exported="true" kind="var" path="SIPX_CONFIG/lib/restlet-servlet-2.4-1.0.1.jar" sourcepath="/LIB_SRC/restlet/1.0.1/src.zip"/>
+	<classpathentry exported="true" kind="var" path="SIPX_CONFIG/lib/sipx-jwebunit-htmlunit-plugin-1.4.1.jar" sourcepath="/LIB_SRC/jwebunit/1.4.1/src/jwebunit-htmlunit-plugin-1.4.1-sources.jar"/>
+	<classpathentry exported="true" kind="var" path="SIPX_CONFIG/lib/regexp-1.3.jar"/>
+	<classpathentry exported="true" kind="var" path="SIPX_CONFIG/lib/commons-httpclient-3.0.1.jar"/>
+	<classpathentry exported="true" kind="var" path="SIPX_CONFIG/lib/nekohtml-0.9.5.jar"/>
+	<classpathentry exported="true" kind="var" path="SIPX_CONFIG/lib/backport-util-concurrent-3.1.jar"/>
+	<classpathentry exported="true" kind="var" path="SIPX_CONFIG/lib/cssparser-0.9.4.jar"/>
 	<classpathentry kind="output" path="bin.eclipse"/>
 </classpath>

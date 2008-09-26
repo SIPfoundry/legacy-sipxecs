@@ -68,8 +68,8 @@ public class UserConferencesTestUi extends WebTestCase {
         clickLink("EditMyInformation");
         clickLink("link:conferences");
         Table conferencesTable = getTable("conference:list");
-        assertEquals(2, conferencesTable.getRowCount()); // there should only be one conference assigned to this user
-        assertEquals(TEST_CONFERENCE_NAME, SiteTestHelper.getCellAsText(conferencesTable, 1, 1));
+        assertEquals(3, conferencesTable.getRowCount()); // there should only be one conference assigned to this user
+        assertEquals(TEST_CONFERENCE_NAME, SiteTestHelper.getCellAsText(conferencesTable, 2, 1));
         
         clickLinkWithText(TEST_CONFERENCE_NAME);
         assertElementNotPresent("item:name");

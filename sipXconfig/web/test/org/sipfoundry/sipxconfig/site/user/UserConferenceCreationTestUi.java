@@ -55,10 +55,10 @@ public class UserConferenceCreationTestUi extends WebTestCase {
         clickLinkWithText("testbridge");
         clickLink("link:conferences");
         Table conferenceTable = getTable("conference:list");
-        assertEquals(2, conferenceTable.getRowCount()); // the header and the one conference
-        assertEquals("300-conference", SiteTestHelper.getCellAsText(conferenceTable, 1, 1)); // conference name
-        assertEquals("300", SiteTestHelper.getCellAsText(conferenceTable, 1, 2)); // owner username
-        assertEquals("1300", SiteTestHelper.getCellAsText(conferenceTable, 1, 4)); // offset + extension
+        assertEquals(3, conferenceTable.getRowCount()); // the header, the pager and the one conference
+        assertEquals("300-conference", SiteTestHelper.getCellAsText(conferenceTable, 2, 1)); // conference name
+        assertEquals("300", SiteTestHelper.getCellAsText(conferenceTable, 2, 2)); // owner username
+        assertEquals("1300", SiteTestHelper.getCellAsText(conferenceTable, 2, 4)); // offset + extension
     }
     
 }

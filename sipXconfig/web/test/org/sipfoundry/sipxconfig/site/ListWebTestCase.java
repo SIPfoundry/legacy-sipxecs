@@ -41,6 +41,7 @@ public abstract class ListWebTestCase extends WebTestCase {
     private boolean m_hasMove = false;
     private boolean m_exactCheck = true;
     private boolean m_addLinkSubmit = false;
+    private boolean m_pager = false;
 
     public ListWebTestCase(String pageLink, String resetLink, String idPrefix) {
         m_pageLink = pageLink;
@@ -102,7 +103,7 @@ public abstract class ListWebTestCase extends WebTestCase {
         SiteTestHelper.assertNoException(tester);
         assertFormPresent();
         assertLinkPresent(buildId("add"));
-        assertEquals(1, SiteTestHelper.getRowCount(tester, getTableId()));
+        assertEquals(1 + (m_pager ? 1:0), SiteTestHelper.getRowCount(tester, getTableId()));
         assertButtonPresent(buildId("delete"));
 
         if (m_hasDuplicate) {
@@ -123,7 +124,7 @@ public abstract class ListWebTestCase extends WebTestCase {
             Row row = new Row(getExpectedTableRow(values));
             expected.appendRow(row);
         }
-        assertEquals(count + 1, SiteTestHelper.getRowCount(tester, getTableId()));
+        assertEquals(count + 1 + (m_pager ? 1:0), SiteTestHelper.getRowCount(tester, getTableId()));
         if (m_exactCheck) {
             assertTableRowsEqual(getTableId(), 1, expected);
         } else {
@@ -168,7 +169,7 @@ public abstract class ListWebTestCase extends WebTestCase {
         SiteTestHelper.assertNoUserError(tester);
         SiteTestHelper.assertNoException(tester);
 
-        assertEquals(count + 1 - toBeRemoved.length, SiteTestHelper.getRowCount(tester, getTableId()));
+        assertEquals(count + 1 + (m_pager ? 1:0) - toBeRemoved.length, SiteTestHelper.getRowCount(tester, getTableId()));
         if (m_exactCheck) {
             assertTableRowsEqual(getTableId(), 1, expected);
         }
@@ -240,4 +241,13 @@ public abstract class ListWebTestCase extends WebTestCase {
     protected String getTableId() {
         return buildId("list");
     }
+
+	public boolean isPager() {
+		return m_pager;
+	}
+
+	public void setPager(boolean pager) {
+		this.m_pager = pager;
+	}
+
 }
