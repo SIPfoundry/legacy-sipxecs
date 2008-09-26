@@ -140,6 +140,11 @@
   	    <replacefilter token="@sipxpbx.lib.dir@" property="sipxpbx.lib.dir" />
   	</replace>
   	
+	<replace file="${dest.dir}${sipxpbx.conf.dir}/sipxcallresolver/callresolver-config.vm"
+	        propertyfile="${top.build.dir}/build.properties">
+        <replacefilter token="@sipxconfig.db.user@" property="sipxconfig.db.user" />
+	</replace>
+
   	<replace file="${dest.dir}${sipxpbx.conf.dir}/sipxvxml/mediaserver-config.vm"
         propertyfile="${top.build.dir}/build.properties">
   		<replacefilter token="@sipxpbx.log.dir@" property="sipxpbx.log.dir" />

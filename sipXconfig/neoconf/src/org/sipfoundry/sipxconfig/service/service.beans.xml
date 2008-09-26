@@ -146,7 +146,7 @@
     scope="prototype" parent="defaultConfigurationFile">
     <property name="velocityEngine" ref="velocityEngine" />
     <property name="template" value="sipxcallresolver/callresolver-config.vm" />
-    <property name="name" value="sipxcallresolver-config"/>
+    <property name="name" value="callresolver-config"/>
   </bean>
 
   <bean id="sipxIvrService" class="org.sipfoundry.sipxconfig.service.SipxIvrService" parent="sipxService"
