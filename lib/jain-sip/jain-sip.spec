@@ -48,7 +48,7 @@ BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root
 BuildRequires:  jpackage-utils >= 0:1.7.3
 BuildRequires:  java-devel >= 0:1.5.0
 BuildRequires:  ant >= 0:1.6.5
-BuildRequires:  junit >= 0:3.8.2
+BuildRequires:  junit >= 0:3.8.1
 BuildRequires:  log4j >= 0:1.2
 Requires:       log4j >= 0:1.2
 
