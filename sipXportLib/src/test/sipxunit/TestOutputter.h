@@ -14,8 +14,6 @@
 #include <cppunit/Outputter.h>
 #include <cppunit/TextOutputter.h>
 
-class CppUnit::TestResultCollector;
-
 /**
  * Handle actually printing to stdout, stderr and report file
  */

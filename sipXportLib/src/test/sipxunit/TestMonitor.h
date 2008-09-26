@@ -12,9 +12,6 @@
 
 #include <cppunit/TestResultCollector.h>
 
-class CppUnit::Test;
-class CppUnit::TestFailure;
-
 /**
  * Monitors each test and prints, accumulated test results and various
  * other operations between individual test runs

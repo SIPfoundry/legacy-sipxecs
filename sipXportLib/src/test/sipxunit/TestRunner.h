@@ -14,7 +14,6 @@
 #include <sipxunit/TestOutputter.h>
 #include <sipxunit/TestOsSysLogListener.h>
 
-class CppUnit::TestResult;
 class TestMonitor;
 
 /**
