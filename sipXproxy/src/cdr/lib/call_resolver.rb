@@ -38,12 +38,11 @@ class CallResolver
     @state = nil
   end
 
-  # make sure we can connect to all the DBs that we need to connect to
+  # make sure we can connect to the CDR DB. The CSE DB connections will be checked/(re-)established on running the reader.
   def check_connections
-    daos = @readers + [@writer]
-    daos.each { |dao| dao.test_connection }
+    @writer.test_connection
   rescue
-    log.error("Problems with DB connection.")
+    log.error("Problems with CDR DB connection.")
     raise
   end
 
