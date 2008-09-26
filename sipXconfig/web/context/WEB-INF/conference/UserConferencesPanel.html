@@ -2,7 +2,7 @@
     <h3>Conferences for <span jwcid="@Insert" value="ognl:user.displayName" /></h3>
     <fieldset jwcid="@conference/ConferencesPanel" 
               conferences="ognl:conferenceBridgeContext.findConferencesByOwner(user)" 
-              showOwner="false" enableDelete="false" enableAdd="ognl:userSession.isAdmin()"
+              showOwner="false" enableDelete="ognl:userSession.isAdmin()" enableAdd="ognl:userSession.isAdmin()"
               addListener="listener:addConference" 
               selectListener="listener:selectConference" 
               selectActiveListener="listener:selectActiveConference" />

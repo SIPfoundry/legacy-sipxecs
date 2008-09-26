@@ -96,4 +96,20 @@ public class UserConferencesTestUi extends WebTestCase {
         submit("form:ok");
     }
     
+    public void testDeleteLink() {
+//    	 As a superadmin
+        SiteTestHelper.home(tester);
+        clickLink("ManageUsers");
+        clickLinkWithText("testuser");
+        clickLink("userConferencesLink");
+        assertLinkPresent("conference:delete");
+
+        // As a regular user
+        SiteTestHelper.home(tester, false);
+        clickLink("loginFirstTestUser");
+        clickLink("EditMyInformation");
+        clickLink("link:conferences");
+        assertLinkNotPresent("conference:delete");
+    }
+
 }
