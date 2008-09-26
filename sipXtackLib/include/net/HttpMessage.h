@@ -440,6 +440,11 @@ public:
     //@{
 
     //! Find the number of occurrences of header fields with the given name.
+    //  Note that this method does not implement the SIP convention of
+    //  treating "Header: a, b" as equivalent to "Header: a\r\nHeader:b".
+    //  This method will return 1 in the first case and 2 in the second,
+    //  even though many of the SIP field accessors will extract two
+    //  "values" for "Header" from a message containing either example.
     int getCountHeaderFields(const char* name = NULL) const;
 
     //! Get the value of the header field
