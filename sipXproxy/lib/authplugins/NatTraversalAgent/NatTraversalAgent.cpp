@@ -540,7 +540,7 @@ void NatTraversalAgent::adjustRecordRouteForNatTraversal( SipMessage& message, c
          // but does not provide any methods to allow for its modification.  The logic here
          // reads all the RecordRoute entries and re-adds them as single RecordRoute fields.
          // During this re-add process, the logic modifies the first Record-Route to pointing to us
-         // that has not yet been modified (as determined by the presence of a 'sipx-done' URL param) to allow
+         // that has not yet been modified (as determined by the presence of an 'x-sipx-done' URL param) to allow
          // for NAT traversal.  Once this is done, the old RecordRoute fields are deleted.
          //
          // As an example, let's say that a given message contains:

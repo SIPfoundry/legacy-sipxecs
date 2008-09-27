@@ -12,12 +12,12 @@
 #include "NatTraversalRules.h"
 #include "DialogTracker.h"
 #include "SessionContext.h"
+#include "net/SdpBody.h"
 #include "utl/UtlFsm.h"
 #include "utl/UtlTokenizer.h"
 #include "utl/UtlHashMapIterator.h"
 
 // DEFINES
-#define NTAP_PROPRIETARY_SDP_ATTRIB              "x-ntap"
 #define SIPX_NAT_HANDLED                         "x-sipX-handled"
 
 const UtlContainableType SessionContext::TYPE = "SessionContext";

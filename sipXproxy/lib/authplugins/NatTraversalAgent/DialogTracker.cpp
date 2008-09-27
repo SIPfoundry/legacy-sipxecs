@@ -11,11 +11,11 @@
 // APPLICATION INCLUDES
 #include "DialogTracker.h"
 #include "SessionContext.h"
+#include "net/SdpBody.h"
 #include "utl/UtlFsm.h"
 #include "utl/UtlTokenizer.h"
 
 // DEFINES
-#define NTAP_PROPRIETARY_SDP_ATTRIB              "x-ntap"
 #define SIPX_NAT_HANDLED                         "x-sipX-handled"
 
 const UtlContainableType DialogTracker::TYPE = "DialogTracker";

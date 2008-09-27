@@ -203,7 +203,7 @@ class NatTraversalAgentTest : public CppUnit::TestCase
          "a=rtpmap:101 telephone-event/8000\r\n"
          "a=fmtp:101 0-11\r\n"
          "a=sendrecv\r\n"
-         "a=x-ntap:192.168.0.2;1\r\n";
+         "a=x-sipx-ntap:192.168.0.2;1\r\n";
          SipMessage okResp( response, strlen(response) );
 
          pNatTraversalAgent->handleOutputMessage( okResp, "47.135.162.145", 14956 );
@@ -395,7 +395,7 @@ class NatTraversalAgentTest : public CppUnit::TestCase
          "a=rtpmap:101 telephone-event/8000\r\n"
          "a=fmtp:101 0-11\r\n"
          "a=sendrecv\r\n"
-         "a=x-ntap:192.168.0.2;3\r\n";
+         "a=x-sipx-ntap:192.168.0.2;3\r\n";
          SipMessage okResp( response, strlen(response) );
          
          pNatTraversalAgent->handleOutputMessage( okResp, "192.168.0.101", 5060 );
@@ -518,7 +518,7 @@ class NatTraversalAgentTest : public CppUnit::TestCase
          "a=rtpmap:101 telephone-event/8000\r\n"
          "a=fmtp:101 0-11\r\n"
          "a=sendrecv\r\n"
-         "a=x-ntap:192.168.0.2;3\r\n";
+         "a=x-sipx-ntap:192.168.0.2;3\r\n";
          SipMessage okResp( response, strlen(response) );
          
          pNatTraversalAgent->handleOutputMessage( okResp, "192.168.0.101", 5060 );
@@ -658,7 +658,7 @@ class NatTraversalAgentTest : public CppUnit::TestCase
          "a=rtpmap:101 telephone-event/8000\r\n"
          "a=fmtp:101 0-11\r\n"
          "a=sendrecv\r\n"
-         "a=x-ntap:192.168.0.2;3\r\n";
+         "a=x-sipx-ntap:192.168.0.2;3\r\n";
          SipMessage okResp( response, strlen(response) );
          
          pNatTraversalAgent->handleOutputMessage( okResp, "192.168.0.101", 5060 );

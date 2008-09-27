@@ -209,21 +209,21 @@ class DialogTrackerTest : public CppUnit::TestCase, public SessionContextInterfa
             "e=mjh@isi.edu (Mark Handley)\r\n"
             "c=IN IP4 224.2.17.12/127\r\n"
             "t=2873397496 2873404696\r\n"
-            "m=audio 49170 RTP/AVP 0\r\n"    // media description 0
+            "m=audio 49170 RTP/AVP 0\r\n"       // media description 0
             "c=IN IP4 224.2.17.12/127\r\n"
             "a=recvonly\r\n"
-            "a=x-ntap:192.168.0.2;1\r\n"     // <---- encoded handle
-            "m=video 51372 RTP/AVP 31\r\n"   // media description 1
+            "a=x-sipx-ntap:192.168.0.2;1\r\n"   // <---- encoded handle
+            "m=video 51372 RTP/AVP 31\r\n"      // media description 1
             "a=inactive\r\n"
-            "a=x-ntap:192.168.0.2;2\r\n"     // <---- encoded handle
-            "m=application 32416 udp wb\r\n" // media description 2
+            "a=x-sipx-ntap:192.168.0.2;2\r\n"   // <---- encoded handle
+            "m=application 32416 udp wb\r\n"    // media description 2
             "a=sendonly\r\n"
-            "a=x-ntap:192.168.222.2;2\r\n"   // <---- encoded handle
-            "m=audio 55554 RTP/AVP 0\r\n"    // media description 3
+            "a=x-sipx-ntap:192.168.222.2;2\r\n" // <---- encoded handle
+            "m=audio 55554 RTP/AVP 0\r\n"       // media description 3
             "c=IN IP4 224.2.17.12/127\r\n"
             "a=sendrecv\r\n"
-            "m=audio 55560 RTP/AVP 0\r\n"    // media description 4
-            "a=x-ntap:192.168.0.2;3\r\n";     // <---- encoded handle
+            "m=audio 55560 RTP/AVP 0\r\n"       // media description 4
+            "a=x-sipx-ntap:192.168.0.2;3\r\n";  // <---- encoded handle
             SdpBody body(sdp);
             
             CPPUNIT_ASSERT( mpDialogTracker->getOurMediaRelayHandleEncodedInSdp( &body, 0 ) == 1 );
@@ -411,7 +411,7 @@ class DialogTrackerTest : public CppUnit::TestCase, public SessionContextInterfa
          "a=rtpmap:101 telephone-event/8000\r\n"
          "a=fmtp:101 0-11\r\n"
          "a=sendrecv\r\n"
-         "a=x-ntap:192.168.0.2;1\r\n";
+         "a=x-sip-ntap:192.168.0.2;1\r\n";
          SipMessage* pReferenceMessage = new SipMessage(message, strlen(message) );
          const SdpBody* pSdpBody = pReferenceMessage->getSdpBody();
          
