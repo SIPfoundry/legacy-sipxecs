@@ -46,7 +46,7 @@ rm -rf $RPM_BUILD_ROOT
 # to the library from short names.
 %post
 /sbin/ldconfig
-ln -s -f %{_libdir}/libcgicc.so.5.0.1 %{_libdir}/libcgicc.so 
+ln -s -f %{_libdir}/libcgicc.so.5.0.2 %{_libdir}/libcgicc.so 
 
 %postun
 /sbin/ldconfig
@@ -61,7 +61,3 @@ rm -f %{_libdir}/libcgicc.so
 %doc /usr/doc/cgicc-%{version}
 /usr/include/cgicc
 /usr/share/aclocal/cgicc.m4
-
-%changelog
-* Tue May 13 2008 Carolyn Beeton - cgicc-3.2.3-3
-- Port 64bit fix from cgicc 3.2.4
