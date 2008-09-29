@@ -19,6 +19,8 @@ import static org.sipfoundry.sipxconfig.gateway.Gateway.AddressTransport.UDP;
 public class SipTrunk extends Gateway {
     public static final String BEAN_ID = "gwSipTrunk";
 
+    private static final String DEFAULT_TEMPLATE = "siptrunk.xml";
+    private static final String DEFAULT_LOCATION = "commserver";
     private static final int DEFAULT_PORT = 5060;
 
     public SipTrunk() {
@@ -30,12 +32,26 @@ public class SipTrunk extends Gateway {
 
     @Override
     protected Setting loadSettings() {
-        return getModelFilesContext().loadModelFile("siptrunk.xml", "commserver");
+        String template = DEFAULT_TEMPLATE;
+        String location = DEFAULT_LOCATION;
+        GatewayModel model = getModelId() != null ? getModel() : null;
+        
+        if (model instanceof SipTrunkModel) {
+            template = ((SipTrunkModel) model).getItspTemplate();
+            location = ((SipTrunkModel) model).getTemplateLocation();
+        }
+        return getModelFilesContext().loadModelFile(template, location);
     }
 
     @Override
     public void initialize() {
-        addDefaultBeanSettingHandler(new Defaults(this));
+        GatewayModel model = getModelId() != null ? getModel() : null;
+        
+        if ((model == null)
+                || (model instanceof SipTrunkModel  
+                && ((SipTrunkModel) model).getItspName().equals(SipTrunkModel.TEMPLATE_NONE))) {
+            addDefaultBeanSettingHandler(new Defaults(this));
+        }
     }
 
     @Override

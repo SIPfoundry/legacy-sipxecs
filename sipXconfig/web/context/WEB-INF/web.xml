@@ -31,6 +31,7 @@
       classpath:/org/sipfoundry/sipxconfig/device/device.beans.xml
       classpath:/org/sipfoundry/sipxconfig/job/job.beans.xml
       classpath:/org/sipfoundry/sipxconfig/gateway/gateway.beans.xml
+      classpath:/org/sipfoundry/sipxconfig/gateway/itspTemplates.beans.xml
       classpath:/org/sipfoundry/sipxconfig/login/login.beans.xml
       classpath:/org/sipfoundry/sipxconfig/paging/paging.beans.xml
       classpath:/org/sipfoundry/sipxconfig/permission/permission.beans.xml

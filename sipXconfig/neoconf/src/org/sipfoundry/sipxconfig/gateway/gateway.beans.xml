@@ -33,7 +33,11 @@
     </constructor-arg>
   </bean>
 
-  <bean id="gatewayModelSource" class="org.sipfoundry.sipxconfig.device.FilteredModelSource">
+  <bean id="gatewayModelSource" class="org.sipfoundry.sipxconfig.gateway.GatewayModelSource">
+    <property name="modelSource" ref="nakedGatewayModelSource" />
+  </bean>
+
+  <bean id="itspTemplateModelSource" class="org.sipfoundry.sipxconfig.gateway.ItspTemplateModelSource">
     <property name="modelSource" ref="nakedGatewayModelSource" />
   </bean>
 

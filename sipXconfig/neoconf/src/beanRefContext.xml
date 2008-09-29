@@ -26,6 +26,7 @@
         <value>classpath:/org/sipfoundry/sipxconfig/device/device.beans.xml</value>
         <value>classpath:/org/sipfoundry/sipxconfig/job/job.beans.xml</value>
         <value>classpath:/org/sipfoundry/sipxconfig/gateway/gateway.beans.xml</value>
+        <value>classpath:/org/sipfoundry/sipxconfig/gateway/itspTemplates.beans.xml</value>
         <value>classpath:/org/sipfoundry/sipxconfig/login/login.beans.xml</value>
         <value>classpath:/org/sipfoundry/sipxconfig/permission/permission.beans.xml</value>
         <value>classpath:/org/sipfoundry/sipxconfig/phone/phone.beans.xml</value>

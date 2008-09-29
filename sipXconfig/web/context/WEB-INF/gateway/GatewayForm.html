@@ -12,6 +12,14 @@
           validators="validators:required"
           displayName="message:label.name"/>
       </label>
+      <span jwcid="@If" condition="ognl:sipTrunk && gateway.isNew()">
+	      <label jwcid="@common/FieldPanel" for="gateway:template" field="component:template"
+	             label="message:label.template" description="message:description.template">
+	          <select jwcid="template@PropertySelection" id="gateway:template" value="ognl:template"
+	                  model="ognl:templateModel" />
+	      </label>
+      </span>
+      
       <label jwcid="@common/FieldPanel" for="gateway:address"
         field="component:gatewayAddress"
         label="message:label.address"
@@ -21,6 +29,7 @@
           validators="spring-validators:required,validHostOrIp"
           displayName="message:label.address"/>
       </label>
+
       <span jwcid="@If" condition="ognl:advanced">
         <label jwcid="@common/FieldPanel" for="gateway:addressPort"
           field="component:gatewayAddressPort"

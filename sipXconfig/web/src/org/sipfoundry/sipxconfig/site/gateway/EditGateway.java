@@ -160,7 +160,7 @@ public abstract class EditGateway extends PageWithCallback implements PageBeginR
         setCurrentSettingSet(currentSettingSet);
         setCurrentSettingSetName(currentSettingSetName);
     }
-
+    
     public void saveGateway() {
         Gateway gateway = getGateway();
         GatewayContext gatewayContext = getGatewayContext();
