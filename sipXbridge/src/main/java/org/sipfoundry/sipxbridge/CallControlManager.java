@@ -91,7 +91,7 @@ class CallControlManager implements SymmitronResetHandler {
 
             if (continuationData.getOperation() == Operation.REFER_INVITE_TO_SIPX_PROXY) {
                 processRefer(requestEvent);
-            } else if (continuationData.getOperation() == Operation.PROCESS_INVITE){
+            } else if (continuationData.getOperation() == Operation.PROCESS_INVITE) {
                 processInvite(requestEvent);
             } else {
                 logger.fatal("Unknown operation seen - INTERNAL ERROR");
@@ -257,10 +257,12 @@ class CallControlManager implements SymmitronResetHandler {
                         dat.sendReInviteOnResume = true;
                         ReInviteProcessingContinuationData continuationData = new ReInviteProcessingContinuationData(
                                 requestEvent, dialog, provider, serverTransaction, request);
-                        if ( ! dat.getBackToBackUserAgent().querySdpFromPeerDialog(requestEvent,
-                                Operation.SEND_INVITE_TO_MOH_SERVER, continuationData) ) {
-                            ProcessInviteContinuationData  continuation = new ProcessInviteContinuationData(requestEvent);
-                            Gateway.getTimer().schedule( new RequestPendingTimerTask(continuation), 100);
+                        if (!dat.getBackToBackUserAgent().querySdpFromPeerDialog(requestEvent,
+                                Operation.SEND_INVITE_TO_MOH_SERVER, continuationData)) {
+                            ProcessInviteContinuationData continuation = new ProcessInviteContinuationData(
+                                    requestEvent);
+                            Gateway.getTimer().schedule(
+                                    new RequestPendingTimerTask(continuation), 100);
                         }
                         return;
                     } else {
@@ -549,8 +551,8 @@ class CallControlManager implements SymmitronResetHandler {
                 ReferInviteToSipxProxyContinuationData continuation = new ReferInviteToSipxProxyContinuationData(
                         requestEvent);
 
-                if ( ! btobua.querySdpFromPeerDialog(requestEvent, Operation.REFER_INVITE_TO_SIPX_PROXY,
-                        continuation) ) {
+                if (!btobua.querySdpFromPeerDialog(requestEvent,
+                        Operation.REFER_INVITE_TO_SIPX_PROXY, continuation)) {
                     Gateway.getTimer().schedule(new RequestPendingTimerTask(continuation), 100);
                 }
             } else {
@@ -805,8 +807,6 @@ class CallControlManager implements SymmitronResetHandler {
                         .createContentTypeHeader("application", "sdp"));
                 peerDialog.sendAck(ackRequest);
             }
-
-           
 
         } else {
             logger.error("ERROR  0 contentLength ");
@@ -1365,13 +1365,17 @@ class CallControlManager implements SymmitronResetHandler {
                     if (tad.operation != Operation.REFER_INVITE_TO_SIPX_PROXY) {
 
                         if (serverTransaction != null) {
-                            Request originalRequest = serverTransaction.getRequest();
-                            Response newResponse = ProtocolObjects.messageFactory.createResponse(
-                                    response.getStatusCode(), originalRequest);
-                            SupportedHeader sh = ProtocolObjects.headerFactory
-                                    .createSupportedHeader("replaces");
-                            newResponse.setHeader(sh);
-                            serverTransaction.sendResponse(newResponse);
+                            if (serverTransaction.getState() != TransactionState.TERMINATED) {
+                                Request originalRequest = serverTransaction.getRequest();
+                                Response newResponse = ProtocolObjects.messageFactory
+                                        .createResponse(response.getStatusCode(), originalRequest);
+                                SupportedHeader sh = ProtocolObjects.headerFactory
+                                        .createSupportedHeader("replaces");
+                                newResponse.setHeader(sh);
+                                serverTransaction.sendResponse(newResponse);
+                            } else {
+                                logger.error("Received an error response after final response sent -- ignoring the response");
+                            }
                         } else {
                             b2bua.tearDown();
                         }

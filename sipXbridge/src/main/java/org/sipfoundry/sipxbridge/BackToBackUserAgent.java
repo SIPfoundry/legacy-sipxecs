@@ -1503,6 +1503,8 @@ public class BackToBackUserAgent {
                      */
                     DialogApplicationData replacedDialogApplicationData = DialogApplicationData
                             .get(dialog);
+                    
+                    
                     Dialog peerDialog = replacedDialogApplicationData.peerDialog;
                     DialogApplicationData peerDat = DialogApplicationData.get(peerDialog);
                     RtpSession wanRtpSession = peerDat.getRtpSession();
