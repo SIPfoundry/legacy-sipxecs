@@ -747,10 +747,10 @@ UtlBoolean SipDialog::isTransactionRemotelyInitiated(const UtlString& callId,
     UtlBoolean isRemoteDialog = FALSE;
     if(callId.compareTo(*this, UtlString::ignoreCase) == 0)
     {
-        if((toTag.compareTo(mLocalTag, UtlString::ignoreCase) == 0 ||
-            toTag.isNull() || mLocalTag.isNull()) &&
-           fromTag.compareTo(mRemoteTag, UtlString::ignoreCase) == 0 ||
-           mRemoteTag.isNull()) // If this is remotely initiated fromTag
+        if(((toTag.compareTo(mLocalTag, UtlString::ignoreCase) == 0 ||
+            toTag.isNull() || mLocalTag.isNull())) &&
+           (fromTag.compareTo(mRemoteTag, UtlString::ignoreCase) == 0 ||
+           mRemoteTag.isNull())) // If this is remotely initiated fromTag
            // cannot be a null string.  mRemoteTag can be a null string
            // as occurs when a remotely initiated NOTIFY is received 
            // before the SUBSCRIBE response is received.
