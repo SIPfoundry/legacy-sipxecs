@@ -26,6 +26,47 @@ class CallerAliasTest;
 
 extern "C" AuthPlugin* getAuthPlugin(const UtlString& name);
 
+/// Modify the From header of a request based on lookup in the caller-alias database.
+/**
+ * This AuthPlugin provides a caller aliasing feature by modifying the From header
+ * in an initial request and maintaining the translation throughout the dialog.
+ * It is intended to provide a way to modify the caller-id presented in a PSTN call.
+ *
+ * The translation is controlled by entries in the caller-alias sipdb, which has two key
+ * columns: the caller identity and the target domain; and one output column: the From header
+ * field value.
+ *
+ * On an initial request, the first test is for an exact match of the identity (user@domain,
+ * with no parameters) in the From header of the request and the target domain (from the
+ * request URI).  Note that the target domain for a PSTN call is the domain of some gateway,
+ * which could be a local device or a remote SIP Trunk service.  The lookup is _not_
+ * affected by any Route on the request, so a request to an ITSP that is Routed through
+ * a local SBC matches on the ITSP domain, not that of the SBC.
+ *
+ * If an exact match is found, then the resulting From header from the output column
+ * is substituted.  This is used to replace the identity of a specific user when calling
+ * a specific domain.
+ *
+ * If no exact match is found, and if the existing From header identity is a user in the
+ * domain of this proxy, then a second check is made in the caller-alias database for a
+ * "wildcard" match: the caller identity used for this lookup is "*", and the target domain
+ * from the request URI (as in the exact match test).  If this matches a row in the caller-alias
+ * database, the From value from that row is substituted.  Note the exclusion: this wildcard
+ * match is not attempted if the caller is not within the domain, so a call coming from outside
+ * the domain that is forwarded by a local user is not aliased (the original outside
+ * caller-id is maintained).
+ *
+ * If neither match finds a row in the caller-alias database, the From header is left unchanged.
+ *
+ * When a From header value is substituted, the entire value from the table is used, and the only
+ * part of the original From header value that is preserved is the 'tag' field parameter.
+ * Both the full original From header value and the aliased From header value are added to the
+ * RouteState for the request.  This causes these values to be preserved in the route set.  As
+ * subsequent requests and responses follow the route set through this proxy, this plugin
+ * modifies the From header using these saved values so that each participant in the dialog
+ * sees only the From header value they expect to see (the caller sees only the original value,
+ * and the called party sees only the aliased value).
+ */
 class CallerAlias : public AuthPlugin
 {
   public:
@@ -46,7 +87,7 @@ class CallerAlias : public AuthPlugin
     * examples in PluginHooks::readConfig).
     */
 
-   /// Called for any request - enforces the restrictions specified by authrules.
+   /// Called for any request - provides caller alias facility.
    virtual
       AuthResult authorizeAndModify(const UtlString& id,    /**< The authenticated identity of the
                                                              *   request originator, if any (the null
@@ -64,21 +105,7 @@ class CallerAlias : public AuthPlugin
                                     bool bSpiralingRequest, ///< request spiraling indication 
                                     UtlString&  reason      ///< rejection reason
                                     );
-   /**<
-    * This plugin uses one state parameter to record that the dialog has already been
-    * processed by authrules; it does not have any value.  If that parameter is present
-    * in a request and routeState::isMutable returns false, then this method does not
-    * evaluate the authrules, it just returns ALLOW_REQUEST.
-    *
-    * If the state parameter is not found, or routeState::isMutable returns true (indicating
-    * that this not an in-dialog request), then the authrules are evaluated.
-    *
-    * - If the rules allow the request, the state parameter is set to record that
-    *   and ALLOW_REQUEST is returned.
-    * - If the rules do not allow the request, this method sets the reason phrase
-    *   to describe what permission is needed for the request to succeed and returns
-    *   UNAUTHORIZED.
-    */
+   ///< See class description.
 
    virtual void announceAssociatedSipRouter( SipRouter* sipRouter );
    
