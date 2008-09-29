@@ -174,9 +174,8 @@ public class Gateway {
     private static String configurationPath;
 
     private static HashSet<String> proxyAddressTable = new HashSet<String>();
-    
+
     private static HashSet<Integer> parkServerCodecs = new HashSet<Integer>();
-    
 
     private Gateway() {
 
@@ -334,16 +333,14 @@ public class Gateway {
 
     static void getSipxProxyAddresses() throws GatewayConfigurationException {
         try {
-           
-            
+
             Record[] records = new Lookup("_sip._" + getSipxProxyTransport() + "."
                     + getSipxProxyDomain(), Type.SRV).run();
-            
-          
+
             if (records == null) {
                 logger.debug("SRV record lookup returned null");
                 Gateway.sipxProxyAddress = getSipxProxyDomain();
-                
+
                 Gateway.proxyAddressTable.add(InetAddress.getByName(sipxProxyAddress)
                         .getHostAddress());
             } else {
@@ -358,11 +355,11 @@ public class Gateway {
                         resolvedName = resolvedName.substring(0, resolvedName.lastIndexOf('.'));
                     }
                     String ipAddress = InetAddress.getByName(resolvedName).getHostAddress();
-                   
+
                     Gateway.proxyAddressTable.add(ipAddress);
                 }
             }
-            
+
             logger.debug("proxy address table = " + proxyAddressTable);
         } catch (Exception ex) {
             throw new GatewayConfigurationException("Cannot do address lookup ", ex);
@@ -388,7 +385,6 @@ public class Gateway {
             int externalPort = bridgeConfiguration.getExternalPort();
             String externalAddress = bridgeConfiguration.getExternalAddress();
             logger.debug("External Address:port = " + externalAddress + ":" + externalPort);
-
             ListeningPoint externalUdpListeningPoint = ProtocolObjects.sipStack
                     .createListeningPoint(externalAddress, externalPort, "udp");
             ListeningPoint externalTcpListeningPoint = ProtocolObjects.sipStack
@@ -532,7 +528,7 @@ public class Gateway {
             }
 
         } catch (Exception ex) {
-            logger.error("Problem looking up proxy address",ex);
+            logger.error("Problem looking up proxy address", ex);
             return null;
         }
 
@@ -756,7 +752,7 @@ public class Gateway {
             return;
         }
         Gateway.state = GatewayState.INITIALIZING;
-        
+
         parkServerCodecs.add(RtpPayloadTypes.getPayloadType("PCMU"));
         parkServerCodecs.add(RtpPayloadTypes.getPayloadType("PCMA"));
 
@@ -788,9 +784,8 @@ public class Gateway {
             }
         }
 
-      
         initializeSipListeningPoints();
-        
+
         getSipxProxyAddresses();
 
         startAddressDiscovery();
@@ -1002,7 +997,7 @@ public class Gateway {
      * The XML rpc client connection to the symmitron.
      * 
      * @param address - the address ( extracted from the Via header).
-     * @return -- the client to talk to the symmitron. 
+     * @return -- the client to talk to the symmitron.
      */
     static SymmitronClient getSymmitronClient(String address) {
         String lookupAddress = address;
@@ -1016,15 +1011,14 @@ public class Gateway {
         }
         return symmitronClient;
     }
-    
-    
+
     /**
      * The set of codecs handled by the park server.
      * 
      * @return
      */
     static HashSet<Integer> getParkServerCodecs() {
-        
+
         return parkServerCodecs;
     }
 
@@ -1050,19 +1044,12 @@ public class Gateway {
                     Thread.sleep(5 * 1000);
                 }
                 Gateway.parseConfigurationFile();
+               
+                Gateway.start();
+              
+                
                 startXmlRpcServer();
 
-                Gateway.start();
-            } else if (command.equals("stop")) {
-                SipStackExt sipStack = (SipStackExt) ProtocolObjects.sipStack;
-                for (Dialog dialog : sipStack.getDialogs()) {
-                    DialogApplicationData dat = DialogApplicationData.get(dialog);
-                    if (dat != null && dat.getBackToBackUserAgent() != null) {
-                        dat.getBackToBackUserAgent().tearDown();
-                        dat.setBackToBackUserAgent(null);
-                    }
-                }
-                Thread.sleep(10000);
             } else if (command.equals("configtest")) {
                 try {
                     Gateway.parseConfigurationFile();
@@ -1079,6 +1066,14 @@ public class Gateway {
                         logger.error("Configuration error -- no global address or stun server");
                         System.exit(-1);
                     }
+                    if ( Gateway.accountManager.getBridgeConfiguration().getExternalAddress()
+                            .equals(Gateway.accountManager.getBridgeConfiguration().getLocalAddress()) &&
+                            Gateway.accountManager.getBridgeConfiguration().getExternalPort() == 
+                                Gateway.accountManager.getBridgeConfiguration().getLocalPort()   ) {
+                        logger.error("Configuration error -- external address == internal address && external port == internal port");
+                        System.exit(-1);
+                    }
+                    
 
                     // TODO -- check for availability of the ports.
 
@@ -1095,7 +1090,5 @@ public class Gateway {
         }
 
     }
-
-   
 
 }

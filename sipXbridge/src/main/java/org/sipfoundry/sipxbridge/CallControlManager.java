@@ -83,7 +83,6 @@ class CallControlManager implements SymmitronResetHandler {
 
         public RequestPendingTimerTask(ContinuationData continuationData) {
             this.continuationData = continuationData;
-
         }
 
         @Override
@@ -92,6 +91,8 @@ class CallControlManager implements SymmitronResetHandler {
 
             if (continuationData.getOperation() == Operation.REFER_INVITE_TO_SIPX_PROXY) {
                 processRefer(requestEvent);
+            } else if (continuationData.getOperation() == Operation.PROCESS_INVITE){
+                processInvite(requestEvent);
             } else {
                 logger.fatal("Unknown operation seen - INTERNAL ERROR");
             }
@@ -256,8 +257,11 @@ class CallControlManager implements SymmitronResetHandler {
                         dat.sendReInviteOnResume = true;
                         ReInviteProcessingContinuationData continuationData = new ReInviteProcessingContinuationData(
                                 requestEvent, dialog, provider, serverTransaction, request);
-                        dat.getBackToBackUserAgent().querySdpFromPeerDialog(requestEvent,
-                                Operation.SEND_INVITE_TO_MOH_SERVER, continuationData);
+                        if ( ! dat.getBackToBackUserAgent().querySdpFromPeerDialog(requestEvent,
+                                Operation.SEND_INVITE_TO_MOH_SERVER, continuationData) ) {
+                            ProcessInviteContinuationData  continuation = new ProcessInviteContinuationData(requestEvent);
+                            Gateway.getTimer().schedule( new RequestPendingTimerTask(continuation), 100);
+                        }
                         return;
                     } else {
                         /* Say BYE to MOH server and continue processing. */
@@ -538,21 +542,19 @@ class CallControlManager implements SymmitronResetHandler {
                 serverTransaction.sendResponse(response);
             }
 
-            /*
-             * Stop the Music on hold.
-             */
-
             if (Gateway.isReInviteSupported()) {
-                // The ITSP supports re-invite. Send him a Re-INVITE
-                // to determine what codec was negotiated.
+                /*
+                 * The ITSP supports re-invite. Send him a Re-INVITE to solicit an offer.
+                 */
                 ReferInviteToSipxProxyContinuationData continuation = new ReferInviteToSipxProxyContinuationData(
                         requestEvent);
 
-                // btobua.referingDialog = dialog;
-
-                btobua.querySdpFromPeerDialog(requestEvent, Operation.REFER_INVITE_TO_SIPX_PROXY,
-                        continuation);
+                if ( ! btobua.querySdpFromPeerDialog(requestEvent, Operation.REFER_INVITE_TO_SIPX_PROXY,
+                        continuation) ) {
+                    Gateway.getTimer().schedule(new RequestPendingTimerTask(continuation), 100);
+                }
             } else {
+                /* Re-INIVTE is not supported directly send an INVITE to the target. */
                 btobua.referInviteToSipxProxy(request, dialog, null);
             }
 
@@ -803,6 +805,8 @@ class CallControlManager implements SymmitronResetHandler {
                         .createContentTypeHeader("application", "sdp"));
                 peerDialog.sendAck(ackRequest);
             }
+
+           
 
         } else {
             logger.error("ERROR  0 contentLength ");
@@ -1135,8 +1139,8 @@ class CallControlManager implements SymmitronResetHandler {
                                     .setRtpSession(rtpSession);
 
                             /*
-                             * Check if we need to forward that response and do so if needed.
-                             * see issue 1718
+                             * Check if we need to forward that response and do so if needed. see
+                             * issue 1718
                              */
                             if (peerDat.transaction != null
                                     && peerDat.transaction instanceof ServerTransaction
@@ -1200,6 +1204,7 @@ class CallControlManager implements SymmitronResetHandler {
                             && dat.musicOnHoldDialog.getState() != DialogState.TERMINATED) {
 
                         b2bua.sendByeToMohServer(dat.musicOnHoldDialog);
+                        dat.musicOnHoldDialog = null;
 
                     }
 

@@ -7,6 +7,7 @@
 package org.sipfoundry.sipxbridge;
 
 import gov.nist.javax.sdp.MediaDescriptionImpl;
+import gov.nist.javax.sip.TransactionExt;
 import gov.nist.javax.sip.header.HeaderFactoryExt;
 import gov.nist.javax.sip.header.ims.PAssertedIdentityHeader;
 
@@ -197,16 +198,16 @@ class SipUtilities {
      */
     static ContactHeader createContactHeader(String user, SipProvider provider, String transport) {
         try {
-            if (transport == null) {
-                transport = "udp";
-            }
-            ListeningPoint lp = provider.getListeningPoint(transport);
+
+            ListeningPoint lp = provider.getListeningPoint(transport == null ? "udp" : transport);
             String ipAddress = lp.getIPAddress();
             int port = lp.getPort();
             SipURI sipUri = ProtocolObjects.addressFactory.createSipURI(user, ipAddress);
 
             sipUri.setPort(port);
-            sipUri.setTransportParam(transport);
+            if (transport != null) {
+                sipUri.setTransportParam(transport);
+            }
             Address address = ProtocolObjects.addressFactory.createAddress(sipUri);
             ContactHeader ch = ProtocolObjects.headerFactory.createContactHeader(address);
             return ch;
@@ -244,12 +245,12 @@ class SipUtilities {
                 proxyDomain);
 
         Address fromAddress = ProtocolObjects.addressFactory.createAddress(fromUri);
-      
+
         FromHeader fromHeader = ProtocolObjects.headerFactory.createFromHeader(fromAddress,
                 new Long(Math.abs(new java.util.Random().nextLong())).toString());
 
         Address toAddress = ProtocolObjects.addressFactory.createAddress(toUri);
-       
+
         ToHeader toHeader = ProtocolObjects.headerFactory.createToHeader(toAddress, null);
 
         CallIdHeader callid = sipProvider.getNewCallId();
@@ -343,12 +344,12 @@ class SipUtilities {
                     itspAccount.getSipDomain());
 
             Address fromAddress = ProtocolObjects.addressFactory.createAddress(fromUri);
-           
+
             FromHeader fromHeader = ProtocolObjects.headerFactory.createFromHeader(fromAddress,
                     new Long(Math.abs(new java.util.Random().nextLong())).toString());
 
             Address toAddress = ProtocolObjects.addressFactory.createAddress(toUri);
-          
+
             ToHeader toHeader = ProtocolObjects.headerFactory.createToHeader(toAddress, null);
 
             CallIdHeader callid = sipProvider.getNewCallId();
@@ -453,7 +454,7 @@ class SipUtilities {
             String toDomain = itspAccount.getProxyDomain();
             String fromUser = ((SipURI) from.getAddress().getURI()).getUser();
             String fromDisplayName = from.getAddress().getDisplayName();
-            if ( fromDisplayName == null ) {
+            if (fromDisplayName == null) {
                 fromDisplayName = "sipxbridge";
             }
             PAssertedIdentityHeader paiHeader = null;
@@ -480,7 +481,7 @@ class SipUtilities {
                             new Long(Math.abs(new java.util.Random().nextLong())).toString());
 
                 }
-                if ( fromDisplayName != null ) {
+                if (fromDisplayName != null) {
                     fromAddress.setDisplayName(fromDisplayName);
                 }
             } else {
@@ -857,6 +858,9 @@ class SipUtilities {
             Response response = ProtocolObjects.messageFactory
                     .createResponse(statusCode, request);
             SupportedHeader sh = ProtocolObjects.headerFactory.createSupportedHeader("replaces");
+            SipProvider provider = ((TransactionExt) transaction).getSipProvider();
+            ContactHeader contactHeader = createContactHeader(null, provider, null);
+            response.addHeader(contactHeader);
             response.addHeader(sh);
 
             return response;
@@ -1020,20 +1024,18 @@ class SipUtilities {
     }
 
     /**
-     * Return true if the session description contains at least one codec
-     * of the specified set.
+     * Return true if the session description contains at least one codec of the specified set.
      * 
      * @param sd
      * @param codecSet
      * @return
      */
     public static boolean isCodecSupported(SessionDescription sd, HashSet<Integer> codecSet) {
-       
-     
-        
+
         HashSet<Integer> codecs = SipUtilities.getCodecNumbers(sd);
-        for ( int codecNumber : codecSet) {
-            if ( codecs.contains(codecNumber)) return true;
+        for (int codecNumber : codecSet) {
+            if (codecs.contains(codecNumber))
+                return true;
         }
         return false;
     }

@@ -6,11 +6,13 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 
-import org.sipfoundry.sipxbridge.xmlrpc.CallRecord;
+import org.apache.log4j.Logger;
 import org.sipfoundry.sipxbridge.xmlrpc.SipXbridgeXmlRpcServer;
 
 public class SipXbridgeXmlRpcServerImpl implements SipXbridgeXmlRpcServer {
 
+    private static Logger logger = Logger.getLogger(SipXbridgeXmlRpcServerImpl.class);
+    
     private String formatStackTrace(Throwable ex) {
         StringWriter sw = new StringWriter();
         PrintWriter pw = new PrintWriter(sw);
@@ -67,7 +69,7 @@ public class SipXbridgeXmlRpcServerImpl implements SipXbridgeXmlRpcServer {
     public Map<String, Object> start() {
        HashMap<String, Object> retval = createSuccessMap();
       
-
+       logger.debug("Gateway.start()");
        try {
            Gateway.start();
        } catch (Throwable ex) {
@@ -80,6 +82,8 @@ public class SipXbridgeXmlRpcServerImpl implements SipXbridgeXmlRpcServer {
 
  
     public Map<String, Object> stop() {
+        
+        logger.debug("Gateway.stop()");
         HashMap<String, Object> retval = createSuccessMap();
 
         try {

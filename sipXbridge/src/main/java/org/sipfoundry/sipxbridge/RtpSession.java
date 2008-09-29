@@ -23,6 +23,7 @@ import javax.sip.SipProvider;
 import javax.sip.header.AcceptHeader;
 import javax.sip.header.ContentTypeHeader;
 import javax.sip.message.Request;
+import javax.sip.message.Response;
 
 import org.apache.log4j.Logger;
 import org.sipfoundry.sipxbridge.symmitron.SymImpl;
@@ -205,18 +206,17 @@ class RtpSession {
             }
             
             SessionDescription sd = this.getReceiver().getSessionDescription();
-            
-            //SipUtilities.setDuplexity(sd,"sendrecv");
-            //SipUtilities.incrementSessionVersion(sd);
-               
+                    
             SipProvider provider = ((DialogExt) dialog).getSipProvider();
             
-            if ( Gateway.isReInviteSupported() && dat.musicOnHoldDialog != null  ) {
-                // Send Re-INVITE to the ITSP.
+            if ( provider != Gateway.getLanProvider() || Gateway.isReInviteSupported()) {
+                // RE-INVITE was received from WAN side or LAN side and wan side supports 
+                // Re-INIVTE then just forward it.
                 this.forwardReInvite(serverTransaction, dialog);
-            } else if ( provider != Gateway.getLanProvider() ) {
-                // RE-INVITE was received from WAN side. Just forward it.
-                this.forwardReInvite(serverTransaction, dialog);
+            } else {
+                Response response = SipUtilities.createResponse(serverTransaction,Response.OK);
+                SipUtilities.setSessionDescription(response, sd);
+                serverTransaction.sendResponse(response);               
             }
         } catch (Exception ex) {
             throw new RuntimeException(ex);
@@ -226,6 +226,7 @@ class RtpSession {
     
     /**
      * Put the session on hold.
+     * Sends an INVITE to the park server to start playing music.
      * 
      * @param dialog
      * @param peerDialog
@@ -239,8 +240,7 @@ class RtpSession {
         this.getTransmitter().setOnHold(true);
         if (Gateway.getMusicOnHoldAddress() != null) {
              /*
-             * For the standard MOH, the URI is defined to be <sip:~~mh~@[domain]>. There
-             * is thought that other URIs in the ~~mh~ series can be allocated
+             * For the standard MOH, the URI is defined to be <sip:~~mh~@[domain]>. 
              */
             ClientTransaction mohCtx;
             try {

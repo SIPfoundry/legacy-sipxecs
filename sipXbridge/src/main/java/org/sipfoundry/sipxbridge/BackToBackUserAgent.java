@@ -61,7 +61,7 @@ import org.sipfoundry.sipxbridge.symmitron.BridgeInterface;
 import org.sipfoundry.sipxbridge.symmitron.KeepaliveMethod;
 import org.sipfoundry.sipxbridge.symmitron.SymImpl;
 import org.sipfoundry.sipxbridge.symmitron.SymmitronClient;
-import org.sipfoundry.sipxbridge.xmlrpc.CallRecord;
+
 
 /**
  * A class that represents an ongoing call. Each call Id points at one of these structures. It can
@@ -93,6 +93,14 @@ public class BackToBackUserAgent {
     Dialog referingDialog;
 
     private Dialog referingDialogPeer;
+    
+    private int counter;
+    
+    /*
+     * Any call Id associated with this b2bua will be derived from 
+     * this base call id.
+     */
+    private String creatingCallId;
 
     /*
      * The Dialog that created this B2BUA.
@@ -100,8 +108,6 @@ public class BackToBackUserAgent {
     private Dialog creatingDialog;
 
     private SessionTimerTask sessionTimerTask;
-
-    private CallRecord callRecord;
 
     private static Logger logger = Logger.getLogger(BackToBackUserAgent.class);
 
@@ -512,15 +518,7 @@ public class BackToBackUserAgent {
             throws IOException {
 
         this.itspAccountInfo = itspAccountInfo;
-        this.callRecord = new CallRecord();
-        String fromAddress = SipUtilities.getFromAddress(request);
-        callRecord.setFromAddress(fromAddress);
-        String toAddress = SipUtilities.getToAddress(request);
-        callRecord.setToAddress(toAddress);
-        String requestUri = request.getRequestURI().toString();
-        callRecord.setRequestURI(requestUri);
-        String callId = SipUtilities.getCallId(request);
-        callRecord.setCallId(callId);
+        
 
     }
 
@@ -542,6 +540,7 @@ public class BackToBackUserAgent {
         rtpBridge = new RtpBridge(request, bridge);
         dialogTable.add(dialog);
         this.creatingDialog = dialog;
+        this.creatingCallId = ((CallIdHeader) request.getHeader(CallIdHeader.NAME)).getCallId();
 
         // Kick off a task to test for session liveness.
         if (Gateway.getSessionTimerMethod() != null) {
@@ -611,7 +610,8 @@ public class BackToBackUserAgent {
     /**
      * This method is called when the REFER is received at the B2BUA. We need to redirect the
      * INVITE to the contact mentioned in the Refer. To determine the codec that was negotiated in
-     * the original Call Setup, we send an INVITE (no-sdp) to the dialog.
+     * the original Call Setup, we send an INVITE (no-sdp) to the dialog to solicit an offer.
+     * This operation has already returned a result when this method is called.
      * 
      * @param referRequest -- the refer request.
      * @param dialog - the re-Invite dialog.
@@ -670,7 +670,7 @@ public class BackToBackUserAgent {
                 newRequest.setHeader(referRequest.getHeader(ReferredByHeader.NAME));
             }
 
-            CallIdHeader callId = Gateway.getLanProvider().getNewCallId();
+            CallIdHeader callId = ProtocolObjects.headerFactory.createCallIdHeader(this.creatingCallId + "." + this.counter++);
             newRequest.setHeader(callId);
             Gateway.getCallControlManager().setBackToBackUserAgent(callId.getCallId(),this);
 
@@ -712,14 +712,14 @@ public class BackToBackUserAgent {
 
             newDialogApplicationData.rtpSession = dialogApplicationData.rtpSession;
             newDialogApplicationData.peerDialog = dialogApplicationData.peerDialog;
-            // newDialogApplicationData.musicOnHoldDialog =
-            // dialogApplicationData.musicOnHoldDialog;
+            newDialogApplicationData.musicOnHoldDialog = dialogApplicationData.musicOnHoldDialog;
 
-            if (dialogApplicationData.musicOnHoldDialog != null) {
+            /* This sends the BYE early to the MOH dialog. 
+             * if (dialogApplicationData.musicOnHoldDialog != null) {
                 this.sendByeToMohServer(dialogApplicationData.musicOnHoldDialog);
                 dialogApplicationData.musicOnHoldDialog = null;
 
-            }
+            }*/
 
             if (logger.isDebugEnabled()) {
                 logger.debug("referInviteToSipxProxy peerDialog = "
@@ -817,8 +817,10 @@ public class BackToBackUserAgent {
             }
             uri.setTransportParam(Gateway.getSipxProxyTransport());
 
-            String callId = ((CallIdHeader) request.getHeader(CallIdHeader.NAME)).getCallId();
-            CallIdHeader callIdHeader = ProtocolObjects.headerFactory.createCallIdHeader(callId);
+           
+            CallIdHeader callIdHeader = ProtocolObjects.headerFactory.createCallIdHeader(this.creatingCallId + "." + counter ++);
+            
+            Gateway.getCallControlManager().setBackToBackUserAgent(callIdHeader.getCallId(), this);
 
             CSeqHeader cseqHeader = ProtocolObjects.headerFactory.createCSeqHeader(1L,
                     Request.INVITE);
@@ -981,7 +983,9 @@ public class BackToBackUserAgent {
             SipURI uri = Gateway.getMusicOnHoldUri();
             SipProvider lanProvider = Gateway.getLanProvider();
 
-            CallIdHeader callIdHeader = lanProvider.getNewCallId();
+            CallIdHeader callIdHeader = ProtocolObjects.headerFactory.createCallIdHeader(this.creatingCallId + "." +  this.counter++);
+            
+            Gateway.getCallControlManager().setBackToBackUserAgent(callIdHeader.getCallId(), this);
 
             CSeqHeader cseqHeader = ProtocolObjects.headerFactory.createCSeqHeader(1L,
                     Request.INVITE);
@@ -1085,12 +1089,16 @@ public class BackToBackUserAgent {
      * @param continuationData
      * @throws Exception
      */
-    void querySdpFromPeerDialog(RequestEvent requestEvent, Operation continuation,
+    boolean querySdpFromPeerDialog(RequestEvent requestEvent, Operation continuation,
             ContinuationData continuationData) throws Exception {
         try {
             Dialog dialog = requestEvent.getDialog();
             Dialog peerDialog = DialogApplicationData.getPeerDialog(dialog);
             DialogApplicationData peerDat = DialogApplicationData.get(peerDialog);
+            if ( peerDat.isSdpAnswerPending ) {
+                return false;
+            }
+            
             peerDat.isSdpAnswerPending = true;
 
             if (peerDialog != null && peerDialog.getState() != DialogState.TERMINATED) {
@@ -1118,9 +1126,11 @@ public class BackToBackUserAgent {
                 peerDialog.sendRequest(ctx);
 
             }
+            return true;
         } catch (Exception ex) {
             logger.error("Exception occured. tearing down call! ", ex);
             this.tearDown();
+            return true;
         }
 
     }
@@ -1632,12 +1642,7 @@ public class BackToBackUserAgent {
     // Public methods - invoked by xml rpc server.
     // //////////////////////////////////////////////////////////////////////
 
-    /**
-     * Get the call record.
-     */
-    public CallRecord getCallRecord() {
-        return callRecord;
-    }
+    
 
     /**
      * Terminate the two sides of the bridge. This method is invoked by xml rpc interface and is

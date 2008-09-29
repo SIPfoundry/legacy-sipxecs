@@ -131,6 +131,7 @@ public class SipListenerImpl implements SipListener {
                 return;
 
             } else if (provider == Gateway.getLanProvider()
+                    && method.equals(Request.INVITE)
                     && (viaHeader.getReceived() != null || !Gateway.isAddressFromProxy(viaHeader
                             .getHost()))) {
                 ServerTransaction st = requestEvent.getServerTransaction();
