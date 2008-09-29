@@ -249,7 +249,7 @@ public:
 
    virtual UtlBoolean accept(int forwardOnNoAnswerTimeOut) = 0;
 
-   virtual UtlBoolean reject(int errorText, const char* errorText) = 0;
+   virtual UtlBoolean reject(int errorCode, const char* szErrorText) = 0;
 
    virtual UtlBoolean redirect(const char* forwardAddress) = 0;
 
