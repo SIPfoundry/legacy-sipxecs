@@ -24,6 +24,7 @@
 #include <string>
 #include <cstring>
 #include <ctype.h>
+#include <stdlib.h>
 #include <wctype.h>
 
 #include "VXIvalue.h"
