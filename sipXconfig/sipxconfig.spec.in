@@ -233,6 +233,18 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/ssl-cert/create-ssl-truststore.sh
 %attr(644,root,root) %{_datadir}/sipxecs/process.d/sipxconfig-process.xml
 
+# itspTemplates
+%{_sysconfdir}/sipxpbx/itspTemplates/bandtel.xml
+%{_sysconfdir}/sipxpbx/itspTemplates/bandwidth.xml
+%{_sysconfdir}/sipxpbx/itspTemplates/bt.xml
+%{_sysconfdir}/sipxpbx/itspTemplates/callwithus.xml
+%{_sysconfdir}/sipxpbx/itspTemplates/cbeyond.xml
+%{_sysconfdir}/sipxpbx/itspTemplates/eutelia.xml
+%{_sysconfdir}/sipxpbx/itspTemplates/les.xml
+%{_sysconfdir}/sipxpbx/itspTemplates/sipcall.xml
+%{_sysconfdir}/sipxpbx/itspTemplates/vitelity.xml
+%{_sysconfdir}/sipxpbx/itspTemplates/voipuser.xml
+
 # Jar files are in here, but declaring the directory includes them all implicitly
 %{_datadir}/java/sipXecs/sipXconfig
 
