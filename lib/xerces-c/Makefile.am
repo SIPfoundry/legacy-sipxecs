@@ -10,7 +10,7 @@ SRC_SPEC_FILE=$(PACKAGE).spec
 SRPM = $(DEST_SRPM)/xerces-c-$(XERCES_C_VER)-$(XERCES_C_REL).src.rpm
 RPMS = $(DEST_RPM)/xerces-c-$(XERCES_C_VER)-$(XERCES_C_REL).@RPM_TARGET_ARCH@.rpm \
        $(DEST_RPM)/xerces-c-devel-$(XERCES_C_VER)-$(XERCES_C_REL).@RPM_TARGET_ARCH@.rpm
-PATCH = patches.p0
+PATCH = xerces-c.patch
 
 all : PRINT_HEADER $(SRPM) $(RPMS) PRINT_FOOTER
 

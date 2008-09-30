@@ -14,7 +14,7 @@ License:        Apache
 Group:		Libraries
 BuildRoot:	%{_tmppath}/%{name}-root
 Prefix:		/usr
-Patch:		patches.p0
+Patch:		xerces-c.patch
 
 %description
 Xerces-C++ is a validating XML parser written in a portable subset of C++.
