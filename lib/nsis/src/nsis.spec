@@ -9,7 +9,7 @@ Source: http://downloads.sourceforge.net/nsis/%{name}-%{version}-src.tar.bz2
 Patch: nsis.patch
 Group: Development/Tools
 License: zlib and BSD and CPL
-BuildRequires: scons >= 0.96.93
+BuildRequires: scons >= 0.98
 Requires: nsis-data = %{version}
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Summary: NSIS is an Open Source installer build tool for Windows applications
