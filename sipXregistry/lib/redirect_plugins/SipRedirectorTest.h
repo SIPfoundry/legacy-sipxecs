@@ -50,7 +50,8 @@ public:
       SipMessage& response,
       RequestSeqNo requestSeqNo,
       int redirectorNo,
-      SipRedirectorPrivateStorage*& privateStorage);
+      SipRedirectorPrivateStorage*& privateStorage,
+      ErrorDescriptor& errorDescriptor);
 
 protected:
 

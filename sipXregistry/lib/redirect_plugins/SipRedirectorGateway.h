@@ -79,7 +79,8 @@ class SipRedirectorGateway : public RedirectPlugin
       SipMessage& response,
       RequestSeqNo requestSeqNo,
       int redirectorNo,
-      SipRedirectorPrivateStorage*& privateStorage);
+      SipRedirectorPrivateStorage*& privateStorage,
+      ErrorDescriptor& errorDescriptor);
 
 
    /** Return TRUE if p is a valid prefix for this redirector. */

@@ -29,8 +29,8 @@
 // empty field means to not request suspension (for this processing),
 // a non-empty field means to request suspension and then request
 // resume after that number of seconds.  A field of '*' means to return
-// LOOKUP_ERROR_REQUEST on that cycle, and "!" means to return
-// LOOKUP_ERROR_SERVER.  The redirector will never add a contact to the call.
+// LOOKUP_ERROR on that cycle.  The redirector will never add a contact 
+// to the call.
 //
 // E.g., "t1=10" means to suspend for 10 seconds.
 // "t1=10;t2=5" means that redirector "1" will suspend for 10 seconds
@@ -40,7 +40,7 @@
 // suspension, and upon reprocessing, redirector 2 will request a 10
 // second suspension.  The request will finish on the third cycle.
 // "t1=10/*" will suspend for 10 seconds on the first cycle and then return
-// LOOKUP_ERROR_REQUEST on the second cycle.
+// LOOKUP_ERROR on the second cycle.
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -95,19 +95,10 @@ RedirectPlugin::LookUpStatus SipRedirectorPrivateStorageTest::actOnString()
    {
       OsSysLog::add(FAC_SIP, PRI_DEBUG,
                     "SipRedirectorPrivateStorageTest::actOnString Returning "
-                    "LOOKUP_ERROR_REQUEST, from string '%s', remaining '%s'",
+                    "LOOKUP_ERROR, from string '%s', remaining '%s'",
                     mString, mPtr);
       // We don't have to update anything, since we will not be called again.
-      return RedirectPlugin::LOOKUP_ERROR_REQUEST;
-   }
-   if (mPtr[0] == '!')
-   {
-      OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                    "SipRedirectorPrivateStorageTest::actOnString Returning "
-                    "LOOKUP_ERROR_SERVER, from string '%s', remaining '%s'",
-                    mString, mPtr);
-      // We don't have to update anything, since we will not be called again.
-      return RedirectPlugin::LOOKUP_ERROR_SERVER;
+      return RedirectPlugin::LOOKUP_ERROR;
    }
    // strtol will return 0 if mPtr[0] == / or NUL.
    int wait = strtol(mPtr, &mPtr, 10);
@@ -139,7 +130,8 @@ SipRedirectorTest::lookUp(
    SipMessage& response,
    RequestSeqNo requestSeqNo,
    int redirectorNo,
-   SipRedirectorPrivateStorage*& privateStorage)
+   SipRedirectorPrivateStorage*& privateStorage,
+   ErrorDescriptor& errorDescriptor)
 {
    UtlString parameter;
 

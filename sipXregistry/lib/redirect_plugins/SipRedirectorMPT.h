@@ -71,7 +71,8 @@ class SipRedirectorMPT : public RedirectPlugin
       SipMessage& response,
       RequestSeqNo requestSeqNo,
       int redirectorNo,
-      SipRedirectorPrivateStorage*& privateStorage);
+      SipRedirectorPrivateStorage*& privateStorage,
+      ErrorDescriptor& errorDescriptor);
 
    // File to read/write mappings to.
    UtlString mMappingFileName;

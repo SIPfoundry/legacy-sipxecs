@@ -192,7 +192,8 @@ SipRedirectorGateway::lookUp(
    SipMessage& response,
    RequestSeqNo requestSeqNo,
    int redirectorNo,
-   SipRedirectorPrivateStorage*& privateStorage)
+   SipRedirectorPrivateStorage*& privateStorage,
+   ErrorDescriptor& errorDescriptor)
 {
    UtlString userId;
    requestUri.getUserId(userId);

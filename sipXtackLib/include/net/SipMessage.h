@@ -248,11 +248,30 @@ class SipUserAgent;
 #define SIP_7XX_CLASS_CODE 700
 
 // Warning codes
-#define SIP_WARN_MEDIA_NAVAIL_CODE 304
-#define SIP_WARN_MEDIA_NAVAIL_TEXT "Media type not available"
-#define SIP_WARN_MEDIA_INCOMPAT_CODE 305
-#define SIP_WARN_MEDIA_INCOMPAT_TEXT "Insufficient compatible media types"
-#define SIP_WARN_MISC_CODE 399
+#define SIP_WARN_INCOMPAT_PROTO_CODE          300 
+#define SIP_WARN_INCOMPAT_PROTO_TEXT          "Incompatible network protocol"
+#define SIP_WARN_INCOMPAT_ADDRESS_CODE        301 
+#define SIP_WARN_INCOMPAT_ADDRESS_TEXT        "Incompatible network address formats"
+#define SIP_WARN_INCOMPAT_TRANSPORT_CODE      302
+#define SIP_WARN_INCOMPAT_TRANSPORT_TEXT      "Incompatible transport protocol"
+#define SIP_WARN_INCOMPAT_BANDWIDTH_CODE      303 
+#define SIP_WARN_INCOMPAT_BANDWIDTH_TEXT      "Incompatible bandwidth units"
+#define SIP_WARN_MEDIA_NAVAIL_MEDIA_TYPE_CODE 304
+#define SIP_WARN_MEDIA_NAVAIL_MEDIA_TYPE_TEXT "Media type not available"
+#define SIP_WARN_MEDIA_INCOMPAT_MEDIA_CODE    305
+#define SIP_WARN_MEDIA_INCOMPAT_MEDIA_TEXT    "Insufficient compatible media types"
+#define SIP_WARN_INCOMPAT_ATTRIBUTE_CODE      306 
+#define SIP_WARN_INCOMPAT_ATTRIBUTE_TEXT      "Attribute not understood"
+#define SIP_WARN_INCOMPAT_SDP_PARAM_CODE      307 
+#define SIP_WARN_INCOMPAT_SDP_PARAM_TEXT      "Session description parameter not understood"
+#define SIP_WARN_NAVAIL_MULTICAST_CODE        330 
+#define SIP_WARN_NAVAIL_MULTICAST_TEXT        "Multicast not available"
+#define SIP_WARN_NAVAIL_UNICAST_CODE          331 
+#define SIP_WARN_NAVAIL_UNICAST_TEXT          "Unicast not available"
+#define SIP_WARN_NAVAIL_BANDWIDTH_CODE        370
+#define SIP_WARN_NAVAIL_BANDWIDTH_TEXT        "Insufficient bandwidth"
+#define SIP_WARN_MISC_CODE                    399
+#define SIP_WARN_MISC_TEXT                    "<Provide your own warning text>"
 
 // Transport stuff
 #define SIP_PORT 5060
@@ -776,8 +795,7 @@ public:
 
     /// set the body of a response to contain the received request as message/sipfrag
     void setRequestDiagBody(SipMessage request);
-    ///< @note as a side effect, this deletes any body in request
-
+    
     void setReferOkData(const SipMessage* referRequest);
 
     void setReferDeclinedData(const SipMessage* referRequest);
@@ -878,7 +896,19 @@ public:
     void setFromFieldTag(const char* tagValue);
 
     void setExpiresField(int expiresInSeconds);
+    
+    void setAcceptField( const char* acceptValue );
 
+    void setAcceptEncodingField( const char* acceptEncodingValue );
+
+    void setAcceptLanguageField( const char* acceptLanguageValue );
+
+    void setRequireField( const char* requireValue );
+    
+    void setRetryAfterField( const char* retryAfterValue );
+
+    void setUnsupportedField( const char* unsupportedValue );
+    
     void setMinExpiresField(int minimumExpiresInSeconds);
 
     void setContactField(const char* contactField, int index = 0);

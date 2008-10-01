@@ -4238,7 +4238,7 @@ void SipConnection::processInviteResponse(const SipMessage* response)
 
             case SIP_BAD_REQUEST_CODE:
                 response->getWarningCode(&warningCode);
-                if(warningCode == SIP_WARN_MEDIA_NAVAIL_CODE)
+                if(warningCode == SIP_WARN_MEDIA_NAVAIL_MEDIA_TYPE_CODE)
                 {
                     // incompatable media
                     cause = CONNECTION_CAUSE_INCOMPATIBLE_DESTINATION;

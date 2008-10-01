@@ -91,7 +91,8 @@ SipRedirectorMapping::lookUp(
    SipMessage& response,
    RequestSeqNo requestSeqNo,
    int redirectorNo,
-   SipRedirectorPrivateStorage*& privateStorage)
+   SipRedirectorPrivateStorage*& privateStorage,
+   ErrorDescriptor& errorDescriptor)
 {
    UtlString permissionName;
    ResultSet urlMappingRegistrations;

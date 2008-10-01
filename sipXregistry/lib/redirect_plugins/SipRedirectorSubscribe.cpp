@@ -68,7 +68,8 @@ SipRedirectorSubscribe::lookUp(
    SipMessage& response,
    RequestSeqNo requestSeqNo,
    int redirectorNo,
-   SipRedirectorPrivateStorage*& privateStorage)
+   SipRedirectorPrivateStorage*& privateStorage,
+   ErrorDescriptor& errorDescriptor)
 {
    OsSysLog::add(FAC_SIP, PRI_DEBUG, "%s::lookUp uri '%s'",
                  mLogName.data(), requestUri.toString().data());

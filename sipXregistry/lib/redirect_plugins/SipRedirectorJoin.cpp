@@ -280,7 +280,8 @@ SipRedirectorJoin::lookUp(
    SipMessage& response,
    RedirectPlugin::RequestSeqNo requestSeqNo,
    int redirectorNo,
-   SipRedirectorPrivateStorage*& privateStorage)
+   SipRedirectorPrivateStorage*& privateStorage,
+   ErrorDescriptor& errorDescriptor)
 {
    UtlString userId;
    UtlString incomingCallId;

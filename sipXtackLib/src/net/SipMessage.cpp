@@ -757,7 +757,7 @@ void SipMessage::setInviteBadCodecs(const SipMessage* inviteRequest,
 
    // Add a media not available warning
    // The text message must be a quoted string
-   sprintf(warningCodeString, "%d ", SIP_WARN_MEDIA_INCOMPAT_CODE);
+   sprintf(warningCodeString, "%d ", SIP_WARN_MEDIA_INCOMPAT_MEDIA_CODE);
    warningField.append(warningCodeString);
 
    // Construct the agent field from information extracted from the
@@ -775,7 +775,7 @@ void SipMessage::setInviteBadCodecs(const SipMessage* inviteRequest,
    }
 
    warningField.append(" \"");
-   warningField.append(SIP_WARN_MEDIA_INCOMPAT_TEXT);
+   warningField.append(SIP_WARN_MEDIA_INCOMPAT_MEDIA_TEXT);
    warningField.append("\"");
    addHeaderField(SIP_WARNING_FIELD, warningField.data());
 }
@@ -2355,6 +2355,36 @@ void SipMessage::setExpiresField(int expiresInSeconds)
    setHeaderValue(SIP_EXPIRES_FIELD, secondsString, 0);
 }
 
+void SipMessage::setAcceptField( const char* acceptField )
+{
+    setHeaderValue(SIP_ACCEPT_FIELD, acceptField);
+}
+
+void SipMessage::setAcceptEncodingField( const char* acceptEncodingValue )
+{
+    setHeaderValue(SIP_ACCEPT_ENCODING_FIELD, acceptEncodingValue);
+}
+
+void SipMessage::setAcceptLanguageField( const char* acceptLanguageValue )
+{
+    setHeaderValue(SIP_ACCEPT_LANGUAGE_FIELD, acceptLanguageValue);
+}
+
+void SipMessage::setRequireField( const char* requireValue )
+{
+    setHeaderValue(SIP_REQUIRE_FIELD, requireValue);
+}
+
+void SipMessage::setRetryAfterField( const char* retryAfterValue )
+{
+    setHeaderValue(SIP_RETRY_AFTER_FIELD, retryAfterValue);
+}
+
+void SipMessage::setUnsupportedField( const char* unsupportedValue )
+{
+    setHeaderValue(SIP_UNSUPPORTED_FIELD, unsupportedValue);
+}
+
 void SipMessage::setMinExpiresField(int minimumExpiresInSeconds)
 {
    char secondsString[MAXIMUM_INTEGER_STRING_LENGTH];
@@ -2398,7 +2428,7 @@ void SipMessage::setWarningField(int code, const char* hostname, const char* tex
 
    if (allocated >= sizeNeeded)
    {
-      sprintf((char*)warningContent.data(), "%3d %s %s", code, hostname, text);
+      sprintf((char*)warningContent.data(), "%3d %s \"%s\"", code, hostname, text);
       
       setHeaderValue(SIP_WARNING_FIELD, warningContent.data());
    }

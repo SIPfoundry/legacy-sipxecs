@@ -7,10 +7,10 @@ INCLUDES = \
 # These tests are split into multiple executables because the machinery
 # for setting up an alternative registration database can be executed
 # only once in an executable.
-#TESTS = testsuite1 testsuite2 testsuite3
+#TESTS = testsuite1 testsuite2 testsuite3 testsuite4
 TESTS = 
 
-check_PROGRAMS = testsuite1 testsuite2 testsuite3 sandbox
+check_PROGRAMS = testsuite1 testsuite2 testsuite3 testsuite4 sandbox
 
 testsuite_CXXFLAGS = @CPPUNIT_CFLAGS@ \
     -DTEST_DATA_DIR=\"@abs_top_srcdir@/src/test/\" \
@@ -38,6 +38,15 @@ testsuite3_LDADD = $(testsuite_LDADD)
 testsuite3_SOURCES = \
     ApplyUpdatesTest.cpp
 
+testsuite4_CXXFLAGS = $(testsuite_CXXFLAGS)
+testsuite4_LDADD = $(testsuite_LDADD)
+
+testsuite4_SOURCES = \
+    ../RedirectPlugin.cpp \
+    ../SipRedirectServer.cpp \
+    ErrorDescriptorTest.cpp \
+    SipRedirectServerTest.cpp
+    
 EXTRA_DIST = \
     regdbdata/updatesToPull.xml
 

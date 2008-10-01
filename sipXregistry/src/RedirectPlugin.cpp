@@ -11,12 +11,15 @@
 
 // APPLICATION INCLUDES
 #include <utl/UtlRegex.h>
+#include <net/SipMessage.h>
 #include "os/OsDateTime.h"
 #include "os/OsFS.h"
 #include "sipdb/ResultSet.h"
 #include "registry/RedirectPlugin.h"
 
 // DEFINES
+#define UNINITIALIZED_WARNING_CODE  (-1)
+
 // MACROS
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -90,4 +93,168 @@ RedirectPlugin::removeAllContacts(SipMessage& response)
 
 SipRedirectorPrivateStorage::~SipRedirectorPrivateStorage()
 {
+}
+
+ErrorDescriptor::ErrorDescriptor() :
+   mStatusCode             ( SIP_FORBIDDEN_CODE ),
+   mReasonPhrase           ( SIP_FORBIDDEN_TEXT ),
+   mWarningCode            ( UNINITIALIZED_WARNING_CODE ),
+   mAppendRequestToResponse( false )
+{   
+}
+
+ErrorDescriptor::~ErrorDescriptor()
+{
+   mOptionalFieldsValues.destroyAll();
+}
+   
+bool ErrorDescriptor::setStatusLineData( const int statusCode, const UtlString& reasonPhrase )
+{
+   bool result = false;
+   if( statusCode >= SIP_4XX_CLASS_CODE && statusCode < SIP_7XX_CLASS_CODE )
+   {
+      mStatusCode   = statusCode;
+      mReasonPhrase = reasonPhrase;
+      result = true;
+   }
+   return result;
+}
+
+bool ErrorDescriptor::setWarningData( const int warningCode, const UtlString& warningText )
+{
+   bool result = false;
+   if( warningCode >= SIP_WARN_INCOMPAT_PROTO_CODE && warningCode <= SIP_WARN_MISC_CODE )
+   {
+      mWarningCode = warningCode;
+      mWarningText = warningText;
+      result = true;
+   }
+   return result;
+}
+
+void ErrorDescriptor::setRetryAfterFieldValue( const UtlString& fieldValue )
+{
+   setOptionalFieldValue( SIP_RETRY_AFTER_FIELD, fieldValue );
+}
+
+void ErrorDescriptor::setRequireFieldValue( const UtlString& fieldValue )
+{
+   setOptionalFieldValue( SIP_REQUIRE_FIELD, fieldValue );
+}
+
+void ErrorDescriptor::setUnsupportedFieldValue( const UtlString& fieldValue )
+{
+   setOptionalFieldValue( SIP_UNSUPPORTED_FIELD, fieldValue );
+}
+
+void ErrorDescriptor::setAllowFieldValue( const UtlString& fieldValue )
+{
+   setOptionalFieldValue( SIP_ALLOW_FIELD, fieldValue );
+}
+
+void ErrorDescriptor::setAcceptFieldValue( const UtlString& fieldValue )
+{
+   setOptionalFieldValue( SIP_ACCEPT_FIELD, fieldValue );
+}
+
+void ErrorDescriptor::setAcceptEncodingFieldValue( const UtlString& fieldValue )
+{
+   setOptionalFieldValue( SIP_ACCEPT_ENCODING_FIELD, fieldValue );
+}
+
+void ErrorDescriptor::setAcceptLanguageFieldValue( const UtlString& fieldValue )
+{
+   setOptionalFieldValue( SIP_ACCEPT_LANGUAGE_FIELD, fieldValue );
+}
+
+void ErrorDescriptor::setOptionalFieldValue( const UtlString& fieldName, const UtlString& fieldValue )
+{
+   mOptionalFieldsValues.destroy( &fieldName );
+   mOptionalFieldsValues.insertKeyAndValue( new UtlString( fieldName ), new UtlString( fieldValue ) );
+}
+
+void ErrorDescriptor::appendRequestToResponse( void )
+{
+   mAppendRequestToResponse = true;
+}
+
+void ErrorDescriptor::dontAppendRequestToResponse( void )
+{
+   mAppendRequestToResponse = false;
+}
+
+void ErrorDescriptor::getStatusLineData( int& statusCode, UtlString& reasonPhrase ) const
+{
+   statusCode   = mStatusCode;
+   reasonPhrase = mReasonPhrase;
+}
+
+bool ErrorDescriptor::getWarningData( int& warningCode, UtlString& warningText ) const
+{
+   bool result = isWarningDataSet();  
+   if( result )
+   {
+      warningCode = mWarningCode;
+      warningText = mWarningText;
+   }
+   return result;
+}
+
+bool ErrorDescriptor::getRetryAfterFieldValue( UtlString& fieldValue ) const
+{
+   return getOptinalFieldValue( SIP_RETRY_AFTER_FIELD, fieldValue );
+}
+
+bool ErrorDescriptor::getRequireFieldValue( UtlString& fieldValue ) const
+{
+   return getOptinalFieldValue( SIP_REQUIRE_FIELD, fieldValue );
+}
+
+bool ErrorDescriptor::getUnsupportedFieldValue( UtlString& fieldValue ) const
+{
+   return getOptinalFieldValue( SIP_UNSUPPORTED_FIELD, fieldValue );
+}
+
+bool ErrorDescriptor::getAllowFieldValue( UtlString& fieldValue ) const
+{
+   return getOptinalFieldValue( SIP_ALLOW_FIELD, fieldValue );
+}
+
+bool ErrorDescriptor::getAcceptFieldValue( UtlString& fieldValue ) const
+{
+   return getOptinalFieldValue( SIP_ACCEPT_FIELD, fieldValue );
+}
+
+bool ErrorDescriptor::getAcceptEncodingFieldValue( UtlString& fieldValue ) const
+{
+   return getOptinalFieldValue( SIP_ACCEPT_ENCODING_FIELD, fieldValue );
+}
+
+bool ErrorDescriptor::getAcceptLanguageFieldValue( UtlString& fieldValue ) const
+{
+   return getOptinalFieldValue( SIP_ACCEPT_LANGUAGE_FIELD, fieldValue );
+}
+
+bool ErrorDescriptor::getOptinalFieldValue( const UtlString& fieldName, UtlString& fieldValue ) const
+{
+   bool result = false;
+   UtlString* pReturnedValue;
+   
+   pReturnedValue = dynamic_cast<UtlString*>(mOptionalFieldsValues.findValue( &fieldName ) );
+   if( pReturnedValue )
+   {
+      fieldValue = *pReturnedValue;
+      result = true;
+   }
+   return result;
+}
+
+bool ErrorDescriptor::isWarningDataSet( void ) const
+{
+   return mWarningCode != UNINITIALIZED_WARNING_CODE;
+}
+
+bool ErrorDescriptor::shouldRequestBeAppendedToResponse( void ) const
+{
+   return mAppendRequestToResponse;
 }

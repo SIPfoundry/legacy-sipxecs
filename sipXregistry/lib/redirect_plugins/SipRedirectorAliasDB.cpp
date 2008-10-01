@@ -98,7 +98,8 @@ SipRedirectorAliasDB::lookUp(
    SipMessage& response,
    RequestSeqNo requestSeqNo,
    int redirectorNo,
-   SipRedirectorPrivateStorage*& privateStorage)
+   SipRedirectorPrivateStorage*& privateStorage,
+   ErrorDescriptor& errorDescriptor)
 {
    // If url param sipx-userforward = false, do not redirect to its aliases
    UtlString disableForwarding;

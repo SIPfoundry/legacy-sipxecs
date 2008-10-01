@@ -83,7 +83,8 @@ SipRedirectorHunt::lookUp(
    SipMessage& response,
    RequestSeqNo requestSeqNo,
    int redirectorNo,
-   SipRedirectorPrivateStorage*& privateStorage)
+   SipRedirectorPrivateStorage*& privateStorage,
+   ErrorDescriptor& errorDescriptor)
 {
    // Return immediately if the method is SUBSCRIBE, as the q values will
    // be stripped later anyway.

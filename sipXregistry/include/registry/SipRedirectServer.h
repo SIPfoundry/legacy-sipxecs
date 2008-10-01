@@ -140,6 +140,20 @@ class SipRedirectServer : public OsServerTask
     *  are active, based on the return values of ::initialize().
     */
    UtlBoolean* mpActive;
+   
+   // SIP domain that registrar/redirect server is authoritative for
+   UtlString mDefaultDomain;
+   
+  private:
+     /**
+      *  Fills in the supplied response with the common fields taken from the 
+      *  request and and the data contained in the supplied ErrorDescriptor 
+      */
+     void buildResponseFromRequestAndErrorDescriptor( SipMessage& response, 
+                                                      const SipMessage& request, 
+                                                      const ErrorDescriptor& errorDescriptor );
+    
+     friend class SipRedirectServerTest;
 };
 
 /**

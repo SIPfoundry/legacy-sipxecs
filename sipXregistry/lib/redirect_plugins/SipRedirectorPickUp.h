@@ -85,7 +85,8 @@ class SipRedirectorPickUp : public RedirectPlugin
       SipMessage& response,
       RequestSeqNo requestSeqNo,
       int redirectorNo,
-      SipRedirectorPrivateStorage*& privateStorage);
+      SipRedirectorPrivateStorage*& privateStorage,
+      ErrorDescriptor& errorDescriptor);
 
    // Enum for values that describe the states of dialogs, and also
    // describe filtering criteria for states of dialogs.

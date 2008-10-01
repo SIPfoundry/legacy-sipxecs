@@ -381,7 +381,8 @@ SipRedirectorPickUp::lookUp(
    SipMessage& response,
    RedirectPlugin::RequestSeqNo requestSeqNo,
    int redirectorNo,
-   SipRedirectorPrivateStorage*& privateStorage)
+   SipRedirectorPrivateStorage*& privateStorage,
+   ErrorDescriptor& errorDescriptor)
 {
    UtlString userId;
    bool bSupportsReplaces;
@@ -465,7 +466,12 @@ SipRedirectorPickUp::lookUp(
       }
       else
       {
-         return RedirectPlugin::LOOKUP_ERROR_REQUEST;
+         UtlString reasonPhrase;
+         reasonPhrase = "Subscribe Method Not Allowed For address ";
+         reasonPhrase.append( ALL_CREDENTIALS_USER );
+         errorDescriptor.setStatusLineData( SIP_BAD_METHOD_CODE, reasonPhrase );
+         errorDescriptor.setAllowFieldValue( SIP_SUBSCRIBE_METHOD );
+         return RedirectPlugin::LOOKUP_ERROR;
       }
    }
    else if (!mCallRetrieveCode.isNull() &&
@@ -514,20 +520,28 @@ SipRedirectorPickUp::lookUp(
          else
          {
             // It appears to be a call retrieve, but the orbit number is invalid.
-            // Return LOOKUP_ERROR_REQUEST.
+            // Return LOOKUP_ERROR.
+            UtlString reasonPhrase;
+            reasonPhrase = "Park Orbit " + orbit + " Not Found";
+            errorDescriptor.setStatusLineData( SIP_NOT_FOUND_CODE, reasonPhrase );
             OsSysLog::add(FAC_SIP, PRI_DEBUG,
                           "%s::lookUp Invalid orbit number '%s'",
                           mLogName.data(), orbit.data());
-            return RedirectPlugin::LOOKUP_ERROR_REQUEST;
+            return RedirectPlugin::LOOKUP_ERROR;
          }
       }
       else
       {
          // The park retrieve failed because the UA does not support INVITE/Replaces
+         UtlString reasonPhrase;
+         reasonPhrase = "Replaces Extension Required";
+         errorDescriptor.setStatusLineData( SIP_EXTENSION_REQUIRED_CODE, reasonPhrase );
+         errorDescriptor.setRequireFieldValue( SIP_REPLACES_EXTENSION );
+         
          OsSysLog::add(FAC_SIP, PRI_ERR,
                        "%s::lookUp Executor does not support INVITE/Replaces",
                        mLogName.data());
-         return RedirectPlugin::LOOKUP_ERROR_REQUEST;                       
+         return RedirectPlugin::LOOKUP_ERROR;                       
       }
    }
    else

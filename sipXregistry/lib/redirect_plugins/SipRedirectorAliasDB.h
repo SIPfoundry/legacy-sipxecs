@@ -55,7 +55,8 @@ class SipRedirectorAliasDB : public RedirectPlugin
       SipMessage& response,
       RequestSeqNo requestSeqNo,
       int redirectorNo,
-      SipRedirectorPrivateStorage*& privateStorage);
+      SipRedirectorPrivateStorage*& privateStorage,
+      ErrorDescriptor& errorDescriptor);
 
   private:
 

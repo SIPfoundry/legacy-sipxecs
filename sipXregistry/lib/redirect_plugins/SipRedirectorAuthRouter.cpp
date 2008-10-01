@@ -115,7 +115,8 @@ RedirectPlugin::LookUpStatus SipRedirectorAuthRouter::lookUp(
    SipMessage& response,
    RequestSeqNo requestSeqNo,
    int redirectorNo,
-   SipRedirectorPrivateStorage*& privateStorage)
+   SipRedirectorPrivateStorage*& privateStorage,
+   ErrorDescriptor& errorDescriptor)
 {
    RedirectPlugin::LookUpStatus lookupStatus = RedirectPlugin::LOOKUP_SUCCESS; // always, so far
    
