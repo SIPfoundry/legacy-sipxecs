@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='iso-8859-1' standalone='yes'?>
 <sipXecs-process xmlns='http://www.sipfoundry.org/sipX/schema/xml/sipXecs-process-01-00'>
   <name>ConfigServer</name>
-  <version>@VERSION@</version>
+  <version>@version@</version>
   <commands>
     <configtest>
       <execute>@bin.dir@/sipxconfig.sh</execute>
@@ -20,6 +20,6 @@
     <log>@sipxpbx.log.dir@/sipxconfig.log</log>
   </status>
   <resources>
-    <osconfig>@sipxpbx.conf.dir@/domain-config</osconfig>
+    <file>@sipxpbx.conf.dir@/config.defs</file>
   </resources>
 </sipXecs-process>
