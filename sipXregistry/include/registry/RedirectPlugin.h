@@ -268,7 +268,6 @@ class RedirectPlugin : public Plugin
  * Its hash and comparison functions are inherited from UtlContainableAtomic,
  * because these objects are treated as atomic.
  */
-
 class SipRedirectorPrivateStorage : public UtlContainableAtomic
 {
   public:
@@ -285,23 +284,29 @@ class SipRedirectorPrivateStorage : public UtlContainableAtomic
  *  a redirector reporting an error customize the error reporting facilities
  *  to be used by the RedirectServer when constructing a failure SIP response.
  *  More specifically, it allows for the following:
- *  #1 Specify the status code and reason phrase to use in the status line
- *     of the response.
- *     Example:   SIP/2.0 400 Bad request because of missing so and so
- *                        ^^^ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
- *         status code ____|                 |__________ reason phrase
- *     Note: If no status code and reason phrase are provided, 403 Forbidden is used.
+ *
+ *  -# Specify the status code and reason phrase to use in the status line
+ *     of the response. If no status code and reason phrase are provided, 403 Forbidden is used.
+ *     Example:
+ *     @verbatim
+                  SIP/2.0 400 Bad request because of missing so and so
+                          ^^^ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+           status code ____|                 |__________ reason phrase
+       @endverbatim
  * 
- *  #2 Optionally specify the warning code and warning text to use in the Warning header of 
- *     the response.
- *     Example:  Warning: 399 somedomain "Internal data structure corrupted"
- *                        ^^^            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
- *        warning code ____|                           |______ warning text
- *     Note: if no warning code and warning text are provided, no Warning header 
- *           will be included in the response.
- *  #3 Optionally Specify whether or not a copy of the offending request should be included
+ *  -# Optionally specify the warning code and warning text to use in the Warning header of 
+ *     the response.  If no warning code and warning text are provided, no Warning header 
+ *     is included in the response.
+ *     Example:
+ *     @verbatim
+                 Warning: 399 somedomain "Internal data structure corrupted"
+                          ^^^            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+          warning code ____|                           |______ warning text
+       @endverbatim
+ *
+ *  -# Optionally Specify whether or not a copy of the offending request should be included
  *     in the failure response as a sipfrag body.
- *  #4 Optionally Specify the content for the following fields :
+ *  -# Optionally Specify the content for the following fields :
  *      - Accept
  *      - Accept-Encoding
  *      - Accept-Language
@@ -309,16 +314,21 @@ class SipRedirectorPrivateStorage : public UtlContainableAtomic
  *      - Require
  *      - Retry-After
  *      - Unsupported
+ *
+ * @nosubgrouping
  */
 class ErrorDescriptor      
 {
 public:
    ErrorDescriptor();
    ~ErrorDescriptor();
-   
-   /// ///////// ///
-   ///  SETTERS  ///
-   /// ///////// ///
+
+   // ================================================================
+   /** @name Setters
+    *
+    * The setting methods provide ways to specify the various elements of an error response.
+    */
+   ///@{
 
    /**
     *  Used to specify the SIP status code and reason phrase that describe
@@ -390,10 +400,16 @@ public:
    void setRetryAfterFieldValue    ( const UtlString& fieldValue );
    void setUnsupportedFieldValue   ( const UtlString& fieldValue );
    
-   /// ///////// ///
-   ///  GETTERS  ///
-   /// ///////// ///
+   ///@}
    
+
+   // ================================================================
+   /** @name Getters
+    *
+    * The getting methods provide ways to read the various elements of an error response.
+    */
+   ///@{
+
    /**
     *  Used to obtain the status line data information set in the ErrorDescriptor
     *  
@@ -441,23 +457,25 @@ public:
    bool getRetryAfterFieldValue    ( UtlString& fieldValue ) const;
    bool getUnsupportedFieldValue   ( UtlString& fieldValue ) const;
 
+   ///@}
+
 private:
    void setOptionalFieldValue( const UtlString& fieldName, const UtlString& fieldValue );
    bool getOptinalFieldValue ( const UtlString& fieldName,       UtlString& fieldValue ) const;
    
-   int        mStatusCode;   // status code of the error response to send
-   UtlString  mReasonPhrase; // phrase that will appear in response's status line
+   int        mStatusCode;   ///< status code of the error response to send
+   UtlString  mReasonPhrase; ///< phrase that will appear in response's status line
    
-   int        mWarningCode;  // Warning code to use in Warning header
-   UtlString  mWarningText;  // Warning text to use in Warning header
+   int        mWarningCode;  ///< Warning code to use in Warning header
+   UtlString  mWarningText;  ///< Warning text to use in Warning header
    
-   bool       mAppendRequestToResponse; // flag that indicates whether the request
-                                        // that forced the error is to be copied
-                                        // in the response as a SIPFRAG body.
+   bool       mAppendRequestToResponse; /**< flag that indicates whether the request
+                                         *   that forced the error is to be copied
+                                         *   in the response as a SIPFRAG body. */
    
-   UtlHashMap mOptionalFieldsValues; // holds values for optional Retry-After,
-                                     // Require, Unsupported, Allow, Accept
-                                     // Accept-Encoding and Accept-Language fields
+   UtlHashMap mOptionalFieldsValues; /**< holds values for optional Retry-After,
+                                      *   Require, Unsupported, Allow, Accept
+                                      *   Accept-Encoding and Accept-Language fields */
 };
 
 
