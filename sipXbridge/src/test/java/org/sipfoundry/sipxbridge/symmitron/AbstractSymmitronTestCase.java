@@ -6,6 +6,7 @@ import java.io.FileReader;
 import java.net.URL;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Random;
 
 import org.apache.log4j.PropertyConfigurator;
 import org.apache.xmlrpc.client.XmlRpcClient;
@@ -16,15 +17,22 @@ import org.sipfoundry.sipxbridge.symmitron.Symmitron;
 import junit.framework.TestCase;
 
 public abstract class AbstractSymmitronTestCase extends TestCase {
-    protected static  String serverAddress ;
+    protected static String serverAddress ;
     protected static int port ; // Make sure your sever is running there.
     protected XmlRpcClient client;
-    protected static String clientHandle = "nat:12345";
+    protected String clientHandle ;
     
     
+    
+    protected void connectToServer() throws Exception  {
+        clientHandle = "nat:" + new Random().nextLong();
+        XmlRpcClientConfigImpl config = new XmlRpcClientConfigImpl();
+        config.setServerURL(new URL("http://" + serverAddress + ":" + port));
+        client = new XmlRpcClient();
+        client.setConfig(config);
+    }
 
     /*
-     * (non-Javadoc)
      * 
      * @see junit.framework.TestCase#setUp()
      */
@@ -43,10 +51,7 @@ public abstract class AbstractSymmitronTestCase extends TestCase {
         SymmitronServer.startWebServer();
         port = symConfig.getXmlRpcPort();
         serverAddress = symConfig.getExternalAddress();
-        XmlRpcClientConfigImpl config = new XmlRpcClientConfigImpl();
-        config.setServerURL(new URL("http://" + serverAddress + ":" + port));
-        client = new XmlRpcClient();
-        client.setConfig(config);
+        this.connectToServer();
 
     }
     

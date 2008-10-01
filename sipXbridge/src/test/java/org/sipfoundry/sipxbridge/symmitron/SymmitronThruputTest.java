@@ -7,13 +7,16 @@ import java.net.InetAddress;
 import java.util.HashSet;
 
 import junit.framework.TestCase;
+import junit.textui.TestRunner;
 
 public class SymmitronThruputTest extends AbstractSymmitronTestCase {
-    
+
     HashSet<Listener> listeners = new HashSet<Listener>();
     HashSet<Transmitter> transmitters = new HashSet<Transmitter>();
-    private int npacket = 1000;
-    int sleepTime = 160;
+    private static int npacket = 1000;
+    int sleepTime = 20;
+    private static int nbridges = 25;
+    private static String testerAddress;
 
     class Transmitter implements Runnable {
         String ipAddr;
@@ -21,7 +24,7 @@ public class SymmitronThruputTest extends AbstractSymmitronTestCase {
         int count;
         DatagramSocket datagramSocket;
 
-        public Transmitter(DatagramSocket socket , String ipAddr, int port, int count) {
+        public Transmitter(DatagramSocket socket, String ipAddr, int port, int count) {
             this.ipAddr = ipAddr;
             this.port = port;
             this.count = count;
@@ -31,26 +34,27 @@ public class SymmitronThruputTest extends AbstractSymmitronTestCase {
         public void run() {
             try {
                 byte[] data = new byte[32];
-                DatagramPacket datagramPacket = new DatagramPacket(data,
-                        data.length, InetAddress.getByName(ipAddr), port);
-                 for (int i = 0; i < npacket; i++) {
-                   
+                DatagramPacket datagramPacket = new DatagramPacket(data, data.length, InetAddress
+                        .getByName(ipAddr), port);
+                for (int i = 0; i < npacket; i++) {
+
                     Thread.sleep(sleepTime);
                     datagramSocket.send(datagramPacket);
                 }
             } catch (Exception ex) {
-                ex.printStackTrace();
+                System.out.println("Done!");
             }
 
         }
-   
+
     }
-    
+
     class Listener implements Runnable {
         int counter;
         private DatagramSocket datagramSocket;
         private long time = -1;
-        private long  delay = 0;
+        private long delay = 0;
+        private long lastCounter ;
 
         public Listener(DatagramSocket datagramSocket) {
             this.datagramSocket = datagramSocket;
@@ -58,23 +62,22 @@ public class SymmitronThruputTest extends AbstractSymmitronTestCase {
 
         public void run() {
             byte[] data = new byte[32];
-            DatagramPacket datagramPacket = new DatagramPacket(data,
-                    data.length);
+            DatagramPacket datagramPacket = new DatagramPacket(data, data.length);
             while (true) {
                 try {
-                 
+
                     this.datagramSocket.receive(datagramPacket);
-                    if ( time == -1 ) {
+                    if (time == -1) {
                         time = System.currentTimeMillis();
                     } else {
                         long newtime = System.currentTimeMillis();
-                        int delta = ( int) ( newtime - time);
-                        delay += (delta - sleepTime)*(delta - sleepTime);
+                        int delta = (int) (newtime - time);
+                        delay += (delta - sleepTime) * (delta - sleepTime);
                         time = newtime;
-                       
+
                     }
                     counter++;
-                   
+
                 } catch (IOException ex) {
                     return;
                 } catch (Exception ex) {
@@ -85,85 +88,120 @@ public class SymmitronThruputTest extends AbstractSymmitronTestCase {
         }
 
     }
-    
+
     public void setUp() throws Exception {
-        super.setUp();
+        super.setName("testThruput10");
+        super.connectToServer();
         super.start();
         super.signIn();
-        
+
     }
-   
-    
+
     public void testThruput10() throws Exception {
-       int destinationPort1 = 29000;
-       int destinationPort2 = 40000;
+        int destinationPort1 = 30000;
+        int destinationPort2 = 35000;
+
+        for (int i = 0; i < nbridges; i++) {
+            String bridge = super.createBridge();
+            String sym = super.createEvenSym();
+            SymInterface symInterface = super.getSym(sym);
+            SymEndpointInterface symEndpoint = symInterface.getReceiver();
+            int port1 = symEndpoint.getPort();
+            System.out.println("port1 = " + port1);
+            destinationPort1 += i;
+            System.out.println("dest port " + destinationPort1);
+            DatagramSocket datagramSocket1 = new DatagramSocket(destinationPort1, InetAddress
+                    .getByName(testerAddress));
+            Listener listener1 = new Listener(datagramSocket1);
+            this.listeners.add(listener1);
+            super.setRemoteEndpointNoKeepAlive(sym, destinationPort1);
+            super.addSym(bridge, sym);
+
+            sym = super.createEvenSym();
+            symInterface = super.getSym(sym);
+            symEndpoint = symInterface.getReceiver();
+            int port2 = symEndpoint.getPort();
+            System.out.println("port2 = " + port2);
+            destinationPort2 += i;
+            DatagramSocket datagramSocket2 = new DatagramSocket(destinationPort2, InetAddress
+                    .getByName(testerAddress));
+            Listener listener2 = new Listener(datagramSocket2);
+            this.listeners.add(listener2);
+            super.setRemoteEndpointNoKeepAlive(sym, destinationPort2);
+            super.addSym(bridge, sym);
+
+            super.startBridge(bridge);
+
+            Transmitter transmitter1 = new Transmitter(datagramSocket2, testerAddress, port1,
+                    npacket);
+            Transmitter transmitter2 = new Transmitter(datagramSocket1, testerAddress, port2,
+                    npacket);
+            transmitters.add(transmitter1);
+            transmitters.add(transmitter2);
+
+        }
+        for (Listener listener : this.listeners) {
+            new Thread(listener).start();
+            Thread.sleep(100);
+        }
+
        
-       for (int i = 0; i < 50; i++ ) {
-           String bridge = super.createBridge();
-           String sym = super.createEvenSym();
-           SymInterface symInterface = super.getSym(sym);
-           SymEndpointInterface symEndpoint = symInterface.getReceiver();
-           int port1 =  symEndpoint.getPort();
-           System.out.println("port1 = " + port1);
-           destinationPort1 += i;
-           System.out.println("dest port " + destinationPort1);
-           DatagramSocket datagramSocket1 = new DatagramSocket(destinationPort1,
-                   InetAddress.getByName(serverAddress));
-           Listener listener1 = new Listener( datagramSocket1);
-           this.listeners.add(listener1);
-           super.setRemoteEndpointNoKeepAlive(sym, destinationPort1);
-           super.addSym(bridge, sym);
-           
-           
-         
-           sym = super.createEvenSym();
-           symInterface = super.getSym(sym);
-           symEndpoint = symInterface.getReceiver();
-           int port2 =  symEndpoint.getPort();
-           System.out.println("port2 = " + port2);
-           destinationPort2 += i;
-           DatagramSocket datagramSocket2 = new DatagramSocket(destinationPort2,
-                   InetAddress.getByName(serverAddress));
-           Listener listener2 = new Listener( datagramSocket2);
-           this.listeners.add(listener2);
-           super.setRemoteEndpointNoKeepAlive(sym, destinationPort2);
-           super.addSym(bridge, sym);
-           
-           super.startBridge(bridge);
-           
-           Transmitter transmitter1 = new Transmitter(datagramSocket2, serverAddress,port1,1000);
-           Transmitter transmitter2 = new Transmitter(datagramSocket1, serverAddress,port2,1000);
-           transmitters.add(transmitter1);
-           transmitters.add(transmitter2);
-           
-           
-       }
-       for ( Listener listener : this.listeners) {
-           new Thread(listener).start();
-       }
-       for ( Transmitter transmitter : this.transmitters) {
-           new Thread(transmitter).start();
-           Thread.sleep(100);
-       }
-       
-       Thread.sleep(200000);
-       
-      
-       for ( Listener listener : this.listeners) {
-           listener.datagramSocket.close();
-       }
-       for ( Listener listener : this.listeners) {
-           assertTrue ( "Count should be " + npacket ,  listener.counter >= npacket);
-       }
-       double jitter = 0;
-       for ( Listener listener : this.listeners) {
-           
-           long avgDelay = listener.delay / listener.counter;
-           double rmsDelay = Math.sqrt((double) avgDelay);
-           jitter += rmsDelay; 
-       }
-       System.out.println("RMS jitter = " + sleepTime + " " +
-               jitter / listeners.size());
+        for (Transmitter transmitter : this.transmitters) {
+            new Thread(transmitter).start();
+            Thread.sleep(100);
+
+        }
+
+        while(true) {
+            boolean limitReached = true;
+            System.out.println("Check listeners!");
+            for (Listener listener : this.listeners) {
+                System.out.println("Count = " + listener.counter);
+                if ( listener.counter != listener.lastCounter ) {
+                   limitReached = false;
+                   listener.lastCounter = listener.counter;
+                }
+
+            }
+            if ( limitReached) {
+                
+                double jitter = 0;
+                for (Listener listener : this.listeners) {
+
+                    long avgDelay = listener.delay / listener.counter;
+                    double rmsDelay = Math.sqrt((double) avgDelay);
+                    jitter += rmsDelay;
+                }
+                System.out.println("Packet Inter Arrival Time = " + sleepTime + " RMS Jitter " + jitter / listeners.size()); 
+                break;
+            } else {
+               
+                Thread.sleep(5000);
+            }
+        }
+
+        for (Listener listener : this.listeners) {
+            listener.datagramSocket.close();
+        }
+     
+    }
+
+    public static void main(String[] args) throws Exception {
+
+        String nattraversalRulesDir = System.getProperties().getProperty("conf.dir");
+        SymmitronConfigParser parser = new SymmitronConfigParser();
+        String url = "file:" + nattraversalRulesDir + "/nattraversalrules.xml";
+
+        SymmitronConfig symConfig = parser.parse(url);
+
+        port = symConfig.getXmlRpcPort();
+        serverAddress = symConfig.getExternalAddress();
+        testerAddress = System.getProperties().getProperty("tester.address");
+        npacket = Integer.parseInt(System.getProperties().getProperty("tester.npackets"));
+        nbridges = Integer.parseInt(System.getProperties().getProperty("tester.callLoad"));
+        TestRunner testRunner = new TestRunner();
+        testRunner.doRun(new SymmitronThruputTest());
+
     }
 
 }

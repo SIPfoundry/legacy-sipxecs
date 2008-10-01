@@ -18,6 +18,7 @@ import org.sipfoundry.sipxbridge.symmitron.SymInterface;
 import org.sipfoundry.sipxbridge.symmitron.Symmitron;
 
 import junit.framework.TestCase;
+import junit.textui.TestRunner;
 
 public class SymmitronTest extends AbstractSymmitronTestCase {
 
@@ -1068,5 +1069,7 @@ public class SymmitronTest extends AbstractSymmitronTestCase {
      
 
     }
+    
+   
 
 }
