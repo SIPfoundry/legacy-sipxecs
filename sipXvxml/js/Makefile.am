@@ -40,6 +40,7 @@ libjavascript_la_SOURCES= \
     src/jsutil.c    \
     src/jsxdrapi.c  \
     src/prmjtime.c \
+    src/jscpucfg.c \
     src/fdlibm/e_acos.c  \
     src/fdlibm/e_acosh.c  \
     src/fdlibm/e_asin.c  \
