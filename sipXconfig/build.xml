@@ -57,7 +57,7 @@
   <property name="subdirs" value="components"/>
   
   <fileset id="plugin.components" dir="${basedir}">
-    <include name="plugins/*/build.xml"/>
+    <include name="plugins/**/build.xml"/>
   </fileset>
   <property name="plugin.subdirs" value="plugin.components"/>
 
