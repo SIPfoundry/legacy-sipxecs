@@ -11,6 +11,7 @@
 #include <cppunit/TestCase.h>
 #include <string.h>
 #include <stdlib.h>
+#include <limits.h>
 #include <cstdarg>
 #include <time.h>
 #include <os/OsDefs.h>
