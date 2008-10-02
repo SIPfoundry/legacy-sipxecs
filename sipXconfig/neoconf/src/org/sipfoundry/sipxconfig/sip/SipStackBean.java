@@ -33,7 +33,6 @@ import javax.sip.TransportNotSupportedException;
 import javax.sip.address.Address;
 import javax.sip.address.AddressFactory;
 import javax.sip.address.SipURI;
-import javax.sip.address.URI;
 import javax.sip.header.AllowHeader;
 import javax.sip.header.CSeqHeader;
 import javax.sip.header.CallIdHeader;
@@ -277,7 +276,10 @@ public class SipStackBean implements InitializingBean {
         try {
             FromHeader fromHeader = createFromHeader(fromDisplayName, fromUri);
             ToHeader toHeader = createToHeader(addrSpec);
-            URI requestURI = m_addressFactory.createURI(addrSpec);
+            SipURI requestURI = (SipURI) m_addressFactory.createURI(addrSpec);
+            // limit forwarding
+            requestURI.setParameter("sipx-noroute", "Voicemail");
+            requestURI.setParameter("sipx-userforward", "false");
             MaxForwardsHeader maxForwards = m_headerFactory.createMaxForwardsHeader(m_maxForwards);
             ViaHeader viaHeader = createViaHeader();
             ContactHeader contactHeader = createContactHeader();
