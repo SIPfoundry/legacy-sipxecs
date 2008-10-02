@@ -91,6 +91,21 @@ public:
                                    * method. */
     };
 
+    /// The relative priority of a particular response
+    enum ResponsePriority {
+        RESP_PRI_CHALLENGE,     ///< Highest priority may need to be challenged
+        RESP_PRI_CANCEL,        ///< next lower priority
+        RESP_PRI_3XX,           ///< next lower priority
+        RESP_PRI_4XX,           ///< next lower priority
+        RESP_PRI_404,           ///< next lower priority
+        RESP_PRI_5XX,           ///< next lower priority
+        RESP_PRI_6XX,           ///< next lower priority
+        RESP_PRI_LOWEST,        ///< lowest priority
+        RESP_PRI_NOMATCH,       ///< Should only happen if no response exists
+        NUM_PRIORITIES          /**< used for array allocation and limit checks.
+                                   * New values must be added before this one. */
+    };
+
 /* ============================ CREATORS ================================== */
 
     /// Create a new transaction
@@ -298,6 +313,11 @@ protected:
 
     UtlBoolean findBestResponse(SipMessage& bestResponse);
     // Finds the best final response to return the the server transaction
+
+    UtlBoolean findBestChildResponse(SipMessage& bestResponse, int responseFoundCount);
+
+    enum ResponsePriority findRespPriority(int responseCode);
+
 
     enum messageRelationship addResponse(SipMessage*& response,
                                          UtlBoolean isOutGoing,

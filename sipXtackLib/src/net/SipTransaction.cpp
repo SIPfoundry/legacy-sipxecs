@@ -1242,6 +1242,10 @@ void SipTransaction::handleResendEvent(const SipMessage& outgoingMessage,
                                         int& nextTimeout,
                                         SipMessage*& delayedDispatchedMessage)
 {
+#ifdef TEST_PRINT
+   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                 "SipTransaction::handleResendEvent %p", this);
+#endif
     if(delayedDispatchedMessage)
     {
         OsSysLog::add(FAC_SIP, PRI_WARNING, "SipTransaction::handleResendEvent"
@@ -3017,14 +3021,128 @@ UtlBoolean SipTransaction::findBestResponse(SipMessage& bestResponse)
 #   ifdef TEST_PRINT
     OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipTransaction::findBestResponse %p", this);
 #   endif
+    int responseFoundCount = 0;
+    UtlBoolean retVal = FALSE;
+
+    retVal = findBestChildResponse(bestResponse, responseFoundCount);
+
+    return retVal;
+}
+
+enum SipTransaction::ResponsePriority SipTransaction::findRespPriority(int responseCode)
+{
+    enum SipTransaction::ResponsePriority respPri;
+
+    OsSysLog::add(FAC_SIP, PRI_INFO,
+                  "SipTransaction::findRespPriority"
+                  " %p response code %d",
+                  this, responseCode);
+    switch (responseCode)
+    {
+    case HTTP_UNAUTHORIZED_CODE:        // 401       
+    case HTTP_PROXY_UNAUTHORIZED_CODE:  // 407
+        // 401 & 407 are better than any other 4xx, 5xx or 6xx
+        respPri = RESP_PRI_CHALLENGE;
+        break;
+
+    case SIP_REQUEST_TERMINATED_CODE:   // 487
+        // 487 is better than any other 4xx, 5xx, or 6xx if the
+        // transaction has been canceled.
+        respPri = RESP_PRI_CANCEL;
+        break;
+
+    case SIP_3XX_CLASS_CODE:            // 300
+    case SIP_TEMPORARY_MOVE_CODE:       // 302
+    case SIP_PERMANENT_MOVE_CODE:       // 301
+    case SIP_USE_PROXY_CODE:            // 305
+        // 3xx is better than 4xx
+        respPri = RESP_PRI_3XX;
+        break;
+
+    case SIP_BAD_REQUEST_CODE:              // 400
+    case SIP_FORBIDDEN_CODE:                // 403
+    case SIP_DECLINE_CODE:                  // 603 - not a typo
+    case SIP_BAD_METHOD_CODE:               // 405
+    case SIP_REQUEST_TIMEOUT_CODE:          // 408
+    case SIP_CONDITIONAL_REQUEST_FAILED_CODE:    // 412
+    case SIP_BAD_MEDIA_CODE:                // 415
+    case SIP_UNSUPPORTED_URI_SCHEME_CODE:   // 416
+    case SIP_BAD_EXTENSION_CODE:            // 420
+    case SIP_EXTENSION_REQUIRED_CODE:       // 421
+    case SIP_TOO_BRIEF_CODE:                // 423
+    case SIP_TEMPORARILY_UNAVAILABLE_CODE:   // 480
+    case SIP_BAD_TRANSACTION_CODE:          // 481
+    case SIP_LOOP_DETECTED_CODE:            // 482
+    case SIP_TOO_MANY_HOPS_CODE:            // 483
+    case SIP_BAD_ADDRESS_CODE:              // 484
+    case SIP_BUSY_CODE:                     // 486
+    case SIP_REQUEST_NOT_ACCEPTABLE_HERE_CODE:   // 488
+    case SIP_BAD_EVENT_CODE:                // 489
+        respPri = RESP_PRI_4XX;
+        break;
+
+    case SIP_NOT_FOUND_CODE:                // 404
+        respPri = RESP_PRI_404;
+        break;
+
+    case SIP_SERVER_INTERNAL_ERROR_CODE:    // 500
+    case SIP_UNIMPLEMENTED_METHOD_CODE:     // 501
+    case SIP_SERVICE_UNAVAILABLE_CODE:      // 503
+    case SIP_BAD_VERSION_CODE:              // 505
+        respPri = RESP_PRI_5XX;
+        break;
+
+    case SIP_6XX_CLASS_CODE:                // 600
+        respPri = RESP_PRI_6XX;
+        break;
+
+    default:
+        // not a specific code we defined, select by category
+        if (responseCode >= SIP_6XX_CLASS_CODE)    // must be 6xx
+        {
+            respPri = RESP_PRI_6XX;
+        }
+        else if (responseCode >= SIP_5XX_CLASS_CODE)   // must be 5xx
+        {
+            respPri = RESP_PRI_5XX;
+        }
+        else if (responseCode >= SIP_4XX_CLASS_CODE)   // must be 4xx
+        {
+            respPri = RESP_PRI_4XX;
+        }
+        else if (responseCode >= SIP_3XX_CLASS_CODE)   // must be 3xx
+        {
+            respPri = RESP_PRI_3XX;
+        }
+        else    // best response must still be empty
+        {
+            respPri = RESP_PRI_NOMATCH;
+        }
+        break;
+    }
+    OsSysLog::add(FAC_SIP, PRI_INFO,
+                  "SipTransaction::findRespPriority"
+                  " %p response code %d returns %d",
+                  this, responseCode, respPri);
+    return respPri;
+}
+
+UtlBoolean SipTransaction::findBestChildResponse(SipMessage& bestResponse, int responseFoundCount)
+{
+//#   ifdef TEST_PRINT
+    OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipTransaction::findBestChildResponse start %p", this);
+//#   endif
 
     UtlSListIterator iterator(mChildTransactions);
     SipTransaction* childTransaction = NULL;
     UtlBoolean responseFound = FALSE;
     SipMessage* childResponse = NULL;
     int bestResponseCode = -1;
-    int childResponseCode;
+    int childResponseCode = -1;
     UtlBoolean foundChild = FALSE;
+    UtlBoolean useThisResp = FALSE;
+    enum ResponsePriority respPri = RESP_PRI_NOMATCH, bestPri = RESP_PRI_NOMATCH;
+    int pathNum = 0;
 
     UtlSList proxyRealmsSeen;
     while ((childTransaction = (SipTransaction*) iterator()))
@@ -3032,7 +3150,7 @@ UtlBoolean SipTransaction::findBestResponse(SipMessage& bestResponse)
         // Check the child's decendents first
         // Note: we need to check the child's children even if this child
         // has no response.
-        foundChild = childTransaction->findBestResponse(bestResponse);
+        foundChild = childTransaction->findBestChildResponse(bestResponse, responseFoundCount);
         if(foundChild)
         {
            responseFound = TRUE;
@@ -3042,139 +3160,178 @@ UtlBoolean SipTransaction::findBestResponse(SipMessage& bestResponse)
         if(childResponse)
         {
             bestResponseCode = bestResponse.getResponseStatusCode();
-
             childResponseCode = childResponse->getResponseStatusCode();
 
-            if(   (   bestResponseCode == HTTP_UNAUTHORIZED_CODE
-                   || bestResponseCode == HTTP_PROXY_UNAUTHORIZED_CODE)
-               && (   childResponseCode == HTTP_UNAUTHORIZED_CODE
-                   || childResponseCode == HTTP_PROXY_UNAUTHORIZED_CODE))
+            respPri = findRespPriority(childResponseCode);
+            bestPri = findRespPriority(bestResponseCode);
+
+
+            if (bestPri == RESP_PRI_NOMATCH)
             {
-               /*
-                * Some implementations get confused if there is more than one
-                * Proxy challenge for the same realm, so filter out any extra
-                * ones.  Since ours are all generated with the same shared secret,
-                * a challenge from any sipXproxy is acceptable at any sipXproxy;
-                * it is possible that this will cause problems with multiple
-                * proxy authentication requests being forwarded from some
-                * downstream forking proxy that does not have that quality, but
-                * it's better to get something back to the UA that won't break it.
-                * We can't filter and do this only to our own realm, because at this
-                * level in the stack we have no idea what our own realm is :-(
-                */
-               getChallengeRealms(bestResponse, proxyRealmsSeen);
+                // this is the first response we have found
+                useThisResp = TRUE;
+                pathNum = 1;
+            }
+            else
+            {
+                pathNum = 2;
 
-               // Get the proxy authenticate challenges
-               UtlString authField;
-               unsigned  authIndex;
-               for (authIndex = 0;
-                    childResponse->getAuthenticationField(authIndex, HttpMessage::PROXY,
-                                                          authField);
-                    authIndex++
-                    )
-               {
-                  UtlString challengeRealm;
-                  if (HttpMessage::parseAuthenticationData(authField,
-                                                           NULL, // scheme
-                                                           &challengeRealm,
-                                                           NULL, // nonce
-                                                           NULL, // opaque
-                                                           NULL, // algorithm
-                                                           NULL, // qop
-                                                           NULL  // domain
-                                                           )
-                      )
-                  {
-                     if (!proxyRealmsSeen.contains(&challengeRealm))
-                     {
-                        proxyRealmsSeen.insert(new UtlString(challengeRealm));
-                        bestResponse.addAuthenticationField(authField, HttpMessage::PROXY);
-                     }
-                     else
-                     {
-                        OsSysLog::add(FAC_SIP, PRI_INFO,
-                                      "SipTransaction::findBestResponse"
-                                      " removing redundant proxy challenge:\n   %s",
-                                      authField.data());
-                     }
-                  }
-                  else
-                  {
-                     OsSysLog::add(FAC_SIP, PRI_WARNING,
-                                   "SipTransaction::findBestResponse"
-                                   " removing unparsable proxy challenge:\n   %s",
-                                   authField.data());
-                  }
-               }
-
-               // Get the UA server authenticate challenges
-               for (authIndex = 0;
-                    childResponse->getAuthenticationField(authIndex,
-                                                          HttpMessage::SERVER, authField);
-                    authIndex++
-                    )
+                switch (respPri)
                 {
-                    bestResponse.addAuthenticationField(authField, HttpMessage::SERVER);
-                }
-            }
-            // 487 is better than any other 4xx, 5xx, or 6xx if the
-            // transaction has been canceled.
-            // This improves the odds that we send a 487 response to
-            // canceled transactions, which is not required, but tends
-            // to make UAs behave better.
-            else if (   mIsCanceled
-                     && bestResponseCode >= SIP_4XX_CLASS_CODE
-                     && childResponseCode == SIP_REQUEST_TERMINATED_CODE)
-            {
-               bestResponse = *(childResponse);
+                case RESP_PRI_CHALLENGE:
+                    pathNum = 3;
+                    if (bestPri == RESP_PRI_CHALLENGE)
+                    {
+                        pathNum = 4;
+                        /*
+                         * Some implementations get confused if there is more than one
+                         * Proxy challenge for the same realm, so filter out any extra
+                         * ones.  Since ours are all generated with the same shared secret,
+                         * a challenge from any sipXproxy is acceptable at any sipXproxy;
+                         * it is possible that this will cause problems with multiple
+                         * proxy authentication requests being forwarded from some
+                         * downstream forking proxy that does not have that quality, but
+                         * it's better to get something back to the UA that won't break it.
+                         * We can't filter and do this only to our own realm, because at this
+                         * level in the stack we have no idea what our own realm is :-(
+                         */
+                        getChallengeRealms(bestResponse, proxyRealmsSeen);
+    
+                        // Get the proxy authenticate challenges
+                        UtlString authField;
+                        unsigned  authIndex;
+                        for (authIndex = 0;
+                             childResponse->getAuthenticationField(authIndex, HttpMessage::PROXY,
+                                                                   authField);
+                             authIndex++
+                             )
+                        {
+                           UtlString challengeRealm;
+                           if (HttpMessage::parseAuthenticationData(authField,
+                                                                    NULL, // scheme
+                                                                    &challengeRealm,
+                                                                    NULL, // nonce
+                                                                    NULL, // opaque
+                                                                    NULL, // algorithm
+                                                                    NULL, // qop
+                                                                    NULL  // domain
+                                                                    )
+                               )
+                           {
+                              if (!proxyRealmsSeen.contains(&challengeRealm))
+                              {
+                                 proxyRealmsSeen.insert(new UtlString(challengeRealm));
+                                 bestResponse.addAuthenticationField(authField, HttpMessage::PROXY);
+                              }
+                              else
+                              {
+                                 OsSysLog::add(FAC_SIP, PRI_INFO,
+                                               "SipTransaction::findBestChildResponse"
+                                               " removing redundant proxy challenge:\n   %s",
+                                               authField.data());
+                              }
+                           }
+                           else
+                           {
+                              OsSysLog::add(FAC_SIP, PRI_WARNING,
+                                            "SipTransaction::findBestChildResponse"
+                                            " removing unparsable proxy challenge:\n   %s",
+                                            authField.data());
+                           }
+                        }
+    
+                        // Get the UA server authenticate challenges
+                        for (authIndex = 0;
+                             childResponse->getAuthenticationField(authIndex,
+                                                                   HttpMessage::SERVER, authField);
+                             authIndex++
+                             )
+                         {
+                             bestResponse.addAuthenticationField(authField, HttpMessage::SERVER);
+                         }
+                    }   // end child and best both want to challenge
+                    else if (bestPri >= RESP_PRI_4XX)  // bestResp == cancel will top this
+                    {
+                        pathNum = 5;
+                        // 401 & 407 are better than any other 4xx, 5xx or 6xx
+                        useThisResp = TRUE;
+                    }
+                    else
+                    {
+                        pathNum = 6;
+                    }
+                    break;  // end child wants to challenge
+                case RESP_PRI_CANCEL:
+                    // 487 is better than any other 4xx, 5xx, or 6xx if the
+                    // transaction has been canceled.
+                    // This improves the odds that we send a 487 response to
+                    // canceled transactions, which is not required, but tends
+                    // to make UAs behave better.
+                    pathNum = 7;
+                    if ( childTransaction->mIsCanceled
+                         && bestPri >= RESP_PRI_4XX)   // bestResp == 401, 407, 487 will top this
+                    {
+                        // An unforked 3xx response
+                        useThisResp = TRUE;
+                        pathNum = 8;
+                    }
+                    break;  // end 487 cancel
+                case RESP_PRI_3XX:
+                    pathNum = 9;
+                    // 3xx is better than 4xx
+                    if ( bestPri >= RESP_PRI_4XX   // bestResp == 401, 407, 487 will top this
+                         && childTransaction->mChildTransactions.isEmpty())
+                    {
+                        useThisResp = TRUE;
+                        pathNum = 10;
+                    }
+                    break;
+                case RESP_PRI_4XX:
+                    pathNum = 11;
+                    if ( bestPri > RESP_PRI_4XX )
+                    {
+                        pathNum = 12;
+                        useThisResp = TRUE;
+                    }
+                    break;
+                case RESP_PRI_5XX:
+                    pathNum = 13;
+                    if ( bestPri > RESP_PRI_5XX )
+                    {
+                        pathNum = 14;
+                        useThisResp = TRUE;
+                    }
+                    break;
+                case RESP_PRI_6XX:
+                    pathNum = 15;
+                    if ( bestPri > RESP_PRI_6XX )
+                    {
+                        pathNum = 16;
+                        useThisResp = TRUE;
+                    }
+                    break;
+                default:
+                    pathNum = 17;
+                    useThisResp = TRUE;
+                    break;
+                }   // end respPri switch
+            }   // end bestresp is valid
 
-               bestResponse.removeTopVia();
-               bestResponse.resetTransport();
-               bestResponse.clearDNSField();
-               responseFound = TRUE;
-            }
-            // 401 & 407 are better than any other 4xx, 5xx or 6xx
-            else if (   bestResponseCode >= SIP_4XX_CLASS_CODE
-                     && (   bestResponseCode != HTTP_UNAUTHORIZED_CODE
-                         && bestResponseCode != HTTP_PROXY_UNAUTHORIZED_CODE)
-                     && (   childResponseCode == HTTP_UNAUTHORIZED_CODE
-                         || childResponseCode == HTTP_PROXY_UNAUTHORIZED_CODE))
-            {
-                bestResponse = *(childResponse);
+            OsSysLog::add(FAC_SIP, PRI_INFO,
+                          "SipTransaction::findBestChildResponse"
+                          " %p child %p status/pri %d/%d (bestResp %d/%d) usethis=%d pathNum %d",
+                          this, childTransaction, childResponseCode, respPri, bestResponseCode, bestPri, useThisResp, pathNum);
 
-                bestResponse.removeTopVia();
-                bestResponse.resetTransport();
-                bestResponse.clearDNSField();
-                responseFound = TRUE;
-            }
-            // 3xx is better than 4xx
-            else if(   bestResponseCode  >= SIP_4XX_CLASS_CODE
-                    && childResponseCode <= SIP_4XX_CLASS_CODE
-                    && childTransaction->mChildTransactions.isEmpty())
+            if (useThisResp)
             {
-                // An untried 3xx response
-                bestResponse = *(childResponse);
-
-                bestResponse.removeTopVia();
-                bestResponse.resetTransport();
-                bestResponse.clearDNSField();
-                responseFound = TRUE;
-            }
-            // have not found a response that is not recursed yet
-            // Ignore any 487s as these are responses to forking.
-            // CANCELs from the client are responded to on the
-            // server transaction upon receipt.
-            else if(   !responseFound
-                    && childResponse
-                    && childTransaction->mChildTransactions.isEmpty()
-                    && childResponseCode != SIP_REQUEST_TERMINATED_CODE)
-            {
+                pathNum = 18;
                 bestResponse = *(childResponse);
 
                 // Not supposed to return 503 unless we know that
                 // there is absolutely no way to reach the end point
                 if(childResponseCode == SIP_SERVICE_UNAVAILABLE_CODE)
                 {
+                    pathNum = 19;
                     bestResponse.setResponseFirstHeaderLine(SIP_PROTOCOL_VERSION,
                         SIP_SERVER_INTERNAL_ERROR_CODE,
                         SIP_SERVER_INTERNAL_ERROR_TEXT);
@@ -3183,9 +3340,6 @@ UtlBoolean SipTransaction::findBestResponse(SipMessage& bestResponse)
                 bestResponse.removeTopVia();
                 bestResponse.resetTransport();
                 bestResponse.clearDNSField();
-
-                // For now we do not support forking, just return
-                // the first and should be the only final response
                 responseFound = TRUE;
             }
         }
@@ -3204,7 +3358,7 @@ UtlBoolean SipTransaction::findBestResponse(SipMessage& bestResponse)
         }
         else
         {
-            OsSysLog::add(FAC_SIP, PRI_ERR, "SipTransaction::findBestResponse no request");
+            OsSysLog::add(FAC_SIP, PRI_ERR, "SipTransaction::findBestChildResponse no request");
         }
     }
 
@@ -3223,12 +3377,17 @@ UtlBoolean SipTransaction::findBestResponse(SipMessage& bestResponse)
 
                 // We got a bad response
                 OsSysLog::add(FAC_SIP, PRI_ERR,
-                              "SipTransaction::findBestResponse invalid response:\n%s",
+                              "SipTransaction::findBestChildResponse invalid response:\n%s",
                               msgString.data());
             }
         }
     }
-
+#ifdef DUMP_TRANSACTIONS
+    OsSysLog::add(FAC_SIP, PRI_INFO,
+                  "SipTransaction::findBestChildResponse"
+                  " end %p child %p status/pri %d/%d (bestResp %d/%d) usethis=%d pathNum %d",
+                  this, childTransaction, childResponseCode, respPri, bestResponseCode, bestPri, useThisResp, pathNum);
+#endif
     return(responseFound);
 }
 
