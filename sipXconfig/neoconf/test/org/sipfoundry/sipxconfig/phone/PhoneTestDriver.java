@@ -28,6 +28,7 @@ import org.sipfoundry.sipxconfig.phonebook.PhonebookManager;
 import org.sipfoundry.sipxconfig.service.ServiceDescriptor;
 import org.sipfoundry.sipxconfig.service.ServiceManager;
 import org.sipfoundry.sipxconfig.service.SipxRegistrarService;
+import org.sipfoundry.sipxconfig.service.SipxService;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.sipfoundry.sipxconfig.service.UnmanagedService;
 import org.sipfoundry.sipxconfig.setting.ModelFilesContextImpl;
@@ -117,7 +118,7 @@ public class PhoneTestDriver {
         defaults.setSipxServer(SipxServerTest.setUpSipxServer());
         defaults.setLogDirectory("/var/log/sipxpbx");
 
-        SipxRegistrarService registrarService = new SipxRegistrarService();
+        SipxService registrarService = new SipxRegistrarService();
         registrarService.setModelName("sipxregistrar.xml");
         registrarService.setModelDir("sipxregistrar");
         registrarService.setModelFilesContext(TestHelper.getModelFilesContext());

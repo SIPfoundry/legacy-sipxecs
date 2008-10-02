@@ -26,6 +26,7 @@ import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.domain.Domain;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.service.SipxRegistrarService;
+import org.sipfoundry.sipxconfig.service.SipxService;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.sipfoundry.sipxconfig.site.dialplan.ActivateDialPlan;
 
@@ -92,7 +93,7 @@ public abstract class ManageDomain extends PageWithCallback implements PageBegin
         getDomainManager().saveDomain(d);
         
         //force domain name replication in registrar-config
-        SipxRegistrarService registrarService = (SipxRegistrarService) getSipxServiceManager().getServiceByBeanId(
+        SipxService registrarService = (SipxService) getSipxServiceManager().getServiceByBeanId(
                 SipxRegistrarService.BEAN_ID);        
         registrarService.setDomainName(d.getName());
         getSipxServiceManager().replicateServiceConfig(registrarService);

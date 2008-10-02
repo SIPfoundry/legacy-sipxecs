@@ -74,7 +74,11 @@
     <property name="beanId" value="sipxProxyService" />
     <property name="modelName" value="sipxproxy.xml" />
     <property name="modelDir" value="sipxproxy" />
-    <property name="configuration" ref="sipxProxyConfiguration" />
+    <property name="configurations">
+      <list>
+        <ref bean="sipxProxyConfiguration"/>
+      </list>
+    </property>
   </bean>
 
   <bean id="sipxProxyConfiguration" class="org.sipfoundry.sipxconfig.service.SipxProxyConfiguration" scope="prototype"
@@ -90,7 +94,11 @@
     <property name="beanId" value="sipxRegistrarService" />
     <property name="modelName" value="sipxregistrar.xml" />
     <property name="modelDir" value="sipxregistrar" />
-    <property name="configuration" ref="sipxRegistrarConfiguration" />
+    <property name="configurations">
+      <list>
+        <ref bean="sipxRegistrarConfiguration"/>
+      </list>
+    </property>
     <property name="sipxServiceManager" ref="sipxServiceManager" />
     <property name="domainManager" ref="domainManager" />
   </bean>
@@ -107,7 +115,11 @@
     <property name="beanId" value="sipxParkService" />
     <property name="modelName" value="sipxpark.xml" />
     <property name="modelDir" value="sipxpark" />
-    <property name="configuration" ref="sipxParkConfiguration" />
+    <property name="configurations">
+      <list>
+        <ref bean="sipxParkConfiguration"/>
+      </list>
+    </property>
   </bean>
 
   <bean id="sipxParkConfiguration" class="org.sipfoundry.sipxconfig.service.SipxParkConfiguration" scope="prototype"
@@ -122,7 +134,11 @@
     <property name="beanId" value="sipxPresenceService" />
     <property name="modelName" value="sipxpresence.xml" />
     <property name="modelDir" value="sipxpresence" />
-    <property name="configuration" ref="sipxPresenceConfiguration" />
+    <property name="configurations">
+      <list>
+        <ref bean="sipxPresenceConfiguration"/>
+      </list>
+    </property>
     <property name="sipxServiceManager" ref="sipxServiceManager" />
     <property name="coreContext" ref="coreContext" />
   </bean>
@@ -139,7 +155,11 @@
     <property name="beanId" value="sipxCallResolverService" />
     <property name="modelName" value="sipxcallresolver.xml" />
     <property name="modelDir" value="sipxcallresolver" />
-    <property name="configuration" ref="sipxCallResolverConfiguration" />
+    <property name="configurations">
+      <list>
+        <ref bean="sipxCallResolverConfiguration"/>
+      </list>
+    </property>
   </bean>
 
   <bean id="sipxCallResolverConfiguration" class="org.sipfoundry.sipxconfig.service.SipxCallResolverConfiguration"
@@ -154,7 +174,11 @@
     <property name="beanId" value="sipxIvrService" />
     <property name="modelName" value="sipxivr.xml" />
     <property name="modelDir" value="sipxivr" />
-    <property name="configuration" ref="sipxIvrConfiguration" />
+    <property name="configurations">
+      <list>
+        <ref bean="sipxIvrConfiguration"/>
+      </list>
+    </property>
     <property name="mailstoreDir" value="${sysdir.mailstore}" />
     <property name="scriptsDir" value="${sysdir.vxml.scripts}" />
     <property name="vxmlDir" value="${sysdir.vxml}" />
@@ -173,7 +197,12 @@
     <property name="beanId" value="sipxStatusService"/>
     <property name="modelName" value="sipxstatus.xml" />
     <property name="modelDir" value="sipxstatus" />
-    <property name="configuration" ref="sipxStatusConfiguration" />
+    <property name="configurations">
+      <list>
+        <ref bean="sipxStatusConfiguration"/>
+        <ref bean="statusPluginConfiguration"/>
+      </list>
+    </property>
   </bean>
   
   <bean id="sipxStatusConfiguration" class="org.sipfoundry.sipxconfig.service.SipxStatusConfiguration" 
@@ -183,12 +212,23 @@
     <property name="name" value="status-config"/>
   </bean>
   
+  <bean id="statusPluginConfiguration" class="org.sipfoundry.sipxconfig.service.StatusPluginConfiguration"
+    scope="prototype" parent="defaultConfigurationFile">
+    <property name="velocityEngine" ref="velocityEngine" />
+    <property name="template" value="sipxstatus/status-plugin.vm" />
+    <property name="name" value="status-plugin.xml"/>
+  </bean>
+
   <bean id="sipxRlsService" class="org.sipfoundry.sipxconfig.service.SipxRlsService"
     scope="prototype" parent="sipxService">
     <property name="beanId" value="sipxRlsService"/>
     <property name="modelName" value="sipxrls.xml" />
     <property name="modelDir" value="sipxrls" />
-    <property name="configuration" ref="sipxRlsConfiguration" />
+    <property name="configurations">
+      <list>
+        <ref bean="sipxRlsConfiguration"/>
+      </list>
+    </property>
   </bean>
   
   <bean id="sipxRlsConfiguration" class="org.sipfoundry.sipxconfig.service.SipxRlsConfiguration"
@@ -203,7 +243,11 @@
     <property name="beanId" value="sipxMediaService"/>
     <property name="modelName" value="mediaserver.xml" />
     <property name="modelDir" value="sipxvxml" />
-    <property name="configuration" ref="sipxMediaConfiguration" />
+    <property name="configurations">
+      <list>
+        <ref bean="sipxMediaConfiguration"/>
+      </list>
+    </property>
   </bean>
   
   <bean id="sipxMediaConfiguration" class="org.sipfoundry.sipxconfig.service.SipxMediaConfiguration"

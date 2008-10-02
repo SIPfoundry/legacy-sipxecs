@@ -9,6 +9,9 @@
  */
 package org.sipfoundry.sipxconfig.service;
 
+import java.util.Collections;
+import java.util.List;
+
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessModel.ProcessName;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettings;
 import org.sipfoundry.sipxconfig.setting.Setting;
@@ -18,7 +21,7 @@ public abstract class SipxService extends BeanWithSettings {
     private String m_beanId;
     private String m_modelName;
     private String m_modelDir;
-    private SipxServiceConfiguration m_configuration;
+    private List<SipxServiceConfiguration> m_configurations;
     private String m_ipAddress;
     private String m_sipPort;
     private String m_hostname;
@@ -27,6 +30,7 @@ public abstract class SipxService extends BeanWithSettings {
     private String m_realm;
     private String m_logDir;
     private String m_confDir;
+    private String m_voicemailHttpsPort;
 
     public abstract ProcessName getProcessName();
     
@@ -54,12 +58,16 @@ public abstract class SipxService extends BeanWithSettings {
         m_modelDir = modelDir;
     }
 
-    public void setConfiguration(SipxServiceConfiguration configuration) {
-        m_configuration = configuration;
+    public void setConfigurations(List<SipxServiceConfiguration> configurations) {
+        m_configurations = configurations;
     }
 
-    public SipxServiceConfiguration getConfiguration() {
-        return m_configuration;
+    public List<SipxServiceConfiguration> getConfigurations() {
+        if (m_configurations == null) {
+            return Collections.EMPTY_LIST;
+        }
+
+        return m_configurations;
     }
 
     public String getIpAddress() {
@@ -108,6 +116,14 @@ public abstract class SipxService extends BeanWithSettings {
 
     public void setRealm(String realm) {
         m_realm = realm;
+    }
+
+    public String getVoicemailHttpsPort() {
+        return m_voicemailHttpsPort;
+    }
+
+    public void setVoicemailHttpsPort(String httpsPort) {
+        m_voicemailHttpsPort = httpsPort;
     }
 
     public void setLogDir(String logDir) {

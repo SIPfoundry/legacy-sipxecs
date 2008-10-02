@@ -1,7 +1,7 @@
 /*
  * 
  * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ * Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  * 
@@ -10,6 +10,7 @@
 package org.sipfoundry.sipxconfig.service;
 
 import java.util.Collection;
+import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -61,14 +62,16 @@ public class SipxServiceManagerImpl extends SipxHibernateDaoSupport<SipxService>
     }
 
     public void replicateServiceConfig(SipxService service) {
-        SipxServiceConfiguration configuration = service.getConfiguration();
-        if (configuration == null) {
+        List<SipxServiceConfiguration> configurations = service.getConfigurations();
+        if (configurations.size() < 1) {
             LOG.warn("Unable to replicate service: " + service.getBeanId()
-                    + ". No configuration object defined.");
+                    + ". No configuration objects defined.");
             return;
         }
-        configuration.generate(service);
-        m_replicationContext.replicate(configuration);
+        for (SipxServiceConfiguration configuration : configurations) {
+            configuration.generate(service);
+            m_replicationContext.replicate(configuration);
+        }
     }
 
     public void setSipxReplicationContext(SipxReplicationContext replicationContext) {

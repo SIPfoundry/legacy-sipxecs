@@ -9,12 +9,6 @@
  */
 package org.sipfoundry.sipxconfig.service;
 
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.io.StringReader;
-import java.io.StringWriter;
-
-import org.apache.commons.io.IOUtils;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
@@ -35,17 +29,7 @@ public class SipxStatusConfigurationTest extends SipxServiceTestBase {
         out.setVelocityEngine(TestHelper.getVelocityEngine());
         out.setTemplate("sipxstatus/status-config.vm");
         out.generate(statusService);
-
-        StringWriter actualConfigWriter = new StringWriter();
-        out.write(actualConfigWriter);
         
-        Reader referenceConfigReader = new InputStreamReader(SipxStatusConfigurationTest.class
-                .getResourceAsStream("expected-status-config"));
-        String referenceConfig = IOUtils.toString(referenceConfigReader);
-        
-        Reader actualConfigReader = new StringReader(actualConfigWriter.toString());
-        String actualConfig = IOUtils.toString(actualConfigReader);
-
-        assertEquals(referenceConfig, actualConfig);
+        assertCorrectFileGeneration(out, "expected-status-config");
     }
 }

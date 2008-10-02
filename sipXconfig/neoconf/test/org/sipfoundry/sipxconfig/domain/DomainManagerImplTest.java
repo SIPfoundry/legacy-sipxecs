@@ -18,6 +18,7 @@ import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxServer;
 import org.sipfoundry.sipxconfig.service.SipxRegistrarService;
+import org.sipfoundry.sipxconfig.service.SipxService;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 
@@ -42,7 +43,7 @@ public class DomainManagerImplTest extends TestCase {
         expectLastCall().andReturn(Collections.EMPTY_LIST);
         db.saveOrUpdate(domain);
         db.flush();
-        SipxRegistrarService registrarService = new SipxRegistrarService();
+        SipxService registrarService = new SipxRegistrarService();
         registrarService.setSettings(TestHelper.loadSettings("sipxregistrar/sipxregistrar.xml"));
 
         final SipxServiceManager serviceManager = EasyMock.createMock(SipxServiceManager.class);

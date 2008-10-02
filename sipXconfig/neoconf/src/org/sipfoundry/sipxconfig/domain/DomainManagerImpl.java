@@ -20,6 +20,7 @@ import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.admin.localization.Localization;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.service.SipxRegistrarService;
+import org.sipfoundry.sipxconfig.service.SipxService;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.springframework.dao.support.DataAccessUtils;
 
@@ -80,7 +81,7 @@ public abstract class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> 
         SipxServer sipxServer = getServer();
         sipxServer.setDomainName(domain.getName());
 
-        SipxRegistrarService registrarService = (SipxRegistrarService) getSipxServiceManager().getServiceByBeanId(
+        SipxService registrarService = (SipxService) getSipxServiceManager().getServiceByBeanId(
                 SipxRegistrarService.BEAN_ID);
         sipxServer.applySettings();
         registrarService.setDomainName(domain.getName());        

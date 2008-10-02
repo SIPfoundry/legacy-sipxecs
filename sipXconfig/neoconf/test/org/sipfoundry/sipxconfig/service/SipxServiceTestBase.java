@@ -29,6 +29,7 @@ public class SipxServiceTestBase extends TestCase {
         service.setSipPort("5060");
         service.setLogDir("/var/log/sipxpbx");
         service.setConfDir("/etc/sipxpbx");
+        service.setVoicemailHttpsPort("443");
         service.setModelFilesContext(TestHelper.getModelFilesContext());
     }
 

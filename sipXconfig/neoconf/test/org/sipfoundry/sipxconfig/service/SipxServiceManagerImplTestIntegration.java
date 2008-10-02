@@ -9,8 +9,10 @@
  */
 package org.sipfoundry.sipxconfig.service;
 
+import java.util.Arrays;
 import java.util.Collection;
 
+import org.easymock.classextension.EasyMock;
 import org.hibernate.SessionFactory;
 import org.sipfoundry.sipxconfig.IntegrationTestCase;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
@@ -48,25 +50,34 @@ public class SipxServiceManagerImplTestIntegration extends IntegrationTestCase {
     }
 
     public void testStoreService() {
-        SipxService service = m_out.getServiceByBeanId(SipxProxyService.BEAN_ID);
+        SipxService service = m_out.getServiceByBeanId(SipxStatusService.BEAN_ID);
         service.setModelDir("sipxproxy");
         service.setModelName("sipxproxy.xml");
         service.setModelFilesContext(m_modelFilesContext);
-        SipxProxyConfiguration sipxProxyConfiguration = new SipxProxyConfiguration() {
+        SipxStatusConfiguration sipxStatusConfiguration = new SipxStatusConfiguration() {
             @Override
             public void generate(SipxService s) {
                 // do nothing
             }
         };
-        sipxProxyConfiguration.setName("sipXproxy-config");
-        service.setConfiguration(sipxProxyConfiguration);
+        sipxStatusConfiguration.setName("status-config");
+        StatusPluginConfiguration statusPluginConfiguration = new StatusPluginConfiguration() {
+            @Override
+            public void generate(SipxService s) {
+                // do nothing
+            }
+        };
+        statusPluginConfiguration.setName("status-pluing.xml");
+
+        service.setConfigurations(Arrays.asList(new SipxServiceConfiguration[] {sipxStatusConfiguration, statusPluginConfiguration}));
 
         SipxReplicationContext replicationContext = createMock(SipxReplicationContext.class);
         m_out.setSipxReplicationContext(replicationContext);
-        replicationContext.replicate(same(sipxProxyConfiguration));
+        replicationContext.replicate(same(sipxStatusConfiguration));
+        EasyMock.expectLastCall();
+        replicationContext.replicate(same(statusPluginConfiguration));
+        EasyMock.expectLastCall();
         replay(replicationContext);
-
-        service.setSettingValue("proxy-configuration/SIPX_PROXY_DEFAULT_SERIAL_EXPIRES", "99");
 
         m_out.storeService(service);
         verify(replicationContext);

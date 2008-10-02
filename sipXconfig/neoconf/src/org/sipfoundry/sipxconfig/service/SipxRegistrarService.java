@@ -32,7 +32,6 @@ public class SipxRegistrarService extends SipxService {
     private String m_registrarEventSipPort;
     private String m_mediaServerSipSrvOrHostport;
     private String m_orbitServerSipSrvOrHostport;
-    private String m_voicemailHttpsPort;
     private String m_proxyServerSipHostport;
     private SipxServiceManager m_sipxServiceManager;
     private DomainManager m_domainManager;
@@ -67,14 +66,6 @@ public class SipxRegistrarService extends SipxService {
 
     public void setOrbitServerSipSrvOrHostport(String serverSipSrvOrHostport) {
         m_orbitServerSipSrvOrHostport = serverSipSrvOrHostport;
-    }
-
-    public String getVoicemailHttpsPort() {
-        return m_voicemailHttpsPort;
-    }
-
-    public void setVoicemailHttpsPort(String httpsPort) {
-        m_voicemailHttpsPort = httpsPort;
     }
 
     public String getProxyServerSipHostport() {

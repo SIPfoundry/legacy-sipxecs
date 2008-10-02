@@ -9,18 +9,11 @@
  */
 package org.sipfoundry.sipxconfig.service;
 
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.io.StringReader;
-import java.io.StringWriter;
-
-import org.apache.commons.io.IOUtils;
 import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.domain.Domain;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
-import org.sipfoundry.sipxconfig.setting.Setting;
 
 public class SipxRegistrarConfigurationTest extends SipxServiceTestBase {
 
@@ -72,26 +65,15 @@ public class SipxRegistrarConfigurationTest extends SipxServiceTestBase {
         registrarService.setMediaServerSipSrvOrHostport("media.example.org");
         registrarService.setOrbitServerSipSrvOrHostport("orbit.example.org");
         registrarService.setProxyServerSipHostport("proxy.example.org");
-        registrarService.setVoicemailHttpsPort("443");
         registrarService.setRegistrarSipPort("5070");
         registrarService.setRegistrarEventSipPort("5075");
 
         out.generate(registrarService);
 
-        StringWriter actualConfigWriter = new StringWriter();
-        out.write(actualConfigWriter);
-
-        Reader referenceConfigReader = new InputStreamReader(SipxProxyConfigurationTest.class
-                .getResourceAsStream("expected-registrar-config"));
-        String referenceConfig = IOUtils.toString(referenceConfigReader);
-
-        Reader actualConfigReader = new StringReader(actualConfigWriter.toString());
-        String actualConfig = IOUtils.toString(actualConfigReader);
-
-        assertEquals(referenceConfig, actualConfig);
+        assertCorrectFileGeneration(out, "expected-registrar-config");
     }
 
-    private void setSettingValuesForGroup(SipxRegistrarService registrarService, String group,
+    private void setSettingValuesForGroup(SipxService registrarService, String group,
             String[] settingNames, String[] values) {
         for (int i = 0; i < settingNames.length; i++) {
             registrarService.getSettings().getSetting(group).getSetting(settingNames[i])
