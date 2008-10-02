@@ -56,13 +56,14 @@ public class FreeswitchApiResultParserImpl implements FreeswitchApiResultParser 
      * Verifies that a conference action was completed successfully and that the target conference
      * exists.
      *
-     * @throws NoSuchConferenceException if the member does not exist
+     * @throws NoSuchConferenceException if the conference does not exist
      */
     public boolean verifyConferenceAction(String resultString, Conference conference) {
         if (StringUtils.isBlank(resultString)) {
             throw new NoSuchConferenceException(conference);
         }
         if (CONFERENCE_NOT_FOUND_PATTERN.matcher(resultString).matches()) {
+            new NoSuchConferenceException(conference).printStackTrace();
             throw new NoSuchConferenceException(conference);
         }
         return true;
@@ -117,14 +118,15 @@ public class FreeswitchApiResultParserImpl implements FreeswitchApiResultParser 
         return activeConferences;
     }
 
-    public List<ActiveConferenceMember> getConferenceMembers(String resultString) {
+    public List<ActiveConferenceMember> getConferenceMembers(String resultString, Conference conference) {
         List<ActiveConferenceMember> members = new ArrayList<ActiveConferenceMember>();
 
+        String conferenceName = conference.getName();
         Scanner scanner = new Scanner(resultString);
         while (scanner.hasNextLine()) {
             String line = scanner.nextLine();
             try {
-                ActiveConferenceMember member = parseConferenceMember(line);
+                ActiveConferenceMember member = parseConferenceMember(line, conferenceName);
                 members.add(member);
             } catch (NoSuchElementException e) {
                 LOG.error("Skipping conference line:" + line);
@@ -134,7 +136,7 @@ public class FreeswitchApiResultParserImpl implements FreeswitchApiResultParser 
         return members;
     }
 
-    private ActiveConferenceMember parseConferenceMember(String line) {
+    private ActiveConferenceMember parseConferenceMember(String line, String conferenceName) {
         ActiveConferenceMember member = new ActiveConferenceMember();
 
         Scanner scan = new Scanner(line);
@@ -147,6 +149,10 @@ public class FreeswitchApiResultParserImpl implements FreeswitchApiResultParser 
         member.setUuid(scan.next());
 
         String callerIdName = scan.next();
+        if (callerIdName.equals(conferenceName)) {
+            callerIdName = "";
+        }
+        
         scan.next(); // skip caller ID number
 
         String permissions = scan.next();

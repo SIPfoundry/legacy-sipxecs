@@ -272,11 +272,11 @@ div.autocomplete ul strong.highlight {
   color: #800;
 }
 
-#searchBox.inactive {
+.inactive {
     color: #AAA;
 }
 
-#searchBox.active {
+.active {
     color: #000;
 }
 

@@ -48,7 +48,7 @@ class NotifyMessage extends JainSipMessage {
     @Override
     public ClientTransaction createAndSend() {
         try {
-            Request request = createRequest(Request.NOTIFY, CONFIG_SERVER.getUserName(), null, m_addrSpec);
+            Request request = createRequest(Request.NOTIFY, CONFIG_SERVER.getUserName(), null, null, m_addrSpec);
             getHelper().addEventHeader(request, m_eventType);
             getHelper().addHeader(request, SubscriptionStateHeader.NAME, SubscriptionStateHeader.ACTIVE);
             ClientTransaction clientTx = getSipProvider().getNewClientTransaction(request);

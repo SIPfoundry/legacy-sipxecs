@@ -19,6 +19,8 @@
   <bean id="activeConferenceContextImpl" class="org.sipfoundry.sipxconfig.conference.ActiveConferenceContextImpl">
     <property name="freeswitchApiProvider" ref="freeswitchApiProvider" />
     <property name="conferenceBridgeContext" ref="conferenceBridgeContext" />
+    <property name="domainManager" ref="domainManager" />
+    <property name="sipService" ref="sip" />
   </bean>
 
   <bean id="activeConferenceContext" class="org.springframework.aop.framework.ProxyFactoryBean">
@@ -31,6 +33,7 @@
     <property name="sessionFactory" ref="sessionFactory" />
     <property name="aliasManager" ref="aliasManager" />
     <property name="coreContext" ref="coreContext" />
+    <property name="domainManager" ref="domainManager" />
     <property name="provisioning">
       <ref local="conferenceBridgeProvisioning" />
     </property>

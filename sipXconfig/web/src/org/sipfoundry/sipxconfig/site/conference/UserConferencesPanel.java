@@ -50,14 +50,19 @@ public abstract class UserConferencesPanel extends BaseComponent {
     public abstract void setCurrentRow(Conference currentRow);
  
     public IPage selectConference(Integer conferenceId) {
-        EditConference editConferencePage = getEditConferencePage();
-        editConferencePage.setConferenceId(conferenceId);
-        editConferencePage.setReturnPage(getPage());
-        return editConferencePage;
+        return activateEditConferencePage(conferenceId, EditConference.TAB_CONFIG);
     }
     
     public IPage selectActiveConference(Integer conferenceId) {
-        return selectConference(conferenceId);
+        return activateEditConferencePage(conferenceId, EditConference.TAB_PARTICIPANTS);
+    }
+    
+    private IPage activateEditConferencePage(Integer conferenceId, String tab) {
+        EditConference editConferencePage = getEditConferencePage();
+        editConferencePage.setTab(tab);
+        editConferencePage.setConferenceId(conferenceId);
+        editConferencePage.setReturnPage(getPage());
+        return editConferencePage;
     }
     
 }

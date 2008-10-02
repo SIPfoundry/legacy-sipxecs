@@ -33,6 +33,8 @@ public class InviteMessage extends JainSipMessage {
 
     private final String m_toAddrSpec;
 
+    private final String m_fromDisplayName;
+    
     private final String m_fromAddrSpec;
 
     private final Operator m_operator;
@@ -46,18 +48,24 @@ public class InviteMessage extends JainSipMessage {
      */
     public InviteMessage(SipStackBean helper, UserCredentials userCredentials, String fromAddressSpec,
             String toAddressSpec, Operator operator) {
-        super(helper);
-        m_toAddrSpec = toAddressSpec;
-        m_fromAddrSpec = fromAddressSpec;
-        m_operator = operator;
-        m_userCredentials = userCredentials;
+        this(helper, userCredentials, null, fromAddressSpec, toAddressSpec, operator);
     }
 
+    public InviteMessage(SipStackBean helper, UserCredentials userCredentials, String fromDisplayName, 
+            String fromAddressSpec, String toAddressSpec, Operator operator) {
+        super(helper);
+        m_toAddrSpec = toAddressSpec;
+        m_fromDisplayName = fromDisplayName;
+        m_fromAddrSpec = fromAddressSpec;
+        m_operator = operator;
+        m_userCredentials = userCredentials;        
+    }
+    
     @Override
     public ClientTransaction createAndSend() {
         try {
-            Request request = createRequest(Request.INVITE, m_userCredentials.getUserName(), m_fromAddrSpec,
-                    m_toAddrSpec);
+            Request request = createRequest(Request.INVITE, m_userCredentials.getUserName(), m_fromDisplayName, 
+                    m_fromAddrSpec, m_toAddrSpec);
             AllowHeader allowHeader = getHelper().createAllowHeader(METHODS);
             request.addHeader(allowHeader);
             String sdpBody = getHelper().formatWithIpAddress(SDP_BODY_FORMAT);

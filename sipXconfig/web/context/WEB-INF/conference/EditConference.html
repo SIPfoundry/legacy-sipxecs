@@ -13,7 +13,9 @@
 	        <span jwcid="@Else"><span jwcid="@Insert" value="ognl:conference.name" /></span>
 	    </div>  
     </span>
-    <span jwcid="@common/ErrorMsg"/>
+    <span jwcid="@Any" id="messageArea">
+        <span jwcid="@common/ErrorMsg" />
+    </span>
     <span jwcid="@RenderBlock" block="ognl:components.get(tab + 'Tab')" />
   </div>
   <div jwcid="configTab@Block">
@@ -52,6 +54,6 @@
     </form>
   </div>
   <div jwcid="participantsTab@Block">     
-     <div jwcid="@conference/ActiveConferenceControl" conference="ognl:conference" />     
+     <div jwcid="@conference/ActiveConferenceControl" conference="ognl:conference" validator="bean:validator" />     
   </div>
 </div>

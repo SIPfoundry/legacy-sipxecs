@@ -35,12 +35,16 @@ public class SipServiceImpl extends SipStackBean implements SipService {
     }
 
 
-    public void sendRefer(User user, String sourceAddrSpec, String destinationAddrSpec) {
+    public void sendRefer(User user, String sourceAddrSpec, String displayName, String destinationAddrSpec) {
         UserCredentials credentials = new UserCredentialsImpl(user, m_domainManager.getAuthorizationRealm());
         LOG.debug("sendRefer: source = " + sourceAddrSpec + " dest = " + destinationAddrSpec);
-        AbstractMessage message = new InviteMessage(this, credentials, destinationAddrSpec, sourceAddrSpec,
-                Operator.SEND_3PCC_REFER_CALL_SETUP);
-        message.createAndSend();
+        AbstractMessage message = new InviteMessage(this, credentials, displayName, destinationAddrSpec, 
+                sourceAddrSpec, Operator.SEND_3PCC_REFER_CALL_SETUP);
+        message.createAndSend();        
+    }
+    
+    public void sendRefer(User user, String sourceAddrSpec, String destinationAddrSpec) {
+        sendRefer(user, sourceAddrSpec, null, destinationAddrSpec);
     }
 
     @Required

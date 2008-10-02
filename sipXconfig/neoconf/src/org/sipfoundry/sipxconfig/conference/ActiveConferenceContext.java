@@ -11,6 +11,8 @@ package org.sipfoundry.sipxconfig.conference;
 
 import java.util.List;
 
+import org.sipfoundry.sipxconfig.common.User;
+
 public interface ActiveConferenceContext {
 
     /**
@@ -38,4 +40,6 @@ public interface ActiveConferenceContext {
     public boolean undeafUser(Conference conference, ActiveConferenceMember member);
 
     public boolean kickUser(Conference conference, ActiveConferenceMember member);
+    
+    public void inviteParticipant(User user, Conference conference, String addressSpec);
 }

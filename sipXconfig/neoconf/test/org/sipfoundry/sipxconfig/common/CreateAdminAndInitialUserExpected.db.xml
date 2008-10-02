@@ -6,7 +6,7 @@
 		first_name="[null]"
 		last_name="[null]"
 		pintoken=""
-		sip_password="[null]"
+		sip_password="[sip_password]"
     user_name="superadmin"
     value_storage_id="[null]"
 		/>

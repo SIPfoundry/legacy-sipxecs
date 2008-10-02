@@ -49,6 +49,8 @@ public interface ConferenceBridgeContext extends AliasOwner, AliasProvider {
 
     List<Conference> findConferencesByOwner(User owner);
     
+    String getAddressSpec(Conference conference);
+    
     void clear();
 
     public List<Conference> filterConferences(final Integer bridgeId, final Integer  ownerGroupId);

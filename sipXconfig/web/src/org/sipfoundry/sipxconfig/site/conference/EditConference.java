@@ -39,7 +39,10 @@ import org.sipfoundry.sipxconfig.site.vm.ManageVoicemail;
 
 public abstract class EditConference extends PageWithCallback implements PageBeginRenderListener {
     public static final String PAGE = "conference/EditConference";
-
+    
+    public static final String TAB_CONFIG = "config";
+    public static final String TAB_PARTICIPANTS = "participants";
+    
     private static final Log LOG = LogFactory.getLog(EditConference.class);
     
     public abstract ConferenceBridgeContext getConferenceBridgeContext();
@@ -130,12 +133,10 @@ public abstract class EditConference extends PageWithCallback implements PageBeg
     }
     
     public List<String> getTabNames() {
-        String[] tabs = new String[] {
-            "config"
-        };
+        String[] tabs = new String[] {TAB_CONFIG};
         Conference conference = getConference();
         if (!conference.isNew() && conference.isEnabled()) {
-            tabs = (String[]) ArrayUtils.add(tabs, "participants");
+            tabs = (String[]) ArrayUtils.add(tabs, TAB_PARTICIPANTS);
         }
         return Arrays.asList(tabs);
     }

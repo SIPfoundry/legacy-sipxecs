@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
@@ -35,8 +36,9 @@ import org.springframework.orm.hibernate3.HibernateCallback;
 
 public abstract class CoreContextImpl extends SipxHibernateDaoSupport implements CoreContext,
         DaoEventListener {
-
+    
     public static final String CONTEXT_BEAN_NAME = "coreContextImpl";
+    private static final int SIP_PASSWORD_LEN = 8;
     private static final String USERNAME_PROP_NAME = "userName";
     private static final String VALUE = "value";
     /** nothing special about this name */
@@ -382,7 +384,10 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport implements
         if (admin == null) {
             admin = new User();
             admin.setUserName(User.SUPERADMIN);
-
+            
+            // currently superadmin cannot invite to a conference without a valid sip password
+            admin.setSipPassword(RandomStringUtils.randomAlphanumeric(SIP_PASSWORD_LEN));
+            
             if (StringUtils.isEmpty(pin)) {
                 admin.setPintoken("");
             } else {

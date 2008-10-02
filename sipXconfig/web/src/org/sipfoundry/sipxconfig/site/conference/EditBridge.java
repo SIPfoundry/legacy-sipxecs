@@ -30,8 +30,6 @@ import org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext;
 public abstract class EditBridge extends PageWithCallback implements PageBeginRenderListener {
     public static final String PAGE = "conference/EditBridge";
     
-    private static final String TAB_CONFIG = "config";
-    
     public abstract Serializable getBridgeId();   
     
     @Persist
@@ -98,7 +96,7 @@ public abstract class EditBridge extends PageWithCallback implements PageBeginRe
 
     public List<String> getTabNames() {
         List<String> tabNames = new ArrayList<String>();
-        tabNames.add(TAB_CONFIG);
+        tabNames.add(EditConference.TAB_CONFIG);
         if (!getBridge().isNew()) {
             tabNames.add("conferences");
         }
@@ -107,11 +105,11 @@ public abstract class EditBridge extends PageWithCallback implements PageBeginRe
     }
     
     public IPage editConference(Integer id) {
-        return activateEditConferencePage(id, TAB_CONFIG);
+        return activateEditConferencePage(id, EditConference.TAB_CONFIG);
     }
 
     public IPage activeConferences(Integer id) {
-        return activateEditConferencePage(id, "participants");
+        return activateEditConferencePage(id, EditConference.TAB_PARTICIPANTS);
     }
 
     private IPage activateEditConferencePage(Integer id, String tab) {

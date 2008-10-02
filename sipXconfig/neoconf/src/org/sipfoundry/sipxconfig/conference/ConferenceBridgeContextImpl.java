@@ -27,9 +27,11 @@ import org.sipfoundry.sipxconfig.admin.NameInUseException;
 import org.sipfoundry.sipxconfig.alias.AliasManager;
 import org.sipfoundry.sipxconfig.common.BeanId;
 import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.common.SipxCollectionUtils;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.orm.hibernate3.HibernateCallback;
@@ -47,7 +49,8 @@ public class ConferenceBridgeContextImpl extends HibernateDaoSupport implements 
     private BeanFactory m_beanFactory;
     private ConferenceBridgeProvisioning m_provisioning;
     private CoreContext m_coreContext;
-
+    private DomainManager m_domainManager;
+    
     public List getBridges() {
         return getHibernateTemplate().loadAll(Bridge.class);
     }
@@ -160,6 +163,10 @@ public class ConferenceBridgeContextImpl extends HibernateDaoSupport implements 
         m_coreContext = coreContext;
     }
 
+    public void setDomainManager(DomainManager domainManager) {
+        m_domainManager = domainManager;
+    }
+    
     public boolean isAliasInUse(String alias) {
         List confIds = getHibernateTemplate().findByNamedQueryAndNamedParam(
                 CONFERENCE_IDS_WITH_ALIAS, VALUE, alias);
@@ -241,5 +248,10 @@ public class ConferenceBridgeContextImpl extends HibernateDaoSupport implements 
             }
         };
         return getHibernateTemplate().executeFind(callback);
+    }
+    
+    public String getAddressSpec(Conference conference) {
+        String domain = m_domainManager.getDomain().getName();
+        return SipUri.fix(conference.getExtension(), domain);
     }
 }

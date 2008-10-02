@@ -20,14 +20,17 @@ import org.junit.Test;
 public class FreeswitchApiResultParserTest {
 
     private FreeswitchApiResultParser m_parser;
-
+    private Conference m_conference;
+    
     public static junit.framework.Test suite() {
         return new JUnit4TestAdapter(FreeswitchApiResultParserTest.class);
     }
 
     @Before
-    public void createParser() {
+    public void setup() {
         m_parser = new FreeswitchApiResultParserImpl();
+        m_conference = new Conference();
+        m_conference.setName("myconference");
     }
 
     @Test
@@ -93,7 +96,7 @@ public class FreeswitchApiResultParserTest {
         String resultString = "2;sofia/eng.bluesocket.com/201@192.168.100.233;f69d2b1f-4841-40a4-8e0f-847d1aeef2f0;201;201;hear|speak;10;20;300\n"
                 + "1;sofia/eng.bluesocket.com/200@192.168.100.233;a5b6cdbe-7cbf-48a7-a52d-98b871eb2491;Joe Attardi;200;speak|floor;0;0;300\n";
 
-        List<ActiveConferenceMember> members = m_parser.getConferenceMembers(resultString);
+        List<ActiveConferenceMember> members = m_parser.getConferenceMembers(resultString, m_conference);
         Assert.assertEquals(2, members.size());
         Assert.assertEquals("201 (201@192.168.100.233)", members.get(0).getName());
         Assert.assertTrue(members.get(0).getCanHear());
@@ -114,7 +117,7 @@ public class FreeswitchApiResultParserTest {
         String resultString = "nan;sofia/eng.bluesocket.com/201@192.168.100.233\n"
                 + "1;sofia/eng.bluesocket.com/200@192.168.100.233;a5b6cdbe-7cbf-48a7-a52d-98b871eb2491;Joe Attardi;200;speak|floor;0;0;300\n";
 
-        List<ActiveConferenceMember> members = m_parser.getConferenceMembers(resultString);
+        List<ActiveConferenceMember> members = m_parser.getConferenceMembers(resultString, m_conference);
         Assert.assertEquals(1, members.size());
 
         Assert.assertEquals("Joe Attardi (200@192.168.100.233)", members.get(0).getName());

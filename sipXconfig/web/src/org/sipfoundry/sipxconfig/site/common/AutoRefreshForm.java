@@ -9,6 +9,10 @@
  */
 package org.sipfoundry.sipxconfig.site.common;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
 import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IAsset;
 import org.apache.tapestry.annotations.Asset;
@@ -31,6 +35,9 @@ public abstract class AutoRefreshForm extends BaseComponent implements PageBegin
     @Parameter
     public abstract Block getActionBlock();
 
+    @Parameter(defaultValue = "ognl:{}")
+    public abstract List<String> getUpdateComponents();
+    
     @Persist
     @InitialValue(value = "true")
     public abstract boolean isAuto();
@@ -58,5 +65,13 @@ public abstract class AutoRefreshForm extends BaseComponent implements PageBegin
         if (0 == getCurrentInterval()) {
             setCurrentInterval(getInterval());
         }
+    }
+    
+    public Collection<String> getComponentsToUpdate() {
+        List<String> componentsToUpdate = new ArrayList<String>();
+        componentsToUpdate.add("refreshedContent");
+        componentsToUpdate.addAll(getUpdateComponents());
+        
+        return componentsToUpdate;
     }
 }

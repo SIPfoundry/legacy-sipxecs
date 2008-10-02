@@ -32,6 +32,8 @@
 	<!--<param name="auth-all-packets" value="true"/>-->
         <param name="accept-blind-auth" value="true"/>
 
+	<param name="accept-blind-auth" value="true"/> 
+
 	<!-- optional ; -->
 	<!-- <param name="ext-rtp-ip" value="stun:stun.server.com"/>-->
 	<!-- <param name="ext-rtp-ip" value="100.101.102.103"/> -->

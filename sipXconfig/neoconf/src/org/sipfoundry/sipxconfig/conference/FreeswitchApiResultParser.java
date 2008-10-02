@@ -40,5 +40,5 @@ public interface FreeswitchApiResultParser {
      */
     public List<ActiveConference> getActiveConferences(String resultString);
 
-    public List<ActiveConferenceMember> getConferenceMembers(String resultString);
+    public List<ActiveConferenceMember> getConferenceMembers(String resultString, Conference conference);
 }

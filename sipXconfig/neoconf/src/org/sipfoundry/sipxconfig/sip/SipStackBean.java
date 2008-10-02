@@ -235,9 +235,8 @@ public class SipStackBean implements InitializingBean {
         return m_addressFactory.createSipURI(userName, m_hostName);
     }
 
-    private FromHeader createFromHeader(SipURI fromAddress) throws ParseException {
-        Address fromNameAddress = m_addressFactory.createAddress(fromAddress);
-
+    private FromHeader createFromHeader(String fromDisplayName, SipURI fromAddress) throws ParseException {
+        Address fromNameAddress = m_addressFactory.createAddress(fromDisplayName, fromAddress);
         return m_headerFactory.createFromHeader(fromNameAddress, Integer.toString(Math.abs(new Random().nextInt())));
     }
 
@@ -266,7 +265,8 @@ public class SipStackBean implements InitializingBean {
         return m_headerFactory.createViaHeader(host, port, transport, null);
     }
 
-    final Request createRequest(String requestType, String userName, String fromAddrSpec, String addrSpec)
+    final Request createRequest(String requestType, String userName, String fromDisplayName,
+            String fromAddrSpec, String addrSpec)
         throws ParseException {
         SipURI fromUri;
         if (fromAddrSpec == null) {
@@ -275,7 +275,7 @@ public class SipStackBean implements InitializingBean {
             fromUri = (SipURI) m_addressFactory.createURI(fromAddrSpec);
         }
         try {
-            FromHeader fromHeader = createFromHeader(fromUri);
+            FromHeader fromHeader = createFromHeader(fromDisplayName, fromUri);
             ToHeader toHeader = createToHeader(addrSpec);
             URI requestURI = m_addressFactory.createURI(addrSpec);
             MaxForwardsHeader maxForwards = m_headerFactory.createMaxForwardsHeader(m_maxForwards);

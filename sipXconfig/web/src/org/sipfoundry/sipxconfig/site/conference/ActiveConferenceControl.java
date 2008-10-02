@@ -23,10 +23,13 @@ import org.apache.tapestry.IAsset;
 import org.apache.tapestry.annotations.Asset;
 import org.apache.tapestry.annotations.Bean;
 import org.apache.tapestry.annotations.InjectObject;
+import org.apache.tapestry.annotations.InjectState;
 import org.apache.tapestry.annotations.Parameter;
 import org.apache.tapestry.components.IPrimaryKeyConverter;
 import org.apache.tapestry.valid.IValidationDelegate;
+import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.DataObjectSource;
+import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.components.ObjectSourceDataSqueezer;
 import org.sipfoundry.sipxconfig.components.SelectMap;
@@ -36,9 +39,13 @@ import org.sipfoundry.sipxconfig.conference.ActiveConferenceContext;
 import org.sipfoundry.sipxconfig.conference.ActiveConferenceMember;
 import org.sipfoundry.sipxconfig.conference.Conference;
 import org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext;
+import org.sipfoundry.sipxconfig.sip.SipService;
+import org.sipfoundry.sipxconfig.site.UserSession;
 
 public abstract class ActiveConferenceControl extends BaseComponent {
     private static final Log LOG = LogFactory.getLog(ActiveConferenceControl.class);
+    
+    private static final String TEXT_NUMBER = "text.number";
     
     @Bean
     public abstract SelectMap getSelections();
@@ -49,15 +56,50 @@ public abstract class ActiveConferenceControl extends BaseComponent {
     @InjectObject(value = "spring:conferenceBridgeContext")
     public abstract ConferenceBridgeContext getConferenceBridgeContext();
 
+    @InjectObject(value = "spring:sip")
+    public abstract SipService getSipService();
+
+    @InjectObject(value = "spring:coreContext")
+    public abstract CoreContext getCoreContext();
+
+    @InjectState(value = "userSession")
+    public abstract UserSession getUserSession();    
+    
     @Parameter
     public abstract Conference getConference();
 
+    @Parameter
+    public abstract SipxValidationDelegate getValidator();
+    
     public abstract List<ActiveConferenceMember> getMembersCached();
 
     public abstract void setMembersCached(List<ActiveConferenceMember> members);
 
     public abstract ActiveConferenceMember getCurrentMember();
 
+    public abstract String getInviteNumber();
+    public abstract void setInviteNumber(String inviteNumber);
+    
+    public String getInviteFieldValue() {
+        String placeholder = getMessages().getMessage(TEXT_NUMBER);
+        String rawValue = getInviteNumber();
+        
+        if (rawValue == null || rawValue.isEmpty()) {
+            return placeholder;
+        } else {
+            return rawValue;
+        }
+    }
+    
+    public void setInviteFieldValue(String inviteFieldValue) {
+        String placeholder = getMessages().getMessage(TEXT_NUMBER);
+        if (inviteFieldValue == null || inviteFieldValue.equals(placeholder)) {
+            setInviteNumber(null);
+        } else {
+            setInviteNumber(inviteFieldValue);
+        }
+    }
+    
     @Asset("/images/user.png")
     public abstract IAsset getUserIcon();
 
@@ -73,6 +115,9 @@ public abstract class ActiveConferenceControl extends BaseComponent {
     @Asset("/images/no-talk.png")
     public abstract IAsset getMuteIcon();
 
+    @Asset(value = "context:/WEB-INF/conference/ActiveConferenceControl.script")
+    public abstract IAsset getScript();    
+    
     void recordFailure(UserException ue) {
         IValidationDelegate validator = TapestryUtils.getValidator(this);
         if (validator instanceof SipxValidationDelegate) {
@@ -155,6 +200,17 @@ public abstract class ActiveConferenceControl extends BaseComponent {
         setMembersCached(null);
     }
 
+    public void inviteParticipant() {
+        if (TapestryUtils.isValid(this)) {
+            String inviteNumber = getInviteNumber();
+            User user = getUserSession().getUser(getCoreContext());
+            getActiveConferenceContext().inviteParticipant(user, getConference(), inviteNumber);
+            getValidator().recordSuccess(inviteNumber + " has been invited to this conference.");
+            
+            setInviteNumber(null);
+        }
+    }
+    
     public void deafUsers() {
         Closure deaf = new Action("msg.success.deaf") {
             public void execute(Conference conference, ActiveConferenceMember member) {
