@@ -20,6 +20,7 @@ $(RPM_SOURCES_DIR)/% : %
 .PHONY: build-rpms
 build-rpms: $(SRC) $(srcdir)/cgicc.spec
 	cp $(SRC) @RPMBUILD_TOPDIR@/SOURCES
+	cp $(srcdir)/*patch @RPMBUILD_TOPDIR@/SOURCES
 	rpmbuild -ba --target @RPM_TARGET_ARCH@-none-linux $(srcdir)/cgicc.spec
 
 $(SRPM): build-rpms
