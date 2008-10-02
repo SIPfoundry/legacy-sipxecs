@@ -149,7 +149,8 @@ public class ActiveConferenceContextImpl implements ActiveConferenceContext {
         String domain = m_domainManager.getDomain().getName();
         String sourceAddressSpec = SipUri.fix(inviteNumber, domain);
         
-        m_sipService.sendRefer(user, sourceAddressSpec, conference.getName(), m_conferenceBridgeContext.getAddressSpec(conference)); 
+        m_sipService.sendRefer(user, sourceAddressSpec, conference.getName(), 
+                m_conferenceBridgeContext.getAddressSpec(conference)); 
     }
 
     private boolean conferenceAction(Conference conference, String... commands) {
