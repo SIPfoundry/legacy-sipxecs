@@ -34,5 +34,5 @@ PRINT_HEADER :
 PRINT_FOOTER :
 	@printf "\n================================================================================\n"
 	@printf "Finished Building Package %s at %s\n" "$(PACKAGE)" "$(shell date)"
-	@printf "\tBinary RPMS can be found under %s\n" "$(DEST_DIR)"
+	@printf "\tBinary RPMS can be found under %s\n" "@RPMBUILD_TOPDIR@"
 	@printf "================================================================================\n"

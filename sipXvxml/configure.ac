@@ -59,9 +59,6 @@ CHECK_GIPSNEQ
 dnl Double the LIBS to deal with recursive dependencies
 LIBS="$LIBS $LIBS"
 
-# Generate jsautocfg.h
-GENERATE_JSAUTOCFG
-
 ## Common flags for pingtel related source
 
 AC_CONFIG_FILES([Makefile])

@@ -48,7 +48,7 @@ $(AC_TARGETS) :
 	$(MAKE) $@.bld
 
 # required on all platforms
-CUSTOM_PACKAGES = cgicc ruby-dbi jain-sip conference dnsjava nsis $(JAVA_PKG)
+CUSTOM_PACKAGES = cgicc ruby-dbi jain-sip conference dnsjava nsis
 
 .PHONY: fc8 fc7
 fc8 fc7 : $(CUSTOM_PACKAGES) cppunit xerces-c rubygems ruby-postgres rrdtool

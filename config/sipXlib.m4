@@ -669,12 +669,3 @@ AC_DEFUN([CHECK_SERVICEDIR],
     [SERVICEDIR=${withval}],[SERVICEDIR='$(sysconfdir)/init.d'])
   AC_SUBST([SERVICEDIR])
 ])
-
-AC_DEFUN([GENERATE_JSAUTOCFG],
-[
-   SRC_FILE=$srcdir/js/src/jscpucfg.c
-   DEST_FILE=$srcdir/include/jsautocfg.h
-   cc -o jscpucfg $SRC_FILE; ./jscpucfg > $DEST_FILE; rm jscpucfg
-   AC_CHECK_FILE([$DEST_FILE],[],[AC_MSG_ERROR([Failed to generate $DEST_FILE])])
-])
-
