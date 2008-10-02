@@ -8,6 +8,7 @@ URL: http://www.cgicc.org/
 Source0: %{name}-%{version}.tar.gz
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 BuildRequires: gcc-c++
+Patch0: cgicc.m4.patch
 
 %package devel
 Requires: %name
@@ -31,6 +32,7 @@ Header files and documentation for the CGICC C++ class library.
 
 %prep
 %setup -q
+%patch0 -p1
 
 %build
 %configure --enable-demos=no
