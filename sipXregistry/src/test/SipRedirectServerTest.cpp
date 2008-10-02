@@ -100,7 +100,7 @@ public:
       
       // check sipfrag body
       const HttpBody* pBody;
-      int len;
+      ssize_t len;
       CPPUNIT_ASSERT( ( pTxt = response.getHeaderValue( 0, SIP_CONTENT_TYPE_FIELD ) ) != 0 );
       ASSERT_STR_EQUAL( "message/sipfrag", pTxt );
       CPPUNIT_ASSERT( ( pBody = response.getBody() ) != 0 );
@@ -211,7 +211,7 @@ public:
       
       // check sipfrag body
       const HttpBody* pBody;
-      int len;
+      ssize_t len;
       CPPUNIT_ASSERT( ( pTxt = response.getHeaderValue( 0, SIP_CONTENT_TYPE_FIELD ) ) != 0 );
       ASSERT_STR_EQUAL( "message/sipfrag", pTxt );
       CPPUNIT_ASSERT( ( pBody = response.getBody() ) != 0 );
