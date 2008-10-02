@@ -84,7 +84,7 @@ public abstract class ActiveConferenceControl extends BaseComponent {
         String placeholder = getMessages().getMessage(TEXT_NUMBER);
         String rawValue = getInviteNumber();
         
-        if (rawValue == null || rawValue.isEmpty()) {
+        if (rawValue == null || rawValue.equals("")) {
             return placeholder;
         } else {
             return rawValue;
