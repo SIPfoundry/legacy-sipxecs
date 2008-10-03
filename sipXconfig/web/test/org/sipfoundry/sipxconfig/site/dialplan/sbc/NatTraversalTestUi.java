@@ -16,57 +16,53 @@ public class NatTraversalTestUi extends WebTestCase {
         SiteTestHelper.home(getTester());
         clickLink("initNatTraversal");
         clickLink("InternetCalling");
-        clickLink("link:internetCalling");
-        SiteTestHelper.selectOption(tester, "common_FlexiblePropertySelection", "bridge");
-        clickButton("form:apply");
         SiteTestHelper.assertNoUserError(tester);
-        clickButton("cancel");
         clickLink("link:natTraversal");
     }
 
     public void testMaxConcurentRelaysError() {
         SiteTestHelper.assertNoException(tester);
-        assertButtonPresent("form:apply");
+        assertButtonPresent("natTraversal:apply");
         setTextField("setting:concurrentrelays", "-1");
-        clickButton("form:apply");
+        clickButton("natTraversal:apply");
         SiteTestHelper.assertUserError(tester);
     }
 
     public void testRtpRangeErrors() {
         SiteTestHelper.assertNoException(tester);
-        assertButtonPresent("form:apply");
+        assertButtonPresent("natTraversal:apply");
         assertLinkPresent("setting:toggle");
         SiteTestHelper.clickSubmitLink(tester, "setting:toggle");
         SiteTestHelper.assertNoException(tester);
         //negative values
         setTextField("setting:port-range-start", "-1");
-        clickButton("form:apply");
+        clickButton("natTraversal:apply");
         SiteTestHelper.assertUserError(tester);
         //start higher than end
         setTextField("setting:port-range-start", "20000");
         setTextField("setting:port-range-end", "19000");
-        clickButton("form:apply");
+        clickButton("natTraversal:apply");
         SiteTestHelper.assertUserError(tester);
     }
 
     public void testPublicPortErrors() {
         SiteTestHelper.assertNoException(tester);
-        assertButtonPresent("form:apply");
+        assertButtonPresent("natTraversal:apply");
         assertLinkPresent("setting:toggle");
         SiteTestHelper.clickSubmitLink(tester, "setting:toggle");
         //lower that 1024 value
         setTextField("setting:publicport", "-12");
-        clickButton("form:apply");
+        clickButton("natTraversal:apply");
         SiteTestHelper.assertUserError(tester);
         //higher that 65536 value
         setTextField("setting:publicport", "700000");
-        clickButton("form:apply");
+        clickButton("natTraversal:apply");
         SiteTestHelper.assertUserError(tester);
     }
 
     public void testApplySettings() {
         SiteTestHelper.assertNoException(tester);
-        assertButtonPresent("form:apply");
+        assertButtonPresent("natTraversal:apply");
         assertLinkPresent("setting:toggle");
         SiteTestHelper.clickSubmitLink(tester, "setting:toggle");
         checkCheckbox("enabled");
@@ -75,7 +71,7 @@ public class NatTraversalTestUi extends WebTestCase {
         //relay setting:
         setTextField("setting:mediarelayexternaladdress","11.12.13.15");
         setTextField("setting:publicport","2544");
-        clickButton("form:apply");
+        clickButton("natTraversal:apply");
         SiteTestHelper.assertNoUserError(tester);
         clickButton("cancel");
         tester.assertTextFieldEquals("setting:concurrentrelays", "20");

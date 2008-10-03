@@ -38,7 +38,7 @@ public class InternetCallingTestUi extends WebTestCase {
 
     public void testDisplayEdit() throws Exception {
         SiteTestHelper.assertNoException(tester);
-        assertButtonPresent("form:apply");
+        assertButtonPresent("internetCalling:apply");
         assertLinkNotPresent("sbc:add");
         assertElementNotPresent("sbc:list");
 
@@ -47,7 +47,7 @@ public class InternetCallingTestUi extends WebTestCase {
 
         assertLinkPresent("sbc:add");
         assertElementPresent("sbc:list");
-        clickButton("form:apply");
+        clickButton("internetCalling:apply");
 
         // it's going to fails since SBC address is needed
         SiteTestHelper.assertUserError(tester);

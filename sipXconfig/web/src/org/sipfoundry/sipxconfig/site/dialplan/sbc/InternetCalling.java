@@ -13,7 +13,6 @@ import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.annotations.Bean;
 import org.apache.tapestry.annotations.InitialValue;
-import org.apache.tapestry.annotations.InjectComponent;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.event.PageBeginRenderListener;
@@ -32,9 +31,6 @@ public abstract class InternetCalling extends BasePage implements PageBeginRende
 
     @InjectObject(value = "spring:sbcManager")
     public abstract SbcManager getSbcManager();
-
-    @InjectComponent(value = "natTraversalComponent")
-    public abstract NatTraversalPanel getNatTraversalPanel();
 
     public abstract Sbc getSbc();
 
@@ -66,13 +62,12 @@ public abstract class InternetCalling extends BasePage implements PageBeginRende
         }
     }
 
-    public IPage activate(IRequestCycle cycle) {
+    public IPage activateInternetCalling(IRequestCycle cycle) {
         if (!TapestryUtils.isValid(this)) {
             return null;
         }
 
         saveValid();
-        getNatTraversalPanel().saveValid();
 
         ActivateDialPlan dialPlans = (ActivateDialPlan) cycle.getPage(ActivateDialPlan.PAGE);
         dialPlans.setReturnPage(this);

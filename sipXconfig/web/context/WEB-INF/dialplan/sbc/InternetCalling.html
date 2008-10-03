@@ -1,15 +1,11 @@
 <div jwcid="@common/Border">
-
-  <form jwcid="@Form" delegate="bean:validator">
     <span jwcid="@common/TabNavigation" tabNames="ognl:{'internetCalling', 'natTraversal'}" selectedTab="ognl:tab"/>
     <div id="settings-content">
       <span jwcid="@common/ErrorMsg"/>
       <span jwcid="@RenderBlock" block="ognl:components.get(tab + 'Tab')" />
     </div>
-    <span jwcid="@common/FormActions" listener="listener:activate"/>
-  </form>
-
   <span jwcid="internetCallingTab@Block">
+    <form jwcid="internetCalling@Form" delegate="bean:validator">
     <h2><span key="title">Internet Calling</span></h2>
     <div jwcid="@common/QuickHelp" value="message:help.sbc"/>
     <ul class="component-links">
@@ -49,9 +45,19 @@
     <fieldset jwcid="@If" condition="ognl:advanced">
       <div jwcid="@dialplan/sbc/ListSbcs" validator="bean:validator"/>
     </fieldset>
-  </span>
-  <span jwcid="natTraversalTab@Block">
-    <span jwcid="natTraversalComponent@dialplan/sbc/NatTraversalPanel"/>
+    <ul class="component-submit">
+      <li>
+	    <input jwcid="activate@Submit" id="internetCalling:apply"
+		       value="message:button.activate"
+               listener="listener:activateInternetCalling" />
+      </li>
+    </ul>
+  </form>
   </span>
 
+  <span jwcid="natTraversalTab@Block">
+    <form jwcid="natTraversal@Form" delegate="bean:validator">
+      <span jwcid="natTraversalComponent@dialplan/sbc/NatTraversalPanel"/>
+    </form>
+  </span>
 </div>
