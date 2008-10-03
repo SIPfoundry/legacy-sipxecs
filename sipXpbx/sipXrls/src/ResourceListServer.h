@@ -75,6 +75,8 @@ class ResourceListServer : public UtlContainableAtomic
                       int refreshInterval,
                       /// The resubscribe interval.
                       int resubscribeInterval,
+                      /// The minimum value for resubcribe interval
+                      int minResubscribeInterval,
                       /// Publishing delay, in msec.
                       int publishingDelay,
                       /// The maximum number of reg subscriptions per resource.
@@ -217,6 +219,8 @@ class ResourceListServer : public UtlContainableAtomic
    int mRefreshInterval;
    //! Resubscription interval for subscriptions, in seconds.
    int mResubscribeInterval;
+   //! Minimum resubscription interval for subscriptions, in seconds.
+   int mMinResubscribeInterval;
    //! Interval to delay after a content change before publishing, in msec.
    OsTime mPublishingDelay;
    //! The maximum number of reg subscriptions allwed for a resource.
@@ -395,7 +399,7 @@ inline int ResourceListServer::getRefreshInterval() const
 // Get the resubscribe interval.
 inline int ResourceListServer::getResubscribeInterval() const
 {
-   return mResubscribeInterval;
+   return ( ( rand() % (mResubscribeInterval - mMinResubscribeInterval) ) + mMinResubscribeInterval);
 }
 
 // Get the publishing delay.

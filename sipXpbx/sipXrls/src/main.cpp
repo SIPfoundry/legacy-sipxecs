@@ -53,6 +53,7 @@
 #define CONFIG_SETTING_STARTUP_WAIT   "SIP_RLS_STARTUP_WAIT"
 #define CONFIG_SETTING_REFRESH_INTERVAL "SIP_RLS_REFRESH_INTERVAL"
 #define CONFIG_SETTING_RESUBSCRIBE_INTERVAL "SIP_RLS_RESUBSCRIBE_INTERVAL"
+#define CONFIG_SETTING_MIN_RESUBSCRIBE_INTERVAL "SIP_RLS_MIN_RESUBSCRIBE_INTERVAL"
 
 #define LOG_FACILITY                  FAC_RLS
 
@@ -62,6 +63,7 @@
 #define RLS_DEFAULT_STARTUP_WAIT      (2 * 60)   // Default wait upon startup (in sec.)
 #define RLS_DEFAULT_REFRESH_INTERVAL  (24 * 60 * 60) // Default subscription refresh interval.
 #define RLS_DEFAULT_RESUBSCRIBE_INTERVAL (60 * 60) // Default subscription resubscribe interval.
+#define RLS_DEFAULT_MIN_RESUBSCRIBE_INTERVAL (40 * 60) // Default minimum subscription resubscribe interval.
 
 // MACROS
 // EXTERNAL FUNCTIONS
@@ -372,6 +374,12 @@ int main(int argc, char* argv[])
    {
       resubscribeInterval = RLS_DEFAULT_RESUBSCRIBE_INTERVAL;
    }
+   
+   int minResubscribeInterval;
+   if (configDb.get(CONFIG_SETTING_MIN_RESUBSCRIBE_INTERVAL, minResubscribeInterval) != OS_SUCCESS)
+   {
+       minResubscribeInterval = RLS_DEFAULT_MIN_RESUBSCRIBE_INTERVAL;
+   }
 
    // Wait to allow our targets time to come up.
    // (Wait is determined by CONFIG_SETTING_STARTUP_WAIT, default 2 minutes.)
@@ -394,7 +402,7 @@ int main(int argc, char* argv[])
                              DIALOG_EVENT_TYPE, DIALOG_EVENT_CONTENT_TYPE,
                              tcpPort, udpPort, tcpPort, bindIp,
                              &resourceListFile,
-                             refreshInterval, resubscribeInterval,
+                             refreshInterval, resubscribeInterval, minResubscribeInterval,
                              250, 20, 20, 20, 20);
 
       // Loop forever until signaled to shut down
