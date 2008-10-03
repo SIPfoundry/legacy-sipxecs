@@ -160,9 +160,11 @@ class CallControlManager implements SymmitronResetHandler {
 
         /*
          * The request originated from the LAN side. Otherwise, the request originated from WAN we
-         * sent it along to the phone on the previous step.
+         * sent it along to the phone on the previous step. If we handled the 
+         * request locally then send an ok back. This happens when the provider
+         * does not support re-INVITE
          */
-        if (provider == Gateway.getLanProvider()) {
+        if (provider == Gateway.getLanProvider() && !lanRtpSession.isReInviteForwarded()) {
             Response response = ProtocolObjects.messageFactory.createResponse(Response.OK,
                     request);
             SupportedHeader sh = ProtocolObjects.headerFactory.createSupportedHeader("replaces");
@@ -671,6 +673,11 @@ class CallControlManager implements SymmitronResetHandler {
                  * Just to record the call completion time statistics for later.
                  */
                 dat.lastAckSent = System.currentTimeMillis();
+                
+                /*
+                 * Set the pending flag to false.
+                 */
+                dat.isSdpAnswerPending = false;
 
             }
 

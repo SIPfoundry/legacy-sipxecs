@@ -40,6 +40,8 @@ class RtpSession {
     private RtpTransmitterEndpoint rtpTransmitterEndpoint;
     
     private int referenceCount;
+    
+    private boolean reInviteForwarded;
 
     public RtpSession(SymImpl symImpl) {
         this.symImpl = symImpl;
@@ -179,6 +181,7 @@ class RtpSession {
         tad.serverTransactionProvider = ((DialogExt) dialog).getSipProvider();
         ctx.setApplicationData(tad);
         ctx.sendRequest();
+        this.reInviteForwarded = true;
     }
     
     
@@ -213,6 +216,7 @@ class RtpSession {
                 // RE-INVITE was received from WAN side or LAN side and wan side supports 
                 // Re-INIVTE then just forward it.
                 this.forwardReInvite(serverTransaction, dialog);
+                
             } else {
                 Response response = SipUtilities.createResponse(serverTransaction,Response.OK);
                 SipUtilities.setSessionDescription(response, sd);
@@ -282,6 +286,8 @@ class RtpSession {
                         + "\n lastResponse = "
                         + DialogApplicationData.get(peerDialog).lastResponse);
             }
+            
+            this.reInviteForwarded = false;
             SessionDescription sessionDescription = SipUtilities.getSessionDescription(request);
 
             int newport = SipUtilities.getSessionDescriptionMediaPort(sessionDescription);
@@ -322,5 +328,13 @@ class RtpSession {
             throw new SipException("Exception occured while connecting", ex);
         }
 
+    }
+
+    
+    /**
+     * @return the reInviteForwarded
+     */
+    boolean isReInviteForwarded() {
+        return reInviteForwarded;
     }
 }

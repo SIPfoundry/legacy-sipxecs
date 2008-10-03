@@ -441,7 +441,7 @@ class SipUtilities {
     }
 
     static Request createInviteRequest(SipURI requestUri, SipProvider sipProvider,
-            ItspAccountInfo itspAccount, FromHeader from, boolean isphone)
+            ItspAccountInfo itspAccount, FromHeader from, String callId, boolean isphone)
             throws GatewayConfigurationException {
         try {
             FromHeader fromHeader = from;
@@ -530,7 +530,7 @@ class SipUtilities {
             ToHeader toHeader = ProtocolObjects.headerFactory.createToHeader(
                     ProtocolObjects.addressFactory.createAddress(toUri), null);
 
-            CallIdHeader callid = sipProvider.getNewCallId();
+           
 
             CSeqHeader cseqHeader = ProtocolObjects.headerFactory.createCSeqHeader(1L,
                     Request.INVITE);
@@ -543,6 +543,7 @@ class SipUtilities {
             List<ViaHeader> list = new LinkedList<ViaHeader>();
             list.add(viaHeader);
 
+            CallIdHeader callid = ProtocolObjects.headerFactory.createCallIdHeader(callId); 
             Request request = ProtocolObjects.messageFactory.createRequest(requestUri,
                     Request.INVITE, callid, cseqHeader, fromHeader, toHeader, list, maxForwards);
 

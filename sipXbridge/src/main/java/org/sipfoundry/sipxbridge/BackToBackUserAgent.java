@@ -1217,7 +1217,7 @@ public class BackToBackUserAgent {
 
             Request outgoingRequest = SipUtilities.createInviteRequest(
                     (SipURI) incomingRequestUri.clone(), itspProvider, itspAccountInfo,
-                    fromHeader, isphone);
+                    fromHeader, this.creatingCallId +"."+ this.counter++, isphone);
             ClientTransaction ct = itspProvider.getNewClientTransaction(outgoingRequest);
             Dialog outboundDialog = ct.getDialog();
 
