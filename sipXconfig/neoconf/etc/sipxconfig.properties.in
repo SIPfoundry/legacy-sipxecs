@@ -60,6 +60,7 @@ upload.destinationDirectory=@sipxconfig.phone.dir@/profile/tftproot
 phonebookManagerImpl.externalUsersDirectory=@sipxconfig.phonebook.dir@
 audiocodesGatewayModel.configDirectory=@sipxpbx.var.dir@
 audiocodesFxs.configDirectory=@sipxpbx.var.dir@
+alarmContextImpl.alarmsStringsDirectory=@sipxpbx.alarms.strings.dir@
 
 # The following directives can be used to provide external sources
 #    of call routing information.  If you find yourself using them, it would

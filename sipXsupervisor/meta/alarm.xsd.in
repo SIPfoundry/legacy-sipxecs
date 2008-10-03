@@ -38,7 +38,7 @@
       </sequence>
     </complexType>
   </element>
-  
+
   <element name='language'>
     <annotation>
       <documentation>
@@ -66,7 +66,7 @@
       </sequence>
     </complexType>
   </element>
-  
+
   <element name='log'>
     <annotation>
       <documentation>
@@ -102,7 +102,7 @@
     <complexType>
       <sequence>
         <element ref='h:email-notification-addr' minOccurs='0' maxOccurs='1' />
-        <element ref='h:contact' minOccurs='0' />
+        <element ref='h:contact' minOccurs='0'  maxOccurs='5'/>
         <element ref='h:email-subject' minOccurs='0' />
         <element ref='h:email-intro' minOccurs='0' />
         <element ref='h:email-alarm' minOccurs='0' />
@@ -355,7 +355,7 @@
   <element name="shorttitle">
     <annotation>
       <documentation>
-        A short title for the alarm condition.  
+        A short title for the alarm condition.
       </documentation>
     </annotation>
     <simpleType>

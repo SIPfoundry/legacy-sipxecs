@@ -275,6 +275,8 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) %{sipxpbxconf}/acmePhone/*
 %dir %{sipxpbxconf}/acd
 %config(noreplace) %{sipxpbxconf}/acd/*
+%dir %{sipxpbxconf}/alarms
+%config(noreplace) %{sipxpbxconf}/alarms/*
 %config(noreplace) %{sipxpbxconf}/audiocodes/*
 %config(noreplace) %{sipxpbxconf}/ciscoAta/*
 %config(noreplace) %{sipxpbxconf}/ciscoIp/*

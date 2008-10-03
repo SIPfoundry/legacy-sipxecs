@@ -24,6 +24,8 @@
     <osconfig>@SIPX_CONFDIR@/sipXproxy-config</osconfig>
     <file>@SIPX_CONFDIR@/forwardingrules.xml.in</file>
     <file>@SIPX_CONFDIR@/authrules.xml.in</file>
+	<file>@SIPX_CONFDIR@/alarm-config.xml</file>
+	<file>@SIPX_CONFDIR@/alarms/sipXalarms-config.xml</file>
     <imdb>credential</imdb>
     <imdb>permission</imdb>
     <imdb>caller-alias</imdb>

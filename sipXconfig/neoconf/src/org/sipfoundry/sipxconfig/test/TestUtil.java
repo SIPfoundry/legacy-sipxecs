@@ -176,6 +176,7 @@ public final class TestUtil {
         sysProps.setProperty("sysdir.vxml", vxmlDir);
         sysProps.setProperty("sysdir.vxml.prompts", vxmlDir + "/prompts");
         sysProps.setProperty("sysdir.vxml.scripts", vxmlDir + "/scripts");
+        sysProps.setProperty("sysdir.user", "sipxpbxuser");
 
         sysProps.setProperty("phoneDefaults.tftpServer", "tftp.sipfoundry.org");
         sysProps.setProperty("phoneDefaults.authorizationRealm", realm);
@@ -214,6 +215,7 @@ public final class TestUtil {
 
         sysProps.setProperty("sip.proxyHost", "localhost");
         sysProps.setProperty("sip.proxyPort", "5060");
+        sysProps.setProperty("sip.hostName", "host.sipfoundry.org");
 
         File vmDir = new File(mailstoreDir);
         if (!vmDir.exists()) {

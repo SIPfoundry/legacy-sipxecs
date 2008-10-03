@@ -1,0 +1,12 @@
+<fieldset>
+  <table jwcid="@common/Table" id="alarm:list"
+      columns="* code,!shortTitle,!severity,!emailEnabled"
+      source="ognl:alarms"
+      row="ognl:currentRow"
+      selections="ognl:selections"
+      converter="bean:alarmConverter">
+    <tr jwcid="emailEnabledColumnValue@Block">
+      <td jwcid="@common/EnabledColumn" value="ognl:currentRow.emailEnabled"/>
+    </tr>
+  </table>
+</fieldset>

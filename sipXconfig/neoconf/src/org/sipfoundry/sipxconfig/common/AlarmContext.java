@@ -9,6 +9,11 @@
  */
 package org.sipfoundry.sipxconfig.common;
 
+import java.util.List;
+
+import org.sipfoundry.sipxconfig.admin.alarm.Alarm;
+import org.sipfoundry.sipxconfig.admin.alarm.AlarmServer;
+
 public interface AlarmContext {
     public static enum Command {
         RAISE_ALARM, GET_ALARM_COUNT, RELOAD_ALARMS;
@@ -26,4 +31,20 @@ public interface AlarmContext {
      * Send request to Alarm Server to reload alarms (after config or language change).
      */
     public void reloadAlarms();
+
+    public AlarmServer getAlarmServer();
+
+    public List<Alarm> getAlarmTypes(String configPath, String stringPath);
+
+    public void deployAlarmServer(AlarmServer alarmServer);   
+
+    public void deployAlarmTypes(List<Alarm> alarms, List<Alarm> selectedAlarm);
+
+    public void replicateAlarmServer();
+
+    public String getSipxUser();
+    
+    public String getConfigDirectory();
+    
+    public String getAlarmsStringsDirectory();
 }

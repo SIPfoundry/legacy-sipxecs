@@ -15,6 +15,7 @@ import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanActivatedEvent;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
+import org.sipfoundry.sipxconfig.common.AlarmContext;
 import org.sipfoundry.sipxconfig.common.ApplicationInitializedEvent;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
@@ -31,6 +32,7 @@ public class FirstRunTask implements ApplicationListener {
     private DialPlanContext m_dialPlanContext;
     private SipxProcessContext m_processContext;
     private String m_taskName;
+    private AlarmContext m_alarmContext;
 
     public void runTask() {
         LOG.info("Executing first run tasks...");
@@ -39,6 +41,7 @@ public class FirstRunTask implements ApplicationListener {
         m_dialPlanContext.replicateAutoAttendants();
         m_dialPlanContext.activateDialPlan();
         m_coreContext.initializeSpecialUsers();
+        m_alarmContext.replicateAlarmServer();
 
         List restartable = m_processContext.getRestartable();
         m_processContext.restartOnEvent(restartable, DialPlanActivatedEvent.class);
@@ -98,4 +101,9 @@ public class FirstRunTask implements ApplicationListener {
     public void setCoreContext(CoreContext coreContext) {
         m_coreContext = coreContext;
     }
+
+    @Required
+    public void setAlarmContext(AlarmContext alarmContext) {
+        m_alarmContext = alarmContext;
+    }    
 }

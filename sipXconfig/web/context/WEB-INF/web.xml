@@ -61,6 +61,7 @@
       classpath:/org/sipfoundry/sipxconfig/rest/rest.beans.xml
       classpath:/org/sipfoundry/sipxconfig/admin/monitoring/monitoring.beans.xml
       classpath:/org/sipfoundry/sipxconfig/nattraversal/nattraversal.beans.xml
+      classpath:/org/sipfoundry/sipxconfig/admin/alarm/alarm.beans.xml
     </param-value>
   </context-param>
 
