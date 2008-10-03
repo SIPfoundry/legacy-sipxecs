@@ -234,10 +234,33 @@ class CallControlManager implements SymmitronResetHandler {
                         && provider == Gateway.getLanProvider()
                         && ((!Gateway.isReInviteSupported()) || Gateway.getMusicOnHoldAddress() == null)) {
                     // Can handle this request locally without re-Inviting server (optimization)
-
-                    this.adjustSessionParameters(serverTransaction, request, dialog, provider,
-                            null);
-                    return;
+                    if (SipUtilities.isSdpQuery(request) ) {
+                        // This case occurs if MOH is turned OFF on sipxbridge
+                        // and is turned ON on the phone.
+                        // In this case the phone will query the ITSP
+                        // See Issue 1739
+                        Request newRequest = peerDialog.createRequest(Request.INVITE);
+                        if (newRequest.getHeader(ContentTypeHeader.NAME) == null) {
+                            newRequest.setHeader(ProtocolObjects.headerFactory
+                                    .createContentTypeHeader("application", "sdp"));
+                        }
+                        ClientTransaction ctx = peerDialogProvider
+                                .getNewClientTransaction(newRequest);
+                        TransactionApplicationData tad = new TransactionApplicationData(
+                                Operation.QUERY_SDP_FROM_PEER_DIALOG);
+                        tad.serverTransaction = serverTransaction;
+                        ctx.setApplicationData(tad);
+                        DialogApplicationData peerDat = DialogApplicationData.get(peerDialog);
+                        // Record that we queried the answer from the peer dialog so we can send
+                        // the Ack along.
+                        peerDat.isSdpAnswerPending = true;
+                        peerDialog.sendRequest(ctx);
+                        return;
+                    } else {
+                        this.adjustSessionParameters(serverTransaction, request, dialog,
+                                provider, null);
+                        return;
+                    }
                 } else {
                     if (SipUtilities.isSdpQuery(request)) {
                         Request newRequest = peerDialog.createRequest(Request.INVITE);
@@ -1374,7 +1397,8 @@ class CallControlManager implements SymmitronResetHandler {
                                 newResponse.setHeader(sh);
                                 serverTransaction.sendResponse(newResponse);
                             } else {
-                                logger.error("Received an error response after final response sent -- ignoring the response");
+                                logger
+                                        .error("Received an error response after final response sent -- ignoring the response");
                             }
                         } else {
                             b2bua.tearDown();

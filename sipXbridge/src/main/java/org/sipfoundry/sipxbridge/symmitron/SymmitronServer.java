@@ -106,6 +106,7 @@ public class SymmitronServer implements Symmitron {
             if (stunServerAddress != null) {
 
                 // Todo -- deal with the situation when this port may be taken.
+                // The port may be taken by sipxbridge.
                 StunAddress localStunAddress = new StunAddress(symmitronConfig.getLocalAddress(),
                         STUN_PORT + 1);
 
