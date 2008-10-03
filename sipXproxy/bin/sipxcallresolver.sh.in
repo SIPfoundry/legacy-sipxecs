@@ -437,7 +437,6 @@ elif [ ${Action} = DISTRIBTEST ]; then
 elif [ ${Action} = DATABASE ]; then
     databaseCommand $Args
 elif [ ${Action} = RUN ]; then
-    runConfigpp
     onStartup
 elif [ ${Action} = STOP ]; then
     sipx_stop sipxcallresover @SIPX_RUNDIR@/sipxcallresolver.pid
