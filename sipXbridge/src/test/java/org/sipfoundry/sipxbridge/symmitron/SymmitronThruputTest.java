@@ -17,6 +17,8 @@ public class SymmitronThruputTest extends AbstractSymmitronTestCase {
     int sleepTime = 20;
     private static int nbridges = 25;
     private static String testerAddress;
+    private static int port1 = 42000;
+    private static int port2 = 42300;
 
     class Transmitter implements Runnable {
         String ipAddr;
@@ -98,8 +100,8 @@ public class SymmitronThruputTest extends AbstractSymmitronTestCase {
     }
 
     public void testThruput10() throws Exception {
-        int destinationPort1 = 30000;
-        int destinationPort2 = 35000;
+        int destinationPort1 = port1;
+        int destinationPort2 = port2;
 
         for (int i = 0; i < nbridges; i++) {
             String bridge = super.createBridge();
@@ -199,6 +201,14 @@ public class SymmitronThruputTest extends AbstractSymmitronTestCase {
         testerAddress = System.getProperties().getProperty("tester.address");
         npacket = Integer.parseInt(System.getProperties().getProperty("tester.npackets"));
         nbridges = Integer.parseInt(System.getProperties().getProperty("tester.callLoad"));
+        String portRange = System.getProperties().getProperty("tester.ports");
+        if ( portRange != null ) {
+            String[] ranges = portRange.split(",");
+            port1 = Integer.parseInt(ranges[0]);
+            port2 = Integer.parseInt(ranges[1]);
+            System.out.println("Binding to ports " + port1 + "," + port2);
+            
+        }
         TestRunner testRunner = new TestRunner();
         testRunner.doRun(new SymmitronThruputTest());
 

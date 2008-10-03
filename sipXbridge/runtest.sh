@@ -4,5 +4,5 @@ classpath="$COMMONS/log4j.jar:$COMMONS/jain-sip-sdp.jar:$COMMONS/dnsjava.jar:$CO
 
 javac -classpath $classpath -sourcepath src/main/java -d classes -g:source,lines,vars src/test/java/org/sipfoundry/sipxbridge/symmitron/*.java
 
-java -classpath "$classpath:./classes" -Dconf.dir=/etc/sipxpbx  -Dtester.address=192.168.5.240 -Dtester.callLoad=50 -Dtester.npackets=2000 org.sipfoundry.sipxbridge.symmitron.SymmitronThruputTest
+java -classpath "$classpath:./classes" -Dconf.dir=/etc/sipxpbx  -Dtester.address=192.168.5.240 -Dtester.callLoad=50 -Dtester.npackets=2000 -Dtester.ports=36000,36500 org.sipfoundry.sipxbridge.symmitron.SymmitronThruputTest
 
