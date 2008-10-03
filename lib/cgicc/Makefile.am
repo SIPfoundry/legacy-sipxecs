@@ -1,5 +1,5 @@
 CGICC_VER = 3.2.7
-CGICC_REL = 1
+CGICC_REL = 2
 
 SRC = $(srcdir)/src/cgicc-$(CGICC_VER).tar.gz
 SRPM = $(DEST_SRPM)/cgicc-$(CGICC_VER)-$(CGICC_REL).src.rpm
