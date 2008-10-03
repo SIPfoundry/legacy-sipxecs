@@ -37,6 +37,7 @@
 //#define LOG_FORKING
 //#define ROUTE_DEBUG
 //#define DUMP_TRANSACTIONS   
+//#define RESPONSE_DEBUG
 
 //#define LOG_TRANSLOCK
 
@@ -1493,7 +1494,9 @@ void SipTransaction::handleResendEvent(const SipMessage& outgoingMessage,
             // send transport error
             nextTimeout = -1;
             if(mTransactionState == TRANSACTION_CALLING)
-                mTransactionState = TRANSACTION_COMPLETE;
+            {
+                    mTransactionState = TRANSACTION_COMPLETE;
+            }
             OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipTransaction::handleResendEvent"
                           " no response, TRANSACTION_COMPLETE");
         }
@@ -1563,7 +1566,7 @@ void SipTransaction::handleExpiresEvent(const SipMessage& outgoingMessage,
         {
             // no-op
             OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                "SipTransaction::handleExpiresEvent %p ignoring cancel of DNS SRV child", this);
+                "SipTransaction::handleExpiresEvent %p ignoring timeout cancel of DNS SRV child", this);
         }
 
         // Do not cancel an early dialog with early media if this
@@ -2212,6 +2215,18 @@ void SipTransaction::handleChildTimeoutEvent(SipTransaction& child,
                                           "SipTransaction::handleChildTimeoutEvent "
                                           "%p sending best response", this);
 #                           endif
+
+                            // this is a timeout event, choose 408 over 302 or 404
+                            if (  bestResponseCode < SIP_4XX_CLASS_CODE 
+                               || bestResponseCode == SIP_NOT_FOUND_CODE)
+                            {
+                                bestResponseCode = SIP_REQUEST_TIMEOUT_CODE;
+                                bestResponse.setResponseData(mpRequest,
+                                                             SIP_REQUEST_TIMEOUT_CODE,
+                                                             SIP_REQUEST_TIMEOUT_TEXT);
+
+                            }
+
                             if (   (SIP_REQUEST_TIMEOUT_CODE == bestResponseCode)
                                 && (!bestResponse.hasSelfHeader())
                                 )
@@ -3033,10 +3048,12 @@ enum SipTransaction::ResponsePriority SipTransaction::findRespPriority(int respo
 {
     enum SipTransaction::ResponsePriority respPri;
 
-    OsSysLog::add(FAC_SIP, PRI_INFO,
+#ifdef RESPONSE_DEBUG
+    OsSysLog::add(FAC_SIP, PRI_DEBUG,
                   "SipTransaction::findRespPriority"
                   " %p response code %d",
                   this, responseCode);
+#endif
     switch (responseCode)
     {
     case HTTP_UNAUTHORIZED_CODE:        // 401       
@@ -3120,18 +3137,20 @@ enum SipTransaction::ResponsePriority SipTransaction::findRespPriority(int respo
         }
         break;
     }
-    OsSysLog::add(FAC_SIP, PRI_INFO,
+#ifdef RESPONSE_DEBUG
+    OsSysLog::add(FAC_SIP, PRI_DEBUG,
                   "SipTransaction::findRespPriority"
                   " %p response code %d returns %d",
                   this, responseCode, respPri);
+#endif
     return respPri;
 }
 
 UtlBoolean SipTransaction::findBestChildResponse(SipMessage& bestResponse, int responseFoundCount)
 {
-//#   ifdef TEST_PRINT
+#   ifdef TEST_PRINT
     OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipTransaction::findBestChildResponse start %p", this);
-//#   endif
+#   endif
 
     UtlSListIterator iterator(mChildTransactions);
     SipTransaction* childTransaction = NULL;
@@ -3157,6 +3176,12 @@ UtlBoolean SipTransaction::findBestChildResponse(SipMessage& bestResponse, int r
         }
 
         childResponse = childTransaction->mpLastFinalResponse;
+#ifdef RESPONSE_DEBUG
+        OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                      "SipTransaction::findBestChildResponse"
+                      " %p child %p returns %d with lastResp %p (bestResp %p)",
+                      this, childTransaction, foundChild, childResponse, &bestResponse);
+#endif
         if(childResponse)
         {
             bestResponseCode = bestResponse.getResponseStatusCode();
@@ -3165,7 +3190,12 @@ UtlBoolean SipTransaction::findBestChildResponse(SipMessage& bestResponse, int r
             respPri = findRespPriority(childResponseCode);
             bestPri = findRespPriority(bestResponseCode);
 
-
+#ifdef RESPONSE_DEBUG
+            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                          "SipTransaction::findBestChildResponse"
+                          " %p child %p status/pri %d/%d (bestResp %d/%d)",
+                          this, childTransaction, childResponseCode, respPri, bestResponseCode, bestPri);
+#endif
             if (bestPri == RESP_PRI_NOMATCH)
             {
                 // this is the first response we have found
@@ -3317,7 +3347,7 @@ UtlBoolean SipTransaction::findBestChildResponse(SipMessage& bestResponse, int r
                 }   // end respPri switch
             }   // end bestresp is valid
 
-            OsSysLog::add(FAC_SIP, PRI_INFO,
+            OsSysLog::add(FAC_SIP, PRI_DEBUG,
                           "SipTransaction::findBestChildResponse"
                           " %p child %p status/pri %d/%d (bestResp %d/%d) usethis=%d pathNum %d",
                           this, childTransaction, childResponseCode, respPri, bestResponseCode, bestPri, useThisResp, pathNum);
@@ -3382,7 +3412,7 @@ UtlBoolean SipTransaction::findBestChildResponse(SipMessage& bestResponse, int r
             }
         }
     }
-#ifdef DUMP_TRANSACTIONS
+#ifdef RESPONSE_DEBUG
     OsSysLog::add(FAC_SIP, PRI_INFO,
                   "SipTransaction::findBestChildResponse"
                   " end %p child %p status/pri %d/%d (bestResp %d/%d) usethis=%d pathNum %d",

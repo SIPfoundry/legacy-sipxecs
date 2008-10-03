@@ -2632,6 +2632,11 @@ UtlBoolean SipUserAgent::handleMessage(OsMsg& eventMessage)
                                                       relationship);
                if(transaction)
                {
+#ifdef TRANSACTION_MATCH_DEBUG // enable only for transaction match debugging - log is confusing otherwise
+            OsSysLog::add(FAC_SIP, PRI_DEBUG
+                          ,"SipUserAgent[%s]::handleMessage(resend) found transaction %p",
+                          getName().data(), transaction);
+#endif
                    // If we are in shutdown mode, unlock the transaction
                    // and set it to null.  We pretend that the transaction
                    // does not exist (i.e. no-op).
@@ -2776,6 +2781,11 @@ UtlBoolean SipUserAgent::handleMessage(OsMsg& eventMessage)
                                                       relationship);
                if(transaction)
                {
+#ifdef TRANSACTION_MATCH_DEBUG // enable only for transaction match debugging - log is confusing otherwise
+            OsSysLog::add(FAC_SIP, PRI_DEBUG
+                          ,"SipUserAgent[%s]::handleMessage(expired) found transaction %p",
+                          getName().data(), transaction);
+#           endif
                    // If we are shutting down, unlock the transaction
                    // and set it to null.  We pretend that the transaction
                    // does not exist (i.e. no-op).
