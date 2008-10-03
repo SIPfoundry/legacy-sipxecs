@@ -75,6 +75,11 @@ SipDialog::SipDialog(const SipMessage* initialMessage,
            }
            else
            {
+               // Incoming initial Request, we need to set the Route set here
+               if(initialMessage->isRecordRouteAccepted())
+               {
+                   initialMessage->buildRouteField(&mRouteSet);
+               }
                msLocalRequestUri = uri;
            }
        }
@@ -260,7 +265,11 @@ void SipDialog::updateDialogData(const SipMessage& message)
                 mRemoteField.getFieldParameter("tag", mRemoteTag);
 
                 // Need to get the route set as well
-                message.buildRouteField(&mRouteSet);
+                // Make sure the Request Method is allowed to set Record-Routes
+                if(message.isRecordRouteAccepted())
+                {
+                    message.buildRouteField(&mRouteSet);
+                }
             }
         }
     }
