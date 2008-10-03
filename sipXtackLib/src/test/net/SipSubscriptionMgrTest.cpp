@@ -180,7 +180,7 @@ Voice-Message: 0/0 (0/0)\r\n";
          CPPUNIT_ASSERT(dialogMgr->dialogExists(subscribeDialogHandle));
          int expiration = 0;
          CPPUNIT_ASSERT(createdSubscribeResponse.getExpiresField(&expiration));
-         CPPUNIT_ASSERT(expiration == 3600);
+         CPPUNIT_ASSERT(expiration <= 3600);
          UtlString mwiSubResponseToField;
          createdSubscribeResponse.getToField(&mwiSubResponseToField);
 

@@ -174,6 +174,75 @@ UtlBoolean SipSubscriptionMgr::updateDialogInfo(const SipMessage& subscribeReque
     SubscriptionServerState* state = NULL;
     int expiration = -1;
     isSubscriptionExpired = TRUE;
+    
+    // Double check the sanity of the class attributes
+    
+    if(mMaxExpiration < mMinExpiration)
+    {
+        // This is an error case. Switch the values so that we do not
+        // run into any negative expiration times.
+        int tmp = mMaxExpiration;
+        mMaxExpiration = mMinExpiration;
+        mMinExpiration = tmp;
+        
+        OsSysLog::add(FAC_SIP, PRI_WARNING,
+            "Swapping values as mMinExpiration => %d is greater than mMaxExpiration => %d",
+            mMinExpiration, mMaxExpiration);
+    }
+    
+    if(mMaxExpiration < mDefaultExpiration)
+    {
+        // This is an error case. Switch the values so that we do not
+        // run into any negative expiration times.
+        int tmp = mMaxExpiration;
+        mMaxExpiration = mDefaultExpiration;
+        mDefaultExpiration = tmp;
+        
+        OsSysLog::add(FAC_SIP, PRI_WARNING,
+            "Swapping values as mDefaultExpiration => %d is greater than mMaxExpiration => %d",
+            mDefaultExpiration, mMaxExpiration);
+    }
+    
+    // Set the expires period randomly
+    int spreadFloor = mMinExpiration*2;
+    if(!subscribeRequest.getExpiresField(&expiration))
+    {
+        // no expires field
+        // spread it between the default expiration and max allowed expiration
+        expiration = (  (rand() % (mMaxExpiration - mDefaultExpiration))
+                       + mDefaultExpiration);
+    }
+    else if ( expiration >= mMaxExpiration )
+    {
+        if (mMaxExpiration > spreadFloor)
+        {
+            // - spread it between the spreadFloor and the max allowed expiration
+            expiration = (  (rand() % (mMaxExpiration - spreadFloor))
+                           + spreadFloor);
+        }
+        else
+        {                
+            // Max Expiration is smaller than the spreadFloor, hence
+            // spread it between the min and the max allowed expiration
+            expiration = (  (rand() % (mMaxExpiration - mMinExpiration))
+                           + mMinExpiration);
+        }
+    }
+    else if ( expiration > spreadFloor )
+    {
+        // a normal (long) expiration
+        // - spread it between the spreadFloor and the longest they asked for
+        expiration = (  (rand() % (expiration - spreadFloor))
+                       + spreadFloor);
+    }
+    else if ( expiration > mMinExpiration )
+    {
+        // a short but greater than minimum expiration
+        // - spread it between the min and the longest they asked for
+        expiration = (  (rand() % (expiration - mMinExpiration))
+                       + mMinExpiration);
+    }
+    // Cases where the expiration is less than the min value is handled below.
 
     // If this is an early dialog we need to make it an established dialog.
     if(SipDialog::isEarlyDialog(dialogHandle))
@@ -189,18 +258,6 @@ UtlBoolean SipSubscriptionMgr::updateDialogInfo(const SipMessage& subscribeReque
         // make up a To tag and set it
         UtlString toTag;
         CallId::getNewTag(dialogHandle.data(), toTag);
-
-        // Get and validate the expires period
-        // This potentially should be delegated to the event handler specifics
-        if(!subscribeRequest.getExpiresField(&expiration))
-        {
-            expiration = mDefaultExpiration;
-        }
-
-        else if(expiration > mMaxExpiration)
-        {
-            expiration = mMaxExpiration;
-        }
 
         // Acceptable expiration, create a subscription and dialog
         if(expiration >= mMinExpiration ||
@@ -301,18 +358,6 @@ UtlBoolean SipSubscriptionMgr::updateDialogInfo(const SipMessage& subscribeReque
     // Not an early dialog handle -- The dialog for this message should already exist
     else
     {
-        // Get and validate the expires period
-        // This potentially should be delegated to the event handler specifics
-        if(!subscribeRequest.getExpiresField(&expiration))
-        {
-            expiration = mDefaultExpiration;
-        }
-
-        else if(expiration > mMaxExpiration)
-        {
-            expiration = mMaxExpiration;
-        }
-
         // Acceptable expiration, create a subscription and dialog
         if(expiration > mMinExpiration ||
            expiration == 0)
