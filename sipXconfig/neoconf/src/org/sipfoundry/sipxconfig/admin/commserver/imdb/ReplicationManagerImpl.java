@@ -102,7 +102,7 @@ public class ReplicationManagerImpl implements ReplicationManager {
             try {
                 ByteArrayOutputStream outStream = new ByteArrayOutputStream();
                 Writer writer = new OutputStreamWriter(outStream, "UTF-8");
-                file.write(writer);
+                file.write(writer, locations[i]);
                 writer.close();
                 byte[] payloadBytes = outStream.toByteArray();
                 String content = encodeBase64(payloadBytes);

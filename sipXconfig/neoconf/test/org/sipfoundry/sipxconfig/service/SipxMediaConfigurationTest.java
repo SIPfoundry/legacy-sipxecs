@@ -9,7 +9,14 @@
  */
 package org.sipfoundry.sipxconfig.service;
 
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.io.StringReader;
+import java.io.StringWriter;
+
+import org.apache.commons.io.IOUtils;
 import org.sipfoundry.sipxconfig.TestHelper;
+import org.sipfoundry.sipxconfig.admin.commserver.Location;
 
 public class SipxMediaConfigurationTest extends SipxServiceTestBase {
 
@@ -25,7 +32,23 @@ public class SipxMediaConfigurationTest extends SipxServiceTestBase {
         out.setVelocityEngine(TestHelper.getVelocityEngine());
         
         out.generate(mediaService);
+
+        Location location = new Location();
+        location.setName("localLocation");
+        location.setFqdn("sipx.example.org");
+        location.setAddress("192.168.1.2");
+        StringWriter actualConfigWriter = new StringWriter();
+        out.write(actualConfigWriter, location);
+
+        Reader referenceConfigReader = new InputStreamReader(SipxProxyConfigurationTest.class
+                .getResourceAsStream("expected-mediaserver-config"));
+        String referenceConfig = IOUtils.toString(referenceConfigReader);
+
+        Reader actualConfigReader = new StringReader(actualConfigWriter.toString());
+        String actualConfig = IOUtils.toString(actualConfigReader);
+
+        assertEquals(referenceConfig, actualConfig);
         
-        assertCorrectFileGeneration(out, "expected-mediaserver-config");
+        //assertCorrectFileGeneration(out, "expected-mediaserver-config");
     }
 }

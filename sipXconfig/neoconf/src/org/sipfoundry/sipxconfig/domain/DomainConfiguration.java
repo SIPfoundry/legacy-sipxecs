@@ -11,6 +11,7 @@ package org.sipfoundry.sipxconfig.domain;
 
 import org.apache.velocity.VelocityContext;
 import org.sipfoundry.sipxconfig.admin.TemplateConfigurationFile;
+import org.sipfoundry.sipxconfig.admin.commserver.Location;
 
 public class DomainConfiguration extends TemplateConfigurationFile {
 
@@ -27,8 +28,8 @@ public class DomainConfiguration extends TemplateConfigurationFile {
     }
 
     @Override
-    protected VelocityContext setupContext() {
-        VelocityContext context = super.setupContext();
+    protected VelocityContext setupContext(Location location) {
+        VelocityContext context = super.setupContext(null);
         context.put("domain", m_domain);
         context.put("realm", m_realm);
         context.put("language", m_language);

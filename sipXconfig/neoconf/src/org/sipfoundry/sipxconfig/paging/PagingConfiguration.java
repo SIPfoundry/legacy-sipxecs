@@ -13,6 +13,7 @@ import java.util.List;
 
 import org.apache.velocity.VelocityContext;
 import org.sipfoundry.sipxconfig.admin.TemplateConfigurationFile;
+import org.sipfoundry.sipxconfig.admin.commserver.Location;
 
 public class PagingConfiguration extends TemplateConfigurationFile {
 
@@ -37,8 +38,8 @@ public class PagingConfiguration extends TemplateConfigurationFile {
         server.getSipxServer().resetSettings();
     }
 
-    protected VelocityContext setupContext() {
-        VelocityContext context = super.setupContext();
+    protected VelocityContext setupContext(Location location) {
+        VelocityContext context = super.setupContext(null);
         context.put("groups", m_pagingGroups);
         context.put("audioDir", m_audioDirectory);
         context.put("domain", m_domain);

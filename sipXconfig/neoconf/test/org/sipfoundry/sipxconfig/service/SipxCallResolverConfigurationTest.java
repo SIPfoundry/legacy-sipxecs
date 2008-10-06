@@ -36,7 +36,7 @@ public class SipxCallResolverConfigurationTest extends SipxServiceTestBase {
         String expectedConfig = IOUtils.toString(referenceConfigReader);
 
         StringWriter actualConfigWriter = new StringWriter();
-        out.write(actualConfigWriter);
+        out.write(actualConfigWriter, null);
 
         Reader actualConfigReader = new StringReader(actualConfigWriter.toString());
         String actualConfig = IOUtils.toString(actualConfigReader);

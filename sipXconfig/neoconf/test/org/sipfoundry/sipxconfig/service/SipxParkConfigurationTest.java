@@ -16,6 +16,7 @@ import java.io.StringWriter;
 
 import org.apache.commons.io.IOUtils;
 import org.sipfoundry.sipxconfig.TestHelper;
+import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
 
@@ -37,8 +38,13 @@ public class SipxParkConfigurationTest extends SipxServiceTestBase {
         
         out.generate(parkService);
         
+        Location location = new Location();
+        location.setName("localLocation");
+        location.setFqdn("mysystem.realm.example.org");
+        location.setAddress("192.168.1.2");
+
         StringWriter actualConfigWriter = new StringWriter();
-        out.write(actualConfigWriter);
+        out.write(actualConfigWriter, location);
         
         Reader referenceConfigReader = new InputStreamReader(SipxParkConfigurationTest.class
                 .getResourceAsStream("expected-park-config"));

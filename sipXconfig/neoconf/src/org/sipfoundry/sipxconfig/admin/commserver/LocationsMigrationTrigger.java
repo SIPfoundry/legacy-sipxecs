@@ -29,6 +29,7 @@ public class LocationsMigrationTrigger extends InitTaskListener {
     
     private LocationsManager m_locationsManager;
     private String m_hostname;
+    private String m_localIpAddress;
     private String m_topologyFilename;
     private String m_configDirectory;
     
@@ -49,7 +50,8 @@ public class LocationsMigrationTrigger extends InitTaskListener {
             LOG.info("No locations migrated from topology.xml - Creating localhost location.");
             Location localhostLocation = new Location();
             localhostLocation.setName("Config Server, Media Server and Comm Server");
-            localhostLocation.setAddress(m_hostname);
+            localhostLocation.setAddress(m_localIpAddress);
+            localhostLocation.setFqdn(m_hostname);
             m_locationsManager.storeLocation(localhostLocation);
         }
         
@@ -69,6 +71,10 @@ public class LocationsMigrationTrigger extends InitTaskListener {
         m_hostname = hostname;
     }
     
+    public void setLocalIpAddress(String localIpAddress) {
+        m_localIpAddress = localIpAddress;
+    }
+
     public void setTopologyFilename(String topologyFilename) {
         m_topologyFilename = topologyFilename;
     }

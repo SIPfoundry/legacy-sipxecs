@@ -20,8 +20,19 @@
         <input jwcid="address@TextField"
           id="location:address"
           value="ognl:locationBean.address"
-          validators="spring-validators:required,validHostOrIp"
+          validators="spring-validators:required,validIPv4"
           displayName="message:label.address"/>
+      </tr>
+      <tr jwcid="@common/FieldPanel"
+        for="location:fqdn"
+        label="message:label.fqdn"
+        field="component:fqdn"
+        description="message:description.fqdn" >
+        <input jwcid="fqdn@TextField"
+          id="location:fqdn"
+          value="ognl:locationBean.fqdn"
+          validators="spring-validators:required,validFQDN"
+          displayName="message:label.fqdn"/>
       </tr>
     </tbody>
   </table>

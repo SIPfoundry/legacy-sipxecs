@@ -17,6 +17,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
+import org.sipfoundry.sipxconfig.admin.commserver.Location;
 
 /**
  * Common base class for all configuration files generators that use Velocity templating engine
@@ -44,9 +45,9 @@ public abstract class TemplateConfigurationFile extends AbstractConfigurationFil
         m_templateLocation = template;
     }
 
-    public final void write(Writer output) throws IOException {
+    public final void write(Writer output, Location location) throws IOException {
         try {
-            VelocityContext context = setupContext();
+            VelocityContext context = setupContext(location);
             m_velocityEngine.mergeTemplate(getTemplate(), context, output);
             output.flush();
         } catch (RuntimeException e) {
@@ -59,7 +60,7 @@ public abstract class TemplateConfigurationFile extends AbstractConfigurationFil
     /**
      * Overwrite to set-up Velocity context
      */
-    protected VelocityContext setupContext() {
+    protected VelocityContext setupContext(Location location) {
         VelocityContext context = new VelocityContext();
         context.put("dollar", "$");
         return context;
@@ -67,8 +68,9 @@ public abstract class TemplateConfigurationFile extends AbstractConfigurationFil
 
     public final String getFileContent() {
         try {
+
             StringWriter out = new StringWriter();
-            write(out);
+            write(out, null);
             return out.toString();
         } catch (IOException e) {
             LOG.error("Rethrowing unexpected: " + e.getMessage());

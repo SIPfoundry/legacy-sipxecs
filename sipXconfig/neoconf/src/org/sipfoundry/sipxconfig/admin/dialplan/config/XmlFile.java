@@ -19,22 +19,21 @@ import org.dom4j.DocumentFactory;
 import org.dom4j.io.OutputFormat;
 import org.dom4j.io.XMLWriter;
 import org.sipfoundry.sipxconfig.admin.AbstractConfigurationFile;
+import org.sipfoundry.sipxconfig.admin.ConfigurationFile;
+import org.sipfoundry.sipxconfig.admin.commserver.Location;
 
 /**
  * ConfigFile
  */
-public abstract class XmlFile extends AbstractConfigurationFile {
+public abstract class XmlFile extends AbstractConfigurationFile implements ConfigurationFile {
     protected static final DocumentFactory FACTORY = DocumentFactory.getInstance();
 
     public abstract Document getDocument();
 
-    /**
-     * Writes document to specified writer
-     * 
-     * @param writer
-     * @throws IOException
+    /* (non-Javadoc)
+     * @see org.sipfoundry.sipxconfig.admin.dialplan.config.ConfigurationFile#write(java.io.Writer)
      */
-    public void write(Writer writer) throws IOException {
+    public void write(Writer writer, Location location) throws IOException {
         Document document = getDocument();
         OutputFormat format = createFormat();
         XMLWriter xmlWriter = new XMLWriter(writer, format);
@@ -60,7 +59,7 @@ public abstract class XmlFile extends AbstractConfigurationFile {
     public String getFileContent() {
         try {
             StringWriter writer = new StringWriter();
-            write(writer);
+            write(writer, null);
             writer.close();
             return writer.toString();
         } catch (IOException e) {

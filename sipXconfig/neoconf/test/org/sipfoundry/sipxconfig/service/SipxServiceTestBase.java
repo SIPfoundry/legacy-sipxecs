@@ -36,7 +36,7 @@ public class SipxServiceTestBase extends TestCase {
     public void assertCorrectFileGeneration(SipxServiceConfiguration configuration,
             String expectedFileName) throws Exception {
         StringWriter actualConfigWriter = new StringWriter();
-        configuration.write(actualConfigWriter);
+        configuration.write(actualConfigWriter, null);
 
         Reader referenceConfigReader = new InputStreamReader(configuration.getClass()
                 .getResourceAsStream(expectedFileName));

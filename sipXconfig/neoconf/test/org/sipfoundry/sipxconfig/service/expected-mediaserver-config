@@ -7,7 +7,7 @@ mediaserver.rtp.codecs                  VXIString       EG711U EG711A pcmu pcma 
 
 mediaserver.udp.port                    VXIInteger      5100
 mediaserver.tcp.port                    VXIInteger      5100
-mediaserver.bindip                      VXIString       192.168.1.1
+mediaserver.bindip                      VXIString       192.168.1.2
 
 client.log.dir                          VXIString       $(VXILOG)
 client.log.filename                     VXIString       $(VXILOG)/vxmlengine.log

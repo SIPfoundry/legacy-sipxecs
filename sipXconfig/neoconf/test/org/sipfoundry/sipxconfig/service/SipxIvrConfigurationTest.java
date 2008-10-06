@@ -46,7 +46,7 @@ public class SipxIvrConfigurationTest extends SipxServiceTestBase {
         out.generate(ivrService);
 
         StringWriter actualConfigWriter = new StringWriter();
-        out.write(actualConfigWriter);
+        out.write(actualConfigWriter, null);
 
         Reader referenceConfigReader = new InputStreamReader(getClass().getResourceAsStream(
                 "expected-sipxivr.properties"));

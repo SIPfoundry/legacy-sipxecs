@@ -7,6 +7,7 @@ import java.io.StringWriter;
 
 import org.apache.commons.io.IOUtils;
 import org.sipfoundry.sipxconfig.TestHelper;
+import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
 public class SipxRlsConfigurationTest extends SipxServiceTestBase {
@@ -26,8 +27,13 @@ public class SipxRlsConfigurationTest extends SipxServiceTestBase {
        parkSettings.getSetting("SIP_RLS_LOG_LEVEL").setValue("WARN");
        
        config.generate(service);
+
+       Location location = new Location();
+       location.setName("localLocation");
+       location.setFqdn("sipx.example.org");
+       location.setAddress("192.168.1.1");
        StringWriter actualConfigWriter = new StringWriter();
-       config.write(actualConfigWriter);
+       config.write(actualConfigWriter, location);
        
        
        Reader referenceConfigReader = new InputStreamReader(getClass().getResourceAsStream("expected-rls-config"));

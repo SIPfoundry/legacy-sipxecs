@@ -10,6 +10,7 @@
 package org.sipfoundry.sipxconfig.service;
 
 import org.apache.velocity.VelocityContext;
+import org.sipfoundry.sipxconfig.admin.commserver.Location;
 
 public class SipxRegistrarConfiguration extends SipxServiceConfiguration {
 
@@ -21,8 +22,11 @@ public class SipxRegistrarConfiguration extends SipxServiceConfiguration {
     }
 
     @Override
-    protected VelocityContext setupContext() {
-        VelocityContext context = super.setupContext();
+    protected VelocityContext setupContext(Location location) {
+        VelocityContext context = super.setupContext(null);
+        if (location != null) {
+            context.put("location", location);
+        }
         context.put("settings", m_service.getSettings());
         context.put("registrarService", m_service);
         

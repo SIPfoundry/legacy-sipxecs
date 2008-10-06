@@ -48,7 +48,7 @@ public class DomainConfigurationTest extends TestCase {
     public void testWrite() throws Exception {
         StringWriter actualConfigWriter = new StringWriter();
         m_out.generate(m_domain, m_realm, m_language, m_alarmServerUrl);
-        m_out.write(actualConfigWriter);
+        m_out.write(actualConfigWriter, null);
 
         Reader actualConfigReader = new StringReader(actualConfigWriter.toString());
 

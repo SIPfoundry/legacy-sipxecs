@@ -12,7 +12,7 @@
     </ul>
     <table jwcid="@common/Table" id="locations:list"
       source="ognl:locations"
-      columns="* name, address"
+      columns="* name, address, fqdn"
       row="ognl:currentRow"
       selections="bean:selections">
       <span jwcid="nameColumnValue@Block">

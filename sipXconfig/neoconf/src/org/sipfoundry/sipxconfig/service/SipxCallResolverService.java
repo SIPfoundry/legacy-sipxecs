@@ -16,6 +16,7 @@ public class SipxCallResolverService extends SipxService {
 
     private static final ProcessName PROCESS_NAME = ProcessName.CALL_RESOLVER;
     private int m_agentPort;
+    private String m_ipAddress;
     
     @Override
     public ProcessName getProcessName() {
@@ -28,5 +29,13 @@ public class SipxCallResolverService extends SipxService {
 
     public void setAgentPort(int agentPort) {
         m_agentPort = agentPort;
+    }
+
+    public String getIpAddress() {
+        return m_ipAddress;
+    }
+
+    public void setIpAddress(String ipAddress) {
+        m_ipAddress = ipAddress;
     }
 }

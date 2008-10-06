@@ -1,7 +1,7 @@
-SIPX_PROXY_BIND_IP : ${proxyService.ipAddress}
+SIPX_PROXY_BIND_IP : $!{location.address}
 SIPX_PROXY_DEFAULT_EXPIRES : $settings.getSetting('SIPX_PROXY_DEFAULT_EXPIRES').Value
 SIPX_PROXY_DEFAULT_SERIAL_EXPIRES : $settings.getSetting('SIPX_PROXY_DEFAULT_SERIAL_EXPIRES').Value
-SIPX_PROXY_HOST_ALIASES : ${proxyService.ipAddress}:${proxyService.sipPort} ${proxyService.hostname}:${proxyService.sipPort} ${proxyService.fullHostname}:${proxyService.sipPort} ${proxyService.sipSrvOrHostport}
+SIPX_PROXY_HOST_ALIASES : $!{location.address}:${proxyService.sipPort} $!{location.fqdn}:${proxyService.sipPort}
 SIPX_PROXY_LOG_CONSOLE :
 SIPX_PROXY_LOG_DIR :
 SIPX_PROXY_LOG_LEVEL : $settings.getSetting('SIPX_PROXY_LOG_LEVEL').Value
@@ -17,7 +17,7 @@ SIPX_PROXY_CALL_STATE_DB : $callResolverSettings.getSetting('CALLRESOLVER_CALL_S
 SIPX_PROXY_AUTHENTICATE_ALGORITHM :
 SIPX_PROXY_AUTHENTICATE_REALM : ${proxyService.realm}
 SIPX_PROXY_DOMAIN_NAME : ${proxyService.domainName}
-SIPX_PROXY_HOSTPORT : ${proxyService.ipAddress}:${proxyService.sipPort}
+SIPX_PROXY_HOSTPORT : $!{location.address}:${proxyService.sipPort}
 
 SIPX_PROXY_HOOK_LIBRARY.200_xfer : @sipxpbx.lib.dir@/authplugins/libTransferControl.so
 

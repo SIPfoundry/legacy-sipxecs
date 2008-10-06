@@ -11,6 +11,7 @@
     </id>
     <property name="name"/>
     <property name="address"/>
+    <property name="fqdn"/>
     <property name="sipDomain"/>
     <bag name="sipxServices" table="location_sipx_service" cascade="save-update">
       <key column="location_id" />

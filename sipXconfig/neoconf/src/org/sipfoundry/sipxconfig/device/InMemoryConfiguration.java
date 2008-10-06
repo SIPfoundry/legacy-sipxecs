@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.io.Writer;
 
 import org.sipfoundry.sipxconfig.admin.AbstractConfigurationFile;
+import org.sipfoundry.sipxconfig.admin.commserver.Location;
 
 public class InMemoryConfiguration extends AbstractConfigurationFile {
     private final String m_content;
@@ -25,7 +26,7 @@ public class InMemoryConfiguration extends AbstractConfigurationFile {
         return new String(m_content);
     }
 
-    public void write(Writer writer) throws IOException {
+    public void write(Writer writer, Location location) throws IOException {
         writer.write(m_content);
     }
 

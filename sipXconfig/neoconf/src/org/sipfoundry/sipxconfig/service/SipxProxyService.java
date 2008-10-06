@@ -17,7 +17,6 @@ public class SipxProxyService extends SipxService {
 
     private String m_secureSipPort;
     private String m_callResolverCallStateDb;
-    private String m_sipSrvOrHostport;
 
     public String getSecureSipPort() {
         return m_secureSipPort;
@@ -33,14 +32,6 @@ public class SipxProxyService extends SipxService {
 
     public void setCallResolverCallStateDb(String callResolverCallStateDb) {
         this.m_callResolverCallStateDb = callResolverCallStateDb;
-    }
-
-    public String getSipSrvOrHostport() {
-        return m_sipSrvOrHostport;
-    }
-
-    public void setSipSrvOrHostport(String sipSrvOrHostport) {
-        this.m_sipSrvOrHostport = sipSrvOrHostport;
     }
 
     @Override

@@ -39,7 +39,7 @@ public class LocationsMigrationTriggerTestIntegration extends IntegrationTestCas
         assertEquals(2, locationsAfterMigration.length);
         assertEquals("https://localhost:8092/RPC2", locationsAfterMigration[0].getProcessMonitorUrl());
         assertEquals("upgrade1.example.org", locationsAfterMigration[0].getSipDomain());
-        assertEquals("https://192.168.0.27:8092/RPC2", locationsAfterMigration[1].getProcessMonitorUrl());
+        assertEquals("https://myserver.mydomain.org:8092/RPC2", locationsAfterMigration[1].getProcessMonitorUrl());
         assertEquals("upgrade2.example.org", locationsAfterMigration[1].getSipDomain());
 
         assertFalse(testTopologyFile.exists());
@@ -69,6 +69,7 @@ public class LocationsMigrationTriggerTestIntegration extends IntegrationTestCas
         // skip step of creating topology file
 
         m_out.setConfigDirectory(getConfigDirectory());
+        m_out.setLocalIpAddress("192.168.1.2");
         m_out.setHostname("my.full.hostname");
         m_out.onInitTask("migrate_locations");
 

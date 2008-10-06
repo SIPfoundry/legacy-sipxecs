@@ -12,6 +12,8 @@ package org.sipfoundry.sipxconfig.admin;
 import java.io.IOException;
 import java.io.Writer;
 
+import org.sipfoundry.sipxconfig.admin.commserver.Location;
+
 public interface ConfigurationFile {
     /**
      * Writes document to specified writer
@@ -19,7 +21,7 @@ public interface ConfigurationFile {
      * @param writer destination for file content.
      * @throws IOException
      */
-    void write(Writer writer) throws IOException;
+    void write(Writer writer, Location location) throws IOException;
 
     /**
      * Retrieves configuration file content as string

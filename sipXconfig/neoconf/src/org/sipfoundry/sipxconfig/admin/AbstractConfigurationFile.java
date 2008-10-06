@@ -80,8 +80,9 @@ public abstract class AbstractConfigurationFile implements ConfigurationFile {
         // write content to temporary file
         File tmpFile = File.createTempFile(filename, "tmp", configDir);
         FileWriter writer = new FileWriter(tmpFile);
+
         try {
-            write(writer);
+            write(writer, null);
         } finally {
             IOUtils.closeQuietly(writer);
         }

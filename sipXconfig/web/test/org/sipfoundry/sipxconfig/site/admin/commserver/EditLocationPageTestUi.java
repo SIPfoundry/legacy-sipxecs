@@ -27,7 +27,8 @@ public class EditLocationPageTestUi extends WebTestCase {
     public void testAddWithValidInput() {
         SiteTestHelper.assertNoUserError(tester);
         setTextField("location:name", "newLocation");
-        setTextField("location:address", "another.example.org");
+        setTextField("location:address", "192.168.1.2");
+        setTextField("location:fqdn", "another.example.org");
         clickButton("form:ok");
         SiteTestHelper.assertNoUserError(tester);
     }

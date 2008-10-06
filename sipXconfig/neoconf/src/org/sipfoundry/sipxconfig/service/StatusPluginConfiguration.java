@@ -10,6 +10,7 @@
 package org.sipfoundry.sipxconfig.service;
 
 import org.apache.velocity.VelocityContext;
+import org.sipfoundry.sipxconfig.admin.commserver.Location;
 
 public class StatusPluginConfiguration extends SipxServiceConfiguration {
 
@@ -21,8 +22,8 @@ public class StatusPluginConfiguration extends SipxServiceConfiguration {
     }
 
     @Override
-    protected VelocityContext setupContext() {
-        VelocityContext context = super.setupContext();
+    protected VelocityContext setupContext(Location location) {
+        VelocityContext context = super.setupContext(location);
         context.put("statusService", m_statusService);
         return context;
     }

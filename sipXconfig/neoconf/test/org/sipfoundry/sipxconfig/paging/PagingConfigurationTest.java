@@ -90,7 +90,7 @@ public class PagingConfigurationTest extends TestCase {
         m_pagingConfiguration.generate(m_pagingServer, m_pagingGroups, "media", "example.org");
 
         StringWriter output = new StringWriter();
-        m_pagingConfiguration.write(output);
+        m_pagingConfiguration.write(output, null);
 
         InputStream expectedProfile = getClass().getResourceAsStream("sipxpage.properties.in");
         assertNotNull(expectedProfile);

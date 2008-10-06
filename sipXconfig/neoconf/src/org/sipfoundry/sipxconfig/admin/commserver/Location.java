@@ -21,10 +21,16 @@ public class Location extends BeanWithId {
     private static final String HTTP_PREFIX = "https://";
     private static final int PROCESS_MONITOR_PORT = 8092;
     private static final String PROCESS_MONITOR_PATH = "/RPC2";
+    private static final String EMPTY_STRING = "";
 
     private String m_name;
     private String m_sipDomain;
     private String m_address;
+    private String m_fqdn;
+
+    private String m_domainname;
+    private String m_hostname;
+
     private Collection<SipxService> m_sipxServices;
 
     public String getName() {
@@ -43,6 +49,35 @@ public class Location extends BeanWithId {
         m_address = address;
     }
 
+    public String getFqdn() {
+        return m_fqdn;
+    }
+
+    public void setFqdn(String fqdn) {
+        m_fqdn = fqdn;
+        if (m_fqdn != null) {
+            int i = m_fqdn.indexOf('.');
+            if (i != -1) {
+                m_hostname = m_fqdn.substring(0, i);
+                m_domainname = m_fqdn.substring(i + 1);
+            } else {
+                m_hostname = m_fqdn;
+                m_domainname = EMPTY_STRING;
+            }
+        } else {
+            m_hostname = EMPTY_STRING;
+            m_domainname = EMPTY_STRING;
+        }
+    }
+
+    public String getDomainname() {
+        return m_domainname;
+    }
+
+    public String getHostname() {
+        return m_hostname;
+    }
+
     /**
      * Sets this instances address field based on the value parsed from the given URL.  For
      * example, the URL of "https://localhost:8091/cgi-bin/replication/replication.cgi" will
@@ -54,11 +89,25 @@ public class Location extends BeanWithId {
         Matcher matcher = addressPattern.matcher(url);
         matcher.matches();
         String address = matcher.group(1);
-        setAddress(address);
+        if (isValidIp(address)) {
+            setAddress(address);
+        } else {
+            setFqdn(address);
+        }
+    }
+
+    private static boolean isValidIp(final String ip) {
+        return ip.matches("[\\d]{1,3}\\.[\\d]{1,3}\\.[\\d]{1,3}\\.[\\d]{1,3}$");
     }
 
     public String getProcessMonitorUrl() {
-        return HTTP_PREFIX + m_address + ':' + PROCESS_MONITOR_PORT + PROCESS_MONITOR_PATH;
+        if ((m_fqdn != null) && (m_fqdn.length() != 0)) {
+            return HTTP_PREFIX + m_fqdn + ':' + PROCESS_MONITOR_PORT + PROCESS_MONITOR_PATH;
+        } else if (m_address != null) {
+            return HTTP_PREFIX + m_address + ':' + PROCESS_MONITOR_PORT + PROCESS_MONITOR_PATH;
+        } else {
+            return EMPTY_STRING;
+        }
     }
 
     public String getSipDomain() {

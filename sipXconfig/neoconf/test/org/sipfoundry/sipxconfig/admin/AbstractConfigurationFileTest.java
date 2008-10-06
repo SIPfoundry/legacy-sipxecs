@@ -9,6 +9,7 @@ package org.sipfoundry.sipxconfig.admin;
 
 import java.io.IOException;
 import java.io.Writer;
+import org.sipfoundry.sipxconfig.admin.commserver.Location;
 
 import junit.framework.TestCase;
 
@@ -21,7 +22,7 @@ public class AbstractConfigurationFileTest extends TestCase {
                 return "";
             }
 
-            public void write(Writer writer) throws IOException {
+            public void write(Writer writer, Location location) throws IOException {
             }
 
         };

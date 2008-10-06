@@ -4,10 +4,12 @@
     <column>location_id</column>
     <column>name</column>
     <column>address</column>
+    <column>fqdn</column>
     <column>sip_domain</column>
     <row>
       <value>100</value>
       <value>Config Server, Media Server and Comm Server</value>
+      <value>192.168.0.26</value>
       <value>localhost</value>
       <value>h1.example.org</value>
     </row>
@@ -15,6 +17,7 @@
       <value>101</value>
       <value>Distributed Comm Server</value>
       <value>192.168.0.27</value>
+      <value></value>
       <value>h2.example.org</value>
     </row>
   </table>

@@ -12,5 +12,6 @@ package org.sipfoundry.sipxconfig.service;
 import org.sipfoundry.sipxconfig.admin.TemplateConfigurationFile;
 
 public abstract class SipxServiceConfiguration extends TemplateConfigurationFile {
+
     public abstract void generate(SipxService service);
 }

@@ -9,8 +9,15 @@
  */
 package org.sipfoundry.sipxconfig.service;
 
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.io.StringReader;
+import java.io.StringWriter;
+
+import org.apache.commons.io.IOUtils;
 import org.easymock.EasyMock;
 import org.sipfoundry.sipxconfig.TestHelper;
+import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
 public class SipxProxyConfigurationTest extends SipxServiceTestBase {
@@ -44,13 +51,29 @@ public class SipxProxyConfigurationTest extends SipxServiceTestBase {
         proxySettings.getSetting("SIPX_PROXY_LOG_LEVEL").setValue("CRIT");
 
         proxyService.setSecureSipPort("5061");
-        proxyService.setSipSrvOrHostport("sipsrv.example.org");
 
         proxyService.setCallResolverCallStateDb("CALL_RESOLVER_DB");
 
         out.generate(proxyService);
 
-        assertCorrectFileGeneration(out, "expected-proxy-config");
+        Location location = new Location();
+        location.setName("localLocation");
+        location.setFqdn("sipx1.example.org");
+        location.setAddress("192.168.1.2");
+
+        StringWriter actualConfigWriter = new StringWriter();
+        out.write(actualConfigWriter, location);
+
+        Reader referenceConfigReader = new InputStreamReader(SipxProxyConfigurationTest.class
+                .getResourceAsStream("expected-proxy-config"));
+        String referenceConfig = IOUtils.toString(referenceConfigReader);
+
+        Reader actualConfigReader = new StringReader(actualConfigWriter.toString());
+        String actualConfig = IOUtils.toString(actualConfigReader);
+
+        assertEquals(referenceConfig, actualConfig);
+
+        //assertCorrectFileGeneration(out, "expected-proxy-config");
 
     }
 }

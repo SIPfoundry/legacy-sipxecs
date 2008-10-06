@@ -44,14 +44,16 @@ public class LocationsManagerImplTestIntegration extends IntegrationTestCase {
         loadDataSetXml("admin/commserver/clearLocations.xml");
         Location location = new Location();
         location.setName("test location");
-        location.setAddress("localhost");
+        location.setAddress("192.168.1.2");
+        location.setFqdn("localhost");
         
         m_out.storeLocation(location);
         
         Location[] dbLocations = m_out.getLocations();
         assertEquals(1, dbLocations.length);
         assertEquals("test location", dbLocations[0].getName());
-        assertEquals("localhost", dbLocations[0].getAddress());
+        assertEquals("192.168.1.2", dbLocations[0].getAddress());
+        assertEquals("localhost", dbLocations[0].getFqdn());
         
         location.setSipDomain("newdomain.org");
         m_out.storeLocation(location);
