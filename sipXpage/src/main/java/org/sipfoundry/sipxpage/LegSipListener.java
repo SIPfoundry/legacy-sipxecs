@@ -213,6 +213,7 @@ public class LegSipListener implements SipListener
       Transaction origInviteTransaction = leg.getInviteTransaction() ;
       if (origInviteTransaction != null)
       {
+    	 LOG.info(String.format("LegSipListener::endCall Leg %s origInviteTransaction exists", leg.toString())) ; 
          if (leg.isServer())
          {
             // Send a Busy Here response
@@ -238,14 +239,15 @@ public class LegSipListener implements SipListener
       }
 
       DialogState dialogState = dialog.getState() ;
-
       // Already terminated, call is ended.
       if (dialogState == null || dialogState == DialogState.TERMINATED)
       {
+    	 LOG.info(String.format("LegSipListener::endCall Leg %s dialogState null or TERMINATED", leg.toString())) ; 
          return ;
       }
       else
       {
+     	 LOG.info(String.format("LegSipListener::endCall Leg %s dialog %s needs a BYE", leg.toString(), dialog.toString())) ; 
          // Build a BYE request
          Request request = dialog.createRequest(Request.BYE) ;
          request.addHeader(userAgent);
@@ -530,7 +532,9 @@ public class LegSipListener implements SipListener
       // Tell the leg goodbye and remove the mapping
       triggerLegEvent(dialog, "dialog terminated") ;
       Leg leg = dialogLegMap.remove(dialog) ;
-      legDialogMap.remove(leg) ;
+      if (leg != null) {
+    	 legDialogMap.remove(leg) ;
+      }
       LOG.debug(String.format("LegSipListener::processDialogTerminated removing dialog(%s) with leg(%s)", dialog.toString(), leg.toString())) ;
 
    }
@@ -595,6 +599,9 @@ public class LegSipListener implements SipListener
    {
       if (response != null)
       {
+    	 if (response.getHeader(UserAgentHeader.NAME) == null) {
+             response.addHeader(userAgent);
+    	 }
          printOutMessage(response);
          try
          {
@@ -614,80 +621,116 @@ public class LegSipListener implements SipListener
    }
 
 
-   public void processResponse(ResponseEvent responseReceivedEvent)
-   {
-      Response response = responseReceivedEvent.getResponse();
-      ClientTransaction clientTransactionId = responseReceivedEvent.getClientTransaction();
-      Dialog dialog = clientTransactionId.getDialog();
+   public void processResponse(ResponseEvent responseReceivedEvent) {
+		Response response = responseReceivedEvent.getResponse();
+		CSeqHeader cseq = (CSeqHeader) response.getHeader(CSeqHeader.NAME);
+		ClientTransaction clientTransactionId = responseReceivedEvent
+				.getClientTransaction();
+		Dialog transactionDialog = null;
+		Dialog eventDialog = responseReceivedEvent.getDialog() ;
 
-      printInMessage(response) ;
-      LOG.info("LegSipListener::processResponse " + response.getReasonPhrase()
-            + " received at " + sipStack.getStackName()
-            + " with client transaction id " + clientTransactionId
-            + " dialog " + dialog);
-      
-      if (dialog != null)
-      {
-         // Deal with SDP in any response
-         InetSocketAddress addressPort = handleSdp(response);
-         if (addressPort != null)
-         {
-            // Tell Leg about sdp
-            LegEvent legEvent = new LegEvent(dialogLegMap.get(dialog), "sdp");
-            legEvent.setSdpAddress(addressPort);
-            triggerLegEvent(legEvent);
-         }
+		if (clientTransactionId != null) {
+			transactionDialog = clientTransactionId.getDialog();
+		}
 
-         if (clientTransactionId.getRequest().getMethod().equals(Request.INVITE))
-         {
-            if (response.getStatusCode() < Response.OK)
-               return ;
-            
-            // Ack only successful INVITE final response
-            // (Stack acks the others...alas we cannot log that!)
-            if (response.getStatusCode() == Response.OK) 
-            {
-               triggerLegEvent(dialog, "dialog connected") ;
-               try
-               {
-                  Request request = dialog.createAck(((CSeqHeader)response.getHeader(CSeqHeader.NAME)).getSeqNumber());
-                  // Add user agent
-                  request.addHeader(userAgent);
-      
-                  // Send ACK
-                  printOutMessage(request) ;            
-                  dialog.sendAck(request);
-               } catch (SipException e)
-               {
-                  LOG.warn("LegSipListener::processResponse", e) ;
-               } catch (InvalidArgumentException e) {
-                  LOG.warn("LegSipListener::processResponse", e) ;
-               }
-            }
-            else
-            {
-               triggerLegEvent(dialog, "dialog failed to connect") ;
-            }
-            Leg leg = (Leg)clientTransactionId.getApplicationData() ;
-            if (leg != null)
-            {
-               // The invite transaction is completed.
-               leg.setInviteTransaction(null, false) ;
-            }
-         }
-      }
-   }
+		printInMessage(response);
+		LOG.info("LegSipListener::processResponse " + response.getReasonPhrase() 
+				+ " received at " + sipStack.getStackName() 
+				+ " with client transaction id "+ clientTransactionId 
+				+ " tx dialog " + transactionDialog
+				+ " event dialog " + eventDialog);
+
+		// Send an ACK for all INVIITE 200 OKs, even if we don't care about them.
+		// (Stops the other side from sending more)
+		if (response.getStatusCode() == Response.OK
+				&& cseq.getMethod().equals(Request.INVITE)) {
+			try {
+				Request ackRequest = eventDialog.createAck(cseq.getSeqNumber());
+				// Add user agent
+				ackRequest.addHeader(userAgent);
+
+				
+				// If the eventDialog is not the transactionDialog, this 200 OK is from a fork.
+				if (transactionDialog == null || !eventDialog.equals(transactionDialog)) {
+					// Send ACK in statelessly so as NOT to accept it
+					printOutMessage(ackRequest);
+					sipProvider.sendRequest(ackRequest);
+
+					// Send a BYE, we cannot handle multiple forks.
+					LOG.debug("LegSipListener::processResponse second 200 OK (forked INVITE?), send BYE");
+	
+					// Build a BYE request
+					Request byeRequest;
+					byeRequest = eventDialog.createRequest(Request.BYE);
+					// Add user agent
+					byeRequest.addHeader(userAgent);
+					// Create a new client transaction
+					ClientTransaction byeTransaction = sipProvider
+							.getNewClientTransaction(byeRequest);
+					// Send it (in Dialog)
+					printOutMessage(byeRequest);
+					eventDialog.sendRequest(byeTransaction);
+ 										
+					return ;
+				} else {
+					// Send ACK in Dialog to accept it
+					printOutMessage(ackRequest);
+					eventDialog.sendAck(ackRequest);
+				}
+
+			} catch (InvalidArgumentException e) {
+				LOG.warn("LegSipListener::processResponse", e);
+				return;
+			} catch (SipException e) {
+				LOG.warn("LegSipListener::processResponse", e);
+				return;
+			}
+		}
+
+		if (transactionDialog != null) {
+			// Deal with SDP in any response
+			InetSocketAddress addressPort = handleSdp(response);
+			if (addressPort != null) {
+				// Tell Leg about SDP
+				LegEvent legEvent = new LegEvent(dialogLegMap.get(transactionDialog),
+						"sdp");
+				legEvent.setSdpAddress(addressPort);
+				triggerLegEvent(legEvent);
+			}
+
+			if (cseq.getMethod().equals(Request.INVITE)) {
+				// Ignore 1XX responses
+				if (response.getStatusCode() < Response.OK)
+					return;
+
+				Leg leg = (Leg) clientTransactionId.getApplicationData();
+
+				if (response.getStatusCode() == Response.OK) {
+					if (leg != null && leg.getInviteTransaction() != null) {
+						// The invite transaction is completed.
+						triggerLegEvent(transactionDialog, "dialog connected");
+					}
+				} else {
+					triggerLegEvent(transactionDialog, "dialog failed to connect");
+				}
+				if (leg != null) {
+					// The invite transaction is completed.
+					leg.setInviteTransaction(null, false);
+				}
+			}
+		}
+	}
 
    /**
-    * Given a SIP message, find any SDP embedded in it and return the
-    * IP address and port number that represents uLaw audio.  
-    * 
-    * @param message
-    * @return The InetSocketAddress or null if nothing found
-    */
+	 * Given a SIP message, find any SDP embedded in it and return the IP
+	 * address and port number that represents uLaw audio.
+	 * 
+	 * @param message
+	 * @return The InetSocketAddress or null if nothing found
+	 */
    InetSocketAddress handleSdp(Message message)
    {
-      // TODO  Handle multi-part MIME
+      // TODO Handle multi-part MIME
       // Check for SDP
       ContentLengthHeader contentLengthHeader = message.getContentLength() ;
       if (contentLengthHeader != null && contentLengthHeader.getContentLength() > 0)

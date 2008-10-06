@@ -177,7 +177,7 @@ public class PageGroup implements LegListener
     * End this page, by clearing up all timers, outbound calls, the inbound call,
     * and the RTP forker.
     * 
-    * synchronized so muliple calls are serialized.  Only the first should
+    * synchronized so multiple calls are serialized.  Only the first should
     * be needed.  
     */
    public synchronized void end()
