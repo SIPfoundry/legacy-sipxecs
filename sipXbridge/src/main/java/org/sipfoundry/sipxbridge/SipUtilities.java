@@ -810,7 +810,18 @@ class SipUtilities {
 
     static String getSessionDescriptionAttribute(SessionDescription sessionDescription) {
         try {
-            return sessionDescription.getAttribute("a");
+            Vector sessionAttributes =  sessionDescription.getAttributes(false);
+            if ( sessionAttributes == null ) return null;
+            for ( Object attr : sessionAttributes) {
+                Attribute attribute = ( Attribute) attr;
+                if ( attribute.getName().equals("sendrecv") 
+                        || attribute.getName().equals("sendonly")
+                        || attribute.getName().equals("recvonly")
+                        || attribute.getName().equals("inactive") ) {
+                    return attribute.getName();
+                }
+            }
+            return null;
         } catch (SdpParseException ex) {
             throw new RuntimeException("Unexpected exeption retrieving a field", ex);
         }

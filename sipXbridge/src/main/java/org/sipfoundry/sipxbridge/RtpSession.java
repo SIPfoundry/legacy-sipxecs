@@ -180,7 +180,7 @@ class RtpSession {
        
         tad.serverTransactionProvider = ((DialogExt) dialog).getSipProvider();
         ctx.setApplicationData(tad);
-        ctx.sendRequest();
+        peerDialog.sendRequest(ctx);
         this.reInviteForwarded = true;
     }
     

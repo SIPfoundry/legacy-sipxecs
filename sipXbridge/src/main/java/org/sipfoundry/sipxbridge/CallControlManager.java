@@ -265,6 +265,9 @@ class CallControlManager implements SymmitronResetHandler {
                 } else {
                     if (SipUtilities.isSdpQuery(request)) {
                         Request newRequest = peerDialog.createRequest(Request.INVITE);
+                        
+                        ContactHeader contactHeader = SipUtilities.createContactHeader("sipxbridge", peerDialogProvider, null);
+                        newRequest.setHeader(contactHeader);
                         ClientTransaction ctx = peerDialogProvider
                                 .getNewClientTransaction(newRequest);
                         TransactionApplicationData tad = new TransactionApplicationData(
@@ -948,6 +951,8 @@ class CallControlManager implements SymmitronResetHandler {
 
                     if (response.getContentLength().getContentLength() == 0) {
                         logger.error("DROPPING CALL -- Expecting a content length != 0 ");
+                        Request ackRequest = dialog.createAck(SipUtilities.getSeqNumber(response));
+                        dialog.sendAck(ackRequest);
                         b2bua.tearDown();
                         return;
                     }
