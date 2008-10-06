@@ -1112,6 +1112,9 @@ public class BackToBackUserAgent {
                 reInvite.setHeader(viaHeader);
                 ContactHeader contactHeader = SipUtilities.createContactHeader(provider,
                         itspAccountInfo);
+                ContentTypeHeader cth = ProtocolObjects.headerFactory.createContentTypeHeader("application",
+                        "sdp");
+                reInvite.setHeader(cth);
                 reInvite.setHeader(contactHeader);
                 AcceptHeader acceptHeader = ProtocolObjects.headerFactory.createAcceptHeader(
                         "application", "sdp");

@@ -160,9 +160,8 @@ class CallControlManager implements SymmitronResetHandler {
 
         /*
          * The request originated from the LAN side. Otherwise, the request originated from WAN we
-         * sent it along to the phone on the previous step. If we handled the 
-         * request locally then send an ok back. This happens when the provider
-         * does not support re-INVITE
+         * sent it along to the phone on the previous step. If we handled the request locally then
+         * send an ok back. This happens when the provider does not support re-INVITE
          */
         if (provider == Gateway.getLanProvider() && !lanRtpSession.isReInviteForwarded()) {
             Response response = ProtocolObjects.messageFactory.createResponse(Response.OK,
@@ -236,7 +235,7 @@ class CallControlManager implements SymmitronResetHandler {
                         && provider == Gateway.getLanProvider()
                         && ((!Gateway.isReInviteSupported()) || Gateway.getMusicOnHoldAddress() == null)) {
                     // Can handle this request locally without re-Inviting server (optimization)
-                    if (SipUtilities.isSdpQuery(request) ) {
+                    if (SipUtilities.isSdpQuery(request)) {
                         // This case occurs if MOH is turned OFF on sipxbridge
                         // and is turned ON on the phone.
                         // In this case the phone will query the ITSP
@@ -659,6 +658,9 @@ class CallControlManager implements SymmitronResetHandler {
                     SessionDescription sd = SipUtilities.getSessionDescription(inboundAck);
                     SipUtilities.incrementSessionVersion(sd);
                     dat.getRtpSession().getReceiver().setSessionDescription(sd);
+                    // HACK ALERT
+                    // Some ITPSs do not like sendonly so make sure it is sendrecv
+                    SipUtilities.setDuplexity(sd, "sendrecv");
                     ack.setContent(sd.toString(), cth);
                 }
 
@@ -673,7 +675,7 @@ class CallControlManager implements SymmitronResetHandler {
                  * Just to record the call completion time statistics for later.
                  */
                 dat.lastAckSent = System.currentTimeMillis();
-                
+
                 /*
                  * Set the pending flag to false.
                  */
@@ -961,10 +963,14 @@ class CallControlManager implements SymmitronResetHandler {
                         RtpSession wanRtpSession = b2bua.getWanRtpSession(peerDialog);
                         wanRtpSession.getReceiver().setSessionDescription(sd);
                         DialogApplicationData peerDat = DialogApplicationData.get(peerDialog);
-                        ContactHeader contactHeader = (ContactHeader) peerDat.request
-                                .getHeader(ContactHeader.NAME);
+                        SipProvider wanProvider = (SipProvider) ((TransactionExt) st)
+                                .getSipProvider();
+                        
+                        ContactHeader contactHeader = SipUtilities.createContactHeader(
+                                wanProvider, dat.itspInfo);
                         ContentTypeHeader cth = ProtocolObjects.headerFactory
                                 .createContentTypeHeader("application", "sdp");
+                        SipUtilities.incrementSessionVersion(sd);
                         newResponse.setContent(sd.toString(), cth);
                         newResponse.setHeader(contactHeader);
                         dat.isSdpAnswerPending = true;
@@ -1279,16 +1285,19 @@ class CallControlManager implements SymmitronResetHandler {
 
                         newResponse.setHeader(sh);
                         ContactHeader contactHeader = SipUtilities.createContactHeader(null,
-                                tad.serverTransactionProvider, Gateway.getSipxProxyTransport());
+                                tad.serverTransactionProvider, null);
                         newResponse.setHeader(contactHeader);
-                        SessionDescription sd = SipUtilities.getSessionDescription(response);
-                        ContentTypeHeader cth = ProtocolObjects.headerFactory
-                                .createContentTypeHeader("application", "sdp");
                         Dialog peerDialog = DialogApplicationData.getPeerDialog(dialog);
                         SipProvider peerProvider = ((DialogExt) peerDialog).getSipProvider();
-                        RtpSession rtpSession = b2bua.getLanRtpSession(peerDialog);
-                        rtpSession.getReceiver().setSessionDescription(sd);
-                        newResponse.setContent(sd.toString(), cth);
+                        if (response.getContentLength().getContentLength() != 0) {
+                            SessionDescription sd = SipUtilities.getSessionDescription(response);
+                            ContentTypeHeader cth = ProtocolObjects.headerFactory
+                                    .createContentTypeHeader("application", "sdp");
+
+                            RtpSession rtpSession = b2bua.getLanRtpSession(peerDialog);
+                            rtpSession.getReceiver().setSessionDescription(sd);
+                            newResponse.setContent(sd.toString(), cth);
+                        }
                         if (peerProvider != Gateway.getLanProvider()) {
                             DialogApplicationData peerDat = DialogApplicationData.get(peerDialog);
                             if (peerDat.itspInfo == null
