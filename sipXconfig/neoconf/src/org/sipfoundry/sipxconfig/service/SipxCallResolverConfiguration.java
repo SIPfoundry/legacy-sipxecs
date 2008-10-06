@@ -23,10 +23,7 @@ public class SipxCallResolverConfiguration extends SipxServiceConfiguration {
 
     @Override
     protected VelocityContext setupContext(Location location) {
-        VelocityContext context = super.setupContext(null);
-        if (location != null) {
-            context.put("location", location);
-        }
+        VelocityContext context = super.setupContext(location);
         context.put("settings", m_service.getSettings().getSetting("callresolver"));
         context.put("callresolverService", m_service);
         return context;

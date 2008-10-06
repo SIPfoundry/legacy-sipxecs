@@ -26,19 +26,20 @@ public class MonitoringContextImplTest extends TestCase {
     private MRTGConfig m_mrtgConfig;
     private MRTGConfig m_mrtgTemplateConfig;
 
+    @Override
     protected void setUp() {
         m_monitoringContextImpl = new MonitoringContextImpl();
         m_monitoringContextImpl.setEnabled(true);
-        
+
         m_locationsManager = EasyMock.createNiceMock(LocationsManager.class);
         Location firstLocation = new Location();
-        firstLocation.setSipDomain("h1.sipfoundry.org");
+        firstLocation.setFqdn("h1.sipfoundry.org");
         Location secondLocation = new Location();
-        secondLocation.setSipDomain("h2.sipfoundry.org");
+        secondLocation.setFqdn("h2.sipfoundry.org");
         m_locationsManager.getLocations();
         EasyMock.expectLastCall().andReturn(new Location[] {firstLocation, secondLocation}).anyTimes();
         EasyMock.replay(m_locationsManager);
-        
+
         m_monitoringContextImpl.setLocationsManager(m_locationsManager);
 
         m_mrtgConfig = new MRTGConfig(TestUtil.getTestSourceDirectory(getClass()) + "/" + "mrtg.cfg");

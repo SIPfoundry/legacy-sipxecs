@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.admin.commserver;
@@ -38,9 +38,9 @@ public class LocationsMigrationTriggerTestIntegration extends IntegrationTestCas
         Location[] locationsAfterMigration = m_locationsManager.getLocations();
         assertEquals(2, locationsAfterMigration.length);
         assertEquals("https://localhost:8092/RPC2", locationsAfterMigration[0].getProcessMonitorUrl());
-        assertEquals("upgrade1.example.org", locationsAfterMigration[0].getSipDomain());
-        assertEquals("https://myserver.mydomain.org:8092/RPC2", locationsAfterMigration[1].getProcessMonitorUrl());
-        assertEquals("upgrade2.example.org", locationsAfterMigration[1].getSipDomain());
+        assertEquals("localhost", locationsAfterMigration[0].getFqdn());
+        assertEquals("https://192.168.0.27:8092/RPC2", locationsAfterMigration[1].getProcessMonitorUrl());
+        assertEquals("192.168.0.27", locationsAfterMigration[1].getFqdn());
 
         assertFalse(testTopologyFile.exists());
     }
@@ -56,9 +56,9 @@ public class LocationsMigrationTriggerTestIntegration extends IntegrationTestCas
         Location[] locationsAfterMigration = m_locationsManager.getLocations();
         assertEquals(2, locationsAfterMigration.length);
         assertEquals("https://localhost:8092/RPC2", locationsAfterMigration[0].getProcessMonitorUrl());
-        assertEquals("h1.example.org", locationsAfterMigration[0].getSipDomain());
-        assertEquals("https://192.168.0.27:8092/RPC2", locationsAfterMigration[1].getProcessMonitorUrl());
-        assertEquals("h2.example.org", locationsAfterMigration[1].getSipDomain());
+        assertEquals("localhost", locationsAfterMigration[0].getFqdn());
+        assertEquals("https://remotehost.example.com:8092/RPC2", locationsAfterMigration[1].getProcessMonitorUrl());
+        assertEquals("remotehost.example.com", locationsAfterMigration[1].getFqdn());
     }
 
     public void testOnInitTaskWithMissingTopologyFile() throws Exception {

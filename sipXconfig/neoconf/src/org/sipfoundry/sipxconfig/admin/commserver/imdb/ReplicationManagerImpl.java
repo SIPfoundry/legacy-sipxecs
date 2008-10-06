@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.admin.commserver.imdb;
@@ -50,7 +50,7 @@ public class ReplicationManagerImpl implements ReplicationManager {
 
     /**
      * Sends IMDB table data data to all locations
-     * 
+     *
      * It only returns one result, if there is a failure checking the log is the only way to
      * detect it. We could throw exceptions from here but it would mean that a single IO failure
      * dooms entire replication process.
@@ -63,7 +63,6 @@ public class ReplicationManagerImpl implements ReplicationManager {
         DataSet type = generator.getType();
         for (int i = 0; i < locations.length; i++) {
             try {
-                generator.setSipDomain(locations[i].getSipDomain());
                 List<Map<String, String>> records = generator.generate();
 
                 ImdbApi api = m_imdbApiProvider.getApi(locations[i].getProcessMonitorUrl());
@@ -79,7 +78,7 @@ public class ReplicationManagerImpl implements ReplicationManager {
 
     /**
      * Encodes payload using Base64 and returns encoded data as string
-     * 
+     *
      * @param payload
      * @return string representing encoded data
      */

@@ -23,10 +23,7 @@ public class SipxIvrConfiguration extends SipxServiceConfiguration {
 
     @Override
     protected VelocityContext setupContext(Location location) {
-        VelocityContext context = super.setupContext(null);
-        if (location != null) {
-            context.put("location", location);
-        }
+        VelocityContext context = super.setupContext(location);
         context.put("service", m_service);
         return context;
     }

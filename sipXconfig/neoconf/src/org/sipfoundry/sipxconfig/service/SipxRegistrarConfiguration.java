@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.service;
@@ -23,15 +23,10 @@ public class SipxRegistrarConfiguration extends SipxServiceConfiguration {
 
     @Override
     protected VelocityContext setupContext(Location location) {
-        VelocityContext context = super.setupContext(null);
-        if (location != null) {
-            context.put("location", location);
-        }
+        VelocityContext context = super.setupContext(location);
         context.put("settings", m_service.getSettings());
         context.put("registrarService", m_service);
-        
-        String domainAliases = m_service.getSettings().getSetting("domain/SIP_REGISTRAR_DOMAIN_ALIASES").getValue();
-        
+
         return context;
     }
 }

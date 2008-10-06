@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.site;
@@ -169,7 +169,7 @@ public abstract class TestPage extends BasePage {
 
     @InjectObject(value = "spring:pagingContext")
     public abstract PagingContext getPagingContext();
-    
+
     @InjectObject(value = "spring:locationsManager")
     public abstract LocationsManager getLocationsManager();
 
@@ -235,19 +235,20 @@ public abstract class TestPage extends BasePage {
     public void resetPersonalAttendants() {
         getMailboxManager().clearPersonalAttendants();
     }
-    
+
     public void seedLocationsManager() {
         Location[] existingLocations = getLocationsManager().getLocations();
         for (Location location : existingLocations) {
             getLocationsManager().deleteLocation(location);
         }
-        
+
         Location remoteLocation = new Location();
         remoteLocation.setName("Remote Location");
-        remoteLocation.setAddress("host.example.org");
+        remoteLocation.setFqdn("host.example.org");
+        remoteLocation.setAddress("192.168.155.100");
         getLocationsManager().storeLocation(remoteLocation);
     }
-    
+
     public String resetCoreContext() {
         // need to reset all data that could potentially have a reference
         // to users

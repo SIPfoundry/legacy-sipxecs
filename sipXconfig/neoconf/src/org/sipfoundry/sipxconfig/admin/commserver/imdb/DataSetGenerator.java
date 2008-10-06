@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.admin.commserver.imdb;
@@ -22,7 +22,6 @@ import org.sipfoundry.sipxconfig.common.CoreContext;
 public abstract class DataSetGenerator {
 
     private CoreContext m_coreContext;
-    private String m_sipDomain;
 
     public void setCoreContext(CoreContext coreContext) {
         m_coreContext = coreContext;
@@ -32,18 +31,11 @@ public abstract class DataSetGenerator {
         return m_coreContext;
     }
 
-    public void setSipDomain(String sipDomain) {
-        m_sipDomain = sipDomain;
-    }
-
     /**
      * @return SIP domain - if not set uses m_coreContext to retrieve domain
      */
     protected String getSipDomain() {
-        if (m_sipDomain == null) {
-            m_sipDomain = m_coreContext.getDomainName();
-        }
-        return m_sipDomain;
+        return m_coreContext.getDomainName();
     }
 
     public List<Map<String, String>> generate() {
@@ -54,10 +46,10 @@ public abstract class DataSetGenerator {
 
     /**
      * Creates empty item.
-     * 
+     *
      * XML/RPC client that we use insist on using Hashtable, but there is no reason to pollute the
      * code everywhere.
-     * 
+     *
      * @return newly created empty item
      */
     protected final Map<String, String> addItem(List<Map<String, String>> items) {
@@ -68,7 +60,7 @@ public abstract class DataSetGenerator {
 
     /**
      * This is for testing only.
-     * 
+     *
      * @return XML representation of dataset
      */
     @Deprecated

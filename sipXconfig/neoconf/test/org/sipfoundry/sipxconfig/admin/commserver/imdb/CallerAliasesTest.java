@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.admin.commserver.imdb;
@@ -37,7 +37,7 @@ public class CallerAliasesTest extends XMLTestCase {
         XMLUnit.setIgnoreWhitespace(true);
     }
 
-    private String[][] USER_DATA = {
+    private final String[][] USER_DATA = {
         {
             "first", "last", "userName", "1234", "ss"
         }, {
@@ -47,7 +47,7 @@ public class CallerAliasesTest extends XMLTestCase {
         },
     };
 
-    private Object[][] GATEWAY_DATA = {
+    private final Object[][] GATEWAY_DATA = {
         {
             "example.org", 0, "7832331111", true, false, "", -1, false
         }, {
@@ -61,6 +61,7 @@ public class CallerAliasesTest extends XMLTestCase {
 
     private List<Gateway> m_gateways;
 
+    @Override
     protected void setUp() throws Exception {
         PermissionManagerImpl impl = new PermissionManagerImpl();
         impl.setModelFilesContext(TestHelper.getModelFilesContext());
@@ -96,8 +97,12 @@ public class CallerAliasesTest extends XMLTestCase {
     }
 
     public void testGenerateEmpty() throws Exception {
-        CallerAliases cas = new CallerAliases();
-        cas.setSipDomain("example.org");
+        CallerAliases cas = new CallerAliases() {
+            @Override
+            protected String getSipDomain() {
+                return "example.org";
+            }
+        };
 
         CoreContext coreContext = EasyMock.createMock(CoreContext.class);
         coreContext.loadUsers();
@@ -119,8 +124,13 @@ public class CallerAliasesTest extends XMLTestCase {
     }
 
     public void testGenerate() throws Exception {
-        CallerAliases cas = new CallerAliases();
-        cas.setSipDomain("example.org");
+        CallerAliases cas = new CallerAliases() {
+            @Override
+            protected String getSipDomain() {
+                return "example.org";
+            }
+        };
+
         cas.setAnonymousAlias("sip:anonymous@anonymous.invalid");
 
         CoreContext coreContext = EasyMock.createMock(CoreContext.class);
@@ -138,9 +148,8 @@ public class CallerAliasesTest extends XMLTestCase {
 
         Document document = cas.generateXml();
         String casXml = XmlUnitHelper.asString(document);
-        
-        InputStream referenceXmlStream = AliasesTest.class
-                .getResourceAsStream("caller-alias.test.xml");
+
+        InputStream referenceXmlStream = AliasesTest.class.getResourceAsStream("caller-alias.test.xml");
         assertXMLEqual(new InputStreamReader(referenceXmlStream), new StringReader(casXml));
 
         EasyMock.verify(coreContext, gatewayContext);

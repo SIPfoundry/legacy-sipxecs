@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.service;
@@ -20,13 +20,10 @@ public class SipxStatusConfiguration extends SipxServiceConfiguration {
     public void generate(SipxService service) {
         m_service = service;
     }
-    
+
     @Override
     protected VelocityContext setupContext(Location location) {
-        VelocityContext context = super.setupContext(null);
-        if (location != null) {
-            context.put("location", location);
-        }
+        VelocityContext context = super.setupContext(location);
         context.put("settings", m_service.getSettings().getSetting("status-config"));
         context.put("statusService", m_service);
         return context;

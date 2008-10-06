@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.admin.monitoring;
@@ -16,7 +16,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
@@ -71,20 +70,17 @@ public class MonitoringContextImpl implements MonitoringContext, InitializingBea
      * returns a list with all available hosts to monitor. In a HA configuration will return the
      * hosts configured in topology.xml file. In a non HA configuration will return 'localhost' as
      * the only available host to monitor
-     * 
+     *
      * Location.getSipDomain() should return the configured domains in a HA config. If sip_domain
      * element is null, we parse the replication_url and extract the host (replication url format
      * https://host.example.org:8091/cgi-bin/replication/replication.cgi)
-     * 
+     *
      */
     public List<String> getAvailableHosts() {
         List<String> hosts = new ArrayList<String>();
         Location[] locations = m_locationsManager.getLocations();
         for (Location location : locations) {
-            String host = location.getSipDomain();
-            if (StringUtils.isEmpty(host)) {
-                host = location.getAddress();
-            }
+            String host = location.getFqdn();
             hosts.add(host);
         }
         if (hosts.size() == 0) {
@@ -103,7 +99,7 @@ public class MonitoringContextImpl implements MonitoringContext, InitializingBea
 
     /**
      * creates the mrtg config object and parses the mrtg.cfg file (if mrtg.cfg file exists)
-     * 
+     *
      */
     private void loadMrtgConfig() {
         if ((new File(m_mrtgConfig.getFilename())).exists()) {
@@ -137,7 +133,7 @@ public class MonitoringContextImpl implements MonitoringContext, InitializingBea
 
     /**
      * creates the mrtg template object and parses the mrtg-t.cfg file
-     * 
+     *
      */
     private boolean loadTemplateMrtgConfig() {
         try {
@@ -184,7 +180,7 @@ public class MonitoringContextImpl implements MonitoringContext, InitializingBea
 
     /**
      * use this one until sipXconfig will be able to configure SNMP agent, see XCF-1952
-     * 
+     *
      * @param host
      * @param selectedTargetNames
      */
@@ -196,7 +192,7 @@ public class MonitoringContextImpl implements MonitoringContext, InitializingBea
      * writes the mrtg.cfg file with the selected targets for the provided host and snmp community
      * string Basically overwrites the mrtg.cfg file with the targets already configured at that
      * time plus new targets based on the provided host, community string and targets name
-     * 
+     *
      * The mrtg targets will be generated with ids like: templateTargetId_host.
      */
     private void generateConfigFiles(String host, String communityString, List<String> selectedTargetNames) {

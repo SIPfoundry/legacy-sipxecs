@@ -11,6 +11,7 @@ package org.sipfoundry.sipxconfig.admin.alarm;
 
 import org.apache.velocity.VelocityContext;
 import org.sipfoundry.sipxconfig.admin.TemplateConfigurationFile;
+import org.sipfoundry.sipxconfig.admin.commserver.Location;
 
 public class AlarmServerConfiguration extends TemplateConfigurationFile {
     private boolean m_emailNotificationEnabled;
@@ -29,8 +30,9 @@ public class AlarmServerConfiguration extends TemplateConfigurationFile {
         m_hostName = hostName;
     }
 
-    protected VelocityContext setupContext() {
-        VelocityContext context = super.setupContext();
+    @Override
+    protected VelocityContext setupContext(Location location) {
+        VelocityContext context = super.setupContext(location);
         context.put("email", m_emailNotificationEnabled);
         context.put("contacts", m_contacts);
         context.put("logDirectory", m_logDirectory);

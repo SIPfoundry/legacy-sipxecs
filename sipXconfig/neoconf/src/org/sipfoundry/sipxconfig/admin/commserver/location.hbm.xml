@@ -2,17 +2,16 @@
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" 
   "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <hibernate-mapping package="org.sipfoundry.sipxconfig.admin.commserver" default-lazy="false">
-  
+
   <class name="Location" table="location">
     <id name="id" column="location_id" type="int" unsaved-value="-1">
       <generator class="sequence">
         <param name="sequence">location_seq</param>
       </generator>
     </id>
-    <property name="name"/>
-    <property name="address"/>
-    <property name="fqdn"/>
-    <property name="sipDomain"/>
+    <property name="name" />
+    <property name="address" column="ip_address" />
+    <property name="fqdn" />
     <bag name="sipxServices" table="location_sipx_service" cascade="save-update">
       <key column="location_id" />
       <many-to-many column="sipx_service_id" class="org.sipfoundry.sipxconfig.service.SipxService" />

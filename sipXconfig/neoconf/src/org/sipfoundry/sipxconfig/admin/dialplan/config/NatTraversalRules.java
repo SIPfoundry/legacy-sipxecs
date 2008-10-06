@@ -29,8 +29,9 @@ public class NatTraversalRules extends TemplateConfigurationFile {
         m_natTraversalManager = natTraversalManager;
     }
 
+    @Override
     protected VelocityContext setupContext(Location location) {
-        VelocityContext context = super.setupContext(null);
+        VelocityContext context = super.setupContext(location);
         DefaultSbc sbc = m_sbcManager.loadDefaultSbc();
         NatTraversal natTraversal = m_natTraversalManager.getNatTraversal();
         context.put("sbc", sbc);

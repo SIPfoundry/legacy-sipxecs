@@ -3,9 +3,6 @@
    <location id="Config Server, Media Server and Comm Server">
       <component id="MediaServer1" type="media-server" />         
       <component id="CommServer1"  type="comm-server" />
-      <address>
-         192.168.1.123
-      </address>
       <replication_url>
          https://localhost:8091/cgi-bin/replication/replication.cgi
       </replication_url>
@@ -16,9 +13,6 @@
    </location>
    <location id="Primary CommServer">
       <component id="CommServer1"  type="comm-server" />         
-      <fqdn>
-         myserver.mydomain.org
-      </fqdn>
       <replication_url>
          https://192.168.0.27:8091/cgi-bin/replication/replication.cgi
       </replication_url>

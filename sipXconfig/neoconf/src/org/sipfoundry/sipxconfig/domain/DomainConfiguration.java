@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.domain;
@@ -29,7 +29,7 @@ public class DomainConfiguration extends TemplateConfigurationFile {
 
     @Override
     protected VelocityContext setupContext(Location location) {
-        VelocityContext context = super.setupContext(null);
+        VelocityContext context = super.setupContext(location);
         context.put("domain", m_domain);
         context.put("realm", m_realm);
         context.put("language", m_language);

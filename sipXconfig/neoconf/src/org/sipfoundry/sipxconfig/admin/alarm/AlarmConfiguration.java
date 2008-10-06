@@ -13,6 +13,7 @@ import java.util.List;
 
 import org.apache.velocity.VelocityContext;
 import org.sipfoundry.sipxconfig.admin.TemplateConfigurationFile;
+import org.sipfoundry.sipxconfig.admin.commserver.Location;
 
 public class AlarmConfiguration extends TemplateConfigurationFile {
     private List<Alarm> m_alarms;
@@ -21,8 +22,9 @@ public class AlarmConfiguration extends TemplateConfigurationFile {
         this.m_alarms = alarms;
     }
 
-    protected VelocityContext setupContext() {
-        VelocityContext context = super.setupContext();
+    @Override
+    protected VelocityContext setupContext(Location location) {
+        VelocityContext context = super.setupContext(location);
         context.put("alarms", m_alarms);
         return context;
     }

@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.paging;
@@ -38,8 +38,9 @@ public class PagingConfiguration extends TemplateConfigurationFile {
         server.getSipxServer().resetSettings();
     }
 
+    @Override
     protected VelocityContext setupContext(Location location) {
-        VelocityContext context = super.setupContext(null);
+        VelocityContext context = super.setupContext(location);
         context.put("groups", m_pagingGroups);
         context.put("audioDir", m_audioDirectory);
         context.put("domain", m_domain);

@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.admin.commserver;
@@ -26,20 +26,20 @@ import org.xml.sax.SAXException;
 
 public class LocationsMigrationTrigger extends InitTaskListener {
     private static final Log LOG = LogFactory.getLog(LocationsMigrationTrigger.class);
-    
+
     private LocationsManager m_locationsManager;
     private String m_hostname;
     private String m_localIpAddress;
     private String m_topologyFilename;
     private String m_configDirectory;
-    
+
     @Override
     public void onInitTask(String task) {
         // only do migration if there aren't already locations stored in database
         if (m_locationsManager.getLocations().length > 0) {
             return;
         }
-        
+
         LOG.info("Migrating location data from topology.xml to sipXconfig database");
         Location[] locations = loadLocationsFromFile();
         for (Location location : locations) {
@@ -54,23 +54,23 @@ public class LocationsMigrationTrigger extends InitTaskListener {
             localhostLocation.setFqdn(m_hostname);
             m_locationsManager.storeLocation(localhostLocation);
         }
-        
+
         LOG.info("Deleting topology.xml after data migration");
         getTopologyFile().delete();
     }
-    
+
     public void setLocationsManager(LocationsManager locationsManager) {
         m_locationsManager = locationsManager;
     }
-    
+
     public void setConfigDirectory(String configDirectory) {
         m_configDirectory = configDirectory;
     }
-    
+
     public void setHostname(String hostname) {
         m_hostname = hostname;
     }
-    
+
     public void setLocalIpAddress(String localIpAddress) {
         m_localIpAddress = localIpAddress;
     }
@@ -78,7 +78,7 @@ public class LocationsMigrationTrigger extends InitTaskListener {
     public void setTopologyFilename(String topologyFilename) {
         m_topologyFilename = topologyFilename;
     }
-    
+
     private Location[] loadLocationsFromFile() {
         try {
             InputStream stream = getTopologyAsStream();
@@ -98,20 +98,21 @@ public class LocationsMigrationTrigger extends InitTaskListener {
             return new Location[0];
         }
     }
-    
+
     /** Open an input stream on the topology file and return it */
     protected InputStream getTopologyAsStream() throws FileNotFoundException {
         InputStream stream = new FileInputStream(getTopologyFile());
         return stream;
     }
-    
+
     private File getTopologyFile() {
         return new File(m_configDirectory, m_topologyFilename);
     }
-    
+
     private static final class LocationDigester extends Digester {
         public static final String PATTERN = "topology/location";
 
+        @Override
         protected void initialize() {
             setValidating(false);
             setNamespaceAware(false);
@@ -120,10 +121,10 @@ public class LocationsMigrationTrigger extends InitTaskListener {
             addObjectCreate(PATTERN, Location.class);
             addSetProperties(PATTERN, "id", "name");
             String[] elementNames = {
-                "replication_url", "sip_domain"
+                "replication_url"
             };
             String[] propertyNames = {
-                "url", "sipDomain"
+                "url"
             };
             addSetProperties(PATTERN);
             SetNestedPropertiesRule rule = new SetNestedPropertiesRule(elementNames, propertyNames);

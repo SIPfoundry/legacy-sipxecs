@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.admin.commserver.imdb;
@@ -19,13 +19,15 @@ import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 
 public class DataSetGeneratorTest extends TestCase {
-    
+
     public void testGetDomain() {
         DataSetGenerator dsg = new DataSetGenerator() {
+            @Override
             protected DataSet getType() {
                 return null;
             }
 
+            @Override
             protected void addItems(List<Map<String, String>> items) {
             }
         };
@@ -40,8 +42,5 @@ public class DataSetGeneratorTest extends TestCase {
         assertEquals("core.domain.com", dsg.getSipDomain());
 
         coreContextCtrl.verify();
-        
-        dsg.setSipDomain("set.domain.com");
-        assertEquals("set.domain.com", dsg.getSipDomain());
     }
 }
