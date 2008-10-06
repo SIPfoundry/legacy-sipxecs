@@ -266,21 +266,6 @@ finish_check() {
     echo ""
 }
 
-module_setup () {
-    ## The installation process cannot take care of everything
-    ##   because things like the network must be initialized first.
-    ## Scripts should assume they have root privs, therefore care
-    ## should be taken not to start processes that might create log
-    ## files w/incorrect ownership
-
-    ## sorting alphabetically to provide a reliable order,
-    ## no sophisticated dependency order is required at this time
-    for f in `ls -1 @SIPX_LIBEXECDIR@/setup.d/* 2>/dev/null | sort`
-    do
-        $f
-    done
-}
-
 global_ssl_check () {
     local ssl_status
 
@@ -552,6 +537,38 @@ log_results () {
     cat /dev/null > ${errfile} # clean up temporary results file
 }
 
+do_setup() {
+    # don't do any of this if the sipXsupervisor is running
+    running_super=`cat @SIPX_RUNDIR@/sipxsupervisor.pid 2>/dev/null`
+    if [ -n "${running_super}" ] && proc_alive ${running_super}
+    then
+        :
+    else
+        # Remove the semaphores/memory segments associated with the imdb files
+        @bindir@/ipcclean.pl --remove @SIPX_TMPDIR@/imdb.*
+
+        # Clean up IMDB and all its dependent files.
+        rm -f @SIPX_TMPDIR@/imdb.*
+
+        # Run setup scripts defined by modules
+        ## The installation process cannot take care of everything
+        ##   because things like the network must be initialized first.
+        ## Scripts should assume they have root privs, therefore care
+        ## should be taken not to start processes that might create log
+        ## files w/incorrect ownership
+
+        ## sorting alphabetically to provide a reliable order,
+        ## no sophisticated dependency order is required at this time
+        for f in `ls -1 @SIPX_LIBEXECDIR@/setup.d/* 2>/dev/null | sort`
+        do
+            $f
+        done
+
+        ## Regenerate httpd configuration files from their .in's.
+        @bindir@/httpd-sipxchange-config.sh
+    fi
+}
+
 ## High-level configtest function
 ## Verify that the prerequisites for running sipXecs are OK.
 do_check() {
@@ -572,11 +589,6 @@ do_check() {
     globaltest "ssl" "MUST_PASS" "TLS/SSL configuration"
 
     globaltest "maxfds" "MAY_FAIL" "Per-process file descriptor limits"
-
-    module_setup
-
-    ## Regenerate httpd configuration files from their .in's.
-    @bindir@/httpd-sipxchange-config.sh
 
     ## check for .rpmnew files in the configuration directories
     globaltest "rpmnew" "MAY_FAIL" "rpm configuration file updates"
@@ -643,14 +655,6 @@ do_stop() {
 # Starts the sipxsupervisor process (running as @SIPXPBXUSER@), which starts
 # the sipXecs services
 do_start() {
-
-        ### Clean up various temporary files and locks.
-
-        # Remove the semaphores/memory segments associated with the imdb files
-        @bindir@/ipcclean.pl --remove @SIPX_TMPDIR@/imdb.*
-
-        # Clean up IMDB and all its dependent files.
-        rm -f @SIPX_TMPDIR@/imdb.*
 
         ### Start the programs.
 
@@ -767,10 +771,12 @@ case "$1" in
                 # stale pid file found? - do stop just in case
                 echo " sipxsupervisor not found - running restart to clean locks."
                 do_stop
+                do_setup
                 do_start
                 ExitStatus=$?
             fi
         else
+            do_setup
             do_start
             ExitStatus=$?
         fi
@@ -783,11 +789,13 @@ case "$1" in
         ExitStatus=$?
         ;;
   configtest)
+        do_setup
         do_check
         ExitStatus=$?
         ;;
   restart)
         do_stop
+        do_setup
         do_start
         ExitStatus=$?
         ;;
