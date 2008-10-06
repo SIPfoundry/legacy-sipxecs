@@ -27,8 +27,13 @@
 #include "os/OsDefs.h"
 #include "os/OsMutex.h"
 #include "os/OsSocket.h"
+#include "os/OsServerTask.h"
+#include "os/OsMsg.h"
+#include "os/OsEvent.h"
 
 // DEFINES
+#define SRV_LOOKUP_MSG OsMsg::USER_START
+
 // MACROS
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -39,6 +44,8 @@
 
 // FORWARD DECLARATIONS
 class server_t;
+class SipSrvLookupThread;
+class SrvThreadArgs;
 typedef struct s_res_response
     res_response;
 
@@ -158,7 +165,7 @@ public:
                                  /**< Number of retries to attempt,
                                   *   or 0 for no change. */
       );
-   ///< Defaults are: timeout = 5, retries = 4.
+   ///< Defaults are: timeout = 3, retries = 2.
 
    /// Perform a DNS query and parse the results.  Follows CNAME records.
    static void res_query_and_parse(const char* in_name,
@@ -199,6 +206,12 @@ protected:
 
    /// The array of option values.
    static int options[OptionCodeLast+1];
+   
+   /// Sets the timeout parameter for DNS SRV queries. Default is 3
+   static int mTimeout;
+
+   /// Sets the number of retries for DNS SRV queries. Default is 2
+   static int mRetries;
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
@@ -259,6 +272,149 @@ class server_t {
 
    /// Accessor for protocol
    OsSocket::IpProtocolSocketType getProtocolFromServerT();
+};
+
+/**
+ * A class derived from OsServerTask class, whose members are responsible for carrying out 
+ * DNS queries. The class is restricted to a total of 4 members, with each member responsible
+ * for the DNS query type specified by "mLookupType".
+ */
+
+class SipSrvLookupThread: public OsServerTask
+{
+/* //////////////////////////// PUBLIC //////////////////////////////////// */
+public:
+
+   /// Enum indicating the 4 different lookup types we carry out
+   enum LookupTypes
+   {
+      FIRST_LookupType =0,
+      SRV_UDP = FIRST_LookupType, 
+      SRV_TCP, 
+      SRV_TLS, 
+      A_RECORD,
+      LAST_LookupType = A_RECORD
+   };
+
+   /// Destructor for SipSrvLookupThread
+   virtual ~SipSrvLookupThread(void);
+   
+   /// Get the SRV lookup threads, initializing them if needed 
+   static SipSrvLookupThread ** getLookupThreads();
+
+   /// Implementation of OsServerTask's pure virtual method
+   UtlBoolean handleMessage(OsMsg& rMsg);
+   
+   /// Mutex to keep the Lookups thread-safe.
+   static OsMutex slookupThreadMutex;
+
+   /// Block until the thread has finished a query
+   void isDone();
+
+/* //////////////////////////// PRIVATE /////////////////////////////////// */
+private:
+
+   /// Private constructor for SipSrvLookupThread
+   SipSrvLookupThread(LookupTypes lookupType);
+   /**<
+    * Use getLookupThreads() for initializing and accessing the class members. The class
+    * is restricted to 4 members by the getLookupThreads() function, and their pointers
+    * are stored in "mLookupThreads"
+    */
+   
+   /// Class attribute indicating what type of query this class member is responsible for
+   LookupTypes mLookupType;
+
+   /// Array holding pointers to the four individual lookup threads
+   static SipSrvLookupThread * mLookupThreads[LAST_LookupType+1];
+   
+   /// Attribute indicating whether the lookup threads have been initialized or not
+   static UtlBoolean mHaveThreadsBeenInitialized;
+
+   /// Events used to signal the completion of a query
+   OsEvent * mQueryCompleted;
+
+};
+
+/**
+ * A class derived from OsMsg class, whose members store the arguments necessary  to 
+ * perform the DNS queries, store the result, and signal an event to the main thread
+ * to indicate the completion of a query.
+ */
+
+class SrvThreadArgs: public OsMsg
+{
+/* //////////////////////////// PUBLIC //////////////////////////////////// */
+public:
+
+   /// Constructor for SrvThreadArgs
+   SrvThreadArgs(const char * tmp_domain,
+                 ///< SIP domain name or host name
+                 const char * tmp_service,
+                 ///< "sip" or "sips"
+                 server_t* tmp_list,
+                 ///< Array of objects which describe a server found for a SIP domain
+                 int tmp_list_length_allocated,
+                 ///< Length of the array of server_t objects
+                 int tmp_list_length_used,
+                 ///< Number of objects that have been used
+                 int tmp_port,
+                 ///< port number from URI, or PORT_NONE
+                 OsSocket::IpProtocolSocketType tmp_socketType
+                 ///< preferred transport protocol
+    );
+
+
+   /// Copy constructor for SrvThreadArgs
+   SrvThreadArgs(const SrvThreadArgs& rSrvThreadArgs);
+
+   /// Destructor for SrvThreadArgs
+   virtual ~SrvThreadArgs();
+
+   /// Create a copy of this msg object (which may be of a derived type)
+   OsMsg* createCopy(void) const;
+
+   /// Argument needed by the lookup threads
+   server_t* list;
+   /**<
+    * Array of objects which describe a server found for a SIP domain
+    * This attribute is shared between all the lookup threads. Access to it
+    * is controlled via the "sLookupThreadMutex" mutex in the SipSrvLookupThread class
+    */
+   
+   /// Argument needed by the lookup threads
+   int * list_length_allocated;
+   /**<
+    * Length of the array of server_t objects
+    * This attribute is shared between all the lookup threads. Access to it
+    * is controlled via the "sLookupThreadMutex" mutex in the SipSrvLookupThread class
+    */
+   
+   /// Argument needed by the lookup threads
+   int * list_length_used;
+   /**<
+    * Number of objects in the server_t object array that have been used
+    * This attribute is shared between all the lookup threads. Access to it
+    * is controlled via the "sLookupThreadMutex" mutex in the SipSrvLookupThread class
+    */
+
+   /// Argument passed to the lookup threads by copy. No access control on this.
+   UtlString domain;
+   
+   /// Argument passed to the lookup threads by copy. No access control on this.
+   UtlString service;
+   
+   /// Argument passed to the lookup threads by copy. No access control on this.
+   int port;
+   
+   /// Argument passed to the lookup threads by copy. No access control on this.
+   OsSocket::IpProtocolSocketType socketType;
+
+/* //////////////////////////// PRIVATE /////////////////////////////////// */
+private:
+   /// Private attribute to keep track of object copies.
+   UtlBoolean mCopyOfObject;
+
 };
 
 #endif  // _SipSrvLookup_h_

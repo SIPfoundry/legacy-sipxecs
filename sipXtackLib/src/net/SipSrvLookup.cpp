@@ -235,6 +235,12 @@ int SipSrvLookup::options[OptionCodeLast+1] = {
    0,                           // OptionCodeLast
 };
 
+/// Sets the timeout parameter for DNS SRV queries. Default is 3
+int SipSrvLookup::mTimeout = 3;
+
+/// Sets the number of retries for DNS SRV queries. Default is 2
+int SipSrvLookup::mRetries = 2;
+
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
 /// Get the list of server entries for SIP domain name 'domain'.
@@ -301,6 +307,24 @@ server_t* SipSrvLookup::servers(const char* domain,
    }
    else
    {
+      SipSrvLookupThread ** myQueryThreads = SipSrvLookupThread::getLookupThreads();
+
+      // Initialize the SRV lookup thread args, and the A Record lookup thread args.
+      // They are initialized separately as the A Records are only needed if SRV
+      // records don't exist for the domain. (Or if a port name is included in the 
+      // domain).
+      server_t * srv_record_list;
+      server_list_initialize(srv_record_list, list_length_allocated, list_length_used);
+      SrvThreadArgs srvLookupArgs(domain, service, srv_record_list, list_length_allocated, 
+                                  list_length_used, port, socketType);
+      
+      server_t * a_record_list;
+      server_list_initialize(a_record_list, list_length_allocated, list_length_used);
+      SrvThreadArgs aRecordLookupArgs(domain, service, a_record_list, list_length_allocated, 
+                                      list_length_used, port, socketType);
+      
+      myQueryThreads[SipSrvLookupThread::A_RECORD]->postMessage(aRecordLookupArgs);
+      
       // Case 2: SRV records exist for this domain.
       // (Only used if no port is specified in the URI.)
       if (port <= 0 && !options[OptionCodeIgnoreSRV])
@@ -310,42 +334,70 @@ server_t* SipSrvLookup::servers(const char* domain,
               socketType == OsSocket::UDP) &&
              strcmp(service, "sips") != 0)
          {
-            lookup_SRV(list, list_length_allocated, list_length_used,
-                       domain, service, "udp", OsSocket::UDP);
+             myQueryThreads[SipSrvLookupThread::SRV_UDP]->postMessage(srvLookupArgs);
          }
          // If TCP transport is acceptable.
          if ((socketType == OsSocket::UNKNOWN ||
               socketType == OsSocket::TCP) &&
              strcmp(service, "sips") != 0)
          {
-            lookup_SRV(list, list_length_allocated, list_length_used,
-                       domain, service, "tcp", OsSocket::TCP);
+             myQueryThreads[SipSrvLookupThread::SRV_TCP]->postMessage(srvLookupArgs); 
          }
 
          // If TLS transport is acceptable.
          if (socketType == OsSocket::UNKNOWN ||
               socketType == OsSocket::SSL_SOCKET)
          {
-            lookup_SRV(list, list_length_allocated, list_length_used,
-                       domain, service, "tls", OsSocket::SSL_SOCKET);
+            myQueryThreads[SipSrvLookupThread::SRV_TLS]->postMessage(srvLookupArgs);
          }
+         
+         // Wait for each of the executed queries to finish
+         // If UDP SRV query was carried out
+         if ((socketType == OsSocket::UNKNOWN ||
+              socketType == OsSocket::UDP) &&
+              strcmp(service, "sips") != 0)
+         {
+             myQueryThreads[SipSrvLookupThread::SRV_UDP]->isDone();
+         }
+         // If TCP SRV query was carried out
+         if ((socketType == OsSocket::UNKNOWN ||
+              socketType == OsSocket::TCP) &&
+              strcmp(service, "sips") != 0)
+         {
+            myQueryThreads[SipSrvLookupThread::SRV_TCP]->isDone();
+         }
+         // If TLS SRV query was carried out
+         if (socketType == OsSocket::UNKNOWN ||
+              socketType == OsSocket::SSL_SOCKET)
+         {
+            myQueryThreads[SipSrvLookupThread::SRV_TLS]->isDone();
+         }
+         
       }
-      // Case 3: Look for A records.
+      // Finally wait for the A Record Query to finish as well
+      myQueryThreads[SipSrvLookupThread::A_RECORD]->isDone();
+      
+      // Check if there is a need for A records.
       // (Only used for non-numeric addresses for which SRV lookup did not
       // produce any addresses.  This includes if an explicit port was given.)
-      if (list_length_used == 0)
+      if (srvLookupArgs.list_length_used == 0)
       {
-         lookup_A(list, list_length_allocated, list_length_used,
-                  domain,
-                  // If sips service, make sure transport is set correctly.
-                  (socketType == OsSocket::UNKNOWN && strcmp(service, "sips") == 0) ?
-                              OsSocket::SSL_SOCKET : socketType,
-                  NULL,                                 // must do a query.
-                  (portIsValid(port) ?  port :          // use port if specified
-                   ((strcmp(service, "sips") == 0) ||   // else use 5061 for sips;
-                            (socketType == OsSocket::SSL_SOCKET)) ? 
-                                5061 : 5060),           // else use 5060.
-                  0, 0);                // Set priority and weight to 0.
+         // No SRV query results. Discard the SRV Lookup lists, continue with  
+         // and  return the A Record list back to the caller.
+         delete[] srvLookupArgs.list;
+         list = aRecordLookupArgs.list;
+         list_length_used = *(aRecordLookupArgs.list_length_used);
+         list_length_allocated = *(aRecordLookupArgs.list_length_allocated);
+      }
+      else
+      {
+         // We got SRV query results. Discard the A Record Lookup lists, 
+         // continue with and return the SRV list back to the caller.
+         delete[] aRecordLookupArgs.list;
+         list = srvLookupArgs.list;
+         list_length_used = *(srvLookupArgs.list_length_used);
+         list_length_allocated = *(srvLookupArgs.list_length_allocated);
+
       }
    }
 
@@ -407,12 +459,12 @@ void SipSrvLookup::setDnsSrvTimeouts(int initialTimeoutInSecs, int retries)
 {
    if (initialTimeoutInSecs > 0)
    {
-      _res.retrans = initialTimeoutInSecs;
+      mTimeout = initialTimeoutInSecs;
    }
 
    if (retries > 0)
    {
-      _res.retry = retries;
+      mRetries = retries;
    }
 }
 
@@ -649,6 +701,8 @@ void lookup_A(server_t*& list,
    SipSrvLookup::res_query_and_parse(domain, T_A, in_response, canonical_name,
                                      response);
 
+   OsLock lock(SipSrvLookupThread::slookupThreadMutex);
+   
    // Search the list of RRs.
    // For each answer that is an A record for this domain name.
    if (response != NULL)
@@ -787,9 +841,17 @@ void SipSrvLookup::res_query_and_parse(const char* in_name,
          printf("res_query(\"%s\", class = %d, type = %d)\n",
                 name, C_IN, type);
       }
-      // Use res_query, not res_search, so defaulting rules are not
-      // applied to the domain.
-      if (res_query(name, C_IN, type,
+      
+      // Initialize the res state struct and set the timeout to 
+      // 3 secs and retries to 2
+      struct __res_state res;
+      res_ninit(&res);
+      res.retrans = mTimeout;
+      res.retry = mRetries;
+
+      // Use res_nquery, not res_search or res_query, so defaulting rules are not
+      // applied to the domain, and so that the query is thread safe
+      if (res_nquery(&res, name, C_IN, type,
                     (unsigned char*) answer, sizeof (answer)) == -1)
       {
          // res_query failed, return.
@@ -1084,3 +1146,183 @@ static int rr_compare(const void* a, const void* b)
       return 0;
    }
 }
+
+
+/* ////////////////////////// SrvThreadArgs /////////////////////////////// */
+
+/* //////////////////////////// PUBLIC //////////////////////////////////// */
+
+/// Constructor for SrvThreadArgs
+SrvThreadArgs::SrvThreadArgs(const char * tmp_domain,
+                             const char * tmp_service,
+                             server_t* tmp_list,
+                             int tmp_list_length_allocated,
+                             int tmp_list_length_used,
+                             int tmp_port,
+                             OsSocket::IpProtocolSocketType tmp_socketType) :
+   OsMsg(SRV_LOOKUP_MSG, SRV_LOOKUP_MSG)
+{
+   list = tmp_list;
+   port = tmp_port;
+   socketType = tmp_socketType;
+
+   domain = tmp_domain;
+   service = tmp_service;
+   list_length_allocated = new int(tmp_list_length_allocated);
+   list_length_used = new int(tmp_list_length_used);
+
+   mCopyOfObject = FALSE;
+}
+
+/// Copy Constructor for SrvThreadArgs
+SrvThreadArgs::SrvThreadArgs(const SrvThreadArgs& rSrvThreadArgs) :
+   OsMsg((OsMsg&) rSrvThreadArgs)
+{
+   domain = rSrvThreadArgs.domain;
+   service = rSrvThreadArgs.service;
+   list = rSrvThreadArgs.list;
+   list_length_allocated = rSrvThreadArgs.list_length_allocated;
+   list_length_used = rSrvThreadArgs.list_length_used;
+   port = rSrvThreadArgs.port;
+   socketType = rSrvThreadArgs.socketType;
+
+   mCopyOfObject = TRUE;
+}
+
+/// Destructor for SrvThreadArgs
+SrvThreadArgs::~SrvThreadArgs()
+{
+   // Do not delete these attributes as there maybe copies of the 
+   // object still using them. Only delete it when the original object is 
+   // being deleted
+   if (!mCopyOfObject)
+   {
+      delete list_length_allocated;
+      delete list_length_used;
+   }
+}
+
+/// Create a copy of this msg object (which may be of a derived type)
+OsMsg* SrvThreadArgs::createCopy(void) const
+{
+   return (new SrvThreadArgs(*this));
+}
+
+
+/* /////////////////////// SipSrvLookupThread ///////////////////////////// */
+
+/* //////////////////////////// PUBLIC //////////////////////////////////// */
+
+/*
+ * Lock to protect the lookup routines, which cannot tolerate multi-threaded
+ * use.
+ */
+OsMutex SipSrvLookupThread::slookupThreadMutex(OsMutex::Q_FIFO |
+                                         OsMutex::DELETE_SAFE |
+                                         OsMutex::INVERSION_SAFE);
+
+/// Array holding pointers to the four individual lookup threads
+SipSrvLookupThread * SipSrvLookupThread::mLookupThreads[SipSrvLookupThread::LAST_LookupType+1];
+
+UtlBoolean SipSrvLookupThread::mHaveThreadsBeenInitialized = FALSE;
+
+/// Destructor for SipSrvLookupThread
+SipSrvLookupThread::~SipSrvLookupThread()
+{
+   
+}
+
+/// Implementation of OsServerTask's pure virtual method
+UtlBoolean SipSrvLookupThread::handleMessage(OsMsg& rMsg)
+{
+   if (OsMsg::OS_SHUTDOWN == rMsg.getMsgType())
+   {
+      OsTask::requestShutdown();
+   }
+   else if (SRV_LOOKUP_MSG == rMsg.getMsgType())
+   {
+      SrvThreadArgs * mySrvArgs = dynamic_cast <SrvThreadArgs*> (&rMsg);
+
+      switch (mLookupType)
+      {
+      case SRV_UDP:
+         lookup_SRV(mySrvArgs->list, *(mySrvArgs->list_length_allocated),
+               *(mySrvArgs->list_length_used), mySrvArgs->domain.data(),
+               mySrvArgs->service.data(), "udp", OsSocket::UDP);
+         break;
+
+      case SRV_TCP:
+         lookup_SRV(mySrvArgs->list, *(mySrvArgs->list_length_allocated),
+               *(mySrvArgs->list_length_used), mySrvArgs->domain.data(),
+               mySrvArgs->service.data(), "tcp", OsSocket::TCP);
+         break;
+
+      case SRV_TLS:
+         lookup_SRV(mySrvArgs->list, *(mySrvArgs->list_length_allocated),
+               *(mySrvArgs->list_length_used), mySrvArgs->domain.data(),
+               mySrvArgs->service.data(), "tls", OsSocket::SSL_SOCKET);
+         break;
+
+      case A_RECORD:
+         lookup_A(mySrvArgs->list, *(mySrvArgs->list_length_allocated),
+               *(mySrvArgs->list_length_used), mySrvArgs->domain.data(),
+               // If sips service, make sure transport is set correctly.
+               (mySrvArgs->socketType == OsSocket::UNKNOWN && strcmp(mySrvArgs->service.data(),
+                     "sips") == 0) ? OsSocket::SSL_SOCKET : mySrvArgs->socketType, NULL, // must do a query.
+               (portIsValid(mySrvArgs->port) ? mySrvArgs->port : // use port if specified
+                     ((strcmp(mySrvArgs->service.data(), "sips") == 0) || // else use 5061 for sips;
+                           (mySrvArgs->socketType == OsSocket::SSL_SOCKET)) ? 5061 : 5060), // else use 5060.
+               0, 0); // Set priority and weight to 0. 
+
+         break;
+
+      }
+   }
+   
+   mQueryCompleted->signal(0);
+
+   return TRUE;
+}
+
+/// Get the SRV lookup threads, initializing them if needed
+SipSrvLookupThread ** SipSrvLookupThread::getLookupThreads()
+{
+   OsLock lock(SipSrvLookupThread::slookupThreadMutex);
+
+   if (!mHaveThreadsBeenInitialized)
+   {     
+      for(int x = FIRST_LookupType; x <= LAST_LookupType; x++)
+      {
+         mLookupThreads[(LookupTypes) x] = new SipSrvLookupThread((LookupTypes) x);
+         mLookupThreads[(LookupTypes) x]->start();
+      }
+      mHaveThreadsBeenInitialized = TRUE;
+   }
+
+   return mLookupThreads;
+}
+
+/// Block until the thread has finished a query
+void SipSrvLookupThread::isDone()
+{
+   mQueryCompleted->wait();
+   mQueryCompleted->reset();
+}
+
+/* //////////////////////////// PRIVATE /////////////////////////////////// */
+
+/*
+ * Private constructor for SipSrvLookupThread
+ * Use getLookupThreads() for initializing and accessing the class members. The class
+ * is restricted to 4 members by the getLookupThreads() function, and thier pointers
+ * are stored in "mLookupThreads"
+ */
+
+SipSrvLookupThread::SipSrvLookupThread(LookupTypes lookupType) :
+   OsServerTask("SipSrvLookupThread%d")
+{
+   mLookupType = lookupType;
+   mQueryCompleted = new OsEvent();
+   mQueryCompleted->reset();
+}
+
