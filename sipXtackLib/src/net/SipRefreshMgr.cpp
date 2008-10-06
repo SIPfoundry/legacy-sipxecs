@@ -2093,18 +2093,20 @@ void SipRefreshMgr::setLastLineEvent(const UtlString& lineId, const SIPX_LINESTA
 
 void SipRefreshMgr::removeAllFromRequestList(SipMessage* response)
 {
-    OsReadLock readlock(mRegisterListMutexR);
-    OsWriteLock writeLock(mRegisterListMutexW);
     UtlString methodName;
     int seqNum = 0;
     
     response->getCSeqField(&seqNum, &methodName);
     if (methodName.compareTo(SIP_REGISTER_METHOD) == 0)
     {
+        OsReadLock readlock(mRegisterListMutexR);
+        OsWriteLock writeLock(mRegisterListMutexW);
         removeAllFromRequestList(response, &mRegisterList);
     }
     else if (methodName.compareTo(SIP_SUBSCRIBE_METHOD) == 0)
     {
+        OsReadLock readlock(mSubscribeListMutexR);
+        OsWriteLock writeLock(mSubscribeListMutexW);
         removeAllFromRequestList(response, &mSubscribeList);
     }
 
@@ -2130,8 +2132,8 @@ void SipRefreshMgr::removeAllFromRequestList(SipMessage* response, SipMessageLis
         listMessage->getCSeqField(&requestSeqNum, &dummy);
         if (response->isSameSession(listMessage) && (seqNum == -1 || requestSeqNum <= seqNum) )
         {
-            mRegisterList.releaseIterator(iteratorHandle);
-            mRegisterList.remove(listMessage);
+            pRequestList->releaseIterator(iteratorHandle);
+            pRequestList->remove(listMessage);
             delete listMessage;
             listMessage = NULL;
             iteratorHandle = pRequestList->getIterator();
