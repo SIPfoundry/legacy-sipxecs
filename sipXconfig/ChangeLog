@@ -4,6 +4,49 @@ SIPfoundry Issue Tracker at:
         http://track.sipfoundry.org/browse?XCF
 
 
+Version 3.11.6
+
+** Sub-task
+
+** Bug
+    * [XCF-2400] - MRTG integration overwrites and modifies configuration files invisible to rpm
+    * [XCF-2449] - Internal Exception while adding the Dial plan with the caller Permission set to "None". 
+    * [XCF-2590] - Activating dial plan must push sipxbrige configuration.
+    * [XCF-2679] - User Portal: Call set up by sipXconfig connects to the 'callee' when the caller rejects his placed call
+    * [XCF-2693] - URI dialing field does not accept numbers/extensions having prefix as *
+    * [XCF-2707] - Replication of registrar-config fails
+    * [XCF-2709] - Conference: Change "Evict" label to "Hangup"
+    * [XCF-2743] - Services Table is empty after fresh install (FC8, svn 13245)
+    * [XCF-2752] - caller-ID screen does not let users enter domain, display name 
+    * [XCF-2756] - Unable to "Logout " from the user portal as LOGOUT  button  is hidden behind  logo 
+    * [XCF-2789] - Selecting Diagnostics->ACD Reports generates internal error.
+    * [XCF-2834] - webCert.properties file modification
+    * [XCF-2878] - Mysterious error seen: "You must select a value for Default SBC."
+
+** Improvement
+    * [XCF-2348] - Make the mrtg configuration specific to sipXconfig
+    * [XCF-2600] - LG-Nortel 68xx profile must populate "Outbound Proxy" setting by default
+    * [XCF-2606] - sipXbridge: ITSP templates should be offered to the admin as a drop-down list
+    * [XCF-2643] - conference filtering
+    * [XCF-2731] - Ability to configure public port for NAT traversal feature
+    * [XCF-2738] - Remove Polycom SoundPoint IP "1.6" support
+    * [XCF-2749] - FreeSwitch:Provide a "Delete" button to delete the added conference by the user.
+    * [XCF-2787] - Add a button to services table to replicate services for a specific server
+    * [XCF-2798] - User Speed Dial: Allow "*" in the Number field
+
+** New Feature
+    * [XCF-2022] - Add provisioning support for Counterpath enterprise client to sipX
+    * [XCF-2428] - Need an option through the web interface to generate a CSR (Certificate Signing Request) and replace the SSL key.  
+    * [XCF-2604] - FreeSWITCH: Allow adding a conference participant from inside the bridge
+    * [XCF-2613] - Convert to new process definition
+    * [XCF-2682] - Generate mediaserver-config 
+    * [XCF-2686] - Generate status-config
+    * [XCF-2716] - Enable Polycom 3.1 firmware in sipXconfig, with new feature to config
+    * [XCF-2728] - Enable Polycom Productivity Suite - Call Recording and Conference Call Management
+    * [XCF-2740] - Add support for new Polycom models: 6000, 7000, 560, 670
+    * [XCF-2744] - Display the current date/time in the UI
+
+
 Version 3.11.5
 
 ** Bug
