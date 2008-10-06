@@ -109,6 +109,12 @@ protected:
     
     // Delete entry if we get a failed or disconnected event without request Url
     bool findEntryByCallId(UtlString& callId, UtlString& entity);
+
+    // Delete all provisional responses associated with this call
+    void deleteProvisionalResponses(UtlString callId, UtlString localTag, SipDialogEvent* pThisCall);
+    
+    // Set all provisional response states terminated
+    void terminateProvisionalResponses(UtlString callId, UtlString localTag, SipDialogEvent* pThisCall);
  
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
@@ -118,6 +124,8 @@ private:
     SipPublishContentMgr* mpSipPublishContentMgr;
 
     UtlHashMap mCalls;
+
+    UtlHashMap mProvisionalResponses;
 
     unsigned long mDialogId;
 

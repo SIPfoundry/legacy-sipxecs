@@ -159,6 +159,8 @@ SipConnection::~SipConnection()
         delete mReferMessage;
         mReferMessage = NULL;
     }
+    
+    mProvisionalToTags.destroyAll();
 #ifdef TEST_PRINT
     if (!callId.isNull())
         OsSysLog::add(FAC_CP, PRI_DEBUG, "Leaving SipConnection destructor: %s\n", callId.data());
@@ -4034,10 +4036,10 @@ void SipConnection::processInviteResponse(const SipMessage* response)
         inviteMsg->getToAddress(&toAddr, &toPort, &toProto,
             NULL, NULL, &inviteTag);
 
-        // Do not save the tag unless it is a final response
-        // This is the stupid/simple thing to do until we need
-        // more elaborate tracking of forked/serial branches
-        if(inviteTag.isNull() && responseCode >= SIP_OK_CODE)
+        // Save to-tags from all provo responses in a hashmap. 
+        // Use To tag as key and the remote contact as value
+		// Delete provisional to-tag entries when final response arrives
+        if(inviteTag.isNull())
         {
             response->getToAddress(&toAddr, &toPort, &toProto,
                 NULL, NULL, &inviteTag);
@@ -4049,10 +4051,40 @@ void SipConnection::processInviteResponse(const SipMessage* response)
 
             if(!inviteTag.isNull())
             {
-                inviteMsg->setToFieldTag(inviteTag.data());
+                if(responseCode >= SIP_OK_CODE)
+                {
+                    inviteMsg->setToFieldTag(inviteTag.data());
 
-                // Update the cased to field after saving the tag
-                inviteMsg->getToUrl(mToUrl);
+                    // Update the cased to field after saving the tag
+                    inviteMsg->getToUrl(mToUrl);
+
+                    // We have a To Tag from a final response. Delete all 
+                    // provsional tags
+                    mProvisionalToTags.destroyAll();
+
+                }
+                else // provisional responses with To Tags
+                {
+                    UtlString * tmpToTag = new UtlString(inviteTag);
+                    UtlString * tmpContactAddress = new UtlString();
+
+                    response->getContactEntry(0, tmpContactAddress);
+
+                    if(!mProvisionalToTags.contains(tmpToTag))
+                    {
+                        mProvisionalToTags.insertKeyAndValue(tmpToTag, 
+                                tmpContactAddress);
+                    }
+                    else
+                    {
+                        // ERROR: We should never really see this happen
+                        OsSysLog::add(FAC_CP, PRI_ERR,
+                             "SipConnection::processInviteResponse "
+                             "provisional response without to-tag ");
+						delete tmpToTag;
+                        delete tmpContactAddress;
+                    }
+                }
             }
         }
     }
@@ -5383,6 +5415,7 @@ UtlBoolean SipConnection::getSession(SipSession& session)
     ssn.setToUrl(mToUrl);
     ssn.setLocalContact(Url(mLocalContact.data(), FALSE));
     ssn.setRemoteContact(Url(mRemoteContact.data(), FALSE));
+    ssn.setProvisionalToTags(mProvisionalToTags);
 
     if (!mRemoteUriStr.isNull())
         ssn.setRemoteRequestUri(mRemoteUriStr);

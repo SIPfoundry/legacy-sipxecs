@@ -254,7 +254,11 @@ void Connection::setState(int newState, int isLocal, int newCause, int termState
 
    UtlBoolean bPostStateChange = FALSE;
 
-   if (newState != currentState || newCause != CONNECTION_CAUSE_NORMAL)
+   if (newState != currentState ||
+       newCause != CONNECTION_CAUSE_NORMAL ||
+       (newState == currentState && 
+           newState == CONNECTION_ALERTING && 
+           (0 == isLocal)))
    {
       if (isLocal && newState == CONNECTION_DISCONNECTED)
       {
@@ -969,7 +973,9 @@ UtlBoolean Connection::isStateTransitionAllowed(int newState, int oldState)
         }
         break;
     case CONNECTION_ALERTING:
-        if (newState != CONNECTION_ESTABLISHED &&
+        if (newState != CONNECTION_ALERTING && // Forked Calls will result in multiple 
+                                               // provisional responses
+            newState != CONNECTION_ESTABLISHED &&
             newState != CONNECTION_DISCONNECTED &&
             newState != CONNECTION_FAILED &&
             newState != CONNECTION_UNKNOWN)

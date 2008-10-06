@@ -127,12 +127,23 @@ SipSession::SipSession(const SipSession& rSipSession)
    msLocalRequestUri = rSipSession.msLocalRequestUri;
    msRemoteRequestUri = rSipSession.msRemoteRequestUri;
    setCallId(rSipSession.data());
+
+   UtlHashMapIterator toTagMapIterator(rSipSession.mProvisionalToTags);
+   toTagMapIterator.reset();
+
+   while(NULL != toTagMapIterator())
+   {
+       UtlString * key = new UtlString (*(dynamic_cast<UtlString *> (toTagMapIterator.key())));
+       UtlString * value = new UtlString (*(dynamic_cast<UtlString *> (toTagMapIterator.value())));
+       mProvisionalToTags.insertKeyAndValue(key, value);
+   }
 }
 
 
 // Destructor
 SipSession::~SipSession()
 {
+    mProvisionalToTags.destroyAll();
 }
 
 /* ============================ MANIPULATORS ============================== */
@@ -159,6 +170,16 @@ SipSession::operator=(const SipSession& rhs)
    mSessionState = rhs.mSessionState;
    msLocalRequestUri = rhs.msLocalRequestUri;
    msRemoteRequestUri = rhs.msRemoteRequestUri;
+
+   UtlHashMapIterator toTagMapIterator(rhs.mProvisionalToTags);
+   toTagMapIterator.reset();
+
+   while(NULL != toTagMapIterator())
+   {
+      UtlString * key = new UtlString (*(dynamic_cast<UtlString *> (toTagMapIterator.key())));
+      UtlString * value = new UtlString (*(dynamic_cast<UtlString *> (toTagMapIterator.value())));
+      mProvisionalToTags.insertKeyAndValue(key, value);
+   }
 
    return *this;
 }
@@ -349,6 +370,42 @@ int SipSession::getNextFromCseq()
 {
     mLastFromCseq++;
     return(mLastFromCseq);
+}
+
+void SipSession::getProvisionalToTags(UtlHashMap& provisionalToTags)
+{
+    UtlHashMapIterator toTagMapIterator(mProvisionalToTags);
+    toTagMapIterator.reset();
+
+    while(NULL != toTagMapIterator())
+    {
+        UtlString * key = new UtlString (*(dynamic_cast<UtlString *> (toTagMapIterator.key())));
+        UtlString * value = new UtlString (*(dynamic_cast<UtlString *> (toTagMapIterator.value())));
+        provisionalToTags.insertKeyAndValue(key, value);
+    }
+}
+
+void SipSession::setProvisionalToTags(UtlHashMap& provisionalToTags)
+{
+    mProvisionalToTags.destroyAll();
+
+    UtlHashMapIterator toTagMapIterator(provisionalToTags);
+    toTagMapIterator.reset();
+
+    while(NULL != toTagMapIterator())
+    {
+        UtlString * key = new UtlString (*(dynamic_cast<UtlString *> (toTagMapIterator.key())));
+        UtlString * value = new UtlString (*(dynamic_cast<UtlString *> (toTagMapIterator.value())));
+        if(!mProvisionalToTags.contains(key))
+        {
+            mProvisionalToTags.insertKeyAndValue(key, value);
+        }
+        else
+        {
+            delete key;
+            delete value;
+        }
+    }
 }
 
 void SipSession::toString(UtlString& output) const

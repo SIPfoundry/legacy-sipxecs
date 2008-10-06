@@ -17,6 +17,8 @@
 
 #include <os/OsDefs.h>
 #include <net/Url.h>
+#include <utl/UtlHashMap.h>
+#include <utl/UtlHashMapIterator.h>
 
 // DEFINES
 // MACROS
@@ -99,6 +101,8 @@ public:
    void setLocalRequestUri(UtlString& requestUri);
    void getRemoteRequestUri(UtlString& requestUri);
    void setRemoteRequestUri(UtlString& requestUri);
+   void getProvisionalToTags(UtlHashMap& provisionalToTags);
+   void setProvisionalToTags(UtlHashMap& provisionalToTags);
 
    int getSessionState() { return mSessionState;};
    
@@ -127,6 +131,7 @@ protected:
     int mLastFromCseq;
     int mLastToCseq;
     int mSessionState;
+    UtlHashMap mProvisionalToTags;
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:

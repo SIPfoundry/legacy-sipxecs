@@ -18,6 +18,7 @@
 // APPLICATION INCLUDES
 #include <cp/Connection.h>
 #include <net/SipContactDb.h>
+#include <utl/UtlHashMapIterator.h>
 
 // DEFINES
 // MACROS
@@ -238,6 +239,7 @@ private:
     Url mToUrl;  //  SIP address for the remote side
     UtlString mRemoteUriStr;  //  SIP uri string for the remote side
     UtlString mLocalUriStr;  //  SIP uri string for the local side
+    UtlHashMap mProvisionalToTags; // Key:To Tag, Value:Remote Contact
 
     int lastLocalSequenceNumber;
     int lastRemoteSequenceNumber;
