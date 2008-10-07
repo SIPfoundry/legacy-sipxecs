@@ -7,7 +7,7 @@ Summary:      FreeSWITCH open source telephony platform (sipX integration)
 License:      MPL
 Group:        Productivity/Telephony/Servers
 Version:      1.0.1
-Release:      1
+Release:      2
 URL:          http://www.freeswitch.org/
 Packager:     Michal Bielicki
 Vendor:       http://www.voiceworks.pl/
