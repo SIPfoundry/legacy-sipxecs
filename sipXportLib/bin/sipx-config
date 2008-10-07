@@ -121,7 +121,7 @@ then
     then
         cat >&2 <<NOJAVA
 Cannot locate the Java VM on you machine or wrong version of Java installed. Please either install Java
- or set the JAVA_HOME environment variable to where you've installed it.
+ or set the SIPX_JAVA_HOME environment variable to where you've installed it.
 
 NOJAVA
 
