@@ -39,3 +39,4 @@ one-jar.jar=${src.dir}/lib/one-jar-ant-task-0.96.jar
 launch4j.jar=${src.dir}/lib/launch4j/launch4j-3.0.0-pre2.jar
 xstream.jar=${src.dir}/lib/launch4j/xstream-1.2.2.jar
 nsisant.jar=${src.dir}/lib/nsisant-1.2.jar
+windows.jre=${src.dir}/lib/harmony-jre-r533000.bz2

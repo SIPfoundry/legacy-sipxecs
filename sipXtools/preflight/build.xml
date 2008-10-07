@@ -60,8 +60,6 @@
     <antcall target="build-windows-launcher"/>
     <antcall target="copy-prebuilt-windows-launcher"/>
     <antcall target="windows-installer"/>
-    <antcall target="jre-missing"/>
-    <antcall target="nsis-missing"/>
   </target>
 
   <target name="posix-launcher" depends="jar" description="create native posix command line launcher" >
@@ -94,17 +92,17 @@
     <copy file="${prebuilt.windows.launcher}" todir="${build.dir}/dist"/>
   </target>
 
-  <!-- Build Windows Installer if Windows JRE and NSIS are installed -->
-  <target name="windows-installer" if="has.windows.prerequisites" depends="jar, test-for-windows-prerequisites"
+  <!-- Build Windows Installer -->
+  <target name="windows-installer" depends="jar"
           description="create native windows installer" >
 
     <taskdef name="nsis" classname="net.sf.nsisant.Task" classpath="${nsisant.jar}"/>
     <copy file="${src.dir}/Preflight.nsi.in" tofile="${build.dir}/dist/Preflight.nsi"/>
     <replace file="${build.dir}/dist/Preflight.nsi">
       <replacefilter token="@src.dir@" value="${src.dir}"/>
-      <replacefilter token="@lib.src@" value="${lib.src}"/>
       <replacefilter token="@build.dir@" value="${build.dir}"/>
     </replace>
+    <untar src="${windows.jre}" compression="bzip2" dest="${build.dir}/dist"/>
     <nsis script="${build.dir}/dist/Preflight.nsi"/>
   </target>
 
@@ -122,7 +120,7 @@
     <chmod file="${dest.dir}${bin.dir}/preflight" perm="ugo+x" />
   </target>
     
-  <target name="windows-install" if="has.windows.prerequisites" depends="test-for-windows-prerequisites">
+  <target name="windows-install">
     <!-- Windows Installer -->
     <mkdir dir="${dest.dir}${sipx.data.dir}/preflight"/>
     <copy file="${build.dir}/dist/preflight_installer.exe" todir="${dest.dir}${sipx.data.dir}/preflight"/>
@@ -133,47 +131,6 @@
     <delete file="${dest.dir}${bin.dir}/preflight"/>
     <delete file="${dest.dir}${preflight.dir}/preflight.jar"/>
     <delete file="${dest.dir}${sipx.data.dir}/preflight/preflight_installer.exe"/>
-  </target>
-
-  <target name="test-for-windows-prerequisites" depends="test-for-jre, test-for-nsis">
-    <condition property="has.windows.prerequisites">
-      <and>
-        <isset property="has.jre"/>
-        <isset property="has.nsis"/>
-      </and>
-    </condition>
-  </target>
-
-  <target name="test-for-jre">
-    <condition property="has.jre">
-      <available file="${lib.src}/java-sun-windows"/>
-    </condition>
-  </target>
-
-  <target name="test-for-nsis">
-    <condition property="has.nsis">
-      <or>
-        <available file="/bin/makensis"/>
-        <available file="/usr/bin/makensis"/>
-        <available file="/usr/local/bin/makensis"/>
-      </or>
-    </condition>
-  </target>
-
-  <target name="jre-missing" unless="has.jre" depends="test-for-jre">
-    <echo>
-      Creation of Windows installer was skipped due to missing
-      Windows Java Runtime.  See project README document for more
-      information regaring JRE requirements.
-    </echo>
-  </target>
-
-  <target name="nsis-missing" unless="has.nsis" depends="test-for-nsis">
-    <echo>
-      Creation of Windows installer was skipped due to missing
-      NSIS (Nullsoft Scriptable Install System) package.  See
-      project README document for more information regaring NSIS.
-    </echo>
   </target>
 
   <target name="test-for-prebuilt-windows-launcher">

@@ -40,7 +40,7 @@ Section "Preflight (required)"
   ; Put file there
   File "@build.dir@/dist/Preflight.exe"
   File "@build.dir@/dist/preflight.jar"
-  File /r "@lib.src@/java-sun-windows"
+  File /r "@build.dir@/dist/harmony"
   
   ; Write the installation path into the registry
   WriteRegStr HKLM SOFTWARE\Pingtel_Preflight "Install_Dir" "$INSTDIR"
