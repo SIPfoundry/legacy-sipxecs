@@ -279,6 +279,7 @@
 	<antcall target="caller-alias-add-sip-uri"/>
   	<antcall target="alarm-server"/>
     <antcall target="location-fqdn"/>
+    <antcall target="add-freeswitch-service"/>
     <!-- When freezing schema uncomment this line -->
     <!-- sipx-version version="8" -->
   </target>
@@ -694,6 +695,10 @@
     <db-patch patch="add-additional-sipx-services"/>
   </target>
 
+  <target name="add-freeswitch-service" unless="add-freeswitch-service">
+    <db-patch patch="add-freeswitch-service"/>
+  </target>
+  
   <target name="remove-user-based-dialing" unless="remove-user-based-dialing">
     <db-patch patch="remove-user-based-dialing"/>
   </target>

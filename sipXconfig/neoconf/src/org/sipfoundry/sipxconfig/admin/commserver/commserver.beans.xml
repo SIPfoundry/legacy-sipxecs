@@ -104,14 +104,9 @@
       <ref local="sipxReplicationContextDao"></ref>
     </property>
   </bean>
-
-
-  <bean id="sipxProcessDefsProcessModel"
-    class="org.sipfoundry.sipxconfig.admin.commserver.ProcessDefinitionsSipxProcessModel">
-    <constructor-arg>
-      <value>${sysdir.etc}/process.d</value>
-    </constructor-arg>
-  </bean>
+  
+  <bean id="simpleSipxProcessModel"
+    class="org.sipfoundry.sipxconfig.admin.commserver.SimpleSipxProcessModel" />
 
   <bean id="processManagerApiProvider"
     class="org.sipfoundry.sipxconfig.xmlrpc.XmlRpcApiProvider">
@@ -125,7 +120,7 @@
     class="org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContextImpl">
     <!-- real value injected by sipxconfig.properties -->
     <property name="host" value="localhost" />
-    <property name="processModel" ref="sipxProcessDefsProcessModel" />
+    <property name="processModel" ref="simpleSipxProcessModel" />
     <property name="locationsManager" ref="locationsManager" />
     <property name="processManagerApiProvider"
       ref="processManagerApiProvider" />
