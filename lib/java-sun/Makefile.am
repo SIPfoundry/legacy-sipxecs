@@ -11,9 +11,9 @@ else
 endif
 
 # Combine the SRC and NOSRC to create usable (non-free) rpm
-JDK_LIBSRC = $(LIBSRC)/java-sun
-SRC_ZIP = $(JDK_LIBSRC)/jdk-$(SUN_VERSION)u$(BUILD)-linux-$(SUN_ARCH).bin
-NOSRC_RPM = $(JDK_LIBSRC)/java-$(VERSION)-sun-$(VERSION).$(BUILD)-$(REL)jpp.nosrc.rpm
+SRC_DIR = $(srcdir)/src
+SRC_ZIP = $(SRC_DIR)/jdk-$(SUN_VERSION)u$(BUILD)-linux-$(SUN_ARCH).bin
+NOSRC_RPM = $(SRC_DIR)/java-$(VERSION)-sun-$(VERSION).$(BUILD)-$(REL)jpp.nosrc.rpm
 RPM_SPEC=java-$(VERSION)-sun.spec
 RPMS = \
 	$(DEST_RPM)/java-$(VERSION)-sun-$(VERSION).$(BUILD)-$(REL)jpp.$(ARCH).rpm \
@@ -29,10 +29,6 @@ if ! IS_AMD64
 endif
 
 all : $(RPMS)
-
-$(SRC_ZIP) :
-	@echo -e "\nMissing dependency: Download site http://java.sun.com/javase/downloads/index.jsp \n\t$@\n"
-	@exit 1
 
 $(NOSRC_RPM) :
 	$(DOWNLOAD_FILE) $@ $(JPKG_NONFREE_URL)/SRPMS/`basename $@`

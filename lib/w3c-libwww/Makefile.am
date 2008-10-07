@@ -1,4 +1,3 @@
-PACKAGE = w3c-libwww
 VERSION = 5.4.1
 RELEASE = 0
 
@@ -7,13 +6,13 @@ SRC_TARBALL= $(PACKAGE)-$(VERSION)-$(RELEASE).tar.gz
 SRC_SPEC_FILE=$(PACKAGE).spec
 
 RPMS = w3c-libwww-$(VERSION)-$(RELEASE).@RPM_TARGET_ARCH@.rpm \
-	   w3c-libwww-devel-$(VERSION)-$(RELEASE).@RPM_TARGET_ARCH@.rpm \
-	   w3c-libwww-apps-$(VERSION)-$(RELEASE).@RPM_TARGET_ARCH@.rpm
+	w3c-libwww-devel-$(VERSION)-$(RELEASE).@RPM_TARGET_ARCH@.rpm \
+	w3c-libwww-apps-$(VERSION)-$(RELEASE).@RPM_TARGET_ARCH@.rpm
 
 all : PRINT_HEADER $(RPMS) PRINT_FOOTER
 
 $(RPMS) : build-rpms
-	cp -f @RPMBUILD_TOPDIR@/RPMS/@RPM_TARGET_ARCH@/$@ $(DEST_RPM)/
+	mv @RPMBUILD_TOPDIR@/RPMS/@RPM_TARGET_ARCH@/$@ $(DEST_RPM)/
 
 build-rpms : 
 	cp $(SRC_DIR)/$(SRC_TARBALL) @RPMBUILD_TOPDIR@/SOURCES/

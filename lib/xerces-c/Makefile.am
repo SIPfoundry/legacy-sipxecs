@@ -1,15 +1,15 @@
-XERCES_C_VER = 2.8.0
-XERCES_C_REL = 2
+VERSION = 2.8.0
+RELEASE = 2
 
-VER_UNDERSCORE = $(subst .,_,$(XERCES_C_VER))
+VER_UNDERSCORE = $(subst .,_,$(VERSION))
 
 SRC_DIR = $(srcdir)/src
 SRC_TARBALL = xerces-c-src_$(VER_UNDERSCORE).tar.gz
 SRC_SPEC_FILE=$(PACKAGE).spec
 
-SRPM = $(DEST_SRPM)/xerces-c-$(XERCES_C_VER)-$(XERCES_C_REL).src.rpm
-RPMS = $(DEST_RPM)/xerces-c-$(XERCES_C_VER)-$(XERCES_C_REL).@RPM_TARGET_ARCH@.rpm \
-       $(DEST_RPM)/xerces-c-devel-$(XERCES_C_VER)-$(XERCES_C_REL).@RPM_TARGET_ARCH@.rpm
+SRPM = $(DEST_SRPM)/xerces-c-$(VERSION)-$(RELEASE).src.rpm
+RPMS = $(DEST_RPM)/xerces-c-$(VERSION)-$(RELEASE).@RPM_TARGET_ARCH@.rpm \
+       $(DEST_RPM)/xerces-c-devel-$(VERSION)-$(RELEASE).@RPM_TARGET_ARCH@.rpm
 PATCH = xerces-c.patch
 
 all : PRINT_HEADER $(SRPM) $(RPMS) PRINT_FOOTER
@@ -40,6 +40,6 @@ PRINT_HEADER :
 PRINT_FOOTER :
 	@printf "\n================================================================================\n"
 	@printf "Finished Building Package %s at %s\n" "$(PACKAGE)" "$(shell date)"
-	@printf "\tBinary RPMS can be found under %s\n" "$(DEST_DIR)"
+	@printf "\tBinary RPMS can be found under %s\n" "@RPMBUILD_TOPDIR@"
 	@printf "================================================================================\n"
 

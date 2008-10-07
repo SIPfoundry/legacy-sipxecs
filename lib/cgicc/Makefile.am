@@ -1,26 +1,26 @@
-CGICC_VER = 3.2.7
-CGICC_REL = 2
+VERSION = 3.2.7
+RELEASE = 2
 
-SRC = $(srcdir)/src/cgicc-$(CGICC_VER).tar.gz
-SRPM = $(DEST_SRPM)/cgicc-$(CGICC_VER)-$(CGICC_REL).src.rpm
+SRC_DIR = $(srcdir)/src
+SRC_TARBALL = cgicc-$(VERSION).tar.gz
+SRPM = $(DEST_SRPM)/cgicc-$(VERSION)-$(RELEASE).src.rpm
 RPMS = \
-	$(DEST_RPM)/cgicc-$(CGICC_VER)-$(CGICC_REL).@RPM_TARGET_ARCH@.rpm \
-	$(DEST_RPM)/cgicc-devel-$(CGICC_VER)-$(CGICC_REL).@RPM_TARGET_ARCH@.rpm
-RPM_SOURCES_DIR=@RPMBUILD_TOPDIR@/SOURCES
+	$(DEST_RPM)/cgicc-$(VERSION)-$(RELEASE).@RPM_TARGET_ARCH@.rpm \
+	$(DEST_RPM)/cgicc-devel-$(VERSION)-$(RELEASE).@RPM_TARGET_ARCH@.rpm
 
-SPEC_FILE = $(srcdir)/src/cgicc.spec
+SPEC_FILE = cgicc.spec
 
 all : PRINT_HEADER $(SRPM) $(RPMS) PRINT_FOOTER
-
 
 $(RPM_SOURCES_DIR)/% : %
 	cp $< $@
 
 .PHONY: build-rpms
 build-rpms: 
-	cp $(SRC) @RPMBUILD_TOPDIR@/SOURCES
-	cp $(srcdir)/src/*patch @RPMBUILD_TOPDIR@/SOURCES
-	rpmbuild -ba --target @RPM_TARGET_ARCH@-none-linux $(SPEC_FILE)
+	cp $(SRC_DIR)/$(SRC_TARBALL) @RPMBUILD_TOPDIR@/SOURCES
+	cp $(SRC_DIR)/*patch @RPMBUILD_TOPDIR@/SOURCES
+	cp $(SRC_DIR)/$(SPEC_FILE) @RPMBUILD_TOPDIR@/SPECS
+	rpmbuild -ba --target @RPM_TARGET_ARCH@-none-linux @RPMBUILD_TOPDIR@/SPECS/$(SPEC_FILE)
 
 $(SRPM): build-rpms
 	mv @RPMBUILD_TOPDIR@/SRPMS/`basename $@` $@
@@ -32,9 +32,9 @@ $(RPMS): build-rpms
 PRINT_HEADER :
 	@printf "\n================================================================================\n"
 	@printf "Building Package:\n"
-	@printf "\tNAME = %s\n" "cgicc"
-	@printf "\tVERSION = %s\n" "$(CGICC_VER)"
-	@printf "\tRELEASE = %s\n" "$(CGICC_REL)"
+	@printf "\tNAME = %s\n" "$(PACKAGE)"
+	@printf "\tVERSION = %s\n" "$(VERSION)"
+	@printf "\tRELEASE = %s\n" "$(RELEASE)"
 	@printf "\tARCH = %s\n" "@RPM_TARGET_ARCH@"
 	@printf "\tStarted building of %s at %s\n" "$(PACKAGE)" "$(shell date)"
 	@printf "================================================================================\n"

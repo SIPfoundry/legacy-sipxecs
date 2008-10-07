@@ -1,20 +1,47 @@
-# Mostly for centos 5 support
-CPPUNIT_RPM_URL = $(FC6_EXTRAS_URL)/6/$(RPM_TARGET_ARCH)
+VERSION = 1.12.1
+RELEASE = 2
 
-CPPUNIT_LIBSRC=$(LIBSRC)/cppunit
-VER = 1.12.0
-REL = 2
-
+SRC_DIR = $(srcdir)/src
+SRC_TARBALL = cppunit-$(VERSION).tar.gz
+SRPM = $(DEST_SRPM)/cppunit-$(VERSION)-$(RELEASE).src.rpm
 RPMS = \
-	cppunit-$(VER)-$(REL).fc6.$(RPM_TARGET_ARCH).rpm \
-	cppunit-devel-$(VER)-$(REL).fc6.$(RPM_TARGET_ARCH).rpm
+	$(DEST_RPM)/cppunit-$(VERSION)-$(RELEASE).@RPM_TARGET_ARCH@.rpm \
+	$(DEST_RPM)/cppunit-devel-$(VERSION)-$(RELEASE).@RPM_TARGET_ARCH@.rpm
+	$(DEST_RPM)/cppunit-doc-$(VERSION)-$(RELEASE).@RPM_TARGET_ARCH@.rpm
 
-all : $(foreach RPM,$(RPMS),$(DEST_RPM)/$(RPM))
+SPEC_FILE = cppunit.spec
 
-# simply download, no need to patch/recompile
-$(CPPUNIT_LIBSRC)/% :
-	$(DOWNLOAD_FILE) $@ $(CPPUNIT_RPM_URL)/$*
+all : PRINT_HEADER $(SRPM) $(RPMS) PRINT_FOOTER
 
-# simply download, no need to patch/recompile
-$(DEST_RPM)/% : $(CPPUNIT_LIBSRC)/%
+$(RPM_SOURCES_DIR)/% : %
 	cp $< $@
+
+.PHONY: build-rpms
+build-rpms: 
+	cp $(SRC_DIR)/$(SRC_TARBALL) @RPMBUILD_TOPDIR@/SOURCES
+	cp $(SRC_DIR)/$(SPEC_FILE) @RPMBUILD_TOPDIR@/SPECS
+	rpmbuild -ba --target @RPM_TARGET_ARCH@-none-linux @RPMBUILD_TOPDIR@/SPECS/$(SPEC_FILE)
+
+$(SRPM): build-rpms
+	mv @RPMBUILD_TOPDIR@/SRPMS/`basename $@` $@
+
+$(RPMS): build-rpms
+	mv @RPMBUILD_TOPDIR@/RPMS/@RPM_TARGET_ARCH@/`basename $@` $@
+
+.PHONY: PRINT_HEADER
+PRINT_HEADER :
+	@printf "\n================================================================================\n"
+	@printf "Building Package:\n"
+	@printf "\tNAME = %s\n" "$(PACKAGE)"
+	@printf "\tVERSION = %s\n" "$(VERSION)"
+	@printf "\tRELEASE = %s\n" "$(RELEASE)"
+	@printf "\tARCH = %s\n" "@RPM_TARGET_ARCH@"
+	@printf "\tStarted building of %s at %s\n" "$(PACKAGE)" "$(shell date)"
+	@printf "================================================================================\n"
+
+.PHONY: PRINT_FOOTER
+PRINT_FOOTER :
+	@printf "\n================================================================================\n"
+	@printf "Finished Building Package %s at %s\n" "$(PACKAGE)" "$(shell date)"
+	@printf "\tBinary RPMS can be found under %s\n" "@RPMBUILD_TOPDIR@"
+	@printf "================================================================================\n"

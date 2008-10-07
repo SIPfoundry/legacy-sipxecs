@@ -1,14 +1,14 @@
-NSIS_VER = 2.39
-NSIS_REL = 1
+VERSION = 2.39
+RELEASE = 1
 
 SRC_DIR = $(srcdir)/src
-SRC_TARBALL = nsis-$(NSIS_VER)-src.tar.bz2
-DATA_TARBALL = nsis-$(NSIS_VER).zip
+SRC_TARBALL = nsis-$(VERSION)-src.tar.bz2
+DATA_TARBALL = nsis-$(VERSION).zip
 SRC_SPEC_FILE=nsis.spec
 DATA_SPEC_FILE=nsis-data.spec
 
-NSIS_RPM = $(DEST_RPM)/nsis-$(NSIS_VER)-$(NSIS_REL).@RPM_TARGET_ARCH@.rpm
-NSIS_DATA_RPM = $(DEST_RPM)/nsis-data-$(NSIS_VER)-$(NSIS_REL).noarch.rpm
+NSIS_RPM = $(DEST_RPM)/nsis-$(VERSION)-$(RELEASE).@RPM_TARGET_ARCH@.rpm
+NSIS_DATA_RPM = $(DEST_RPM)/nsis-data-$(VERSION)-$(RELEASE).noarch.rpm
 RPMS = $(NSIS_RPM) $(NSIS_DATA_RPM)
 
 PATCH = nsis.patch
@@ -40,8 +40,8 @@ PRINT_HEADER :
 	@printf "\n================================================================================\n"
 	@printf "Building Package:\n"
 	@printf "\tNAME = %s\n" "$(PACKAGE)"
-	@printf "\tVERSION = %s\n" "$(NSIS_VER)"
-	@printf "\tRELEASE = %s\n" "$(NSIS_REL)"
+	@printf "\tVERSION = %s\n" "$(VERSION)"
+	@printf "\tRELEASE = %s\n" "$(RELEASE)"
 	@printf "\tARCH = %s\n" "@RPM_TARGET_ARCH@"
 	@printf "\tStarted building of %s at %s\n" "$(PACKAGE)" "$(shell date)"
 	@printf "================================================================================\n"

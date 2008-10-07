@@ -1,29 +1,39 @@
-VER = 0.1.1
-REL = 2
-ARCH=noarch
+VERSION = 0.1.1
+RELEASE = 2
 
-RPM_SOURCES_DIR=@RPMBUILD_TOPDIR@/SOURCES
+ARCH = noarch
 
-TARBALL=dbi-$(VER).tar.gz
-PATCH = dbi-0.1.0_install.patch
+SRC_DIR = $(srcdir)/src
+SRC_TARBALL = dbi-$(VERSION).tar.gz
+SRC_PATCH = dbi-0.1.0_install.patch
+SPEC_FILE = ruby-dbi.spec
 
-SRC = $(LIBSRC)/ruby-dbi/$(TARBALL)
-DBI_URL = http://rubyforge.org/frs/download.php/12368
+RPM = $(DEST_RPM)/ruby-dbi-$(VERSION)-$(RELEASE).$(ARCH).rpm
 
-RPM = $(DEST_RPM)/ruby-dbi-$(VER)-$(REL).noarch.rpm
+all : PRINT_HEADER $(RPM) PRINT_FOOTER
 
-all : $(RPM)
+$(RPM) : build-rpms
+	mv @RPMBUILD_TOPDIR@/RPMS/$(ARCH)/`basename $@` $@
 
-$(SRC) :
-	$(DOWNLOAD_FILE) $@ $(DBI_URL)/$(TARBALL)
+.PHONY: build-rpms
+build-rpms : 
+	cp $(SRC_DIR)/$(SRC_TARBALL) @RPMBUILD_TOPDIR@/SOURCES/
+	cp $(SRC_DIR)/$(SRC_PATCH) @RPMBUILD_TOPDIR@/SOURCES/
+	cp $(SRC_DIR)/$(SPEC_FILE) @RPMBUILD_TOPDIR@/SPECS/
+	rpmbuild -ba @RPMBUILD_TOPDIR@/SPECS/$(SPEC_FILE)
 
-$(RPM_SOURCES_DIR)/$(TARBALL) : $(SRC) 
-	cp $< $@
+PRINT_HEADER :
+	@printf "\n================================================================================\n"
+	@printf "Building Package:\n"
+	@printf "\tNAME = %s\n" "$(PACKAGE)"
+	@printf "\tVERSION = %s\n" "$(VERSION)"
+	@printf "\tRELEASE = %s\n" "$(RELEASE)"
+	@printf "\tARCH = %s\n" "$(ARCH)"
+	@printf "\tStarted building of %s at %s\n" "$(PACKAGE)" "$(shell date)"
+	@printf "================================================================================\n"
 
-$(RPM_SOURCES_DIR)/% : %
-	cp $< $@
-
-$(RPM) : $(RPM_SOURCES_DIR)/$(PATCH) $(RPM_SOURCES_DIR)/$(TARBALL)
-	rpmbuild -ba $(srcdir)/ruby-dbi.spec
-	cp @RPMBUILD_TOPDIR@/RPMS/noarch/$(@F) $@
-
+PRINT_FOOTER :
+	@printf "\n================================================================================\n"
+	@printf "Finished Building Package %s at %s\n" "$(PACKAGE)" "$(shell date)"
+	@printf "\tBinary RPMS can be found under %s\n" "@RPMBUILD_TOPDIR@"
+	@printf "================================================================================\n"

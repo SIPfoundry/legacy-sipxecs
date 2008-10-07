@@ -1,21 +1,36 @@
-VER = 0.7.1
-REL = 2
-ARCH=noarch
+VERSION = 0.7.1
+RELEASE = 2
 
-RPM_SOURCES_DIR=@RPMBUILD_TOPDIR@/SOURCES
+SRC_DIR = $(srcdir)/src
+SRC_TARBALL = ruby-postgres-$(VERSION).tar.gz
+SRC_SPEC_FILE = ruby-postgres.spec
 
-TARBALL=ruby-postgres-$(VER).tar.gz
+RPM = $(DEST_RPM)/ruby-postgres-$(VERSION)-$(RELEASE).@RPM_TARGET_ARCH@.rpm
 
-RUBY_POSTGRES_URL = http://www.postgresql.jp/interfaces/ruby/archive/
+all : PRINT_HEADER $(RPM) PRINT_FOOTER
 
-RPM = $(DEST_RPM)/ruby-postgres-$(VER)-$(REL).@RPM_TARGET_ARCH@.rpm
+$(RPM) : build-rpms
+	mv @RPMBUILD_TOPDIR@/RPMS/@RPM_TARGET_ARCH@/`basename $@` $@
 
-all : $(RPM)
+.PHONY: build-rpms
+build-rpms : 
+	cp $(SRC_DIR)/$(SRC_TARBALL) @RPMBUILD_TOPDIR@/SOURCES/
+	cp $(SRC_SPEC_FILE) @RPMBUILD_TOPDIR@/SPECS/
+	rpmbuild -ba @RPMBUILD_TOPDIR@/SPECS/$(SRC_SPEC_FILE)
 
-$(RPM_SOURCES_DIR)/$(TARBALL) :
-	cp $(srcdir)/ruby-postgres-0.7.1.tar.gz $(RPM_SOURCES_DIR)/$(TARBALL)
+PRINT_HEADER :
+	@printf "\n================================================================================\n"
+	@printf "Building Package:\n"
+	@printf "\tNAME = %s\n" "$(PACKAGE)"
+	@printf "\tVERSION = %s\n" "$(VERSION)"
+	@printf "\tRELEASE = %s\n" "$(RELEASE)"
+	@printf "\tARCH = %s\n" "@RPM_TARGET_ARCH@"
+	@printf "\tStarted building of %s at %s\n" "$(PACKAGE)" "$(shell date)"
+	@printf "================================================================================\n"
 
-$(RPM) : $(RPM_SOURCES_DIR)/$(TARBALL)
-	rpmbuild -ba ruby-postgres.spec
-	cp @RPMBUILD_TOPDIR@/RPMS/@RPM_TARGET_ARCH@/$(@F) $@
+PRINT_FOOTER :
+	@printf "\n================================================================================\n"
+	@printf "Finished Building Package %s at %s\n" "$(PACKAGE)" "$(shell date)"
+	@printf "\tBinary RPMS can be found under %s\n" "@RPMBUILD_TOPDIR@"
+	@printf "================================================================================\n"
 

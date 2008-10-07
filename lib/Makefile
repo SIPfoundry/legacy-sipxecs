@@ -56,8 +56,8 @@ fc8 fc7 : $(CUSTOM_PACKAGES) cppunit xerces-c rubygems ruby-postgres rrdtool
 .PHONY: f9
 f9 : $(CUSTOM_PACKAGES)
 
-.PHONY: rhel5 centos5 rhel4 suse10.2
-rhel5 centos5 rhel4 suse10.2 : w3c-libwww $(CUSTOM_PACKAGES) jakarta-commons-net
+.PHONY: rhel5 centos5 rhel4
+rhel5 centos5 rhel4 : w3c-libwww $(CUSTOM_PACKAGES) jakarta-commons-net
 
 .PHONY: suse11.0
 suse11.0 : w3c-libwww $(CUSTOM_PACKAGES) xerces-c ruby-postgres jakarta-commons-net
