@@ -567,7 +567,7 @@ AC_DEFUN([CHECK_APACHE2],
                  apache2_mod_override="$withval"
                 ],
                [ apache2_mod_search_path="/usr/local/apache2/modules /usr/apache2/modules /etc/httpd/modules /usr/lib/httpd/modules 
-/usr/lib/apache2-prefork /usr/lib/apache2/modules /usr/lib64/apache2 /usr/lib64/apache2-prefork"
+/usr/lib/apache2-prefork /usr/lib/apache2-worker /usr/lib/apache2/modules /usr/lib64/apache2 /usr/lib64/apache2-prefork /usr/lib64/apache2-worker"
                  apache2_mod_override=""
                 ]
               )
