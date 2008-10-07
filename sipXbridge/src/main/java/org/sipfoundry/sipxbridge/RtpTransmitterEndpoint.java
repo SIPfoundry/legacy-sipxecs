@@ -67,7 +67,7 @@ class RtpTransmitterEndpoint {
     public void setIpAddressAndPort(String ipAddress, int port) throws UnknownHostException {
         this.ipAddress = ipAddress;
         this.port = port;
-       
+        logger.debug("setIpAddressAndPort" + ipAddress + " port " + port);
         this.symTransmitter.setIpAddressAndPort(ipAddress, port,keepAliveInterval, keepAliveMethod);
 
     }
