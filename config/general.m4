@@ -1708,7 +1708,9 @@ AC_DEFUN([CHECK_NSIS],
   AC_PATH_PROG([MAKENSIS], makensis)
 
   if test "x$MAKENSIS" = "x" ; then
-    AC_MSG_ERROR([NSIS is required -- makensis not found in path])
+    AC_MSG_ERROR([NSIS is required -- makensis not found in the path.
+Build it from the lib/nsis directory or get the RPM's from
+the SIPfoundry repositories.])
   fi
 ])
 
