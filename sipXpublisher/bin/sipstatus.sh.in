@@ -8,13 +8,15 @@ Action=RUN
 Status=0
 Args=""
 
-. @SIPX_LIBEXECDIR@/sipx-utils.sh
-
 while [ $# -ne 0 ]
 do
     case ${1} in
         --configtest)
             Action=CONFIGTEST
+            ;;
+
+        --stop)
+            Action=STOP
             ;;
 
         *)
@@ -25,10 +27,18 @@ do
     shift # always consume 1
 done
 
+. @SIPX_LIBEXECDIR@/sipx-utils.sh
+
+pidfile=@SIPX_RUNDIR@/sipstatus.pid
+
 case ${Action} in
    RUN)
-     echo $$ > @SIPX_RUNDIR@/sipstatus.pid
+     echo $$ > ${pidfile}
      exec @bindir@/sipstatus $Args
+     ;;
+
+   STOP)
+     sipx_stop sipstatus ${pidfile}
      ;;
 
    CONFIGTEST)

@@ -27,6 +27,8 @@ do
     shift # always consume 1
 done
 
+. @SIPX_LIBEXECDIR@/sipx-utils.sh || exit 1
+
 CONFIG_DEFS="@SIPX_CONFDIR@/config.defs"
 
 case ${Action} in

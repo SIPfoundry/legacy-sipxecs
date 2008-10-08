@@ -16,6 +16,10 @@ do
             Action=CONFIGTEST
             ;;
 
+        --stop)
+            Action=STOP
+            ;;
+
         *)
             Args="$1"
             ;;
@@ -28,6 +32,8 @@ CONFIG_FILES="\
   @SIPX_CONFDIR@/sipxrelay.xml \
   "
 
+. @SIPX_LIBEXECDIR@/sipx-utils.sh
+
 case ${Action} in
    RUN)
      echo $$ > @SIPX_RUNDIR@/sipxrelay.pid
@@ -39,6 +45,10 @@ case ${Action} in
 	 -Dsipxrelay.command=$Args \
          -cp $ClassPath org.sipfoundry.sipxbridge.symmitron.SymmitronServer \
          $Args
+     ;;
+
+   STOP)
+     sipx_stop sipxrelay @SIPX_RUNDIR@/sipxrelay.pid
      ;;
 
    CONFIGTEST)

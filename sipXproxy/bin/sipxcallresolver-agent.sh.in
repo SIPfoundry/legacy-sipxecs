@@ -36,10 +36,10 @@ do
     shift # always consume 1
 done
 
-. @SIPX_LIBEXECDIR@/sipx-utils.sh || exit 1
-
 CONFIG_FILE="@SIPX_CONFDIR@/sipxcallresolver-agent-config"
   
+. @SIPX_LIBEXECDIR@/sipx-utils.sh || exit 1
+
 case ${Action} in
    RUN)
      # the stunnel command creates the pid file as specified by the configuration file
