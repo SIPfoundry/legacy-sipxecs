@@ -1708,7 +1708,7 @@ AC_DEFUN([CHECK_NSIS],
   AC_PATH_PROG([MAKENSIS], makensis)
 
   if test "x$MAKENSIS" = "x" ; then
-    AC_MSG_ERROR([NSIS is required])
+    AC_MSG_ERROR([NSIS is required -- makensis not found in path])
   fi
 ])
 
