@@ -106,12 +106,6 @@ SipxProcess::SipxProcess(const UtlString& name,
       // so create the SipxProcessResource 
       mSelfResource = new SipxProcessResource(name.data());
       processResourceManager->save(mSelfResource);
-
-      SipxProcess* myProcess = mSelfResource->getProcess();
-      if ( myProcess != this )
-      {
-         OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG, "SipxProcess %s, myProcess is not this", data());      
-      }
    }
    else
    {
@@ -948,12 +942,6 @@ void SipxProcess::evCommandStoppedInTask(const SipxProcessCmd* command, int rc)
                  data(), command->data());
    if (command == mStart)
    {
-      mRetries++;
-      //@TODO: clear mRetries if the last failure was a long time ago (>1 minute?)
-      if ( mRetries == MAX_RETRY_ATTEMPTS )
-      {
-         Alarm::raiseAlarm("PROCESS_FAILED", data());
-      }
       mpCurrentState->evProcessStopped(*this);
 
    }
@@ -1013,6 +1001,16 @@ void SipxProcess::startProcess()
 void SipxProcess::stopProcess()
 {
    mStop->execute(this);
+}
+
+void SipxProcess::processFailed()
+{
+   mRetries++;
+   //@TODO: clear mRetries if the last failure was a long time ago (>1 minute?)
+   if ( mRetries == MAX_RETRY_ATTEMPTS )
+   {
+      Alarm::raiseAlarm("PROCESS_FAILED", data());
+   }
 }
 
 void SipxProcess::startRetryTimer()

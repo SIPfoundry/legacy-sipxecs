@@ -206,13 +206,13 @@ bool ProcMgmtRpcMethod::executeSetUserRequestState(const HttpRequestContext& req
                   SipxProcessManager* processMgr = SipxProcessManager::getInstance();
                   UtlSListIterator aliasListIterator( *pAliasList );
                   UtlString* pAlias;
+                  UtlString* tmp_alias;
 
-                  // Lock out other threads.
-                  //OsLock mutex(mLock);  
-                  UtlBool method_result = false;
+                  UtlHashMap  process_results;
 
                   while ( (pAlias = dynamic_cast<UtlString*> (aliasListIterator())) )
                   {
+                     bool result = true;
                      SipxProcess* process = processMgr->findProcess(*pAlias);
                      if ( process )
                      {
@@ -230,13 +230,15 @@ bool ProcMgmtRpcMethod::executeSetUserRequestState(const HttpRequestContext& req
                         {
                            process->restart();
                         }
-                        method_result = true;
                      }
                      else
                      {
                         OsSysLog::add(FAC_SUPERVISOR, PRI_ERR,
                                       "could not find process %s", pAlias->data());
+                        result = false;
                      }
+                     tmp_alias = new UtlString(*pAlias);
+                     process_results.insertKeyAndValue(tmp_alias, new UtlBool(result));
                   }
                   
                   /*
@@ -299,9 +301,12 @@ bool ProcMgmtRpcMethod::executeSetUserRequestState(const HttpRequestContext& req
                   */
 
                   // Construct and set the response.
-                  response.setResponse(&method_result);
+                  response.setResponse(&process_results);
                   status = XmlRpcMethod::OK;
                   result = true;
+
+                  // Delete the new'd UtlString objects (alias names and state change results.)
+                  process_results.destroyAll();
 
                }
             }

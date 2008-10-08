@@ -226,6 +226,7 @@ class SipxProcess : public UtlString, OsServerTask
    void startConfigTest();
    void startProcess();
    void stopProcess();
+   void processFailed();
    void startRetryTimer();
    void cancelRetryTimer();
    

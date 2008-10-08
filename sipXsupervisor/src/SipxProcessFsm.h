@@ -154,7 +154,7 @@ public:
 
    // State machine events relevant for this state
    virtual void DoEntryAction( SipxProcess& impl ) const;
-   virtual void evProcessStopped( SipxProcess& impl, bool ) const;
+   virtual void evProcessStopped( SipxProcess& impl ) const;
 };
 
 

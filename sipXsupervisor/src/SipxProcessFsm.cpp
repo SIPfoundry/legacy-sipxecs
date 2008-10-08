@@ -233,7 +233,7 @@ void Stopping::DoEntryAction( SipxProcess& impl ) const
    impl.stopProcess();
 }
 
-void Stopping::evProcessStopped( SipxProcess& impl, bool ) const
+void Stopping::evProcessStopped( SipxProcess& impl ) const
 {
    if (impl.isEnabled())
    {
@@ -297,6 +297,7 @@ void Running::evProcessStopped( SipxProcess& impl ) const
 {
    if (impl.isEnabled())
    {
+      impl.processFailed();
       ChangeState( impl, impl.pFailed);
    }
    else
