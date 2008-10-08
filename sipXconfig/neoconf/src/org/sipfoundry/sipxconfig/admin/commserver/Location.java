@@ -9,6 +9,7 @@
  */
 package org.sipfoundry.sipxconfig.admin.commserver;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.regex.Matcher;
@@ -93,6 +94,9 @@ public class Location extends BeanWithId {
     }
 
     public void addService(SipxService sipxService) {
+        if (m_sipxServices == null) {
+            m_sipxServices = new ArrayList<SipxService>();
+        }
         if (!m_sipxServices.contains(sipxService)) {
             m_sipxServices.add(sipxService);
         }

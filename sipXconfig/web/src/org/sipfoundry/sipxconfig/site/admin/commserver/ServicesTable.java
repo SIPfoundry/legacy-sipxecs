@@ -30,14 +30,11 @@ import org.sipfoundry.sipxconfig.admin.commserver.Process;
 import org.sipfoundry.sipxconfig.admin.commserver.ServiceStatus;
 import org.sipfoundry.sipxconfig.admin.commserver.ServiceStatus.Status;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
-import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext.Command;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.components.ObjectSelectionModel;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.components.SelectMap;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
-import org.sipfoundry.sipxconfig.domain.DomainConfigReplicatedEvent;
-import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.service.SipxService;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.sipfoundry.sipxconfig.site.service.EditCallResolverService;
@@ -70,9 +67,6 @@ public abstract class ServicesTable extends BaseComponent {
     @InjectObject(value = "spring:locationsManager")
     public abstract LocationsManager getLocationsManager();
 
-    @InjectObject(value = "spring:domainManager")
-    public abstract DomainManager getDomainManager();
-    
     @InjectObject(value = "spring:sipxServiceManager")
     public abstract SipxServiceManager getSipxServiceManager();
 
@@ -95,11 +89,11 @@ public abstract class ServicesTable extends BaseComponent {
     public abstract void setServiceStatus(Object[] serviceStatus);
 
     public abstract Object[] getServiceStatus();
-    
+
     @Override
     protected void prepareForRender(IRequestCycle cycle) {
         super.prepareForRender(cycle);
-        
+
         Object[] serviceStatus = getServiceStatus();
         if (serviceStatus == null) {
             serviceStatus = retrieveServiceStatus(getServiceLocation());
@@ -113,15 +107,16 @@ public abstract class ServicesTable extends BaseComponent {
         }
         try {
             return getSipxProcessContext().getStatus(location, true);
-            
+
         } catch (UserException e) {
             IValidationDelegate validator = TapestryUtils.getValidator(this);
             validator.record(new ValidatorException(e.getMessage()));
-            
+
             Collection<ServiceStatus> serviceStatusList = new ArrayList<ServiceStatus>();
             for (SipxService sipxService : location.getSipxServices()) {
                 if (sipxService.getProcessName() != null) {
-                    Process process = getSipxProcessContext().getProcess(sipxService.getProcessName());
+                    Process process = getSipxProcessContext().getProcess(
+                            sipxService.getProcessName());
                     serviceStatusList.add(new ServiceStatus(process, Status.UNKNOWN));
                 }
             }
@@ -145,7 +140,7 @@ public abstract class ServicesTable extends BaseComponent {
     public void refresh() {
         setServiceStatus(null);
     }
-    
+
     public void removeService() {
         manageServices(SipxProcessContext.Command.STOP);
         Collection<Process> selectedProcesses = getSelections().getAllSelected();
@@ -155,7 +150,7 @@ public abstract class ServicesTable extends BaseComponent {
         getLocationsManager().storeLocation(getServiceLocation());
         refresh();
     }
-    
+
     private SipxService getSipxServiceForProcess(Process process) {
         Collection<SipxService> allServices = getServiceLocation().getSipxServices();
         for (SipxService sipxService : allServices) {
@@ -163,7 +158,7 @@ public abstract class ServicesTable extends BaseComponent {
                 return sipxService;
             }
         }
-        
+
         return null;
     }
 
@@ -181,22 +176,14 @@ public abstract class ServicesTable extends BaseComponent {
         manageServices(SipxProcessContext.Command.RESTART);
         refresh();
     }
-    
+
     private void manageServices(SipxProcessContext.Command operation) {
         Collection<Process> services = getSelections().getAllSelected();
         if (services == null) {
             return;
         }
         try {
-            // HACK: this is ugly. we should refactor process context to handle all management
-            // commands when it receives an event.
-            if (Command.RESTART.equals(operation)) {
-                getDomainManager().replicateDomainConfig();
-                getSipxProcessContext().restartOnEvent(services,
-                        DomainConfigReplicatedEvent.class);
-            } else {
-                getSipxProcessContext().manageServices(getServiceLocation(), services, operation);
-            }
+            getSipxProcessContext().manageServices(getServiceLocation(), services, operation);
         } catch (UserException e) {
             IValidationDelegate validator = TapestryUtils.getValidator(this);
             validator.record(new ValidatorException(e.getMessage()));
