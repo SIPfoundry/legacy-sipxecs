@@ -77,8 +77,6 @@ if [ "${SIPX_CORELIMIT}" = "unlimited" -a -w /proc/sys/fs/suid_dumpable ]
     ## So lets use 1 for now until proven otherwise.
 fi
 
-sipx_processes="sipxsupervisor `sipx_services`"
-
 # Find the name of the process, use process_name.sh if found
 # and executable otherwise use process_name
 process_command() {
@@ -224,21 +222,6 @@ configtest() { # process-name  process-wd  process-command
     # This assures that our return is either 0 or 1, regardless of what
     # $status was.
     return $?
-}
-
-
-# Shut down sipXecs services
-stopAllSipX () {
-
-    # Iterate through the list of processes, above killing each one
-    for process in ${sipx_processes[@]}
-    do
-        stop $process
-    done
-    for process in ${sipx_processes[@]}
-    do
-        stopCheck $process
-    done
 }
 
 start_check() {
@@ -544,6 +527,44 @@ do_setup() {
     then
         :
     else
+        # Ensure that the preflight launcher is owned by
+        # root and that the UID permission bit is set.
+        if test -e @bindir@/preflight
+        then
+            is_file_owned_by_username @bindir@/preflight "root"
+            if [ $? -ne 0 ]
+            then
+                chown root @bindir@/preflight
+            fi
+            if test ! -x @bindir@/preflight -o ! -u @bindir@/preflight
+            then
+                chmod 4755 @bindir@/preflight
+            fi
+        fi
+
+        # Ensure that sipx-sudo-restore is owned by root and
+        # that the UID permission bit is set.
+        if test -e @bindir@/sipx-sudo-restore
+        then
+            is_file_owned_by_username  @bindir@/sipx-sudo-restore "root"
+            if [ $? -ne 0 ]
+            then
+                chown root @bindir@/sipx-sudo-restore
+            fi
+            if test ! -x @bindir@/sipx-sudo-restore -o ! -u @bindir@/sipx-sudo-restore
+            then
+                chmod 4755 @bindir@/sipx-sudo-restore
+            fi
+        fi
+
+        # Ensure the sipx-restore and sipx-archive-common scripts are
+        # both owned by root.
+        make_root_writable_only @SIPX_BINDIR@/sipx-restore
+        make_root_writable_only @SIPX_BINDIR@/sipx-archive-common
+
+        # TEMPORARY WORKAROUND TO DETECT MASTER SYSTEM
+        activateConfigServerOnMaster
+
         # Remove the semaphores/memory segments associated with the imdb files
         @bindir@/ipcclean.pl --remove @SIPX_TMPDIR@/imdb.*
 
@@ -615,18 +636,9 @@ do_check() {
     globaltest "tmp" "MAY_FAIL" "/tmp directory has correct permissions"
 
     # Iterate through the processes and let each shell script do its own checks
-    for process in ${sipx_processes[@]}
-    do
-        start_check "${process}"
-        if sipx_service_is_enabled "${process}" > /dev/null 2>&1
-        then
-            configtest "${process}" >> ${steperrfile} 2>&1
-        else
-            echo -n " (Disabled) "
-            :
-        fi
-        finish_check $? "${process}"
-    done
+    start_check sipxsupervisor
+    configtest  sipxsupervisor
+    finish_check $? sipxsupervisor
 
     log_results
 
@@ -638,17 +650,35 @@ do_check() {
 # sipXecs services
 do_stop() {
 
-   echo -n "Stopping apache: "
-   @APACHE2_HTTPD@ -k stop -f @SIPX_CONFDIR@/httpd.conf
-   echo
-
    echo "Stopping sipXpbx: "
 
-   stopAllSipX
+   echo -n "Stopping apache: "
+   @APACHE2_HTTPD@ -k stop -f @SIPX_CONFDIR@/httpd.conf 
+   echo
+
+   stop      sipxsupervisor
+   stopCheck sipxsupervisor
 
    # The following line is so that the GUI
    # detects a successful shutdown properly
    true
+}
+
+# TEMPORARY WORKAROUND TO DETECT MASTER SYSTEM
+activateConfigServerOnMaster () {
+    local thisHost=`hostname -f`
+    local configServerVersion
+
+    if [ "${CONFIG_SERVER_HOST}" = "${thisHost}" ]
+    then
+        configServerVersion=`@SIPX_BINDIR@/sipxconfig-config --version | sed 's/-.*//'`
+
+        test -d @SIPX_VARDIR@/process-state || mkdir -p @SIPX_VARDIR@/process-state
+        echo "Enabled" > @SIPX_VARDIR@/process-state/ConfigServer
+
+        test -d @SIPX_VARDIR@/process-cfgver || mkdir -p @SIPX_VARDIR@/process-cfgver
+        echo "${configServerVersion}" > @SIPX_VARDIR@/process-cfgver/ConfigServer
+    fi
 }
 
 # High-level start function.
@@ -657,44 +687,8 @@ do_stop() {
 do_start() {
 
         ### Start the programs.
-
         echo ""
         echo "Starting sipXpbx: "
-
-        # Ensure that the preflight launcher is owned by
-        # root and that the UID permission bit is set.
-        if test -e @bindir@/preflight
-        then
-            is_file_owned_by_username @bindir@/preflight "root"
-            if [ $? -ne 0 ]
-            then
-                chown root @bindir@/preflight
-            fi
-            if test ! -x @bindir@/preflight -o ! -u @bindir@/preflight
-            then
-                chmod 4755 @bindir@/preflight
-            fi
-        fi
-
-        # Ensure that sipx-sudo-restore is owned by root and
-        # that the UID permission bit is set.
-        if test -e @bindir@/sipx-sudo-restore
-        then
-            is_file_owned_by_username  @bindir@/sipx-sudo-restore "root"
-            if [ $? -ne 0 ]
-            then
-                chown root @bindir@/sipx-sudo-restore
-            fi
-            if test ! -x @bindir@/sipx-sudo-restore -o ! -u @bindir@/sipx-sudo-restore
-            then
-                chmod 4755 @bindir@/sipx-sudo-restore
-            fi
-        fi
-
-        # Ensure the sipx-restore and sipx-archive-common scripts are
-        # both owned by root.
-        make_root_writable_only @SIPX_BINDIR@/sipx-restore
-        make_root_writable_only @SIPX_BINDIR@/sipx-archive-common
 
         # Start up the sipxsupervisor
         # Start the sipxsupervisor with SIPX_LOGDIR as the working directory,
@@ -704,7 +698,7 @@ do_start() {
 
         sleep 1
         echo -n "Starting httpd: "
-        ${HTTP_DAEMON_START} -k start -f @SIPX_CONFDIR@/httpd.conf -DSSL \
+        ${HTTP_DAEMON_START} -k start -f @SIPX_CONFDIR@/httpd.conf -DSSL > /dev/null 2&>1 \
             && echo_success || echo_failure
         echo
 }
@@ -736,15 +730,8 @@ status() { # process-name
 }
 
 do_status() {
-    local sys_status
-    sys_status=0
-    # Iterate through the list of processes, display the status of each one
-    for process in ${sipx_processes[@]}
-    do
-        status $process
-        sys_status=$((${sys_status} + $?))
-    done
-    return ${sys_status}
+    status sipxsupervisor
+    return $?
 }
 
 export PATH=$PATH:@bindir@

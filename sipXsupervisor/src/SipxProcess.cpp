@@ -1322,7 +1322,8 @@ void SipxProcess::readPersistentState()
 /// destructor
 SipxProcess::~SipxProcess()
 {
-   OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG, "~SipxProcess %s in state %s", data(), GetCurrentState()->name());
+   OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG,
+                 "~SipxProcess %s in state %s", data(), GetCurrentState()->name());
 
    if (mbTaskRunning)
    {

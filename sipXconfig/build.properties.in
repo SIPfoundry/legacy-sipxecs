@@ -28,6 +28,7 @@ sipxpbx.alarms.strings.dir=@PREFIX@/share/sipxecs/alarms/
 sipxpbx.conf.dir=@SIPX_CONFDIR@
 sipxpbx.var.dir=@SIPX_VARDIR@
 sipxpbx.lib.dir=@SIPX_LIBDIR@
+sipxpbx.libexec.dir=@SIPX_LIBEXECDIR@
 sipxvxml.data.dir=@SIPX_VXMLDATADIR@
 sipxpark.audio.dir=@SIPX_VARDIR@/parkserver/music
 sipxpage.audio.dir=@SIPX_VARDIR@/sipxpage/music

@@ -30,6 +30,9 @@ Args=""
 : ${StorePassword:=changeit}
 : ${PostgresUser:=@sipxconfig.db.user@}
 : ${FirstRunFile:=@sipxpbx.conf.dir@/.first-run}
+: ${SipxUtils:=@sipxpbx.libexec.dir@/sipx-utils.sh}
+
+. ${SipxUtils}
 
 TEST_WRITE_ACCESS="\
   @sipxpbx.conf.dir@/config.defs \
@@ -224,6 +227,10 @@ onWebUi() {
        org.mortbay.jetty.Server @sipxpbx.conf.dir@/sipxconfig-jetty.xml
 }
 
+stopWebUi() {
+    sipx_stop sipxconfig ${PidFile}
+}
+
 # Return false if postgres is 
 #  1. not running 
 #  2. running but not setup to communicate w/java or ${Psql} command
@@ -311,13 +318,6 @@ EOF
         fi
       fi
     done
-
-    # Print out a success message if everything is OK, to give the user some feedback.
-    # If there is an error then the test will yield an error message.
-    if [ $Status = 0 ]
-    then
-        echo "The config test succeeded."
-    fi
 }
 
 while [ $# -ne 0 ]
@@ -329,6 +329,10 @@ do
             
         -s|--setup)
             Action=SETUP
+            ;;
+
+        --stop)
+            Action=STOP
             ;;
 
         --first-run)
@@ -367,6 +371,9 @@ then
 elif [ ${Action} = SETUP ]
 then
     onSetup
+elif [ ${Action} = STOP ]
+then
+    stopWebUi
 elif [ ${Action} = FIRST_RUN ]
 then
     firstRunSet

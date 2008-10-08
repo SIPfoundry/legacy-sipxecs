@@ -439,7 +439,7 @@ elif [ ${Action} = DATABASE ]; then
 elif [ ${Action} = RUN ]; then
     onStartup
 elif [ ${Action} = STOP ]; then
-    sipx_stop sipxcallresover @SIPX_RUNDIR@/sipxcallresolver.pid
+    sipx_stop sipxcallresolver @SIPX_RUNDIR@/sipxcallresolver.pid
 elif [ ${Action} = SETUP ]; then
     onSetup
 elif [ ${Action} = PATCH ]; then

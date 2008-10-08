@@ -221,22 +221,22 @@ OsStatus initLogfile(TiXmlDocument &doc)
                     const char*  payLoadData = nextElement->FirstChild()->Value();
                     if ( payLoadData )
                     {
-                        retval = OsSysLog::initialize(0, "WatchDog") ;
-                        OsSysLog::setOutputFile(0, payLoadData) ;
-                        OsSysLog::setLoggingPriority(logging_level);
+                       //retval = OsSysLog::initialize(0, "WatchDog") ;
+                       //OsSysLog::setOutputFile(0, payLoadData) ;
+                       //OsSysLog::setLoggingPriority(logging_level);
 
-                        if ( retval == OS_SUCCESS )
-                        {
-                           OsSysLog::add(FAC_SUPERVISOR, PRI_NOTICE,
-                                         ">>>>> Starting sipxsupervisor version %s",
-                                         SipXsupervisorVersion);
-                        }
-                        else
-                        {
+                       //if ( retval == OS_SUCCESS )
+                       //{
+                       //  OsSysLog::add(FAC_SUPERVISOR, PRI_NOTICE,
+                       //                ">>>>> Starting sipxsupervisor version %s",
+                       //                SipXsupervisorVersion);
+                       //}
+                       //else
+                       //{
                            // This is one case where we need to output an
                            // error message.
-                           osPrintf("ERROR: initLogfile: Could not initialize SysLog!\n");
-                        }
+                       //    osPrintf("ERROR: initLogfile: Could not initialize SysLog!\n");
+                       //}
                     }
                 }
             }
@@ -656,12 +656,13 @@ int main(int argc, char* argv[])
     }
 
     // Initialize the log file.
-    rc = initLogfile(watchdogXMLDoc);
-    if (OS_SUCCESS != rc)
-    {
-        osPrintf("Error: initLogfile() failed, rc = %d.\n", (int)rc);
-        return 6;
-    }
+    OsSysLog::initialize(0, "Supervisor") ;
+    UtlString logFile = SipXecsService::Path(SipXecsService::LogDirType, "sipxsupervisor.log");
+    OsSysLog::setOutputFile(0, logFile) ;
+    OsSysLog::setLoggingPriority(PRI_DEBUG);
+    OsSysLog::add(FAC_SUPERVISOR, PRI_NOTICE,
+                  ">>>>> Starting sipxsupervisor version %s",
+                  SipXsupervisorVersion);
 
     // Now that the log file is initialized, stop sending osPrintf to the console.
     // All relevant log messages from this point on must use OsSysLog::add().

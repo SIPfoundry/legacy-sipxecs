@@ -17,7 +17,21 @@ wwwconf_files = \
 EXTRA_DIST = \
 	$(pkgconf_DATA) \
 	$(foreach file,$(pbxconf_files) $(wwwconf_files),$(file).in) \
+	sipxpbx.in \
 	logrotate.d/sipxchange.in
+
+install-exec-hook : $(DESTDIR)@SERVICEDIR@/sipxpbx
+
+$(DESTDIR)@SERVICEDIR@/sipxpbx: $(DESTDIR)@SERVICEDIR@ init.d/sipxpbx
+	$(INSTALL) -D -m 755 init.d/sipxpbx $(DESTDIR)@SERVICEDIR@/sipxpbx
+
+init.d/sipxpbx: init.d/sipxpbx.in
+	test -d init.d || mkdir init.d
+	@echo "Localizing $(srcdir)/init.d/sipxpbx.in -> init.d/sipxpbx"
+	@$(LocalizeSipXconfig) $(srcdir)/init.d/sipxpbx.in > init.d/sipxpbx
+
+$(DESTDIR)@SERVICEDIR@:
+	$(INSTALL) -d $(DESTDIR)@SERVICEDIR@
 
 install-data-hook : \
 	$(DESTDIR)$(sysconfdir)/sipxpbx/httpd.conf.d \
@@ -63,3 +77,4 @@ $(DESTDIR)$(sysconfdir)/logrotate.d/sipxchange: logrotate.d/sipxchange
 		$(INSTALL) -D -m 644 $< $@; \
 	fi
 
+DISTCLEANFILES = sipxpbx

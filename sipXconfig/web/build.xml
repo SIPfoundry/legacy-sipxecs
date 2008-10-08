@@ -179,6 +179,7 @@
       <replacefilter token="@service.dir@" property="service.dir"/>
       <replacefilter token="@sipxpbx.run.dir@" property="sipxpbx.run.dir"/>
       <replacefilter token="@sipxpbx.tmp.dir@" property="sipxpbx.tmp.dir"/>
+      <replacefilter token="@sipxpbx.libexec.dir@" property="sipxpbx.libexec.dir"/>
       <replacefilter token="@sipxpbx.user@" property="sipxpbx.user"/>
       <replacefilter token="@sipxconfig.db.user@" property="sipxconfig.db.user"/>
       <replacefilter token="@bash@" property="bash"/>

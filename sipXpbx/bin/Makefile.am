@@ -36,7 +36,6 @@ SCRIPT_TEMPLATES = \
 	sipx-archive-common.in
 
 EXTRA_DIST = \
-	sipxpbx.in \
    sipx-core-clean.in \
    voicemail_clean.in \
    sipx-chkspace.in \
@@ -49,8 +48,7 @@ $(foreach sipxScript,$(SCRIPT_TEMPLATES),$(sipxScript:.in=)) : % : $(srcdir)/%.i
 	$(LocalizeSipXconfig) $< > $@
 	chmod +x $@
 
-install-exec-hook : $(DESTDIR)@SERVICEDIR@/sipxpbx \
-                    $(DESTDIR)@DAILYDIR@/voicemail_clean \
+install-exec-hook : $(DESTDIR)@DAILYDIR@/voicemail_clean \
                     $(DESTDIR)@DAILYDIR@/sipx-core-clean \
                     $(DESTDIR)@DAILYDIR@/sipx-chkspace \
 						  $(foreach sipxScript,$(SipxLibexecScripts),$(DESTDIR)@SIPX_LIBEXECDIR@/$(sipxScript)) \
@@ -71,12 +69,6 @@ $(foreach sipxScript,$(SipxLibexecScripts),$(sipxScript)) : % : $(srcdir)/%.in
 	$(LocalizeSipXconfig) $< > $@
 	chmod +x $@
 
-$(DESTDIR)@SERVICEDIR@/sipxpbx: $(DESTDIR)@SERVICEDIR@ sipxpbx
-	$(INSTALL) -D -m 755 sipxpbx $(DESTDIR)@SERVICEDIR@/sipxpbx
-
-sipxpbx: sipxpbx.in
-	$(LocalizeSipXconfig) $(srcdir)/sipxpbx.in > sipxpbx
-
 $(DESTDIR)@DAILYDIR@/voicemail_clean: voicemail_clean.in
 	$(LocalizeSipXconfig) $(srcdir)/voicemail_clean.in > voicemail_clean
 	$(INSTALL) -D -m 755 voicemail_clean $(DESTDIR)@DAILYDIR@/voicemail_clean
@@ -89,7 +81,3 @@ $(DESTDIR)@DAILYDIR@/sipx-chkspace: sipx-chkspace.in
 	$(LocalizeSipXconfig) $(srcdir)/sipx-chkspace.in > sipx-chkspace
 	$(INSTALL) -D -m 755 sipx-chkspace $(DESTDIR)@DAILYDIR@/sipx-chkspace
 
-$(DESTDIR)@SERVICEDIR@:
-	$(INSTALL) -d $(DESTDIR)@SERVICEDIR@
-
-DISTCLEANFILES = sipxpbx
