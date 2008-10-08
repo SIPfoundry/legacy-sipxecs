@@ -89,7 +89,7 @@ public:
 
 /* ============================ MANIPULATORS ============================== */
     virtual OsStatus launch(UtlString &rAppName, UtlString rParameters[],OsPath &startDir,
-                    OsProcessPriorityClass prio = NormalPriorityClass, UtlBoolean bExeclusive = FALSE) = 0;
+                    OsProcessPriorityClass prio = NormalPriorityClass, UtlBoolean bExclusive = FALSE, UtlBoolean bIgnoreChildSignals = TRUE) = 0;
      //: Pass the appname and parameters to start the process. 
      //:  the Appname could just be the exe name, in which case it is search using your PATH.
      //: startDir is the default directory the app will start from.
@@ -98,6 +98,8 @@ public:
      //: the values yourself though setPriority
      //: If bExclusive is TRUE and another process by the same name already
      //: is running the return is OS_FAILED
+     //: If bIgnoreChildSignals is FALSE, the parent process or the default handler will 
+     //: need to handle the signal SIGCHLD.
 
 
     virtual OsStatus kill() = 0;

@@ -45,7 +45,9 @@ OsProcessLinux::~OsProcessLinux()
 
 /* ============================ MANIPULATORS ============================== */
 
-OsStatus OsProcessLinux::setIORedirect(OsPath &rStdInputFilename, OsPath &rStdOutputFilename, OsPath &rStdErrorFilename)
+OsStatus OsProcessLinux::setIORedirect(OsPath &rStdInputFilename,
+                                       OsPath &rStdOutputFilename,
+                                       OsPath &rStdErrorFilename)
 {
     OsStatus retval = OS_FAILED;
 
@@ -96,10 +98,11 @@ int OsProcessLinux::wait(int WaitInSecs)
     {
         while (bStillRunning && secs_waited <= WaitInSecs)
         {
-            if (waitpid(mPID,&status,WNOHANG|WUNTRACED) != mPID)
+            pid_t pid;
+            if ((pid=waitpid(mPID,&status,WNOHANG|WUNTRACED)) == 0)
             {
+                // process has not changed status so it still running.
                 bStillRunning = TRUE;
-
                 OsTask::delay(1000);
 
                 if (WaitInSecs >  0)
@@ -107,15 +110,41 @@ int OsProcessLinux::wait(int WaitInSecs)
             }
             else
             {
-                bStillRunning = FALSE;
-                ExitCode = WEXITSTATUS(status);
+               if ( pid < 0 )
+               {
+                  // an error has occured.
+                  // Mark the process as no longer running and return success (0).
+                  // This usually occurs when the launch was setup to ignore the signal SIGCHLD.
+                  bStillRunning = FALSE;
+                  ExitCode = WEXITSTATUS(status);
+               }
+               else
+               {
+                  // pid is our mPID so the child process as exited
+                  // and a signal SIGCHLD was generated.
+                  // Obtain the exit code and return it.
+                  bStillRunning = FALSE;
+                  if (WIFEXITED(status)) 
+                  {
+                     ExitCode = WEXITSTATUS(status);
+                  }
+                  else if (WIFSIGNALED(status))
+                  {
+                     ExitCode = WTERMSIG(status);
+                  }
+                  else if (WIFSTOPPED(status))
+                  {
+                     ExitCode = WSTOPSIG(status);
+                  }
+               }
             }
 
         }
     }
     else
+    {
         ExitCode = -1;
-
+    }
     return ExitCode;
 }
 
@@ -159,12 +188,15 @@ OsStatus OsProcessLinux::kill()
 }
 
 OsStatus OsProcessLinux::launch(UtlString &rAppName, UtlString parameters[], OsPath &startupDir,
-                    OsProcessPriorityClass prioClass, UtlBoolean bExeclusive)
+                    OsProcessPriorityClass prioClass, UtlBoolean bExclusive, UtlBoolean bIgnoreChildSignals)
 {
     OsStatus retval = OS_FAILED;
 
-    // Ignore SIGCHLD, it will be automatically reaped (POSIX.1-2001 spec)
-    OsUtilLinux::signal(SIGCHLD, SIG_IGN);
+    if (bIgnoreChildSignals)
+    {
+       // Ignore SIGCHLD, it will be automatically reaped (POSIX.1-2001 spec)
+       OsUtilLinux::signal(SIGCHLD, SIG_IGN);
+    }
 
     //build one string out of the array passed in
     int parameterCount = -1;
@@ -235,17 +267,16 @@ OsStatus OsProcessLinux::launch(UtlString &rAppName, UtlString parameters[], OsP
 
                     // Clear signal mask so the new process starts with
                     // a "normal" mask
-                    OsTask::unBlockSignals();
 
+                    OsTask::unBlockSignals();
 
                     //now apply the env variables the user may have set
                     ApplyEnv();
 
                     //osPrintf("About to launch: %s %s\n", rAppName.data(), cmdLine.data());
-
+                    
                     //set the current dir for this process
                     OsFileSystem::change(startupDir);
-
                     //3...2...1...  Blastoff!
                     execvp(rAppName.data(), (char **) parms);
                     
@@ -256,7 +287,6 @@ OsStatus OsProcessLinux::launch(UtlString &rAppName, UtlString parameters[], OsP
         default :   // this is the parent process
                     mPID = forkReturnVal;
                     mParentPID = getpid();
-
                     retval = OS_SUCCESS;
                     break;
     }

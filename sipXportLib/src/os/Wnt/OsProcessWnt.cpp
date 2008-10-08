@@ -215,7 +215,7 @@ int OsProcessWnt::wait(int WaitInSecs)
 }
 
 OsStatus OsProcessWnt::launch(UtlString &rAppName, UtlString parameters[],OsPath &startupDir,
-                    OsProcessPriorityClass prioClass, UtlBoolean bExeclusive)
+                    OsProcessPriorityClass prioClass, UtlBoolean bExeclusive, UtlBoolean bIgnoreChildSignals)
 {
     OsStatus retval = OS_FAILED;
         STARTUPINFO StartupInfo;

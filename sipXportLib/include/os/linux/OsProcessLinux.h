@@ -27,9 +27,10 @@
 
 // FORWARD DECLARATIONS
 
-//: This encapsulates a pid, and allows querying, killing and all the 
-//: other cool things you want to do to a process.
-
+/**
+ * Encapsulates a pid, and allows launching, querying, killing along with 
+ * other things that you can normally do with a process.
+*/
 class OsProcessLinux : public OsProcessBase
 {
 
@@ -37,66 +38,121 @@ class OsProcessLinux : public OsProcessBase
 public:
 
 /* ============================ CREATORS ================================== */
+///Default constructor
    OsProcessLinux();
-     //:Default constructor
 
+/// Destructor
    virtual ~OsProcessLinux();
-     //:Destructor
 
 /* ============================ MANIPULATORS ============================== */
-    virtual OsStatus launch(UtlString &rAppName, UtlString parameters[], OsPath &startupDir,
-                    OsProcessPriorityClass prio = NormalPriorityClass, UtlBoolean bExeclusive = FALSE);
-    //: Pass the appname and parameters to start the process
-    //: Returns TRUE if process started ok.
-    //: If bExclusive is TRUE and another process by the same name already
-    //: is running the return is OS_FAILED
+///   Launches, as a separate (child) process, an application as specified with the requested
+///   priority.  
+    virtual OsStatus launch(
+                            UtlString &rAppName, ///< Full application name to launch.
+                            UtlString parameters[], /**< Parameters to be passed into the
+                                                     *   application on startup. */
+                            OsPath &startupDir,  /**< Directory path of where the
+                                                  *   application is located. */
+                            OsProcessPriorityClass prio = NormalPriorityClass,
+                                                ///< Priority that the process is to run under.
+                            UtlBoolean bExclusive = FALSE, /**< TRUE indicates process with
+                                                            * same name must not already exist.*/
+                            UtlBoolean bIgnoreChildSignals = TRUE  /**< TRUE indicates that child
+                                                                    * signals will be ignored and
+                                                                    * exit status cannot be
+                                                                    * returned.  */
+                            );
 
+/**<
+    \par
+     <b>Note:</b> When the new child process exits, a signal SIGCHLD occurs
+     (unless bIgnoreChildSignals is TRUE).  If
+     the parent process is handling signals (not using the default signal handling), 
+     it must also handle the SIGCHLD signal (typically ignoring it).  The parent process
+     <b>must</b> use the "wait" method to obtain the return code from the child process 
+     and to properly clean up the "zombie" (also known as defunct) process.  If the parent
+     process fails to do a "wait", all child "zombie" processes will be cleaned up by the
+     system when the parent exits.
+     If bIgnoreChildSignals is TRUE (default), no SIGCHLD signal will occur,
+     the child process will be completely cleaned up, and
+     a return from "wait" will always be zero (i.e. success).  
 
-    virtual OsStatus kill();
-    //: Kills the process specified by pid
-
-    virtual OsStatus setPriority(int prio);
-    //: Changes the process priority.  Must own the process for this to be legal.
+    @returns
+       - TRUE if the child process was started okay.
+       - FALSE otherwise.
+*/
     
-    static OsStatus getByPID(PID pid, OsProcessLinux &rProcess);
-    //: Given a PID, this method will fill in the process passed in so the user 
-    //: can then manipulate it 
+
+
+    /// Kills the process that was launched.
+    virtual OsStatus kill();
+
+    /// Changes the process priority.  Must own the process for this to be legal.
+    virtual OsStatus setPriority(int prio ///< Priority to try and set for the process.
+                                );
+    
+    /// Given a PID, this method will fill in the process passed in so the user 
+    /// can then manipulate it 
+    static OsStatus getByPID(PID pid, ///< Process Id to match against.
+                             OsProcessLinux &rProcess /**< Process object returned that matches
+                                                       *   the PID. */
+                            );
  
-    virtual OsStatus setIORedirect(OsPath &rStdInputFilename, OsPath &rStdOutputFilename, OsPath &rStdErrorFilename);
-    //: Sets the standard input, output and/or stderror
+    /// Sets the standard input, output and/or stderror
+    virtual OsStatus setIORedirect(OsPath &rStdInputFilename, /**< Path and filename to use
+                                                               *   for standard input. */
+                                   OsPath &rStdOutputFilename, /**< Path and filename to use
+                                                                *   for standard output. */
+                                   OsPath &rStdErrorFilename /**< Path and filename to use for
+                                                              *   standard error. */
+                                  );
 
 /* ============================ ACCESSORS ================================= */
 
+    /// Returns the current process id.
     static PID getCurrentPID();
-    //: Returns the current process id.
 
-    virtual OsStatus getPriority(int &rPrio);
-    //: Returns the process priority.  Must own the process for this to be legal.
+    /// Returns the process priority.  Must own the process for this to be legal.
+    virtual OsStatus getPriority(int &rPrio ///< Priority of the running process.
+                                );
 
-    virtual OsStatus getPriorityClass(OsProcessPriorityClass &rPrioClass);
-    //: Returns the Priority Class for this process.  Priority is a function of the class.
+    /// Returns the Priority Class for this process.  Priority is a function of the class.
+    virtual OsStatus getPriorityClass(OsProcessPriorityClass &rPrioClass
+                                      ///< Priority class of the running process.
+                                     );
 
-    virtual OsStatus getMinPriority(int &rMinPrio);
-    //: Returns the min priority base on which class is selected
+    /// Returns the min priority base on which class is selected
+    virtual OsStatus getMinPriority(int &rMinPrio
+                                    ///< Mininum priority base for the running process.
+                                   );
 
-    virtual OsStatus getMaxPriority(int &rMaxPrio);
-    //: Returns the max priority base on which class is selected
+    /// Returns the max priority base on which class is selected
+    virtual OsStatus getMaxPriority(int &rMaxPrio
+                                    ///< Maximum priority base for the running process.
+                                   );
 
-    virtual OsStatus getInfo(OsProcessInfo &rProcessInfo);
-    //: Returns full information on process, including priority. 
-    //: See OsProcessInfo for more information
+    /// Returns full information on process, including priority. 
+    /// See OsProcessInfo for more information
+    virtual OsStatus getInfo(OsProcessInfo &rProcessInfo
+                             ///< Process information for the running process.
+                            );
 
-    virtual OsStatus getUpTime(OsTime &rUpTime);
-     //: How long has this process been runnign for?
+     /// How long has this process been running for?
+    virtual OsStatus getUpTime(OsTime &rUpTime
+                               ///< The amount of time the process has been running.
+                              );
 
 /* ============================ INQUIRY =================================== */
     
+    /// Returns TRUE if child process is still active.  FALSE if not.
     virtual UtlBoolean isRunning () const ;
-    //: Returns TRUE if process is still active
 
-    int wait(int WaitInSecs);
-    //: waits n seconds for the process to terminate.
-    //: if you pass 0 then it waits indefinately
+    /// Waits n seconds for the child process to terminate.
+    /// Passing in 0 seconds waits indefinetely.
+    /// Returns the child process return code which may be an exit code
+    /// signal code or stop status depending on how the process finished.
+    int wait(int WaitInSecs  ///< Amount of seconds to wait.
+            );
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:

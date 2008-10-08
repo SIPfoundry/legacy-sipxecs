@@ -50,7 +50,7 @@ public:
 
 /* ============================ MANIPULATORS ============================== */
     virtual OsStatus launch(UtlString &rAppName, UtlString parameters[], OsPath &startDir, 
-                    OsProcessPriorityClass prio = NormalPriorityClass, UtlBoolean bExeclusive = FALSE);
+                    OsProcessPriorityClass prio = NormalPriorityClass, UtlBoolean bExclusive = FALSE, UtlBoolean bIgnoreChildSignals = TRUE);
     //: Pass the appname and parameters to start the process
     //: Returns TRUE if process started ok.
     //: If bExclusive is TRUE and another process by the same name already
