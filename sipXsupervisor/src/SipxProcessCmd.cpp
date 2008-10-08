@@ -245,7 +245,7 @@ UtlBoolean SipxProcessCmd::handleMessage( OsMsg& rMsg )
 
 void SipxProcessCmd::executeInTask(SipxProcess* owner)
 {
-   UtlString* args = new UtlString[mParameters.entries()+1];
+   UtlString args[mParameters.entries()+1];
    UtlSListIterator parameterListIterator(mParameters);
    UtlString* pParameter;
    UtlString argString;
@@ -267,13 +267,15 @@ void SipxProcessCmd::executeInTask(SipxProcess* owner)
    //@TODO: capture output from process
    int rc;
 
-   if ( (rc=mProcess->launch(mExecutable, &args[0], mWorkingDirectory, mProcess->NormalPriorityClass, FALSE, FALSE /*don't ignore SIGCHLD*/)) == OS_SUCCESS )
+   if ( (rc=mProcess->launch(mExecutable, &args[0], mWorkingDirectory,
+                             mProcess->NormalPriorityClass, FALSE, FALSE /*don't ignore SIGCHLD*/))
+       == OS_SUCCESS )
    {
       owner->evCommandStarted(this);
-       //now wait around for the thing to finish
-       //0 means wait until it's finished
-       rc = mProcess->wait(0);
-       owner->evCommandStopped(this, rc);
+      //now wait around for the thing to finish
+      //0 means wait until it's finished
+      rc = mProcess->wait(0);
+      owner->evCommandStopped(this, rc);
    }
    else
    {
@@ -281,9 +283,6 @@ void SipxProcessCmd::executeInTask(SipxProcess* owner)
                     mExecutable.data(), argString.data());
       owner->evCommandStopped(this, rc);
    }
-   
-   delete [] args;
-
 }
 
 
@@ -308,9 +307,9 @@ SipxProcessCmd::~SipxProcessCmd()
 }
 
 SipxProcessCmd::SipxProcessCmd(const UtlString& execute,
-                       const UtlString& workingDirectory,
-                       const UtlString& user
-                       ) :
+                               const UtlString& workingDirectory,
+                               const UtlString& user
+                               ) :
    UtlString(execute),
    OsServerTask("SipxProcessCmd-%d"),
    mWorkingDirectory(workingDirectory),
