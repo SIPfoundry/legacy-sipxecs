@@ -9,6 +9,8 @@
 package org.sipfoundry.sipxconfig.gateway.audiocodes;
 
 import java.io.InputStream;
+import java.util.HashSet;
+import java.util.Set;
 
 import junit.framework.TestCase;
 
@@ -36,7 +38,9 @@ public class AudioCodesFxoGatewayTest extends TestCase {
         m_model.setBeanId("gwAudiocodes");
         m_model.setModelId("audiocodes");
         m_model.setModelDir("audiocodes");
-        m_model.setFxo(true);
+        Set<String> features = new HashSet<String>();
+        features.add("fxo");
+        m_model.setSupportedFeatures(features);
         m_model.setMaxPorts(4);
         m_model.setProfileTemplate("audiocodes/gateway-%s.ini.vm");
         String configDirectory = TestHelper.getSysDirProperties().getProperty("audiocodesGatewayModel.configDirectory");

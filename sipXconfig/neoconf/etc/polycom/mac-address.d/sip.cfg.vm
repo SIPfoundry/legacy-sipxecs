@@ -1933,7 +1933,7 @@
       voice.headset.sidetone.adjust.IP_430="-3"
       voice.headset.sidetone.adjust.IP_650="-3"
     />
-#if ($phone.model.qualityMonitoringSupported)
+#if ($phone.model.Definitions.contains("voiceQualityMonitoring"))
     <qualityMonitoring>
 #set ($group = $cfg.EndpointSettings.getSetting('qualityMonitoring').getSetting('collector'))
         <collector

@@ -9,6 +9,8 @@
 package org.sipfoundry.sipxconfig.gateway.audiocodes;
 
 import java.io.InputStream;
+import java.util.HashSet;
+import java.util.Set;
 
 import junit.framework.TestCase;
 
@@ -30,10 +32,10 @@ public class AudioCodesBRIGatewayTest extends TestCase {
         model.setBeanId("gwAudiocodes");
         model.setModelId("audiocodes");
         model.setModelDir("audiocodes");
-        model.setFxs(false);
-        model.setFxo(false);
-        model.setDigital(true);
-        model.setBri(true);
+        Set<String> features = new HashSet<String>();
+        features.add("digital");
+        features.add("bri");
+        model.setSupportedFeatures(features);
         model.setMaxPorts(4);
         model.setProfileTemplate("audiocodes/gateway-%s.ini.vm");
         String configDirectory = TestHelper.getSysDirProperties().getProperty("audiocodesGatewayModel.configDirectory");

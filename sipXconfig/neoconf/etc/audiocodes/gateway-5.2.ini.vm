@@ -40,7 +40,7 @@ ${s.ProfileName}=$!{s.Value}
 #end
 #end
 
-#if(${gateway.Model.Fxo})
+#if(${gateway.Model.Definitions.contains("fxo")})
 [Trunks]
 TRUNKGROUP_1=1-${gateway.ports.size()},201,0
 PSTNPREFIX=*,1,*,*,0
@@ -53,7 +53,7 @@ TARGETOFCHANNEL${port_id}=${extension},${enable}
 #end
 
 #end
-#if(${gateway.Model.Digital})
+#if(${gateway.Model.Definitions.contains("digital")})
 [Trunks]
 #foreach ($port in $gateway.ports)
 #set($port_id = $velocityCount - 1)
@@ -70,7 +70,7 @@ PSTNPREFIX=${prefix},${trunk_id},*,*,0
 
 #end
 ## fxs paramaters only
-#if(${gateway.Model.Fxs})
+#if(${gateway.Model.Definitions.contains("fxs")})
 
 [Lines]
 #foreach ($line in $phone.lines)
@@ -84,7 +84,7 @@ TRUNKGROUP=${trunk_id}-${trunk_id},${username}
 #end
 #end
 
-#if(${gateway.Model.Digital})
+#if(${gateway.Model.Definitions.contains("digital")})
 #foreach ($portSettings in $portFlatSettings)
 #set($port_id = $velocityCount - 1)
 ; Parameters for trunk: $port_id

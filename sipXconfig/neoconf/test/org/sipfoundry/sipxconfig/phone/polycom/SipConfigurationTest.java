@@ -10,6 +10,8 @@
 package org.sipfoundry.sipxconfig.phone.polycom;
 
 import java.io.InputStream;
+import java.util.HashSet;
+import java.util.Set;
 
 import junit.framework.TestCase;
 
@@ -36,7 +38,9 @@ public class SipConfigurationTest extends TestCase {
         PolycomModel model = new PolycomModel();
         model.setMaxLineCount(6);
         model.setModelId("polycom600");
-        model.setQualityMonitoringSupported(true);
+        Set<String> features = new HashSet<String>();
+        features.add("voiceQualityMonitoring");
+        model.setSupportedFeatures(features);
         phone = new PolycomPhone();
         phone.setModel(model);
         tester = PhoneTestDriver.supplyTestData(phone);

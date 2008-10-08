@@ -10,6 +10,8 @@ package org.sipfoundry.sipxconfig.gateway.audiocodes;
 
 import java.io.InputStream;
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 import junit.framework.TestCase;
 
@@ -33,7 +35,9 @@ public class AudioCodesFxsGatewayTest extends TestCase {
     public void doTestGenerateTypicalProfiles(DeviceVersion version) throws Exception {
         AudioCodesFxsModel model = new AudioCodesFxsModel();
         model.setBeanId("gwFxsAudiocodes");
-        model.setFxs(true);
+        Set<String> features = new HashSet<String>();
+        features.add("fxs");
+        model.setSupportedFeatures(features);
         model.setProfileTemplate("audiocodes/gateway-%s.ini.vm");
         model.setModelDir("audiocodes");
         String configDirectory = TestHelper.getSysDirProperties().getProperty("audiocodesFxs.configDirectory");

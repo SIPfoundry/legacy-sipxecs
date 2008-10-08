@@ -9,8 +9,6 @@
  */
 package org.sipfoundry.sipxconfig.gateway.audiocodes;
 
-import java.util.Set;
-
 import org.sipfoundry.sipxconfig.device.DeviceVersion;
 import org.sipfoundry.sipxconfig.gateway.GatewayModel;
 
@@ -18,12 +16,8 @@ public class AudioCodesModel extends GatewayModel {
     public static final DeviceVersion REL_5_0 = new DeviceVersion(AudioCodesGateway.BEAN_ID, "5.0");
     public static final DeviceVersion REL_5_2 = new DeviceVersion(AudioCodesGateway.BEAN_ID, "5.2");
 
-    private boolean m_fxo;
-    private boolean m_fxs;
-    private boolean m_digital;
-    private boolean m_bri;
     private String m_configDirectory;
-
+    
     public AudioCodesModel() {
         super(AudioCodesGateway.BEAN_ID);
         setVersions(new DeviceVersion[] {
@@ -31,61 +25,11 @@ public class AudioCodesModel extends GatewayModel {
         });
     }
 
-    public void setFxo(boolean fxo) {
-        m_fxo = fxo;
-    }
-
-    public void setFxs(boolean fxs) {
-        m_fxs = fxs;
-    }
-
-    public void setDigital(boolean digital) {
-        m_digital = digital;
-    }
-
-    public void setBri(boolean bri) {
-        m_bri = bri;
-    }
-
     public void setConfigDirectory(String configDirectory) {
         m_configDirectory = configDirectory;
-    }
-
-    public boolean isFxo() {
-        return m_fxo;
-    }
-
-    public boolean isFxs() {
-        return m_fxs;
-    }
-
-    public boolean isDigital() {
-        return m_digital;
-    }
-
-    public boolean isBri() {
-        return m_bri;
     }
 
     public String getConfigDirectory() {
         return m_configDirectory;
     }
-
-    public Set getDefinitions() {
-        Set definitions = super.getDefinitions();
-        if (m_fxo) {
-            definitions.add("fxo");
-        }
-        if (m_fxs) {
-            definitions.add("fxs");
-        }
-        if (m_digital) {
-            definitions.add("digital");
-        }
-        if (m_bri) {
-            definitions.add("bri");
-        }
-        return definitions;
-    }
-
 }

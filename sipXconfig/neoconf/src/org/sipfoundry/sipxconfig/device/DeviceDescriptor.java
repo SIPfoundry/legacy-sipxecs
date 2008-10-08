@@ -30,6 +30,8 @@ public abstract class DeviceDescriptor {
 
     private String m_vendor;
 
+    private Set<String> m_supportedFeatures = new HashSet<String>();
+    
     /**
      * Directory under 'etc/sipxpbx' directory where model files and templates are kept
      */
@@ -124,6 +126,10 @@ public abstract class DeviceDescriptor {
         m_serialNumberPattern = serialNumberPattern;
     }
 
+    public void setSupportedFeatures(Set<String> supportedFeatures) {
+        m_supportedFeatures = supportedFeatures;
+    }
+    
     /**
      * This function is called to transform serial number entered by the user to the format that
      * is accepted by sipXconfig. It is called before the serial number is verified against
@@ -163,6 +169,7 @@ public abstract class DeviceDescriptor {
     public Set<String> getDefinitions() {
         Set<String> definitions = new HashSet<String>();
         definitions.add(getModelId());
+        definitions.addAll(m_supportedFeatures);
         return definitions;
     }
 
