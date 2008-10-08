@@ -27,7 +27,7 @@ can be invoked on the sipXecs server either from a command shell or from the
 diagnostics screen of the Config Server, and an optional graphical version
 which can be installed on either Windows XP or Vista.  The graphical version,
 although targeted for a Windows system, is built as part of a normal Linux
-build.  Before this can be accomplished, several prerequisit packages must be
+build.  Before this can be accomplished, the NSIS prerequisit package must be
 installed:
 
 NSIS
@@ -37,36 +37,4 @@ to create Windows installers.  For more information about this package, visit:
 
 	http://nsis.sourceforge.net/
 
-NSIS can either be built from source or installed from pre-packaged RPM's.
-Prepackaged RPM's can be retrieved from:
-
-    wget http://repo.calcforge.org/centos/5/i386/nsis-2.28-1.i386.rpm
-    wget http://repo.calcforge.org/centos/5/i386/nsis-data-2.28-1.noarch.rpm
-
-or
-
-    wget http://www.sipfoundry.org/???/nsis-2.28-1.i386.rpm
-    wget http://www.sipfoundry.org/???/nsis-data-2.28-1.noarch.rpm
-
-Note that the projects build script expects to find the NSIS executable,
-"makensis" at either "/bin", "/usr/bin" or "/usr/local/bin".  If it is installed
-at another location, it will be necessary to modify the ant build script
-accordingly.
-
-Java Runtime Environment
-------------------------
-A Java runtime environment must be included in the Windows installation.  It is
-therefore necessary for the build process to have access to a copy at build
-time.  The JRE must be of version 1.5.0 or greater and located within the
-"libsrc/java-sun-windows" directory.  For convenience, a tar-ball of a
-suitable JRE can be retrieved from:
-
-    wget http://www.sipfoundry.org/???/java-sun-1_5_0_12-windows-i586.tgz
-
-Just untar the contents into the "libsrc/java-sun-windows" directory prior to
-building.
-
-Note that the "libsrc" directory is by default expected to be located at the root
-of the users home directory.  If an alternate location or directory name is
-desired, set the environment variable "LIBSRC" accordingly.
-
+A prebuilt NSIS RPM can be retrieved from the SIPfounry yum repository.

@@ -1701,6 +1701,18 @@ AC_DEFUN([CHECK_DATE_PARSE_ARGS],
    fi
 ])
 
+
+# ==================== NSIS ====================
+AC_DEFUN([CHECK_NSIS],
+[
+  AC_PATH_PROG([MAKENSIS], makensis)
+
+  if test "x$MAKENSIS" = "x" ; then
+    AC_MSG_ERROR([NSIS is required])
+  fi
+])
+
+
 # ============ rpmbuild debugging information RPM =========================
 #AC_DEFUN([CHECK_RPM_DEBUG],
 #[
