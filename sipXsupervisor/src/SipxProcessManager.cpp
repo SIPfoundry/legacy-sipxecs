@@ -130,6 +130,14 @@ SipxProcessManager::~SipxProcessManager()
 {
    OsLock tableMutex(mProcessTableLock);
 
+   SipxProcess* process;
+   // send shutdowns to all processes before waiting for them to delete
+   UtlHashBagIterator processes(mProcesses);
+   while ((process = dynamic_cast<SipxProcess*>(processes())))
+   {
+      process->shutdown();
+   }
+
    OsSysLog::add(FAC_SUPERVISOR, PRI_NOTICE, "SipxProcessManager::~ "
                  "delete %zu SipxProcess objects", mProcesses.entries());
 

@@ -423,6 +423,7 @@ sipx_stop() {
        PID=`cat ${pidFile} 2> /dev/null`
        if proc_alive "$PID"
        then
+          kill $PID 2> /dev/null
           for ticks in `seq 19 -1 0`
           do
              sleep 1
