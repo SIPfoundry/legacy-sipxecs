@@ -52,8 +52,10 @@ mpXmlRpcDispatch(NULL)
    mpWatchDogUserChangeTimer = new OsTimer(*mpWatchDogUserChangeEvent) ;         
 
    // Finally, set the timers
+   /* cb
    mpWatchDogTimer->periodicEvery(OsTime(5, 0),OsTime(nWatchInterval, 0));
    mpWatchDogUserChangeTimer->periodicEvery(OsTime(5, 0),OsTime(5, 0));
+   */
 
    //save off some important things
    mpProcessList = processList;

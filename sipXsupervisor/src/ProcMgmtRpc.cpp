@@ -11,11 +11,14 @@
 #include "utl/UtlHashBag.h"
 #include "utl/UtlHashBagIterator.h"
 #include "utl/UtlHashMapIterator.h" 
+#include "utl/UtlSListIterator.h"
 #include "os/OsProcessMgr.h"
 #include "os/OsSysLog.h"
 #include "net/XmlRpcDispatch.h"
 #include "net/XmlRpcMethod.h"
 #include "net/XmlRpcRequest.h"
+#include "SipxProcessManager.h"
+#include "SipxProcess.h"
 #include "WatchDog.h"
 #include "SipxProcessManager.h"
 #include "SipxProcess.h"
@@ -187,7 +190,7 @@ bool ProcMgmtRpcMethod::executeSetUserRequestState(const HttpRequestContext& req
          }
          else
          {
-            UtlBool* pBlock = dynamic_cast<UtlBool*>(params.at(2));
+//            UtlBool* pBlock = dynamic_cast<UtlBool*>(params.at(2));
 
             if (3 != params.entries())
             {
@@ -198,6 +201,45 @@ bool ProcMgmtRpcMethod::executeSetUserRequestState(const HttpRequestContext& req
                WatchDog* pWatchDog = ((WatchDog *)userData);
                if (validCaller(requestContext, *pCallingHostname, response, *pWatchDog, name()))
                {
+
+                  // for each alias in the list, look up its process and send start/stop event
+                  SipxProcessManager* processMgr = SipxProcessManager::getInstance();
+                  UtlSListIterator aliasListIterator( *pAliasList );
+                  UtlString* pAlias;
+
+                  // Lock out other threads.
+                  //OsLock mutex(mLock);  
+                  UtlBool method_result = false;
+
+                  while ( (pAlias = dynamic_cast<UtlString*> (aliasListIterator())) )
+                  {
+                     SipxProcess* process = processMgr->findProcess(*pAlias);
+                     if ( process )
+                     {
+                        if ( request_state == USER_PROCESS_START )
+                        {
+                           process->enable();
+                        }
+                        else
+                        if ( request_state == USER_PROCESS_STOP )
+                        {
+                           process->disable();
+                        }
+                        else
+                        if ( request_state == USER_PROCESS_RESTART )
+                        {
+                           process->restart();
+                        }
+                        method_result = true;
+                     }
+                     else
+                     {
+                        OsSysLog::add(FAC_SUPERVISOR, PRI_ERR,
+                                      "could not find process %s", pAlias->data());
+                     }
+                  }
+                  
+                  /*
                   // Set the "user request state" of the specified processes to the specified
                   // state.  If successful, then possibly also wait for the state change.
                   UtlString requestedState;
@@ -254,14 +296,12 @@ bool ProcMgmtRpcMethod::executeSetUserRequestState(const HttpRequestContext& req
                         }
                      }
                   }
+                  */
 
                   // Construct and set the response.
-                  response.setResponse(&process_results);
+                  response.setResponse(&method_result);
                   status = XmlRpcMethod::OK;
                   result = true;
-
-                  // Delete the new'd UtlString objects (alias names and state change results.)
-                  process_results.destroyAll();
 
                }
             }
@@ -554,7 +594,10 @@ bool ProcMgmtRpcGetStateAll::execute(const HttpRequestContext& requestContext,
 
             // Get the states of the monitored processes.  (This dynamically allocates memory.)
             UtlHashMap process_states;
+            /* cb
             pWatchDog->getProcessStateAll(process_states);
+            */
+            SipxProcessManager::getInstance()->getProcessStateAll(process_states);
 
             // Construct and set the response.
             response.setResponse(&process_states);

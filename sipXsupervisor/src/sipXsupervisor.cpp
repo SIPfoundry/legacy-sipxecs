@@ -45,6 +45,7 @@ const char* CONFIG_SETTINGS_FILE = "sipxsupervisor-config";
 // GLOBALS
 int gnCheckPeriod = 10;
 UtlBoolean gbDone = FALSE;
+UtlBoolean gbShutdown = FALSE;
 MonitoredProcess *gpProcessList[1000]; //should be enough  :)
 int gnProcessCount = 0; //how many processes are we checking?
 UtlString strWatchDogFilename;
@@ -394,21 +395,33 @@ OsStatus getProcessXMLPath(TiXmlDocument &doc, UtlString &rProcessXMLPath)
 void doWaitLoop()
 {
     while ( !gbDone )
+    {
+        if ( gbShutdown )
+        {
+            SipxProcessManager::getInstance()->shutdown();
+            gbDone = true;
+        }
         OsTask::delay(1000);
+    }
 
-    if ( pDog )
-        pDog->requestShutdown();
+//    if ( pDog )
+//        pDog->requestShutdown();
 }
 
 void cleanup()
 {
     //cleanup our dog
     if ( pDog )
+    {
+        pDog->requestShutdown();
         delete pDog;
+    }
 
     //now walk the processList and whack em
+    /*
     for ( int loop = 0; loop < gnProcessCount; loop++ )
         delete gpProcessList[loop];
+        */
 
     // Release preloaded databases.
     if (gbPreloadedDatabases)
@@ -416,7 +429,7 @@ void cleanup()
         OsStatus rc = SIPDBManager::getInstance()->releaseAllDatabase();
         if (OS_SUCCESS == rc)
         {
-            OsSysLog::add(FAC_SUPERVISOR, PRI_INFO, "Released the preloaded the databases.");
+            OsSysLog::add(FAC_SUPERVISOR, PRI_INFO, "Released the preloaded databases.");
         }
         else
         {
@@ -439,7 +452,14 @@ void sig_routine(int sig)
 
     switch ( sig )
     {
-    case SIGINT:
+    case SIGCHLD:
+#ifdef DEBUG
+       osPrintf("Execution CHILD exited; ignoring\n");
+#endif /* DEBUG */
+       OsSysLog::add(FAC_SUPERVISOR,PRI_DEBUG,"Execution CHILD exited; ignoring");
+       return;
+       break;    
+       case SIGINT:
 #ifdef DEBUG
        osPrintf("Execution USER ABORTED!\n");
 #endif /* DEBUG */
@@ -451,12 +471,16 @@ void sig_routine(int sig)
 #endif /* DEBUG */
        OsSysLog::add(FAC_SUPERVISOR,PRI_ALERT,"Execution ABORTED!");
        break;
+       
     case SIGTERM:
 #ifdef DEBUG
        osPrintf("Execution TERMINATED!\n");
 #endif /* DEBUG */
        OsSysLog::add(FAC_SUPERVISOR,PRI_ALERT,"Execution TERMINATED!");
+       gbShutdown = true;
+       return;
        break;
+       
     case SIGKILL:
 #ifdef DEBUG
        osPrintf("Execution KILLED!\n");
@@ -470,6 +494,7 @@ void sig_routine(int sig)
        OsSysLog::add(FAC_SUPERVISOR,PRI_EMERG,"UNEXPECTED SIGNAL: %d shutting down!", sig);
        break;
     }
+
     gbDone = TRUE;
 }
 
@@ -482,22 +507,25 @@ public:
    int
    run(void *pArg)
    {
-       int sig_num ;
-       OsStatus res ;
+      int sig_num;
+      OsStatus res;
 
-       // Wait for a signal.  This will unblock signals
-       // for THIS thread only, so this will be the only thread
-       // to catch an async signal directed to the process 
-       // from the outside.
-       res = awaitSignal(sig_num);
-       if (res != OS_SUCCESS)
-       {
-          OsSysLog::add(FAC_SUPERVISOR,PRI_ALERT,"awaitSignal() errno=%d", errno);
-       }
+      // Wait for a signal.  This will unblock signals
+      // for THIS thread only, so this will be the only thread
+      // to catch an async signal directed to the process 
+      // from the outside.
+      while (!gbDone)
+      {
+         res = awaitSignal(sig_num);
+         if (res != OS_SUCCESS)
+         {
+            OsSysLog::add(FAC_SUPERVISOR, PRI_ALERT, "awaitSignal() errno=%d", errno);
+         }
 
-       // Call the original signal handler.  Pass -1 on error from awaitSignal
-       sig_routine( OS_SUCCESS == res ? sig_num : -1);
-       return 0;
+         // Call the original signal handler.  Pass -1 on error from awaitSignal
+         sig_routine(OS_SUCCESS == res ? sig_num : -1);
+      }
+      return 0;
    }
 };
 
