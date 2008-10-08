@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.site.admin;
@@ -15,6 +15,8 @@ import java.util.Collections;
 import java.util.List;
 
 import org.apache.tapestry.annotations.InitialValue;
+import org.apache.tapestry.annotations.InjectObject;
+
 import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
@@ -40,19 +42,22 @@ public abstract class BackupPage extends BasePage implements PageBeginRenderList
      */
     public static final List<Integer> BACKUP_LIMIT_MODEL = Arrays.asList(1, 2, 3, 4, 5, 10, 20, 30, 40, 50);
 
+    @InjectObject("spring:adminContext")
     public abstract AdminContext getAdminContext();
 
-    public abstract List getBackupFiles();
+    public abstract List<File> getBackupFiles();
 
-    public abstract void setBackupFiles(List files);
+    public abstract void setBackupFiles(List<File> files);
+
+    public abstract File getBackupFile();
 
     public abstract BackupPlan getBackupPlan();
 
     public abstract void setBackupPlan(BackupPlan plan);
 
-    public abstract IPropertySelectionModel getBackupLimitSelectionModel();
+    public abstract IPropertySelectionModel getBackupLimitSelectionModelCached();
 
-    public abstract void setBackupLimitSelectionModel(IPropertySelectionModel model);
+    public abstract void setBackupLimitSelectionModelCached(IPropertySelectionModel model);
 
     @Persist
     @InitialValue(value = LocalBackupPlan.TYPE)
@@ -66,25 +71,39 @@ public abstract class BackupPage extends BasePage implements PageBeginRenderList
 
     public abstract void setBackupPlanType(String type);
 
+    public abstract DailyBackupSchedule getSchedule();
+
     public IPropertySelectionModel getBackupPlanTypeModel() {
-        return new NamedValuesSelectionModel(new Object[] {LocalBackupPlan.TYPE, FtpBackupPlan.TYPE},
-            new String[] {getMessages().getMessage("backupPlan.type.local"),
-                getMessages().getMessage("backupPlan.type.ftp")
-            }
-        );
+        return new NamedValuesSelectionModel(new Object[] {
+            LocalBackupPlan.TYPE, FtpBackupPlan.TYPE
+        }, new String[] {
+            getMessages().getMessage("backupPlan.type.local"), getMessages().getMessage("backupPlan.type.ftp")
+        });
     }
 
     public void pageBeginRender(PageEvent event_) {
-        //getBackupRestoreConfigurationPage().setLaunchingPage(PAGE);
+
         List urls = getBackupFiles();
         if (urls == null) {
-            setBackupFiles(Collections.EMPTY_LIST);
+            setBackupFiles(Collections.<File>emptyList());
+        }
+        if (getBackupPlan() != null) {
+            return;
         }
 
-        // every plan has at least 1 schedule, thought of having this somewhere in
-        // library, but you could argue it's application specific.
-        BackupPlan plan = null;
-        if (getBackupPlanType() != null && getBackupPlanType().equals(FtpBackupPlan.TYPE)) {
+        configure();
+    }
+
+    /**
+     * When user changes the backup plan type
+     */
+    public void formSubmit() {
+        configure();
+    }
+
+    private void configure() {
+        BackupPlan plan;
+        if (FtpBackupPlan.TYPE.equals(getBackupPlanType())) {
             plan = getAdminContext().getFtpConfiguration().getBackupPlan();
             setConfiguration("configuration");
         } else {
@@ -92,23 +111,32 @@ public abstract class BackupPage extends BasePage implements PageBeginRenderList
             setConfiguration("none");
         }
 
+        // every plan has exactly 1 schedule
         if (plan.getSchedules().isEmpty()) {
             DailyBackupSchedule schedule = new DailyBackupSchedule();
             plan.addSchedule(schedule);
+            getAdminContext().storeBackupPlan(plan);
         }
-        setBackupPlan(plan);
 
-        ExtraOptionModelDecorator backupLimitModel = (ExtraOptionModelDecorator) getBackupLimitSelectionModel();
-        if (backupLimitModel == null) {
-            ObjectSelectionModel numbersOnly = new ObjectSelectionModel();
-            numbersOnly.setCollection(BACKUP_LIMIT_MODEL);
-            numbersOnly.setLabelExpression("toString()");
-            backupLimitModel = new ExtraOptionModelDecorator();
-            backupLimitModel.setModel(numbersOnly);
-            backupLimitModel.setExtraLabel(getMessages().getMessage("select.unlimited"));
-            backupLimitModel.setExtraOption(null);
-            setBackupLimitSelectionModel(backupLimitModel);
+        setBackupPlan(plan);
+    }
+
+    public IPropertySelectionModel getBackupLimitSelectionModel() {
+        IPropertySelectionModel modelCached = getBackupLimitSelectionModelCached();
+        if (modelCached != null) {
+            return modelCached;
         }
+
+        ObjectSelectionModel numbersOnly = new ObjectSelectionModel();
+        numbersOnly.setCollection(BACKUP_LIMIT_MODEL);
+        numbersOnly.setLabelExpression("toString()");
+
+        ExtraOptionModelDecorator backupLimitModel = new ExtraOptionModelDecorator();
+        backupLimitModel.setModel(numbersOnly);
+        backupLimitModel.setExtraLabel(getMessages().getMessage("select.unlimited"));
+        backupLimitModel.setExtraOption(null);
+        setBackupLimitSelectionModelCached(backupLimitModel);
+        return backupLimitModel;
     }
 
     public void backup() {
