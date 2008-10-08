@@ -3,7 +3,6 @@
    <settings>
       <health check_period="15" />
       <processxmlpath location="@SIPX_CONFDIR@" />
-      <email execute="blat - -from &quot;@SIPXPBXUSER@&quot; -name &quot;@SIPXPBXUSER@&quot; -to &quot;%CONTACT%&quot; -subject &quot;Watchdog Notification&quot; -body &quot;%BODY%&quot;  "/>
    </settings>
 
    <!-- required empty placeholder, byproduct for C++ code assumption -->

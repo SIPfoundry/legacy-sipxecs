@@ -8,7 +8,6 @@ bin_SCRIPTS = \
 	 sipx-restore \
 	 sipx-sendmail-configure \
 	 sipxlocalization \
-	 blat \
 	 check-fqdn \
 	 sipx-archive-common \
     ipcclean.pl
@@ -32,7 +31,6 @@ SCRIPT_TEMPLATES = \
 	sipx-restore.in \
 	sipx-sendmail-configure.in \
 	sipxlocalization.in \
-	blat.in \
 	check-fqdn.in \
 	sipx-strip-db-secrets.pl.in \
 	sipx-archive-common.in
