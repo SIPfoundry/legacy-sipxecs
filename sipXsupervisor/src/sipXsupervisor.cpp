@@ -48,7 +48,6 @@ UtlBoolean gbDone = FALSE;
 MonitoredProcess *gpProcessList[1000]; //should be enough  :)
 int gnProcessCount = 0; //how many processes are we checking?
 UtlString strWatchDogFilename;
-UtlString gEmailExecuteStr;
 UtlBoolean gbPreloadedDatabases = FALSE;
 
 //retrieve the update rate from the xml file
@@ -75,36 +74,12 @@ OsStatus getSettings(TiXmlDocument &doc, int &rCheckPeriod)
 
                 const char *pCheckStr = nextElement->Attribute("check_period");
                 if ( pCheckStr )
+                {
                     rCheckPeriod = atoi(pCheckStr);
 
-
-                OsSysLog::add(FAC_SUPERVISOR,PRI_INFO,"Getting email settings");
-
-                TiXmlNode *emailitem = settingsItem->FirstChild("email");
-
-
-                if ( emailitem != NULL )
-                {
-                    // This is actually an individual row
-                    TiXmlElement *nextElement = emailitem->ToElement();
-
-
-                    const char *pCommandStr = nextElement->Attribute("execute");
-                    if ( pCommandStr )
-                    {
-                        gEmailExecuteStr = pCommandStr;
-
-                        retval = OS_SUCCESS;
-                    }
-                    else
-                    {
-                        OsSysLog::add(FAC_SUPERVISOR,PRI_ERR,"Can not read email execute setting");
-                    }
+                    retval = OS_SUCCESS;
                 }
-                else
-                {
-                    OsSysLog::add(FAC_SUPERVISOR,PRI_ERR,"Can not read email settings");
-                }
+
             }
             else
             {

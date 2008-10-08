@@ -39,7 +39,6 @@
       <sequence>
         <element ref='h:health' minOccurs='1' maxOccurs='1' />
         <element ref='h:processxmlpath' minOccurs='1' maxOccurs='1' />
-        <element ref='h:email' minOccurs='1' maxOccurs='1' />
       </sequence>
     </complexType>
   </element>
@@ -63,17 +62,6 @@
     </annotation>
     <complexType>
       <attribute name="location" type="string"/>
-    </complexType>
-  </element>
-
-  <element name='email'>
-    <annotation>
-      <documentation>
-        Configures the command used to send email when processes fail
-      </documentation>
-    </annotation>
-    <complexType>
-      <attribute name="execute" type="string"/>
     </complexType>
   </element>
 
