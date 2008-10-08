@@ -3,11 +3,10 @@
    <settings>
       <health check_period="15" />
       <processxmlpath location="@SIPX_CONFDIR@" />
-      <email execute="blat - -from &quot;@SIPX_USER@&quot; -name &quot;@SIPX_USER@&quot; -to &quot;%CONTACT%&quot; -subject &quot;Watchdog Notification&quot; -body &quot;%BODY%&quot;  "/>
    </settings>
 
    <!-- required empty placeholder, byproduct for C++ code assumption -->
    <monitor/> 
 
-   <logfile level="debug">@SIPX_LOGDIR@/watchdog.log</logfile>
+   <logfile level="debug">@SIPX_LOGDIR@/sipxsupervisor.log</logfile>
 </watchdog>
