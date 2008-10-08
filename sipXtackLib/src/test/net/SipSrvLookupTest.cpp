@@ -675,7 +675,7 @@ public:
       // Report error if any test has failed.
       CPPUNIT_ASSERT(!failure_seen);
 #else /* NAMED_PROGRAM */
-      printf("... not executed because 'named' was not available.\n");
+      printf("... not executed because 'named' was not available or not executable.\n");
 #endif /* NAMED_PROGRAM */
    }
 };
