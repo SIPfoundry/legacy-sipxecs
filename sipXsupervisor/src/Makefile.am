@@ -32,12 +32,12 @@ libsipXsupervisor_la_SOURCES =  \
 	SipxProcessManager.cpp \
 	SipxProcessResourceManager.cpp \
 	SipxProcessResource.cpp \
-	SipxProcessTask.cpp \
 	ImdbResourceManager.cpp \
 	ImdbResource.cpp \
 	SqldbResourceManager.cpp \
 	SqldbResource.cpp \
 	SipxProcess.cpp \
+	SipxProcessFsm.cpp \
 	SipxProcessCmd.cpp \
 	SipxResource.cpp \
 	FileResource.cpp \
@@ -54,8 +54,8 @@ noinst_HEADERS = \
 	processXMLCommon.h \
 	SipxProcessManager.h \
 	SipxProcessCmd.h \
-	SipxProcessTask.h \
 	SipxProcess.h \
+	SipxProcessFsm.h \
 	SipxResource.h \
 	SipxProcessResource.h \
 	SipxProcessResourceManager.h \

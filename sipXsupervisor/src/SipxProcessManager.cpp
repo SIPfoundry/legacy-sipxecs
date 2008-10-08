@@ -111,8 +111,17 @@ void SipxProcessManager::getProcessStateAll(UtlHashMap& processStates //< key->n
    while ((process = dynamic_cast<SipxProcess*>(processes())))
    {
       processStates.insertKeyAndValue(new UtlString(process->data()),
-                                      new UtlString(SipxProcess::state(process->getState()))
+                                      new UtlString(process->GetCurrentState()->name())
                                       );
+   }
+}
+
+void SipxProcessManager::shutdown()
+{
+   if (spSingleton)
+   {
+      delete spSingleton;
+      spSingleton = NULL;
    }
 }
 
@@ -125,4 +134,9 @@ SipxProcessManager::~SipxProcessManager()
                  "delete %zu SipxProcess objects", mProcesses.entries());
 
    mProcesses.destroyAll();
+   
+   while (mProcesses.entries() > 0)
+   {
+      OsTask::delay(1000);
+   }
 };

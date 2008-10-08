@@ -4,19 +4,21 @@
   <version>1.0.0</version>
   <commands>
     <configtest>
-      <execute>/bin/notherprocess1.sh</execute>
+      <execute>./notherprocess.sh</execute>
+      <parameter>--configtest</parameter>
     </configtest>
     <start>
-      <execute>/bin/notherprocess2.sh</execute>
+      <execute>./notherprocess.sh</execute>
     </start>
     <stop>
-      <execute>/bin/notherprocess3.sh</execute>
+      <execute>./notherprocess.sh</execute>
+      <parameter>--stop</parameter>
     </stop>
   </commands>
   <status>
-    <pid>/var/run/notherprocess.pid</pid>
+    <pid>/tmp/notherprocess.pid</pid>
   </status>
   <resources>
-    <file>/etc/sipxpbx/notherprocess.xml</file>
+    <file>work/processState/another-process.xml</file>
   </resources>
 </sipXecs-process>

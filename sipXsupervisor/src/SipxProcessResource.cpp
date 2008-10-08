@@ -137,7 +137,7 @@ bool SipxProcessResource::isReadyToStart()
 {
    SipxProcess* myProcess = getProcess();
 
-   return (myProcess && SipxProcess::Running == myProcess->getState());
+   return (myProcess && myProcess->isRunning());
 }
 
 // Whether or not it is safe to stop a SipxProcess using the SipxProcessResource.

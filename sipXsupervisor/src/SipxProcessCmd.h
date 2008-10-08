@@ -11,8 +11,10 @@
 
 // APPLICATION INCLUDES
 #include "os/OsFS.h"
+#include "os/OsServerTask.h"
 #include "utl/UtlString.h"
 #include "utl/UtlSList.h"
+#include "SipxProcess.h"
 
 // DEFINES
 // CONSTANTS
@@ -28,7 +30,7 @@ class TiXmlElement;
  *
  * To execute the command, the execute method is called (it does not return any status).
  */
-class SipxProcessCmd
+class SipxProcessCmd : public UtlString, OsServerTask
 {
   public:
 
@@ -41,12 +43,27 @@ class SipxProcessCmd
                                              );
    ///< @returns NULL if the element contents are invalid.
 
-   /// Execute the command.
-   void execute();
+   /// Execute the command and return appropriate event to the owner.
+   void execute(SipxProcess* owner);
    
    /// destructor
    virtual ~SipxProcessCmd();
 
+// ================================================================
+/** @name           Container Support Operations
+ *
+ */
+///@{
+
+   /// Determine whether or not the values in a containable are comparable.
+   virtual UtlContainableType getContainableType() const;
+   /**<
+    * This returns a unique type for UtlString
+    */
+
+   static const UtlContainableType TYPE;    ///< Class type used for runtime checking 
+
+///@}
   protected:
 
    SipxProcessCmd(const UtlString& execute,
@@ -57,8 +74,9 @@ class SipxProcessCmd
 
    OsPath      mWorkingDirectory; ///< Directory from which all process commands are exec'd
    UtlString   mUser;             ///< User that commands must be run as.
-   OsPath      mExecutable;       ///< Fully qualified path to the command to be executed.
+   UtlString   mExecutable;       ///< Fully qualified path to the command to be executed.
    UtlSList    mParameters;       ///< UtlStrings to be passed as arguments
+   OsProcess*  mProcess;          ///< Pointer to the process object
    
    // @cond INCLUDENOCOPY
    /// There is no copy constructor.
@@ -68,7 +86,48 @@ class SipxProcessCmd
    SipxProcessCmd& operator=(const SipxProcessCmd& noassignmentoperator);
    // @endcond     
 
+   /// Process asynchronous request from application code
+   virtual UtlBoolean handleMessage(OsMsg& rMsg);
+
+   /// Handle the execute request in the separate command task
+   void executeInTask(SipxProcess* owner);
+
    friend class SipxProcessDefinitionParserTest;
+};
+
+/** 
+ * Message sent to the SipxProcessCmd task to prevent application code from blocking
+ * while task executes.
+ */
+class ExecuteMsg : public OsMsg
+{
+public:
+   
+   enum EventSubType
+   {   
+      EXECUTE    = 1
+   };   
+
+   /// Constructor.
+   ExecuteMsg(//EventSubType eventSubType,
+                  SipxProcess* owner            ///< owner
+                  );
+
+   /// Destructor
+   virtual ~ExecuteMsg();
+
+   // Component accessors.
+   SipxProcess* getOwner( void ) const    {return mOwner;}
+ 
+protected:
+   static const UtlContainableType TYPE;   ///< Class type used for runtime checking
+
+private:
+   SipxProcess* mOwner;               ///< owner
+
+   /// Copy constructor
+   ExecuteMsg( const ExecuteMsg& rhs);
+   virtual OsMsg* createCopy(void) const;
 };
 
 #endif // _SIPXPROCESSCMD_H_

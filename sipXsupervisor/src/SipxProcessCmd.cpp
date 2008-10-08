@@ -9,6 +9,7 @@
 
 // APPLICATION INCLUDES
 #include "os/OsSysLog.h"
+#include "utl/UtlSListIterator.h"
 #include "xmlparser/tinyxml.h"
 #include "xmlparser/XmlErrorMsg.h"
 #include "xmlparser/ExtractContent.h"
@@ -19,6 +20,8 @@
 
 // DEFINES
 // CONSTANTS
+const UtlContainableType SipxProcessCmd::TYPE = "SipxProcessCmd";
+
 // TYPEDEFS
 // FORWARD DECLARATIONS
 
@@ -204,24 +207,144 @@ SipxProcessCmd* SipxProcessCmd::parseCommandDefinition(const TiXmlDocument& proc
 }
 
 /// Execute the command.
-void SipxProcessCmd::execute()
+void SipxProcessCmd::execute(SipxProcess* owner)
 {
-   OsSysLog::add(FAC_SUPERVISOR, PRI_NOTICE, "SipxProcessCmd::execute "
-                 "STUB - NOT IMPLEMENTED");
+   ExecuteMsg message(owner);
+   postMessage( message );
+}
+
+
+UtlBoolean SipxProcessCmd::handleMessage( OsMsg& rMsg )
+{
+   UtlBoolean handled = FALSE;
+   ExecuteMsg* pMsg = dynamic_cast <ExecuteMsg*> ( &rMsg );
+   switch ( rMsg.getMsgType() )
+   {
+   case OsMsg::OS_SHUTDOWN:
+      requestShutdown();
+      handled = TRUE;
+      break;
+      
+   case OsMsg::OS_EVENT:
+   {
+      executeInTask(pMsg->getOwner());
+      handled = TRUE;
+      break;
+   }
+
+   default:
+      OsSysLog::add(FAC_ALARM, PRI_CRIT,
+                    "SipxProcessCmd::handleMessage: '%s' unhandled message type %d.%d",
+                    mName.data(), rMsg.getMsgType(), rMsg.getMsgSubType());
+      break;
+   }
+
+   return handled;
+}
+
+
+void SipxProcessCmd::executeInTask(SipxProcess* owner)
+{
+   UtlString* args = new UtlString[mParameters.entries()+1];
+   UtlSListIterator parameterListIterator(mParameters);
+   UtlString* pParameter;
+   UtlString argString;
+   ssize_t i=0;
+   while ( (pParameter = dynamic_cast<UtlString*> (parameterListIterator())) )
+   {   
+      args[i++] = *pParameter;
+      argString.append(*pParameter);
+   }
+   args[i] = NULL;
+   OsSysLog::add(FAC_SUPERVISOR, PRI_NOTICE, "SipxProcessCmd::execute %s %s",
+                 mExecutable.data(), argString.data());
+
+   if (!mProcess)
+   {
+      mProcess = new OsProcess();
+   }
+   
+   //@TODO: capture output from process
+   int rc;
+
+   if ( (rc=mProcess->launch(mExecutable, &args[0], mWorkingDirectory, mProcess->NormalPriorityClass, FALSE, FALSE /*don't ignore SIGCHLD*/)) == OS_SUCCESS )
+   {
+      owner->evCommandStarted(this);
+       //now wait around for the thing to finish
+       //0 means wait until it's finished
+       rc = mProcess->wait(0);
+       owner->evCommandStopped(this, rc);
+   }
+   else
+   {
+      OsSysLog::add(FAC_SUPERVISOR, PRI_CRIT, "SipxProcessCmd::execute %s %s failed",
+                    mExecutable.data(), argString.data());
+      owner->evCommandStopped(this, rc);
+   }
+   
+   delete [] args;
+
+}
+
+
+/// Determine whether or not the values in a containable are comparable.
+UtlContainableType SipxProcessCmd::getContainableType() const
+{
+   return TYPE;
 }
 
 
 /// destructor
 SipxProcessCmd::~SipxProcessCmd()
 {
+   if (mProcess)
+   {
+      mProcess->kill();
+      delete mProcess;
+      mProcess = NULL;
+   }
+
+   waitUntilShutDown();
 }
 
 SipxProcessCmd::SipxProcessCmd(const UtlString& execute,
                        const UtlString& workingDirectory,
                        const UtlString& user
                        ) :
+   UtlString(execute),
+   OsServerTask("SipxProcessCmd-%d"),
    mWorkingDirectory(workingDirectory),
    mUser(user),
-   mExecutable(execute)
+   mExecutable(execute),
+   mProcess(NULL)
+{
+   mParameters.removeAll();
+   // start the task which will listen for messages and launch programs in the background
+   start();
+}
+
+//////////////////////////////////////////////////////////////////////////////
+ExecuteMsg::ExecuteMsg(//EventSubType eventSubType,
+                               SipxProcess* owner
+                               ) :
+   OsMsg( OS_EVENT, ExecuteMsg::EXECUTE ),
+   mOwner( owner )
 {
 }
+
+// deep copy of alarm and parameters
+ExecuteMsg::ExecuteMsg( const ExecuteMsg& rhs) :
+   OsMsg( OS_EVENT, rhs.getMsgSubType() ),
+   mOwner( rhs.getOwner() )
+{
+}
+
+ExecuteMsg::~ExecuteMsg()
+{
+}
+
+OsMsg* ExecuteMsg::createCopy( void ) const
+{  
+   return new ExecuteMsg( *this );
+}
+

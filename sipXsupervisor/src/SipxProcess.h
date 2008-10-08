@@ -11,8 +11,12 @@
 
 // APPLICATION INCLUDES
 #include "utl/UtlSList.h"
+#include "os/OsCallback.h"
 #include "os/OsFS.h"
+#include "os/OsServerTask.h"
+#include "os/OsTimer.h"
 #include "os/OsProcess.h"
+#include "SipxProcessFsm.h"
 
 // DEFINES
 // CONSTANTS
@@ -93,55 +97,55 @@ class SipxProcessStateTest;
  * Running [label="Running"];
  * }
  *
+ * ConfigurationMismatch  [label="ConfigurationMismatch"];
+ * ResourceRequired       [label="ResourceRequired"];
  * Testing [label="Testing"];
  * Starting [label="Starting"];
  * AwaitingReferences [label="AwaitingReferences"];
  * Stopping [label="Stopping"];
  * 
- * ConfigurationMismatch  [label="ConfigurationMismatch"];
- * ResourceRequired       [label="ResourceRequired"];
  * ConfigurationTestFailed [label="ConfigurationTestFailed"];
  * Failed [label="Failed"];
  * 
- * Disabled -> Testing [label="enable"];
+ * Disabled -> ConfigurationMismatch [label="enable"];
+ * 
+ * ConfigurationMismatch -> ResourceRequired [label="ConfigurationVersionUpdate matches"];
+ * 
+ * ResourceRequired -> Testing [label="all ResourcesAreReady"];
  * 
  * Testing -> Starting [label="passed"];
  * 
- * Testing -> ConfigurationMismatch [label="failed"];
- * 
- * ConfigurationMismatch ->Testing [label="set cfg version"];
- * 
- * Testing -> ResourceRequired [label="failed"];
- * 
- * ResourceRequired -> Testing [label="created"];
- * 
  * Testing -> ConfigurationTestFailed [label="failed"];
  * 
- * ConfigurationTestFailed -> Testing [label="created"];
+ * ConfigurationTestFailed -> Testing [label="ResourceCreated?"];
  * 
- * Starting -> Running [label="started"];
+ * Starting -> Running [label="processStarted"];
  * 
- * Running -> AwaitingReferences [label="stop"];
+ * Running -> AwaitingReferences [label="restart (stopProcess)"];
  * 
  * AwaitingReferences -> Stopping [label="dependencies stopped"];
  *
- * Stopping -> Disabled [label="exit"];
+ * Stopping -> Starting [label="processStopped && isEnabled"];
  * 
- * Running -> Failed [label="exit"];
+ * Stopping -> Disabled [label="processStopped && !isEnabled"];
  * 
- * Running -> Starting [label="restart"];
+ * Running -> Failed [label="processStopped"];
  * 
- * Starting -> Failed [label="exit"];
+ * Running -> ShuttingDown [label="shutdown"];
+ * 
+ * ShuttingDown -> Disabled [label="processStopped"];
+ * 
+ * Starting -> Failed [label="processStopped"];
  * 
  * Failed -> Testing [label="retry"];
  * 
- * Undefined -> Testing [label="boot"];
+ * Undefined -> ConfigurationMismatch [label="enable"];
  * 
  * };
  * @enddot
  *
  */
-class SipxProcess : public UtlString
+class SipxProcess : public UtlString, OsServerTask
 {
   public:
 
@@ -160,46 +164,37 @@ class SipxProcess : public UtlString
  */
 ///@{
 
-   /// The current condition of the service this SipxProcess object controls.
-   /*    If you modify this, you must also modify the SipxProcessStateNames constant
-    *    in SipxProcess.ccp */
-   typedef enum
-   {
-      Undefined,               ///< SipxProcess definition is still being parsed.
-      Disabled,                ///< SipxProcess is not started when instantiated.
-      Testing,                 ///< Checking resources to see if it can start.
-      ResourceRequired,        ///< Waiting for some resource.
-      ConfigurationMismatch,   ///< The configuration version does not match this SipxProcess
-      ConfigurationTestFailed, ///< The configuration validation test failed
-      Starting,                ///< Start command executed, service is not yet running.
-      Running,                 ///< Service is running.
-      AwaitingReferences,      ///< Waiting for dependent processes to stop before Stopping.
-      Stopping,                ///< Stop command executed, service process still exists.
-      Failed                   ///< Service process exitted unexpectedly.
-   } State;
-
-   /// Return the current state of the SipxProcess.
-   State getState();
-
    /// Return whether or not the service for this process should be Running.
    bool isEnabled();
    /**< @returns true if the desired state of this service is Running;
     *            this does not indicate anything about the current state of
-    *            the service: for that see getState
+    *            the service: for that see isRunning
     */
 
-   /// Set the persistent desired state of the SipxProcess to Running.
+   /// Return whether or not the service for this process is Running.
+   bool isRunning();
+   
+   /// Set the persistent desired state of the SipxProcess to Running, and start the process.
    void enable();
 
-   /// Set the persistent desired state of the SipxProcess to Disabled.
+   /// Set the persistent desired state of the SipxProcess to Disabled, and stop the process.
    void disable();
+
+   /// Stop and restart the process without changing the persistent desired state
+   void restart();
 
    /// Shutting down sipXsupervisor, so shut down the service.
    void shutdown();
    ///< This does not affect the persistent state of the service.
 
+   /// Called from the task which is running the FSM, when it has shut down
+   void done();
+   
+  private:
+     /// start the FSM up in its own task
+     void startStateMachine();
 
-///@}
+   ///@}
 // ================================================================
 /** @name           Events
  *
@@ -208,43 +203,49 @@ class SipxProcess : public UtlString
 
   public:
 
-   /// Begin monitoring the process and getting it to the desired state.
-   void start();
-   /**< Before this call, state changes and events modify the
-    *   internal state of the object but don't actually change
-    *   the corresponding system process (if any).
-    */
-
    /// Notify the SipxProcess that some configuration change has occurred.
    void configurationChange(const SipxResource& changedResource);
 
-   /// Events that may trigger state changes.
-   typedef enum 
-   {
-      Startup,
-      ConfigurationChange,
-      ConfigurationVersionUpdate,
-      TestPass,
-      TestFail,
-      CheckState,
-      ProcessRunning,
-      ProcessExit,
-      Shutdown
-   } Event;
+   /// Notify the SipxProcess that some configuration change has occurred.
+   void configurationVersionChange();
 
-   const char* eventName(Event event);
+   /// Notify the SipxProcess that a command has completed starting.
+   void evCommandStarted(const SipxProcessCmd* command);
+   
+   /// Notify the SipxProcess that a command has stopped.
+   //@TODO: need stderr output etc from stopped/failed process
+   void evCommandStopped(const SipxProcessCmd* command, int rc);
+   
+   /// Notify the SipxProcess that a timeout has occurred.
+   void evRetryTimeout();
+   
+   /// Callback for timer task.
+   static void timeoutCallback(void* userData, const intptr_t eventData);
 
-   /// Compare actual process state to the desired state, and attempt to change it if needed.
-   void checkService(Event event);
-   ///< This should be called only from the SipxProcessTask thread.
+   // Trigger SipxProcessCmd to execute commands (in its own task)
+   void startConfigTest();
+   void startProcess();
+   void stopProcess();
+   void startRetryTimer();
+   void cancelRetryTimer();
+   
+   bool hadProcessFailed() {return (mRetries > 0);}
 
   private:
 
-   /// Signal the SipxProcessTask to do a checkService call.
-   void triggerServiceCheck(Event event);
+     /// Process asynchronous request from application code
+     virtual UtlBoolean handleMessage(OsMsg& rMsg);
+
+     // Handle events in FSM task
+     void startStateMachineInTask();
+     void evRetryTimeoutInTask();
+     void evCommandStartedInTask(const SipxProcessCmd* command);
+     void evCommandStoppedInTask(const SipxProcessCmd* command, int rc);
+     void enableInTask();
+     void disableInTask();
+     void restartInTask();
+     void shutdownInTask();
    
-   /// convenience routine to log an error
-   void unexpectedEvent(const char* methodName, Event event);
    
 // ================================================================
 /** @name           Destructor
@@ -297,10 +298,11 @@ class SipxProcess : public UtlString
    /// Remove this from the list of objects whose status is checked before starting or stopping.   
    void resourceIsOptional(SipxResource* resource);
 
-  private:
-
    /// Check that all resources on the mRequiredResources list are ready so this can start.
    bool resourcesAreReady();
+
+  private:
+
    
 ///@}
 // ================================================================
@@ -311,11 +313,28 @@ class SipxProcess : public UtlString
 
   public:
 
-   /// Translate the string from of the state name to the enum
-   static State state(const UtlString& stringStateValue);
+   // /////////////////////////////////////// //
+   // state machine framework related methods //
+   // /////////////////////////////////////// //
+   const SipxProcessFsm* GetCurrentState();              ///< Returns the current state, as required by UtlFsm's StateAlg 
+   void SetCurrentState( const SipxProcessFsm* pState ); ///< Sets the current state, as required by UtlFsm's StateAlg
+   const char* name( void ) const;                       ///< Returns the state name string
    
-   /// Translate the string from of the state name to the enum
-   static const char* state(State stateValue);
+   // ///////////////////////////////////////////////////////// //
+   // states.  Note: the state objects are shared by all instances of this class.    //
+   // ///////////////////////////////////////////////////////// //
+   static Disabled*              pDisabled;
+   static ConfigurationMismatch* pConfigurationMismatch;
+   static ResourceRequired*      pResourceRequired;
+   static Testing*               pTesting;
+   static ConfigTestFailed*      pConfigTestFailed;
+   static Starting*              pStarting;
+   static Running*               pRunning;
+   static Stopping*              pStopping;
+   static Failed*                pFailed;
+   static ShuttingDown*          pShuttingDown;
+   static ShutDown*              pShutDown;
+   static Undefined*             pUndefined;
 
   protected:
 
@@ -327,6 +346,10 @@ class SipxProcess : public UtlString
    void readPersistentState();
    ///< sets mDesiredState to Undefined if no persistent desired state is set.
    
+  private:
+   /// Initialize static state pointers
+   void initializeStatePointers( void );
+     
 ///@}
 // ================================================================
 /** @name           Configuration Version Manipulation
@@ -356,7 +379,7 @@ class SipxProcess : public UtlString
 
   private:
 
-   OsBSem           mLock;          ///< must be held to access to other member variables.
+   OsMutex          mLock;          ///< must be held to access to other member variables.
 
    SipxProcessResource* mSelfResource;  ///< the SipxProcessResource for this SipxProcess.
 
@@ -368,17 +391,14 @@ class SipxProcess : public UtlString
                                      *   For comparison with the configuration version.
                                      *   The SipxProcess may not be started unless they match.
                                      */
-   State            mDesiredState;  ///< May be only Running or Disabled.
-   State            mState;         ///< actual state of the process.
-
-   SipxProcessTask* mpProcessTask;  ///< Receives timer events for this service.
+   SipxProcessFsm*       mpDesiredState;  ///< May be only Running or Disabled.
+   const SipxProcessFsm* mpCurrentState;
 
    SipxProcessCmd*  mConfigtest;    ///< from the sipXecs-process/commands/configtest element
    SipxProcessCmd*  mStart;         ///< from the sipXecs-process/commands/start element
    SipxProcessCmd*  mStop;          ///< from the sipXecs-process/commands/stop element
    SipxProcessCmd*  mReconfigure;   ///< from the sipXecs-process/commands/reconfigure element
 
-   OsProcess*       mpProcessInfo;  ///< object used to remember forked process's info
    UtlString        mPidFile;       ///< from the sipXecs-process/status/pid element
    UtlSList         mLogFiles;      /**< from the sipXecs-process/status/log elements
                                      *   this is a list of FileResource objects created using
@@ -396,6 +416,11 @@ class SipxProcess : public UtlString
                                          */
    OsPath           mDefinitionFile; ///< path to *-process.xml file that defined this process.
    
+   UtlBoolean       mbTaskRunning;     ///< true if the FSM is running in its own task
+   OsTimer*         mpTimer;
+   OsCallback*      mpTimeoutCallback;
+   ssize_t          mRetries;          ///< number of times we have attempted to start process
+   
    /// constructor
    SipxProcess(const UtlString& name,
                const UtlString& version,
@@ -410,10 +435,58 @@ class SipxProcess : public UtlString
    SipxProcess& operator=(const SipxProcess& noassignmentoperator);
    // @endcond     
 
+   friend class SipxProcessFsm;     // the FSM has no data
    friend class SipxProcessDefinitionParserTest;
    friend class SipxProcessStateTest;
    friend class SipxProcessVersionTest;
    friend class SipxResourceUseTest;
+};
+
+/** 
+ * Message sent by the SipxProcess in application thread to be handled in task */
+class SipxProcessMsg : public OsMsg
+{
+public:
+   
+   enum EventSubType
+   {   
+      START_FSM   = 0,
+
+      // events from "outside" the SipxProcess infrastructure
+      ENABLE      = 1,
+      DISABLE     = 2,
+      RESTART     = 3,
+      SHUTDOWN    = 4,
+      RETRY_TIMEOUT = 5,
+      
+      // return events from the SipxProcessCmd task: must supply cmd
+      STARTED     = 10,
+      STOPPED     = 11
+   };   
+
+   /// Constructor.
+   SipxProcessMsg(EventSubType eventSubType,
+              const SipxProcessCmd* cmd = NULL,     ///< command which is returning
+              int   rc = 0                          ///< optional return code from command
+              );
+
+   /// Destructor
+   virtual ~SipxProcessMsg();
+
+   // Component accessors.
+   const SipxProcessCmd* getCmd( void ) const    {return mCmd;}
+   int getRc( void )                    const    {return mRc;}
+ 
+protected:
+   static const UtlContainableType TYPE;   ///< Class type used for runtime checking
+
+private:
+   const SipxProcessCmd* mCmd;               ///< command which is returning
+   int   mRc;                                ///< optional return code from command
+
+   /// Copy constructor
+   SipxProcessMsg( const SipxProcessMsg& rhs);
+   virtual OsMsg* createCopy(void) const;
 };
 
 #endif // _SIPXPROCESS_H_

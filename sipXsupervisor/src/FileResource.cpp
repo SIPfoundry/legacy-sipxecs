@@ -144,6 +144,8 @@ void FileResource::appendDescription(UtlString&  description /**< returned descr
 bool FileResource::isReadyToStart()
 {
    OsPath filePath(*this);
+   OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG, "FileResource::isReadyToStart checking for existance of %s",
+                 data());
    return OsFileSystem::exists(filePath);
 }
 

@@ -4,19 +4,19 @@
   <version>1.0.0</version>
   <commands>
     <configtest>
-      <execute>/bin/newprocess1.sh</execute>
+      <execute>./newprocess1.sh</execute>
     </configtest>
     <start>
-      <execute>/bin/newprocess2.sh</execute>
+      <execute>./newprocess2.sh</execute>
     </start>
     <stop>
-      <execute>/bin/newprocess3.sh</execute>
+      <execute>./newprocess3.sh</execute>
     </stop>
   </commands>
   <status>
     <pid>/var/run/newprocess.pid</pid>
   </status>
   <resources>
-    <file>/etc/sipxpbx/newprocess.xml</file>
+    <file>work/processState/newprocess.xml</file>
   </resources>
 </sipXecs-process>

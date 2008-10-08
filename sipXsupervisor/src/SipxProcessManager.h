@@ -44,6 +44,9 @@ class SipxProcessManager
 
    /// Activate all process monitors
    void startProcesses();
+   
+   /// Shutdown all processes
+   void shutdown();
 
    /// Fill in a map of process names and states (as UtlStrings)
    void getProcessStateAll(UtlHashMap& processStates ///< key->name, value->state string
