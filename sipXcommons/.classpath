@@ -5,8 +5,10 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/3"/>
 	<classpathentry kind="lib" path="lib/log4j-1.2.15.jar"/>
-	<classpathentry kind="lib" path="lib/jain-sip-sdp-1.2.74.jar"/>
 	<classpathentry kind="lib" path="lib/jibx-run-1.1.6a.jar"/>
 	<classpathentry kind="lib" path="lib/xpp3-1.1.4c.jar"/>
+	<classpathentry kind="lib" path="lib/jain-sip-sdp.jar"/>
+	<classpathentry kind="lib" path="lib/dnsjava.jar"/>
+	<classpathentry kind="lib" path="lib/junit.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

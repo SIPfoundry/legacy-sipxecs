@@ -25,6 +25,7 @@
     <pathelement location="${src.dir}/lib/xpp3.jar"/>
     <pathelement location="${src.dir}/lib/junit.jar"/>
     <pathelement location="${src.dir}/lib/log4j.jar"/>
+    <pathelement location="${src.dir}/lib/dnsjava.jar"/>
   </path>
   <property name="classpath" refid="base.path" />
 
