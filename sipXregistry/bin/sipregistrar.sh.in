@@ -29,10 +29,25 @@ done
 
 . @SIPX_LIBEXECDIR@/sipx-utils.sh || exit 1
 
+CONFIG_DEFS="@SIPX_CONFDIR@/config.defs"
+
 CONFIG_FILES="\
   @SIPX_CONFDIR@/mappingrules.xml \
   @SIPX_CONFDIR@/fallbackrules.xml \
   "
+
+# If the "config.defs" file exists and the <name>.in file exists for a
+# configuration file, then run the config preprocessor to generate the
+# fully resolved configuration file.
+if [ -f "$CONFIG_DEFS" ]
+then
+  for i in $CONFIG_FILES ; do
+    if [ -f "${i}.in" ]
+    then
+       @bindir@/configpp --defs "${CONFIG_DEFS}" --in "${i}.in" --out "$i"
+    fi
+  done
+fi
 
 case ${Action} in
    RUN)
