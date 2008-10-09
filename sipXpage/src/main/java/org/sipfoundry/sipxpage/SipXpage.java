@@ -17,6 +17,8 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 
 import sipxpage.Configuration.PageGroupConfig;
+
+import org.sipfoundry.commons.siprouter.ProxyRouter;
 import org.sipfoundry.commons.util.Hostname;
 
 public class SipXpage implements LegListener
@@ -89,11 +91,12 @@ public class SipXpage implements LegListener
       // You need 16 (or TRACE) for logging traces. 32 (or DEBUG) for debug + traces.
       // Your code will limp at 32 but it is best for debugging.
       properties.setProperty("gov.nist.javax.sip.TRACE_LEVEL", config.traceLevel);
-      // Send everything through the proxy (assume localhost:5060 for now)
-      // This way the stack's failure to use SRV records doesn't effect
-      // our outbound calls.  This is not HA compatable.
-      String proxy = config.ipAddress + ":" + "5060/TCP" ;
-      properties.setProperty("javax.sip.OUTBOUND_PROXY", proxy);
+
+      // String proxy = config.ipAddress + ":" + "5060/TCP" ;
+      // properties.setProperty("javax.sip.OUTBOUND_PROXY", proxy);
+
+      properties.setProperty("javax.sip.ROUTER_PATH", ProxyRouter.class.getName());
+
 
       try {
          // Create SipStack object

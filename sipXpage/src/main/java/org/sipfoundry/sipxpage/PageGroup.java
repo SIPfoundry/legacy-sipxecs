@@ -236,8 +236,8 @@ public class PageGroup implements LegListener
          String dogs[] = destination.split("@") ;
          String user = dogs[0] ;
          String host = dogs[1] ;
-          toAddress.setUser(user);
-          toAddress.setHost(host);
+         toAddress.setUser(user);
+         toAddress.setHost(host);
            
          SessionDescription sdp = legSipListener.buildSdp(new InetSocketAddress(ipAddress, tossPort), false) ;
            

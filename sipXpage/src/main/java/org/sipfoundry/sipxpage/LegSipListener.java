@@ -534,9 +534,8 @@ public class LegSipListener implements SipListener
       Leg leg = dialogLegMap.remove(dialog) ;
       if (leg != null) {
     	 legDialogMap.remove(leg) ;
+         LOG.debug(String.format("LegSipListener::processDialogTerminated removing dialog(%s) with leg(%s)", dialog.toString(), leg.toString())) ;
       }
-      LOG.debug(String.format("LegSipListener::processDialogTerminated removing dialog(%s) with leg(%s)", dialog.toString(), leg.toString())) ;
-
    }
 
    public void processIOException(IOExceptionEvent arg0)

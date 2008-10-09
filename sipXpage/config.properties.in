@@ -24,4 +24,5 @@ sipxcommons.jar=${sipxcommons.dir}/sipxcommons.jar
 JainSip.jar=${sipxcommons.dir}/jain-sip-sdp.jar
 junit.jar=${sipxcommons.dir}/junit.jar
 log4j.jar=${sipxcommons.dir}/log4j.jar
+dnsjava.jar=${sipxcommons.dir}/dnsjava.jar
 

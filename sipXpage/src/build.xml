@@ -13,6 +13,7 @@
     <pathelement location="${JainSip.jar}"/>
     <pathelement location="${junit.jar}"/>
     <pathelement location="${log4j.jar}"/>
+    <pathelement location="${dnsjava.jar}"/>
   </path>
   <property name="classpath" refid="base.path" />
 
