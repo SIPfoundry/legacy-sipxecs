@@ -17,7 +17,7 @@ wwwconf_files = \
 EXTRA_DIST = \
 	$(pkgconf_DATA) \
 	$(foreach file,$(pbxconf_files) $(wwwconf_files),$(file).in) \
-	sipxpbx.in \
+	init.d/sipxpbx.in \
 	logrotate.d/sipxchange.in
 
 install-exec-hook : $(DESTDIR)@SERVICEDIR@/sipxpbx
