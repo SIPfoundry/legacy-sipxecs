@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.site.admin;
@@ -19,6 +19,7 @@ public class BackupPageTestUi extends WebTestCase {
         return SiteTestHelper.webTestSuite(BackupPageTestUi.class);
     }
 
+    @Override
     public void setUp() {
         getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
         SiteTestHelper.setScriptingEnabled(tester, true);
@@ -41,7 +42,7 @@ public class BackupPageTestUi extends WebTestCase {
      */
     public void testFtpBackupNowError() {
         SiteTestHelper.assertNoException(tester);
-        selectOption("backupPlan:type","Ftp");
+        selectOption("backupPlan:type","FTP");
         clickButton("backup:now");
         SiteTestHelper.assertUserError(tester);
         selectOption("backupPlan:type","Local");
@@ -121,7 +122,7 @@ public class BackupPageTestUi extends WebTestCase {
         SiteTestHelper.assertNoException(getTester());
         setWorkingForm("backupPlan");
         assertElementPresent("backupPlan:type");
-        selectOption("backupPlan:type","Ftp");
+        selectOption("backupPlan:type","FTP");
         assertElementPresent("link");
         assertElementNotPresent("ftp:address");
         assertElementNotPresent("ftp:user");
@@ -146,7 +147,7 @@ public class BackupPageTestUi extends WebTestCase {
     public void _testApplyFtpPanel() {
         SiteTestHelper.assertNoException(getTester());
         setWorkingForm("backupPlan");
-        selectOption("backupPlan:type","Ftp");
+        selectOption("backupPlan:type","FTP");
         clickButton("link");
         setWorkingForm("configurationForm");
         setTextField("ftp:address","address");

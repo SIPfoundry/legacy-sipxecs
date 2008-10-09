@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.site.admin;
@@ -35,6 +35,7 @@ public class RestorePageTestUi extends WebTestCase {
         return SiteTestHelper.webTestSuite(RestorePageTestUi.class);
     }
 
+    @Override
     public void setUp() {
         getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
         SiteTestHelper.home(getTester());
@@ -90,7 +91,7 @@ public class RestorePageTestUi extends WebTestCase {
     public void testRestoreWithNoSelections() throws Exception {
         SiteTestHelper.assertNoException(getTester());
         clickLink("link:restore");
-        setWorkingForm("Form");        
+        setWorkingForm("Form");
         SiteTestHelper.assertNoException(getTester());
         checkCheckbox("defaultValue");
         uncheckCheckbox("defaultValue");
@@ -131,7 +132,7 @@ public class RestorePageTestUi extends WebTestCase {
     public void testUploadPage() throws Exception {
         SiteTestHelper.assertNoException(tester);
         clickLink("link:upload");
-        setWorkingForm("upload");        
+        setWorkingForm("upload");
         SiteTestHelper.assertNoException(tester);
         assertElementPresent("configuration");
         assertElementPresent("voicemail");
@@ -161,7 +162,7 @@ public class RestorePageTestUi extends WebTestCase {
         clickLink("link:restore");
         setWorkingForm("renderForm");
         assertElementPresent("backupPlan:type");
-        selectOption("backupPlan:type","Ftp");
+        selectOption("backupPlan:type","FTP");
         assertElementPresent("link");
         setWorkingForm("configurationForm");
         assertElementNotPresent("ftp:address");
@@ -186,7 +187,7 @@ public class RestorePageTestUi extends WebTestCase {
     public void _testApplyFtpPanel() {
         SiteTestHelper.assertNoException(getTester());
         setWorkingForm("renderForm");
-        selectOption("backupPlan:type","Ftp");
+        selectOption("backupPlan:type","FTP");
         clickButton("link");
         setWorkingForm("configurationForm");
         setTextField("ftp:address","address");
@@ -207,7 +208,7 @@ public class RestorePageTestUi extends WebTestCase {
         SiteTestHelper.assertNoException(getTester());
         clickLink("link:restore");
         setWorkingForm("renderForm");
-        selectOption("backupPlan:type","Ftp");
+        selectOption("backupPlan:type","FTP");
         submitForm();
         SiteTestHelper.assertUserError(getTester());
         selectOption("backupPlan:type","Local");
