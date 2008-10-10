@@ -1,10 +1,10 @@
 /*
  *
  *
- * Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ * Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  *
  */
 package org.sipfoundry.sipxconfig.service;
@@ -21,7 +21,6 @@ import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.domain.Domain;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
-import org.sipfoundry.sipxconfig.setting.Setting;
 
 public class SipxRegistrarConfigurationTest extends SipxServiceTestBase {
 
@@ -30,13 +29,13 @@ public class SipxRegistrarConfigurationTest extends SipxServiceTestBase {
         out.setVelocityEngine(TestHelper.getVelocityEngine());
         out.setTemplate("sipxregistrar/registrar-config.vm");
 
-        
+
         SipxRegistrarService registrarService = new SipxRegistrarService();
         registrarService.setModelDir("sipxregistrar");
         registrarService.setModelName("sipxregistrar.xml");
         registrarService.setModelFilesContext(TestHelper.getModelFilesContext());
         initCommonAttributes(registrarService);
-        
+
         Domain domain = new Domain();
         domain.addAlias("another.example.org");
         IMocksControl domainManagerControl = EasyMock.createControl();
@@ -45,7 +44,7 @@ public class SipxRegistrarConfigurationTest extends SipxServiceTestBase {
         EasyMock.expectLastCall().andReturn(domain).anyTimes();
         EasyMock.replay(domainManager);
         registrarService.setDomainManager(domainManager);
-        
+
         setSettingValuesForGroup(registrarService, "logging", new String[] {
             "SIP_REGISTRAR_LOG_LEVEL"
         }, new String[] {
@@ -69,7 +68,7 @@ public class SipxRegistrarConfigurationTest extends SipxServiceTestBase {
         }, new String[] {
             "myenumdomain.org", null, "*66", "Y"
         });
-        
+
         registrarService.setMediaServerSipSrvOrHostport("media.example.org");
         registrarService.setOrbitServerSipSrvOrHostport("orbit.example.org");
         registrarService.setProxyServerSipHostport("proxy.example.org");

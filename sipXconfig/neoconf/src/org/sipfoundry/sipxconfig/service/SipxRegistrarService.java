@@ -8,10 +8,10 @@
  */
 package org.sipfoundry.sipxconfig.service;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.admin.commserver.ConflictingFeatureCodeValidator;
@@ -23,11 +23,10 @@ import org.sipfoundry.sipxconfig.setting.SettingEntry;
 public class SipxRegistrarService extends SipxService {
     public static final String BEAN_ID = "sipxRegistrarService";
 
-    private static final String USER_CONFIGURED_DOMAIN_ALIASES = "domain/USER_CONFIGURED_DOMAIN_ALIASES";
     private static final String SIP_REGISTRAR_DOMAIN_ALIASES = "domain/SIP_REGISTRAR_DOMAIN_ALIASES";
 
     private static final ProcessName PROCESS_NAME = ProcessName.REGISTRAR;
-    
+
     private String m_registrarSipPort;
     private String m_registrarEventSipPort;
     private String m_mediaServerSipSrvOrHostport;
@@ -92,38 +91,28 @@ public class SipxRegistrarService extends SipxService {
     public void initialize() {
         addDefaultBeanSettingHandler(new Defaults(this));
     }
-    
+
     public static class Defaults {
-        private SipxRegistrarService m_sipxRegistrarService;
+        private final SipxRegistrarService m_sipxRegistrarService;
 
         Defaults(SipxRegistrarService sipxRegistrarService) {
             m_sipxRegistrarService = sipxRegistrarService;
         }
-        
+
         @SettingEntry(path = SIP_REGISTRAR_DOMAIN_ALIASES)
         public String getSipRegistrarDomainAliases() {
-            Collection<String> aliases = m_sipxRegistrarService.getDomainManager().getDomain().getAliases();
-            List<String> allAliases = new ArrayList<String>();
+            Set<String> allAliases = new TreeSet<String>();
             if (m_sipxRegistrarService.getFullHostname() != null) {
                 allAliases.add(m_sipxRegistrarService.getFullHostname());
             }
             if (m_sipxRegistrarService.getIpAddress() != null) {
                 allAliases.add(m_sipxRegistrarService.getIpAddress());
             }
+            Collection<String> aliases = m_sipxRegistrarService.getDomainManager().getDomain().getAliases();
             if (aliases != null) {
                 allAliases.addAll(aliases);
             }
             return StringUtils.join(allAliases, ' ');
-        }
-
-        @SettingEntry(path = USER_CONFIGURED_DOMAIN_ALIASES)
-        public String getUserConfiguredDomainAliases() {
-            Collection<String> aliases = m_sipxRegistrarService.getDomainManager().getDomain().getAliases();
-            if (aliases != null) {
-                return StringUtils.join(aliases, ' ');
-            } else {
-                return null;
-            }
         }
     }
 

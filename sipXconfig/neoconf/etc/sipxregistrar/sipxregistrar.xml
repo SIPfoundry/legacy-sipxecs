@@ -39,9 +39,6 @@
     <setting name="SIP_REGISTRAR_DOMAIN_ALIASES" hidden="yes">
       <value />
     </setting>
-    <setting name="USER_CONFIGURED_DOMAIN_ALIASES" hidden="yes">
-      <value />
-    </setting>
   </group>
   <group name="isn">
     <setting name="SIP_REDIRECT.190-ISN.BASE_DOMAIN">
