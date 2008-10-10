@@ -9,3 +9,6 @@ Please add a brief description of items you enter in this directory:
 interop-server-config
 	Files for configuring sipX to be an interoperability testing
 	server.
+
+freeswitch-tester
+	A tester for load testing the freeswitch conference bridge.
