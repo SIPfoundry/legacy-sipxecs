@@ -46,7 +46,6 @@ registrationContext.hostname=${MY_FULL_HOSTNAME}
 domainManagerImpl.authorizationRealm=${SIPXCHANGE_REALM}
 domainManagerImpl.alarmServerUrl=https://${MY_FULL_HOSTNAME}:8092
 domainManagerImpl.initialDomain=${SIPXCHANGE_DOMAIN_NAME}
-domainManagerImpl.initialAlias=${PROXY_SERVER_ADDR}
 adminContextImpl.backupDirectory=@sipxpbx.backup.dir@
 adminContextImpl.ftpBackupDirectory=@sipxpbx.download.dir@
 ftpRestore.downloadDirectory=@sipxpbx.download.dir@
