@@ -9,6 +9,7 @@
     </configtest>
     <start>
       <execute>@SIPX_BINDIR@/sipXvxml.sh</execute>
+      <parameter>-config @SIPX_CONFDIR@/mediaserver-config</parameter>
     </start>
     <stop>
       <execute>@SIPX_BINDIR@/sipXvxml.sh</execute>
