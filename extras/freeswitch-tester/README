@@ -58,8 +58,8 @@ Where client1 has a defintion in testerconfig.xml as follows:
 media-file is a file which will be streamed
 after the call is set up. If you specify nothing here, the
 media is chosen round Round Robin fashion from one of the monotone
-frequencies in testmedia.
-
+frequencies in testmedia. For mixing experiments, leave the media-file
+tag out.
 
 When all the tester clients are started, the controller ( which is the
 first tester client ) signals each one to go using an xml RPC command to
@@ -102,10 +102,8 @@ noise to see how intelligible the speech is to a human observer.
 Acknowledgement
 --------------
 
-This tester uses some classes initially written by Woof! ( Andy Spitzer
-) which have been modified to fit our needs. Woof also suggested the
-metric to use to evaluate goodness of mixing which has been used here
-with some modifications.
+ Woof! suggested the metric to use to evaluate goodness of 
+ mixing which has been used here with some modifications.
 
 
 

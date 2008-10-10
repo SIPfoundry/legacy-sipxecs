@@ -3,15 +3,14 @@
 <sipx-proxy-domain>example.com</sipx-proxy-domain>
 <sipx-proxy-address>sipxpbx.example.com</sipx-proxy-address>
 <sipx-proxy-port>5060</sipx-proxy-port>
-<test-duration>60</test-duration>
+<test-duration>120</test-duration>
 <tester-client>
 	<client-id>1</client-id>
 	<conference-extension>301</conference-extension>
 	<xml-rpc-port>8097</xml-rpc-port>
 	<tester-host>192.168.5.240</tester-host>
-	<sender-count>1</sender-count>
-	<media-file>testmedia/whitenoise.au</media-file>
-	<user-agent-count>2</user-agent-count>
+	<sender-count>2</sender-count>
+	<user-agent-count>40</user-agent-count>
 	<tester-sip-base-port>5200</tester-sip-base-port>
 	<tester-rtp-base-port>30100</tester-rtp-base-port>
 </tester-client>

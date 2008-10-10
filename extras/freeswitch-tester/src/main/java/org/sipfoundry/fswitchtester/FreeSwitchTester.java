@@ -196,7 +196,6 @@ public class FreeSwitchTester {
      */
     public static void main(String[] args) throws Exception {
         String testerFileName = null;
-        // System.out.println("systemProps " + System.getProperties());
         testerFileName = System.getProperties().getProperty("testerConfig");
         clientId = System.getProperties().getProperty("clientId");
         if (clientId == null) {
@@ -266,7 +265,11 @@ public class FreeSwitchTester {
             sStart();
         }
 
-        int clientCount = testerConfig.getTesterClients().size();
+        int clientCount = 0;
+        
+        for ( TesterClientConfig clientConfig : testerConfig.getTesterClients() ) {
+            clientCount += clientConfig.getUserAgentCount();
+        }
         
 
         if (testerConfig.isFirstClient() && testerConfig.getTesterClients().size() > 1) {
@@ -323,8 +326,17 @@ public class FreeSwitchTester {
           
             Double averageResult = cumulativeResult / testerConfig.getTesterClients().size();
             File resultFile = new File("power.txt");
+            boolean exists = resultFile.exists();
+            
             FileWriter fileWriter = new FileWriter(resultFile, true);
+            
+           
             PrintWriter pwriter = new PrintWriter(fileWriter);
+            if ( !exists) {
+                pwriter.println("# Conference size vs. Power deviation ");
+            }
+            
+            
             pwriter.println(clientCount + " " + averageResult);
             fileWriter.close();
             
