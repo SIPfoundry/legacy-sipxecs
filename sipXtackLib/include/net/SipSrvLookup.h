@@ -198,6 +198,13 @@ public:
     * is non-NULL and != in_response.
     */
 
+    /// Set the nameserver address to a specific nameserver.
+    static void set_nameserver_address(const char* ip,
+                                       ///< IP address of the nameserver
+                                       int port
+                                       ///< The port address of the nameserver
+    );
+
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
 
@@ -212,6 +219,13 @@ protected:
 
    /// Sets the number of retries for DNS SRV queries. Default is 2
    static int mRetries;
+
+   /// Sets the IP address of the nameserver. If NULL we use the default Nameservers
+   static UtlString mNameserverIP;
+
+   /// Sets the port number  of the nameserver. If NULL we use the default port number 53
+   static int mNameserverPort;
+
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
@@ -352,7 +366,7 @@ public:
                  ///< SIP domain name or host name
                  const char * tmp_service,
                  ///< "sip" or "sips"
-                 server_t* tmp_list,
+                 server_t*& tmp_list,
                  ///< Array of objects which describe a server found for a SIP domain
                  int tmp_list_length_allocated,
                  ///< Length of the array of server_t objects
@@ -375,7 +389,7 @@ public:
    OsMsg* createCopy(void) const;
 
    /// Argument needed by the lookup threads
-   server_t* list;
+   server_t*& list;
    /**<
     * Array of objects which describe a server found for a SIP domain
     * This attribute is shared between all the lookup threads. Access to it

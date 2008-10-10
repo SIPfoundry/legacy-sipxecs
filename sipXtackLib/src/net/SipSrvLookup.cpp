@@ -241,6 +241,13 @@ int SipSrvLookup::mTimeout = 3;
 /// Sets the number of retries for DNS SRV queries. Default is 2
 int SipSrvLookup::mRetries = 2;
 
+/// Sets the IP address of the nameserver. If NULL we use the default Nameservers
+UtlString SipSrvLookup::mNameserverIP = "";
+
+/// Sets the port number  of the nameserver. If NULL we use the default port number 53
+int SipSrvLookup::mNameserverPort = 0;
+
+
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
 /// Get the list of server entries for SIP domain name 'domain'.
@@ -380,7 +387,7 @@ server_t* SipSrvLookup::servers(const char* domain,
       // Check if there is a need for A records.
       // (Only used for non-numeric addresses for which SRV lookup did not
       // produce any addresses.  This includes if an explicit port was given.)
-      if (srvLookupArgs.list_length_used == 0)
+      if (*(srvLookupArgs.list_length_used) < 1)
       {
          // No SRV query results. Discard the SRV Lookup lists, continue with  
          // and  return the A Record list back to the caller.
@@ -782,7 +789,7 @@ void SipSrvLookup::res_query_and_parse(const char* in_name,
    // Buffer into which to read DNS replies.
    char answer[DNS_RESPONSE_SIZE];
    union u_rdata* p;
-   
+ 
    // Loop until we find a reason to exit.  Each turn around the loop does
    // another DNS lookup.
    while (1)
@@ -849,6 +856,17 @@ void SipSrvLookup::res_query_and_parse(const char* in_name,
       res.retrans = mTimeout;
       res.retry = mRetries;
 
+      if(!mNameserverIP.isNull())
+      {
+          res.nscount = 1;
+          inet_aton(mNameserverIP.data(), &res.nsaddr_list[0].sin_addr);
+ 
+          if(mNameserverPort > 1)
+          {
+             res.nsaddr_list[0].sin_port = htons(mNameserverPort);
+          }
+      }
+
       // Use res_nquery, not res_search or res_query, so defaulting rules are not
       // applied to the domain, and so that the query is thread safe
       if (res_nquery(&res, name, C_IN, type,
@@ -882,6 +900,14 @@ void SipSrvLookup::res_query_and_parse(const char* in_name,
    out_name = name;
    out_response = response;
 }
+
+/// Set the nameserver address to a specific nameserver.
+void SipSrvLookup::set_nameserver_address(const char* ip,int port)
+{
+   mNameserverIP=ip;
+   mNameserverPort=port;
+}
+
 
 union u_rdata* look_for(res_response* response, const char* name,
                         int type)
@@ -1155,14 +1181,14 @@ static int rr_compare(const void* a, const void* b)
 /// Constructor for SrvThreadArgs
 SrvThreadArgs::SrvThreadArgs(const char * tmp_domain,
                              const char * tmp_service,
-                             server_t* tmp_list,
+                             server_t*& tmp_list,
                              int tmp_list_length_allocated,
                              int tmp_list_length_used,
                              int tmp_port,
                              OsSocket::IpProtocolSocketType tmp_socketType) :
-   OsMsg(SRV_LOOKUP_MSG, SRV_LOOKUP_MSG)
+   OsMsg(SRV_LOOKUP_MSG, SRV_LOOKUP_MSG),
+   list(tmp_list)
 {
-   list = tmp_list;
    port = tmp_port;
    socketType = tmp_socketType;
 
@@ -1176,11 +1202,11 @@ SrvThreadArgs::SrvThreadArgs(const char * tmp_domain,
 
 /// Copy Constructor for SrvThreadArgs
 SrvThreadArgs::SrvThreadArgs(const SrvThreadArgs& rSrvThreadArgs) :
-   OsMsg((OsMsg&) rSrvThreadArgs)
+   OsMsg((OsMsg&) rSrvThreadArgs),
+   list(rSrvThreadArgs.list)
 {
    domain = rSrvThreadArgs.domain;
    service = rSrvThreadArgs.service;
-   list = rSrvThreadArgs.list;
    list_length_allocated = rSrvThreadArgs.list_length_allocated;
    list_length_used = rSrvThreadArgs.list_length_used;
    port = rSrvThreadArgs.port;
