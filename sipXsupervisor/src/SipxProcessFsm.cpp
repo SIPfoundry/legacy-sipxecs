@@ -64,6 +64,8 @@ void SipxProcessFsm::evRestartProcess( SipxProcess& impl ) const
 {
    OsSysLog::add(FAC_SUPERVISOR,PRI_WARNING,"'%s': Received unexpected event evRestartProcess while in state '%s'",
          impl.name(), impl.GetCurrentState()->name() );   
+
+   ChangeState( impl, impl.pConfigurationMismatch );
 }
 
 void SipxProcessFsm::evRetryTimeout( SipxProcess& impl ) const

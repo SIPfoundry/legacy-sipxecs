@@ -144,9 +144,17 @@ void FileResource::appendDescription(UtlString&  description /**< returned descr
 bool FileResource::isReadyToStart()
 {
    OsPath filePath(*this);
-   OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG, "FileResource::isReadyToStart checking for existance of %s",
+   OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG, 
+                 "FileResource::isReadyToStart checking for existance of %s",
                  data());
-   return OsFileSystem::exists(filePath);
+   bool bReady = OsFileSystem::exists(filePath);
+   if ( !bReady )
+   {
+      OsSysLog::add(FAC_SUPERVISOR, PRI_WARNING, 
+                    "FileResource::isReadyToStart returns false; %s does not exist",
+                    data());
+   }
+   return bReady;
 }
 
 // Determine whether or not the values in a containable are comparable.

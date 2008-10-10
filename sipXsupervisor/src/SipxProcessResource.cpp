@@ -137,7 +137,14 @@ bool SipxProcessResource::isReadyToStart()
 {
    SipxProcess* myProcess = getProcess();
 
-   return (myProcess && myProcess->isRunning());
+   bool bReady = (myProcess && myProcess->isRunning());
+   if ( !bReady )
+   {
+       OsSysLog::add(FAC_SUPERVISOR, PRI_WARNING, 
+                     "SipxProcessResource::isReadyToStart returns false; %s is not running ",
+                     data());
+   }
+   return bReady;
 }
 
 // Whether or not it is safe to stop a SipxProcess using the SipxProcessResource.
