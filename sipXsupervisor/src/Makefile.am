@@ -22,13 +22,11 @@ libsipXsupervisor_la_SOURCES =  \
 	$(top_builddir)/config/sipxsupervisor-buildstamp.h \
 	$(top_builddir)/config/sipxsupervisor-buildstamp.cpp \
 	sipXsupervisor.cpp \
-	MonitoredProcess.cpp \
 	ProcMgmtRpc.cpp \
 	AlarmRpc.cpp \
 	ImdbRpc.cpp \
 	FileRpc.cpp \
 	DependencyList.cpp \
-	processXMLCommon.cpp \
 	SipxProcessManager.cpp \
 	SipxProcessResourceManager.cpp \
 	SipxProcessResource.cpp \
@@ -45,13 +43,11 @@ libsipXsupervisor_la_SOURCES =  \
    WatchDog.cpp
 
 noinst_HEADERS = \
-	MonitoredProcess.h \
 	ProcMgmtRpc.h \
 	AlarmRpc.h \
 	ImdbRpc.h \
 	FileRpc.h \
 	DependencyList.h \
-	processXMLCommon.h \
 	SipxProcessManager.h \
 	SipxProcessCmd.h \
 	SipxProcess.h \

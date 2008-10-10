@@ -66,9 +66,6 @@ protected:
    /// The name of the XML-RPC 'blockForStateChange' parameter.
    static const char* PARAM_NAME_BLOCK;
 
-   /// The name of the XML-RPC 'pid' parameter.
-   static const char* PARAM_NAME_PID;
-
    /// The name of the XML-RPC 'service name' parameter.
    static const char* PARAM_NAME_SERVICE;
 
@@ -135,50 +132,6 @@ protected:
      Returns true on success, false otherwise.
     */
    
-   /// Calls blockForProcessStateMatchList(), but the list to block for contains only the single specified process.
-   bool blockForProcessStateMatch(WatchDog* pWatchDog, 
-                                  const UtlString& alias, 
-                                  const int request_state, 
-                                  const int max_secs = SINGLE_BLOCK_MAX);
-   
-   /// Calls blockForProcessRestartList(), but the list to block for contains only the single specified process.
-   bool blockForProcessRestart(WatchDog* pWatchDog, 
-                               const UtlString& alias, 
-                               const PID original_pid, 
-                               const int max_secs = SINGLE_BLOCK_MAX);
-   
-   /// Sets the user requested state of all processes to the specified state, and blocks for the result. 
-   bool executeSetUserRequestStateAll(const HttpRequestContext& requestContext, ///< request context
-                                      UtlSList& params,                         ///< request param list
-                                      void* userData,                           ///< user data
-                                      XmlRpcResponse& response,                 ///< request response
-                                      ExecutionStatus& status,                  ///< XML-RPC method execution status
-                                      const int request_state                   ///< the state to set
-                                      );
-   /**<
-     Returns true on success, false otherwise.
-    */
-
-   /// Blocks for the update of the process's current state to the specified requested state.
-   void blockForProcessStateMatchList(WatchDog* pWatchDog, 
-                                      UtlHashMap& process_results, 
-                                      const int request_state, 
-                                      const int max_secs = LIST_BLOCK_MAX);
-   /**<
-     Only does this for the aliases in 'process_results' with a true result.  Any that are not 
-     updated before timeout will have their 'process_results' entry set to a false result.
-    */
-   
-   /// Blocks for the restart of the process's.
-   void blockForProcessRestartList(WatchDog* pWatchDog, 
-                                   UtlHashMap& process_results, 
-                                   const UtlHashMap& original_pids, 
-                                   const int max_secs = LIST_BLOCK_MAX);
-  /**<
-     Only does this for the aliases in 'process_results' with a true result.  Any that are not
-     restarted  before timeout will have their 'process_results' entry set to a false result.
-    */
-   
 private:
    /// no copy constructor
    ProcMgmtRpcMethod(const ProcMgmtRpcMethod& nocopy);
@@ -188,7 +141,7 @@ private:
 };
 
 /**
- Returns the current state of all processes being monitored by the watchdog.
+ Returns the current state of all processes being monitored by the supervisor.
 
  \par
  <b>Method Name: ProcMgmtRpc.getStateAll</b>
@@ -219,8 +172,22 @@ private:
     <tr>
        <td>string struct</td>
        <td>The current status of each process, indexed by process alias.  (The alias 
-           is the "name" attribute of the "monitor-process" element in the process's 
-           SIPX_CONFDIR/process.d/___.process.xml configuration file.)</td>
+           is the "name" attribute of the "sipXecs-process" element in the process's 
+           SIPX_SHAREDIR/process.d/___.process.xml configuration file.)
+           \par
+           Possible states are:
+           <code>
+           Undefined
+           Disabled
+           ConfigurationMismatch
+           ResourceRequired
+           Starting
+           Running
+           Stopping
+           ShuttingDown
+           ShutDown
+           </code>
+           </td>
     </tr>
  </table>
  */
@@ -258,12 +225,7 @@ protected:
 };
 
 /**
- Attempts to set the "user requested state" of the specified processes to "start".  If successful, 
- it then optionally blocks for the current state to be equal to the requested state.
-
- \par
- A process monitored by the watchdog may be configured as not user start-able.  Calling this 
- method for such a process will fail, even if the process is already started.  
+ Attempts to start each of the specified processes.
 
  \par
  <b>Method Name: ProcMgmtRpc.start</b>
@@ -286,13 +248,13 @@ protected:
        <td>array</td>
        <td>alias</td>
        <td>List of aliases (strings) of the processes whose state is to be changed.  (The alias 
-           is the "name" attribute of the "monitor-process" element in the process's 
-           SIPX_CONFDIR/process.d/___.process.xml configuration file.)</td>
+           is the "name" attribute of the "sipXecs-process" element in the process's 
+           SIPX_SHAREDIR/process.d/___.process.xml configuration file.)</td>
     </tr>
     <tr>
        <td>boolean</td>
        <td>blockForStateChange</td>
-       <td>Whether or not to block for the state change to occur.</td>
+       <td><b>Deprecated and ignored.</b>  Whether or not to block for the state change to occur.</td>
     </tr>
  </table>
  
@@ -305,10 +267,10 @@ protected:
     </tr>
     <tr>
        <td>boolean struct</td>
-       <td>Whether or not each monitored process "user requested state" was changed,
-           and the current state is equal to the requested state.  Indexed by process alias.
-           (The alias is the "name" attribute of the "monitor-process" element in the
-           process' SIPX_CONFDIR/process.d/___.process.xml configuration file.)</td>
+       <td>Whether or not each process was instructed to start.
+           Indexed by process alias.
+           (The alias is the "name" attribute of the "sipXecs-process" element in the
+           process' SIPX_SHAREDIR/process.d/___.process.xml configuration file.)</td>
     </tr>
  </table>
  */
@@ -346,92 +308,7 @@ protected:
 };
 
 /**
- Attempts to set the "user requested state" of all processes being monitored by the watchdog  
- to "start".  It then blocks (up to LIST_BLOCK_MAX seconds) for the current states of each
- successfully updated process to be equal to the requested state.
-
- \par
- One or more processes monitored by the watchdog may be configured as not user start-able.  
- Calling this will result in a failure result for each such process, even if it is 
- already started.  
-
-\par
- <b>Method Name: ProcMgmtRpc.startAll</b>
-
- \par
- <b>Input:</b>
- <table border="1">
-    <tr>
-       <td><b>Data type</b></td>
-       <td><b>Name</b></td>
-       <td><b>Description</b></td>
-    </tr>
-    <tr>
-       <td>string</td>
-       <td>callingHostname</td>
-       <td>The FQDN of the calling host to be checked as an SSL trusted peer <b>and</b> 
-           against an explicit list of hosts allowed to make requests.</td>
-    </tr>
- </table>
- 
- \par
- <b>Return Value:</b>
- <table border="1">
-    <tr>
-       <td><b>Data type</b></td>
-       <td><b>Description</b></td>
-    </tr>
-    <tr>
-       <td>boolean struct</td>
-       <td>Whether or not each monitored process "user requested state" was changed, and 
-           the current state is equal to the requested state.  Indexed by process alias.  
-           (The alias is the "name" attribute of the "monitor-process" element in the 
-           process's SIPX_CONFDIR/process.d/___.process.xml configuration file.)</td>
-    </tr>
- </table>
- */
-class ProcMgmtRpcStartAll : public ProcMgmtRpcMethod
-{
-public:
-
-   /// The XmlRpcMethod::Get registered with the dispatcher for this XML-RPC Method.  
-   static XmlRpcMethod* get();
-
-   /// Destructor.
-   virtual ~ProcMgmtRpcStartAll() {};
-
-   /// Get the name of the XML-RPC method.
-   virtual const char* name();
-
-   /// Register this method handler with the XML-RPC dispatcher.
-   static void registerSelf(WatchDog & watchdog);
-
-protected:
-
-   /// The name of the XML-RPC method.
-   static const char* METHOD_NAME;
-
-   /// Constructor.
-   ProcMgmtRpcStartAll();
-
-   /// The execution of this XML-RPC Method.
-   virtual bool execute(const HttpRequestContext& requestContext, ///< request context
-                        UtlSList& params,                         ///< request param list
-                        void* userData,                           ///< user data
-                        XmlRpcResponse& response,                 ///< request response
-                        ExecutionStatus& status                   ///< XML-RPC method execution status
-                        );
-};
-
-
-/**
- Attempts to set the "user requested state" of the specified processes to "stop".  If successful,
- it then optionally blocks for the state to be equal to the requested state. 
-
- \par
- SipxProcesses monitored by the watchdog may be configured as not user stop-able.  (i.e. The
- "KeepAlive" process.)  Calling this method for such a process will fail, even if the
- process is already stopped.  
+ Attempts to stop each of the specified processes.
 
  \par
  <b>Method Name: ProcMgmtRpc.stop</b>
@@ -454,13 +331,13 @@ protected:
        <td>array</td>
        <td>alias</td>
        <td>List of aliases of the processes.  (The alias is the "name" attribute of the
-           "monitor-process" element in the process's 
-           SIPX_CONFDIR/process.d/___.process.xml configuration file.)</td>
+           "sipXecs-process" element in the process's 
+           SIPX_SHAREDIR/process.d/___.process.xml configuration file.)</td>
     </tr>
     <tr>
        <td>boolean</td>
        <td>blockForStateChange</td>
-       <td>Whether or not to block for the state changes to occur.</td>
+       <td><b>Deprecated and ignored.</b>  Whether or not to block for the state change to occur.</td>
     </tr>
  </table>
  
@@ -473,10 +350,10 @@ protected:
     </tr>
     <tr>
        <td>boolean struct</td>
-       <td>Whether or not each monitored process "user requested state" was changed, and
-           the current state is equal to the requested state.  Indexed by process alias.
-           (The alias is the "name" attribute of the "monitor-process" element in the
-           process's SIPX_CONFDIR/process.d/___.process.xml configuration file.)</td>
+       <td>Whether or not each process was instructed to stop.
+           Indexed by process alias.
+           (The alias is the "name" attribute of the "sipXecs-process" element in the
+           process's SIPX_SHAREDIR/process.d/___.process.xml configuration file.)</td>
     </tr>
  </table>
 
@@ -515,91 +392,7 @@ protected:
 };
 
 /**
- Attempts to set the "user requested state" of all processes being monitored by the watchdog 
- to "stop".  It then blocks (up to LIST_BLOCK_MAX seconds) for the current states of each
- successfully updated process to be equal to the requested state.
-
- \par
- One or more processes monitored by the watchdog may be configured as not user stop-able.  
- (i.e. The "KeepAlive" proces.)  Calling this will result in a failure result for each such
- process, even if it is already stopped.  
-
- \par
- <b>Method Name: ProcMgmtRpc.stopAll</b>
-
- \par
- <b>Input:</b>
- <table border="1">
-    <tr>
-       <td><b>Data type</b></td>
-       <td><b>Name</b></td>
-       <td><b>Description</b></td>
-    </tr>
-    <tr>
-       <td>string</td>
-       <td>callingHostname</td>
-       <td>The FQDN of the calling host to be checked as an SSL trusted peer <b>and</b> 
-           against an explicit list of hosts allowed to make requests.</td>
-    </tr>
- </table>
- 
- \par
- <b>Return Value:</b>
- <table border="1">
-    <tr>
-       <td><b>Data type</b></td>
-       <td><b>Description</b></td>
-    </tr>
-    <tr>
-       <td>boolean struct</td>
-       <td>Whether or not each monitored process "user requested state" was changed, and 
-           the current state is equal to the requested state.  Indexed by process alias.  
-           (The alias is the "name" attribute of the "monitor-process" element in the 
-           process's SIPX_CONFDIR/process.d/___.process.xml configuration file.)</td>
-    </tr>
- </table>
- */
-class ProcMgmtRpcStopAll : public ProcMgmtRpcMethod
-{
-public:
-
-   /// The XmlRpcMethod::Get registered with the dispatcher for this XML-RPC Method.  
-   static XmlRpcMethod* get();
-
-
-   /// Destructor.
-   virtual ~ProcMgmtRpcStopAll() {};
-
-   /// Get the name of the XML-RPC method.
-   virtual const char* name();
-
-   /// Register this method handler with the XML-RPC dispatcher.
-   static void registerSelf(WatchDog & watchdog);
-
-protected:
-
-   /// The name of the XML-RPC method.
-   static const char* METHOD_NAME;
-
-   /// Constructor.
-   ProcMgmtRpcStopAll();
-
-   /// The execution of this XML-RPC Method.
-   virtual bool execute(const HttpRequestContext& requestContext, ///< request context
-                        UtlSList& params,                         ///< request param list
-                        void* userData,                           ///< user data
-                        XmlRpcResponse& response,                 ///< request response
-                        ExecutionStatus& status                   ///< XML-RPC method execution status
-                        );
-};
-
-/**
- Attempts to set the "user requested state" of the specified processes to "restart".  If successful, 
- it then optionally blocks for the process to be running with new PIDs.
-
- \par
- A process monitored by the watchdog may be configured as not user restart-able.  (i.e. The 
- "KeepAlive" proces.)  Calling this method for such a process will fail.  
+ Attempts to restart the specified processes.  For each process, returns true if found.
 
  \par
  <b>Method Name: ProcMgmtRpc.restart</b>
@@ -621,9 +414,9 @@ protected:
     <tr>
        <td>array</td>
        <td>alias</td>
-       <td>List of aliases of the processes.  (The alias is the "name" attribute of the
-           "monitor-process" element in the process's 
-           SIPX_CONFDIR/process.d/___.process.xml configuration file.)</td>
+       <td>List of process aliases to restart.  (The alias is the "name" attribute of the
+           "sipXecs-process" element in the process's 
+           SIPX_SHAREDIR/process.d/___.process.xml configuration file.)</td>
     </tr>
     <tr>
        <td>boolean</td>
@@ -641,10 +434,10 @@ protected:
     </tr>
     <tr>
        <td>boolean struct</td>
-       <td>Whether or not each monitored process "user requested state" was changed, and 
-           the current state is equal to the requested state.  Indexed by process alias.  
-           (The alias is the "name" attribute of the "monitor-process" element in the 
-           process's SIPX_CONFDIR/process.d/___.process.xml configuration file.)</td>
+       <td>Whether or not each process was found and instructed to restart.
+           Indexed by process alias.  (The alias is the "name" attribute of the
+           "sipXecs-process" element in the process's 
+           SIPX_SHAREDIR/process.d/___.process.xml configuration file.)</td>
     </tr>
  </table>
  */
@@ -681,165 +474,11 @@ protected:
                         );
 };
 
-/**
- Attempts to set the "user requested state" of all processes being monitored by the watchdog to 
- "restart".  It then blocks (up to LIST_BLOCK_MAX seconds) for the current states of each
- successfully updated process to be running with a new PID.
-
- \par
- One or more processes monitored by the watchdog may be configured as not user restart-able.  
- (i.e. The "KeepAlive" proces.)  Calling this will result in a failure result for each such
- process.  
-
- \par
- <b>Method Name: ProcMgmtRpc.restartAll</b>
-
- \par
- <b>Input:</b>
- <table border="1">
-    <tr>
-       <td><b>Data type</b></td>
-       <td><b>Name</b></td>
-       <td><b>Description</b></td>
-    </tr>
-    <tr>
-       <td>string</td>
-       <td>callingHostname</td>
-       <td>The FQDN of the calling host to be checked as an SSL trusted peer <b>and</b> 
-           against an explicit list of hosts allowed to make requests.</td>
-    </tr>
- </table>
- 
- \par
- <b>Return Value:</b>
- <table border="1">
-    <tr>
-       <td><b>Data type</b></td>
-       <td><b>Description</b></td>
-    </tr>
-    <tr>
-       <td>boolean struct</td>
-       <td>Whether or not each monitored process "user requested state" was changed, and 
-           the process is now running with a new PID.  Indexed by process alias.  
-           (The alias is the "name" attribute of the "monitor-process" element in the 
-           process's SIPX_CONFDIR/process.d/___.process.xml configuration file.)</td>
-    </tr>
- </table>
- */
-class ProcMgmtRpcRestartAll : public ProcMgmtRpcMethod
-{
-public:
-
-   /// The XmlRpcMethod::Get registered with the dispatcher for this XML-RPC Method.  
-   static XmlRpcMethod* get();
-
-   /// Destructor.
-   virtual ~ProcMgmtRpcRestartAll() {};
-
-   /// Get the name of the XML-RPC method.
-   virtual const char* name();
-
-   /// Register this method handler with the XML-RPC dispatcher.
-   static void registerSelf(WatchDog & watchdog);
-
-protected:
-
-   /// The name of the XML-RPC method.
-   static const char* METHOD_NAME;
-
-   /// Constructor.
-   ProcMgmtRpcRestartAll();
-
-   /// The execution of this XML-RPC Method.
-   virtual bool execute(const HttpRequestContext& requestContext, ///< request context
-                        UtlSList& params,                         ///< request param list
-                        void* userData,                           ///< user data
-                        XmlRpcResponse& response,                 ///< request response
-                        ExecutionStatus& status                   ///< XML-RPC method execution status
-                        );
-};
-
-/**
- Returns the alias of the monitored processes with the specified PID.  (The 
- alias is the "name" attribute of the "monitor-process" element in  
- the process's SIPX_CONFDIR/process.d/___.process.xml configuration file.)
-
- \par
- <b>Method Name: ProcMgmtRpc.getAliasByPID</b>
-
- \par
- <b>Input:</b>
- <table border="1">
-    <tr>
-       <td><b>Data type</b></td>
-       <td><b>Name</b></td>
-       <td><b>Description</b></td>
-    </tr>
-    <tr>
-       <td>string</td>
-       <td>callingHostname</td>
-       <td>The FQDN of the calling host to be checked as an SSL trusted peer <b>and</b> 
-           against an explicit list of hosts allowed to make requests.</td>
-    </tr>
-    <tr>
-       <td>integer</td>
-       <td>pid</td>
-       <td>The PID of the monitored processes whose alias is to be returned.</td>
-    </tr>
- </table>
- 
- \par
- <b>Return Value:</b>
- <table border="1">
-    <tr>
-       <td><b>Data type</b></td>
-       <td><b>Description</b></td>
-    </tr>
-    <tr>
-       <td>string</td>
-       <td>The alias of the monitored processes with the specified PID.  A blank string
-           indicates that no matching monitored processes was found.</td>
-    </tr>
- </table>
- */
-class ProcMgmtRpcGetAliasByPID : public ProcMgmtRpcMethod
-{
-public:
-
-   /// The XmlRpcMethod::Get registered with the dispatcher for this XML-RPC Method.  
-   static XmlRpcMethod* get();
-
-   /// Destructor.
-   virtual ~ProcMgmtRpcGetAliasByPID() {};
-
-   /// Get the name of the XML-RPC method.
-   virtual const char* name();
-
-   /// Register this method handler with the XML-RPC dispatcher.
-   static void registerSelf(WatchDog & watchdog);
-
-protected:
-
-   /// The name of the XML-RPC method.
-   static const char* METHOD_NAME;
-
-   /// Constructor.
-   ProcMgmtRpcGetAliasByPID();
-
-   /// The execution of this XML-RPC Method.
-   virtual bool execute(const HttpRequestContext& requestContext, ///< request context
-                        UtlSList& params,                         ///< request param list
-                        void* userData,                           ///< user data
-                        XmlRpcResponse& response,                 ///< request response
-                        ExecutionStatus& status                   ///< XML-RPC method execution status
-                        );
-};
-
 
 /**
  Returns the configuration version of the process specified by its name.  (The 
- name is the "name" attribute of the "monitor-process" element in  
- the process's SIPX_CONFDIR/process.d/___.process.xml configuration file.)
+ name is the "name" attribute of the "sipXecs-process" element in the
+ process's SIPX_CONFDIR/process.d/___.process.xml configuration file.)
 
  \par
  <b>Method Name: ProcMgmtRpc.getConfigVersion</b>
@@ -914,8 +553,8 @@ protected:
 
 /**
  Sets the configuration version of the process specified by its name.  (The 
- name is the "name" attribute of the "monitor-process" element in  
- the process's SIPX_CONFDIR/process.d/___.process.xml configuration file.)
+ name is the "name" attribute of the "sipXecs-process" element in  
+ the process's SIPX_SHAREDIR/process.d/___.process.xml configuration file.)
 
  \par
  <b>Method Name: ProcMgmtRpc.setConfigVersion</b>

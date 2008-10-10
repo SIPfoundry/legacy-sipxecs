@@ -12,7 +12,6 @@
 #include "utl/UtlHashBagIterator.h"
 #include "utl/UtlHashMapIterator.h" 
 #include "utl/UtlSListIterator.h"
-#include "os/OsProcessMgr.h"
 #include "os/OsSysLog.h"
 #include "net/XmlRpcDispatch.h"
 #include "net/XmlRpcMethod.h"
@@ -37,7 +36,6 @@ const char* ProcMgmtRpcMethod::METHOD_NAME = "ProcMgmtRpc.BASE";
 const char* ProcMgmtRpcMethod::PARAM_NAME_CALLING_HOST = "callingHostname";
 const char* ProcMgmtRpcMethod::PARAM_NAME_ALIAS = "alias";
 const char* ProcMgmtRpcMethod::PARAM_NAME_BLOCK = "blockForStateChange";
-const char* ProcMgmtRpcMethod::PARAM_NAME_PID = "pid";
 const char* ProcMgmtRpcMethod::PARAM_NAME_SERVICE = "service";
 const char* ProcMgmtRpcMethod::PARAM_NAME_SERVICE_VERSION = "serviceVersion";
 int ProcMgmtRpcMethod::SINGLE_BLOCK_MAX = 15;
@@ -190,6 +188,7 @@ bool ProcMgmtRpcMethod::executeSetUserRequestState(const HttpRequestContext& req
          }
          else
          {
+              // we are currently ignoring the block parameter.  Does anyone care?
 //            UtlBool* pBlock = dynamic_cast<UtlBool*>(params.at(2));
 
             if (3 != params.entries())
@@ -201,7 +200,6 @@ bool ProcMgmtRpcMethod::executeSetUserRequestState(const HttpRequestContext& req
                WatchDog* pWatchDog = ((WatchDog *)userData);
                if (validCaller(requestContext, *pCallingHostname, response, *pWatchDog, name()))
                {
-
                   // for each alias in the list, look up its process and send start/stop event
                   SipxProcessManager* processMgr = SipxProcessManager::getInstance();
                   UtlSListIterator aliasListIterator( *pAliasList );
@@ -241,65 +239,6 @@ bool ProcMgmtRpcMethod::executeSetUserRequestState(const HttpRequestContext& req
                      process_results.insertKeyAndValue(tmp_alias, new UtlBool(result));
                   }
                   
-                  /*
-                  // Set the "user request state" of the specified processes to the specified
-                  // state.  If successful, then possibly also wait for the state change.
-                  UtlString requestedState;
-                  if (!OsProcessMgr::getUserRequestedStateString(request_state, requestedState))
-                  {
-                     requestedState = "<unknown>";
-                  }
-                  OsSysLog::add(FAC_SUPERVISOR, PRI_INFO,
-                                "ProcMgmtRpc::setUserRequestState"
-                                " host %s state '%s' %s",
-                                pCallingHostname->data(),
-                                requestedState.data(),
-                                (  pBlock->getValue()
-                                 ? "BLOCKING"
-                                 : (  (USER_PROCESS_RESTART == request_state)
-                                    ? "(always blocks)" : "NON-BLOCKING"))
-                                );
-
-                  UtlHashMap  process_results;
-                  UtlHashMap  original_pids;
-                  int         blockSecs;
-                  pWatchDog->getPidsByAliasList( *pAliasList, original_pids);
-
-                  if ( 1 == process_results.entries() )
-                  {
-                     blockSecs = SINGLE_BLOCK_MAX;
-                  }
-                  else
-                  {
-                     blockSecs = LIST_BLOCK_MAX;
-                  }
-
-                  if ( USER_PROCESS_RESTART == request_state ) {
-                     // Stop all processes requested followed by starting the all to simulate a restart.
-                     // Need to add a check on whether or not process has restart capabilities when we
-                     // have the new sipXsupervisor.
-                     pWatchDog->setProcessUserRequestStateList( USER_PROCESS_STOP, *pAliasList, process_results );
-                     blockForProcessStateMatchList(pWatchDog, process_results, USER_PROCESS_STOP, blockSecs);
-                     process_results.destroyAll();
-                     pWatchDog->setProcessUserRequestStateList( USER_PROCESS_START, *pAliasList, process_results );
-                     blockForProcessStateMatchList(pWatchDog, process_results, USER_PROCESS_START, blockSecs);
-                  }
-                  else {
-                     pWatchDog->setProcessUserRequestStateList( request_state, *pAliasList, process_results );
-                     if (pBlock->getValue())
-                     {
-                        if (USER_PROCESS_RESTART == request_state)
-                        {
-                           blockForProcessRestartList(pWatchDog, process_results, original_pids, blockSecs);
-                        }
-                        else
-                        {
-                           blockForProcessStateMatchList(pWatchDog, process_results, request_state, blockSecs);
-                        }
-                     }
-                  }
-                  */
-
                   // Construct and set the response.
                   response.setResponse(&process_results);
                   status = XmlRpcMethod::OK;
@@ -317,227 +256,6 @@ bool ProcMgmtRpcMethod::executeSetUserRequestState(const HttpRequestContext& req
    return result;
 }
 
-bool ProcMgmtRpcMethod::blockForProcessStateMatch(WatchDog* pWatchDog, const UtlString& alias, const int request_state, const int max_secs)
-{
-   UtlHashMap process_results;
-   UtlString tmp_alias(alias);
-   UtlBool tmp_result(true);
-   process_results.insertKeyAndValue(&tmp_alias, &tmp_result);
-   
-   blockForProcessStateMatchList(pWatchDog, process_results, request_state, max_secs);
-   
-   return tmp_result.getValue();
-}
-
-bool ProcMgmtRpcMethod::blockForProcessRestart(WatchDog* pWatchDog, const UtlString& alias, const PID original_pid, const int max_secs)
-{
-   UtlHashMap process_results;
-   UtlString tmp_alias(alias);
-   UtlBool tmp_result(true);
-   process_results.insertKeyAndValue(&tmp_alias, &tmp_result);
-
-   UtlHashMap original_pids;
-   UtlInt tmp_pid(original_pid);
-   original_pids.insertKeyAndValue(&tmp_alias, &tmp_pid);
-
-   blockForProcessRestartList(pWatchDog, process_results, original_pids, max_secs);
-
-   return tmp_result.getValue();
-}
-
-void ProcMgmtRpcMethod::blockForProcessRestartList(WatchDog* pWatchDog, 
-                                                   UtlHashMap& process_results, 
-                                                   const UtlHashMap& original_pids, 
-                                                   const int max_secs)
-{
-   // Build a bag of the aliases whose user requested state was changed to RESTART.
-   UtlHashBag waiting_processes;
-   UtlString* pAlias;
-   UtlHashMapIterator iMap(process_results);
-   while ((pAlias = dynamic_cast<UtlString*>(iMap())))
-   {
-      // If the user requested state of this process changed then add its alias to the bag.
-      UtlBool* pResult = dynamic_cast<UtlBool*>(iMap.value());
-      if (pResult && pResult->getValue())
-      {
-         waiting_processes.insert(new UtlString(*pAlias));
-      }
-   }   
-   
-   // Block waiting for these processes to be running with different PIDs.
-   int secs = 0;
-   while (secs < max_secs && !waiting_processes.isEmpty())
-   {
-      secs++;
-      OsTask::delay(1000); 
-
-      // Loop through all the processes that we were still waiting on and
-      // remove those that have undergone the expected state change.
-      UtlHashBagIterator iBag(waiting_processes);      
-      while ((pAlias = dynamic_cast<UtlString*>(iBag())))
-      {
-         // Is the current PID non-zero and different from the original PID?
-         PID current_pid = pWatchDog->getPidByAlias(*pAlias);
-         if (0 != current_pid)
-         {
-            UtlInt* pPid = dynamic_cast<UtlInt*>(original_pids.findValue(pAlias));
-            if (pPid &&  current_pid != pPid->getValue())
-            {
-               // Yes, so this process has restarted.
-               waiting_processes.destroy(pAlias); 
-            }
-         }
-      }
-   }
-
-   // Why did the above while loop exit?
-   if (!waiting_processes.isEmpty())
-   {
-      // There was a timeout waiting for one or more processes to undergo the   
-      // expected state change.  Update the failed entries.
-      UtlHashBagIterator iBag(waiting_processes);
-      while ((pAlias = dynamic_cast<UtlString*>( iBag() )))
-      {
-         UtlBool* pResult = dynamic_cast<UtlBool*>(process_results.findValue(pAlias));
-         if (pResult)
-         {
-            *pResult = false;
-         }
-      }
-      waiting_processes.destroyAll();
-   }
-}
-
-void ProcMgmtRpcMethod::blockForProcessStateMatchList(WatchDog* pWatchDog, 
-                                                      UtlHashMap& process_results, 
-                                                      const int request_state, 
-                                                      const int max_secs)
-{
-   // Build a bag of the aliases whose user requested state was changed.
-   UtlHashBag waiting_processes;
-   UtlString* pAlias;
-   UtlHashMapIterator iMap(process_results);
-   while ((pAlias = dynamic_cast<UtlString*>(iMap())))
-   {
-      // If the user requested state of this process changed then add its alias to the bag.
-      UtlBool* pResult = dynamic_cast<UtlBool*>(iMap.value());
-      if (pResult && pResult->getValue())
-      {
-         waiting_processes.insert(new UtlString(*pAlias));
-      }
-   }   
-
-   // Block waiting for these processes to have their state changed.
-   int secs = 0;
-   while (secs < max_secs && !waiting_processes.isEmpty())
-   {
-      secs++;
-      OsTask::delay(1000); 
-
-      // Loop through all the processes that we were still waiting on and
-      // remove those that have undergone the expected state change.
-      UtlHashBagIterator iBag(waiting_processes);      
-      while ((pAlias = dynamic_cast<UtlString*>(iBag())))
-      {
-         // Does the current state match the requested state?
-         if (pWatchDog->getProcessState(*pAlias) == request_state)
-         {
-            // Yes, so his process has changed state.
-            waiting_processes.destroy(pAlias); 
-         }
-      }
-   }
-
-   // Why did the above while loop exit?
-   if (!waiting_processes.isEmpty())
-   {
-      // There was a timeout waiting for one or more processes to undergo the   
-      // expected state change.  Update the failed entries.
-      UtlHashBagIterator iBag(waiting_processes);
-      while ((pAlias = dynamic_cast<UtlString*>( iBag() )))
-      {
-         UtlBool* pResult = dynamic_cast<UtlBool*>(process_results.findValue(pAlias));
-         if (pResult)
-         {
-            *pResult = false;
-         }
-      }
-      waiting_processes.destroyAll();
-   }
-}
-
-bool ProcMgmtRpcMethod::executeSetUserRequestStateAll(const HttpRequestContext& requestContext,
-                                                      UtlSList& params,
-                                                      void* userData,
-                                                      XmlRpcResponse& response,
-                                                      ExecutionStatus& status,
-                                                      const int request_state
-                                                      )
-{
-   bool result = false;
-   status = XmlRpcMethod::FAILED;
-
-   if (!params.at(0) || !params.at(0)->isInstanceOf(UtlString::TYPE))
-   {
-      handleMissingExecuteParam(name(), PARAM_NAME_CALLING_HOST, response, status);
-   }
-   else
-   {
-      UtlString* pCallingHostname = dynamic_cast<UtlString*>(params.at(0));
-
-      if (1 != params.entries())
-      {
-         handleExtraExecuteParam(name(), response, status);
-      }
-      else
-      {
-         WatchDog* pWatchDog = ((WatchDog *)userData);
-
-         if(validCaller(requestContext, *pCallingHostname, response, *pWatchDog, name()))
-         {
-
-            UtlString requestedState;
-            if (!OsProcessMgr::getUserRequestedStateString(request_state, requestedState))
-            {
-               requestedState = "<unknown>";
-            }
-            OsSysLog::add(FAC_SUPERVISOR, PRI_INFO,
-                          "ProcMgmtRpc::setUserRequestStateAll"
-                          " host %s requested state '%s'",
-                          pCallingHostname->data(),
-                          requestedState.data()
-                          );
-
-
-            // Set the "user request state" of the all monitored processes to the specified
-            // state.   (This dynamically allocates memory.)  For those successful, also wait
-            // for the state change.
-            UtlHashMap original_pids;
-            pWatchDog->getAllPids(original_pids);
-            UtlHashMap process_results;
-            pWatchDog->setProcessUserRequestStateAll(request_state, process_results);
-            if (USER_PROCESS_RESTART == request_state)
-            {
-               blockForProcessRestartList(pWatchDog, process_results, original_pids);
-            }
-            else
-            {
-               blockForProcessStateMatchList(pWatchDog, process_results, request_state);
-            }
-
-            // Construct and set the response.
-            response.setResponse(&process_results);
-            status = XmlRpcMethod::OK;
-            result = true;
-
-            // Delete the new'd UtlString objects (alias names and state change results.)
-            process_results.destroyAll();
-         }
-      }
-   }
-
-   return result;
-}
 
 /*****************************************************************
  **** ProcMgmtRpcGetStateAll
@@ -654,41 +372,6 @@ bool ProcMgmtRpcStart::execute(const HttpRequestContext& requestContext,
 }
 
 /*****************************************************************
- **** ProcMgmtRpcStartAll
- *****************************************************************/
-
-const char* ProcMgmtRpcStartAll::METHOD_NAME = "ProcMgmtRpc.startAll";
-
-const char* ProcMgmtRpcStartAll::name()
-{
-   return METHOD_NAME;
-}
-
-ProcMgmtRpcStartAll::ProcMgmtRpcStartAll()
-{
-}
-
-XmlRpcMethod* ProcMgmtRpcStartAll::get()
-{
-   return new ProcMgmtRpcStartAll();
-}
-
-void ProcMgmtRpcStartAll::registerSelf(WatchDog & watchdog)
-{
-   registerMethod(METHOD_NAME, ProcMgmtRpcStartAll::get, watchdog);
-}
-
-bool ProcMgmtRpcStartAll::execute(const HttpRequestContext& requestContext,
-                                  UtlSList& params,
-                                  void* userData,
-                                  XmlRpcResponse& response,
-                                  ExecutionStatus& status)
-{
-   return executeSetUserRequestStateAll(requestContext, params, 
-             userData, response, status, USER_PROCESS_START);
-}
-
-/*****************************************************************
  **** ProcMgmtRpcStop
  *****************************************************************/
 
@@ -720,41 +403,6 @@ bool ProcMgmtRpcStop::execute(const HttpRequestContext& requestContext,
                               ExecutionStatus& status)
 {
    return executeSetUserRequestState(requestContext, params, 
-             userData, response, status, USER_PROCESS_STOP);
-}
-
-/*****************************************************************
- **** ProcMgmtRpcStopAll
- *****************************************************************/
-
-const char* ProcMgmtRpcStopAll::METHOD_NAME = "ProcMgmtRpc.stopAll";
-
-const char* ProcMgmtRpcStopAll::name()
-{
-   return METHOD_NAME;
-}
-
-ProcMgmtRpcStopAll::ProcMgmtRpcStopAll()
-{
-}
-
-XmlRpcMethod* ProcMgmtRpcStopAll::get()
-{
-   return new ProcMgmtRpcStopAll();
-}
-
-void ProcMgmtRpcStopAll::registerSelf(WatchDog & watchdog)
-{
-   registerMethod(METHOD_NAME, ProcMgmtRpcStopAll::get, watchdog);
-}
-
-bool ProcMgmtRpcStopAll::execute(const HttpRequestContext& requestContext,
-                                  UtlSList& params,
-                                  void* userData,
-                                  XmlRpcResponse& response,
-                                  ExecutionStatus& status)
-{
-   return executeSetUserRequestStateAll(requestContext, params, 
              userData, response, status, USER_PROCESS_STOP);
 }
 
@@ -791,124 +439,6 @@ bool ProcMgmtRpcRestart::execute(const HttpRequestContext& requestContext,
 {
    return executeSetUserRequestState(requestContext, params, 
              userData, response, status, USER_PROCESS_RESTART);
-}
-
-/*****************************************************************
- **** ProcMgmtRpcRestartAll
- *****************************************************************/
-
-const char* ProcMgmtRpcRestartAll::METHOD_NAME = "ProcMgmtRpc.restartAll";
-
-const char* ProcMgmtRpcRestartAll::name()
-{
-   return METHOD_NAME;
-}
-
-ProcMgmtRpcRestartAll::ProcMgmtRpcRestartAll()
-{
-}
-
-XmlRpcMethod* ProcMgmtRpcRestartAll::get()
-{
-   return new ProcMgmtRpcRestartAll();
-}
-
-void ProcMgmtRpcRestartAll::registerSelf(WatchDog & watchdog)
-{
-   registerMethod(METHOD_NAME, ProcMgmtRpcRestartAll::get, watchdog);
-}
-
-bool ProcMgmtRpcRestartAll::execute(const HttpRequestContext& requestContext,
-                                    UtlSList& params,
-                                    void* userData,
-                                    XmlRpcResponse& response,
-                                    ExecutionStatus& status)
-{
-   return executeSetUserRequestStateAll(requestContext, params, 
-             userData, response, status, USER_PROCESS_RESTART);
-}
-
-/*****************************************************************
- **** ProcMgmtRpcGetAliasByPID
- *****************************************************************/
-
-const char* ProcMgmtRpcGetAliasByPID::METHOD_NAME = "ProcMgmtRpc.getAliasByPID";
-
-const char* ProcMgmtRpcGetAliasByPID::name()
-{
-   return METHOD_NAME;
-}
-
-ProcMgmtRpcGetAliasByPID::ProcMgmtRpcGetAliasByPID()
-{
-}
-
-XmlRpcMethod* ProcMgmtRpcGetAliasByPID::get()
-{
-   return new ProcMgmtRpcGetAliasByPID();
-}
-
-void ProcMgmtRpcGetAliasByPID::registerSelf(WatchDog & watchdog)
-{
-   registerMethod(METHOD_NAME, ProcMgmtRpcGetAliasByPID::get, watchdog);
-}
-
-bool ProcMgmtRpcGetAliasByPID::execute(const HttpRequestContext& requestContext,
-                                       UtlSList& params,
-                                       void* userData,
-                                       XmlRpcResponse& response,
-                                       ExecutionStatus& status)
-{
-   bool result = false;
-   status = XmlRpcMethod::FAILED;
-
-   if (!params.at(0) || !params.at(0)->isInstanceOf(UtlString::TYPE))
-   {
-      handleMissingExecuteParam(name(), PARAM_NAME_CALLING_HOST, response, status);
-   }
-   else
-   {
-      UtlString* pCallingHostname = dynamic_cast<UtlString*>(params.at(0));
-
-      if (!params.at(1) || !params.at(1)->isInstanceOf(UtlInt::TYPE))
-      {
-         handleMissingExecuteParam(name(), PARAM_NAME_PID, response, status);
-      }
-      else
-      {
-         UtlInt* pPID = dynamic_cast<UtlInt*>(params.at(1));
-
-         if (2 != params.entries())
-         {
-            handleExtraExecuteParam(name(), response, status);
-         }
-         else
-         {
-            WatchDog* pWatchDog = ((WatchDog *)userData);
-
-            if (validCaller(requestContext, *pCallingHostname, response, *pWatchDog, name()))
-            {
-               // Attempt to find the alias, which will be blank is there is a failure.
-               UtlString alias = pWatchDog->getAliasByPid(pPID->getValue());
-
-               OsSysLog::add(FAC_SUPERVISOR, PRI_INFO,
-                             "ProcMgmtRpc::getUserRequestState"
-                             " host %s requested process state for %" PRIdPTR " (%s)",
-                             pCallingHostname->data(),
-                             pPID->getValue(), alias.data()
-                             );
-
-
-               // Construct and set the response.
-               response.setResponse(&alias);
-               status = XmlRpcMethod::OK;
-               result = true;
-            }
-         }
-      }
-   }
-
-   return result;
 }
 
 /*****************************************************************

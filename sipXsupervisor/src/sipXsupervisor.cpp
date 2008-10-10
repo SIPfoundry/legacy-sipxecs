@@ -17,7 +17,6 @@
 
 // APPLICATION INCLUDES
 #include "net/NameValueTokenizer.h"
-#include "processXMLCommon.h"
 #include "WatchDog.h"
 #include "os/OsSysLog.h"
 #include "os/OsConfigDb.h"
@@ -30,7 +29,7 @@
 
 #define DEBUG
 
-//The worker who does all the checking... based on OsServerTask
+//The worker who manages xmlrpc requests
 WatchDog *pDog;
 
 // MACROS
@@ -46,9 +45,6 @@ const char* CONFIG_SETTINGS_FILE = "sipxsupervisor-config";
 int gnCheckPeriod = 10;
 UtlBoolean gbDone = FALSE;
 UtlBoolean gbShutdown = FALSE;
-MonitoredProcess *gpProcessList[1000]; //should be enough  :)
-int gnProcessCount = 0; //how many processes are we checking?
-UtlString strWatchDogFilename;
 UtlBoolean gbPreloadedDatabases = FALSE;
 
 //retrieve the update rate from the xml file
@@ -252,176 +248,16 @@ OsStatus initLogfile(TiXmlDocument &doc)
     return retval;
 }
 
-//fills in the process objects
-OsStatus createProcessList(TiXmlDocument &watchdogDoc, TiXmlDocument &processDoc, MonitoredProcess **processList, int &numProcesses)
-{
-    OsStatus retval = OS_FAILED;
-
-    numProcesses = 0;
-
-    TiXmlElement*rootElement = watchdogDoc.RootElement();
-    if (rootElement)
-    {
-        TiXmlNode *monitorNode = rootElement->FirstChild( "monitor" );
-        if ( monitorNode )
-        {
-            for ( TiXmlNode *dbProcessNode = monitorNode->FirstChild( "monitor-process" );
-                dbProcessNode;
-                dbProcessNode = dbProcessNode->NextSibling( "monitor-process" ) )
-            {
-
-                TiXmlElement *nextProcessElement = dbProcessNode->ToElement();
-
-                const char *pAliasStr = nextProcessElement->Attribute("name");
-
-                if ( pAliasStr )
-                {
-                    processList[numProcesses] = new MonitoredProcess(&processDoc);
-
-                    UtlString alias = pAliasStr;
-                    processList[numProcesses]->setAlias(alias);
-
-                    //now get & set the max restart period
-                    const char *pMaxRestartPeriodStr = nextProcessElement->Attribute("reset_restarts_after");
-
-                    if ( pMaxRestartPeriodStr && strlen(pMaxRestartPeriodStr) )
-                    {
-                        processList[numProcesses]->setMaxRestartPeriod(atoi(pMaxRestartPeriodStr));
-
-                    } else
-                        processList[numProcesses]->setMaxRestartPeriod(300); //default is 5 mins
-
-                    //now get & set the max restarts value
-                    const char *pMaxRestartStr = nextProcessElement->Attribute("max_restarts");
-                    if ( pMaxRestartStr )
-                    {
-                        processList[numProcesses]->setMaxRestarts(atoi(pMaxRestartStr));
-
-                    }
-
-                    //now get if restart is enabled
-                    const char *pRestartEnableStr = nextProcessElement->Attribute("restart");
-                    if ( pRestartEnableStr )
-                    {
-                        UtlBoolean enabled = FALSE;
-                        if ( strcmp(pRestartEnableStr,"enable") == 0 )
-                            enabled = TRUE;
-
-                        processList[numProcesses]->enableRestart(enabled);
-
-                    }
-
-
-                    numProcesses++;
-
-                }
-                retval = OS_SUCCESS;
-            }
-        }
-    }
-    else
-        OsSysLog::add(FAC_SUPERVISOR,PRI_ALERT,"Couldn't get root Element in createProcessList");
-
-    return retval;
-
-}
-
-
-
-OsStatus loadWatchDogXML(TiXmlDocument &doc, UtlString &rStrFilename)
-{
-    OsStatus retval = OS_FAILED;
-
-    if ( doc.LoadFile(rStrFilename.data()) )
-    {
-        OsPath watchdogFilename(rStrFilename);
-        OsPath subprocessDir = watchdogFilename.getDirName() + OsPath::separator + PROCESS_DIR;
-        retval = findSubDocs(subprocessDir, doc, &addWatchDogSubDoc);
-    }
-
-
-    return retval;
-}
-
-
-OsStatus getProcessXMLPath(TiXmlDocument &doc, UtlString &rProcessXMLPath)
-{
-    OsStatus retval = OS_FAILED;
-
-    TiXmlElement*rootElement = doc.RootElement();
-    if (rootElement)
-    {
-        TiXmlNode *settingsNode = rootElement->FirstChild( "settings");
-        if (settingsNode)
-        {
-            TiXmlNode *worknode = settingsNode->FirstChild( "processxmlpath");
-            if ( worknode != NULL )
-            {                   // This is actually an individual row
-                TiXmlElement *nextItemsContainer = worknode->ToElement();
-
-                // Determine the DB to insert the items into
-                OsProcess process;
-                const char *pWorkDir = nextItemsContainer->Attribute("location");
-                if ( pWorkDir )
-                {
-                    rProcessXMLPath = pWorkDir;
-
-                    //if empty, then use watchdogs path
-                    if ( rProcessXMLPath == "" )
-                    {
-                       OsPath watchdogFile(strWatchDogFilename);
-                       rProcessXMLPath = watchdogFile.getDirName();
-                    }
-                    retval = OS_SUCCESS;
-                }
-            }
-        }
-        else
-        {
-            OsSysLog::add(FAC_SUPERVISOR,PRI_ALERT,
-                          "Couldn't get settings Element in getProcessXMLPath");
-        }
-    }
-    else
-    {
-        OsSysLog::add(FAC_SUPERVISOR,PRI_ALERT,"Couldn't get root Element in getProcessXMLPath");
-    }
-
-    return retval;
-}
-
-
-
-void doWaitLoop()
-{
-    while ( !gbDone )
-    {
-        if ( gbShutdown )
-        {
-            SipxProcessManager::getInstance()->shutdown();
-            gbDone = true;
-        }
-        OsTask::delay(1000);
-    }
-
-//    if ( pDog )
-//        pDog->requestShutdown();
-}
-
 void cleanup()
 {
-    //cleanup our dog
+    // Stop handling xmlrpc requests
     if ( pDog )
     {
-        pDog->requestShutdown();
         delete pDog;
     }
 
-    //now walk the processList and whack em
-    /*
-    for ( int loop = 0; loop < gnProcessCount; loop++ )
-        delete gpProcessList[loop];
-        */
+    // Shut down all processes
+    SipxProcessManager::getInstance()->shutdown();
 
     // Release preloaded databases.
     if (gbPreloadedDatabases)
@@ -445,6 +281,19 @@ void cleanup()
 
     //cause main loop to exit
     gbDone = TRUE;
+}
+
+void doWaitLoop()
+{
+    while ( !gbDone )
+    {
+        if ( gbShutdown )
+        {
+            cleanup();
+            gbDone = true;
+        }
+        OsTask::delay(1000);
+    }
 }
 
 void sig_routine(int sig)
@@ -565,21 +414,6 @@ int main(int argc, char* argv[])
            osPrintf("sipxsupervisor %s\n\n", SipXsupervisorVersion);
            return 0;
         }
-        else if (argString.compareTo("-f") == 0)
-        {
-            if (argIndex+1 >= argc)
-            {
-                // Missing the filename.
-                usageExit = true;
-            }
-            else
-            {
-                strWatchDogFilename = argv[++argIndex];
-                // This is OK to print directly, since it happens at startup and is
-                // triggered only by special arguments.
-                osPrintf("WatchDog XML configuration set to '%s'.\n", strWatchDogFilename.data());
-            }
-        }
         else
         {
             // Unknown argument.
@@ -588,10 +422,9 @@ int main(int argc, char* argv[])
 
         if (usageExit)
         {
-            osPrintf("usage: %s [-h] [-v] [-f filename]\n", argv[0]);
+            osPrintf("usage: %s [-h] [-v]\n", argv[0]);
             osPrintf(" -h           Print this help and exit.\n");
             osPrintf(" -v           Print version number.\n");
-            osPrintf(" -f filename  Use the specified watchdog config file.\n");
             return valueExit;
         }
     }
@@ -666,23 +499,6 @@ int main(int argc, char* argv[])
        sipxpbxuser, sipxpbxgroup);
 #endif
                               
-    // The location of the watchdog config file might have been supplied on the command-line.
-    // Otherwise, the config file is SIPX_CONFDIR/WatchDog.xml.
-    if (strWatchDogFilename.isNull())
-    {
-       strWatchDogFilename = SipXecsService::Path(SipXecsService::ConfigurationDirType,
-                                                  "WatchDog.xml");
-    }
-
-    // Load the WatchDog XML (settings) file.
-    TiXmlDocument watchdogXMLDoc;
-    OsStatus rc = loadWatchDogXML(watchdogXMLDoc, strWatchDogFilename);
-    if (OS_SUCCESS != rc)
-    {
-        osPrintf("Error: loadWatchDogXML() failed, rc = %d.\n", (int)rc);
-        return 5;
-    }
-
     // Initialize the log file.
     OsSysLog::initialize(0, "Supervisor") ;
     UtlString logFile = SipXecsService::Path(SipXecsService::LogDirType, "sipxsupervisor.log");
@@ -696,8 +512,6 @@ int main(int argc, char* argv[])
     // All relevant log messages from this point on must use OsSysLog::add().
     enableConsoleOutput(false);
     fflush(NULL); // Flush all output so children don't get a buffer of output
-    OsSysLog::add(FAC_SUPERVISOR, PRI_INFO, "Loaded WatchDog XML from: %s",
-                  strWatchDogFilename.data());
 
     //set our exit routine
     atexit(cleanup);
@@ -713,7 +527,7 @@ int main(int argc, char* argv[])
     //  2. The first touch of each database is performed by a non-root 
     //  process, thus allowing processes running as root to subsequently 
     //  access the database  without causing the known fastdb hang problem.  
-    rc = SIPDBManager::getInstance()->preloadAllDatabase();
+    OsStatus rc = SIPDBManager::getInstance()->preloadAllDatabase();
     if (OS_SUCCESS == rc)
     {
        // The databases must be released on exit.
@@ -732,42 +546,6 @@ int main(int argc, char* argv[])
              "sipXsupervisor failed to init AlarmServer");
     }
     
-    // Determine the ProcessDefinitions XML file path.
-    UtlString processXMLPath;
-    rc = getProcessXMLPath(watchdogXMLDoc, processXMLPath);
-    if (OS_SUCCESS != rc)
-    {
-        OsSysLog::add(FAC_SUPERVISOR, PRI_CRIT, 
-           "getProcessXMLPath() failed, rc = %d.", (int)rc);
-        return 7; 
-    }
-    OsSysLog::add(FAC_SUPERVISOR, PRI_INFO, 
-       "Using ProcessDefinitions XML from: %s", 
-          processXMLPath.data());
-
-    // Load the ProcessDefinitions XML file.
-    TiXmlDocument processXMLDoc;
-    UtlString gstrErrorMsg;
-    rc = initProcessXMLLayer(processXMLPath, processXMLDoc, gstrErrorMsg);
-    if (OS_SUCCESS != rc)
-    {
-        OsSysLog::add(FAC_SUPERVISOR, PRI_CRIT, 
-           "initProcessXMLLayer() failed, rc = %d, msg='%s'.",
-              (int)rc, gstrErrorMsg.data());
-        return 8;
-    }
-    
-    // Get the general Watchdog settings.
-    rc = getSettings(watchdogXMLDoc, gnCheckPeriod);
-    if (OS_SUCCESS != rc)
-    {
-        OsSysLog::add(FAC_SUPERVISOR, PRI_CRIT, 
-           "getSettings() failed, rc = %d.", (int)rc);
-        return 9;
-    }
-    OsSysLog::add(FAC_SUPERVISOR, PRI_INFO, 
-                  "Process check occurs every %d seconds.", gnCheckPeriod);
-    
     // Get the Watchdog XML-RPC server settings.
     UtlSList allowedPeers;
     int port;
@@ -785,23 +563,10 @@ int main(int argc, char* argv[])
     SipxProcessManager* processManager = SipxProcessManager::getInstance();
     processManager->instantiateProcesses(processDefinitionDirectory);
 
-    // @TODO - old style - to be removed: Create the list of processes to watch.
-    rc = createProcessList(watchdogXMLDoc, processXMLDoc, gpProcessList, gnProcessCount);
-    if (OS_SUCCESS != rc)
-    {
-        // Apparently this is a common case, so send useful information to the console too.
-        // Note that "ProcessDefinitions.xml" is fixed as the last component of the process XML 
-        // file name.  See loadProcessXML in processCommon.cpp.
-        OsSysLog::add(FAC_SUPERVISOR, PRI_CRIT, "createProcessList() failed, rc = %d.", (int)rc);        
-        enableConsoleOutput(true);
-        osPrintf("Couldn't load process list: Error in '%s' and/or '%s/ProcessDefinitions.xml'.\n",
-                 strWatchDogFilename.data(), processXMLPath.data());
-        return 10;
-    }
-    
-    // Create the "watchdog" which will monitor the process list.
-    pDog = new WatchDog(gnCheckPeriod, gpProcessList, gnProcessCount, port, allowedPeers);
-    pDog->start();
+    // Create the "watchdog" which manages xmlrpc requests
+    pDog = new WatchDog(port, allowedPeers);
+    pDog->startRpcServer();
+
     doWaitLoop();
 
     // Successful run.

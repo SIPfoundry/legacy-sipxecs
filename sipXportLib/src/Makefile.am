@@ -98,7 +98,6 @@ libsipXport_la_SOURCES =  \
     os/osPrintf.cpp \
     os/OsProcessBase.cpp \
     os/OsProcessIteratorBase.cpp \
-    os/OsProcessMgr.cpp \
     os/OsProtectEvent.cpp \
     os/OsProtectEventMgr.cpp \
     os/OsPtrMsg.cpp \
