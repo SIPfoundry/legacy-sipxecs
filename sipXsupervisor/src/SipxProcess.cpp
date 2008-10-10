@@ -948,6 +948,7 @@ void SipxProcess::evCommandStoppedInTask(const SipxProcessCmd* command, int rc)
    else if (command == mStop)
    {
       // stop stopped, but we are really interested in the start
+      mpCurrentState->evStopCompleted(*this);
    }
    else if (command == mConfigtest)
    {

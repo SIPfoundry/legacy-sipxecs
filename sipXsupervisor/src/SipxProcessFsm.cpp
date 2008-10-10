@@ -86,6 +86,12 @@ void SipxProcessFsm::evProcessStopped( SipxProcess& impl ) const
    ChangeState( impl, impl.pFailed);
 }
 
+void SipxProcessFsm::evStopCompleted( SipxProcess& impl ) const
+{
+   OsSysLog::add(FAC_SUPERVISOR,PRI_WARNING,"'%s': Received unexpected event evStopCompleted while in state '%s'",
+         impl.name(), impl.GetCurrentState()->name() );   
+}
+
 void SipxProcessFsm::evConfigurationChanged( SipxProcess& impl ) const
 {
    OsSysLog::add(FAC_SUPERVISOR,PRI_WARNING,"'%s': Received unexpected event evConfigurationChanged while in state '%s'",
@@ -234,6 +240,12 @@ void Stopping::DoEntryAction( SipxProcess& impl ) const
 }
 
 void Stopping::evProcessStopped( SipxProcess& impl ) const
+{
+   OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG,"'%s: process stopped, now wait for stop script", impl.name());
+}
+
+
+void Stopping::evStopCompleted( SipxProcess& impl ) const
 {
    if (impl.isEnabled())
    {

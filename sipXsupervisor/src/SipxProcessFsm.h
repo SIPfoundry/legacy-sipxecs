@@ -58,6 +58,7 @@ public:
    virtual void evRetryTimeout( SipxProcess& impl ) const;
    virtual void evProcessStarted( SipxProcess& impl ) const;
    virtual void evProcessStopped( SipxProcess& impl ) const;
+   virtual void evStopCompleted( SipxProcess& impl ) const;
 
    
 protected:
@@ -155,6 +156,7 @@ public:
    // State machine events relevant for this state
    virtual void DoEntryAction( SipxProcess& impl ) const;
    virtual void evProcessStopped( SipxProcess& impl ) const;
+   virtual void evStopCompleted( SipxProcess& impl ) const;
 };
 
 
