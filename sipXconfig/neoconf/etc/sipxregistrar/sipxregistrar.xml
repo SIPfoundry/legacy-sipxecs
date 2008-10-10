@@ -35,7 +35,7 @@
       <pattern>[0-9*#]+</pattern>
     </string>
   </type>
-  <group name="domain">
+  <group name="domain" hidden="yes">
     <setting name="SIP_REGISTRAR_DOMAIN_ALIASES" hidden="yes">
       <value />
     </setting>
