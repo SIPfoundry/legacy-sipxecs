@@ -31,6 +31,7 @@ public interface SipxProcessModel {
         public static final ProcessName SBC_BRIDGE = new ProcessName("SipXbridge");
         public static final ProcessName FREESWITCH_SERVER = new ProcessName("FreeSWITCH");
         public static final ProcessName RELAY = new ProcessName("SipXrelay");
+        public static final ProcessName IVR = new ProcessName("sipXivr");
 
         private ProcessName(String name) {
             super(name);
