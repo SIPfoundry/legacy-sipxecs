@@ -16,7 +16,6 @@ Port    Component         Use
 
 5080    sipXbridge	  SIP sipXbridge public port
 5090    sipXbridge	  SIP sipXbridge local port
-8088    sipXbridge	  SIP sipXbridge XML RPC port
 
 5100    sipXvxml          SIP
 5101    sipXvxml          SIP/TLS
@@ -44,6 +43,10 @@ Port    Component         Use
 8080    FreeSWITCH        FreeSWITCH XML-RPC
 
 8084    sipXivr           event_socket interface
+
+8088    sipXbridge	  HTTP sipXbridge XML RPC port
+
+8089    sipXrelay	  HTTP sipXrelay XML RPC port
 
 8090    sipXconfig        HTTP 
 8091    sipXconfig        HTTPS
