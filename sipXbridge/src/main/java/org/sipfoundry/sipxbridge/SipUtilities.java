@@ -470,7 +470,14 @@ class SipUtilities {
                     fromAddress = ProtocolObjects.addressFactory.createAddress(fromUri);
                     fromHeader = ProtocolObjects.headerFactory.createFromHeader(fromAddress,
                             new Long(Math.abs(new java.util.Random().nextLong())).toString());
-
+                  
+                    
+                    String realFromUser = itspAccount.getUserName();
+                    fromUri = ProtocolObjects.addressFactory.createSipURI(realFromUser, domain);
+                    fromUri.removeParameter("user");
+                    paiHeader = ((HeaderFactoryExt) ProtocolObjects.headerFactory)
+                            .createPAssertedIdentityHeader(ProtocolObjects.addressFactory
+                                    .createAddress(fromUri));
                 } else if (itspAccount.useGlobalAddressForCallerId()) {
                     String domain = Gateway.getGlobalAddress();
                     SipURI fromUri = ProtocolObjects.addressFactory

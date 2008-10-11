@@ -14,6 +14,10 @@ Port    Component         Use
 5071    sipXregistrar     SIP/TLS
 5075    sipXregistrar     SIP registration event sending
 
+5080    sipXbridge	  SIP sipXbridge public port
+5090    sipXbridge	  SIP sipXbridge local port
+8088    sipXbridge	  SIP sipXbridge XML RPC port
+
 5100    sipXvxml          SIP
 5101    sipXvxml          SIP/TLS
 
