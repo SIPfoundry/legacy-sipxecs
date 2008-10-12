@@ -26,6 +26,7 @@
 #include "os/OsConfigDb.h"
 #include "os/OsSysLog.h"
 #include "utl/UtlRegex.h"
+#include "utl/UtlHashMapIterator.h"
 #include "sipXecsService/SipXecsService.h"
 #include "sipXecsService/SharedSecret.h"
 #include "SipRouter.h"
