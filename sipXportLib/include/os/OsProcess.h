@@ -68,7 +68,6 @@ public:
     friend class OsProcessIteratorLinux;
     friend class OsProcessIteratorHpux;
     friend class OsProcessIteratorFreeBSD;
-    friend class OsProcessMgr;
 
     enum OsProcessPriorityClass {
         IdlePriorityClass = 0,   
@@ -244,7 +243,6 @@ private:
 
 //now add this header.
 #include "os/OsProcessIterator.h"
-#include "os/OsProcessMgr.h"
 
 #endif  // _OsProcess_h_
 
