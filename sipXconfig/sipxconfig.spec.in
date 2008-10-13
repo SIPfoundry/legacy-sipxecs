@@ -270,6 +270,7 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) %{sipxpbxconf}/setting.dtd
 %config(noreplace) %{sipxpbxconf}/setting.xsl
 %config(noreplace) %{sipxpbxconf}/kphone/*
+%dir %{sipxpbxconf}/aastra
 %config(noreplace) %{sipxpbxconf}/aastra/*
 %config(noreplace) %{sipxpbxconf}/acme/*
 %config(noreplace) %{sipxpbxconf}/acmePhone/*
@@ -278,7 +279,9 @@ rm -rf $RPM_BUILD_ROOT
 %dir %{sipxpbxconf}/alarms
 %config(noreplace) %{sipxpbxconf}/alarms/*
 %config(noreplace) %{sipxpbxconf}/audiocodes/*
+%dir %{sipxpbxconf}/ciscoAta
 %config(noreplace) %{sipxpbxconf}/ciscoAta/*
+%dir %{sipxpbxconf}/ciscoIp
 %config(noreplace) %{sipxpbxconf}/ciscoIp/*
 %config(noreplace) %{sipxpbxconf}/ciscoplus/*
 %config(noreplace) %{sipxpbxconf}/clearone/*
@@ -303,7 +306,9 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) %{sipxpbxconf}/counterpath/*
 %config(noreplace) %{sipxpbxconf}/mitel/*
 %config(noreplace) %{sipxpbxconf}/nattraversal/*
+%dir %{sipxpbxconf}/nortel
 %config(noreplace) %{sipxpbxconf}/nortel/*
+%dir %{sipxpbxconf}/nt1535
 %config(noreplace) %{sipxpbxconf}/nt1535/*
 %config(noreplace) %{sipxpbxconf}/sipxbridge/*
 %config(noreplace) %{sipxpbxconf}/sipxconference/*
