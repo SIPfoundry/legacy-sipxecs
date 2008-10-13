@@ -46,6 +46,15 @@ public:
       InvalidParameter,       ///< missing parameter, extra parameter(s), or invalid type
    } FaultCode;
 
+   /// User requested states - used in RPC calls
+   typedef enum
+   {
+      USER_PROCESS_NONE = 0,
+      USER_PROCESS_START = 1,
+      USER_PROCESS_STOP = 2,
+      USER_PROCESS_RESTART = 3
+   } RequestedProcessState;
+
 protected:
 
    /// The maximum amount of time to block waiting for a single process to undergo a state change.
