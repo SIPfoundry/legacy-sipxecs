@@ -160,7 +160,7 @@ bool ProcMgmtRpcMethod::executeSetUserRequestState(const HttpRequestContext& req
                                                    void* userData,
                                                    XmlRpcResponse& response,
                                                    ExecutionStatus& status,
-                                                   const int request_state
+                                                   RequestedProcessState request_state
                                                    )
 {
    bool result = false;
@@ -214,19 +214,25 @@ bool ProcMgmtRpcMethod::executeSetUserRequestState(const HttpRequestContext& req
                      SipxProcess* process = processMgr->findProcess(*pAlias);
                      if ( process )
                      {
-                        if ( request_state == USER_PROCESS_START )
+                        switch (request_state)
                         {
+                        case USER_PROCESS_START:
                            process->enable();
-                        }
-                        else
-                        if ( request_state == USER_PROCESS_STOP )
-                        {
+                           break;
+                           
+                        case USER_PROCESS_STOP:
                            process->disable();
-                        }
-                        else
-                        if ( request_state == USER_PROCESS_RESTART )
-                        {
+                           break;
+                           
+                        case USER_PROCESS_RESTART:
                            process->restart();
+                           break;
+
+                        default:
+                           OsSysLog::add(FAC_SUPERVISOR, PRI_CRIT,
+                                         "ProcMgmtRpcMethod::executeSetUserRequestState"
+                                         "invalid request_state %u", request_state);
+                           result = false;
                         }
                      }
                      else

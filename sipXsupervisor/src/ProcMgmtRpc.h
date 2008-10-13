@@ -135,7 +135,7 @@ protected:
                                    void* userData,                           ///< user data
                                    XmlRpcResponse& response,                 ///< request response
                                    ExecutionStatus& status,                  ///< XML-RPC method execution status
-                                   const int request_state                   ///< the state to set
+                                   RequestedProcessState request_state       ///< the state to set
                                    );
    /**<
      Returns true on success, false otherwise.
