@@ -43,7 +43,6 @@
 #include "os/OsTask.h"
 #include "os/OsFS.h"
 #include "os/OsProcess.h"
-#include "os/OsProcessMgr.h"
 #include "os/OsStatus.h"
 
 // End of includes for test block
