@@ -6,7 +6,6 @@ pkgconfdir = @SIPX_CONFDIR@
 pbxconf_files = \
     WatchDog.xml \
     ProcessDefinitions.xml \
-    alarm-config.xml.in \
     resourcemap.xml \
     sipxsupervisor-config.in
 

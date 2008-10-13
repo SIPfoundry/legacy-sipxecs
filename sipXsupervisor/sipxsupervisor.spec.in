@@ -36,9 +36,9 @@ BuildRoot: %{_tmppath}/%name-%version-root
 %define this_archive %{name}-%{version}-%{release}.tgz
 
 %description
-The sipXecs project is a comprehansive small/medium scale Enterprise SIP PBX. 
+The sipXecs project is a comprehansive small/medium scale Enterprise SIP PBX.
 
-This component manages sipXecs processes and acts as the configuration agent 
+This component manages sipXecs processes and acts as the configuration agent
 for a remote management application.
 
 %if %{_vendor} == suse
@@ -49,7 +49,7 @@ for a remote management application.
 Requires: %name
 Group: Development/Libraries
 Vendor: SIPfoundry
-Summary: Internal documentation for %name 
+Summary: Internal documentation for %name
 Requires: sipxcommserverlib-devel >= 3.11
 
 %description devel
@@ -75,7 +75,7 @@ make DESTDIR=$RPM_BUILD_ROOT install
 
 %define upgrade_archive_root ${RPM_BUILD_ROOT}%{upgrade_archive_dir}
 mkdir -p %{upgrade_archive_root}
-# Make a 'current' tar file of etc for upgrade 
+# Make a 'current' tar file of etc for upgrade
 tar --directory ${RPM_BUILD_ROOT} \
     -czf %{upgrade_archive_root}/%{this_archive} \
     etc
@@ -97,7 +97,6 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) %attr(644,root,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx/WatchDog.xml
 %config(noreplace) %attr(644,root,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx/ProcessDefinitions.xml
 %config(noreplace) %attr(644,root,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx/resourcemap.xml
-%config(noreplace) %attr(644,root,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx/alarm-config.xml.in
 %config(noreplace) %attr(644,root,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx/alarms/sipXalarms-config.xml
 %config(noreplace) %attr(644,root,@SIPXPBXGROUP@) %{_datadir}/sipxecs/alarms/alarm-strings.xml
 %config(noreplace) %attr(644,root,@SIPXPBXGROUP@) %{_datadir}/sipxecs/alarms/sipXalarms-strings.xml
