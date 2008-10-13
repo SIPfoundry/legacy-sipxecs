@@ -64,10 +64,10 @@ public class SipxProcessContextImplTest extends TestCase {
 
         Map<String, String> result = new HashMap<String, String>();
         result.put(ProcessName.REGISTRAR.getName(), "Starting");
-        result.put(ProcessName.MEDIA_SERVER.getName(), "Started");
-        result.put(ProcessName.PRESENCE_SERVER.getName(), "Stopped");
+        result.put(ProcessName.MEDIA_SERVER.getName(), "Running");
+        result.put(ProcessName.PRESENCE_SERVER.getName(), "Disabled");
         result.put(ProcessName.PROXY.getName(), "Failed");
-        result.put(ProcessName.ACD_SERVER.getName(), "Unknown");
+        result.put(ProcessName.ACD_SERVER.getName(), "Undefined");
 
         ProcessManagerApi api = createMock(ProcessManagerApi.class);
         api.getStateAll("localhost");
@@ -85,7 +85,7 @@ public class SipxProcessContextImplTest extends TestCase {
         assertEquals(result.size(), resultServiceStatus.length);
         for (ServiceStatus serviceStatus : resultServiceStatus) {
             String expected = result.get(serviceStatus.getServiceName());
-            assertEquals(expected, serviceStatus.getStatus().getName());
+            assertEquals(expected, serviceStatus.getStatus().toString());
         }
         verify(provider, api);
     }
@@ -123,7 +123,7 @@ public class SipxProcessContextImplTest extends TestCase {
                 fail("Expected service not in result list");
             }
             String expectedStatus = expectedServices.get(serviceStatus.getServiceName());
-            assertEquals(expectedStatus, serviceStatus.getStatus().getName());
+            assertEquals(expectedStatus, serviceStatus.getStatus().toString());
         }
         
         verify(provider, api);

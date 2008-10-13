@@ -102,9 +102,9 @@ public class SipxProcessContextImpl implements SipxProcessContext, ApplicationLi
             }
 
             String status = entry.getValue();
-            ServiceStatus.Status st = ServiceStatus.Status.getEnum(status);
+            ServiceStatus.Status st = ServiceStatus.Status.valueOf(status);
             if (st == null) {
-                st = ServiceStatus.Status.UNKNOWN;
+                st = ServiceStatus.Status.Undefined;
             }
 
             Process process = m_processModel.getProcess(name);

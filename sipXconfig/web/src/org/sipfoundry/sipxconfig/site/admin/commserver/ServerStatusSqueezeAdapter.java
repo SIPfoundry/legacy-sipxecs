@@ -23,6 +23,6 @@ public class ServerStatusSqueezeAdapter implements IPrimaryKeyConverter {
 
     public Object getValue(Object primaryKey) {
         Process process = new Process((String) primaryKey);
-        return new ServiceStatus(process, Status.UNKNOWN);
+        return new ServiceStatus(process, Status.Undefined);
     }
 }

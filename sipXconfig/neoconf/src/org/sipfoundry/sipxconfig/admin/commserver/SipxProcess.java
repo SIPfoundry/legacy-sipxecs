@@ -41,7 +41,7 @@ public class SipxProcess {
             servStatus = m_sipxProcessContext.getStatus(location, false);
             for (ServiceStatus status : servStatus) {
                 if (status.getServiceName().equals(name)) {
-                    enabled |= status.getStatus().equals(Status.STARTED);
+                    enabled |= status.getStatus().equals(Status.Running);
                 }
             }
         }

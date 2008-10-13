@@ -33,9 +33,9 @@ public class SipxProcessTest extends TestCase {
                 location
         };
         
-        ServiceStatus servStatus1 = new ServiceStatus(new Process(ProcessName.ACD_SERVER), ServiceStatus.Status.STARTED);
+        ServiceStatus servStatus1 = new ServiceStatus(new Process(ProcessName.ACD_SERVER), ServiceStatus.Status.Running);
         ServiceStatus servStatus2 = new ServiceStatus(new Process(ProcessName.PRESENCE_SERVER),
-                ServiceStatus.Status.STOPPED);
+                ServiceStatus.Status.Disabled);
         ServiceStatus[] serviceStatusList = new ServiceStatus[] {
             servStatus1, servStatus2
         };

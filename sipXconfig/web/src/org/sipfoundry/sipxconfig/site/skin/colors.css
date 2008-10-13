@@ -330,3 +330,13 @@ div.autocomplete ul strong.highlight {
     background: #E0D2C8;
     color: #000000;
 }
+
+.service-disabled {
+    font-style: italic;
+    color: #A8A8A8;
+}
+
+.service-error {
+    font-weight: bold;
+    color: #CC3333; 
+}
