@@ -23,19 +23,12 @@
       itemDisplayName="message:label.email"
       validators="spring-validators:required>"
       source="ognl:alarmServer.contacts.addresses"/>
-    <ul jwcid="formActions@common/FormActions" listener="listener:activate"/>
 	<fieldset jwcid="@If" condition="ognl:advanced">
 	  <legend><span key="label.alarms"/></legend>
       <div jwcid="@admin/AlarmTypes" validator="bean:validator"
            selections="ognl:selections" 
            alarms="ognl:alarms"/>
-	  <ul class="component-submit">
-        <li>
-	      <input jwcid="enableEmail@Submit" id="alarms:enableEmail"
-		         value="message:button.enableEmail"
-                 listener="listener:emailNotification" />
-        </li>
-      </ul>           
     </fieldset>
+    <ul jwcid="formActions@common/FormActions" listener="listener:activate"/>
   </form>
 </div>

@@ -146,11 +146,14 @@ public class AlarmContextImpl extends SipxHibernateDaoSupport implements AlarmCo
         }
     }
     
-    public void deployAlarmServer(AlarmServer server) {
-        // save configuration
+    public void deployAlarmConfiguration(AlarmServer server, List<Alarm> alarms) {
+        // save alarm server configuration
         saveAlarmServer(server);
-        // replicate new configuration
+        // replicate new alarm server configuration
         replicateAlarmServer();
+        // replicate new alarm types configuration
+        replicateAlarmsConfiguration(alarms);
+
         Process service = m_processContext.getProcess(SipxProcessModel.ProcessName.PROXY);
         m_processContext.restartOnEvent(Arrays.asList(service), AlarmServerActivatedEvent.class);
     }
@@ -197,18 +200,6 @@ public class AlarmContextImpl extends SipxHibernateDaoSupport implements AlarmCo
                 m_alarmServerConfiguration));
     }
 
-    public void deployAlarmTypes(List<Alarm> alarms, List<Alarm> selectedAlarm) {
-        for (Alarm alarm : alarms) {
-            if (selectedAlarm.contains(alarm)) {
-                alarm.setEmailEnabled(true);
-            } else {
-                alarm.setEmailEnabled(false);
-            }
-        }
-        // write new configuration        
-        replicateAlarmsConfiguration(alarms);
-    }    
-    
     private void replicateAlarmsConfiguration(List<Alarm> alarms) {
         m_alarmsConfiguration.generate(alarms);
         m_replicationContext.replicate(m_alarmsConfiguration);

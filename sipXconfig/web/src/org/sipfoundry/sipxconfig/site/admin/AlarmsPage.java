@@ -9,8 +9,6 @@
  */
 package org.sipfoundry.sipxconfig.site.admin;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 import org.apache.tapestry.annotations.Bean;
@@ -91,16 +89,6 @@ public abstract class AlarmsPage extends BasePage implements PageBeginRenderList
             return;
         }
 
-        getAlarmContext().deployAlarmServer(getAlarmServer());
-    }
-
-    public void emailNotification() {
-        List<Alarm> selectedAlarm = new ArrayList<Alarm>();
-        Collection<Alarm> selections = getSelections().getAllSelected();
-        for (Alarm selection : selections) {
-            selectedAlarm.add(selection);
-        }
-
-        getAlarmContext().deployAlarmTypes(getAlarms(), selectedAlarm);
+        getAlarmContext().deployAlarmConfiguration(getAlarmServer(), getAlarms());
     }
 }

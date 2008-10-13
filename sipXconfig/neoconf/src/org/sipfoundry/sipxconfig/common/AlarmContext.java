@@ -36,15 +36,13 @@ public interface AlarmContext {
 
     public List<Alarm> getAlarmTypes(String configPath, String stringPath);
 
-    public void deployAlarmServer(AlarmServer alarmServer);   
-
-    public void deployAlarmTypes(List<Alarm> alarms, List<Alarm> selectedAlarm);
+    public void deployAlarmConfiguration(AlarmServer alarmServer, List<Alarm> alarms);
 
     public void replicateAlarmServer();
 
     public String getSipxUser();
-    
+
     public String getConfigDirectory();
-    
+
     public String getAlarmsStringsDirectory();
 }
