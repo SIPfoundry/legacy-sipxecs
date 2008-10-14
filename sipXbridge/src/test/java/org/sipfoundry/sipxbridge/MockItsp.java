@@ -128,8 +128,7 @@ public class MockItsp implements SipListener {
 
             sipStack = ProtocolObjects.sipFactory
                     .createSipStack(stackProperties);
-            ((SipStackImpl) sipStack)
-                    .setAddressResolver(new ProxyAddressResolver());
+           
 
             accountManager = Gateway.getAccountManager();
             SipFoundryAppender sfa = new SipFoundryAppender();
