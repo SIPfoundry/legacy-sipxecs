@@ -13,10 +13,10 @@
 #macro(emit_parameter_table $s)
 #set($backslash = '\')
 [$s.profileName]
-FORMAT#foreach ($name in $s.settingNames)#if ($velocityCount > 1),#end ${s.profileName}_$name#end;
+FORMAT ${s.profileName}_Index =#foreach ($name in $s.settingNames)#if ($velocityCount > 1),#end ${s.profileName}_$name#end;
 #foreach ($row in [1..$s.size])
 #set ($settingIndex = $velocityCount - 1)
-$s.profileName $row=#foreach ($name in $s.settingNames)#if ($velocityCount > 1), #end$s.getSetting($settingIndex, $name).value#end;
+$s.profileName $settingIndex=#foreach ($name in $s.settingNames)#if ($velocityCount > 1), #end$s.getSetting($settingIndex, $name).value#end;
 #end
 [${backslash}${s.profileName}]
 #end
@@ -33,6 +33,14 @@ $s.profileName $row=#foreach ($name in $s.settingNames)#if ($velocityCount > 1),
 #elseif($s.Leaf)
 #if(${s.Value})
 ${s.ProfileName}=$!{s.Value}
+#if($s.ProfileName == "DHCPEnable")
+## Special handling for this parameter - inverse of the DHCPEnable setting
+#if ($s.Value == 0)
+BootPSelectiveEnable=1
+#else
+BootPSelectiveEnable=0
+#end
+#end
 #end
 #else
 
