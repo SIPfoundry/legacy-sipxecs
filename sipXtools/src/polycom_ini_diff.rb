@@ -50,10 +50,10 @@ def do_hash_diff(hash_1, hash_2)
    end
 
    puts ""
-   puts "Identical: #{num_same_lines}"
-   puts "Different: #{num_diff_lines}"
-   puts "Only in 1: #{new_hash_1.size}"
-   puts "Only in 2: #{hash_2.size}"
+   puts "   Identical                 : #{num_same_lines}"
+   puts "   D total (different values): #{num_diff_lines}"
+   puts "   1 total (only on 1)       : #{new_hash_1.size}"
+   puts "   2 total (only in 2)       : #{hash_2.size}"
 
 end
 

@@ -23,7 +23,9 @@ require 'uri'
 
 include REXML
 
-META_PREFIX="meta."
+MAJOR_DELIMITOR="-"
+
+META_PREFIX="meta#{MAJOR_DELIMITOR}"
 META_COUNT_PREFIX="#{META_PREFIX}count."
 META_NumberOfXmlAttributes = "XmlAttributes"
 META_NumberOfOverrideAttempts = "OverrideAttempts"
@@ -70,7 +72,7 @@ end
 def add_config_from_attributes(config_hash, prefix, attributes)
    attributes.each_attribute do |attribute|
       increment_count_meta(config_hash, "#{META_NumberOfXmlAttributes}")
-      key = "#{prefix}-#{attribute.name}"
+      key = "#{prefix}#{MAJOR_DELIMITOR}#{attribute.name}"
       if nil != config_hash[key]
          # We've already recorded a value for this parameter, so this is an override attempt.
          increment_count_meta(config_hash, "#{META_NumberOfOverrideAttempts}")
