@@ -8,6 +8,7 @@ package org.sipfoundry.sipxbridge.symmitron;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.HashMap;
@@ -98,7 +99,7 @@ public class SymmitronServer implements Symmitron {
      * 
      * @throws GatewayConfigurationException
      */
-    static void discoverAddress()  {
+    static void discoverAddress() throws Exception {
         try {
 
             String stunServerAddress = symmitronConfig.getStunServerAddress();
@@ -122,7 +123,7 @@ public class SymmitronServer implements Symmitron {
 
                 addressDiscovery.start();
                 StunDiscoveryReport report = addressDiscovery.determineAddress();
-                if ( report == null ) {
+                if (report == null) {
                     logger.error("No stun report - could not do address discovery");
                     return;
                 }
@@ -134,14 +135,16 @@ public class SymmitronServer implements Symmitron {
 
             }
         } catch (Exception ex) {
+
             logger.error("Error discovering  address -- could be networking is bad", ex);
-        } 
+            throw ex;
+        }
     }
 
     private Map<String, Object> createErrorMap(int errorCode, String reason) {
         Map<String, Object> retval = new HashMap<String, Object>();
         retval.put(STATUS_CODE, ERROR);
-        retval.put(ERROR_CODE,  new Integer(errorCode).toString());
+        retval.put(ERROR_CODE, new Integer(errorCode).toString());
         retval.put(ERROR_INFO, reason);
 
         retval.put(INSTANCE_HANDLE, myHandle);
@@ -206,10 +209,10 @@ public class SymmitronServer implements Symmitron {
         if (logFileName != null) {
             String dirName = symmitronConfig.getLogFileDirectory() + "/sipxrelay.log";
             Logger logger = Logger.getLogger(SymmitronServer.class.getPackage().getName());
-            
-            SipFoundryAppender sfa = new SipFoundryAppender(new SipFoundryLayout(),dirName);
+
+            SipFoundryAppender sfa = new SipFoundryAppender(new SipFoundryLayout(), dirName);
             logger.addAppender(sfa);
-            
+
             logger.setLevel(Level.toLevel(symmitronConfig.getLogLevel()));
         }
         portRangeManager = new PortRangeManager(symmitronConfig.getPortRangeLowerBound(),
@@ -247,7 +250,7 @@ public class SymmitronServer implements Symmitron {
      * The RPC handler for sipxbridge.
      */
     public SymmitronServer() {
-        
+
         logger.debug("creating SymmitronServer");
 
     }
@@ -281,7 +284,6 @@ public class SymmitronServer implements Symmitron {
         }
 
         timer.purge();
-    
 
         status = "STOPPED";
         return status;
@@ -652,7 +654,7 @@ public class SymmitronServer implements Symmitron {
             return createErrorMap(PROCESSING_ERROR, ex.getMessage());
         }
     }
-    
+
     public Map<String, Object> resumeBridge(String controllerHandle, String bridgeId) {
         try {
             this.checkForControllerReboot(controllerHandle);
@@ -689,7 +691,6 @@ public class SymmitronServer implements Symmitron {
         }
     }
 
-    
     public Map<String, Object> getSymStatistics(String controllerHandle, String symId) {
         try {
             Sym sym = sessionMap.get(symId);
@@ -697,12 +698,12 @@ public class SymmitronServer implements Symmitron {
                 return this.createErrorMap(SESSION_NOT_FOUND, "Specified sym was not found "
                         + symId);
             }
-          
-           Map<String,Object> stats = sym.getStats();
 
-           Map<String,Object> retval = this.createSuccessMap();
-           retval.putAll(stats);
-           return retval;
+            Map<String, Object> stats = sym.getStats();
+
+            Map<String, Object> retval = this.createSuccessMap();
+            retval.putAll(stats);
+            return retval;
         } catch (Throwable ex) {
             logger.error("Processing Error", ex);
             return createErrorMap(PROCESSING_ERROR, ex.getMessage());
@@ -712,25 +713,26 @@ public class SymmitronServer implements Symmitron {
     public Map<String, Object> getBridgeStatistics(String controllerHandle, String bridgeId) {
         try {
             this.checkForControllerReboot(controllerHandle);
-            
-            logger.debug("getBridgeStatistics : " + controllerHandle 
-                    + " bridgeId " + bridgeId);
-            
+
+            logger.debug("getBridgeStatistics : " + controllerHandle + " bridgeId " + bridgeId);
+
             Bridge bridge = bridgeMap.get(bridgeId);
             if (bridge == null) {
                 return this.createErrorMap(SESSION_NOT_FOUND, "Specified bridge was not found "
                         + bridgeId);
             }
-            Map<String,Object> retval = this.createSuccessMap();
+            Map<String, Object> retval = this.createSuccessMap();
             retval.put(Symmitron.BRIDGE_STATE, bridge.getState().toString());
             retval.put(Symmitron.CREATION_TIME, new Long(bridge.getCreationTime()).toString());
-            retval.put(Symmitron.LAST_PACKET_RECEIVED, new Long(bridge.getLastPacketTime()).toString());
-            retval.put(Symmitron.CURRENT_TIME_OF_DAY, new Long(System.currentTimeMillis()).toString());
+            retval.put(Symmitron.LAST_PACKET_RECEIVED, new Long(bridge.getLastPacketTime())
+                    .toString());
+            retval.put(Symmitron.CURRENT_TIME_OF_DAY, new Long(System.currentTimeMillis())
+                    .toString());
             retval.put(Symmitron.PACKETS_RECEIVED, new Long(bridge.pakcetsReceived).toString());
             retval.put(Symmitron.PACKETS_SENT, new Long(bridge.packetsSent).toString());
             Map[] symStats = new Map[bridge.getSyms().size()];
             int i = 0;
-            for ( Sym sym : bridge.getSyms() ) {
+            for (Sym sym : bridge.getSyms()) {
                 symStats[i++] = sym.getStats();
             }
             retval.put(Symmitron.SYM_SESSION_STATS, symStats);
@@ -888,39 +890,104 @@ public class SymmitronServer implements Symmitron {
             String configDir = System.getProperty("conf.dir", "/etc/sipxpbx");
             String installRoot = configDir.substring(0, configDir.indexOf("/etc/sipxpbx"));
             String configurationFile = configDir + "/nattraversalrules.xml";
+            String command = System.getProperty("sipxrelay.command", "start");
+            
+            System.out.println("command " + command);
 
-            // Wait for the configuration file to become available.
-            while (!new File(configurationFile).exists()) {
-                Thread.sleep(5 * 1000);
-            }
-            SymmitronConfig config = new SymmitronConfigParser().parse("file:"
-                    + configurationFile);
-            if (config.getLogFileDirectory() == null) {
-                config.setLogFileDirectory(installRoot + "/var/log/sipxpbx");
-            }
-            config.setLogFileName("sipxrelay.log");
-            SymmitronServer.setSymmitronConfig(config);
-            if (config.getPublicAddress() == null && config.getStunServerAddress() != null) {
-                timer.schedule(new TimerTask() {
-
-                    @Override
-                    public void run() {
+            if (command.equals("configtest")) {
+                try {
+                    
+                    if (!new File(configurationFile).exists()) {
+                        System.exit(-1);
+                    }
+                    SymmitronConfig config = new SymmitronConfigParser().parse("file:"
+                            + configurationFile);
+                    SymmitronServer.setSymmitronConfig(config);
+                    if (config.getLogFileDirectory() == null) {
+                        config.setLogFileDirectory(installRoot + "/var/log/sipxpbx");
+                    }
+                    config.setLogFileName("sipxrelay.log");
+                 
+                    logger.debug("sipxrelay: configtest");
+                    if (config.getPublicAddress() == null && config.getStunServerAddress() != null) {
+                        /*
+                         * Try an address discovery. If it did not work, then exit. This deals with
+                         * accidental mis-configurations of the STUN server address.
+                         */
                         discoverAddress();
+                    }
+                    logger.debug("sipxrelay:configtest: discoverAddress test passed");
+                    if (SymmitronServer.getPublicInetAddress() == null ) {
+                        logger.error("Could not find public address of sipxrelay");
+                        System.exit(-1);
+                    }
+                    /* See if each port in the range of ports is free for us to use */
+                  /*
+                   * This  may take a while to run.
+                   *  InetAddress localAddr = InetAddress.getByName(config.getLocalAddress());
+                   * for ( int i = config.getPortRangeLowerBound(); 
+                   *     i < config.getPortRangeUpperBound(); i++) {
+                   *     DatagramSocket sock = new DatagramSocket(i,localAddr   );
+                   *     sock.close();
+                   * }
+                   */
+                    logger.debug("siprelay:configtest: port range test passed");
+                    SymmitronServer.startWebServer();
+                    SymmitronServer.stopXmlRpcServer();
+                    logger.debug("sipxrelay: configtest:    start stop xml rpc server passed");
+                    System.exit(0);
+                } catch (Exception ex) {
+                    logger.fatal("Exception occured while checking configuration"
+                            + " -- exitting", ex);
+                    ex.printStackTrace();
+                    System.exit(-1);
+                }
+            } else if ( command.equals("start")){
+                // Wait for the configuration file to become available.
+                while (!new File(configurationFile).exists()) {
+                    Thread.sleep(5 * 1000);
+                }
+                SymmitronConfig config = new SymmitronConfigParser().parse("file:"
+                        + configurationFile);
+                if (config.getLogFileDirectory() == null) {
+                    config.setLogFileDirectory(installRoot + "/var/log/sipxpbx");
+                }
+                config.setLogFileName("sipxrelay.log");
+                SymmitronServer.setSymmitronConfig(config);
+
+                if (config.getPublicAddress() == null && config.getStunServerAddress() != null) {
+                    /*
+                     * Try an address discovery. If it did not work, then exit. This deals with
+                     * accidental mis-configurations of the STUN server address.
+                     */
+                    discoverAddress();
+                    timer.schedule(new TimerTask() {
+
+                        @Override
+                        public void run() {
+                            try {
+                                discoverAddress();
+                            } catch (Exception ex) {
+                                logger.error("Error discovering address - stun server down?");
+                            }
+
+                        }
+
+                    }, config.getRediscoveryTime() * 1000, config.getRediscoveryTime() * 1000);
+                }
+
+                Runtime.getRuntime().addShutdownHook(new Thread() {
+                    public void run() {
+
+                        logger.fatal("RECEIVED SHUTDOWN SIGNAL");
 
                     }
+                });
 
-                }, 0, config.getRediscoveryTime() * 1000);
+                SymmitronServer.startWebServer();
+            } else {
+                System.err.println("unknown start option " + command );
             }
-
-            Runtime.getRuntime().addShutdownHook(new Thread() {
-                public void run() {
-
-                    logger.fatal("RECEIVED SHUTDOWN SIGNAL");
-
-                }
-            });
-
-            SymmitronServer.startWebServer();
 
         } catch (Throwable th) {
             logger.fatal("Exitting main! ", th);

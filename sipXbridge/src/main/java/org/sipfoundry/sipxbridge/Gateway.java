@@ -24,10 +24,8 @@ import javax.sip.ClientTransaction;
 import javax.sip.Dialog;
 import javax.sip.DialogState;
 import javax.sip.ListeningPoint;
-import javax.sip.SipException;
 import javax.sip.SipProvider;
 import javax.sip.address.Address;
-import javax.sip.address.Hop;
 import javax.sip.address.SipURI;
 import javax.sip.message.Request;
 
@@ -49,7 +47,6 @@ import org.sipfoundry.sipxbridge.xmlrpc.SipXbridgeXmlRpcServer;
 import org.xbill.DNS.Lookup;
 import org.xbill.DNS.Record;
 import org.xbill.DNS.SRVRecord;
-import org.xbill.DNS.TextParseException;
 import org.xbill.DNS.Type;
 
 /**
@@ -102,19 +99,9 @@ public class Gateway {
     private static CallControlManager callControlManager;
 
     /*
-     * The Sipx proxy port.
-     */
-    private static int sipxProxyPort = 5060;
-
-    /*
-     * The sipx proxy address
-     */
-    private static String sipxProxyAddress;
-
-    /*
      * The SIPX proxy transport.
      */
-    private static String sipxProxyTransport = "UDP";
+    private static String sipxProxyTransport = "tcp";
 
     /*
      * This is a placeholder - to be replaced by STUN
@@ -142,11 +129,6 @@ public class Gateway {
     private static Address gatewayFromAddress;
 
     /*
-     * The MOH URL
-     */
-    private static SipURI musicOnHoldUri;
-
-    /*
      * THe Webserver for the xml rpc interface.
      */
     private static WebServer webServer;
@@ -161,7 +143,20 @@ public class Gateway {
      */
     private static final int MAX_REGISTRATION_TIMER = 10000;
 
+    /*
+     * The rediscovery timer for determining the sipx proxy addresses. Every 30 seconds, look up
+     * the proxy addresses.
+     */
+    private static final int REDISCOVERY_TIMER = 30 * 1000;
+
+    /*
+     * Default transport to talk to ITSP
+     */
     protected static final String DEFAULT_ITSP_TRANSPORT = "udp";
+
+    /*
+     * set to true to enable tls (untested).
+     */
 
     private static boolean isTlsSupportEnabled = false;
 
@@ -337,20 +332,19 @@ public class Gateway {
             Record[] records = new Lookup("_sip._" + getSipxProxyTransport() + "."
                     + getSipxProxyDomain(), Type.SRV).run();
 
+            /* repopulate the proxy address table in case of reconfiguration */
+            Gateway.proxyAddressTable.clear();
             if (records == null) {
                 logger.debug("SRV record lookup returned null");
-                Gateway.sipxProxyAddress = getSipxProxyDomain();
-
+                String sipxProxyAddress = getSipxProxyDomain();
                 Gateway.proxyAddressTable.add(InetAddress.getByName(sipxProxyAddress)
                         .getHostAddress());
             } else {
                 for (Record rec : records) {
                     SRVRecord record = (SRVRecord) rec;
-                    int port = record.getPort();
                     String resolvedName = record.getTarget().toString();
                     // Sometimes the DNS (on linux) appends a "." to the end of the
-                    // record.
-                    // The library ought to strip this.
+                    // record. The library ought to strip this.
                     if (resolvedName.endsWith(".")) {
                         resolvedName = resolvedName.substring(0, resolvedName.lastIndexOf('.'));
                     }
@@ -362,12 +356,16 @@ public class Gateway {
 
             logger.debug("proxy address table = " + proxyAddressTable);
         } catch (Exception ex) {
-            throw new GatewayConfigurationException("Cannot do address lookup ", ex);
+            logger.error("Cannot do address lookup ", ex);
+            throw new GatewayConfigurationException("Could not do dns lookup for "
+                    + getSipxProxyDomain(), ex);
         }
     }
 
     static boolean isAddressFromProxy(String address) {
+
         return proxyAddressTable.contains(address);
+
     }
 
     /**
@@ -431,12 +429,6 @@ public class Gateway {
 
             callControlManager = new CallControlManager();
 
-            Hop hop = getSipxProxyHop();
-            if (hop == null) {
-                System.err.println("Cannot resolve sipx proxy address check config ");
-            }
-            System.out.println("Proxy assumed to be running at 	" + hop);
-
         } catch (Throwable ex) {
             ex.printStackTrace();
             logger.error("Cannot initialize gateway", ex);
@@ -491,69 +483,6 @@ public class Gateway {
     }
 
     /**
-     * @return the sipxProxyAddress
-     */
-    static HopImpl getSipxProxyHop() {
-        try {
-            /*
-             * No caching of results here as the failover mechanism depends upon DNS.
-             */
-            if (logger.isDebugEnabled())
-                logger.debug("getSipxProxyHop() : Looking up the following address " + "_sip._"
-                        + getSipxProxyTransport() + "." + getSipxProxyDomain());
-
-            Record[] records = new Lookup("_sip._" + getSipxProxyTransport() + "."
-                    + getSipxProxyDomain(), Type.SRV).run();
-            if (records == null) {
-                logger.debug("SRV record lookup returned null");
-                Gateway.sipxProxyAddress = getSipxProxyDomain();
-                // Could not look up the SRV record. Try the A record.
-                return new HopImpl(getSipxProxyDomain(), getSipxProxyPort(),
-                        getSipxProxyTransport());
-
-            } else {
-                SRVRecord record = (SRVRecord) records[0];
-
-                int port = record.getPort();
-                String resolvedName = record.getTarget().toString();
-                // Sometimes the DNS (on linux) appends a "." to the end of the
-                // record.
-                // The library ought to strip this.
-                if (resolvedName.endsWith(".")) {
-                    resolvedName = resolvedName.substring(0, resolvedName.lastIndexOf('.'));
-                }
-                Gateway.sipxProxyAddress = resolvedName;
-                Gateway.sipxProxyPort = port;
-                return new HopImpl(resolvedName, port, getSipxProxyTransport());
-            }
-
-        } catch (Exception ex) {
-            logger.error("Problem looking up proxy address", ex);
-            return null;
-        }
-
-    }
-
-    /**
-     * Get the sipx proxy address from the domain. This is determined by using the DNS query
-     * above.
-     * 
-     * @return the sipx proxy address ( determined from DNS)
-     */
-    static String getSipxProxyAddress() {
-        return sipxProxyAddress;
-    }
-
-    /**
-     * Get the sipx proxy port from the domain. This is determined by using the DNS query above.
-     * 
-     * @return the sipx proxy domain.
-     */
-    static int getSipxProxyPort() {
-        return sipxProxyPort;
-    }
-
-    /**
      * The transport to use to talk to sipx proxy. This is registered in the DNS srv.
      * 
      * @return the proxy transport
@@ -605,7 +534,7 @@ public class Gateway {
             return accountManager.getBridgeConfiguration().getMusicOnHoldName() == null ? null
                     : ProtocolObjects.addressFactory.createSipURI(accountManager
                             .getBridgeConfiguration().getMusicOnHoldName(), Gateway
-                            .getSipxProxyAddress());
+                            .getSipxProxyDomain());
         } catch (Exception ex) {
             logger.error("Unexpected exception creating Music On Hold URI", ex);
             throw new RuntimeException("Unexpected exception", ex);
@@ -784,15 +713,37 @@ public class Gateway {
             }
         }
 
+        /*
+         * Initialize the JAIN-SIP listening points.
+         */
         initializeSipListeningPoints();
+
+        /*
+         * Lookup the proxy addresses and keep them cached. Note that this is done just once.
+         * sipxbridge will need to be restarted if the DNS records are re-configured. We relup
+         * upon sipxsupervisor restarting sipxbridge when dns addresses are reconfigured.
+         */
 
         getSipxProxyAddresses();
 
+        /*
+         * Start up the STUN address discovery.
+         */
         startAddressDiscovery();
 
+        /*
+         * Register the sip listener with the provider.
+         */
         startSipListener();
-        // Can start sending outbound calls.
+
+        /*
+         * Can start sending outbound calls. Cannot yet gake inbound calls.
+         */
         Gateway.state = GatewayState.INITIALIZED;
+
+        /*
+         * Register with ITSPs. Now we can take inbound calls
+         */
         registerWithItsp();
 
     }
@@ -1044,14 +995,16 @@ public class Gateway {
                     Thread.sleep(5 * 1000);
                 }
                 Gateway.parseConfigurationFile();
-               
+
                 Gateway.start();
-              
-                
+
                 startXmlRpcServer();
 
             } else if (command.equals("configtest")) {
                 try {
+                    if ( !new File(Gateway.configurationFile).exists()) {
+                        System.exit(-1);
+                    }
                     Gateway.parseConfigurationFile();
                     BridgeConfiguration configuration = Gateway.accountManager
                             .getBridgeConfiguration();
@@ -1066,14 +1019,16 @@ public class Gateway {
                         logger.error("Configuration error -- no global address or stun server");
                         System.exit(-1);
                     }
-                    if ( Gateway.accountManager.getBridgeConfiguration().getExternalAddress()
-                            .equals(Gateway.accountManager.getBridgeConfiguration().getLocalAddress()) &&
-                            Gateway.accountManager.getBridgeConfiguration().getExternalPort() == 
-                                Gateway.accountManager.getBridgeConfiguration().getLocalPort()   ) {
-                        logger.error("Configuration error -- external address == internal address && external port == internal port");
+                    if (Gateway.accountManager.getBridgeConfiguration().getExternalAddress()
+                            .equals(
+                                    Gateway.accountManager.getBridgeConfiguration()
+                                            .getLocalAddress())
+                            && Gateway.accountManager.getBridgeConfiguration().getExternalPort() == Gateway.accountManager
+                                    .getBridgeConfiguration().getLocalPort()) {
+                        logger
+                                .error("Configuration error -- external address == internal address && external port == internal port");
                         System.exit(-1);
                     }
-                    
 
                     // TODO -- check for availability of the ports.
 

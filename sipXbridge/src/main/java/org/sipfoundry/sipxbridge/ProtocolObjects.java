@@ -61,12 +61,12 @@ public class ProtocolObjects {
                     SipFoundryLogRecordFactory.class.getName());
             
             
-            stackProperties.setProperty("javax.sip.ROUTER_PATH", ProxyRouter.class.getName());
+            stackProperties.setProperty("javax.sip.ROUTER_PATH",org.sipfoundry.commons.siprouter.ProxyRouter.class.getName() );
             
             sipStack = ProtocolObjects.sipFactory
                     .createSipStack(stackProperties);
-           ((SipStackImpl) sipStack)
-                 .setAddressResolver(new ProxyAddressResolver());
+           //((SipStackImpl) sipStack)
+           //      .setAddressResolver(new ProxyAddressResolver());
             
             
           

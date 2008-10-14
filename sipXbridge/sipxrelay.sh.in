@@ -34,15 +34,16 @@ CONFIG_FILES="\
 
 . @SIPX_LIBEXECDIR@/sipx-utils.sh
 
+JavaCmd=`@SIPX_BINDIR@/sipx-config --java`
+LibPath=`perl -e 'print join(":", @ARGV);' @SIPX_JAVADIR@/sipXbridge/*.jar @SIPX_JAVADIR@/sipXcommons/*.jar`
+ClassPath=$LibPath
+
 case ${Action} in
    RUN)
      echo $$ > @SIPX_RUNDIR@/sipxrelay.pid
 
-     JavaCmd=`@SIPX_BINDIR@/sipx-config --java`
-     LibPath=`perl -e 'print join(":", @ARGV);' @SIPX_JAVADIR@/sipXbridge/*.jar @SIPX_JAVADIR@/sipXcommons/*.jar`
-     ClassPath=$LibPath
      exec $JavaCmd -Dconf.dir=@SIPX_CONFDIR@  \
-	 -Dsipxrelay.command=$Args \
+	 -Dsipxrelay.command=start \
          -cp $ClassPath org.sipfoundry.sipxbridge.symmitron.SymmitronServer \
          $Args
      ;;
@@ -61,8 +62,12 @@ case ${Action} in
 	 echo "Log file '$logfile' exists but is not writable by user '@SIPXPBXUSER@'." >&2
 	 Status=1
      fi
-
+     exec $JavaCmd -Dconf.dir=@SIPX_CONFDIR@   \
+	 -Dsipxrelay.command=configtest \
+         -cp $ClassPath org.sipfoundry.sipxbridge.symmitron.SymmitronServer \
+         $Args
      ;;
+
 esac
 
 exit $Status
