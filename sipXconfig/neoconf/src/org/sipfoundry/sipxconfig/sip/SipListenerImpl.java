@@ -86,6 +86,8 @@ class SipListenerImpl implements SipListener {
                     .getApplicationData();
             if (tad != null) {
                 tad.response(responseEvent);
+            } else {
+                LOG.debug("transaction application data is null!");
             }
         } catch (Exception ex) {
             LOG.error("Error occured processing response", ex);

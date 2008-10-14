@@ -79,7 +79,7 @@ class TransactionApplicationData {
             LOG.debug("method = " + method);
             LOG.debug("Operator = " + m_operator);
             if (response.getStatusCode() == Response.PROXY_AUTHENTICATION_REQUIRED) {
-                if (m_counter == 1) {
+                if (m_counter == 1) {               
                     m_helper.tearDownDialog(dialog);
                     return;
                 }
@@ -89,11 +89,9 @@ class TransactionApplicationData {
                     ctx.setApplicationData(this);
                     if (dialog.getState() == DialogState.CONFIRMED) {
                         dialog.sendRequest(ctx);
-                    } else if (dialog.getState() != DialogState.TERMINATED) {
+                    } else  {
                         ctx.sendRequest();
-                    } else {
-                        ctx.terminate();
-                    }
+                    } 
                 }
             } else if (m_operator == Operator.SEND_NOTIFY) {
                 // We ignore 1xx responses. 2xx and above are put into the queue.
