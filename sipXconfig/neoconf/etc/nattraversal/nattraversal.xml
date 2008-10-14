@@ -19,6 +19,12 @@
       </type>
       <value>60</value>
     </setting>
+    <setting name="publicport" advanced="yes">
+      <type>
+        <integer min="1024" max="65535" required="yes" />
+      </type>
+      <value>5060</value>
+    </setting>
     <setting name="relayaggressiveness">
       <type>
         <enum>
@@ -32,6 +38,7 @@
           </option>
         </enum>
       </type>
+      <value>Conservative</value>
     </setting>
     <setting name="concurrentrelays">
       <type>
@@ -58,12 +65,6 @@
         <integer />
       </type>
       <value>9090</value>
-    </setting>
-    <setting name="publicport" advanced="yes">
-      <type>
-        <integer min="1024" max="65535" required="yes" />
-      </type>
-      <value>5060</value>
     </setting>
   </group>
   <group name="nattraversal-symmitron">
