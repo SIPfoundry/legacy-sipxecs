@@ -45,12 +45,12 @@ Section "Preflight (required)"
   ; Write the installation path into the registry
   WriteRegStr HKLM SOFTWARE\Pingtel_Preflight "Install_Dir" "$INSTDIR"
   
-  ; Write the uninstall keys for Windows
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Preflight" "DisplayName" "Preflight"
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Preflight" "UninstallString" '"$INSTDIR\uninstall.exe"'
-  WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Preflight" "NoModify" 1
-  WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Preflight" "NoRepair" 1
-  WriteUninstaller "uninstall.exe"
+;;  ; Write the uninstall keys for Windows
+;;  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Preflight" "DisplayName" "Preflight"
+;;  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Preflight" "UninstallString" '"$INSTDIR\uninstall.exe"'
+;;  WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Preflight" "NoModify" 1
+;;  WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Preflight" "NoRepair" 1
+;;  WriteUninstaller "uninstall.exe"
   
 SectionEnd
 
@@ -58,7 +58,7 @@ SectionEnd
 Section "Start Menu Shortcuts"
 
   CreateDirectory "$SMPROGRAMS\Preflight"
-  CreateShortCut "$SMPROGRAMS\Preflight\Uninstall.lnk" "$INSTDIR\uninstall.exe" "" "$INSTDIR\uninstall.exe" 0
+;;  CreateShortCut "$SMPROGRAMS\Preflight\Uninstall.lnk" "$INSTDIR\uninstall.exe" "" "$INSTDIR\uninstall.exe" 0
   CreateShortCut "$SMPROGRAMS\Preflight\Preflight.lnk" "$INSTDIR\Preflight.exe" "" "$INSTDIR\Preflight.exe" 0
   CreateShortCut "$DESKTOP\Preflight.lnk" "$INSTDIR\Preflight.exe"
   
@@ -66,26 +66,26 @@ SectionEnd
 
 ;--------------------------------
 
-; Uninstaller
-
-Section "Uninstall"
-  
-  ; Remove registry keys
-  DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Preflight"
-  DeleteRegKey HKLM "SOFTWARE\Pingtel_Preflight"
-
-  ; Remove files and uninstaller
-  Delete   "$INSTDIR\Preflight.exe"
-  Delete   "$INSTDIR\preflight.jar"
-  RMDir /r "$INSTDIR\jre"
-  Delete   "$INSTDIR\uninstall.exe"
-
-  ; Remove shortcuts, if any
-  Delete "$SMPROGRAMS\Preflight\*.*"
-  Delete "$DESKTOP\Preflight.lnk"
-
-  ; Remove directories used
-  RMDir "$SMPROGRAMS\Preflight"
-  RMDir "$INSTDIR"
-
-SectionEnd
+;;; Uninstaller
+;;
+;;Section "Uninstall"
+;;  
+;;  ; Remove registry keys
+;;  DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Preflight"
+;;  DeleteRegKey HKLM "SOFTWARE\Pingtel_Preflight"
+;;
+;;  ; Remove files and uninstaller
+;;  Delete   "$INSTDIR\Preflight.exe"
+;;  Delete   "$INSTDIR\preflight.jar"
+;;  RMDir /r "$INSTDIR\jre"
+;;  Delete   "$INSTDIR\uninstall.exe"
+;;
+;;  ; Remove shortcuts, if any
+;;  Delete "$SMPROGRAMS\Preflight\*.*"
+;;  Delete "$DESKTOP\Preflight.lnk"
+;;
+;;  ; Remove directories used
+;;  RMDir "$SMPROGRAMS\Preflight"
+;;  RMDir "$INSTDIR"
+;;
+;;SectionEnd
