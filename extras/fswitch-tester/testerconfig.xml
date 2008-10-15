@@ -1,0 +1,90 @@
+<?xml version="1.0"?>
+<tester-config>
+<sipx-proxy-domain>example.com</sipx-proxy-domain>
+<sipx-proxy-address>sipxpbx.example.com</sipx-proxy-address>
+<sipx-proxy-port>5060</sipx-proxy-port>
+<test-duration>120</test-duration>
+<tester-client>
+	<client-id>1</client-id>
+	<conference-extension>301</conference-extension>
+	<xml-rpc-port>8097</xml-rpc-port>
+	<tester-host>192.168.5.240</tester-host>
+	<sender-count>2</sender-count>
+	<user-agent-count>4</user-agent-count>
+	<tester-sip-base-port>5200</tester-sip-base-port>
+	<tester-rtp-base-port>30100</tester-rtp-base-port>
+</tester-client>
+
+<!-- tester-client>
+	<client-id>2</client-id>
+	<conference-extension>302</conference-extension>
+	<xml-rpc-port>8098</xml-rpc-port>
+	<tester-host>192.168.5.240</tester-host>
+	<sender-count>4</sender-count>
+	<user-agent-count>10</user-agent-count>
+	<tester-sip-base-port>5300</tester-sip-base-port>
+	<tester-rtp-base-port>30200</tester-rtp-base-port>
+</tester-client>
+
+<tester-client>
+	<client-id>3</client-id>
+	<conference-extension>303</conference-extension>
+	<xml-rpc-port>8099</xml-rpc-port>
+	<tester-host>192.168.5.240</tester-host>
+	<sender-count>4</sender-count>
+	<user-agent-count>10</user-agent-count>
+	<tester-sip-base-port>5400</tester-sip-base-port>
+	<tester-rtp-base-port>30300</tester-rtp-base-port>
+</tester-client>
+<tester-client>
+	<client-id>4</client-id>
+	<conference-extension>304</conference-extension>
+	<xml-rpc-port>8100</xml-rpc-port>
+	<tester-host>192.168.5.240</tester-host>
+	<sender-count>4</sender-count>
+	<user-agent-count>10</user-agent-count>
+	<tester-sip-base-port>5500</tester-sip-base-port>
+	<tester-rtp-base-port>30400</tester-rtp-base-port>
+</tester-client>
+<tester-client>
+	<client-id>5</client-id>
+	<conference-extension>305</conference-extension>
+	<xml-rpc-port>8101</xml-rpc-port>
+	<tester-host>192.168.5.240</tester-host>
+	<sender-count>4</sender-count>
+	<user-agent-count>10</user-agent-count>
+	<tester-sip-base-port>5600</tester-sip-base-port>
+	<tester-rtp-base-port>30500</tester-rtp-base-port>
+</tester-client>
+<tester-client>
+	<client-id>6</client-id>
+	<conference-extension>306</conference-extension>
+	<xml-rpc-port>8102</xml-rpc-port>
+	<tester-host>192.168.5.240</tester-host>
+	<sender-count>4</sender-count>
+	<user-agent-count>10</user-agent-count>
+	<tester-sip-base-port>5700</tester-sip-base-port>
+	<tester-rtp-base-port>30600</tester-rtp-base-port>
+</tester-client>
+<tester-client>
+	<client-id>7</client-id>
+	<conference-extension>307</conference-extension>
+	<xml-rpc-port>8103</xml-rpc-port>
+	<tester-host>192.168.5.240</tester-host>
+	<sender-count>4</sender-count>
+	<user-agent-count>10</user-agent-count>
+	<tester-sip-base-port>5800</tester-sip-base-port>
+	<tester-rtp-base-port>30700</tester-rtp-base-port>
+</tester-client>
+<tester-client>
+	<client-id>8</client-id>
+	<conference-extension>308</conference-extension>
+	<xml-rpc-port>8104</xml-rpc-port>
+	<tester-host>192.168.5.240</tester-host>
+	<sender-count>4</sender-count>
+	<user-agent-count>10</user-agent-count>
+	<tester-sip-base-port>5900</tester-sip-base-port>
+	<tester-rtp-base-port>30800</tester-rtp-base-port>
+</tester-client -->
+
+</tester-config>
