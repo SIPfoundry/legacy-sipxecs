@@ -61,7 +61,7 @@ else
     my $pageName=server_name() . ' Trace';
     print $query->start_html(-title=>$pageName);
     print $query->a({href=>'http://sipxecs.sipfoundry.org/'},
-                    '<img src="logo.png" alt="sipXecs" border="0" height="80" width="190" align="left',
+                    '<img src="logo.png" alt="sipXecs" border="0" height="80" width="190" align="left" />',
                     '<br/>'
                    );
     print $query->h1($pageName);
