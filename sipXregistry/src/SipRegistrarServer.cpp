@@ -706,12 +706,15 @@ SipRegistrarServer::applyUpdatesToDirectory(
    const UtlSList& updates,       ///< list of updates to apply
    UtlString* errorMsg)           ///< fill in the error message on failure
 {
-   // Critical Section here
-   OsLock lock(sLockMutex);
+   Int64 maxUpdateNumber; // to be returned
 
    // We need an error string buffer even if the caller didn't provide one.
    UtlString altErrorMsg;
    errorMsg = errorMsg ? errorMsg : &altErrorMsg;
+
+   // Critical Section here
+   OsLock lock(sLockMutex);
+
    // Pointer to the registration DB.
    RegistrationDB* imdb = mRegistrar.getRegistrationDB();
    // Set to true if an error is found in the updates list.
@@ -720,9 +723,7 @@ SipRegistrarServer::applyUpdatesToDirectory(
    RegistrarPeer* peer;
 
    {
-      // Loop over the updates and check that they are OK.
-      // All updates must be for the same primary registrar.
-      // They must be in-sequence relative to the registration DB.
+      // Loop over the updates and check that they are all for the same primary registrar.
       UtlSListIterator updateIter(updates);
       RegistrationBinding* reg;
       UtlString primary;
@@ -730,8 +731,8 @@ SipRegistrarServer::applyUpdatesToDirectory(
       const UtlString myPrimary(mRegistrar.primaryName());
 
       bool first_time = true;
-      while (!error_found &&
-             (reg = dynamic_cast <RegistrationBinding*> (updateIter())))
+      while (   !error_found
+             && (reg = dynamic_cast<RegistrationBinding*>(updateIter())))
       {
          if (first_time)
          {
@@ -755,6 +756,7 @@ SipRegistrarServer::applyUpdatesToDirectory(
                           " updateNumber: %0#16" FORMAT_INTLL "x, primary: '%s'",
                           reg->getUpdateNumber(), primary.data());
                   OsSysLog::add(FAC_SIP, PRI_ERR, "%s", buf);
+                  *errorMsg = buf;
                   error_found = true;
                }
             }
@@ -783,38 +785,10 @@ SipRegistrarServer::applyUpdatesToDirectory(
                error_found = true;
             }
          }
-
-         // Check callId/cseq and accept only updates that are in sequence.
-         if (imdb->isOutOfSequence(*reg->getUri(), *reg->getCallId(), reg->getCseq()))
-         {
-            // This can happen in an HA configuration when the peer didn't get the
-            // update and tries to sync an old registration.
-            char buf[1024];
-            UtlString aor;
-            reg->getUri()->toString(aor);
-            sprintf(buf,
-                    "SipRegistrarServer::applyUpdatesToDirectory update out of order "
-                    "updateNumber: %0#16" FORMAT_INTLL "x, AOR: '%s', Call-Id: '%s', CSeq: %d",
-                    reg->getUpdateNumber(), 
-                    aor.data(), reg->getCallId()->data(), reg->getCseq());
-            OsSysLog::add(FAC_SIP, PRI_ERR, "%s", buf);
-            *errorMsg = buf;
-            error_found = true;
-         }
-      }
-
-      // Check that there was at least one update in the set, as zero
-      // updates is an error.
-      if (first_time)
-      {
-         OsSysLog::add(FAC_SIP, PRI_ERR,
-                       "SipRegistrarServer::applyUpdatesToDirectory zero updates in list");
-         error_found = true;
       }
    }
 
    // If the updates pass the checks, apply them.
-   Int64 maxUpdateNumber;
    if (error_found)
    {
       // Set the return value to -1.
@@ -822,11 +796,13 @@ SipRegistrarServer::applyUpdatesToDirectory(
    }
    else
    {
+      maxUpdateNumber = peer->receivedFrom(); // in case there are no updates (should not happen)
+
       UtlSListIterator updateIter(updates);
       RegistrationBinding* reg;
 
       // Loop through the list of updates.
-      while ((reg = dynamic_cast <RegistrationBinding*> (updateIter())))
+      while ((reg = dynamic_cast<RegistrationBinding*>(updateIter())))
       {
          /* Apply one update.  Record the return value (the current
           * max known update number for the registrar in question).

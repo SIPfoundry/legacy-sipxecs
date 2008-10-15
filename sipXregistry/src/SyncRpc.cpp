@@ -225,7 +225,8 @@ bool SyncRpcReset::execute(const HttpRequestContext& requestContext, ///< reques
             peer->markReachable();
             response.setResponse(&returnedUpdateNumber);
             OsSysLog::add(FAC_SIP, PRI_NOTICE,
-                          "registerSync.reset received from '%s'; update numbering synchronized to %0#16" FORMAT_INTLL "x.",
+                          "registerSync.reset received from '%s'; "
+                          "update numbering synchronized to %0#16" FORMAT_INTLL "x.",
                           callingRegistrar->data(),
                           returnedUpdateNumber.getValue()
                           );
@@ -823,7 +824,8 @@ void SyncRpcPushUpdates::checkLastSentUpdateNumber(Int64 lastSentUpdateNumber,
       char buf[1024];
       sprintf(buf, 
               "SyncRpcPushUpdates::checkLastSentUpdateNumber "
-              "lastSentUpdateNumber = %0#16" FORMAT_INTLL "x but peerReceivedDbUpdateNumber = %0#16" FORMAT_INTLL "x",
+              "lastSentUpdateNumber = %0#16" FORMAT_INTLL "x"
+              " but peerReceivedDbUpdateNumber = %0#16" FORMAT_INTLL "x",
               lastSentUpdateNumber, peerReceivedDbUpdateNumber);
       OsSysLog::add(FAC_SIP, PRI_WARNING, buf);
       peer.markUnReachable();
@@ -846,7 +848,8 @@ bool SyncRpcPushUpdates::checkUpdateNumber(
    {
       const char* msg = 
          "SyncRpcPushUpdates::execute: "
-         "a registry update contains multiple update numbers: %0#16" FORMAT_INTLL "x and %0#16" FORMAT_INTLL "x";
+         "a registry update contains multiple update numbers: %0#16" FORMAT_INTLL "x"
+         " and %0#16" FORMAT_INTLL "x";
       char buf[1024];
       sprintf(buf, msg, updateNumber, reg.getUpdateNumber());
 
