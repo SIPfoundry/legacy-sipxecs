@@ -30,6 +30,8 @@
 #emit_setting($STUNServer)
 #set($STUNRefreshInterval = $nattraversal.Settings.getSetting("nattraversal-info/rediscovery-time"))
 #emit_setting($STUNRefreshInterval)
+#set($publicPort = $nattraversal.Settings.getSetting("nattraversal-info/publicport"))
+#emit_setting($publicPort)
 #if(${behindnat})
 #emit_setting($publicaddress)
 #end

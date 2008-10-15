@@ -8,13 +8,13 @@
     <useSTUN>true</useSTUN>
     <stun-server-address>stun01.sipphone.com</stun-server-address>
     <rediscovery-time>26</rediscovery-time>
+    <publicport>1234</publicport>
     <proxyhostport>11.126.12.15:5060</proxyhostport>
     <relayaggressiveness>Aggressive</relayaggressiveness>
     <concurrentrelays>2</concurrentrelays>
     <mediarelayexternaladdress>11.126.12.15</mediarelayexternaladdress>
     <mediarelaynativeaddress>11.126.12.15</mediarelaynativeaddress>
     <mediarelayxml-rpc-port>9090</mediarelayxml-rpc-port>
-    <publicport>1234</publicport>
     <port-range>30000:30500</port-range>
     <log-level>INFO</log-level>
     <log-directory>/usr/local/sipx/var/log/sipxpbx</log-directory>

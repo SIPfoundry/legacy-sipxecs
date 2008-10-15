@@ -52,7 +52,7 @@ public class NatTraversalRulesTest extends XMLTestCase {
         m_natTraversal.setProxyAddress("11.126.12.15");
         m_natTraversal.setProxyServerSipHostport("11.126.12.15:5060");
         m_natTraversal.setLogDirectory("/usr/local/sipx/var/log/sipxpbx");
-        m_natTraversal.getSettings().getSetting("nattraversal-bridge/publicport").setValue("1234");
+        m_natTraversal.getSettings().getSetting("nattraversal-info/publicport").setValue("1234");
 
         m_natTraversalManager = createNiceMock(NatTraversalManager.class);
         m_natTraversalManager.getNatTraversal();
@@ -115,7 +115,7 @@ public class NatTraversalRulesTest extends XMLTestCase {
         natTraversal.setProxyAddress("11.126.12.15");
         natTraversal.setProxyServerSipHostport("11.126.12.15:5060");
         natTraversal.setLogDirectory("/usr/local/sipx/var/log/sipxpbx");
-        natTraversal.getSettings().getSetting("nattraversal-bridge/publicport").setValue("1234");
+        natTraversal.getSettings().getSetting("nattraversal-info/publicport").setValue("1234");
         m_sbcDeviceManager = createNiceMock(SbcDeviceManager.class);
         m_bridgeSbc = new BridgeSbc();
         m_bridgeSbc.setModelFilesContext(TestHelper.getModelFilesContext());
