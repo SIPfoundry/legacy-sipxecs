@@ -1,7 +1,0 @@
-We use PKCS key sizes in our application that default IBM's JRE 
-restricts.  You need to also install unrestrict142.zip otherwise
-sipxconfig will not start up properly. See
-  http://track.sipfoundry.org/browse/XCF-938
-
-if you are switch from Sun's JRE you will not see this error unless
-you install new ssl keys.

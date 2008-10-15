@@ -6,9 +6,7 @@ DESTDIR = $(abspath dist)
 
 ARCH = $(shell uname -p)
 
-ifeq ($(ARCH),ppc)
-  JAVA_PKG = java-ibm
-else
+ifneq (,$(findstring 86,$(ARCH)))
   JAVA_PKG = java-sun
 endif 
 
@@ -31,7 +29,6 @@ AC_TARGETS = \
 	dnsjava \
 	jain-sip \
 	jakarta-commons-net \
-	java-ibm \
 	java-sun \
 	ruby-dbi \
 	rubygems \
@@ -48,7 +45,7 @@ $(AC_TARGETS) :
 	$(MAKE) $@.bld
 
 # required on all platforms
-CUSTOM_PACKAGES = cgicc ruby-dbi jain-sip conference dnsjava nsis
+CUSTOM_PACKAGES = cgicc ruby-dbi jain-sip conference dnsjava nsis $(JAVA_PKG)
 
 .PHONY: fc8 fc7
 fc8 fc7 : $(CUSTOM_PACKAGES) cppunit xerces-c rubygems ruby-postgres rrdtool
