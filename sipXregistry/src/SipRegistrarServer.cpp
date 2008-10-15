@@ -109,18 +109,14 @@ SipRegistrarServer::initialize(
                          "configured minimum (%d) < hard minimum (%d); set to hard minimum",
                          mMinExpiresTimeint, HARD_MINIMUM_EXPIRATION);
            mMinExpiresTimeint = HARD_MINIMUM_EXPIRATION;
-           char min[10];
-           sprintf(min, "%d", HARD_MINIMUM_EXPIRATION);
-           mMinExpiresTimeStr = min;
         }
     }
     else
     {
-       char min[10];
-       sprintf(min, "%d", MIN_EXPIRES_TIME);
-       mMinExpiresTimeStr = min;
        mMinExpiresTimeint = MIN_EXPIRES_TIME;
     }
+    mMinExpiresTimeStr.remove(0);
+    mMinExpiresTimeStr.appendNumber(mMinExpiresTimeint);
     
     // Maximum/Default Registration Time
     UtlString maxExpiresTimeStr;
@@ -436,7 +432,8 @@ SipRegistrarServer::applyRegisterToDirectory( const Url& toUrl
                            // a NUL.
                            temp.append("sipX");
                            temp.append("\001");
-                           // The identifier of this domain, to ensure GRUUs aren't duplicated between domains.
+                           /* The identifier of this domain,
+                            * to ensure GRUUs aren't duplicated between domains. */
                            temp.append(mRegistrar.defaultDomain());
                            temp.append("\001");
                            temp.append(toUrl.toString());
@@ -444,7 +441,8 @@ SipRegistrarServer::applyRegisterToDirectory( const Url& toUrl
                            temp.append(instanceId);
                            UtlString hash;
                            encoder.encode(temp.data(), hash);
-                           // Use 8 bytes, to avoid collisions when there are less than 2^32 registrations.
+                           /* Use 8 bytes, to avoid collisions
+                            * when there are less than 2^32 registrations. */
                            hash.remove(16);
                            // Now construct the GRUU URI,
                            // "~~gr~XXXXXXXXXXXXXXXX@[principal SIP domain]".
@@ -471,7 +469,7 @@ SipRegistrarServer::applyRegisterToDirectory( const Url& toUrl
                         registrationRow.insertKeyAndValue( qvalueKey, qvalueValue );
                         registrationRow.insertKeyAndValue( instanceIdKey, instanceIdValue );
                         registrationRow.insertKeyAndValue( gruuKey, gruuValue );
-                        registrationRow.insertKeyAndValue( pathKey, pathValue );                        
+                        registrationRow.insertKeyAndValue( pathKey, pathValue );
 
                         registrations.addValue( registrationRow );
                     }
@@ -570,7 +568,7 @@ SipRegistrarServer::applyRegisterToDirectory( const Url& toUrl
                             UtlHashMap record;
                             registrations.getIndex( i, record );
 
-                            int      expires = ((UtlInt*)record.findValue(&gExpiresKey))->getValue();
+                            int expires = ((UtlInt*)record.findValue(&gExpiresKey))->getValue();
                             UtlString contact(*((UtlString*)record.findValue(&gContactKey)));
 
                             int expirationTime;
@@ -750,13 +748,14 @@ SipRegistrarServer::applyUpdatesToDirectory(
                peer = mRegistrar.getPeer(primary);
                if (peer == NULL)
                {
-                  char buf[1024];
-                  sprintf(buf,
-                          "SipRegistrarServer::applyUpdatesToDirectory update with unknown primary"
-                          " updateNumber: %0#16" FORMAT_INTLL "x, primary: '%s'",
-                          reg->getUpdateNumber(), primary.data());
-                  OsSysLog::add(FAC_SIP, PRI_ERR, "%s", buf);
-                  *errorMsg = buf;
+                  errorMsg->append("update with unknown primary: updateNumber=");
+                  errorMsg->appendNumber(reg->getUpdateNumber(), "%0#16" FORMAT_INTLL "x");
+                  errorMsg->append(", primary='");
+                  errorMsg->append(primary);
+                  errorMsg->append("'");
+                  OsSysLog::add(FAC_SIP, PRI_ERR, "SipRegistrarServer::applyUpdatesToDirectory %s",
+                                errorMsg->data());
+
                   error_found = true;
                }
             }
@@ -773,15 +772,19 @@ SipRegistrarServer::applyUpdatesToDirectory(
             const UtlString* nextPrimary = reg->getPrimary() ? reg->getPrimary() : &emptyPrimary;
             if (primary.compareTo(*nextPrimary) != 0)
             {
-               char buf[1024];
-               sprintf(buf,
-                       "SipRegistrarServer::applyUpdatesToDirectory updates with mixed primaries "
-                       "updateNumber: %0#16" FORMAT_INTLL "x, primary of element 0: '%s', "
-                       "primary of element %d: '%s'",
-                       reg->getUpdateNumber(), primary.data(),
-                       (int) updates.index(reg), nextPrimary->data());
-               OsSysLog::add(FAC_SIP, PRI_ERR, "%s", buf);
-               *errorMsg = buf;
+               errorMsg->append("updates with mixed primaries: updateNumber=");
+               errorMsg->appendNumber(reg->getUpdateNumber(), "%0#16" FORMAT_INTLL "x");
+               errorMsg->append(", primary of element 0='");
+               errorMsg->append(primary);
+               errorMsg->append("', primary of element ");
+               errorMsg->appendNumber((int) updates.index(reg));
+               errorMsg->append("='");
+               errorMsg->append(nextPrimary->data());
+               errorMsg->append("'");
+
+               OsSysLog::add(FAC_SIP, PRI_ERR, "SipRegistrarServer::applyUpdatesToDirectory %s",
+                             errorMsg->data());
+
                error_found = true;
             }
          }
@@ -925,7 +928,6 @@ SipRegistrarServer::handleMessage( OsMsg& eventMessage )
     // SIP message event
     else if (msgType == OsMsg::PHONE_APP)
     {
-        // osPrintf("SipRegistrarServer::handleMessage() - Start processing REGISTER Message\n");
         OsSysLog::add( FAC_SIP, PRI_DEBUG, "SipRegistrarServer::handleMessage() - "
                 "Start processing REGISTER Message" );
 
@@ -1072,10 +1074,10 @@ SipRegistrarServer::handleMessage( OsMsg& eventMessage )
                                           "processing contact '%s'", contact.data());
                             Url contactUri( contact );
 
-                            char buffexpires[32];
-                            sprintf(buffexpires, "%d", expires);
+                            UtlString expiresStr;
+                            expiresStr.appendNumber(expires);
 
-                            contactUri.setFieldParameter(SIP_EXPIRES_FIELD, buffexpires);
+                            contactUri.setFieldParameter(SIP_EXPIRES_FIELD, expiresStr.data());
                             if ( !qvalue.isNull() && qvalue.compareTo(SPECIAL_IMDB_NULL_VALUE)!=0 )
                             {
                                OsSysLog::add( FAC_SIP, PRI_DEBUG,
@@ -1092,7 +1094,9 @@ SipRegistrarServer::handleMessage( OsMsg& eventMessage )
 
                             // Add the +sip.instance and gruu
                             // parameters if an instance ID is recorded.
-                            UtlString* instance_id = dynamic_cast<UtlString*> (record.findValue(&instanceIdKey));
+                            UtlString* instance_id =
+                               dynamic_cast<UtlString*> (record.findValue(&instanceIdKey));
+
                             OsSysLog::add( FAC_SIP, PRI_DEBUG,
                                           "SipRegistrarServer::handleMessage"
                                           " - value %p, instance_id %p, instanceIdKey = '%s'", 
@@ -1265,7 +1269,6 @@ SipRegistrarServer::isAuthorized(
     else
     {
         // Realm and auth type should be default for server.
-        // If URI not defined in DB, the user is not authorized to modify bindings - NOT DOING ANYMORE
         // check if we requested authentication and this is the req with
         // authorization,validate the authorization
         OsSysLog::add( FAC_AUTH, PRI_DEBUG,
