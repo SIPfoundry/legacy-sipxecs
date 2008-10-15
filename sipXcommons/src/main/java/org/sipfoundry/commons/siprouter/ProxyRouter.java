@@ -16,6 +16,7 @@ import javax.sip.SipException;
 import javax.sip.SipStack;
 import javax.sip.address.Hop;
 import javax.sip.address.SipURI;
+import javax.sip.header.RouteHeader;
 import javax.sip.message.Request;
 
 import org.apache.log4j.Logger;
@@ -33,6 +34,13 @@ public class ProxyRouter extends DefaultRouter {
 
     @Override
     public Hop getNextHop(Request request) throws SipException {
+        /*
+         * Request has a Route header defined - then get the next hop
+         * based on the route header.
+         */
+        if ( request.getHeader(RouteHeader.NAME) != null ) {
+            return super.getNextHop(request);
+        }
     	SipURI uri = (SipURI)request.getRequestURI();
 
     	LOG.debug(String.format("ProxyRouter::getNextHop Need to lookup %s ", uri.toString()));
