@@ -60,6 +60,8 @@ then
   done
 fi
 
+. @SIPX_LIBEXECDIR@/sipx-utils.sh || exit 1
+
 pidfile=@SIPX_RUNDIR@/sipXvxml.pid
 
 case ${Action} in
