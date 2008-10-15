@@ -37,7 +37,7 @@
       </documentation>
     </annotation>
     <complexType>
-      <sequence>
+      <all>
         <element ref='dmp:state' minOccurs='1' maxOccurs='1'/>
         <element ref='dmp:behindnat' minOccurs='1' maxOccurs='1'/>
         <element ref='dmp:useSTUN' minOccurs='1' maxOccurs='1'/>
@@ -54,7 +54,7 @@
         <element ref='dmp:port-range' minOccurs='1' maxOccurs='1'/>        
         <element ref='dmp:log-level' minOccurs='0' maxOccurs='1'/>        
         <element ref='dmp:log-directory' minOccurs='0' maxOccurs='1'/>        
-      </sequence>
+      </all>
     </complexType>
   </element>
   
