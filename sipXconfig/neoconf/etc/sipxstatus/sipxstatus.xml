@@ -36,5 +36,17 @@
       <type refid="loglevel" />
       <value>NOTICE</value>
     </setting>
+    <setting name="SIP_STATUS_HTTP_PORT" hidden="yes">
+      <type>
+        <string />
+      </type>
+      <value>8100</value>
+    </setting>
+    <setting name="SIP_STATUS_SIP_PORT" hidden="yes">
+      <type>
+        <string />
+      </type>
+      <value>5110</value>
+    </setting>
   </group>
 </model>

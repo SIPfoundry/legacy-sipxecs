@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.service;
@@ -25,13 +25,11 @@ public class SipxStatusConfigurationTest extends SipxServiceTestBase {
         SipxStatusService statusService = new SipxStatusService();
         initCommonAttributes(statusService);
         statusService.setSettings(TestHelper.loadSettings("sipxstatus/sipxstatus.xml"));
-        statusService.setHttpPort(8100);
         statusService.setHttpsPort(8101);
-        statusService.setStatusServerSipPort(5110);
-        
+
         Setting statusConfigSettings = statusService.getSettings().getSetting("status-config");
         statusConfigSettings.getSetting("SIP_STATUS_LOG_LEVEL").setValue("CRIT");
-        
+
         SipxStatusConfiguration out = new SipxStatusConfiguration();
         out.setVelocityEngine(TestHelper.getVelocityEngine());
         out.setTemplate("sipxstatus/status-config.vm");
@@ -43,7 +41,7 @@ public class SipxStatusConfigurationTest extends SipxServiceTestBase {
         location.setAddress("192.168.1.2");
         StringWriter actualConfigWriter = new StringWriter();
         out.write(actualConfigWriter, location);
-        
+
         Reader referenceConfigReader = new InputStreamReader(SipxStatusConfigurationTest.class
                 .getResourceAsStream("expected-status-config"));
         String referenceConfig = IOUtils.toString(referenceConfigReader);

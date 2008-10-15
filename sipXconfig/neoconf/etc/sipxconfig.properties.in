@@ -20,6 +20,7 @@ sipxParkService.parkServerSipPort=${ORBIT_SERVER_SIP_PORT}
 sipxCallResolverService.agentPort=${CALLRESOLVER_AGENT_PORT}
 sipxCallResolverService.ipAddress=${MY_IP_ADDR}
 sipxRlsService.rlsPort=${RLS_SIP_PORT}
+sipxStatusService.httpsPort=${STATUS_SERVER_HTTPS_PORT}
 
 natTraversal.proxyAddress=${PROXY_SERVER_ADDR}
 natTraversal.proxyServerSipHostport=${PROXY_SERVER_SIP_HOSTPORT}
