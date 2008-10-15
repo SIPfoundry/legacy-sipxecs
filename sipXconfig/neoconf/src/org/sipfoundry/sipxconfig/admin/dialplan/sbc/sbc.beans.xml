@@ -70,7 +70,6 @@
     <property name="profileGenerator" ref="velocityProfileGenerator" />
     <property name="modelSource" ref="sbcModelSource" />
     <property name="defaults" ref="phoneDefaults" />
-    <property name="port" value="5060" />
   </bean>
 
   <bean id="sbcDeviceSource" class="org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDeviceSource">

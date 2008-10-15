@@ -121,6 +121,7 @@ public class SbcDeviceManagerImpl extends SipxHibernateDaoSupport<SbcDevice> imp
         SbcDevice newSbc = (SbcDevice) m_beanFactory.getBean(beanId, SbcDevice.class);
         newSbc.setModel(descriptor);
         newSbc.setAddress(m_localIpAddress);
+        newSbc.setPort(descriptor.getDefaultPort());
         return newSbc;
     }
 

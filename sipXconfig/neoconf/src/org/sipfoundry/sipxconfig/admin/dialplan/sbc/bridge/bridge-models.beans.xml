@@ -5,7 +5,7 @@
   <bean id="sipXbridgeProfileLocation" class="org.sipfoundry.sipxconfig.device.ReplicatedProfileLocation">
     <property name="replicationContext" ref="sipxReplicationContextDao" />
     <property name="name" value="sipxbridge.xml" />
-    <property name="directory" value="${sysdir.etc}"/>
+    <property name="directory" value="${sysdir.etc}" />
   </bean>
 
   <bean id="sipXbridgeSbcModel" parent="abstractSbcModel">
@@ -15,6 +15,7 @@
     <property name="serialNumberPattern" value="" />
     <property name="maxAllowed" value="1" />
     <property name="defaultProfileLocation" ref="sipXbridgeProfileLocation" />
+    <property name="defaultPort" value="5090" />
   </bean>
 
   <bean id="sbcSipXbridge" class="org.sipfoundry.sipxconfig.admin.dialplan.sbc.bridge.BridgeSbc" scope="prototype"

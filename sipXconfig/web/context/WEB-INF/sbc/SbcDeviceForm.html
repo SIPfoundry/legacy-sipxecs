@@ -23,7 +23,7 @@
         field="component:sbcDevicePort"
         label="message:label.port"
         description="message:description.port"
-        defaultValue="5060">
+        defaultValue="ognl:sbcDevice.model.defaultPort">
         <input jwcid="sbcDevicePort@TextField" id="sbcDevice:port"
           value="ognl:sbcDevice.port"
           translator="translator:sipxnumber,omitZero=true,pattern=#####"
