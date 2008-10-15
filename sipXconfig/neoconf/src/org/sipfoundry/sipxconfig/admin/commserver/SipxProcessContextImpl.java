@@ -23,7 +23,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessModel.ProcessName;
 import org.sipfoundry.sipxconfig.common.UserException;
-import org.sipfoundry.sipxconfig.service.SipxService;
+import org.sipfoundry.sipxconfig.service.LocationSpecificService;
 import org.sipfoundry.sipxconfig.xmlrpc.ApiProvider;
 import org.sipfoundry.sipxconfig.xmlrpc.XmlRpcRemoteException;
 import org.springframework.beans.factory.annotation.Required;
@@ -91,9 +91,9 @@ public class SipxProcessContextImpl implements SipxProcessContext, ApplicationLi
             String name = entry.getKey();
 
             List<String> locationServiceProcesses = new ArrayList<String>();
-            for (SipxService sipxService : location.getSipxServices()) {
-                if (sipxService.getProcessName() != null) {
-                    locationServiceProcesses.add(sipxService.getProcessName().getName());
+            for (LocationSpecificService service : location.getServices()) {
+                if (service.getSipxService().getProcessName() != null) {
+                    locationServiceProcesses.add(service.getSipxService().getProcessName().getName());
                 }
             }
 

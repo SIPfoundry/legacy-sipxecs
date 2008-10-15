@@ -23,6 +23,7 @@ import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext.Command;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessModel.ProcessName;
 import org.sipfoundry.sipxconfig.components.SelectMap;
+import org.sipfoundry.sipxconfig.service.LocationSpecificService;
 import org.sipfoundry.sipxconfig.service.SipxProxyService;
 
 public class ServicesTableTest extends TestCase {
@@ -38,7 +39,7 @@ public class ServicesTableTest extends TestCase {
 
         SipxProxyService proxyService = new SipxProxyService();
         m_location = new Location();
-        m_location.addService(proxyService);
+        m_location.addService(new LocationSpecificService(proxyService));
         PropertyUtils.write(m_out, "serviceLocation", m_location);
 
         m_sipxProcessContext = EasyMock.createMock(SipxProcessContext.class);
@@ -76,7 +77,7 @@ public class ServicesTableTest extends TestCase {
 
         configureSipxProcessContext(Command.STOP);
         m_out.removeService();
-        assertTrue(m_location.getSipxServices().isEmpty());
+        assertTrue(m_location.getServices().isEmpty());
         EasyMock.verify(m_sipxProcessContext, locationsManager);
     }
 

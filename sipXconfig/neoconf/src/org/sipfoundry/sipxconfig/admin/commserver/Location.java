@@ -9,13 +9,15 @@
  */
 package org.sipfoundry.sipxconfig.admin.commserver;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.sipfoundry.sipxconfig.common.BeanWithId;
+import org.sipfoundry.sipxconfig.service.LocationSpecificService;
 import org.sipfoundry.sipxconfig.service.SipxService;
 
 public class Location extends BeanWithId {
@@ -25,7 +27,7 @@ public class Location extends BeanWithId {
     private String m_address;
     private String m_fqdn;
 
-    private Collection<SipxService> m_sipxServices;
+    private Map<String, LocationSpecificService> m_services;
 
     public String getName() {
         return m_name;
@@ -74,31 +76,57 @@ public class Location extends BeanWithId {
         return String.format("https://%s:%d/RPC2", m_fqdn, PROCESS_MONITOR_PORT);
     }
 
-    public void setSipxServices(Collection<SipxService> sipxServices) {
-        m_sipxServices = sipxServices;
+    /**
+     * Set this locations collection of services by directly supplying the
+     * LocationSpecificService objects
+     * @param services
+     */
+    public void setServices(Collection<LocationSpecificService> services) {
+        m_services = new HashMap<String, LocationSpecificService>();
+        for (LocationSpecificService locationSpecificService : services) {
+            addService(locationSpecificService);
+        }
+    }
+
+    /**
+     * Set this locations collection of services by via a collection of
+     * SipxService definition objects
+     * @param services
+     */
+    public void setServiceDefinitions(Collection<SipxService> services) {
+        m_services = new HashMap<String, LocationSpecificService>();
+        for (SipxService sipxService : services) {
+            LocationSpecificService newService = new LocationSpecificService();
+            newService.setSipxService(sipxService);
+            addService(newService);
+        }
     }
 
     /**
      * Returns an unmodifiable collection of sipx services for this location. To add or remove
      * services on this location, use the Location's addService or removeService methods.
      */
-    public Collection<SipxService> getSipxServices() {
-        if (m_sipxServices == null) {
-            return Collections.unmodifiableCollection(Collections.<SipxService> emptyList());
+    public Collection<LocationSpecificService> getServices() {
+        if (m_services == null) {
+            return Collections.unmodifiableCollection(Collections.<LocationSpecificService> emptyList());
         }
-        return Collections.unmodifiableCollection(m_sipxServices);
+        return Collections.unmodifiableCollection(m_services.values());
     }
 
-    public void removeService(SipxService sipxService) {
-        m_sipxServices.remove(sipxService);
+    public void removeService(LocationSpecificService service) {
+        removeServiceByBeanId(service.getSipxService().getBeanId());
     }
 
-    public void addService(SipxService sipxService) {
-        if (m_sipxServices == null) {
-            m_sipxServices = new ArrayList<SipxService>();
+    public void removeServiceByBeanId(String beanId) {
+        m_services.remove(beanId);
+    }
+
+    public void addService(LocationSpecificService service) {
+        if (m_services == null) {
+            m_services = new HashMap<String, LocationSpecificService>();
         }
-        if (!m_sipxServices.contains(sipxService)) {
-            m_sipxServices.add(sipxService);
+        if (!m_services.containsKey(service.getSipxService().getBeanId())) {
+            m_services.put(service.getSipxService().getBeanId(), service);
         }
     }
 }

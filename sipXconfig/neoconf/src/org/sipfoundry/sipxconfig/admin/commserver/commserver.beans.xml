@@ -37,17 +37,6 @@
       </list>
     </property>
   </bean>
-  
-  <bean id="locationSipxServiceInitializationTrigger"
-    class="org.sipfoundry.sipxconfig.admin.commserver.LocationSipxServiceInitializationTrigger">
-    <property name="locationsManager" ref="locationsManager" />
-    <property name="sipxServiceManager" ref="sipxServiceManager" />
-    <property name="taskNames">
-      <list>
-        <value>initialize-location-service-mapping</value>
-      </list>
-    </property>
-  </bean>
 
   <bean id="fileApiProvider"
     class="org.sipfoundry.sipxconfig.xmlrpc.XmlRpcApiProvider">

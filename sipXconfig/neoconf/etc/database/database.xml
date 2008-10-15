@@ -281,6 +281,7 @@
     <antcall target="location-fqdn"/>
     <antcall target="add-freeswitch-service"/>
   	<antcall target="add-sipx-relay-service"/>
+	<antcall target="add-location-specific-service"/>
     <!-- temporary patches -->
     <antcall target="clean-sipx-service-values"/>
     <!-- When freezing schema uncomment this line -->
@@ -720,6 +721,10 @@
 
   <target name="add-sipx-relay-service" unless="add-sipx-relay-service">
 	<db-patch patch="add-sipx-relay-service"/>
+  </target>
+
+  <target name="add-location-specific-service" unless="add-location-specific-service">
+	<db-patch patch="add-location-specific-service"/>
   </target>
 
   <target name="clean-sipx-service-values" unless="clean-sipx-service-values">

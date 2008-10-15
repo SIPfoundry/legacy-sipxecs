@@ -30,6 +30,7 @@ import org.sipfoundry.sipxconfig.components.ObjectSelectionModel;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
+import org.sipfoundry.sipxconfig.service.LocationSpecificService;
 import org.sipfoundry.sipxconfig.service.SipxService;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 
@@ -94,7 +95,7 @@ public abstract class EditLocationPage extends PageWithCallback implements
         }
 
         SipxService newService = getSelectedSipxService();
-        getLocationBean().addService(newService);
+        getLocationBean().addService(new LocationSpecificService(newService));
         getLocationsManager().storeLocation(getLocationBean());
 
         Process newProcess = getSipxProcessContext().getProcess(newService.getProcessName());
@@ -106,8 +107,8 @@ public abstract class EditLocationPage extends PageWithCallback implements
     }
     
     public void activate() {
-        for (SipxService service : getLocationBean().getSipxServices()) {
-            getSipxServiceManager().replicateServiceConfig(service);
+        for (LocationSpecificService service : getLocationBean().getServices()) {
+            getSipxServiceManager().replicateServiceConfig(service.getSipxService());
         }
     }
 

@@ -12,6 +12,7 @@ package org.sipfoundry.sipxconfig.admin.commserver;
 public interface LocationsManager {
     Location[] getLocations();
     Location getLocation(int id);
+    Location getPrimaryLocation();
     void storeLocation(Location location);
     void deleteLocation(Location location);
 }

@@ -12,9 +12,9 @@
     <property name="name" />
     <property name="address" column="ip_address" />
     <property name="fqdn" />
-    <bag name="sipxServices" table="location_sipx_service" cascade="save-update">
-      <key column="location_id" />
-      <many-to-many column="sipx_service_id" class="org.sipfoundry.sipxconfig.service.SipxService" />
+    <bag name="services">
+      <key column="location_id"/>
+      <one-to-many class="org.sipfoundry.sipxconfig.service.LocationSpecificService"/>
     </bag>
   </class>
 </hibernate-mapping>

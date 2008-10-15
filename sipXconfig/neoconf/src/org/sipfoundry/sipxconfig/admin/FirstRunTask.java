@@ -7,18 +7,27 @@
  */
 package org.sipfoundry.sipxconfig.admin;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sipfoundry.sipxconfig.admin.commserver.Location;
+import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
+import org.sipfoundry.sipxconfig.admin.commserver.Process;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
+import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext.Command;
+import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessModel.ProcessName;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanActivatedEvent;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.common.AlarmContext;
 import org.sipfoundry.sipxconfig.common.ApplicationInitializedEvent;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
+import org.sipfoundry.sipxconfig.service.LocationSpecificService;
+import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
@@ -33,6 +42,8 @@ public class FirstRunTask implements ApplicationListener {
     private SipxProcessContext m_processContext;
     private String m_taskName;
     private AlarmContext m_alarmContext;
+    private SipxServiceManager m_sipxServiceManager;
+    private LocationsManager m_locationsManager;
 
     public void runTask() {
         LOG.info("Executing first run tasks...");
@@ -45,6 +56,39 @@ public class FirstRunTask implements ApplicationListener {
 
         List restartable = m_processContext.getRestartable();
         m_processContext.restartOnEvent(restartable, DialPlanActivatedEvent.class);
+
+        enableServicesOnPrimaryServer();
+    }
+
+    /**
+     * Enables any services marked as "enable_on_next_upgrade" on the primary server.
+     */
+    private void enableServicesOnPrimaryServer() {
+        Location primaryLocation = m_locationsManager.getPrimaryLocation();
+
+        // This check should not return null at runtime. It is here to account for
+        // UI tests that run FirstRunTask without having previously initialized the locations
+        // table in the database
+        if (primaryLocation == null) {
+            return;
+        }
+        Collection<Process> processesToEnable = new ArrayList<Process>();
+        Collection<LocationSpecificService> servicesForPrimaryLocation = primaryLocation.getServices();
+        for (LocationSpecificService locationSpecificService : servicesForPrimaryLocation) {
+            if (locationSpecificService.getEnableOnNextUpgrade()) {
+                ProcessName processName = locationSpecificService.getSipxService()
+                        .getProcessName();
+                Process process = m_processContext.getProcess(processName);
+                processesToEnable.add(process);
+                locationSpecificService.setEnableOnNextUpgrade(false);
+            }
+        }
+
+        m_locationsManager.storeLocation(primaryLocation);
+
+        if (processesToEnable.size() > 0) {
+            m_processContext.manageServices(primaryLocation, processesToEnable, Command.START);
+        }
     }
 
     public void onApplicationEvent(ApplicationEvent event) {
@@ -105,5 +149,16 @@ public class FirstRunTask implements ApplicationListener {
     @Required
     public void setAlarmContext(AlarmContext alarmContext) {
         m_alarmContext = alarmContext;
-    }    
+    }
+
+    @Required
+    public void setSipxServiceManager(SipxServiceManager sipxServiceManager) {
+        m_sipxServiceManager = sipxServiceManager;
+    }
+
+    @Required
+    public void setLocationsManager(LocationsManager locationsManager) {
+        m_locationsManager = locationsManager;
+    }
+
 }

@@ -34,4 +34,13 @@ public class LocationsManagerImpl extends SipxHibernateDaoSupport<Location> impl
     public void deleteLocation(Location location) {
         getHibernateTemplate().delete(location);
     }
+
+    public Location getPrimaryLocation() {
+        Location[] allLocations = getLocations();
+        if (allLocations.length > 0) {
+            return getLocations()[0];
+        } else {
+            return null;
+        }
+    }
 }

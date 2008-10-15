@@ -9,7 +9,10 @@
  */
 package org.sipfoundry.sipxconfig.admin.commserver;
 
+import java.util.Collection;
+
 import org.sipfoundry.sipxconfig.IntegrationTestCase;
+import org.sipfoundry.sipxconfig.service.LocationSpecificService;
 
 public class LocationsManagerImplTestIntegration extends IntegrationTestCase {
     private LocationsManager m_out;
@@ -19,15 +22,15 @@ public class LocationsManagerImplTestIntegration extends IntegrationTestCase {
         Location[] emptyLocations = m_out.getLocations();
         assertEquals(0, emptyLocations.length);
 
-        loadDataSetXml("admin/commserver/seedLocations.xml");
+        loadDataSetXml("admin/commserver/seedLocationsAndServices.xml");
         Location[] locations = m_out.getLocations();
         assertEquals(2, locations.length);
         assertEquals("https://localhost:8092/RPC2", locations[0].getProcessMonitorUrl());
-        assertEquals("https://remotehost.example.com:8092/RPC2", locations[1].getProcessMonitorUrl());
+        assertEquals("https://remotehost.example.org:8092/RPC2", locations[1].getProcessMonitorUrl());
     }
 
     public void testFindById() throws Exception {
-        loadDataSetXml("admin/commserver/seedLocations.xml");
+        loadDataSetXml("admin/commserver/seedLocationsAndServices.xml");
         Location[] locations = m_out.getLocations();
 
         Location firstLocation = locations[0];
@@ -36,6 +39,17 @@ public class LocationsManagerImplTestIntegration extends IntegrationTestCase {
         Location locationById = m_out.getLocation(locationId);
         assertNotNull(locationById);
         assertEquals(firstLocation.getName(), locationById.getName());
+
+        Collection<LocationSpecificService> services = locationById.getServices();
+        assertNotNull(services);
+        assertEquals(3, services.size());
+    }
+
+    public void testGetPrimaryLocation() throws Exception {
+        loadDataSetXml("admin/commserver/seedLocationsAndServices.xml");
+        Location location = m_out.getPrimaryLocation();
+        assertNotNull(location);
+        assertEquals(101, (int)location.getId());
     }
 
     public void testStore() throws Exception {

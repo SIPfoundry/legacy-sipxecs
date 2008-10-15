@@ -66,6 +66,8 @@
     <property name="processContext" ref="sipxProcessContext" />
 	<property name="alarmContext" ref="alarmContext" />
     <property name="taskName" value="first-run" />
+    <property name="locationsManager" ref="locationsManager"/>
+    <property name="sipxServiceManager" ref="sipxServiceManager"/>
   </bean>
 
   <bean id="exportCsv"

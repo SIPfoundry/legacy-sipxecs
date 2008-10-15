@@ -46,8 +46,12 @@ public class SipxProcessContextImplTest extends TestCase {
     protected void setUp() throws Exception {
         m_locationsManager = EasyMock.createNiceMock(LocationsManager.class);
         Location location = new Location();
-        location.setSipxServices(Arrays.asList(new SipxService[] {
-                new SipxRegistrarService(), new SipxProxyService()
+        SipxService registrarService = new SipxRegistrarService();
+        registrarService.setBeanId("sipxRegistrarService");
+        SipxService proxyService = new SipxProxyService();
+        proxyService.setBeanId("sipxProxyService");
+        location.setServiceDefinitions(Arrays.asList(new SipxService[] {
+                registrarService, proxyService
         }));
         m_locationsManager.getLocations();
         EasyMock.expectLastCall().andReturn(new Location[] {location}).anyTimes();

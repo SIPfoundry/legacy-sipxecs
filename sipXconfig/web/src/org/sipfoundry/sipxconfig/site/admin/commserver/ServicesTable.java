@@ -37,6 +37,7 @@ import org.sipfoundry.sipxconfig.components.ObjectSelectionModel;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.components.SelectMap;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
+import org.sipfoundry.sipxconfig.service.LocationSpecificService;
 import org.sipfoundry.sipxconfig.service.SipxService;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.sipfoundry.sipxconfig.site.service.EditCallResolverService;
@@ -158,7 +159,7 @@ public abstract class ServicesTable extends BaseComponent {
     }
 
     public Object[] retrieveServiceStatus(Location location) {
-        if (location == null || location.getSipxServices() == null) {
+        if (location == null || location.getServices() == null) {
             return ArrayUtils.EMPTY_OBJECT_ARRAY;
         }
         try {
@@ -169,10 +170,10 @@ public abstract class ServicesTable extends BaseComponent {
             validator.record(new ValidatorException(e.getMessage()));
 
             Collection<ServiceStatus> serviceStatusList = new ArrayList<ServiceStatus>();
-            for (SipxService sipxService : location.getSipxServices()) {
-                if (sipxService.getProcessName() != null) {
+            for (LocationSpecificService service : location.getServices()) {
+                if (service.getSipxService().getProcessName() != null) {
                     Process process = getSipxProcessContext().getProcess(
-                            sipxService.getProcessName());
+                            service.getSipxService().getProcessName());
                     serviceStatusList.add(new ServiceStatus(process, Status.Undefined));
                 }
             }
@@ -201,17 +202,17 @@ public abstract class ServicesTable extends BaseComponent {
         manageServices(SipxProcessContext.Command.STOP);
         Collection<Process> selectedProcesses = getSelections().getAllSelected();
         for (Process process : selectedProcesses) {
-            getServiceLocation().removeService(getSipxServiceForProcess(process));
+            getServiceLocation().removeServiceByBeanId(getSipxServiceForProcess(process).getBeanId());
         }
         getLocationsManager().storeLocation(getServiceLocation());
         refresh();
     }
 
     private SipxService getSipxServiceForProcess(Process process) {
-        Collection<SipxService> allServices = getServiceLocation().getSipxServices();
-        for (SipxService sipxService : allServices) {
-            if (sipxService.getProcessName().getName().equals(process.getName())) {
-                return sipxService;
+        Collection<LocationSpecificService> allServices = getServiceLocation().getServices();
+        for (LocationSpecificService service : allServices) {
+            if (service.getSipxService().getProcessName().getName().equals(process.getName())) {
+                return service.getSipxService();
             }
         }
 

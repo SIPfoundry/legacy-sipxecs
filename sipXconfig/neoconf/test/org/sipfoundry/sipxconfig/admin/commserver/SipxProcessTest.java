@@ -24,7 +24,7 @@ public class SipxProcessTest extends TestCase {
         m_locationsManager = createMock(LocationsManager.class);
         
         Location location = new Location();
-        location.setSipxServices(Arrays.asList(new SipxService[] {
+        location.setServiceDefinitions(Arrays.asList(new SipxService[] {
                 new SipxRegistrarService(), new SipxProxyService()
         }));
         

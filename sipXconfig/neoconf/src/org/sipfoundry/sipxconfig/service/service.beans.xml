@@ -63,6 +63,16 @@
     <property name="target" ref="sipxServiceManagerImpl" />
   </bean>
 
+  <bean id="locationSpecificServiceInitTrigger" class="org.sipfoundry.sipxconfig.service.LocationSpecificServiceInitTrigger">
+    <property name="locationManager" ref="locationsManager"/>
+    <property name="sipxServiceManager" ref="sipxServiceManager"/>
+    <property name="taskNames">
+      <list>
+        <value>init-location-specific-service</value>
+      </list>
+    </property>
+  </bean>
+
   <bean id="sipxService" class="org.sipfoundry.sipxconfig.service.SipxService" abstract="true">
     <property name="modelFilesContext" ref="modelFilesContext" />
     <property name="confDir" value="${sysdir.etc}" />

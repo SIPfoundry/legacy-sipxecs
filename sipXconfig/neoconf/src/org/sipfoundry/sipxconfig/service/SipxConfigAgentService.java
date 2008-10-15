@@ -12,7 +12,7 @@ package org.sipfoundry.sipxconfig.service;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessModel.ProcessName;
 
 public class SipxConfigAgentService extends SipxService {
-
+    public static final String BEAN_ID = "sipxConfigAgentService";
     private static final ProcessName PROCESS_NAME = ProcessName.CONFIG_AGENT;
     
     @Override
