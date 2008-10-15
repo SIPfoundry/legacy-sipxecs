@@ -23,8 +23,6 @@
   <resources>
     <osconfig>@SIPX_CONFDIR@/domain-config</osconfig>
     <osconfig>@SIPX_CONFDIR@/mediaserver-config</osconfig>
-    <file>@SIPX_CONFDIR@/e911rules.xml</file><!-- actually used by SosCGI, 
-                                                 but there is no process definition for the cgis -->
     <imdb>extension</imdb><!-- actually used by DialByNameCGI and MailboxManager, 
                                                  but there is no process definition for the cgis -->
   </resources>
