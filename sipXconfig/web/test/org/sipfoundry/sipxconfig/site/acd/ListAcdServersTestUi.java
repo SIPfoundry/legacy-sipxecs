@@ -51,5 +51,7 @@ public class ListAcdServersTestUi extends ListWebTestCase {
     public void testPresenceServerLink() throws Exception {
         clickLink("link:presence");
         assertElementPresent("setting:SIP_PRESENCE_SIGN_IN_CODE");
+        clickButton("form:ok");
+        SiteTestHelper.assertNoException(tester);
     }
 }

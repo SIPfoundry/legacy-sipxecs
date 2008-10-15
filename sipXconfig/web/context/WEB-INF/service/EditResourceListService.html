@@ -1,8 +1,9 @@
 <div jwcid="@common/Border">
-  <span jwcid="@setting/SettingsForm"
-    settings="ognl:resourceListService.settings"
-    cancelListener="listener:cancel"
-    okListener="listener:ok"
-    applyListener="listener:apply"
-    validator="bean:validator"/>
+  <form jwcid="form@Form" delegate="bean:validator">
+    <fieldset jwcid="@setting/SettingsFieldset"
+        settings="ognl:resourceListService.settings"
+        renderGroupTitle="true" />
+    <ul jwcid="formActions@common/FormActions" callback="ognl:callback"
+        listener="listener:apply"/>
+  </form>
 </div>

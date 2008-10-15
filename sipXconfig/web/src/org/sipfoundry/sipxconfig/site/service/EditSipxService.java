@@ -9,7 +9,6 @@
  */
 package org.sipfoundry.sipxconfig.site.service;
 
-import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.annotations.Bean;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.event.PageBeginRenderListener;
@@ -41,17 +40,8 @@ public abstract class EditSipxService extends PageWithCallback implements PageBe
         }
     }
     
-    public void ok(IRequestCycle cycle) {
-        apply();
-        getCallback().performCallback(cycle);
-    }
-
     public void apply() {
         getSipxService().validate();
         getSipxServiceManager().storeService(getSipxService());
-    }
-    
-    public void cancel(IRequestCycle cycle) {
-        getCallback().performCallback(cycle);
     }
 }

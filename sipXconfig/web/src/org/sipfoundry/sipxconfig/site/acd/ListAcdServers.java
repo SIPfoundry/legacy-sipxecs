@@ -21,6 +21,7 @@ import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.site.service.EditPresenceService;
 
 public abstract class ListAcdServers extends BasePage implements PageBeginRenderListener {
+    public static final String PAGE = "acd/ListAcdServers";
 
     public abstract AcdContext getAcdContext();
 
@@ -50,6 +51,7 @@ public abstract class ListAcdServers extends BasePage implements PageBeginRender
 
     public IPage activatePresenceServerPage(IRequestCycle cycle) {
         EditPresenceService page = (EditPresenceService) cycle.getPage(EditPresenceService.PAGE);
+        page.setReturnPage(ListAcdServers.PAGE);
         return page;
     }
 
