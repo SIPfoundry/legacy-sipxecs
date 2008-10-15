@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.site.admin;
@@ -38,13 +38,13 @@ public abstract class ManageDomain extends PageWithCallback implements PageBegin
 
     @InjectObject (value = "spring:tapestry")
     public abstract TapestryContext getTapestry();
-    
+
     @InjectObject (value = "spring:domainManager")
     public abstract DomainManager getDomainManager();
-    
+
     @InjectObject (value = "spring:sipxServiceManager")
     public abstract SipxServiceManager getSipxServiceManager();
-    
+
     @InitialValue (value = "ognl:domainManager.domain")
     public abstract Domain getDomain();
 
@@ -91,10 +91,9 @@ public abstract class ManageDomain extends PageWithCallback implements PageBegin
         d.getAliases().clear();
         d.getAliases().addAll(getAliases());
         getDomainManager().saveDomain(d);
-        
+
         //force domain name replication in registrar-config
-        SipxService registrarService = (SipxService) getSipxServiceManager().getServiceByBeanId(
-                SipxRegistrarService.BEAN_ID);        
+        SipxService registrarService = getSipxServiceManager().getServiceByBeanId(SipxRegistrarService.BEAN_ID);
         registrarService.setDomainName(d.getName());
         getSipxServiceManager().replicateServiceConfig(registrarService);
 

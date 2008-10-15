@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.site.gateway;
@@ -46,16 +46,16 @@ public abstract class GatewayForm extends BaseComponent implements PageBeginRend
 
     @InjectObject(value = "spring:sipTrunkStandard")
     public abstract SipTrunkModel getStandardSipTrunkModel();
-    
+
     @InjectObject(value = "spring:gatewayContext")
     public abstract GatewayContext getGatewayContext();
 
     @InjectObject(value = "spring:itspTemplateModelSource")
     public abstract ModelSource getTemplateModelSource();
-    
+
     @InjectObject(value = "spring:modelFilesContext")
     public abstract ModelFilesContext getModelFilesContext();
-    
+
     public List<Validator> getSerialNumberValidators() {
         return TapestryUtils.getSerialNumberValidators(getGateway().getModel());
     }
@@ -66,7 +66,7 @@ public abstract class GatewayForm extends BaseComponent implements PageBeginRend
 
     public abstract String getTestValue();
     public abstract void setTestValue(String testValue);
-    
+
     @Persist
     public abstract boolean isAdvanced();
 
@@ -96,50 +96,49 @@ public abstract class GatewayForm extends BaseComponent implements PageBeginRend
             setAddressTransportModel(model);
         }
     }
-    
+
     public boolean isSipTrunk() {
         return (getGateway() instanceof SipTrunk);
     }
-    
+
     public SipTrunkModel getTemplate() {
         SipTrunkModel model = (SipTrunkModel) getGateway().getModel();
         if (getTemplateModelSource().getModels().contains(model)) {
             return model;
-        } else {
-            return null;
         }
+        return null;
     }
-    
+
     public void setTemplate(GatewayModel template) {
         if (template != null) {
             getGateway().setModel(template);
         }
     }
-    
+
     @EventListener(targets = "template", events = "onchange")
     public void selectTemplate(IRequestCycle cycle) {
         SipTrunkModel template = getTemplate();
         if (template != null) {
             Gateway gateway = getGateway();
             gateway.setModel(template);
-            Setting templateSettings = 
-                getModelFilesContext().loadModelFile(template.getItspTemplate(), 
+            Setting templateSettings =
+                getModelFilesContext().loadModelFile(template.getItspTemplate(),
                         template.getTemplateLocation());
-            
+
             gateway.setAddress(templateSettings.getSetting("itsp-account/proxy-domain").getValue());
         }
-        
+
         cycle.getResponseBuilder().updateComponent("gateway:address");
     }
-    
+
     public IPropertySelectionModel getTemplateModel() {
         ItspTemplateSelectionModel model = new ItspTemplateSelectionModel();
         model.setModelSource(getTemplateModelSource());
         model.setExtraLabel(getMessages().getMessage("none"));
         model.setExtraOption(getStandardSipTrunkModel());
         return model;
-    }  
-    
+    }
+
     public static class ItspTemplateSelectionModel extends ExtraOptionModelDecorator {
         public void setModelSource(ModelSource modelSource) {
             ObjectSelectionModel model = new ObjectSelectionModel();

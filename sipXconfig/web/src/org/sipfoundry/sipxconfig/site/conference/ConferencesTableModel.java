@@ -23,11 +23,11 @@ import org.sipfoundry.sipxconfig.search.IdentityToBean;
 import org.sipfoundry.sipxconfig.search.SearchManager;
 
 public class ConferencesTableModel implements IBasicTableModel {
-    private ConferenceBridgeContext m_conferenceContext;
+    private final ConferenceBridgeContext m_conferenceContext;
 
     private Integer m_groupId;
 
-    private Bridge m_bridge;
+    private final Bridge m_bridge;
 
     private String m_queryText;
 
@@ -81,24 +81,23 @@ public class ConferencesTableModel implements IBasicTableModel {
     public int getRowCount() {
         if (!isSearchMode() || StringUtils.isBlank(m_queryText)) {
             return m_conferenceContext.countFilterConferences(m_bridge.getId(), m_groupId);
-        } else {
-            return m_searchManager.search(Conference.class, m_queryText, null).size();
         }
+
+        return m_searchManager.search(Conference.class, m_queryText, null).size();
     }
 
-    public Iterator getCurrentPageRows(int firstRow, int pageSize, ITableColumn objSortColumn,
-            boolean orderAscending) {
+    public Iterator getCurrentPageRows(int firstRow, int pageSize, ITableColumn objSortColumn, boolean orderAscending) {
         String[] orderBy = objSortColumn != null ? new String[] {
-            objSortColumn.getColumnName() } : ArrayUtils.EMPTY_STRING_ARRAY;
+            objSortColumn.getColumnName()
+        } : ArrayUtils.EMPTY_STRING_ARRAY;
         if (!isSearchMode() || StringUtils.isBlank(m_queryText)) {
-            return m_conferenceContext.filterConferencesByPage(m_bridge.getId(), m_groupId,
-                    firstRow, pageSize, orderBy, orderAscending).iterator();
-        } else {
-            IdentityToBean identityToBean = new IdentityToBean(m_identity);
-            return m_searchManager.search(Conference.class, m_queryText, firstRow, pageSize,
-                    orderBy, orderAscending, identityToBean).iterator();
-
+            return m_conferenceContext.filterConferencesByPage(m_bridge.getId(), m_groupId, firstRow, pageSize,
+                    orderBy, orderAscending).iterator();
         }
+        IdentityToBean identityToBean = new IdentityToBean(m_identity);
+        return m_searchManager.search(Conference.class, m_queryText, firstRow, pageSize, orderBy, orderAscending,
+                identityToBean).iterator();
+
     }
 
 }

@@ -18,15 +18,13 @@ public class BridgeConferenceIdentityImpl extends HibernateDaoSupport  implement
 
     public Conference load(Class c, Serializable id) {
         Conference conf = (Conference) getHibernateTemplate().load(c, id);
-        if (conf.getBridge().getId().equals(m_bridge.getId())) {
+        if (conf.getBridge().equals(m_bridge)) {
             return  conf;
-        } else {
-            return null;
         }
+        return null;
     }
 
     public void setBridge(Bridge bridge) {
-        this.m_bridge = bridge;
+        m_bridge = bridge;
     }
-
 }

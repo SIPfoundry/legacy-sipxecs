@@ -24,7 +24,6 @@ import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext.Command;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessModel.ProcessName;
 import org.sipfoundry.sipxconfig.components.SelectMap;
 import org.sipfoundry.sipxconfig.service.SipxProxyService;
-import org.sipfoundry.sipxconfig.service.SipxService;
 
 public class ServicesTableTest extends TestCase {
 
@@ -32,6 +31,7 @@ public class ServicesTableTest extends TestCase {
     private Location m_location;
     private SipxProcessContext m_sipxProcessContext;
 
+    @Override
     public void setUp() {
         Creator pageCreator = new Creator();
         m_out = (ServicesTable) pageCreator.newInstance(ServicesTable.class);

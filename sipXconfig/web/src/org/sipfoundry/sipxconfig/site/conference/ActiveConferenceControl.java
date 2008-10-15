@@ -16,6 +16,7 @@ import java.util.List;
 
 import org.apache.commons.collections.Closure;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.tapestry.BaseComponent;
@@ -44,9 +45,9 @@ import org.sipfoundry.sipxconfig.site.UserSession;
 
 public abstract class ActiveConferenceControl extends BaseComponent {
     private static final Log LOG = LogFactory.getLog(ActiveConferenceControl.class);
-    
+
     private static final String TEXT_NUMBER = "text.number";
-    
+
     @Bean
     public abstract SelectMap getSelections();
 
@@ -63,14 +64,14 @@ public abstract class ActiveConferenceControl extends BaseComponent {
     public abstract CoreContext getCoreContext();
 
     @InjectState(value = "userSession")
-    public abstract UserSession getUserSession();    
-    
+    public abstract UserSession getUserSession();
+
     @Parameter
     public abstract Conference getConference();
 
     @Parameter
     public abstract SipxValidationDelegate getValidator();
-    
+
     public abstract List<ActiveConferenceMember> getMembersCached();
 
     public abstract void setMembersCached(List<ActiveConferenceMember> members);
@@ -79,18 +80,14 @@ public abstract class ActiveConferenceControl extends BaseComponent {
 
     public abstract String getInviteNumber();
     public abstract void setInviteNumber(String inviteNumber);
-    
+
     public String getInviteFieldValue() {
         String placeholder = getMessages().getMessage(TEXT_NUMBER);
         String rawValue = getInviteNumber();
-        
-        if (rawValue == null || rawValue.equals("")) {
-            return placeholder;
-        } else {
-            return rawValue;
-        }
+
+        return StringUtils.defaultIfEmpty(rawValue, placeholder);
     }
-    
+
     public void setInviteFieldValue(String inviteFieldValue) {
         String placeholder = getMessages().getMessage(TEXT_NUMBER);
         if (inviteFieldValue == null || inviteFieldValue.equals(placeholder)) {
@@ -99,7 +96,7 @@ public abstract class ActiveConferenceControl extends BaseComponent {
             setInviteNumber(inviteFieldValue);
         }
     }
-    
+
     @Asset("/images/user.png")
     public abstract IAsset getUserIcon();
 
@@ -116,8 +113,8 @@ public abstract class ActiveConferenceControl extends BaseComponent {
     public abstract IAsset getMuteIcon();
 
     @Asset(value = "context:/WEB-INF/conference/ActiveConferenceControl.script")
-    public abstract IAsset getScript();    
-    
+    public abstract IAsset getScript();
+
     void recordFailure(UserException ue) {
         IValidationDelegate validator = TapestryUtils.getValidator(this);
         if (validator instanceof SipxValidationDelegate) {
@@ -155,15 +152,15 @@ public abstract class ActiveConferenceControl extends BaseComponent {
         } catch (UserException e) {
             recordFailure(e);
         }
-        
+
         LOG.debug("Using member list: " + members);
-        
+
         setMembersCached(members);
         return members;
     }
 
     public abstract class Action implements Closure {
-        private String m_msgSuccess;
+        private final String m_msgSuccess;
 
         public Action(String msgSuccess) {
             m_msgSuccess = getMessages().getMessage(msgSuccess);
@@ -206,13 +203,14 @@ public abstract class ActiveConferenceControl extends BaseComponent {
             User user = getUserSession().getUser(getCoreContext());
             getActiveConferenceContext().inviteParticipant(user, getConference(), inviteNumber);
             getValidator().recordSuccess(inviteNumber + " has been invited to this conference.");
-            
+
             setInviteNumber(null);
         }
     }
-    
+
     public void deafUsers() {
         Closure deaf = new Action("msg.success.deaf") {
+            @Override
             public void execute(Conference conference, ActiveConferenceMember member) {
                 getActiveConferenceContext().deafUser(conference, member);
             }
@@ -222,6 +220,7 @@ public abstract class ActiveConferenceControl extends BaseComponent {
 
     public void undeafUsers() {
         Closure deaf = new Action("msg.success.undeaf") {
+            @Override
             public void execute(Conference conference, ActiveConferenceMember member) {
                 getActiveConferenceContext().undeafUser(conference, member);
             }
@@ -231,6 +230,7 @@ public abstract class ActiveConferenceControl extends BaseComponent {
 
     public void muteUsers() {
         Closure deaf = new Action("msg.success.mute") {
+            @Override
             public void execute(Conference conference, ActiveConferenceMember member) {
                 getActiveConferenceContext().muteUser(conference, member);
             }
@@ -240,6 +240,7 @@ public abstract class ActiveConferenceControl extends BaseComponent {
 
     public void unmuteUsers() {
         Closure deaf = new Action("msg.success.unmute") {
+            @Override
             public void execute(Conference conference, ActiveConferenceMember member) {
                 getActiveConferenceContext().unmuteUser(conference, member);
             }
@@ -249,6 +250,7 @@ public abstract class ActiveConferenceControl extends BaseComponent {
 
     public void kickUsers() {
         Closure kick = new Action("msg.success.kick") {
+            @Override
             public void execute(Conference conference, ActiveConferenceMember member) {
                 getActiveConferenceContext().kickUser(conference, member);
             }

@@ -12,7 +12,6 @@ package org.sipfoundry.sipxconfig.service;
 import java.util.Arrays;
 import java.util.Collection;
 
-import org.easymock.classextension.EasyMock;
 import org.hibernate.SessionFactory;
 import org.sipfoundry.sipxconfig.IntegrationTestCase;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
@@ -22,6 +21,7 @@ import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.same;
 import static org.easymock.EasyMock.verify;
+import static org.easymock.EasyMock.expectLastCall;
 
 public class SipxServiceManagerImplTestIntegration extends IntegrationTestCase {
 
@@ -43,7 +43,7 @@ public class SipxServiceManagerImplTestIntegration extends IntegrationTestCase {
     public void testGetAllServices() {
         Collection<SipxService> allServices = m_out.getAllServices();
         assertNotNull(allServices);
-        
+
         // There should be at least 5 services returned.  This assertion means
         // we don't need to update the test each time we add a new service
         assertTrue(allServices.size() > 5);
@@ -74,9 +74,9 @@ public class SipxServiceManagerImplTestIntegration extends IntegrationTestCase {
         SipxReplicationContext replicationContext = createMock(SipxReplicationContext.class);
         m_out.setSipxReplicationContext(replicationContext);
         replicationContext.replicate(same(sipxStatusConfiguration));
-        EasyMock.expectLastCall();
+        expectLastCall();
         replicationContext.replicate(same(statusPluginConfiguration));
-        EasyMock.expectLastCall();
+        expectLastCall();
         replay(replicationContext);
 
         m_out.storeService(service);
