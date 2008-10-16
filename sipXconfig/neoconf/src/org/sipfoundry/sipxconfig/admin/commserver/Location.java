@@ -126,6 +126,7 @@ public class Location extends BeanWithId {
             m_services = new HashMap<String, LocationSpecificService>();
         }
         if (!m_services.containsKey(service.getSipxService().getBeanId())) {
+            service.setLocation(this);
             m_services.put(service.getSipxService().getBeanId(), service);
         }
     }

@@ -12,8 +12,6 @@
     <property name="enableOnNextUpgrade"/>
     <many-to-one name="sipxService" cascade="all" column="sipx_service_id"
       class="org.sipfoundry.sipxconfig.service.SipxService"/>
-    <many-to-one name="location" cascade="all" column="location_id"
-      class="org.sipfoundry.sipxconfig.admin.commserver.Location"/>
   </class>
 
 </hibernate-mapping>

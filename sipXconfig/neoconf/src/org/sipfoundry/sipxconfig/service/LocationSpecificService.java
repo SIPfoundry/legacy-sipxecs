@@ -55,4 +55,15 @@ public class LocationSpecificService extends BeanWithId {
     public void setEnableOnNextUpgrade(boolean enableOnNextUpgrade) {
         m_enableOnNextUpgrade = enableOnNextUpgrade;
     }
+    
+    public String toString() {
+        StringBuffer strBuffer = new StringBuffer();
+        strBuffer.append("LocationSpecificService: ");
+        strBuffer.append("locationId=");
+        strBuffer.append(m_location.getId());
+        strBuffer.append(", ");
+        strBuffer.append("sipxServiceId=");
+        strBuffer.append(m_sipxService.getId());
+        return strBuffer.toString();
+    }
 }

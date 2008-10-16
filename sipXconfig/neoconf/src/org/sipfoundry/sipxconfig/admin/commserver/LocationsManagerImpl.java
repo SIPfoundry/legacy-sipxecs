@@ -14,7 +14,6 @@ import java.util.List;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 
 public class LocationsManagerImpl extends SipxHibernateDaoSupport<Location> implements LocationsManager {
-
     /** Return the replication URLs, retrieving them on demand */
     public Location[] getLocations() {
         List<Location> locationList =  getHibernateTemplate().loadAll(Location.class);
