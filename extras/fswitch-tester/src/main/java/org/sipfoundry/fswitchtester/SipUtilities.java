@@ -131,7 +131,12 @@ public class SipUtilities {
 
             String toDomain = FreeSwitchTester.getSipxProxyDomain();
 
-            SipURI requestUri = ProtocolObjects.addressFactory.createSipURI(toUser, toDomain);
+            SipURI requestUri;
+            if (toUser.contains("@")) {
+               requestUri = (SipURI)ProtocolObjects.addressFactory.createURI(toUser);
+            } else {
+               requestUri = ProtocolObjects.addressFactory.createSipURI(toUser, toDomain);
+            }
 
             SipURI fromUri = ProtocolObjects.addressFactory.createSipURI(fromUser, toDomain);
 
@@ -141,7 +146,7 @@ public class SipUtilities {
 
             FromHeader fromHeader = ProtocolObjects.headerFactory.createFromHeader(address, tag);
 
-            SipURI toUri = ProtocolObjects.addressFactory.createSipURI(toUser, toDomain);
+            SipURI toUri = requestUri;
 
             ToHeader toHeader = ProtocolObjects.headerFactory.createToHeader(
                     ProtocolObjects.addressFactory.createAddress(toUri), null);
@@ -171,7 +176,7 @@ public class SipUtilities {
             Address routeAddress = ProtocolObjects.addressFactory.createAddress(routeUri);
             RouteHeader routeHeader = ProtocolObjects.headerFactory
                     .createRouteHeader(routeAddress);
-            request.addHeader(routeHeader);
+//            request.addHeader(routeHeader);
             request.setHeader(createUserAgentHeader());
             int port = FreeSwitchTester.allocateMediaPort();
             request.setContent(formatSdp(port), ProtocolObjects.headerFactory
