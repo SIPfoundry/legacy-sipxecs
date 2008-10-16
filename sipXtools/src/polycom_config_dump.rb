@@ -39,7 +39,7 @@ end
 def get_file_io(uri_str)
    uri=URI::parse(uri_str)
    if "file" == uri.scheme # e.g. file:///./3.1.0/000000000000.cfg
-      File.open( uri.path[1,uri.path.length], "r" )
+      File.open(uri.path[1,uri.path.length], "r")
    else
       open(uri)
    end

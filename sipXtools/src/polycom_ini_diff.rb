@@ -13,6 +13,8 @@
 #   1=> Parameters that appear only in the first file.
 #   2=> Parameters that appear only in the second file.
 
+ITEM_DELIM="=>"
+
 def do_hash_diff(hash_1, hash_2)
    new_hash_1 = {}
    num_same_lines = 0
@@ -26,7 +28,7 @@ def do_hash_diff(hash_1, hash_2)
          if pair[1] != hash_2[pair[0]] 
             # The value of this entry is different between the two file.
             num_diff_lines = num_diff_lines + 1
-            puts "D=> #{pair[0]} = 1:\"#{pair[1]}\" vs 2:\"#{hash_2[pair[0]]}\""
+            puts "D#{ITEM_DELIM} #{pair[0]} = 1:\"#{pair[1]}\" vs 2:\"#{hash_2[pair[0]]}\""
          else
             num_same_lines = num_same_lines + 1
          end
@@ -41,19 +43,19 @@ def do_hash_diff(hash_1, hash_2)
 
    sorted_nested_array = new_hash_1.sort
    sorted_nested_array.each do |pair|
-      puts "1=> #{pair[0]} = \"#{pair[1]}\""
+      puts "1#{ITEM_DELIM} #{pair[0]} = \"#{pair[1]}\""
    end
 
    sorted_nested_array = hash_2.sort
    sorted_nested_array.each do |pair|
-      puts "2=> #{pair[0]} = \"#{pair[1]}\""
+      puts "2#{ITEM_DELIM} #{pair[0]} = \"#{pair[1]}\""
    end
 
-   puts ""
-   puts "   Identical                 : #{num_same_lines}"
-   puts "   D total (different values): #{num_diff_lines}"
-   puts "   1 total (only on 1)       : #{new_hash_1.size}"
-   puts "   2 total (only in 2)       : #{hash_2.size}"
+   puts "#"
+   puts "#   Identical                 : #{num_same_lines}"
+   puts "#   D total (different values): #{num_diff_lines}"
+   puts "#   1 total (only on 1)       : #{new_hash_1.size}"
+   puts "#   2 total (only in 2)       : #{hash_2.size}"
 
 end
 
@@ -69,7 +71,7 @@ def parse_init_file(path)
 end
 
 def do_diff(path1, path2)
-   puts "DIFF 1:#{path1} vs. 2:#{path2}"
+   puts "# DIFF 1:#{path1} vs. 2:#{path2}"
    do_hash_diff(parse_init_file(path1), parse_init_file(path2))
 end
 
