@@ -134,6 +134,14 @@ AC_DEFUN([SFAC_SIPX_GLOBAL_OPTS],
                                 [Enable build number as part of RPM name]),
                  enable_buildnumber=yes)
 
+    AC_ARG_VAR(USE_IBM_JVM)
+    AC_ARG_ENABLE([ibm-jvm],
+      AC_HELP_STRING([--enable-ibm-jvm],
+        [When enabled, RPM's requiring a JVM will specify the IBM JVM.  Othewise the Sun JVM will be specified.]),
+      [USE_IBM_JVM=1],
+      [USE_IBM_JVM=0]
+    )
+
     ## --enable-slow-tests enables executing unit tests that take a long time.
     ## "long time" should be approximately "10 seconds or longer".
 

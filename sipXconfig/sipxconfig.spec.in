@@ -37,15 +37,9 @@ Requires: rubygems
 Requires: apache2-prefork
 %endif
 
-# does not work with w/gcj - require -ibm or -sun depending on a platform
-%ifarch ppc ppc64
-Requires: java-ibm >= 1.5
-
-# required. this handle certs when using ibm's jvm
-# note anaconda in fc6ppc doesn't seem to know to pull this in
-# could be the bizarre versioning (i.e. lack of it)
+%if %{use_ibm_jvm}
+Requires: java-ibm >= 1.6
 Requires: java-ibm-unrestricted
-
 %else
 Requires: java-sun >= 1.5
 %endif

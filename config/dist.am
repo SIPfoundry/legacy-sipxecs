@@ -37,7 +37,7 @@ RELEASE=$(shell @abs_top_srcdir@/config/svn-version @abs_top_srcdir@)
 
 .PHONY: build-rpm
 build-rpm :
-	rpmbuild -ta --define="buildno $(RELEASE)" $(DIST_SRC)
+	rpmbuild -ta --define="buildno $(RELEASE)" --define="use_ibm_jvm $(USE_IBM_JVM)" $(DIST_SRC)
 
 $(RPMS) : build-rpm
 	cp @RPMBUILD_TOPDIR@/RPMS/$(RPM_TARGET_ARCH)/`basename $@` $@
