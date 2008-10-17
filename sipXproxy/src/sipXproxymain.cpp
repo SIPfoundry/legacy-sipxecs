@@ -674,8 +674,11 @@ proxy( int argc, char* argv[] )
     }
     else
     {
-        OsSysLog::add(FAC_SIP, PRI_INFO, "forwarding rules '%s' not found",
-            fileName.data());
+        // forwardingrules.xml is not readable; no processing is possible.
+        OsSysLog::add(FAC_SIP, PRI_CRIT,
+                      "forwarding rules '%s' not found -- exiting",
+                      fileName.data());
+        exit(1);
     }
  
 #ifdef TEST_PRINT
@@ -812,8 +815,8 @@ proxy( int argc, char* argv[] )
     // Create a router to route stuff either
     // to a local server or on out to the real world
     SipRouter* pRouter = new SipRouter(*pSipUserAgent, 
-                    forwardingRules,
-                    configDb);
+                                       forwardingRules,
+                                       configDb);
 
     // Start the router running
     pRouter->start();

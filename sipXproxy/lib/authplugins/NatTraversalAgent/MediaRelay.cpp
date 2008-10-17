@@ -71,7 +71,7 @@ const UtlContainableType AsynchMediaRelayMsg::TYPE = "AsynchMediaRelayMsg";
 #define SESSION_STATE         "sym-state"
 #define PACKETS_RECEIVED      "packets-received"
 #define PACKETS_SENT          "packets-sent"
-#define PACKETS_PROCESSED     "packets-processed
+#define PACKETS_PROCESSED     "packets-processed"
 
 // Status codes 
 #define OK                    "ok"
@@ -252,7 +252,7 @@ bool MediaRelay::preAllocateSymmitronResources( void )
                            Sym* pSym = new Sym( *pSymId, *pSymIpAddress, *pSymPort );
                            OsSysLog::add(FAC_NAT, PRI_DEBUG, 
                                          "MediaRelay::initialize() createSyms id:'%s' IP:Port=%s:%d", 
-                                         pSymId->data(), pSymIpAddress->data(), pSymPort->getValue() );
+                                         pSymId->data(), pSymIpAddress->data(), (int)(pSymPort->getValue() ) );
                            mSymList.insert( pSym );
                         }
                         else
@@ -334,7 +334,7 @@ bool MediaRelay::preAllocateSymmitronResources( void )
             else
             {
                OsSysLog::add( FAC_NAT, PRI_CRIT, "MediaRelay::initialize() createSyms requested %d syms"
-                                                 "but only obtained %d - init failed", requestedSymCount.getValue(), pSymArray->entries() );
+                                                 "but only obtained %zu - init failed", (int)(requestedSymCount.getValue()), pSymArray->entries() );
             }
          
          }
@@ -551,7 +551,7 @@ void MediaRelay::notifyBridgeStatistics( const UtlString& bridgeId, intptr_t num
    MediaRelaySession* pMediaRelaySession = getSessionByHandle( mediaRelaySessionHandle );
 
    OsSysLog::add( FAC_NAT, PRI_DEBUG, "MediaRelay::notifyBridgeStatistics() received stats for bridge %s belonging to MRS %u: "
-                                      " packets processed = %d", bridgeId.data(), (intptr_t)mediaRelaySessionHandle, numberOfPacketsProcessed );
+                                      " packets processed = %d", bridgeId.data(), (int)mediaRelaySessionHandle, (int)numberOfPacketsProcessed );
    
    if( pMediaRelaySession )
    {
@@ -621,7 +621,7 @@ bool MediaRelay::allocateSession( tMediaRelayHandle& relayHandle, int& endpoint1
 
       OsSysLog::add( FAC_NAT, PRI_DEBUG, "__NAT_DEBUG__ MRS handle=%u: Allocated session.  Caller(Port=%d, sym=%s); Callee(Port=%d, sym=%s)"
                      "MBP:%p (RtpBridge=%s)",
-                     (intptr_t)relayHandle, 
+                     (int)relayHandle, 
                      pMediaBridgePairToUse->getRtpBridge()->getEndpoint1Sym()->getPort(),     
                      pMediaBridgePairToUse->getRtpBridge()->getEndpoint1Sym()->getId().data(),     
                      pMediaBridgePairToUse->getRtpBridge()->getEndpoint2Sym()->getPort(),     
@@ -632,7 +632,7 @@ bool MediaRelay::allocateSession( tMediaRelayHandle& relayHandle, int& endpoint1
    else
    {
       OsSysLog::add( FAC_NAT, PRI_CRIT, "MediaRelay::allocateSession() failed to allocate a new session - "
-                                        "ran out of bridges (max = %d)", mMaxMediaRelaySessions );
+                                        "ran out of bridges (max = %zu)", mMaxMediaRelaySessions );
    }
    return result;
 }
@@ -662,8 +662,8 @@ tMediaRelayHandle MediaRelay::cloneSession( const tMediaRelayHandle& relayHandle
       mActiveMediaRelaySessions.insertKeyAndValue( pHandle, pClonedMediaRelaySession );
 
       OsSysLog::add( FAC_NAT, PRI_DEBUG, "__NAT_DEBUG__ Cloned session %u => resulting clone %u.  PortsSwapped = %d (callerPort=%d, calleePort=%d)",
-                     (intptr_t)relayHandleToClone,
-                     (intptr_t)relayHandleOfClone,
+                     (int)relayHandleToClone,
+                     (int)relayHandleOfClone,
                      doSwapCallerAndCallee,
                      callerRtpPort,
                      calleeRtpPort );
@@ -706,7 +706,7 @@ bool MediaRelay::deallocateSession( const tMediaRelayHandle& handle )
    
                OsSysLog::add( FAC_NAT, PRI_DEBUG, "__NAT_DEBUG__ MRS handle=%u: Deallocated session.  Caller(Port=%d, sym=%s); Callee(Port=%d, sym=%s)"
                               "MBP:%p (RtpBridge=%s)",
-                              (intptr_t)handle, 
+                              (int)handle, 
                               pMediaBridgePairBeingFreed->getRtpBridge()->getEndpoint1Sym()->getPort(),     
                               pMediaBridgePairBeingFreed->getRtpBridge()->getEndpoint1Sym()->getId().data(),     
                               pMediaBridgePairBeingFreed->getRtpBridge()->getEndpoint2Sym()->getPort(),     
@@ -739,8 +739,8 @@ bool MediaRelay::deallocateSession( const tMediaRelayHandle& handle )
          }
          else
          {
-            OsSysLog::add( FAC_NAT, PRI_DEBUG, "__NAT_DEBUG__ MRS handle=%u: Deallocated session but non-zero link count (%d)",
-                           (intptr_t)handle,
+            OsSysLog::add( FAC_NAT, PRI_DEBUG, "__NAT_DEBUG__ MRS handle=%u: Deallocated session but non-zero link count (%zd)",
+                           (int)handle,
                            pMediaRelaySession->getLinkCount() );
          }
          assert( mAvailableMediaBridgePairsList.size() + mBusyMediaBridgePairsList.size() == mMaxMediaRelaySessions );
@@ -818,7 +818,7 @@ bool MediaRelay::setDirectionMode( const tMediaRelayHandle& handle, MediaDirecti
          MediaDescriptor::mediaDirectionalityValueToSdpDirectionalityAttribute( mediaRelayDirectionMode, directionalityString );
          OsSysLog::add( FAC_NAT, PRI_DEBUG, "__NAT_DEBUG__ MRS handle %u: set directionality to %s.  Caller(Port=%d, sym=%s); Callee(Port=%d, sym=%s)"
                         "MBP:%p (RtpBridge=%s)",
-                        (intptr_t)handle, 
+                        (int)handle, 
                         directionalityString.data(),
                         pMediaBridgePair->getRtpBridge()->getEndpoint1Sym()->getPort(),     
                         pMediaBridgePair->getRtpBridge()->getEndpoint1Sym()->getId().data(),     
@@ -883,7 +883,7 @@ bool MediaRelay::linkSymToEndpoint( const tMediaRelayHandle& relayHandle,
       bLinkSucceeded = true;
 
       OsSysLog::add( FAC_NAT, PRI_DEBUG, "__NAT_DEBUG__ MRS handle %u: linking %u to dest %s:%u (symId=%s)",
-                     (intptr_t)relayHandle, 
+                     (int)relayHandle, 
                      rtpPort,     
                      endpointIpAddress.data(),     
                      endpointRtpPort,     
@@ -893,7 +893,7 @@ bool MediaRelay::linkSymToEndpoint( const tMediaRelayHandle& relayHandle,
    {
       OsSysLog::add(FAC_NAT, PRI_CRIT, 
                     "MediaRelay::linkSymToEndpoint failed to getSessionByHandle: %d",
-                    (intptr_t)relayHandle ); 
+                    (int)relayHandle ); 
 
    }
    return bLinkSucceeded;

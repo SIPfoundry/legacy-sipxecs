@@ -938,7 +938,7 @@ public class SymmitronServer implements Symmitron {
                     System.exit(0);
                 } catch (Exception ex) {
                     logger.fatal("Exception occured while checking configuration"
-                            + " -- exitting", ex);
+                            + " -- exiting", ex);
                     ex.printStackTrace();
                     System.exit(-1);
                 }

@@ -212,6 +212,8 @@ void NatTraversalRules::initializeNatTraversalInfo( void )
          }
          else
          {
+            // No native address provided for the Media Relay - assume that it is co-located with the proxy 
+            mMediaRelayNativeAddress = mProxyTransport.getAddress();
             OsSysLog::add(FAC_NAT, PRI_ERR, "NatTraversalRules::initializeNatTraversalInfo - No child Node named '%s'", XML_TAG_MR_NATIVE_ADDRESS );
          }
          
@@ -224,6 +226,7 @@ void NatTraversalRules::initializeNatTraversalInfo( void )
          }
          else
          {
+            mMediaRelayXmlRpcPort = DEFAULT_MR_XMLRPC_PORT;
             OsSysLog::add(FAC_NAT, PRI_ERR, "NatTraversalRules::initializeNatTraversalInfo - No child Node named '%s'", XML_TAG_MR_XMLRPC_PORT );
          }
          

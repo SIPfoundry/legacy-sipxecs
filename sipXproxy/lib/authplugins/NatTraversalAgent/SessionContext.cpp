@@ -114,7 +114,7 @@ bool SessionContext::handleRequest( SipMessage& message, const char* address, in
    else
    {
       // The request does not yet have a discriminating tag.  This is likely indicating a 
-      // dialog-forming INVITE but to be sure, check tha the request is indeed an 
+      // dialog-forming INVITE but to be sure, check that the request is indeed an 
       // INVITE in the caller->callee direction.
       UtlString method;
       message.getRequestMethod(&method);
@@ -184,7 +184,7 @@ void SessionContext::handleResponse( SipMessage& message, const char* address, i
          // we do not have a DialogTracker for this response.  If this is as
          // 1xx or 2xx response to the dialog-forming INVITE, this response is creating a 
          // new dialog.  Create a new DialogTracker based on the reference DialogTracker
-         if( mDialogFormingInviteCseq == CseqData( message ) )
+         if( !discriminatingTag.isNull() && mDialogFormingInviteCseq == CseqData( message ) )
          {
             DialogTracker* pNewDialogTracker;
             if( (pNewDialogTracker = allocateNewDialogTrackerBasedOnReference( discriminatingTag ) ) )
@@ -267,7 +267,7 @@ DialogTracker* SessionContext::allocateNewDialogTrackerBasedOnReference( const U
    if( pNewDialogTracker )
    {
       addDialogTrackerToList( discriminatingTag, pNewDialogTracker );
-      OsSysLog::add(FAC_NAT, PRI_DEBUG, "SessionContext[%s]::allocateNewDialogTrackerBasedOnReference: allocated DialogTracker #%d for tag %s",
+      OsSysLog::add(FAC_NAT, PRI_DEBUG, "SessionContext[%s]::allocateNewDialogTrackerBasedOnReference: allocated DialogTracker #%zd for tag %s",
                                          mHandle.data(), getNumberOfTrackedDialogs(), discriminatingTag.data() );      
       
       // We have a new tracker that is utilizing the same Media RelaySessions as the 
@@ -545,7 +545,7 @@ bool SessionContext::linkFarEndMediaRelayPortToRequester(  const UtlString& hand
       requestingEndpointRtcpPort  =  0;
    }
    OsSysLog::add(FAC_NAT, PRI_DEBUG, "SessionContext[%s]::linkMediaRelayPortToFarEnd for dialog tracker %s: relay handle %d - linking far-end relay port to '%s':%d,%d",
-                                     mHandle.data(), handleOfRequestingDialogContext.data(), relayHandle.getValue(), requestingEndpointIpAddress.data(), requestingEndpointRtpPort, requestingEndpointRtcpPort ); 
+                                     mHandle.data(), handleOfRequestingDialogContext.data(), (int)(relayHandle.getValue()), requestingEndpointIpAddress.data(), requestingEndpointRtpPort, requestingEndpointRtcpPort ); 
 
    bLinkPerformed = mpMediaRelay->linkSymToEndpoint( relayHandle, requestingEndpointIpAddress, requestingEndpointRtpPort, requestingEndpointRtcpPort, farEndRole ); 
    return bLinkPerformed;

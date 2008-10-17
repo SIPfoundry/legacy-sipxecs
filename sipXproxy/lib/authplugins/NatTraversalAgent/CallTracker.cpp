@@ -41,7 +41,7 @@ CallTracker::CallTracker( ssize_t handle,
    mpSavedOriginalSdpOfferCopy( 0 )
 {
    mPid = OsProcess::getCurrentPID();   
-   OsSysLog::add(FAC_NAT, PRI_DEBUG, "+CallTracker tracker %p created; Handle=%u+",
+   OsSysLog::add(FAC_NAT, PRI_DEBUG, "+CallTracker tracker %p created; Handle=%zd+",
                                        this,
                                        mHandle );
 }
@@ -62,7 +62,7 @@ CallTracker::~CallTracker()
    mBranchIdToSessionHandleMap.destroyAll();   
    mSdpLibrary.destroyAll();
    delete mpSavedOriginalSdpOfferCopy;
-   OsSysLog::add(FAC_NAT, PRI_DEBUG, "-CallTracker tracker %p deleted; Handle=%u-",
+   OsSysLog::add(FAC_NAT, PRI_DEBUG, "-CallTracker tracker %p deleted; Handle=%zd-",
                                        this,
                                        mHandle );
 }
@@ -95,7 +95,7 @@ bool CallTracker::notifyIncomingDialogFormingInvite( SipMessage& request, RouteS
       }
       else
       {
-         OsSysLog::add( FAC_NAT, PRI_ERR, "CallTracker[%u]::notifyIncomingDialogFormingInvite[1] failed to create session context ",
+         OsSysLog::add( FAC_NAT, PRI_ERR, "CallTracker[%zd]::notifyIncomingDialogFormingInvite[1] failed to create session context ",
                         mHandle );
       }
    }
@@ -168,7 +168,7 @@ bool CallTracker::notifyIncomingDialogFormingInvite( SipMessage& request, RouteS
          }
          else
          {
-            OsSysLog::add( FAC_NAT, PRI_ERR, "CallTracker[%u]::notifyIncomingDialogFormingInvite[2] failed to create session context ",
+            OsSysLog::add( FAC_NAT, PRI_ERR, "CallTracker[%zd]::notifyIncomingDialogFormingInvite[2] failed to create session context ",
                            mHandle );
          }
       }
@@ -268,7 +268,7 @@ bool CallTracker::handleRequest( SipMessage& message, const char* address, int p
       }
       else
       {
-         OsSysLog::add(FAC_NAT, PRI_ERR, "CallTracker[%u]::handleRequest failed to retrieve session context "
+         OsSysLog::add(FAC_NAT, PRI_ERR, "CallTracker[%zd]::handleRequest failed to retrieve session context "
                                          "associated with handle '%s'", mHandle, sessionHandle.data() );
       }
    }
@@ -276,7 +276,7 @@ bool CallTracker::handleRequest( SipMessage& message, const char* address, int p
    {
       // we can see that log entry in 'normal' cases when a dialog-forming INVITE we processed
       // is coming back to us and is spiraling, i.e. carries a X-Sipx-Spiral: header. 
-      OsSysLog::add(FAC_NAT, PRI_DEBUG, "CallTracker[%u]::handleRequest did not find SIPX_SESSION_CONTEXT_ID_HEADER in message"
+      OsSysLog::add(FAC_NAT, PRI_DEBUG, "CallTracker[%zd]::handleRequest did not find SIPX_SESSION_CONTEXT_ID_HEADER in message"
                                       , mHandle );
    }
    deleteSessionContextsReadyForDeletion();            
@@ -300,7 +300,7 @@ void CallTracker::handleResponse( SipMessage& message, const char* address, int 
    }
    else  
    {
-      OsSysLog::add(FAC_NAT, PRI_DEBUG, "CallTracker[%u]::handleResponse: no session context present in response", mHandle );
+      OsSysLog::add(FAC_NAT, PRI_DEBUG, "CallTracker[%zd]::handleResponse: no session context present in response", mHandle );
    }
    deleteSessionContextsReadyForDeletion();   
 }
@@ -473,7 +473,7 @@ SessionContext* CallTracker::createSessionContextAndSetHandle( const SipMessage&
    
    if( generateSessionContextHandleFromRequest( sessionContextHandle ) )
    {
-      OsSysLog::add(FAC_NAT, PRI_DEBUG, "CallTracker[%u]::createSessionContextAndSetHandle generated handle: '%s' ",
+      OsSysLog::add(FAC_NAT, PRI_DEBUG, "CallTracker[%zd]::createSessionContextAndSetHandle generated handle: '%s' ",
                     mHandle, sessionContextHandle.data() );
       
       // session context handle successfully generated - allocate a new SessionContext
@@ -493,7 +493,7 @@ SessionContext* CallTracker::createSessionContextAndSetHandle( const SipMessage&
             UtlString branchId;
             if( getBranchId( request, 0, branchId ) )
             {
-               OsSysLog::add(FAC_NAT, PRI_DEBUG, "CallTracker[%u]::createSessionContextAndSetHandle now tracking branch Id '%s'", mHandle, branchId.data() );
+               OsSysLog::add(FAC_NAT, PRI_DEBUG, "CallTracker[%zd]::createSessionContextAndSetHandle now tracking branch Id '%s'", mHandle, branchId.data() );
                mBranchIdToSessionHandleMap.destroy( &branchId );
                mBranchIdToSessionHandleMap.insertKeyAndValue( new UtlString( branchId ), new UtlString( sessionContextHandle ) ) ;
             }
@@ -504,14 +504,14 @@ SessionContext* CallTracker::createSessionContextAndSetHandle( const SipMessage&
          delete pSessionContext;
          delete pMapKey;
          pSessionContext = 0;
-         OsSysLog::add(FAC_NAT, PRI_ERR, "CallTracker[%u]::createSessionContextAndSetHandle failed to insert "
+         OsSysLog::add(FAC_NAT, PRI_ERR, "CallTracker[%zd]::createSessionContextAndSetHandle failed to insert "
                                            "new session context into map.  key : '%s'",
                                            mHandle, sessionContextHandle.data() );
       }
    }
    else
    {
-      OsSysLog::add(FAC_NAT, PRI_ERR, "CallTracker[%u]::createSessionContextAndSetHandle failed to generate new handle",
+      OsSysLog::add(FAC_NAT, PRI_ERR, "CallTracker[%zd]::createSessionContextAndSetHandle failed to generate new handle",
                                        mHandle );
    }
    return pSessionContext;
@@ -542,7 +542,7 @@ bool CallTracker::generateSessionContextHandleFromRequest( UtlString& handle )
 #ifdef _nat_unit_tests_
    sprintf( tempBuffer, "%u-%u", 1234, sNextAvailableSessionContextHandle );
 #else
-   sprintf( tempBuffer, "%u-%u", mPid, sNextAvailableSessionContextHandle );
+   sprintf( tempBuffer, "%u-%zd", mPid, sNextAvailableSessionContextHandle );
 #endif
    sNextAvailableSessionContextHandle++;
    handle = tempBuffer;

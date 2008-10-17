@@ -578,6 +578,12 @@ echo ======== DNS NAPTR $sipDomain >> ${SystemConfig}
 dig -t naptr +noidentify +nocmd +nocomments +noquestion +nostats +noauthority $sipDomain \
 >> ${SystemConfig}
 
+echo "" >> ${SystemConfig}
+echo ======== DNS A $sipDomain >> ${SystemConfig}
+dig -t a +noidentify +nocmd +nocomments +noquestion +nostats +noauthority $sipDomain \
+>> ${SystemConfig}
+
+echo "" >> ${SystemConfig}
 for d in $sipDomain rr.$full_host ap.$full_host
 do
   echo ======== DNS SRV $d >> ${SystemConfig}

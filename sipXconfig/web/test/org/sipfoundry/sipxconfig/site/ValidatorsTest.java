@@ -87,6 +87,9 @@ public class ValidatorsTest extends TestCase {
         Pattern p = (Pattern) m_context.getBean("validHostOrIp");
         p.validate(m_field, m_validationMessages, "10.1.1.25");
         p.validate(m_field, m_validationMessages, "192.1.15.149");
+        p.validate(m_field, m_validationMessages, "111.11.111.11");
+        p.validate(m_field, m_validationMessages, "0.0.0.0");
+        p.validate(m_field, m_validationMessages, "255.255.255.255");
         p.validate(m_field, m_validationMessages, "abc.com");
         p.validate(m_field, m_validationMessages, "www.abc.com");
         p.validate(m_field, m_validationMessages, "server.domain123.com");
@@ -100,6 +103,7 @@ public class ValidatorsTest extends TestCase {
         p.validate(m_field, m_validationMessages, "localhost.localdomain");
         p.validate(m_field, m_validationMessages, "si-px-33.sipfoundry.org");
         p.validate(m_field, m_validationMessages, "sipx-3.sipfoundry.org");
+        p.validate(m_field, m_validationMessages, "a.b.c.d.sipx-3.sipfoundry.org");
 
         // sipX does not support IPv6 - but when it does...
         // p.validate(m_field, m_validationMessages, "2001:0db8:85a3:08d3:1319:8a2e:0370:7334");
@@ -162,6 +166,8 @@ public class ValidatorsTest extends TestCase {
         p.validate(m_field, m_validationMessages, "10.1.1.0");
         p.validate(m_field, m_validationMessages, "192.1.15.149");
         p.validate(m_field, m_validationMessages, "111.11.111.11");
+        p.validate(m_field, m_validationMessages, "0.0.0.0");
+        p.validate(m_field, m_validationMessages, "255.255.255.255");
         try {
             p.validate(m_field, m_validationMessages, "192.168.0.256");
             fail("Should throw a ValidatorException");

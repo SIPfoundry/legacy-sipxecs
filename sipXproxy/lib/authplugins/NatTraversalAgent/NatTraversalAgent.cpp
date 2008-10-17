@@ -31,6 +31,7 @@
 #include "sipXecsService/SharedSecret.h"
 #include "SipRouter.h"
 #include <net/NameValueTokenizer.h>
+#include <net/Url.h>
 #include "NatTraversalAgent.h"
 #include "CallTracker.h"
 #include "NatMaintainer.h"
@@ -210,7 +211,7 @@ NatTraversalAgent::authorizeAndModify(const UtlString& id, /**< The authenticate
                // a new tracker to follow its media session negotiations
                // and intervene as necessary to facilitate NAT traversal.
                pCallTracker = createCallTrackerAndAddToMap( callId, mNextAvailableCallTrackerHandle );   
-               OsSysLog::add(FAC_NAT, PRI_DEBUG, "NatTraversalAgent[%s]::authorizeAndModify create new call tracker[%u] to track call id %s"
+               OsSysLog::add(FAC_NAT, PRI_DEBUG, "NatTraversalAgent[%s]::authorizeAndModify create new call tracker[%zu] to track call id %s"
                                                   , mInstanceName.data(), mNextAvailableCallTrackerHandle, callId.data() );
                mNextAvailableCallTrackerHandle++;
             }
