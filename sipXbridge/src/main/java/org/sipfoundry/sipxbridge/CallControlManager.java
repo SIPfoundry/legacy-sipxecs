@@ -1299,10 +1299,13 @@ class CallControlManager implements SymmitronResetHandler {
                             SessionDescription sd = SipUtilities.getSessionDescription(response);
                             ContentTypeHeader cth = ProtocolObjects.headerFactory
                                     .createContentTypeHeader("application", "sdp");
-
+                            RtpSession originalRtpSession = b2bua.getLanRtpSession(dialog);
+                            originalRtpSession.setTransmitterPort(response);
+                            
                             RtpSession rtpSession = b2bua.getLanRtpSession(peerDialog);
                             rtpSession.getReceiver().setSessionDescription(sd);
                             newResponse.setContent(sd.toString(), cth);
+                          
                         }
                         if (peerProvider != Gateway.getLanProvider()) {
                             DialogApplicationData peerDat = DialogApplicationData.get(peerDialog);

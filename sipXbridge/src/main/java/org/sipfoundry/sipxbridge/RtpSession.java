@@ -22,6 +22,7 @@ import javax.sip.SipException;
 import javax.sip.SipProvider;
 import javax.sip.header.AcceptHeader;
 import javax.sip.header.ContentTypeHeader;
+import javax.sip.message.Message;
 import javax.sip.message.Request;
 import javax.sip.message.Response;
 
@@ -197,6 +198,28 @@ class RtpSession {
         peerDialog.sendRequest(ctx);
         this.reInviteForwarded = true;
     }
+    
+    /**
+     * Set the transmitter IP address and port from the sdp parameters
+     * extracted from the message.
+     * 
+     * @param message
+     * @throws Exception
+     */
+    void setTransmitterPort(Message message) throws Exception {
+        if ( logger.isDebugEnabled()) {
+            logger.debug("RtpSession.setTransmitterPort");
+        }
+        if (this.getTransmitter() != null) {
+            this.getTransmitter().setOnHold(false);
+           
+            SessionDescription reInviteSd = SipUtilities.getSessionDescription(message);     
+            int port = SipUtilities.getSessionDescriptionMediaPort(reInviteSd);
+            String ipAddress  = SipUtilities.getSessionDescriptionMediaIpAddress(reInviteSd);
+            
+            this.getTransmitter().setIpAddressAndPort(ipAddress, port);  
+        }
+    }
 
     /**
      * Remove the music on hold.
@@ -208,15 +231,8 @@ class RtpSession {
             logger.debug("Remove media on hold!");
             SipUtilities.setDuplexity(this.getReceiver().getSessionDescription(), "sendrecv");
             SipUtilities.incrementSessionVersion(this.getReceiver().getSessionDescription());
-            if (this.getTransmitter() != null) {
-                this.getTransmitter().setOnHold(false);
-                Request request = serverTransaction.getRequest();
-                SessionDescription reInviteSd = SipUtilities.getSessionDescription(request);     
-                int port = SipUtilities.getSessionDescriptionMediaPort(reInviteSd);
-                String ipAddress  = SipUtilities.getSessionDescriptionMediaIpAddress(reInviteSd);
-                
-                this.getTransmitter().setIpAddressAndPort(ipAddress, port);  
-            }
+            Request request = serverTransaction.getRequest();
+            this.setTransmitterPort(request);
 
             DialogApplicationData dat = (DialogApplicationData) dialog.getApplicationData();
             BackToBackUserAgent b2bua = dat.getBackToBackUserAgent();
