@@ -275,9 +275,11 @@
       </documentation>
     </annotation>
     <complexType>
-      <sequence>
-        <element ref='dmp:ipV4subnet' minOccurs='0' maxOccurs='unbounded'/>
-        <element ref='dmp:dnsWildcard' minOccurs='0' maxOccurs='unbounded'/>
+      <sequence minOccurs='0' maxOccurs='unbounded'>
+        <choice>
+	  <element ref='dmp:ipV4subnet'/>
+	  <element ref='dmp:dnsWildcard'/>
+        </choice>
       </sequence>
     </complexType>
   </element>
