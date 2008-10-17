@@ -54,9 +54,7 @@ import org.sipfoundry.sipxconfig.admin.dialplan.config.UrlTransform;
  *
  */
 public class MappingRule extends DialingRule {
-    // protected static final String PREFIX = "sip:{%s}@{mediaserver};voicexml={voicemail}";
     protected static final String PREFIX = "sip:%s@%s";
-    protected static final String MEDIA_SERVER_STRING = "{voicemail}/cgi-bin/voicemail/mediaserver.cgi?action=";
     protected static final String VMAIL_DEPOSIT = "deposit";
     protected static final String VMAIL_RETRIEVE = "retrieve";
     protected static final String AUTOATTENDANT = "autoattendant";

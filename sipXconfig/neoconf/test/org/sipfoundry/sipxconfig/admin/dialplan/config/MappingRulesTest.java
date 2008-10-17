@@ -35,6 +35,7 @@ import org.sipfoundry.sipxconfig.admin.dialplan.IDialingRule;
 import org.sipfoundry.sipxconfig.admin.dialplan.MappingRule;
 import org.sipfoundry.sipxconfig.admin.dialplan.MediaServer;
 import org.sipfoundry.sipxconfig.admin.dialplan.SipXMediaServer;
+import org.sipfoundry.sipxconfig.admin.dialplan.SipXMediaServerTest;
 import org.sipfoundry.sipxconfig.admin.dialplan.VoicemailRedirectRule;
 import org.sipfoundry.sipxconfig.admin.localization.LocalizationContext;
 import org.sipfoundry.sipxconfig.admin.parkorbit.MohRule;
@@ -45,6 +46,8 @@ import org.sipfoundry.sipxconfig.speeddial.RlsRule;
  * MappingRulesTest
  */
 public class MappingRulesTest extends XMLTestCase {
+    private static final String VOICEMAIL_SERVER = "https%3A%2F%2Flocalhost%3A443";
+
     public MappingRulesTest() {
         XmlUnitHelper.setNamespaceAware(false);
         XMLUnit.setIgnoreWhitespace(true);
@@ -152,12 +155,12 @@ public class MappingRulesTest extends XMLTestCase {
 
     public void testGenerate() throws Exception {
         UrlTransform voicemail = new UrlTransform();
-        voicemail.setUrl("<sip:{digits}@{mediaserver};"
-                + "play={voicemail}/sipx-cgi/voicemail/mediaserver.cgi?action=deposit&mailbox={digits}>;q=0.1");
+        voicemail.setUrl("<sip:{digits}@localhost;transport=tcp;"
+                + "play=" + VOICEMAIL_SERVER + "/sipx-cgi/voicemail/mediaserver.cgi?action=deposit&mailbox={digits}>;q=0.1");
 
         UrlTransform voicemail2 = new UrlTransform();
         voicemail2.setUrl("<sip:{digits}@testserver;"
-                + "play={voicemail}/sipx-cgi/voicemail/mediaserver.cgi?action=deposit&mailbox={digits}>;q=0.001");
+                + "play=" + VOICEMAIL_SERVER + "/sipx-cgi/voicemail/mediaserver.cgi?action=deposit&mailbox={digits}>;q=0.001");
 
         IMocksControl control = EasyMock.createNiceControl();
         IDialingRule rule = control.createMock(IDialingRule.class);
@@ -239,7 +242,9 @@ public class MappingRulesTest extends XMLTestCase {
 
         LocalizationContext lc = EasyMock.createNiceMock(LocalizationContext.class);
 
-        MediaServer mediaServer = new SipXMediaServer();
+        SipXMediaServer mediaServer = new SipXMediaServer();
+        SipXMediaServerTest.configureMediaServer(mediaServer);
+
         mediaServer.setLocalizationContext(lc);
         MediaServer exchangeMediaServer = new ExchangeMediaServer("exchange.example.com", "102");
         exchangeMediaServer.setLocalizationContext(lc);

@@ -27,7 +27,7 @@ public class AttendantRule extends DialingRule {
     private String m_attendantAliases;
     private String m_extension;
 
-    private final MediaServer m_mediaServer = new SipXMediaServer();
+    private MediaServer m_mediaServer;
 
     @Override
     public void appendToGenerationRules(List<DialingRule> rules) {
@@ -118,6 +118,10 @@ public class AttendantRule extends DialingRule {
 
     public void setExtension(String extension) {
         m_extension = extension;
+    }
+
+    public void setMediaServer(MediaServer mediaServer) {
+        m_mediaServer = mediaServer;
     }
 
     /**

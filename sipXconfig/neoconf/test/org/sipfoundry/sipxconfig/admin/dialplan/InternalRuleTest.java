@@ -35,25 +35,30 @@ import org.springframework.beans.factory.BeanFactory;
  */
 public class InternalRuleTest extends TestCase {
 
-    private static final String URL_PARAMS = ";voicexml={voicemail}%2Fcgi-bin%2Fvoicemail%2Fmediaserver.cgi%3Faction%3D";
-    private static final String VOICEMAIL_URL = "<sip:{digits}@{mediaserver}" + URL_PARAMS
+    private static final String VOICEMAIL_SERVER = "https%3A%2F%2Flocalhost%3A443";
+    private static final String MEDIA_SERVER = "localhost;transport=tcp";
+    private static final String URL_PARAMS = ";voicexml=" + VOICEMAIL_SERVER + "%2Fcgi-bin%2Fvoicemail%2Fmediaserver.cgi%3Faction%3D";
+    private static final String VOICEMAIL_URL = "<sip:{digits}@" + MEDIA_SERVER + URL_PARAMS
             + "retrieve>";
-    private static final String VOICEMAIL_FALLBACK_URL = "<sip:{vdigits}@{mediaserver}"
+    private static final String VOICEMAIL_FALLBACK_URL = "<sip:{vdigits}@" + MEDIA_SERVER
             + URL_PARAMS + "deposit%26mailbox%3D{vdigits-escaped}>;q=0.1";
-    private static final String VOICEMAIL_TRANSFER_URL = "<sip:{vdigits}@{mediaserver}"
+    private static final String VOICEMAIL_TRANSFER_URL = "<sip:{vdigits}@" + MEDIA_SERVER
             + URL_PARAMS + "deposit%26mailbox%3D{vdigits-escaped}>";
 
-    private static final String VOICEMAIL_URL_LANG = "<sip:{digits}@{mediaserver}" + URL_PARAMS
+    private static final String VOICEMAIL_URL_LANG = "<sip:{digits}@" + MEDIA_SERVER + URL_PARAMS
             + "retrieve%26lang%3Dpl>";
-    private static final String VOICEMAIL_FALLBACK_URL_LANG = "<sip:{vdigits}@{mediaserver}"
+    private static final String VOICEMAIL_FALLBACK_URL_LANG = "<sip:{vdigits}@" + MEDIA_SERVER
             + URL_PARAMS + "deposit%26mailbox%3D{vdigits-escaped}%26lang%3Dpl>;q=0.1";
-    private static final String VOICEMAIL_TRANSFER_URL_LANG = "<sip:{vdigits}@{mediaserver}"
+    private static final String VOICEMAIL_TRANSFER_URL_LANG = "<sip:{vdigits}@" +MEDIA_SERVER
             + URL_PARAMS + "deposit%26mailbox%3D{vdigits-escaped}%26lang%3Dpl>";
 
     private static final String TEST_DESCRIPTION = "kuku description";
     private static final String TEST_NAME = "kuku name";
     private static final String VALIDTIME_PARAMS = "sipx-ValidTime=";
     private Schedule m_schedule;
+    private BeanFactory m_beanFactory;
+    private LocalizationContext m_localizationContext;
+    private SipXMediaServer m_mediaServer;
 
     protected void setUp() throws Exception {
         m_schedule = new GeneralSchedule();
@@ -71,6 +76,24 @@ public class InternalRuleTest extends TestCase {
         wt.setWorkingHours(hours);
         wt.setEnabled(true);
         m_schedule.setWorkingTime(wt);
+
+        m_mediaServer = new SipXMediaServer();
+        SipXMediaServerTest.configureMediaServer(m_mediaServer);
+
+        m_localizationContext = EasyMock.createNiceMock(LocalizationContext.class);
+        m_mediaServer.setLocalizationContext(m_localizationContext);
+
+        m_beanFactory = EasyMock.createNiceMock(BeanFactory.class);
+        m_beanFactory.getBean("sipXMediaServer", MediaServer.class);
+        EasyMock.expectLastCall().andReturn(m_mediaServer);
+    }
+
+    /**
+     * Call this method before using any mocks in test, and after any optional mock config
+     * is complete
+     */
+    private void replayMocks() {
+        EasyMock.replay(m_beanFactory, m_localizationContext);
     }
 
     public void testAppendToGenerationRules() throws Exception {
@@ -82,19 +105,9 @@ public class InternalRuleTest extends TestCase {
         ir.setVoiceMailPrefix("7");
         ir.setEnabled(true);
 
-        SipXMediaServer mediaServer = new SipXMediaServer();
-
-        LocalizationContext lc = EasyMock.createNiceMock(LocalizationContext.class);
-        mediaServer.setLocalizationContext(lc);
-
-        // configure a mock bean factory that is needed by the MediaServerFactory
-        BeanFactory beanFactory = EasyMock.createNiceMock(BeanFactory.class);
-        beanFactory.getBean("sipXMediaServer", MediaServer.class);
-        EasyMock.expectLastCall().andReturn(mediaServer);
-        EasyMock.replay(beanFactory, lc);
-
+        replayMocks();
         MediaServerFactory mediaServerFactory = new MediaServerFactory();
-        mediaServerFactory.setBeanFactory(beanFactory);
+        mediaServerFactory.setBeanFactory(m_beanFactory);
         ir.setMediaServerFactory(mediaServerFactory);
         ir.setMediaServerType("sipXMediaServer");
         ir.setMediaServerHostname("example");
@@ -126,7 +139,7 @@ public class InternalRuleTest extends TestCase {
         UrlTransform tvf = (UrlTransform) vf.getTransforms()[0];
         assertEquals(VOICEMAIL_FALLBACK_URL, tvf.getUrl());
 
-        EasyMock.verify(beanFactory, lc);
+        EasyMock.verify(m_beanFactory, m_localizationContext);
     }
 
     public void testAppendToGenerationRulesWithSchedule() throws Exception {
@@ -138,19 +151,9 @@ public class InternalRuleTest extends TestCase {
         ir.setVoiceMailPrefix("7");
         ir.setEnabled(true);
 
-        SipXMediaServer mediaServer = new SipXMediaServer();
-
-        LocalizationContext lc = EasyMock.createNiceMock(LocalizationContext.class);
-        mediaServer.setLocalizationContext(lc);
-
-        // configure a mock bean factory that is needed by the MediaServerFactory
-        BeanFactory beanFactory = EasyMock.createNiceMock(BeanFactory.class);
-        beanFactory.getBean("sipXMediaServer", MediaServer.class);
-        EasyMock.expectLastCall().andReturn(mediaServer);
-        EasyMock.replay(beanFactory, lc);
-
+        replayMocks();
         MediaServerFactory mediaServerFactory = new MediaServerFactory();
-        mediaServerFactory.setBeanFactory(beanFactory);
+        mediaServerFactory.setBeanFactory(m_beanFactory);
         ir.setMediaServerFactory(mediaServerFactory);
         ir.setMediaServerType("sipXMediaServer");
         ir.setMediaServerHostname("example");
@@ -185,7 +188,7 @@ public class InternalRuleTest extends TestCase {
         UrlTransform tvf = (UrlTransform) vf.getTransforms()[0];
         assertTrue(tvf.getUrl().startsWith(VOICEMAIL_FALLBACK_URL + ";" + VALIDTIME_PARAMS));
 
-        EasyMock.verify(beanFactory, lc);
+        EasyMock.verify(m_beanFactory, m_localizationContext);
     }
 
     public void testAppendToGenerationRulesLang() throws Exception {
@@ -197,20 +200,10 @@ public class InternalRuleTest extends TestCase {
         ir.setVoiceMailPrefix("7");
         ir.setEnabled(true);
 
-        SipXMediaServer mediaServer = new SipXMediaServer();
-
-        LocalizationContext lc = EasyMock.createMock(LocalizationContext.class);
-        EasyMock.expect(lc.getCurrentLanguage()).andReturn("pl").atLeastOnce();
-        mediaServer.setLocalizationContext(lc);
-
-        // configure a mock bean factory that is needed by the MediaServerFactory
-        BeanFactory beanFactory = EasyMock.createNiceMock(BeanFactory.class);
-        beanFactory.getBean("sipXMediaServer", MediaServer.class);
-        EasyMock.expectLastCall().andReturn(mediaServer);
-        EasyMock.replay(beanFactory, lc);
-
+        EasyMock.expect(m_localizationContext.getCurrentLanguage()).andReturn("pl").atLeastOnce();
+        replayMocks();
         MediaServerFactory mediaServerFactory = new MediaServerFactory();
-        mediaServerFactory.setBeanFactory(beanFactory);
+        mediaServerFactory.setBeanFactory(m_beanFactory);
         ir.setMediaServerFactory(mediaServerFactory);
         ir.setMediaServerType("sipXMediaServer");
         ir.setMediaServerHostname("example");
@@ -242,7 +235,7 @@ public class InternalRuleTest extends TestCase {
         UrlTransform tvf = (UrlTransform) vf.getTransforms()[0];
         assertEquals(VOICEMAIL_FALLBACK_URL_LANG, tvf.getUrl());
 
-        EasyMock.verify(beanFactory, lc);
+        EasyMock.verify(m_beanFactory, m_localizationContext);
     }
 
     public void testOperator() {
@@ -251,7 +244,7 @@ public class InternalRuleTest extends TestCase {
         aa.setDescription(TEST_DESCRIPTION);
 
         Operator o = new MappingRule.Operator(aa, "100", ArrayUtils.EMPTY_STRING_ARRAY,
-                new SipXMediaServer());
+                m_mediaServer);
         assertEquals("100", StringUtils.join(o.getPatterns(), "|"));
         assertEquals(TEST_NAME, o.getName());
         assertEquals(TEST_DESCRIPTION, o.getDescription());
@@ -264,7 +257,7 @@ public class InternalRuleTest extends TestCase {
 
         Operator o = new MappingRule.Operator(aa, "100", new String[] {
             "0", "operator"
-        }, new SipXMediaServer());
+        }, m_mediaServer);
         assertEquals("100|0|operator", StringUtils.join(o.getPatterns(), "|"));
         assertEquals(TEST_NAME, o.getName());
         assertEquals(TEST_DESCRIPTION, o.getDescription());
@@ -277,7 +270,7 @@ public class InternalRuleTest extends TestCase {
 
         Operator o = new MappingRule.Operator(aa, null, new String[] {
             "0", "operator"
-        }, new SipXMediaServer());
+        }, m_mediaServer);
         assertEquals("0|operator", StringUtils.join(o.getPatterns(), "|"));
         assertEquals(TEST_NAME, o.getName());
         assertEquals(TEST_DESCRIPTION, o.getDescription());

@@ -21,10 +21,11 @@ import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingEntry;
 
 public class SipxRegistrarService extends SipxService {
+
     public static final String BEAN_ID = "sipxRegistrarService";
 
+    private static final String VOICEMAIL_SERVER = "https://localhost";
     private static final String SIP_REGISTRAR_DOMAIN_ALIASES = "domain/SIP_REGISTRAR_DOMAIN_ALIASES";
-
     private static final ProcessName PROCESS_NAME = ProcessName.REGISTRAR;
 
     private String m_registrarSipPort;
@@ -34,6 +35,21 @@ public class SipxRegistrarService extends SipxService {
     private String m_proxyServerSipHostport;
     private SipxServiceManager m_sipxServiceManager;
     private DomainManager m_domainManager;
+
+    public String getMediaServer() {
+        return m_mediaServerSipSrvOrHostport + ";transport=tcp";
+    }
+
+    public String getVoicemailServer() {
+        StringBuffer voicemailServer = new StringBuffer();
+        voicemailServer.append(VOICEMAIL_SERVER);
+        if (getVoicemailHttpsPort() != null) {
+            voicemailServer.append(':');
+            voicemailServer.append(getVoicemailHttpsPort());
+        }
+
+        return voicemailServer.toString();
+    }
 
     public String getRegistrarSipPort() {
         return m_registrarSipPort;

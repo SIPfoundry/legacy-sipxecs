@@ -26,7 +26,7 @@ public abstract class MediaServer {
     }
 
     protected static final List<String> ENCODE_EXCLUDES = Arrays.<String> asList(new String[] {
-        "{digits}", "{vdigits}", "{digits-escaped}", "{vdigits-escaped}", "{voicemail}", "{host}"
+        "{digits}", "{vdigits}", "{digits-escaped}", "{vdigits-escaped}", "{host}"
     });
 
     private String m_hostname;

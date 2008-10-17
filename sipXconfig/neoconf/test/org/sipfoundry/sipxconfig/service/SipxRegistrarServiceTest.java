@@ -84,4 +84,16 @@ public class SipxRegistrarServiceTest extends TestCase {
             // expected
         }
     }
+
+    public void testGetMediaServer() {
+        SipxRegistrarService out = new SipxRegistrarService();
+        out.setMediaServerSipSrvOrHostport("localhost");
+        assertEquals("localhost;transport=tcp", out.getMediaServer());
+    }
+
+    public void testGetVoicemailServer() {
+        SipxRegistrarService out = new SipxRegistrarService();
+        out.setVoicemailHttpsPort("9999");
+        assertEquals("https://localhost:9999", out.getVoicemailServer());
+    }
 }

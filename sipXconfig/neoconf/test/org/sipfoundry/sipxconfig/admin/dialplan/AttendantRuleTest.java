@@ -21,8 +21,9 @@ import org.sipfoundry.sipxconfig.admin.dialplan.config.Transform;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.UrlTransform;
 
 public class AttendantRuleTest extends TestCase {
-    private static final String URL_PARAMS = ";voicexml={voicemail}%2Fcgi-bin%2Fvoicemail%2Fmediaserver.cgi%3Faction%3D";
-    private static final String OPERATOR_URL = "<sip:{digits}@{mediaserver}" + URL_PARAMS
+    private static final String VOICEMAIL_SERVER = "https%3A%2F%2Flocalhost%3A443";
+    private static final String URL_PARAMS = ";voicexml=" + VOICEMAIL_SERVER+ "%2Fcgi-bin%2Fvoicemail%2Fmediaserver.cgi%3Faction%3D";
+    private static final String OPERATOR_URL = "<sip:{digits}@localhost;transport=tcp" + URL_PARAMS
             + "autoattendant%26name%3Daa_-1>";    
     
     public void testNotImplemented() {
@@ -41,6 +42,9 @@ public class AttendantRuleTest extends TestCase {
 
     public void testAppendToGenerationRules() {
         AttendantRule rule = new AttendantRule();
+        SipXMediaServer mediaServer = new SipXMediaServer();
+        SipXMediaServerTest.configureMediaServer(mediaServer);
+        rule.setMediaServer(mediaServer);
         rule.setName("abc");
         rule.setExtension("100");
         rule.setAttendantAliases("0 operator");
