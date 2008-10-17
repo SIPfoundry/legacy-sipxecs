@@ -39,7 +39,7 @@ public class ProvisioningContextImpl implements ProvisioningContext {
     public User getUser(String username, String password) {
         User user = m_sipxCoreContext.loadUserByUserName(username);
         if (user != null) {
-            if(checkLogin(user, password)) {
+            if (checkLogin(user, password)) {
                 return user;
             }
         }
@@ -67,7 +67,7 @@ public class ProvisioningContextImpl implements ProvisioningContext {
     }
 
     private boolean checkLogin(User user, String password) {
-        if(user.getPintoken().equals(getEncodedPassword(user.getUserName(), password))) {
+        if (user.getPintoken().equals(getEncodedPassword(user.getUserName(), password))) {
             return true;
         }
         return false;

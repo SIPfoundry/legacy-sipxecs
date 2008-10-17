@@ -1,16 +1,17 @@
 <project name="cmcprov" default="default">
-  <property name="project.dir" value="plugins/counterpath/cmcprov"/>
-  <import file="../../../ant-targets.xml"/>
+  <property name="project.dir" value="plugins/cmcprov"/>
+  <import file="../../ant-targets.xml"/>
   <property name="cmcprov.package"      value="org/sipfoundry/sipxconfig/cmcprov"/>
-  <property name="cmcprov.war"          value="${top.build.dir}/plugins/counterpath/dist/cmcprov.war"/>
-  <property name="dist.dir"      value="${top.build.dir}/plugins/counterpath/dist/"/>
+  <property name="cmcprov.war"          value="${top.build.dir}/plugins/cmcprov/dist/cmcprov.war"/>
+  <property name="dist.dir"      value="${top.build.dir}/plugins/cmcprov/dist/"/>
 
   <path id="base.path">
     <pathelement path="${sipxconfig.jar}"/>
     <pathelement path="${spring.jar}"/>
     <pathelement path="${hibernate.jar}"/>
-	<pathelement path="${servlet.jar}"/>
+    <pathelement path="${servlet.jar}"/>
     <pathelement path="${commons-io.jar}"/>
+  	<pathelement path="${commons-lang.jar}"/>
   </path>
 
   <target name="init" depends="ant-targets.init">

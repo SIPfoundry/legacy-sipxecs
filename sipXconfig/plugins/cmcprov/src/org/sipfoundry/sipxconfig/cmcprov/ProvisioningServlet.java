@@ -15,6 +15,7 @@ import java.util.Map;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServlet;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.common.CoreContext;
@@ -24,6 +25,8 @@ import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
 public abstract class ProvisioningServlet extends HttpServlet {
+    private static final String EQUAL_SIGN = "=";
+    private static final String NEWLINE = "\n";
     public static final String SIPXCONFIG_SERVLET_PATH = "/sipxconfig";
     public static final String CORE_CONTEXT_BEAN_NAME = "coreContextImpl";
     public static final String PHONE_CONTEXT_BEAN_NAME = "phoneContextImpl";
@@ -57,19 +60,19 @@ public abstract class ProvisioningServlet extends HttpServlet {
 
     protected void buildSuccessResponse(PrintWriter out, Map<String, String> settings) {
         StringBuilder sb = new StringBuilder();
-        sb.append(DATA_SECTION + "\n");
+        sb.append(DATA_SECTION + NEWLINE);
         sb.append("Success=1\n");
-        sb.append("\n");
+        sb.append(NEWLINE);
         sb.append("[SETTINGS]\n");
         out.println(DATA_SECTION);
         out.println("Success=1");
-        out.println("");
+        out.println(StringUtils.EMPTY);
         out.println("[SETTINGS]");
         for (Map.Entry<String, String> e : settings.entrySet()) {
-            out.println(e.getKey() + "=" + QUOTE_CHAR + e.getValue() + QUOTE_CHAR);
-            sb.append("" + e.getKey() + "=" + QUOTE_CHAR + e.getValue() + QUOTE_CHAR + "\n");
+            out.println(e.getKey() + EQUAL_SIGN + QUOTE_CHAR + e.getValue() + QUOTE_CHAR);
+            sb.append(StringUtils.EMPTY + e.getKey() + EQUAL_SIGN + QUOTE_CHAR + e.getValue() + QUOTE_CHAR + NEWLINE);
         }
-        LOG.info("RASPUNS::::\n" + sb.toString() + "\n");
+        LOG.debug("RASPUNS::::\n" + sb.toString() + NEWLINE);
     }
 
     protected void buildFailureResponse(PrintWriter out, String errorMessage) {
