@@ -328,24 +328,28 @@ There are some specific things to check:
 </p>
 <dl>
 <dt>
-Check whether or not your UA accepts a blind transfer.
+Check whether or not your UA accepts a blind transfer
 </dt>
 <dd>
+<p>
 Whether or not your UA cannot act as the controller for a blind transfer, you
 can test whether or not it correctly handles being the transferee;
 a call to "<code>sip:100@@SIPXCHANGE_DOMAIN_NAME@</code>" will be answered by an
 auto-attendant - when you enter a registered extension at the prompt
 (your UA must use RFC 2833 to send DTMF in the RTP),
 the auto-attendant will blind-transfer your call (REFER without Replaces).
+</p>
 </dd>
 <dt>
-Authenticated Blind Transfer
+Authenticated blind transfer
 </dt>
 <dd>
+<p>
 If your UA initiates a blind transfer (sends REFER without Replaces) to any registered
 UA, the REFER request will be challenged by the proxy with a 407
 response.  The transfer controller UA must retry the request with
 authentication added.
+</p>
 <p>
 The authenticated request will be forwarded by the proxy to the
 transferee, with a header parameter added to the Refer-To (transfer
@@ -364,10 +368,44 @@ to <code>1<span class='group'>gg</span>x</code>
 Check consultative transfer
 </dt>
 <dd>
+<p>
 If your user agent(s) can do consultative transfer (REFER with
 Replaces), then you should also try that through the proxy using
 another UA.  The REFER for a consultative transfer is not challenged
 for authentication.
+</p>
+</dd>
+<dt>
+Check "semi-consultative" transfer
+</dt>
+<dd>
+<p>
+It is common for the person attempting a consultative transfer to exit
+from the process with the expectation that the party being transferred
+will talk to the party that ultimately answers the new call -- in
+effect, to convert a consultative transfer into a blind transfer.
+Some user agents do not provide a separate blind transfer operation,
+so the user must use a semi-consultative transfer.
+With other user agents, users often never discover how to activate the
+blind transfer operation, and so do semi-consultative transfers instead.
+</p>
+<p>
+Doing semi-consultative transfers reliably has been studied
+carefully:  see section 7.6 of 
+<a href="http://www.ietf.org/internet-drafts/draft-ietf-sipping-cc-transfer-11.txt">http://www.ietf.org/internet-drafts/draft-ietf-sipping-cc-transfer-11.txt</a>.
+The reliable way for a user agent to carry out this operation is
+to continue with the consultative transfer sequence until the called
+party answers, and then send the REFER with Replaces that completes
+the consultative transfer.
+This has been known for years, and yet many user agents use unreliable
+(and sometimes bizarre) methods to handle semi-consultative transfers.
+</p>
+<p>
+You can verify that your user agents generate the same message flow
+for semi-consultative transfers that they do for consultative
+transfers by using the <a href='trace.cgi'>trace feature</a>,
+searching for the substring "1<span class='group'>gg</span>".
+</p>
 </dd>
 </dl>
 
@@ -933,7 +971,6 @@ This server uses a
 PBX Project</a>.
 (It would not make a very friendly configuration in a real PBX :-).)
 </p>
-
 
 </body>
 </html>
