@@ -45,7 +45,7 @@ $(AC_TARGETS) :
 	$(MAKE) $@.bld
 
 # required on all platforms
-CUSTOM_PACKAGES = cgicc ruby-dbi jain-sip conference dnsjava nsis $(JAVA_PKG)
+CUSTOM_PACKAGES = cgicc xerces-c ruby-dbi jain-sip conference dnsjava nsis $(JAVA_PKG)
 
 .PHONY: fc8 fc7
 fc8 fc7 : $(CUSTOM_PACKAGES) cppunit xerces-c rubygems ruby-postgres rrdtool
@@ -54,10 +54,10 @@ fc8 fc7 : $(CUSTOM_PACKAGES) cppunit xerces-c rubygems ruby-postgres rrdtool
 f9 : $(CUSTOM_PACKAGES)
 
 .PHONY: rhel5 centos5 rhel4
-rhel5 centos5 rhel4 : w3c-libwww $(CUSTOM_PACKAGES) jakarta-commons-net
+rhel5 centos5 rhel4 : $(CUSTOM_PACKAGES) w3c-libwww jakarta-commons-net rubygems
 
 .PHONY: suse11.0
-suse11.0 : w3c-libwww $(CUSTOM_PACKAGES) xerces-c ruby-postgres jakarta-commons-net
+suse11.0 : w3c-libwww $(CUSTOM_PACKAGES) ruby-postgres jakarta-commons-net
 
 .PHONY: conference
 conference : freeswitch
