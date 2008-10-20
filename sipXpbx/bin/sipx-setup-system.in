@@ -1,0 +1,787 @@
+#! /usr/bin/env python
+
+#----------------------------------------------------------------------
+#
+# Copyright (C) 2008 Nortel
+#
+# This script performs the minimal setup required for a @SIPXPBX_LABEL@ system
+#
+#   Hostname
+#   DNS Servers
+#   eth0 IP address/mask
+#   timezone
+#   ntp servers
+#   time (this need not be "correct" but must _not_ be in the future)
+#
+#----------------------------------------------------------------------
+
+import os, commands, sys, re, time, traceback, glob, signal, snack
+
+sys.path.insert(0,'@SIPX_LIBEXECDIR@')
+
+from sipx_setup_common import *
+
+def testing () :
+    return 'True'
+
+#--- Local constants and files
+
+IFCONFIGDIR    = '/etc/sysconfig/network-scripts'  # Directory of all interface configurations
+ETHNAME        = 'eth0'                            # Supported Ethernet interface
+IFCFGFILE      = '%s/ifcfg-%s' % (IFCONFIGDIR, ETHNAME)
+RootInitFile   = '/root/.bashrc'
+
+DNSSYSCFGFILE  = '/etc/sysconfig/named'
+# -----------------------------------------------------------------------------
+# Global variables
+
+global fout
+
+# Settings variables
+
+global AdminPassword
+AdminPassword=''
+
+global TimeZone
+TimeZone=''
+
+global NtpServers
+NtpServers=['0.pool.ntp.org', '1.pool.ntp.org', '2.pool.ntp.org']
+
+global HostName
+HostName = ''
+
+global DomainName
+DomainName = ''
+
+global SipDomain
+SipDomain = ''
+
+global IpAddress
+IpAddress = ''
+
+global NetMask
+NetMask = ''
+
+global Gateway
+Gateway = ''
+
+global DnsServers
+DnsServers = []
+
+# logging utilities 
+OUTPUT_LOG  = '@SIPX_LOGDIR@/system-setup.log'
+
+# timezone fuctions
+
+DEFAULT_ZONE='America/New_York'
+ZONEDIR='/usr/share/zoneinfo'
+ZONEINFO='/etc/localtime'
+reZoneName=re.compile('^[A-Z][a-zA-Z_0-9+-]+$')
+reIsZoneData=re.compile(': timezone data$')
+
+def isZoneName (name) :
+    return reZoneName.match(name) 
+
+def isZoneDir (name) :
+    return os.path.isdir(ZONEDIR+'/'+name)
+
+def getZones (majorZone=None) :
+    if majorZone == None :
+        zoneDir=ZONEDIR
+    else :
+        zoneDir=ZONEDIR+'/'+majorZone
+    zones=[]
+    for obj in filter(isZoneName, os.listdir(zoneDir)) :
+        objPath=zoneDir+'/'+obj
+        if  isZoneDir(obj) or reIsZoneData.search(commands.getoutput ('file '+objPath)) :
+            zones.append(obj)
+    zones.sort()
+    return zones
+
+
+###############################################################
+## Convert decimal number to binary. Used to calculate NetMask number of '1' bits
+
+def dec2bin(n) :
+    binstr = ''
+    if n < 0:  raise ValueError, "must be a positive integer"
+    if n == 0: return '0'
+    while n > 0:
+        binstr = str(n % 2) + binstr
+        n = n >> 1
+    return binstr
+
+def NetmaskNrBits(NetmaskString) :
+    result = ''
+    quadsplit = NetmaskString.split(".")
+
+    for items in quadsplit :
+        result = result + dec2bin(int(items))
+    return result.count("1")
+
+
+################################################################
+# Settings collection scripts
+################################################################
+
+def check_prerequisites () :
+    show_progress()
+
+    # Root user should run this script
+    if runningAsRoot() :
+        log_result('Root user', 'Ok')
+    else :
+        if testing() :
+            log_printout('\n TESTING AS NON-ROOT USER')
+        else :
+            abortMsgAndExit( 'You must be the "root" user to run this script' )
+            
+
+def screen_startup ():
+   global explain
+
+   initialMessage ='\
+This wizard configures the basic system settings \
+needed to start your system.\n\
+\n\
+Any existing configuration will be overwritten unless you Exit.\
+'
+   grid = snack.Grid(2, 1)
+   continueButton = snack.Button("Start")
+   grid.setField(continueButton, 0, 0, (1,0,1,1))
+
+   exitButton = snack.Button("Exit")
+   grid.setField(exitButton, 1, 0, (1,0,1,1))
+
+   f = screen_setup("Setup Wizard", initialMessage, grid)
+   choice = f.run()
+
+   screen_end()
+
+   if choice == exitButton :
+       log_printout("initial screen exit")
+       cleanExit()
+
+def screen_ask_admin ():
+
+   global AdminPassword
+   global AdminEmail
+
+   adminExplanation = "\
+Choose a new password for the 'root' user.\n\
+This is the password for the root shell, not for the\n\
+@SIPXPBX_LABEL@ administration web user interface."
+
+   okButton = snack.Button("   OK   ")
+
+   valuesOk=0
+   while valuesOk == 0 :
+       sg = snack.Grid(2, 3)
+
+       l1a = snack.Label("Admin Password:")
+       e1a = snack.Entry(32, AdminPassword, 0, 1)
+       sg.setField(l1a, 0, 0)
+       sg.setField(e1a, 1, 0)
+
+       l1b = snack.Label("Admin Password:")
+       e1b = snack.Entry(32, AdminPassword, 0, 1)
+       sg.setField(l1b, 0, 1)
+       sg.setField(e1b, 1, 1)
+
+       sg.setField(okButton, 0, 2, (1,1,1,1), growx=1)
+
+       f = screen_setup("Administrator Settings", adminExplanation, sg)
+
+       formaction = f.run()
+
+       if e1a.value() != e1b.value() :
+           screen_err("Admin Password values do not match")
+       else :
+           AdminPassword = e1a.value()
+           valuesOk=1
+
+       screen_end()
+
+   log_result("AdminPassword", "(not logged)")
+
+def set_password () :
+    """Sets a new root password"""
+    global AdminPassword
+
+    show_progress()
+
+    passwdSetCmd='echo "%s" | passwd --stdin root' % AdminPassword
+    if runningAsRoot() :
+        outRep = commands.getstatusoutput (passwdSetCmd)
+        if outRep[0] != 0:
+            raiseCleanExit ( 'Failed to set the root password\n%s' % outRep[1] )
+        log_printout(outRep)
+    else :
+        log_printout('(simulated) %s' % passwdSetCmd)
+
+def screen_ask_net ():
+   global HostName
+   global DomainName
+   global IpAddress
+   global NetMask
+   global Gateway
+   global DnsServers
+
+   netExplanation='Configure network settings for this system:\n'
+
+   valuesOk=0
+   while valuesOk == 0 :
+       sg = snack.Grid(3, 9)
+       l0 = snack.Label(" ")
+
+       l1 = snack.Label("Hostname:   ")
+       e1 = snack.Entry(32, HostName)
+       sg.setField(l1, 0, 0)
+       sg.setField(e1, 1, 0)
+
+       l2 = snack.Label("Ip:         ")
+       e2 = snack.Entry(32, IpAddress)
+       sg.setField(l2, 0, 1)
+       sg.setField(e2, 1, 1)
+
+       l3 = snack.Label("Netmask:    ")
+       e3 = snack.Entry(32, NetMask)
+       sg.setField(l3, 0, 2)
+       sg.setField(e3, 1, 2)
+
+       l4 = snack.Label("Gateway Address: ")
+       e4 = snack.Entry(32, Gateway)
+       sg.setField(l4, 0, 3)
+       sg.setField(e4, 1, 3)
+
+       l5 = snack.Label("Nameserver 1 Address: ")
+       try:
+           e5 = snack.Entry(32, DnsServers[0])
+       except:
+           e5 = snack.Entry(32, '')
+       sg.setField(l5, 0, 4)
+       sg.setField(e5, 1, 4)
+
+       l6 = snack.Label("Nameserver 2 Address: ")
+       try:
+           e6 = snack.Entry(32, DnsServers[1])
+       except:
+           e6 = snack.Entry(32, '')
+       sg.setField(l6, 0, 5)
+       sg.setField(e6, 1, 5)
+
+       okButton = snack.Button("   OK   ")
+       sg.setField(okButton, 0, 8, (1,1,1,1))
+
+       sg.place(1,1)
+
+       f = screen_setup("Enter the network settings", netExplanation, sg)
+       f.run()
+
+       HostName=e1.value().lower()
+       IpAddress=e2.value()
+       NetMask=e3.value()
+       Gateway=e4.value()
+
+       DnsServers = [ e5.value(), e6.value() ]
+
+       screen_end()
+
+       # Assume all entries OK, now check for errors
+       valuesOk=1
+
+       #--- validation
+       if HostName.count('.') < 2:
+           # We expect at least 2 dots in the new fully qualified host name
+           valuesOk=0
+           screen_err('"%s" is not a fully qualified host name' % HostName)
+       else :
+           # Domain name == whatever follows the first dot
+           DomainName = '.'.join (HostName.split('.')[1:])
+
+       if len(NetMask.split('.')) < 4:
+           valuesOk=0
+           screen_err('"%s" is not a valid Netmask' % NetMask)
+
+       elif not (NetMask.split('.')[0] == '255' and NetMask.split('.')[1] == '255') :
+           valuesOk=0
+           screen_err('"%s" is not a valid Netmask.' % NetMask)
+       else :
+           for i in range(4):
+               if not NetMask.split('.')[i] in ('255', '0', '128', '192', '224', '240', '248', '252', '254'):
+                   valuesOk=0
+                   screen_err('"%s" is not a valid Netmask' % NetMask)
+
+       if IpAddress.count('.') < 3:
+           # We expect at least 3 dots in an IP addr
+           valuesOk=0
+           screen_err('"%s" is not a valid IP addr' % IpAddress)
+       else:
+           addrLst = IpAddress.split('.')
+           maskLst = NetMask.split('.')
+           netwAddr  = '.'.join([str(int(addrLst[i]) & int(maskLst[i]))  for i in range(4)])
+           broadAddr = '.'.join([str(int(addrLst[i]) | (255 - int(maskLst[i]))) for i in range(4)])
+           if IpAddress == netwAddr or IpAddress == broadAddr :
+               valuesOk=0
+               screen_err('\
+"%s, %s" is not a valid IP address / Netmask combination' % (IpAddress, NetMask))
+
+       if Gateway.count('.') < 3:
+           # We expect at least 3 dots in an IP addr
+           valuesOk=0
+           screen_err('"%s" is not a valid Gateway addr' % Gateway)
+       else:
+           GWaddrLst = Gateway.split('.')
+           GWnetwAddr  = '.'.join([str(int(GWaddrLst[i]) & int(maskLst[i]))  for i in range(4)])
+           if GWnetwAddr != netwAddr or Gateway == netwAddr or Gateway == broadAddr :
+               valuesOk=0
+               screen_err('\
+"%s" is not a valid Gateway address.\n\
+It is not in the addr range defined by \n\
+the Netmask / IP addr combination.' % Gateway)
+
+       if DnsServers[0].count('.') < 3:
+           # We expect at least 3 dots in an IP addr
+           valuesOk=0
+           screen_err('"%s" is not a valid DNS addr' % DnsServers[0])
+           DnsServers[0]=''
+
+       if DnsServers[1] != '' and DnsServers[1].count('.') < 3:
+           # We expect at least 3 dots in an IP addr
+           valuesOk=0
+           screen_err('"%s" is not a valid DNS addr' % DnsServers[1])
+           DnsServers[1]=''
+
+   log_result("HostName", HostName)
+   log_result("DomainName", DomainName)
+   log_result("IpAddress", IpAddress)
+   log_result("NetMask", NetMask)
+   log_result("Gateway", Gateway)
+   log_result("DnsServers", DnsServers)
+
+def set_netif () :
+     """
+     Updates the interface configuration file
+     /etc/sysconfig/network-scripts/ifcfg-eth0 with the following parameters:
+     BROADCAST, IPADDR, NETMASK, NETWORK
+     """
+     global IpAddress
+     global NetMask
+     global Gateway
+
+     show_progress()
+
+     # Read a configuration file for a first ethernet interface
+     # (presumably /etc/sysconfig/network-scripts/ifcfg-eth0)
+     try:
+         ifcfgContents   = file (IFCFGFILE).read().strip()
+     except:
+         ifcfgContents   = ""
+
+     # Get IP address and IP mask
+     addrLst = IpAddress.split('.')
+     maskLst = NetMask.split('.')
+
+     # Construct network address
+     netwAddr  = '.'.join([str(int(addrLst[i]) & int(maskLst[i]))  for i in range(4)])
+
+     # Construct broadcast address
+     broadAddr = '.'.join([str(int(addrLst[i]) | (255 - int(maskLst[i]))) for i in range(4)])
+
+     reONBOOT    = re.compile ('^ONBOOT=(\S*)', re.M)   
+     reIPADDR    = re.compile ('^IPADDR=(\S*)', re.M)
+     reIPMASK    = re.compile ('^NETMASK=(\S*)', re.M)
+     reBROAD     = re.compile ('^BROADCAST=(\S*)', re.M)
+     reNETWORK   = re.compile ('^NETWORK=(\S*)', re.M)
+
+     for reStr, key, val in [
+         (reONBOOT,  'ONBOOT',    'YES'),
+         (reIPADDR,  'IPADDR',    IpAddress),
+         (reIPMASK,  'NETMASK',   NetMask),
+         (reBROAD,   'BROADCAST', broadAddr),
+         (reNETWORK, 'NETWORK',   netwAddr)]:
+         if reStr.search (ifcfgContents):
+             ifcfgContents = reStr.sub ('%s=%s' % (key, val), ifcfgContents)    # replace parameter ...
+         else:
+             ifcfgContents = ifcfgContents.strip () + '\n%s=%s' % (key, val)    # add parameter ...
+
+     # Write a new content of the /etc/sysconfig/network-scripts/ifcfg-eth<n> file
+     log_printout(ifcfgContents)
+
+     if runningAsRoot() :
+         file (IFCFGFILE, 'w').write(ifcfgContents)
+
+def set_network ():
+    """
+    Sets a full host name in the /etc/sysconfig/network file.
+    In addition this procedure in the SET mode puts a host name
+    into /etc/hosts and a domain name into the /etc/resolv.conf file.
+    """
+    show_progress()
+
+    # Create file: /etc/sysconfig/network
+    file1 = '/etc/sysconfig/network'
+    f1Cont = '\
+NETWORKING=yes\n\
+HOSTNAME=%s\n\
+GATEWAY=%s\n\
+' % ( HostName, Gateway )
+    log_printout("======= %s:\n" % file1)
+    log_printout(f1Cont)
+    if runningAsRoot() :
+        file (file1, 'w').write(f1Cont)
+
+    # Rewrtie file: /etc/hosts
+    file2 = '/etc/hosts'
+    f2Cont  = '\
+# Do not remove the following line, or various programs\n\
+# that require network functionality will fail.\n\
+127.0.0.1 localhost.localdomain localhost\n\
+%s %s %s\n' % (IpAddress, HostName, HostName.split('.')[0]) #'
+    log_printout("======= %s:\n" % file2)
+    log_printout(f2Cont)
+    if runningAsRoot() :
+        file (file2, 'w').write(f2Cont)
+
+    # Add domain name in the file: /etc/resolv.conf
+    file3 = '/etc/resolv.conf'
+    f3Cont = 'search %s\n' % DomainName
+    f3Cont+='nameserver 127.0.0.1\n'
+    for ns in DnsServers :
+        if len(ns) > 0 :
+            f3Cont+='nameserver %s\n' % ns
+    log_printout("======= %s:\n" % file3)
+    log_printout(f3Cont)
+
+    if runningAsRoot() :
+        file (file3, 'w').write(f3Cont)
+
+    # Set hostname
+    SETHOSTNAMECMD = 'hostname %s' % HostName
+
+    if runningAsRoot() :
+        cmdoutput=commands.getoutput(SETHOSTNAMECMD)
+        log_printout(cmdoutput)
+    else :
+        log_printout('(simulated) %s\n' % SETHOSTNAMECMD)
+
+def start_network () :
+     show_progress()
+
+     # restart the network
+     netRestart='service network restart'
+     if runningAsRoot() :
+         cmdoutput=commands.getoutput(netRestart)
+     else :
+         cmdoutput="(execute) %s" % netRestart
+     log_printout(cmdoutput)
+
+def screen_set_time () :
+    global TimeZone
+    global NtpServers
+
+    show_progress()
+
+    # Set the timezone 
+    defaultZoneFile=ZONEDIR+'/'+DEFAULT_ZONE
+    if os.path.exists(defaultZoneFile) :
+        TimeZone=DEFAULT_ZONE
+        log_result("TimeZone defaulted to ",TimeZone)
+
+    else :
+        tzExplanationMajor='Select your continent.'
+
+        majorZones=getZones()
+
+        list=snack.Listbox(10,1,1,32)
+        for zone in majorZones : list.append(zone,'%s'%zone)
+
+        f = screen_setup("Time Zone", tzExplanationMajor, list)
+        major = f.run().current()
+        TimeZone=major
+        screen_end()
+
+        if isZoneDir(major) :
+            minorZones=getZones(major)
+
+            tzExplanationMinor='Select a city in your time zone.'
+
+            minorList=snack.Listbox(10,1,1,32)
+            for zone in minorZones : minorList.append(zone,major+'/'+zone)
+
+            f = screen_setup("Time Zone", tzExplanationMinor, minorList)
+            selection = f.run().current()
+            TimeZone=selection
+            screen_end()
+    log_result("TimeZone",TimeZone)
+
+    # configure the system clock file
+    sysconfig_clock='\
+ZONE="%s"\n\
+UTC=true\n' % TimeZone
+    log_printout(sysconfig_clock)
+
+    if runningAsRoot() :
+        file('/etc/sysconfig/clock','w').write(sysconfig_clock)
+
+    # create the link that controls the time zone
+    if os.path.exists(ZONEINFO) :
+        if runningAsRoot() :
+            os.remove(ZONEINFO)
+        else :
+            log_printout(" remove %s\n" % ZONEINFO)
+
+    if runningAsRoot() :
+        os.symlink(ZONEINFO, ZONEDIR+'/'+TimeZone)
+
+    log_printout(" link %s -> %s\n" % (ZONEINFO, ZONEDIR+'/'+TimeZone))
+
+    #--- Create /etc/ntp.conf
+    # Calculate subnet address based on the NetMask
+    addrLst = IpAddress.split('.')
+    maskLst = NetMask.split('.')
+
+    # Construct network address. NetMask has already been checked and is valid
+    Subnet  = '.'.join([str(int(addrLst[i]) & int(maskLst[i]))  for i in range(4)])
+
+    # Define list of servers for time synchronization
+
+    ntpConf  =  '\
+# ntpd configuration\n\
+# ------------------\n\
+#\n\
+# Permit time synchronization with our time source, but do not\
+# permit the source to query or modify the service on this system.\
+restrict default kod nomodify notrap nopeer noquery\
+restrict -6 default kod nomodify notrap nopeer noquery\
+#\n\
+# Permit all access over the loopback interface\n\
+restrict 127.0.0.1\n\
+#\n\
+# Local fudge if network servers are not available\n\
+server 127.127.1.0\n\
+fudge  127.127.1.0 stratum 10\n\
+#\n\
+#ntp reports in syslog that authenticate is invalid keyword\n\
+#authenticate no\n\
+#\n\
+driftfile /var/lib/ntp/drift\n\
+# Synchronize with selected time servers\n\
+'
+    for nsvr in NtpServers :
+        ntpConf  += 'server %s\n' % nsvr
+
+    log_printout(ntpConf)
+
+    if runningAsRoot() :
+        file ('/etc/ntp.conf', 'w').write ('%s\n' % ntpConf)
+        
+
+    #--- Create /etc/ntp/step-tickers
+    log_printout("StepTickers: \n")
+    stepTickers='\n'.join (NtpServers)
+    log_printout(stepTickers)
+    if runningAsRoot() :
+        file ('/etc/ntp/step-tickers', 'w').write(stepTickers)
+    
+    #--- Turn on the ntpd service on runlevel 3
+    RUNLEVEL=3
+    log_printout('Enable NTP Service in runlevel %d:' % RUNLEVEL)
+    turnOnNtpd='/sbin/chkconfig --level %d ntpd on' % RUNLEVEL
+    if runningAsRoot() :
+        cmdoutput=commands.getoutput (turnOnNtpd)
+        log_printout(cmdoutput)
+    else :
+        log_printout("(simulated) %s\n" % turnOnNtpd)
+        
+    # Set Time
+    # try setting the clock with ntp if possible
+    if runningAsRoot() :
+        log_printout("Attempting to set date/time with ntp: \n")
+        cmdresult=commands.getstatusoutput ('/usr/sbin/ntpd -q -x -g')
+        if cmdresult[0] != 0 :
+            log_printout(" ntpd failed\n%s\n" % cmdresult[1])
+            dateCmd="date --set='2008-01-01 00:00'"
+            log_printout("Set fixed date/time: "+dateCmd)
+            cmdoutput=commands.getoutput(dateCmd)
+            log_printout(cmdoutput)
+    else :
+        log_printout("(simulated) set time\n")
+        
+    log_printout('Start NTP Server:')
+    if runningAsRoot() :
+        cmdoutput=commands.getoutput ('service ntpd start')
+        log_printout (cmdoutput)
+    else :
+        log_printout('(simlulated) service ntpd start')
+
+
+def removeInitScript () :
+
+    if runningAsRoot() :
+        foundSetup = 'False'
+        initFileLines = file(RootInitFile).read().split('\n')
+
+        # this must be carefully coordinated with the insertion of this in ks.cfg
+        initScript=re.compile('sipx-setup-system')
+        newInitFile = open(RootInitFile,'w')
+        for line in initFileLines :
+            if initScript.search(line):
+                foundSetup = 'True'
+                continue
+            else:
+                newInitFile.write("%s\n" % line)
+        newInitFile.close
+
+        if foundSetup :
+            log_printout("\n   sipx-setup-system removed from '%s'" % RootInitFile)
+        else :
+            log_printout("\n   sipx-setup-system not found in '%s'" % RootInitFile)
+    else :
+        log_printout("\n   Not root: sipx-setup-system not removed from '%s'" % RootInitFile)
+
+
+def update_preLogonMessage () :
+     # Update the message that displays on the console login screen
+
+     logonMessage = '\
+\n\
+Welcome to your new VoIP system\n\
+===============================\n\
+\n\
+Admin interface:\n\
+Point a Browser at: http://%s\n \
+                or: http://%s\n \
+\n' % ( HostName, IpAddress )
+
+     log_printout("/etc/issue file: \n")
+     log_printout(logonMessage)
+
+     if runningAsRoot() :
+         file ( "/etc/issue", 'a').write( logonMessage )
+
+def screen_services () :
+    show_progress()
+
+    servicesMessage ="\
+The system level parameters have been configured. \n\
+The next step is to configure the @SIPXPBX_LABEL@\n\
+service bootstrap parameters.\n\
+\n\
+"
+    screen_msg(servicesMessage)
+
+def setup_completed () :
+
+    completedMessage ="\
+All parameters have been configured. \n\
+The configuration will take effect at the next reboot.\n\
+\n\
+When the system comes up after the reboot, open\n\
+\n\
+   http://%s\n\
+\n\
+in your web browser to begin configuring your @SIPXPBX_LABEL@ services.\
+" % HostName
+
+    grid = snack.Grid(2, 1)
+
+    rebootButton = snack.Button("Reboot")
+    grid.setField(rebootButton, 0, 0, (1,0,1,1))
+
+    shellButton = snack.Button("Exit to Prompt")
+    grid.setField(shellButton, 1, 0, (1,0,1,1))
+
+    form = screen_setup("Setup Completed", completedMessage, grid)
+    choice = form.run()
+
+    screen_end()
+
+    if choice == rebootButton :
+        #--- Rebooting the host
+        log_printout ( '\n--- Rebooting the host ---\n' )
+        time.sleep (1)
+        if runningAsRoot() :
+            cmdoutput=commands.getoutput  ('reboot')
+            log_printout (cmdoutput)
+        else :
+            log_printout('(simulate) reboot')
+            
+    else :
+        log_printout ( '\n--- Exit to shell ---\n' )
+
+    cleanExit()
+
+#======================================================================
+# MAIN SCRIPT BODY STARTS HERE
+#======================================================================
+
+#--- Get command line arguments
+
+log_init(OUTPUT_LOG)
+screen_init()
+
+try:
+    progress(0,"Check Prerequisites")
+    check_prerequisites()
+
+    removeInitScript()
+
+    progress(3,"Start Wizard")
+    screen_startup()
+
+    progress(10, "Administrative Password")
+    screen_ask_admin()
+    progress(20, "Set Password")
+    set_password()
+
+    progress(30, "Collect Network Settings")
+    screen_ask_net()
+
+    progress(40, "Configure network interface")
+    set_netif()
+
+    progress(50, "Configure network services")
+    set_network()
+
+    progress(60, "Start network")
+    start_network()
+    
+    progress(70, "Time Settings")
+    screen_set_time()
+
+    # must be after the timezone, should be the last interactive step
+    progress(80, "Set system clock")
+    screen_set_time()
+
+    # Modify console logon message
+    progress(90, "Finish system setup")
+    update_preLogonMessage ()
+
+    progress(100, "Setup @SIPXPBX_LABEL@ Services")
+    screen_services()
+    
+    progress(0, "@SIPXPBX_LABEL@ Services Setup")
+    do_sipx_setup()
+
+    progress(100, 'Ready')
+    setup_completed()
+    # setup_completed does not return
+
+except:
+    excType, excData, excTrace = sys.exc_info()
+    if   excType == KeyboardInterrupt:
+        log_printout ( '\n\n*** User Interrupt Detected ***\n\n' )
+    elif excType == SystemExit:
+        log_printout ( '\n%s\n' % str (excData) )
+    else:
+        errStack = traceback.extract_tb(excTrace)[-1]
+        errMsg   = '\nUNEXPECTED EXCEPTION CAPTURED:\n\n'
+        errMsg  += '%s: %s ' % (str(excType), str(excData))
+        errMsg  += '(exception occured in file: %s, line: %s)\n' % (errStack[0], errStack[1])
+        log_printout ( errMsg )
+
+finally:
+    cleanExit()
+

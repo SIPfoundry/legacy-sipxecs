@@ -110,9 +110,12 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/check-fqdn
 %attr(755,root,root) %{_bindir}/sipx-snapshot
 %{_libexecdir}/sipXecs/sipx-strip-db-secrets.pl
+%{_libexecdir}/sipXecs/sipx_setup_common.py
 %attr(755,root,root) %{_bindir}/%name-config
 %attr(755,root,root) %{_bindir}/sipx-backup
 %attr(755,root,root) %{_bindir}/sipx-restore
+%attr(755,root,root) %{_bindir}/sipx-setup
+%attr(755,root,root) %{_bindir}/sipx-setup-system
 %attr(755,root,root) %{_bindir}/sipx-sendmail-configure
 %attr(755,root,root) %{_bindir}/sipx-archive-common
 %attr(755,root,root) %{_bindir}/sipxlocalization

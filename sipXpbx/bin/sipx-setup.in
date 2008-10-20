@@ -1,0 +1,154 @@
+#! /usr/bin/env python
+
+#----------------------------------------------------------------------
+#
+# Copyright (C) 2008 Nortel Networks
+#
+# This script performs SIPX installation on a system that has already
+# had at least the following already set up:
+#   Hostname
+#   DNS Servers
+#   eth0 IP address/mask
+#   timezone
+#   ntp servers
+#   time (this need not be "correct" but must _not_ be in the future
+#
+# This script sets:
+#   On a master system:
+#      The SIP Domain
+#      A self-signed ca certificate
+#      A host certificate for xml-rpc and sip signed by that ca
+#      VSFTP access for polycom phones
+#   On a distributed system:
+#      The master system name
+#      Contacts master to get domain configuration
+#
+#   On any system:
+#      Set the sipxpbx service to start on reboot
+#
+#----------------------------------------------------------------------
+
+import os, commands, sys, re, time, traceback, glob, signal, snack
+
+sys.path.insert(0,'@SIPX_LIBEXECDIR@')
+
+from sipx_setup_common import *
+
+global HostName
+HostName = ''
+
+def screen_sipx_startup ():
+   global explain
+
+   initialMessage ='\
+This wizard collects sets the bootstrap configuration\n\
+for @SIPXPBX_LABEL@.\n\
+\n\
+Any existing configuration will be overwritten if you continue.\
+'
+   grid = snack.Grid(2, 1)
+   continueButton = snack.Button("Continue")
+   grid.setField(continueButton, 0, 0, (1,0,1,1))
+
+   exitButton = snack.Button("Exit")
+   grid.setField(exitButton, 1, 0, (1,0,1,1))
+
+   f = screen_setup("@SIPXPBX_LABEL@ System Setup Wizard", initialMessage, grid)
+   choice = f.run()
+
+   screen_end()
+
+   if choice == exitButton :
+       log_printout("initial screen exit")
+       cleanExit()
+
+def setup_completed () :
+
+    if runningAsRoot() :
+        completedMessage ="\
+All parameters have been configured.\n\
+The configuration will take effect at the next reboot.\n\
+\n\
+When the system comes up after the reboot, open\n\
+\n\
+   http://%s\n\
+\n\
+in your web browser to complete the configuration.\n\
+\n\
+To start @SIPXPBX_LABEL@ services now, execute:\n\
+\n\
+   service sipxpbx start\
+\n\
+" % HostName
+    else :
+        completedMessage ="\
+All parameters have been configured.\n\
+To start @SIPXPBX_LABEL@ services now, execute:\n\
+\n\
+   sudo @SERVICEDIR@/sipxpbx start\
+\n\
+"
+
+    grid = snack.Grid(2, 1)
+
+    rebootButton = snack.Button("Reboot")
+
+    if runningAsRoot() :
+        grid.setField(rebootButton, 0, 0, (1,0,1,1))
+
+    shellButton = snack.Button("Exit to Prompt")
+    grid.setField(shellButton, 1, 0, (1,0,1,1))
+
+    form = screen_setup("Setup Completed", completedMessage, grid)
+    choice = form.run()
+
+    screen_end()
+    screen_finish()
+
+    if choice == rebootButton :
+        #--- Rebooting the host
+        log_printout ( '\n--- Rebooting the host ---\n' )
+        time.sleep (1)
+        cmdoutput=commands.getoutput  ('reboot')
+        log_printout (cmdoutput)
+        log_close()
+    else :
+        log_printout ( '\n--- Exit to shell ---\n' )
+        log_close()
+
+    cleanExit()
+
+#======================================================================
+# MAIN SCRIPT BODY STARTS HERE
+#======================================================================
+
+#--- Get command line arguments
+
+log_init(SIPX_SETUP_LOG)
+screen_init()
+
+try:
+    progress(1,"Start @SIPXPBX_LABEL@ Services Setup")
+    screen_sipx_startup()
+
+    do_sipx_setup()
+
+    progress(100, 'Ready')
+    setup_completed()
+    # setup_completed does not return
+
+except:
+    excType, excData, excTrace = sys.exc_info()
+    if   excType == KeyboardInterrupt:
+        log_printout ( '\n\n*** User Interrupt Detected ***\n\n' )
+    elif excType == SystemExit:
+        log_printout ( '\n%s\n' % str (excData) )
+    else:
+        errStack = traceback.extract_tb(excTrace)[-1]
+        errMsg   = '\nUNEXPECTED EXCEPTION CAPTURED:\n\n'
+        errMsg  += '%s: %s ' % (str(excType), str(excData))
+        errMsg  += '(exception occured in file: %s, line: %s)\n' % (errStack[0], errStack[1])
+        log_printout ( errMsg )
+finally:
+    cleanExit()
+
