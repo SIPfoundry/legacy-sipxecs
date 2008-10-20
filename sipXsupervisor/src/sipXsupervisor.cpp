@@ -254,6 +254,7 @@ void cleanup()
     if ( pDog )
     {
         delete pDog;
+        pDog = NULL;
     }
 
     // Shut down all processes
@@ -513,9 +514,6 @@ int main(int argc, char* argv[])
     enableConsoleOutput(false);
     fflush(NULL); // Flush all output so children don't get a buffer of output
 
-    //set our exit routine
-    atexit(cleanup);
-    
     // Preload the databases.  This ensures that:               
     //  1. Their reference count does not go to 0 causing an expensive 
     //  load by another process.  (Notably when the system only has apache 
