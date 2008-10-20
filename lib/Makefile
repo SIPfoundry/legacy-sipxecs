@@ -54,7 +54,7 @@ fc8 fc7 : $(CUSTOM_PACKAGES) cppunit xerces-c rubygems rrdtool
 f9 : $(CUSTOM_PACKAGES)
 
 .PHONY: rhel5 centos5 rhel4
-rhel5 centos5 rhel4 : $(CUSTOM_PACKAGES) w3c-libwww jakarta-commons-net rubygems
+rhel5 centos5 rhel4 : $(CUSTOM_PACKAGES) w3c-libwww jakarta-commons-net rubygems rrdtool
 
 .PHONY: suse11.0
 suse11.0 : w3c-libwww $(CUSTOM_PACKAGES) jakarta-commons-net
