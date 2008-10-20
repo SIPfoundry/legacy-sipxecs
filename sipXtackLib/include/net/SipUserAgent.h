@@ -446,7 +446,7 @@ public:
 
     //! Set the SIP proxy servers for the user agent.
     /*! This method will clear any existing proxy servers before
-     *  resetting this list.  NOTE: As for 12/2004, only the first
+     *  resetting this list.  NOTE: As of 12/2004, only the first
      *  proxy server is used.  Please consider using DNS SRV in
      *  until fully implemented.
      */
