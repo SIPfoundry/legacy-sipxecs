@@ -50,6 +50,8 @@ EXTRA_DIST = \
    ${PACKAGE}-config \
    analyze_483s \
    ipcclean.pl \
+   sipx-strip-db-secrets.pl.in \
+	sipx_setup_common.py.in \
 	$(PythonScripts) \
 	$(SCRIPT_TEMPLATES)
 
