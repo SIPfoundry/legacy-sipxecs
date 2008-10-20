@@ -142,6 +142,11 @@ SipRedirectorMapping::lookUp(
          UtlString permissionKey("permission");
          UtlString urlMappingPermissionStr =
             *((UtlString*) record.findValue(&permissionKey));
+         OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                       "%s::lookUp checking permissions DB for "
+                       "urlMappingPermissions[%d] = '%s'",
+                       mLogName.data(), i,
+                       urlMappingPermissionStr.data());
 
          // Try to match the permission
          // so assume it cannot be found unless we
@@ -153,8 +158,9 @@ SipRedirectorMapping::lookUp(
          if (urlMappingPermissionStr.compareTo(ignorePermissionStr, UtlString::ignoreCase) == 0) 
          {            
              OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                           "%s::lookUp ignoring permission %s",
-                           mLogName.data(), ignorePermissionStr.data());
+                           "%s::lookUp ignoring permission '%s'",
+                           mLogName.data(),
+                           ignorePermissionStr.data());
              continue;
          }
 
@@ -167,33 +173,38 @@ SipRedirectorMapping::lookUp(
 
          int numDBPermissions = dbPermissions.getSize();
 
-         OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                       "%s::lookUp %d permissions configured for %s",
-                       mLogName.data(), numDBPermissions,
-                       requestUri.toString().data());
-                
-         if (numDBPermissions > 0)
+         UtlString permissionsFound;
+         for (int j=0; j<numDBPermissions; j++)
          {
-            for (int j=0; j<numDBPermissions; j++)
-            {
-               UtlHashMap record;
-               dbPermissions.getIndex(j, record);
-               UtlString dbPermissionStr =
-                  *((UtlString*)record.
-                    findValue(&permissionKey));
+            UtlHashMap record;
+            dbPermissions.getIndex(j, record);
+            UtlString dbPermissionStr =
+               *((UtlString*)record.
+                 findValue(&permissionKey));
 
-               OsSysLog::add(FAC_SIP, PRI_DEBUG, "%s::lookUp checking '%s'",
-                             mLogName.data(), dbPermissionStr.data());
-                
-               if (dbPermissionStr.compareTo(urlMappingPermissionStr, UtlString::ignoreCase) == 0)
+            bool equal = dbPermissionStr.compareTo(urlMappingPermissionStr, UtlString::ignoreCase) == 0;
+            if (OsSysLog::willLog(FAC_SIP, PRI_DEBUG))
+            {
+               permissionsFound.append(" ");
+               permissionsFound.append(dbPermissionStr);
+               if (equal)
                {
-                  // matching permission found in IMDB
-                  permissionFound = TRUE;
-                  break;
+                  permissionsFound.append("[matches]");
                }
-               dbPermissionStr.remove(0);
             }
+            if (equal)
+            {
+               // matching permission found in IMDB
+               permissionFound = TRUE;
+               break;
+            }
+            dbPermissionStr.remove(0);
          }
+         OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                       "%s::lookUp %d permissions configured for request URI '%s'.  Checking: %s",
+                       mLogName.data(), numDBPermissions,
+                       requestUri.toString().data(),
+                       permissionsFound.data());
 
          if (permissionFound)
          {
