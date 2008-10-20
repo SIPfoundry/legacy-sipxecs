@@ -6,6 +6,7 @@
  */
 package org.sipfoundry.sipxbridge;
 
+import java.util.ListIterator;
 import java.util.TimerTask;
 
 import javax.sip.ClientTransaction;
@@ -13,6 +14,7 @@ import javax.sip.ResponseEvent;
 import javax.sip.SipException;
 import javax.sip.SipProvider;
 import javax.sip.TimeoutEvent;
+import javax.sip.address.SipURI;
 import javax.sip.header.AllowHeader;
 import javax.sip.header.ContactHeader;
 import javax.sip.message.Request;
@@ -27,9 +29,9 @@ import org.apache.log4j.Logger;
  * 
  */
 public class RegistrationManager {
-    
+
     private static Logger logger = Logger.getLogger(RegistrationManager.class);
-    
+
     private SipProvider provider;
 
     public RegistrationManager(SipProvider sipProvider) {
@@ -38,11 +40,9 @@ public class RegistrationManager {
     }
 
     public void sendRegistrer(ItspAccountInfo itspAccount) throws SipException {
-        Request request = SipUtilities.createRegistrationRequest(provider,
-                itspAccount);
+        Request request = SipUtilities.createRegistrationRequest(provider, itspAccount);
         ClientTransaction ct = provider.getNewClientTransaction(request);
-        TransactionApplicationData tad = new TransactionApplicationData(
-                Operation.SEND_REGISTER);
+        TransactionApplicationData tad = new TransactionApplicationData(Operation.SEND_REGISTER);
         itspAccount.setState(AccountState.AUTHENTICATING);
         tad.itspAccountInfo = itspAccount;
 
@@ -51,13 +51,11 @@ public class RegistrationManager {
 
     }
 
-    public void sendDeregister(ItspAccountInfo itspAccount)
-            throws GatewayConfigurationException, SipException {
-        Request request = SipUtilities.createDeregistrationRequest(provider,
-                itspAccount);
+    public void sendDeregister(ItspAccountInfo itspAccount) throws GatewayConfigurationException,
+            SipException {
+        Request request = SipUtilities.createDeregistrationRequest(provider, itspAccount);
         ClientTransaction ct = provider.getNewClientTransaction(request);
-        TransactionApplicationData tad = new TransactionApplicationData(
-                Operation.SEND_DEREGISTER);
+        TransactionApplicationData tad = new TransactionApplicationData(Operation.SEND_DEREGISTER);
         tad.itspAccountInfo = itspAccount;
         ct.setApplicationData(tad);
 
@@ -68,16 +66,14 @@ public class RegistrationManager {
     /**
      * Sends a registration query.
      * 
-     * @param itspAccount --
-     *            the ITSP account.
+     * @param itspAccount -- the ITSP account.
      * @throws GatewayConfigurationException
      * @throws SipException
      * @throws Exception
      */
     public void sendRegisterQuery(ItspAccountInfo itspAccount)
             throws GatewayConfigurationException, SipException {
-        Request request = SipUtilities.createRegisterQuery(provider,
-                itspAccount);
+        Request request = SipUtilities.createRegisterQuery(provider, itspAccount);
         ClientTransaction ct = provider.getNewClientTransaction(request);
         TransactionApplicationData tad = new TransactionApplicationData(
                 Operation.SEND_REGISTER_QUERY);
@@ -88,9 +84,9 @@ public class RegistrationManager {
     }
 
     /**
-     * Handle the OK response from a Register request. If the original request
-     * was a registration attempt and the response is an OK we start a timer to
-     * re-register after the current registration expires.
+     * Handle the OK response from a Register request. If the original request was a registration
+     * attempt and the response is an OK we start a timer to re-register after the current
+     * registration expires.
      * 
      * @param responseEvent
      */
@@ -100,73 +96,80 @@ public class RegistrationManager {
         Response response = responseEvent.getResponse();
         logger.debug("registrationManager.processResponse() " + response.getStatusCode());
         ClientTransaction ct = responseEvent.getClientTransaction();
+        Request request = ct.getRequest();
+        ContactHeader requestContactHeader = (ContactHeader) request.getHeader(ContactHeader.NAME);
+        SipURI requestContactUri = (SipURI) requestContactHeader.getAddress().getURI();
 
         if (response.getStatusCode() == Response.OK) {
-            ContactHeader contactHeader = (ContactHeader) response
-                    .getHeader(ContactHeader.NAME);
+            ListIterator contactHeaders = (ListIterator) response.getHeaders(ContactHeader.NAME);
             int time = 0;
 
-            if (contactHeader != null) {
-                time = contactHeader.getExpires();
+            if (contactHeaders != null && contactHeaders.hasNext()) {
+                while (contactHeaders.hasNext()) {
+                    ContactHeader contactHeader = (ContactHeader) contactHeaders.next();
+                    SipURI responseContactUri = (SipURI)contactHeader.getAddress().getURI();
+                    int port = ((SipURI)contactHeader.getAddress().getURI()).getPort();
+                    if ( port == -1 ) {
+                        port = 5060;
+                    }
+                    logger.debug("checking contact " + contactHeader);
+                    if ( responseContactUri.getHost().equals(requestContactUri.getHost()) &&
+                            requestContactUri.getPort() == port ) {
+                        time = contactHeader.getExpires();
+                        break;
+                    }
+                }
             } else {
                 time = ct.getRequest().getExpires().getExpires();
             }
-            ItspAccountInfo itspAccount = ((TransactionApplicationData) ct
-                    .getApplicationData()).itspAccountInfo;
-            if ( itspAccount.getSipKeepaliveMethod().equals("REGISTER")) {
+            ItspAccountInfo itspAccount = ((TransactionApplicationData) ct.getApplicationData()).itspAccountInfo;
+            if (itspAccount.getSipKeepaliveMethod().equals("REGISTER")) {
                 time = ct.getRequest().getExpires().getExpires();
             }
-            
-         
+
             itspAccount.setState(AccountState.AUTHENTICATED);
-            
-            if ( itspAccount.getSipKeepaliveMethod().equals("CR-LF")) {
+
+            if (itspAccount.getSipKeepaliveMethod().equals("CR-LF")) {
                 itspAccount.startCrLfTimerTask();
 
             }
-            logger.debug("time = " + time + " Seconds " );
+            logger.debug("time = " + time + " Seconds ");
             if (time > 0 && itspAccount.registrationTimerTask == null) {
                 TimerTask ttask = new RegistrationTimerTask(itspAccount);
                 Gateway.getTimer().schedule(ttask, time * 1000);
             }
-            
 
         } else {
             /* Authentication failed. Try again after 30 seconds */
-            ItspAccountInfo itspAccount = ((TransactionApplicationData) ct
-                    .getApplicationData()).itspAccountInfo;
+            ItspAccountInfo itspAccount = ((TransactionApplicationData) ct.getApplicationData()).itspAccountInfo;
             itspAccount.setState(AccountState.AUTHENTICATION_FAILED);
-            if ( itspAccount.getSipKeepaliveMethod().equals("CR-LF") ) {
+            if (itspAccount.getSipKeepaliveMethod().equals("CR-LF")) {
                 itspAccount.stopCrLfTimerTask();
 
             }
-            if ( itspAccount.registrationTimerTask == null ) {
+            if (itspAccount.registrationTimerTask == null) {
                 TimerTask ttask = new RegistrationTimerTask(itspAccount);
                 Gateway.getTimer().schedule(ttask, 30 * 1000);
             }
-            
+
         }
     }
 
     /**
-     * Handle a timeout event ( happens when you pont this to a non existant
-     * ITSP ).
+     * Handle a timeout event ( happens when you pont this to a non existant ITSP ).
      * 
      * @param timeoutEvent
      */
     public void processTimeout(TimeoutEvent timeoutEvent) {
         ClientTransaction ctx = timeoutEvent.getClientTransaction();
-        ItspAccountInfo itspAccount = ((TransactionApplicationData) ctx
-                .getApplicationData()).itspAccountInfo;
+        ItspAccountInfo itspAccount = ((TransactionApplicationData) ctx.getApplicationData()).itspAccountInfo;
         /*
-         * Try again to register after 30 seconds ( maybe somebody pulled the
-         * plug).
+         * Try again to register after 30 seconds ( maybe somebody pulled the plug).
          */
-        if ( itspAccount.registrationTimerTask == null ) {
+        if (itspAccount.registrationTimerTask == null) {
             TimerTask ttask = new RegistrationTimerTask(itspAccount);
             Gateway.getTimer().schedule(ttask, 30 * 1000);
         }
-       
 
     }
 

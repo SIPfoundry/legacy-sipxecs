@@ -45,6 +45,6 @@
 	<classpathentry kind="lib" path="/home/mranga/sipfoundry/git/sipXcommons/lib/xmlrpc-common-3.1.jar"/>
 	<classpathentry kind="lib" path="/home/mranga/sipfoundry/git/sipXcommons/lib/xmlrpc-server.jar"/>
 	<classpathentry kind="lib" path="/home/mranga/sipfoundry/git/sipXcommons/lib/xmlrpc-server-3.1.jar"/>
-	<classpathentry kind="lib" path="/usr/share/java/sipXecs/sipXcommons/sipxcommons.jar"/>
+	<classpathentry kind="lib" path="/home/mranga/sipfoundry/git/BUILD/sipXcommons/dist/sipxcommons.jar"/>
 	<classpathentry kind="output" path="classes"/>
 </classpath>
