@@ -27,7 +27,6 @@ SSL_CRTDIR     = '@SIPX_CONFDIR@/ssl'           # Directory where certificates a
 
 CONFIGDEFSFile = '@SIPX_CONFDIR@/config.defs'
 DOMAIN_CONFIG  = '@SIPX_CONFDIR@/domain-config'
-SUPER_CONFIG   = '@SIPX_CONFDIR@/sipxsupervisor-config'
 
 global isFirstSystem
 isFirstSystem='True'
@@ -464,7 +463,8 @@ def setup_domain_config () :
 SIP_DOMAIN_NAME : %s\n\
 SIP_REALM : %s\n\
 ALARM_SERVER_URL : https://%s:8092\n\
-CONFIG_SERVER_HOST : %s\n\
+SUPERVISOR_PORT : 8092
+CONFIG_HOSTS : %s\n\
 " % ( SipDomain, SipDomain, HostName, HostName )
 
     file (DOMAIN_CONFIG, 'w').write(minimalDomainConfig)

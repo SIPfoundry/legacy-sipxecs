@@ -41,6 +41,8 @@ const char* SipXecsService::DomainDbKey::SIP_DOMAIN_NAME = "SIP_DOMAIN_NAME";
 const char* SipXecsService::DomainDbKey::SIP_REALM       = "SIP_REALM";
 const char* SipXecsService::DomainDbKey::SHARED_SECRET   = "SHARED_SECRET";
 const char* SipXecsService::DomainDbKey::ALARM_SERVER_URL= "ALARM_SERVER_URL";
+const char* SipXecsService::DomainDbKey::SUPERVISOR_PORT = "SUPERVISOR_PORT";
+const char* SipXecsService::DomainDbKey::CONFIG_HOSTS    = "CONFIG_HOSTS";
 
 // TYPEDEFS
 // FORWARD DECLARATIONS

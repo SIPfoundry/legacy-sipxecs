@@ -37,6 +37,8 @@ WatchDog *pDog;
 // EXTERNAL VARIABLES
 // CONSTANTS
 const char* CONFIG_SETTINGS_FILE = "sipxsupervisor-config";
+const int   DEFAULT_SUPERVISOR_PORT = 8092;
+const char* SUPERVISOR_HOST = "SUPERVISOR_HOST";
 
 // STRUCTS
 // TYPEDEFS
@@ -96,156 +98,109 @@ OsStatus getSettings(TiXmlDocument &doc, int &rCheckPeriod)
     return retval;
 }
 
-// Parses the sipxsupervisor-config file and extracts the XML RPC port and  
-// peer hostnames.  Returns OS_SUCCESS only if a non-zero port was found 
-// *and* at least one peer hostname was found.  On success, the 'allowedPeers' 
-// will contain new'd UtlString objects, which the caller is responsible  
-// for deleting.  If OS_SUCCESS is not returned, then no memory is new'd.
-OsStatus initXMLRPCsettings(int & port, UtlSList& allowedPeers)
+/// Parses the domain-config and sipxsupervisor-config files for control configuration data.
+/**
+ *  Gets:
+ *  - XML RPC port
+ *  - sipXconfig hostnames
+ *  - the local hostname
+ * The combined list of these hostnames is inserted in allowedPeers
+ *
+ * The caller is responsible for the UtlString objects in the 'allowedPeers' list.
+ */
+void initXMLRPCsettings(int & port, UtlSList& allowedPeers)
 {
     OsStatus retval = OS_FAILED;
+    port=DEFAULT_SUPERVISOR_PORT;
 
-    UtlString fileName =  SipXecsService::Path(SipXecsService::ConfigurationDirType,
-                                               CONFIG_SETTINGS_FILE);
+    OsConfigDb domainConfiguration;
+    OsPath domainConfigPath = SipXecsService::domainConfigPath();
+    if (OS_SUCCESS == domainConfiguration.loadFromFile(domainConfigPath.data()))
+    {
+       port = domainConfiguration.getPort(SipXecsService::DomainDbKey::SUPERVISOR_PORT);
+       if (PORT_NONE == port)
+       {
+          OsSysLog::add(FAC_SUPERVISOR,PRI_ERR,
+                        "initXMLRPCsettings: %s not configured in '%s'",
+                        SipXecsService::DomainDbKey::SUPERVISOR_PORT,
+                        domainConfigPath.data()
+                        );
+          port=DEFAULT_SUPERVISOR_PORT;
+       }
+       else if (PORT_DEFAULT == port)
+       {
+          OsSysLog::add(FAC_SUPERVISOR,PRI_NOTICE,"initXMLRPCsettings: %s set to default",
+                        SipXecsService::DomainDbKey::SUPERVISOR_PORT
+                        );
+          port=DEFAULT_SUPERVISOR_PORT;
+       }
+       
+       UtlString configHosts;
+       domainConfiguration.get(SipXecsService::DomainDbKey::CONFIG_HOSTS, configHosts);
+       if (!configHosts.isNull())
+       {
+          UtlString hostName;
+          for (int hostIndex = 0;
+               NameValueTokenizer::getSubField(configHosts.data(), hostIndex, ", \t", &hostName);
+               hostIndex++)
+          {
+             // Found at least one config hostname.
+             if (!allowedPeers.contains(&hostName))
+             {
+                allowedPeers.insert(new UtlString(hostName));
+             }
+             retval = OS_SUCCESS;
+          }                
+       }
+       else
+       {
+          OsSysLog::add(FAC_SUPERVISOR,PRI_ERR,
+                        "initXMLRPCsettings: %s not configured in '%s'",
+                        SipXecsService::DomainDbKey::CONFIG_HOSTS, domainConfigPath.data()
+                        );
+       }
+    }
+    else
+    {
+       OsSysLog::add(FAC_SUPERVISOR,PRI_ERR,
+                     "initXMLRPCsettings: failed to open '%s'",
+                     domainConfigPath.data()
+                     );
+    }
+
+    OsConfigDb supervisorConfiguration;
+    OsPath supervisorConfigPath = SipXecsService::Path(SipXecsService::ConfigurationDirType,
+                                                       CONFIG_SETTINGS_FILE);
+    if (OS_SUCCESS == supervisorConfiguration.loadFromFile(supervisorConfigPath.data()))
+    {
+       UtlString superHost;
+       supervisorConfiguration.get(SUPERVISOR_HOST, superHost);
+       if (!superHost.isNull() && !allowedPeers.contains(&superHost))
+       {
+          allowedPeers.insert(new UtlString(superHost));
+       }
+       else
+       {
+          OsSysLog::add(FAC_SUPERVISOR,PRI_ERR,
+                        "initXMLRPCsettings: %s not configured in '%s'",
+                        SUPERVISOR_HOST, supervisorConfigPath.data()
+                        );
+       }
+    }
+    else
+    {
+       OsSysLog::add(FAC_SUPERVISOR,PRI_WARNING,
+                     "initXMLRPCsettings: failed to open '%s'",
+                     supervisorConfigPath.data()
+                     );
+    }
     
-    OsConfigDb configDb;    
-    bool configLoaded = ( configDb.loadFromFile(fileName) == OS_SUCCESS );
-    if (!configLoaded)
+
+    if (allowedPeers.isEmpty())
     {
-        OsSysLog::add(FAC_SUPERVISOR,PRI_ERR,"Can not open '%s'!", fileName.data());
+       OsSysLog::add(FAC_SUPERVISOR,PRI_ERR,
+                     "initXMLRPCsettings: No configuration servers configured.");
     }
-    else
-    {
-        port = configDb.getPort("SIP_WATCHDOG_XMLRPC_PORT");
-        if (PORT_NONE == port)
-        {
-            OsSysLog::add(FAC_SUPERVISOR,PRI_ERR,"Can not read SIP_WATCHDOG_XMLRPC_PORT!");
-        }
-        else
-        {
-            UtlString peerNames;
-            configDb.get("SIP_WATCHDOG_XMLRPC_PEERS", peerNames);
-            if (peerNames.isNull())
-            {
-                OsSysLog::add(FAC_SUPERVISOR,PRI_ERR,
-                              "Can not read SIP_WATCHDOG_XMLRPC_PEERS!");
-            }
-            else
-            {
-                UtlString peerName;
-                for (int peerIndex = 0;
-                     NameValueTokenizer::getSubField(peerNames.data(), peerIndex, ", \t", &peerName);
-                     peerIndex++)
-                {
-                    // Found a port and at least one peer hostname.
-                    if (!allowedPeers.contains(&peerName))
-                    {
-                       allowedPeers.insert(new UtlString(peerName));
-                    }
-                    retval = OS_SUCCESS;
-                }
-                
-                if (OS_SUCCESS != retval)
-                {
-                    OsSysLog::add(FAC_SUPERVISOR,PRI_ERR,"No peers found.");
-                }
-            }
-        }
-    }
-
-    return retval;
-}
-
-OsStatus initLogfile(TiXmlDocument &doc)
-{
-    OsStatus retval = OS_FAILED;
-    OsSysLogPriority logging_level = (OsSysLogPriority) (-1);
-
-    TiXmlElement*rootElement = doc.RootElement();
-    if (rootElement)
-    {
-        TiXmlNode *healthItem = rootElement->FirstChild("logfile");
-
-        if ( healthItem != NULL )
-        {
-            // This is actually an individual row
-            TiXmlElement *nextElement = healthItem->ToElement();
-
-            if ( !nextElement->NoChildren() )
-            {
-                const char *pLevelStr = nextElement->Attribute("level");
-                if ( pLevelStr )
-                {
-
-                    if ( strcmp(pLevelStr,"debug") == 0 )
-                        logging_level = PRI_DEBUG;
-                    else
-                        if ( strcmp(pLevelStr,"info") == 0 )
-                        logging_level = PRI_INFO;
-                    else
-                        if ( strcmp(pLevelStr,"notice") == 0 )
-                        logging_level = PRI_NOTICE;
-                    else
-                        if ( strcmp(pLevelStr,"warning") == 0 )
-                        logging_level = PRI_WARNING;
-                    else
-                        if ( strcmp(pLevelStr,"err") == 0 )
-                        logging_level = PRI_ERR;
-                    else
-                        if ( strcmp(pLevelStr,"crit") == 0 )
-                        logging_level = PRI_CRIT;
-                    else
-                        if ( strcmp(pLevelStr,"alert") == 0 )
-                        logging_level = PRI_ALERT;
-                    else
-                        if ( strcmp(pLevelStr,"emerg") == 0 )
-                        logging_level = PRI_EMERG;
-                    else
-                    {
-                       OsSysLog::add(FAC_SUPERVISOR, PRI_CRIT,
-                                     "initLogfile: Incomprehensible logging level string '%s'!",
-                                     pLevelStr);
-#ifdef DEBUG
-                       osPrintf("initLogfile: Incomprehensible logging level string '%s'!\n", pLevelStr);
-#endif /* DEBUG */
-                    }
-
-
-                }
-
-                if ( logging_level >= 0 )
-                {
-                    const char*  payLoadData = nextElement->FirstChild()->Value();
-                    if ( payLoadData )
-                    {
-                       //retval = OsSysLog::initialize(0, "WatchDog") ;
-                       //OsSysLog::setOutputFile(0, payLoadData) ;
-                       //OsSysLog::setLoggingPriority(logging_level);
-
-                       //if ( retval == OS_SUCCESS )
-                       //{
-                       //  OsSysLog::add(FAC_SUPERVISOR, PRI_NOTICE,
-                       //                ">>>>> Starting sipxsupervisor version %s",
-                       //                SipXsupervisorVersion);
-                       //}
-                       //else
-                       //{
-                           // This is one case where we need to output an
-                           // error message.
-                       //    osPrintf("ERROR: initLogfile: Could not initialize SysLog!\n");
-                       //}
-                    }
-                }
-            }
-        }
-        else
-            OsSysLog::add(FAC_SUPERVISOR,PRI_ALERT,"Couldn't get health element in init logfile");
-    }
-    else
-        OsSysLog::add(FAC_SUPERVISOR,PRI_ALERT,"Couldn't get root Element in init logfile");
-
-
-    return retval;
 }
 
 void cleanup()
@@ -547,13 +502,7 @@ int main(int argc, char* argv[])
     // Get the Watchdog XML-RPC server settings.
     UtlSList allowedPeers;
     int port;
-    rc = initXMLRPCsettings(port, allowedPeers);
-    if (OS_SUCCESS != rc)
-    {
-       OsSysLog::add(FAC_SUPERVISOR, PRI_CRIT, 
-                     "initXMLRPCsettings() failed, rc = %d.", (int)rc);
-       return 11;
-    }
+    initXMLRPCsettings(port, allowedPeers);
     
     // Read the process definitions.
     UtlString processDefinitionDirectory =

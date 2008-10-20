@@ -30,6 +30,7 @@ public abstract class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> 
     private String m_alarmServerUrl;
     private String m_initialDomain;
     private String m_initialAlias;
+    private String m_configServerHost;
 
     /**
      * Implemented by Spring AOP
@@ -92,7 +93,7 @@ public abstract class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> 
             throw new DomainNotInitializedException();
         }
         DomainConfiguration domainConfiguration = createDomainConfiguration();
-        domainConfiguration.generate(existingDomain, m_authorizationRealm,
+        domainConfiguration.generate(existingDomain, m_authorizationRealm, m_configServerHost,
                 getExistingLocalization().getLanguage(), m_alarmServerUrl);
         getReplicationContext().replicate(domainConfiguration);
         getReplicationContext().publishEvent(new DomainConfigReplicatedEvent(this));
@@ -165,5 +166,9 @@ public abstract class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> 
 
     public void setInitialAlias(String initialAlias) {
         m_initialAlias = initialAlias;
+    }
+
+    public void setConfigServerHost(String configServerHost) {
+        m_configServerHost = configServerHost;
     }
 }

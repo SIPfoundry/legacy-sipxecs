@@ -4,9 +4,6 @@ SUBDIRS = alarms
  
 schemas = \
 	sipXecs-process.xsd \
-	watchdog.xsd \
-	watchdogprocess.xsd \
-	processdefinitions.xsd \
    alarm.xsd
 
 EXTRA_DATA = $(foreach xsd,$(schemas),$(xsd).in)

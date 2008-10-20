@@ -60,6 +60,8 @@ class SipXecsService
       static const char* SHARED_SECRET;    ///< shared secret for generating authentication hashes
       static const char* DEFAULT_LANGUAGE; ///< default language used by voice applications
       static const char* ALARM_SERVER_URL; ///< address of the Alarm Server
+      static const char* SUPERVISOR_PORT;  ///< xml-rpc port for the sipXsupervisor
+      static const char* CONFIG_HOSTS;     ///< host names that may control sipXsupervisor 
    };
 
    /// Default user name for a sipXecs service

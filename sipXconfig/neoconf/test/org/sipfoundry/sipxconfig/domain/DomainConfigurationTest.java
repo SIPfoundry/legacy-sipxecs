@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.domain;
@@ -28,6 +28,7 @@ public class DomainConfigurationTest extends TestCase {
     private DomainConfiguration m_out;
     private String m_referenceConfig;
 
+    @Override
     public void setUp() throws Exception {
         m_domain = new Domain();
         m_domain.setName("domain.example.com");
@@ -47,7 +48,7 @@ public class DomainConfigurationTest extends TestCase {
 
     public void testWrite() throws Exception {
         StringWriter actualConfigWriter = new StringWriter();
-        m_out.generate(m_domain, m_realm, m_language, m_alarmServerUrl);
+        m_out.generate(m_domain, m_realm, "master.example.com", m_language, m_alarmServerUrl);
         m_out.write(actualConfigWriter, null);
 
         Reader actualConfigReader = new StringReader(actualConfigWriter.toString());

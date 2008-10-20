@@ -19,12 +19,14 @@ public class DomainConfiguration extends TemplateConfigurationFile {
     private String m_realm;
     private String m_language;
     private String m_alarmServerUrl;
+    private String m_configServerHost;
 
-    public void generate(Domain domain, String realm, String language, String alarmServerUrl) {
+    public void generate(Domain domain, String realm, String configServerHost, String language, String alarmServerUrl) {
         m_domain = domain;
         m_realm = realm;
         m_language = language;
         m_alarmServerUrl = alarmServerUrl;
+        m_configServerHost = configServerHost;
     }
 
     @Override
@@ -34,6 +36,7 @@ public class DomainConfiguration extends TemplateConfigurationFile {
         context.put("realm", m_realm);
         context.put("language", m_language);
         context.put("alarmServerUrl", m_alarmServerUrl);
+        context.put("configServerHost", m_configServerHost);
         return context;
     }
 }

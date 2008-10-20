@@ -1,4 +1,0 @@
-SIP_WATCHDOG_XMLRPC_PORT : ${WATCHDOG_SERVER_XMLRPC_PORT}
-
-# Add the fully qualified name of the master when configuring HA, comma separated
-SIP_WATCHDOG_XMLRPC_PEERS : ${CONFIG_SERVER_HOST}

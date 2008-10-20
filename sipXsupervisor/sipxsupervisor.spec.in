@@ -101,12 +101,7 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) %attr(644,root,@SIPXPBXGROUP@) %{_datadir}/sipxecs/alarms/alarm-strings.xml
 %config(noreplace) %attr(644,root,@SIPXPBXGROUP@) %{_datadir}/sipxecs/alarms/sipXalarms-strings.xml
 
-%config(noreplace) %attr(644,root,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx/sipxsupervisor-config.in
-
 %attr(755,root,root) %{_datadir}/sipxecs/schema/sipXecs-process.xsd
-%attr(755,root,root) %{_datadir}/sipxecs/schema/watchdog.xsd
-%attr(755,root,root) %{_datadir}/sipxecs/schema/watchdogprocess.xsd
-%attr(755,root,root) %{_datadir}/sipxecs/schema/processdefinitions.xsd
 %attr(755,root,root) %{_datadir}/sipxecs/schema/alarm.xsd
 
 %{upgrade_archive_dir}/%{this_archive}
