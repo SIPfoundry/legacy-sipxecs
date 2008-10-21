@@ -5,6 +5,7 @@ ARCH = noarch
 
 SRC_DIR = $(srcdir)/src
 SRC_TARBALL = rubygems-$(VERSION).tgz
+PATCH_FILE = rubygems_buildroot.patch
 SPEC_FILE = rubygems.spec
 
 RPM = $(DEST_RPM)/rubygems-$(VERSION)-$(RELEASE).$(ARCH).rpm
@@ -17,6 +18,7 @@ $(RPM) : build-rpms
 .PHONY: build-rpms
 build-rpms : 
 	cp $(SRC_DIR)/$(SRC_TARBALL) @RPMBUILD_TOPDIR@/SOURCES/
+	cp $(SRC_DIR)/$(PATCH_FILE) @RPMBUILD_TOPDIR@/SOURCES/
 	cp $(SRC_DIR)/$(SPEC_FILE) @RPMBUILD_TOPDIR@/SPECS/
 	rpmbuild -ba @RPMBUILD_TOPDIR@/SPECS/$(SPEC_FILE)
 
