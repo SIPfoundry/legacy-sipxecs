@@ -92,17 +92,3 @@ $(foreach proc,$(SIPX_PROCESS_DEFS),$(proc)-process.xml) : % : %.in
 	@echo "Localize process definition: $*"
 	@$(LocalizeSipXconfig) $< > $@
 
-################################################################
-# Install old style watchdog process definition
-#   to be deleted after conversion to the new defintions above.
-$(DESTDIR)$(SIPX_CONFDIR)/process.d/%.process.xml : %.process.xml $(DESTDIR)$(SIPX_CONFDIR)/process.d
-	$(INSTALL) -D -m 644 $< $@
-
-%.process.xml : %.process.xml.in
-	@echo "Localize old-style watchdog process definition: $@"
-	@$(LocalizeSipXconfig) $< > $@
-
-$(DESTDIR)$(SIPX_CONFDIR)/process.d :
-	$(INSTALL) -d $(DESTDIR)$(SIPX_CONFDIR)/process.d
-################################################################
-

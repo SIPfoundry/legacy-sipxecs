@@ -102,7 +102,6 @@ When displaying modified files
   
  $ sipxcar -m
  M /etc/sipxpbx/config.defs
- ? /etc/sipxpbx/process.d/sipxconfig.process.xml
   
  'M' - Denotes a file that has been modified from factory defaults   
  '?' - Denotes a file that has been deleted from the system. You can 

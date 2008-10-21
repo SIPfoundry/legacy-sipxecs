@@ -108,7 +108,6 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_datadir}/sipxecs/schema/caller-alias.xsd
 %attr(755,root,root) %{_datadir}/sipxecs/schema/huntgroup.xsd
 
-%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx/process.d/sipregistrar.process.xml
 %{upgrade_archive_dir}/%{this_archive}
 %{upgrade_archive_dir}/%{name}-previous.tgz
 

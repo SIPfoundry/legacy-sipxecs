@@ -140,10 +140,6 @@ rm -rf $RPM_BUILD_ROOT
 # config files are generated from templates via config.defs
 %config(noreplace) %attr(644,root,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx/voicemail.xml.in
 
-%config(noreplace) %attr(644,root,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx/process.d/sipxpark.process.xml
-%config(noreplace) %attr(644,root,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx/process.d/sipxpresence.process.xml
-%config(noreplace) %attr(644,root,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx/process.d/sipxrls.process.xml
-
 %config(noreplace) %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_bindir}/httpd-sipxchange-config.sh
 
 %dir %attr(775,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx/httpd.conf.d

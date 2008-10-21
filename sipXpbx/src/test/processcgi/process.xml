@@ -1,7 +1,0 @@
-<?xml version="1.0"?>
-
-<process_definitions xmlns="http://www.sipfoundry.org/sipX/schema/xml/processdefinitions-00-00">
-    <dependentdelay wait="0" />
-    <workdir location="work-dir"/>
-    <logfile level="warning">log-file</logfile>
-</process_definitions>

@@ -223,30 +223,6 @@
       </fileset>
     </copy>
 
-    <property name="oldprocess.dir" value="${dest.dir}${sipxpbx.conf.dir}/process.d"/>
-    <mkdir dir="${oldprocess.dir}"/>
-    <copy file="etc/sipxconfig.process.xml.in" 
-      tofile="${oldprocess.dir}/sipxconfig.process.xml"/>
-    <replace file="${oldprocess.dir}/sipxconfig.process.xml" 
-      propertyfile="${top.build.dir}/build.properties">
-
-      <replacefilter token="@sipxpbx.conf.dir@" property="sipxpbx.conf.dir"/>
-      <replacefilter token="@sipxconfig.lib.dir@" property="sipxconfig.lib.dir" 
-       />
-      <replacefilter token="@sipxecs.java.dir@" property="sipxecs.java.dir"/>
-      <replacefilter token="@sipxpbx.log.dir@" property="sipxpbx.log.dir"/>    	
-      <replacefilter token="@bin.dir@" property="bin.dir"/>
-      <replacefilter token="@sipxpbx.run.dir@" property="sipxpbx.run.dir"/>
-      <replacefilter token="@sipxpbx.tmp.dir@" property="sipxpbx.tmp.dir"/>
-      <replacefilter token="@sipxpbx.user@" property="sipxpbx.user"/>
-      <replacefilter token="@sipxconfig.db.user@" property="sipxconfig.db.user"/>
-
-      <replacefilter token="@sipxpbx.conf.dir@" property="sipxpbx.conf.dir"/>
-      <replacefilter token="@sipxpbx.user@" property="sipxpbx.user"/>
-      <replacefilter token="@sipxconfig.lib.dir@" property="sipxconfig.lib.dir"/>
-      <replacefilter token="@bin.dir@" property="bin.dir"/>
-    </replace>
-  	
     <property name="process.dir" value="${dest.dir}${sipxpbx.process.dir}"/>
     <mkdir dir="${process.dir}"/>
     <copy file="etc/sipxconfig-process.xml.in" 

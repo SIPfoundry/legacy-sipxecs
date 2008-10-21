@@ -49,7 +49,6 @@ rm -rf $RPM_BUILD_ROOT
 %files
 %defattr(644,root,root,755)
 %attr(755,sipxchange,sipxchange) %{_datadir}/java/sipXecs/sipXivr
-%config(noreplace) %attr(644,root,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx/process.d/sipxivr.process.xml
 %attr(644,root,root) %{_datadir}/sipxecs/process.d/sipxivr-process.xml
 %attr(644,root,root) %{_datadir}/sipxecs/schema/autoattendants.xsd
 %attr(644,root,root) %{_datadir}/sipxecs/schema/validusers.xsd

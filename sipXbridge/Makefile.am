@@ -4,7 +4,6 @@ include ant-targets.am
 
 bin_SCRIPTS = sipxbridge.sh sipxrelay.sh
 
-
 RPMS=$(RPM)
 
 EXTRA_DIST = \
@@ -18,10 +17,8 @@ EXTRA_DIST = \
   config.properties.in \
   sipxbridge.spec.in \
   sipxbridge.spec \
-  sipxbridge.process.xml.in \
   sipxbridge-process.xml.in \
   sipxbridge.sh.in \
-  sipxrelay.process.xml.in \
   sipxrelay-process.xml.in \
   sipxrelay.sh.in \
   CONTRIBUTORS \
@@ -35,39 +32,9 @@ EXTRA_DIST = \
 # BUILT_SOURCES is special autoconf variable to be checked on every make
 BUILT_SOURCES = config.properties
 
-install-data-hook : \
-	$(DESTDIR)$(SIPX_CONFDIR)/process.d/sipxbridge.process.xml \
-	$(DESTDIR)$(SIPX_DATADIR)/process.d/sipxbridge-process.xml \
-	$(DESTDIR)$(SIPX_CONFDIR)/process.d/sipxrelay.process.xml \
-	$(DESTDIR)$(SIPX_DATADIR)/process.d/sipxrelay-process.xml
-
-$(DESTDIR)$(SIPX_CONFDIR)/process.d/sipxbridge.process.xml : sipxbridge.process.xml
-	$(INSTALL) -D -m 644 $< $@
-
-$(DESTDIR)$(SIPX_CONFDIR)/process.d/sipxrelay.process.xml : sipxrelay.process.xml
-	$(INSTALL) -D -m 644 $< $@
-
-sipxbridge.process.xml : sipxbridge.process.xml.in
-	@echo "Localize $< -> $@"
-	@$(LocalizeSipXconfig) $< > $@
-
-sipxrelay.process.xml : sipxrelay.process.xml.in
-	@echo "Localize $< -> $@"
-	@$(LocalizeSipXconfig) $< > $@
-
-$(DESTDIR)$(SIPX_DATADIR)/process.d/sipxbridge-process.xml : sipxbridge-process.xml
-	$(INSTALL) -D -m 644 $< $@
-
-$(DESTDIR)$(SIPX_DATADIR)/process.d/sipxrelay-process.xml : sipxrelay-process.xml
-	$(INSTALL) -D -m 644 $< $@
-
-sipxbridge-process.xml : sipxbridge-process.xml.in
-	@echo "Localize $< -> $@"
-	@$(LocalizeSipXconfig) $< > $@
-
-sipxrelay-process.xml : sipxrelay-process.xml.in
-	@echo "Localize $< -> $@"
-	@$(LocalizeSipXconfig) $< > $@
+SIPX_PROCESS_DEFS = \
+	sipxbridge \
+	sipxrelay
 
 config.properties : config.properties.in 
 	@echo "Localize $< -> $@"

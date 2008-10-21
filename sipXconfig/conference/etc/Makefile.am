@@ -4,14 +4,10 @@ cfgfiles_IN = \
     freeswitch_config.defs
 
 EXTRA_DIST = \
-    freeswitch.process.xml.in \
     freeswitch-process.xml.in \
     $(cfgfiles_IN)
 
 ### if ENABLE_CONFERENCE
-PROCESS_XML_FILES = \
-	$(DESTDIR)$(SIPX_CONFDIR)/process.d/freeswitch.process.xml
-
 SIPX_PROCESS_DEFS = \
 	freeswitch
 ### endif

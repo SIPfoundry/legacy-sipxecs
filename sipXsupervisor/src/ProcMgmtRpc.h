@@ -487,7 +487,7 @@ protected:
 /**
  Returns the configuration version of the process specified by its name.  (The 
  name is the "name" attribute of the "sipXecs-process" element in the
- process's SIPX_CONFDIR/process.d/___.process.xml configuration file.)
+ process's SIPX_SHAREDIR/process.d/___.process.xml configuration file.)
 
  \par
  <b>Method Name: ProcMgmtRpc.getConfigVersion</b>

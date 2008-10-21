@@ -98,7 +98,6 @@ rm -rf $RPM_BUILD_ROOT
 # This config file is reprocessed at start time, so it should be owned
 # by SIPXPBXUSER.
 %dir %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx
-%config(noreplace) %{_sysconfdir}/sipxpbx/process.d/sipXvxml.process.xml
 
 %{upgrade_archive_dir}/%{this_archive}
 %{upgrade_archive_dir}/%{name}-previous.tgz

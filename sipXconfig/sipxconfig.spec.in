@@ -291,7 +291,6 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) %{sipxpbxconf}/lg-nortel/*
 %dir %{sipxpbxconf}/linksys
 %config(noreplace) %{sipxpbxconf}/linksys/*
-%config(noreplace) %{sipxpbxconf}/process.d/sipxconfig.process.xml
 %dir %{sipxpbxconf}/polycom
 %config(noreplace) %{sipxpbxconf}/polycom/*
 %dir %{sipxpbxconf}/snom
@@ -443,7 +442,6 @@ sipx-snmp-init > /dev/null
 
 %files conference
 %defattr(644,@SIPXPBXUSER@,@SIPXPBXUSER@,755)
-%config(noreplace) %{sipxpbxconf}/process.d/freeswitch.process.xml
 %attr(644,root,root) %{_datadir}/sipxecs/process.d/freeswitch-process.xml
 %{sipxpbxconf}/freeswitch_config.defs
 %dir %attr(775,@SIPXPBXUSER@,@SIPXPBXUSER@) %{freeswitchdir}
@@ -469,7 +467,6 @@ fi
 %attr(755,root,root) %{_bindir}/sipxconfig-agent
 
 %defattr(644,@SIPXPBXUSER@,@SIPXPBXUSER@,755)
-%config(noreplace) %{sipxpbxconf}/process.d/sipxconfig-agent.process.xml
 %attr(644,root,root) %{_datadir}/sipxecs/process.d/sipxconfig-agent-process.xml
 
 %post agent

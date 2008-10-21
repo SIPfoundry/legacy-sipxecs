@@ -50,7 +50,6 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(644,root,root,755)
 %attr(755,sipxchange,sipxchange) %{_datadir}/java/sipXecs/sipXpage
 %config(noreplace) %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_localstatedir}/sipxdata/sipxpage
-%config(noreplace) %attr(644,root,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx/process.d/sipxpage.process.xml
 %attr(644,root,root) %{_datadir}/sipxecs/process.d/sipxpage-process.xml
 %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_bindir}/sipxpage.sh
 %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_bindir}/sipxpage-config

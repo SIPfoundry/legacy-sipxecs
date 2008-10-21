@@ -141,8 +141,6 @@ rm -rf $RPM_BUILD_ROOT
 # config files are generated from templates via config.defs
 %dir %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx
 
-%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx/process.d/sipXproxy.process.xml
-
 %{upgrade_archive_dir}/%{this_archive}
 # Where does this come from?
 %{upgrade_archive_dir}/%{name}-previous.tgz
@@ -172,8 +170,6 @@ pkg-upgrade --previous %{previous_archive} --current %{current_archive}
 %attr(755,root,root) %{_libexecdir}/sipXecs/setup.d/sipxcallresolver-setup
 
 %config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx/sipxcallresolver-agent-config
-%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx/process.d/sipxcallresolver.process.xml
-%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx/process.d/sipxcallresolver-agent.process.xml
 %config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx/cdr/*
 
 %dir %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx/cdr
