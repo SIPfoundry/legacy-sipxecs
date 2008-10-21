@@ -7,40 +7,6 @@
 ##  Licensed to the User under the LGPL license.
 ##
 
-: ${REMOTE_SSL_CERT_SCRIPT:=$0}
-
-remote_send() {
-  remoteServer=$1
-  shift
-  echo "Installing certificate information on remote server $remoteServer..."
-  # send tar on stdin to the remote copy of this script, only remote server, over ssh
-  # thusly, remote_receive will be invoked on remote server
-  tar -c $@ | ssh $remoteServer ${REMOTE_SSL_CERT_SCRIPT} --remote-receive $remoteServer
-
-  exit
-}
-
-remote_receive() {
-  echo "Receiving certificate information from remote server..."
-  # don't put into /tmp/dir incase it makes it available to users it shouldn't
-  # root home directory is better
-  tempDir=install-cert-remote-receive.tmp
-
-  test -d $tempDir || mkdir $tempDir
-  pushd $tempDir
-
-  # extract files on stdin from remote_send command over ssh
-  tar -vx
-
-  # recursive run to install cert normally on remote
-  $0 $1
-
-  popd
-  rm -r $tempDir
-  
-  exit
-}
-
 CurrentWorkDir=`pwd`
 WorkDir=${CurrentWorkDir}
 
@@ -58,12 +24,12 @@ while [ $# -ne 0 ]
 do
     case ${1} in
         -r|--remote)
-	    Action=REMOTE_SEND
+	    Action=REMOTE_UNSUPPORTED
             ;;
 
         ## Internal command
         --remote-receive)
-	    Action=REMOTE_RECEIVE
+	    Action=REMOTE_UNSUPPORTED
             ;;
 
         -wd|--workdir)
@@ -137,10 +103,16 @@ else
 
 fi
 
-if [ "${Action}" = "REMOTE_RECEIVE" ]
+if [ "${Action}" = "REMOTE_UNSUPPORTED" ]
 then
-  remote_receive "${Basename}"
-  exit
+  cat <<UNSUPPORTED_EOF
+  The --remote and --remote-receive options are obsolete.
+
+  Installation of certificate data for a distributed system
+  is now integrated into the sipx-setup script, supported 
+  by certificate generation in sipXconfig.
+UNSUPPORTED_EOF
+  exit 1
 fi
 
 if test "${CurrentWorkDir}" != "${WorkDir}"
@@ -198,13 +170,6 @@ if [ -n "${caName}" -a -f "${caName}.crt" ]
 else
     AuthoritySwitch=""
 fi
-
-if [ "${Action}" = "REMOTE_SEND" ]
-then
-  remote_send "${Basename}" "${Basename}.crt" "${Basename}.key" "${caName}.crt"
-  exit
-fi
-
 
 echo "Checking the '${Basename}' certificate"
 
