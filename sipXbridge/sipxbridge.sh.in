@@ -34,16 +34,18 @@ CONFIG_FILES="\
 
 . @SIPX_LIBEXECDIR@/sipx-utils.sh || exit 1
 
+JavaCmd=`@SIPX_BINDIR@/sipx-config --java`
+LibPath=`perl -e 'print join(":", @ARGV);' @SIPX_JAVADIR@/sipXbridge/*.jar @SIPX_JAVADIR@/sipXcommons/*.jar`
+ClassPath=$LibPath
+
 case ${Action} in
    RUN)
      echo $$ > @SIPX_RUNDIR@/sipxbridge.pid
 
-     JavaCmd=`@SIPX_BINDIR@/sipx-config --java`
-     LibPath=`perl -e 'print join(":", @ARGV);' @SIPX_JAVADIR@/sipXbridge/*.jar @SIPX_JAVADIR@/sipXcommons/*.jar`
-     ClassPath=$LibPath
      exec $JavaCmd -Dconf.dir=@SIPX_CONFDIR@  \
-         -Dsipxbridge.command=$Args \
+         -Dsipxbridge.command=start \
          -cp $ClassPath org.sipfoundry.sipxbridge.Gateway \
+	 $Args
      ;;
 
    STOP)
@@ -61,6 +63,10 @@ case ${Action} in
 	 Status=1
      fi
 
+     exec $JavaCmd -Dconf.dir=@SIPX_CONFDIR@  \
+         -Dsipxbridge.command=configtest \
+         -cp $ClassPath org.sipfoundry.sipxbridge.Gateway \
+	 $Args
      ;;
 esac
 
