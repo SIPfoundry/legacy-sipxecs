@@ -116,7 +116,8 @@ static void server_insert_addr(
 
 /**
  * Add server_t to the end of a list of server addresses.
- * Calculates sorting score.
+ * No longer calculates the sorting score -- that is now done in
+ * SipSrvLookup::servers.
  */
 static void server_insert(
    /// List control variables.
@@ -214,6 +215,9 @@ static int server_compare(const void* a, const void* b,
  * @returns Integer comparison result as needed by qsort.
  */
 
+// Sort servers into canonical order before calculating scores.
+static int server_compare_presort(const void* a, const void* b);
+
 static void sort_answers(res_response* response);
 
 static int rr_compare(const void* a, const void* b);
@@ -232,6 +236,7 @@ int SipSrvLookup::options[OptionCodeLast+1] = {
    0,                           // OptionCodePrintAnswers
    DEFAULT_CNAME_LIMIT,         // OptionCodeCNAMELimit
    0,                           // OptionCodeNoDefaultTCP
+   0,                           // OptionCodeSortServers
    0,                           // OptionCodeLast
 };
 
@@ -408,14 +413,45 @@ server_t* SipSrvLookup::servers(const char* domain,
       }
    }
 
+   // If testing the code, sort the list of servers into a canonical order,
+   // so the pseudo-random scores we calculate for them are deterministic.
+   if (options[OptionCodeSortServers])
+   {
+      qsort(list, list_length_used, sizeof (server_t), server_compare_presort);
+   }
+
+   // Apply the scores to the list of servers.
+   // Why we construct it this way is described in
+   // sipXtackLib/doc/developer/scores/README.
+   for (int j = 0; j < list_length_used; j++)
+   {
+      if (list[j].weight == 0)
+      {
+         // If weight is 0, set score to infinity.
+         list[j].score = 1000;
+      }
+      else
+      {
+         int i = rand();
+         // If random number is 0, change it to 1, so log() doesn't have a problem.
+         if (i == 0)
+         {
+            i = 1;
+         }
+         list[j].score = - log(((float) i) / RAND_MAX) / list[j].weight;
+      }
+   }
+
    // Sort the list of servers found by priority and score.
    if (preferredTransport == OsSocket::UDP) // list order is UDP before TCP
    {
-       qsort(list, list_length_used, sizeof (server_t), server_compare_prefer_udp);
+       qsort(list, list_length_used, sizeof (server_t),
+             server_compare_prefer_udp);
    }
    else // list order puts TCP before UDP (large requests need this)
    {
-       qsort(list, list_length_used, sizeof (server_t), server_compare_prefer_tcp);
+       qsort(list, list_length_used, sizeof (server_t),
+             server_compare_prefer_tcp);
    }
 
    // Add ending empty element to list (after sorting the real entries).
@@ -564,24 +600,8 @@ void server_insert(server_t*& list,
    list[list_length_used].sin = sin;
    list[list_length_used].priority = priority;
    list[list_length_used].weight = weight;
-   // Construct the score.
-   // Why we construct it this way is described in
-   // sipXtackLib/doc/developer/scores/README.
-   if (weight == 0)
-   {
-      // If weight is 0, set score to infinity.
-      list[list_length_used].score = 1000;
-   }
-   else
-   {
-      int i = rand();
-      // If random number is 0, change it to 1, so log() doesn't have a problem.
-      if (i == 0)
-      {
-         i = 1;
-      }
-      list[list_length_used].score = - log(((float) i) / RAND_MAX) / weight;
-   }
+   // Score will be calculated later.
+   list[list_length_used].score = 0;
 
    // Increment the count of elements in the list.
    list_length_used++;
@@ -940,8 +960,8 @@ union u_rdata* look_for(res_response* response, const char* name,
 int server_compare_prefer_udp(const void* a, const void* b)
 {
     int result;
-    result = server_compare( a, b, 
-                             OsSocket::TCP);  // TCP is least preferred transport
+    result = server_compare(a, b, 
+                            OsSocket::TCP);  // TCP is least preferred transport
     return result;
 }
 
@@ -949,8 +969,8 @@ int server_compare_prefer_udp(const void* a, const void* b)
 int server_compare_prefer_tcp(const void* a, const void* b)
 {
     int result;
-    result = server_compare( a, b, 
-                             OsSocket::UDP);  // UDP is least preferred transport
+    result = server_compare(a, b, 
+                            OsSocket::UDP);  // UDP is least preferred transport
     return result;
 }
 
@@ -1002,6 +1022,52 @@ int server_compare(const void* a, const void* b,
         result = -1;
     }
 
+    return result;
+}
+
+int server_compare_presort(const void* a, const void* b)
+{
+    int result = 0;
+    const server_t* s1 = (const server_t*) a;
+    const server_t* s2 = (const server_t*) b;
+
+    // Compare s1 and s2 on all fields.
+    result = strcmp(s1->host, s2->host);
+    if (result == 0)
+    {
+       if (s1->type < s2->type)
+       {
+          result = -1;
+       }
+       else if (s1->type > s2->type)
+       {
+          result = 1;
+       }
+       else
+       {
+          result = memcmp(&s1->sin, &s2->sin, sizeof (s1->sin));
+          if (result == 0)
+          {
+             if (s1->priority < s2->priority)
+             {
+                result = -1;
+             }
+             else if (s1->priority > s2->priority)
+             {
+                result = 1;
+             }
+             else if (s1->weight < s2->weight)
+             {
+                result = -1;
+             }
+             else if (s1->weight > s2->weight)
+             {
+                result = 1;
+             }
+          }
+       }
+
+    }
     return result;
 }
 

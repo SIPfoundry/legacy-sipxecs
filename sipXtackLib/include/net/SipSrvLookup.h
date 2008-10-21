@@ -121,6 +121,9 @@ public:
       OptionCodeCNAMELimit,     ///< Max. number of CNAMEs to follow.
       OptionCodeNoDefaultTCP,   /**< If 1, do not add TCP contacts by default,
                                  *   for better RFC 3263 section 4.1 conformance. */
+      OptionCodeSortServers,    /**< If 1, sort the server list before
+                                 *   calculating scores.  This makes the scores
+                                 *   predictable.  (For testing only.) */
       OptionCodeLast,           ///< End of range
    };
    /**<
