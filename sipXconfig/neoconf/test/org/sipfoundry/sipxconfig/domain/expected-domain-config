@@ -4,4 +4,4 @@ SHARED_SECRET : mySecret
 DEFAULT_LANGUAGE : en
 ALARM_SERVER_URL : https://domain.example.com:8092
 SUPERVISOR_PORT : 8092
-CONFIG_HOST : master.example.com
+CONFIG_HOSTS : master.example.com

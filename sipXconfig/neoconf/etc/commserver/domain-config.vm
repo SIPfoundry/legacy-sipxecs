@@ -4,4 +4,4 @@ SHARED_SECRET : ${domain.SharedSecret}
 DEFAULT_LANGUAGE : $language
 ALARM_SERVER_URL : https://${domain.Name}:8092
 SUPERVISOR_PORT : 8092
-CONFIG_HOST : ${configServerHost}
+CONFIG_HOSTS : ${configServerHost}
