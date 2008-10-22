@@ -55,12 +55,6 @@
     </property>
   </bean>
 
-  <bean id="conferenceAdmission" class="org.sipfoundry.sipxconfig.conference.ConferenceAdmission" scope="prototype"
-    parent="defaultConfigurationFile">
-    <property name="name" value="default_context.xml" />
-    <property name="directory" value="${sysdir.freeswitch}/conf" />
-  </bean>
-
   <bean id="conferenceConfiguration" class="org.sipfoundry.sipxconfig.conference.ConferenceConfiguration"
     scope="prototype" parent="defaultConfigurationFile">
     <property name="name" value="conference.conf.xml" />
@@ -76,7 +70,8 @@
         <property name="jobContext" ref="jobContext" />
         <property name="sessionFactory" ref="sessionFactory" />
         <property name="freeswitchApiProvider" ref="freeswitchApiProvider" />
-        <lookup-method name="createConferenceAdmission" bean="conferenceAdmission" />
+        <property name="sipxServiceManager" ref="sipxServiceManager" />
+        <property name="freeswitchService" ref="sipxFreeswitchService" />
         <lookup-method name="createConferenceConfiguration" bean="conferenceConfiguration" />
       </bean>
     </property>

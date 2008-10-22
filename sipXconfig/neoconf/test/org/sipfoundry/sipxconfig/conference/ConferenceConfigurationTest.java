@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.conference;
@@ -22,21 +22,22 @@ import org.sipfoundry.sipxconfig.device.DeviceDefaults;
 
 public class ConferenceConfigurationTest extends XMLTestCase {
 
+    @Override
     protected void setUp() throws Exception {
         XMLUnit.setIgnoreWhitespace(true);
     }
-    
+
     public void testGenerate() throws Exception {
         List conferences;
         Bridge bridge;
-        
+
         conferences = new ArrayList(2);
-        
+
         bridge = new Bridge();
         bridge.setModelFilesContext(TestHelper.getModelFilesContext());
         DeviceDefaults dd = new DeviceDefaults();
         dd.setDomainManager(TestHelper.getTestDomainManager("example.com")) ;
-        bridge.setSystemDefaults(dd);        
+        bridge.setSystemDefaults(dd);
         bridge.getSettings();
         bridge.setSettingValue(Bridge.CALL_CONTROL_MUTE, "1");
         bridge.setSettingValue(Bridge.CALL_CONTROL_DEAF_MUTE, "2");
@@ -57,21 +58,21 @@ public class ConferenceConfigurationTest extends XMLTestCase {
         conf.getSettings();
         conf.setExtension("123");
         conf.setSettingValue(Conference.MAX_LEGS, "0") ;
-        bridge.addConference(conf);        
-        
+        bridge.addConference(conf);
+
         conf = new Conference();
         conf.setModelFilesContext(TestHelper.getModelFilesContext());
         conf.initialize();
         conf.setExtension("234");
-        conf.setSettingValue(Conference.MAX_LEGS, "4") ;       
-        bridge.addConference(conf);       
+        conf.setSettingValue(Conference.MAX_LEGS, "4") ;
+        bridge.addConference(conf);
         conferences.add(conf);
-        
+
         ConferenceConfiguration config = new ConferenceConfiguration();
         config.generate(bridge, conferences);
         String generatedXml = config.getFileContent();
         System.err.println(generatedXml);
-        InputStream referenceXml = ConferenceAdmissionTest.class
+        InputStream referenceXml = ConferenceConfigurationTest.class
                 .getResourceAsStream("conference_config.test.xml");
         assertXMLEqual(new InputStreamReader(referenceXml), new StringReader(generatedXml));
     }

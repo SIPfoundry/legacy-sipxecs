@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.conference;
@@ -26,52 +26,25 @@ import static org.easymock.EasyMock.verify;
 public class ConferenceBridgeProvisioningtImplTestIntegration extends IntegrationTestCase {
 
     private ConferenceBridgeContext m_context;
-    
+
     private DeviceDefaults m_phoneDefaults;
-    
+
     private ModelFilesContext m_modelFilesContext;
 
     public void setConferenceBridgeContext(ConferenceBridgeContext context) {
         m_context = context;
     }
-    
+
     public void setModelFilesContext(ModelFilesContext modelFilesContext) {
         m_modelFilesContext = modelFilesContext;
     }
-    
+
     public void setPhoneDefaults(DeviceDefaults phoneDefaults) {
         m_phoneDefaults = phoneDefaults;
     }
 
-    public void testGenerateAdmissionData() throws Exception {
-        loadDataSet("conference/users.db.xml");
-        loadDataSet("conference/participants.db.xml");
-
-        SipxReplicationContext replication = createMock(SipxReplicationContext.class);
-        replication.replicate(isA(ConferenceAdmission.class));
-        replay(replication);
-
-        ConferenceBridgeProvisioningImpl impl = new ConferenceBridgeProvisioningImpl() {
-            public ConferenceAdmission createConferenceAdmission() {
-                return new ConferenceAdmission();
-            }
-
-            public ConferenceConfiguration createConferenceConfiguration() {
-                return null;
-            }
-        };
-        impl.setSipxReplicationContext(replication);
-
-        Bridge bridge = m_context.loadBridge(new Integer(2005));
-        List conferences = new ArrayList(bridge.getConferences());
-
-        impl.generateAdmissionData(conferences);
-
-        verify(replication);
-    }
-
     public void testGenerateConfigurationData() throws Exception {
-        loadDataSet("admin/dialplan/sbc/domain.db.xml");        
+        loadDataSet("admin/dialplan/sbc/domain.db.xml");
         loadDataSet("conference/users.db.xml");
         loadDataSet("conference/participants.db.xml");
 
@@ -80,10 +53,7 @@ public class ConferenceBridgeProvisioningtImplTestIntegration extends Integratio
         replay(replication);
 
         ConferenceBridgeProvisioningImpl impl = new ConferenceBridgeProvisioningImpl() {
-            public ConferenceAdmission createConferenceAdmission() {
-                return null;
-            }
-
+            @Override
             public ConferenceConfiguration createConferenceConfiguration() {
                 return new ConferenceConfiguration();
             }
@@ -97,7 +67,7 @@ public class ConferenceBridgeProvisioningtImplTestIntegration extends Integratio
         for (Conference c : conferences) {
             c.setModelFilesContext(m_modelFilesContext);
         }
-        
+
         impl.generateConfigurationData(bridge, conferences);
 
         verify(replication);
