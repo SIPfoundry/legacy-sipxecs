@@ -1,11 +1,11 @@
-VERSION = 1.3.0
+VERSION = 1.2.0
 RELEASE = 1
 
 ARCH = noarch
 
 SRC_DIR = $(srcdir)/src
 SRC_TARBALL = rubygems-$(VERSION).tgz
-PATCH_FILE = rubygems_buildroot.patch
+PATCH_FILE = noarch-gemdir.patch
 SPEC_FILE = rubygems.spec
 
 RPM = $(DEST_RPM)/rubygems-$(VERSION)-$(RELEASE).$(ARCH).rpm

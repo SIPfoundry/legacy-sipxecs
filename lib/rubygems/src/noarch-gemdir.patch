@@ -1,0 +1,13 @@
+diff -up rubygems-1.2.0/lib/rubygems/defaults.rb.orig rubygems-1.2.0/lib/rubygems/defaults.rb
+--- rubygems-1.2.0/lib/rubygems/defaults.rb.orig	2008-06-04 19:34:47.000000000 -0700
++++ rubygems-1.2.0/lib/rubygems/defaults.rb	2008-09-16 15:31:12.000000000 -0700
+@@ -15,7 +15,8 @@ module Gem
+       File.join ConfigMap[:libdir], RUBY_ENGINE, 'gems',
+                 ConfigMap[:ruby_version]
+     else
+-      File.join ConfigMap[:libdir], 'ruby', 'gems', ConfigMap[:ruby_version]
++      gemdir = File::expand_path(File::join(ConfigMap[:sitedir],"..","gems"))
++      File.join(gemdir, ConfigMap[:ruby_version])
+     end
+   end
+ 
