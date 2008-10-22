@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.conference;
@@ -43,14 +43,16 @@ public interface ConferenceBridgeContext extends AliasOwner, AliasProvider {
 
     Bridge loadBridge(Serializable serverId);
 
+    Bridge getBridgeByServer(String hostname);
+
     Conference loadConference(Serializable id);
 
     Conference findConferenceByName(String name);
 
     List<Conference> findConferencesByOwner(User owner);
-    
+
     String getAddressSpec(Conference conference);
-    
+
     void clear();
 
     public List<Conference> filterConferences(final Integer bridgeId, final Integer  ownerGroupId);
@@ -59,4 +61,5 @@ public interface ConferenceBridgeContext extends AliasOwner, AliasProvider {
 
     public List<Conference> filterConferencesByPage(final Integer bridgeId, final Integer  ownerGroupId,
             int firstRow, int pageSize, String[] orderBy, boolean orderAscending);
+
 }

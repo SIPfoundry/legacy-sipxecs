@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.conference;
@@ -37,6 +37,8 @@ import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
+import static org.springframework.dao.support.DataAccessUtils.singleResult;
+
 public class ConferenceBridgeContextImpl extends HibernateDaoSupport implements BeanFactoryAware,
         ConferenceBridgeContext {
     private static final String CONFERENCE = "conference";
@@ -50,7 +52,7 @@ public class ConferenceBridgeContextImpl extends HibernateDaoSupport implements 
     private ConferenceBridgeProvisioning m_provisioning;
     private CoreContext m_coreContext;
     private DomainManager m_domainManager;
-    
+
     public List getBridges() {
         return getHibernateTemplate().loadAll(Bridge.class);
     }
@@ -126,19 +128,21 @@ public class ConferenceBridgeContextImpl extends HibernateDaoSupport implements 
         return (Bridge) getHibernateTemplate().load(Bridge.class, id);
     }
 
+
+    public Bridge getBridgeByServer(String hostname) {
+        List<Bridge> bridges = getHibernateTemplate().findByNamedQueryAndNamedParam(
+                "bridgeByHost", VALUE, hostname);
+        return (Bridge) singleResult(bridges);
+    }
+
     public Conference loadConference(Serializable id) {
         return (Conference) getHibernateTemplate().load(Conference.class, id);
     }
 
     public Conference findConferenceByName(String name) {
-        Conference conference = null;
         List<Conference> conferences = getHibernateTemplate().findByNamedQueryAndNamedParam(
                 CONFERENCE_BY_NAME, VALUE, name);
-        if (SipxCollectionUtils.safeSize(conferences) > 0) {
-            conference = conferences.get(0);
-        }
-
-        return conference;
+        return (Conference) singleResult(conferences);
     }
 
     public void clear() {
@@ -166,7 +170,7 @@ public class ConferenceBridgeContextImpl extends HibernateDaoSupport implements 
     public void setDomainManager(DomainManager domainManager) {
         m_domainManager = domainManager;
     }
-    
+
     public boolean isAliasInUse(String alias) {
         List confIds = getHibernateTemplate().findByNamedQueryAndNamedParam(
                 CONFERENCE_IDS_WITH_ALIAS, VALUE, alias);
@@ -189,7 +193,7 @@ public class ConferenceBridgeContextImpl extends HibernateDaoSupport implements 
         }
         return list;
     }
-    
+
     public List<Conference> findConferencesByOwner(User owner) {
         List<Conference> conferences = getHibernateTemplate().findByNamedQueryAndNamedParam(
                 "conferencesByOwner", OWNER, owner);
@@ -249,7 +253,7 @@ public class ConferenceBridgeContextImpl extends HibernateDaoSupport implements 
         };
         return getHibernateTemplate().executeFind(callback);
     }
-    
+
     public String getAddressSpec(Conference conference) {
         String domain = m_domainManager.getDomain().getName();
         return SipUri.fix(conference.getExtension(), domain);

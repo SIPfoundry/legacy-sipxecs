@@ -1,17 +1,14 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.conference;
 
-// import java.io.UnsupportedEncodingException;
-// import java.net.URLEncoder;
-// import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -56,18 +53,20 @@ public class Conference extends BeanWithSettings implements NamedObject {
     private Bridge m_bridge;
 
     private User m_owner;
-    
-    private ConferenceAorDefaults m_defaults;
+
+    private final ConferenceAorDefaults m_defaults;
 
     public Conference() {
         m_defaults = new ConferenceAorDefaults(this);
     }
 
+    @Override
     public void initialize() {
         addDefaultBeanSettingHandler(m_defaults);
         getSettingModel2().setDefaultProfileNameHandler(new ConferenceProfileName(this));
     }
 
+    @Override
     protected Setting loadSettings() {
         return getModelFilesContext().loadModelFile("sipxconference/conference.xml");
     }
@@ -130,7 +129,7 @@ public class Conference extends BeanWithSettings implements NamedObject {
 
     /**
      * It is called by deployment module every time we provision the bridge
-     * 
+     *
      */
     public void generateRemoteAdmitSecret() {
         m_defaults.generateRemoteAdmitSecret();
@@ -151,7 +150,7 @@ public class Conference extends BeanWithSettings implements NamedObject {
     public boolean hasOwner() {
         return m_owner != null;
     }
-    
+
     @Override
     public void setSettingValue(String path, String value) {
         if (AOR_RECORD.equals(path)) {
@@ -161,7 +160,7 @@ public class Conference extends BeanWithSettings implements NamedObject {
     }
 
     public static class ConferenceAorDefaults {
-        private Conference m_conference;
+        private final Conference m_conference;
         private String m_participantCode;
         private String m_organizerCode;
         private String m_remoteSecretAgent;
@@ -228,11 +227,11 @@ public class Conference extends BeanWithSettings implements NamedObject {
 
     /**
      * Generates two alias mappings for a conference:
-     * 
+     *
      * extension@domain ==> name@domainm and name@domain ==>> media server
-     * 
+     *
      * @param domainName
-     * 
+     *
      * @return list of aliase mappings, empty list if conference is disabled
      */
     public List generateAliases(String domainName) {
@@ -256,6 +255,4 @@ public class Conference extends BeanWithSettings implements NamedObject {
         String identity = AliasMapping.createUri(m_name, domainName);
         return new AliasMapping(identity, freeswitchUri);
     }
-
-        
 }

@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.conference;
@@ -23,12 +23,13 @@ public class ConferenceBridgeContextImplTestDb extends SipxDatabaseTestCase {
 
     private ConferenceBridgeContext m_context;
     private CoreContext m_coreContext;
-    
+
+    @Override
     protected void setUp() throws Exception {
         m_context = (ConferenceBridgeContext) TestHelper.getApplicationContext().getBean(
                 ConferenceBridgeContext.CONTEXT_BEAN_NAME);
         m_coreContext = (CoreContext) TestHelper.getApplicationContext().getBean(CoreContext.CONTEXT_BEAN_NAME);
-        
+
         TestHelper.cleanInsert("ClearDb.xml");
         TestHelper.insertFlat("conference/users.db.xml");
     }
@@ -36,6 +37,12 @@ public class ConferenceBridgeContextImplTestDb extends SipxDatabaseTestCase {
     public void testGetBridges() throws Exception {
         TestHelper.insertFlat("conference/participants.db.xml");
         assertEquals(2, m_context.getBridges().size());
+    }
+
+    public void testGetBridgeByServer() throws Exception {
+        TestHelper.insertFlat("conference/participants.db.xml");
+        assertNull(m_context.getBridgeByServer("uknown"));
+        assertEquals("bridge_name_2006", m_context.getBridgeByServer("host.example.com").getName());
     }
 
     public void testStore() throws Exception {
@@ -106,13 +113,13 @@ public class ConferenceBridgeContextImplTestDb extends SipxDatabaseTestCase {
         TestHelper.insertFlat("conference/participants.db.xml");
         User owner = m_coreContext.loadUser(1002);
         List<Conference> ownerConferences = m_context.findConferencesByOwner(owner);
-        
+
         assertEquals(3, ownerConferences.size());
         for (Conference conference : ownerConferences) {
             assertEquals(owner.getId(), conference.getOwner().getId());
         }
     }
-    
+
     public void testClear() throws Exception {
         IDatabaseConnection db = TestHelper.getConnection();
         TestHelper.insertFlat("conference/participants.db.xml");

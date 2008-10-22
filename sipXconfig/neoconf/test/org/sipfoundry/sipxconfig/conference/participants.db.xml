@@ -10,7 +10,7 @@
           name="bridge_name_2006"
           description="bridge_desc_2005" 
           enabled="0" 
-          host="localhost" 
+          host="host.example.com"
           port="8202"/>
   
   <meetme_conference meetme_bridge_id="2005" meetme_conference_id="3001" 
