@@ -571,26 +571,26 @@ done
 
 sipDomain=`. @SIPX_CONFDIR@/config.defs > /dev/null 2>&1; echo ${SIPXCHANGE_DOMAIN_NAME}`
 echo "" >> ${SystemConfig}
-echo ======== SIP Domain: $sipDomain >> ${SystemConfig}
+echo ======== DNS LOOKUPS >> ${SystemConfig}
 
 echo "" >> ${SystemConfig}
 echo ======== DNS NAPTR $sipDomain >> ${SystemConfig}
 dig -t naptr +noidentify +nocmd +nocomments +noquestion +nostats +noauthority $sipDomain \
 >> ${SystemConfig}
 
-echo "" >> ${SystemConfig}
-echo ======== DNS A $sipDomain >> ${SystemConfig}
-dig -t a +noidentify +nocmd +nocomments +noquestion +nostats +noauthority $sipDomain \
->> ${SystemConfig}
-
-echo "" >> ${SystemConfig}
-for d in $sipDomain rr.$full_host ap.$full_host
+for d in $sipDomain rr.$full_host
 do
+  echo "" >> ${SystemConfig}
   echo ======== DNS SRV $d >> ${SystemConfig}
   dig -t srv +noidentify +nocmd +nocomments +noquestion +nostats +noauthority _sip._tcp.$d _sip._udp.$d \
   | sort -u -r \
   >> ${SystemConfig}
 done
+
+echo "" >> ${SystemConfig}
+echo ======== DNS A $sipDomain >> ${SystemConfig}
+dig -t a +noidentify +nocmd +nocomments +noquestion +nostats +noauthority $sipDomain \
+>> ${SystemConfig}
 
 # Get configuration information on sipX components
 for component in pbx config proxy registry publisher vxml commserverlib calllib medialib tacklib portlib
@@ -628,8 +628,12 @@ echo "======== RPMs" >> ${SystemConfig}
 rpm -qa --nodigest --nosignature | sort >> ${SystemConfig}
 
 echo ""       >> ${SystemConfig}
-echo ======== ifconfig -a >> ${SystemConfig}
+echo ======== INTERFACES (ifconfig -a) >> ${SystemConfig}
 ifconfig -a   >> ${SystemConfig}
+
+echo ""       >> ${SystemConfig}
+echo ======== ROUTES (route -n) >> ${SystemConfig}
+route -n   >> ${SystemConfig}
 
 # Get any firewall or other tricky IP manipulations
 echo "" >> ${SystemConfig}
