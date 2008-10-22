@@ -17,10 +17,6 @@ Requires: sipxpbx >= 3.11
 Prefix:    %_prefix
 BuildRoot: %{_tmppath}/%name-%version-root
 
-# should match sipXlib.m4:SIPX_VARDIR/upgrade
-%define upgrade_archive_dir %{_localstatedir}/sipxdata/upgrade
-%define this_archive %{name}-%{version}-%{release}.tgz
-
 %description
 sipXregistry is the registry/redirect server component of the sipX family. 
 It shares a number of common components with the rest of the family, but
@@ -59,12 +55,6 @@ make
 # the way it is.
 rm -rf $RPM_BUILD_ROOT
 make DESTDIR=$RPM_BUILD_ROOT install
-
-%define upgrade_archive_root ${RPM_BUILD_ROOT}%{upgrade_archive_dir}
-mkdir -p %{upgrade_archive_root}
-tar --directory ${RPM_BUILD_ROOT} \
-    -czf %{upgrade_archive_root}/%{this_archive} \
-    etc
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -108,9 +98,6 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_datadir}/sipxecs/schema/caller-alias.xsd
 %attr(755,root,root) %{_datadir}/sipxecs/schema/huntgroup.xsd
 
-%{upgrade_archive_dir}/%{this_archive}
-%{upgrade_archive_dir}/%{name}-previous.tgz
-
 %files devel
 %defattr(644,root,root,755)
 %docdir %{_datadir}/doc/sipxecs
@@ -131,16 +118,5 @@ rm -rf $RPM_BUILD_ROOT
 %{_includedir}/registry/*
 
 %pre
-sipx-upgrade -p sipxregistry -c
 
 %post
-sipx-upgrade -p sipxregistry -u --sdir %{_localstatedir} --cdir %{_sysconfdir}
-
-%define current_archive %{upgrade_archive_dir}/%{name}-current.tgz
-%define previous_archive %{upgrade_archive_dir}/%{name}-previous.tgz
-if [ -f %{current_archive} ]; then
-  mv %{current_archive} %{previous_archive}
-fi
-mv %{upgrade_archive_dir}/%{this_archive} %{current_archive}
-
-pkg-upgrade --previous %{previous_archive} --current %{current_archive}
