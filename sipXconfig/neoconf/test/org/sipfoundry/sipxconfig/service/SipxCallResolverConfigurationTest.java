@@ -1,21 +1,16 @@
 package org.sipfoundry.sipxconfig.service;
 
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.io.StringReader;
-import java.io.StringWriter;
-
-import org.apache.commons.io.IOUtils;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.setting.Setting;
+
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.expectLastCall;
+import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.verify;
 
 public class SipxCallResolverConfigurationTest extends SipxServiceTestBase {
 
     public void testWrite() throws Exception {
-        SipxCallResolverConfiguration out = new SipxCallResolverConfiguration();
-        out.setVelocityEngine(TestHelper.getVelocityEngine());
-        out.setTemplate("sipxcallresolver/callresolver-config.vm");
-
         SipxCallResolverService callResolverService = new SipxCallResolverService();
         initCommonAttributes(callResolverService);
         Setting settings = TestHelper.loadSettings("sipxcallresolver/sipxcallresolver.xml");
@@ -29,18 +24,17 @@ public class SipxCallResolverConfigurationTest extends SipxServiceTestBase {
 
         callResolverService.setAgentPort(8090);
 
-        out.generate(callResolverService);
+        SipxServiceManager sipxServiceManager = createMock(SipxServiceManager.class);
+        sipxServiceManager.getServiceByBeanId(SipxCallResolverService.BEAN_ID);
+        expectLastCall().andReturn(callResolverService).atLeastOnce();
+        replay(sipxServiceManager);
 
-        Reader referenceConfigReader = new InputStreamReader(SipxProxyConfigurationTest.class
-                .getResourceAsStream("expected-callresolver-config"));
-        String expectedConfig = IOUtils.toString(referenceConfigReader);
+        SipxCallResolverConfiguration out = new SipxCallResolverConfiguration();
+        out.setSipxServiceManager(sipxServiceManager);
+        out.setTemplate("sipxcallresolver/callresolver-config.vm");
 
-        StringWriter actualConfigWriter = new StringWriter();
-        out.write(actualConfigWriter, null);
+        assertCorrectFileGeneration(out, "expected-callresolver-config");
 
-        Reader actualConfigReader = new StringReader(actualConfigWriter.toString());
-        String actualConfig = IOUtils.toString(actualConfigReader);
-
-        assertEquals(expectedConfig, actualConfig);
+        verify(sipxServiceManager);
     }
 }

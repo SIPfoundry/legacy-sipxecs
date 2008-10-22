@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<beans xmlns="http://www.springframework.org/schema/beans"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
 
   <bean id="adminContext" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
@@ -23,11 +22,10 @@
 
   <bean id="restore" class="org.sipfoundry.sipxconfig.admin.Restore">
     <property name="binDirectory" value="${sysdir.bin}" />
-    <property name="logDirectory" value="${sysdir.log}"/>
+    <property name="logDirectory" value="${sysdir.log}" />
   </bean>
 
-  <bean id="ftpRestore" class="org.sipfoundry.sipxconfig.admin.FtpRestore" parent="restore">
-  </bean>
+  <bean id="ftpRestore" class="org.sipfoundry.sipxconfig.admin.FtpRestore" parent="restore"></bean>
 
   <bean id="whacker" class="org.sipfoundry.sipxconfig.admin.Whacker">
     <property name="processContext" ref="sipxProcessContext" />
@@ -42,14 +40,12 @@
     <property name="emailFromAddress" value="backup" />
   </bean>
 
-  <bean id="localBackupPlan" class="org.sipfoundry.sipxconfig.admin.LocalBackupPlan" parent="backupPlan">
-  </bean>
+  <bean id="localBackupPlan" class="org.sipfoundry.sipxconfig.admin.LocalBackupPlan" parent="backupPlan"></bean>
 
-  <bean id="ftpBackupPlan" class="org.sipfoundry.sipxconfig.admin.FtpBackupPlan" parent="backupPlan">
-  </bean>
+  <bean id="ftpBackupPlan" class="org.sipfoundry.sipxconfig.admin.FtpBackupPlan" parent="backupPlan"></bean>
 
   <bean id="ftpConfiguration" class="org.sipfoundry.sipxconfig.admin.ftp.FtpConfiguration">
-	  <property name="backupPlan" ref="ftpBackupPlan" />
+    <property name="backupPlan" ref="ftpBackupPlan" />
   </bean>
 
   <bean id="messageSource" class="org.springframework.context.support.ResourceBundleMessageSource">
@@ -64,20 +60,19 @@
     <property name="domainManager" ref="domainManager" />
     <property name="dialPlanContext" ref="dialPlanContext" />
     <property name="processContext" ref="sipxProcessContext" />
-	<property name="alarmContext" ref="alarmContext" />
+    <property name="alarmContext" ref="alarmContext" />
     <property name="taskName" value="first-run" />
-    <property name="locationsManager" ref="locationsManager"/>
-    <property name="sipxServiceManager" ref="sipxServiceManager"/>
+    <property name="locationsManager" ref="locationsManager" />
+    <property name="sipxServiceManager" ref="sipxServiceManager" />
   </bean>
 
-  <bean id="exportCsv"
-    class="org.sipfoundry.sipxconfig.admin.ExportCsv">
+  <bean id="exportCsv" class="org.sipfoundry.sipxconfig.admin.ExportCsv">
     <property name="coreContext" ref="coreContext" />
     <property name="phoneContext" ref="phoneContext" />
-    <property name="mailboxManager" ref="mailboxManager"/>
+    <property name="mailboxManager" ref="mailboxManager" />
   </bean>
-  
+
   <bean id="defaultConfigurationFile" abstract="true">
-    <property name="directory" value="${sysdir.etc}"/>
+    <property name="directory" value="${sysdir.etc}" />
   </bean>
 </beans>

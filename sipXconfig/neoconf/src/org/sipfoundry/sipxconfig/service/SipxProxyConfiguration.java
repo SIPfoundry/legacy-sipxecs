@@ -13,26 +13,15 @@ import org.apache.velocity.VelocityContext;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 
 public class SipxProxyConfiguration extends SipxServiceConfiguration {
-
-    private SipxService m_service;
-    private SipxServiceManager m_sipxServiceManager;
-
-    public void setSipxServiceManager(SipxServiceManager sipxServiceManager) {
-        m_sipxServiceManager = sipxServiceManager;
-    }
-
-    @Override
-    public void generate(SipxService service) {
-        m_service = service;
-    }
-
     @Override
     protected VelocityContext setupContext(Location location) {
         VelocityContext context = super.setupContext(location);
-        context.put("settings", m_service.getSettings().getSetting("proxy-configuration"));
-        context.put("proxyService", m_service);
 
-        SipxService callResolverService = m_sipxServiceManager.getServiceByBeanId(SipxCallResolverService.BEAN_ID);
+        SipxService service = getService(SipxProxyService.BEAN_ID);
+        context.put("settings", service .getSettings().getSetting("proxy-configuration"));
+        context.put("proxyService", service);
+
+        SipxService callResolverService = getService(SipxCallResolverService.BEAN_ID);
         context.put("callResolverSettings", callResolverService.getSettings().getSetting("callresolver"));
 
         return context;

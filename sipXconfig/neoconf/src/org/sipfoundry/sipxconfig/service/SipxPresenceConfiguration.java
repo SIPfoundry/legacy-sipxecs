@@ -13,19 +13,12 @@ import org.apache.velocity.VelocityContext;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 
 public class SipxPresenceConfiguration extends SipxServiceConfiguration {
-
-    private SipxService m_service;
-
-    @Override
-    public void generate(SipxService service) {
-        m_service = service;
-    }
-
     @Override
     protected VelocityContext setupContext(Location location) {
         VelocityContext context = super.setupContext(location);
-        context.put("settings", m_service.getSettings().getSetting("presence-config"));
-        context.put("presenceService", m_service);
+        SipxService service = getService(SipxPresenceService.BEAN_ID);
+        context.put("settings", service.getSettings().getSetting("presence-config"));
+        context.put("presenceService", service);
         return context;
     }
 }

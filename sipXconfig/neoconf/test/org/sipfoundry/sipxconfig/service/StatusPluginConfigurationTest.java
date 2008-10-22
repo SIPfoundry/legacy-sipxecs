@@ -9,7 +9,10 @@
  */
 package org.sipfoundry.sipxconfig.service;
 
-import org.sipfoundry.sipxconfig.TestHelper;
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.expectLastCall;
+import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.verify;
 
 public class StatusPluginConfigurationTest extends SipxServiceTestBase {
 
@@ -17,11 +20,17 @@ public class StatusPluginConfigurationTest extends SipxServiceTestBase {
         SipxStatusService statusService = new SipxStatusService();
         initCommonAttributes(statusService);
 
+        SipxServiceManager sipxServiceManager = createMock(SipxServiceManager.class);
+        sipxServiceManager.getServiceByBeanId(SipxStatusService.BEAN_ID);
+        expectLastCall().andReturn(statusService).atLeastOnce();
+        replay(sipxServiceManager);
+
         StatusPluginConfiguration out = new StatusPluginConfiguration();
-        out.setVelocityEngine(TestHelper.getVelocityEngine());
+        out.setSipxServiceManager(sipxServiceManager);
+
         out.setTemplate("sipxstatus/status-plugin.vm");
-        out.generate(statusService);
 
         assertCorrectFileGeneration(out, "expected-status-plugin-config");
+        verify(sipxServiceManager);
     }
 }

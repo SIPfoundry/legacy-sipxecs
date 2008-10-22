@@ -1,47 +1,36 @@
 package org.sipfoundry.sipxconfig.service;
 
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.io.StringReader;
-import java.io.StringWriter;
-
-import org.apache.commons.io.IOUtils;
 import org.sipfoundry.sipxconfig.TestHelper;
-import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.expectLastCall;
+import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.verify;
+
 public class SipxRlsConfigurationTest extends SipxServiceTestBase {
-    
+
     public void testWrite() throws Exception {
-       SipxRlsConfiguration config = new SipxRlsConfiguration();
-       config.setVelocityEngine(TestHelper.getVelocityEngine());
-       config.setTemplate("sipxrls/sipxrls-config.vm");
-       
-       SipxRlsService service = new SipxRlsService();
-       service.setRlsPort("5140");
-       Setting settings = TestHelper.loadSettings("sipxrls/sipxrls.xml");
-       service.setSettings(settings);
-       initCommonAttributes(service);
-       
-       Setting parkSettings = service.getSettings().getSetting("rls-config");
-       parkSettings.getSetting("SIP_RLS_LOG_LEVEL").setValue("WARN");
-       
-       config.generate(service);
+        SipxRlsService service = new SipxRlsService();
+        service.setRlsPort("5140");
+        Setting settings = TestHelper.loadSettings("sipxrls/sipxrls.xml");
+        service.setSettings(settings);
+        initCommonAttributes(service);
 
-       Location location = new Location();
-       location.setName("localLocation");
-       location.setFqdn("sipx.example.org");
-       location.setAddress("192.168.1.1");
-       StringWriter actualConfigWriter = new StringWriter();
-       config.write(actualConfigWriter, location);
-       
-       
-       Reader referenceConfigReader = new InputStreamReader(getClass().getResourceAsStream("expected-rls-config"));
-       String referenceConfig = IOUtils.toString(referenceConfigReader);
+        Setting parkSettings = service.getSettings().getSetting("rls-config");
+        parkSettings.getSetting("SIP_RLS_LOG_LEVEL").setValue("WARN");
 
-       Reader actualConfigReader = new StringReader(actualConfigWriter.toString());
-       String actualConfig = IOUtils.toString(actualConfigReader);
+        SipxServiceManager sipxServiceManager = createMock(SipxServiceManager.class);
+        sipxServiceManager.getServiceByBeanId(SipxRlsService.BEAN_ID);
+        expectLastCall().andReturn(service).atLeastOnce();
+        replay(sipxServiceManager);
 
-       assertEquals(referenceConfig, actualConfig);
+        SipxRlsConfiguration config = new SipxRlsConfiguration();
+        config.setTemplate("sipxrls/sipxrls-config.vm");
+        config.setSipxServiceManager(sipxServiceManager);
+
+        assertCorrectFileGeneration(config, "expected-rls-config");
+
+        verify(sipxServiceManager);
     }
 }

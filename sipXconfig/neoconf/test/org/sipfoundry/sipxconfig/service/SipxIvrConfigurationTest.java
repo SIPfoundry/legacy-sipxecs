@@ -9,16 +9,12 @@
  */
 package org.sipfoundry.sipxconfig.service;
 
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.io.StringReader;
-import java.io.StringWriter;
-
-import org.apache.commons.io.IOUtils;
-import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 
-import static org.easymock.EasyMock.*;
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.expectLastCall;
+import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.verify;
 
 public class SipxIvrConfigurationTest extends SipxServiceTestBase {
 
@@ -26,12 +22,6 @@ public class SipxIvrConfigurationTest extends SipxServiceTestBase {
         DialPlanContext dialPlanContext = createMock(DialPlanContext.class);
         dialPlanContext.getVoiceMail();
         expectLastCall().andReturn("101");
-
-        replay(dialPlanContext);
-
-        SipxIvrConfiguration out = new SipxIvrConfiguration();
-        out.setVelocityEngine(TestHelper.getVelocityEngine());
-        out.setTemplate("sipxivr/sipxivr.properties.vm");
 
         SipxIvrService ivrService = new SipxIvrService();
         ivrService.setModelDir("sipxivr");
@@ -43,20 +33,17 @@ public class SipxIvrConfigurationTest extends SipxServiceTestBase {
         ivrService.setScriptsDir("/usr/share/www/doc/aa_vxml");
         ivrService.setVxmlDir("/var/sipxdata/mediaserver/data");
 
-        out.generate(ivrService);
+        SipxServiceManager sipxServiceManager = createMock(SipxServiceManager.class);
+        sipxServiceManager.getServiceByBeanId(SipxIvrService.BEAN_ID);
+        expectLastCall().andReturn(ivrService).atLeastOnce();
+        replay(sipxServiceManager, dialPlanContext);
 
-        StringWriter actualConfigWriter = new StringWriter();
-        out.write(actualConfigWriter, null);
+        SipxIvrConfiguration out = new SipxIvrConfiguration();
+        out.setSipxServiceManager(sipxServiceManager);
+        out.setTemplate("sipxivr/sipxivr.properties.vm");
 
-        Reader referenceConfigReader = new InputStreamReader(getClass().getResourceAsStream(
-                "expected-sipxivr.properties"));
-        String referenceConfig = IOUtils.toString(referenceConfigReader);
+        assertCorrectFileGeneration(out, "expected-sipxivr.properties");
 
-        Reader actualConfigReader = new StringReader(actualConfigWriter.toString());
-        String actualConfig = IOUtils.toString(actualConfigReader);
-
-        assertEquals(referenceConfig, actualConfig);
-
-        verify(dialPlanContext);
+        verify(sipxServiceManager, dialPlanContext);
     }
 }

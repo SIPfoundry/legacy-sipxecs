@@ -9,15 +9,13 @@
  */
 package org.sipfoundry.sipxconfig.service;
 
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.io.StringReader;
-import java.io.StringWriter;
-
-import org.apache.commons.io.IOUtils;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.setting.Setting;
+
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.expectLastCall;
+import static org.easymock.EasyMock.replay;
 
 public class SipxStatusConfigurationTest extends SipxServiceTestBase {
 
@@ -30,25 +28,22 @@ public class SipxStatusConfigurationTest extends SipxServiceTestBase {
         Setting statusConfigSettings = statusService.getSettings().getSetting("status-config");
         statusConfigSettings.getSetting("SIP_STATUS_LOG_LEVEL").setValue("CRIT");
 
+        SipxServiceManager sipxServiceManager = createMock(SipxServiceManager.class);
+        sipxServiceManager.getServiceByBeanId(SipxStatusService.BEAN_ID);
+        expectLastCall().andReturn(statusService).atLeastOnce();
+        replay(sipxServiceManager);
+
         SipxStatusConfiguration out = new SipxStatusConfiguration();
-        out.setVelocityEngine(TestHelper.getVelocityEngine());
+        out.setSipxServiceManager(sipxServiceManager);
         out.setTemplate("sipxstatus/status-config.vm");
-        out.generate(statusService);
 
-        Location location = new Location();
-        location.setName("localLocation");
-        location.setFqdn("sipx.example.org");
+        assertCorrectFileGeneration(out, "expected-status-config");
+    }
+
+    @Override
+    protected Location createDefaultLocation() {
+        Location location = super.createDefaultLocation();
         location.setAddress("192.168.1.2");
-        StringWriter actualConfigWriter = new StringWriter();
-        out.write(actualConfigWriter, location);
-
-        Reader referenceConfigReader = new InputStreamReader(SipxStatusConfigurationTest.class
-                .getResourceAsStream("expected-status-config"));
-        String referenceConfig = IOUtils.toString(referenceConfigReader);
-
-        Reader actualConfigReader = new StringReader(actualConfigWriter.toString());
-        String actualConfig = IOUtils.toString(actualConfigReader);
-
-        assertEquals(referenceConfig, actualConfig);
+        return location;
     }
 }

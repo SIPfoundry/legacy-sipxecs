@@ -13,8 +13,10 @@ import org.sipfoundry.sipxconfig.common.SipUri;
 import org.springframework.beans.factory.annotation.Required;
 
 public class SipxIvrService extends SipxService {
-    private static final ProcessName PROCESS_NAME = ProcessName.IVR;    
-    
+    public static final String BEAN_ID = "sipxIvrService";
+
+    private static final ProcessName PROCESS_NAME = ProcessName.IVR;
+
     private String m_vxmlDir;
     private String m_mailstoreDir;
     private String m_scriptsDir;

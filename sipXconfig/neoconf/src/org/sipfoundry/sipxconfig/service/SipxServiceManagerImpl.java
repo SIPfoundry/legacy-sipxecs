@@ -1,10 +1,10 @@
 /*
- * 
- * 
+ *
+ *
  * Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.service;
@@ -69,7 +69,6 @@ public class SipxServiceManagerImpl extends SipxHibernateDaoSupport<SipxService>
             return;
         }
         for (SipxServiceConfiguration configuration : configurations) {
-            configuration.generate(service);
             m_replicationContext.replicate(configuration);
         }
     }

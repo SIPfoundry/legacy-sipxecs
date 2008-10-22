@@ -13,18 +13,11 @@ import org.apache.velocity.VelocityContext;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 
 public class StatusPluginConfiguration extends SipxServiceConfiguration {
-
-    private SipxService m_statusService;
-
-    @Override
-    public void generate(SipxService service) {
-        m_statusService = service;
-    }
-
     @Override
     protected VelocityContext setupContext(Location location) {
         VelocityContext context = super.setupContext(location);
-        context.put("statusService", m_statusService);
+        SipxService statusService = getService(SipxStatusService.BEAN_ID);
+        context.put("statusService", statusService);
         return context;
     }
 }

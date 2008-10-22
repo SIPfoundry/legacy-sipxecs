@@ -13,19 +13,12 @@ import org.apache.velocity.VelocityContext;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 
 public class SipxRlsConfiguration extends SipxServiceConfiguration {
-
-    private SipxService m_service;
-
-    @Override
-    public void generate(SipxService service) {
-        m_service = service;
-    }
-
     @Override
     protected VelocityContext setupContext(Location location) {
         VelocityContext context = super.setupContext(location);
-        context.put("settings", m_service.getSettings().getSetting("rls-config"));
-        context.put("rlsService", m_service);
+        SipxService service = getService(SipxRlsService.BEAN_ID);
+        context.put("settings", service.getSettings().getSetting("rls-config"));
+        context.put("rlsService", service);
         return context;
     }
 }

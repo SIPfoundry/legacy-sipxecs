@@ -9,27 +9,19 @@
  */
 package org.sipfoundry.sipxconfig.service;
 
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.io.StringReader;
-import java.io.StringWriter;
-
-import org.apache.commons.io.IOUtils;
-import org.easymock.EasyMock;
-import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.TestHelper;
-import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.domain.Domain;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
+
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.expectLastCall;
+import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.verify;
 
 public class SipxRegistrarConfigurationTest extends SipxServiceTestBase {
 
     public void testWrite() throws Exception {
-        SipxRegistrarConfiguration out = new SipxRegistrarConfiguration();
-        out.setVelocityEngine(TestHelper.getVelocityEngine());
-        out.setTemplate("sipxregistrar/registrar-config.vm");
-
-
         SipxRegistrarService registrarService = new SipxRegistrarService();
         registrarService.setModelDir("sipxregistrar");
         registrarService.setModelName("sipxregistrar.xml");
@@ -38,11 +30,8 @@ public class SipxRegistrarConfigurationTest extends SipxServiceTestBase {
 
         Domain domain = new Domain();
         domain.addAlias("another.example.org");
-        IMocksControl domainManagerControl = EasyMock.createControl();
-        DomainManager domainManager = domainManagerControl.createMock(DomainManager.class);
-        domainManager.getDomain();
-        EasyMock.expectLastCall().andReturn(domain).anyTimes();
-        EasyMock.replay(domainManager);
+        DomainManager domainManager = createMock(DomainManager.class);
+        expect(domainManager.getDomain()).andReturn(domain).anyTimes();
         registrarService.setDomainManager(domainManager);
 
         setSettingValuesForGroup(registrarService, "logging", new String[] {
@@ -76,23 +65,18 @@ public class SipxRegistrarConfigurationTest extends SipxServiceTestBase {
         registrarService.setRegistrarSipPort("5070");
         registrarService.setRegistrarEventSipPort("5075");
 
-        out.generate(registrarService);
+        SipxServiceManager sipxServiceManager = createMock(SipxServiceManager.class);
+        sipxServiceManager.getServiceByBeanId(SipxRegistrarService.BEAN_ID);
+        expectLastCall().andReturn(registrarService).atLeastOnce();
+        replay(domainManager, sipxServiceManager);
 
-        Location location = new Location();
-        location.setName("localLocation");
-        location.setFqdn("sipx.example.org");
-        location.setAddress("192.168.1.1");
-        StringWriter actualConfigWriter = new StringWriter();
-        out.write(actualConfigWriter, location);
+        SipxRegistrarConfiguration out = new SipxRegistrarConfiguration();
+        out.setSipxServiceManager(sipxServiceManager);
+        out.setTemplate("sipxregistrar/registrar-config.vm");
 
-        Reader referenceConfigReader = new InputStreamReader(SipxProxyConfigurationTest.class
-                .getResourceAsStream("expected-registrar-config"));
-        String referenceConfig = IOUtils.toString(referenceConfigReader);
+        assertCorrectFileGeneration(out, "expected-registrar-config");
 
-        Reader actualConfigReader = new StringReader(actualConfigWriter.toString());
-        String actualConfig = IOUtils.toString(actualConfigReader);
-
-        assertEquals(referenceConfig, actualConfig);
+        verify(domainManager, sipxServiceManager);
     }
 
     private void setSettingValuesForGroup(SipxRegistrarService registrarService, String group,

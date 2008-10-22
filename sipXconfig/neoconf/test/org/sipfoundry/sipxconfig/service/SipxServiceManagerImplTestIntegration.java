@@ -54,19 +54,9 @@ public class SipxServiceManagerImplTestIntegration extends IntegrationTestCase {
         service.setModelDir("sipxproxy");
         service.setModelName("sipxproxy.xml");
         service.setModelFilesContext(m_modelFilesContext);
-        SipxStatusConfiguration sipxStatusConfiguration = new SipxStatusConfiguration() {
-            @Override
-            public void generate(SipxService s) {
-                // do nothing
-            }
-        };
+        SipxStatusConfiguration sipxStatusConfiguration = new SipxStatusConfiguration();
         sipxStatusConfiguration.setName("status-config");
-        StatusPluginConfiguration statusPluginConfiguration = new StatusPluginConfiguration() {
-            @Override
-            public void generate(SipxService s) {
-                // do nothing
-            }
-        };
+        StatusPluginConfiguration statusPluginConfiguration = new StatusPluginConfiguration();
         statusPluginConfiguration.setName("status-pluing.xml");
 
         service.setConfigurations(Arrays.asList(new SipxServiceConfiguration[] {sipxStatusConfiguration, statusPluginConfiguration}));

@@ -9,6 +9,7 @@
  */
 package org.sipfoundry.sipxconfig.service;
 
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringReader;
@@ -18,6 +19,8 @@ import junit.framework.TestCase;
 
 import org.apache.commons.io.IOUtils;
 import org.sipfoundry.sipxconfig.TestHelper;
+import org.sipfoundry.sipxconfig.admin.commserver.Location;
+import org.sipfoundry.sipxconfig.domain.Domain;
 
 public class SipxServiceTestBase extends TestCase {
     protected void initCommonAttributes(SipxService service) {
@@ -33,13 +36,31 @@ public class SipxServiceTestBase extends TestCase {
         service.setModelFilesContext(TestHelper.getModelFilesContext());
     }
 
+    protected Location createDefaultLocation() {
+        Location location = new Location();
+        location.setName("localLocation");
+        location.setFqdn("sipx.example.org");
+        location.setAddress("192.168.1.1");
+        return location;
+    }
+
+    protected Domain createDefaultDomain() {
+        Domain domain = new Domain();
+        domain.setName("example.org");
+        return domain;
+    }
+
     public void assertCorrectFileGeneration(SipxServiceConfiguration configuration,
             String expectedFileName) throws Exception {
-        StringWriter actualConfigWriter = new StringWriter();
-        configuration.write(actualConfigWriter, null);
+        configuration.setVelocityEngine(TestHelper.getVelocityEngine());
 
-        Reader referenceConfigReader = new InputStreamReader(configuration.getClass()
-                .getResourceAsStream(expectedFileName));
+        StringWriter actualConfigWriter = new StringWriter();
+        configuration.write(actualConfigWriter, createDefaultLocation());
+
+        InputStream resourceAsStream = configuration.getClass().getResourceAsStream(expectedFileName);
+        assertNotNull(resourceAsStream);
+
+        Reader referenceConfigReader = new InputStreamReader(resourceAsStream);
         String referenceConfig = IOUtils.toString(referenceConfigReader);
 
         Reader actualConfigReader = new StringReader(actualConfigWriter.toString());
