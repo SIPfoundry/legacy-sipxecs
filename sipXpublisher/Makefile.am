@@ -12,7 +12,6 @@ SUBDIRS = \
 	include \
 	bin \
 	etc \
-	meta \
 	$(doc_SUBDIRS)
 
 editscripts_IN = \
