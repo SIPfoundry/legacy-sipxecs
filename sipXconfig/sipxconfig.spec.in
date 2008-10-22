@@ -281,6 +281,9 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) %{sipxpbxconf}/clearone/*
 %dir %{sipxpbxconf}/commserver
 %config(noreplace) %{sipxpbxconf}/commserver/*
+%dir %{sipxpbxconf}/freeswitch
+%config(noreplace) %{sipxpbxconf}/freeswitch/*
+%config(noreplace) %{sipxpbxconf}/database/*
 %config(noreplace) %{sipxpbxconf}/database/*
 %dir %{sipxpbxconf}/region_*
 %config(noreplace) %{sipxpbxconf}/region_*/*

@@ -291,6 +291,29 @@
   <bean id="sipxFreeswitchService" class="org.sipfoundry.sipxconfig.service.SipxFreeswitchService" scope="prototype"
     parent="sipxService">
     <property name="beanId" value="sipxFreeswitchService" />
+    <property name="configurations">
+      <list>
+        <ref bean="defaultContextConfiguration" />
+        <ref bean="sofiaConfiguration" />
+      </list>
+    </property>
+  </bean>
+
+  <bean id="defaultContextConfiguration" parent="serviceConfigurationFile"
+    class="org.sipfoundry.sipxconfig.service.freeswitch.DefaultContextConfiguration" scope="prototype">
+    <property name="name" value="default_context.xml" />
+    <property name="template" value="freeswitch/default_context.xml.vm" />
+    <property name="directory" value="${sysdir.freeswitch}/conf" />
+    <property name="conferenceContext" ref="conferenceBridgeContext" />
+  </bean>
+
+  <bean id="sofiaConfiguration" parent="serviceConfigurationFile"
+    class="org.sipfoundry.sipxconfig.service.freeswitch.SofiaConfiguration" scope="prototype">
+    <property name="name" value="sofia.conf.xml.in" />
+    <property name="template" value="freeswitch/sofia.conf.xml.vm" />
+    <property name="directory" value="${sysdir.freeswitch}/conf" />
+    <property name="coreContext" ref="coreContext" />
+    <property name="domainManager" ref="domainManager" />
   </bean>
 
   <bean id="sipxRelayService" class="org.sipfoundry.sipxconfig.service.SipxRelayService" scope="prototype"
