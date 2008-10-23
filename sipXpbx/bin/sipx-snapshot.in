@@ -622,17 +622,18 @@ for sipName in `rpm -qa --nodigest --nosignature | grep sipx`
 do
    echo "" >> ${SystemConfig}
    echo "======== RPM $d" >> ${SystemConfig}
-        rpm -qi $sipName     >> ${SystemConfig}
+   rpm -qi $sipName     >> ${SystemConfig}
 done
+
 echo "======== RPMs" >> ${SystemConfig}
 rpm -qa --nodigest --nosignature | sort >> ${SystemConfig}
 
 echo ""       >> ${SystemConfig}
-echo ======== INTERFACES (ifconfig -a) >> ${SystemConfig}
+echo "======== INTERFACES (ifconfig -a)" >> ${SystemConfig}
 ifconfig -a   >> ${SystemConfig}
 
 echo ""       >> ${SystemConfig}
-echo ======== ROUTES (route -n) >> ${SystemConfig}
+echo "======== ROUTES (route -n)" >> ${SystemConfig}
 route -n   >> ${SystemConfig}
 
 # Get any firewall or other tricky IP manipulations
@@ -712,6 +713,13 @@ then
     do
       perl -pi \
             -e 's|SHARED_SECRET +: +.*|SHARED_SECRET : ELIDED|' \
+           ${file}
+    done
+    for file in `find $Work -name sipxbridge.xml`
+    do
+      perl -pi \
+            -e 's|<user-name>[^<]*</user-name>|<user-name>ELIDED</user-name>|;' \
+            -e 's|<password>[^<]*</password>|<password>ELIDED</password>|' \
            ${file}
     done
     perl -pi @SIPX_LIBEXECDIR@/sipx-strip-db-secrets.pl ${ConfigDb}
