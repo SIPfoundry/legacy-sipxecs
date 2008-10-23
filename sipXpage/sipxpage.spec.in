@@ -43,9 +43,6 @@ make DESTDIR=$RPM_BUILD_ROOT install
 %clean
 rm -rf $RPM_BUILD_ROOT
 
-%post
-%{_libexecdir}/sipXecs/sipx-disable-on-distributed sipxpage
-
 %files
 %defattr(644,root,root,755)
 %attr(755,sipxchange,sipxchange) %{_datadir}/java/sipXecs/sipXpage
