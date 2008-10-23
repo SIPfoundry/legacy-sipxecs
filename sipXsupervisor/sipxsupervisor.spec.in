@@ -104,6 +104,9 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_datadir}/sipxecs/schema/sipXecs-process.xsd
 %attr(755,root,root) %{_datadir}/sipxecs/schema/alarm.xsd
 
+%dir %attr(775,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_localstatedir}/sipxecs/process-state 
+%dir %attr(775,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_localstatedir}/sipxecs/process-cfgver
+
 %{upgrade_archive_dir}/%{this_archive}
 
 %files devel

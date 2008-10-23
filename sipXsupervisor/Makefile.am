@@ -25,3 +25,13 @@ EXTRA_DIST = \
 
 DISTCLEANFILES = \
 	$(CONFIG_DISTCLEANFILES)
+
+installdirs-local: \
+	$(DESTDIR)$(localstatedir)/sipxecs/process-state \
+	$(DESTDIR)$(localstatedir)/sipxecs/process-cfgver
+
+$(DESTDIR)$(localstatedir)/sipxecs/process-state:
+	$(INSTALL) -d $(DESTDIR)$(localstatedir)/sipxecs/process-state
+
+$(DESTDIR)$(localstatedir)/sipxecs/process-cfgver:
+	$(INSTALL) -d $(DESTDIR)$(localstatedir)/sipxecs/process-cfgver

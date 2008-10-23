@@ -673,11 +673,16 @@ activateConfigServerOnMaster () {
     then
         configServerVersion=`@SIPX_BINDIR@/sipxconfig-config --version | sed 's/-.*//'`
 
-        test -d @SIPX_VARDIR@/process-state || mkdir -p @SIPX_VARDIR@/process-state
-        echo "Enabled" > @SIPX_VARDIR@/process-state/ConfigServer
-
-        test -d @SIPX_VARDIR@/process-cfgver || mkdir -p @SIPX_VARDIR@/process-cfgver
+        configVersionDirectory=@SIPX_VARDIR@/process-cfgver
+        if [ ! -d ${configVersionDirectory} ]
+        then
+            mkdir -p ${configVersionDirectory}
+            chown @SIPXPBXUSER@:@SIPXPBXGROUP@ ${configVersionDirectory}
+            chmod u=rwx,g=rws,o=rx
+        fi
         echo "${configServerVersion}" > @SIPX_VARDIR@/process-cfgver/ConfigServer
+        chown @SIPXPBXUSER@:@SIPXPBXGROUP@ ${configVersionDirectory}/ConfigServer
+        chmod u=rw,g=rw,o=r ${configVersionDirectory}/ConfigServer
     fi
 }
 
