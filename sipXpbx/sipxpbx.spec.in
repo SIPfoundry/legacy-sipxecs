@@ -109,12 +109,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/ipcclean.pl
 %attr(755,root,root) %{_bindir}/check-fqdn
 %attr(755,root,root) %{_bindir}/sipx-snapshot
-%{_libexecdir}/sipXecs/sipx-strip-db-secrets.pl
-
-# we install the .py, and the redhat post-install macros generate the .pyc and .pyo files
-%{_libexecdir}/sipXecs/sipx_setup_common.py
-%{_libexecdir}/sipXecs/sipx_setup_common.pyc
-%{_libexecdir}/sipXecs/sipx_setup_common.pyo
+%{_libexecdir}/sipXecs/
 
 %attr(755,root,root) %{_bindir}/%name-config
 %attr(755,root,root) %{_bindir}/sipx-backup
