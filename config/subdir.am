@@ -92,3 +92,20 @@ $(foreach proc,$(SIPX_PROCESS_DEFS),$(proc)-process.xml) : % : %.in
 	@echo "Localize process definition: $*"
 	@$(LocalizeSipXconfig) $< > $@
 
+################################################################
+# Common pattern rules
+
+# localize and syntax check a python file
+%.py : %.py.in
+	@echo "Localize $< -> $@"
+	@$(LocalizeSipXconfig) $< > $@
+	chmod +x $@
+	python -m py_compile $@
+
+# localize and syntax check a perl file
+%.pl : %.pl.in
+	@echo "Localize $< -> $@"
+	@$(LocalizeSipXconfig) $< > $@
+	chmod +x $@
+	perl -wc $@
+

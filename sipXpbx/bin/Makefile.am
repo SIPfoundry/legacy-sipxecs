@@ -60,12 +60,6 @@ $(foreach sipxScript,$(SCRIPT_TEMPLATES),$(sipxScript:.in=)) : % : $(srcdir)/%.i
 	@$(LocalizeSipXconfig) $< > $@
 	chmod +x $@
 
-$(foreach pythonScript,$(PythonScripts),$(pythonScript:.in=)) : % : $(srcdir)/%.in
-	@echo "Localize $< -> $@"
-	@$(LocalizeSipXconfig) $< > $@
-	chmod +x $@
-	python -m py_compile $@
-
 install-exec-hook : $(DESTDIR)@DAILYDIR@/voicemail_clean \
                     $(DESTDIR)@DAILYDIR@/sipx-core-clean \
                     $(DESTDIR)@DAILYDIR@/sipx-chkspace \
@@ -86,17 +80,6 @@ $(foreach sipxScript,$(SipxLibexecScripts),$(DESTDIR)@SIPX_LIBEXECDIR@/$(sipxScr
 
 $(foreach sipxScript,$(SipxLibexecPythonScripts),$(DESTDIR)@SIPX_LIBEXECDIR@/$(sipxScript)) : $(DESTDIR)@SIPX_LIBEXECDIR@/% : %
 	$(INSTALL) -D -m 755 $< $@
-
-$(foreach sipxScript,$(SipxLibexecScripts),$(sipxScript)) : % : $(srcdir)/%.in
-	@echo "Localize $< -> $@"
-	@$(LocalizeSipXconfig) $< > $@
-	chmod +x $@
-
-$(foreach sipxScript,$(SipxLibexecPythonScripts),$(sipxScript)) : % : $(srcdir)/%.in
-	@echo "Localize $< -> $@"
-	@$(LocalizeSipXconfig) $< > $@
-	chmod +x $@
-	python -m py_compile $@
 
 $(DESTDIR)@DAILYDIR@/voicemail_clean: voicemail_clean.in
 	@echo "Localize $< -> $@"
