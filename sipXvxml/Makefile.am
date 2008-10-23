@@ -11,7 +11,6 @@ SUBDIRS = \
 	src \
 	bin \
 	include \
-	meta \
 	etc \
 	$(doc_SUBDIRS)
 
