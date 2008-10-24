@@ -150,8 +150,8 @@ AC_DEFUN([SFAC_SIPX_GLOBAL_OPTS],
         [Enable execution of slow unit tests]),
       AC_DEFINE(EXECUTE_SLOW_TESTS, 1, [Define to run "slow" unit tests.]))
 
-    AC_ARG_VAR(SIPXPBX_LABEL, [Label for sipxpbx, default is 'sipXecs'])
-    test -z "$SIPXPBX_LABEL" && SIPXPBX_LABEL='sipXecs'
+    AC_ARG_VAR(SIPXECS_NAME, [Label for sipXecs, default is 'sipXecs'])
+    test -z "$SIPXECS_NAME" && SIPXECS_NAME='sipXecs'
 
     # Enable profiling via gprof
     ENABLE_PROFILE

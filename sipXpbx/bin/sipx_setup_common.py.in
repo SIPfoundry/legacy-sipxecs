@@ -184,12 +184,14 @@ def show_progress() :
 
 def setRights(path, owner='@SIPXPBXUSER@', group='@SIPXPBXGROUP@', access="u=rw,g=rw,o=") :
 
-    log_printout("  Setting ownership of '%s'" % path)
-    cmdoutput=commands.getoutput("chown -v %s:%s %s" % (owner,group,path))
+    chownCmd="chown -v %s:%s %s" % (owner,group,path)
+    log_printout("  Setting ownership of '%s' using:\n  %s" % (path, chownCmd))
+    cmdoutput=commands.getoutput(chownCmd)
     log_printout(cmdoutput)
-    
-    log_printout("  Setting access to '%s'" % path)
-    cmdoutput=commands.getoutput("chmod -v %s %s" % (access,path))
+
+    chmodCmd="chmod -v %s %s" % (access,path)
+    log_printout("  Setting access to '%s' using:\n  %s" % (path, chmodCmd))
+    cmdoutput=commands.getoutput(chmodCmd)
     log_printout(cmdoutput)
     
 
@@ -198,7 +200,7 @@ def screen_ask_first ():
     global isFirstSystem
 
     SystemTypeMessage ="\
-Is this the first @SIPXPBX_LABEL@ server for this domain ? \n\
+Is this the first @SIPXECS_NAME@ server for this domain ? \n\
 "
     grid = snack.Grid(2, 1)
 
@@ -396,8 +398,8 @@ def set_fixed_cert_params () :
     curDir = os.getcwd ()
     if not os.path.isdir (SSL_GENDIR) :
         os.makedirs(SSL_GENDIR)
-        setRights(SSL_GENDIR,'u=rwx,g=rwx,o=')
-        log_printout (cmdoutput)
+        log_printout ("  created directory '%s'" % SSL_GENDIR)
+        setRights(SSL_GENDIR,'@SIPXPBXUSER@','@SIPXPBXGROUP@','u=rwx,g=rwx,o=')
 
     os.chdir (SSL_GENDIR)
 
@@ -407,7 +409,7 @@ countryName="US"\n\
 stateOrProvinceName="AnyState"\n\
 localityName="AnyTown"\n\
 organizationName="%s"\n\
-organizationalUnitName="@SIPXPBX_LABEL@"\n\
+organizationalUnitName="@SIPXECS_NAME@"\n\
 caName="ca.%s"\n\
 caEmail="root@%s"\n\
 sipDomainName="%s"\n\
@@ -488,7 +490,7 @@ def enable_sipXconfig () :
     ConfigServerServiceName='ConfigServer'
     if not os.path.isdir (SupervisorStateDir) :
         os.makedirs(SupervisorStateDir)
-        setRights(SupervisorStateDir)
+        setRights(SupervisorStateDir,'@SIPXPBXUSER@','@SIPXPBXGROUP@','u=rwx,g=rwx,o=')
         log_printout("  created directory '%s'" % SupervisorStateDir)
 
     SupervisorStateFile=SupervisorStateDir+'/'+ConfigServerServiceName
@@ -554,8 +556,8 @@ def do_sipx_setup() :
         enable_sipXconfig()
 
     else :
-        progress(30, "Retrieve @SIPXPBX_LABEL@ Configuration")
+        progress(30, "Retrieve @SIPXECS_NAME@ Configuration")
         screen_fetch_config()
         
-    progress(90, 'Configuring @SIPXPBX_LABEL@ Autostart' )
+    progress(90, 'Configuring @SIPXECS_NAME@ Autostart' )
     configure_autostart_service()

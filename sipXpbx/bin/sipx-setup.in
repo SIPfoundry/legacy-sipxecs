@@ -42,7 +42,7 @@ def screen_sipx_startup ():
 
    initialMessage ='\
 This wizard collects sets the bootstrap configuration\n\
-for @SIPXPBX_LABEL@.\n\
+for @SIPXECS_NAME@.\n\
 \n\
 Any existing configuration will be overwritten if you continue.\
 '
@@ -53,7 +53,7 @@ Any existing configuration will be overwritten if you continue.\
    exitButton = snack.Button("Exit")
    grid.setField(exitButton, 1, 0, (1,0,1,1))
 
-   f = screen_setup("@SIPXPBX_LABEL@ System Setup Wizard", initialMessage, grid)
+   f = screen_setup("@SIPXECS_NAME@ System Setup Wizard", initialMessage, grid)
    choice = f.run()
 
    screen_end()
@@ -75,7 +75,7 @@ When the system comes up after the reboot, open\n\
 \n\
 in your web browser to complete the configuration.\n\
 \n\
-To start @SIPXPBX_LABEL@ services now, execute:\n\
+To start @SIPXECS_NAME@ services now, execute:\n\
 \n\
    service sipxpbx start\
 \n\
@@ -83,7 +83,7 @@ To start @SIPXPBX_LABEL@ services now, execute:\n\
     else :
         completedMessage ="\
 All parameters have been configured.\n\
-To start @SIPXPBX_LABEL@ services now, execute:\n\
+To start @SIPXECS_NAME@ services now, execute:\n\
 \n\
    sudo @SERVICEDIR@/sipxpbx start\
 \n\
@@ -128,7 +128,7 @@ log_init(SIPX_SETUP_LOG)
 screen_init()
 
 try:
-    progress(1,"Start @SIPXPBX_LABEL@ Services Setup")
+    progress(1,"Start @SIPXECS_NAME@ Services Setup")
     screen_sipx_startup()
 
     do_sipx_setup()

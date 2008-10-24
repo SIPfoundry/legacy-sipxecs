@@ -4,7 +4,7 @@
 #
 # Copyright (C) 2008 Nortel
 #
-# This script performs the minimal setup required for a @SIPXPBX_LABEL@ system
+# This script performs the minimal setup required for a @SIPXECS_NAME@ system
 #
 #   Hostname
 #   DNS Servers
@@ -171,7 +171,7 @@ def screen_ask_admin ():
    adminExplanation = "\
 Choose a new password for the 'root' user.\n\
 This is the password for the root shell, not for the\n\
-@SIPXPBX_LABEL@ administration web user interface."
+@SIPXECS_NAME@ administration web user interface."
 
    okButton = snack.Button("   OK   ")
 
@@ -666,7 +666,7 @@ def screen_services () :
 
     servicesMessage ="\
 The system level parameters have been configured. \n\
-The next step is to configure the @SIPXPBX_LABEL@\n\
+The next step is to configure the @SIPXECS_NAME@\n\
 service bootstrap parameters.\n\
 \n\
 "
@@ -682,7 +682,7 @@ When the system comes up after the reboot, open\n\
 \n\
    http://%s\n\
 \n\
-in your web browser to begin configuring your @SIPXPBX_LABEL@ services.\
+in your web browser to begin configuring your @SIPXECS_NAME@ services.\
 " % HostName
 
     grid = snack.Grid(2, 1)
@@ -759,10 +759,10 @@ try:
     progress(90, "Finish system setup")
     update_preLogonMessage ()
 
-    progress(100, "Setup @SIPXPBX_LABEL@ Services")
+    progress(100, "Setup @SIPXECS_NAME@ Services")
     screen_services()
     
-    progress(0, "@SIPXPBX_LABEL@ Services Setup")
+    progress(0, "@SIPXECS_NAME@ Services Setup")
     do_sipx_setup()
 
     progress(100, 'Ready')
