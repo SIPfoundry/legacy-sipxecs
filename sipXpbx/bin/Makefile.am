@@ -75,6 +75,23 @@ remove-obsolete-bins:
 	rm -f $(DESTDIR)$(bindir)/restore-mailstore.sh
 	rm -f $(DESTDIR)$(bindir)/backup-configs.sh
 
+$(foreach pythonScript,$(PythonScripts),$(pythonScript:.in=)) : % : $(srcdir)/%.in
+       @echo "Localize $< -> $@"
+       @$(LocalizeSipXconfig) $< > $@
+       chmod +x $@
+       python -m py_compile $@
+
+$(foreach sipxScript,$(SipxLibexecScripts),$(sipxScript)) : % : $(srcdir)/%.in
+       @echo "Localize $< -> $@"
+       @$(LocalizeSipXconfig) $< > $@
+       chmod +x $@
+
+$(foreach sipxScript,$(SipxLibexecPythonScripts),$(sipxScript)) : % : $(srcdir)/%.in
+       @echo "Localize $< -> $@"
+       @$(LocalizeSipXconfig) $< > $@
+       chmod +x $@
+       python -m py_compile $@
+
 $(foreach sipxScript,$(SipxLibexecScripts),$(DESTDIR)@SIPX_LIBEXECDIR@/$(sipxScript)) : $(DESTDIR)@SIPX_LIBEXECDIR@/% : %
 	$(INSTALL) -D -m 755 $< $@
 
