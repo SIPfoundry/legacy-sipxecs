@@ -10,7 +10,7 @@
 
 import os, commands, sys, re, time, traceback, glob, signal, snack, urllib, tarfile
 
-from socket import gethostname
+from socket import gethostname, getfqdn
 
 # Globals
 
@@ -226,8 +226,8 @@ def screen_hostname_error () :
     global HostName
 
     errorExplanation = "\
-Your system hostname is not set correctly.\n\
-  gethostname() returned '%s'\n\
+Your system hostname ('%s') is not set correctly.\n\
+  It needs to be set to a fully qualified DNS name.\n\
 \n\
 Please correct your hostname and rerun sipx-setup." % HostName
     
@@ -523,7 +523,7 @@ def do_sipx_setup() :
     progress(10,"Get System Type")
     screen_ask_first ()
 
-    HostName = gethostname()
+    HostName = getfqdn(gethostname())
     if HostName == '' :
         screen_hostname_error()
     else :
