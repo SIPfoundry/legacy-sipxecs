@@ -1,10 +1,10 @@
 include $(top_srcdir)/config/subdir.am
 
 bin_SCRIPTS = \
-    ${PACKAGE}-config \
+	 ${PACKAGE}-config \
 	 sipx-setup \
 	 sipx-setup-system \
-    analyze_483s \
+	 analyze_483s \
 	 sipx-snapshot \
 	 sipx-backup \
 	 sipx-restore \
@@ -12,10 +12,10 @@ bin_SCRIPTS = \
 	 sipxlocalization \
 	 check-fqdn \
 	 sipx-archive-common \
-    ipcclean.pl
+	 ipcclean.pl
 
 SipxLibexecScripts = \
-    sipx-strip-db-secrets.pl
+	 sipx-strip-db-secrets.pl
 
 SipxLibexecPythonScripts = \
 	 sipx_setup_common.py
@@ -26,7 +26,7 @@ $(top_builddir)/BUILDSTAMP:
 ${PACKAGE}-config: $(top_srcdir)/config/sipX-config.in $(top_builddir)/BUILDSTAMP
 	@BuildStamp="$(shell cat $(top_builddir)/BUILDSTAMP)" \
 	; ${LocalizeSipXconfig} -e "s/@SIPX_BUILDSTAMP\@/$${BuildStamp}/" \
-	    $(top_srcdir)/config/sipX-config.in \
+		 $(top_srcdir)/config/sipX-config.in \
 	  > ${PACKAGE}-config
 	chmod +x ${PACKAGE}-config
 
@@ -44,13 +44,13 @@ PythonScripts = \
 	sipx-setup-system.in
 
 EXTRA_DIST = \
-   sipx-core-clean.in \
-   voicemail_clean.in \
-   sipx-chkspace.in \
-   ${PACKAGE}-config \
-   analyze_483s \
-   ipcclean.pl \
-   sipx-strip-db-secrets.pl.in \
+	sipx-core-clean.in \
+	voicemail_clean.in \
+	sipx-chkspace.in \
+	${PACKAGE}-config \
+	analyze_483s \
+	ipcclean.pl \
+	sipx-strip-db-secrets.pl.in \
 	sipx_setup_common.py.in \
 	$(PythonScripts) \
 	$(SCRIPT_TEMPLATES)
@@ -61,8 +61,8 @@ $(foreach sipxScript,$(SCRIPT_TEMPLATES),$(sipxScript:.in=)) : % : $(srcdir)/%.i
 	chmod +x $@
 
 install-exec-hook : $(DESTDIR)@DAILYDIR@/voicemail_clean \
-                    $(DESTDIR)@DAILYDIR@/sipx-core-clean \
-                    $(DESTDIR)@DAILYDIR@/sipx-chkspace \
+						  $(DESTDIR)@DAILYDIR@/sipx-core-clean \
+						  $(DESTDIR)@DAILYDIR@/sipx-chkspace \
 						  $(foreach sipxScript,$(SipxLibexecScripts),$(DESTDIR)@SIPX_LIBEXECDIR@/$(sipxScript)) \
 						  $(foreach sipxScript,$(SipxLibexecPythonScripts),$(DESTDIR)@SIPX_LIBEXECDIR@/$(sipxScript)) \
 						  remove-obsolete-bins
@@ -76,21 +76,21 @@ remove-obsolete-bins:
 	rm -f $(DESTDIR)$(bindir)/backup-configs.sh
 
 $(foreach pythonScript,$(PythonScripts),$(pythonScript:.in=)) : % : $(srcdir)/%.in
-       @echo "Localize $< -> $@"
-       @$(LocalizeSipXconfig) $< > $@
-       chmod +x $@
-       python -m py_compile $@
+		 @echo "Localize $< -> $@"
+		 @$(LocalizeSipXconfig) $< > $@
+		 chmod +x $@
+		 python -m py_compile $@
 
 $(foreach sipxScript,$(SipxLibexecScripts),$(sipxScript)) : % : $(srcdir)/%.in
-       @echo "Localize $< -> $@"
-       @$(LocalizeSipXconfig) $< > $@
-       chmod +x $@
+		 @echo "Localize $< -> $@"
+		 @$(LocalizeSipXconfig) $< > $@
+		 chmod +x $@
 
 $(foreach sipxScript,$(SipxLibexecPythonScripts),$(sipxScript)) : % : $(srcdir)/%.in
-       @echo "Localize $< -> $@"
-       @$(LocalizeSipXconfig) $< > $@
-       chmod +x $@
-       python -m py_compile $@
+		 @echo "Localize $< -> $@"
+		 @$(LocalizeSipXconfig) $< > $@
+		 chmod +x $@
+		 python -m py_compile $@
 
 $(foreach sipxScript,$(SipxLibexecScripts),$(DESTDIR)@SIPX_LIBEXECDIR@/$(sipxScript)) : $(DESTDIR)@SIPX_LIBEXECDIR@/% : %
 	$(INSTALL) -D -m 755 $< $@
