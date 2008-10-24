@@ -149,6 +149,6 @@ except:
         errMsg  += '%s: %s ' % (str(excType), str(excData))
         errMsg  += '(exception occured in file: %s, line: %s)\n' % (errStack[0], errStack[1])
         log_printout ( errMsg )
-finally:
     cleanExit()
+
 
