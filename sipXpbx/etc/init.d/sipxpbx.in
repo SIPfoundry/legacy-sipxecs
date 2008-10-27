@@ -678,7 +678,7 @@ activateConfigServerOnMaster () {
         then
             mkdir -p ${configVersionDirectory}
             chown @SIPXPBXUSER@:@SIPXPBXGROUP@ ${configVersionDirectory}
-            chmod u=rwx,g=rws,o=rx
+            chmod u=rwx,g=rws,o=rx ${configVersionDirectory}
         fi
         echo "${configServerVersion}" > @SIPX_VARDIR@/process-cfgver/ConfigServer
         chown @SIPXPBXUSER@:@SIPXPBXGROUP@ ${configVersionDirectory}/ConfigServer
