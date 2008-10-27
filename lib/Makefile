@@ -57,8 +57,7 @@ f9 : $(CUSTOM_PACKAGES)
 rhel5 centos5 rhel4 : $(CUSTOM_PACKAGES) w3c-libwww jakarta-commons-net rubygems
 
 .PHONY: suse11.0
-suse11.0 : jakarta-commons-net
-##suse11.0 : w3c-libwww $(CUSTOM_PACKAGES) jakarta-commons-net
+suse11.0 : w3c-libwww $(CUSTOM_PACKAGES) jakarta-commons-net
 
 .PHONY: conference
 conference : freeswitch
