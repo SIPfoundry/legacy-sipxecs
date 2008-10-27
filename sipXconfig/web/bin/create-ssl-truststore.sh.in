@@ -92,7 +92,7 @@ if [ "${Action}" = "CHECKSUM" ]; then
     if [ -f "$TrustStore" ]; then
       PreviousChecksum=`cat $CertificatesChecksum`
       if [ x"$Checksum" = x"$PreviousChecksum" ]; then
-        echo "Creating $TrustStore was skipped, previous checksum of contents matched"
+        # Skip creating $TrustStore - previous checksum of contents matched
         exit 0;
       fi
     fi
@@ -110,7 +110,7 @@ do
     KeyTool=`@bin.dir@/sipx-config --java keytool`
     openssl x509 -in "$Certificate" | \
         $KeyTool -import -noprompt -alias "$caname" \
-        -keystore "$TrustStore" -storepass "$Password" || exit 1
+        -keystore "$TrustStore" -storepass "$Password" > /dev/null || exit 1
     chown @sipxpbx.user@ "$TrustStore"
     chmod 600 "$TrustStore"
 done
