@@ -53,13 +53,17 @@ BootPSelectiveEnable=0
 TRUNKGROUP_1=1-${gateway.ports.size()},201,0
 PSTNPREFIX=*,1,*,*,0
 TRUNKGROUPSETTINGS=1,1,255,$ignore
+
+## TargetOfChannel parameter table
+[TargetOfChannel]
+FORMAT TargetOfChannel_Index = TargetOfChannel_Destination, TargetOfChannel_Type;
 #foreach ($port in $gateway.ports)
 #set($port_id = $velocityCount - 1)
 #set($extension = $port.getSettingValue('Port/Extension'))
 #set($enable = $port.getSettingValue('Port/AutomaticDialing'))
-TARGETOFCHANNEL${port_id}=${extension},${enable}
+TargetOfChannel ${port_id} = ${extension}, ${enable};
 #end
-
+[\TargetOfChannel]
 #end
 #if(${gateway.Model.Definitions.contains("digital")})
 [Trunks]
