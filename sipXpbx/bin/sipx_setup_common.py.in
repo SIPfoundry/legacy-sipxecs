@@ -19,7 +19,7 @@ global MyID
 MyID = ''
 
 #--- Local constants and files
-SIPX_SETUP_LOG = '@SIPX_LOGDIR@/sipx-setup.log'
+SIPX_SETUP_LOG = '@SIPX_LOGDIR@/setup.log'
 
 RUNLEVEL       = 3                              # Always use this runlevel
 SSL_GENDIR     = '@SIPX_VARDIR@/sipxecs/certdb' # Directory where certificates are stored
@@ -56,7 +56,7 @@ def runningAsRoot() :
 
 def log_init ():
     global fout
-    fout=open('@SIPX_LOGDIR@/setup.log',"w")
+    fout=open(SIPX_SETUP_LOG,"w")
 
 def log_printout (outString):
     global fout
