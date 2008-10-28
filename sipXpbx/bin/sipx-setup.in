@@ -66,20 +66,8 @@ def setup_completed () :
 
     if runningAsRoot() :
         completedMessage ="\
-All parameters have been configured.\n\
-The configuration will take effect at the next reboot.\n\
-\n\
-When the system comes up after the reboot, open\n\
-\n\
-   http://%s\n\
-\n\
-in your web browser to complete the configuration.\n\
-\n\
-To start @SIPXECS_NAME@ services now, execute:\n\
-\n\
-   service sipxpbx start\
-\n\
-" % HostName
+All bootstrap parameters have been configured.\
+"
     else :
         completedMessage ="\
 All parameters have been configured.\n\
@@ -90,11 +78,10 @@ To start @SIPXECS_NAME@ services now, execute:\n\
 "
 
     grid = snack.Grid(2, 1)
-
-    rebootButton = snack.Button("Reboot")
+    startButton = snack.Button("Start @SIPXECS_NAME@ Services")
 
     if runningAsRoot() :
-        grid.setField(rebootButton, 0, 0, (1,0,1,1))
+        grid.setField(startButton, 0, 0, (1,0,1,1))
 
     shellButton = snack.Button("Exit to Prompt")
     grid.setField(shellButton, 1, 0, (1,0,1,1))
@@ -105,12 +92,19 @@ To start @SIPXECS_NAME@ services now, execute:\n\
     screen_end()
     screen_finish()
 
-    if choice == rebootButton :
-        #--- Rebooting the host
-        log_printout ( '\n--- Rebooting the host ---\n' )
+    if choice == startButton :
+        #--- Start Services
+        log_printout ( '\n--- Starting @SIPXECS_NAME@ ---\n' )
         time.sleep (1)
-        cmdoutput=commands.getoutput  ('reboot')
-        log_printout (cmdoutput)
+
+        outRep = commands.getstatusoutput('service postgresql start')
+        log_printout (outRep[1])
+        print outRep[1]
+        
+        outRep = commands.getstatusoutput('service sipxpbx start')
+        log_printout (outRep[1])
+        print outRep[1]
+        
         log_close()
     else :
         log_printout ( '\n--- Exit to shell ---\n' )
