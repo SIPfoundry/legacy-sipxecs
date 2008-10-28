@@ -118,7 +118,10 @@ To start @SIPXECS_NAME@ services now, execute:\n\
 
 #--- Get command line arguments
 
-log_init(SIPX_SETUP_LOG)
+log_init()
+
+log_printout("sipx-setup @SIPX_VERSION@")
+
 screen_init()
 
 try:

@@ -22,7 +22,7 @@ sys.path.insert(0,'@SIPX_LIBEXECDIR@')
 from sipx_setup_common import *
 
 def testing () :
-    return 'True'
+    return False
 
 #--- Local constants and files
 
@@ -38,9 +38,6 @@ DNSSYSCFGFILE  = '/etc/sysconfig/named'
 global fout
 
 # Settings variables
-
-global AdminPassword
-AdminPassword=''
 
 global TimeZone
 TimeZone=''
@@ -68,9 +65,6 @@ Gateway = ''
 
 global DnsServers
 DnsServers = []
-
-# logging utilities 
-OUTPUT_LOG  = '@SIPX_LOGDIR@/system-setup.log'
 
 # timezone fuctions
 
@@ -125,18 +119,6 @@ def NetmaskNrBits(NetmaskString) :
 # Settings collection scripts
 ################################################################
 
-def check_prerequisites () :
-    show_progress()
-
-    # Root user should run this script
-    if runningAsRoot() :
-        log_result('Root user', 'Ok')
-    else :
-        if testing() :
-            log_printout('\n TESTING AS NON-ROOT USER')
-        else :
-            abortMsgAndExit( 'You must be the "root" user to run this script' )
-            
 
 def screen_startup ():
    global explain
@@ -154,7 +136,15 @@ Any existing configuration will be overwritten unless you Exit.\
    exitButton = snack.Button("Exit")
    grid.setField(exitButton, 1, 0, (1,0,1,1))
 
-   f = screen_setup("Setup Wizard", initialMessage, grid)
+   if testing() :
+       if runningAsRoot():
+           title="Setup Wizard TESTING(root)"
+       else:
+           title="Setup Wizard TESTING(simulated)"
+   else:
+       title="Setup Wizard"
+       
+   f = screen_setup(title, initialMessage, grid)
    choice = f.run()
 
    screen_end()
@@ -163,10 +153,7 @@ Any existing configuration will be overwritten unless you Exit.\
        log_printout("initial screen exit")
        cleanExit()
 
-def screen_ask_admin ():
-
-   global AdminPassword
-   global AdminEmail
+def screen_setup_admin ():
 
    adminExplanation = "\
 Choose a new password for the 'root' user.\n\
@@ -180,45 +167,39 @@ This is the password for the root shell, not for the\n\
        sg = snack.Grid(2, 3)
 
        l1a = snack.Label("Admin Password:")
-       e1a = snack.Entry(32, AdminPassword, 0, 1)
+       e1a = snack.Entry(32, '', 0, 1)
        sg.setField(l1a, 0, 0)
        sg.setField(e1a, 1, 0)
 
        l1b = snack.Label("Admin Password:")
-       e1b = snack.Entry(32, AdminPassword, 0, 1)
+       e1b = snack.Entry(32, '', 0, 1)
        sg.setField(l1b, 0, 1)
        sg.setField(e1b, 1, 1)
 
        sg.setField(okButton, 0, 2, (1,1,1,1), growx=1)
 
-       f = screen_setup("Administrator Settings", adminExplanation, sg)
+       f = screen_setup("Administrator Password", adminExplanation, sg)
 
        formaction = f.run()
+       screen_end()
 
        if e1a.value() != e1b.value() :
            screen_err("Admin Password values do not match")
        else :
-           AdminPassword = e1a.value()
+           adminPassword = e1a.value()
            valuesOk=1
 
-       screen_end()
+           progress(20, "Set Password")
+           show_progress()
 
-   log_result("AdminPassword", "(not logged)")
-
-def set_password () :
-    """Sets a new root password"""
-    global AdminPassword
-
-    show_progress()
-
-    passwdSetCmd='echo "%s" | passwd --stdin root' % AdminPassword
-    if runningAsRoot() :
-        outRep = commands.getstatusoutput (passwdSetCmd)
-        if outRep[0] != 0:
-            raiseCleanExit ( 'Failed to set the root password\n%s' % outRep[1] )
-        log_printout(outRep)
-    else :
-        log_printout('(simulated) %s' % passwdSetCmd)
+           passwdSetCmd='echo "%s" | passwd --stdin root' % adminPassword
+           if runningAsRoot() :
+               outRep = commands.getstatusoutput(passwdSetCmd)
+               if outRep[0] != 0:
+                   screen_err( 'Failed to set the root password\n%s' % outRep[1] )
+               log_printout(outRep[1])
+           else :
+               log_printout('(simulated) %s' % passwdSetCmd)
 
 def screen_ask_net ():
    global HostName
@@ -719,22 +700,30 @@ in your web browser to begin configuring your @SIPXECS_NAME@ services.\
 
 #--- Get command line arguments
 
-log_init(OUTPUT_LOG)
+log_init()
+
+log_printout("sipx-setup-system @SIPX_VERSION@");
+
 screen_init()
 
 try:
-    progress(0,"Check Prerequisites")
-    check_prerequisites()
 
+    # Root user should run this script
+    if runningAsRoot() :
+        log_result('Root user', 'Ok')
+    else :
+        if testing() :
+            log_printout('\n TESTING AS NON-ROOT USER')
+        else :
+            abortMsgAndExit( 'You must be the "root" user to run this script' )
+            
     removeInitScript()
 
     progress(3,"Start Wizard")
     screen_startup()
 
     progress(10, "Administrative Password")
-    screen_ask_admin()
-    progress(20, "Set Password")
-    set_password()
+    screen_setup_admin()
 
     progress(30, "Collect Network Settings")
     screen_ask_net()

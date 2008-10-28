@@ -54,9 +54,9 @@ def runningAsRoot() :
 
 # logging utilities 
 
-def log_init (logFile):
+def log_init ():
     global fout
-    fout=open(logFile,"w")
+    fout=open('@SIPX_LOGDIR@/setup.log',"w")
 
 def log_printout (outString):
     global fout
