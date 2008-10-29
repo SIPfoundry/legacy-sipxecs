@@ -714,10 +714,7 @@ status() { # process-name
    local proc_status=0
 
    echo -n "Checking $proc_name: "
-   if ! sipx_service_is_enabled ${proc_name} > /dev/null 2>&1
-   then
-      echo "[Disabled] "
-   elif [ ! -r @SIPX_RUNDIR@/$proc_name.pid ]
+   if [ ! -r @SIPX_RUNDIR@/$proc_name.pid ]
    then
       echo "[Not Running] "
       proc_status=1
