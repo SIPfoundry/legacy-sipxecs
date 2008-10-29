@@ -576,6 +576,10 @@ driftfile /var/lib/ntp/drift\n\
     else :
         log_printout("(simulated) %s\n" % turnOnNtpd)
         
+    # must be after the timezone
+    progress(80, "Set system clock")
+    show_progress()
+
     # Set Time
     # try setting the clock with ntp if possible
     if runningAsRoot() :
@@ -738,10 +742,6 @@ try:
     start_network()
     
     progress(70, "Time Settings")
-    screen_set_time()
-
-    # must be after the timezone, should be the last interactive step
-    progress(80, "Set system clock")
     screen_set_time()
 
     # Modify console logon message
