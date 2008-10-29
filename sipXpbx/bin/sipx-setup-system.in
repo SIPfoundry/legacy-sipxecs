@@ -514,7 +514,7 @@ UTC=true\n' % TimeZone
             log_printout(" remove %s\n" % ZONEINFO)
 
     if runningAsRoot() :
-        os.symlink(ZONEINFO, ZONEDIR+'/'+TimeZone)
+        os.symlink(ZONEDIR+'/'+TimeZone, ZONEINFO)
 
     log_printout(" link %s -> %s\n" % (ZONEINFO, ZONEDIR+'/'+TimeZone))
 
