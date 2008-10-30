@@ -353,10 +353,10 @@ cat > $Work.copy-files <<EOF
 /etc/resolv.conf
 /etc/named.conf
 /etc/ntp.conf
-/etc/ntp/ntpservers
-/etc/ntp/step-tickers
+/etc/ntp
 /etc/hosts
 /etc/crontab
+/etc/sendmail.cf
 @SIPX_RUNDIR@
 /var/log/yum.log
 /etc/yum.conf
@@ -454,7 +454,7 @@ done
 
 cat /dev/null            > ${SystemConfig}
 echo -n "Snapshot:  "   >> ${SystemConfig}
-echo $0                 >> ${SystemConfig}
+echo "$0 @SIPX_VERSION@">> ${SystemConfig}
 echo ""                 >> ${SystemConfig}
 echo -n "Host:      "   >> ${SystemConfig}
 hostname --fqdn         >> ${SystemConfig}
@@ -462,7 +462,7 @@ echo ""                 >> ${SystemConfig}
 echo -n "Date:      "   >> ${SystemConfig}
 date -u                 >> ${SystemConfig}
 echo ""                 >> ${SystemConfig}
-echo -n "Version:   "   >> ${SystemConfig}
+echo -n "SysVersion: "  >> ${SystemConfig}
 uname -a                >> ${SystemConfig}
 if [ -f /etc/issue ]
 then
@@ -654,7 +654,6 @@ for command in \
     "free" \
     "df" \
     "ls -ld /tmp" \
-    "cat /etc/issue" \
     "@SIPX_BINDIR@/analyze_483s @SIPX_LOGDIR@/sipXproxy.log"
 do
   echo "" >> ${SystemConfig}
@@ -681,9 +680,9 @@ then
   do
     copyFile=`basename ${file}`
     copyDir=${Work}`dirname ${file}`
+    test -d ${copyDir} || mkdir -p ${copyDir}
     if [ -f ${file} ]
     then
-      mkdir -p ${copyDir}
       # This is 'cp --archive', except with '--dereference'.
       # '--dereference' is necessary, because if we're saving dynamic libraries
       # for a core file, the linked dynamic library names are almost always
@@ -691,7 +690,6 @@ then
       cp -pR --dereference ${file} ${copyDir}/${copyFile}
     elif [ -d ${file} ]
     then
-      mkdir -p ${copyDir}
       cp -pR --dereference ${file} ${Work}${file}
     else
       echo Missing or not a file/directory: ${file} >> ${SystemConfig}
