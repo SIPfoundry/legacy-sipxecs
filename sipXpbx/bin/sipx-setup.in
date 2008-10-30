@@ -41,7 +41,7 @@ def screen_sipx_startup ():
    global explain
 
    initialMessage ='\
-This wizard collects sets the bootstrap configuration\n\
+This wizard creates the bootstrap configuration\n\
 for @SIPXECS_NAME@.\n\
 \n\
 Any existing configuration will be overwritten if you continue.\
