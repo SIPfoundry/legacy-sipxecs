@@ -519,15 +519,8 @@ UTC=true\n' % TimeZone
     log_printout(" link %s -> %s\n" % (ZONEINFO, ZONEDIR+'/'+TimeZone))
 
     #--- Create /etc/ntp.conf
-    # Calculate subnet address based on the NetMask
-    addrLst = IpAddress.split('.')
-    maskLst = NetMask.split('.')
-
-    # Construct network address. NetMask has already been checked and is valid
-    Subnet  = '.'.join([str(int(addrLst[i]) & int(maskLst[i]))  for i in range(4)])
 
     # Define list of servers for time synchronization
-
     ntpConf  =  '\
 # ntpd configuration\n\
 # ------------------\n\
@@ -580,11 +573,14 @@ driftfile /var/lib/ntp/drift\n\
     progress(80, "Set system clock")
     show_progress()
 
+    log_printout("Time before set: %s", time.strftime("%Y-%m-%d %H:%M:S +000", time.gmtime()))
+
     # Set Time
     # try setting the clock with ntp if possible
     if runningAsRoot() :
-        log_printout("Attempting to set date/time with ntp: \n")
-        cmdresult=commands.getstatusoutput ('/usr/sbin/ntpd -q -x -g')
+        ntpSetCmd='/usr/sbin/ntpd -q -x -g'
+        log_printout("Attempting to set date/time with: '%s'\n", ntpSetCmd)
+        cmdresult=commands.getstatusoutput ()
         if cmdresult[0] != 0 :
             log_printout(" ntpd failed\n%s\n" % cmdresult[1])
             dateCmd="date --set='2008-01-01 00:00'"
@@ -594,6 +590,8 @@ driftfile /var/lib/ntp/drift\n\
     else :
         log_printout("(simulated) set time\n")
         
+    log_printout("Time after set: %s", time.strftime("%Y-%m-%d %H:%M:S +000", time.gmtime()))
+
     log_printout('Start NTP Server:')
     if runningAsRoot() :
         cmdoutput=commands.getoutput ('service ntpd start')
