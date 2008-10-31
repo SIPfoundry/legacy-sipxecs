@@ -23,13 +23,13 @@
 /* ****************************************************************
  * The syntax for a sipXecs branch id is:
  *
- * branchid           ::= cookie "-" uniquepart [ "%" loopdetectkey ]
- * cookie             ::= 3261cookie "-sipXecs-" 
+ * branchid           ::= cookie "-" uniquepart [ "~" loopdetectkey ]
+ * cookie             ::= 3261cookie "-sipXecs"
  * 3261cookie         ::= "z9hG4bK"
  * uniquepart         ::= smCounter signed-branch
  * signed-branch      ::= MD5(smIdSecret smCounter call-id)
  * loopdetectkey      ::= MD5(loop-detect-inputs)
- * loop-detect-inputs ::= (concatenated request uris for all forks of this
+ * loop-detect-inputs ::= (concatenated request URIs for all forks of this
  *                         message, in addr-spec form, sorted lexically)
  *
  * Examples:
@@ -38,7 +38,7 @@
  *   z9hG4bK-sipXecs-0000f9b367e05e4caf080a850f722bd5d10d
  *
  * - With a loop detect key (a forked request):
- *   z9hG4bK-sipXecs-0000f9b367e05e4caf080a850f722bd5d10d%cffa2937819b53a8b7cee52b0fcba1f7
+ *   z9hG4bK-sipXecs-0000f9b367e05e4caf080a850f722bd5d10d~cffa2937819b53a8b7cee52b0fcba1f7
  *
  * **************************************************************** */
 

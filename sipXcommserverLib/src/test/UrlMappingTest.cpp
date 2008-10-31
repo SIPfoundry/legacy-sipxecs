@@ -25,6 +25,7 @@
 class UrlMappingTest : public CppUnit::TestCase
 {
       CPPUNIT_TEST_SUITE(UrlMappingTest);
+      CPPUNIT_TEST(testUserPatternConversion);
       CPPUNIT_TEST(testSimpleMap);
       CPPUNIT_TEST(testFieldParams);
       CPPUNIT_TEST(testAddUrlParams);
@@ -50,6 +51,36 @@ class UrlMappingTest : public CppUnit::TestCase
          delete mFileTestContext;
       }
    
+      void testUserPatternConversion()
+      {
+         struct test
+         {
+            const char* userPattern;
+            const char* expectedRegExp;
+         };
+         struct test tests[] =
+         {
+            { "19xxx", "^19(...)$" },
+            { "xxxxx", "^(.....)$" },
+            { "134.", "^134(.*)$" },
+         };
+         
+         for (int i = 0; i < sizeof (tests) / sizeof (tests[0]); i++)
+         {
+            UtlString userPattern(tests[i].userPattern);
+            UtlString actualRegExp("xyzzy");
+            char message[200];
+            sprintf(message, "Converting userPattern %d: '%s'", i,
+                    userPattern.data());
+
+            UrlMapping::convertRegularExpression(userPattern, actualRegExp);
+
+            ASSERT_STR_EQUAL_MESSAGE(message,
+                                     tests[i].expectedRegExp,
+                                     actualRegExp.data());
+         }
+      }
+
       void testSimpleMap()
       {
          UrlMapping* urlmap;

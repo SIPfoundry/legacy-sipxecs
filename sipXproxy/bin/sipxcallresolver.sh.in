@@ -216,9 +216,9 @@ proxyCheck() {
    ok=0
    # FreeBSD does not support 'ps -C cmd'
    procs=`ps -U @SIPXPBXUSER@`
-   if expr match "$procs" '.*sipXproxy.*' >/dev/null; then
+   if expr match "$procs" '.*sipXproxy[^.].*' >/dev/null; then
       # At least one sipXproxy is running, check for another one
-      if expr match "$procs" '.*sipXproxy.*sipXproxy.*' >/dev/null; then
+      if expr match "$procs" '.*sipXproxy[^.].*sipXproxy[^.].*' >/dev/null; then
          cat <<ERROR
 Multiple proxy check failed:
   Found at least two running sipXproxy processes. 
@@ -226,7 +226,7 @@ Multiple proxy check failed:
 
 ERROR
          # FreeBSD does not support 'ps -C cmd'
-         ps -U @SIPXPBXUSER@ | grep sipXproxy
+         ps -U @SIPXPBXUSER@ | grep 'sipXproxy$'
          echo
          ok=1
       fi

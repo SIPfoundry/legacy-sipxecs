@@ -88,6 +88,9 @@ public:
                             ResultSet& rPermissions  ///< permissions that target must have
                             );
 
+    static void convertRegularExpression(const UtlString& source,
+                                         UtlString& regExp);
+
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
     TiXmlNode* mPrevMappingNode;
@@ -150,10 +153,6 @@ protected:
      * @endcode
      * The New syntax is preferred because it eliminates some obnoxious parsing ambiguities.
      */
-
-    void convertRegularExpression(const UtlString& source,
-                                  UtlString& regExp
-                                  );
 
     void getVDigits(RegEx& userPattern,
                     UtlString& vdigits

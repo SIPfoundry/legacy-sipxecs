@@ -46,10 +46,10 @@ UtlTokenizer::~UtlTokenizer()
 
 /**
  * Tokenize a string into a series of smaller strings based on a set
- * of single character delimiters. Delimitters are not returned and
+ * of single character delimiters. Delimiters are not returned and
  * can vary with each call to this method.
  *
- * Sample token strings and token counts where delimitters = "X"
+ * Sample token strings and token counts where delimiters = "X"
  * 
  * |    string   | count |
  * +-------------+-------+
@@ -69,7 +69,7 @@ UtlBoolean UtlTokenizer::next(UtlString &token, const char *delim)
     token.remove(0) ;
     for (int i = m_tokenPosition; i < len && !done; i++)
     {
-        // token starts at first non-delimitor
+        // token starts at first non-delimiter
         if (!isDelim(m_tokens[i], delim))
         {
             int end = nextDelim(m_tokens, i, len, delim);
