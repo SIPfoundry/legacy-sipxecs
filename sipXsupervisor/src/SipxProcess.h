@@ -101,7 +101,6 @@ class SipxProcessStateTest;
  * ResourceRequired       [label="ResourceRequired"];
  * Testing [label="Testing"];
  * Starting [label="Starting"];
- * AwaitingReferences [label="AwaitingReferences"];
  * Stopping [label="Stopping"];
  * 
  * ConfigurationTestFailed [label="ConfigurationTestFailed"];
@@ -117,15 +116,15 @@ class SipxProcessStateTest;
  * 
  * Testing -> ConfigurationTestFailed [label="failed"];
  * 
- * ConfigurationTestFailed -> Testing [label="ResourceCreated?"];
+ * Testing -> ConfigurationMismatch [label="restart"];
+ *
+ * ConfigurationTestFailed -> ConfigurationMismatch [label="ResourceCreated?"];
  * 
  * Starting -> Running [label="processStarted"];
  * 
- * Running -> AwaitingReferences [label="restart (stopProcess)"];
+ * Running -> Stopping [label="restart (stopProcess)"];
  * 
- * AwaitingReferences -> Stopping [label="dependencies stopped"];
- *
- * Stopping -> Starting [label="processStopped && isEnabled"];
+ * Stopping -> ConfigurationMismatch [label="processStopped && isEnabled"];
  * 
  * Stopping -> Disabled [label="processStopped && !isEnabled"];
  * 
@@ -135,9 +134,7 @@ class SipxProcessStateTest;
  * 
  * ShuttingDown -> Disabled [label="processStopped"];
  * 
- * Starting -> Failed [label="processStopped"];
- * 
- * Failed -> Testing [label="retry"];
+ * Failed -> ConfigurationMismatch [label="retry"];
  * 
  * Undefined -> ConfigurationMismatch [label="enable"];
  * 

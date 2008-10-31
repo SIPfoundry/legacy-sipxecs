@@ -756,8 +756,6 @@ void SipxProcess::restartInTask()
                  data());
 
    mRetries=0;
-   mpDesiredState = pRunning;
-   persistDesiredState();
 
    mpCurrentState->evRestartProcess(*this);
 }

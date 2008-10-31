@@ -144,6 +144,14 @@ void Disabled::evStartProcess( SipxProcess& impl ) const
    ChangeState( impl, impl.pConfigurationMismatch );
 }
 
+void Disabled::evRestartProcess( SipxProcess& impl ) const
+{
+   if (impl.isEnabled())
+   {
+      ChangeState( impl, impl.pConfigurationMismatch );
+   }
+}
+
 
 void ConfigurationMismatch::DoEntryAction( SipxProcess& impl ) const
 {
@@ -251,7 +259,7 @@ void Stopping::evStopCompleted( SipxProcess& impl ) const
 {
    if (impl.isEnabled())
    {
-      ChangeState( impl, impl.pStarting );
+      ChangeState( impl, impl.pConfigurationMismatch );
    }
    else
    {
@@ -292,13 +300,11 @@ void Running::DoEntryAction( SipxProcess& impl ) const
 
 void Running::evStopProcess( SipxProcess& impl ) const
 {
-   //@TODO: wait for dependents to stop?
    ChangeState( impl, impl.pStopping );
 }
 
 void Running::evRestartProcess( SipxProcess& impl ) const
 {
-   //@TODO: wait for dependents to stop?
    ChangeState( impl, impl.pStopping );
 }
 

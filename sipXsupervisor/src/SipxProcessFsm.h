@@ -85,6 +85,7 @@ public:
    // State machine events relevant for this state
    virtual void DoEntryAction( SipxProcess& impl ) const;
    virtual void evStartProcess( SipxProcess& impl ) const;
+   virtual void evRestartProcess( SipxProcess& impl ) const;
 };
 
 class ConfigurationMismatch: public SipxProcessFsm
