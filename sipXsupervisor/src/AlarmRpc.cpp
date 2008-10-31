@@ -219,12 +219,12 @@ bool AlarmRpcRaiseAlarm::execute(const HttpRequestContext& requestContext,
 
                   method_result = cAlarmServer::getInstance()->handleAlarm(*pCallingHostname, 
                         *pAlarmId, *pAlarmParams);
-               }
 
-               // Construct and set the response.
-               response.setResponse(&method_result);
-               status = XmlRpcMethod::OK;
-               result = true;
+                  // Construct and set the response.
+                  response.setResponse(&method_result);
+                  status = XmlRpcMethod::OK;
+                  result = true;
+               }
             }
          }
       }
