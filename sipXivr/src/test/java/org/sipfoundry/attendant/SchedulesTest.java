@@ -14,8 +14,8 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
-import org.sipfoundry.attendant.Schedules;
-import org.sipfoundry.attendant.Schedules.Day;
+import org.sipfoundry.attendant.Schedule;
+import org.sipfoundry.attendant.Schedule.Day;
 
 import junit.framework.TestCase;
 
@@ -24,7 +24,7 @@ public class SchedulesTest extends TestCase {
     public void testGetAttendant1() {
         DateFormat dateFormat = new SimpleDateFormat("dd-MMM-yyyy");
         DateFormat dateTimeFormat = new SimpleDateFormat("dd-MMM-yyyy HH:mm");
-        Schedules s = new Schedules();
+        Schedule s = new Schedule();
         s.setSpecialOperation(false);
         s.setSpecialAutoAttendant("special");
         try {
@@ -33,7 +33,7 @@ public class SchedulesTest extends TestCase {
 
             Date NewYears = dateFormat.parse("01-JAN-2009");
             Date Summer = dateFormat.parse("21-JUN-2009");
-            s.getHolidays().setAttendantName("holiday");
+            s.getHolidays().setAttendantId("holiday");
             s.getHolidays().add(NewYears);
             s.getHolidays().add(Summer);
 
@@ -70,13 +70,13 @@ public class SchedulesTest extends TestCase {
         DateFormat timeFormat = new SimpleDateFormat("HH:mm");
         DateFormat dateFormat = new SimpleDateFormat("dd-MMM-yyyy");
         DateFormat dateTimeFormat = new SimpleDateFormat("dd-MMM-yyyy HH:mm");
-        Schedules s = new Schedules();
+        Schedule s = new Schedule();
         s.setSpecialOperation(false);
         s.setSpecialAutoAttendant("special");
         try {
-            s.getHours().setAfterHoursAttendantName("afterhours");
-            s.getHours().setRegularHoursAttendantName("regularhours");
-            s.getHolidays().setAttendantName("holiday");
+            s.getHours().setAfterHoursAttendantId("afterhours");
+            s.getHours().setRegularHoursAttendantId("regularhours");
+            s.getHolidays().setAttendantId("holiday");
 
             Day day = s.new Day();
             day.setRange(s.new TimeRange());
@@ -119,7 +119,7 @@ public class SchedulesTest extends TestCase {
              * 8/16 0/24 12/12 0/24 6/18 0/24 26/142 20 21 22 23 24 25 26 0/24 8/16 0/24 12/12
              * 0/24 6/18 Holiday 26/118 27 28 29 30 31 0/24 8/16 0/24 12/12 0/ 20/100
              * 
-             * Total: 24 Holidays, 116 regular, 580 afterhours
+             * Total: 48 Holidays, 116 regular, 580 afterhours
              * 
              */
             int holidays = 0;
@@ -152,7 +152,7 @@ public class SchedulesTest extends TestCase {
 
     public void testGetAttendant3() {
         DateFormat dateTimeFormat = new SimpleDateFormat("dd-MMM-yyyy HH:mm");
-        Schedules s = new Schedules();
+        Schedule s = new Schedule();
         s.setSpecialOperation(true);
         s.setSpecialAutoAttendant("special");
         try {

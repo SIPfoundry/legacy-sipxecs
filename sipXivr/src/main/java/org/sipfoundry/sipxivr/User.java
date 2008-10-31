@@ -6,7 +6,7 @@
  * Licensed to the User under the LGPL license.
  *
  */
-package org.sipfoundry.attendant;
+package org.sipfoundry.sipxivr;
 
 import java.util.Vector;
 

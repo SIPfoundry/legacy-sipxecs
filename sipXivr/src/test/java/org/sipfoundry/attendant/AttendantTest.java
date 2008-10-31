@@ -17,6 +17,7 @@ import org.sipfoundry.sipxivr.Configuration;
 import org.sipfoundry.sipxivr.FreeSwitchEvent;
 import org.sipfoundry.sipxivr.TextToPrompts_en;
 import org.sipfoundry.sipxivr.FreeSwitchEventSocketEmulator;
+import org.sipfoundry.sipxivr.ValidUsersXML;
 
 import junit.framework.TestCase;
 
@@ -68,7 +69,7 @@ public class AttendantTest extends TestCase {
         a.setTtp(new TextToPrompts_en());
         a.setAttendantConfig(org.sipfoundry.attendant.Configuration.update(false));
         a.setValidUsers(ValidUsersXML.update(false));
-        a.setSchedules(new Schedules());
+        a.setSchedules(new Schedule());
 
         try {
             Vector<String> response = new Vector<String>();

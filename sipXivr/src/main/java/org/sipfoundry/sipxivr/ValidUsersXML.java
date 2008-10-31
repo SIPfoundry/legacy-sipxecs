@@ -6,7 +6,7 @@
  * Licensed to the User under the LGPL license.
  *
  */
-package org.sipfoundry.attendant;
+package org.sipfoundry.sipxivr;
 
 import java.io.File;
 import java.util.HashMap;
@@ -139,7 +139,7 @@ public class ValidUsersXML {
      * @param digits DTMF digits to match against user directory
      * @return a Vector of users that match
      */
-    Vector<User> lookupDTMF(String digits) {
+    public Vector<User> lookupDTMF(String digits) {
         Vector<User> matches = new Vector<User>();
         for (User u : m_users) {
             if (u.isInDirectory() && u.getDialPatterns() != null) {
@@ -161,7 +161,7 @@ public class ValidUsersXML {
      * 
      * @return user found or null
      */
-    User isValidUser(String userNname) {
+    public User isValidUser(String userNname) {
         return m_userNameMap.get(userNname);
     }
 

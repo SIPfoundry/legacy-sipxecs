@@ -27,6 +27,7 @@ public class Configuration {
     static final Logger LOG = Logger.getLogger("org.sipfoundry.sipxivr");
 
     public class AttendantConfig {
+    	private String m_id ; // The ID of this attendant
         private String m_name; // The name of this attendant
         private String m_prompt; // The top level prompt
         private Vector<AttendantMenuItem> m_menuItems;
@@ -48,6 +49,10 @@ public class Configuration {
             m_maximumDigits = 10;
             m_noInputCount = 2;
             m_invalidResponseCount = 2;
+        }
+        
+        public String getId() {
+        	return m_id;
         }
         
         public String getName() {
@@ -104,10 +109,19 @@ public class Configuration {
     private static long s_lastModified;
 
     private Vector<AttendantConfig> m_attendants;
-    private Schedules m_schedules;
+    private Vector<Schedule> m_schedules;
     
-    public Schedules getSchedules() {
-        return m_schedules;
+    public Schedule getSchedule(String id) {
+        if (m_schedules == null || id == null) {
+            return null;
+        }
+
+        for (Schedule s : m_schedules) {
+            if (s.getId().contentEquals(id)) {
+                return s;
+            }
+        }
+        return null;
     }
 
     /**
@@ -132,13 +146,13 @@ public class Configuration {
         return s_current;
     }
 
-    public AttendantConfig getAttendant(String name) {
-        if (m_attendants == null || name == null) {
+    public AttendantConfig getAttendant(String id) {
+        if (m_attendants == null || id == null) {
             return null;
         }
 
         for (AttendantConfig config : m_attendants) {
-            if (config.m_name.contentEquals(name)) {
+            if (config.m_id.contentEquals(id)) {
                 return config;
             }
         }
@@ -180,6 +194,8 @@ public class Configuration {
             for (int aaNum = 0; aaNum < autoattendants.getLength(); aaNum++) {
                 Node attendantNode = autoattendants.item(aaNum);
                 AttendantConfig c = new AttendantConfig() ;
+                String id = attendantNode.getAttributes().getNamedItem("id").getNodeValue();
+                c.m_id = id;
                 for(Node next = attendantNode.getFirstChild(); next != null; next = next.getNextSibling()) {
                     if (next.getNodeType() == Node.ELEMENT_NODE) {
                         String name = next.getNodeName();
@@ -199,17 +215,15 @@ public class Configuration {
                 m_attendants.add(c);
             }
 
-            /*
-             * Dunno why the XML is like this (there can only be one schedule...)
-             * <schedules>
-             *    <schedule>
-             *    </schedule>
-             * </schedules>
-             */
-            // Walk schedule elements (should only be one)
+            // Walk schedule elements 
+            m_schedules = new Vector<Schedule>();
             NodeList schedules = autoAttendantsDoc.getElementsByTagName(prop = "schedule");
-            m_schedules = new Schedules() ;
-            m_schedules.loadSchedules(schedules.item(0)) ;
+            for (int schedNum = 0; schedNum < schedules.getLength(); schedNum++) {
+            	Node scheduleNode = schedules.item(schedNum);
+            	Schedule s = new Schedule();
+            	s.loadSchedule(scheduleNode) ;
+            	m_schedules.add(s) ;
+            }
 
         } catch (Exception e) {
             LOG.fatal("Problem understanding document "+prop, e);
@@ -301,6 +315,7 @@ public class Configuration {
     
     void internal() {
         m_attendants = new Vector<AttendantConfig>();
+        m_schedules = new Vector<Schedule>();
         AttendantConfig c = new AttendantConfig();
         c.m_name = "operator";
         c.m_menuItems = new Vector<AttendantMenuItem>();

@@ -18,6 +18,7 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 import org.sipfoundry.attendant.Attendant;
 import org.sipfoundry.commons.log4j.SipFoundryLayout;
+import org.sipfoundry.voicemail.VoiceMail;
 
 
 public class SipXivr implements Runnable {
@@ -72,13 +73,19 @@ public class SipXivr implements Runnable {
             m_fses.invoke(new Answer(m_fses));
 
             String action = parameters.get("action");
-            if (action != null && action.contentEquals("autoattendant")) {
+            if (action == null) {
+                LOG.warn("Cannot determine which application to run as the action parameter is missing.");
+            } else if (action.contentEquals("autoattendant")) {
                 // Run the Attendant.
                 Attendant app = new Attendant(s_config, m_fses, parameters);
                 app.run();
+            } else if (action.equals("deposit")) {
+            	// Run VoiceMail
+            	VoiceMail app = new VoiceMail(s_config, m_fses, parameters);
+            	app.run();
             } else {
                 // Nothing else to run...
-                LOG.warn("Cannot determine which application to run.");
+                LOG.warn("Cannot determine which application to run from action="+ action);
             }
 
             m_fses.invoke(new Hangup(m_fses));

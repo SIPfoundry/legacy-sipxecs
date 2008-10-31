@@ -28,6 +28,8 @@ import org.sipfoundry.sipxivr.PromptList;
 import org.sipfoundry.sipxivr.Sleep;
 import org.sipfoundry.sipxivr.TextToPrompts;
 import org.sipfoundry.sipxivr.Transfer;
+import org.sipfoundry.sipxivr.User;
+import org.sipfoundry.sipxivr.ValidUsersXML;
 
 
 public class Attendant {
@@ -38,11 +40,12 @@ public class Attendant {
 
     private org.sipfoundry.sipxivr.Configuration m_ivrConfig;
     private FreeSwitchEventSocketInterface m_fses;
-    private String m_parameterName;
+    private String m_aaId;
+    private String m_scheduleId;
     private ResourceBundle m_attendantBundle;
     private AttendantConfig m_config;
     private Configuration m_attendantConfig;
-    private Schedules m_schedules;
+    private Schedule m_schedule;
     private ValidUsersXML m_validUsers;
     private TextToPrompts m_ttp;
     private Locale m_locale;
@@ -63,7 +66,8 @@ public class Attendant {
             Hashtable<String, String> parameters) {
         this.m_ivrConfig = ivrConfig;
         this.m_fses = fses;
-        this.m_parameterName = parameters.get("name");
+        this.m_aaId = parameters.get("attendant_id");
+        this.m_scheduleId = parameters.get("schedule_id");
         this.m_locale = Locale.US; // Default to good ol' US of A
 
         // Look for "locale" parameter
@@ -130,9 +134,7 @@ public class Attendant {
         m_validUsers = ValidUsersXML.update(true);
 
         // Load the schedule configuration
-        m_schedules = m_attendantConfig.getSchedules() ;
-        // TODO remove this once organization prefs gets moved into config
-        m_schedules.loadPrefs(m_ivrConfig.getOrganizationPrefs());
+        m_schedule = m_attendantConfig.getSchedule(m_scheduleId) ;
     }
 
     /**
@@ -181,51 +183,51 @@ public class Attendant {
      */
     public void run() throws Throwable {
 
-        String name = null;
+        String id = null;
 
         if (m_attendantBundle == null) {
             loadConfig();
         }
 
-        if (m_parameterName == null) {
+        if (m_aaId == null) {
             Date now = Calendar.getInstance().getTime();
-            name = m_schedules.getAttendant(now);
-            if (name == null) {
+            id = m_schedule.getAttendant(now);
+            if (id == null) {
                 LOG.error("Cannot determine which attendant to use from schedule.") ;
             } else {
-                LOG.info(String.format("Attendant %s determined from schedule", name));
+                LOG.info(String.format("Attendant %s determined from schedule %s", id, m_schedule.getId()));
             }
         } else {
-            name = m_parameterName;
-            LOG.info(String.format("Attendant %s determined from URL parameter", name));
+            id = m_aaId;
+            LOG.info(String.format("Attendant %s determined from URL parameter", id));
         }
 
         // Wait it bit so audio doesn't start too fast
         Sleep s = new Sleep(m_fses, 1000);
         s.go();
 
-        while (name != null) {
+        while (id != null) {
             // Keep running attendants until there are no more to run
-            name = attendant(name);
+            id = attendant(id);
         }
     }
 
     /**
-     * Do the named Attendant.
+     * Do the specified Attendant.
      * 
-     * @param name The name of the attendant.
-     * @return The name of the next attendant, or null if there is no next.
+     * @param id The id of the attendant.
+     * @return The id of the next attendant, or null if there is no next.
      * @throws Throwable indicating an error or hangup condition.
      */
-    String attendant(String name) throws Throwable {
+    String attendant(String id) throws Throwable {
         String nextAttendant = null;
 
         // Find the configuration for the named attendant
-        m_config = m_attendantConfig.getAttendant(name);
+        m_config = m_attendantConfig.getAttendant(id);
 
         if (m_config == null) {
             LOG.error(String.format("Unable to determine which configuration to use from (%s)",
-                    name));
+                    id));
             return null;
         }
 
@@ -505,6 +507,7 @@ public class Attendant {
 
             // Wait for the caller to enter a digit
             Collect c = new Collect(m_fses, 1, m_config.getInitialTimeout(), 0, 0);
+            c.setTermChars("*#");
             c.go();
             String choice = c.getDigits();
             LOG.info("::selectChoice Collected digits=" + choice);
@@ -695,12 +698,12 @@ public class Attendant {
         m_attendantConfig = attendantConfig;
     }
 
-    public Schedules getSchedules() {
-        return m_schedules;
+    public Schedule getSchedules() {
+        return m_schedule;
     }
 
-    public void setSchedules(Schedules schedules) {
-        m_schedules = schedules;
+    public void setSchedules(Schedule schedule) {
+        m_schedule = schedule;
     }
 
     public TextToPrompts getTtp() {

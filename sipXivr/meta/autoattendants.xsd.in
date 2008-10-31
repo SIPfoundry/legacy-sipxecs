@@ -4,6 +4,14 @@
 	xmlns="http://www.w3.org/2001/XMLSchema"
 	xmlns:tns="http://www.sipfoundry.org/sipX/schema/xml/autoattendants-00-00">
 
+	<element name="id" type="normalizedString">
+		<annotation>
+			<documentation>
+				The id of the Auto Attendant
+			</documentation>
+		</annotation>
+	</element>
+
 	<element name="name" type="normalizedString">
 		<annotation>
 			<documentation>
@@ -196,7 +204,7 @@
 	<element name="holiday">
 		<complexType>
 			<sequence>
-                <element ref="tns:name" maxOccurs="1" minOccurs="1">
+                <element ref="tns:id" maxOccurs="1" minOccurs="1">
 				</element>
                 <element ref="tns:date" maxOccurs="unbounded" minOccurs="0">
 				</element>
@@ -291,6 +299,7 @@
 	</element>
 
 	<element name="autoattendant">
+
 		<complexType>
 			<sequence>
                 <element ref="tns:name" maxOccurs="1" minOccurs="1">
@@ -304,6 +313,7 @@
                 <element ref="tns:invalidResponse" maxOccurs="1" minOccurs="1">
 				</element>
 			</sequence>
+                        <attribute name="id" type="string" use="required"/>
 		</complexType>
 	</element>
 
@@ -317,13 +327,14 @@
                 <element ref="tns:afterhours" maxOccurs="1" minOccurs="1">
 				</element>
 			</sequence>
+                        <attribute name="id" type="string" use="required"/>
 		</complexType>
 	</element>
 
 	<element name="schedules">
 		<complexType>
 			<sequence>
-                <element ref="tns:schedule" maxOccurs="1" minOccurs="1">
+                <element ref="tns:schedule" minOccurs="0">
 				</element>
 			</sequence>
 		</complexType>
@@ -345,7 +356,7 @@
 	<element name="regularhours">
 		<complexType>
 			<sequence>
-				<element ref="tns:name" maxOccurs="1" minOccurs="1"></element>
+				<element ref="tns:id" maxOccurs="1" minOccurs="1"></element>
 				<element ref="tns:monday" maxOccurs="1" minOccurs="0"></element>
 				<element ref="tns:tuesday" maxOccurs="1" minOccurs="0"></element>
 				<element ref="tns:wednesday" maxOccurs="1" minOccurs="0"></element>
@@ -360,7 +371,7 @@
 	<element name="afterhours">
 		<complexType>
 			<sequence>
-				<element ref="tns:name" maxOccurs="1" minOccurs="1"></element>
+				<element ref="tns:id" maxOccurs="1" minOccurs="1"></element>
 			</sequence>
 		</complexType>
 	</element>

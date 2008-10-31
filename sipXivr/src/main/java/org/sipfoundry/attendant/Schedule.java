@@ -23,7 +23,7 @@ import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
-public class Schedules {
+public class Schedule {
     static final Logger LOG = Logger.getLogger("org.sipfoundry.sipxivr");
 
     class TimeRange {
@@ -62,7 +62,7 @@ public class Schedules {
 
     class Holidays {
         private ArrayList<Date> m_dates = new ArrayList<Date>(); // Dates that are holidays
-        private String m_attendantName; // Attendant name to run
+        private String m_id; // Attendant id to run
         
         public void add(Date date) {
             m_dates.add(date);
@@ -73,18 +73,18 @@ public class Schedules {
         public void setDates(ArrayList<Date> dates) {
             m_dates = dates;
         }
-        public String getAttendantName() {
-            return m_attendantName;
+        public String getAttendantId() {
+            return m_id;
         }
-        public void setAttendantName(String attendantName) {
-            m_attendantName = attendantName;
+        public void setAttendantId(String attendantId) {
+            m_id = attendantId;
         }
     }
 
     class Hours {
         private ArrayList<Day> m_days = new ArrayList<Day>(); // The regular hours
-        private String m_regularHoursAttendantName; // Attendant name to run during regular hours
-        private String m_afterHoursAttendantName; // Attendant name to run not during regular hours
+        private String m_regularHoursAttendantId; // Attendant name to run during regular hours
+        private String m_afterHoursAttendantId; // Attendant name to run not during regular hours
         public void add(Day day) {
             m_days.add(day);
         }
@@ -94,26 +94,27 @@ public class Schedules {
         public void setDays(ArrayList<Day> days) {
             m_days = days;
         }
-        public String getRegularHoursAttendantName() {
-            return m_regularHoursAttendantName;
+        public String getRegularHoursAttendantId() {
+            return m_regularHoursAttendantId;
         }
-        public void setRegularHoursAttendantName(String regularHoursAttendantName) {
-            m_regularHoursAttendantName = regularHoursAttendantName;
+        public void setRegularHoursAttendantId(String regularHoursAttendantId) {
+            m_regularHoursAttendantId = regularHoursAttendantId;
         }
-        public String getAfterHoursAttendantName() {
-            return m_afterHoursAttendantName;
+        public String getAfterHoursAttendantId() {
+            return m_afterHoursAttendantId;
         }
-        public void setAfterHoursAttendantName(String afterHoursAttendantName) {
-            m_afterHoursAttendantName = afterHoursAttendantName;
+        public void setAfterHoursAttendantId(String afterHoursAttendantId) {
+            m_afterHoursAttendantId = afterHoursAttendantId;
         }
     }
 
+	private String m_id;
     private Holidays m_holidays;
     private Hours m_hours;
     private boolean m_specialOperation;
-    private String m_specialAutoAttendant;
+    private String m_specialAutoAttendantId;
 
-    Schedules() {
+    Schedule() {
         m_holidays = new Holidays();
         m_hours = new Hours();
     }
@@ -152,26 +153,28 @@ public class Schedules {
     /**
      * Load the schedules from an XML node
      * 
-     * @param schedules
+     * @param schedule
      */
-    void loadSchedules(Node schedules) {
+    void loadSchedule(Node schedule) {
         String parm = "unknown";
         DateFormat dateFormat = new SimpleDateFormat("dd-MMM-yyyy");
         try {
-            for (Node schedule = schedules.getFirstChild(); schedule != null; schedule = schedule
+        	m_id = schedule.getAttributes().getNamedItem("id").getNodeValue();
+
+            for (Node scheduleNode = schedule.getFirstChild(); scheduleNode != null; scheduleNode = scheduleNode
                     .getNextSibling()) {
 
-                if (schedule.getNodeType() != Node.ELEMENT_NODE) {
+                if (scheduleNode.getNodeType() != Node.ELEMENT_NODE) {
                     continue;
                 }
                 // First find the Holidays
-                if (schedule.getNodeName().equals(parm = "holiday")) {
-                    for (Node next = schedule.getFirstChild(); next != null; next = next
+                if (scheduleNode.getNodeName().equals(parm = "holiday")) {
+                    for (Node next = scheduleNode.getFirstChild(); next != null; next = next
                             .getNextSibling()) {
                         if (next.getNodeType() == Node.ELEMENT_NODE) {
                             String name = next.getNodeName();
-                            if (name.contentEquals("name")) {
-                                m_holidays.m_attendantName = next.getTextContent().trim();
+                            if (name.contentEquals("id")) {
+                                m_holidays.m_id = next.getTextContent().trim();
                             } else if (name.contentEquals("date")) {
                                 String dateString = next.getTextContent().trim();
                                 Date date = dateFormat.parse(dateString);
@@ -183,13 +186,13 @@ public class Schedules {
                 }
 
                 // Then the regular hours
-                if (schedule.getNodeName().equals(parm = "regularhours")) {
-                    for (Node next = schedule.getFirstChild(); next != null; next = next
+                if (scheduleNode.getNodeName().equals(parm = "regularhours")) {
+                    for (Node next = scheduleNode.getFirstChild(); next != null; next = next
                             .getNextSibling()) {
                         if (next.getNodeType() == Node.ELEMENT_NODE) {
                             String name = next.getNodeName();
-                            if (name.contentEquals("name")) {
-                                m_hours.m_regularHoursAttendantName = next.getTextContent()
+                            if (name.contentEquals("id")) {
+                                m_hours.m_regularHoursAttendantId = next.getTextContent()
                                         .trim();
                             } else if (name.contentEquals("monday")) {
                                 loadDay(Calendar.MONDAY, next);
@@ -212,13 +215,13 @@ public class Schedules {
                 }
 
                 // Then the after hours
-                if (schedule.getNodeName().equals(parm = "afterhours")) {
-                    for (Node next = schedule.getFirstChild(); next != null; next = next
+                if (scheduleNode.getNodeName().equals(parm = "afterhours")) {
+                    for (Node next = scheduleNode.getFirstChild(); next != null; next = next
                             .getNextSibling()) {
                         if (next.getNodeType() == Node.ELEMENT_NODE) {
                             String name = next.getNodeName();
-                            if (name.contentEquals("name")) {
-                                m_hours.m_afterHoursAttendantName = next.getTextContent().trim();
+                            if (name.contentEquals("id")) {
+                                m_hours.m_afterHoursAttendantId = next.getTextContent().trim();
                             }
                         }
                     }
@@ -249,7 +252,7 @@ public class Schedules {
                         if (name.contentEquals("specialoperation")) {
                             m_specialOperation = Boolean.parseBoolean(next.getTextContent().trim());
                         } else if (name.contentEquals("autoattendant")) {
-                            m_specialAutoAttendant = next.getTextContent().trim();
+                            m_specialAutoAttendantId = next.getTextContent().trim();
                         }
                     }
                     next = next.getNextSibling();
@@ -262,6 +265,10 @@ public class Schedules {
         }
     }
 
+    public String getId() {
+    	return m_id;
+    }
+    
     /**
      * Determine which Attendant name is in effect at a particular Date or time
      * 
@@ -272,7 +279,7 @@ public class Schedules {
         // Always use the special AA if specialOperation is in effect
         if (m_specialOperation) {
             LOG.info("Special Operation AutoAttendant is in effect.");
-            return m_specialAutoAttendant;
+            return m_specialAutoAttendantId;
         }
 
         // Otherwise check the schedule to see which AA to use.
@@ -295,7 +302,7 @@ public class Schedules {
 
                     LOG.info("Using holiday AutoAttendant as " + dateFormat.format(from)
                             + " is a holiday");
-                    return m_holidays.m_attendantName;
+                    return m_holidays.m_id;
                 }
             }
         }
@@ -316,7 +323,7 @@ public class Schedules {
                         // Yep, it does
                         LOG.info("Using regular hours AutoAttendant as "
                                 + timeFormat.format(date) + " is regular hours");
-                        return m_hours.m_regularHoursAttendantName;
+                        return m_hours.m_regularHoursAttendantId;
                     }
                 }
 
@@ -326,7 +333,7 @@ public class Schedules {
         // Nope.  Must be after hours
         LOG.info("Using after hours AutoAttendant as " + timeFormat.format(date)
                 + " is after hours");
-        return m_hours.m_afterHoursAttendantName;
+        return m_hours.m_afterHoursAttendantId;
 
     }
 
@@ -355,10 +362,10 @@ public class Schedules {
     }
 
     public String getSpecialAutoAttendant() {
-        return m_specialAutoAttendant;
+        return m_specialAutoAttendantId;
     }
 
     public void setSpecialAutoAttendant(String specialAutoAttendant) {
-        m_specialAutoAttendant = specialAutoAttendant;
+        m_specialAutoAttendantId = specialAutoAttendant;
     }
 }
