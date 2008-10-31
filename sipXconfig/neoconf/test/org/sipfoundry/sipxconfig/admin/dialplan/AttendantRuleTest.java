@@ -127,7 +127,7 @@ public class AttendantRuleTest extends TestCase {
         FreeswitchMediaServer mediaServer = new FreeswitchMediaServer();
         mediaServer.setLocalizationContext(lc);
         mediaServer.setHostname("localhost");
-        mediaServer.setPort(8084);
+        mediaServer.setPort(15060);
 
         rule.setMediaServer(mediaServer);
         rule.setName("abc");

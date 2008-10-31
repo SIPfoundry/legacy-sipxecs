@@ -22,7 +22,8 @@
   <bean id="freeswitchMediaServer" class="org.sipfoundry.sipxconfig.admin.dialplan.FreeswitchMediaServer">
     <property name="label" value="Internal Voicemail Server" />
     <property name="localizationContext" ref="localizationContext" />
-    <property name="port" value="8048" />
+    <!-- FIXME: freeswitch port and location should be computed by SipxFreeswitchService -->
+    <property name="port" value="15060" />
     <property name="hostname" value="localhost" />
   </bean>
 

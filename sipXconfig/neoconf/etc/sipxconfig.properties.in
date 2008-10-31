@@ -122,6 +122,8 @@ alarmApi.serviceUrl=https://${MY_FULL_HOSTNAME}:8092/RPC2
 sbcDeviceManagerImpl.localIpAddress=${MY_IP_ADDR}
 
 replicationManagerImpl.hostname=${MY_FULL_HOSTNAME}
+# FIXME: assume freeswitch is always local
+freeswitchMediaServer.hostname=${MY_FULL_HOSTNAME}
 
 # ======= BEGIN NEW INSTALLATION SETTINGS =================
 
