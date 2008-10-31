@@ -334,6 +334,7 @@ ExtensionDB::insertRow (
         // Table Data changed
         SIPDBManager::getInstance()->
             setDatabaseChangedFlag(mDatabaseName, TRUE);
+        result = TRUE;
     }
     return result;
 }
