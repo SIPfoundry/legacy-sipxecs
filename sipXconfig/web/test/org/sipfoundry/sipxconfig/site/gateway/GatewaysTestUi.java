@@ -216,7 +216,8 @@ public class GatewaysTestUi extends WebTestCase {
      */
     public static String[] addGateway(WebTester tester, String name) {
         String[] row = new String[] {
-            "unchecked", name + "Name", name + "Address", "Unmanaged gateway", name + "Description"
+            "unchecked", name + "Name", name + "Address" + ".localdomain",
+	    "Unmanaged gateway", name + "Description"
         };
 
         if (null != name) {

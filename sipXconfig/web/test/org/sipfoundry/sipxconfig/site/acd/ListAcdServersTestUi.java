@@ -34,7 +34,7 @@ public class ListAcdServersTestUi extends ListWebTestCase {
 
     protected String[] getParamValues(int i) {
         return new String[] {
-            "localhost" + i, Integer.toString(8100 + i)
+            "localhost" + i + ".localdomain", Integer.toString(8100 + i)
         };
     }
 

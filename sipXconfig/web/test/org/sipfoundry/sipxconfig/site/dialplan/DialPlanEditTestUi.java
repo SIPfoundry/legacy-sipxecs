@@ -237,7 +237,8 @@ public class DialPlanEditTestUi extends WebTestCase {
 
             // Give the new gateway a name that is extremely unlikely to collide
             // with any existing gateway names
-            String gatewayName = "gateway" + i + Long.toString(System.currentTimeMillis());
+            String gatewayName = "gateway" + i +
+		Long.toString(System.currentTimeMillis()) + ".localdomain";
 
             gateways[i] = GatewaysTestUi.addGateway(tester, gatewayName);
             SiteTestHelper.assertNoException(tester);
