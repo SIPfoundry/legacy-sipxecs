@@ -31,7 +31,7 @@ public class CounterpathPhoneTest extends TestCase {
         counterpathModel.setModelId("counterpathCMCEnterprise");
         CounterpathPhone phone = new CounterpathPhone();
         phone.setModel(counterpathModel);
-        PhoneTestDriver.supplyTestData(phone);
+        PhoneTestDriver.supplyTestData(phone,true,true);
 
         MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(phone);
 

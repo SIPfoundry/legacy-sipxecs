@@ -16,6 +16,7 @@ import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.LineInfo;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.setting.SettingEntry;
+import org.sipfoundry.sipxconfig.speeddial.SpeedDial;
 
 public class CounterpathPhone extends Phone {
     private static final String REG_USERNAME = "registration/username";
@@ -23,6 +24,7 @@ public class CounterpathPhone extends Phone {
     private static final String REG_DISPLAY_NAME = "registration/display_name";
     private static final String REG_PASSWORD = "registration/password";
     private static final String REG_DOMAIN = "registration/domain";
+    private static final String SUBSCRIPTION_AOR = "network/sip_signaling/proxies:proxy0:workgroup_subscription_aor";
 
     public CounterpathPhone() {
     }
@@ -34,8 +36,8 @@ public class CounterpathPhone extends Phone {
 
     @Override
     public void initialize() {
-        DeviceDefaults phoneDefaults = getPhoneContext().getPhoneDefaults();
-        addDefaultBeanSettingHandler(phoneDefaults);
+        addDefaultBeanSettingHandler(new CounterpathPhoneDefaults(this));
+
     }
 
     @Override
@@ -65,6 +67,24 @@ public class CounterpathPhone extends Phone {
         info.setPassword(line.getSettingValue(REG_PASSWORD));
         info.setRegistrationServer(line.getSettingValue(REG_DOMAIN));
         return info;
+    }
+
+    public class CounterpathPhoneDefaults {
+        private Phone m_phone;
+
+        public CounterpathPhoneDefaults(Phone phone) {
+            m_phone = phone;
+        }
+
+        @SettingEntry(path = SUBSCRIPTION_AOR)
+        public String getWorkgroupSubscriptionAor() {
+            SpeedDial speedDial = getPhoneContext().getSpeedDial(m_phone);
+            if (speedDial != null) {
+                return "sip:" + speedDial.getResourceListId(true);
+            } else {
+                return null;
+            }
+        }
     }
 
     public static class CounterpathLineDefaults {

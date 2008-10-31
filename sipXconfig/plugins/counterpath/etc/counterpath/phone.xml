@@ -474,6 +474,11 @@ This setting is used only when Timer enabled is true.</description>
         <value>false</value>
         <description>Set to true to instruct the application to reregister with the SIP registrar whenever a network change is detected.</description>
       </setting>
+	  <setting name="proxies:proxy0:workgroup_subscription_aor" hidden="yes">
+		<label>Workgroup subscription AOR</label>
+		<value/>
+		<description></description>
+	  </setting>
     </group>
 
     <group name="dns">
