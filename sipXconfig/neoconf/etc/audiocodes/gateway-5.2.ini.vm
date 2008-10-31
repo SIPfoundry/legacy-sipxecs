@@ -83,7 +83,6 @@ PSTNPREFIX=${prefix},${trunk_id},*,*,0
 #end
 ## fxs paramaters only
 #if(${gateway.Model.Definitions.contains("fxs")})
-
 [Lines]
 #foreach ($line in $phone.lines)
 #set($line_id = $velocityCount - 1)
@@ -91,9 +90,18 @@ PSTNPREFIX=${prefix},${trunk_id},*,*,0
 #set($settings = $line.Settings)
 #set($username = $line.getSettingValue('SIP/Authentication/Username'))
 #set($password = $line.getSettingValue('SIP/Authentication/Password'))
-Authentication_${line_id}=$username,$password
 TRUNKGROUP=${trunk_id}-${trunk_id},${username}
 #end
+
+[Authentication]
+FORMAT Authentication_Index = Authentication_UserId, Authentication_UserPassword;
+#foreach ($line in $phone.lines)
+#set($line_id = $velocityCount - 1)
+#set($username = $line.getSettingValue('SIP/Authentication/Username'))
+#set($password = $line.getSettingValue('SIP/Authentication/Password'))
+Authentication $line_id = $username, ${password};
+#end
+[\Authentication]
 #end
 
 #if(${gateway.Model.Definitions.contains("digital")})
