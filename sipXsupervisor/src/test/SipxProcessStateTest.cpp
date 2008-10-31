@@ -52,7 +52,6 @@ public:
 
    void stateSetting()
       {
-         printf("TEST_DATA_DIR=%s, TEST_WORK_DIR=%s\n", TEST_DATA_DIR,TEST_WORK_DIR );
          FileTestContext testContext(TEST_DATA_DIR "processState",
                                      TEST_WORK_DIR "processState"
                                      );
@@ -65,7 +64,6 @@ public:
          testContext.inputFile("notherprocess.sh");
          UtlString exePath;
          testContext.workingFilePath("newprocess1.sh", exePath);
-         printf("working exe is %s\n", exePath.data());
          chmod(exePath.data(), S_IREAD | S_IWRITE | S_IEXEC);
          testContext.workingFilePath("newprocess2.sh", exePath);
          chmod(exePath.data(), S_IREAD | S_IWRITE | S_IEXEC);

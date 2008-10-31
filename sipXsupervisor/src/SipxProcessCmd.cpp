@@ -264,15 +264,30 @@ void SipxProcessCmd::executeInTask(SipxProcess* owner)
       mProcess = new OsProcess();
    }
    
-   //@TODO: capture output from process
    int rc;
 
    if ( (rc=mProcess->launch(mExecutable, &args[0], mWorkingDirectory,
-                             mProcess->NormalPriorityClass, FALSE, FALSE /*don't ignore SIGCHLD*/))
+                             mProcess->NormalPriorityClass, FALSE, 
+                             FALSE /*don't automatically reap children*/))
        == OS_SUCCESS )
    {
       owner->evCommandStarted(this);
+
       //now wait around for the thing to finish
+      UtlString stdoutMsg;
+      UtlString stderrMsg;
+      while ( (rc = mProcess->getOutput(&stdoutMsg, &stderrMsg)) > 0)
+      {
+         if (stdoutMsg.length() > 0)
+         {
+            owner->evCommandOutput(this, PRI_NOTICE, stdoutMsg);
+         }
+         if (stderrMsg.length() > 0)
+         {
+            owner->evCommandOutput(this, PRI_ERR, stderrMsg);
+         }
+      }
+
       //0 means wait until it's finished
       rc = mProcess->wait(0);
       owner->evCommandStopped(this, rc);

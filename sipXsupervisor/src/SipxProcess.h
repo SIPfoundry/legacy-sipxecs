@@ -213,9 +213,13 @@ class SipxProcess : public UtlString, OsServerTask
    void evCommandStarted(const SipxProcessCmd* command);
    
    /// Notify the SipxProcess that a command has stopped.
-   //@TODO: need stderr output etc from stopped/failed process
    void evCommandStopped(const SipxProcessCmd* command, int rc);
-   
+
+   /// Notify the SipxProcess that a command has received output.
+   void evCommandOutput(const SipxProcessCmd* command, 
+                        OsSysLogPriority pri,
+                        UtlString message);
+
    /// Notify the SipxProcess that a timeout has occurred.
    void evRetryTimeout();
    
@@ -242,6 +246,9 @@ class SipxProcess : public UtlString, OsServerTask
      void evRetryTimeoutInTask();
      void evCommandStartedInTask(const SipxProcessCmd* command);
      void evCommandStoppedInTask(const SipxProcessCmd* command, int rc);
+     void evCommandOutputInTask(const SipxProcessCmd* command,
+                                OsSysLogPriority pri,
+                                UtlString output);
      void enableInTask();
      void disableInTask();
      void restartInTask();
@@ -462,13 +469,15 @@ public:
       
       // return events from the SipxProcessCmd task: must supply cmd
       STARTED     = 10,
-      STOPPED     = 11
+      STOPPED     = 11,
+      OUTPUT      = 12
    };   
 
    /// Constructor.
    SipxProcessMsg(EventSubType eventSubType,
               const SipxProcessCmd* cmd = NULL,     ///< command which is returning
-              int   rc = 0                          ///< optional return code from command
+              int   rc = 0,                         ///< optional int data from command
+              const UtlString& message = NULL       ///< optional message from command
               );
 
    /// Destructor
@@ -476,14 +485,16 @@ public:
 
    // Component accessors.
    const SipxProcessCmd* getCmd( void ) const    {return mCmd;}
-   int getRc( void )                    const    {return mRc;}
+   int   getIntData( void )             const    {return mIntData;}
+   const UtlString& getMessage( void )  const    {return mMessage;}
  
 protected:
    static const UtlContainableType TYPE;   ///< Class type used for runtime checking
 
 private:
    const SipxProcessCmd* mCmd;               ///< command which is returning
-   int   mRc;                                ///< optional return code from command
+   int   mIntData;                           ///< optional int from command
+   UtlString mMessage;                       ///< optional msg from command
 
    /// Copy constructor
    SipxProcessMsg( const SipxProcessMsg& rhs);

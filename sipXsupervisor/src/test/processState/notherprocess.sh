@@ -109,7 +109,7 @@ case ${Action} in
    RUN)
      echo $$ > ${pidfile}
      echo faking start for notherprocess...
-     read
+     sleep 50
      ;;
 
    STOP)

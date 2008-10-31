@@ -11,6 +11,7 @@
 #include "alarm/Alarm.h"
 #include "os/OsFS.h"
 #include "utl/UtlSListIterator.h"
+#include "utl/UtlTokenizer.h"
 #include "os/OsSysLog.h"
 #include "xmlparser/tinyxml.h"
 #include "xmlparser/XmlErrorMsg.h"
@@ -823,6 +824,14 @@ void SipxProcess::evCommandStopped(const SipxProcessCmd* command, int rc)
    postMessage( message );
 }
 
+void SipxProcess::evCommandOutput(const SipxProcessCmd* command, 
+                                  OsSysLogPriority pri, 
+                                  UtlString output)
+{
+   SipxProcessMsg message(SipxProcessMsg::OUTPUT, command, pri, output );
+   postMessage( message );
+}
+
 void SipxProcess::evRetryTimeout()
 {
    SipxProcessMsg message(SipxProcessMsg::RETRY_TIMEOUT );
@@ -882,7 +891,11 @@ UtlBoolean SipxProcess::handleMessage( OsMsg& rMsg )
          handled = TRUE;
          break;
       case SipxProcessMsg::STOPPED:
-         evCommandStoppedInTask(pMsg->getCmd(), pMsg->getRc());
+         evCommandStoppedInTask(pMsg->getCmd(), pMsg->getIntData());
+         handled = TRUE;
+         break;
+      case SipxProcessMsg::OUTPUT:
+         evCommandOutputInTask(pMsg->getCmd(), (OsSysLogPriority)pMsg->getIntData(), pMsg->getMessage());
          handled = TRUE;
          break;
          
@@ -964,6 +977,21 @@ void SipxProcess::evCommandStoppedInTask(const SipxProcessCmd* command, int rc)
 
 }
 
+
+void SipxProcess::evCommandOutputInTask(const SipxProcessCmd* command, 
+                                        OsSysLogPriority pri, 
+                                        UtlString output)
+{
+   // The output is sure to contain newlines, and may contain several lines.
+   // Clean it up before dispatching.
+   UtlTokenizer tokenizer(output);
+   UtlString    msg;
+   while ( tokenizer.next(msg, "\r\n") )
+   {
+      OsSysLog::add(FAC_SUPERVISOR, pri, "SipxProcess[%s]::commandOutput '%s'",
+                    data(), msg.data());
+   }
+}
 
 /// Notify the SipxProcess that some configuration change has occurred.
 void SipxProcess::configurationChange(const SipxResource& changedResource)
@@ -1370,11 +1398,13 @@ SipxProcess::~SipxProcess()
 //////////////////////////////////////////////////////////////////////////////
 SipxProcessMsg::SipxProcessMsg(EventSubType eventSubType,
                                const SipxProcessCmd* cmd,
-                               int rc
-                               ) :
+                               int rc,
+                               const UtlString& message
+                               ):
    OsMsg( OS_EVENT, eventSubType ),
    mCmd( cmd ),
-   mRc( rc )
+   mIntData( rc ),
+   mMessage( message )
 {
 }
 
@@ -1382,7 +1412,8 @@ SipxProcessMsg::SipxProcessMsg(EventSubType eventSubType,
 SipxProcessMsg::SipxProcessMsg( const SipxProcessMsg& rhs) :
    OsMsg( OS_EVENT, rhs.getMsgSubType() ),
    mCmd( rhs.getCmd() ),
-   mRc( rhs.getRc() )
+   mIntData( rhs.getIntData() ),
+   mMessage( rhs.getMessage() )
 {
 }
 
