@@ -119,10 +119,6 @@ public:
     //: The removes the variable from the process object only.  It does not modify OS variables.
 
 
-    virtual OsStatus setIORedirect(OsPath &rStdInputFilename, OsPath &rStdOutputFilename, OsPath &rStdErrorFilename) = 0;
-    //: Sets the standard input, output and/or stderror
-
-
 /* ============================ ACCESSORS ================================= */
     static OsStatus getByPID(PID pid, OsProcessBase &rProcess);
     //: Given a PID, this method will fill in the process passed in so the user 
@@ -177,6 +173,17 @@ public:
     //: waits for a process to complete before returning 
     //: or exits when WaitInSecs has completed
 
+    /// Read messages from the child process on stdout or stderr.
+    /// Returns the total number of bytes read.
+    /// When it returns 0, the child has exited and the parent should call wait(0)
+    /// to remove zombies.
+    /// If either parameter is NULL, the associated stream will not be read from
+    /// (note however that this may cause buffers to fill and the process to hang).
+    /// No attempt is made to read until newline.
+    virtual int getOutput(UtlString* stdoutMsg, ///< message read from stdout
+                          UtlString* stderrMsg  ///< message read from stderr
+         ) = 0;
+
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
     PID mPID;
@@ -206,6 +213,9 @@ protected:
     //: Stores the std input stream specified by the user.
     UtlString mStdOutputFilename;
     //: Stores the std  output stream specified by the user.
+
+    int m_fdout[2];   /// copy of stdout pipe after fork
+    int m_fderr[2];   /// copy of stderr pipe after fork
 
     OsConfigDb mEnvList;
     //: Place to store the env variables before launching the process

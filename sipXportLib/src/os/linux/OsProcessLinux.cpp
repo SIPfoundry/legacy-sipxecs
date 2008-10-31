@@ -45,31 +45,6 @@ OsProcessLinux::~OsProcessLinux()
 
 /* ============================ MANIPULATORS ============================== */
 
-OsStatus OsProcessLinux::setIORedirect(OsPath &rStdInputFilename,
-                                       OsPath &rStdOutputFilename,
-                                       OsPath &rStdErrorFilename)
-{
-    OsStatus retval = OS_FAILED;
-
-    if (rStdInputFilename.length())
-        mStdInputFilename = rStdInputFilename;
-    else
-        mStdInputFilename = "";
-        
-    
-    if (rStdOutputFilename.length())
-        mStdOutputFilename = rStdOutputFilename;
-    else
-        mStdInputFilename = "";
-    
-    if (rStdErrorFilename.length())
-        mStdErrorFilename = rStdErrorFilename;
-    else
-        mStdInputFilename = "";
-    
-    return retval;
-}
-
 OsStatus OsProcessLinux::setPriority(int prio)
 {
     OsStatus retval = OS_FAILED;
@@ -80,6 +55,78 @@ OsStatus OsProcessLinux::setPriority(int prio)
     }
 
     return retval;
+}
+
+/// Read all input which is available on the specified fd.
+/// Returns -1 on error, or number of bytes read
+int readAll(int fd, UtlString* message)
+{
+   if ( message == NULL )
+   {
+      return -1;
+   }
+   
+   char buf[1024]="";
+   int rc;
+
+   // read until all input has been read
+   do
+   {
+      rc = read(fd, buf, sizeof(buf));
+      if (rc>0)
+      {
+         message->append(buf, rc);
+      }
+   } while (rc == sizeof(buf));
+   
+   // If output was obtained, return its length.
+   // But if no output was obtained, return the 0 or -1 that
+   // read() returned.
+   if ( message->length() > 0)
+   {
+      rc = message->length();
+   }
+   return rc;
+}
+
+int OsProcessLinux::getOutput(UtlString* stdoutMsg, UtlString *stderrMsg)
+{
+   int bytesRead = 0;
+
+   fd_set outputFds;
+   FD_ZERO(&outputFds);
+   if ( stdoutMsg != NULL )
+   {
+      stdoutMsg->remove(0);
+      FD_SET(m_fdout[0], &outputFds);
+   }
+   if ( stderrMsg != NULL )
+   {
+      stderrMsg->remove(0);
+      FD_SET(m_fderr[0], &outputFds);
+   }
+
+   // We want to read everything available on the given fds before returning.
+   int rc = select(FD_SETSIZE, &outputFds, NULL, NULL, NULL);
+   if ( rc > 0 )
+   {
+      if ( FD_ISSET(m_fdout[0], &outputFds) )
+      {
+         if ( (rc=readAll( m_fdout[0], stdoutMsg )) > 0)
+         {
+            bytesRead = rc;
+         }
+      }
+      if ( FD_ISSET(m_fderr[0], &outputFds) )
+      {
+         if ( (rc=readAll( m_fderr[0], stderrMsg )) > 0)
+         {
+            bytesRead += rc;
+         }
+      }
+   }
+   
+   return bytesRead;
 }
 
 //waits for a process to complete before returning 
@@ -120,7 +167,7 @@ int OsProcessLinux::wait(int WaitInSecs)
                }
                else
                {
-                  // pid is our mPID so the child process as exited
+                  // pid is our mPID so the child process has exited
                   // and a signal SIGCHLD was generated.
                   // Obtain the exit code and return it.
                   bStillRunning = FALSE;
@@ -187,6 +234,12 @@ OsStatus OsProcessLinux::kill()
     return retval;
 }
 
+/* default minimal signal handler for child exit */
+void handle_child(int sig)
+{
+   // ignore child signal
+}
+
 OsStatus OsProcessLinux::launch(UtlString &rAppName, UtlString parameters[], OsPath &startupDir,
                     OsProcessPriorityClass prioClass, UtlBoolean bExclusive, UtlBoolean bIgnoreChildSignals)
 {
@@ -196,6 +249,13 @@ OsStatus OsProcessLinux::launch(UtlString &rAppName, UtlString parameters[], OsP
     {
        // Ignore SIGCHLD, it will be automatically reaped (POSIX.1-2001 spec)
        OsUtilLinux::signal(SIGCHLD, SIG_IGN);
+    }
+    else
+    {
+       // Catch SIGCHLD and ignore it here.  The process is in zombie state
+       // until the application calls wait.  Applications which install their
+       // own signal handler (and override this) must also ignore SIGCHLD.
+       OsUtilLinux::signal(SIGCHLD, handle_child);
     }
 
     //build one string out of the array passed in
@@ -207,6 +267,10 @@ OsStatus OsProcessLinux::launch(UtlString &rAppName, UtlString parameters[], OsP
     for(int i = 0; i < parameterCount; i++)
         parms[i + 1] = parameters[i].data();
     parms[parameterCount + 1] = NULL;
+
+    // create pipes between the parent and child for stdout and stderr
+    pipe(m_fdout);
+    pipe(m_fderr);
     
     //now fork into two processes
     PID forkReturnVal = fork();
@@ -225,33 +289,13 @@ OsStatus OsProcessLinux::launch(UtlString &rAppName, UtlString parameters[], OsP
                     // This has to do with the interactions between C++, the OS
                     // abstraction layer, and the way threads are implemented on
                     // Linux.
-
-                    if (mStdInputFilename.length())
-                    {
-                        if (!freopen(mStdInputFilename.data(),"r",stdin)) 
-                        {
-                            osPrintf("Could not redirect stdInput in OsProcess!");
-                            _exit(1);
-                        }
-                    }
-
-                    if (mStdOutputFilename.length())
-                    {
-                        if (!freopen(mStdOutputFilename.data(),"w",stdout)) 
-                        {
-                            osPrintf("Could not redirect stdOutput in OsProcess!");
-                            _exit(1);
-                        }
-                    }               
-
-                    if (mStdErrorFilename.length())
-                    {
-                        if (!freopen(mStdErrorFilename.data(),"w",stderr)) 
-                        {
-                            osPrintf("Could not redirect stdError in OsProcess!");
-                            _exit(1);
-                        }
-                    }
+                    
+                    // child closes the reading end of the pipes
+                    close(m_fdout[0]);
+                    close(m_fderr[0]);
+                    // replace stdout/stderr with write part of the pipes
+                    dup2(m_fdout[1], STDOUT_FILENO);
+                    dup2(m_fderr[1], STDERR_FILENO);
 
                     // close all other file descriptors that may be open
                     int max_fd=1023;
@@ -260,9 +304,9 @@ OsStatus OsProcessLinux::launch(UtlString &rAppName, UtlString parameters[], OsP
                     {
                        max_fd = limits.rlim_cur - 1 ;
                     }
-                    for(int i=max_fd; i>2; i--)
+                    for (int i=max_fd; i>2; i--)
                     {
-                       close(i) ;
+                       close(i);
                     }
 
                     // Clear signal mask so the new process starts with
@@ -287,6 +331,10 @@ OsStatus OsProcessLinux::launch(UtlString &rAppName, UtlString parameters[], OsP
         default :   // this is the parent process
                     mPID = forkReturnVal;
                     mParentPID = getpid();
+
+                    // parent closes the writing end of the pipes
+                    close(m_fdout[1]);
+                    close(m_fderr[1]);
                     retval = OS_SUCCESS;
                     break;
     }

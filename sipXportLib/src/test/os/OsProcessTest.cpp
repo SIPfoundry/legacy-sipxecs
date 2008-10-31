@@ -19,6 +19,7 @@ class OsProcessTest : public CppUnit::TestCase
     CPPUNIT_TEST_SUITE(OsProcessTest);
 #ifndef _WIN32
     CPPUNIT_TEST(testLaunch);
+    CPPUNIT_TEST(testCaptureOutput);
 #endif
     CPPUNIT_TEST_SUITE_END();
 
@@ -35,12 +36,8 @@ public:
 #ifdef _WIN32  //need to do this only on win32, linux already does this by default
         params[1] = "-t";
 #endif
-        OsPath inputFile = ""; //this means it will use standard input
-        OsPath outputFile = "testLaunch.out";
-        OsPath errFile = "testLaunch.err";
 
         OsProcess process;
-        process.setIORedirect(inputFile, outputFile, errFile);
 
         UtlString envKey =   "TESTKEY1";
         UtlString envValue = "TESTVALUE1";
@@ -76,6 +73,51 @@ public:
         OsTask::delay(5000);
         stat = newProcess.kill();
         CPPUNIT_ASSERT_MESSAGE("Able to kill process", stat == OS_SUCCESS);
+    }
+
+    void testCaptureOutput()
+    {
+        OsStatus stat;
+
+        // this command will produce a mix of stdout and stderr
+        UtlString appName = "ls";
+        UtlString params[10];
+        params[0] = "-d";
+        params[1] = "/madeUpNameDoesNotExist";
+        params[2] = ".";
+        params[3] = NULL;
+
+        OsProcess process;
+
+        OsPath startupDir = ".";
+
+        // std::cout << "Launching process: " << appName.data() << std::endl;
+        stat = process.launch(appName, params, startupDir, 
+                              OsProcessBase::NormalPriorityClass, false,
+                              false/* don't ignore child signals*/);
+        CPPUNIT_ASSERT(stat == OS_SUCCESS);
+        CPPUNIT_ASSERT(process.isRunning());
+        
+        UtlString stdoutMsg, stderrMsg;
+        int rc;
+
+        // can't guarantee in what order we'll get the output, just check for both
+        bool bGotStdout = false;
+        bool bGotStderr = false;
+        
+        while ( (rc = process.getOutput(&stdoutMsg, &stderrMsg)) > 0 )
+        {
+           if ( stdoutMsg.length() > 0 ) bGotStdout = true;
+           if ( stderrMsg.length() > 0 ) bGotStderr = true;
+        }
+        
+        CPPUNIT_ASSERT(bGotStdout==true);
+        CPPUNIT_ASSERT(bGotStderr==true);
+        CPPUNIT_ASSERT(rc == 0);
+
+        // since we forced an invalid command, we expect a non-zero return code
+        rc = process.wait(0);
+        CPPUNIT_ASSERT(rc != 0);
     }
 };
 

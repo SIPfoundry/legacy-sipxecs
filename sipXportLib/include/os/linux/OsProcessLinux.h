@@ -76,6 +76,10 @@ public:
      If bIgnoreChildSignals is TRUE (default), no SIGCHLD signal will occur,
      the child process will be completely cleaned up, and
      a return from "wait" will always be zero (i.e. success).  
+    \par
+     Pipes are set up between the parent and the child to capture stdout and
+     stderr.  The calling application should call captureOutput() in a loop
+     until it returns non-zero, and handle the output message appropriately.
 
     @returns
        - TRUE if the child process was started okay.
@@ -98,14 +102,6 @@ public:
                                                        *   the PID. */
                             );
  
-    /// Sets the standard input, output and/or stderror
-    virtual OsStatus setIORedirect(OsPath &rStdInputFilename, /**< Path and filename to use
-                                                               *   for standard input. */
-                                   OsPath &rStdOutputFilename, /**< Path and filename to use
-                                                                *   for standard output. */
-                                   OsPath &rStdErrorFilename /**< Path and filename to use for
-                                                              *   standard error. */
-                                  );
 
 /* ============================ ACCESSORS ================================= */
 
@@ -154,6 +150,16 @@ public:
     int wait(int WaitInSecs  ///< Amount of seconds to wait.
             );
 
+    /// Read messages from the child process on stdout or stderr.
+    /// Returns the total number of bytes read.  The Msg strings are cleared on entry.
+    /// When it returns 0, the child has exited and the parent should call wait(0)
+    /// to remove zombies.
+    /// If either parameter is NULL, the associated stream will not be read from
+    /// (note however that this may cause buffers to fill and the process to hang).
+    /// No attempt is made to read until newline.
+    int getOutput(UtlString* stdoutMsg,  ///< message read from stdout
+                  UtlString* stderrMsg   ///< message read from stderr
+                  );
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
 

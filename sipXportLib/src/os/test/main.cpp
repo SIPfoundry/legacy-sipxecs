@@ -100,12 +100,6 @@ OsStatus  TestProcessClass()
 #endif
 
     //try and launch IE
-    OsPath inputFile = ""; //this means it will use standard input
-    OsPath outputFile = "ping.txt";
-    OsPath errFile = "pingerr.txt";
-    process.setIORedirect(inputFile,outputFile,errFile);
-
-
     UtlString envKey =   "TESTKEY1";
     UtlString envValue = "TESTVALUE1";
     process.setEnv(envKey,envValue);
