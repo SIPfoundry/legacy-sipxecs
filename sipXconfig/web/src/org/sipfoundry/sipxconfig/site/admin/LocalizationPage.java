@@ -126,7 +126,7 @@ public abstract class LocalizationPage extends BasePage implements PageBeginRend
         int exitCode = getLocalizationContext().updateLanguage(language);
 
         if (exitCode > 0) {
-            getDialPlanContext().activateDialPlan();
+            getDialPlanContext().activateDialPlan(true); // restartSBCDevices == true
             List<Process> processList = Arrays.asList(new Process[] {
                 getProcessContext().getProcess(SipxProcessModel.ProcessName.MEDIA_SERVER),
                 getProcessContext().getProcess(SipxProcessModel.ProcessName.REGISTRAR),

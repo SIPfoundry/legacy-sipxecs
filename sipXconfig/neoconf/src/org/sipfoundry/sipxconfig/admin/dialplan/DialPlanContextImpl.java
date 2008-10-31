@@ -391,7 +391,7 @@ public abstract class DialPlanContextImpl extends SipxHibernateDaoSupport implem
         return generator;
     }
 
-    public void activateDialPlan() {
+    public void activateDialPlan(boolean restartSbcDevices) {
         ConfigGenerator generator = getGenerator();
         generator.activate(m_sipxReplicationContext, m_scriptsDirectory);
 
@@ -399,7 +399,7 @@ public abstract class DialPlanContextImpl extends SipxHibernateDaoSupport implem
         Collection<Integer> gatewayIds = getGatewayContext().getAllGatewayIds();
         getGatewayProfileManager().generateProfiles(gatewayIds, true, null);
         Collection<Integer> sbcIds = m_sbcDeviceManager.getAllSbcDeviceIds();
-        m_sbcProfileManager.generateProfiles(sbcIds, true, null);
+        m_sbcProfileManager.generateProfiles(sbcIds, restartSbcDevices, null);
 
         // notify the world we are done with activating dial plan
         m_sipxReplicationContext.publishEvent(new DialPlanActivatedEvent(this));

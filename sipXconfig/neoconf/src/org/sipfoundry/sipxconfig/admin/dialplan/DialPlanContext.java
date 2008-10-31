@@ -29,7 +29,7 @@ public interface DialPlanContext extends DataObjectSource, AliasOwner {
 
     public abstract ConfigGenerator generateDialPlan();
 
-    public abstract void activateDialPlan();
+    public abstract void activateDialPlan(boolean restartSbcDevices);
 
     public abstract ConfigGenerator getGenerator();
 

@@ -61,7 +61,7 @@ public abstract class ActivateDialPlan extends PageWithCallback {
 
     public void activate(IRequestCycle cycle) {
         DialPlanContext manager = getDialPlanContext();
-        manager.activateDialPlan();
+        manager.activateDialPlan(true);  // restartSBCDevices == true
         RestartReminderPanel reminder = (RestartReminderPanel) getComponent("reminder");
         reminder.restart();
         getCallback().performCallback(cycle);
