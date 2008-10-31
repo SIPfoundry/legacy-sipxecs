@@ -573,7 +573,7 @@ driftfile /var/lib/ntp/drift\n\
     progress(80, "Set system clock")
     show_progress()
 
-    log_printout("Time before set: %s", time.strftime("%Y-%m-%d %H:%M:S +000", time.gmtime()))
+    log_printout("Time before set: %s" % time.strftime("%Y-%m-%d %H:%M:S +000", time.gmtime()))
 
     # Set Time
     # try setting the clock with ntp if possible
@@ -590,7 +590,7 @@ driftfile /var/lib/ntp/drift\n\
     else :
         log_printout("(simulated) set time\n")
         
-    log_printout("Time after set: %s", time.strftime("%Y-%m-%d %H:%M:S +000", time.gmtime()))
+    log_printout("Time after set: %s" % time.strftime("%Y-%m-%d %H:%M:S +000", time.gmtime()))
 
     log_printout('Start NTP Server:')
     if runningAsRoot() :
