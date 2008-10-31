@@ -9,6 +9,7 @@
  */
 package org.sipfoundry.sipxconfig.site.common;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IAsset;
 import org.apache.tapestry.IComponent;
@@ -26,4 +27,8 @@ public abstract class Confirm extends BaseComponent {
 
     @Asset(value = "context:/WEB-INF/common/Confirm.script")
     public abstract IAsset getConfirmScript();
+
+    public String getEscapedPrompt() {
+        return StringEscapeUtils.escapeJavaScript(getPrompt());
+    }
 }
