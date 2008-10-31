@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.admin.dialplan.config;
@@ -129,11 +129,12 @@ public class MappingRulesTest extends XMLTestCase {
     /**
      * This is mostly to demonstrate how complicated the XPatch expression becomes for a document
      * with a namespace
-     * 
+     *
      * @param document
      */
     static void dumpXPaths(Document document) {
         VisitorSupport support = new VisitorSupport() {
+            @Override
             public void visit(Element node) {
                 System.err.println(node.getPath());
             }
@@ -176,7 +177,7 @@ public class MappingRulesTest extends XMLTestCase {
         control.andReturn(new String[] {
             "x."
         }).anyTimes();
-        rule.isInternal();
+        rule.isTargetPermission();
         control.andReturn(true);
         rule.getPermissionNames();
         control.andReturn(Arrays.asList(new String[] {
@@ -296,7 +297,9 @@ public class MappingRulesTest extends XMLTestCase {
         IMocksControl control = EasyMock.createNiceControl();
         IDialingRule rule = control.createMock(IDialingRule.class);
         rule.isInternal();
-        control.andReturn(true).times(2);
+        control.andReturn(true);
+        rule.isTargetPermission();
+        control.andReturn(true);
         rule.getHostPatterns();
         control.andReturn(new String[] {
             "gander"
@@ -322,6 +325,43 @@ public class MappingRulesTest extends XMLTestCase {
 
         assertXpathExists("/mappings/hostMatch[1]/hostPattern", domDoc);
         assertXpathExists("/mappings/hostMatch[1]/userMatch/userPattern", domDoc);
+
+        control.verify();
+    }
+
+    public void testGenerateInternalRuleWithSourcePermission() throws Exception {
+        IMocksControl control = EasyMock.createNiceControl();
+        IDialingRule rule = control.createMock(IDialingRule.class);
+        rule.isInternal();
+        control.andReturn(true);
+        rule.getHostPatterns();
+        control.andReturn(ArrayUtils.EMPTY_STRING_ARRAY);
+        rule.getName();
+        control.andReturn(null);
+        rule.getDescription();
+        control.andReturn("my rule description");
+        rule.getPatterns();
+        control.andReturn(new String[] {
+            "xxx"
+        }).anyTimes();
+        rule.isTargetPermission();
+        control.andReturn(false);
+        rule.getTransforms();
+        control.andReturn(new Transform[0]);
+        control.replay();
+
+        MappingRules mappingRules = new MappingRules();
+        mappingRules.begin();
+        mappingRules.generate(rule);
+        mappingRules.end();
+
+        Document document = mappingRules.getDocument();
+
+        String domDoc = XmlUnitHelper.asString(document);
+
+        assertXpathEvaluatesTo("my rule description", "/mappings/hostMatch/userMatch/description", domDoc);
+        assertXpathEvaluatesTo("xxx", "/mappings/hostMatch/userMatch/userPattern", domDoc);
+        assertXpathNotExists("/mappings/hostMatch/userMatch/permissionMatch/permission", domDoc);
 
         control.verify();
     }

@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.admin.dialplan.config;
@@ -23,21 +23,21 @@ import org.sipfoundry.sipxconfig.permission.PermissionName;
 
 /**
  * Authorization rule generator.
- * 
+ *
  * One dialing rules corresponds to one hostMatch element. All gateways end up in hostPatterns,
  * all dialing patterns are put in userPatterns. Permissions are added to the resulting
  * permissions match code.
- * 
+ *
  * <code>
  * <hostMatch>
  *    <hostPattern>gateway addresses</hostPattern>
  *    <userMatch>
- *      <userPattern>sos</userPattern> 
+ *      <userPattern>sos</userPattern>
  *      <permissionMatch>name of the permission</permissionMatch>
  *    </userMatch>
  * </hostMatch>
  * </code>
- * 
+ *
  */
 public class AuthRules extends RulesXmlFile {
     private static final String NAMESPACE = "http://www.sipfoundry.org/sipX/schema/xml/urlauth-00-00";
@@ -56,6 +56,7 @@ public class AuthRules extends RulesXmlFile {
     public AuthRules() {
     }
 
+    @Override
     public void begin() {
         m_doc = FACTORY.createDocument();
         QName mappingsName = FACTORY.createQName("mappings", NAMESPACE);
@@ -66,40 +67,59 @@ public class AuthRules extends RulesXmlFile {
         m_gateways = new HashSet<Gateway>();
     }
 
+    @Override
     public void generate(IDialingRule rule) {
         List<Gateway> gateways = rule.getGateways();
         List<String> permissions = rule.getPermissionNames();
-        if (gateways.size() == 0) {
-            // nothing to generate
-            return;
-        }
         Element mappings = m_doc.getRootElement();
         for (Gateway gateway : gateways) {
+            m_gateways.add(gateway);
+            String host = gateway.getGatewayAddress();
             Element hostMatch = mappings.addElement(HOST_MATCH);
             addRuleNameComment(hostMatch, rule);
             addRuleDescription(hostMatch, rule);
             Element hostPattern = hostMatch.addElement(HOST_PATTERN);
-            hostPattern.setText(gateway.getGatewayAddress());
-            m_gateways.add(gateway);
-            Element userMatch = hostMatch.addElement(USER_MATCH);
-            String[] patterns = rule.getTransformedPatterns(gateway);
-            for (int i = 0; i < patterns.length; i++) {
-                String pattern = patterns[i];
-                Element userPattern = userMatch.addElement(USER_PATTERN);
-                userPattern.setText(pattern);
+            hostPattern.setText(host);
+            addPermissions(rule, hostMatch, permissions, gateway);
+        }
+        // if we have no gateways we still need to generate entries for "source" permission rules
+        if (gateways.isEmpty() && !rule.isTargetPermission() && !permissions.isEmpty()) {
+            Element hostMatch = mappings.addElement(HOST_MATCH);
+            addRuleNameComment(hostMatch, rule);
+            addRuleDescription(hostMatch, rule);
+            for (String host : MappingRules.HOSTS) {
+                Element hostPattern = hostMatch.addElement(HOST_PATTERN);
+                hostPattern.setText(host);
             }
-            // even if no permission is specified (permission list is empty) we create empty
-            // element
-            Element permissionMatch = userMatch.addElement(PERMISSION_MATCH);
-            for (String permission : permissions) {
-                Element pelement = permissionMatch.addElement(PERMISSION);
-                pelement.setText(permission);
-            }
+            addPermissions(rule, hostMatch, permissions, null);
         }
     }
 
+    @Override
     public Document getDocument() {
         return m_doc;
+    }
+
+    @Override
+    public void end() {
+        generateNoAccess(m_gateways);
+    }
+
+    private void addPermissions(IDialingRule rule, Element parent, List<String> permissions, Gateway gateway) {
+        Element userMatch = parent.addElement(USER_MATCH);
+        String[] patterns = rule.getTransformedPatterns(gateway);
+        for (int i = 0; i < patterns.length; i++) {
+            String pattern = patterns[i];
+            Element userPattern = userMatch.addElement(USER_PATTERN);
+            userPattern.setText(pattern);
+        }
+        // even if no permission is specified (permission list is empty) we create empty
+        // element
+        Element permissionMatch = userMatch.addElement(PERMISSION_MATCH);
+        for (String permission : permissions) {
+            Element pelement = permissionMatch.addElement(PERMISSION);
+            pelement.setText(permission);
+        }
     }
 
     void generateNoAccess(Collection<Gateway> gateways) {
@@ -114,9 +134,5 @@ public class AuthRules extends RulesXmlFile {
         userMatch.addElement(USER_PATTERN).setText(".");
         Element permissionMatch = userMatch.addElement(PERMISSION_MATCH);
         permissionMatch.addElement(PERMISSION).setText(PermissionName.NO_ACCESS.getName());
-    }
-
-    public void end() {
-        generateNoAccess(m_gateways);
     }
 }

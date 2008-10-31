@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.admin.dialplan.config;
@@ -20,14 +20,15 @@ import org.sipfoundry.sipxconfig.admin.dialplan.IDialingRule;
  * Special type of mappingrules document with a single host match matching standard SIPx hosts
  */
 public class MappingRules extends RulesXmlFile {
-    private static final String NAMESPACE = "http://www.sipfoundry.org/sipX/schema/xml/urlmap-00-00";
-    private static final String[] HOSTS = {
+    public static final String[] HOSTS = {
         "${SIPXCHANGE_DOMAIN_NAME}", "${MY_FULL_HOSTNAME}", "${MY_HOSTNAME}", "${MY_IP_ADDR}"
     };
 
+    private static final String NAMESPACE = "http://www.sipfoundry.org/sipX/schema/xml/urlmap-00-00";
+
     private Document m_doc;
     private Element m_hostMatch;
-    private String m_namespace;
+    private final String m_namespace;
     private Element m_mappings;
 
     public MappingRules() {
@@ -38,6 +39,7 @@ public class MappingRules extends RulesXmlFile {
         m_namespace = namespace;
     }
 
+    @Override
     public void begin() {
         m_doc = FACTORY.createDocument();
         QName mappingsName = FACTORY.createQName("mappings", m_namespace);
@@ -50,10 +52,12 @@ public class MappingRules extends RulesXmlFile {
         return m_hostMatch;
     }
 
+    @Override
     public Document getDocument() {
         return m_doc;
     }
 
+    @Override
     public void generate(IDialingRule rule) {
         if (rule.isInternal()) {
             generateRule(rule);
@@ -69,7 +73,7 @@ public class MappingRules extends RulesXmlFile {
         } else {
             hostMatch = getFirstHostMatch();
         }
-        
+
         generateRule(rule, hostMatch);
     }
 
@@ -84,7 +88,7 @@ public class MappingRules extends RulesXmlFile {
             userPattern.setText(pattern);
         }
         Element permissionMatch = userMatch.addElement("permissionMatch");
-        if (rule.isInternal()) {
+        if (rule.isTargetPermission()) {
             List<String> permissions = rule.getPermissionNames();
             for (String permission : permissions) {
                 Element permissionElement = permissionMatch.addElement("permission");
@@ -107,6 +111,7 @@ public class MappingRules extends RulesXmlFile {
         return hostMatch;
     }
 
+    @Override
     public void end() {
         m_mappings.add(m_hostMatch);
     }

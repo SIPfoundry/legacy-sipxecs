@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.admin.dialplan;
@@ -31,8 +31,7 @@ import org.sipfoundry.sipxconfig.permission.PermissionManager;
 /**
  * DialingRule At some point it will be replaced by the IDialingRule interface or made abstract.
  */
-public abstract class DialingRule extends BeanWithId implements IDialingRule, DataCollectionItem,
-        NamedObject {
+public abstract class DialingRule extends BeanWithId implements IDialingRule, DataCollectionItem, NamedObject {
 
     public static final String VALID_TIME_PARAM = "sipx-ValidTime=%s";
 
@@ -50,6 +49,7 @@ public abstract class DialingRule extends BeanWithId implements IDialingRule, Da
 
     public abstract DialingRuleType getType();
 
+    @Override
     protected Object clone() throws CloneNotSupportedException {
         DialingRule clone = (DialingRule) super.clone();
         clone.m_gateways = new ArrayList<Gateway>(m_gateways);
@@ -87,13 +87,25 @@ public abstract class DialingRule extends BeanWithId implements IDialingRule, Da
     public void setGateways(List<Gateway> gateways) {
         m_gateways = gateways;
     }
-    
+
     public Schedule getSchedule() {
         return m_schedule;
     }
 
     public void setSchedule(Schedule schedule) {
         m_schedule = schedule;
+    }
+
+    /**
+     * Check if permission should be applied to the rule target.
+     *
+     * Permissions in a dialing rule can apply to target or to source. In most cases permissions
+     * apply to a rule source (i.e. caller).
+     *
+     * There are a few exceptions: in voicemail rules permissions are applied to target.
+     */
+    public boolean isTargetPermission() {
+        return false;
     }
 
     public final List<Permission> getPermissions() {
@@ -135,9 +147,9 @@ public abstract class DialingRule extends BeanWithId implements IDialingRule, Da
     /**
      * Called to give a dialing rules a chance to append itself to the list of rules used for
      * generating XML
-     * 
+     *
      * Default implementation appends the rule if it is enabled. Rule can append some other rules.
-     * 
+     *
      * @param rules
      */
     public void appendToGenerationRules(List<DialingRule> rules) {
@@ -148,7 +160,7 @@ public abstract class DialingRule extends BeanWithId implements IDialingRule, Da
 
     /**
      * Returns the list of gateways that can be added to this rule.
-     * 
+     *
      * @param allGateways pool of all possible gateways
      * @return list of gateways that still can be assigned to this rule
      */
@@ -171,6 +183,7 @@ public abstract class DialingRule extends BeanWithId implements IDialingRule, Da
         m_position = position;
     }
 
+    @Override
     public Object getPrimaryKey() {
         return getId();
     }
@@ -178,14 +191,18 @@ public abstract class DialingRule extends BeanWithId implements IDialingRule, Da
     /**
      * Attempts to apply standard transformations to patterns. It is used when generating
      * authorization rules For example 9xxxx -> 7{digits} results in 97xxxx
-     * 
+     *
      * Default implementation inserts gateway specific prefixes.
      */
     public String[] getTransformedPatterns(Gateway gateway) {
         String[] patterns = getPatterns();
         String[] transformed = new String[patterns.length];
         for (int i = 0; i < patterns.length; i++) {
-            transformed[i] = gateway.getCallPattern(patterns[i]);
+            if (gateway != null) {
+                transformed[i] = gateway.getCallPattern(patterns[i]);
+            } else {
+                transformed[i] = patterns[i];
+            }
         }
         return transformed;
     }

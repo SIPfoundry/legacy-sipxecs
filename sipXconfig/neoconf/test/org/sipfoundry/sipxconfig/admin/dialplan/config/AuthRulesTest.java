@@ -9,6 +9,7 @@
  */
 package org.sipfoundry.sipxconfig.admin.dialplan.config;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -16,6 +17,7 @@ import java.util.List;
 
 import junit.framework.JUnit4TestAdapter;
 
+import org.apache.commons.io.IOUtils;
 import org.custommonkey.xmlunit.XMLAssert;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.dom4j.Document;
@@ -25,6 +27,10 @@ import org.easymock.IMocksControl;
 import org.junit.Assert;
 import org.junit.Test;
 import org.sipfoundry.sipxconfig.XmlUnitHelper;
+import org.sipfoundry.sipxconfig.admin.dialplan.CallDigits;
+import org.sipfoundry.sipxconfig.admin.dialplan.CallPattern;
+import org.sipfoundry.sipxconfig.admin.dialplan.CustomDialingRule;
+import org.sipfoundry.sipxconfig.admin.dialplan.DialPattern;
 import org.sipfoundry.sipxconfig.admin.dialplan.IDialingRule;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
@@ -262,6 +268,30 @@ public class AuthRulesTest {
         Element rootElement = doc.getRootElement();
         XmlUnitHelper.assertElementInNamespace(rootElement,
                 "http://www.sipfoundry.org/sipX/schema/xml/urlauth-00-00");
+    }
+
+    @Test
+    public void testGenerateInternalRuleWithTargetPermission() throws Exception {
+        CustomDialingRule rule = new CustomDialingRule();
+        rule.setName("test");
+        rule.setDescription("Calls to internal extensions");
+        DialPattern pattern1 = new DialPattern("12", 3);
+        DialPattern pattern2 = new DialPattern("13", 4);
+        rule.setDialPatterns(Arrays.asList(pattern1, pattern2));
+        CallPattern callPattern = new CallPattern("7", CallDigits.VARIABLE_DIGITS);
+        rule.setCallPattern(callPattern);
+        rule.setPermissionNames(Arrays.asList("LocalDialing"));
+
+        MockAuthRules authRules = new MockAuthRules();
+        authRules.begin();
+        authRules.generate(rule);
+        authRules.end();
+
+        Document document = authRules.getDocument();
+        String domDoc = XmlUnitHelper.asString(document);
+
+        InputStream controlXml = getClass().getResourceAsStream("authrules-internal-target-perm.test.xml");
+        XMLAssert.assertXMLEqual(IOUtils.toString(controlXml), domDoc);
     }
 
     private class MockAuthRules extends AuthRules {

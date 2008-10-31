@@ -104,6 +104,14 @@ public class MappingRule extends DialingRule {
         return true;
     }
 
+    /**
+     * Source permission rule - do not add permissions to authrules, add them to mapping rules.
+     */
+    @Override
+    public boolean isTargetPermission() {
+        return true;
+    }
+
     public boolean isGatewayAware() {
         return false;
     }
@@ -182,7 +190,6 @@ public class MappingRule extends DialingRule {
             MediaServer.Operation operation = MediaServer.Operation.VoicemailRetrieve;
             setUrl(mediaServer.buildUrl(CallDigits.FIXED_DIGITS, operation, null));
         }
-
     }
 
     public static class VoicemailTransfer extends MappingRule {

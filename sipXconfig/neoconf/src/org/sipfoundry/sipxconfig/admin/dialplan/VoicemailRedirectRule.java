@@ -52,6 +52,13 @@ public class VoicemailRedirectRule extends DialingRule {
         return true;
     }
 
+    /**
+     * Need "permission" elements in mappingrules.xml
+     */
+    public boolean isTargetPermission() {
+        return true;
+    }
+
     public boolean isGatewayAware() {
         return false;
     }

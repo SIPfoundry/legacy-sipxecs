@@ -43,6 +43,11 @@ public interface IDialingRule {
     public abstract boolean isInternal();
 
     /**
+     * Some rules are "source" permission rules - need "permission" elements in mappingrules.xml.
+     */
+    public abstract boolean isTargetPermission();
+
+    /**
      * Whether or not the dialing rule can be used with a gateway.
      */
     public abstract boolean isGatewayAware();

@@ -32,7 +32,7 @@ import org.sipfoundry.sipxconfig.admin.dialplan.config.UrlTransform;
 public abstract class InternalForwardRule extends DialingRule {
 
     private final DialPattern m_dialPattern;
-    private Transform m_transform;
+    private final Transform m_transform;
 
     public InternalForwardRule(DialPattern dialPattern, String url) {
         m_dialPattern = dialPattern;

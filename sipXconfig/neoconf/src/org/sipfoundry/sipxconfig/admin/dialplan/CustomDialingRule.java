@@ -154,8 +154,13 @@ public class CustomDialingRule extends DialingRule {
         Set<String> transformedPatterns = new LinkedHashSet<String>();
         for (DialPattern dp : dialPatterns) {
             DialPattern tdp = m_callPattern.transform(dp);
-            String pattern = gateway.getCallPattern(tdp.calculatePattern());
-            transformedPatterns.add(pattern);
+            if (gateway != null) {
+                String pattern = gateway.getCallPattern(tdp.calculatePattern());
+                transformedPatterns.add(pattern);
+            } else {
+                String pattern = tdp.calculatePattern();
+                transformedPatterns.add(pattern);
+            }
         }
         return transformedPatterns.toArray(new String[transformedPatterns.size()]);
     }
