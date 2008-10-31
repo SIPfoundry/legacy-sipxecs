@@ -24,6 +24,7 @@ insert into version_history (version, applied) values (4, now());
 insert into version_history (version, applied) values (5, now());
 insert into version_history (version, applied) values (6, now());
 insert into version_history (version, applied) values (7, now());
+insert into version_history (version, applied) values (8, now());
 
 create table patch(
   name varchar(32) not null primary key
@@ -203,6 +204,7 @@ create table call_group (
    fallback_destination varchar(255),
    voicemail_fallback boolean not null default false,
    user_forward boolean not null default true,
+   sip_password varchar(255),
    primary key (call_group_id)
 );
 create table phone_group (
@@ -985,4 +987,5 @@ insert into initialization_task (name) values ('add_default_user_group');
 insert into initialization_task (name) values ('operator');
 insert into initialization_task (name) values ('afterhour');
 insert into initialization_task (name) values ('first-run');
+insert into initialization_task (name) values ('callgroup-password-init');
 

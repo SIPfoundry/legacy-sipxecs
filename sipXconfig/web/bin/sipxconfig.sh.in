@@ -47,7 +47,7 @@ TEST_WRITE_ACCESS="\
   @sipxpbx.conf.dir@/forwardingrules.xml.in"
 
 Database=SIPXCONFIG
-RequiredDatabaseVersion=7
+RequiredDatabaseVersion=8
 IndexDir=${TmpDir}/index
 
 # jars that we expect to be installed on the system
