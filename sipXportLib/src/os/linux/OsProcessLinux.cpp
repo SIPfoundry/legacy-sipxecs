@@ -269,15 +269,12 @@ OsStatus OsProcessLinux::launch(UtlString &rAppName, UtlString parameters[], OsP
     parms[parameterCount + 1] = NULL;
 
     // create pipes between the parent and child for stdout and stderr
-    int rc;
-    rc = pipe(m_fdout);
-    if ( rc < 0 )
+    if ( pipe(m_fdout) < 0 )
     {
        OsSysLog::add(FAC_PROCESS, PRI_CRIT,"Failed to create pipe for '%s', errno %d!\n", 
                      rAppName.data(), errno);
     }
-    rc = pipe(m_fderr);
-    if ( rc < 0 )
+    if ( pipe(m_fderr) < 0 )
     {
        OsSysLog::add(FAC_PROCESS, PRI_CRIT,"Failed to create pipe for '%s', errno %d!\n", 
                      rAppName.data(), errno);
@@ -305,8 +302,18 @@ OsStatus OsProcessLinux::launch(UtlString &rAppName, UtlString parameters[], OsP
                     close(m_fdout[0]);
                     close(m_fderr[0]);
                     // replace stdout/stderr with write part of the pipes
-                    dup2(m_fdout[1], STDOUT_FILENO);
-                    dup2(m_fderr[1], STDERR_FILENO);
+                    if ( dup2(m_fdout[1], STDOUT_FILENO) < 0 )
+                    {
+                       osPrintf("Failed to dup2 pipe for '%s', errno %d!\n", 
+                                     rAppName.data(), errno);
+                       _exit(1);
+                    }
+                    if ( dup2(m_fderr[1], STDERR_FILENO) < 0 )
+                    {
+                       osPrintf("Failed to dup2 pipe for '%s', errno %d!\n", 
+                                     rAppName.data(), errno);
+                       _exit(1);
+                    }
 
                     // close all other file descriptors that may be open
                     int max_fd=1023;
