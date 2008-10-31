@@ -135,6 +135,10 @@ class CallLegs
     @best_leg && @best_leg.status != Cdr::CALL_IN_PROGRESS_TERM
   end
   
+  def established?
+    @best_leg && @best_leg.status == Cdr::CALL_IN_PROGRESS_TERM
+  end
+  
   private
   def get_leg(cse)
     id = CallLeg.leg_id(cse)
@@ -164,6 +168,11 @@ class Cdr
   CALL_COMPLETED_TERM   = 'C'
   CALL_FAILED_TERM      = 'F'
   
+  SIP_UNAUTHORIZED_CODE = 401
+  SIP_PROXY_AUTH_REQUIRED_CODE = 407
+  SIP_REQUEST_TIMEOUT_CODE = 408
+  SIP_BAD_TRANSACTION_CODE = 481
+
   def initialize(call_id)
     @call_id = call_id
     @from_tag = nil
@@ -193,7 +202,7 @@ class Cdr
   # used to compute call direction
   attr_accessor :callee_contact, :caller_contact
   
-  # Return true if the CDR is complete, false otherwise.
+# Return true if the CDR is complete, false otherwise.
   def complete?
     @termination == CALL_COMPLETED_TERM || @termination == CALL_FAILED_TERM
   end
@@ -213,7 +222,15 @@ class Cdr
       accept_call_request(cse)
     when cse.call_setup?
       accept_call_setup(cse)
-    when cse.call_end?, cse.call_failure?
+    when cse.call_failure?
+      if @legs.established? then
+         # established calls that receive a failure of bad transaction or request timeout are considered failed.
+         accept_call_end(cse)  unless ((cse.failure_reason != SIP_BAD_TRANSACTION_CODE) && (cse.failure_reason != SIP_REQUEST_TIMEOUT_CODE))
+      else
+         # non-established calls only consider a failure if the reason is not a timeout, auth required or unauthorized.
+         accept_call_end(cse)  unless ((cse.failure_reason == SIP_REQUEST_TIMEOUT_CODE) || (cse.failure_reason == SIP_PROXY_AUTH_REQUIRED_CODE) || (cse.failure_reason == SIP_UNAUTHORIZED_CODE))
+      end
+    when cse.call_end?
       accept_call_end(cse)
     end
   end

@@ -107,13 +107,13 @@ class CallResolver
     log.debug("Clean-up threads stopped.")
 
   ensure
-    @server.shutdown
+    @server.shutdown if @server
 
     # send sentinel event, it will stop plugins and state
     cse_queue.enq(nil)
 
     # wait for writer before exiting - but do not wait forever (all readers might be dead)
-    writer_thread.join(10)
+    writer_thread.join(10) if writer_thread
     log.debug("CDR writer thread stopped.")
 
     log.info("resolve: Done. Analysis took #{Time.now - start_run} seconds.")

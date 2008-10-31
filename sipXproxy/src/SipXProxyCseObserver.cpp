@@ -196,6 +196,7 @@ UtlBoolean SipXProxyCseObserver::handleMessage(OsMsg& eventMessage)
 
          if (!sipMsg->isResponse())
          {
+
             // sipMsg is a Request
             sipMsg->getRequestMethod(&method);
 
@@ -232,20 +233,14 @@ UtlBoolean SipXProxyCseObserver::handleMessage(OsMsg& eventMessage)
                   // any final response above 400 is considered a failure for CDR
                   // purposes.  If not dialog-forming, then any final response above 400
                   // except 401 Unauthorized, 407 Proxy Authentication Required and 
-                  // 408 Request Timeout
+                  // 408 Request Timeout will terminate.  If we're in a dialog then
+            	  // only 408 (Request Timeout) and 481 (Call/Transaction does not exist)
+            	  // will terminate the dialog.
 
                   rspStatus = sipMsg->getResponseStatusCode();
-                  if (   (rspStatus >= SIP_4XX_CLASS_CODE) // any failure
-                      // except for these three on non-dialog-froming INVITES
-                      && ( toTag.isNull() ||
-                         ! (   (rspStatus == HTTP_UNAUTHORIZED_CODE)
-                            || (rspStatus == HTTP_PROXY_UNAUTHORIZED_CODE)
-                            || (rspStatus == SIP_REQUEST_TIMEOUT_CODE)
-                            )
-                          )
-                      )
+                  if (rspStatus >= SIP_4XX_CLASS_CODE) // any failure
                   {
-                     // a final failure - this is a CallFailure
+                     // a failure code - this is a potential CallFailure - Call Resolver will determine.
                      thisMsgIs = aCallFailure;
                      sipMsg->getResponseStatusText(&rspText);
                   }
