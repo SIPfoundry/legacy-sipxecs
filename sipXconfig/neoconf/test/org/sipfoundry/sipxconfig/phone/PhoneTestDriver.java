@@ -34,6 +34,7 @@ import org.sipfoundry.sipxconfig.service.UnmanagedService;
 import org.sipfoundry.sipxconfig.setting.ModelFilesContextImpl;
 import org.sipfoundry.sipxconfig.setting.XmlModelBuilder;
 import org.sipfoundry.sipxconfig.sip.SipService;
+import org.sipfoundry.sipxconfig.speeddial.SpeedDial;
 
 public class PhoneTestDriver {
 
@@ -42,8 +43,6 @@ public class PhoneTestDriver {
     private final IMocksControl m_phoneContextControl;
 
     private final PhoneContext m_phoneContext;
-
-    public Phone phone;
 
     public SipService sip;
 
@@ -55,41 +54,51 @@ public class PhoneTestDriver {
         return supplyTestData(_phone, true);
     }
 
-    public static PhoneTestDriver supplyTestData(Phone _phone, boolean phonebookManagementEnabled) {
+    public static PhoneTestDriver supplyTestData(Phone phone, boolean phonebookManagementEnabled) {
+        return supplyTestData(phone, phonebookManagementEnabled, false);
+    }
+
+    public static PhoneTestDriver supplyTestData(Phone _phone, List<User> users) {
+        return new PhoneTestDriver(_phone, users, true, false);
+    }
+
+    public static PhoneTestDriver supplyTestData(Phone _phone, boolean phonebookManagementEnabled, boolean speedDial) {
         User user = new User();
         user.setUserName("juser");
         user.setFirstName("Joe");
         user.setLastName("User");
         user.setSipPassword("1234");
 
-        return new PhoneTestDriver(_phone, Collections.singletonList(user), phonebookManagementEnabled);
-    }
-
-    public static PhoneTestDriver supplyTestData(Phone _phone, List<User> users) {
-        return new PhoneTestDriver(_phone, users, true);
+        return new PhoneTestDriver(_phone, Collections.singletonList(user), phonebookManagementEnabled, speedDial);
     }
 
     public Line getPrimaryLine() {
         return m_lines.get(0);
     }
 
-    private PhoneTestDriver(Phone _phone, List<User> users, boolean phonebookManagementEnabled) {
+    private PhoneTestDriver(Phone phone, List<User> users, boolean phonebookManagementEnabled, boolean speedDial) {
         m_phoneContextControl = EasyMock.createNiceControl();
         m_phoneContext = m_phoneContextControl.createMock(PhoneContext.class);
 
-        supplyVitalTestData(m_phoneContextControl, phonebookManagementEnabled, m_phoneContext, _phone);
+        if(speedDial) {
+            SpeedDial sd = new SpeedDial();
+            sd.setUser(users.get(0));
+
+            m_phoneContext.getSpeedDial(phone);
+            m_phoneContextControl.andReturn(sd).anyTimes();
+        }
+
+        supplyVitalTestData(m_phoneContextControl, phonebookManagementEnabled, m_phoneContext, phone);
 
         m_phoneContextControl.replay();
 
-        this.phone = _phone;
-
-        _phone.setSerialNumber(serialNumber);
+        phone.setSerialNumber(serialNumber);
 
         for (User user : users) {
-            Line line = _phone.createLine();
-            line.setPhone(_phone);
+            Line line = phone.createLine();
+            line.setPhone(phone);
             line.setUser(user);
-            _phone.addLine(line);
+            phone.addLine(line);
             m_lines.add(line);
         }
 
@@ -101,7 +110,7 @@ public class PhoneTestDriver {
             sip.sendCheckSync(uri);
         }
         sipControl.replay();
-        _phone.setSipService(sip);
+        phone.setSipService(sip);
 
     }
 
