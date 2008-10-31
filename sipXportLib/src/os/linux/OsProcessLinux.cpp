@@ -269,8 +269,19 @@ OsStatus OsProcessLinux::launch(UtlString &rAppName, UtlString parameters[], OsP
     parms[parameterCount + 1] = NULL;
 
     // create pipes between the parent and child for stdout and stderr
-    pipe(m_fdout);
-    pipe(m_fderr);
+    int rc;
+    rc = pipe(m_fdout);
+    if ( rc < 0 )
+    {
+       OsSysLog::add(FAC_PROCESS, PRI_CRIT,"Failed to create pipe for '%s', errno %d!\n", 
+                     rAppName.data(), errno);
+    }
+    rc = pipe(m_fderr);
+    if ( rc < 0 )
+    {
+       OsSysLog::add(FAC_PROCESS, PRI_CRIT,"Failed to create pipe for '%s', errno %d!\n", 
+                     rAppName.data(), errno);
+    }
     
     //now fork into two processes
     PID forkReturnVal = fork();
