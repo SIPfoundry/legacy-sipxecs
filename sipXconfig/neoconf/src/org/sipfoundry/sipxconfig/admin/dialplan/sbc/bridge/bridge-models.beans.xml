@@ -10,7 +10,7 @@
 
   <bean id="sipXbridgeSbcModel" parent="abstractSbcModel">
     <property name="beanId" value="sbcSipXbridge" />
-    <property name="label" value="sipXbridge" />
+    <property name="label" value="Internal SBC" />
     <property name="modelDir" value="sipXbridge" />
     <property name="serialNumberPattern" value="" />
     <property name="maxAllowed" value="1" />
