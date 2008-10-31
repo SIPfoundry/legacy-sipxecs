@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.admin.dialplan;
@@ -31,7 +31,7 @@ public class ExchangeMediaServer extends MediaServer {
 
     /**
      * Create a new instance of ExchangeMediaServer with the specified parameters
-     * 
+     *
      * @param serverAddress - The address/hostname of the server
      * @param voicemailExtension - The extension of the server
      */
@@ -40,13 +40,13 @@ public class ExchangeMediaServer extends MediaServer {
         setServerExtension(voicemailExtension);
     }
 
-    public String getHeaderParameterStringForOperation(Operation operation, CallDigits digits,
-            Map<String, String> additionalParams) {
+    @Override
+    public String getHeaderParameterStringForOperation(Operation operation, CallDigits digits) {
         String paramString = null;
 
         switch (operation) {
         case VoicemailDeposit:
-            StringBuffer paramBuffer = new StringBuffer();
+            StringBuilder paramBuffer = new StringBuilder();
             Formatter paramFormatter = new Formatter(paramBuffer);
             paramFormatter.format(HEADER_PARAM_TEMPLATE, digits.getName());
             List<String> encodeExcludes = new ArrayList<String>(ENCODE_EXCLUDES);
@@ -63,24 +63,24 @@ public class ExchangeMediaServer extends MediaServer {
         return "Diversion=" + paramString;
     }
 
+    @Override
     public String getUriParameterStringForOperation(Operation operation, CallDigits digits,
             Map<String, String> additionalParams) {
         return "transport=tcp";
     }
 
+    @Override
     public String getName() {
         return NAME;
     }
 
+    @Override
     public String getDigitStringForOperation(Operation operation, CallDigits userDigits) {
         return getServerExtension();
     }
 
+    @Override
     public PermissionName getPermissionName() {
         return PermissionName.EXCHANGE_VOICEMAIL;
-    }
-
-    protected void addLang(Map<String, String> params, String locale) {
-        // do nothing
     }
 }

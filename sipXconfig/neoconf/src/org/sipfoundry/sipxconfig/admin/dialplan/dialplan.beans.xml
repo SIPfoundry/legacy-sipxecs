@@ -19,6 +19,13 @@
     <property name="localizationContext" ref="localizationContext" />
   </bean>
 
+  <bean id="freeswitchMediaServer" class="org.sipfoundry.sipxconfig.admin.dialplan.FreeswitchMediaServer">
+    <property name="label" value="Internal Voicemail Server" />
+    <property name="localizationContext" ref="localizationContext" />
+    <property name="port" value="8048" />
+    <property name="hostname" value="localhost" />
+  </bean>
+
   <bean id="mediaServerFactory" class="org.sipfoundry.sipxconfig.admin.dialplan.MediaServerFactory" scope="singleton">
     <property name="beanIds">
       <list>
@@ -40,7 +47,9 @@
     <property name="name" value="AutoAttendant" />
     <property name="description" value="Default autoattendant dialing plan" />
     <property name="enabled" value="true" />
-    <property name="mediaServer" ref="sipXMediaServer"/>
+    <property name="mediaServer" ref="sipXMediaServer" />
+    <!-- HACK: allow using freeswitch-based media server for some rules -->
+    <property name="alternateMediaServer" ref="freeswitchMediaServer" />
   </bean>
 
   <bean id="defaultEmergencyRule" class="org.sipfoundry.sipxconfig.admin.dialplan.EmergencyRule" abstract="true">
@@ -212,7 +221,7 @@
       <ref local="dialingRuleCollector" />
     </property>
     <property name="autoAttendantConfig">
-      <ref local="autoAttendantsConfig"/>
+      <ref local="autoAttendantsConfig" />
     </property>
   </bean>
 

@@ -17,6 +17,7 @@ import org.sipfoundry.sipxconfig.admin.dialplan.attendant.Holiday;
 import org.sipfoundry.sipxconfig.admin.dialplan.attendant.ScheduledAttendant;
 import org.sipfoundry.sipxconfig.admin.dialplan.attendant.WorkingTime;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.Transform;
+import org.springframework.beans.factory.annotation.Required;
 
 public class AttendantRule extends DialingRule {
     private static final String SYSTEM_NAME_PREFIX = "aa_";
@@ -29,20 +30,27 @@ public class AttendantRule extends DialingRule {
 
     private MediaServer m_mediaServer;
 
+    private MediaServer m_alternateMediaServer;
+
     @Override
     public void appendToGenerationRules(List<DialingRule> rules) {
         if (!isEnabled()) {
             return;
         }
+        MediaServer actualMediaServer = m_mediaServer;
+        // HACK: temporary - for testing only: sipXivr based media server will be used by default
+        if (StringUtils.trimToEmpty(getDescription()).toLowerCase().contains("sipxivr")) {
+            actualMediaServer = m_alternateMediaServer;
+        }
         String[] aliases = AttendantRule.getAttendantAliasesAsArray(m_attendantAliases);
-        DialingRule attendantRule = new MappingRule.Operator(getName(), getDescription(),
-                getSystemName(), m_extension, aliases, m_mediaServer);
+        DialingRule attendantRule = new MappingRule.Operator(getName(), getDescription(), getSystemName(),
+                m_extension, aliases, actualMediaServer);
         rules.add(attendantRule);
     }
 
     @Override
     protected Object clone() throws CloneNotSupportedException {
-        AttendantRule ar =  (AttendantRule) super.clone();
+        AttendantRule ar = (AttendantRule) super.clone();
         ar.m_afterHoursAttendant = (ScheduledAttendant) m_afterHoursAttendant.clone();
         ar.m_workingTimeAttendant = (WorkingTime) m_workingTimeAttendant.clone();
         ar.m_holidayAttendant = (Holiday) m_holidayAttendant.clone();
@@ -120,12 +128,19 @@ public class AttendantRule extends DialingRule {
         m_extension = extension;
     }
 
+    @Required
     public void setMediaServer(MediaServer mediaServer) {
         m_mediaServer = mediaServer;
     }
 
+    @Required
+    public void setAlternateMediaServer(MediaServer alternateMediaServer) {
+        m_alternateMediaServer = alternateMediaServer;
+    }
+
     /**
      * Check if the attendant in question is referenced by this rule
+     *
      * @param attendant
      * @return true if any references have been found false otherwise
      */

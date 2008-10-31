@@ -1,16 +1,17 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.admin.dialplan;
 
 import java.util.Formatter;
 import java.util.Map;
+import java.util.TreeMap;
 
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
@@ -22,19 +23,17 @@ public class SipXMediaServer extends MediaServer {
     private static final String NAME = "SipXMediaServer";
     private static final String VOICEMAIL_DEPOSIT_PATTERN =
         "/cgi-bin/voicemail/mediaserver.cgi?action=deposit&mailbox={%s-escaped}";
-    private static final String VOICEMAIL_RETRIEVE_PATTERN =
-        "/cgi-bin/voicemail/mediaserver.cgi?action=retrieve";
-    private static final String AUTOATTENDANT_PATTERN =
-        "/cgi-bin/voicemail/mediaserver.cgi?action=autoattendant";
-    private static final String SOS_PATTERN = "/cgi-bin/voicemail/mediaserver.cgi?action=sos";
+    private static final String VOICEMAIL_RETRIEVE_PATTERN = "/cgi-bin/voicemail/mediaserver.cgi?action=retrieve";
+    private static final String AUTOATTENDANT_PATTERN = "/cgi-bin/voicemail/mediaserver.cgi?action=autoattendant";
 
     private SipxServiceManager m_sipxServiceManager;
 
-    public String getHeaderParameterStringForOperation(Operation operation, CallDigits digits,
-            Map<String, String> additionalParams) {
+    @Override
+    public String getHeaderParameterStringForOperation(Operation operation, CallDigits digits) {
         return null;
     }
 
+    @Override
     public String getUriParameterStringForOperation(Operation operation, CallDigits digits,
             Map<String, String> additionalParams) {
         StringBuilder paramStringBuffer = new StringBuilder();
@@ -54,39 +53,49 @@ public class SipXMediaServer extends MediaServer {
         case VoicemailRetrieve:
             paramStringBuffer.append(getVoicemailServer() + VOICEMAIL_RETRIEVE_PATTERN);
             break;
-        case SOS:
-            paramStringBuffer.append(getVoicemailServer() + SOS_PATTERN);
-            break;
         default:
             return StringUtils.EMPTY;
         }
+
+        Map<String, String> params = new TreeMap<String, String>();
+        String locale = getLanguage();
+        if (StringUtils.isNotBlank(locale)) {
+            params.put("lang", locale);
+        }
         if (null != additionalParams) {
-            for (Map.Entry<String, String> entry : additionalParams.entrySet()) {
-                formatter.format("&%s=%s", entry.getKey(), entry.getValue());
-            }
+            params.putAll(additionalParams);
+        }
+
+        for (Map.Entry<String, String> entry : params.entrySet()) {
+            formatter.format("&%s=%s", entry.getKey(), entry.getValue());
         }
         return "voicexml=" + encodeParams(paramStringBuffer.toString(), ENCODE_EXCLUDES);
     }
 
+    @Override
     public String getName() {
         return NAME;
     }
 
+    @Override
     public String getDigitStringForOperation(Operation operation, CallDigits userDigits) {
         return '{' + userDigits.getName() + '}';
     }
 
     /**
-     * Override the superclass implementation to return the media server value from the registrar service"
-     * 
+     * Override the superclass implementation to return the media server value from the registrar
+     * service"
+     *
      * @return The media server as defined by SipxRegistrarService
      */
+    @Override
     public String getHostname() {
-        SipxRegistrarService registrarService =
-            (SipxRegistrarService) m_sipxServiceManager.getServiceByBeanId(SipxRegistrarService.BEAN_ID);
+        SipxRegistrarService registrarService = (SipxRegistrarService) m_sipxServiceManager
+                .getServiceByBeanId(SipxRegistrarService.BEAN_ID);
         return registrarService.getMediaServer();
     }
 
+    @Override
     public PermissionName getPermissionName() {
         return PermissionName.SIPX_VOICEMAIL;
     }
@@ -95,15 +104,9 @@ public class SipXMediaServer extends MediaServer {
         m_sipxServiceManager = sipxServiceManager;
     }
 
-    protected void addLang(Map<String, String> params, String locale) {
-        if (StringUtils.isNotBlank(locale)) {
-            params.put("lang", locale);
-        }
-    }
-
     private String getVoicemailServer() {
-        SipxRegistrarService registrarService =
-            (SipxRegistrarService) m_sipxServiceManager.getServiceByBeanId(SipxRegistrarService.BEAN_ID);
+        SipxRegistrarService registrarService = (SipxRegistrarService) m_sipxServiceManager
+                .getServiceByBeanId(SipxRegistrarService.BEAN_ID);
         return registrarService.getVoicemailServer();
     }
 }

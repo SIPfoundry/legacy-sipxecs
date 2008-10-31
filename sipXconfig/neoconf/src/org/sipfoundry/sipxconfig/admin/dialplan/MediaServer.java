@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.admin.dialplan;
@@ -22,7 +22,7 @@ import org.sipfoundry.sipxconfig.permission.PermissionName;
 public abstract class MediaServer {
 
     public static enum Operation {
-        Autoattendant, VoicemailRetrieve, VoicemailDeposit, SOS
+        Autoattendant, VoicemailRetrieve, VoicemailDeposit
     }
 
     protected static final List<String> ENCODE_EXCLUDES = Arrays.<String> asList(new String[] {
@@ -45,7 +45,7 @@ public abstract class MediaServer {
 
     /**
      * Get the name (type) of this media server
-     * 
+     *
      * @return The name of this media server
      */
     public abstract String getName();
@@ -53,51 +53,49 @@ public abstract class MediaServer {
     /**
      * Returns a URL-encoded String representing the URI parameters for the specified operation on
      * this media server.
-     * 
+     *
      * @param operation - The type of operation for which to get the URI params
      * @param digits - The user digits relevant to this call
      * @param additionalParams - Any additional parameters that are required by the media server
      *        for the specified operation
      * @return The URL-encoded URI parameter String
      */
-    public abstract String getUriParameterStringForOperation(Operation operation,
-            CallDigits userDigits, Map<String, String> additionalParams);
+    protected abstract String getUriParameterStringForOperation(Operation operation, CallDigits userDigits,
+            Map<String, String> additionalParams);
 
     /**
      * Returns a URL-encoded String representing the header parameters for the specified operation
      * on this media server.
-     * 
+     *
      * @param operation - The type of operation for which to get the header params
      * @param digits - The user digits relevant to this call
-     * @param additionalParams - Any additional parameters that are required by the media server
-     *        for the specified operation
+     *
      * @return The URL-encoded header parameter String
      */
-    public abstract String getHeaderParameterStringForOperation(Operation operation,
-            CallDigits userDigits, Map<String, String> additionalParams);
+    protected abstract String getHeaderParameterStringForOperation(Operation operation, CallDigits userDigits);
 
     /**
      * Returns the call digits for the specified operation. These digits will usually be used as
      * part of the SIP URI, such as mediaServerDigits@host.com. The value of these digits is
      * usually either the Media Server's extension or the {digits} or {vdigits} placeholder, but
      * the MediaServer implementation is free to return what is most appropriate
-     * 
+     *
      * @param operation The type of operation for which to return the digits
      * @param userDigits The digits for the user related to the operation
      * @return The CallDigits to use for the SIP URI
      */
-    public abstract String getDigitStringForOperation(Operation operation, CallDigits userDigits);
+    protected abstract String getDigitStringForOperation(Operation operation, CallDigits userDigits);
 
     /**
      * Gets the PermissionName object associated with this type of MediaServer
-     * 
+     *
      * @return A PermissionName specifying the permission that applies to this server
      */
     public abstract PermissionName getPermissionName();
 
     /**
      * Gets the hostname of this server
-     * 
+     *
      * @return The hostname of this server
      */
     public String getHostname() {
@@ -106,7 +104,7 @@ public abstract class MediaServer {
 
     /**
      * Sets the hostname of this server
-     * 
+     *
      * @param address - Hostname of this server
      */
     public void setHostname(String hostname) {
@@ -123,7 +121,7 @@ public abstract class MediaServer {
 
     /**
      * Gets the extension used to dial the server
-     * 
+     *
      * @return The String representation of the server's extension
      */
     public String getServerExtension() {
@@ -132,7 +130,7 @@ public abstract class MediaServer {
 
     /**
      * Sets the extension used to dial the server
-     * 
+     *
      * @param serverExtension - The extension used to dial the server
      */
     public void setServerExtension(String serverExtension) {
@@ -142,7 +140,7 @@ public abstract class MediaServer {
     /**
      * Encodes a param string (such as header params or uri params) using URL encoding. Supports
      * the ability to not encode any strings included in the 'exclude' parameter
-     * 
+     *
      * @param paramString - The parameter string to encode
      * @param exclude - A list of strings to exclude from the encoding
      */
@@ -172,28 +170,40 @@ public abstract class MediaServer {
     }
 
     /**
-     * Add language parameter if media server supports it
-     * 
-     * @param params name->value map of additional params
-     * @param locale locale indication
-     */
-    protected abstract void addLang(Map<String, String> params, String locale);
-
-    /**
      * Builds a URL based on the provided digits, media server, and sip parameters.
-     * 
+     *
      * @param userDigits - The digits for the relevant user (or null if none)
      * @param sipParams - any additional SIP params (can be null or empty string)
      * @return String representing the URL
      */
-    public String buildUrl(CallDigits userDigits, Operation operation, String sipParams) {
-        Map<String, String> langHint = new TreeMap<String, String>();
-        String language = m_localizationContext.getCurrentLanguage();
-        addLang(langHint, language);
-        String uriParams = getUriParameterStringForOperation(operation, userDigits, langHint);
-        String headerParams = getHeaderParameterStringForOperation(operation, userDigits, null);
+    private String buildUrl(CallDigits userDigits, Operation operation, String fieldParams) {
+        String uriParams = getUriParameterStringForOperation(operation, userDigits, null);
+        String headerParams = getHeaderParameterStringForOperation(operation, userDigits);
         String hostname = getHostname();
         String digits = getDigitStringForOperation(operation, userDigits);
-        return MappingRule.buildUrl(digits, hostname, uriParams, headerParams, sipParams);
+        return MappingRule.buildUrl(digits, hostname, uriParams, headerParams, fieldParams);
+    }
+
+    protected final String getLanguage() {
+        return m_localizationContext.getCurrentLanguage();
+    }
+
+    public String buildAttendantUrl(String attendantName) {
+        Map<String, String> params = new TreeMap<String, String>();
+        params.put("name", attendantName);
+        String uriParams = getUriParameterStringForOperation(Operation.Autoattendant, CallDigits.FIXED_DIGITS,
+                params);
+        String headerParams = getHeaderParameterStringForOperation(Operation.Autoattendant, CallDigits.FIXED_DIGITS);
+        String hostname = getHostname();
+        String digits = getDigitStringForOperation(Operation.Autoattendant, CallDigits.FIXED_DIGITS);
+        return MappingRule.buildUrl(digits, hostname, uriParams, headerParams, null);
+    }
+
+    public String buildVoicemailDepositUrl(String fieldParams) {
+        return buildUrl(CallDigits.VARIABLE_DIGITS, Operation.VoicemailDeposit, fieldParams);
+    }
+
+    public String buildVoicemailRetrieveUrl() {
+        return buildUrl(CallDigits.FIXED_DIGITS, Operation.VoicemailRetrieve, null);
     }
 }

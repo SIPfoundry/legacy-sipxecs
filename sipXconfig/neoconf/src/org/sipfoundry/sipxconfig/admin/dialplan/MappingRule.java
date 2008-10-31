@@ -11,9 +11,7 @@ package org.sipfoundry.sipxconfig.admin.dialplan;
 
 import java.util.Collections;
 import java.util.Formatter;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
@@ -131,14 +129,13 @@ public class MappingRule extends DialingRule {
 
     // specialized classes
     public static class Operator extends MappingRule {
-        public Operator(AutoAttendant attendant, String extension, String[] aliases,
-                MediaServer mediaServer) {
-            this(attendant.getName(), attendant.getDescription(), attendant.getSystemName(),
-                    extension, aliases, mediaServer);
+        public Operator(AutoAttendant attendant, String extension, String[] aliases, MediaServer mediaServer) {
+            this(attendant.getName(), attendant.getDescription(), attendant.getSystemName(), extension, aliases,
+                    mediaServer);
         }
 
-        public Operator(String name, String description, String systemName, String extension,
-                String[] aliases, MediaServer mediaServer) {
+        public Operator(String name, String description, String systemName, String extension, String[] aliases,
+                MediaServer mediaServer) {
             setName(name);
             setDescription(description);
 
@@ -148,16 +145,8 @@ public class MappingRule extends DialingRule {
                 setPatterns((String[]) ArrayUtils.add(aliases, 0, extension));
             }
 
-            Map<String, String> additionalParams = new HashMap<String, String>();
-            additionalParams.put("name", systemName);
-
-            MediaServer.Operation operation = MediaServer.Operation.Autoattendant;
-            String uriParams = mediaServer.getUriParameterStringForOperation(operation, null,
-                    additionalParams);
-            String headerParams = mediaServer.getHeaderParameterStringForOperation(operation,
-                    null, additionalParams);
-            setUrl(buildUrl('{' + CallDigits.FIXED_DIGITS.getName() + '}', mediaServer
-                    .getHostname(), uriParams, headerParams, null));
+            String url = mediaServer.buildAttendantUrl(systemName);
+            setUrl(url);
         }
     }
 
@@ -169,9 +158,7 @@ public class MappingRule extends DialingRule {
             setPatterns(new String[] {
                 "~~vm~."
             });
-            MediaServer.Operation operation = MediaServer.Operation.VoicemailDeposit;
-            setUrl(mediaServer.buildUrl(CallDigits.VARIABLE_DIGITS, operation,
-                    MappingRule.FIELD_PARAM));
+            setUrl(mediaServer.buildVoicemailDepositUrl(MappingRule.FIELD_PARAM));
         }
 
         @Override
@@ -187,8 +174,7 @@ public class MappingRule extends DialingRule {
             setPatterns(new String[] {
                 voiceMail
             });
-            MediaServer.Operation operation = MediaServer.Operation.VoicemailRetrieve;
-            setUrl(mediaServer.buildUrl(CallDigits.FIXED_DIGITS, operation, null));
+            setUrl(mediaServer.buildVoicemailRetrieveUrl());
         }
     }
 
@@ -198,8 +184,7 @@ public class MappingRule extends DialingRule {
             setPatterns(new String[] {
                 pattern.calculatePattern()
             });
-            MediaServer.Operation operation = MediaServer.Operation.VoicemailDeposit;
-            setUrl(mediaServer.buildUrl(CallDigits.VARIABLE_DIGITS, operation, null));
+            setUrl(mediaServer.buildVoicemailDepositUrl(null));
         }
     }
 
@@ -214,8 +199,8 @@ public class MappingRule extends DialingRule {
      * @param sipParams - any additional SIP params (can be null or empty string)
      * @return String representing the URL
      */
-    static String buildUrl(String digitString, String hostname, String uriParams,
-            String headerParams, String sipParams) {
+    static String buildUrl(String digitString, String hostname, String uriParams, String headerParams,
+            String sipParams) {
         StringBuilder url = new StringBuilder("<");
         Formatter f = new Formatter(url);
         f.format(PREFIX, digitString, hostname);
