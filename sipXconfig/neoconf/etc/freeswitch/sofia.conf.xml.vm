@@ -2,49 +2,55 @@
   <profiles>
     <profile name="$domain.name">
       <settings>
-	<param name="debug" value="${dollar}{FREESWITCH_SIP_DEBUG}"/>
-	<param name="rfc2833-pt" value="101"/>
-	<param name="sip-port" value="${dollar}{FREESWITCH_SIP_PORT}"/>
-	<param name="dialplan" value="XML"/>
-	<param name="dtmf-duration" value="100"/>
-	<param name="codec-prefs" value="${dollar}{FREESWITCH_CODECS}"/>
-	<param name="codec-ms" value="20"/>
-	<param name="use-rtp-timer" value="true"/>
-	<param name="rtp-timer-name" value="soft"/>
-	<param name="rtp-ip" value="auto"/>
-	<param name="sip-ip" value="auto"/>
+        <param name="debug" value="${dollar}{FREESWITCH_SIP_DEBUG}"/>
+        <param name="rfc2833-pt" value="101"/>
+        <param name="sip-port" value="${dollar}{FREESWITCH_SIP_PORT}"/>
+        <param name="dialplan" value="XML"/>
+        <param name="dtmf-duration" value="100"/>
+        <param name="codec-prefs" value="${dollar}{FREESWITCH_CODECS}"/>
+        <param name="codec-ms" value="20"/>
+        <param name="use-rtp-timer" value="true"/>
+        <param name="rtp-timer-name" value="soft"/>
+        <param name="rtp-ip" value="auto"/>
+        <param name="sip-ip" value="auto"/>
 
-	<!--Uncomment to set all inbound calls to no media mode-->
-	<!--<param name="inbound-no-media" value="true"/>-->
+        <!-- Uncomment to set all inbound calls to no media mode -->
+        <!-- <param name="inbound-no-media" value="true"/> -->
 
-	<!--Uncomment to let calls hit the dialplan *before* you decide if the codec is ok-->
-	<!--<param name="inbound-late-negotiation" value="true"/>-->
+        <!-- Uncomment to let calls hit the dialplan *before* you decide if the codec is ok -->
+        <!-- <param name="inbound-late-negotiation" value="true"/> -->
 
-	<!-- this lets anything register -->
-	<!--  comment the next line and uncomment one or both of the other 2 lines for call authentication -->
-	<param name="accept-blind-reg" value="true"/>
+        <!-- this lets anything register -->
+        <!-- comment the next line and uncomment one or both of the other 2 lines for call authentication -->
+        <param name="accept-blind-reg" value="true"/>
 
-	<!--TTL for nonce in sip auth-->
-	<param name="nonce-ttl" value="60"/>
+        <!-- accept any authentication without actually checking -->
+        <param name="accept-blind-auth" value="true"/>
 
-	<!--<param name="auth-calls" value="true"/>-->
-	<!-- on authed calls, authenticate *all* the packets not just invite -->
-	<!--<param name="auth-all-packets" value="true"/>-->
+        <!-- TTL for nonce in sip auth -->
+        <param name="nonce-ttl" value="60"/>
 
-	<!-- optional ; -->
-	<!-- <param name="ext-rtp-ip" value="stun:stun.server.com"/>-->
-	<!-- <param name="ext-rtp-ip" value="100.101.102.103"/> -->
-	<!-- VAD choose one (out is a good choice); -->
-	<!-- <param name="vad" value="in"/> -->
-	<!-- <param name="vad" value="out"/> -->
-	<!-- <param name="vad" value="both"/> -->
-	<!--<param name="alias" value="sip:10.0.1.251:5555"/>-->
+        <!-- <param name="auth-calls" value="true"/> -->
+        <!-- on authed calls, authenticate *all* the packets not just invite -->
+        <!-- <param name="auth-all-packets" value="true"/> -->
+
+        <!-- optional ; -->
+        <!-- <param name="ext-rtp-ip" value="stun:stun.server.com"/> -->
+        <!-- <param name="ext-rtp-ip" value="100.101.102.103"/> -->
+        <!-- VAD choose one (out is a good choice); -->
+        <!-- <param name="vad" value="in"/> -->
+        <!-- <param name="vad" value="out"/> -->
+        <!-- <param name="vad" value="both"/> -->
+        <!-- <param name="alias" value="sip:10.0.1.251:5555"/> -->
       </settings>
+      <gateways>
+        <gateway name="${domain.name}">
+          <param name="realm" value="${realm}"/>
+          <param name="username" value="${userMedia.userName}"/>
+          <param name="password" value="${userMedia.sipPassword}"/>
+          <param name="register" value="false"/>
+        </gateway>
+      </gateways>
     </profile>
-    <gateway name="${domain.name}">
-      <param name="realm" value="${realm}"/>
-      <param name="username" value="${userMedia.userName}"/>
-      <param name="password" value="${userMedia.sipPassword}"/>
-    </gateway>
   </profiles>
 </configuration>
