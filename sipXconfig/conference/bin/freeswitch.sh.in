@@ -19,6 +19,10 @@ do
             Action=CONFIGTEST
             ;;
 
+        --stop)
+            Action=STOP
+            ;;
+
         *)
             Args="$Args $1"
             ;;
@@ -72,9 +76,13 @@ fi
 
 case ${Action} in
    RUN)
-     echo $$ > @SIPX_RUNDIR@/freeswitch.pid
      exec @FREESWITCH_PREFIX@/bin/freeswitch -nc -nf $Args
      exit 0
+     ;;
+
+   STOP)
+     @FREESWITCH_PREFIX@/bin/freeswitch -stop
+     exit $?
      ;;
 
    CONFIGTEST)
