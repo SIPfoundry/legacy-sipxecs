@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <autoattendants xmlns="http://www.sipfoundry.org/sipX/schema/xml/autoattendants-00-00">
-  <autoattendant>
+  <autoattendant id="operator">
     <name>operator</name>
     <prompt>prompts/operator.wav</prompt>
     <menuItems />
@@ -18,14 +18,14 @@
     </invalidResponse>
   </autoattendant>
   <schedules>
-    <schedule>
+    <schedule id="aa_-1">
       <holiday>
-        <name>operator</name>
+        <id>operator</id>
         <date>03-May-2010</date>
         <date>04-Jul-2010</date>
       </holiday>
       <regularhours>
-        <name>operator</name>
+        <id>operator</id>
         <monday>
           <from>09:00</from>
           <to>18:00</to>
@@ -56,7 +56,7 @@
         </sunday>
       </regularhours>
       <afterhours>
-        <name>operator</name>
+        <id>operator</id>
       </afterhours>
     </schedule>
   </schedules>

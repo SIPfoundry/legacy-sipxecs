@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <autoattendants xmlns="http://www.sipfoundry.org/sipX/schema/xml/autoattendants-00-00">
-  <autoattendant>
+  <autoattendant id="operator">
     <name>operator</name>
     <prompt>prompts/operator.wav</prompt>
     <menuItems>
@@ -34,7 +34,7 @@
       <transferOnFailures>false</transferOnFailures>
     </invalidResponse>
   </autoattendant>
-  <autoattendant>
+  <autoattendant id="xcf-1">
     <name>abc</name>
     <prompt>prompts/prompt.wav</prompt>
     <menuItems>
@@ -66,5 +66,5 @@
       <transferUrl>sip:999@example.org</transferUrl>
     </invalidResponse>
   </autoattendant>
-  <schedules/>
+  <schedules />
 </autoattendants>

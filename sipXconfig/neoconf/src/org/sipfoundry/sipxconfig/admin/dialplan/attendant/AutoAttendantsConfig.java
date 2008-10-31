@@ -35,6 +35,7 @@ public class AutoAttendantsConfig extends XmlFile {
     // please note: US locale always...
     private static final SimpleDateFormat HOLIDAY_FORMAT = new SimpleDateFormat("dd-MMM-yyyy", Locale.US);
     private static final String NAMESPACE = "http://www.sipfoundry.org/sipX/schema/xml/autoattendants-00-00";
+    private static final String ID = "id";
 
     private DialPlanContext m_dialPlanContext;
 
@@ -60,18 +61,19 @@ public class AutoAttendantsConfig extends XmlFile {
 
     private void generateSchedule(Element schedulesEl, AttendantRule attendantRule) {
         Element scheduleEl = schedulesEl.addElement("schedule");
+        scheduleEl.addAttribute(ID, attendantRule.getSystemName());
         Holiday holidayAttendant = attendantRule.getHolidayAttendant();
+        Element holidayEl = scheduleEl.addElement("holiday");
         if (holidayAttendant.isEnabled()) {
-            Element holidayEl = scheduleEl.addElement("holiday");
-            addName(holidayEl, holidayAttendant.getAttendant());
+            addId(holidayEl, holidayAttendant.getAttendant());
             for (Date date : holidayAttendant.getDates()) {
                 holidayEl.addElement("date").setText(HOLIDAY_FORMAT.format(date));
             }
         }
         WorkingTime workingTimeAttendant = attendantRule.getWorkingTimeAttendant();
+        Element regularHoursEl = scheduleEl.addElement("regularhours");
         if (workingTimeAttendant.isEnabled()) {
-            Element regularHoursEl = scheduleEl.addElement("regularhours");
-            addName(regularHoursEl, workingTimeAttendant.getAttendant());
+            addId(regularHoursEl, workingTimeAttendant.getAttendant());
             WorkingHours[] workingHours = workingTimeAttendant.getWorkingHours();
             for (WorkingHours hours : workingHours) {
                 Element dayEl = regularHoursEl.addElement(hours.getDay().getName().toLowerCase());
@@ -80,15 +82,16 @@ public class AutoAttendantsConfig extends XmlFile {
             }
         }
         ScheduledAttendant afterHoursAttendant = attendantRule.getAfterHoursAttendant();
+        Element afterHoursEl = scheduleEl.addElement("afterhours");
         if (afterHoursAttendant.isEnabled()) {
-            Element afterHoursEl = scheduleEl.addElement("afterhours");
-            addName(afterHoursEl, afterHoursAttendant.getAttendant());
+            addId(afterHoursEl, afterHoursAttendant.getAttendant());
         }
     }
 
     private void generateAttendants(Element aasEl, AutoAttendant autoAttendant) {
         Element aaEl = aasEl.addElement("autoattendant");
-        addName(aaEl, autoAttendant);
+        aaEl.addAttribute(ID, autoAttendant.getSystemName());
+        aaEl.addElement("name").setText(autoAttendant.getName());
         aaEl.addElement("prompt").setText(autoAttendant.getPromptFile().getPath());
 
         Element miEl = aaEl.addElement("menuItems");
@@ -151,8 +154,8 @@ public class AutoAttendantsConfig extends XmlFile {
         }
     }
 
-    private void addName(Element aaEl, AutoAttendant autoAttendant) {
-        aaEl.addElement("name").setText(autoAttendant.getName());
+    private void addId(Element aaEl, AutoAttendant autoAttendant) {
+        aaEl.addElement(ID).setText(autoAttendant.getSystemName());
     }
 
     private void generateMenuItem(Element misEl, DialPad dialPad, AttendantMenuItem menuItem) {
