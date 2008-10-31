@@ -147,6 +147,11 @@ void initXMLRPCsettings(int & port, UtlSList& allowedPeers)
              // Found at least one config hostname.
              if (!allowedPeers.contains(&hostName))
              {
+                OsSysLog::add(FAC_SUPERVISOR,PRI_DEBUG,
+                              "initXMLRPCsettings: %s value '%s'",
+                              SipXecsService::DomainDbKey::CONFIG_HOSTS,
+                              hostName.data()
+                        );
                 allowedPeers.insert(new UtlString(hostName));
              }
              retval = OS_SUCCESS;
@@ -175,9 +180,12 @@ void initXMLRPCsettings(int & port, UtlSList& allowedPeers)
     {
        UtlString superHost;
        supervisorConfiguration.get(SUPERVISOR_HOST, superHost);
-       if (!superHost.isNull() && !allowedPeers.contains(&superHost))
+       if (!superHost.isNull())
        {
-          allowedPeers.insert(new UtlString(superHost));
+          if (!allowedPeers.contains(&superHost))
+          {
+             allowedPeers.insert(new UtlString(superHost));
+          }
        }
        else
        {
