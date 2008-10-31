@@ -486,7 +486,8 @@ public:
          CPPUNIT_ASSERT( testMsg.getRecordRouteUri(0, &recordRoute) );
          ASSERT_STR_EQUAL("<sip:10.10.10.1:5060;lr>", recordRoute.data());
          
-         CPPUNIT_ASSERT( testMsg.getHeaderValue( 0, "X-SipX-Spiral" ) );
+         // Check that X-SipX-Spiral is not leaking.
+         CPPUNIT_ASSERT( !testMsg.getHeaderValue( 0, "X-SipX-Spiral" ) );
 
          int maxForwards;
          CPPUNIT_ASSERT(testMsg.getMaxForwards(maxForwards) && maxForwards == 19);
@@ -597,7 +598,8 @@ public:
        CPPUNIT_ASSERT( recordRouteUrl.getUrlParameter( 1, urlParmName, tempString ) );
        ASSERT_STR_EQUAL("sipXecs-rs", urlParmName.data());
        
-       CPPUNIT_ASSERT( testMsg.getHeaderValue( 0, "X-SipX-Spiral" ) );
+       // Check that X-SipX-Spiral is not leaking.
+       CPPUNIT_ASSERT( !testMsg.getHeaderValue( 0, "X-SipX-Spiral" ) );
 
        int maxForwards;
        CPPUNIT_ASSERT(testMsg.getMaxForwards(maxForwards) && maxForwards == 19);

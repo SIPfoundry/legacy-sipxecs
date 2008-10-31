@@ -18,6 +18,7 @@
 #include "os/OsEventMsg.h"
 #include "utl/UtlRandom.h"
 #include "net/SignedUrl.h"
+#include "net/SipOutputProcessor.h"
 #include "net/SipUserAgent.h"
 #include "net/SipXauthIdentity.h"
 #include "sipdb/ResultSet.h"
@@ -173,7 +174,7 @@ void SipRouter::readConfig(OsConfigDb& configDb, const Url& defaultUri)
    // this should really be redundant with the existing aliases,
    // but it's better to be safe and add it to ensure that it's
    // properly recognized (the alias db prunes duplicates anyway)
-   mpSipUserAgent->setHostAliases(mRouteHostPort);
+   mpSipUserAgent->setHostAliases( mRouteHostPort );
 
    OsSysLog::add(FAC_SIP, PRI_INFO,
                  "SipRouter::readConfig "
@@ -290,9 +291,20 @@ SipRouter::ProxyAction SipRouter::proxyMessage(SipMessage& sipRequest, SipMessag
 {
    ProxyAction returnedAction = SendRequest;
 
+   // bRequestShouldBeAuthorized is true if we need to check (on this passage
+   // through the proxy) that this request has presented authentication as a
+   // known sipX user.
    bool bRequestShouldBeAuthorized         = true;
+   // bForwardingRulesShouldBeEvaluated is true if forwardingrules.xml should
+   // be consulted to determine where to send this request (as opposed to
+   // applying the standard SIP rules).  (This corresponds to when the message
+   // passed through the "forwarding proxy" in the old two-part sipX proxy.)
    bool bForwardingRulesShouldBeEvaluated  = true;
-   bool bRequestHasProprietarySpiralHeader = true;
+   // bMessageWillSpiral is true if the request will be sent to this proxy
+   // for further processing.  In that case, processing that needs to be done
+   // only when the request exits the proxy can be omitted on this pass through
+   // the proxy.
+   bool bMessageWillSpiral                 = false;
 
    /*
     * Check for a Proxy-Require header containing unsupported extensions
@@ -300,8 +312,8 @@ SipRouter::ProxyAction SipRouter::proxyMessage(SipMessage& sipRequest, SipMessag
    UtlString disallowedExtensions;      
    if( areAllExtensionsSupported(sipRequest, disallowedExtensions) )
    {
-      // no unsupported extensions, so continue...
-      // fix strict routes and remove any top route headers that go to myself      
+      // No unsupported extensions, so continue...
+      // Fix strict routes and remove any top route headers that go to myself.
       Url normalizedRequestUri;
       UtlSList removedRoutes;
       sipRequest.normalizeProxyRoutes(mpSipUserAgent,
@@ -309,7 +321,7 @@ SipRouter::ProxyAction SipRouter::proxyMessage(SipMessage& sipRequest, SipMessag
                                       &removedRoutes        // route headers popped 
                                       );
       
-      // get any state from the record-route and route headers
+      // Get any state from the record-route and route headers.
       RouteState routeState(sipRequest, removedRoutes, mRouteHostPort); 
       removedRoutes.destroyAll(); // done with routes - discard them.
       
@@ -320,6 +332,29 @@ SipRouter::ProxyAction SipRouter::proxyMessage(SipMessage& sipRequest, SipMessag
          // dialog-forming request or an in-dialog request sent directly by the UAC
          if( !routeState.isFound() )
          {
+            // The request is not spiraling and does not bear a RouteState.  
+            // Do not authorize the request right away.  Evaluate the 
+            // Forwarding Rules and let the request spiral.   The request
+            // will eventually get authorized as it spirals back to us.
+            // Add proprietary header indicating that the request is 
+            // spiraling. 
+            // Also, if the user sending this request is located behind 
+            // a NAT and the request is a REGISTER then add a signed 
+            // Path header to this proxy to make sure that all subsequent 
+            // requests sent to the registering user get funneled through
+            // this proxy.  Also, the NAT mapping of the user is encoded
+            // as extra URL parameters of the Path header.
+            sipRequest.setHeaderValue( SIPX_SPIRAL_HEADER, "true", 0 );
+            bRequestShouldBeAuthorized        = false;
+            bForwardingRulesShouldBeEvaluated = true;
+            addNatMappingInfoToContacts( sipRequest );            
+            // If the UA sending this request is located behind 
+            // a NAT and the request is a REGISTER then add a
+            // Path header to this proxy to make sure that all subsequent 
+            // requests sent to the registering UA get funneled through
+            // this proxy.
+            addPathHeaderIfNATRegisterRequest( sipRequest );
+
             if(isPAIdentityApplicable(sipRequest))
             {
                Url fromUrl;
@@ -328,8 +363,14 @@ SipRouter::ProxyAction SipRouter::proxyMessage(SipMessage& sipRequest, SipMessag
                UtlString passTokenDB;
 
                sipRequest.getFromUrl(fromUrl); 
-          
-               bRequestShouldBeAuthorized = false;
+
+               // If the fromUrl uses domain alias, we need to change the
+               // domain to mDomainName for credential database search,
+               // as identities are stored in credential database using mDomainName.
+               if (mpSipUserAgent->isMyHostAlias(fromUrl))
+               {
+                   fromUrl.setHostAddress(mDomainName);
+               }
 
                // If the identity portion of the From header can be found in the
                // identity column of the credentials database, then a request
@@ -353,15 +394,19 @@ SipRouter::ProxyAction SipRouter::proxyMessage(SipMessage& sipRequest, SipMessag
                                    fromUrl.toString().data());
 
                      returnedAction = SendResponse;
-                     bRequestShouldBeAuthorized = false;
                      bForwardingRulesShouldBeEvaluated = false;
                   } 
                   else
                   {
                      // already authenticated
-                     sipRequest.setHeaderValue(SIPX_SPIRAL_HEADER, "true", 0 );
-                     bRequestShouldBeAuthorized        = false;
-                     bForwardingRulesShouldBeEvaluated = true;
+                     // If sipRequest already contains a sender-inserted P-Asserted-Identity
+                     // header, we will remove it and insert a new one with signature to
+                     // prevent spoofing.
+                     if (sipRequest.getHeaderValue(0, 
+                         SipXauthIdentity::PAssertedIdentityHeaderName))
+                     {
+                         sipRequest.removeHeader(SipXauthIdentity::PAssertedIdentityHeaderName, 0);
+                     }
 
                      SipXauthIdentity pAssertedIdentity;
                      UtlString fromIdentity;
@@ -380,38 +425,10 @@ SipRouter::ProxyAction SipRouter::proxyMessage(SipMessage& sipRequest, SipMessag
                                 fromUrl.toString().data(), mRealm.data());
                }
             }
-            else
-            {
-               // the request is not spiraling and does not bear a RouteState.  
-               // Do not authorize the request right away.  Evaluate the 
-               // Forwarding Rules and let the request spiral.   The request
-               // will eventually get authorized as it spirals back to us.
-               // Add proprietary header indicating that the request is 
-               // spiraling.
-               sipRequest.setHeaderValue(SIPX_SPIRAL_HEADER, "true", 0 );
-               bForwardingRulesShouldBeEvaluated = true;
-            }
-
-            // the request is not spiraling and does not bear a RouteState.  
-            // Do not authorize the request right away.  Evaluate the 
-            // Forwarding Rules and let the request spiral.   The request
-            // will eventually get authorized as it spirals back to us.
-            // Add proprietary header indicating that the request is 
-            // spiraling. 
-            sipRequest.setHeaderValue( SIPX_SPIRAL_HEADER, "true", 0 );
-            bRequestShouldBeAuthorized        = false;
-            bForwardingRulesShouldBeEvaluated = true;
-
-            // If the UA sending this request is located behind 
-            // a NAT and the request is a REGISTER then add a
-            // Path header to this proxy to make sure that all subsequent 
-            // requests sent to the registering UA get funneled through
-            // this proxy.
-            addPathHeaderIfNATRegisterRequest( sipRequest );
          }
          else
          {
-            // the request is not spiraling but it has a RouteState.
+            // The request is not spiraling but it has a RouteState.
             // If the RouteState is not mutable, it indicates that
             // this request is an in-dialog one.  There is no need to
             // evaluate the Forwarding Rules on such requests unless the
@@ -428,22 +445,20 @@ SipRouter::ProxyAction SipRouter::proxyMessage(SipMessage& sipRequest, SipMessag
             if( routeState.isMutable() )
             {
                sipRequest.setHeaderValue( SIPX_SPIRAL_HEADER, "true", 0 );
-               bRequestHasProprietarySpiralHeader = true;
+               bMessageWillSpiral                 = true;
                bRequestShouldBeAuthorized         = true;
                bForwardingRulesShouldBeEvaluated  = false;
             }
             else if (isLocalDomain(normalizedRequestUri))
             {
                // final target is in our own domain, need to check forwarding rules
-                OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                         "SipRouter::proxyMessage domain is us");
-               bRequestHasProprietarySpiralHeader = false;
+               OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                             "SipRouter::proxyMessage domain is us");
                bRequestShouldBeAuthorized         = true;
                bForwardingRulesShouldBeEvaluated  = true;
             }
             else
             {
-               bRequestHasProprietarySpiralHeader = false;
                bRequestShouldBeAuthorized         = true;
                bForwardingRulesShouldBeEvaluated  = false;
             }
@@ -460,8 +475,6 @@ SipRouter::ProxyAction SipRouter::proxyMessage(SipMessage& sipRequest, SipMessag
 
       if( bForwardingRulesShouldBeEvaluated )
       {
-         bool bMatchingForwardingRuleFound = false;
-         
          UtlString topRouteValue;
          if (sipRequest.getRouteUri(0, &topRouteValue)) 
          {
@@ -485,7 +498,6 @@ SipRouter::ProxyAction SipRouter::proxyMessage(SipMessage& sipRequest, SipMessag
                                                 mappedTo, routeType, authRequired)==OS_SUCCESS)
                 )
             {
-               bMatchingForwardingRuleFound = true;
                if (mappedTo.length() > 0)
                {
                   // Yes, so add a loose route to the mapped server
@@ -499,7 +511,7 @@ SipRouter::ProxyAction SipRouter::proxyMessage(SipMessage& sipRequest, SipMessag
                   UtlString dummyString;
                   if( nextHopUrl.getUrlParameter( ROUTE_TO_REGISTRAR_MARKER_URI_PARAM, dummyString ) )
                   {
-                     // bMessageIsSpiraling = true;
+                     bMessageWillSpiral = true;
                      nextHopUrl.removeUrlParameter( ROUTE_TO_REGISTRAR_MARKER_URI_PARAM );
                   }
                   
@@ -511,6 +523,7 @@ SipRouter::ProxyAction SipRouter::proxyMessage(SipMessage& sipRequest, SipMessag
                   OsSysLog::add(FAC_SIP, PRI_DEBUG,
                              "SipRouter::proxyMessage fowardingrules added route type '%s' to: '%s'",
                              routeType.data(), routeString.data());
+    
                }
                if (authRequired)
                {
@@ -525,8 +538,7 @@ SipRouter::ProxyAction SipRouter::proxyMessage(SipMessage& sipRequest, SipMessag
                bRequestShouldBeAuthorized = true;
             }
          } 
-         if(    !bMatchingForwardingRuleFound
-             && bRequestHasProprietarySpiralHeader )
+         if( !bMessageWillSpiral )
          {
             // No match found in forwarding rules meaning that spiraling is 
             // complete and that request will be sent towards its final destination. 
@@ -578,8 +590,7 @@ SipRouter::ProxyAction SipRouter::proxyMessage(SipMessage& sipRequest, SipMessag
          // handle special cases that are universal
          UtlString method;
          sipRequest.getRequestMethod(&method); // Don't authenticate ACK -- it is always allowed.
-         if (  (method.compareTo(SIP_ACK_METHOD) == 0) 
-             || sipRequest.isResponse())  // responses are always allowed (just in case)
+         if (sipRequest.isResponse())  // responses are always allowed (just in case)
          {
             finalAuthResult = AuthPlugin::ALLOW;
          }
@@ -601,7 +612,7 @@ SipRouter::ProxyAction SipRouter::proxyMessage(SipMessage& sipRequest, SipMessag
                                                           method,
                                                           finalAuthResult,
                                                           sipRequest,
-                                                          false, // bMessageIsSpiraling
+                                                          bMessageWillSpiral,                                                          
                                                           rejectReason
                                                           );
 
