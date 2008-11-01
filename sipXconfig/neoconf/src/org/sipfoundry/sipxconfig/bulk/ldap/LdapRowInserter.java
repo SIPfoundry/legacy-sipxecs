@@ -39,6 +39,8 @@ public class LdapRowInserter extends RowInserter<SearchResult> {
     private boolean m_preserveMissingUsers;
 
     public void beforeInserting() {
+        // Make sure m_userMapper's AttrMap is set up.
+        m_userMapper.setAttrMap(m_ldapManager.getAttrMap());
         // get all the users from LDAP group
         m_existingUserNames = new HashSet<String>();
         Group defaultGroup = m_coreContext.getGroupByName(getAttrMap().getDefaultGroupName(),

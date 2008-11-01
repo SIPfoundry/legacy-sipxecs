@@ -48,8 +48,14 @@ public class LdapRowInserterTest extends TestCase {
         User joe = new User();
         Group importGroup = new Group();
         
+        AttrMap map = new AttrMap();
+        map.setObjectClass("person");
+
         IMocksControl coreContextControl = EasyMock.createControl();        
         CoreContext coreContext = coreContextControl.createMock(CoreContext.class);
+        LdapManager ldapManager = coreContextControl.createMock(LdapManager.class);
+        ldapManager.getAttrMap();
+        coreContextControl.andReturn(map);
         coreContext.getGroupByName("test-import", false);
         coreContextControl.andReturn(importGroup);
         coreContext.loadUserByUserName("joe");
@@ -75,6 +81,9 @@ public class LdapRowInserterTest extends TestCase {
         mailboxManager.deleteMailbox("joe");
         mailboxManagerControl.replay();
 
+        UserMapper rowInserterUserMapper = new UserMapper();
+        m_rowInserter.setLdapManager(ldapManager);
+        m_rowInserter.setUserMapper(rowInserterUserMapper);
         m_rowInserter.setCoreContext(coreContext);
         m_rowInserter.setUserMapper(userMapper);
         m_rowInserter.setMailboxManager(mailboxManager);
