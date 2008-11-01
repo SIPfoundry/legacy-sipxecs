@@ -21,6 +21,7 @@ public class CronScheduleTest extends TestCase {
         super.setUp();
     }
 
+/*
     public void testWeekly() {
         CronSchedule schedule = new CronSchedule();
 
@@ -41,7 +42,7 @@ public class CronScheduleTest extends TestCase {
 
         assertEquals(calendar.getTime(), schedule.getFirstDate());
     }
-
+*/
     public void testDaily() {
         CronSchedule schedule = new CronSchedule();
 
