@@ -57,7 +57,6 @@ class SipRedirectorTimeOfDay : public RedirectPlugin
    virtual void readConfig(OsConfigDb& configDb);
 
    virtual OsStatus initialize(OsConfigDb& configDb,
-                               SipUserAgent* pSipUserAgent,
                                int redirectorNo,
                                const UtlString& localDomainHost);
 
@@ -68,11 +67,13 @@ class SipRedirectorTimeOfDay : public RedirectPlugin
       const UtlString& requestString,
       const Url& requestUri,
       const UtlString& method,
-      SipMessage& response,
+      ContactList& contactList,
       RequestSeqNo requestSeqNo,
       int redirectorNo,
       SipRedirectorPrivateStorage*& privateStorage,
       ErrorDescriptor& errorDescriptor);
+   
+   virtual const UtlString& name( void ) const;
 
   private:
 
@@ -89,9 +90,9 @@ class SipRedirectorTimeOfDay : public RedirectPlugin
                     const UtlString& s ///< string encoding of hex value
                     );
    ///< @return true iff s was successfully decoded as a hexidecimal integer
-
+  
    /// This method does the actual filtering.
-   virtual RedirectPlugin::LookUpStatus processResponse(SipMessage& response);
+   virtual RedirectPlugin::LookUpStatus processContactList(ContactList& contactList);
 
    /// Check whether current time/day falls into one of the intervals.
    virtual UtlBoolean isCurrentTimeValid(UtlString const & timeOfDayString);

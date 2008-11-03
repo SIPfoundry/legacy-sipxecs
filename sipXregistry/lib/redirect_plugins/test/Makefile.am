@@ -25,6 +25,9 @@ testsuite_CXXFLAGS = \
 	-fno-gcse -O0
 
 testsuite_SOURCES = \
-	../../../src/RedirectPlugin.cpp \
+    ../../../src/RedirectPlugin.cpp \
+    ../../../src/RedirectSuspend.cpp \
+    ../../../src/RedirectResumeMsg.cpp \
+    ../../../src/SipRedirectServer.cpp \
 	SipRedirectorTimeOfDayTest.cpp
 

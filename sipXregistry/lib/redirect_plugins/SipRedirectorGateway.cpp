@@ -142,7 +142,6 @@ void SipRedirectorGateway::readConfig(OsConfigDb& configDb)
 // Initialize
 OsStatus
 SipRedirectorGateway::initialize(OsConfigDb& configDb,
-                                 SipUserAgent* pSipUserAgent,
                                  int redirectorNo,
                                  const UtlString& localDomainHost)
 {
@@ -189,7 +188,7 @@ SipRedirectorGateway::lookUp(
    const UtlString& requestString,
    const Url& requestUri,
    const UtlString& method,
-   SipMessage& response,
+   ContactList& contactList,
    RequestSeqNo requestSeqNo,
    int redirectorNo,
    SipRedirectorPrivateStorage*& privateStorage,
@@ -230,7 +229,7 @@ SipRedirectorGateway::lookUp(
             // The remainder of userId becomes the userId to the gateway.
             uri.setUserId(&userId.data()[prefix_length + mDigits]);
             // Add the contact.
-            addContact(response, requestString, uri, mLogName.data());
+            contactList.add( uri, *this );
          }
       }
       else
@@ -239,7 +238,12 @@ SipRedirectorGateway::lookUp(
       }
    }
 
-   return RedirectPlugin::LOOKUP_SUCCESS;
+   return RedirectPlugin::SUCCESS;
+}
+
+const UtlString& SipRedirectorGateway::name( void ) const
+{
+   return mLogName;
 }
 
 void SipRedirectorGateway::loadMappings(UtlString* file_name,

@@ -41,7 +41,7 @@
     </setting>
   </group>
   <group name="isn">
-    <setting name="SIP_REDIRECT.190-ISN.BASE_DOMAIN">
+    <setting name="SIP_REDIRECT.150-ISN.BASE_DOMAIN">
       <type>
         <boolean>
           <true>
@@ -54,23 +54,23 @@
       </type>
       <value />
     </setting>
-    <setting name="SIP_REDIRECT.190-ISN.PREFIX" advanced="yes">
+    <setting name="SIP_REDIRECT.150-ISN.PREFIX" advanced="yes">
       <type refid="feature-code" />
     </setting>
   </group>
   <group name="enum">
-    <setting name="SIP_REDIRECT.200-ENUM.BASE_DOMAIN">
+    <setting name="SIP_REDIRECT.160-ENUM.BASE_DOMAIN">
       <type>
         <string />
       </type>
     </setting>
-    <setting name="SIP_REDIRECT.200-ENUM.DIAL_PREFIX">
+    <setting name="SIP_REDIRECT.160-ENUM.DIAL_PREFIX">
       <type refid="feature-code" />
     </setting>
-    <setting name="SIP_REDIRECT.200-ENUM.ADD_PREFIX">
+    <setting name="SIP_REDIRECT.160-ENUM.ADD_PREFIX">
       <type refid="feature-code" />
     </setting>
-    <setting name="SIP_REDIRECT.200-ENUM.PREFIX_PLUS" advanced="yes">
+    <setting name="SIP_REDIRECT.160-ENUM.PREFIX_PLUS" advanced="yes">
       <type>
         <boolean>
           <true>
@@ -85,15 +85,15 @@
     </setting>
   </group>
   <group name="call-pick-up">
-    <setting name="SIP_REDIRECT.180-PICKUP.DIRECTED_CALL_PICKUP_CODE">
+    <setting name="SIP_REDIRECT.100-PICKUP.DIRECTED_CALL_PICKUP_CODE">
       <type refid="feature-code" />
       <value>*78</value>
     </setting>
-    <setting name="SIP_REDIRECT.180-PICKUP.CALL_RETRIEVE_CODE">
+    <setting name="SIP_REDIRECT.100-PICKUP.CALL_RETRIEVE_CODE">
       <type refid="feature-code" required="yes" />
       <value>*4</value>
     </setting>
-    <setting name="SIP_REDIRECT.180-PICKUP.CALL_PICKUP_WAIT" advanced="yes">
+    <setting name="SIP_REDIRECT.100-PICKUP.CALL_PICKUP_WAIT" advanced="yes">
       <type>
         <real min="1" max="30" required="yes" />
       </type>

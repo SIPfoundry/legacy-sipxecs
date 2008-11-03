@@ -130,7 +130,6 @@ void SipRedirectorISN::readConfig(OsConfigDb& configDb)
 // Initializer
 OsStatus
 SipRedirectorISN::initialize(OsConfigDb& configDb,
-                             SipUserAgent* pSipUserAgent,
                              int redirectorNo,
                              const UtlString& localDomainHost)
 {
@@ -157,7 +156,7 @@ SipRedirectorISN::lookUp(
    const UtlString& requestString,
    const Url& requestUri,
    const UtlString& method,
-   SipMessage& response,
+   ContactList& contactList,
    RequestSeqNo requestSeqNo,
    int redirectorNo,
    SipRedirectorPrivateStorage*& privateStorage,
@@ -335,8 +334,7 @@ SipRedirectorISN::lookUp(
                         contact.setHeaderParameter(SIP_ROUTE_FIELD, route.data());
 
                         // Return the modified contact.
-                        RedirectPlugin::addContact(response, requestString,
-                                                   contact, mLogName.data());
+                        contactList.add( contact, *this );
                      }
                      else
                      {
@@ -402,5 +400,10 @@ SipRedirectorISN::lookUp(
       }
    }
 
-   return RedirectPlugin::LOOKUP_SUCCESS;
+   return RedirectPlugin::SUCCESS;
+}
+
+const UtlString& SipRedirectorISN::name( void ) const
+{
+   return mLogName;
 }

@@ -40,20 +40,20 @@ public class SipxRegistrarConfigurationTest extends SipxServiceTestBase {
             "WARNING"
         });
         setSettingValuesForGroup(registrarService, "call-pick-up", new String[] {
-            "SIP_REDIRECT.180-PICKUP.DIRECTED_CALL_PICKUP_CODE",
-            "SIP_REDIRECT.180-PICKUP.CALL_RETRIEVE_CODE",
-            "SIP_REDIRECT.180-PICKUP.CALL_PICKUP_WAIT"
+            "SIP_REDIRECT.100-PICKUP.DIRECTED_CALL_PICKUP_CODE",
+            "SIP_REDIRECT.100-PICKUP.CALL_RETRIEVE_CODE",
+            "SIP_REDIRECT.100-PICKUP.CALL_PICKUP_WAIT"
         }, new String[] {
             "*42", "*43", "15.0"
         });
         setSettingValuesForGroup(registrarService, "isn", new String[] {
-            "SIP_REDIRECT.190-ISN.BASE_DOMAIN", "SIP_REDIRECT.190-ISN.PREFIX"
+            "SIP_REDIRECT.150-ISN.BASE_DOMAIN", "SIP_REDIRECT.150-ISN.PREFIX"
         }, new String[] {
             "myisndomain.org", null
         });
         setSettingValuesForGroup(registrarService, "enum", new String[] {
-            "SIP_REDIRECT.200-ENUM.BASE_DOMAIN", "SIP_REDIRECT.200-ENUM.DIAL_PREFIX",
-            "SIP_REDIRECT.200-ENUM.ADD_PREFIX", "SIP_REDIRECT.200-ENUM.PREFIX_PLUS"
+            "SIP_REDIRECT.160-ENUM.BASE_DOMAIN", "SIP_REDIRECT.160-ENUM.DIAL_PREFIX",
+            "SIP_REDIRECT.160-ENUM.ADD_PREFIX", "SIP_REDIRECT.160-ENUM.PREFIX_PLUS"
         }, new String[] {
             "myenumdomain.org", null, "*66", "Y"
         });

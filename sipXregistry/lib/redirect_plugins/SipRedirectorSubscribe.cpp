@@ -46,7 +46,6 @@ SipRedirectorSubscribe::~SipRedirectorSubscribe()
 
 OsStatus
 SipRedirectorSubscribe::initialize(OsConfigDb& configDb,
-                                   SipUserAgent* pSipUserAgent,
                                    int redirectorNo,
                                    const UtlString& localDomainHost)
 {
@@ -65,7 +64,7 @@ SipRedirectorSubscribe::lookUp(
    const UtlString& requestString,
    const Url& requestUri,
    const UtlString& method,
-   SipMessage& response,
+   ContactList& contactList,
    RequestSeqNo requestSeqNo,
    int redirectorNo,
    SipRedirectorPrivateStorage*& privateStorage,
@@ -82,7 +81,7 @@ SipRedirectorSubscribe::lookUp(
       // proxy will CANCEL after the high values return final status).
       UtlString thisContact;
       for (int contactNum = 0;
-           response.getContactField(contactNum, thisContact);
+           contactList.get( contactNum, thisContact );
            contactNum++)
       {
          Url contactUri(thisContact);
@@ -94,7 +93,7 @@ SipRedirectorSubscribe::lookUp(
             // If so, remove it.
             contactUri.removeFieldParameter(SIP_Q_FIELD);
             UtlString contactUriString(contactUri.toString());
-            response.setContactField(contactUriString, contactNum);
+            contactList.set( contactNum, contactUriString, *this );
 
             OsSysLog::add(FAC_SIP, PRI_NOTICE,
                           "%s::lookUp Remove q value '%s' from '%s'",
@@ -103,5 +102,10 @@ SipRedirectorSubscribe::lookUp(
       } // for all contacts
    } 
 
-   return RedirectPlugin::LOOKUP_SUCCESS;
+   return RedirectPlugin::SUCCESS;
+}
+
+const UtlString& SipRedirectorSubscribe::name( void ) const
+{
+   return mLogName;
 }

@@ -51,7 +51,6 @@ SipRedirectorRegDB::~SipRedirectorRegDB()
 // Initializer
 OsStatus
 SipRedirectorRegDB::initialize(OsConfigDb& configDb,
-                               SipUserAgent* pSipUserAgent,
                                int redirectorNo,
                                const UtlString& localDomainHost)
 {
@@ -70,7 +69,7 @@ SipRedirectorRegDB::lookUp(
    const UtlString& requestString,
    const Url& requestUri,
    const UtlString& method,
-   SipMessage& response,
+   ContactList& contactList,
    RequestSeqNo requestSeqNo,
    int redirectorNo,
    SipRedirectorPrivateStorage*& privateStorage,
@@ -172,9 +171,14 @@ SipRedirectorRegDB::lookUp(
          }
          
          // Add the contact.
-         addContact(response, requestString, contactUri, mLogName.data());
+         contactList.add( contactUri, *this );
       }
    }
 
-   return RedirectPlugin::LOOKUP_SUCCESS;
+   return RedirectPlugin::SUCCESS;
+}
+
+const UtlString& SipRedirectorRegDB::name( void ) const
+{
+   return mLogName;
 }

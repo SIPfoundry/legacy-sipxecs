@@ -69,7 +69,6 @@ void SipRedirectorRegDB::readConfig(OsConfigDb& configDb)
 // Initialize
 OsStatus
 SipRedirectorMPT::initialize(OsConfigDb& configDb,
-                             SipUserAgent* pSipUserAgent,
                              int redirectorNo,
                              const UtlString& localDomainHost)
 {
@@ -111,7 +110,7 @@ SipRedirectorMPT::lookUp(
    const UtlString& requestString,
    const Url& requestUri,
    const UtlString& method,
-   SipMessage& response,
+   ContactList& contactList,
    RequestSeqNo requestSeqNo,
    int redirectorNo,
    SipRedirectorPrivateStorage*& privateStorage,
@@ -152,12 +151,12 @@ SipRedirectorMPT::lookUp(
             // Construct a Url of this contact.
             Url url(c.data(), FALSE);
             // Add the contact.
-            addContact(response, requestString, url, mLogName.data());
+            contactList.add( url, *this );
          }
       }
    }
 
-   return SipRedirector::LOOKUP_SUCCESS;
+   return SipRedirector::SUCCESS;
 }
 
 void SipRedirectorMPT::loadMappings(UtlString* file_name,
@@ -716,4 +715,9 @@ int MPTWriterTask::run(void* arg)
    }
 
    return 0;
+}
+
+const UtlString& SipRedirectorMPT::name( void ) const
+{
+   return mLogName;
 }

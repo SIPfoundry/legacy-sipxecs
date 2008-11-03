@@ -29,7 +29,7 @@
 // empty field means to not request suspension (for this processing),
 // a non-empty field means to request suspension and then request
 // resume after that number of seconds.  A field of '*' means to return
-// LOOKUP_ERROR on that cycle.  The redirector will never add a contact 
+// ERROR on that cycle.  The redirector will never add a contact 
 // to the call.
 //
 // E.g., "t1=10" means to suspend for 10 seconds.
@@ -40,7 +40,7 @@
 // suspension, and upon reprocessing, redirector 2 will request a 10
 // second suspension.  The request will finish on the third cycle.
 // "t1=10/*" will suspend for 10 seconds on the first cycle and then return
-// LOOKUP_ERROR on the second cycle.
+// ERROR on the second cycle.
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -75,7 +75,6 @@ SipRedirectorTest::~SipRedirectorTest()
 // Initializer
 OsStatus
 SipRedirectorTest::initialize(OsConfigDb& configDb,
-                              SipUserAgent* pSipUserAgent,
                               int redirectorNo,
                                const UtlString& localDomainHost)
 {
@@ -95,10 +94,10 @@ RedirectPlugin::LookUpStatus SipRedirectorPrivateStorageTest::actOnString()
    {
       OsSysLog::add(FAC_SIP, PRI_DEBUG,
                     "SipRedirectorPrivateStorageTest::actOnString Returning "
-                    "LOOKUP_ERROR, from string '%s', remaining '%s'",
+                    "ERROR, from string '%s', remaining '%s'",
                     mString, mPtr);
       // We don't have to update anything, since we will not be called again.
-      return RedirectPlugin::LOOKUP_ERROR;
+      return RedirectPlugin::ERROR;
    }
    // strtol will return 0 if mPtr[0] == / or NUL.
    int wait = strtol(mPtr, &mPtr, 10);
@@ -112,12 +111,12 @@ RedirectPlugin::LookUpStatus SipRedirectorPrivateStorageTest::actOnString()
    // 0 is not a valid wait time.
    if (wait == 0)
    {
-      return RedirectPlugin::LOOKUP_SUCCESS;
+      return RedirectPlugin::SUCCESS;
    }
    else
    {
       mTimer.oneshotAfter(OsTime(wait, 0));
-      return RedirectPlugin::LOOKUP_SUSPEND;
+      return RedirectPlugin::SEARCH_PENDING;
    }
 }
 
@@ -127,7 +126,7 @@ SipRedirectorTest::lookUp(
    const UtlString& requestString,
    const Url& requestUri,
    const UtlString& method,
-   SipMessage& response,
+   ContactList& contactList,
    RequestSeqNo requestSeqNo,
    int redirectorNo,
    SipRedirectorPrivateStorage*& privateStorage,
@@ -141,7 +140,7 @@ SipRedirectorTest::lookUp(
 
    if (!requestUri.getFieldParameter(mParameterName, parameter))
    {
-      return RedirectPlugin::LOOKUP_SUCCESS;
+      return RedirectPlugin::SUCCESS;
    }
 
    if (!privateStorage)
@@ -157,6 +156,12 @@ SipRedirectorTest::lookUp(
    }
 
    return ((SipRedirectorPrivateStorageTest*) privateStorage)->actOnString();
+}
+
+
+const UtlString& SipRedirectorTest::name( void ) const
+{
+   return mLogName;
 }
 
 SipRedirectorPrivateStorageTest::SipRedirectorPrivateStorageTest(

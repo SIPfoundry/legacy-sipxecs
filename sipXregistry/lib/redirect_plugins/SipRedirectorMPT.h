@@ -68,11 +68,13 @@ class SipRedirectorMPT : public RedirectPlugin
       const UtlString& requestString,
       const Url& requestUri,
       const UtlString& method,
-      SipMessage& response,
+      ContactList& contactList,
       RequestSeqNo requestSeqNo,
       int redirectorNo,
       SipRedirectorPrivateStorage*& privateStorage,
       ErrorDescriptor& errorDescriptor);
+   
+   virtual const UtlString& name( void ) const;
 
    // File to read/write mappings to.
    UtlString mMappingFileName;

@@ -20,6 +20,8 @@
 
 using namespace std;
 
+std::vector<UtlString> globalList;
+
 // DEFINES
 // CONSTANTS
 // TYPEDEFS
@@ -31,19 +33,27 @@ class SipRedirectServerTest : public CppUnit::TestCase
    CPPUNIT_TEST( buildResponseFromRequestAndErrorDescriptorBaseTest );
    CPPUNIT_TEST( buildResponseFromRequestAndErrorDescriptorBaseWarningTest );
    CPPUNIT_TEST( buildResponseFromRequestAndErrorDescriptorKitchenSinkTest );
+   CPPUNIT_TEST( pluginsAddContactIncreasingAuthorityLevelTest );
+   CPPUNIT_TEST( pluginsAddContactDecreasingAuthorityLevelTest );
+   CPPUNIT_TEST( pluginsAddContactMixedAuthorityLevelTest );
+   CPPUNIT_TEST( pluginsAddContactEqualAuthorityLevelTest );
+   CPPUNIT_TEST( pluginsErrorAbortsPluginChain );
+   CPPUNIT_TEST( pluginsSuccesNoContactDoesNotAffectListAuthorityLevel );
    CPPUNIT_TEST_SUITE_END();
 
 public:
    SipRedirectServer* mpRedirectServer;   
    void setUp()
    {
-      OsConfigDb* pConfigDb = new OsConfigDb();      
-      mpRedirectServer      = new SipRedirectServer( pConfigDb, 0 );
-      mpRedirectServer->mDefaultDomain = "example.com";
    }
    
    void buildResponseFromRequestAndErrorDescriptorBaseTest()
    {
+      OsConfigDb* pConfigDb = new OsConfigDb();
+      pConfigDb->loadFromFile( TEST_DATA_DIR "/default.config" );
+      mpRedirectServer      = new SipRedirectServer( pConfigDb, 0 );
+      mpRedirectServer->mDefaultDomain = "example.com";
+
       const char* request =
          "INVITE sip:601@192.168.1.11:5060 SIP/2.0\r\n"
          "From: caller <sip:602@rjolyscs2.ca.nortel.com>;tag=12345\r\n"
@@ -110,6 +120,11 @@ public:
 
    void buildResponseFromRequestAndErrorDescriptorBaseWarningTest()
    {
+      OsConfigDb* pConfigDb = new OsConfigDb();
+      pConfigDb->loadFromFile( TEST_DATA_DIR "/default.config" );
+      mpRedirectServer      = new SipRedirectServer( pConfigDb, 0 );
+      mpRedirectServer->mDefaultDomain = "example.com";
+      
       const char* request =
          "INVITE sip:601@192.168.1.11:5060 SIP/2.0\r\n"
          "From: caller <sip:602@rjolyscs2.ca.nortel.com>;tag=12345\r\n"
@@ -155,6 +170,11 @@ public:
    
    void buildResponseFromRequestAndErrorDescriptorKitchenSinkTest()
    {
+      OsConfigDb* pConfigDb = new OsConfigDb();
+      pConfigDb->loadFromFile( TEST_DATA_DIR "/default.config" );
+      mpRedirectServer      = new SipRedirectServer( pConfigDb, 0 );
+      mpRedirectServer->mDefaultDomain = "example.com";
+      
       const char* request =
          "INVITE sip:601@192.168.1.11:5060 SIP/2.0\r\n"
          "From: caller <sip:602@rjolyscs2.ca.nortel.com>;tag=12345\r\n"
@@ -218,6 +238,197 @@ public:
       pBody->getBytes( &tmpString, &len );
       CPPUNIT_ASSERT( strcmp( tmpString.data(), request ) == 0 );
    }
+   
+   void pluginsAddContactIncreasingAuthorityLevelTest()
+   {
+      globalList.clear();
+         
+      const char* request =
+         "INVITE sip:601@192.168.1.11:5060 SIP/2.0\r\n"
+         "From: caller <sip:602@rjolyscs2.ca.nortel.com>;tag=12345\r\n"
+         "To: <sip:601@rjolyscs2.ca.nortel.com>\r\n"
+         "Call-Id: 94bb2520-c0a80165-13c4-3e635-\r\n"
+         "Cseq: 1 INVITE\r\n"
+         "Contact: <sip:602@192.168.1.101:5060;x-sipX-pubcontact=47.135.162.145%3A14956>\r\n"
+         "Content-Length: 0\r\n"
+         "Via: SIP/2.0/UDP 192.168.1.101:5060;branch=z9hG4bK-3e635-f3b41fc-310ddca7;received=47.135.162.145;rport=14956\r\n"
+         "\r\n";
+      SipMessage requestMsg(request, strlen(request));
+
+      SipUserAgent ua;      
+      OsConfigDb* pConfigDb = new OsConfigDb();
+      pConfigDb->loadFromFile( TEST_DATA_DIR "/redirectconfigdata/add-contact-increasing-AL.config" );
+      mpRedirectServer      = new SipRedirectServer( pConfigDb, &ua );
+      mpRedirectServer->mDefaultDomain = "example.com";
+      RedirectPlugin::RequestSeqNo seqno = 1;
+      UtlString method = "INVITE";
+      mpRedirectServer->processRedirect( &requestMsg, method, seqno, (RedirectSuspend*)0 );
+
+      CPPUNIT_ASSERT( globalList.size() == 4 );
+      ASSERT_STR_EQUAL( "110-DUMMY1::lookUp: contactList Size=0", globalList[0].data() );
+      ASSERT_STR_EQUAL( "120-DUMMY2::lookUp: contactList Size=1", globalList[1].data() );
+      ASSERT_STR_EQUAL( "130-DUMMY3::lookUp: contactList Size=2", globalList[2].data() );
+      ASSERT_STR_EQUAL( "140-DUMMY4::lookUp: contactList Size=3", globalList[3].data() );
+   }
+   void pluginsAddContactDecreasingAuthorityLevelTest()
+   {
+      globalList.clear();
+
+      const char* request =
+         "INVITE sip:601@192.168.1.11:5060 SIP/2.0\r\n"
+         "From: caller <sip:602@rjolyscs2.ca.nortel.com>;tag=12345\r\n"
+         "To: <sip:601@rjolyscs2.ca.nortel.com>\r\n"
+         "Call-Id: 94bb2520-c0a80165-13c4-3e635-\r\n"
+         "Cseq: 1 INVITE\r\n"
+         "Contact: <sip:602@192.168.1.101:5060;x-sipX-pubcontact=47.135.162.145%3A14956>\r\n"
+         "Content-Length: 0\r\n"
+         "Via: SIP/2.0/UDP 192.168.1.101:5060;branch=z9hG4bK-3e635-f3b41fc-310ddca7;received=47.135.162.145;rport=14956\r\n"
+         "\r\n";
+      SipMessage requestMsg(request, strlen(request));
+
+      SipUserAgent ua;      
+      OsConfigDb* pConfigDb = new OsConfigDb();
+      pConfigDb->loadFromFile( TEST_DATA_DIR "/redirectconfigdata/add-contact-decreasing-AL.config" );
+      mpRedirectServer      = new SipRedirectServer( pConfigDb, &ua );
+      mpRedirectServer->mDefaultDomain = "example.com";
+      RedirectPlugin::RequestSeqNo seqno = 1;
+      UtlString method = "INVITE";
+      mpRedirectServer->processRedirect( &requestMsg, method, seqno, (RedirectSuspend*)0 );
+
+      CPPUNIT_ASSERT( globalList.size() == 4 );
+      ASSERT_STR_EQUAL( "110-DUMMY1::lookUp: contactList Size=0",  globalList[0].data() );
+      ASSERT_STR_EQUAL( "120-DUMMY2::observe: contactList Size=1", globalList[1].data() );
+      ASSERT_STR_EQUAL( "130-DUMMY3::observe: contactList Size=1", globalList[2].data() );
+      ASSERT_STR_EQUAL( "140-DUMMY4::observe: contactList Size=1", globalList[3].data() );
+   }
+
+   void pluginsAddContactMixedAuthorityLevelTest()
+   {
+      globalList.clear();
+
+      const char* request =
+         "INVITE sip:601@192.168.1.11:5060 SIP/2.0\r\n"
+         "From: caller <sip:602@rjolyscs2.ca.nortel.com>;tag=12345\r\n"
+         "To: <sip:601@rjolyscs2.ca.nortel.com>\r\n"
+         "Call-Id: 94bb2520-c0a80165-13c4-3e635-\r\n"
+         "Cseq: 1 INVITE\r\n"
+         "Contact: <sip:602@192.168.1.101:5060;x-sipX-pubcontact=47.135.162.145%3A14956>\r\n"
+         "Content-Length: 0\r\n"
+         "Via: SIP/2.0/UDP 192.168.1.101:5060;branch=z9hG4bK-3e635-f3b41fc-310ddca7;received=47.135.162.145;rport=14956\r\n"
+         "\r\n";
+      SipMessage requestMsg(request, strlen(request));
+
+      SipUserAgent ua;      
+      OsConfigDb* pConfigDb = new OsConfigDb();
+      pConfigDb->loadFromFile( TEST_DATA_DIR "/redirectconfigdata/add-contact-mixed-AL.config" );
+      mpRedirectServer      = new SipRedirectServer( pConfigDb, &ua );
+      mpRedirectServer->mDefaultDomain = "example.com";
+      RedirectPlugin::RequestSeqNo seqno = 1;
+      UtlString method = "INVITE";
+      mpRedirectServer->processRedirect( &requestMsg, method, seqno, (RedirectSuspend*)0 );
+
+      CPPUNIT_ASSERT( globalList.size() == 4 );
+      ASSERT_STR_EQUAL( "110-DUMMY1::lookUp: contactList Size=0",  globalList[0].data() );
+      ASSERT_STR_EQUAL( "120-DUMMY2::lookUp: contactList Size=1",  globalList[1].data() );
+      ASSERT_STR_EQUAL( "130-DUMMY3::observe: contactList Size=2", globalList[2].data() );
+      ASSERT_STR_EQUAL( "140-DUMMY4::lookUp: contactList Size=2",  globalList[3].data() );
+   }
+
+   void pluginsAddContactEqualAuthorityLevelTest()
+   {
+      globalList.clear();
+
+      const char* request =
+         "INVITE sip:601@192.168.1.11:5060 SIP/2.0\r\n"
+         "From: caller <sip:602@rjolyscs2.ca.nortel.com>;tag=12345\r\n"
+         "To: <sip:601@rjolyscs2.ca.nortel.com>\r\n"
+         "Call-Id: 94bb2520-c0a80165-13c4-3e635-\r\n"
+         "Cseq: 1 INVITE\r\n"
+         "Contact: <sip:602@192.168.1.101:5060;x-sipX-pubcontact=47.135.162.145%3A14956>\r\n"
+         "Content-Length: 0\r\n"
+         "Via: SIP/2.0/UDP 192.168.1.101:5060;branch=z9hG4bK-3e635-f3b41fc-310ddca7;received=47.135.162.145;rport=14956\r\n"
+         "\r\n";
+      SipMessage requestMsg(request, strlen(request));
+
+      SipUserAgent ua;      
+      OsConfigDb* pConfigDb = new OsConfigDb();
+      pConfigDb->loadFromFile( TEST_DATA_DIR "/redirectconfigdata/add-contact-equal-AL.config" );
+      mpRedirectServer      = new SipRedirectServer( pConfigDb, &ua );
+      mpRedirectServer->mDefaultDomain = "example.com";
+      RedirectPlugin::RequestSeqNo seqno = 1;
+      UtlString method = "INVITE";
+      mpRedirectServer->processRedirect( &requestMsg, method, seqno, (RedirectSuspend*)0 );
+
+      CPPUNIT_ASSERT( globalList.size() == 4 );
+      ASSERT_STR_EQUAL( "110-DUMMY1::lookUp: contactList Size=0",  globalList[0].data() );
+      ASSERT_STR_EQUAL( "120-DUMMY2::lookUp: contactList Size=1",  globalList[1].data() );
+      ASSERT_STR_EQUAL( "130-DUMMY3::lookUp: contactList Size=2",  globalList[2].data() );
+      ASSERT_STR_EQUAL( "140-DUMMY4::observe: contactList Size=3", globalList[3].data() );
+   }
+   
+   void pluginsErrorAbortsPluginChain()
+   {
+      globalList.clear();
+
+      const char* request =
+         "INVITE sip:601@192.168.1.11:5060 SIP/2.0\r\n"
+         "From: caller <sip:602@rjolyscs2.ca.nortel.com>;tag=12345\r\n"
+         "To: <sip:601@rjolyscs2.ca.nortel.com>\r\n"
+         "Call-Id: 94bb2520-c0a80165-13c4-3e635-\r\n"
+         "Cseq: 1 INVITE\r\n"
+         "Contact: <sip:602@192.168.1.101:5060;x-sipX-pubcontact=47.135.162.145%3A14956>\r\n"
+         "Content-Length: 0\r\n"
+         "Via: SIP/2.0/UDP 192.168.1.101:5060;branch=z9hG4bK-3e635-f3b41fc-310ddca7;received=47.135.162.145;rport=14956\r\n"
+         "\r\n";
+      SipMessage requestMsg(request, strlen(request));
+
+      SipUserAgent ua;      
+      OsConfigDb* pConfigDb = new OsConfigDb();
+      pConfigDb->loadFromFile( TEST_DATA_DIR "/redirectconfigdata/error-AL.config" );
+      mpRedirectServer      = new SipRedirectServer( pConfigDb, &ua );
+      mpRedirectServer->mDefaultDomain = "example.com";
+      RedirectPlugin::RequestSeqNo seqno = 1;
+      UtlString method = "INVITE";
+      mpRedirectServer->processRedirect( &requestMsg, method, seqno, (RedirectSuspend*)0 );
+
+      CPPUNIT_ASSERT( globalList.size() == 3 );
+      ASSERT_STR_EQUAL( "110-DUMMY1::lookUp: contactList Size=0",  globalList[0].data() );
+      ASSERT_STR_EQUAL( "120-DUMMY2::observe: contactList Size=1", globalList[1].data() );
+      ASSERT_STR_EQUAL( "130-DUMMY3::lookUp: contactList Size=1",  globalList[2].data() );
+   }
+  
+   void pluginsSuccesNoContactDoesNotAffectListAuthorityLevel()
+   {
+      globalList.clear();
+
+      const char* request =
+         "INVITE sip:601@192.168.1.11:5060 SIP/2.0\r\n"
+         "From: caller <sip:602@rjolyscs2.ca.nortel.com>;tag=12345\r\n"
+         "To: <sip:601@rjolyscs2.ca.nortel.com>\r\n"
+         "Call-Id: 94bb2520-c0a80165-13c4-3e635-\r\n"
+         "Cseq: 1 INVITE\r\n"
+         "Contact: <sip:602@192.168.1.101:5060;x-sipX-pubcontact=47.135.162.145%3A14956>\r\n"
+         "Content-Length: 0\r\n"
+         "Via: SIP/2.0/UDP 192.168.1.101:5060;branch=z9hG4bK-3e635-f3b41fc-310ddca7;received=47.135.162.145;rport=14956\r\n"
+         "\r\n";
+      SipMessage requestMsg(request, strlen(request));
+
+      SipUserAgent ua;      
+      OsConfigDb* pConfigDb = new OsConfigDb();
+      pConfigDb->loadFromFile( TEST_DATA_DIR "/redirectconfigdata/success-dont-add-contact-AL.config" );
+      mpRedirectServer      = new SipRedirectServer( pConfigDb, &ua );
+      mpRedirectServer->mDefaultDomain = "example.com";
+      RedirectPlugin::RequestSeqNo seqno = 1;
+      UtlString method = "INVITE";
+      mpRedirectServer->processRedirect( &requestMsg, method, seqno, (RedirectSuspend*)0 );
+
+      CPPUNIT_ASSERT( globalList.size() == 4 );
+      ASSERT_STR_EQUAL( "110-DUMMY1::lookUp: contactList Size=0",  globalList[0].data() );
+      ASSERT_STR_EQUAL( "120-DUMMY2::observe: contactList Size=1", globalList[1].data() );
+      ASSERT_STR_EQUAL( "130-DUMMY3::lookUp: contactList Size=1",  globalList[2].data() );
+      ASSERT_STR_EQUAL( "140-DUMMY4::lookUp: contactList Size=1",  globalList[3].data() );
+   }
+   
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(SipRedirectServerTest);

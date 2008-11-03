@@ -60,7 +60,6 @@ public:
    virtual void readConfig(OsConfigDb& configDb);
 
    virtual OsStatus initialize(OsConfigDb& configDb,
-                               SipUserAgent* pSipUserAgent,
                                int redirectorNo,
                                const UtlString& localDomainHost);
 
@@ -71,11 +70,13 @@ public:
       const UtlString& requestString,
       const Url& requestUri,
       const UtlString& method,
-      SipMessage& response,
+      ContactList& contactList,
       RequestSeqNo requestSeqNo,
       int redirectorNo,
       SipRedirectorPrivateStorage*& privateStorage,
       ErrorDescriptor& errorDescriptor);
+   
+   virtual const UtlString& name( void ) const;
 
 protected:
 

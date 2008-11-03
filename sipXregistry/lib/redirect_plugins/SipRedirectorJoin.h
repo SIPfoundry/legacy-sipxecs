@@ -53,7 +53,6 @@ class SipRedirectorJoin : public RedirectPlugin
    virtual void readConfig(OsConfigDb& configDb);
 
    virtual OsStatus initialize(OsConfigDb& configDb,
-                               SipUserAgent* pSipUserAgent,
                                int redirectorNo,
                                const UtlString& localDomainHost);
 
@@ -64,11 +63,13 @@ class SipRedirectorJoin : public RedirectPlugin
       const UtlString& requestString,
       const Url& requestUri,
       const UtlString& method,
-      SipMessage& response,
+      ContactList& contactList,
       RequestSeqNo requestSeqNo,
       int redirectorNo,
       SipRedirectorPrivateStorage*& privateStorage,
       ErrorDescriptor& errorDescriptor);
+   
+   virtual const UtlString& name( void ) const;
 
    // Enum for values that describe the states of dialogs, and also
    // describe filtering criteria for states of dialogs.
@@ -137,7 +138,7 @@ class SipRedirectorJoin : public RedirectPlugin
    RedirectPlugin::LookUpStatus lookUpDialog(
       const UtlString& requestString,
       const UtlString& incomingCallId,
-      SipMessage& response,
+      ContactList& contactList,
       RequestSeqNo requestSeqNo,
       int redirectorNo,
       SipRedirectorPrivateStorage*& privateStorage,

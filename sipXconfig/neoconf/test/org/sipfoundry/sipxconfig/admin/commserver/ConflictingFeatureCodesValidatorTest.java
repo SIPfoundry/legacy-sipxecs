@@ -75,7 +75,7 @@ public class ConflictingFeatureCodesValidatorTest extends TestCase {
         m_out.validate(Arrays.asList(new Setting[] {presenceSettings, registrarSettings}));
         
         presenceSettings.getSetting("presence-config/SIP_PRESENCE_SIGN_IN_CODE").setValue("*123");
-        registrarSettings.getSetting("call-pick-up/SIP_REDIRECT.180-PICKUP.DIRECTED_CALL_PICKUP_CODE").setValue("*123");
+        registrarSettings.getSetting("call-pick-up/SIP_REDIRECT.100-PICKUP.DIRECTED_CALL_PICKUP_CODE").setValue("*123");
         try {
             m_out.validate(Arrays.asList(new Setting[] {presenceSettings, registrarSettings}));
             fail();

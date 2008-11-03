@@ -11,6 +11,7 @@
 #define _REDIRECTPLUGIN_H_
 
 // SYSTEM INCLUDES
+#include <vector>
 // APPLICATION INCLUDES
 #include "utl/Plugin.h"
 #include "os/OsStatus.h"
@@ -31,54 +32,72 @@
 // FORWARD DECLARATIONS
 
 class SipRedirectorPrivateStorage;
+class ContactList;
 class ErrorDescriptor;
 
 /**
- * SIP Redirect Plugin Hook
- *
- * A RegisterPlugin is an action invoked by the SipRegistrarServer whenever a
- *   successful REGISTER request has been processed (that is, after it has
- *   effected its change on the registry database).  The plugin may then take
- *   any action based on the fact that the registration has occured.
- *
- * This class is the abstract base from which all RegisterPlugins must inherit.
- *
- * To configure a RegisterPlugin into the SipRegistrarServer, the registrar-config
- * file should have a directive configuring the plugin library:
- * @code
- * SIP_REGISTRAR_HOOK_LIBRARY.[instance] : [path to libexampleregplugin.so]
- * @endcode
- * Where [instance] is replaced by a unique plugin name, and the value
- * points to the libary that provides the plugin code.
- *
- * In addition to the class derived from this base, a RegisterPlugin library must
- * provide a factory routine named getRegisterPlugin with extern "C" linkage so
- * that the OsSharedLib mechanism can look it up in the dynamically loaded library
- * (looking up C++ symbols is problematic because of name mangling).
- * The factory routine looks like:
- * @code
- * class ExampleRegisterPlugin : public RegisterPlugin
- * {
- *    virtual void takeAction( const SipMessage&   registerMessage ///< the successful registration
- *                            ,const unsigned int  registrationDuration ///< the actual allowed
- *                                                                      /// registration time (note
- *                                                                      /// that this may be < the
- *                                                                      /// requested time).
- *                            ,SipUserAgent*       sipUserAgent     ///< to be used if the plugin
- *                                                                  /// wants to send any SIP msg
- *                            );
- *
- *    friend RegisterPlugin* getRegisterPlugin(const UtlString& name);
- * }
- *
- * extern "C" RegisterPlugin* getRegisterPlugin(const UtlString& instance)
- * {
- *   return new ExampleRegisterPlugin(instance);
- * }
- * @endcode
+ * <b>SIP Redirect Plug-in overview</b>
+ * 
+ *  A redirect plug-in is a logical entity that is, in its general form,
+ *  responsible for mapping a Request URI to a set of one or more
+ *  alternative locations at which the target of that URI can be found.  
+ *  A redirect plug-in is at liberty of choosing the redirection policies by 
+ *  which it establishes that mapping but it will generally be dictated
+ *  by the nature of the specialized redirection function that it
+ *  provides. For example, a redirector plug-in whose function it is to map an AOR to 
+ *  its registered Contacts will do so by consulting the location database.
+ *  
+ * <b>Relationship with the SIP Redirect Server</b>
+ * 
+ *  Each Redirect Plug-in is created by the SIP Redirect Server (see SipRedirectServer).
+ *  For every request that the SIP Redirect Server processes it will 
+ *  call the plug-in's lookUp() or observe() method based on whether or not
+ *  it wants the plug-in to provide Contacts for the request or merely observe it. 
+ * 
+ * <b>paragraph Redirect Plug-in requirements</b>
+ *  
+ *  In order to create a redirect plug-in that will be called upon by the 
+ *  SipRedirectServer to play a part in the redirection effort, a certain
+ *  set of requirements must be met.  
+ *   - Firstly, the redirect plug-in must be derived from the RedirectPlugin 
+ *     class and provide an implementation for its pure virtual methods and 
+ *     optionally its virtual methods.
+ *  
+ *   - Secondly, to configure the redirect plug-in into the SipRedirectServer, 
+ *     the registrar-config file must have a directive configuring the plugin 
+ *     library:
+ *     @code
+ *         SIP_REDIRECT_HOOK_LIBRARY.[###-UNIQUE_NAME] : [path to libexampleregplugin.so]
+ *     @endcode
+ *     Where: ### is a three-digit value representing the ordinal number for the plug-in.
+ *            UNIQUE_NAME is a unique name representing the plugin. 
+ *            path points to the library that provides the plugin code.
+ *     
+ *   - Thirdly, the redirect plug-in must provide a factory routine named 
+ *     getRedirectPlugin with extern "C" linkage so that the OsSharedLib mechanism 
+ *     can look it up in the dynamically loaded library (looking up C++ symbols is 
+ *     problematic because of name mangling).
+ *     The factory routine looks like:
+ *     @code
+ *         class ExampleRedirectPlugin : public RedirectPlugin
+ *         {
+ *            ...
+ *             friend RedirectPlugin* getRedirectPlugin(const UtlString& instanceName);
+ *             ...
+ *         };
+ * 
+ *         extern "C" RedirectPlugin* getRedirectPlugin(const UtlString& instanceName)
+ *         {
+ *            return new ExampleRegisterPlugin(instanceName);
+ *         }
+ *     @endcode
  *
  * @see Plugin
+ * @see SipRedirectServer for more details on how and when the methods of RedirectPlugin are being called 
+ *      and to get additional information about the redirection process in general.
+ * 
  */
+
 class RedirectPlugin : public Plugin
 {
   public:
@@ -110,10 +129,13 @@ class RedirectPlugin : public Plugin
     * than the constructor, so that we have finer control over when
     * it happens.
     *
-    * In ::readConfig(), configDb is the subset of the configuration
-    * parameters tagged for this plugin.  In ::initialize(),
+    * The configDb is the subset of the configuration
+    * parameters tagged for this plug-in ,i.e. of the form
+    * SIP_REDIRECT.[###-UNIQUE_NAME.PARAM_NAME] : [PARAM_VALUE]
+    * in the registrar-config configuration file.
     * configDb is a UtlHashMap that gives the complete
-    * configuration parameters. 
+    * [PARAM_NAME]->[PARAM_VALUE] configuration pairs relevant to the 
+    * plug-in. 
     *
     * pSipUserAgent is a pointer to the SipUserAgent to use for
     * communication.
@@ -128,10 +150,24 @@ class RedirectPlugin : public Plugin
     * will be called before the destructor is called.
     */
    virtual OsStatus initialize(OsConfigDb& configDb,
-                               SipUserAgent* pSipUserAgent,
                                int redirectorNo,
                                const UtlString& localDomainHost) = 0;
 
+   /*
+    * Initialization will be done by the PluginHooks object calling
+    * the ::readConfig() method, then ::initialize() will be called.
+    * All initialization should be done in one of these methods, rather
+    * than the constructor, so that we have finer control over when
+    * it happens.
+    *
+    * The configDb is the subset of the configuration
+    * parameters tagged for this plug-in ,i.e. of the form
+    * SIP_REDIRECT.[###-UNIQUE_NAME.PARAM_NAME] : [PARAM_VALUE]
+    * in the registrar-config configuration file.
+    * configDb is a UtlHashMap that gives the complete
+    * [PARAM_NAME]->[PARAM_VALUE] configuration pairs relevant to the 
+    * plug-in. 
+    */
    virtual void readConfig(OsConfigDb& configDb);
 
    /**
@@ -144,29 +180,54 @@ class RedirectPlugin : public Plugin
    typedef enum LookUpStatus
    {
       // Start numbering status values from 1 so 0 is invalid.
-      LOOKUP_SUCCESS = 1,   ///< the redirector successfully finished its processing.
-      LOOKUP_ERROR,         /**< the redirector reported an error.  The ErrorDescriptor
-                             *   can contain more information about the error condition. */
-      LOOKUP_SUSPEND        /**< the redirector needs the request to be suspended
-                             * for asynchronous processing. */
+      ERROR = 1,          ///< The redirector reported an error.  The passed 
+                          ///< ErrorDescriptor may be used to customize how that
+                          ///< error will be communicated back to the originator 
+                          ///< via a SIP response.
+      SEARCH_PENDING,     ///< The redirector needs the request to be suspended for
+                          ///< asynchronous processing.
+      SUCCESS             ///< the redirector successfully finished its processing.
    } LookUpStatus;
 
-   /// Look up redirections and add them to the response.
    /**
-    * @return the LookUpStatus indication showing the outcome of processing
+    * The SipRedirectServer calls this method to give a redirect plug-in a chance to
+    * process the request and adjust the supplied Contact list to satisfy the 
+    * redirection policy it implements.  
+    * 
+    * After considering the request, if a redirect plug-in establishes that 
+    * the request is not interesting given the redirection policy it implements,
+    * it must return SUCCESS and MUST NOT modify the supplied ContactList in ANY way.  
+    * 
+    * On the other hand, if the plug-in establishes that the request is one that 
+    * it should handle to affect its redirection, the plug-in must perform
+    * all the necessary modifications tn the supplied ContactList to satisfy
+    * the redirection policy it implements. These trasnformations include:
+    *  - Addition of new contact(s);
+    *  - Removal of one, many or all contacts;
+    *  - Modification of contact(s) already contributed by plug-ins that were 
+    *    called before it;
+    *  - Touching the ContactList.
+    * 
+    * Once the ContactList modifications are completed, it must return SUCCES. 
+    * 
+    * When a redirect plug-in is asked to look-up a request, that plug-in, upon inspection
+    * of the request, may determine that the request is interesting but contains errors 
+    * that prevent it from processing it.  Examples of such error conditions may 
+    * include missing vital headers, invalid user or domain, unsupported extension, ... 
+    * In such cases, the plug-in must return the ERROR status code to force
+    * SipRedirectServer to return a final failure response to the requester.  The redirect 
+    * plug-in should also configure the supplied ErrorDescriptor to accurately represent  
+    * the error condition detected.     
     *
-    * LOOKUP_SUCCESS is used in all non-error situations, even if the
-    * redirector added no contacts.  Generation of 404 responses is done
-    * by SipRedirectServer after all redirectors have executed.
-    * If it returns LOOKUP_ERROR, the redirector should most likely have
-    * logged message(s) at ERR level giving the details of the problem.
-    * It should also fill in the supplied ErrorDesriptor to configure the 
-    * proper SIP error reporting facilities to be used by SipRedirectServer
-    * when crafting the SIP failure response.  Redirectors that return
-    * LOOKUP_SUCCESS *MUST NOT* modify the supplied ErrorDesriptor.
-    *
-    * The SipRedirectServer will be holding mMutex while lookUp is called.
-    * See ../../doc/Redirection.txt for more details on how lookUp is called.
+    * If the redirect plug-in cannot complete the processing of the 
+    * request quickly, it must arrange for asynchronous processing that 
+    * will bring the redirector into a state where it can complete its processing 
+    * quickly and return SEARCH_PENDING.  Asynchronous processing then calls 
+    * RedirectPlugin::resumeRedirection() to indicate to the SipRedirectServer that 
+    * the request should be reprocessed.
+    *  
+    * @see SiPRedirectServer for more details on how lookUp is called and redirection in general.
+    * 
     */
    virtual LookUpStatus lookUp(
       const SipMessage& message,      ///< the incoming SIP message
@@ -174,8 +235,9 @@ class RedirectPlugin : public Plugin
                                        *   ONLY for use in debugging messages; all comparisons
                                        *   should be with requestUri */
       const Url& requestUri,          ///< the request URI from the SIP message as a Uri,
-      const UtlString& method,
-      SipMessage& response,           ///< the response SIP message that we are building.
+      const UtlString& method,        ///< Method of the request to redirect
+      ContactList& contactList,       ///< Modifiable list containing the contact(s) that the request
+                                      ///< should be redirected to.  
       RequestSeqNo requestSeqNo,      ///< the request sequence number
       int redirectorNo,               ///< the identifier for this redirector
       class SipRedirectorPrivateStorage*& privateStorage, /**< the cell containing the pointer
@@ -183,13 +245,38 @@ class RedirectPlugin : public Plugin
                                                           * this redirector, for this request. */
       ErrorDescriptor& errorDescriptor ///< the class that should be filled in by the redirector
                                        ///< to configure the SIP error reporting facilities when
-                                       ///< returning LOOKUP_ERROR
+                                       ///< returning ERROR
                                ) = 0;
+
+   /**
+    * The SipRedirectServer calls this method when the redirect plug-in does not have
+    * a sufficiently high authority level to affect the redirection of the request
+    * being presented.  This allows a plug-in to observe the request being redirected
+    * and consult the ContactList in a read-only fashion.
+    */ 
+   virtual void observe(
+      const SipMessage& message,      ///< the incoming SIP message
+      const UtlString& requestString, /**< the request URI from the SIP message as a UtlString
+                                       *   ONLY for use in debugging messages; all comparisons
+                                       *   should be with requestUri */
+      const Url& requestUri,          ///< the request URI from the SIP message as a Uri,
+      const UtlString& method,        ///< Method of the request to observe
+      const ContactList& contactList, ///< Read-only list of contacts to use for redirection  
+      RequestSeqNo requestSeqNo,      ///< the request sequence number
+      int redirectorNo                ///< the identifier for this redirector
+                               );
+   
+    /**
+     *  Every redirector plug-in must implement this method and return 
+     *  a string representing its name. 
+     */
+   virtual const UtlString& name( void ) const = 0;
+      
 
    /**
     * Cancel processing of a request.
     *
-    * If lookUp has ever returned LOOKUP_SUSPEND for this request, the
+    * If lookUp has ever returned SEARCH_PENDING for this request, the
     * redirect server guarantees to call cancel after the moment when
     * lookUp will never be called again for the request.
     *
@@ -203,29 +290,6 @@ class RedirectPlugin : public Plugin
     * This call must not block.
     */
    virtual void cancel(RequestSeqNo request);
-
-   /**
-    * Add a contact to the redirection list.
-    *
-    * response is the response SIP message we are constructing, for
-    * use in debugging messages.
-    *
-    * contact is the contact URI to be added to the redirection list.
-    *
-    * label is a string that described this redirector, for use in
-    * debugging messages.
-    *
-    * requestString is the request URI as a UtlString 
-    */
-   static void addContact(SipMessage& response,
-                          const UtlString& requestString,
-                          const Url& contact,
-                          const char* label);
-
-   /**
-    * Remove all contacts from the redirection list.
-    */
-   static void removeAllContacts(SipMessage& response);
 
   protected:
 
@@ -241,7 +305,7 @@ class RedirectPlugin : public Plugin
     * This method may be called from any context and does not block,
     * because all it does is queue a message on the redirect server's
     * queue.  It should not be called more than once following each
-    * invocation of lookUp that returns LOOKUP_SUSPEND.
+    * invocation of lookUp that returns SEARCH_PENDING.
     *
     * request is the sequence number of the request (obtained from the
     * invocation of lookUp).
@@ -257,7 +321,182 @@ class RedirectPlugin : public Plugin
 
    /// There is no assignment operator.
    RedirectPlugin& operator=(const RedirectPlugin&);
+   
+   friend class ContactListTest;
     
+};
+
+/**
+ *  The ContactList is a class that is intented to be used by redirector plugins 
+ *  to manipulate the set of Contacts found for a given Request-URI look-up.
+ *  The ContactList interface is very simple and offers 6 kinds of operations:
+ * 
+ *  - add() operations    - allows a plug-in to add a new Contact entry to the list.
+ *  - set() operations    - allows a plug-in to replace a Contact entry that is already
+ *                          in the list.
+ *  - get() operations    - allows a plug-in to get a Contact entry that is in the list.
+ *  - remove() opetations - allows a plug-in to remove a specific Contact entry from the 
+ *                          list or all Contacts.
+ *  - touch() opetation   - allows a plug-in to mark the list as having been modified
+ *                          without altering any of its content.
+ *  - entries() operation - allows a plug-in to get the number of Contacts contained in 
+ *                          the list.
+ */
+class ContactList 
+{
+public:
+   // ================================================================
+   /** @name add methods
+    *
+    * allows a plug-in to add a new Contact entry to the list.
+    */
+   ///@{
+
+   /**
+    * method used to add a new Contact to the ContactList with the Contact being
+    * specified as a Url object.
+    * 
+    * @param contactUrl - Url containing the Contact to add to the list.
+    * @param plugin     - Reference to the requesting plug-in - that information
+    *                     is strictly used for logging purposes.
+    * @return true if add succeeded; otherwise false.
+    */
+   bool add( const Url& contactUrl, const RedirectPlugin& plugin );
+   /**
+    * method used to add a new Contact to the ContactList with the Contact being
+    * specified as a string.
+    * 
+    * @param contact    - String containing the Contact to add to the list.
+    * @param plugin     - Reference to the requesting plug-in - that information
+    *                     is strictly used for logging purposes.
+    * @return true if add succeeded; otherwise false.
+    */
+   bool add( const UtlString& contact, const RedirectPlugin& plugin );
+   ///@}
+   
+   // ================================================================
+   /** @name set methods
+    *
+    *  allows a plug-in to replace a Contact entry that is already
+    *  in the list.
+    */
+   ///@{
+   
+   /**
+    * method used to replace the content of an existing Contact in the list with the 
+    * replacing Contact specified as a Url object.
+    *
+    * @param index      - 0-based index of the Contact to replace in the list 
+    * @param contactUrl - Url containing the Contact to use for replacement
+    * @param plugin     - Reference to the requesting plug-in - that information
+    *                     is strictly used for logging purposes.
+    * @return true if set succeeded; otherwise false.
+    */
+   bool set( size_t index, const Url& contactUrl, const RedirectPlugin& plugin );
+   /**
+    * method used to replace the content of an existing Contact in the list with the 
+    * replacing Contact specified as a string.
+    *
+    * @param index      - 0-based index of the Contact to replace in the list 
+    * @param contact    - string  containing the Contact to use for replacement
+    * @param plugin     - Reference to the requesting plug-in - that information
+    *                     is strictly used for logging purposes.
+    * @return true if set succeeded; otherwise false.
+    */
+   bool set( size_t index, const UtlString& contact, const RedirectPlugin& plugin );  
+   ///@}
+   
+   // ================================================================
+   /** @name get methods
+    *
+    * allows a plug-in to get a Contact entry that is in the list.
+    */
+   ///@{
+   
+   /**
+    * method used to retrieve a specific Contact entry from the Contact list.
+    *
+    * @param index      - 0-based index of the Contact to retrieve
+    * @param contactUrl - Url object that will receive the retrieved Contact
+    * @param plugin     - Reference to the requesting plug-in - that information
+    *                     is strictly used for logging purposes.
+    * @return true if get succeeded; otherwise false.
+    */
+   bool get( size_t index, Url& contactUrl ) const;
+   /**
+    * method used to retrieve a specific Contact entry from the Contact list.
+    *
+    * @param index      - 0-based index of the Contact to retrieve
+    * @param contact    - UtlString object that will receive the retrieved Contact
+    * @param plugin     - Reference to the requesting plug-in - that information
+    *                     is strictly used for logging purposes.
+    * @return true if get succeeded; otherwise false.
+    */
+   bool get( size_t index, UtlString& contact ) const;
+   
+   ///@}
+   
+   // ================================================================
+   /** @name remove methods
+    *
+    * allows a plug-in to remove a specific Contact entry from the 
+    * list or all Contacts.
+    */
+   ///@{
+   /**
+    * method used to remove a specific Contact entry from the Contact list.
+    *
+    * @param index      - 0-based index of the Contact to remove
+    * @param plugin     - Reference to the requesting plug-in - that information
+    *                     is strictly used for logging purposes.
+    * @return true is removal succeeded; otherwise false.
+    */
+   bool remove( size_t index, const RedirectPlugin& plugin );
+   /**
+    * method used to remove all the Contact entries contained in the Contact list.
+    *
+    * @param plugin     - Reference to the requesting plug-in - that information
+    *                     is strictly used for logging purposes.
+    * @return true if removal succeeded; otherwise false.
+    */
+   bool removeAll( const RedirectPlugin& plugin );  
+   ///@}
+   
+   // ================================================================
+   /** @name utility methods
+    */
+   ///@{
+   /**
+    * method used to mark the list as having been modified without actually 
+    * altering its content.
+    *
+    * @param plugin     - Reference to the requesting plug-in - that information
+    *                     is strictly used for logging purposes.
+    * @return true if removal succeeded; otherwise false.
+    */
+   void touch( const RedirectPlugin& plugin );
+
+   /**
+    * method used to get the number of Contacts contained in Contact list
+    *  
+    * @return the list size.
+    */
+   size_t entries( void ) const;
+   ///@}
+   
+private:
+   ContactList( const UtlString& requestString /* for logging purposes */ );
+
+   void resetWasModifiedFlag( void );
+   bool wasListModified( void ) const;
+   
+   UtlString               mRequestString;   
+   bool                    mbListWasModified;
+   std::vector<UtlString>  mContactList;
+   
+   friend class SipRedirectServer;
+   friend class ContactListTest;  
+   friend class SipRedirectorTimeOfDayTest;
 };
 
 /**

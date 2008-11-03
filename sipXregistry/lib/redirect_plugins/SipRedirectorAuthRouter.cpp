@@ -88,7 +88,6 @@ void SipRedirectorAuthRouter::readConfig(OsConfigDb& configDb)
 // Initializer
 OsStatus
 SipRedirectorAuthRouter::initialize(OsConfigDb& configDb,
-                                    SipUserAgent* pSipUserAgent,
                                     int redirectorNo,
                                     const UtlString& localDomainHost)
 {
@@ -112,32 +111,32 @@ RedirectPlugin::LookUpStatus SipRedirectorAuthRouter::lookUp(
    const UtlString& requestString,
    const Url& requestUri,
    const UtlString& method,
-   SipMessage& response,
+   ContactList& contactList,
    RequestSeqNo requestSeqNo,
    int redirectorNo,
    SipRedirectorPrivateStorage*& privateStorage,
    ErrorDescriptor& errorDescriptor)
 {
-   RedirectPlugin::LookUpStatus lookupStatus = RedirectPlugin::LOOKUP_SUCCESS; // always, so far
+   RedirectPlugin::LookUpStatus lookupStatus = RedirectPlugin::SUCCESS; // always, so far
    
    // Do the cheap global tests first
    //   Is there an authorization proxy route?
    //   Is the request method INVITE? (This operates only on INVITEs)
-   //   Does the response have any Contacts? (If not, there's nothing to do.)
+   //   Does the contact list have any Contacts? (If not, there's nothing to do.)
    if (!mAuthUrl.isNull())
    {
-      int contacts = response.getCountHeaderFields(SIP_CONTACT_FIELD);
+      int contacts = contactList.entries();
       if (   (method.compareTo(SIP_INVITE_METHOD, UtlString::ignoreCase) == 0)
           && (contacts)
          )
       {
          /*
-          * Loop through each contact in the response,
+          * Loop through each contact in the contact list,
           *   checking to see if the contact includes a route set
           */
          UtlString contact;
          for (int contactNumber = 0;
-              response.getContactEntry(contactNumber, &contact);
+              contactList.get(contactNumber, contact);
               contactNumber++
               )
          {
@@ -195,28 +194,16 @@ RedirectPlugin::LookUpStatus SipRedirectorAuthRouter::lookUp(
             if( bAddRouteToSipXProxy )
             {
                // and put the modified contact back into the message
-               UtlString modifiedContact;
-               contactUri.toString(modifiedContact);
-               response.setContactField(modifiedContact, contactNumber);
-               OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                             "%s::lookUp modified:\n"
-                             "   '%s'\n"
-                             "in '%s'\n"
-                             "to '%s'\n"
-                             "in '%s'\n",
-                             mLogName.data(),
-                             routeValue.data(), contact.data(),
-                             checkedRoute.data(), modifiedContact.data()
-                             );
+               contactList.set( contactNumber, contactUri, *this );
             }
          } // loop over all contacts
       }
       else
       {
-         // request is not an INVITE, or no Contact headers in the response
+         // request is not an INVITE, or the contact list is empty
          OsSysLog::add(FAC_SIP, PRI_DEBUG,
                        "%s::lookUp "
-                       "'%s' request is not an INVITE or has no response contacts (%d) - ignored.",
+                       "'%s' request is not an INVITE or ContactList has no contacts (%d) - ignored.",
                        mLogName.data(), method.data(), contacts
                        );
       }
@@ -228,4 +215,9 @@ RedirectPlugin::LookUpStatus SipRedirectorAuthRouter::lookUp(
    }
 
    return lookupStatus;
+}
+
+const UtlString& SipRedirectorAuthRouter::name( void ) const
+{
+   return mLogName;
 }

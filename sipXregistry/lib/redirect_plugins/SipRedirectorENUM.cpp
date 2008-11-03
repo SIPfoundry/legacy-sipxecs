@@ -162,7 +162,6 @@ void SipRedirectorENUM::readConfig(OsConfigDb& configDb)
 // Initializer
 OsStatus
 SipRedirectorENUM::initialize(OsConfigDb& configDb,
-                               SipUserAgent* pSipUserAgent,
                                int redirectorNo,
                                const UtlString& localDomainHost)
 {
@@ -189,7 +188,7 @@ SipRedirectorENUM::lookUp(
    const UtlString& requestString,
    const Url& requestUri,
    const UtlString& method,
-   SipMessage& response,
+   ContactList& contactList,
    RequestSeqNo requestSeqNo,
    int redirectorNo,
    SipRedirectorPrivateStorage*& privateStorage,
@@ -377,8 +376,7 @@ SipRedirectorENUM::lookUp(
                         contact.setHeaderParameter(SIP_ROUTE_FIELD, route.data());
 
                         // Return the modified contact.
-                        RedirectPlugin::addContact(response, requestString,
-                                                   contact, mLogName.data());
+                        contactList.add( contact, *this );
                      }
                      else
                      {
@@ -444,7 +442,12 @@ SipRedirectorENUM::lookUp(
       }
    }
 
-   return RedirectPlugin::LOOKUP_SUCCESS;
+   return RedirectPlugin::SUCCESS;
+}
+
+const UtlString& SipRedirectorENUM::name( void ) const
+{
+   return mLogName;
 }
 
 // Function to get a boolean configuration setting based on the Y/N value of

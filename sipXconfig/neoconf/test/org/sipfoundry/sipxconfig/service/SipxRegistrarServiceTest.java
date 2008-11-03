@@ -75,8 +75,8 @@ public class SipxRegistrarServiceTest extends TestCase {
         Setting presenceSettings = presenceService.getSettings();
 
         presenceSettings.getSetting("presence-config/SIP_PRESENCE_SIGN_IN_CODE").setValue("*123");
-        registrarSettings.getSetting("call-pick-up/SIP_REDIRECT.180-PICKUP.DIRECTED_CALL_PICKUP_CODE").setValue("*123");
-
+        registrarSettings.getSetting("call-pick-up/SIP_REDIRECT.100-PICKUP.DIRECTED_CALL_PICKUP_CODE").setValue("*123");
+        
         try {
             m_out.validate();
             fail("Expected validation exception due to duplicate codes.");

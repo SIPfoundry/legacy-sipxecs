@@ -63,7 +63,7 @@ public class SipxPresenceServiceTest extends TestCase {
 
         Setting registrarSettings = registrarService.getSettings();
         registrarSettings.getSetting(
-                "call-pick-up/SIP_REDIRECT.180-PICKUP.DIRECTED_CALL_PICKUP_CODE")
+                "call-pick-up/SIP_REDIRECT.100-PICKUP.DIRECTED_CALL_PICKUP_CODE")
                 .setValue("*123");
 
         try {

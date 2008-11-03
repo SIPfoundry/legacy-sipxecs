@@ -287,7 +287,6 @@ void SipRedirectorPickUp::readConfig(OsConfigDb& configDb)
 // Initializer
 OsStatus
 SipRedirectorPickUp::initialize(OsConfigDb& configDb,
-                                SipUserAgent* pSipUserAgent,
                                 int redirectorNo,
                                 const UtlString& localDomainHost)
 {
@@ -378,7 +377,7 @@ SipRedirectorPickUp::lookUp(
    const UtlString& requestString,
    const Url& requestUri,
    const UtlString& method,
-   SipMessage& response,
+   ContactList& contactList,
    RedirectPlugin::RequestSeqNo requestSeqNo,
    int redirectorNo,
    SipRedirectorPrivateStorage*& privateStorage,
@@ -405,7 +404,7 @@ SipRedirectorPickUp::lookUp(
       // prefix, we also require that the suffix not be "*" or "#".
       return lookUpDialog(requestString,
                           incomingCallId,
-                          response,
+                          contactList,
                           requestSeqNo,
                           redirectorNo,
                           privateStorage,
@@ -421,7 +420,7 @@ SipRedirectorPickUp::lookUp(
       // Process the global call pick-up code.
       return lookUpDialog(requestString,
                           incomingCallId,
-                          response,
+                          contactList,
                           requestSeqNo,
                           redirectorNo,
                           privateStorage,
@@ -457,12 +456,11 @@ SipRedirectorPickUp::lookUp(
                UtlString uri = *((UtlString*)record.findValue(&uriKey));
                Url contactUri(uri);
 
-               // Add the contact to the response.
-               addContact(response, requestString, contactUri,
-                          mLogNameGlobalPickUp.data());
+               // Add the contact to the contact list.
+               contactList.add( contactUri, *this );
             }
          }
-         return RedirectPlugin::LOOKUP_SUCCESS;
+         return RedirectPlugin::SUCCESS;
       }
       else
       {
@@ -471,7 +469,7 @@ SipRedirectorPickUp::lookUp(
          reasonPhrase.append( ALL_CREDENTIALS_USER );
          errorDescriptor.setStatusLineData( SIP_BAD_METHOD_CODE, reasonPhrase );
          errorDescriptor.setAllowFieldValue( SIP_SUBSCRIBE_METHOD );
-         return RedirectPlugin::LOOKUP_ERROR;
+         return RedirectPlugin::ERROR;
       }
    }
    else if (!mCallRetrieveCode.isNull() &&
@@ -480,12 +478,12 @@ SipRedirectorPickUp::lookUp(
       // Check if call retrieve is active, and this is a request for
       // an extension that is an orbit number.
 
-      // Add the contact to the response.
+      // Add the contact to the contact list.
       UtlString contactStr = "sip:" + userId + "@" + mParkServerDomain;
       Url contactUri(contactStr, Url::AddrSpec);
-      addContact(response, requestString, contactUri, mLogNameOrbit.data());
+      contactList.add( contactUri, *this );
 
-      return RedirectPlugin::LOOKUP_SUCCESS;
+      return RedirectPlugin::SUCCESS;
    }
    else if (!mCallRetrieveCode.isNull() &&
             userId.length() > mCallRetrieveCode.length() &&
@@ -508,7 +506,7 @@ SipRedirectorPickUp::lookUp(
          {
             return lookUpDialog(requestString,
                                 incomingCallId,
-                                response,
+                                contactList,
                                 requestSeqNo,
                                 redirectorNo,
                                 privateStorage,
@@ -520,14 +518,14 @@ SipRedirectorPickUp::lookUp(
          else
          {
             // It appears to be a call retrieve, but the orbit number is invalid.
-            // Return LOOKUP_ERROR.
+            // Return ERROR.
             UtlString reasonPhrase;
             reasonPhrase = "Park Orbit " + orbit + " Not Found";
             errorDescriptor.setStatusLineData( SIP_NOT_FOUND_CODE, reasonPhrase );
             OsSysLog::add(FAC_SIP, PRI_DEBUG,
                           "%s::lookUp Invalid orbit number '%s'",
                           mLogName.data(), orbit.data());
-            return RedirectPlugin::LOOKUP_ERROR;
+            return RedirectPlugin::ERROR;
          }
       }
       else
@@ -541,13 +539,13 @@ SipRedirectorPickUp::lookUp(
          OsSysLog::add(FAC_SIP, PRI_ERR,
                        "%s::lookUp Executor does not support INVITE/Replaces",
                        mLogName.data());
-         return RedirectPlugin::LOOKUP_ERROR;                       
+         return RedirectPlugin::ERROR;                       
       }
    }
    else
    {
       // We do not recognize the user, so we do nothing.
-      return RedirectPlugin::LOOKUP_SUCCESS;
+      return RedirectPlugin::SUCCESS;
    }
 }
 
@@ -555,7 +553,7 @@ RedirectPlugin::LookUpStatus
 SipRedirectorPickUp::lookUpDialog(
    const UtlString& requestString,
    const UtlString& incomingCallId,
-   SipMessage& response,
+   ContactList& contactList,
    RedirectPlugin::RequestSeqNo requestSeqNo,
    int redirectorNo,
    SipRedirectorPrivateStorage*& privateStorage,
@@ -575,12 +573,6 @@ SipRedirectorPickUp::lookUpDialog(
    // recorded in private storage.
    if (privateStorage)
    {
-      // Any previously added contacts are moot.  The pickup code was
-      // matched, so just in case nothing responded (so no contacts get
-      // added below), we want to send a 404, as no ringing phones were 
-      // found
-      removeAllContacts(response) ;
-
       // Cast the private storage pointer to the right type so we can
       // access the needed dialog information.
       SipRedirectorPrivateStoragePickUp* dialog_info =
@@ -634,7 +626,7 @@ SipRedirectorPickUp::lookUpDialog(
                                            SIP_REPLACES_EXTENSION);
 
             // Record the URI as a contact.
-            addContact(response, requestString, contact_URI, mLogNamePickUp);
+            contactList.add( contact_URI, *this );
 
             // If "reversed Replaces" is configured, also add a Replaces: with
             // the to-tag and from-tag reversed.
@@ -660,13 +652,13 @@ SipRedirectorPickUp::lookUpDialog(
                // the correct order.
                c.setFieldParameter("q", "0.9");
    
-               addContact(response, requestString, c, mLogNamePickUp);
+               contactList.add( c,  *this );
             }
          }
       }
 
       // We do not need to suspend this time.
-      return RedirectPlugin::LOOKUP_SUCCESS;
+      return RedirectPlugin::SUCCESS;
    }
    else
    {
@@ -696,10 +688,9 @@ SipRedirectorPickUp::lookUpDialog(
          
          contact_URI.setUrlParameter("operation", "retrieve");               
  
-         addContact(response, requestString, contact_URI,
-                    mLogNameRetrieve.data());
+         contactList.add( contact_URI, *this );
          // We do not need to suspend this time.*/
-         return RedirectPlugin::LOOKUP_SUCCESS;         
+         return RedirectPlugin::SUCCESS;         
       }
       else
       {
@@ -791,7 +782,7 @@ SipRedirectorPickUp::lookUpDialog(
          storage->mTimer.oneshotAfter(OsTime(mWaitSecs, mWaitUSecs));
    
          // Suspend processing the request.
-         return RedirectPlugin::LOOKUP_SUSPEND;
+         return RedirectPlugin::SEARCH_PENDING;
       }
    }
 }
@@ -1207,4 +1198,9 @@ SipRedirectorPickUpTask::handleMessage(OsMsg& eventMessage)
    }
 
    return handled;
+}
+
+const UtlString& SipRedirectorPickUp::name( void ) const
+{
+   return mLogName;
 }

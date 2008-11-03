@@ -186,7 +186,6 @@ void SipRedirectorJoin::readConfig(OsConfigDb& configDb)
 // Initializer
 OsStatus
 SipRedirectorJoin::initialize(OsConfigDb& configDb,
-                              SipUserAgent* pSipUserAgent,
                               int redirectorNo,
                               const UtlString& localDomainHost)
 {
@@ -277,7 +276,7 @@ SipRedirectorJoin::lookUp(
    const UtlString& requestString,
    const Url& requestUri,
    const UtlString& method,
-   SipMessage& response,
+   ContactList& contactList,
    RedirectPlugin::RequestSeqNo requestSeqNo,
    int redirectorNo,
    SipRedirectorPrivateStorage*& privateStorage,
@@ -297,7 +296,7 @@ SipRedirectorJoin::lookUp(
    {
       return lookUpDialog(requestString,
                           incomingCallId,
-                          response,
+                          contactList,
                           requestSeqNo,
                           redirectorNo,
                           privateStorage,
@@ -310,7 +309,7 @@ SipRedirectorJoin::lookUp(
    else
    {
       // We do not recognize the user, so we do nothing.
-      return RedirectPlugin::LOOKUP_SUCCESS;
+      return RedirectPlugin::SUCCESS;
    }
 }
 
@@ -318,7 +317,7 @@ RedirectPlugin::LookUpStatus
 SipRedirectorJoin::lookUpDialog(
    const UtlString& requestString,
    const UtlString& incomingCallId,
-   SipMessage& response,
+   ContactList& contactList,
    RedirectPlugin::RequestSeqNo requestSeqNo,
    int redirectorNo,
    SipRedirectorPrivateStorage*& privateStorage,
@@ -381,11 +380,11 @@ SipRedirectorJoin::lookUpDialog(
                                         SIP_JOIN_EXTENSION);
 
          // Record the URI as a contact.
-         addContact(response, requestString, contact_URI, mLogName.data());
+         contactList.add( contact_URI, *this );
       }
 
       // We do not need to suspend this time.
-      return RedirectPlugin::LOOKUP_SUCCESS;
+      return RedirectPlugin::SUCCESS;
    }
    else
    {
@@ -484,7 +483,7 @@ SipRedirectorJoin::lookUpDialog(
       storage->mTimer.oneshotAfter(OsTime(mWaitSecs, mWaitUSecs));
    
       // Suspend processing the request.
-      return RedirectPlugin::LOOKUP_SUSPEND;
+      return RedirectPlugin::SEARCH_PENDING;
    }
 }
 
@@ -936,6 +935,11 @@ SipRedirectorJoin::textContentDeepRecursive(UtlString& string,
    }
 }
 
+const UtlString& SipRedirectorJoin::name( void ) const
+{
+   return mLogName;
+}
+
 // Function to get a boolean configuration setting based on the Y/N value of
 // a configuration parameter.
 static UtlBoolean getYNconfig(OsConfigDb& configDb,
@@ -976,3 +980,4 @@ static UtlBoolean getYNconfig(OsConfigDb& configDb,
    }
    return value;
 }
+

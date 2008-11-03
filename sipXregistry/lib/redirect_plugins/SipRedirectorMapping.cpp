@@ -60,7 +60,6 @@ void SipRedirectorMapping::readConfig(OsConfigDb& configDb)
 // Initialize
 OsStatus
 SipRedirectorMapping::initialize(OsConfigDb& configDb,
-                                 SipUserAgent* pSipUserAgent,
                                  int redirectorNo,
                                  const UtlString& localDomainHost)
 {
@@ -88,7 +87,7 @@ SipRedirectorMapping::lookUp(
    const UtlString& requestString,
    const Url& requestUri,
    const UtlString& method,
-   SipMessage& response,
+   ContactList& contactList,
    RequestSeqNo requestSeqNo,
    int redirectorNo,
    SipRedirectorPrivateStorage*& privateStorage,
@@ -97,14 +96,6 @@ SipRedirectorMapping::lookUp(
    UtlString permissionName;
    ResultSet urlMappingRegistrations;
    ResultSet urlMappingPermissions;
-
-   // Return immediately if this is a "fallback" mapping and there are
-   // already contacts.
-   if (mFallback &&
-       response.getCountHeaderFields(SIP_CONTACT_FIELD) > 0)
-   {
-      return RedirectPlugin::LOOKUP_SUCCESS;
-   }
 
    // @JC This variable is strangely overloaded
    // If we have no permissions then add any encountered
@@ -247,10 +238,15 @@ SipRedirectorMapping::lookUp(
             // have comprehensive loop detection in the proxy.
 
             // Add the contact.
-            addContact(response, requestString, contactUri, mLogName.data());
+            contactList.add( contactUri, *this );
          }
       }
    }
 
-   return RedirectPlugin::LOOKUP_SUCCESS;
+   return RedirectPlugin::SUCCESS;
+}
+
+const UtlString& SipRedirectorMapping::name( void ) const
+{
+   return mLogName;
 }

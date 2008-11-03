@@ -2,13 +2,46 @@ INCLUDES = \
 	-I$(top_srcdir)/src \
 	-I$(top_srcdir)/include 
 
+lib_LTLIBRARIES = \
+    libDummyRedirectPlugin.la
+    
+## Libtool version info - update only immediately before a release
+# Current - increment if any interfaces are added, removed, or changed
+version_Current=1
+# Revision - set to 0 if Current was incremented
+#            increment if any implementation has changed
+version_Revision=0
+# Age - set to 0 of any interfaces have been removed
+#       increment if any interfaces have been added
+version_Age=0
+
+# Note that adding new @*_LIBS@ symbols to the *_LIBADD lists may require
+# adding SFAC_LIB_* macros (defined in ../../../config/sipXlib.m4)
+# to ../../configure.ac to establish the substitution for the @*_LIBS@ symbols.
+
+# DummyRedirectPlugin
+
+libDummyRedirectPlugin_la_LDFLAGS = \
+    -module \
+    -version-info ${version_Current}:${version_Revision}:${version_Age}
+
+libDummyRedirectPlugin_la_LIBADD = \
+    @SIPXCOMMSERVER_LIBS@
+
+libDummyRedirectPlugin_la_CXXFLAGS = \
+    -I$(top_builddir)/config
+
+libDummyRedirectPlugin_la_SOURCES =  \
+    DummyRedirectPlugin.cpp 
+
+     
 ## All tests under this GNU variable should run relatively quickly
 ## and of course require no setup
 # These tests are split into multiple executables because the machinery
 # for setting up an alternative registration database can be executed
 # only once in an executable.
 #TESTS = testsuite1 testsuite2 testsuite3 testsuite4
-TESTS = 
+TESTS = testsuite4
 
 check_PROGRAMS = testsuite1 testsuite2 testsuite3 testsuite4 sandbox
 
@@ -39,12 +72,16 @@ testsuite3_SOURCES = \
     ApplyUpdatesTest.cpp
 
 testsuite4_CXXFLAGS = $(testsuite_CXXFLAGS)
+testsuite4_LDFLAGS = -rdynamic
 testsuite4_LDADD = $(testsuite_LDADD)
 
 testsuite4_SOURCES = \
     ../RedirectPlugin.cpp \
     ../SipRedirectServer.cpp \
+    ../RedirectSuspend.cpp \
+    ../RedirectResumeMsg.cpp \
     ErrorDescriptorTest.cpp \
+    ContactListTest.cpp \
     SipRedirectServerTest.cpp
     
 EXTRA_DIST = \

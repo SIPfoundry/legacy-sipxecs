@@ -54,7 +54,6 @@ SipRedirectorHunt::~SipRedirectorHunt()
 // Initializer
 OsStatus
 SipRedirectorHunt::initialize(OsConfigDb& configDb,
-                              SipUserAgent* pSipUserAgent,
                               int redirectorNo,
                               const UtlString& localDomainHost)
 {
@@ -80,7 +79,7 @@ SipRedirectorHunt::lookUp(
    const UtlString& requestString,
    const Url& requestUri,
    const UtlString& method,
-   SipMessage& response,
+   ContactList& contactList,
    RequestSeqNo requestSeqNo,
    int redirectorNo,
    SipRedirectorPrivateStorage*& privateStorage,
@@ -90,16 +89,16 @@ SipRedirectorHunt::lookUp(
    // be stripped later anyway.
    if (method.compareTo(SIP_SUBSCRIBE_METHOD, UtlString::ignoreCase) == 0)
    {
-      return RedirectPlugin::LOOKUP_SUCCESS;
+      return RedirectPlugin::SUCCESS;
    }
 
    // Avoid doing any work if the request URI is not a hunt group.
    if (!HuntgroupDB::getInstance()->isHuntGroup(requestUri))
    {
-      return RedirectPlugin::LOOKUP_SUCCESS;
+      return RedirectPlugin::SUCCESS;
    }
 
-   int numContacts = response.getCountHeaderFields(SIP_CONTACT_FIELD);
+   int numContacts = contactList.entries();
 
    numContacts = ( (numContacts <= HUNT_GROUP_MAX_CONTACTS)
                   ? numContacts
@@ -110,7 +109,7 @@ SipRedirectorHunt::lookUp(
 
    UtlString thisContact;
    for (int contactNum = 0;
-        response.getContactField(contactNum, thisContact);
+        contactList.get( contactNum, thisContact );
         contactNum++)
    {
       Url contactUri( thisContact );
@@ -147,7 +146,7 @@ SipRedirectorHunt::lookUp(
                   char temp[6];
                   sprintf(temp, "0.%03d", HUNT_GROUP_MAX_Q - thisDelta);
                   contactUri.setFieldParameter(SIP_Q_FIELD, temp);
-                  response.setContactField(contactUri.toString(), contactNum);
+                  contactList.set( contactNum, contactUri, *this );
 
                   OsSysLog::add( FAC_SIP, PRI_INFO,
                                  "%s::lookUp set q-value "
@@ -161,7 +160,7 @@ SipRedirectorHunt::lookUp(
             // We've randomized HUNT_GROUP_MAX_CONTACTS,
             // so from here on just set the q value to 0.0
             contactUri.setFieldParameter(SIP_Q_FIELD, "0.0");
-            response.setContactField(contactUri.toString(), contactNum);
+            contactList.set( contactNum, contactUri, *this );
             OsSysLog::add( FAC_SIP, PRI_WARNING,
                            "%s::lookUp overflow - "
                            "set q=0.0 on '%s'\n",
@@ -176,5 +175,10 @@ SipRedirectorHunt::lookUp(
 
    delete[] qDeltas;
 
-   return RedirectPlugin::LOOKUP_SUCCESS;
+   return RedirectPlugin::SUCCESS;
+}
+
+const UtlString& SipRedirectorHunt::name( void ) const
+{
+   return mLogName;
 }

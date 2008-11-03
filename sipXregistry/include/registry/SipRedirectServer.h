@@ -36,6 +36,197 @@
 class SipRegistrar;
 class SipRedirectServerPrivateStorageIterator;
 
+/** 
+ * <b>Redirection Overview</b>
+ *
+ *  The sipXregistry redirect server implemented by the SipRedirectServer class
+ *  maps the Request-URI of an incoming request to a set of alternative locations 
+ *  at which the target of that URI can be found.   This mapping task is accomplished
+ *  with the help of Redirect plug-ins that are called upon in succession by the 
+ *  SipRedirectServer to look up the request and contribute to the circulated ContactList. 
+ *  When this process completes, if non-empty, the resulting ContactList contains all 
+ *  the contacts that the request should be redirected to and will be furnished to the 
+ *  requester in a "302 Moved Temporarily" response.  If empty, a "404 Not Found" is sent 
+ *  in response to the request.
+ *  
+ *  Each redirect plug-in is a concrete implementation of the RedirectPlugin 
+ *  interface and must conform to its specification. @See RedirectPlugin for additional
+ *  information.
+ * 
+ * <b>Order and precedence of redirect plug-ins</b>
+ * 
+ *  In order to establish their relative order and precendence, each redirect plug-in has two
+ *  attributes:  
+ *   -# a three-digit ordinal number which establishes the order;
+ *   -# an authority level which establishes the precedence.
+ *
+ * <b>Effects of the ordinal number attribute</b>
+ * 
+ *  The ordinal number attribute is used by the SipRedirectServer to determine the order
+ *  in which it is going to call the redirect plug-ins to redirect a given incoming request.
+ *  That order is established based on the following rules:
+ *  
+ *  Let 'A' and 'B' be redirect plug-ins 'A' and 'B'.
+ *  Let ord(A) and ord(B) be the ordinal number attributes of redirect plug-ins 'A' and 'B'.
+ * 
+ *  - A will be called before B if ord(A) < ord(B)
+ *  - A will be called after B if ord(A) > ord(B)
+ *  - The calling order of A and B is non-deterministic if ord(A) == ord(B)
+ *   
+ * <b>Effects of the authority level attribute</b>
+ *
+ *  The authority level attribute is used by the SipRedirectServer to establish the precedence
+ *  of the redirect plug-ins according to these rules.  If a redirect plug-in has a sufficiently
+ *  high authority level, it will offered the opportunity to provide Contacts for the request via a call
+ *  to its RedirectPlugin::lookUp() method otherwise it will ony be allowed to observe the request
+ *  via a call to its RedirectPlugin::observe().
+ * 
+ *  Let A be the last redirect plug-in that modified the ContactList.
+ *  Let B be a redirect plug-in that comes after A (immediately or not) in the redirect 
+ *  plug-in chain ( implies that ord(A) < ord(B) ).
+ *  Let AL(A) and AL(B) be the authority level attributes of redirect plug-ins 'A 'and 'B'  
+ * 
+ *   - B will be allowed to look up the request and modify the ContactList if 
+ *     it chooses to iff AL(B) >= AL(A) 
+ *   - B will be allowed to observe the request and ContactList without being able
+ *     to modify it iff AL(B) < AL(A)
+ * 
+ *  To state it in words, when a plug-in is called upon by SipRedirectServer to look up a 
+ *  request, it means that its authority level is higher than or equal to the authority level
+ *  of the last plug-in to have modified the ContactList.  This plug-in is therefore 
+ *  granted the opportunity to modify the ContactList the way it sees fit to satisfy  
+ *  its redirection policy wihtout any regards to the plug-ins that contributed to 
+ *  the list before it.  If the plug-in modifies the ContactList in any way either 
+ *  by adding new contact(s), modifying or removing already contributed contacts or 
+ *  simply by 'touch'ing the ContactList, that list ,in a sense, inherits the autority 
+ *  level of that plug-in such that it can only be further modified by a subsequent 
+ *  redirect plug-in of greater or equal authority level. Plug-ins that have an 
+ *  authority level inferior to the last plug-in that modfied the ContactList will only 
+ *  be allowed to observe the request but not to contribute to the ContactList.  
+ *
+ * <b> Possible uses of order and authority level attributes to arbitrate interactions
+ *     between plug-ins</b>
+ *
+ *  Having each plug-in associated with ordinal and authority levels creates a 
+ *  two-dimensional framework within which some redirect plug-in interactions can be managed.
+ *  This section will provide three such examples:
+ *
+ *  <b>Case #1</b> - Mutually-exclusive plug-ins  
+ *  
+ *  Let 'A' and 'B' be redirect plug-ins 'A' and 'B'.
+ *  Let B be governed by a redirection policy such that it should not provide contacts
+ *  if A already did.
+ *  
+ *  This interaction between A and B can be managed through proper configuration
+ *  of the ordinal and authority level attributes of A and B as follows:
+ *   
+ *   - Set Ord(A) < Ord(B)
+ *   - Set AL(A)  > AL(B)
+ *
+ *  <b>Case #2</b> - "editor" plug-in 
+ *  
+ *  Let 'A' be governed by a redirection policy such that it must inspect and optionally
+ *  edit all the contacts contributed by the plug-ins before SipRedirectServer sends out
+ *  its "302 Moved Temporarily"
+ *
+ *  This interaction between A and the rest of the plug-ins can be managed through proper 
+ *  configuration of the ordinal and authority level attributes of the plug-ins as follows:
+ *   
+ *   - Set Ord(A) > all other plug-ins
+ *   - Set AL(A)  > all other plug-ins
+ *
+ *  <b>Case #3</b> - Specialized Authoritative Plug-in 
+ *  
+ *  Let 'A' be governed by a redirection policy such that it is responsible for handling 
+ *  a specialized subset of requests and when it does, the contacts it supplies are final.
+ *  A theoretical example of such a plug-in could be one that is responsible for redirecting
+ *  emergency calls to the proper location.  
+ *  
+ *  This interaction between A and the rest of the plug-ins can be managed through proper 
+ *  configuration of the  authority level attribute of the plug-ins as follows:
+ *   
+ *   - Set Ord(A) == Don't care[1]
+ *   - Set AL(A)  > all other plug-ins
+ * 
+ *  [1] Any value of Ord(A) will achieve the goal but in most cases, performance gains can
+ *      be realized by using Ord(A) values that would put it at (or towards) the beginning
+ *      of the redirect plug-in chain.
+ * 
+ * <b>Error Handling</b>
+ * 
+ *  When a redirect plug-in is asked to look-up a request, that plug-in, upon inspection
+ *  of the request, may determine that the request is interesting but contains errors 
+ *  that prevent it from completing the look-up operation.  When such conditions
+ *  are encountered, the plug-in will return the ERROR status code.  When the SipRedirectServer 
+ *  sees a plug-in returning ERROR, it immediately aborts the redirect plug-in chain and 
+ *  builds a final failure response based on the returned ErrorDescriptor.
+ * 
+ * <b>Asynchronous processing of requests by redirect plug-ins</b>
+ * 
+ *  When a redirect plug-in looks up a request, it returns a status code.  The
+ *  values are SUCCESS, ERROR (which means that redirection should
+ *  terminate immediately), and SEARCH_PENDING.  If the redirect
+ *  plug-in returns SEARCH_PENDING, it is indicating that its processing
+ *  cannot be completed quickly.
+ * 
+ *  Before returning SEARCH_PENDING, the redirect plug-in is responsible for arranging
+ *  for asynchronous processing that will bring the redirect plug-in into a
+ *  state where it can complete its processing quickly.  Asynchronous
+ *  processing then calls RedirectPlugin::resumeRedirection() to indicate to the 
+ *  SipRedirectServer that the request should be reprocessed.
+ * 
+ *  The SipRedirectServer will the re-execute the redirect plug-in chain for the
+ *  request.  The redirect plug-ins are expected to succeed, after which the
+ *  SipRedirectServer sends a response to the request.  (A redirect plug-in is
+ *  allowed to return SEARCH_PENDING several times for a single request, but
+ *  this should be avoided for efficiency.)
+ * 
+ *  A redirect plug-in has a cancel() method by which the SipRedirectServer may 
+ *  inform it that a request that it is working on has been canceled.  Such
+ *  cancellation may be due to a CANCEL from the requester, a transaction
+ *  time-out (because some redirect plug-in remained suspended too long),
+ *  reinitialization of the SipRedirectServer, or an error response from
+ *  another redirector.
+ * 
+ *  If a redirect plug-in asks for suspension, processing continues with the
+ *  other redirect plug-ins in the sequence, but at the end of processing, the
+ *  ContactList that is being generated is discarded, and the entire sequence
+ *  is re-executed once all the redirect plug-ins have indicated that they can
+ *  succeed, generating a new, correct ContactList.  This is somewhat
+ *  inefficient, but there is no simple scheme to make it more efficient
+ *  that does not place tight constraints on the redirect plug-ins that we may
+ *  want to loosen in the near future.  The current target is that a
+ *  suspended redirection should take no more than twice the work of a
+ *  non-suspended redirection, and that a very small fraction of
+ *  redirection requests will be suspended. 
+ * 
+ *  Each request that is suspended has a sequence number that is unique
+ *  over long periods of time.  Currently, the sequence number is a 32 bit
+ *  unsigned integer that increments for every request.  It is given to
+ *  each redirector and is used to identify the request.
+ * 
+ *  redirect plug-ins may maintain their own data storage in one of two ways.
+ * 
+ *  The first method is simple to code but is single-threaded.  The
+ *  SipRedirectServer maintains for every suspended request and every
+ *  redirect plug-in a pointer to private storage for that redirect plug-in.  The
+ *  redirect plug-in may allocate an object and save the pointer to it.  The
+ *  SipRedirectServer guarantees to delete the object (thus executing its
+ *  destructor) after processing of the request is done.  Using service
+ *  methods, the redirect plug-in can find the object for any particular
+ *  sequence number, or examine the objests for all suspended requests.
+ *  However, any access to these objects requires holding a global mutex. 
+ * 
+ *  The second method is more complex to code but can be parallelized.
+ *  That method is for the redirector to maintain its own data structures,
+ *  using the request serial numbers to coordinate its data items with the
+ *  SipRedirectServer's list of suspended requests.  The SipRedirectServer
+ *  guarantees to call the redirect plug-in's cancel() method once its
+ *  services are no longer needed for that request.  The SipRedirectServer's
+ *  cancel() method can free storage allocated for the request.
+ * 
+ */ 
+
 class SipRedirectServer : public OsServerTask  
 {
    friend class SipRedirectServerPrivateStorageIterator;
@@ -145,6 +336,8 @@ class SipRedirectServer : public OsServerTask
    UtlString mDefaultDomain;
    
   private:
+     static const char* AuthorityLevelPrefix;
+     
      /**
       *  Fills in the supplied response with the common fields taken from the 
       *  request and and the data contained in the supplied ErrorDescriptor 
@@ -153,6 +346,14 @@ class SipRedirectServer : public OsServerTask
                                                       const SipMessage& request, 
                                                       const ErrorDescriptor& errorDescriptor );
     
+     struct RedirectorDescriptor
+     {
+        bool      bActive;
+        ssize_t   authorityLevel;
+        UtlString name;
+     };
+
+     RedirectorDescriptor *mpConfiguredRedirectors;  // array containig info about the redirectors         
      friend class SipRedirectServerTest;
 };
 

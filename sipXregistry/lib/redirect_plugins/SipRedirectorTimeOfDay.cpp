@@ -57,7 +57,6 @@ void SipRedirectorTimeOfDay::readConfig(OsConfigDb& configDb)
 // Initializer
 OsStatus
 SipRedirectorTimeOfDay::initialize(OsConfigDb& configDb,
-                                 SipUserAgent* pSipUserAgent,
                                  int redirectorNo,
                                  const UtlString& localDomainHost)
 {
@@ -88,24 +87,23 @@ SipRedirectorTimeOfDay::lookUp(
    const UtlString& requestString,
    const Url& requestUri,
    const UtlString& method,
-   SipMessage& response,
+   ContactList& contactList,
    RequestSeqNo requestSeqNo,
    int redirectorNo,
    SipRedirectorPrivateStorage*& privateStorage,
    ErrorDescriptor& errorDescriptor)
 {
-   return processResponse(response);
+   return processContactList(contactList);
 }
 
-RedirectPlugin::LookUpStatus SipRedirectorTimeOfDay::processResponse(SipMessage& response)
+RedirectPlugin::LookUpStatus SipRedirectorTimeOfDay::processContactList(ContactList& contactList)
 {
-   // Get the number of contacts in the response
-   int numContactsInHeader =
-      response.getCountHeaderFields(SIP_CONTACT_FIELD);
+   // Get the number of contacts in the contact list
+   int numContactsInList = contactList.entries();
 
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                 "%s::processResponse %d contacts found",
-                 mLogName.data(), numContactsInHeader);
+                 "%s::processContactList %d contacts found",
+                 mLogName.data(), numContactsInList);
 
    UtlString contact;
 
@@ -113,15 +111,15 @@ RedirectPlugin::LookUpStatus SipRedirectorTimeOfDay::processResponse(SipMessage&
    // It is important that the iteration is in this order 
    // to allow some contact headers to be removed in the process
    // without impacting the operation of the loop
-   for ( int contactIndex = numContactsInHeader - 1;
+   for ( int contactIndex = numContactsInList - 1;
          contactIndex >= 0;
          contactIndex-- )
    {
       UtlString contact;
-      if (!response.getContactEntry(contactIndex, &contact))
+      if (!contactList.get(contactIndex, contact))
       {
          OsSysLog::add(FAC_SIP, PRI_WARNING,
-                       "%s::processResponse getContactEntry failed for index %d",
+                       "%s::processContactList getContactEntry failed for index %d",
                        mLogName.data(), contactIndex);
       }
       else
@@ -129,46 +127,46 @@ RedirectPlugin::LookUpStatus SipRedirectorTimeOfDay::processResponse(SipMessage&
          Url contactUri(contact);
       
          OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                       "%s::processResponse contact %d '%s'",
+                       "%s::processContactList contact %d '%s'",
                        mLogName.data(), contactIndex, contact.data());
 
          UtlString timeOfDayString;
          if (!contactUri.getFieldParameter(SIPX_TIMEOFDAY_PARAMETER, timeOfDayString))
          {
             OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                          "%s::processResponse %s param not found",
+                          "%s::processContactList %s param not found",
                           mLogName.data(), SIPX_TIMEOFDAY_PARAMETER);
          }
          else
          {
             OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                          "%s::processResponse %s param found: '%s'",
+                          "%s::processContactList %s param found: '%s'",
                           mLogName.data(), SIPX_TIMEOFDAY_PARAMETER, timeOfDayString.data());
 
             if (isCurrentTimeValid(timeOfDayString))
             {
-               // Leave the contact header in the response, but remove the validity param
+               // Modify the contact in the list to remove the validity param
                contactUri.removeFieldParameter(SIPX_TIMEOFDAY_PARAMETER);
                // and put the modified contact back into the message
                UtlString modifiedContact;
                contactUri.toString(modifiedContact);
-               response.setContactField(modifiedContact, contactIndex);
+               contactList.set( contactIndex, modifiedContact, *this );
                OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                             "%s::processResponse modified contact is: '%s'",
+                             "%s::processContactList modified contact is: '%s'",
                              mLogName.data(), modifiedContact.data());
             }
             else
             {
                // Remove the contact header alltogether
-               UtlBoolean removed = response.removeHeader(SIP_CONTACT_FIELD, contactIndex);
+               UtlBoolean removed = contactList.remove( contactIndex, *this );
                OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                             "%s::processResponse attempt to remove contact %d rsp %d",
+                             "%s::processContactList attempt to remove contact %d rsp %d",
                              mLogName.data(), contactIndex, removed);
             }
          }
       }
    }
-   return RedirectPlugin::LOOKUP_SUCCESS;
+   return RedirectPlugin::SUCCESS;
 }
 
 /**
@@ -235,5 +233,10 @@ UtlBoolean SipRedirectorTimeOfDay::isCurrentTimeValid(UtlString const & validity
       }
    }
    return inContactInterval;
+}
+
+const UtlString& SipRedirectorTimeOfDay::name( void ) const
+{
+   return mLogName;
 }
 

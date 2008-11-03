@@ -21,6 +21,49 @@
 
 #define PLUGIN_LIB_DIR TEST_DIR "/../.libs/"
 
+class DummyPlugin : public RedirectPlugin
+{
+public:
+   explicit DummyPlugin(const UtlString& instanceName) :
+      RedirectPlugin(instanceName)
+   {
+      mName = instanceName;
+   }
+    
+   virtual OsStatus initialize(OsConfigDb& configDb,
+                               int redirectorNo,
+                               const UtlString& localDomainHost)
+   {
+      return OS_SUCCESS;
+   }
+   
+   virtual void finalize()
+   {
+      
+   }
+   
+   virtual LookUpStatus lookUp(
+      const SipMessage& message,      
+      const UtlString& requestString, 
+      const Url& requestUri,          
+      const UtlString& method,
+      ContactList& contactList,         
+      RequestSeqNo requestSeqNo,      
+      int redirectorNo,               
+      class SipRedirectorPrivateStorage*& privateStorage, 
+      ErrorDescriptor& errorDescriptor )
+   {
+      return RedirectPlugin::SUCCESS;
+   }
+   
+   virtual const UtlString& name( void ) const
+   {
+      return mName;
+   }
+   
+   UtlString mName;
+};
+
 /**
  * Unittest for SipRedirectorTimeOfDayTest
  *
@@ -42,6 +85,7 @@ class SipRedirectorTimeOfDayTest : public CppUnit::TestCase
 public:
    void testRedirectorTimeOfDay()
       {
+         DummyPlugin dummyPlugin("Dummy Plugin");
          PluginHooks redPlugin( "getRedirectPlugin", "SIP_REDIRECT" );
 
          OsConfigDb configuration;
@@ -96,68 +140,38 @@ public:
 
          CPPUNIT_ASSERT(plugin->isCurrentTimeValid(longInterval));
 
-         const char Response[] =
-            "SIP/2.0 302 Moved Temporarily\r\n"
-            "Via: SIP/2.0/TCP sipx.local:33855;branch=z9hG4bK-10cb6f9378a12d4218e10ef4dc78ea3d\r\n"
-            "To: Sip User <sip:sipuser@pingtel.org>;tag=totag\r\n"
-            "From: Sip Send <sip:sipsend@pingtel.org>; tag=30543f3483e1cb11ecb40866edd3295b\r\n"
-            "Call-ID: f88dfabce84b6a2787ef024a7dbe8749\r\n"
-            "Cseq: 1 INVITE\r\n"
-            "Max-Forwards: 20\r\n"
-            "Contact: me@127.0.0.1\r\n"
-            "Contact: <sip:me@127.0.0.2>;q=0.8;sipx-ValidTime=\"0:2760\";sipx-noroute=voicemail\r\n"
-            "Contact: <sips:me@127.0.0.3>;sipx-ValidTime=\"01FE:01FE:13B0:13B0\";q=0.8\r\n"
-            "Contact: <sip:me@127.0.0.4>;sipx-ValidTime=\"0:InvalidFormat-ShouldbeRemoved\"\r\n"
-            "Expires: 1000\r\n"
-            "Date: Fri, 16 Jul 2004 02:16:15 GMT\r\n"
-            "Content-Length: 0\r\n"
-            "\r\n";
-         SipMessage testResponse( Response, strlen( Response ) );
-
+         UtlString contact;
+         ContactList contactList1("dummy");
+         contactList1.add( UtlString("me@127.0.0.1"), dummyPlugin );
+         contactList1.add( UtlString("<sip:me@127.0.0.2>;q=0.8;sipx-ValidTime=\"0:2760\";sipx-noroute=voicemail"), dummyPlugin );
+         contactList1.add( UtlString("<sips:me@127.0.0.3>;sipx-ValidTime=\"01FE:01FE:13B0:13B0\";q=0.8"), dummyPlugin );
+         contactList1.add( UtlString("<sip:me@127.0.0.4>;sipx-ValidTime=\"0:InvalidFormat-ShouldbeRemoved\""), dummyPlugin );
          Url contactUrl("<sip:me@127.0.0.5>");
          contactUrl.setFieldParameter("sipx-ValidTime", longInterval.data());
-         testResponse.setContactField(contactUrl.toString().data(), 4);
+         contactList1.add( contactUrl, dummyPlugin );
+         CPPUNIT_ASSERT(plugin->processContactList(contactList1) == RedirectPlugin::SUCCESS );
+         CPPUNIT_ASSERT(3==contactList1.entries());
 
-         UtlString contact;
-
-         CPPUNIT_ASSERT(plugin->processResponse(testResponse));
-         CPPUNIT_ASSERT(3==testResponse.getCountHeaderFields(SIP_CONTACT_FIELD));
-
-         testResponse.getContactField(0, contact);
+         CPPUNIT_ASSERT(contactList1.get(0, contact));
          CPPUNIT_ASSERT(!contact.compareTo("me@127.0.0.1"));
-         testResponse.getContactField(1, contact);
+         CPPUNIT_ASSERT(contactList1.get(1, contact));
          CPPUNIT_ASSERT(!contact.compareTo("<sip:me@127.0.0.2>;q=0.8;sipx-noroute=voicemail"));
-    
-         testResponse.getContactField(2, contact);
+         CPPUNIT_ASSERT(contactList1.get(2, contact));
          CPPUNIT_ASSERT(!contact.compareTo("sip:me@127.0.0.5"));
     
-         const char ResponseNoMod[] =
-            "SIP/2.0 302 Moved Temporarily\r\n"
-            "Via: SIP/2.0/TCP sipx.local:33855;branch=z9hG4bK-10cb6f9378a12d4218e10ef4dc78ea3d\r\n"
-            "To: Sip User <sip:sipuser@pingtel.org>;tag=totag\r\n"
-            "From: Sip Send <sip:sipsend@pingtel.org>; tag=30543f3483e1cb11ecb40866edd3295b\r\n"
-            "Call-ID: f88dfabce84b6a2787ef024a7dbe8749\r\n"
-            "Cseq: 1 INVITE\r\n"
-            "Max-Forwards: 20\r\n"
-            "Contact: me@127.0.0.1\r\n"
-            "Contact: <me@127.0.0.1>;sip-validTime=\"DoNotRemoveTheHeader\"\r\n"
-            "Contact: <me@127.0.0.1;sipx-alidTime=\"0:1:2:3:4:5:6:7:8\">\r\n"
-            "Expires: 1000\r\n"
-            "Date: Fri, 16 Jul 2004 02:16:15 GMT\r\n"
-            "Content-Length: 0\r\n"
-            "\r\n";
-         SipMessage testResponseNoMod1( ResponseNoMod, strlen( Response ) );
-         SipMessage testResponseNoMod2( ResponseNoMod, strlen( Response ) );
 
-         CPPUNIT_ASSERT(plugin->processResponse(testResponseNoMod1));
-
-         UtlString msg1, msg2;
-         ssize_t len1, len2;
-         testResponseNoMod1.getBytes(&msg1, &len1);
-         testResponseNoMod2.getBytes(&msg2, &len2);
-
-         CPPUNIT_ASSERT(len1==len2);
-         CPPUNIT_ASSERT(!msg1.compareTo(msg2, UtlString::matchCase));
+         ContactList contactList2("dummy");;
+         contactList2.add( UtlString("me@127.0.0.1"), dummyPlugin );
+         contactList2.add( UtlString("<me@127.0.0.1>;sip-validTime=\"DoNotRemoveTheHeader\""), dummyPlugin );
+         contactList2.add( UtlString("<me@127.0.0.1;sipx-alidTime=\"0:1:2:3:4:5:6:7:8\">"), dummyPlugin );
+         
+         CPPUNIT_ASSERT(plugin->processContactList(contactList2) == RedirectPlugin::SUCCESS );
+         CPPUNIT_ASSERT(contactList2.get(0, contact));
+         CPPUNIT_ASSERT(!contact.compareTo("me@127.0.0.1"));
+         CPPUNIT_ASSERT(contactList2.get(1, contact));
+         CPPUNIT_ASSERT(!contact.compareTo("<me@127.0.0.1>;sip-validTime=\"DoNotRemoveTheHeader\""));
+         CPPUNIT_ASSERT(contactList2.get(2, contact));
+         CPPUNIT_ASSERT(!contact.compareTo("<me@127.0.0.1;sipx-alidTime=\"0:1:2:3:4:5:6:7:8\">"));
       }
 };
 
