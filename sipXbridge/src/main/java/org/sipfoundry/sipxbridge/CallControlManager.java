@@ -175,8 +175,7 @@ class CallControlManager implements SymmitronResetHandler {
 
             ToHeader toHeader = (ToHeader) request.getHeader(ToHeader.NAME);
             String userName = ((SipURI) toHeader.getAddress().getURI()).getUser();
-            ContactHeader contactHeader = SipUtilities.createContactHeader(userName, provider,
-                    Gateway.getSipxProxyTransport());
+            ContactHeader contactHeader = SipUtilities.createContactHeader(userName, provider);
             response.setHeader(contactHeader);
             response.setReasonPhrase("RTP Session Parameters Changed");
 
@@ -265,8 +264,8 @@ class CallControlManager implements SymmitronResetHandler {
                 } else {
                     if (SipUtilities.isSdpQuery(request)) {
                         Request newRequest = peerDialog.createRequest(Request.INVITE);
-                        
-                        ContactHeader contactHeader = SipUtilities.createContactHeader("sipxbridge", peerDialogProvider, null);
+                        ContactHeader contactHeader = SipUtilities.createContactHeader(
+                                Gateway.SIPXBRIDGE_USER, peerDialogProvider);
                         newRequest.setHeader(contactHeader);
                         ClientTransaction ctx = peerDialogProvider
                                 .getNewClientTransaction(newRequest);
@@ -428,8 +427,7 @@ class CallControlManager implements SymmitronResetHandler {
                             .createAllowHeader(types);
                     response.addHeader(allowHeader);
                 }
-                contactHeader = SipUtilities.createContactHeader(null, provider, Gateway
-                        .getSipxProxyTransport());
+                contactHeader = SipUtilities.createContactHeader(null, provider);
 
                 SupportedHeader sh = ProtocolObjects.headerFactory
                         .createSupportedHeader("replaces");
@@ -444,7 +442,7 @@ class CallControlManager implements SymmitronResetHandler {
                             .createAllowHeader(types);
                     response.addHeader(allowHeader);
                 }
-                contactHeader = SipUtilities.createContactHeader(null, provider, null);
+                contactHeader = SipUtilities.createContactHeader(null, provider);
             }
 
             AcceptHeader acceptHeader = ProtocolObjects.headerFactory.createAcceptHeader(
@@ -565,8 +563,7 @@ class CallControlManager implements SymmitronResetHandler {
                 Response response = ProtocolObjects.messageFactory.createResponse(
                         Response.ACCEPTED, request);
 
-                ContactHeader cth = SipUtilities.createContactHeader(null, provider, Gateway
-                        .getSipxProxyTransport());
+                ContactHeader cth = SipUtilities.createContactHeader(null, provider);
                 response.setHeader(cth);
                 serverTransaction.sendResponse(response);
             }
@@ -833,8 +830,9 @@ class CallControlManager implements SymmitronResetHandler {
 
             // HACK ALERT -- some ITSPs look at sendonly and start playing
             // their own MOH. This hack is to get around that nasty behavior.
-            if (SipUtilities.getSessionDescriptionMediaAttributeDuplexity(sd) != null &&
-                SipUtilities.getSessionDescriptionMediaAttributeDuplexity(sd).equals("sendonly")) {
+            if (SipUtilities.getSessionDescriptionMediaAttributeDuplexity(sd) != null
+                    && SipUtilities.getSessionDescriptionMediaAttributeDuplexity(sd).equals(
+                            "sendonly")) {
                 SipUtilities.setDuplexity(sd, "sendrecv");
             }
 
@@ -952,7 +950,8 @@ class CallControlManager implements SymmitronResetHandler {
 
                     if (response.getContentLength().getContentLength() == 0) {
                         logger.error("DROPPING CALL -- Expecting a content length != 0 ");
-                        Request ackRequest = dialog.createAck(SipUtilities.getSeqNumber(response));
+                        Request ackRequest = dialog
+                                .createAck(SipUtilities.getSeqNumber(response));
                         dialog.sendAck(ackRequest);
                         b2bua.tearDown();
                         return;
@@ -971,7 +970,7 @@ class CallControlManager implements SymmitronResetHandler {
                         DialogApplicationData peerDat = DialogApplicationData.get(peerDialog);
                         SipProvider wanProvider = (SipProvider) ((TransactionExt) st)
                                 .getSipProvider();
-                        
+
                         ContactHeader contactHeader = SipUtilities.createContactHeader(
                                 wanProvider, dat.itspInfo);
                         ContentTypeHeader cth = ProtocolObjects.headerFactory
@@ -1062,8 +1061,7 @@ class CallControlManager implements SymmitronResetHandler {
                      * addressing.
                      */
                     if (tad.operation == Operation.SEND_INVITE_TO_ITSP) {
-                        contactHeader = SipUtilities.createContactHeader(user,
-                                tad.serverTransactionProvider, Gateway.getSipxProxyTransport());
+                        contactHeader = SipUtilities.createContactHeader(user,tad.serverTransactionProvider);
                     } else {
                         contactHeader = SipUtilities.createContactHeader(
                                 tad.serverTransactionProvider, tad.itspAccountInfo);
@@ -1290,8 +1288,8 @@ class CallControlManager implements SymmitronResetHandler {
                                 .createSupportedHeader("replaces");
 
                         newResponse.setHeader(sh);
-                        ContactHeader contactHeader = SipUtilities.createContactHeader(null,
-                                tad.serverTransactionProvider, null);
+                        ContactHeader contactHeader = SipUtilities.createContactHeader(Gateway.SIPXBRIDGE_USER,
+                                tad.serverTransactionProvider);
                         newResponse.setHeader(contactHeader);
                         Dialog peerDialog = DialogApplicationData.getPeerDialog(dialog);
                         SipProvider peerProvider = ((DialogExt) peerDialog).getSipProvider();
@@ -1301,11 +1299,11 @@ class CallControlManager implements SymmitronResetHandler {
                                     .createContentTypeHeader("application", "sdp");
                             RtpSession originalRtpSession = b2bua.getLanRtpSession(dialog);
                             originalRtpSession.setTransmitterPort(response);
-                            
+
                             RtpSession rtpSession = b2bua.getLanRtpSession(peerDialog);
                             rtpSession.getReceiver().setSessionDescription(sd);
                             newResponse.setContent(sd.toString(), cth);
-                          
+
                         }
                         if (peerProvider != Gateway.getLanProvider()) {
                             DialogApplicationData peerDat = DialogApplicationData.get(peerDialog);
@@ -1337,8 +1335,8 @@ class CallControlManager implements SymmitronResetHandler {
                     Request request = serverTransaction.getRequest();
                     SipProvider peerProvider = ((TransactionExt) serverTransaction)
                             .getSipProvider();
-                    ContactHeader contactHeader = SipUtilities.createContactHeader(null,
-                            peerProvider, "udp");
+                    ContactHeader contactHeader = SipUtilities.createContactHeader(Gateway.SIPXBRIDGE_USER,
+                            peerProvider);
 
                     Response serverResponse = ProtocolObjects.messageFactory.createResponse(
                             response.getStatusCode(), request);

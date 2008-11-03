@@ -44,6 +44,7 @@ public class BridgeConfiguration {
     private String autoAttendantName = null;
     private String symmitronHost;
     private int symmitronXmlRpcPort = 0;
+    private String sipxProxyTransport = "tcp";
   
     private static Logger logger = Logger.getLogger(BridgeConfiguration.class);
 
@@ -146,6 +147,21 @@ public class BridgeConfiguration {
      */
     public String getSipxProxyDomain() {
         return sipxProxyDomain;
+    }
+    
+    
+    /**
+     * Set the preferred transport of the sipx proxy.
+     */
+    public void setSipxProxyTransport(String transport) {
+        this.sipxProxyTransport = transport;
+    }
+    
+    /**
+     * Get the sipx transport (if any has been set)
+     */
+    public String getSipxProxyTransport() {
+        return this.sipxProxyTransport;
     }
 
     /**

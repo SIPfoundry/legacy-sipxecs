@@ -103,6 +103,14 @@
 			</xs:element>
 
 
+			<xs:element name="sipx-proxy-transport" type="xs:string"
+				minOccurs="0" maxOccurs="1" default="tcp">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+						The SIPX proxy transport.  If nothing is specified here, tcp is assumed.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
 			
 			
 			<xs:element name="sip-keepalive-seconds" type="xs:integer"

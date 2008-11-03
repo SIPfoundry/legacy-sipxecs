@@ -11,6 +11,9 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.TimerTask;
 
+import javax.sip.address.Address;
+import javax.sip.address.SipURI;
+
 import org.apache.log4j.Logger;
 import org.sipfoundry.sipxbridge.symmitron.KeepaliveMethod;
 import org.sipfoundry.sipxbridge.xmlrpc.RegistrationRecord;
@@ -28,17 +31,17 @@ import org.xbill.DNS.Type;
 
 public class ItspAccountInfo implements gov.nist.javax.sip.clientauthutils.UserCredentials {
     private static Logger logger = Logger.getLogger(ItspAccountInfo.class);
-   
+
     /**
      * The outbound proxy for the account.
      */
     private String outboundProxy;
-    
+
     /**
      * The Inbound proxy for the account
      */
     private String inboundProxy;
-    
+
     /**
      * The port for the inbound proxy.
      */
@@ -48,12 +51,12 @@ public class ItspAccountInfo implements gov.nist.javax.sip.clientauthutils.UserC
      * The proxy + registrar port.
      */
     private int outboundProxyPort = 5060;
-    
+
     /**
      * The outbound Registrar
      */
     private String outboundRegistrar;
-    
+
     /**
      * The outbound registrar port.
      */
@@ -63,8 +66,6 @@ public class ItspAccountInfo implements gov.nist.javax.sip.clientauthutils.UserC
      * User name for the account.
      */
     private String userName;
-
-    
 
     /**
      * The password for the account.
@@ -96,7 +97,6 @@ public class ItspAccountInfo implements gov.nist.javax.sip.clientauthutils.UserC
      */
     private boolean rportUsed = false;
 
-   
     /**
      * Whether or not to register on gateway initialization
      */
@@ -121,25 +121,25 @@ public class ItspAccountInfo implements gov.nist.javax.sip.clientauthutils.UserC
      * NAT keepalive method.
      */
     private String sipKeepaliveMethod = "CR-LF";
-    
+
     /*
      * Timer task that periodically sends out CRLF
      */
 
     private CrLfTimerTask crlfTimerTask;
-    
+
     /*
      * The Keepalive method.
      */
 
     private KeepaliveMethod rtpKeepaliveMethod = KeepaliveMethod.USE_DUMMY_RTP_PAYLOAD;
-    
+
     /*
      * Whether or not to use registration for caller id when sending out invite.
      */
 
     private boolean useRegistrationForCallerId = true;
-     
+
     /*
      * Number of concurrent calls.
      */
@@ -148,15 +148,14 @@ public class ItspAccountInfo implements gov.nist.javax.sip.clientauthutils.UserC
 
     private int callCount = 0;
 
-   
-
     private boolean crLfTimerTaskStarted;
 
-    protected  RegistrationTimerTask registrationTimerTask;
-    
+    protected RegistrationTimerTask registrationTimerTask;
+
     private String callerId;
-    
-    
+
+    private Address callerAlias;
+
     /**
      * This task runs periodically depending upon the timeout of the lookup specified.
      * 
@@ -249,8 +248,6 @@ public class ItspAccountInfo implements gov.nist.javax.sip.clientauthutils.UserC
         return userName;
     }
 
-   
-
     public String getPassword() {
         return password;
     }
@@ -279,7 +276,7 @@ public class ItspAccountInfo implements gov.nist.javax.sip.clientauthutils.UserC
     }
 
     public void setOutboundProxy(String resolvedName) {
-         this.outboundProxy = resolvedName;
+        this.outboundProxy = resolvedName;
 
     }
 
@@ -288,7 +285,7 @@ public class ItspAccountInfo implements gov.nist.javax.sip.clientauthutils.UserC
 
     }
 
-    public void lookupAccount() throws TextParseException,GatewayConfigurationException {
+    public void lookupAccount() throws TextParseException, GatewayConfigurationException {
         // User has already specified an outbound proxy so just bail out.
         if (this.outboundProxy != null)
             return;
@@ -316,21 +313,19 @@ public class ItspAccountInfo implements gov.nist.javax.sip.clientauthutils.UserC
             }
 
         } catch (TextParseException ex) {
-                throw ex;
+            throw ex;
         } catch (Exception ex) {
-            
+
             logger.fatal("Exception in processing -- could not add ITSP account ", ex);
             throw new GatewayConfigurationException("Problem with domain name lookup", ex);
         }
     }
 
-   
-
     public int getRegistrationInterval() {
         return registrationInterval;
     }
-    
-    public void setRegistrationInterval( int registrationInterval ) {
+
+    public void setRegistrationInterval(int registrationInterval) {
         this.registrationInterval = registrationInterval;
     }
 
@@ -341,7 +336,6 @@ public class ItspAccountInfo implements gov.nist.javax.sip.clientauthutils.UserC
         this.outboundProxyPort = proxyPort;
     }
 
-   
     /**
      * @param password the password to set
      */
@@ -353,7 +347,7 @@ public class ItspAccountInfo implements gov.nist.javax.sip.clientauthutils.UserC
      * @param proxyDomain the proxyDomain to set
      */
     public void setProxyDomain(String proxyDomain) {
-         this.proxyDomain = proxyDomain;
+        this.proxyDomain = proxyDomain;
     }
 
     /**
@@ -367,7 +361,7 @@ public class ItspAccountInfo implements gov.nist.javax.sip.clientauthutils.UserC
      * @param authenticationRealm the authenticationRealm to set
      */
     public void setAuthenticationRealm(String authenticationRealm) {
-         this.authenticationRealm = authenticationRealm;
+        this.authenticationRealm = authenticationRealm;
     }
 
     /**
@@ -483,12 +477,12 @@ public class ItspAccountInfo implements gov.nist.javax.sip.clientauthutils.UserC
         }
 
     }
-    
+
     public void stopCrLfTimerTask() {
-        if ( this.crLfTimerTaskStarted ) {
-            this.crLfTimerTaskStarted  = false;
+        if (this.crLfTimerTaskStarted) {
+            this.crLfTimerTaskStarted = false;
             this.crlfTimerTask.cancel();
-            
+
         }
     }
 
@@ -512,8 +506,6 @@ public class ItspAccountInfo implements gov.nist.javax.sip.clientauthutils.UserC
     public void setUseRegistrationForCallerId(boolean useRegistrationForCallerId) {
         this.useRegistrationForCallerId = useRegistrationForCallerId;
     }
-
-    
 
     /**
      * @param maxCalls the maxCalls to set
@@ -550,9 +542,6 @@ public class ItspAccountInfo implements gov.nist.javax.sip.clientauthutils.UserC
 
     }
 
-    
-
-    
     /**
      * @param outboundRegistrarRoute the outboundRegistrarRoute to set
      */
@@ -563,11 +552,9 @@ public class ItspAccountInfo implements gov.nist.javax.sip.clientauthutils.UserC
     /**
      * @return the outboundRegistrarRoute
      */
-   public String getOutboundRegistrar() {
+    public String getOutboundRegistrar() {
         return this.getInboundProxy();
     }
-    
-    
 
     /**
      * @param inboundProxy the inboundProxy to set
@@ -582,15 +569,14 @@ public class ItspAccountInfo implements gov.nist.javax.sip.clientauthutils.UserC
     public String getInboundProxy() {
         return inboundProxy == null ? getOutboundProxy() : inboundProxy;
     }
-    
+
     /**
      * @return the inbound proxy port.
      */
     public int getInboundProxyPort() {
         return inboundProxy != null ? inboundProxyPort : this.getProxyPort();
     }
-    
-    
+
     public void setInboundProxyPort(String portString) {
         try {
             int port = Integer.parseInt(portString);
@@ -598,8 +584,9 @@ public class ItspAccountInfo implements gov.nist.javax.sip.clientauthutils.UserC
         } catch (NumberFormatException ex) {
             logger.error("Invalid number format " + portString);
         }
-        
+
     }
+
     /**
      * @return the registration record for this account
      */
@@ -610,20 +597,44 @@ public class ItspAccountInfo implements gov.nist.javax.sip.clientauthutils.UserC
         return retval;
     }
 
-   
-    
     public void setCallerId(String callerId) {
-        this.callerId = callerId;
+        try {
+            SipURI sipUri = (SipURI) ProtocolObjects.addressFactory.createURI("sip:"+ callerId);
+
+            this.callerAlias = ProtocolObjects.addressFactory.createAddress(sipUri);
+
+        } catch (Exception ex) {
+            logger.error("invalid caller alias setting", ex);
+
+        }
     }
+
     public String getCallerId() {
-        if ( this.callerId != null ) {
+        if (this.callerId != null) {
             return this.callerId;
         } else if (this.isRegisterOnInitialization()) {
             return this.getUserName() + "@" + this.getProxyDomain();
-        } else  {
-            return  this.getUserName() + "@" + Gateway.getGlobalAddress();
-        } 
-       
+        } else {
+            return this.getUserName() + "@" + Gateway.getGlobalAddress();
+        }
+
+    }
+
+    protected Address getCallerAlias() {
+        try {
+            if (this.callerAlias != null) {
+                return this.callerAlias;
+            } else {
+                String callerId = "sip:" + this.getCallerId();
+                SipURI sipUri =(SipURI) ProtocolObjects.addressFactory.createURI(callerId);
+
+                this.callerAlias = ProtocolObjects.addressFactory.createAddress(sipUri);
+                return this.callerAlias;
+            }
+        } catch (Exception ex) {
+            logger.error("Bad caller alias", ex);
+            throw new RuntimeException("Bad caller alias", ex);
+        }
     }
 
 }

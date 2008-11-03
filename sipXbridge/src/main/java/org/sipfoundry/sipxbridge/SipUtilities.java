@@ -197,18 +197,20 @@ class SipUtilities {
     /**
      * Create a contact header for the given provider.
      */
-    static ContactHeader createContactHeader(String user, SipProvider provider, String transport) {
+    static ContactHeader createContactHeader(String user, SipProvider provider) {
         try {
 
-            ListeningPoint lp = provider.getListeningPoint(transport == null ? "udp" : transport);
+            /*
+             * The preferred transport of the sipx proxy server ( defaults to tcp ).
+             */
+            String transport = Gateway.getSipxProxyTransport();
+            
+            ListeningPoint lp = provider.getListeningPoint(transport);
             String ipAddress = lp.getIPAddress();
             int port = lp.getPort();
             SipURI sipUri = ProtocolObjects.addressFactory.createSipURI(user, ipAddress);
-
             sipUri.setPort(port);
-            if (transport != null) {
-                sipUri.setTransportParam(transport);
-            }
+            sipUri.setTransportParam(transport);
             Address address = ProtocolObjects.addressFactory.createAddress(sipUri);
             ContactHeader ch = ProtocolObjects.headerFactory.createContactHeader(address);
             return ch;
@@ -492,13 +494,35 @@ class SipUtilities {
                 }
                 privacyHeader = ((HeaderFactoryExt) ProtocolObjects.headerFactory)
                             .createPrivacyHeader("id");
-            } 
+            } else {
+                    Address fromAddress = itspAccount.getCallerAlias();
+                    fromHeader = ProtocolObjects.headerFactory.createFromHeader(fromAddress,
+                            new Long(Math.abs(new java.util.Random().nextLong())).toString());
+                   
+                    if (fromDisplayName != null) {
+                        fromAddress.setDisplayName(fromDisplayName);
+                    }
+            }
 
             if (!isphone) {
                 requestUri.removeParameter("user");
             } else {
                 requestUri.setUserParam("phone");
             }
+            
+            /*
+             * Remove stuff from the inbound request that can have an effect
+             * on the routing of the request and add stuff that we want to add.
+             */
+            if ( itspAccount.getOutboundTransport() != null) {
+                requestUri.setTransportParam(itspAccount.getOutboundTransport());
+            } else {
+                requestUri.removeParameter("transport");
+            }
+            
+            requestUri.removePort();
+            
+            requestUri.removeParameter("maddr");
 
             fromHeader.setTag(new Long(Math.abs(new java.util.Random().nextLong())).toString());
 
@@ -859,7 +883,7 @@ class SipUtilities {
                     .createResponse(statusCode, request);
             SupportedHeader sh = ProtocolObjects.headerFactory.createSupportedHeader("replaces");
             SipProvider provider = ((TransactionExt) transaction).getSipProvider();
-            ContactHeader contactHeader = createContactHeader(null, provider, null);
+            ContactHeader contactHeader = createContactHeader(Gateway.SIPXBRIDGE_USER, provider);
             response.addHeader(contactHeader);
             response.addHeader(sh);
 

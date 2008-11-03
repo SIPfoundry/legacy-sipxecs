@@ -38,10 +38,20 @@ public class ProxyRouter extends DefaultRouter {
          * Request has a Route header defined - then get the next hop
          * based on the route header.
          */
-        if ( request.getHeader(RouteHeader.NAME) != null ) {
-            return super.getNextHop(request);
-        }
     	SipURI uri = (SipURI)request.getRequestURI();
+    	LOG.debug(String.format("ProxyRouter::getNextHop Need to lookup %s for inbound %s ", uri.toString() , request.getMethod()));
+    	    
+        if ( request.getHeader(RouteHeader.NAME) != null  || uri.getMAddrParam() != null ) {
+            
+            Hop nextHop =  super.getNextHop(request);
+            /*
+             * If the inbound request had an maddr, then remove the maddr parameter. This has already
+             * been processed in the next hop computation.
+             */
+            LOG.debug("maddr parameter is " + uri.getMAddrParam());
+             
+            return nextHop;
+        }
 
     	LOG.debug(String.format("ProxyRouter::getNextHop Need to lookup %s ", uri.toString()));
     	Hop h = finder.findServer(uri) ;

@@ -458,8 +458,7 @@ public class BackToBackUserAgent {
             SupportedHeader sh = ProtocolObjects.headerFactory.createSupportedHeader("replaces");
             response.setHeader(sh);
 
-            ContactHeader contactHeader = SipUtilities.createContactHeader(null, provider,
-                    Gateway.getSipxProxyTransport());
+            ContactHeader contactHeader = SipUtilities.createContactHeader(Gateway.SIPXBRIDGE_USER, provider);
             response.setHeader(contactHeader);
 
             /*
@@ -676,8 +675,7 @@ public class BackToBackUserAgent {
             SupportedHeader sh = ProtocolObjects.headerFactory.createSupportedHeader("replaces");
             newRequest.setHeader(sh);
 
-            ContactHeader contactHeader = SipUtilities.createContactHeader(null, Gateway
-                    .getLanProvider(), Gateway.getSipxProxyTransport());
+            ContactHeader contactHeader = SipUtilities.createContactHeader(null, Gateway.getLanProvider());
             newRequest.setHeader(contactHeader);
             /*
              * Create a new out of dialog request.
@@ -717,8 +715,7 @@ public class BackToBackUserAgent {
              * This sends the BYE early to the MOH dialog. if
              * (dialogApplicationData.musicOnHoldDialog != null) {
              * this.sendByeToMohServer(dialogApplicationData.musicOnHoldDialog);
-             * dialogApplicationData.musicOnHoldDialog = null;
-             *  }
+             * dialogApplicationData.musicOnHoldDialog = null; }
              */
 
             if (logger.isDebugEnabled()) {
@@ -815,7 +812,6 @@ public class BackToBackUserAgent {
                     uri = (SipURI) ProtocolObjects.addressFactory.createURI("sip:" + destination);
                 }
             }
-            uri.setTransportParam(Gateway.getSipxProxyTransport());
 
             CallIdHeader callIdHeader = ProtocolObjects.headerFactory
                     .createCallIdHeader(this.creatingCallId + "." + counter++);
@@ -868,7 +864,7 @@ public class BackToBackUserAgent {
                     Request.INVITE, callIdHeader, cseqHeader, fromHeader, toHeader, viaList,
                     maxForwards);
             ContactHeader contactHeader = SipUtilities.createContactHeader(incomingRequestURI
-                    .getUser(), Gateway.getLanProvider(), Gateway.getSipxProxyTransport());
+                    .getUser(), Gateway.getLanProvider());
             newRequest.setHeader(contactHeader);
             /*
              * The incoming session description.
@@ -1020,8 +1016,7 @@ public class BackToBackUserAgent {
                     Request.INVITE, callIdHeader, cseqHeader, fromHeader, toHeader, viaList,
                     maxForwards);
             ContactHeader contactHeader = SipUtilities.createContactHeader(
-                    Gateway.SIPXBRIDGE_USER, Gateway.getLanProvider(), Gateway
-                            .getSipxProxyTransport());
+                    Gateway.SIPXBRIDGE_USER, Gateway.getLanProvider());
             newRequest.setHeader(contactHeader);
 
             /*
@@ -1112,8 +1107,8 @@ public class BackToBackUserAgent {
                 reInvite.setHeader(viaHeader);
                 ContactHeader contactHeader = SipUtilities.createContactHeader(provider,
                         itspAccountInfo);
-                ContentTypeHeader cth = ProtocolObjects.headerFactory.createContentTypeHeader("application",
-                        "sdp");
+                ContentTypeHeader cth = ProtocolObjects.headerFactory.createContentTypeHeader(
+                        "application", "sdp");
                 reInvite.setHeader(cth);
                 reInvite.setHeader(contactHeader);
                 AcceptHeader acceptHeader = ProtocolObjects.headerFactory.createAcceptHeader(
@@ -1220,7 +1215,7 @@ public class BackToBackUserAgent {
 
             Request outgoingRequest = SipUtilities.createInviteRequest(
                     (SipURI) incomingRequestUri.clone(), itspProvider, itspAccountInfo,
-                    fromHeader, this.creatingCallId +"."+ this.counter++, isphone);
+                    fromHeader, this.creatingCallId + "." + this.counter++, isphone);
             ClientTransaction ct = itspProvider.getNewClientTransaction(outgoingRequest);
             Dialog outboundDialog = ct.getDialog();
 
@@ -1487,8 +1482,7 @@ public class BackToBackUserAgent {
                 ContentTypeHeader cth = ProtocolObjects.headerFactory.createContentTypeHeader(
                         "application", "sdp");
                 SipProvider txProvider = ((TransactionExt) serverTransaction).getSipProvider();
-                ContactHeader contactHeader = SipUtilities.createContactHeader(null, txProvider,
-                        "udp");
+                ContactHeader contactHeader = SipUtilities.createContactHeader(Gateway.SIPXBRIDGE_USER, txProvider);
                 okResponse.setHeader(contactHeader);
                 okResponse.setContent(sdes.toString(), cth);
                 DialogApplicationData replacedDat = DialogApplicationData.get(replacedDialog);

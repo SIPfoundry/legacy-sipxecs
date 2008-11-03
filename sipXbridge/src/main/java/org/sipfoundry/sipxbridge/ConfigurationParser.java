@@ -77,6 +77,9 @@ public class ConfigurationParser {
                 "setCodecName", 0);
         digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG, "sipx-proxy-domain"),
                 "setSipxProxyDomain", 0);
+        
+        digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG, "sipx-proxy-transport"),
+                "setSipxProxyTransport", 0);
 
         digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG,
                 "music-on-hold-support-enabled"), "setMusicOnHoldSupportEnabled", 0, new Class[] {

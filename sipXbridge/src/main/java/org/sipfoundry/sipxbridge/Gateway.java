@@ -100,10 +100,7 @@ public class Gateway {
      */
     private static CallControlManager callControlManager;
 
-    /*
-     * The SIPX proxy transport.
-     */
-    private static String sipxProxyTransport = "tcp";
+    
 
     /*
      * This is a placeholder - to be replaced by STUN
@@ -503,7 +500,7 @@ public class Gateway {
      * @return the proxy transport
      */
     static String getSipxProxyTransport() {
-        return sipxProxyTransport;
+        return accountManager.getBridgeConfiguration().getSipxProxyTransport();
     }
 
     /**

@@ -259,7 +259,9 @@ public class FindSipServer {
 					}
 				}
 			}
-		} catch (Throwable t){}
+		} catch (Throwable t){
+		    LOG.error("FindServer::unexpected exception",t);
+		}
 		
 		LOG.debug("FindSipServer::findServer Best NAPTR choice is "+bestSrvName);
 		// If NAPTR was bust, build up SRV names
