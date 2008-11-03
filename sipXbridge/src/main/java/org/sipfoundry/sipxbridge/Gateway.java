@@ -19,6 +19,8 @@ import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.logging.ConsoleHandler;
+import java.util.logging.Level;
 
 import javax.sip.ClientTransaction;
 import javax.sip.Dialog;
@@ -272,16 +274,29 @@ public class Gateway {
                 // Todo -- deal with the situation when this port may be taken.
                 StunAddress localStunAddress = new StunAddress(Gateway.getLocalAddress(),
                         STUN_PORT);
+               
+                java.util.logging.Logger log = java.util.logging.Logger
+                        .getLogger("net.java.stun4j");
+
+                Level level = Level.OFF;
+
+                /*
+                 * String logLevel = bridgeConfiguration.getLogLevel(); if
+                 * (logLevel.equals("INFO")) level = Level.INFO; else if
+                 * (logLevel.equals("DEBUG")) level = Level.FINE; else if
+                 * (logLevel.equals("WARN")) level = Level.WARNING;
+                 */                
+                
+                log.setLevel(level);
+                java.util.logging.FileHandler fileHandler = 
+                    new java.util.logging.FileHandler(Gateway.getLogFile());
+                log.removeHandler(new ConsoleHandler());
+                log.addHandler(fileHandler);
 
                 StunAddress serverStunAddress = new StunAddress(stunServerAddress, STUN_PORT);
 
                 NetworkConfigurationDiscoveryProcess addressDiscovery = new NetworkConfigurationDiscoveryProcess(
                         localStunAddress, serverStunAddress);
-                java.util.logging.LogManager logManager = java.util.logging.LogManager
-                        .getLogManager();
-                java.util.logging.Logger log = logManager
-                        .getLogger(NetworkConfigurationDiscoveryProcess.class.getName());
-                log.setLevel(java.util.logging.Level.OFF);
 
                 addressDiscovery.start();
                 StunDiscoveryReport report = addressDiscovery.determineAddress();
@@ -561,7 +576,7 @@ public class Gateway {
     }
 
     static void registerWithItsp() throws GatewayConfigurationException {
-        System.out.println("------- REGISTERING--------");
+        logger.info("------- REGISTERING--------");
         try {
             Gateway.accountManager.lookupItspAccountAddresses();
             Gateway.accountManager.startAuthenticationFailureTimers();
@@ -1002,7 +1017,7 @@ public class Gateway {
 
             } else if (command.equals("configtest")) {
                 try {
-                    if ( !new File(Gateway.configurationFile).exists()) {
+                    if (!new File(Gateway.configurationFile).exists()) {
                         System.exit(-1);
                     }
                     Gateway.parseConfigurationFile();
@@ -1030,12 +1045,12 @@ public class Gateway {
                         System.exit(-1);
                     }
 
-                    // TODO -- check for availability of the ports.
-
                     System.exit(0);
                 } catch (Exception ex) {
                     System.exit(-1);
                 }
+            } else {
+                logger.error("Bad option ");
             }
 
         } catch (Throwable ex) {

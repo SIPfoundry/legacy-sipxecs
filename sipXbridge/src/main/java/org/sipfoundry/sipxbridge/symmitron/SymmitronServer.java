@@ -891,12 +891,12 @@ public class SymmitronServer implements Symmitron {
             String installRoot = configDir.substring(0, configDir.indexOf("/etc/sipxpbx"));
             String configurationFile = configDir + "/nattraversalrules.xml";
             String command = System.getProperty("sipxrelay.command", "start");
-            
+
             System.out.println("command " + command);
 
             if (command.equals("configtest")) {
                 try {
-                    
+
                     if (!new File(configurationFile).exists()) {
                         System.exit(-1);
                     }
@@ -907,52 +907,37 @@ public class SymmitronServer implements Symmitron {
                         config.setLogFileDirectory(installRoot + "/var/log/sipxpbx");
                     }
                     config.setLogFileName("sipxrelay.log");
-                 
+
                     logger.debug("sipxrelay: configtest");
-                    if (config.getPublicAddress() == null && config.getStunServerAddress() != null) {
-                        /*
-                         * Try an address discovery. If it did not work, then exit. This deals with
-                         * accidental mis-configurations of the STUN server address.
-                         */
-                        discoverAddress();
-                    }
-                    logger.debug("sipxrelay:configtest: discoverAddress test passed");
-                    if (SymmitronServer.getPublicInetAddress() == null ) {
-                        logger.error("Could not find public address of sipxrelay");
-                        System.exit(-1);
-                    }
-                    /* See if each port in the range of ports is free for us to use */
-                  /*
-                   * This  may take a while to run.
-                   *  InetAddress localAddr = InetAddress.getByName(config.getLocalAddress());
-                   * for ( int i = config.getPortRangeLowerBound(); 
-                   *     i < config.getPortRangeUpperBound(); i++) {
-                   *     DatagramSocket sock = new DatagramSocket(i,localAddr   );
-                   *     sock.close();
-                   * }
-                   */
-                    logger.debug("siprelay:configtest: port range test passed");
-                    SymmitronServer.startWebServer();
-                    SymmitronServer.stopXmlRpcServer();
-                    logger.debug("sipxrelay: configtest:    start stop xml rpc server passed");
-                    System.exit(0);
+
                 } catch (Exception ex) {
-                    logger.fatal("Exception occured while checking configuration"
-                            + " -- exiting", ex);
+                    logger.fatal(
+                            "Exception occured while checking configuration" + " -- exiting", ex);
                     ex.printStackTrace();
                     System.exit(-1);
                 }
-            } else if ( command.equals("start")){
+            } else if (command.equals("start")) {
                 // Wait for the configuration file to become available.
                 while (!new File(configurationFile).exists()) {
                     Thread.sleep(5 * 1000);
                 }
                 SymmitronConfig config = new SymmitronConfigParser().parse("file:"
                         + configurationFile);
+
+                InetAddress localAddr = InetAddress.getByName(config.getLocalAddress());
+
                 if (config.getLogFileDirectory() == null) {
                     config.setLogFileDirectory(installRoot + "/var/log/sipxpbx");
                 }
                 config.setLogFileName("sipxrelay.log");
+                logger.debug("Checking port range " + config.getPortRangeLowerBound() + ":"
+                        + config.getPortRangeUpperBound());
+                for (int i = config.getPortRangeLowerBound(); i < config.getPortRangeUpperBound(); i++) {
+                    DatagramSocket sock = new DatagramSocket(i, localAddr);
+                    sock.close();
+                }
+                logger.debug("Port range checked ");
+
                 SymmitronServer.setSymmitronConfig(config);
 
                 if (config.getPublicAddress() == null && config.getStunServerAddress() != null) {
@@ -986,7 +971,7 @@ public class SymmitronServer implements Symmitron {
 
                 SymmitronServer.startWebServer();
             } else {
-                System.err.println("unknown start option " + command );
+                System.err.println("unknown start option " + command);
             }
 
         } catch (Throwable th) {

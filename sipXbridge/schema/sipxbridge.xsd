@@ -279,16 +279,7 @@
 		</xs:annotation>
 		<xs:sequence>
 
-			<xs:element name="outbound-registrar" type="xs:string"
-				maxOccurs="1" minOccurs="0">
-				<xs:annotation>
-					<xs:documentation xml:lang="en">
-						The outbound registrar. If not specified,
-						the outbound proxy is determined and
-						this is also assumed to be the registrar.
-					</xs:documentation>
-				</xs:annotation>
-			</xs:element>
+			
 
 			<xs:element name="registration-interval" type="xs:integer"
 				maxOccurs="1" minOccurs="0">
@@ -324,6 +315,38 @@
 				<xs:annotation>
 					<xs:documentation xml:lang="en">
 						The outbound proxy transport.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			
+			<xs:element name="inbound-proxy" type="xs:string"
+				maxOccurs="1" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+						The inbound proxy is where inbound signaling comes from. sipxbridge
+						will Register with the inbound proxy if registration is required.
+						If nothing is specified, then inbound proxy is assumed to be 
+						the same as outbound proxy.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+
+			<xs:element name="inbound-proxy-port" type="xs:integer"
+				maxOccurs="1" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+						The inbound proxy port. If not specified, the same port as the
+						outbound proxy is used.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+
+			<xs:element name="outbound-proxy-transport" type="xs:string"
+				default="udp" maxOccurs="1" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+						The inbound proxy transport. If nothing specified, the same
+						transport as the outbound proxy is used.
 					</xs:documentation>
 				</xs:annotation>
 			</xs:element>
@@ -365,15 +388,6 @@
 				</xs:annotation>
 			</xs:element>
 
-
-			<xs:element name="display-name" type="xs:string"
-				maxOccurs="1" minOccurs="0">
-				<xs:annotation>
-					<xs:documentation xml:lang="en">
-						The optional display name for this account.
-					</xs:documentation>
-				</xs:annotation>
-			</xs:element>
 
 
 

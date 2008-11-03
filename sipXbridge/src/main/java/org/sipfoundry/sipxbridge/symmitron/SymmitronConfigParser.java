@@ -7,6 +7,12 @@
 package org.sipfoundry.sipxbridge.symmitron;
 
 import org.apache.commons.digester.Digester;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.ConsoleAppender;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
+import org.apache.log4j.SimpleLayout;
 import org.xml.sax.InputSource;
 
 public class SymmitronConfigParser {
@@ -28,14 +34,25 @@ public class SymmitronConfigParser {
      * 
      */
     private static final String BRIDGE_CONFIG = "nattraversal/info";
-   
+    
+    static {
+        Logger logger = Logger.getLogger(Digester.class);
+        logger.setLevel(Level.OFF);
+        logger.addAppender(new ConsoleAppender( new SimpleLayout()));
+        logger = Logger.getLogger( "org.apache.commons.beanutils");
+        logger.addAppender(new ConsoleAppender( new SimpleLayout()));
+        logger.setLevel(Level.OFF);
+    }
     /**
      * Add the digester rules.
      * 
      * @param digester
      */
     private static void addRules(Digester digester) {
+        
         digester.addObjectCreate("nattraversal", SymmitronConfig.class);
+        
+        
 
         digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG, "mediarelayxml-rpc-port"),
                 "setXmlRpcPort", 0, new Class[] {
@@ -70,6 +87,7 @@ public class SymmitronConfigParser {
         try {
             // Create a Digester instance
             Digester digester = new Digester();
+             
             // digester.setSchema("file:schema/sipxrelay.xsd");
 
             addRules(digester);

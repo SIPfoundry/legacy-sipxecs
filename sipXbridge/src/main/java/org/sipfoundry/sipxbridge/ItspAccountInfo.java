@@ -27,9 +27,8 @@ import org.xbill.DNS.Type;
  */
 
 public class ItspAccountInfo implements gov.nist.javax.sip.clientauthutils.UserCredentials {
-
     private static Logger logger = Logger.getLogger(ItspAccountInfo.class);
-
+   
     /**
      * The outbound proxy for the account.
      */
@@ -68,7 +67,7 @@ public class ItspAccountInfo implements gov.nist.javax.sip.clientauthutils.UserC
     
 
     /**
-     * The display name for the account.
+     * The password for the account.
      */
     private String password;
 
@@ -140,9 +139,7 @@ public class ItspAccountInfo implements gov.nist.javax.sip.clientauthutils.UserC
      */
 
     private boolean useRegistrationForCallerId = true;
-    
-    
-    
+     
     /*
      * Number of concurrent calls.
      */
@@ -286,8 +283,7 @@ public class ItspAccountInfo implements gov.nist.javax.sip.clientauthutils.UserC
     }
 
     public void setOutboundProxy(String resolvedName) {
-        logger.debug("setOutboundProxy" + resolvedName);
-        this.outboundProxy = resolvedName;
+         this.outboundProxy = resolvedName;
 
     }
 
@@ -361,8 +357,7 @@ public class ItspAccountInfo implements gov.nist.javax.sip.clientauthutils.UserC
      * @param proxyDomain the proxyDomain to set
      */
     public void setProxyDomain(String proxyDomain) {
-        logger.debug("setProxyDomain " + proxyDomain);
-        this.proxyDomain = proxyDomain;
+         this.proxyDomain = proxyDomain;
     }
 
     /**
@@ -376,8 +371,7 @@ public class ItspAccountInfo implements gov.nist.javax.sip.clientauthutils.UserC
      * @param authenticationRealm the authenticationRealm to set
      */
     public void setAuthenticationRealm(String authenticationRealm) {
-        logger.debug("setAuthenticationRealm : " + authenticationRealm);
-        this.authenticationRealm = authenticationRealm;
+         this.authenticationRealm = authenticationRealm;
     }
 
     /**
@@ -579,19 +573,10 @@ public class ItspAccountInfo implements gov.nist.javax.sip.clientauthutils.UserC
      * @return the outboundRegistrarRoute
      */
    public String getOutboundRegistrar() {
-        return outboundRegistrar != null ? this.outboundRegistrar :
-                this.getInboundProxy();
+        return this.getInboundProxy();
     }
     
     
-    
-    /**
-     * @return the outboundRegistrar port.
-     */
-    public int getOutboundRegistrarPort() {
-        return outboundRegistrar != null ? this.outboundRegistrarPort :
-            this.getInboundProxyPort();
-    }
 
     /**
      * @param inboundProxy the inboundProxy to set
@@ -614,6 +599,16 @@ public class ItspAccountInfo implements gov.nist.javax.sip.clientauthutils.UserC
         return inboundProxy != null ? inboundProxyPort : this.getProxyPort();
     }
     
+    
+    public void setInboundProxyPort(String portString) {
+        try {
+            int port = Integer.parseInt(portString);
+            this.inboundProxyPort = port;
+        } catch (NumberFormatException ex) {
+            logger.error("Invalid number format " + portString);
+        }
+        
+    }
     /**
      * @return the registration record for this account
      */
