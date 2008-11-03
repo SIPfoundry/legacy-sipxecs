@@ -47,11 +47,8 @@ def usage_exit(error_code=1)
   -n|--host hostname  Remote server, e.g. HA slave (default is localhost)
   -p|--port portnum   Server port (default is 8092)
   -s|--start          Start the specified monitored process 
-  -a|--startAll       Start all the monitored processes
   -k|--stop           Stop the specified monitored process
-  -j|--stopAll        Stop all the monitored processes
   -r|--restart        Restart the specified monitored process
-  -e|--restartAll     Restart all the monitored processes
   -l|--state          Current state of all monitored processes
   -g|--getAliasByPID  Get the monitored process with the specified PID
   -c|--getConfigVersion Get the configuration version of the specified service
@@ -67,11 +64,8 @@ end
 if __FILE__ == $0
   OptSet = [
       ['--start','-s',         GetoptLong::REQUIRED_ARGUMENT],
-      ['--startAll','-a',      GetoptLong::NO_ARGUMENT],
       ['--stop','-k',          GetoptLong::REQUIRED_ARGUMENT],
-      ['--stopAll','-j',       GetoptLong::NO_ARGUMENT],
       ['--restart','-r',       GetoptLong::REQUIRED_ARGUMENT],
-      ['--restartAll','-e',    GetoptLong::NO_ARGUMENT],
       ['--state','-l',         GetoptLong::NO_ARGUMENT],
       ['--getAliasByPID','-g', GetoptLong::REQUIRED_ARGUMENT],
       ['--getConfigVersion','-c', GetoptLong::REQUIRED_ARGUMENT],
@@ -122,9 +116,6 @@ begin
             argument = arg
             aliaslist.push(argument)
             block = true
-         when '--startAll', '--stopAll', '--restartAll'
-            # Applies to all processes (so none can be specified.)
-            action = name.gsub(/--/, '')
          when '--state'
             # The default 'action'.  Applies to all processes (so none can be specified.)
          when '--host'

@@ -7,8 +7,8 @@
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
-#ifndef _WatchDog_h_
-#define _WatchDog_h_
+#ifndef _SipxRpc_h_
+#define _SipxRpc_h_
 
 // SYSTEM INCLUDES
 #include "os/OsDefs.h"
@@ -27,37 +27,37 @@
 class XmlRpcDispatch;
 
 
-//:Class to provide interface to process mgmt xmlrpc
-// All that is left of the old WatchDog.  Could be renamed.
-class WatchDog
+///Class to provide interface to supervisor xmlrpc (including process management 
+///and file replication)
+class SipxRpc
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
 
 /* ============================ CREATORS ================================== */
 
-   WatchDog( const int port,UtlSList& allowedPeers);
+   SipxRpc( const int port,UtlSList& allowedPeers);
    /**<
-    * Default constructor (takes list of peers from which to accept requests)
-    * This object become the owner of the new'd memory in the 'allowedPeers'
+    * Default constructor (takes list of peers from which to accept requests).
+    * This object becomes the owner of the new'd memory in the 'allowedPeers'
     * list.  It will delete them upon destruction.
     */
 
+   ///Destructor
    virtual
-   ~WatchDog();
-     //:Destructor
+   ~SipxRpc();
 
 /* ============================ MANIPULATORS ============================== */
 
-   WatchDog& operator=(const WatchDog& rhs);
-     //:Assignment operator
+   ///Assignment operator
+   SipxRpc& operator=(const SipxRpc& rhs);
    
 /* ============================ ACCESSORS ================================= */
 
    /// Get the XML-RPC dispatcher
    XmlRpcDispatch* getXmlRpcDispatch();
 
-   /// Whether or not the specified peer is allowed to make XML-RPC Process Manamgement requests.
+   /// Whether or not the specified peer is allowed to make XML-RPC Process Management requests.
    bool isAllowedPeer(const UtlString& peer) const;
    /**<
     * The mAllowedPeers list is currently only modified once (during the thread
@@ -80,20 +80,18 @@ protected:
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
 
-   OsBSem mLock; // Semaphore to enable thread-safe support.
-
    int             mXmlRpcPort;
    XmlRpcDispatch* mpXmlRpcDispatch;
 
-   UtlSList  mAllowedPeers;  // The list of peers allowed to make XML-RPC Process 
-                             // Management requests.
+   UtlSList  mAllowedPeers;  /// The list of peers allowed to make XML-RPC Process 
+                             /// Management requests.
 
-   WatchDog(const WatchDog& rWatchDog);
-     //:Copy constructor (not implemented for this class)
+   ///Copy constructor (not implemented for this class)
+   SipxRpc(const SipxRpc& nocopy);
 
 
 };
 
 /* ============================ INLINE METHODS ============================ */
 
-#endif  // _WatchDog_h_
+#endif  // _SipxRpc_h_

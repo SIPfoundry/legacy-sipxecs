@@ -9,7 +9,7 @@
 // APPLICATION INCLUDES
 #include "utl/UtlSListIterator.h" 
 #include "net/XmlRpcDispatch.h"
-#include "WatchDog.h"
+#include "SipxRpc.h"
 
 #include "AlarmServer.h"
 #include "AlarmRpc.h"
@@ -36,7 +36,7 @@ XmlRpcMethod* AlarmRpcMethod::get()
    return NULL;
 }
 
-void AlarmRpcMethod::registerSelf(WatchDog& watchdog)
+void AlarmRpcMethod::registerSelf(SipxRpc& sipxRpcImpl)
 {
    assert(false);  // this should have been overridden in the subclass
 }
@@ -47,10 +47,10 @@ AlarmRpcMethod::AlarmRpcMethod()
 
 void AlarmRpcMethod::registerMethod(const char*       methodName,
                                     XmlRpcMethod::Get getMethod,
-                                    WatchDog&           watchdog 
+                                    SipxRpc&          sipxRpcImpl
                                    )
 {
-   watchdog.getXmlRpcDispatch()->addMethod(methodName, getMethod, &watchdog );
+   sipxRpcImpl.getXmlRpcDispatch()->addMethod(methodName, getMethod, &sipxRpcImpl );
 }
 
 bool AlarmRpcMethod::execute(const HttpRequestContext& requestContext,
@@ -68,7 +68,7 @@ bool AlarmRpcMethod::execute(const HttpRequestContext& requestContext,
 bool AlarmRpcMethod::validCaller(const HttpRequestContext& requestContext,
                                  const UtlString&          peerName,
                                  XmlRpcResponse&           response,
-                                 const WatchDog&           watchdog,
+                                 const SipxRpc&            sipxRpcImpl,
                                  const char*               callingMethod
                                  )
 {
@@ -77,7 +77,7 @@ bool AlarmRpcMethod::validCaller(const HttpRequestContext& requestContext,
    if (!peerName.isNull() && requestContext.isTrustedPeer(peerName))
    {
       // ssl says the connection is from the named host
-      if (watchdog.isAllowedPeer(peerName))
+      if (sipxRpcImpl.isAllowedPeer(peerName))
       {
          // sipXsupervisor says it is one of the allowed peers.
          result = true;
@@ -163,9 +163,9 @@ XmlRpcMethod* AlarmRpcRaiseAlarm::get()
    return new AlarmRpcRaiseAlarm();
 }
 
-void AlarmRpcRaiseAlarm::registerSelf(WatchDog & watchdog)
+void AlarmRpcRaiseAlarm::registerSelf(SipxRpc & sipxRpcImpl)
 {
-   registerMethod(METHOD_NAME, AlarmRpcRaiseAlarm::get, watchdog);
+   registerMethod(METHOD_NAME, AlarmRpcRaiseAlarm::get, sipxRpcImpl);
 }
 
 bool AlarmRpcRaiseAlarm::execute(const HttpRequestContext& requestContext,
@@ -209,9 +209,9 @@ bool AlarmRpcRaiseAlarm::execute(const HttpRequestContext& requestContext,
                UtlSList* pAlarmParams = dynamic_cast<UtlSList*>(params.at(2));
            
                UtlBool method_result(false);
-               WatchDog* pWatchDog = ((WatchDog *)userData);
+               SipxRpc* pSipxRpcImpl = ((SipxRpc *)userData);
 
-               if (validCaller(requestContext, *pCallingHostname, response, *pWatchDog, name()))
+               if (validCaller(requestContext, *pCallingHostname, response, *pSipxRpcImpl, name()))
                {
                   OsSysLog::add(FAC_ALARM, PRI_DEBUG,
                         "AlarmRpc::raiseAlarm: host %s requested alarm '%s'",
@@ -253,9 +253,9 @@ XmlRpcMethod* AlarmRpcGetAlarmCount::get()
    return new AlarmRpcGetAlarmCount();
 }
 
-void AlarmRpcGetAlarmCount::registerSelf(WatchDog & WatchDog)
+void AlarmRpcGetAlarmCount::registerSelf(SipxRpc & sipxRpcImpl)
 {
-   registerMethod(METHOD_NAME, AlarmRpcGetAlarmCount::get, WatchDog);
+   registerMethod(METHOD_NAME, AlarmRpcGetAlarmCount::get, sipxRpcImpl);
 }
 
 bool AlarmRpcGetAlarmCount::execute(const HttpRequestContext& requestContext,
@@ -281,9 +281,9 @@ bool AlarmRpcGetAlarmCount::execute(const HttpRequestContext& requestContext,
       }
       else
       {
-         WatchDog* pWatchDog = ((WatchDog *)userData);
+         SipxRpc* pSipxRpcImpl = ((SipxRpc *)userData);
 
-         if(validCaller(requestContext, *pCallingHostname, response, *pWatchDog, name()))
+         if(validCaller(requestContext, *pCallingHostname, response, *pSipxRpcImpl, name()))
          {
             OsSysLog::add(FAC_ALARM, PRI_INFO,
                           "AlarmRpc::getAlarmCount: host %s requested alarm count",
@@ -326,9 +326,9 @@ XmlRpcMethod* AlarmRpcReloadAlarms::get()
    return new AlarmRpcReloadAlarms();
 }
 
-void AlarmRpcReloadAlarms::registerSelf(WatchDog & WatchDog)
+void AlarmRpcReloadAlarms::registerSelf(SipxRpc & sipxRpcImpl)
 {
-   registerMethod(METHOD_NAME, AlarmRpcReloadAlarms::get, WatchDog);
+   registerMethod(METHOD_NAME, AlarmRpcReloadAlarms::get, sipxRpcImpl);
 }
 
 bool AlarmRpcReloadAlarms::execute(const HttpRequestContext& requestContext,
@@ -354,9 +354,9 @@ bool AlarmRpcReloadAlarms::execute(const HttpRequestContext& requestContext,
       }
       else
       {
-         WatchDog* pWatchDog = ((WatchDog *)userData);
+         SipxRpc* pSipxRpcImpl = ((SipxRpc *)userData);
 
-         if(validCaller(requestContext, *pCallingHostname, response, *pWatchDog, name()))
+         if(validCaller(requestContext, *pCallingHostname, response, *pSipxRpcImpl, name()))
          {
             OsSysLog::add(FAC_ALARM, PRI_INFO,
                           "AlarmRpc::reloadAlarms:  host %s requested reload alarms",

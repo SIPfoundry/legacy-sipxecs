@@ -17,20 +17,20 @@
 
 // APPLICATION INCLUDES
 #include "net/NameValueTokenizer.h"
-#include "WatchDog.h"
 #include "os/OsSysLog.h"
 #include "os/OsConfigDb.h"
 #include "os/OsTask.h"
-#include "AlarmServer.h"
+#include "config/sipxsupervisor-buildstamp.h"
 #include "sipdb/SIPDBManager.h"
 #include "sipXecsService/SipXecsService.h"
+#include "SipxRpc.h"
+#include "AlarmServer.h"
 #include "SipxProcessManager.h"
-#include "config/sipxsupervisor-buildstamp.h"
 
 #define DEBUG
 
 //The worker who manages xmlrpc requests
-WatchDog *pDog;
+SipxRpc *pSipxRpcImpl;
 
 // MACROS
 // EXTERNAL FUNCTIONS
@@ -214,10 +214,10 @@ void initXMLRPCsettings(int & port, UtlSList& allowedPeers)
 void cleanup()
 {
     // Stop handling xmlrpc requests
-    if ( pDog )
+    if ( pSipxRpcImpl )
     {
-        delete pDog;
-        pDog = NULL;
+        delete pSipxRpcImpl;
+        pSipxRpcImpl = NULL;
     }
 
     // Shut down all processes
@@ -507,7 +507,7 @@ int main(int argc, char* argv[])
              "sipXsupervisor failed to init AlarmServer");
     }
     
-    // Get the Watchdog XML-RPC server settings.
+    // Get the Supervisor XML-RPC server settings.
     UtlSList allowedPeers;
     int port;
     initXMLRPCsettings(port, allowedPeers);
@@ -518,9 +518,9 @@ int main(int argc, char* argv[])
     SipxProcessManager* processManager = SipxProcessManager::getInstance();
     processManager->instantiateProcesses(processDefinitionDirectory);
 
-    // Create the "watchdog" which manages xmlrpc requests
-    pDog = new WatchDog(port, allowedPeers);
-    pDog->startRpcServer();
+    // Create the SipxRpc service which manages xmlrpc requests
+    pSipxRpcImpl = new SipxRpc(port, allowedPeers);
+    pSipxRpcImpl->startRpcServer();
 
     doWaitLoop();
 

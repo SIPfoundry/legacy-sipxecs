@@ -11,9 +11,9 @@
 
 // APPLICATION INCLUDES
 #include "os/OsSocket.h"
-#include "WatchDog.h"
 #include "os/OsDateTime.h"
 #include "net/XmlRpcDispatch.h"
+#include "SipxRpc.h"
 #include "ProcMgmtRpc.h"
 #include "AlarmRpc.h"
 #include "ImdbRpc.h"
@@ -29,9 +29,7 @@
 /* ============================ CREATORS ================================== */
 
 // Constructor
-WatchDog::WatchDog(
-                   const int port, UtlSList& allowedPeers) :
-mLock(OsBSem::Q_PRIORITY, OsBSem::FULL),
+SipxRpc::SipxRpc( const int port, UtlSList& allowedPeers) :
 mXmlRpcPort(port),
 mpXmlRpcDispatch(NULL)
 {
@@ -52,7 +50,7 @@ mpXmlRpcDispatch(NULL)
 }
 
 // Destructor
-WatchDog::~WatchDog()
+SipxRpc::~SipxRpc()
 {
    if ( mpXmlRpcDispatch )
    {
@@ -66,8 +64,8 @@ WatchDog::~WatchDog()
 /* ============================ MANIPULATORS ============================== */
 
 // Assignment operator
-WatchDog& 
-WatchDog::operator=(const WatchDog& rhs)
+SipxRpc& 
+SipxRpc::operator=(const SipxRpc& rhs)
 {
    if (this == &rhs)            // handle the assignment to self case
       return *this;
@@ -76,7 +74,7 @@ WatchDog::operator=(const WatchDog& rhs)
 }
    
 
-void WatchDog::startRpcServer()
+void SipxRpc::startRpcServer()
 {
    // Begin operation of the XML-RPC service.
    mpXmlRpcDispatch = new XmlRpcDispatch(mXmlRpcPort, true /* use https */);
@@ -104,12 +102,12 @@ void WatchDog::startRpcServer()
 
 /* ============================ ACCESSORS ================================= */
 
-XmlRpcDispatch* WatchDog::getXmlRpcDispatch()
+XmlRpcDispatch* SipxRpc::getXmlRpcDispatch()
 {
    return mpXmlRpcDispatch;
 }
 
-bool WatchDog::isAllowedPeer(const UtlString& peer) const
+bool SipxRpc::isAllowedPeer(const UtlString& peer) const
 {
    return mAllowedPeers.contains(&peer);
 }

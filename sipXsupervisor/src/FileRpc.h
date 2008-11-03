@@ -19,7 +19,7 @@
 // STRUCTS
 // TYPEDEFS
 // FORWARD DECLARATIONS
-class WatchDog;
+class SipxRpc;
 
 /**
  The base class for all File XML-RPC Methods.
@@ -38,7 +38,7 @@ public:
    virtual const char* name() = 0;
 
    /// Register this method with the XmlRpcDispatch object so it can be called.
-   static void registerSelf(WatchDog & watchdog);
+   static void registerSelf(SipxRpc & sipxRpcImpl);
 
    typedef enum
    {
@@ -69,22 +69,22 @@ protected:
    /// Common method for registering with the XML-RPC dispatcher.
    static void registerMethod(const char*       methodName,
                               XmlRpcMethod::Get getMethod,
-                              WatchDog&         watchdog
+                              SipxRpc&          sipxRpcImpl
                               );
 
    /// The execute method called by XmlRpcDispatch.
    virtual bool execute(const HttpRequestContext& requestContext, ///< request context
-                        UtlSList& params,                         ///< request param list
-                        void* userData,                           ///< user data
-                        XmlRpcResponse& response,                 ///< request response
-                        ExecutionStatus& status                   ///< XML-RPC method execution status
+                        UtlSList&                 params,         ///< request param list
+                        void*                     userData,       ///< user data
+                        XmlRpcResponse&           response,       ///< request response
+                        ExecutionStatus&          status          ///< XML-RPC method execution status
                         ) = 0;
 
    /// Common method to do caller peer validation.
    bool validCaller(const HttpRequestContext& requestContext, ///< request context
                     const UtlString&          peerName,       ///< name of the calling host
                     XmlRpcResponse&           response,       ///< response to put fault in
-                    const WatchDog&           watchdog,       ///< the sipXsupervisor
+                    const SipxRpc&            sipxRpcImpl,    ///< the sipXsupervisor
                     const char*               callingMethod   ///< calling xml rpc method name
                     );
    /**<
@@ -189,7 +189,7 @@ public:
    virtual const char* name();
 
    /// Register this method handler with the XML-RPC dispatcher.
-   static void registerSelf(WatchDog & watchdog);
+   static void registerSelf(SipxRpc & sipxRpcImpl);
 
 protected:
 

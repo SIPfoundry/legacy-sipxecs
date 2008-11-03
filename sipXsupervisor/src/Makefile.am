@@ -26,7 +26,6 @@ libsipXsupervisor_la_SOURCES =  \
 	AlarmRpc.cpp \
 	ImdbRpc.cpp \
 	FileRpc.cpp \
-	DependencyList.cpp \
 	SipxProcessManager.cpp \
 	SipxProcessResourceManager.cpp \
 	SipxProcessResource.cpp \
@@ -40,14 +39,13 @@ libsipXsupervisor_la_SOURCES =  \
 	SipxResource.cpp \
 	FileResource.cpp \
 	FileResourceManager.cpp \
-   WatchDog.cpp
+   SipxRpc.cpp
 
 noinst_HEADERS = \
 	ProcMgmtRpc.h \
 	AlarmRpc.h \
 	ImdbRpc.h \
 	FileRpc.h \
-	DependencyList.h \
 	SipxProcessManager.h \
 	SipxProcessCmd.h \
 	SipxProcess.h \
@@ -61,10 +59,9 @@ noinst_HEADERS = \
 	ImdbResourceManager.h \
 	SqldbResource.h \
 	SqldbResourceManager.h \
-	WatchDog.h
 	ImdbResource.h \
 	SqldbResource.h \
-	WatchDog.h
+	SipxRpc.h
 
 libsipXsupervisor_la_LIBADD = \
 	 @SIPXCOMMSERVER_LIBS@ \

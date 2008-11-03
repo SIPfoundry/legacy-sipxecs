@@ -28,7 +28,7 @@
 #include "sipdb/ExtensionDB.h"
 #include "sipdb/AuthexceptionDB.h"
 
-#include "WatchDog.h"
+#include "SipxRpc.h"
 #include "ImdbRpc.h"
 #include "ImdbResource.h"
 #include "ImdbResourceManager.h"
@@ -74,7 +74,7 @@ XmlRpcMethod* ImdbRpcMethod::get()
    return NULL;
 }
 
-void ImdbRpcMethod::registerSelf(WatchDog & watchdog)
+void ImdbRpcMethod::registerSelf(SipxRpc & sipxRpcImpl)
 {
    assert(false);  // this should have been overridden in the subclass
 }
@@ -84,11 +84,11 @@ ImdbRpcMethod::ImdbRpcMethod()
 }
 
 void ImdbRpcMethod::registerMethod(const char*       methodName,
-                                       XmlRpcMethod::Get getMethod,
-                                       WatchDog &           watchdog 
-                                       )
+                                   XmlRpcMethod::Get getMethod,
+                                   SipxRpc &         sipxRpcImpl
+                                   )
 {
-   watchdog.getXmlRpcDispatch()->addMethod(methodName, getMethod, &watchdog );
+   sipxRpcImpl.getXmlRpcDispatch()->addMethod(methodName, getMethod, &sipxRpcImpl );
 }
 
 bool ImdbRpcMethod::execute(const HttpRequestContext& requestContext,
@@ -104,18 +104,18 @@ bool ImdbRpcMethod::execute(const HttpRequestContext& requestContext,
 }
 
 bool ImdbRpcMethod::validCaller(const HttpRequestContext& requestContext,
-                                    const UtlString&          peerName,
-                                    XmlRpcResponse&           response,
-                                    const WatchDog&           watchdog,
-                                    const char*               callingMethod
-                                    )
+                                const UtlString&          peerName,
+                                XmlRpcResponse&           response,
+                                const SipxRpc&            sipxRpcImpl,
+                                const char*               callingMethod
+                                )
 {
    bool result = false;
 
    if (!peerName.isNull() && requestContext.isTrustedPeer(peerName))
    {
       // ssl says the connection is from the named host
-      if (watchdog.isAllowedPeer(peerName))
+      if (sipxRpcImpl.isAllowedPeer(peerName))
       {
          // sipXsupervisor says it is one of the allowed peers.
          result = true;
@@ -284,9 +284,9 @@ XmlRpcMethod* ImdbRpcReplaceTable::get()
    return new ImdbRpcReplaceTable();
 }
 
-void ImdbRpcReplaceTable::registerSelf(WatchDog & watchdog)
+void ImdbRpcReplaceTable::registerSelf(SipxRpc & sipxRpcImpl)
 {
-   registerMethod(METHOD_NAME, ImdbRpcReplaceTable::get, watchdog);
+   registerMethod(METHOD_NAME, ImdbRpcReplaceTable::get, sipxRpcImpl);
 }
 
 bool ImdbRpcReplaceTable::execute(const HttpRequestContext& requestContext,
@@ -316,8 +316,8 @@ bool ImdbRpcReplaceTable::execute(const HttpRequestContext& requestContext,
       {
          UtlString* pCallingHostname = dynamic_cast<UtlString*>(params.at(0));
 
-         WatchDog* pWatchDog = ((WatchDog *)userData);
-         if(validCaller(requestContext, *pCallingHostname, response, *pWatchDog, name()))
+         SipxRpc* pSipxRpcImpl = ((SipxRpc *)userData);
+         if(validCaller(requestContext, *pCallingHostname, response, *pSipxRpcImpl, name()))
          {
             if (!params.at(1) || !params.at(1)->isInstanceOf(UtlString::TYPE))
             {
@@ -470,9 +470,9 @@ XmlRpcMethod* ImdbRpcRetrieveTable::get()
    return new ImdbRpcRetrieveTable();
 }
 
-void ImdbRpcRetrieveTable::registerSelf(WatchDog & watchdog)
+void ImdbRpcRetrieveTable::registerSelf(SipxRpc & sipxRpcImpl)
 {
-   registerMethod(METHOD_NAME, ImdbRpcRetrieveTable::get, watchdog);
+   registerMethod(METHOD_NAME, ImdbRpcRetrieveTable::get, sipxRpcImpl);
 }
 
 bool ImdbRpcRetrieveTable::execute(const HttpRequestContext& requestContext,
@@ -501,9 +501,9 @@ bool ImdbRpcRetrieveTable::execute(const HttpRequestContext& requestContext,
       {
          UtlString* pCallingHostname = dynamic_cast<UtlString*>(params.at(0));
 
-         WatchDog* pWatchDog = ((WatchDog *)userData);
+         SipxRpc* pSipxRpcImpl = ((SipxRpc *)userData);
 
-         if(validCaller(requestContext, *pCallingHostname, response, *pWatchDog, name()))
+         if(validCaller(requestContext, *pCallingHostname, response, *pSipxRpcImpl, name()))
          {
             if (!params.at(1) || !params.at(1)->isInstanceOf(UtlString::TYPE))
             {
@@ -610,9 +610,9 @@ XmlRpcMethod* ImdbRpcAddTableRecords::get()
    return new ImdbRpcAddTableRecords();
 }
 
-void ImdbRpcAddTableRecords::registerSelf(WatchDog & watchdog)
+void ImdbRpcAddTableRecords::registerSelf(SipxRpc & sipxRpcImpl)
 {
-   registerMethod(METHOD_NAME, ImdbRpcAddTableRecords::get, watchdog);
+   registerMethod(METHOD_NAME, ImdbRpcAddTableRecords::get, sipxRpcImpl);
 }
 
 bool ImdbRpcAddTableRecords::execute(const HttpRequestContext& requestContext,
@@ -641,8 +641,8 @@ bool ImdbRpcAddTableRecords::execute(const HttpRequestContext& requestContext,
       {
          UtlString* pCallingHostname = dynamic_cast<UtlString*>(params.at(0));
 
-         WatchDog* pWatchDog = ((WatchDog *)userData);
-         if(validCaller(requestContext, *pCallingHostname, response, *pWatchDog, name()))
+         SipxRpc* pSipxRpcImpl = ((SipxRpc *)userData);
+         if(validCaller(requestContext, *pCallingHostname, response, *pSipxRpcImpl, name()))
          {
             if (!params.at(1) || !params.at(1)->isInstanceOf(UtlString::TYPE))
             {
@@ -761,9 +761,9 @@ XmlRpcMethod* ImdbRpcDeleteTableRecords::get()
    return new ImdbRpcDeleteTableRecords();
 }
 
-void ImdbRpcDeleteTableRecords::registerSelf(WatchDog & watchdog)
+void ImdbRpcDeleteTableRecords::registerSelf(SipxRpc & sipxRpcImpl)
 {
-   registerMethod(METHOD_NAME, ImdbRpcDeleteTableRecords::get, watchdog);
+   registerMethod(METHOD_NAME, ImdbRpcDeleteTableRecords::get, sipxRpcImpl);
 }
 
 bool ImdbRpcDeleteTableRecords::execute(const HttpRequestContext& requestContext,
@@ -792,9 +792,9 @@ bool ImdbRpcDeleteTableRecords::execute(const HttpRequestContext& requestContext
       {
          UtlString* pCallingHostname = dynamic_cast<UtlString*>(params.at(0));
 
-         WatchDog* pWatchDog = ((WatchDog *)userData);
+         SipxRpc* pSipxRpcImpl = ((SipxRpc *)userData);
 
-         if(validCaller(requestContext, *pCallingHostname, response, *pWatchDog, name()))
+         if(validCaller(requestContext, *pCallingHostname, response, *pSipxRpcImpl, name()))
          {
             if (!params.at(1) || !params.at(1)->isInstanceOf(UtlString::TYPE))
             {

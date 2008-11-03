@@ -18,7 +18,7 @@
 #include "net/XmlRpcRequest.h"
 #include "SipxProcessManager.h"
 #include "SipxProcess.h"
-#include "WatchDog.h"
+#include "SipxRpc.h"
 #include "SipxProcessManager.h"
 #include "SipxProcess.h"
 
@@ -49,7 +49,7 @@ XmlRpcMethod* ProcMgmtRpcMethod::get()
    return NULL;
 }
 
-void ProcMgmtRpcMethod::registerSelf(WatchDog & watchdog)
+void ProcMgmtRpcMethod::registerSelf(SipxRpc & sipxRpcImpl)
 {
    assert(false);  // this should have been overridden in the subclass
 }
@@ -60,10 +60,10 @@ ProcMgmtRpcMethod::ProcMgmtRpcMethod()
 
 void ProcMgmtRpcMethod::registerMethod(const char*       methodName,
                                        XmlRpcMethod::Get getMethod,
-                                       WatchDog &        watchdog
+                                       SipxRpc &         sipxRpcImpl
                                        )
 {
-   watchdog.getXmlRpcDispatch()->addMethod(methodName, getMethod, &watchdog );
+   sipxRpcImpl.getXmlRpcDispatch()->addMethod(methodName, getMethod, &sipxRpcImpl );
 }
 
 bool ProcMgmtRpcMethod::execute(const HttpRequestContext& requestContext,
@@ -81,7 +81,7 @@ bool ProcMgmtRpcMethod::execute(const HttpRequestContext& requestContext,
 bool ProcMgmtRpcMethod::validCaller(const HttpRequestContext& requestContext,
                                     const UtlString&          peerName,
                                     XmlRpcResponse&           response,
-                                    const WatchDog&           watchdog,
+                                    const SipxRpc&            sipxRpcImpl,
                                     const char*               callingMethod
                                     )
 {
@@ -90,9 +90,9 @@ bool ProcMgmtRpcMethod::validCaller(const HttpRequestContext& requestContext,
    if (!peerName.isNull() && requestContext.isTrustedPeer(peerName))
    {
       // ssl says the connection is from the named host
-      if (watchdog.isAllowedPeer(peerName))
+      if (sipxRpcImpl.isAllowedPeer(peerName))
       {
-         // Watchdog says it is one of the allowed peers.
+         // SipxRpc says it is one of the allowed peers.
          result = true;
          OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG,
                        "ProcMgmtRpcMethod::validCaller '%s' peer authenticated for %s",
@@ -197,8 +197,8 @@ bool ProcMgmtRpcMethod::executeSetUserRequestState(const HttpRequestContext& req
             }
             else
             {
-               WatchDog* pWatchDog = ((WatchDog *)userData);
-               if (validCaller(requestContext, *pCallingHostname, response, *pWatchDog, name()))
+               SipxRpc* pSipxRpcImpl = ((SipxRpc *)userData);
+               if (validCaller(requestContext, *pCallingHostname, response, *pSipxRpcImpl, name()))
                {
                   // for each alias in the list, look up its process and send start/stop event
                   SipxProcessManager* processMgr = SipxProcessManager::getInstance();
@@ -283,9 +283,9 @@ XmlRpcMethod* ProcMgmtRpcGetStateAll::get()
    return new ProcMgmtRpcGetStateAll();
 }
 
-void ProcMgmtRpcGetStateAll::registerSelf(WatchDog & watchdog)
+void ProcMgmtRpcGetStateAll::registerSelf(SipxRpc& sipxRpcImpl)
 {
-   registerMethod(METHOD_NAME, ProcMgmtRpcGetStateAll::get, watchdog);
+   registerMethod(METHOD_NAME, ProcMgmtRpcGetStateAll::get, sipxRpcImpl);
 }
 
 bool ProcMgmtRpcGetStateAll::execute(const HttpRequestContext& requestContext,
@@ -311,9 +311,9 @@ bool ProcMgmtRpcGetStateAll::execute(const HttpRequestContext& requestContext,
       }
       else
       {
-         WatchDog* pWatchDog = ((WatchDog *)userData);
+         SipxRpc* pSipxRpcImpl = ((SipxRpc *)userData);
 
-         if(validCaller(requestContext, *pCallingHostname, response, *pWatchDog, name()))
+         if(validCaller(requestContext, *pCallingHostname, response, *pSipxRpcImpl, name()))
          {
             OsSysLog::add(FAC_SUPERVISOR, PRI_INFO,
                           "ProcMgmtRpc::getUserRequestStateAll"
@@ -323,9 +323,6 @@ bool ProcMgmtRpcGetStateAll::execute(const HttpRequestContext& requestContext,
 
             // Get the states of the monitored processes.  (This dynamically allocates memory.)
             UtlHashMap process_states;
-            /* cb
-            pWatchDog->getProcessStateAll(process_states);
-            */
             SipxProcessManager::getInstance()->getProcessStateAll(process_states);
 
             // Construct and set the response.
@@ -362,9 +359,9 @@ XmlRpcMethod* ProcMgmtRpcStart::get()
    return new ProcMgmtRpcStart();
 }
 
-void ProcMgmtRpcStart::registerSelf(WatchDog & watchdog)
+void ProcMgmtRpcStart::registerSelf(SipxRpc & sipxRpcImpl)
 {
-   registerMethod(METHOD_NAME, ProcMgmtRpcStart::get, watchdog);
+   registerMethod(METHOD_NAME, ProcMgmtRpcStart::get, sipxRpcImpl);
 }
 
 bool ProcMgmtRpcStart::execute(const HttpRequestContext& requestContext,
@@ -397,9 +394,9 @@ XmlRpcMethod* ProcMgmtRpcStop::get()
    return new ProcMgmtRpcStop();
 }
 
-void ProcMgmtRpcStop::registerSelf(WatchDog & watchdog)
+void ProcMgmtRpcStop::registerSelf(SipxRpc & sipxRpcImpl)
 {
-   registerMethod(METHOD_NAME, ProcMgmtRpcStop::get, watchdog);
+   registerMethod(METHOD_NAME, ProcMgmtRpcStop::get, sipxRpcImpl);
 }
 
 bool ProcMgmtRpcStop::execute(const HttpRequestContext& requestContext,
@@ -432,9 +429,9 @@ XmlRpcMethod* ProcMgmtRpcRestart::get()
    return new ProcMgmtRpcRestart();
 }
 
-void ProcMgmtRpcRestart::registerSelf(WatchDog & watchdog)
+void ProcMgmtRpcRestart::registerSelf(SipxRpc & sipxRpcImpl)
 {
-   registerMethod(METHOD_NAME, ProcMgmtRpcRestart::get, watchdog);
+   registerMethod(METHOD_NAME, ProcMgmtRpcRestart::get, sipxRpcImpl);
 }
 
 bool ProcMgmtRpcRestart::execute(const HttpRequestContext& requestContext,
@@ -467,9 +464,9 @@ XmlRpcMethod* ProcMgmtRpcGetConfigVersion::get()
    return new ProcMgmtRpcGetConfigVersion();
 }
 
-void ProcMgmtRpcGetConfigVersion::registerSelf(WatchDog & watchdog)
+void ProcMgmtRpcGetConfigVersion::registerSelf(SipxRpc & sipxRpcImpl)
 {
-   registerMethod(METHOD_NAME, ProcMgmtRpcGetConfigVersion::get, watchdog);
+   registerMethod(METHOD_NAME, ProcMgmtRpcGetConfigVersion::get, sipxRpcImpl);
 }
 
 bool ProcMgmtRpcGetConfigVersion::execute(const HttpRequestContext& requestContext,
@@ -502,10 +499,10 @@ bool ProcMgmtRpcGetConfigVersion::execute(const HttpRequestContext& requestConte
          else
          {
             UtlString* pserviceName = dynamic_cast<UtlString*>(params.at(1));
-            WatchDog* pWatchDog = ((WatchDog *)userData);
+            SipxRpc* pSipxRpcImpl = ((SipxRpc *)userData);
             SipxProcessManager* pProcessManager = SipxProcessManager::getInstance();
 
-            if(validCaller(requestContext, *pCallingHostname, response, *pWatchDog, name()))
+            if(validCaller(requestContext, *pCallingHostname, response, *pSipxRpcImpl, name()))
             {
                 OsSysLog::add(FAC_SUPERVISOR, PRI_INFO,
                               "ProcMgmtRpc::getConfigVersion"
@@ -560,9 +557,9 @@ XmlRpcMethod* ProcMgmtRpcSetConfigVersion::get()
    return new ProcMgmtRpcSetConfigVersion();
 }
 
-void ProcMgmtRpcSetConfigVersion::registerSelf(WatchDog & watchdog)
+void ProcMgmtRpcSetConfigVersion::registerSelf(SipxRpc & sipxRpcImpl)
 {
-   registerMethod(METHOD_NAME, ProcMgmtRpcSetConfigVersion::get, watchdog);
+   registerMethod(METHOD_NAME, ProcMgmtRpcSetConfigVersion::get, sipxRpcImpl);
 }
 
 bool ProcMgmtRpcSetConfigVersion::execute(const HttpRequestContext& requestContext,
@@ -605,10 +602,10 @@ bool ProcMgmtRpcSetConfigVersion::execute(const HttpRequestContext& requestConte
             {
                UtlString* pserviceVersion = dynamic_cast<UtlString*>(params.at(2));
 
-               WatchDog* pWatchDog = ((WatchDog *)userData);
+               SipxRpc* pSipxRpcImpl = ((SipxRpc *)userData);
                SipxProcessManager* pProcessManager = SipxProcessManager::getInstance();
 
-               if(validCaller(requestContext, *pCallingHostname, response, *pWatchDog, name()))
+               if(validCaller(requestContext, *pCallingHostname, response, *pSipxRpcImpl, name()))
                {
                    OsSysLog::add(FAC_SUPERVISOR, PRI_INFO,
                                  "ProcMgmtRpc::setConfigVersion"

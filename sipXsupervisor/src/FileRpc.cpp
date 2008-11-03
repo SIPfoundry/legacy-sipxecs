@@ -20,7 +20,7 @@
 #include "net/XmlRpcRequest.h"
 #include "net/NetBase64Codec.h"
 
-#include "WatchDog.h"
+#include "SipxRpc.h"
 #include "FileResource.h"
 #include "FileResourceManager.h"
 #include "FileRpc.h"
@@ -48,7 +48,7 @@ XmlRpcMethod* FileRpcMethod::get()
    return NULL;
 }
 
-void FileRpcMethod::registerSelf(WatchDog & watchdog)
+void FileRpcMethod::registerSelf(SipxRpc & sipxRpcImpl)
 {
    assert(false);  // this should have been overridden in the subclass
 }
@@ -58,19 +58,19 @@ FileRpcMethod::FileRpcMethod()
 }
 
 void FileRpcMethod::registerMethod(const char*       methodName,
-                                       XmlRpcMethod::Get getMethod,
-                                       WatchDog &           watchdog 
-                                       )
+                                   XmlRpcMethod::Get getMethod,
+                                   SipxRpc &         sipxRpcImpl
+                                   )
 {
-   watchdog.getXmlRpcDispatch()->addMethod(methodName, getMethod, &watchdog );
+   sipxRpcImpl.getXmlRpcDispatch()->addMethod(methodName, getMethod, &sipxRpcImpl );
 }
 
 bool FileRpcMethod::execute(const HttpRequestContext& requestContext,
-                                UtlSList& params,
-                                void* userData,
-                                XmlRpcResponse& response,
-                                ExecutionStatus& status
-                                )
+                            UtlSList&                 params,
+                            void*                     userData,
+                            XmlRpcResponse&           response,
+                            ExecutionStatus&          status
+                            )
 {
    assert(false); // this should have been overridden in the subclass
 
@@ -78,18 +78,18 @@ bool FileRpcMethod::execute(const HttpRequestContext& requestContext,
 }
 
 bool FileRpcMethod::validCaller(const HttpRequestContext& requestContext,
-                                    const UtlString&          peerName,
-                                    XmlRpcResponse&           response,
-                                    const WatchDog&           watchdog,
-                                    const char*               callingMethod
-                                    )
+                                const UtlString&          peerName,
+                                XmlRpcResponse&           response,
+                                const SipxRpc&            sipxRpcImpl,
+                                const char*               callingMethod
+                                )
 {
    bool result = false;
 
    if (!peerName.isNull() && requestContext.isTrustedPeer(peerName))
    {
       // ssl says the connection is from the named host
-      if (watchdog.isAllowedPeer(peerName))
+      if (sipxRpcImpl.isAllowedPeer(peerName))
       {
          // sipXsupervisor says it is one of the allowed peers.
          result = true;
@@ -128,9 +128,9 @@ bool FileRpcMethod::validCaller(const HttpRequestContext& requestContext,
 }
 
 void FileRpcMethod::handleMissingExecuteParam(const char* methodName,
-                                                  const char* paramName,
-                                                  XmlRpcResponse& response,
-                                                  ExecutionStatus& status)
+                                              const char* paramName,
+                                              XmlRpcResponse& response,
+                                              ExecutionStatus& status)
 {
    UtlString faultMsg;
    faultMsg += methodName;
@@ -143,8 +143,8 @@ void FileRpcMethod::handleMissingExecuteParam(const char* methodName,
 }
 
 void FileRpcMethod::handleExtraExecuteParam(const char* methodName,
-                                                XmlRpcResponse& response,
-                                                ExecutionStatus& status)
+                                            XmlRpcResponse& response,
+                                            ExecutionStatus& status)
 {
    UtlString faultMsg;
    faultMsg += methodName;
@@ -175,16 +175,16 @@ XmlRpcMethod* FileRpcReplaceFile::get()
    return new FileRpcReplaceFile();
 }
 
-void FileRpcReplaceFile::registerSelf(WatchDog & watchdog)
+void FileRpcReplaceFile::registerSelf(SipxRpc & sipxRpcImpl)
 {
-   registerMethod(METHOD_NAME, FileRpcReplaceFile::get, watchdog);
+   registerMethod(METHOD_NAME, FileRpcReplaceFile::get, sipxRpcImpl);
 }
 
 bool FileRpcReplaceFile::execute(const HttpRequestContext& requestContext,
-                                     UtlSList& params,
-                                     void* userData,
-                                     XmlRpcResponse& response,
-                                     ExecutionStatus& status)
+                                 UtlSList&                 params,
+                                 void*                     userData,
+                                 XmlRpcResponse&           response,
+                                 ExecutionStatus&          status)
 {
 
    const int  minPermissions = 0100;
@@ -230,9 +230,9 @@ bool FileRpcReplaceFile::execute(const HttpRequestContext& requestContext,
                else
                {
                   UtlBool method_result(true);
-                  WatchDog* pWatchDog = ((WatchDog *)userData);
+                  SipxRpc* pSipxRpcImpl = ((SipxRpc *)userData);
 
-                  if(validCaller(requestContext, *pCallingHostname, response, *pWatchDog, name()))
+                  if(validCaller(requestContext, *pCallingHostname, response, *pSipxRpcImpl, name()))
                   {
                      // Check the resource permissions.  To be added when available.
                      FileResource* fileResource =
