@@ -551,14 +551,6 @@ driftfile /var/lib/ntp/drift\n\
     if runningAsRoot() :
         file ('/etc/ntp.conf', 'w').write ('%s\n' % ntpConf)
         
-
-    #--- Create /etc/ntp/step-tickers
-    log_printout("StepTickers: \n")
-    stepTickers='\n'.join (NtpServers)
-    log_printout(stepTickers)
-    if runningAsRoot() :
-        file ('/etc/ntp/step-tickers', 'w').write(stepTickers)
-    
     #--- Turn on the ntpd service on runlevel 3
     RUNLEVEL=3
     log_printout('Enable NTP Service in runlevel %d:' % RUNLEVEL)
@@ -575,22 +567,36 @@ driftfile /var/lib/ntp/drift\n\
 
     log_printout("Time before set: %s" % time.strftime("%Y-%m-%d %H:%M:S +000", time.gmtime()))
 
-    # Set Time
-    # try setting the clock with ntp if possible
-    if runningAsRoot() :
-        ntpSetCmd='/usr/sbin/ntpd -q -x -g'
-        log_printout("Attempting to set date/time with: '%s'\n", ntpSetCmd)
-        cmdresult=commands.getstatusoutput ()
-        if cmdresult[0] != 0 :
-            log_printout(" ntpd failed\n%s\n" % cmdresult[1])
-            dateCmd="date --set='2008-01-01 00:00'"
-            log_printout("Set fixed date/time: "+dateCmd)
-            cmdoutput=commands.getoutput(dateCmd)
-            log_printout(cmdoutput)
+    timeSet=False
+
+    # try to ping the first time server
+    # so we don't get stuck in the ntpd command if it's unreachable
+    pingCmd='ping -c 1 -t 1 0.pool.ntp.org'
+    log_printout("Checking ntp server with ping: '%s'\n" % pingCmd)
+    pingResult=commands.getstatusoutput(pingCmd)
+    if pingResult[0] == 0 :
+        # Set Time
+        # try setting the clock with ntp if possible
+        if runningAsRoot() :
+            ntpSetCmd='/usr/sbin/ntpd -q -x -g'
+            log_printout("Attempting to set date/time with: '%s'\n" % ntpSetCmd)
+            cmdresult=commands.getstatusoutput(ntpSetCmd)
+            if cmdresult[0] == 0 :
+                timeSet=True
+            else:
+                log_printout(" ntpd failed\n%s\n" % cmdresult[1])
+        else :
+            log_printout("(simulated) set time\n")
     else :
-        log_printout("(simulated) set time\n")
-        
-    log_printout("Time after set: %s" % time.strftime("%Y-%m-%d %H:%M:S +000", time.gmtime()))
+        log_printout("   ntp server ping test failed\n%s\n" % pingResult[1])
+
+    if timeSet :
+        log_printout("Time after set: %s" % time.strftime("%Y-%m-%d %H:%M:S +000", time.gmtime()))
+    else:
+        dateCmd="date --set='2008-01-01 00:00'"
+        log_printout("Set fixed date/time: "+dateCmd)
+        cmdoutput=commands.getoutput(dateCmd)
+        log_printout(cmdoutput)
 
     log_printout('Start NTP Server:')
     if runningAsRoot() :
