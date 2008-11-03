@@ -154,13 +154,9 @@ public class ItspAccountInfo implements gov.nist.javax.sip.clientauthutils.UserC
 
     protected  RegistrationTimerTask registrationTimerTask;
     
-    /*
-     * Whether or not to use the global address for the caller Id when sending out 
-     * INVITE.
-     */
-
-    private boolean useGlobalAddressForCallerId = true;
-
+    private String callerId;
+    
+    
     /**
      * This task runs periodically depending upon the timeout of the lookup specified.
      * 
@@ -517,12 +513,7 @@ public class ItspAccountInfo implements gov.nist.javax.sip.clientauthutils.UserC
         this.useRegistrationForCallerId = useRegistrationForCallerId;
     }
 
-    /**
-     * @return the useRegistrationForCallerId
-     */
-    public boolean isUseRegistrationForCallerId() {
-        return useRegistrationForCallerId;
-    }
+    
 
     /**
      * @param maxCalls the maxCalls to set
@@ -619,18 +610,19 @@ public class ItspAccountInfo implements gov.nist.javax.sip.clientauthutils.UserC
         return retval;
     }
 
-    public boolean useGlobalAddressForCallerId() {
-        return this.globalAddressingUsed && this.useGlobalAddressForCallerId;
-    }
+   
     
+    public void setCallerId(String callerId) {
+        this.callerId = callerId;
+    }
     public String getCallerId() {
-        if (this.isRegisterOnInitialization() && this.useRegistrationForCallerId) {
-            return this.getUserName() + "@" + this.getOutboundRegistrar();
-        } else if ( this.useGlobalAddressForCallerId()) {
+        if ( this.callerId != null ) {
+            return this.callerId;
+        } else if (this.isRegisterOnInitialization()) {
+            return this.getUserName() + "@" + this.getProxyDomain();
+        } else  {
             return  this.getUserName() + "@" + Gateway.getGlobalAddress();
-        } else {
-            return null;
-        }
+        } 
        
     }
 

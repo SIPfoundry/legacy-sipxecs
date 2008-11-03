@@ -9,7 +9,8 @@ package org.sipfoundry.sipxbridge;
 import gov.nist.javax.sdp.MediaDescriptionImpl;
 import gov.nist.javax.sip.TransactionExt;
 import gov.nist.javax.sip.header.HeaderFactoryExt;
-import gov.nist.javax.sip.header.ims.PAssertedIdentityHeader;
+import gov.nist.javax.sip.header.ims.PPreferredIdentityHeader;
+import gov.nist.javax.sip.header.ims.PrivacyHeader;
 
 import java.text.ParseException;
 import java.util.HashSet;
@@ -453,70 +454,45 @@ class SipUtilities {
             String toUser = requestUri.getUser();
             String toDomain = itspAccount.getProxyDomain();
             String fromUser = ((SipURI) from.getAddress().getURI()).getUser();
+            String fromDomain = ((SipURI) from.getAddress().getURI()).getHost();
             String fromDisplayName = from.getAddress().getDisplayName();
             if (fromDisplayName == null) {
                 fromDisplayName = "sipxbridge";
             }
-            PAssertedIdentityHeader paiHeader = null;
-            if (!fromUser.equalsIgnoreCase("anonymous")) {
-                Address fromAddress = null;
-
-                if (itspAccount.isRegisterOnInitialization()
-                        && itspAccount.isUseRegistrationForCallerId()) {
-                    String domain = itspAccount.getProxyDomain();
-                    SipURI fromUri = ProtocolObjects.addressFactory
-                            .createSipURI(fromUser, domain);
-                    fromUri.removeParameter("user");
-                    fromAddress = ProtocolObjects.addressFactory.createAddress(fromUri);
-                    fromHeader = ProtocolObjects.headerFactory.createFromHeader(fromAddress,
-                            new Long(Math.abs(new java.util.Random().nextLong())).toString());
-                  
-                    
-                    String realFromUser = itspAccount.getUserName();
-                    fromUri = ProtocolObjects.addressFactory.createSipURI(realFromUser, domain);
-                    fromUri.removeParameter("user");
-                    paiHeader = ((HeaderFactoryExt) ProtocolObjects.headerFactory)
-                            .createPAssertedIdentityHeader(ProtocolObjects.addressFactory
-                                    .createAddress(fromUri));
-                } else if (itspAccount.useGlobalAddressForCallerId()) {
-                    String domain = Gateway.getGlobalAddress();
-                    SipURI fromUri = ProtocolObjects.addressFactory
-                            .createSipURI(fromUser, domain);
-                    fromUri.removeParameter("user");
-                    fromAddress = ProtocolObjects.addressFactory.createAddress(fromUri);
-                    fromHeader = ProtocolObjects.headerFactory.createFromHeader(fromAddress,
-                            new Long(Math.abs(new java.util.Random().nextLong())).toString());
-
-                }
-                if (fromDisplayName != null) {
-                    fromAddress.setDisplayName(fromDisplayName);
-                }
-            } else {
+            PPreferredIdentityHeader preferredIdentityHeader = null;
+            PrivacyHeader privacyHeader = null;
+            if (fromUser.equalsIgnoreCase("anonymous") &&
+                    fromDomain.equalsIgnoreCase("invalid")) {
+               
+               
                 String domain = "anonymous.invalid";
                 SipURI fromUri = ProtocolObjects.addressFactory.createSipURI(fromUser, domain);
                 fromHeader = ProtocolObjects.headerFactory.createFromHeader(
                         ProtocolObjects.addressFactory.createAddress(fromUri), new Long(Math
                                 .abs(new java.util.Random().nextLong())).toString());
 
-                if (itspAccount.isRegisterOnInitialization()
-                        && itspAccount.isUseRegistrationForCallerId()) {
+                if (itspAccount.isRegisterOnInitialization()) {
                     domain = itspAccount.getProxyDomain();
                     String realFromUser = itspAccount.getUserName();
                     fromUri = ProtocolObjects.addressFactory.createSipURI(realFromUser, domain);
                     fromUri.removeParameter("user");
-                    paiHeader = ((HeaderFactoryExt) ProtocolObjects.headerFactory)
-                            .createPAssertedIdentityHeader(ProtocolObjects.addressFactory
+                    preferredIdentityHeader = ((HeaderFactoryExt) ProtocolObjects.headerFactory)
+                            .createPPreferredIdentityHeader(ProtocolObjects.addressFactory
                                     .createAddress(fromUri));
-                } else if (itspAccount.useGlobalAddressForCallerId()) {
+                } else {
                     domain = Gateway.getGlobalAddress();
-                    fromUri = ProtocolObjects.addressFactory.createSipURI(fromUser, domain);
+                    String realFromUser = itspAccount.getUserName();                    
+                    
+                    fromUri = ProtocolObjects.addressFactory.createSipURI(realFromUser, domain);
                     fromUri.removeParameter("user");
-                    paiHeader = ((HeaderFactoryExt) ProtocolObjects.headerFactory)
-                            .createPAssertedIdentityHeader(ProtocolObjects.addressFactory
+                    preferredIdentityHeader = ((HeaderFactoryExt) ProtocolObjects.headerFactory)
+                            .createPPreferredIdentityHeader(ProtocolObjects.addressFactory
                                     .createAddress(fromUri));
 
                 }
-            }
+                privacyHeader = ((HeaderFactoryExt) ProtocolObjects.headerFactory)
+                            .createPrivacyHeader("id");
+            } 
 
             if (!isphone) {
                 requestUri.removeParameter("user");
@@ -554,8 +530,12 @@ class SipUtilities {
             Request request = ProtocolObjects.messageFactory.createRequest(requestUri,
                     Request.INVITE, callid, cseqHeader, fromHeader, toHeader, list, maxForwards);
 
-            if (paiHeader != null) {
-                request.setHeader(paiHeader);
+            if (preferredIdentityHeader != null) {
+                request.setHeader(preferredIdentityHeader);
+            }
+            
+            if (privacyHeader != null) {
+                request.setHeader(privacyHeader);
             }
 
             Gateway.getAuthenticationHelper().setAuthenticationHeaders(request);
@@ -656,6 +636,7 @@ class SipUtilities {
     static SessionDescription cleanSessionDescription(SessionDescription sessionDescription,
             String codec) {
         try {
+          
             if (codec == null) {
                 return sessionDescription;
             }

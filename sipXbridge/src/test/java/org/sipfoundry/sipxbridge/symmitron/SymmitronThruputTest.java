@@ -17,8 +17,8 @@ public class SymmitronThruputTest extends AbstractSymmitronTestCase {
     int sleepTime = 20;
     private static int nbridges = 25;
     private static String testerAddress;
-    private static int port1 = 42000;
-    private static int port2 = 42300;
+    private static int startPort = 42000;
+    
 
     class Transmitter implements Runnable {
         String ipAddr;
@@ -100,8 +100,8 @@ public class SymmitronThruputTest extends AbstractSymmitronTestCase {
     }
 
     public void testThruput10() throws Exception {
-        int destinationPort1 = port1;
-        int destinationPort2 = port2;
+        int destinationPort1 = startPort;
+        int destinationPort2 = startPort;
 
         for (int i = 0; i < nbridges; i++) {
             String bridge = super.createBridge();
@@ -110,13 +110,13 @@ public class SymmitronThruputTest extends AbstractSymmitronTestCase {
             SymEndpointInterface symEndpoint = symInterface.getReceiver();
             int port1 = symEndpoint.getPort();
             System.out.println("port1 = " + port1);
-            destinationPort1 += i;
-            System.out.println("dest port " + destinationPort1);
+            destinationPort1 = startPort + i;
+          
             DatagramSocket datagramSocket1 = new DatagramSocket(destinationPort1, InetAddress
                     .getByName(testerAddress));
             Listener listener1 = new Listener(datagramSocket1);
             this.listeners.add(listener1);
-            super.setRemoteEndpointNoKeepAlive(sym, destinationPort1);
+            super.setRemoteEndpointNoKeepAlive(sym,testerAddress, destinationPort1);
             super.addSym(bridge, sym);
 
             sym = super.createEvenSym();
@@ -124,19 +124,19 @@ public class SymmitronThruputTest extends AbstractSymmitronTestCase {
             symEndpoint = symInterface.getReceiver();
             int port2 = symEndpoint.getPort();
             System.out.println("port2 = " + port2);
-            destinationPort2 += i;
+            destinationPort2 = (startPort + i + nbridges);
             DatagramSocket datagramSocket2 = new DatagramSocket(destinationPort2, InetAddress
                     .getByName(testerAddress));
             Listener listener2 = new Listener(datagramSocket2);
             this.listeners.add(listener2);
-            super.setRemoteEndpointNoKeepAlive(sym, destinationPort2);
+            super.setRemoteEndpointNoKeepAlive(sym, this.testerAddress, destinationPort2);
             super.addSym(bridge, sym);
 
             super.startBridge(bridge);
 
-            Transmitter transmitter1 = new Transmitter(datagramSocket2, testerAddress, port1,
+            Transmitter transmitter1 = new Transmitter(datagramSocket2, serverAddress, port1,
                     npacket);
-            Transmitter transmitter2 = new Transmitter(datagramSocket1, testerAddress, port2,
+            Transmitter transmitter2 = new Transmitter(datagramSocket1, serverAddress, port2,
                     npacket);
             transmitters.add(transmitter1);
             transmitters.add(transmitter2);
@@ -154,12 +154,15 @@ public class SymmitronThruputTest extends AbstractSymmitronTestCase {
 
         }
 
+	Thread.sleep(1000);
+
         while(true) {
             boolean limitReached = true;
             System.out.println("Check listeners!");
             for (Listener listener : this.listeners) {
                 System.out.println("Count = " + listener.counter);
-                if ( listener.counter != listener.lastCounter ) {
+		if (listener.counter == 0 ) limitReached = false; 
+ 		else if ( listener.counter != listener.lastCounter ) {
                    limitReached = false;
                    listener.lastCounter = listener.counter;
                 }
@@ -201,14 +204,10 @@ public class SymmitronThruputTest extends AbstractSymmitronTestCase {
         testerAddress = System.getProperties().getProperty("tester.address");
         npacket = Integer.parseInt(System.getProperties().getProperty("tester.npackets"));
         nbridges = Integer.parseInt(System.getProperties().getProperty("tester.callLoad"));
-        String portRange = System.getProperties().getProperty("tester.ports");
-        if ( portRange != null ) {
-            String[] ranges = portRange.split(",");
-            port1 = Integer.parseInt(ranges[0]);
-            port2 = Integer.parseInt(ranges[1]);
-            System.out.println("Binding to ports " + port1 + "," + port2);
-            
-        }
+        String portRange = System.getProperties().getProperty("tester.startport");
+        
+        startPort = Integer.parseInt(portRange);
+        
         TestRunner testRunner = new TestRunner();
         testRunner.doRun(new SymmitronThruputTest());
 

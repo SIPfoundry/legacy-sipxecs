@@ -892,7 +892,7 @@ public class SymmitronServer implements Symmitron {
             String configurationFile = configDir + "/nattraversalrules.xml";
             String command = System.getProperty("sipxrelay.command", "start");
 
-            System.out.println("command " + command);
+          
 
             if (command.equals("configtest")) {
                 try {
@@ -908,7 +908,9 @@ public class SymmitronServer implements Symmitron {
                     }
                     config.setLogFileName("sipxrelay.log");
 
-                    logger.debug("sipxrelay: configtest");
+                  
+                    
+                    System.exit(0);
 
                 } catch (Exception ex) {
                     logger.fatal(

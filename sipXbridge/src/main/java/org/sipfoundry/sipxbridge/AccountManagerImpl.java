@@ -8,6 +8,7 @@ package org.sipfoundry.sipxbridge;
 
 import gov.nist.javax.sip.clientauthutils.UserCredentials;
 import gov.nist.javax.sip.header.ims.PAssertedIdentityHeader;
+import gov.nist.javax.sip.header.ims.PPreferredIdentityHeader;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -136,10 +137,10 @@ public class AccountManagerImpl implements gov.nist.javax.sip.clientauthutils.Ac
                     String userStr = ((SipURI) fromHeader.getAddress().getURI()).getUser();
                     String domainStr = ((SipURI) fromHeader.getAddress().getURI()).getHost();
                     if (userStr.equals("anonymous") && domainStr.equals("invalid")) {
-                        PAssertedIdentityHeader pai = (PAssertedIdentityHeader) request
-                                .getHeader(PAssertedIdentityHeader.NAME);
+                        PPreferredIdentityHeader pai = (PPreferredIdentityHeader) request
+                                .getHeader(PPreferredIdentityHeader.NAME);
                         if (pai == null) {
-                            logger.warn("Anonymous call without P-Asserted-Identity ");
+                            logger.warn("Anonymous call without P-Preferred-Identity ");
                             // BUGBUG - this is really a mistake we should reject
                             // the call if the PAI header is missing
                             return accountInfo;
