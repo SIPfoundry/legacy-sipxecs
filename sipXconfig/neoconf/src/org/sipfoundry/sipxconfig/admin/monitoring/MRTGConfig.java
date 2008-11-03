@@ -23,6 +23,7 @@ public class MRTGConfig {
     private static final String RUN_AS_DAEMON_TOKEN = "RunAsDaemon";
     private static final String INTERVAL_TOKEN = "Interval";
     private static final String WORK_DIR_TOKEN = "workdir";
+    private static final String THRESH_DIR_TOKEN = "threshdir";
     private static final String TARGET_TOKEN = "target";
     private static final String TITLE_TOKEN = "title";
     private static final String PAGE_TOP_TOKEN = "pagetop";
@@ -42,6 +43,10 @@ public class MRTGConfig {
     private static final String IPV6_TOKEN = "EnableIPv6";
     private static final String LOG_FORMAT_TOKEN = "LogFormat";
     private static final String PATH_ADD_TOKEN = "PathAdd";
+    private static final String THRESH_MAX_TOKEN = "threshMaxO";
+    private static final String THRESH_PROG_TOKEN = "threshProgO";
+    private static final String THRESH_PROG_OK_TOKEN = "threshProgOKO";
+    private static final String THRESH_DESC_TOKEN = "threshDesc";
     private static final String DEFAULT_LOG_FORMAT = "rrdtool";
     private static final String DEFAULT_PATH_ADD = "/usr/bin";
 
@@ -52,6 +57,7 @@ public class MRTGConfig {
     private static final String EOL = System.getProperty("line.separator");
 
     private String m_workingDir;
+    private String m_threshDir;
     private String m_runAsDaemon = "Yes";
     private String m_interval = "5";
     private String m_filename = StringUtils.EMPTY;
@@ -148,6 +154,8 @@ public class MRTGConfig {
                 continue;
             } else if (line.startsWith(WORK_DIR_TOKEN)) {
                 setWorkingDir(parseSimpleEntry(line));
+            } else if (line.startsWith(THRESH_DIR_TOKEN)) {
+                setThreshDir(parseSimpleEntry(line));
             } else if (line.startsWith(IPV6_TOKEN)) {
                 setIPV6(parseSimpleEntry(line));
             } else if (line.startsWith(LOADMIBS_TOKEN)) {
@@ -193,6 +201,14 @@ public class MRTGConfig {
                         target.setOptions(value);
                     } else if (var.equalsIgnoreCase(UNSCALED_TOKEN)) {
                         target.setUnscaled(value);
+                    } else if (var.equalsIgnoreCase(THRESH_MAX_TOKEN)) {
+                        target.setThreshMax(value);
+                    } else if (var.equalsIgnoreCase(THRESH_PROG_TOKEN)) {
+                        target.setThreshProg(value);
+                    } else if (var.equalsIgnoreCase(THRESH_PROG_OK_TOKEN)) {
+                        target.setThreshProgOk(value);
+                    } else if (var.equalsIgnoreCase(THRESH_DESC_TOKEN)) {
+                        target.setThreshDesc(value);
                     } else if (var.equalsIgnoreCase(KMG_TOKEN)) {
                         // TODO Still need to handle this.
                         target.setkMG(value);
@@ -223,6 +239,10 @@ public class MRTGConfig {
         return m_workingDir;
     }
 
+    public void setThreshDir(String dir) {
+        m_threshDir = dir;
+    }
+
     public String getInterval() {
         return m_interval;
     }
@@ -233,6 +253,10 @@ public class MRTGConfig {
 
     public String getRunAsDaemon() {
         return m_runAsDaemon;
+    }
+
+    public String getThreshDir() {
+        return m_threshDir;
     }
 
     public void setRunAsDaemon(String runAsDaemon) {
@@ -298,6 +322,10 @@ public class MRTGConfig {
             appendTargetToken(buf, LEGEND_1_TOKEN, target.getLegend1(), target.getId());
             appendTargetToken(buf, LEGEND_2_TOKEN, target.getLegend2(), target.getId());
             appendTargetToken(buf, UNSCALED_TOKEN, target.getUnscaled(), target.getId());
+            appendTargetToken(buf, THRESH_MAX_TOKEN, target.getThreshMax(), target.getId());
+            appendTargetToken(buf, THRESH_PROG_TOKEN, target.getThreshProg(), target.getId());
+            appendTargetToken(buf, THRESH_PROG_OK_TOKEN, target.getThreshProgOk(), target.getId());
+            appendTargetToken(buf, THRESH_DESC_TOKEN, target.getThreshDesc(), target.getId());
         }
         if (target.gauge() || target.growRight() || target.noPercent()) {
             buf.append(OPTIONS_TOKEN + OPEN_BRACKET + target.getId() + CLOSE_BRACKET
@@ -358,6 +386,7 @@ public class MRTGConfig {
         appendTokenValue(buf, RUN_AS_DAEMON_TOKEN, getRunAsDaemon());
         appendTokenValue(buf, INTERVAL_TOKEN, getInterval());
         appendTokenValue(buf, WORK_DIR_TOKEN, getWorkingDir());
+        appendTokenValue(buf, THRESH_DIR_TOKEN, getThreshDir());
         for (String mib : m_mibs) {
             appendTokenValue(buf, LOADMIBS_TOKEN, mib);
         }

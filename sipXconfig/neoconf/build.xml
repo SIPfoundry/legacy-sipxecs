@@ -162,6 +162,8 @@
     <replace file="${dest.dir}${sipxpbx.conf.dir}/mrtg/mrtg-t.cfg"
             propertyfile="${top.build.dir}/build.properties">
         <replacefilter token="@sipxpbx.var.dir@" property="sipxpbx.var.dir" />
+        <replacefilter token="@sipxpbx.bin.dir@" property="sipxpbx.bin.dir" />
+        <replacefilter token="@sipxpbx.tmp.dir@" property="sipxpbx.tmp.dir" />
     </replace>
 
     <!-- copy jars and war -->
@@ -230,6 +232,9 @@
 
     <!-- mrtg work dir -->
     <mkdir dir="${dest.dir}${sipxpbx.var.dir}/mrtg" />
+
+    <!-- mrtg threshold dir -->
+    <mkdir dir="${dest.dir}${sipxpbx.tmp.dir}/mrtg" />
 
     <!-- WEB certificates -->
     <mkdir dir="${dest.dir}${sipxpbx.var.dir}/configserver/web-cert" />

@@ -57,6 +57,54 @@
          <filter min_threshold="3"
                  />
       </alarm>
+      <alarm id="THRESH_CPUUTIL_EXCEEDED">
+         <code>SPX00006</code>
+         <severity>warning</severity>
+         <component>monitoring</component>
+         <action log="true"
+                 email="true"
+                 />
+      </alarm>
+      <alarm id="THRESH_CPUUTIL_OK">
+         <code>SPX00007</code>
+         <severity>info</severity>
+         <component>monitoring</component>
+         <action log="true"
+                 email="true"
+                 />
+      </alarm>
+      <alarm id="THRESH_DISK_EXCEEDED">
+         <code>SPX00008</code>
+         <severity>warning</severity>
+         <component>monitoring</component>
+         <action log="true"
+                 email="true"
+                 />
+      </alarm>
+      <alarm id="THRESH_DISK_OK">
+         <code>SPX00009</code>
+         <severity>info</severity>
+         <component>monitoring</component>
+         <action log="true"
+                 email="true"
+                 />
+      </alarm>
+      <alarm id="THRESH_MEM_EXCEEDED">
+         <code>SPX00010</code>
+         <severity>warning</severity>
+         <component>monitoring</component>
+         <action log="true"
+                 email="true"
+                 />
+      </alarm>
+      <alarm id="THRESH_MEM_OK">
+         <code>SPX00011</code>
+         <severity>info</severity>
+         <component>monitoring</component>
+         <action log="true"
+                 email="true"
+                 />
+      </alarm>
 
       <!-- Add new alarms above this line.
           Remember to add strings into meta/alarms/sipXalarms-strings.xml also.

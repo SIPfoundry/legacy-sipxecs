@@ -37,6 +37,7 @@ public class MRTGConfigTest extends TestCase {
                 .getFilename());
         assertEquals(5, m_mrtgConfig.getTargets().size());
         assertEquals("/mrtg", m_mrtgConfig.getWorkingDir());
+        assertEquals("/tmp/mrtg", m_mrtgConfig.getThreshDir());
         assertEquals("rrdtool", m_mrtgConfig.getLogFormat());
         assertEquals("/usr/bin", m_mrtgConfig.getPathAdd());
 
@@ -128,6 +129,7 @@ public class MRTGConfigTest extends TestCase {
         String outputToCompare = "RunAsDaemon: Yes"
                 + "Interval: 5"
                 + "workdir: /mrtg"
+                + "threshdir: /tmp/mrtg"
                 + "LoadMibs: /usr/share/snmp/mibs/UCD-SNMP-MIB.txt, /usr/share/snmp/mibs/TCP-MIB.txt"
                 + "EnableIPv6: no"
                 + "LogFormat: rrdtool"
@@ -145,8 +147,11 @@ public class MRTGConfigTest extends TestCase {
         String outputToCompare =  "RunAsDaemon: Yes"
                 + "Interval: 5"
                 + "workdir: /mrtg"
+                + "threshdir: /tmp/mrtg"
                 + "LoadMibs: /usr/share/snmp/mibs/UCD-SNMP-MIB.txt, /usr/share/snmp/mibs/TCP-MIB.txt"
-                + "EnableIPv6: no" + "LogFormat: rrdtool" + "PathAdd: /usr/bin"
+                + "EnableIPv6: no"
+                + "LogFormat: rrdtool"
+                + "PathAdd: /usr/bin"
                 + "## #maxbytes[]: 10000000000";
         assertEquals(m_mrtgConfigString, outputToCompare);
     }
@@ -179,6 +184,7 @@ public class MRTGConfigTest extends TestCase {
         String outputToCompare =  "RunAsDaemon: Yes"
                 + "Interval: 5"
                 + "workdir: /mrtg"
+                + "threshdir: /tmp/mrtg"
                 + "LoadMibs: /usr/share/snmp/mibs/UCD-SNMP-MIB.txt, /usr/share/snmp/mibs/TCP-MIB.txt"
                 + "EnableIPv6: no"
                 + "LogFormat: rrdtool"

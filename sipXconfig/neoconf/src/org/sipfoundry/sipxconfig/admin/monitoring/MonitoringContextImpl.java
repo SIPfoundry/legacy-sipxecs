@@ -340,6 +340,7 @@ public class MonitoringContextImpl implements MonitoringContext, InitializingBea
             m_mrtgConfig.setInterval(m_templateMrtgConfig.getInterval());
             m_mrtgConfig.setIPV6(m_templateMrtgConfig.getIPV6());
             m_mrtgConfig.setWorkingDir(m_templateMrtgConfig.getWorkingDir());
+            m_mrtgConfig.setThreshDir(m_templateMrtgConfig.getThreshDir());
             m_mrtgConfig.setMibs(m_templateMrtgConfig.getMibs());
             m_mrtgConfig.setTargets(targets);
             boolean writeResult = m_mrtgConfig.writeFile();

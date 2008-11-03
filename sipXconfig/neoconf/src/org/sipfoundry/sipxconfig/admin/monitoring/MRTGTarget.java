@@ -28,6 +28,10 @@ public class MRTGTarget implements PrimaryKeySource {
     private String m_legend1 = StringUtils.EMPTY;
     private String m_legend2 = StringUtils.EMPTY;
     private String m_unscaled = StringUtils.EMPTY;
+    private String m_threshMax = StringUtils.EMPTY;
+    private String m_threshProg = StringUtils.EMPTY;
+    private String m_threshProgOk = StringUtils.EMPTY;
+    private String m_threshDesc = StringUtils.EMPTY;
     private String m_kMG = StringUtils.EMPTY;
     private String m_host = "localhost";
     private long m_maxBytes = 10000000000L;
@@ -136,6 +140,38 @@ public class MRTGTarget implements PrimaryKeySource {
 
     public void setUnscaled(String unscaled) {
         m_unscaled = unscaled.trim();
+    }
+
+    public String getThreshMax() {
+        return m_threshMax;
+    }
+
+    public void setThreshMax(String value) {
+        m_threshMax = value.trim();
+    }
+
+    public String getThreshProg() {
+        return m_threshProg;
+    }
+
+    public void setThreshProg(String value) {
+        m_threshProg = value.trim();
+    }
+
+    public String getThreshProgOk() {
+        return m_threshProgOk;
+    }
+
+    public void setThreshProgOk(String value) {
+        m_threshProgOk = value.trim();
+    }
+
+    public String getThreshDesc() {
+        return m_threshDesc;
+    }
+
+    public void setThreshDesc(String value) {
+        m_threshDesc = value.trim();
     }
 
     public String getLogFormat() {
