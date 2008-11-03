@@ -171,25 +171,35 @@ class DataShuffler implements Runnable {
                     selectedKeys.remove();
 
                     if (!key.isValid()) {
+                        if ( logger.isDebugEnabled()) {
+                            logger.debug("Discarding packet:Key not valid");
+                        }
                         continue;
                     }
                     if (key.isReadable()) {
                         readBuffer.clear();
                         DatagramChannel datagramChannel = (DatagramChannel) key.channel();
                         if (!datagramChannel.isOpen()) {
+                            if (logger.isDebugEnabled()) {
+                                logger.debug("DataShuffler: Discarding packet: Removing channel from selector: datagramChannel is closed " + 
+                                        datagramChannel.socket().getPort());
+                                
+                            }
                             selector.keys().remove(key);
                             continue;
                         }
                         bridge = ConcurrentSet.getBridge(datagramChannel);
-                        if (bridge == null)
+                        if (bridge == null) {
+                            logger.debug("DataShuffler: Discarding packet: Could not find bridge");
                             continue;
+                        }
                         InetSocketAddress remoteAddress = (InetSocketAddress) datagramChannel
                                 .receive(readBuffer);
 
                         bridge.pakcetsReceived++;
                         if (bridge.getState() != BridgeState.RUNNING) {
                             if (logger.isDebugEnabled()) {
-                                logger.debug("RtpBridge:Discarding packet. Bridge state is "
+                                logger.debug("DataShuffler: Discarding packet: Bridge state is "
                                         + bridge.getState());
                             }
                             continue;

@@ -1567,8 +1567,7 @@ public class BackToBackUserAgent {
             Request bye = peer.createRequest(Request.BYE);
             if (this.itspAccountInfo != null
                     && provider == Gateway.getWanProvider(itspAccountInfo.getOutboundTransport())) {
-                FromHeader fromHeader = (FromHeader) bye.getHeader(FromHeader.NAME);
-
+                
                 if (itspAccountInfo.isRportUsed()) {
                     ViaHeader via = (ViaHeader) bye.getHeader(ViaHeader.NAME);
                     try {
