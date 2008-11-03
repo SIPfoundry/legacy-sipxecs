@@ -143,5 +143,39 @@ abstract class SymEndpoint implements SymEndpointInterface {
         if ( port < 0 ) throw new IllegalArgumentException("Bad port "+ port);
         this.port = port;
     }
+    
+    
+    /**
+     * Debugging routine for clients.
+     * 
+     * @return
+     */
+    public String getDatagramChannelState() {
+        String state = "";
+        if (this.datagramChannel.isOpen() ) {
+            state += "OPEN";
+        } else {
+            return "CLOSED";
+        } 
+        
+        if ( this.datagramChannel.isRegistered() ) {
+             state += " REGISTERED";
+        } else {
+            return state + " NOT_REGISTERED";
+        }
+        
+        if ( this.datagramChannel.isConnected()) {
+            state += " CONNECTED";
+        } else {
+            state += " NOT_CONNECTED";
+        }
+        
+        state += "host = " + this.datagramChannel.socket().getInetAddress() + "; local port = " + this.datagramChannel.socket().getLocalPort();
+        
+        
+        return state;
+        
+       
+    }
 
 }

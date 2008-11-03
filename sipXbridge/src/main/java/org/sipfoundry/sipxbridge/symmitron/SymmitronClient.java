@@ -409,6 +409,25 @@ public class SymmitronClient {
             }
         }
     }
+    
+    public synchronized String getReceiverState(String symId) throws SymmitronException {
+        Object[] args = new Object[2];
+        args[0] = clientHandle;
+        args[1] = symId;
+        Map retval;
+        try {
+            retval = (Map) client.execute("sipXrelay.getReceiverState", args);
+            if (retval.get(Symmitron.STATUS_CODE).equals(Symmitron.ERROR)) {
+                throw new SymmitronException("Error in processing request "
+                        + retval.get(Symmitron.ERROR_INFO));
+            }
+            return (String) retval.get(Symmitron.RECEIVER_STATE);
+        } catch (XmlRpcException e) {
+            logger.error(e);
+            throw new SymmitronException(e);
+        }
+        
+    }
 
     public synchronized void resumeBridge(String bridge) throws SymmitronException {
         Object[] args = new Object[2];

@@ -1169,6 +1169,7 @@ class CallControlManager implements SymmitronResetHandler {
                              * The receiver stays as is.
                              */
                             rtpSession.getTransmitter().setSessionDescription(sessionDescription);
+                            logger.debug("Receiver State : " +rtpSession.getReceiverState());
 
                             /*
                              * Grab the RTP session previously pointed at by the REFER dialog.

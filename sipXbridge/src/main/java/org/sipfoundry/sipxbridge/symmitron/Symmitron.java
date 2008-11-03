@@ -210,6 +210,11 @@ public interface Symmitron {
      * The external address of the bridge.
      */
     public static final String EXTERNAL_ADDRESS = "external-address";
+    
+    /**
+     * The state of the datagam socket for a SYM (for debugging purposes).
+     */
+    public static final String RECEIVER_STATE = "receiver-state";
 
     /**
      * Successful return.
@@ -245,6 +250,7 @@ public interface Symmitron {
     public static final int EVEN = 1;
     public static final int ODD = 2;
 
+    
     
     /**
      * Sign in to symmmitron. This allows remote hosts to sign into symmitron.
@@ -579,6 +585,15 @@ public interface Symmitron {
             String bridgeId);
     
     
+    /**
+     * Debugging route. Get the receiver state.
+     * 
+     * @param symId -- the id for the sym of interest.
+     * 
+     * @return a String that indicates the  Channel state of the receiver.
+     * 
+     */
+    public Map<String,Object> getReceiverState(String controllerHandle, String symId);
    
     
     

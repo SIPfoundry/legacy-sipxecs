@@ -48,6 +48,7 @@ public class SipListenerImpl implements SipListener {
     public void processDialogTerminated(DialogTerminatedEvent dte) {
 
         logger.debug("DialogTerminatedEvent " + dte.getDialog());
+        
 
         DialogApplicationData dat = DialogApplicationData.get(dte.getDialog());
         if (dat != null && dat.musicOnHoldDialog != null

@@ -198,26 +198,25 @@ class RtpSession {
         peerDialog.sendRequest(ctx);
         this.reInviteForwarded = true;
     }
-    
+
     /**
-     * Set the transmitter IP address and port from the sdp parameters
-     * extracted from the message.
+     * Set the transmitter IP address and port from the sdp parameters extracted from the message.
      * 
      * @param message
      * @throws Exception
      */
     void setTransmitterPort(Message message) throws Exception {
-        if ( logger.isDebugEnabled()) {
+        if (logger.isDebugEnabled()) {
             logger.debug("RtpSession.setTransmitterPort");
         }
         if (this.getTransmitter() != null) {
             this.getTransmitter().setOnHold(false);
-           
-            SessionDescription reInviteSd = SipUtilities.getSessionDescription(message);     
+
+            SessionDescription reInviteSd = SipUtilities.getSessionDescription(message);
             int port = SipUtilities.getSessionDescriptionMediaPort(reInviteSd);
-            String ipAddress  = SipUtilities.getSessionDescriptionMediaIpAddress(reInviteSd);
-            
-            this.getTransmitter().setIpAddressAndPort(ipAddress, port);  
+            String ipAddress = SipUtilities.getSessionDescriptionMediaIpAddress(reInviteSd);
+
+            this.getTransmitter().setIpAddressAndPort(ipAddress, port);
         }
     }
 
@@ -359,10 +358,15 @@ class RtpSession {
 
     }
 
+    public String getReceiverState() {
+        return this.symImpl.getRecieverState();
+    }
+
     /**
      * @return the reInviteForwarded
      */
     boolean isReInviteForwarded() {
         return reInviteForwarded;
     }
+
 }

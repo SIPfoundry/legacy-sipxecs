@@ -419,7 +419,7 @@ public class SymmitronServer implements Symmitron {
             retval.put(SYM_SESSION, hmapArray);
 
             return retval;
-        } catch (Throwable ex) {
+        } catch (Exception ex) {
             logger.error("error creating syms", ex);
             return createErrorMap(PROCESSING_ERROR, ex.getMessage());
 
@@ -449,7 +449,7 @@ public class SymmitronServer implements Symmitron {
                 return createErrorMap(SESSION_NOT_FOUND, "");
 
             }
-        } catch (Throwable ex) {
+        } catch (Exception ex) {
             logger.error("Error processing request " + symId);
             return createErrorMap(PROCESSING_ERROR, ex.getMessage());
         }
@@ -502,7 +502,7 @@ public class SymmitronServer implements Symmitron {
             }
             return retval;
 
-        } catch (Throwable ex) {
+        } catch (Exception ex) {
 
             logger.error("Processing Error", ex);
 
@@ -521,7 +521,7 @@ public class SymmitronServer implements Symmitron {
             }
             rtpBridge.start();
             return createSuccessMap();
-        } catch (Throwable ex) {
+        } catch (Exception ex) {
             logger.error("Processing Error", ex);
             return createErrorMap(PROCESSING_ERROR, ex.getMessage());
         }
@@ -541,7 +541,7 @@ public class SymmitronServer implements Symmitron {
             }
             rtpSession.getTransmitter().setOnHold(true);
             return this.createSuccessMap();
-        } catch (Throwable ex) {
+        } catch (Exception ex) {
             logger.error("Processing Error", ex);
             return createErrorMap(PROCESSING_ERROR, ex.getMessage());
         }
@@ -571,7 +571,7 @@ public class SymmitronServer implements Symmitron {
 
             rtpBridge.removeSym(rtpSession);
             return this.createSuccessMap();
-        } catch (Throwable ex) {
+        } catch (Exception ex) {
             logger.error("Processing Error", ex);
             return createErrorMap(PROCESSING_ERROR, ex.getMessage());
         }
@@ -602,7 +602,7 @@ public class SymmitronServer implements Symmitron {
 
             bridge.addSym(sym);
             return this.createSuccessMap();
-        } catch (Throwable ex) {
+        } catch (Exception ex) {
             logger.error("Processing Error", ex);
             return createErrorMap(PROCESSING_ERROR, ex.getMessage());
         }
@@ -632,7 +632,7 @@ public class SymmitronServer implements Symmitron {
             logger.debug("createBridge: returning " + bridge.getId());
             retval.put(BRIDGE_ID, bridge.getId());
             return retval;
-        } catch (Throwable ex) {
+        } catch (Exception ex) {
             logger.error("Processing Error", ex);
             return createErrorMap(PROCESSING_ERROR, ex.getMessage());
         }
@@ -649,7 +649,7 @@ public class SymmitronServer implements Symmitron {
             }
             bridge.pause();
             return this.createSuccessMap();
-        } catch (Throwable ex) {
+        } catch (Exception ex) {
             logger.error("Processing Error", ex);
             return createErrorMap(PROCESSING_ERROR, ex.getMessage());
         }
@@ -665,7 +665,7 @@ public class SymmitronServer implements Symmitron {
             }
             rtpBridge.resume();
             return this.createSuccessMap();
-        } catch (Throwable ex) {
+        } catch (Exception ex) {
             logger.error("Processing Error", ex);
             return createErrorMap(PROCESSING_ERROR, ex.getMessage());
         }
@@ -685,7 +685,7 @@ public class SymmitronServer implements Symmitron {
             }
             rtpSession.getTransmitter().setOnHold(false);
             return this.createSuccessMap();
-        } catch (Throwable ex) {
+        } catch (Exception ex) {
             logger.error("Processing Error", ex);
             return createErrorMap(PROCESSING_ERROR, ex.getMessage());
         }
@@ -704,7 +704,7 @@ public class SymmitronServer implements Symmitron {
             Map<String, Object> retval = this.createSuccessMap();
             retval.putAll(stats);
             return retval;
-        } catch (Throwable ex) {
+        } catch (Exception ex) {
             logger.error("Processing Error", ex);
             return createErrorMap(PROCESSING_ERROR, ex.getMessage());
         }
@@ -738,7 +738,7 @@ public class SymmitronServer implements Symmitron {
             retval.put(Symmitron.SYM_SESSION_STATS, symStats);
             logger.debug("bridgeStats = " + retval);
             return retval;
-        } catch (Throwable ex) {
+        } catch (Exception ex) {
             logger.error("Processing Error", ex);
             return createErrorMap(PROCESSING_ERROR, ex.getMessage());
         }
@@ -763,7 +763,7 @@ public class SymmitronServer implements Symmitron {
             sessionResourceMap.remove(controllerHandle);
 
             return this.createSuccessMap();
-        } catch (Throwable ex) {
+        } catch (Exception ex) {
             logger.error("Processing Error", ex);
             return createErrorMap(PROCESSING_ERROR, ex.getMessage());
         }
@@ -791,7 +791,7 @@ public class SymmitronServer implements Symmitron {
                         "Sym with the given Id was not found");
             }
 
-        } catch (Throwable ex) {
+        } catch (Exception ex) {
             logger.error("Processing Error", ex);
             return createErrorMap(PROCESSING_ERROR, ex.getMessage());
         }
@@ -818,7 +818,7 @@ public class SymmitronServer implements Symmitron {
                 }
             }
             return retval;
-        } catch (Throwable ex) {
+        } catch (Exception ex) {
             logger.error("Processing Error", ex);
             return createErrorMap(PROCESSING_ERROR, ex.getMessage());
         }
@@ -838,7 +838,7 @@ public class SymmitronServer implements Symmitron {
                 return this.createErrorMap(SESSION_NOT_FOUND,
                         "Requested SYM Session was not found");
             }
-        } catch (Throwable ex) {
+        } catch (Exception ex) {
             logger.error("Processing Error", ex);
             return createErrorMap(PROCESSING_ERROR, ex.getMessage());
         }
@@ -872,11 +872,36 @@ public class SymmitronServer implements Symmitron {
                         "Bridge with the given ID was not found");
 
             }
-        } catch (Throwable ex) {
+        } catch (Exception ex) {
             logger.error("Processing Error", ex);
             return createErrorMap(PROCESSING_ERROR, ex.getMessage());
         }
     }
+    
+    /*
+     * (non-Javadoc)
+     * @see org.sipfoundry.sipxbridge.symmitron.Symmitron#getReceiverState(java.lang.String, java.lang.String)
+     */
+    public Map<String, Object> getReceiverState(String controllerHandle, String symId) {
+        try {
+            this.checkForControllerReboot(controllerHandle);
+
+            if (sessionMap.containsKey(symId)) {
+                Sym sym = sessionMap.get(symId);
+                String state = sym.getReceiver().getDatagramChannelState();
+                Map retval = this.createSuccessMap();
+                retval.put(Symmitron.RECEIVER_STATE, state);
+                return retval;
+            } else {
+                return this.createErrorMap(SESSION_NOT_FOUND,
+                        "Requested SYM Session was not found");
+            }
+        } catch (Exception ex) {
+            logger.error("Processing Error", ex);
+            return createErrorMap(PROCESSING_ERROR, ex.getMessage());
+        } 
+    }
+
 
     /**
      * Test method - stop the xml rpc server.
@@ -982,4 +1007,5 @@ public class SymmitronServer implements Symmitron {
         }
     }
 
+    
 }

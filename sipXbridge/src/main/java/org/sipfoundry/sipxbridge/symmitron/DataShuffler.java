@@ -78,8 +78,7 @@ class DataShuffler implements Runnable {
             for (Sym sym : bridge.sessions) {
                 if (sym.getReceiver() != null && datagramChannel == sym.getReceiver().getDatagramChannel()) {
                     if (logger.isDebugEnabled()) {
-                        logger.debug("got something on " + sym.getReceiver().getIpAddress() + ":"
-                                + sym.getReceiver().getPort());
+                        
                         if (remoteAddress != null) {
                             if (logger.isDebugEnabled())
                                 logger.debug("remoteIpAddressAndPort : "
@@ -203,6 +202,9 @@ class DataShuffler implements Runnable {
                                         + bridge.getState());
                             }
                             continue;
+                        }
+                        if ( logger.isDebugEnabled() ) {
+                            logger.debug("got something on " + datagramChannel.socket().getLocalPort() );
                         }
                         send(bridge, datagramChannel, remoteAddress);
 

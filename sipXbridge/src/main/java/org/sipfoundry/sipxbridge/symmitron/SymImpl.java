@@ -64,5 +64,9 @@ public class SymImpl implements SymInterface {
         this.transmitter = transmitter;
     }
 
+    public String getRecieverState() {
+      return this.symmitronClient.getReceiverState(id);
+    }
+
   
 }
