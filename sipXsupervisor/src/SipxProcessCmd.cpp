@@ -280,7 +280,7 @@ void SipxProcessCmd::executeInTask(SipxProcess* owner)
       {
          if (stdoutMsg.length() > 0)
          {
-            owner->evCommandOutput(this, PRI_NOTICE, stdoutMsg);
+            owner->evCommandOutput(this, PRI_INFO, stdoutMsg);
          }
          if (stderrMsg.length() > 0)
          {
