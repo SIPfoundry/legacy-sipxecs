@@ -53,28 +53,28 @@ public class PromptListTest extends TestCase {
         TextToPrompts ttp = new TextToPrompts_en();
         ttp.setPrefix("/TTP");
 
-        PromptList pl = new PromptList(rb, ttp);
+        PromptList pl = new PromptList(rb, null, ttp);
         pl.addFragment("test1");
         assertEquals("glob/woof", pl.toString());
 
-        pl = new PromptList(rb, ttp);
+        pl = new PromptList(rb, null, ttp);
         pl.addFragment("test2");
         assertEquals("/top/woof:/top/was:/top/here", pl.toString());
 
-        pl = new PromptList(rb, ttp);
+        pl = new PromptList(rb, null, ttp);
         pl.addFragment("test3", "fuzzy");
         // NB variable prompts do NOT get prefixed!
         assertEquals("fuzzy:glob/was:glob/here", pl.toString());
 
-        pl = new PromptList(rb, ttp);
+        pl = new PromptList(rb, null, ttp);
         pl.addFragment("test4", "fuzzy:wuzzy");
         assertEquals("fuzzy:wuzzy:pre/was:pre/here", pl.toString());
 
-        pl = new PromptList(rb, ttp);
+        pl = new PromptList(rb, null, ttp);
         pl.addFragment("test5", "42", "0");
         assertEquals("/TTP/42.wav:/TTP/0.wav", pl.toString());
 
-        pl = new PromptList(rb, ttp);
+        pl = new PromptList(rb, null, ttp);
         pl.setPrefix("/PROMPT");
         pl.addFragment("test6", "2");
         assertEquals("/joe:/TTP/2nd.wav:/PROMPT/dogs", pl.toString());

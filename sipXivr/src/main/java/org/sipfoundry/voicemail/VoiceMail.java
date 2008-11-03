@@ -16,7 +16,6 @@ import java.util.Locale;
 import java.util.ResourceBundle;
 
 import org.apache.log4j.Logger;
-import org.sipfoundry.attendant.Configuration.AttendantConfig;
 import org.sipfoundry.sipxivr.Collect;
 import org.sipfoundry.sipxivr.FreeSwitchEventSocketInterface;
 import org.sipfoundry.sipxivr.Hangup;
@@ -38,8 +37,8 @@ public class VoiceMail {
     private org.sipfoundry.sipxivr.Configuration m_ivrConfig;
     private FreeSwitchEventSocketInterface m_fses;
     private String m_parameterName;
-    private ResourceBundle m_attendantBundle;
-    private AttendantConfig m_config;
+    private ResourceBundle m_vmBundle;
+    private Configuration m_config;
 // TODO     private Configuration m_attendantConfig;
     private ValidUsersXML m_validUsers;
     private TextToPrompts m_ttp;
@@ -107,22 +106,30 @@ public class VoiceMail {
 
         // Check to see if we've loaded this one before...
         synchronized (s_resourcesByLocale) {
-            m_attendantBundle = s_resourcesByLocale.get(m_locale);
-            if (m_attendantBundle == null) {
+            m_vmBundle = s_resourcesByLocale.get(m_locale);
+            if (m_vmBundle == null) {
                 // Nope. Find the on disk version, and keep it for next time.
-                m_attendantBundle = ResourceBundle.getBundle(
-                        "org.sipfoundry.attendant.AutoAttendant", m_locale);
-                s_resourcesByLocale.put(m_locale, m_attendantBundle);
+                m_vmBundle = ResourceBundle.getBundle(
+                        "org.sipfoundry.voicemail.VoiceMail", m_locale);
+                s_resourcesByLocale.put(m_locale, m_vmBundle);
             }
         }
 
         // Find the TextToPrompt class as well
         m_ttp = TextToPrompts.getTextToPrompt(m_locale);
         // Tell it where to find the audio files
-        m_ttp.setPrefix(m_attendantBundle.getString("global.prefix"));
+        String globalPrefix = m_vmBundle.getString("global.prefix");
+        if (!globalPrefix.startsWith("/")) {
+        	String docDir = m_ivrConfig.getDocDirectory();
+        	if (!docDir.endsWith("/")) {
+        		docDir += "/";
+        	}
+        	globalPrefix = docDir + globalPrefix;
+        }
+        m_ttp.setPrefix(globalPrefix);
         
-        // Load the attendant configuration
-// TODO        m_attendantConfig = Configuration.update(true);
+        // Load the Voice Mail configuration
+        m_config = Configuration.update(true);
 
         // Update the valid users list
         m_validUsers = ValidUsersXML.update(true);
@@ -136,7 +143,7 @@ public class VoiceMail {
      * @return The appropriate PromptList.
      */
     PromptList getPromptList(String fragment, String... vars) {
-        PromptList pl = new PromptList(m_attendantBundle, m_ttp);
+        PromptList pl = new PromptList(m_vmBundle, m_ivrConfig, m_ttp);
         pl.addFragment(fragment, vars);
         return pl;
     }
@@ -173,7 +180,7 @@ public class VoiceMail {
      * @throws Throwable indicating an error or hangup condition.
      */
     public void run() throws Throwable {
-        if (m_attendantBundle == null) {
+        if (m_vmBundle == null) {
             loadConfig();
         }
 
@@ -190,7 +197,7 @@ public class VoiceMail {
      * @throws Throwable indicating an error or hangup condition.
      */
     void voicemail() throws Throwable {
-        LOG.info("Starting voicemail " + m_config.getName() + " in locale " + m_locale);
+        LOG.info("Starting voicemail in locale " + m_locale);
 
         String digits;
         int invalidCount = 0;
@@ -205,16 +212,8 @@ public class VoiceMail {
 
             // Play the initial prompt, or main menu.
             Play p = null;
-            if (m_config.getPrompt() != null && !m_config.getPrompt().contentEquals("")) {
-                // Override default main menu prompts with user recorded one
-                p = new Play(m_fses);
-                PromptList pl = new PromptList();
-                pl.addPrompts(m_config.getPrompt());
-                p.setPromptList(pl);
-            } else {
-                // Use default menu
-                p = getPlayer("main_menu");
-            }
+            // Use default menu
+            p = getPlayer("main_menu");
             p.go();
 
             // Wait for the caller to enter a selection.
@@ -265,7 +264,7 @@ public class VoiceMail {
             invalidCount++;
         }
 
-        LOG.info("Ending voicemail " + m_config.getName());
+        LOG.info("Ending voicemail");
     }
 
 
@@ -349,18 +348,18 @@ public class VoiceMail {
     }
 
     public ResourceBundle getAttendantBundle() {
-        return m_attendantBundle;
+        return m_vmBundle;
     }
 
     public void setAttendantBundle(ResourceBundle attendantBundle) {
-        m_attendantBundle = attendantBundle;
+        m_vmBundle = attendantBundle;
     }
 
-    public AttendantConfig getConfig() {
+    public Configuration getConfig() {
         return m_config;
     }
 
-    public void setConfig(AttendantConfig config) {
+    public void setConfig(Configuration config) {
         m_config = config;
     }
 

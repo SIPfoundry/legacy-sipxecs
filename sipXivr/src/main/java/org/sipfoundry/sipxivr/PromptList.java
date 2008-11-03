@@ -28,16 +28,23 @@ public class PromptList {
     public PromptList() {
     }
 
-    public PromptList(ResourceBundle resourceBundle, TextToPrompts ttp) {
-        setResourceBundle(resourceBundle);
+    public PromptList(ResourceBundle resourceBundle, Configuration config, TextToPrompts ttp) {
+        setResourceBundle(resourceBundle, config);
         setTtp(ttp);
     }
 
-    public void setResourceBundle(ResourceBundle resourceBundle) {
+    public void setResourceBundle(ResourceBundle resourceBundle, Configuration config) {
         this.m_resourceBundle = resourceBundle;
         // Try setting the global prefix
         try {
             m_globalPrefix = resourceBundle.getString("global.prefix");
+            if (!m_globalPrefix.startsWith("/") && config != null) {
+            	String docDir = config.getDocDirectory();
+            	if (!docDir.endsWith("/")) {
+            		docDir += "/";
+            	}
+            	m_globalPrefix = docDir + m_globalPrefix;
+            }
             if (!m_globalPrefix.endsWith("/")) {
                 m_globalPrefix += "/";
             }

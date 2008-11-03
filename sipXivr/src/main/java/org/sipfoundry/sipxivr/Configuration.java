@@ -27,6 +27,7 @@ public class Configuration {
     private String m_mailstoreDirectory; // File path to the mailstore
     private String m_organizationPrefs; // File path to organizationprefs.xml
     private String m_scriptsDirectory; // File path to the AA scripts (for schedule access)
+    private String m_docDirectory; // File path to DOC Directory (usually /usr/share/www/doc)
     private String m_operatorAddr; // Address of 'operator'
     private String m_sipxchangeDomainName; // The domain name of this system (from config.defs?)
     private String m_voicemailUrl; // URL for voicemail access
@@ -86,6 +87,7 @@ public class Configuration {
             m_mailstoreDirectory = props.getProperty(prop = "ivr.mailstoreDirectory");
             m_organizationPrefs = props.getProperty(prop = "ivr.organizationPrefs");
             m_scriptsDirectory = props.getProperty(prop = "ivr.scriptsDirectory");
+            m_docDirectory = props.getProperty(prop = "ivr.docDirectory") ;
             m_operatorAddr = props.getProperty(prop = "ivr.operatorAddr");
             m_sipxchangeDomainName = props.getProperty(prop = "ivr.sipxchangeDomainName");
             m_voicemailUrl = props.getProperty(prop = "ivr.voicemailUrl");
@@ -118,6 +120,10 @@ public class Configuration {
 
     public String getScriptsDirectory() {
         return m_scriptsDirectory;
+    }
+
+    public String getDocDirectory() {
+        return m_docDirectory;
     }
 
     public String getOperatorAddr() {

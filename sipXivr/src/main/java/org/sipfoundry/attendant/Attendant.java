@@ -125,7 +125,17 @@ public class Attendant {
         // Find the TextToPrompt class as well
         m_ttp = TextToPrompts.getTextToPrompt(m_locale);
         // Tell it where to find the audio files
-        m_ttp.setPrefix(m_attendantBundle.getString("global.prefix"));
+        String globalPrefix = m_attendantBundle.getString("global.prefix");
+        LOG.debug("global.prefix originally "+globalPrefix) ;
+        if (!globalPrefix.startsWith("/")) {
+        	String docDir = m_ivrConfig.getDocDirectory();
+        	if (!docDir.endsWith("/")) {
+        		docDir += "/";
+        	}
+        	globalPrefix = docDir + globalPrefix;
+        }
+        LOG.info("global.prefix is "+globalPrefix) ;
+        m_ttp.setPrefix(globalPrefix);
         
         // Load the attendant configuration
         m_attendantConfig = Configuration.update(true);
@@ -145,7 +155,7 @@ public class Attendant {
      * @return The appropriate PromptList.
      */
     PromptList getPromptList(String fragment, String... vars) {
-        PromptList pl = new PromptList(m_attendantBundle, m_ttp);
+        PromptList pl = new PromptList(m_attendantBundle, m_ivrConfig, m_ttp);
         pl.addFragment(fragment, vars);
         return pl;
     }
@@ -466,7 +476,7 @@ public class Attendant {
 
         // Build a menu of the matched user's names.
         // Limit the choices to the first 9 (or it gets too long)
-        PromptList pl = new PromptList(m_attendantBundle, m_ttp);
+        PromptList pl = new PromptList(m_attendantBundle, m_ivrConfig, m_ttp);
         int choices = matches.size();
         if (choices > 9) {
             choices = 9;

@@ -31,6 +31,7 @@ public class SipxIvrConfigurationTest extends SipxServiceTestBase {
 
         ivrService.setMailstoreDir("/var/sipxdata/mediaserver/data/mailstore");
         ivrService.setScriptsDir("/usr/share/www/doc/aa_vxml");
+        ivrService.setDocDir("/usr/share/www/doc");
         ivrService.setVxmlDir("/var/sipxdata/mediaserver/data");
 
         SipxServiceManager sipxServiceManager = createMock(SipxServiceManager.class);

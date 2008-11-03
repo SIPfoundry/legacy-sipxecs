@@ -6,6 +6,7 @@ freeswitch.eventSocketPort=$ivr.getSetting('freeswitch.eventSocketPort').Value
 
 ivr.mailstoreDirectory=${service.mailstoreDir}
 ivr.scriptsDirectory=${service.scriptsDir}
+ivr.docDirectory=${service.docDir}
 ivr.organizationPrefs=${service.vxmlDir}/organizationprefs.xml
 ivr.operatorAddr=sip:operator@${service.domainName}
 ivr.sipxchangeDomainName=${service.domainName}

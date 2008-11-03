@@ -20,6 +20,7 @@ public class SipxIvrService extends SipxService {
     private String m_vxmlDir;
     private String m_mailstoreDir;
     private String m_scriptsDir;
+    private String m_docDir;
     private DialPlanContext m_dialPlanContext;
 
     @Required
@@ -47,6 +48,15 @@ public class SipxIvrService extends SipxService {
 
     public String getScriptsDir() {
         return m_scriptsDir;
+    }
+
+    @Required
+    public void setDocDir(String docDirectory) {
+        m_docDir = docDirectory;
+    }
+
+    public String getDocDir() {
+        return m_docDir;
     }
 
     public void setDialPlanContext(DialPlanContext dialPlanContext) {

@@ -192,6 +192,7 @@
     </property>
     <property name="mailstoreDir" value="${sysdir.mailstore}" />
     <property name="scriptsDir" value="${sysdir.vxml.scripts}" />
+    <property name="docDir" value="${sysdir.doc}" />
     <property name="vxmlDir" value="${sysdir.vxml}" />
     <property name="dialPlanContext" ref="dialPlanContext" />
   </bean>
