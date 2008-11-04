@@ -91,6 +91,12 @@ int readAll(int fd, UtlString* message)
 
 int OsProcessLinux::getOutput(UtlString* stdoutMsg, UtlString *stderrMsg)
 {
+   if ( m_fdout[0] < 0 || m_fderr[0] < 0 )
+   {
+      // if pipes have not been created, we can't get any output
+      return -1;
+   }
+   
    int bytesRead = 0;
 
    fd_set outputFds;
@@ -157,6 +163,10 @@ int OsProcessLinux::wait(int WaitInSecs)
             }
             else
             {
+               // parent closes the reading end of the pipes
+               close(m_fdout[0]);
+               close(m_fderr[0]);
+
                if ( pid < 0 )
                {
                   // an error has occured.
@@ -273,11 +283,15 @@ OsStatus OsProcessLinux::launch(UtlString &rAppName, UtlString parameters[], OsP
     {
        OsSysLog::add(FAC_PROCESS, PRI_CRIT,"Failed to create pipe for '%s', errno %d!\n", 
                      rAppName.data(), errno);
+       m_fdout[0] = -1;
+       m_fdout[1] = -1;
     }
     if ( pipe(m_fderr) < 0 )
     {
        OsSysLog::add(FAC_PROCESS, PRI_CRIT,"Failed to create pipe for '%s', errno %d!\n", 
                      rAppName.data(), errno);
+       m_fderr[0] = -1;
+       m_fderr[1] = -1;
     }
     
     //now fork into two processes
@@ -306,13 +320,11 @@ OsStatus OsProcessLinux::launch(UtlString &rAppName, UtlString parameters[], OsP
                     {
                        osPrintf("Failed to dup2 pipe for '%s', errno %d!\n", 
                                      rAppName.data(), errno);
-                       _exit(1);
                     }
                     if ( dup2(m_fderr[1], STDERR_FILENO) < 0 )
                     {
                        osPrintf("Failed to dup2 pipe for '%s', errno %d!\n", 
                                      rAppName.data(), errno);
-                       _exit(1);
                     }
 
                     // close all other file descriptors that may be open
