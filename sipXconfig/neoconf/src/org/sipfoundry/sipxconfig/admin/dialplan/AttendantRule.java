@@ -30,21 +30,14 @@ public class AttendantRule extends DialingRule {
 
     private MediaServer m_mediaServer;
 
-    private MediaServer m_alternateMediaServer;
-
     @Override
     public void appendToGenerationRules(List<DialingRule> rules) {
         if (!isEnabled()) {
             return;
         }
-        MediaServer actualMediaServer = m_mediaServer;
-        // HACK: temporary - for testing only: sipXivr based media server will be used by default
-        if (StringUtils.trimToEmpty(getDescription()).toLowerCase().contains("sipxivr")) {
-            actualMediaServer = m_alternateMediaServer;
-        }
         String[] aliases = AttendantRule.getAttendantAliasesAsArray(m_attendantAliases);
         DialingRule attendantRule = new MappingRule.Operator(getName(), getDescription(), getSystemName(),
-                m_extension, aliases, actualMediaServer);
+                m_extension, aliases, m_mediaServer);
         rules.add(attendantRule);
     }
 
@@ -131,11 +124,6 @@ public class AttendantRule extends DialingRule {
     @Required
     public void setMediaServer(MediaServer mediaServer) {
         m_mediaServer = mediaServer;
-    }
-
-    @Required
-    public void setAlternateMediaServer(MediaServer alternateMediaServer) {
-        m_alternateMediaServer = alternateMediaServer;
     }
 
     /**

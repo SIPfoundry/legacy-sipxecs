@@ -48,9 +48,7 @@
     <property name="name" value="AutoAttendant" />
     <property name="description" value="Default autoattendant dialing plan" />
     <property name="enabled" value="true" />
-    <property name="mediaServer" ref="sipXMediaServer" />
-    <!-- HACK: allow using freeswitch-based media server for some rules -->
-    <property name="alternateMediaServer" ref="freeswitchMediaServer" />
+    <property name="mediaServer" ref="freeswitchMediaServer" />
   </bean>
 
   <bean id="defaultEmergencyRule" class="org.sipfoundry.sipxconfig.admin.dialplan.EmergencyRule" abstract="true">
