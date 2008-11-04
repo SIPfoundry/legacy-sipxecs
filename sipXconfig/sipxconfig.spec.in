@@ -365,27 +365,30 @@ sed /etc/xinetd.d/tftp -i -e 's|^\W*disable\W*=\W*yes\W*$|disable = no|' -e 's|\
 
 %post ftp
 
+%if %{_vendor} == suse
+%define adduser /usr/sbin/useradd
+%else
+%define adduser /usr/sbin/adduser
+%endif
+
 if ! id -u PlcmSpIp > /dev/null 2>&1
 then
   # default user account polycom phones use
-  /usr/sbin/adduser -d %{phonedir}/profile/tftproot \
-    -s /sbin/nologin -M PlcmSpIp >/dev/null
+  %{adduser} -d %{phonedir}/profile/tftproot -s /sbin/nologin -M PlcmSpIp >/dev/null
   echo -e "PlcmSpIp" | sudo passwd --stdin PlcmSpIp >/dev/null
 fi
 
 if ! id -u lvp2890 > /dev/null 2>&1
 then
   # default user account Nortel 1535 phones use
-  /usr/sbin/adduser -d %{phonedir}/profile/tftproot \
-    -s /sbin/nologin -M lvp2890 >/dev/null
+  %{adduser} -d %{phonedir}/profile/tftproot -s /sbin/nologin -M lvp2890 >/dev/null
   echo -e "28904all" | sudo passwd --stdin lvp2890 >/dev/null
 fi
 
 if ! id -u lvp2890 > /dev/null 2>&1
 then
   # default user account Nortel 1535 phones use
-  /usr/sbin/adduser -d %{phonedir}/profile/tftproot \
-    -s /sbin/nologin -M lvp2890 >/dev/null
+  %{adduser} -d %{phonedir}/profile/tftproot -s /sbin/nologin -M lvp2890 >/dev/null
   echo -e "28904all" | sudo passwd --stdin lvp2890 >/dev/null
 fi
 
