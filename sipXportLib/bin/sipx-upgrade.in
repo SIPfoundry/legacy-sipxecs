@@ -307,24 +307,6 @@ UpgradeSubscriptions() {
     esac
 }
 
-AddNamespaceToWatchDog () {
-    f=${SysConfDir}/sipxpbx/WatchDog.xml
-    if test -r $f && grep '<watchdog>' $f
-    then
-        cp $f $f.OLD
-        sed 's|<watchdog>|<watchdog xmlns="http://www.sipfoundry.org/sipX/schema/xml/watchdog-00-00">|' $f.OLD > $f
-    fi
-}
-
-AddNamespaceToProcessDefinitions () {
-    f=${SysConfDir}/sipxpbx/ProcessDefinitions.xml
-    if test -r $f && grep '<process_definitions>' $f
-    then
-        cp $f $f.OLD
-        sed 's|<process_definitions>|<process_definitions xmlns="http://www.sipfoundry.org/sipX/schema/xml/processdefinitions-00-00">|' $f.OLD > $f
-    fi
-}
-
 UpgradeMailstore () {
     RemoveObsoleteVoicemailSummaryFiles
     UpgradeMailstoreNoPrivateFolders
@@ -367,13 +349,9 @@ UpgradePbx() {
             then
                 mv ${LocalStateDir}/sipxdata/mediaserver/data/prompts/customautoattendant.wav ${LocalStateDir}/sipxdata/mediaserver/data/prompts/customautoattendant-internal.wav
             fi
-            AddNamespaceToWatchDog
-            AddNamespaceToProcessDefinitions
             ;;
 
         2.8* | 2.9* | 3.0*)
-            AddNamespaceToWatchDog
-            AddNamespaceToProcessDefinitions
             ;;
 
         3.1.*)

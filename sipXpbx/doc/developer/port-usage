@@ -46,7 +46,6 @@ total 5580
 -rw-r--r--    1 dworley  dworley      6938 Sep  1 18:11 mediaserver-config
 -rw-rw-r--    1 dworley  dworley      6988 Aug 31 17:46 mediaserver-config.in
 -rw-rw-r--    1 dworley  dworley       367 Aug 31 17:57 pgs.props.in
--rw-rw-r--    1 dworley  dworley      7233 Aug 31 18:17 ProcessDefinitions.xml
 -rw-rw-r--    1 dworley  dworley      1109 Aug 31 17:58 profilewriter.props.in
 -rw-r--r--    1 dworley  dworley       403 Sep  1 18:11 proxy-config
 -rw-rw-r--    1 dworley  dworley       526 Aug 31 18:03 proxy-config.in
@@ -54,7 +53,6 @@ total 5580
 -rw-rw-r--    1 dworley  dworley       643 Sep  1 13:01 registrar-config.in
 -rw-rw-r--    1 dworley  dworley       642 Aug 31 18:00 registrar-config.in~
 -rw-------    1 dworley  dworley       642 Sep  1 13:00 registrar-config.in.orig
--rw-rw-r--    1 dworley  dworley      1941 Aug 31 18:17 resourcemap.xml
 -rw-r--r--    1 dworley  dworley      3327 Sep  1 17:34 root.vxml.in
 -rw-r--r--    1 dworley  dworley     20098 Sep  1 17:34 savemessage_no_operator.vxml.in
 -rw-r--r--    1 dworley  dworley     21966 Sep  1 17:34 savemessage.vxml.in
@@ -69,9 +67,6 @@ drwx------    2 dworley  dworley      4096 Sep  1 13:00 ssl
 -rw-rw-r--    1 dworley  dworley      1126 Aug 31 17:57 topology.xml.in
 -rw-r--r--    1 dworley  dworley      5735 Sep  1 18:11 voicemail.xml
 -rw-rw-r--    1 dworley  dworley      5874 Aug 31 18:17 voicemail.xml.in
--rw-rw-r--    1 dworley  dworley      2510 Sep  1 13:42 WatchDog.xml
--rw-rw-r--    1 root     root         2484 Sep  1 12:58 WatchDog.xml~
--rw-rw-r--    1 dworley  dworley      2376 Aug 31 18:17 WatchDog.xml.orig
 
 /usr/local/sipx/etc/sipxpbx/ssl:
 total 8

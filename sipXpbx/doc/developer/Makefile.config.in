@@ -32,14 +32,6 @@ exec_prefix=${prefix}
 default:
 	false
 
-# Prevent the Watchdog from automatically running the media server.
-WD=@SIPX_CONFDIR@/WatchDog.xml
-no-media-server:
-	mv $(WD) $(WD).tmp
-	sed <$(WD).tmp >$(WD) \
-	    -e $$'/^[ \t]*<process name="MediaServer"/,/<\/process>/s/\(.*\)/<!-- \1 -->/'
-	rm $(WD).tmp
-
 # Install test certificate files so Apache can do SSL.
 # Do this by symlinking the sipX SSL directory to the local SSL
 # certificate directory.  Thus, the sandbox can be shared between machines.

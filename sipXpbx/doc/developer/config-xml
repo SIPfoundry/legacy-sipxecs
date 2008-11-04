@@ -23,10 +23,6 @@ Config files with examples in sipXregistry/doc:
 
 Config files in /usr/local/sipx/etc/sipxpbx:
 
-ProcessDefinitions.xml
-        Defines the processes which can be run by the watchdog.
-WatchDog.xml
-        Sets the processes to be run by the watchdog.
 authrules.xml
         Authorization rules.
 forwardingrules.xml
@@ -35,7 +31,6 @@ mappingrules.xml
         Mapping rules for routing to voicemail.
 mappingrules2.xml
         Mapping rules for phone number routing.
-resourcemap.xml
 
 status-plugin.xml
 
@@ -47,8 +42,6 @@ Config files installed from sipXpbx/etc:
   -rw-rw-r--    1 dworley  dworley     20524 Aug 31 18:08 Makefile
   -rw-rw-r--    1 dworley  dworley      1956 Aug 31 16:49 Makefile.am
   -rw-rw-r--    1 dworley  dworley     17780 Aug 31 18:07 Makefile.in
-  -rw-rw-r--    1 dworley  dworley      6989 Aug 31 16:49 ProcessDefinitions.xml.in
-  -rw-rw-r--    1 dworley  dworley      2424 Aug 31 16:49 WatchDog.xml.in
   -rw-rw-r--    1 dworley  dworley      8040 Aug 31 16:49 autoattendant.vxml.in
   drwxrwxr-x    3 dworley  dworley      4096 Aug 31 18:17 cert
   -rw-rw-r--    1 dworley  dworley     16571 Aug 31 16:49 forwardmessage.vxml.in
@@ -58,7 +51,6 @@ Config files installed from sipXpbx/etc:
   -rw-rw-r--    1 dworley  dworley      1327 Aug 31 16:49 httpd-sipxchange-mediaserver.conf.in.in
   -rw-rw-r--    1 dworley  dworley      8621 Aug 31 16:49 login.vxml.in
   -rw-rw-r--    1 dworley  dworley      8117 Aug 31 16:49 login_no_autoattendant.vxml.in
-  -rw-rw-r--    1 dworley  dworley      1857 Aug 31 16:49 resourcemap.xml.in
   -rw-rw-r--    1 dworley  dworley      3327 Aug 31 16:49 root.vxml.in
   -rw-rw-r--    1 dworley  dworley     21966 Aug 31 16:49 savemessage.vxml.in
   -rw-rw-r--    1 dworley  dworley     20098 Aug 31 16:49 savemessage_no_operator.vxml.in
