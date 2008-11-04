@@ -152,6 +152,12 @@ void Disabled::evRestartProcess( SipxProcess& impl ) const
    }
 }
 
+void Disabled::evProcessStopped( SipxProcess& impl ) const
+{
+   OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG,"'%s: process stopped in state %s, ignored", 
+                 impl.name(), impl.GetCurrentState()->name());
+}
+
 
 void ConfigurationMismatch::DoEntryAction( SipxProcess& impl ) const
 {
@@ -337,8 +343,21 @@ void ShuttingDown::evProcessStopped( SipxProcess& impl ) const
    ChangeState( impl, impl.pShutDown );
 }
 
+void ShuttingDown::evStopCompleted( SipxProcess& impl ) const
+{
+   OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG,"'%s: evStopCompleted in state %s, ignored", 
+                 impl.name(), impl.GetCurrentState()->name());
+}
+
+
 void ShutDown::DoEntryAction( SipxProcess& impl ) const
 {   
    impl.done();
+}
+
+void ShutDown::evStopCompleted( SipxProcess& impl ) const
+{
+   OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG,"'%s: evStopCompleted in state %s, ignored", 
+                 impl.name(), impl.GetCurrentState()->name());
 }
 

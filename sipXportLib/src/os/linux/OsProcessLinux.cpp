@@ -254,6 +254,7 @@ OsStatus OsProcessLinux::launch(UtlString &rAppName, UtlString parameters[], OsP
                     OsProcessPriorityClass prioClass, UtlBoolean bExclusive, UtlBoolean bIgnoreChildSignals)
 {
     OsStatus retval = OS_FAILED;
+    mProcessName = rAppName;
 
     if (bIgnoreChildSignals)
     {

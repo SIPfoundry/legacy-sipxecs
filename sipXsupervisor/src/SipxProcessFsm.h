@@ -10,6 +10,7 @@
 
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
+#define LOG_STATE_CHANGES
 #include "utl/UtlFsm.h"
 
 // DEFINES
@@ -86,6 +87,7 @@ public:
    virtual void DoEntryAction( SipxProcess& impl ) const;
    virtual void evStartProcess( SipxProcess& impl ) const;
    virtual void evRestartProcess( SipxProcess& impl ) const;
+   virtual void evProcessStopped( SipxProcess& impl ) const;
 };
 
 class ConfigurationMismatch: public SipxProcessFsm
@@ -199,6 +201,7 @@ public:
    // State machine events relevant for this state
    virtual void DoEntryAction( SipxProcess& impl ) const;
    virtual void evProcessStopped( SipxProcess& impl ) const;
+   virtual void evStopCompleted( SipxProcess& impl ) const;
 };
 
 
@@ -210,6 +213,7 @@ public:
    
    // State machine events relevant for this state
    virtual void DoEntryAction( SipxProcess& impl ) const;
+   virtual void evStopCompleted( SipxProcess& impl ) const;
 };
 
 #endif // _SipxProcessFsmS_H_
