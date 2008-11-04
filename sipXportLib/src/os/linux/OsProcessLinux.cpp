@@ -281,14 +281,14 @@ OsStatus OsProcessLinux::launch(UtlString &rAppName, UtlString parameters[], OsP
     // create pipes between the parent and child for stdout and stderr
     if ( pipe(m_fdout) < 0 )
     {
-       OsSysLog::add(FAC_PROCESS, PRI_CRIT,"Failed to create pipe for '%s', errno %d!\n", 
+       OsSysLog::add(FAC_PROCESS, PRI_CRIT,"Failed to create pipe for '%s', errno %d", 
                      rAppName.data(), errno);
        m_fdout[0] = -1;
        m_fdout[1] = -1;
     }
     if ( pipe(m_fderr) < 0 )
     {
-       OsSysLog::add(FAC_PROCESS, PRI_CRIT,"Failed to create pipe for '%s', errno %d!\n", 
+       OsSysLog::add(FAC_PROCESS, PRI_CRIT,"Failed to create pipe for '%s', errno %d", 
                      rAppName.data(), errno);
        m_fderr[0] = -1;
        m_fderr[1] = -1;
