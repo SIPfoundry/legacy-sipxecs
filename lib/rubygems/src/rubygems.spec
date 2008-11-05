@@ -2,14 +2,14 @@
 # spec file for package rubygems (Version 1.2.0-1)
 #
 
-%define gem_dir %(ruby -rrbconfig -e 'puts File::expand_path(File::join(Config::CONFIG["sitedir"],"..","gems"))')
+%define gem_dir %(ruby -rrbconfig -e 'puts File::join(Config::CONFIG["libdir"],"/ruby/gems")')
 %define rb_ver %(ruby -rrbconfig -e 'puts Config::CONFIG["ruby_version"]')
 %define gem_home %{gem_dir}/%{rb_ver}
 %define ruby_sitelib %(ruby -rrbconfig -e 'puts Config::CONFIG["sitelibdir"]')
 
 Name:           rubygems
 Version:        1.2.0
-Release:        1
+Release:        2
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 License:        Ruby or GPL+
 Group:          Development/Languages/Ruby
