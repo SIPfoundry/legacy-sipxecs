@@ -1,51 +1,51 @@
 <project name="cmcprov" default="default">
-  <property name="project.dir" value="plugins/cmcprov"/>
-  <import file="../../ant-targets.xml"/>
-  <property name="cmcprov.package"      value="org/sipfoundry/sipxconfig/cmcprov"/>
-  <property name="cmcprov.war"          value="${top.build.dir}/plugins/cmcprov/dist/cmcprov.war"/>
-  <property name="dist.dir"      value="${top.build.dir}/plugins/cmcprov/dist/"/>
+  <property name="project.dir" value="plugins/cmcprov" />
+  <property name="checkstyle.severity" value="error" />
+
+  <import file="../../ant-targets.xml" />
+
+  <property name="cmcprov.package" value="org/sipfoundry/sipxconfig/cmcprov" />
+  <property name="cmcprov.war" value="${top.build.dir}/plugins/cmcprov/dist/cmcprov.war" />
+  <property name="dist.dir" value="${top.build.dir}/plugins/cmcprov/dist/" />
 
   <path id="base.path">
-    <pathelement path="${sipxconfig.jar}"/>
-    <pathelement path="${spring.jar}"/>
-    <pathelement path="${hibernate.jar}"/>
-    <pathelement path="${servlet.jar}"/>
-    <pathelement path="${commons-io.jar}"/>
-  	<pathelement path="${commons-lang.jar}"/>
+    <pathelement path="${sipxconfig.jar}" />
+    <pathelement path="${spring.jar}" />
+    <pathelement path="${hibernate.jar}" />
+    <pathelement path="${servlet.jar}" />
+    <pathelement path="${commons-io.jar}" />
+    <pathelement path="${commons-lang.jar}" />
   </path>
 
   <target name="init" depends="ant-targets.init">
-    <mkdir dir="${dist.dir}/war-root"/>
+    <mkdir dir="${dist.dir}/war-root" />
   </target>
 
-  <target name="install" depends="war"
-	    description="Copy war file into lib dir">
-	<copy todir="${dest.dir}${sipxecs.java.dir}/sipXconfig">
-	      <fileset file="${cmcprov.war}"/>
-	</copy>
+  <target name="install" depends="war" description="Copy war file into lib dir">
+    <copy todir="${dest.dir}${sipxecs.java.dir}/sipXconfig">
+      <fileset file="${cmcprov.war}" />
+    </copy>
   </target>
 
   <!-- D E F A U L T -->
-  <target name="default" depends="war"/>
+  <target name="default" depends="war" />
 
   <!-- W A R -->
-  <target name="war" depends="init,compile"
-    description="assemble cmcprov war">
-	<condition property="include.testpage">
-		<equals arg1="${debug}" arg2="on"/>
-	</condition>
-    <war warfile="${cmcprov.war}" webxml="context/WEB-INF/web.xml"
-      basedir="${dist.dir}/war-root">
+  <target name="war" depends="init,compile" description="assemble cmcprov war">
+    <condition property="include.testpage">
+      <equals arg1="${debug}" arg2="on" />
+    </condition>
+    <war warfile="${cmcprov.war}" webxml="context/WEB-INF/web.xml" basedir="${dist.dir}/war-root">
       <webinf dir="context/WEB-INF">
         <!-- avoid warning about already there -->
-        <exclude name="web.xml"/>
+        <exclude name="web.xml" />
       </webinf>
-      <classes dir="${classes.dir}"/>
+      <classes dir="${classes.dir}" />
       <classes dir="${src.dir}">
-        <include name="**/*.png"/>
-        <include name="**/*.css"/>
-        <include name="**/*.xml"/>
-        <include name="**/*.properties"/>
+        <include name="**/*.png" />
+        <include name="**/*.css" />
+        <include name="**/*.xml" />
+        <include name="**/*.properties" />
       </classes>
     </war>
   </target>

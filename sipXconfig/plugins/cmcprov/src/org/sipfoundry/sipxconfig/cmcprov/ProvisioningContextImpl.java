@@ -74,7 +74,6 @@ public class ProvisioningContextImpl implements ProvisioningContext {
     }
 
     private String getEncodedPassword(String userName, String password) {
-        return Md5Encoder.digestPassword(userName, m_sipxCoreContext.getAuthorizationRealm(),
-                password);
+        return Md5Encoder.digestPassword(userName, m_sipxCoreContext.getAuthorizationRealm(), password);
     }
 }

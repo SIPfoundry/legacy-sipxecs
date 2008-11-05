@@ -10,5 +10,5 @@
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/commons-logging-1.1.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/spring-2.0.4.jar" sourcepath="/LIB_SRC/spring/2.0.4/src.zip"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/sipXconfig-neoconf"/>
-	<classpathentry kind="output" path="bin"/>
+	<classpathentry kind="output" path="bin.eclipse"/>
 </classpath>

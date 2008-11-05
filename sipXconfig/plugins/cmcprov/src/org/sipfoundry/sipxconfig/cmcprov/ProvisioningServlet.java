@@ -25,8 +25,6 @@ import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
 public abstract class ProvisioningServlet extends HttpServlet {
-    private static final String EQUAL_SIGN = "=";
-    private static final String NEWLINE = "\n";
     public static final String SIPXCONFIG_SERVLET_PATH = "/sipxconfig";
     public static final String CORE_CONTEXT_BEAN_NAME = "coreContextImpl";
     public static final String PHONE_CONTEXT_BEAN_NAME = "phoneContextImpl";
@@ -34,16 +32,20 @@ public abstract class ProvisioningServlet extends HttpServlet {
     public static final String DATA_SECTION = "[DATA]";
     public static final String QUOTE_CHAR = "\"";
 
+    private static final String EQUAL_SIGN = "=";
+    private static final String NEWLINE = "\n";
+
     private static ProvisioningContextImpl s_context;
 
     private static final Log LOG = LogFactory.getLog(ProvisioningServlet.class);
 
+    @Override
     public void init() {
         if (s_context == null) {
             ServletContext ctx = getServletContext();
             ServletContext sipxconfigCtx = ctx.getContext(SIPXCONFIG_SERVLET_PATH);
             WebApplicationContext webContext = WebApplicationContextUtils
-                .getRequiredWebApplicationContext(sipxconfigCtx);
+                    .getRequiredWebApplicationContext(sipxconfigCtx);
             CoreContext sipxCoreContext = ((CoreContext) (webContext.getBean(CORE_CONTEXT_BEAN_NAME)));
             PhoneContext sipxPhoneContext = ((PhoneContext) (webContext.getBean(PHONE_CONTEXT_BEAN_NAME)));
             Upload sipxUpload = ((Upload) (webContext.getBean(UPLOAD_BEAN_NAME)));
@@ -70,7 +72,8 @@ public abstract class ProvisioningServlet extends HttpServlet {
         out.println("[SETTINGS]");
         for (Map.Entry<String, String> e : settings.entrySet()) {
             out.println(e.getKey() + EQUAL_SIGN + QUOTE_CHAR + e.getValue() + QUOTE_CHAR);
-            sb.append(StringUtils.EMPTY + e.getKey() + EQUAL_SIGN + QUOTE_CHAR + e.getValue() + QUOTE_CHAR + NEWLINE);
+            sb.append(StringUtils.EMPTY + e.getKey() + EQUAL_SIGN + QUOTE_CHAR + e.getValue() + QUOTE_CHAR
+                            + NEWLINE);
         }
         LOG.debug("RASPUNS::::\n" + sb.toString() + NEWLINE);
     }

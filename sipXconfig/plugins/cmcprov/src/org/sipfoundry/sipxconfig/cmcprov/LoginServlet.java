@@ -31,8 +31,8 @@ public class LoginServlet extends ProvisioningServlet {
     public static final String USERNAME_PASSWORD_ARE_INVALID_ERROR = "Either username or password are invalid";
     private static final Log LOG = LogFactory.getLog(LoginServlet.class);
 
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp)
-        throws javax.servlet.ServletException, java.io.IOException {
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws javax.servlet.ServletException,
+            java.io.IOException {
         PrintWriter out = resp.getWriter();
         try {
             Map<String, String> settings = new Hashtable<String, String>();
@@ -50,8 +50,10 @@ public class LoginServlet extends ProvisioningServlet {
     }
 
     protected User authenticateRequest(HttpServletRequest req) {
-        /* Authenticates a login requests. Returns a User object representing
-         * the authenticated user if succesful, otherwise throws a Exception. */
+        /*
+         * Authenticates a login requests. Returns a User object representing the authenticated
+         * user if succesful, otherwise throws a Exception.
+         */
         User user;
         String username;
         String password;
