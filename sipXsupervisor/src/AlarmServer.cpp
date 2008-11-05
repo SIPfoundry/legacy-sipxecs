@@ -364,7 +364,7 @@ cAlarmData* cAlarmServer::lookupAlarm(const UtlString& id)
 bool cAlarmServer::loadAlarmConfig(const UtlString& alarmFile)
 {
    // load global alarm config from alarm-config.xml
-   OsSysLog::add(FAC_ALARM, PRI_DEBUG, "load alarm config file %s", alarmFile.data());
+   OsSysLog::add(FAC_ALARM, PRI_DEBUG, "Loading alarm config file '%s'", alarmFile.data());
 
    TiXmlDocument doc(alarmFile);
    TiXmlHandle docHandle( &doc );
@@ -372,7 +372,7 @@ bool cAlarmServer::loadAlarmConfig(const UtlString& alarmFile)
    {
       UtlString errorMsg;
       XmlErrorMsg( doc, errorMsg );
-      OsSysLog::add(FAC_ALARM, PRI_ERR, "failed to load alarm config file %s", errorMsg.data());
+      OsSysLog::add(FAC_ALARM, PRI_ERR, "Failed to load alarm config file: %s", errorMsg.data());
       return false;
    }
 
@@ -383,7 +383,7 @@ bool cAlarmServer::loadAlarmConfig(const UtlString& alarmFile)
    if (!settingsElement)
    {
       OsSysLog::add(FAC_ALARM, PRI_ERR,
-                    "no <settings> element in alarm config file '%s'",
+                    "No <settings> element in alarm config file '%s'",
                     alarmFile.data());
       return false;
    }
@@ -392,7 +392,7 @@ bool cAlarmServer::loadAlarmConfig(const UtlString& alarmFile)
    if (langElement)
    {
       textContentShallow(mLanguage, langElement);
-      OsSysLog::add(FAC_ALARM, PRI_INFO, "language for alarm notifications: %s", mLanguage.data());
+      OsSysLog::add(FAC_ALARM, PRI_INFO, "Language for alarm notifications: %s", mLanguage.data());
    }
 
    //load alarm action settings
@@ -454,7 +454,7 @@ bool cAlarmServer::loadAlarmConfig(const UtlString& alarmFile)
 
 bool cAlarmServer::loadAlarmDefinitions(const UtlString& alarmFile)
 {
-   OsSysLog::add(FAC_ALARM, PRI_DEBUG, " load alarm def file %s", alarmFile.data());
+   OsSysLog::add(FAC_ALARM, PRI_DEBUG, "Loading alarm def file '%s'", alarmFile.data());
 
    TiXmlDocument doc(alarmFile);
    TiXmlHandle docHandle( &doc );
@@ -462,7 +462,7 @@ bool cAlarmServer::loadAlarmDefinitions(const UtlString& alarmFile)
    {
       UtlString errorMsg;
       XmlErrorMsg( doc, errorMsg );
-      OsSysLog::add(FAC_ALARM, PRI_ERR, "failed to load alarm file: %s", errorMsg.data());
+      OsSysLog::add(FAC_ALARM, PRI_ERR, "Failed to load alarm file: %s", errorMsg.data());
       return false;
    }
 
@@ -483,13 +483,14 @@ bool cAlarmServer::loadAlarmDefinitions(const UtlString& alarmFile)
             UtlString* idStr = new UtlString(pAlarmData->getId());
             if (!mAlarmMap.insertKeyAndValue(idStr, pAlarmData))
             {
-               OsSysLog::add(FAC_ALARM, PRI_ERR, "%s is already defined", pAlarmData->getId().data());
+               OsSysLog::add(FAC_ALARM, PRI_ERR, "Alarm id '%s' is already defined",
+                             pAlarmData->getId().data());
                delete pAlarmData;
             }
          }
          else
          {
-            OsSysLog::add(FAC_ALARM, PRI_ERR, "%s is incorrectly defined",
+            OsSysLog::add(FAC_ALARM, PRI_ERR, "Alarm element '%s' is incorrectly defined",
                   (char *)element->ToText());
             delete pAlarmData;
          }
@@ -509,7 +510,7 @@ bool cAlarmServer::loadAlarms()
    // load specific alarm definitions from ${confdir}/alarms/*.xml
    UtlString alarmDefDir = SipXecsService::Path(SipXecsService::ConfigurationDirType);
    alarmDefDir.append("/alarms/");
-   OsSysLog::add(FAC_ALARM, PRI_INFO, "looking for alarm def files in %s", alarmDefDir.data());
+   OsSysLog::add(FAC_ALARM, PRI_INFO, "Looking for alarm def files in '%s'", alarmDefDir.data());
    OsFileIterator files(alarmDefDir);
    OsPath entry;
    
@@ -526,7 +527,7 @@ bool cAlarmServer::loadAlarms()
    // load alarm strings and local language version from ${datadir}/alarms/*.xml
    UtlString alarmStringsDir = SipXecsService::Path(SipXecsService::DataDirType);
    alarmStringsDir.append("/alarms/");
-   OsSysLog::add(FAC_ALARM, PRI_INFO, "looking for alarm string files in %s",
+   OsSysLog::add(FAC_ALARM, PRI_INFO, "Looking for alarm string files in '%s'",
                  alarmStringsDir.data());
    OsFileIterator stringFiles(alarmStringsDir);
    
@@ -587,7 +588,8 @@ bool cAlarmServer::handleAlarm(UtlString& callingHost, UtlString& alarmId, UtlSL
       {
          // alarm has been filtered out due to thresholds
          OsSysLog::add(FAC_ALARM, PRI_INFO, 
-               "alarm %s not logged due to thresholds", alarmId.data());
+                       "Alarm '%s' not logged due to thresholds",
+                       alarmId.data());
          return true;
       }
 
@@ -608,7 +610,8 @@ bool cAlarmServer::handleAlarm(UtlString& callingHost, UtlString& alarmId, UtlSL
    }
    else
    {
-      OsSysLog::add(FAC_ALARM, PRI_ERR, "lookup of alarm %s failed", alarmId.data());
+      OsSysLog::add(FAC_ALARM, PRI_ERR, "Lookup of alarm '%s' failed",
+                    alarmId.data());
       return false;
    }
 }
