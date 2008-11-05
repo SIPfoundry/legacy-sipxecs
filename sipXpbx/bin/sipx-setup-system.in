@@ -22,7 +22,7 @@ sys.path.insert(0,'@SIPX_LIBEXECDIR@')
 from sipx_setup_common import *
 
 def testing () :
-    return False
+    return True
 
 #--- Local constants and files
 
@@ -661,46 +661,6 @@ service bootstrap parameters.\n\
 "
     screen_msg(servicesMessage)
 
-def setup_completed () :
-
-    completedMessage ="\
-All parameters have been configured. \n\
-The configuration will take effect at the next reboot.\n\
-\n\
-When the system comes up after the reboot, open\n\
-\n\
-   http://%s\n\
-\n\
-in your web browser to begin configuring your @SIPXECS_NAME@ services.\
-" % HostName
-
-    grid = snack.Grid(2, 1)
-
-    rebootButton = snack.Button("Reboot")
-    grid.setField(rebootButton, 0, 0, (1,0,1,1))
-
-    shellButton = snack.Button("Exit to Prompt")
-    grid.setField(shellButton, 1, 0, (1,0,1,1))
-
-    form = screen_setup("Setup Completed", completedMessage, grid)
-    choice = form.run()
-
-    screen_end()
-
-    if choice == rebootButton :
-        #--- Rebooting the host
-        log_printout ( '\n--- Rebooting the host ---\n' )
-        time.sleep (1)
-        if runningAsRoot() :
-            cmdoutput=commands.getoutput  ('reboot')
-            log_printout (cmdoutput)
-        else :
-            log_printout('(simulate) reboot')
-            
-    else :
-        log_printout ( '\n--- Exit to shell ---\n' )
-
-    cleanExit()
 
 #======================================================================
 # MAIN SCRIPT BODY STARTS HERE

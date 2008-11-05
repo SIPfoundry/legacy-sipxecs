@@ -153,6 +153,17 @@ def screen_msg (message,buttonLabel="Ok"):
     form.run()
     screen_end()
 
+def execNext(command, arglist) :
+    screen.finish()
+    commandView="\nExecuting:\n  %s %s\n" % (command, ' '.join(arglist))
+    log_printout(commandView)
+    log_close()
+    time.sleep (1)
+    print commandView
+    execArgs=[command]
+    execArgs.extend(arglist)
+    os.execvp(command, execArgs)
+
 def cleanExit () :
     log_close()
     screen.finish()
@@ -561,3 +572,58 @@ def do_sipx_setup() :
         
     progress(90, 'Configuring @SIPXECS_NAME@ Autostart' )
     configure_autostart_service()
+
+def setup_completed () :
+
+    completedMessage ="\
+All bootstrap parameters have been configured. \n\
+\n\
+When the @SIPXECS_NAME@ services have started, open\n\
+\n\
+   http://%s\n\
+\n\
+in your web browser to continue configuring\n\
+your @SIPXECS_NAME@ services.\
+" % HostName
+
+    outer = snack.Grid(1, 2)
+
+    startButton = snack.Button("Start @SIPXECS_NAME@")
+    outer.setField(startButton, 0, 0, (1,0,1,1))
+
+    inner = snack.Grid(2, 1)
+
+    shellButton = snack.Button("Exit to Prompt")
+    inner.setField(shellButton, 0, 0, (1,0,1,1))
+
+    rebootButton = snack.Button("Reboot")
+    inner.setField(rebootButton, 1, 0, (1,0,1,1))
+
+    outer.setField(inner, 0, 1)
+
+    form = screen_setup("Setup Completed", completedMessage, outer)
+    choice = form.run()
+
+    screen_end()
+
+    if choice == startButton :
+        log_printout ( '\n--- Starting @SIPXECS_NAME@ ---\n' )
+        if runningAsRoot() :
+           execNext('service', ['sipxpbx', 'start'])
+           # execNext does not return
+        else :
+           execNext('sudo', ['@SERVICEDIR@/sipxpbx', 'start'])
+           # execNext does not return
+
+    else :
+        if choice == rebootButton :
+            #--- Rebooting the host
+            log_printout ( '\n--- Rebooting the host ---\n' )
+            execNext('shutdown', ['-r', 'now'])
+            # execNext does not return
+            
+        else :
+            log_printout ( '\n--- Exit to shell ---\n' )
+
+    cleanExit()
+

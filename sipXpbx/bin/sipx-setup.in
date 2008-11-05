@@ -62,56 +62,6 @@ Any existing configuration will be overwritten if you continue.\
        log_printout("initial screen exit")
        cleanExit()
 
-def setup_completed () :
-
-    if runningAsRoot() :
-        completedMessage ="\
-All bootstrap parameters have been configured.\
-"
-    else :
-        completedMessage ="\
-All parameters have been configured.\n\
-To start @SIPXECS_NAME@ services now, execute:\n\
-\n\
-   sudo @SERVICEDIR@/sipxpbx start\
-\n\
-"
-
-    grid = snack.Grid(2, 1)
-    startButton = snack.Button("Start @SIPXECS_NAME@ Services")
-
-    if runningAsRoot() :
-        grid.setField(startButton, 0, 0, (1,0,1,1))
-
-    shellButton = snack.Button("Exit to Prompt")
-    grid.setField(shellButton, 1, 0, (1,0,1,1))
-
-    form = screen_setup("Setup Completed", completedMessage, grid)
-    choice = form.run()
-
-    screen_end()
-    screen_finish()
-
-    if choice == startButton :
-        #--- Start Services
-        log_printout ( '\n--- Starting @SIPXECS_NAME@ ---\n' )
-        time.sleep (1)
-
-        outRep = commands.getstatusoutput('service postgresql start')
-        log_printout (outRep[1])
-        print outRep[1]
-        
-        outRep = commands.getstatusoutput('service sipxpbx start')
-        log_printout (outRep[1])
-        print outRep[1]
-        
-        log_close()
-    else :
-        log_printout ( '\n--- Exit to shell ---\n' )
-        log_close()
-
-    cleanExit()
-
 #======================================================================
 # MAIN SCRIPT BODY STARTS HERE
 #======================================================================
