@@ -1730,7 +1730,7 @@ the SIPfoundry repositories.])
 #
 #   # Determine if %debug_package is needed to cause the debugging information
 #   # RPM to be built by checking to see if %install contains a test on
-#   # 'enable_debug_packages' -- Older rpmbuilds do not, and the .spe file
+#   # 'enable_debug_packages' -- Older rpmbuilds do not, and the .spec file
 #   # must manually specify %debug_package.  Newer rpmbuilds do, and
 #   # the .spec file must not specify %debug_package.
 #   # Thus, you can use "@RPMBUILD_DEBUG_PACKAGE_SPEC@" in a .spec.in file to
