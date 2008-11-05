@@ -2,9 +2,9 @@ INCLUDES = \
 	-I$(top_srcdir)/src \
 	-I$(top_srcdir)/include 
 
-#lib_LTLIBRARIES = \
-#    libDummyRedirectPlugin.la
-
+noinst_LTLIBRARIES = \
+    libDummyRedirectPlugin.la
+    
 ## Libtool version info - update only immediately before a release
 # Current - increment if any interfaces are added, removed, or changed
 version_Current=1
@@ -20,29 +20,31 @@ version_Age=0
 # to ../../configure.ac to establish the substitution for the @*_LIBS@ symbols.
 
 # DummyRedirectPlugin
-#libDummyRedirectPlugin_la_LDFLAGS = \
-#    -module \
-#    -version-info ${version_Current}:${version_Revision}:${version_Age}
-#
-#libDummyRedirectPlugin_la_LIBADD = \
-#    @SIPXCOMMSERVER_LIBS@
-#
-#libDummyRedirectPlugin_la_CXXFLAGS = \
-#    -I$(top_builddir)/config
-#
-#libDummyRedirectPlugin_la_SOURCES =  \
-#    DummyRedirectPlugin.cpp 
 
+libDummyRedirectPlugin_la_LDFLAGS = \
+    -module \
+    -rpath @abs_builddir@ \
+    -version-info ${version_Current}:${version_Revision}:${version_Age}
+
+libDummyRedirectPlugin_la_LIBADD = \
+    @SIPXUNIT_LIBS@
+
+libDummyRedirectPlugin_la_CXXFLAGS = \
+    -I$(top_builddir)/config
+
+libDummyRedirectPlugin_la_SOURCES =  \
+    DummyRedirectPlugin.cpp 
+
+     
 ## All tests under this GNU variable should run relatively quickly
 ## and of course require no setup
 # These tests are split into multiple executables because the machinery
 # for setting up an alternative registration database can be executed
 # only once in an executable.
 #TESTS = testsuite1 testsuite2 testsuite3 testsuite4
-#TESTS = testsuite4
+TESTS = testsuite4
 
-#check_PROGRAMS = testsuite1 testsuite2 testsuite3 testsuite4 sandbox
-check_PROGRAMS = testsuite1 testsuite2 testsuite3 sandbox
+check_PROGRAMS = testsuite1 testsuite2 testsuite3 testsuite4 sandbox
 
 testsuite_CXXFLAGS = @CPPUNIT_CFLAGS@ \
     -DTEST_DATA_DIR=\"@abs_top_srcdir@/src/test/\" \
@@ -70,18 +72,18 @@ testsuite3_LDADD = $(testsuite_LDADD)
 testsuite3_SOURCES = \
     ApplyUpdatesTest.cpp
 
-#testsuite4_CXXFLAGS = $(testsuite_CXXFLAGS)
-#testsuite4_LDFLAGS = -rdynamic
-#testsuite4_LDADD = $(testsuite_LDADD)
+testsuite4_CXXFLAGS = $(testsuite_CXXFLAGS)
+testsuite4_LDFLAGS = -rdynamic
+testsuite4_LDADD = $(testsuite_LDADD)
 
-#testsuite4_SOURCES = \
-#    ../RedirectPlugin.cpp \
-#    ../SipRedirectServer.cpp \
-#    ../RedirectSuspend.cpp \
-#   ../RedirectResumeMsg.cpp \
-#    ErrorDescriptorTest.cpp \
-#    ContactListTest.cpp \
-#    SipRedirectServerTest.cpp
+testsuite4_SOURCES = \
+    ../RedirectPlugin.cpp \
+    ../SipRedirectServer.cpp \
+    ../RedirectSuspend.cpp \
+    ../RedirectResumeMsg.cpp \
+    ErrorDescriptorTest.cpp \
+    ContactListTest.cpp \
+    SipRedirectServerTest.cpp
 
 EXTRA_DIST = \
     regdbdata/updatesToPull.xml
