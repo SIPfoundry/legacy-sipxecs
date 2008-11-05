@@ -15,12 +15,9 @@ import java.util.List;
 
 import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.annotations.InjectObject;
-import org.apache.tapestry.contrib.table.model.ITableColumn;
 import org.apache.tapestry.form.IPropertySelectionModel;
-import org.apache.tapestry.services.ExpressionEvaluator;
 import org.sipfoundry.sipxconfig.components.SelectMap;
 import org.sipfoundry.sipxconfig.components.TapestryContext;
-import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.components.VendorFilteredDeviceSelectionModel;
 import org.sipfoundry.sipxconfig.device.DiscoveredDevice;
 import org.sipfoundry.sipxconfig.device.FilteredModelSource;
@@ -30,9 +27,6 @@ public abstract class DiscoverTable extends BaseComponent {
     public abstract SelectMap getSelections();
 
     public abstract Object getSource();
-
-    @InjectObject(value = "service:tapestry.ognl.ExpressionEvaluator")
-    public abstract ExpressionEvaluator getExpressionEvaluator();
 
     @InjectObject(value = "spring:phoneModelSource")
     public abstract FilteredModelSource getPhoneModelSource();
@@ -61,10 +55,5 @@ public abstract class DiscoverTable extends BaseComponent {
         model.setCollection(deviceCollection);
 
         return getTapestryContext().instructUserToSelect(model, getMessages());
-    }
-
-    public ITableColumn getLastSeenColumn() {
-        return TapestryUtils.createDateColumn("lastSeen", getMessages(),
-                getExpressionEvaluator(), getPage().getLocale());
     }
 }

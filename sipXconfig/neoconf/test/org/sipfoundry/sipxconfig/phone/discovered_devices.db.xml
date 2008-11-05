@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE dataset SYSTEM "../sipxconfig-db.dtd">
-<dataset>
-  <discovered_devices mac_address="000011112222" ip_address="100.100.100.100" vendor="testVendor"/>
-  <discovered_devices mac_address="001122334455" ip_address="101.101.101.101" vendor="testVendor1"/>
-  <phone serial_number="001122334455" phone_id="1000" description="Discovered Device" bean_id="testPhone" model_id=""/>
-</dataset>

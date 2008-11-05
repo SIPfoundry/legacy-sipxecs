@@ -695,10 +695,3 @@
     applied CDATA #REQUIRED
 >
 
-<!ELEMENT discovered_devices EMPTY>
-<!ATTLIST discovered_devices
-	mac_address CDATA #REQUIRED
-	ip_address CDATA #REQUIRED
-	vendor CDATA #REQUIRED
-	last_seen CDATA #IMPLIED
->

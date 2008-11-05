@@ -9,8 +9,6 @@
  */
 package org.sipfoundry.sipxconfig.device;
 
-import java.util.Date;
-
 import org.sipfoundry.sipxconfig.common.PrimaryKeySource;
 
 public class DiscoveredDevice implements PrimaryKeySource {
@@ -22,8 +20,6 @@ public class DiscoveredDevice implements PrimaryKeySource {
     private String m_vendor;
 
     private DeviceDescriptor m_model;
-
-    private Date m_lastSeen;
 
     public String getMacAddress() {
         return m_macAddress;
@@ -41,10 +37,6 @@ public class DiscoveredDevice implements PrimaryKeySource {
         return m_model;
     }
 
-    public Date getLastSeen() {
-        return m_lastSeen;
-    }
-
     public void setMacAddress(String macAddress) {
         m_macAddress = macAddress;
     }
@@ -59,10 +51,6 @@ public class DiscoveredDevice implements PrimaryKeySource {
 
     public void setModel(DeviceDescriptor model) {
         m_model = model;
-    }
-
-    public void setLastSeen(Date lastSeen) {
-        m_lastSeen = lastSeen;
     }
 
     public Object getPrimaryKey() {

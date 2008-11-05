@@ -230,19 +230,6 @@
           <xsd:element name="parkOrbit" type="tns:ParkOrbit" nillable="true" minOccurs="0" maxOccurs="unbounded" />
         </xsd:sequence>
       </xsd:complexType>
-      <xsd:complexType name="DiscoveredDevice">
-        <xsd:sequence>
-          <xsd:element name="macAddress" type="xsd:string" minOccurs="1" maxOccurs="1" />
-          <xsd:element name="ipAddress" type="xsd:string" minOccurs="1" maxOccurs="1" />
-          <xsd:element name="vendor" type="xsd:string" minOccurs="1" maxOccurs="1" />
-          <xsd:element name="lastSeen" type="xsd:date" minOccurs="0" maxOccurs="1" nillable="true" />
-        </xsd:sequence>
-      </xsd:complexType>
-      <xsd:complexType name="ArrayOfDiscoveredDevices">
-        <xsd:sequence>
-          <xsd:element name="device" type="tns:DiscoveredDevice" nillable="true" minOccurs="0" maxOccurs="unbounded" />
-        </xsd:sequence>
-      </xsd:complexType>
 
       <!-- C A L L   G R O U P -->
       <xsd:element name="GetCallGroupsResponse">
@@ -428,23 +415,6 @@
             <xsd:element name="user" type="xsd:boolean" nillable="true" minOccurs="0" maxOccurs="1" />
             <!-- if there is a superadmin already, service will preserve PIN, but all other data cleared -->
             <xsd:element name="superAdmin" type="xsd:boolean" nillable="true" minOccurs="0" maxOccurs="1" />
-            <xsd:element name="discovery" type="xsd:boolean" nillable="true" minOccurs="0" maxOccurs="1" />
-          </xsd:sequence>
-        </xsd:complexType>
-      </xsd:element>
-
-      <!-- D I S C O V E R E D   D E V I C E -->
-      <xsd:element name="UpdateDiscoveredDevicesList">
-        <xsd:complexType>
-          <xsd:sequence>
-            <xsd:element name="updatedDevices" type="tns:ArrayOfDiscoveredDevices" minOccurs="1" maxOccurs="1" />
-          </xsd:sequence>
-        </xsd:complexType>
-      </xsd:element>
-      <xsd:element name="RetrieveDiscoveredDevicesList">
-        <xsd:complexType>
-          <xsd:sequence>
-            <xsd:element name="retrievedDevices" type="tns:ArrayOfDiscoveredDevices" minOccurs="1" maxOccurs="1" />
           </xsd:sequence>
         </xsd:complexType>
       </xsd:element>
@@ -839,54 +809,6 @@
     </operation>
   </binding>
 
-  <!-- D E V I C E   D I S C O V E R Y   S E R V I C E -->
-
-  <message name="updateDiscoveredDevicesListRequest">
-    <part name="updateDiscoveredDevicesList" element="tns:UpdateDiscoveredDevicesList" />
-  </message>
-  <message name="updateDiscoveredDevicesListResponse"/>
-
-  <message name="retrieveDiscoveredDevicesListRequest"/>
-  <message name="retrieveDiscoveredDevicesListResponse">
-    <part name="retrieveDiscoveredDevicesList" element="tns:RetrieveDiscoveredDevicesList" />
-  </message>
-
-  <portType name="DeviceDiscoveryService">
-    <documentation>
-      Methods for retrieving and updating discovered devices
-    </documentation>
-    <operation name="updateDiscoveredDevicesList">
-      <input message="tns:updateDiscoveredDevicesListRequest" />
-      <output message="tns:updateDiscoveredDevicesListResponse" />
-    </operation>
-    <operation name="retrieveDiscoveredDevicesList">
-      <input message="tns:retrieveDiscoveredDevicesListRequest" />
-      <output message="tns:retrieveDiscoveredDevicesListResponse" />
-    </operation>
-  </portType>
-
-  <binding name="DeviceDiscoverySoapBinding" type="tns:DeviceDiscoveryService">
-    <soapbind:binding style="document" transport="http://schemas.xmlsoap.org/soap/http" />
-    <operation name="updateDiscoveredDevicesList">
-      <soapbind:operation />
-      <input>
-        <soapbind:body use="literal" />
-      </input>
-      <output>
-        <soapbind:body use="literal" />
-      </output>
-    </operation>
-    <operation name="retrieveDiscoveredDevicesList">
-      <soapbind:operation />
-      <input>
-        <soapbind:body use="literal" />
-      </input>
-      <output>
-        <soapbind:body use="literal" />
-      </output>
-    </operation>
-  </binding>
-
   <!-- S E R V I C E S -->
   <service name="ConfigImplService">
     <port name="CallGroupService" binding="tns:CallGroupServiceSoapBinding">
@@ -912,9 +834,6 @@
     </port>
     <port name="SystemService" binding="tns:SystemServiceSoapBinding">
       <soapbind:address location="http://localhost:9999/sipxconfig/services/SystemService" />
-    </port>
-    <port name="DeviceDiscoveryService" binding="tns:DeviceDiscoverySoapBinding">
-      <soapbind:address location="http://localhost:9999/sipxconfig/services/DeviceDiscoveryService" />
     </port>
   </service>
 

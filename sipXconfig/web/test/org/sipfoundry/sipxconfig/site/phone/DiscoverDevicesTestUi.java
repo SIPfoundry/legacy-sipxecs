@@ -30,6 +30,8 @@ public class DiscoverDevicesTestUi extends WebTestCase {
     }
 
     public void testDiscover() {
-        assertTablePresent("phone:list");
+        assertSubmitButtonPresent("notStartedDiscover");
+        clickButton("notStartedDiscover");
+        assertSubmitButtonPresent("refresh");
     }
 }

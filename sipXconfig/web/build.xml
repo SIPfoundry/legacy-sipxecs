@@ -518,9 +518,6 @@
     <exec executable="${ruby}" failonerror="true">
       <arg line="${webservice-unit-test-command}/SystemServiceTestApi.rb"/>
     </exec>
-	<exec executable="${ruby}" failonerror="true">
-      <arg line="${webservice-unit-test-command}/DeviceDiscoveryServiceTestApi.rb"/>
-    </exec>
   </target>
   
 </project>

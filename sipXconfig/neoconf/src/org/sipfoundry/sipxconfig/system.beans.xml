@@ -138,7 +138,6 @@
         <value>org/sipfoundry/sipxconfig/conference/conference.hbm.xml</value>
         <value>org/sipfoundry/sipxconfig/gateway/gateway.hbm.xml</value>
         <value>org/sipfoundry/sipxconfig/permission/permission.hbm.xml</value>
-        <value>org/sipfoundry/sipxconfig/phone/discovered_devices.hbm.xml</value>
         <value>org/sipfoundry/sipxconfig/phone/phone.hbm.xml</value>
         <value>org/sipfoundry/sipxconfig/setting/setting.hbm.xml</value>
         <value>org/sipfoundry/sipxconfig/speeddial/speeddial.hbm.xml</value>

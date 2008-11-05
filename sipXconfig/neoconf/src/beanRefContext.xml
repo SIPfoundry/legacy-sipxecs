@@ -49,7 +49,6 @@
         <value>classpath:/org/sipfoundry/sipxconfig/service/service.beans.xml</value>
         <value>classpath:/org/sipfoundry/sipxconfig/paging/paging.beans.xml</value>
         <value>classpath:/org/sipfoundry/sipxconfig/nattraversal/nattraversal.beans.xml</value>
-        <value>classpath:/org/sipfoundry/sipxconfig/phone/discovered_devices.beans.xml</value>
         <value>classpath:/org/sipfoundry/sipxconfig/admin/alarm/alarm.beans.xml</value>
       </list>
     </constructor-arg>

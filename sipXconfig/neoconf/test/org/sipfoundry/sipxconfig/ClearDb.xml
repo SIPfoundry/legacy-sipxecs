@@ -64,8 +64,6 @@
   <table name="intercom_phone_group"/>
       
   <table name="dialing_rule_gateway"/>
-
-  <table name="discovered_devices"/>
         
   <!-- forwarding -->
   <table name="ring"/>
