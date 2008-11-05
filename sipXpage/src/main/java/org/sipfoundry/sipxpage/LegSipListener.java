@@ -112,16 +112,6 @@ public class LegSipListener implements SipListener
       legDialogMap = new ConcurrentHashMap<Leg, Dialog>(50) ;
    }
    
-   void printOutMessage(Message message)
-   {
-      LOG.info(String.format("LegSipListener Sending:  >>>>>>>>>%n%s", message.toString())) ;
-   }
-
-   void printInMessage(Message message)
-   {
-      LOG.info(String.format("LegSipListener Received: <<<<<<<<<%n%s", message.toString())) ;
-   }
-
    void triggerLegEvent(LegEvent legEvent)
    {
       LegListener legListener = legEvent.getLeg() ;
@@ -190,8 +180,6 @@ public class LegSipListener implements SipListener
       // Set the name
       leg.setDisplayName(displayName) ;
       
-      printOutMessage(request) ;
-
       // send the request out.
       inviteTid.sendRequest();
       
@@ -220,7 +208,6 @@ public class LegSipListener implements SipListener
             ServerTransaction t = (ServerTransaction)origInviteTransaction ;
             Response response = messageFactory.createResponse(Response.BUSY_HERE, t.getRequest()) ;
             // Send it (in Transaction)
-            printOutMessage(response) ;
             t.sendResponse(response) ;
          }
          else
@@ -232,7 +219,6 @@ public class LegSipListener implements SipListener
             // Create a new client transaction
             ClientTransaction cancelTransaction = sipProvider.getNewClientTransaction(request);
             // Send it
-            printOutMessage(request) ;
             cancelTransaction.sendRequest() ;
          }
          return ;
@@ -254,7 +240,6 @@ public class LegSipListener implements SipListener
          // Create a new client transaction
          ClientTransaction byeTransaction = sipProvider.getNewClientTransaction(request);
          // Send it (in Dialog)
-         printOutMessage(request) ;
          dialog.sendRequest(byeTransaction) ;
       }      
    }
@@ -549,8 +534,6 @@ public class LegSipListener implements SipListener
             .getServerTransaction();
       Leg leg = serverTransactionId != null ? (Leg)serverTransactionId.getApplicationData() : null ;
 
-      printInMessage(request) ;
-
       LOG.info(String.format("LegSipListener::processRequest %s received at %s", 
             request.getMethod(), sipStack.getStackName())) ;
    
@@ -601,8 +584,8 @@ public class LegSipListener implements SipListener
     	 if (response.getHeader(UserAgentHeader.NAME) == null) {
              response.addHeader(userAgent);
     	 }
-         printOutMessage(response);
-         try
+
+    	 try
          {
             if (transactionId != null)
             {
@@ -632,7 +615,6 @@ public class LegSipListener implements SipListener
 			transactionDialog = clientTransactionId.getDialog();
 		}
 
-		printInMessage(response);
 		LOG.info("LegSipListener::processResponse " + response.getReasonPhrase() 
 				+ " received at " + sipStack.getStackName() 
 				+ " with client transaction id "+ clientTransactionId 
@@ -652,7 +634,6 @@ public class LegSipListener implements SipListener
 				// If the eventDialog is not the transactionDialog, this 200 OK is from a fork.
 				if (transactionDialog == null || !eventDialog.equals(transactionDialog)) {
 					// Send ACK in statelessly so as NOT to accept it
-					printOutMessage(ackRequest);
 					sipProvider.sendRequest(ackRequest);
 
 					// Send a BYE, we cannot handle multiple forks.
@@ -667,13 +648,11 @@ public class LegSipListener implements SipListener
 					ClientTransaction byeTransaction = sipProvider
 							.getNewClientTransaction(byeRequest);
 					// Send it (in Dialog)
-					printOutMessage(byeRequest);
 					eventDialog.sendRequest(byeTransaction);
  										
 					return ;
 				} else {
 					// Send ACK in Dialog to accept it
-					printOutMessage(ackRequest);
 					eventDialog.sendAck(ackRequest);
 				}
 

@@ -12,6 +12,7 @@ import javax.sip.SipProvider;
 import javax.sip.SipStack;
 
 import org.sipfoundry.commons.log4j.SipFoundryLayout;
+import org.sipfoundry.commons.log4j.SipFoundryLogRecordFactory;
 
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
@@ -91,6 +92,11 @@ public class SipXpage implements LegListener
       // You need 16 (or TRACE) for logging traces. 32 (or DEBUG) for debug + traces.
       // Your code will limp at 32 but it is best for debugging.
       properties.setProperty("gov.nist.javax.sip.TRACE_LEVEL", config.traceLevel);
+      
+      properties.setProperty("gov.nist.javax.sip.LOG_MESSAGE_CONTENT", "true");
+      properties.setProperty("gov.nist.javax.sip.LOG_FACTORY", 
+    		  "org.sipfoundry.commons.log4j.SipFoundryLogRecordFactory");
+
 
       // String proxy = config.ipAddress + ":" + "5060/TCP" ;
       // properties.setProperty("javax.sip.OUTBOUND_PROXY", proxy);
