@@ -34,6 +34,7 @@ const UtlContainableType ResourceListServer::TYPE = "ResourceListServer";
 
 // Constructor
 ResourceListServer::ResourceListServer(const UtlString& domainName,
+                                       const UtlString& realm,
                                        const char* eventType,
                                        const char* contentType,
                                        int tcpPort,
@@ -111,6 +112,7 @@ ResourceListServer::ResourceListServer(const UtlString& domainName,
       FALSE // bUseNextAvailablePort
       ),
    mSubscriptionMgr(SUBSCRIPTION_COMPONENT_RLS, mDomainName),
+   mPolicyHolder(domainName, realm),
    mSubscribeServer(mServerUserAgent, mEventPublisher, mSubscriptionMgr,
                     mPolicyHolder),
    mRefreshMgr(mClientUserAgent, mDialogManager),

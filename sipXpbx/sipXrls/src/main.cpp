@@ -50,6 +50,7 @@
 #define CONFIG_SETTING_BIND_IP        "SIP_RLS_BIND_IP"
 #define CONFIG_SETTING_RLS_FILE       "SIP_RLS_FILE_NAME"
 #define CONFIG_SETTING_DOMAIN_NAME    "SIP_RLS_DOMAIN_NAME"
+#define CONFIG_SETTING_AUTHENTICATE_REALM "SIP_RLS_AUTHENTICATE_REALM"
 #define CONFIG_SETTING_STARTUP_WAIT   "SIP_RLS_STARTUP_WAIT"
 #define CONFIG_SETTING_REFRESH_INTERVAL "SIP_RLS_REFRESH_INTERVAL"
 #define CONFIG_SETTING_RESUBSCRIBE_INTERVAL "SIP_RLS_RESUBSCRIBE_INTERVAL"
@@ -356,6 +357,16 @@ int main(int argc, char* argv[])
                     "Resource domain name is not configured");
       return 1;
    }
+   
+   UtlString realm;
+   if ((configDb.get(CONFIG_SETTING_AUTHENTICATE_REALM, realm) !=
+        OS_SUCCESS) ||
+       realm.isNull())
+   {
+      OsSysLog::add(LOG_FACILITY, PRI_CRIT,
+                    "Resource realm is not configured");
+      return 1;
+   }
 
    int startupWait;
    if (configDb.get(CONFIG_SETTING_STARTUP_WAIT, startupWait) != OS_SUCCESS)
@@ -398,7 +409,7 @@ int main(int argc, char* argv[])
    {
       // Initialize the ResourceListServer.
       // (Use tcpPort as the TLS port, too.)
-      ResourceListServer rls(domainName,
+      ResourceListServer rls(domainName, realm,
                              DIALOG_EVENT_TYPE, DIALOG_EVENT_CONTENT_TYPE,
                              tcpPort, udpPort, tcpPort, bindIp,
                              &resourceListFile,

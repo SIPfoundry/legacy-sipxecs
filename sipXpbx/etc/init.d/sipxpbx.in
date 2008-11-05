@@ -703,7 +703,7 @@ do_start() {
 
         sleep 1
         echo -n "Starting httpd: "
-        ${HTTP_DAEMON_START} -k start -f @SIPX_CONFDIR@/httpd.conf -DSSL > /dev/null 2>&1 \
+        ${HTTP_DAEMON_START} -k start -f @SIPX_CONFDIR@/httpd.conf -DSSL \
             && echo_success || echo_failure
         echo
 }

@@ -57,6 +57,8 @@ class ResourceListServer : public UtlContainableAtomic
    ResourceListServer(/** The host-part of the canonical form of the resource list
                         *  URIs, which is the sipX domain. */
                       const UtlString& domainName,
+                      /// The realm used for authentication
+                      const UtlString& realm,
                       /// The event-type to handle.
                       const char* eventType,
                       /// The content-type to handle.

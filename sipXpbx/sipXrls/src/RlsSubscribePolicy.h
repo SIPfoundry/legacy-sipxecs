@@ -14,6 +14,8 @@
 
 // APPLICATION INCLUDES
 #include <net/SipSubscribeServerEventHandler.h>
+#include <sipXecsService/SipNonceDb.h>
+#include <sipdb/CredentialDB.h>
 
 // DEFINES
 // MACROS
@@ -40,7 +42,11 @@ public:
 /* ============================ CREATORS ================================== */
 
     //! Default Dialog constructor
-    RlsSubscribePolicy();
+    RlsSubscribePolicy(UtlString defaultDomain,
+                       ///< our SIP domain
+                       UtlString realm
+                       ///< realm to use for authentication
+       );
 
     //! Destructor
     virtual
@@ -55,6 +61,9 @@ public:
                                     const UtlString& resourceId,
                                     const UtlString& eventTypeKey,
                                     SipMessage& subscribeResponse);
+    
+    virtual UtlBoolean isAuthenticated(const SipMessage & subscribeRequest, 
+                                       SipMessage & subscribeResponse);
 
 /* ============================ ACCESSORS ================================= */
 
@@ -72,6 +81,15 @@ private:
 
     //! Assignment operator NOT ALLOWED
     RlsSubscribePolicy& operator=(const RlsSubscribePolicy& rhs);
+    
+    //! Authentication realm to use for challenges and responses.
+    UtlString mRealm;
+    //! SipNonceDb to generate nonces.
+    SipNonceDb mNonceDb;
+    //! Time that generated nonces will be valid, in seconds.
+    long mNonceExpiration;
+    //! The SIP domain.
+    UtlString mDefaultDomain;
 
 };
 
