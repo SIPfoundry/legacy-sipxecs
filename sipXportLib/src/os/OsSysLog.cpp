@@ -683,11 +683,12 @@ OsSysLog::~OsSysLog()
 // Returns an escaped version of the specified source string
 UtlString OsSysLog::escape(const UtlString& source)
 {
-   UtlString    results ;        
+   UtlString    results;        
    const char* pStart = source.data() ;
    const char* pTraverse = pStart ;
    const char* pLast = pStart ;
 
+   results.capacity(source.length() + 100);
    while (*pTraverse)
    {
       switch (*pTraverse)
@@ -850,6 +851,11 @@ void myvsprintf(UtlString& results, const char* format, va_list& args)
      */
     int n, size = 900;
     char *p;
+
+    if ( size < (int) sizeof(format)) 
+    {
+       size = (int) sizeof(format) + 100;
+    }
 
     results.remove(0) ;
     p = (char*) malloc(size) ;
