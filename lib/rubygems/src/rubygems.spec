@@ -21,7 +21,6 @@ URL:            http://rubyforge.org/projects/rubygems/
 Summary:        The Ruby standard for publishing and managing third party libraries.
 BuildArch: 	noarch
 Source:         rubygems-%{version}.tgz
-Patch:          noarch-gemdir.patch
 Obsoletes:	ruby-gems ruby-gems-devel ruby-gems-debuginfo
 
 
@@ -30,7 +29,6 @@ RubyGems is the Ruby standard for publishing and managing third party libraries.
 
 %prep
 %setup -q
-%patch -p1
 
 # Some of the library files start with #! which rpmlint doesn't like
 # and doesn't make much sense
@@ -43,8 +41,7 @@ done
 
 %install
 rm -rf $RPM_BUILD_ROOT
-GEM_HOME=$RPM_BUILD_ROOT%{gem_home} \
-    ruby setup.rb --destdir=$RPM_BUILD_ROOT
+GEM_HOME=$RPM_BUILD_ROOT%{gem_home} ruby setup.rb --destdir=$RPM_BUILD_ROOT
 
 %clean
 rm -rf $RPM_BUILD_ROOT
