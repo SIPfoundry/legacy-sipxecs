@@ -30,7 +30,7 @@ SetEnvIf User-Agent ".*MSIE.*" \\
              nokeepalive ssl-unclean-shutdown \\
              downgrade-1.0 force-response-1.0
              
-SetEnvIf User-Agent ".*Mozilla*" \\
+SetEnvIf User-Agent ".*Mozilla.*" \\
              nokeepalive ssl-unclean-shutdown \\
              downgrade-1.0 force-response-1.0
 
