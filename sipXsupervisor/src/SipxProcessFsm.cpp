@@ -183,6 +183,11 @@ void ConfigurationMismatch::evConfigurationVersionUpdated( SipxProcess& impl ) c
    }
 }
 
+void ConfigurationMismatch::evRestartProcess( SipxProcess& impl ) const
+{
+   ChangeState( impl, impl.pConfigurationMismatch );
+}
+
 
 void ResourceRequired::DoEntryAction( SipxProcess& impl ) const
 {
@@ -198,6 +203,11 @@ void ResourceRequired::evResourceCreated( SipxProcess& impl ) const
    {
       ChangeState( impl, impl.pTesting );
    }
+}
+
+void ResourceRequired::evRestartProcess( SipxProcess& impl ) const
+{
+   ChangeState( impl, impl.pConfigurationMismatch );
 }
 
 
@@ -218,6 +228,29 @@ void Testing::evConfigTestFailed( SipxProcess& impl ) const
    ChangeState( impl, impl.pConfigTestFailed );
 }
 
+void Testing::evRestartProcess( SipxProcess& impl ) const
+{
+   OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG,"'%s: aborting configtest in order to restart",
+                 impl.name());
+   ChangeState( impl, impl.pStoppingConfigtestToRestart );
+   impl.killConfigTest();
+}
+
+void StoppingConfigtestToRestart::evConfigTestPassed( SipxProcess& impl ) const
+{
+   ChangeState( impl, impl.pConfigurationMismatch );
+}
+
+void StoppingConfigtestToRestart::evConfigTestFailed( SipxProcess& impl ) const
+{
+   ChangeState( impl, impl.pConfigurationMismatch );
+}
+
+void StoppingConfigtestToRestart::evRestartProcess( SipxProcess& impl ) const
+{
+   OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG,"'%s: already aborting configtest in order to restart",
+                 impl.name());
+}
 
 void ConfigTestFailed::evRestartProcess( SipxProcess& impl ) const
 {
@@ -255,21 +288,44 @@ void Stopping::DoEntryAction( SipxProcess& impl ) const
    impl.stopProcess();
 }
 
+// We need both the actual process, and the script which stops it, to finish
+// before we move on.  These events can come in any order.
 void Stopping::evProcessStopped( SipxProcess& impl ) const
 {
-   OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG,"'%s: process stopped, now wait for stop script", impl.name());
+   if (impl.isCompletelyStopped())
+   {
+      if (impl.isEnabled())
+      {
+         ChangeState( impl, impl.pConfigurationMismatch );
+      }
+      else
+      {
+         ChangeState( impl, impl.pDisabled );
+      }
+   }
+   else
+   {
+      OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG,"'%s: process stopped, now wait for stop script", impl.name());
+   }
 }
 
 
 void Stopping::evStopCompleted( SipxProcess& impl ) const
 {
-   if (impl.isEnabled())
+   if (impl.isCompletelyStopped())
    {
-      ChangeState( impl, impl.pConfigurationMismatch );
+      if (impl.isEnabled())
+      {
+         ChangeState( impl, impl.pConfigurationMismatch );
+      }
+      else
+      {
+         ChangeState( impl, impl.pDisabled );
+      }
    }
    else
    {
-      ChangeState( impl, impl.pDisabled );
+      OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG,"'%s: stop completed, now wait for process stopped", impl.name());
    }
 }
 

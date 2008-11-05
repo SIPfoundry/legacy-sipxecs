@@ -170,7 +170,11 @@ class SipxProcess : public UtlString, OsServerTask
 
    /// Return whether or not the service for this process is Running.
    bool isRunning();
-   
+ 
+   /// Return whether or not the service for this process is completely stopped
+   /// (i.e. neither the Start nor the Stop command is running)
+   bool isCompletelyStopped();
+
    /// Set the persistent desired state of the SipxProcess to Running, and start the process.
    void enable();
 
@@ -225,6 +229,7 @@ class SipxProcess : public UtlString, OsServerTask
 
    // Trigger SipxProcessCmd to execute commands (in its own task)
    void startConfigTest();
+   void killConfigTest();
    void startProcess();
    void stopProcess();
    void processFailed();
@@ -332,6 +337,7 @@ class SipxProcess : public UtlString, OsServerTask
    static ConfigurationMismatch* pConfigurationMismatch;
    static ResourceRequired*      pResourceRequired;
    static Testing*               pTesting;
+   static StoppingConfigtestToRestart*       pStoppingConfigtestToRestart;
    static ConfigTestFailed*      pConfigTestFailed;
    static Starting*              pStarting;
    static Running*               pRunning;

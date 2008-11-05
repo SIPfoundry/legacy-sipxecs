@@ -100,6 +100,7 @@ public:
    virtual void DoEntryAction( SipxProcess& impl ) const;
    virtual void evConfigurationChanged( SipxProcess& impl ) const;
    virtual void evConfigurationVersionUpdated( SipxProcess& impl ) const;
+   virtual void evRestartProcess( SipxProcess& impl ) const;
 };
 
 class ResourceRequired : public SipxProcessFsm
@@ -111,6 +112,7 @@ public:
    // State machine events relevant for this state
    virtual void DoEntryAction( SipxProcess& impl ) const;
    virtual void evResourceCreated( SipxProcess& impl ) const;
+   virtual void evRestartProcess( SipxProcess& impl ) const;
 };
 
 
@@ -124,6 +126,19 @@ public:
    virtual void DoEntryAction( SipxProcess& impl ) const;
    virtual void evConfigTestPassed( SipxProcess& impl ) const;
    virtual void evConfigTestFailed( SipxProcess& impl ) const;
+   virtual void evRestartProcess( SipxProcess& impl ) const;
+};
+
+class StoppingConfigtestToRestart : public SipxProcessFsm
+{
+public:
+   virtual const char* name( void ) const {return "StoppingConfigtestToRestart";}
+   virtual ~StoppingConfigtestToRestart(){};
+
+   // State machine events relevant for this state
+   virtual void evConfigTestPassed( SipxProcess& impl ) const;
+   virtual void evConfigTestFailed( SipxProcess& impl ) const;
+   virtual void evRestartProcess( SipxProcess& impl ) const;
 };
 
 class ConfigTestFailed: public SipxProcessFsm

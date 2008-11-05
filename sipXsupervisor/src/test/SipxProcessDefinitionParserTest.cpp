@@ -47,22 +47,13 @@ class SipxProcessDefinitionParserTest : public CppUnit::TestCase
    CPPUNIT_TEST_SUITE_END();
 
 public:
-   UtlString mLogFile;
    
    void setUp()
    {
       OsSysLog::initialize(0, "processDefn");
-      mLogFile = "processDefnTest.log";
-      OsSysLog::setOutputFile(0, mLogFile);
-      OsSysLog::setLoggingPriority(PRI_DEBUG);
       OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG, "processDefnTest::setUp");
    }
-   
-   void tearDown()
-   {
-//      SipxProcessManager::getInstance()->shutdown();
-   }
-   
+      
    void badXml()
       {
          FileTestContext testContext(TEST_DATA_DIR "processDef",

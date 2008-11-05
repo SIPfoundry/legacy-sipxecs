@@ -46,6 +46,12 @@ class SipxProcessCmd : public UtlString, OsServerTask
    /// Execute the command and return appropriate event to the owner.
    void execute(SipxProcess* owner);
    
+   /// Return true if the command process is currently running
+   bool isRunning();
+
+   /// Kill the command process
+   void kill();
+   
    /// destructor
    virtual ~SipxProcessCmd();
 

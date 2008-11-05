@@ -214,6 +214,26 @@ void SipxProcessCmd::execute(SipxProcess* owner)
 }
 
 
+bool SipxProcessCmd::isRunning()
+{
+   UtlBoolean status = false;
+   
+   if ( mProcess != NULL )
+   {
+      status = mProcess->isRunning();
+   }
+   return status;
+}
+
+/// Kill the command.
+void SipxProcessCmd::kill()
+{
+   if ( mProcess != NULL )
+   {
+      mProcess->kill();
+   }
+}
+
 UtlBoolean SipxProcessCmd::handleMessage( OsMsg& rMsg )
 {
    UtlBoolean handled = FALSE;
@@ -317,6 +337,7 @@ SipxProcessCmd::~SipxProcessCmd()
       delete mProcess;
       mProcess = NULL;
    }
+   mParameters.destroyAll();
 
    waitUntilShutDown();
 }

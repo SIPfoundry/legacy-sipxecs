@@ -47,6 +47,7 @@ struct SipxProcessFsmStateStruct
    ConfigurationMismatch configurationMismatch;
    ResourceRequired      resourceRequired;   
    Testing               testing;
+   StoppingConfigtestToRestart  stoppingConfigtestToRestart;
    ConfigTestFailed      configTestFailed;
    Starting              starting;
    Running               running;
@@ -62,6 +63,7 @@ Disabled*                SipxProcess::pDisabled = 0;
 ConfigurationMismatch*   SipxProcess::pConfigurationMismatch = 0;
 ResourceRequired*        SipxProcess::pResourceRequired = 0;
 Testing*                 SipxProcess::pTesting = 0;
+StoppingConfigtestToRestart*  SipxProcess::pStoppingConfigtestToRestart = 0;
 ConfigTestFailed*        SipxProcess::pConfigTestFailed = 0;
 Starting*                SipxProcess::pStarting = 0;
 Running*                 SipxProcess::pRunning = 0;
@@ -125,6 +127,7 @@ void SipxProcess::initializeStatePointers( void )
    pConfigurationMismatch = &states.configurationMismatch;
    pResourceRequired      = &states.resourceRequired;
    pTesting               = &states.testing;
+   pStoppingConfigtestToRestart   = &states.stoppingConfigtestToRestart;
    pConfigTestFailed      = &states.configTestFailed;
    pStarting              = &states.starting;
    pRunning               = &states.running;
@@ -710,6 +713,13 @@ bool SipxProcess::isRunning()
 }
 
 
+bool SipxProcess::isCompletelyStopped()
+{
+   // We are only stopped when both the "start" command and the "stop" command are done.
+   return (!mStart->isRunning() && !mStop->isRunning());
+}
+
+
 void SipxProcess::startStateMachineInTask()
 {
    OsLock mutex(mLock);
@@ -1018,6 +1028,11 @@ void SipxProcess::configurationVersionChange()
 void SipxProcess::startConfigTest()
 {
    mConfigtest->execute(this);
+}
+
+void SipxProcess::killConfigTest()
+{
+   mConfigtest->kill();
 }
 
 void SipxProcess::startProcess()
