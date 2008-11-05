@@ -4,6 +4,69 @@ SIPfoundry Issue Tracker at:
         http://track.sipfoundry.org/browse?XCF
 
 
+Version 3.11.7
+
+** Bug
+    * [XCF-2574] - Dial plan to require a permission for a non-gateway call does not work
+    * [XCF-2698] - LDAP Preview receives internal error when specifying email attribute to mail
+    * [XCF-2767] - Application Runtime Exception on adding sipxIvr service from the configUI.
+    * [XCF-2802] - Clicking on "Presence-config" quick link in the ACD Servers page gives an internal exception.
+    * [XCF-2805] - status server http ports not configured - causes MWI notification delay
+    * [XCF-2807] - Configuration pages load with errors when an associated confirmation message contains an apostrophe
+    * [XCF-2816] - ldap import  An internal error has occurred
+    * [XCF-2822] - Ftp Backup: "Schedule backup" configuration option disappears when Ftp is choosen as Backup Plan.
+    * [XCF-2824] - Some directories for plugins have wrong permissions (root:root instead of sipxchange:sipxchange)
+    * [XCF-2835] - URI dialing from end user portal does not work for internal extensions.
+    * [XCF-2852] - Credentials stopped Generating after adding 4 user.
+    * [XCF-2859] - Typo error on services page.
+    * [XCF-2861] - Changing domain alias should trigger generation of all affected *-config files
+    * [XCF-2865] - wrong default port for sipxbridge
+    * [XCF-2870] - Error while generating nattraversalrules.xml
+    * [XCF-2874] - Ftp Backup is not working.
+    * [XCF-2876] - Error while attempting to display System -> Internet Calling -> NAT Traversal
+    * [XCF-2888] - inviting external users to a conference fails if permission is required
+    * [XCF-2894] - DHCP option and Codecs not working with Audiocodes Version 5.4 Firmware different formatting in the ini file is needed
+    * [XCF-2902] - Sipxbridge service fails after sending profiles to sipxbridge
+    * [XCF-2906] - nattraversalrules.xml: missing relayaggressiveness
+    * [XCF-2907] - autoattendants.xml: missing holiday and regularhours
+    * [XCF-2914] - Incorrect contents in registrar-config
+    * [XCF-2933] - The new Alarm page is missing from the SCS GUI
+    * [XCF-2979] - Typo error in Advance Parameter page with Audiocodes gateway
+    * [XCF-2987] - Incoming calls to Operator trhough Audiocodes MP 11X does not got through
+
+** Improvement
+    * [XCF-1067] - HA setup: Configure routing for non-replicated services on the HA Distributed Server
+    * [XCF-1068] - Add secondary server to cluster
+    * [XCF-1070] - HA setup: Modify proxy routing for redundant services on both servers
+    * [XCF-1936] - ISN and ENUM dialing require manual configuration in HA installations
+    * [XCF-2617] - sipXconfig needs to provide HA support for config file (-config) replication
+    * [XCF-2791] - It's not possible to control Start/Stop/restart the sipxrelay service from sipxconfig
+    * [XCF-2808] - Turn off replication of domain-config at service restart
+    * [XCF-2842] - Default domain alias (server's IP address) should be removed for HA systems
+    * [XCF-2895] - Generate mediaserver and voicemail directly in mappingrules rather than using parameters
+    * [XCF-2898] - Add RLS support to Counterpath Phone plug-in
+    * [XCF-2910] - Improve regexps in tapestry.xml
+    * [XCF-2913] - Empty "domain" section of the "SIPRegistrar" server properties page
+    * [XCF-2921] - Add a help text to the Paging Group configuration page about multiple appearances of page extensions
+    * [XCF-2939] - Add new SBC drop-down menu: Change name sipXbridge to "Internal SBC"
+    * [XCF-2940] - Add help text to the snapshot page
+    * [XCF-2941] - Add help text to Web Certificate screen
+    * [XCF-2942] - Add help text to the Alarms page
+    * [XCF-2943] - Add help text to the Job Status page
+
+** New Feature
+    * [XCF-2677] - Add configuration for new sipxivr component
+    * [XCF-2692] - configuration for Alarm Server
+    * [XCF-2782] - Add support for Freeswitch to new services table
+    * [XCF-2905] - Enable services on primary system when sipXconfig first starts
+    * [XCF-2915] - sipXconfig must recognize new service state names
+
+** Task
+    * [XCF-2797] - Better data representation of supported phone model features
+    * [XCF-2885] - make rpm target fails for sipxconfig because of the .svn directories in the counterpath plugin
+    * [XCF-3004] - 3.10.1 to 3.10.3 upgrade: accomodate DB changes - (merge to mainline)
+
+
 Version 3.11.6
 
 ** Sub-task
