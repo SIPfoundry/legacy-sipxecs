@@ -93,7 +93,7 @@ ResourceListServer::ResourceListServer(const UtlString& domainName,
       NULL, // publicAddress
       NULL, // defaultUser
       bindIp, // defaultSipAddress
-      NULL, // sipProxyServers
+      domainName.data(), // sipProxyServers
       NULL, // sipDirectoryServers
       NULL, // sipRegistryServers
       NULL, // authenticationScheme
