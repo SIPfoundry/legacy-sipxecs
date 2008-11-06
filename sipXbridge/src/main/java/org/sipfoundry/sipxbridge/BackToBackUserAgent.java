@@ -42,6 +42,7 @@ import javax.sip.TransactionState;
 import javax.sip.address.Address;
 import javax.sip.address.SipURI;
 import javax.sip.header.AcceptHeader;
+import javax.sip.header.AllowHeader;
 import javax.sip.header.CSeqHeader;
 import javax.sip.header.CallIdHeader;
 import javax.sip.header.ContactHeader;
@@ -1102,6 +1103,14 @@ public class BackToBackUserAgent {
             if (peerDialog != null && peerDialog.getState() != DialogState.TERMINATED) {
                 logger.debug("queryDialogFromPeer -- sending query to " + peerDialog);
                 Request reInvite = peerDialog.createRequest(Request.INVITE);
+                reInvite.removeHeader(SupportedHeader.NAME);
+                reInvite.removeHeader(AllowHeader.NAME);
+                for ( String hdrName : new String[] {Request.INVITE, Request.OPTIONS, 
+                        Request.BYE, Request.ACK, Request.CANCEL } ) {
+                    AllowHeader sh = 
+                        ProtocolObjects.headerFactory.createAllowHeader(hdrName);
+                    reInvite.addHeader(sh);
+                }
                 SipProvider provider = ((DialogExt) peerDialog).getSipProvider();
                 ViaHeader viaHeader = SipUtilities.createViaHeader(provider, itspAccountInfo);
                 reInvite.setHeader(viaHeader);

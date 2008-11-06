@@ -17,6 +17,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Properties;
 import java.util.Set;
 import java.util.Vector;
@@ -35,6 +36,7 @@ import javax.sip.SipProvider;
 import javax.sip.Transaction;
 import javax.sip.address.Address;
 import javax.sip.address.SipURI;
+import javax.sip.header.AllowHeader;
 import javax.sip.header.CSeqHeader;
 import javax.sip.header.CallIdHeader;
 import javax.sip.header.ContactHeader;
@@ -1060,6 +1062,18 @@ class SipUtilities {
         for (int codecNumber : codecSet) {
             if (codecs.contains(codecNumber))
                 return true;
+        }
+        return false;
+    }
+
+    public static boolean isPrackAllowed(Message message) {
+        ListIterator li = message.getHeaders(AllowHeader.NAME);
+        
+        while ( li != null && li.hasNext() ) {
+            AllowHeader ah = (AllowHeader) li.next();
+            if ( ah.getMethod().equals(Request.PRACK)) {
+                return true;
+            }
         }
         return false;
     }

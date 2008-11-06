@@ -52,6 +52,7 @@ import javax.sip.header.SubscriptionStateHeader;
 import javax.sip.header.SupportedHeader;
 import javax.sip.header.ToHeader;
 import javax.sip.header.ViaHeader;
+import javax.sip.header.WarningHeader;
 import javax.sip.message.Message;
 import javax.sip.message.Request;
 import javax.sip.message.Response;
@@ -632,11 +633,6 @@ class CallControlManager implements SymmitronResetHandler {
 
             DialogApplicationData dat = (DialogApplicationData) dialog.getApplicationData();
 
-            if (dat.isSdpAnswerPending && inboundAck.getContentLength().getContentLength() == 0) {
-                logger.debug("sdpAnswer is pending and none is in ACK -- not forwarding ACK");
-                return;
-            }
-
             if (dat != null
                     && dialog.getState() == DialogState.CONFIRMED
                     && dat.lastResponse != null
@@ -644,14 +640,18 @@ class CallControlManager implements SymmitronResetHandler {
                     && ((CSeqHeader) dat.lastResponse.getHeader(CSeqHeader.NAME)).getMethod()
                             .equals(Request.INVITE)) {
                 logger.debug("createAck: " + dialog);
-                Request ack = dialog.createAck(SipUtilities.getSeqNumber(dat.lastResponse));
 
                 /*
                  * This case happens in loopback calls. We can query sdp from a peer that is in
                  * the pbx.
                  */
 
+                Request ack = null;
+
                 if (inboundAck.getContentLength().getContentLength() != 0) {
+                    // ACK had a content length so we extract the sdp answer,
+                    // we re-write it and forward it.
+                    ack = dialog.createAck(SipUtilities.getSeqNumber(dat.lastResponse));
 
                     ContentTypeHeader cth = ProtocolObjects.headerFactory
                             .createContentTypeHeader("application", "sdp");
@@ -662,6 +662,30 @@ class CallControlManager implements SymmitronResetHandler {
                     // Some ITPSs do not like sendonly so make sure it is sendrecv
                     SipUtilities.setDuplexity(sd, "sendrecv");
                     ack.setContent(sd.toString(), cth);
+                } else {
+                    // inbound ack had no sdp answer. so we just replay the
+                    // old sdp back. This ACK came back as a result of
+                    // codec negotiation failure.
+                    if (dat.isSdpAnswerPending && dad.mohCodecNegotiationFailed) {
+                        logger.debug("sdpAnswer is pending and none is in ACK -- replay old sdp");
+                        ack = dialog.createAck(SipUtilities.getSeqNumber(dat.lastResponse));
+
+                        ContentTypeHeader cth = ProtocolObjects.headerFactory
+                                .createContentTypeHeader("application", "sdp");
+
+                        SessionDescription sd = dat.getRtpSession().getReceiver()
+                                .getSessionDescription();
+
+                        SipUtilities.setDuplexity(sd, "sendrecv");
+                        ack.setContent(sd.toString(), cth);
+                        dad.mohCodecNegotiationFailed = false;
+                    } else if (dat.isSdpAnswerPending) {
+                        // Dont create the ack yet.
+                        return;
+                    } else {
+
+                        ack = dialog.createAck(SipUtilities.getSeqNumber(dat.lastResponse));
+                    }
                 }
 
                 dialog.sendAck(ack);
@@ -802,7 +826,11 @@ class CallControlManager implements SymmitronResetHandler {
                     + "\nlastResponse = " + peerDialogApplicationData.lastResponse);
         }
 
+        if (!peerDialogApplicationData.isSdpAnswerPending) {
+            return;
+        }
         peerDialogApplicationData.isSdpAnswerPending = false;
+
         if (response.getContentLength().getContentLength() != 0) {
 
             SessionDescription sd = SipUtilities.cleanSessionDescription(SipUtilities
@@ -819,12 +847,12 @@ class CallControlManager implements SymmitronResetHandler {
                 // Answer in the response.
 
                 b2bua.getWanRtpSession(peerDialog).getReceiver().setSessionDescription(sd);
-
+                b2bua.getWanRtpSession(peerDialog).getTransmitter().setOnHold(false);
                 SipUtilities.incrementSessionVersion(sd);
 
             } else {
                 b2bua.getLanRtpSession(peerDialog).getReceiver().setSessionDescription(sd);
-
+                b2bua.getLanRtpSession(peerDialog).getTransmitter().setOnHold(false);
                 SipUtilities.incrementSessionVersion(sd);
             }
 
@@ -944,18 +972,19 @@ class CallControlManager implements SymmitronResetHandler {
                     Operation operation = tad.continuationOperation;
                     logger.debug("continuationOperation = " + operation);
 
-                    /*
-                     * Send him a PRACK at this point??
-                     */
+                    
 
                     if (response.getContentLength().getContentLength() == 0) {
-                        logger.error("DROPPING CALL -- Expecting a content length != 0 ");
+                        logger
+                                .error("PROTOCOL ERROR : DROPPING CALL -- Expecting a content length != 0 ");
                         Request ackRequest = dialog
                                 .createAck(SipUtilities.getSeqNumber(response));
                         dialog.sendAck(ackRequest);
                         b2bua.tearDown();
                         return;
-                    }
+                    } 
+
+                    
                     SessionDescription sd = SipUtilities.getSessionDescription(response);
 
                     dat.lastResponse = response;
@@ -992,14 +1021,17 @@ class CallControlManager implements SymmitronResetHandler {
                     } else if (operation == Operation.SEND_INVITE_TO_MOH_SERVER) {
                         /*
                          * This is a query for MOH server. Lets see if he returned a codec that
-                         * park server handle in the query
+                         * park server handle in the query. If the ITSP does not return a codec
+                         * that the park server supports, we just ACK with the previously
+                         * negotiated codec. MOH will not play in this case. Note that
+                         * MOH answers right away so we can forward the request.
                          */
 
                         if (!SipUtilities.isCodecSupported(sd, Gateway.getParkServerCodecs())) {
                             /*
                              * If codec is not supported by park server then we simply do not
                              * forward the answer to the park server in an INIVTE. We just replay
-                             * the old respose.
+                             * the old respose ( this case happens for AT&T HIPCS ).
                              */
                             long cseq = SipUtilities.getSeqNumber(response);
                             Request ack = dialog.createAck(cseq);
@@ -1007,18 +1039,71 @@ class CallControlManager implements SymmitronResetHandler {
                             SessionDescription ackSd = dat.getRtpSession().getReceiver()
                                     .getSessionDescription();
                             SipUtilities.setSessionDescription(ack, ackSd);
-                            dialog.sendAck(ack);
-                            return;
-                        }
 
-                        ReInviteProcessingContinuationData continuation = (ReInviteProcessingContinuationData) tad.continuationData;
-                        b2bua.getLanRtpSession(continuation.dialog).getReceiver()
-                                .setSessionDescription(sd);
-                        b2bua.getLanRtpSession(continuation.dialog).getReceiver().setSdpQueried(
-                                true);
-                        this.adjustSessionParameters(continuation.serverTransaction,
-                                continuation.request, continuation.dialog, continuation.provider,
-                                dialog);
+                            /*
+                             * Now reply back to the original Transaction and put the WAN side on
+                             * hold. Note tha this case MOH will not play.
+                             */
+                            ReInviteProcessingContinuationData continuation = (ReInviteProcessingContinuationData) tad.continuationData;
+                            DialogApplicationData.get(continuation.dialog).mohCodecNegotiationFailed = true;
+
+                            /*
+                             * Send an ACK back to the WAN side and replay the same Session
+                             * description as before.
+                             */
+                            DialogApplicationData.get(dialog).lastResponse = null;
+                            DialogApplicationData.get(dialog).isSdpAnswerPending = false;
+                            dialog.sendAck(ack);
+                            Request request = continuation.serverTransaction.getRequest();
+                            Response newResponse = ProtocolObjects.messageFactory.createResponse(
+                                    Response.OK, request);
+
+                            /*
+                             * Replay the response to the LAN side locally.
+                             */
+                            RtpSession lanRtpSession = b2bua
+                                    .getLanRtpSession(continuation.dialog);
+
+                            SipUtilities.setDuplexity(lanRtpSession.getReceiver()
+                                    .getSessionDescription(), "recvonly");
+                            SipUtilities.incrementSessionVersion(lanRtpSession.getReceiver()
+                                    .getSessionDescription());
+                            RtpSession wanRtpSession = dat.rtpSession;
+                            /*
+                             * Put the rtp session on hold.
+                             */
+                            wanRtpSession.getTransmitter().setOnHold(true);
+
+                            SupportedHeader sh = ProtocolObjects.headerFactory
+                                    .createSupportedHeader("replaces");
+                            newResponse.setHeader(sh);
+                            SessionDescription newDescription = lanRtpSession.getReceiver()
+                                    .getSessionDescription();
+                            if (newDescription != null) {
+                                newResponse.setContent(newDescription,
+                                        ProtocolObjects.headerFactory.createContentTypeHeader(
+                                                "application", "sdp"));
+                            }
+
+                            ToHeader toHeader = (ToHeader) request.getHeader(ToHeader.NAME);
+                            String userName = ((SipURI) toHeader.getAddress().getURI()).getUser();
+                            ContactHeader contactHeader = SipUtilities.createContactHeader(
+                                    userName, ((DialogExt) continuation.dialog).getSipProvider());
+                            newResponse.setHeader(contactHeader);
+                            response.setReasonPhrase("RTP Session Parameters Changed");
+                            WarningHeader warningHeader = ProtocolObjects.headerFactory.createWarningHeader("Codec Negotiation Failure", 123, " No MOH");
+                            response.setHeader(warningHeader);
+                            continuation.serverTransaction.sendResponse(newResponse);
+
+                            return;
+                        } else {
+                            ReInviteProcessingContinuationData continuation = (ReInviteProcessingContinuationData) tad.continuationData;
+                            b2bua.getLanRtpSession(continuation.dialog).getReceiver()
+                                    .setSessionDescription(sd);
+                            this.adjustSessionParameters(continuation.serverTransaction,
+                                    continuation.request, continuation.dialog,
+                                    continuation.provider, dialog);
+                        }
 
                     }
 
@@ -1061,7 +1146,8 @@ class CallControlManager implements SymmitronResetHandler {
                      * addressing.
                      */
                     if (tad.operation == Operation.SEND_INVITE_TO_ITSP) {
-                        contactHeader = SipUtilities.createContactHeader(user,tad.serverTransactionProvider);
+                        contactHeader = SipUtilities.createContactHeader(user,
+                                tad.serverTransactionProvider);
                     } else {
                         contactHeader = SipUtilities.createContactHeader(
                                 tad.serverTransactionProvider, tad.itspAccountInfo);
@@ -1169,7 +1255,7 @@ class CallControlManager implements SymmitronResetHandler {
                              * The receiver stays as is.
                              */
                             rtpSession.getTransmitter().setSessionDescription(sessionDescription);
-                            logger.debug("Receiver State : " +rtpSession.getReceiverState());
+                            logger.debug("Receiver State : " + rtpSession.getReceiverState());
 
                             /*
                              * Grab the RTP session previously pointed at by the REFER dialog.
@@ -1258,6 +1344,7 @@ class CallControlManager implements SymmitronResetHandler {
                         Dialog peerDialog = DialogApplicationData.getPeerDialog(dialog);
                         if (Gateway.isReInviteSupported()
                                 && response.getContentLength().getContentLength() != 0
+                                && DialogApplicationData.get(peerDialog).isSdpAnswerPending
                                 && peerDialog != null) {
                             this.sendSdpAnswerInAck(response, dialog);
                         }
@@ -1289,8 +1376,8 @@ class CallControlManager implements SymmitronResetHandler {
                                 .createSupportedHeader("replaces");
 
                         newResponse.setHeader(sh);
-                        ContactHeader contactHeader = SipUtilities.createContactHeader(Gateway.SIPXBRIDGE_USER,
-                                tad.serverTransactionProvider);
+                        ContactHeader contactHeader = SipUtilities.createContactHeader(
+                                Gateway.SIPXBRIDGE_USER, tad.serverTransactionProvider);
                         newResponse.setHeader(contactHeader);
                         Dialog peerDialog = DialogApplicationData.getPeerDialog(dialog);
                         SipProvider peerProvider = ((DialogExt) peerDialog).getSipProvider();
@@ -1326,6 +1413,7 @@ class CallControlManager implements SymmitronResetHandler {
                             .getHeader(CSeqHeader.NAME)).getSeqNumber());
 
                     dialog.sendAck(ack);
+
                     this.sendSdpAnswerInAck(response, dialog);
 
                 } else if (tad.operation == Operation.HANDLE_INVITE_WITH_REPLACES) {
@@ -1336,8 +1424,8 @@ class CallControlManager implements SymmitronResetHandler {
                     Request request = serverTransaction.getRequest();
                     SipProvider peerProvider = ((TransactionExt) serverTransaction)
                             .getSipProvider();
-                    ContactHeader contactHeader = SipUtilities.createContactHeader(Gateway.SIPXBRIDGE_USER,
-                            peerProvider);
+                    ContactHeader contactHeader = SipUtilities.createContactHeader(
+                            Gateway.SIPXBRIDGE_USER, peerProvider);
 
                     Response serverResponse = ProtocolObjects.messageFactory.createResponse(
                             response.getStatusCode(), request);

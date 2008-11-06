@@ -38,8 +38,7 @@ class RtpReceiverEndpoint implements SymEndpointInterface {
 
     private String ipAddress;
     
-    private boolean sdpQueried;
-
+ 
     RtpReceiverEndpoint(SymEndpointInterface symReceiverEndpoint)  {
         this.symReceiverEndpoint = symReceiverEndpoint;
         this.ipAddress = symReceiverEndpoint.getIpAddress();
@@ -113,25 +112,6 @@ class RtpReceiverEndpoint implements SymEndpointInterface {
             throw new RuntimeException("Unexpected exception", ex);
         }
     }
-
-
-    /**
-     * @param sdpQueried the sdpQueried to set
-     */
-    void setSdpQueried(boolean sdpQueried) {
-        this.sdpQueried = sdpQueried;
-    }
-
-
-    /**
-     * @return the sdpQueried
-     */
-    boolean isSdpQueried() {
-        return sdpQueried;
-    }
-    
-    
-    
 
 
     

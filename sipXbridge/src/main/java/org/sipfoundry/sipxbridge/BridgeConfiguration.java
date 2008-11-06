@@ -44,7 +44,7 @@ public class BridgeConfiguration {
     private String autoAttendantName = null;
     private String symmitronHost;
     private int symmitronXmlRpcPort = 0;
-    private String sipxProxyTransport = "tcp";
+    private String sipxProxyTransport = "udp";
   
     private static Logger logger = Logger.getLogger(BridgeConfiguration.class);
 

@@ -296,6 +296,8 @@ class RtpSession {
         SipUtilities.setDuplexity(this.getReceiver().getSessionDescription(), "recvonly");
         SipUtilities.incrementSessionVersion(this.getReceiver().getSessionDescription());
     }
+    
+   
 
     /**
      * Reassign the session parameters ( possibly putting the media on hold and playing music ).

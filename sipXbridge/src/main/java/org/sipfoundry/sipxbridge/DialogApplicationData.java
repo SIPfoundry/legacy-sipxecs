@@ -77,6 +77,8 @@ class DialogApplicationData {
     boolean sendReInviteOnResume;
 
     Transaction transaction;
+
+    public boolean mohCodecNegotiationFailed;
     
     private DialogApplicationData() {
 
