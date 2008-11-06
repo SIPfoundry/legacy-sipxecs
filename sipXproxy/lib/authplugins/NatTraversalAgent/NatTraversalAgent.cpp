@@ -57,6 +57,7 @@ extern "C" AuthPlugin* getAuthPlugin(const UtlString& pluginName)
 NatTraversalAgent::NatTraversalAgent(const UtlString& pluginName ) ///< the name for this instance
    : AuthPlugin(pluginName),
      SipOutputProcessor( NAT_TRAVERSAL_AGENT_OUTPUT_PROC_PRIO ),
+     mbNatTraversalFeatureEnabled( false ),
      mbOutputProcessorRegistrrationDone( false ),
      mpSipRouter( 0 ),
      mMessageProcessingMutex( OsRWMutex::Q_FIFO ),
