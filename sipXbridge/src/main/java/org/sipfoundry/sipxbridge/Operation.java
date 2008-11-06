@@ -9,7 +9,8 @@ package org.sipfoundry.sipxbridge;
 /**
  * The operation that is currently being done for a given ClientTransaction.
  * This is context information that is stored in the transaction data pointer so
- * that when the response comes back we know what to do.
+ * that when the response comes back we know what to do. This is essentially
+ * the operator that drives the SBC state machine.
  * 
  * @author M. Ranganathan
  * 
@@ -22,7 +23,8 @@ public enum Operation {
     HANDLE_SPIRAL_INVITE_WITH_REPLACES,
     SEND_INVITE_TO_MOH_SERVER, QUERY_SDP_FROM_PEER_DIALOG, 
     SESSION_TIMER, FORWARD_REINVITE, SEND_BYE_TO_MOH_SERVER,
-    HANDLE_INVITE_WITH_REPLACES,HANDLE_RE_INVITE, PROCESS_INVITE;
+    HANDLE_INVITE_WITH_REPLACES,HANDLE_RE_INVITE, PROCESS_INVITE, 
+    SEND_SDP_RE_OFFER;
 
 }
 

@@ -147,7 +147,7 @@ public class BackToBackUserAgent {
                         if (method.equalsIgnoreCase(Request.INVITE)) {
                             request = dialog.createRequest(Request.INVITE);
                             DialogApplicationData dat = DialogApplicationData.get(dialog);
-                            if (currentTimeMilis < dat.lastAckSent - 100) {
+                            if (currentTimeMilis < dat.lastAckSent - Gateway.getSipKeepaliveSeconds() * 1000 ) {
                                 continue;
                             }
                             RtpSession rtpSession = dat.getRtpSession();

@@ -55,7 +55,9 @@ class DialogApplicationData {
     RtpSession rtpSession;
     
     
-    
+    /*
+     * Flag to indicate that an SDP answer is pending.
+     */
     boolean isSdpAnswerPending;
 
     
@@ -65,20 +67,35 @@ class DialogApplicationData {
     ItspAccountInfo itspInfo; 
     
     
+    /*
+     * A flag that indicates whether this Dialog was 
+     * created by sipxbridge.
+     */
     boolean isOriginatedBySipxbridge;
 
    
+    /*
+     * The request that originated the Dialog
+     */
     Request request;
 
+    
     String sessionDescription;
 
-    long lastAckSent;
+    
 
     boolean sendReInviteOnResume;
 
     Transaction transaction;
 
-    public boolean mohCodecNegotiationFailed;
+    boolean mohCodecNegotiationFailed;
+
+    
+    boolean isSdpOfferPending;
+
+    long lastAckSent; // Session timer - records when last ACK was sent for this dialog.
+
+   
     
     private DialogApplicationData() {
 
@@ -151,7 +168,9 @@ class DialogApplicationData {
         return rtpSession;
     }
 
-    
+     void recordLastAckTime() {  
+         this.lastAckSent = System.currentTimeMillis();     
+     } 
 
     /**
      * @param backToBackUserAgent the backToBackUserAgent to set
@@ -166,6 +185,9 @@ class DialogApplicationData {
      BackToBackUserAgent getBackToBackUserAgent() {
         return backToBackUserAgent;
     }
+
+
+   
     
 
    
