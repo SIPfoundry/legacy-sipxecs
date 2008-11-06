@@ -415,7 +415,7 @@
     <setting name='emergency_address_port'>
       <profileName>$ignore$</profileName>
       <type refid="restricted-port-number" />
-      <value>0</value>
+      <value>1024</value>
     </setting>
   </group>
   <!-- 
