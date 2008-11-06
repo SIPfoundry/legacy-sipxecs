@@ -20,6 +20,9 @@ Url:      http://www.sipfoundry.org/
 # Should match sipXlib.m4:SIPX_CONFIGPHONEDIR
 %define phonedir %{_localstatedir}/sipxdata/configserver/phone
 
+# disable JAR repacking
+%define __jar_repack %{nil}
+
 Source: %name-%version.tar.gz
 
 Requires: ant >= 1.6
