@@ -21,6 +21,7 @@ import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.admin.ConfigurationFile;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
 import org.sipfoundry.sipxconfig.common.LazyDaemon;
+import org.sipfoundry.sipxconfig.common.ReplicationsFinishedEvent;
 import org.springframework.context.ApplicationEvent;
 
 public class LazySipxReplicationContextImpl implements SipxReplicationContext {
@@ -93,6 +94,7 @@ public class LazySipxReplicationContextImpl implements SipxReplicationContext {
             ApplicationEvent event = (ApplicationEvent) u.next();
             m_target.publishEvent(event);
         }
+        m_target.publishEvent(new ReplicationsFinishedEvent(this));
         m_events.clear();
     }
 

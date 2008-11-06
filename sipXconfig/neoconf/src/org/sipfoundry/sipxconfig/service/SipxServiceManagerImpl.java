@@ -14,26 +14,45 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sipfoundry.sipxconfig.admin.commserver.Location;
+import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
+import org.sipfoundry.sipxconfig.admin.commserver.ProcessManagerApi;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
+import org.sipfoundry.sipxconfig.common.ReplicationsFinishedEvent;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
+import org.sipfoundry.sipxconfig.common.VersionInfo;
+import org.sipfoundry.sipxconfig.xmlrpc.ApiProvider;
+import org.sipfoundry.sipxconfig.xmlrpc.XmlRpcRemoteException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.context.ApplicationEvent;
+import org.springframework.context.ApplicationListener;
 
 public class SipxServiceManagerImpl extends SipxHibernateDaoSupport<SipxService> implements
-        SipxServiceManager, ApplicationContextAware {
+        SipxServiceManager, ApplicationContextAware, ApplicationListener {
 
     private static final String QUERY_BY_BEAN_ID = "service-by-bean-id";
+
     private static final Log LOG = LogFactory.getLog(SipxServiceManagerImpl.class);
+
     private SipxReplicationContext m_replicationContext;
+
     private ApplicationContext m_applicationContext;
+
+    private LocationsManager m_locationsManager;
+
+    private ApiProvider<ProcessManagerApi> m_processManagerApiProvider;
+
+    private String m_host;
 
     public SipxService getServiceByBeanId(String beanId) {
         String query = QUERY_BY_BEAN_ID;
         Collection<SipxService> services = getHibernateTemplate().findByNamedQueryAndNamedParam(
                 query, "beanId", beanId);
 
-        // this is to handle a problem in unit tests where beans retrieved from hibernate
+        // this is to handle a problem in unit tests where beans retrieved from
+        // hibernate
         // do not have their spring attributes set
         for (SipxService sipxService : services) {
             ensureBeanIsInitialized(sipxService);
@@ -79,5 +98,55 @@ public class SipxServiceManagerImpl extends SipxHibernateDaoSupport<SipxService>
 
     public void setApplicationContext(ApplicationContext applicationContext) {
         m_applicationContext = applicationContext;
+    }
+
+    public String getHost() {
+        return m_host;
+    }
+
+    public void setHost(String host) {
+        m_host = host;
+    }
+
+    public LocationsManager getLocationsManager() {
+        return m_locationsManager;
+    }
+
+    public void setLocationsManager(LocationsManager locationsManager) {
+        m_locationsManager = locationsManager;
+    }
+
+    public ApiProvider<ProcessManagerApi> getProcessManagerApiProvider() {
+        return m_processManagerApiProvider;
+    }
+
+    public void setProcessManagerApiProvider(
+            ApiProvider<ProcessManagerApi> processManagerApiProvider) {
+        m_processManagerApiProvider = processManagerApiProvider;
+    }
+
+    public void setConfigurationVersion(SipxService service) {
+        Location[] locations = m_locationsManager.getLocations();
+        for (int i = 0; i < locations.length; i++) {
+            Location location = locations[i];
+            ProcessManagerApi api = m_processManagerApiProvider.getApi(location
+                    .getProcessMonitorUrl());
+            VersionInfo versionInfo = new VersionInfo();
+            String version = versionInfo.getVersion();
+            try {
+                api.setConfigVersion(m_host, service.getProcessName().getName(), version);
+            } catch (XmlRpcRemoteException e) {
+                LOG.error(e);
+            }
+        }
+    }
+
+    public void onApplicationEvent(ApplicationEvent event) {
+        if (event instanceof ReplicationsFinishedEvent) {
+            Collection<SipxService> services = getAllServices();
+            for (SipxService service : services) {
+                setConfigurationVersion(service);
+            }
+        }
     }
 }
