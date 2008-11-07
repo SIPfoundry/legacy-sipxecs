@@ -104,6 +104,7 @@ sysdir.mailstore=@sipxvxml.data.dir@/mailstore
 sysdir.vxml=@sipxvxml.data.dir@
 sysdir.vxml.prompts=@sipxvxml.data.dir@/prompts
 sysdir.vxml.scripts=@www.dir@/doc/aa_vxml
+sysdir.libexec=@sipxpbx.libexec.dir@
 
 acdContextImpl.audioServerUrl=http://${CONFIG_SERVER_ADDR}/phone/acd/audio
 # ACD server defaults - can be changed in UI

@@ -13,6 +13,7 @@
 
   <bean id="adminContextImpl" class="org.sipfoundry.sipxconfig.admin.AdminContextImpl" autowire="byType">
     <property name="binDirectory" value="${sysdir.bin}" />
+    <property name="libExecDirectory" value="${sysdir.libexec}" />
   </bean>
 
   <bean id="snapshot" class="org.sipfoundry.sipxconfig.admin.Snapshot">

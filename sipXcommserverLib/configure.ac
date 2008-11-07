@@ -24,6 +24,7 @@ AX_COMPILER_VENDOR
 AC_PATH_PROG([BASH], [bash])
 AC_PATH_PROG([PERL],[perl]) 	 
 AC_PATH_PROG([OPENSSL],[openssl])
+AC_PATH_PROG([DATE_BINARY],[date],"/bin/date")
 CHECK_XARGS_REPLACE
 CHECK_DATE_PARSE_ARGS
 
@@ -80,6 +81,7 @@ AC_CONFIG_FILES([
   doc/Makefile
   meta/Makefile
   src/sipxrestorebinary/Makefile
+  src/sipxchangedate/Makefile
 ])
 AC_OUTPUT
 

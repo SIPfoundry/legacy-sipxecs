@@ -12,6 +12,7 @@ package org.sipfoundry.sipxconfig.admin;
 import java.io.File;
 import java.io.IOException;
 import java.io.Writer;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -49,4 +50,6 @@ public interface AdminContext {
      * @return true if this is an upgrade/data init run, and *not* a real sipXconfig run
      */
     public boolean inUpgradePhase();
+
+    public void setSystemDate(Date date);
 }

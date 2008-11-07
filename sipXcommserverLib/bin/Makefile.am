@@ -21,6 +21,12 @@ dist_bin_SCRIPTS = \
    configquery \
    get_def_addr
 
+setupbindir = @SIPX_LIBEXECDIR@/setup.d
+
+setupbin_SCRIPTS = \
+        sipx-change-date-init
+
+setupbin_IN = $(foreach file,$(setupbin_SCRIPTS),$(file).in)
 
 EXTRA_DIST = $(foreach sipxScript,$(LOCAL_SHELLSCRIPTS),$(sipxScript).in)
 
@@ -61,5 +67,9 @@ ${PACKAGE}-config: $(top_srcdir)/config/sipX-config.in $(top_builddir)/BUILDSTAM
 	    $(top_srcdir)/config/sipX-config.in \
 	  > ${PACKAGE}-config
 	chmod +x ${PACKAGE}-config
+
+$(setupbin_SCRIPTS) : $(setupbin_IN)
+	@echo "Localize $< -> $@"
+	@${LocalizeSipXconfig} $(srcdir)/$(notdir $@).in > $@
 
 DISTCLEANFILES = sipx-validate-xml

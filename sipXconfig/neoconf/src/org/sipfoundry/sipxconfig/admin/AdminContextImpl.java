@@ -9,18 +9,24 @@
  */
 package org.sipfoundry.sipxconfig.admin;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.Writer;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Timer;
 
 import org.apache.commons.io.filefilter.DirectoryFileFilter;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.admin.BackupBean.Type;
 import org.sipfoundry.sipxconfig.admin.ftp.FtpConfiguration;
 import org.sipfoundry.sipxconfig.admin.ftp.FtpContext;
@@ -38,8 +44,15 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
  */
 public class AdminContextImpl extends HibernateDaoSupport implements AdminContext,
         ApplicationListener, BeanFactoryAware {
+    private static final String DATE_BINARY = "sipx-sudo-date";
+    
+    private static final SimpleDateFormat CHANGE_DATE_FORMAT = new SimpleDateFormat("MMddHHmmyyyy");
+
+    private static final Log LOG = LogFactory.getLog(AdminContextImpl.class);
 
     private String m_binDirectory;
+    
+    private String m_libExecDirectory;
 
     private String m_backupDirectory;
 
@@ -63,6 +76,14 @@ public class AdminContextImpl extends HibernateDaoSupport implements AdminContex
 
     public void setBinDirectory(String binDirectory) {
         m_binDirectory = binDirectory;
+    }
+    
+    public String getLibExecDirectory() {
+        return m_libExecDirectory;
+    }
+
+    public void setLibExecDirectory(String libExecDirectory) {
+        m_libExecDirectory = libExecDirectory;
     }
 
     public void setExportCsv(ExportCsv exportCsv) {
@@ -245,5 +266,32 @@ public class AdminContextImpl extends HibernateDaoSupport implements AdminContex
         m_ftpBackupDirectory = ftpBackupDirectory;
     }
 
+    public void setSystemDate(Date date) {
+        String errorMsg = "Error when changing date";
+        ProcessBuilder pb = new ProcessBuilder(
+                getLibExecDirectory() + File.separator + DATE_BINARY);
+
+        pb.command().add(CHANGE_DATE_FORMAT.format(date));
+        try {
+            LOG.debug(pb.command());
+            Process process = pb.start();
+            BufferedReader scriptErrorReader = new BufferedReader(new InputStreamReader(process
+                    .getErrorStream()));
+            String errorLine = scriptErrorReader.readLine();
+            while (errorLine != null) {
+                LOG.warn("sipx-sudo-date: " + errorLine);
+                errorLine = scriptErrorReader.readLine();
+            }
+            int code = process.waitFor();
+            if (code != 0) {
+                errorMsg = String.format("Error when changing date. Exit code: %d", code);
+                LOG.error(errorMsg);
+            }
+        } catch (IOException e) {
+            LOG.error(errorMsg, e);
+        } catch (InterruptedException e) {
+            LOG.error(errorMsg, e);
+        }
+    }
 
 }

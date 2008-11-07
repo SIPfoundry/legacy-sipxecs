@@ -177,6 +177,7 @@ public final class TestUtil {
         sysProps.setProperty("sysdir.vxml.prompts", vxmlDir + "/prompts");
         sysProps.setProperty("sysdir.vxml.scripts", vxmlDir + "/scripts");
         sysProps.setProperty("sysdir.user", "sipxpbxuser");
+        sysProps.setProperty("sysdir.libexec", outputDirectory);
 
         sysProps.setProperty("phoneDefaults.tftpServer", "tftp.sipfoundry.org");
         sysProps.setProperty("phoneDefaults.authorizationRealm", realm);

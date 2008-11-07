@@ -117,6 +117,7 @@
       <replacefilter token="@mrtg-enabled@" property="mrtg-enabled" />
       <replacefilter token="@debug@" property="debug" />
       <replacefilter token="@freeswitch.prefix.dir@" property="freeswitch.prefix.dir" />
+      <replacefilter token="@sipxpbx.libexec.dir@" property="sipxpbx.libexec.dir" />
     </replace>
 
     <replace file="${dest.dir}${sipxpbx.conf.dir}/database/database.xml"

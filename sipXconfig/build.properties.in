@@ -38,6 +38,7 @@ sipxvxml.data.dir=@SIPX_VXMLDATADIR@
 www.dir=@wwwdir@
 freeswitch.prefix.dir=@FREESWITCH_PREFIX@
 xargs.replace=@XARGS_REPLACE@
+sipxpbx.libexec.dir=@SIPX_LIBEXECDIR@
 
 sipxpbx.user=@SIPXPBXUSER@
 acd.history.test.db=SIPXACD_HISTORY_TEST
