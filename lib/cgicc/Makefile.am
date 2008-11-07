@@ -8,7 +8,8 @@ RPMS = \
 	$(DEST_RPM)/cgicc-$(VERSION)-$(RELEASE).@RPM_TARGET_ARCH@.rpm \
 	$(DEST_RPM)/cgicc-devel-$(VERSION)-$(RELEASE).@RPM_TARGET_ARCH@.rpm
 
-SPEC_FILE = cgicc.spec
+PATCH_FILE = cgicc.patch
+SPEC_FILE  = cgicc.spec
 
 all : PRINT_HEADER $(SRPM) $(RPMS) PRINT_FOOTER
 
@@ -18,6 +19,7 @@ $(RPM_SOURCES_DIR)/% : %
 .PHONY: build-rpms
 build-rpms: 
 	cp $(SRC_DIR)/$(SRC_TARBALL) @RPMBUILD_TOPDIR@/SOURCES
+	cp $(SRC_DIR)/$(PATCH_FILE) @RPMBUILD_TOPDIR@/SOURCES
 	cp $(SRC_DIR)/$(SPEC_FILE) @RPMBUILD_TOPDIR@/SPECS
 	rpmbuild -ba --target @RPM_TARGET_ARCH@-none-linux @RPMBUILD_TOPDIR@/SPECS/$(SPEC_FILE)
 

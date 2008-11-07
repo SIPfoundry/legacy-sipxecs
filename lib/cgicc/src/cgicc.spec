@@ -1,20 +1,21 @@
-Summary: GNU cgicc is a C++ class library for writing CGI applications
-Name: cgicc
-Version: 3.2.3
-Release: 2
-License: LGPL
-Group: Internet/WWW/Servers
-URL: http://www.cgicc.org/
-Source0: %{name}-%{version}.tar.gz
-Requires: libstdc++
+Summary:   GNU cgicc is a C++ class library for writing CGI applications
+Name:      cgicc
+Version:   3.2.3
+Release:   2
+License:   LGPL
+Group:     Internet/WWW/Servers
+URL:       http://www.cgicc.org/
+Source0:   %{name}-%{version}.tar.gz
+Patch:     cgicc.patch
+Requires:  libstdc++
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 
 %package devel
-Requires: %name
-Group: Development/Libraries
-Vendor: SIPfoundry
-Summary: Header files for %name 
-URL: http://www.cgicc.org/
+Requires:  %name
+Group:     Development/Libraries
+Vendor:    SIPfoundry
+Summary:   Header files for %name 
+URL:       http://www.cgicc.org/
 
 %description
 GNU cgicc is a C++ class library that greatly simplifies the creation of CGI applications for the World Wide Web. cgicc performs the following functions:
@@ -31,6 +32,7 @@ Header files and documentation for the CGICC C++ class library.
 
 %prep
 %setup -q
+%patch
 
 %build
 %configure
@@ -46,23 +48,21 @@ rm -rf $RPM_BUILD_ROOT
 # to the library from short names.
 %post
 /sbin/ldconfig
-ln -s -f /usr/lib/libcgicc.so.5.0.1 /usr/lib/libcgicc.so 
+ln -s -f %{_libdir}/libcgicc.so.5.0.1 %{_libdir}/libcgicc.so 
 
 %postun
 /sbin/ldconfig
-rm -f /usr/lib/libcgicc.so
+rm -f %{_libdir}/libcgicc.so
 
 %files
 %attr(755,root,root) /usr/bin/cgicc-config
-%attr(755,root,root) /usr/lib/libcgicc.a
-%attr(755,root,root) /usr/lib/libcgicc.la
-%attr(755,root,root) /usr/lib/libcgicc.so
-%attr(755,root,root) /usr/lib/libcgicc.so.5
-%attr(755,root,root) /usr/lib/libcgicc.so.5.0.1
+%attr(755,root,root) %{_libdir}/libcgicc.a
+%attr(755,root,root) %{_libdir}/libcgicc.la
+%attr(755,root,root) %{_libdir}/libcgicc.so
+%attr(755,root,root) %{_libdir}/libcgicc.so.5
+%attr(755,root,root) %{_libdir}/libcgicc.so.5.0.1
 
 %files devel
 %defattr(644,root,root,755) 
 %doc /usr/doc/cgicc-3.2.3
 /usr/include/cgicc
-
-%changelog
