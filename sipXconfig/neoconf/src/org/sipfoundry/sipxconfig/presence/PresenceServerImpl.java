@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.presence;
@@ -14,11 +14,10 @@ import java.util.Hashtable;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sipfoundry.sipxconfig.acd.AcdContext;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
-import org.sipfoundry.sipxconfig.service.SipxPresenceService;
-import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.sipfoundry.sipxconfig.xmlrpc.XmlRpcProxyFactoryBean;
 import org.sipfoundry.sipxconfig.xmlrpc.XmlRpcRemoteException;
 
@@ -29,16 +28,15 @@ public class PresenceServerImpl implements PresenceServer {
     public static final String OBJECT_CLASS_KEY = "object-class";
     private static final Log LOG = LogFactory.getLog(PresenceServerImpl.class);
     private CoreContext m_coreContext;
-    private SipxPresenceService m_sipxPresenceService;
+    private AcdContext m_acdContext;
     private boolean m_enabled;
 
     public void setCoreContext(CoreContext coreContext) {
         m_coreContext = coreContext;
     }
 
-    public void setSipxServiceManager(SipxServiceManager sipxServiceManager) {
-        m_sipxPresenceService = (SipxPresenceService) sipxServiceManager
-                .getServiceByBeanId(SipxPresenceService.BEAN_ID);
+    public void setAcdContext(AcdContext acdContext) {
+        m_acdContext = acdContext;
     }
 
     public boolean isEnabled() {
@@ -75,9 +73,14 @@ public class PresenceServerImpl implements PresenceServer {
         if (!m_enabled) {
             return null;
         }
+        String presenceServiceUri = m_acdContext.getPresenceServiceUri();
+        if (presenceServiceUri == null) {
+            LOG.warn("No ACD presence server available.");
+            return null;
+        }
         XmlRpcProxyFactoryBean factory = new XmlRpcProxyFactoryBean();
         factory.setServiceInterface(SignIn.class);
-        factory.setServiceUrl(m_sipxPresenceService.getPresenceServiceUri());
+        factory.setServiceUrl(presenceServiceUri);
         factory.afterPropertiesSet();
         SignIn api = (SignIn) factory.getObject();
         return userAction(api, action, user);
@@ -114,7 +117,7 @@ public class PresenceServerImpl implements PresenceServer {
     }
 
     /**
-     * Raw API from presense server. Not very useful outside this context
+     * Raw API from presence server. Not very useful outside this context
      */
     public static interface SignIn {
         public static final Integer SUCCESS = new Integer(1);

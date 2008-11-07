@@ -157,7 +157,6 @@
       </list>
     </property>
     <property name="sipxServiceManager" ref="sipxServiceManager" />
-    <property name="coreContext" ref="coreContext" />
   </bean>
 
   <bean id="sipxPresenceConfiguration" class="org.sipfoundry.sipxconfig.service.SipxPresenceConfiguration"

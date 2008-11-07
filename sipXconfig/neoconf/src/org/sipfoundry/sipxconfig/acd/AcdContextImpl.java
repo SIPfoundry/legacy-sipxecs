@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.acd;
@@ -35,8 +35,8 @@ import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 
-public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContext,
-        BeanFactoryAware, DaoEventListener {
+public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContext, BeanFactoryAware,
+        DaoEventListener {
     private static final String NAME_PROPERTY = "name";
 
     private static final String SERVER_PARAM = "acdServer";
@@ -90,8 +90,8 @@ public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContex
         if (acdComponent instanceof AcdQueue) {
             AcdQueue queue = (AcdQueue) acdComponent;
 
-            DaoUtils.checkDuplicates(getHibernateTemplate(), AcdQueue.class, queue,
-                    NAME_PROPERTY, new NameInUseException("queue", queue.getName()));
+            DaoUtils.checkDuplicates(getHibernateTemplate(), AcdQueue.class, queue, NAME_PROPERTY,
+                    new NameInUseException("queue", queue.getName()));
         }
 
         getHibernateTemplate().saveOrUpdate(acdComponent);
@@ -168,8 +168,8 @@ public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContex
     }
 
     private void cleanReferencesToOverflowQueue(AcdQueue overflowQueue) {
-        List queues = getHibernateTemplate().findByNamedQueryAndNamedParam(
-                "queuesForOverflowQueue", "overflowQueue", overflowQueue);
+        List queues = getHibernateTemplate().findByNamedQueryAndNamedParam("queuesForOverflowQueue",
+                "overflowQueue", overflowQueue);
         for (Iterator i = queues.iterator(); i.hasNext();) {
             AcdQueue queue = (AcdQueue) i.next();
             queue.setOverflowQueue(null);
@@ -183,8 +183,7 @@ public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContex
         Object[] values = {
             user, server
         };
-        List agents = getHibernateTemplate().findByNamedQueryAndNamedParam(
-                "agentForUserAndServer", params, values);
+        List agents = getHibernateTemplate().findByNamedQueryAndNamedParam("agentForUserAndServer", params, values);
         if (!agents.isEmpty()) {
             return (AcdAgent) agents.get(0);
         }
@@ -254,7 +253,22 @@ public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContex
             acdLine.appendAliases(aliases);
         }
 
+        List<AcdServer> servers = getServers();
+        for (AcdServer server : servers) {
+            aliases.addAll(server.getAliasMappings());
+        }
+
         return aliases;
+    }
+
+    public String getPresenceServiceUri() {
+        List<AcdServer> servers = getServers();
+        if (servers.isEmpty()) {
+            return null;
+        }
+        // HACK: only 1 ACD server supports presence service in UI
+        AcdServer server = servers.get(0);
+        return server.getPresenceServiceUri();
     }
 
     public void moveAgentsInQueue(Serializable queueId, Collection agentsIds, int step) {
@@ -284,8 +298,7 @@ public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContex
     private void onUserDelete(User user) {
         // FIXME: associate user with the session...
         getHibernateTemplate().update(user);
-        List agents = getHibernateTemplate().findByNamedQueryAndNamedParam("agentForUser",
-                USER_PARAM, user);
+        List agents = getHibernateTemplate().findByNamedQueryAndNamedParam("agentForUser", USER_PARAM, user);
         Set servers = new HashSet();
         for (Iterator i = agents.iterator(); i.hasNext();) {
             AcdAgent agent = (AcdAgent) i.next();
@@ -332,8 +345,7 @@ public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContex
         }
         for (Iterator i = queuesToBeFixed.iterator(); i.hasNext();) {
             AcdQueue queue = (AcdQueue) i.next();
-            Setting overflowQueueUriSetting = queue.getSettings().getSetting(
-                    AcdQueue.OVERFLOW_QUEUE);
+            Setting overflowQueueUriSetting = queue.getSettings().getSetting(AcdQueue.OVERFLOW_QUEUE);
             String overflowQueueUri = overflowQueueUriSetting.getValue();
             String name = SipUri.extractUser(overflowQueueUri);
             AcdQueue overflowQueue = (AcdQueue) name2queue.get(name);
@@ -379,8 +391,7 @@ public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContex
         Object[] values = new Object[] {
             agentIds, server.getId()
         };
-        List queues = getHibernateTemplate().findByNamedQueryAndNamedParam("queuesForUsers",
-                params, values);
+        List queues = getHibernateTemplate().findByNamedQueryAndNamedParam("queuesForUsers", params, values);
         return queues;
     }
 

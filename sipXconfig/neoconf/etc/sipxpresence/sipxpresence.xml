@@ -58,9 +58,6 @@
       <type refid="port-number" />
       <value>8111</value>
     </setting>
-    <setting name="SIP_PRESENCE_DOMAIN_NAME" hidden="yes">
-      <value />
-    </setting>
     <setting name="SIP_PRESENCE_HTTP_PORT" hidden="yes">
       <type refid="port-number" />
       <value>8111</value>
@@ -70,4 +67,4 @@
       <value>NOTICE</value>
     </setting>
   </group>
- </model>
+</model>

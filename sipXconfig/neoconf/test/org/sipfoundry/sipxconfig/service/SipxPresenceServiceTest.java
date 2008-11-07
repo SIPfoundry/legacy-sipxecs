@@ -9,14 +9,9 @@
  */
 package org.sipfoundry.sipxconfig.service;
 
-import java.util.Collection;
-import java.util.Iterator;
-
 import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.TestHelper;
-import org.sipfoundry.sipxconfig.admin.forwarding.AliasMapping;
-import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.domain.Domain;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
@@ -39,7 +34,6 @@ public class SipxPresenceServiceTest extends TestCase {
         presenceSettings.getSetting("presence-config/SIP_PRESENCE_SIGN_IN_CODE").setValue("*122");
         presenceSettings.getSetting("presence-config/PRESENCE_SERVER_SIP_PORT").setValue("1234");
         presenceSettings.getSetting("presence-config/SIP_PRESENCE_HTTP_PORT").setValue("8888");
-        presenceSettings.getSetting("presence-config/SIP_PRESENCE_DOMAIN_NAME").setValue("presence.example.org");
     }
 
     public void testValidateDuplicateCodes() {
@@ -74,37 +68,11 @@ public class SipxPresenceServiceTest extends TestCase {
         }
     }
 
-    public void testGetAliasMappings() {
-        IMocksControl coreContextCtrl = EasyMock.createControl();
-        CoreContext coreContext = coreContextCtrl.createMock(CoreContext.class);
-        coreContext.getDomainName();
-        coreContextCtrl.andReturn("example.org").atLeastOnce();
-        coreContextCtrl.replay();
-
-        m_out.setCoreContext(coreContext);
-        assertNotNull(m_out.getPresenceServerUri());
-
-        Collection aliasMappings = m_out.getAliasMappings();
-
-        assertEquals(2, aliasMappings.size());
-        for (Iterator i = aliasMappings.iterator(); i.hasNext();) {
-            AliasMapping am = (AliasMapping) i.next();
-            assertTrue(am.getIdentity().matches("\\*12\\d@example.org"));
-            assertTrue(am.getContact().matches("sip:\\*12\\d@presence.example.org:1234"));
-        }
-
-        coreContextCtrl.verify();
+    public void testGetPresenceServerPort() {
+        assertEquals(1234, m_out.getPresenceServerPort());
     }
 
-    public void testGetPresenceServerUri() {
-        IMocksControl coreContextCtrl = EasyMock.createControl();
-        CoreContext coreContext = coreContextCtrl.createMock(CoreContext.class);
-        coreContext.getDomainName();
-        coreContextCtrl.andReturn("example.org").atLeastOnce();
-        coreContextCtrl.replay();
-
-        m_out.setCoreContext(coreContext);
-        assertNotNull(m_out.getPresenceServerUri());
-        assertEquals("sip:presence.example.org:1234", m_out.getPresenceServerUri());
+    public void testGetPresenceApiPort() {
+        assertEquals(8888, m_out.getPresenceApiPort());
     }
 }

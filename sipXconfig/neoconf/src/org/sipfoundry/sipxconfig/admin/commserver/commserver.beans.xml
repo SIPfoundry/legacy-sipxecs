@@ -160,7 +160,6 @@
 
   <bean id="aliasCollector"
     class="org.sipfoundry.sipxconfig.admin.commserver.AliasCollector">
-    <property name="sipxServiceManager" ref="sipxServiceManager" />  
     <property name="aliasProviderBeanIds">
       <list>
         <value>externalAliases</value>

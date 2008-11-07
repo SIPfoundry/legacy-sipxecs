@@ -125,10 +125,10 @@ public class AcdContextImplTestDb extends SipxDatabaseTestCase {
         AcdServer acdServer = m_context.newServer();
 
         SipxPresenceService presenceService = org.easymock.classextension.EasyMock.createMock(SipxPresenceService.class);
-        presenceService.getPresenceServerUri();
-        EasyMock.expectLastCall().andReturn("sip:presence.com:5130").atLeastOnce();
-        presenceService.getPresenceServiceUri();
-        EasyMock.expectLastCall().andReturn("sip:presence.com:8111/RPC2").atLeastOnce();
+        presenceService.getPresenceServerPort();
+        EasyMock.expectLastCall().andReturn(5130).atLeastOnce();
+        presenceService.getPresenceApiPort();
+        EasyMock.expectLastCall().andReturn(8111).atLeastOnce();
         org.easymock.classextension.EasyMock.replay(presenceService);
 
         SipxServiceManager sipxServiceManager = EasyMock.createMock(SipxServiceManager.class);

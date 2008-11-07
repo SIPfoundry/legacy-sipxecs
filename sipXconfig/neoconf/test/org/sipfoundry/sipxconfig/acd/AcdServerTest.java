@@ -9,6 +9,8 @@
  */
 package org.sipfoundry.sipxconfig.acd;
 
+import static org.easymock.EasyMock.expectLastCall;
+
 import java.util.Set;
 
 import org.easymock.EasyMock;
@@ -31,10 +33,10 @@ public class AcdServerTest extends BeanWithSettingsTestCase {
         initializeBeanWithSettings(m_server);
 
         SipxPresenceService presenceService = org.easymock.classextension.EasyMock.createMock(SipxPresenceService.class);
-        presenceService.getPresenceServerUri();
-        EasyMock.expectLastCall().andReturn("sip:presence.com:5130").atLeastOnce();
-        presenceService.getPresenceServiceUri();
-        EasyMock.expectLastCall().andReturn("sip:presence.com:8111/RPC2").atLeastOnce();
+        presenceService.getPresenceServerPort();
+        expectLastCall().andReturn(5130).atLeastOnce();
+        presenceService.getPresenceApiPort();
+        expectLastCall().andReturn(8111).atLeastOnce();
         org.easymock.classextension.EasyMock.replay(presenceService);
 
         SipxServiceManager sipxServiceManager = EasyMock.createMock(SipxServiceManager.class);
@@ -210,13 +212,28 @@ public class AcdServerTest extends BeanWithSettingsTestCase {
         mc.replay();
 
         m_server.setCoreContext(coreContext);
+        m_server.setHost("presence.com");
 
         assertEquals("mydomain.org", m_server.getSettingValue("acd-server/domain"));
         assertEquals("sip:presence.com:5130", m_server
                 .getSettingValue("acd-server/presence-server-uri"));
-        assertEquals("sip:presence.com:8111/RPC2", m_server
+        assertEquals("http://presence.com:8111/RPC2", m_server
                 .getSettingValue("acd-server/presence-service-uri"));
 
         mc.verify();
+    }
+
+    public void testGetPresenceServiceUri() {
+        assertEquals("http://localhost:8111/RPC2", m_server.getPresenceServiceUri());
+
+        m_server.setHost("presence.com");
+        assertEquals("http://presence.com:8111/RPC2", m_server.getPresenceServiceUri());
+    }
+
+    public void testGetPresenceServerUri() {
+        assertEquals("sip:localhost:5130", m_server.getPresenceServerUri());
+
+        m_server.setHost("presence.com");
+        assertEquals("sip:presence.com:5130", m_server.getPresenceServerUri());
     }
 }

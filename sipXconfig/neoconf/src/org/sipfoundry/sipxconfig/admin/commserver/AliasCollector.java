@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.admin.commserver;
@@ -17,8 +17,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.sipfoundry.sipxconfig.service.SipxPresenceService;
-import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.BeanInitializationException;
@@ -36,8 +34,6 @@ public class AliasCollector implements AliasProvider, BeanFactoryAware {
 
     private List m_aliasProviderBeanIds = Collections.EMPTY_LIST;
 
-    private SipxServiceManager m_sipxServiceManager;
-
     public Collection getAliasMappings() {
         Collection aliasProviders = getAliasProviders();
         Collection aliasMappings = new ArrayList();
@@ -51,8 +47,8 @@ public class AliasCollector implements AliasProvider, BeanFactoryAware {
 
     /**
      * Lazily creates the collection of beans that implement AliasProvider interface
-     * 
-     * 
+     *
+     *
      * @return cached or newly created listener collection
      */
     protected Collection getAliasProviders() {
@@ -76,11 +72,6 @@ public class AliasCollector implements AliasProvider, BeanFactoryAware {
                 Object bean = m_beanFactory.getBean(beanId, AliasProvider.class);
                 m_aliasProviders.add(bean);
             }
-
-            // collect presence alias provider
-            SipxPresenceService sipxPresenceService = (SipxPresenceService) m_sipxServiceManager
-                    .getServiceByBeanId(SipxPresenceService.BEAN_ID);
-            m_aliasProviders.add(sipxPresenceService);
         }
         return m_aliasProviders;
     }
@@ -92,9 +83,5 @@ public class AliasCollector implements AliasProvider, BeanFactoryAware {
     public void setBeanFactory(BeanFactory beanFactory) {
         m_beanFactory = (ListableBeanFactory) beanFactory;
         m_aliasProviders = null;
-    }
-
-    public void setSipxServiceManager(SipxServiceManager sipxServiceManager) {
-        m_sipxServiceManager = sipxServiceManager;
     }
 }

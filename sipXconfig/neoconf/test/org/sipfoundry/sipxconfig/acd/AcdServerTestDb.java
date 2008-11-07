@@ -17,6 +17,7 @@ import junit.framework.TestCase;
 import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.TestHelper;
+import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.service.SipxPresenceService;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 
@@ -29,17 +30,23 @@ import static org.easymock.classextension.EasyMock.replay;
 public class AcdServerTestDb extends TestCase {
 
     private AcdServer m_server;
+    private CoreContext m_coreContext;
 
     @Override
     protected void setUp() throws Exception {
         m_server = (AcdServer) TestHelper.getApplicationContext().getBean("acdServer");
 
+        m_coreContext = createMock(CoreContext.class);
+        m_coreContext.getDomainName();
+        expectLastCall().andReturn("presence.com").atLeastOnce();
+        m_server.setCoreContext(m_coreContext);
+
         SipxPresenceService presenceService = createMock(SipxPresenceService.class);
-        presenceService.getPresenceServerUri();
-        expectLastCall().andReturn("sip:presence.com:5130").atLeastOnce();
-        presenceService.getPresenceServiceUri();
-        expectLastCall().andReturn("sip:presence.com:8111/RPC2").atLeastOnce();
-        replay(presenceService);
+        presenceService.getPresenceServerPort();
+        expectLastCall().andReturn(5130).atLeastOnce();
+        presenceService.getPresenceApiPort();
+        expectLastCall().andReturn(8111).atLeastOnce();
+        replay(m_coreContext, presenceService);
 
         SipxServiceManager sipxServiceManager = createMock(SipxServiceManager.class);
         sipxServiceManager.getServiceByBeanId(SipxPresenceService.BEAN_ID);

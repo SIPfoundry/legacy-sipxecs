@@ -1,16 +1,17 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.acd;
 
 import java.io.Serializable;
 import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -19,6 +20,8 @@ import java.util.Set;
 import org.apache.commons.lang.enums.ValuedEnum;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sipfoundry.sipxconfig.admin.forwarding.AliasMapping;
+import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.service.SipxPresenceService;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.sipfoundry.sipxconfig.setting.SettingEntry;
@@ -43,10 +46,14 @@ public class AcdServer extends AcdComponent {
 
     private static final String KEY_NAME = "name";
 
+    private static final String URI = "http://{0}:{1}/RPC2";
+
     // TODO: only needed to create AcdAudio - we may be able to remove this dependency
     private transient AcdContext m_acdContext;
 
     private transient SipxServiceManager m_sipxServiceManager;
+
+    private SipxPresenceService m_presenceService;
 
     private int m_port;
 
@@ -144,17 +151,14 @@ public class AcdServer extends AcdComponent {
         Object[] params = new Object[] {
             m_host, Integer.toString(m_port)
         };
-        return MessageFormat.format("http://{0}:{1}/RPC2", params);
+        return MessageFormat.format(URI, params);
     }
 
     public static class AcdServerDefaults {
-        private AcdServer m_server;
-        private SipxPresenceService m_presenceService;
+        private final AcdServer m_server;
 
         AcdServerDefaults(AcdServer server) {
             m_server = server;
-            m_presenceService = (SipxPresenceService) m_server.m_sipxServiceManager
-                    .getServiceByBeanId(SipxPresenceService.BEAN_ID);
         }
 
         @SettingEntry(path = DOMAIN)
@@ -164,13 +168,44 @@ public class AcdServer extends AcdComponent {
 
         @SettingEntry(path = PRESENCE_SERVER_URI)
         public String getPresenceServerUri() {
-            return m_presenceService.getPresenceServerUri();
+            return m_server.getPresenceServerUri();
         }
 
         @SettingEntry(path = PRESENCE_SERVICE_URI)
         public String getPresenceServiceUri() {
-            return m_presenceService.getPresenceServiceUri();
+            return m_server.getPresenceServiceUri();
         }
+    }
+
+    public Collection getAliasMappings() {
+        Collection aliases = new ArrayList();
+        String domainName = getCoreContext().getDomainName();
+        int presencePort = m_presenceService.getPresenceServerPort();
+        String signInCode = m_presenceService.getSettingValue(SipxPresenceService.PRESENCE_SIGN_IN_CODE);
+        String signOutCode = m_presenceService.getSettingValue(SipxPresenceService.PRESENCE_SIGN_OUT_CODE);
+
+        aliases.add(createPresenceAliasMapping(signInCode.trim(), domainName, presencePort));
+        aliases.add(createPresenceAliasMapping(signOutCode.trim(), domainName, presencePort));
+
+        return aliases;
+    }
+
+    private AliasMapping createPresenceAliasMapping(String code, String domainName, int port) {
+        AliasMapping mapping = new AliasMapping();
+        mapping.setIdentity(AliasMapping.createUri(code, domainName));
+        mapping.setContact(SipUri.format(code, getHost(), port));
+        return mapping;
+    }
+
+    public String getPresenceServiceUri() {
+        Object[] params = new Object[] {
+            getHost(), String.valueOf(m_presenceService.getPresenceApiPort())
+        };
+        return MessageFormat.format(URI, params);
+    }
+
+    public String getPresenceServerUri() {
+        return SipUri.format(getHost(), m_presenceService.getPresenceServerPort());
     }
 
     public void deploy(XmlRpcSettings xmlRpc) {
@@ -283,11 +318,13 @@ public class AcdServer extends AcdComponent {
 
     public void setSipxServiceManager(SipxServiceManager sipxServiceManager) {
         m_sipxServiceManager = sipxServiceManager;
+        m_presenceService = (SipxPresenceService) m_sipxServiceManager
+                .getServiceByBeanId(SipxPresenceService.BEAN_ID);
     }
 
     /**
      * SIP port is for now hard coded as UDP port
-     * 
+     *
      * @return port on which server accepts SIP request
      */
     public int getSipPort() {
@@ -295,6 +332,7 @@ public class AcdServer extends AcdComponent {
         return port.intValue();
     }
 
+    @Override
     public Serializable getAcdServerId() {
         return getId();
     }

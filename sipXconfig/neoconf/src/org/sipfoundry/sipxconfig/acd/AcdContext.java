@@ -79,4 +79,6 @@ public interface AcdContext extends AliasProvider {
     Collection<AcdQueue> getQueuesForUsers(AcdServer server, Collection<User> agents);
 
     void removeOverflowSettings(Collection overflowIds, String overflowType);
+
+    String getPresenceServiceUri();
 }
