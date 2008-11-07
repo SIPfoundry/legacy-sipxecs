@@ -1,4 +1,4 @@
-VERSION = 3.2.7
+VERSION = 3.2.3
 RELEASE = 2
 
 SRC_DIR = $(srcdir)/src
@@ -18,7 +18,6 @@ $(RPM_SOURCES_DIR)/% : %
 .PHONY: build-rpms
 build-rpms: 
 	cp $(SRC_DIR)/$(SRC_TARBALL) @RPMBUILD_TOPDIR@/SOURCES
-	cp $(SRC_DIR)/*patch @RPMBUILD_TOPDIR@/SOURCES
 	cp $(SRC_DIR)/$(SPEC_FILE) @RPMBUILD_TOPDIR@/SPECS
 	rpmbuild -ba --target @RPM_TARGET_ARCH@-none-linux @RPMBUILD_TOPDIR@/SPECS/$(SPEC_FILE)
 
