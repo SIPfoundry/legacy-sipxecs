@@ -9,7 +9,35 @@
   </type>
   <group name="firmware">
     <label>Nortel-1535 Firmware</label>
-    <description></description>
+    <description>Please specify from and to hw and sw version for this upgrade. </description>
+    <setting name="from_hw_version">
+      <label>From Hardware Version</label>
+      <type>
+        <string required="yes" />
+      </type>
+      <value>1.0</value>
+    </setting>
+    <setting name="from_sw_version">
+      <label>From Firmware Version</label>
+      <type>
+        <string required="yes" />
+      </type>
+       <description>i.e. 0.1.91</description> 
+    </setting>
+    <setting name="to_hw_version">
+      <label>To Hardware Version</label>
+      <type>
+        <string required="yes" />
+      </type>
+      <value>1.0</value>
+    </setting>
+    <setting name="to_sw_version">
+      <label>To Firmware Version</label>
+      <type>
+        <string required="yes" />
+      </type>
+       <description>i.e. 0.1.92</description> 
+    </setting>
     <setting name="versionFirmware">
       <label>Version Upgrade Firmware(zip)</label>
       <type refid="zip"/>

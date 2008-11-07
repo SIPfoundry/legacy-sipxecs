@@ -21,8 +21,15 @@
     parent="abstractPhone">
   </bean>
 
+  <bean id="nt1535Upload" class="org.sipfoundry.sipxconfig.phone.nt1535.NT1535Upload" 
+    singleton="false" parent="zipUpload">
+    <property name="profileDir">
+      <value>${sysdir.phone}/profile/tftproot</value>
+    </property>
+  </bean>
+
   <bean id="nt1535Firmware" class="org.sipfoundry.sipxconfig.upload.UploadSpecification">
-    <property name="beanId" value="zipUpload" />
+    <property name="beanId" value="nt1535Upload" />
     <property name="modelFilePath" value="nt1535/upload.xml" />
     <property name="label" value="Nortel IP Phone 1535" />
   </bean>
