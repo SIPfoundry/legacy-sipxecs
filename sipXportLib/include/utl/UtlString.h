@@ -34,10 +34,15 @@
  * UtlString is a resizable string which is also containable in
  * any UtlContainer.  It may include null characters.
  *
- * A UtlString will grow as needed to hold any value stored
- * in it; because this expansion reallocates and copies memory, it is
- * a good idea to specify an expected size either when the object is
- * constructed or using the capacity method.
+ * A UtlString will grow as needed to hold any value stored in it; in
+ * the worst case every operation that enlarges a UtlString's contents
+ * may reallocate the stored data.  Thus, building a large string in
+ * small increments may require order(N^2) time.  For efficiency,
+ * pre-allocate the required amount of space using an argument to the
+ * constructor or using the capacity() method, or monitor the
+ * UtlString and explicitly reallocate its space as needed by, e.g.,
+ * doubling its capacity (which requires order(N) time to build a
+ * large string).
  *
  * @nosubgrouping
  */
