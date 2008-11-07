@@ -704,6 +704,7 @@ do_start() {
         sleep 1
         echo -n "Starting httpd: "
         ${HTTP_DAEMON_START} -k start -f @SIPX_CONFDIR@/httpd.conf -DSSL \
+	    >> @SIPX_LOGDIR@/httpd_stdout.log 2>> @SIPX_LOGDIR@/httpd_stderr.log \
             && echo_success || echo_failure
         echo
 }
