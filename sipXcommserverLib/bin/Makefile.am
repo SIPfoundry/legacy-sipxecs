@@ -28,7 +28,7 @@ setupbin_SCRIPTS = \
 
 setupbin_IN = $(foreach file,$(setupbin_SCRIPTS),$(file).in)
 
-EXTRA_DIST = $(foreach sipxScript,$(LOCAL_SHELLSCRIPTS),$(sipxScript).in)
+EXTRA_DIST = $(foreach sipxScript,$(LOCAL_SHELLSCRIPTS) $(setupbin_SCRIPTS),$(sipxScript).in)
 
 noinst_PROGRAMS = \
 	sipxconfigrpc \
