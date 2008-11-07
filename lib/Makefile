@@ -33,6 +33,7 @@ AC_TARGETS = \
 	ruby-dbi \
 	rubygems \
 	ruby-postgres \
+	sipx-jasperreports-deps \
 	w3c-libwww \
 	xerces-c \
 	freeswitch \
@@ -45,7 +46,7 @@ $(AC_TARGETS) :
 	$(MAKE) $@.bld
 
 # required on all platforms
-CUSTOM_PACKAGES = cgicc xerces-c ruby-postgres ruby-dbi jain-sip conference dnsjava rrdtool nsis $(JAVA_PKG)
+CUSTOM_PACKAGES = cgicc xerces-c ruby-postgres ruby-dbi jain-sip conference dnsjava rrdtool nsis sipx-jasperreports-deps $(JAVA_PKG)
 
 .PHONY: fc8 fc7
 fc8 fc7 : $(CUSTOM_PACKAGES) cppunit xerces-c rubygems

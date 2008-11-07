@@ -99,4 +99,12 @@ AC_DEFUN([CHECK_JAIN_SIP],
 [
 	CHECK_JAR([JAIN_SIP_SDP_JAR],[jain-sip/jain-sip-sdp])
 ])
-
+# ======= J A S P E R - R E P O R T S =======
+AC_DEFUN([CHECK_SIPX_JASPER_REPORTS_DEPS],
+[
+	CHECK_JAR([JASPERREPORTS_JAR],[sipx-jasperreports-deps/jasperreports])
+	CHECK_JAR([ITEXT_JAR], [sipx-jasperreports-deps/itext])
+	CHECK_JAR([JAKARTA_POI_JAR], [sipx-jasperreports-deps/jakarta-poi])
+	CHECK_JAR([JFREECHART_JAR], [sipx-jasperreports-deps/jfreechart])
+	CHECK_JAR([JCOMMON_JAR], [sipx-jasperreports-deps/jcommon])
+])
