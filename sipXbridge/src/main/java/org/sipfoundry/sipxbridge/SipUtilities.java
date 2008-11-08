@@ -50,6 +50,7 @@ import javax.sip.header.SupportedHeader;
 import javax.sip.header.ToHeader;
 import javax.sip.header.UserAgentHeader;
 import javax.sip.header.ViaHeader;
+import javax.sip.header.WarningHeader;
 import javax.sip.message.Message;
 import javax.sip.message.Request;
 import javax.sip.message.Response;
@@ -206,7 +207,7 @@ class SipUtilities {
              * The preferred transport of the sipx proxy server ( defaults to tcp ).
              */
             String transport = Gateway.getSipxProxyTransport();
-            
+
             ListeningPoint lp = provider.getListeningPoint(transport);
             String ipAddress = lp.getIPAddress();
             int port = lp.getPort();
@@ -465,10 +466,8 @@ class SipUtilities {
             }
             PPreferredIdentityHeader preferredIdentityHeader = null;
             PrivacyHeader privacyHeader = null;
-            if (fromUser.equalsIgnoreCase("anonymous") &&
-                    fromDomain.equalsIgnoreCase("invalid")) {
-               
-               
+            if (fromUser.equalsIgnoreCase("anonymous") && fromDomain.equalsIgnoreCase("invalid")) {
+
                 String domain = "anonymous.invalid";
                 SipURI fromUri = ProtocolObjects.addressFactory.createSipURI(fromUser, domain);
                 fromHeader = ProtocolObjects.headerFactory.createFromHeader(
@@ -485,8 +484,8 @@ class SipUtilities {
                                     .createAddress(fromUri));
                 } else {
                     domain = Gateway.getGlobalAddress();
-                    String realFromUser = itspAccount.getUserName();                    
-                    
+                    String realFromUser = itspAccount.getUserName();
+
                     fromUri = ProtocolObjects.addressFactory.createSipURI(realFromUser, domain);
                     fromUri.removeParameter("user");
                     preferredIdentityHeader = ((HeaderFactoryExt) ProtocolObjects.headerFactory)
@@ -495,15 +494,15 @@ class SipUtilities {
 
                 }
                 privacyHeader = ((HeaderFactoryExt) ProtocolObjects.headerFactory)
-                            .createPrivacyHeader("id");
+                        .createPrivacyHeader("id");
             } else {
-                    Address fromAddress = itspAccount.getCallerAlias();
-                    fromHeader = ProtocolObjects.headerFactory.createFromHeader(fromAddress,
-                            new Long(Math.abs(new java.util.Random().nextLong())).toString());
-                   
-                    if (fromDisplayName != null) {
-                        fromAddress.setDisplayName(fromDisplayName);
-                    }
+                Address fromAddress = itspAccount.getCallerAlias();
+                fromHeader = ProtocolObjects.headerFactory.createFromHeader(fromAddress,
+                        new Long(Math.abs(new java.util.Random().nextLong())).toString());
+
+                if (fromDisplayName != null) {
+                    fromAddress.setDisplayName(fromDisplayName);
+                }
             }
 
             if (!isphone) {
@@ -511,19 +510,19 @@ class SipUtilities {
             } else {
                 requestUri.setUserParam("phone");
             }
-            
+
             /*
-             * Remove stuff from the inbound request that can have an effect
-             * on the routing of the request and add stuff that we want to add.
+             * Remove stuff from the inbound request that can have an effect on the routing of the
+             * request and add stuff that we want to add.
              */
-            if ( itspAccount.getOutboundTransport() != null) {
+            if (itspAccount.getOutboundTransport() != null) {
                 requestUri.setTransportParam(itspAccount.getOutboundTransport());
             } else {
                 requestUri.removeParameter("transport");
             }
-            
+
             requestUri.removePort();
-            
+
             requestUri.removeParameter("maddr");
 
             fromHeader.setTag(new Long(Math.abs(new java.util.Random().nextLong())).toString());
@@ -539,8 +538,6 @@ class SipUtilities {
             ToHeader toHeader = ProtocolObjects.headerFactory.createToHeader(
                     ProtocolObjects.addressFactory.createAddress(toUri), null);
 
-           
-
             CSeqHeader cseqHeader = ProtocolObjects.headerFactory.createCSeqHeader(1L,
                     Request.INVITE);
 
@@ -552,14 +549,14 @@ class SipUtilities {
             List<ViaHeader> list = new LinkedList<ViaHeader>();
             list.add(viaHeader);
 
-            CallIdHeader callid = ProtocolObjects.headerFactory.createCallIdHeader(callId); 
+            CallIdHeader callid = ProtocolObjects.headerFactory.createCallIdHeader(callId);
             Request request = ProtocolObjects.messageFactory.createRequest(requestUri,
                     Request.INVITE, callid, cseqHeader, fromHeader, toHeader, list, maxForwards);
 
             if (preferredIdentityHeader != null) {
                 request.setHeader(preferredIdentityHeader);
             }
-            
+
             if (privacyHeader != null) {
                 request.setHeader(privacyHeader);
             }
@@ -662,7 +659,7 @@ class SipUtilities {
     static SessionDescription cleanSessionDescription(SessionDescription sessionDescription,
             String codec) {
         try {
-          
+
             if (codec == null) {
                 return sessionDescription;
             }
@@ -824,14 +821,15 @@ class SipUtilities {
 
     static String getSessionDescriptionAttribute(SessionDescription sessionDescription) {
         try {
-            Vector sessionAttributes =  sessionDescription.getAttributes(false);
-            if ( sessionAttributes == null ) return null;
-            for ( Object attr : sessionAttributes) {
-                Attribute attribute = ( Attribute) attr;
-                if ( attribute.getName().equals("sendrecv") 
+            Vector sessionAttributes = sessionDescription.getAttributes(false);
+            if (sessionAttributes == null)
+                return null;
+            for (Object attr : sessionAttributes) {
+                Attribute attribute = (Attribute) attr;
+                if (attribute.getName().equals("sendrecv")
                         || attribute.getName().equals("sendonly")
                         || attribute.getName().equals("recvonly")
-                        || attribute.getName().equals("inactive") ) {
+                        || attribute.getName().equals("inactive")) {
                     return attribute.getName();
                 }
             }
@@ -1068,14 +1066,23 @@ class SipUtilities {
 
     public static boolean isPrackAllowed(Message message) {
         ListIterator li = message.getHeaders(AllowHeader.NAME);
-        
-        while ( li != null && li.hasNext() ) {
+
+        while (li != null && li.hasNext()) {
             AllowHeader ah = (AllowHeader) li.next();
-            if ( ah.getMethod().equals(Request.PRACK)) {
+            if (ah.getMethod().equals(Request.PRACK)) {
                 return true;
             }
         }
         return false;
+    }
+
+    public static WarningHeader createWarningHeader(String agent, int code, String text) {
+        try {
+            return ProtocolObjects.headerFactory.createWarningHeader(agent, code, text);
+        } catch (Exception ex) {
+            logger.fatal(String.format("Unexpected Error creating warning header %s %d %s",agent, code, text));
+            return null;
+        }
     }
 
 }

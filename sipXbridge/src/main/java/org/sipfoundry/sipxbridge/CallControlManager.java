@@ -209,6 +209,9 @@ class CallControlManager implements SymmitronResetHandler {
                 try {
                     serverTransaction = provider.getNewServerTransaction(request);
                 } catch (TransactionAlreadyExistsException ex) {
+                    if (logger.isDebugEnabled()) {
+                        logger.debug("Transaction already exists for " + request);
+                    }
                     return;
                 }
             }
@@ -358,7 +361,6 @@ class CallControlManager implements SymmitronResetHandler {
                     return;
                 }
 
-                DialogApplicationData.attach(btobua, dialog, serverTransaction, request);
             }
 
             // This method was seen from the LAN side.
@@ -689,11 +691,11 @@ class CallControlManager implements SymmitronResetHandler {
                         ack = dialog.createAck(SipUtilities.getSeqNumber(dat.lastResponse));
                     }
                 }
-                
+
                 DialogApplicationData.get(dialog).recordLastAckTime();
 
                 dialog.sendAck(ack);
-               
+
                 /*
                  * Setting this to null here handles the case of Re-invitations.
                  */
@@ -864,9 +866,10 @@ class CallControlManager implements SymmitronResetHandler {
                     .createContentTypeHeader("application", "sdp"));
             ClientTransaction ctx = ((DialogExt) peerDialog).getSipProvider()
                     .getNewClientTransaction(sdpOfferInvite);
-            
-            TransactionApplicationData tad = new TransactionApplicationData(Operation.SEND_SDP_RE_OFFER);
-            
+
+            TransactionApplicationData tad = new TransactionApplicationData(
+                    Operation.SEND_SDP_RE_OFFER);
+
             ctx.setApplicationData(tad);
 
             peerDialog.sendRequest(ctx);
@@ -955,7 +958,6 @@ class CallControlManager implements SymmitronResetHandler {
         ServerTransaction serverTransaction = null;
         BackToBackUserAgent b2bua = null;
 
-        SipProvider provider = (SipProvider) responseEvent.getSource();
         Response response = responseEvent.getResponse();
         logger.debug("processInviteResponse : " + ((SIPResponse) response).getFirstLine());
 
@@ -982,9 +984,9 @@ class CallControlManager implements SymmitronResetHandler {
                     DialogApplicationData.get(dialog).recordLastAckTime();                   
                     dialog.sendAck(ack);
 
-                } else {
+                } else if ( response.getStatusCode() > 200 ) {
                     b2bua = DialogApplicationData.get(dialog).getBackToBackUserAgent();
-                    b2bua.tearDown();
+                    b2bua.tearDown(ProtocolObjects.headerFactory.createWarningHeader("sipxbridge", 104, "Session timer failure"));
                 }
                 return;
 
@@ -1087,7 +1089,7 @@ class CallControlManager implements SymmitronResetHandler {
                                 .getSipProvider();
 
                         ContactHeader contactHeader = SipUtilities.createContactHeader(
-                                wanProvider, dat.itspInfo);
+                                wanProvider, dat.getItspInfo());
                         ContentTypeHeader cth = ProtocolObjects.headerFactory
                                 .createContentTypeHeader("application", "sdp");
                         SipUtilities.incrementSessionVersion(sd);
@@ -1197,8 +1199,8 @@ class CallControlManager implements SymmitronResetHandler {
                             newResponse.setHeader(contactHeader);
                             response.setReasonPhrase("RTP Session Parameters Changed");
                             WarningHeader warningHeader = ProtocolObjects.headerFactory
-                                    .createWarningHeader("Codec Negotiation Failure", 123,
-                                            " No MOH");
+                                    .createWarningHeader("SipXbridge", 101,
+                                            "Codec negotion for MOH failed.");
                             response.setHeader(warningHeader);
                             continuation.serverTransaction.sendResponse(newResponse);
 
@@ -1391,7 +1393,7 @@ class CallControlManager implements SymmitronResetHandler {
                                         sessionDescription);
                                 ContactHeader contact = SipUtilities.createContactHeader(
                                         ((TransactionExt) peerDat.transaction).getSipProvider(),
-                                        peerDat.itspInfo);
+                                        peerDat.getItspInfo());
                                 forwardedResponse.setHeader(contact);
                                 ((ServerTransaction) peerDat.transaction)
                                         .sendResponse(forwardedResponse);
@@ -1511,8 +1513,8 @@ class CallControlManager implements SymmitronResetHandler {
                         }
                         if (peerProvider != Gateway.getLanProvider()) {
                             DialogApplicationData peerDat = DialogApplicationData.get(peerDialog);
-                            if (peerDat.itspInfo == null
-                                    || peerDat.itspInfo.isGlobalAddressingUsed()) {
+                            if (peerDat.getItspInfo() == null
+                                    || peerDat.getItspInfo().isGlobalAddressingUsed()) {
                                 SipUtilities.setGlobalAddress(newResponse);
                             }
                         }
@@ -1769,12 +1771,12 @@ class CallControlManager implements SymmitronResetHandler {
 
             if (this.backToBackUserAgentTable.containsKey(callId)) {
                 b2bua = this.backToBackUserAgentTable.get(callId);
+
             } else {
 
                 b2bua = new BackToBackUserAgent(provider, request, dialog, accountInfo);
-
                 DialogApplicationData.attach(b2bua, dialog, serverTransaction, request);
-
+                DialogApplicationData.get(dialog).setItspInfo(accountInfo);
                 this.backToBackUserAgentTable.put(callId, b2bua);
             }
 

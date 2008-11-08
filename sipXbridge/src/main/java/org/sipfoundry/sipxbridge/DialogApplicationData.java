@@ -64,7 +64,7 @@ class DialogApplicationData {
     /*
      * Account information for the outbound dialog.
      */
-    ItspAccountInfo itspInfo; 
+    private ItspAccountInfo itspInfo; 
     
     
     /*
@@ -134,6 +134,7 @@ class DialogApplicationData {
             Request request) {
         if ( backToBackUserAgent == null ) 
             throw new NullPointerException("Null back2back ua");
+        if ( dialog.getApplicationData() != null ) throw new RuntimeException("Already set!!");
         DialogApplicationData dat = new DialogApplicationData();
         dat.transaction = transaction;
         dat.request = request;
@@ -184,6 +185,25 @@ class DialogApplicationData {
      */
      BackToBackUserAgent getBackToBackUserAgent() {
         return backToBackUserAgent;
+    }
+
+
+    /**
+     * @param itspInfo the itspInfo to set
+     */
+    void setItspInfo(ItspAccountInfo itspInfo) {
+        if ( this.itspInfo != null ) {
+            logger.warn("Re-Setting ITSP info to null!!");
+        }
+        this.itspInfo = itspInfo;
+    }
+
+
+    /**
+     * @return the itspInfo
+     */
+    ItspAccountInfo getItspInfo() {
+        return itspInfo;
     }
 
 

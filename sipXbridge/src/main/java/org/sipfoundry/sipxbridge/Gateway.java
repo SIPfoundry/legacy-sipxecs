@@ -100,8 +100,6 @@ public class Gateway {
      */
     private static CallControlManager callControlManager;
 
-    
-
     /*
      * This is a placeholder - to be replaced by STUN
      */
@@ -271,7 +269,7 @@ public class Gateway {
                 // Todo -- deal with the situation when this port may be taken.
                 StunAddress localStunAddress = new StunAddress(Gateway.getLocalAddress(),
                         STUN_PORT);
-               
+
                 java.util.logging.Logger log = java.util.logging.Logger
                         .getLogger("net.java.stun4j");
 
@@ -282,11 +280,11 @@ public class Gateway {
                  * (logLevel.equals("INFO")) level = Level.INFO; else if
                  * (logLevel.equals("DEBUG")) level = Level.FINE; else if
                  * (logLevel.equals("WARN")) level = Level.WARNING;
-                 */                
-                
+                 */
+
                 log.setLevel(level);
-                java.util.logging.FileHandler fileHandler = 
-                    new java.util.logging.FileHandler(Gateway.getLogFile());
+                java.util.logging.FileHandler fileHandler = new java.util.logging.FileHandler(
+                        Gateway.getLogFile());
                 log.removeHandler(new ConsoleHandler());
                 log.addHandler(fileHandler);
 
@@ -659,33 +657,19 @@ public class Gateway {
     }
 
     static void startAddressDiscovery() {
-        boolean globalAddressing = false;
 
-        /*
-         * See if there is an ITSP that wants global addressing.
-         */
-        for (ItspAccountInfo itspAccount : Gateway.getAccountManager().getItspAccounts()) {
-            if (itspAccount.isGlobalAddressingUsed()) {
-                globalAddressing = true;
-            }
-        }
-
-        if (globalAddressing && Gateway.getGlobalAddress() == null
+        if (Gateway.getGlobalAddress() == null
                 && Gateway.accountManager.getBridgeConfiguration().getStunServerAddress() == null) {
             throw new GatewayConfigurationException("Gateway address or stun server required. ");
         }
 
-        if (globalAddressing) {
-            if (Gateway.getGlobalAddress() == null) {
-                discoverAddress();
-                startRediscoveryTimer();
-            } else {
-                Gateway.accountManager.getBridgeConfiguration().setStunServerAddress(null);
-            }
-
+        if (Gateway.getGlobalAddress() == null) {
+            discoverAddress();
+            startRediscoveryTimer();
         } else {
-            logger.debug("Global rediscovery not needed.");
+            Gateway.accountManager.getBridgeConfiguration().setStunServerAddress(null);
         }
+
     }
 
     static void start() throws GatewayConfigurationException {
@@ -935,7 +919,7 @@ public class Gateway {
      * @return
      */
     static String getSessionTimerMethod() {
-        return Request.OPTIONS;
+        return Request.INVITE;
     }
 
     /**
@@ -1015,22 +999,20 @@ public class Gateway {
             } else if (command.equals("configtest")) {
                 try {
                     if (!new File(Gateway.configurationFile).exists()) {
+                        System.err.println("sipxbridge.xml does not exist - please check configuration.");
                         System.exit(-1);
                     }
                     Gateway.parseConfigurationFile();
                     BridgeConfiguration configuration = Gateway.accountManager
                             .getBridgeConfiguration();
-                    boolean globalFlag = false;
-                    for (ItspAccountInfo itspAccount : Gateway.accountManager.getItspAccounts()) {
-                        if (itspAccount.isGlobalAddressingUsed()) {
-                            globalFlag = true;
-                        }
-                    }
-                    if (globalFlag && configuration.getGlobalAddress() == null
+                    
+                    if ( configuration.getGlobalAddress() == null
                             && configuration.getStunServerAddress() == null) {
                         logger.error("Configuration error -- no global address or stun server");
+                        System.err.println("sipxbridge.xml: Configuration error: no global address specified and no stun server specified.");
                         System.exit(-1);
                     }
+                    
                     if (Gateway.accountManager.getBridgeConfiguration().getExternalAddress()
                             .equals(
                                     Gateway.accountManager.getBridgeConfiguration()
@@ -1039,6 +1021,8 @@ public class Gateway {
                                     .getBridgeConfiguration().getLocalPort()) {
                         logger
                                 .error("Configuration error -- external address == internal address && external port == internal port");
+                        System.err.println("sipxbridge.xml: Configuration error: external address == internal address && external port == internal port");
+                        
                         System.exit(-1);
                     }
 

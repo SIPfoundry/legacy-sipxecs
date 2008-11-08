@@ -190,11 +190,19 @@ public class AccountManagerImpl implements gov.nist.javax.sip.clientauthutils.Ac
      * @return
      */
     ItspAccountInfo getItspAccount(String host, int port) {
-        int nport = port == -1 ? 5060 : port;
-
-        for (HopImpl hop : this.domainNameToProxyAddressMap.values()) {
-            if (hop.getHost().equals(host) && hop.getPort() == nport)
-                return hop.getItspAccountInfo();
+        logger.debug("INVITE received on " + host ) ;
+        for ( ItspAccountInfo accountInfo : this.getItspAccounts() ) {
+            if ( accountInfo.isRegisterOnInitialization() ) {
+                // Account needs registration.
+                String registrarHost = accountInfo.getOutboundRegistrar();
+                logger.debug("registrarHost = " + registrarHost);
+               
+                if ( host.equals(registrarHost)) {
+                    logger.debug("found account " );
+                    return accountInfo;
+                }
+                
+            }
         }
         return null;
     }

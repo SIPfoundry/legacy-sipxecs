@@ -52,9 +52,11 @@ import javax.sip.header.Header;
 import javax.sip.header.MaxForwardsHeader;
 import javax.sip.header.ReferToHeader;
 import javax.sip.header.RouteHeader;
+import javax.sip.header.SubjectHeader;
 import javax.sip.header.SupportedHeader;
 import javax.sip.header.ToHeader;
 import javax.sip.header.ViaHeader;
+import javax.sip.header.WarningHeader;
 import javax.sip.message.Request;
 import javax.sip.message.Response;
 
@@ -145,16 +147,53 @@ public class BackToBackUserAgent {
                     if (dialog.getState() == DialogState.CONFIRMED
                             && DialogApplicationData.get(dialog).peerDialog != null) {
                         if (method.equalsIgnoreCase(Request.INVITE)) {
-                            request = dialog.createRequest(Request.INVITE);
+
                             DialogApplicationData dat = DialogApplicationData.get(dialog);
-                            if (currentTimeMilis < dat.lastAckSent - Gateway.getSipKeepaliveSeconds() * 1000 ) {
+
+                            if (currentTimeMilis < dat.lastAckSent - 30 * 1000) {
                                 continue;
                             }
-                            RtpSession rtpSession = dat.getRtpSession();
-                            SessionDescription sd = rtpSession.getTransmitter()
-                                    .getSessionDescription();
-                            request.setContent(sd.toString(), ProtocolObjects.headerFactory
-                                    .createContentTypeHeader("application", "sdp"));
+
+                            SipProvider provider = ((DialogExt) dialog).getSipProvider();
+                            /*
+                             * We send our session refresh only to the wan side.
+                             */
+                            if (provider != Gateway.getLanProvider()) {
+                                request = dialog.createRequest(Request.INVITE);
+                                request.removeHeader(AllowHeader.NAME);
+                                for (String method : new String[] {
+                                    Request.INVITE, Request.ACK, Request.BYE, Request.CANCEL,
+                                    Request.OPTIONS
+                                }) {
+                                    AllowHeader allow = ProtocolObjects.headerFactory
+                                            .createAllowHeader(method);
+                                    request.addHeader(allow);
+                                }
+                                AcceptHeader accept = ProtocolObjects.headerFactory
+                                        .createAcceptHeader("application", "sdp");
+                                request.setHeader(accept);
+                                RtpSession rtpSession = dat.getRtpSession();
+                                if (rtpSession == null || rtpSession.getReceiver() == null) {
+                                    continue;
+                                }
+                                SessionDescription sd = rtpSession.getReceiver()
+                                        .getSessionDescription();
+                                request.setContent(sd.toString(), ProtocolObjects.headerFactory
+                                        .createContentTypeHeader("application", "sdp"));
+                                ContactHeader cth = SipUtilities.createContactHeader(provider,
+                                        dat.getItspInfo());
+                                request.setHeader(cth);
+                                SubjectHeader sh = ProtocolObjects.headerFactory
+                                        .createSubjectHeader("SipxBridge Session Timer");
+                                request.setHeader(sh);
+                                if (dat.getItspInfo() == null
+                                        || dat.getItspInfo().isGlobalAddressingUsed()) {
+                                    SipUtilities.setGlobalAddresses(request);
+                                }
+                            } else {
+                                // Send a session timer only to the WAN side.
+                                continue;
+                            }
                         } else {
                             request = dialog.createRequest(Request.OPTIONS);
                         }
@@ -171,7 +210,7 @@ public class BackToBackUserAgent {
 
                     }
                 } catch (Exception ex) {
-                    logger.error("Canceling options timer");
+                    logger.fatal("Canceling options timer");
                     this.cancel();
 
                 }
@@ -459,7 +498,8 @@ public class BackToBackUserAgent {
             SupportedHeader sh = ProtocolObjects.headerFactory.createSupportedHeader("replaces");
             response.setHeader(sh);
 
-            ContactHeader contactHeader = SipUtilities.createContactHeader(Gateway.SIPXBRIDGE_USER, provider);
+            ContactHeader contactHeader = SipUtilities.createContactHeader(
+                    Gateway.SIPXBRIDGE_USER, provider);
             response.setHeader(contactHeader);
 
             /*
@@ -478,7 +518,8 @@ public class BackToBackUserAgent {
                         .get(replacedDialogPeerDialog);
                 Request reInvite = replacedDialogPeerDialog.createRequest(Request.INVITE);
 
-                ItspAccountInfo accountInfo = replacedDialogPeerDialogApplicationData.itspInfo;
+                ItspAccountInfo accountInfo = replacedDialogPeerDialogApplicationData
+                        .getItspInfo();
                 if ((itspAccountInfo == null && Gateway.getGlobalAddress() != null)
                         || (accountInfo != null && accountInfo.isGlobalAddressingUsed())) {
                     SipUtilities.setGlobalAddresses(reInvite);
@@ -676,7 +717,8 @@ public class BackToBackUserAgent {
             SupportedHeader sh = ProtocolObjects.headerFactory.createSupportedHeader("replaces");
             newRequest.setHeader(sh);
 
-            ContactHeader contactHeader = SipUtilities.createContactHeader(null, Gateway.getLanProvider());
+            ContactHeader contactHeader = SipUtilities.createContactHeader(null, Gateway
+                    .getLanProvider());
             newRequest.setHeader(contactHeader);
             /*
              * Create a new out of dialog request.
@@ -1105,10 +1147,10 @@ public class BackToBackUserAgent {
                 Request reInvite = peerDialog.createRequest(Request.INVITE);
                 reInvite.removeHeader(SupportedHeader.NAME);
                 reInvite.removeHeader(AllowHeader.NAME);
-                for ( String hdrName : new String[] {Request.INVITE, Request.OPTIONS, 
-                        Request.BYE, Request.ACK, Request.CANCEL } ) {
-                    AllowHeader sh = 
-                        ProtocolObjects.headerFactory.createAllowHeader(hdrName);
+                for (String hdrName : new String[] {
+                    Request.INVITE, Request.OPTIONS, Request.BYE, Request.ACK, Request.CANCEL
+                }) {
+                    AllowHeader sh = ProtocolObjects.headerFactory.createAllowHeader(hdrName);
                     reInvite.addHeader(sh);
                 }
                 SipProvider provider = ((DialogExt) peerDialog).getSipProvider();
@@ -1229,7 +1271,7 @@ public class BackToBackUserAgent {
             Dialog outboundDialog = ct.getDialog();
 
             DialogApplicationData.attach(this, outboundDialog, ct, outgoingRequest);
-            DialogApplicationData.get(outboundDialog).itspInfo = itspAccountInfo;
+            DialogApplicationData.get(outboundDialog).setItspInfo(itspAccountInfo);
 
             SessionDescription sd = spiral ? DialogApplicationData.getRtpSession(
                     this.referingDialog).getReceiver().getSessionDescription() : this
@@ -1491,7 +1533,8 @@ public class BackToBackUserAgent {
                 ContentTypeHeader cth = ProtocolObjects.headerFactory.createContentTypeHeader(
                         "application", "sdp");
                 SipProvider txProvider = ((TransactionExt) serverTransaction).getSipProvider();
-                ContactHeader contactHeader = SipUtilities.createContactHeader(Gateway.SIPXBRIDGE_USER, txProvider);
+                ContactHeader contactHeader = SipUtilities.createContactHeader(
+                        Gateway.SIPXBRIDGE_USER, txProvider);
                 okResponse.setHeader(contactHeader);
                 okResponse.setContent(sdes.toString(), cth);
                 DialogApplicationData replacedDat = DialogApplicationData.get(replacedDialog);
@@ -1529,8 +1572,8 @@ public class BackToBackUserAgent {
                     DialogApplicationData peerDat = DialogApplicationData.get(peerDialog);
                     RtpSession wanRtpSession = peerDat.getRtpSession();
                     SipProvider wanProvider = ((DialogExt) peerDialog).getSipProvider();
-                    ContactHeader contact = SipUtilities.createContactHeader(wanProvider,
-                            peerDat.itspInfo);
+                    ContactHeader contact = SipUtilities.createContactHeader(wanProvider, peerDat
+                            .getItspInfo());
                     wanRtpSession.getReceiver().setSessionDescription(sd);
 
                     SipUtilities.cleanSessionDescription(sd, selectedCodec);
@@ -1549,7 +1592,8 @@ public class BackToBackUserAgent {
         } catch (Exception ex) {
             logger.error("Unexpected exception -- tearing down call ", ex);
             try {
-                this.tearDown();
+                this.tearDown(ProtocolObjects.headerFactory.createWarningHeader("sipxbridge",
+                        103, ex.getMessage()));
             } catch (Exception e) {
                 logger.error("Unexpected exception ", e);
             }
@@ -1576,7 +1620,7 @@ public class BackToBackUserAgent {
             Request bye = peer.createRequest(Request.BYE);
             if (this.itspAccountInfo != null
                     && provider == Gateway.getWanProvider(itspAccountInfo.getOutboundTransport())) {
-                
+
                 if (itspAccountInfo.isRportUsed()) {
                     ViaHeader via = (ViaHeader) bye.getHeader(ViaHeader.NAME);
                     try {
@@ -1686,6 +1730,20 @@ public class BackToBackUserAgent {
      */
     String getSymmitronServerHandle() {
         return symmitronServerHandle;
+    }
+
+    public void tearDown(WarningHeader warning) throws Exception {
+        for (Dialog dialog : this.dialogTable) {
+            if (dialog.getState() != DialogState.TERMINATED) {
+                Request byeRequest = dialog.createRequest(Request.BYE);
+                byeRequest.addHeader(warning);
+                SipProvider provider = ((DialogExt) dialog).getSipProvider();
+                ClientTransaction ct = provider.getNewClientTransaction(byeRequest);
+                dialog.sendRequest(ct);
+            }
+        }
+        this.sessionTimerTask.cancel();
+
     }
 
 }

@@ -165,15 +165,26 @@ class RtpSession {
 
         Request newInvite = peerDialog.createRequest(Request.INVITE);
 
-        SipProvider sipProvider = ((DialogExt) peerDialog).getSipProvider();
+        SipProvider peerProvider = ((DialogExt) peerDialog).getSipProvider();
 
         /*
          * Sending request to ITSP - make the addressing global if required.
          */
-        if (sipProvider != Gateway.getLanProvider()) {
-            if (peerDat.itspInfo == null || peerDat.itspInfo.isGlobalAddressingUsed()) {
-                SipUtilities.setGlobalAddresses(newInvite);
-                SipUtilities.fixupSdpAddresses(sd, Gateway.getGlobalAddress());
+        if (peerProvider != Gateway.getLanProvider()) {
+            /*
+             * Make sure that global addressing is set.
+             */
+            logger.debug("peerDat.itspInfo " + peerDat.getItspInfo());
+            if (peerDat.getItspInfo() == null || peerDat.getItspInfo().isGlobalAddressingUsed() ) {
+                if (Gateway.getGlobalAddress() != null ) {
+                    SipUtilities.setGlobalAddresses(newInvite);
+                    SipUtilities.fixupSdpAddresses(sd, Gateway.getGlobalAddress());
+                } else {
+                    javax.sip.header.WarningHeader warning = 
+                        ProtocolObjects.headerFactory.createWarningHeader("SipXbridge", 102, "Public address of bridge is not known.");
+                    b2bua.tearDown(warning);
+                    
+                }
             }
 
         }
