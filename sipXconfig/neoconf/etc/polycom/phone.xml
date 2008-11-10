@@ -489,7 +489,7 @@
       </setting>
     </group>
   </group>
-   <group name="qualityMonitoring" if="voiceQualityMonitoring">
+   <group name="qualityMonitoring" if="voiceQualityMonitoring" hidden="yes">
     <group name="collector">
       <setting name="enable.periodic">
         <type><boolean /></type>
@@ -1342,7 +1342,7 @@
       </type>
       <value>1</value>    
     </setting>    
-    <setting name="url-dialing" hidden="yes">
+    <setting name="url-dialing">
       <type>
         <boolean />
       </type>
