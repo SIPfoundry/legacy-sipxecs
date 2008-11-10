@@ -25,6 +25,7 @@ import net.java.stun4j.client.StunDiscoveryReport;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.apache.log4j.PropertyConfigurator;
 import org.apache.xmlrpc.XmlRpcException;
 import org.apache.xmlrpc.server.PropertyHandlerMapping;
 import org.apache.xmlrpc.server.XmlRpcServer;
@@ -957,6 +958,13 @@ public class SymmitronServer implements Symmitron {
                 }
                 config.setLogFileName("sipxrelay.log");
                 SymmitronServer.setSymmitronConfig(config);
+                String log4jProps = configDir + "/log4j.properties";
+                /*
+                 * Allow override if a log4j properties file exists.
+                 */
+                if ( new File(log4jProps).exists()) {
+                    PropertyConfigurator.configure(log4jProps);
+                }
                 
                 logger.debug("Checking port range " + config.getPortRangeLowerBound() + ":"
                         + config.getPortRangeUpperBound());
