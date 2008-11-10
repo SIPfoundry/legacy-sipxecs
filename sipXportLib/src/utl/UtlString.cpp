@@ -597,6 +597,12 @@ void UtlString::toUpper()
     }
 }
 
+void UtlString::setLength(size_t newLength)
+{
+   assert(newLength <= mCapacity);
+
+   mSize = newLength;
+}
 
 // Resize the string to the specified size.
 // use capacity(size_t).

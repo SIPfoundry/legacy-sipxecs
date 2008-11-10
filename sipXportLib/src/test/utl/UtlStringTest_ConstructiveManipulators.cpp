@@ -43,6 +43,7 @@ class UtlStringTest_ConstructiveManipulators : public UtlStringTest
     CPPUNIT_TEST(testConstructor_3) ;
     CPPUNIT_TEST(testConstructor_4) ;
     CPPUNIT_TEST(testCapacity) ;
+    CPPUNIT_TEST(testSetLength) ;
     CPPUNIT_TEST(testAssign_charstar) ;
     CPPUNIT_TEST(testCharstarCastOperator) ;
     CPPUNIT_TEST(testAssign_UtlString) ;
@@ -293,6 +294,30 @@ public:
         }
     } //testCapacity
 
+    void testSetLength()
+    {
+       UtlString buffer;
+       char testdata[] = "abcdefghijklmnopqrstuvwxyz";
+
+       buffer.append(testdata);
+       ASSERT_STR_EQUAL(testdata, buffer.data());
+       CPPUNIT_ASSERT_EQUAL(26U,buffer.length());
+
+       // force the length to a new value
+       buffer.setLength(10U);
+       // check that the data itself is not modified
+       ASSERT_STR_EQUAL(testdata, buffer.data());
+       // but the length returned by the buffer has been
+       CPPUNIT_ASSERT_EQUAL(10U,buffer.length());
+
+       UtlString copy;
+       copy.append(buffer);
+       // check that the copy is the correct subset
+       ASSERT_STR_EQUAL("abcdefghij", copy.data());
+       // and the length returned by the copy has been
+       CPPUNIT_ASSERT_EQUAL(10U,copy.length());
+    }
+   
     /**
      * Test to see how the compiler resolves the cases that gave Scott
      * trouble, viz. append(char*, int) and append(UtlString, int).

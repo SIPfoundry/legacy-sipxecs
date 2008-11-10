@@ -605,6 +605,27 @@ public:
      * If larger, the string will be padded with nulls.
      */
 
+    /// Set a new length for the content
+    void setLength(size_t newLength);
+    /**<
+     * This does NOT modify the data in the buffer - it only resets the
+     * value that would be returned by UtlString::length.  The newLength
+     * value MUST be <= UtlString::capacity.
+     *
+     * This allows external code to directly manipulate the contents of
+     * buffer and adjust the UtlString data accordingly.  For example, the
+     * following sets the 'buffer' to contain a 'sizeNeeded' number of bytes
+     * of all one bits:
+     * @code
+     *   UtlString buffer;
+     *   if (buffer.capacity(sizeNeeded) >= sizeNeeded)
+     *   {
+     *      memset(buffer.data(), 0xff, sizeNeeded);
+     *      buffer.setLength(sizeNeeded);
+     *   }
+     * @endcode
+     */
+       
 ///@}
 // ================================================================
 /** @name           Container Support Operations
