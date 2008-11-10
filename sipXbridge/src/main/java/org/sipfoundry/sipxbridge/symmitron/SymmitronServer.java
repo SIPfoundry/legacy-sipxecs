@@ -877,10 +877,12 @@ public class SymmitronServer implements Symmitron {
             return createErrorMap(PROCESSING_ERROR, ex.getMessage());
         }
     }
-    
+
     /*
      * (non-Javadoc)
-     * @see org.sipfoundry.sipxbridge.symmitron.Symmitron#getReceiverState(java.lang.String, java.lang.String)
+     * 
+     * @see org.sipfoundry.sipxbridge.symmitron.Symmitron#getReceiverState(java.lang.String,
+     *      java.lang.String)
      */
     public Map<String, Object> getReceiverState(String controllerHandle, String symId) {
         try {
@@ -899,9 +901,8 @@ public class SymmitronServer implements Symmitron {
         } catch (Exception ex) {
             logger.error("Processing Error", ex);
             return createErrorMap(PROCESSING_ERROR, ex.getMessage());
-        } 
+        }
     }
-
 
     /**
      * Test method - stop the xml rpc server.
@@ -913,11 +914,8 @@ public class SymmitronServer implements Symmitron {
     public static void main(String[] args) throws Exception {
         try {
             String configDir = System.getProperty("conf.dir", "/etc/sipxpbx");
-            String installRoot = configDir.substring(0, configDir.indexOf("/etc/sipxpbx"));
             String configurationFile = configDir + "/nattraversalrules.xml";
             String command = System.getProperty("sipxrelay.command", "start");
-
-          
 
             if (command.equals("configtest")) {
                 try {
@@ -929,12 +927,12 @@ public class SymmitronServer implements Symmitron {
                             + configurationFile);
                     SymmitronServer.setSymmitronConfig(config);
                     if (config.getLogFileDirectory() == null) {
+                        String installRoot = configDir.substring(0, configDir
+                                .indexOf("/etc/sipxpbx"));
                         config.setLogFileDirectory(installRoot + "/var/log/sipxpbx");
                     }
                     config.setLogFileName("sipxrelay.log");
 
-                  
-                    
                     System.exit(0);
 
                 } catch (Exception ex) {
@@ -954,9 +952,12 @@ public class SymmitronServer implements Symmitron {
                 InetAddress localAddr = InetAddress.getByName(config.getLocalAddress());
 
                 if (config.getLogFileDirectory() == null) {
+                    String installRoot = configDir.substring(0, configDir.indexOf("/etc/sipxpbx"));                  
                     config.setLogFileDirectory(installRoot + "/var/log/sipxpbx");
                 }
                 config.setLogFileName("sipxrelay.log");
+                SymmitronServer.setSymmitronConfig(config);
+                
                 logger.debug("Checking port range " + config.getPortRangeLowerBound() + ":"
                         + config.getPortRangeUpperBound());
                 for (int i = config.getPortRangeLowerBound(); i < config.getPortRangeUpperBound(); i++) {
@@ -965,7 +966,7 @@ public class SymmitronServer implements Symmitron {
                 }
                 logger.debug("Port range checked ");
 
-                SymmitronServer.setSymmitronConfig(config);
+              
 
                 if (config.getPublicAddress() == null && config.getStunServerAddress() != null) {
                     /*
@@ -1007,5 +1008,4 @@ public class SymmitronServer implements Symmitron {
         }
     }
 
-    
 }
