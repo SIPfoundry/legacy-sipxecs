@@ -81,7 +81,7 @@
     </setting>
     <setting name="callsPerLineKey">
       <type>
-        <integer min="1" max="6" />
+        <integer min="1" max="24" />
       </type>
       <value />
     </setting>

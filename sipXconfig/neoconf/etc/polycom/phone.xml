@@ -870,14 +870,7 @@
       </type>
       <value>*69</value>
     </setting>
-    <setting name="callsPerLineKey" unless="polycom600">
-      <type>
-        <integer min="1" max="8" />
-      </type>
-      <value>8</value>
-    </setting>
-    <setting name="callsPerLineKey_600" if="polycom600" copy-of="callsPerLineKey">
-      <profileName>callsPerLineKey</profileName>
+    <setting name="callsPerLineKey">
       <type>
         <integer min="1" max="24" />
       </type>
