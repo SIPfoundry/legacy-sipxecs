@@ -195,19 +195,19 @@ final class SymTransmitterEndpoint extends SymEndpoint implements SymTransmitter
          * Check if the packet is self-routed. If so route it back.
          */
         if (checkForSelfRouting && this.farEnd != null && isPacketSelfRouted(this.farEnd)) {
-            if (logger.isDebugEnabled()) {
-                logger.debug("SymTransmitterEndpoint:remoteAddress = " + this.farEnd);
+            if (logger.isTraceEnabled()) {
+                logger.trace("SymTransmitterEndpoint:remoteAddress = " + this.farEnd);
             }
 
             DatagramChannel channel = DataShuffler.getSelfRoutedDatagramChannel(this.farEnd);
 
             if (channel != null) {
-                if (logger.isDebugEnabled()) {
-                    logger.debug("SymTransmitterEndpoint:selfRoutedDatagramChannel = " + channel);
+                if (logger.isTraceEnabled()) {
+                    logger.trace("SymTransmitterEndpoint:selfRoutedDatagramChannel = " + channel);
                 }
                 Bridge bridge = ConcurrentSet.getBridge(channel);
-                if (logger.isDebugEnabled()) {
-                    logger.debug("SymTransmitterEndpoint:selfRoutedBridge = " + bridge);
+                if (logger.isTraceEnabled()) {
+                    logger.trace("SymTransmitterEndpoint:selfRoutedBridge = " + bridge);
                 }
                 if (bridge != null) {
 
@@ -220,8 +220,8 @@ final class SymTransmitterEndpoint extends SymEndpoint implements SymTransmitter
 
         if (this.datagramChannel != null) {
             int bytesSent = this.datagramChannel.send(byteBuffer, this.getSocketAddress());
-            if (logger.isDebugEnabled()) {
-                logger.debug("SymTransmitterEndpoint:actually sending to "
+            if (logger.isTraceEnabled()) {
+                logger.trace("SymTransmitterEndpoint:actually sending to "
                         + this.getSocketAddress() + " sent " + bytesSent + " bytes ");
             }
 
