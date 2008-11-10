@@ -67,6 +67,18 @@ public class DirectoryConfiguration extends ProfileContext {
                 // on Polycom phone BLF entries are handled by RLS server - not by directory
                 continue;
             }
+            for (PolycomPhonebookEntry entry : polycomEntries) {
+
+                // If polycomEntries already contains an entry with same contact
+                // number, as Polycom can't handle multiple entries with same
+                // contact number, remove the corresponding phonebook entry and add the
+                // speedDial entry to create an unitied list of entries.
+                if (entry.getContact().equals(button.getNumber())) {
+
+                    polycomEntries.remove(entry);
+                }
+            }
+
             // speed dial entries start with 1 (1..9999)
             polycomEntries.add(new PolycomPhonebookEntry(button, i + 1));
         }
