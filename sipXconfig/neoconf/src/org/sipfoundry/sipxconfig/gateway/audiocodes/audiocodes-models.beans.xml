@@ -114,7 +114,7 @@
   <bean id="audiocodesFxs" abstract="true" class="org.sipfoundry.sipxconfig.gateway.audiocodes.AudioCodesFxsModel"
     parent="abstractGatewayModel">
     <property name="beanId" value="gwFxsAudiocodes" />
-    <property name="profileTemplate" value="audiocodes/gateway.ini.vm" />
+    <property name="profileTemplate" value="audiocodes/gateway-%s.ini.vm" />
     <property name="modelDir" value="audiocodes" />
     <property name="externalLinesSupported" value="false" />
 	<property name="vendor" value="AudioCodes"/>
