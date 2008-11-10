@@ -159,6 +159,7 @@ char NetBase64Codec::decodeChar(const char encoded)
 bool NetBase64Codec::decode(int encodedDataSize, const char encodedData[],
                             int& dataSize, char data[])
 {
+   dataSize = 0;
    bool valid = isValid(encodedDataSize, encodedData);
    if (valid)
    {
@@ -199,12 +200,18 @@ bool NetBase64Codec::decode(const UtlString encodedData, /* sizeis data.length()
    bool valid = isValid(encodedData);
    if (valid)
    {
-      size_t sizeNeeded = decodedSize(encodedData.length(), encodedData.data());
+      size_t sizeNeeded = decodedSize(encodedData.length(), encodedData.data()) + 1;
+
+      if (data.capacity(sizeNeeded) >= sizeNeeded)
       {
-         char decodeBuffer[sizeNeeded+1];
-         int size;
-         decode(encodedData.length(), encodedData.data(), size, decodeBuffer);
-         data.append(decodeBuffer, size);
+         int size = 0;
+         valid = decode(encodedData.length(), encodedData.data(),
+                        size, const_cast<char*>(data.data()));
+         if (valid)
+         {
+            data.setLength(size);
+            const_cast<char*>(data.data())[size] = '\000';
+         }
       }
    }
    return valid;
