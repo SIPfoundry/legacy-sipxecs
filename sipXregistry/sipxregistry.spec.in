@@ -84,6 +84,8 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_libdir}/libRedirectorJoin.so*
 %attr(755,root,root) %{_libdir}/libRedirectorMapping.la
 %attr(755,root,root) %{_libdir}/libRedirectorMapping.so*
+%attr(755,root,root) %{_libdir}/libRedirectorFallback.la
+%attr(755,root,root) %{_libdir}/libRedirectorFallback.so*
 %attr(755,root,root) %{_libdir}/libRedirectorPickUp.la
 %attr(755,root,root) %{_libdir}/libRedirectorPickUp.so*
 %attr(755,root,root) %{_libdir}/libRedirectorRegDB.la
@@ -110,6 +112,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_libdir}/libRedirectorISN.a
 %attr(755,root,root) %{_libdir}/libRedirectorJoin.a
 %attr(755,root,root) %{_libdir}/libRedirectorMapping.a
+%attr(755,root,root) %{_libdir}/libRedirectorFallback.a
 %attr(755,root,root) %{_libdir}/libRedirectorPickUp.a
 %attr(755,root,root) %{_libdir}/libRedirectorRegDB.a
 %attr(755,root,root) %{_libdir}/libRedirectorSubscribe.a

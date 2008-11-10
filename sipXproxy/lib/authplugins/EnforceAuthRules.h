@@ -13,7 +13,7 @@
 
 // APPLICATION INCLUDES
 #include "sipdb/ResultSet.h"
-#include "digitmaps/UrlMapping.h"
+#include "digitmaps/AuthRulesUrlMapping.h"
 #include "AuthPlugin.h"
 
 // DEFINES
@@ -101,8 +101,8 @@ class EnforceAuthRules : public AuthPlugin
    EnforceAuthRules(const UtlString& instanceName ///< the configured name for this plugin instance
                     );
 
-   OsRWMutex   mRulesLock;
-   UrlMapping* mpAuthorizationRules;
+   OsRWMutex            mRulesLock;
+   AuthRulesUrlMapping* mpAuthorizationRules;
 
 // @cond INCLUDENOCOPY
    

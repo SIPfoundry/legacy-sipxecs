@@ -19,6 +19,41 @@
 #include "digitmaps/Patterns.h"
 
 // DEFINES
+#define XML_TAG_MAPPINGS             ("mappings")
+
+#define XML_TAG_HOSTMATCH            ("hostMatch")
+#define XML_TAG_HOSTPATTERN          ("hostPattern")
+#define XML_ATT_FORMAT               ("format")
+#define XML_SYMBOL_URL               ("url")
+#define XML_SYMBOL_IPV4SUBNET        ("IPv4subnet")
+#define XML_SYMBOL_DNSWILDCARD       ("DnsWildcard")
+
+#define XML_TAG_USERMATCH            ("userMatch")
+#define XML_TAG_USERPATTERN          ("userPattern")
+
+#define XML_TAG_PERMISSIONMATCH      ("permissionMatch")
+#define XML_TAG_PERMISSION           ("permission")
+#define XML_ATT_AUTHTYPE             ("authType")
+
+#define XML_TAG_CALLERLOCATIONMATCH  ("callerLocationMatch")
+#define XML_TAG_CALLERLOCATION       ("callerLocation")
+
+#define XML_PERMISSION_911           ("emergency-dialing")
+#define XML_PERMISSION_1800          ("1800-dialing")
+#define XML_PERMISSION_1900          ("1900-dialing")
+#define XML_PERMISSION_1877          ("1877-dialing")
+#define XML_PERMISSION_1888          ("1888-dialing")
+#define XML_PERMISSION_1             ("domestic-dialing")
+#define XML_PERMISSION_011           ("international-dialing")
+
+#define XML_TAG_TRANSFORM            ("transform")
+#define XML_TAG_URL                  ("url")
+#define XML_TAG_HOST                 ("host")
+#define XML_TAG_USER                 ("user")
+#define XML_TAG_FIELDPARAMS          ("fieldparams")
+#define XML_TAG_URLPARAMS            ("urlparams")
+#define XML_TAG_HEADERPARAMS         ("headerparams")
+
 // MACROS
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -65,101 +100,70 @@ public:
     virtual ~UrlMapping();
     //:Destructor
 
-/* ============================ MANIPULATORS ============================== */
-
     /// Read a mappings file into the XML DOM, providing translations for replacement tokens.
-    OsStatus loadMappings(
-        const UtlString& configFileName,
-        const UtlString& mediaserver = "",
-        const UtlString& voicemail = "",
-        const UtlString& localhost = ""
-                          );
+    virtual OsStatus loadMappings(const UtlString& configFileName,
+                        const UtlString& mediaserver = "",
+                        const UtlString& voicemail = "",
+                        const UtlString& localhost = ""
+                        );
 
-/* ============================ ACCESSORS ================================= */
+   static void convertRegularExpression(const UtlString& source,
+                                        UtlString& regExp);
 
-    /// Evaluate a request URI using authrules semantics, and return the set of permissions.
-    OsStatus getPermissionRequired(const Url& requestUri,  ///< target to check
-                                   ResultSet& rPermissions ///< required permissions (or'ed) 
-                                   );
-
-    /// Evaluate a request URI using mapping rules semantics, return contacts and permissions.
-    OsStatus getContactList(const Url& requestUri,   ///< target to check
-                            ResultSet& rContacts,    ///< contacts generated from first match
-                            ResultSet& rPermissions  ///< permissions that target must have
-                            );
-
-    static void convertRegularExpression(const UtlString& source,
-                                         UtlString& regExp);
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
-    TiXmlNode* mPrevMappingNode;
-    TiXmlElement* mPrevMappingElement;
-    TiXmlNode* mPrevHostMatchNode;
-    TiXmlNode* mPrevUserMatchNode;
-    TiXmlNode* mPrevPermMatchNode;
-    TiXmlDocument *mDoc;
-    UtlBoolean mParseFirstTime;
-    Patterns *mPatterns ;
-    UtlString mVoicemail;
-    UtlString mLocalhost;
-    UtlString mMediaServer;
 
-    OsStatus parseHostMatchContainer(const Url& requestUri,
-                                     ResultSet& rRegistratons,
-                                     UtlBoolean& doTransform,
-                                     ResultSet& rPermissions,
-                                     TiXmlNode* mappingsNode,
-                                     TiXmlNode* previousHostMatchNode = NULL
-                                     );
-
-    OsStatus parseUserMatchContainer(const Url& requestUri,
-                                     ResultSet& rRegistratons,
-                                     UtlBoolean& doTransform,
-                                     ResultSet& rPermissions,
-                                     TiXmlNode* hostMatchNode,
-                                     TiXmlNode* previousUserMatchNode = NULL
-                                     );
-
-    OsStatus parsePermMatchContainer(const Url& requestUri,
-                                     const UtlString& vdigits,
-                                     ResultSet& rRegistratons,
-                                     UtlBoolean& doTransform,
-                                     ResultSet& rPermissions,
-                                     TiXmlNode* userMatchNode,
-                                     TiXmlNode* previousPermMatchNode = NULL
-                                     );
+    // returns a pointer to the <userMatch> XML node that matches the 
+    // user and domain patterns of the supplied request-URI 
+    OsStatus getUserMatchContainerMatchingRequestURI(const Url& requestUri,
+                                                     UtlString& variableDigits,                                                     
+                                                     const TiXmlNode*& prMatchingUserMatchContainerNode
+                                                     ) const;
 
     OsStatus doTransform(const Url& requestUri,
                          const UtlString& vdigits,
                          ResultSet& rRegistratons,
-                         TiXmlNode* permMatchNode
-                         );
-
-    /// Get the name/value pair from an element; supports two syntaxes.
-    bool getNamedAttribute(TiXmlElement* component, ///< the xml element to interpret
-                           UtlString&    name,      ///< the content name
-                           UtlString&    value      ///< the content value
-                           );
-    /**<
-     * @returns true iff a name/value pair was found.
-     * Supports two syntaxes; suppose that an attribute 'bar' exists.
-     * It may be encoded in either of two ways:
-     * @code
-     * Old Syntax:
-     *            <foo>bar=value</foo>
-     * New Syntax:
-     *            <foo name='bar'>value</foo>
-     * @endcode
-     * The New syntax is preferred because it eliminates some obnoxious parsing ambiguities.
-     */
-
-    void getVDigits(RegEx& userPattern,
-                    UtlString& vdigits
-                    );
+                         const TiXmlNode* permMatchNode
+                         ) const;
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
+   TiXmlDocument *mDoc;
+   UtlBoolean mParseFirstTime;
+   Patterns *mPatterns ;
+   UtlString mVoicemail;
+   UtlString mLocalhost;
+   UtlString mMediaServer;
+
+   OsStatus getUserMatchContainer(const Url&              requestUri,
+                                  const TiXmlNode* const  pHostMatchNode,
+                                  UtlString&              variableDigits,                                                     
+                                  const TiXmlNode*&       prMatchingUserMatchContainerNode
+                                  ) const;
+   
+   /// Get the name/value pair from an element; supports two syntaxes.
+   bool getNamedAttribute(const TiXmlElement* component, ///< the xml element to interpret
+                          UtlString&    name,            ///< the content name
+                          UtlString&    value            ///< the content value
+                          ) const;
+   /**<
+    * @returns true iff a name/value pair was found.
+    * Supports two syntaxes; suppose that an attribute 'bar' exists.
+    * It may be encoded in either of two ways:
+    * @code
+    * Old Syntax:
+    *            <foo>bar=value</foo>
+    * New Syntax:
+    *            <foo name='bar'>value</foo>
+    * @endcode
+    * The New syntax is preferred because it eliminates some obnoxious parsing ambiguities.
+    */
+
+   void getVDigits(RegEx& userPattern,
+                   UtlString& vdigits
+                   ) const;
+
 
 };
 

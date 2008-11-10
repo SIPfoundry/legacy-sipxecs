@@ -54,6 +54,9 @@ libsipXcommserver_la_SOURCES = \
     alarm/Alarm.cpp \
     alarm/AlarmRequestTask.cpp \
     digitmaps/UrlMapping.cpp \
+    digitmaps/FallbackRulesUrlMapping.cpp \
+    digitmaps/AuthRulesUrlMapping.cpp \
+    digitmaps/MappingRulesUrlMapping.cpp \
     digitmaps/Patterns.cpp \
     filereader/OrbitFileReader.cpp \
     filereader/RefreshingFileReader.cpp \

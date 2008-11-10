@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <mappings>
   <hostMatch>
     <hostPattern>THISDOMAIN</hostPattern>
@@ -9,9 +9,6 @@
       <permissionMatch>
         <permission>steal</permission>
         <permission>lie</permission>
-        <transform>
-          <url>sip:NEWUSER@NEWHOST.NEWDOMAIN</url>
-        </transform>
         <permission>cheat</permission>
         <permission>eat like a pig</permission>
       </permissionMatch>
@@ -22,11 +19,7 @@
     <userMatch>
       <userPattern>THISUSER</userPattern>
       <userPattern>THATUSER</userPattern>
-      <permissionMatch>
-        <transform>
-          <user>NEWUSER</user>
-        </transform>
-      </permissionMatch>
+      <permissionMatch/>
     </userMatch>
   </hostMatch>
   <hostMatch>
@@ -34,11 +27,7 @@
     <userMatch>
       <userPattern>THISUSER</userPattern>
       <userPattern>THATUSER</userPattern>
-      <permissionMatch>
-        <transform>
-          <host>NewHost</host>
-        </transform>
-      </permissionMatch>
+      <permissionMatch/>
     </userMatch>
   </hostMatch>
   <hostMatch>
@@ -48,9 +37,7 @@
     <userMatch>
       <userPattern>.</userPattern>
       <permissionMatch>
-        <transform>
-          <url>sip:PATTERNS@MATCHING</url>
-        </transform>
+        <permission>NoAccess</permission>
       </permissionMatch>
     </userMatch>
   </hostMatch>

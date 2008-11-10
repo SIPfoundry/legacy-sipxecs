@@ -27,12 +27,8 @@ SIP_REDIRECT_HOOK_LIBRARY.140-MAPPING : /usr/local/opt/sipx/sipfoundry/main/lib/
 SIP_REDIRECT.140-MAPPING.MEDIA_SERVER : ${MEDIA_SERVER_SIP_SRV_OR_HOSTPORT}
 SIP_REDIRECT.140-MAPPING.VOICEMAIL_SERVER : https%3A%2F%2Flocalhost%3A${VOICEMAIL_SERVER_HTTPS_PORT}
 SIP_REDIRECT.140-MAPPING.MAPPING_RULES_FILENAME : /usr/local/opt/sipx/sipfoundry/main/etc/sipxpbx/mappingrules.xml
-SIP_REDIRECT.140-MAPPING.FALLBACK : false
-SIP_REDIRECT_HOOK_LIBRARY.150-FALLBACK : /usr/local/opt/sipx/sipfoundry/main/lib/libRedirectorMapping.so
-SIP_REDIRECT.150-FALLBACK.MEDIA_SERVER : ${MEDIA_SERVER_SIP_SRV_OR_HOSTPORT}
-SIP_REDIRECT.150-FALLBACK.VOICEMAIL_SERVER : https%3A%2F%2Flocalhost%3A${VOICEMAIL_SERVER_HTTPS_PORT}
+SIP_REDIRECT_HOOK_LIBRARY.150-FALLBACK : /usr/local/opt/sipx/sipfoundry/main/lib/libRedirectorFallback.so
 SIP_REDIRECT.150-FALLBACK.MAPPING_RULES_FILENAME : /usr/local/opt/sipx/sipfoundry/main/etc/sipxpbx/fallbackrules.xml
-SIP_REDIRECT.150-FALLBACK.FALLBACK : true
 SIP_REDIRECT_HOOK_LIBRARY.160-HUNT : /usr/local/opt/sipx/sipfoundry/main/lib/libRedirectorHunt.so
 SIP_REDIRECT_HOOK_LIBRARY.170-CALLERALIAS : /usr/local/opt/sipx/sipfoundry/main/lib/libRedirectorCallerAlias.so
 SIP_REDIRECT_HOOK_LIBRARY.180-PICKUP : /usr/local/opt/sipx/sipfoundry/main/lib/libRedirectorPickUp.so

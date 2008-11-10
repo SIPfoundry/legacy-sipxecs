@@ -24,6 +24,8 @@ nobase_include_HEADERS =  \
     sipdb/ExtensionRow.h \
     sipdb/HuntgroupDB.h \
     sipdb/HuntgroupRow.h \
+    sipdb/LocationDB.h \
+    sipdb/LocationRow.h \
     sipdb/PermissionDB.h \
     sipdb/PermissionRow.h \
     sipdb/RegistrationBinding.h \
@@ -34,9 +36,14 @@ nobase_include_HEADERS =  \
     sipdb/SIPXAuthHelper.h \
     sipdb/SubscriptionDB.h \
     sipdb/SubscriptionRow.h \
+    sipdb/UserLocationDB.h \
+    sipdb/UserLocationRow.h \
     alarm/Alarm.h \
     alarm/AlarmRequestTask.h \
     digitmaps/UrlMapping.h \
+    digitmaps/FallbackRulesUrlMapping.h \
+    digitmaps/AuthRulesUrlMapping.h \
+    digitmaps/MappingRulesUrlMapping.h \
     digitmaps/Patterns.h \
     fastdb/array.h \
     fastdb/CHANGES \

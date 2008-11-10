@@ -43,7 +43,7 @@ Patterns::~Patterns()
    // a routeIPv4subnet matches if the subnet does
    // "cidr" is a subnet in CIDR notation (x.y.z.q/size)
    // "ipv4 is supposed to be an IPv4 dotted quad
-bool Patterns::IPv4subnet(const UtlString ipv4, const UtlString cidr)
+bool Patterns::IPv4subnet(const UtlString ipv4, const UtlString cidr) const
 {
    ssize_t slash ;
    int mask_size ;

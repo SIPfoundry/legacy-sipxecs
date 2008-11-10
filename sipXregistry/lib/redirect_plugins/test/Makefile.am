@@ -7,27 +7,46 @@ INCLUDES = \
 ## All tests under this GNU variable should run relatively quickly
 ## and of course require no setup
 # for performance numbers, add to TESTS: UtlListPerformance UtlHashMapPerformance
-TESTS = testsuite
+TESTS = testsuite1 testsuite2
 
-check_PROGRAMS = testsuite
+check_PROGRAMS = testsuite1 testsuite2
 
-testsuite_LDADD = \
-	@SIPXUNIT_LIBS@ \
-	@SIPXCOMMSERVER_LIBS@
+testsuite1_LDADD = \
+    @SIPXUNIT_LIBS@ \
+    @SIPXCOMMSERVER_LIBS@
 
-testsuite_LDFLAGS = \
-	-rdynamic
+testsuite1_LDFLAGS = \
+    -rdynamic
 
-testsuite_CXXFLAGS = \
-	@PCRE_CFLAGS@ \
-	@CPPUNIT_CFLAGS@ \
-	-DTEST_DIR=\"@abs_builddir@\" \
-	-fno-gcse -O0
+testsuite1_CXXFLAGS = \
+    @PCRE_CFLAGS@ \
+    @CPPUNIT_CFLAGS@ \
+    -DTEST_DIR=\"@abs_builddir@\" \
+    -fno-gcse -O0
 
-testsuite_SOURCES = \
+testsuite1_SOURCES = \
     ../../../src/RedirectPlugin.cpp \
     ../../../src/RedirectSuspend.cpp \
     ../../../src/RedirectResumeMsg.cpp \
     ../../../src/SipRedirectServer.cpp \
-	SipRedirectorTimeOfDayTest.cpp
+    SipRedirectorTimeOfDayTest.cpp
+    
+testsuite2_LDADD = \
+    @SIPXUNIT_LIBS@ \
+    @SIPXCOMMSERVER_LIBS@
+
+testsuite2_LDFLAGS = \
+    -rdynamic
+
+testsuite2_CXXFLAGS = @CPPUNIT_CFLAGS@ \
+    -DTEST_DATA_DIR=\"@abs_top_srcdir@/lib/redirect_plugins/test/\"
+testsuite2_SOURCES = \
+    ../../../src/RedirectPlugin.cpp \
+    ../../../src/RedirectSuspend.cpp \
+    ../../../src/RedirectResumeMsg.cpp \
+    ../../../src/SipRedirectServer.cpp \
+    ../SipRedirectorFallback.cpp \
+    SipRedirectorFallbackTest.cpp
+    
+    
 

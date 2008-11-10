@@ -34,38 +34,6 @@ static UtlString cExpiresKey("expires");
 static UtlString cCseqKey("cseq");
 static UtlString cQvalueKey("qvalue");
 
-const char* XML_TAG_MAPPINGS             = "mappings";
-
-const char* XML_TAG_HOSTMATCH            = "hostMatch";
-const char* XML_TAG_HOSTPATTERN          = "hostPattern";
-const char* XML_ATT_FORMAT               = "format";
-const char* XML_SYMBOL_URL               = "url";
-const char* XML_SYMBOL_IPV4SUBNET        = "IPv4subnet";
-const char* XML_SYMBOL_DNSWILDCARD       = "DnsWildcard";
-
-const char* XML_TAG_USERMATCH            = "userMatch";
-const char* XML_TAG_USERPATTERN          = "userPattern";
-
-const char* XML_TAG_PERMISSIONMATCH      = "permissionMatch";
-const char* XML_TAG_PERMISSION           = "permission";
-const char* XML_ATT_AUTHTYPE             = "authType";
-
-const char* XML_PERMISSION_911           = "emergency-dialing";
-const char* XML_PERMISSION_1800          = "1800-dialing";
-const char* XML_PERMISSION_1900          = "1900-dialing";
-const char* XML_PERMISSION_1877          = "1877-dialing";
-const char* XML_PERMISSION_1888          = "1888-dialing";
-const char* XML_PERMISSION_1             = "domestic-dialing";
-const char* XML_PERMISSION_011           = "international-dialing";
-
-const char* XML_TAG_TRANSFORM            = "transform";
-const char* XML_TAG_URL                  = "url";
-const char* XML_TAG_HOST                 = "host";
-const char* XML_TAG_USER                 = "user";
-const char* XML_TAG_FIELDPARAMS          = "fieldparams";
-const char* XML_TAG_URLPARAMS            = "urlparams";
-const char* XML_TAG_HEADERPARAMS         = "headerparams";
-
 
 // Constants used in SymbolMap for parsing replacement tokens
 const char* XML_ATTRIBUTE_NAME           = "name";
@@ -318,11 +286,6 @@ public:
 
 // Constructor
 UrlMapping::UrlMapping() :
-    mPrevMappingNode(NULL),
-    mPrevMappingElement(NULL),
-    mPrevHostMatchNode(NULL),
-    mPrevUserMatchNode(NULL),
-    mPrevPermMatchNode(NULL),
     mDoc(NULL),
     mParseFirstTime(false),
     mPatterns(NULL)
@@ -398,89 +361,32 @@ UrlMapping::loadMappings(const UtlString& configFileName,
 }
 
 
-/* ============================ ACCESSORS ================================= */
-
 OsStatus
-UrlMapping::getPermissionRequired(const Url& requestUri,
-                                  ResultSet& rPermissions)
+UrlMapping::getUserMatchContainerMatchingRequestURI(const Url&  requestUri,
+                                                    UtlString&  variableDigits,
+                                                    const TiXmlNode*& prMatchingUserMatchContainerNode ) const
 {
-    OsStatus currentStatus = OS_FAILED;
+    prMatchingUserMatchContainerNode = 0;
+    variableDigits.remove(0);
 
+    UtlString     testHost;
+    TiXmlNode*    pPrevMappingNode;
     // Get the "mappings" element.
     // It is a child of the document, and can be selected by name.
-    mPrevMappingNode = mDoc->FirstChild( XML_TAG_MAPPINGS);
-    if (!mPrevMappingNode)
-    {
-        OsSysLog::add( FAC_SIP, PRI_ERR, "UrlMapping::getPermissionRequired - "
-                      "No '%s' node",  XML_TAG_MAPPINGS);
-        return OS_FILE_READ_FAILED;
-    }
-
-    mPrevMappingElement = mPrevMappingNode->ToElement();
-    if(!mPrevMappingElement)
-    {
-        OsSysLog::add( FAC_SIP, PRI_ERR, "UrlMapping::getPermissionRequired - "
-                      "No child Node for Mappings");
-        return OS_INVALID;
-    }
-
-    UtlBoolean doTransform = false;
-
-    ResultSet contacts;
-
-    currentStatus = parseHostMatchContainer(requestUri,
-                                            contacts,
-                                            doTransform,
-                                            rPermissions,
-                                            mPrevMappingNode);
-
-    return currentStatus;
-}
-
-OsStatus
-UrlMapping::getContactList(const Url& requestUri,
-                           ResultSet& rContacts,
-                           ResultSet& rPermissions )
-{
-    OsStatus currentStatus = OS_FAILED;
-
-    // Get the "mappings" element.
-    // It is a child of the document, and can be selected by name.
-    mPrevMappingNode = mDoc->FirstChild( XML_TAG_MAPPINGS);
-    if (!mPrevMappingNode)
+    pPrevMappingNode = mDoc->FirstChild( XML_TAG_MAPPINGS);
+    if (!pPrevMappingNode)
     {
         OsSysLog::add( FAC_SIP, PRI_ERR, "UrlMapping::getContactList - "
                       "No '%s' node",  XML_TAG_MAPPINGS);
         return OS_FILE_READ_FAILED;
     }
-    mPrevMappingElement = mPrevMappingNode->ToElement();
-    if(!mPrevMappingElement)
+    if (!pPrevMappingNode->ToElement())
     {
         OsSysLog::add( FAC_SIP, PRI_ERR, "UrlMapping::getContactList - "
-                      "No child Node for Mappings");
+                      "node '%s' is not an element", XML_TAG_MAPPINGS );
         return OS_INVALID;
     }
 
-    UtlBoolean doTransform = true;
-
-    currentStatus = parseHostMatchContainer(requestUri,
-                                            rContacts,
-                                            doTransform,
-                                            rPermissions,
-                                            mPrevMappingNode);
-
-    return currentStatus;
-}
-
-OsStatus
-UrlMapping::parseHostMatchContainer(const Url& requestUri,
-                                    ResultSet& rContacts,
-                                    UtlBoolean& doTransform,
-                                    ResultSet& rPermissions,
-                                    TiXmlNode* mappingsNode,
-                                    TiXmlNode* previousHostMatchNode)
-{
-    UtlString testHost;
     requestUri.getHostAddress(testHost);
     int testPort = requestUri.getHostPort();
     if(testPort == SIP_PORT)
@@ -488,58 +394,57 @@ UrlMapping::parseHostMatchContainer(const Url& requestUri,
         testPort = 0;
     }
 
-    UtlBoolean hostMatchFound = false;
     OsStatus userMatchFound = OS_FAILED;
+    TiXmlElement* pMappingElement = pPrevMappingNode->ToElement();
 
-    OsStatus currentStatus = OS_FAILED;
-    TiXmlElement* mappingElement = mappingsNode->ToElement();
-
-    TiXmlNode* hostMatchNode = previousHostMatchNode;
-    while ( (hostMatchNode = mappingElement->IterateChildren(hostMatchNode))
+    TiXmlNode* pHostMatchNode = NULL;
+    while ( (pHostMatchNode = pMappingElement->IterateChildren(pHostMatchNode))
             && userMatchFound != OS_SUCCESS)
     {
-       if(hostMatchNode && hostMatchNode->Type() == TiXmlNode::ELEMENT)
+       if(pHostMatchNode && pHostMatchNode->Type() == TiXmlNode::ELEMENT)
        {
-          TiXmlElement* hostMatchElement = hostMatchNode->ToElement();
-          UtlString tagValue =  hostMatchElement->Value();
+          TiXmlElement* pHostMatchElement = pHostMatchNode->ToElement();
+          UtlString tagValue =  pHostMatchElement->Value();
           if(tagValue.compareTo(XML_TAG_HOSTMATCH) == 0 )
           {
              //found hostmatch tag
              //check for host Match patterns in it
-             TiXmlNode* hostPatternNode = NULL;
+             TiXmlNode* pHostPatternNode = NULL;
 
-             for( hostPatternNode = hostMatchElement->FirstChild( XML_TAG_HOSTPATTERN);
-                  hostPatternNode && userMatchFound != OS_SUCCESS;
-                  hostPatternNode = hostPatternNode->NextSibling( XML_TAG_HOSTPATTERN ) )
+             for( pHostPatternNode = pHostMatchElement->FirstChild( XML_TAG_HOSTPATTERN );
+                  pHostPatternNode && userMatchFound != OS_SUCCESS;
+                  pHostPatternNode = pHostPatternNode->NextSibling( XML_TAG_HOSTPATTERN ) )
              {
-                if(hostPatternNode && hostPatternNode->Type() == TiXmlNode::ELEMENT)
+                UtlBoolean hostMatchFound = false;
+
+                if(pHostPatternNode && pHostPatternNode->Type() == TiXmlNode::ELEMENT)
                 {
                    // found hostPattern tag
-                   TiXmlElement* hostPatternElement = hostPatternNode->ToElement();
+                   TiXmlElement* pHostPatternElement = pHostPatternNode->ToElement();
                    //get the host text value from it
-                   TiXmlNode* hostPatternText = hostPatternElement->FirstChild();
-                   if( hostPatternText && hostPatternText->Type() == TiXmlNode::TEXT)
+                   TiXmlNode* pHostPatternText = pHostPatternElement->FirstChild();
+                   if( pHostPatternText && pHostPatternText->Type() == TiXmlNode::TEXT)
                    {
-                      TiXmlText* Xmlhost = hostPatternText->ToText();
-                      if (Xmlhost)
+                      TiXmlText* pXmlhost = pHostPatternText->ToText();
+                      if (pXmlhost)
                       {
-                         UtlString pattern = Xmlhost->Value();
+                         UtlString pattern = pXmlhost->Value();
 
                          // Get the "format" attribute to determine what
                          // type of pattern is to be searched
                          const char * xFormat = 
-                            hostPatternElement->Attribute(XML_ATT_FORMAT);
+                            pHostPatternElement->Attribute(XML_ATT_FORMAT);
                          
-                         UtlString fmt ;
+                         UtlString fmt;
                          if (xFormat)
                          {
-                            fmt.append(xFormat) ;
+                            fmt.append(xFormat);
                          }
                          else
                          {
                             // Attribute "format" is missing, 
                             // so default to 'url'
-                            fmt.append(XML_SYMBOL_URL) ;
+                            fmt.append(XML_SYMBOL_URL);
                          }
                          
                          // format='url' matches host and port of a URL
@@ -551,36 +456,39 @@ UrlMapping::parseHostMatchContainer(const Url& requestUri,
                             xmlUrl.getHostAddress(xmlHost);
                             int xmlPort = xmlUrl.getHostPort();
 
-                            hostMatchFound =
-                               xmlHost.compareTo(testHost,
-                                                 UtlString::ignoreCase) == 0
-                               && (xmlPort == SIP_PORT || xmlPort == testPort);
+                            if( xmlHost.compareTo(testHost, UtlString::ignoreCase) == 0 
+                                && (xmlPort == SIP_PORT || xmlPort == testPort) )
+                            {
+                               hostMatchFound = OS_SUCCESS;
+                            }
                          }
                          // format='IPv4subnet' matches IP address if it is
                          // within the subnet specified in CIDR format
                          else if (fmt.compareTo(XML_SYMBOL_IPV4SUBNET, 
                                                 UtlString::ignoreCase) == 0)
                          {
-                            hostMatchFound =
-                               mPatterns->IPv4subnet(testHost, pattern);
+                            if( mPatterns->IPv4subnet(testHost, pattern) == true )
+                            {
+                               hostMatchFound = OS_SUCCESS;
+                            }
                          }
                          // format='DnsWildcard' matches FQDN
                          // if it ends with the correct domain
                          else if (fmt.compareTo(XML_SYMBOL_DNSWILDCARD, 
                                                 UtlString::ignoreCase) == 0)
                          {
-                            hostMatchFound =
-                               mPatterns->DnsWildcard(testHost, pattern);
+                            if( mPatterns->DnsWildcard(testHost, pattern) == true )
+                            {
+                               hostMatchFound = OS_SUCCESS;
+                            }
                          }
 
                          if (hostMatchFound)
                          {
-                            mPrevHostMatchNode = hostMatchNode;
-                            userMatchFound = parseUserMatchContainer(requestUri,
-                                                                     rContacts,
-                                                                     doTransform,
-                                                                     rPermissions,
-                                                                     hostMatchNode);
+                            userMatchFound = getUserMatchContainer(requestUri,
+                                                                   pHostMatchNode,
+                                                                   variableDigits,
+                                                                   prMatchingUserMatchContainerNode);
                          }
                       }
                    }
@@ -589,68 +497,58 @@ UrlMapping::parseHostMatchContainer(const Url& requestUri,
           }
        }
     }
-    return currentStatus;
+    return userMatchFound;
 }
 
 OsStatus
-UrlMapping::parseUserMatchContainer(const Url& requestUri,
-                                    ResultSet& rContacts,
-                                    UtlBoolean& doTransform,
-                                    ResultSet& rPermissions,
-                                    TiXmlNode* hostMatchNode, //parent node
-                                    TiXmlNode* previousUserMatchNode)
+UrlMapping::getUserMatchContainer(const Url&             requestUri,
+                                  const TiXmlNode* const pHostMatchNode,
+                                  UtlString&             variableDigits,
+                                  const TiXmlNode*&      prMatchingUserMatchContainerNode ) const
 {
-
     UtlString testUser;
     requestUri.getUserId(testUser);
 
-    OsStatus permssionMatchFound = OS_FAILED;
-    UtlBoolean userMatchFound = false;
+    OsStatus userMatchFound = OS_FAILED;
 
-    TiXmlNode* userMatchNode = previousUserMatchNode;
-    TiXmlElement* hostMatchElement = hostMatchNode->ToElement();
+    const TiXmlElement* const pHostMatchElement = pHostMatchNode->ToElement();
 
-    while ( (userMatchNode = hostMatchElement->IterateChildren( userMatchNode))
-            && (permssionMatchFound != OS_SUCCESS) )
+    const TiXmlNode* pUserMatchNode = NULL;
+    while ( (pUserMatchNode = pHostMatchElement->IterateChildren( pUserMatchNode ))
+            && (userMatchFound != OS_SUCCESS) )
     {
-       if(userMatchNode && userMatchNode->Type() == TiXmlNode::ELEMENT)
+       if(pUserMatchNode && pUserMatchNode->Type() == TiXmlNode::ELEMENT)
        {
-          UtlString tagValue = userMatchNode->Value();
+          UtlString tagValue = pUserMatchNode->Value();
           if(tagValue.compareTo(XML_TAG_USERMATCH) == 0 )
           {
              //found userPattern tag
-             TiXmlElement* userMatchElement = userMatchNode->ToElement();
-             TiXmlNode* userPatternNode = NULL;
+             const TiXmlElement* pUserMatchElement = pUserMatchNode->ToElement();
+             const TiXmlNode* pUserPatternNode = NULL;
              //get the user text value from it
-             for( userPatternNode = userMatchElement->FirstChild( XML_TAG_USERPATTERN);
-                  userPatternNode && permssionMatchFound != OS_SUCCESS;
-                  userPatternNode = userPatternNode->NextSibling(XML_TAG_USERPATTERN ) )
+             for( pUserPatternNode = pUserMatchElement->FirstChild( XML_TAG_USERPATTERN );
+                  pUserPatternNode && (userMatchFound != OS_SUCCESS);
+                  pUserPatternNode = pUserPatternNode->NextSibling( XML_TAG_USERPATTERN ) )
              {
-                if(userPatternNode && userPatternNode->Type() == TiXmlNode::ELEMENT)
+                if(pUserPatternNode && pUserPatternNode->Type() == TiXmlNode::ELEMENT)
                 {
-                   TiXmlElement* userPatternElement = userPatternNode->ToElement();
+                   const TiXmlElement* pUserPatternElement = pUserPatternNode->ToElement();
 
-                   TiXmlNode* userPatternText = userPatternElement->FirstChild();
-                   if(userPatternText && userPatternText->Type() == TiXmlNode::TEXT)
+                   const TiXmlNode* pUserPatternText = pUserPatternElement->FirstChild();
+                   if(pUserPatternText && pUserPatternText->Type() == TiXmlNode::TEXT)
                    {
-                      TiXmlText* XmlUser = userPatternText->ToText();
-                      if (XmlUser)
+                      const TiXmlText* pXmlUser = pUserPatternText->ToText();
+                      if (pXmlUser)
                       {
-                         UtlString userRE = XmlUser->Value();
+                         UtlString userRE = pXmlUser->Value();
                          UtlString regStr;
                          convertRegularExpression(userRE, regStr);
                          RegEx userExpression(regStr.data());
                          if (userExpression.Search(testUser.data(), testUser.length()))
                          {
-                            UtlString vdigits;
-                            getVDigits(userExpression, vdigits);
-                            userMatchFound = true;
-                            permssionMatchFound = parsePermMatchContainer(requestUri,
-                                                                          vdigits,
-                                                                          rContacts,
-                                                                          doTransform,
-                                                                          rPermissions,
-                                                                          userMatchNode);
+                            getVDigits(userExpression, variableDigits);
+                            prMatchingUserMatchContainerNode = pUserMatchNode;
+                            userMatchFound = OS_SUCCESS;
                          }
                       }
                    }
@@ -659,104 +557,14 @@ UrlMapping::parseUserMatchContainer(const Url& requestUri,
           }
        }
     }
-    return permssionMatchFound;
-}
-
-OsStatus
-UrlMapping::parsePermMatchContainer(const Url& requestUri,
-                                    const UtlString& vdigits,
-                                    ResultSet& rContactResultSet,
-                                    UtlBoolean& doTransformTag,
-                                    ResultSet& rPermissions,
-                                    TiXmlNode* userMatchNode,   //parent node
-                                    TiXmlNode* previousPermMatchNode)
-{
-    OsStatus doTransformStatus = OS_FAILED;
-
-    UtlBoolean permissionFound = false;
-    UtlString permissionAuthType;
-
-    UtlString requestUriStr;
-    requestUri.toString(requestUriStr);
-
-    TiXmlNode* permMatchNode = previousPermMatchNode;
-    userMatchNode->ToElement();
-
-    while ( (permMatchNode = userMatchNode->IterateChildren( permMatchNode))
-            && (doTransformStatus != OS_SUCCESS) )
-    {
-       if(permMatchNode && permMatchNode->Type() == TiXmlNode::ELEMENT)
-       {
-          UtlString tagValue = permMatchNode->Value();
-          if(tagValue.compareTo(XML_TAG_PERMISSIONMATCH) == 0 )
-          {
-             //practically there should always be only one permission match tag
-             TiXmlElement* permissionMatchElement  = permMatchNode->ToElement();
-             UtlBoolean permNodePresent = false;
-             //get the user text value from it
-             for( TiXmlNode*  permissionNode = permissionMatchElement->FirstChild( XML_TAG_PERMISSION);
-                  permissionNode;
-                  permissionNode = permissionNode->NextSibling(XML_TAG_PERMISSION ) )
-             {
-                permNodePresent = true;
-                TiXmlElement* permissionElement = permissionNode->ToElement();
-                //get attribules of permission
-                UtlString* authType = (UtlString*) permissionElement->Attribute(XML_ATT_AUTHTYPE);
-                // If the permission auth type is provided
-                if(authType)
-                {
-                   permissionAuthType.append(authType->data());
-                }
-
-                //get permission Name
-                TiXmlNode* permissionText = permissionElement->FirstChild();
-                if(permissionText)
-                {
-                   UtlString permission = permissionText->Value();
-                   // permissionName.append(permission.data());
-                   UtlHashMap record;
-                   UtlString* identityKey =
-                      new UtlString ( "identity" );
-                   UtlString* permissionKey =
-                      new UtlString ( "permission" );
-                   UtlString* identityValue =
-                      new UtlString ( requestUriStr );
-                   UtlString* permissionValue =
-                      new UtlString ( permission );
-                   record.insertKeyAndValue (
-                      identityKey, identityValue );
-                   record.insertKeyAndValue (
-                      permissionKey, permissionValue );
-                   rPermissions.addValue(record);
-                   permissionFound = true;
-                }
-             }
-
-             //if no permission node - then it means no permission required - allow all
-             if((!permNodePresent || permissionFound ) && doTransformTag )
-             {
-                //if the premission matches in the permissions database
-                //go ahead and get the transform tag
-                doTransformStatus = doTransform(requestUri,
-                                                vdigits,
-                                                rContactResultSet,
-                                                permMatchNode);
-             }
-             else if(!permNodePresent || permissionFound)
-             {
-                doTransformStatus = OS_SUCCESS;
-             }
-          }
-       }
-    }
-    return doTransformStatus;
+    return userMatchFound;
 }
 
 OsStatus
 UrlMapping::doTransform(const Url& requestUri,
                         const UtlString& vdigits,
                         ResultSet& rContacts,
-                        TiXmlNode* permMatchNode)
+                        const TiXmlNode* permMatchNode) const 
 {
    OsStatus returnStatus = OS_FAILED;  // will remain so unless at least one transform is valid
 
@@ -764,8 +572,8 @@ UrlMapping::doTransform(const Url& requestUri,
    SymbolMap symbols(requestUri, mMediaServer, mVoicemail, mLocalhost);
 
    // loop over all transform elements - for each valid one, insert a contact into rContacts
-   TiXmlElement* permissionMatchElement  = permMatchNode->ToElement();
-   TiXmlNode* transformNode;
+   const TiXmlElement* permissionMatchElement  = permMatchNode->ToElement();
+   const TiXmlNode* transformNode;
    for (transformNode = permissionMatchElement->FirstChild(XML_TAG_TRANSFORM);
         transformNode;
         transformNode = transformNode->NextSibling(XML_TAG_TRANSFORM)
@@ -795,24 +603,24 @@ UrlMapping::doTransform(const Url& requestUri,
             TransformError      // error state - invalid element seen
          } transformState = NoTransformsApplied;
     
-         TiXmlNode*    transformSubNode = NULL;
+         const TiXmlNode*    transformSubNode = NULL;
          while (   (transformState < TransformError)
                 && (transformSubNode = transformNode->IterateChildren(transformSubNode))
                 )
          {
             if(transformSubNode->Type() == TiXmlNode::ELEMENT)
             {
-               TiXmlElement* transformSubElement = transformSubNode->ToElement();
+               const TiXmlElement* transformSubElement = transformSubNode->ToElement();
                UtlString elementType = transformSubElement->Value();
 
                if (   (NoTransformsApplied == transformState)
                    && (elementType.compareTo(XML_TAG_URL) ==0))
                {
                   // url element
-                  TiXmlNode* transformText = transformSubElement->FirstChild();
+                  const TiXmlNode* transformText = transformSubElement->FirstChild();
                   if(transformText && transformText->Type() == TiXmlNode::TEXT)
                   {
-                     TiXmlText* XmlUrl = transformText->ToText();
+                     const TiXmlText* XmlUrl = transformText->ToText();
                      if (XmlUrl)
                      {
                         UtlString url = XmlUrl->Value();
@@ -847,10 +655,10 @@ UrlMapping::doTransform(const Url& requestUri,
                         && (elementType.compareTo(XML_TAG_USER)==0))
                {
                   // user element
-                  TiXmlNode* transformText = transformSubElement->FirstChild();
+                  const TiXmlNode* transformText = transformSubElement->FirstChild();
                   if(transformText && transformText->Type() == TiXmlNode::TEXT)
                   {
-                     TiXmlText* XmlUser = transformText->ToText();
+                     const TiXmlText* XmlUser = transformText->ToText();
                      if (XmlUser)
                      {
                         UtlString transformUser = XmlUser->Value();
@@ -864,10 +672,10 @@ UrlMapping::doTransform(const Url& requestUri,
                         && (elementType.compareTo(XML_TAG_HOST)==0))
                {
                   // host element
-                  TiXmlNode* transformText = transformSubElement->FirstChild();
+                  const TiXmlNode* transformText = transformSubElement->FirstChild();
                   if(transformText && transformText->Type() == TiXmlNode::TEXT)
                   {
-                     TiXmlText* XmlHost = transformText->ToText();
+                     const TiXmlText* XmlHost = transformText->ToText();
                      if (XmlHost)
                      {
                         UtlString transformHost = XmlHost->Value();
@@ -1163,7 +971,7 @@ UrlMapping::convertRegularExpression(const UtlString& source,
 
 void UrlMapping::getVDigits(
     RegEx& userPattern,
-    UtlString& vdigits)
+    UtlString& vdigits) const
 {
     vdigits.remove(0);
     if ( userPattern.SubStrings() > 1 )
@@ -1173,10 +981,10 @@ void UrlMapping::getVDigits(
 }
 
 
-bool UrlMapping::getNamedAttribute(TiXmlElement* component,
+bool UrlMapping::getNamedAttribute(const TiXmlElement* component,
                                    UtlString&    name,
                                    UtlString&    value
-                                   )
+                                   ) const 
 {
    bool foundNameValue = false;
 
@@ -1184,10 +992,10 @@ bool UrlMapping::getNamedAttribute(TiXmlElement* component,
    value.remove(0);
 
    UtlString componentContent;   // get the content of the element into this
-   TiXmlNode* componentTextNode = component->FirstChild();
+   const TiXmlNode* componentTextNode = component->FirstChild();
    if(componentTextNode && componentTextNode->Type() == TiXmlNode::TEXT)
    {
-      TiXmlText* componentText = componentTextNode->ToText();
+      const TiXmlText* componentText = componentTextNode->ToText();
       if (componentText)
       {
          componentContent = componentText->Value();

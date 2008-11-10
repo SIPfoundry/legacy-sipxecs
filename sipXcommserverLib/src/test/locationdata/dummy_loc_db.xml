@@ -1,0 +1,27 @@
+<?xml version="1.0" standalone="yes" ?>
+<items type="location" xmlns="http://www.sipfoundry.org/sipX/schema/xml/location-00-00">
+    <item>
+        <name>Ottawa</name>
+        <description>One crazy location</description>
+        <locationcode>613</locationcode>
+        <subnets>172.30.0.0/16,22.22.22.22/32</subnets>
+    </item>
+    <item>
+        <name>Quebec</name>
+        <description>Happy 400th anniversary</description>
+        <locationcode>418</locationcode>
+        <subnets></subnets>
+    </item>
+    <item>
+        <name>Montreal</name>
+        <description>Go Habs Go!</description>
+        <locationcode>514</locationcode>
+        <subnets>10.10.10.0/24,11.11.11.0/24,12.12.12.0/24</subnets>
+    </item>
+    <item>
+        <name>Springfield</name>
+        <description>It&apos;s a hell of a town</description>
+        <locationcode>KL5</locationcode>
+        <subnets>47.0.0.0/8</subnets>
+    </item>
+</items>

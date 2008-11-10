@@ -54,7 +54,6 @@ void SipRedirectorMapping::readConfig(OsConfigDb& configDb)
    configDb.get("MEDIA_SERVER", mMediaServer);
    configDb.get("VOICEMAIL_SERVER", mVoicemailServer);
    configDb.get("MAPPING_RULES_FILENAME", mFileName);
-   mFallback = configDb.getBoolean("FALLBACK", FALSE);
 }
 
 // Initialize
@@ -218,9 +217,6 @@ SipRedirectorMapping::lookUp(
 
       if (numUrlMappingRegistrations > 0)
       {
-         UtlString requestIdentity;
-         requestUri.getIdentity(requestIdentity);
-
          for (int i = 0; i < numUrlMappingRegistrations; i++)
          {
             UtlHashMap record;

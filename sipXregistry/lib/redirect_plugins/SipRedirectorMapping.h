@@ -15,7 +15,7 @@
 
 // APPLICATION INCLUDES
 #include "registry/RedirectPlugin.h"
-#include "digitmaps/UrlMapping.h"
+#include "digitmaps/MappingRulesUrlMapping.h"
 
 // DEFINES
 // MACROS
@@ -52,8 +52,6 @@ class SipRedirectorMapping : public RedirectPlugin
     * MAPPING_RULES_FILENAME - full filename of the mapping rules file
     * to load (e.g., "mappingrules.xml")
     *
-    * FALLBACK - "true" if fallback rules, that is, no contacts should
-    * be added if there are already contacts in the set.
     */
    virtual void readConfig(OsConfigDb& configDb);
 
@@ -90,18 +88,7 @@ class SipRedirectorMapping : public RedirectPlugin
    /**
     * The mapping rules parsed from the file.
     */
-   UrlMapping mMap;
-
-   /**
-    * Name to use when reporting on this mapping.
-    */
-   UtlString mName;
-
-   /**
-    * True if this mapping is "fallback", that is, no contacts should
-    * be added if there are already contacts in the set.
-    */
-   UtlBoolean mFallback;
+   MappingRulesUrlMapping mMap;
 
    /**
     * SIP URI to access the Media Server.

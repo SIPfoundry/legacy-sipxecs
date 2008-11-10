@@ -45,7 +45,11 @@ testsuite_LDADD = \
 
 testsuite_SOURCES = \
     ResultSetRpcTest.cpp \
-    UrlMappingTest.cpp \
+    MappingRulesUrlMappingTest.cpp \
+    AuthRulesUrlMappingTest.cpp \
+    FallbackRulesUrlMappingTest.cpp \
+    LocationDbTest.cpp \
+    UserLocationDbTest.cpp \
 	 SipXecsServiceTest.cpp \
 	 SharedSecretTest.cpp \
 	 SipNonceDbTest.cpp \
@@ -59,7 +63,9 @@ EXTRA_DIST = \
 	mapdata/simple.xml \
 	mapdata/specials.xml \
 	mapdata/userpat.xml \
-	mapdata/vdigits.xml \
+    mapdata/vdigits.xml \
+    mapdata/authrules.xml \
+    mapdata/fallbackrules.xml \
 	regdbdata/getMaxUpdate.xml \
 	sipx_config_value/testdata
 

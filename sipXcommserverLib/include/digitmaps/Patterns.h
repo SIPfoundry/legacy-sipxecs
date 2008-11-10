@@ -52,7 +52,7 @@ public:
                                                   *  x.y/size
                                                   *  x/size
                                                   *      size is 1..32 */
-                          );
+                          ) const;
    /**<
     * @returns true if the ipv4 is in the subnet, false if not. 
     */

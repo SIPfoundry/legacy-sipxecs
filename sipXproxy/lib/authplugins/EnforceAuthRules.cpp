@@ -95,7 +95,7 @@ EnforceAuthRules::readConfig( OsConfigDb& configDb /**< a subhash of the individ
       delete mpAuthorizationRules;
    }
 
-   mpAuthorizationRules = new UrlMapping();
+   mpAuthorizationRules = new AuthRulesUrlMapping();
    
    UtlString fileName;
    if ( ! configDb.get(RULES_FILENAME_CONFIG_PARAM, fileName) )
