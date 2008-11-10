@@ -1410,7 +1410,7 @@
       </type>
       <value>1</value>
     </setting>
-    <setting name="corporate-directory">
+    <setting name="enhanced-feature-keys">
       <type>
         <boolean />
       </type>
