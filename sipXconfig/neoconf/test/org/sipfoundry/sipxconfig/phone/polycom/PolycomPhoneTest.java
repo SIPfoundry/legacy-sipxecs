@@ -15,6 +15,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringReader;
+import java.util.Calendar;
 
 import junit.framework.TestCase;
 
@@ -140,7 +141,8 @@ public class PolycomPhoneTest extends TestCase {
     }
 
     public void testDayOfWeek() {
-        assertEquals(2, PolycomPhoneDefaults.dayOfWeek(0));
-        assertEquals(1, PolycomPhoneDefaults.dayOfWeek(6));
+        // Note that Polycom uses the same mapping as Java.  (1=Sun, 2=Mon,..., 7=Sat)
+        assertEquals(1, PolycomPhoneDefaults.dayOfWeek(Calendar.SUNDAY));
+        assertEquals(7, PolycomPhoneDefaults.dayOfWeek(Calendar.SATURDAY));
     }
 }

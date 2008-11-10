@@ -119,9 +119,8 @@ public class PolycomPhoneDefaults {
     }
 
     static int dayOfWeek(int dayOfWeek) {
-        // 1-based
-        int dayOfWeekStartingOnMonday = ((dayOfWeek + 1) % 7) + 1;
-        return dayOfWeekStartingOnMonday;
+        // Polycom uses the same mapping as Java.  (1=Sun, 2=Mon,..., 7=Sat)
+        return dayOfWeek;
     }
 
     @SettingEntry(path = "tcpIpApp.sntp/daylightSavings.start.month")
