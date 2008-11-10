@@ -1677,63 +1677,74 @@
       voice.gain.rx.analog.handset="0"
       voice.gain.rx.analog.headset="0"
       voice.gain.rx.analog.chassis="0"
-      voice.gain.rx.analog.chassis.IP_300="-6"
+      voice.gain.rx.analog.chassis.IP_300="-6" 
       voice.gain.rx.analog.chassis.IP_330="0"
       voice.gain.rx.analog.chassis.IP_430="0"
       voice.gain.rx.analog.chassis.IP_650="0"
       voice.gain.rx.analog.chassis.IP_601="6"
       voice.gain.rx.analog.chassis.IP_7000="0"
-      voice.gain.rx.analog.ringer="0"
+      voice.gain.rx.analog.chassis.IP_6000="0"
+      voice.gain.rx.analog.ringer="0" 
       voice.gain.rx.analog.ringer.IP_300="-6"
       voice.gain.rx.analog.ringer.IP_330="0"
       voice.gain.rx.analog.ringer.IP_430="0"
       voice.gain.rx.analog.ringer.IP_650="0"
       voice.gain.rx.analog.ringer.IP_601="6"
       voice.gain.rx.analog.ringer.IP_7000="0"
+      voice.gain.rx.analog.ringer.IP_6000="0"
       voice.gain.rx.digital.handset="-15"
-      voice.gain.rx.digital.headset="-21"
+      voice.gain.rx.digital.headset="-21" 
       voice.gain.rx.digital.chassis="0"
       voice.gain.rx.digital.chassis.IP_4000="0"
       voice.gain.rx.digital.chassis.IP_330="6"
       voice.gain.rx.digital.chassis.IP_430="6"
       voice.gain.rx.digital.chassis.IP_650="6"
       voice.gain.rx.digital.chassis.IP_601="0"
-      voice.gain.rx.digital.chassis.IP_7000="0"
+      voice.gain.rx.digital.chassis.IP_7000="6" 
+      voice.gain.rx.digital.chassis.IP_6000="6"
       voice.gain.rx.digital.ringer="-21"
       voice.gain.rx.digital.ringer.IP_4000="-21"
-      voice.gain.rx.digital.ringer.IP_330="-12"
+      voice.gain.rx.digital.ringer.IP_330="-12" 
       voice.gain.rx.digital.ringer.IP_430="-12"
       voice.gain.rx.digital.ringer.IP_650="-12"
       voice.gain.rx.digital.ringer.IP_601="-21"
       voice.gain.rx.digital.ringer.IP_7000="-21"
-      voice.gain.rx.analog.handset.sidetone="-14"
+      voice.gain.rx.digital.ringer.IP_6000="-21"
+      voice.gain.rx.analog.handset.sidetone="-20"
       voice.gain.rx.analog.headset.sidetone="-24"
-      voice.gain.tx.analog.handset="12"
+      voice.gain.tx.analog.handset="6"
       voice.gain.tx.analog.headset="3"
       voice.gain.tx.analog.chassis="3"
       voice.gain.tx.analog.chassis.IP_300="0"
-      voice.gain.tx.analog.chassis.IP_330="36"
+      voice.gain.tx.analog.chassis.IP_330="36" 
       voice.gain.tx.analog.chassis.IP_430="36"
       voice.gain.tx.analog.chassis.IP_650="36"
       voice.gain.tx.analog.chassis.IP_601="0"
       voice.gain.tx.analog.chassis.IP_7000="0"
+      voice.gain.tx.analog.chassis.IP_6000="0"
       voice.gain.tx.digital.handset="0"
+      voice.gain.tx.digital.handset.IP_330="10" 
+      voice.gain.tx.digital.handset.IP_430="10"
+      voice.gain.tx.digital.handset.IP_650="6"
       voice.gain.tx.digital.headset="0"
+      voice.gain.tx.digital.headset.IP_330="10"
+      voice.gain.tx.digital.headset.IP_430="10" 
+      voice.gain.tx.digital.headset.IP_650="6"
       voice.gain.tx.digital.chassis="3"
       voice.gain.tx.digital.chassis.IP_4000="0"
       voice.gain.tx.digital.chassis.IP_330="12"
-      voice.gain.tx.digital.chassis.IP_430="12"
-      voice.gain.tx.digital.chassis.IP_650="0"
-      voice.gain.tx.digital.chassis.IP_601="6"
-      voice.gain.tx.digital.chassis.IP_7000="6"
-      voice.gain.tx.analog.preamp.handset="14"
+      voice.gain.tx.digital.chassis.IP_430="12" 
+      voice.gain.tx.digital.chassis.IP_650="12"
+      voice.gain.tx.digital.chassis.IP_601="6" 
+      voice.gain.tx.digital.chassis.IP_7000="6" 
+      voice.gain.tx.digital.chassis.IP_6000="6"
+      voice.gain.tx.analog.preamp.handset="23"
       voice.gain.tx.analog.preamp.headset="23"
-      voice.gain.tx.analog.preamp.chassis="32"
-      voice.gain.tx.analog.preamp.chassis.IP_430="32"
+      voice.gain.tx.analog.preamp.chassis="32" 
       voice.gain.tx.analog.preamp.chassis.IP_601="32"
     />
     <AEC
-      voice.aec.hs.enable="0"
+      voice.aec.hs.enable="1"
       voice.aec.hs.lowFreqCutOff="100"
       voice.aec.hs.highFreqCutOff="7000"
       voice.aec.hs.erlTab_0_300="-24"
@@ -1759,7 +1770,7 @@
       voice.aec.hf.erlTab_3500_7000="-6"
     />
     <AES
-      voice.aes.hs.enable="0"
+      voice.aes.hs.enable="1"
       voice.aes.hs.duplexBalance="7"
       voice.aes.hd.enable="0"
       voice.aes.hd.duplexBalance="0"
@@ -1835,6 +1846,7 @@
       voice.rxEq.hf.IP_601.preFilter.enable="1"
       voice.rxEq.hf.IP_4000.preFilter.enable="0"
       voice.rxEq.hf.IP_7000.preFilter.enable="0"
+      voice.rxEq.hf.IP_6000.preFilter.enable="0"
       voice.rxEq.hf.IP_330.postFilter.enable="0"
       voice.rxEq.hf.IP_430.postFilter.enable="0"
       voice.rxEq.hf.IP_650.postFilter.enable="0"
@@ -1843,6 +1855,7 @@
       voice.rxEq.hf.IP_601.postFilter.enable="1"
       voice.rxEq.hf.IP_4000.postFilter.enable="0"
       voice.rxEq.hf.IP_7000.postFilter.enable="0"
+      voice.rxEq.hf.IP_6000.postFilter.enable="0"
     >
       <filters
         voice.rxEq.hf.IP_500.preFilter.999.size="4"
@@ -1886,6 +1899,7 @@
       voice.txEq.hf.IP_601.preFilter.enable="0"
       voice.txEq.hf.IP_4000.preFilter.enable="0"
       voice.txEq.hf.IP_7000.preFilter.enable="0"
+      voice.txEq.hf.IP_6000.preFilter.enable="0"
       voice.txEq.hf.IP_330.postFilter.enable="1"
       voice.txEq.hf.IP_430.postFilter.enable="1"
       voice.txEq.hf.IP_650.postFilter.enable="1"
@@ -1894,6 +1908,7 @@
       voice.txEq.hf.IP_601.postFilter.enable="1"
       voice.txEq.hf.IP_4000.postFilter.enable="0"
       voice.txEq.hf.IP_7000.postFilter.enable="0"
+      voice.txEq.hf.IP_6000.postFilter.enable="0"
     >
       <filters
         voice.txEq.hf.IP_500.postFilter.999.size="4"
@@ -1915,12 +1930,12 @@
       voice.handset.rxag.adjust.IP_330="1"
       voice.handset.rxag.adjust.IP_430="1"
       voice.handset.rxag.adjust.IP_650="1"
-      voice.handset.txag.adjust.IP_330="9"
-      voice.handset.txag.adjust.IP_430="9"
-      voice.handset.txag.adjust.IP_650="9"
-      voice.handset.sidetone.adjust.IP_330="0"
-      voice.handset.sidetone.adjust.IP_430="0"
-      voice.handset.sidetone.adjust.IP_650="-3"
+      voice.handset.txag.adjust.IP_330="18"
+      voice.handset.txag.adjust.IP_430="18"
+      voice.handset.txag.adjust.IP_650="18"
+      voice.handset.sidetone.adjust.IP_330="3"
+      voice.handset.sidetone.adjust.IP_430="3"
+      voice.handset.sidetone.adjust.IP_650="0"
     />
     <headset
       voice.headset.rxag.adjust.IP_430="1"
@@ -3970,37 +3985,45 @@
         ind.pattern.12.step.2.state="Off"
         ind.pattern.12.step.2.duration="250"
       />
-      <LED_CUSTOM1
-        ind.pattern.13.step.1.state="Off"
-        ind.pattern.13.step.1.duration="0"
+      <REMOTE_BUSY_OFFERING
+        ind.pattern.13.step.1.state="On"
+        ind.pattern.13.step.1.duration="1000"
+        ind.pattern.13.step.1.colour="Red"
+        ind.pattern.13.step.2.state="On"
+        ind.pattern.13.step.2.duration="250"
+        ind.pattern.13.step.2.colour="Green"
       />
-      <LED_CUSTOM2
+      <LED_CUSTOM1
         ind.pattern.14.step.1.state="Off"
         ind.pattern.14.step.1.duration="0"
       />
-      <LED_CUSTOM3
+      <LED_CUSTOM2
         ind.pattern.15.step.1.state="Off"
         ind.pattern.15.step.1.duration="0"
       />
-      <LED_CUSTOM4
+      <LED_CUSTOM3
         ind.pattern.16.step.1.state="Off"
         ind.pattern.16.step.1.duration="0"
       />
-      <LED_CUSTOM5
+      <LED_CUSTOM4
         ind.pattern.17.step.1.state="Off"
         ind.pattern.17.step.1.duration="0"
       />
-      <LED_CUSTOM6
+      <LED_CUSTOM5
         ind.pattern.18.step.1.state="Off"
         ind.pattern.18.step.1.duration="0"
       />
-      <LED_CUSTOM7
+      <LED_CUSTOM6
         ind.pattern.19.step.1.state="Off"
         ind.pattern.19.step.1.duration="0"
       />
-      <LED_CUSTOM8
+      <LED_CUSTOM7
         ind.pattern.20.step.1.state="Off"
         ind.pattern.20.step.1.duration="0"
+      />
+      <LED_CUSTOM8
+        ind.pattern.21.step.1.state="Off"
+        ind.pattern.21.step.1.duration="0"
       />
     </Patterns>
     <Classes>
