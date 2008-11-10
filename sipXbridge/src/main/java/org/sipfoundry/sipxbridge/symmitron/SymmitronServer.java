@@ -251,7 +251,7 @@ public class SymmitronServer implements Symmitron {
      */
     public SymmitronServer() {
 
-        logger.debug("creating SymmitronServer");
+        logger.trace("creating SymmitronServer");
 
     }
 

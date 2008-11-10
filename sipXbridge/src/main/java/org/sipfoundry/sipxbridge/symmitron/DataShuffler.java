@@ -80,8 +80,8 @@ class DataShuffler implements Runnable {
                     if (logger.isDebugEnabled()) {
                         
                         if (remoteAddress != null) {
-                            if (logger.isDebugEnabled())
-                                logger.debug("remoteIpAddressAndPort : "
+                            if (logger.isTraceEnabled())
+                                logger.trace("remoteIpAddressAndPort : "
                                         + remoteAddress.getAddress().getHostAddress() + ":"
                                         + remoteAddress.getPort());
                         }
@@ -131,8 +131,8 @@ class DataShuffler implements Runnable {
                         writeChannel.packetsSent++;
 
                     } else {
-                        if (logger.isDebugEnabled()) {
-                            logger.debug("WriteChannel on hold." + writeChannel.getIpAddress()
+                        if (logger.isTraceEnabled()) {
+                            logger.trace("WriteChannel on hold." + writeChannel.getIpAddress()
                                     + ":" + writeChannel.getPort() + " Not forwarding");
                         }
                     }
@@ -203,8 +203,8 @@ class DataShuffler implements Runnable {
                             }
                             continue;
                         }
-                        if ( logger.isDebugEnabled() ) {
-                            logger.debug("got something on " + datagramChannel.socket().getLocalPort() );
+                        if ( logger.isTraceEnabled() ) {
+                            logger.trace("got something on " + datagramChannel.socket().getLocalPort() );
                         }
                         send(bridge, datagramChannel, remoteAddress);
 
