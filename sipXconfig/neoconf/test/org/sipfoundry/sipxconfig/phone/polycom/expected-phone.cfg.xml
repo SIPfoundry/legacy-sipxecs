@@ -44,6 +44,7 @@
     reg.1.acd-login-logout="0"
     reg.1.acd-agent-available="0"
     reg.1.proxyRequire=""
+    reg.1.strictLineSeize=""
     reg.2.displayName=""
     reg.2.address=""
     reg.2.label=""
@@ -87,6 +88,7 @@
     reg.2.acd-login-logout="0"
     reg.2.acd-agent-available="0"
     reg.2.proxyRequire=""
+    reg.2.strictLineSeize=""
     reg.3.displayName=""
     reg.3.address=""
     reg.3.label=""
@@ -130,6 +132,7 @@
     reg.3.acd-login-logout="0"
     reg.3.acd-agent-available="0"
     reg.3.proxyRequire=""
+    reg.3.strictLineSeize=""
     reg.4.displayName=""
     reg.4.address=""
     reg.4.label=""
@@ -173,6 +176,7 @@
     reg.4.acd-login-logout="0"
     reg.4.acd-agent-available="0"
     reg.4.proxyRequire=""
+    reg.4.strictLineSeize=""
     reg.5.displayName=""
     reg.5.address=""
     reg.5.label=""
@@ -216,6 +220,7 @@
     reg.5.acd-login-logout="0"
     reg.5.acd-agent-available="0"
     reg.5.proxyRequire=""
+    reg.5.strictLineSeize=""
     reg.6.displayName=""
     reg.6.address=""
     reg.6.label=""
@@ -259,6 +264,7 @@
     reg.6.acd-login-logout="0"
     reg.6.acd-agent-available="0"
     reg.6.proxyRequire=""
+    reg.6.strictLineSeize=""
   />
   <call>
     <donotdisturb call.donotdisturb.perReg="0" />
@@ -489,6 +495,7 @@
   <attendant
     attendant.uri=""
     attendant.reg=""
+    attendant.ringType=""
   />
   <roaming_buddies
     roaming_buddies.reg=""
@@ -498,5 +505,6 @@
   />
   <user_preferences
     up.analogHeadsetOption="0"
+    up.offHookAction.none=""
   />
 </phone1>

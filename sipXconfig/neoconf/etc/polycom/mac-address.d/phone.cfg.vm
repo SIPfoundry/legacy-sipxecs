@@ -10,6 +10,7 @@
     reg.${i}.acd-login-logout="0"
     reg.${i}.acd-agent-available="0"
     reg.${i}.proxyRequire=""
+    reg.${i}.strictLineSeize=""
 #end
   />
   <call>
@@ -163,6 +164,7 @@
 #foreach ($setting in $cfg.getSettings($group))
     attendant.${setting.ProfileName}="$!{setting.Value}"
 #end
+    attendant.ringType=""
   />
   <roaming_buddies
 #set ($group = $cfg.EndpointSettings.getSetting('roaming_buddies'))
@@ -179,5 +181,6 @@
 #set ($group = $cfg.EndpointSettings.getSetting('up'))
   <user_preferences
     up.analogHeadsetOption="$!group.getSetting('analogHeadsetOption').value"
+    up.offHookAction.none=""
   />
 </phone1>
