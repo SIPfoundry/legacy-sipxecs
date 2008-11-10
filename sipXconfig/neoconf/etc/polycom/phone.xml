@@ -1823,60 +1823,85 @@
       <type>
         <enum>
           <option>
-            <value>1</value>
+            <label>English (Internal)</label>
+            <value></value>
           </option>
           <option>
-            <value>2</value>
+            <label>Chinese (China)</label>
+            <value>Chinese_China</value>
           </option>
           <option>
-            <value>3</value>
+            <label>Danish (Denmark)</label>
+            <value>Danish_Denmark</value>
           </option>
           <option>
-            <value>4</value>
+            <label>Dutch (Netherlands)</label>
+            <value>Dutch_Netherlands</value>
           </option>
           <option>
-            <value>5</value>
+            <label>English (Canada)</label>
+            <value>English_Canada</value>
           </option>
           <option>
-            <value />
-          </option>
-          <!--
-            - no need to list US english twice as empty and 6 unless 
-            - polycom has an undocumented difference
-          -->
-          <option>
-            <value>7</value>
+            <label>English (United Kingdom)</label>
+            <value>English_United_Kingdom</value>
           </option>
           <option>
-            <value>8</value>
+            <label>English (United States)</label>
+            <value>English_United_States</value>
           </option>
           <option>
-            <value>9</value>
+            <label>French (France)</label>
+            <value>French_France</value>
           </option>
           <option>
-            <value>10</value>
+            <label>German (Germany)</label>
+            <value>German_Germany</value>
           </option>
           <option>
-            <value>11</value>
+            <label>Italian (Italy)</label>
+            <value>Italian_Italy</value>
           </option>
           <option>
-            <value>12</value>
+            <label>Japanese (Japan)</label>
+            <value>Japanese_Japan</value>
           </option>
           <option>
-            <value>13</value>
+            <label>Korean (Korea)</label>
+            <value>Korean_Korea</value>
           </option>
           <option>
-            <value>14</value>
+            <label>Norwegian (Norway)</label>
+            <value>Norwegian_Norway</value>
           </option>
           <option>
-            <value>15</value>
+            <label>Polish (Poland)</label>
+            <value>Polish_Poland</value>
           </option>
           <option>
-            <value>16</value>
+            <label>Portuguese (Portugal)</label>
+            <value>Portuguese_Portugal</value>
+          </option>
+          <option>
+            <label>Russian (Russia)</label>
+            <value>Russian_Russia</value>
+          </option>
+          <option>
+            <label>Slovenian (Slovenia)</label>
+            <value>Slovenian_Slovenia</value>
+          </option>
+          <option>
+            <label>Spanish (Spain)</label>
+            <value>Spanish_Spain</value>
+          </option>
+          <option>
+            <label>Swedish (Sweden)</label>
+            <value>Swedish_Sweden</value>
           </option>
         </enum>
       </type>
-      <value />
+      <label>English (Internal)</label>
+      <value></value>
     </setting>
   </group>
   <group name="msg">
