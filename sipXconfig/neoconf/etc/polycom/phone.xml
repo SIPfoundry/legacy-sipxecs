@@ -1022,9 +1022,9 @@
     <group name="volatile">
       <setting name="dir.local.volatile.maxSize">
         <type>
-          <integer min="0" max="100" />
+          <integer min="0" max="200" />
         </type>
-        <value>100</value>
+        <value>200</value>
       </setting>
     </group>
   </group>
@@ -1788,7 +1788,7 @@
             <pattern>((\d+)\|?)*</pattern>
           </string>
         </type>
-        <value>3</value>
+        <value></value>
       </setting>
       <!-- 
         - Recommended emergency settings are on lines so make these
