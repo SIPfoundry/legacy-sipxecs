@@ -29,6 +29,8 @@ SessionContext::SessionContext( const SipMessage& sipRequest,
                                 const RegistrationDB* pRegistrationDB,
                                 CallTrackerInterfaceForSessionContext* pOwningCallTracker ) : 
    mpReferenceDialogTracker( 0 ),
+   mpCaller( 0 ),
+   mpCallee( 0 ),
    mpNatTraversalRules( pNatRules ),
    mHandle( handle ),
    mpMediaRelay( pMediaRelayToUse ),
@@ -82,6 +84,8 @@ SessionContext::~SessionContext()
    mDialogTrackersMap.destroyAll();
 
    delete mpReferenceDialogTracker;
+   delete mpCaller;
+   delete mpCallee;
    OsSysLog::add(FAC_NAT, PRI_DEBUG, "-SessionContext tracker %p deleted; Handle=%s-",
                                        this,
                                        mHandle.data() );
