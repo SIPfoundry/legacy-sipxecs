@@ -202,7 +202,7 @@ bool NetBase64Codec::decode(const UtlString encodedData, /* sizeis data.length()
    {
       size_t sizeNeeded = decodedSize(encodedData.length(), encodedData.data()) + 1;
 
-      if (data.capacity(sizeNeeded) >= sizeNeeded)
+      if (data.capacity(sizeNeeded+1) >= sizeNeeded+1)
       {
          int size = 0;
          valid = decode(encodedData.length(), encodedData.data(),
@@ -210,7 +210,6 @@ bool NetBase64Codec::decode(const UtlString encodedData, /* sizeis data.length()
          if (valid)
          {
             data.setLength(size);
-            const_cast<char*>(data.data())[size] = '\000';
          }
       }
    }
