@@ -43,8 +43,6 @@ public class ConfigGeneratorTest extends XMLTestCase {
         expectLastCall().andReturn(Collections.EMPTY_LIST);
         dialPlanContext.getGenerationRules();
         expectLastCall().andReturn(Collections.EMPTY_LIST);
-        dialPlanContext.getAttendantRules();
-        expectLastCall().andReturn(Collections.EMPTY_LIST);
 
         SbcManager sbcManager = createNiceMock(SbcManager.class);
 

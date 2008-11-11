@@ -9,7 +9,6 @@
 	  - P R O P E R T I E S
 	  -->
   <inject property="dialPlanContext" object="spring:dialPlanContext"/>
-  <inject property="vxmlGenerator" object="spring:vxml"/>
   <property name="selections"  initial-value="new org.sipfoundry.sipxconfig.components.SelectMap()"/>
   <property name="selectedRows" />
   <property name="currentRow" />

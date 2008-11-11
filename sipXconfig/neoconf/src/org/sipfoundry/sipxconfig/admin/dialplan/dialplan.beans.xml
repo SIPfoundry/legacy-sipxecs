@@ -135,7 +135,6 @@
     <property name="settingDao" ref="settingDao" />
     <property name="sipxReplicationContext" ref="sipxReplicationContext" />
     <property name="defaultDialPlanId" value="na.dialPlan" />
-    <property name="vxmlGenerator" ref="vxml" />
     <property name="sbcDeviceManager" ref="sbcDeviceManager" />
     <property name="sbcProfileManager" ref="sbcProfileManager" />
     <lookup-method name="getGatewayProfileManager" bean="gatewayProfileManager" />
@@ -150,14 +149,6 @@
     <property name="target">
       <ref local="dialPlanContextImpl" />
     </property>
-  </bean>
-
-  <bean id="vxml" class="org.sipfoundry.sipxconfig.admin.dialplan.VxmlGenerator">
-    <property name="velocityEngine" ref="velocityEngine" />
-    <property name="domainManager" ref="domainManager" />
-  </bean>
-
-  <bean id="attendantSaveDefaultGroup" factory-bean="dialPlanContextImpl" factory-method="createGroupSaveListener">
   </bean>
 
   <bean id="mappingRules" class="org.sipfoundry.sipxconfig.admin.dialplan.config.MappingRules"
@@ -191,12 +182,6 @@
     <property name="template" value="nattraversal/nattraversalrules.vm" />
   </bean>
 
-  <bean id="autoAttendantsConfig" class="org.sipfoundry.sipxconfig.admin.dialplan.attendant.AutoAttendantsConfig"
-    parent="defaultConfigurationFile">
-    <property name="name" value="autoattendants.xml" />
-    <property name="domainManager" ref="domainManager" />
-  </bean>
-
   <bean id="dialingRuleCollector" class="org.sipfoundry.sipxconfig.admin.dialplan.DialingRuleCollector" />
 
   <bean id="dialPlanConfigGenerator" class="org.sipfoundry.sipxconfig.admin.dialplan.config.ConfigGenerator"
@@ -227,7 +212,7 @@
   <!-- A T T E N D A N T -->
   <bean id="autoAttendant" class="org.sipfoundry.sipxconfig.admin.dialplan.AutoAttendant" scope="prototype"
     parent="beanWithSettings">
-    <property name="vxmlGenerator" ref="vxml" />
+    <property name="promptsDirectory" value="${sysdir.vxml.prompts}" />
   </bean>
 
   <bean id="operatorPrototype" parent="autoAttendant" class="org.sipfoundry.sipxconfig.admin.dialplan.AutoAttendant">
@@ -275,6 +260,18 @@
   <bean id="specialAutoAttendantMode" class="org.sipfoundry.sipxconfig.admin.dialplan.config.SpecialAutoAttendantMode"
     scope="prototype" parent="defaultConfigurationFile">
     <property name="name" value="organizationprefs.xml" />
+  </bean>
+
+  <bean id="autoAttendantsConfig" class="org.sipfoundry.sipxconfig.admin.dialplan.attendant.AutoAttendantsConfig"
+    parent="defaultConfigurationFile">
+    <property name="name" value="autoattendants.xml" />
+    <property name="domainManager" ref="domainManager" />
+  </bean>
+
+  <bean id="attendantSaveDefaultGroup"
+    class="org.sipfoundry.sipxconfig.admin.dialplan.attendant.OnAutoAttendantGroupSave">
+    <property name="dialPlanContext" ref="dialPlanContext" />
+    <property name="autoAttendantsConfig" ref="autoAttendantsConfig" />
   </bean>
 </beans>
 

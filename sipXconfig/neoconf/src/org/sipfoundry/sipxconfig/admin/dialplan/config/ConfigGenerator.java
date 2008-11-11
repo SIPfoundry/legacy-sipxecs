@@ -14,10 +14,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
-import org.sipfoundry.sipxconfig.admin.AbstractConfigurationFile;
 import org.sipfoundry.sipxconfig.admin.ConfigurationFile;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
-import org.sipfoundry.sipxconfig.admin.dialplan.AttendantRule;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRuleProvider;
 import org.sipfoundry.sipxconfig.admin.dialplan.IDialingRule;
@@ -38,7 +36,6 @@ public class ConfigGenerator {
     private AutoAttendantsConfig m_autoAttendantConfig;
 
     private DialingRuleProvider m_dialingRuleProvider;
-    private final List<AbstractConfigurationFile> m_attendantScheduleFiles = new ArrayList<AbstractConfigurationFile>();
 
     @Required
     public void setForwardingRules(ForwardingRules forwardingRules) {
@@ -83,15 +80,6 @@ public class ConfigGenerator {
     public void generate(DialPlanContext plan) {
         m_autoAttendantConfig.generate(plan);
         generateXmlFromDialingRules(plan);
-
-        List<AttendantRule> attendantRules = plan.getAttendantRules();
-        for (AttendantRule ar : attendantRules) {
-            if (ar.isEnabled()) {
-                AttendantScheduleFile file = new AttendantScheduleFile();
-                file.generate(ar);
-                m_attendantScheduleFiles.add(file);
-            }
-        }
     }
 
     private void generateXmlFromDialingRules(DialPlanContext plan) {
@@ -137,12 +125,8 @@ public class ConfigGenerator {
         return StringUtils.EMPTY;
     }
 
-    public void activate(SipxReplicationContext sipxReplicationContext, String scriptsDirectory) {
+    public void activate(SipxReplicationContext sipxReplicationContext) {
         for (ConfigurationFile file : getRulesFiles()) {
-            sipxReplicationContext.replicate(file);
-        }
-        for (AbstractConfigurationFile file : m_attendantScheduleFiles) {
-            file.setDirectory(scriptsDirectory);
             sipxReplicationContext.replicate(file);
         }
     }

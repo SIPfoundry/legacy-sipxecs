@@ -330,12 +330,11 @@ public class SiteTestHelper {
 
         // overwrite several properties that have to have "real" values
         sysProps.setProperty("localTftp.uploadDirectory", systemDirectory + "/tftproot");
-        sysProps.setProperty("vxml.promptsDirectory", systemDirectory + "/prompts");
-        sysProps.setProperty("vxml.scriptsDirectory", systemDirectory + "/aa_vxml");
         sysProps.setProperty("orbitsGenerator.audioDirectory", systemDirectory + "/parkserver/music");
         sysProps.setProperty("acdQueue.audioDirectory", systemDirectory + "/acd/audio");
         sysProps.setProperty("pagingConfiguration.audioDirectory", systemDirectory + "/sipxpage/music");
         sysProps.setProperty("sbcDeviceManagerImpl.localIpAddress", "1.0.0.1");
+        sysProps.setProperty("sysdir.vxml.prompts", TestUtil.getTestOutputDirectory("web") + "/artificial-system-root/prompts");
         TestUtil.saveSysDirProperties(sysProps, args[0]);
     }
 

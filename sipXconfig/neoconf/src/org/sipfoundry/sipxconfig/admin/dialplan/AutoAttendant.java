@@ -19,6 +19,7 @@ import org.sipfoundry.sipxconfig.setting.BeanWithGroups;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.type.FileSetting;
 import org.sipfoundry.sipxconfig.setting.type.SettingType;
+import org.springframework.beans.factory.annotation.Required;
 
 public class AutoAttendant extends BeanWithGroups implements NamedObject {
     public static final Log LOG = LogFactory.getLog(AutoAttendant.class);
@@ -41,7 +42,7 @@ public class AutoAttendant extends BeanWithGroups implements NamedObject {
 
     private String m_systemId;
 
-    private VxmlGenerator m_vxmlGenerator;
+    private String m_promptsDirectory;
 
     @Override
     protected Setting loadSettings() {
@@ -111,10 +112,6 @@ public class AutoAttendant extends BeanWithGroups implements NamedObject {
         m_prompt = prompt;
     }
 
-    public File getPromptFile() {
-        return new File(m_vxmlGenerator.getPromptsDirectory(), m_prompt);
-    }
-
     public String getName() {
         return m_name;
     }
@@ -131,22 +128,27 @@ public class AutoAttendant extends BeanWithGroups implements NamedObject {
         return m_menu;
     }
 
-    public VxmlGenerator getVxmlGenerator() {
-        return m_vxmlGenerator;
-    }
-
-    public void setVxmlGenerator(VxmlGenerator vxmlGenerator) {
-        m_vxmlGenerator = vxmlGenerator;
-    }
-
     public void resetToFactoryDefault() {
         setDescription(null);
         m_menu.reset(isPermanent());
     }
 
+    @Required
+    public void setPromptsDirectory(String promptsDirectory) {
+        m_promptsDirectory = promptsDirectory;
+    }
+
+    public String getPromptsDirectory() {
+        return m_promptsDirectory;
+    }
+
+    public File getPromptFile() {
+        return new File(m_promptsDirectory, m_prompt);
+    }
+
     @Override
     public void initialize() {
-        AudioDirectorySetter audioDirectorySetter = new AudioDirectorySetter(m_vxmlGenerator.getPromptsDirectory());
+        AudioDirectorySetter audioDirectorySetter = new AudioDirectorySetter(m_promptsDirectory);
         getSettings().acceptVisitor(audioDirectorySetter);
     }
 

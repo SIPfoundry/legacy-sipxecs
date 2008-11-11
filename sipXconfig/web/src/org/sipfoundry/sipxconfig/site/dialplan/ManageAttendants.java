@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.site.dialplan;
@@ -19,7 +19,6 @@ import org.apache.tapestry.valid.ValidationConstraint;
 import org.sipfoundry.sipxconfig.admin.dialplan.AttendantInUseException;
 import org.sipfoundry.sipxconfig.admin.dialplan.AutoAttendant;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
-import org.sipfoundry.sipxconfig.admin.dialplan.VxmlGenerator;
 import org.sipfoundry.sipxconfig.components.SelectMap;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.setting.Group;
@@ -32,8 +31,6 @@ public abstract class ManageAttendants extends BasePage {
 
     public abstract DialPlanContext getDialPlanContext();
 
-    public abstract VxmlGenerator getVxmlGenerator();
-
     public abstract AutoAttendant getCurrentRow();
 
     public abstract SelectMap getSelections();
@@ -43,8 +40,7 @@ public abstract class ManageAttendants extends BasePage {
         if (selectedRows != null) {
             DialPlanContext manager = getDialPlanContext();
             try {
-                manager.deleteAutoAttendantsByIds(selectedRows, getVxmlGenerator()
-                        .getScriptsDirectory());
+                manager.deleteAutoAttendantsByIds(selectedRows);
             } catch (AttendantInUseException e) {
                 IValidationDelegate validator = TapestryUtils.getValidator(this);
                 validator.record(e.getMessage(), ValidationConstraint.CONSISTENCY);
@@ -66,12 +62,12 @@ public abstract class ManageAttendants extends BasePage {
         page.setReturnPage(PAGE);
         return page;
     }
-    
+
     public IPage defaultGroup(IRequestCycle cycle) {
         GroupSettings page = (GroupSettings) cycle.getPage(DEFAULTS_PAGE);
         Group defaultGroup = getDialPlanContext().getDefaultAutoAttendantGroup();
         AutoAttendant aa = getDialPlanContext().newAutoAttendantWithDefaultGroup();
         page.editGroup(defaultGroup.getId(), aa, PAGE);
-        return page;        
+        return page;
     }
 }

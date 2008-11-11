@@ -35,7 +35,7 @@ public interface DialPlanContext extends DataObjectSource, AliasOwner {
 
     public abstract void storeAutoAttendant(AutoAttendant attendant);
 
-    public abstract void deleteAutoAttendant(AutoAttendant attendant, String scriptsDir);
+    public abstract void deleteAutoAttendant(AutoAttendant attendant);
 
     public abstract AutoAttendant getOperator();
 
@@ -43,12 +43,9 @@ public interface DialPlanContext extends DataObjectSource, AliasOwner {
 
     public abstract List<AutoAttendant> getAutoAttendants();
 
-    public abstract void deleteAutoAttendantsByIds(Collection<Integer> attendantsIds,
-            String scriptsDir);
+    public abstract void deleteAutoAttendantsByIds(Collection<Integer> attendantsIds);
 
     public abstract void specialAutoAttendantMode(boolean enabled, AutoAttendant attendant);
-
-    public abstract void replicateAutoAttendants();
 
     public abstract void removeGateways(Collection<Integer> gatewaysIds);
 

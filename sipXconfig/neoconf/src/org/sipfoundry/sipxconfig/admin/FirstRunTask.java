@@ -49,7 +49,6 @@ public class FirstRunTask implements ApplicationListener {
         LOG.info("Executing first run tasks...");
         m_domainManager.initialize();
         m_domainManager.replicateDomainConfig();
-        m_dialPlanContext.replicateAutoAttendants();
         m_dialPlanContext.activateDialPlan(false); // restartSBCDevices == false
         m_coreContext.initializeSpecialUsers();
         m_alarmContext.replicateAlarmServer();

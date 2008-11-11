@@ -1,15 +1,14 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.admin.dialplan;
 
-import java.io.File;
 import java.util.Collections;
 
 import org.dbunit.Assertion;
@@ -27,6 +26,7 @@ public class AutoAttendantTestDb extends SipxDatabaseTestCase {
 
     private DialPlanContext m_context;
 
+    @Override
     protected void setUp() throws Exception {
         ApplicationContext appContext = TestHelper.getApplicationContext();
         m_context = (DialPlanContext) appContext.getBean(DialPlanContext.CONTEXT_BEAN_NAME);
@@ -104,32 +104,16 @@ public class AutoAttendantTestDb extends SipxDatabaseTestCase {
     public void testDelete() throws Exception {
         TestHelper.cleanInsertFlat("admin/dialplan/seedAttendant.xml");
         AutoAttendant aa = m_context.getAutoAttendant(new Integer(1000));
-        m_context.deleteAutoAttendant(aa, "");
+        m_context.deleteAutoAttendant(aa);
         ITable actualItems = TestHelper.getConnection().createDataSet().getTable(
                 "attendant_menu_item");
         assertEquals(0, actualItems.getRowCount());
     }
 
-    public void testDeleteVxmlScript() throws Exception {
-        TestHelper.cleanInsertFlat("admin/dialplan/seedAttendant.xml");
-        File scriptFile = new File(TestHelper.getTestDirectory() + "/autoattendant-xcf1000.vxml");
-        scriptFile.delete();
-
-        AutoAttendant aa = m_context.getAutoAttendant(new Integer(1000));
-        VxmlGenerator vxml = new VxmlGenerator();
-        vxml.setScriptsDirectory(TestHelper.getTestDirectory());
-        vxml.setVelocityEngine(TestHelper.getVelocityEngine());
-        vxml.setDomainManager(TestHelper.getTestDomainManager("sipfoundry.org"));
-        vxml.generate(aa);
-        assertTrue(scriptFile.exists());
-        m_context.deleteAutoAttendant(aa, TestHelper.getTestDirectory());
-        assertFalse(scriptFile.exists());
-    }
-
     public void testDeleteInUseByAttendantRule() throws Exception {
         TestHelper.cleanInsertFlat("admin/dialplan/attendant_rule.db.xml");
         try {
-            m_context.deleteAutoAttendantsByIds(Collections.singletonList(new Integer(1001)), "");
+            m_context.deleteAutoAttendantsByIds(Collections.singletonList(1001));
             fail();
         } catch (AttendantInUseException e) {
             assertTrue(true);
@@ -141,14 +125,14 @@ public class AutoAttendantTestDb extends SipxDatabaseTestCase {
         TestHelper.cleanInsertFlat("admin/dialplan/seedOperator.xml");
         AutoAttendant aa = m_context.getAutoAttendant(new Integer(1000));
         try {
-            m_context.deleteAutoAttendant(aa, "");
+            m_context.deleteAutoAttendant(aa);
             fail();
         } catch (AttendantInUseException e) {
             assertTrue(true);
         }
         aa = m_context.getAutoAttendant(new Integer(1001));
         try {
-            m_context.deleteAutoAttendant(aa, "");
+            m_context.deleteAutoAttendant(aa);
             fail();
         } catch (AttendantInUseException e) {
             assertTrue(true);

@@ -206,8 +206,6 @@ public final class TestUtil {
         sysProps.setProperty("audiocodesGatewayModel.configDirectory", etcDirectory);
         sysProps.setProperty("audiocodesFxs.configDirectory", etcDirectory);
 
-        sysProps.setProperty("vxml.scriptsDirectory", vxmlDir);
-        sysProps.setProperty("dialPlanContextImpl.scriptsDirectory", vxmlDir);
         sysProps.setProperty("monitoringContextImpl.enabled", Boolean.toString(true));
         sysProps.setProperty("coreContextImpl.debug", "on");
         sysProps.setProperty("sipxconfig.db.user", "postgres");

@@ -23,7 +23,6 @@ import org.sipfoundry.sipxconfig.admin.dialplan.AttendantMenuAction;
 import org.sipfoundry.sipxconfig.admin.dialplan.AttendantRule;
 import org.sipfoundry.sipxconfig.admin.dialplan.AutoAttendant;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
-import org.sipfoundry.sipxconfig.admin.dialplan.VxmlGenerator;
 import org.sipfoundry.sipxconfig.common.DialPad;
 import org.sipfoundry.sipxconfig.domain.Domain;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
@@ -72,13 +71,7 @@ public class AutoAttendantsConfigTest extends XMLTestCase {
 
     public void testGenerateAutoAttendants() throws Exception {
         AutoAttendant operator = new AutoAttendant();
-        VxmlGenerator vxmlGenerator = new VxmlGenerator() {
-            @Override
-            public String getPromptsDirectory() {
-                return "prompts/";
-            }
-        };
-        operator.setVxmlGenerator(vxmlGenerator);
+        operator.setPromptsDirectory("prompts/");
         operator.setModelFilesContext(TestHelper.getModelFilesContext());
         operator.setSystemId(AutoAttendant.OPERATOR_ID);
         operator.setName("operator");
@@ -86,9 +79,9 @@ public class AutoAttendantsConfigTest extends XMLTestCase {
         operator.resetToFactoryDefault();
 
         AutoAttendant aa = new AutoAttendant();
-        aa.setVxmlGenerator(vxmlGenerator);
         aa.setName("abc");
         aa.setModelFilesContext(TestHelper.getModelFilesContext());
+        aa.setPromptsDirectory("prompts/");
         aa.setPrompt("prompt.wav");
 
         AttendantMenu menu = new AttendantMenu();
@@ -122,13 +115,7 @@ public class AutoAttendantsConfigTest extends XMLTestCase {
 
     public void testGenerateSchedules() throws Exception {
         AutoAttendant operator = new AutoAttendant();
-        VxmlGenerator vxmlGenerator = new VxmlGenerator() {
-            @Override
-            public String getPromptsDirectory() {
-                return "prompts/";
-            }
-        };
-        operator.setVxmlGenerator(vxmlGenerator);
+        operator.setPromptsDirectory("prompts/");
         operator.setModelFilesContext(TestHelper.getModelFilesContext());
         operator.setSystemId(AutoAttendant.OPERATOR_ID);
         operator.setName("operator");

@@ -9,7 +9,6 @@
  */
 package org.sipfoundry.sipxconfig.admin.dialplan;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -30,7 +29,6 @@ import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
 import org.sipfoundry.sipxconfig.common.InitializationTask;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.UserException;
-import org.sipfoundry.sipxconfig.common.event.EntitySaveListener;
 import org.sipfoundry.sipxconfig.device.ProfileManager;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
 import org.sipfoundry.sipxconfig.gateway.GatewayContext;
@@ -49,8 +47,9 @@ import org.springframework.dao.support.DataAccessUtils;
  */
 public abstract class DialPlanContextImpl extends SipxHibernateDaoSupport implements BeanFactoryAware,
         DialPlanContext, ApplicationListener {
+    public static final String ATTENDANT_GROUP_ID = "auto_attendant";
+
     private static final String DIALING_RULE_IDS_WITH_NAME_QUERY = "dialingRuleIdsWithName";
-    private static final String ATTENDANT_GROUP_ID = "auto_attendant";
     private static final String OPERATOR_CONSTANT = "operator";
     private static final String VALUE = "value";
     private static final String AUTO_ATTENDANT = "auto attendant";
@@ -64,11 +63,7 @@ public abstract class DialPlanContextImpl extends SipxHibernateDaoSupport implem
 
     private SettingDao m_settingDao;
 
-    private String m_scriptsDirectory;
-
     private String m_defaultDialPlanId;
-
-    private VxmlGenerator m_vxmlGenerator;
 
     private SbcDeviceManager m_sbcDeviceManager;
 
@@ -296,7 +291,6 @@ public abstract class DialPlanContextImpl extends SipxHibernateDaoSupport implem
         }
         clearUnsavedValueStorage(aa.getValueStorage());
         getHibernateTemplate().saveOrUpdate(aa);
-        m_vxmlGenerator.generate(aa);
     }
 
     public AutoAttendant getOperator() {
@@ -319,14 +313,14 @@ public abstract class DialPlanContextImpl extends SipxHibernateDaoSupport implem
         return (AutoAttendant) getHibernateTemplate().load(AutoAttendant.class, id);
     }
 
-    public void deleteAutoAttendantsByIds(Collection<Integer> attendantIds, String scriptsDir) {
+    public void deleteAutoAttendantsByIds(Collection<Integer> attendantIds) {
         for (Integer id : attendantIds) {
             AutoAttendant aa = getAutoAttendant(id);
-            deleteAutoAttendant(aa, scriptsDir);
+            deleteAutoAttendant(aa);
         }
     }
 
-    public void deleteAutoAttendant(AutoAttendant attendant, String scriptsDir) {
+    public void deleteAutoAttendant(AutoAttendant attendant) {
         if (attendant.isPermanent()) {
             throw new AttendantInUseException();
         }
@@ -346,10 +340,6 @@ public abstract class DialPlanContextImpl extends SipxHibernateDaoSupport implem
         }
 
         getHibernateTemplate().delete(attendant);
-        File script = new File(scriptsDir + '/' + attendant.getScriptFileName());
-        if (script.exists()) {
-            script.delete();
-        }
     }
 
     public void specialAutoAttendantMode(boolean enabled, AutoAttendant attendant) {
@@ -360,13 +350,6 @@ public abstract class DialPlanContextImpl extends SipxHibernateDaoSupport implem
         SpecialAutoAttendantMode mode = createSpecialAutoAttendantMode();
         mode.generate(enabled, aa);
         m_sipxReplicationContext.replicate(mode);
-    }
-
-    public void replicateAutoAttendants() {
-        List<AutoAttendant> autoAttendants = getAutoAttendants();
-        for (AutoAttendant aa : autoAttendants) {
-            m_vxmlGenerator.generate(aa);
-        }
     }
 
     /**
@@ -393,7 +376,7 @@ public abstract class DialPlanContextImpl extends SipxHibernateDaoSupport implem
 
     public void activateDialPlan(boolean restartSbcDevices) {
         ConfigGenerator generator = getGenerator();
-        generator.activate(m_sipxReplicationContext, m_scriptsDirectory);
+        generator.activate(m_sipxReplicationContext);
 
         //push gateway/sbc devices generation when activating dial plan
         Collection<Integer> gatewayIds = getGatewayContext().getAllGatewayIds();
@@ -415,10 +398,6 @@ public abstract class DialPlanContextImpl extends SipxHibernateDaoSupport implem
 
     public void setAliasManager(AliasManager aliasManager) {
         m_aliasManager = aliasManager;
-    }
-
-    public void setScriptsDirectory(String scriptsDirectory) {
-        m_scriptsDirectory = scriptsDirectory;
     }
 
     public void setDefaultDialPlanId(String defaultDialPlanId) {
@@ -606,30 +585,6 @@ public abstract class DialPlanContextImpl extends SipxHibernateDaoSupport implem
     public Setting getAttendantSettingModel() {
         AutoAttendant aa = (AutoAttendant) m_beanFactory.getBean(AutoAttendant.BEAN_NAME, AutoAttendant.class);
         return aa.getSettings();
-    }
-
-    public EntitySaveListener<Group> createGroupSaveListener() {
-        return new OnGroupSave();
-    }
-
-    private class OnGroupSave extends EntitySaveListener<Group> {
-        public OnGroupSave() {
-            super(Group.class);
-        }
-
-        @Override
-        protected void onEntitySave(Group group) {
-            if (ATTENDANT_GROUP_ID.equals(group.getResource()) && !group.isNew()) {
-                List<AutoAttendant> attendants = getAutoAttendants();
-                for (AutoAttendant aa : attendants) {
-                    m_vxmlGenerator.generate(aa);
-                }
-            }
-        }
-    }
-
-    public void setVxmlGenerator(VxmlGenerator vxmlGenerator) {
-        m_vxmlGenerator = vxmlGenerator;
     }
 
     public void setSbcDeviceManager(SbcDeviceManager sbcDeviceManager) {

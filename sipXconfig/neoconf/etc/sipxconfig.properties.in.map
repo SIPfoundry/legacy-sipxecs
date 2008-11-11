@@ -5,4 +5,6 @@
 - : registrationContext.port
 - : registrationContext.server
 - : sipxProxyService.sipSrvOrHostport
-
+- : vxml.promptsDirectory
+- : vxml.scriptsDirectory
+- : dialPlanContextImpl.scriptsDirectory

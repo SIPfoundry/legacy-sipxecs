@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.site.dialplan;
@@ -19,18 +19,13 @@ import org.apache.tapestry.valid.IValidationDelegate;
 import org.sipfoundry.sipxconfig.admin.dialplan.AttendantMenuAction;
 import org.sipfoundry.sipxconfig.admin.dialplan.AutoAttendant;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
-import org.sipfoundry.sipxconfig.admin.dialplan.VxmlGenerator;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 
-public abstract class EditAutoAttendant extends PageWithCallback implements
-        PageBeginRenderListener {
+public abstract class EditAutoAttendant extends PageWithCallback implements PageBeginRenderListener {
 
     public static final String PAGE = "dialplan/EditAutoAttendant";
-
-    @InjectObject(value = "spring:vxml")
-    public abstract VxmlGenerator getVxmlGenerator();
 
     @InjectObject(value = "spring:dialPlanContext")
     public abstract DialPlanContext getDialPlanContext();
@@ -71,5 +66,4 @@ public abstract class EditAutoAttendant extends PageWithCallback implements
     public String getActionName(AttendantMenuAction action) {
         return getMessages().getMessage("menuItemAction." + action.getName());
     }
-
 }

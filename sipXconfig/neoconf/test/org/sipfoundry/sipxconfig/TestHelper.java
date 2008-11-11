@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig;
@@ -167,7 +167,7 @@ public final class TestHelper {
     /**
      * Sets velocity profile generator that generates profile to memory and can be used during
      * testing.
-     * 
+     *
      * @param device
      */
     public static MemoryProfileLocation setVelocityProfileGenerator(Device device) {
@@ -264,11 +264,12 @@ public final class TestHelper {
     /**
      * Special TestCase class that catches prints additional info for SQL Exceptions errors that
      * may happed during setUp, testXXX and tearDown.
-     * 
+     *
      * Alternatively we could just throw e.getNextException, but we may want to preserve the
      * original exception.
      */
     public static class TestCaseDb extends TestCase {
+        @Override
         public void runBare() throws Throwable {
             try {
                 super.runBare();
@@ -292,7 +293,7 @@ public final class TestHelper {
 
     /**
      * Use in test to create copy of example files to be changed by test methods.
-     * 
+     *
      * @param from input stream
      * @param dir destination directory
      * @param filename destination file name
@@ -308,7 +309,7 @@ public final class TestHelper {
 
     /**
      * Retrieves the file corresponding to the class resource
-     * 
+     *
      * @param klass
      * @param resource resource name relative to class
      * @return file that can be opened and used to read resource
