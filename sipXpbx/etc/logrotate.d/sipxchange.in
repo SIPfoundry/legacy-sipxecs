@@ -29,3 +29,10 @@ missingok
         /bin/kill -USR1 `cat @SIPX_RUNDIR@/httpd.pid 2>/dev/null` 2> /dev/null || true
     endscript
 }
+
+@SIPX_LOGDIR@/httpd_stdout_log @SIPX_LOGDIR@/httpd_stderr_log {
+    notifempty
+    # Must use 'copytruncate', as httpd does not reopen these files.
+    # But they are opened in append mode, so the truncate operation works correctly.
+    copytruncate
+}

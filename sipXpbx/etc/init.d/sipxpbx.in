@@ -703,8 +703,11 @@ do_start() {
 
         sleep 1
         echo -n "Starting httpd: "
+	# Note the log file names must not end in ".log", as that would cause
+	# logrotate to handle them incorrectly.  Must be opened in append mode
+	# for logrotate to work correctly.
         ${HTTP_DAEMON_START} -k start -f @SIPX_CONFDIR@/httpd.conf -DSSL \
-	    >> @SIPX_LOGDIR@/httpd_stdout.log 2>> @SIPX_LOGDIR@/httpd_stderr.log \
+	    >> @SIPX_LOGDIR@/httpd_stdout_log 2>> @SIPX_LOGDIR@/httpd_stderr_log \
             && echo_success || echo_failure
         echo
 }
