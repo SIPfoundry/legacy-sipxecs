@@ -128,12 +128,12 @@ UtlString& UtlString::operator=(const UtlString& str)
 {
     if (this != &str)
     {
-    remove(0);
-    if(str.mCapacity > mCapacity)
-    {
-        capacity(str.mCapacity);
-    }
-    append(str.mpData, str.mSize);
+       remove(0);
+       if(str.mCapacity > mCapacity)
+       {
+          capacity(str.mCapacity);
+       }
+       append(str.mpData, str.mSize);
     }
 
     return *this;
@@ -162,7 +162,7 @@ UtlString& UtlString::operator+=(const char c)
 // Get the character at position N.
 char UtlString::operator()(size_t N) const
 {
-    char foundChar = '\0';
+    char foundChar = '\000';
 
     if (mpData && N >= 0 && N < mSize)
     {
@@ -230,7 +230,7 @@ UtlString& UtlString::append(const char* szStr, size_t N)
             // Update the size of the string.
             mSize += N;
             // Append a final zero byte.
-            mpData[mSize] = '\0';
+            mpData[mSize] = '\000';
         }
         else
         {
@@ -322,7 +322,7 @@ UtlString& UtlString::insert(size_t position, const char* source, size_t sourceL
              sourceLength);
 
       mSize+= sourceLength;
-      mpData[mSize] = '\0';
+      mpData[mSize] = '\000';
    }
 
    // Else do nothing
@@ -357,7 +357,7 @@ UtlString& UtlString::remove(size_t pos)
     if(mpData && pos >= 0 && pos < mSize)
     {
         mSize = pos;
-        mpData[mSize] = '\0';
+        mpData[mSize] = '\000';
     }
     else
     {
@@ -373,14 +373,14 @@ UtlString& UtlString::remove(size_t pos, size_t N)
 {
     if(mpData && N > 0 && N <= mSize - pos && pos >= 0 && pos < mSize)
     {
-        // Add one extra byte for the '\0'
+        // Add one extra byte for the '\000'
         size_t bytesToShift = mSize - (pos + N) + 1;
 
         // memcpy() cannot be used here due to possible overlap of source
         // and destination areas!
         memmove(&mpData[pos], &mpData[pos + N], bytesToShift);
         mSize -= N;
-        mpData[mSize] = '\0';
+        mpData[mSize] = '\000';
     }
     else
     {
@@ -599,9 +599,13 @@ void UtlString::toUpper()
 
 void UtlString::setLength(size_t newLength)
 {
-   assert(newLength <= mCapacity);
+   assert(newLength+1 <= mCapacity);
 
-   mSize = newLength;
+   if (newLength+1 <= mCapacity)
+   {
+      mSize = newLength;
+      mpData[mSize] = '\000';
+   }
 }
 
 // Resize the string to the specified size.
@@ -620,9 +624,9 @@ void UtlString::resize(size_t N)
         {
             for (; mSize < N; mSize++)
             {
-                mpData[mSize] = '\0';
+                mpData[mSize] = '\000';
             }
-            mpData[mSize] = '\0';
+            mpData[mSize] = '\000';
         }
     }
     else
@@ -637,7 +641,6 @@ size_t UtlString::capacity(size_t N)
 #ifdef _VXWORKS
     size_t maxFreeBlockSize = 0;
 #endif
-    size_t newSize = 0;
     char* newData = 0;
 
     if(mCapacity < N && N > 0)
@@ -676,30 +679,18 @@ size_t UtlString::capacity(size_t N)
             }
             else
             {
-                newData[0] = '\0';
+                newData[0] = '\000';
             }
             if(mpData && mpData != mBuiltIn)
             {
                 delete[] mpData;
             }
             mpData = newData;
-            newSize = mCapacity = N;
+            mCapacity = N;
         }
-        else
-        {
-            osPrintf("******** ERROR******* : UtlString::capacity failed (%ld). Memory not allocated!\n", (long)N);
-#ifdef _VXWORKS
-            osPrintf("******** ERROR******* : Largest block = %d, requested size = %d\n",maxFreeBlockSize, N);
-#endif
-            newSize = 0;
-        }
-    }
-    else
-    {
-        newSize = mCapacity;
     }
 
-    return(newSize);
+    return(mCapacity);
 }
 
 

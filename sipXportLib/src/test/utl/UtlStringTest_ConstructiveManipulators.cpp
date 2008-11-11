@@ -298,24 +298,25 @@ public:
     {
        UtlString buffer;
        char testdata[] = "abcdefghijklmnopqrstuvwxyz";
+       char shortdata[] = "abcdefghij";
 
        buffer.append(testdata);
        ASSERT_STR_EQUAL(testdata, buffer.data());
-       CPPUNIT_ASSERT_EQUAL((ssize_t)26U,(ssize_t)buffer.length());
+       CPPUNIT_ASSERT_EQUAL((size_t)26,buffer.length());
 
        // force the length to a new value
        buffer.setLength(10U);
        // check that the data itself is not modified
-       ASSERT_STR_EQUAL(testdata, buffer.data());
+       ASSERT_STR_EQUAL(shortdata, buffer.data());
        // but the length returned by the buffer has been
-       CPPUNIT_ASSERT_EQUAL((ssize_t)10U,(ssize_t)buffer.length());
+       CPPUNIT_ASSERT_EQUAL(strlen(shortdata),buffer.length());
 
        UtlString copy;
        copy.append(buffer);
        // check that the copy is the correct subset
-       ASSERT_STR_EQUAL("abcdefghij", copy.data());
+       ASSERT_STR_EQUAL(shortdata, copy.data());
        // and the length returned by the copy has been
-       CPPUNIT_ASSERT_EQUAL((ssize_t)10U,(ssize_t)copy.length());
+       CPPUNIT_ASSERT_EQUAL(strlen(shortdata),copy.length());
     }
    
     /**

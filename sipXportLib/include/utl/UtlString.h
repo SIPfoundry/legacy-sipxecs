@@ -583,18 +583,29 @@ public:
 ///@{
 
     /// Set the minimum capacity a string can hold without reallocation.
-    size_t capacity(size_t );
+    size_t capacity(size_t N);
     /**<
-     * Set the string's storage capacity to the designated value.
+     * Set the string's storage capacity to at least N.
      * This does not modify the value of the string, but rather
      * adjusts the dynamic memory allocated for this string.
      *
      * This never reduces the capacity - any size less then the
      * current capacity is a no-op.
      *
-     * @return The new capacity that was set.  In case of success, it
+     * @return The new capacity of the string.  In case of success, it
      * may be greater than the requested capacity.  In case of failure,
      * it may be less than the requested capacity.
+     * @code
+     * UtlString buffer;
+     * if (buffer.capacity(requiredSize) >= requiredSize)
+     * {
+     *    // setting capacity succeeded, proceed with filling buffer
+     * }
+     * else
+     * {
+     *    // setting capacity failed
+     * }
+     * @endcode
      */
 
     /// Set a new size for the string.
@@ -608,9 +619,9 @@ public:
     /// Set a new length for the content
     void setLength(size_t newLength);
     /**<
-     * This does NOT modify the data in the buffer - it only resets the
-     * value that would be returned by UtlString::length.  The newLength
-     * value MUST be <= UtlString::capacity.
+     * This resets the value that would be returned by UtlString::length and
+     * adds a zero byte after that length.  
+     * The newLength value MUST be <= (UtlString::capacity - 1).
      *
      * This allows external code to directly manipulate the contents of
      * buffer and adjust the UtlString data accordingly.  For example, the
@@ -618,7 +629,7 @@ public:
      * of all one bits:
      * @code
      *   UtlString buffer;
-     *   if (buffer.capacity(sizeNeeded) >= sizeNeeded)
+     *   if (buffer.capacity(sizeNeeded+1) >= sizeNeeded+1)
      *   {
      *      memset(buffer.data(), 0xff, sizeNeeded);
      *      buffer.setLength(sizeNeeded);
