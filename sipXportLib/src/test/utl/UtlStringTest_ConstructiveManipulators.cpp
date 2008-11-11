@@ -301,21 +301,21 @@ public:
 
        buffer.append(testdata);
        ASSERT_STR_EQUAL(testdata, buffer.data());
-       CPPUNIT_ASSERT_EQUAL(26U,buffer.length());
+       CPPUNIT_ASSERT_EQUAL((ssize_t)26U,(ssize_t)buffer.length());
 
        // force the length to a new value
        buffer.setLength(10U);
        // check that the data itself is not modified
        ASSERT_STR_EQUAL(testdata, buffer.data());
        // but the length returned by the buffer has been
-       CPPUNIT_ASSERT_EQUAL(10U,buffer.length());
+       CPPUNIT_ASSERT_EQUAL((ssize_t)10U,(ssize_t)buffer.length());
 
        UtlString copy;
        copy.append(buffer);
        // check that the copy is the correct subset
        ASSERT_STR_EQUAL("abcdefghij", copy.data());
        // and the length returned by the copy has been
-       CPPUNIT_ASSERT_EQUAL(10U,copy.length());
+       CPPUNIT_ASSERT_EQUAL((ssize_t)10U,(ssize_t)copy.length());
     }
    
     /**
