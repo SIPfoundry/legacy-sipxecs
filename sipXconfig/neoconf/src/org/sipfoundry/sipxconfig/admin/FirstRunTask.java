@@ -25,7 +25,10 @@ import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.common.AlarmContext;
 import org.sipfoundry.sipxconfig.common.ApplicationInitializedEvent;
 import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.device.ProfileManager;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
+import org.sipfoundry.sipxconfig.gateway.GatewayContext;
+import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.service.LocationSpecificService;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.springframework.beans.factory.annotation.Required;
@@ -42,6 +45,10 @@ public class FirstRunTask implements ApplicationListener {
     private SipxProcessContext m_processContext;
     private String m_taskName;
     private AlarmContext m_alarmContext;
+    private GatewayContext m_gatewayContext;
+    private PhoneContext m_phoneContext;
+    private ProfileManager m_gatewayProfileManager;
+    private ProfileManager m_phoneProfileManager;
     private SipxServiceManager m_sipxServiceManager;
     private LocationsManager m_locationsManager;
 
@@ -51,12 +58,14 @@ public class FirstRunTask implements ApplicationListener {
         m_domainManager.replicateDomainConfig();
         m_dialPlanContext.activateDialPlan(false); // restartSBCDevices == false
         m_coreContext.initializeSpecialUsers();
+
         m_alarmContext.replicateAlarmServer();
 
         List restartable = m_processContext.getRestartable();
         m_processContext.restartOnEvent(restartable, DialPlanActivatedEvent.class);
 
         enableServicesOnPrimaryServer();
+        generateAllProfiles();
     }
 
     /**
@@ -75,8 +84,7 @@ public class FirstRunTask implements ApplicationListener {
         Collection<LocationSpecificService> servicesForPrimaryLocation = primaryLocation.getServices();
         for (LocationSpecificService locationSpecificService : servicesForPrimaryLocation) {
             if (locationSpecificService.getEnableOnNextUpgrade()) {
-                ProcessName processName = locationSpecificService.getSipxService()
-                        .getProcessName();
+                ProcessName processName = locationSpecificService.getSipxService().getProcessName();
                 Process process = m_processContext.getProcess(processName);
                 processesToEnable.add(process);
                 locationSpecificService.setEnableOnNextUpgrade(false);
@@ -88,6 +96,19 @@ public class FirstRunTask implements ApplicationListener {
         if (processesToEnable.size() > 0) {
             m_processContext.manageServices(primaryLocation, processesToEnable, Command.START);
         }
+    }
+
+    /**
+     * Regenerate all profiles: important if profile format changed after upgrade.
+     */
+    private void generateAllProfiles() {
+        LOG.info("Updating gateway profiles.");
+        Collection gatewayIds = m_gatewayContext.getAllGatewayIds();
+        m_gatewayProfileManager.generateProfiles(gatewayIds, true, null);
+
+        LOG.info("Updating phones profiles.");
+        Collection phoneIds = m_phoneContext.getAllPhoneIds();
+        m_phoneProfileManager.generateProfiles(phoneIds, true, null);
     }
 
     public void onApplicationEvent(ApplicationEvent event) {
@@ -148,6 +169,26 @@ public class FirstRunTask implements ApplicationListener {
     @Required
     public void setAlarmContext(AlarmContext alarmContext) {
         m_alarmContext = alarmContext;
+    }
+
+    @Required
+    public void setPhoneContext(PhoneContext phoneContext) {
+        m_phoneContext = phoneContext;
+    }
+
+    @Required
+    public void setGatewayContext(GatewayContext gatewayContext) {
+        m_gatewayContext = gatewayContext;
+    }
+
+    @Required
+    public void setGatewayProfileManager(ProfileManager gatewayProfileManager) {
+        m_gatewayProfileManager = gatewayProfileManager;
+    }
+
+    @Required
+    public void setPhoneProfileManager(ProfileManager phoneProfileManager) {
+        m_phoneProfileManager = phoneProfileManager;
     }
 
     @Required

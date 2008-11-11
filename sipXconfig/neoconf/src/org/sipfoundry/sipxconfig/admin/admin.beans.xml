@@ -62,6 +62,10 @@
     <property name="dialPlanContext" ref="dialPlanContext" />
     <property name="processContext" ref="sipxProcessContext" />
     <property name="alarmContext" ref="alarmContext" />
+    <property name="gatewayContext" ref="gatewayContext" />
+    <property name="phoneContext" ref="phoneContext" />
+    <property name="gatewayProfileManager" ref="gatewayProfileManager" />
+    <property name="phoneProfileManager" ref="phoneProfileManager" />
     <property name="taskName" value="first-run" />
     <property name="locationsManager" ref="locationsManager" />
     <property name="sipxServiceManager" ref="sipxServiceManager" />

@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.admin;
@@ -36,7 +36,7 @@ public class FirstRunTaskTestIntegration extends IntegrationTestCase {
     private DomainManager m_domainManager;
     private LocationsManager m_locationsManager;
     private SipxServiceManager m_sipxServiceManager;
-    private FirstRunTask m_out;
+    private FirstRunTask m_firstRun;
 
     public void setDomainManager(DomainManager domainManager) {
         m_domainManager = domainManager;
@@ -48,6 +48,10 @@ public class FirstRunTaskTestIntegration extends IntegrationTestCase {
 
     public void setSipxServiceManager(SipxServiceManager sipxServiceManager) {
         m_sipxServiceManager = sipxServiceManager;
+    }
+
+    public void setFirstRun(FirstRunTask firstRun) {
+        m_firstRun = firstRun;
     }
 
     public void testOnInitTaskInitializeDomain() throws Exception {
@@ -84,23 +88,22 @@ public class FirstRunTaskTestIntegration extends IntegrationTestCase {
     }
 
     public void testEnableFirstRunServices() throws Exception {
-        m_out = new FirstRunTask();
         DomainManager domainManager = EasyMock.createNiceMock(DomainManager.class);
-        m_out.setDomainManager(domainManager);
+        m_firstRun.setDomainManager(domainManager);
         AdminContext adminContext = EasyMock.createNiceMock(AdminContext.class);
-        m_out.setAdminContext(adminContext);
+        m_firstRun.setAdminContext(adminContext);
         DialPlanContext dialPlanContext = EasyMock.createNiceMock(DialPlanContext.class);
-        m_out.setDialPlanContext(dialPlanContext);
+        m_firstRun.setDialPlanContext(dialPlanContext);
         CoreContext coreContext = EasyMock.createNiceMock(CoreContext.class);
-        m_out.setCoreContext(coreContext);
+        m_firstRun.setCoreContext(coreContext);
         AlarmContext alarmContext = EasyMock.createNiceMock(AlarmContext.class);
-        m_out.setAlarmContext(alarmContext);
+        m_firstRun.setAlarmContext(alarmContext);
 
         EasyMock.replay(domainManager, adminContext, dialPlanContext, coreContext, alarmContext);
 
         loadDataSetXml("admin/commserver/seedLocationsAndServices.xml");
-        m_out.setSipxServiceManager(m_sipxServiceManager);
-        m_out.setLocationsManager(m_locationsManager);
+        m_firstRun.setSipxServiceManager(m_sipxServiceManager);
+        m_firstRun.setLocationsManager(m_locationsManager);
 
         SipxProcessContext processContext = EasyMock.createMock(SipxProcessContext.class);
         processContext.getRestartable();
@@ -114,9 +117,9 @@ public class FirstRunTaskTestIntegration extends IntegrationTestCase {
                 EasyMock.isA(Collection.class), EasyMock.eq(Command.START));
         EasyMock.expectLastCall();
         EasyMock.replay(processContext);
-        m_out.setProcessContext(processContext);
+        m_firstRun.setProcessContext(processContext);
 
-        m_out.runTask();
+        m_firstRun.runTask();
         EasyMock.verify(processContext);
 
         Location primaryLocation = m_locationsManager.getPrimaryLocation();
@@ -124,6 +127,7 @@ public class FirstRunTaskTestIntegration extends IntegrationTestCase {
         for (LocationSpecificService locationSpecificService : servicesForPrimaryLocation) {
             assertFalse(locationSpecificService.getEnableOnNextUpgrade());
         }
+        setDirty(m_firstRun);
     }
 
 }
