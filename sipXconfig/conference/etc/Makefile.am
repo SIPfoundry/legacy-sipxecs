@@ -4,13 +4,7 @@ cfgfiles_IN = \
     freeswitch_config.defs
 
 EXTRA_DIST = \
-    freeswitch-process.xml.in \
     $(cfgfiles_IN)
-
-### if ENABLE_CONFERENCE
-SIPX_PROCESS_DEFS = \
-	freeswitch
-### endif
 
 CFG_FILES = $(foreach file,$(cfgfiles_IN),$(DESTDIR)/$(sysconfdir)/sipxpbx/$(file))
 install-exec-hook : \
