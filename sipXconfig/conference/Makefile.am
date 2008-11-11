@@ -12,3 +12,4 @@ SUBDIRS = \
 	local \
 	bin
 
+DISTCLEANFILES = freeswitch-process.xml
