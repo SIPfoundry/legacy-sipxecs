@@ -1054,8 +1054,9 @@ void SipRouter::authenticationChallenge(const SipMessage& sipRequest, ///< messa
                                     HttpMessage::PROXY);
 }
 
-// P-Asserted-Identity header is only applicable for INVITE, REFER, BYE,
-// OPTIONS, and SUBSCRIBE 
+// Section 9.1 of RFC 3325 gives the table of REQUESTs where P-Asserted Identities are
+// applicable. We use a slightly modified criteria (outlined below) to determine if
+// we should authenticate the REQUEST or not.
 bool SipRouter::isPAIdentityApplicable(const SipMessage& sipRequest) 
                                      
 {
@@ -1073,46 +1074,31 @@ bool SipRouter::isPAIdentityApplicable(const SipMessage& sipRequest)
        SipXauthIdentity sipxIdentity(sipRequest,SipXauthIdentity::PAssertedIdentityHeaderName);
        requestIsAuthenticated = sipxIdentity.getIdentity(authUser);
    }      
-      
+
+   // All out-of-dialog REQUESTS are authenticated (with two exceptions) whereas all in-dialog
+   // request aren't. The presence of a To-Tag is used to determine if a REQUEST is out-of-dialog or not. 
+   // EXCEPTION 1: REGISTER requests are not authenticated. sipXregistrar is in a better position
+   // to authenticate these.
+   // EXCEPTION 2: OPTIONS requests are also not authenticated. They are very useful for debugging
+   // purposes, hence we make an exception for them.
    if (!requestIsAuthenticated) 
    {
        UtlString method;
+       UtlString toTag;
+       Url toUrl;
 
        sipRequest.getRequestMethod(&method);
+       sipRequest.getToUrl(toUrl);
+       toUrl.getFieldParameter("tag", toTag);
 
-       if (0==method.compareTo(SIP_INVITE_METHOD, UtlString::ignoreCase))
+       if(toTag.isNull())
        {
-           UtlString toTag;
-           Url toUrl;
-
-           sipRequest.getToUrl(toUrl);
-           toUrl.getFieldParameter("tag", toTag);
-
-           if (toTag.isNull())
-            {
-                result = true;
-            }
-       }else if (0==method.compareTo(SIP_REFER_METHOD, UtlString::ignoreCase))
-       {
-            result = true;
+           if ((0 != method.compareTo(SIP_REGISTER_METHOD, UtlString::ignoreCase)) &&
+               (0 != method.compareTo(SIP_OPTIONS_METHOD, UtlString::ignoreCase)) )
+           {
+               result = true;
+           }
        }
-       else if (0==method.compareTo(SIP_BYE_METHOD, UtlString::ignoreCase))
-       {
-            result = true;
-       }
-       else if (0==method.compareTo(SIP_OPTIONS_METHOD, UtlString::ignoreCase))
-       {
-            result = true;
-       }
-       else if (0==method.compareTo(SIP_SUBSCRIBE_METHOD, UtlString::ignoreCase))
-       {
-            result = true;
-       }
-       else if (0==method.compareTo(SIP_NOTIFY_METHOD, UtlString::ignoreCase))
-       {
-            result = true;
-       }
-
    }
 
    return result;

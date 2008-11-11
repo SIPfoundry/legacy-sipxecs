@@ -53,7 +53,14 @@ class SipRouterTest : public CppUnit::TestCase
    CPPUNIT_TEST(testInDialogRequestSelf);
    CPPUNIT_TEST(testInDialogRequestOther);
    CPPUNIT_TEST(testProxyChallengeLocal);
-   
+   CPPUNIT_TEST(testProxyChallengeDialogForming_Invite);   
+   CPPUNIT_TEST(testProxyChallengeDialogForming_Notify);   
+   CPPUNIT_TEST(testProxyChallengeDialogForming_Options);   
+   CPPUNIT_TEST(testProxyChallengeDialogForming_Register);   
+   CPPUNIT_TEST(testProxyDontChallengeInDialog_Invite);   
+   CPPUNIT_TEST(testProxyDontChallengeInDialog_Notify);   
+   CPPUNIT_TEST(testProxyDontChallengeInDialog_Options);   
+   CPPUNIT_TEST(testProxyDontChallengeInDialog_Register);   
    CPPUNIT_TEST_SUITE_END();
 
 private:
@@ -772,6 +779,169 @@ public:
 
          CPPUNIT_ASSERT_EQUAL(HTTP_PROXY_UNAUTHORIZED_CODE, testRsp.getResponseStatusCode());
       }
+   
+   void testProxyChallengeDialogForming_Invite()
+   {
+      const char* message =
+         "INVITE sip:user@external.example.net SIP/2.0\r\n"
+         "Via: SIP/2.0/TCP 10.1.1.3:33855\r\n"
+         "To: sip:user@example.com\r\n"
+         "From: Mighty Hunter <sip:mightyhunter@example.com>; tag=30543f3483e1cb11ecb40866edd3295b\r\n"
+         "Call-Id: f88dfabce84b6a2787ef024a7dbe8749\r\n"
+         "Cseq: 1 INVITE\r\n"
+         "Max-Forwards: 20\r\n"
+         "Contact: mightyhunter@127.0.0.1\r\n"
+         "Content-Length: 0\r\n"
+         "\r\n";
+
+      SipMessage testMsg(message, strlen(message));
+      SipMessage testRsp;
+    
+      CPPUNIT_ASSERT_EQUAL(SipRouter::SendResponse,mSipRouter->proxyMessage(testMsg, testRsp));
+      CPPUNIT_ASSERT_EQUAL(HTTP_PROXY_UNAUTHORIZED_CODE, testRsp.getResponseStatusCode());
+
+   }
+
+   void testProxyChallengeDialogForming_Notify()
+   {
+      const char* message =
+         "NOTIFY sip:user@external.example.net SIP/2.0\r\n"
+         "Via: SIP/2.0/TCP 10.1.1.3:33855\r\n"
+         "To: sip:user@example.com\r\n"
+         "From: Mighty Hunter <sip:mightyhunter@example.com>; tag=30543f3483e1cb11ecb40866edd3295b\r\n"
+         "Call-Id: f88dfabce84b6a2787ef024a7dbe8749\r\n"
+         "Cseq: 1 NOTIFY\r\n"
+         "Max-Forwards: 20\r\n"
+         "Contact: mightyhunter@127.0.0.1\r\n"
+         "Content-Length: 0\r\n"
+         "\r\n";
+
+      SipMessage testMsg(message, strlen(message));
+      SipMessage testRsp;
+    
+      CPPUNIT_ASSERT_EQUAL(SipRouter::SendResponse,mSipRouter->proxyMessage(testMsg, testRsp));
+      CPPUNIT_ASSERT_EQUAL(HTTP_PROXY_UNAUTHORIZED_CODE, testRsp.getResponseStatusCode());
+   }
+
+   void testProxyChallengeDialogForming_Options()
+   {
+      const char* message =
+         "OPTIONS sip:user@external.example.net SIP/2.0\r\n"
+         "Via: SIP/2.0/TCP 10.1.1.3:33855\r\n"
+         "To: sip:user@example.com\r\n"
+         "From: Mighty Hunter <sip:mightyhunter@example.com>; tag=30543f3483e1cb11ecb40866edd3295b\r\n"
+         "Call-Id: f88dfabce84b6a2787ef024a7dbe8749\r\n"
+         "Cseq: 1 OPTIONS\r\n"
+         "Max-Forwards: 20\r\n"
+         "Contact: mightyhunter@127.0.0.1\r\n"
+         "Content-Length: 0\r\n"
+         "\r\n";
+
+      SipMessage testMsg(message, strlen(message));
+      SipMessage testRsp;
+      // exception - method does not challenge options.
+      CPPUNIT_ASSERT_EQUAL(SipRouter::SendRequest,mSipRouter->proxyMessage(testMsg, testRsp));
+
+   }
+
+   void testProxyChallengeDialogForming_Register()
+   {
+      const char* message =
+         "REGISTER sip:external.example.net SIP/2.0\r\n"
+         "Via: SIP/2.0/TCP 10.1.1.3:33855\r\n"
+         "To: sip:user@example.com\r\n"
+         "From: Mighty Hunter <sip:mightyhunter@example.com>; tag=30543f3483e1cb11ecb40866edd3295b\r\n"
+         "Call-Id: f88dfabce84b6a2787ef024a7dbe8749\r\n"
+         "Cseq: 1 REGISTER\r\n"
+         "Max-Forwards: 20\r\n"
+         "Contact: mightyhunter@127.0.0.1\r\n"
+         "Content-Length: 0\r\n"
+         "\r\n";
+
+      SipMessage testMsg(message, strlen(message));
+      SipMessage testRsp;
+      // exception - method does not challenge registers.
+      CPPUNIT_ASSERT_EQUAL(SipRouter::SendRequest,mSipRouter->proxyMessage(testMsg, testRsp));
+
+   }
+   
+   void testProxyDontChallengeInDialog_Invite()
+   {
+      const char* message =
+         "INVITE sip:user@external.example.net SIP/2.0\r\n"
+         "Via: SIP/2.0/TCP 10.1.1.3:33855\r\n"
+         "To: sip:user@example.com; tag=324432324rc243r5\r\n"
+         "From: Mighty Hunter <sip:mightyhunter@example.com>; tag=30543f3483e1cb11ecb40866edd3295b\r\n"
+         "Call-Id: f88dfabce84b6a2787ef024a7dbe8749\r\n"
+         "Cseq: 1 INVITE\r\n"
+         "Max-Forwards: 20\r\n"
+         "Contact: mightyhunter@127.0.0.1\r\n"
+         "Content-Length: 0\r\n"
+         "\r\n";
+
+      SipMessage testMsg(message, strlen(message));
+      SipMessage testRsp;
+      CPPUNIT_ASSERT_EQUAL(SipRouter::SendRequest,mSipRouter->proxyMessage(testMsg, testRsp));
+
+   }
+
+   void testProxyDontChallengeInDialog_Notify()
+   {
+      const char* message =
+         "NOTIFY sip:user@external.example.net SIP/2.0\r\n"
+         "Via: SIP/2.0/TCP 10.1.1.3:33855\r\n"
+         "To: sip:user@example.com; tag=324432324rc243r5\r\n"
+         "From: Mighty Hunter <sip:mightyhunter@example.com>; tag=30543f3483e1cb11ecb40866edd3295b\r\n"
+         "Call-Id: f88dfabce84b6a2787ef024a7dbe8749\r\n"
+         "Cseq: 1 NOTIFY\r\n"
+         "Max-Forwards: 20\r\n"
+         "Contact: mightyhunter@127.0.0.1\r\n"
+         "Content-Length: 0\r\n"
+         "\r\n";
+
+      SipMessage testMsg(message, strlen(message));
+      SipMessage testRsp;
+      CPPUNIT_ASSERT_EQUAL(SipRouter::SendRequest,mSipRouter->proxyMessage(testMsg, testRsp));
+   }
+
+   void testProxyDontChallengeInDialog_Options()
+   {
+      const char* message =
+         "OPTIONS sip:user@external.example.net SIP/2.0\r\n"
+         "Via: SIP/2.0/TCP 10.1.1.3:33855\r\n"
+         "To: sip:user@example.com; tag=324432324rc243r5\r\n"
+         "From: Mighty Hunter <sip:mightyhunter@example.com>; tag=30543f3483e1cb11ecb40866edd3295b\r\n"
+         "Call-Id: f88dfabce84b6a2787ef024a7dbe8749\r\n"
+         "Cseq: 1 OPTIONS\r\n"
+         "Max-Forwards: 20\r\n"
+         "Contact: mightyhunter@127.0.0.1\r\n"
+         "Content-Length: 0\r\n"
+         "\r\n";
+
+      SipMessage testMsg(message, strlen(message));
+      SipMessage testRsp;
+      CPPUNIT_ASSERT_EQUAL(SipRouter::SendRequest,mSipRouter->proxyMessage(testMsg, testRsp));
+
+   }
+
+   void testProxyDontChallengeInDialog_Register()
+   {
+      const char* message =
+         "REGISTER sip:external.example.net SIP/2.0\r\n"
+         "Via: SIP/2.0/TCP 10.1.1.3:33855\r\n"
+         "To: sip:user@example.com; tag=324432324rc243r5\r\n"
+         "From: Mighty Hunter <sip:mightyhunter@example.com>; tag=30543f3483e1cb11ecb40866edd3295b\r\n"
+         "Call-Id: f88dfabce84b6a2787ef024a7dbe8749\r\n"
+         "Cseq: 1 REGISTER\r\n"
+         "Max-Forwards: 20\r\n"
+         "Contact: mightyhunter@127.0.0.1\r\n"
+         "Content-Length: 0\r\n"
+         "\r\n";
+
+      SipMessage testMsg(message, strlen(message));
+      SipMessage testRsp;
+      CPPUNIT_ASSERT_EQUAL(SipRouter::SendRequest,mSipRouter->proxyMessage(testMsg, testRsp));
+   }
 
 };
 
