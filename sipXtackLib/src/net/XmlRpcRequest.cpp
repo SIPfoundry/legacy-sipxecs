@@ -64,15 +64,20 @@ bool XmlRpcRequest::execute(XmlRpcResponse& response)
    
    if (OsSysLog::willLog(FAC_XMLRPC, PRI_INFO))
    {
-      UtlString logBody;
-      ssize_t logLength;
-      mpRequestBody->getBytes(&logBody, &logLength);
+      UtlString logString;
+      ssize_t   logLength;
+      mpRequestBody->getBytes(&logString, &logLength);
+      if (logString.length() > XmlRpcBody::MAX_LOG)
+      {
+         logString.remove(XmlRpcBody::MAX_LOG);
+         logString.append("\n...");
+      }
       UtlString urlString;
       mUrl.toString(urlString);
       OsSysLog::add(FAC_XMLRPC, PRI_INFO,
                     "XmlRpcRequest::execute XML-RPC to '%s' request =\n%s",
                     urlString.data(),
-                    logBody.data());
+                    logString.data());
    }
    
    mpHttpRequest->setContentLength(mpRequestBody->getLength());
@@ -87,22 +92,33 @@ bool XmlRpcRequest::execute(XmlRpcResponse& response)
    if (statusCode/100 == 2)
    {
       UtlString bodyString;
-      ssize_t       bodyLength;
+      ssize_t   bodyLength;
       
       httpResponse.getBody()->getBytes(&bodyString, &bodyLength);
 
+      UtlString logString;
+      if (bodyString.length() > XmlRpcBody::MAX_LOG)
+      {
+         logString.append(bodyString, 0, XmlRpcBody::MAX_LOG);
+         logString.append("\n...");
+      }
+      else
+      {
+         logString = bodyString;
+      }
+      
       if (response.parseXmlRpcResponse(bodyString))
       {
          result = true;
          OsSysLog::add(FAC_XMLRPC, PRI_INFO,
                        "XmlRpcRequest::execute XML-RPC received valid response = \n%s",
-                       bodyString.data());
+                       logString.data());
       }
       else
       {
          OsSysLog::add(FAC_XMLRPC, PRI_ERR,
                        "XmlRpcRequest::execute XML-RPC received fault response = \n%s",
-                       bodyString.data());
+                       logString.data());
       }
    }
    else if (statusCode == -1)

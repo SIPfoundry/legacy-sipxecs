@@ -181,6 +181,20 @@ void XmlRpcDispatch::processRequest(const HttpRequestContext& requestContext,
    XmlRpcMethodContainer* methodContainer = NULL;
    UtlSList params;
 
+   UtlString logString;
+   if (bodyString.length() > XmlRpcBody::MAX_LOG)
+   {
+      logString.append(bodyString, 0, XmlRpcBody::MAX_LOG);
+      logString.append("\n...");
+   }
+   else
+   {
+      logString = bodyString;
+   }
+   OsSysLog::add(FAC_XMLRPC, PRI_INFO,
+                 "XmlRpcDispatch::processRequest requestBody = \n%s",
+                 logString.data());
+   
    if (parseXmlRpcRequest(bodyString, methodContainer, params, responseBody))
    {
       if (methodContainer)
@@ -234,11 +248,22 @@ void XmlRpcDispatch::processRequest(const HttpRequestContext& requestContext,
    // Send the response back
    responseBody.getBody()->getBytes(&bodyString, &bodyLength);
 
+   logString.remove(0);
+   if (bodyString.length() > XmlRpcBody::MAX_LOG)
+   {
+      logString.append(bodyString, 0, XmlRpcBody::MAX_LOG);
+      logString.append("\n...");
+   }
+   else
+   {
+      logString = bodyString;
+   }
+   
    OsSysLog::add(FAC_XMLRPC, PRI_INFO,
                  "XmlRpcDispatch::processRequest method '%s' response status=%s\n%s",
                  methodName.data(),
                  XmlRpcMethod::ExecutionStatusString(status),
-                 bodyString.data()
+                 logString.data()
                  );
    
    response->setBody(new HttpBody(bodyString.data(), bodyLength));
@@ -288,9 +313,6 @@ bool XmlRpcDispatch::parseXmlRpcRequest(const UtlString& requestContent,
                                         XmlRpcResponse& response)
 {
    bool result = false;
-   OsSysLog::add(FAC_XMLRPC, PRI_DEBUG,
-                 "XmlRpcDispatch::parseXmlRpcRequest requestBody = \n%s",
-                 requestContent.data());
 
    // Parse the XML-RPC response
    TiXmlDocument doc("XmlRpcRequest.xml");

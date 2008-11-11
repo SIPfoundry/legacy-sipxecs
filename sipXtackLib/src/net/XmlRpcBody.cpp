@@ -27,6 +27,8 @@
 const char* XmlVersion = XML_VERSION_1_0;
 const int MAX_VALUE_NESTING_DEPTH = 12; // maximum nesting of arrays, structs, values
 
+const size_t XmlRpcBody::MAX_LOG = 1000;
+
 // STATIC VARIABLE INITIALIZATIONS
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */

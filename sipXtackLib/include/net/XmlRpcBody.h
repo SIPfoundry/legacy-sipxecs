@@ -124,6 +124,8 @@ class XmlRpcBody : public HttpBody
    /// Add a struct to the XML-RPC content
    bool addStruct(UtlHashMap* members); ///< struct of members
    
+   static const size_t MAX_LOG; ///< maximum size of an XML-RPC body written to the log
+   
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
   protected:
    
