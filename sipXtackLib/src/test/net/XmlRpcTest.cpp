@@ -406,7 +406,7 @@ public:
          XmlRpcMethod* addEx = methodGet();
 
          addEx->execute(context, params, NULL, newResponse, status);
-         XmlRpcBody::cleanUp(&params);
+         XmlRpcBody::deallocateContainedValues(&params);
 
          responseBody = newResponse.getBody();
 
@@ -697,7 +697,7 @@ public:
          dispatch.addMethod("addExtension", AddExtension::get, NULL);
          bool result = dispatch.parseXmlRpcRequest(requestContent1, method, params, response1);
          CPPUNIT_ASSERT(result == false);
-         XmlRpcBody::cleanUp(&params);
+         XmlRpcBody::deallocateContainedValues(&params);
 
          XmlRpcBody *responseBody = response1.getBody();
 
@@ -711,7 +711,7 @@ public:
          XmlRpcResponse response2;
          result = dispatch.parseXmlRpcRequest(requestContent2, method, params, response2);
          CPPUNIT_ASSERT(result == false);
-         XmlRpcBody::cleanUp(&params);
+         XmlRpcBody::deallocateContainedValues(&params);
 
          responseBody = response2.getBody();
          responseBody->getBytes(&body, &length);
@@ -722,7 +722,7 @@ public:
          XmlRpcResponse response3;
          result = dispatch.parseXmlRpcRequest(requestContent3, method, params, response3);
          CPPUNIT_ASSERT(result == false);
-         XmlRpcBody::cleanUp(&params);
+         XmlRpcBody::deallocateContainedValues(&params);
 
          responseBody = response3.getBody();
          responseBody->getBytes(&body, &length);

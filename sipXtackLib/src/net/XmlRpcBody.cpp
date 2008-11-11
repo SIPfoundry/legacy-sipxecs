@@ -460,7 +460,7 @@ UtlHashMap* XmlRpcBody::parseStruct(TiXmlNode* structNode, ///< pointer to the <
    
       if (!structIsOk)
       {
-         cleanUp(returnedStruct);
+         deallocateContainedValues(returnedStruct);
          delete returnedStruct;
          returnedStruct=NULL;
       }
@@ -529,7 +529,7 @@ UtlSList* XmlRpcBody::parseArray(TiXmlNode* arrayNode, ///< pointer to the <arra
    
       if (!arrayIsOk)
       {
-         cleanUp(pList);
+         deallocateContainedValues(pList);
          delete pList;
          pList = NULL;
       }
@@ -548,45 +548,66 @@ UtlSList* XmlRpcBody::parseArray(TiXmlNode* arrayNode, ///< pointer to the <arra
    return pList;
 }
 
-void XmlRpcBody::cleanUp(UtlContainable* value)
+/*
+ * Note: The deallocateValue method deletes the value (UtlContainable) 
+ *       object passed to it, and sets the pointer to the object back to NULL, after 
+ *       recursively cleaning up any contained list or structure components.
+ *
+ *       The deallocateContainedValues methods below that take a UtlHashMap (structure)
+ *       or UtlSList (array) and implement the recursive deletion by calling this one
+ *       for each contained value.  This allows arbitrary array and structure nesting.
+ *
+ *       Note however that the deallocateContainedValues methods do NOT free the value
+ *       object that is passed to them; this is deliberate, since in some other places
+ *       that value is a local variable not created using 'new'.
+ */
+
+void XmlRpcBody::deallocateValue(UtlContainable*& value)
 {
    if (value)
    {
       if (value->isInstanceOf(UtlHashMap::TYPE))
       {
          UtlHashMap* map = dynamic_cast<UtlHashMap*>(value);
-         cleanUp(map);
+         deallocateContainedValues(map);
+         delete map;
       }
       else if (value->isInstanceOf(UtlSList::TYPE))
       {
          UtlSList* array = dynamic_cast<UtlSList*>(value);
-         cleanUp(array);
+         deallocateContainedValues(array);
+         delete array;
+      }
+      else
+      {
+         delete value;
+      }
+      value = NULL;
+   }
+}
+
+void XmlRpcBody::deallocateContainedValues(UtlHashMap* map)
+{
+   UtlHashMapIterator iterator(*map);
+
+   UtlContainable* key;
+   while ((key = iterator()))
+   {
+      UtlContainable* value = iterator.value();
+      delete map->removeReference(key);
+      if (value)
+      {
+         deallocateValue(value);
       }
    }
 }
 
-void XmlRpcBody::cleanUp(UtlHashMap* map)
-{
-   UtlHashMapIterator iterator(*map);
-
-   UtlString*      pName;
-   while ((pName = dynamic_cast<UtlString*>(iterator())))
-   {
-      UtlContainable* key;
-      UtlContainable* value;
-
-      key = map->removeKeyAndValue(pName, value);
-      cleanUp(value);
-      delete key;
-   }
-}
-
-void XmlRpcBody::cleanUp(UtlSList* array) 
+void XmlRpcBody::deallocateContainedValues(UtlSList* array) 
 {
    UtlContainable *value;
    while ((value = array->get()))
    {
-      cleanUp(value);
+      deallocateValue(value);
    }
 }
 

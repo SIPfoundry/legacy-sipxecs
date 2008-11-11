@@ -207,7 +207,7 @@ void XmlRpcDispatch::processRequest(const HttpRequestContext& requestContext,
          delete method;
 
          // Clean up the memory allocated in params
-         XmlRpcBody::cleanUp(&params);
+         XmlRpcBody::deallocateContainedValues(&params);
 
          // if the method wants authentication, build the standard response
          // for anything else, it's already built one.

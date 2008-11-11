@@ -43,9 +43,7 @@ XmlRpcResponse::~XmlRpcResponse()
    // Clean up the memory in mResponseValue
    if (mResponseValue)
    {
-      XmlRpcBody::cleanUp(mResponseValue);
-      delete mResponseValue;
-      mResponseValue = NULL;
+      XmlRpcBody::deallocateValue(mResponseValue);
    }
    
    if (mpResponseBody)
@@ -97,8 +95,7 @@ bool XmlRpcResponse::parseXmlRpcResponse(UtlString& responseContent)
                   // Clean up the memory in mResponseValue
                   if (mResponseValue)
                   {
-                     XmlRpcBody::cleanUp(mResponseValue);
-                     mResponseValue = NULL;
+                     XmlRpcBody::deallocateValue(mResponseValue);
                   }
             
                   mResponseValue = XmlRpcBody::parseValue(subNode,0,parseErrorMsg);

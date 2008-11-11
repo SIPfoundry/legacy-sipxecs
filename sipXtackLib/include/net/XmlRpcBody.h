@@ -155,17 +155,17 @@ class XmlRpcBody : public HttpBody
                               );
    ///< @returns NULL and sets errorTxt if there was a parse error
    
-   /// Clean up the memory in any value, but not the value object itself
+   /// Delete the value and any memory it contains 
    static
-      void cleanUp(UtlContainable* value);
+      void deallocateValue(UtlContainable*& value);
    
    /// Clean up the memory in a struct, but not the UtlHashMap object itself
    static
-      void cleanUp(UtlHashMap* members);
+      void deallocateContainedValues(UtlHashMap* members);
    
    /// Clean up the memory in an array, but not the UtlSList object itself
    static
-      void cleanUp(UtlSList* array);
+      void deallocateContainedValues(UtlSList* array);
    
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
