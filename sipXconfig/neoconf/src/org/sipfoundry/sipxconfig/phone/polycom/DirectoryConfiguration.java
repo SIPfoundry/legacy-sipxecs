@@ -12,6 +12,7 @@ package org.sipfoundry.sipxconfig.phone.polycom;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
 import org.sipfoundry.sipxconfig.device.ProfileContext;
@@ -67,15 +68,17 @@ public class DirectoryConfiguration extends ProfileContext {
                 // on Polycom phone BLF entries are handled by RLS server - not by directory
                 continue;
             }
-            for (PolycomPhonebookEntry entry : polycomEntries) {
 
+            for (Iterator iterator = polycomEntries.iterator(); iterator.hasNext();) {
+
+                PolycomPhonebookEntry entry = (PolycomPhonebookEntry) iterator.next();
                 // If polycomEntries already contains an entry with same contact
                 // number, as Polycom can't handle multiple entries with same
                 // contact number, remove the corresponding phonebook entry and add the
                 // speedDial entry to create an unitied list of entries.
                 if (entry.getContact().equals(button.getNumber())) {
 
-                    polycomEntries.remove(entry);
+                    iterator.remove();
                 }
             }
 
