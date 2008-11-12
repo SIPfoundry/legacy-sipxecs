@@ -14,6 +14,7 @@
 #include <sys/wait.h>
 #include <sys/time.h>
 #include <sys/resource.h>
+#include <sys/poll.h>
 #include <unistd.h>
 #include <stdlib.h>
 #include <signal.h>
@@ -98,32 +99,41 @@ int OsProcessLinux::getOutput(UtlString* stdoutMsg, UtlString *stderrMsg)
    }
    
    int bytesRead = 0;
+   int fds = 0;
+   struct pollfd outputFds[2] = { {-1, 0, 0}, {-1, 0, 0} };
 
-   fd_set outputFds;
-   FD_ZERO(&outputFds);
    if ( stdoutMsg != NULL )
    {
       stdoutMsg->remove(0);
-      FD_SET(m_fdout[0], &outputFds);
+      outputFds[fds].fd = m_fdout[0];
+      outputFds[fds].events = POLLIN;
+      outputFds[fds].revents = 0;
+      fds++;
    }
    if ( stderrMsg != NULL )
    {
       stderrMsg->remove(0);
-      FD_SET(m_fderr[0], &outputFds);
+      outputFds[fds].fd = m_fderr[0];
+      outputFds[fds].events = POLLIN;
+      outputFds[fds].revents = 0;
+      fds++;
    }
 
    // We want to read everything available on the given fds before returning.
-   int rc = select(FD_SETSIZE, &outputFds, NULL, NULL, NULL);
+   int rc = poll(outputFds, fds, -1);
    if ( rc > 0 )
    {
-      if ( FD_ISSET(m_fdout[0], &outputFds) )
+      if ((outputFds[0].fd == m_fdout[0]) && (outputFds[0].revents & POLLIN))
       {
          if ( (rc=readAll( m_fdout[0], stdoutMsg )) > 0)
          {
             bytesRead = rc;
          }
       }
-      if ( FD_ISSET(m_fderr[0], &outputFds) )
+      // For stderr, we need to check both elements of the outputFds array because
+      // its position depends on whether or not we've been asked for stdout.
+      if (((outputFds[1].fd == m_fderr[0]) && (outputFds[1].revents & POLLIN)) ||
+          ((outputFds[0].fd == m_fderr[0]) && (outputFds[0].revents & POLLIN))) 
       {
          if ( (rc=readAll( m_fderr[0], stderrMsg )) > 0)
          {
