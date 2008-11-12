@@ -859,6 +859,8 @@ class SipUtilities {
         try {
             MediaDescription mediaDescription = (MediaDescription) sessionDescription
                     .getMediaDescriptions(true).get(0);
+            String mediaType = mediaDescription.getMedia().getMediaType();
+            logger.debug("media type " + mediaType);
             return mediaDescription.getMedia().getMediaPort();
         } catch (Exception ex) {
             throw new RuntimeException("Malformatted sdp", ex);
@@ -1080,9 +1082,26 @@ class SipUtilities {
         try {
             return ProtocolObjects.headerFactory.createWarningHeader(agent, code, text);
         } catch (Exception ex) {
-            logger.fatal(String.format("Unexpected Error creating warning header %s %d %s",agent, code, text));
+            logger.fatal(String.format("Unexpected Error creating warning header %s %d %s",
+                    agent, code, text));
             return null;
         }
+    }
+
+    public static String getSessionDescriptionMediaType(SessionDescription sessionDescription) {
+        // TODO Auto-generated method stub
+        try {
+            MediaDescription mediaDescription = (MediaDescription) sessionDescription
+                    .getMediaDescriptions(true).get(0);
+            String mediaType = mediaDescription.getMedia().getMediaType();
+            logger.debug("media type " + mediaType);
+            return mediaType;
+
+        } catch (Exception ex) {
+            logger.error("Unexpected exception", ex);
+            throw new RuntimeException(ex);
+        }
+
     }
 
 }

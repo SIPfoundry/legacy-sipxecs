@@ -51,6 +51,9 @@ public class SipListenerImpl implements SipListener {
         
 
         DialogApplicationData dat = DialogApplicationData.get(dte.getDialog());
+        if ( dat != null  ) {
+            dat.cancelSessionTimer();
+        }
         if (dat != null && dat.musicOnHoldDialog != null
                 && dat.musicOnHoldDialog.getState() != DialogState.TERMINATED) {
             try {

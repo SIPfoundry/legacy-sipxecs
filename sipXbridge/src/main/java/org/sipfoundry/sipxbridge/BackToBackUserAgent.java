@@ -10,8 +10,13 @@ import gov.nist.javax.sdp.MediaDescriptionImpl;
 import gov.nist.javax.sip.DialogExt;
 import gov.nist.javax.sip.SipStackExt;
 import gov.nist.javax.sip.TransactionExt;
+import gov.nist.javax.sip.header.HeaderFactoryExt;
+import gov.nist.javax.sip.header.MinExpires;
+import gov.nist.javax.sip.header.extensions.MinSE;
+import gov.nist.javax.sip.header.extensions.MinSEHeader;
 import gov.nist.javax.sip.header.extensions.ReferredByHeader;
 import gov.nist.javax.sip.header.extensions.ReplacesHeader;
+import gov.nist.javax.sip.header.extensions.SessionExpiresHeader;
 
 import java.io.IOException;
 import java.net.URLDecoder;
@@ -50,6 +55,7 @@ import javax.sip.header.ContentTypeHeader;
 import javax.sip.header.FromHeader;
 import javax.sip.header.Header;
 import javax.sip.header.MaxForwardsHeader;
+import javax.sip.header.MinExpiresHeader;
 import javax.sip.header.ReferToHeader;
 import javax.sip.header.RouteHeader;
 import javax.sip.header.SubjectHeader;
@@ -109,8 +115,6 @@ public class BackToBackUserAgent {
      */
     private Dialog creatingDialog;
 
-    private SessionTimerTask sessionTimerTask;
-
     private static Logger logger = Logger.getLogger(BackToBackUserAgent.class);
 
     private static final String ORIGINATOR = "originator";
@@ -121,105 +125,8 @@ public class BackToBackUserAgent {
 
     private String symmitronServerHandle;
 
-    // /////////////////////////////////////////////////////////////////
-    // Inner classes.
-    // ////////////////////////////////////////////////////////////////
-
-    class SessionTimerTask extends TimerTask {
-
-        String method;
-
-        public SessionTimerTask(String method) {
-            this.method = method;
-
-        }
-
-        @Override
-        public void run() {
-            if (dialogTable.isEmpty()) {
-                this.cancel();
-            }
-
-            for (Dialog dialog : dialogTable) {
-                try {
-                    Request request;
-                    long currentTimeMilis = System.currentTimeMillis();
-                    if (dialog.getState() == DialogState.CONFIRMED
-                            && DialogApplicationData.get(dialog).peerDialog != null) {
-                        if (method.equalsIgnoreCase(Request.INVITE)) {
-
-                            DialogApplicationData dat = DialogApplicationData.get(dialog);
-
-                            if (currentTimeMilis < dat.lastAckSent - 30 * 1000) {
-                                continue;
-                            }
-
-                            SipProvider provider = ((DialogExt) dialog).getSipProvider();
-                            /*
-                             * We send our session refresh only to the wan side.
-                             */
-                            if (provider != Gateway.getLanProvider()) {
-                                request = dialog.createRequest(Request.INVITE);
-                                request.removeHeader(AllowHeader.NAME);
-                                for (String method : new String[] {
-                                    Request.INVITE, Request.ACK, Request.BYE, Request.CANCEL,
-                                    Request.OPTIONS
-                                }) {
-                                    AllowHeader allow = ProtocolObjects.headerFactory
-                                            .createAllowHeader(method);
-                                    request.addHeader(allow);
-                                }
-                                AcceptHeader accept = ProtocolObjects.headerFactory
-                                        .createAcceptHeader("application", "sdp");
-                                request.setHeader(accept);
-                                RtpSession rtpSession = dat.getRtpSession();
-                                if (rtpSession == null || rtpSession.getReceiver() == null) {
-                                    continue;
-                                }
-                                SessionDescription sd = rtpSession.getReceiver()
-                                        .getSessionDescription();
-                                request.setContent(sd.toString(), ProtocolObjects.headerFactory
-                                        .createContentTypeHeader("application", "sdp"));
-                                ContactHeader cth = SipUtilities.createContactHeader(provider,
-                                        dat.getItspInfo());
-                                request.setHeader(cth);
-                                SubjectHeader sh = ProtocolObjects.headerFactory
-                                        .createSubjectHeader("SipxBridge Session Timer");
-                                request.setHeader(sh);
-                                if (dat.getItspInfo() == null
-                                        || dat.getItspInfo().isGlobalAddressingUsed()) {
-                                    SipUtilities.setGlobalAddresses(request);
-                                }
-                            } else {
-                                // Send a session timer only to the WAN side.
-                                continue;
-                            }
-                        } else {
-                            request = dialog.createRequest(Request.OPTIONS);
-                        }
-
-                        DialogExt dialogExt = (DialogExt) dialog;
-                        ClientTransaction ctx = dialogExt.getSipProvider()
-                                .getNewClientTransaction(request);
-                        TransactionApplicationData tad = new TransactionApplicationData(
-                                Operation.SESSION_TIMER);
-                        tad.itspAccountInfo = itspAccountInfo;
-                        ctx.setApplicationData(tad);
-
-                        dialog.sendRequest(ctx);
-
-                    }
-                } catch (Exception ex) {
-                    logger.fatal("Canceling options timer");
-                    this.cancel();
-
-                }
-
-            }
-
-        }
-
-    }
+   
+  
 
     // ///////////////////////////////////////////////////////////////////////
     // Private methods.
@@ -581,11 +488,7 @@ public class BackToBackUserAgent {
         this.creatingDialog = dialog;
         this.creatingCallId = ((CallIdHeader) request.getHeader(CallIdHeader.NAME)).getCallId();
 
-        // Kick off a task to test for session liveness.
-        if (Gateway.getSessionTimerMethod() != null) {
-            this.sessionTimerTask = new SessionTimerTask(Gateway.getSessionTimerMethod());
-            Gateway.getTimer().schedule(sessionTimerTask, 30 * 1000, 30 * 1000);
-        }
+        
 
     }
 
@@ -610,9 +513,7 @@ public class BackToBackUserAgent {
             }
 
             this.rtpBridge.stop();
-            if (sessionTimerTask != null) {
-                this.sessionTimerTask.cancel();
-            }
+            
             dialogTable.clear();
 
         }
@@ -1721,8 +1622,6 @@ public class BackToBackUserAgent {
                 dialog.sendRequest(ct);
             }
         }
-        this.sessionTimerTask.cancel();
-
     }
 
     /**
@@ -1742,8 +1641,8 @@ public class BackToBackUserAgent {
                 dialog.sendRequest(ct);
             }
         }
-        this.sessionTimerTask.cancel();
-
+       
     }
 
+ 
 }

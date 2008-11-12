@@ -10,6 +10,7 @@ import gov.nist.javax.sip.DialogExt;
 import gov.nist.javax.sip.SipStackExt;
 import gov.nist.javax.sip.SipStackImpl;
 import gov.nist.javax.sip.TransactionExt;
+import gov.nist.javax.sip.header.extensions.MinSE;
 import gov.nist.javax.sip.header.extensions.ReplacesHeader;
 import gov.nist.javax.sip.header.ims.PAssertedIdentityHeader;
 import gov.nist.javax.sip.message.SIPResponse;
@@ -1597,7 +1598,14 @@ class CallControlManager implements SymmitronResetHandler {
                 }
                 Gateway.getTimer().schedule(new RequestPendingTimerTask(tad.continuationData),
                         1000);
-            } else if (response.getStatusCode() > 200) {
+            } else if (response.getStatusCode() == Response.INTERVAL_TOO_BRIEF){ 
+                MinSE minSe = (MinSE) response.getHeader(MinSE.NAME);
+                if ( minSe != null ) {
+                    dat.setSetExpires(minSe.getExpires());
+                }
+              
+            } else   if (response.getStatusCode() > 200) {
+            
                 if (responseEvent.getClientTransaction() == null) {
                     logger.warn("null client transaction");
                     return;

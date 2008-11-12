@@ -150,6 +150,12 @@ public class Gateway {
      * Default transport to talk to ITSP
      */
     protected static final String DEFAULT_ITSP_TRANSPORT = "udp";
+    
+    
+    /*
+     * Session expires interval.
+     */
+    protected static int sessionExpires = 30 * 60; 
 
     /*
      * set to true to enable tls (untested).
@@ -904,6 +910,10 @@ public class Gateway {
     static boolean isReInviteSupported() {
 
         return accountManager.getBridgeConfiguration().isReInviteSupported();
+    }
+    
+    static int getSessionExpires() {
+        return sessionExpires ;
     }
 
     /**
