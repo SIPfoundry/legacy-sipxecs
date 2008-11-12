@@ -61,15 +61,13 @@ NatTraversalAgent::NatTraversalAgent(const UtlString& pluginName ) ///< the name
      mbOutputProcessorRegistrrationDone( false ),
      mpSipRouter( 0 ),
      mMessageProcessingMutex( OsRWMutex::Q_FIFO ),
+     mpMediaRelay( 0 ),
      mpNatMaintainer( 0 ),
      mCleanupTimer( *this ),
      mpRegistrationDB( 0 ),
      mbConnectedToRegistrationDB( false ),
      mNextAvailableCallTrackerHandle( 0 )
 {
-
-   mpMediaRelay = new MediaRelay();
-
    OsSysLog::add(FAC_NAT,PRI_INFO,"NatTraversalAgent plugin instantiated '%s'",
                  mInstanceName.data() );
 };
@@ -107,6 +105,11 @@ NatTraversalAgent::readConfig( OsConfigDb& configDb /**< a subhash of the indivi
 
    if( mNatTraversalRules.isEnabled() )
    {
+      if( !mpMediaRelay )
+      {
+         mpMediaRelay = new MediaRelay();
+      }
+      
       size_t attemptCounter;
       for( attemptCounter = 0; attemptCounter < MAX_MEDIA_RELAY_INIT_ATTEMPTS; attemptCounter++ )
       {
@@ -720,6 +723,8 @@ CallTracker* NatTraversalAgent::getCallTrackerFromCallId( const UtlString& callI
 /// destructor
 NatTraversalAgent::~NatTraversalAgent()
 {
+   OsWriteLock lock( mMessageProcessingMutex );   
+   
    mCleanupTimer.stop();
    delete mpNatMaintainer;
    if( mpSipRouter && mbOutputProcessorRegistrrationDone == true )
@@ -734,4 +739,5 @@ NatTraversalAgent::~NatTraversalAgent()
       mpRegistrationDB->releaseInstance();
       mpRegistrationDB = 0;
    }
+   delete mpMediaRelay;
 }

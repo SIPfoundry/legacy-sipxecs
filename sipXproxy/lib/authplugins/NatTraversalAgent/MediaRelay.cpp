@@ -1419,7 +1419,7 @@ void AsynchMediaRelayRequestSender::pauseBridge( const UtlString& controllerHand
    OsSysLog::add(FAC_NAT, PRI_DEBUG,
                  "AsynchMediaRelayRequestSender::pauseBridge( %s, %s )", controllerHandle.data(), bridgeId.data() );
    AsynchMediaRelayMsg message( AsynchMediaRelayMsg::SYMMITRON_PAUSE_BRIDGE, controllerHandle, bridgeId );
-   postMessage( message );
+   postMessageIfStarted( message );
 }
 
 void AsynchMediaRelayRequestSender::resumeBridge( const UtlString& controllerHandle, const UtlString& bridgeId )
@@ -1427,7 +1427,7 @@ void AsynchMediaRelayRequestSender::resumeBridge( const UtlString& controllerHan
    OsSysLog::add(FAC_NAT, PRI_DEBUG,
                  "AsynchMediaRelayRequestSender::resumeBridge( %s, %s )", controllerHandle.data(), bridgeId.data() );
    AsynchMediaRelayMsg message( AsynchMediaRelayMsg::SYMMITRON_RESUME_BRIDGE, controllerHandle, bridgeId );
-   postMessage( message );
+   postMessageIfStarted( message );
 }
 
 void AsynchMediaRelayRequestSender::setDestination( const UtlString& controllerHandle, const UtlString& symId, const UtlString& ipAddress, int port, int keepAliveTime )
@@ -1435,7 +1435,7 @@ void AsynchMediaRelayRequestSender::setDestination( const UtlString& controllerH
    OsSysLog::add(FAC_NAT, PRI_DEBUG,
                  "AsynchMediaRelayRequestSender::setDestination( %s, %s, %s, %u, %u )", controllerHandle.data(), symId.data(), ipAddress.data(), port, keepAliveTime );
    AsynchMediaRelayMsg message( controllerHandle, symId, ipAddress, port, keepAliveTime );
-   postMessage( message );
+   postMessageIfStarted( message );
 }
 
 void AsynchMediaRelayRequestSender::pauseSym( const UtlString& controllerHandle, const UtlString& symId )
@@ -1443,7 +1443,7 @@ void AsynchMediaRelayRequestSender::pauseSym( const UtlString& controllerHandle,
    OsSysLog::add(FAC_NAT, PRI_DEBUG,
                  "AsynchMediaRelayRequestSender::pauseSym( %s, %s )", controllerHandle.data(), symId.data() );
    AsynchMediaRelayMsg message( AsynchMediaRelayMsg::SYMMITRON_PAUSE_SYM, controllerHandle, symId );
-   postMessage( message );
+   postMessageIfStarted( message );
 }
 
 void AsynchMediaRelayRequestSender::resumeSym( const UtlString& controllerHandle, const UtlString& symId )
@@ -1451,7 +1451,7 @@ void AsynchMediaRelayRequestSender::resumeSym( const UtlString& controllerHandle
    OsSysLog::add(FAC_NAT, PRI_DEBUG,
                  "AsynchMediaRelayRequestSender::resumeSym( %s, %s )", controllerHandle.data(), symId.data() );
    AsynchMediaRelayMsg message( AsynchMediaRelayMsg::SYMMITRON_RESUME_SYM, controllerHandle, symId );
-   postMessage( message );
+   postMessageIfStarted( message );
 }
 
 void AsynchMediaRelayRequestSender::setSymTimeout( const UtlString& controllerHandle, const UtlString& symId, int timeout )
@@ -1459,7 +1459,7 @@ void AsynchMediaRelayRequestSender::setSymTimeout( const UtlString& controllerHa
    OsSysLog::add(FAC_NAT, PRI_DEBUG,
                  "AsynchMediaRelayRequestSender::setSymTimeout( %s, %s, %d )", controllerHandle.data(), symId.data(), timeout );
    AsynchMediaRelayMsg message( controllerHandle, symId, timeout );
-   postMessage( message );
+   postMessageIfStarted( message );
 }
 
 void AsynchMediaRelayRequestSender::ping( const UtlString& controllerHandle )
@@ -1467,7 +1467,7 @@ void AsynchMediaRelayRequestSender::ping( const UtlString& controllerHandle )
    OsSysLog::add(FAC_NAT, PRI_DEBUG,
                  "AsynchMediaRelayRequestSender::ping( %s )", controllerHandle.data() );
    AsynchMediaRelayMsg message( controllerHandle );
-   postMessage( message );
+   postMessageIfStarted( message );
 }
 
 void AsynchMediaRelayRequestSender::queryBridgeStatistics( const UtlString& controllerHandle, const UtlString& bridgeId, void* opaqueData )
@@ -1475,7 +1475,15 @@ void AsynchMediaRelayRequestSender::queryBridgeStatistics( const UtlString& cont
    OsSysLog::add(FAC_NAT, PRI_DEBUG,
                  "AsynchMediaRelayRequestSender::queryBridgeStatistics( %s, %s, %p )", controllerHandle.data(), bridgeId.data(), opaqueData );
    AsynchMediaRelayMsg message( controllerHandle, bridgeId, opaqueData );
-   postMessage( message );
+   postMessageIfStarted( message );
+}
+
+OsStatus AsynchMediaRelayRequestSender::postMessageIfStarted( const OsMsg& rMsg,
+                                                              const OsTime& rTimeout,
+                                                              UtlBoolean sentFromISR )
+{
+   OsStatus result = ( isStarted() ? postMessage( rMsg, rTimeout, sentFromISR ) : OS_TASK_NOT_STARTED );
+   return result;
 }
 
 AsynchMediaRelayMsg::AsynchMediaRelayMsg( EventSubType eventSubType, 
