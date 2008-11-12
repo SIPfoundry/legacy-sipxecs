@@ -36,6 +36,7 @@
 #include "RegisterEventServer.h"
 #include "SyncRpc.h"
 #include "registry/RegisterPlugin.h"
+#include "sipXecsService/SipXecsService.h"
 
 // DEFINES
 
@@ -148,11 +149,17 @@ SipRegistrarServer::initialize(
     pOsConfigDb->get("SIP_REGISTRAR_AUTHENTICATE_SCHEME", authenticateScheme);
     mUseCredentialDB = (authenticateScheme.compareTo("NONE" , UtlString::ignoreCase) != 0);
 
+
     UtlString hostAliases;
-    pOsConfigDb->get("SIP_REGISTRAR_DOMAIN_ALIASES", hostAliases);
+    OsConfigDb domainConfig;
+    domainConfig.loadFromFile(SipXecsService::domainConfigPath());
+
+    // get SIP_DOMAIN_ALIASES from domain-config
+    domainConfig.get(SipXecsService::DomainDbKey::SIP_DOMAIN_ALIASES, hostAliases);
+
     if(!hostAliases.isNull())
     {
-        OsSysLog::add(FAC_SIP, PRI_INFO, "SIP_REGISTRAR_DOMAIN_ALIASES : %s",
+        OsSysLog::add(FAC_SIP, PRI_INFO, "SIP_DOMAIN_ALIASES : %s",
                       hostAliases.data());
         mSipUserAgent->setHostAliases(hostAliases);    
     }

@@ -27,6 +27,7 @@
 #include "registry/SipRegistrar.h"
 #include "registry/RegisterPlugin.h"
 #include "registry/SipRedirectServer.h"
+#include "sipXecsService/SipXecsService.h"
 #include "RegisterEventServer.h"
 #include "RegistrarInitialSync.h"
 #include "RegistrarPeer.h"
@@ -127,11 +128,27 @@ SipRegistrar::SipRegistrar(OsConfigDb* configDb) :
    // make sure that the unspecified domain name is also valid
    addValidDomain(mDefaultDomainHost, mDefaultDomainPort);
 
+   // read the domain configuration
+   OsConfigDb domainConfig;
+   domainConfig.loadFromFile(SipXecsService::domainConfigPath());
+
+
    // Domain Aliases
    //   (other domain names that this registrar accepts as valid in the request URI)
    UtlString domainAliases;
-   mConfigDb->get("SIP_REGISTRAR_DOMAIN_ALIASES", domainAliases);
-    
+   domainConfig.get(SipXecsService::DomainDbKey::SIP_DOMAIN_ALIASES, domainAliases);
+
+   if (!domainAliases.isNull())
+   {
+      OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipRegistrar::SipRegistrar "
+                    "SIP_DOMAIN_ALIASES : %s", domainAliases.data());
+   }
+   else
+   {
+      OsSysLog::add(FAC_SIP, PRI_ERR, "SipRegistrar::SipRegistrar "
+                    "SIP_DOMAIN_ALIASES not found.");
+   }
+
    UtlString aliasString;
    int aliasIndex = 0;
    while(NameValueTokenizer::getSubField(domainAliases.data(), aliasIndex,

@@ -17,6 +17,7 @@
 #include "os/OsSysLog.h"
 #include "os/OsEventMsg.h"
 #include "utl/UtlRandom.h"
+#include "net/NameValueTokenizer.h"
 #include "net/SignedUrl.h"
 #include "net/SipOutputProcessor.h"
 #include "net/SipUserAgent.h"
@@ -72,13 +73,35 @@ SipRouter::SipRouter(SipUserAgent& sipUserAgent,
    readConfig(configDb, defaultUri);
    
    
-   // Get the secret to be used in the route recognition hash.
    // read the domain configuration
-   OsConfigDb domainConfiguration;
-   domainConfiguration.loadFromFile(SipXecsService::domainConfigPath());
+   OsConfigDb domainConfig;
+   domainConfig.loadFromFile(SipXecsService::domainConfigPath());
 
+   // get SIP_DOMAIN_ALIASES from domain-config
+   domainConfig.get(SipXecsService::DomainDbKey::SIP_DOMAIN_ALIASES, mDomainAliases);
+   if (!mDomainAliases.isNull())
+   {
+      OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipRouter::SipRouter "
+                    "SIP_DOMAIN_ALIASES : %s", mDomainAliases.data());
+   }
+   else
+   {
+      OsSysLog::add(FAC_SIP, PRI_ERR, "SipRouter::SipRouter "
+                    "SIP_DOMAIN_ALIASES not found.");
+   }
+
+   int aliasIndex = 0;
+   UtlString aliasString;
+   while(NameValueTokenizer::getSubField(mDomainAliases.data(), aliasIndex,
+                                         ", \t", &aliasString))
+   {
+      mpSipUserAgent->setHostAliases(aliasString);
+      aliasIndex++;
+   }
+
+   // Get the secret to be used in the route recognition hash.
    // get the shared secret for generating signatures
-   mSharedSecret = new SharedSecret(domainConfiguration);   
+   mSharedSecret = new SharedSecret(domainConfig);
    RouteState::setSecret(mSharedSecret->data());
    SipXauthIdentity::setSecret(mSharedSecret->data());
    SignedUrl::setSecret(mSharedSecret->data());

@@ -169,6 +169,7 @@ class SipRouter : public OsServerTask
    SipNonceDb    mNonceDb;               ///< generator for nonce values
    long          mNonceExpiration;       ///< nonce lifetime in seconds
    UtlString     mDomainName;            ///< for determining authority for addresses
+   UtlString     mDomainAliases;         ///< for determining authority for addresses
    UtlString     mRouteHostPort;         ///< for writing Record-Route headers
    SharedSecret* mSharedSecret;          ///< secret value to include in authentication hashes
    ForwardRules* mpForwardingRules;      ///< Holds to forwarding rules instructions
