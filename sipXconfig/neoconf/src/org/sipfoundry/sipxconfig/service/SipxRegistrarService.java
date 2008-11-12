@@ -9,23 +9,17 @@
 package org.sipfoundry.sipxconfig.service;
 
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.Set;
-import java.util.TreeSet;
 
-import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.admin.commserver.ConflictingFeatureCodeValidator;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessModel.ProcessName;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.setting.Setting;
-import org.sipfoundry.sipxconfig.setting.SettingEntry;
 
 public class SipxRegistrarService extends SipxService {
 
     public static final String BEAN_ID = "sipxRegistrarService";
 
     private static final String VOICEMAIL_SERVER = "https://localhost";
-    private static final String SIP_REGISTRAR_DOMAIN_ALIASES = "domain/SIP_REGISTRAR_DOMAIN_ALIASES";
     private static final ProcessName PROCESS_NAME = ProcessName.REGISTRAR;
 
     private String m_registrarSipPort;
@@ -103,42 +97,12 @@ public class SipxRegistrarService extends SipxService {
         m_domainManager = manager;
     }
 
-    @Override
-    public void initialize() {
-        addDefaultBeanSettingHandler(new Defaults(this));
-    }
-
-    public static class Defaults {
-        private final SipxRegistrarService m_sipxRegistrarService;
-
-        Defaults(SipxRegistrarService sipxRegistrarService) {
-            m_sipxRegistrarService = sipxRegistrarService;
-        }
-
-        @SettingEntry(path = SIP_REGISTRAR_DOMAIN_ALIASES)
-        public String getSipRegistrarDomainAliases() {
-            Set<String> allAliases = new TreeSet<String>();
-            if (m_sipxRegistrarService.getFullHostname() != null) {
-                allAliases.add(m_sipxRegistrarService.getFullHostname());
-            }
-            if (m_sipxRegistrarService.getIpAddress() != null) {
-                allAliases.add(m_sipxRegistrarService.getIpAddress());
-            }
-            Collection<String> aliases = m_sipxRegistrarService.getDomainManager().getDomain().getAliases();
-            if (aliases != null) {
-                allAliases.addAll(aliases);
-            }
-            return StringUtils.join(allAliases, ' ');
-        }
-    }
-
     /**
      * Validates the data in this service and throws a UserException if there is a problem
      */
     @Override
     public void validate() {
-        SipxService presenceService = m_sipxServiceManager
-                .getServiceByBeanId(SipxPresenceService.BEAN_ID);
+        SipxService presenceService = m_sipxServiceManager.getServiceByBeanId(SipxPresenceService.BEAN_ID);
         new ConflictingFeatureCodeValidator().validate(Arrays.asList(new Setting[] {
             getSettings(), presenceService.getSettings()
         }));

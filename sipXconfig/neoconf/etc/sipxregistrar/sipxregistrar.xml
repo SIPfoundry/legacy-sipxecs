@@ -35,11 +35,6 @@
       <pattern>[0-9*#]+</pattern>
     </string>
   </type>
-  <group name="domain" hidden="yes">
-    <setting name="SIP_REGISTRAR_DOMAIN_ALIASES" hidden="yes">
-      <value />
-    </setting>
-  </group>
   <group name="isn">
     <setting name="SIP_REDIRECT.150-ISN.BASE_DOMAIN">
       <type>

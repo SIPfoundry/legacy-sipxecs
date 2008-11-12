@@ -21,7 +21,6 @@ import org.sipfoundry.sipxconfig.setting.Setting;
 
 public class SipxRegistrarServiceTest extends TestCase {
 
-    private static final String SIP_REGISTRAR_DOMAIN_ALIASES = "domain/SIP_REGISTRAR_DOMAIN_ALIASES";
     private SipxRegistrarService m_out;
 
     @Override
@@ -38,25 +37,6 @@ public class SipxRegistrarServiceTest extends TestCase {
         EasyMock.replay(domainManager);
 
         m_out.setDomainManager(domainManager);
-    }
-
-    public void testSetFullHostname() {
-        m_out.setFullHostname("sipx.example.org");
-        String domainAliasesSettingValue = m_out.getSettings().getSetting(SIP_REGISTRAR_DOMAIN_ALIASES).getValue();
-        assertEquals("sipx.example.org", domainAliasesSettingValue);
-    }
-
-    public void testSetIpAddress() {
-        m_out.setIpAddress("2.2.2.2");
-        String domainAliasesSettingValue = m_out.getSettings().getSetting(SIP_REGISTRAR_DOMAIN_ALIASES).getValue();
-        assertEquals("2.2.2.2", domainAliasesSettingValue);
-    }
-
-    public void testSetFullHostnameAndIpAddress() {
-        m_out.setFullHostname("sipx.example.org");
-        m_out.setIpAddress("2.2.2.2");
-        String domainAliasesSettingValue = m_out.getSettings().getSetting(SIP_REGISTRAR_DOMAIN_ALIASES).getValue();
-        assertEquals("2.2.2.2 sipx.example.org", domainAliasesSettingValue);
     }
 
     public void testValidateDuplicateCodes() {
