@@ -13,6 +13,7 @@
   <bean id="locationsManagerImpl"
     class="org.sipfoundry.sipxconfig.admin.commserver.LocationsManagerImpl">
     <property name="sessionFactory" ref="sessionFactory" />
+    <property name="domainManager" ref="domainManager" />
   </bean>
   
   <bean id="locationsManager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">

@@ -44,5 +44,6 @@
     <property name="velocityEngine" ref="velocityEngine" />
     <property name="template" value="commserver/domain-config.vm" />
     <property name="name" value="domain-config" />
+    <property name="locationsManager" ref="locationsManager" />
   </bean>
 </beans>

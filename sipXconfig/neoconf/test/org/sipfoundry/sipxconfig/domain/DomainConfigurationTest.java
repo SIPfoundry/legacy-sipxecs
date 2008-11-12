@@ -18,6 +18,12 @@ import junit.framework.TestCase;
 
 import org.apache.commons.io.IOUtils;
 import org.sipfoundry.sipxconfig.TestHelper;
+import org.sipfoundry.sipxconfig.admin.commserver.Location;
+import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
+
+import static org.easymock.EasyMock.createNiceMock;
+import static org.easymock.EasyMock.expectLastCall;
+import static org.easymock.EasyMock.replay;
 
 public class DomainConfigurationTest extends TestCase {
 
@@ -32,14 +38,27 @@ public class DomainConfigurationTest extends TestCase {
     public void setUp() throws Exception {
         m_domain = new Domain();
         m_domain.setName("domain.example.com");
+        m_domain.addAlias("alias.example.com");
         m_domain.setSharedSecret("mySecret");
         m_language = "en";
         m_realm = "realm.example.com";
         m_alarmServerUrl = "https://domain.example.com:8092";
 
+        Location location = new Location();
+        location.setAddress("10.10.10.1");
+        location.setFqdn("host1.example.com");
+
+        LocationsManager locationsManager = createNiceMock(LocationsManager.class);
+        locationsManager.getLocations();
+        expectLastCall().andReturn(new Location[] {
+            location
+        }).anyTimes();
+        replay(locationsManager);
+
         m_out = new DomainConfiguration();
         m_out.setTemplate("commserver/domain-config.vm");
         m_out.setVelocityEngine(TestHelper.getVelocityEngine());
+        m_out.setLocationsManager(locationsManager);
 
         Reader referenceConfigReader = new InputStreamReader(DomainConfigurationTest.class
                 .getResourceAsStream("expected-domain-config"));
@@ -57,4 +76,5 @@ public class DomainConfigurationTest extends TestCase {
 
         assertEquals(m_referenceConfig, actualConfig);
     }
+
 }

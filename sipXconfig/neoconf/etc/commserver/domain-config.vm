@@ -1,4 +1,5 @@
 SIP_DOMAIN_NAME : ${domain.Name}
+SIP_DOMAIN_ALIASES : ${domainAliases}
 SIP_REALM : ${realm}
 SHARED_SECRET : ${domain.SharedSecret}
 DEFAULT_LANGUAGE : $language
