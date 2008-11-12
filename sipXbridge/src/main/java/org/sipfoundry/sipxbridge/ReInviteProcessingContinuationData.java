@@ -42,4 +42,10 @@ class ReInviteProcessingContinuationData implements ContinuationData {
         return operation;
     }
 
+
+    public Dialog getDialog() {
+       
+        return dialog;
+    }
+
 }
