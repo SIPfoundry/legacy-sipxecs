@@ -204,7 +204,7 @@
 	<element name="holiday">
 		<complexType>
 			<sequence>
-                <element ref="tns:id" maxOccurs="1" minOccurs="1">
+                <element ref="tns:id" maxOccurs="1" minOccurs="0">
 				</element>
                 <element ref="tns:date" maxOccurs="unbounded" minOccurs="0">
 				</element>
@@ -356,7 +356,7 @@
 	<element name="regularhours">
 		<complexType>
 			<sequence>
-				<element ref="tns:id" maxOccurs="1" minOccurs="1"></element>
+				<element ref="tns:id" maxOccurs="1" minOccurs="0"></element>
 				<element ref="tns:monday" maxOccurs="1" minOccurs="0"></element>
 				<element ref="tns:tuesday" maxOccurs="1" minOccurs="0"></element>
 				<element ref="tns:wednesday" maxOccurs="1" minOccurs="0"></element>
@@ -371,7 +371,7 @@
 	<element name="afterhours">
 		<complexType>
 			<sequence>
-				<element ref="tns:id" maxOccurs="1" minOccurs="1"></element>
+				<element ref="tns:id" maxOccurs="1" minOccurs="0"></element>
 			</sequence>
 		</complexType>
 	</element>
