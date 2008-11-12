@@ -12,12 +12,8 @@ package org.sipfoundry.sipxconfig.admin.commserver;
 import java.util.List;
 
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
-import org.sipfoundry.sipxconfig.domain.DomainManager;
-import org.springframework.beans.factory.annotation.Required;
 
 public class LocationsManagerImpl extends SipxHibernateDaoSupport<Location> implements LocationsManager {
-
-    private DomainManager m_domainManager;
 
     /** Return the replication URLs, retrieving them on demand */
     public Location[] getLocations() {
@@ -33,12 +29,10 @@ public class LocationsManagerImpl extends SipxHibernateDaoSupport<Location> impl
 
     public void storeLocation(Location location) {
         getHibernateTemplate().saveOrUpdate(location);
-        m_domainManager.replicateDomainConfig();
     }
 
     public void deleteLocation(Location location) {
         getHibernateTemplate().delete(location);
-        m_domainManager.replicateDomainConfig();
     }
 
     public Location getPrimaryLocation() {
@@ -47,10 +41,5 @@ public class LocationsManagerImpl extends SipxHibernateDaoSupport<Location> impl
             return getLocations()[0];
         }
         return null;
-    }
-
-    @Required
-    public void setDomainManager(DomainManager domainManager) {
-        m_domainManager = domainManager;
     }
 }
