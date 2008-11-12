@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.phone.polycom;
@@ -13,8 +13,10 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
 
 import org.custommonkey.xmlunit.Diff;
 import org.custommonkey.xmlunit.XMLTestCase;
@@ -34,6 +36,7 @@ public class DirectoryConfigurationTest extends XMLTestCase {
     private ProfileGenerator m_pg;
     private MemoryProfileLocation m_location;
 
+    @Override
     protected void setUp() {
         XMLUnit.setIgnoreWhitespace(true);
 
@@ -106,6 +109,53 @@ public class DirectoryConfigurationTest extends XMLTestCase {
         expectedPhoneStream.close();
 
         phonebookEntryControl.verify();
+    }
+
+    /**
+     * Test the scenario that a phoneBook entry has the the same contact number as a speedDial
+     * entry, in which case, the speedDial entry is chosen to appear in the phonebook as Polycom
+     * can not handle multiple entries with same contact number.
+     */
+    public void testGenerateDirectoryFromDuplicateEntries() throws Exception {
+        Collection<PhonebookEntry> entries = new ArrayList<PhonebookEntry>();
+
+        for (int i = 0; i < 3; i++) {
+            IMocksControl entryControl = EasyMock.createControl();
+            PhonebookEntry entry = entryControl.createMock(PhonebookEntry.class);
+            entry.getFirstName();
+            entryControl.andReturn("aa");
+            entry.getLastName();
+            entryControl.andReturn("bb");
+            entry.getNumber();
+            entryControl.andReturn("21" + i);
+            entryControl.replay();
+            entries.add(entry);
+        }
+
+        Button button1 = new Button();
+        button1.setLabel("Dora Explorer");
+        button1.setNumber("205");
+
+        Button button2 = new Button();
+        button2.setLabel("Barney");
+        button2.setNumber("210");
+
+        SpeedDial speedDial = new SpeedDial();
+        speedDial.setButtons(Arrays.asList(button1, button2));
+
+        DirectoryConfiguration dir = new DirectoryConfiguration(entries, speedDial);
+        Collection<PolycomPhonebookEntry> rows = dir.getRows();
+
+        // 3 phonebook + 2 buttons = 4 entries (1 dup)
+        assertEquals(4, rows.size());
+        // speed buttons go first and take precedence over directory entries
+        Iterator<PolycomPhonebookEntry> i = rows.iterator();
+        assertEquals("205", i.next().getContact());
+        PolycomPhonebookEntry barney = i.next();
+        assertEquals("210", barney.getContact());
+        assertEquals("Barney", barney.getFirstName());
+        assertEquals("211", i.next().getContact());
+        assertEquals("212", i.next().getContact());
     }
 
     public void testGenerateSpeedDialDirectory() throws Exception {

@@ -1,27 +1,28 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.phone.polycom;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.sipfoundry.sipxconfig.device.ProfileContext;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookEntry;
 import org.sipfoundry.sipxconfig.speeddial.Button;
 import org.sipfoundry.sipxconfig.speeddial.SpeedDial;
 
 public class DirectoryConfiguration extends ProfileContext {
-    private Collection<PhonebookEntry> m_entries;
+    private final Collection<PhonebookEntry> m_entries;
     private List<Button> m_buttons;
 
     public DirectoryConfiguration(Collection<PhonebookEntry> entries, SpeedDial speedDial) {
@@ -37,12 +38,12 @@ public class DirectoryConfiguration extends ProfileContext {
         if (size == 0) {
             return Collections.emptyList();
         }
-        Collection<PolycomPhonebookEntry> polycomEntries = new ArrayList<PolycomPhonebookEntry>(size);
-        if (m_entries != null) {
-            transformPhoneBook(m_entries, polycomEntries);
-        }
+        Collection<PolycomPhonebookEntry> polycomEntries = new LinkedHashSet<PolycomPhonebookEntry>(size);
         if (m_buttons != null) {
             transformSpeedDial(m_buttons, polycomEntries);
+        }
+        if (m_entries != null) {
+            transformPhoneBook(m_entries, polycomEntries);
         }
         return polycomEntries;
     }
@@ -69,19 +70,6 @@ public class DirectoryConfiguration extends ProfileContext {
                 continue;
             }
 
-            for (Iterator iterator = polycomEntries.iterator(); iterator.hasNext();) {
-
-                PolycomPhonebookEntry entry = (PolycomPhonebookEntry) iterator.next();
-                // If polycomEntries already contains an entry with same contact
-                // number, as Polycom can't handle multiple entries with same
-                // contact number, remove the corresponding phonebook entry and add the
-                // speedDial entry to create an unitied list of entries.
-                if (entry.getContact().equals(button.getNumber())) {
-
-                    iterator.remove();
-                }
-            }
-
             // speed dial entries start with 1 (1..9999)
             polycomEntries.add(new PolycomPhonebookEntry(button, i + 1));
         }
@@ -94,10 +82,13 @@ public class DirectoryConfiguration extends ProfileContext {
         }
     }
 
+    /**
+     * Due to Polycom limitation all entries with the same contact are equal.
+     */
     public static class PolycomPhonebookEntry {
-        private String m_firstName;
+        private final String m_firstName;
         private String m_lastName;
-        private String m_contact;
+        private final String m_contact;
         private int m_speedDial = -1;
 
         public PolycomPhonebookEntry(PhonebookEntry entry) {
@@ -132,6 +123,23 @@ public class DirectoryConfiguration extends ProfileContext {
 
         public int getSpeedDial() {
             return m_speedDial;
+        }
+
+        @Override
+        public int hashCode() {
+            return new HashCodeBuilder().append(m_contact).toHashCode();
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (!(obj instanceof PolycomPhonebookEntry)) {
+                return false;
+            }
+            if (this == obj) {
+                return true;
+            }
+            PolycomPhonebookEntry rhs = (PolycomPhonebookEntry) obj;
+            return new EqualsBuilder().append(m_contact, rhs.m_contact).isEquals();
         }
     }
 }
