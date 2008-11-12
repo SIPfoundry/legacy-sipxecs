@@ -36,7 +36,7 @@ final class ReferInviteToSipxProxyContinuationData implements ContinuationData {
          return operation;
     }
 
-    Dialog getDialog() {
+    public Dialog getDialog() {
         return requestEvent.getDialog();
     }
 

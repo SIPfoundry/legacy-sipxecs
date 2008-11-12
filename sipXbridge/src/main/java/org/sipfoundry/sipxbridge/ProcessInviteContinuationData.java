@@ -10,6 +10,7 @@
 
 package org.sipfoundry.sipxbridge;
 
+import javax.sip.Dialog;
 import javax.sip.RequestEvent;
 
 /**
@@ -41,6 +42,10 @@ public class ProcessInviteContinuationData implements ContinuationData {
     public RequestEvent getRequestEvent() {
        
         return requestEvent;
+    }
+    
+    public Dialog getDialog() {
+        return requestEvent.getDialog();
     }
 
 }

@@ -43,8 +43,11 @@ class HandleSpiralInviteWithReplacesContinuationData  implements ContinuationDat
 
 
    
-    public Operation getOperation() {
-       
+    public Operation getOperation() {       
         return operation;
+    }
+    
+    public Dialog getDialog() {
+        return requestEvent.getDialog();
     }
 }

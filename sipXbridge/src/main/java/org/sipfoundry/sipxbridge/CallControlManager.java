@@ -982,12 +982,13 @@ class CallControlManager implements SymmitronResetHandler {
                 if (response.getStatusCode() == 200) {
                     Request ack = dialog.createAck(((CSeqHeader) response
                             .getHeader(CSeqHeader.NAME)).getSeqNumber());
-                    DialogApplicationData.get(dialog).recordLastAckTime();                   
+                    DialogApplicationData.get(dialog).recordLastAckTime();
                     dialog.sendAck(ack);
 
-                } else if ( response.getStatusCode() > 200 ) {
+                } else if (response.getStatusCode() > 200) {
                     b2bua = DialogApplicationData.get(dialog).getBackToBackUserAgent();
-                    b2bua.tearDown(ProtocolObjects.headerFactory.createWarningHeader("sipxbridge", 104, "Session timer failure"));
+                    b2bua.tearDown(ProtocolObjects.headerFactory.createWarningHeader(
+                            "sipxbridge", 104, "Session timer failure"));
                 }
                 return;
 
@@ -1004,7 +1005,7 @@ class CallControlManager implements SymmitronResetHandler {
                 if (response.getStatusCode() == 200) {
                     Request ack = dialog.createAck(((CSeqHeader) response
                             .getHeader(CSeqHeader.NAME)).getSeqNumber());
-                    DialogApplicationData.get(dialog).recordLastAckTime();                  
+                    DialogApplicationData.get(dialog).recordLastAckTime();
                     dialog.sendAck(ack);
 
                 }
@@ -1043,9 +1044,9 @@ class CallControlManager implements SymmitronResetHandler {
                 /*
                  * The TransactionApplicationData operator will indicate what the OK is for.
                  */
-                if ( tad.operation == Operation.SEND_SDP_RE_OFFER ) {
-                    
-                    if ( response.getStatusCode() == 200 ) {
+                if (tad.operation == Operation.SEND_SDP_RE_OFFER) {
+
+                    if (response.getStatusCode() == 200) {
                         RtpSession wanRtpSession = b2bua.getWanRtpSession(dialog);
                         SessionDescription sd = SipUtilities.getSessionDescription(response);
                         int port = SipUtilities.getSessionDescriptionMediaPort(sd);
@@ -1054,11 +1055,11 @@ class CallControlManager implements SymmitronResetHandler {
                         wanRtpSession.getTransmitter().setOnHold(false);
                         long seqno = SipUtilities.getSeqNumber(response);
                         Request ack = dialog.createAck(seqno);
-                        dialog.sendAck(ack);                       
+                        dialog.sendAck(ack);
                     }
-                    
+
                     return;
-                    
+
                 } else if (tad.operation == Operation.QUERY_SDP_FROM_PEER_DIALOG
                         && response.getStatusCode() == 200) {
                     Operation operation = tad.continuationOperation;
@@ -1066,15 +1067,19 @@ class CallControlManager implements SymmitronResetHandler {
 
                     if (response.getContentLength().getContentLength() == 0) {
                         logger
-                                .error("PROTOCOL ERROR : DROPPING CALL -- Expecting a content length != 0 ");
-                        Request ackRequest = dialog
-                                .createAck(SipUtilities.getSeqNumber(response));
-                        dialog.sendAck(ackRequest);
-                        b2bua.tearDown();
-                        return;
+                                .warn("PROTOCOL ERROR -- Expecting a content length != 0. Re-use previous SDP answer ");
+
                     }
 
-                    SessionDescription sd = SipUtilities.getSessionDescription(response);
+                    /*
+                     * This tries to compensate for the protocol error. Some ITSPs do not properly
+                     * handle sdp query operation. They return back a 0 length sdp answer. In this
+                     * case, we re-use the previously sent sdp answer.
+                     */
+                    SessionDescription sd = response.getContentLength().getContentLength() != 0 ? SipUtilities
+                            .getSessionDescription(response)
+                            : b2bua.getLanRtpSession(tad.continuationData.getDialog())
+                                    .getReceiver().getSessionDescription();
 
                     dat.lastResponse = response;
                     if (operation == null) {
@@ -1122,10 +1127,12 @@ class CallControlManager implements SymmitronResetHandler {
 
                         dialog.sendAck(ack);
                         ReferInviteToSipxProxyContinuationData continuation = (ReferInviteToSipxProxyContinuationData) tad.continuationData;
+
                         b2bua.getLanRtpSession(continuation.getDialog()).getReceiver()
                                 .setSessionDescription(sd);
                         b2bua.referInviteToSipxProxy(continuation.getRequest(), continuation
                                 .getDialog(), sd);
+
                     } else if (operation == Operation.SEND_INVITE_TO_MOH_SERVER) {
                         /*
                          * This is a query for MOH server. Lets see if he returned a codec that
@@ -1598,14 +1605,14 @@ class CallControlManager implements SymmitronResetHandler {
                 }
                 Gateway.getTimer().schedule(new RequestPendingTimerTask(tad.continuationData),
                         1000);
-            } else if (response.getStatusCode() == Response.INTERVAL_TOO_BRIEF){ 
+            } else if (response.getStatusCode() == Response.INTERVAL_TOO_BRIEF) {
                 MinSE minSe = (MinSE) response.getHeader(MinSE.NAME);
-                if ( minSe != null ) {
+                if (minSe != null) {
                     dat.setSetExpires(minSe.getExpires());
                 }
-              
-            } else   if (response.getStatusCode() > 200) {
-            
+
+            } else if (response.getStatusCode() > 200) {
+
                 if (responseEvent.getClientTransaction() == null) {
                     logger.warn("null client transaction");
                     return;

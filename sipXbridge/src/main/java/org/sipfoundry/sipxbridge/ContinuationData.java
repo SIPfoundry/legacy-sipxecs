@@ -10,6 +10,7 @@
 
 package org.sipfoundry.sipxbridge;
 
+import javax.sip.Dialog;
 import javax.sip.RequestEvent;
 
 /**
@@ -33,5 +34,11 @@ public interface ContinuationData {
      * @return the operation for the continuation.
      */
     public Operation getOperation();
+    
+    
+    /**
+     * Dialog to which the operation belongs
+     */
+    public Dialog getDialog();
 
 }
