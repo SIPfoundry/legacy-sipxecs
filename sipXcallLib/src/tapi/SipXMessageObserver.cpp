@@ -117,7 +117,7 @@ bool SipXMessageObserver::handleIncomingInfoMessage(SipMessage* pMessage)
                 // respond to whomever sent us the message
                 SipMessage sipResponse;
                 sipResponse.setOkResponseData(pMessage);
-                sipResponse.setResponseData(pMessage, mTestResponseCode, "timed out");           
+                sipResponse.setResponseFirstHeaderLine(SIP_PROTOCOL_VERSION, mTestResponseCode, "timed out");
                 pInst->pSipUserAgent->send(sipResponse);
                 return true ;
             }

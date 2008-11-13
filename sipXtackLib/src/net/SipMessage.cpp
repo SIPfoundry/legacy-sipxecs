@@ -961,9 +961,11 @@ void SipMessage::setInviteOkData(const SipMessage* inviteRequest,
    setViaFromRequest(inviteRequest);
 
     UtlString recordRouteField;
-    int recordRouteIndex = 0;
-    while(inviteRequest->getRecordRouteField(recordRouteIndex,
-            &recordRouteField))
+    int recordRouteIndex;
+
+    for( recordRouteIndex = 0; 
+         inviteRequest->getRecordRouteField( recordRouteIndex, &recordRouteField );
+         recordRouteIndex++ )
     {
         // Don't do this as it will result in the UA at the other
         // end routing to itself.
@@ -976,7 +978,6 @@ void SipMessage::setInviteOkData(const SipMessage* inviteRequest,
         //}
 
         setRecordRouteField(recordRouteField.data(), recordRouteIndex);
-        recordRouteIndex++;
     }
 
     int inviteSessionExpires;
@@ -1382,12 +1383,13 @@ void SipMessage::setResponseData(const SipMessage* request,
       request->isRecordRouteAccepted())
    {
       UtlString recordRouteField;
-      int recordRouteIndex = 0;
-      while(request->getRecordRouteField(recordRouteIndex,
-              &recordRouteField))
+      int recordRouteIndex;
+      
+      for( recordRouteIndex = 0; 
+           request->getRecordRouteField( recordRouteIndex, &recordRouteField );
+           recordRouteIndex++ )
       {
          setRecordRouteField(recordRouteField.data(), recordRouteIndex);
-         recordRouteIndex++;
       }
    }
 }
