@@ -1355,7 +1355,8 @@ UtlBoolean SipMessage::verifyMd5Authorization(const char* userId,
 void SipMessage::setResponseData(const SipMessage* request,
                          int responseCode,
                          const char* responseText,
-                         const char* localContact)
+                         const char* localContact,
+                         UtlBoolean echoRecordRouteIfApplicable)
 {
    setInterfaceIpPort(request->getInterfaceIp(), request->getInterfacePort()) ;
    UtlString fromField;
@@ -1374,6 +1375,21 @@ void SipMessage::setResponseData(const SipMessage* request,
                sequenceNum, sequenceMethod.data(), localContact) ;
 
    setViaFromRequest(request);
+   
+   // If this is a response for a Request that accepts Record-Routes
+   // then echo the Record-Routes in the Response
+   if(echoRecordRouteIfApplicable &&
+      request->isRecordRouteAccepted())
+   {
+      UtlString recordRouteField;
+      int recordRouteIndex = 0;
+      while(request->getRecordRouteField(recordRouteIndex,
+              &recordRouteField))
+      {
+         setRecordRouteField(recordRouteField.data(), recordRouteIndex);
+         recordRouteIndex++;
+      }
+   }
 }
 
 void SipMessage::setAckData(const char* uri,

@@ -65,6 +65,7 @@ class SipMessageTest : public CppUnit::TestCase
       CPPUNIT_TEST(testSetFieldSubfield_SingleSubfields);
       CPPUNIT_TEST(testSetFieldSubfield_Mixed);
       CPPUNIT_TEST(testSetViaTag);
+      CPPUNIT_TEST(testRecordRouteEchoing);
       CPPUNIT_TEST_SUITE_END();
 
       public:
@@ -2777,6 +2778,45 @@ class SipMessageTest : public CppUnit::TestCase
       refMsg.getBytes(&referenceMsgString, &msgLen);
 
       ASSERT_STR_EQUAL(referenceMsgString.data(), modifiedMsgString.data());  
+   }
+   
+   void testRecordRouteEchoing()
+   {
+      const char* message1 =
+         "INVITE sip:user@somewhere.com SIP/2.0\r\n"
+         "Via: SIP/2.0/TCP 10.1.1.3:33855\r\n"
+         "To: sip:user@somewhere.com\r\n"
+         "From: Caller <sip:caller@example.org>; tag=30543f3483e1cb11ecb40866edd3295b\r\n"
+         "Call-Id: f88dfabce84b6a2787ef024a7dbe8749\r\n"
+         "Cseq: 1 INVITE\r\n"
+         "Record-Route: <sip:myhost.example.com;lr>\r\n"
+         "Record-Route: <sip:myhost2a.example.com;lr>,<sip:myhost2b.example.com;lr>,<sip:myhost2c.example.com;lr>\r\n"
+         "Record-Route: <sip:myhost3.example.com;lr>\r\n"
+         "Max-Forwards: 20\r\n"
+         "Contact: caller@127.0.0.1\r\n"
+         "Record-Route: <sip:myhost4.example.com;lr>\r\n"
+         "Content-Length: 0\r\n"
+         "\r\n";
+      SipMessage sipRequest(message1, strlen(message1));
+
+      SipMessage response1;
+      UtlString recordRouteField;
+      UtlString text("blah");
+      response1.setResponseData(&sipRequest, 400, text.data() );
+      CPPUNIT_ASSERT( response1.getRecordRouteField(0, &recordRouteField ) );
+      ASSERT_STR_EQUAL( "<sip:myhost.example.com;lr>", recordRouteField.data() );
+      CPPUNIT_ASSERT( response1.getRecordRouteField(1, &recordRouteField ) );
+      ASSERT_STR_EQUAL( "<sip:myhost2a.example.com;lr>,<sip:myhost2b.example.com;lr>,<sip:myhost2c.example.com;lr>", recordRouteField.data() );
+      CPPUNIT_ASSERT( response1.getRecordRouteField(2, &recordRouteField ) );
+      ASSERT_STR_EQUAL( "<sip:myhost3.example.com;lr>", recordRouteField.data() );
+      CPPUNIT_ASSERT( response1.getRecordRouteField(3, &recordRouteField ) );
+      ASSERT_STR_EQUAL( "<sip:myhost4.example.com;lr>", recordRouteField.data() );
+      CPPUNIT_ASSERT( !response1.getRecordRouteField(4, &recordRouteField ) );
+
+      SipMessage response2;
+      UtlString localContact("<sip:bob@bobnet.bob>");
+      response2.setResponseData(&sipRequest, 400, text.data(), localContact.data(), FALSE );
+      CPPUNIT_ASSERT( !response2.getRecordRouteField(0, &recordRouteField ) );
    }
 };
 

@@ -687,7 +687,8 @@ public:
     void setResponseData(const SipMessage* request,
                          int responseCode,
                          const char* responseText,
-                         const char* localContact = NULL);
+                         const char* localContact = NULL,
+                         UtlBoolean echoRecordRouteIfApplicable = TRUE);
 
     void setResponseData(int statusCode, const char* statusText,
                          const char* fromAddress,
