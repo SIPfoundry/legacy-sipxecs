@@ -7,6 +7,7 @@
 void textContentShallow(UtlString& string, ///< replaced with TEXT content of node.
                         TiXmlNode *node);
 ///< This skips over and ignores any non-text nodes.
+//   'node' may be NULL, in which case 'string' is set to empty.
 
 /// Get the content of an XML element, which must be a leaf element with only text content.
 bool textContent(UtlString& string, ///< TEXT content of node is appended to this.
@@ -22,6 +23,7 @@ bool textContent(UtlString& string, ///< TEXT content of node is appended to thi
 /// Get the complete text content of an XML element (including sub-elements).
 void textContentDeep(UtlString& string,
                      TiXmlNode *node);
+//   'node' may be NULL, in which case 'string' is set to empty.
 
 /// Service function for textContentDeep.
 void textContentDeepRecursive(UtlString& string,

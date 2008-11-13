@@ -10,6 +10,8 @@ void textContentShallow(UtlString& string,
 {
    // Clear the string.
    string.remove(0);
+
+   // Exit if node == NULL.
    if ( !node )
       return;
 
@@ -69,6 +71,10 @@ void textContentDeep(UtlString& string,
 {
    // Clear the string.
    string.remove(0);
+
+   // Exit if node == NULL.
+   if ( !node )
+      return;
 
    // Recurse into the XML.
    textContentDeepRecursive(string, node);
