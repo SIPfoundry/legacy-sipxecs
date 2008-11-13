@@ -22,7 +22,11 @@ import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.permission.PermissionManagerImpl;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
 
-import static org.easymock.EasyMock.*;
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.expectLastCall;
+import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.verify;
 
 public class ValidUsersConfigTest extends XMLTestCase {
 
@@ -34,7 +38,6 @@ public class ValidUsersConfigTest extends XMLTestCase {
     public void testGenerate() throws Exception {
         PermissionManagerImpl pm = new PermissionManagerImpl();
         pm.setModelFilesContext(TestHelper.getModelFilesContext());
-
 
         User u1 = new User();
         u1.setPermissionManager(pm);
@@ -62,7 +65,6 @@ public class ValidUsersConfigTest extends XMLTestCase {
 
         DomainManager domainManager = createMock(DomainManager.class);
         expect(domainManager.getDomain()).andReturn(domain).anyTimes();
-
 
         replay(coreContext, domainManager);
 

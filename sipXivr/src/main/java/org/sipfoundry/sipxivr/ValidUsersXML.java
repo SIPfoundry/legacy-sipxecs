@@ -88,7 +88,11 @@ public class ValidUsersXML {
             LOG.fatal("Something went wrong loading the validusers.xml file.", t);
             System.exit(1);
         }
-
+        
+        walkXML(validUsers);
+    }
+    
+    void walkXML(Document validUsers) {
         String prop = null;
         try {
             prop = "user";
@@ -99,31 +103,49 @@ public class ValidUsersXML {
                 Node next = user.getFirstChild();
                 
                 User u = new User() ;
+                Vector<String> aliases = new Vector<String>();
                 while (next != null) {
                     if (next.getNodeType() == Node.ELEMENT_NODE) {
                         String name = next.getNodeName();
+                        String text = next.getTextContent().trim();
                         if (name.contentEquals("identity")) {
-                            u.setIdentity(next.getTextContent().trim());
+                            u.setIdentity(text);
                         } else if (name.contentEquals("userName")) {
-                            u.setUserName(next.getTextContent().trim());
+                            u.setUserName(text);
                         } else if (name.contentEquals("displayName")) {
-                            u.setDisplayName(next.getTextContent().trim());
+                            u.setDisplayName(text);
                         } else if (name.contentEquals("contact")) {
-                            u.setUri(next.getTextContent().trim());
+                            u.setUri(text);
                         } else if (name.contentEquals("pintoken")) {
-                            u.setPintoken(next.getTextContent().trim());
-                        } else if (name.contentEquals("identity")) {
-                            u.setIdentity(next.getTextContent().trim());
+                            u.setPintoken(text);
                         } else if (name.contentEquals("inDirectory")) {
-                            u.setInDirectory(Boolean.parseBoolean(next.getTextContent().trim()));
+                            u.setInDirectory(Boolean.parseBoolean(text));
+                        } else if (name.contentEquals("aliases")) {
+                        	Node alias = next.getFirstChild() ;
+                        	while (alias != null) {
+                        		if (alias.getNodeType() == Node.ELEMENT_NODE) {
+                        			String name2 = alias.getNodeName();
+                                    String text2 = alias.getTextContent().trim();
+                                    if (name2.contentEquals("alias")) {
+                                    	aliases.add(text2);
+                                    }
+                        		}
+                        		alias = alias.getNextSibling();
+                        	}
                         }
-                    }
+                    } 
                     next = next.getNextSibling();
                 }
                 if (u.isInDirectory()) {
                     buildDialPatterns(u);
                 }
+                u.setAliases(aliases);
                 m_userNameMap.put(u.getUserName(), u);
+                
+                // For each alias, add the user to the map
+                for (String alias : aliases) {
+					m_userNameMap.put(alias, u);
+				}
                 m_users.add(u);
             }
 

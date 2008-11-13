@@ -201,7 +201,12 @@ public class Attendant {
 
         if (m_aaId == null) {
             Date now = Calendar.getInstance().getTime();
-            id = m_schedule.getAttendant(now);
+            if (m_schedule != null) {
+            	id = m_schedule.getAttendant(now);
+            } else {
+                LOG.error(String.format("Cannot find schedule %s in autoattendants.xml.", 
+                	m_scheduleId != null ?m_scheduleId : "null")) ;
+            }
             if (id == null) {
                 LOG.error("Cannot determine which attendant to use from schedule.") ;
             } else {

@@ -18,6 +18,7 @@ public class User {
     private String m_pintoken;
     private boolean m_inDirectory;
     private Vector<String> dialPatterns;
+    private Vector<String> aliases;
 
     public String getIdentity() {
         return m_identity;
@@ -73,5 +74,13 @@ public class User {
 
     public void setDialPatterns(Vector<String> dialPatterns) {
         this.dialPatterns = dialPatterns;
+    }
+    
+    public Vector<String> getAliases() {
+    	return aliases;
+    }
+    
+    public void setAliases(Vector<String> aliases) {
+    	this.aliases = aliases;
     }
 }

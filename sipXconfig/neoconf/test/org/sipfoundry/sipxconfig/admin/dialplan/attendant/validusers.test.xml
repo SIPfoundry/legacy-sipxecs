@@ -4,30 +4,19 @@
   <user>
     <identity>301@example.com</identity>
     <userName>301</userName>
+    <aliases>
+      <alias>jdoe</alias>
+      <alias>18003010000</alias>
+    </aliases>
     <displayName>John Adams</displayName>
     <contact>"John Adams"&lt;sip:301@example.com&gt;</contact>
     <pintoken>9c78d7b04fa11fe0086eb25933b01af3</pintoken>
     <inDirectory>true</inDirectory>
   </user>
   <user>
-    <identity>jdoe@example.com</identity>
-    <userName>301</userName>
-    <displayName>John Adams</displayName>
-    <contact>"John Adams"&lt;sip:301@example.com&gt;</contact>
-    <pintoken>9c78d7b04fa11fe0086eb25933b01af3</pintoken>
-    <inDirectory>false</inDirectory>
-  </user>
-  <user>
-    <identity>18003010000@example.com</identity>
-    <userName>301</userName>
-    <displayName>John Adams</displayName>
-    <contact>"John Adams"&lt;sip:301@example.com&gt;</contact>
-    <pintoken>9c78d7b04fa11fe0086eb25933b01af3</pintoken>
-    <inDirectory>false</inDirectory>
-  </user>
-  <user>
     <identity>302@example.com</identity>
     <userName>302</userName>
+    <aliases></aliases>
     <displayName>George Washington</displayName>
     <contact>"George Washington"&lt;sip:302@example.com&gt;</contact>
     <pintoken>6833fd1fc2dd908dc99a3a457d88b812</pintoken>

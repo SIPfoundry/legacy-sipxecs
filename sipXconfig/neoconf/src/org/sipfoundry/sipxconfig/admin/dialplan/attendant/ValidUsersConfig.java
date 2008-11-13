@@ -44,29 +44,23 @@ public class ValidUsersConfig extends XmlFile {
     private void generateUser(Element usersEl, User user) {
         String domainName = m_domainManager.getDomain().getName();
 
-        boolean inDirectory = user.hasPermission(PermissionName.AUTO_ATTENDANT_DIALING);
-        List<AliasMapping> aliasMappings = user.getAliasMappings(domainName);
-        aliasMappings.add(0, createIdentityMapping(user, domainName));
-        for (AliasMapping aliasMapping : aliasMappings) {
-            Element userEl = usersEl.addElement("user");
-            userEl.addElement("identity").setText(aliasMapping.getIdentity());
-            userEl.addElement("userName").setText(user.getUserName());
-            String displayName = user.getDisplayName();
-            if (displayName != null) {
-                userEl.addElement("displayName").setText(displayName);
-            }
-            userEl.addElement("contact").setText(aliasMapping.getContact());
-            userEl.addElement("pintoken").setText(user.getPintoken());
-            userEl.addElement("inDirectory").setText(Boolean.toString(inDirectory));
-            // only for the first entry
-            inDirectory = false;
-        }
-    }
-
-    private AliasMapping createIdentityMapping(User user, String domainName) {
+        Element userEl = usersEl.addElement("user");
         String identity = AliasMapping.createUri(user.getUserName(), domainName);
+        userEl.addElement("identity").setText(identity);
+        userEl.addElement("userName").setText(user.getUserName());
+        Element aliasesEl = userEl.addElement("aliases");
+        for (String alias : user.getAliases()) {
+            aliasesEl.addElement("alias").setText(alias);
+        }
+        String displayName = user.getDisplayName();
+        if (displayName != null) {
+            userEl.addElement("displayName").setText(displayName);
+        }
         String contact = user.getUri(domainName);
-        return new AliasMapping(identity, contact);
+        userEl.addElement("contact").setText(contact);
+        userEl.addElement("pintoken").setText(user.getPintoken());
+        boolean inDirectory = user.hasPermission(PermissionName.AUTO_ATTENDANT_DIALING);
+        userEl.addElement("inDirectory").setText(Boolean.toString(inDirectory));
     }
 
     @Required

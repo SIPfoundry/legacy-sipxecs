@@ -1,80 +1,94 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <schema
-	targetNamespace="http://www.sipfoundry.org/sipX/schema/xml/validusers-00-00"
-	xmlns="http://www.w3.org/2001/XMLSchema"
-	xmlns:tns="http://www.sipfoundry.org/sipX/schema/xml/validusers-00-00">
+   targetNamespace="http://www.sipfoundry.org/sipX/schema/xml/validusers-00-00"
+   xmlns="http://www.w3.org/2001/XMLSchema"
+   xmlns:tns="http://www.sipfoundry.org/sipX/schema/xml/validusers-00-00">
 
-	<element name="displayName" type="normalizedString">
-		<annotation>
-			<documentation>
-				SIP Display Name of this user. Used to generate the
-				digit-to-name dialing mappings in the Auto Attendant,
-				for the "dial-by-name" feature.
-			</documentation>
-		</annotation>
-	</element>
+   <element name="displayName" type="normalizedString">
+      <annotation>
+         <documentation>
+            SIP Display Name of this user. Used to generate the
+            digit-to-name dialing mappings in the Auto Attendant,
+            for the "dial-by-name" feature.
+         </documentation>
+      </annotation>
+   </element>
 
-	<element name="identity" type="normalizedString">
-		<annotation>
-			<documentation>
-				Identity of the user (including domain)
-			</documentation>
-		</annotation>
-	</element>
+   <element name="identity" type="normalizedString">
+      <annotation>
+         <documentation>
+            Identity of the user (including domain)
+         </documentation>
+      </annotation>
+   </element>
 
-	<element name="userName" type="normalizedString">
-		<annotation>
-			<documentation>User part of the Identity</documentation>
-		</annotation>
-	</element>
+   <element name="userName" type="normalizedString">
+      <annotation>
+         <documentation>User part of the Identity</documentation>
+      </annotation>
+   </element>
 
+   <element name="alias" type="normalizedString">
+      <annotation>
+         <documentation>Alternate User part</documentation>
+      </annotation>
+   </element>
 
-	<element name="pintoken" type="normalizedString">
-		<annotation>
-			<documentation>
-				Hash of the user's voice mail PIN.
-			</documentation>
-		</annotation>
-	</element>
+   <element name="pintoken" type="normalizedString">
+      <annotation>
+         <documentation>
+            Hash of the user's voice mail PIN.
+         </documentation>
+      </annotation>
+   </element>
 
-	<element name="inDirectory" type="boolean">
-		<annotation>
-			<documentation>
-				true if this user is listed in the auto attendant
-				directory.
-			</documentation>
-		</annotation>
-	</element>
-	
-	<element name="contact" type="normalizedString"></element>
+   <element name="inDirectory" type="boolean">
+      <annotation>
+         <documentation>
+            true if this user is listed in the auto attendant
+            directory.
+         </documentation>
+      </annotation>
+   </element>
+        
+   <element name="contact" type="normalizedString">
+      <annotation>
+         <documentation>
+            Full URL of where to call (including display name)
+         </documentation>
+      </annotation>
+   </element>
 
-	<element name="user">
-		<complexType>
-			<sequence>
-                <element ref="tns:identity" maxOccurs="1" minOccurs="1">
-				</element>
-                <element ref="tns:userName" maxOccurs="1" minOccurs="1">
-				</element>
-                <element ref="tns:displayName" maxOccurs="1" minOccurs="0">
-				</element>
-                <element ref="tns:contact" maxOccurs="1" minOccurs="1">
-				</element>
-                <element ref="tns:pintoken" maxOccurs="1" minOccurs="1">
-				</element>
-                <element ref="tns:inDirectory" maxOccurs="1"
-					minOccurs="1">
-				</element>
-			</sequence>
-		</complexType>
-	</element>
+   <element name="aliases">
+      <annotation>
+         <documentation>Aliases for user name</documentation>
+      </annotation>
+      <complexType>
+         <sequence>
+            <element ref="tns:alias" minOccurs="0" maxOccurs="unbounded"/>
+         </sequence>
+      </complexType>
+   </element>
 
-	<element name="validusers">
-		<complexType>
-			<sequence>
-				<element ref="tns:user" maxOccurs="unbounded"
-					minOccurs="0">
-				</element>
-			</sequence>
-		</complexType>
-	</element>
+   <element name="user">
+      <complexType mixed="false">
+         <all  minOccurs="1" maxOccurs="1">
+            <element ref="tns:identity" maxOccurs="1" minOccurs="1"/>
+            <element ref="tns:userName" maxOccurs="1" minOccurs="1"/>
+            <element ref="tns:aliases" maxOccurs="1" minOccurs="0"/>
+            <element ref="tns:displayName" maxOccurs="1" minOccurs="0"/>
+            <element ref="tns:contact" maxOccurs="1" minOccurs="1"/>
+            <element ref="tns:pintoken" maxOccurs="1" minOccurs="1"/>
+            <element ref="tns:inDirectory" maxOccurs="1" minOccurs="1"/>
+         </all>
+      </complexType>
+   </element>
+
+   <element name="validusers">
+      <complexType>
+         <sequence>
+            <element ref="tns:user" maxOccurs="unbounded" minOccurs="0"/>
+         </sequence>
+      </complexType>
+   </element>
 </schema>
