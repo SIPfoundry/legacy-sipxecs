@@ -64,7 +64,8 @@
       <invalidResponseCount>2</invalidResponseCount>
       <transferOnFailures>true</transferOnFailures>
       <transferUrl>sip:999@example.org</transferUrl>
+      <transferPrompt>prompts/test.wav</transferPrompt>
     </invalidResponse>
   </autoattendant>
-  <schedules />
+  <schedules/>
 </autoattendants>

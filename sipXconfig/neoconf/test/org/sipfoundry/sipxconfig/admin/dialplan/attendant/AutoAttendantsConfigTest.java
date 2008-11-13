@@ -92,6 +92,7 @@ public class AutoAttendantsConfigTest extends XMLTestCase {
 
         aa.setSettingValue("onfail/transfer", "1");
         aa.setSettingValue("onfail/transfer-extension", "999");
+        aa.setSettingValue("onfail/transfer-prompt", "test.wav");
 
         DialPlanContext dialPlanContext = createMock(DialPlanContext.class);
         dialPlanContext.getAutoAttendants();
@@ -107,7 +108,6 @@ public class AutoAttendantsConfigTest extends XMLTestCase {
 
         String generatedXml = autoAttendantsConfig.getFileContent();
         InputStream referenceXml = getClass().getResourceAsStream("autoattendants.test.xml");
-
         assertXMLEqual(new InputStreamReader(referenceXml), new StringReader(generatedXml));
 
         verify(dialPlanContext);

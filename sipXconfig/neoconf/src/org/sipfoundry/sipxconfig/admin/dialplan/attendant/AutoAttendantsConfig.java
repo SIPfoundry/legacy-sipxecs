@@ -7,6 +7,7 @@
  */
 package org.sipfoundry.sipxconfig.admin.dialplan.attendant;
 
+import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -36,7 +37,6 @@ public class AutoAttendantsConfig extends XmlFile {
     private static final SimpleDateFormat HOLIDAY_FORMAT = new SimpleDateFormat("dd-MMM-yyyy", Locale.US);
     private static final String NAMESPACE = "http://www.sipfoundry.org/sipX/schema/xml/autoattendants-00-00";
     private static final String ID = "id";
-
     private DialPlanContext m_dialPlanContext;
 
     private DomainManager m_domainManager;
@@ -124,8 +124,12 @@ public class AutoAttendantsConfig extends XmlFile {
                 String transferUrl = SipUri.fix(value, m_domainManager.getDomain().getName());
                 irEl.addElement("transferUrl").setText(transferUrl);
             }
-            // FIXME: this should be the full path of the uploaded transferPrompt
-            addSettingValue(irEl, "transferPrompt", autoAttendant, "onfail/transfer-prompt");
+            String transferPromptValue = autoAttendant.getSettingValue("onfail/transfer-prompt");
+            if (transferPromptValue != null) {
+                String promptsDirectory = autoAttendant.getPromptsDirectory();
+                File fullPathTransferPromptFile = new File(promptsDirectory, transferPromptValue);
+                irEl.addElement("transferPrompt").setText(fullPathTransferPromptFile.getPath());
+            }
         }
     }
 
