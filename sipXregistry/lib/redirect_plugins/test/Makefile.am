@@ -33,13 +33,15 @@ testsuite1_SOURCES = \
     
 testsuite2_LDADD = \
     @SIPXUNIT_LIBS@ \
+    @SIPXCOMMSERVERTEST_LIBS@ \
     @SIPXCOMMSERVER_LIBS@
 
 testsuite2_LDFLAGS = \
     -rdynamic
 
 testsuite2_CXXFLAGS = @CPPUNIT_CFLAGS@ \
-    -DTEST_DATA_DIR=\"@abs_top_srcdir@/lib/redirect_plugins/test/\"
+    -DTEST_DATA_DIR=\"@abs_top_srcdir@/lib/redirect_plugins/test/locationdbdata\" \
+    -DTEST_WORK_DIR=\"@abs_top_builddir@/lib/redirect_plugins/test/work\"
 testsuite2_SOURCES = \
     ../../../src/RedirectPlugin.cpp \
     ../../../src/RedirectSuspend.cpp \

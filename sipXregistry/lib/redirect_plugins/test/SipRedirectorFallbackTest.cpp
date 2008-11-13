@@ -18,6 +18,7 @@
 
 #include "sipdb/LocationDB.h"
 #include "sipdb/UserLocationDB.h"
+#include "testlib/SipDbTestContext.h"
 #include <registry/RegisterPlugin.h>
 #include "SipRedirectorFallback.h"
 #include "sipXecsService/SipXecsService.h"
@@ -52,9 +53,18 @@ class SipRedirectorFallbackTest : public CppUnit::TestCase
    CPPUNIT_TEST_SUITE_END();
 
 public:
+   SipDbTestContext sipDbContext;
+
+   SipRedirectorFallbackTest() :
+      sipDbContext( TEST_DATA_DIR, TEST_WORK_DIR )
+   {
+      // force copy of input files into the 'work' directory
+      sipDbContext.inputFile("location.xml");
+      sipDbContext.inputFile("userlocation.xml");
+   }
+   
    void setUp()
    {
-      setenv( SipXecsService::DatabaseDirType, TEST_DATA_DIR "/locationdbdata", 1 );
       SipXauthIdentity::setSecret("1234");   
    }
 
