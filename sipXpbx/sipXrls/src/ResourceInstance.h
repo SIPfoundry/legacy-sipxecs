@@ -120,14 +120,14 @@ class ResourceInstance : public UtlContainableAtomic,
 
    static const UtlContainableType TYPE;    /** < Class type used for runtime checking */
 
-/* //////////////////////////// PROTECTED ///////////////////////////////// */
-  protected:
+/* //////////////////////////// PRIVATE /////////////////////////////////// */
+  private:
    
    //! Destroy the contents of mXmlDialogs.
    void destroyXmlDialogs();
 
-/* //////////////////////////// PRIVATE /////////////////////////////////// */
-  private:
+   //! Destroy the non-Terminated contents of mXmlDialogs.
+   void destroyNonTerminatedXmlDialogs();
 
    //! Parent SubscriptionSet.
    SubscriptionSet* mSubscriptionSet;

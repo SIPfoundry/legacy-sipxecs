@@ -133,10 +133,10 @@ void ResourceInstance::notifyEventCallback(const UtlString* dialogHandle,
       const char* p = dialog_info_node->ToElement()->Attribute("state");
       if (p && strcmp(p, "full") == 0)
       {
-         // If the state is "full", delete the current state.
-         destroyXmlDialogs();
+         // If the state is "full", delete all non-terminated dialogs.  (XECS-1668)
+         destroyNonTerminatedXmlDialogs();
          OsSysLog::add(FAC_RLS, PRI_DEBUG,
-                       "ResourceInstance::notifyEventCallback clearing state");
+                       "ResourceInstance::notifyEventCallback all non-terminated dialogs");
       }
 
       // Find all the <dialog> elements.
@@ -457,7 +457,9 @@ UtlContainableType ResourceInstance::getContainableType() const
    return ResourceInstance::TYPE;
 }
 
-/* //////////////////////////// PROTECTED ///////////////////////////////// */
+/* //////////////////////////// PRIVATE /////////////////////////////////// */
+
+/* ============================ FUNCTIONS ================================= */
 
 // Destroy the contents of mXmlDialogs.
 void ResourceInstance::destroyXmlDialogs()
@@ -475,7 +477,35 @@ void ResourceInstance::destroyXmlDialogs()
    mXmlDialogs.destroyAll();
 }
 
-/* //////////////////////////// PRIVATE /////////////////////////////////// */
+//! Destroy the non-Terminated contents of mXmlDialogs.
+void ResourceInstance::destroyNonTerminatedXmlDialogs()
+{
+   OsSysLog::add(FAC_RLS, PRI_DEBUG,
+                 "ResourceInstance::destroyNonTerminatedXmlDialogs mInstanceName = '%s'",
+                 mInstanceName.data());
 
+   // Iterate through the contents.
+   UtlHashMapIterator itor(mXmlDialogs);
+   UtlContainable* id;
+   while ((id = itor()))
+   {
+      // The XML document for a single dialog.
+      UtlVoidPtr* value = dynamic_cast <UtlVoidPtr*> (itor.value());
+      TiXmlElement* dialog_element = static_cast <TiXmlElement*> (value->getValue());
+      if (NULL != dialog_element)
+      {
+         // Get the "state" XML node.
+         TiXmlNode* state = dialog_element->FirstChild("state");
+         // Destroy the dialog only if the state is not "terminated".
+         UtlString stateText;
+         textContentShallow(stateText, state); // textContentShallow allows state == NULL.
 
-/* ============================ FUNCTIONS ================================= */
+         if (0 != stateText.compareTo("terminated"))
+         {
+            // Yes, so destroy it.
+            delete dialog_element;
+            mXmlDialogs.destroy(itor.key());
+         }
+      }
+   }
+}
