@@ -322,6 +322,8 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) %{sipxpbxconf}/sipxstatus/*
 %dir %{sipxpbxconf}/sipxpark
 %config(noreplace) %{sipxpbxconf}/sipxpark/*
+%dir %{sipxpbxconf}/sipxpage
+%config(noreplace) %{sipxpbxconf}/sipxpage/*
 %dir %{sipxpbxconf}/sipxrls
 %config(noreplace) %{sipxpbxconf}/sipxrls/*
 %dir %{sipxpbxconf}/sipxvxml

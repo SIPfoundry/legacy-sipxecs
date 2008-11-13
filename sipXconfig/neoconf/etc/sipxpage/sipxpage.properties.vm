@@ -1,0 +1,20 @@
+sip.address : ${location.address}
+rtp.port : 8500
+sip.tlsPort : $settings.getSetting('PAGE_SERVER_SIP_SECURE_PORT').Value
+sip.udpPort : $settings.getSetting('PAGE_SERVER_SIP_PORT').Value
+sip.tcpPort : $settings.getSetting('PAGE_SERVER_SIP_PORT').Value
+sip.trace : ${sipTraceLevel}
+log.file : ${pageService.logDir}/sipxpage.log
+log.level : $settings.getSetting('SIP_PAGE_LOG_LEVEL').Value
+#foreach($g in $groups)
+#if(${g.enabled})
+#set($id = "page.group.${velocityCount}")
+
+${id}.user : ${g.pageGroupNumber}
+${id}.description : $!{g.description}
+${id}.urls : ${g.formatUserList($pageService.domainName)}
+${id}.beep : file://${pageService.audioDir}/${g.sound}
+#set($inMilis = $g.timeout * 1000)
+${id}.timeout : $inMilis
+#end
+#end

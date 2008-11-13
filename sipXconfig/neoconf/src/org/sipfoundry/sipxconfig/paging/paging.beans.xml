@@ -5,8 +5,10 @@
   <bean id="pagingConfiguration" class="org.sipfoundry.sipxconfig.paging.PagingConfiguration" scope="prototype"
     parent="defaultConfigurationFile">
     <property name="velocityEngine" ref="velocityEngine" />
-    <property name="template" value="commserver/sipxpage.properties.in.vm" />
-    <property name="name" value="sipxpage.properties.in" />
+    <property name="template" value="sipxpage/sipxpage.properties.vm" />
+    <property name="name" value="sipxpage.properties" />
+    <property name="sipxServiceManager" ref="sipxServiceManager" />
+    <property name="pagingContext" ref="pagingContext"/>
   </bean>
 
   <bean id="pagingServer" class="org.sipfoundry.sipxconfig.paging.PagingServer" scope="prototype">
@@ -21,11 +23,9 @@
   </bean>
 
   <bean id="pagingProvisioningContextImpl" class="org.sipfoundry.sipxconfig.paging.PagingProvisioningContextImpl">
-    <lookup-method name="createPagingConfiguration" bean="pagingConfiguration" />
-    <property name="pagingContext" ref="pagingContext" />
     <property name="processContext" ref="sipxProcessContext" />
-    <property name="domainManager" ref="domainManager" />
     <property name="replicationContext" ref="sipxReplicationContext" />
+    <property name="sipxServiceManager" ref="sipxServiceManager"/>
   </bean>
 
   <alias alias="pagingProvisioningContext" name="pagingProvisioningContextImpl" />

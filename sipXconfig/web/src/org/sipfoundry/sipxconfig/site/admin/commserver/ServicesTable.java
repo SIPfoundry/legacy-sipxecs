@@ -41,6 +41,7 @@ import org.sipfoundry.sipxconfig.service.LocationSpecificService;
 import org.sipfoundry.sipxconfig.service.SipxService;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.sipfoundry.sipxconfig.site.service.EditCallResolverService;
+import org.sipfoundry.sipxconfig.site.service.EditPageService;
 import org.sipfoundry.sipxconfig.site.service.EditParkService;
 import org.sipfoundry.sipxconfig.site.service.EditPresenceService;
 import org.sipfoundry.sipxconfig.site.service.EditProxyService;
@@ -59,6 +60,7 @@ public abstract class ServicesTable extends BaseComponent {
         SERVICE_MAP.put("CallResolver", EditCallResolverService.PAGE);
         SERVICE_MAP.put("ResourceListServer", EditResourceListService.PAGE);
         SERVICE_MAP.put("SIPStatus", EditStatusService.PAGE);
+        SERVICE_MAP.put("PageServer", EditPageService.PAGE);
     }    
 
     @InjectObject(value = "service:tapestry.ognl.ExpressionEvaluator")

@@ -21,6 +21,7 @@ sipxCallResolverService.agentPort=${CALLRESOLVER_AGENT_PORT}
 sipxCallResolverService.ipAddress=${MY_IP_ADDR}
 sipxRlsService.rlsPort=${RLS_SIP_PORT}
 sipxStatusService.httpsPort=${STATUS_SERVER_HTTPS_PORT}
+sipxPageService.audioDir=@sipxpage.audio.dir@
 
 natTraversal.proxyAddress=${PROXY_SERVER_ADDR}
 natTraversal.proxyServerSipHostport=${PROXY_SERVER_SIP_HOSTPORT}
@@ -52,7 +53,6 @@ adminContextImpl.backupDirectory=@sipxpbx.backup.dir@
 adminContextImpl.ftpBackupDirectory=@sipxpbx.download.dir@
 ftpRestore.downloadDirectory=@sipxpbx.download.dir@
 orbitsGenerator.audioDirectory=@sipxpark.audio.dir@
-pagingProvisioningContextImpl.audioDirectory=@sipxpage.audio.dir@
 conferenceBridge.host=${MY_FULL_HOSTNAME}
 upload.uploadRootDirectory=@sipxconfig.upload.dir@
 upload.destinationDirectory=@sipxconfig.phone.dir@/profile/tftproot

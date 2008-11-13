@@ -9,25 +9,25 @@
  */
 package org.sipfoundry.sipxconfig.paging;
 
-import java.io.InputStream;
-import java.io.StringWriter;
+import static org.easymock.EasyMock.createControl;
+import static org.easymock.EasyMock.expect;
+
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import junit.framework.TestCase;
-
-import org.apache.commons.io.IOUtils;
+import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.commserver.Server;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.service.SipxPageService;
+import org.sipfoundry.sipxconfig.service.SipxServiceManager;
+import org.sipfoundry.sipxconfig.service.SipxServiceTestBase;
+import org.sipfoundry.sipxconfig.setting.Setting;
 
-import static org.easymock.EasyMock.createControl;
-import static org.easymock.EasyMock.expect;
-
-public class PagingConfigurationTest extends TestCase {
+public class PagingConfigurationTest extends SipxServiceTestBase {
     private PagingConfiguration m_pagingConfiguration;
     private PagingServer m_pagingServer;
     private List<PagingGroup> m_pagingGroups;
@@ -47,8 +47,39 @@ public class PagingConfigurationTest extends TestCase {
 
         m_pagingConfiguration = new PagingConfiguration();
         m_pagingConfiguration.setVelocityEngine(TestHelper.getVelocityEngine());
-        m_pagingConfiguration.setTemplate("commserver/sipxpage.properties.in.vm");
+        m_pagingConfiguration.setTemplate("sipxpage/sipxpage.properties.vm");
 
+        initPagingGroups();
+
+        PagingContext pagingContext= EasyMock.createMock(PagingContext.class);
+        pagingContext.getPagingServer();
+        EasyMock.expectLastCall().andReturn(m_pagingServer).anyTimes();
+        pagingContext.getPagingGroups();
+        EasyMock.expectLastCall().andReturn(m_pagingGroups).anyTimes();
+        EasyMock.replay(pagingContext);
+        m_pagingConfiguration.setPagingContext(pagingContext);
+
+        SipxPageService sipxPageService = new SipxPageService();
+        initCommonAttributes(sipxPageService);
+        Setting settings = TestHelper.loadSettings("sipxpage/sipxpage.xml");
+        sipxPageService.setSettings(settings);
+
+        Setting pageSettings = sipxPageService.getSettings().getSetting("page-config");
+        pageSettings.getSetting("PAGE_SERVER_SIP_PORT").setValue("9898");
+        pageSettings.getSetting("PAGE_SERVER_SIP_SECURE_PORT").setValue("9899");
+        pageSettings.getSetting("SIP_PAGE_LOG_LEVEL").setValue("CRIT");
+
+        sipxPageService.setAudioDir("media");
+
+        SipxServiceManager sipxServiceManager = EasyMock.createMock(SipxServiceManager.class);
+        sipxServiceManager.getServiceByBeanId(SipxPageService.BEAN_ID);
+        EasyMock.expectLastCall().andReturn(sipxPageService).anyTimes();
+        EasyMock.replay(sipxServiceManager);
+        m_pagingConfiguration.setSipxServiceManager(sipxServiceManager);
+
+    }
+
+    private void initPagingGroups() {
         PagingGroup g1 = new PagingGroup();
         g1.setEnabled(true);
         g1.setDescription("All the phones in the east side of the building");
@@ -87,15 +118,6 @@ public class PagingConfigurationTest extends TestCase {
     }
 
     public void testGenerateConfigProperties() throws Exception {
-        m_pagingConfiguration.generate(m_pagingServer, m_pagingGroups, "media", "example.org");
-
-        StringWriter output = new StringWriter();
-        m_pagingConfiguration.write(output, null);
-
-        InputStream expectedProfile = getClass().getResourceAsStream("sipxpage.properties.in");
-        assertNotNull(expectedProfile);
-        String expected = IOUtils.toString(expectedProfile);
-
-        assertEquals(expected, output.toString());
+        assertCorrectFileGeneration(m_pagingConfiguration, "expected-sipxpage.properties");
     }
 }

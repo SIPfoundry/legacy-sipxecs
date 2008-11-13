@@ -193,8 +193,6 @@ public final class TestUtil {
         sysProps.setProperty("domainManagerImpl.initialAlias", "alias.example.org");
         sysProps.setProperty("orbitsGenerator.audioDirectory", outputDirectory
                 + "/parkserver/music");
-        sysProps.setProperty("pagingProvisioningContextImpl.audioDirectory", outputDirectory
-                + "/page/music");
         sysProps.setProperty("replicationTrigger.replicateOnStartup", Boolean.toString(false));
         sysProps.setProperty("whacker.enabled", Boolean.toString(false));
         sysProps.setProperty("acdContextImpl.enabled", Boolean.toString(true));
