@@ -21,6 +21,6 @@
   </status>
   <resources>
     <osconfig>@SIPX_CONFDIR@/domain-config</osconfig>
-    <file>@SIPX_CONFDIR@/sipxpage.properties.in</file>
+    <file>@SIPX_CONFDIR@/sipxpage.properties</file>
   </resources>
 </sipXecs-process>
