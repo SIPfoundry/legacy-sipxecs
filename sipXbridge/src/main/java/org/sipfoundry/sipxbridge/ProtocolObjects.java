@@ -65,8 +65,6 @@ public class ProtocolObjects {
             
             sipStack = ProtocolObjects.sipFactory
                     .createSipStack(stackProperties);
-           //((SipStackImpl) sipStack)
-           //      .setAddressResolver(new ProxyAddressResolver());
             
             
           

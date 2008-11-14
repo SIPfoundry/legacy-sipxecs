@@ -12,11 +12,13 @@ import gov.nist.javax.sip.SipStackExt;
 import gov.nist.javax.sip.clientauthutils.AuthenticationHelper;
 
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.Properties;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.logging.ConsoleHandler;
@@ -994,6 +996,7 @@ public class Gateway {
             Gateway.configurationFile = System.getProperty("conf.dir", "/etc/sipxpbx")
                     + "/sipxbridge.xml";
             String command = System.getProperty("sipxbridge.command", "start");
+            String log4jPropertiesFile = Gateway.configurationPath + "/log4j.properties";
 
             if (command.equals("start")) {
                 // Wait for the configuration file to become available.
@@ -1001,6 +1004,17 @@ public class Gateway {
                     Thread.sleep(5 * 1000);
                 }
                 Gateway.parseConfigurationFile();
+                if ( new File(log4jPropertiesFile).exists()) {
+                    Properties props = new Properties();
+                    props.load(new FileReader( new File(log4jPropertiesFile)));
+                    BridgeConfiguration configuration = Gateway.accountManager
+                    .getBridgeConfiguration();
+                    String level = props.getProperty("log4j.category.org.sipfoundry.sipxbridge");
+                    if ( level != null) {
+                        configuration.setLogLevel(level);
+                    }
+                    
+                }
 
                 Gateway.start();
 

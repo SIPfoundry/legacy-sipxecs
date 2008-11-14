@@ -505,11 +505,15 @@ class SipUtilities {
                 }
             }
 
-            if (!isphone) {
-                requestUri.removeParameter("user");
-            } else {
-                requestUri.setUserParam("phone");
-            }
+            /*
+             * if (!isphone) { requestUri.removeParameter("user"); } else {
+             * requestUri.setUserParam("phone"); }
+             */
+
+            /*
+             * Some ITSPs do not like user=phone parameter.
+             */
+            requestUri.removeParameter("user");
 
             /*
              * Remove stuff from the inbound request that can have an effect on the routing of the

@@ -911,23 +911,45 @@ class CallControlManager implements SymmitronResetHandler {
                     .getSessionDescription(response), Gateway.getCodecName());
 
             /*
-             * Got a Response to our SDP query. Shuffle to the other end.
+             * Could not find a codec match. In this case MOH will not play
+             * we just ack the original codec.
              */
-            Request ackRequest = peerDialog.createAck(SipUtilities
-                    .getSeqNumber(peerDialogApplicationData.lastResponse));
+            if (SipUtilities.getCodecNumbers(sd).size() == 0) {
+                /*
+                 * Got a Response to our SDP query. Shuffle to the other end.
+                 */
+             
+                if (((DialogExt) dialog).getSipProvider() == Gateway.getLanProvider()) {
+                    // We did a SDP query. So we need to put an SDP
+                    // Answer in the response.
 
-            if (((DialogExt) dialog).getSipProvider() == Gateway.getLanProvider()) {
-                // We did a SDP query. So we need to put an SDP
-                // Answer in the response.
+                    sd = b2bua.getWanRtpSession(peerDialog).getReceiver().getSessionDescription();
+                    b2bua.getWanRtpSession(peerDialog).getTransmitter().setOnHold(false);
 
-                b2bua.getWanRtpSession(peerDialog).getReceiver().setSessionDescription(sd);
-                b2bua.getWanRtpSession(peerDialog).getTransmitter().setOnHold(false);
-                SipUtilities.incrementSessionVersion(sd);
+                } else {
+                    sd = b2bua.getLanRtpSession(peerDialog).getReceiver().getSessionDescription();
+                    b2bua.getLanRtpSession(peerDialog).getTransmitter().setOnHold(false);
 
+                }
             } else {
-                b2bua.getLanRtpSession(peerDialog).getReceiver().setSessionDescription(sd);
-                b2bua.getLanRtpSession(peerDialog).getTransmitter().setOnHold(false);
-                SipUtilities.incrementSessionVersion(sd);
+                /*
+                 * Got a Response to our SDP query. Shuffle to the other end.
+                 */
+               
+
+                if (((DialogExt) dialog).getSipProvider() == Gateway.getLanProvider()) {
+                    // We did a SDP query. So we need to put an SDP
+                    // Answer in the response.
+
+                    b2bua.getWanRtpSession(peerDialog).getReceiver().setSessionDescription(sd);
+                    b2bua.getWanRtpSession(peerDialog).getTransmitter().setOnHold(false);
+                    SipUtilities.incrementSessionVersion(sd);
+
+                } else {
+                    b2bua.getLanRtpSession(peerDialog).getReceiver().setSessionDescription(sd);
+                    b2bua.getLanRtpSession(peerDialog).getTransmitter().setOnHold(false);
+                    SipUtilities.incrementSessionVersion(sd);
+                }
             }
 
             // HACK ALERT -- some ITSPs look at sendonly and start playing
@@ -937,7 +959,8 @@ class CallControlManager implements SymmitronResetHandler {
                             "sendonly")) {
                 SipUtilities.setDuplexity(sd, "sendrecv");
             }
-
+            Request ackRequest = peerDialog.createAck(SipUtilities
+                    .getSeqNumber(peerDialogApplicationData.lastResponse));
             if (Gateway.isReInviteSupported()) {
                 ackRequest.setContent(sd.toString(), ProtocolObjects.headerFactory
                         .createContentTypeHeader("application", "sdp"));
@@ -1141,6 +1164,17 @@ class CallControlManager implements SymmitronResetHandler {
                          * negotiated codec. MOH will not play in this case. Note that MOH answers
                          * right away so we can forward the request.
                          */
+                        if (response.getContentLength().getContentLength() == 0) {
+                            logger
+                                    .warn("PROTOCOL ERROR -- Expecting a content length != 0. Re-use previous SDP answer ");
+                            dat.isSdpAnswerPending = false;
+                            long cseq = SipUtilities.getSeqNumber(response);
+                            Request ack = dialog.createAck(cseq);
+
+                            dialog.sendAck(ack);
+                            return;
+
+                        }
 
                         if (!SipUtilities.isCodecSupported(sd, Gateway.getParkServerCodecs())) {
                             /*
@@ -1282,8 +1316,8 @@ class CallControlManager implements SymmitronResetHandler {
 
                     SessionDescription newSd = null;
                     if (response.getRawContent() != null
-                            && cth.getContentType().equals("application")
-                            && cth.getContentSubType().equals("sdp")) {
+                            && cth.getContentType().equalsIgnoreCase("application")
+                            && cth.getContentSubType().equalsIgnoreCase("sdp")) {
                         /*
                          * The incoming media session.
                          */
@@ -1336,6 +1370,13 @@ class CallControlManager implements SymmitronResetHandler {
 
                         tad.backToBackUa.getRtpBridge().start();
 
+                    } else if ( response.getRawContent() != null) {
+                        // Cannot recognize header.
+                        logger.warn("content type is not application/sdp");
+                        String body = new String(response.getRawContent());
+                        WarningHeader warningHeader = ProtocolObjects.headerFactory.createWarningHeader("sipxbridge", 106, "Could not recognize content type");
+                        newResponse.setHeader(warningHeader);
+                        newResponse.setContent(body, cth);
                     }
 
                     serverTransaction.sendResponse(newResponse);
@@ -1356,8 +1397,8 @@ class CallControlManager implements SymmitronResetHandler {
                     DialogApplicationData peerDat = DialogApplicationData.get(peerDialog);
 
                     if (response.getRawContent() != null
-                            && cth.getContentType().equals("application")
-                            && cth.getContentSubType().equals("sdp")) {
+                            && cth.getContentType().equalsIgnoreCase("application")
+                            && cth.getContentSubType().equalsIgnoreCase("sdp")) {
                         /*
                          * The incoming media session.
                          */
@@ -1412,6 +1453,14 @@ class CallControlManager implements SymmitronResetHandler {
                                     .debug("Processing ReferRedirection: Could not find RtpSession for referred dialog");
                         }
 
+                    } else if ( response.getRawContent() != null   ) {
+                        /*
+                         * Got content but it was not SDP.
+                         */
+                        logger.error("Encountered unexpected content type from response - not forwarding response");
+                        WarningHeader warningHeader = ProtocolObjects.headerFactory.createWarningHeader("sipxbridge", 107, "unknown content type encountered");
+                        dat.getBackToBackUserAgent().tearDown(warningHeader);
+                        return;
                     }
 
                     /*

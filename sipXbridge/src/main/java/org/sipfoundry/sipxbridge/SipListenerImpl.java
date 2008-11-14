@@ -48,10 +48,9 @@ public class SipListenerImpl implements SipListener {
     public void processDialogTerminated(DialogTerminatedEvent dte) {
 
         logger.debug("DialogTerminatedEvent " + dte.getDialog());
-        
 
         DialogApplicationData dat = DialogApplicationData.get(dte.getDialog());
-        if ( dat != null  ) {
+        if (dat != null) {
             dat.cancelSessionTimer();
         }
         if (dat != null && dat.musicOnHoldDialog != null
@@ -136,8 +135,13 @@ public class SipListenerImpl implements SipListener {
 
             } else if (provider == Gateway.getLanProvider()
                     && method.equals(Request.INVITE)
-                    && (viaHeader.getReceived() != null || !Gateway.isAddressFromProxy(viaHeader
+                    && ( ( viaHeader.getReceived() != null &&
+                            Gateway.isAddressFromProxy(viaHeader.getReceived()))                           
+                     || !Gateway.isAddressFromProxy(viaHeader
                             .getHost()))) {
+                /*
+                 * Check to see that via header originated from proxy server.
+                 */
                 ServerTransaction st = requestEvent.getServerTransaction();
                 if (st == null) {
                     st = provider.getNewServerTransaction(request);
