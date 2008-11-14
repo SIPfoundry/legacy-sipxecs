@@ -12,6 +12,7 @@ import gov.nist.javax.sip.SipStackExt;
 import gov.nist.javax.sip.clientauthutils.AuthenticationHelper;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.net.InetAddress;
@@ -1005,8 +1006,11 @@ public class Gateway {
                 }
                 Gateway.parseConfigurationFile();
                 if ( new File(log4jPropertiesFile).exists()) {
+                    /*
+                     * Override the file configuration setting.
+                     */
                     Properties props = new Properties();
-                    props.load(new FileReader( new File(log4jPropertiesFile)));
+                    props.load(new FileInputStream( new File(log4jPropertiesFile)));
                     BridgeConfiguration configuration = Gateway.accountManager
                     .getBridgeConfiguration();
                     String level = props.getProperty("log4j.category.org.sipfoundry.sipxbridge");
