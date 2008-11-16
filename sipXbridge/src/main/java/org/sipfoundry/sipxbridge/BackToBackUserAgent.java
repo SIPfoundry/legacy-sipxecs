@@ -751,6 +751,9 @@ public class BackToBackUserAgent {
                 if (destination.indexOf("@") == -1) {
                     uri = ProtocolObjects.addressFactory.createSipURI(destination, Gateway
                             .getSipxProxyDomain());
+                    if ( Gateway.getBridgeConfiguration().getSipxProxyPort() != -1) {
+                        uri.setPort(Gateway.getBridgeConfiguration().getSipxProxyPort());
+                    }
                 } else {
                     logger.warn("routing to domain other than proxy domain!");
                     uri = (SipURI) ProtocolObjects.addressFactory.createURI("sip:" + destination);

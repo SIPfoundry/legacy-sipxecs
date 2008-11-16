@@ -953,7 +953,8 @@ public class SymmitronServer implements Symmitron {
                 InetAddress localAddr = InetAddress.getByName(config.getLocalAddress());
 
                 if (config.getLogFileDirectory() == null) {
-                    String installRoot = configDir.substring(0, configDir.indexOf("/etc/sipxpbx"));                  
+                    String installRoot = configDir
+                            .substring(0, configDir.indexOf("/etc/sipxpbx"));
                     config.setLogFileDirectory(installRoot + "/var/log/sipxpbx");
                 }
                 config.setLogFileName("sipxrelay.log");
@@ -962,19 +963,22 @@ public class SymmitronServer implements Symmitron {
                 /*
                  * Allow override if a log4j properties file exists.
                  */
-                if ( new File(log4jProps).exists()) {
+                if (new File(log4jProps).exists()) {
                     PropertyConfigurator.configure(log4jProps);
                 }
-                
-                logger.debug("Checking port range " + config.getPortRangeLowerBound() + ":"
+
+                logger.info("Checking port range " + config.getPortRangeLowerBound() + ":"
                         + config.getPortRangeUpperBound());
                 for (int i = config.getPortRangeLowerBound(); i < config.getPortRangeUpperBound(); i++) {
-                    DatagramSocket sock = new DatagramSocket(i, localAddr);
-                    sock.close();
+                    try {
+                        DatagramSocket sock = new DatagramSocket(i, localAddr);
+                        sock.close();
+                    } catch (Exception ex) {
+                        logger.error(String.format("Failed to bind to %s:%d", localAddr, i), ex);
+                        throw ex;
+                    }
                 }
-                logger.debug("Port range checked ");
-
-              
+                logger.info("Port range checked ");
 
                 if (config.getPublicAddress() == null && config.getStunServerAddress() != null) {
                     /*

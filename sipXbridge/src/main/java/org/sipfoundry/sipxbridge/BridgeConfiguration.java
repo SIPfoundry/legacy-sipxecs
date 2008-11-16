@@ -11,9 +11,9 @@ import java.net.InetAddress;
 import org.apache.log4j.Logger;
 
 /**
- * A class that represents the configuration of the SipxBridge. IMPORTANT -- the
- * methods of this class are tied to sipxbridge.xsd. Do not change method names
- * or signatures unless you also edit schema/sipxbridge.xsd.
+ * A class that represents the configuration of the SipxBridge. IMPORTANT -- the methods of this
+ * class are tied to sipxbridge.xsd. Do not change method names or signatures unless you also edit
+ * schema/sipxbridge.xsd.
  * 
  * 
  * @author M. Ranganathan
@@ -26,6 +26,7 @@ public class BridgeConfiguration {
     private String localAddress;
     private int externalPort = 5080;
     private int localPort = 5090;
+    private int sipxProxyPort = -1;
     private String sipxProxyDomain;
     private String stunServerAddress = null;
     private String logLevel = "INFO";
@@ -45,24 +46,20 @@ public class BridgeConfiguration {
     private String symmitronHost;
     private int symmitronXmlRpcPort = 0;
     private String sipxProxyTransport = "udp";
-  
+
     private static Logger logger = Logger.getLogger(BridgeConfiguration.class);
 
     /**
-     * @param externalAddress
-     *            the externalAddress to set
+     * @param externalAddress the externalAddress to set
      */
     public void setExternalAddress(String externalAddress) {
         try {
-            this.externalAddress = InetAddress.getByName(externalAddress)
-                    .getHostAddress();
+            this.externalAddress = InetAddress.getByName(externalAddress).getHostAddress();
         } catch (Exception ex) {
-            throw new IllegalArgumentException("invalid address : "
-                    + externalAddress);
+            throw new IllegalArgumentException("invalid address : " + externalAddress);
         }
     }
-    
-    
+
     public boolean isInboundCallsRoutedToAutoAttendant() {
         return this.autoAttendantName != null;
     }
@@ -70,12 +67,11 @@ public class BridgeConfiguration {
     public void setAutoAttendantName(String autoAttendantName) {
         this.autoAttendantName = autoAttendantName;
     }
-    
-    
-    
+
     public String getAutoAttendantName() {
-       return this.autoAttendantName;
+        return this.autoAttendantName;
     }
+
     /**
      * @return the externalAddress
      */
@@ -84,16 +80,13 @@ public class BridgeConfiguration {
     }
 
     /**
-     * @param localAddress
-     *            the localAddress to set
+     * @param localAddress the localAddress to set
      */
     public void setLocalAddress(String localAddress) {
         try {
-            this.localAddress = InetAddress.getByName(localAddress)
-                    .getHostAddress();
+            this.localAddress = InetAddress.getByName(localAddress).getHostAddress();
         } catch (Exception ex) {
-            throw new IllegalArgumentException("invalid address : "
-                    + localAddress);
+            throw new IllegalArgumentException("invalid address : " + localAddress);
         }
     }
 
@@ -105,8 +98,7 @@ public class BridgeConfiguration {
     }
 
     /**
-     * @param externalPort
-     *            the externalPort to set
+     * @param externalPort the externalPort to set
      */
     public void setExternalPort(int externalPort) {
         this.externalPort = externalPort;
@@ -120,8 +112,7 @@ public class BridgeConfiguration {
     }
 
     /**
-     * @param localPort
-     *            the localPort to set
+     * @param localPort the localPort to set
      */
     public void setLocalPort(int localPort) {
         this.localPort = localPort;
@@ -135,8 +126,7 @@ public class BridgeConfiguration {
     }
 
     /**
-     * @param sipxProxyDomain
-     *            the sipxProxyDomain to set
+     * @param sipxProxyDomain the sipxProxyDomain to set
      */
     public void setSipxProxyDomain(String sipxProxyDomain) {
         this.sipxProxyDomain = sipxProxyDomain;
@@ -148,15 +138,14 @@ public class BridgeConfiguration {
     public String getSipxProxyDomain() {
         return sipxProxyDomain;
     }
-    
-    
+
     /**
      * Set the preferred transport of the sipx proxy.
      */
     public void setSipxProxyTransport(String transport) {
         this.sipxProxyTransport = transport;
     }
-    
+
     /**
      * Get the sipx transport (if any has been set)
      */
@@ -165,8 +154,7 @@ public class BridgeConfiguration {
     }
 
     /**
-     * @param stunServerAddress
-     *            the stunServerAddress to set
+     * @param stunServerAddress the stunServerAddress to set
      */
     public void setStunServerAddress(String stunServerAddress) {
 
@@ -199,8 +187,7 @@ public class BridgeConfiguration {
     }
 
     /**
-     * @param logLevel
-     *            the logLevel to set
+     * @param logLevel the logLevel to set
      */
     public void setLogLevel(String logLevel) {
         this.logLevel = logLevel;
@@ -212,15 +199,14 @@ public class BridgeConfiguration {
     public void setPortRange(String portRange) {
         String[] ports = portRange.split(":");
         if (ports.length != 2) {
-            throw new IllegalArgumentException(
-                    "Must have format lower:upper bound");
+            throw new IllegalArgumentException("Must have format lower:upper bound");
         }
         String lowBound = ports[0];
         String highBound = ports[1];
         this.rtpPortLowerBound = new Integer(lowBound).intValue();
         this.rtpPortUpperBound = new Integer(highBound).intValue();
-        if (this.rtpPortLowerBound >= this.rtpPortUpperBound
-                || this.rtpPortLowerBound < 0 || this.rtpPortUpperBound < 0) {
+        if (this.rtpPortLowerBound >= this.rtpPortUpperBound || this.rtpPortLowerBound < 0
+                || this.rtpPortUpperBound < 0) {
             throw new IllegalArgumentException(
                     "Port range should be lower:upper bound integers and postivie");
         }
@@ -233,7 +219,6 @@ public class BridgeConfiguration {
         return logLevel;
     }
 
-  
     /**
      * @return Return the MOH UserName or null if no MOH is supported.
      */
@@ -245,8 +230,7 @@ public class BridgeConfiguration {
     }
 
     /**
-     * @param musicOnHoldEnabled
-     *            the musicOnHoldEnabled to set
+     * @param musicOnHoldEnabled the musicOnHoldEnabled to set
      */
     public void setMusicOnHoldSupportEnabled(boolean musicOnHoldEnabled) {
         this.musicOnHoldEnabled = musicOnHoldEnabled;
@@ -260,8 +244,7 @@ public class BridgeConfiguration {
     }
 
     /**
-     * @param xmlRpcPort
-     *            the xmlRpcPort to set
+     * @param xmlRpcPort the xmlRpcPort to set
      */
     public void setXmlRpcPort(int xmlRpcPort) {
         this.xmlRpcPort = xmlRpcPort;
@@ -275,13 +258,12 @@ public class BridgeConfiguration {
     }
 
     /**
-     * @param sipKeepalive
-     *            the sipKeepalive to set
+     * @param sipKeepalive the sipKeepalive to set
      */
     public void setSipKeepalive(String sipKeepalive) {
         try {
             this.sipKeepalive = Integer.parseInt(sipKeepalive);
-        } catch ( NumberFormatException ex) {
+        } catch (NumberFormatException ex) {
             logger.error("Illegal Arg " + sipKeepalive);
         }
     }
@@ -294,8 +276,7 @@ public class BridgeConfiguration {
     }
 
     /**
-     * @param mediaKeepalive
-     *            the mediaKeepalive to set
+     * @param mediaKeepalive the mediaKeepalive to set
      */
     public void setMediaKeepalive(String mediaKeepalive) {
         try {
@@ -313,8 +294,7 @@ public class BridgeConfiguration {
     }
 
     /**
-     * @param logFileName
-     *            the logFileName to set
+     * @param logFileName the logFileName to set
      */
     public void setLogFileDirectory(String logFileDirectory) {
         this.logFileDirectory = logFileDirectory;
@@ -336,8 +316,7 @@ public class BridgeConfiguration {
     }
 
     /**
-     * @param maxCalls
-     *            the maxCalls to set
+     * @param maxCalls the maxCalls to set
      */
     public void setMaxCalls(String maxCalls) {
         try {
@@ -353,7 +332,7 @@ public class BridgeConfiguration {
     public int getMaxCalls() {
         return maxCalls;
     }
-    
+
     public boolean isReInviteSupported() {
         return this.reInviteSupported;
     }
@@ -393,27 +372,24 @@ public class BridgeConfiguration {
         return globalPort;
     }
 
-
     public void setSymmitronHost(String symmitronAddress) {
         this.symmitronHost = symmitronAddress;
     }
-    
-    public String getSymmitronHost() {
-        return symmitronHost;  
-    }
 
+    public String getSymmitronHost() {
+        return symmitronHost;
+    }
 
     /**
      * @param symmitronXmlRpcPort the symmitronXmlRpcPort to set
      */
-     public void setSymmitronXmlRpcPort(String symmitronXmlRpcPort) {
+    public void setSymmitronXmlRpcPort(String symmitronXmlRpcPort) {
         try {
-            this.symmitronXmlRpcPort = Integer.parseInt(symmitronXmlRpcPort) ;
-        } catch ( NumberFormatException ex) {
-            logger.error("Bad config parameter " , ex);
+            this.symmitronXmlRpcPort = Integer.parseInt(symmitronXmlRpcPort);
+        } catch (NumberFormatException ex) {
+            logger.error("Bad config parameter ", ex);
         }
     }
-
 
     /**
      * @return the symmitronXmlRpcPort
@@ -421,6 +397,27 @@ public class BridgeConfiguration {
     public int getSymmitronXmlRpcPort() {
         return symmitronXmlRpcPort;
     }
-    
-   
+
+    /**
+     * @param sipxProxyPort the sipxProxyPort to set
+     */
+    public void setSipxProxyPort(String sipxProxyPort) {
+        try {
+            int port = Integer.parseInt(sipxProxyPort);
+            if (port < 0) {
+                throw new NumberFormatException("Should be a positive integer");
+            }
+            this.sipxProxyPort = port;
+        } catch (NumberFormatException ex) {
+            logger.error("Illegal integer for sipx proxy port" + sipxProxyPort);
+        }
+    }
+
+    /**
+     * @return the sipxProxyPort
+     */
+    public int getSipxProxyPort() {
+        return sipxProxyPort;
+    }
+
 }

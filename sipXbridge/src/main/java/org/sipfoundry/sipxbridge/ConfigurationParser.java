@@ -110,6 +110,9 @@ public class ConfigurationParser {
                 "setSymmitronHost", 0);
         digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG, "sipxrelay-xml-rpc-port"),
                 "setSymmitronXmlRpcPort", 0);
+        
+        digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG, "sipx-proxy-port"),
+                "setSipxProxyPort", 0);
 
         /*
          * ITSP configuration support parameters.

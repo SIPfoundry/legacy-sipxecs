@@ -101,7 +101,18 @@
 					</xs:documentation>
 				</xs:annotation>
 			</xs:element>
-
+			<xs:element name="sipx-proxy-port" type="xs:integer"
+				minOccurs="0" maxOccurs="1" default="5060">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+						The SIPX proxy port. In case you are not
+						defining a DNS SRV record for the proxy you can 
+						specify a proxy port. In this case, the 
+						sipx-proxy-domain should be the FQDN or IP address
+						of the sipx proxy.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
 
 			<xs:element name="sipx-proxy-transport" type="xs:string"
 				minOccurs="0" maxOccurs="1" default="tcp">
@@ -117,8 +128,8 @@
 				minOccurs="0" maxOccurs="1" default="20">
 				<xs:annotation>
 					<xs:documentation xml:lang="en">
-						Keepalive timer for SIP Signaling. Sipxbridge will re-register with each
-						ITSP to keep the NAT pinhone open
+						Keepalive timer for SIP Signaling.  Sipxbridge will ping the ITSP with
+						this interval to keep the NAT pinhone open 
 					</xs:documentation>
 				</xs:annotation>
 			</xs:element>
