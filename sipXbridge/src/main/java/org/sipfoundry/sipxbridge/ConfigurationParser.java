@@ -73,8 +73,7 @@ public class ConfigurationParser {
                     Integer.class
                 });
 
-        digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG, "allowed-codec-name"),
-                "setCodecName", 0);
+     
         digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG, "sipx-proxy-domain"),
                 "setSipxProxyDomain", 0);
         
@@ -97,10 +96,7 @@ public class ConfigurationParser {
 
         digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG,
                 "max-number-of-concurrent-calls"), "setMaxCalls", 0);
-        digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG, "is-reinvite-supported"),
-                "setReInviteSupported", 0, new Class[] {
-                    Boolean.class
-                });
+        
         digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG,
                 "route-inbound-calls-to-extension"), "setAutoAttendantName", 0, new Class[] {
             String.class
@@ -128,7 +124,11 @@ public class ConfigurationParser {
                 "setInboundProxy", 0);
 
         digester.addCallMethod(String.format("%s/%s", ITSP_CONFIG, "outbound-proxy-port"),
-                "setProxyPort", 0, new Class[] {
+                "setOutboundProxyPort", 0, new Class[] {
+                    Integer.class
+                });
+        digester.addCallMethod(String.format("%s/%s", ITSP_CONFIG, "inbound-proxy-port"),
+                "setInboundProxyPort", 0, new Class[] {
                     Integer.class
                 });
         digester.addCallMethod(String.format("%s/%s", ITSP_CONFIG, "registration-interval"),
@@ -139,8 +139,7 @@ public class ConfigurationParser {
                 "setOutboundTransport", 0);
         digester.addCallMethod(String.format("%s/%s", ITSP_CONFIG, "proxy-domain"),
                 "setProxyDomain", 0);
-        digester.addCallMethod(String.format("%s/%s", ITSP_CONFIG, "authentication-realm"),
-                "setAuthenticationRealm", 0);
+       
         digester
                 .addCallMethod(String.format("%s/%s", ITSP_CONFIG, "user-name"), "setUserName", 0);
         digester.addCallMethod(String.format("%s/%s", ITSP_CONFIG, "password"), "setPassword", 0);
@@ -155,26 +154,12 @@ public class ConfigurationParser {
                 "setGlobalAddressingUsed", 0, new Class[] {
                     Boolean.class
                 });
-        digester.addCallMethod(String.format("%s/%s", ITSP_CONFIG, "use-rport"), "setRportUsed",
-                0, new Class[] {
-                    Boolean.class
-                });
-
-        digester.addCallMethod(String.format("%s/%s", ITSP_CONFIG, "inbound-proyx-port"),
-                "setInboundProxyPort", 0);
 
         digester.addCallMethod(String.format("%s/%s", ITSP_CONFIG, "register-on-initialization"),
                 "setRegisterOnInitialization", 0, new Class[] {
                     Boolean.class
                 });
-        digester.addCallMethod(String.format("%s/%s", ITSP_CONFIG,
-                "use-registration-for-caller-id"), "setUseRegistrationForCallerId", 0,
-                new Class[] {
-                    Boolean.class
-                });
-
-        digester.addCallMethod(String.format("%s/%s", ITSP_CONFIG,
-                "max-number-of-concurrent-calls"), "setMaxCalls", 0);
+        
 
     }
 

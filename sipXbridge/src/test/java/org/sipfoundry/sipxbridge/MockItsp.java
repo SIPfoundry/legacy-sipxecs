@@ -335,7 +335,7 @@ public class MockItsp implements SipListener {
         this.accountInfo = abstractSipSignalingTest.accountInfo;
         this.bridgeConfig = abstractSipSignalingTest.accountManager
                 .getBridgeConfiguration();
-        this.myPort = this.accountInfo.getProxyPort();
+        this.myPort = this.accountInfo.getOutboundProxyPort();
         Properties properties = new Properties();
         properties.setProperty("javax.sip.STACK_NAME", "itsp-emulator");
         properties.setProperty("javax.sip.IP_ADDRESS", "127.0.0.1");
@@ -549,7 +549,7 @@ public class MockItsp implements SipListener {
     public void init(int bytesToSend) throws Exception {
 
         myIpAddress = accountInfo.getOutboundProxy();
-        myPort = accountInfo.getProxyPort();
+        myPort = accountInfo.getOutboundProxyPort();
 
         System.out
                 .println("myIpAddress = " + myIpAddress + " myPort " + myPort);

@@ -78,7 +78,7 @@ public class AccountManagerImpl implements gov.nist.javax.sip.clientauthutils.Ac
 
                 this.domainNameToProxyAddressMap.put(accountInfo.getSipDomain(), new HopImpl(
                         InetAddress.getByName(accountInfo.getOutboundProxy()).getHostAddress(),
-                        accountInfo.getProxyPort(), accountInfo.getOutboundTransport(),
+                        accountInfo.getOutboundProxyPort(), accountInfo.getOutboundTransport(),
                         accountInfo));
             } catch (TextParseException ex) {
                 accountInfo.setState(AccountState.INVALID);

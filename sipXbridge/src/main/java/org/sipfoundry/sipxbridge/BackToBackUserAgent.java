@@ -1522,18 +1522,7 @@ public class BackToBackUserAgent {
             SipProvider provider = ((gov.nist.javax.sip.DialogExt) peer).getSipProvider();
 
             Request bye = peer.createRequest(Request.BYE);
-            if (this.itspAccountInfo != null
-                    && provider == Gateway.getWanProvider(itspAccountInfo.getOutboundTransport())) {
-
-                if (itspAccountInfo.isRportUsed()) {
-                    ViaHeader via = (ViaHeader) bye.getHeader(ViaHeader.NAME);
-                    try {
-                        via.setRPort();
-                    } catch (InvalidArgumentException e) {
-                        logger.error("unexpected error setting Rport", e);
-                    }
-                }
-            }
+           
             ClientTransaction ct = provider.getNewClientTransaction(bye);
 
             TransactionApplicationData tad = new TransactionApplicationData(Operation.PROCESS_BYE);

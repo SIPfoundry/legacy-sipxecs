@@ -52,16 +52,7 @@ public class ItspAccountInfo implements gov.nist.javax.sip.clientauthutils.UserC
      */
     private int outboundProxyPort = 5060;
 
-    /**
-     * The outbound Registrar
-     */
-    private String outboundRegistrar;
-
-    /**
-     * The outbound registrar port.
-     */
-    private int outboundRegistrarPort = 5060;
-
+    
     /**
      * User name for the account.
      */
@@ -92,11 +83,7 @@ public class ItspAccountInfo implements gov.nist.javax.sip.clientauthutils.UserC
      */
     private String outboundTransport = "udp";
 
-    /**
-     * Use rport setting ( if stun is not used )
-     */
-    private boolean rportUsed = false;
-
+   
     /**
      * Whether or not to register on gateway initialization
      */
@@ -134,12 +121,7 @@ public class ItspAccountInfo implements gov.nist.javax.sip.clientauthutils.UserC
 
     private KeepaliveMethod rtpKeepaliveMethod = KeepaliveMethod.USE_DUMMY_RTP_PAYLOAD;
 
-    /*
-     * Whether or not to use registration for caller id when sending out invite.
-     */
-
-    private boolean useRegistrationForCallerId = true;
-
+    
     /*
      * Number of concurrent calls.
      */
@@ -169,12 +151,12 @@ public class ItspAccountInfo implements gov.nist.javax.sip.clientauthutils.UserC
                 logger.debug("Did a successful DNS SRV lookup");
                 SRVRecord record = (SRVRecord) records[0];
                 int port = record.getPort();
-                setPort(port);
+                setOutboundProxyPort(port);
                 long time = record.getTTL() * 1000;
                 String resolvedName = record.getTarget().toString();
                 setOutboundProxy(resolvedName);
                 HopImpl proxyHop = new HopImpl(InetAddress.getByName(getOutboundProxy())
-                        .getHostAddress(), getProxyPort(), getOutboundTransport(),
+                        .getHostAddress(), getOutboundProxyPort(), getOutboundTransport(),
                         ItspAccountInfo.this);
                 Gateway.getAccountManager().setHopToItsp(getSipDomain(), proxyHop);
                 Gateway.getTimer().schedule(new Scanner(), time);
@@ -240,7 +222,7 @@ public class ItspAccountInfo implements gov.nist.javax.sip.clientauthutils.UserC
 
     }
 
-    public int getProxyPort() {
+    public int getOutboundProxyPort() {
         return outboundProxyPort;
     }
 
@@ -260,20 +242,8 @@ public class ItspAccountInfo implements gov.nist.javax.sip.clientauthutils.UserC
         return this.globalAddressingUsed;
     }
 
-    public boolean isRportUsed() {
-        return this.rportUsed;
-    }
-
-    /**
-     * Set the proxy port
-     * 
-     * @param port
-     */
-
-    public void setPort(int port) {
-        this.outboundProxyPort = port;
-
-    }
+    
+   
 
     public void setOutboundProxy(String resolvedName) {
         this.outboundProxy = resolvedName;
@@ -302,7 +272,7 @@ public class ItspAccountInfo implements gov.nist.javax.sip.clientauthutils.UserC
                 logger.debug("Did a successful DNS SRV lookup");
                 SRVRecord record = (SRVRecord) records[0];
                 int port = record.getPort();
-                this.setPort(port);
+                this.setOutboundProxyPort(port);
                 long time = record.getTTL() * 1000;
                 String resolvedName = record.getTarget().toString();
                 if (resolvedName.endsWith(".")) {
@@ -332,7 +302,7 @@ public class ItspAccountInfo implements gov.nist.javax.sip.clientauthutils.UserC
     /**
      * @param proxyPort the proxyPort to set
      */
-    public void setProxyPort(int proxyPort) {
+    public void setOutboundProxyPort(int proxyPort) {
         this.outboundProxyPort = proxyPort;
     }
 
@@ -407,12 +377,7 @@ public class ItspAccountInfo implements gov.nist.javax.sip.clientauthutils.UserC
         return registerOnInitialization;
     }
 
-    /**
-     * @param rportUsed the rportUsed to set
-     */
-    public void setRportUsed(boolean rportUsed) {
-        this.rportUsed = rportUsed;
-    }
+    
 
     /**
      * @param globalAddressingUsed the globalAddressingUsed to set
@@ -500,12 +465,7 @@ public class ItspAccountInfo implements gov.nist.javax.sip.clientauthutils.UserC
         return rtpKeepaliveMethod;
     }
 
-    /**
-     * @param useRegistrationForCallerId the useRegistrationForCallerId to set
-     */
-    public void setUseRegistrationForCallerId(boolean useRegistrationForCallerId) {
-        this.useRegistrationForCallerId = useRegistrationForCallerId;
-    }
+    
 
     /**
      * @param maxCalls the maxCalls to set
@@ -542,12 +502,7 @@ public class ItspAccountInfo implements gov.nist.javax.sip.clientauthutils.UserC
 
     }
 
-    /**
-     * @param outboundRegistrarRoute the outboundRegistrarRoute to set
-     */
-    public void setOutboundRegistrar(String outboundRegistrarRoute) {
-        this.outboundRegistrar = outboundRegistrarRoute;
-    }
+    
 
     /**
      * @return the outboundRegistrarRoute
@@ -574,7 +529,7 @@ public class ItspAccountInfo implements gov.nist.javax.sip.clientauthutils.UserC
      * @return the inbound proxy port.
      */
     public int getInboundProxyPort() {
-        return inboundProxy != null ? inboundProxyPort : this.getProxyPort();
+        return inboundProxy != null ? inboundProxyPort : this.getOutboundProxyPort();
     }
 
     public void setInboundProxyPort(String portString) {

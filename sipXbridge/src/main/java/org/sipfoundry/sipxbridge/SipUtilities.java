@@ -127,8 +127,7 @@ class SipUtilities {
                 int port = listeningPoint.getPort();
                 ViaHeader viaHeader = ProtocolObjects.headerFactory.createViaHeader(host, port,
                         listeningPoint.getTransport(), null);
-                if (itspAccount.isRportUsed())
-                    viaHeader.setRPort();
+               
                 return viaHeader;
 
             } else {
@@ -232,7 +231,7 @@ class SipUtilities {
         String registrar = itspAccount.getProxyDomain();
 
         SipURI requestUri = ProtocolObjects.addressFactory.createSipURI(null, registrar);
-        int port = itspAccount.getProxyPort();
+        int port = itspAccount.getInboundProxyPort();
         if (port != 5060) {
             requestUri.setPort(port);
         }
