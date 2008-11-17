@@ -79,7 +79,7 @@ public class Attendant {
 
         // A locale was passed in . Parse it into parts and find a Locale to match
         if (localeString != null) {
-            String[] localeElements = localeString.split("_");
+            String[] localeElements = localeString.split("[_-]"); // Use either _ or - as seperator
             String lang = "";
             String country = "";
             String variant = "";
