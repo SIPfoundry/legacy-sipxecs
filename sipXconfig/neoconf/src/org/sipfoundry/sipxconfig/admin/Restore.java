@@ -1,10 +1,10 @@
 /*
  * 
  * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.admin;
@@ -53,12 +53,22 @@ public class Restore implements Serializable, WaitingListener {
 
     }
 
-    public void perform(List<BackupBean> backups) {
+    public final void perform(List<BackupBean> backups) {
+        prepare(backups);
         execute(backups, false);
     }
 
-    public void validate(List<BackupBean> backups) {
+    public final void validate(List<BackupBean> backups) {
+        prepare(backups);
         execute(backups, true);
+    }
+
+    /**
+     * Do something to prepare for restoring the backup - download, unpack etc.
+     *
+     * @param backups list of selected BackupBean files
+     */
+    protected void prepare(List<BackupBean> backups) {
     }
 
     protected void execute(List<BackupBean> backups, boolean verify) {
@@ -67,11 +77,11 @@ public class Restore implements Serializable, WaitingListener {
             Process process = Runtime.getRuntime().exec(cmdLine);
             int code = process.waitFor();
             if (code == INCOMPATIBLE_VERSIONS && verify) {
-                throw new UserException("wrongVersion");
+                throw new UserException(false, "message.wrongVersion");
             }
         } catch (IOException e) {
             LOG.error(String.format(ERROR, StringUtils.join(cmdLine, SPACE)));
-            throw new UserException("noScriptFound");
+            throw new UserException(false, "message.noScriptFound");
         } catch (InterruptedException e) {
             LOG.warn(String.format(ERROR, StringUtils.join(cmdLine, SPACE)));
         }
@@ -115,18 +125,13 @@ public class Restore implements Serializable, WaitingListener {
             File log = new File(getLogDirectory(), RESTORE_LOG);
             return IOUtils.toString(new FileReader(log));
         } catch (FileNotFoundException ex) {
-            throw new UserException(LOG_FOUND_EX);
+            throw new UserException(false, LOG_FOUND_EX);
         } catch (IOException ex) {
-            throw new UserException(LOG_READ_EX);
+            throw new UserException(false, LOG_READ_EX);
         }
-    }
-
-    public List<BackupBean> getSelectedBackups() {
-        return m_selectedBackups;
     }
 
     public void setSelectedBackups(List<BackupBean> selectedBackups) {
         m_selectedBackups = selectedBackups;
     }
-
 }

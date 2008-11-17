@@ -12,11 +12,15 @@ package org.sipfoundry.sipxconfig.site.admin;
 import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.annotations.ComponentClass;
 import org.apache.tapestry.annotations.InjectObject;
+import org.apache.tapestry.annotations.Parameter;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.sipfoundry.sipxconfig.admin.AdminContext;
+import org.sipfoundry.sipxconfig.admin.BackupPlan;
+import org.sipfoundry.sipxconfig.admin.FtpBackupPlan;
 import org.sipfoundry.sipxconfig.admin.ftp.FtpConfiguration;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
+import org.sipfoundry.sipxconfig.site.common.IPageWithReset;
 
 @ComponentClass
 public abstract class BackupRestoreConfigurationPanel extends BaseComponent implements PageBeginRenderListener {
@@ -24,31 +28,29 @@ public abstract class BackupRestoreConfigurationPanel extends BaseComponent impl
     @InjectObject(value = "spring:adminContext")
     public abstract AdminContext getAdminContext();
 
-    public abstract String getAddress();
-    public abstract void setAddress(String address);
+    public abstract void setFtpConfiguration(FtpConfiguration ftpConfiguration);
 
-    public abstract String getPassword();
-    public abstract void setPassword(String password);
-    public abstract String getUser();
-    public abstract void setUser(String user);
-    public abstract FtpConfiguration getFtpConfiguration();
-    public abstract void setFtpConfiguration(FtpConfiguration configuration);
+    public abstract BackupPlan getBackupPlan();
+
+    public abstract void setBackupPlan(BackupPlan plan);
+
+    @Parameter(required = false)
+    public abstract IPageWithReset getContainerPage();
 
     public void pageBeginRender(PageEvent event) {
-        FtpConfiguration savedConfiguration = getAdminContext().getFtpConfiguration();
-        FtpConfiguration ftpConfiguration = savedConfiguration == null ? new FtpConfiguration() : savedConfiguration;
-        setFtpConfiguration(ftpConfiguration);
-        setAddress(ftpConfiguration.getHost());
-        setUser(ftpConfiguration.getUserId());
-        setPassword(ftpConfiguration.getPassword());
-
+        if (getBackupPlan() != null) {
+            return;
+        }
+        FtpBackupPlan plan = (FtpBackupPlan) getAdminContext().getBackupPlan(FtpBackupPlan.TYPE);
+        setBackupPlan(plan);
+        setFtpConfiguration(plan.getFtpConfiguration());
     }
+
     public void onApply() {
         TapestryUtils.getValidator(this).clear();
-        getFtpConfiguration().setHost(getAddress());
-        getFtpConfiguration().setUserId(getUser());
-        getFtpConfiguration().setPassword(getPassword());
-        getAdminContext().storeFtpConfiguration(getFtpConfiguration());
+        getAdminContext().storeBackupPlan(getBackupPlan());
+        if (getContainerPage() != null) {
+            getContainerPage().reset();
+        }
     }
-
 }

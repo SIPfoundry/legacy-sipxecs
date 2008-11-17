@@ -16,7 +16,6 @@ import java.util.List;
 
 import org.apache.tapestry.annotations.InitialValue;
 import org.apache.tapestry.annotations.InjectObject;
-
 import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
@@ -63,15 +62,11 @@ public abstract class BackupPage extends BasePage implements PageBeginRenderList
     @InitialValue(value = LocalBackupPlan.TYPE)
     public abstract String getBackupPlanType();
 
-    @Persist
-    @InitialValue(value = "literal:none")
-    public abstract String getConfiguration();
-
-    public abstract void setConfiguration(String configuration);
-
-    public abstract void setBackupPlanType(String type);
-
     public abstract DailyBackupSchedule getSchedule();
+
+    public boolean isFtpBackupPlanActive() {
+        return FtpBackupPlan.TYPE.equals(getBackupPlanType());
+    }
 
     public IPropertySelectionModel getBackupPlanTypeModel() {
         return new NamedValuesSelectionModel(new Object[] {
@@ -82,15 +77,13 @@ public abstract class BackupPage extends BasePage implements PageBeginRenderList
     }
 
     public void pageBeginRender(PageEvent event_) {
-
         List urls = getBackupFiles();
         if (urls == null) {
-            setBackupFiles(Collections.<File>emptyList());
+            setBackupFiles(Collections.<File> emptyList());
         }
         if (getBackupPlan() != null) {
             return;
         }
-
         configure();
     }
 
@@ -102,14 +95,7 @@ public abstract class BackupPage extends BasePage implements PageBeginRenderList
     }
 
     private void configure() {
-        BackupPlan plan;
-        if (FtpBackupPlan.TYPE.equals(getBackupPlanType())) {
-            plan = getAdminContext().getFtpConfiguration().getBackupPlan();
-            setConfiguration("configuration");
-        } else {
-            plan = getAdminContext().getLocalBackupPlan();
-            setConfiguration("none");
-        }
+        BackupPlan plan = getAdminContext().getBackupPlan(getBackupPlanType());
 
         // every plan has exactly 1 schedule
         if (plan.getSchedules().isEmpty()) {
@@ -140,7 +126,6 @@ public abstract class BackupPage extends BasePage implements PageBeginRenderList
     }
 
     public void backup() {
-
         if (!TapestryUtils.isValid(this)) {
             // do nothing on errors
             return;

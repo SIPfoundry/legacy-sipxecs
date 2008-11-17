@@ -12,6 +12,7 @@ public class FtpConfigurationTestDb extends SipxDatabaseTestCase {
 
     private AdminContext m_adminContext;
 
+    @Override
     protected void setUp() throws Exception {
         m_adminContext = (AdminContext) TestHelper.getApplicationContext().getBean(
                 AdminContext.CONTEXT_BEAN_NAME);
@@ -20,7 +21,7 @@ public class FtpConfigurationTestDb extends SipxDatabaseTestCase {
     public void testStoreJob() throws Exception {
         TestHelper.cleanInsert("ClearDb.xml");
 
-        BackupPlan ftpPlan = new FtpBackupPlan();
+        FtpBackupPlan ftpPlan = new FtpBackupPlan();
         m_adminContext.storeBackupPlan(ftpPlan);
 
         ITable actual = TestHelper.getConnection().createDataSet().getTable("backup_plan");
@@ -39,8 +40,10 @@ public class FtpConfigurationTestDb extends SipxDatabaseTestCase {
         ftpConf.setHost("host");
         ftpConf.setUserId("userId");
         ftpConf.setPassword("password");
-        ftpConf.setBackupPlan(ftpPlan);
-        m_adminContext.storeFtpConfiguration(ftpConf);
+
+        ftpPlan.setFtpConfiguration(ftpConf);
+
+        m_adminContext.storeBackupPlan(ftpPlan);
 
         ITable actualConf = TestHelper.getConnection().createDataSet().getTable("ftp_configuration");
         IDataSet expectedDsConf = TestHelper.loadDataSetFlat("admin/SaveFtpConfigurationExpected.xml");
@@ -51,7 +54,6 @@ public class FtpConfigurationTestDb extends SipxDatabaseTestCase {
         expectedRdsConf.addReplacementObject("[host]",ftpConf.getHost());
         expectedRdsConf.addReplacementObject("[user_id]",ftpConf.getUserId());
         expectedRdsConf.addReplacementObject("[password]",ftpConf.getPassword());
-        expectedRdsConf.addReplacementObject("[backup_plan_id]",ftpConf.getBackupPlan().getId());
 
         ITable expectedConf = expectedRdsConf.getTable("ftp_configuration");
 

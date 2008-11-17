@@ -62,6 +62,6 @@
 	<classpathentry kind="lib" path="etc"/>
 	<classpathentry kind="var" path="JAVA_LIBDIR/jain-sip/jain-sip-sdp.jar" sourcepath="/LIB_SRC/jain-sip/src.zip"/>
 	<classpathentry kind="var" path="JAVA_LIBDIR/log4j.jar"/>
-	<classpathentry kind="var" path="JAVA_LIBDIR/commons-net.jar"/>
+	<classpathentry kind="var" path="JAVA_LIBDIR/commons-net.jar" sourcepath="/LIB_SRC/commons-net/1.4.1/commons-net-1.4.1-src.zip"/>
 	<classpathentry kind="output" path="bin.eclipse"/>
 </classpath>

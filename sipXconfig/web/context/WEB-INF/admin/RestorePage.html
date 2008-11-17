@@ -8,7 +8,7 @@
   <span jwcid="restoreTab@Block">
   <span jwcid="@common/QuickHelp" value="message:restore.quick.help"/>
 
-  <form jwcid="renderForm@Form" delegate="bean:validator">
+  <form jwcid="renderForm@Form" delegate="bean:validator" listener="listener:formSubmit">
       <table>
         <tbody>
           <tr jwcid="@common/FieldPanel"
@@ -25,11 +25,11 @@
         </tbody>
       </table>
   </form>
-  <span jwcid="configurationPanel@Block">
-    <span jwcid="conf@admin/BackupRestoreConfigurationPanel"/>
+  <span jwcid="F_Panel@Block">
+     <span jwcid="conf@admin/BackupRestoreConfigurationPanel" />
   </span>
-  <span jwcid="nonePanel@Block"/>
-  <span jwcid="@RenderBlock" block="ognl:components.get(configuration+'Panel')" />
+  <span jwcid="L_Panel@Block"/>
+  <span jwcid="@RenderBlock" block="ognl:components.get(backupPlanType + '_Panel')" />
 
   <span jwcid="@If" condition="ognl:backups.empty">
     <p><span key="message.noBackups">There is no backup files saved in the backup folder.</span></p>

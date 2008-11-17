@@ -14,6 +14,5 @@
     <property name="host" />
     <property name="userId" />
     <property name="password" />
-    <many-to-one name="backupPlan" column="backup_plan_id" class="org.sipfoundry.sipxconfig.admin.BackupPlan" />
   </class>
 </hibernate-mapping>

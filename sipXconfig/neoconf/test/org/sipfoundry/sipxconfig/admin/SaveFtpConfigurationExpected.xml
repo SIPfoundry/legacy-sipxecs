@@ -6,6 +6,5 @@
 		host="[host]"
 		user_id="[user_id]"
 		password="[password]"
-		backup_plan_id="[backup_plan_id]"
      />
 </dataset>

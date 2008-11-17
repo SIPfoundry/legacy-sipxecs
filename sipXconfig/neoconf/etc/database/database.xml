@@ -286,6 +286,7 @@
     <antcall target="add-freeswitch-service"/>
   	<antcall target="add-sipx-relay-service"/>
 	<antcall target="add-location-specific-service"/>
+	<antcall target="backup-ftp-fix" />
     <!-- temporary patches -->
     <antcall target="clean-sipx-service-values"/>
 	<!-- When freezing schema uncomment this line -->
@@ -322,6 +323,10 @@
 
   <target name="backup-ftp" unless="backup-ftp">
     <db-patch patch="backup-ftp"/>
+  </target>
+
+  <target name="backup-ftp-fix" unless="backup-ftp-fix">
+    <db-patch patch="backup-ftp-fix"/>
   </target>
 
   <target name="speeddial" unless="speeddial">

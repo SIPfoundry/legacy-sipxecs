@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.admin;
@@ -14,21 +14,23 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sipfoundry.sipxconfig.admin.BackupBean.Type;
 import org.sipfoundry.sipxconfig.admin.mail.MailSenderContext;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
+import org.springframework.beans.factory.annotation.Required;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
@@ -40,8 +42,7 @@ public abstract class BackupPlan extends BeanWithId implements ApplicationContex
     public static final String CONFIGURATION_ARCHIVE = "configuration.tar.gz";
     public static final FilenameFilter BACKUP_FILE_FILTER = new FilenameFilter() {
         public boolean accept(File dir, String name) {
-            return name.equalsIgnoreCase(VOICEMAIL_ARCHIVE)
-                    || name.equalsIgnoreCase(CONFIGURATION_ARCHIVE);
+            return name.equalsIgnoreCase(VOICEMAIL_ARCHIVE) || name.equalsIgnoreCase(CONFIGURATION_ARCHIVE);
         }
     };
     private static final SimpleDateFormat FILE_NAME_FORMAT = new SimpleDateFormat("yyyyMMddHHmm");
@@ -65,31 +66,19 @@ public abstract class BackupPlan extends BeanWithId implements ApplicationContex
 
     private Timer m_timer;
 
-    protected File createBackupDirectory(File rootBackupDir) {
-        File backupDir = getNextBackupDir(rootBackupDir);
-        if (!backupDir.isDirectory()) {
-            backupDir.mkdirs();
-        }
-        return backupDir;
-    }
+    private String m_backupDirectory;
 
-    protected File[] executeBackup(File backupDir, File binDir) throws IOException,
-            InterruptedException {
-        if (perform(backupDir, binDir)) {
-            File[] backupFiles = getBackupFiles(backupDir);
-            sendEmail(backupFiles);
-            return backupFiles;
-        }
-        return null;
-    }
+    public abstract List<Map<Type, BackupBean>> getBackups();
 
-    public File[] perform(String rootBackupPath, String binPath) {
+    public abstract File[] doPerform(String binPath) throws IOException, InterruptedException;
+
+    protected abstract void doPurge(int limitCount);
+
+    public final File[] perform(String binPath) {
         String errorMsg = "Errors when creating backup.";
-        File rootBackupDir = new File(rootBackupPath);
-        File backupDir = createBackupDirectory(rootBackupDir);
-        purgeOld(rootBackupDir);
         try {
-            return executeBackup(backupDir, new File(binPath));
+            purgeOld();
+            return doPerform(binPath);
         } catch (IOException e) {
             LOG.error(errorMsg, e);
         } catch (InterruptedException e) {
@@ -98,10 +87,38 @@ public abstract class BackupPlan extends BeanWithId implements ApplicationContex
         return null;
     }
 
+    protected final File createBackupDirectory(File rootBackupDir) {
+        File backupDir = getNextBackupDir(rootBackupDir);
+        if (!backupDir.isDirectory()) {
+            backupDir.mkdirs();
+        }
+        return backupDir;
+    }
+
+    protected final File[] executeBackup(File backupDir, File binDir) throws IOException, InterruptedException {
+        if (perform(backupDir, binDir)) {
+            File[] backupFiles = getBackupFiles(backupDir);
+            sendEmail(backupFiles);
+            return backupFiles;
+        }
+        return null;
+    }
+
+    protected final void purgeOld() {
+        if (m_limitedCount == null) {
+            return;
+        }
+        if (m_limitedCount < 1) {
+            // have to leave at least on
+            m_limitedCount = 1;
+        }
+        doPurge(m_limitedCount);
+    }
+
     /**
      * Sends e-mail with a copy of a configuration backup attached. Email is only sent if
      * configuration backup was selected and if e-mail adress is configured.
-     * 
+     *
      * @param backupFiles array of backup files
      */
     private void sendEmail(File[] backupFiles) {
@@ -119,54 +136,23 @@ public abstract class BackupPlan extends BeanWithId implements ApplicationContex
             return;
         }
         Locale locale = Locale.getDefault();
-        String subject = m_applicationContext.getMessage("backup.subject",
-                ArrayUtils.EMPTY_OBJECT_ARRAY, locale);
-        String body = m_applicationContext.getMessage("backup.body",
-                ArrayUtils.EMPTY_OBJECT_ARRAY, locale);
+        String subject = m_applicationContext.getMessage("backup.subject", ArrayUtils.EMPTY_OBJECT_ARRAY, locale);
+        String body = m_applicationContext.getMessage("backup.body", ArrayUtils.EMPTY_OBJECT_ARRAY, locale);
         m_mailSenderContext.sendMail(m_emailAddress, m_emailFromAddress, subject, body, confFile);
     }
 
-    public File getNextBackupDir(File rootBackupDir) {
+    File getNextBackupDir(File rootBackupDir) {
         // FIXME: only works if no more than one backup a minute
         m_backupTime = new Date();
         return new File(rootBackupDir, FILE_NAME_FORMAT.format(m_backupTime));
-    }
-
-    protected void purgeOld(File rootBackupDir) {
-        if (m_limitedCount == null) {
-            return;
-        }
-        if (m_limitedCount < 1) {
-            // have to leave at least on
-            m_limitedCount = 1;
-        }
-        String[] files = rootBackupDir.list();
-        int removeCount = files.length - m_limitedCount;
-        if (removeCount <= 0) {
-            return;
-        }
-
-        // HACK: sort by name - depends on the fact that name is a nicely formatted dates
-        Arrays.sort(files);
-        for (int i = 0; i < removeCount; i++) {
-            try {
-                File oldBackup = new File(rootBackupDir, files[i]);
-                LOG.info(String.format("Deleting old backup '%s'", oldBackup));
-                FileUtils.deleteDirectory(oldBackup);
-            } catch (IOException nonfatal) {
-                LOG.error("Could not limit backup count", nonfatal);
-            }
-        }
     }
 
     void setScript(String script) {
         m_backupScript = script;
     }
 
-    private boolean perform(File workingDir, File binDir) throws IOException,
-            InterruptedException {
-        ProcessBuilder pb = new ProcessBuilder(
-                binDir.getPath() + File.separator + m_backupScript, "-n");
+    private boolean perform(File workingDir, File binDir) throws IOException, InterruptedException {
+        ProcessBuilder pb = new ProcessBuilder(binDir.getPath() + File.separator + m_backupScript, "-n");
         if (!isVoicemail()) {
             // Configuration only.
             pb.command().add("-c");
@@ -184,6 +170,24 @@ public abstract class BackupPlan extends BeanWithId implements ApplicationContex
         }
 
         return true;
+    }
+
+    /**
+     * create and add BackupBeans
+     *
+     * @param repositoryBean
+     * @param backupFiles
+     */
+    protected void addBackupBeans(List<Map<Type, BackupBean>> repositoryBean, File[] backupFiles) {
+        Map<Type, BackupBean> backups = new HashMap<Type, BackupBean>(2);
+        for (File file : backupFiles) {
+            BackupBean backupBean = new BackupBean(file);
+            backups.put(backupBean.getType(), backupBean);
+
+        }
+        if (!backups.isEmpty()) {
+            repositoryBean.add(backups);
+        }
     }
 
     File[] getBackupFiles(File backupDir) {
@@ -248,8 +252,8 @@ public abstract class BackupPlan extends BeanWithId implements ApplicationContex
         return !(m_voicemail || m_configs);
     }
 
-    public void schedule(Timer timer, String rootBackupPath, String binPath) {
-        schedule(timer, getTask(rootBackupPath, binPath));
+    public void schedule(Timer timer, String binPath) {
+        schedule(timer, getTask(binPath));
     }
 
     void schedule(Timer timer, TimerTask task) {
@@ -258,22 +262,20 @@ public abstract class BackupPlan extends BeanWithId implements ApplicationContex
         }
     }
 
-    TimerTask getTask(String rootBackupPath, String binPath) {
-        return new BackupTask(rootBackupPath, binPath);
+    TimerTask getTask(String binPath) {
+        return new BackupTask(binPath);
     }
 
     class BackupTask extends TimerTask {
-        private String m_rootBackupPath;
+        private final String m_binPath;
 
-        private String m_binPath;
-
-        BackupTask(String rootBackupPath, String binPath) {
-            m_rootBackupPath = rootBackupPath;
+        BackupTask(String binPath) {
             m_binPath = binPath;
         }
 
+        @Override
         public void run() {
-            BackupPlan.this.perform(m_rootBackupPath, m_binPath);
+            BackupPlan.this.perform(m_binPath);
         }
     }
 
@@ -303,5 +305,24 @@ public abstract class BackupPlan extends BeanWithId implements ApplicationContex
 
     public void setTimer(Timer timer) {
         m_timer = timer;
+    }
+
+    @Required
+    public void setBackupDirectory(String backupDirectory) {
+        m_backupDirectory = backupDirectory;
+    }
+
+    protected String getBackupDirectory() {
+        return m_backupDirectory;
+    }
+
+    public void resetTimer(String binDirectory) {
+        Timer timer = getTimer();
+        if (timer != null) {
+            timer.cancel();
+        }
+        timer = new Timer(false); // daemon, dies with main thread
+        setTimer(timer);
+        schedule(timer, binDirectory);
     }
 }

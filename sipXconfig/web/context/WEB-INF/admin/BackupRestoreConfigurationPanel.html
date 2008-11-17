@@ -14,7 +14,7 @@
         description="message:description.address" >
         <input jwcid="address@TextField"
             id="ftp:address"
-            value="ognl:address"
+            value="ognl:ftpConfiguration.host"
             displayName="message:label.address"/>
      </tr>
      <tr jwcid="@common/FieldPanel"
@@ -24,7 +24,7 @@
         description="message:description.user" >
         <input jwcid="user@TextField"
             id="ftp:user"
-            value="ognl:user"
+            value="ognl:ftpConfiguration.userId"
             displayName="message:label.user"/>
      </tr>
      <tr jwcid="@common/FieldPanel"
@@ -34,7 +34,7 @@
         description="message:description.password" >
         <input jwcid="password@TextField"
             id="ftp:password"
-            value="ognl:password"
+            value="ognl:ftpConfiguration.password"
             displayName="message:label.password"
             hidden="true"/>
      </tr>

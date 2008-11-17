@@ -5,6 +5,7 @@
   -->
 <dataset>  
   <!-- admin -->
+  <table name="ftp_configuration"/>
   <table name="backup_plan"/>
   <table name="daily_backup_schedule"/>
   <table name="patch"/>
@@ -121,7 +122,5 @@
   <table name="user_paging_group"/>  
 
   <!-- nat traversal -->
-    <table name="nat_traversal"/>
-  <!-- ftp backup configuration -->
-    <table name="ftp_configuration"/>
+  <table name="nat_traversal"/>
 </dataset>

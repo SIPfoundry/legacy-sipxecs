@@ -4,18 +4,23 @@
     <div jwcid="@common/QuickHelp" value="message:description" />
   </p>
   <p jwcid="@Else">
-    <span key="backupCompleted">Success...</span>
-    <div jwcid="@common/QuickHelp" value="message:helpText" />
-    <ul>
-      <li jwcid="results@For" source="ognl:backupFiles" value="ognl:backupFile">
-        <span jwcid="link@common/DownloadLink"
-          fileName="ognl:backupFile.name"
-          dirName="ognl:backupFile.parentFile.path"
-          contentType="literal:tar/x-gzip">
-          <span jwcid="@Insert" value="ognl:backupFile.path"/>
-        </span>
-      </li>
-    </ul>
+    <span jwcid="@If" condition="ognl:ftpBackupPlanActive">
+      <span key="ftpBackupCompleted">Success...</span>
+    </span>
+    <span jwcid="@Else">
+      <span key="backupCompleted">Success...</span>
+      <div jwcid="@common/QuickHelp" value="message:helpText" />
+      <ul>
+        <li jwcid="results@For" source="ognl:backupFiles" value="ognl:backupFile">
+          <span jwcid="link@common/DownloadLink"
+            fileName="ognl:backupFile.name"
+            dirName="ognl:backupFile.parentFile.path"
+            contentType="literal:tar/x-gzip">
+            <span jwcid="@Insert" value="ognl:backupFile.path"/>
+          </span>
+        </li>
+      </ul>
+    </span>
   </p>
   <span jwcid="@common/ErrorMsg" />
   <form jwcid="backupPlan@Form" listener="listener:formSubmit">
@@ -35,12 +40,11 @@
         </tbody>
       </table>
   </form>
-
-  <span jwcid="configurationPanel@Block">
-     <span jwcid="configuration@admin/BackupRestoreConfigurationPanel"/>
+  <span jwcid="F_Panel@Block">
+     <span jwcid="configuration@admin/BackupRestoreConfigurationPanel" />
   </span>
-  <span jwcid="nonePanel@Block"/>
-  <span jwcid="@RenderBlock" block="ognl:components.get(configuration+'Panel')" />
+  <span jwcid="L_Panel@Block"/>
+  <span jwcid="@RenderBlock" block="ognl:components.get(backupPlanType + '_Panel')" />
 
   <form jwcid="form@Form" delegate="bean:validator">
     <fieldset>

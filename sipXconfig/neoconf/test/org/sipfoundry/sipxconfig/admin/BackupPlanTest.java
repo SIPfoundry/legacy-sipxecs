@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.admin;
@@ -28,10 +28,13 @@ public class BackupPlanTest extends TestCase {
 
     private BackupPlan m_backup;
 
+    @Override
     protected void setUp() throws Exception {
         m_backup = new LocalBackupPlan();
         m_backup.setMailSenderContext(new MailSenderContextImpl());
         m_backup.setScript("mock-backup.sh");
+        String backupPath = TestHelper.getTestDirectory() + File.separator + System.currentTimeMillis();
+        m_backup.setBackupDirectory(backupPath);
     }
 
     public void testGetBackupLocations() {
@@ -56,16 +59,17 @@ public class BackupPlanTest extends TestCase {
         }
         assertEquals(5, root.list().length);
         m_backup.setLimitedCount(5);
-        m_backup.purgeOld(root);
+        m_backup.setBackupDirectory(root.getPath());
+        m_backup.purgeOld();
         assertEquals(5, root.list().length);
         m_backup.setLimitedCount(2);
-        m_backup.purgeOld(root);
+        m_backup.purgeOld();
         String[] list = root.list();
         assertEquals(2, list.length);
         assertTrue(ArrayUtils.contains(list, "dir-3"));
         assertTrue(ArrayUtils.contains(list, "dir-4"));
         m_backup.setLimitedCount(0);
-        m_backup.purgeOld(root);
+        m_backup.purgeOld();
         list = root.list();
         assertEquals(1, list.length);
         assertEquals("dir-4", list[0]);
@@ -77,9 +81,7 @@ public class BackupPlanTest extends TestCase {
             // tries to run a shell script. ignore test
             return;
         }
-
-        String backupPath = TestHelper.getTestDirectory() + File.separator + System.currentTimeMillis();
-        File[] backups = m_backup.perform(backupPath, TestUtil.getTestSourceDirectory(this.getClass()));
+        File[] backups = m_backup.doPerform(TestUtil.getTestSourceDirectory(this.getClass()));
         assertEquals(2, backups.length);
         assertTrue(backups[0].exists());
         assertTrue(backups[1].exists());
@@ -104,7 +106,7 @@ public class BackupPlanTest extends TestCase {
         schedule.setEnabled(true);
         schedule.setScheduledDay(day);
         plan.addSchedule(schedule);
-        TimerTask task = plan.getTask("root", "bin");
+        TimerTask task = plan.getTask("bin");
 
         IMocksControl timerControl = EasyMock.createStrictControl();
         Timer timer = timerControl.createMock(Timer.class);

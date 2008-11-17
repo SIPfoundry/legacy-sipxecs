@@ -16,68 +16,49 @@ import java.util.List;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sipfoundry.sipxconfig.admin.ftp.FtpConfiguration;
 import org.sipfoundry.sipxconfig.admin.ftp.FtpContext;
-import org.sipfoundry.sipxconfig.admin.ftp.FtpContextImpl;
+import org.springframework.beans.factory.annotation.Required;
 
 public class FtpRestore extends Restore {
 
     private static final Log LOG = LogFactory.getLog(FtpRestore.class);
 
-    private FtpContext m_ftpContext;
     private String m_downloadDirectory;
 
-    public void afterResponseSent() {
-        perform(getSelectedBackups());
-    }
+    private FtpConfiguration m_ftpConfiguration;
 
-    public void perform(List<BackupBean> backups) {
-        downloadFtpBackups(backups);
-        execute(backups, false);
-    }
-
-    public void validate(List<BackupBean> backups) {
-        downloadFtpBackups(backups);
-        execute(backups, true);
-    }
-
-    private void downloadFtpBackups(List<BackupBean> backups) {
-        //delete previously executed FTP restore
+    @Override
+    protected void prepare(List<BackupBean> backups) {
+        // delete previously executed FTP restore
         try {
-            FileUtils.deleteDirectory(new File(getDownloadDirectory()));
+            FileUtils.deleteDirectory(new File(m_downloadDirectory));
         } catch (IOException ex) {
             LOG.error("Could not delete previously executed FTP restore", ex);
         }
-        m_ftpContext.openConnection();
-        File backupDownload = new File(getDownloadDirectory());
-        backupDownload.mkdir();
-        for (BackupBean backupBean : backups) {
-            backupBean.getFile().getParentFile().mkdir();
-            m_ftpContext.changeDirectory(backupBean.getParent());
-            m_ftpContext.download(getDownloadDirectory() + File.separator + backupBean.getParent(),
-                    backupBean.getFile().getName());
-            m_ftpContext.changeDirectory("..");
+        FtpContext ftpContext = m_ftpConfiguration.getFtpContext();
+        try {
+            ftpContext.openConnection();
+            File backupDownload = new File(m_downloadDirectory);
+            backupDownload.mkdir();
+            for (BackupBean backupBean : backups) {
+                backupBean.getFile().getParentFile().mkdir();
+                ftpContext.changeDirectory(backupBean.getParent());
+                File localDir = new File(backupDownload, backupBean.getParent());
+                ftpContext.download(localDir.getPath(), backupBean.getFile().getName());
+                ftpContext.changeDirectory("..");
+            }
+        } finally {
+            ftpContext.closeConnection();
         }
-
-        m_ftpContext.closeConnection();
-
     }
 
-    public FtpContext getFtpContext() {
-        if (m_ftpContext == null) {
-            m_ftpContext = new FtpContextImpl();
-        }
-        return m_ftpContext;
-    }
-
-    public void setFtpContext(FtpContext ftpContext) {
-        m_ftpContext = ftpContext;
-    }
-
-    public String getDownloadDirectory() {
-        return m_downloadDirectory;
-    }
+    @Required
     public void setDownloadDirectory(String downloadDirectory) {
         m_downloadDirectory = downloadDirectory;
     }
 
+    public void setFtpConfiguration(FtpConfiguration ftpConfiguration) {
+        m_ftpConfiguration = ftpConfiguration;
+    }
 }

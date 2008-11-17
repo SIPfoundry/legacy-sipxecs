@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.site.admin;
@@ -40,21 +40,18 @@ import org.sipfoundry.sipxconfig.admin.FtpBackupPlan;
 import org.sipfoundry.sipxconfig.admin.FtpRestore;
 import org.sipfoundry.sipxconfig.admin.LocalBackupPlan;
 import org.sipfoundry.sipxconfig.admin.Restore;
-import org.sipfoundry.sipxconfig.admin.ftp.FtpConfiguration;
-import org.sipfoundry.sipxconfig.admin.ftp.FtpContext;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.components.NamedValuesSelectionModel;
 import org.sipfoundry.sipxconfig.components.SelectMap;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.site.common.AssetSelector;
+import org.sipfoundry.sipxconfig.site.common.IPageWithReset;
 import org.sipfoundry.sipxconfig.site.user_portal.UserBasePage;
 
-public abstract class RestorePage extends UserBasePage implements PageBeginRenderListener {
+public abstract class RestorePage extends UserBasePage implements PageBeginRenderListener, IPageWithReset {
     public static final String PAGE = "admin/RestorePage";
 
     private static final String FILE_TYPE = ".tar.gz";
-
-    private static final String MESSAGE = "message.";
 
     @InjectObject(value = "spring:adminContext")
     public abstract AdminContext getAdminContext();
@@ -95,36 +92,37 @@ public abstract class RestorePage extends UserBasePage implements PageBeginRende
     @InitialValue(value = LocalBackupPlan.TYPE)
     public abstract String getBackupPlanType();
 
-    @Persist
-    @InitialValue(value = "literal:none")
-    public abstract String getConfiguration();
-    public abstract void setConfiguration(String configuration);
-
     public IPropertySelectionModel getBackupPlanTypeModel() {
-        return new NamedValuesSelectionModel(new Object[] {LocalBackupPlan.TYPE, FtpBackupPlan.TYPE},
-            new String[] {getMessages().getMessage("backupPlan.type.local"),
-                getMessages().getMessage("backupPlan.type.ftp")
-            }
-        );
+        return new NamedValuesSelectionModel(new Object[] {
+            LocalBackupPlan.TYPE, FtpBackupPlan.TYPE
+        }, new String[] {
+            getMessages().getMessage("backupPlan.type.local"), getMessages().getMessage("backupPlan.type.ftp")
+        });
     }
 
+    @Override
     public void pageBeginRender(PageEvent event_) {
         if (getTab() != null && getTab().equals("restore")) {
-            backupSetting();
+            if (getBackups() == null) {
+                backupSetting();
+            }
         }
+    }
+
+    public void formSubmit() {
+        backupSetting();
+    }
+
+    public void reset() {
+        setBackups(null);
     }
 
     private void backupSetting() {
         AdminContext context = getAdminContext();
-        // get corresonding backups depending on getBackupRestoreConfigurationPage setting
+        // get corresponding backups depending on getBackupRestoreConfigurationPage setting
         try {
-            if (getBackupPlanType().equals(FtpBackupPlan.TYPE)) {
-                setConfiguration("configuration");
-                setBackups(context.getFtpBackups());
-            } else {
-                setConfiguration("none");
-                setBackups(context.getBackups());
-            }
+            BackupPlan backupPlan = context.getBackupPlan(getBackupPlanType());
+            setBackups(backupPlan.getBackups());
         } catch (UserException ex) {
             setBackups(new ArrayList<Map<Type, BackupBean>>());
             TapestryUtils.getValidator(this).record(
@@ -157,8 +155,7 @@ public abstract class RestorePage extends UserBasePage implements PageBeginRende
 
         if (!validateSelections(selectedBackups)) {
             TapestryUtils.getValidator(getPage()).record(
-                    new ValidatorException(getMessages().getMessage(
-                            "message.invalidSelection")));
+                    new ValidatorException(getMessages().getMessage("message.invalidSelection")));
             return null;
         }
         return setupWaitingPage(selectedBackups, getBackupPlanType());
@@ -185,31 +182,23 @@ public abstract class RestorePage extends UserBasePage implements PageBeginRende
         } catch (ValidatorException e) {
             validator.record(e);
             return null;
-        } catch (UserException ex) {
-            validator.record(new ValidatorException(getMessages().getMessage(
-                    MESSAGE + ex.getMessage())));
-            return null;
         }
 
     }
 
     private IPage setupWaitingPage(List<BackupBean> selectedBackups, String backupPlanType) {
         Restore restore = null;
-        FtpConfiguration configuration = getAdminContext().getFtpConfiguration();
         if (backupPlanType.equals(FtpBackupPlan.TYPE)) {
             FtpRestore ftpRestore = getFtpRestore();
-            FtpContext ftpContext = ftpRestore.getFtpContext();
-            ftpContext.setHost(configuration.getHost());
-            ftpContext.setPassword(configuration.getPassword());
-            ftpContext.setUserId(configuration.getUserId());
+            FtpBackupPlan plan = (FtpBackupPlan) getAdminContext().getBackupPlan(backupPlanType);
+            ftpRestore.setFtpConfiguration(plan.getFtpConfiguration());
             restore = ftpRestore;
         } else {
             restore = getRestore();
         }
 
         restore.validate(selectedBackups);
-        // set selected backups in order to be used when Waiting page notifies the restore
-        // bean
+        // set selected backups in order to be used when Waiting page notifies the restore bean
         restore.setSelectedBackups(selectedBackups);
 
         // sets the waiting listener: it'll be notified by waiting page when this is
@@ -265,5 +254,4 @@ public abstract class RestorePage extends UserBasePage implements PageBeginRende
             return getMessages().getMessage(ex.getMessage());
         }
     }
-
 }

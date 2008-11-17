@@ -8,3 +8,6 @@
 - : vxml.promptsDirectory
 - : vxml.scriptsDirectory
 - : dialPlanContextImpl.scriptsDirectory
+localBackupPlan.backupDirectory : adminContextImpl.backupDirectory
+ftpBackupPlan.backupDirectory : adminContextImpl.ftpBackupDirectory
+

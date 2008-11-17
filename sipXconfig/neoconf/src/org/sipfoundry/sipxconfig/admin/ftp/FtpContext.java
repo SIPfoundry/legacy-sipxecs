@@ -9,21 +9,20 @@
  */
 package org.sipfoundry.sipxconfig.admin.ftp;
 
-
 public interface FtpContext {
-    public void openConnection();
-    public void makeDirectory(String directoryName);
-    public String [] list(String path);
-    public void upload(String... names);
-    public void changeDirectory(String directory);
-    public void delete(String... names);
-    public void download(String locationPath, String... names);
-    public void closeConnection();
-    public String getHost();
-    public void setHost(String host);
-    public String getPassword();
-    public void setPassword(String password);
-    public String getUserId();
-    public void setUserId(String userId);
+    void openConnection();
 
+    String[] listDirectories(String path);
+
+    String[] listFiles(String path);
+
+    void upload(String... names);
+
+    void changeDirectory(String directory);
+
+    void deleteDirectory(String directory);
+
+    void download(String locationPath, String... names);
+
+    void closeConnection();
 }

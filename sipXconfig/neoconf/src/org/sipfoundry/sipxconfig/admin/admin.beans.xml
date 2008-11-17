@@ -14,6 +14,8 @@
   <bean id="adminContextImpl" class="org.sipfoundry.sipxconfig.admin.AdminContextImpl" autowire="byType">
     <property name="binDirectory" value="${sysdir.bin}" />
     <property name="libExecDirectory" value="${sysdir.libexec}" />
+    <lookup-method name="createLocalBackupPlan" bean="localBackupPlan"/>
+    <lookup-method name="createFtpBackupPlan" bean="ftpBackupPlan"/>
   </bean>
 
   <bean id="snapshot" class="org.sipfoundry.sipxconfig.admin.Snapshot">
@@ -26,7 +28,8 @@
     <property name="logDirectory" value="${sysdir.log}" />
   </bean>
 
-  <bean id="ftpRestore" class="org.sipfoundry.sipxconfig.admin.FtpRestore" parent="restore"></bean>
+  <bean id="ftpRestore" class="org.sipfoundry.sipxconfig.admin.FtpRestore" parent="restore">
+  </bean>
 
   <bean id="whacker" class="org.sipfoundry.sipxconfig.admin.Whacker">
     <property name="processContext" ref="sipxProcessContext" />
@@ -44,10 +47,6 @@
   <bean id="localBackupPlan" class="org.sipfoundry.sipxconfig.admin.LocalBackupPlan" parent="backupPlan"></bean>
 
   <bean id="ftpBackupPlan" class="org.sipfoundry.sipxconfig.admin.FtpBackupPlan" parent="backupPlan"></bean>
-
-  <bean id="ftpConfiguration" class="org.sipfoundry.sipxconfig.admin.ftp.FtpConfiguration">
-    <property name="backupPlan" ref="ftpBackupPlan" />
-  </bean>
 
   <bean id="messageSource" class="org.springframework.context.support.ResourceBundleMessageSource">
     <property name="basename">

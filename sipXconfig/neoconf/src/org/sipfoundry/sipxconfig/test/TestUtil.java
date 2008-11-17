@@ -32,8 +32,8 @@ public final class TestUtil {
 
     private static final String FORWARD_SLASH = "/";
 
-    private static final DateFormat ENGLISH_DATE = DateFormat.getDateTimeInstance(
-            DateFormat.SHORT, DateFormat.FULL, Locale.ENGLISH);
+    private static final DateFormat ENGLISH_DATE = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.FULL,
+            Locale.ENGLISH);
     static {
         ENGLISH_DATE.setLenient(true);
     }
@@ -109,8 +109,8 @@ public final class TestUtil {
      * </pre>
      */
     public static String getTestSourceDirectory(Class testClass) {
-        StringBuffer sb = new StringBuffer(TestUtil.getProjectDirectory()).append("/test/")
-                .append(testClass.getPackage().getName().replace('.', '/'));
+        StringBuffer sb = new StringBuffer(TestUtil.getProjectDirectory()).append("/test/").append(
+                testClass.getPackage().getName().replace('.', '/'));
         String path = sb.toString();
 
         return path;
@@ -140,9 +140,8 @@ public final class TestUtil {
                 }
                 dir = dir.getParentFile();
             }
-            throw new RuntimeException(String
-                    .format("Cannot find %s in any of the parent of %s.", propName,
-                            getProjectDirectory()));
+            throw new RuntimeException(String.format("Cannot find %s in any of the parent of %s.", propName,
+                    getProjectDirectory()));
         } catch (IOException ioe) {
             throw new RuntimeException("Could not find top build directory", ioe);
         }
@@ -153,8 +152,7 @@ public final class TestUtil {
      * tests are unjar-ed. We could do this in ant, but this approach avoids setup and works in
      * IDEs like Eclipse where bin.eclipse is the classpath.
      */
-    public static void setSysDirProperties(Properties sysProps, String etcDirectory,
-            String outputDirectory) {
+    public static void setSysDirProperties(Properties sysProps, String etcDirectory, String outputDirectory) {
 
         // HACK: sysdir.bin is not a real directory when testing
         final String domainName = "sipfoundry.org";
@@ -183,24 +181,22 @@ public final class TestUtil {
         sysProps.setProperty("phoneDefaults.authorizationRealm", realm);
         sysProps.setProperty("phoneDefaults.fullyQualifiedDomainName", "pbx." + domainName);
         sysProps.setProperty("dataSource.jdbcUrl", "jdbc:postgresql://localhost/SIPXCONFIG_TEST");
-        sysProps.setProperty("acdHistoryDataSource.jdbcUrl",
-                "jdbc:postgresql://localhost/SIPXACD_HISTORY_TEST");
+        sysProps.setProperty("acdHistoryDataSource.jdbcUrl", "jdbc:postgresql://localhost/SIPXACD_HISTORY_TEST");
         sysProps.setProperty("acdHistoricalStatsImpl.enabled", Boolean.toString(true));
-        sysProps.setProperty("adminContextImpl.backupDirectory", outputDirectory + "/backup");
-        sysProps.setProperty("adminContextImpl.ftpBackupDirectory", outputDirectory + "/ftpBackup");
+        sysProps.setProperty("localBackupPlan.backupDirectory", outputDirectory + "/backup");
+        sysProps.setProperty("ftpBackupPlan.backupDirectory", outputDirectory + "/ftpBackup");
+        sysProps.setProperty("ftpRestore.downloadDirectory", outputDirectory + "/downloadFtpBackup");
         sysProps.setProperty("domainManagerImpl.authorizationRealm", realm);
         sysProps.setProperty("domainManagerImpl.alarmServerUrl", "https://" + domainName + ":8092");
         sysProps.setProperty("domainManagerImpl.initialAlias", "alias.example.org");
-        sysProps.setProperty("orbitsGenerator.audioDirectory", outputDirectory
-                + "/parkserver/music");
+        sysProps.setProperty("orbitsGenerator.audioDirectory", outputDirectory + "/parkserver/music");
         sysProps.setProperty("replicationTrigger.replicateOnStartup", Boolean.toString(false));
         sysProps.setProperty("whacker.enabled", Boolean.toString(false));
         sysProps.setProperty("acdContextImpl.enabled", Boolean.toString(true));
         sysProps.setProperty("indexTrigger.enabled", Boolean.toString(false));
         sysProps.setProperty("upload.uploadRootDirectory", outputDirectory + "/upload");
         sysProps.setProperty("upload.destinationDirectory", outputDirectory + "/tftproot");
-        sysProps.setProperty("phonebookManagerImpl.externalUsersDirectory", outputDirectory
-                + "/phonebook");
+        sysProps.setProperty("phonebookManagerImpl.externalUsersDirectory", outputDirectory + "/phonebook");
         sysProps.setProperty("audiocodesGatewayModel.configDirectory", etcDirectory);
         sysProps.setProperty("audiocodesFxs.configDirectory", etcDirectory);
 
@@ -217,15 +213,13 @@ public final class TestUtil {
         File vmDir = new File(mailstoreDir);
         if (!vmDir.exists()) {
             if (!vmDir.mkdirs()) {
-                throw new RuntimeException("Could not create voicemail store "
-                        + vmDir.getAbsolutePath());
+                throw new RuntimeException("Could not create voicemail store " + vmDir.getAbsolutePath());
             }
         }
         sysProps.setProperty("mailboxManagerImpl.mailstoreDirectory", vmDir.getAbsolutePath());
     }
 
     public static void saveSysDirProperties(Properties sysProps, String classpathDirectory) {
-
         File sysdirPropsFile = new File(classpathDirectory, "sipxconfig.properties");
         FileOutputStream sysdirPropsStream;
         try {
