@@ -512,15 +512,15 @@ int main(int argc, char* argv[])
     int port;
     initXMLRPCsettings(port, allowedPeers);
     
+    // Create the SipxRpc service which manages xmlrpc requests
+    pSipxRpcImpl = new SipxRpc(port, allowedPeers);
+    pSipxRpcImpl->startRpcServer();
+
     // Read the process definitions.
     UtlString processDefinitionDirectory =
        SipXecsService::Path(SipXecsService::DataDirType, "process.d");
     SipxProcessManager* processManager = SipxProcessManager::getInstance();
     processManager->instantiateProcesses(processDefinitionDirectory);
-
-    // Create the SipxRpc service which manages xmlrpc requests
-    pSipxRpcImpl = new SipxRpc(port, allowedPeers);
-    pSipxRpcImpl->startRpcServer();
 
     doWaitLoop();
 
