@@ -44,7 +44,8 @@
         <!-- <param name="alias" value="sip:10.0.1.251:5555"/> -->
       </settings>
       <gateways>
-        <gateway name="example.org">
+        <gateway name="realm.example.com">
+          <param name="proxy" value="example.org"/>
           <param name="realm" value="realm.example.com"/>
           <param name="username" value="~~id~media"/>
           <param name="password" value="1234"/>
