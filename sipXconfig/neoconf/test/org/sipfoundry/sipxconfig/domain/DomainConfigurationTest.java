@@ -26,20 +26,13 @@ import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.replay;
 
 public class DomainConfigurationTest extends TestCase {
-
-    private Domain m_domain;
     private String m_language;
     private String m_realm;
     private String m_alarmServerUrl;
     private DomainConfiguration m_out;
-    private String m_referenceConfig;
 
     @Override
     public void setUp() throws Exception {
-        m_domain = new Domain();
-        m_domain.setName("domain.example.com");
-        m_domain.addAlias("alias.example.com");
-        m_domain.setSharedSecret("mySecret");
         m_language = "en";
         m_realm = "realm.example.com";
         m_alarmServerUrl = "https://domain.example.com:8092";
@@ -60,12 +53,14 @@ public class DomainConfigurationTest extends TestCase {
         m_out.setVelocityEngine(TestHelper.getVelocityEngine());
         m_out.setLocationsManager(locationsManager);
 
-        Reader referenceConfigReader = new InputStreamReader(DomainConfigurationTest.class
-                .getResourceAsStream("expected-domain-config"));
-        m_referenceConfig = IOUtils.toString(referenceConfigReader);
     }
 
-    public void testWrite() throws Exception {
+    public void testWriteWithAliases() throws Exception {
+        Domain m_domain = new Domain();
+        m_domain.setName("domain.example.com");
+        m_domain.addAlias("alias.example.com");
+        m_domain.setSharedSecret("mySecret");
+
         StringWriter actualConfigWriter = new StringWriter();
         m_out.generate(m_domain, m_realm, "master.example.com", m_language, m_alarmServerUrl);
         m_out.write(actualConfigWriter, null);
@@ -74,7 +69,29 @@ public class DomainConfigurationTest extends TestCase {
 
         String actualConfig = IOUtils.toString(actualConfigReader);
 
-        assertEquals(m_referenceConfig, actualConfig);
+        Reader referenceConfigReader = new InputStreamReader(DomainConfigurationTest.class
+                .getResourceAsStream("expected-domain-config"));
+        String referenceConfig = IOUtils.toString(referenceConfigReader);
+        assertEquals(referenceConfig, actualConfig);
+    }
+
+    public void testWriteNoAliases() throws Exception {
+        Domain m_domain = new Domain();
+        m_domain.setName("domain.example.com");
+        m_domain.setSharedSecret("mySecret");
+
+        StringWriter actualConfigWriter = new StringWriter();
+        m_out.generate(m_domain, m_realm, "master.example.com", m_language, m_alarmServerUrl);
+        m_out.write(actualConfigWriter, null);
+
+        Reader actualConfigReader = new StringReader(actualConfigWriter.toString());
+
+        String actualConfig = IOUtils.toString(actualConfigReader);
+
+        Reader referenceConfigReader = new InputStreamReader(DomainConfigurationTest.class
+                .getResourceAsStream("expected-no-aliases-domain-config"));
+        String referenceConfig = IOUtils.toString(referenceConfigReader);
+        assertEquals(referenceConfig, actualConfig);
     }
 
 }

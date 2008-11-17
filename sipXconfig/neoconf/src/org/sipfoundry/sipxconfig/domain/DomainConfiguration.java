@@ -57,7 +57,10 @@ public class DomainConfiguration extends TemplateConfigurationFile {
      */
     private String getDomainAliases(Domain domain) {
         Set<String> aliases = new LinkedHashSet<String>();
-        aliases.addAll(domain.getAliases());
+        Set<String> configuredAliases = domain.getAliases();
+        if (configuredAliases != null) {
+            aliases.addAll(configuredAliases);
+        }
 
         Location[] locations = m_locationsManager.getLocations();
         for (Location location : locations) {
