@@ -388,6 +388,7 @@ class SipSubscribeServerTest2 : public CppUnit::TestCase
    CPPUNIT_TEST(resubscribeContentTest);
    CPPUNIT_TEST(terminateSubscriptionOnError);
    CPPUNIT_TEST(terminateSubscriptionOnErrorRetryAfter);
+   CPPUNIT_TEST(terminateSubscriptionOnErrorTimeout);
    CPPUNIT_TEST(responseContact);
    CPPUNIT_TEST_SUITE_END();
 
@@ -594,11 +595,8 @@ public:
             "\r\n";
 
          // Loop through this scenario for a series of response codes.
-         // Even 408 is expected to terminate the subscription.
-         // (RFC 3265 section 3.2.2.)
          int test_codes[] = { SIP_BAD_REQUEST_CODE,
                               SIP_NOT_FOUND_CODE,
-                              SIP_REQUEST_TIMEOUT_CODE,
                               SIP_BAD_TRANSACTION_CODE,
                               499,
                               SIP_SERVER_INTERNAL_ERROR_CODE,
@@ -655,13 +653,15 @@ public:
             // Wait for the subscription to be ended.
             OsTask::delay(100);
 
-            // Send a re-SUBSCRIBE
+            // Send a re-SUBSCRIBE in the existing dialog, to find out if the  
+            // subscription was terminated or not. 
             mwiSubscribeRequest.incrementCSeqNumber();
             // Leave the Expires header with the default value.
 
             CPPUNIT_ASSERT(userAgentp->send(mwiSubscribeRequest));
 
-            // We should get a 481 response and no NOTIFY.
+            // We should get a 481 response and no NOTIFY, because the
+            // subscription has been terminated.
             {
                const SipMessage* subscribeResponse;
                const SipMessage* notifyRequest;
@@ -730,7 +730,7 @@ public:
                const SipMessage* notifyRequest;
                runListener(incomingClientMsgQueue, *userAgentp, messageTimeout,
                            notifyRequest, subscribeResponse,
-                           test_codes[i], TRUE, 0, NULL);
+                           test_codes[i], /*Retry-After:0*/TRUE, 0, NULL);
 
                // We should have received a SUBSCRIBE response and a NOTIFY request.
                CPPUNIT_ASSERT(subscribeResponse);
@@ -738,9 +738,18 @@ public:
 
                CPPUNIT_ASSERT(subscribeResponse->getResponseStatusCode() ==
                               SIP_ACCEPTED_CODE);
+
+               // Extract the to-tag in the response, apply it to mwiSubscribeRequest.
+               // This allows the re-SUBSCRIBE below to be applied to the existing dialog.
+               Url toUrl;
+               subscribeResponse->getToUrl(toUrl);
+               UtlString toTag;
+               toUrl.getFieldParameter("tag", toTag);
+               mwiSubscribeRequest.setToFieldTag(toTag);
             }
 
-            // Send a re-SUBSCRIBE
+            // Send a re-SUBSCRIBE in the existing dialog, to find out if the  
+            // subscription was terminated or not. 
             mwiSubscribeRequest.incrementCSeqNumber();
             // Leave the Expires header with the default value.
 
@@ -762,6 +771,89 @@ public:
                CPPUNIT_ASSERT(subscribeResponse->getResponseStatusCode() ==
                               SIP_ACCEPTED_CODE);
             }
+         }
+      }
+
+   // XECS-1810: Verify that subscription is *not* terminated when NOTIFY 
+   // returns a Timeout error.
+   void terminateSubscriptionOnErrorTimeout()
+      {
+         // Test MWI messages
+         const char* mwiSubscribe =
+            "SUBSCRIBE sip:111@localhost SIP/2.0\r\n"
+            "From: <sip:111@example.com>;tag=1612c1612\r\n"
+            "To: <sip:111@example.com>\r\n"
+            "Cseq: 1 SUBSCRIBE\r\n"
+            "Event: message-summary\r\n"
+            "Accept: application/simple-message-summary\r\n"
+            "Expires: 3600\r\n"
+            "Date: Tue, 4 Nov 2008 15:59:30 GMT\r\n"
+            "Max-Forwards: 20\r\n"
+            "User-Agent: Pingtel/2.2.0 (VxWorks)\r\n"
+            "Accept-Language: en\r\n"
+            "Supported: sip-cc, sip-cc-01, timer, replaces\r\n"
+            "Content-Length: 0\r\n"
+            "\r\n";
+
+         // Send a SUBSCRIBE to ourselves
+         SipMessage mwiSubscribeRequest(mwiSubscribe);
+         {
+            UtlString c;
+            CallId::getNewCallId(c);
+            mwiSubscribeRequest.setCallIdField(c);
+         }
+         mwiSubscribeRequest.setSipRequestFirstHeaderLine(SIP_SUBSCRIBE_METHOD, 
+                                                          aor, 
+                                                          SIP_PROTOCOL_VERSION);
+         mwiSubscribeRequest.setContactField(aor_name_addr);
+         mwiSubscribeRequest.incrementCSeqNumber();
+
+         CPPUNIT_ASSERT(userAgentp->send(mwiSubscribeRequest));
+
+         // We should get a 202 response and a NOTIFY request in the queue
+         // Send a Timeout error response to the NOTIFY.
+         OsTime messageTimeout(1, 0);  // 1 second
+         {
+            const SipMessage* subscribeResponse;
+            const SipMessage* notifyRequest;
+            runListener(incomingClientMsgQueue, *userAgentp, messageTimeout,
+                        notifyRequest, subscribeResponse,
+                        SIP_REQUEST_TIMEOUT_CODE, FALSE, 0, NULL);
+
+            // We should have received a SUBSCRIBE response and a NOTIFY request.
+            CPPUNIT_ASSERT(subscribeResponse);
+            CPPUNIT_ASSERT(subscribeResponse->getResponseStatusCode() == SIP_ACCEPTED_CODE);
+            CPPUNIT_ASSERT(notifyRequest);
+
+            // Extract the to-tag in the response, apply it to mwiSubscribeRequest.
+            // This allows the re-SUBSCRIBE below to be applied to the existing dialog.
+            Url toUrl;
+            subscribeResponse->getToUrl(toUrl);
+            UtlString toTag;
+            toUrl.getFieldParameter("tag", toTag);
+            mwiSubscribeRequest.setToFieldTag(toTag);
+         }
+
+         // Send a re-SUBSCRIBE in the existing dialog, to find out if the  
+         // subscription was terminated or not. 
+         mwiSubscribeRequest.incrementCSeqNumber();
+         // Leave the Expires header with the default value.
+
+         CPPUNIT_ASSERT(userAgentp->send(mwiSubscribeRequest));
+
+         // We should get a 202 response and a NOTIFY, because the Timeout
+         // error suppresses the termination of the subscription.
+         {
+            const SipMessage* subscribeResponse;
+            const SipMessage* notifyRequest;
+            runListener(incomingClientMsgQueue, *userAgentp, messageTimeout,
+                        notifyRequest, subscribeResponse, SIP_OK_CODE,
+                        FALSE, 0, NULL);
+
+            // We should have received a SUBSCRIBE response and no NOTIFY request.
+            CPPUNIT_ASSERT(subscribeResponse);
+            CPPUNIT_ASSERT(notifyRequest);
+            CPPUNIT_ASSERT(subscribeResponse->getResponseStatusCode() == SIP_ACCEPTED_CODE);
          }
       }
 

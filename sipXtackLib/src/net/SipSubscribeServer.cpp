@@ -699,49 +699,66 @@ UtlBoolean SipSubscribeServer::handleNotifyResponse(const SipMessage& notifyResp
     UtlBoolean handledNotifyResponse = FALSE;
     int responseCode = notifyResponse.getResponseStatusCode();
 
-    // If it is an error response and has no Retry-After header,
+    // If it is a non-Timeout error response and has no Retry-After header,
     // terminate the subscription.
-    if (responseCode >= SIP_3XX_CLASS_CODE &&
-        notifyResponse.getHeaderValue(0, SIP_RETRY_AFTER_FIELD) == NULL)
+    if (responseCode >= SIP_3XX_CLASS_CODE)
     {
        UtlString dialogHandle;
        notifyResponse.getDialogHandleReverse(dialogHandle);
 
-       // Not modifying the SubscribeServerEventData, just reading it
-       lockForRead();
+       if (SIP_REQUEST_TIMEOUT_CODE == responseCode)
+       { 
+          // Log Timeout responses.
+          OsSysLog::add(FAC_SIP, PRI_WARNING,
+             "SipSubscribeServer::handleNotifyResponse Timeout NOTIFY response. Handle: %s",
+             dialogHandle.data());
 
-       // Get the event specific handler and information
-       SubscribeServerEventData* eventPackageInfo = NULL;
-       UtlHashBagIterator iterator(mEventDefinitions);
-        
-       while ((eventPackageInfo =
-               dynamic_cast <SubscribeServerEventData*> (iterator())))
-       {
-          // End this subscription because we got an error response from
-          // the NOTIFY request.
-          // Returns TRUE if the SipSubscriptionMgr has this dialog.
-          handledNotifyResponse = 
-             eventPackageInfo->
-             mpEventSpecificSubscriptionMgr->
-             endSubscription(dialogHandle);
-          if (handledNotifyResponse)
-          {
-             break;
+          // RFC 3265 section 3.2.2 says that when a "NOTIFY request fails ... due to a timeout 
+          // condition ... the notifier SHOULD remove the subscription."  However, we feel this
+          // is a problem with the spec.  Endpoints that become temporarily unavailable and do not
+          // respond to the NOTIFY (or do not respond in time) should not cause the subscription 
+          // to be silently terminated.  True our deviation from the spec will cause subscriptions 
+          // to now-defunct subscribers to continue, but only until the subscription expires.  This 
+          // is far preferable to the alternative.
+       } 
+       else if (notifyResponse.getHeaderValue(0, SIP_RETRY_AFTER_FIELD) == NULL)
+       { 
+          // Not modifying the SubscribeServerEventData, just reading it
+          lockForRead();
+ 
+          // Get the event specific handler and information
+          SubscribeServerEventData* eventPackageInfo = NULL;
+          UtlHashBagIterator iterator(mEventDefinitions);
+ 
+          while ((eventPackageInfo =
+                  dynamic_cast <SubscribeServerEventData*> (iterator())))
+          { 
+             // End this subscription because we got an error response from
+             // the NOTIFY request.
+             // Returns TRUE if the SipSubscriptionMgr has this dialog.
+             handledNotifyResponse = 
+                eventPackageInfo->
+                mpEventSpecificSubscriptionMgr->
+                endSubscription(dialogHandle);
+             if (handledNotifyResponse)
+             {
+                break;
+             }
           }
-       }
-
-       unlockForRead();
-
-       if (!handledNotifyResponse)
-       {
-          // Should not happen, first of all we should never get a
-          // response which does not correspond to a request sent from 
-          // the SipUserAgent.  Secondly, we should not get a response to
-          // and event type that we do not support
-          OsSysLog::add(FAC_SIP, PRI_ERR,
-                        "SipSubscribeServer::handleNotifyResponse NOTIFY response with no dialog. Handle: %s",
-                        dialogHandle.data());
-       }
+ 
+          unlockForRead();
+ 
+          if (!handledNotifyResponse)
+          {
+             // Should not happen, first of all we should never get a
+             // response which does not correspond to a request sent from 
+             // the SipUserAgent.  Secondly, we should not get a response to
+             // and event type that we do not support
+             OsSysLog::add(FAC_SIP, PRI_ERR,
+                "SipSubscribeServer::handleNotifyResponse NOTIFY response with no dialog. Handle: %s",
+                dialogHandle.data());
+          } 
+       } 
     }
 
     return TRUE;
