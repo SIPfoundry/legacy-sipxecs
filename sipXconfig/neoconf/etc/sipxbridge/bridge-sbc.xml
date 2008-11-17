@@ -104,17 +104,6 @@
         is used by sipXconfig to report status to the user.
       </description>
     </setting>
-    <setting name="max-number-of-concurrent-calls">
-      <label>Maximum calls</label>
-      <type>
-        <integer />
-      </type>
-      <description>
-        The maximum number of concurrent calls allowed via the given bridge and for all configured ITSPs. When the limit
-        is reached, sipXbridge will return "Service Unavailable". If nothing is specified, no limit is placed on the
-        max. number of concurrent calls.
-      </description>
-    </setting>
     <setting name="music-on-hold-support-enabled">
       <label>Music on hold</label>
       <type>
@@ -130,44 +119,7 @@
       <value>false</value>
       <description>
         If checked sipXbridge Music On Hold support (MoH) is enabled. Phones should disable their MoH support if
-        sipXbridge support for MOH is enabled. This feature allows playing MoH for phones that do not support MoH as
-        required by sipXecs only for calls that go through sipXbridge.
-      </description>
-    </setting>
-    <setting name="is-reinvite-supported" advanced="yes">
-      <label>re-INVITE support</label>
-      <type refid="switch" />
-      <value>false</value>
-      <description>
-        If checked, media re-negotiation is supported for all ITSPs that are configured. If set, sipXbridge can
-        re-negotiate the choice of codec when an ongoing call is transferred. This gives greater flexibility but can
-        also result in failed transfers if the re-negotiation fails. This setting applies for all ITSPs that are
-        configured on this instance of sipXbridge.
-      </description>
-    </setting>
-    <setting name="allowed-codec-name" advanced="yes">
-      <label>Allowed codec</label>
-      <type>
-        <enum>
-          <option>
-            <value>PCMU</value>
-          </option>
-          <option>
-            <value>PCMA</value>
-          </option>
-          <option>
-            <value>G729</value>
-          </option>
-          <option>
-            <value>G723</value>
-          </option>
-        </enum>
-      </type>
-      <value>PCMU</value>
-      <description>
-        The codec for the SDP offer / answer that is allowed. This parameter is ONLY relevant if the ITSPs do NOT support
-        re-INVITE. Otherwise it is ignored. If the re-INVITE-supported flag is set to "false" then SDP offers and
-        answers are filtered to allow only this codec through.
+        sipXbridge support for MOH is enabled.
       </description>
     </setting>
     <setting name="route-inbound-calls-to-extension">

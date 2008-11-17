@@ -60,8 +60,6 @@ public class BridgeSbcTest {
         m_sbc.setSettingValue("bridge-configuration/global-port", "5060");
         m_sbc.setSettingValue("bridge-configuration/external-address", "10.1.1.5");
         m_sbc.setSettingValue("bridge-configuration/external-port", "5080");
-        m_sbc.setSettingValue("bridge-configuration/is-reinvite-supported", "true");
-        m_sbc.setSettingValue("bridge-configuration/allowed-codec-name", "PCMU");
         m_sbc.setSettingValue("bridge-configuration/log-level", "INFO");
         m_sbc.setSettingValue("bridge-configuration/route-inbound-calls-to-extension", "operator");
         m_sbc.setSettingValue("bridge-configuration/log-directory", "/var/log/sipxpbx/");

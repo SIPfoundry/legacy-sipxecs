@@ -76,16 +76,6 @@
         address will be used. Using the local address assumes that the ITSP provides NAT traversal functionality.
       </description>
     </setting>
-    <setting name="use-rport" advanced="yes">
-      <label>Set RPort Parameter</label>
-      <type refid="switch" />
-      <value>false</value>
-      <description>
-        If checked then the rport parameter will be set in outbound SIP requests; thus indicating to the ITSP server
-        that the SIP request is originating from behind a Symmetric NAT and that the server should respond to the remote
-        address and port of the incoming signaling as defined in RFC 3581.
-      </description>
-    </setting>
     <setting name="register-on-initialization" advanced="yes">
       <label>Register on initialization</label>
       <type refid="switch"></type>
@@ -106,15 +96,6 @@
       </type>
       <value>600</value>
       <description>Registration interval (seconds)</description>
-    </setting>
-    <setting name="use-registration-for-caller-id" advanced="yes">
-      <label>Use Registration for caller-ID</label>
-      <type refid="switch"></type>
-      <value>true</value>
-      <description>
-        Defines whether or not to use the ITSP's registration user name and domain as caller ID as required by some
-        ITSPs. If not set, the user can specify a desired caller-ID for the ITSP account under the Caller-ID tab.
-      </description>
     </setting>
     <setting name="sip-keepalive-method" advanced="yes">
       <label>Method to use for SIP keepalive.</label>

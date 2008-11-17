@@ -14,8 +14,6 @@
     <media-keepalive-seconds>1</media-keepalive-seconds>
     <xml-rpc-port>8088</xml-rpc-port>
     <music-on-hold-support-enabled>false</music-on-hold-support-enabled>
-    <is-reinvite-supported>true</is-reinvite-supported>
-    <allowed-codec-name>PCMU</allowed-codec-name>
     <route-inbound-calls-to-extension>operator</route-inbound-calls-to-extension>
     <log-level>INFO</log-level>
     <log-directory>/var/log/sipxpbx/</log-directory>
@@ -27,11 +25,9 @@
     <password>1234</password>
     <outbound-proxy>itsp.example.com</outbound-proxy>
     <outbound-transport>UDP</outbound-transport>
-    <use-global-addressing>false</use-global-addressing>
-    <use-rport>false</use-rport>
+    <use-global-addressing>true</use-global-addressing>
     <register-on-initialization>true</register-on-initialization>
     <registration-interval>600</registration-interval>
-    <use-registration-for-caller-id>true</use-registration-for-caller-id>
     <sip-keepalive-method>CR-LF</sip-keepalive-method>
     <rtp-keepalive-method>USE-EMPTY-PACKET</rtp-keepalive-method>
   </itsp-account>
