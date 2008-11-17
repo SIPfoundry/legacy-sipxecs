@@ -1344,8 +1344,8 @@ void SipxProcess::readPersistentState()
                        rc, persistentStatePath.data());
       }
 
-      if ( persistentStateString.compareTo("Enabled") ||
-           persistentStateString.compareTo(pRunning->name()) )
+      if ( (persistentStateString.compareTo("Enabled")==0) ||
+           (persistentStateString.compareTo(pRunning->name())==0) )
       {
          mpDesiredState = pRunning;
       }
