@@ -69,6 +69,7 @@ public class BridgeSbcTest {
         sipTrunk.setModelFilesContext(modelFilesContext);
         sipTrunk.setSbcDevice(m_sbc);
         sipTrunk.setAddress("itsp.example.com");
+        sipTrunk.setAddressPort(5061);
         sipTrunk.setAddressTransport(AddressTransport.UDP);
         sipTrunk.setSettingValue("itsp-account/user-name", "juser");
         sipTrunk.setSettingValue("itsp-account/password", "1234");

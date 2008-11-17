@@ -17,11 +17,11 @@
     <description>The information that is specific to a given ITSP account.</description>
     <setting name="proxy-domain">
       <label>ITSP server domain name</label>
+      <value>sip.voipuser.org</value>
       <description>
         The domain name of the ITSP. This domain name is used to look up via DNS SRV the address of the SIP server the
         ITSP uses. If the ITSP does not provide this lookup mechanism specify a server address below.
       </description>
-      <value>sip.voipuser.org</value>
     </setting>
     <setting name="user-name">
       <label>User name</label>
@@ -44,19 +44,14 @@
         route to the ITSP's server (outbound proxy) is determined by DNS lookup on the ITSP domain.
       </description>
     </setting>
+    <setting name="outbound-proxy-port" hidden="yes">
+      <!--  set automatically from SipTrunk.getAddressPort -->
+      <type>
+        <integer />
+      </type>
+    </setting>
     <setting name="outbound-transport" hidden="yes">
       <!--  set automatically from SipTrunk.getAddressTransport -->
-      <type>
-        <enum>
-          <option>
-            <value>UDP</value>
-          </option>
-          <option>
-            <value>TCP</value>
-          </option>
-        </enum>
-      </type>
-      <description>The outbound proxy transport.</description>
     </setting>
     <setting name="inbound-proxy" advanced="yes">
       <label>Inbound ITSP server address</label>

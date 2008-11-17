@@ -39,25 +39,20 @@
     </setting>
     <setting name="outbound-proxy" advanced="yes">
       <label>ITSP server address</label>
+      <value>sip-proxy-fca.atl0.cbeyond.net</value>
       <description>
         If the ITSP specifies a server address or name or an outbound proxy, enter it here. If nothing is specified, the
         route to the ITSP's server (outbound proxy) is determined by DNS lookup on the ITSP domain.
       </description>
-      <value>sip-proxy-fca.atl0.cbeyond.net</value>
+    </setting>
+    <setting name="outbound-proxy-port" hidden="yes">
+      <!--  set automatically from SipTrunk.getAddressPort -->
+      <type>
+        <integer />
+      </type>
     </setting>
     <setting name="outbound-transport" hidden="yes">
       <!--  set automatically from SipTrunk.getAddressTransport -->
-      <type>
-        <enum>
-          <option>
-            <value>UDP</value>
-          </option>
-          <option>
-            <value>TCP</value>
-          </option>
-        </enum>
-      </type>
-      <description>The outbound proxy transport.</description>
     </setting>
     <setting name="inbound-proxy" advanced="yes">
       <label>Inbound ITSP server address</label>

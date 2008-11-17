@@ -17,11 +17,11 @@
     <description>The information that is specific to a given ITSP account.</description>
     <setting name="proxy-domain">
       <label>ITSP server domain name</label>
+      <value>vitelity.net</value>
       <description>
         The domain name of the ITSP. This domain name is used to look up via DNS SRV the address of the SIP server the
         ITSP uses. If the ITSP does not provide this lookup mechanism specify a server address below.
       </description>
-      <value>vitelity.net</value>
     </setting>
     <setting name="user-name">
       <label>User name</label>
@@ -39,34 +39,29 @@
     </setting>
     <setting name="outbound-proxy" advanced="yes">
       <label>ITSP server address</label>
+      <value>outbound1.vitelity.net</value>
       <description>
         If the ITSP specifies a server address or name or an outbound proxy, enter it here. If nothing is specified, the
         route to the ITSP's server (outbound proxy) is determined by DNS lookup on the ITSP domain.
       </description>
-      <value>outbound1.vitelity.net</value>
+    </setting>
+    <setting name="outbound-proxy-port" hidden="yes">
+      <!--  set automatically from SipTrunk.getAddressPort -->
     </setting>
     <setting name="outbound-transport" hidden="yes">
       <!--  set automatically from SipTrunk.getAddressTransport -->
       <type>
-        <enum>
-          <option>
-            <value>UDP</value>
-          </option>
-          <option>
-            <value>TCP</value>
-          </option>
-        </enum>
+        <integer />
       </type>
-      <description>The outbound proxy transport.</description>
     </setting>
     <setting name="inbound-proxy" advanced="yes">
       <label>Inbound ITSP server address</label>
+      <value>inbound7.vitelity.net</value>
       <description>
         If the ITSP specifies an inbound proxy or server that is different from the ITSP server address or outbound
         proxy above, enter it here. Otherwise this setting is assumed to be identical to the ITSP server or outbound
         proxy.
       </description>
-      <value>inbound7.vitelity.net</value>
     </setting>
     <setting name="use-global-addressing" advanced="yes">
       <label>Use public address for call setup</label>
@@ -85,10 +80,10 @@
     </setting>
     <setting name="outbound-registrar" advanced="yes">
       <label>Registrar address</label>
+      <value>inbound7.vitelity.net</value>
       <description>
         Registrar address (if different from ITSP server address). Determines where to send REGISTER request.
       </description>
-      <value>inbound7.vitelity.net</value>
     </setting>
     <setting name="registration-interval" advanced="yes">
       <label>Registration interval</label>

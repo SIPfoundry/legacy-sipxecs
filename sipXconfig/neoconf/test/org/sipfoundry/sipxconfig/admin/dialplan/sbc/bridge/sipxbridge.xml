@@ -24,6 +24,7 @@
     <user-name>juser</user-name>
     <password>1234</password>
     <outbound-proxy>itsp.example.com</outbound-proxy>
+    <outbound-proxy-port>5061</outbound-proxy-port>
     <outbound-transport>UDP</outbound-transport>
     <use-global-addressing>true</use-global-addressing>
     <register-on-initialization>true</register-on-initialization>
