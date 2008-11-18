@@ -299,10 +299,21 @@
     <property name="modelDir" value="freeswitch" />
     <property name="configurations">
       <list>
+        <ref bean="freeswitchConfiguration" />
         <ref bean="defaultContextConfiguration" />
         <ref bean="sofiaConfiguration" />
+        <ref bean="xmlRpcConfiguration" />
+        <ref bean="modulesConfiguration" />
       </list>
     </property>
+  </bean>
+
+  <bean id="freeswitchConfiguration" parent="serviceConfigurationFile"
+    class="org.sipfoundry.sipxconfig.service.freeswitch.FreeswitchConfiguration" scope="prototype">
+    <property name="name" value="freeswitch.xml" />
+    <property name="template" value="freeswitch/freeswitch.xml.vm" />
+    <property name="directory" value="${sysdir.freeswitch}/conf" />
+    <property name="domainManager" ref="domainManager" />
   </bean>
 
   <bean id="defaultContextConfiguration" parent="serviceConfigurationFile"
@@ -320,6 +331,20 @@
     <property name="directory" value="${sysdir.freeswitch}/conf" />
     <property name="coreContext" ref="coreContext" />
     <property name="domainManager" ref="domainManager" />
+  </bean>
+
+  <bean id="xmlRpcConfiguration" parent="serviceConfigurationFile"
+    class="org.sipfoundry.sipxconfig.service.freeswitch.XmlRpcConfiguration" scope="prototype">
+    <property name="name" value="xml_rpc.conf.xml" />
+    <property name="template" value="freeswitch/xml_rpc.conf.xml.vm" />
+    <property name="directory" value="${sysdir.freeswitch}/conf" />
+  </bean>
+
+  <bean id="modulesConfiguration" parent="serviceConfigurationFile"
+    class="org.sipfoundry.sipxconfig.service.freeswitch.ModulesConfiguration" scope="prototype">
+    <property name="name" value="modules.conf.xml" />
+    <property name="template" value="freeswitch/modules.conf.xml.vm" />
+    <property name="directory" value="${sysdir.freeswitch}/conf" />
   </bean>
 
   <bean id="sipxRelayService" class="org.sipfoundry.sipxconfig.service.SipxRelayService" scope="prototype" parent="sipxService">

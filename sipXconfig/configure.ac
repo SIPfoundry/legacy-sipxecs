@@ -115,8 +115,6 @@ AC_CONFIG_FILES([
     report/src/Makefile
     conference/Makefile
     conference/bin/Makefile
-    conference/etc/Makefile
-    conference/local/Makefile
     plugins/Makefile
     plugins/aastra/Makefile
     plugins/ciscoplus/Makefile

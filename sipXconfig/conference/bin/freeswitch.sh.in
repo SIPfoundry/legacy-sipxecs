@@ -33,46 +33,23 @@ done
 
 . @SIPX_LIBEXECDIR@/sipx-utils.sh || exit 1
 
-CONFIG_DEFS="@SIPX_CONFDIR@/config.defs"
-FS_CONFIG_DEFS="@SIPX_CONFDIR@/freeswitch_config.defs"
 SIPX_USER=@SIPXPBXUSER@
 SIPX_VARDIR=@SIPX_VARDIR@
 
-CONFIG_FILES="\
-  @FREESWITCH_PREFIX@/conf/freeswitch.xml \
-  @FREESWITCH_PREFIX@/conf/sofia.conf.xml \
-  @FREESWITCH_PREFIX@/conf/xml_rpc.conf.xml \
-  @FREESWITCH_PREFIX@/conf/modules.conf.xml"
-# If the "config.defs" file exists and the <name>.in file exists for a
-# configuration file, then run the config preprocessor to generate the
-# fully resolved configuration file.
-
 SIPXDIRS="@FREESWITCH_PREFIX@/log @FREESWITCH_PREFIX@/db @FREESWITCH_PREFIX@/conf"
 
-if [ -f $CONFIG_DEFS -a -f $FS_CONFIG_DEFS ]
+# Create additional directories
+if [ ! -d @FREESWITCH_PREFIX@/log ]
 then
-  cat $CONFIG_DEFS $FS_CONFIG_DEFS > $SIPX_VARDIR/tmp/fs_config.defs
-  for i in $CONFIG_FILES ; do
-    if [ -f "${i}.in" ]
-    then
-       @SIPX_BINDIR@/configpp --defs $SIPX_VARDIR/tmp/fs_config.defs --in "${i}.in" --out "$i"
-    fi
-  done
-  rm -f $SIPX_VARDIR/tmp/fs_config.defs
-
-  # Create additional directories
-  if [ ! -d @FREESWITCH_PREFIX@/log ]
-  then
-    mkdir @FREESWITCH_PREFIX@/log
-  fi
-
-  if [ ! -d @FREESWITCH_PREFIX@/db ]
-  then
-    mkdir @FREESWITCH_PREFIX@/db
-  fi
-
-  chown -R $SIPX_USER:$SIPX_USER $SIPXDIRS
+  mkdir @FREESWITCH_PREFIX@/log
 fi
+
+if [ ! -d @FREESWITCH_PREFIX@/db ]
+then
+  mkdir @FREESWITCH_PREFIX@/db
+fi
+
+chown -R $SIPX_USER:$SIPX_USER $SIPXDIRS
 
 case ${Action} in
    RUN)

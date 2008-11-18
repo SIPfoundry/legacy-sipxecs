@@ -15,7 +15,6 @@ Url:      http://www.sipfoundry.org/
 %define sipxpbxvarlib %{_var}/lib/sipxpbx
 %define sipxconfiglib %{_datadir}/sipXecs/sipXconfig
 %define tftproot /tftpboot
-%define freeswitchdir @FREESWITCH_PREFIX@
 
 # Should match sipXlib.m4:SIPX_CONFIGPHONEDIR
 %define phonedir %{_localstatedir}/sipxdata/configserver/phone
@@ -454,13 +453,7 @@ sipx-snmp-init > /dev/null
 %files conference
 %defattr(644,@SIPXPBXUSER@,@SIPXPBXUSER@,755)
 %attr(644,root,root) %{_datadir}/sipxecs/process.d/freeswitch-process.xml
-%{sipxpbxconf}/freeswitch_config.defs
-%dir %attr(775,@SIPXPBXUSER@,@SIPXPBXUSER@) %{freeswitchdir}
-%{freeswitchdir}/conf/freeswitch.xml.in
-%{freeswitchdir}/conf/modules.conf.xml.in
-%{freeswitchdir}/conf/xml_rpc.conf.xml.in
-%{freeswitchdir}/conf/sofia.conf.xml.in
-%attr(755,root,root) /usr/bin/freeswitch.sh
+%attr(755,root,root) %{_bindir}/freeswitch.sh
 
 %post conference
 freeswitch.sh --configtest

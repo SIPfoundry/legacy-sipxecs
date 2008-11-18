@@ -22,7 +22,10 @@
   <resources>
     <osconfig>@SIPX_CONFDIR@/domain-config</osconfig>
     <file required="false">@FREESWITCH_PREFIX@/conf/conference.conf.xml</file>
+    <file>@FREESWITCH_PREFIX@/conf/freeswitch.xml</file>
+    <file>@FREESWITCH_PREFIX@/conf/xml_rpc.conf.xml</file>
+    <file>@FREESWITCH_PREFIX@/conf/modules.conf.xml</file>
     <file>@FREESWITCH_PREFIX@/conf/default_context.xml</file>
-    <file>@FREESWITCH_PREFIX@/conf/sofia.conf.xml.in</file>
+    <file>@FREESWITCH_PREFIX@/conf/sofia.conf.xml</file>
   </resources>
 </sipXecs-process>
