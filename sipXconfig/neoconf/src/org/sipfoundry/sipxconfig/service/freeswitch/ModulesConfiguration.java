@@ -11,3 +11,4 @@ import org.sipfoundry.sipxconfig.service.SipxServiceConfiguration;
 
 public class ModulesConfiguration extends SipxServiceConfiguration {
 }
+
