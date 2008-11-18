@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.site.admin.commserver;
@@ -41,6 +41,7 @@ import org.sipfoundry.sipxconfig.service.LocationSpecificService;
 import org.sipfoundry.sipxconfig.service.SipxService;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.sipfoundry.sipxconfig.site.service.EditCallResolverService;
+import org.sipfoundry.sipxconfig.site.service.EditFreeswitchService;
 import org.sipfoundry.sipxconfig.site.service.EditPageService;
 import org.sipfoundry.sipxconfig.site.service.EditParkService;
 import org.sipfoundry.sipxconfig.site.service.EditPresenceService;
@@ -61,7 +62,8 @@ public abstract class ServicesTable extends BaseComponent {
         SERVICE_MAP.put("ResourceListServer", EditResourceListService.PAGE);
         SERVICE_MAP.put("SIPStatus", EditStatusService.PAGE);
         SERVICE_MAP.put("PageServer", EditPageService.PAGE);
-    }    
+        SERVICE_MAP.put("FreeSWITCH", EditFreeswitchService.PAGE);
+    }
 
     @InjectObject(value = "service:tapestry.ognl.ExpressionEvaluator")
     public abstract ExpressionEvaluator getExpressionEvaluator();
@@ -96,7 +98,7 @@ public abstract class ServicesTable extends BaseComponent {
     public abstract Object[] getServiceStatus();
 
     @Asset("/images/cog.png")
-    public abstract IAsset getServiceIcon();    
+    public abstract IAsset getServiceIcon();
 
     @Asset("/images/error.png")
     public abstract IAsset getErrorIcon();
@@ -109,10 +111,10 @@ public abstract class ServicesTable extends BaseComponent {
 
     @Asset("/images/disabled.png")
     public abstract IAsset getDisabledIcon();
-    
+
     @Asset("/images/loading.gif")
     public abstract IAsset getLoadingIcon();
-    
+
     public IAsset getStatusIcon(ServiceStatus status) {
         switch (status.getStatus()) {
         case ConfigurationMismatch:
@@ -148,7 +150,7 @@ public abstract class ServicesTable extends BaseComponent {
             return "";
         }
     }
-    
+
     @Override
     protected void prepareForRender(IRequestCycle cycle) {
         super.prepareForRender(cycle);
