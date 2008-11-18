@@ -100,6 +100,7 @@
       <replacefilter token="@sipxpbx.conf.dir@" property="sipxpbx.conf.dir" />
       <replacefilter token="@sipxpbx.log.dir@" property="sipxpbx.log.dir" />
       <replacefilter token="@sipxecs.java.dir@" property="sipxecs.java.dir" />
+      <replacefilter token="@sipxecs.thirdparty.dir@" property="sipxecs.thirdparty.dir" />
       <replacefilter token="@sipxpbx.var.dir@" property="sipxpbx.var.dir" />
       <replacefilter token="@sipxconfig.db.user@" property="sipxconfig.db.user" />
       <replacefilter token="@sipxconfig.upload.dir@" property="sipxconfig.upload.dir" />

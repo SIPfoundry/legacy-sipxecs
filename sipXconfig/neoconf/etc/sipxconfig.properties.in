@@ -89,6 +89,7 @@ sysdir.etc=@sipxpbx.conf.dir@
 sysdir.var=@sipxpbx.var.dir@
 sysdir.log=@sipxpbx.log.dir@
 sysdir.share=@sipxecs.java.dir@
+sysdir.thirdparty=@sipxecs.thirdparty.dir@
 sysdir.phone=@sipxconfig.phone.dir@
 sysdir.tmp=@sipxpbx.tmp.dir@
 sysdir.version=@version@

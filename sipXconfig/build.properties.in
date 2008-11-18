@@ -22,6 +22,7 @@ sipxpbx.download.dir=@SIPX_DOWNLOADDIR@
 sipxpbx.upgrade.dir=@SIPX_VARDIR@/upgrade
 sipxpbx.bin.dir=@SIPX_BINDIR@
 sipxecs.java.dir=@SIPX_JAVADIR@
+sipxecs.thirdparty.dir=@SIPX_DATADIR@
 sipxconfig.lib.dir=@SIPX_JAVADIR@/sipXconfig
 sipxpbx.process.dir=@SIPX_DATADIR@/process.d
 sipxpbx.alarms.strings.dir=@PREFIX@/share/sipxecs/alarms/

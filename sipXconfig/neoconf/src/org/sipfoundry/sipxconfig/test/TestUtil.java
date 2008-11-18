@@ -164,6 +164,7 @@ public final class TestUtil {
         sysProps.setProperty("sysdir.etc", etcDirectory);
         sysProps.setProperty("sysdir.data", outputDirectory);
         sysProps.setProperty("sysdir.share", outputDirectory);
+        sysProps.setProperty("sysdir.thirdparty", outputDirectory);
         sysProps.setProperty("sysdir.var", outputDirectory);
         sysProps.setProperty("sysdir.phone", outputDirectory);
         sysProps.setProperty("sysdir.tmp", outputDirectory + "/tmp");

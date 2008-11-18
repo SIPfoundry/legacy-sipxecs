@@ -10,7 +10,7 @@
     <property name="regionDir" value="${sysdir.etc}"/>
     <property name="promptsDir" value="${sysdir.doc}"/>
     <property name="binDir" value="${sysdir.bin}"/>
-    <property name="shareDir" value="${sysdir.share}"/>
+    <property name="thirdPartyDir" value="${sysdir.thirdparty}"/>
     <property name="defaultRegion" value="region_na" />
     <property name="defaultLanguage" value="en" />
     <property name="dialPlanContext" ref="dialPlanContext" />
