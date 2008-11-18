@@ -17,7 +17,7 @@
 
 // DEFINES
 // CONSTANTS
-const char* PROCESS_DEFINITION_NAME_PATTERN = ".*-process.xml";
+const char* PROCESS_DEFINITION_NAME_PATTERN = ".*-process.xml$";
 
 // STATICS
 OsBSem          SipxProcessManager::sSingletonLock(OsBSem::Q_PRIORITY, OsBSem::FULL);

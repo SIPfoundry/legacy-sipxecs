@@ -1123,12 +1123,8 @@ bool SipxProcess::configurationVersionMatches()
    else
    {
       OsSysLog::add(FAC_SUPERVISOR, PRI_INFO, "SipxProcess[%s]::configurationVersionMatches false:"
-                    " process '%s' != config '%s'",
+                    " software '%s' != config '%s'",
                     data(), mVersion.data(), mConfigVersion.data());
-      //@TODO: remove when sipXconfig sets version
-      OsSysLog::add(FAC_SUPERVISOR, PRI_INFO, "SipxProcess[%s]::configurationVersionMatches false, proceeding anyway",
-                    data());
-      versionMatches=true;
    }
    
    return versionMatches;
@@ -1148,7 +1144,7 @@ void SipxProcess::setConfigurationVersion(const UtlString& newConfigVersion)
 
       mConfigVersion = newConfigVersion;
       
-      OsPath persistentConfigVersionDirPath  // normally {prefix}/var/sipxecs/process-state
+      OsPath persistentConfigVersionDirPath  // normally {prefix}/var/sipxdata/process-cfgver
          = SipXecsService::Path(SipXecsService::VarDirType, SipxProcessConfigVersionDir);
    
       OsDir persistentConfigVersionDir(persistentConfigVersionDirPath);

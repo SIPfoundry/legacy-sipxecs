@@ -27,13 +27,13 @@ DISTCLEANFILES = \
 	$(CONFIG_DISTCLEANFILES)
 
 install-data-hook: \
-	$(DESTDIR)$(localstatedir)/sipxecs/process-state \
-	$(DESTDIR)$(localstatedir)/sipxecs/process-cfgver
+	$(DESTDIR)$(SIPX_VARDIR)/process-state \
+	$(DESTDIR)$(SIPX_VARDIR)/process-cfgver
 
-$(DESTDIR)$(localstatedir)/sipxecs/process-state:
-	test -d $(DESTDIR)$(localstatedir)/sipxecs/process-state \
-	|| $(INSTALL) -d $(DESTDIR)$(localstatedir)/sipxecs/process-state
+$(DESTDIR)$(SIPX_VARDIR)/process-state:
+	test -d $(DESTDIR)$(SIPX_VARDIR)/process-state \
+	|| $(INSTALL) -d $(DESTDIR)$(SIPX_VARDIR)/process-state
 
-$(DESTDIR)$(localstatedir)/sipxecs/process-cfgver:
-	test -d $(DESTDIR)$(localstatedir)/sipxecs/process-cfgver \
-	|| $(INSTALL) -d $(DESTDIR)$(localstatedir)/sipxecs/process-cfgver
+$(DESTDIR)$(SIPX_VARDIR)/process-cfgver:
+	test -d $(DESTDIR)$(SIPX_VARDIR)/process-cfgver \
+	|| $(INSTALL) -d $(DESTDIR)$(SIPX_VARDIR)/process-cfgver

@@ -92,6 +92,8 @@ $(foreach proc,$(SIPX_PROCESS_DEFS),$(proc)-process.xml) : % : %.in
 	@echo "Localize process definition: $*"
 	@$(LocalizeSipXconfig) $< > $@
 
+.PHONY: $(foreach proc,$(SIPX_PROCESS_DEFS),$(proc)-process.xml)
+
 ################################################################
 # Common pattern rules
 

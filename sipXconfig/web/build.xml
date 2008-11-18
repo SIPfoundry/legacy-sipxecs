@@ -227,7 +227,8 @@
     <property name="process.dir" value="${dest.dir}${sipxpbx.process.dir}"/>
     <mkdir dir="${process.dir}"/>
     <copy file="etc/sipxconfig-process.xml.in" 
-      tofile="${process.dir}/sipxconfig-process.xml"/>
+      tofile="${process.dir}/sipxconfig-process.xml"
+      overwrite="true"/>
     <replace file="${process.dir}/sipxconfig-process.xml" 
       propertyfile="${top.build.dir}/build.properties">
 

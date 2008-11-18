@@ -51,7 +51,6 @@ public:
          ASSERT_STR_EQUAL("Past", process->data());
          ASSERT_STR_EQUAL("1.0.0", process->mVersion.data());
          ASSERT_STR_EQUAL("0.9.0", process->mConfigVersion.data());
-         KNOWN_BUG("temporary pass until sipXconfig sets version", "XCF-000");
          CPPUNIT_ASSERT(!process->configurationVersionMatches());
       };
    
@@ -71,7 +70,6 @@ public:
          ASSERT_STR_EQUAL("Some", process->data());
          ASSERT_STR_EQUAL("1.0.0", process->mVersion.data());
          ASSERT_STR_EQUAL("", process->mConfigVersion.data());
-         KNOWN_BUG("temporary pass until sipXconfig sets version", "XCF-000");
          CPPUNIT_ASSERT(!process->configurationVersionMatches());
 
          UtlString sameCfgVersion("1.0.0");
