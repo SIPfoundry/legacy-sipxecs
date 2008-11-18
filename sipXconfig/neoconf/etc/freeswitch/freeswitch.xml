@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+<!DOCTYPE model PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN"
+  "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd">
+<model>
+  <group name="freeswitch-config">
+    <label>Freeswitch Configuration</label>
+    <setting name="FREESWITCH_CODECS">
+      <label>Codecs</label>
+      <value>PCMU@20i,PCMA@20i,speex,G722,L16</value>
+    </setting>
+    <setting name="FREESWITCH_SIP_PORT" advanced="yes">
+      <label>SIP Port</label>
+      <type>
+        <integer />
+      </type>
+      <value>15060</value>
+    </setting>
+    <setting name="FREESWITCH_XMLRPC_PORT" advanced="yes">
+      <label>XML/RPC Port</label>
+      <type>
+        <integer />
+      </type>
+      <value>8080</value>
+    </setting>
+    <setting name="FREESWITCH_SIP_DEBUG">
+      <label>Debug</label>
+      <type>
+        <boolean>
+          <true>
+            <value>1</value>
+          </true>
+          <false>
+            <value>0</value>
+          </false>
+        </boolean>
+      </type>
+      <value>0</value>
+    </setting>
+  </group>
+</model>

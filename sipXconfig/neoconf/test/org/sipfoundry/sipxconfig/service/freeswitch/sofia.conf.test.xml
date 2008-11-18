@@ -2,12 +2,12 @@
   <profiles>
     <profile name="example.org">
       <settings>
-        <param name="debug" value="${FREESWITCH_SIP_DEBUG}"/>
+        <param name="debug" value="0"/>
         <param name="rfc2833-pt" value="101"/>
-        <param name="sip-port" value="${FREESWITCH_SIP_PORT}"/>
+        <param name="sip-port" value="15060"/>
         <param name="dialplan" value="XML"/>
         <param name="dtmf-duration" value="100"/>
-        <param name="codec-prefs" value="${FREESWITCH_CODECS}"/>
+        <param name="codec-prefs" value="PCMU@20i,PCMA@20i,speex,G722,L16"/>
         <param name="codec-ms" value="20"/>
         <param name="use-rtp-timer" value="true"/>
         <param name="rtp-timer-name" value="soft"/>

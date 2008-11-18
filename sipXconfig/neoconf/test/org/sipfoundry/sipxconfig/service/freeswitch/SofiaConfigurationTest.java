@@ -11,6 +11,7 @@ import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.service.SipxFreeswitchService;
+import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.sipfoundry.sipxconfig.service.SipxServiceTestBase;
 
 import static org.easymock.EasyMock.createMock;
@@ -23,7 +24,13 @@ public class SofiaConfigurationTest extends SipxServiceTestBase {
 
     public void testWrite() throws Exception {
         SipxFreeswitchService service = new SipxFreeswitchService();
+        service.setModelDir("freeswitch");
+        service.setModelName("freeswitch.xml");
         initCommonAttributes(service);
+
+        SipxServiceManager sipxServiceManager = createMock(SipxServiceManager.class);
+        sipxServiceManager.getServiceByBeanId(SipxFreeswitchService.BEAN_ID);
+        expectLastCall().andReturn(service);
 
         DomainManager domainManager = createMock(DomainManager.class);
         domainManager.getDomain();
@@ -39,15 +46,16 @@ public class SofiaConfigurationTest extends SipxServiceTestBase {
         coreContext.getSpecialUser(MEDIA_SERVER);
         expectLastCall().andReturn(user);
 
-        replay(domainManager, coreContext);
+        replay(sipxServiceManager, domainManager, coreContext);
 
         SofiaConfiguration configuration = new SofiaConfiguration();
+        configuration.setSipxServiceManager(sipxServiceManager);
         configuration.setTemplate("freeswitch/sofia.conf.xml.vm");
         configuration.setDomainManager(domainManager);
         configuration.setCoreContext(coreContext);
 
         assertCorrectFileGeneration(configuration, "sofia.conf.test.xml");
 
-        verify(domainManager, coreContext);
+        verify(sipxServiceManager, domainManager, coreContext);
     }
 }

@@ -29,13 +29,12 @@
     </property>
   </bean>
 
-  <bean id="abstractService" class="org.sipfoundry.sipxconfig.service.ConfiguredService" scope="prototype"
-    parent="beanWithSettings" abstract="true">
+  <bean id="abstractService" class="org.sipfoundry.sipxconfig.service.ConfiguredService" scope="prototype" parent="beanWithSettings"
+    abstract="true">
     <property name="descriptorSource" ref="nakedServiceDescriptorSource" />
   </bean>
 
-  <bean id="unmanagedService" class="org.sipfoundry.sipxconfig.service.UnmanagedService" scope="prototype"
-    parent="abstractService">
+  <bean id="unmanagedService" class="org.sipfoundry.sipxconfig.service.UnmanagedService" scope="prototype" parent="abstractService">
   </bean>
 
   <bean id="unmanagedServiceDescriptor" abstract="true" class="org.sipfoundry.sipxconfig.service.ServiceDescriptor">
@@ -55,20 +54,20 @@
     <property name="sessionFactory" ref="sessionFactory" />
     <property name="sipxReplicationContext" ref="sipxReplicationContext" />
     <!-- real value injected by sipxconfig.properties -->
-	<property name="host" value="localhost" />
-	<property name="locationsManager" ref="locationsManager" />
-	<property name="processManagerApiProvider" ref="processManagerApiProvider" />
+    <property name="host" value="localhost" />
+    <property name="locationsManager" ref="locationsManager" />
+    <property name="processManagerApiProvider" ref="processManagerApiProvider" />
   </bean>
 
   <bean id="sipxServiceManager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
     <property name="proxyInterfaces">
-      <value>org.sipfoundry.sipxconfig.service.SipxServiceManager</value>
+      <value>org.sipfoundry.sipxconfig.service.SipxServiceManager
+      </value>
     </property>
     <property name="target" ref="sipxServiceManagerImpl" />
   </bean>
 
-  <bean id="locationSpecificServiceInitTrigger"
-    class="org.sipfoundry.sipxconfig.service.LocationSpecificServiceInitTrigger">
+  <bean id="locationSpecificServiceInitTrigger" class="org.sipfoundry.sipxconfig.service.LocationSpecificServiceInitTrigger">
     <property name="locationManager" ref="locationsManager" />
     <property name="sipxServiceManager" ref="sipxServiceManager" />
     <property name="taskNames">
@@ -122,14 +121,13 @@
     <property name="domainManager" ref="domainManager" />
   </bean>
 
-  <bean id="sipxRegistrarConfiguration" class="org.sipfoundry.sipxconfig.service.SipxRegistrarConfiguration"
-    scope="prototype" parent="serviceConfigurationFile">
+  <bean id="sipxRegistrarConfiguration" class="org.sipfoundry.sipxconfig.service.SipxRegistrarConfiguration" scope="prototype"
+    parent="serviceConfigurationFile">
     <property name="template" value="sipxregistrar/registrar-config.vm" />
     <property name="name" value="registrar-config" />
   </bean>
 
-  <bean id="sipxParkService" class="org.sipfoundry.sipxconfig.service.SipxParkService" parent="sipxService"
-    scope="prototype">
+  <bean id="sipxParkService" class="org.sipfoundry.sipxconfig.service.SipxParkService" parent="sipxService" scope="prototype">
     <property name="beanId" value="sipxParkService" />
     <property name="modelName" value="sipxpark.xml" />
     <property name="modelDir" value="sipxpark" />
@@ -159,14 +157,14 @@
     <property name="sipxServiceManager" ref="sipxServiceManager" />
   </bean>
 
-  <bean id="sipxPresenceConfiguration" class="org.sipfoundry.sipxconfig.service.SipxPresenceConfiguration"
-    scope="prototype" parent="serviceConfigurationFile">
+  <bean id="sipxPresenceConfiguration" class="org.sipfoundry.sipxconfig.service.SipxPresenceConfiguration" scope="prototype"
+    parent="serviceConfigurationFile">
     <property name="template" value="sipxpresence/sipxpresence-config.vm" />
     <property name="name" value="sipxpresence-config" />
   </bean>
 
-  <bean id="sipxCallResolverService" class="org.sipfoundry.sipxconfig.service.SipxCallResolverService"
-    parent="sipxService" scope="prototype">
+  <bean id="sipxCallResolverService" class="org.sipfoundry.sipxconfig.service.SipxCallResolverService" parent="sipxService"
+    scope="prototype">
     <property name="beanId" value="sipxCallResolverService" />
     <property name="modelName" value="sipxcallresolver.xml" />
     <property name="modelDir" value="sipxcallresolver" />
@@ -183,8 +181,7 @@
     <property name="name" value="callresolver-config" />
   </bean>
 
-  <bean id="sipxIvrService" class="org.sipfoundry.sipxconfig.service.SipxIvrService" parent="sipxService"
-    scope="prototype">
+  <bean id="sipxIvrService" class="org.sipfoundry.sipxconfig.service.SipxIvrService" parent="sipxService" scope="prototype">
     <property name="beanId" value="sipxIvrService" />
     <property name="modelName" value="sipxivr.xml" />
     <property name="modelDir" value="sipxivr" />
@@ -225,14 +222,13 @@
     <property name="name" value="status-config" />
   </bean>
 
-  <bean id="statusPluginConfiguration" class="org.sipfoundry.sipxconfig.service.StatusPluginConfiguration"
-    scope="prototype" parent="serviceConfigurationFile">
+  <bean id="statusPluginConfiguration" class="org.sipfoundry.sipxconfig.service.StatusPluginConfiguration" scope="prototype"
+    parent="serviceConfigurationFile">
     <property name="template" value="sipxstatus/status-plugin.vm" />
     <property name="name" value="status-plugin.xml" />
   </bean>
 
-  <bean id="sipxRlsService" class="org.sipfoundry.sipxconfig.service.SipxRlsService" scope="prototype"
-    parent="sipxService">
+  <bean id="sipxRlsService" class="org.sipfoundry.sipxconfig.service.SipxRlsService" scope="prototype" parent="sipxService">
     <property name="beanId" value="sipxRlsService" />
     <property name="modelName" value="sipxrls.xml" />
     <property name="modelDir" value="sipxrls" />
@@ -249,8 +245,7 @@
     <property name="name" value="sipxrls-config" />
   </bean>
 
-  <bean id="sipxMediaService" class="org.sipfoundry.sipxconfig.service.SipxMediaService" scope="prototype"
-    parent="sipxService">
+  <bean id="sipxMediaService" class="org.sipfoundry.sipxconfig.service.SipxMediaService" scope="prototype" parent="sipxService">
     <property name="beanId" value="sipxMediaService" />
     <property name="modelName" value="mediaserver.xml" />
     <property name="modelDir" value="sipxvxml" />
@@ -267,8 +262,7 @@
     <property name="name" value="mediaserver-config" />
   </bean>
 
-  <bean id="sipxPageService" class="org.sipfoundry.sipxconfig.service.SipxPageService" scope="prototype"
-    parent="sipxService">
+  <bean id="sipxPageService" class="org.sipfoundry.sipxconfig.service.SipxPageService" scope="prototype" parent="sipxService">
     <property name="beanId" value="sipxPageService" />
     <property name="modelName" value="sipxpage.xml" />
     <property name="modelDir" value="sipxpage" />
@@ -284,8 +278,7 @@
     <property name="beanId" value="sipxConfigService" />
   </bean>
 
-  <bean id="sipxAcdService" class="org.sipfoundry.sipxconfig.service.SipxAcdService" scope="prototype"
-    parent="sipxService">
+  <bean id="sipxAcdService" class="org.sipfoundry.sipxconfig.service.SipxAcdService" scope="prototype" parent="sipxService">
     <property name="beanId" value="sipxAcdService" />
   </bean>
 
@@ -302,6 +295,8 @@
   <bean id="sipxFreeswitchService" class="org.sipfoundry.sipxconfig.service.SipxFreeswitchService" scope="prototype"
     parent="sipxService">
     <property name="beanId" value="sipxFreeswitchService" />
+    <property name="modelName" value="freeswitch.xml" />
+    <property name="modelDir" value="freeswitch" />
     <property name="configurations">
       <list>
         <ref bean="defaultContextConfiguration" />
@@ -320,15 +315,14 @@
 
   <bean id="sofiaConfiguration" parent="serviceConfigurationFile"
     class="org.sipfoundry.sipxconfig.service.freeswitch.SofiaConfiguration" scope="prototype">
-    <property name="name" value="sofia.conf.xml.in" />
+    <property name="name" value="sofia.conf.xml" />
     <property name="template" value="freeswitch/sofia.conf.xml.vm" />
     <property name="directory" value="${sysdir.freeswitch}/conf" />
     <property name="coreContext" ref="coreContext" />
     <property name="domainManager" ref="domainManager" />
   </bean>
 
-  <bean id="sipxRelayService" class="org.sipfoundry.sipxconfig.service.SipxRelayService" scope="prototype"
-    parent="sipxService">
+  <bean id="sipxRelayService" class="org.sipfoundry.sipxconfig.service.SipxRelayService" scope="prototype" parent="sipxService">
     <property name="beanId" value="sipxRelayService" />
   </bean>
 </beans>

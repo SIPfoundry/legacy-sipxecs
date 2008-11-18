@@ -12,11 +12,13 @@ import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
+import org.sipfoundry.sipxconfig.service.SipxFreeswitchService;
+import org.sipfoundry.sipxconfig.service.SipxService;
 import org.sipfoundry.sipxconfig.service.SipxServiceConfiguration;
+import org.sipfoundry.sipxconfig.setting.Setting;
 import org.springframework.beans.factory.annotation.Required;
 
 import static org.sipfoundry.sipxconfig.common.SpecialUser.SpecialUserType.MEDIA_SERVER;
-
 
 public class SofiaConfiguration extends SipxServiceConfiguration {
 
@@ -32,6 +34,10 @@ public class SofiaConfiguration extends SipxServiceConfiguration {
 
         User user = m_coreContext.getSpecialUser(MEDIA_SERVER);
         context.put("userMedia", user);
+
+        SipxService service = getService(SipxFreeswitchService.BEAN_ID);
+        Setting freeswitchConfig = service.getSettings().getSetting("freeswitch-config");
+        context.put("settings", freeswitchConfig);
 
         return context;
     }
