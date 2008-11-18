@@ -29,13 +29,11 @@ import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.domain.Domain;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.service.LocationSpecificService;
-import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 
 // FIXME: it only test domain manager initialization for now
 public class FirstRunTaskTestIntegration extends IntegrationTestCase {
     private DomainManager m_domainManager;
     private LocationsManager m_locationsManager;
-    private SipxServiceManager m_sipxServiceManager;
     private FirstRunTask m_firstRun;
 
     public void setDomainManager(DomainManager domainManager) {
@@ -44,10 +42,6 @@ public class FirstRunTaskTestIntegration extends IntegrationTestCase {
 
     public void setLocationsManager(LocationsManager locationsManager) {
         m_locationsManager = locationsManager;
-    }
-
-    public void setSipxServiceManager(SipxServiceManager sipxServiceManager) {
-        m_sipxServiceManager = sipxServiceManager;
     }
 
     public void setFirstRun(FirstRunTask firstRun) {
@@ -102,7 +96,6 @@ public class FirstRunTaskTestIntegration extends IntegrationTestCase {
         EasyMock.replay(domainManager, adminContext, dialPlanContext, coreContext, alarmContext);
 
         loadDataSetXml("admin/commserver/seedLocationsAndServices.xml");
-        m_firstRun.setSipxServiceManager(m_sipxServiceManager);
         m_firstRun.setLocationsManager(m_locationsManager);
 
         SipxProcessContext processContext = EasyMock.createMock(SipxProcessContext.class);

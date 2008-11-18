@@ -30,7 +30,6 @@ import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.gateway.GatewayContext;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.service.LocationSpecificService;
-import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
@@ -49,7 +48,6 @@ public class FirstRunTask implements ApplicationListener {
     private PhoneContext m_phoneContext;
     private ProfileManager m_gatewayProfileManager;
     private ProfileManager m_phoneProfileManager;
-    private SipxServiceManager m_sipxServiceManager;
     private LocationsManager m_locationsManager;
 
     public void runTask() {
@@ -192,13 +190,7 @@ public class FirstRunTask implements ApplicationListener {
     }
 
     @Required
-    public void setSipxServiceManager(SipxServiceManager sipxServiceManager) {
-        m_sipxServiceManager = sipxServiceManager;
-    }
-
-    @Required
     public void setLocationsManager(LocationsManager locationsManager) {
         m_locationsManager = locationsManager;
     }
-
 }

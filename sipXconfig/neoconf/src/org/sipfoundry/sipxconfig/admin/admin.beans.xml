@@ -67,7 +67,6 @@
     <property name="phoneProfileManager" ref="phoneProfileManager" />
     <property name="taskName" value="first-run" />
     <property name="locationsManager" ref="locationsManager" />
-    <property name="sipxServiceManager" ref="sipxServiceManager" />
   </bean>
 
   <bean id="exportCsv" class="org.sipfoundry.sipxconfig.admin.ExportCsv">
