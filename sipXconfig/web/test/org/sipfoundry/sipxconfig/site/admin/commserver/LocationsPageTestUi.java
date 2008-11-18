@@ -12,6 +12,7 @@ public class LocationsPageTestUi extends WebTestCase {
         return SiteTestHelper.webTestSuite(LocationsPageTestUi.class);
     }
 
+    @Override
     protected void setUp() throws Exception {
         getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
         SiteTestHelper.home(getTester());
@@ -19,25 +20,25 @@ public class LocationsPageTestUi extends WebTestCase {
         clickLink("toggleNavigation");
         clickLink("menu.locations");
     }
-    
+
     public void testDisplay() {
         SiteTestHelper.assertNoUserError(tester);
         assertTextPresent("host.example.org");
     }
-    
+
     public void testAddLocation() {
         SiteTestHelper.assertNoUserError(tester);
         clickLink("locations:add");
         SiteTestHelper.assertNoUserError(tester);
-        setTextField("location:name", "newLocation");
+        setTextField("location:description", "newLocation");
         setTextField("location:address", "192.168.1.1");
         setTextField("location:fqdn", "another.example.org");
         clickButton("form:ok");
-        
+
         SiteTestHelper.assertNoUserError(tester);
         assertTextPresent("another.example.org");
     }
-    
+
     public void testDeleteLocation() {
         SiteTestHelper.assertNoUserError(tester);
         setWorkingForm("Form");

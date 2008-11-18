@@ -12,13 +12,13 @@
     </ul>
     <table jwcid="@common/Table" id="locations:list"
       source="ognl:locations"
-      columns="* name, address, fqdn"
+      columns="* name, address, description:name"
       row="ognl:currentRow"
       selections="bean:selections">
       <span jwcid="nameColumnValue@Block">
         <span jwcid="editLocationLink@DirectLink"
             listener="listener:editLocation" parameters="ognl:currentRow.id">
-          <span jwcid="@Insert" value="ognl:currentRow.name"/>
+          <span jwcid="@Insert" value="ognl:currentRow.fqdn"/>
         </span>
       </span>
     </table>

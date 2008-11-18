@@ -2,15 +2,15 @@
   <table>
     <tbody>
       <tr jwcid="@common/FieldPanel"
-        for="location:name"
-        label="message:label.name"
-        field="component:name"
-        description="message:description.name" >
-        <input jwcid="name@TextField"
-          id="location:name"
-          value="ognl:locationBean.name"
+        for="location:fqdn"
+        label="message:label.fqdn"
+        field="component:fqdn"
+        description="message:description.fqdn" >
+        <input jwcid="fqdn@TextField"
+          id="location:fqdn"
+          value="ognl:locationBean.fqdn"
           validators="spring-validators:required"
-          displayName="message:label.name"/>
+          displayName="message:label.fqdn"/>
       </tr>
       <tr jwcid="@common/FieldPanel"
         for="location:address"
@@ -24,15 +24,16 @@
           displayName="message:label.address"/>
       </tr>
       <tr jwcid="@common/FieldPanel"
-        for="location:fqdn"
-        label="message:label.fqdn"
-        field="component:fqdn"
-        description="message:description.fqdn" >
-        <input jwcid="fqdn@TextField"
-          id="location:fqdn"
-          value="ognl:locationBean.fqdn"
-          validators="spring-validators:required"
-          displayName="message:label.fqdn"/>
+        for="location:description"
+        field="component:description"
+        label="message:description">
+        <textarea jwcid="description@TextArea"
+          id="location:description"
+          value="ognl:locationBean.name"
+          validators="validators:required,maxLength=255"
+          displayName="message:description"
+          cols="45" rows="5">
+        </textarea>
       </tr>
     </tbody>
   </table>
