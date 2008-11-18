@@ -2,7 +2,7 @@
   <span jwcid="@If" condition="ognl:auto">
     <span jwcid="@Script"
       scriptAsset="asset:autoRefreshFormScript"
-      interval="ognl:interval"
+      interval="ognl:currentInterval"
       refreshButton="component:refresh"/>
   </span>
   <ul class="component-links">
@@ -19,7 +19,7 @@
         translator="sipxnumber,omitZero=true"/>&nbsp;
 -->
       <span key="refreshEvery">Refresh every</span>&nbsp;
-      <span jwcid="interval@InlineEditBox" value="ognl:interval" maxlength="4" size="4"/>&nbsp;
+      <span jwcid="interval@InlineEditBox" value="ognl:currentInterval" maxlength="4" size="4"/>&nbsp;
       <span key="seconds">seconds</span>
     </li>
   </ul>
