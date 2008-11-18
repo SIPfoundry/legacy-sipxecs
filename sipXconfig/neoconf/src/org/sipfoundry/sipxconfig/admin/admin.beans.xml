@@ -79,4 +79,15 @@
   <bean id="defaultConfigurationFile" abstract="true">
     <property name="directory" value="${sysdir.etc}" />
   </bean>
+
+  <bean id="packageUpdateManagerImpl" class="org.sipfoundry.sipxconfig.admin.PackageUpdateManagerImpl">
+    <property name="adminContext" ref="adminContext" />
+  </bean>
+
+  <bean id="packageUpdateManager" class="org.springframework.aop.framework.ProxyFactoryBean">
+    <property name="target">
+        <ref local="packageUpdateManagerImpl" />
+    </property>
+  </bean>
+
 </beans>

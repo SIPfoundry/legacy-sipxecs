@@ -81,6 +81,7 @@ AC_CONFIG_FILES([
   doc/Makefile
   meta/Makefile
   src/sipxrestorebinary/Makefile
+  src/sipxpackage/Makefile
   src/sipxchangedate/Makefile
 ])
 AC_OUTPUT

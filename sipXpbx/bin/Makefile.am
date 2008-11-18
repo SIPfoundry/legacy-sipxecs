@@ -8,6 +8,7 @@ bin_SCRIPTS = \
 	 sipx-snapshot \
 	 sipx-backup \
 	 sipx-restore \
+	 sipx-package.py \
 	 sipx-sendmail-configure \
 	 sipxlocalization \
 	 check-fqdn \
@@ -41,7 +42,9 @@ SCRIPT_TEMPLATES = \
 
 PythonScripts = \
 	sipx-setup.in \
-	sipx-setup-system.in
+	sipx-setup-system.in \
+	sipx-package.py.in
+	
 
 EXTRA_DIST = \
 	sipx-core-clean.in \

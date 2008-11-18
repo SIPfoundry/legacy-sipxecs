@@ -1,0 +1,64 @@
+<div jwcid="@common/Border">
+    <span jwcid="@Script" scriptAsset="asset:script" />
+    <h1><span key="title">Software Updates</span></h1>
+
+    <form jwcid="@common/AutoRefreshForm" interval="10" componentsToUpdate="ognl:{'packageList'}" >
+	    <div id="updateBox">
+	        <h3 id="statusText"><span jwcid="@Insert" value="ognl:messages.getMessage(packageUpdateManager.state)">No updates available</span></h3>
+	        
+	        <div jwcid="@If" condition="ognl:packageUpdateManager.state.showProgressBar">
+	            <br/>
+	            <img id="loadingIndicator" jwcid="@Image" image="asset:progressBar" />
+	        </div>
+	        <div jwcid="@Else">
+		        <div jwcid="@If" condition="ognl:packageUpdateManager.lastCheckedDate != null" id="lastChecked">
+                   The package information was last updated 
+		           <b><span jwcid="@Insert" value="ognl:packageUpdateManager.lastCheckedDate" format="ognl:dateFormat" /></b>.	           
+		        </div>
+		        <div id="currentVersion">
+		           The system is currently running
+		           <b><span jwcid="@Insert" value="ognl:currentVersion" /></b>.
+	            </div>
+		        <div jwcid="@If" condition="ognl:packageUpdateManager.updatedVersion != null" 
+		             id="availableVersion">
+		             <br/>
+		               <b>Update details:</b>
+		               <div id="newVersion">
+		                  <img jwcid="@Image" image="asset:newSoftwareIcon" align="absmiddle" />
+		                  <span jwcid="@Insert" value="ognl:packageUpdateManager.updatedVersion" />
+		               </div>
+		        </div>
+	        </div>
+	        
+	    <br/>
+        <input jwcid="@Submit" listener="listener:checkForUpdates" value="Check for updates" />
+         
+        <span jwcid="@If" condition="ognl:readyToInstall" renderTag="ognl:false"> 
+            <input jwcid="@Submit" listener="listener:installUpdates" disabled="ognl:!readyToInstall" value="Install updates" />
+        </span>
+	    </div>
+    </form>     
+        
+    <br/><br/>
+	
+	<div jwcid="@Any" id="packageList" style="display: none;">
+		<span jwcid="@If" condition="ognl:packageUpdateManager.availablePackages != null && !packageUpdateManager.availablePackages.isEmpty()">
+		    <b>Packages to be updated:</b> <br/>	
+            <table jwcid="tableView@common/Table"
+                   columns="packageName,currentVersion,updatedVersion"
+                   row="ognl:package" source="ognl:packageUpdateManager.availablePackages">
+                <span jwcid="packageNameColumnValue@Block">
+                    <img jwcid="@Image" image="asset:packageIcon" align="top" />
+                    <span jwcid="@Insert" value="ognl:package.packageName" />
+                </span>
+                <span jwcid="currentVersionColumnValue@Block">
+                    <i><span jwcid="@Insert" value="ognl:package.currentVersion" /></i>
+                </span>
+                <span jwcid="updatedVersionColumnValue@Block">
+                    <b><span jwcid="@Insert" value="ognl:package.updatedVersion" /></b>
+                </span>
+            </table>
+            
+	    </span>
+	</div>
+</div>

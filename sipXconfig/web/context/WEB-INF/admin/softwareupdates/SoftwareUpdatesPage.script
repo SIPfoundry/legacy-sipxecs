@@ -1,0 +1,46 @@
+<?xml version="1.0"?>
+<!DOCTYPE script PUBLIC
+    "-//Apache Software Foundation//Tapestry Script Specification 3.0//EN"
+    "http://jakarta.apache.org/tapestry/dtd/Script_3_0.dtd">
+<script>
+    <body>
+    <![CDATA[
+        function installPackageUpdates(form) {
+            dojo.byId("lastChecked").style.display = "none";
+            dojo.byId("currentVersion").style.display = "none";
+            dojo.byId("statusText").innerHTML = "Downloading and installing software updates...";
+            dojo.byId("updateInfo").style.display = "none";
+            dojo.byId("loadingIndicator").style.display = "block";
+            
+            form.submit();
+        }
+    
+        function updatePackageList(form) {
+            var lastChecked = dojo.byId("lastChecked");
+            if (lastChecked) {
+                lastChecked.style.display = "none";
+            }
+            
+            dojo.byId("currentVersion").style.display = "none";
+        
+            dojo.byId("statusText").innerHTML = "Checking for updated packages...";
+            dojo.byId("loadingIndicator").style.display = "block";            
+            form.submit();
+        }
+        
+        function togglePackageList(link) {
+            var packageList = dojo.byId("packageList");
+            if (packageList.style.display == "none") {
+                packageList.style.display = "block";
+                link.innerHTML = "hide details";
+            } else { 
+                packageList.style.display = "none";
+                link.innerHTML = "show details";
+            }
+        }        
+    
+    ]]>
+    </body>
+    <initialization>
+    </initialization>
+</script>

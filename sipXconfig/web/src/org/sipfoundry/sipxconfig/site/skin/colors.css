@@ -340,3 +340,24 @@ div.autocomplete ul strong.highlight {
     font-weight: bold;
     color: #CC3333; 
 }
+
+#updateBox {
+	width: 500px;
+    border: 1px solid #243942;
+    background: #EFF3F6;
+    padding: 10px;
+}
+
+#updateBox h3 {
+    margin: 0;	
+}
+
+#updateBox #statusText {
+	font-weight: bold;
+}
+
+#updateBox #newVersion {
+    font-size: 18px;
+    font-weight: bold;
+    color: #003333;
+}
