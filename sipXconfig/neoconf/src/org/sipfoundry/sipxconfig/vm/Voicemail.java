@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.vm;
@@ -20,7 +20,6 @@ import java.text.ParseException;
 import java.util.Date;
 
 import com.thoughtworks.xstream.XStream;
-import com.thoughtworks.xstream.annotations.Annotations;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.converters.basic.DateConverter;
 import com.thoughtworks.xstream.io.xml.DomDriver;
@@ -31,38 +30,29 @@ import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.common.XstreamFieldMapper;
 
 /**
- * LEGEND INTO FILE DIRECTORY
- * ========================================= 
- * For the 18th message in a voicemail box
- * 
- * 00000018-00.sta
- *  zero length file, exists only if message is unheard
+ * LEGEND INTO FILE DIRECTORY ========================================= For the 18th message in a
+ * voicemail box
  *
- * 00000018-00.wav
- *  if forwarded
- *    represent the comment, NOTE: can be zero if no comment was left
- *  else
- *    voicemail message media
+ * 00000018-00.sta zero length file, exists only if message is unheard
  *
- * 00000018-00.xml
- *  message or comment details
+ * 00000018-00.wav if forwarded represent the comment, NOTE: can be zero if no comment was left
+ * else voicemail message media
  *
- * 00000018-01.wav
- *  original message without comment NOTE: only exists for forwarded messages
- * 
- * 00000018-01.xml
- *  original message details NOTE: only exists for forwarded messages
+ * 00000018-00.xml message or comment details
  *
- * 00000018-FW.wav
- *  original message plus comment  NOTE: only exists for forwarded messages
+ * 00000018-01.wav original message without comment NOTE: only exists for forwarded messages
+ *
+ * 00000018-01.xml original message details NOTE: only exists for forwarded messages
+ *
+ * 00000018-FW.wav original message plus comment NOTE: only exists for forwarded messages
  *
  */
 public class Voicemail implements Comparable {
-    private String m_messageId;
+    private final String m_messageId;
     private MessageDescriptor m_descriptor;
     private MessageDescriptor m_forwardedDescriptor;
-    private File m_mailbox;
-    private File m_userDirectory;
+    private final File m_mailbox;
+    private final File m_userDirectory;
 
     public Voicemail(File mailstoreDirectory, String userId, String folderId, String messageId) {
         m_userDirectory = new File(mailstoreDirectory, userId);
@@ -204,22 +194,22 @@ public class Voicemail implements Comparable {
     /**
      * Element order is not preserved!!!
      */
-    protected static void writeMessageDescriptor(MessageDescriptor md, OutputStream out)
-        throws IOException {
+    protected static void writeMessageDescriptor(MessageDescriptor md, OutputStream out) throws IOException {
         XStream xstream = getXmlSerializer();
-        // See http://xstream.codehaus.org/faq.html#XML   
-        // Section  "Why does XStream not write XML in UTF-8?"
+        // See http://xstream.codehaus.org/faq.html#XML
+        // Section "Why does XStream not write XML in UTF-8?"
         out.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n".getBytes());
         xstream.toXML(md, out);
     }
 
     protected static XStream getXmlSerializer() {
         XStream xstream = new XStream(new DomDriver()) {
+            @Override
             protected MapperWrapper wrapMapper(MapperWrapper next) {
                 return new XstreamFieldMapper(next);
             }
         };
-        Annotations.configureAliases(xstream, MessageDescriptor.class);
+        xstream.processAnnotations(MessageDescriptor.class);
 
         String[] acceptableTimeFormat = new String[] {
             MessageDescriptor.TIMESTAMP_FORMAT_NO_ZONE
@@ -227,8 +217,7 @@ public class Voicemail implements Comparable {
         // NOTE: xtream's dateformatter uses fixed ENGLISH Locale, which
         // turns out is ok because mediaserver writes out timestamp in a fixed
         // format independent of OS locale.
-        xstream.registerConverter(new DateConverter(MessageDescriptor.TIMESTAMP_FORMAT,
-                acceptableTimeFormat));
+        xstream.registerConverter(new DateConverter(MessageDescriptor.TIMESTAMP_FORMAT, acceptableTimeFormat));
 
         return xstream;
     }
@@ -283,7 +272,7 @@ public class Voicemail implements Comparable {
     }
 
     protected static class FileFilterByMessageId implements FilenameFilter {
-        private String m_messageIdPrefix;
+        private final String m_messageIdPrefix;
 
         FileFilterByMessageId(String messageId) {
             m_messageIdPrefix = messageId + "-";
