@@ -422,7 +422,6 @@ public class SiteTestHelper {
         return row.getCellCount();
     }
 
-    @SuppressWarnings("deprecation")
     public static void clickSubmitLink(WebTester tester, String linkName) {
         tester.setTextField(FormConstants.SUBMIT_NAME_PARAMETER, linkName);
         tester.submitForm();

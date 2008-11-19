@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.site.user;
@@ -19,7 +19,7 @@ import org.apache.tapestry.callback.ICallback;
 
 public class SelectUsersCallback implements ICallback {
 
-    private String m_pageName;
+    private final String m_pageName;
 
     private String m_idsPropertyName;
 
@@ -50,10 +50,9 @@ public class SelectUsersCallback implements ICallback {
 
     /**
      * Overwrite to set additional page properties
-     * 
+     *
      * @param page_ to be activated
      */
-    @SuppressWarnings("unused")
     protected void beforeActivation(AbstractPage page_) {
         // do nothing by default
     }
