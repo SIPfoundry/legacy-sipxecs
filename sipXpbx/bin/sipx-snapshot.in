@@ -358,6 +358,9 @@ cat > $Work.copy-files <<EOF
 /etc/crontab
 /etc/sendmail.cf
 @SIPX_RUNDIR@
+@SIPX_VARDIR@/process-state
+@SIPX_VARDIR@/process-cfgver
+@SIPX_DATADIR@/process.d
 /var/log/yum.log
 /etc/yum.conf
 /etc/yum
