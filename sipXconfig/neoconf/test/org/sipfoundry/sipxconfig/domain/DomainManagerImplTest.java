@@ -16,7 +16,6 @@ import junit.framework.TestCase;
 import org.easymock.EasyMock;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
-import org.sipfoundry.sipxconfig.admin.commserver.SipxServer;
 import org.sipfoundry.sipxconfig.service.SipxRegistrarService;
 import org.sipfoundry.sipxconfig.service.SipxService;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
@@ -32,11 +31,6 @@ public class DomainManagerImplTest extends TestCase {
 
     public void testSaveDomain() {
         Domain domain = new Domain("goose");
-
-        final SipxServer server = createMock(SipxServer.class);
-        server.setDomainName("goose");
-        //server.setRegistrarDomainAliases(null);
-        server.applySettings();
 
         HibernateTemplate db = createMock(HibernateTemplate.class);
         db.findByNamedQuery("domain");
@@ -54,7 +48,7 @@ public class DomainManagerImplTest extends TestCase {
         replicationContext.replicate(null);
         EasyMock.expectLastCall().anyTimes();
 
-        replay(server, db, replicationContext, serviceManager);
+        replay(db, replicationContext, serviceManager);
         // TEST DELETE EXISTING
         DomainManagerImpl mgr = new DomainManagerImpl() {
             @Override
@@ -65,11 +59,6 @@ public class DomainManagerImplTest extends TestCase {
             @Override
             protected DomainConfiguration createDomainConfiguration() {
                 return new DomainConfiguration();
-            }
-
-            @Override
-            protected SipxServer getServer() {
-                return server;
             }
 
             @Override
@@ -87,22 +76,19 @@ public class DomainManagerImplTest extends TestCase {
         mgr.setHibernateTemplate(db);
         mgr.saveDomain(domain);
 
-        verify(server, db);
+        verify(db);
 
-        reset(server, db);
+        reset(db);
 
         // TEST IGNORE EXISTING (assumes there is no other, doesn't care actually)
         domain.setUniqueId(); // isNew!
-        server.setDomainName("goose");
-        //server.setRegistrarDomainAliases(null);
-        server.applySettings();
 
         db.saveOrUpdate(domain);
         db.flush();
-        replay(server, db);
+        replay(db);
 
         mgr.saveDomain(domain);
 
-        verify(server, db);
+        verify(db);
     }
 }

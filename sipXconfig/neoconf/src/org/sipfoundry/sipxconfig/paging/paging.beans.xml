@@ -13,7 +13,6 @@
 
   <bean id="pagingServer" class="org.sipfoundry.sipxconfig.paging.PagingServer" scope="prototype">
     <property name="prefix" value="*77" />
-    <property name="sipxServer" ref="sipxServer" />
     <property name="sipTraceLevel" value="NONE" />
   </bean>
 

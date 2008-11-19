@@ -84,6 +84,7 @@ public class NT1535Phone extends Phone {
             super(phone, name);
         }
 
+        @Override
         protected ProfileContext createContext(Device device) {
             return new ProfileContext(device, "nt1535/mac.cfg.vm");
         }
@@ -94,6 +95,7 @@ public class NT1535Phone extends Phone {
             super(phone, name);
         }
 
+        @Override
         protected ProfileContext createContext(Device device) {
             return new ProfileContext(device, "nt1535/sysconf_2890d_sip.cfg.vm");
         }
@@ -118,8 +120,8 @@ public class NT1535Phone extends Phone {
         private static final String VOIP_PROXY_ADDRESS = "VOIP/proxy_address";
         private static final String VOIP_PROXY_PORT = "VOIP/proxy_port";
 
-        private Line m_line;
-        private DeviceDefaults m_defaults;
+        private final Line m_line;
+        private final DeviceDefaults m_defaults;
 
         NT1535LineDefaults(DeviceDefaults defaults, Line line) {
             m_line = line;
@@ -190,7 +192,7 @@ public class NT1535Phone extends Phone {
         private static final String LAN_TFTP_SERVER_ADDRESS = "LAN/tftp_server_address";
         private static final String NETTIME_SNTP_SERVER_ADDRESS = "NETTIME/sntp_server_address";
 
-        private DeviceDefaults m_defaults;
+        private final DeviceDefaults m_defaults;
 
         NT1535PhoneDefaults(DeviceDefaults defaults) {
             m_defaults = defaults;
@@ -223,8 +225,7 @@ public class NT1535Phone extends Phone {
 
         @SettingEntry(path = VOIP_MOH_URL)
         public String getMohUrl() {
-            String mohUri = m_defaults.getSipxServer().getMusicOnHoldUri(
-                    m_defaults.getDomainName());
+            String mohUri = m_defaults.getMusicOnHoldUri(m_defaults.getDomainName());
             return SipUri.stripSipPrefix(mohUri);
         }
     }

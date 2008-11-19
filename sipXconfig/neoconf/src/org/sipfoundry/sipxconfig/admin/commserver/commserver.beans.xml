@@ -2,13 +2,6 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
-  <bean id="sipxServer"
-    class="org.sipfoundry.sipxconfig.admin.commserver.SipxServer"
-    parent="beanWithSettings">
-    <property name="configDirectory" value="${sysdir.etc}" />
-    <!-- default music-on-hold user -->
-    <property name="mohUser" value="~~mh~" />
-  </bean>
 
   <bean id="locationsManagerImpl"
     class="org.sipfoundry.sipxconfig.admin.commserver.LocationsManagerImpl">

@@ -1,10 +1,10 @@
 /*
  *
  *
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.phone.ipdialog;
@@ -87,6 +87,7 @@ public class IpDialogPhone extends Phone {
         return info;
     }
 
+    @Override
     public String getProfileFilename() {
         return "SipTone/config/" + "ipdSIP" + getSerialNumber().toUpperCase() + ".xml";
 
@@ -94,8 +95,8 @@ public class IpDialogPhone extends Phone {
 
     public static class IpDialogPhoneDefaults {
 
-        private DeviceDefaults m_defaults;
-        private SpeedDial m_speedDial;
+        private final DeviceDefaults m_defaults;
+        private final SpeedDial m_speedDial;
 
         IpDialogPhoneDefaults(DeviceDefaults defaults, SpeedDial speedDial) {
             m_defaults = defaults;
@@ -114,7 +115,7 @@ public class IpDialogPhone extends Phone {
     }
 
     public static class IpDialogLineDefaults {
-        private Line m_line;
+        private final Line m_line;
 
         IpDialogLineDefaults(Line line) {
             m_line = line;
@@ -193,7 +194,7 @@ public class IpDialogPhone extends Phone {
         @SettingEntry(path = MOH_SETTING)
         public String getUserMoh() {
             DeviceDefaults defaults = m_line.getPhoneContext().getPhoneDefaults();
-            return defaults.getSipxServer().getMusicOnHoldUri(defaults.getDomainName());
+            return defaults.getMusicOnHoldUri(defaults.getDomainName());
         }
 
         @SettingEntry(path = PRESENCE_SERVER_SETTING)
@@ -204,13 +205,14 @@ public class IpDialogPhone extends Phone {
 
     }
 
+    @Override
     public void restart() {
         sendCheckSyncToFirstLine();
     }
 
     static class IpDialogContext extends ProfileContext {
-        private SpeedDial m_speedDial;
-        private Collection<PhonebookEntry> m_phoneBook;
+        private final SpeedDial m_speedDial;
+        private final Collection<PhonebookEntry> m_phoneBook;
 
         public IpDialogContext(IpDialogPhone device, SpeedDial speedDial, Collection<PhonebookEntry> phoneBook,
                 String profileTemplate) {
@@ -219,6 +221,7 @@ public class IpDialogPhone extends Phone {
             m_phoneBook = trim(phoneBook);
         }
 
+        @Override
         public Map<String, Object> getContext() {
             Map<String, Object> context = super.getContext();
             context.put("speedDialNumber", getNumbers());

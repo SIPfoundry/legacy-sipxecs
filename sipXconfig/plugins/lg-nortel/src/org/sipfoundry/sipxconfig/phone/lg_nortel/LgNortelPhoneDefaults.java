@@ -41,7 +41,7 @@ public class LgNortelPhoneDefaults {
 
     @SettingEntry(path = "VOIP/moh_url")
     public String getMohUrl() {
-        String mohUri = m_defaults.getSipxServer().getMusicOnHoldUri(m_defaults.getDomainName());
+        String mohUri = m_defaults.getMusicOnHoldUri(m_defaults.getDomainName());
         return SipUri.stripSipPrefix(mohUri);
     }
 

@@ -12,16 +12,17 @@ package org.sipfoundry.sipxconfig.device;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
-import org.sipfoundry.sipxconfig.admin.commserver.SipxServer;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.EmergencyInfo;
 import org.sipfoundry.sipxconfig.admin.dialplan.InternalRule;
+import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.service.ConfiguredService;
 import org.sipfoundry.sipxconfig.service.ServiceDescriptor;
 import org.sipfoundry.sipxconfig.service.ServiceManager;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.sipfoundry.sipxconfig.service.UnmanagedService;
+import org.springframework.beans.factory.annotation.Required;
 
 /**
  * Sets up phone and line objects with system defaults.
@@ -42,8 +43,6 @@ public class DeviceDefaults {
 
     private DomainManager m_domainManager;
 
-    private SipxServer m_sipxServer;
-
     /** see config.defs PROXY_SERVER_ADDR */
     private String m_proxyServerAddr;
 
@@ -59,6 +58,8 @@ public class DeviceDefaults {
     private String m_logDirectory;
 
     private SipxServiceManager m_sipxServiceManager;
+
+    private String m_mohUser;
 
     public void setDefaultNtpService(String defaultNtpService) {
         m_defaultNtpService = defaultNtpService;
@@ -227,12 +228,13 @@ public class DeviceDefaults {
         m_domainManager = domainManager;
     }
 
-    public void setSipxServer(SipxServer sipxServer) {
-        m_sipxServer = sipxServer;
+    @Required
+    public void setMohUser(String mohUser) {
+        m_mohUser = mohUser;
     }
 
-    public SipxServer getSipxServer() {
-        return m_sipxServer;
+    public String getMusicOnHoldUri(String domainName) {
+        return SipUri.format(m_mohUser, domainName, false);
     }
 
     public void setLogDirectory(String logDirectory) {

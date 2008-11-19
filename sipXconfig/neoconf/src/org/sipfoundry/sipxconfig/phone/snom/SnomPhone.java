@@ -1,10 +1,10 @@
 /*
  *
  *
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.phone.snom;
@@ -98,6 +98,7 @@ public class SnomPhone extends Phone {
         return lineInfo;
     }
 
+    @Override
     public String getProfileFilename() {
         String serialNumber = getSerialNumber();
         if (StringUtils.isEmpty(serialNumber)) {
@@ -134,8 +135,8 @@ public class SnomPhone extends Phone {
     }
 
     public static class SnomDefaults {
-        private DeviceDefaults m_defaults;
-        private SnomPhone m_phone;
+        private final DeviceDefaults m_defaults;
+        private final SnomPhone m_phone;
 
         SnomDefaults(DeviceDefaults defaults, SnomPhone phone) {
             m_defaults = defaults;
@@ -169,7 +170,7 @@ public class SnomPhone extends Phone {
         public String getSyslogServer() {
             return m_defaults.getServer(0, UnmanagedService.SYSLOG);
         }
-        
+
         @SettingEntry(path = DST_SETTING)
         public String getDstSetting() {
             DeviceTimeZone zone = m_defaults.getTimeZone();
@@ -187,8 +188,8 @@ public class SnomPhone extends Phone {
     }
 
     public static class SnomLineDefaults {
-        private Line m_line;
-        private DeviceDefaults m_defaults;
+        private final Line m_line;
+        private final DeviceDefaults m_defaults;
 
         SnomLineDefaults(DeviceDefaults defaults, Line line) {
             m_line = line;
@@ -265,17 +266,18 @@ public class SnomPhone extends Phone {
 
         @SettingEntry(path = "sip/user_moh")
         public String getUserMoh() {
-            return m_defaults.getSipxServer().getMusicOnHoldUri(m_defaults.getDomainName());
+            return m_defaults.getMusicOnHoldUri(m_defaults.getDomainName());
         }
     }
 
+    @Override
     public void restart() {
         sendCheckSyncToFirstLine();
     }
 
     static class SnomContext extends ProfileContext {
-        private SpeedDial m_speedDial;
-        private Collection<PhonebookEntry> m_phoneBook;
+        private final SpeedDial m_speedDial;
+        private final Collection<PhonebookEntry> m_phoneBook;
 
         public SnomContext(SnomPhone device, SpeedDial speedDial,
                 Collection<PhonebookEntry> phoneBook, String profileTemplate) {
@@ -284,6 +286,7 @@ public class SnomPhone extends Phone {
             m_phoneBook = trim(phoneBook);
         }
 
+        @Override
         public Map<String, Object> getContext() {
             Map<String, Object> context = super.getContext();
             context.put("speedDial", getNumbers());
@@ -311,7 +314,7 @@ public class SnomPhone extends Phone {
 
         /**
          * Create SNOM speed dial information
-         * 
+         *
          * @return and array of at most 33 (0-32) phone numbers
          */
         String[] getNumbers() {

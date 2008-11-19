@@ -15,7 +15,6 @@ import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
-import org.sipfoundry.sipxconfig.admin.commserver.SipxServer;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.admin.localization.Localization;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
@@ -31,11 +30,6 @@ public abstract class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> 
     private String m_initialDomain;
     private String m_initialAlias;
     private String m_configServerHost;
-
-    /**
-     * Implemented by Spring AOP
-     */
-    protected abstract SipxServer getServer();
 
     protected abstract DomainConfiguration createDomainConfiguration();
 
@@ -71,19 +65,13 @@ public abstract class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> 
     }
 
     /**
-     * Sets newly updated Domain parameters on the SIPX server. This is probably not the best
-     * idea. Ideally sipx server should get those parameters from domain manager whenever it needs
-     * that. Sadly SipxServer is responsible for generating some configuration files that still
-     * needs those info and we need to kick it to make sure everything gets updated.
      *
      * @param domain domain that have been changed
      */
+    @Deprecated
     private void updateServer(Domain domain) {
-        SipxServer sipxServer = getServer();
-        sipxServer.setDomainName(domain.getName());
-
+        // FIXME: this sounds wrong RegistrarService should look it up if it needs it: not the other way aroung
         SipxService registrarService = getSipxServiceManager().getServiceByBeanId(SipxRegistrarService.BEAN_ID);
-        sipxServer.applySettings();
         registrarService.setDomainName(domain.getName());
     }
 

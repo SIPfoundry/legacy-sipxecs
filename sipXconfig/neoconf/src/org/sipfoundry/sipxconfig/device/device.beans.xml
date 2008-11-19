@@ -5,10 +5,11 @@
   <bean id="phoneDefaults" class="org.sipfoundry.sipxconfig.device.DeviceDefaults">
     <property name="dialPlanContext" ref="dialPlanContext" />
     <property name="domainManager" ref="domainManager" />
-    <property name="sipxServer" ref="sipxServer" />
     <property name="serviceManager" ref="serviceManager" />
     <property name="sipxServiceManager" ref="sipxServiceManager" />
     <property name="logDirectory" value="${sysdir.log}"></property>
+    <!-- default music-on-hold user -->
+    <property name="mohUser" value="~~mh~" />
   </bean>
 
 

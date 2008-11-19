@@ -1,20 +1,17 @@
 /*
  *
  *
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  *
  */
 package org.sipfoundry.sipxconfig.paging;
 
-import org.sipfoundry.sipxconfig.admin.commserver.Server;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
 
 public class PagingServer extends BeanWithId {
-    private Server m_sipxServer;
-
     private String m_prefix;
 
     private String m_logLevel;
@@ -43,13 +40,5 @@ public class PagingServer extends BeanWithId {
 
     public void setSipTraceLevel(String sipTraceLevel) {
         m_sipTraceLevel = sipTraceLevel;
-    }
-
-    public Server getSipxServer() {
-        return m_sipxServer;
-    }
-
-    public void setSipxServer(Server sipxServer) {
-        m_sipxServer = sipxServer;
     }
 }

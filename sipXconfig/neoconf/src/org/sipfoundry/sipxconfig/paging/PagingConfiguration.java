@@ -32,7 +32,6 @@ public class PagingConfiguration extends SipxServiceConfiguration {
         m_pagingGroups = pagingGroups;
         m_sipTraceLevel = server.getSipTraceLevel();
         // "sipxpage.properties" needs to be reloaded when used in Logging page
-        server.getSipxServer().resetSettings();
     }
 
     @Override

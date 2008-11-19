@@ -1,16 +1,13 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.paging;
-
-import static org.easymock.EasyMock.createControl;
-import static org.easymock.EasyMock.expect;
 
 import java.util.Arrays;
 import java.util.LinkedHashSet;
@@ -18,9 +15,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.easymock.EasyMock;
-import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.TestHelper;
-import org.sipfoundry.sipxconfig.admin.commserver.Server;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.service.SipxPageService;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
@@ -32,18 +27,11 @@ public class PagingConfigurationTest extends SipxServiceTestBase {
     private PagingServer m_pagingServer;
     private List<PagingGroup> m_pagingGroups;
 
+    @Override
     public void setUp() throws Exception {
         m_pagingServer = new PagingServer();
         m_pagingServer.setLogLevel("NOTICE");
         m_pagingServer.setSipTraceLevel("NONE");
-
-        IMocksControl sipxServerCtrl = createControl();
-        Server sipxServer = sipxServerCtrl.createMock(Server.class);
-        expect(sipxServer.getPagingLogLevel()).andReturn("NOTICE").once();
-        sipxServer.resetSettings();
-        sipxServerCtrl.once();
-        sipxServerCtrl.replay();
-        m_pagingServer.setSipxServer(sipxServer);
 
         m_pagingConfiguration = new PagingConfiguration();
         m_pagingConfiguration.setVelocityEngine(TestHelper.getVelocityEngine());

@@ -18,7 +18,6 @@ import java.util.Map;
 import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.TestHelper;
-import org.sipfoundry.sipxconfig.admin.commserver.SipxServerTest;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.EmergencyInfo;
 import org.sipfoundry.sipxconfig.common.User;
@@ -124,7 +123,7 @@ public class PhoneTestDriver {
         defaults.setProxyServerAddr("10.1.2.3");
         defaults.setProxyServerSipPort("5555");
         defaults.setAuthorizationRealm("realm.sipfoundry.org");
-        defaults.setSipxServer(SipxServerTest.setUpSipxServer());
+        defaults.setMohUser("~~mh~");
         defaults.setLogDirectory("/var/log/sipxpbx");
 
         SipxService registrarService = new SipxRegistrarService();

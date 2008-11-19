@@ -17,7 +17,6 @@ import java.util.Properties;
 import junit.framework.TestCase;
 
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
-import org.sipfoundry.sipxconfig.admin.commserver.SipxServer;
 import org.sipfoundry.sipxconfig.domain.Domain;
 import org.sipfoundry.sipxconfig.domain.DomainConfiguration;
 import org.sipfoundry.sipxconfig.domain.DomainManagerImpl;
@@ -33,11 +32,6 @@ public class WebCertificateManagerTest extends TestCase {
         @Override
         public Domain getDomain() {
             return new DomainMock();
-        }
-
-        @Override
-        protected SipxServer getServer() {
-            return null;
         }
 
         @Override
@@ -89,7 +83,7 @@ public class WebCertificateManagerTest extends TestCase {
         assertEquals("Austin", prop2.get("localityName"));
         assertEquals("Test Organization", prop2.get("organizationName"));
         assertEquals("test@test.org", prop2.get("serverEmail"));
-        
+
         //cleanup
         File propertiesFile = new File(TestUtil.getTestSourceDirectory(this.getClass()),"webCert.properties");
         assertTrue(propertiesFile.delete());
