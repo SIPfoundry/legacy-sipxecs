@@ -68,7 +68,7 @@ public abstract class EditLocationPage extends PageWithCallback implements
     public abstract void setSelectedSipxService(SipxService sipxService);
 
     @Persist
-    @InitialValue(value = "literal:configureLocation")
+    @InitialValue(value = "literal:listServices")
     public abstract String getTab();
 
     public void pageBeginRender(PageEvent event) {
@@ -77,9 +77,7 @@ public abstract class EditLocationPage extends PageWithCallback implements
             setLocationBean(location);
         }
 
-        setAvailableTabNames(Arrays.asList(new String[] {
-            "configureLocation", "listServices"
-        }));
+        setAvailableTabNames(Arrays.asList("configureLocation", "listServices"));
         setSelectedSipxService(null);
     }
 
@@ -105,7 +103,7 @@ public abstract class EditLocationPage extends PageWithCallback implements
         ServicesTable servicesTable = (ServicesTable) getComponent("servicesTable");
         servicesTable.refresh();
     }
-    
+
     public void activate() {
         for (LocationSpecificService service : getLocationBean().getServices()) {
             getSipxServiceManager().replicateServiceConfig(service.getSipxService());
