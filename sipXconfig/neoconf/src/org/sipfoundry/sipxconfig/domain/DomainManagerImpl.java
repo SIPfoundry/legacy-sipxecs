@@ -18,9 +18,6 @@ import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.admin.localization.Localization;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
-import org.sipfoundry.sipxconfig.service.SipxRegistrarService;
-import org.sipfoundry.sipxconfig.service.SipxService;
-import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.springframework.dao.support.DataAccessUtils;
 
 public abstract class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> implements DomainManager {
@@ -34,8 +31,6 @@ public abstract class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> 
     protected abstract DomainConfiguration createDomainConfiguration();
 
     protected abstract SipxReplicationContext getReplicationContext();
-
-    protected abstract SipxServiceManager getSipxServiceManager();
 
     /**
      * @return non-null unless test environment
@@ -59,20 +54,7 @@ public abstract class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> 
         getHibernateTemplate().saveOrUpdate(domain);
         getHibernateTemplate().flush();
 
-        updateServer(domain);
-
         replicateDomainConfig();
-    }
-
-    /**
-     *
-     * @param domain domain that have been changed
-     */
-    @Deprecated
-    private void updateServer(Domain domain) {
-        // FIXME: this sounds wrong RegistrarService should look it up if it needs it: not the other way aroung
-        SipxService registrarService = getSipxServiceManager().getServiceByBeanId(SipxRegistrarService.BEAN_ID);
-        registrarService.setDomainName(domain.getName());
     }
 
     public void replicateDomainConfig() {

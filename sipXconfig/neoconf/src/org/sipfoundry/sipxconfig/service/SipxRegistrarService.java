@@ -12,7 +12,6 @@ import java.util.Arrays;
 
 import org.sipfoundry.sipxconfig.admin.commserver.ConflictingFeatureCodeValidator;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessModel.ProcessName;
-import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
 public class SipxRegistrarService extends SipxService {
@@ -28,7 +27,6 @@ public class SipxRegistrarService extends SipxService {
     private String m_orbitServerSipSrvOrHostport;
     private String m_proxyServerSipHostport;
     private SipxServiceManager m_sipxServiceManager;
-    private DomainManager m_domainManager;
 
     public String getMediaServer() {
         return m_mediaServerSipSrvOrHostport + ";transport=tcp";
@@ -87,14 +85,6 @@ public class SipxRegistrarService extends SipxService {
 
     public void setSipxServiceManager(SipxServiceManager sipxServiceManager) {
         m_sipxServiceManager = sipxServiceManager;
-    }
-
-    public DomainManager getDomainManager() {
-        return m_domainManager;
-    }
-
-    public void setDomainManager(DomainManager manager) {
-        m_domainManager = manager;
     }
 
     /**

@@ -13,8 +13,10 @@ import java.util.Collections;
 import java.util.List;
 
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessModel.ProcessName;
+import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettings;
 import org.sipfoundry.sipxconfig.setting.Setting;
+import org.springframework.beans.factory.annotation.Required;
 
 public abstract class SipxService extends BeanWithSettings {
 
@@ -22,18 +24,14 @@ public abstract class SipxService extends BeanWithSettings {
     private String m_modelName;
     private String m_modelDir;
     private List<SipxServiceConfiguration> m_configurations;
-    private String m_ipAddress;
     private String m_sipPort;
-    private String m_hostname;
-    private String m_fullHostname;
-    private String m_domainName;
-    private String m_realm;
     private String m_logDir;
     private String m_confDir;
     private String m_voicemailHttpsPort;
+    private DomainManager m_domainManager;
 
     public abstract ProcessName getProcessName();
-    
+
     public String getBeanId() {
         return m_beanId;
     }
@@ -41,7 +39,7 @@ public abstract class SipxService extends BeanWithSettings {
     public void setBeanId(String beanId) {
         m_beanId = beanId;
     }
-    
+
     public String getModelName() {
         return m_modelName;
     }
@@ -70,14 +68,6 @@ public abstract class SipxService extends BeanWithSettings {
         return m_configurations;
     }
 
-    public String getIpAddress() {
-        return m_ipAddress;
-    }
-
-    public void setIpAddress(String ipAddress) {
-        this.m_ipAddress = ipAddress;
-    }
-
     public String getSipPort() {
         return m_sipPort;
     }
@@ -86,36 +76,12 @@ public abstract class SipxService extends BeanWithSettings {
         this.m_sipPort = sipPort;
     }
 
-    public String getHostname() {
-        return m_hostname;
-    }
-
-    public void setHostname(String hostname) {
-        m_hostname = hostname;
-    }
-
-    public String getFullHostname() {
-        return m_fullHostname;
-    }
-
-    public void setFullHostname(String fullHostname) {
-        m_fullHostname = fullHostname;
+    public String getRealm() {
+        return m_domainManager.getAuthorizationRealm();
     }
 
     public String getDomainName() {
-        return m_domainName;
-    }
-
-    public void setDomainName(String domainName) {
-        m_domainName = domainName;
-    }
-
-    public String getRealm() {
-        return m_realm;
-    }
-
-    public void setRealm(String realm) {
-        m_realm = realm;
+        return m_domainManager.getDomain().getName();
     }
 
     public String getVoicemailHttpsPort() {
@@ -142,6 +108,10 @@ public abstract class SipxService extends BeanWithSettings {
         return m_confDir;
     }
 
+    @Required
+    public void setDomainManager(DomainManager domainManager) {
+        m_domainManager = domainManager;
+    }
     /**
      * Override this method to perform validation
      */

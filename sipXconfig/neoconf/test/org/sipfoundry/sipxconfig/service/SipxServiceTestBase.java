@@ -18,17 +18,23 @@ import java.io.StringWriter;
 import junit.framework.TestCase;
 
 import org.apache.commons.io.IOUtils;
+import static org.easymock.EasyMock.*;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.domain.Domain;
+import org.sipfoundry.sipxconfig.domain.DomainManager;
 
 public class SipxServiceTestBase extends TestCase {
     protected void initCommonAttributes(SipxService service) {
-        service.setIpAddress("192.168.1.1");
-        service.setHostname("sipx");
-        service.setFullHostname("sipx.example.org");
-        service.setDomainName("example.org");
-        service.setRealm("realm.example.org");
+        Domain domain = createDefaultDomain();
+        DomainManager domainManager = createMock(DomainManager.class);
+        domainManager.getAuthorizationRealm();
+        expectLastCall().andReturn("realm.example.org").anyTimes();
+        domainManager.getDomain();
+        expectLastCall().andReturn(domain).anyTimes();
+        replay(domainManager);
+
+        service.setDomainManager(domainManager);
         service.setSipPort("5060");
         service.setLogDir("/var/log/sipxpbx");
         service.setConfDir("/etc/sipxpbx");

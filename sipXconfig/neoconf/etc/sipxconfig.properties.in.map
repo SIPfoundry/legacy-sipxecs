@@ -10,4 +10,10 @@
 - : dialPlanContextImpl.scriptsDirectory
 localBackupPlan.backupDirectory : adminContextImpl.backupDirectory
 ftpBackupPlan.backupDirectory : adminContextImpl.ftpBackupDirectory
+- : sipxService.realm
+- : sipxService.domainName
+- : sipxService.ipAddress
+- : sipxService.hostname
+- : sipxService.fullHostname
+- : sipxCallResolverService.ipAddress
 

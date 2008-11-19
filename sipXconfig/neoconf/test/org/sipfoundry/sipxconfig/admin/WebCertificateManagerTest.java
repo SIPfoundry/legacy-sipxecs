@@ -43,11 +43,6 @@ public class WebCertificateManagerTest extends TestCase {
         protected SipxReplicationContext getReplicationContext() {
             return null;
         }
-
-        @Override
-        protected SipxServiceManager getSipxServiceManager() {
-            return null;
-        }
     }
 
     private class DomainMock extends Domain {

@@ -1,6 +1,7 @@
 package org.sipfoundry.sipxconfig.service;
 
 import org.sipfoundry.sipxconfig.TestHelper;
+import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
 import static org.easymock.EasyMock.createMock;
@@ -11,10 +12,15 @@ import static org.easymock.EasyMock.verify;
 public class SipxCallResolverConfigurationTest extends SipxServiceTestBase {
 
     public void testWrite() throws Exception {
+        LocationsManager locationManager = createMock(LocationsManager.class);
+        locationManager.getPrimaryLocation();
+        expectLastCall().andReturn(createDefaultLocation());
+
         SipxCallResolverService callResolverService = new SipxCallResolverService();
         initCommonAttributes(callResolverService);
         Setting settings = TestHelper.loadSettings("sipxcallresolver/sipxcallresolver.xml");
         callResolverService.setSettings(settings);
+        callResolverService.setLocationManager(locationManager);
 
         Setting callresolverSettings = callResolverService.getSettings().getSetting("callresolver");
         callresolverSettings.getSetting("SIP_CALLRESOLVER_PURGE").setValue("DISABLE");
@@ -27,7 +33,7 @@ public class SipxCallResolverConfigurationTest extends SipxServiceTestBase {
         SipxServiceManager sipxServiceManager = createMock(SipxServiceManager.class);
         sipxServiceManager.getServiceByBeanId(SipxCallResolverService.BEAN_ID);
         expectLastCall().andReturn(callResolverService).atLeastOnce();
-        replay(sipxServiceManager);
+        replay(locationManager, sipxServiceManager);
 
         SipxCallResolverConfiguration out = new SipxCallResolverConfiguration();
         out.setSipxServiceManager(sipxServiceManager);
@@ -35,6 +41,6 @@ public class SipxCallResolverConfigurationTest extends SipxServiceTestBase {
 
         assertCorrectFileGeneration(out, "expected-callresolver-config");
 
-        verify(sipxServiceManager);
+        verify(locationManager, sipxServiceManager);
     }
 }

@@ -33,8 +33,6 @@
     -->
 
     <lookup-method name="getReplicationContext" bean="sipxReplicationContext" />
-    <lookup-method name="getSipxServiceManager" bean="sipxServiceManager" />
-    
     <lookup-method name="createDomainConfiguration" bean="domainConfiguration" />
   </bean>
 

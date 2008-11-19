@@ -2,12 +2,7 @@
 #   End Users - add new settings to end of this file, be sure to add extra line feed
 #   Developers - add new settings anywhere but end of this file so pkg-upgrade script
 #                can have a better chance to migrate this file properly
-sipxService.ipAddress=${MY_IP_ADDR}
 sipxService.sipPort=${PROXY_SERVER_SIP_PORT}
-sipxService.hostname=${MY_HOSTNAME}
-sipxService.fullHostname=${MY_FULL_HOSTNAME}
-sipxService.realm=${SIPXCHANGE_REALM}
-sipxService.domainName=${SIPXCHANGE_DOMAIN_NAME}
 sipxService.voicemailHttpsPort=${VOICEMAIL_SERVER_HTTPS_PORT}
 sipxProxyService.secureSipPort=${PROXY_SERVER_SIP_SECURE_PORT}
 sipxProxyService.callResolverCallStateDb=${CALLRESOLVER_CALL_STATE_DB}
@@ -18,7 +13,6 @@ sipxRegistrarService.orbitServerSipSrvOrHostport=${ORBIT_SERVER_SIP_SRV_OR_HOSTP
 sipxRegistrarService.proxyServerSipHostport=${PROXY_SERVER_SIP_HOSTPORT}
 sipxParkService.parkServerSipPort=${ORBIT_SERVER_SIP_PORT}
 sipxCallResolverService.agentPort=${CALLRESOLVER_AGENT_PORT}
-sipxCallResolverService.ipAddress=${MY_IP_ADDR}
 sipxRlsService.rlsPort=${RLS_SIP_PORT}
 sipxStatusService.httpsPort=${STATUS_SERVER_HTTPS_PORT}
 sipxPageService.audioDir=@sipxpage.audio.dir@

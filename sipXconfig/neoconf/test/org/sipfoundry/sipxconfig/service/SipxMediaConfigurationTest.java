@@ -23,7 +23,6 @@ public class SipxMediaConfigurationTest extends SipxServiceTestBase {
         SipxMediaService mediaService = new SipxMediaService();
         mediaService.setSettings(TestHelper.loadSettings("sipxvxml/mediaserver.xml"));
         initCommonAttributes(mediaService);
-        mediaService.setIpAddress("192.168.1.1");
         mediaService.setHttpPort(8090);
 
         SipxServiceManager sipxServiceManager = createMock(SipxServiceManager.class);

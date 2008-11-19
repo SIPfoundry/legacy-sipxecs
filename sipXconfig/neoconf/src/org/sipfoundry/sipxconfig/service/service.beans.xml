@@ -79,6 +79,7 @@
 
   <bean id="sipxService" class="org.sipfoundry.sipxconfig.service.SipxService" abstract="true">
     <property name="modelFilesContext" ref="modelFilesContext" />
+    <property name="domainManager" ref="domainManager" />
     <property name="confDir" value="${sysdir.etc}" />
     <property name="logDir" value="${sysdir.log}" />
   </bean>
@@ -168,6 +169,7 @@
     <property name="beanId" value="sipxCallResolverService" />
     <property name="modelName" value="sipxcallresolver.xml" />
     <property name="modelDir" value="sipxcallresolver" />
+    <property name="locationManager" ref="locationsManager" />
     <property name="configurations">
       <list>
         <ref bean="sipxCallResolverConfiguration" />

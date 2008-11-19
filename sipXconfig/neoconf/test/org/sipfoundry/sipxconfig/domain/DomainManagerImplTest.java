@@ -65,11 +65,6 @@ public class DomainManagerImplTest extends TestCase {
             protected SipxReplicationContext getReplicationContext() {
                 return replicationContext;
             }
-
-            @Override
-            protected SipxServiceManager getSipxServiceManager() {
-                return serviceManager;
-            }
         };
 
 

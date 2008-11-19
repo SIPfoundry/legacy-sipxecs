@@ -30,8 +30,10 @@ public class SipxRegistrarConfigurationTest extends SipxServiceTestBase {
 
         Domain domain = new Domain();
         domain.addAlias("another.example.org");
+        domain.setName("example.org");
         DomainManager domainManager = createMock(DomainManager.class);
         expect(domainManager.getDomain()).andReturn(domain).anyTimes();
+        expect(domainManager.getAuthorizationRealm()).andReturn("realm.example.org").anyTimes();
         registrarService.setDomainManager(domainManager);
 
         setSettingValuesForGroup(registrarService, "logging", new String[] {
