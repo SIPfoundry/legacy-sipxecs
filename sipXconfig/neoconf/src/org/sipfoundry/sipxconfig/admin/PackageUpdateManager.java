@@ -45,6 +45,5 @@ public interface PackageUpdateManager {
     public UpdaterState getState();
 //    public void installUpdates();
     public void checkForUpdates();
-    public void restart();
     public String getUpdateBinaryPath();
 }

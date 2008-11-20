@@ -21,12 +21,17 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.IOUtils;
 
 public class PackageUpdateManagerImpl implements Serializable, PackageUpdateManager {
 
-    private static final String PACKAGE_BINARY = "sipxpackage";
-
+    private static final String PACKAGE_BINARY = "sipxpackage"; // the binary program run as root
+    private static final int PACKAGE_DATA_ELEMENTS = 3; // number of elements in a package data String[]
+    private static final int PACKAGE_DATA_NAME = 0; // the element index containing the package name
+    private static final int PACKAGE_DATA_CURRENT_VERSION = 1; // the element index containing the current version
+    private static final int PACKAGE_DATA_UPDATED_VERSION = 2; // the element index containing the updated version
+    
     /** Executor that runs the package update tasks in the background. */
     private ExecutorService m_updateExecutor = Executors.newSingleThreadExecutor();
     
@@ -55,6 +60,12 @@ public class PackageUpdateManagerImpl implements Serializable, PackageUpdateMana
         return m_availablePackages;
     }
     
+    public void setAvailablePackages(List<PackageUpdate> availablePackages) {
+        m_availablePackages = availablePackages;
+        m_state = CollectionUtils.isEmpty(m_availablePackages) 
+                ? UpdaterState.NO_UPDATES_AVAILABLE : UpdaterState.UPDATES_AVAILABLE;
+    }
+    
     public Date getLastCheckedDate() {
         return m_lastCheckedDate;
     }
@@ -63,7 +74,13 @@ public class PackageUpdateManagerImpl implements Serializable, PackageUpdateMana
         return m_state;
     }
     
-    private Process runPackageCommand(String argument) throws IOException {
+    /**
+     * Runs the sipxpackage command with a given argument.
+     * @param argument The argument to pass to the sipxpackage command
+     * @return A Process object for the running sipxpackage command
+     * @throws IOException
+     */
+    protected Process runPackageCommand(String argument) throws IOException {
         String binaryPath = m_adminContext.getLibExecDirectory() + File.separator + PACKAGE_BINARY;
         ProcessBuilder packageProcessBuilder = new ProcessBuilder(binaryPath, argument);       
         packageProcessBuilder.redirectErrorStream(true);
@@ -80,17 +97,6 @@ public class PackageUpdateManagerImpl implements Serializable, PackageUpdateMana
 //        m_state = UpdaterState.INSTALLING;
 //        m_updateExecutor.submit(new InstallUpdatesTask());
 //    }    
-    
-    public void restart() {
-        try {
-            Process packageProcess = runPackageCommand("restart");
-            packageProcess.waitFor();
-        } catch (IOException ioe) {
-            ioe.printStackTrace();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-    }
     
     private void updateCurrentVersion() {
         BufferedReader reader = null;
@@ -123,6 +129,25 @@ public class PackageUpdateManagerImpl implements Serializable, PackageUpdateMana
         return m_adminContext.getLibExecDirectory() + File.separator + PACKAGE_BINARY;
     }
     
+    protected PackageUpdate parsePackageInfo(String packageInfoLine) {
+        PackageUpdate packageUpdate = null;
+
+        if (packageInfoLine != null && !packageInfoLine.startsWith("#")) {
+            String[] packageInfoElements = packageInfoLine.split("\\|");
+            if (packageInfoElements.length == PACKAGE_DATA_ELEMENTS) {
+                packageUpdate = new PackageUpdate(packageInfoElements[PACKAGE_DATA_NAME], 
+                        packageInfoElements[PACKAGE_DATA_CURRENT_VERSION], 
+                        packageInfoElements[PACKAGE_DATA_UPDATED_VERSION]);
+                
+                if (packageUpdate.getPackageName().equals("sipxecs")) {
+                    m_updatedVersion = "sipxecs " + packageUpdate.getUpdatedVersion();
+                }                
+            }
+        }
+        
+        return packageUpdate;
+    }    
+    
     /**
      * This task checks for updated sipxecs packages and updates the UI accordingly.
      */
@@ -139,16 +164,10 @@ public class PackageUpdateManagerImpl implements Serializable, PackageUpdateMana
                         new InputStreamReader(packageProcess.getInputStream()));
 
                 String line;
-                String[] packageInfo;
                 while ((line = packageReader.readLine()) != null) {
-                    if (!line.startsWith("#")) {
-                        packageInfo = line.split("\\|");
-                        if (packageInfo.length == 3) {
-                            if (packageInfo[0].equals("sipxecs")) {
-                                m_updatedVersion = "sipxecs " + packageInfo[2];
-                            }
-                            updates.add(new PackageUpdate(packageInfo[0], packageInfo[1], packageInfo[2]));
-                        }
+                    PackageUpdate packageUpdate = parsePackageInfo(line);
+                    if (packageUpdate != null) {
+                        updates.add(packageUpdate);
                     }
                 }
                 
@@ -161,8 +180,7 @@ public class PackageUpdateManagerImpl implements Serializable, PackageUpdateMana
                 IOUtils.closeQuietly(packageReader);
             }
             
-            m_availablePackages = updates;
-            m_state = (updates.isEmpty()) ? UpdaterState.NO_UPDATES_AVAILABLE : UpdaterState.UPDATES_AVAILABLE;
+            setAvailablePackages(updates);
         }
     }
 
