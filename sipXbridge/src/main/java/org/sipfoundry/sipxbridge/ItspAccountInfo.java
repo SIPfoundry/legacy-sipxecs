@@ -303,7 +303,8 @@ public class ItspAccountInfo implements gov.nist.javax.sip.clientauthutils.UserC
      * @param proxyPort the proxyPort to set
      */
     public void setOutboundProxyPort(int proxyPort) {
-        this.outboundProxyPort = proxyPort;
+        /* 0 means default */
+        if (proxyPort != 0 ) this.outboundProxyPort = proxyPort;
     }
 
     /**
