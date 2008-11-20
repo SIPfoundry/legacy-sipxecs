@@ -11,6 +11,7 @@ import gov.nist.javax.sip.DialogExt;
 import gov.nist.javax.sip.header.ims.PAssertedIdentityHeader;
 
 import java.io.IOException;
+import java.util.HashSet;
 
 import javax.sdp.SdpParseException;
 import javax.sdp.SessionDescription;
@@ -256,15 +257,11 @@ class RtpSession {
 
             SipProvider provider = ((DialogExt) dialog).getSipProvider();
 
-            if (provider != Gateway.getLanProvider() || Gateway.isReInviteSupported()) {
-                // RE-INVITE was received from WAN side or LAN side and wan side supports
+            if (provider != Gateway.getLanProvider()  || Gateway.isReInviteSupported() ) {
+                // RE-INVITE was received from WAN side or from LAN side and wan side supports
                 // Re-INIVTE then just forward it.
                 this.forwardReInvite(serverTransaction, dialog);
-            } else {
-                Response response = SipUtilities.createResponse(serverTransaction, Response.OK);
-                SipUtilities.setSessionDescription(response, sd);
-                serverTransaction.sendResponse(response);
-            }
+            } 
         } catch (Exception ex) {
             throw new RuntimeException(ex);
         }
@@ -354,7 +351,10 @@ class RtpSession {
             String attribute = sessionAttribute != null ? sessionAttribute : mediaAttribute;
 
             if (this.isHoldRequest(request)) {
+                /* Got a hold request. The answer should have a subset of codecs limited by the offer */
                 this.putOnHold(dialog, peerDialog);
+                HashSet<Integer> codecs = SipUtilities.getCodecNumbers(sessionDescription);
+                SipUtilities.cleanSessionDescription(this.getReceiver().getSessionDescription(), codecs);
                 return this.getReceiver().getSessionDescription();
             } else if (attribute == null || attribute.equals("sendrecv")) {
                 this.removeHold(serverTransaction, dialog);

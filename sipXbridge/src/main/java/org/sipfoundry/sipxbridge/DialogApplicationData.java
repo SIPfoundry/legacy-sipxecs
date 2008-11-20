@@ -12,6 +12,7 @@ import gov.nist.javax.sip.header.HeaderFactoryExt;
 import gov.nist.javax.sip.header.extensions.MinSE;
 import gov.nist.javax.sip.header.extensions.SessionExpiresHeader;
 
+import java.util.ListIterator;
 import java.util.TimerTask;
 
 import javax.sdp.SessionDescription;
@@ -106,6 +107,8 @@ class DialogApplicationData {
 
     private SessionTimerTask sessionTimer;
 
+    boolean isReferAccepted;
+
     // /////////////////////////////////////////////////////////////////
     // Inner classes.
     // ////////////////////////////////////////////////////////////////
@@ -145,14 +148,7 @@ class DialogApplicationData {
 
                         request = dialog.createRequest(Request.INVITE);
                         request.removeHeader(AllowHeader.NAME);
-                        for (String method : new String[] {
-                            Request.INVITE, Request.ACK, Request.BYE, Request.CANCEL,
-                            Request.OPTIONS
-                        }) {
-                            AllowHeader allow = ProtocolObjects.headerFactory
-                                    .createAllowHeader(method);
-                            request.addHeader(allow);
-                        }
+                        SipUtilities.addWanAllowHeaders(request);
                         AcceptHeader accept = ProtocolObjects.headerFactory.createAcceptHeader(
                                 "application", "sdp");
                         request.setHeader(accept);
@@ -330,6 +326,45 @@ class DialogApplicationData {
     void setSetExpires(int expires) {
         this.sessionExpires = expires;
 
+    }
+
+    /**
+     * Check to see if the ITSP allows a REFER request.
+     * 
+     * @return true if REFER is allowed.
+     * 
+     * 
+     */
+    boolean isReferAllowed() {
+        if ( this.transaction instanceof ServerTransaction ) {
+            if ( this.request == null ) {
+                return false;
+            } 
+            ListIterator li = request.getHeaders(AllowHeader.NAME);
+            
+            while ( li != null && li.hasNext() ) {
+                AllowHeader ah = (AllowHeader) li.next();
+                if ( ah.getMethod().equals(Request.REFER)) {
+                    return true;
+                }
+            }
+            return false;
+            
+        } else {
+            if ( this.lastResponse == null ) {
+                return false;
+            }
+            
+            ListIterator li = lastResponse.getHeaders(AllowHeader.NAME);
+            
+            while ( li != null && li.hasNext() ) {
+                AllowHeader ah = (AllowHeader) li.next();
+                if ( ah.getMethod().equals(Request.REFER)) {
+                    return true;
+                }
+            }
+            return false;
+        }
     }
 
 }

@@ -420,4 +420,16 @@ public class BridgeConfiguration {
         return sipxProxyPort;
     }
 
+    /**
+     * Whether or not to forward a REFER ( if the ITSP capablity allows us to do so).
+     * This feature is turned off until further testing can be done.
+     * 
+     * @return
+     */
+    public boolean isReferForwarded() {
+        
+        return false;
+        
+    }
+
 }

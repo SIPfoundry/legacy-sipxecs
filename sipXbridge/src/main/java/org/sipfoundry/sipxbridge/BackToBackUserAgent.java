@@ -11,14 +11,11 @@ import gov.nist.javax.sip.DialogExt;
 import gov.nist.javax.sip.SipStackExt;
 import gov.nist.javax.sip.TransactionExt;
 import gov.nist.javax.sip.header.HeaderFactoryExt;
-import gov.nist.javax.sip.header.MinExpires;
-import gov.nist.javax.sip.header.extensions.MinSE;
-import gov.nist.javax.sip.header.extensions.MinSEHeader;
 import gov.nist.javax.sip.header.extensions.ReferredByHeader;
 import gov.nist.javax.sip.header.extensions.ReplacesHeader;
-import gov.nist.javax.sip.header.extensions.SessionExpiresHeader;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.text.ParseException;
 import java.util.HashSet;
@@ -28,7 +25,6 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Random;
 import java.util.Set;
-import java.util.TimerTask;
 
 import javax.sdp.MediaDescription;
 import javax.sdp.SdpFactory;
@@ -55,10 +51,8 @@ import javax.sip.header.ContentTypeHeader;
 import javax.sip.header.FromHeader;
 import javax.sip.header.Header;
 import javax.sip.header.MaxForwardsHeader;
-import javax.sip.header.MinExpiresHeader;
 import javax.sip.header.ReferToHeader;
 import javax.sip.header.RouteHeader;
-import javax.sip.header.SubjectHeader;
 import javax.sip.header.SupportedHeader;
 import javax.sip.header.ToHeader;
 import javax.sip.header.ViaHeader;
@@ -124,9 +118,6 @@ public class BackToBackUserAgent {
     private SymmitronClient symmitronClient;
 
     private String symmitronServerHandle;
-
-   
-  
 
     // ///////////////////////////////////////////////////////////////////////
     // Private methods.
@@ -488,8 +479,6 @@ public class BackToBackUserAgent {
         this.creatingDialog = dialog;
         this.creatingCallId = ((CallIdHeader) request.getHeader(CallIdHeader.NAME)).getCallId();
 
-        
-
     }
 
     /**
@@ -513,7 +502,7 @@ public class BackToBackUserAgent {
             }
 
             this.rtpBridge.stop();
-            
+
             dialogTable.clear();
 
         }
@@ -546,6 +535,103 @@ public class BackToBackUserAgent {
         this.dialogTable.add(dialog);
 
     }
+    
+    
+
+    /**
+     * Create an INVITE request from an inbound REFER.
+     * 
+     * @param requestEvent -- the inbound REFER request Event
+     * @return the INVITE request crafted from the IB Refer
+     *
+     */
+    Request createInviteFromReferRequest(RequestEvent requestEvent) throws SipException, ParseException,
+            IOException {
+        Dialog dialog = requestEvent.getDialog();
+        ServerTransaction referServerTransaction = requestEvent.getServerTransaction();
+        Request referRequest = referServerTransaction.getRequest();
+
+       
+        /*
+         * Get the Refer-To header and convert it into an INVITE
+         * to send to the REFER target.
+         */
+
+        ReferToHeader referToHeader = (ReferToHeader) referRequest.getHeader(ReferToHeader.NAME);
+        SipURI uri = (SipURI) referToHeader.getAddress().getURI();
+        Request newRequest = dialog.createRequest(Request.INVITE);
+
+        /* Requesting new dialog -- remove the route header */
+        newRequest.removeHeader(RouteHeader.NAME);
+        
+        /* Does the refer to header contain a Replaces? ( attended transfer ) */
+        String replacesParam = uri.getHeader(ReplacesHeader.NAME);
+        ReplacesHeader replacesHeader = null;
+        if (replacesParam != null) {
+
+            String decodedReplaces = URLDecoder.decode(replacesParam, "UTF-8");
+            replacesHeader = (ReplacesHeader) ProtocolObjects.headerFactory.createHeader(
+                    "Replaces", decodedReplaces);
+        }
+        uri.removeParameter("Replaces");
+
+        uri.removePort();
+        if (replacesHeader != null) {
+            newRequest.addHeader(replacesHeader);
+        }
+
+        for (Iterator it = uri.getHeaderNames(); it.hasNext();) {
+            String headerName = (String) it.next();
+            String headerValue = uri.getHeader(headerName);
+            Header header = null;
+            if (headerValue != null) {
+
+                String decodedHeaderValue = URLDecoder.decode(headerValue, "UTF-8");
+                header = (Header) ProtocolObjects.headerFactory.createHeader(headerName,
+                        decodedHeaderValue);
+            }
+            if (header != null) {
+                newRequest.addHeader(header);
+            }
+        }
+        ((gov.nist.javax.sip.address.SipURIExt) uri).removeHeaders();
+
+        newRequest.setRequestURI(uri);
+
+        if (referRequest.getHeader(ReferredByHeader.NAME) != null) {
+            newRequest.setHeader(referRequest.getHeader(ReferredByHeader.NAME));
+        }
+
+        CallIdHeader callId = ProtocolObjects.headerFactory
+                .createCallIdHeader(this.creatingCallId + "." + this.counter++);
+        newRequest.setHeader(callId);
+        Gateway.getCallControlManager().setBackToBackUserAgent(callId.getCallId(), this);
+
+        SupportedHeader sh = ProtocolObjects.headerFactory.createSupportedHeader("replaces");
+        newRequest.setHeader(sh);
+
+        ContactHeader contactHeader = SipUtilities.createContactHeader(null, Gateway
+                .getLanProvider());
+        newRequest.setHeader(contactHeader);
+        /*
+         * Create a new out of dialog request.
+         */
+        ToHeader toHeader = (ToHeader) newRequest.getHeader(ToHeader.NAME);
+        toHeader.removeParameter("tag");
+        toHeader.getAddress().setURI(uri);
+        FromHeader fromHeader = (FromHeader) newRequest.getHeader(FromHeader.NAME);
+        fromHeader.setTag(Integer.toString(Math.abs(new Random().nextInt())));
+        ContentTypeHeader cth = ProtocolObjects.headerFactory.createContentTypeHeader(
+                "application", "sdp");
+
+        RtpSession lanRtpSession = this.getLanRtpSession(dialog);
+        SessionDescription sd = lanRtpSession.getReceiver().getSessionDescription();
+        SipUtilities.setDuplexity(sd, "sendrecv");
+        newRequest.setContent(sd, cth);
+
+        return newRequest;
+
+    }
 
     /**
      * This method is called when the REFER is received at the B2BUA. We need to redirect the
@@ -553,98 +639,26 @@ public class BackToBackUserAgent {
      * the original Call Setup, we send an INVITE (no-sdp) to the dialog to solicit an offer. This
      * operation has already returned a result when this method is called.
      * 
-     * @param referRequest -- the refer request.
-     * @param dialog - the re-Invite dialog.
+     * 
+     * @param inviteRequest -- the INVITE request.
+     * @param referRequestEvent -- the REFER dialog
+     * @param sessionDescription -- the session description to use when forwarding the INVITE to
+     *        the sipx proxy server.
+     * 
      */
-    void referInviteToSipxProxy(Request referRequest, Dialog dialog,
+    void referInviteToSipxProxy(Request inviteRequest, RequestEvent referRequestEvent,
             SessionDescription sessionDescription) {
         logger.debug("referInviteToSipxProxy: " + this);
 
         try {
 
-            /*
-             * Start the early media thread so the remote end does not drop the call while phone
-             * rings at the new location.
-             */
+            Dialog dialog = referRequestEvent.getDialog();
 
-            ReferToHeader referToHeader = (ReferToHeader) referRequest
-                    .getHeader(ReferToHeader.NAME);
-            SipURI uri = (SipURI) referToHeader.getAddress().getURI();
-            Request newRequest = dialog.createRequest(Request.INVITE);
-            /* Requesting new dialog -- remove the route header */
-            newRequest.removeHeader(RouteHeader.NAME);
-            String replacesParam = uri.getHeader(ReplacesHeader.NAME);
-            ReplacesHeader replacesHeader = null;
-            if (replacesParam != null) {
-
-                String decodedReplaces = URLDecoder.decode(replacesParam, "UTF-8");
-                replacesHeader = (ReplacesHeader) ProtocolObjects.headerFactory.createHeader(
-                        "Replaces", decodedReplaces);
-            }
-            uri.removeParameter("Replaces");
-
-            uri.removePort();
-            if (replacesHeader != null) {
-                newRequest.addHeader(replacesHeader);
-            }
-
-            for (Iterator it = uri.getHeaderNames(); it.hasNext();) {
-                String headerName = (String) it.next();
-                String headerValue = uri.getHeader(headerName);
-                Header header = null;
-                if (headerValue != null) {
-
-                    String decodedHeaderValue = URLDecoder.decode(headerValue, "UTF-8");
-                    header = (Header) ProtocolObjects.headerFactory.createHeader(headerName,
-                            decodedHeaderValue);
-                }
-                if (header != null) {
-                    newRequest.addHeader(header);
-                }
-            }
-            ((gov.nist.javax.sip.address.SipURIExt) uri).removeHeaders();
-
-            newRequest.setRequestURI(uri);
-
-            if (referRequest.getHeader(ReferredByHeader.NAME) != null) {
-                newRequest.setHeader(referRequest.getHeader(ReferredByHeader.NAME));
-            }
-
-            CallIdHeader callId = ProtocolObjects.headerFactory
-                    .createCallIdHeader(this.creatingCallId + "." + this.counter++);
-            newRequest.setHeader(callId);
-            Gateway.getCallControlManager().setBackToBackUserAgent(callId.getCallId(), this);
-
-            SupportedHeader sh = ProtocolObjects.headerFactory.createSupportedHeader("replaces");
-            newRequest.setHeader(sh);
-
-            ContactHeader contactHeader = SipUtilities.createContactHeader(null, Gateway
-                    .getLanProvider());
-            newRequest.setHeader(contactHeader);
-            /*
-             * Create a new out of dialog request.
-             */
-            ToHeader toHeader = (ToHeader) newRequest.getHeader(ToHeader.NAME);
-            toHeader.removeParameter("tag");
-            // toHeader.setAddress(((ReferredByHeader)referRequest.getHeader(ReferredByHeader.NAME)).getAddress());
-            toHeader.getAddress().setURI(uri);
-            FromHeader fromHeader = (FromHeader) newRequest.getHeader(FromHeader.NAME);
-            fromHeader.setTag(Integer.toString(Math.abs(new Random().nextInt())));
-            ContentTypeHeader cth = ProtocolObjects.headerFactory.createContentTypeHeader(
-                    "application", "sdp");
-
-            RtpSession lanRtpSession = this.getLanRtpSession(dialog);
-            if (sessionDescription != null) {
-                lanRtpSession.getReceiver().setSessionDescription(sessionDescription);
-            }
-
-            SessionDescription sd = lanRtpSession.getReceiver().getSessionDescription();
-            SipUtilities.setDuplexity(sd, "sendrecv");
-            newRequest.setContent(sd, cth);
             /*
              * Create a new client transaction.
              */
-            ClientTransaction ct = Gateway.getLanProvider().getNewClientTransaction(newRequest);
+            ClientTransaction ct = Gateway.getLanProvider()
+                    .getNewClientTransaction(inviteRequest);
 
             DialogApplicationData newDialogApplicationData = DialogApplicationData.attach(this,
                     ct.getDialog(), ct, ct.getRequest());
@@ -697,7 +711,7 @@ public class BackToBackUserAgent {
             ct.setApplicationData(tad);
             // Stamp the via header with our stamp so that we know we Referred
             // this request. we will use this for spiral detection.
-            ViaHeader via = (ViaHeader) newRequest.getHeader(ViaHeader.NAME);
+            ViaHeader via = (ViaHeader) inviteRequest.getHeader(ViaHeader.NAME);
             // This is our signal that we originated the redirection. We use
             // this in the INVITE processing below.
             via.setParameter(ORIGINATOR, SIPXBRIDGE);
@@ -717,6 +731,78 @@ public class BackToBackUserAgent {
             }
         }
 
+    }
+
+    /**
+     * Forward the REFER request to the ITSP
+     * 
+     * @param requestEvent - INBOUND REFER ( from sipx )
+     */
+    void forwardReferToItsp(RequestEvent requestEvent) {
+
+        try {
+            Dialog dialog = requestEvent.getDialog();
+            DialogApplicationData dat = DialogApplicationData.get(dialog);
+            Dialog peerDialog = DialogApplicationData.getPeerDialog(dialog);
+            Request referRequest = requestEvent.getRequest();
+            ItspAccountInfo itspInfo = DialogApplicationData.get(peerDialog).getItspInfo();
+            SipProvider wanProvider = ((DialogExt) peerDialog).getSipProvider();
+
+            Request outboundRefer = peerDialog.createRequest(Request.REFER);
+            
+            ReferToHeader referToHeader = (ReferToHeader) referRequest.getHeader(ReferToHeader.NAME);
+            SipURI uri = (SipURI) referToHeader.getAddress().getURI();
+            String referToUserName =  uri.getUser();
+            
+            SipURI forwardedReferToUri = SipUtilities.createInboundRequestUri(itspInfo);
+            
+            forwardedReferToUri.setParameter("target",referToUserName);
+            
+            
+            
+            Address referToAddress = ProtocolObjects.addressFactory.createAddress(forwardedReferToUri);
+            
+            
+            SipURI forwardedReferredByUri = SipUtilities.createInboundReferredByUri(itspInfo);
+            
+            Address referByAddress = ProtocolObjects.addressFactory.createAddress(forwardedReferredByUri);
+            
+            ReferToHeader outboundReferToHeader = ProtocolObjects.headerFactory.createReferToHeader(referToAddress);
+            
+            ReferredByHeader outboundReferByHeader = ((HeaderFactoryExt)ProtocolObjects.headerFactory).createReferredByHeader(referByAddress);
+            
+            outboundRefer.setHeader(outboundReferByHeader);
+            
+            outboundRefer.setHeader(outboundReferToHeader);
+            
+            TransactionApplicationData tad = new TransactionApplicationData(
+                    Operation.FORWARD_REFER);
+
+            if (itspInfo == null || itspInfo.isGlobalAddressingUsed()) {
+                SipUtilities.setGlobalAddresses(outboundRefer);
+            }
+            
+            SipUtilities.addAllowHeaders(outboundRefer);
+            
+
+            ClientTransaction outboundReferClientTx = wanProvider
+                    .getNewClientTransaction(outboundRefer);
+            outboundReferClientTx.setApplicationData(tad);
+            tad.serverTransaction = requestEvent.getServerTransaction();
+            tad.serverTransactionProvider = (SipProvider) requestEvent.getSource();
+            peerDialog.sendRequest(outboundReferClientTx);
+
+        } catch (SipException ex) {
+            logger.error("Error while processing the request - hanging up ", ex);
+            try {
+                this.tearDown();
+            } catch (Exception e) {
+                logger.error("Unexpected exception tearing down session", e);
+            }
+        } catch (ParseException e) {
+            logger.error("INTERNAL Error while processing the request - hanging up ", e);
+            throw new RuntimeException("INTERNAL Error while processing the request ", e);
+        }
     }
 
     /**
@@ -751,7 +837,7 @@ public class BackToBackUserAgent {
                 if (destination.indexOf("@") == -1) {
                     uri = ProtocolObjects.addressFactory.createSipURI(destination, Gateway
                             .getSipxProxyDomain());
-                    if ( Gateway.getBridgeConfiguration().getSipxProxyPort() != -1) {
+                    if (Gateway.getBridgeConfiguration().getSipxProxyPort() != -1) {
                         uri.setPort(Gateway.getBridgeConfiguration().getSipxProxyPort());
                     }
                 } else {
@@ -853,10 +939,17 @@ public class BackToBackUserAgent {
             Dialog outboundDialog = ct.getDialog();
 
             DialogApplicationData.attach(this, outboundDialog, ct, ct.getRequest());
+            /*
+             * Set the ITSP account info for the inbound INVITE to sipx proxy.
+             */
+            DialogApplicationData.get(outboundDialog).setItspInfo(itspAccountInfo);
             pairDialogs(inboundDialog, outboundDialog);
 
             newRequest.setContent(this.getLanRtpSession(outboundDialog).getReceiver()
                     .getSessionDescription().toString(), cth);
+
+            SipUtilities.addAllowHeaders(newRequest);
+            newRequest.setHeader(ProtocolObjects.headerFactory.createSupportedHeader("replaces"));
 
             TransactionApplicationData tad = new TransactionApplicationData(
                     Operation.SEND_INVITE_TO_SIPX_PROXY);
@@ -1050,13 +1143,7 @@ public class BackToBackUserAgent {
                 logger.debug("queryDialogFromPeer -- sending query to " + peerDialog);
                 Request reInvite = peerDialog.createRequest(Request.INVITE);
                 reInvite.removeHeader(SupportedHeader.NAME);
-                reInvite.removeHeader(AllowHeader.NAME);
-                for (String hdrName : new String[] {
-                    Request.INVITE, Request.OPTIONS, Request.BYE, Request.ACK, Request.CANCEL
-                }) {
-                    AllowHeader sh = ProtocolObjects.headerFactory.createAllowHeader(hdrName);
-                    reInvite.addHeader(sh);
-                }
+                SipUtilities.addWanAllowHeaders(reInvite);
                 SipProvider provider = ((DialogExt) peerDialog).getSipProvider();
                 ViaHeader viaHeader = SipUtilities.createViaHeader(provider, itspAccountInfo);
                 reInvite.setHeader(viaHeader);
@@ -1160,9 +1247,7 @@ public class BackToBackUserAgent {
                 return;
             }
 
-            String toUser = ((SipURI) (((ToHeader) incomingRequest.getHeader(ToHeader.NAME))
-                    .getAddress().getURI())).getUser();
-
+         
             SipURI incomingRequestUri = (SipURI) incomingRequest.getRequestURI();
 
             FromHeader fromHeader = (FromHeader) incomingRequest.getHeader(FromHeader.NAME)
@@ -1518,11 +1603,12 @@ public class BackToBackUserAgent {
         DialogApplicationData dad = (DialogApplicationData) dialog.getApplicationData();
         Dialog peer = dad.peerDialog;
 
-        if (peer != null && peer.getState() != DialogState.TERMINATED && peer.getState() != null) {
+        if ((!dad.isReferAccepted) && peer != null && peer.getState() != DialogState.TERMINATED
+                && peer.getState() != null) {
             SipProvider provider = ((gov.nist.javax.sip.DialogExt) peer).getSipProvider();
 
             Request bye = peer.createRequest(Request.BYE);
-           
+
             ClientTransaction ct = provider.getNewClientTransaction(bye);
 
             TransactionApplicationData tad = new TransactionApplicationData(Operation.PROCESS_BYE);
@@ -1633,8 +1719,7 @@ public class BackToBackUserAgent {
                 dialog.sendRequest(ct);
             }
         }
-       
+
     }
 
- 
 }

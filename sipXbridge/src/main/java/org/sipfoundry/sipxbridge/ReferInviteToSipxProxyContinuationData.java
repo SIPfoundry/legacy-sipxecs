@@ -21,9 +21,11 @@ final class ReferInviteToSipxProxyContinuationData implements ContinuationData {
 
     private RequestEvent requestEvent;
     private Operation operation;
+    private Request inviteRequest;
    
-    public ReferInviteToSipxProxyContinuationData(RequestEvent requestEvent) {
+    public ReferInviteToSipxProxyContinuationData(Request inviteRequest, RequestEvent requestEvent) {
         this.requestEvent = requestEvent;
+        this.inviteRequest = inviteRequest;
         this.operation = Operation.REFER_INVITE_TO_SIPX_PROXY;
     }
 
@@ -41,7 +43,7 @@ final class ReferInviteToSipxProxyContinuationData implements ContinuationData {
     }
 
     Request getRequest() {
-        return requestEvent.getRequest();
+        return inviteRequest;
     }
 
 }

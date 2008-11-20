@@ -135,10 +135,8 @@ public class SipListenerImpl implements SipListener {
 
             } else if (provider == Gateway.getLanProvider()
                     && method.equals(Request.INVITE)
-                    && ( ( viaHeader.getReceived() != null &&
-                            Gateway.isAddressFromProxy(viaHeader.getReceived()))                           
-                     || !Gateway.isAddressFromProxy(viaHeader
-                            .getHost()))) {
+                    && ((viaHeader.getReceived() != null && Gateway.isAddressFromProxy(viaHeader
+                            .getReceived())) || !Gateway.isAddressFromProxy(viaHeader.getHost()))) {
                 /*
                  * Check to see that via header originated from proxy server.
                  */
@@ -336,7 +334,7 @@ public class SipListenerImpl implements SipListener {
             if (method.equals(Request.REGISTER)) {
                 Gateway.getRegistrationManager().processResponse(responseEvent);
             } else if (method.equals(Request.INVITE) || method.equals(Request.CANCEL)
-                    || method.equals(Request.BYE)) {
+                    || method.equals(Request.BYE) || method.equals(Request.REFER)) {
                 Gateway.getCallControlManager().processResponse(responseEvent);
             } else {
                 logger.debug("dropping response " + method);

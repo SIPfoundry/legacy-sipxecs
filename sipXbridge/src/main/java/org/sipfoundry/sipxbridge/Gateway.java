@@ -533,7 +533,8 @@ public class Gateway {
      * @return
      */
     static int getMediaKeepaliveMilisec() {
-        return Gateway.accountManager.getBridgeConfiguration().getMediaKeepalive();
+      
+       return Gateway.accountManager.getBridgeConfiguration().getMediaKeepalive();
     }
 
     /**

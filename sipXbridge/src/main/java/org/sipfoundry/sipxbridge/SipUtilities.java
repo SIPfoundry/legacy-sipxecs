@@ -9,6 +9,7 @@ package org.sipfoundry.sipxbridge;
 import gov.nist.javax.sdp.MediaDescriptionImpl;
 import gov.nist.javax.sip.TransactionExt;
 import gov.nist.javax.sip.header.HeaderFactoryExt;
+import gov.nist.javax.sip.header.extensions.ReplacesHeader;
 import gov.nist.javax.sip.header.ims.PPreferredIdentityHeader;
 import gov.nist.javax.sip.header.ims.PrivacyHeader;
 
@@ -45,6 +46,7 @@ import javax.sip.header.ExpiresHeader;
 import javax.sip.header.FromHeader;
 import javax.sip.header.Header;
 import javax.sip.header.MaxForwardsHeader;
+import javax.sip.header.ReferToHeader;
 import javax.sip.header.RouteHeader;
 import javax.sip.header.SupportedHeader;
 import javax.sip.header.ToHeader;
@@ -93,6 +95,28 @@ class SipUtilities {
         }
     }
 
+    static MediaDescription getMediaDescription(SessionDescription sessionDescription) {
+        try {
+            Vector sdVector = sessionDescription.getMediaDescriptions(true);
+            MediaDescription mediaDescription = null;
+            for (Object md : sdVector) {
+                MediaDescription media = (MediaDescription) md;
+                String mediaType = media.getMedia().getMediaType();
+                if (mediaType.equals("audio") || mediaType.equals("image")
+                        || mediaType.equals("video")) {
+                    logger.debug("Returning description for media type " + mediaType);
+                    mediaDescription = media;
+                    break;
+                }
+
+            }
+            return mediaDescription;
+        } catch (Exception ex) {
+            logger.error("Unexpected exception", ex);
+            throw new RuntimeException("Unexpected exception ", ex);
+        }
+    }
+
     /**
      * Create a Via header for a given provider and transport.
      */
@@ -127,7 +151,7 @@ class SipUtilities {
                 int port = listeningPoint.getPort();
                 ViaHeader viaHeader = ProtocolObjects.headerFactory.createViaHeader(host, port,
                         listeningPoint.getTransport(), null);
-               
+
                 return viaHeader;
 
             } else {
@@ -276,12 +300,7 @@ class SipUtilities {
                 Request.REGISTER, callid, cseqHeader, fromHeader, toHeader, list, maxForwards);
         request.addHeader(createUserAgentHeader());
 
-        for (String req : new String[] {
-            Request.INVITE, Request.ACK, Request.BYE, Request.CANCEL
-        }) {
-            Header header = ProtocolObjects.headerFactory.createAllowHeader(req);
-            request.addHeader(header);
-        }
+        SipUtilities.addWanAllowHeaders(request);
 
         if (itspAccount.getOutboundRegistrar() != null
                 && !itspAccount.getProxyDomain().equals(itspAccount.getOutboundRegistrar())) {
@@ -780,14 +799,13 @@ class SipUtilities {
             String ipAddress = null;
             if (sessionDescription.getConnection() != null)
                 ipAddress = sessionDescription.getConnection().getAddress();
-
-            MediaDescription mediaDescription = (MediaDescription) sessionDescription
-                    .getMediaDescriptions(true).get(0);
+            MediaDescription mediaDescription = getMediaDescription(sessionDescription);
+            if (mediaDescription == null) {
+                return null;
+            }
 
             if (mediaDescription.getConnection() != null) {
-
                 ipAddress = mediaDescription.getConnection().getAddress();
-
             }
             return ipAddress;
         } catch (SdpParseException ex) {
@@ -801,8 +819,7 @@ class SipUtilities {
             SessionDescription sessionDescription) {
         try {
 
-            MediaDescription md = (MediaDescription) sessionDescription
-                    .getMediaDescriptions(true).get(0);
+            MediaDescription md = getMediaDescription(sessionDescription);
             for (Object obj : md.getAttributes(false)) {
                 Attribute attr = (Attribute) obj;
                 if (attr.getName().equals("sendrecv"))
@@ -846,8 +863,7 @@ class SipUtilities {
 
         try {
 
-            MediaDescriptionImpl md = (MediaDescriptionImpl) sessionDescription
-                    .getMediaDescriptions(true).get(0);
+            MediaDescriptionImpl md = (MediaDescriptionImpl) getMediaDescription(sessionDescription);
             md.setDuplexity(attributeValue);
 
         } catch (Exception ex) {
@@ -860,10 +876,8 @@ class SipUtilities {
 
     static int getSessionDescriptionMediaPort(SessionDescription sessionDescription) {
         try {
-            MediaDescription mediaDescription = (MediaDescription) sessionDescription
-                    .getMediaDescriptions(true).get(0);
-            String mediaType = mediaDescription.getMedia().getMediaType();
-            logger.debug("media type " + mediaType);
+            MediaDescription mediaDescription = getMediaDescription(sessionDescription);
+
             return mediaDescription.getMedia().getMediaPort();
         } catch (Exception ex) {
             throw new RuntimeException("Malformatted sdp", ex);
@@ -1105,6 +1119,117 @@ class SipUtilities {
             throw new RuntimeException(ex);
         }
 
+    }
+
+    static void addAllowHeaders(Message message) {
+        message.removeHeader(AllowHeader.NAME); // Remove existing Allow
+        try {
+            for (String method : new String[] {
+                Request.INVITE, Request.BYE, Request.ACK, Request.CANCEL, Request.REFER,
+                Request.OPTIONS
+            }) {
+                AllowHeader allow = ProtocolObjects.headerFactory.createAllowHeader(method);
+                message.addHeader(allow);
+            }
+        } catch (Exception ex) {
+            logger.error("Unexpected exception", ex);
+            throw new RuntimeException(ex);
+        }
+
+    }
+
+    static void addWanAllowHeaders(Message message) {
+
+        message.removeHeader(AllowHeader.NAME); // Remove existing Allow
+        try {
+            for (String method : new String[] {
+                Request.INVITE, Request.BYE, Request.ACK, Request.CANCEL, Request.OPTIONS
+            }) {
+                AllowHeader allow = ProtocolObjects.headerFactory.createAllowHeader(method);
+                message.addHeader(allow);
+            }
+        } catch (Exception ex) {
+            logger.error("Unexpected exception", ex);
+            throw new RuntimeException(ex);
+        }
+    }
+
+    public static boolean isCodecDifferent(SessionDescription sd1, SessionDescription sd2) {
+
+        try {
+            MediaDescription md1 = getMediaDescription(sd1);
+            MediaDescription md2 = getMediaDescription(sd2);
+            HashSet fmt1 = new HashSet(md1.getMedia().getMediaFormats(true));
+            HashSet fmt2 = new HashSet(md2.getMedia().getMediaFormats(true));
+            logger.debug("Comparing " + fmt1 + " with " + fmt2 + " returning "
+                    + !fmt1.equals(fmt2));
+            return !fmt1.equals(fmt2);
+        } catch (Exception ex) {
+            logger.error("Unexpected exception", ex);
+            throw new RuntimeException(ex);
+        }
+    }
+
+    public static boolean isReplacesHeaderPresent(Request referRequest) {
+        ReferToHeader referToHeader = (ReferToHeader) referRequest.getHeader(ReferToHeader.NAME);
+
+        if (referToHeader != null) {
+            return false;
+        }
+
+        if (referRequest.getHeader(ReplacesHeader.NAME) != null) {
+            return true;
+        }
+
+        SipURI uri = (SipURI) referToHeader.getAddress().getURI();
+
+        /* Does the refer to header contain a Replaces? ( attended transfer ) */
+        String replacesParam = uri.getHeader(ReplacesHeader.NAME);
+
+        return replacesParam != null;
+    }
+
+    public static SipURI createInboundRequestUri(ItspAccountInfo itspInfo) {
+
+        try {
+            String address;
+          
+            
+            address = itspInfo == null || !itspInfo.isGlobalAddressingUsed() ? Gateway.getLocalAddress() : Gateway.getGlobalAddress();
+                
+            SipURI retval =(SipURI) ProtocolObjects.addressFactory.createURI("sip:"+ address);
+            
+            int port =  itspInfo == null || !itspInfo.isGlobalAddressingUsed() ? Gateway.getBridgeConfiguration().getExternalPort() : Gateway.getGlobalPort();
+           
+            retval.setPort(port);
+               
+            retval.setUser(itspInfo.getUserName());
+         
+            return retval;
+        } catch (Exception ex) {
+            logger.error("unexpected error creating inbound Request URI ", ex);
+            throw new RuntimeException("Unexpected error creating RURI ", ex);
+        }
+    }
+
+    public static SipURI createInboundReferredByUri(ItspAccountInfo itspInfo) {
+        try {
+            String address;
+            int port;
+            
+            address = itspInfo.getCallerId();
+                
+            SipURI retval =(SipURI) ProtocolObjects.addressFactory.createURI("sip:"+ address);
+            
+        
+               
+           
+         
+            return retval;
+        } catch (Exception ex) {
+            logger.error("unexpected error creating inbound Request URI ", ex);
+            throw new RuntimeException("Unexpected error creating RURI ", ex);
+        }
     }
 
 }
