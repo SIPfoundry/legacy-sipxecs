@@ -1,0 +1,91 @@
+# Example usage of this file: ./polycom_ini_diff.rb DUMP_000000000000.ini DUMP_000000000650.ini | ./polycom_diff_subtract.rb diff_default_exceptions.csv
+# ParameterID, Reason Text
+meta-count.OverrideAttempts, Not actual configuration data # 
+meta-count.UniqueParameters, Not actual configuration data
+meta-count.XmlAttributes, Not actual configuration data
+meta-mac, Not actual configuration data 
+sip-voIpProt.SIP.musicOnHold.uri, sipXecs has a MOH server
+sip-call.directedCallPickupString, sipXecs uses a configurable Call Pickup code
+sip-dialplan.digitmap, sipXecs does not assume the dial plan required for the Polycom default value to be useful
+sip-dialplan.digitmap.timeOut, sipXecs does not assume the dial plan required for the Polycom default value to be useful
+sip-feature.16.enabled, "nway-conference" XCF-2728 (Enable Polycom Productivity Suite - Call Recording and Conference Call Management)
+sip-feature.17.enabled, "call-recording" XCF-2728 (Enable Polycom Productivity Suite - Call Recording and Conference Call Management)
+sip-feature.9.enabled, Disabling url-dialing removes the "@hostname"/"@IP" from the display for incoming calls.
+sip-tcpIpApp.sntp.address, We supply a useful default NTP server address: pool.ntp.org
+phone1-reg.1.server.1.transport, UDPOnly results in an earlier DNS SRV for _sip_udp.hostname, and we don't need NAPTR
+phone1-reg.1.server.2.transport, UDPOnly results in an earlier DNS SRV for _sip_udp.hostname, and we don't need NAPTR
+phone1-reg.1.outboundProxy.transport, Exposed by sipXconfig, which uses a non-blank default (DNSnaptr).
+phone1-reg.1.bargeInEnabled, Exposed by sipXconfig, which uses a non-blank default (0).
+phone1-reg.1.server.1.expires.overlap, Exposed by sipXconfig, which uses a non-blank default (60).
+phone1-reg.2.server.1.transport, UDPOnly results in an earlier DNS SRV for _sip_udp.hostname, and we don't need NAPTR
+phone1-reg.2.server.2.transport, UDPOnly results in an earlier DNS SRV for _sip_udp.hostname, and we don't need NAPTR
+phone1-reg.2.outboundProxy.transport, Exposed by sipXconfig, which uses a non-blank default (DNSnaptr).
+phone1-reg.2.bargeInEnabled, Exposed by sipXconfig, which uses a non-blank default (0).
+phone1-reg.2.server.1.expires.overlap, Exposed by sipXconfig, which uses a non-blank default (60).
+phone1-reg.3.server.1.transport, UDPOnly results in an earlier DNS SRV for _sip_udp.hostname, and we don't need NAPTR
+phone1-reg.3.server.2.transport, UDPOnly results in an earlier DNS SRV for _sip_udp.hostname, and we don't need NAPTR
+phone1-reg.3.outboundProxy.transport, Exposed by sipXconfig, which uses a non-blank default (DNSnaptr).
+phone1-reg.3.bargeInEnabled, Exposed by sipXconfig, which uses a non-blank default (0).
+phone1-reg.3.server.1.expires.overlap, Exposed by sipXconfig, which uses a non-blank default (60).
+phone1-reg.4.server.1.transport, UDPOnly results in an earlier DNS SRV for _sip_udp.hostname, and we don't need NAPTR
+phone1-reg.4.server.2.transport, UDPOnly results in an earlier DNS SRV for _sip_udp.hostname, and we don't need NAPTR
+phone1-reg.4.outboundProxy.transport, Exposed by sipXconfig, which uses a non-blank default (DNSnaptr).
+phone1-reg.4.bargeInEnabled, Exposed by sipXconfig, which uses a non-blank default (0).
+phone1-reg.4.server.1.expires.overlap, Exposed by sipXconfig, which uses a non-blank default (60).
+phone1-reg.5.server.1.transport, UDPOnly results in an earlier DNS SRV for _sip_udp.hostname, and we don't need NAPTR
+phone1-reg.5.server.2.transport, UDPOnly results in an earlier DNS SRV for _sip_udp.hostname, and we don't need NAPTR
+phone1-reg.5.outboundProxy.transport, Exposed by sipXconfig, which uses a non-blank default (DNSnaptr).
+phone1-reg.5.bargeInEnabled, Exposed by sipXconfig, which uses a non-blank default (0).
+phone1-reg.5.server.1.expires.overlap, Exposed by sipXconfig, which uses a non-blank default (60).
+phone1-reg.6.server.1.transport, UDPOnly results in an earlier DNS SRV for _sip_udp.hostname, and we don't need NAPTR
+phone1-reg.6.server.2.transport, UDPOnly results in an earlier DNS SRV for _sip_udp.hostname, and we don't need NAPTR
+phone1-reg.6.outboundProxy.transport, Exposed by sipXconfig, which uses a non-blank default (DNSnaptr).
+phone1-reg.6.bargeInEnabled, Exposed by sipXconfig, which uses a non-blank default (0).
+phone1-reg.6.server.1.expires.overlap, Exposed by sipXconfig, which uses a non-blank default (60).
+sip-voIpProt.SIP.specialEvent.checkSync.alwaysReboot, sipXecs has a "Reboot" button for phones
+sip-se.pat.misc.1.inst.1.type, Intentionally disabled by default (XCF-840) See Sound Effects->Message Waiting
+sip-se.pat.misc.1.inst.2.type, Intentionally disabled by default (XCF-840) See Sound Effects->Message Waiting
+sip-se.pat.misc.1.inst.3.type, Intentionally disabled by default (XCF-840) See Sound Effects->Message Waiting
+sip-saf.1, Polycom removed this is 3.1.0, but we don't see the need to follow suit, especially since WELCOME is still defined to use it, and up.welcomeSoundEnabled is still 1 by default.
+sip-call.localConferenceCallHold, Exposed by sipXconfig, which uses a non-blank default.
+sip-voIpProt.server.dhcp.available, Exposed by sipXconfig, which uses a non-blank default.
+sip-voIpProt.SIP.allowTransferOnProceeding, Exposed by sipXconfig, which uses a non-blank default (1).
+sip-voIpProt.SIP.serverFeatureControl.cf, Exposed by sipXconfig, which uses a non-blank default (0).
+sip-voIpProt.SIP.serverFeatureControl.dnd, Exposed by sipXconfig, which uses a non-blank default (0).
+sip-tcpIpApp.keepalive.tcp.idleTransmitInterval, Exposed by sipXconfig, which uses a non-blank default (30).
+sip-tcpIpApp.keepalive.tcp.noResponseTrasmitInterval, Exposed by sipXconfig, which uses a non-blank default (20).
+sip-call.callsPerLineKey, Exposed by sipXconfig, which uses a non-blank default (8 or 24, depending on the phone model).
+phone1-dialplan.1.routing.emergency.1.server.1, Set to 1 --> dialplan.1.routing.server.1
+phone1-dialplan.2.routing.emergency.1.server.1, Set to 1 --> dialplan.1.routing.server.1
+phone1-dialplan.3.routing.emergency.1.server.1, Set to 1 --> dialplan.1.routing.server.1
+phone1-dialplan.4.routing.emergency.1.server.1, Set to 1 --> dialplan.1.routing.server.1
+phone1-dialplan.5.routing.emergency.1.server.1, Set to 1 --> dialplan.1.routing.server.1
+phone1-dialplan.6.routing.emergency.1.server.1, Set to 1 --> dialplan.1.routing.server.1
+phone1-divert.busy.1.enabled, sipXecs uses server-based call forwarding
+phone1-divert.busy.2.enabled, sipXecs uses server-based call forwarding
+phone1-divert.busy.3.enabled, sipXecs uses server-based call forwarding
+phone1-divert.busy.4.enabled, sipXecs uses server-based call forwarding
+phone1-divert.busy.5.enabled, sipXecs uses server-based call forwarding
+phone1-divert.busy.6.enabled, sipXecs uses server-based call forwarding
+phone1-divert.fwd.1.enabled, sipXecs uses server-based call forwarding
+phone1-divert.fwd.2.enabled, sipXecs uses server-based call forwarding
+phone1-divert.fwd.3.enabled, sipXecs uses server-based call forwarding
+phone1-divert.fwd.4.enabled, sipXecs uses server-based call forwarding
+phone1-divert.fwd.5.enabled, sipXecs uses server-based call forwarding
+phone1-divert.fwd.6.enabled, sipXecs uses server-based call forwarding
+phone1-divert.noanswer.1.enabled, sipXecs uses server-based call forwarding
+phone1-divert.noanswer.2.enabled, sipXecs uses server-based call forwarding
+phone1-divert.noanswer.3.enabled, sipXecs uses server-based call forwarding
+phone1-divert.noanswer.4.enabled, sipXecs uses server-based call forwarding
+phone1-divert.noanswer.5.enabled, sipXecs uses server-based call forwarding
+phone1-divert.noanswer.6.enabled, sipXecs uses server-based call forwarding
+phone1-msg.mwi.1.callBackMode, sipXecs uses "contact" mode, note though that it is only configured when there is a line programmed
+phone1-msg.mwi.2.callBackMode, sipXecs uses "contact" mode, note though that it is only configured when there is a line programmed
+phone1-msg.mwi.3.callBackMode, sipXecs uses "contact" mode, note though that it is only configured when there is a line programmed
+phone1-msg.mwi.4.callBackMode, sipXecs uses "contact" mode, note though that it is only configured when there is a line programmed
+phone1-msg.mwi.5.callBackMode, sipXecs uses "contact" mode, note though that it is only configured when there is a line programmed
+phone1-msg.mwi.6.callBackMode, sipXecs uses "contact" mode, note though that it is only configured when there is a line programmed
+sip-dialplan.impossibleMatchHandling, sipXecs allows the user to accumulate digits and dispatch call manually with the Send soft key
+sip-tcpIpApp.sntp.gmtOffset, sipXecs defaults to EST
+
+
