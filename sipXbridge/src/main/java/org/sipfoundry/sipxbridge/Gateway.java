@@ -768,19 +768,7 @@ public class Gateway {
             for (Dialog dialog : ((SipStackExt) ProtocolObjects.sipStack).getDialogs()) {
 
                 DialogApplicationData dat = DialogApplicationData.get(dialog);
-                if (dat != null && dat.musicOnHoldDialog != null
-                        && dat.musicOnHoldDialog.getState() != DialogState.TERMINATED) {
-                    try {
-                        SipProvider provider = ((DialogExt) dat.musicOnHoldDialog)
-                                .getSipProvider();
-                        Request byeRequest = dat.musicOnHoldDialog.createRequest(Request.BYE);
-                        ClientTransaction ctx = provider.getNewClientTransaction(byeRequest);
-                        dat.musicOnHoldDialog.sendRequest(ctx);
-                    } catch (Exception ex) {
-                        logger.error("Exception in dialog termination processing", ex);
-                    }
-
-                }
+               
                 if (dat != null) {
                     BackToBackUserAgent b2bua = dat.getBackToBackUserAgent();
                     if (b2bua != null) {

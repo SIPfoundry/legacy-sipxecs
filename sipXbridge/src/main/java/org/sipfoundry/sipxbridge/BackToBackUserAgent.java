@@ -119,6 +119,8 @@ public class BackToBackUserAgent {
 
     private String symmitronServerHandle;
 
+    private Dialog musicOnHoldDialog;
+
     // ///////////////////////////////////////////////////////////////////////
     // Private methods.
     // ///////////////////////////////////////////////////////////////////////
@@ -305,18 +307,10 @@ public class BackToBackUserAgent {
             this.pairDialogs(
                     ((DialogApplicationData) replacedDialog.getApplicationData()).peerDialog,
                     this.referingDialogPeer);
-
-            Dialog mohDialog = ((DialogApplicationData) referingDialog.getApplicationData()).musicOnHoldDialog;
-
             /*
              * Tear down the Music On Hold Dialog if any.
              */
-            if (mohDialog != null && mohDialog.getState() != DialogState.TERMINATED) {
-                Request byeRequest = mohDialog.createRequest(Request.BYE);
-                SipProvider mohDialogProvider = ((DialogExt) mohDialog).getSipProvider();
-                ClientTransaction ctx = mohDialogProvider.getNewClientTransaction(byeRequest);
-                mohDialog.sendRequest(ctx);
-            }
+            this.sendByeToMohServer();
 
             /* The replaced dialog is about ready to die so he has no peer */
             ((DialogApplicationData) replacedDialog.getApplicationData()).peerDialog = null;
@@ -512,6 +506,9 @@ public class BackToBackUserAgent {
         }
 
         if (dialogTable.size() == 0) {
+
+            this.sendByeToMohServer();
+
             Gateway.getCallControlManager().removeBackToBackUserAgent(this);
         }
     }
@@ -535,26 +532,22 @@ public class BackToBackUserAgent {
         this.dialogTable.add(dialog);
 
     }
-    
-    
 
     /**
      * Create an INVITE request from an inbound REFER.
      * 
      * @param requestEvent -- the inbound REFER request Event
      * @return the INVITE request crafted from the IB Refer
-     *
+     * 
      */
-    Request createInviteFromReferRequest(RequestEvent requestEvent) throws SipException, ParseException,
-            IOException {
+    Request createInviteFromReferRequest(RequestEvent requestEvent) throws SipException,
+            ParseException, IOException {
         Dialog dialog = requestEvent.getDialog();
         ServerTransaction referServerTransaction = requestEvent.getServerTransaction();
         Request referRequest = referServerTransaction.getRequest();
 
-       
         /*
-         * Get the Refer-To header and convert it into an INVITE
-         * to send to the REFER target.
+         * Get the Refer-To header and convert it into an INVITE to send to the REFER target.
          */
 
         ReferToHeader referToHeader = (ReferToHeader) referRequest.getHeader(ReferToHeader.NAME);
@@ -563,7 +556,7 @@ public class BackToBackUserAgent {
 
         /* Requesting new dialog -- remove the route header */
         newRequest.removeHeader(RouteHeader.NAME);
-        
+
         /* Does the refer to header contain a Replaces? ( attended transfer ) */
         String replacesParam = uri.getHeader(ReplacesHeader.NAME);
         ReplacesHeader replacesHeader = null;
@@ -606,6 +599,8 @@ public class BackToBackUserAgent {
                 .createCallIdHeader(this.creatingCallId + "." + this.counter++);
         newRequest.setHeader(callId);
         Gateway.getCallControlManager().setBackToBackUserAgent(callId.getCallId(), this);
+        
+        SipUtilities.addAllowHeaders(newRequest);
 
         SupportedHeader sh = ProtocolObjects.headerFactory.createSupportedHeader("replaces");
         newRequest.setHeader(sh);
@@ -667,7 +662,6 @@ public class BackToBackUserAgent {
 
             newDialogApplicationData.rtpSession = dialogApplicationData.rtpSession;
             newDialogApplicationData.peerDialog = dialogApplicationData.peerDialog;
-            newDialogApplicationData.musicOnHoldDialog = dialogApplicationData.musicOnHoldDialog;
 
             /*
              * This sends the BYE early to the MOH dialog. if
@@ -679,8 +673,7 @@ public class BackToBackUserAgent {
             if (logger.isDebugEnabled()) {
                 logger.debug("referInviteToSipxProxy peerDialog = "
                         + newDialogApplicationData.peerDialog);
-                logger.debug("referInviteToSipxProxy mohDialog = "
-                        + dialogApplicationData.musicOnHoldDialog);
+
             }
 
             this.referingDialogPeer = dialogApplicationData.peerDialog;
@@ -734,7 +727,8 @@ public class BackToBackUserAgent {
     }
 
     /**
-     * Forward the REFER request to the ITSP
+     * Forward the REFER request to the ITSP. 
+     * 
      * 
      * @param requestEvent - INBOUND REFER ( from sipx )
      */
@@ -749,41 +743,42 @@ public class BackToBackUserAgent {
             SipProvider wanProvider = ((DialogExt) peerDialog).getSipProvider();
 
             Request outboundRefer = peerDialog.createRequest(Request.REFER);
-            
-            ReferToHeader referToHeader = (ReferToHeader) referRequest.getHeader(ReferToHeader.NAME);
+
+            ReferToHeader referToHeader = (ReferToHeader) referRequest
+                    .getHeader(ReferToHeader.NAME);
             SipURI uri = (SipURI) referToHeader.getAddress().getURI();
-            String referToUserName =  uri.getUser();
-            
+            String referToUserName = uri.getUser();
+
             SipURI forwardedReferToUri = SipUtilities.createInboundRequestUri(itspInfo);
-            
-            forwardedReferToUri.setParameter("target",referToUserName);
-            
-            
-            
-            Address referToAddress = ProtocolObjects.addressFactory.createAddress(forwardedReferToUri);
-            
-            
+
+            forwardedReferToUri.setParameter("target", referToUserName);
+
+            Address referToAddress = ProtocolObjects.addressFactory
+                    .createAddress(forwardedReferToUri);
+
             SipURI forwardedReferredByUri = SipUtilities.createInboundReferredByUri(itspInfo);
-            
-            Address referByAddress = ProtocolObjects.addressFactory.createAddress(forwardedReferredByUri);
-            
-            ReferToHeader outboundReferToHeader = ProtocolObjects.headerFactory.createReferToHeader(referToAddress);
-            
-            ReferredByHeader outboundReferByHeader = ((HeaderFactoryExt)ProtocolObjects.headerFactory).createReferredByHeader(referByAddress);
-            
+
+            Address referByAddress = ProtocolObjects.addressFactory
+                    .createAddress(forwardedReferredByUri);
+
+            ReferToHeader outboundReferToHeader = ProtocolObjects.headerFactory
+                    .createReferToHeader(referToAddress);
+
+            ReferredByHeader outboundReferByHeader = ((HeaderFactoryExt) ProtocolObjects.headerFactory)
+                    .createReferredByHeader(referByAddress);
+
             outboundRefer.setHeader(outboundReferByHeader);
-            
+
             outboundRefer.setHeader(outboundReferToHeader);
-            
+
             TransactionApplicationData tad = new TransactionApplicationData(
                     Operation.FORWARD_REFER);
 
             if (itspInfo == null || itspInfo.isGlobalAddressingUsed()) {
                 SipUtilities.setGlobalAddresses(outboundRefer);
             }
-            
-            SipUtilities.addAllowHeaders(outboundRefer);
-            
+
+            SipUtilities.addWanAllowHeaders(outboundRefer);
 
             ClientTransaction outboundReferClientTx = wanProvider
                     .getNewClientTransaction(outboundRefer);
@@ -1087,6 +1082,8 @@ public class BackToBackUserAgent {
             DialogApplicationData dat = DialogApplicationData.attach(this, ct.getDialog(), ct, ct
                     .getRequest());
 
+            this.musicOnHoldDialog = ct.getDialog();
+
             retval = ct;
 
         } catch (InvalidArgumentException ex) {
@@ -1107,15 +1104,23 @@ public class BackToBackUserAgent {
      * @param musicOnHoldDialog
      * @throws SipException
      */
-    void sendByeToMohServer(Dialog musicOnHoldDialog) throws SipException {
-        logger.debug("sendByeToMohServer");
-        Request byeRequest = musicOnHoldDialog.createRequest(Request.BYE);
-        SipProvider lanProvider = Gateway.getLanProvider();
-        ClientTransaction ctx = lanProvider.getNewClientTransaction(byeRequest);
-        TransactionApplicationData tad = new TransactionApplicationData(
-                Operation.SEND_BYE_TO_MOH_SERVER);
-        ctx.setApplicationData(tad);
-        musicOnHoldDialog.sendRequest(ctx);
+    void sendByeToMohServer()  {
+        try {
+            if (this.musicOnHoldDialog != null
+                    && this.musicOnHoldDialog.getState() != DialogState.TERMINATED) {
+                logger.debug("sendByeToMohServer");
+                Request byeRequest = musicOnHoldDialog.createRequest(Request.BYE);
+                SipProvider lanProvider = Gateway.getLanProvider();
+                ClientTransaction ctx = lanProvider.getNewClientTransaction(byeRequest);
+                TransactionApplicationData tad = new TransactionApplicationData(
+                        Operation.SEND_BYE_TO_MOH_SERVER);
+                ctx.setApplicationData(tad);
+                musicOnHoldDialog.sendRequest(ctx);
+            }
+        } catch (SipException ex) {
+            logger.error("Unexpected exception ", ex);
+            throw new RuntimeException(ex);
+        }
 
     }
 
@@ -1247,7 +1252,6 @@ public class BackToBackUserAgent {
                 return;
             }
 
-         
             SipURI incomingRequestUri = (SipURI) incomingRequest.getRequestURI();
 
             FromHeader fromHeader = (FromHeader) incomingRequest.getHeader(FromHeader.NAME)
@@ -1305,8 +1309,10 @@ public class BackToBackUserAgent {
              */
             if (!spiral) {
                 pairDialogs(incomingDialog, outboundDialog);
+
             } else {
                 pairDialogs(this.referingDialogPeer, outboundDialog);
+
             }
 
             /*
@@ -1720,6 +1726,13 @@ public class BackToBackUserAgent {
             }
         }
 
+    }
+
+    /**
+     * @return the musicOnHoldDialog
+     */
+    public Dialog getMusicOnHoldDialog() {
+        return musicOnHoldDialog;
     }
 
 }

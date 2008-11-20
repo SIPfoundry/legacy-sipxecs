@@ -176,15 +176,16 @@ class RtpSession {
              * Make sure that global addressing is set.
              */
             logger.debug("peerDat.itspInfo " + peerDat.getItspInfo());
-            if (peerDat.getItspInfo() == null || peerDat.getItspInfo().isGlobalAddressingUsed() ) {
-                if (Gateway.getGlobalAddress() != null ) {
+            if (peerDat.getItspInfo() == null || peerDat.getItspInfo().isGlobalAddressingUsed()) {
+                if (Gateway.getGlobalAddress() != null) {
                     SipUtilities.setGlobalAddresses(newInvite);
                     SipUtilities.fixupSdpAddresses(sd, Gateway.getGlobalAddress());
                 } else {
-                    javax.sip.header.WarningHeader warning = 
-                        ProtocolObjects.headerFactory.createWarningHeader("SipXbridge", 102, "Public address of bridge is not known.");
+                    javax.sip.header.WarningHeader warning = ProtocolObjects.headerFactory
+                            .createWarningHeader("SipXbridge", 102,
+                                    "Public address of bridge is not known.");
                     b2bua.tearDown(warning);
-                    
+
                 }
             }
 
@@ -248,20 +249,17 @@ class RtpSession {
             DialogApplicationData dat = (DialogApplicationData) dialog.getApplicationData();
             BackToBackUserAgent b2bua = dat.getBackToBackUserAgent();
 
-            if (dat.musicOnHoldDialog != null
-                    && dat.musicOnHoldDialog.getState() != DialogState.TERMINATED) {
-                b2bua.sendByeToMohServer(dat.musicOnHoldDialog);
-            }
+            b2bua.sendByeToMohServer();
 
             SessionDescription sd = this.getReceiver().getSessionDescription();
 
             SipProvider provider = ((DialogExt) dialog).getSipProvider();
 
-            if (provider != Gateway.getLanProvider()  || Gateway.isReInviteSupported() ) {
+            if (provider != Gateway.getLanProvider() || Gateway.isReInviteSupported()) {
                 // RE-INVITE was received from WAN side or from LAN side and wan side supports
                 // Re-INIVTE then just forward it.
                 this.forwardReInvite(serverTransaction, dialog);
-            } 
+            }
         } catch (Exception ex) {
             throw new RuntimeException(ex);
         }
@@ -295,7 +293,6 @@ class RtpSession {
             }
             DialogApplicationData dat = (DialogApplicationData) dialog.getApplicationData();
             Dialog mohDialog = mohCtx.getDialog();
-            dat.musicOnHoldDialog = mohDialog;
             DialogApplicationData mohDat = DialogApplicationData.get(mohDialog);
             mohDat.peerDialog = peerDialog;
             mohCtx.sendRequest();
@@ -304,8 +301,6 @@ class RtpSession {
         SipUtilities.setDuplexity(this.getReceiver().getSessionDescription(), "recvonly");
         SipUtilities.incrementSessionVersion(this.getReceiver().getSessionDescription());
     }
-    
-   
 
     /**
      * Reassign the session parameters ( possibly putting the media on hold and playing music ).
@@ -351,10 +346,14 @@ class RtpSession {
             String attribute = sessionAttribute != null ? sessionAttribute : mediaAttribute;
 
             if (this.isHoldRequest(request)) {
-                /* Got a hold request. The answer should have a subset of codecs limited by the offer */
+                /*
+                 * Got a hold request. The answer should have a subset of codecs limited by the
+                 * offer
+                 */
                 this.putOnHold(dialog, peerDialog);
                 HashSet<Integer> codecs = SipUtilities.getCodecNumbers(sessionDescription);
-                SipUtilities.cleanSessionDescription(this.getReceiver().getSessionDescription(), codecs);
+                SipUtilities.cleanSessionDescription(this.getReceiver().getSessionDescription(),
+                        codecs);
                 return this.getReceiver().getSessionDescription();
             } else if (attribute == null || attribute.equals("sendrecv")) {
                 this.removeHold(serverTransaction, dialog);

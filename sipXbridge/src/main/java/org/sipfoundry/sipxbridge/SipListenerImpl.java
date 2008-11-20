@@ -53,22 +53,7 @@ public class SipListenerImpl implements SipListener {
         if (dat != null) {
             dat.cancelSessionTimer();
         }
-        if (dat != null && dat.musicOnHoldDialog != null
-                && dat.musicOnHoldDialog.getState() != DialogState.TERMINATED) {
-            try {
-                SipProvider provider = ((DialogExt) dat.musicOnHoldDialog).getSipProvider();
-                Request byeRequest = dat.musicOnHoldDialog.createRequest(Request.BYE);
-                ClientTransaction ctx = provider.getNewClientTransaction(byeRequest);
-                TransactionApplicationData tad = new TransactionApplicationData(
-                        Operation.SEND_BYE_TO_MOH_SERVER);
-                ctx.setApplicationData(tad);
-                dat.musicOnHoldDialog.sendRequest(ctx);
-
-            } catch (Exception ex) {
-                logger.error("Exception in dialog termination processing", ex);
-            }
-
-        }
+       
         if (dat != null) {
             BackToBackUserAgent b2bua = dat.getBackToBackUserAgent();
             if (b2bua != null) {
@@ -381,18 +366,8 @@ public class SipListenerImpl implements SipListener {
                      * If this is a refer request -- grab the MOH Dialog and kill it. Otherwise we
                      * are stuck with the MOH dialog.
                      */
-                    DialogApplicationData dialogApplicationData = DialogApplicationData.get(ctx
-                            .getDialog());
-                    if (dialogApplicationData.musicOnHoldDialog != null) {
-                        Dialog mohDialog = dialogApplicationData.musicOnHoldDialog;
-                        if (mohDialog != null && mohDialog.getState() != DialogState.TERMINATED) {
-                            Request byeRequest = mohDialog.createRequest(Request.BYE);
-                            SipProvider sipProvider = ((DialogExt) mohDialog).getSipProvider();
-                            ClientTransaction byetx = sipProvider
-                                    .getNewClientTransaction(byeRequest);
-                            mohDialog.sendRequest(byetx);
-                        }
-                    }
+                    BackToBackUserAgent b2bua = DialogApplicationData.get(ctx.getDialog()).getBackToBackUserAgent();
+                    b2bua.sendByeToMohServer();
 
                 }
             }

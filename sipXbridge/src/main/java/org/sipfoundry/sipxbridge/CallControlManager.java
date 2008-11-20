@@ -500,8 +500,8 @@ class CallControlManager implements SymmitronResetHandler {
     }
 
     /**
-     * This is the response we get back from the Auto attendant.
-     * 
+     * Handle inbound REFER request.
+     *  
      * @param requestEvent
      */
     private void processRefer(RequestEvent requestEvent) {
@@ -526,8 +526,10 @@ class CallControlManager implements SymmitronResetHandler {
                 return;
             }
             if (provider != Gateway.getLanProvider()) {
-                // For now do not accept refer from the WAN side later we can
-                // relax this restriction.
+                /*
+                 * For now do not accept refer from the WAN side later we can relax this
+                 * restriction.
+                 */
                 Response response = ProtocolObjects.messageFactory.createResponse(
                         Response.NOT_IMPLEMENTED, request);
                 response.setReasonPhrase("Can only handle REFER from LAN");
@@ -825,19 +827,22 @@ class CallControlManager implements SymmitronResetHandler {
         DialogApplicationData dat = (DialogApplicationData) dialog.getApplicationData();
         BackToBackUserAgent b2bua = dat.getBackToBackUserAgent();
         Dialog peerDialog = DialogApplicationData.getPeerDialog(dialog);
-        DialogApplicationData peerDialogApplicationData = (DialogApplicationData) peerDialog
-                .getApplicationData();
+        DialogApplicationData peerDat = (DialogApplicationData) peerDialog.getApplicationData();
         if (logger.isDebugEnabled()) {
             logger.debug("sendSdpOffer : peerDialog = " + peerDialog
-                    + " peerDialogApplicationData = " + peerDialogApplicationData
-                    + "\nlastResponse = " + peerDialogApplicationData.lastResponse);
+                    + " peerDialogApplicationData = " + peerDat + "\nlastResponse = "
+                    + peerDat.lastResponse);
         }
 
-        if (!peerDialogApplicationData.isSdpOfferPending) {
+        if (!peerDat.isSdpOfferPending) {
             logger.warn("This method should not be called with isSdpOfferPending off");
             return;
         }
-        peerDialogApplicationData.isSdpOfferPending = false;
+        peerDat.isSdpOfferPending = false;
+
+        b2bua.sendByeToMohServer();
+
+       
         /*
          * Create a new INVITE to send to the ITSP.
          */
@@ -864,9 +869,8 @@ class CallControlManager implements SymmitronResetHandler {
 
                 b2bua.getWanRtpSession(peerDialog).getTransmitter().setOnHold(false);
 
-               
                 b2bua.getWanRtpSession(peerDialog).getReceiver().setSessionDescription(sd);
-              
+
                 SipUtilities.incrementSessionVersion(sd);
 
                 SipUtilities.addWanAllowHeaders(sdpOfferInvite);
@@ -879,7 +883,7 @@ class CallControlManager implements SymmitronResetHandler {
                 b2bua.getLanRtpSession(peerDialog).getTransmitter().setOnHold(false);
 
                 b2bua.getLanRtpSession(peerDialog).getReceiver().setSessionDescription(sd);
-           
+
                 SipUtilities.incrementSessionVersion(sd);
 
                 SipUtilities.addAllowHeaders(sdpOfferInvite);
@@ -1178,23 +1182,40 @@ class CallControlManager implements SymmitronResetHandler {
                              */
                             ReferInviteToSipxProxyContinuationData continuation = (ReferInviteToSipxProxyContinuationData) tad.continuationData;
 
-                            Request ack = dialog.createAck(cseq);
+                            if (!Gateway.getBridgeConfiguration().isMusicOnHoldSupportEnabled()
+                                    || !SipUtilities.isCodecSupported(sd, Gateway
+                                            .getParkServerCodecs())
+                                    || (b2bua.getMusicOnHoldDialog() != null && b2bua.getMusicOnHoldDialog()
+                                            .getState() != DialogState.TERMINATED)) {
 
-                            SessionDescription ackSd = dat.getRtpSession().getReceiver()
-                                    .getSessionDescription();
+                                Request ack = dialog.createAck(cseq);
 
-                            SipUtilities.setSessionDescription(ack, ackSd);
+                                SessionDescription ackSd = dat.getRtpSession().getReceiver()
+                                        .getSessionDescription();
 
-                            /*
-                             * Send an ACK back to the WAN side and replay the same Session
-                             * description as before. This completes the handshake so the Dialog
-                             * will not time out.
-                             */
-                            DialogApplicationData.get(dialog).lastResponse = null;
-                            DialogApplicationData.get(dialog).isSdpAnswerPending = false;
-                            DialogApplicationData.get(dialog).isSdpOfferPending = true;
+                                SipUtilities.setSessionDescription(ack, ackSd);
 
-                            dialog.sendAck(ack);
+                                /*
+                                 * Send an ACK back to the WAN side and replay the same Session
+                                 * description as before. This completes the handshake so the
+                                 * Dialog will not time out.
+                                 */
+                                DialogApplicationData.get(dialog).lastResponse = null;
+                                DialogApplicationData.get(dialog).isSdpAnswerPending = false;
+                                DialogApplicationData.get(dialog).isSdpOfferPending = true;
+
+                                dialog.sendAck(ack);
+                            } else {
+                                DialogApplicationData.get(dialog).lastResponse = response;
+                                DialogApplicationData.get(dialog).isSdpOfferPending = true;
+                                DialogApplicationData.get(dialog).isSdpAnswerPending = true;
+                                b2bua.getLanRtpSession(continuation.getDialog()).getReceiver()
+                                        .setSessionDescription(sd);
+                                ClientTransaction ctx = b2bua.createClientTxToMohServer(sd);
+                                DialogApplicationData.get(ctx.getDialog()).peerDialog = dialog;
+                                ctx.sendRequest();
+
+                            }
 
                             b2bua.getLanRtpSession(continuation.getDialog()).getReceiver()
                                     .setSessionDescription(sd);
@@ -1554,12 +1575,8 @@ class CallControlManager implements SymmitronResetHandler {
                      * If there is a Music on hold dialog -- tear it down
                      */
 
-                    if (response.getStatusCode() == Response.OK && dat.musicOnHoldDialog != null
-                            && dat.musicOnHoldDialog.getState() != DialogState.TERMINATED) {
-
-                        b2bua.sendByeToMohServer(dat.musicOnHoldDialog);
-                        dat.musicOnHoldDialog = null;
-
+                    if (response.getStatusCode() == Response.OK ) {
+                        b2bua.sendByeToMohServer();
                     }
 
                 } else if (tad.operation.equals(Operation.SEND_INVITE_TO_MOH_SERVER)) {

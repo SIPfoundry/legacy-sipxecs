@@ -58,11 +58,7 @@ class DialogApplicationData {
      */
     private BackToBackUserAgent backToBackUserAgent;
 
-    /*
-     * The MOH server dialog
-     */
-    Dialog musicOnHoldDialog;
-
+    
     /*
      * Rtp session associated with this call leg.
      */
