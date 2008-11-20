@@ -74,11 +74,24 @@ public abstract class BackupPlan extends BeanWithId implements ApplicationContex
 
     protected abstract void doPurge(int limitCount);
 
+    /**
+     * Purge old files and perform backup.
+     *
+     * We are purging old backup twice here: the first round is in most cases no-op: it only
+     * matters if administrator decreased the number of saved backups to free up some disk space.
+     * The second round, after successful completion of the current backup will remove a single
+     * oldest backup.
+     *
+     * @param binPath path to the script that performs the backup
+     * @return array of files that were saved/created by this backup plan
+     */
     public final File[] perform(String binPath) {
         String errorMsg = "Errors when creating backup.";
         try {
             purgeOld();
-            return doPerform(binPath);
+            File[] files = doPerform(binPath);
+            purgeOld();
+            return files;
         } catch (IOException e) {
             LOG.error(errorMsg, e);
         } catch (InterruptedException e) {
