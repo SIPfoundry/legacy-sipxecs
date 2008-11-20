@@ -289,6 +289,7 @@
 	<antcall target="backup-ftp-fix" />
     <!-- temporary patches -->
     <antcall target="clean-sipx-service-values"/>
+    <antcall target="backup-ftp-fix-empty-type" />
 	<!-- When freezing schema uncomment this line -->
 	<!-- sipx-version version="9" -->
   </target>
@@ -740,6 +741,12 @@
     <sipx-sql>
       delete from setting_value where path='domain/USER_CONFIGURED_DOMAIN_ALIASES';
       delete from setting_value where path='domain/SIP_REGISTRAR_DOMAIN_ALIASES';
+    </sipx-sql>
+  </target>
+
+  <target name="backup-ftp-fix-empty-type" unless="backup-ftp-fix-empty-type">
+    <sipx-sql>
+      update backup_plan set backup_type = 'L' where backup_type = '';
     </sipx-sql>
   </target>
 

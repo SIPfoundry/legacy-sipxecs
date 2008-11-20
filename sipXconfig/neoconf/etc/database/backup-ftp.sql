@@ -10,5 +10,9 @@ CREATE TABLE ftp_configuration
       REFERENCES backup_plan (backup_plan_id) MATCH SIMPLE
       ON UPDATE NO ACTION ON DELETE NO ACTION
 );
+
 create sequence ftp_configuration_seq;
+
 ALTER TABLE backup_plan ADD COLUMN backup_type char;
+UPDATE backup_plan SET backup_type = 'L';
+ALTER TABLE backup_plan ALTER COLUMN backup_type SET NOT NULL;
