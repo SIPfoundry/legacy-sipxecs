@@ -119,8 +119,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/sipx-sendmail-configure
 %attr(755,root,root) %{_bindir}/sipx-archive-common
 %attr(755,root,root) %{_bindir}/sipxlocalization
-%attr(755,root,root) %{_bindir}/sipx-package.py
-%attr(644,root,root) %{_bindir}/sipx-package.py[co]
+%attr(755,root,root) %{_bindir}/sipx-package.py*
 
 %attr(755,root,root) %{_sysconfdir}/init.d/sipxpbx
 %attr(755,root,root) %{_sysconfdir}/cron.daily/sipx-chkspace
