@@ -44,8 +44,10 @@ public:
     //! Default Dialog constructor
     RlsSubscribePolicy(UtlString defaultDomain,
                        ///< our SIP domain
-                       UtlString realm
+                       UtlString realm,
                        ///< realm to use for authentication
+                       UtlString credentialDbName = "credential"
+                       ///< name of the credential DB to use.
        );
 
     //! Destructor
@@ -58,8 +60,6 @@ public:
     /*! Only allowed if 'eventlist' is supported.
      */
     virtual UtlBoolean isAuthorized(const SipMessage& subscribeRequest,
-                                    const UtlString& resourceId,
-                                    const UtlString& eventTypeKey,
                                     SipMessage& subscribeResponse);
     
     virtual UtlBoolean isAuthenticated(const SipMessage & subscribeRequest, 
@@ -90,6 +90,8 @@ private:
     long mNonceExpiration;
     //! The SIP domain.
     UtlString mDefaultDomain;
+    //! Name of the credentail DB to use
+    UtlString mCredentialDbName;
 
 };
 

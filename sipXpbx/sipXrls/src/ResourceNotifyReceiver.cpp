@@ -9,7 +9,7 @@
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
 
-#include <ResourceNotifyReceiver.h>
+#include "ResourceNotifyReceiver.h"
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES

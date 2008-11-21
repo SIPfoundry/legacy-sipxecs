@@ -34,10 +34,12 @@
 
 // Constructor
 RlsSubscribePolicy::RlsSubscribePolicy(UtlString defaultDomain, 
-                                       UtlString realm)
+                                       UtlString realm,
+                                       UtlString credentialDbName)
    : mRealm(realm),
      mNonceExpiration(RLS_SUBSCRIBE_NONCE_EXPIRATION),
-     mDefaultDomain(defaultDomain)
+     mDefaultDomain(defaultDomain),
+     mCredentialDbName(credentialDbName)
 {
 }
 
@@ -53,8 +55,6 @@ RlsSubscribePolicy::~RlsSubscribePolicy()
 /* ============================ MANIPULATORS ============================== */
 
 UtlBoolean RlsSubscribePolicy::isAuthorized(const SipMessage& subscribeRequest,
-                                            const UtlString& resourceId,
-                                            const UtlString& eventTypeKey,
                                             SipMessage& subscribeResponse)
 {
    // SUBSCRIBE is authorized if "eventlist" is supported.
@@ -120,7 +120,7 @@ UtlBoolean RlsSubscribePolicy::isAuthenticated(const SipMessage & subscribeReque
             Url authIdentity;
                 
             // then get the credentials for this user & realm
-            if (CredentialDB::getInstance()->getCredential( authUser
+            if (CredentialDB::getInstance(mCredentialDbName)->getCredential( authUser
                                                             ,authRealm
                                                             ,authIdentity
                                                             ,passTokenDB

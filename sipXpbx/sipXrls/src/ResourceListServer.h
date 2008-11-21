@@ -88,7 +88,11 @@ class ResourceListServer : public UtlContainableAtomic
                       /// The maximum number of resource instances per contact.
                       int maxResInstInCont,
                       /// The maximum number of dialogs per resource instance.
-                      int maxDialogsInResInst
+                      int maxDialogsInResInst,
+                      /// Name of the subscription DB to use (for testing purposes)
+                      const UtlString&  subscriptionDbName = "subscription",
+                      /// Name of the credentials DB to use (for testing purposes)
+                      const UtlString&  credentialsDbName = "credential"
       );
 
    virtual ~ResourceListServer();
@@ -281,6 +285,7 @@ class ResourceListServer : public UtlContainableAtomic
    //! Disabled assignment operator
    ResourceListServer& operator=(const ResourceListServer& rhs);
 
+   friend class ResourceListServerTest;
 };
 
 /* ============================ INLINE METHODS ============================ */

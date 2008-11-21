@@ -49,7 +49,9 @@ ResourceListServer::ResourceListServer(const UtlString& domainName,
                                        int maxRegSubscInResource,
                                        int maxContInRegSubsc,
                                        int maxResInstInCont,
-                                       int maxDialogsInResInst) :
+                                       int maxDialogsInResInst,
+                                       const UtlString&  subscriptionDbName,
+                                       const UtlString&  credentialDbName ) : 
    mDomainName(domainName),
    mEventType(eventType),
    mContentType(contentType),
@@ -111,8 +113,8 @@ ResourceListServer::ResourceListServer(const UtlString& domainName,
       OsServerTask::DEF_MAX_MSGS, // queueSize
       FALSE // bUseNextAvailablePort
       ),
-   mSubscriptionMgr(SUBSCRIPTION_COMPONENT_RLS, mDomainName),
-   mPolicyHolder(domainName, realm),
+   mSubscriptionMgr(SUBSCRIPTION_COMPONENT_RLS, mDomainName, subscriptionDbName),
+   mPolicyHolder(domainName, realm, credentialDbName),
    mSubscribeServer(mServerUserAgent, mEventPublisher, mSubscriptionMgr,
                     mPolicyHolder),
    mRefreshMgr(mClientUserAgent, mDialogManager),

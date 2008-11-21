@@ -9,7 +9,7 @@
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
 
-#include <ResourceSubscriptionReceiver.h>
+#include "ResourceSubscriptionReceiver.h"
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES

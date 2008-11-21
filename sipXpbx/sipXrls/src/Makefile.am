@@ -2,6 +2,8 @@
 
 bin_PROGRAMS = sipxrls
 
+SUBDIRS = . test 
+
 EXTRA_DIST =
 
 sipxrls_LDADD = \
