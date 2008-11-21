@@ -128,7 +128,7 @@
           </option>
         </enum>
       </type>
-      <value>REPLAY-LAST-SENT-PACKET</value>
+      <value>NONE</value>
       <description>Defines the mechanism to use for media (RTP) keepalive.</description>
     </setting>
   </group>
