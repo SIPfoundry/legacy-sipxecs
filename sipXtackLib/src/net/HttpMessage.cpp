@@ -1165,8 +1165,6 @@ int HttpMessage::read(OsSocket* inSocket, ssize_t bufferSize,
    ssize_t residualBytes = allBytes->length(); // passed into this read already in the buffer
    int returnMessageLength = 0;
 
-   int saveCountForKeepAlive = 0;
-
    // Attempt to minimize the number of times that the string gets
    // re-allocated and copied by setting the initial capacity to the
    // requested approximate message size, bufferSize.
@@ -1199,7 +1197,6 @@ int HttpMessage::read(OsSocket* inSocket, ssize_t bufferSize,
 
       // The length of the content.  -1 means the end is not yet known.
       int contentLength = -1;
-      UtlBoolean contentLengthSet = FALSE;
 
       // Assume content-type is set until we read all of the headers.
       UtlBoolean contentTypeSet = TRUE;
@@ -1278,7 +1275,6 @@ int HttpMessage::read(OsSocket* inSocket, ssize_t bufferSize,
          }
 
          bytesTotal += bytesRead;
-         saveCountForKeepAlive = bytesRead;     // save this for keep alive special case
          bytesRead = 0;
          
          if (bytesTotal > 0)
@@ -1312,13 +1308,25 @@ int HttpMessage::read(OsSocket* inSocket, ssize_t bufferSize,
                      const char* value;
                      if ((value = getHeaderValue(0, HTTP_CONTENT_LENGTH_FIELD)))
                      {
-                        contentLengthSet = TRUE;
                         contentLength = atoi(value);
                      }
                      else if ((value = getHeaderValue(0, SIP_SHORT_CONTENT_LENGTH_FIELD)))
                      {
-                        contentLengthSet = TRUE;
                         contentLength = atoi(value);
+                     }
+                     else
+                     {
+                        // We've seen the end of the headers and no Content-Length 
+                        // header was found.  Although sloppy, it is valid condition 
+                        // in most cases.  Produce a log entry and assume a content 
+                        // length of 0.
+                        OsSysLog::add(FAC_HTTP, PRI_DEBUG,
+                                      "HttpMessage::read "
+                                      "no content-length set on %sframed %s socket",
+                                      OsSocket::isFramed(socketType) ? "" : "un",
+                                      OsSocket::ipProtocolString(socketType));
+
+                        contentLength = 0;
                      }
                   }
 
@@ -1327,10 +1335,10 @@ int HttpMessage::read(OsSocket* inSocket, ssize_t bufferSize,
 
 #                 ifdef TEST
                   OsSysLog::add(FAC_HTTP, PRI_DEBUG,
-                                "HttpMessage::read contentLengthSet %d, "
+                                "HttpMessage::read  "
                                 "contentLength %d, contentTypeSet %d, "
                                 "contentType '%s'",
-                                contentLengthSet, contentLength, contentTypeSet,
+                                contentLength, contentTypeSet,
                                 contentType.data());
 #                 endif
 
@@ -1351,7 +1359,6 @@ int HttpMessage::read(OsSocket* inSocket, ssize_t bufferSize,
                   // outrageously large.
                   if (contentLength > maxContentLength)
                   {
-                     contentLengthSet = FALSE;
                      OsSysLog::add(FAC_HTTP, PRI_ERR,
                                    "HttpMessage::read "
                                    "Content-Length(%d) > maxContentLength(%d): "
@@ -1377,11 +1384,11 @@ int HttpMessage::read(OsSocket* inSocket, ssize_t bufferSize,
             }
 
             // analyze whether or not we've got the whole message.
-            if ( headerEnd > 0 ) // we have seen the end of the headers
+            if ( !finished )
             {
-               if (OsSocket::isFramed(socketType))
+               if( headerEnd > 0 ) // we have seen the end of the headers
                {
-                  if (contentLengthSet)
+                  if (OsSocket::isFramed(socketType))
                   {
                      if (contentLength + headerEnd <= (int)allBytes->length())
                      {
@@ -1402,21 +1409,7 @@ int HttpMessage::read(OsSocket* inSocket, ssize_t bufferSize,
                   }
                   else
                   {
-                     // We've seen the end of the headers on a framed socket,
-                     // but with no Content-Length set - sloppy, but allowed.
-                     OsSysLog::add(FAC_HTTP, PRI_DEBUG,
-                                   "HttpMessage::read "
-                                   "no content-length set on framed %s socket",
-                                   OsSocket::ipProtocolString(socketType));
-                     // Assume that they forgot
-                     finished = true;
-                  }
-               }
-               else
-               {
-                  // seen the end of the headers, on an unframed socket
-                  if (contentLengthSet)
-                  {
+					// seen the end of the headers, on an unframed socket
                      if (contentLength + headerEnd <= (int)allBytes->length())
                      {
                         // we got all of the body, so we're done
@@ -1427,50 +1420,13 @@ int HttpMessage::read(OsSocket* inSocket, ssize_t bufferSize,
                         // there is more to read on the stream, so let the loop iterate
                      }
                   }
-                  else
-                  {
-                      // end of headers on an unframed socket, but no Content-Length set
-                      // Log and discard the message unless it is CR-LR or CR-LF-CR-LF
-                      // assume that those two cases are sip/nat keep alive packets
-                      const char* allBytesData = allBytes->data();
-                     
-                      if ((saveCountForKeepAlive == 2 
-                           && *(allBytesData + 0) == '\r' 
-                           && *(allBytesData + 1) == '\n') 
-                         ||
-                           (saveCountForKeepAlive == 4 
-                            && *(allBytesData + 0) == '\r' 
-                            && *(allBytesData + 1) == '\n'
-                            && *(allBytesData + 2) == '\r' 
-                            && *(allBytesData + 3) == '\n')) 
-                     {
-                         // keep alive received, ok to process and send response
-                     }
-                     else
-                     {
-                         OsSysLog::add(FAC_HTTP, PRI_ERR,
-                                       "HttpMessage::read Message has no Content-Length "
-                                       "on unframed socket type %s: '%s'",
-                                       OsSocket::ipProtocolString(socketType), allBytes->data());
-                         allBytes->remove(0);
-    
-                         // Close the connection (having lost framing, it is no longer usable)
-                         inSocket->close();
-                     }
-
-                     // Exit the loop
-                     finished = true;
-                  }
                }
-            }
-            else
-            {
-               // We have not yet seen the end of the headers
-               if (OsSocket::isFramed(socketType))
+               else
                {
-                  // framed transport, but no header end seen yet - probably not good
-                  if (contentLengthSet)
+                  // We have not yet seen the end of the headers
+                  if (OsSocket::isFramed(socketType))
                   {
+                     // framed transport, but no header end seen yet - probably not good
                      // there was suppose to be a body, but we never saw it
                      if (contentLength > 0)
                      {
@@ -1488,29 +1444,19 @@ int HttpMessage::read(OsSocket* inSocket, ssize_t bufferSize,
                      else
                      {
                         // unterminated headers on a framed socket, with a content length of 0
-                        // probably just forgot the blank line to terminate the headers
+                        // probably just forgot the blank line to terminate the headers so allow it.
                         OsSysLog::add(FAC_HTTP, PRI_DEBUG,
                                       "HttpMessage::read "
                                       "unterminated headers with content-length 0 on %s socket",
                                       OsSocket::ipProtocolString(socketType));
+                        finished = true;
                      }
                   }
                   else
                   {
-                     // No header end seen, on framed socket, with no content length set
-                     // Technically an error, but they may have just forgotten the blank line
-                     // so let it go
-                     OsSysLog::add(FAC_HTTP, PRI_DEBUG,
-                                   "HttpMessage::read "
-                                   "unterminated headers with no content-length on %s socket",
-                                   OsSocket::ipProtocolString(socketType));
-                     finished = true;
+                     // We have not yet seen the end of the headers on an unframed socket,
+                     // so keep reading...
                   }
-               }
-               else
-               {
-                  // We have not yet seen the end of the headers on an unframed socket,
-                  // so keep reading...
                }
             }
          }
@@ -1531,73 +1477,70 @@ int HttpMessage::read(OsSocket* inSocket, ssize_t bufferSize,
       // Calculate the end of the message & body length
       size_t bodyLength = 0;
       size_t messageLength = 0;
-      if (   headerEnd > 0
-          && (   !contentLengthSet
-              || OsSocket::isFramed(socketType)
-              ))
+      if ( headerEnd > 0 )
       {
-         messageLength = allBytes->length();
-         bodyLength = messageLength - headerEnd;
-      }
-      else if (headerEnd > 0 && contentLengthSet)
-      {
-         // We have found a Content-Length header.
-
-         //only if the total bytes read is as expected
-         //ie equal or greater than (contentLength + headerEnd)
-         if (bytesTotal - headerEnd >=  contentLength)
+         if( OsSocket::isFramed(socketType) )
          {
-            // We have the entire expected length of the message.
-            bodyLength = contentLength;
-            messageLength = headerEnd + contentLength;
-
-            OsSysLog::add(FAC_HTTP, PRI_DEBUG,
-                          "HttpMessage::read full msg rcvd bytes %zu: header: %zu content: %d",
-                          bytesTotal, headerEnd, contentLength);
-
-            // There are residual bytes for the next message
-            if (messageLength < allBytes->length())
+            messageLength = allBytes->length();
+            bodyLength = messageLength - headerEnd;
+         }
+         else // !OsSocket::isFramed(socketType)
+         {
+            //only if the total bytes read is as expected
+            //ie equal or greater than (contentLength + headerEnd)
+            if (bytesTotal - headerEnd >=  contentLength)
             {
-               // Get rid of initial white space as the residual is
-               // supposed to be the beginning of the next message
-               int endOfWhiteSpace = FALSE;
-               while(messageLength < allBytes->length() &&
-                     !endOfWhiteSpace)
+               // We have the entire expected length of the message.
+               bodyLength = contentLength;
+               messageLength = headerEnd + contentLength;
+
+               OsSysLog::add(FAC_HTTP, PRI_DEBUG,
+                             "HttpMessage::read full msg rcvd bytes %zu: header: %zu content: %d",
+                             bytesTotal, headerEnd, contentLength);
+
+               // There are residual bytes for the next message
+               if (messageLength < allBytes->length())
                {
-                  switch((allBytes->data())[messageLength])
+                  // Get rid of initial white space as the residual is
+                  // supposed to be the beginning of the next message
+                  int endOfWhiteSpace = FALSE;
+                  while(messageLength < allBytes->length() &&
+                        !endOfWhiteSpace)
                   {
-                  case ' ':
-                  case '\n':
-                  case '\r':
-                  case '\t':
-                     messageLength++;
-                     break;
-                  default:
-                     endOfWhiteSpace = TRUE;
-                     break;
+                     switch((allBytes->data())[messageLength])
+                     {
+                     case ' ':
+                     case '\n':
+                     case '\r':
+                     case '\t':
+                        messageLength++;
+                        break;
+                     default:
+                        endOfWhiteSpace = TRUE;
+                        break;
+                     }
                   }
                }
             }
-         }
-         else
-         {
-            // We do not have the entire expected length of the message.
-            bodyLength = bytesTotal - headerEnd;
-#           ifdef MSG_DEBUG
-            // At this point, the entire message should have been read
-            // (in multiple reads if necessary).
-            OsSysLog::add(FAC_HTTP, PRI_WARNING,
-                          "HttpMessage::read Not all content data "
-                          "successfully read: received %zu body bytes but "
-                          "Content-Length was %d",
-                          bodyLength, contentLength);
-#           endif /* MSG_DEBUG */
+            else
+            {
+               // We do not have the entire expected length of the message.
+               bodyLength = bytesTotal - headerEnd;
+#              ifdef MSG_DEBUG
+               // At this point, the entire message should have been read
+               // (in multiple reads if necessary).
+               OsSysLog::add(FAC_HTTP, PRI_WARNING,
+                             "HttpMessage::read Not all content data "
+                             "successfully read: received %zu body bytes but "
+                             "Content-Length was %d",
+                             bodyLength, contentLength);
+#              endif /* MSG_DEBUG */
+            }
          }
       }
       else if (allBytes->length() > 0)
       {
-         // We have not found the end of headers, or we have not found
-         // a Content-Length header.
+         // We have not found the end of headers
 
 #        ifdef MSG_DEBUG
          // This should not happen because the message will have been
