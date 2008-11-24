@@ -10,6 +10,7 @@
 package org.sipfoundry.sipxconfig.domain;
 
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRuleProvider;
+import org.sipfoundry.sipxconfig.admin.localization.Localization;
 
 public interface DomainManager extends DialingRuleProvider {
 
@@ -26,6 +27,8 @@ public interface DomainManager extends DialingRuleProvider {
     void saveDomain(Domain domain);
 
     void replicateDomainConfig();
+
+    public Localization getExistingLocalization();
 
     static class DomainNotInitializedException extends RuntimeException {
         DomainNotInitializedException() {

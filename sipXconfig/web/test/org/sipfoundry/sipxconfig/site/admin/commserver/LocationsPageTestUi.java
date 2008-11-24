@@ -33,6 +33,7 @@ public class LocationsPageTestUi extends WebTestCase {
         setTextField("location:description", "newLocation");
         setTextField("location:address", "192.168.1.1");
         setTextField("location:fqdn", "another.example.org");
+        setTextField("location:password", "123");
         clickButton("form:ok");
 
         SiteTestHelper.assertNoUserError(tester);

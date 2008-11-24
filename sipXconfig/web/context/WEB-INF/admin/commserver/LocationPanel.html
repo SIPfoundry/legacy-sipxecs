@@ -35,6 +35,17 @@
           cols="45" rows="5">
         </textarea>
       </tr>
+      <tr jwcid="@common/FieldPanel"
+        for="location:password"
+        label="message:label.password"
+        field="component:password"
+        description="message:description.password" >
+        <input jwcid="password@TextField"
+          id="location:password"
+          value="ognl:locationBean.password"
+          validators="spring-validators:required"
+          displayName="message:label.password"/>
+      </tr>
     </tbody>
   </table>
 </fieldset>

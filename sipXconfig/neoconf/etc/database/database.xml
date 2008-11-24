@@ -287,9 +287,11 @@
   	<antcall target="add-sipx-relay-service"/>
 	<antcall target="add-location-specific-service"/>
 	<antcall target="backup-ftp-fix" />
+	<antcall target="location-add-password" />
     <!-- temporary patches -->
     <antcall target="clean-sipx-service-values"/>
     <antcall target="backup-ftp-fix-empty-type" />
+
 	<!-- When freezing schema uncomment this line -->
 	<!-- sipx-version version="9" -->
   </target>
@@ -735,6 +737,10 @@
 
   <target name="add-location-specific-service" unless="add-location-specific-service">
 	<db-patch patch="add-location-specific-service"/>
+  </target>
+
+  <target name="location-add-password" unless="location-add-password">
+	<db-patch patch="location-add-password"/>
   </target>
 
   <target name="clean-sipx-service-values" unless="clean-sipx-service-values">

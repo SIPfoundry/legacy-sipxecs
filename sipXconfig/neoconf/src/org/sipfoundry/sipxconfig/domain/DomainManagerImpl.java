@@ -74,7 +74,7 @@ public abstract class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> 
         return (Domain) DataAccessUtils.singleResult(domains);
     }
 
-    private Localization getExistingLocalization() {
+    public Localization getExistingLocalization() {
         List l = getHibernateTemplate().loadAll(Localization.class);
         return (Localization) DataAccessUtils.singleResult(l);
     }

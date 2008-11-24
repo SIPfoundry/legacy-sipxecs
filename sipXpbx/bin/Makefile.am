@@ -16,7 +16,8 @@ bin_SCRIPTS = \
 	 ipcclean.pl
 
 SipxLibexecScripts = \
-	 sipx-strip-db-secrets.pl
+	sipx-strip-db-secrets.pl \
+	initial-config
 
 SipxLibexecPythonScripts = \
 	 sipx_setup_common.py
@@ -33,6 +34,7 @@ ${PACKAGE}-config: $(top_srcdir)/config/sipX-config.in $(top_builddir)/BUILDSTAM
 
 SCRIPT_TEMPLATES = \
 	sipx-snapshot.in \
+	initial-config.in \
 	sipx-backup.in \
 	sipx-restore.in \
 	sipx-sendmail-configure.in \

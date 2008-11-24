@@ -15,6 +15,8 @@ import org.acegisecurity.GrantedAuthorityImpl;
 import org.acegisecurity.userdetails.UserDetails;
 import org.acegisecurity.userdetails.UserDetailsService;
 import org.acegisecurity.userdetails.UsernameNotFoundException;
+import org.sipfoundry.sipxconfig.admin.commserver.Location;
+import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 
@@ -25,12 +27,15 @@ public class AuthenticationDaoImpl implements UserDetailsService {
     static final GrantedAuthority[] AUTH_USER_ARRAY = new GrantedAuthority[] {AUTH_USER};    
     static final GrantedAuthority[] AUTH_USER_AND_ADMIN_ARRAY =
         new GrantedAuthority[] {AUTH_USER, AUTH_ADMIN};
+    static final GrantedAuthority AUTH_LOCATION = new GrantedAuthorityImpl(Location.ROLE_LOCATION);
+    static final GrantedAuthority [] AUTH_LOCATION_ARRAY = new GrantedAuthority[] {AUTH_LOCATION};
     
     /** Whether dummy admin user is enabled. For use only by unit tests! */
     private static boolean s_dummyAdminUserEnabled;
     private static final String DUMMY_ADMIN_USER_NAME = "dummyAdminUserNameForTestingOnly";
     
     private CoreContext m_coreContext;
+    private LocationsManager m_locationsManager;
 
     public UserDetails loadUserByUsername(String userNameOrAlias) {
         if (isDummyAdminUserEnabled() && userNameOrAlias.equals(DUMMY_ADMIN_USER_NAME)) {
@@ -38,20 +43,35 @@ public class AuthenticationDaoImpl implements UserDetailsService {
         }
         
         User user = m_coreContext.loadUserByUserNameOrAlias(userNameOrAlias);
+        Location location = null;
         if (user == null) {
-            throw new UsernameNotFoundException(userNameOrAlias);
+            location = m_locationsManager.getLocationByFqdn(userNameOrAlias);
+            if (location == null) {
+                throw new UsernameNotFoundException(userNameOrAlias);
+            }
         }
         
         // All users are granted ROLE_USER.  Only admins get ROLE_ADMIN.
-        boolean isAdmin = user.isAdmin();
-        GrantedAuthority[] authorities = isAdmin ? AUTH_USER_AND_ADMIN_ARRAY : AUTH_USER_ARRAY;
+        UserDetails details = null;
+        if (user != null) {
+            boolean isAdmin = user.isAdmin();
+            GrantedAuthority[] authorities = isAdmin ? AUTH_USER_AND_ADMIN_ARRAY : AUTH_USER_ARRAY;
+
+            details = new UserDetailsImpl(user, userNameOrAlias, authorities);
+        } else if (location != null) {
+            GrantedAuthority[] authorities = AUTH_LOCATION_ARRAY;
+            details = new LocationDetailsImpl(location, userNameOrAlias, authorities);
+        }
         
-        UserDetailsImpl details = new UserDetailsImpl(user, userNameOrAlias, authorities);
         return details;
     }
 
     public void setCoreContext(CoreContext coreContext) {
         m_coreContext = coreContext;
+    }
+
+    public void setLocationsManager(LocationsManager locationsManager) {
+        m_locationsManager = locationsManager;
     }
 
     /** Return true if dummy admin user is enabled, false otherwise */

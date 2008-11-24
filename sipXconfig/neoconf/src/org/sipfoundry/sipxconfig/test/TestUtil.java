@@ -159,15 +159,17 @@ public final class TestUtil {
         final String realm = "realm";
         final String vxmlDir = outputDirectory + "/vxml";
         final String mailstoreDir = outputDirectory + "/mailstore";
+        final String binDir = outputDirectory + "/bin";
+        final String tmpDir = outputDirectory + "/tmp";
 
-        sysProps.setProperty("sysdir.bin", outputDirectory + "/bin");
+        sysProps.setProperty("sysdir.bin", binDir);
         sysProps.setProperty("sysdir.etc", etcDirectory);
         sysProps.setProperty("sysdir.data", outputDirectory);
         sysProps.setProperty("sysdir.share", outputDirectory);
         sysProps.setProperty("sysdir.thirdparty", outputDirectory);
         sysProps.setProperty("sysdir.var", outputDirectory);
         sysProps.setProperty("sysdir.phone", outputDirectory);
-        sysProps.setProperty("sysdir.tmp", outputDirectory + "/tmp");
+        sysProps.setProperty("sysdir.tmp", tmpDir);
         sysProps.setProperty("sysdir.log", outputDirectory);
         sysProps.setProperty("sysdir.doc", outputDirectory);
         sysProps.setProperty("sysdir.freeswitch", outputDirectory + "/freeswitch");
@@ -211,13 +213,23 @@ public final class TestUtil {
         sysProps.setProperty("sip.proxyPort", "5060");
         sysProps.setProperty("sip.hostName", "host.sipfoundry.org");
 
-        File vmDir = new File(mailstoreDir);
-        if (!vmDir.exists()) {
-            if (!vmDir.mkdirs()) {
-                throw new RuntimeException("Could not create voicemail store " + vmDir.getAbsolutePath());
+
+        File vmDir = createDirectory(mailstoreDir, "Could not create voicemail store");
+        createDirectory(tmpDir, "Could not create tmp directory");
+
+
+        sysProps.setProperty("mailboxManagerImpl.mailstoreDirectory", vmDir.getAbsolutePath());
+    }
+
+    private static File createDirectory(String directoryName, String errorMessage) {
+        File dir = new File(directoryName);
+        if (!dir.exists()) {
+            if (!dir.mkdirs()) {
+                throw new RuntimeException(errorMessage
+                        + dir.getAbsolutePath());
             }
         }
-        sysProps.setProperty("mailboxManagerImpl.mailstoreDirectory", vmDir.getAbsolutePath());
+        return dir;
     }
 
     public static void saveSysDirProperties(Properties sysProps, String classpathDirectory) {

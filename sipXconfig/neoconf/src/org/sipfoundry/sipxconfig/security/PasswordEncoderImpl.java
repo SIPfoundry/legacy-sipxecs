@@ -26,9 +26,16 @@ public class PasswordEncoderImpl implements PasswordEncoder {
     }
 
     public String encodePassword(String rawPass, Object salt) {
-        UserDetailsImpl userDetails = (UserDetailsImpl) salt;
-        String encodedPassword =
-            m_loginContext.getEncodedPassword(userDetails.getCanonicalUserName(), rawPass);
+        String encodedPassword = null;
+        Class< ? > klass = salt.getClass();
+        if (klass.equals(UserDetailsImpl.class)) {
+            UserDetailsImpl userDetails = (UserDetailsImpl) salt;
+            encodedPassword =
+                m_loginContext.getEncodedPassword(userDetails.getCanonicalUserName(), rawPass);
+        } else if (klass.equals(LocationDetailsImpl.class)) {
+            LocationDetailsImpl locationDetails = (LocationDetailsImpl) salt;
+            encodedPassword = locationDetails.getPassword();
+        }
         return encodedPassword;
     }
 

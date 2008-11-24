@@ -21,11 +21,14 @@ import org.sipfoundry.sipxconfig.service.LocationSpecificService;
 import org.sipfoundry.sipxconfig.service.SipxService;
 
 public class Location extends BeanWithId {
+    //security role
+    public static final String ROLE_LOCATION = "ROLE_LOCATION";
     private static final int PROCESS_MONITOR_PORT = 8092;
 
     private String m_name;
     private String m_address;
     private String m_fqdn;
+    private String m_password;
 
     private Map<String, LocationSpecificService> m_services;
 
@@ -130,4 +133,14 @@ public class Location extends BeanWithId {
             m_services.put(service.getSipxService().getBeanId(), service);
         }
     }
+
+    public String getPassword() {
+        return m_password;
+    }
+
+    public void setPassword(String password) {
+        m_password = password;
+    }
+
+
 }

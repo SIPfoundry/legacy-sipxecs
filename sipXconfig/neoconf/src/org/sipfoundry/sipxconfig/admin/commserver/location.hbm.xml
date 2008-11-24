@@ -12,6 +12,7 @@
     <property name="name" />
     <property name="address" column="ip_address" />
     <property name="fqdn" />
+    <property name="password" />
     <bag name="services" cascade="all" >
       <key column="location_id" not-null="true"/>
       <one-to-many class="org.sipfoundry.sipxconfig.service.LocationSpecificService"/>

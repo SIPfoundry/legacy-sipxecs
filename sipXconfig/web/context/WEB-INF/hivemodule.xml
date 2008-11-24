@@ -76,6 +76,19 @@
     </invoke-factory>
   </service-point>
 
+  <!-- initial config service -->
+  <contribution configuration-id="tapestry.services.FactoryServices">
+    <service name="initial-config" object="service:InitialConfig" />
+  </contribution>
+  <service-point interface="org.apache.tapestry.engine.IEngineService" id="InitialConfig">
+    <invoke-factory model="threaded">
+      <construct class="components.InitialConfigService">
+        <set-object property="response" value="service:tapestry.globals.WebResponse" />
+        <set-object property="initialConfig" value="spring:initialConfig" />
+      </construct>
+    </invoke-factory>
+  </service-point>
+
   <!-- play voicemail service -->
   <contribution configuration-id="tapestry.services.FactoryServices">
     <service name="playvoicemail" object="service:PlayVoicemail" />
@@ -197,6 +210,7 @@
   <!-- Friendly URLs support -->
   <contribution configuration-id="tapestry.url.ServiceEncoders">
     <encoder id="mailbox" before="external" object="instance:site.vm.MailboxPageEncoder,url=/mailbox" />
+    <encoder id="initial-config" before="external" object="instance:site.ServiceUrlEncoder,serviceName=initial-config,url=/initial-config"/>
     <page-service-encoder id="external" extension="external" service="external" />
     <page-service-encoder id="page" extension="html" service="page" />
     <direct-service-encoder id="direct" stateless-extension="direct" stateful-extension="sdirect" />

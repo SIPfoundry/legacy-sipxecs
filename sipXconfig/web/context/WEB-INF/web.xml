@@ -155,6 +155,11 @@
 
   <servlet-mapping>
     <servlet-name>sipXconfig-web</servlet-name>
+    <url-pattern>/initial-config/*</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>sipXconfig-web</servlet-name>
     <url-pattern>/mailbox/*</url-pattern>
   </servlet-mapping>
 

@@ -21,7 +21,7 @@
     <property name="filterInvocationDefinitionSource">
       <value>
         CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
-        /(services|rest)/.*=httpSessionContextIntegrationFilter,basicProcessingFilter,securityEnforcementFilter
+        /(services|rest|initial-config)/.*=httpSessionContextIntegrationFilter,basicProcessingFilter,securityEnforcementFilter
         </value>
     </property>
   </bean>
@@ -41,7 +41,10 @@
     class="org.sipfoundry.sipxconfig.security.AuthenticationDaoImpl">
     <property name="coreContext">
       <ref bean="coreContext"/>
-    </property>    
+    </property>
+    <property name="locationsManager">
+      <ref bean="locationsManager"/>
+    </property>
   </bean>
   
   <bean id="passwordEncoder"
@@ -161,7 +164,8 @@
     </property>
     <property name="objectDefinitionSource">
       <value> CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
-        /(services|rest)/.*=ROLE_ADMIN</value>
+        /(services|rest)/.*=ROLE_ADMIN
+        /initial-config/.*=ROLE_LOCATION</value>
     </property>
   </bean>
   

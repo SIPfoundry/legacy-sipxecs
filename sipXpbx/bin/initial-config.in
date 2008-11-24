@@ -1,0 +1,15 @@
+#!/bin/bash
+hostname=$1
+INITIAL_CONFIG=@SIPX_TMPDIR@/initial-config
+if test -d $INITIAL_CONFIG; then
+	rm -rf $INITIAL_CONFIG
+fi
+
+mkdir ${INITIAL_CONFIG}
+
+cp @SIPX_VARDIR@/sipxecs/certdb/SSL_DEFAULTS  ${INITIAL_CONFIG}
+mv @SIPX_TMPDIR@/domain-config ${INITIAL_CONFIG}
+
+@SIPX_BINDIR@/ssl-cert/gen-ssl-keys.sh -p SSL_DEFAULTS -d -s "${hostname}" -wd ${INITIAL_CONFIG}
+
+tar -cf ${INITIAL_CONFIG}/${hostname}.tar.gz -C ${INITIAL_CONFIG} ${hostname}.key ${hostname}.crt domain-config
