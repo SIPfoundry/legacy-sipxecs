@@ -159,20 +159,28 @@ int OsServerTaskWaitable::run(void* pArg)
       // Check that poll finished because the pipe is ready to read.
       if ((fds[0].revents & POLLIN) != 0)
       {
-         res = receiveMessage((OsMsg*&) pMsg, OsTime::NO_WAIT); // receive the message
-         assert(res == OS_SUCCESS);
-
+         // Check to see how many messages are in the queue.
+         // We need to process all of them before the next poll request.
+         int numberMsgs = (getMessageQueue())->numMsgs();
+         int i;
          char buffer[1];
-         assert(read(mPipeReadingFd, &buffer, 1) == 1); // read 1 byte from the pipe
-
-         if (!handleMessage(*pMsg))                  // process the message
+      
+         for (i=0;i<numberMsgs;i++)
          {
-            OsServerTask::handleMessage(*pMsg);
-         }
+            res = receiveMessage((OsMsg*&) pMsg, OsTime::NO_WAIT); // receive the message
+            assert(res == OS_SUCCESS);
 
-         if (!pMsg->getSentFromISR())
-         {
-            pMsg->releaseMsg();                         // free the message
+            assert(read(mPipeReadingFd, &buffer, 1) == 1); // read 1 byte from the pipe
+
+            if (!handleMessage(*pMsg))                  // process the message
+            {
+               OsServerTask::handleMessage(*pMsg);
+            }
+
+            if (!pMsg->getSentFromISR())
+            {
+               pMsg->releaseMsg();                         // free the message
+            }
          }
       }
    }

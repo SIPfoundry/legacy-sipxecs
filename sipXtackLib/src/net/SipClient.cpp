@@ -561,41 +561,53 @@ int SipClient::run(void* runArg)
          // (One byte in pipe means message available in queue.)
          // Only a SipClient with a derived SipClientWriteBuffer 
          // uses the pipe in the Sip message send process
-
-         // Receive the message.
-         res = receiveMessage((OsMsg*&) pMsg, OsTime::NO_WAIT);
-         assert(res == OS_SUCCESS);
-
-         // Normally, this is a SIP message for the write buffer.  Once we have get
-         // here, we are able to report any initial non-blocking connect error.
-         mbTcpOnErrWaitForSend = FALSE;
-         tcpOnErrWaitForSend = FALSE;
+        
+         // Check to see how many messages are in the queue.
+         int numberMsgs = (getMessageQueue())->numMsgs();
          OsSysLog::add(FAC_SIP, PRI_DEBUG,
                        "SipClient[%s]::run got pipe-select  "
-                       "OnErrWait-%d waitingToReport-%d mbOnErrWait-%d EOFs-%d",
-                       mName.data(), tcpOnErrWaitForSend, waitingToReportErr, 
-                       mbTcpOnErrWaitForSend, repeatedEOFs);
-
-         // Read 1 byte from the pipe to clear it.
+                       "Number of Messages waiting: %d",
+                       mName.data(),  
+                       numberMsgs );
+         int i;
          char buffer[1];
-         assert(read(mPipeReadingFd, &buffer, 1) == 1);
-
-         if (!handleMessage(*pMsg))            // process the message (from queue)
+         for (i = 0; i < numberMsgs; i++)
          {
-            OsServerTask::handleMessage(*pMsg);
-         }
+            // Receive the messages.
+            res = receiveMessage((OsMsg*&) pMsg, OsTime::NO_WAIT);
+            assert(res == OS_SUCCESS);
 
-         if (!pMsg->getSentFromISR())
-         {
-            pMsg->releaseMsg();                         // free the message
-         }
+            // Normally, this is a SIP message for the write buffer.  Once we have gotten
+            // here, we are able to report any initial non-blocking connect error.
+            mbTcpOnErrWaitForSend = FALSE;
+            tcpOnErrWaitForSend = FALSE;
+            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                          "SipClient[%s]::run got pipe-select  "
+                          "OnErrWait-%d waitingToReport-%d mbOnErrWait-%d EOFs-%d",
+                          mName.data(), tcpOnErrWaitForSend, waitingToReportErr, 
+                          mbTcpOnErrWaitForSend, repeatedEOFs);
 
-         // if this helps, why is it needed?
-         if (waitingToReportErr)   
-         {
-             // Return all buffered messages with a transport error indication.
-             emptyBuffer();
-             clientStopSelf();
+            // Read 1 byte from the pipe to clear it for this message.  One byte is 
+            // inserted into the pipe for each message.
+            assert(read(mPipeReadingFd, &buffer, 1) == 1);
+
+            if (!handleMessage(*pMsg))            // process the message (from queue)
+            {
+               OsServerTask::handleMessage(*pMsg);
+            }  
+
+            if (!pMsg->getSentFromISR())
+            {
+               pMsg->releaseMsg();                         // free the message
+            }
+
+            // if this helps, why is it needed?
+            if (waitingToReportErr)   
+            {
+                // Return all buffered messages with a transport error indication.
+                emptyBuffer();
+                clientStopSelf();
+            }
          }
 
       }
