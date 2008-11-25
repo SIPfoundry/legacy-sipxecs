@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.admin.commserver;
@@ -31,11 +31,11 @@ public class LazySipxReplicationContextImplTestIntegration extends TestCase {
         mr.setName("mappingrules.xml.in");
         XmlFile orbits = new Orbits();
         orbits.setName("orbits.xml");
-        
+
         ApplicationEvent event = new DialPlanActivatedEvent(this);
-       
+
         LazySipxReplicationContextImpl lazy = new LazySipxReplicationContextImpl();
-        
+
         IMocksControl replicationCtrl = EasyMock.createControl();
         SipxReplicationContext replication = replicationCtrl.createMock(SipxReplicationContext.class);
         replication.replicate(mr);
@@ -44,6 +44,7 @@ public class LazySipxReplicationContextImplTestIntegration extends TestCase {
         replication.generate(DataSet.EXTENSION);
         replication.generate(DataSet.PERMISSION);
         replication.generate(DataSet.CALLER_ALIAS);
+        replication.generate(DataSet.USER_LOCATION);
         replication.publishEvent(event);
         replication.replicate(orbits);
         replication.generate(DataSet.ALIAS);
@@ -51,33 +52,34 @@ public class LazySipxReplicationContextImplTestIntegration extends TestCase {
         replication.generate(DataSet.EXTENSION);
         replication.generate(DataSet.PERMISSION);
         replication.generate(DataSet.CALLER_ALIAS);
+        replication.generate(DataSet.USER_LOCATION);
         replicationCtrl.replay();
-        
+
         int interval = 50;
         lazy.setSleepInterval(interval);
         lazy.setTarget(replication);
-        
+
         lazy.init();
-        
+
         lazy.replicate(mr);
         for(int i = 0; i < lazyIterations; i++) {
             lazy.generate(DataSet.ALIAS);
             lazy.generate(DataSet.PERMISSION);
-            lazy.generateAll();            
+            lazy.generateAll();
         }
         lazy.publishEvent(event);
-        
+
         Thread.sleep(400);
-        
+
         lazy.replicate(orbits);
         for(int i = 0; i < lazyIterations; i++) {
             lazy.generate(DataSet.ALIAS);
             lazy.generate(DataSet.PERMISSION);
-            lazy.generateAll();            
-        }        
+            lazy.generateAll();
+        }
 
         Thread.sleep(800);
-        
+
         replicationCtrl.verify();
     }
 }

@@ -183,6 +183,9 @@
     <property name="anonymousAlias"
       value="sip:anonymous@anonymous.invalid" />
   </bean>
+  <bean id="userlocationDataSet" parent="dataSetGenerator"
+    class="org.sipfoundry.sipxconfig.admin.commserver.imdb.UserLocation">
+  </bean>
   <bean id="validUsersConfig" parent="defaultConfigurationFile"
     class="org.sipfoundry.sipxconfig.admin.dialplan.attendant.ValidUsersConfig">
     <property name="name" value="validusers.xml" />

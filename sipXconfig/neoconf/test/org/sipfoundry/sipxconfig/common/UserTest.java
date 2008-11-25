@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.common;
@@ -66,7 +66,6 @@ public class UserTest extends TestCase {
         assertEquals("sip:username@mycomp.com", uri);
     }
 
-    
     /** Test that setting a typical PIN yields expected results */
     public void testSetPin() throws Exception {
         checkSetPin("pin");
@@ -89,8 +88,7 @@ public class UserTest extends TestCase {
         User user = new User();
         user.setUserName("username");
         user.setSipPassword("sip password");
-        String hash = Md5Encoder.digestPassword("username", "realm.sipfoundry.org",
-                "sip password");
+        String hash = Md5Encoder.digestPassword("username", "realm.sipfoundry.org", "sip password");
 
         assertEquals(hash, user.getSipPasswordHash("realm.sipfoundry.org"));
     }
@@ -226,6 +224,36 @@ public class UserTest extends TestCase {
         // make sure 0 is ignored as possible extension
         user.addAlias("0");
         assertEquals("01", user.getExtension(false));
+    }
+
+    public void testGetSite() {
+        PermissionManagerImpl pm = new PermissionManagerImpl();
+        pm.setModelFilesContext(TestHelper.getModelFilesContext());
+
+        User user = new User();
+        user.setPermissionManager(pm);
+
+        assertNull(user.getSite());
+
+        Group madrid = new Group();
+        madrid.setUniqueId();
+        madrid.setWeight(100);
+        user.addGroup(madrid);
+
+        assertSame(madrid, user.getSite());
+
+        Group lisbon = new Group();
+        lisbon.setUniqueId();
+        lisbon.setWeight(50);
+        user.addGroup(lisbon);
+
+        assertSame(lisbon, user.getSite());
+
+        user.removeGroup(lisbon);
+        lisbon.setWeight(150);
+        user.addGroup(lisbon);
+
+        assertSame(madrid, user.getSite());
     }
 
     private String getPintoken(String username, String pin) {

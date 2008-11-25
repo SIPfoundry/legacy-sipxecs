@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mappings xmlns="http://www.sipfoundry.org/sipX/schema/xml/fallback-00-00">
+  <hostMatch>
+    <hostPattern>${SIPXCHANGE_DOMAIN_NAME}</hostPattern>
+    <hostPattern>${MY_FULL_HOSTNAME}</hostPattern>
+    <hostPattern>${MY_HOSTNAME}</hostPattern>
+    <hostPattern>${MY_IP_ADDR}</hostPattern>
+    <userMatch>
+      <!--my test name-->
+      <description>my test description</description>
+      <userPattern>x.</userPattern>
+      <transform>
+        <user>333</user>
+        <host>10.1.1.14</host>
+        <fieldparams>Q=0.97</fieldparams>
+      </transform>
+    </userMatch>
+  </hostMatch>
+</mappings>

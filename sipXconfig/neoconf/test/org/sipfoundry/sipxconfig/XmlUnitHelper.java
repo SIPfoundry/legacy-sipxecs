@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig;
@@ -43,7 +43,7 @@ public abstract class XmlUnitHelper {
     /**
      * In most cases where we use the xpath it's easier to ignore namespace than to construct
      * proper namespace aware XPatch expression
-     * 
+     *
      * @param namespaceAware
      */
     public static void setNamespaceAware(boolean namespaceAware) {
@@ -58,7 +58,7 @@ public abstract class XmlUnitHelper {
 
     /**
      * Dumps DOM4J document to Strings.
-     * 
+     *
      * @param doc DOM4J document
      * @return String containing XML document
      */
@@ -66,7 +66,7 @@ public abstract class XmlUnitHelper {
         try {
             StringWriter writer = new StringWriter();
             OutputFormat format = new OutputFormat();
-            format.setNewlines(false);
+            format.setNewlines(true);
             format.setIndent(true);
             XMLWriter xmlWriter = new XMLWriter(writer, format);
             xmlWriter.write(doc);
@@ -81,7 +81,7 @@ public abstract class XmlUnitHelper {
 
     /**
      * Dumps DOM4J document to standard error.
-     * 
+     *
      * @param doc
      */
     public static void dumpXml(Document doc) {
@@ -90,7 +90,7 @@ public abstract class XmlUnitHelper {
 
     /**
      * Asserts that the element in expected namespace URI
-     * 
+     *
      * @param element dom4jj element
      * @param expectedNamespaceUri URI of the namespace
      */
@@ -125,7 +125,7 @@ public abstract class XmlUnitHelper {
 
     /**
      * Loads XML document from class resource
-     * 
+     *
      * @param klass - for locating the file - pass this.class
      * @param name name of the file in the same directory as klass
      * @return newly read DOM4J document

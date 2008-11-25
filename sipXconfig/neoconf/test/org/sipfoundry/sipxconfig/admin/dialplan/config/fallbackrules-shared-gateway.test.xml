@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mappings xmlns="http://www.sipfoundry.org/sipX/schema/xml/fallback-00-00">
+  <hostMatch>
+    <hostPattern>${SIPXCHANGE_DOMAIN_NAME}</hostPattern>
+    <hostPattern>${MY_FULL_HOSTNAME}</hostPattern>
+    <hostPattern>${MY_HOSTNAME}</hostPattern>
+    <hostPattern>${MY_IP_ADDR}</hostPattern>
+    <userMatch>
+      <!--my test name-->
+      <description>my test description</description>
+      <userPattern>x.</userPattern>
+      <callerLocationMatch>
+        <callerLocation>Montreal</callerLocation>
+        <transform>
+          <user>444</user>
+          <host>montreal.example.org</host>
+          <fieldparams>q=0.95</fieldparams>
+        </transform>
+        <transform>
+          <user>8444</user>
+          <host>example.org</host>
+          <fieldparams>q=0.9</fieldparams>
+        </transform>
+        <transform>
+          <user>9444</user>
+          <host>lisbon.example.org</host>
+          <fieldparams>q=0.85</fieldparams>
+        </transform>
+      </callerLocationMatch>
+      <callerLocationMatch>
+        <callerLocation>Lisbon</callerLocation>
+        <transform>
+          <user>9444</user>
+          <host>lisbon.example.org</host>
+          <fieldparams>q=0.933</fieldparams>
+        </transform>
+        <transform>
+          <user>8444</user>
+          <host>example.org</host>
+          <fieldparams>q=0.867</fieldparams>
+        </transform>
+      </callerLocationMatch>
+      <transform>
+        <user>8444</user>
+        <host>example.org</host>
+        <fieldparams>q=0.933</fieldparams>
+      </transform>
+      <transform>
+        <user>9444</user>
+        <host>lisbon.example.org</host>
+        <fieldparams>q=0.867</fieldparams>
+      </transform>
+    </userMatch>
+  </hostMatch>
+</mappings>

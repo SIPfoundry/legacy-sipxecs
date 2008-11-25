@@ -312,7 +312,7 @@ public class DialPlanContextTestDb extends SipxDatabaseTestCase {
      * that are being used with the specified gateway.
      */
     public void getRulesForGateway() throws Exception {
-        TestHelper.cleanInsertFlat("admin/dialplan/dialPlanGatewayAssociations.xml");
+        TestHelper.cleanInsertFlat("admin/dialplan/dialPlanGatewayAssociations.db.xml");
         Gateway gateway = m_gatewayContext.getGateway(1001);
 
         // Get our three rules we're testing with
@@ -334,7 +334,7 @@ public class DialPlanContextTestDb extends SipxDatabaseTestCase {
      * that are NOT being used with the specified gateway.
      */
     public void testGetAvailableRules() throws Exception {
-        TestHelper.cleanInsertFlat("admin/dialplan/dialPlanGatewayAssociations.xml");
+        TestHelper.cleanInsertFlat("admin/dialplan/dialPlanGatewayAssociations.db.xml");
         Gateway gateway = m_gatewayContext.getGateway(1001);
 
         DialingRule rule0 = m_context.getRule(0);

@@ -57,6 +57,19 @@
     value_storage_id CDATA #IMPLIED
 >
 
+<!ELEMENT alarm_contacts EMPTY>
+<!ATTLIST alarm_contacts
+    alarm_server_id CDATA #REQUIRED
+    address CDATA #REQUIRED
+    index CDATA #REQUIRED
+>
+
+<!ELEMENT alarm_server EMPTY>
+<!ATTLIST alarm_server
+    alarm_server_id CDATA #REQUIRED
+    email_notification_enabled CDATA #IMPLIED
+>
+
 <!ELEMENT attendant_dialing_rule EMPTY>
 <!ATTLIST attendant_dialing_rule
     attendant_dialing_rule_id CDATA #REQUIRED
@@ -113,6 +126,8 @@
     configs CDATA #IMPLIED
     voicemail CDATA #IMPLIED
     email_address CDATA #IMPLIED
+    backup_type CDATA #REQUIRED
+    ftp_configuration_id CDATA #IMPLIED
 >
 
 <!ELEMENT call_group EMPTY>
@@ -125,6 +140,7 @@
     fallback_destination CDATA #IMPLIED
     voicemail_fallback CDATA #REQUIRED
     user_forward CDATA #REQUIRED
+    sip_password CDATA #IMPLIED
 >
 
 <!ELEMENT cron_schedule EMPTY>
@@ -188,6 +204,14 @@
     index CDATA #REQUIRED
 >
 
+<!ELEMENT discovered_devices EMPTY>
+<!ATTLIST discovered_devices
+    mac_address CDATA #REQUIRED
+    ip_address CDATA #REQUIRED
+    vendor CDATA #REQUIRED
+    last_seen CDATA #IMPLIED
+>
+
 <!ELEMENT domain EMPTY>
 <!ATTLIST domain
     domain_id CDATA #REQUIRED
@@ -218,6 +242,14 @@
     next_extension CDATA #IMPLIED
 >
 
+<!ELEMENT ftp_configuration EMPTY>
+<!ATTLIST ftp_configuration
+    id CDATA #REQUIRED
+    host CDATA #IMPLIED
+    user_id CDATA #IMPLIED
+    password CDATA #IMPLIED
+>
+
 <!ELEMENT fxo_port EMPTY>
 <!ATTLIST fxo_port
     fxo_port_id CDATA #REQUIRED
@@ -244,9 +276,15 @@
     transform_user_extension CDATA #REQUIRED
     add_prefix CDATA #IMPLIED
     keep_digits CDATA #REQUIRED
-    address_port CDATA #IMPLIED
+    address_port CDATA #REQUIRED
     address_transport CDATA #REQUIRED
     sbc_device_id CDATA #IMPLIED
+    enable_caller_id CDATA #REQUIRED
+    caller_id CDATA #IMPLIED
+    display_name CDATA #IMPLIED
+    url_parameters CDATA #IMPLIED
+    shared CDATA #REQUIRED
+    site_id CDATA #IMPLIED
 >
 
 <!ELEMENT group_storage EMPTY>
@@ -381,6 +419,28 @@
     language CDATA #IMPLIED
 >
 
+<!ELEMENT location EMPTY>
+<!ATTLIST location
+    location_id CDATA #REQUIRED
+    name CDATA #REQUIRED
+    fqdn CDATA #REQUIRED
+    ip_address CDATA #IMPLIED
+>
+
+<!ELEMENT location_sipx_service EMPTY>
+<!ATTLIST location_sipx_service
+    location_id CDATA #REQUIRED
+    sipx_service_id CDATA #REQUIRED
+>
+
+<!ELEMENT location_specific_service EMPTY>
+<!ATTLIST location_specific_service
+    location_specific_service_id CDATA #REQUIRED
+    location_id CDATA #REQUIRED
+    sipx_service_id CDATA #REQUIRED
+    enable_on_next_upgrade CDATA #REQUIRED
+>
+
 <!ELEMENT long_distance_dialing_rule EMPTY>
 <!ATTLIST long_distance_dialing_rule
     international_dialing_rule_id CDATA #REQUIRED
@@ -425,6 +485,14 @@
     meetme_conference_id CDATA #REQUIRED
 >
 
+<!ELEMENT nat_traversal EMPTY>
+<!ATTLIST nat_traversal
+    id CDATA #REQUIRED
+    enabled CDATA #IMPLIED
+    behindnat CDATA #IMPLIED
+    value_storage_id CDATA #IMPLIED
+>
+
 <!ELEMENT paging_group EMPTY>
 <!ATTLIST paging_group
     paging_group_id CDATA #REQUIRED
@@ -439,6 +507,7 @@
 <!ATTLIST paging_server
     paging_server_id CDATA #REQUIRED
     prefix CDATA #REQUIRED
+    sip_trace_level CDATA #REQUIRED
 >
 
 <!ELEMENT park_orbit EMPTY>
@@ -513,6 +582,7 @@
     name CDATA #REQUIRED
     description CDATA #IMPLIED
     members_csv_filename CDATA #IMPLIED
+    members_vcard_filename CDATA #IMPLIED
 >
 
 <!ELEMENT phonebook_consumer EMPTY>
@@ -544,8 +614,8 @@
     sbc_id CDATA #REQUIRED
     enabled CDATA #IMPLIED
     address CDATA #IMPLIED
-    sbc_device_id CDATA #IMPLIED
     sbc_type CDATA #REQUIRED
+    sbc_device_id CDATA #IMPLIED
 >
 
 <!ELEMENT sbc_device EMPTY>
@@ -559,6 +629,7 @@
     value_storage_id CDATA #IMPLIED
     model_id CDATA #REQUIRED
     device_version_id CDATA #IMPLIED
+    port CDATA #REQUIRED
 >
 
 <!ELEMENT sbc_route_domain EMPTY>
@@ -611,6 +682,20 @@
     value_storage_id CDATA #REQUIRED
     value CDATA #REQUIRED
     path CDATA #REQUIRED
+>
+
+<!ELEMENT sipx_service EMPTY>
+<!ATTLIST sipx_service
+    sipx_service_id CDATA #REQUIRED
+    bean_id CDATA #REQUIRED
+    value_storage_id CDATA #IMPLIED
+>
+
+<!ELEMENT special_user EMPTY>
+<!ATTLIST special_user
+    special_user_id CDATA #REQUIRED
+    user_type CDATA #IMPLIED
+    sip_password CDATA #IMPLIED
 >
 
 <!ELEMENT speeddial EMPTY>

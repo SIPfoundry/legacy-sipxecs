@@ -1,24 +1,28 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.admin.dialplan;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import junit.framework.TestCase;
 
+import org.sipfoundry.sipxconfig.admin.dialplan.config.Transform;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
+import org.sipfoundry.sipxconfig.setting.Group;
 
 /**
  * DialingRuleTest
@@ -116,5 +120,50 @@ public class DialingRuleTest extends TestCase {
         gateways = rule.getGateways();
         assertEquals(1, gateways.size());
         assertEquals(g, gateways.get(0));
+    }
+
+    public void testGetSiteTransforms() {
+        Group montrealSite = new Group();
+        montrealSite.setName("Montreal");
+
+        Group lisbonSite = new Group();
+        lisbonSite.setName("Lisbon");
+
+        Gateway montreal = new Gateway();
+        montreal.setUniqueId();
+        montreal.setAddress("montreal.example.org");
+        montreal.setSite(montrealSite);
+
+        Gateway montreal2 = new Gateway();
+        montreal2.setUniqueId();
+        montreal2.setAddress("montreal2.example.org");
+        montreal2.setSite(montrealSite);
+
+        Gateway lisbon = new Gateway();
+        lisbon.setUniqueId();
+        lisbon.setAddress("lisbon.example.org");
+        lisbon.setSite(lisbonSite);
+        lisbon.setShared(true);
+
+        Gateway shared = new Gateway();
+        shared.setUniqueId();
+        shared.setAddress("example.org");
+
+        CustomDialingRule rule = new CustomDialingRule();
+        rule.addGateway(shared);
+        rule.addGateway(montreal);
+        rule.addGateway(lisbon);
+        rule.addGateway(montreal2);
+        rule.setCallPattern(new CallPattern("444", CallDigits.NO_DIGITS));
+        rule.setDialPatterns(Arrays.asList(new DialPattern("x", DialPattern.VARIABLE_DIGITS)));
+
+        Map<String, List<Transform>> siteTransforms = rule.getSiteTransforms();
+
+        assertEquals(3, siteTransforms.size());
+        assertEquals(4, siteTransforms.get("Montreal").size());
+        // lisbon, shared
+        assertEquals(2, siteTransforms.get("Lisbon").size());
+        // shared, lisbon
+        assertEquals(2, siteTransforms.get("").size());
     }
 }

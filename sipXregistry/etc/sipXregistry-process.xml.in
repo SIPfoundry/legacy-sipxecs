@@ -29,5 +29,6 @@
     <imdb>alias</imdb>
     <imdb>huntgroup</imdb>
     <imdb>registration</imdb>
+    <imdb>userlocation</imdb>
   </resources>
 </sipXecs-process>

@@ -24,11 +24,13 @@ import org.apache.tapestry.form.IPropertySelectionModel;
 import org.apache.tapestry.form.translator.Translator;
 import org.apache.tapestry.form.validator.Validator;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDevice;
+import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.components.EnumPropertySelectionModel;
 import org.sipfoundry.sipxconfig.components.ExtraOptionModelDecorator;
 import org.sipfoundry.sipxconfig.components.LocalizedOptionModelDecorator;
 import org.sipfoundry.sipxconfig.components.ObjectSelectionModel;
 import org.sipfoundry.sipxconfig.components.SerialNumberTranslator;
+import org.sipfoundry.sipxconfig.components.TapestryContext;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.device.ModelSource;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
@@ -44,17 +46,23 @@ public abstract class GatewayForm extends BaseComponent implements PageBeginRend
     @Parameter(required = true)
     public abstract Gateway getGateway();
 
-    @InjectObject(value = "spring:sipTrunkStandard")
+    @InjectObject("spring:sipTrunkStandard")
     public abstract SipTrunkModel getStandardSipTrunkModel();
 
-    @InjectObject(value = "spring:gatewayContext")
+    @InjectObject("spring:gatewayContext")
     public abstract GatewayContext getGatewayContext();
 
-    @InjectObject(value = "spring:itspTemplateModelSource")
+    @InjectObject("spring:itspTemplateModelSource")
     public abstract ModelSource getTemplateModelSource();
 
-    @InjectObject(value = "spring:modelFilesContext")
+    @InjectObject("spring:modelFilesContext")
     public abstract ModelFilesContext getModelFilesContext();
+
+    @InjectObject("spring:coreContext")
+    public abstract CoreContext getCoreContext();
+
+    @InjectObject("spring:tapestry")
+    public abstract TapestryContext getTapestry();
 
     public List<Validator> getSerialNumberValidators() {
         return TapestryUtils.getSerialNumberValidators(getGateway().getModel());
@@ -65,6 +73,7 @@ public abstract class GatewayForm extends BaseComponent implements PageBeginRend
     }
 
     public abstract String getTestValue();
+
     public abstract void setTestValue(String testValue);
 
     @Persist
@@ -73,6 +82,10 @@ public abstract class GatewayForm extends BaseComponent implements PageBeginRend
     public abstract void setAddressTransportModel(IPropertySelectionModel model);
 
     public abstract IPropertySelectionModel getAddressTransportModel();
+
+    public abstract IPropertySelectionModel getSiteModel();
+
+    public abstract void setSiteModel(IPropertySelectionModel siteModel);
 
     @Parameter(required = true)
     public abstract void setSelectedSbcDevice(SbcDevice selectedSbcDevice);
@@ -87,13 +100,25 @@ public abstract class GatewayForm extends BaseComponent implements PageBeginRend
         return versions;
     }
 
+    private IPropertySelectionModel createSiteModel() {
+        ObjectSelectionModel rawModel = new ObjectSelectionModel();
+        rawModel.setArray(getCoreContext().getGroups().toArray());
+        rawModel.setLabelExpression("name");
+        return getTapestry().addExtraOption(rawModel, getMessages(), "label.allSites");
+    }
+
+    private IPropertySelectionModel createTransportModel() {
+        EnumPropertySelectionModel rawModel = new EnumPropertySelectionModel();
+        rawModel.setEnumClass(Gateway.AddressTransport.class);
+        return new LocalizedOptionModelDecorator(rawModel, getMessages(), "addressTransport.");
+    }
+
     public void pageBeginRender(PageEvent event) {
-        IPropertySelectionModel model = getAddressTransportModel();
-        if (model == null) {
-            EnumPropertySelectionModel rawModel = new EnumPropertySelectionModel();
-            rawModel.setEnumClass(Gateway.AddressTransport.class);
-            model = new LocalizedOptionModelDecorator(rawModel, getMessages(), "addressTransport.");
-            setAddressTransportModel(model);
+        if (getAddressTransportModel() == null) {
+            setAddressTransportModel(createTransportModel());
+        }
+        if (getSiteModel() == null) {
+            setSiteModel(createSiteModel());
         }
     }
 
@@ -121,9 +146,8 @@ public abstract class GatewayForm extends BaseComponent implements PageBeginRend
         if (template != null) {
             Gateway gateway = getGateway();
             gateway.setModel(template);
-            Setting templateSettings =
-                getModelFilesContext().loadModelFile(template.getItspTemplate(),
-                        template.getTemplateLocation());
+            Setting templateSettings = getModelFilesContext().loadModelFile(template.getItspTemplate(),
+                    template.getTemplateLocation());
 
             gateway.setAddress(templateSettings.getSetting("itsp-account/proxy-domain").getValue());
         }

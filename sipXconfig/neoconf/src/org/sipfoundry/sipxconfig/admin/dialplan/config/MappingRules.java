@@ -77,7 +77,7 @@ public class MappingRules extends RulesXmlFile {
         generateRule(rule, hostMatch);
     }
 
-    private void generateRule(IDialingRule rule, Element hostMatch) {
+    protected final void generateRule(IDialingRule rule, Element hostMatch) {
         Element userMatch = hostMatch.addElement("userMatch");
         addRuleNameComment(userMatch, rule);
         addRuleDescription(userMatch, rule);
@@ -87,6 +87,10 @@ public class MappingRules extends RulesXmlFile {
             Element userPattern = userMatch.addElement("userPattern");
             userPattern.setText(pattern);
         }
+        addTransforms(rule, userMatch);
+    }
+
+    protected void addTransforms(IDialingRule rule, Element userMatch) {
         Element permissionMatch = userMatch.addElement("permissionMatch");
         if (rule.isTargetPermission()) {
             List<String> permissions = rule.getPermissionNames();

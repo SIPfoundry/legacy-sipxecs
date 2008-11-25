@@ -10,14 +10,18 @@
 package org.sipfoundry.sipxconfig.admin.dialplan;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.Transform;
 import org.sipfoundry.sipxconfig.admin.forwarding.Schedule;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
@@ -31,7 +35,7 @@ import org.sipfoundry.sipxconfig.permission.PermissionManager;
 /**
  * DialingRule At some point it will be replaced by the IDialingRule interface or made abstract.
  */
-public abstract class DialingRule extends BeanWithId implements IDialingRule, DataCollectionItem, NamedObject {
+public abstract class DialingRule extends BeanWithId implements DataCollectionItem, NamedObject, IDialingRule {
 
     public static final String VALID_TIME_PARAM = "sipx-ValidTime=%s";
 
@@ -223,5 +227,15 @@ public abstract class DialingRule extends BeanWithId implements IDialingRule, Da
 
     public String[] getHostPatterns() {
         return ArrayUtils.EMPTY_STRING_ARRAY;
+    }
+
+    public Map<String, List<Transform>> getSiteTransforms() {
+        Transform[] transforms = getTransforms();
+        if (transforms == null) {
+            return null;
+        }
+        Map<String, List<Transform>> siteTransforms = new HashMap<String, List<Transform>>(1);
+        siteTransforms.put(StringUtils.EMPTY, Arrays.asList(transforms));
+        return siteTransforms;
     }
 }

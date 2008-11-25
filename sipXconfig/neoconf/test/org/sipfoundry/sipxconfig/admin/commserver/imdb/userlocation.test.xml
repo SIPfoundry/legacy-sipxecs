@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<items type="userlocation">
+    <item>
+        <identity>sip:mir1@example.org</identity>
+        <location>boston</location>
+    </item>
+    <item>
+        <identity>sip:mir2@example.org</identity>
+        <location>seattle</location>
+    </item>
+</items>

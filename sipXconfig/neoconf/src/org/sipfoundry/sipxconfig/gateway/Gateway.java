@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.gateway;
@@ -20,6 +20,7 @@ import org.sipfoundry.sipxconfig.common.NamedObject;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.device.Device;
 import org.sipfoundry.sipxconfig.device.ModelSource;
+import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
 /**
@@ -47,6 +48,10 @@ public class Gateway extends Device implements NamedObject {
     private List<FxoPort> m_ports = new ArrayList<FxoPort>();
 
     private SbcDevice m_sbcDevice;
+
+    private boolean m_shared;
+
+    private Group m_site;
 
     public Gateway() {
     }
@@ -145,6 +150,7 @@ public class Gateway extends Device implements NamedObject {
         setBeanId(m_model.getBeanId());
     }
 
+    @Override
     public GatewayModel getModel() {
         if (m_model != null) {
             return m_model;
@@ -235,6 +241,7 @@ public class Gateway extends Device implements NamedObject {
         return m_prefix + callPattern;
     }
 
+    @Override
     protected Object clone() throws CloneNotSupportedException {
         Gateway clone = (Gateway) super.clone();
         clone.m_callerAliasInfo = (GatewayCallerAliasInfo) m_callerAliasInfo.clone();
@@ -266,5 +273,21 @@ public class Gateway extends Device implements NamedObject {
         public MaxPortsException(int max) {
             super("Maximum number of ports is {0}", max);
         }
+    }
+
+    public Group getSite() {
+        return m_site;
+    }
+
+    public void setSite(Group site) {
+        m_site = site;
+    }
+
+    public boolean isShared() {
+        return m_shared;
+    }
+
+    public void setShared(boolean shared) {
+        m_shared = shared;
     }
 }

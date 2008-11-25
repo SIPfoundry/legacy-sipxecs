@@ -10,8 +10,10 @@
 package org.sipfoundry.sipxconfig.admin.dialplan;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
@@ -19,6 +21,7 @@ import org.sipfoundry.sipxconfig.admin.dialplan.config.FullTransform;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.Transform;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
 import org.sipfoundry.sipxconfig.permission.Permission;
+import org.sipfoundry.sipxconfig.setting.Group;
 
 /**
  * CustomDialingRule
@@ -90,6 +93,71 @@ public class CustomDialingRule extends DialingRule {
             for (int i = 0; i < transforms.length; i++) {
                 transforms[i] = getGatewayTransform(gateways.get(i), outPattern, q);
             }
+        }
+        return transforms;
+    }
+
+    /**
+     * Creates a data structure with a list of transforms for every site reference by this rule.
+     * Shared gateways are included in every site list, but with a lower priority that gateways
+     * specific for this site. Shared gateways and gateways without any site are also included in
+     * a list associated with empty site (represented by an empty String)
+     */
+    @Override
+    public Map<String, List<Transform>> getSiteTransforms() {
+        Map<String, List<Gateway>> sitesToGateways = new LinkedHashMap<String, List<Gateway>>();
+        List<Gateway> anywhereGateways = new ArrayList<Gateway>();
+        sortGateways(sitesToGateways, anywhereGateways);
+
+        Map<String, List<Transform>> sitesToTransforms = new LinkedHashMap<String, List<Transform>>();
+        for (Map.Entry<String, List<Gateway>> entry : sitesToGateways.entrySet()) {
+            String site = entry.getKey();
+            List<Gateway> siteGateways = entry.getValue();
+            // most anywhere gateways are good for any site - need to be re-added
+            for (Gateway g : anywhereGateways) {
+                Group s = g.getSite();
+                if (s == null || !s.getName().equals(site)) {
+                    siteGateways.add(g);
+                }
+            }
+            List<Transform> transforms = calculateTransformsForGateways(siteGateways);
+            sitesToTransforms.put(site, transforms);
+        }
+        if (!anywhereGateways.isEmpty()) {
+            List<Transform> anywhereTransforms = calculateTransformsForGateways(anywhereGateways);
+            sitesToTransforms.put(StringUtils.EMPTY, anywhereTransforms);
+        }
+
+        return sitesToTransforms;
+    }
+
+    private void sortGateways(Map<String, List<Gateway>> sitesToGateways, List<Gateway> anywhereGateways) {
+        List<Gateway> gateways = getGateways();
+        for (Gateway g : gateways) {
+            Group site = g.getSite();
+            if (site == null) {
+                anywhereGateways.add(g);
+                continue;
+            }
+            String siteName = site.getName();
+            List<Gateway> gl = sitesToGateways.get(siteName);
+            if (gl == null) {
+                gl = new ArrayList<Gateway>();
+                sitesToGateways.put(siteName, gl);
+            }
+            gl.add(g);
+            if (g.isShared()) {
+                anywhereGateways.add(g);
+            }
+        }
+    }
+
+    private List<Transform> calculateTransformsForGateways(List<Gateway> gateways) {
+        ArrayList<Transform> transforms = new ArrayList<Transform>(gateways.size());
+        final String outPattern = getCallPattern().calculatePattern();
+        ForkQueueValue q = new ForkQueueValue(gateways.size());
+        for (Gateway g : gateways) {
+            transforms.add(getGatewayTransform(g, outPattern, q));
         }
         return transforms;
     }

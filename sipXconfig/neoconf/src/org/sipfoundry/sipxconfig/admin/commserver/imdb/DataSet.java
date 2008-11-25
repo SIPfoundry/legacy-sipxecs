@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.admin.commserver.imdb;
@@ -24,6 +24,7 @@ public class DataSet extends Enum {
     public static final DataSet CREDENTIAL = new DataSet("credential");
     public static final DataSet PERMISSION = new DataSet("permission");
     public static final DataSet CALLER_ALIAS = new DataSet("caller-alias");
+    public static final DataSet USER_LOCATION = new DataSet("userlocation");
 
     public DataSet(String dataSet) {
         super(dataSet);

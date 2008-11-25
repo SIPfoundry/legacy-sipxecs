@@ -278,16 +278,17 @@
     <antcall target="add-presence-service"/>
     <antcall target="add-ivr-service"/>
   	<antcall target="location-sipx-service"/>
-  	<antcall target="add-additional-sipx-services"/>
-  	<antcall target="remove-user-based-dialing"/>
-	<antcall target="caller-alias-add-sip-uri"/>
-  	<antcall target="alarm-server"/>
+    <antcall target="add-additional-sipx-services"/>
+    <antcall target="remove-user-based-dialing"/>
+    <antcall target="caller-alias-add-sip-uri"/>
+    <antcall target="alarm-server"/>
     <antcall target="location-fqdn"/>
     <antcall target="add-freeswitch-service"/>
-  	<antcall target="add-sipx-relay-service"/>
-	<antcall target="add-location-specific-service"/>
-	<antcall target="backup-ftp-fix" />
-	<antcall target="location-add-password" />
+    <antcall target="add-sipx-relay-service"/>
+    <antcall target="add-location-specific-service"/>
+    <antcall target="backup-ftp-fix" />
+    <antcall target="location-add-password" />
+    <antcall target="gateway-location" />
     <!-- temporary patches -->
     <antcall target="clean-sipx-service-values"/>
     <antcall target="backup-ftp-fix-empty-type-2" />
@@ -325,6 +326,10 @@
 
   <target name="backup-ftp" unless="backup-ftp">
     <db-patch patch="backup-ftp"/>
+  </target>
+
+  <target name="gateway-location" unless="gateway-location" >
+    <db-patch patch="gateway-location" />
   </target>
 
   <target name="backup-ftp-fix" unless="backup-ftp-fix">

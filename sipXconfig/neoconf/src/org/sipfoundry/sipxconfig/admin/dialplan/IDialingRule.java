@@ -10,6 +10,7 @@
 package org.sipfoundry.sipxconfig.admin.dialplan;
 
 import java.util.List;
+import java.util.Map;
 
 import org.sipfoundry.sipxconfig.admin.dialplan.config.Transform;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
@@ -35,6 +36,8 @@ public interface IDialingRule {
     public abstract String[] getPatterns();
 
     public abstract Transform[] getTransforms();
+
+    public Map<String, List<Transform>> getSiteTransforms();
 
     public abstract List<String> getPermissionNames();
 

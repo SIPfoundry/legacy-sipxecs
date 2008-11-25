@@ -74,8 +74,19 @@
           value="ognl:gateway.deviceVersion"
           displayName="message:label.firmwareVersion"/>
       </tr>
-      </span>      
-      
+      </span>
+      <tr  jwcid="@common/FieldPanel" for="gateway:site" field="component:site"
+        label="message:label.site"
+        description="message:description.site">
+        <select jwcid="site@PropertySelection" id="gateways:site"
+          model="ognl:siteModel"
+          value="ognl:gateway.site"/>
+      </tr>
+	  <tr jwcid="@common/FieldPanel" for="gateway:shared" field="component:shared"
+	      label="message:label.shared"
+	      description="message:description.shared">
+         <span jwcid="shared@Checkbox" id="gateway:shared" value="ognl:gateway.shared"/>
+      </tr>
       <label jwcid="@common/FieldPanel" for="gateway:description"
         field="component:gatewayDescription"
         label="message:label.description">

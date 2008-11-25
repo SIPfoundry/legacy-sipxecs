@@ -9,56 +9,65 @@
  */
 package org.sipfoundry.sipxconfig.admin.dialplan.config;
 
+import java.io.InputStream;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.StringUtils;
 import org.custommonkey.xmlunit.XMLTestCase;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.dom4j.Document;
-import org.easymock.EasyMock;
-import org.easymock.IMocksControl;
-import org.sipfoundry.sipxconfig.XmlUnitHelper;
+import org.sipfoundry.sipxconfig.admin.dialplan.CallDigits;
+import org.sipfoundry.sipxconfig.admin.dialplan.CallPattern;
+import org.sipfoundry.sipxconfig.admin.dialplan.CustomDialingRule;
+import org.sipfoundry.sipxconfig.admin.dialplan.DialPattern;
 import org.sipfoundry.sipxconfig.admin.dialplan.IDialingRule;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
+import org.sipfoundry.sipxconfig.setting.Group;
 
-/**
- * MappingRulesTest
- */
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.createStrictMock;
+import static org.easymock.EasyMock.expectLastCall;
+import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.verify;
+import static org.sipfoundry.sipxconfig.XmlUnitHelper.asString;
+import static org.sipfoundry.sipxconfig.XmlUnitHelper.assertElementInNamespace;
+import static org.sipfoundry.sipxconfig.XmlUnitHelper.setNamespaceAware;
+
 public class FallbackRulesTest extends XMLTestCase {
     public FallbackRulesTest() {
-        XmlUnitHelper.setNamespaceAware(false);
+        setNamespaceAware(false);
         XMLUnit.setIgnoreWhitespace(true);
     }
 
     public void testGenerateRuleWithGateways() throws Exception {
-        Gateway g1 = new Gateway();
-        g1.setAddress("10.1.1.14");
         FullTransform t1 = new FullTransform();
         t1.setUser("333");
-        t1.setHost(g1.getGatewayAddress());
-        t1.setFieldParams(new String[] {
-            "Q=0.97"
-        });
+        t1.setHost("10.1.1.14");
+        t1.setFieldParams("Q=0.97");
 
-        IMocksControl control = EasyMock.createStrictControl();
-        IDialingRule rule = control.createMock(IDialingRule.class);
+        IDialingRule rule = createStrictMock(IDialingRule.class);
         rule.isInternal();
-        control.andReturn(false);
+        expectLastCall().andReturn(false);
         rule.getHostPatterns();
-        control.andReturn(ArrayUtils.EMPTY_STRING_ARRAY);
+        expectLastCall().andReturn(ArrayUtils.EMPTY_STRING_ARRAY);
         rule.getName();
-        control.andReturn("my test name");
+        expectLastCall().andReturn("my test name");
         rule.getDescription();
-        control.andReturn("my test description");
+        expectLastCall().andReturn("my test description");
         rule.getPatterns();
-        control.andReturn(new String[] {
-            "x."
-        });
-        rule.isTargetPermission();
-        control.andReturn(false);
-        rule.getTransforms();
-        control.andReturn(new Transform[] {
-            t1
-        });
-        control.replay();
+        expectLastCall().andReturn(array("x."));
+        rule.getSiteTransforms();
+        Map<String, List< ? extends Transform>> siteMap = new HashMap<String, List< ? extends Transform>>();
+        siteMap.put(StringUtils.EMPTY, Arrays.asList(t1));
+        expectLastCall().andReturn(siteMap);
+
+        replay(rule);
 
         MappingRules mappingRules = new FallbackRules();
         mappingRules.begin();
@@ -67,31 +76,119 @@ public class FallbackRulesTest extends XMLTestCase {
 
         Document document = mappingRules.getDocument();
 
-        XmlUnitHelper.assertElementInNamespace(document.getRootElement(),
-                "http://www.sipfoundry.org/sipX/schema/xml/urlmap-00-00");
+        assertElementInNamespace(document.getRootElement(),
+                "http://www.sipfoundry.org/sipX/schema/xml/fallback-00-00");
 
-        String domDoc = XmlUnitHelper.asString(document);
+        String domDoc = asString(document);
+        InputStream referenceXmlStream = getClass().getResourceAsStream("fallbackrules.test.xml");
+        assertEquals(IOUtils.toString(referenceXmlStream), domDoc);
 
-        assertXpathEvaluatesTo("my test description",
-                "/mappings/hostMatch/userMatch/description", domDoc);
-        assertXpathEvaluatesTo("x.", "/mappings/hostMatch/userMatch/userPattern", domDoc);
-        assertXpathNotExists("/mappings/hostMatch/userMatch/permissionMatch/permission", domDoc);
-        assertXpathEvaluatesTo("333",
-                "/mappings/hostMatch/userMatch/permissionMatch/transform/user", domDoc);
-        assertXpathEvaluatesTo(g1.getGatewayAddress(),
-                "/mappings/hostMatch/userMatch/permissionMatch/transform/host", domDoc);
-        assertXpathEvaluatesTo("Q=0.97",
-                "/mappings/hostMatch/userMatch/permissionMatch/transform/fieldparams", domDoc);
+        verify(rule);
+    }
 
-        control.verify();
+    public void testGenerateRuleWithGatewaysAndSite() throws Exception {
+        Transform t1 = createTransform("444", "montreal.example.org", "q=0.95");
+        Transform t2 = createTransform("9444", "lisbon.example.org", "q=0.95");
+
+        Map<String, List<Transform>> siteTr = new LinkedHashMap<String, List<Transform>>();
+        siteTr.put("Montreal", Arrays.asList(t1));
+        siteTr.put("Lisbon", Arrays.asList(t2));
+
+        IDialingRule rule = createStrictMock(IDialingRule.class);
+        rule.isInternal();
+        expectLastCall().andReturn(false);
+        rule.getHostPatterns();
+        expectLastCall().andReturn(ArrayUtils.EMPTY_STRING_ARRAY);
+        rule.getName();
+        expectLastCall().andReturn("my test name");
+        rule.getDescription();
+        expectLastCall().andReturn("my test description");
+        rule.getPatterns();
+        expectLastCall().andReturn(array("x."));
+        rule.getSiteTransforms();
+        expectLastCall().andReturn(siteTr);
+
+        replay(rule);
+
+        MappingRules mappingRules = new FallbackRules();
+        mappingRules.begin();
+        mappingRules.generate(rule);
+        mappingRules.end();
+
+        Document document = mappingRules.getDocument();
+        assertElementInNamespace(document.getRootElement(),
+                "http://www.sipfoundry.org/sipX/schema/xml/fallback-00-00");
+
+        String domDoc = asString(document);
+
+        InputStream referenceXmlStream = getClass().getResourceAsStream("fallbackrules-sites.test.xml");
+        assertEquals(IOUtils.toString(referenceXmlStream), domDoc);
+
+        verify(rule);
+    }
+
+    private Transform createTransform(String user, String host, String q) {
+        FullTransform t1 = new FullTransform();
+        t1.setUser(user);
+        t1.setHost(host);
+        t1.setFieldParams(q);
+        return t1;
+    }
+
+    public void testGenerateRuleWithGatewaysAndShared() throws Exception {
+        Group montrealSite = new Group();
+        montrealSite.setName("Montreal");
+
+        Group lisbonSite = new Group();
+        lisbonSite.setName("Lisbon");
+
+        Gateway montreal = new Gateway();
+        montreal.setUniqueId();
+        montreal.setAddress("montreal.example.org");
+        montreal.setSite(montrealSite);
+
+        Gateway lisbon = new Gateway();
+        lisbon.setUniqueId();
+        lisbon.setAddress("lisbon.example.org");
+        lisbon.setSite(lisbonSite);
+        lisbon.setShared(true);
+        lisbon.setPrefix("9");
+
+        Gateway shared = new Gateway();
+        shared.setUniqueId();
+        shared.setAddress("example.org");
+        shared.setPrefix("8");
+
+        CustomDialingRule rule = new CustomDialingRule();
+        rule.setName("my test name");
+        rule.setDescription("my test description");
+        rule.addGateway(shared);
+        rule.addGateway(montreal);
+        rule.addGateway(lisbon);
+        rule.setCallPattern(new CallPattern("444", CallDigits.NO_DIGITS));
+        rule.setDialPatterns(Arrays.asList(new DialPattern("x", DialPattern.VARIABLE_DIGITS)));
+
+        MappingRules mappingRules = new FallbackRules();
+        mappingRules.begin();
+        mappingRules.generate(rule);
+        mappingRules.end();
+
+        Document document = mappingRules.getDocument();
+
+        assertElementInNamespace(document.getRootElement(),
+                "http://www.sipfoundry.org/sipX/schema/xml/fallback-00-00");
+
+        String domDoc = asString(document);
+
+        InputStream referenceXmlStream = getClass().getResourceAsStream("fallbackrules-shared-gateway.test.xml");
+        assertEquals(IOUtils.toString(referenceXmlStream), domDoc);
     }
 
     public void testGenerateRuleWithoutGateways() throws Exception {
-        IMocksControl control = EasyMock.createControl();
-        IDialingRule rule = control.createMock(IDialingRule.class);
+        IDialingRule rule = createMock(IDialingRule.class);
         rule.isInternal();
-        control.andReturn(true);
-        control.replay();
+        expectLastCall().andReturn(true);
+        replay(rule);
 
         MappingRules mappingRules = new FallbackRules();
         mappingRules.begin();
@@ -100,15 +197,17 @@ public class FallbackRulesTest extends XMLTestCase {
 
         Document document = mappingRules.getDocument();
 
-        XmlUnitHelper.assertElementInNamespace(document.getRootElement(),
-                "http://www.sipfoundry.org/sipX/schema/xml/urlmap-00-00");
+        assertElementInNamespace(document.getRootElement(),
+                "http://www.sipfoundry.org/sipX/schema/xml/fallback-00-00");
 
-        String domDoc = XmlUnitHelper.asString(document);
+        String domDoc = asString(document);
 
-        assertXpathNotExists("/mappings/hostMatch/userMatch/userPattern", domDoc);
-        assertXpathNotExists("/mappings/hostMatch/userMatch/permissionMatch", domDoc);
-        assertXpathExists("/mappings/hostMatch/hostPattern", domDoc);
+        InputStream referenceXmlStream = getClass().getResourceAsStream("fallbackrules-no-gateway.test.xml");
+        assertEquals(IOUtils.toString(referenceXmlStream), domDoc);
+        verify(rule);
+    }
 
-        control.verify();
+    private static <T> T[] array(T... items) {
+        return items;
     }
 }

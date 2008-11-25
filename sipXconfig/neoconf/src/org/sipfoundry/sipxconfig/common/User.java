@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.common;
@@ -90,7 +90,7 @@ public class User extends BeanWithGroups implements NamedObject {
      * Set the PIN, protecting it under a security realm. The PIN is private to the user. To keep
      * the PIN secure, we don't store it. Instead we store the "pintoken", which is a hash of the
      * PIN.
-     * 
+     *
      * @param pin PIN
      * @param realm security realm
      */
@@ -167,7 +167,7 @@ public class User extends BeanWithGroups implements NamedObject {
 
     /**
      * Finds the shorted numeric alias for this user.
-     * 
+     *
      * @return null if no numeric aliases, shortest numeric alias (if there more than one that
      *         have equal lenght we can return any of them)
      */
@@ -193,9 +193,9 @@ public class User extends BeanWithGroups implements NamedObject {
      * Get numeric extension for this user. Since we are trying to support many possible options
      * we are going to try user name and then list of aliases. If user has more than a single
      * numeric alias it's not going to work reliably.
-     * 
+     *
      * Note: since "0" is hardcoded in login.vxml it cannot be used as user extension
-     * 
+     *
      * @return String representing numeric extension for this user
      */
     public String getExtension(boolean considerUserName) {
@@ -253,7 +253,7 @@ public class User extends BeanWithGroups implements NamedObject {
 
     /**
      * Creates short version of user SIP URI (without display name)
-     * 
+     *
      * sip:user@example.com
      */
     public String getAddrSpec(String domainName) {
@@ -316,7 +316,7 @@ public class User extends BeanWithGroups implements NamedObject {
 
     /**
      * Set specific permission for the user
-     * 
+     *
      * @param permissionName - permission to set
      * @param enabled - true for enabled, false for disabled
      */
@@ -327,7 +327,7 @@ public class User extends BeanWithGroups implements NamedObject {
 
     /**
      * Set specific permission for the user
-     * 
+     *
      * @param permission - permission to set
      * @param enabled - true for enabled, false for disabled
      */
@@ -372,6 +372,15 @@ public class User extends BeanWithGroups implements NamedObject {
         if (m_supervisorForGroups != null) {
             m_supervisorForGroups.clear();
         }
+    }
+
+    public Group getSite() {
+        Set<Group> groups = getGroups();
+        if (groups.isEmpty()) {
+            return null;
+        }
+        // first group represents user location
+        return groups.iterator().next();
     }
 
     public void addSupervisorForGroup(Group group) {

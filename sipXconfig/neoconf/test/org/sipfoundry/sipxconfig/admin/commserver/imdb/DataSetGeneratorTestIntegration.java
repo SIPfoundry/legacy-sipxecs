@@ -7,13 +7,13 @@ import java.util.Map;
 import org.sipfoundry.sipxconfig.IntegrationTestCase;
 
 public class DataSetGeneratorTestIntegration extends IntegrationTestCase {
-    
-    private Map<String, DataSetGenerator> m_dataSetGeneratorMap;
-    
+
+    private final Map<String, DataSetGenerator> m_dataSetGeneratorMap;
+
     public DataSetGeneratorTestIntegration() {
         m_dataSetGeneratorMap = new HashMap<String, DataSetGenerator>();
     }
-    
+
     public void testDataSetGeneratorBeans() {
         for (Iterator i = DataSet.iterator(); i.hasNext();) {
             DataSet set = (DataSet) i.next();
@@ -27,20 +27,24 @@ public class DataSetGeneratorTestIntegration extends IntegrationTestCase {
             assertNotNull(set.getName(), gen.getCoreContext());
         }
     }
-    
+
     public void setExtensionDataSet(Extensions extensions) {
         m_dataSetGeneratorMap.put(DataSet.EXTENSION.getName(), extensions);
     }
-    
+
     public void setCredentialDataSet(Credentials credentials) {
         m_dataSetGeneratorMap.put(DataSet.CREDENTIAL.getName(), credentials);
     }
-    
+
     public void setAliasDataSet(Aliases aliases) {
         m_dataSetGeneratorMap.put(DataSet.ALIAS.getName(), aliases);
     }
-    
+
     public void setPermissionDataSet(Permissions permissions) {
         m_dataSetGeneratorMap.put(DataSet.PERMISSION.getName(), permissions);
+    }
+
+    public void setUserlocationDataSet(UserLocation userLocations) {
+        m_dataSetGeneratorMap.put(DataSet.USER_LOCATION.getName(), userLocations);
     }
 }

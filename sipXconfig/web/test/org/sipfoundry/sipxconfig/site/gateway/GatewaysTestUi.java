@@ -80,9 +80,13 @@ public class GatewaysTestUi extends WebTestCase {
 
         addGateway("kuku");
 
+        SiteTestHelper.selectOption(tester, "selectGatewayModel", "Unmanaged gateway");
+
+        addGateway("sharedG", true);
+
         gatewaysTable = getTable("list:gateway");
-        // we should have 2 gateway now
-        assertEquals(3, gatewaysTable.getRowCount());
+        // we should have 3 gateway now
+        assertEquals(4, gatewaysTable.getRowCount());
         assertEquals("kukuDescription", getCellAsText(gatewaysTable, 2, lastColumn));
     }
 
@@ -193,7 +197,7 @@ public class GatewaysTestUi extends WebTestCase {
         // we should not get error this time
         assertTablePresent("list:gateway");
     }
-    
+
     public void testNoPreviewProfileOnNewGateway() {
         clickLink("ListGateways");
         SiteTestHelper.selectOption(tester, "selectGatewayModel", "Acme 1000");
@@ -202,36 +206,47 @@ public class GatewaysTestUi extends WebTestCase {
 
     /**
      * Fills and submits edit gateway form
-     * 
+     *
      * @param name response after clicking submit button
      */
     private void addGateway(String name) {
         addGateway(tester, name);
     }
 
+    private void addGateway(String name, boolean shared) {
+        addGateway(tester, name, shared);
+    }
+
+    private static String[] addGateway(WebTester tester, String name, boolean shared) {
+        String[] row = new String[] {
+                "unchecked", name + "Name", name + "Address" + ".localdomain",
+            "Unmanaged gateway", name + "Description"
+            };
+
+            if (null != name) {
+                tester.setTextField("gateway:name", row[1]);
+                tester.setTextField("gateway:address", row[2]);
+                tester.setTextField("gateway:description", row[4]);
+                if (shared) {
+                    tester.checkCheckbox("gateway:shared");
+                }
+            }
+            tester.submit("form:ok");
+            return row;
+    }
+
     /**
      * Static version to be called from other tests
-     * 
+     *
      * @param name response after clicking submit button
      */
     public static String[] addGateway(WebTester tester, String name) {
-        String[] row = new String[] {
-            "unchecked", name + "Name", name + "Address" + ".localdomain",
-	    "Unmanaged gateway", name + "Description"
-        };
-
-        if (null != name) {
-            tester.setTextField("gateway:name", row[1]);
-            tester.setTextField("gateway:address", row[2]);
-            tester.setTextField("gateway:description", row[4]);
-        }
-        tester.submit("form:ok");
-        return row;
+        return addGateway(tester, name, false);
     }
 
     /**
      * Adds number of test gateways to test
-     * 
+     *
      * @param counter number of gateways to add - names gateway0..gateway'count-1'
      */
     public static String[] addTestGateways(WebTester tester, int counter) {
