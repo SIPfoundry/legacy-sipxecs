@@ -185,7 +185,7 @@ pullServer() { # server
     for c in ${Components}
     do
       echo searching ${system} $c log
-      ssh ${1} "${dump} /var/log/sipxpbx/${c}.log${LogExtension} | grep -E \"${Token}\"" \
+      ssh ${1} "${dump} /var/log/sipxpbx/${c}.log${LogExtension} | grep --text -E \"${Token}\"" \
         > ${Trace}/${system}.${c}.log
     done
 }
@@ -199,7 +199,7 @@ grepLog() { # prefix
     do
       echo searching ${prefix} ${c} log
       ${dump} ${prefix}/var/log/sipxpbx/${c}.log${LogExtension} \
-      | grep -E "${Token}" \
+      | grep --text -E "${Token}" \
       > ${Trace}/${alias}.${c}.log
     done
 }
