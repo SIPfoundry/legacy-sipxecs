@@ -27,6 +27,7 @@ import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.sdp.SdpFactory;
+import javax.sdp.SdpParseException;
 import javax.sdp.SessionDescription;
 import javax.sip.ClientTransaction;
 import javax.sip.Dialog;
@@ -251,13 +252,15 @@ class CallControlManager implements SymmitronResetHandler {
                         }
                         ClientTransaction ctx = peerDialogProvider
                                 .getNewClientTransaction(newRequest);
-                        TransactionApplicationData tad = new TransactionApplicationData(
+                        TransactionApplicationData tad = TransactionApplicationData.attach(ctx,
                                 Operation.QUERY_SDP_FROM_PEER_DIALOG);
-                        tad.serverTransaction = serverTransaction;
-                        ctx.setApplicationData(tad);
+
+                        tad.setServerTransaction(serverTransaction);
                         DialogApplicationData peerDat = DialogApplicationData.get(peerDialog);
-                        // Record that we queried the answer from the peer dialog so we can send
-                        // the Ack along.
+                        /*
+                         * Record that we queried the answer from the peer dialog so we can send
+                         * the Ack along.
+                         */
                         peerDat.isSdpAnswerPending = true;
                         peerDialog.sendRequest(ctx);
                         return;
@@ -274,9 +277,9 @@ class CallControlManager implements SymmitronResetHandler {
                         newRequest.setHeader(contactHeader);
                         ClientTransaction ctx = peerDialogProvider
                                 .getNewClientTransaction(newRequest);
-                        TransactionApplicationData tad = new TransactionApplicationData(
+                        TransactionApplicationData tad = TransactionApplicationData.attach(ctx,
                                 Operation.QUERY_SDP_FROM_PEER_DIALOG);
-                        tad.serverTransaction = serverTransaction;
+                        tad.setServerTransaction(serverTransaction);
                         ctx.setApplicationData(tad);
                         DialogApplicationData peerDat = DialogApplicationData.get(peerDialog);
                         // Record that we queried the answer from the peer dialog so we can send
@@ -297,7 +300,7 @@ class CallControlManager implements SymmitronResetHandler {
                         }
                         return;
                     } else {
-                        /* Say BYE to MOH server and continue processing. */
+                        // Say BYE to MOH server and continue processing.
                         dat.sendReInviteOnResume = false;
                         rtpSession.reAssignSessionParameters(request, serverTransaction, dialog,
                                 null);
@@ -314,11 +317,10 @@ class CallControlManager implements SymmitronResetHandler {
                 btobua = ((DialogApplicationData) dialog.getApplicationData())
                         .getBackToBackUserAgent();
             } else if (request.getHeader(ReplacesHeader.NAME) != null) {
-                /*
-                 * Incoming INVITE (out of dialog ) with a replaces header. This implies call
-                 * pickup attempt.
-                 * 
-                 */
+
+                // Incoming INVITE (out of dialog ) with a replaces header. This implies call
+                // pickup attempt.
+
                 ReplacesHeader replacesHeader = (ReplacesHeader) request
                         .getHeader(ReplacesHeader.NAME);
                 Dialog replacesDialog = ((SipStackExt) ProtocolObjects.sipStack)
@@ -348,8 +350,7 @@ class CallControlManager implements SymmitronResetHandler {
             } else {
 
                 btobua = Gateway.getCallControlManager().getBackToBackUserAgent(provider,
-                        request, serverTransaction, dialog,
-                        Gateway.getLanProvider() == requestEvent.getSource());
+                        request, serverTransaction, dialog);
                 /*
                  * Make sure we know about the incoming request. Otherwise we return an error
                  * here.
@@ -501,11 +502,13 @@ class CallControlManager implements SymmitronResetHandler {
 
     /**
      * Handle inbound REFER request.
-     *  
+     * 
      * @param requestEvent
      */
     private void processRefer(RequestEvent requestEvent) {
         TransactionApplicationData tad = null;
+
+        BackToBackUserAgent btobua = null;
         try {
 
             logger.debug("Got a REFER - establishing new call leg and tearing down old call leg");
@@ -514,6 +517,9 @@ class CallControlManager implements SymmitronResetHandler {
             SipProvider provider = (SipProvider) requestEvent.getSource();
             ServerTransaction stx = requestEvent.getServerTransaction();
 
+            /*
+             * ONLY in-dialog stateful REFER handling is allowed.
+             */
             if (dialog == null || stx == null) {
                 logger.error("Got an out of dialog REFER -- dropping");
                 Response response = ProtocolObjects.messageFactory.createResponse(
@@ -530,24 +536,28 @@ class CallControlManager implements SymmitronResetHandler {
                  * For now do not accept refer from the WAN side later we can relax this
                  * restriction.
                  */
-                Response response = ProtocolObjects.messageFactory.createResponse(
-                        Response.NOT_IMPLEMENTED, request);
+                Response response = SipUtilities.createResponse(stx, Response.NOT_ACCEPTABLE);
                 response.setReasonPhrase("Can only handle REFER from LAN");
-                if (stx != null)
-                    stx.sendResponse(response);
-                else
-                    provider.sendResponse(response);
+                stx.sendResponse(response);
                 return;
             }
 
             DialogApplicationData dat = (DialogApplicationData) dialog.getApplicationData();
-            BackToBackUserAgent btobua = dat.getBackToBackUserAgent();
-
+            btobua = dat.getBackToBackUserAgent();
+            /*
+             * Check dialog state -- if terminated, tear down call.This should never happen unless
+             * our Dialog is Terminated when we retry.
+             */
+            if (dialog.getState() == DialogState.TERMINATED) {
+                Response response = SipUtilities.createResponse(stx,
+                        Response.SERVER_INTERNAL_ERROR);
+                response.setReasonPhrase("Received REFER on TERMINATED Dialog");
+                stx.sendResponse(response);
+            }
             /*
              * Blind transfer handled by ITSP? If so then forward it if the bridge is configured
              * to do so. Withut ITSP support, blind transfer can result in no RINGING and dropped
-             * calls (if we handle it locally).
-             * 
+             * calls (if we handle it locally). Note : REFER is not widely supported by ITSPs
              */
             Dialog peerDialog = DialogApplicationData.getPeerDialog(dialog);
 
@@ -558,19 +568,6 @@ class CallControlManager implements SymmitronResetHandler {
                     && peerDat.isReferAllowed()) {
                 btobua.forwardReferToItsp(requestEvent);
                 return;
-            }
-
-            /*
-             * Send an ACCEPTED
-             */
-
-            if (stx.getState() != TransactionState.TERMINATED) {
-                Response response = ProtocolObjects.messageFactory.createResponse(
-                        Response.ACCEPTED, request);
-                response.setHeader(SipUtilities.createContactHeader(null, provider));
-                stx.sendResponse(response);
-                DialogApplicationData.get(dialog).isReferAccepted = true;
-
             }
 
             /*
@@ -591,7 +588,7 @@ class CallControlManager implements SymmitronResetHandler {
                     Gateway.getTimer().schedule(new RequestPendingTimerTask(continuation), 100);
                 }
             } else {
-                /* Re-INIVTE is not supported directly send an INVITE to the target. */
+                /* Sdp query Re-INIVTE is not supported directly send an INVITE to the target. */
                 Request inviteRequest = btobua.createInviteFromReferRequest(requestEvent);
                 btobua.referInviteToSipxProxy(inviteRequest, requestEvent, null);
             }
@@ -607,9 +604,14 @@ class CallControlManager implements SymmitronResetHandler {
         } catch (Exception ex) {
             logger.error("Unexpected exception while processing REFER", ex);
             if (tad != null) {
-                ServerTransaction serverTransaction = tad.serverTransaction;
+                ServerTransaction serverTransaction = tad.getServerTransaction();
                 sendBadRequestError(serverTransaction, ex);
             }
+
+            if (btobua != null) {
+                btobua.tearDown();
+            }
+
         }
 
     }
@@ -714,12 +716,10 @@ class CallControlManager implements SymmitronResetHandler {
                  * Set the pending flag to false.
                  */
                 dat.isSdpAnswerPending = false;
-
             }
 
         } catch (Exception ex) {
             logger.error("Problem sending ack ", ex);
-
         }
 
     }
@@ -751,14 +751,17 @@ class CallControlManager implements SymmitronResetHandler {
                 inviteServerTransaction.sendResponse(response);
             } else {
                 // Too late to cancel.
+                logger.debug(String.format("Transaction State is %s too late to cancel",
+                        inviteServerTransaction.getState()));
                 return;
             }
             TransactionApplicationData tad = (TransactionApplicationData) inviteServerTransaction
                     .getApplicationData();
             if (tad == null) {
+                logger.error("No transaction application context state found -- returning");
                 return;
             }
-            ClientTransaction ct = tad.clientTransaction;
+            ClientTransaction ct = tad.getClientTransaction();
             ItspAccountInfo itspAccount = btobua.getItspAccountInfo();
             String transport = itspAccount != null ? itspAccount.getOutboundTransport()
                     : Gateway.DEFAULT_ITSP_TRANSPORT;
@@ -842,7 +845,6 @@ class CallControlManager implements SymmitronResetHandler {
 
         b2bua.sendByeToMohServer();
 
-       
         /*
          * Create a new INVITE to send to the ITSP.
          */
@@ -861,11 +863,9 @@ class CallControlManager implements SymmitronResetHandler {
              */
 
             if (((DialogExt) dialog).getSipProvider() == Gateway.getLanProvider()) {
-                // We did a SDP query. So we need to put an SDP
-                // Answer in the response.
-
-                SessionDescription oldSd = b2bua.getWanRtpSession(peerDialog).getReceiver()
-                        .getSessionDescription();
+                /*
+                 * We did a SDP query. So we need to put an SDP Answer in the response.
+                 */
 
                 b2bua.getWanRtpSession(peerDialog).getTransmitter().setOnHold(false);
 
@@ -878,8 +878,6 @@ class CallControlManager implements SymmitronResetHandler {
 
             } else {
 
-                SessionDescription oldSd = b2bua.getLanRtpSession(peerDialog).getReceiver()
-                        .getSessionDescription();
                 b2bua.getLanRtpSession(peerDialog).getTransmitter().setOnHold(false);
 
                 b2bua.getLanRtpSession(peerDialog).getReceiver().setSessionDescription(sd);
@@ -905,10 +903,7 @@ class CallControlManager implements SymmitronResetHandler {
             ClientTransaction ctx = ((DialogExt) peerDialog).getSipProvider()
                     .getNewClientTransaction(sdpOfferInvite);
 
-            TransactionApplicationData tad = new TransactionApplicationData(
-                    Operation.SEND_SDP_RE_OFFER);
-
-            ctx.setApplicationData(tad);
+            TransactionApplicationData.attach(ctx, Operation.SEND_SDP_RE_OFFER);
 
             peerDialog.sendRequest(ctx);
 
@@ -919,12 +914,13 @@ class CallControlManager implements SymmitronResetHandler {
     /**
      * Sends an SDP answer to the peer of this dialog.
      * 
-     * @param response
-     * @param dialog
-     * @throws Exception
+     * @param response - response from which we are going to extract the SDP answer
+     * @param dialog -- dialog for the interaction
+     * 
+     * @throws Exception - if there was a problem extacting sdp or sending ACK
      */
     private void sendSdpAnswerInAck(Response response, Dialog dialog) throws Exception {
-        // logger.debug("sendSdpAnswerInAck " + response);
+
         DialogApplicationData dat = (DialogApplicationData) dialog.getApplicationData();
         BackToBackUserAgent b2bua = dat.getBackToBackUserAgent();
         Dialog peerDialog = DialogApplicationData.getPeerDialog(dialog);
@@ -957,8 +953,9 @@ class CallControlManager implements SymmitronResetHandler {
                  */
 
                 if (((DialogExt) dialog).getSipProvider() == Gateway.getLanProvider()) {
-                    // We did a SDP query. So we need to put an SDP
-                    // Answer in the response.
+                    /*
+                     * We did a SDP query. So we need to put an SDP Answer in the response.
+                     */
 
                     sd = b2bua.getWanRtpSession(peerDialog).getReceiver().getSessionDescription();
                     b2bua.getWanRtpSession(peerDialog).getTransmitter().setOnHold(false);
@@ -974,8 +971,9 @@ class CallControlManager implements SymmitronResetHandler {
                  */
 
                 if (((DialogExt) dialog).getSipProvider() == Gateway.getLanProvider()) {
-                    // We did a SDP query. So we need to put an SDP
-                    // Answer in the response.
+                    /*
+                     * We did a SDP query. So we need to put an SDP Answer in the response.
+                     */
 
                     b2bua.getWanRtpSession(peerDialog).getReceiver().setSessionDescription(sd);
                     b2bua.getWanRtpSession(peerDialog).getTransmitter().setOnHold(false);
@@ -988,8 +986,10 @@ class CallControlManager implements SymmitronResetHandler {
                 }
             }
 
-            // HACK ALERT -- some ITSPs look at sendonly and start playing
-            // their own MOH. This hack is to get around that nasty behavior.
+            /*
+             * HACK ALERT -- some ITSPs look at sendonly and start playing their own MOH. This
+             * hack is to get around that nasty behavior.
+             */
             if (SipUtilities.getSessionDescriptionMediaAttributeDuplexity(sd) != null
                     && SipUtilities.getSessionDescriptionMediaAttributeDuplexity(sd).equals(
                             "sendonly")) {
@@ -1006,6 +1006,7 @@ class CallControlManager implements SymmitronResetHandler {
         } else {
             logger.error("ERROR  0 contentLength ");
         }
+
     }
 
     /**
@@ -1142,7 +1143,7 @@ class CallControlManager implements SymmitronResetHandler {
 
                     dat.lastResponse = response;
                     if (operation == null) {
-                        ServerTransaction st = tad.serverTransaction;
+                        ServerTransaction st = tad.getServerTransaction();
                         Request serverRequest = st.getRequest();
                         Response newResponse = ProtocolObjects.messageFactory.createResponse(
                                 Response.OK, serverRequest);
@@ -1185,8 +1186,8 @@ class CallControlManager implements SymmitronResetHandler {
                             if (!Gateway.getBridgeConfiguration().isMusicOnHoldSupportEnabled()
                                     || !SipUtilities.isCodecSupported(sd, Gateway
                                             .getParkServerCodecs())
-                                    || (b2bua.getMusicOnHoldDialog() != null && b2bua.getMusicOnHoldDialog()
-                                            .getState() != DialogState.TERMINATED)) {
+                                    || (b2bua.getMusicOnHoldDialog() != null && b2bua
+                                            .getMusicOnHoldDialog().getState() != DialogState.TERMINATED)) {
 
                                 Request ack = dialog.createAck(cseq);
 
@@ -1219,13 +1220,7 @@ class CallControlManager implements SymmitronResetHandler {
 
                             b2bua.getLanRtpSession(continuation.getDialog()).getReceiver()
                                     .setSessionDescription(sd);
-                            /*
-                             * TERMINATE the subscription with the Refer Dialog by 
-                             * sending him a NOTIFY with subscription state TERMINATED
-                             */
-                            if ( continuation.getRequestEvent().getDialog().getState() != DialogState.TERMINATED ) {
-                                this.notifyReferDialog(continuation.getRequestEvent().getDialog(), response);
-                            }
+
                             b2bua.referInviteToSipxProxy(continuation.getRequest(), continuation
                                     .getRequestEvent(), sd);
                         }
@@ -1346,7 +1341,7 @@ class CallControlManager implements SymmitronResetHandler {
                     /*
                      * Now send the respose to the server side of the transaction.
                      */
-                    serverTransaction = tad.serverTransaction;
+                    serverTransaction = tad.getServerTransaction();
                     Response newResponse = ProtocolObjects.messageFactory.createResponse(response
                             .getStatusCode(), serverTransaction.getRequest());
                     SupportedHeader sh = ProtocolObjects.headerFactory
@@ -1360,8 +1355,8 @@ class CallControlManager implements SymmitronResetHandler {
                         tad.toTag = toTag;
                     }
 
-                    ToHeader toHeader = (ToHeader) tad.serverTransaction.getRequest().getHeader(
-                            ToHeader.NAME);
+                    ToHeader toHeader = (ToHeader) tad.getServerTransaction().getRequest()
+                            .getHeader(ToHeader.NAME);
 
                     String user = ((SipURI) toHeader.getAddress().getURI()).getUser();
                     ContactHeader contactHeader = null;
@@ -1470,6 +1465,7 @@ class CallControlManager implements SymmitronResetHandler {
                     ContentTypeHeader cth = (ContentTypeHeader) response
                             .getHeader(ContentTypeHeader.NAME);
                     Dialog referDialog = tad.referingDialog;
+                    Request referRequest = tad.referRequest;
                     Dialog peerDialog = DialogApplicationData.getPeerDialog(dialog);
                     DialogApplicationData peerDat = DialogApplicationData.get(peerDialog);
 
@@ -1550,7 +1546,7 @@ class CallControlManager implements SymmitronResetHandler {
                      */
 
                     if (referDialog.getState() == DialogState.CONFIRMED) {
-                        this.notifyReferDialog(referDialog, response);
+                        this.notifyReferDialog(referRequest, referDialog, response);
                     }
 
                     /*
@@ -1582,7 +1578,7 @@ class CallControlManager implements SymmitronResetHandler {
                      * If there is a Music on hold dialog -- tear it down
                      */
 
-                    if (response.getStatusCode() == Response.OK ) {
+                    if (response.getStatusCode() == Response.OK) {
                         b2bua.sendByeToMohServer();
                     }
 
@@ -1614,7 +1610,7 @@ class CallControlManager implements SymmitronResetHandler {
                     /*
                      * Now send the respose to the server side of the transaction.
                      */
-                    serverTransaction = tad.serverTransaction;
+                    serverTransaction = tad.getServerTransaction();
 
                     /*
                      * If we have a server transaction associated with the response, we ack when
@@ -1670,7 +1666,7 @@ class CallControlManager implements SymmitronResetHandler {
                 } else if (tad.operation == Operation.HANDLE_INVITE_WITH_REPLACES) {
 
                     dat.lastResponse = response;
-                    serverTransaction = tad.serverTransaction;
+                    serverTransaction = tad.getServerTransaction();
                     Dialog replacedDialog = tad.replacedDialog;
                     Request request = serverTransaction.getRequest();
                     SipProvider peerProvider = ((TransactionExt) serverTransaction)
@@ -1716,9 +1712,10 @@ class CallControlManager implements SymmitronResetHandler {
                     logger.fatal("CallControlManager: Unknown Case in if statement ");
                 }
             } else if (response.getStatusCode() == Response.REQUEST_PENDING) {
-                // A glare condition was detected. Start a timer and retry the operation after
-                // timeout
-                // later.
+                /*
+                 * A glare condition was detected. Start a timer and retry the operation after
+                 * timeout later.
+                 */
                 TransactionApplicationData tad = (TransactionApplicationData) responseEvent
                         .getClientTransaction().getApplicationData();
                 if (tad.continuationData == null
@@ -1750,7 +1747,7 @@ class CallControlManager implements SymmitronResetHandler {
                 TransactionApplicationData tad = (TransactionApplicationData) ct
                         .getApplicationData();
                 if (tad != null) {
-                    serverTransaction = tad.serverTransaction;
+                    serverTransaction = tad.getServerTransaction();
                     /*
                      * We do not forward back error responses for requests such as REFER that we
                      * are handling locally.
@@ -1775,10 +1772,15 @@ class CallControlManager implements SymmitronResetHandler {
                         }
                     } else {
                         Dialog referDialog = tad.referingDialog;
+                        Request referRequest = tad.referRequest;
                         if (referDialog != null
                                 && referDialog.getState() == DialogState.CONFIRMED) {
-                            this.notifyReferDialog(referDialog, response);
+                            this.notifyReferDialog(referRequest, referDialog, response);
                         }
+                        /*
+                         * Tear down the call.
+                         */
+                        b2bua.tearDown();
                     }
                 }
             }
@@ -1807,27 +1809,47 @@ class CallControlManager implements SymmitronResetHandler {
 
     }
 
-    private void notifyReferDialog(Dialog referDialog, Response response) throws SipException,
-            ParseException {
-        Request notifyRequest = referDialog.createRequest(Request.NOTIFY);
-        EventHeader eventHeader = ProtocolObjects.headerFactory.createEventHeader("refer");
-        notifyRequest.addHeader(eventHeader);
-        String subscriptionState = "active";
-        if ( response.getStatusCode() >= 200 ) {
-            subscriptionState = "terminated";
+    /**
+     * Sends a NOTIFY to the transfer agent containing a SipFrag with the response received from
+     * the Tansafer Target.
+     * 
+     * @param referRequest -- the REFER request
+     * @param referDialog -- The REFER dialog in which we send NOTIFY.
+     * @param response -- the response from the transfer target
+     * @throws SipException
+     */
+    private void notifyReferDialog(Request referRequest, Dialog referDialog, Response response)
+            throws SipException {
+        try {
+            Request notifyRequest = referDialog.createRequest(Request.NOTIFY);
+            EventHeader eventHeader = ProtocolObjects.headerFactory.createEventHeader("refer");
+            CSeqHeader cseq = (CSeqHeader) referRequest.getHeader(CSeqHeader.NAME);
+            long cseqValue = cseq.getSeqNumber();
+            eventHeader.setEventId(Integer.toString((int) cseqValue));
+            notifyRequest.addHeader(eventHeader);
+            String subscriptionState = "active";
+            if (response.getStatusCode() >= 200) {
+                /*
+                 * Final response so TERMINATE the subscription.
+                 */
+                subscriptionState = "terminated";
+            }
+            SubscriptionStateHeader subscriptionStateHeader = ProtocolObjects.headerFactory
+                    .createSubscriptionStateHeader(subscriptionState);
+            notifyRequest.addHeader(subscriptionStateHeader);
+            // Content-Type: message/sipfrag;version=2.0
+            ContentTypeHeader contentTypeHeader = ProtocolObjects.headerFactory
+                    .createContentTypeHeader("message", "sipfrag");
+            // contentTypeHeader.setParameter("version", "2.0");
+            String content = ((SIPResponse) response).getStatusLine().toString();
+            notifyRequest.setContent(content, contentTypeHeader);
+            SipProvider referProvider = ((SIPDialog) referDialog).getSipProvider();
+            ClientTransaction ctx = referProvider.getNewClientTransaction(notifyRequest);
+            referDialog.sendRequest(ctx);
+        } catch (ParseException ex) {
+            logger.error("Unexpected parse exception ", ex);
+            throw new RuntimeException("Unexpected parse exception ", ex);
         }
-        SubscriptionStateHeader subscriptionStateHeader = ProtocolObjects.headerFactory
-                .createSubscriptionStateHeader(subscriptionState);
-        notifyRequest.addHeader(subscriptionStateHeader);
-        // Content-Type: message/sipfrag;version=2.0
-        ContentTypeHeader contentTypeHeader = ProtocolObjects.headerFactory
-                .createContentTypeHeader("message", "sipfrag");
-        // contentTypeHeader.setParameter("version", "2.0");
-        String content = ((SIPResponse) response).getStatusLine().toString();
-        notifyRequest.setContent(content, contentTypeHeader);
-        SipProvider referProvider = ((SIPDialog) referDialog).getSipProvider();
-        ClientTransaction ctx = referProvider.getNewClientTransaction(notifyRequest);
-        referDialog.sendRequest(ctx);
 
     }
 
@@ -1846,7 +1868,7 @@ class CallControlManager implements SymmitronResetHandler {
             ClientTransaction ctx = responseEvent.getClientTransaction();
             TransactionApplicationData tad = (TransactionApplicationData) ctx
                     .getApplicationData();
-            ServerTransaction referServerTx = tad.serverTransaction;
+            ServerTransaction referServerTx = tad.getServerTransaction();
             Response referResponse = SipUtilities.createResponse(referServerTx, responseEvent
                     .getResponse().getStatusCode());
             if (referServerTx.getState() != TransactionState.TERMINATED) {
@@ -1879,7 +1901,7 @@ class CallControlManager implements SymmitronResetHandler {
             ClientTransaction ct = responseEvent.getClientTransaction();
             TransactionApplicationData tad = (TransactionApplicationData) ct.getApplicationData();
             if (tad != null) {
-                ServerTransaction st = tad.serverTransaction;
+                ServerTransaction st = tad.getServerTransaction();
                 if (st != null) {
                     Response response = responseEvent.getResponse();
                     Response newResponse = SipUtilities.createResponse(st, response
@@ -1908,15 +1930,17 @@ class CallControlManager implements SymmitronResetHandler {
     }
 
     /**
-     * Get a new B2bua for a given call Id.
+     * Get a new B2bua instance or return an existing one for a call Id.
      * 
-     * @param callId -- callId for which we want our user agent.
+     * @param provider -- provider associated with request.
+     * @param serverTransaction -- server transaction.
+     * @param dialog -- dialog for request.
      */
 
     synchronized BackToBackUserAgent getBackToBackUserAgent(SipProvider provider,
-            Request request, ServerTransaction serverTransaction, Dialog dialog,
-            boolean callOriginatedFromLan) throws Exception {
+            Request request, ServerTransaction serverTransaction, Dialog dialog) {
 
+        boolean callOriginatedFromLan = provider == Gateway.getLanProvider();
         String callId = SipUtilities.getCallId(request);
         // BackToBackUserAgent b2bua = callTable.get(callId);
         BackToBackUserAgent b2bua = null;

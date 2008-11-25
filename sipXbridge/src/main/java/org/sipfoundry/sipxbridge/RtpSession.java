@@ -201,13 +201,13 @@ class RtpSession {
 
         ClientTransaction ctx = ((DialogExt) peerDialog).getSipProvider()
                 .getNewClientTransaction(newInvite);
-        TransactionApplicationData tad = new TransactionApplicationData(
+        TransactionApplicationData tad = TransactionApplicationData.attach(ctx,
                 Operation.FORWARD_REINVITE);
 
-        tad.serverTransaction = serverTransaction;
+        tad.setServerTransaction (serverTransaction);
 
         tad.serverTransactionProvider = ((DialogExt) dialog).getSipProvider();
-        ctx.setApplicationData(tad);
+       
         peerDialog.sendRequest(ctx);
         this.reInviteForwarded = true;
     }

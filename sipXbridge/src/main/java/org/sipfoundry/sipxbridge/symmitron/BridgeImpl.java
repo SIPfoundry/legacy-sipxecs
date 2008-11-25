@@ -12,7 +12,6 @@ package org.sipfoundry.sipxbridge.symmitron;
 
 import java.util.Set;
 
-import org.sipfoundry.sipxbridge.BridgeState;
 
 /**
  * 

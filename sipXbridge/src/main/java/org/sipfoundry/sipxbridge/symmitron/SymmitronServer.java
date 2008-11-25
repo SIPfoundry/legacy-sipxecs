@@ -33,7 +33,6 @@ import org.apache.xmlrpc.server.XmlRpcServerConfigImpl;
 import org.apache.xmlrpc.webserver.WebServer;
 import org.sipfoundry.commons.log4j.SipFoundryAppender;
 import org.sipfoundry.commons.log4j.SipFoundryLayout;
-import org.sipfoundry.sipxbridge.BridgeState;
 import org.sipfoundry.sipxbridge.Gateway;
 import org.sipfoundry.sipxbridge.GatewayConfigurationException;
 

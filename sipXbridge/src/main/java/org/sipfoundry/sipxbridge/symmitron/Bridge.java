@@ -10,7 +10,6 @@ import java.util.Random;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
-import org.sipfoundry.sipxbridge.BridgeState;
 
 /**
  * Manages the pairing of Rtp pipes. One side belongs to the Lan the other side terminates the

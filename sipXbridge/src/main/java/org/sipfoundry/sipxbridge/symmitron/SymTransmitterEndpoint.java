@@ -16,7 +16,6 @@ import java.nio.channels.DatagramChannel;
 import java.util.TimerTask;
 
 import org.apache.log4j.Logger;
-import org.sipfoundry.sipxbridge.BridgeState;
 
 /**
  * Transmitter endpoint.

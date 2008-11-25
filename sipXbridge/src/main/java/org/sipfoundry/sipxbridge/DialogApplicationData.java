@@ -58,7 +58,6 @@ class DialogApplicationData {
      */
     private BackToBackUserAgent backToBackUserAgent;
 
-    
     /*
      * Rtp session associated with this call leg.
      */
@@ -176,10 +175,7 @@ class DialogApplicationData {
                     DialogExt dialogExt = (DialogExt) dialog;
                     ClientTransaction ctx = dialogExt.getSipProvider().getNewClientTransaction(
                             request);
-                    TransactionApplicationData tad = new TransactionApplicationData(
-                            Operation.SESSION_TIMER);
-
-                    ctx.setApplicationData(tad);
+                    TransactionApplicationData.attach(ctx, Operation.SESSION_TIMER);
 
                     dialog.sendRequest(ctx);
 
@@ -201,7 +197,7 @@ class DialogApplicationData {
         this.sessionExpires = Gateway.getSessionExpires();
         this.dialog = dialog;
         // Kick off a task to test for session liveness.
-        SipProvider provider = ((DialogExt)dialog).getSipProvider();
+        SipProvider provider = ((DialogExt) dialog).getSipProvider();
         if (Gateway.getSessionTimerMethod() != null && provider != Gateway.getLanProvider()) {
             this.sessionTimer = new SessionTimerTask(Gateway.getSessionTimerMethod());
             Gateway.getTimer().schedule(this.sessionTimer, Gateway.getSessionExpires() * 1000);
@@ -248,7 +244,6 @@ class DialogApplicationData {
         dat.request = request;
         dat.setBackToBackUserAgent(backToBackUserAgent);
         dialog.setApplicationData(dat);
-        
 
         return dat;
     }
@@ -332,30 +327,30 @@ class DialogApplicationData {
      * 
      */
     boolean isReferAllowed() {
-        if ( this.transaction instanceof ServerTransaction ) {
-            if ( this.request == null ) {
+        if (this.transaction instanceof ServerTransaction) {
+            if (this.request == null) {
                 return false;
-            } 
+            }
             ListIterator li = request.getHeaders(AllowHeader.NAME);
-            
-            while ( li != null && li.hasNext() ) {
+
+            while (li != null && li.hasNext()) {
                 AllowHeader ah = (AllowHeader) li.next();
-                if ( ah.getMethod().equals(Request.REFER)) {
+                if (ah.getMethod().equals(Request.REFER)) {
                     return true;
                 }
             }
             return false;
-            
+
         } else {
-            if ( this.lastResponse == null ) {
+            if (this.lastResponse == null) {
                 return false;
             }
-            
+
             ListIterator li = lastResponse.getHeaders(AllowHeader.NAME);
-            
-            while ( li != null && li.hasNext() ) {
+
+            while (li != null && li.hasNext()) {
                 AllowHeader ah = (AllowHeader) li.next();
-                if ( ah.getMethod().equals(Request.REFER)) {
+                if (ah.getMethod().equals(Request.REFER)) {
                     return true;
                 }
             }

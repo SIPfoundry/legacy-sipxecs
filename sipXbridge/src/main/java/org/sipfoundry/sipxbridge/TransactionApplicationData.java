@@ -10,8 +10,13 @@ import javax.sip.ClientTransaction;
 import javax.sip.Dialog;
 import javax.sip.ServerTransaction;
 import javax.sip.SipProvider;
+import javax.sip.Transaction;
+import javax.sip.message.Request;
+
+import org.apache.log4j.Logger;
 
 /**
+ * Transaction context data. This pairs server/client tx pairs.
  * The information we stow away on a pending transaction completion. This is
  * transitory information that is only relevant for the duration of the
  * transaction. Long term data that has to persist for the duration of a Dialog
@@ -21,6 +26,8 @@ import javax.sip.SipProvider;
  * 
  */
 class TransactionApplicationData {
+    
+    private static Logger logger = Logger.getLogger(TransactionApplicationData.class);
 
     /*
      * The current operation.
@@ -31,7 +38,7 @@ class TransactionApplicationData {
      * The continuation operation after the current tx is complete
      */
 
-    public Operation continuationOperation;
+    Operation continuationOperation;
 
     /*
      * The incoming session. This is associated with the incoming invite. It is
@@ -39,7 +46,6 @@ class TransactionApplicationData {
      */
     RtpSession incomingSession;
     
-    RtpSession incomingRtcpSession;
     
     /*
      * The Pending outgoing session ( awaiting completion after the response
@@ -57,7 +63,7 @@ class TransactionApplicationData {
     /*
      * The incoming server transaction.
      */
-    ServerTransaction serverTransaction;
+    private ServerTransaction serverTransaction;
 
     /*
      * The provider associated with the server transaction
@@ -68,7 +74,7 @@ class TransactionApplicationData {
      * The outgoing client transaction.
      */
 
-    ClientTransaction clientTransaction;
+    private ClientTransaction clientTransaction;
 
     /*
      * The provider associated with the ct.
@@ -80,11 +86,7 @@ class TransactionApplicationData {
      */
     String toTag;
 
-    /*
-     * Tag whether this is a re-invite or an INVITE
-     */
-    boolean isReInvite;
-
+  
     /*
      * The Refering DIALOG if any.
      */
@@ -107,14 +109,78 @@ class TransactionApplicationData {
      */
     ContinuationData continuationData;
 
-    String itspTransport;
+    /*
+     * The Refer request.
+     */
+    Request referRequest;
 
-   
-    
-   
-
-    TransactionApplicationData(Operation operation) {
-        this.operation = operation;
+    /**
+     * The server side of the pairing.
+     * @param stx
+     */
+    void setServerTransaction(ServerTransaction stx) {
+        
+        if ( this.serverTransaction != null) {
+            logger.debug("serverTransactionPointer already set");
+            this.serverTransaction.setApplicationData(null);
+        }
+        stx.setApplicationData(this);
+        this.serverTransaction = stx;
+        
     }
+    
+    /**
+     * The client side of the pairing.
+     * 
+     * @param ctx
+     */
+    void setClientTransaction(ClientTransaction ctx) {
+       if (this.clientTransaction != null ) {
+           logger.debug("Tx pointer already set.");
+           this.clientTransaction.setApplicationData(null);
+       }
+       ctx.setApplicationData(this);
+       this.clientTransaction = ctx;
+        
+    }
+
+    TransactionApplicationData(Transaction transaction , Operation operation) {
+        this.operation = operation;
+        if ( transaction instanceof ServerTransaction )  {
+            this.setServerTransaction((ServerTransaction)transaction);
+        } else {
+            this.setClientTransaction((ClientTransaction) transaction);
+        }
+       
+    }
+
+    /**
+     * @return the serverTransaction
+     */
+    ServerTransaction getServerTransaction() {
+        return serverTransaction;
+    }
+
+    /**
+     * @return the clientTransaction
+     */
+    ClientTransaction getClientTransaction() {
+        return clientTransaction;
+    }
+
+    public static TransactionApplicationData attach(Transaction transaction,
+            Operation operation) {
+        if ( transaction.getApplicationData() != null ) {
+            logger.warn("RESETTING Transaction Pointer");
+        }
+        TransactionApplicationData retval = new TransactionApplicationData(transaction,operation);
+        return retval;
+    }
+
+    
+
+
+
+   
 
 }

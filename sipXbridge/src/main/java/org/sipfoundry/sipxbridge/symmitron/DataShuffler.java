@@ -22,7 +22,6 @@ import java.nio.channels.Selector;
 import java.util.Iterator;
 
 import org.apache.log4j.Logger;
-import org.sipfoundry.sipxbridge.BridgeState;
 
 class DataShuffler implements Runnable {
 

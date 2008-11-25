@@ -260,7 +260,7 @@ public class SipListenerImpl implements SipListener {
                     // We are not configured to handle challenge for inbound calling
                     // If we get such a challenge, we just decline the call.
                     ServerTransaction stx = ((TransactionApplicationData) responseEvent
-                            .getClientTransaction().getApplicationData()).serverTransaction;
+                            .getClientTransaction().getApplicationData()).getServerTransaction();
                     Response errorResponse = SipUtilities.createResponse(stx, Response.DECLINE);
                     stx.sendResponse(errorResponse);
                     stx.getDialog().delete();
@@ -275,8 +275,8 @@ public class SipListenerImpl implements SipListener {
 
                 TransactionApplicationData tad = (TransactionApplicationData) responseEvent
                         .getClientTransaction().getApplicationData();
-                tad.clientTransaction = newClientTransaction;
-                newClientTransaction.setApplicationData(tad);
+                tad.setClientTransaction(newClientTransaction);
+                
                 if (b2bua != null) {
                     b2bua.addDialog(newClientTransaction.getDialog());
                     DialogApplicationData dialogApplicationData = (DialogApplicationData) dialog

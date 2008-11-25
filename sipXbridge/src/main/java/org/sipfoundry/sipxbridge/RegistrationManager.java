@@ -42,11 +42,11 @@ public class RegistrationManager {
     public void sendRegistrer(ItspAccountInfo itspAccount) throws SipException {
         Request request = SipUtilities.createRegistrationRequest(provider, itspAccount);
         ClientTransaction ct = provider.getNewClientTransaction(request);
-        TransactionApplicationData tad = new TransactionApplicationData(Operation.SEND_REGISTER);
+        TransactionApplicationData tad = new TransactionApplicationData(ct,Operation.SEND_REGISTER);
         itspAccount.setState(AccountState.AUTHENTICATING);
         tad.itspAccountInfo = itspAccount;
 
-        ct.setApplicationData(tad);
+      
         ct.sendRequest();
 
     }
@@ -55,10 +55,9 @@ public class RegistrationManager {
             SipException {
         Request request = SipUtilities.createDeregistrationRequest(provider, itspAccount);
         ClientTransaction ct = provider.getNewClientTransaction(request);
-        TransactionApplicationData tad = new TransactionApplicationData(Operation.SEND_DEREGISTER);
+        TransactionApplicationData tad = TransactionApplicationData.attach(ct,Operation.SEND_DEREGISTER);
         tad.itspAccountInfo = itspAccount;
-        ct.setApplicationData(tad);
-
+      
         ct.sendRequest();
 
     }
@@ -76,10 +75,10 @@ public class RegistrationManager {
         Request request = SipUtilities.createRegisterQuery(provider, itspAccount);
         ClientTransaction ct = provider.getNewClientTransaction(request);
         TransactionApplicationData tad = new TransactionApplicationData(
-                Operation.SEND_REGISTER_QUERY);
+                ct, Operation.SEND_REGISTER_QUERY);
         tad.itspAccountInfo = itspAccount;
 
-        ct.setApplicationData(tad);
+      
         ct.sendRequest();
     }
 

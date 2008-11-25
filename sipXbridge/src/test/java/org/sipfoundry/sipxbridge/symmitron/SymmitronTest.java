@@ -13,7 +13,6 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.Map;
 
-import org.sipfoundry.sipxbridge.BridgeState;
 import org.sipfoundry.sipxbridge.symmitron.SymInterface;
 import org.sipfoundry.sipxbridge.symmitron.Symmitron;
 
