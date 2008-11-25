@@ -89,6 +89,7 @@ public:
     {
     	// Create/Verify Sockets
         OsServerSocket* server = new OsServerSocket(50, 8021);
+        KNOWN_BUG("This can fail if there is a port conflict on the test system", "XECS-1924");
         CPPUNIT_ASSERT_MESSAGE("server socket failure", 
                                server->isOk());
         
