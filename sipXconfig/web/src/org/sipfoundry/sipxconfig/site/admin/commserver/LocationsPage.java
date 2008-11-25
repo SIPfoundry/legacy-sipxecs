@@ -23,9 +23,14 @@ import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.components.SelectMap;
+import org.sipfoundry.sipxconfig.service.LocationSpecificService;
+import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 
 public abstract class LocationsPage extends BasePage implements PageBeginRenderListener {
     public static final String PAGE = "admin/commserver/LocationsPage";
+
+    @InjectObject(value = "spring:sipxServiceManager")
+    public abstract SipxServiceManager getSipxServiceManager();
 
     @InjectObject(value = "spring:locationsManager")
     public abstract LocationsManager getLocationsManager();
@@ -42,6 +47,7 @@ public abstract class LocationsPage extends BasePage implements PageBeginRenderL
     public abstract Location getCurrentRow();
 
     public abstract Collection<Location> getLocations();
+
     public abstract void setLocations(Collection<Location> locations);
 
     public abstract Collection<Integer> getRowsToDelete();
@@ -79,5 +85,17 @@ public abstract class LocationsPage extends BasePage implements PageBeginRenderL
 
         // update locations list
         setLocations(null);
+    }
+
+    public void generateProfiles() {
+        Collection<Integer> selectedLocations = getSelections().getAllSelected();
+        for (Integer id : selectedLocations) {
+            Location locationToActivate = getLocationsManager().getLocation(id);
+            // FIXME: this is wrong - we should only replicate a service to a specific location
+            // calling this code will replicate all the services to all locations
+            for (LocationSpecificService service : locationToActivate.getServices()) {
+                getSipxServiceManager().replicateServiceConfig(service.getSipxService());
+            }
+        }
     }
 }

@@ -104,12 +104,6 @@ public abstract class EditLocationPage extends PageWithCallback implements
         servicesTable.refresh();
     }
 
-    public void activate() {
-        for (LocationSpecificService service : getLocationBean().getServices()) {
-            getSipxServiceManager().replicateServiceConfig(service.getSipxService());
-        }
-    }
-
     public IPropertySelectionModel getSipxServiceSelectionModel() {
         ObjectSelectionModel model = new ObjectSelectionModel();
         model.setCollection(getSipxServiceManager().getAllServices());
