@@ -3,13 +3,13 @@
   - XML Schema for sipX mappingrules or fallbackrules rule set
   -->
 <schema
-    xmlns:dmp='http://www.sipfoundry.org/sipX/schema/xml/urlmap-00-00'
-    targetNamespace='http://www.sipfoundry.org/sipX/schema/xml/urlmap-00-00'
+    xmlns:dmp='http://www.sipfoundry.org/sipX/schema/xml/fallback-00-00'
+    targetNamespace='http://www.sipfoundry.org/sipX/schema/xml/fallback-00-00'
     xmlns='http://www.w3.org/2001/XMLSchema'
     >
   <annotation>
     <documentation>
-      Rules for mapping SIP addresses
+      Rules for mapping SIP addresses in fallbackrules.xml
     </documentation>
     <documentation source='http://scm.sipfoundry.org/rep/sipXregistry/main/doc/Redirection.txt'/>
   </annotation>
@@ -110,13 +110,20 @@
         Contains a set of match specifiers for the user part of a SIP address
         and then other rules to be applied to any address that matches at least
         one of the specified userPattern specifiers.
+        If there are any callerLocationMatch specifiers, and the callerLocation 
+        for any of those specifiers matches, then only any transform elements 
+        within the first matching callerLocationMatch are returned.
+        If there are no callerLocationMatch specifiers, or none that are present 
+        contain matching callerLocation elements, then any transform elements that
+        are the immediate children of the userMatch element are returned.
       </documentation>
     </annotation>
     <complexType>
       <sequence>
         <element ref='dmp:description' minOccurs='0' />
         <element ref='dmp:userPattern' minOccurs='0' maxOccurs='unbounded'/>
-        <element ref='dmp:permissionMatch'   minOccurs='0' maxOccurs='unbounded'/>
+        <element ref='dmp:callerLocationMatch'   minOccurs='0' maxOccurs='unbounded'/>
+        <element ref='dmp:transform'   minOccurs='0' maxOccurs='unbounded'/>
       </sequence>
     </complexType>
   </element>
@@ -130,33 +137,28 @@
     </annotation>
   </element>
   
-  <element name='permissionMatch'>
+  <element name='callerLocationMatch'>
     <annotation>
       <documentation>
-        Contains a set of match specifiers for the permission tokens that apply to
-        the destination address as determined by matches in the permissions database.
-        If there are no permission child elements, then no lookup is performed, and 
-        any transforms within this permissionMatch element are returned.
-        If there are permission child elements, then any transforms within this
-        permissionMatch element are returned. 
-        NOTE: if there are permission elements present, but none match, then no 
-              further searches in the urlmap are done.
+        Contains a set of match specifiers for the callerLocation of the 
+        caller, which is passed indepent of the message to the fallbackrules
+        redirector.  If any callerLocation matches, then only the transforms within
+        this callerLocationMatch element are applied.
       </documentation>
     </annotation>
     <complexType>
       <sequence>
         <element ref='dmp:description' minOccurs='0' />
-        <element ref='dmp:permission' minOccurs='0' maxOccurs='unbounded'/>
+        <element ref='dmp:callerLocation' minOccurs='0' maxOccurs='unbounded'/>
         <element ref='dmp:transform'  minOccurs='0' maxOccurs='unbounded'/>
       </sequence>
     </complexType>
   </element>
 
-  <element name='permission' type='normalizedString'>
+  <element name='callerLocation' type='normalizedString'>
     <annotation>
       <documentation>
-        A (Perl-compatible) regular expression used to match the user part of a URL.
-        The pattern is implicitly anchored at both ends.
+        A token string compared against that passed to the fallbackrules redirector for the call.
       </documentation>
     </annotation>
   </element>
@@ -204,8 +206,6 @@
         Configuration tokens - the values for these are taken from system
         configuration variables (see sipXregistry/registrar-config):
           {localhost}        
-          {mediaserver}
-          {voicemail}
 
         Request Uri tokens - values are taken from the request URI being transformed:
           {user} or {digits} - the userinfo 

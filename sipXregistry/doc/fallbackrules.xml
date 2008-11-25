@@ -2,7 +2,7 @@
 <!--
   - Example fallbackrules.xml file
   -->
-<mappings xmlns='http://www.sipfoundry.org/sipX/schema/xml/urlmap-00-00'>
+<mappings xmlns='http://www.sipfoundry.org/sipX/schema/xml/fallback-00-00'>
   <hostMatch>
     <hostPattern>example.edu</hostPattern>
     <hostPattern>sipx.example.edu</hostPattern>
@@ -12,24 +12,28 @@
       <!-- Emergency dialing.  Allow both "911" and "9911". -->
       <userPattern>sos</userPattern>
       <userPattern>911</userPattern>
-      <userPattern>9911</userPattern>
-      <permissionMatch>
+      <userPattern>9911</userPattern> 
+      <!-- Calls known to be coming from the boston site use only the boston gateway -->
+      <callerLocationMatch>
+        <callerLocation>boston</callerLocation>
         <transform>
           <user>911</user>
-          <host>pstn-gw.example.edu</host>
+          <host>pstn-boston-tw.example.edu</host>
         </transform>
-      </permissionMatch>
-    </userMatch>
-
-    <userMatch>
-      <!-- operator or extension 100 goes to AutoAttendant -->
-      <userPattern>operator</userPattern>
-      <userPattern>100</userPattern>
-      <permissionMatch>
+      </callerLocationMatch>
+      <!-- Calls known to be coming from the boston site use only the seattle gateway -->
+      <callerLocationMatch>
+        <callerLocation>seattle</callerLocation>
         <transform>
-          <url>&lt;sip:{digits}@{mediaserver};voicexml={voicemail}%2Fcgi-bin%2Fvoicemail%2Fmediaserver.cgi%3Faction%3Dautoattendant&gt;</url>
+          <user>911</user>
+          <host>pstn-seattle-tw.example.edu</host>
         </transform>
-      </permissionMatch>
+      </callerLocationMatch>
+      <!-- Calls whose location is not known use the shared gateway -->
+      <transform>
+        <user>911</user>
+        <host>pstn-gw.example.edu</host>
+      </transform>
     </userMatch>
 
     <userMatch>
@@ -37,12 +41,10 @@
       <userPattern>91800xxxxxxx.</userPattern>
       <userPattern>1800xxxxxxx.</userPattern>
       <userPattern>800xxxxxxx.</userPattern>
-      <permissionMatch>
-        <transform>
-          <user>800{vdigits}</user>
-          <host>pstn-gw.example.edu</host>
-        </transform>
-      </permissionMatch>
+      <transform>
+        <user>800{vdigits}</user>
+        <host>pstn-gw.example.edu</host>
+      </transform>
     </userMatch>
 
     <userMatch>
@@ -51,14 +53,38 @@
       <userPattern>91[2-9]xxxxxxxxx.</userPattern>
       <userPattern>1[2-9]xxxxxxxxx.</userPattern>
       <userPattern>[2-9]xxxxxxxxx.</userPattern>
-      <permissionMatch>
-        <permission>Administration</permission>
-        <permission>Faculty</permission>
+      <!-- Calls known to be coming from the boston site prefer the boston gateway -->
+      <callerLocationMatch>
+        <callerLocation>boston</callerLocation>
+        <transform>
+          <user>{vdigits}</user>
+          <host>pstn-boston-tw.example.edu</host>
+          <fieldparams name='q'>0.9</fieldparams>
+        </transform>
         <transform>
           <user>{vdigits}</user>
           <host>pstn-gw.example.edu</host>
+          <fieldparams name='q'>0.8</fieldparams>
         </transform>
-      </permissionMatch>
+      </callerLocationMatch>
+      <!-- Calls known to be coming from the boston site prefer the seattle gateway -->
+      <callerLocationMatch>
+        <callerLocation>seattle</callerLocation>
+        <transform>
+          <user>{vdigits}</user>
+          <host>pstn-seattle-tw.example.edu</host>
+          <fieldparams name='q'>0.9</fieldparams>
+        </transform>
+        <transform>
+          <user>{vdigits}</user>
+          <host>pstn-gw.example.edu</host>
+          <fieldparams name='q'>0.8</fieldparams>
+        </transform>
+      </callerLocationMatch>
+      <transform>
+        <user>{vdigits}</user>
+        <host>pstn-gw.example.edu</host>
+      </transform>
     </userMatch>
 
     <userMatch>
@@ -66,13 +92,10 @@
            Do not allow dialing intl numbers with a "9" prefix as this
            would conflict with the long distance pattern "[2-9]xxxxxxxxx." -->
       <userPattern>011x.</userPattern>
-      <permissionMatch>
-        <permission>Administration</permission>
-        <transform>
-          <user>011{vdigits}</user>
-          <host>pstn-gw.example.edu</host>
-        </transform>
-      </permissionMatch>
+      <transform>
+        <user>011{vdigits}</user>
+        <host>pstn-gw.example.edu</host>
+      </transform>
     </userMatch>
 
   </hostMatch>
@@ -82,11 +105,9 @@
     <hostPattern>example.org</hostPattern>
     <userMatch>
       <userPattern>.</userPattern>
-      <permissionMatch>
-        <transform>
-          <headerparams name='route'>sbc.example.edu</headerparams>
-        </transform>
-      </permissionMatch>
+      <transform>
+        <headerparams name='route'>sbc.example.edu</headerparams>
+      </transform>
     </userMatch>
   </hostMatch>
 
