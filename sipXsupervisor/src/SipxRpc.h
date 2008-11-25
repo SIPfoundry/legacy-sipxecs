@@ -36,7 +36,7 @@ public:
 
 /* ============================ CREATORS ================================== */
 
-   SipxRpc( const int port,UtlSList& allowedPeers);
+   SipxRpc(XmlRpcDispatch* dispatcher, UtlSList& allowedPeers);
    /**<
     * Default constructor (takes list of peers from which to accept requests).
     * This object becomes the owner of the new'd memory in the 'allowedPeers'
@@ -69,8 +69,14 @@ public:
     * \see mAllowedPeers
     */
 
-   /// Server for the XML-RPC requests.
-   void startRpcServer();
+   /// Whether or not an HTTP request is from some allowed peer, and if so which one.
+   bool isAllowedPeer(const HttpRequestContext& context, ///< the request to be checked
+                      UtlString& peer                    ///< if allowed, the name of the peer
+                      ) const;
+   /**<
+    * @returns true if the request is from some allowed peer, and sets peer to that name.
+    * Otherwise, peer is set to the empty string.
+    */
 
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
@@ -80,7 +86,6 @@ protected:
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
 
-   int             mXmlRpcPort;
    XmlRpcDispatch* mpXmlRpcDispatch;
 
    UtlSList  mAllowedPeers;  /// The list of peers allowed to make XML-RPC Process 

@@ -39,6 +39,7 @@ libsipXsupervisor_la_SOURCES =  \
 	SipxResource.cpp \
 	FileResource.cpp \
 	FileResourceManager.cpp \
+	HttpFileAccess.cpp \
    SipxRpc.cpp
 
 noinst_HEADERS = \
@@ -54,6 +55,7 @@ noinst_HEADERS = \
 	SipxProcessResource.h \
 	SipxProcessResourceManager.h \
 	FileResource.h \
+	HttpFileAccess.h \
 	FileResourceManager.h \
 	ImdbResource.h \
 	ImdbResourceManager.h \

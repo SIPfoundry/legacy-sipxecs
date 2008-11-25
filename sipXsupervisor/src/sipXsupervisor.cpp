@@ -20,12 +20,17 @@
 #include "os/OsSysLog.h"
 #include "os/OsConfigDb.h"
 #include "os/OsTask.h"
-#include "config/sipxsupervisor-buildstamp.h"
+#include "os/OsSSLServerSocket.h"
+#include "net/HttpServer.h"
+#include "net/HttpService.h"
+#include "net/XmlRpcDispatch.h"
 #include "sipdb/SIPDBManager.h"
 #include "sipXecsService/SipXecsService.h"
 #include "SipxRpc.h"
+#include "HttpFileAccess.h"
 #include "AlarmServer.h"
 #include "SipxProcessManager.h"
+#include "config/sipxsupervisor-buildstamp.h"
 
 #define DEBUG
 
@@ -98,118 +103,6 @@ OsStatus getSettings(TiXmlDocument &doc, int &rCheckPeriod)
     return retval;
 }
 
-/// Parses the domain-config and sipxsupervisor-config files for control configuration data.
-/**
- *  Gets:
- *  - XML RPC port
- *  - sipXconfig hostnames
- *  - the local hostname
- * The combined list of these hostnames is inserted in allowedPeers
- *
- * The caller is responsible for the UtlString objects in the 'allowedPeers' list.
- */
-void initXMLRPCsettings(int & port, UtlSList& allowedPeers)
-{
-    OsStatus retval = OS_FAILED;
-    port=DEFAULT_SUPERVISOR_PORT;
-
-    OsConfigDb domainConfiguration;
-    OsPath domainConfigPath = SipXecsService::domainConfigPath();
-    if (OS_SUCCESS == domainConfiguration.loadFromFile(domainConfigPath.data()))
-    {
-       port = domainConfiguration.getPort(SipXecsService::DomainDbKey::SUPERVISOR_PORT);
-       if (PORT_NONE == port)
-       {
-          OsSysLog::add(FAC_SUPERVISOR,PRI_ERR,
-                        "initXMLRPCsettings: %s not configured in '%s'",
-                        SipXecsService::DomainDbKey::SUPERVISOR_PORT,
-                        domainConfigPath.data()
-                        );
-          port=DEFAULT_SUPERVISOR_PORT;
-       }
-       else if (PORT_DEFAULT == port)
-       {
-          OsSysLog::add(FAC_SUPERVISOR,PRI_NOTICE,"initXMLRPCsettings: %s set to default",
-                        SipXecsService::DomainDbKey::SUPERVISOR_PORT
-                        );
-          port=DEFAULT_SUPERVISOR_PORT;
-       }
-       
-       UtlString configHosts;
-       domainConfiguration.get(SipXecsService::DomainDbKey::CONFIG_HOSTS, configHosts);
-       if (!configHosts.isNull())
-       {
-          UtlString hostName;
-          for (int hostIndex = 0;
-               NameValueTokenizer::getSubField(configHosts.data(), hostIndex, ", \t", &hostName);
-               hostIndex++)
-          {
-             // Found at least one config hostname.
-             if (!allowedPeers.contains(&hostName))
-             {
-                OsSysLog::add(FAC_SUPERVISOR,PRI_DEBUG,
-                              "initXMLRPCsettings: %s value '%s'",
-                              SipXecsService::DomainDbKey::CONFIG_HOSTS,
-                              hostName.data()
-                        );
-                allowedPeers.insert(new UtlString(hostName));
-             }
-             retval = OS_SUCCESS;
-          }                
-       }
-       else
-       {
-          OsSysLog::add(FAC_SUPERVISOR,PRI_ERR,
-                        "initXMLRPCsettings: %s not configured in '%s'",
-                        SipXecsService::DomainDbKey::CONFIG_HOSTS, domainConfigPath.data()
-                        );
-       }
-    }
-    else
-    {
-       OsSysLog::add(FAC_SUPERVISOR,PRI_ERR,
-                     "initXMLRPCsettings: failed to open '%s'",
-                     domainConfigPath.data()
-                     );
-    }
-
-    OsConfigDb supervisorConfiguration;
-    OsPath supervisorConfigPath = SipXecsService::Path(SipXecsService::ConfigurationDirType,
-                                                       CONFIG_SETTINGS_FILE);
-    if (OS_SUCCESS == supervisorConfiguration.loadFromFile(supervisorConfigPath.data()))
-    {
-       UtlString superHost;
-       supervisorConfiguration.get(SUPERVISOR_HOST, superHost);
-       if (!superHost.isNull())
-       {
-          if (!allowedPeers.contains(&superHost))
-          {
-             allowedPeers.insert(new UtlString(superHost));
-          }
-       }
-       else
-       {
-          OsSysLog::add(FAC_SUPERVISOR,PRI_ERR,
-                        "initXMLRPCsettings: %s not configured in '%s'",
-                        SUPERVISOR_HOST, supervisorConfigPath.data()
-                        );
-       }
-    }
-    else
-    {
-       OsSysLog::add(FAC_SUPERVISOR,PRI_WARNING,
-                     "initXMLRPCsettings: failed to open '%s'",
-                     supervisorConfigPath.data()
-                     );
-    }
-    
-
-    if (allowedPeers.isEmpty())
-    {
-       OsSysLog::add(FAC_SUPERVISOR,PRI_ERR,
-                     "initXMLRPCsettings: No configuration servers configured.");
-    }
-}
 
 void cleanup()
 {
@@ -507,15 +400,117 @@ int main(int argc, char* argv[])
              "sipXsupervisor failed to init AlarmServer");
     }
     
-    // Get the Supervisor XML-RPC server settings.
-    UtlSList allowedPeers;
-    int port;
-    initXMLRPCsettings(port, allowedPeers);
-    
-    // Create the SipxRpc service which manages xmlrpc requests
-    pSipxRpcImpl = new SipxRpc(port, allowedPeers);
-    pSipxRpcImpl->startRpcServer();
+    // Open the two configuration files
+    OsConfigDb domainConfiguration;
+    OsPath domainConfigPath = SipXecsService::domainConfigPath();
+    if (OS_SUCCESS != domainConfiguration.loadFromFile(domainConfigPath.data()))
+    {
+       OsSysLog::add(FAC_SUPERVISOR,PRI_ERR,
+                     "Failed to open domain configuration '%s'",
+                     domainConfigPath.data()
+                     );
+    }
+    OsConfigDb supervisorConfiguration;
+    OsPath supervisorConfigPath = SipXecsService::Path(SipXecsService::ConfigurationDirType,
+                                                       CONFIG_SETTINGS_FILE);
+    if (OS_SUCCESS != supervisorConfiguration.loadFromFile(supervisorConfigPath.data()))
+    {
+       OsSysLog::add(FAC_SUPERVISOR,PRI_WARNING,
+                     "Failed to open supervisor-config at '%s'",
+                     supervisorConfigPath.data()
+                     );
+    }
 
+    // @TODO const char* managementIpBindAddress;
+    int managementPortNumber;
+    managementPortNumber = domainConfiguration.getPort(SipXecsService::DomainDbKey::SUPERVISOR_PORT);
+    if (PORT_NONE == managementPortNumber)
+    {
+       OsSysLog::add(FAC_SUPERVISOR,PRI_ERR,
+                     "%s not configured in '%s'",
+                     SipXecsService::DomainDbKey::SUPERVISOR_PORT,
+                     domainConfigPath.data()
+                     );
+       managementPortNumber=DEFAULT_SUPERVISOR_PORT;
+    }
+    else if (PORT_DEFAULT == managementPortNumber)
+    {
+       OsSysLog::add(FAC_SUPERVISOR,PRI_NOTICE,"%s set to default: %d",
+                     SipXecsService::DomainDbKey::SUPERVISOR_PORT, DEFAULT_SUPERVISOR_PORT
+                     );
+       managementPortNumber=DEFAULT_SUPERVISOR_PORT;
+    }
+       
+    UtlSList allowedPeers;
+    UtlString configHosts;
+    domainConfiguration.get(SipXecsService::DomainDbKey::CONFIG_HOSTS, configHosts);
+    if (!configHosts.isNull())
+    {
+       UtlString hostName;
+       for (int hostIndex = 0;
+            NameValueTokenizer::getSubField(configHosts.data(), hostIndex, ", \t", &hostName);
+            hostIndex++)
+       {
+          // Found at least one config hostname.
+          if (!allowedPeers.contains(&hostName))
+          {
+             OsSysLog::add(FAC_SUPERVISOR,PRI_DEBUG,
+                           "%s value '%s'",
+                           SipXecsService::DomainDbKey::CONFIG_HOSTS,
+                           hostName.data()
+                           );
+             allowedPeers.insert(new UtlString(hostName));
+          }
+       }                
+    }
+    else
+    {
+       OsSysLog::add(FAC_SUPERVISOR,PRI_ERR,
+                     "%s not configured in '%s'",
+                     SipXecsService::DomainDbKey::CONFIG_HOSTS, domainConfigPath.data()
+                     );
+    }
+
+    UtlString superHost;
+    supervisorConfiguration.get(SUPERVISOR_HOST, superHost);
+    if (!superHost.isNull())
+    {
+       if (!allowedPeers.contains(&superHost))
+       {
+          allowedPeers.insert(new UtlString(superHost));
+       }
+    }
+    else
+    {
+       OsSysLog::add(FAC_SUPERVISOR,PRI_ERR,
+                     "%s not configured in '%s'",
+                     SUPERVISOR_HOST, supervisorConfigPath.data()
+                     );
+    }
+   
+    if (allowedPeers.isEmpty())
+    {
+       OsSysLog::add(FAC_SUPERVISOR,PRI_ERR,
+                     "No configuration peers configured.");
+    }
+
+    // Initialize management interfaces on the TLS socket
+    OsSSLServerSocket serverSocket(50, managementPortNumber /*@TODO managementIpBindAddress */);
+    HttpServer        httpServer(&serverSocket); // set up but don't start https server
+    XmlRpcDispatch    xmlRpcDispatcher(&httpServer); // attach xml-rpc service to https
+    SipxRpc           syncRpc(&xmlRpcDispatcher, allowedPeers); // register xml-rpc methods
+    HttpFileAccess    fileAccessService(&httpServer,&syncRpc); // attach file xfer to https
+
+    if (serverSocket.isOk())
+    {
+       OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG, "Starting Management HTTP Server");
+       httpServer.start();
+    }
+    else
+    {
+       OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "Management listening socket failure");
+    }
+    
     // Read the process definitions.
     UtlString processDefinitionDirectory =
        SipXecsService::Path(SipXecsService::DataDirType, "process.d");

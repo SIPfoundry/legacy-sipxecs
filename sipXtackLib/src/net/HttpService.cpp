@@ -14,6 +14,16 @@
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
+
+const UtlContainableType HttpService::TYPE = "HttpService";
+
+/// Get the ContainableType as a UtlContainable-derived class.
+UtlContainableType HttpService::getContainableType() const
+{
+   return TYPE;
+}
+
+
 // STATIC VARIABLE INITIALIZATIONS
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */

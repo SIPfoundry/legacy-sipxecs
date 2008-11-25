@@ -1265,6 +1265,9 @@ public:
                                    ,UtlContainer& viaParameterList
                                    );
     
+    /// This is here to block access to the HTTP method - not valid for SIP
+    virtual void useChunkedBody(bool useChunked);
+
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
 

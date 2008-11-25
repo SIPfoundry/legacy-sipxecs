@@ -13,7 +13,6 @@
 #define _HttpRequestContext_h_
 
 // SYSTEM INCLUDES
-//#include <...>
 
 // APPLICATION INCLUDES
 #include "utl/UtlString.h"
@@ -32,25 +31,26 @@
 // FORWARD DECLARATIONS
 class HttpBody;
 
-//:Class short description which may consist of multiple lines (note the ':')
-// Class detailed description which may extend to multiple lines
+/// Provides all the information available on a particular HTTP request.
 class HttpRequestContext
 {
-/* //////////////////////////// PUBLIC //////////////////////////////////// */
+
 public:
+
+   /// Keys for the getEnvironmentVariable access routine.
     enum RequestEnvironmentVariables
     {
-        // Environment variables:
-        HTTP_ENV_RAW_URL = 0,   // The url provided in the request
-        HTTP_ENV_UNMAPPED_FILE, // The file part of the raw URL
-        HTTP_ENV_MAPPED_FILE,   // The file part of the url mapped to the real location
-        HTTP_ENV_QUERY_STRING,  // The query part of the URL (if GET) Note: the individual variables are retreiveable via getCgiVariables
-        HTTP_ENV_SERVER_NAME,   // The Server name part of the URL
-        HTTP_ENV_REQUEST_METHOD,// The request method (i.e. GET, PUT, POST)
-        HTTP_ENV_USER,          // The user name (if this request required authorization)
+        HTTP_ENV_RAW_URL = 0,   ///< The full request uri
+        HTTP_ENV_UNMAPPED_FILE, ///< The file part of the raw URL
+        HTTP_ENV_MAPPED_FILE,   ///< The file part of the url mapped to the real location
+        HTTP_ENV_QUERY_STRING,  /**< The query part of the URL (if GET)
+                                 *   Note: the individual variables are retreiveable
+                                 *   using getCgiVariables */
+        HTTP_ENV_SERVER_NAME,   ///< The Server name part of the URL
+        HTTP_ENV_REQUEST_METHOD,///< The request method (i.e. GET, PUT, POST)
+        HTTP_ENV_USER,          ///< The user name (if this request required authorization)
 
-
-        HTTP_ENV_LAST // Note: this is a dummy variable indicating the last var
+        HTTP_ENV_LAST ///< a dummy value indicating the last var (MUST BE LAST)
     };
 
 /* ============================ CREATORS ================================== */
@@ -61,50 +61,55 @@ public:
                       ,const char* mappedFile = NULL
                       ,const char* serverName = NULL
                       ,const char* userId = NULL
-                      ,const OsConnectionSocket* connection = NULL
+                      ,OsConnectionSocket* connection = NULL
                       );
-     //:Default constructor
 
+   /// Destructor
+   virtual ~HttpRequestContext();
 
-   virtual
-   ~HttpRequestContext();
-     //:Destructor
-
-/* ============================ MANIPULATORS ============================== */
-
+   /// Extracts the CGI variables from a POST request body.
    void extractPostCgiVariables(const HttpBody& body);
-   // Extracts the CGI variables from the request body.
 
    typedef void (*UnEscapeFunction)(UtlString&);
-   static void parseCgiVariables(const char* queryString,
+   /// Parse variables from the requestUri parameters
+   static void parseCgiVariables(const char* queryString,   
                                  UtlList& cgiVariableList,
                                  const char* pairSeparator = "&",
                                  const char* namValueSeparator = "=",
                                  UtlBoolean nameIsCaseInsensitive = TRUE,
-                                 UnEscapeFunction unescape =
-                                     &HttpMessage::unescape);
-   // If nameIsCaseInsensitive == TRUE, puts NameValuePairInsensitive's
-   // into cgiVariableList rather than NameValuePair's.
+                                 UnEscapeFunction unescape = &HttpMessage::unescape);
+   /**<
+    * If nameIsCaseInsensitive == TRUE, puts NameValuePairInsensitive's
+    * into cgiVariableList rather than NameValuePair's.
+    */
 
+   /// Copy constructor
    HttpRequestContext(const HttpRequestContext& rHttpRequestContext);
-     //:Copy constructor
+
+   /// Assignment operator
    HttpRequestContext& operator=(const HttpRequestContext& rhs);
-     //:Assignment operator
 
-/* ============================ ACCESSORS ================================= */
+   /// Tests whether or not the HTTP Method is the give value.
+   bool methodIs(const char* method) const;
+   
+   /// Get the request URI as normalized and mapped by the HttpServer.
+   void getMappedPath(UtlString& path) const;
 
-   void getEnvironmentVariable(enum RequestEnvironmentVariables envVariable, UtlString& value) const;
-   //: Get Environment and context variables related to this request
-   // See the RequestEnvironmentVariables enumeration for the complete list.
+   /// Get Environment and context variables related to this request
+   void getEnvironmentVariable(enum RequestEnvironmentVariables envVariable,
+                               UtlString& value
+                               ) const;
 
+   /// Get CGI/Form variables provided in this POST or GET request.
    UtlBoolean getCgiVariable(const char* name, UtlString& value, int occurance = 0) const;
-   //: Get CGI/Form variables provided in this POST or GET request.
-   // As it is possible to have multiple occurances of a named value
-   // the occurance argument indicates which occurance.  The default is the first.
-   //! returns: TRUE/FALSE if the occurance of the named variable exists
+   /**<
+    * As it is possible to have multiple occurances of a named value
+    * the occurance argument indicates which occurance.  The default is the first.
+    * @returns TRUE/FALSE if the occurance of the named variable exists
+    */
 
+   /// Get the name and value of the variable at the given index
    UtlBoolean getCgiVariable(int index, UtlString& name, UtlString& value) const;
-   //: Get the name and value of the variable at the given index
 
    /// Test whether or not the client connection is encrypted.
    bool isEncrypted() const;
@@ -114,7 +119,7 @@ public:
                       ) const;
    /**<
     * This tests the host identity provided by the SSL handshake; it does not
-    * test the HTTP user identity.
+    * test the HTTP user identity if any.
     *
     * @NOTE All subjectAltName values are case-folded to lower case: @see OsSSL::peerIdentity
     *
@@ -125,24 +130,23 @@ public:
     * - false if not.
     */
 
-/* ============================ INQUIRY =================================== */
+   /// Direct access to socket for the request.
+   OsConnectionSocket* socket() const;
 
-/* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
 
-/* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
 
+   /// Parse the CGI/form variables from the &,= delineated name, value pairs and unescape the name and values.
    void parseCgiVariables(const char* queryString);
-   //: Parse the CGI/form variables from the &,= delineated name, value pairs and unescape the name and values.
 
-   UtlSList mCgiVariableList;
-   bool     mUsingInsensitive;
-   UtlString mEnvironmentVars[HTTP_ENV_LAST];
-   bool     mConnectionEncrypted;
-   bool     mPeerCertTrusted;
-   UtlSList mPeerIdentities;
-   
+   UtlSList   mCgiVariableList;
+   bool       mUsingInsensitive;
+   UtlString  mEnvironmentVars[HTTP_ENV_LAST];
+   bool       mPeerCertTrusted;
+   UtlSList   mPeerIdentities;
+
+   OsConnectionSocket* mConnection;
 };
 
 /* ============================ INLINE METHODS ============================ */

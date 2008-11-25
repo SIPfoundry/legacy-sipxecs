@@ -56,6 +56,8 @@
 #define HTTP_FILE_NOT_FOUND_TEXT "File Not Found"
 #define HTTP_PROXY_UNAUTHORIZED_CODE 407
 #define HTTP_PROXY_UNAUTHORIZED_TEXT "Proxy Authentication Required"
+#define HTTP_SERVER_ERROR_CODE 500
+#define HTTP_SERVER_ERROR_TEXT "Server Error"
 #define HTTP_UNSUPPORTED_METHOD_CODE 501
 #define HTTP_UNSUPPORTED_METHOD_TEXT "Not Implemented"
 #define HTTP_OUT_OF_RESOURCES_CODE 503
@@ -68,6 +70,7 @@
 #define HTTP_DATE_FIELD "DATE"
 #define HTTP_CONTENT_DISPOSITION_FIELD "CONTENT-DISPOSITION"
 #define HTTP_CONTENT_TRANSFER_ENCODING_FIELD "CONTENT-TRANSFER-ENCODING"
+#define HTTP_TRANSFER_ENCODING_FIELD "TRANSFER-ENCODING"
 #define HTTP_CONTENT_LENGTH_FIELD "CONTENT-LENGTH"
 #define HTTP_CONTENT_TYPE_FIELD "CONTENT-TYPE"
 #define HTTP_CONTENT_ID_FIELD "CONTENT-ID"
@@ -295,12 +298,42 @@ public:
     //! callback proc.
     int readBody(OsSocket* inSocket, int length, GetDataCallbackProc callbackProc, void* optionalData);
 
-        //! Write message to socket
-        /*! Convenience function to write to a socket
-         * \return TRUE if the message was written successfully
+    //! Write message to socket
+    /*! Convenience function to write to a socket
+     * \return TRUE if the message was written successfully
      */
     UtlBoolean write(OsSocket* outSocket) const;
 
+    /// Write just the headers and the terminating CRLF to outSocket
+    UtlBoolean writeHeaders(OsSocket* outSocket) const;
+    /**<
+     * This method must only be used if the message has been marked as using
+     * chunked encoding (by calling useChunkedBody with true).
+     *
+     * The chunks for the body should then be written by calling
+     * writeChunk, followed by a call to writeEndOfChunks when all
+     * chunks have been written.
+     *
+     * @return TRUE if the message was written successfully
+     */
+
+    /// Pass 'true' to use the 'chunked' transfer-encoding to delimit the body
+    virtual void useChunkedBody(bool useChunked);
+    /**<
+     * It is an error to call this method if a body has already been attached to the message.
+     *
+     * The headers for the message must first be written using writeHeaders.
+     * The chunks for the body should then be written by calling
+     * writeChunk, followed by a call to writeEndOfChunks when all
+     * chunks have been written.
+     */
+
+    /// Write a partial body using chunked encoding.
+    UtlBoolean writeChunk(OsSocket* outSocket, const UtlString& chunk);
+    
+    /// Write the end-of-chunks marker to terminate a message sent with chunked encoding.
+    UtlBoolean writeEndOfChunks(OsSocket* outSocket);
+    
     //! Converts the given token to initial cap capitialization
     //! in the style used in RFC 822 header names
     static void cannonizeToken(UtlString& token);
@@ -738,6 +771,7 @@ protected:
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
    HttpBody* body;
+   bool mUseChunkedEncoding;
    long transportTimeStamp;
    int lastResendDuration;
    OsSocket::IpProtocolSocketType transportProtocol;

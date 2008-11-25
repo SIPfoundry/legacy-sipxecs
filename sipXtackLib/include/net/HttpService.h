@@ -13,6 +13,7 @@
 // SYSTEM INCLUDES
 
 // APPLICATION INCLUDES
+#include "utl/UtlContainableAtomic.h"
 
 // DEFINES
 // MACROS
@@ -36,7 +37,7 @@ class HttpRequestContext;
  *
  */
 
-class HttpService
+class HttpService : public UtlContainableAtomic
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
@@ -55,17 +56,13 @@ public:
                                HttpMessage*& response
                                ) = 0;
 
-/* ============================ MANIPULATORS ============================== */
+   static const UtlContainableType TYPE;
 
-/* ============================ ACCESSORS ================================= */
+   /// Get the ContainableType as a UtlContainable-derived class.
+   virtual UtlContainableType getContainableType() const;
 
-
-/* ============================ INQUIRY =================================== */
-
-/* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
 
-/* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
 
    /// Disabled copy constructor

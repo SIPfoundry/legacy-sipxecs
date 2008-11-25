@@ -12,6 +12,7 @@
 // APPLICATION INCLUDES
 #include "os/OsSocket.h"
 #include "os/OsDateTime.h"
+#include "utl/UtlSListIterator.h"
 #include "net/XmlRpcDispatch.h"
 #include "SipxRpc.h"
 #include "ProcMgmtRpc.h"
@@ -29,9 +30,8 @@
 /* ============================ CREATORS ================================== */
 
 // Constructor
-SipxRpc::SipxRpc( const int port, UtlSList& allowedPeers) :
-mXmlRpcPort(port),
-mpXmlRpcDispatch(NULL)
+SipxRpc::SipxRpc(XmlRpcDispatch* dispatcher, UtlSList& allowedPeers)
+  : mpXmlRpcDispatch(dispatcher)
 {
    // Take ownership of the UtlString object memory.
    UtlContainable* peer;
@@ -47,37 +47,6 @@ mpXmlRpcDispatch(NULL)
    {
       mAllowedPeers.insert(new UtlString(myName));
    }
-}
-
-// Destructor
-SipxRpc::~SipxRpc()
-{
-   if ( mpXmlRpcDispatch )
-   {
-      delete mpXmlRpcDispatch;
-      mpXmlRpcDispatch = NULL;
-   }
-
-   mAllowedPeers.destroyAll();
-}
-
-/* ============================ MANIPULATORS ============================== */
-
-// Assignment operator
-SipxRpc& 
-SipxRpc::operator=(const SipxRpc& rhs)
-{
-   if (this == &rhs)            // handle the assignment to self case
-      return *this;
-
-   return *this;
-}
-   
-
-void SipxRpc::startRpcServer()
-{
-   // Begin operation of the XML-RPC service.
-   mpXmlRpcDispatch = new XmlRpcDispatch(mXmlRpcPort, true /* use https */);
 
    // Register the XML-RPC methods.
    ProcMgmtRpcGetStateAll::registerSelf(*this);
@@ -97,7 +66,13 @@ void SipxRpc::startRpcServer()
    AlarmRpcGetAlarmCount::registerSelf(*this);
    AlarmRpcRaiseAlarm::registerSelf(*this);
    AlarmRpcReloadAlarms::registerSelf(*this);
-   
+}
+
+// Destructor
+SipxRpc::~SipxRpc()
+{
+   // the mpXmlRpcDispatch pointer is owned by sipXsupervisor main
+   mAllowedPeers.destroyAll();
 }
 
 /* ============================ ACCESSORS ================================= */
@@ -112,12 +87,24 @@ bool SipxRpc::isAllowedPeer(const UtlString& peer) const
    return mAllowedPeers.contains(&peer);
 }
 
+/// Whether or not an HTTP request is from some allowed peer, and if so which one.
+bool SipxRpc::isAllowedPeer(const HttpRequestContext& context, ///< the request to be checked
+                            UtlString& peer                    ///< if allowed, the name of the peer
+                            ) const
+{
+   bool isAllowed = false;
+   peer.remove(0);
 
-/* //////////////////////////// PROTECTED ///////////////////////////////// */
-
-/* //////////////////////////// PRIVATE /////////////////////////////////// */
-
-/* ============================ TESTING =================================== */
-
-/* ============================ FUNCTIONS ================================= */
+   UtlSListIterator allowedPeers(mAllowedPeers);
+   UtlString* tryPeer;
+   while (!isAllowed && (tryPeer = dynamic_cast<UtlString*>(allowedPeers())))
+   {
+      isAllowed = context.isTrustedPeer(*tryPeer);
+   }
+   if (isAllowed)
+   {
+      peer = *tryPeer;
+   }
+   return isAllowed;
+}
 

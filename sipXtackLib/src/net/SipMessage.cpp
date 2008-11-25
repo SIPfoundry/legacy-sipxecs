@@ -5061,6 +5061,17 @@ void SipMessage::parseViaParameters( const char* viaField
             && viaField[lastCharIndex] != '\0'
             );
 }
+
+void SipMessage::useChunkedBody(bool useChunked)
+{
+   if (useChunked)
+   {
+      OsSysLog::add(FAC_SIP, PRI_CRIT,
+                    "SipMessage::useChunkedBody chunked encoding is not allowed in SIP");
+      assert(useChunked);
+   }
+}
+
 void SipMessage::setSipIfMatchField(const char* sipIfMatchField)
 {
     setHeaderValue(SIP_IF_MATCH_FIELD, sipIfMatchField, 0);

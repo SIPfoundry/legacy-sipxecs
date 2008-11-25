@@ -76,6 +76,7 @@ int HttpMessage::smHttpMessageCount = 0;
 HttpMessage::HttpMessage(const char* messageBytes, ssize_t byteCount)
    : mHeaderCacheClean(FALSE)
    , body(NULL)
+   , mUseChunkedEncoding(false)
    , transportTimeStamp(0)
    , lastResendDuration(0)
    , transportProtocol(OsSocket::UNKNOWN)
@@ -1600,6 +1601,93 @@ UtlBoolean HttpMessage::write(OsSocket* outSocket) const
         return(bytesWritten == bufferLen);
 }
 
+/// Write just the headers and the terminating CRLF to outSocket
+UtlBoolean HttpMessage::writeHeaders(OsSocket* outSocket) const
+{
+   /*
+    * This method must only be used if the message has been marked as using
+    * chunked encoding (by calling useChunkedBody).
+    *
+    * The chunks for the body should then be written by calling
+    * writeChunk, followed by a call to writeEndChunks when all
+    * chunks have been written.
+    */
+   UtlBoolean writtenOk = FALSE;
+   
+   if (!mUseChunkedEncoding)
+   {
+      OsSysLog::add(FAC_HTTP, PRI_CRIT, "HttpMessage::writeHeaders used on a non-chunked message");
+      assert(mUseChunkedEncoding);
+   }
+
+   UtlString buffer;
+   ssize_t bufferLen;
+   ssize_t bytesWritten;
+
+   getBytes(&buffer, &bufferLen, false /* do not include the body */);
+   OsSysLog::add(FAC_HTTP, PRI_INFO,
+                 "HttpMessage::writeHeaders writing:\n%s",
+                 buffer.data());
+   
+   bytesWritten = outSocket->write(buffer.data(), bufferLen);
+
+   writtenOk = (bytesWritten == bufferLen);
+
+   return writtenOk;
+}
+
+/// Mark this message as using chunked encoding to delimit the body @see writeHeaders
+void HttpMessage::useChunkedBody(bool useChunked)
+{
+   mUseChunkedEncoding = useChunked;
+   if (mUseChunkedEncoding)
+   {
+      if (body)
+      {
+         OsSysLog::add(FAC_HTTP, PRI_CRIT,
+                       "HttpMessage::useChunkedBody "
+                       "used on a message that has a body - existing body deleted");
+         assert(body);
+         delete body;
+      }
+      removeHeader(HTTP_CONTENT_LENGTH_FIELD, 0);
+      setHeaderValue(HTTP_TRANSFER_ENCODING_FIELD, "chunked");
+   }
+   else
+   {
+      removeHeader(HTTP_TRANSFER_ENCODING_FIELD, 0);
+   }
+}
+
+static const UtlString EndOfChunk(END_OF_LINE_DELIMITER);
+
+/// Write a partial body using chunked encoding.
+UtlBoolean HttpMessage::writeChunk(OsSocket* outSocket, const UtlString& chunk)
+{
+   UtlString chunkHeader;
+   chunkHeader.appendNumber(chunk.length(), "%x");
+   chunkHeader.append(END_OF_LINE_DELIMITER);
+
+   ssize_t bytesWritten;
+   bytesWritten  = outSocket->write(chunkHeader.data(), chunkHeader.length());
+   bytesWritten += outSocket->write(chunk.data(),       chunk.length());
+   bytesWritten += outSocket->write(EndOfChunk.data(),  EndOfChunk.length());
+
+   ssize_t bytesExpected = chunkHeader.length() + chunk.length() + EndOfChunk.length();
+   
+   return (bytesWritten == bytesExpected);
+}
+
+static const UtlString EndOfChunks("0" END_OF_LINE_DELIMITER END_OF_LINE_DELIMITER);
+
+/// Write the end-of-chunks marker to terminate a message sent with chunked encoding.
+UtlBoolean HttpMessage::writeEndOfChunks(OsSocket* outSocket)
+{
+   ssize_t bytesWritten = outSocket->write(EndOfChunks.data(), EndOfChunks.length());
+   ssize_t bytesExpected = EndOfChunks.length();
+   return (bytesWritten == bytesExpected);
+}
+    
 void HttpMessage::unescape(UtlString& escapedText)
 {
     //UtlString unescapedText;
@@ -2217,6 +2305,7 @@ void HttpMessage::setContentLength(int contentLength)
         char contentLengthString[HTTP_LONG_INT_CHARS];
         sprintf(contentLengthString, "%d", contentLength);
         setHeaderValue(HTTP_CONTENT_LENGTH_FIELD, contentLengthString);
+        useChunkedBody(false);
 }
 
 void HttpMessage::getUserAgentField(UtlString* userAgentField) const
@@ -2366,8 +2455,9 @@ void HttpMessage::getBytes(UtlString* bufferString, ssize_t* length, bool includ
             {
                 char bodyLengthString[40];
                 sprintf(bodyLengthString, "%zu", bodyLen);
-                OsSysLog::add(FAC_HTTP, PRI_WARNING, "HttpMessage::getBytes content-length: %s wrong setting to: %s",
-                    value ? value : "", bodyLengthString);
+                OsSysLog::add(FAC_HTTP, PRI_WARNING,
+                              "HttpMessage::getBytes content-length: %s wrong setting to: %s",
+                              value ? value : "", bodyLengthString);
                 headerField->setValue(bodyLengthString);
                 value = headerField->getValue();
             }
@@ -2384,7 +2474,7 @@ void HttpMessage::getBytes(UtlString* bufferString, ssize_t* length, bool includ
         }
 
         // Make sure the content length is set
-        if(!foundContentLengthHeader)
+        if(!foundContentLengthHeader && !mUseChunkedEncoding)
         {
                 UtlString ContentLen(HTTP_CONTENT_LENGTH_FIELD);
                 cannonizeToken(ContentLen);

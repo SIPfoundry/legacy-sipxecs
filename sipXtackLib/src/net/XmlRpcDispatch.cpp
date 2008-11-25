@@ -91,12 +91,29 @@ const char* XmlRpcDispatch::DEFAULT_URL_PATH = "/RPC2";
 
 /* ============================ CREATORS ================================== */
 
-// Constructor
+/// Create an XML-RPC dispatcher on an existing HttpServer.
+XmlRpcDispatch::XmlRpcDispatch(HttpServer* httpServer, ///< existing HttpServer to use
+                               const char* uriPath     ///< uri path
+                               )
+   : mpHttpServer(httpServer)
+   , mLock(OsBSem::Q_PRIORITY, OsBSem::FULL)
+   , mManageHttpServer(false)
+{
+   if (mpHttpServer) // might be NULL in unit tests
+   {
+      // Add the XmlRpcDispatch to the HttpServer
+      mpHttpServer->addHttpService(uriPath, (HttpService*)this);
+   }
+}
+
+
+// Old Constructor
 XmlRpcDispatch::XmlRpcDispatch(int httpServerPort,
                                bool isSecureServer,
                                const char* uriPath,
                                const char* bindIp)
    : mLock(OsBSem::Q_PRIORITY, OsBSem::FULL)
+   , mManageHttpServer(true)     
 {
     UtlString osBaseUriDirectory ;
 
@@ -118,17 +135,12 @@ XmlRpcDispatch::XmlRpcDispatch(int httpServerPort,
    }
       
    mpHttpServer = new HttpServer(pServerSocket,
-                                 NULL, // no password database
-                                 NULL, // no http authentication realm
                                  NULL, // no valid ip address list
                                  true  // use persistent http connections 
                                  );
    
-   // Set the http server root to the current directory
-   mpHttpServer->allowFileAccess(false);
-   mpHttpServer->addUriMap("/", osBaseUriDirectory.data());
    mpHttpServer->start();
-   
+
    // Add the XmlRpcDispatch to the HttpServer
    mpHttpServer->addHttpService(uriPath, (HttpService*)this);
 }
@@ -138,7 +150,7 @@ XmlRpcDispatch::XmlRpcDispatch(int httpServerPort,
 XmlRpcDispatch::~XmlRpcDispatch()
 {
    // HTTP server shutdown
-   if (mpHttpServer)
+   if (mManageHttpServer && mpHttpServer)
    {
       mpHttpServer->requestShutdown();
       delete mpHttpServer;

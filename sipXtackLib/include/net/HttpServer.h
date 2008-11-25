@@ -24,8 +24,6 @@
 #include <net/HttpConnection.h>
 
 // DEFINES
-#define MAX_PERSISTENT_HTTP_CONNECTIONS  5
-
 // MACROS
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -41,163 +39,247 @@ class HttpRequestContext;
 class HttpService;
 class HttpConnection;
 
-//:Class short description which may consist of multiple lines (note the ':')
-// Class detailed description which may extend to multiple lines
+/// Implement an HTTP server interface.
+/**
+ * This class listens on the accept socket passed to the constructor, accepting new
+ * connections and creating an HttpConnection object for each.  If the constructor
+ * specified that connections should be persistent, the HttpServer maintains the list
+ * of open connections and enforces the MAX_PERSISTENT_HTTP_CONNECTIONS limit.
+ *
+ * Actual HTTP requests are parsed from the HttpConnection by HttpMessage::read,
+ * and then the HttpConnection object passes them to HttpServer::processRequest.
+ *
+ * Prior to attempting to process the request itself, the HttpServer:
+ *
+ * - Optionally enforces any restrictions on the remote IP address.  If the validIpAddressDB
+ *   parameter passed to the HttpServer constructor is non-NULL and not empty, then the
+ *   IP address of the requestor must appear in that database, or the request is rejected
+ *   with a 403 Forbidden response.
+ *
+ *   IP addresses are NOT a good authentication mechanism.  See HttpRequestContext for
+ *   a description of how to use TLS peer authentication for strong authentication.
+ *
+ * - Path is checked for any '..' elements and rejected if they are present.
+ *
+ * - Applies any mappings configured using addUriMap (see addUriMap and mapUri).
+ *
+ * - Constructs an HttpRequestContext object to provide all the information about the request.
+ * 
+ * There are three ways to handle an HTTP request; the mapped path is used select the
+ * processor for the request from among these method in this order (At present, this resolution
+ * is applied only to GET and POST methods):
+ *
+ * -# Create a static method whose signature matches HttpServer::RequestProcessor and
+ *    register the method using addRequestProcessor.  This means of providing an HTTP
+ *    service is relatively simple, but provides no context except the request itself.
+ *    Using this method, you must specify the exacty path that this processor is
+ *    is responsible for.
+ *
+ * -# Create a subclass of HttpService and register an object of that class using addHttpService.
+ *    The registered object will be called using its version of HttpService::processRequest,
+ *    passed the request, an empty response, and the HttpRequestContext.
+ *    Using this method, the service is responsible for any extension of the registered
+ *    path (see addHttpService).
+ *    This means of providing a service is best when you need additional contextual
+ *    information in the service object or want to use additional path information.
+ *    
+ * -# A simple built-in file access service can be enabled by calling allowFileAccess
+ *    (this is disabled by default).  The built-in service does not do any authentication
+ *    beyond the IP optional address validation step described above.
+ *    USE OF THE THIS IS NOT RECOMMENDED.
+ */
 class HttpServer : public OsTask
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
-   friend class HttpConnection;
 
 /* ============================ CREATORS ================================== */
 
-   HttpServer(OsServerSocket *pSocket, OsConfigDb* userPasswordDb,
-                       const char* realm, OsConfigDb* validIpAddressDB = NULL,
-                       bool bPersistentConnection = false);
-     //:Default constructor
+    /// Create an HttpServer interface on an existing socket.
+    HttpServer(OsServerSocket* pSocket,    /**< The listening socket on which new connection
+                                            *   requests are received.  This may be
+                                            *   OsServerSocket or OsSSLServerSocket.
+                                            */
+               OsConfigDb*     validIpAddressDB = NULL, //< optional requestor address restriction
+               bool            bPersistentConnection = false
+               );
 
-   virtual
-   ~HttpServer();
-     //:Destructor
+    virtual ~HttpServer();
 
-/* ============================ MANIPULATORS ============================== */
+    /// OsServerTask main loop implementation.
+    virtual int run(void* runArg); 
 
-    virtual int run(void* runArg);
+    /// Translate URI prefixes.
+    static UtlBoolean mapUri(UtlHashMap& uriMaps,  ///< database of prefix translations.
+                             const char* uri,      ///< normalized input request uri path
+                             UtlString& mappedUri  ///< result of translation, if any
+                             );
+    /**<
+     * @returns TRUE iff a translation was found
+     *
+     * The uri is iteratively checked against the database of mappings, stripping one path
+     * component (separated by '/') at each iteration.
+     * Each database check looks for a match of the (possibly shortened) path, and if an exact
+     * match is found, then the matching portion is replaced by the translation from the map
+     * and any previously stripped path components are appended to it.
+     *
+     * This operates only on prefixes - you cannot modify only the middle or the end of a path,
+     * and it operates only on separator boundaries.
+     * For example, the translation "/a/b" => "/xy" will not modify the uri "/a/bc".
+     *
+     * If no mappings are found, mappedUri is set to the input uri with no changes.
+     */
 
-    // Request processors
-    static void processPostFile(const HttpRequestContext& requestContext,
-                                const HttpMessage& request,
-                                HttpMessage*& response);
-    static int doPostFile(const HttpRequestContext& requestContext,
-                                const HttpMessage& request,
-                                HttpMessage*& response,
-                                                                UtlString& status);
+    /// Add a prefix map translation step for the request URI path.
+    void addUriMap(const char* fromUri, ///< normalized path prefix as received in the request URI
+                   const char* toUri    ///< translation for the above prefix 
+                   );
+    /**<
+     * This provides a mapping to be applied by the mapUri method before the request URI is
+     * resolved to a processing mechanism.  Both values MUST begin with '/' and may not end
+     * with '/' (at present this is not checked - the translation just doesn't work if you don't
+     * follow the rule).
+     */
 
-    static void processFileRequest(const HttpRequestContext& requestContext,
-                                const HttpMessage& request,
-                                HttpMessage*& response);
-
-    // Error request processors
-    static void processNotSupportedRequest(const HttpRequestContext& requestContext,
-                                const HttpMessage& request,
-                                HttpMessage*& response);
-    static void processFileNotFound(const HttpRequestContext& requestContext,
-                                const HttpMessage& request,
-                                HttpMessage*& response);
-
-    static void processUserNotAuthorized(const HttpRequestContext& requestContext,
-                                     const HttpMessage& request,
-                                     HttpMessage*& response,
-                                     const char* text = 0);
-
-    static void createHtmlResponse(int responseCode, const char* responseCodeText,
-                   const char* htmlBodyText, HttpMessage*& response);
-
-    static void testCgiRequest(const HttpRequestContext& requestContext,
-                                const HttpMessage& request,
-                                HttpMessage*& response);
-
-    static UtlBoolean mapUri(OsConfigDb& configDb, const char* uri, UtlString& mappedUri);
-
-    void addUriMap(const char* fromUri, const char* toUri);
-
+    /// Signature of processor to be passed to addRequestProcessor.
     typedef void RequestProcessor(const HttpRequestContext& requestContext,
                                   const HttpMessage& request,
                                   HttpMessage*& response
                                   );
-    
-    void addRequestProcessor(const char* fileUrl, RequestProcessor* requestProcessor);
 
-    void addHttpService(const char* fileUrl, HttpService* service);
+    /// Specify a RequestProcessor to be called when the path exactly matches the fileUrl.
+    void addRequestProcessor(const char* fileUrl,
+                             RequestProcessor* requestProcessor
+                             );
 
-    /// set permission for access to mapped file names
+    /// Specify an HttpService to be called when the path exactly matches the fileUrl.
+    void addHttpService(const char* fileUrl, /**< path prefix this service is registered for
+                                              * Must begin with '/'
+                                              * Must not end with '/' unless it is exactly "/"
+                                              */
+                        HttpService* service ///< service object 
+                        );
+    /**<
+     * The fileUrl parameter specifies a prefix that must start with a '/' and must
+     * exactly match the initial components of the HTTP Request URI.
+     * So, registering "/one" matches "/one/two/three" but not "/" or "/two" or "/onetwo".
+     */
+
+    /// Permit access to mapped file names.
     void allowFileAccess(bool fileAccess ///< true => allow access, false => disallow access
                          );
-    
-    void setPasswordDigest(const char* user, const char* password,
-                           UtlString& userPasswordDigest);
+    ///< THIS IS NOT SECURE AND IS NOT RECOMMENDED.
 
+    /// Get current http server status
+    OsStatus getStatus();
 
-        void setPasswordDigest(const char* user, const char* passwordDigest);
-          //: Sets the password, given an already digested password.
-
-
-
-        void getDigest(const char* user, const char* password,
-                                   UtlString& userPasswordDigest) ;
-
-        void setPasswordBasic(const char* user, const char* password);
-
-        void removeUser(const char* user, const char* password) ;
-
-        static void constructFileList(UtlString & indexText, UtlString uri, UtlString uriFilename) ;
-
-        //get current http server status
-        OsStatus getStatus();
-
-
-/* ============================ ACCESSORS ================================= */
-
-/* ============================ INQUIRY =================================== */
-        
     /// Is the server socket used by this HttpServer ok?
     UtlBoolean isSocketOk() const ;    
 
-/* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
+    friend class HttpConnection;
+    friend class HttpServerTest;
 
-    void processRequest(const HttpMessage& request,          ///< request to be dispatched
-                        HttpMessage*& response,              ///< build response in this message
-                        const OsConnectionSocket* connection ///< for access to security info
+    void processRequest(const HttpMessage& request,    ///< request to be dispatched
+                        HttpMessage*& response,        ///< build response in this message
+                        OsConnectionSocket* connection ///< meta-data regarding the request
                         );
 
     UtlBoolean processRequestIpAddr(const UtlString& remoteIp,
-       const HttpMessage& request,
-       HttpMessage*& response);
+                                    const HttpMessage& request,
+                                    HttpMessage*& response
+                                    );
 
+private:
+    
+    static void processPostFile(const HttpRequestContext& requestContext,
+                                const HttpMessage& request,
+                                HttpMessage*& response
+                                );
 
-    UtlBoolean isRequestAuthorized(const HttpMessage& request,
-                                  HttpMessage*& response,
-                                  UtlString& userId);
+    static int doPostFile(const HttpRequestContext& requestContext,
+                          const HttpMessage& request,
+                          HttpMessage*& response,
+                          UtlString& status
+                          );
+
+    static void processFileRequest(const HttpRequestContext& requestContext,
+                                   const HttpMessage& request,
+                                   HttpMessage*& response
+                                   );
+
+    // Error request processors
+    static void processNotSupportedRequest(const HttpRequestContext& requestContext,
+                                           const HttpMessage& request,
+                                           HttpMessage*& response
+                                           );
+
+    static void processFileNotFound(const HttpRequestContext& requestContext,
+                                    const HttpMessage& request,
+                                    HttpMessage*& response
+                                    );
+
+    static void createHtmlResponse(int responseCode,
+                                   const char* responseCodeText,
+                                   const char* htmlBodyText,
+                                   HttpMessage*& response
+                                   );
+
+    static void testCgiRequest(const HttpRequestContext& requestContext,
+                               const HttpMessage& request,
+                               HttpMessage*& response
+                               );
+
+    static void constructFileList(UtlString & indexText,
+                                  UtlString uri,
+                                  UtlString uriFilename
+                                  );
 
     void processPutRequest(const HttpRequestContext& requestContext,
                            const HttpMessage& request,
-                           HttpMessage*& response);
+                           HttpMessage*& response
+                           );
 
-    void getFile(const char* fileName, HttpBody*& body);
+    void getFile(const char* fileName,
+                 HttpBody*& body
+                 );
 
-    void putFile(const char* fileName, HttpBody& body);
+    void putFile(const char* fileName,
+                 HttpBody& body
+                 );
 
     UtlBoolean findRequestProcessor(const char* fileUri,
                                     RequestProcessor*& requestProcessor
                                     );
 
-    UtlBoolean findHttpService(const char* fileUri, HttpService*& service);
+    UtlBoolean findHttpService(const char* fileUri,
+                               HttpService*& service
+                               );
 
     void loadValidIpAddrList();
     
-/* //////////////////////////// PRIVATE /////////////////////////////////// */
-private:
-   HttpServer(const HttpServer& rHttpServer);
-     //:Copy constructor (disabled)
-   HttpServer& operator=(const HttpServer& rhs);
-     //:Assignment operator (disabled)
-   OsStatus httpStatus;
-   int mServerPort;
+   static const int MAX_PERSISTENT_HTTP_CONNECTIONS;
+
+   OsStatus        httpStatus;
+   int             mServerPort;
    OsServerSocket* mpServerSocket;
-   OsConfigDb * mpUserPasswordDigestDb;
-   OsConfigDb * mpUserPasswordBasicDb;
-   OsConfigDb * mpValidIpAddressDB;
-   OsConfigDb mUriMaps;
-   OsConfigDb * mpNonceDb;
-   UtlString mRealm;
-   UtlHashMap mRequestProcessorMethods;
-   UtlHashMap mHttpServices;
-   bool       mAllowMappedFiles;
-   UtlHashBag mValidIpAddrList;
-   UtlBoolean mbPersistentConnection;
-   int mHttpConnections;
-   UtlSList* mpHttpConnectionList;
+   OsConfigDb*     mpValidIpAddressDB;
+   UtlHashMap      mUriMaps;
+   UtlHashMap      mRequestProcessorMethods;
+   UtlHashMap      mHttpServices;
+   bool            mAllowMappedFiles;
+   UtlHashBag      mValidIpAddrList;
+   UtlBoolean      mbPersistentConnection;
+   int             mHttpConnections;
+   UtlSList*       mpHttpConnectionList;
+
+   // @cond INCLUDENOCOPY
+   // There is no copy constructor.
+   HttpServer(const HttpServer& rHttpServer);
+   // There is no assignment operator.
+   HttpServer& operator=(const HttpServer& rhs);
+   // @endcond
+
 };
 
 /* ============================ INLINE METHODS ============================ */

@@ -31,6 +31,7 @@ testsuite_SOURCES = \
     net/NetMd5CodecTest.cpp \
     net/HttpBodyTest.cpp \
     net/HttpMessageTest.cpp \
+    net/HttpServerTest.cpp \
     net/SipMessageTest.cpp \
     net/SdpBodyTest.cpp \
     net/SignedUrlTest.cpp \

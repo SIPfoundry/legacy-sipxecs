@@ -75,14 +75,6 @@ public:
         const UtlString workingDir,
         const char* configFileName);
 
-    static HttpServer* initHttpServer(
-        int httpServerPort,
-        const UtlString& bindIp,
-        const UtlBoolean& isSecureServer,
-        const UtlString& authRealm,
-        OsConfigDb* pUserPasswordDigestDb,
-        OsConfigDb* pValidIpAddressDB );
-
     static StatusServer* getInstance();
     // Singleton constructor/accessor
     // Note: this class does not need to be a singleton.  The only method that
@@ -128,6 +120,7 @@ private:
     UtlString mlocalDomainHost;
 
     PluginXmlParser mPluginTable;
+    OsServerSocket* mpServerSocket;
     HttpServer* mHttpServer;
 
     // Private constructor for singleton implementation
@@ -141,6 +134,7 @@ private:
         const UtlString& defaultAuthQop,
         const UtlString& defaultRealm,
         const UtlString& configDir,
+        OsServerSocket* serverSocket,
         HttpServer* httpServer );
 
     /// Start the thread that periodically persists the subscription DB

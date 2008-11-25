@@ -83,12 +83,23 @@ public:
 
 /* ============================ CREATORS ================================== */
 
-   /// Create a dispatch object.
+   /// Create an XML-RPC dispatcher on an existing HttpServer.
+   XmlRpcDispatch(HttpServer* httpServer,       ///< existing HttpServer this XML RPC should use
+                  const char* uriPath = DEFAULT_URL_PATH ///< uri path
+                  );
+   /**<
+    * This is the preferred constructor.
+    */
+
+   /// Create an XML-RPC dispatcher that starts and manages its own HttpServer.
    XmlRpcDispatch(int httpServerPort,           ///< port number for HttpServer
                   bool isSecureServer,          ///< option for HTTP or HTTPS
                   const char* uriPath = DEFAULT_URL_PATH,         ///< uri path
                   const char* bindIp = NULL     /// Default bind IP
                   );
+   /**<
+    * @deprecated Use the preferred constructor above for any new usages.
+    */
 
    /// Destructor.
    virtual ~XmlRpcDispatch();
@@ -135,13 +146,17 @@ private:
    /// Http server for handling the HTTP POST request  
    HttpServer* mpHttpServer;
    
-   /// hash map for holding all registered XML-RPC methods
-   UtlHashMap  mMethods;
-   
-   /// reader/writer lock for synchronization
+   UtlHashMap  mMethods; /**< Map of the registered XML-RPC methods
+                          *   Key is a UtlString of the method name,
+                          *   Value is an XmlRpcMethodContainer
+                          */
+
+   /// Synchronizes 
    OsBSem mLock;
 
-
+   /// whether or not the HttpServer should be shut down and deleted in the destructor.
+   bool mManageHttpServer;
+   
    /// Disabled copy constructor
    XmlRpcDispatch(const XmlRpcDispatch& rXmlRpcDispatch);
 

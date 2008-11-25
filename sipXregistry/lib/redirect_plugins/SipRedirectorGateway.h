@@ -119,6 +119,9 @@ class SipRedirectorGateway : public RedirectPlugin
    // True if the maps have been modified but not written out.
    UtlBoolean mMapsModified;
 
+   // Socket for the HTTP server
+   OsServerSocket* mpSocket;
+   
    // HTTP server for creating further mappings.
    HttpServer* mpServer;
 

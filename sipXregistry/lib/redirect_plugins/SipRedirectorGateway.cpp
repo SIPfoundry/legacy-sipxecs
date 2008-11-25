@@ -158,9 +158,8 @@ SipRedirectorGateway::initialize(OsConfigDb& configDb,
       loadMappings(&mMappingFileName, &mMapUserToContacts, &mMapContactsToUser);
 
       // Set up the HTTP server on socket mPort.
-      OsServerSocket* socket = new OsServerSocket(50, mPort);
-      mpServer = new HttpServer(socket, NULL, NULL, NULL);
-      mpServer->allowFileAccess(false);
+      mpSocket = new OsServerSocket(50, mPort);
+      mpServer = new HttpServer(socket);
       mpServer->addRequestProcessor("/map.html", &displayForm);
       mpServer->start();
 

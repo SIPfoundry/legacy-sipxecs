@@ -41,11 +41,11 @@ HttpRequestContext::HttpRequestContext(const char* requestMethod,
                                        const char* mappedFile,
                                        const char* serverName,
                                        const char* userId,
-                                       const OsConnectionSocket* connection
+                                       OsConnectionSocket* connection
                                        )
-   : mUsingInsensitive(false),
-     mConnectionEncrypted(false),
-     mPeerCertTrusted(false)
+   : mUsingInsensitive(false)
+   , mPeerCertTrusted(false)
+   , mConnection(connection)
 {
    if(requestMethod)
    {
@@ -82,10 +82,9 @@ HttpRequestContext::HttpRequestContext(const char* requestMethod,
        mEnvironmentVars[HTTP_ENV_USER].append(userId);
    }
 
-   if (connection)
+   if (mConnection)
    {
-      mConnectionEncrypted = connection->isEncrypted();
-      mPeerCertTrusted = connection->peerIdentity(&mPeerIdentities);
+      mPeerCertTrusted = mConnection->peerIdentity(&mPeerIdentities);
       OsSysLog::add(FAC_SIP, PRI_DEBUG,
                     "HttpRequestContext::_( connection=%p ) %s",
                     connection, mPeerCertTrusted ? "Cert Trusted" : "Cert Not Trusted"
@@ -139,7 +138,7 @@ HttpRequestContext::HttpRequestContext(const HttpRequestContext& rHttpRequestCon
    }
    while (nameValuePair != NULL);
 
-   mConnectionEncrypted = rHttpRequestContext.mConnectionEncrypted;
+   mConnection = rHttpRequestContext.mConnection;
    mPeerCertTrusted = rHttpRequestContext.mPeerCertTrusted;
    if ( mPeerCertTrusted )
    {
@@ -215,7 +214,7 @@ HttpRequestContext::operator=(const HttpRequestContext& rhs)
       while (nameValuePair != NULL);
    }
 
-   mConnectionEncrypted = rhs.mConnectionEncrypted;
+   mConnection = rhs.mConnection;
    mPeerCertTrusted = rhs.mPeerCertTrusted;
    if ( mPeerCertTrusted )
    {
@@ -240,7 +239,15 @@ void HttpRequestContext::extractPostCgiVariables(const HttpBody& body)
     bodyBytes.remove(0);
 }
 
-/* ============================ ACCESSORS ================================= */
+bool HttpRequestContext::methodIs(const char* method) const
+{
+   return (0 == mEnvironmentVars[HTTP_ENV_REQUEST_METHOD].compareTo(method, UtlString::ignoreCase));
+}
+
+void HttpRequestContext::getMappedPath(UtlString& path) const
+{
+   path = mEnvironmentVars[HTTP_ENV_MAPPED_FILE];
+}
 
 void HttpRequestContext::getEnvironmentVariable(enum RequestEnvironmentVariables envVariable,
                             UtlString& value) const
@@ -343,15 +350,9 @@ UtlBoolean HttpRequestContext::getCgiVariable(int index, UtlString& name, UtlStr
 
 /* ============================ INQUIRY =================================== */
 
-/* //////////////////////////// PROTECTED ///////////////////////////////// */
-
-/* //////////////////////////// PRIVATE /////////////////////////////////// */
-
 void HttpRequestContext::parseCgiVariables(const char* queryString)
 {
-        parseCgiVariables(queryString, mCgiVariableList,
-                "&",
-                "=");
+   parseCgiVariables(queryString, mCgiVariableList, "&", "=");
 }
 
 void HttpRequestContext::parseCgiVariables(const char* queryString,
@@ -478,7 +479,7 @@ void HttpRequestContext::parseCgiVariables(const char* queryString,
 /// Test whether or not the client connection is encrypted.
 bool HttpRequestContext::isEncrypted() const
 {
-   return mConnectionEncrypted;
+   return mConnection ? mConnection->isEncrypted() : false;
 }
 
 
@@ -512,3 +513,10 @@ bool HttpRequestContext::isTrustedPeer( const UtlString& peername ) const
    normalizedPeer.toLower();   // this may not always be correct when peers use idns
    return mPeerCertTrusted && mPeerIdentities.contains(&normalizedPeer);
 }
+
+/// Direct access to socket for the request.
+OsConnectionSocket* HttpRequestContext::socket() const
+{
+   return mConnection;
+}
+

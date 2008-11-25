@@ -62,6 +62,7 @@ StatusServer::StatusServer(
     const UtlString& defaultAuthQop,
     const UtlString& defaultRealm,
     const UtlString& configDir,
+    OsServerSocket* serverSocket,
     HttpServer* httpServer) :
     OsServerTask("StatusServer", NULL, 2000),
     mNotifier(NULL),
@@ -69,6 +70,7 @@ StatusServer::StatusServer(
     mSubscribeServerThreadQ(NULL),
     mSubscribeThreadInitialized(FALSE),
     mSubscribePersistThread(NULL),
+    mpServerSocket(serverSocket),
     mHttpServer(httpServer)
 {
     mConfigDirectory.remove(0);
@@ -134,6 +136,8 @@ StatusServer::StatusServer(
     // Start Webserver and initialize the CGIs
     WebServer::getWebServerTask(&mPluginTable)->initWebServer(mHttpServer) ;
 
+    mHttpServer->start();
+
     startSubscribePersistThread();
     startSubscribeServerThread();
 }
@@ -164,6 +168,14 @@ StatusServer::~StatusServer()
       delete mHttpServer;
       mHttpServer = NULL;
    }
+
+   if (mpServerSocket)
+   {
+      // already closed by HttpServer
+      delete mpServerSocket;
+      mpServerSocket = NULL;
+   }
+   
    if( mNotifier)
    {
       delete mNotifier;
@@ -330,17 +342,7 @@ StatusServer::startStatusServer (
     }
     OsSysLog::add(FAC_SIP, PRI_INFO, "SIP_STATUS_BIND_IP : %s", bindIp.data());
         
-    // Get the HTTP server authentication database
     UtlString separatedList;
-    OsConfigDb* pUserPasswordDigestDb = new OsConfigDb();
-    sConfigDb.get("SIP_STATUS_HTTP_AUTH_DB", separatedList);
-    parseList ("SIP_STATUS_HTTP_AUTH_DB", separatedList, *pUserPasswordDigestDb );
-    if( pUserPasswordDigestDb->isEmpty() )
-    {
-        delete pUserPasswordDigestDb;
-        pUserPasswordDigestDb = NULL;
-    }
-
     // Get the HTTP server Valid IP address database
     OsConfigDb* pValidIpAddressDB = new OsConfigDb();
     sConfigDb.get("SIP_STATUS_HTTP_VALID_IPS", separatedList);
@@ -385,7 +387,7 @@ StatusServer::startStatusServer (
     // SIP_STATUS_AUTHENTICATE_REALM
     if(authRealm.isNull())
     {
-        authRealm.append(domainName);
+       authRealm.append(domainName);
     }
     OsSysLog::add(FAC_SIP, PRI_INFO,
                   "SIP_STATUS_AUTHENTICATE_REALM : %s", 
@@ -394,7 +396,7 @@ StatusServer::startStatusServer (
     // SIP_STATUS_AUTHENTICATE_SCHEME (Hidden) NONE/DIGEST
     if ( authScheme.compareTo("NONE" , UtlString::ignoreCase) == 0 ) 
     {
-        isCredentialDB = FALSE;
+       isCredentialDB = FALSE;
     }
 
     // SIP_STATUS_HTTPS_PORT - See if the SECURE one is set first
@@ -480,16 +482,38 @@ StatusServer::startStatusServer (
 
     int webServerPort = portIsValid(httpsPort) ? httpsPort : httpPort;
     UtlBoolean isSecureServer = portIsValid(httpsPort);
-    // Start the HTTP server
-    HttpServer* httpServer = 
-        initHttpServer(
-            webServerPort,
-            bindIp,
-            isSecureServer,
-            authRealm,
-            pUserPasswordDigestDb,
-            pValidIpAddressDB );
 
+    // Determine whether we should start the web server or not.  Use the port
+    // value as the decision point.  A valid port means enable. 
+    // If isSecureServer then start the port as a secure web server.
+    OsServerSocket* serverSocket = NULL;
+    HttpServer*     httpServer = NULL;
+    if( portIsValid(webServerPort) )
+    {
+       if ( isSecureServer )
+       {
+#         ifdef HAVE_SSL
+          serverSocket = new OsSSLServerSocket(50, webServerPort, bindIp);
+          httpServer = new HttpServer(serverSocket, 
+                                      pValidIpAddressDB,
+                                      false /* no persistent tcp connection */);
+#         else /* ! HAVE_SSL */
+          // SSL is not configured in, so we cannot open the requested
+          // socket.
+          OsSysLog::add(FAC_SIP, PRI_CRIT,
+                        "StatusServer::startStatusServer SSL not configured; "
+                        "cannot open secure socket %d", webServerPort);
+          httpServer = NULL;
+#         endif /* HAVE_SSL */
+       }
+       else
+       {
+          serverSocket = new OsServerSocket(50, webServerPort, bindIp);
+          httpServer = new HttpServer(serverSocket, 
+                                      pValidIpAddressDB );
+       }
+    }
+    
     // Start the SIP stack
     SipUserAgent* sipUserAgent = 
         new SipUserAgent( 
@@ -538,6 +562,7 @@ StatusServer::startStatusServer (
                 authQop,
                 authRealm,
                 workingDir,
+                serverSocket,
                 httpServer);
     status->start();
     return(status);
@@ -648,88 +673,6 @@ StatusServer::sendToSubscribeServerThread(OsMsg& eventMessage)
     {
         mSubscribeServerThreadQ->send(eventMessage);
     }
-}
-
-HttpServer* 
-StatusServer::initHttpServer (
-    int httpServerPort,
-    const UtlString& bindIp,
-    const UtlBoolean& isSecureServer,
-    const UtlString& authRealm,
-    OsConfigDb* pUserPasswordDigestDb,
-    OsConfigDb* pValidIpAddressDB )
-{
-    UtlString osBaseUriDirectory ;
-    HttpServer* httpServer = NULL;
-
-    OsPath workingDirectory;
-    if ( OsFileSystem::exists( HTTP_SERVER_ROOT_DIR ) )
-    {
-        workingDirectory = HTTP_SERVER_ROOT_DIR;
-        OsPath path(workingDirectory);
-        path.getNativePath(workingDirectory);
-    } else
-    {
-        OsPath path;
-        OsFileSystem::getWorkingDirectory(path);
-        path.getNativePath(workingDirectory);
-    }
-
-    osBaseUriDirectory =  workingDirectory + OsPathBase::separator;
-
-    // Determine whether we should start the web server or not.  Use the port
-    // value as the decision point.  A valid port means enable. 
-    // If isSecureServer then start the port as a secure web server.
-    // 
-    if( portIsValid(httpServerPort) )
-    {
-        OsSysLog::add(FAC_SIP, PRI_INFO,
-                      "Starting Embedded Web Server on %s:%d...",
-                      bindIp.data(), httpServerPort);
-
-        OsServerSocket *pServerSocket = NULL;  
-
-        if ( isSecureServer )
-        {
-#ifdef HAVE_SSL
-            pServerSocket = new OsSSLServerSocket(50, httpServerPort, bindIp);
-            httpServer = new HttpServer(
-                pServerSocket, 
-                pUserPasswordDigestDb,
-                authRealm, 
-                pValidIpAddressDB,
-                false /* no persistent tcp connection */
-                                        );
-#else /* ! HAVE_SSL */
-            // SSL is not configured in, so we cannot open the requested
-            // socket.
-            OsSysLog::add(FAC_SIP, PRI_CRIT,
-                          "StatusServer::initHttpServer SSL not configured; "
-                          "cannot open secure socket %d", httpServerPort);
-            httpServer = NULL;
-#endif /* HAVE_SSL */
-        }
-	else
-        {
-            pServerSocket = new OsServerSocket(50, httpServerPort, bindIp);
-            httpServer = new HttpServer(
-                pServerSocket, 
-                pUserPasswordDigestDb,
-                authRealm, 
-                pValidIpAddressDB );
-        }
-        if (httpServer)
-        {
-           // Set the web server root to the current directory
-           httpServer->addUriMap( "/", osBaseUriDirectory.data() );
-        }
-    }
-
-    if( httpServer )
-    {   // Method to post files to WebServer for processing MWI events
-        httpServer->start();
-    }
-    return httpServer;
 }
 
 void 

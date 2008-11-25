@@ -43,11 +43,16 @@
 #include <net/HttpRequestContext.h>
 #include <net/NetAttributeTokenizer.h>
 #include <net/NetMd5Codec.h>
+#include <utl/UtlHashMap.h>
+#include <utl/UtlHashMapIterator.h>
 #include <utl/UtlSListIterator.h>
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
+
+const int HttpServer::MAX_PERSISTENT_HTTP_CONNECTIONS = 5; ///< this should be a parameter
+
 #ifdef _VXWORKS
 #   define O_BINARY 0
 #   define S_IREAD 0
@@ -73,18 +78,14 @@ void incrementalCheckSum(unsigned int* checkSum, const char* buffer, ssize_t buf
 /* ============================ CREATORS ================================== */
 
 // Constructor
-HttpServer::HttpServer(OsServerSocket *pSocket, OsConfigDb* userPasswordDb,
-                       const char* realm, OsConfigDb* validIpAddressDB,
+HttpServer::HttpServer(OsServerSocket *pSocket,
+                       OsConfigDb* validIpAddressDB,
                        bool bPersistentConnection) :
    OsTask("HttpServer-%d"),
    httpStatus(OS_TASK_NOT_STARTED),
    mpServerSocket(pSocket),
-   mpUserPasswordDigestDb(NULL),
-   mpUserPasswordBasicDb(userPasswordDb),
    mpValidIpAddressDB(validIpAddressDB),
-   mpNonceDb(new OsConfigDb),
-   mRealm(realm),
-   mAllowMappedFiles(true), // :TODO: should be false, but allow now for backward compatibility
+   mAllowMappedFiles(false),
    mbPersistentConnection(bPersistentConnection),
    mHttpConnections(0),
    mpHttpConnectionList(new UtlSList)
@@ -94,15 +95,10 @@ HttpServer::HttpServer(OsServerSocket *pSocket, OsConfigDb* userPasswordDb,
       loadValidIpAddrList();
    }
 
-   if (!mpNonceDb)
-   {
-      OsSysLog::add( FAC_SIP, PRI_ERR, "HttpServer failed to allocate mpNonceDb");
-   }
-   
    if (!mpHttpConnectionList)
    {
       mbPersistentConnection = false;
-      OsSysLog::add( FAC_SIP, PRI_ERR, "HttpServer failed to allocate mpHttpConnectionList");
+      OsSysLog::add( FAC_SIP, PRI_CRIT, "HttpServer failed to allocate mpHttpConnectionList");
    }
    else
    {
@@ -155,23 +151,7 @@ HttpServer::~HttpServer()
     // Wait until run exits before clobbering members
     waitUntilShutDown();
 
-    if(mpServerSocket)
-    {
-       delete mpServerSocket;
-       mpServerSocket = NULL;
-    }
-    
-    if(mpUserPasswordDigestDb)
-    {
-       delete mpUserPasswordDigestDb;
-       mpUserPasswordDigestDb = NULL;
-    }
-
-    if(mpUserPasswordBasicDb)
-    {
-       delete mpUserPasswordBasicDb;
-       mpUserPasswordBasicDb = NULL;
-    }
+    /// mpServerSocket is not deleted - the caller of the constructor owns it
     
     if(mpValidIpAddressDB)
     {
@@ -180,15 +160,20 @@ HttpServer::~HttpServer()
        mValidIpAddrList.destroyAll();
     }
 
-    if(mpNonceDb)
+    mUriMaps.destroyAll();                 // Delete all of the Url mappings
+    mRequestProcessorMethods.destroyAll(); // Delete all of the processor mappings
+
+    if (!mHttpServices.isEmpty())
     {
-       delete mpNonceDb;
-       mpNonceDb = NULL;
+       UtlHashMapIterator httpServices(mHttpServices);
+       UtlString* serviceUri;
+       while ((serviceUri = dynamic_cast<UtlString*>(httpServices())))
+       {
+          delete mHttpServices.removeReference(serviceUri); // remove and delete service path
+          // don't delete the value - that is owned by the caller who added it.
+       }
     }
 
-    // Delete all of the processor mappings
-    mRequestProcessorMethods.destroyAll();
-    
     // Delete remaining HttpConnections
     if (mpHttpConnectionList)
     {
@@ -288,8 +273,10 @@ int HttpServer::run(void* runArg)
                 }
                 else
                 {
-                   OsSysLog::add(FAC_SIP, PRI_WARNING,
-                                  "HttpServer::run out of persistent connections - sending 503");
+                   OsSysLog::add(FAC_SIP, PRI_ERR,
+                                 "HttpServer::run exceeded persistent connection limit (%d):"
+                                 " sending 503",
+                                 MAX_PERSISTENT_HTTP_CONNECTIONS);
                     HttpMessage request;
                     HttpMessage response;
                     // Read the http request from the socket
@@ -351,162 +338,6 @@ int HttpServer::run(void* runArg)
     return(TRUE);
 }
 
-
-UtlBoolean HttpServer::isRequestAuthorized(const HttpMessage& request,
-                                HttpMessage*& response,
-                                UtlString& userId)
-{
-    UtlBoolean allowRequest = FALSE;
-    if( mpUserPasswordDigestDb == NULL && mpUserPasswordBasicDb == NULL)
-    {
-       allowRequest = TRUE;
-       return allowRequest;
-    }
-
-    // If digest authentication is enabled
-    else if(mpUserPasswordDigestDb && !mpUserPasswordDigestDb->isEmpty())
-    {
-        UtlString user;
-        UtlString nonce;
-        UtlString nonceKey;
-        char nonceSecret[20];
-        
-        request.getDigestAuthorizationData(&user, NULL,
-                                                  NULL, &nonceKey);
-        UtlString userPasswordDigest;
-
-        mpUserPasswordDigestDb->get(user.data(), userPasswordDigest);
-
-        // Get the nonce for the user/URI pair
-        if(!user.isNull())
-        {
-            mpNonceDb->get(nonceKey.data(), nonce);
-
-            // Remove the nonce from the database, so that it cannot be re-used
-            mpNonceDb->remove(nonceKey.data());
-        }
-
-        // If the user is setup for a password
-        if(!userPasswordDigest.isNull() &&
-            request.verifyMd5Authorization(userPasswordDigest.data(),
-                                     nonce))
-        {
-            allowRequest = TRUE;
-            userId = user;
-        }
-
-        // Generate the authorization error response
-        if(!allowRequest)
-        {
-            // Create the nonce
-            request.getRequestUri(&nonceKey);
-            nonceKey.insert(0, ':');
-            sprintf(nonceSecret, "%d", rand());
-            nonceKey.insert(0, nonceSecret);
-
-            UtlString nonceSeed;
-            sprintf(nonceSecret, "%d",rand());
-            nonceSeed = nonceKey;
-            nonceSeed.append(nonceSecret);
-            NetMd5Codec::encode(nonceSeed.data(), nonce);
-
-            // Add it to the database for when the authorized request comes in
-            mpNonceDb->set(nonceKey.data(), nonce.data());
-
-            // Create the response
-            UtlString hostIp;
-            OsSocket::getHostIp(&hostIp);
-            response = new HttpMessage();
-            response->setRequestUnauthorized(&request,
-                                HTTP_DIGEST_AUTHENTICATION,
-                                mRealm.data(),
-                                nonce.data(),
-                                nonceKey.data(), // authenticationOpaque
-                                hostIp.data()); // domain
-
-                        const char* text = "Unauthorized request";
-            HttpBody* body = new HttpBody(text, -1, CONTENT_TYPE_TEXT_PLAIN);
-            response->setBody(body);
-            response->setContentType(CONTENT_TYPE_TEXT_PLAIN);
-            response->setContentLength(strlen(text));
-                                nonceSeed.remove(0);
-                                hostIp.remove(0);
-        }
-        user.remove(0);
-        nonce.remove(0);
-        nonceKey.remove(0);
-        userPasswordDigest.remove(0);
-    }
-    else if(mpUserPasswordBasicDb && !mpUserPasswordBasicDb->isEmpty())
-    {
-        UtlString user;
-        UtlString msgPassword;
-        UtlString dbPassword;
-
-        request.getBasicAuthorizationData(&user, &msgPassword);
-
-        OsStatus userFound = mpUserPasswordBasicDb->get(user.data(),
-            dbPassword);
-
-
-        // Passwords stored as digest in user-config.
-        // Must convert passwords to encrypted ones also
-        UtlString digestPassword ;
-        UtlString realm(PASSWORD_SECRET) ;
-        HttpMessage::buildMd5UserPasswordDigest((const char*) user.data(),
-                                                (const char*) realm.data(),
-                                                (const char*) msgPassword.data(),
-                                                digestPassword) ;
-
-
-        // The user does not exist or passwords do not match
-        if(userFound != OS_SUCCESS ||
-            user.isNull() ||
-            dbPassword.compareTo(digestPassword) != 0)
-        {
-            allowRequest = FALSE;
-
-            // Generate a unauthorized response
-            UtlString hostIp;
-            OsSocket::getHostIp(&hostIp);
-            response = new HttpMessage();
-            response->setRequestUnauthorized(&request,
-                                HTTP_BASIC_AUTHENTICATION,
-                                mRealm.data(),
-                                NULL, // nonce
-                                NULL, // authenticationOpaque
-                                hostIp.data()); // domain
-
-                        const char *text = "Unauthorized request";
-            HttpBody* body = new HttpBody(text, -1, CONTENT_TYPE_TEXT_PLAIN);
-            response->setBody(body);
-            response->setContentType(CONTENT_TYPE_TEXT_PLAIN);
-            response->setContentLength(strlen(text));
-
-                                hostIp.remove(0);
-        }
-
-        // The password matches
-        else
-        {
-            allowRequest = TRUE;
-            userId = user;
-        }
-        user.remove(0);
-        msgPassword.remove(0);
-        dbPassword.remove(0);
-        digestPassword.remove(0);
-        realm.remove(0);
-    }
-    else
-    {
-       // AJS - Disabled unauthorized access for 0.8.0
-       allowRequest = FALSE;
-    }
-
-    return(allowRequest);
-}
-
 UtlBoolean HttpServer::processRequestIpAddr(const UtlString& remoteIp,
                                       const HttpMessage& request,
                                       HttpMessage*& response)
@@ -525,7 +356,8 @@ UtlBoolean HttpServer::processRequestIpAddr(const UtlString& remoteIp,
       response->setResponseFirstHeaderLine(HTTP_PROTOCOL_VERSION,
       HTTP_FORBIDDEN_CODE, HTTP_FORBIDDEN_TEXT);
 
-      OsSysLog::add(FAC_SIP, PRI_INFO, "HTTP Request from IP address: %s disallowed",
+      OsSysLog::add(FAC_SIP, PRI_WARNING,
+                    "HTTP Request from non-allowed IP address: %s disallowed",
                     remoteAddress.data());
 
    }
@@ -534,19 +366,19 @@ UtlBoolean HttpServer::processRequestIpAddr(const UtlString& remoteIp,
 
 void HttpServer::processRequest(const HttpMessage& request,
                                 HttpMessage*& response,
-                                const OsConnectionSocket* connection
+                                OsConnectionSocket* connection
                                 )
 {
     UtlString method;
     response = NULL;
-    UtlString userId;
 
-    if(isRequestAuthorized(request, response, userId))
+    if(true) // used to be authorization check, but I don't want to change all indenting
     {
         request.getRequestMethod(&method);
         method.toUpper();
         UtlString uri;
         request.getRequestUri(&uri);
+
         UtlString uriFileName(uri);
         ssize_t fileNameEnd = -1;
         if(method.compareTo(HTTP_GET_METHOD) == 0)
@@ -559,38 +391,33 @@ void HttpServer::processRequest(const HttpMessage& request,
         }
 
         UtlString mappedUriFileName;
-        ssize_t badCharsIndex = uriFileName.index("..");
-        if(badCharsIndex < 0)
-        {
-           badCharsIndex = uriFileName.index("//");
-        }
-        if(badCharsIndex >= 0)
+        if (uriFileName.contains(".."))
         {
             OsSysLog::add(FAC_SIP, PRI_ERR, "HttpServer::processRequest "
-                          "Disallowing URI: \"%s\"", uriFileName.data());
+                          "Disallowing URI: '%s'", uriFileName.data());
 
             // Disallow relative path names going up for security reasons
             mappedUriFileName.append("/");
         }
         else
         {
+            OsSysLog::add(FAC_SIP, PRI_INFO, "HttpServer::processRequest "
+                          "%s '%s'", method.data(), uriFileName.data());
+
             // Map the file name
             mapUri(mUriMaps, uriFileName.data(), mappedUriFileName);
         }
-
-        OsSysLog::add(FAC_SIP, PRI_DEBUG, "HTTP '%s' '%s' mapped to: '%s'",
-                      method.data(), uriFileName.data(), mappedUriFileName.data());
 
         // Build the request context
         HttpRequestContext requestContext(method.data(),
                                           uri.data(),
                                           mappedUriFileName.data(),
                                           NULL,
-                                          !userId.isNull() ? userId.data() : NULL,
+                                          NULL, // was userid
                                           connection
                                           );
 
-        if(method.compareTo(HTTP_POST_METHOD) == 0)
+        if(requestContext.methodIs(HTTP_POST_METHOD))
         {
             //Need to get the CGI/form variables from the body.
             const HttpBody* body = request.getBody();
@@ -600,8 +427,8 @@ void HttpServer::processRequest(const HttpMessage& request,
             }
         }
 
-        if(   method.compareTo(HTTP_GET_METHOD) == 0
-           || method.compareTo(HTTP_POST_METHOD) == 0
+        if(   requestContext.methodIs(HTTP_GET_METHOD)
+           || requestContext.methodIs(HTTP_POST_METHOD)
            )
         {
             // If there is a request processor for this URI
@@ -631,7 +458,7 @@ void HttpServer::processRequest(const HttpMessage& request,
                 }
             }
         }
-        else if(method.compareTo(HTTP_PUT_METHOD) == 0)
+        else if(requestContext.methodIs(HTTP_PUT_METHOD))
         {
             processPutRequest(requestContext, request, response);
         }
@@ -1259,35 +1086,6 @@ void HttpServer::processFileNotFound(const HttpRequestContext& requestContext,
     response->setContentLength(strlen(text));
 }
 
-void HttpServer::processUserNotAuthorized(const HttpRequestContext& requestContext,
-                                     const HttpMessage& request,
-                                     HttpMessage*& response,
-                                     const char* text)
-{
-
-    UtlString hostIp;
-    OsSocket::getHostIp(&hostIp);
-
-        response = new HttpMessage();
-    response->setRequestUnauthorized(&request,
-                        HTTP_BASIC_AUTHENTICATION,
-                        NULL, // realm
-                        NULL, // nonce
-                        NULL, // authenticationOpaque
-                        hostIp.data()); // domain
-        //char* text = "<HTML><BODY>User Not Authorized</BODY></HTML>\n";
-
-        if (text == 0) {
-                text = "<HTML><BODY>User Not Authorized</BODY></HTML>\n";
-        }
-
-    HttpBody* body = new HttpBody(text, -1 ,
-        CONTENT_TYPE_TEXT_HTML);
-    response->setBody(body);
-    response->setContentType(CONTENT_TYPE_TEXT_HTML);
-    response->setContentLength(strlen(text));
-        hostIp.remove(0);
-}
 
 void HttpServer::testCgiRequest(const HttpRequestContext& requestContext,
                                 const HttpMessage& request,
@@ -1385,10 +1183,31 @@ void HttpServer::createHtmlResponse(int responseCode, const char* responseCodeTe
 
 void HttpServer::addUriMap(const char* fromUri, const char* toUri)
 {
-   OsSysLog::add(FAC_SIP, PRI_DEBUG, "HttpServer::addUriMap '%s' to '%s'",
-                 fromUri, toUri);
-   
-    mUriMaps.set(fromUri, toUri);
+   if ( '/' == *fromUri && '/' == *toUri )
+   {
+      UtlString* fromPath = new UtlString(fromUri);
+      UtlString* toPath   = new UtlString(toUri);
+      if (mUriMaps.insertKeyAndValue(fromPath, toPath))
+      {
+         OsSysLog::add(FAC_SIP, PRI_DEBUG, "HttpServer::addUriMap added '%s' to '%s'",
+                       fromUri, toUri);
+      }
+      else
+      {
+         OsSysLog::add(FAC_SIP, PRI_CRIT, "HttpServer::addUriMap conflict with '%s' to '%s'",
+                       fromUri, toUri);
+         assert(false);
+         delete fromPath;
+         delete toPath;
+      }
+   }
+   else
+   {
+      OsSysLog::add(FAC_SIP, PRI_CRIT, "HttpServer::addUriMap invalid mapping '%s' to '%s'\n"
+                    "   both from and to must begin with '/'" ,
+                    fromUri, toUri);
+      assert(false);
+   }
 }
 
 void HttpServer::addRequestProcessor(const char* fileUrl,
@@ -1411,82 +1230,9 @@ void HttpServer::addHttpService(const char* fileUrl, HttpService* service)
                  fileUrl, service);
 
    UtlString* name = new UtlString(fileUrl);
-    UtlVoidPtr* value = new UtlVoidPtr(service);
-    mHttpServices.insertKeyAndValue(name, value);
+   mHttpServices.insertKeyAndValue(name, service);
 }
 
-/* ============================ ACCESSORS ================================= */
-
-void HttpServer::setPasswordDigest(const char* user, const char* password,
-                                   UtlString& userPasswordDigest)
-{
-    userPasswordDigest.remove(0);
-    if(user && *user && mpUserPasswordDigestDb)
-    {
-
-        HttpMessage::buildMd5UserPasswordDigest(user, mRealm, password,
-            userPasswordDigest);
-        mpUserPasswordDigestDb->set(user, userPasswordDigest.data());
-
-        }
-
-    else if(user && *user && password && mpUserPasswordBasicDb)
-    {
-                // Basic Digest uses encrypted password in user-config
-        HttpMessage::buildMd5UserPasswordDigest(user, mRealm, password,
-            userPasswordDigest);
-        mpUserPasswordBasicDb->set(user, userPasswordDigest.data());
-        userPasswordDigest = password;
-
-    }
-}
-
-/**
- * added by Pradeep:
- * This takes an already encrypted password and sets it as the new encrypted password.
- */
-void HttpServer::setPasswordDigest(const char* user, const char* passwordDigest)
-{
-
-        if(user && *user && mpUserPasswordDigestDb)
-    {
-                mpUserPasswordDigestDb->set(user, passwordDigest);
-        }
-        else if(user && *user && passwordDigest && mpUserPasswordBasicDb)
-    {
-                mpUserPasswordBasicDb->set(user, passwordDigest);
-    }
-
-
- }
-
-
-void HttpServer::getDigest(const char* user, const char* password,
-                                   UtlString& userPasswordDigest)
-{
-  HttpMessage::buildMd5UserPasswordDigest(user, mRealm, password,
-            userPasswordDigest);
-}
-
-void HttpServer::removeUser(const char* user, const char* password)
-{
-        UtlString strUser(user) ;
-    if(user && *user && mpUserPasswordDigestDb)
-    {
-        mpUserPasswordDigestDb->remove(strUser);
-    }
-
-    else if(user && *user && password && mpUserPasswordBasicDb)
-    {
-
-                  mpUserPasswordBasicDb->remove(strUser);
-    }
-        strUser.remove(0);
-}
-
-/* ============================ INQUIRY =================================== */
-
-/* //////////////////////////// PROTECTED ///////////////////////////////// */
 
 UtlBoolean HttpServer::findRequestProcessor(const char* fileUri,
                                             RequestProcessor* &requestProcessor
@@ -1508,68 +1254,110 @@ UtlBoolean HttpServer::findRequestProcessor(const char* fileUri,
 
 UtlBoolean HttpServer::findHttpService(const char* fileUri, HttpService*& pService)
 {
-    UtlString uriCollectable(fileUri);
-    UtlInt* processorCollectable;
-
-    processorCollectable =
-        (UtlInt*) mHttpServices.findValue(&uriCollectable);
-    if(processorCollectable)
+    UtlString path(fileUri);
+    pService = NULL;
+    
+    while (   !pService
+           && !path.isNull()
+           && !(pService = dynamic_cast<HttpService*>(mHttpServices.findValue(&path))))
     {
-        pService = (HttpService *) processorCollectable->getValue();
+       ssize_t lastSlash = path.last('/');;
+       if (lastSlash > 1)
+       {
+          path.remove(lastSlash); // take one level off (eg from "/xyz/abc" to "/xyz")
+       }
+       else
+       {
+          // we are either at "/xyz" or "/"
+          if (path.length() > 1)
+          {
+             path.remove(1); // reduce to just "/"
+          }
+          else
+          {
+             // path was "/" and no match found, so empty the string to exit search
+             path.remove(0);
+          }
+       }
     }
 
     return(pService != NULL);
 }
 
-UtlBoolean HttpServer::mapUri(OsConfigDb& uriMaps, const char* uri, UtlString& mappedUri)
+UtlBoolean HttpServer::mapUri(UtlHashMap& uriMaps, const char* uri, UtlString& mappedUri)
 {
     UtlBoolean mapFound = FALSE;
-
+    mappedUri.remove(0);
+    
     if(uri)
     {
         UtlString originalUri(uri);
         UtlString mapFromUri(uri);
-        UtlString mapToUri;
+        UtlString* mapToUri;
         ssize_t dirSeparatorIndex;
-
-        OsSysLog::add(FAC_SIP, PRI_DEBUG, "HttpServer::mapUri looking for \"%s\"",
-                      mapFromUri.data());
 
         do
         {
-            uriMaps.get(mapFromUri, mapToUri);
-            if(!mapToUri.isNull())
+            mapToUri = dynamic_cast<UtlString*>(uriMaps.findValue(&mapFromUri));
+            if(mapToUri)
             {
-                mappedUri.remove(0);
-                mappedUri.append(mapToUri.data());
-                if(mappedUri.data()[mappedUri.length() - 1] != '/' &&
-                    uri[mapFromUri.length()] != '/' &&
-                    mapFromUri.length() < originalUri.length())
+                mappedUri.append(mapToUri->data());
+                if (mapFromUri.length() < originalUri.length())
                 {
-                    // Need a directory seporator
-                    mappedUri.append('/');
+                   if(mappedUri.length() == 1)
+                   {
+                      // this is a mapping from some path to "/", so remove what we just added
+                      mappedUri.remove(0);
+                   }
+                   else if(   mappedUri.data()[mappedUri.length() - 1] != '/'
+                           && uri[mapFromUri.length()] != '/'
+                           )
+                   {
+                      // Need a directory separator
+                      mappedUri.append('/');
+                   }
+                   mappedUri.append(originalUri, mapFromUri.length(),
+                                    UtlString::UTLSTRING_TO_END);
                 }
-                mappedUri.append(&(originalUri.data()[mapFromUri.length()]));
+                else
+                {
+                   mappedUri.append(originalUri, mapFromUri.length(),
+                                    UtlString::UTLSTRING_TO_END);
+                }
                 mapFound = TRUE;
-                break;
-            }
-            dirSeparatorIndex = mapFromUri.last('/');
-            if(dirSeparatorIndex == 0 && mapFromUri.length() > 1)
-            {
-               mapFromUri.remove(1);
-            }
-            else if(dirSeparatorIndex >= 0)
-            {
-               mapFromUri.remove(dirSeparatorIndex);
             }
             else
             {
-               break;
+               dirSeparatorIndex = mapFromUri.last('/');
+               if(dirSeparatorIndex == 0 && mapFromUri.length() > 1)
+               {
+                  // we're down to "/string" - remove the "string"
+                  mapFromUri.remove(1);
+               }
+               else if(dirSeparatorIndex >= 0)
+               {
+                  // remove the topmost path and the separator
+                  mapFromUri.remove(dirSeparatorIndex);
+               }
+               else
+               {
+                  // no separator found - empty the from string to exit the loop
+                  mapFromUri.remove(0);
+               }
             }
-        } while(!mapFound && !mapFromUri.isNull() != 0);
+        } while(!mapFound && !mapFromUri.isNull());
+
+        if (!mapFound)
+        {
+           mappedUri.append(uri);
+        }
     }
 
-    OsSysLog::add(FAC_SIP, PRI_DEBUG, "Map to uri: \"%s\"", mappedUri.data());
+    OsSysLog::add(FAC_SIP,
+                  mapFound ? PRI_INFO : PRI_DEBUG,
+                  "HttpServer::mapUri %s '%s' -> '%s'",
+                  mapFound ? "mapped" : "no mapping",
+                  uri, mappedUri.data());
 
     return(mapFound);
 }

@@ -52,7 +52,7 @@ SipRedirectorMPT::SipRedirectorMPT(const UtlString& instanceName) :
 {
    mLogName.append("[");
    mLogName.append(instanceName);
-   mLogName.append("] SipRedirectorMPT);
+   mLogName.append("] SipRedirectorMPT");
 }
 
 // Destructor
@@ -86,10 +86,9 @@ SipRedirectorMPT::initialize(OsConfigDb& configDb,
    MPTredirector = this;
 
    // Set up the HTTP server on socket 65008.
-   OsServerSocket* socket = new OsServerSocket(50, 65008);
-   mpServer = new HttpServer(socket, NULL, NULL, NULL);
+   mpSocket = new OsServerSocket(50, 65008);
+   mpServer = new HttpServer(socket);
    mpServer->addRequestProcessor("/map.html", &displayForm);
-   mpServer->allowFileAccess(FALSE);
    mpServer->start();
 
    // Start the writer task.
