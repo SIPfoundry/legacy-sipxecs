@@ -56,6 +56,11 @@ class RtpTransmitterEndpoint {
     }
     
     public void setIpAddressAndPort(String ipAddress, int port, int keepAliveInterval, KeepaliveMethod keepAliveMethod) throws UnknownHostException {
+        if (this.ipAddress != null && ipAddress.equals(this.ipAddress) && port == this.port && keepAliveInterval == this.keepAliveInterval &&
+                keepAliveMethod.equals(this.keepAliveMethod) ) {
+            logger.warn("setIpAddressAndPort->resetting to previously set values -- returning silently");
+            return;
+        }
         this.ipAddress = ipAddress;
         this.port = port;
         this.keepAliveInterval = keepAliveInterval;
@@ -66,6 +71,10 @@ class RtpTransmitterEndpoint {
 
     public void setIpAddressAndPort(String ipAddress, int port) throws UnknownHostException {
         logger.debug("setIpAddressAndPort current  = " + this.ipAddress + "/" + this.port + " new " + ipAddress + "/"  + port);
+        if ( this.ipAddress != null && ipAddress.equals(this.ipAddress) && port == this.port ) {
+            logger.warn("setIpAddressAndPort->>>resetting to previously set values -- returning silently");
+            return;
+        }
         
         this.ipAddress = ipAddress;
         this.port = port;
@@ -75,6 +84,11 @@ class RtpTransmitterEndpoint {
     }
     
     public void setIpAddressAndPort(int keepaliveInterval, KeepaliveMethod keepaliveMethod) throws UnknownHostException {
+        
+        if ( this.keepAliveInterval == keepaliveInterval && keepaliveMethod.equals(this.keepAliveMethod)) {
+            logger.warn("setIpAddressAndPort ->> resetting to previously set values -- returning silently");
+            return; 
+        }
         this.keepAliveInterval = keepaliveInterval;
         this.keepAliveMethod = keepaliveMethod;
         this.symTransmitter.setIpAddressAndPort(ipAddress, port,keepaliveInterval, keepaliveMethod);

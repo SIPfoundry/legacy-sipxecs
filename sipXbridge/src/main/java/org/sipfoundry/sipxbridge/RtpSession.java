@@ -195,6 +195,7 @@ class RtpSession {
         AcceptHeader acceptHeader = ProtocolObjects.headerFactory.createAcceptHeader(
                 "application", "sdp");
         newInvite.setHeader(acceptHeader);
+        SipUtilities.addWanAllowHeaders(newInvite);
         ContentTypeHeader cth = ProtocolObjects.headerFactory.createContentTypeHeader(
                 "application", "sdp");
         newInvite.setContent(sd.toString(), cth);

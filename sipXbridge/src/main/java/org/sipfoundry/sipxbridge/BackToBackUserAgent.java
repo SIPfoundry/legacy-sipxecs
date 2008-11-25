@@ -919,6 +919,10 @@ public class BackToBackUserAgent {
              * The incoming session description.
              */
             SessionDescription sessionDescription = SipUtilities.getSessionDescription(request);
+            
+            /*
+             * Are we restricting codecs?
+             */
             if (Gateway.getCodecName() != null) {
                 SessionDescription newSd = SipUtilities.cleanSessionDescription(
                         sessionDescription, Gateway.getCodecName());
@@ -1271,6 +1275,7 @@ public class BackToBackUserAgent {
             Request outgoingRequest = SipUtilities.createInviteRequest(
                     (SipURI) incomingRequestUri.clone(), itspProvider, itspAccountInfo,
                     fromHeader, this.creatingCallId + "." + this.counter++, isphone);
+            SipUtilities.addWanAllowHeaders(outgoingRequest);
             ClientTransaction ct = itspProvider.getNewClientTransaction(outgoingRequest);
             Dialog outboundDialog = ct.getDialog();
 
@@ -1295,9 +1300,7 @@ public class BackToBackUserAgent {
                 return;
             }
 
-            if (logger.isDebugEnabled()) {
-                logger.debug("sd after strip  " + sd);
-            }
+            
             /*
              * Indicate that we will be transmitting first.
              */

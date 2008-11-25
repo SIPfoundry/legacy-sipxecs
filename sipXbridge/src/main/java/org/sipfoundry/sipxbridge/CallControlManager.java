@@ -20,6 +20,7 @@ import gov.nist.javax.sip.stack.SIPServerTransaction;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Locale;
 import java.util.Random;
@@ -395,7 +396,9 @@ class CallControlManager implements SymmitronResetHandler {
                     serverTransaction.sendResponse(response);
                     return;
                 }
-                // This case occurs when in and outbound proxy are different.
+                /* 
+                 * This case occurs when in and outbound proxy are different. 
+                 */
                 btobua.setItspAccount(account);
                 toDomain = account.getSipDomain();
 
@@ -1428,19 +1431,16 @@ class CallControlManager implements SymmitronResetHandler {
                         int keepaliveInterval;
                         KeepaliveMethod keepaliveMethod;
 
-                        /*
-                         * Set up the Keepalive interval and method for RTP keep-alive.
-                         */
+                        
                         if (tad.operation == Operation.SEND_INVITE_TO_ITSP) {
                             keepaliveInterval = Gateway.getMediaKeepaliveMilisec();
-                            keepaliveMethod = tad.itspAccountInfo.getRtpKeepaliveMethod();
-
+                            keepaliveMethod = tad.itspAccountInfo.getRtpKeepaliveMethod();                          
                         } else {
                             keepaliveInterval = 0;
-                            keepaliveMethod = KeepaliveMethod.NONE;
+                            keepaliveMethod = KeepaliveMethod.NONE;                      
                         }
+                        
                         hisEndpoint.setIpAddressAndPort(keepaliveInterval, keepaliveMethod);
-
                         RtpReceiverEndpoint incomingEndpoint = tad.incomingSession.getReceiver();
                         newSd = SdpFactory.getInstance().createSessionDescription(
                                 new String(response.getRawContent()));
@@ -1851,7 +1851,7 @@ class CallControlManager implements SymmitronResetHandler {
             ContentTypeHeader contentTypeHeader = ProtocolObjects.headerFactory
                     .createContentTypeHeader("message", "sipfrag");
             // contentTypeHeader.setParameter("version", "2.0");
-         
+
             String content = ((SIPResponse) response).getStatusLine().toString();
             notifyRequest.setContent(content, contentTypeHeader);
             SipUtilities.addAllowHeaders(notifyRequest);

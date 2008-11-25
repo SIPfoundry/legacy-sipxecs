@@ -688,9 +688,7 @@ public class Gateway {
         }
         Gateway.state = GatewayState.INITIALIZING;
 
-        parkServerCodecs.add(RtpPayloadTypes.getPayloadType("PCMU"));
-        parkServerCodecs.add(RtpPayloadTypes.getPayloadType("PCMA"));
-
+     
         /*
          * If specified, try to contact symmitron.
          */
@@ -978,6 +976,12 @@ public class Gateway {
      */
     public static void main(String[] args) throws Exception {
         try {
+            
+            /*
+             * The codecs supported by our park server. 
+             */
+            parkServerCodecs.add(RtpPayloadTypes.getPayloadType("PCMU"));
+            parkServerCodecs.add(RtpPayloadTypes.getPayloadType("PCMA"));
 
             Gateway.isTlsSupportEnabled = System.getProperty("sipxbridge.enableTls", "false")
                     .equals("true");
@@ -999,7 +1003,7 @@ public class Gateway {
                      * Override the file configuration setting.
                      */
                     Properties props = new Properties();
-                    props.load(new FileInputStream( new File(log4jPropertiesFile)));
+                    props.load(new FileInputStream(log4jPropertiesFile));
                     BridgeConfiguration configuration = Gateway.accountManager
                     .getBridgeConfiguration();
                     String level = props.getProperty("log4j.category.org.sipfoundry.sipxbridge");

@@ -94,6 +94,7 @@ public class SymmitronClient {
         try {
             logger.debug("Trying to sign in " + "http://" + serverAddress + ":" + port);
             config.setServerURL(new URL("http://" + serverAddress + ":" + port));
+            
             config.setEnabledForExceptions(true);
 
         } catch (Exception e) {
