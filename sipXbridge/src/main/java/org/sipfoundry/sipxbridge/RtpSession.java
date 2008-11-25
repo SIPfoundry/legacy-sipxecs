@@ -204,10 +204,10 @@ class RtpSession {
         TransactionApplicationData tad = TransactionApplicationData.attach(ctx,
                 Operation.FORWARD_REINVITE);
 
-        tad.setServerTransaction (serverTransaction);
+        tad.setServerTransaction(serverTransaction);
 
         tad.serverTransactionProvider = ((DialogExt) dialog).getSipProvider();
-       
+
         peerDialog.sendRequest(ctx);
         this.reInviteForwarded = true;
     }
@@ -256,8 +256,10 @@ class RtpSession {
             SipProvider provider = ((DialogExt) dialog).getSipProvider();
 
             if (provider != Gateway.getLanProvider() || Gateway.isReInviteSupported()) {
-                // RE-INVITE was received from WAN side or from LAN side and wan side supports
-                // Re-INIVTE then just forward it.
+                /*
+                 * RE-INVITE was received from WAN side or from LAN side and wan side supports
+                 * Re-INIVTE then just forward it.
+                 */
                 this.forwardReInvite(serverTransaction, dialog);
             }
         } catch (Exception ex) {

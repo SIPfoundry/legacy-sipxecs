@@ -120,7 +120,7 @@ public class BackToBackUserAgent {
 
     private Dialog musicOnHoldDialog;
 
-    private Request referRequest;
+  
 
     // ///////////////////////////////////////////////////////////////////////
     // Private methods.
@@ -661,6 +661,7 @@ public class BackToBackUserAgent {
                         ((SipProvider) referRequestEvent.getSource())));
                 stx.sendResponse(response);
                 DialogApplicationData.get(dialog).isReferAccepted = true;
+                DialogApplicationData.get(dialog).referRequest = referRequest;
 
             }
 
@@ -677,6 +678,7 @@ public class BackToBackUserAgent {
 
             newDialogApplicationData.rtpSession = dialogApplicationData.rtpSession;
             newDialogApplicationData.peerDialog = dialogApplicationData.peerDialog;
+           
 
             /*
              * This sends the BYE early to the MOH dialog. if
@@ -980,7 +982,7 @@ public class BackToBackUserAgent {
 
             this.addDialog(ct.getDialog());
             this.referingDialog = ct.getDialog();
-            this.referRequest = ct.getRequest();
+          
             this.referingDialogPeer = serverTransaction.getDialog();
 
             ct.sendRequest();
@@ -1377,7 +1379,7 @@ public class BackToBackUserAgent {
                     return;
                 }
                 tad.referingDialog = referingDialog;
-                tad.referRequest = this.referRequest;
+                tad.referRequest = DialogApplicationData.get(referingDialog).referRequest;
                 RtpTransmitterEndpoint rtpEndpoint = new RtpTransmitterEndpoint(rtpSession,
                         symmitronClient);
                 rtpSession.setTransmitter(rtpEndpoint);
@@ -1488,9 +1490,11 @@ public class BackToBackUserAgent {
                 DialogApplicationData peerDat = DialogApplicationData.get(peerDialog);
 
                 Request reInvite = peerDialog.createRequest(Request.INVITE);
+                SipUtilities.addWanAllowHeaders(reInvite);
 
                 RtpSession wanRtpSession = peerDat.getRtpSession();
                 wanRtpSession.getReceiver().setSessionDescription(sd);
+                SipUtilities.incrementSessionVersion(sd);
                 ContentTypeHeader contentTypeHeader = ProtocolObjects.headerFactory
                         .createContentTypeHeader("application", "sdp");
                 reInvite.setContent(sd.toString(), contentTypeHeader);

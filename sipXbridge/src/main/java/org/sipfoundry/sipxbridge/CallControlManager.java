@@ -233,18 +233,20 @@ class CallControlManager implements SymmitronResetHandler {
                 Dialog peerDialog = dat.peerDialog;
                 SipProvider peerDialogProvider = ((DialogExt) peerDialog).getSipProvider();
 
-                // See if we need to re-INVITE MOH server. If the session
-                // is already set up with right codec we do not need to do that.
+                /*
+                 * See if we need to re-INVITE MOH server. If the session is already set up with
+                 * right codec we do not need to do that.
+                 */
 
                 if (!dat.sendReInviteOnResume
                         && provider == Gateway.getLanProvider()
                         && ((!Gateway.isReInviteSupported()) || Gateway.getMusicOnHoldAddress() == null)) {
                     // Can handle this request locally without re-Inviting server (optimization)
                     if (SipUtilities.isSdpQuery(request)) {
-                        // This case occurs if MOH is turned OFF on sipxbridge
-                        // and is turned ON on the phone.
-                        // In this case the phone will query the ITSP
-                        // See Issue 1739
+                        /*
+                         * This case occurs if MOH is turned OFF on sipxbridge and is turned ON on
+                         * the phone. In this case the phone will query the ITSP See Issue 1739
+                         */
                         Request newRequest = peerDialog.createRequest(Request.INVITE);
                         if (newRequest.getHeader(ContentTypeHeader.NAME) == null) {
                             newRequest.setHeader(ProtocolObjects.headerFactory
@@ -282,8 +284,10 @@ class CallControlManager implements SymmitronResetHandler {
                         tad.setServerTransaction(serverTransaction);
                         ctx.setApplicationData(tad);
                         DialogApplicationData peerDat = DialogApplicationData.get(peerDialog);
-                        // Record that we queried the answer from the peer dialog so we can send
-                        // the Ack along.
+                        /*
+                         * Record that we queried the answer from the peer dialog so we can send
+                         * the Ack along.
+                         */
                         peerDat.isSdpAnswerPending = true;
                         peerDialog.sendRequest(ctx);
                         return;
@@ -300,7 +304,9 @@ class CallControlManager implements SymmitronResetHandler {
                         }
                         return;
                     } else {
-                        // Say BYE to MOH server and continue processing.
+                        /*
+                         * Say BYE to MOH server and continue processing.
+                         */
                         dat.sendReInviteOnResume = false;
                         rtpSession.reAssignSessionParameters(request, serverTransaction, dialog,
                                 null);
@@ -318,8 +324,10 @@ class CallControlManager implements SymmitronResetHandler {
                         .getBackToBackUserAgent();
             } else if (request.getHeader(ReplacesHeader.NAME) != null) {
 
-                // Incoming INVITE (out of dialog ) with a replaces header. This implies call
-                // pickup attempt.
+                /*
+                 * Incoming INVITE (out of dialog ) with a replaces header. This implies call
+                 * pickup attempt.
+                 */
 
                 ReplacesHeader replacesHeader = (ReplacesHeader) request
                         .getHeader(ReplacesHeader.NAME);
@@ -327,8 +335,8 @@ class CallControlManager implements SymmitronResetHandler {
                         .getReplacesDialog(replacesHeader);
                 if (replacesDialog == null) {
                     Response response = ProtocolObjects.messageFactory.createResponse(
-                            Response.NOT_FOUND, request);
-                    response.setReasonPhrase("Could not find account record for ITSP");
+                            Response.SERVER_INTERNAL_ERROR, request);
+                    response.setReasonPhrase("Dialog Not Found");
                     serverTransaction.sendResponse(response);
                     return;
                 }
@@ -365,8 +373,10 @@ class CallControlManager implements SymmitronResetHandler {
 
             }
 
-            // This method was seen from the LAN side.
-            // Create a WAN side association and send the INVITE on its way.
+            /*
+             * This method was seen from the LAN side. Create a WAN side association and send the
+             * INVITE on its way.
+             */
             if (provider == Gateway.getLanProvider()) {
                 String toDomain = null;
                 // outbound call. better check for valid account
@@ -1841,8 +1851,10 @@ class CallControlManager implements SymmitronResetHandler {
             ContentTypeHeader contentTypeHeader = ProtocolObjects.headerFactory
                     .createContentTypeHeader("message", "sipfrag");
             // contentTypeHeader.setParameter("version", "2.0");
+         
             String content = ((SIPResponse) response).getStatusLine().toString();
             notifyRequest.setContent(content, contentTypeHeader);
+            SipUtilities.addAllowHeaders(notifyRequest);
             SipProvider referProvider = ((SIPDialog) referDialog).getSipProvider();
             ClientTransaction ctx = referProvider.getNewClientTransaction(notifyRequest);
             referDialog.sendRequest(ctx);
