@@ -15,7 +15,6 @@ import gov.nist.javax.sip.header.extensions.ReferredByHeader;
 import gov.nist.javax.sip.header.extensions.ReplacesHeader;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.text.ParseException;
 import java.util.HashSet;
@@ -43,7 +42,6 @@ import javax.sip.TransactionState;
 import javax.sip.address.Address;
 import javax.sip.address.SipURI;
 import javax.sip.header.AcceptHeader;
-import javax.sip.header.AllowHeader;
 import javax.sip.header.CSeqHeader;
 import javax.sip.header.CallIdHeader;
 import javax.sip.header.ContactHeader;

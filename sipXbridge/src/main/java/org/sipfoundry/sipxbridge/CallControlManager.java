@@ -1219,6 +1219,13 @@ class CallControlManager implements SymmitronResetHandler {
 
                             b2bua.getLanRtpSession(continuation.getDialog()).getReceiver()
                                     .setSessionDescription(sd);
+                            /*
+                             * TERMINATE the subscription with the Refer Dialog by 
+                             * sending him a NOTIFY with subscription state TERMINATED
+                             */
+                            if ( continuation.getRequestEvent().getDialog().getState() != DialogState.TERMINATED ) {
+                                this.notifyReferDialog(continuation.getRequestEvent().getDialog(), response);
+                            }
                             b2bua.referInviteToSipxProxy(continuation.getRequest(), continuation
                                     .getRequestEvent(), sd);
                         }
@@ -1805,8 +1812,12 @@ class CallControlManager implements SymmitronResetHandler {
         Request notifyRequest = referDialog.createRequest(Request.NOTIFY);
         EventHeader eventHeader = ProtocolObjects.headerFactory.createEventHeader("refer");
         notifyRequest.addHeader(eventHeader);
+        String subscriptionState = "active";
+        if ( response.getStatusCode() >= 200 ) {
+            subscriptionState = "terminated";
+        }
         SubscriptionStateHeader subscriptionStateHeader = ProtocolObjects.headerFactory
-                .createSubscriptionStateHeader("active");
+                .createSubscriptionStateHeader(subscriptionState);
         notifyRequest.addHeader(subscriptionStateHeader);
         // Content-Type: message/sipfrag;version=2.0
         ContentTypeHeader contentTypeHeader = ProtocolObjects.headerFactory
