@@ -25,7 +25,7 @@ public class CiscoAtaDefaults {
 
     @SettingEntry(path = TIMEZONE_SETTING)
     public int getTimeZoneOffset() {
-        int tzmin = m_defaults.getTimeZone().getOffsetWithDst() / 60;
+        int tzmin = m_defaults.getTimeZone().getOffsetWithDst();
         int atatz;
 
         if (tzmin % 60 == 0) {

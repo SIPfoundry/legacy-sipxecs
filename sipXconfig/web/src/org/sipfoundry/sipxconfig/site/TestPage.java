@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.Iterator;
 import java.util.List;
+import java.util.TimeZone;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.RandomStringUtils;
@@ -44,6 +45,7 @@ import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext;
 import org.sipfoundry.sipxconfig.device.ModelSource;
+import org.sipfoundry.sipxconfig.device.TimeZoneManager;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
 import org.sipfoundry.sipxconfig.gateway.GatewayContext;
 import org.sipfoundry.sipxconfig.gateway.GatewayModel;
@@ -175,6 +177,9 @@ public abstract class TestPage extends BasePage {
 
     @InjectObject(value = "spring:natTraversalManager")
     public abstract NatTraversalManager getNatTraversalManager();
+
+    @InjectObject(value = "spring:timeZoneManager")
+    public abstract TimeZoneManager getTimeZoneManager();
 
 
     @InjectPage(value = WaitingPage.PAGE)
@@ -446,6 +451,15 @@ public abstract class TestPage extends BasePage {
             phone.setSerialNumber(RandomStringUtils.randomNumeric(SERIAL_NUM_LEN));
             getPhoneContext().storePhone(phone);
         }
+    }
+
+    public void defaultDeviceTimeZone() {
+        TimeZone tz = TimeZone.getDefault();
+        TimeZone.setDefault(TimeZone.getTimeZone("Europe/Helsinki"));
+
+        getTimeZoneManager().saveDefault();
+        //clean-up
+        TimeZone.setDefault(tz);
     }
 
     public void login() {

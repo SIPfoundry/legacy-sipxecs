@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.phone.cisco;
@@ -38,11 +38,13 @@ public class CiscoIpPhone extends CiscoPhone {
     public CiscoIpPhone() {
     }
 
+    @Override
     public void initialize() {
         CiscoIpDefaults defaults = new CiscoIpDefaults(getPhoneContext().getPhoneDefaults());
         addDefaultBeanSettingHandler(defaults);
     }
 
+    @Override
     public String getProfileFilename() {
         String phoneFilename = getSerialNumber();
         return "SIP" + phoneFilename.toUpperCase() + ".cnf";
@@ -69,7 +71,7 @@ public class CiscoIpPhone extends CiscoPhone {
     }
 
     public static class CiscoIpDefaults {
-        private DeviceDefaults m_defaults;
+        private final DeviceDefaults m_defaults;
 
         CiscoIpDefaults(DeviceDefaults defaults) {
             m_defaults = defaults;
@@ -84,24 +86,14 @@ public class CiscoIpPhone extends CiscoPhone {
             return m_defaults.getTimeZone();
         }
 
-        @SettingEntry(path = "datetime/time_zone")
-        public String getTimeZoneId() {
-            return getZone().getShortName();
-        }
-
         @SettingEntry(path = "datetime/dst_auto_adjust")
         public boolean isDstAutoAdjust() {
-            return getZone().getDstOffset() != 0;
+            return getZone().getDstSavings() != 0;
         }
 
         @SettingEntry(path = "datetime/dst_offset")
         public long getDstOffset() {
-            return isDstAutoAdjust() ? getZone().getDstOffset() / 3600 : 0;
-        }
-
-        @SettingEntry(path = "datetime/dst_start_day")
-        public int getDstStartDay() {
-            return isDstAutoAdjust() ? getZone().getStartDay() : 0;
+            return isDstAutoAdjust() ? getZone().getDstSavings() / 60 : 0;
         }
 
         @SettingEntry(path = "datetime/dst_start_day_of_week")
@@ -121,12 +113,8 @@ public class CiscoIpPhone extends CiscoPhone {
 
         @SettingEntry(path = "datetime/dst_start_week_of_month")
         public int getDstStartWeekOfMonth() {
-            return isDstAutoAdjust() ? getZone().getStartWeek() : 0;
-        }
-
-        @SettingEntry(path = "datetime/dst_stop_day")
-        public int getDstStopDay() {
-            return isDstAutoAdjust() ? getZone().getStopDay() : 0;
+            return isDstAutoAdjust() ? (getZone().getStartWeek() == DeviceTimeZone.DST_LASTWEEK ? 8 : getZone()
+                    .getStartWeek()) : 0;
         }
 
         @SettingEntry(path = "datetime/dst_stop_day_of_week")
@@ -146,14 +134,18 @@ public class CiscoIpPhone extends CiscoPhone {
 
         @SettingEntry(path = "datetime/dst_stop_week_of_month")
         public int getStopWeekOfMonth() {
-            return isDstAutoAdjust() ? getZone().getStopWeek() : 0;
+            int stopWeek = getZone().getStopWeek();
+            if (stopWeek == DeviceTimeZone.DST_LASTWEEK) {
+                stopWeek = 8;
+            }
+            return isDstAutoAdjust() ? stopWeek : 0;
         }
 
         @SettingEntry(path = "network/sntp_server")
         public String getNtpServer() {
             return m_defaults.getNtpServer();
         }
-        
+
         @SettingEntry(path = "sip/proxy_emergency")
         public String getEmergencyHost() {
             return m_defaults.getEmergencyAddress();
@@ -170,12 +162,13 @@ public class CiscoIpPhone extends CiscoPhone {
 
     }
 
+    @Override
     public void initializeLine(Line line) {
         line.addDefaultBeanSettingHandler(new CiscoIpLineDefaults(line));
     }
 
     public class CiscoIpLineDefaults {
-        private Line m_line;
+        private final Line m_line;
 
         CiscoIpLineDefaults(Line line) {
             m_line = line;

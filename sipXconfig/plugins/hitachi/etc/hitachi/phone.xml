@@ -3405,9 +3405,9 @@
 		<setting name="DST_Start_Day">
 			<label>DST Start Day</label>
 			<type>
-				<integer min="1" max="31" />
+				<integer min="0" max="31" />
 			</type>
-			<value/>
+			<value>0</value>
 			<description>Day of the month to start DST.</description>
 		</setting>
 		<setting name="DST_Start_Hour">
@@ -3441,9 +3441,9 @@
 		<setting name="DST_End_Day">
 			<label>DST End Day</label>
 			<type>
-				<integer min="1" max="31" />
+				<integer min="0" max="31" />
 			</type>
-			<value/>
+			<value>0</value>
 			<description>Day of the month to end DST.</description>
 		</setting>
 		<setting name="DST_End_Hour">

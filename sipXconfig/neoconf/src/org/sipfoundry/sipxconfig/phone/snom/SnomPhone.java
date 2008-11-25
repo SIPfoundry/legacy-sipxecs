@@ -66,8 +66,7 @@ public class SnomPhone extends Phone {
 
     @Override
     public void initializeLine(Line line) {
-        SnomLineDefaults defaults = new SnomLineDefaults(getPhoneContext().getPhoneDefaults(),
-                line);
+        SnomLineDefaults defaults = new SnomLineDefaults(getPhoneContext().getPhoneDefaults(), line);
         line.addDefaultBeanSettingHandler(defaults);
     }
 
@@ -145,8 +144,7 @@ public class SnomPhone extends Phone {
 
         @SettingEntry(path = CONFIG_URL)
         public String getConfigUrl() {
-            String configUrl = m_defaults.getProfileRootUrl() + '/'
-                    + m_phone.getProfileFilename();
+            String configUrl = m_defaults.getProfileRootUrl() + '/' + m_phone.getProfileFilename();
             return configUrl;
         }
 
@@ -174,16 +172,28 @@ public class SnomPhone extends Phone {
         @SettingEntry(path = DST_SETTING)
         public String getDstSetting() {
             DeviceTimeZone zone = m_defaults.getTimeZone();
-            if (zone.getDstOffset() == 0) {
+            if (zone.getDstSavings() == 0) {
                 return null;
             }
 
-            String dst = String.format("%d %02d.%02d.%02d %02d:00:00 %02d.%02d.%02d %02d:00:00",
-                    zone.getDstOffset(), zone.getStartMonth(), Math.min(zone.getStartWeek(), 5),
-                    (zone.getStartDayOfWeek() + 5) % 7 + 1, zone.getStartTime() / 3600, zone
-                            .getStopMonth(), Math.min(zone.getStopWeek(), 5), (zone
-                            .getStopDayOfWeek() + 5) % 7 + 1, zone.getStopTime() / 3600);
-            return dst;
+            int stopWeek = adjustWeek(zone.getStopWeek());
+            int startWeek = adjustWeek(zone.getStartWeek());
+            int startDayOfWeek = adjustDayOfWeek(zone.getStartDayOfWeek());
+            int stopDayOfWeek = adjustDayOfWeek(zone.getStopDayOfWeek());
+            return String.format("%d %02d.%02d.%02d %02d:00:00 %02d.%02d.%02d %02d:00:00", zone
+                    .getDstSavingsInSeconds(), zone.getStartMonth(), startWeek, startDayOfWeek, zone
+                    .getStartTimeInHours(), zone.getStopMonth(), stopWeek, stopDayOfWeek, zone.getStopTimeInHours());
+        }
+
+        private int adjustWeek(int week) {
+            if (week == DeviceTimeZone.DST_LASTWEEK) {
+                return 5;
+            }
+            return Math.min(week, 5);
+        }
+
+        private int adjustDayOfWeek(int dayOfWeek) {
+            return (dayOfWeek + 5) % 7 + 1;
         }
     }
 
@@ -279,8 +289,8 @@ public class SnomPhone extends Phone {
         private final SpeedDial m_speedDial;
         private final Collection<PhonebookEntry> m_phoneBook;
 
-        public SnomContext(SnomPhone device, SpeedDial speedDial,
-                Collection<PhonebookEntry> phoneBook, String profileTemplate) {
+        public SnomContext(SnomPhone device, SpeedDial speedDial, Collection<PhonebookEntry> phoneBook,
+                String profileTemplate) {
             super(device, profileTemplate);
             m_speedDial = speedDial;
             m_phoneBook = trim(phoneBook);

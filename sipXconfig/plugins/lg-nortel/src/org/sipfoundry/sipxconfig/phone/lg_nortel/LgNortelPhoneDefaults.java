@@ -52,7 +52,7 @@ public class LgNortelPhoneDefaults {
 
     @SettingEntry(path = "NETTIME/timezone")
     public int getTimezone() {
-        return getTimezoneFromRawOffsetSeconds(getZone().getOffset());
+        return getTimezoneFromRawOffsetSeconds(getZone().getOffsetInSeconds());
     }
 
     @SettingEntry(path = "VOIP/outbound_proxy_server")
@@ -165,7 +165,7 @@ public class LgNortelPhoneDefaults {
 
     @SettingEntry(path = "NETTIME/dst_auto_adjust")
     public boolean getUseDst() {
-        return getZone().isUsingDaylightTime();
+        return getZone().getUseDaylight();
     }
 
 
@@ -176,11 +176,6 @@ public class LgNortelPhoneDefaults {
 
     private Integer nullUnlessDst(int i) {
         return (getUseDst() ? i : null);
-    }
-
-    @SettingEntry(path = "NETTIME/dst_start_day")
-    public Integer getStartDay() {
-        return nullUnlessDst(getZone().getStartDay());
     }
 
     @SettingEntry(path = "NETTIME/dst_start_day_of_week")
@@ -202,11 +197,6 @@ public class LgNortelPhoneDefaults {
     @SettingEntry(path = "NETTIME/dst_stop_month")
     public Integer getStopMonth() {
         return nullUnlessDst(getZone().getStopMonth());
-    }
-
-    @SettingEntry(path = "NETTIME/dst_stop_day")
-    public Integer getStopDay() {
-        return nullUnlessDst(getZone().getStopDay());
     }
 
     @SettingEntry(path = "NETTIME/dst_stop_day_of_week")

@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.phone.hitachi;
@@ -14,7 +14,7 @@ import org.sipfoundry.sipxconfig.setting.SettingEntry;
 
 public class HitachiPhoneDefaults {
 
-    private DeviceDefaults m_defaults;
+    private final DeviceDefaults m_defaults;
 
     public HitachiPhoneDefaults(DeviceDefaults defaults) {
         m_defaults = defaults;
@@ -44,8 +44,8 @@ public class HitachiPhoneDefaults {
 
     @SettingEntry(path = "SNTP/Time_Zone")
     public String getTimeZoneOffset() {
-        int tzhrs = m_defaults.getTimeZone().getOffset() / 3600;
-        int tzmin = (m_defaults.getTimeZone().getOffset() % 3600) / 60;
+        int tzhrs = m_defaults.getTimeZone().getOffset() / 60;
+        int tzmin = m_defaults.getTimeZone().getOffset() % 60;
 
         String time = String.format("%02d:%02d", tzhrs, tzmin);
         if (tzhrs <= 0) {
@@ -58,12 +58,6 @@ public class HitachiPhoneDefaults {
     public String getDstStartMonth() {
         int stmth = m_defaults.getTimeZone().getStartMonth();
         return String.valueOf(stmth);
-    }
-
-    @SettingEntry(path = "SNTP/DST_Start_Day")
-    public String getDstStartDay() {
-        int stday = m_defaults.getTimeZone().getStartDay();
-        return String.valueOf(stday);
     }
 
     @SettingEntry(path = "SNTP/DST_Start_Hour")
@@ -82,12 +76,6 @@ public class HitachiPhoneDefaults {
     public String getDstEndMonth() {
         int stpmonth = m_defaults.getTimeZone().getStopMonth();
         return String.valueOf(stpmonth);
-    }
-
-    @SettingEntry(path = "SNTP/DST_End_Day")
-    public String getDstEndDay() {
-        int stpday = m_defaults.getTimeZone().getStopDay();
-        return String.valueOf(stpday);
     }
 
     @SettingEntry(path = "SNTP/DST_End_Hour")

@@ -35,12 +35,12 @@ public class PolycomPhoneDefaults {
 
     @SettingEntry(path = "tcpIpApp.sntp/gmtOffset")
     public long getGmtOffset() {
-        return getZone().getOffset();
+        return getZone().getOffsetInSeconds();
     }
 
     @SettingEntry(path = "tcpIpApp.sntp/daylightSavings.enable")
     public boolean isDstEnabled() {
-        return getZone().getDstOffset() != 0;
+        return getZone().getDstSavings() != 0;
     }
 
     @SettingEntry(path = "tcpIpApp.sntp/address")
@@ -48,33 +48,10 @@ public class PolycomPhoneDefaults {
         return m_defaults.getNtpServer();
     }
 
-    @SettingEntry(path = "tcpIpApp.sntp/daylightSavings.fixedDayEnable")
-    public boolean isFixedDayEnabled() {
-        return isDstEnabled() && getZone().getStartDay() > 0;
-    }
-
-    @SettingEntry(path = "tcpIpApp.sntp/daylightSavings.start.date")
-    public int getStartDay() {
-        if (!isDstEnabled()) {
-            return 0;
-        }
-        if (isFixedDayEnabled()) {
-            return getZone().getStartDay();
-        }
-        if (getZone().getStartWeek() == DeviceTimeZone.DST_LASTWEEK) {
-            return 1;
-        }
-
-        return getZone().getStartWeek();
-    }
-
     @SettingEntry(path = "tcpIpApp.sntp/daylightSavings.start.dayOfWeek.lastInMonth")
     public boolean isStartLastInMonth() {
         if (!isDstEnabled()) {
             return false;
-        }
-        if (isFixedDayEnabled()) {
-            return true;
         }
         if (getZone().getStartWeek() == DeviceTimeZone.DST_LASTWEEK) {
             return true;
@@ -83,27 +60,9 @@ public class PolycomPhoneDefaults {
         return false;
     }
 
-    @SettingEntry(path = "tcpIpApp.sntp/daylightSavings.stop.date")
-    public int getStopDate() {
-        if (!isDstEnabled()) {
-            return 0;
-        }
-        if (isFixedDayEnabled()) {
-            return getZone().getStopDay();
-        }
-        if (getZone().getStopWeek() == DeviceTimeZone.DST_LASTWEEK) {
-            return 1;
-        }
-
-        return getZone().getStopWeek();
-    }
-
     @SettingEntry(path = "tcpIpApp.sntp/daylightSavings.stop.dayOfWeek.lastInMonth")
     public boolean isStopDayOfWeekLastInMonth() {
         if (!isDstEnabled()) {
-            return false;
-        }
-        if (isFixedDayEnabled()) {
             return false;
         }
         if (getZone().getStopWeek() == DeviceTimeZone.DST_LASTWEEK) {

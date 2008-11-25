@@ -701,7 +701,7 @@
       <type>
         <integer min="0" max="31" />
       </type>
-      <value>1</value>
+      <value>0</value>
     </setting>
     <setting name="daylightSavings.start.time">
       <type>
@@ -727,7 +727,7 @@
       <type>
         <integer min="0" max="31" />
       </type>
-      <value>1</value>
+      <value>0</value>
     </setting>
     <setting name="daylightSavings.stop.time">
       <type>

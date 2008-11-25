@@ -34,7 +34,27 @@
     <property name="templateRoot" value="${sysdir.etc}" />
     <property name="velocityEngine" ref="velocityEngine" />
   </bean>
-  
+
   <bean id="restartExecutorService" class="org.springframework.scheduling.concurrent.ScheduledExecutorFactoryBean">
+  </bean>
+
+  <bean id="timeZoneManager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
+    <property name="proxyInterfaces">
+      <value>org.sipfoundry.sipxconfig.device.TimeZoneManager</value>
+    </property>
+    <property name="target">
+      <ref local="timeZoneManagerImpl" />
+    </property>
+  </bean>
+
+  <bean id="timeZoneManagerImpl" class="org.sipfoundry.sipxconfig.device.TimeZoneManagerImpl">
+    <property name="sessionFactory" ref="sessionFactory" />
+  </bean>
+
+  <bean id="timeZoneInit" class="org.sipfoundry.sipxconfig.device.TimeZoneInit">
+    <property name="timeZoneManager" ref="timeZoneManager" />
+    <property name="taskNames">
+      <value>default-time-zone</value>
+    </property>
   </bean>
 </beans>

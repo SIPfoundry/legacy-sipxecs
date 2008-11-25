@@ -152,6 +152,7 @@
         <value>org/sipfoundry/sipxconfig/paging/paging.hbm.xml</value>
         <value>org/sipfoundry/sipxconfig/nattraversal/nattraversal.hbm.xml</value>
         <value>org/sipfoundry/sipxconfig/admin/alarm/alarm.hbm.xml</value>
+        <value>org/sipfoundry/sipxconfig/device/timezone.hbm.xml</value>
       </list>
     </property>
     <property name="baseClassBeanIds">

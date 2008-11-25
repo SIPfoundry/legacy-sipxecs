@@ -162,7 +162,7 @@ public class GrandstreamPhone extends Phone {
 
         @SettingEntry(path = TIMEZONE_SETTING)
         public int getTimeOffset() {
-            int offset = ((m_defaults.getTimeZone().getOffsetWithDst() / 60) + (12 * 60));
+            int offset = ((m_defaults.getTimeZone().getOffsetWithDst()) + (12 * 60));
             return offset;
         }
 

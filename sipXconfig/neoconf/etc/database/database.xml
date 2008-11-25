@@ -289,6 +289,7 @@
     <antcall target="backup-ftp-fix" />
     <antcall target="location-add-password" />
     <antcall target="gateway-location" />
+    <antcall target="add-device-timezone"/>
     <!-- temporary patches -->
     <antcall target="clean-sipx-service-values"/>
     <antcall target="backup-ftp-fix-empty-type-2" />
@@ -758,6 +759,10 @@
     <sipx-sql>
       update backup_plan set backup_type = 'L' where backup_type != 'F';
     </sipx-sql>
+  </target>
+
+  <target name="add-device-timezone" unless="add-device-timezone">
+    <db-patch patch="add-device-timezone"/>
   </target>
 
   <!--

@@ -14,6 +14,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TimeZone;
 
 import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
@@ -115,7 +116,8 @@ public class PhoneTestDriver {
 
     public static DeviceDefaults getDeviceDefaults() {
         DeviceDefaults defaults = new DeviceDefaults();
-        defaults.setDeviceTimeZone(new DeviceTimeZone("Etc/GMT+5")); // no DST for consistent
+        TimeZone tz = TimeZone.getTimeZone("Etc/GMT+5");
+        defaults.setDeviceTimeZone(new DeviceTimeZone(tz)); // no DST for consistent
         // results
         defaults.setDomainManager(TestHelper.getTestDomainManager("sipfoundry.org"));
         defaults.setFullyQualifiedDomainName("pbx.sipfoundry.org");
