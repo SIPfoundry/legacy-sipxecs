@@ -610,13 +610,18 @@ public class BackToBackUserAgent {
         /*
          * Create a new out of dialog request.
          */
-        ToHeader toHeader = (ToHeader) newRequest.getHeader(ToHeader.NAME);
+        ToHeader toHeader = (ToHeader) newRequest.getHeader(ToHeader.NAME).clone();
         toHeader.removeParameter("tag");
         toHeader.getAddress().setURI(uri);
-        FromHeader fromHeader = (FromHeader) newRequest.getHeader(FromHeader.NAME);
+        newRequest.setHeader(toHeader);
+        
+        
+        
+        FromHeader fromHeader = (FromHeader) newRequest.getHeader(FromHeader.NAME).clone();
         fromHeader.setTag(Integer.toString(Math.abs(new Random().nextInt())));
         ContentTypeHeader cth = ProtocolObjects.headerFactory.createContentTypeHeader(
                 "application", "sdp");
+        newRequest.setHeader(fromHeader);
 
         RtpSession lanRtpSession = this.getLanRtpSession(dialog);
         SessionDescription sd = lanRtpSession.getReceiver().getSessionDescription();
