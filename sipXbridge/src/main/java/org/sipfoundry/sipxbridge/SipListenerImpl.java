@@ -322,7 +322,7 @@ public class SipListenerImpl implements SipListener {
                     || method.equals(Request.BYE) || method.equals(Request.REFER)) {
                 Gateway.getCallControlManager().processResponse(responseEvent);
             } else {
-                logger.debug("dropping response " + method);
+                logger.warn("dropping response " + method);
             }
 
         } catch (Throwable ex) {

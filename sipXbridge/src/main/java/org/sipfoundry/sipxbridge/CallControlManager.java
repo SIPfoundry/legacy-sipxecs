@@ -955,7 +955,8 @@ class CallControlManager implements SymmitronResetHandler {
 
             SessionDescription sd = SipUtilities.cleanSessionDescription(SipUtilities
                     .getSessionDescription(response), Gateway.getCodecName());
-
+            
+           
             /*
              * Could not find a codec match. In this case MOH will not play we just ack the
              * original codec.
@@ -1098,8 +1099,23 @@ class CallControlManager implements SymmitronResetHandler {
         }
 
         try {
+            
+            if ( response.getStatusCode() == Response.TRYING ) {
+                /*
+                 * We store away our outgoing sdp offer in the application data of the client tx.
+                 */
+                TransactionApplicationData tad = (TransactionApplicationData) responseEvent
+                        .getClientTransaction().getApplicationData();
+                if ( tad.operation == Operation.REFER_INVITE_TO_SIPX_PROXY ||
+                        tad.operation == Operation.SPIRAL_BLIND_TRANSFER_INVITE_TO_ITSP ) {
+                    Dialog referDialog = tad.referingDialog;
+                    Request referRequest = tad.referRequest;
+                    if ( referDialog.getState() == DialogState.CONFIRMED ) {
+                        this.notifyReferDialog(referRequest, referDialog, response);
+                    }
+                }
 
-            if (response.getStatusCode() > 100 && response.getStatusCode() <= 200) {
+            } else if (response.getStatusCode() > 100 && response.getStatusCode() <= 200) {
 
                 /*
                  * Set our final dialog. Note that the 1xx Dialog may be different.
@@ -1204,8 +1220,17 @@ class CallControlManager implements SymmitronResetHandler {
 
                                 Request ack = dialog.createAck(cseq);
 
+                                SessionDescription sessionDescription = SipUtilities.getSessionDescription(response);
+                                HashSet<Integer> codecs = SipUtilities.getCodecNumbers(sessionDescription);
+                                
+                                logger.debug("Codecs " + codecs);
+                                
                                 SessionDescription ackSd = dat.getRtpSession().getReceiver()
                                         .getSessionDescription();
+                                /*
+                                 * Restrict the answer to the set of codecs in the offer.
+                                 */
+                                SipUtilities.cleanSessionDescription(ackSd, codecs);
 
                                 SipUtilities.setSessionDescription(ack, ackSd);
 
@@ -1439,7 +1464,6 @@ class CallControlManager implements SymmitronResetHandler {
                             keepaliveInterval = 0;
                             keepaliveMethod = KeepaliveMethod.NONE;                      
                         }
-                        
                         hisEndpoint.setIpAddressAndPort(keepaliveInterval, keepaliveMethod);
                         RtpReceiverEndpoint incomingEndpoint = tad.incomingSession.getReceiver();
                         newSd = SdpFactory.getInstance().createSessionDescription(
@@ -1850,7 +1874,7 @@ class CallControlManager implements SymmitronResetHandler {
             // Content-Type: message/sipfrag;version=2.0
             ContentTypeHeader contentTypeHeader = ProtocolObjects.headerFactory
                     .createContentTypeHeader("message", "sipfrag");
-            // contentTypeHeader.setParameter("version", "2.0");
+            //contentTypeHeader.setParameter("version", "2.0");
 
             String content = ((SIPResponse) response).getStatusLine().toString();
             notifyRequest.setContent(content, contentTypeHeader);
