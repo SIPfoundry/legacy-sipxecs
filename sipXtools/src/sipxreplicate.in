@@ -67,6 +67,22 @@ del_alias1 = { "identity", "*89@demo.pingtel.com" }
 
 del_aliasdb = [ del_alias1 ]
 
+# Hash maps for sample user location DB Records
+userlocation1 = { "identity", "200@demo.pingtel.com", "location", "Montreal" }
+userlocation2 = { "identity", "201@demo.pingtel.com", "location", "Quebec" }
+
+userlocationdb = [ userlocation1, userlocation2 ]
+
+# Hash maps for sample user location DB Records - Used for table record add
+add_userlocation1 = { "identity", "202@demo.pingtel.com", "location", "Chicoutimi" }
+
+add_userlocationdb = [ add_userlocation1 ]
+
+# Hash maps for sample user location  DB Record Keys - Used for table record delete
+del_userlocation1 = { "identity", "202@demo.pingtel.com", "location", "Chicoutimi" }
+
+del_userlocationdb = [ del_userlocation1 ]
+
 # Allow the required SSL certificate information to be set.
 module XMLRPC   
    class Client 
@@ -205,6 +221,9 @@ if argument
       if argument == 'permission'
          params.push(permissiondb)
       end
+      if argument == 'userlocation'
+         params.push(userlocationdb)
+      end
    end
    if action == 'ImdbTable.insertRows'
       if argument == 'credential'
@@ -216,6 +235,9 @@ if argument
       if argument == 'permission'
          params.push(add_permissiondb)
       end
+      if argument == 'userlocation'
+         params.push(add_userlocationdb)
+      end
    end
    if action == 'ImdbTable.deleteRows'
       if argument == 'credential'
@@ -226,6 +248,9 @@ if argument
       end
       if argument == 'permission'
          params.push(del_permissiondb)
+      end
+      if argument == 'userlocation'
+         params.push(del_userlocationdb)
       end
    end
    if action == 'File.replace'

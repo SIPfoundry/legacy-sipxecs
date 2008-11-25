@@ -27,6 +27,7 @@
 #include "sipdb/RegistrationDB.h"
 #include "sipdb/ExtensionDB.h"
 #include "sipdb/AuthexceptionDB.h"
+#include "sipdb/UserLocationDB.h"
 
 #include "SipxRpc.h"
 #include "ImdbRpc.h"
@@ -52,6 +53,7 @@
 #define  EXTENSION      "extension"
 #define  REGISTRATION   "registration"
 #define  AUTHEXCEPTION  "authexception"
+#define  USERLOCATION   "userlocation"
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -214,6 +216,11 @@ void ImdbRpcMethod::storeTable(const UtlString& tableName){
        if ( CallerAliasDB::getInstance()->store() != OS_SUCCESS ){
        }
     }
+    
+    else if ( tableName == USERLOCATION ){
+       if ( UserLocationDB::getInstance()->store() != OS_SUCCESS ){
+       }
+    }
 }
 
 
@@ -246,6 +253,10 @@ UtlBoolean ImdbRpcMethod::insertTableRecord(UtlString& tableName, const UtlHashM
     else if ( tableName == AUTHEXCEPTION ){
        result = AuthexceptionDB::getInstance()->insertRow(tableRecord);
     }
+
+    else if ( tableName == USERLOCATION ){
+       result = UserLocationDB::getInstance()->insertRow(tableRecord);
+    }    
 
     else if ( tableName == CALLER_ALIAS ){
        UtlString* optionalIdentity = dynamic_cast<UtlString*>(tableRecord.findValue(&identityKey));
@@ -442,6 +453,10 @@ void ImdbRpcReplaceTable::clearTable(UtlString& tableName)
     {
        CallerAliasDB::getInstance()->removeAllRows();
     }
+    else if ( tableName == USERLOCATION )
+    {
+       UserLocationDB::getInstance()->removeAllRows();
+    }
     else
     {
        OsSysLog::add(FAC_SUPERVISOR, PRI_CRIT, "ImdbRpcReplaceTable::clearTable "
@@ -580,6 +595,10 @@ void ImdbRpcRetrieveTable::readTable(UtlString& tableName, ResultSet* imdb_recor
 
     else if ( tableName == AUTHEXCEPTION ){
        AuthexceptionDB::getInstance()->getAllRows( *imdb_records );
+    }
+
+    else if ( tableName == USERLOCATION ){
+       UserLocationDB::getInstance()->getAllRows( *imdb_records );
     }
 
     else if ( tableName == CALLER_ALIAS ){
@@ -932,6 +951,12 @@ UtlBoolean ImdbRpcDeleteTableRecords::deleteTableRecord(UtlString& tableName, co
     else if ( tableName == AUTHEXCEPTION ){
        result = AuthexceptionDB::getInstance()->removeRow(
                      (*(UtlString*)tableRecordKeys.findValue(&userKey)) );
+    }
+
+    else if ( tableName == USERLOCATION ){
+          UserLocationDB::getInstance()->removeRows(
+                     Url (*((UtlString*)tableRecordKeys.findValue(&identityKey))) );
+       result = TRUE;
     }
 
     return result;
