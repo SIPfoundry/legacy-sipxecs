@@ -290,10 +290,9 @@
 	<antcall target="location-add-password" />
     <!-- temporary patches -->
     <antcall target="clean-sipx-service-values"/>
-    <antcall target="backup-ftp-fix-empty-type" />
-
-	<!-- When freezing schema uncomment this line -->
-	<!-- sipx-version version="9" -->
+    <antcall target="backup-ftp-fix-empty-type-2" />
+    <!-- When freezing schema uncomment this line -->
+    <!-- sipx-version version="9" -->
   </target>
 
   <target name="time_of_day" unless="time_of_day">
@@ -750,9 +749,9 @@
     </sipx-sql>
   </target>
 
-  <target name="backup-ftp-fix-empty-type" unless="backup-ftp-fix-empty-type">
+  <target name="backup-ftp-fix-empty-type-2" unless="backup-ftp-fix-empty-type-2">
     <sipx-sql>
-      update backup_plan set backup_type = 'L' where backup_type = '';
+      update backup_plan set backup_type = 'L' where backup_type != 'F';
     </sipx-sql>
   </target>
 
