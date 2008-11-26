@@ -20,6 +20,7 @@ import java.nio.channels.DatagramChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.util.Iterator;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.log4j.Logger;
 
@@ -30,7 +31,7 @@ class DataShuffler implements Runnable {
     private static Selector selector;
     private static Logger logger = Logger.getLogger(DataShuffler.class.getPackage().getName());
 
-    private static boolean initializeSelectors = true;
+    private static AtomicBoolean initializeSelectors = new AtomicBoolean(true);
 
     public DataShuffler() {
 
@@ -39,8 +40,9 @@ class DataShuffler implements Runnable {
     private static void initializeSelector() {
 
         try {
-            if (selector != null)
+            if (selector != null) {
                 selector.close();
+            }
             selector = Selector.open();
 
             for (Bridge bridge : ConcurrentSet.getBridges()) {
@@ -58,7 +60,7 @@ class DataShuffler implements Runnable {
                         continue;
                     }
                 }
-                initializeSelectors = false;
+                initializeSelectors.set(false);
             }
 
         } catch (IOException ex) {
@@ -155,7 +157,7 @@ class DataShuffler implements Runnable {
             Bridge bridge = null;
             try {
 
-                if (initializeSelectors) {
+                if (initializeSelectors.get()) {
                     initializeSelector();
                 }
 
@@ -226,7 +228,7 @@ class DataShuffler implements Runnable {
     }
 
     public static void initializeSelectors() {
-        initializeSelectors = true;
+        initializeSelectors.set(true);
         if (selector != null) {
             selector.wakeup();
         }
