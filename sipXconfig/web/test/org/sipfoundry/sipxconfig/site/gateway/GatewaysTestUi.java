@@ -59,7 +59,7 @@ public class GatewaysTestUi extends WebTestCase {
         assertTablePresent("list:gateway");
         Table gatewaysTable = getTable("list:gateway");
         // make sure it's sorted by name
-        clickLinkWithText("Name");
+        clickLinkWithExactText("Name");
         int lastColumn = getColumnCount(gatewaysTable) - 1;
         assertEquals(4, lastColumn);
 
