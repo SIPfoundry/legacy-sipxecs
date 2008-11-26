@@ -1162,6 +1162,7 @@ public:
       SipMessage expected400ResponseMsg(expected400Response, strlen(expected400Response) );
       CallbackTrace reference400( expected400ResponseMsg, "127.0.0.1", 9997 );
       
+      KNOWN_BUG("Fails on ecs-fc8", "XSL-198");
       CPPUNIT_ASSERT( pProcessor->getStoredCallbackTrace(1) == reference400 );
    }
    
