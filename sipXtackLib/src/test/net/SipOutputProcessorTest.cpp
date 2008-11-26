@@ -1109,7 +1109,6 @@ public:
          "Allow: INVITE, ACK, CANCEL, BYE, REFER, OPTIONS\r\n"
          "User-Agent: sipXecs/3.10.0 (Linux)\r\n"
          "Accept-Language: en\r\n"
-         "Content-Length: 0\r\n"
          "\r\n";
 
       SipMessage expected301ResponseMsg(expected301Response, strlen(expected301Response) );
@@ -1158,7 +1157,6 @@ public:
          "Allow: INVITE, ACK, CANCEL, BYE, REFER, OPTIONS\r\n"
          "User-Agent: sipXecs/3.10.0 (Linux)\r\n"
          "Accept-Language: en\r\n"
-         "Content-Length: 0\r\n"
          "\r\n";
 
       SipMessage expected400ResponseMsg(expected400Response, strlen(expected400Response) );
@@ -1207,7 +1205,6 @@ public:
          "Allow: INVITE, ACK, CANCEL, BYE, REFER, OPTIONS\r\n"
          "User-Agent: sipXecs/3.10.0 (Linux)\r\n"
          "Accept-Language: en\r\n"
-         "Content-Length: 0\r\n"
          "\r\n";
 
       SipMessage expected501ResponseMsg(expected501Response, strlen(expected501Response) );
@@ -1256,7 +1253,6 @@ public:
          "Allow: INVITE, ACK, CANCEL, BYE, REFER, OPTIONS\r\n"
          "User-Agent: sipXecs/3.10.0 (Linux)\r\n"
          "Accept-Language: en\r\n"
-         "Content-Length: 0\r\n"
          "\r\n";
 
       SipMessage expected603ResponseMsg(expected603Response, strlen(expected603Response) );
