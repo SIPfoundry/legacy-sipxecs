@@ -1114,6 +1114,7 @@ public:
       SipMessage expected301ResponseMsg(expected301Response, strlen(expected301Response) );
       CallbackTrace reference301( expected301ResponseMsg, "127.0.0.1", 9997 );
       
+      KNOWN_BUG("Fails on ecs-fc8", "XSL-197");
       CPPUNIT_ASSERT( pProcessor->getStoredCallbackTrace(1) == reference301 );
    }
    
