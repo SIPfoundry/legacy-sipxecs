@@ -20,8 +20,6 @@ public class PagingConfiguration extends SipxServiceConfiguration {
 
     private PagingContext m_pagingContext;
 
-    private String m_audioDirectory;
-
     private List<PagingGroup> m_pagingGroups;
 
     private String m_sipTraceLevel;
@@ -31,7 +29,6 @@ public class PagingConfiguration extends SipxServiceConfiguration {
         List<PagingGroup> pagingGroups = m_pagingContext.getPagingGroups();
         m_pagingGroups = pagingGroups;
         m_sipTraceLevel = server.getSipTraceLevel();
-        // "sipxpage.properties" needs to be reloaded when used in Logging page
     }
 
     @Override
