@@ -103,7 +103,7 @@ void HttpFileAccess::processRequest(const HttpRequestContext& requestContext,
                         chunks++;
                      }
                      OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG,
-                                   "file block %"FORMAT_INTLL"d %d %s", chunks, bytes,
+                                   "file block %"FORMAT_INTLL"d %zd %s", chunks, bytes,
                                    writtenOk ? "ok" : "failed");
                   }
                   if (writtenOk)
