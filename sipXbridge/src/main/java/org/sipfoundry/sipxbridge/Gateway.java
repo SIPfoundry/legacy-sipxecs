@@ -23,6 +23,7 @@ import java.util.Properties;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.logging.ConsoleHandler;
+import java.util.logging.Handler;
 import java.util.logging.Level;
 
 import javax.sip.ClientTransaction;
@@ -44,6 +45,8 @@ import org.apache.xmlrpc.server.PropertyHandlerMapping;
 import org.apache.xmlrpc.server.XmlRpcServer;
 import org.apache.xmlrpc.server.XmlRpcServerConfigImpl;
 import org.apache.xmlrpc.webserver.WebServer;
+import org.sipfoundry.commons.log4j.SipFoundryAppender;
+import org.sipfoundry.commons.log4j.SipFoundryLayout;
 import org.sipfoundry.sipxbridge.symmitron.SymmitronClient;
 import org.sipfoundry.sipxbridge.symmitron.SymmitronConfig;
 import org.sipfoundry.sipxbridge.symmitron.SymmitronConfigParser;
@@ -153,12 +156,11 @@ public class Gateway {
      * Default transport to talk to ITSP
      */
     protected static final String DEFAULT_ITSP_TRANSPORT = "udp";
-    
-    
+
     /*
      * Session expires interval.
      */
-    protected static int sessionExpires = 30 * 60; 
+    protected static int sessionExpires = 30 * 60;
 
     /*
      * set to true to enable tls (untested).
@@ -177,6 +179,8 @@ public class Gateway {
     private static HashSet<String> proxyAddressTable = new HashSet<String>();
 
     private static HashSet<Integer> parkServerCodecs = new HashSet<Integer>();
+
+    static SipFoundryAppender logAppender;
 
     private Gateway() {
 
@@ -263,6 +267,67 @@ public class Gateway {
     }
 
     /**
+     * Initialize the loggers for the libraries used.
+     * 
+     * @throws IOException
+     */
+    static void initializeLogging() throws IOException {
+
+        BridgeConfiguration bridgeConfiguration = Gateway.getBridgeConfiguration();
+        Level level = Level.OFF;
+        String logLevel = bridgeConfiguration.getLogLevel();
+
+        if (logLevel.equals("INFO"))
+            level = Level.INFO;
+        else if (logLevel.equals("DEBUG"))
+            level = Level.FINE;
+        else if (logLevel.equals("TRACE")) 
+            level = Level.FINER;
+        else if (logLevel.equals("WARN"))
+            level = Level.WARNING;
+
+        /*
+         * BUGBUG For now turn off Logging on STUN4j. It writes to stdout.
+         */
+        level = Level.OFF;
+        
+        java.util.logging.Logger log = java.util.logging.Logger.getLogger("net.java.stun4j");
+        log.setLevel(level);
+        java.util.logging.FileHandler fileHandler = new java.util.logging.FileHandler(Gateway
+                .getLogFile());
+        
+        /*
+         * Remove all existing handlers.
+         */
+        for (Handler handler : log.getHandlers()) {
+            log.removeHandler(handler);
+        }
+
+        /*
+         * Add the file handler.
+         */
+        log.addHandler(fileHandler);
+        
+        Gateway.logAppender = new SipFoundryAppender(new SipFoundryLayout(), Gateway
+                .getLogFile());
+        Logger applicationLogger = Logger.getLogger(Gateway.class.getPackage().getName());
+        
+         
+        /*
+         * Set the log level.
+         */
+        if ( Gateway.getLogLevel().equals("TRACE")) {
+            applicationLogger.setLevel(org.apache.log4j.Level.DEBUG);
+        } else {
+            applicationLogger.setLevel(org.apache.log4j.Level.toLevel(Gateway.getLogLevel()));
+        }
+        
+        applicationLogger.addAppender(logAppender);
+        
+        
+    }
+
+    /**
      * Discover our address using stun.
      * 
      * @throws GatewayConfigurationException
@@ -275,27 +340,12 @@ public class Gateway {
 
             if (stunServerAddress != null) {
 
-                // Todo -- deal with the situation when this port may be taken.
-                StunAddress localStunAddress = new StunAddress(Gateway.getLocalAddress(),
-                        STUN_PORT);
-
                 java.util.logging.Logger log = java.util.logging.Logger
                         .getLogger("net.java.stun4j");
 
-                Level level = Level.OFF;
-
-                /*
-                 * String logLevel = bridgeConfiguration.getLogLevel(); if
-                 * (logLevel.equals("INFO")) level = Level.INFO; else if
-                 * (logLevel.equals("DEBUG")) level = Level.FINE; else if
-                 * (logLevel.equals("WARN")) level = Level.WARNING;
-                 */
-
-                log.setLevel(level);
-                java.util.logging.FileHandler fileHandler = new java.util.logging.FileHandler(
-                        Gateway.getLogFile());
-                log.removeHandler(new ConsoleHandler());
-                log.addHandler(fileHandler);
+                // Todo -- deal with the situation when this port may be taken.
+                StunAddress localStunAddress = new StunAddress(Gateway.getLocalAddress(),
+                        STUN_PORT);
 
                 StunAddress serverStunAddress = new StunAddress(stunServerAddress, STUN_PORT);
 
@@ -533,8 +583,8 @@ public class Gateway {
      * @return
      */
     static int getMediaKeepaliveMilisec() {
-      
-       return Gateway.accountManager.getBridgeConfiguration().getMediaKeepalive();
+
+        return Gateway.accountManager.getBridgeConfiguration().getMediaKeepalive();
     }
 
     /**
@@ -688,7 +738,6 @@ public class Gateway {
         }
         Gateway.state = GatewayState.INITIALIZING;
 
-     
         /*
          * If specified, try to contact symmitron.
          */
@@ -766,7 +815,7 @@ public class Gateway {
             for (Dialog dialog : ((SipStackExt) ProtocolObjects.sipStack).getDialogs()) {
 
                 DialogApplicationData dat = DialogApplicationData.get(dialog);
-               
+
                 if (dat != null) {
                     BackToBackUserAgent b2bua = dat.getBackToBackUserAgent();
                     if (b2bua != null) {
@@ -901,9 +950,9 @@ public class Gateway {
 
         return accountManager.getBridgeConfiguration().isReInviteSupported();
     }
-    
+
     static int getSessionExpires() {
-        return sessionExpires ;
+        return sessionExpires;
     }
 
     /**
@@ -976,9 +1025,9 @@ public class Gateway {
      */
     public static void main(String[] args) throws Exception {
         try {
-            
+
             /*
-             * The codecs supported by our park server. 
+             * The codecs supported by our park server.
              */
             parkServerCodecs.add(RtpPayloadTypes.getPayloadType("PCMU"));
             parkServerCodecs.add(RtpPayloadTypes.getPayloadType("PCMA"));
@@ -998,20 +1047,22 @@ public class Gateway {
                     Thread.sleep(5 * 1000);
                 }
                 Gateway.parseConfigurationFile();
-                if ( new File(log4jPropertiesFile).exists()) {
+                if (new File(log4jPropertiesFile).exists()) {
                     /*
                      * Override the file configuration setting.
                      */
                     Properties props = new Properties();
                     props.load(new FileInputStream(log4jPropertiesFile));
                     BridgeConfiguration configuration = Gateway.accountManager
-                    .getBridgeConfiguration();
+                            .getBridgeConfiguration();
                     String level = props.getProperty("log4j.category.org.sipfoundry.sipxbridge");
-                    if ( level != null) {
+                    if (level != null) {
                         configuration.setLogLevel(level);
                     }
-                    
+
                 }
+
+                Gateway.initializeLogging();
 
                 Gateway.start();
 
@@ -1020,20 +1071,22 @@ public class Gateway {
             } else if (command.equals("configtest")) {
                 try {
                     if (!new File(Gateway.configurationFile).exists()) {
-                        System.err.println("sipxbridge.xml does not exist - please check configuration.");
+                        System.err
+                                .println("sipxbridge.xml does not exist - please check configuration.");
                         System.exit(-1);
                     }
                     Gateway.parseConfigurationFile();
                     BridgeConfiguration configuration = Gateway.accountManager
                             .getBridgeConfiguration();
-                    
-                    if ( configuration.getGlobalAddress() == null
+
+                    if (configuration.getGlobalAddress() == null
                             && configuration.getStunServerAddress() == null) {
                         logger.error("Configuration error -- no global address or stun server");
-                        System.err.println("sipxbridge.xml: Configuration error: no global address specified and no stun server specified.");
+                        System.err
+                                .println("sipxbridge.xml: Configuration error: no global address specified and no stun server specified.");
                         System.exit(-1);
                     }
-                    
+
                     if (Gateway.accountManager.getBridgeConfiguration().getExternalAddress()
                             .equals(
                                     Gateway.accountManager.getBridgeConfiguration()
@@ -1042,8 +1095,9 @@ public class Gateway {
                                     .getBridgeConfiguration().getLocalPort()) {
                         logger
                                 .error("Configuration error -- external address == internal address && external port == internal port");
-                        System.err.println("sipxbridge.xml: Configuration error: external address == internal address && external port == internal port");
-                        
+                        System.err
+                                .println("sipxbridge.xml: Configuration error: external address == internal address && external port == internal port");
+
                         System.exit(-1);
                     }
 

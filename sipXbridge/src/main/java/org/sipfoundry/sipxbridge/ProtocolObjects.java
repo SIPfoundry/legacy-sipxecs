@@ -51,23 +51,25 @@ public class ProtocolObjects {
             addressFactory = sipFactory.createAddressFactory();
             Properties stackProperties = new Properties();
             stackProperties.setProperty("javax.sip.STACK_NAME", "org.sipfoundry.sipXBridge");
-            Logger applicationLogger = Logger.getLogger(Gateway.class.getPackage().getName());
             if (!Gateway.getLogLevel().equals("TRACE")) {
                 if (Gateway.getLogLevel().equals("DEBUG")) {
                     /*
                      * Debug level turns off stack level debug logging.
-                     * 
                      */
                     stackProperties.setProperty("gov.nist.javax.sip.TRACE_LEVEL", Level.INFO
                             .toString());
+                } else {
+                    stackProperties.setProperty("gov.nist.javax.sip.TRACE_LEVEL", Gateway
+                            .getLogLevel());
                 }
-                logger.setLevel(Level.toLevel(Gateway.getLogLevel()));
+
             } else {
                 /*
                  * At TRACE level you get a LOT of logging.
                  */
-                stackProperties.setProperty("gov.nist.javax.sip.TRACE_LEVEL", Level.DEBUG.toString());           
-                logger.setLevel(Level.DEBUG);
+                stackProperties.setProperty("gov.nist.javax.sip.TRACE_LEVEL", Level.DEBUG
+                        .toString());
+
             }
 
             stackProperties.setProperty("gov.nist.javax.sip.LOG_MESSAGE_CONTENT", "true");
@@ -79,12 +81,7 @@ public class ProtocolObjects {
 
             sipStack = ProtocolObjects.sipFactory.createSipStack(stackProperties);
 
-            SipFoundryAppender sfa = new SipFoundryAppender(new SipFoundryLayout(), Gateway
-                    .getLogFile());
-
-            ((SipStackImpl) sipStack).addLogAppender(sfa);
-            applicationLogger.addAppender(sfa);
-            
+            ((SipStackImpl) sipStack).addLogAppender(Gateway.logAppender);
 
         } catch (Exception ex) {
             ex.printStackTrace();
