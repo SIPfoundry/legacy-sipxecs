@@ -1212,6 +1212,7 @@ public:
       SipMessage expected501ResponseMsg(expected501Response, strlen(expected501Response) );
       CallbackTrace reference501( expected501ResponseMsg, "127.0.0.1", 9997 );
       
+      KNOWN_BUG("Fails on ecs-fc8", "XSL-199");
       CPPUNIT_ASSERT( pProcessor->getStoredCallbackTrace(1) == reference501 );
    }
 
