@@ -159,6 +159,9 @@ protected:
     UtlBoolean handleRenegotiateCodecsAllConnections(OsMsg* pEventMessage);
     //: Handles the processing of a CallManager::CP_RENEGOTIATE_CODECS_ALL_CONNECTIONS
     //: message
+    UtlBoolean handleSendKeepAlive(OsMsg* pEventMessage);
+    //: Handles the processing of a CallManager::CP_KEEPALIVE 
+    //: message
     UtlBoolean handleGetCodecCPULimit(OsMsg& eventMessage);
     //: Handles the processing of a CallManager::CP_GET_CODEC_CPU_LIMIT
     //: message

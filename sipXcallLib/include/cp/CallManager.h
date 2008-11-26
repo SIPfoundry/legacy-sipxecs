@@ -217,6 +217,7 @@ public:
     virtual void unholdTerminalConnection(const char* callId, const char* addresss, const char* terminalId);
     virtual void renegotiateCodecsTerminalConnection(const char* callId, const char* addresss, const char* terminalId);
     virtual void renegotiateCodecsAllTerminalConnections(const char* callId);
+    virtual void sendKeepAlive(const char* callId, UtlBoolean useOptionsForKeepalive);
          virtual void getNumTerminalConnections(const char* callId, const char* address, int& numTerminalConnections);
          virtual OsStatus getTerminalConnections(const char* callId, const char* address,
                 int maxTerminalConnections, int& numTerminalConnections, UtlString terminalNames[]);

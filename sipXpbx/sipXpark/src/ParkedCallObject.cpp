@@ -24,8 +24,8 @@ const UtlContainableType ParkedCallObject::TYPE = "ParkedCallObject";
 // STATIC VARIABLE INITIALIZATIONS
 
 int ParkedCallObject::sNextSeqNo = 0;
-const int ParkedCallObject::sSeqNoIncrement = 4;
-const int ParkedCallObject::sSeqNoMask = 0x3FFFFFFC;
+const int ParkedCallObject::sSeqNoIncrement = 8;
+const int ParkedCallObject::sSeqNoMask = 0x3FFFFFF8;
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
@@ -40,7 +40,8 @@ ParkedCallObject::ParkedCallObject(const UtlString& orbit,
                                    bool bPickup,
                                    OsMsgQ* listenerQ,
                                    const OsTime& lifetime,
-                                   const OsTime& blindXferWait) :
+                                   const OsTime& blindXferWait,
+                                   const OsTime& keepAliveTime) :
    mSeqNo(sNextSeqNo),
    mpCallManager(callManager),
    mOriginalCallId(callId),
@@ -55,6 +56,7 @@ ParkedCallObject::ParkedCallObject(const UtlString& orbit,
    mTimeoutTimer(listenerQ, (void*)(mSeqNo + PARKER_TIMEOUT)),
    mMaximumTimer(listenerQ, (void*)(mSeqNo + MAXIMUM_TIMEOUT)),
    mTransferTimer(listenerQ, (void*)(mSeqNo + TRANSFER_TIMEOUT)),
+   mKeepAliveTimer(listenerQ, (void*)(mSeqNo + KEEPALIVE_TIMEOUT)),
    // Create the OsQueuedEvent to handle DTMF events.
    // This would ordinarily be an allocated object, because
    // removeDtmfEvent will delete it asynchronously.
@@ -73,10 +75,15 @@ ParkedCallObject::ParkedCallObject(const UtlString& orbit,
    sNextSeqNo = (sNextSeqNo + sSeqNoIncrement) & sSeqNoMask;
    // Start the maximum timer.
    mMaximumTimer.oneshotAfter(lifetime);
+   // Set the keepalive timer.
+   mKeepAliveTimer.periodicEvery(keepAliveTime, keepAliveTime);
 }
 
 ParkedCallObject::~ParkedCallObject()
 {
+   // Stop the Keepalive timer
+   mKeepAliveTimer.stop();
+
    // Terminate the audio player, if any.
    if (mpPlayer)
    {
@@ -327,6 +334,22 @@ void ParkedCallObject::clearTransfer()
                  mOriginalCallId.data());
 }
 
+// Send a keep alive signal back to the caller.
+void ParkedCallObject::sendKeepAlive(const char * mohUserPart)
+{
+   // See if this is a music-on-hold call or an orbit call
+
+   if (mOrbit == mohUserPart)
+   {
+      // Send a keep alive signal back to the caller. Use OPTIONS
+      mpCallManager->sendKeepAlive(mCurrentCallId, TRUE);
+   }
+   else
+   {
+      // Send a keep alive signal back to the caller. Use Re-INVITEs
+      mpCallManager->sendKeepAlive(mCurrentCallId, FALSE);
+   }
+}
 
 // Process a DTMF keycode for this call.
 void ParkedCallObject::keypress(int keycode)

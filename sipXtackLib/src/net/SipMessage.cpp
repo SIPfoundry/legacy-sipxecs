@@ -303,6 +303,63 @@ void SipMessage::setReinviteData(SipMessage* invite,
 
 }
 
+void SipMessage::setReinviteData(SipMessage* invite,
+                                 const char* farEndContact,
+                                 const char* contactUrl,
+                                 UtlBoolean inviteFromThisSide,
+                                 const char* routeField,
+                                 int sequenceNumber,
+                                 int sessionReinviteTimer)
+{
+    UtlString toField;
+    UtlString fromField;
+    UtlString callId;
+    UtlString contactUri;
+    UtlString lastResponseContact;
+
+    setInterfaceIpPort(invite->getInterfaceIp(), invite->getInterfacePort()) ;
+
+    // Get the to, from and callId fields
+    if(inviteFromThisSide)
+    {
+      invite->getToField(&toField);
+      invite->getFromField(&fromField);
+    }
+    else// Reverse the to from, this invite came from the other side
+    {
+      invite->getToField(&fromField);
+      invite->getFromField(&toField);
+    }
+
+   invite->getCallIdField(&callId);
+
+   if (farEndContact)
+      lastResponseContact.append(farEndContact);
+
+   if ( !inviteFromThisSide && lastResponseContact.isNull())
+   {
+      //if invite from other side and LastResponseContact is null because there has not been any
+      //final responses from the other side yet ...check the otherside's invite request and get the
+      //contact field from the request
+       invite->getContactUri(0, &lastResponseContact);
+    }
+
+   setInviteData(fromField, 
+         toField,
+         lastResponseContact,
+         contactUrl,
+         callId,
+         sequenceNumber,
+         sessionReinviteTimer);
+
+    // Set the route field if present
+    if(routeField && routeField[0])
+    {
+        setRouteField(routeField);
+    }
+
+}
+
 void SipMessage::setInviteData(const char* fromField,
                                const char* toField,
                                const char* farEndContact,
@@ -317,6 +374,28 @@ void SipMessage::setInviteData(const char* fromField,
                                int sequenceNumber,
                                int numRtpCodecs,
                                SdpCodec* rtpCodecs[],
+                               int sessionReinviteTimer)
+{
+   setInviteData(fromField,
+                 toField,
+                 farEndContact,
+                 contactUrl,
+                 callId,
+                 sequenceNumber,
+                 sessionReinviteTimer);
+
+   addSdpBody(rtpAddress, rtpAudioPort, rtcpAudioPort,
+              rtpVideoPort, rtcpVideoPort,
+              numRtpCodecs, rtpCodecs,
+              srtpParams);
+}
+
+void SipMessage::setInviteData(const char* fromField,
+                               const char* toField,
+                               const char* farEndContact,
+                               const char* contactUrl,
+                               const char* callId,
+                               int sequenceNumber,
                                int sessionReinviteTimer)
 {
    UtlString bodyString;
@@ -396,10 +475,6 @@ void SipMessage::setInviteData(const char* fromField,
 #ifdef TEST
    osPrintf("SipMessage::setInviteData rtpAddress: %s\n", rtpAddress);
 #endif
-   addSdpBody(rtpAddress, rtpAudioPort, rtcpAudioPort,
-              rtpVideoPort, rtcpVideoPort,
-              numRtpCodecs, rtpCodecs,
-              srtpParams);
 }
 
 void SipMessage::addSdpBody(const char* rtpAddress, int rtpAudioPort, int rtcpAudioPort,

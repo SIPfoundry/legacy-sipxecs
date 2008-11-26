@@ -71,6 +71,7 @@
 #define CONFIG_SETTING_MAX_SESSIONS   "SIP_PARK_MAX_SESSIONS"
 #define CONFIG_SETTING_LIFETIME       "SIP_PARK_LIFETIME"
 #define CONFIG_SETTING_BLIND_WAIT     "SIP_PARK_BLIND_XFER_WAIT"
+#define CONFIG_SETTING_KEEPALIVE_TIME "SIP_PARK_KEEPALIVE_TIME"
 
 const char* PARK_SERVER_ID_TOKEN = "~~id~park"; // see sipXregistry/doc/service-tokens.txt
 
@@ -92,6 +93,9 @@ const char* PARK_SERVER_ID_TOKEN = "~~id~park"; // see sipXregistry/doc/service-
 #define DEFAULT_BLIND_WAIT            60         // Default time to wait for a
                                                  // blind transfer to succeed or
                                                  // fail, 60 seconds.
+#define DEFAULT_KEEPALIVE_TIME        300        // Default time to send periodic
+                                                 // keepalive signals, in order to 
+                                                 // check if the call is still connected.
 #define CONS_XFER_WAIT                1          // Time to wait for a cons. transfer
                                                  // to succeed or fail, 1 second.
                                                  // This is not configurable via
@@ -530,7 +534,7 @@ int main(int argc, char* argv[])
     }
 
     // Read Park Server parameters from the config file.
-    int Lifetime, BlindXferWait, ConsXferWait;
+    int Lifetime, BlindXferWait, KeepAliveTime, ConsXferWait;
     if (configDb.get(CONFIG_SETTING_LIFETIME, Lifetime) != OS_SUCCESS)
     {
        Lifetime = DEFAULT_LIFETIME;
@@ -538,6 +542,10 @@ int main(int argc, char* argv[])
     if (configDb.get(CONFIG_SETTING_BLIND_WAIT, BlindXferWait) != OS_SUCCESS)
     {
        BlindXferWait = DEFAULT_BLIND_WAIT;
+    }
+    if (configDb.get(CONFIG_SETTING_KEEPALIVE_TIME, KeepAliveTime) != OS_SUCCESS)
+    {
+       KeepAliveTime = DEFAULT_KEEPALIVE_TIME;
     }
     // This is not configurable, as consultative transfers should
     // succeed or fail immediately.
@@ -635,7 +643,7 @@ int main(int argc, char* argv[])
 
     // Create a listener (application) to deal with call
     // processing events (e.g. incoming call and hang ups)
-    OrbitListener listener(&callManager, Lifetime, BlindXferWait, ConsXferWait);
+    OrbitListener listener(&callManager, Lifetime, BlindXferWait, KeepAliveTime, ConsXferWait);
 
     callManager.addTaoListener(&listener);
     listener.start();

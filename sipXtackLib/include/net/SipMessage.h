@@ -501,6 +501,14 @@ public:
                        SdpCodec* rtpCodecs[] = NULL,
                        int sessionReinviteTimer = 0);
 
+    void setInviteData(const char* fromField,
+                       const char* toField,
+                       const char* farEndContact,
+                       const char* contactUrl,
+                       const char* callId,
+                       int sequenceNumber = 1,
+                       int sessionReinviteTimer = 0);
+
     void setInviteData(const SipMessage* previousInvite,
                        const char* newUri);
 
@@ -518,6 +526,14 @@ public:
                          int numRtpCodecs,
                          SdpCodec* rtpCodecs[],
                          SdpSrtpParameters* srtpParams,
+                         int sessionReinviteTimer);
+
+    void setReinviteData(SipMessage* invite,
+                         const char* farEndContact,
+                         const char* contactUrl,
+                         UtlBoolean inviteFromThisSide,
+                         const char* routeField,
+                         int sequenceNumber,
                          int sessionReinviteTimer);
 
     void setOptionsData(const SipMessage* inviteRequest,

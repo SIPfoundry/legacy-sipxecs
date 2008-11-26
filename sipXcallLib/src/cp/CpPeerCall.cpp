@@ -1259,6 +1259,24 @@ UtlBoolean CpPeerCall::handleRenegotiateCodecsAllConnections(OsMsg* pEventMessag
     return TRUE ;
 }
 
+// Handles the processing of a CallManager::CP_KEEPALIVE 
+// message
+UtlBoolean CpPeerCall::handleSendKeepAlive(OsMsg* pEventMessage)
+{
+    UtlBoolean useOptionsForKeepalive = ((CpMultiStringMessage*)pEventMessage)->getInt1Data();
+    if (mLocalConnectionState == PtEvent::CONNECTION_ESTABLISHED)
+    {
+        SipConnection* connection = NULL;    
+        OsReadLock lock(mConnectionMutex);
+        UtlDListIterator iterator(mConnections);
+        while ((connection = (SipConnection*) iterator()))
+        {
+            connection->sendKeepAlive(useOptionsForKeepalive);
+        }
+    } 
+    return TRUE ;
+}
+
 
 // Handles the processing of a CallManager::CP_SET_CODEC_CPU_LIMIT message
 UtlBoolean CpPeerCall::handleSetCodecCPULimit(OsMsg& eventMessage)
@@ -2343,6 +2361,10 @@ UtlBoolean CpPeerCall::handleCallMessage(OsMsg& eventMessage)
     case CallManager::CP_RENEGOTIATE_CODECS_ALL_CONNECTIONS:
         handleRenegotiateCodecsAllConnections(&eventMessage);
         break ;
+
+    case CallManager::CP_SEND_KEEPALIVE:
+        handleSendKeepAlive(&eventMessage);
+        break;
 
     case CallManager::CP_SET_CODEC_CPU_LIMIT:
         handleSetCodecCPULimit(eventMessage);

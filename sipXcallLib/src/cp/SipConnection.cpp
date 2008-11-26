@@ -82,6 +82,8 @@ SipConnection::SipConnection(const char* outboundLineAddress,
     reinviteState = ACCEPT_INVITE;
     mIsEarlyMediaFor180 = isEarlyMediaFor180Enabled;
     mDropping = FALSE ;
+    mWaitingForKeepAliveResponse = FALSE;
+    mPrevSdp = NULL;
 
     // Build a from tag
     int fromTagInt = rand();
@@ -159,7 +161,11 @@ SipConnection::~SipConnection()
         delete mReferMessage;
         mReferMessage = NULL;
     }
-    
+    if(mPrevSdp)
+    {
+       delete mPrevSdp;
+       mPrevSdp=NULL;
+    }
     mProvisionalToTags.destroyAll();
 #ifdef TEST_PRINT
     if (!callId.isNull())
@@ -706,6 +712,7 @@ UtlBoolean SipConnection::dial(const char* dialString,
         // Save a copy of the invite
         inviteMsg = new SipMessage(sipInvite);
         inviteFromThisSide = TRUE;
+        mPrevSdp = (inviteMsg->getSdpBody())->copy();
         setCallerId();
 
         setState(Connection::CONNECTION_ESTABLISHED, Connection::CONNECTION_LOCAL);
@@ -924,6 +931,7 @@ UtlBoolean SipConnection::answer(const void* pDisplay)
             }
             else
             {
+                mPrevSdp = (sipResponse.getSdpBody())->copy();
                 setState(CONNECTION_ESTABLISHED, CONNECTION_LOCAL, CONNECTION_CAUSE_NORMAL);
                 if (mTerminalConnState == PtTerminalConnection::HELD)
                 {
@@ -1255,6 +1263,7 @@ UtlBoolean SipConnection::hold()
 
         if(send(holdMessage))
         {
+            mPrevSdp = (inviteMsg->getSdpBody())->copy();
             messageSent = TRUE;
 
             // Disallow INVITEs while this transaction is taking place
@@ -1282,6 +1291,75 @@ UtlBoolean SipConnection::offHold()
 UtlBoolean SipConnection::renegotiateCodecs()
 {
     return(doOffHold(TRUE));
+}
+
+UtlBoolean SipConnection::sendKeepAlive(UtlBoolean useOptionsForKeepalive)
+{
+    if(!useOptionsForKeepalive)
+    {
+       if(mpMediaInterface != NULL && 
+          inviteMsg && getState() == CONNECTION_ESTABLISHED &&
+          reinviteState == ACCEPT_INVITE &&
+          mTerminalConnState == PtTerminalConnection::TALKING)
+       {
+           if(mPrevSdp)
+           {
+               UtlString bodyString;
+               ssize_t len;
+      
+               SipMessage keepAliveMessage;
+               keepAliveMessage.setReinviteData(inviteMsg,
+                                                mRemoteContactUri,
+                                                mLocalContact.data(),
+                                                inviteFromThisSide,
+                                                mRouteField,
+                                                ++lastLocalSequenceNumber,
+                                                mDefaultSessionReinviteTimer);
+           
+               keepAliveMessage.setBody(mPrevSdp->copy());
+               // Add the content type for the body
+               keepAliveMessage.setContentType(SDP_CONTENT_TYPE);
+
+               // Add the content length
+               mPrevSdp->getBytes(&bodyString, &len);
+               keepAliveMessage.setContentLength(len);
+
+               delete inviteMsg;
+
+               inviteMsg = new SipMessage(keepAliveMessage);
+               inviteFromThisSide = TRUE;
+
+               if(send(keepAliveMessage))
+               {
+                   // Disallow INVITEs while this transaction is taking place
+                   reinviteState = REINVITING;
+                   return(TRUE);
+               }
+           }
+           else
+           {
+              doOffHold(TRUE);
+           }
+       }
+    }
+    else if(getState() == CONNECTION_ESTABLISHED &&
+            mTerminalConnState == PtTerminalConnection::TALKING &&
+            inviteMsg)
+    {
+        SipMessage sipOptionsMessage;
+
+        lastLocalSequenceNumber++;
+      
+        sipOptionsMessage.setOptionsData(inviteMsg, mRemoteContactUri.data(), inviteFromThisSide, 
+            lastLocalSequenceNumber, mRouteField.data(), mLocalContact.data());
+
+        sipOptionsMessage.setHeaderValue(SIP_ACCEPT_FIELD, SDP_CONTENT_TYPE);
+        mWaitingForKeepAliveResponse=TRUE;
+      
+        return( send(sipOptionsMessage, sipUserAgent->getMessageQueue()) );
+    }
+    
+    return (FALSE);
 }
 
 UtlBoolean SipConnection::doOffHold(UtlBoolean forceReInvite)
@@ -1356,6 +1434,7 @@ UtlBoolean SipConnection::doOffHold(UtlBoolean forceReInvite)
         }
         inviteMsg = new SipMessage(offHoldMessage);
         inviteFromThisSide = TRUE;
+        mPrevSdp = (offHoldMessage.getSdpBody())->copy();
 
         if(send(offHoldMessage))
         {
@@ -2721,6 +2800,7 @@ void SipConnection::processInviteRequest(const SipMessage* request)
                     sipResponse.setToFieldTag(tagNum);
                 }
                 send(sipResponse);
+                mPrevSdp = (sipResponse.getSdpBody())->copy();
 
                 // Save the invite for future reference
                 if(inviteMsg)
@@ -2895,6 +2975,7 @@ void SipConnection::processInviteRequest(const SipMessage* request)
             sipResponse.setToFieldTag(tagNum);
         }
         send(sipResponse);
+        mPrevSdp = (sipResponse.getSdpBody())->copy();
         setState(CONNECTION_QUEUED, CONNECTION_LOCAL);
         /** SIPXTAPI: TBD **/
 
@@ -5057,6 +5138,16 @@ void SipConnection::processOptionsResponse(const SipMessage* response)
     else if(responseCode > SIP_OK_CODE &&
         lastLocalSequenceNumber == sequenceNum)
     {
+        if( mWaitingForKeepAliveResponse &&
+           (responseCode == SIP_NOT_FOUND_CODE ||
+           responseCode == SIP_REQUEST_TIMEOUT_CODE ||
+           responseCode == SIP_BAD_TRANSACTION_CODE))
+        {
+            // We got an error response from the far end for an in-dialog OPTION we send.
+            // This indicates that the far-end was unable to find the dialog associated 
+            // with this call. Mark this call as failed.
+            setState(CONNECTION_FAILED, CONNECTION_REMOTE, CONNECTION_CAUSE_UNKNOWN);
+        }
         response->getAllowField(mAllowedRemote);
 
         // Assume default minimum
@@ -5071,6 +5162,10 @@ void SipConnection::processOptionsResponse(const SipMessage* response)
         responseText.data(),
         lastLocalSequenceNumber);
 #endif
+
+    // Reset the keepalive response flag
+    mWaitingForKeepAliveResponse=FALSE;
+
 } // End of processOptionsResponse
 
 void SipConnection::processByeResponse(const SipMessage* response)

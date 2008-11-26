@@ -59,11 +59,13 @@
 OrbitListener::OrbitListener(CallManager* callManager,
                              int lifetime,
                              int blindXferWait,
+                             int keepAliveTime,
                              int consXferWait) :
    TaoAdaptor("OrbitListener-%d"),
    mpCallManager(callManager),
    mLifetime(lifetime, 0),
    mBlindXferWait(blindXferWait, (intptr_t)0),
+   mKeepAliveTime(keepAliveTime, 0),
    mConsXferWait(consXferWait, 0)
 {
    // Assemble the full file name of the orbit file and initialize the reader.
@@ -581,6 +583,44 @@ UtlBoolean OrbitListener::handleMessage(OsMsg& rMsg)
             // ParkedCallObject to allow further transfer attempts.
             pParkedCallObject->clearTransfer();
             break;
+   
+         case ParkedCallObject::KEEPALIVE_TIMEOUT:
+         {
+            OsSysLog::add(FAC_PARK, PRI_DEBUG,
+                          "OrbitListener::handleMessage KEEPALIVE_TIMEOUT "
+                          "ParkedCallObject = %p",
+                          pParkedCallObject);
+
+            SipDialog dialog;
+            // Check if the call manager knows about this callId, remove from list if not.
+            // Another way to check if this callId is valid is to test the returned callId
+            // in the SipDialog.
+            // Sometimes getSipDialog does not fail but returns with an empty callId.               
+            // Note that getSipDialog looks up using the current Call-ID, not the original
+            // Call-ID.
+            OsStatus ret =
+               mpCallManager->getSipDialog(pParkedCallObject->getCurrentCallId(),
+                                           pParkedCallObject->getCurrentAddress(), dialog);
+            UtlString tCallId;
+            dialog.getCallId(tCallId);               
+                  
+            if (ret == OS_SUCCESS && !tCallId.isNull())
+            {
+               // Send a keep alive signal back to the caller
+               pParkedCallObject->sendKeepAlive(MOH_USER_PART);;
+            }
+            else
+            {
+               OsSysLog::add(FAC_PARK, PRI_ERR, "OrbitListener::handleMessage - "
+                             "ParkedCallObject::KEEPALIVE_TIMEOUT Unknown callId '%s', "
+                             "remove from list", pParkedCallObject->getCurrentCallId());
+
+               UtlString tKey(pParkedCallObject->getCurrentCallId());
+               mCalls.destroy(&tKey);
+            }
+            break;
+         }
+
          }
       }
       else
@@ -986,7 +1026,7 @@ void OrbitListener::setUpParkedCallOffered(const UtlString& callId,
       pThisCall = new ParkedCallObject(orbit, mpCallManager,
                                        callId, address, audio, false,
                                        this->getMessageQueue(), mLifetime,
-                                       mBlindXferWait);
+                                       mBlindXferWait, mKeepAliveTime);
       // Put it in the list of parked calls
       mCalls.insertKeyAndValue(new UtlString(callId), pThisCall);
       OsSysLog::add(FAC_PARK, PRI_DEBUG,
@@ -1201,7 +1241,7 @@ void OrbitListener::setUpRetrievalCall(const UtlString& callId,
       ParkedCallObject *pExecutingCall =
          new ParkedCallObject(orbit, mpCallManager,
                               callId, address, "", true,
-                              this->getMessageQueue(), mLifetime, mBlindXferWait);
+                              this->getMessageQueue(), mLifetime, mBlindXferWait, mKeepAliveTime);
       mCalls.insertKeyAndValue(new UtlString(callId), pExecutingCall);
       OsSysLog::add(FAC_PARK, PRI_DEBUG,
                     "OrbitListener::setUpRetrievalCall "

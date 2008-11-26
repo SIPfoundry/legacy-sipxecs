@@ -83,6 +83,7 @@ public:
    OrbitListener(CallManager* callManager, ///< Call Manager for signaling
                  int lifetime,             ///< Max. parked call lifetime in secs.
                  int blindXferWait,        ///< Max. time for blind xfer. in secs.
+                 int keepAliveTime,        ///< Periodic time for sending keepalives in secs.
                  int consXferWait          ///< Max. time for cons. xfer. in secs.
       );
    //:Default constructor
@@ -155,6 +156,9 @@ private:
 
     // The time to allow for a blind transfer.
     OsTime mBlindXferWait;
+
+    // The periodic time to send keepalive signals.
+    OsTime mKeepAliveTime;
 
     // The time to allow for a consultative transfer.
     OsTime mConsXferWait;
