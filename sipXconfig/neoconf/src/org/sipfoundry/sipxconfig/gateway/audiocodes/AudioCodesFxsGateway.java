@@ -29,6 +29,7 @@ public class AudioCodesFxsGateway extends Phone {
     private static final String[] COPY_FILES = {CALL_PROGRESS_TONES_FILE, FXS_LOOP_CHARACTERISTICS_FILE};
 
     public AudioCodesFxsGateway() {
+        setDeviceVersion(AudioCodesModel.REL_5_0);
     }
 
     @Override
