@@ -25,6 +25,7 @@ AC_PATH_PROG([BASH], [bash])
 AC_PATH_PROG([PERL],[perl]) 	 
 AC_PATH_PROG([OPENSSL],[openssl])
 AC_PATH_PROG([DATE_BINARY],[date],"/bin/date")
+AC_PATH_PROG([LN_BINARY],[ln],"/bin/ln")
 CHECK_XARGS_REPLACE
 CHECK_DATE_PARSE_ARGS
 
@@ -83,6 +84,7 @@ AC_CONFIG_FILES([
   src/sipxrestorebinary/Makefile
   src/sipxpackage/Makefile
   src/sipxchangedate/Makefile
+  src/sipxchangetimezone/Makefile
 ])
 AC_OUTPUT
 

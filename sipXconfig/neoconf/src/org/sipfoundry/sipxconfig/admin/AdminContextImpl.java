@@ -38,6 +38,7 @@ import static org.springframework.dao.support.DataAccessUtils.singleResult;
 public abstract class AdminContextImpl extends HibernateDaoSupport implements AdminContext, ApplicationListener,
         BeanFactoryAware {
     private static final String DATE_BINARY = "sipx-sudo-date";
+    private static final String TIMEZONE_BINARY = "sipx-sudo-timezone";
 
     private static final SimpleDateFormat CHANGE_DATE_FORMAT = new SimpleDateFormat("MMddHHmmyyyy");
 
@@ -177,4 +178,31 @@ public abstract class AdminContextImpl extends HibernateDaoSupport implements Ad
             LOG.error(errorMsg, e);
         }
     }
+
+    public void setSystemTimezone(String timezone) {
+
+        String errorMsg = "Error when changing time zone";
+        ProcessBuilder pb = new ProcessBuilder(getLibExecDirectory() + File.separator + TIMEZONE_BINARY);
+        pb.command().add(timezone);
+        try {
+            LOG.debug(pb.command());
+            Process process = pb.start();
+            BufferedReader scriptErrorReader = new BufferedReader(new InputStreamReader(process.getErrorStream()));
+            String errorLine = scriptErrorReader.readLine();
+            while (errorLine != null) {
+                LOG.warn("sipx-sudo-timezone: " + errorLine);
+                errorLine = scriptErrorReader.readLine();
+            }
+            int code = process.waitFor();
+            if (code != 0) {
+                errorMsg = String.format("Error when changing time zone. Exit code: %d", code);
+                LOG.error(errorMsg);
+            }
+        } catch (IOException e) {
+            LOG.error(errorMsg, e);
+        } catch (InterruptedException e) {
+            LOG.error(errorMsg, e);
+        }
+    }
+
 }

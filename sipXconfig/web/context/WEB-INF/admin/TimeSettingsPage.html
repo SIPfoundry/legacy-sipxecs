@@ -6,5 +6,13 @@
     <span jwcid="newDate@common/DateTimeEditor" datetime="ognl:newDate" label="message:timeSettings.newDate"/>
     <span jwcid="submit@Submit" value="message:button.apply" listener="listener:setDate" />
     <span jwcid="@common/Confirm" component="component:submit" prompt="message:confirm.change"/>
+    <br/><br/><br/>
+    <span jwcid="@common/FieldPanel"
+      field="component:type"
+        label="message:timeSettings.newTimezone">
+        <span jwcid="type@PropertySelection" model="ognl:timezoneTypeModel" value="ognl:timezoneType"/>
+    </span>
+    <span jwcid="submitTimezone@Submit" value="message:button.apply" listener="listener:setSysTimezone" />
+    <br/><br/><br/>
   </form>
 </div>
