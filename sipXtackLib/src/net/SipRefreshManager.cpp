@@ -841,8 +841,20 @@ UtlBoolean SipRefreshManager::handleMessage(OsMsg &eventMessage)
                     // from when the request was sent.
                     if (expirationPeriod > 0)
                     {
+                        // Calculate the new (often shorter) subscription refresh timer.
+                        int nextResendSeconds = calculateResendTime(expirationPeriod, TRUE);
+
+                        // Check if the accepted timer is less than the originally requested timer.
+                        if (expirationPeriod < state->mExpirationPeriodSeconds)
+                        { 
+                            // Stop and restart the timer with the shorter timeout period.
+                            state->mpRefreshTimer->stop();
+                            OsTime timerTime(nextResendSeconds, 0);
+                            state->mpRefreshTimer->oneshotAfter(timerTime);
+                        }
+
                         state->mExpiration =
-                           state->mPendingStartTime + expirationPeriod;
+                           state->mPendingStartTime + nextResendSeconds;
                         OsSysLog::add(FAC_SIP, PRI_DEBUG,
                                       "SipRefreshManager::handleMessage %p->mExpirationPeriod = %ld",
                                       state, state->mExpiration);
@@ -1169,7 +1181,7 @@ RefreshDialogState*
 void SipRefreshManager::setRefreshTimer(RefreshDialogState& state, 
                                         UtlBoolean isSuccessfulReschedule)
 {
-    // Create and set a new timer for the failed time out period
+    // Create and set a new timer for the next time out period
     int nextResendSeconds = 
         calculateResendTime(state.mExpirationPeriodSeconds,
                                   isSuccessfulReschedule);
