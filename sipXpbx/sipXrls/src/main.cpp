@@ -24,6 +24,10 @@
 #include <os/OsSysLog.h>
 #include "ResourceListServer.h"
 #include "main.h"
+#include <net/SipLine.h>
+#include <net/SipLineMgr.h>
+#include <sipdb/CredentialDB.h>
+#include <net/HttpMessage.h>
 
 // DEFINES
 
@@ -36,6 +40,8 @@
 #  define SIPXCHANGE_VERSION_COMMENT  ""
 #endif
 
+// SIPXRLS User ID
+#define RLSSERVER_ID_TOKEN            "~~id~sipXrls"
 #define CONFIG_SETTINGS_FILE          "sipxrls-config"
 #define CONFIG_ETC_DIR                SIPX_CONFDIR
 
@@ -254,6 +260,100 @@ void initSysLog(OsConfigDb* pConfig)
    }
 }
 
+// Get and add the credentials for sipXrls
+SipLineMgr* addCredentials (UtlString domain, UtlString realm)
+{
+   SipLine* line = NULL;
+   SipLineMgr* lineMgr = NULL;
+   UtlString user;
+
+   CredentialDB* credentialDb;
+   if ((credentialDb = CredentialDB::getInstance()))
+   {
+      Url identity;
+
+      identity.setUserId(RLSSERVER_ID_TOKEN);
+      identity.setHostAddress(domain);
+      UtlString ha1_authenticator;
+      UtlString authtype;
+      bool bSuccess = false;
+      
+      if (credentialDb->getCredential(identity, realm, user, ha1_authenticator, authtype))
+      {
+         if ((line = new SipLine( identity // user entered url
+                                 ,identity // identity url
+                                 ,user     // user
+                                 ,TRUE     // visible
+                                 ,SipLine::LINE_STATE_PROVISIONED
+                                 ,TRUE     // auto enable
+                                 ,FALSE    // use call handling
+                                 )))
+         {
+            if ((lineMgr = new SipLineMgr()))
+            {
+               if (lineMgr->addLine(*line))
+               {
+                  if (lineMgr->addCredentialForLine( identity, realm, user, ha1_authenticator
+                                                    ,HTTP_DIGEST_AUTHENTICATION
+                                                    )
+                      )
+                  {
+                     lineMgr->setDefaultOutboundLine(identity);
+                     bSuccess = true;
+
+                     OsSysLog::add(LOG_FACILITY, PRI_INFO,
+                                   "Added identity '%s': user='%s' realm='%s'"
+                                   ,identity.toString().data(), user.data(), realm.data()
+                                   );
+                  }
+                  else
+                  {
+                     OsSysLog::add(LOG_FACILITY, PRI_ERR,
+                                   "Error adding identity '%s': user='%s' realm='%s'\n",
+                                   identity.toString().data(), user.data(), realm.data()
+                                   );
+                  }
+               }
+               else
+               {
+                  OsSysLog::add(LOG_FACILITY, PRI_ERR, "addLine failed" );
+               }
+            }
+            else
+            {
+               OsSysLog::add(LOG_FACILITY, PRI_ERR,
+                             "Constructing SipLineMgr failed" );
+            }
+         }
+         else
+         {
+            OsSysLog::add(LOG_FACILITY, PRI_ERR,
+                          "Constructing SipLine failed" );
+         }
+      }
+      else
+      {
+         OsSysLog::add(LOG_FACILITY, PRI_ERR,
+                       "No credential found for '%s' in realm '%s'"
+                       "; transfer functions will not work"
+                       ,identity.toString().data(), domain.data(), realm.data()
+                       );
+      }
+      
+      if( !bSuccess )
+      {
+         delete line;
+         line = NULL;
+         
+         delete lineMgr;
+         lineMgr = NULL;         
+      }
+   }
+
+   credentialDb->releaseInstance();
+
+   return lineMgr;
+}
 
 //
 // The main entry point to sipXrls.
@@ -392,6 +492,12 @@ int main(int argc, char* argv[])
        minResubscribeInterval = RLS_DEFAULT_MIN_RESUBSCRIBE_INTERVAL;
    }
 
+   SipLineMgr* lineMgr = addCredentials(domainName, realm);
+   if(NULL == lineMgr)
+   {
+      return 1;
+   }
+
    // Wait to allow our targets time to come up.
    // (Wait is determined by CONFIG_SETTING_STARTUP_WAIT, default 2 minutes.)
    OsSysLog::add(LOG_FACILITY, PRI_INFO,
@@ -409,7 +515,7 @@ int main(int argc, char* argv[])
    {
       // Initialize the ResourceListServer.
       // (Use tcpPort as the TLS port, too.)
-      ResourceListServer rls(domainName, realm,
+      ResourceListServer rls(domainName, realm, lineMgr,
                              DIALOG_EVENT_TYPE, DIALOG_EVENT_CONTENT_TYPE,
                              tcpPort, udpPort, tcpPort, bindIp,
                              &resourceListFile,
@@ -430,6 +536,9 @@ int main(int argc, char* argv[])
 
    // Flush the log file
    OsSysLog::flush();
+
+   // Delete the LineMgr Object
+   delete lineMgr;
 
    // Say goodnight Gracie...
    return 0;

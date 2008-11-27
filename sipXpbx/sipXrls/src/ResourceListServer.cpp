@@ -35,6 +35,7 @@ const UtlContainableType ResourceListServer::TYPE = "ResourceListServer";
 // Constructor
 ResourceListServer::ResourceListServer(const UtlString& domainName,
                                        const UtlString& realm,
+                                       SipLineMgr* lineMgr,
                                        const char* eventType,
                                        const char* contentType,
                                        int tcpPort,
@@ -106,7 +107,7 @@ ResourceListServer::ResourceListServer(const UtlString& domainName,
       NULL, // natPingUrl
       0, // natPingFrequency
       "PING", // natPingMethod
-      NULL, // lineMgr
+      lineMgr, // lineMgr
       SIP_DEFAULT_RTT, // sipFirstResendTimeout
       TRUE, // defaultToUaTransactions
       -1, // readBufferSize

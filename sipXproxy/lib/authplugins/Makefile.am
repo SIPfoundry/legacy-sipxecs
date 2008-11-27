@@ -24,7 +24,8 @@ nobase_lib_LTLIBRARIES = \
     authplugins/libCallerAlias.la \
     authplugins/libTransferControl.la \
     authplugins/libEnforceAuthRules.la \
-	 authplugins/libMSFT_ExchangeTransferHack.la
+	 authplugins/libMSFT_ExchangeTransferHack.la \
+	 authplugins/libSubscriptionAuth.la
 
 authplugins_libCallerAlias_la_SOURCES = \
     CallerAlias.h \
@@ -76,4 +77,17 @@ authplugins_libMSFT_ExchangeTransferHack_la_LDFLAGS = \
     $(AUTHPLUGIN_COMMON_LD_FLAGS)
 
 authplugins_libMSFT_ExchangeTransferHack_la_LIBADD = \
+    @SIPXCOMMSERVER_LIBS@
+
+authplugins_libSubscriptionAuth_la_SOURCES = \
+    SubscriptionAuth.h \
+    SubscriptionAuth.cpp
+
+authplugins_libSubscriptionAuth_la_CXXFLAGS = \
+    $(AUTHPLUGIN_COMMON_CXX_FLAGS)
+
+authplugins_libSubscriptionAuth_la_LDFLAGS = \
+    $(AUTHPLUGIN_COMMON_LD_FLAGS)
+
+authplugins_libSubscriptionAuth_la_LIBADD = \
     @SIPXCOMMSERVER_LIBS@

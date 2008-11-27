@@ -59,6 +59,8 @@ class ResourceListServer : public UtlContainableAtomic
                       const UtlString& domainName,
                       /// The realm used for authentication
                       const UtlString& realm,
+                      /// Container for user definitions and their credentials.
+                      SipLineMgr* lineMgr,
                       /// The event-type to handle.
                       const char* eventType,
                       /// The content-type to handle.

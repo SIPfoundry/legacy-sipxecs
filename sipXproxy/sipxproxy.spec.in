@@ -137,6 +137,10 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_libdir}/authplugins/libMSFT_ExchangeTransferHack.a
 %attr(755,root,root) %{_libdir}/authplugins/libMSFT_ExchangeTransferHack.so*
 
+%attr(755,root,root) %{_libdir}/authplugins/libSubscriptionAuth.la
+%attr(755,root,root) %{_libdir}/authplugins/libSubscriptionAuth.a
+%attr(755,root,root) %{_libdir}/authplugins/libSubscriptionAuth.so*
+
 # The configuration directory needs to be writeable because
 # config files are generated from templates via config.defs
 %dir %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx

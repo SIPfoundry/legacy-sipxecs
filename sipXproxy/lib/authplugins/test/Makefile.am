@@ -6,7 +6,8 @@ TESTS = \
 	msftxferhacktest \
 	nattraversalagenttests \
 	nattraversaltests \
-	transfercontroltest
+	transfercontroltest \
+	subscriptionauthtest
 
 check_PROGRAMS = \
 	calleraliastest \
@@ -14,7 +15,8 @@ check_PROGRAMS = \
 	msftxferhacktest \
 	nattraversalagenttests \
 	nattraversaltests \
-	transfercontroltest
+	transfercontroltest \
+	subscriptionauthtest
 # sandbox
 
 COMMON_CXX_FLAGS = \
@@ -109,6 +111,15 @@ msftxferhacktest_SOURCES = \
 msftxferhacktest_LDADD = \
 	$(COMMON_LIBS)
 
+subscriptionauthtest_CXXFLAGS = \
+	$(COMMON_CXX_FLAGS)
+
+subscriptionauthtest_SOURCES = \
+	$(top_srcdir)/lib/authplugins/SubscriptionAuth.cpp \
+	SubscriptionAuthTest.cpp
+
+subscriptionauthtest_LDADD = \
+	$(COMMON_LIBS)
 
 EXTRA_DATA = \
 	caller-alias.xml \

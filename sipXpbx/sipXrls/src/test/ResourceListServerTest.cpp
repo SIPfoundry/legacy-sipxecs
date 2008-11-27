@@ -87,6 +87,7 @@ public:
       pResourceServerUnderTest = new ResourceListServer(
                                        "rlstest.test", // domain 
                                        "rlstest.test", // realm
+                                       NULL, 
                                        DIALOG_EVENT_TYPE, 
                                        DIALOG_EVENT_CONTENT_TYPE,
                                        45140, // TCP port

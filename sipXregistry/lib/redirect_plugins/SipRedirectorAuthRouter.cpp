@@ -121,12 +121,15 @@ RedirectPlugin::LookUpStatus SipRedirectorAuthRouter::lookUp(
    
    // Do the cheap global tests first
    //   Is there an authorization proxy route?
-   //   Is the request method INVITE? (This operates only on INVITEs)
+   //   Is the request method INVITE or SUBSCRIBE? (This operates only on INVITEs and
+   //   SUBSCRIBEs as these represent the only two dialog-forming types of requests that
+   //   the sipXproxy authenticates)
    //   Does the contact list have any Contacts? (If not, there's nothing to do.)
    if (!mAuthUrl.isNull())
    {
       int contacts = contactList.entries();
-      if (   (method.compareTo(SIP_INVITE_METHOD, UtlString::ignoreCase) == 0)
+      if (   ((method.compareTo(SIP_INVITE_METHOD,    UtlString::ignoreCase) == 0) ||
+              (method.compareTo(SIP_SUBSCRIBE_METHOD, UtlString::ignoreCase) == 0) ) 
           && (contacts)
          )
       {
@@ -148,7 +151,7 @@ RedirectPlugin::LookUpStatus SipRedirectorAuthRouter::lookUp(
                           );
 
             // Prepend sipXproxy route to Route header parameter 
-            // to ensure that sipXproxy sees the INVITE resulting 
+            // to ensure that sipXproxy sees the request resulting 
             // from 302 Moved Temporarily recursion unless a 
             // signed route header already exists. Please refer to 
             // SipRedirectorAuthRouter.h for more details.
@@ -177,7 +180,7 @@ RedirectPlugin::LookUpStatus SipRedirectorAuthRouter::lookUp(
                else
                {
                   // there is already a Route header parameter in the contact but it is not signed
-                  // append it to the sipXproxy route to make sure it sees INVITE resulting from 
+                  // append it to the sipXproxy route to make sure it sees the request resulting from 
                   // 302 recursion.
                   checkedRoute.append(SIP_MULTIFIELD_SEPARATOR);
                   checkedRoute.append(routeValue);
@@ -200,10 +203,10 @@ RedirectPlugin::LookUpStatus SipRedirectorAuthRouter::lookUp(
       }
       else
       {
-         // request is not an INVITE, or the contact list is empty
+         // request is not an INVITE or SUBSCRIBE, or the contact list is empty
          OsSysLog::add(FAC_SIP, PRI_DEBUG,
                        "%s::lookUp "
-                       "'%s' request is not an INVITE or ContactList has no contacts (%d) - ignored.",
+                       "'%s' request is neither an INVITE or SUBSCRIBE or ContactList has no contacts (%d) - ignored.",
                        mLogName.data(), method.data(), contacts
                        );
       }
