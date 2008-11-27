@@ -14,7 +14,7 @@ BuildRequires: freetype
 %endif
 BuildRequires: gcc-c++, openssl-devel
 BuildRequires: libpng-devel, zlib-devel, libart_lgpl-devel >= 2.0
-%if "%{?fedora}" >= "7"
+%if "%{?fedora}" >= "7" && %{acrch} != ppc && %{arch} != ppc64 && 0%{?suse_version} < 1100
 BuildRequires: perl-devel
 %endif
 
