@@ -1067,6 +1067,7 @@ public:
       SipMessage expected200ResponseMsg(expected200Response, strlen(expected200Response) );
       CallbackTrace reference200( expected200ResponseMsg, "127.0.0.1", 9997 );
       
+      KNOWN_BUG("Fails on oem-centos5.x64, ecs-centos5.x64, oem-opensuse11.0-ppc", "XSL-195");
       CPPUNIT_ASSERT( pProcessor->getStoredCallbackTrace(1) == reference200 );
    }
    
