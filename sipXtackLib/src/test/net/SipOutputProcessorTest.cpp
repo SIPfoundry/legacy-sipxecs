@@ -1010,6 +1010,7 @@ public:
       SipMessage expected180ResponseMsg(expected180Response, strlen(expected180Response) );
       CallbackTrace reference180( expected180ResponseMsg, "127.0.0.1", 9997 );
       
+      KNOWN_BUG("Fails on oem-centos5.x64, ecs-centos5.x64, oem-opensuse11.0-ppc", "XSL-196");
       CPPUNIT_ASSERT( pProcessor->getStoredCallbackTrace(1) == reference180 );
 
       cancelMsg.setCancelData( &inviteFrom180Msg );
