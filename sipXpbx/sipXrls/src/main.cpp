@@ -335,7 +335,6 @@ SipLineMgr* addCredentials (UtlString domain, UtlString realm)
       {
          OsSysLog::add(LOG_FACILITY, PRI_ERR,
                        "No credential found for '%s' in realm '%s'"
-                       "; transfer functions will not work"
                        ,identity.toString().data(), domain.data(), realm.data()
                        );
       }
@@ -493,11 +492,13 @@ int main(int argc, char* argv[])
    }
 
    SipLineMgr* lineMgr = addCredentials(domainName, realm);
+
+#ifdef XCF-3093_FIXED
    if(NULL == lineMgr)
    {
       return 1;
    }
-
+#endif
    // Wait to allow our targets time to come up.
    // (Wait is determined by CONFIG_SETTING_STARTUP_WAIT, default 2 minutes.)
    OsSysLog::add(LOG_FACILITY, PRI_INFO,
