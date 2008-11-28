@@ -1171,9 +1171,12 @@ void SipxProcess::setConfigurationVersion(const UtlString& newConfigVersion)
 
       if (OS_SUCCESS==persistentConfigVersionFile.open(OsFile::CREATE))
       {
+         UtlString configVersion(mConfigVersion);
+         configVersion.append("\n");
+         
          size_t bytesWritten;
-         if (OS_SUCCESS!=persistentConfigVersionFile.write(mConfigVersion.data(),
-                                                           mConfigVersion.length(),
+         if (OS_SUCCESS!=persistentConfigVersionFile.write(configVersion.data(),
+                                                           configVersion.length(),
                                                            bytesWritten))
          {
             OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "SipxProcess[%s]::setConfigurationVersion "
@@ -1188,7 +1191,6 @@ void SipxProcess::setConfigurationVersion(const UtlString& newConfigVersion)
       }
 
       configurationVersionChange();
-//      triggerServiceCheck(ConfigurationVersionUpdate);
    }
    else
    {
