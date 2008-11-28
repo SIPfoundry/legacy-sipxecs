@@ -1010,7 +1010,6 @@ public:
       SipMessage expected180ResponseMsg(expected180Response, strlen(expected180Response) );
       CallbackTrace reference180( expected180ResponseMsg, "127.0.0.1", 9997 );
       
-      KNOWN_BUG("Fails on oem-centos5.x64, ecs-centos5.x64, oem-opensuse11.0-ppc", "XSL-196");
       CPPUNIT_ASSERT( pProcessor->getStoredCallbackTrace(1) == reference180 );
 
       cancelMsg.setCancelData( &inviteFrom180Msg );
@@ -1067,7 +1066,6 @@ public:
       SipMessage expected200ResponseMsg(expected200Response, strlen(expected200Response) );
       CallbackTrace reference200( expected200ResponseMsg, "127.0.0.1", 9997 );
       
-      KNOWN_BUG("Fails on oem-centos5.x64, ecs-centos5.x64, oem-opensuse11.0-ppc", "XSL-195");
       CPPUNIT_ASSERT( pProcessor->getStoredCallbackTrace(1) == reference200 );
    }
    
@@ -1111,12 +1109,12 @@ public:
          "Allow: INVITE, ACK, CANCEL, BYE, REFER, OPTIONS\r\n"
          "User-Agent: sipXecs/3.10.0 (Linux)\r\n"
          "Accept-Language: en\r\n"
+         "Content-Length: 0\r\n"
          "\r\n";
 
       SipMessage expected301ResponseMsg(expected301Response, strlen(expected301Response) );
       CallbackTrace reference301( expected301ResponseMsg, "127.0.0.1", 9997 );
       
-      KNOWN_BUG("Fails on ecs-fc8", "XSL-197");
       CPPUNIT_ASSERT( pProcessor->getStoredCallbackTrace(1) == reference301 );
    }
    
@@ -1160,12 +1158,12 @@ public:
          "Allow: INVITE, ACK, CANCEL, BYE, REFER, OPTIONS\r\n"
          "User-Agent: sipXecs/3.10.0 (Linux)\r\n"
          "Accept-Language: en\r\n"
+         "Content-Length: 0\r\n"
          "\r\n";
 
       SipMessage expected400ResponseMsg(expected400Response, strlen(expected400Response) );
       CallbackTrace reference400( expected400ResponseMsg, "127.0.0.1", 9997 );
       
-      KNOWN_BUG("Fails on ecs-fc8", "XSL-198");
       CPPUNIT_ASSERT( pProcessor->getStoredCallbackTrace(1) == reference400 );
    }
    
@@ -1209,12 +1207,12 @@ public:
          "Allow: INVITE, ACK, CANCEL, BYE, REFER, OPTIONS\r\n"
          "User-Agent: sipXecs/3.10.0 (Linux)\r\n"
          "Accept-Language: en\r\n"
+         "Content-Length: 0\r\n"
          "\r\n";
 
       SipMessage expected501ResponseMsg(expected501Response, strlen(expected501Response) );
       CallbackTrace reference501( expected501ResponseMsg, "127.0.0.1", 9997 );
       
-      KNOWN_BUG("Fails on ecs-fc8", "XSL-199");
       CPPUNIT_ASSERT( pProcessor->getStoredCallbackTrace(1) == reference501 );
    }
 
@@ -1258,12 +1256,12 @@ public:
          "Allow: INVITE, ACK, CANCEL, BYE, REFER, OPTIONS\r\n"
          "User-Agent: sipXecs/3.10.0 (Linux)\r\n"
          "Accept-Language: en\r\n"
+         "Content-Length: 0\r\n"
          "\r\n";
 
       SipMessage expected603ResponseMsg(expected603Response, strlen(expected603Response) );
       CallbackTrace reference603( expected603ResponseMsg, "127.0.0.1", 9997 );
       
-      KNOWN_BUG("Fails on ecs-fc8", "XSL-200");
       CPPUNIT_ASSERT( pProcessor->getStoredCallbackTrace(1) == reference603 );
    }
    

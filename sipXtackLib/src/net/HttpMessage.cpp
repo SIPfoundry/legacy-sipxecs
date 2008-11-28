@@ -98,6 +98,7 @@ HttpMessage::HttpMessage(const char* messageBytes, ssize_t byteCount)
 HttpMessage::HttpMessage(OsSocket* inSocket, ssize_t bufferSize)
    : mHeaderCacheClean(FALSE)
    , body(NULL)
+   , mUseChunkedEncoding(false)
    , transportTimeStamp(0)
    , lastResendDuration(0)
    , transportProtocol(OsSocket::UNKNOWN)
@@ -124,6 +125,7 @@ HttpMessage::HttpMessage(const HttpMessage& rHttpMessage)
 
     mHeaderCacheClean = rHttpMessage.mHeaderCacheClean;
     mFirstHeaderLine = rHttpMessage.mFirstHeaderLine;
+    mUseChunkedEncoding = rHttpMessage.mUseChunkedEncoding;
     body = NULL;
     if(rHttpMessage.body)
     {
