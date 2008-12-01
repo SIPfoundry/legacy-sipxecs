@@ -14,10 +14,12 @@
 //#include <...>
 
 // DEFINES
-#define __USE_OLD_FALLBACKRULES_SCHEMA__  // fallbackrules.xml is assumed to be of the old format that does not 
-                                          // support locations, e.g. <callerLocationMatch> and <callerLocation>.
-                                          // then this flag, is defined, the fallbackrules.xml is parsed using the old
-                                          // the format that predates the introduction of location-based routing
+//#define __USE_OLD_FALLBACKRULES_SCHEMA__  // fallbackrules.xml is assumed to be of the old format that does not 
+                                            // support locations, e.g. <callerLocationMatch> and <callerLocation>.
+                                            // then this flag, is defined, the fallbackrules.xml is parsed using the old
+                                            // the format that predates the introduction of location-based routing.
+                                            // Note:  Builds made after Revision 14092 use the fallback rules format
+                                            //        meaning that this line should be commented for such builds.
 
 // APPLICATION INCLUDES
 #include "registry/RedirectPlugin.h"
