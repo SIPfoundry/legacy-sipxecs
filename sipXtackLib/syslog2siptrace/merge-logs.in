@@ -48,8 +48,8 @@ XML=
 for LOG in ${@:-sip*.log}
 do
   F="${XML_PREFIX}${LOG%.log}.xml"
-  syslog2siptrace $SYSLOG2SIPTRACE_OPTIONS <$LOG >$F
+  @bindir@/syslog2siptrace $SYSLOG2SIPTRACE_OPTIONS <$LOG >$F
   XML="$XML $F"
 done
 
-siptrace-merge $SIPTRACE_MERGE_OPTIONS -- $XML >$OUTPUT
+@bindir@/siptrace-merge $SIPTRACE_MERGE_OPTIONS -- $XML >$OUTPUT
