@@ -10,6 +10,9 @@
 package org.sipfoundry.sipxconfig.acd;
 
 import java.io.Serializable;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -21,6 +24,11 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.hibernate.classic.Session;
+import org.sipfoundry.sipxconfig.admin.commserver.Location;
+import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
 import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
@@ -29,25 +37,38 @@ import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
+import org.sipfoundry.sipxconfig.service.LocationSpecificService;
+import org.sipfoundry.sipxconfig.service.SipxAcdService;
+import org.sipfoundry.sipxconfig.service.SipxService;
+import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.ValueStorage;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
+import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 
 public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContext, BeanFactoryAware,
         DaoEventListener {
+    public static final Log LOG = LogFactory.getLog(AcdContextImpl.class);    
+
     private static final String NAME_PROPERTY = "name";
 
     private static final String SERVER_PARAM = "acdServer";
 
     private static final String USER_PARAM = "user";
 
+    private static final String SQL = "alter table acd_server drop column host";    
+
     private BeanFactory m_beanFactory;
 
     private String m_audioServerUrl;
 
     private boolean m_enabled = true;
+
+    private LocationsManager m_locationsManager;
+    
+    private SipxServiceManager m_sipxServiceManager;    
 
     private class NameInUseException extends UserException {
         private static final String ERROR = "The name \"{1}\" is already in use. "
@@ -65,6 +86,10 @@ public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContex
         public ExtensionInUseException(String name) {
             super(ERROR, name);
         }
+    }
+
+    private AcdServer getAcdServer(Integer id) {
+        return (AcdServer) getHibernateTemplate().load(AcdServer.class, id);
     }
 
     public List getServers() {
@@ -312,9 +337,29 @@ public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContex
         getHibernateTemplate().saveOrUpdateAll(servers);
     }
 
+    private void onLocationSpecificServiceDelete(LocationSpecificService locationService) {
+        SipxService service = locationService.getSipxService();
+        if (service instanceof SipxAcdService) {
+            AcdServer server = getAcdServerForLocationId(locationService.getLocation().getId());
+            getHibernateTemplate().delete(server);            
+        }
+    }    
+
+    private void onLocationDelete(Location location) {
+        getHibernateTemplate().update(location);
+        AcdServer server = getAcdServerForLocationId(location.getId());
+        if (server != null) {
+            getHibernateTemplate().delete(server);
+        }
+    }
+            
     public void onDelete(Object entity) {
         if (entity instanceof User) {
             onUserDelete((User) entity);
+        } else if (entity instanceof LocationSpecificService) {
+            onLocationSpecificServiceDelete((LocationSpecificService) entity);
+        } else if (entity instanceof Location) {
+            onLocationDelete((Location) entity);            
         }
     }
 
@@ -412,5 +457,86 @@ public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContex
             }
             getHibernateTemplate().saveOrUpdate(storage);
         }
+    }
+
+    public void migrateAcdServers() {
+        Map<String, Integer> locationsFqdn = new HashMap<String, Integer>();
+        Map<String, Integer> locationsAddress = new HashMap<String, Integer>();
+
+        List servers = getHibernateTemplate().findByNamedQuery("allAcdServers");
+        if (servers.size() > 0) {
+            Location[] locations = m_locationsManager.getLocations();
+            for (Location location : locations) {
+                locationsFqdn.put(location.getFqdn(), location.getId());
+                locationsAddress.put(location.getAddress(), location.getId());
+            }
+        }
+
+        for (Iterator i = servers.iterator(); i.hasNext();) {
+            Object[] row = (Object[]) i.next();
+            Integer acdServerId = (Integer) row[0];
+            String host = (String) row[1];
+            AcdServer acdServer = getAcdServer(acdServerId);
+            if (acdServer == null || acdServerId == null || host == null) {
+                continue;
+            }
+
+            Location location;
+            Integer locationId = locationsFqdn.get(host);
+            if (locationId == null) {
+                locationId = locationsAddress.get(host);
+            }
+
+            if (locationId != null) {
+                // existing location
+                location = m_locationsManager.getLocation(locationId);
+            } else {
+                // new location
+                location = new Location();
+                location.setFqdn(host);
+                location.setName("constructed upon migration from Acd servers");
+            }
+            SipxAcdService acdService = (SipxAcdService) m_sipxServiceManager
+                    .getServiceByBeanId(SipxAcdService.BEAN_ID);
+            location.addService(new LocationSpecificService(acdService));
+            m_locationsManager.storeLocation(location);
+            getHibernateTemplate().flush();
+            
+            acdServer.setLocation(location);
+            store(acdServer);
+            getHibernateTemplate().flush();            
+        }
+
+        cleanSchema();
+    }
+
+    private void cleanSchema() {
+        try {
+            Session currentSession = getHibernateTemplate().getSessionFactory()
+                    .getCurrentSession();
+            Connection connection = currentSession.connection();
+            Statement statement = connection.createStatement();
+            statement.addBatch(SQL);
+            statement.executeBatch();
+            statement.close();
+        } catch (SQLException e) {
+            LOG.warn("cleaning schema", e);
+        }
+    }
+
+    public void setLocationsManager(LocationsManager locationsManager) {
+        m_locationsManager = locationsManager;
+    }
+
+    public void setSipxServiceManager(SipxServiceManager sipxServiceManager) {
+        m_sipxServiceManager = sipxServiceManager;
+    }
+
+    public AcdServer getAcdServerForLocationId(Integer locationId) {
+        HibernateTemplate hibernate = getHibernateTemplate();
+        List<AcdServer> servers = hibernate.findByNamedQueryAndNamedParam(
+                "acdServerForLocationId", "locationId", locationId);
+
+        return (AcdServer) DataAccessUtils.singleResult(servers);
     }
 }

@@ -12,8 +12,9 @@ package org.sipfoundry.sipxconfig.service;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessModel.ProcessName;
 
 public class SipxAcdService extends SipxService {
+    public static final String BEAN_ID = "sipxAcdService";    
 
-    private static final ProcessName PROCESS_NAME = ProcessName.ACD_SERVER;
+    private static final ProcessName PROCESS_NAME = ProcessName.ACD_SERVER;    
     
     @Override
     public ProcessName getProcessName() {

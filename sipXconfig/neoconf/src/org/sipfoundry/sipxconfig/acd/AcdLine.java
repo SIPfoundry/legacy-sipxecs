@@ -14,6 +14,7 @@ import java.util.List;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
+import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.forwarding.AliasMapping;
 import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.setting.SettingEntry;
@@ -88,7 +89,8 @@ public class AcdLine extends AcdComponent {
 
     @Override
     public String calculateUri() {
-        String domainName = getAcdServer().getHost();
+        Location location = getAcdServer().getLocation();
+        String domainName = location.getFqdn();
         return SipUri.format(getName(), domainName, false);
     }
 
@@ -135,7 +137,7 @@ public class AcdLine extends AcdComponent {
         String domainName = getCoreContext().getDomainName();
         String identity = AliasMapping.createUri(extension, domainName);
 
-        String server = StringUtils.defaultIfEmpty(m_acdServer.getHost(), "localhost");
+        String server = StringUtils.defaultIfEmpty(m_acdServer.getLocation().getFqdn(), "localhost");
         String contact = SipUri.format(getName(), server, m_acdServer.getSipPort());
 
         aliases.add(new AliasMapping(identity, contact));

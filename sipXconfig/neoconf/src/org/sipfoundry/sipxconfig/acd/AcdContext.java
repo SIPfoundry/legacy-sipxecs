@@ -81,4 +81,8 @@ public interface AcdContext extends AliasProvider {
     void removeOverflowSettings(Collection overflowIds, String overflowType);
 
     String getPresenceServiceUri();
+
+    void migrateAcdServers();
+
+    AcdServer getAcdServerForLocationId(Integer locationId);
 }

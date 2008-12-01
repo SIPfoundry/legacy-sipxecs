@@ -17,7 +17,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.sipfoundry.sipxconfig.common.BeanWithId;
+import org.sipfoundry.sipxconfig.common.event.DaoEventPublisher;
 import org.sipfoundry.sipxconfig.service.LocationSpecificService;
+import org.sipfoundry.sipxconfig.service.SipxAcdService;
 import org.sipfoundry.sipxconfig.service.SipxService;
 
 public class Location extends BeanWithId {
@@ -31,7 +33,9 @@ public class Location extends BeanWithId {
     private String m_password;
 
     private Map<String, LocationSpecificService> m_services;
-
+    
+    private DaoEventPublisher m_daoEventPublisher;
+    
     public String getName() {
         return m_name;
     }
@@ -56,6 +60,10 @@ public class Location extends BeanWithId {
         m_fqdn = fqdn;
     }
 
+    public void setDaoEventPublisher(DaoEventPublisher daoEventPublisher) {
+        m_daoEventPublisher = daoEventPublisher;
+    }    
+    
     /**
      * Sets this instances address field based on the value parsed from the given URL. For
      * example, the URL of "https://localhost:8091/cgi-bin/replication/replication.cgi" will
@@ -121,6 +129,10 @@ public class Location extends BeanWithId {
     }
 
     public void removeServiceByBeanId(String beanId) {
+        LocationSpecificService service = m_services.get(beanId);
+        if (service != null && service.getSipxService() instanceof SipxAcdService) {
+            m_daoEventPublisher.publishDelete(service);
+        }
         m_services.remove(beanId);
     }
 

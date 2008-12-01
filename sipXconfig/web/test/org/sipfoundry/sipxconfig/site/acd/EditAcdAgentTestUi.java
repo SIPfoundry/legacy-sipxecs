@@ -24,9 +24,10 @@ public class EditAcdAgentTestUi extends WebTestCase {
         SiteTestHelper.home(getTester());
         SiteTestHelper.setScriptingEnabled(tester, true);
         clickLink("seedTestUser");
-        clickLink("resetAcdContext");
-        clickLink("acdServerPage");
-        clickButton("form:apply");
+        clickLink("seedAcdServer");
+        clickLink("listAcdServers");
+        clickLink("editRowLink");
+        
         clickLink("link:queues");
         clickLink("queue:add");
         setFormData();

@@ -20,6 +20,7 @@ import java.util.Set;
 import org.apache.commons.lang.enums.ValuedEnum;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.forwarding.AliasMapping;
 import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.service.SipxPresenceService;
@@ -59,7 +60,7 @@ public class AcdServer extends AcdComponent {
 
     private int m_agentPort;
 
-    private String m_host;
+    private Location m_location;
 
     private Set m_lines = new HashSet();
 
@@ -149,7 +150,7 @@ public class AcdServer extends AcdComponent {
 
     String getServiceUri() {
         Object[] params = new Object[] {
-            m_host, Integer.toString(m_port)
+                getLocation().getFqdn(), Integer.toString(m_port)
         };
         return MessageFormat.format(URI, params);
     }
@@ -193,19 +194,19 @@ public class AcdServer extends AcdComponent {
     private AliasMapping createPresenceAliasMapping(String code, String domainName, int port) {
         AliasMapping mapping = new AliasMapping();
         mapping.setIdentity(AliasMapping.createUri(code, domainName));
-        mapping.setContact(SipUri.format(code, getHost(), port));
+        mapping.setContact(SipUri.format(code, getLocation().getFqdn(), port));
         return mapping;
     }
 
     public String getPresenceServiceUri() {
         Object[] params = new Object[] {
-            getHost(), String.valueOf(m_presenceService.getPresenceApiPort())
+                getLocation().getFqdn(), String.valueOf(m_presenceService.getPresenceApiPort())
         };
         return MessageFormat.format(URI, params);
     }
 
     public String getPresenceServerUri() {
-        return SipUri.format(getHost(), m_presenceService.getPresenceServerPort());
+        return SipUri.format(getLocation().getFqdn(), m_presenceService.getPresenceServerPort());
     }
 
     public void deploy(XmlRpcSettings xmlRpc) {
@@ -276,12 +277,12 @@ public class AcdServer extends AcdComponent {
         }
     }
 
-    public String getHost() {
-        return m_host;
+    public Location getLocation() {
+        return m_location;
     }
 
-    public void setHost(String host) {
-        m_host = host;
+    public void setLocation(Location location) {
+        m_location = location;
     }
 
     public int getPort() {

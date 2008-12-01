@@ -35,13 +35,6 @@ public abstract class ListAcdServers extends BasePage implements PageBeginRender
         }
     }
 
-    public IPage addServer(IRequestCycle cycle) {
-        AcdServerPage editPage = (AcdServerPage) cycle.getPage(AcdServerPage.PAGE);
-        editPage.setAcdServerId(null);
-        editPage.setReturnPage(this);
-        return editPage;
-    }
-
     public IPage editServer(IRequestCycle cycle, Integer id) {
         AcdServerPage editPage = (AcdServerPage) cycle.getPage(AcdServerPage.PAGE);
         editPage.setAcdServerId(id);

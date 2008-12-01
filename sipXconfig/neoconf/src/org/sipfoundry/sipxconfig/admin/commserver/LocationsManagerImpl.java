@@ -16,13 +16,20 @@ import org.hibernate.Session;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Restrictions;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
+import org.sipfoundry.sipxconfig.common.event.DaoEventPublisher;
+import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.orm.hibernate3.HibernateCallback;
-import static org.springframework.dao.support.DataAccessUtils.singleResult;
 
 public class LocationsManagerImpl extends SipxHibernateDaoSupport<Location> implements LocationsManager {
 
     private static final String LOCATION_PROP_NAME = "fqdn";
 
+    private DaoEventPublisher m_daoEventPublisher;
+    
+    public void setDaoEventPublisher(DaoEventPublisher daoEventPublisher) {
+        m_daoEventPublisher = daoEventPublisher;
+    }    
+    
     /** Return the replication URLs, retrieving them on demand */
     public Location[] getLocations() {
         List<Location> locationList = getHibernateTemplate().loadAll(Location.class);
@@ -50,7 +57,7 @@ public class LocationsManagerImpl extends SipxHibernateDaoSupport<Location> impl
             }
         };
         List<Location> locations = getHibernateTemplate().executeFind(callback);
-        Location location = (Location) singleResult(locations);
+        Location location = (Location) DataAccessUtils.singleResult(locations);
 
         return location;
     }
@@ -60,6 +67,7 @@ public class LocationsManagerImpl extends SipxHibernateDaoSupport<Location> impl
     }
 
     public void deleteLocation(Location location) {
+        m_daoEventPublisher.publishDelete(location);
         getHibernateTemplate().delete(location);
     }
 

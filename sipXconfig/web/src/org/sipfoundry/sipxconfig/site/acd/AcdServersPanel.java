@@ -28,8 +28,6 @@ public abstract class AcdServersPanel extends BaseComponent {
 
     public abstract AcdProvisioningContext getAcdProvisioningContext();
 
-    public abstract Collection getRowsToDelete();
-
     public abstract Collection getRowsToDeploy();
 
     public abstract IActionListener getAction();
@@ -42,12 +40,7 @@ public abstract class AcdServersPanel extends BaseComponent {
     }
 
     private boolean onFormSubmit(IRequestCycle cycle) {
-        Collection selectedRows = getRowsToDelete();
-        if (selectedRows != null) {
-            getAcdContext().removeServers(selectedRows);
-            return true;
-        }
-        selectedRows = getRowsToDeploy();
+        Collection selectedRows = getRowsToDeploy();
         if (selectedRows != null) {
             for (Iterator i = selectedRows.iterator(); i.hasNext();) {
                 Serializable serverId = (Serializable) i.next();

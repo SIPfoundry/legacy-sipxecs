@@ -52,6 +52,7 @@
 <!ATTLIST acd_server
     acd_server_id CDATA #REQUIRED
     host CDATA #IMPLIED
+    location_id CDATA #IMPLIED
     port CDATA #IMPLIED
     description CDATA #IMPLIED
     value_storage_id CDATA #IMPLIED

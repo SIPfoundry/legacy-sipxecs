@@ -9,8 +9,9 @@
 				<param name="sequence">acd_seq</param>
 			</generator>
 		</id>
-		<property name="host"/>
 		<property name="port"/>
+		<many-to-one name="location" column="location_id" unique="true"
+			class="org.sipfoundry.sipxconfig.admin.commserver.Location" />
 		<many-to-one cascade="all" name="valueStorage" column="value_storage_id"
 			class="org.sipfoundry.sipxconfig.setting.ValueStorage"/>
 		<set name="lines" inverse="true" table="acd_line" cascade="all,delete-orphan">
@@ -114,5 +115,13 @@
 		<![CDATA[from ValueStorage vs]]>
   </query>
 
+  <sql-query name="allAcdServers">
+    <return-scalar type="int" column="id" />
+    <return-scalar type="string" column="host" />
+    <![CDATA[select acd_server_id as id, host from acd_server]]>
+  </sql-query>
 
+  <query name="acdServerForLocationId">
+    <![CDATA[from AcdServer acdServer where acdServer.location.id = :locationId]]>
+  </query>
 </hibernate-mapping>

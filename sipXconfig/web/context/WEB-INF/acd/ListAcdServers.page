@@ -27,7 +27,6 @@
 
   <component id="acdServersPanel" type="acd/AcdServersPanel">
     <binding name="rows" value="servers" />
-    <binding name="addListener" value="listener:addServer" />
     <binding name="selectListener" value="listener:editServer" />
   </component>
 

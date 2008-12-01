@@ -170,7 +170,7 @@ public class AcdQueue extends AcdComponent {
 
     @Override
     public String calculateUri() {
-        String domainName = getAcdServer().getHost();
+        String domainName = getAcdServer().getLocation().getFqdn();
         return SipUri.format(getName(), domainName, false);
     }
 

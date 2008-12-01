@@ -27,6 +27,7 @@ import org.apache.tapestry.annotations.InjectPage;
 import org.apache.tapestry.engine.IEngineService;
 import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.acd.AcdContext;
+import org.sipfoundry.sipxconfig.acd.AcdServer;
 import org.sipfoundry.sipxconfig.admin.WaitingListener;
 import org.sipfoundry.sipxconfig.admin.callgroup.CallGroupContext;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
@@ -242,16 +243,35 @@ public abstract class TestPage extends BasePage {
     }
 
     public void seedLocationsManager() {
-        Location[] existingLocations = getLocationsManager().getLocations();
-        for (Location location : existingLocations) {
-            getLocationsManager().deleteLocation(location);
-        }
+        deleteLocations();
 
         Location remoteLocation = new Location();
         remoteLocation.setName("Remote Location");
         remoteLocation.setFqdn("host.example.org");
         remoteLocation.setAddress("192.168.155.100");
         getLocationsManager().storeLocation(remoteLocation);
+    }
+
+    public void seedAcdServer() {
+        deleteLocations();
+
+        Location location = new Location();
+        location.setName("Test Location");
+        location.setFqdn("server.example.com");
+        location.setAddress("10.1.1.1");
+        getLocationsManager().storeLocation(location);
+
+        AcdServer server = getAcdContext().newServer();
+        server.setLocation(location);
+        getAcdContext().store(server);
+    }
+
+    private void deleteLocations() {
+        resetAcdContext();        
+        Location[] existingLocations = getLocationsManager().getLocations();
+        for (Location location : existingLocations) {
+            getLocationsManager().deleteLocation(location);
+        }
     }
 
     public String resetCoreContext() {

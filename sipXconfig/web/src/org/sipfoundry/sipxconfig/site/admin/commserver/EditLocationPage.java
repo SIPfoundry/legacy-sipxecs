@@ -20,6 +20,8 @@ import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.form.IPropertySelectionModel;
+import org.sipfoundry.sipxconfig.acd.AcdContext;
+import org.sipfoundry.sipxconfig.acd.AcdServer;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.admin.commserver.Process;
@@ -31,6 +33,7 @@ import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.service.LocationSpecificService;
+import org.sipfoundry.sipxconfig.service.SipxAcdService;
 import org.sipfoundry.sipxconfig.service.SipxService;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 
@@ -46,6 +49,9 @@ public abstract class EditLocationPage extends PageWithCallback implements
 
     @InjectObject(value = "spring:sipxProcessContext")
     public abstract SipxProcessContext getSipxProcessContext();
+
+    @InjectObject(value = "spring:acdContext")
+    public abstract AcdContext getAcdContext();
 
     @Bean
     public abstract SipxValidationDelegate getValidator();
@@ -102,6 +108,12 @@ public abstract class EditLocationPage extends PageWithCallback implements
 
         ServicesTable servicesTable = (ServicesTable) getComponent("servicesTable");
         servicesTable.refresh();
+
+        if (newService instanceof SipxAcdService) {
+            AcdServer server = getAcdContext().newServer();
+            server.setLocation(getLocationBean());
+            getAcdContext().store(server);
+        }
     }
 
     public IPropertySelectionModel getSipxServiceSelectionModel() {

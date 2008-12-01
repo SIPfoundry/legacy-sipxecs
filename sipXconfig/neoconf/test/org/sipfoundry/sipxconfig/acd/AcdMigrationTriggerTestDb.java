@@ -16,9 +16,12 @@ import org.springframework.context.ApplicationContext;
 
 public class AcdMigrationTriggerTestDb extends SipxDatabaseTestCase {
     private ApplicationContext m_applicationContext;
+    private AcdContext m_context;
 
     protected void setUp() throws Exception {
         m_applicationContext = TestHelper.getApplicationContext();
+        m_context = (AcdContext) TestHelper.getApplicationContext().getBean(
+                AcdContext.CONTEXT_BEAN_NAME);
         TestHelper.cleanInsert("ClearDb.xml");
     }
 
@@ -52,4 +55,24 @@ public class AcdMigrationTriggerTestDb extends SipxDatabaseTestCase {
         assertEquals(0, getConnection().getRowCount("setting_value"));
     }
 
+    public void testMigrateAcdServers() throws Exception {
+        TestHelper.insertFlat("acd/migrate_acd_servers.db.xml");
+
+        assertEquals(3, getConnection().getRowCount("acd_server"));
+        assertEquals(1, getConnection().getRowCount("location"));
+        assertEquals(1, getConnection().getRowCount("location_specific_service",
+                "where sipx_service_id=13"));
+
+        InitializationTask task = new InitializationTask("acd_server_migrate_acd_service");
+        m_applicationContext.publishEvent(task);
+
+        assertEquals(3, getConnection().getRowCount("acd_server"));
+        assertEquals(3, getConnection().getRowCount("location"));
+        assertEquals(3, getConnection().getRowCount("location_specific_service",
+                "where sipx_service_id=13"));
+
+        assertEquals(1, getConnection().getRowCount("acd_server", "where location_id=1001"));
+
+        m_context.clear();
+    }
 }

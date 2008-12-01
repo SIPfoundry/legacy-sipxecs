@@ -13,6 +13,7 @@ import java.util.Collections;
 
 import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
+import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 
@@ -56,8 +57,10 @@ public class AcdAgentTest extends BeanWithSettingsTestCase {
         m_agent.setUser(user);
 
         AcdServer server = new AcdServer();
-        server.setHost("host.mydomain.org");
-                
+        Location location = new Location();
+        location.setFqdn("host.mydomain.org");
+        server.setLocation(location);
+
         AcdQueue queue = new AcdQueue();
         queue.setCoreContext(coreContext);
         queue.setName("testqueue");
@@ -88,8 +91,10 @@ public class AcdAgentTest extends BeanWithSettingsTestCase {
         m_agent.setUser(user);
 
         AcdServer server = new AcdServer();
-        server.setHost("host.mydomain.org");
-                        
+        Location location = new Location();
+        location.setFqdn("host.mydomain.org");
+        server.setLocation(location);
+
         AcdQueue queue1 = new AcdQueue();
         queue1.setUniqueId();
         queue1.setCoreContext(coreContext);

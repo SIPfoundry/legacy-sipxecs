@@ -22,15 +22,19 @@ public class EditAcdQueueTestUi extends ListWebTestCase {
     }
 
     public EditAcdQueueTestUi() {
-        super("acdServerPage", "resetAcdContext", "queue");
+        super("listAcdServers", "resetAcdContext", "queue");
         setHasDuplicate(false);
         setExactCheck(false);
     }
 
     public void setUp() {
-        super.setUp();
-        clickButton("form:apply");
-        clickLink("link:queues");
+        getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
+        SiteTestHelper.home(getTester());
+        SiteTestHelper.setScriptingEnabled(tester, true);        
+        clickLink("seedAcdServer");
+        clickLink("listAcdServers");
+        clickLink("editRowLink");
+        clickLink("link:queues");        
     }
 
     protected String getFormId() {

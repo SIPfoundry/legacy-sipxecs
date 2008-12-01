@@ -12,6 +12,7 @@
   <table name="initialization_task"/>
   <table name="upload"/>
   <table name="location"/>
+  <table name="location_specific_service"/>
 
   <!-- settings -->  
   <table name="value_storage"/>

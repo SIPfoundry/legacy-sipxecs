@@ -100,7 +100,6 @@ sysdir.libexec=@sipxpbx.libexec.dir@
 
 acdContextImpl.audioServerUrl=http://${CONFIG_SERVER_ADDR}/phone/acd/audio
 # ACD server defaults - can be changed in UI
-acdServer.host=${MY_FULL_HOSTNAME}
 acdServer.port=${ACD_SERVER_PROVISIONING_PORT}
 acdServer.agentPort=${CONFIG_SERVER_AGENT_PORT}
 acdQueue.audioDirectory=@sipxconfig.phone.dir@/acd/audio

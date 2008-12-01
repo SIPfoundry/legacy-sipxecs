@@ -12,7 +12,7 @@
       <img jwcid="@Image" image="asset:serviceIcon" align="absmiddle" />
       <span jwcid="@If" condition="ognl:currentRowHasServiceLink">
         <a jwcid="@DirectLink" listener="listener:editService"
-          parameters="ognl:currentRow.serviceName" >
+          parameters="ognl:{currentRow.serviceName, serviceLocation.id}" >
           <span jwcid="@Insert" value="ognl:currentRow.serviceName" />
         </a>
       </span>

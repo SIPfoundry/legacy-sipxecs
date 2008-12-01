@@ -15,6 +15,7 @@ import java.util.List;
 import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.TestHelper;
+import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.forwarding.AliasMapping;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 
@@ -69,7 +70,9 @@ public class AcdLineTest extends BeanWithSettingsTestCase {
         mc.replay();
 
         AcdServer server = new AcdServer();
-        server.setHost("host.mydomain.org");
+        Location location = new Location();
+        location.setFqdn("host.mydomain.org");
+        server.setLocation(location);
         m_line.setAcdServer(server);
         m_line.setCoreContext(coreContext);
         m_line.setName("myline");
@@ -97,12 +100,16 @@ public class AcdLineTest extends BeanWithSettingsTestCase {
 
         IMocksControl mcs = org.easymock.classextension.EasyMock.createControl();
         AcdServer server = mcs.createMock(AcdServer.class);
-        server.getHost();
-        mcs.andReturn(null);
+        Location location = new Location();
+        location.setFqdn("localhost");
+        server.getLocation();
+        mcs.andReturn(location);
         server.getSipPort();
         mcs.andReturn(100);
-        server.getHost();
-        mcs.andReturn("somehost.domain.org");
+        Location location2 = new Location();
+        location2.setFqdn("somehost.domain.org");
+        server.getLocation();
+        mcs.andReturn(location2);
         server.getSipPort();
         mcs.andReturn(101);
         mcs.replay();

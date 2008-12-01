@@ -288,6 +288,7 @@
     <antcall target="add-location-specific-service"/>
     <antcall target="backup-ftp-fix" />
     <antcall target="location-add-password" />
+	<antcall target="acd-server-reference-location" />
     <antcall target="gateway-location" />
     <antcall target="add-device-timezone"/>
     <!-- temporary patches -->
@@ -746,6 +747,9 @@
 
   <target name="location-add-password" unless="location-add-password">
 	<db-patch patch="location-add-password"/>
+  </target>
+  <target name="acd-server-reference-location" unless="acd-server-reference-location">
+  	<db-patch patch="acd-server-reference-location"/>
   </target>
 
   <target name="clean-sipx-service-values" unless="clean-sipx-service-values">

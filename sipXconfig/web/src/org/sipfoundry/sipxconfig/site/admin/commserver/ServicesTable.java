@@ -26,6 +26,8 @@ import org.apache.tapestry.annotations.Parameter;
 import org.apache.tapestry.services.ExpressionEvaluator;
 import org.apache.tapestry.valid.IValidationDelegate;
 import org.apache.tapestry.valid.ValidatorException;
+import org.sipfoundry.sipxconfig.acd.AcdContext;
+import org.sipfoundry.sipxconfig.acd.AcdServer;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.admin.commserver.Process;
@@ -40,6 +42,7 @@ import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.service.LocationSpecificService;
 import org.sipfoundry.sipxconfig.service.SipxService;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
+import org.sipfoundry.sipxconfig.site.acd.AcdServerPage;
 import org.sipfoundry.sipxconfig.site.service.EditCallResolverService;
 import org.sipfoundry.sipxconfig.site.service.EditFreeswitchService;
 import org.sipfoundry.sipxconfig.site.service.EditPageService;
@@ -63,6 +66,7 @@ public abstract class ServicesTable extends BaseComponent {
         SERVICE_MAP.put("SIPStatus", EditStatusService.PAGE);
         SERVICE_MAP.put("PageServer", EditPageService.PAGE);
         SERVICE_MAP.put("FreeSWITCH", EditFreeswitchService.PAGE);
+        SERVICE_MAP.put("ACDServer", AcdServerPage.PAGE);
     }
 
     @InjectObject(value = "service:tapestry.ognl.ExpressionEvaluator")
@@ -76,6 +80,9 @@ public abstract class ServicesTable extends BaseComponent {
 
     @InjectObject(value = "spring:sipxServiceManager")
     public abstract SipxServiceManager getSipxServiceManager();
+
+    @InjectObject(value = "spring:acdContext")
+    public abstract AcdContext getAcdContext();
 
     @Bean
     public abstract SelectMap getSelections();
@@ -189,9 +196,15 @@ public abstract class ServicesTable extends BaseComponent {
         return SERVICE_MAP.containsKey(getCurrentRow().getServiceName());
     }
 
-    public IPage editService(IRequestCycle cycle, String serviceName) {
+    public IPage editService(IRequestCycle cycle, String serviceName, Integer locationId) {
         PageWithCallback page = (PageWithCallback) cycle.getPage(SERVICE_MAP.get(serviceName));
         page.setReturnPage(EditLocationPage.PAGE);
+        if (page instanceof AcdServerPage) {
+            AcdServer acdServer = getAcdContext().getAcdServerForLocationId(locationId);
+            if (acdServer != null) {
+                ((AcdServerPage) page).setAcdServerId(acdServer.getId());
+            }
+        }
         return page;
     }
 

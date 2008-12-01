@@ -11,41 +11,35 @@ package org.sipfoundry.sipxconfig.site.acd;
 
 import junit.framework.Test;
 
-import org.sipfoundry.sipxconfig.site.ListWebTestCase;
+import net.sourceforge.jwebunit.junit.WebTestCase;
+
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 
-public class ListAcdServersTestUi extends ListWebTestCase {
+public class ListAcdServersTestUi extends WebTestCase {
     public static Test suite() throws Exception {
         return SiteTestHelper.webTestSuite(ListAcdServersTestUi.class);
     }
 
-    public ListAcdServersTestUi() {
-        super("listAcdServers", "resetAcdContext", "server");
-        setHasDuplicate(false);
-        setExactCheck(true);
-        setAddLinkSubmit(true);
-    }
-
-    protected String[] getParamNames() {
-        return new String[] {
-            "hostField", "portField"
-        };
-    }
-
-    protected String[] getParamValues(int i) {
-        return new String[] {
-            "localhost" + i + ".localdomain", Integer.toString(8100 + i)
-        };
+    @Override
+    public void setUp() {
+        getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
+        SiteTestHelper.home(getTester());
+        clickLink("seedAcdServer");
+        clickLink("listAcdServers");
+        SiteTestHelper.assertNoException(tester);
     }
 
     public void testDisplayEdit() throws Exception {
-        clickAddLink();
         SiteTestHelper.assertNoException(tester);
-        setWorkingForm("form");
+        assertLinkPresentWithText("server.example.com");
+        clickLink("editRowLink");        
+
         assertFormElementPresent("hostField");
         assertFormElementPresent("portField");
         assertFormElementPresent("form:ok");
         assertFormElementPresent("form:cancel");
+
+        resetAcdContext();
     }
 
     public void testPresenceServerLink() throws Exception {
@@ -54,4 +48,9 @@ public class ListAcdServersTestUi extends ListWebTestCase {
         clickButton("form:ok");
         SiteTestHelper.assertNoException(tester);
     }
+    
+    public void resetAcdContext() {
+        SiteTestHelper.home(getTester());        
+        clickLink("resetAcdContext");
+    }    
 }

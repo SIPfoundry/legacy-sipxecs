@@ -69,7 +69,7 @@ public class AcdStatisticsImpl implements AcdStatistics {
 
     protected URL getAgentUrl(Serializable acdServerId) throws MalformedURLException {
         AcdServer acdServer = m_acdContext.loadServer(acdServerId);
-        URL agentUrl = new URL("http", acdServer.getHost(), acdServer.getAgentPort(),
+        URL agentUrl = new URL("http", acdServer.getLocation().getFqdn(), acdServer.getAgentPort(),
                 StringUtils.EMPTY);
         LOG.debug("Agent URL: " + agentUrl);
         return agentUrl;

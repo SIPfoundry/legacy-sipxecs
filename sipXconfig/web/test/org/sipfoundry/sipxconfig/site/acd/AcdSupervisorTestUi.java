@@ -30,7 +30,6 @@ public class AcdSupervisorTestUi extends WebTestCase {
     public void setUp() {
         getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
         SiteTestHelper.home(getTester());        
-        clickLink("resetAcdContext");
     }
     
     public void testDisplay() {
@@ -48,50 +47,19 @@ public class AcdSupervisorTestUi extends WebTestCase {
     }
     
     public void testOneServer() {
-        clickLink("acdServerPage");
-        clickButton("form:apply");
+        clickLink("seedAcdServer");
 
         SiteTestHelper.home(getTester());        
         clickLink("acdSupervisorConsole");
 
         for (String link : NAVIGATION_LINKS) {
-            clickLink(link);        
-            assertElementNotPresent("message.selectServer");            
+            clickLink(link);
+            assertElementNotPresent("message.selectServer");
         }
-        
+
         assertStatisticsDisplay();
     }
     
-    private void logout() {
-        SiteTestHelper.home(getTester(), false);         
-        clickLink("Logout"); // clears acd server id in session                
-        SiteTestHelper.home(getTester());         
-    }
-    
-    public void _testMultipleServers() {
-        clickLink("acdServerPage");
-        setTextField("hostField", "localhost0");
-        clickButton("form:apply");
-
-        logout(); // kludge edit page persists id, clear it
-
-        clickLink("acdServerPage");
-        setTextField("hostField", "localhost1");
-        clickButton("form:apply");
-
-        logout(); // clears acd server id in session
-
-        clickLink("acdSupervisorConsole");
-
-        for (String link : NAVIGATION_LINKS) {
-            clickLink(link);        
-            assertElementPresent("message.selectServer");
-        }
-        
-        clickButton("button.selectServer");        
-        assertStatisticsDisplay();
-    }
-
     private void assertStatisticsDisplay() {
         clickLink(NAVIGATION_LINKS[0]);
         assertElementPresent("list.presence");

@@ -10,6 +10,7 @@
 package org.sipfoundry.sipxconfig.admin.commserver;
 
 public interface LocationsManager {
+    static final String CONTEXT_BEAN_NAME = "locationsManager";
     Location[] getLocations();
     Location getLocation(int id);
     Location getLocationByFqdn(String fqdn);

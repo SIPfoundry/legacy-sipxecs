@@ -40,7 +40,7 @@
   </component>
 
   <component id="hostField" type="TextField">
-    <binding name="value" value="acdServer.host" />
+    <binding name="value" value="acdServer.location.fqdn" />
     <binding name="displayName" value="message:label.host" />
     <binding name="validators" value="spring-validators:validHostOrIp,required" />
   </component>

@@ -20,15 +20,19 @@ public class EditAcdLineTestUi extends ListWebTestCase {
     }
 
     public EditAcdLineTestUi() {
-        super("acdServerPage", "resetAcdContext", "line");
+        super("listAcdServers", "resetAcdContext", "line");
         setHasDuplicate(false);
         setExactCheck(false);
     }
     
     public void setUp() {
-        super.setUp();
-        clickButton("form:apply");
-        clickLink("link:lines");
+        getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
+        SiteTestHelper.home(getTester());
+        SiteTestHelper.setScriptingEnabled(tester, true);        
+        clickLink("seedAcdServer");
+        clickLink("listAcdServers");
+        clickLink("editRowLink");
+        clickLink("link:lines");        
     }
 
     protected String getFormId() {
@@ -45,12 +49,5 @@ public class EditAcdLineTestUi extends ListWebTestCase {
         return new String[] {
             "line_" + i, Integer.toString(400 + i), "Description" + i
         };
-    }
-
-    public void testDisplayEdit() throws Exception {
-        clickAddLink();
-        SiteTestHelper.assertNoException(tester);
-        assertButtonPresent("form:ok");
-        assertButtonPresent("form:cancel");
     }
 }

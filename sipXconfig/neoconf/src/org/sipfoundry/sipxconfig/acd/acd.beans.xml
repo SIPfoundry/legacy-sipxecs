@@ -12,7 +12,7 @@
   
   <bean id="acdServer" class="org.sipfoundry.sipxconfig.acd.AcdServer" parent="acdComponent"
     singleton="false">
-    <property name="host" value="localhost"/>
+    <property name="location" ref="location"/>
     <property name="port" value="8110"/>
     <property name="maxQueues" value="12"/>
     <property name="maxAgents" value="50"/>
@@ -30,11 +30,13 @@
     singleton="false"/>
   <bean id="acdAudio" class="org.sipfoundry.sipxconfig.acd.AcdAudio" parent="acdComponent"
     singleton="false"/>  
-  
+
   <bean id="acdContextImpl" class="org.sipfoundry.sipxconfig.acd.AcdContextImpl">
     <property name="sessionFactory" ref="sessionFactory"/>
+    <property name="locationsManager" ref="locationsManager"/>
+	<property name="sipxServiceManager" ref="sipxServiceManager"/>    
   </bean>
-  
+
   <bean id="acdContext" class="org.springframework.aop.framework.ProxyFactoryBean"
     parent="abstractDao">
     <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.acd.AcdContext"/>
@@ -49,10 +51,11 @@
       <list>
         <value>acd_migrate_line_extensions</value>
         <value>acd_migrate_overflow_queues</value>
+        <value>acd_server_migrate_acd_service</value>
       </list>
-    </property>    
+    </property>
   </bean>
-      
+
   <bean id="acdProvisioningContext" class="org.springframework.aop.framework.ProxyFactoryBean">
     <property name="proxyInterfaces"
       value="org.sipfoundry.sipxconfig.acd.AcdProvisioningContext"/>
