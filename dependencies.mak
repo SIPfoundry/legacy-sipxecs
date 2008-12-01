@@ -53,7 +53,7 @@ sipXproxy : sipXcommserverLib
 	@echo sipXproxy
 
 .PHONY: sipXconfig
-sipXconfig : sipXtackLib
+sipXconfig : 
 	@echo sipXconfig
 
 .PHONY: sipXvxml
