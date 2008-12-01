@@ -193,6 +193,13 @@ def show_progress() :
     time.sleep(1)
     screen_end()
 
+def show_starting() :
+    f = screen_setup("", "", None)
+    time.sleep(1)
+
+def show_next() :
+    screen_end()
+
 def setRights(path, owner='@SIPXPBXUSER@', group='@SIPXPBXGROUP@', access="u=rw,g=rw,o=") :
 
     chownCmd="chown -v %s:%s %s" % (owner,group,path)
@@ -444,9 +451,11 @@ def generate_ssl_cert () :
 
     genSsl      = '@SIPX_BINDIR@/ssl-cert/gen-ssl-keys.sh -d'
 
+    show_starting()
     cmdoutput=commands.getoutput (genSsl)
+    show_next()
     log_printout (cmdoutput)
-
+    
     os.chdir (curDir)
 
 def install_ssl_cert () :
@@ -458,7 +467,9 @@ def install_ssl_cert () :
     instSsl     = '@SIPX_BINDIR@/ssl-cert/install-cert.sh %s' % HostName
 
     # Install the new SSL certificate
+    show_starting()
     cmdoutput=commands.getoutput (instSsl)
+    show_next()
     log_printout (cmdoutput)
     os.chdir (curDir)
 

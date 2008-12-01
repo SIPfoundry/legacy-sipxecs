@@ -22,7 +22,7 @@ sys.path.insert(0,'@SIPX_LIBEXECDIR@')
 from sipx_setup_common import *
 
 def testing () :
-    return True
+    return False
 
 #--- Local constants and files
 
@@ -68,7 +68,8 @@ DnsServers = []
 
 # timezone fuctions
 
-DEFAULT_ZONE='America/New_York'
+DEFAULT_CONTINENT='America'
+DEFAULT_CITY='New_York'
 ZONEDIR='/usr/share/zoneinfo'
 ZONEINFO='/etc/localtime'
 reZoneName=re.compile('^[A-Z][a-zA-Z_0-9+-]+$')
@@ -451,11 +452,16 @@ def start_network () :
      show_progress()
 
      # restart the network
+
+     netStartMsg="Starting Network"
+     progress(65, netStartMsg)
+     show_starting()
      netRestart='service network restart'
      if runningAsRoot() :
          cmdoutput=commands.getoutput(netRestart)
      else :
          cmdoutput="(execute) %s" % netRestart
+     show_next()
      log_printout(cmdoutput)
 
 def screen_set_time () :
@@ -464,37 +470,35 @@ def screen_set_time () :
 
     show_progress()
 
-    # Set the timezone 
-    defaultZoneFile=ZONEDIR+'/'+DEFAULT_ZONE
-    if os.path.exists(defaultZoneFile) :
-        TimeZone=DEFAULT_ZONE
-        log_result("TimeZone defaulted to ",TimeZone)
+    tzExplanationMajor='Select your continent.'
 
-    else :
-        tzExplanationMajor='Select your continent.'
+    majorZones=getZones()
 
-        majorZones=getZones()
+    list=snack.Listbox(10,1,1,32)
+    for zone in majorZones : list.append(zone,'%s'%zone)
+    if majorZones.count(DEFAULT_CONTINENT) != 0:
+        list.setCurrent(DEFAULT_CONTINENT)
 
-        list=snack.Listbox(10,1,1,32)
-        for zone in majorZones : list.append(zone,'%s'%zone)
+    f = screen_setup("Set System Time Zone", tzExplanationMajor, list)
+    major = f.run().current()
+    TimeZone=major
+    screen_end()
 
-        f = screen_setup("Time Zone", tzExplanationMajor, list)
-        major = f.run().current()
-        TimeZone=major
+    if isZoneDir(major) :
+        minorZones=getZones(major)
+
+        tzExplanationMinor='Select a city in your time zone.'
+
+        minorList=snack.Listbox(10,1,1,32)
+        for zone in minorZones : minorList.append(zone,major+'/'+zone)
+        if minorZones.count(DEFAULT_CITY) != 0:
+            minorList.setCurrent(DEFAULT_CONTINENT+'/'+DEFAULT_CITY)
+
+        f = screen_setup("Time Zone", tzExplanationMinor, minorList)
+        selection = f.run().current()
+        TimeZone=selection
         screen_end()
 
-        if isZoneDir(major) :
-            minorZones=getZones(major)
-
-            tzExplanationMinor='Select a city in your time zone.'
-
-            minorList=snack.Listbox(10,1,1,32)
-            for zone in minorZones : minorList.append(zone,major+'/'+zone)
-
-            f = screen_setup("Time Zone", tzExplanationMinor, minorList)
-            selection = f.run().current()
-            TimeZone=selection
-            screen_end()
     log_result("TimeZone",TimeZone)
 
     # configure the system clock file
@@ -519,6 +523,98 @@ UTC=true\n' % TimeZone
     log_printout(" link %s -> %s\n" % (ZONEINFO, ZONEDIR+'/'+TimeZone))
 
     #--- Create /etc/ntp.conf
+
+    # must be after the timezone
+    progress(80, "Set system clock")
+    show_progress()
+
+    log_printout("Time before set: %s" % time.strftime("%Y-%m-%d %H:%M:S +000", time.gmtime()))
+
+    timeSet=False
+
+    ntpServerReachable=False
+    ntpServerForceReady=False
+    while (not ntpServerReachable) and (not ntpServerForceReady) :
+        # try to ping the first time server
+        # so we don't get stuck in the ntpd command if it's unreachable
+        ntpProbe=82
+        checkMsg  = 'Checking reachability of NTP servers:\n   '
+        checkMsg += '\n   '.join(NtpServers)
+        progress(ntpProbe, checkMsg)
+        show_progress()
+        for ts in NtpServers :
+            ntpProbe+=1
+            probeMsg="Probe of NTP server '%s'" % ts
+            progress(ntpProbe, probeMsg)
+            show_starting()
+            peerCmd='ping -c 1 "%s"' % ts
+            log_printout("Checking ntp server: '%s'\n" % peerCmd)
+            peerResult=commands.getstatusoutput(peerCmd)
+            log_printout(peerResult[1])
+            if peerResult[0] == 0 :
+                ntpServerReachable=True
+                probeMsg="Probe of NTP server '%s' Succeeded" % ts
+            else:
+                probeMsg="Probe of NTP server '%s' Failed" % ts
+            show_next()
+            progress(ntpProbe, probeMsg)
+            show_progress()
+            
+        if not ntpServerReachable :
+            errorMsg  = 'Unable to verify reachability of NTP any servers:\n   '
+            errorMsg += '\n   '.join(NtpServers)
+            errorMsg += '\n\
+It is important that the system time is controlled\n\
+using NTP if possible.'
+            grid = snack.Grid(2, 1)
+            reconfigButton = snack.Button("Reconfigure servers")
+            grid.setField(reconfigButton, 0, 0, (1,0,1,1))
+
+            continueButton = snack.Button("Continue with these servers")
+            grid.setField(continueButton, 1, 0, (1,0,1,1))
+
+            f = screen_setup("NTP Server Reachability", errorMsg, grid)
+            choice = f.run()
+
+            screen_end()
+
+            if choice == continueButton :
+                log_printout("User continued with unreachable servers")
+                ntpServerForceReady=True
+            else :
+                netExplanation='Configure NTP Servers:\n'
+
+                sg = snack.Grid(1, 4)
+                try:
+                    e1 = snack.Entry(32, NtpServers[0])
+                except:
+                    e1 = snack.Entry(32, '')                        
+                sg.setField(e1, 0, 0)
+                try:
+                    e2 = snack.Entry(32, NtpServers[1])
+                except:
+                    e2 = snack.Entry(32, '')
+                sg.setField(e2, 0, 1)
+                try:
+                    e3 = snack.Entry(32, NtpServers[2])
+                except:
+                    e3 = snack.Entry(32, '')
+                sg.setField(e3, 0, 2)
+
+                okButton = snack.Button("   OK   ")
+                sg.setField(okButton, 0, 3, (1,1,1,1))
+                f = screen_setup("NTP Servers", netExplanation, sg)
+                f.run()
+
+                NtpServers=[]
+                if e1.value() != "":
+                    NtpServers.append(e1.value())
+                if e2.value() != "":
+                    NtpServers.append(e2.value())
+                if e3.value() != "":
+                    NtpServers.append(e3.value())
+
+                screen_end()
 
     # Define list of servers for time synchronization
     ntpConf  =  '\
@@ -556,27 +652,17 @@ driftfile /var/lib/ntp/drift\n\
     log_printout('Enable NTP Service in runlevel %d:' % RUNLEVEL)
     turnOnNtpd='/sbin/chkconfig --level %d ntpd on' % RUNLEVEL
     if runningAsRoot() :
-        cmdoutput=commands.getoutput (turnOnNtpd)
+        cmdoutput=commands.getoutput(turnOnNtpd)
         log_printout(cmdoutput)
     else :
         log_printout("(simulated) %s\n" % turnOnNtpd)
         
-    # must be after the timezone
-    progress(80, "Set system clock")
-    show_progress()
-
-    log_printout("Time before set: %s" % time.strftime("%Y-%m-%d %H:%M:S +000", time.gmtime()))
-
-    timeSet=False
-
-    # try to ping the first time server
-    # so we don't get stuck in the ntpd command if it's unreachable
-    pingCmd='ping -c 1 -t 1 0.pool.ntp.org'
-    log_printout("Checking ntp server with ping: '%s'\n" % pingCmd)
-    pingResult=commands.getstatusoutput(pingCmd)
-    if pingResult[0] == 0 :
+    if ntpServerReachable :
         # Set Time
         # try setting the clock with ntp if possible
+        ntpSetMsg="Setting time with NTP" % ts
+        progress(86, ntpSetMsg)
+        show_starting()
         if runningAsRoot() :
             ntpSetCmd='/usr/sbin/ntpd -q -x -g'
             log_printout("Attempting to set date/time with: '%s'\n" % ntpSetCmd)
@@ -587,24 +673,214 @@ driftfile /var/lib/ntp/drift\n\
                 log_printout(" ntpd failed\n%s\n" % cmdresult[1])
         else :
             log_printout("(simulated) set time\n")
+            timeSet=True
+        show_next()
     else :
-        log_printout("   ntp server ping test failed\n%s\n" % pingResult[1])
+        log_printout("   ntp server peer tests failed")
 
     if timeSet :
         log_printout("Time after set: %s" % time.strftime("%Y-%m-%d %H:%M:S +000", time.gmtime()))
     else:
-        dateCmd="date --set='2008-01-01 00:00'"
-        log_printout("Set fixed date/time: "+dateCmd)
-        cmdoutput=commands.getoutput(dateCmd)
-        log_printout(cmdoutput)
+        # Set time manually
+        grid=snack.Grid(6,4)
 
-    log_printout('Start NTP Server:')
+        timeExplanation="\
+Unable to set the time with NTP.\n\
+Set the local date and time manually.\n\
+Use the up and down arrow keys to increment and decrement each field; tab between fields.\n\
+Hours are 00-23.\
+    "
+        dateLabel=snack.Label("Date (year-month-day)")
+        grid.setField(dateLabel,0,0)
+
+        year=snack.Listbox(1,0,0,4,0)
+        year.append("2011","2011")
+        year.append("2010","2010")
+        year.append("2009","2009")
+        year.append("2008","2008")
+        year.setCurrent("2008")
+        grid.setField(year,1,0)
+
+        y2mLabel=snack.Label("-")
+        grid.setField(y2mLabel,2,0)
+
+        month=snack.Listbox(1,0,0,2,0)
+        month.append("12","12")
+        month.append("11","11")
+        month.append("10","10")
+        month.append("09","09")
+        month.append("08","08")
+        month.append("07","07")
+        month.append("06","06")
+        month.append("05","05")
+        month.append("04","04")
+        month.append("03","03")
+        month.append("02","02")
+        month.append("01","01")
+        month.setCurrent("01")
+        grid.setField(month,3,0)
+
+        m2dLabel=snack.Label("-")
+        grid.setField(m2dLabel,4,0)
+
+        day=snack.Listbox(1,0,0,2,0)
+        day.append("31","31")
+        day.append("30","30")
+        day.append("29","29")
+        day.append("28","28")
+        day.append("27","27")
+        day.append("26","26")
+        day.append("25","25")
+        day.append("24","24")
+        day.append("23","23")
+        day.append("22","22")
+        day.append("21","21")
+        day.append("20","20")
+        day.append("19","19")
+        day.append("18","18")
+        day.append("17","17")
+        day.append("16","16")
+        day.append("15","15")
+        day.append("14","14")
+        day.append("13","13")
+        day.append("12","12")
+        day.append("11","11")
+        day.append("10","10")
+        day.append("09","09")
+        day.append("08","08")
+        day.append("07","07")
+        day.append("06","06")
+        day.append("05","05")
+        day.append("04","04")
+        day.append("03","03")
+        day.append("02","02")
+        day.append("01","01")
+        day.setCurrent("01")
+        grid.setField(day,5,0)
+
+        timeLabel=snack.Label("Time (hour:minute)")
+        grid.setField(timeLabel,0,1)
+
+        hour=snack.Listbox(1,0,0,2,0)
+        hour.append("23","23")
+        hour.append("22","22")
+        hour.append("21","21")
+        hour.append("20","20")
+        hour.append("19","19")
+        hour.append("18","18")
+        hour.append("17","17")
+        hour.append("16","16")
+        hour.append("15","15")
+        hour.append("14","14")
+        hour.append("13","13")
+        hour.append("12","12")
+        hour.append("11","11")
+        hour.append("10","10")
+        hour.append("09","09")
+        hour.append("08","08")
+        hour.append("07","07")
+        hour.append("06","06")
+        hour.append("05","05")
+        hour.append("04","04")
+        hour.append("03","03")
+        hour.append("02","02")
+        hour.append("01","01")
+        hour.append("00","00")
+        hour.setCurrent("12")
+        grid.setField(hour,1,1)
+
+        h2mLabel=snack.Label(":")
+        grid.setField(h2mLabel,2,1)
+
+        minute=snack.Listbox(1,0,0,2,0)
+        minute.append("59","59")
+        minute.append("58","58")
+        minute.append("57","57")
+        minute.append("56","56")
+        minute.append("55","55")
+        minute.append("54","54")
+        minute.append("53","53")
+        minute.append("52","52")
+        minute.append("51","51")
+        minute.append("50","50")
+        minute.append("49","49")
+        minute.append("48","48")
+        minute.append("47","47")
+        minute.append("46","46")
+        minute.append("45","45")
+        minute.append("44","44")
+        minute.append("43","43")
+        minute.append("42","42")
+        minute.append("41","41")
+        minute.append("40","40")
+        minute.append("39","39")
+        minute.append("38","38")
+        minute.append("37","37")
+        minute.append("36","36")
+        minute.append("35","35")
+        minute.append("34","34")
+        minute.append("33","33")
+        minute.append("32","32")
+        minute.append("31","31")
+        minute.append("30","30")
+        minute.append("29","29")
+        minute.append("28","28")
+        minute.append("27","27")
+        minute.append("26","26")
+        minute.append("25","25")
+        minute.append("24","24")
+        minute.append("23","23")
+        minute.append("22","22")
+        minute.append("21","21")
+        minute.append("20","20")
+        minute.append("19","19")
+        minute.append("18","18")
+        minute.append("17","17")
+        minute.append("16","16")
+        minute.append("15","15")
+        minute.append("14","14")
+        minute.append("13","13")
+        minute.append("12","12")
+        minute.append("11","11")
+        minute.append("10","10")
+        minute.append("09","09")
+        minute.append("08","08")
+        minute.append("07","07")
+        minute.append("06","06")
+        minute.append("05","05")
+        minute.append("04","04")
+        minute.append("03","03")
+        minute.append("02","02")
+        minute.append("01","01")
+        minute.append("00","00")
+        minute.setCurrent("00")
+        grid.setField(minute,3,1)
+
+        okButton = snack.Button("OK")
+        grid.setField(okButton,0,2,(1,1,1,1))
+
+        f = screen_setup("Set Date/Time", timeExplanation, grid)
+        f.run()
+
+        dateCmd="date --set='%s-%s-%s %s:%s'" % (year.current(),month.current(),day.current(),hour.current(),minute.current())
+        if runningAsRoot() :
+            log_printout("Setting date/time: "+dateCmd)
+            cmdoutput=commands.getoutput(dateCmd)
+            log_printout(cmdoutput)
+        else:
+            log_printout("(simulated) Setting date/time: "+dateCmd)
+            
+        screen_end()
+
+    ntpStartMsg='Start NTP Server'
+    progress(88, ntpStartMsg)
+    show_starting()
     if runningAsRoot() :
         cmdoutput=commands.getoutput ('service ntpd start')
         log_printout (cmdoutput)
     else :
         log_printout('(simlulated) service ntpd start')
-
+    show_next()
 
 def removeInitScript () :
 
