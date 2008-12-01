@@ -37,6 +37,7 @@ The assigned facility codes are:
       ~~id~acd  -> the ACD
       ~~id~park  -> the park server
       ~~id~media -> the media server
+      ~~id~sipXrls -> the RLS
 
 *** mh => The music-on-hold source.
 
