@@ -12,7 +12,7 @@ Port    Component         Use
 
 5070    sipXregistrar     SIP
 5071    sipXregistrar     SIP/TLS
-5075    sipXregistrar     SIP registration event sending
+5075    sipXregistrar     SIP registration event subscriptions
 
 5080    sipXbridge	  SIP sipXbridge public port
 5090    sipXbridge	  SIP sipXbridge local port
