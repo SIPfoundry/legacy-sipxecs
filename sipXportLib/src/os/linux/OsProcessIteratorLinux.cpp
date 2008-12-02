@@ -14,6 +14,7 @@
 // APPLICATION INCLUDES
 #include "os/OsFS.h"
 #include "os/linux/OsProcessIteratorLinux.h"
+#include "os/OsSysLog.h"
 
 
 // EXTERNAL FUNCTIONS
@@ -108,7 +109,11 @@ OsStatus OsProcessIteratorLinux::readProcFile(OsPath &procDirname, OsProcess & r
     OsStatus retval = OS_FAILED;
     OsPath fullProcName = "/proc/";
     fullProcName += procDirname;
+    OsPath procCmdLine = fullProcName;
+    procCmdLine += "/cmdline";
     fullProcName += "/status";
+
+    // Get the process name.
     OsFileLinux procFile(fullProcName);
     if (procFile.open(OsFile::READ_ONLY) == OS_SUCCESS)
     {
@@ -163,6 +168,46 @@ OsStatus OsProcessIteratorLinux::readProcFile(OsPath &procDirname, OsProcess & r
         }
 
         procFile.close();
+    }
+
+    OsFileLinux procCmdFile(procCmdLine);
+
+    if (procCmdFile.open(OsFile::READ_ONLY) == OS_SUCCESS)
+    {
+        size_t len = 5000; //since the length is always 0 for these files, lets try to read 5k
+        char *buffer = new char[len+1];
+        if (buffer)
+        {
+            size_t bytesRead;
+            procCmdFile.read((void *)buffer,len,bytesRead);
+
+            if (bytesRead)
+            {
+                procCmdFile.close();
+                //null-terminate the string
+                buffer[bytesRead] = 0;
+
+                // Full command may contain null between parms.  Substitute
+                // the null will a space character.
+                size_t substrlen;
+                substrlen = strlen(buffer);
+                while (substrlen < bytesRead)
+                {
+                   buffer[substrlen] = ' ';
+                   substrlen = strlen(buffer);
+                }
+                rProcess.mProcessCmdLine = buffer;
+                rProcess.mProcessCmdLine.strip(UtlString::both, ' ');
+
+                retval = OS_SUCCESS;
+            }
+            else
+                osPrintf("Couldn't read bytes in readProcFile\n");
+
+
+            delete [] buffer;
+        }
+        procCmdFile.close();
     }
 
     return retval;

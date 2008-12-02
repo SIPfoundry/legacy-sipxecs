@@ -197,6 +197,9 @@ protected:
      //:This should also be the FULL path name
      //:This is what was passed on startup
 
+    UtlString mProcessCmdLine;
+     //:Used to store the full command line that this object represents
+
     OsProcessPriorityClass mPrioClass;
     //: Priority Class specified on process startup
     

@@ -19,6 +19,7 @@
 #include "AlarmRpc.h"
 #include "ImdbRpc.h"
 #include "FileRpc.h"
+#include "SwAdminRpc.h"
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -69,6 +70,8 @@ SipxRpc::SipxRpc(XmlRpcDispatch* dispatcher, UtlSList& allowedPeers)
    AlarmRpcGetAlarmCount::registerSelf(*this);
    AlarmRpcRaiseAlarm::registerSelf(*this);
    AlarmRpcReloadAlarms::registerSelf(*this);
+   SwAdminRpcExec::registerSelf(*this);
+   SwAdminRpcGetResult::registerSelf(*this);
 }
 
 // Destructor

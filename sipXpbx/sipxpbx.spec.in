@@ -120,6 +120,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/sipx-archive-common
 %attr(755,root,root) %{_bindir}/sipxlocalization
 %attr(755,root,root) %{_bindir}/sipx-package.py*
+%attr(755,root,root) %{_bindir}/sipx-swadmin.py*
 
 %attr(755,root,root) %{_libexecdir}/sipXecs/initial-config
 

@@ -9,6 +9,7 @@ require 'getoptlong'
 require 'net/https'
 require 'xmlrpc/client'
 require 'openssl/x509'
+require 'base64'
 
 port = "8092" 
 
@@ -59,6 +60,12 @@ def usage_exit(error_code=1)
   -f|--file           Get the named file
   -t|--runConfigtest          Run the configtest for the specified service
   --getConfigtestMessages     Return messages from the configtest for the specified service
+  -C|--checkUpdate      Check for Software Updates
+  -V|--checkSwVersion   Check Software Version
+  -U|--updateSwVersion  Update Software
+  --resultCheck         Returns results of last checkUpdate
+  --resultVersion       Returns results of last checkSwVersion
+  --resultUpdate        Returns results of last updateSwVersion
 
 __EOU__
 
@@ -82,6 +89,12 @@ if __FILE__ == $0
       ['--getConfigtestMessages',     GetoptLong::REQUIRED_ARGUMENT],
       ['--host','-n',          GetoptLong::REQUIRED_ARGUMENT],
       ['--port','-p',          GetoptLong::REQUIRED_ARGUMENT],
+      ['--checkUpdate','-C',      GetoptLong::NO_ARGUMENT],
+      ['--checkSwVersion','-V',   GetoptLong::NO_ARGUMENT],
+      ['--updateSwVersion','-U',  GetoptLong::NO_ARGUMENT],
+      ['--resultCheck',           GetoptLong::NO_ARGUMENT],
+      ['--resultVersion',          GetoptLong::NO_ARGUMENT],
+      ['--resultUpdate',          GetoptLong::NO_ARGUMENT],
       ['--help','-h',          GetoptLong::NO_ARGUMENT]
    ]
 end
@@ -131,6 +144,24 @@ begin
             argument = arg
             aliaslist.push(argument)
             block = true
+         when '--resultCheck'
+            action = 'getResult'
+            argument = 'check-update'
+         when '--resultVersion'
+            action = 'getResult'
+            argument = 'version'
+         when '--resultUpdate'
+            action = 'getResult'
+            argument = 'update'
+         when '--checkUpdate'
+            action = 'exec'
+            argument = 'check-update'
+         when '--checkSwVersion'
+            action = 'exec'
+            argument = 'version'
+         when '--updateSwVersion'
+            action = 'exec'
+            argument = 'update'
          when '--getStatusMessages', '--runConfigtest', '--getConfigtestMessages'
             # One string argument must be specified.
             action = name.gsub(/--/, '')
@@ -169,6 +200,8 @@ when 'getConfigVersion'
 when 'setConfigVersion'
     params.push(argument)
     params.push(serviceversion)
+when 'exec', 'getResult'
+    params.push(argument)
 else
    # No parms required for all other actions
 end
@@ -207,8 +240,17 @@ else
   client.cert_store = OpenSSL::X509::Store.new.add_path('@SIPX_CONFDIR@/ssl/authorities')
   client.open_timeout = 10 
   client.read_timeout = 60
-
-  pp client.call('ProcMgmtRpc.' << action, *params)
+  if action != 'exec' && action != 'getResult'
+     pp client.call('ProcMgmtRpc.' << action, *params)
+  else
+     result = client.call('SwAdminRpc.' << action, *params)
+     if action == 'getResult'
+        print Base64.decode64(result[0])
+        print Base64.decode64(result[1])
+     else
+        pp result
+     end
+  end
 end
 
 exit(exitStatus)

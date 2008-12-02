@@ -46,6 +46,32 @@ OsProcessLinux::~OsProcessLinux()
 
 /* ============================ MANIPULATORS ============================== */
 
+OsStatus OsProcessLinux::setIORedirect(OsPath &rStdInputFilename,
+                                       OsPath &rStdOutputFilename,
+                                       OsPath &rStdErrorFilename)
+{
+    OsStatus retval = OS_FAILED;
+
+    if (rStdInputFilename.length())
+        mStdInputFilename = rStdInputFilename;
+    else
+        mStdInputFilename = "";
+        
+    
+    if (rStdOutputFilename.length())
+        mStdOutputFilename = rStdOutputFilename;
+    else
+        mStdInputFilename = "";
+    
+    if (rStdErrorFilename.length())
+        mStdErrorFilename = rStdErrorFilename;
+    else
+        mStdInputFilename = "";
+    
+    return retval;
+}
+
+
 OsStatus OsProcessLinux::setPriority(int prio)
 {
     OsStatus retval = OS_FAILED;
@@ -265,6 +291,7 @@ OsStatus OsProcessLinux::launch(UtlString &rAppName, UtlString parameters[], OsP
 {
     OsStatus retval = OS_FAILED;
     mProcessName = rAppName;
+    mProcessCmdLine = "";
 
     if (bIgnoreChildSignals)
     {
@@ -316,7 +343,8 @@ OsStatus OsProcessLinux::launch(UtlString &rAppName, UtlString parameters[], OsP
         {
                     // this is the child process so we need to exec the new
                     // process now it's time to redirect the output, input, and
-                    // error streams
+                    // error streams.  If no explicit redirection of output and error
+                    // have been set, we'll use the parent's.
 
                     // Note: we must use _exit() rather than exit() here.
                     // This has to do with the interactions between C++, the OS
@@ -326,17 +354,41 @@ OsStatus OsProcessLinux::launch(UtlString &rAppName, UtlString parameters[], OsP
                     // child closes the reading end of the pipes
                     close(m_fdout[0]);
                     close(m_fderr[0]);
-                    // replace stdout/stderr with write part of the pipes
-                    if ( dup2(m_fdout[1], STDOUT_FILENO) < 0 )
+
+                    if (mStdOutputFilename.length())
                     {
-                       osPrintf("Failed to dup2 pipe for '%s', errno %d!\n", 
-                                     rAppName.data(), errno);
-                    }
-                    if ( dup2(m_fderr[1], STDERR_FILENO) < 0 )
+                        // Standard output file was set.
+                        if (!freopen(mStdOutputFilename.data(),"w",stdout)) 
+                        {
+                            osPrintf("Could not redirect stdOutput in OsProcess!");
+                            _exit(1);
+                        }
+                    } 
+                    else
+                       // replace stdout with write part of the pipes
+                       if ( dup2(m_fdout[1], STDOUT_FILENO) < 0 )
+                       {
+                          osPrintf("Failed to dup2 pipe for '%s', errno %d!\n", 
+                                        rAppName.data(), errno);
+                       }
+
+
+                    if (mStdErrorFilename.length())
                     {
-                       osPrintf("Failed to dup2 pipe for '%s', errno %d!\n", 
-                                     rAppName.data(), errno);
+                        // Standard error file was set.
+                        if (!freopen(mStdErrorFilename.data(),"w",stderr)) 
+                        {
+                            osPrintf("Could not redirect stdError in OsProcess!");
+                            _exit(1);
+                        }
                     }
+                    else
+                       // replace stderr with write part of the pipes
+                       if ( dup2(m_fderr[1], STDERR_FILENO) < 0 )
+                       {  
+                          osPrintf("Failed to dup2 pipe for '%s', errno %d!\n", 
+                                        rAppName.data(), errno);
+                       }  
 
                     // close all other file descriptors that may be open
                     int max_fd=1023;
@@ -360,6 +412,8 @@ OsStatus OsProcessLinux::launch(UtlString &rAppName, UtlString parameters[], OsP
 
                     //osPrintf("About to launch: %s %s\n", rAppName.data(), cmdLine.data());
                     
+                    OsSysLog::add(FAC_PROCESS, PRI_DEBUG,"About to execvp '%s' from '%s'", 
+                     rAppName.data(), startupDir.data());
                     //set the current dir for this process
                     OsFileSystem::change(startupDir);
                     //3...2...1...  Blastoff!
@@ -399,9 +453,10 @@ OsStatus OsProcessLinux::getByPID(PID pid, OsProcess &rProcess)
     
     if (findRetVal == OS_SUCCESS)
     {
-            rProcess.mParentPID     = process.mParentPID;
-            rProcess.mPID           = process.mPID;
-            rProcess.mProcessName   = process.mProcessName;
+            rProcess.mParentPID      = process.mParentPID;
+            rProcess.mPID            = process.mPID;
+            rProcess.mProcessName    = process.mProcessName;
+            rProcess.mProcessCmdLine = process.mProcessCmdLine;
             retval = OS_SUCCESS;
     }
 
@@ -422,7 +477,7 @@ OsStatus OsProcessLinux::getInfo(OsProcessInfo &rProcessInfo)
     {
         rProcessInfo.parentProcessID = process.mParentPID;
         rProcessInfo.name = process.mProcessName;
-        rProcessInfo.commandline = ""; //TODO
+        rProcessInfo.commandline = process.mProcessCmdLine;
         rProcessInfo.prioClass = 0; //TODO
             
         retval = OS_SUCCESS;

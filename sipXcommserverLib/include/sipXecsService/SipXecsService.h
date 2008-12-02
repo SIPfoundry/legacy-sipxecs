@@ -36,6 +36,8 @@ class SipXecsService
    static DirectoryType DatabaseDirType;
    static DirectoryType VarDirType;
    static DirectoryType DataDirType;
+   static DirectoryType BinDirType;
+   static DirectoryType LibExecDirType;
 
    /// Get a full path for a file in the specified directory type
    static OsPath Path(DirectoryType pathType, const char* fileName = NULL);
@@ -91,6 +93,8 @@ class SipXecsService
    static const char* DefaultDatabaseDir;
    static const char* DefaultVarDir;
    static const char* DefaultDataDir;
+   static const char* DefaultBinDir;
+   static const char* DefaultLibExecDir;
    static const char* DefaultUser;
    static const char* DefaultGroup;
 

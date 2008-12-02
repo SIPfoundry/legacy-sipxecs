@@ -101,7 +101,15 @@ public:
                              OsProcessLinux &rProcess /**< Process object returned that matches
                                                        *   the PID. */
                             );
- 
+
+       /// Sets the standard input, output and/or stderror
+       virtual OsStatus setIORedirect(OsPath &rStdInputFilename,  /**< Path and filename to use
+                                                                   *   for standard input. */
+                                      OsPath &rStdOutputFilename, /**< Path and filename to use
+                                                                   *   for standard output. */
+                                      OsPath &rStdErrorFilename   /**< Path and filename to use for
+                                                                   *   standard error. */
+                                  );
 
 /* ============================ ACCESSORS ================================= */
 

@@ -23,6 +23,8 @@ class SipXecsServiceTest : public CppUnit::TestCase
    CPPUNIT_TEST(testLogPath);
    CPPUNIT_TEST(testRunPath);
    CPPUNIT_TEST(testTmpPath);
+   CPPUNIT_TEST(testBinPath);
+   CPPUNIT_TEST(testLibExecPath);
    CPPUNIT_TEST(testDatabasePath);
 
    CPPUNIT_TEST_SUITE_END();
@@ -46,6 +48,8 @@ public:
          unsetenv(SipXecsService::LogDirType);
          unsetenv(SipXecsService::RunDirType);
          unsetenv(SipXecsService::TmpDirType);
+         unsetenv(SipXecsService::BinDirType);
+         unsetenv(SipXecsService::LibExecDirType);
          unsetenv(SipXecsService::DatabaseDirType);
       }
 
@@ -138,6 +142,40 @@ public:
                                                      "test.tmp");
 
          ASSERT_STR_EQUAL( "/override/tmp/test.tmp", testTmpPath.data());
+      }
+
+   void testBinPath()
+      {
+         OsPath testBinPath;
+
+         testBinPath= SipXecsService::Path(SipXecsService::BinDirType,
+                                                     "test.bin");
+
+         ASSERT_STR_EQUAL(SIPX_BINDIR "/test.bin", testBinPath.data());
+
+         setenv(SipXecsService::BinDirType, "/override/bin", true /* overwrite */);
+         
+         testBinPath= SipXecsService::Path(SipXecsService::BinDirType,
+                                                     "test.bin");
+
+         ASSERT_STR_EQUAL( "/override/bin/test.bin", testBinPath.data());
+      }
+
+   void testLibExecPath()
+      {
+         OsPath testLibExecPath;
+
+         testLibExecPath= SipXecsService::Path(SipXecsService::LibExecDirType,
+                                                     "test.exe");
+
+         ASSERT_STR_EQUAL(SIPX_LIBEXECDIR "/test.exe", testLibExecPath.data());
+
+         setenv(SipXecsService::LibExecDirType, "/override/libexec", true /* overwrite */);
+         
+         testLibExecPath= SipXecsService::Path(SipXecsService::LibExecDirType,
+                                                     "test.exe");
+
+         ASSERT_STR_EQUAL( "/override/libexec/test.exe", testLibExecPath.data());
       }
 
    void testDatabasePath()
