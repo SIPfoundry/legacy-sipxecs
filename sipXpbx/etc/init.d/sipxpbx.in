@@ -159,6 +159,16 @@ stopCheck() {
     local proc_name=$1; shift
     local pidFile=@SIPX_RUNDIR@/${proc_name}.pid
     sipx_stop ${proc_name} ${pidFile}
+
+    numPidFiles=`ls @SIPX_RUNDIR@ | wc -l`
+    if [ $numPidFiles -gt 0 ]
+    then
+       echo "Cleaning up orphaned processes..."
+       for pidFile in `ls @SIPX_RUNDIR@`
+       do
+          sipx_stop ${pidFile} @SIPX_RUNDIR@/${pidFile}
+       done
+    fi
 }
 
 # Low-level configtest function for internal tests defined by some global_*_check function here.
