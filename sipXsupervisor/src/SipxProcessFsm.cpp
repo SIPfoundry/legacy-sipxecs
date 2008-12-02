@@ -403,15 +403,31 @@ void ShuttingDown::DoEntryAction( SipxProcess& impl ) const
    impl.stopProcess();
 }
 
+// We need both the actual process, and the script which stops it, to finish
+// before we move on.  These events can come in any order.
 void ShuttingDown::evProcessStopped( SipxProcess& impl ) const
 {
-   ChangeState( impl, impl.pShutDown );
+   if (impl.isCompletelyStopped())
+   {
+      ChangeState( impl, impl.pShutDown );
+   }
+   else
+   {
+      OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG,"'%s: process stopped, now wait for stop script", impl.name());
+   }
 }
+
 
 void ShuttingDown::evStopCompleted( SipxProcess& impl ) const
 {
-   OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG,"'%s: evStopCompleted in state %s, ignored", 
-                 impl.name(), impl.GetCurrentState()->name());
+   if (impl.isCompletelyStopped())
+   {
+      ChangeState( impl, impl.pShutDown );
+   }
+   else
+   {
+      OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG,"'%s: stop completed, now wait for process stopped", impl.name());
+   }
 }
 
 
