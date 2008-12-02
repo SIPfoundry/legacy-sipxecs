@@ -7,6 +7,7 @@
 package org.sipfoundry.sipxbridge.symmitron;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -14,6 +15,7 @@ import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -916,6 +918,7 @@ public class SymmitronServer implements Symmitron {
             String configDir = System.getProperty("conf.dir", "/etc/sipxpbx");
             String configurationFile = configDir + "/nattraversalrules.xml";
             String command = System.getProperty("sipxrelay.command", "start");
+            String addressToTest = null;
 
             if (command.equals("configtest")) {
                 try {
@@ -932,9 +935,37 @@ public class SymmitronServer implements Symmitron {
                         config.setLogFileDirectory(installRoot + "/var/log/sipxpbx");
                     }
                     config.setLogFileName("sipxrelay.log");
+                    
+                    if ( config.getLocalAddress() == null ) {
+                        System.err.println("Local address not specified");
+                        System.exit(-1);
+                    }
+                    
+                    if ( config.getPublicAddress() == null && config.getStunServerAddress() == null ) {
+                        System.err.println("Must specify either public address or stun server address");
+                        System.exit(-1);
+                    }
+                    
+                    
+                    if ( config.getPublicAddress() != null ) {
+                        addressToTest = config.getPublicAddress();
+                        InetAddress.getByName(config.getPublicAddress());
+                    }
+                    
+                    if ( config.getStunServerAddress() != null ) {
+                        addressToTest = config.getStunServerAddress();
+                        InetAddress.getByName(config.getStunServerAddress());
+                    }
+                    
+                    addressToTest = config.getLocalAddress();
+                    
+                    InetAddress.getByName(config.getLocalAddress());
 
                     System.exit(0);
 
+                } catch (UnknownHostException ex) {
+                    System.err.println("Host name error -- could not resolve " + addressToTest) ;
+                    System.exit(-1);
                 } catch (Exception ex) {
                     logger.fatal(
                             "Exception occured while checking configuration" + " -- exiting", ex);
@@ -957,15 +988,24 @@ public class SymmitronServer implements Symmitron {
                     config.setLogFileDirectory(installRoot + "/var/log/sipxpbx");
                 }
                 config.setLogFileName("sipxrelay.log");
-                SymmitronServer.setSymmitronConfig(config);
+                
                 String log4jProps = configDir + "/log4j.properties";
                 /*
                  * Allow override if a log4j properties file exists.
                  */
                 if (new File(log4jProps).exists()) {
-                    PropertyConfigurator.configure(log4jProps);
+                    /*
+                     * Override the file configuration setting.
+                     */
+                    Properties props = new Properties();
+                    props.load(new FileInputStream(log4jProps));
+                    String level = props.getProperty("log4j.category.org.sipfoundry.sipxbridge.sipxrelay");
+                    if ( level != null ) {
+                        config.setLogLevel(level);
+                    }
                 }
-
+                SymmitronServer.setSymmitronConfig(config);
+                
                 logger.info("Checking port range " + config.getPortRangeLowerBound() + ":"
                         + config.getPortRangeUpperBound());
                 for (int i = config.getPortRangeLowerBound(); i < config.getPortRangeUpperBound(); i++) {

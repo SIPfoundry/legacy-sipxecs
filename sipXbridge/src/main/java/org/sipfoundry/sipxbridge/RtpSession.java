@@ -125,11 +125,14 @@ class RtpSession {
         return false;
     }
 
+    
     /**
-     * Re-invite the ITSP.
+     * Forward the re-INVITE to the iTSP. Creates a corresponding client 
+     * transaction and forwards the re-INVITE to the ITSP.
      * 
-     * @param sd
-     * @param dialog
+     * @param serverTransaction - server transaction to forward
+     * @param dialog - dialog associated with server transaction.
+     * 
      * @throws Exception
      */
     void forwardReInvite(ServerTransaction serverTransaction, Dialog dialog) throws Exception {

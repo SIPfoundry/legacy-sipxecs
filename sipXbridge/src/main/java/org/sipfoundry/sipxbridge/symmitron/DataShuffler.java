@@ -180,12 +180,7 @@ class DataShuffler implements Runnable {
                         readBuffer.clear();
                         DatagramChannel datagramChannel = (DatagramChannel) key.channel();
                         if (!datagramChannel.isOpen()) {
-                            if (logger.isDebugEnabled()) {
-                                logger.debug("DataShuffler: Discarding packet: Removing channel from selector: datagramChannel is closed " + 
-                                        datagramChannel.socket().getPort());
-                                
-                            }
-                            selector.keys().remove(key);
+                            logger.debug("DataShuffler: Datagram channel is closed -- discarding packet.");
                             continue;
                         }
                         bridge = ConcurrentSet.getBridge(datagramChannel);
