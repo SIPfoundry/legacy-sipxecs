@@ -12,6 +12,7 @@ import javax.sip.ServerTransaction;
 import javax.sip.SipProvider;
 import javax.sip.Transaction;
 import javax.sip.message.Request;
+import javax.sip.message.Response;
 
 import org.apache.log4j.Logger;
 
@@ -114,6 +115,11 @@ class TransactionApplicationData {
      */
     Request referRequest;
 
+	/*
+	 * Pending response to be dispatched when OK is received for BYE.
+	 */
+    Response pendingResponse;
+
     /**
      * The server side of the pairing.
      * @param stx
@@ -168,7 +174,7 @@ class TransactionApplicationData {
         return clientTransaction;
     }
 
-    public static TransactionApplicationData attach(Transaction transaction,
+    static TransactionApplicationData attach(Transaction transaction,
             Operation operation) {
         if ( transaction.getApplicationData() != null ) {
             logger.warn("RESETTING Transaction Pointer");
@@ -176,6 +182,15 @@ class TransactionApplicationData {
         TransactionApplicationData retval = new TransactionApplicationData(transaction,operation);
         return retval;
     }
+
+    /*
+     * Get the TAD associated with a Transaction.
+     */
+	static TransactionApplicationData get(
+			Transaction  transaction ) {
+		
+		return (TransactionApplicationData) transaction.getApplicationData();
+	}
 
     
 

@@ -22,6 +22,7 @@ import org.apache.xmlrpc.XmlRpcException;
 import org.apache.xmlrpc.client.XmlRpcClient;
 import org.apache.xmlrpc.client.XmlRpcClientConfigImpl;
 import org.apache.xmlrpc.client.XmlRpcCommonsTransportFactory;
+import org.apache.xmlrpc.client.XmlRpcHttpClientConfig;
 
 /**
  * Wrapper for the client methods of the Symmitron.
@@ -65,9 +66,9 @@ public class SymmitronClient {
             String currentServerHandle = serverHandle;
 
             try {
-                synchronized (SymmitronClient.this) {
-                    retval = (Map) client.execute("sipXrelay.ping", args);
-                }
+
+                retval = (Map) client.execute("sipXrelay.ping", args);
+
             } catch (XmlRpcException e) {
                 logger.error("XmlRpcException ", e);
                 if (resetHandler != null) {
@@ -90,30 +91,37 @@ public class SymmitronClient {
 
     public SymmitronClient(String serverAddress, int port, SymmitronResetHandler resetHandler)
             throws SymmitronException {
-        XmlRpcClientConfigImpl config = new XmlRpcClientConfigImpl();
         try {
-            logger.debug("Trying to sign in " + "http://" + serverAddress + ":" + port);
-            config.setServerURL(new URL("http://" + serverAddress + ":" + port));
-            
-            config.setEnabledForExceptions(true);
+            XmlRpcClientConfigImpl config = new XmlRpcClientConfigImpl();
+            try {
+                logger.debug("Trying to sign in " + "http://" + serverAddress + ":" + port);
+                config.setServerURL(new URL("http://" + serverAddress + ":" + port));
 
-        } catch (Exception e) {
-            logger.error(e);
-            throw new SymmitronException(e);
+                config.setEnabledForExceptions(true);
+                config.setEnabledForExtensions(true);
+
+            } catch (Exception e) {
+                logger.error(e);
+                throw new SymmitronException(e);
+            }
+            this.resetHandler = resetHandler;
+            this.client = new XmlRpcClient();
+            // client.setTransportFactory(new XmlRpcCommonsTransportFactory(client));
+            client.setConfig(config);
+            client.setMaxThreads(32);
+            clientHandle = "sipxbridge:" + Math.abs(new Random().nextLong());
+            this.signIn();
+            logger.debug("signedIn : " + "http://" + serverAddress + ":" + port);
+            // ping the server continually.
+            timer.schedule(new ResetHandlerTimerTask(), 0, 3000);
+        } catch (SymmitronException ex) {
+            logger.error("signing in failed", ex);
+            throw ex;
         }
-        this.resetHandler = resetHandler;
-        this.client = new XmlRpcClient();
-        client.setConfig(config);
-        client.setMaxThreads(32);
-        clientHandle = "sipxbridge:" + Math.abs(new Random().nextLong());
-        this.signIn();
-        logger.debug("signedIn : " + "http://" + serverAddress + ":" + port);
-        // ping the server continually.
-        timer.schedule(new ResetHandlerTimerTask(), 0, 3000);
 
     }
 
-    public synchronized SymImpl createEvenSym() throws SymmitronException {
+    public SymImpl createEvenSym() throws SymmitronException {
 
         int count = 1;
         Object[] args = new Object[3];
@@ -155,7 +163,7 @@ public class SymmitronClient {
 
     }
 
-    public synchronized String createNewBridge() throws SymmitronException {
+    public String createNewBridge() throws SymmitronException {
         try {
             Object[] args = new Object[1];
             args[0] = this.clientHandle;
@@ -183,7 +191,7 @@ public class SymmitronClient {
         }
     }
 
-    public synchronized String getPublicAddress() throws SymmitronException {
+    public String getPublicAddress() throws SymmitronException {
         Object[] args = new Object[1];
         args[0] = this.clientHandle;
         Map retval;
@@ -202,7 +210,7 @@ public class SymmitronClient {
         return (String) retval.get(Symmitron.PUBLIC_ADDRESS);
     }
 
-    public synchronized String getExternalAddress() throws SymmitronException {
+    public String getExternalAddress() throws SymmitronException {
         Object[] args = new Object[1];
         args[0] = this.clientHandle;
         Map retval;
@@ -221,7 +229,7 @@ public class SymmitronClient {
         return (String) retval.get(Symmitron.EXTERNAL_ADDRESS);
     }
 
-    public synchronized void destroyBridge(String bridgeId) throws SymmitronException {
+    public void destroyBridge(String bridgeId) throws SymmitronException {
         Object[] args = new Object[2];
         args[0] = this.clientHandle;
         args[1] = bridgeId;
@@ -241,9 +249,8 @@ public class SymmitronClient {
         }
     }
 
-    public synchronized void setRemoteEndpoint(SymImpl sym, String ipAddress,
-            int destinationPort, int keepAliveInterval, KeepaliveMethod keepAliveMethod)
-            throws SymmitronException {
+    public void setRemoteEndpoint(SymImpl sym, String ipAddress, int destinationPort,
+            int keepAliveInterval, KeepaliveMethod keepAliveMethod) throws SymmitronException {
         try {
             Object[] params = new Object[6];
             params[0] = clientHandle;
@@ -265,7 +272,7 @@ public class SymmitronClient {
 
     }
 
-    public synchronized void addSym(String bridge, SymInterface sym) throws SymmitronException {
+    public void addSym(String bridge, SymInterface sym) throws SymmitronException {
         Object[] params = new Object[3];
         if (sym == null || sym.getId() == null) {
             throw new SymmitronException(new NullPointerException("null sym"));
@@ -290,7 +297,7 @@ public class SymmitronClient {
         }
     }
 
-    public synchronized void removeSym(String bridge, SymInterface sym) throws SymmitronException {
+    public void removeSym(String bridge, SymInterface sym) throws SymmitronException {
         Object[] parms = new Object[3];
         parms[0] = clientHandle;
         parms[1] = bridge;
@@ -313,7 +320,7 @@ public class SymmitronClient {
     /**
      * Get a Sym.
      */
-    public synchronized SymInterface getSym(String symId) throws SymmitronException {
+    public SymInterface getSym(String symId) throws SymmitronException {
         Object[] args = new Object[2];
         args[0] = clientHandle;
         args[1] = symId;
@@ -361,7 +368,7 @@ public class SymmitronClient {
         return symImpl;
     }
 
-    public synchronized void pauseBridge(String bridge) throws SymmitronException {
+    public void pauseBridge(String bridge) throws SymmitronException {
         Object[] args = new Object[2];
         args[0] = clientHandle;
         args[1] = bridge;
@@ -378,7 +385,7 @@ public class SymmitronClient {
         }
     }
 
-    public synchronized void setOnHold(String symId, boolean holdFlag) throws SymmitronException {
+    public void setOnHold(String symId, boolean holdFlag) throws SymmitronException {
 
         Object[] args = new Object[2];
         args[0] = clientHandle;
@@ -409,8 +416,8 @@ public class SymmitronClient {
             }
         }
     }
-    
-    public synchronized String getReceiverState(String symId) throws SymmitronException {
+
+    public String getReceiverState(String symId) throws SymmitronException {
         Object[] args = new Object[2];
         args[0] = clientHandle;
         args[1] = symId;
@@ -426,10 +433,10 @@ public class SymmitronClient {
             logger.error(e);
             throw new SymmitronException(e);
         }
-        
+
     }
 
-    public synchronized void resumeBridge(String bridge) throws SymmitronException {
+    public void resumeBridge(String bridge) throws SymmitronException {
         Object[] args = new Object[2];
         args[0] = clientHandle;
         args[1] = bridge;
@@ -446,7 +453,7 @@ public class SymmitronClient {
         }
     }
 
-    public synchronized void startBridge(String bridge) throws SymmitronException {
+    public void startBridge(String bridge) throws SymmitronException {
         Object[] args = new Object[2];
         args[0] = clientHandle;
         args[1] = bridge;
@@ -465,7 +472,7 @@ public class SymmitronClient {
 
     }
 
-    public synchronized void signIn() throws SymmitronException {
+    public void signIn() throws SymmitronException {
 
         String[] myHandle = new String[1];
         myHandle[0] = clientHandle;
@@ -481,7 +488,7 @@ public class SymmitronClient {
 
     }
 
-    public synchronized void signOut() throws SymmitronException {
+    public void signOut() throws SymmitronException {
         String[] myHandle = new String[1];
         myHandle[0] = clientHandle;
         try {
@@ -493,7 +500,7 @@ public class SymmitronClient {
 
     }
 
-    public synchronized void destroySym(SymImpl sym) throws SymmitronException {
+    public void destroySym(SymImpl sym) throws SymmitronException {
         try {
             Object[] args = new Object[2];
             args[0] = clientHandle;

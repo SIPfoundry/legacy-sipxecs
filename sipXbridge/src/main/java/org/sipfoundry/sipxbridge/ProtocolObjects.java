@@ -51,8 +51,8 @@ public class ProtocolObjects {
             addressFactory = sipFactory.createAddressFactory();
             Properties stackProperties = new Properties();
             stackProperties.setProperty("javax.sip.STACK_NAME", "org.sipfoundry.sipXBridge");
-            if (!Gateway.getLogLevel().equals("TRACE")) {
-                if (Gateway.getLogLevel().equals("DEBUG")) {
+            if (!Gateway.getLogLevel().equalsIgnoreCase("TRACE")) {
+                if (Gateway.getLogLevel().equalsIgnoreCase("DEBUG")) {
                     /*
                      * Debug level turns off stack level debug logging.
                      */

@@ -12,15 +12,22 @@ package org.sipfoundry.sipxbridge.symmitron;
 
 import java.net.UnknownHostException;
 
+import org.apache.log4j.Logger;
+
 /**
+ * The client side interface for the SymTransmitter.
  * 
  */
 public class SymTransmitterEndpointImpl implements SymTransmitterEndpointInterface {
+    
+    private static Logger logger  = Logger.getLogger("org.sipfoundry.sipxbridge");
     
     private SymmitronClient symmitronClient;
     private SymImpl sym;
     private String ipAddress;
     private int port;
+    
+    
 
     protected SymTransmitterEndpointImpl(SymmitronClient symmitronClient, SymImpl sym) {
         this.symmitronClient = symmitronClient;
@@ -28,7 +35,20 @@ public class SymTransmitterEndpointImpl implements SymTransmitterEndpointInterfa
     }
 
    
-    public void setIpAddressAndPort(String ipAddress, int destinationPort, int keepAliveInterval, KeepaliveMethod keepAliveMethod) throws UnknownHostException {
+    public void setIpAddressAndPort(String ipAddress, int destinationPort, int keepAliveInterval, KeepaliveMethod keepAliveMethod) 
+        throws IllegalStateException, UnknownHostException {
+    
+       if ( this.ipAddress != null && ipAddress.equals(this.ipAddress) && destinationPort == this.port  ) {
+           /*
+            * Note - this case can happen when there is a provisional response with SDP followed
+            * by a 200 response with the same sdp.
+            */
+           logger.debug("setIpAddressAndPort: resetting to previously set values -- returning silently"); 
+           return;
+       }
+       logger.debug("setIpAddressAndPort " + sym.id + " ipAddress " +  ipAddress + " port " +  destinationPort );
+      
+       
        this.ipAddress = ipAddress;
        this.port = destinationPort;
        this.symmitronClient.setRemoteEndpoint(sym, ipAddress, destinationPort, keepAliveInterval, keepAliveMethod);

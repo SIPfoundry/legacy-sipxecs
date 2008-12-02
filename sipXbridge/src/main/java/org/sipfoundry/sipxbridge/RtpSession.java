@@ -160,12 +160,25 @@ class RtpSession {
         DialogApplicationData dat = (DialogApplicationData) dialog.getApplicationData();
         BackToBackUserAgent b2bua = dat.getBackToBackUserAgent();
         Dialog peerDialog = DialogApplicationData.getPeerDialog(dialog);
+        
+        /*
+         * Check if the server side of the dialog is still alive. If not
+         * return an error.
+         */
+        if ( peerDialog.getState() == DialogState.TERMINATED ) {
+        	Response response = SipUtilities.createResponse(serverTransaction, Response.SERVER_INTERNAL_ERROR);
+        	response.setReasonPhrase("Peer Dialog is Terminated");
+        	return;	
+        }
+        
         DialogApplicationData peerDat = DialogApplicationData.get(peerDialog);
 
         b2bua.getWanRtpSession(peerDialog).getReceiver().setSessionDescription(sd);
         SipUtilities.incrementSessionVersion(sd);
 
         peerDat.sessionDescription = sd.toString();
+        
+      
 
         Request newInvite = peerDialog.createRequest(Request.INVITE);
 

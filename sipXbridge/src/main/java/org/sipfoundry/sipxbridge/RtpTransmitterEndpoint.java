@@ -31,9 +31,9 @@ class RtpTransmitterEndpoint {
     private SymTransmitterEndpointImpl symTransmitter;
 
     private RtpSession rtpSession;
-    
+
     private String ipAddress;
-    
+
     private int port;
 
     private int keepAliveInterval;
@@ -42,10 +42,11 @@ class RtpTransmitterEndpoint {
 
     public RtpTransmitterEndpoint(RtpSession rtpSession, SymmitronClient symmitronClient) {
         this.rtpSession = rtpSession;
-        this.symTransmitter = symmitronClient.createSymTransmitter(
-                this.rtpSession.getSym());
+        this.symTransmitter = symmitronClient.createSymTransmitter(this.rtpSession.getSym());
 
     }
+
+    
 
     public String getIpAddress() {
         return ipAddress;
@@ -54,46 +55,50 @@ class RtpTransmitterEndpoint {
     public int getPort() {
         return port;
     }
-    
-    public void setIpAddressAndPort(String ipAddress, int port, int keepAliveInterval, KeepaliveMethod keepAliveMethod) throws UnknownHostException {
-        if (this.ipAddress != null && ipAddress.equals(this.ipAddress) && port == this.port && keepAliveInterval == this.keepAliveInterval &&
-                keepAliveMethod.equals(this.keepAliveMethod) ) {
-            logger.warn("setIpAddressAndPort->resetting to previously set values -- returning silently");
-            return;
-        }
+
+    public void setIpAddressAndPort(String ipAddress, int port, int keepAliveInterval,
+            KeepaliveMethod keepAliveMethod) throws UnknownHostException {
+        logger.debug("setIpAddressAndPort " + this.rtpSession.getSym().getId() + " current  = "
+                + this.ipAddress + "/" + this.port + " new " + ipAddress + "/" + port);
+
         this.ipAddress = ipAddress;
         this.port = port;
         this.keepAliveInterval = keepAliveInterval;
         this.keepAliveMethod = keepAliveMethod;
-        this.symTransmitter.setIpAddressAndPort(ipAddress, port, keepAliveInterval, keepAliveMethod);
-        
+        this.symTransmitter.setIpAddressAndPort(ipAddress, port, keepAliveInterval,
+                keepAliveMethod);
+
     }
 
     public void setIpAddressAndPort(String ipAddress, int port) throws UnknownHostException {
-        logger.debug("setIpAddressAndPort current  = " + this.ipAddress + "/" + this.port + " new " + ipAddress + "/"  + port);
-        if ( this.ipAddress != null && ipAddress.equals(this.ipAddress) && port == this.port ) {
-            logger.warn("setIpAddressAndPort->>>resetting to previously set values -- returning silently");
-            return;
-        }
-        
+        logger.debug("setIpAddressAndPort " + this.rtpSession.getSym().getId() + " current  = "
+                + this.ipAddress + "/" + this.port + " new " + ipAddress + "/" + port);
+
         this.ipAddress = ipAddress;
         this.port = port;
-        
-        this.symTransmitter.setIpAddressAndPort(ipAddress, port,keepAliveInterval, keepAliveMethod);
+
+        this.symTransmitter.setIpAddressAndPort(ipAddress, port, keepAliveInterval,
+                keepAliveMethod);
 
     }
-    
-    public void setIpAddressAndPort(int keepaliveInterval, KeepaliveMethod keepaliveMethod) throws UnknownHostException {
-        
-        if ( this.keepAliveInterval == keepaliveInterval && keepaliveMethod.equals(this.keepAliveMethod)) {
-            logger.warn("setIpAddressAndPort ->> resetting to previously set values -- returning silently");
-            return; 
-        }
+
+    public void setIpAddressAndPort(int keepaliveInterval, KeepaliveMethod keepaliveMethod)
+            throws UnknownHostException {
+        logger.debug("setIpAddressAndPort " + this.rtpSession.getSym().getId() + " current  = "
+                + this.ipAddress + "/" + this.port + " new " + ipAddress + "/" + port);
+
         this.keepAliveInterval = keepaliveInterval;
         this.keepAliveMethod = keepaliveMethod;
-        this.symTransmitter.setIpAddressAndPort(ipAddress, port,keepaliveInterval, keepaliveMethod);
+        this.symTransmitter.setIpAddressAndPort(ipAddress, port, keepaliveInterval,
+                keepaliveMethod);
     }
 
+    public void setKeepAliveMethod(KeepaliveMethod keepAliveMethod) {
+        this.keepAliveMethod = keepAliveMethod;
+    }
+
+   
+    
     public SymTransmitterEndpointInterface getSymTransmitter() {
         return this.symTransmitter;
     }
@@ -119,38 +124,28 @@ class RtpTransmitterEndpoint {
         try {
             this.sessionDescription = sessionDescription;
             this.ipAddress = null;
-            
 
-            if (sessionDescription.getConnection() != null) {
-                ipAddress = sessionDescription.getConnection().getAddress();
-            }
-
-            MediaDescription mediaDescription = (MediaDescription) sessionDescription
-                    .getMediaDescriptions(true).get(0);
-
-            if (mediaDescription.getConnection() != null) {
-
-                ipAddress = mediaDescription.getConnection().getAddress();
-
-            }
-
-            this.port = mediaDescription.getMedia().getMediaPort();
+            this.keepAliveInterval = Gateway.getMediaKeepaliveMilisec();
+            this.ipAddress = SipUtilities.getSessionDescriptionMediaIpAddress(sessionDescription);
+            this.port = SipUtilities.getSessionDescriptionMediaPort(sessionDescription);
 
             if (logger.isDebugEnabled()) {
                 logger.debug("isTransmitter = true : Setting ipAddress : " + ipAddress);
                 logger.debug("isTransmitter = true : Setting port " + port);
             }
 
-           if ( keepAliveMethod != null ) {
-               this.symTransmitter.setIpAddressAndPort(ipAddress, port,keepAliveInterval, keepAliveMethod);
-               this.symTransmitter.setOnHold(false);
-           }
-           
+            this.symTransmitter.setIpAddressAndPort(ipAddress, port, keepAliveInterval,
+                    keepAliveMethod);
+            this.symTransmitter.setOnHold(false);
 
         } catch (Exception ex) {
             logger.error("Unexpected exception ", ex);
             throw new RuntimeException("Unexpected exception setting sdp", ex);
         }
     }
+
+
+
+    
 
 }

@@ -230,6 +230,7 @@ public class SymmitronServer implements Symmitron {
             logger.debug("Starting xml rpc server on port " + symmitronConfig.getXmlRpcPort());
             webServer = new WebServer(symmitronConfig.getXmlRpcPort(), InetAddress
                     .getByName(symmitronConfig.getLocalAddress()));
+         
 
             PropertyHandlerMapping handlerMapping = new PropertyHandlerMapping();
 
@@ -240,6 +241,7 @@ public class SymmitronServer implements Symmitron {
             XmlRpcServerConfigImpl serverConfig = new XmlRpcServerConfigImpl();
             serverConfig.setKeepAliveEnabled(true);
             serverConfig.setEnabledForExceptions(true);
+            serverConfig.setEnabledForExtensions(true);
             server.setMaxThreads(4);
 
             server.setConfig(serverConfig);
@@ -253,7 +255,7 @@ public class SymmitronServer implements Symmitron {
      */
     public SymmitronServer() {
 
-        logger.trace("creating SymmitronServer");
+        
 
     }
 

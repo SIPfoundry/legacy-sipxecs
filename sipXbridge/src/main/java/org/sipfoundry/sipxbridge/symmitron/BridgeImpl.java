@@ -10,10 +10,10 @@
 
 package org.sipfoundry.sipxbridge.symmitron;
 
-import java.util.Set;
 
 
 /**
+ * The bridge implementation class.
  * 
  */
 public class BridgeImpl implements BridgeInterface {

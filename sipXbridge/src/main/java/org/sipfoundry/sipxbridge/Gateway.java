@@ -210,6 +210,7 @@ public class Gateway {
             symmitronClient = new SymmitronClient(address, symmitronPort, callControlManager);
         }
         symmitronClients.put(address, symmitronClient);
+       
         return symmitronClient;
     }
 
@@ -1004,6 +1005,9 @@ public class Gateway {
         SymmitronClient symmitronClient = symmitronClients.get(lookupAddress);
         if (symmitronClient == null) {
             symmitronClient = initializeSymmitron(lookupAddress);
+            try {
+                Thread.sleep(100);
+            } catch (Exception ex) {}
         }
         return symmitronClient;
     }
