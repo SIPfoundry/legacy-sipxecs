@@ -1,0 +1,73 @@
+<div>
+  <span jwcid="@common/ErrorMsg"/>
+  <span jwcid="@common/QuickHelp" value="message:cdrReports.quick.help"/>
+  <span jwcid="@cdr/CdrDates"
+    startTime="ognl:startTime"
+    endTime="ognl:endTime" />
+  <table>
+    <tr>
+      <td>
+		<span jwcid="cdrTable@common/ReportComponent"
+		  linkName="message:report.cdrTable"
+		  reportName="cdr-table-report"
+		  reportData="ognl:cdrTableData"
+		  reportParameters="ognl:cdrTableParameters" />
+      </td>
+      <td>
+		<span jwcid="cdrExtensions@common/ReportComponent"
+		  linkName="message:report.cdrExtension"
+		  reportName="cdr-extension-report"
+		  reportData="ognl:cdrExtensionData"
+		  reportParameters="ognl:cdrExtensionParameters" />
+	  </td>
+    </tr>
+    <tr>
+      <td>
+		<span jwcid="cdrActiveCallers@common/ReportComponent" showHtmlLink="false"
+		  linkName="message:report.cdrActiveCallers"
+		  reportName="cdr-active-callers-graph"
+		  reportData="ognl:cdrActiveCallersData"
+		  reportParameters="ognl:cdrActiveCallersParameters" />
+      </td>
+      <td>
+		<span jwcid="cdrActiveReceivers@common/ReportComponent" showHtmlLink="false"
+		  linkName="message:report.cdrActiveReceivers"
+		  reportName="cdr-active-receivers-graph"
+		  reportData="ognl:cdrActiveReceiversData"
+		  reportParameters="ognl:cdrActiveReceiversParameters" />
+      </td>
+	</tr>
+    <tr>
+      <td>
+		<span jwcid="cdrMinutesOutgoingExtension@common/ReportComponent" showHtmlLink="false"
+		  linkName="message:report.cdrMinutesOutgoingExtension"
+		  reportName="cdr-minutes-outgoing-graph"
+		  reportData="ognl:cdrMinutesOutgoingExtensionData"
+		  reportParameters="ognl:cdrMinutesOutgoingExtensionParameters" />
+      </td>
+      <td>
+		<span jwcid="cdrTerminationCalls@common/ReportComponent" showHtmlLink="false"
+		  linkName="message:report.cdrTerminationCalls"
+		  reportName="cdr-termination-calls-pie"
+		  reportData="ognl:cdrTerminationCallsData"
+		  reportParameters="ognl:cdrTerminationCallsParameters" />
+      </td>
+	</tr>
+    <tr>
+      <td>
+		<span jwcid="cdrQueryReport@common/ReportComponent"
+		  linkName="message:report.cdrQueryReport"
+		  reportName="cdr-query-report"
+		  type="literal:sipxcdr"
+		  reportParameters="ognl:cdrQueryReportParameters" />
+      </td>
+      <td>
+		<span jwcid="configQueryReport@common/ReportComponent"
+		  linkName="message:report.configQueryReport"
+		  reportName="config-query-report"
+		  type="literal:sipxconfig"
+		  reportParameters="ognl:configQueryReportParameters" />
+      </td>
+	</tr>
+  </table>
+</div>

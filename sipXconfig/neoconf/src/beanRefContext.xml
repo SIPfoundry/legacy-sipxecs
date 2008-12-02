@@ -50,6 +50,7 @@
         <value>classpath:/org/sipfoundry/sipxconfig/paging/paging.beans.xml</value>
         <value>classpath:/org/sipfoundry/sipxconfig/nattraversal/nattraversal.beans.xml</value>
         <value>classpath:/org/sipfoundry/sipxconfig/admin/alarm/alarm.beans.xml</value>
+        <value>classpath:/org/sipfoundry/sipxconfig/jasperreports/reporting.beans.xml</value>
       </list>
     </constructor-arg>
   </bean>

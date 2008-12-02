@@ -56,5 +56,7 @@
 	<classpathentry exported="true" kind="var" path="SIPX_CONFIG/lib/nekohtml-0.9.5.jar"/>
 	<classpathentry exported="true" kind="var" path="SIPX_CONFIG/lib/backport-util-concurrent-3.1.jar"/>
 	<classpathentry exported="true" kind="var" path="SIPX_CONFIG/lib/cssparser-0.9.4.jar"/>
+	<classpathentry kind="var" path="JAVA_LIBDIR/sipx-jasperreports-deps/jcommon.jar"/>
+	<classpathentry kind="var" path="JAVA_LIBDIR/sipx-jasperreports-deps/jfreechart.jar"/>
 	<classpathentry kind="output" path="bin.eclipse"/>
 </classpath>

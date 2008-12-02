@@ -61,6 +61,7 @@
       classpath:/org/sipfoundry/sipxconfig/admin/monitoring/monitoring.beans.xml
       classpath:/org/sipfoundry/sipxconfig/nattraversal/nattraversal.beans.xml
       classpath:/org/sipfoundry/sipxconfig/admin/alarm/alarm.beans.xml
+      classpath:/org/sipfoundry/sipxconfig/jasperreports/reporting.beans.xml
     </param-value>
   </context-param>
 
@@ -148,6 +149,12 @@
     <servlet-class>org.sipfoundry.sipxconfig.rest.RestSpringAdapterServlet</servlet-class>
   </servlet>
 
+  <!-- image servlet provided under jasper libraries -->
+  <servlet>
+	<servlet-name>ImageServlet</servlet-name>
+    <servlet-class>net.sf.jasperreports.j2ee.servlets.ImageServlet</servlet-class>
+  </servlet>
+
   <servlet-mapping>
     <servlet-name>sipXconfig-web</servlet-name>
     <url-pattern>/app</url-pattern>
@@ -206,6 +213,11 @@
   <servlet-mapping>
     <servlet-name>rest</servlet-name>
     <url-pattern>/rest/*</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+	<servlet-name>ImageServlet</servlet-name>
+    <url-pattern>/image</url-pattern>
   </servlet-mapping>
 
   <!-- START AXIS -->

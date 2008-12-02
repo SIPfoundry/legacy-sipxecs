@@ -134,6 +134,20 @@
     </invoke-factory>
   </service-point>
 
+  <!-- reports service -->
+  <contribution configuration-id="tapestry.services.FactoryServices">
+    <service name="reportsService" object="service:Reports" />
+  </contribution>
+  <service-point interface="org.apache.tapestry.engine.IEngineService" id="Reports">
+    <invoke-factory model="threaded">
+      <construct class="components.service.ReportService">
+        <set-object property="response"
+          value="service:tapestry.globals.WebResponse" />
+        <set-object property="linkFactory"
+          value="infrastructure:linkFactory" />
+      </construct>
+    </invoke-factory>
+  </service-point>
 
   <service-point interface="org.apache.tapestry.services.ResponseRenderer" id="EmptyResponseRenderer">
     Empty response renderer - used for Services that do not need to render pages.

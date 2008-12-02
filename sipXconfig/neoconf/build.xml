@@ -22,6 +22,7 @@
     <pathelement location="${servlet.jar}" />
     <pathelement location="${velocity.jar}" />
     <pathelement location="${commons-digester.jar}" />
+	<pathelement location="${commons-beanutils.jar}" />
     <pathelement location="${commons-collections.jar}" />
     <pathelement location="${commons-codec.jar}" />
     <pathelement location="${commons-io.jar}" />
@@ -78,6 +79,17 @@
     <pathelement location="${spring-mock.jar}" />
   </path>
 
+  <!-- COMPILE JASPER REPORTS -->
+  <target name="jasperreports.compile">
+    <taskdef name="jrc"  classname="net.sf.jasperreports.ant.JRAntCompileTask"
+	     classpathref="compile.dependencies"/>
+	<echoproperties/>
+    <jrc compiler="net.sf.jasperreports.engine.design.JRJavacCompiler"
+	srcdir="reports" destdir="reports">
+	<classpath refid="compile.dependencies" />
+    </jrc>
+  </target>
+
   <!-- INSTALL -->
   <target name="install" depends="jar">
     <mkdir dir="${dest.dir}${sipxpbx.conf.dir}" />
@@ -114,6 +126,7 @@
 	  <replacefilter token="@sipxpbx.download.dir@" property="sipxpbx.download.dir" />
 	  <replacefilter token="@sipxpbx.alarms.strings.dir@" property="sipxpbx.alarms.strings.dir" />    	
       <replacefilter token="@sipxpbx.user@" property="sipxpbx.user" />
+	  <replacefilter token="@sipxpbx.reports.dir@" property="sipxpbx.reports.dir" />
       <replacefilter token="@www.dir@" property="www.dir" />
       <replacefilter token="@mrtg-enabled@" property="mrtg-enabled" />
       <replacefilter token="@debug@" property="debug" />
@@ -240,6 +253,16 @@
 
     <!-- WEB certificates -->
     <mkdir dir="${dest.dir}${sipxpbx.var.dir}/configserver/web-cert" />
+
+    <!-- jasper reports -->
+    <mkdir dir="${dest.dir}${sipxpbx.reports.dir}" />
+    <taskdef name="jrc"  classname="net.sf.jasperreports.ant.JRAntCompileTask"
+	     classpathref="compile.dependencies"/>
+	<echoproperties/>
+    <jrc compiler="net.sf.jasperreports.engine.design.JRJavacCompiler"
+	srcdir="reports" destdir="${dest.dir}${sipxpbx.reports.dir}">
+	<classpath refid="compile.dependencies" />
+    </jrc>    
   </target>
 
   <!-- D E F A U L T -->

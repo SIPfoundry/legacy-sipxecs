@@ -208,6 +208,7 @@ public final class TestUtil {
         sysProps.setProperty("sipxconfig.db.user", "postgres");
         sysProps.setProperty("mrtgTemplateConfig.filename", etcDirectory + "/mrtg-t.cfg");
         sysProps.setProperty("mrtgConfig.filename", etcDirectory + "/mrtg.cfg");
+        sysProps.setProperty("jasperReportContextImpl.reportsDirectory", etcDirectory + "/reports");
 
         sysProps.setProperty("sip.proxyHost", "localhost");
         sysProps.setProperty("sip.proxyPort", "5060");

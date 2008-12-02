@@ -447,6 +447,31 @@ div.search
 	margin: 0;
 }
 
+div.reports
+{
+	clear:left;
+    float:left;
+    margin:5px 0;
+    padding:5px;
+	border-style: dashed;
+	border-color: #C0C0C0;
+	border-width: 1px 1px 1px 1px;
+	background-color: #F0F0F0;
+}
+
+p.downloadReport {
+	background: none #D7D7D9;
+	border: solid #C0C0C0 1px;
+	display: block;
+	font-size: 1em;
+	line-height: 1;
+	margin: 0;
+	padding: 4px;
+	text-align: justify;
+	text-indent: 0;
+	width: auto;
+}
+
 fieldset
 {
 	margin-top:1em;

@@ -210,7 +210,8 @@ onWebUi() {
         -Djetty.log.dir=${LogDir} \
         -Djetty.x509.algorithm=${X509Algorithm} \
         -Dorg.apache.lucene.lockdir=${IndexDir} \
-        -Dorg.apache.commons.logging.Log=org.apache.commons.logging.impl.Log4JLogger"
+        -Dorg.apache.commons.logging.Log=org.apache.commons.logging.impl.Log4JLogger \
+        -Djava.awt.headless=true"
 
     Classpath=`classpath \
         @sipxpbx.conf.dir@ \

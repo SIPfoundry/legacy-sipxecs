@@ -58,6 +58,7 @@
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/spring-mock-2.0.4.jar" sourcepath="/LIB_SRC/spring/2.0.4/src-mock.zip"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/jakarta-oro-2.0.8.jar" sourcepath="/LIB_SRC/oro/src.zip"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/javamail-1.3.2.jar"/>
+	<classpathentry exported="true" kind="var" path="JAVA_LIBDIR/sipx-jasperreports-deps/jasperreports.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="lib" path="etc"/>
 	<classpathentry kind="var" path="JAVA_LIBDIR/jain-sip/jain-sip-sdp.jar" sourcepath="/LIB_SRC/jain-sip/src.zip"/>
