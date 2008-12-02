@@ -129,7 +129,13 @@ public class SymmitronServer implements Symmitron {
                     logger.error("No stun report - could not do address discovery");
                     return;
                 }
-                publicAddress = report.getPublicAddress().getSocketAddress().getAddress();
+                StunAddress stunAddress = report.getPublicAddress();
+                if (stunAddress == null) {
+                    logger.error("No stun address - could not do address discovery");
+                    return;
+                }
+                
+                publicAddress = stunAddress.getSocketAddress().getAddress();
                 logger.debug("Stun report = " + report);
                 String publicAddr = publicAddress.getHostAddress();
                 logger.debug("publicAddress = " + publicAddr);
