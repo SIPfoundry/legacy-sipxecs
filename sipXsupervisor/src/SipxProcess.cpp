@@ -40,6 +40,15 @@ const char* SipXecsProcessNamespace =
 const char* SipxProcessStateDir = "process-state";
 const char* SipxProcessConfigVersionDir = "process-cfgver";
 
+// The following tags are used by sipXconfig to display status messages nicely
+// and should not be changed without consulting sipXconfig designers.
+const char* resourceMissingTag = "resource.missing";
+const char* versionMismatchTag = "version.mismatch";
+const char* stdoutMsgTag = "stdout.msg-";
+const char* stderrMsgTag = "stderr.msg-";
+
+const size_t MAX_STATUS_MSGS = 100;  /// maximum number of status msgs to save
+
 // TYPEDEFS
 struct SipxProcessFsmStateStruct
 {
@@ -91,7 +100,9 @@ SipxProcess::SipxProcess(const UtlString& name,
    mbTaskRunning(false),
    mpTimer(NULL),
    mpTimeoutCallback(NULL),
-   mRetries(0)
+   mRetries(0),
+   mNumStdoutMsgs(0),
+   mNumStderrMsgs(0)
 {
    // Init state pointers
    initializeStatePointers();
@@ -996,8 +1007,7 @@ void SipxProcess::evCommandOutputInTask(const SipxProcessCmd* command,
    UtlString    msg;
    while ( tokenizer.next(msg, "\r\n") )
    {
-      OsSysLog::add(FAC_SUPERVISOR, pri, "SipxProcess[%s]::commandOutput '%s'",
-                    data(), msg.data());
+      logCommandOutput(pri, msg);
    }
 }
 
@@ -1115,16 +1125,9 @@ bool SipxProcess::configurationVersionMatches()
    OsLock mutex(mLock);
    bool versionMatches = (0==mConfigVersion.compareTo(mVersion, UtlString::matchCase));
 
-   if (versionMatches) 
+   if (!versionMatches)
    {
-      OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG, "SipxProcess[%s]::configurationVersionMatches true",
-                    data());
-   }
-   else
-   {
-      OsSysLog::add(FAC_SUPERVISOR, PRI_INFO, "SipxProcess[%s]::configurationVersionMatches false:"
-                    " software '%s' != config '%s'",
-                    data(), mVersion.data(), mConfigVersion.data());
+      logVersionMismatch(mVersion, mConfigVersion);
    }
    
    return versionMatches;
@@ -1234,10 +1237,12 @@ bool SipxProcess::resourcesAreReady()
    SipxResource* pResource;
    bool bReady = true;
 
-   while ( (pResource = dynamic_cast<SipxResource*> (resourceListIterator())) && bReady )
+   while ( (pResource = dynamic_cast<SipxResource*> (resourceListIterator())) )
    {
-      if ( !pResource->isReadyToStart() )
+      UtlString missingResource;
+      if ( !pResource->isReadyToStart(missingResource) )
       {
+         logMissingResource(missingResource);
          bReady = false;
       }
    }
@@ -1356,6 +1361,89 @@ void SipxProcess::readPersistentState()
    }
 }
 
+/// Return any status messages accumulated during or leading up to the current state
+/// The caller is responsible for freeing the memory used for the strings.
+void SipxProcess::getStatusMessages(UtlSList& statusMessages)
+{
+   OsLock mutex(mLock);
+   
+   statusMessages.removeAll();
+   UtlSListIterator messages(mStatusMessages);
+   UtlString* message = NULL;
+   while ((message = dynamic_cast<UtlString*>(messages())))
+   {
+      statusMessages.append(new UtlString(*message));
+   }
+
+}
+
+/// Clear any status messages accumulated so far and reset log counters
+void SipxProcess::clearStatusMessages()
+{
+   OsLock mutex(mLock);
+   
+   mStatusMessages.destroyAll();
+   mNumStdoutMsgs = 0;
+   mNumStderrMsgs = 0;
+}
+
+/// Save status message so it can be queried later
+void SipxProcess::addStatusMessage(const char* msgTag, UtlString& msg)
+{
+   OsLock mutex(mLock);
+   
+   // only keep a limited amount of command output.
+   if ( mStatusMessages.entries() > MAX_STATUS_MSGS )
+   {
+      delete mStatusMessages.at(0);
+      mStatusMessages.removeAt(0);
+   }
+
+   char buf [1024];
+   snprintf(buf, sizeof(buf), "%s: %s", msgTag, msg.data());
+   mStatusMessages.append(new UtlString(buf));
+}
+
+/// Save and log a version mismatch message
+void SipxProcess::logVersionMismatch(UtlString& swversion, UtlString& cfgversion)
+{
+   UtlString tmpMsg;
+   char buf [1024];
+   snprintf(buf, sizeof(buf), "software '%s' != config '%s'", swversion.data(), cfgversion.data());
+   tmpMsg = buf;
+   addStatusMessage(versionMismatchTag, tmpMsg);
+   OsSysLog::add(FAC_SUPERVISOR, PRI_WARNING, "SipxProcess[%s]::logVersionMismatch: %s",
+                 data(), tmpMsg.data());
+}
+
+/// Save and log a missing resource message
+void SipxProcess::logMissingResource(UtlString& resource)
+{
+   addStatusMessage(resourceMissingTag, resource);
+   OsSysLog::add(FAC_SUPERVISOR, PRI_WARNING, "SipxProcess[%s]::logMissingResource: %s",
+                 data(), resource.data());
+}
+
+/// Save and log a command output message
+void SipxProcess::logCommandOutput(OsSysLogPriority pri, UtlString& msg)
+{
+   OsLock mutex(mLock);
+   
+   UtlString msgTag;
+   if ( pri == PRI_ERR )
+   {
+      msgTag = stderrMsgTag;
+      msgTag.appendNumber(++mNumStderrMsgs);
+   }
+   else
+   {
+      msgTag = stdoutMsgTag;
+      msgTag.appendNumber(++mNumStdoutMsgs);
+   }
+   addStatusMessage(msgTag, msg);
+   OsSysLog::add(FAC_SUPERVISOR, pri, "SipxProcess[%s]::commandOutput '%s'",
+                 data(), msg.data());
+}
 
 /// destructor
 SipxProcess::~SipxProcess()

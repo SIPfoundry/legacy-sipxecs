@@ -63,7 +63,7 @@ class ImdbResource : public SipxResource
 ///@{
 
    /// Whether or not the ImdbResource is ready for use by a SipxProcess.
-   virtual bool isReadyToStart();
+   virtual bool isReadyToStart(UtlString& missingResource);
 
 ///@}
 // ================================================================

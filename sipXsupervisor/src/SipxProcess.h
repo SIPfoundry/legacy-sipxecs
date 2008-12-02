@@ -191,9 +191,29 @@ class SipxProcess : public UtlString, OsServerTask
    /// Called from the task which is running the FSM, when it has shut down
    void done();
    
+   /// Return any status messages accumulated during or leading up to the current state
+   void getStatusMessages(UtlSList& statusMessages);
+   ///< The caller is responsible for freeing the memory used for the strings.
+   
+   /// Clear any status messages accumulated so far and reset log counters
+   void clearStatusMessages();
+
   private:
      /// start the FSM up in its own task
      void startStateMachine();
+     
+     /// Save status message so it can be queried later
+     void addStatusMessage(const char* msgTag, UtlString& msg);
+     
+     /// Save and log a version mismatch message
+     void logVersionMismatch(UtlString& swversion, UtlString& cfgversion);
+     
+     /// Save and log a missing resource message
+     void logMissingResource(UtlString& missingResource);
+ 
+     /// Save and log a command output message
+     void logCommandOutput(OsSysLogPriority pri, UtlString& msg);
+
 
    ///@}
 // ================================================================
@@ -431,6 +451,9 @@ class SipxProcess : public UtlString, OsServerTask
    OsTimer*         mpTimer;
    OsCallback*      mpTimeoutCallback;
    ssize_t          mRetries;          ///< number of times we have attempted to start process
+   UtlSList         mStatusMessages;   ///< list of messages relevant to current state
+   int              mNumStdoutMsgs;    ///< number of messages received since last restart
+   int              mNumStderrMsgs;    ///< number of messages received since last restart
    
    /// constructor
    SipxProcess(const UtlString& name,

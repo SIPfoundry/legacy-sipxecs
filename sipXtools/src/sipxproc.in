@@ -51,6 +51,7 @@ def usage_exit(error_code=1)
   -k|--stop           Stop the specified monitored process
   -r|--restart        Restart the specified monitored process
   -l|--state          Current state of all monitored processes
+  -m|--getStatusMessages          Display output from the specified service
   -g|--getAliasByPID  Get the monitored process with the specified PID
   -c|--getConfigVersion Get the configuration version of the specified service
   -u|--setConfigVersion Set the configuration version of the specified service
@@ -69,6 +70,7 @@ if __FILE__ == $0
       ['--stop','-k',          GetoptLong::REQUIRED_ARGUMENT],
       ['--restart','-r',       GetoptLong::REQUIRED_ARGUMENT],
       ['--state','-l',         GetoptLong::NO_ARGUMENT],
+      ['--getStatusMessages','-m',  GetoptLong::REQUIRED_ARGUMENT],
       ['--getAliasByPID','-g', GetoptLong::REQUIRED_ARGUMENT],
       ['--getConfigVersion','-c', GetoptLong::REQUIRED_ARGUMENT],
       ['--setConfigVersion','-u', GetoptLong::REQUIRED_ARGUMENT],
@@ -91,6 +93,7 @@ argument = nil
 serviceversion = nil
 filepath = nil
 aliaslist = []
+alias1 = nil
 block = nil
 begin
    opts.each do |name, arg|
@@ -124,6 +127,10 @@ begin
             argument = arg
             aliaslist.push(argument)
             block = true
+         when '--getStatusMessages'
+            # One string argument must be specified.
+            action = name.gsub(/--/, '')
+            alias1 = arg
          when '--state'
             # The default 'action'.  Applies to all processes (so none can be specified.)
          when '--host'
@@ -149,6 +156,8 @@ case action
 when 'start', 'stop', 'restart'
     params.push(aliaslist)
     params.push(block)
+when 'getStatusMessages'
+    params.push(alias1)
 when 'getalisbypid'
     params.push(argument)
 when 'getConfigVersion'

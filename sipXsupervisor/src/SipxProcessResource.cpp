@@ -133,13 +133,15 @@ SipxProcess* SipxProcessResource::getProcess()
    
 
 // Whether or not the SipxProcessResource is ready for use by a SipxProcess.
-bool SipxProcessResource::isReadyToStart()
+bool SipxProcessResource::isReadyToStart(UtlString& missingResource)
 {
    SipxProcess* myProcess = getProcess();
 
    bool bReady = (myProcess && myProcess->isRunning());
    if ( !bReady )
    {
+      missingResource = "";
+      appendDescription(missingResource);
        OsSysLog::add(FAC_SUPERVISOR, PRI_WARNING, 
                      "SipxProcessResource::isReadyToStart returns false; %s is not running ",
                      data());
@@ -150,7 +152,8 @@ bool SipxProcessResource::isReadyToStart()
 // Whether or not it is safe to stop a SipxProcess using the SipxProcessResource.
 bool SipxProcessResource::isSafeToStop()
 {
-   return ! isReadyToStart();
+   UtlString tempStr;
+   return ! isReadyToStart(tempStr);
 }
 
 // Determine whether or not the values in a containable are comparable.

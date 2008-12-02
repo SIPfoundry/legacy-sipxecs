@@ -50,6 +50,7 @@ SipxRpc::SipxRpc(XmlRpcDispatch* dispatcher, UtlSList& allowedPeers)
 
    // Register the XML-RPC methods.
    ProcMgmtRpcGetStateAll::registerSelf(*this);
+   ProcMgmtRpcGetStatusMessage::registerSelf(*this);
    ProcMgmtRpcStart::registerSelf(*this);
    ProcMgmtRpcStop::registerSelf(*this);
    ProcMgmtRpcRestart::registerSelf(*this);

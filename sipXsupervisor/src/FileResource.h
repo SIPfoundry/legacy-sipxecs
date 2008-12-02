@@ -73,7 +73,7 @@ class FileResource : public SipxResource
    virtual void appendDescription(UtlString&  description /**< returned description */) const;
 
    /// Whether or not the FileResource is ready for use by a SipxProcess.
-   virtual bool isReadyToStart();
+   virtual bool isReadyToStart(UtlString& missingResource);
 
 ///@}
 

@@ -133,6 +133,8 @@ void SipxProcessFsm::ChangeState( SipxProcess& impl,
 
 void Disabled::DoEntryAction( SipxProcess& impl ) const
 {
+   impl.clearStatusMessages();
+
    if (impl.isEnabled())
    {
       impl.enable();
@@ -161,6 +163,8 @@ void Disabled::evProcessStopped( SipxProcess& impl ) const
 
 void ConfigurationMismatch::DoEntryAction( SipxProcess& impl ) const
 {
+   impl.clearStatusMessages();
+   
    if ( impl.configurationVersionMatches() )
    {
       ChangeState( impl, impl.pResourceRequired );
@@ -191,6 +195,8 @@ void ConfigurationMismatch::evRestartProcess( SipxProcess& impl ) const
 
 void ResourceRequired::DoEntryAction( SipxProcess& impl ) const
 {
+   impl.clearStatusMessages();
+
    if ( impl.resourcesAreReady() )
    {
       ChangeState( impl, impl.pTesting );
@@ -213,6 +219,8 @@ void ResourceRequired::evRestartProcess( SipxProcess& impl ) const
 
 void Testing::DoEntryAction( SipxProcess& impl ) const
 {
+   impl.clearStatusMessages();
+
    impl.startConfigTest();
 }
 
@@ -358,6 +366,7 @@ void Failed::DoExitAction( SipxProcess& impl ) const
 
 void Running::DoEntryAction( SipxProcess& impl ) const
 {
+   impl.clearStatusMessages();
 }
 
 void Running::evStopProcess( SipxProcess& impl ) const

@@ -118,7 +118,7 @@ void ImdbResource::appendDescription(UtlString&  description /**< returned descr
 
 
 // Whether or not the ImdbResource is ready for use by a Imdb.
-bool ImdbResource::isReadyToStart()
+bool ImdbResource::isReadyToStart(UtlString& missingResource)
 {
    OsLock mutex(mLock);
 
@@ -127,7 +127,13 @@ bool ImdbResource::isReadyToStart()
       mDatabase = SIPDBManager::getInstance()->getDatabase(*this);
    }
    
-   return (NULL != mDatabase);
+   bool rc = (NULL != mDatabase);
+   if (!rc)
+   {
+      missingResource = "";
+      appendDescription(missingResource);
+   }
+   return rc;
 }
 
 // Determine whether or not the values in a containable are comparable.

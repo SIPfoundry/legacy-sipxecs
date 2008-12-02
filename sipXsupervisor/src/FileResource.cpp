@@ -141,18 +141,17 @@ void FileResource::appendDescription(UtlString&  description /**< returned descr
 
 
 // Whether or not the FileResource is ready for use by a SipxProcess.
-bool FileResource::isReadyToStart()
+bool FileResource::isReadyToStart(UtlString& missingResource)
 {
    OsPath filePath(*this);
    OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG, 
-                 "FileResource::isReadyToStart checking for existance of %s",
+                 "FileResource::isReadyToStart checking for existence of %s",
                  data());
    bool bReady = OsFileSystem::exists(filePath);
    if ( !bReady )
    {
-      OsSysLog::add(FAC_SUPERVISOR, PRI_WARNING, 
-                    "FileResource::isReadyToStart returns false; %s does not exist",
-                    data());
+      missingResource = "";
+      appendDescription(missingResource);
    }
    return bReady;
 }

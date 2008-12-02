@@ -267,7 +267,7 @@ void SqldbResource::appendDescription(UtlString&  description /**< returned desc
 
 
 // Whether or not the SqldbResource is ready for use by a Sqldb.
-bool SqldbResource::isReadyToStart()
+bool SqldbResource::isReadyToStart(UtlString& missingResource)
 {
    bool dbIsReady;
    
@@ -286,6 +286,8 @@ bool SqldbResource::isReadyToStart()
       OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "SqldbResource::isReadyToStart "
                      "Unable to connect to database '%s'",
                      mDbName.data());
+      missingResource = "";
+      appendDescription(missingResource);
       dbIsReady = false;
    }
 

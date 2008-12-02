@@ -63,7 +63,7 @@ class SqldbResource : public SipxResource
 ///@{
 
    /// Whether or not the SqldbResource is ready for use by a SipxProcess.
-   virtual bool isReadyToStart();
+   virtual bool isReadyToStart(UtlString& missingResource);
 
 ///@}
 // ================================================================

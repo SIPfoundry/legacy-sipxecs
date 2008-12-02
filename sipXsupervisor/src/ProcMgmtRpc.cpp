@@ -444,6 +444,95 @@ bool ProcMgmtRpcRestart::execute(const HttpRequestContext& requestContext,
              userData, response, status, USER_PROCESS_RESTART);
 }
 
+
+/*****************************************************************
+ **** ProcMgmtRpcGetStatusMessage
+ *****************************************************************/
+
+const char* ProcMgmtRpcGetStatusMessage::METHOD_NAME = "ProcMgmtRpc.getStatusMessages";
+
+const char* ProcMgmtRpcGetStatusMessage::name()
+{
+   return METHOD_NAME;
+}
+
+ProcMgmtRpcGetStatusMessage::ProcMgmtRpcGetStatusMessage()
+{
+}
+
+XmlRpcMethod* ProcMgmtRpcGetStatusMessage::get()
+{
+   return new ProcMgmtRpcGetStatusMessage();
+}
+
+void ProcMgmtRpcGetStatusMessage::registerSelf(SipxRpc & sipxRpcImpl)
+{
+   registerMethod(METHOD_NAME, ProcMgmtRpcGetStatusMessage::get, sipxRpcImpl);
+}
+
+bool ProcMgmtRpcGetStatusMessage::execute(const HttpRequestContext& requestContext,
+                               UtlSList& params,
+                               void* userData,
+                               XmlRpcResponse& response,
+                               ExecutionStatus& status)
+{
+   bool result = false;
+   status = XmlRpcMethod::FAILED;
+
+   if (!params.at(0) || !params.at(0)->isInstanceOf(UtlString::TYPE))
+   {
+      handleMissingExecuteParam(name(), PARAM_NAME_CALLING_HOST, response, status);
+   }
+   else
+   {
+      UtlString* pCallingHostname = dynamic_cast<UtlString*>(params.at(0));
+
+      if (!params.at(1) || !params.at(1)->isInstanceOf(UtlString::TYPE))
+      {
+         handleMissingExecuteParam(name(), PARAM_NAME_ALIAS, response, status);
+      }
+      else
+      {
+         UtlString* pAlias = dynamic_cast<UtlString*>(params.at(1));
+
+         if (2 != params.entries())
+         {
+            handleExtraExecuteParam(name(), response, status);
+         }
+         else
+         {
+            SipxRpc* pSipxRpcImpl = ((SipxRpc *)userData);
+            if (validCaller(requestContext, *pCallingHostname, response, *pSipxRpcImpl, name()))
+            {
+               UtlSList process_results;
+               UtlString statusMsg;
+
+               SipxProcessManager* processMgr = SipxProcessManager::getInstance();
+               SipxProcess* process = processMgr->findProcess(*pAlias);
+               if (process)
+               {
+                  process->getStatusMessages(process_results);
+                  // Construct and set the response.
+                  response.setResponse(&process_results);
+                  status = XmlRpcMethod::OK;
+                  // Delete the new'd UtlString objects (status messages)
+                  process_results.destroyAll();
+                  result = true;
+               }
+               else
+               {
+                  OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "could not find process %s",
+                        pAlias->data());
+                  handleMissingExecuteParam(name(), PARAM_NAME_ALIAS, response, status);
+               }
+            }
+         }
+      }
+   }
+   return result;
+
+}
+
 /*****************************************************************
  **** ProcMgmtRpcGetConfigVersion
  *****************************************************************/

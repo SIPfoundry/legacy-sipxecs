@@ -485,6 +485,97 @@ protected:
 
 
 /**
+ Retrieves all status messages for the specified process since its last restart.
+
+ \par
+ <b>Method Name: ProcMgmtRpc.getStatusMessages</b>
+
+ \par
+ <b>Input:</b>
+ <table border="1">
+    <tr>
+       <td><b>Data type</b></td>
+       <td><b>Name</b></td>
+       <td><b>Description</b></td>
+    </tr>
+    <tr>
+       <td>string</td>
+       <td>callingHostname</td>
+       <td>The FQDN of the calling host to be checked as an SSL trusted peer <b>and</b> 
+           against an explicit list of hosts allowed to make requests.</td>
+    </tr>
+    <tr>
+       <td>string</td>
+       <td>alias</td>
+       <td>Alias of process to get messages for.  (The alias is the "name" attribute of the
+           "sipXecs-process" element in the process's 
+           SIPX_SHAREDIR/process.d/___.process.xml configuration file.)</td>
+    </tr>
+
+ </table>
+ 
+ \par
+ <b>Return Value:</b>
+ <table border="1">
+    <tr>
+       <td><b>Data type</b></td>
+       <td><b>Description</b></td>
+    </tr>
+    <tr>
+       <td>list of strings</td>
+       <td>List of status messages.
+           The content of the messages depends on the current state of the process,
+           but always follows the format
+           "msg.type: message"
+           where msg.type may be one of
+           <pre>
+              version.mismatch
+              resource.missing
+              stdout.msg-<nnn>
+              stderr.msg-<nnn>
+           </pre>
+           A maximum of MAX_STATUS_MSGS of stdout.msg and stderr.msgs are saved
+           and returned.  The index number of each message is included in the message
+           type, so truncation can be inferred if the returned messages do not begin
+           with stdxxx.msg-1.
+        </td>
+    </tr>
+ </table>
+ */class ProcMgmtRpcGetStatusMessage : public ProcMgmtRpcMethod
+{
+public:
+
+   /// The XmlRpcMethod::Get registered with the dispatcher for this XML-RPC Method.  
+   static XmlRpcMethod* get();
+
+   /// Destructor.
+   virtual ~ProcMgmtRpcGetStatusMessage() {};
+
+   /// Get the name of the XML-RPC method.
+   virtual const char* name();
+
+   /// Register this method handler with the XML-RPC dispatcher.
+   static void registerSelf(SipxRpc & sipxRpcImpl);
+
+protected:
+
+   /// The name of the XML-RPC method.
+   static const char* METHOD_NAME;
+
+   /// Constructor.
+   ProcMgmtRpcGetStatusMessage();
+
+   /// The execution of this XML-RPC Method.
+   virtual bool execute(const HttpRequestContext& requestContext, ///< request context
+                        UtlSList& params,                         ///< request param list
+                        void* userData,                           ///< user data
+                        XmlRpcResponse& response,                 ///< request response
+                        ExecutionStatus& status                   ///< XML-RPC method execution status
+                        );
+};
+
+
+/**
  Returns the configuration version of the process specified by its name.  (The 
  name is the "name" attribute of the "sipXecs-process" element in the
  process's SIPX_SHAREDIR/process.d/___.process.xml configuration file.)

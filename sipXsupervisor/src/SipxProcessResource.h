@@ -77,7 +77,7 @@ class SipxProcessResource : public SipxResource
 ///@{
 
    /// Whether or not the SipxProcessResource is ready for use by a SipxProcess.
-   virtual bool isReadyToStart();
+   virtual bool isReadyToStart(UtlString& missingResource);
 
    /// Whether or not it is safe to stop a SipxProcess using the SipxProcessResource.
    virtual bool isSafeToStop();

@@ -97,8 +97,9 @@ void SipxResource::appendDescription(UtlString&  description /**< returned descr
 ///@{
 
 /// Whether or not the SipxResource is ready for use by a SipxProcess.
-bool SipxResource::isReadyToStart()
+bool SipxResource::isReadyToStart(UtlString& missingResource)
 {
+   missingResource="ERROR: resource is missing isReadyToStart method";
    OsSysLog::add(FAC_SUPERVISOR, PRI_CRIT, "SipxResource::isReadyToStart called.");
    return false;
 }
