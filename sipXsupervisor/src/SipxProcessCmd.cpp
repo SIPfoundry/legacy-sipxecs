@@ -207,7 +207,7 @@ SipxProcessCmd* SipxProcessCmd::parseCommandDefinition(const TiXmlDocument& proc
 }
 
 /// Execute the command.
-void SipxProcessCmd::execute(SipxProcess* owner)
+void SipxProcessCmd::execute(SipxProcessCmdOwner* owner)
 {
    ExecuteMsg message(owner);
    postMessage( message );
@@ -263,7 +263,7 @@ UtlBoolean SipxProcessCmd::handleMessage( OsMsg& rMsg )
 }
 
 
-void SipxProcessCmd::executeInTask(SipxProcess* owner)
+void SipxProcessCmd::executeInTask(SipxProcessCmdOwner* owner)
 {
    UtlString args[mParameters.entries()+1];
    UtlSListIterator parameterListIterator(mParameters);
@@ -273,6 +273,7 @@ void SipxProcessCmd::executeInTask(SipxProcess* owner)
    while ( (pParameter = dynamic_cast<UtlString*> (parameterListIterator())) )
    {   
       args[i++] = *pParameter;
+      argString.append(" ");
       argString.append(*pParameter);
    }
    args[i] = NULL;
@@ -333,7 +334,11 @@ SipxProcessCmd::~SipxProcessCmd()
 {
    if (mProcess)
    {
-      mProcess->kill();
+      if (mProcess->isRunning())
+      {
+         mProcess->kill();
+      }
+
       delete mProcess;
       mProcess = NULL;
    }
@@ -360,7 +365,7 @@ SipxProcessCmd::SipxProcessCmd(const UtlString& execute,
 
 //////////////////////////////////////////////////////////////////////////////
 ExecuteMsg::ExecuteMsg(//EventSubType eventSubType,
-                               SipxProcess* owner
+                               SipxProcessCmdOwner* owner
                                ) :
    OsMsg( OS_EVENT, ExecuteMsg::EXECUTE ),
    mOwner( owner )

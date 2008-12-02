@@ -25,6 +25,7 @@
 #include "SipxProcessResourceManager.h"
 #include "SipxProcessManager.h"
 #include "SipxProcess.h"
+#include "SipxCommand.h"
 
 // DEFINES
 #define MAX_RETRY_ATTEMPTS 3 // raise alarm after this many retries
@@ -44,8 +45,6 @@ const char* SipxProcessConfigVersionDir = "process-cfgver";
 // and should not be changed without consulting sipXconfig designers.
 const char* resourceMissingTag = "resource.missing";
 const char* versionMismatchTag = "version.mismatch";
-const char* stdoutMsgTag = "stdout.msg-";
-const char* stderrMsgTag = "stderr.msg-";
 
 const size_t MAX_STATUS_MSGS = 100;  /// maximum number of status msgs to save
 
@@ -96,6 +95,7 @@ SipxProcess::SipxProcess(const UtlString& name,
    mStart(NULL),
    mStop(NULL),
    mReconfigure(NULL),
+   mConfigtestStandalone(NULL),
    mDefinitionFile(definitionFile),
    mbTaskRunning(false),
    mpTimer(NULL),
@@ -358,6 +358,17 @@ SipxProcess* SipxProcess::createFromDefinition(const OsPath& definitionFile)
                                       "'configtest' content is invalid %s",
                                       errorMsg.data()
                                       );
+                     }
+                     else
+                     {
+                        // create a standalone command for configtest, which can be
+                        // run independent of the FSM
+                        UtlString name = process->data();
+                        name.append("-configtest");
+                        process->mConfigtestStandalone =
+                           SipxCommand::createFromDefinition(name,
+                                                             processDefinitionDoc,
+                                                             configtestCmdElement);
                      }
                   }
                   else
@@ -829,6 +840,18 @@ void SipxProcess::shutdown()
 void SipxProcess::done()
 {
 
+}
+
+bool SipxProcess::runConfigtest()
+{
+   return mConfigtestStandalone->execute();
+}
+
+/// Return any messages accumulated during most recent run of configtest
+/// The caller is responsible for freeing the memory used for the strings.
+void SipxProcess::getConfigtestMessages(UtlSList& statusMessages)
+{
+   mConfigtestStandalone->getCommandMessages(statusMessages);
 }
 
 void SipxProcess::evCommandStarted(const SipxProcessCmd* command)
@@ -1374,7 +1397,6 @@ void SipxProcess::getStatusMessages(UtlSList& statusMessages)
    {
       statusMessages.append(new UtlString(*message));
    }
-
 }
 
 /// Clear any status messages accumulated so far and reset log counters
@@ -1475,6 +1497,10 @@ SipxProcess::~SipxProcess()
    {
       delete mConfigtest;
    }
+   if (mConfigtestStandalone)
+   {
+      delete mConfigtestStandalone;
+   }
    if (mStart)
    {
       delete mStart;
@@ -1488,6 +1514,7 @@ SipxProcess::~SipxProcess()
       delete mReconfigure;
    }
 
+   clearStatusMessages();
    mRequiredResources.removeAll();
    delete mpTimer;
    delete mpTimeoutCallback;

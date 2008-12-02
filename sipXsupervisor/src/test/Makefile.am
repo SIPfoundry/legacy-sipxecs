@@ -20,6 +20,7 @@ testsuite_SOURCES = \
     SipxProcessDefinitionParserTest.cpp \
 	 SipxProcessStateTest.cpp \
 	 SipxProcessVersionsTest.cpp \
+	 SipxCommandTest.cpp \
 	 SipxResourceUseTest.cpp
 
 alarm_testsuite_CXXFLAGS = \
@@ -81,6 +82,7 @@ EXTRA_DATA = \
     processDef/unknownstatus1.xml \
     processDef/unknownstatus2.xml \
     processDef/versionnottext.xml \
+	 commandDef/goodcommand.xml \
 	 processState/newprocess.xml \
 	 processVersions/someprocess.xml
 

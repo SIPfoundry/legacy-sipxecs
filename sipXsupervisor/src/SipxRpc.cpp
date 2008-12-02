@@ -56,6 +56,8 @@ SipxRpc::SipxRpc(XmlRpcDispatch* dispatcher, UtlSList& allowedPeers)
    ProcMgmtRpcRestart::registerSelf(*this);
    ProcMgmtRpcGetConfigVersion::registerSelf(*this);
    ProcMgmtRpcSetConfigVersion::registerSelf(*this);
+   ProcMgmtRpcRunConfigtest::registerSelf(*this);
+   ProcMgmtRpcGetConfigtestMessages::registerSelf(*this);
 
    ImdbRpcReplaceTable::registerSelf(*this);
    ImdbRpcRetrieveTable::registerSelf(*this);

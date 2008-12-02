@@ -17,6 +17,7 @@
 #include "os/OsTimer.h"
 #include "os/OsProcess.h"
 #include "SipxProcessFsm.h"
+#include "SipxCommand.h"
 
 // DEFINES
 // CONSTANTS
@@ -142,7 +143,7 @@ class SipxProcessStateTest;
  * @enddot
  *
  */
-class SipxProcess : public UtlString, OsServerTask
+class SipxProcess : public UtlString, OsServerTask, SipxProcessCmdOwner
 {
   public:
 
@@ -191,8 +192,16 @@ class SipxProcess : public UtlString, OsServerTask
    /// Called from the task which is running the FSM, when it has shut down
    void done();
    
+   /// Run configtest as a separate task (does not interfere with normal process)
+   /// Returns false if the configtest is already running
+   bool runConfigtest();
+
    /// Return any status messages accumulated during or leading up to the current state
    void getStatusMessages(UtlSList& statusMessages);
+   ///< The caller is responsible for freeing the memory used for the strings.
+   
+   /// Return any status messages accumulated during configtest
+   void getConfigtestMessages(UtlSList& statusMessages);
    ///< The caller is responsible for freeing the memory used for the strings.
    
    /// Clear any status messages accumulated so far and reset log counters
@@ -429,6 +438,7 @@ class SipxProcess : public UtlString, OsServerTask
    SipxProcessCmd*  mStart;         ///< from the sipXecs-process/commands/start element
    SipxProcessCmd*  mStop;          ///< from the sipXecs-process/commands/stop element
    SipxProcessCmd*  mReconfigure;   ///< from the sipXecs-process/commands/reconfigure element
+   SipxCommand*     mConfigtestStandalone;  ///< to run configtest for this process separate from FSM
 
    UtlString        mPidFile;       ///< from the sipXecs-process/status/pid element
    UtlSList         mLogFiles;      /**< from the sipXecs-process/status/log elements

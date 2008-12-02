@@ -57,6 +57,8 @@ def usage_exit(error_code=1)
   -u|--setConfigVersion Set the configuration version of the specified service
   -v|--serviceVersion The service version value to update
   -f|--file           Get the named file
+  -t|--runConfigtest          Run the configtest for the specified service
+  --getConfigtestMessages     Return messages from the configtest for the specified service
 
 __EOU__
 
@@ -76,6 +78,8 @@ if __FILE__ == $0
       ['--setConfigVersion','-u', GetoptLong::REQUIRED_ARGUMENT],
       ['--serviceVersion','-v',       GetoptLong::REQUIRED_ARGUMENT],
       ['--file','-f',          GetoptLong::REQUIRED_ARGUMENT],
+      ['--runConfigtest','-t',        GetoptLong::REQUIRED_ARGUMENT],
+      ['--getConfigtestMessages',     GetoptLong::REQUIRED_ARGUMENT],
       ['--host','-n',          GetoptLong::REQUIRED_ARGUMENT],
       ['--port','-p',          GetoptLong::REQUIRED_ARGUMENT],
       ['--help','-h',          GetoptLong::NO_ARGUMENT]
@@ -127,7 +131,7 @@ begin
             argument = arg
             aliaslist.push(argument)
             block = true
-         when '--getStatusMessages'
+         when '--getStatusMessages', '--runConfigtest', '--getConfigtestMessages'
             # One string argument must be specified.
             action = name.gsub(/--/, '')
             alias1 = arg
@@ -156,7 +160,7 @@ case action
 when 'start', 'stop', 'restart'
     params.push(aliaslist)
     params.push(block)
-when 'getStatusMessages'
+when 'getStatusMessages', 'runConfigtest', 'getConfigtestMessages'
     params.push(alias1)
 when 'getalisbypid'
     params.push(argument)

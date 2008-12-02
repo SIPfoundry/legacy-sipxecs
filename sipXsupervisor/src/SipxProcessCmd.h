@@ -12,15 +12,21 @@
 // APPLICATION INCLUDES
 #include "os/OsFS.h"
 #include "os/OsServerTask.h"
+#include "os/OsProcess.h"
 #include "utl/UtlString.h"
 #include "utl/UtlSList.h"
-#include "SipxProcess.h"
 
 // DEFINES
+// The following tags are used by sipXconfig to display status messages nicely
+// and should not be changed without consulting sipXconfig designers.
+#define stdoutMsgTag "stdout.msg-"
+#define stderrMsgTag "stderr.msg-"
+
 // CONSTANTS
 // TYPEDEFS
 // FORWARD DECLARATIONS
 class TiXmlElement;
+class SipxProcessCmdOwner;
 
 /// Represents a command as defined by the Command type in sipXecs-process.xsd
 /**
@@ -44,7 +50,7 @@ class SipxProcessCmd : public UtlString, OsServerTask
    ///< @returns NULL if the element contents are invalid.
 
    /// Execute the command and return appropriate event to the owner.
-   void execute(SipxProcess* owner);
+   void execute(SipxProcessCmdOwner* owner);
    
    /// Return true if the command process is currently running
    bool isRunning();
@@ -96,10 +102,33 @@ class SipxProcessCmd : public UtlString, OsServerTask
    virtual UtlBoolean handleMessage(OsMsg& rMsg);
 
    /// Handle the execute request in the separate command task
-   void executeInTask(SipxProcess* owner);
+   void executeInTask(SipxProcessCmdOwner* owner);
 
    friend class SipxProcessDefinitionParserTest;
 };
+
+
+/** Class to implement an interface by which results can be returned from the SipxProcessCmd
+ *  to its owner
+ */
+class SipxProcessCmdOwner
+{
+   public:
+      virtual ~SipxProcessCmdOwner() {} // nominal destructor
+      
+      /// Notify the owner that a command has completed starting.
+      virtual void evCommandStarted(const SipxProcessCmd* command) = 0;
+      
+      /// Notify the owner that a command has stopped.
+      virtual void evCommandStopped(const SipxProcessCmd* command, int rc) = 0;
+
+      /// Notify the owner that a command has received output.
+      virtual void evCommandOutput(const SipxProcessCmd* command, 
+                           OsSysLogPriority pri,
+                           UtlString message) = 0;
+      
+};
+
 
 /** 
  * Message sent to the SipxProcessCmd task to prevent application code from blocking
@@ -116,20 +145,20 @@ public:
 
    /// Constructor.
    ExecuteMsg(//EventSubType eventSubType,
-                  SipxProcess* owner            ///< owner
+                  SipxProcessCmdOwner* owner            ///< owner
                   );
 
    /// Destructor
    virtual ~ExecuteMsg();
 
    // Component accessors.
-   SipxProcess* getOwner( void ) const    {return mOwner;}
+   SipxProcessCmdOwner* getOwner( void ) const    {return mOwner;}
  
 protected:
    static const UtlContainableType TYPE;   ///< Class type used for runtime checking
 
 private:
-   SipxProcess* mOwner;               ///< owner
+   SipxProcessCmdOwner* mOwner;               ///< owner
 
    /// Copy constructor
    ExecuteMsg( const ExecuteMsg& rhs);

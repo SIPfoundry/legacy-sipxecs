@@ -576,6 +576,181 @@ protected:
 
 
 /**
+ Runs configtest for the specified process.
+
+ \par
+ <b>Method Name: ProcMgmtRpc.runConfigtest</b>
+
+ \par
+ <b>Input:</b>
+ <table border="1">
+    <tr>
+       <td><b>Data type</b></td>
+       <td><b>Name</b></td>
+       <td><b>Description</b></td>
+    </tr>
+    <tr>
+       <td>string</td>
+       <td>callingHostname</td>
+       <td>The FQDN of the calling host to be checked as an SSL trusted peer <b>and</b> 
+           against an explicit list of hosts allowed to make requests.</td>
+    </tr>
+    <tr>
+       <td>string</td>
+       <td>alias</td>
+       <td>Alias of process to run configtest for.  (The alias is the "name" attribute of the
+           "sipXecs-process" element in the process's 
+           SIPX_SHAREDIR/process.d/___.process.xml configuration file.)</td>
+    </tr>
+
+ </table>
+ 
+ \par
+ <b>Return Value:</b>
+ <table border="1">
+    <tr>
+       <td><b>Data type</b></td>
+       <td><b>Description</b></td>
+    </tr>
+    <tr>
+       <td>bool</td>
+       <td>True if the process was found and its configtest could be executed;
+           false otherwise or if the configtest is already running.
+           The output from the configtest can be retrieved using GetConfigtestMessages.
+        </td>
+    </tr>
+ </table>
+ */class ProcMgmtRpcRunConfigtest : public ProcMgmtRpcMethod
+{
+public:
+
+   /// The XmlRpcMethod::Get registered with the dispatcher for this XML-RPC Method.  
+   static XmlRpcMethod* get();
+
+   /// Destructor.
+   virtual ~ProcMgmtRpcRunConfigtest() {};
+
+   /// Get the name of the XML-RPC method.
+   virtual const char* name();
+
+   /// Register this method handler with the XML-RPC dispatcher.
+   static void registerSelf(SipxRpc & sipxRpcImpl);
+
+protected:
+
+   /// The name of the XML-RPC method.
+   static const char* METHOD_NAME;
+
+   /// Constructor.
+   ProcMgmtRpcRunConfigtest();
+
+   /// The execution of this XML-RPC Method.
+   virtual bool execute(const HttpRequestContext& requestContext, ///< request context
+                        UtlSList& params,                         ///< request param list
+                        void* userData,                           ///< user data
+                        XmlRpcResponse& response,                 ///< request response
+                        ExecutionStatus& status                   ///< XML-RPC method execution status
+                        );
+};
+
+/**
+ Retrieves all messages for the configtest of the specified process (which had to
+ be run previously by calling runConfigtest; otherwise an empty result is returned).
+
+ \par
+ <b>Method Name: ProcMgmtRpc.getConfigtestMessages</b>
+
+ \par
+ <b>Input:</b>
+ <table border="1">
+    <tr>
+       <td><b>Data type</b></td>
+       <td><b>Name</b></td>
+       <td><b>Description</b></td>
+    </tr>
+    <tr>
+       <td>string</td>
+       <td>callingHostname</td>
+       <td>The FQDN of the calling host to be checked as an SSL trusted peer <b>and</b> 
+           against an explicit list of hosts allowed to make requests.</td>
+    </tr>
+    <tr>
+       <td>string</td>
+       <td>alias</td>
+       <td>Alias of process to get configtest messages for.  (The alias is the "name" attribute of the
+           "sipXecs-process" element in the process's 
+           SIPX_SHAREDIR/process.d/___.process.xml configuration file.)</td>
+    </tr>
+
+ </table>
+ 
+ \par
+ <b>Return Value:</b>
+ <table border="1">
+    <tr>
+       <td><b>Data type</b></td>
+       <td><b>Description</b></td>
+    </tr>
+    <tr>
+       <td>list of strings</td>
+       <td>List of messages.
+           The content of the messages depends on the configtest for the process,
+           but always follows the format
+           "msg.type: message"
+           where msg.type may be one of
+           <pre>
+              stdout.msg-<nnn>
+              stderr.msg-<nnn>
+              return.code
+           </pre>
+           A maximum of MAX_STATUS_MSGS of stdout.msg and stderr.msgs are saved
+           and returned.  The index number of each message is included in the message
+           type, so truncation can be inferred if the returned messages do not begin
+           with stdxxx.msg-1.
+           \par
+           The "return.code" line gives the return code of the configtest process when
+           it exits.
+           If the command is still running, then the "return.code" line will not be present.
+        </td>
+    </tr>
+ </table>
+ */
+
+class ProcMgmtRpcGetConfigtestMessages : public ProcMgmtRpcMethod
+{
+public:
+
+   /// The XmlRpcMethod::Get registered with the dispatcher for this XML-RPC Method.  
+   static XmlRpcMethod* get();
+
+   /// Destructor.
+   virtual ~ProcMgmtRpcGetConfigtestMessages() {};
+
+   /// Get the name of the XML-RPC method.
+   virtual const char* name();
+
+   /// Register this method handler with the XML-RPC dispatcher.
+   static void registerSelf(SipxRpc & sipxRpcImpl);
+
+protected:
+
+   /// The name of the XML-RPC method.
+   static const char* METHOD_NAME;
+
+   /// Constructor.
+   ProcMgmtRpcGetConfigtestMessages();
+
+   /// The execution of this XML-RPC Method.
+   virtual bool execute(const HttpRequestContext& requestContext, ///< request context
+                        UtlSList& params,                         ///< request param list
+                        void* userData,                           ///< user data
+                        XmlRpcResponse& response,                 ///< request response
+                        ExecutionStatus& status                   ///< XML-RPC method execution status
+                        );
+};
+
+
+/**
  Returns the configuration version of the process specified by its name.  (The 
  name is the "name" attribute of the "sipXecs-process" element in the
  process's SIPX_SHAREDIR/process.d/___.process.xml configuration file.)
