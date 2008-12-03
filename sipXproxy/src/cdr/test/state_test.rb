@@ -19,9 +19,10 @@ include TestUtil
 class StateTest < Test::Unit::TestCase
   
   class DummyCdr
+
     attr_reader :counter, :call_id
     
-    def initialize(call_id)
+    def initialize(call_id, log = nil)
       @counter = 0
       @call_id = call_id
     end
@@ -38,12 +39,14 @@ class StateTest < Test::Unit::TestCase
     def retire; end
   end
   
-  class DummyCse
-    attr_reader :call_id, :event_time
+  class DummyCse < CallStateEvent
+    attr_reader :id, :call_id, :event_time, :event_type
     
-    def initialize(call_id, event_time = DBI::Timestamp.new(2000,1,1,1,1,0))
+    def initialize(call_id, event_time = DBI::Timestamp.new(2000,1,1,1,1,0), event_type = 'R')
       @call_id = call_id
       @event_time = event_time
+      @event_type = event_type
+      @id = 1
     end    
   end
   
@@ -129,7 +132,7 @@ class StateTest < Test::Unit::TestCase
     
     attr_reader :call_id, :start_time
     
-    def initialize(call_id)
+    def initialize(call_id, log=nil)
       @call_id = call_id
     end
     
@@ -234,6 +237,22 @@ class StateTest < Test::Unit::TestCase
     
     # and one CDR remains in the state
     assert_equal(2, state.active_cdrs.size)
+  end
+  
+  def test_retire_long_ringing_calls
+    out_queue = []
+    cse1 = DummyCse.new('id1', DBI::Timestamp.new(2000,1,1,10,1,1))    
+    in_queue = [
+    cse1, [:retire_long_ringing_calls, 120]
+    ]
+    MockCdr.results( true, false )
+    state = State.new(in_queue, out_queue, MockCdr)
+    state.run    
+    
+    # a single CDR will be recorded
+    assert_equal(2, out_queue.size)
+    assert_nil(out_queue[1])
+    
   end
   
   def test_flush_failed_calls

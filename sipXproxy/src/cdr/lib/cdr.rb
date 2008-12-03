@@ -9,8 +9,9 @@ require 'utils/utils'
 
 class CallLeg
   attr_reader :id, :connect_time, :end_time, :status, :to_tag, :failure_status, :failure_reason, :callee_contact
+  attr_writer :log
   
-  def initialize(id)
+  def initialize(id,log=nil)
     @id = id
     @status = nil
     @connect_time = nil
@@ -19,6 +20,7 @@ class CallLeg
     @failure_reason = nil
     # we count 'setup' and 'end/failure' events but the numbers do not have to match here
     @refcount = 0    
+    @log = log
   end
   
   def has_duration?
@@ -106,10 +108,12 @@ end
 
 class CallLegs
   attr_reader :best_leg
+  attr_writer :log
   
-  def initialize
+  def initialize(log=nil)
     @legs = {}
     @best_leg = nil
+    @log = log
   end
   
   def accept_setup(cse)
@@ -142,7 +146,7 @@ class CallLegs
   private
   def get_leg(cse)
     id = CallLeg.leg_id(cse)
-    @legs[id] ||= CallLeg.new(id)
+    @legs[id] ||= CallLeg.new(id, @log)
   end
 end
 
@@ -162,6 +166,7 @@ end
 #  failure_reason text                Text describing the reason for a call failure 
 #  call_direction char(1)             Plugin feature  see below 
 class Cdr
+  attr_writer :log
   # Constants representing termination codes
   CALL_REQUESTED_TERM   = 'R'
   CALL_IN_PROGRESS_TERM = 'I'
@@ -173,7 +178,12 @@ class Cdr
   SIP_REQUEST_TIMEOUT_CODE = 408
   SIP_BAD_TRANSACTION_CODE = 481
 
-  def initialize(call_id)
+  SIP_UNAUTHORIZED_STR = 'Unauthorized'
+  SIP_PROXY_AUTH_REQUIRED_STR = 'Proxy Authentication Required'
+  SIP_REQUEST_TIMEOUT_STR = 'Request Timeout'
+  SIP_BAD_TRANSACTION_STR = 'Call Leg/Transaction Does Not Exist'
+
+  def initialize(call_id, log=nil)
     @call_id = call_id
     @from_tag = nil
     @to_tag = nil
@@ -186,7 +196,8 @@ class Cdr
     @call_direction = nil
     
     @got_original = false
-    @legs = CallLegs.new
+    @log = log
+    @legs = CallLegs.new(@log)
     
     @callee_contact = nil
     @caller_contact = nil
@@ -225,10 +236,10 @@ class Cdr
     when cse.call_failure?
       if @legs.established? then
          # established calls that receive a failure of bad transaction or request timeout are considered failed.
-         accept_call_end(cse)  unless ((cse.failure_reason != SIP_BAD_TRANSACTION_CODE) && (cse.failure_reason != SIP_REQUEST_TIMEOUT_CODE))
+         accept_call_end(cse)  unless ((cse.failure_status != SIP_BAD_TRANSACTION_CODE) && (cse.failure_status != SIP_REQUEST_TIMEOUT_CODE))
       else
          # non-established calls only consider a failure if the reason is not a timeout, auth required or unauthorized.
-         accept_call_end(cse)  unless ((cse.failure_reason == SIP_REQUEST_TIMEOUT_CODE) || (cse.failure_reason == SIP_PROXY_AUTH_REQUIRED_CODE) || (cse.failure_reason == SIP_UNAUTHORIZED_CODE))
+         accept_call_end(cse)  unless ((cse.failure_status == SIP_REQUEST_TIMEOUT_CODE) || (cse.failure_status == SIP_PROXY_AUTH_REQUIRED_CODE) || (cse.failure_status == SIP_UNAUTHORIZED_CODE))
       end
     when cse.call_end?
       accept_call_end(cse)
@@ -241,11 +252,23 @@ class Cdr
     @legs = nil
   end
   
-  # called if we suspect termination even has been lost
+  # called if we suspect termination event has been lost
   def force_finish
     leg = @legs.best_leg
+    @to_tag ||= 1;
     apply_leg(leg) if leg
     @termination = CALL_COMPLETED_TERM
+  end
+  
+  # called if we suspect a failed termination event has been lost
+  def force_failed_finish
+    leg = @legs.best_leg
+    apply_leg(leg) if leg
+    @to_tag ||= 1;
+    @failure_status = SIP_REQUEST_TIMEOUT_CODE
+    @failure_reason = SIP_REQUEST_TIMEOUT_STR
+    @termination = CALL_FAILED_TERM
+
   end
   
   def to_s
@@ -278,6 +301,7 @@ class Cdr
   
   def accept_call_setup(cse)
     @legs.accept_setup(cse)
+    @termination = CALL_IN_PROGRESS_TERM 
     finish
   end
   

@@ -44,7 +44,8 @@ module CdrResolver
         active_calls = Array.new
         now = Time.now
         @state.active_cdrs.each do | cdr |
-          active_calls << ActiveCall.new(cdr, now)
+          @log.debug("ActiveCall state =  #{cdr.termination}") if @log
+          active_calls << ActiveCall.new(cdr, now) if cdr.termination == Cdr::CALL_IN_PROGRESS_TERM
         end
         @log.debug("getActiveCalls #{active_calls.size}") if @log
         return active_calls

@@ -82,7 +82,8 @@ class State
   def accept(cse)
     @generation += 1
 
-    if ( !cse.id )
+    
+    if ( cse ) && (!cse.id )
        if (@last_event_time)
           # Synchronize event in order to trigger advancing last_event_time
           if ( @last_event_time.to_time() < cse.event_time.to_time() )
@@ -109,7 +110,7 @@ class State
     cdr = if failed_cdr
       @cdrs[call_id] = failed_cdr.cdr
     else    
-      @cdrs[call_id] ||= @cdr_class.new(call_id)
+      @cdrs[call_id] ||= @cdr_class.new(call_id, @log)
     end      
     
     if cdr.accept(cse)
@@ -142,7 +143,7 @@ class State
     end
   end
   
-  # call to retire (turn into CDRs) really long calls
+  # call to retire established (turn into CDRs) really long calls
   # the assumption is that we may be losing some events for some calls which permanently keeps them in 'ongoing' state
   def retire_long_calls(max_call_len)
     return unless @last_event_time
@@ -151,6 +152,21 @@ class State
       start_time = cdr.start_time
       if start_time && (@last_event_time.to_time() - start_time.to_time() > max_call_len)
         cdr.force_finish
+        notify(cdr)
+        true                
+      end
+    end    
+  end
+  
+  # call to retire long ringing (turn into CDRs) calls
+  # the assumption is that we may have lost an event for some call which permanently keeps them in 'requested' state
+  def retire_long_ringing_calls(max_ringing_call_len)
+    return unless @last_event_time
+    return unless max_ringing_call_len > 0
+    @cdrs.delete_if do | call_id, cdr |
+      start_time = cdr.start_time
+      if start_time && (@last_event_time.to_time() - start_time.to_time() > max_ringing_call_len) && (cdr.termination == Cdr::CALL_REQUESTED_TERM)
+        cdr.force_failed_finish
         notify(cdr)
         true                
       end
@@ -176,7 +192,7 @@ class State
     send(method, *params)
   end  
   
-  # Add readry CDR to CDR queue, save it in retired_calls collection so that we can ignore new events for this CDR
+  # Add ready CDR to CDR queue, save it in retired_calls collection so that we can ignore new events for this CDR
   def notify(cdr)
     cdr.retire
     @retired_calls[cdr.call_id] = @generation

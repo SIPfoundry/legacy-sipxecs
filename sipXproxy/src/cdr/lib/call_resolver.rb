@@ -34,6 +34,7 @@ class CallResolver
     install_signal_handler(@readers)
     @writer = CdrWriter.new(@config.cdr_database_url, @config.purge_age_cdr, log)
     @long_calls_cleaner = Cleaner.new(@config.min_cleanup_interval, [:retire_long_calls,  @config.max_call_len])
+    @long_ringing_calls_cleaner = Cleaner.new(@config.min_cleanup_interval, [:retire_long_ringing_calls,  @config.max_ringing_call_len])
     @failed_calls_cleaner = Cleaner.new(@config.min_cleanup_interval, [:flush_failed_calls,  @config.max_failed_wait])
     @state = nil
   end
@@ -60,7 +61,7 @@ class CallResolver
 
     # start everything
     reader_threads = @readers.collect do | reader |
-      # TODO: we are passing nil as CSE start_id at them moment
+      # TODO: we are passing nil as CSE start_id at the moment
       # it would be better if we stored the last read id for every CSE database
       Thread.new(reader, cse_queue) do |r, q|
         r.run(q, nil, start_time, end_time)
@@ -71,6 +72,9 @@ class CallResolver
       cleaner.run(queue)
     end
     failed_calls_cleaner_thread = Thread.new(@failed_calls_cleaner, cse_queue) do |cleaner, queue|
+      cleaner.run(queue)
+    end
+    long_ringing_calls_cleaner_thread = Thread.new(@long_ringing_calls_cleaner, cse_queue) do |cleaner, queue|
       cleaner.run(queue)
     end
 
@@ -102,8 +106,9 @@ class CallResolver
     # stop running housekeeping jobs
     @long_calls_cleaner.stop
     @failed_calls_cleaner.stop
+    @long_ringing_calls_cleaner.stop
 
-    ThreadsWait.all_waits(long_calls_cleaner_thread, failed_calls_cleaner_thread)
+    ThreadsWait.all_waits(long_calls_cleaner_thread, failed_calls_cleaner_thread, long_ringing_calls_cleaner_thread)
     log.debug("Clean-up threads stopped.")
 
   ensure

@@ -48,6 +48,7 @@ class SoapServerTest < Test::Unit::TestCase
     cdr1.start_time = DBI::Timestamp.new(Time.now)
     cdr1.caller_aor = 'from@example.org'
     cdr1.callee_aor = 'to@example.org'
+    cdr1.termination = Cdr::CALL_IN_PROGRESS_TERM
     
     cdrs = [cdr1]    
     start_server(State.new(cdrs))
@@ -66,6 +67,7 @@ class SoapServerTest < Test::Unit::TestCase
       cdr.start_time = DBI::Timestamp.new(Time.now)
       cdr.caller_aor = "from#{i}@example.org"
       cdr.callee_aor = "to#{i}@example.org"
+      cdr.termination = Cdr::CALL_IN_PROGRESS_TERM
       cdrs << cdr
     }
     start_server(State.new(cdrs))

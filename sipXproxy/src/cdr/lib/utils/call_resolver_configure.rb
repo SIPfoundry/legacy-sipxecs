@@ -146,6 +146,11 @@ class CallResolverConfigure
     parse_int_param(@config, 'SIP_CALLRESOLVER_MAX_CALL_LEN', 8 * 60 * 60, -1)
   end
 
+  # Maximum time an unanswered ringing call is allowed before being marked as failed.
+  def max_ringing_call_len
+    parse_int_param(@config, 'SIP_CALLRESOLVER_MAX_RINGING_CALL_LEN', 2 * 60, -1)
+  end
+
   # number of seconds after which filed calls will be recorded if no new leg open
   def max_failed_wait
     parse_int_param(@config, 'SIP_CALLRESOLVER_MAX_FAILED_WAIT', 3 * 60, -1)
