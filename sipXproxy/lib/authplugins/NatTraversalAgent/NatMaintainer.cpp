@@ -27,13 +27,12 @@ using namespace std;
 // TYPEDEFS
 // STATIC INITIALIZERS
 
-NatMaintainer::NatMaintainer( SipRouter* sipRouter, NatTraversalRules* pNatTraversalRules ) :
+NatMaintainer::NatMaintainer( SipRouter* sipRouter ) :
    mRefreshRoundNumber( 0 ),
    mpRegistrationDB( 0 ),
    mpSubscriptionDB( 0 ),
    mTimerMutex( OsMutex::Q_FIFO ),
    mpSipRouter( sipRouter ),
-   mpNatTraversalRules( pNatTraversalRules ),
    mpEndpointsKeptAliveList( 0 ),
    mpKeepAliveMessage( 0 ),
    mExternalKeepAliveListMutex( OsMutex::Q_FIFO )

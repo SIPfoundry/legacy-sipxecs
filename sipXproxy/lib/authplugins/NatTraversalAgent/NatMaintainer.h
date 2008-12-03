@@ -69,7 +69,7 @@ class NatMaintainer : public OsTask
 {
 
 public:
-   NatMaintainer( SipRouter* sipRouter, NatTraversalRules* pNatTraversalRules );
+   NatMaintainer( SipRouter* sipRouter );
    virtual ~NatMaintainer();
    virtual int run( void* runArg );
    virtual void requestShutdown( void );
@@ -91,7 +91,6 @@ private:
    SubscriptionDB* mpSubscriptionDB;  //    
    OsMutex mTimerMutex;               // mutex used to generate heartbeat;   
    SipRouter* mpSipRouter;
-   NatTraversalRules* mpNatTraversalRules;
    KeepAliveEndpointDescriptor* mpEndpointsKeptAliveList;
    SipMessage* mpKeepAliveMessage;
    UtlSList    mExternalKeepAliveList;

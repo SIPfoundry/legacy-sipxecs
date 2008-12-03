@@ -426,7 +426,7 @@ void NatTraversalAgent::announceAssociatedSipRouter( SipRouter* sipRouter )
       }
       
       // launch thread that will maintain NAT keep alives
-      mpNatMaintainer = new NatMaintainer( sipRouter, &mNatTraversalRules );
+      mpNatMaintainer = new NatMaintainer( sipRouter );
       mpNatMaintainer->start();
    }
 }
