@@ -660,7 +660,7 @@ driftfile /var/lib/ntp/drift\n\
     if ntpServerReachable :
         # Set Time
         # try setting the clock with ntp if possible
-        ntpSetMsg="Setting time with NTP" % ts
+        ntpSetMsg="Setting time with NTP"
         progress(86, ntpSetMsg)
         show_starting()
         if runningAsRoot() :
