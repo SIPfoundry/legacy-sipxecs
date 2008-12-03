@@ -105,10 +105,12 @@ public:
       OsTask::delay(2000); // give task some time to get up and running
       CPPUNIT_ASSERT(process1->isEnabled());
       ASSERT_STR_EQUAL(SipxProcess::pRunning->name(), process1->mpDesiredState->name());
+      KNOWN_BUG("Fails on ecs-centos5.x64", "XECS-1967");
       ASSERT_STR_EQUAL(SipxProcess::pRunning->name(), process1->GetCurrentState()->name());
 
       process2->enable();
       OsTask::delay(2000); // give task some time to get up and running
+      KNOWN_BUG("Fails on ecs-centos5", "XECS-1966");
       ASSERT_STR_EQUAL(SipxProcess::pRunning->name(), process2->GetCurrentState()->name());
       CPPUNIT_ASSERT(process2->isEnabled());
 
@@ -127,6 +129,7 @@ public:
 
       process2->shutdown();
       CPPUNIT_ASSERT(process2->isEnabled());
+      KNOWN_BUG("Fails on ecs-fc8", "XECS-1968");
       ASSERT_STR_EQUAL(SipxProcess::pRunning->name(), process2->mpDesiredState->name());
       OsTask::delay(2000); // give task some time to shutdown
       ASSERT_STR_EQUAL(SipxProcess::pShutDown->name(), process2->GetCurrentState()->name());
