@@ -108,12 +108,14 @@ UtlContainableType DialogDefaultConstructor::getContainableType() const
 DialogEventPublisher::DialogEventPublisher(CallManager* callManager,
                                            SipPublishContentMgr* contentMgr,
                                            const UtlString& entityHost,
-                                           int entityPort) :
+                                           int entityPort,
+                                           bool maskEstablished) :
    mpCallManager(callManager),
    mpSipPublishContentMgr(contentMgr),
    mDialogId(0),
    mEntityHost(entityHost),
-   mEntityPort(entityPort)
+   mEntityPort(entityPort),
+   mMaskEstablishedasEarly(maskEstablished)
 {
    // Arrange to generate default content for dialog events.
    mpSipPublishContentMgr->publishDefault(DIALOG_EVENT_TYPE, DIALOG_EVENT_TYPE,
@@ -624,7 +626,7 @@ UtlBoolean DialogEventPublisher::handleMessage(OsMsg& rMsg)
 
          case PtEvent::CONNECTION_ESTABLISHED:
          {
-            OsSysLog::add(FAC_SIP, PRI_DEBUG, "DialogEventPublisher::handleMessage CONNECTION_ESATBLISHED");
+            OsSysLog::add(FAC_SIP, PRI_DEBUG, "DialogEventPublisher::handleMessage CONNECTION_ESTABLISHED");
             
             // Set default as an incoming call
             bool incomingCall = TRUE;
@@ -737,7 +739,17 @@ UtlBoolean DialogEventPublisher::handleMessage(OsMsg& rMsg)
                remoteTarget.getUri(temp);
                pDialog->setRemoteTarget(temp);
    
-               pDialog->setState(STATE_CONFIRMED, NULL, NULL);
+               if (!mMaskEstablishedasEarly) 
+               {
+                  pDialog->setState(STATE_CONFIRMED, NULL, NULL);
+               }
+               else
+               {
+                  // special case for park orbits so that call in orbit is always flashing.  Used for one button pickup.
+                  OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                             "DialogEventPublisher::handleMessage setting state to early when connected");
+                  pDialog->setState(STATE_EARLY, NULL, NULL);
+               }
             }
             else
             {
@@ -754,7 +766,17 @@ UtlBoolean DialogEventPublisher::handleMessage(OsMsg& rMsg)
                   pDialog = new Dialog(dialogId, callId, localTag, remoteTag, "initiator");
                }
 
-               pDialog->setState(STATE_CONFIRMED, NULL, NULL);
+               if (!mMaskEstablishedasEarly)
+               {
+                  pDialog->setState(STATE_CONFIRMED, NULL, NULL);
+               }
+               else
+               {
+                  // special case for park orbits so that call in orbit is always flashing.  Used for one button pickup.
+                  OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                             "DialogEventPublisher::handleMessage setting state to early when connected");
+                  pDialog->setState(STATE_EARLY, NULL, NULL);
+               }
    
                localIdentity.getIdentity(identity);
                localIdentity.getDisplayName(displayName);
@@ -771,7 +793,7 @@ UtlBoolean DialogEventPublisher::handleMessage(OsMsg& rMsg)
                sipDialog.getRemoteContact(remoteTarget);
                remoteTarget.getUri(temp);
                pDialog->setRemoteTarget(temp);
-  
+
                pDialog->setDuration(OsDateTime::getSecsSinceEpoch());
    
                pThisCall->insertDialog(pDialog);

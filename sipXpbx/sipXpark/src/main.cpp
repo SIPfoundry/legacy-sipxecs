@@ -71,6 +71,7 @@
 #define CONFIG_SETTING_MAX_SESSIONS   "SIP_PARK_MAX_SESSIONS"
 #define CONFIG_SETTING_LIFETIME       "SIP_PARK_LIFETIME"
 #define CONFIG_SETTING_BLIND_WAIT     "SIP_PARK_BLIND_XFER_WAIT"
+#define CONFIG_SETTING_ONE_BUTTON_BLF "SIP_PARK_ONE_BUTTON_BLF"
 #define CONFIG_SETTING_KEEPALIVE_TIME "SIP_PARK_KEEPALIVE_TIME"
 
 const char* PARK_SERVER_ID_TOKEN = "~~id~park"; // see sipXregistry/doc/service-tokens.txt
@@ -93,6 +94,7 @@ const char* PARK_SERVER_ID_TOKEN = "~~id~park"; // see sipXregistry/doc/service-
 #define DEFAULT_BLIND_WAIT            60         // Default time to wait for a
                                                  // blind transfer to succeed or
                                                  // fail, 60 seconds.
+#define DEFAULT_ONE_BUTTON_BLF        true
 #define DEFAULT_KEEPALIVE_TIME        300        // Default time to send periodic
                                                  // keepalive signals, in order to 
                                                  // check if the call is still connected.
@@ -407,6 +409,12 @@ int main(int argc, char* argv[])
     if (configDb.get(CONFIG_SETTING_MAX_SESSIONS, MaxSessions) != OS_SUCCESS)
         MaxSessions = DEFAULT_MAX_SESSIONS;
 
+    UtlBoolean OneButtonBLF;
+    if (configDb.getBoolean(CONFIG_SETTING_ONE_BUTTON_BLF, OneButtonBLF) != OS_SUCCESS)
+    {
+        OneButtonBLF = DEFAULT_ONE_BUTTON_BLF;
+    }
+
     UtlString   domain;
     UtlString   realm;
     UtlString   user;
@@ -661,7 +669,7 @@ int main(int argc, char* argv[])
     // Create the DialogEventPublisher.
     // Use the sipX domain as the hostport of resource-IDs of the
     // published events, as that will be the request-URIs of SUBSCRIBEs.
-    DialogEventPublisher dialogEvents(&callManager, &publisher, domain);
+    DialogEventPublisher dialogEvents(&callManager, &publisher, domain, PORT_NONE, OneButtonBLF);
     callManager.addTaoListener(&dialogEvents);
     dialogEvents.start();
 

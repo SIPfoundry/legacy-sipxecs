@@ -73,8 +73,10 @@ public:
                          *   mpCallManager->getUserAgent()->getLocalAddress()
                          *   to determine the host and port.
                          */
-                        int entityPort = PORT_NONE
+                        int entityPort = PORT_NONE,
                         ///< The port part of the entity URI.
+                        bool maskEstablished = FALSE
+                        ///< Whether or not to ignore Established messages and not publish an event for it.
       );
      //:Default constructor
 
@@ -132,6 +134,7 @@ private:
     /// Host and port for constructing entity URIs.
     UtlString mEntityHost;
     int mEntityPort;
+    bool mMaskEstablishedasEarly;
 };
 
 /* ============================ INLINE METHODS ============================ */

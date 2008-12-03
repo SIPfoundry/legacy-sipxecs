@@ -391,6 +391,27 @@ SipRedirectorPickUp::lookUp(
    message.getCallIdField(&incomingCallId);
 
    if (!mCallPickUpCode.isNull() &&
+       !mCallRetrieveCode.isNull() &&
+       userId.length() > mCallPickUpCode.length() &&
+       userId.index(mCallPickUpCode.data()) == 0 )
+   {
+      // We have both a Call Pickup and Retrieve codes defined and the userid contains the
+      // Pickup code at the beginning.  Check if the remainder of the userid is a park orbit.
+      // If it is, replace the Pickup code with the Retrieve code in the userid.
+      // Extract the orbit number.
+      UtlString orbit(userId.data() + mCallPickUpCode.length());
+      if (mOrbitFileReader.findInOrbitList(orbit) != NULL)
+      {
+         // userid contains a park orbit.  replace the pickup code with the retrieve code.
+         userId.replace(0, mCallPickUpCode.length(), mCallRetrieveCode);
+         OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                       "SipRedirectorPickup::lookUp replace Pickup for Retrieve = %s and requestString = %s",
+                       userId.data(), requestString.data());
+      }
+   }
+
+       
+   if (!mCallPickUpCode.isNull() &&
        userId.length() > mCallPickUpCode.length() &&
        userId.index(mCallPickUpCode.data()) == 0 &&
        userId.compareTo(mExcludedUser1) != 0 &&
@@ -402,6 +423,9 @@ SipRedirectorPickUp::lookUp(
       // the default global pick-up feature code is "*78*", we can't just
       // match all strings with the directed pick-up feature code as a
       // prefix, we also require that the suffix not be "*" or "#".
+         OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                       "SipRedirectorPickup::lookUp callpickupcode is present = %s",
+                       userId.data());
       return lookUpDialog(requestString,
                           incomingCallId,
                           contactList,
@@ -504,7 +528,19 @@ SipRedirectorPickUp::lookUp(
          // Look it up in the orbit list.
          if (mOrbitFileReader.findInOrbitList(orbit) != NULL)
          {
-            return lookUpDialog(requestString,
+           
+           UtlString  retrieveRequestString(requestString);
+           ssize_t    pickupCodeIndex;
+   
+           // If the requestString contains the call pickup code, replace it with call retrieve code.  Used for one button
+           // parked call pickup.
+           pickupCodeIndex = retrieveRequestString.index(mCallPickUpCode.data());   
+           if ( pickupCodeIndex != UTL_NOT_FOUND )
+           {
+             retrieveRequestString.replace( pickupCodeIndex, mCallPickUpCode.length(), mCallRetrieveCode);
+           }
+            return lookUpDialog(retrieveRequestString,
+
                                 incomingCallId,
                                 contactList,
                                 requestSeqNo,
