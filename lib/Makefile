@@ -56,7 +56,7 @@ fc8 fc7 : $(CUSTOM_PACKAGES) cppunit xerces-c rubygems
 f9 : $(CUSTOM_PACKAGES)
 
 .PHONY: rhel5 centos5 rhel4
-rhel5 centos5 rhel4 : $(CUSTOM_PACKAGES) w3c-libwww jakarta-commons-net rubygems cppunit
+rhel5 centos5 rhel4 : $(CUSTOM_PACKAGES) w3c-libwww jakarta-commons-net rubygems cppunit jakarta-commons-net
 
 .PHONY: suse11.0
 suse11.0 : stunnel w3c-libwww $(CUSTOM_PACKAGES) jakarta-commons-net
