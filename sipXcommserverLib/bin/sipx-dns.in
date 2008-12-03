@@ -1,10 +1,10 @@
 #!@BASH@
 
-Action=GENERATE
+Action=RECORDS_ONLY
 SipDomain=""
 HostMax=0
 ExitStatus=0
-
+SerialNumber=00
 
 showUsage() {
     cat <<USAGE
@@ -55,6 +55,22 @@ validateFullName() {
     esac
 }
 
+validateName() {
+    case ${1} in 
+        *.*)
+            echo ${1}
+            break
+            ;;
+        *.)
+            echo ${1} | sed 's/.$//'
+            break
+            ;;
+        *)
+            echo ${1}.${SipDomain}
+            ;;
+    esac
+}
+
 while [ $# -ne 0 ]
 do
     case ${1} in
@@ -63,10 +79,40 @@ do
             exit 0
             ;;
 
+        -z|--zone)
+            Action=FULL_ZONE
+            ;;
+
         ##
         ## handle the 'end of options' marker
         ##
         --)
+            ;;
+
+        -o|--other)
+            if [ $# -lt 2 ]
+            then
+                echo "Must specify <name/ip-address> with ${1}" 1>&2
+                Action=USAGE
+                break
+            else
+                ClusterHosts[${HostMax}]=${2}
+                Type[${HostMax}]="OTHER"
+                HostMax=$(($HostMax + 1))
+                shift # consume the switch ( for n values, consume n-1 )
+            fi
+            ;;
+
+        -s|--serial)
+            if [ $# -lt 2 ]
+            then
+                echo "Must specify <serial-number> with ${1}" 1>&2
+                Action=USAGE
+                break
+            else
+                SerialNumber=`printf "%02d" $2`
+                shift # consume the switch ( for n values, consume n-1 )
+            fi
             ;;
 
         ##
@@ -84,6 +130,7 @@ do
                 SipDomain=`validateFullName ${1}`
             else
                 ClusterHosts[${HostMax}]=${1}
+                Type[${HostMax}]="CALLSERVER"
                 HostMax=$(($HostMax + 1))
             fi
             ;;
@@ -107,20 +154,59 @@ for host in `seq 0 $HostMax`
   case $thishost in
       */*)
           hostname=`echo $thishost | cut -d / -f 1`
-          Host[$host]=`validateFullName $hostname`
+          Host[$host]=`validateName $hostname`
           Addr[$host]=`echo $thishost | cut -d / -f 2`
           ;;
       *)
-          Host[$host]=`validateFullName $thishost`
-          Addr[$host]=""
+          if [ "${Action}" = "FULL_ZONE" ]
+          then
+              cat <<EOF 1>&2
+  When generating a full zone file, all systems must specify an ip address
+    Address needed for '$thishost'.
+EOF
+              exit 1
+          else
+              Host[$host]=`validateName $thishost`
+              Addr[$host]=""
+          fi
           ;;
   esac
 done
 
+if [ "${Action}" = "FULL_ZONE" ]
+then
+    ZoneSerialNumber=`date +%Y%m%d${SerialNumber}`
+    cat <<EOF
+$TTL 1800
+@       IN     SOA    ns1.${SipDomain}. root.${SipDomain}. (
+                       ${ZoneSerialNumber} ; serial#
+                       1800            ; refresh, seconds
+                       1800            ; retry, seconds
+                       1800            ; expire, seconds
+                       1800 )          ; minimum TTL, seconds
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; DNS Servers for '${SipDomain}'
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+EOF
+    for host in `seq 0 $HostMax`
+    do
+        if [ "${Type[$host]}" = "CALLSERVER" ]
+        then
+            cat <<EOF
+${SipDomain}.            IN     NS     ${Host[$host]}.
+EOF
+        fi
+    done
+fi
+
 cat <<EOF
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; sipX Servers for SIP domain '$SipDomain'
+; IP Addresses
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 EOF
 
 for host in `seq 0 $HostMax`
@@ -135,57 +221,55 @@ done
 
 cat <<EOF
 
-$SipDomain.		IN	NAPTR	2 0 "s" "SIP+D2T" "" _sip._tcp.$SipDomain.
-$SipDomain.		IN	NAPTR	2 0 "s" "SIP+D2U" "" _sip._udp.$SipDomain.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Call Routing for SIP domain '${SipDomain}'
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+EOF
+cat <<EOF
+
+${SipDomain}.		IN	NAPTR	2 0 "s" "SIP+D2T" "" _sip._tcp.${SipDomain}.
+${SipDomain}.		IN	NAPTR	2 0 "s" "SIP+D2U" "" _sip._udp.${SipDomain}.
 EOF
 
 for host in `seq 0 $HostMax`
 do
-  server=${Host[$host]}
-cat <<EOF
-_sip._tcp.$SipDomain.	IN	SRV	1 0 5060 $server.
-EOF
-done
-
-for host in `seq 0 $HostMax`
-do
-  server=${Host[$host]}
-cat <<EOF
-_sip._udp.$SipDomain.	IN	SRV	1 0 5060 $server.
-EOF
-done
-
-if [ $HostMax -gt 0 ]
-then
-    rr=5070
-    Name[$rr]="registry/redirect"
-
-    for host in `seq 0 $HostMax`
-      do
-      server=${Host[$host]}
-      for service in rr
-        do
+    if [ "${Type[$host]}" = "CALLSERVER" ]
+    then
+        server=${Host[$host]}
         cat <<EOF
 
-; $server routing for ${Name[${!service}]} service
-_sip._tcp.$service.$server.	IN	SRV	1   0 ${!service} $server.
-_sip._udp.$service.$server.	IN	SRV	3   0 ${!service} $server.
+_sip._tcp.${SipDomain}.	IN	SRV	1 0 5060 $server.
+_sip._udp.${SipDomain}.	IN	SRV	1 0 5060 $server.
+EOF
+    fi
+done
+
+for host in `seq 0 $HostMax`
+do
+    if [ "${Type[$host]}" = "CALLSERVER" ]
+    then
+        server=${Host[$host]}
+        cat <<EOF
+
+; $server routing for registry/redirect service
+_sip._tcp.rr.$server.	IN	SRV	1   0 5070 $server.
 EOF
         for backuphost in `seq 0 $HostMax`
-          do
-          backup=${Host[$backuphost]}
-          if [ "$server" != "$backup" ] 
-              then
-              cat <<EOF
-_sip._tcp.$service.$server.	IN	SRV	2 100 ${!service} $backup.
-_sip._udp.$service.$server.	IN	SRV	4 100 ${!service} $backup.
+        do
+            if [ "${Type[$backuphost]}" = "CALLSERVER" ]
+            then
+                backup=${Host[$backuphost]}
+                if [ "$server" != "$backup" ] 
+                then
+                    cat <<EOF
+_sip._tcp.rr.$server.	IN	SRV	2 100 5070 $backup.
 EOF
-          fi
+                fi
+            fi
         done
-      done
-    done
-fi
+    fi
+done
 
 cat <<EOF
 
