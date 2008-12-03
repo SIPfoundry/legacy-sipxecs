@@ -639,7 +639,7 @@ AC_DEFUN([CHECK_APACHE2],
                [--with-apache-home=PATH the apache2 home directory],
                [ apache2_home_search_path="$withval"
                  ],
-               [ apache2_home_search_path="/usr/local/apache2 /usr/apache2 /etc/httpd /usr/local/sbin /usr/local /usr/sbin /usr /usr/lib/apache2 /usr/lib64/apache2 /usr/share/apache2 /usr/lib/httpd"
+               [ apache2_home_search_path="/usr/local/apache2 /usr/apache2 /etc/httpd /usr/local/sbin /usr/local /usr/sbin /usr /usr/lib64/apache2 /usr/lib/apache2 /usr/share/apache2 /usr/lib64/httpd /usr/lib/httpd"
                  ]
                )
    AC_MSG_CHECKING([for apache2 home])
