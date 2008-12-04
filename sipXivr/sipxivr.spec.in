@@ -7,7 +7,7 @@ License: LGPL
 Group: Productivity/Telephony/SIP/Servers
 Vendor: SIPfoundry
 Packager: SIPfoundry <sipx-dev@sipfoundry.org>
-Url: http://www.sipfoundry.org/sipXbridge
+Url: http://www.sipfoundry.org
 
 Source: %name-%version.tar.gz
 
