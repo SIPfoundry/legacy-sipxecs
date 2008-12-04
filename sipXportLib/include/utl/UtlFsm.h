@@ -27,8 +27,10 @@
 // FORWARD DECLARATIONS
 
    /**
-    * Module containing state-machine algorithms. Hierarchical state
-    * machines with entry and exit actions are supported.
+    * Module implementing state-machine algorithms, based on the
+    * "State pattern" of _Design Patterns_ by Gamma et al., with the
+    * addition of hierarchical states with entry and exit actions in
+    * the manner of UML.
     *
     * \par
     * The approach is inspired by the State pattern described in GoF
@@ -67,28 +69,46 @@
     *
     * \par
     * The GoF pattern only works for flat state machines. In a
-    * hierarchical state machine, states may contain substates,
-    * and each state may have an entry action and an exit action.
-    * A transition may originate from, or terminate at, either a
-    * composite state (which has substates) or a simple state.
-    * The implementation provided here includes a ChangeState
-    * operation that calls all the exit and entry actions that
-    * need to be called.
+    * hierarchical state machine, states may contain substates, and
+    * each state may have an entry action and an exit action.  A
+    * transition may originate from, or terminate at, either a
+    * composite state (which has substates) or a simple state.  The
+    * implementation provided here includes a ChangeState operation
+    * that calls all the exit and entry actions that need to be called
+    * for the transition from any one state to any other.
+    *
+    * \par
+    * In our implementation, Context class parameters of templates are
+    * given as "class StateMachineType", and State class parameters
+    * are given as "class StateType".  The method
+    * <Context>::ChangeState() is usually implemented using
+    * StateAlg::ChangeState(), as the processing needed to support
+    * entry and exit actions makes ChangeState() more complicated than
+    * the assignment (to a std::auto_ptr) that is used in the GoF
+    * pattern.
     *
     * \par
     * To implement hierarchical state machines, we impose some
-    * requirements on the Context and State classes. The Context class
-    * must implement methods to get and set the pointer to the current
-    * state. The State class must implement operations called DoEntryAction(),
-    * DoExitAction(), GetParent(), and GetInitialState(). These methods
-    * (which are specified in more detail below)
-    * are used by ChangeState(), which is defined in this module.
+    * requirements on the Context and State classes.  The Context
+    * class must implement methods GetCurrentState() and
+    * SetCurrentState() to get and set the pointer to the current
+    * state. The State class must implement operations called
+    * DoEntryAction(), DoExitAction(), GetParent(), and
+    * GetInitialState(), which will be inherited but re-implemented by
+    * every subclass.  These methods (which are specified in more
+    * detail below) are used by ChangeState(), which is defined in
+    * this module.  In order to make working with hierarchical states
+    * efficient, this implementation requires that there is a only one
+    * instance of each State subclass for each Context object (and
+    * usually one State subclass instance that is utilized by all
+    * Context objects).
     *
     * \par
     * For logging, Context and State classes *must* implement a member
     * function called name() that returns a C-style string containing
-    * the name of the Context instance or State class.
-    * This is only used if a manifest constant is defined at compile.
+    * the name of the Context instance or State class.  This method is
+    * only used if the manifest constant LOG_STATE_CHANGES is defined
+    * at compile time.
     *
     * \par
     * Typically, substates will be implemented as subclasses of the
@@ -100,7 +120,7 @@
     * \par
     * Our implementation does not mention transition actions or guards
     * or internal transitions, since these are simply coded in the methods
-    * of the concrete subclasses of State. Note that, to perform an
+    * of the concrete subclasses of State.  Note that, to perform an
     * external transition, these methods will perform the transition
     * action and then call ChangeState, which will perform the exit and
     * entry actions. This is a slight divergence
@@ -109,7 +129,11 @@
     * This was also the approach taken in the book by Samek.
     *
     * \par
-    * In this module, each function is a template function taking two types.
+    * In this module, each function is a template function taking two
+    * types parameters:  StateMachineType (corresponding to Context in
+    * the GoF pattern) and StateType (corresponding to State in the
+    * GoF pattern).
+    *
     * StateMachineType (corresponding to Context in the GoF pattern) must be
     * a class that defines the following methods:
     *
@@ -125,8 +149,8 @@
     * \endcode
     *
     * StateType must be a class that defines the following methods:
-    * \code
     *
+    * \code
     *  // Performs the entry action for the state.
     *  //
     *  // Note:
@@ -151,7 +175,7 @@
     *  // If A and B both have the same parent state, then A->GetParent()
     *  // must return the same pointer as B->GetParent().
     *  //
-    *  virtual StateType* GetParent( StateMachineType& sm ) const;
+    *  virtual StateType* GetParent( StateType& sm ) const;
     *
     *  // Returns the initial state contained in this state,
     *  // or 0 if there isn't one. A state that contains no other
@@ -160,7 +184,7 @@
     *  //
     *  // The initial state must be a direct descendant of this state.
     *  //
-    *  virtual StateType* GetInitialState( StateMachineType& sm ) const;
+    *  virtual StateType* GetInitialState( StateType& sm ) const;
     * \endcode
     *
     * \par
@@ -192,7 +216,7 @@
     *    completely handled before starting to process the next event. You
     *    could implement a run-to-completion scheme by enqueuing events, but
     *    not without overhead.
-    * 2. The callback may delete the Context class. I believe this will not be
+    * 2. The callback may delete the Context object. I believe this will not be
     *    a problem if the callback is always the last thing done in the State's
     *    member function (and if callbacks are not made from exit actions or
     *    from the entry actions of composite states). (TO DO: Test this.) It
@@ -221,17 +245,19 @@
    public:
       //----------------------- ChangeState ---------------------------
       /**
-       * Changes from the current state to the transition target, performing
-       * the required exit and entry actions. Self transitions, as well as
-       * transitions to ancestor or descendant states, are supported.
-       * Client code (in state classes) calls this function
-       * to perform external transitions. Recall that events are handled by
-       * methods in the StateMachine (Context) class that delegate to methods
-       * in the State classes. When an event results in an external
-       * transition, the method in the State class calls this function
-       * (ChangeState) to effect the transition. In addition, the entry
-       * actions of simple states may call this function. (The entry
-       * actions of composite states must not call this function.)
+       * Changes from the current state to the transition target
+       * state, performing the required exit and entry
+       * actions. Self-transitions, as well as transitions to ancestor
+       * or descendant states, are supported.  Client code (in state
+       * classes) calls this function to perform external
+       * transitions. Recall that events are handled by methods in the
+       * StateMachineType (Context) class that delegate to methods in
+       * the StateType (State) classes. When an event results in an
+       * external transition, the method in the State class calls this
+       * function (ChangeState) to effect the transition. In addition,
+       * the entry actions of simple states may call this
+       * function. (The entry actions of composite states must not
+       * call this function.)
        *
        * \note
        * When you call this template function, make sure the StateType*
@@ -246,9 +272,9 @@
        *    State* target = targetState;
        *    ChangeState( sm, source, target);
        * \endcode
-       * It is probably best to do this in one place, in a method in the State
-       * class, that the subclasses can call without defining the extra variables;
-       * for example:
+       * It is probably best to call ChangeState in one place, in a
+       * method in the State class, that the subclasses can call
+       * without defining the extra variables; for example:
        * \code
        * void State::ChangeState( StateMachine& sm, State* targetState )
        * {
@@ -260,9 +286,10 @@
        *    ChangeState( sm, pState2 );
        * \endcode
        * (Note, though, that when an action is inherited, calling ChangeState as
-       * shown changes the source state of the transition. If it matters, the
+       * shown changes the source state of the transition.  If it matters, the
        * source state can be explicitly specified.)
-       * TO DO: A version of ChangeState that takes const state parameters (see private_sigchannelstate.h)
+       * TO DO: A version of ChangeState that takes const state
+       * parameters (see private_sigchannelstate.h)
        * You can also choose to get rid of the "sm" parameter of the local
        * ChangeState method, by making it a member
        * of every state class. The disadvantage of doing so is that every state
@@ -271,17 +298,19 @@
        * of each State class.
        *
        * \par
-       * See the documentation with StateAlg for more details.
+       * See the documentation for class StateAlg for more details.
        */
       template< class StateMachineType, class StateType >
       static void ChangeState( StateMachineType& sm,
-            StateType* transitionSource, StateType* transitionTarget )
+                               StateType* transitionSource,
+                               StateType* transitionTarget )
       {
 #ifdef LOG_STATE_CHANGES
          OsSysLog::add(FAC_FSM, PRI_DEBUG,
-               "ChangeState( FSM = %s, current state = %s. new state = %s )", sm.name(),
-                                            transitionSource->name(),
-                                            transitionTarget->name() );
+                       "ChangeState( FSM = %s, current state = %s. new state = %s )",
+                       sm.name(),
+                       transitionSource->name(),
+                       transitionTarget->name() );
 #endif
          Exit( sm, transitionSource );
          ParentExit( sm, transitionSource->GetParent( sm ), transitionTarget );
@@ -292,20 +321,22 @@
 
       //---------------------- StartStateMachine ----------------------
       /**
-       * Enters the state machine's initial state. This is called once, to start
-       * the state machine. The initial state must be a top-level state; i.e., it
-       * must not have a parent.
+       * Enters the state machine's initial state. This is called once
+       * for each created state machine instance, to start the state
+       * machine.  The initial state must be a top-level state; i.e.,
+       * it must not have a parent.
        *
        * \par
-       * The state's own entry action is performed first. If the
-       * state is composite, its initial state is then entered (and if the state's
-       * initial state is composite, the process continues until a simple state is
-       * reached).
+       * The state's own entry action is performed first. If the state
+       * is composite, its initial state is then entered (and if the
+       * state's initial state is composite, the process continues
+       * until a simple state is reached).
        *
        * \par
-       * See the note with ChangeState() about making sure the stateToEnter parameter
-       * is of the correct type. See the documentation with StateAlg for more details
-       * about state machines.
+       * See the note with ChangeState() about making sure the
+       * stateToEnter parameter is of the correct type. See the
+       * documentation with StateAlg for more details about state
+       * machines.
        *
        * \param stateToEnter
        *    The state machine's initial state.
@@ -319,16 +350,15 @@
 
    private:
       /**
-       * Performs the exit action for the state which is the
-       * source of a transition and for all the
-       * states below that state, starting from the bottom.
-       * In other words, exits the
-       * current state, the parent of the current state,
-       * the parent's parent, etc., until the transitionSource
-       * has been exited.
+       * Performs the exit action for the current state and all of its
+       * ancestor states up to and including state transitionSource
+       * (which is expected to be the state which is the source of a
+       * transition).  In other words, exits the current state, the
+       * parent of the current state, the parent's parent, etc., until
+       * transitionSource has been exited.
        *
        * \note
-       * This function assumes that this state is either the
+       * This function assumes that transitionSource is either the
        * current state or an ancestor of the current state, which
        * will be the case in a well-formed state machine.
        */
@@ -348,16 +378,17 @@
       }  //lint !e818
 
       /**
-       * Exits from the parent of the transitionSource, if necessary,
-       * and from all the ancestors of the parent that also need to
-       * have their exit actions performed.
+       * Exits from the parent of transitionSource and all of its
+       * ancestors that are exited when transitioning to state
+       * transitionTarget.
        *
        * \param parentToExit The parent or ancestor of the transition
        *    source that may need to be exited. This parameter is
-       *    allowed to be 0.
+       *    allowed to be 0, in which case nothing is done.
        * \param transitionTarget The target of the transition. The
        *    parameter is needed because it determines which ancestors
-       *    need to be exited.
+       *    need to be exited:  those ancestors of transitionSource
+       *    which are not also ancestors of transitionTarget.
        */
       template< class StateMachineType, class StateType >
       static void ParentExit( StateMachineType& sm, StateType* parentToExit, StateType* transitionTarget )
@@ -381,8 +412,10 @@
       }
 
       /**
-       * Performs the entry action of the parent of a state, as well
-       * as the entry actions of the parent's ancestors, as necessary.
+       * Performs the entry action of the parent (parentToEnter) of a
+       * state, as well as the entry actions of the parent's ancestors
+       * that are entered when transitioning from state
+       * transitionSource.
        */
       template< class StateMachineType, class StateType >
       static void ParentEnter( StateMachineType& sm, StateType* parentToEnter, StateType* transitionSource )
@@ -406,7 +439,8 @@
       }
 
       /**
-       * Enters a state, and the states contained by it as required.
+       * Enters a state, recursively entering initial substates of
+       * composite states.
        * Precondition: The new current state has already been set.
        *
        * \param stateToEnter Either the target of a transition or an
@@ -437,7 +471,7 @@
        *    The StateType parameters are not declared const so that the client
        *    can have GetParent and GetInitialState return const StateType*
        *    and be able to call ChangeState with either StateType* or
-       *    const StateType*.4
+       *    const StateType*.
        */
       template< class StateMachineType, class StateType >
       static bool IsAncestor( StateMachineType& sm, StateType* possibleAncestor, StateType* possibleDescendant )
@@ -459,10 +493,11 @@
       }
 
       /**
-       * If startState is a simple state, returns startState. Otherwise, returns
-       * startState's initial state if that is a simple state, or
-       * startState's initial state's initial state if that is a simple state,
-       * etc.
+       * If startState is a simple state, returns
+       * startState. Otherwise, recursively examines the initial state
+       * of complex states.  That is, it returns startState's initial
+       * state if that is a simple state, or startState's initial
+       * state's initial state if that is a simple state, etc.
        */
       template< class StateMachineType, class StateType >
       static StateType* GetMostNestedInitialState( StateMachineType& sm, StateType* startState )
