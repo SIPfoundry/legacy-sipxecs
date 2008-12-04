@@ -20,13 +20,13 @@ function ${initRefresh}(buttonName, interval) {
   
   if (window.${timeoutId}) {
      dojo.debug('clearing timeout ' + window.${timeoutId});
-     window.clearTimeout(window.${timeoutId});
+     window.clearInterval(window.${timeoutId});
      window.${timeoutId} = 0;
   } else {
       dojo.debug('previous timeout 0 or undefined');
   }
   
-  window.${timeoutId} = window.setTimeout(click, interval * 1000);
+  window.${timeoutId} = window.setInterval(click, interval * 1000);
   dojo.debug('setting timeout ' + window.${timeoutId});
 }
     </unique>
