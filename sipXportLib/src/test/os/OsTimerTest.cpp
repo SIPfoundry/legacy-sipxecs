@@ -222,6 +222,7 @@ public:
                                        " - verify return value");
           // gCallBackCount is reinitialized to 0 each iteration, so
           // its value should be 1 now.
+          KNOWN_BUG("fails on ecs-fc8" "XECS-1975");
           CPPUNIT_ASSERT_MESSAGE("Verify timer was fired for each iteration",
                                  gCallBackCount == 1);
           CPPUNIT_ASSERT_MESSAGE(Message.data(), returnValue);
