@@ -26,7 +26,7 @@ editscripts :
 	do \
 	  target=`basename $$f .in`; \
 	  $(LocalizeSipXconfig) $(srcdir)/$$f > $$target; \
-     $(INSTALL) -D -m 755 $$target $(DESTDIR)$(bindir)/$$target; \
+          $(INSTALL) -D -m 755 $$target $(DESTDIR)$(bindir)/$$target; \
 	done
 
 install-exec-hook : editscripts
