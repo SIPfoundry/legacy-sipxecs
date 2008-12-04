@@ -16,7 +16,6 @@
 #include "net/SipMessage.h"
 #include "SipRouter.h"
 #include "NatTraversalAgentDataTypes.h"
-#include "NatTraversalRules.h"
 
 // DEFINES
 #define NAT_REFRESH_INTERVAL_IN_MILLISECS (20000)
