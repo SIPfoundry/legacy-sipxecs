@@ -11,29 +11,60 @@ showUsage() {
 
 Usage:
     
-    sipx-dns <sip-domain> <server-name>[/<ipaddr>]...
+    sipx-dns <sip-domain> <callserver-name>[/<ipaddr>]...
+             [ { -o | --other } <system-name>[/<ipaddr>] ] ...
+             [ { -z | --zone } [ { -s | --serial } <serial-suffix> ] ]
 
-    Output DNS records in BIND format for sipX services.  The output is
-    printed on the standard output; it can be captured in a file and 
-    editted into the zone file for your domain.
+    Output DNS records in BIND format for sipXecs services.  The output
+    is printed on the standard output.
+
+    The --zone option adds a header to the output that makes it a complete
+    zone file (see 'FULL ZONE' below).
 
       sip-domain   
-          Is the domain that will be used as the domain part of your SIP
-          addresses.  Typically, this will be your top level domain name
-          (example.com).
+          Is the domain that to be used as the domain part of your SIP
+          addresses.  Typically, this is your top level domain name
+          (example.com).  If any callserver or system names are not fully
+          qualified (do not contain any '.' characters), then this domain
+          is appended to those names to create fully qualified names.
 
-      server-name  
+      callserver-name/ipaddr
 
-          This is the fully qualified name of a sipX server in your domain
-          (sipx.example.com).
+          This is the name of a sipXecs server in your domain that is running
+          the sipXproxy service.
 
-          May also include the IP address (sipx.example.com/10.1.1.10).  If
-          the address is given, then the A record for the host name will be
-          generated; if not, then you must supply that record.
+      --other system-name/ipaddr
 
-          The PTR records for reverse (address to name) lookups are not
-          generated.  They are nice to have for system management, but sipX
-          does not need them.
+    The callserver and other system names may also include the IP address
+    (sipxecs.example.com/10.1.1.10).  If the address is given, then the A
+    (name-to-address) record for the host name is generated. 
+
+  FULL ZONE
+
+     The --zone option causes a zone header to be output.  This output is 
+     suitable as a complete zone file for 'bind'.  To make this useful, you MUST:
+
+     - Provide either 'callserver' or 'other' system arguments for ALL systems
+       in the domain.
+
+     - Provide the '/ipaddr' part of each system (callserver or other) argument.
+
+     - Every callserver is assumed to also be a DNS server for the domain 
+       (this is recommended practice anyway for performance and stability 
+       reasons).
+
+     The '--serial' option accepts a number that is the number of times the 
+     sipx-dns command output has been used in the same day to configure a running
+     dns server.  This can be omitted if you are running the command only once.
+     It is used to generate the zone serial number so that secondary servers 
+     will recognize when the master server has been updated and trigger replication.
+
+  REVERSE ZONES
+
+    The PTR records for reverse (address to name) lookups are not
+    generated.  They are nice to have for system management, but sipXecs
+    does not need them.
+
 USAGE
 }
 
