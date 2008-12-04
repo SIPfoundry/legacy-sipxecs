@@ -79,17 +79,6 @@
     <pathelement location="${spring-mock.jar}" />
   </path>
 
-  <!-- COMPILE JASPER REPORTS -->
-  <target name="jasperreports.compile">
-    <taskdef name="jrc"  classname="net.sf.jasperreports.ant.JRAntCompileTask"
-	     classpathref="compile.dependencies"/>
-	<echoproperties/>
-    <jrc compiler="net.sf.jasperreports.engine.design.JRJavacCompiler"
-	srcdir="reports" destdir="reports">
-	<classpath refid="compile.dependencies" />
-    </jrc>
-  </target>
-
   <!-- INSTALL -->
   <target name="install" depends="jar">
     <mkdir dir="${dest.dir}${sipxpbx.conf.dir}" />
@@ -258,7 +247,6 @@
     <mkdir dir="${dest.dir}${sipxpbx.reports.dir}" />
     <taskdef name="jrc"  classname="net.sf.jasperreports.ant.JRAntCompileTask"
 	     classpathref="compile.dependencies"/>
-	<echoproperties/>
     <jrc compiler="net.sf.jasperreports.engine.design.JRJavacCompiler"
 	srcdir="reports" destdir="${dest.dir}${sipxpbx.reports.dir}">
 	<classpath refid="compile.dependencies" />
