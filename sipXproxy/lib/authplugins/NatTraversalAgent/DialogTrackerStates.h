@@ -1,8 +1,8 @@
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 #ifndef _DIALOGTRACKERSTATES_H_
@@ -24,7 +24,7 @@ class DialogTrackerState
 {
 public:
    /***
-    * Returns the parent state of this state. As required by StateAlg. 
+    * Returns the parent state of this state. As required by StateAlg (in UtlFsm.h).
     */
    virtual const DialogTrackerState* GetParent( DialogTracker& impl ) const;
 
@@ -44,10 +44,11 @@ public:
    virtual void DoExitAction( DialogTracker& impl ) const;
 
    virtual const char* name( void ) const;
-   
+
    virtual ~DialogTrackerState(){};
 
    // State machine events
+   // See NAT_Traversal_Design_Doc.doc section 4.2.2 for definitions.
    virtual bool InviteRequest( DialogTracker& impl, SipMessage& request, TransactionDirectionality dir, const char* address, int port ) const;
    virtual bool AckRequest( DialogTracker& impl, SipMessage& request, TransactionDirectionality dir, const char* address, int port ) const;
    virtual bool ByeRequest( DialogTracker& impl, SipMessage& request, TransactionDirectionality dir, const char* address, int port ) const;
@@ -59,10 +60,13 @@ public:
    virtual void FailureResponse( DialogTracker& impl, SipMessage& response, const char* address, int port ) const;
    virtual void CleanUpTimerTick( DialogTracker& impl ) const;
 protected:
-   void ChangeState( DialogTracker& impl, 
+   void ChangeState( DialogTracker& impl,
                       const DialogTrackerState* targetState ) const;
 
 };
+
+// State machine states.
+// See NAT_Traversal_Design_Doc.doc section 4.2.2 for definitions.
 
 class WaitingForInvite : public DialogTrackerState
 {
@@ -209,7 +213,7 @@ public:
 
    // State machine events relevant for this state
    virtual void SuccessfulResponse( DialogTracker& impl, SipMessage& response, const char* address, int port ) const;
-   virtual void FailureResponse( DialogTracker& impl, SipMessage& response, const char* address, int port ) const;   
+   virtual void FailureResponse( DialogTracker& impl, SipMessage& response, const char* address, int port ) const;
 };
 
 class WaitingFor200OkforInvite : public Negotiating
@@ -224,7 +228,3 @@ public:
 };
 
 #endif // _DIALOGTRACKERSTATES_H_
-
-
-
-

@@ -651,9 +651,12 @@ public:
                                 int port,
                                 OsSocket::IpProtocolSocketType protocol);
 
-    UtlBoolean sendSymmetricUdp(SipMessage& message,
-                                const char* serverAddress,
-                                int port);
+    /** Send a UDP message symmetrically, that is, so the source port is
+     *  the SipUserAgent's UDP listening port. */
+    UtlBoolean sendSymmetricUdp(SipMessage& message,       ///< the message
+                                const char* serverAddress, ///< destination address
+                                int port                   ///< destination port
+       ); 
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:

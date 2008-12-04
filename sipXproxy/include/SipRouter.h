@@ -112,6 +112,7 @@ class SipRouter : public OsServerTask
 
    UtlBoolean removeSipOutputProcessor( SipOutputProcessor *pProcessor );
    
+   /// Send a keepalive message to the specified address/port using the SipRouter's SipUserAgent.
    void sendUdpKeepAlive( SipMessage& keepAliveMsg, const char* serverAddress, int port );
 
    /// Get the canonical form of our SIP domain name.

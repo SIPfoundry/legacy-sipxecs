@@ -214,6 +214,8 @@ public:
    // ///////////////////////////////////////////////////////// //
    // DialogTracker states.  Note: the state objects are shared //
    //                        by all instances of this class.    //
+   // See NAT_Traversal_Design_Doc.doc section 4.3.5 for        //
+   // description of these states.                              //
    // ///////////////////////////////////////////////////////// //
     static WaitingForInvite*       pWaitingForInvite;
     static WaitingForAckForInvite* pWaitingForAckForInvite;    

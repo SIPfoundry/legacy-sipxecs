@@ -22,7 +22,6 @@
 #define UNKNOWN_TRANSPORT_STRING  ("unknown")
 #define UNKNOWN_PORT_NUMBER       (0)
 
-
 // CONSTANTS
 // TYPEDEFS
 typedef UtlInt tMediaRelayHandle;
@@ -104,10 +103,10 @@ protected:
    //MISC
    const UtlString& getTransportDataType( void ) const;
    
-   UtlString mTransportType; 
-   UtlString mAddress; 
+   UtlString mTransportType;     ///< "Public", "Private", or "unknown"
+   UtlString mAddress;
    int mPort;
-   UtlString mTransportProtocol;
+   UtlString mTransportProtocol; ///< "transport" parameter value or "unknown"
 };
 
 class NativeTransportData : public TransportData

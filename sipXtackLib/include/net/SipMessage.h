@@ -1103,8 +1103,9 @@ public:
     UtlBoolean buildRouteField(UtlString* routeField) const;
 
     /// That method is used to add to a message a special 'NAT' route that can
-    /// be used to alter the destination of the message.  More specifically,
-    /// if present in a message, the NAT route takesprecedence over the 
+    /// be used to alter the destination of the message.  This route is
+    /// carried in the X-sipX-Nat-Route header.  More specifically,
+    /// if present in a message, the NAT route takes precedence over the 
     /// Request-URI and specifies the endpoint that will be the recipient
     /// of the message provided that the message contains no Route: headers.
     /// 

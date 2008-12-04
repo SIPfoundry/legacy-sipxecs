@@ -801,6 +801,7 @@ UtlBoolean SipRouter::removeSipOutputProcessor( SipOutputProcessor *pProcessor )
    return rc;
 }
    
+/// Send a keepalive message to the specified address/port using the SipRouter's SipUserAgent.
 void SipRouter::sendUdpKeepAlive( SipMessage& keepAliveMsg, const char* serverAddress, int port )
 {
    if( mpSipUserAgent )

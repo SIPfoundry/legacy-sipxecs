@@ -29,20 +29,18 @@ using namespace std;
 
 NatMaintainer::NatMaintainer( SipRouter* sipRouter ) :
    mRefreshRoundNumber( 0 ),
-   mpRegistrationDB( 0 ),
-   mpSubscriptionDB( 0 ),
+   mpRegistrationDB( RegistrationDB::getInstance() ),
+   mpSubscriptionDB( SubscriptionDB::getInstance() ),
    mTimerMutex( OsMutex::Q_FIFO ),
    mpSipRouter( sipRouter ),
-   mpEndpointsKeptAliveList( 0 ),
+   mpEndpointsKeptAliveList(
+      new KeepAliveEndpointDescriptor[ NUMBER_OF_UDP_PORTS ] ),
    mpKeepAliveMessage( 0 ),
    mExternalKeepAliveListMutex( OsMutex::Q_FIFO )
 {
-   mpRegistrationDB = RegistrationDB::getInstance();
-   mpSubscriptionDB = SubscriptionDB::getInstance();
    mTimerMutex.acquire();
-   mpEndpointsKeptAliveList = new KeepAliveEndpointDescriptor[ NUMBER_OF_UDP_PORTS ];
 
-   // build SIP Options message that will be used to keep remote NATed NAT & firewall pinholes open.
+   // Build SIP Options message that will be used to keep remote NATed NAT & firewall pinholes open.
    UtlString optionsMessageString =
        "OPTIONS sip:anonymous@anonymous.invalid SIP/2.0\r\n"
        "To: sip:anonymous@anonymous.invalid\r\n"
@@ -171,10 +169,10 @@ void NatMaintainer::sendKeepAliveToEndpoint( const char* pIpAddress, uint16_t po
    
    pKeepAliveEndpointDescriptor = &( mpEndpointsKeptAliveList[ portNumber ] ); 
    
-   if( pKeepAliveEndpointDescriptor->mlastRefreshRoundNumber == mRefreshRoundNumber )
+   if( pKeepAliveEndpointDescriptor->mLastRefreshRoundNumber == mRefreshRoundNumber )
    {
-      // we have already sent a keep-alive to an endpoint utilizing this port in this refresh
-      // round.  Check to see if we also have an IP address match.  if we do, that endpoint
+      // We have already sent a keep-alive to an endpoint utilizing this port in this refresh
+      // round.  Check to see if we also have an IP address match.  If we do, that endpoint
       // has already been refreshed in this round so do not send it yet another refresh.
       if( strcmp( pIpAddress, pKeepAliveEndpointDescriptor->mIpAddress ) == 0 )
       {
@@ -183,10 +181,10 @@ void NatMaintainer::sendKeepAliveToEndpoint( const char* pIpAddress, uint16_t po
    }
    else
    {
-      // we have yet to send a keep-alive to an endpoint utilizing this port in this refresh round
+      // We have yet to send a keep-alive to an endpoint utilizing this port in this refresh round
       // Save the endpoint's IP address against the port in mpEndpointsKeptAliveList[portNumber]
       // to prevent the generation of any aditional keep alives to that endpoint during that round.
-      pKeepAliveEndpointDescriptor->mlastRefreshRoundNumber = mRefreshRoundNumber;
+      pKeepAliveEndpointDescriptor->mLastRefreshRoundNumber = mRefreshRoundNumber;
       strncpy( pKeepAliveEndpointDescriptor->mIpAddress, pIpAddress, MAX_IP_ADDRESS_STRING_SIZE );
       pKeepAliveEndpointDescriptor->mIpAddress[ MAX_IP_ADDRESS_STRING_SIZE ] = 0;
    }
