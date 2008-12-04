@@ -9,6 +9,8 @@
 
 #include <sys/time.h>
 
+#include <sipxunit/TestUtilities.h>
+
 #include <cppunit/extensions/HelperMacros.h>
 #include <cppunit/TestCase.h>
 
