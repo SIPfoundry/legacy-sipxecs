@@ -29,12 +29,13 @@
     </property>
   </bean>
 
-  <bean id="abstractService" class="org.sipfoundry.sipxconfig.service.ConfiguredService" scope="prototype" parent="beanWithSettings"
-    abstract="true">
+  <bean id="abstractService" class="org.sipfoundry.sipxconfig.service.ConfiguredService" scope="prototype"
+    parent="beanWithSettings" abstract="true">
     <property name="descriptorSource" ref="nakedServiceDescriptorSource" />
   </bean>
 
-  <bean id="unmanagedService" class="org.sipfoundry.sipxconfig.service.UnmanagedService" scope="prototype" parent="abstractService">
+  <bean id="unmanagedService" class="org.sipfoundry.sipxconfig.service.UnmanagedService" scope="prototype"
+    parent="abstractService">
   </bean>
 
   <bean id="unmanagedServiceDescriptor" abstract="true" class="org.sipfoundry.sipxconfig.service.ServiceDescriptor">
@@ -77,6 +78,36 @@
     </property>
   </bean>
 
+
+  <bean id="managementBundle" class="org.sipfoundry.sipxconfig.service.SipxServiceBundle">
+    <constructor-arg value="management" />
+  </bean>
+
+  <bean id="sipRouterBundle" class="org.sipfoundry.sipxconfig.service.SipxServiceBundle">
+    <constructor-arg value="sipRouter" />
+  </bean>
+
+  <bean id="voicemailBundle" class="org.sipfoundry.sipxconfig.service.SipxServiceBundle">
+    <constructor-arg value="voicemail" />
+  </bean>
+
+  <bean id="callDistributionBundle" class="org.sipfoundry.sipxconfig.service.SipxServiceBundle">
+    <constructor-arg value="callDistribution" />
+  </bean>
+
+  <bean id="sipTrunkBundle" class="org.sipfoundry.sipxconfig.service.SipxServiceBundle">
+    <constructor-arg value="sipTrunk" />
+  </bean>
+
+  <bean id="callCenterBundle" class="org.sipfoundry.sipxconfig.service.SipxServiceBundle">
+    <constructor-arg value="callCenter" />
+  </bean>
+
+  <bean id="conferenceBundle" class="org.sipfoundry.sipxconfig.service.SipxServiceBundle">
+    <constructor-arg value="conference" />
+  </bean>
+
+
   <bean id="sipxService" class="org.sipfoundry.sipxconfig.service.SipxService" abstract="true">
     <property name="modelFilesContext" ref="modelFilesContext" />
     <property name="domainManager" ref="domainManager" />
@@ -99,6 +130,11 @@
         <ref bean="sipxProxyConfiguration" />
       </list>
     </property>
+    <property name="bundles">
+      <set>
+        <ref bean="sipRouterBundle" />
+      </set>
+    </property>
   </bean>
 
   <bean id="sipxProxyConfiguration" class="org.sipfoundry.sipxconfig.service.SipxProxyConfiguration" scope="prototype"
@@ -120,15 +156,21 @@
     </property>
     <property name="sipxServiceManager" ref="sipxServiceManager" />
     <property name="domainManager" ref="domainManager" />
+    <property name="bundles">
+      <set>
+        <ref bean="sipRouterBundle" />
+      </set>
+    </property>
   </bean>
 
-  <bean id="sipxRegistrarConfiguration" class="org.sipfoundry.sipxconfig.service.SipxRegistrarConfiguration" scope="prototype"
-    parent="serviceConfigurationFile">
+  <bean id="sipxRegistrarConfiguration" class="org.sipfoundry.sipxconfig.service.SipxRegistrarConfiguration"
+    scope="prototype" parent="serviceConfigurationFile">
     <property name="template" value="sipxregistrar/registrar-config.vm" />
     <property name="name" value="registrar-config" />
   </bean>
 
-  <bean id="sipxParkService" class="org.sipfoundry.sipxconfig.service.SipxParkService" parent="sipxService" scope="prototype">
+  <bean id="sipxParkService" class="org.sipfoundry.sipxconfig.service.SipxParkService" parent="sipxService"
+    scope="prototype">
     <property name="beanId" value="sipxParkService" />
     <property name="modelName" value="sipxpark.xml" />
     <property name="modelDir" value="sipxpark" />
@@ -136,6 +178,11 @@
       <list>
         <ref bean="sipxParkConfiguration" />
       </list>
+    </property>
+    <property name="bundles">
+      <set>
+        <ref bean="callDistributionBundle" />
+      </set>
     </property>
   </bean>
 
@@ -155,11 +202,16 @@
         <ref bean="sipxPresenceConfiguration" />
       </list>
     </property>
+    <property name="bundles">
+      <set>
+        <ref bean="callDistributionBundle" />
+      </set>
+    </property>
     <property name="sipxServiceManager" ref="sipxServiceManager" />
   </bean>
 
-  <bean id="sipxPresenceConfiguration" class="org.sipfoundry.sipxconfig.service.SipxPresenceConfiguration" scope="prototype"
-    parent="serviceConfigurationFile">
+  <bean id="sipxPresenceConfiguration" class="org.sipfoundry.sipxconfig.service.SipxPresenceConfiguration"
+    scope="prototype" parent="serviceConfigurationFile">
     <property name="template" value="sipxpresence/sipxpresence-config.vm" />
     <property name="name" value="sipxpresence-config" />
   </bean>
@@ -174,6 +226,11 @@
       <list>
         <ref bean="sipxCallResolverConfiguration" />
       </list>
+    </property>
+    <property name="bundles">
+      <set>
+        <ref bean="managementBundle" />
+      </set>
     </property>
   </bean>
 
@@ -197,6 +254,11 @@
     <property name="docDir" value="${sysdir.doc}" />
     <property name="vxmlDir" value="${sysdir.vxml}" />
     <property name="dialPlanContext" ref="dialPlanContext" />
+    <property name="bundles">
+      <set>
+        <ref bean="voicemailBundle" />
+      </set>
+    </property>
   </bean>
 
   <bean id="sipxIvrConfiguration" class="org.sipfoundry.sipxconfig.service.SipxIvrConfiguration" scope="prototype"
@@ -216,6 +278,11 @@
         <ref bean="statusPluginConfiguration" />
       </list>
     </property>
+    <property name="bundles">
+      <set>
+        <ref bean="voicemailBundle" />
+      </set>
+    </property>
   </bean>
 
   <bean id="sipxStatusConfiguration" class="org.sipfoundry.sipxconfig.service.SipxStatusConfiguration" scope="prototype"
@@ -224,8 +291,8 @@
     <property name="name" value="status-config" />
   </bean>
 
-  <bean id="statusPluginConfiguration" class="org.sipfoundry.sipxconfig.service.StatusPluginConfiguration" scope="prototype"
-    parent="serviceConfigurationFile">
+  <bean id="statusPluginConfiguration" class="org.sipfoundry.sipxconfig.service.StatusPluginConfiguration"
+    scope="prototype" parent="serviceConfigurationFile">
     <property name="template" value="sipxstatus/status-plugin.vm" />
     <property name="name" value="status-plugin.xml" />
   </bean>
@@ -239,6 +306,11 @@
         <ref bean="sipxRlsConfiguration" />
       </list>
     </property>
+    <property name="bundles">
+      <set>
+        <ref bean="sipRouterBundle" />
+      </set>
+    </property>
   </bean>
 
   <bean id="sipxRlsConfiguration" class="org.sipfoundry.sipxconfig.service.SipxRlsConfiguration" scope="prototype"
@@ -247,7 +319,8 @@
     <property name="name" value="sipxrls-config" />
   </bean>
 
-  <bean id="sipxMediaService" class="org.sipfoundry.sipxconfig.service.SipxMediaService" scope="prototype" parent="sipxService">
+  <bean id="sipxMediaService" class="org.sipfoundry.sipxconfig.service.SipxMediaService" scope="prototype"
+    parent="sipxService">
     <property name="beanId" value="sipxMediaService" />
     <property name="modelName" value="mediaserver.xml" />
     <property name="modelDir" value="sipxvxml" />
@@ -255,6 +328,11 @@
       <list>
         <ref bean="sipxMediaConfiguration" />
       </list>
+    </property>
+    <property name="bundles">
+      <set>
+        <ref bean="voicemailBundle" />
+      </set>
     </property>
   </bean>
 
@@ -273,25 +351,50 @@
         <ref bean="pagingConfiguration" />
       </list>
     </property>
+    <property name="bundles">
+      <set>
+        <ref bean="callDistributionBundle" />
+      </set>
+    </property>
   </bean>
 
   <bean id="sipxConfigService" class="org.sipfoundry.sipxconfig.service.SipxConfigService" scope="prototype"
     parent="sipxService">
     <property name="beanId" value="sipxConfigService" />
+    <property name="bundles">
+      <set>
+        <ref bean="managementBundle" />
+      </set>
+    </property>
   </bean>
 
   <bean id="sipxAcdService" class="org.sipfoundry.sipxconfig.service.SipxAcdService" scope="prototype" parent="sipxService">
     <property name="beanId" value="sipxAcdService" />
+    <property name="bundles">
+      <set>
+        <ref bean="callCenterBundle" />
+      </set>
+    </property>
   </bean>
 
   <bean id="sipxConfigAgentService" class="org.sipfoundry.sipxconfig.service.SipxConfigAgentService" scope="prototype"
     parent="sipxService">
     <property name="beanId" value="sipxConfigAgentService" />
+    <property name="bundles">
+      <set>
+        <ref bean="callCenterBundle" />
+      </set>
+    </property>
   </bean>
 
   <bean id="sipxBridgeService" class="org.sipfoundry.sipxconfig.service.SipxBridgeService" scope="prototype"
     parent="sipxService">
     <property name="beanId" value="sipxBridgeService" />
+    <property name="bundles">
+      <set>
+        <ref bean="sipTrunkBundle" />
+      </set>
+    </property>
   </bean>
 
   <bean id="sipxFreeswitchService" class="org.sipfoundry.sipxconfig.service.SipxFreeswitchService" scope="prototype"
@@ -307,6 +410,12 @@
         <ref bean="xmlRpcConfiguration" />
         <ref bean="modulesConfiguration" />
       </list>
+    </property>
+    <property name="bundles">
+      <set>
+        <ref bean="voicemailBundle" />
+        <ref bean="conferenceBundle" />
+      </set>
     </property>
   </bean>
 
@@ -326,8 +435,8 @@
     <property name="conferenceContext" ref="conferenceBridgeContext" />
   </bean>
 
-  <bean id="sofiaConfiguration" parent="serviceConfigurationFile"
-    class="org.sipfoundry.sipxconfig.service.freeswitch.SofiaConfiguration" scope="prototype">
+  <bean id="sofiaConfiguration" parent="serviceConfigurationFile" class="org.sipfoundry.sipxconfig.service.freeswitch.SofiaConfiguration"
+    scope="prototype">
     <property name="name" value="sofia.conf.xml" />
     <property name="template" value="freeswitch/sofia.conf.xml.vm" />
     <property name="directory" value="${sysdir.freeswitch}/conf" />
@@ -335,21 +444,27 @@
     <property name="domainManager" ref="domainManager" />
   </bean>
 
-  <bean id="xmlRpcConfiguration" parent="serviceConfigurationFile"
-    class="org.sipfoundry.sipxconfig.service.freeswitch.XmlRpcConfiguration" scope="prototype">
+  <bean id="xmlRpcConfiguration" parent="serviceConfigurationFile" class="org.sipfoundry.sipxconfig.service.freeswitch.XmlRpcConfiguration"
+    scope="prototype">
     <property name="name" value="xml_rpc.conf.xml" />
     <property name="template" value="freeswitch/xml_rpc.conf.xml.vm" />
     <property name="directory" value="${sysdir.freeswitch}/conf" />
   </bean>
 
-  <bean id="modulesConfiguration" parent="serviceConfigurationFile"
-    class="org.sipfoundry.sipxconfig.service.freeswitch.ModulesConfiguration" scope="prototype">
+  <bean id="modulesConfiguration" parent="serviceConfigurationFile" class="org.sipfoundry.sipxconfig.service.freeswitch.ModulesConfiguration"
+    scope="prototype">
     <property name="name" value="modules.conf.xml" />
     <property name="template" value="freeswitch/modules.conf.xml.vm" />
     <property name="directory" value="${sysdir.freeswitch}/conf" />
   </bean>
 
-  <bean id="sipxRelayService" class="org.sipfoundry.sipxconfig.service.SipxRelayService" scope="prototype" parent="sipxService">
+  <bean id="sipxRelayService" class="org.sipfoundry.sipxconfig.service.SipxRelayService" scope="prototype"
+    parent="sipxService">
     <property name="beanId" value="sipxRelayService" />
+    <property name="bundles">
+      <set>
+        <ref bean="sipRouterBundle" />
+      </set>
+    </property>
   </bean>
 </beans>

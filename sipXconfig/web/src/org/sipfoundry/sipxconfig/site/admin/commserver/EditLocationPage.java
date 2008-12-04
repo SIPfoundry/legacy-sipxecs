@@ -11,7 +11,8 @@ package org.sipfoundry.sipxconfig.site.admin.commserver;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
+import java.util.List;
+import java.util.Set;
 
 import org.apache.tapestry.annotations.Bean;
 import org.apache.tapestry.annotations.InitialValue;
@@ -21,36 +22,35 @@ import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.form.IPropertySelectionModel;
 import org.sipfoundry.sipxconfig.acd.AcdContext;
-import org.sipfoundry.sipxconfig.acd.AcdServer;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.admin.commserver.Process;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext.Command;
 import org.sipfoundry.sipxconfig.components.ExtraOptionModelDecorator;
+import org.sipfoundry.sipxconfig.components.LocalizedOptionModelDecorator;
 import org.sipfoundry.sipxconfig.components.ObjectSelectionModel;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
-import org.sipfoundry.sipxconfig.service.LocationSpecificService;
 import org.sipfoundry.sipxconfig.service.SipxAcdService;
 import org.sipfoundry.sipxconfig.service.SipxService;
+import org.sipfoundry.sipxconfig.service.SipxServiceBundle;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 
-public abstract class EditLocationPage extends PageWithCallback implements
-        PageBeginRenderListener {
+public abstract class EditLocationPage extends PageWithCallback implements PageBeginRenderListener {
     public static final String PAGE = "admin/commserver/EditLocationPage";
 
-    @InjectObject(value = "spring:locationsManager")
+    @InjectObject("spring:locationsManager")
     public abstract LocationsManager getLocationsManager();
 
-    @InjectObject(value = "spring:sipxServiceManager")
+    @InjectObject("spring:sipxServiceManager")
     public abstract SipxServiceManager getSipxServiceManager();
 
-    @InjectObject(value = "spring:sipxProcessContext")
+    @InjectObject("spring:sipxProcessContext")
     public abstract SipxProcessContext getSipxProcessContext();
 
-    @InjectObject(value = "spring:acdContext")
+    @InjectObject("spring:acdContext")
     public abstract AcdContext getAcdContext();
 
     @Bean
@@ -69,12 +69,12 @@ public abstract class EditLocationPage extends PageWithCallback implements
 
     public abstract void setAvailableTabNames(Collection<String> tabNames);
 
-    public abstract SipxService getSelectedSipxService();
+    public abstract SipxServiceBundle getSelectedBundle();
 
-    public abstract void setSelectedSipxService(SipxService sipxService);
+    public abstract void setSelectedBundle(SipxServiceBundle bundle);
 
     @Persist
-    @InitialValue(value = "literal:listServices")
+    @InitialValue("literal:listServices")
     public abstract String getTab();
 
     public void pageBeginRender(PageEvent event) {
@@ -84,7 +84,7 @@ public abstract class EditLocationPage extends PageWithCallback implements
         }
 
         setAvailableTabNames(Arrays.asList("configureLocation", "listServices"));
-        setSelectedSipxService(null);
+        setSelectedBundle(null);
     }
 
     public void saveLocation() {
@@ -94,36 +94,45 @@ public abstract class EditLocationPage extends PageWithCallback implements
     }
 
     public void formSubmit() {
-        if (getSelectedSipxService() == null) {
+        SipxServiceBundle bundle = getSelectedBundle();
+        if (bundle == null) {
             return;
         }
 
-        SipxService newService = getSelectedSipxService();
-        getLocationBean().addService(new LocationSpecificService(newService));
+        List<SipxService> services = getSipxServiceManager().getBundles().get(bundle);
+        Location location = getLocationBean();
+        location.addServices(services);
         getLocationsManager().storeLocation(getLocationBean());
 
-        Process newProcess = getSipxProcessContext().getProcess(newService.getProcessName());
-        getSipxProcessContext().manageServices(getLocationBean(),
-                Collections.singletonList(newProcess), Command.START);
+        List<Process> processes = getSipxProcessContext().toProcessList(services);
+        getSipxProcessContext().manageServices(getLocationBean(), processes, Command.START);
+
+        for (SipxService sipxService : services) {
+            // FIXME: only works in UI - better publish an event that the new service has been added
+            if (sipxService instanceof SipxAcdService) {
+                getAcdContext().addNewServer(getLocationBean());
+            }
+        }
 
         ServicesTable servicesTable = (ServicesTable) getComponent("servicesTable");
         servicesTable.refresh();
-
-        if (newService instanceof SipxAcdService) {
-            AcdServer server = getAcdContext().newServer();
-            server.setLocation(getLocationBean());
-            getAcdContext().store(server);
-        }
     }
 
-    public IPropertySelectionModel getSipxServiceSelectionModel() {
+    public IPropertySelectionModel getBundleSelectionModel() {
+        Set<SipxServiceBundle> bundles = getSipxServiceManager().getBundles().keySet();
+
         ObjectSelectionModel model = new ObjectSelectionModel();
-        model.setCollection(getSipxServiceManager().getAllServices());
-        model.setLabelExpression("beanId");
+        model.setCollection(bundles);
+        model.setLabelExpression("name");
+
+        LocalizedOptionModelDecorator decorator = new LocalizedOptionModelDecorator();
+        decorator.setMessages(getMessages());
+        decorator.setResourcePrefix("bundle.");
+        decorator.setModel(model);
 
         ExtraOptionModelDecorator decoratedModel = new ExtraOptionModelDecorator();
-        decoratedModel.setExtraLabel(getMessages().getMessage("prompt.addNewSipxService"));
+        decoratedModel.setExtraLabel(getMessages().getMessage("prompt.addNewBundle"));
         decoratedModel.setExtraOption(null);
-        return decoratedModel.decorate(model);
+        return decoratedModel.decorate(decorator);
     }
 }

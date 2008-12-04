@@ -21,9 +21,10 @@ import org.sipfoundry.sipxconfig.common.event.DaoEventPublisher;
 import org.sipfoundry.sipxconfig.service.LocationSpecificService;
 import org.sipfoundry.sipxconfig.service.SipxAcdService;
 import org.sipfoundry.sipxconfig.service.SipxService;
+import org.springframework.beans.factory.annotation.Required;
 
 public class Location extends BeanWithId {
-    //security role
+    // security role
     public static final String ROLE_LOCATION = "ROLE_LOCATION";
     private static final int PROCESS_MONITOR_PORT = 8092;
 
@@ -33,9 +34,9 @@ public class Location extends BeanWithId {
     private String m_password;
 
     private Map<String, LocationSpecificService> m_services;
-    
+
     private DaoEventPublisher m_daoEventPublisher;
-    
+
     public String getName() {
         return m_name;
     }
@@ -60,10 +61,11 @@ public class Location extends BeanWithId {
         m_fqdn = fqdn;
     }
 
+    @Required
     public void setDaoEventPublisher(DaoEventPublisher daoEventPublisher) {
         m_daoEventPublisher = daoEventPublisher;
-    }    
-    
+    }
+
     /**
      * Sets this instances address field based on the value parsed from the given URL. For
      * example, the URL of "https://localhost:8091/cgi-bin/replication/replication.cgi" will
@@ -82,14 +84,14 @@ public class Location extends BeanWithId {
         setFqdn(address);
     }
 
-
     public String getProcessMonitorUrl() {
         return String.format("https://%s:%d/RPC2", m_fqdn, PROCESS_MONITOR_PORT);
     }
 
     /**
-     * Set this locations collection of services by directly supplying the
-     * LocationSpecificService objects
+     * Set this locations collection of services by directly supplying the LocationSpecificService
+     * objects
+     *
      * @param services
      */
     public void setServices(Collection<LocationSpecificService> services) {
@@ -100,8 +102,9 @@ public class Location extends BeanWithId {
     }
 
     /**
-     * Set this locations collection of services by via a collection of
-     * SipxService definition objects
+     * Set this locations collection of services by via a collection of SipxService definition
+     * objects
+     *
      * @param services
      */
     public void setServiceDefinitions(Collection<SipxService> services) {
@@ -146,6 +149,17 @@ public class Location extends BeanWithId {
         }
     }
 
+    public void addService(SipxService service) {
+        LocationSpecificService lss = new LocationSpecificService(service);
+        addService(lss);
+    }
+
+    public void addServices(Collection<SipxService> services) {
+        for (SipxService sipxService : services) {
+            addService(sipxService);
+        }
+    }
+
     public String getPassword() {
         return m_password;
     }
@@ -153,6 +167,4 @@ public class Location extends BeanWithId {
     public void setPassword(String password) {
         m_password = password;
     }
-
-
 }

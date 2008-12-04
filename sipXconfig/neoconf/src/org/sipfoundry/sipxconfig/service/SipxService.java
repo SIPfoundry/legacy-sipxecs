@@ -11,6 +11,7 @@ package org.sipfoundry.sipxconfig.service;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessModel.ProcessName;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
@@ -29,6 +30,7 @@ public abstract class SipxService extends BeanWithSettings {
     private String m_confDir;
     private String m_voicemailHttpsPort;
     private DomainManager m_domainManager;
+    private Set<SipxServiceBundle> m_bundles;
 
     public abstract ProcessName getProcessName();
 
@@ -112,6 +114,19 @@ public abstract class SipxService extends BeanWithSettings {
     public void setDomainManager(DomainManager domainManager) {
         m_domainManager = domainManager;
     }
+
+    public void setBundles(Set<SipxServiceBundle> bundles) {
+        m_bundles = bundles;
+    }
+
+    public Set<SipxServiceBundle> getBundles() {
+        return m_bundles;
+    }
+
+    public boolean inBundle(SipxServiceBundle bundle) {
+        return m_bundles != null && m_bundles.contains(bundle);
+    }
+
     /**
      * Override this method to perform validation
      */

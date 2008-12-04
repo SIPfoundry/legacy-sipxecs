@@ -50,7 +50,7 @@ import org.springframework.orm.hibernate3.HibernateTemplate;
 
 public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContext, BeanFactoryAware,
         DaoEventListener {
-    public static final Log LOG = LogFactory.getLog(AcdContextImpl.class);    
+    public static final Log LOG = LogFactory.getLog(AcdContextImpl.class);
 
     private static final String NAME_PROPERTY = "name";
 
@@ -58,7 +58,7 @@ public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContex
 
     private static final String USER_PARAM = "user";
 
-    private static final String SQL = "alter table acd_server drop column host";    
+    private static final String SQL = "alter table acd_server drop column host";
 
     private BeanFactory m_beanFactory;
 
@@ -67,8 +67,8 @@ public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContex
     private boolean m_enabled = true;
 
     private LocationsManager m_locationsManager;
-    
-    private SipxServiceManager m_sipxServiceManager;    
+
+    private SipxServiceManager m_sipxServiceManager;
 
     private class NameInUseException extends UserException {
         private static final String ERROR = "The name \"{1}\" is already in use. "
@@ -341,9 +341,9 @@ public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContex
         SipxService service = locationService.getSipxService();
         if (service instanceof SipxAcdService) {
             AcdServer server = getAcdServerForLocationId(locationService.getLocation().getId());
-            getHibernateTemplate().delete(server);            
+            getHibernateTemplate().delete(server);
         }
-    }    
+    }
 
     private void onLocationDelete(Location location) {
         getHibernateTemplate().update(location);
@@ -352,14 +352,14 @@ public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContex
             getHibernateTemplate().delete(server);
         }
     }
-            
+
     public void onDelete(Object entity) {
         if (entity instanceof User) {
             onUserDelete((User) entity);
         } else if (entity instanceof LocationSpecificService) {
             onLocationSpecificServiceDelete((LocationSpecificService) entity);
         } else if (entity instanceof Location) {
-            onLocationDelete((Location) entity);            
+            onLocationDelete((Location) entity);
         }
     }
 
@@ -459,6 +459,16 @@ public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContex
         }
     }
 
+    public void addNewServer(Location location) {
+        // HACK: this probably should be only called from event notification
+        AcdServer acdServer = getAcdServerForLocationId(location.getId());
+        if (acdServer == null) {
+            acdServer = newServer();
+            acdServer.setLocation(location);
+            store(acdServer);
+        }
+    }
+
     public void migrateAcdServers() {
         Map<String, Integer> locationsFqdn = new HashMap<String, Integer>();
         Map<String, Integer> locationsAddress = new HashMap<String, Integer>();
@@ -498,13 +508,13 @@ public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContex
             }
             SipxAcdService acdService = (SipxAcdService) m_sipxServiceManager
                     .getServiceByBeanId(SipxAcdService.BEAN_ID);
-            location.addService(new LocationSpecificService(acdService));
+            location.addService(acdService);
             m_locationsManager.storeLocation(location);
             getHibernateTemplate().flush();
-            
+
             acdServer.setLocation(location);
             store(acdServer);
-            getHibernateTemplate().flush();            
+            getHibernateTemplate().flush();
         }
 
         cleanSchema();
@@ -512,8 +522,7 @@ public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContex
 
     private void cleanSchema() {
         try {
-            Session currentSession = getHibernateTemplate().getSessionFactory()
-                    .getCurrentSession();
+            Session currentSession = getHibernateTemplate().getSessionFactory().getCurrentSession();
             Connection connection = currentSession.connection();
             Statement statement = connection.createStatement();
             statement.addBatch(SQL);
@@ -534,8 +543,8 @@ public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContex
 
     public AcdServer getAcdServerForLocationId(Integer locationId) {
         HibernateTemplate hibernate = getHibernateTemplate();
-        List<AcdServer> servers = hibernate.findByNamedQueryAndNamedParam(
-                "acdServerForLocationId", "locationId", locationId);
+        List<AcdServer> servers = hibernate.findByNamedQueryAndNamedParam("acdServerForLocationId", "locationId",
+                locationId);
 
         return (AcdServer) DataAccessUtils.singleResult(servers);
     }

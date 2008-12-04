@@ -9,9 +9,14 @@
  */
 package org.sipfoundry.sipxconfig.service;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import org.apache.commons.collections.Factory;
+import org.apache.commons.collections.map.LazyMap;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
@@ -29,8 +34,8 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 
-public class SipxServiceManagerImpl extends SipxHibernateDaoSupport<SipxService> implements
-        SipxServiceManager, ApplicationContextAware, ApplicationListener {
+public class SipxServiceManagerImpl extends SipxHibernateDaoSupport<SipxService> implements SipxServiceManager,
+        ApplicationContextAware, ApplicationListener {
 
     private static final String QUERY_BY_BEAN_ID = "service-by-bean-id";
 
@@ -48,8 +53,8 @@ public class SipxServiceManagerImpl extends SipxHibernateDaoSupport<SipxService>
 
     public SipxService getServiceByBeanId(String beanId) {
         String query = QUERY_BY_BEAN_ID;
-        Collection<SipxService> services = getHibernateTemplate().findByNamedQueryAndNamedParam(
-                query, "beanId", beanId);
+        Collection<SipxService> services = getHibernateTemplate().findByNamedQueryAndNamedParam(query, "beanId",
+                beanId);
 
         // this is to handle a problem in unit tests where beans retrieved from
         // hibernate
@@ -63,6 +68,23 @@ public class SipxServiceManagerImpl extends SipxHibernateDaoSupport<SipxService>
 
     public Collection<SipxService> getAllServices() {
         return getHibernateTemplate().loadAll(SipxService.class);
+    }
+
+    public Map<SipxServiceBundle, List<SipxService>> getBundles() {
+        Factory listFactory = new Factory() {
+            public Object create() {
+                return new ArrayList<SipxService>();
+            }
+        };
+        Map<SipxServiceBundle, List<SipxService>> rawBundles = new HashMap<SipxServiceBundle, List<SipxService>>();
+        Map<SipxServiceBundle, List<SipxService>> bundles = LazyMap.decorate(rawBundles, listFactory);
+        Collection<SipxService> allServices = getAllServices();
+        for (SipxService service : allServices) {
+            for (SipxServiceBundle bundle : service.getBundles()) {
+                bundles.get(bundle).add(service);
+            }
+        }
+        return rawBundles;
     }
 
     private void ensureBeanIsInitialized(SipxService sipxService) {
@@ -83,8 +105,7 @@ public class SipxServiceManagerImpl extends SipxHibernateDaoSupport<SipxService>
     public void replicateServiceConfig(SipxService service) {
         List<SipxServiceConfiguration> configurations = service.getConfigurations();
         if (configurations.size() < 1) {
-            LOG.warn("Unable to replicate service: " + service.getBeanId()
-                    + ". No configuration objects defined.");
+            LOG.warn("Unable to replicate service: " + service.getBeanId() + ". No configuration objects defined.");
             return;
         }
         for (SipxServiceConfiguration configuration : configurations) {
@@ -120,8 +141,7 @@ public class SipxServiceManagerImpl extends SipxHibernateDaoSupport<SipxService>
         return m_processManagerApiProvider;
     }
 
-    public void setProcessManagerApiProvider(
-            ApiProvider<ProcessManagerApi> processManagerApiProvider) {
+    public void setProcessManagerApiProvider(ApiProvider<ProcessManagerApi> processManagerApiProvider) {
         m_processManagerApiProvider = processManagerApiProvider;
     }
 
@@ -129,8 +149,7 @@ public class SipxServiceManagerImpl extends SipxHibernateDaoSupport<SipxService>
         Location[] locations = m_locationsManager.getLocations();
         for (int i = 0; i < locations.length; i++) {
             Location location = locations[i];
-            ProcessManagerApi api = m_processManagerApiProvider.getApi(location
-                    .getProcessMonitorUrl());
+            ProcessManagerApi api = m_processManagerApiProvider.getApi(location.getProcessMonitorUrl());
             VersionInfo versionInfo = new VersionInfo();
             String version = versionInfo.getVersion();
             try {

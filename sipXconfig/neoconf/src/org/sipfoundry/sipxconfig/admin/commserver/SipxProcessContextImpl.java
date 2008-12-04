@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.admin.commserver;
@@ -24,6 +24,7 @@ import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessModel.ProcessName;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.service.LocationSpecificService;
+import org.sipfoundry.sipxconfig.service.SipxService;
 import org.sipfoundry.sipxconfig.xmlrpc.ApiProvider;
 import org.sipfoundry.sipxconfig.xmlrpc.XmlRpcRemoteException;
 import org.springframework.beans.factory.annotation.Required;
@@ -35,7 +36,7 @@ public class SipxProcessContextImpl implements SipxProcessContext, ApplicationLi
     private static final Log LOG = LogFactory.getLog(SipxProcessContextImpl.class);
 
     private SipxProcessModel m_processModel;
-    private EventsToServices<Process> m_eventsToServices = new EventsToServices<Process>();
+    private final EventsToServices<Process> m_eventsToServices = new EventsToServices<Process>();
     private String m_host;
     private LocationsManager m_locationsManager;
     private ApiProvider<ProcessManagerApi> m_processManagerApiProvider;
@@ -64,7 +65,7 @@ public class SipxProcessContextImpl implements SipxProcessContext, ApplicationLi
      * Read service status values from the process monitor and return them in an array.
      * ClassCastException or NoSuchElementException (both RuntimeException subclasses) could be
      * thrown from this method, but only if things have gone horribly wrong.
-     * 
+     *
      * @param onlyActiveServices If true, only return status information for the services that the
      *        location parameter lists in its services list. If false, return all service status
      *        information available.
@@ -72,8 +73,7 @@ public class SipxProcessContextImpl implements SipxProcessContext, ApplicationLi
     public ServiceStatus[] getStatus(Location location, boolean onlyActiveServices) {
         try {
             // Break the result into the keys and values.
-            ProcessManagerApi api = m_processManagerApiProvider.getApi(location
-                    .getProcessMonitorUrl());
+            ProcessManagerApi api = m_processManagerApiProvider.getApi(location.getProcessMonitorUrl());
             Map<String, String> result = api.getStateAll(m_host);
             return extractStatus(result, location, onlyActiveServices);
         } catch (XmlRpcRemoteException e) {
@@ -110,8 +110,7 @@ public class SipxProcessContextImpl implements SipxProcessContext, ApplicationLi
             Process process = m_processModel.getProcess(name);
             if (process == null) {
                 // Ignore unknown processes
-                LOG.warn("Unknown process name " + name + " received from: "
-                        + location.getProcessMonitorUrl());
+                LOG.warn("Unknown process name " + name + " received from: " + location.getProcessMonitorUrl());
             } else {
                 serviceStatusList.add(new ServiceStatus(process, st));
             }
@@ -136,8 +135,7 @@ public class SipxProcessContextImpl implements SipxProcessContext, ApplicationLi
                 processNames[i++] = process.getName();
             }
 
-            ProcessManagerApi api = m_processManagerApiProvider.getApi(location
-                    .getProcessMonitorUrl());
+            ProcessManagerApi api = m_processManagerApiProvider.getApi(location.getProcessMonitorUrl());
             switch (command) {
             case RESTART:
                 api.restart(m_host, processNames, true);
@@ -176,8 +174,16 @@ public class SipxProcessContextImpl implements SipxProcessContext, ApplicationLi
         return m_processModel.getProcess(name);
     }
 
+    public List<Process> toProcessList(List<SipxService> services) {
+        List<Process> processes = new ArrayList(services.size());
+        for (SipxService service : services) {
+            processes.add(getProcess(service.getProcessName()));
+        }
+        return processes;
+    }
+
     static final class EventsToServices<E> {
-        private Map<Class, Set<E>> m_map;
+        private final Map<Class, Set<E>> m_map;
 
         public EventsToServices() {
             Factory setFactory = new Factory() {

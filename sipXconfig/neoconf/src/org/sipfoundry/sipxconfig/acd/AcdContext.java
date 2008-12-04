@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.acd;
@@ -14,18 +14,25 @@ import java.util.Collection;
 import java.util.List;
 
 import org.sipfoundry.sipxconfig.admin.commserver.AliasProvider;
+import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.common.User;
 
 public interface AcdContext extends AliasProvider {
     public static final String CONTEXT_BEAN_NAME = "acdContext";
 
     List getServers();
-    
+
     List getUsersWithAgents();
 
     void store(AcdComponent acdComponent);
 
     AcdServer newServer();
+
+    /**
+     * Used to notify that new ACD Service has been added to this location.
+     * @param location to which new ACD Service has been added
+     */
+    void addNewServer(Location location);
 
     AcdLine newLine();
 
@@ -70,12 +77,12 @@ public interface AcdContext extends AliasProvider {
     void migrateOverflowQueues();
 
     void migrateLineExtensions();
-    
+
     /**
      * @return true if ACD configuration disabled
      */
     boolean isEnabled();
-    
+
     Collection<AcdQueue> getQueuesForUsers(AcdServer server, Collection<User> agents);
 
     void removeOverflowSettings(Collection overflowIds, String overflowType);

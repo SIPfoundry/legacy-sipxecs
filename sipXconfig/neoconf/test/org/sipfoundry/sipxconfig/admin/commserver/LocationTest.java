@@ -87,9 +87,7 @@ public class LocationTest extends TestCase {
 
         SipxService parkService = new SipxParkService();
         parkService.setBeanId("sipxParkService");
-        LocationSpecificService parkLss = new LocationSpecificService();
-        parkLss.setSipxService(parkService);
-        out.addService(parkLss);
+        out.addService(parkService);
 
         Collection<LocationSpecificService> servicesFromOut = out.getServices();
         assertNotNull(servicesFromOut);
