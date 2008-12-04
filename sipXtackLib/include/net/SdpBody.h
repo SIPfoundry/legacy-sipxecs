@@ -37,7 +37,7 @@
 #define SRTP_KEY_LENGTH          30
 
 // sipX-specific SDP attributes
-#define NTAP_PROPRIETARY_SDP_ATTRIB              "x-sipx-ntap"
+#define NTAP_PROPRIETARY_SDP_ATTRIB     ("x-sipx-ntap")
 
 // MACROS
 // EXTERNAL FUNCTIONS

@@ -113,7 +113,12 @@ class SipUserAgent;
 #define SIP_VIA_FIELD "VIA"
 #define SIP_SHORT_VIA_FIELD "V"
 #define SIP_WARNING_FIELD "WARNING"
-#define SIP_SIPX_NAT_ROUTE_FIELD "X-Sipx-Nat-Route"
+#define SIP_SIPX_AUTHIDENTITY "X-sipX-Authidentity"
+#define SIP_SIPX_FROM_CALLER_DIRECTION_HEADER "X-sipX-FromCaller"
+#define SIP_SIPX_NAT_HANDLED "X-sipX-handled"
+#define SIP_SIPX_SESSION_CONTEXT_ID_HEADER "X-sipX-Id"
+#define SIP_SIPX_NAT_ROUTE_FIELD "X-sipX-Nat-Route"
+#define SIP_SIPX_SPIRAL_HEADER "X-sipX-Spiral"
 
 ///custom fields
 #define SIP_LINE_IDENTIFIER "LINEID"

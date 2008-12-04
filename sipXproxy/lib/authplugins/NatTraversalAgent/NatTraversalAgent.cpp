@@ -20,6 +20,7 @@
 // SYSTEM INCLUDES
 
 // APPLICATION INCLUDES
+#include "net/SipMessage.h"
 #include "os/OsReadLock.h"
 #include "os/OsWriteLock.h"
 #include "os/OsTimer.h"
@@ -184,8 +185,8 @@ NatTraversalAgent::authorizeAndModify(const UtlString& id, /**< The authenticate
       if( priorResult != DENY && bSpiralingRequest == false )
       {
          // clean up any of the proprietary headers we may have added
-         request.removeHeader( SIPX_SESSION_CONTEXT_ID_HEADER, 0 );
-         request.removeHeader( SIPX_FROM_CALLER_DIRECTION_HEADER, 0 );  
+         request.removeHeader( SIP_SIPX_SESSION_CONTEXT_ID_HEADER, 0 );
+         request.removeHeader( SIP_SIPX_FROM_CALLER_DIRECTION_HEADER, 0 );  
          
          UtlString msgBytes;
          ssize_t msgLen;
@@ -329,12 +330,12 @@ NatTraversalAgent::authorizeAndModify(const UtlString& id, /**< The authenticate
             UtlString sessionId;            
             pCallTracker->getSessionContextHandle( routeState, sessionId );
 
-            request.setHeaderValue( SIPX_SESSION_CONTEXT_ID_HEADER, sessionId.data(), 0 );
+            request.setHeaderValue( SIP_SIPX_SESSION_CONTEXT_ID_HEADER, sessionId.data(), 0 );
 
             // add proprietary param that will tell our output processor the direction of the message
             if( directionIsCallerToCalled == true )
             {
-               request.setHeaderValue( SIPX_FROM_CALLER_DIRECTION_HEADER, "true", 0 );  
+               request.setHeaderValue( SIP_SIPX_FROM_CALLER_DIRECTION_HEADER, "true", 0 );  
             }      
          }
       }

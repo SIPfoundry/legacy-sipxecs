@@ -28,7 +28,7 @@ class UtlDList;
 #define SIPX_DONE_URI_PARAM                 ("x-sipX-done")
 #define SIPX_NO_NAT_URI_PARAM               ("x-sipX-nonat")
 #define SIPX_PUBLIC_CONTACT_URI_PARAM       ("x-sipX-pubcontact")
-#define ROUTE_TO_REGISTRAR_MARKER_URI_PARAM ("x-sipX-routetoreg")
+#define SIPX_ROUTE_TO_REGISTRAR_URI_PARAM   ("x-sipX-routetoreg")
 
 // MACROS
 // EXTERNAL FUNCTIONS

@@ -107,7 +107,7 @@ public:
             "Call-Id: f88dfabce84b6a2787ef024a7dbe8749\r\n"
             "Cseq: 1 INVITE\r\n"
             "Max-Forwards: 20\r\n"
-            "X-Sipx-Authidentity: Blah-Blah\r\n"
+            "X-sipX-Authidentity: Blah-Blah\r\n"
             "P-Asserted-Identity: Blah-Blah\r\n"
             "Contact: caller@127.0.0.1\r\n"
             "Content-Length: 0\r\n"
@@ -135,7 +135,7 @@ public:
             "Call-Id: f88dfabce84b6a2787ef024a7dbe8749\r\n"
             "Cseq: 1 INVITE\r\n"
             "Max-Forwards: 20\r\n"
-            "X-Sipx-Authidentity: sip:user@domain;signature=\"Blah-Blah\"\r\n"
+            "X-sipX-Authidentity: sip:user@domain;signature=\"Blah-Blah\"\r\n"
             "P-Asserted-Identity: sip:user@domain;signature=\"Blah-Blah\"\r\n"
             "Contact: caller@127.0.0.1\r\n"
             "Content-Length: 0\r\n"
@@ -162,7 +162,7 @@ public:
             "Call-Id: f88dfabce84b6a2787ef024a7dbe8749\r\n"
             "Cseq: 1 INVITE\r\n"
             "Max-Forwards: 20\r\n"
-            "X-Sipx-Authidentity: sip:user@domain;signature=\"Blah-Blah\", sip:anotheruser@anotherdomain;signature=\"Blah-Blah-Blah\"\r\n"
+            "X-sipX-Authidentity: sip:user@domain;signature=\"Blah-Blah\", sip:anotheruser@anotherdomain;signature=\"Blah-Blah-Blah\"\r\n"
             "P-Asserted-Identity: sip:user@domain;signature=\"Blah-Blah\", sip:anotheruser@anotherdomain;signature=\"Blah-Blah-Blah\"\r\n"
             "Contact: caller@127.0.0.1\r\n"
             "Content-Length: 0\r\n"
@@ -189,7 +189,7 @@ public:
             "Call-Id: f88dfabce84b6a2787ef024a7dbe8749\r\n"
             "Cseq: 1 INVITE\r\n"
             "Max-Forwards: 20\r\n"
-            "X-Sipx-Authidentity: <sip:identity@example.com;signature=46A55D33%3A"
+            "X-sipX-Authidentity: <sip:identity@example.com;signature=46A55D33%3A"
             "56681beb4f29fc796f6ae9d0ad0269d2" // MD5: 46A55D33+testsecret+30543f3483e1cb11ecb40866edd3295b+f88dfabce84b6a2787ef024a7dbe8749+identity@example.com
             ">\r\n"
             "P-Asserted-Identity: <sip:identity@example.com;signature=46A55D33%3A"
@@ -222,8 +222,8 @@ public:
             "Call-Id: f88dfabce84b6a2787ef024a7dbe8749\r\n"
             "Cseq: 1 INVITE\r\n"
             "Max-Forwards: 20\r\n"
-            "X-Sipx-Authidentity: <sip:id@example.com;signature=46A8F3C1%3A00dac578a123e84b93c4489b3167bba9>\r\n"
-            "X-Sipx-Authidentity: <sip:identity1@example.com;signature=46A55D33%3Ac3452b346f3c63a929441ba27d9344d9>\r\n"
+            "X-sipX-Authidentity: <sip:id@example.com;signature=46A8F3C1%3A00dac578a123e84b93c4489b3167bba9>\r\n"
+            "X-sipX-Authidentity: <sip:identity1@example.com;signature=46A55D33%3Ac3452b346f3c63a929441ba27d9344d9>\r\n"
             "Contact: caller@127.0.0.1\r\n"
             "Content-Length: 0\r\n"
             "\r\n";
@@ -245,8 +245,8 @@ public:
             "Call-Id: f88dfabce84b6a2787ef024a7dbe8749\r\n"
             "Cseq: 1 INVITE\r\n"
             "Max-Forwards: 20\r\n"
-            "X-Sipx-Authidentity: <sip:identity1@example.com;signature=46A55D33%3Ac3452b346f3c63a929441ba27d9344d9>\r\n"
-            "X-Sipx-Authidentity: <sip:id@example.com;signature=46A8F3C1%3A"
+            "X-sipX-Authidentity: <sip:identity1@example.com;signature=46A55D33%3Ac3452b346f3c63a929441ba27d9344d9>\r\n"
+            "X-sipX-Authidentity: <sip:id@example.com;signature=46A8F3C1%3A"
             "fbfbf8d3296ad5cb607a31416d097c1b" // MD5: 46A8F3C1+testsecret+30543f3483e1cb11ecb40866edd3295b+f88dfabce84b6a2787ef024a7dbe8749+id@example.com
             ">\r\n"
             "Contact: caller@127.0.0.1\r\n"
@@ -270,8 +270,8 @@ public:
             "Call-Id: f88dfabce84b6a2787ef024a7dbe8749\r\n"
             "Cseq: 1 INVITE\r\n"
             "Max-Forwards: 20\r\n"
-            "X-Sipx-Authidentity: <sip:identity@example.com;signature=46A55D33%3Ac3452b346f3c63a929441ba27d9344d9>\r\n"
-            "X-Sipx-Authidentity: <sip:id@example.com;signature=46A8F3C1%3A"
+            "X-sipX-Authidentity: <sip:identity@example.com;signature=46A55D33%3Ac3452b346f3c63a929441ba27d9344d9>\r\n"
+            "X-sipX-Authidentity: <sip:id@example.com;signature=46A8F3C1%3A"
             "fbfbf8d3296ad5cb607a31416d097c1b" // MD5: 46A8F3C1+testsecret+30543f3483e1cb11ecb40866edd3295b+f88dfabce84b6a2787ef024a7dbe8749+id@example.com
             ">\r\n"
             "Contact: caller@127.0.0.1\r\n"
@@ -295,8 +295,8 @@ public:
             "Call-Id: f88dfabce84b6a2787ef024a7dbe8749\r\n"
             "Cseq: 1 INVITE\r\n"
             "Max-Forwards: 20\r\n"
-            "X-Sipx-Authidentity: <sip:id@example.com;signature=46A8F3C1%3A00dac578a123e84b93c4489b3167bba9>\r\n"
-            "X-Sipx-Authidentity: <sip:identity@example.com;signature=46A55D33%3A"
+            "X-sipX-Authidentity: <sip:id@example.com;signature=46A8F3C1%3A00dac578a123e84b93c4489b3167bba9>\r\n"
+            "X-sipX-Authidentity: <sip:identity@example.com;signature=46A55D33%3A"
             "56681beb4f29fc796f6ae9d0ad0269d2" // MD5: 46A55D33+testsecret+30543f3483e1cb11ecb40866edd3295b+f88dfabce84b6a2787ef024a7dbe8749+identity@example.com
             ">\r\n"
             "Contact: caller@127.0.0.1\r\n"
@@ -325,7 +325,7 @@ public:
             "Call-Id: f88dfabce84b6a2787ef024a7dbe8749\r\n"
             "Cseq: 1 INVITE\r\n"
             "Max-Forwards: 20\r\n"
-            "X-Sipx-Authidentity: <sip:identity@example.com;signature=46A55D33%3A%3A"
+            "X-sipX-Authidentity: <sip:identity@example.com;signature=46A55D33%3A%3A"
             "56681beb4f29fc796f6ae9d0ad0269d2" // MD5: 46A55D33+testsecret+identity@example.com
             ">\r\n"
             "P-Asserted-Identity: Caller <sip:identity@example.com;signature=46A55D33%3A%3A"
@@ -499,7 +499,7 @@ public:
             "Via: SIP/2.0/TCP 10.1.1.3:33855\r\n"
             "To: sip:user@somewhere.example.com\r\n"
             "From: Caller <sip:caller@example.org>; tag=30543f3483e1cb11ecb40866edd3295b\r\n"
-            "X-Sipx-Authidentity: <sip:identity@example.com;signature=46A55D33%3A"
+            "X-sipX-Authidentity: <sip:identity@example.com;signature=46A55D33%3A"
             "56681beb4f29fc796f6ae9d0ad0269d2" // MD5: 46A55D33+testsecret+30543f3483e1cb11ecb40866edd3295b+f88dfabce84b6a2787ef024a7dbe8749+identity@example.com
             ">\r\n"
             "P-Asserted-Identity: <sip:identity@example.com;signature=46A55D33%3A"
@@ -575,13 +575,13 @@ public:
          ASSERT_STR_EQUAL("identity@example.com", identityString.data());
 
          Url uri("sip:newdestination@newdomain");
-         Url uri1("sip:newdestination@newdomain?X-Sipx-Authidentity=BlahBlah");
+         Url uri1("sip:newdestination@newdomain?X-sipX-Authidentity=BlahBlah");
          OsDateTime dt(OsTime(0x46A55D33,0));
 
          identity.encodeUri(uri, noIdentitySipMessage, &dt);
          identity.encodeUri(uri1, noIdentitySipMessage, &dt);
 
-         Url testUrl("<sip:newdestination@newdomain?X-Sipx-Authidentity=%3Csip%3Aidentity%40example.com%3Bsignature%3D46A55D33%253A"
+         Url testUrl("<sip:newdestination@newdomain?X-sipX-Authidentity=%3Csip%3Aidentity%40example.com%3Bsignature%3D46A55D33%253A"
                      "56681beb4f29fc796f6ae9d0ad0269d2" // MD5: 46A55D33+testsecret+30543f3483e1cb11ecb40866edd3295b+f88dfabce84b6a2787ef024a7dbe8749+identity@example.com
                      "%3E>");
          ASSERT_STR_EQUAL(uri.toString().data(), testUrl.toString().data());
@@ -593,7 +593,7 @@ public:
          SipXauthIdentity identity;
 
          Url uri("sip:newdestination@newdomain");
-         Url uri1("sip:newdestination@newdomain?X-Sipx-Authidentity=BlahBlah");
+         Url uri1("sip:newdestination@newdomain?X-sipX-Authidentity=BlahBlah");
          OsDateTime dt(OsTime(0x46A55D33,0));
 
          identity.setIdentity("identity@example.com");
@@ -601,7 +601,7 @@ public:
          identity.encodeUri(uri, &dt);
          identity.encodeUri(uri1, &dt);
 
-         Url testUrl("<sip:newdestination@newdomain?X-Sipx-Authidentity=%3Csip%3Aidentity%40example.com%3Bsignature%3D46A55D33%253A%253A"
+         Url testUrl("<sip:newdestination@newdomain?X-sipX-Authidentity=%3Csip%3Aidentity%40example.com%3Bsignature%3D46A55D33%253A%253A"
                      "56681beb4f29fc796f6ae9d0ad0269d2" // MD5: 46A55D33+testsecret+identity@example.com
                      "%3E>");
          ASSERT_STR_EQUAL(uri.toString().data(), testUrl.toString().data());
@@ -660,7 +660,7 @@ public:
             "Via: SIP/2.0/TCP 10.1.1.3:33855\r\n"
             "To: sip:user@somewhere.example.com\r\n"
             "From: Caller <sip:caller@example.org>; tag=30543f3483e1cb11ecb40866edd3295b\r\n"
-            "X-Sipx-Authidentity: <sip:identity@example.com;signature=46A55D33%3A"
+            "X-sipX-Authidentity: <sip:identity@example.com;signature=46A55D33%3A"
             "56681beb4f29fc796f6ae9d0ad0269d2" // MD5: 46A55D33+testsecret+30543f3483e1cb11ecb40866edd3295b+f88dfabce84b6a2787ef024a7dbe8749+identity@example.com
             ">\r\n"
             "P-Asserted-Identity: <sip:identity@example.com;signature=46A55D33%3A"
@@ -757,8 +757,8 @@ public:
             "Via: SIP/2.0/TCP 10.1.1.3:33855\r\n"
             "To: sip:user@somewhere.example.com\r\n"
             "From: Caller <sip:caller@example.org>; tag=30543f3483e1cb11ecb40866edd3295b\r\n"
-            "X-Sipx-Authidentity: <sip:identity@example.com;signature=46A55D33%3Ac3452b346f3c63a929441ba27d9344d9>\r\n"
-            "X-Sipx-Authidentity: <sip:id@example.com;signature=46A8F3C1%3A"
+            "X-sipX-Authidentity: <sip:identity@example.com;signature=46A55D33%3Ac3452b346f3c63a929441ba27d9344d9>\r\n"
+            "X-sipX-Authidentity: <sip:id@example.com;signature=46A8F3C1%3A"
             "fbfbf8d3296ad5cb607a31416d097c1b" // MD5: 46A8F3C1+testsecret+30543f3483e1cb11ecb40866edd3295b+f88dfabce84b6a2787ef024a7dbe8749+id@example.com
             ">\r\n"
             "Call-Id: f88dfabce84b6a2787ef024a7dbe8749\r\n"
@@ -786,10 +786,10 @@ public:
             "Via: SIP/2.0/TCP 10.1.1.3:33855\r\n"
             "To: sip:user@somewhere.example.com\r\n"
             "From: Caller <sip:caller@example.org>; tag=30543f3483e1cb11ecb40866edd3295b\r\n"
-            "X-Sipx-Authidentity: <sip:identity@example.com;signature=46A55D33%3A"
+            "X-sipX-Authidentity: <sip:identity@example.com;signature=46A55D33%3A"
             "56681beb4f29fc796f6ae9d0ad0269d2" // MD5: 46A55D33+testsecret+30543f3483e1cb11ecb40866edd3295b+f88dfabce84b6a2787ef024a7dbe8749+identity@example.com
             ">\r\n"
-            "X-Sipx-Authidentity: <sip:id@example.com;signature=46A8F3C1%3A"
+            "X-sipX-Authidentity: <sip:id@example.com;signature=46A8F3C1%3A"
             "fbfbf8d3296ad5cb607a31416d097c1b" // MD5: 46A8F3C1+testsecret+30543f3483e1cb11ecb40866edd3295b+f88dfabce84b6a2787ef024a7dbe8749+id@example.com
             ">\r\n"
             "Call-Id: f88dfabce84b6a2787ef024a7dbe8749\r\n"

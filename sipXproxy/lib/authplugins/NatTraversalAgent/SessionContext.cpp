@@ -18,7 +18,6 @@
 #include "utl/UtlHashMapIterator.h"
 
 // DEFINES
-#define SIPX_NAT_HANDLED                         "x-sipX-handled"
 
 const UtlContainableType SessionContext::TYPE = "SessionContext";
 

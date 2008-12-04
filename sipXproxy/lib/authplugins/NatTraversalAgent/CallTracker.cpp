@@ -231,22 +231,22 @@ bool CallTracker::notifyIncomingDialogFormingInvite( SipMessage& request, RouteS
 bool CallTracker::handleRequest( SipMessage& message, const char* address, int port )
 {
    // message is a request.  If this is a request we care about, it will contain 
-   // a SIPX_SESSION_CONTEXT_ID_HEADER header containing the value of the session context
-   // tracking the session and a SIPX_FROM_CALLER_DIRECTION_HEADER if the request
+   // a SIP_SIPX_SESSION_CONTEXT_ID_HEADER header containing the value of the session context
+   // tracking the session and a SIP_SIPX_FROM_CALLER_DIRECTION_HEADER if the request
    // is in the Caller->Callee direction.  For more on these headers, look for
    // 'OPTIMIZATION CODE' comments in NatTraversalAgent.cpp file.
    bool result = false;
    const char *pSessionHandle = 0;
-   if( ( pSessionHandle = message.getHeaderValue( 0, SIPX_SESSION_CONTEXT_ID_HEADER ) ) )
+   if( ( pSessionHandle = message.getHeaderValue( 0, SIP_SIPX_SESSION_CONTEXT_ID_HEADER ) ) )
    {
       UtlString sessionHandle( pSessionHandle );
-      message.removeHeader( SIPX_SESSION_CONTEXT_ID_HEADER, 0 );
+      message.removeHeader( SIP_SIPX_SESSION_CONTEXT_ID_HEADER, 0 );
 
       bool bFromCallerToCallee = false;
-      if( message.getHeaderValue( 0, SIPX_FROM_CALLER_DIRECTION_HEADER ) )
+      if( message.getHeaderValue( 0, SIP_SIPX_FROM_CALLER_DIRECTION_HEADER ) )
       {
          bFromCallerToCallee = true;
-         message.removeHeader( SIPX_FROM_CALLER_DIRECTION_HEADER, 0 );
+         message.removeHeader( SIP_SIPX_FROM_CALLER_DIRECTION_HEADER, 0 );
       }
       
       SessionContext* pSessionContext;
@@ -276,7 +276,7 @@ bool CallTracker::handleRequest( SipMessage& message, const char* address, int p
    {
       // we can see that log entry in 'normal' cases when a dialog-forming INVITE we processed
       // is coming back to us and is spiraling, i.e. carries a X-Sipx-Spiral: header. 
-      OsSysLog::add(FAC_NAT, PRI_DEBUG, "CallTracker[%zd]::handleRequest did not find SIPX_SESSION_CONTEXT_ID_HEADER in message"
+      OsSysLog::add(FAC_NAT, PRI_DEBUG, "CallTracker[%zd]::handleRequest did not find SIP_SIPX_SESSION_CONTEXT_ID_HEADER in message"
                                       , mHandle );
    }
    deleteSessionContextsReadyForDeletion();            

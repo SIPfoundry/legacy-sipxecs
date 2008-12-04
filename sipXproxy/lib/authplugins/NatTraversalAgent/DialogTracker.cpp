@@ -12,11 +12,11 @@
 #include "DialogTracker.h"
 #include "SessionContext.h"
 #include "net/SdpBody.h"
+#include "net/SipMessage.h"
 #include "utl/UtlFsm.h"
 #include "utl/UtlTokenizer.h"
 
 // DEFINES
-#define SIPX_NAT_HANDLED                         "x-sipX-handled"
 
 const UtlContainableType DialogTracker::TYPE = "DialogTracker";
 
@@ -967,7 +967,7 @@ void DialogTracker::markRequestAsHandledByUs( SipMessage& request )
 {
    if( !isRequestAlreadyHandledByUs( request ) )
    {
-      request.setHeaderValue( SIPX_NAT_HANDLED, mSystemIdentificationString, 0 );
+      request.setHeaderValue( SIP_SIPX_NAT_HANDLED, mSystemIdentificationString, 0 );
    }
 }
 
@@ -976,7 +976,7 @@ bool DialogTracker::isRequestAlreadyHandledByUs( const SipMessage& request ) con
    bool rc = false;
    const char *pSystemIdentificationStringInMessage = 0;
    
-   if( ( pSystemIdentificationStringInMessage = request.getHeaderValue( 0, SIPX_NAT_HANDLED ) ) )
+   if( ( pSystemIdentificationStringInMessage = request.getHeaderValue( 0, SIP_SIPX_NAT_HANDLED ) ) )
    {
       rc = ( mSystemIdentificationString.compareTo( pSystemIdentificationStringInMessage ) == 0 );
    }
@@ -988,7 +988,7 @@ bool DialogTracker::isRequestAlreadyHandledByOther( const SipMessage& request ) 
    bool rc = false;
    const char *pSystemIdentificationStringInMessage = 0;
    
-   if( ( pSystemIdentificationStringInMessage = request.getHeaderValue( 0, SIPX_NAT_HANDLED ) ) )
+   if( ( pSystemIdentificationStringInMessage = request.getHeaderValue( 0, SIP_SIPX_NAT_HANDLED ) ) )
    {
       rc = ( mSystemIdentificationString.compareTo( pSystemIdentificationStringInMessage ) != 0 );
    }
@@ -1000,7 +1000,7 @@ bool DialogTracker::isRequestAlreadyHandledByAnyone( const SipMessage& request )
    bool rc = false;
    const char *pSystemIdentificationStringInMessage = 0;
    
-   if( ( pSystemIdentificationStringInMessage = request.getHeaderValue( 0, SIPX_NAT_HANDLED ) ) )
+   if( ( pSystemIdentificationStringInMessage = request.getHeaderValue( 0, SIP_SIPX_NAT_HANDLED ) ) )
    {
       rc = true;
    }

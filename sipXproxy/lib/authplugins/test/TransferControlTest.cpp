@@ -346,7 +346,7 @@ public:
          CPPUNIT_ASSERT(Url::SipUrlScheme == modifiedReferTo.getScheme());
 
          UtlString transferIdentityValue; // with replaces: should _not_ get an identity
-         CPPUNIT_ASSERT(! modifiedReferTo.getHeaderParameter("X-Sipx-Authidentity",
+         CPPUNIT_ASSERT(! modifiedReferTo.getHeaderParameter(SIP_SIPX_AUTHIDENTITY,
                                                              transferIdentityValue));
 
          UtlString replacesId;
@@ -451,7 +451,7 @@ public:
          CPPUNIT_ASSERT(Url::SipUrlScheme == modifiedReferTo.getScheme());
 
          UtlString transferIdentityValue;
-         CPPUNIT_ASSERT(modifiedReferTo.getHeaderParameter("X-Sipx-Authidentity",
+         CPPUNIT_ASSERT(modifiedReferTo.getHeaderParameter(SIP_SIPX_AUTHIDENTITY,
                                                            transferIdentityValue));
          Url transferIdentityUrl(transferIdentityValue);
          CPPUNIT_ASSERT(Url::SipUrlScheme == transferIdentityUrl.getScheme());

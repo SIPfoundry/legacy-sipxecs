@@ -19,6 +19,7 @@
 #include "utl/UtlRandom.h"
 #include "net/NameValueTokenizer.h"
 #include "net/SignedUrl.h"
+#include "net/SipMessage.h"
 #include "net/SipOutputProcessor.h"
 #include "net/SipUserAgent.h"
 #include "net/SipXauthIdentity.h"
@@ -40,7 +41,6 @@ const char* AuthPlugin::Factory = "getAuthPlugin";
 const char* AuthPlugin::Prefix  = "SIPX_PROXY";
 // The period of time in seconds that nonces are valid, in seconds.
 #define NONCE_EXPIRATION_PERIOD             (60 * 5)     // five minutes
-#define SIPX_SPIRAL_HEADER                  ("X-SipX-Spiral")
 
 // STRUCTS
 // TYPEDEFS
@@ -348,7 +348,7 @@ SipRouter::ProxyAction SipRouter::proxyMessage(SipMessage& sipRequest, SipMessag
       RouteState routeState(sipRequest, removedRoutes, mRouteHostPort); 
       removedRoutes.destroyAll(); // done with routes - discard them.
       
-      if( !sipRequest.getHeaderValue( 0, SIPX_SPIRAL_HEADER ))
+      if( !sipRequest.getHeaderValue( 0, SIP_SIPX_SPIRAL_HEADER ))
       {
          // Our custom spiraling header was NOT found indicating that the request
          // is not received as a result of spiraling. It could either be a 
@@ -367,7 +367,7 @@ SipRouter::ProxyAction SipRouter::proxyMessage(SipMessage& sipRequest, SipMessag
             // requests sent to the registering user get funneled through
             // this proxy.  Also, the NAT mapping of the user is encoded
             // as extra URL parameters of the Path header.
-            sipRequest.setHeaderValue( SIPX_SPIRAL_HEADER, "true", 0 );
+            sipRequest.setHeaderValue( SIP_SIPX_SPIRAL_HEADER, "true", 0 );
             bRequestShouldBeAuthorized        = false;
             bForwardingRulesShouldBeEvaluated = true;
             addNatMappingInfoToContacts( sipRequest );            
@@ -467,7 +467,7 @@ SipRouter::ProxyAction SipRouter::proxyMessage(SipMessage& sipRequest, SipMessag
             // is added to make sure that that happens.
             if( routeState.isMutable() )
             {
-               sipRequest.setHeaderValue( SIPX_SPIRAL_HEADER, "true", 0 );
+               sipRequest.setHeaderValue( SIP_SIPX_SPIRAL_HEADER, "true", 0 );
                bMessageWillSpiral                 = true;
                bRequestShouldBeAuthorized         = true;
                bForwardingRulesShouldBeEvaluated  = false;
@@ -532,10 +532,10 @@ SipRouter::ProxyAction SipRouter::proxyMessage(SipMessage& sipRequest, SipMessag
                   // parameter is found, it indicates that the request
                   // is spiraling.
                   UtlString dummyString;
-                  if( nextHopUrl.getUrlParameter( ROUTE_TO_REGISTRAR_MARKER_URI_PARAM, dummyString ) )
+                  if( nextHopUrl.getUrlParameter( SIPX_ROUTE_TO_REGISTRAR_URI_PARAM, dummyString ) )
                   {
                      bMessageWillSpiral = true;
-                     nextHopUrl.removeUrlParameter( ROUTE_TO_REGISTRAR_MARKER_URI_PARAM );
+                     nextHopUrl.removeUrlParameter( SIPX_ROUTE_TO_REGISTRAR_URI_PARAM );
                   }
                   
                   nextHopUrl.setUrlParameter("lr", NULL);
@@ -567,7 +567,7 @@ SipRouter::ProxyAction SipRouter::proxyMessage(SipMessage& sipRequest, SipMessag
             // complete and that request will be sent towards its final destination. 
             // If the request contained our proprietary spiral header then remove it
             // since spiraling is complete.
-            sipRequest.removeHeader( SIPX_SPIRAL_HEADER, 0 );
+            sipRequest.removeHeader( SIP_SIPX_SPIRAL_HEADER, 0 );
          }
       }
       

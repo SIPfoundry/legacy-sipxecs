@@ -16,7 +16,7 @@
 // CONSTANTS
 const char* SipXauthIdentity::SignatureFieldSeparator = ":";
 const char* SipXauthIdentity::SignatureUrlParamName = "signature";
-SipXauthIdentity::HeaderName SipXauthIdentity::AuthIdentityHeaderName = "X-Sipx-Authidentity";
+SipXauthIdentity::HeaderName SipXauthIdentity::AuthIdentityHeaderName = SIP_SIPX_AUTHIDENTITY;
 SipXauthIdentity::HeaderName SipXauthIdentity::PAssertedIdentityHeaderName = "P-Asserted-Identity";
 
 // STATIC VARIABLES
