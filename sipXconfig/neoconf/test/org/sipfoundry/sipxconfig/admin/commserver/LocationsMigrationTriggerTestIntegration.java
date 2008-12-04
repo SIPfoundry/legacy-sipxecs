@@ -57,8 +57,8 @@ public class LocationsMigrationTriggerTestIntegration extends IntegrationTestCas
         assertEquals(2, locationsAfterMigration.length);
         assertEquals("https://localhost:8092/RPC2", locationsAfterMigration[0].getProcessMonitorUrl());
         assertEquals("localhost", locationsAfterMigration[0].getFqdn());
-        assertEquals("https://remotehost.example.com:8092/RPC2", locationsAfterMigration[1].getProcessMonitorUrl());
-        assertEquals("remotehost.example.com", locationsAfterMigration[1].getFqdn());
+        assertEquals("https://remotehost.example.org:8092/RPC2", locationsAfterMigration[1].getProcessMonitorUrl());
+        assertEquals("remotehost.example.org", locationsAfterMigration[1].getFqdn());
     }
 
     public void testOnInitTaskWithMissingTopologyFile() throws Exception {

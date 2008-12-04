@@ -10,7 +10,7 @@
       </generator>
     </id>
     <property name="enableOnNextUpgrade"/>
-    <many-to-one name="sipxService" cascade="all" column="sipx_service_id"
+    <many-to-one name="sipxService" cascade="save-update" column="sipx_service_id"
       class="org.sipfoundry.sipxconfig.service.SipxService"/>
   </class>
 

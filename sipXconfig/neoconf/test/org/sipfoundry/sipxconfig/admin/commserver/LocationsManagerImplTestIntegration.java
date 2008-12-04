@@ -46,7 +46,7 @@ public class LocationsManagerImplTestIntegration extends IntegrationTestCase {
     }
 
     public void testGetPrimaryLocation() throws Exception {
-        loadDataSetXml("admin/commserver/seedLocationsAndServices.xml");
+        loadDataSetXml("admin/commserver/seedLocations.xml");
         Location location = m_out.getPrimaryLocation();
         assertNotNull(location);
         assertEquals(101, (int)location.getId());
@@ -73,11 +73,27 @@ public class LocationsManagerImplTestIntegration extends IntegrationTestCase {
         Location[] locationsBeforeDelete = m_out.getLocations();
         assertEquals(2, locationsBeforeDelete.length);
 
-        m_out.deleteLocation(locationsBeforeDelete[0]);
+        Location locationToDelete = m_out.getLocation(101);
+
+        m_out.deleteLocation(locationToDelete);
 
         Location[] locationsAfterDelete = m_out.getLocations();
         assertEquals(1, locationsAfterDelete.length);
-        assertEquals("remotehost.example.com", locationsAfterDelete[0].getFqdn());
+        assertEquals("remotehost.example.org", locationsAfterDelete[0].getFqdn());
+    }
+
+    public void testDeleteWithServices() throws Exception {
+        loadDataSetXml("admin/commserver/seedLocationsAndServices.xml");
+        Location[] locationsBeforeDelete = m_out.getLocations();
+        assertEquals(2, locationsBeforeDelete.length);
+
+        Location locationToDelete = m_out.getLocation(101);
+
+        m_out.deleteLocation(locationToDelete);
+
+        Location[] locationsAfterDelete = m_out.getLocations();
+        assertEquals(1, locationsAfterDelete.length);
+        assertEquals("remotehost.example.org", locationsAfterDelete[0].getFqdn());
     }
 
     public void setLocationsManager(LocationsManager locationsManager) {
