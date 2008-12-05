@@ -73,8 +73,7 @@ public class SymmitronConfigParser {
                 "setStunServerAddress", 0);
         digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG, "publicaddress"),
                 "setPublicAddress", 0);
-        digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG, "mediarelayexternaladdress"),
-                "setExternalAddress", 0);
+       
         digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG, "mediarelaynativeaddress"),
                 "setLocalAddress", 0);
         digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG, "log-level"), "setLogLevel",

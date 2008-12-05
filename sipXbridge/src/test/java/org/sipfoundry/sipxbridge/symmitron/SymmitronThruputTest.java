@@ -200,7 +200,7 @@ public class SymmitronThruputTest extends AbstractSymmitronTestCase {
         SymmitronConfig symConfig = parser.parse(url);
 
         port = symConfig.getXmlRpcPort();
-        serverAddress = symConfig.getExternalAddress();
+        serverAddress = symConfig.getLocalAddress();
         testerAddress = System.getProperties().getProperty("tester.address");
         npacket = Integer.parseInt(System.getProperties().getProperty("tester.npackets"));
         nbridges = Integer.parseInt(System.getProperties().getProperty("tester.callLoad"));

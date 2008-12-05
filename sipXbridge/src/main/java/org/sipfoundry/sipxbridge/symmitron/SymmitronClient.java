@@ -39,6 +39,8 @@ public class SymmitronClient {
 
     private SymmitronResetHandler resetHandler;
 
+	private String serverAddress;
+
     private static Timer timer = new Timer();
 
     private boolean checkForServerReboot(Map map) throws SymmitronException {
@@ -96,6 +98,7 @@ public class SymmitronClient {
             try {
                 logger.debug("Trying to sign in " + "http://" + serverAddress + ":" + port);
                 config.setServerURL(new URL("http://" + serverAddress + ":" + port));
+                this.serverAddress = serverAddress;
 
                 config.setEnabledForExceptions(true);
                 config.setEnabledForExtensions(true);
@@ -210,24 +213,7 @@ public class SymmitronClient {
         return (String) retval.get(Symmitron.PUBLIC_ADDRESS);
     }
 
-    public String getExternalAddress() throws SymmitronException {
-        Object[] args = new Object[1];
-        args[0] = this.clientHandle;
-        Map retval;
-        try {
-            retval = (Map) client.execute("sipXrelay.getExternalAddress", args);
-        } catch (XmlRpcException e) {
-
-            logger.error("XmlRpcException ", e);
-            throw new SymmitronException(e);
-        }
-
-        if (retval.get(Symmitron.STATUS_CODE).equals(Symmitron.ERROR)) {
-            throw new SymmitronException("Error in processing request "
-                    + retval.get(Symmitron.ERROR_INFO));
-        }
-        return (String) retval.get(Symmitron.EXTERNAL_ADDRESS);
-    }
+   
 
     public void destroyBridge(String bridgeId) throws SymmitronException {
         Object[] args = new Object[2];
@@ -521,5 +507,10 @@ public class SymmitronClient {
         return new SymTransmitterEndpointImpl(this, symImpl);
 
     }
+
+	
+	public String getServerAddress() {
+		return serverAddress;
+	}
 
 }

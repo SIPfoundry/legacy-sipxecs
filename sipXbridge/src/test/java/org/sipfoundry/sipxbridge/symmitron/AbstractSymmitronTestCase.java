@@ -48,7 +48,7 @@ public abstract class AbstractSymmitronTestCase extends TestCase {
         SymmitronServer.setSymmitronConfig(symConfig);
         SymmitronServer.startWebServer();
         port = symConfig.getXmlRpcPort();
-        serverAddress = symConfig.getExternalAddress();
+        serverAddress = symConfig.getLocalAddress();
         this.connectToServer();
 
     }

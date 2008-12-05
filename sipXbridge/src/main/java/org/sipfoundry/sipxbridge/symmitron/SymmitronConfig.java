@@ -14,7 +14,6 @@ public class SymmitronConfig {
     private int portRangeUpperBound = 15500;
     private int xmlRpcPort = 8089;
     private String localAddress;
-    private String externalAddress;
     private String logFileName = "sipxrelay.log";
     private String logFileDirectory = null;
     private String logLevel = "DEBUG";
@@ -100,23 +99,7 @@ public class SymmitronConfig {
         return portRangeUpperBound;
     }
 
-    public String getExternalAddress() {
-        /* If external address defined - return it */
-        if ( externalAddress != null ) {
-            return externalAddress;
-        } else {
-            return this.localAddress;
-        }
-    }
-
-    public void setExternalAddress(String externalAddress) {
-        try {
-            this.externalAddress = InetAddress.getByName(externalAddress).getHostAddress();
-        } catch (Exception ex) {
-            throw new IllegalArgumentException(ex);
-        }
-    }
-
+   
     public void setLogFileDirectory(String logFileDirectory) {
         this.logFileDirectory = logFileDirectory;
     }

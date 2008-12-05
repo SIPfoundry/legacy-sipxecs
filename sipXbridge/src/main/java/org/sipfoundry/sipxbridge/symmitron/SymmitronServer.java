@@ -385,17 +385,7 @@ public class SymmitronServer implements Symmitron {
         }
     }
 
-    public Map<String, Object> getExternalAddress(String controllerHandle) {
-        try {
-            checkForControllerReboot(controllerHandle);
-            Map<String, Object> retval = createSuccessMap();
-            logger.debug("getExternalAddress : " + symmitronConfig.getExternalAddress());
-            retval.put(EXTERNAL_ADDRESS, symmitronConfig.getExternalAddress());
-            return retval;
-        } catch (Exception ex) {
-            return createErrorMap(PROCESSING_ERROR, ex.getMessage());
-        }
-    }
+  
 
     /*
      * (non-Javadoc)
