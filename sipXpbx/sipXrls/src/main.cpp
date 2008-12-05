@@ -491,14 +491,6 @@ int main(int argc, char* argv[])
        minResubscribeInterval = RLS_DEFAULT_MIN_RESUBSCRIBE_INTERVAL;
    }
 
-   SipLineMgr* lineMgr = addCredentials(domainName, realm);
-
-#ifdef XCF-3093_FIXED
-   if(NULL == lineMgr)
-   {
-      return 1;
-   }
-#endif
    // Wait to allow our targets time to come up.
    // (Wait is determined by CONFIG_SETTING_STARTUP_WAIT, default 2 minutes.)
    OsSysLog::add(LOG_FACILITY, PRI_INFO,
@@ -512,6 +504,13 @@ int main(int argc, char* argv[])
       OsTask::delay(1000);
    }
 
+   // add the ~~sipXrls credentials so that sipXrls can respond to challenges
+   SipLineMgr* lineMgr = addCredentials(domainName, realm);
+   if(NULL == lineMgr)
+   {
+      return 1;
+   }
+   
    if (!gShutdownFlag)
    {
       // Initialize the ResourceListServer.

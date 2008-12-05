@@ -166,7 +166,6 @@ public:
       bool bSpiralingRequest = false;
       AuthPlugin::AuthResult priorResult = AuthPlugin::CONTINUE;
 
-      KNOWN_BUG( "XCF-3093", "sipXrls credentials not generated" );
       CPPUNIT_ASSERT(AuthPlugin::DENY
                      == dlgevntauth->authorizeAndModify(identity,
                                                         requestUri,
@@ -217,7 +216,7 @@ public:
       bool bSpiralingRequest = false;
       AuthPlugin::AuthResult priorResult = AuthPlugin::CONTINUE;
 
-      KNOWN_BUG( "XCF-3093", "sipXrls credentials not generated" );
+
       CPPUNIT_ASSERT(AuthPlugin::DENY
                      == dlgevntauth->authorizeAndModify(identity,
                                                         requestUri,
@@ -268,7 +267,6 @@ public:
       bool bSpiralingRequest = false;
       AuthPlugin::AuthResult priorResult = AuthPlugin::CONTINUE;
 
-      KNOWN_BUG( "XCF-3093", "sipXrls credentials not generated" );
       CPPUNIT_ASSERT(AuthPlugin::DENY
                      == dlgevntauth->authorizeAndModify(identity,
                                                         requestUri,
@@ -296,7 +294,6 @@ public:
          "\r\n";
       SipMessage testMsg2(message2, strlen(message2));
       
-      KNOWN_BUG( "XCF-3093", "sipXrls credentials not generated" );
       CPPUNIT_ASSERT(AuthPlugin::DENY
                      == dlgevntauth->authorizeAndModify(identity,
                                                         requestUri,
@@ -323,7 +320,6 @@ public:
          "Content-Length: 0\r\n"
          "\r\n";
       SipMessage testMsg3(message3, strlen(message3));
-      KNOWN_BUG( "XCF-3093", "sipXrls credentials not generated" );
       CPPUNIT_ASSERT(AuthPlugin::DENY
                      == dlgevntauth->authorizeAndModify(identity,
                                                         requestUri,

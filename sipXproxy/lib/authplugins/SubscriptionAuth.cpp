@@ -121,7 +121,6 @@ SubscriptionAuth::authorizeAndModify(const UtlString& id,    /**< The authentica
                                     )
 {
    AuthResult result = CONTINUE;
-#ifdef XCF-3093_FIXED
    UtlString eventField;
 
    if (CONTINUE == priorResult &&
@@ -142,6 +141,5 @@ SubscriptionAuth::authorizeAndModify(const UtlString& id,    /**< The authentica
       result = DENY;
       reason = "Authentication Required to Subscribe to dialog event package " + eventField;
    }
-#endif
    return result;
 }
