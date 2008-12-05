@@ -66,19 +66,19 @@ import org.sipfoundry.sipxbridge.symmitron.SymmitronException;
 import org.sipfoundry.sipxbridge.symmitron.SymmitronResetHandler;
 
 /**
- * The main job of this class is to manage BackToBackUserAgents. 
- * It mantains a hash map of BackToBackUserAgents indexed by call id.
- * It acts as a factory for creating the BackToBackUserAgent by looking up the callId
- * in this HashMap and creating a new one if needed. It also acts as a high
- * level router for routing the request to the
- * appropriate B2BUA. It processes INVITE, REFER, ACK, OPTIONS, BYE.
+ * The main job of this class is to manage BackToBackUserAgents. It mantains a
+ * hash map of BackToBackUserAgents indexed by call id. It acts as a factory for
+ * creating the BackToBackUserAgent by looking up the callId in this HashMap and
+ * creating a new one if needed. It also acts as a high level router for routing
+ * the request to the appropriate B2BUA. It processes INVITE, REFER, ACK,
+ * OPTIONS, BYE.
  * 
  * @author M. Ranganathan
  * 
  */
 class CallControlManager implements SymmitronResetHandler {
 
-	private static Logger logger = Logger.getLogger(CallControlManager.class);
+	static Logger logger = Logger.getLogger(CallControlManager.class);
 
 	// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Internal classes.
@@ -137,55 +137,9 @@ class CallControlManager implements SymmitronResetHandler {
 		}
 	}
 
-	// ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-	/**
-	 * Send gateway internal error.
-	 */
-	static void sendInternalError(ServerTransaction st, Exception ex) {
-		try {
-			Request request = st.getRequest();
-			Response response = ProtocolObjects.messageFactory.createResponse(
-					Response.SERVER_INTERNAL_ERROR, request);
-			if (logger.isDebugEnabled()) {
-				String message = "Exception occured at " + ex.getMessage()
-						+ " at " + ex.getStackTrace()[0].getFileName() + ":"
-						+ ex.getStackTrace()[0].getLineNumber();
-
-				response.setReasonPhrase(message);
-			} else {
-				response.setReasonPhrase(ex.getCause().getMessage());
-			}
-			st.sendResponse(response);
-
-		} catch (Exception e) {
-			throw new RuntimeException("Check gateway configuration", e);
-		}
-	}
-
-	/**
-	 * Send Internal error to the other side.
-	 * 
-	 */
-	static void sendBadRequestError(ServerTransaction st, Exception ex) {
-		try {
-			Request request = st.getRequest();
-			Response response = ProtocolObjects.messageFactory.createResponse(
-					Response.BAD_REQUEST, request);
-			if (logger.isDebugEnabled()) {
-				String message = "Exception occured at " + ex.getMessage()
-						+ " at " + ex.getStackTrace()[0].getFileName() + ":"
-						+ ex.getStackTrace()[0].getLineNumber();
-
-				response.setReasonPhrase(message);
-			}
-			st.sendResponse(response);
-
-		} catch (Exception e) {
-			throw new RuntimeException("Check gateway configuration", e);
-		}
-	}
-
+	// ///////////////////////////////////////////////////////////////////////////////////////////
+	// Private methods.
+	// ///////////////////////////////////////////////////////////////////////////////////////////
 	private void adjustSessionParameters(ServerTransaction serverTransaction,
 			Request request, Dialog dialog, SipProvider provider,
 			Dialog peerDialog) throws Exception {
@@ -235,9 +189,9 @@ class CallControlManager implements SymmitronResetHandler {
 	}
 
 	/**
-	 * Processes an incoming invite from the PBX or from the ITSP side.
-	 * This method fields the inbound request and either routes it to 
-	 * the appropriate b2bua or forwards the request.
+	 * Processes an incoming invite from the PBX or from the ITSP side. This
+	 * method fields the inbound request and either routes it to the appropriate
+	 * b2bua or forwards the request.
 	 * 
 	 * 
 	 * @param requestEvent
@@ -395,8 +349,8 @@ class CallControlManager implements SymmitronResetHandler {
 			} else if (request.getHeader(ReplacesHeader.NAME) != null) {
 
 				/*
-				 * Incoming INVITE has a call id that we dont know about
-				 * but with a replaces header. This implies call pickup attempt.
+				 * Incoming INVITE has a call id that we dont know about but
+				 * with a replaces header. This implies call pickup attempt.
 				 */
 
 				ReplacesHeader replacesHeader = (ReplacesHeader) request
@@ -481,12 +435,11 @@ class CallControlManager implements SymmitronResetHandler {
 				btobua.setItspAccount(account);
 				toDomain = account.getSipDomain();
 
-				boolean isPhone = ((SipURI) request.getRequestURI())
-						.getParameter("user") != null
-						&& ((SipURI) request.getRequestURI()).getParameter(
-								"user").equals("phone");
+				/*
+				 * Send the call setup invite out.
+				 */
 				btobua.sendInviteToItsp(requestEvent, serverTransaction,
-						toDomain, isPhone);
+						toDomain);
 			} else {
 
 				btobua.sendInviteToSipxProxy(requestEvent, serverTransaction);
@@ -496,11 +449,11 @@ class CallControlManager implements SymmitronResetHandler {
 		} catch (RuntimeException ex) {
 			logger.error(
 					"Error processing request" + requestEvent.getRequest(), ex);
-			sendInternalError(serverTransaction, ex);
+			CallControlUtilities.sendInternalError(serverTransaction, ex);
 		} catch (Exception ex) {
 			logger.error("Error processing request "
 					+ requestEvent.getRequest(), ex);
-			sendBadRequestError(serverTransaction, ex);
+			CallControlUtilities.sendBadRequestError(serverTransaction, ex);
 		}
 	}
 
@@ -726,7 +679,7 @@ class CallControlManager implements SymmitronResetHandler {
 			if (tad != null) {
 				ServerTransaction serverTransaction = tad
 						.getServerTransaction();
-				sendBadRequestError(serverTransaction, ex);
+				CallControlUtilities.sendBadRequestError(serverTransaction, ex);
 			}
 
 			if (btobua != null) {
@@ -738,7 +691,9 @@ class CallControlManager implements SymmitronResetHandler {
 	}
 
 	/**
-	 * Processes an INCOMING ack from the PBX side.
+	 * Processes an INCOMING ack.
+	 * 
+	 * @param requestEvent -- the ACK request event.
 	 */
 	private void processAck(RequestEvent requestEvent) {
 		try {
@@ -864,7 +819,10 @@ class CallControlManager implements SymmitronResetHandler {
 	}
 
 	/**
-	 * Processes an INCOMING CANCEL from the PBX side.
+	 * Processes an INCOMING CANCEL.
+	 * 
+	 * @param requestEvent -- the inbound CANCEL.
+	 * 
 	 */
 	private void processCancel(RequestEvent requestEvent) {
 
@@ -2219,7 +2177,7 @@ class CallControlManager implements SymmitronResetHandler {
 			logger.error("Exception while processing inbound response ", ex);
 
 			if (serverTransaction != null) {
-				sendBadRequestError(serverTransaction, ex);
+				CallControlUtilities.sendBadRequestError(serverTransaction, ex);
 			}
 			if (b2bua != null) {
 				try {
@@ -2387,8 +2345,6 @@ class CallControlManager implements SymmitronResetHandler {
 		}
 	}
 
-
-
 	/**
 	 * Process an incoming request.
 	 */
@@ -2445,13 +2401,12 @@ class CallControlManager implements SymmitronResetHandler {
 
 	}
 
-	
-	
 	/**
 	 * The Reset handler for the symmitron.
 	 */
 	public void reset(String serverHandle) {
-		for (BackToBackUserAgent btobua : Gateway.getBackToBackUserAgentFactory().getBackToBackUserAgents()) {
+		for (BackToBackUserAgent btobua : Gateway
+				.getBackToBackUserAgentFactory().getBackToBackUserAgents()) {
 			if (serverHandle.equals(btobua.getSymmitronServerHandle())) {
 				try {
 					btobua.tearDown();
@@ -2462,7 +2417,5 @@ class CallControlManager implements SymmitronResetHandler {
 		}
 
 	}
-
-	
 
 }

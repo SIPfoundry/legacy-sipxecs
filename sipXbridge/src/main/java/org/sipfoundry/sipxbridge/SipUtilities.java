@@ -514,15 +514,11 @@ class SipUtilities {
 
 	static Request createInviteRequest(SipURI requestUri,
 			SipProvider sipProvider, ItspAccountInfo itspAccount,
-			FromHeader from, String callId, boolean isphone)
+			FromHeader from, String callId)
 			throws GatewayConfigurationException {
 		try {
-			FromHeader fromHeader = from;
-
-			/*
-			 * If the account requires a register on init, then use the From
-			 * header that was Registered.
-			 */
+			
+			
 			String toUser = requestUri.getUser();
 			String toDomain = itspAccount.getProxyDomain();
 			String fromUser = ((SipURI) from.getAddress().getURI()).getUser();
@@ -533,6 +529,15 @@ class SipUtilities {
 			}
 			PPreferredIdentityHeader preferredIdentityHeader = null;
 			PrivacyHeader privacyHeader = null;
+			
+			
+			FromHeader fromHeader = from;
+
+			/*
+			 * Handle the case of anonymous calling. If the from header
+			 * has anonymous@invalid then attach a P-Preferred-Identity 
+			 * Header to reflect the actual value of the caller Id.
+			 */
 			if (fromUser.equalsIgnoreCase("anonymous")
 					&& fromDomain.equalsIgnoreCase("invalid")) {
 
@@ -579,19 +584,16 @@ class SipUtilities {
 			}
 
 			/*
-			 * if (!isphone) { requestUri.removeParameter("user"); } else {
-			 * requestUri.setUserParam("phone"); }
-			 */
-
-			/*
-			 * Some ITSPs do not like user=phone parameter.
-			 */
-			requestUri.removeParameter("user");
-
-			/*
 			 * Remove stuff from the inbound request that can have an effect on
 			 * the routing of the request and add stuff that we want to add.
 			 */
+			
+			/*
+			 * Some ITSPs are upset by seeing a user=phoneparameter on the URI.
+			 */
+			requestUri.removeParameter("user");
+
+			
 			if (itspAccount.getOutboundTransport() != null) {
 				requestUri
 						.setTransportParam(itspAccount.getOutboundTransport());
@@ -608,12 +610,6 @@ class SipUtilities {
 
 			SipURI toUri = ProtocolObjects.addressFactory.createSipURI(toUser,
 					toDomain);
-
-			if (isphone) {
-				toUri.setUserParam("phone");
-			} else {
-				toUri.removeParameter("user");
-			}
 
 			ToHeader toHeader = ProtocolObjects.headerFactory.createToHeader(
 					ProtocolObjects.addressFactory.createAddress(toUri), null);
@@ -635,10 +631,16 @@ class SipUtilities {
 					requestUri, Request.INVITE, callid, cseqHeader, fromHeader,
 					toHeader, list, maxForwards);
 
+			/*
+			 * Attach the PreferredIdentity header if we generated one.
+			 */
 			if (preferredIdentityHeader != null) {
 				request.setHeader(preferredIdentityHeader);
 			}
 
+			/*
+			 * Attach the privacy header if we generated one.
+			 */
 			if (privacyHeader != null) {
 				request.setHeader(privacyHeader);
 			}
@@ -664,7 +666,7 @@ class SipUtilities {
 		} catch (ParseException ex) {
 			String s = "Unexpected error creating INVITE -- check proxy configuration ";
 			logger.error(s, ex);
-			throw new GatewayConfigurationException(s, ex);
+			throw new RuntimeException(s, ex);
 
 		} catch (InvalidArgumentException e) {
 			String s = "Unexpected error creating INVITE";
