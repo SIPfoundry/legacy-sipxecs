@@ -453,7 +453,6 @@ sipx-snmp-init > /dev/null
 %config(noreplace) %{sipxpbxconf}/sipxconfig.properties.in
 %dir %attr(775,@SIPXPBXUSER@,@SIPXPBXUSER@) %{sipxpbxconf}/mrtg
 %config(noreplace) %{sipxpbxconf}/mrtg/*
-%config(noreplace) %{sipxpbxconf}/mrtg.cfg
 %dir %attr(775,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_localstatedir}/sipxdata/mrtg
 %attr(644,root,root) %{_datadir}/sipxecs/process.d/sipXmrtg-process.xml
 
