@@ -183,7 +183,7 @@ void ContactSet::subscriptionEventCallback(
       else
       {
          OsSysLog::add(FAC_RLS, PRI_ERR,
-                       "SubscriptionSet::addInstance cannot add reg subscription with dialog handle '%s', already %zu in ContactSet '%s'",
+                       "ContactSet::subscriptionEventCallback cannot add reg subscription with dialog handle '%s', already %zu in ContactSet '%s'",
                        dialogHandle->data(), mSubscriptions.entries(),
                        mUri.data());
       }
@@ -239,7 +239,7 @@ void ContactSet::notifyEventCallback(const UtlString* dialogHandle,
       else
       {
          OsSysLog::add(FAC_RLS, PRI_ERR,
-                       "SubscriptionSet::addInstance cannot add reg subscription with dialog handle '%s', already %zu in ContactSet '%s'",
+                       "ContactSet::notifyEventCallback cannot add reg subscription with dialog handle '%s', already %zu in ContactSet '%s'",
                        dialogHandle->data(), mSubscriptions.entries(),
                        mUri.data());
       }
@@ -336,7 +336,7 @@ void ContactSet::notifyEventCallback(const UtlString* dialogHandle,
                         else
                         {
                            OsSysLog::add(FAC_RLS, PRI_ERR,
-                                         "SubscriptionSet::notifyEventCallback cannot add Call-Id;RUI '%s', already %zu in ContactSet '%s' subscription '%s'",
+                                         "ContactSet::notifyEventCallback cannot add Call-Id;RUI '%s', already %zu in ContactSet '%s' subscription '%s'",
                                          uri_allocated->data(),
                                          state_from_this_subscr->entries(),
                                          mUri.data(), dialogHandle->data());

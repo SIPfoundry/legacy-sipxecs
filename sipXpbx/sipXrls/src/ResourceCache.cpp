@@ -13,7 +13,6 @@
 #include "ResourceListSet.h"
 #include "ResourceList.h"
 #include "ResourceCached.h"
-#include "SubscriptionSet.h"
 #include <os/OsSysLog.h>
 #include <os/OsLock.h>
 #include <os/OsEventMsg.h>

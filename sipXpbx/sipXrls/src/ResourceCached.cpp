@@ -14,7 +14,6 @@
 
 #include "ResourceCached.h"
 #include "ContactSet.h"
-#include "SubscriptionSet.h"
 #include <os/OsSysLog.h>
 #include <os/OsTimer.h>
 #include <os/OsLock.h>
@@ -121,7 +120,11 @@ void ResourceCached::startSubscriptions()
                  data());
 
    // Create the ContactSet.
-   mContactSetP = new ContactSet(this, *(static_cast <UtlString*> (this)));
+   mContactSetP = new ContactSet(this,
+                                 // The URI, which is the UtlString-nature
+                                 // of a RecourceCached.
+                                 *(static_cast <UtlString*> (this))
+      );
    // Start the refresh timer.
    // Choose a random time between 1/2 and 1 times
    // ResourceListServer::getRefreshInterval().
