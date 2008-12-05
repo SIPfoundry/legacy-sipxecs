@@ -1018,8 +1018,8 @@ class CallControlManager implements SymmitronResetHandler {
 			/*
 			 * Set global addressing in SDP offer if needed.
 			 */
-			if (dat.getItspInfo() == null
-					|| dat.getItspInfo().isGlobalAddressingUsed()) {
+			if (DialogApplicationData.get(peerDialog).getItspInfo() == null
+					|| DialogApplicationData.get(peerDialog).getItspInfo().isGlobalAddressingUsed()) {
 				SipUtilities.setGlobalAddresses(sdpOfferInvite);
 			}
 

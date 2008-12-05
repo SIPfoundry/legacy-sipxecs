@@ -92,10 +92,14 @@ public class BackToBackUserAgentFactory {
 						port);
 			}
 
+			/*
+			 *Do we have a B2BUA for this call ID? If so, point at it.
+			 */
 			if (this.backToBackUserAgentTable.containsKey(callId)) {
 				b2bua = this.backToBackUserAgentTable.get(callId);
 				if ( dialog.getApplicationData() == null ) {
 					DialogApplicationData.attach(b2bua, dialog, serverTransaction, request);
+					DialogApplicationData.get(dialog).setItspInfo(accountInfo);
 				}
 
 			} else {
