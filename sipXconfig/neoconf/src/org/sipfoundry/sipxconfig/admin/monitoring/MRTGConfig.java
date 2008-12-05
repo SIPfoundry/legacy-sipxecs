@@ -21,6 +21,7 @@ import org.apache.commons.lang.StringUtils;
 
 public class MRTGConfig {
     private static final String RUN_AS_DAEMON_TOKEN = "RunAsDaemon";
+    private static final String NO_DETACH_TOKEN = "NoDetach";
     private static final String INTERVAL_TOKEN = "Interval";
     private static final String WORK_DIR_TOKEN = "workdir";
     private static final String THRESH_DIR_TOKEN = "threshdir";
@@ -55,10 +56,12 @@ public class MRTGConfig {
     private static final String OPEN_BRACKET = "[";
     private static final String CLOSE_BRACKET = "]";
     private static final String EOL = System.getProperty("line.separator");
+    private static final String YES = "Yes";
 
     private String m_workingDir;
     private String m_threshDir;
-    private String m_runAsDaemon = "Yes";
+    private String m_runAsDaemon = YES;
+    private String m_noDetach = YES;
     private String m_interval = "5";
     private String m_filename = StringUtils.EMPTY;
     private String m_ipv6 = StringUtils.EMPTY;
@@ -166,6 +169,8 @@ public class MRTGConfig {
                 setPathAdd(parseSimpleEntry(line));
             } else if (line.startsWith(RUN_AS_DAEMON_TOKEN)) {
                 setRunAsDaemon(parseSimpleEntry(line));
+            } else if (line.startsWith(NO_DETACH_TOKEN)) {
+                setNoDetach(parseSimpleEntry(line));
             } else if (line.startsWith(INTERVAL_TOKEN)) {
                 setInterval(parseSimpleEntry(line));
             } else {
@@ -261,6 +266,14 @@ public class MRTGConfig {
 
     public void setRunAsDaemon(String runAsDaemon) {
         m_runAsDaemon = runAsDaemon;
+    }
+
+    public String getNoDetach() {
+        return m_noDetach;
+    }
+
+    public void setNoDetach(String noDetach) {
+        m_noDetach = noDetach;
     }
 
     public List<String> getHosts() {
@@ -384,6 +397,7 @@ public class MRTGConfig {
 
     private void dumpHeader(StringBuilder buf) {
         appendTokenValue(buf, RUN_AS_DAEMON_TOKEN, getRunAsDaemon());
+        appendTokenValue(buf, NO_DETACH_TOKEN, getNoDetach());
         appendTokenValue(buf, INTERVAL_TOKEN, getInterval());
         appendTokenValue(buf, WORK_DIR_TOKEN, getWorkingDir());
         appendTokenValue(buf, THRESH_DIR_TOKEN, getThreshDir());

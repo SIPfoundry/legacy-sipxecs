@@ -13,8 +13,7 @@ setupbin_IN = $(foreach file,$(setupbin_SCRIPTS),$(file).in)
 
 editscripts_IN = \
 	sipx-mrtg-init \
-	sipx-snmp-init \
-	sipx-mrtg-startup
+	sipx-snmp-init
 
 
 ruby_scripts = \

@@ -9,20 +9,27 @@
  */
 package org.sipfoundry.sipxconfig.admin.monitoring;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.List;
 
 import junit.framework.TestCase;
 
 import org.apache.commons.lang.StringUtils;
+import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.test.TestUtil;
 
 public class MRTGConfigTest extends TestCase {
     private MRTGConfig m_mrtgConfig;
+    private File m_mrtgConfigFile;
 
-    protected void setUp() {
-        m_mrtgConfig = new MRTGConfig(TestUtil.getTestSourceDirectory(getClass()) + "/"
-                + "mrtg.cfg");
+    protected void setUp() throws Exception {
+        File mrtgTempDir = TestUtil.createTempDir("mrtg-temp");
+        FileInputStream mrtgCfgStream = new FileInputStream(TestUtil.getTestSourceDirectory(getClass()) + "/" + "mrtg.cfg");
+        TestHelper.copyStreamToDirectory(mrtgCfgStream, mrtgTempDir.getAbsolutePath(), "mrtg.cfg");
+        m_mrtgConfigFile = new File(mrtgTempDir, "mrtg.cfg");
+        m_mrtgConfig = new MRTGConfig(m_mrtgConfigFile.toString());
 
         try {
             m_mrtgConfig.parseConfig();
@@ -33,7 +40,7 @@ public class MRTGConfigTest extends TestCase {
     }
 
     public void testGetMRTGConfigTargets() {
-        assertEquals(TestUtil.getTestSourceDirectory(getClass()) + "/" + "mrtg.cfg", m_mrtgConfig
+        assertEquals(m_mrtgConfigFile.toString(), m_mrtgConfig
                 .getFilename());
         assertEquals(5, m_mrtgConfig.getTargets().size());
         assertEquals("/mrtg", m_mrtgConfig.getWorkingDir());
@@ -127,6 +134,7 @@ public class MRTGConfigTest extends TestCase {
         m_mrtgConfig.setTargets(targets);
         String m_mrtgConfigString = StringUtils.remove(m_mrtgConfig.toString(), eol);
         String outputToCompare = "RunAsDaemon: Yes"
+                + "NoDetach: Yes"
                 + "Interval: 5"
                 + "workdir: /mrtg"
                 + "threshdir: /tmp/mrtg"
@@ -145,6 +153,7 @@ public class MRTGConfigTest extends TestCase {
         String m_mrtgConfigString = StringUtils.remove(m_mrtgConfig.toString(), System
                 .getProperty("line.separator"));
         String outputToCompare =  "RunAsDaemon: Yes"
+                + "NoDetach: Yes"
                 + "Interval: 5"
                 + "workdir: /mrtg"
                 + "threshdir: /tmp/mrtg"
@@ -182,6 +191,7 @@ public class MRTGConfigTest extends TestCase {
         m_mrtgConfig.setTargets(targets);
         String m_mrtgConfigString = StringUtils.remove(m_mrtgConfig.toString(), eol);
         String outputToCompare =  "RunAsDaemon: Yes"
+                + "NoDetach: Yes"
                 + "Interval: 5"
                 + "workdir: /mrtg"
                 + "threshdir: /tmp/mrtg"

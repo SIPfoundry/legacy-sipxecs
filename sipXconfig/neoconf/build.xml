@@ -161,6 +161,7 @@
     <replace file="${dest.dir}${sipxpbx.conf.dir}/mrtg/mrtg.cfg"
             propertyfile="${top.build.dir}/build.properties">
         <replacefilter token="@sipxpbx.var.dir@" property="sipxpbx.var.dir" />
+        <replacefilter token="@sipxpbx.tmp.dir@" property="sipxpbx.tmp.dir" />
     </replace>
 
     <replace file="${dest.dir}${sipxpbx.conf.dir}/mrtg/mrtg-t.cfg"

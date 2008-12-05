@@ -37,6 +37,10 @@ if CONFERENCE
 CONFERENCE_OPT = conference
 endif
 
+if MRTG
+MRTG_OPT = mrtg
+endif
+
 SUBDIRS = \
 	. \
 	bin \
@@ -46,7 +50,8 @@ SUBDIRS = \
 	plugins \
 	$(REPORTS_OPT)\
 	$(AGENT_OPT)\
-	$(CONFERENCE_OPT)
+	$(CONFERENCE_OPT) \
+	$(MRTG_OPT)
 
 install-exec-hook :
 	$(ANT_CMD) $(ANT_FLAGS) remove-jars
@@ -78,6 +83,7 @@ EXTRA_DIST = \
     agent \
     report \
     conference \
+    mrtg \
     lib
 
 # BUILT_SOURCES is special autoconf variable to be checked on every make

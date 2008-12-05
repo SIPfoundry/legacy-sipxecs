@@ -9,7 +9,10 @@
  */
 package org.sipfoundry.sipxconfig.admin.monitoring;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.InputStream;
+import java.util.Collection;
 import java.util.List;
 
 import junit.framework.TestCase;
@@ -18,6 +21,8 @@ import org.easymock.EasyMock;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
+import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
+import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext.Command;
 import org.sipfoundry.sipxconfig.test.TestUtil;
 
 public class MonitoringContextImplTest extends TestCase {
@@ -27,7 +32,7 @@ public class MonitoringContextImplTest extends TestCase {
     private MRTGConfig m_mrtgTemplateConfig;
 
     @Override
-    protected void setUp() {
+    protected void setUp() throws Exception {
         m_monitoringContextImpl = new MonitoringContextImpl();
         m_monitoringContextImpl.setEnabled(true);
 
@@ -42,7 +47,11 @@ public class MonitoringContextImplTest extends TestCase {
 
         m_monitoringContextImpl.setLocationsManager(m_locationsManager);
 
-        m_mrtgConfig = new MRTGConfig(TestUtil.getTestSourceDirectory(getClass()) + "/" + "mrtg.cfg");
+        File mrtgTempDir = TestUtil.createTempDir("mrtg-temp");
+        FileInputStream mrtgCfgStream = new FileInputStream(TestUtil.getTestSourceDirectory(getClass()) + "/" + "mrtg.cfg");
+        TestHelper.copyStreamToDirectory(mrtgCfgStream, mrtgTempDir.getAbsolutePath(), "mrtg.cfg");
+        m_mrtgConfig = new MRTGConfig(new File(mrtgTempDir, "mrtg.cfg").toString());
+        
         m_mrtgTemplateConfig = new MRTGConfig(TestUtil.getTestSourceDirectory(getClass()) + "/" + "mrtg-t.cfg");
         m_monitoringContextImpl.setMrtgConfig(m_mrtgConfig);
         m_monitoringContextImpl.setMrtgTemplateConfig(m_mrtgTemplateConfig);
@@ -132,13 +141,17 @@ public class MonitoringContextImplTest extends TestCase {
     }
 
     public void testIntializeConfigFiles2() throws Exception {
+        SipxProcessContext processContext = EasyMock.createMock(SipxProcessContext.class);
+        processContext.manageServices(EasyMock.isA(Collection.class), EasyMock.eq(Command.RESTART));
+        EasyMock.expectLastCall();
+        EasyMock.replay(processContext);
+
         // If a target doesn't have underscore, it's not valid, so it should be eliminated
         InputStream mrtg_cfg = MonitoringContextImpl.class.getResourceAsStream("mrtg.cfg.test2");
         TestHelper.copyStreamToDirectory(mrtg_cfg, TestHelper.getTestDirectory(), "mrtg.cfg.test2");
         m_mrtgConfig = new MRTGConfig(TestHelper.getTestDirectory() + "/" + "mrtg.cfg.test2");
+        m_monitoringContextImpl.setProcessContext(processContext);
         m_monitoringContextImpl.setMrtgConfig(m_mrtgConfig);
-        m_monitoringContextImpl.setMrtgStartupScript("echo");
-        m_monitoringContextImpl.setMrtgNoOfTargetsFile(TestHelper.getTestDirectory() + "/" + "nr-targets");
         m_monitoringContextImpl.afterPropertiesSet();
         // should not have any targets => no hosts
         assertEquals(0, m_monitoringContextImpl.getHosts().size());

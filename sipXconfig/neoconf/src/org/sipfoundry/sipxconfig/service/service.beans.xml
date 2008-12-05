@@ -467,4 +467,9 @@
       </set>
     </property>
   </bean>
+
+  <bean id="sipxMrtgService" class="org.sipfoundry.sipxconfig.service.SipxMrtgService" scope="prototype"
+    parent="sipxService">
+    <property name="beanId" value="sipxMrtgService" />
+  </bean>
 </beans>

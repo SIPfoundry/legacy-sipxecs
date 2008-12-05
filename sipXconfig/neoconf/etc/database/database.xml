@@ -291,6 +291,7 @@
 	<antcall target="acd-server-reference-location" />
     <antcall target="gateway-location" />
     <antcall target="add-device-timezone"/>
+    <antcall target="add-mrtg-service"/>
     <!-- temporary patches -->
     <antcall target="clean-sipx-service-values"/>
     <antcall target="backup-ftp-fix-empty-type-2" />
@@ -709,6 +710,10 @@
     <db-patch patch="add-ivr-service"/>
   </target>
   
+  <target name="add-mrtg-service" unless="add-mrtg-service">
+    <db-patch patch="add-mrtg-service"/>
+  </target>
+
   <target name="location-sipx-service" unless="location-sipx-service">
     <db-patch patch="location-sipx-service"/>
   </target>

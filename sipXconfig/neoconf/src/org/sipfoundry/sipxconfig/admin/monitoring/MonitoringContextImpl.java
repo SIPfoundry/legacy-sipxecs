@@ -9,23 +9,22 @@
  */
 package org.sipfoundry.sipxconfig.admin.monitoring;
 
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
-import org.sipfoundry.sipxconfig.common.ApplicationInitializedEvent;
+import org.sipfoundry.sipxconfig.admin.commserver.Process;
+import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
+import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessModel.ProcessName;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.context.ApplicationEvent;
-import org.springframework.context.ApplicationListener;
+import org.springframework.beans.factory.annotation.Required;
 
-public class MonitoringContextImpl implements MonitoringContext, InitializingBean, ApplicationListener {
+public class MonitoringContextImpl implements MonitoringContext, InitializingBean {
     private static final Log LOG = LogFactory.getLog(MonitoringContextImpl.class);
 
     private LocationsManager m_locationsManager;
@@ -40,9 +39,7 @@ public class MonitoringContextImpl implements MonitoringContext, InitializingBea
 
     private String m_communitySnmp;
 
-    private String m_mrtgStartupScript;
-
-    private String m_mrtgNoOfTargetsFile;
+    private SipxProcessContext m_processContext;
 
     /**
      * set and load mrtg config file object
@@ -65,6 +62,12 @@ public class MonitoringContextImpl implements MonitoringContext, InitializingBea
     public void setLocationsManager(LocationsManager locationsManager) {
         m_locationsManager = locationsManager;
     }
+
+    @Required
+    public void setProcessContext(SipxProcessContext processContext) {
+        m_processContext = processContext;
+    }
+
 
     /**
      * returns a list with all available hosts to monitor. In a HA configuration will return the
@@ -170,14 +173,6 @@ public class MonitoringContextImpl implements MonitoringContext, InitializingBea
         return null;
     }
 
-    public String getMrtgStartupScript() {
-        return m_mrtgStartupScript;
-    }
-
-    public void setMrtgStartupScript(String mrtgStartupScript) {
-        m_mrtgStartupScript = mrtgStartupScript;
-    }
-
     /**
      * use this one until sipXconfig will be able to configure SNMP agent, see XCF-1952
      *
@@ -236,13 +231,9 @@ public class MonitoringContextImpl implements MonitoringContext, InitializingBea
         writeTargetsToConfigFilesAndRestartMrtg(allTargets);
     }
 
-    private void execMrtgStartupScript() {
-        Runtime rt = Runtime.getRuntime();
-        try {
-            rt.exec(m_mrtgStartupScript); // this should use the defaul parameters ...
-        } catch (IOException e) {
-            LOG.error(e);
-        }
+    private void restartMrtg() {
+        Process p = new Process(ProcessName.MRTG);
+        m_processContext.manageServices(Arrays.asList(p), SipxProcessContext.Command.RESTART);
     }
 
     /**
@@ -275,9 +266,8 @@ public class MonitoringContextImpl implements MonitoringContext, InitializingBea
 
         // if mrtg.cfg does not exists do nothing
         if (!(new File(m_mrtgConfig.getFilename())).exists()) {
-            // in case the cfg file was deleted before restart ...
-            writeNoOfTargetsFile(0);
-            execMrtgStartupScript();
+            // Re-generate cfg file in case it was deleted before restart...
+            writeTargetsToConfigFilesAndRestartMrtg(new ArrayList<MRTGTarget>());
             return;
         }
 
@@ -327,7 +317,7 @@ public class MonitoringContextImpl implements MonitoringContext, InitializingBea
 
     private boolean writeTargetsToConfigFilesAndRestartMrtg(List<MRTGTarget> targets) {
         boolean toReturn = writeTargetsToConfigFiles(targets);
-        execMrtgStartupScript();
+        restartMrtg();
         return toReturn;
     }
 
@@ -337,6 +327,7 @@ public class MonitoringContextImpl implements MonitoringContext, InitializingBea
     private boolean writeTargetsToConfigFiles(List<MRTGTarget> targets) {
         try {
             m_mrtgConfig.setRunAsDaemon(m_templateMrtgConfig.getRunAsDaemon());
+            m_mrtgConfig.setNoDetach(m_templateMrtgConfig.getNoDetach());
             m_mrtgConfig.setInterval(m_templateMrtgConfig.getInterval());
             m_mrtgConfig.setIPV6(m_templateMrtgConfig.getIPV6());
             m_mrtgConfig.setWorkingDir(m_templateMrtgConfig.getWorkingDir());
@@ -344,7 +335,6 @@ public class MonitoringContextImpl implements MonitoringContext, InitializingBea
             m_mrtgConfig.setMibs(m_templateMrtgConfig.getMibs());
             m_mrtgConfig.setTargets(targets);
             boolean writeResult = m_mrtgConfig.writeFile();
-            writeNoOfTargetsFile(targets.size());
 
             // reload mrtg config object
             if (writeResult) {
@@ -383,31 +373,4 @@ public class MonitoringContextImpl implements MonitoringContext, InitializingBea
         m_communitySnmp = communitySnmp;
     }
 
-    /**
-     * start mrtg after app is initialized
-     */
-    public void onApplicationEvent(ApplicationEvent event) {
-        if (event instanceof ApplicationInitializedEvent) {
-            execMrtgStartupScript(); // start MRTG
-        }
-    }
-
-    public String getMrtgNoOfTargetsFile() {
-        return m_mrtgNoOfTargetsFile;
-    }
-
-    public void setMrtgNoOfTargetsFile(String mrtgNoOfTargetsFile) {
-        m_mrtgNoOfTargetsFile = mrtgNoOfTargetsFile;
-    }
-
-    public void writeNoOfTargetsFile(int noOfTargets) {
-        try {
-            BufferedWriter mrtgFileWriter = new BufferedWriter(new FileWriter(getMrtgNoOfTargetsFile()));
-            mrtgFileWriter.write(String.valueOf(noOfTargets));
-            mrtgFileWriter.flush();
-            mrtgFileWriter.close();
-        } catch (IOException e) {
-            LOG.error(e);
-        }
-    }
 }

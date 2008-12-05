@@ -20,8 +20,7 @@
     <property name="mrtgConfig">
       <ref bean="mrtgConfig" />
     </property>
-    <property name="mrtgStartupScript" value="${sysdir.bin}/sipx-mrtg-startup"/>
-    <property name="mrtgNoOfTargetsFile" value="${sysdir.etc}/mrtg/nr-targets"/>
+    <property name="processContext" ref="sipxProcessContext" />
     <property name="communitySnmp" value="sipxecs" />
   </bean>
 

@@ -44,8 +44,8 @@ public class StatisticsPageTestUi extends WebTestCase {
         SiteTestHelper.selectRow(tester, 5, true);
         clickButton("form:ok");
 
-        SiteTestHelper.assertNoUserError(tester);
-        SiteTestHelper.assertNoException(tester);
+        // Check to make sure we get a user error for host not found.
+        SiteTestHelper.assertUserError(tester);
 
         clickLink("menu.statistics");
         SiteTestHelper.selectOption(tester, "PropertySelection", "host.example.org");
@@ -71,8 +71,9 @@ public class StatisticsPageTestUi extends WebTestCase {
         SiteTestHelper.selectRow(tester, 1, false);
         SiteTestHelper.selectRow(tester, 2, false);
         clickButton("form:ok");
-        SiteTestHelper.assertNoUserError(tester);
-        SiteTestHelper.assertNoException(tester);
+        SiteTestHelper.assertUserError(tester);
+
+        clickLink("menu.statistics");
         SiteTestHelper.selectOption(tester, "PropertySelection", "host.example.org");
         assertLinkPresent("report0");// summary report
         assertLinkPresent("report1");
@@ -84,6 +85,7 @@ public class StatisticsPageTestUi extends WebTestCase {
         assertLinkPresent("image2");
 
         // remove all targets to monitor
+        clickLink("menu.statistics");
         SiteTestHelper.selectOption(tester, "PropertySelection", "host.example.org");
         clickLink("link.configureTargets");
         SiteTestHelper.selectRow(tester, 3, false);
@@ -91,6 +93,6 @@ public class StatisticsPageTestUi extends WebTestCase {
         SiteTestHelper.selectRow(tester, 5, false);
         clickButton("form:ok");
 
-        SiteTestHelper.assertNoUserError(tester);
+        SiteTestHelper.assertUserError(tester);
     }
 }

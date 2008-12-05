@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.acd;
@@ -18,10 +18,10 @@ public class AcdMigrationTriggerTestDb extends SipxDatabaseTestCase {
     private ApplicationContext m_applicationContext;
     private AcdContext m_context;
 
+    @Override
     protected void setUp() throws Exception {
         m_applicationContext = TestHelper.getApplicationContext();
-        m_context = (AcdContext) TestHelper.getApplicationContext().getBean(
-                AcdContext.CONTEXT_BEAN_NAME);
+        m_context = (AcdContext) TestHelper.getApplicationContext().getBean(AcdContext.CONTEXT_BEAN_NAME);
         TestHelper.cleanInsert("ClearDb.xml");
     }
 
@@ -58,18 +58,20 @@ public class AcdMigrationTriggerTestDb extends SipxDatabaseTestCase {
     public void testMigrateAcdServers() throws Exception {
         TestHelper.insertFlat("acd/migrate_acd_servers.db.xml");
 
+        // test below rely on the fact that 13 is service ID of ACD service
+        assertEquals(1, getConnection().getRowCount("sipx_service",
+                "where bean_id='sipxAcdService' AND sipx_service_id=13"));
+
         assertEquals(3, getConnection().getRowCount("acd_server"));
         assertEquals(1, getConnection().getRowCount("location"));
-        assertEquals(1, getConnection().getRowCount("location_specific_service",
-                "where sipx_service_id=13"));
+        assertEquals(1, getConnection().getRowCount("location_specific_service", "where sipx_service_id=13"));
 
         InitializationTask task = new InitializationTask("acd_server_migrate_acd_service");
         m_applicationContext.publishEvent(task);
 
         assertEquals(3, getConnection().getRowCount("acd_server"));
         assertEquals(3, getConnection().getRowCount("location"));
-        assertEquals(3, getConnection().getRowCount("location_specific_service",
-                "where sipx_service_id=13"));
+        assertEquals(3, getConnection().getRowCount("location_specific_service", "where sipx_service_id=13"));
 
         assertEquals(1, getConnection().getRowCount("acd_server", "where location_id=1001"));
 

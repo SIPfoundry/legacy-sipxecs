@@ -87,6 +87,6 @@ if test $DISABLE_MONITORING = "true"; then
 fi
 
 if test $CHANGE_MRTG_BINARY = "true"; then
-  sed -e "s,MRTG_BIN=$MRTG_BINARY_OLD,MRTG_BIN=$MRTG_BINARY,g" -i.orig @SIPX_BINDIR@/sipx-mrtg-startup
+  sed -e "s,MRTG_BIN=$MRTG_BINARY_OLD,MRTG_BIN=$MRTG_BINARY,g" -i.orig @SIPX_BINDIR@/sipXmrtg.sh
 fi
 
