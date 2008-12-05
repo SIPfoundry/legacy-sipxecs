@@ -182,8 +182,10 @@ class DialogApplicationData {
                     dialog.sendRequest(ctx);
 
                     DialogApplicationData.this.sessionTimer = new SessionTimerTask(this.method);
-
-                    Gateway.getTimer().schedule(sessionTimer, sessionExpires * 1000);
+                    
+                    int expiryTime = sessionExpires <  Gateway.MIN_EXPIRES ? Gateway.MIN_EXPIRES : sessionExpires ;
+                    
+                    Gateway.getTimer().schedule(sessionTimer, expiryTime - Gateway.TIMER_ADVANCE*1000);
 
                 }
 
@@ -202,8 +204,7 @@ class DialogApplicationData {
         SipProvider provider = ((DialogExt) dialog).getSipProvider();
         if (Gateway.getSessionTimerMethod() != null && provider != Gateway.getLanProvider()) {
             this.sessionTimer = new SessionTimerTask(Gateway.getSessionTimerMethod());
-            Gateway.getTimer().schedule(this.sessionTimer, Gateway.getSessionExpires() * 1000);
-
+            Gateway.getTimer().schedule(this.sessionTimer, Gateway.SESSION_EXPIRES * 1000 - Gateway.TIMER_ADVANCE*1000);
         }
 
     }
@@ -239,8 +240,7 @@ class DialogApplicationData {
             throw new NullPointerException("Null back2back ua");
         if (dialog.getApplicationData() != null)
             throw new RuntimeException("Already set!!");
-        SipProvider provider = ((DialogExt) dialog).getSipProvider();
-
+       
         DialogApplicationData dat = new DialogApplicationData(dialog);
         dat.transaction = transaction;
         dat.request = request;
@@ -257,15 +257,8 @@ class DialogApplicationData {
     /**
      * @param rtpSession the rtpSession to set
      */
-    void setRtpSession(RtpSession rtpSession) {
-        if (rtpSession != this.rtpSession && this.rtpSession != null) {
-            this.rtpSession.decrementReferenceCount();
-        }
+    void setRtpSession(RtpSession rtpSession) {  
         this.rtpSession = rtpSession;
-
-        if (rtpSession != null) {
-            rtpSession.incrementReferenceCount();
-        }
     }
 
     /**

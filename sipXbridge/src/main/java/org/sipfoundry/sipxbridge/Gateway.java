@@ -102,10 +102,16 @@ public class Gateway {
     private static SipProvider externalTlsProvider;
 
     /*
-     * Back to back user agent manager.
+     * CallControl router.
      */
     private static CallControlManager callControlManager;
+    
+    /*
+     * The allocator for back to back user agents.
+     */
 
+    private static BackToBackUserAgentFactory backToBackUserAgentFactory;
+    
     /*
      * This is a placeholder - to be replaced by STUN
      */
@@ -158,9 +164,20 @@ public class Gateway {
     protected static final String DEFAULT_ITSP_TRANSPORT = "udp";
 
     /*
-     * Session expires interval.
+     * Min value for session timer ( seconds ).
      */
-    protected static int sessionExpires = 30 * 60;
+    protected static final int MIN_EXPIRES = 60;
+
+    /*
+     * Session expires interval (initial value)
+     */
+    protected static final int SESSION_EXPIRES = 30 * 60 ;
+    
+    
+    /*
+     * Advance timer by 10 seconds for session timer.
+     */
+    protected static  final int TIMER_ADVANCE = 10;
 
     /*
      * set to true to enable tls (untested).
@@ -181,6 +198,8 @@ public class Gateway {
     private static HashSet<Integer> parkServerCodecs = new HashSet<Integer>();
 
     static SipFoundryAppender logAppender;
+
+  
 
     private Gateway() {
 
@@ -498,6 +517,8 @@ public class Gateway {
             registrationManager = new RegistrationManager(getWanProvider("udp"));
 
             callControlManager = new CallControlManager();
+            
+            backToBackUserAgentFactory = new BackToBackUserAgentFactory();
 
         } catch (Throwable ex) {
             ex.printStackTrace();
@@ -536,11 +557,20 @@ public class Gateway {
     }
 
     /**
-     * @return the backToBackUserAgentManager
+     * @return the call control router.
      */
     static CallControlManager getCallControlManager() {
         return callControlManager;
     }
+    
+    /**
+     * Get the back to back user agent factory.
+     * 
+     * @return the back to back user agent factory.
+     */
+    static BackToBackUserAgentFactory getBackToBackUserAgentFactory() {
+		return backToBackUserAgentFactory;
+	}
 
     /**
      * The local address of the gateway.
@@ -953,7 +983,7 @@ public class Gateway {
     }
 
     static int getSessionExpires() {
-        return sessionExpires;
+        return SESSION_EXPIRES;
     }
 
     /**
@@ -1120,5 +1150,8 @@ public class Gateway {
         }
 
     }
+
+	
+	
 
 }

@@ -143,10 +143,10 @@ public class BackToBackUserAgent {
 	 * 
 	 */
 	void pairDialogs(Dialog dialog1, Dialog dialog2) {
+		logger.debug("pairDialogs dialogs = " + dialog1 + " " + dialog2 );
+		
 		DialogApplicationData dad1 = DialogApplicationData.get(dialog1);
-
 		DialogApplicationData dad2 = DialogApplicationData.get(dialog2);
-
 		dad1.peerDialog = dialog2;
 		dad2.peerDialog = dialog1;
 	}
@@ -169,19 +169,8 @@ public class BackToBackUserAgent {
 			SymImpl symImpl = symmitronClient.createEvenSym();
 			RtpSession rtpSession = new RtpSession(symImpl);
 
-			// RtpReceiverEndpoint endpoint = new
-			// RtpReceiverEndpoint(symImpl.getReceiver());
-
 			dialogApplicationData.setRtpSession(rtpSession);
-			/*
-			 * SessionDescription sd =
-			 * SdpFactory.getInstance().createSessionDescription(
-			 * this.rtpBridge.sessionDescription.toString());
-			 * rtpSession.getReceiver().setSessionDescription(
-			 * SipUtilities.cleanSessionDescription(sd,
-			 * Gateway.getCodecName()));
-			 */
-
+			
 			this.rtpBridge.addSym(rtpSession);
 
 		}
@@ -535,7 +524,7 @@ public class BackToBackUserAgent {
 
 		if (dialogTable.size() == 0) {
 			this.sendByeToMohServer();
-			Gateway.getCallControlManager().removeBackToBackUserAgent(this);
+			Gateway.getBackToBackUserAgentFactory().removeBackToBackUserAgent(this);
 		}
 	}
 
@@ -640,7 +629,7 @@ public class BackToBackUserAgent {
 		CallIdHeader callId = ProtocolObjects.headerFactory
 				.createCallIdHeader(this.creatingCallId + "." + this.counter++);
 		newRequest.setHeader(callId);
-		Gateway.getCallControlManager().setBackToBackUserAgent(
+		Gateway.getBackToBackUserAgentFactory().setBackToBackUserAgent(
 				callId.getCallId(), this);
 
 		SipUtilities.addAllowHeaders(newRequest);
@@ -954,7 +943,7 @@ public class BackToBackUserAgent {
 			CallIdHeader callIdHeader = ProtocolObjects.headerFactory
 					.createCallIdHeader(this.creatingCallId + "." + counter++);
 
-			Gateway.getCallControlManager().setBackToBackUserAgent(
+			Gateway.getBackToBackUserAgentFactory().setBackToBackUserAgent(
 					callIdHeader.getCallId(), this);
 
 			CSeqHeader cseqHeader = ProtocolObjects.headerFactory
@@ -1047,7 +1036,7 @@ public class BackToBackUserAgent {
 					: KeepaliveMethod.NONE;
 
 			rtpEndpoint.setKeepAliveMethod(keepaliveMethod);
-			rtpEndpoint.setSessionDescription(sessionDescription);
+			rtpEndpoint.setSessionDescription(sessionDescription,true);
 
 			ContentTypeHeader cth = ProtocolObjects.headerFactory
 					.createContentTypeHeader("application", "sdp");
@@ -1159,7 +1148,7 @@ public class BackToBackUserAgent {
 					.createCallIdHeader(this.creatingCallId + "."
 							+ this.counter++);
 
-			Gateway.getCallControlManager().setBackToBackUserAgent(
+			Gateway.getBackToBackUserAgentFactory().setBackToBackUserAgent(
 					callIdHeader.getCallId(), this);
 
 			CSeqHeader cseqHeader = ProtocolObjects.headerFactory
@@ -1468,7 +1457,7 @@ public class BackToBackUserAgent {
 
 			/*
 			 * If we spiraled back, then pair the refered dialog with the
-			 * outgoing dialog.
+			 * outgoing dialog. Otherwise pair the inbound and outboud dialogs.
 			 */
 			if (!spiral) {
 				pairDialogs(incomingDialog, outboundDialog);
@@ -1502,7 +1491,7 @@ public class BackToBackUserAgent {
 						tad.incomingSession, symmitronClient);
 				rtpEndpoint.setKeepAliveMethod(keepAliveMethod);
 				tad.incomingSession.setTransmitter(rtpEndpoint);
-				rtpEndpoint.setSessionDescription(sessionDescription);
+				rtpEndpoint.setSessionDescription(sessionDescription,true);
 
 			} else if (spiral && replacesHeader == null) {
 				/*
@@ -1536,7 +1525,7 @@ public class BackToBackUserAgent {
 				RtpTransmitterEndpoint rtpEndpoint = new RtpTransmitterEndpoint(
 						rtpSession, symmitronClient);
 				rtpSession.setTransmitter(rtpEndpoint);
-				rtpEndpoint.setSessionDescription(sessionDescription);
+				rtpEndpoint.setSessionDescription(sessionDescription,true);
 				int keepaliveInterval = Gateway.getMediaKeepaliveMilisec();
 				KeepaliveMethod keepaliveMethod = tad.itspAccountInfo
 						.getRtpKeepaliveMethod();

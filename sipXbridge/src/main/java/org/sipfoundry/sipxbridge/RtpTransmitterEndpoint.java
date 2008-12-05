@@ -40,6 +40,8 @@ class RtpTransmitterEndpoint {
 
     private KeepaliveMethod keepAliveMethod = KeepaliveMethod.NONE;
 
+	private boolean isOffer;
+
     public RtpTransmitterEndpoint(RtpSession rtpSession, SymmitronClient symmitronClient) {
         this.rtpSession = rtpSession;
         this.symTransmitter = symmitronClient.createSymTransmitter(this.rtpSession.getSym());
@@ -116,11 +118,13 @@ class RtpTransmitterEndpoint {
         this.symTransmitter.setOnHold(flag);
     }
 
-    void setSessionDescription(SessionDescription sessionDescription) {
+    void setSessionDescription(SessionDescription sessionDescription, boolean isOffer) {
         if (this.sessionDescription != null) {
             logger.debug("WARNING -- replacing session description");
 
         }
+        
+        this.isOffer = isOffer;
         try {
             this.sessionDescription = sessionDescription;
             this.ipAddress = null;
@@ -143,6 +147,13 @@ class RtpTransmitterEndpoint {
             throw new RuntimeException("Unexpected exception setting sdp", ex);
         }
     }
+
+
+
+
+	boolean isOffer() {
+		return isOffer;
+	}
 
 
 

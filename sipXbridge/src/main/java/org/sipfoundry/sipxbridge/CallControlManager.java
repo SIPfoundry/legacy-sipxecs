@@ -66,7 +66,12 @@ import org.sipfoundry.sipxbridge.symmitron.SymmitronException;
 import org.sipfoundry.sipxbridge.symmitron.SymmitronResetHandler;
 
 /**
- * Processes INVITE, REFER, ACK and BYE
+ * The main job of this class is to manage BackToBackUserAgents. 
+ * It mantains a hash map of BackToBackUserAgents indexed by call id.
+ * It acts as a factory for creating the BackToBackUserAgent by looking up the callId
+ * in this HashMap and creating a new one if needed. It also acts as a high
+ * level router for routing the request to the
+ * appropriate B2BUA. It processes INVITE, REFER, ACK, OPTIONS, BYE.
  * 
  * @author M. Ranganathan
  * 
@@ -74,8 +79,6 @@ import org.sipfoundry.sipxbridge.symmitron.SymmitronResetHandler;
 class CallControlManager implements SymmitronResetHandler {
 
 	private static Logger logger = Logger.getLogger(CallControlManager.class);
-
-	private ConcurrentHashMap<String, BackToBackUserAgent> backToBackUserAgentTable = new ConcurrentHashMap<String, BackToBackUserAgent>();
 
 	// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Internal classes.
@@ -233,6 +236,8 @@ class CallControlManager implements SymmitronResetHandler {
 
 	/**
 	 * Processes an incoming invite from the PBX or from the ITSP side.
+	 * This method fields the inbound request and either routes it to 
+	 * the appropriate b2bua or forwards the request.
 	 * 
 	 * 
 	 * @param requestEvent
@@ -380,14 +385,18 @@ class CallControlManager implements SymmitronResetHandler {
 
 			BackToBackUserAgent btobua = null;
 
+			/*
+			 * Look at the Dialog context. The B2BUA structure tracks the call
+			 * and is pointed to by the dialog application data.
+			 */
 			if ((DialogApplicationData) dialog.getApplicationData() != null) {
 				btobua = ((DialogApplicationData) dialog.getApplicationData())
 						.getBackToBackUserAgent();
 			} else if (request.getHeader(ReplacesHeader.NAME) != null) {
 
 				/*
-				 * Incoming INVITE (out of dialog ) with a replaces header. This
-				 * implies call pickup attempt.
+				 * Incoming INVITE has a call id that we dont know about
+				 * but with a replaces header. This implies call pickup attempt.
 				 */
 
 				ReplacesHeader replacesHeader = (ReplacesHeader) request
@@ -423,7 +432,7 @@ class CallControlManager implements SymmitronResetHandler {
 
 			} else {
 
-				btobua = Gateway.getCallControlManager()
+				btobua = Gateway.getBackToBackUserAgentFactory()
 						.getBackToBackUserAgent(provider, request,
 								serverTransaction, dialog);
 				/*
@@ -536,8 +545,10 @@ class CallControlManager implements SymmitronResetHandler {
 			response.setHeader(acceptLanguage);
 			Dialog dialog = requestEvent.getDialog();
 			if (dialog != null) {
-				// This is an In-dialog request.
-				// We add our session description to the response.
+				/*
+				 * This is an In-dialog request. We add our session description
+				 * to the response.
+				 */
 				DialogApplicationData dat = DialogApplicationData.get(dialog);
 				if (dat != null) {
 					BackToBackUserAgent b2bua = dat.getBackToBackUserAgent();
@@ -559,13 +570,12 @@ class CallControlManager implements SymmitronResetHandler {
 
 			}
 
-			//
-			// If In-Dialog, then the stack will create a server transaction for
-			// you to respond
-			// stateufully. Hence that ST should be used to respond. If out of
-			// dialog, then
-			// we simply respond statelessly ( no need to create a Server
-			// Transaction ).
+			/*
+			 * If In-Dialog, then the stack will create a server transaction for
+			 * you to respond stateufully. Hence that ST should be used to
+			 * respond. If out of dialog, then we simply respond statelessly (
+			 * no need to create a Server Transaction ).
+			 */
 
 			if (st == null) {
 				provider.sendResponse(response);
@@ -1233,7 +1243,7 @@ class CallControlManager implements SymmitronResetHandler {
 			 * Consume the last response.
 			 */
 			peerDialogApplicationData.lastResponse = null;
-			
+
 			/*
 			 * Send the SDP answer in an ACK.
 			 */
@@ -1413,11 +1423,12 @@ class CallControlManager implements SymmitronResetHandler {
 					 * return back a 0 length sdp answer. In this case, we
 					 * re-use the previously sent sdp answer.
 					 */
-					SessionDescription sd = response.getContentLength()
-							.getContentLength() != 0 ? SipUtilities
-							.getSessionDescription(response) : b2bua
-							.getLanRtpSession(tad.continuationData.getDialog())
-							.getReceiver().getSessionDescription();
+					SessionDescription responseSessionDescription = response
+							.getContentLength().getContentLength() != 0 ? SipUtilities
+							.getSessionDescription(response)
+							: b2bua.getLanRtpSession(
+									tad.continuationData.getDialog())
+									.getReceiver().getSessionDescription();
 
 					dat.lastResponse = response;
 					if (operation == null) {
@@ -1428,8 +1439,9 @@ class CallControlManager implements SymmitronResetHandler {
 						Dialog peerDialog = dat.peerDialog;
 						RtpSession wanRtpSession = b2bua
 								.getWanRtpSession(peerDialog);
-						wanRtpSession.getReceiver().setSessionDescription(sd);
-						
+						wanRtpSession.getReceiver().setSessionDescription(
+								responseSessionDescription);
+
 						SipProvider wanProvider = (SipProvider) ((TransactionExt) st)
 								.getSipProvider();
 
@@ -1441,7 +1453,8 @@ class CallControlManager implements SymmitronResetHandler {
 
 						// SipUtilities.incrementSessionVersion(sd);
 
-						newResponse.setContent(sd.toString(), cth);
+						newResponse.setContent(responseSessionDescription
+								.toString(), cth);
 						newResponse.setHeader(contactHeader);
 						dat.isSdpAnswerPending = true;
 						st.sendResponse(newResponse);
@@ -1467,8 +1480,9 @@ class CallControlManager implements SymmitronResetHandler {
 
 							if (!Gateway.getBridgeConfiguration()
 									.isMusicOnHoldSupportEnabled()
-									|| !SipUtilities.isCodecSupported(sd,
-											Gateway.getParkServerCodecs())
+									|| !SipUtilities.isCodecSupported(
+											responseSessionDescription, Gateway
+													.getParkServerCodecs())
 									|| (b2bua.getMusicOnHoldDialog() != null && b2bua
 											.getMusicOnHoldDialog().getState() != DialogState.TERMINATED)) {
 
@@ -1510,21 +1524,30 @@ class CallControlManager implements SymmitronResetHandler {
 								b2bua
 										.getLanRtpSession(
 												continuation.getDialog())
-										.getReceiver()
-										.setSessionDescription(sd);
+										.getReceiver().setSessionDescription(
+												responseSessionDescription);
 								ClientTransaction ctx = b2bua
-										.createClientTxToMohServer(sd);
+										.createClientTxToMohServer(responseSessionDescription);
 								DialogApplicationData.get(ctx.getDialog()).peerDialog = dialog;
 								ctx.sendRequest();
 
 							}
 
+							SessionDescription clonedSessionDescription = SipUtilities
+									.cloneSessionDescription(responseSessionDescription);
+
+							b2bua.getWanRtpSession(dialog).getTransmitter()
+									.setSessionDescription(
+											clonedSessionDescription, true);
+
 							b2bua.getLanRtpSession(continuation.getDialog())
-									.getReceiver().setSessionDescription(sd);
+									.getReceiver().setSessionDescription(
+											responseSessionDescription);
 
 							b2bua.referInviteToSipxProxy(continuation
 									.getRequest(), continuation
-									.getRequestEvent(), sd);
+									.getRequestEvent(),
+									responseSessionDescription);
 						}
 
 					} else if (operation == Operation.SEND_INVITE_TO_MOH_SERVER) {
@@ -1554,8 +1577,9 @@ class CallControlManager implements SymmitronResetHandler {
 						 * offer? If not, we just reply back with a suitable ACK
 						 * right away.
 						 */
-						if (!SipUtilities.isCodecSupported(sd, Gateway
-								.getParkServerCodecs())) {
+						if (!SipUtilities.isCodecSupported(
+								responseSessionDescription, Gateway
+										.getParkServerCodecs())) {
 							/*
 							 * If codec is not supported by park server then we
 							 * simply do not forward the answer to the park
@@ -1573,7 +1597,7 @@ class CallControlManager implements SymmitronResetHandler {
 							 * offer. Note that the OFFER is in the INBOUND OK.
 							 */
 							HashSet<Integer> codecs = SipUtilities
-									.getCodecNumbers(sd);
+									.getCodecNumbers(responseSessionDescription);
 							SipUtilities.cleanSessionDescription(ackSd, codecs);
 							SipUtilities.setSessionDescription(ack, ackSd);
 
@@ -1649,12 +1673,13 @@ class CallControlManager implements SymmitronResetHandler {
 							ReInviteProcessingContinuationData continuation = (ReInviteProcessingContinuationData) tad.continuationData;
 
 							SessionDescription clonedSd = SipUtilities
-									.cloneSessionDescription(sd);
+									.cloneSessionDescription(responseSessionDescription);
 							/*
 							 * Set the session description on the wan side.
 							 */
 							b2bua.getWanRtpSession(dialog).getTransmitter()
-									.setSessionDescription(sd);
+									.setSessionDescription(
+											responseSessionDescription, false);
 
 							/*
 							 * Update the ports of the SD to forward to to the
@@ -1778,7 +1803,8 @@ class CallControlManager implements SymmitronResetHandler {
 						}
 						hisEndpoint.setKeepAliveMethod(keepaliveMethod);
 
-						hisEndpoint.setSessionDescription(sessionDescription);
+						hisEndpoint.setSessionDescription(sessionDescription,
+								false);
 
 						RtpReceiverEndpoint incomingEndpoint = tad.incomingSession
 								.getReceiver();
@@ -1844,7 +1870,7 @@ class CallControlManager implements SymmitronResetHandler {
 							 * another location. The receiver stays as is.
 							 */
 							rtpSession.getTransmitter().setSessionDescription(
-									sessionDescription);
+									sessionDescription, false);
 							logger.debug("Receiver State : "
 									+ rtpSession.getReceiverState());
 
@@ -2207,6 +2233,23 @@ class CallControlManager implements SymmitronResetHandler {
 	}
 
 	/**
+	 * Process response to an OPTIONS request.
+	 * 
+	 * @param responseEvent
+	 */
+	private void processOptionsResponse(ResponseEvent responseEvent) {
+
+		Response response = responseEvent.getResponse();
+		if (response.getStatusCode() == Response.CALL_OR_TRANSACTION_DOES_NOT_EXIST) {
+			Dialog dialog = responseEvent.getClientTransaction().getDialog();
+			BackToBackUserAgent b2bua = DialogApplicationData.get(dialog)
+					.getBackToBackUserAgent();
+			b2bua.tearDown();
+		}
+
+	}
+
+	/**
 	 * Sends a NOTIFY to the transfer agent containing a SipFrag with the
 	 * response received from the Tansafer Target.
 	 * 
@@ -2260,15 +2303,30 @@ class CallControlManager implements SymmitronResetHandler {
 
 	}
 
+	/**
+	 * Process a cancel response.
+	 * 
+	 * @param responseEvent
+	 */
 	private void processCancelResponse(ResponseEvent responseEvent) {
 		logger.debug("CallControlManager: processCancelResponse");
 
 	}
 
+	/**
+	 * Process a NOTIFY response.
+	 * 
+	 * @param responseEvent
+	 */
 	private void processNotifyResponse(ResponseEvent responseEvent) {
 		logger.debug("CallControlManager: processNotifyResponse");
 	}
 
+	/**
+	 * Process a REFER response.
+	 * 
+	 * @param responseEvent
+	 */
 	private void processReferResponse(ResponseEvent responseEvent) {
 		try {
 			logger.debug("CallControlManager: processReferResponse");
@@ -2302,6 +2360,12 @@ class CallControlManager implements SymmitronResetHandler {
 
 	}
 
+	/**
+	 * Process a bye RESPONSE.
+	 * 
+	 * @param responseEvent
+	 */
+
 	private void processByeResponse(ResponseEvent responseEvent) {
 		try {
 			logger.debug("CallControlManager: processByeResponse");
@@ -2323,83 +2387,7 @@ class CallControlManager implements SymmitronResetHandler {
 		}
 	}
 
-	/**
-	 * Get a new B2bua instance or return an existing one for a call Id.
-	 * 
-	 * @param provider
-	 *            -- provider associated with request.
-	 * @param serverTransaction
-	 *            -- server transaction.
-	 * @param dialog
-	 *            -- dialog for request.
-	 */
 
-	synchronized BackToBackUserAgent getBackToBackUserAgent(
-			SipProvider provider, Request request,
-			ServerTransaction serverTransaction, Dialog dialog) {
-
-		boolean callOriginatedFromLan = provider == Gateway.getLanProvider();
-		String callId = SipUtilities.getCallId(request);
-		// BackToBackUserAgent b2bua = callTable.get(callId);
-		BackToBackUserAgent b2bua = null;
-		try {
-
-			ItspAccountInfo accountInfo = null;
-			if (callOriginatedFromLan) {
-				accountInfo = Gateway.getAccountManager().getAccount(request);
-				if (accountInfo == null) {
-					logger
-							.error("Could not find iTSP account - check caller ID/domain");
-					return null;
-				}
-				if (accountInfo.getState() == AccountState.INVALID) {
-					logger
-							.error("Could not find an itsp account -- the account is not valid");
-					return null;
-				}
-			} else {
-				/*
-				 * Check the Via header of the inbound request to see if this is
-				 * an account we know about. This will be the case when there is
-				 * a registration for the request and we have a hop to its
-				 * proxy. If we know where the request is coming from, we can
-				 * set up various response fields accordingly.
-				 */
-				ViaHeader viaHeader = (ViaHeader) request
-						.getHeader(ViaHeader.NAME);
-				String host = viaHeader.getHost();
-				int port = viaHeader.getPort();
-				accountInfo = Gateway.getAccountManager().getItspAccount(host,
-						port);
-			}
-
-			if (this.backToBackUserAgentTable.containsKey(callId)) {
-				b2bua = this.backToBackUserAgentTable.get(callId);
-
-			} else {
-
-				b2bua = new BackToBackUserAgent(provider, request, dialog,
-						accountInfo);
-				DialogApplicationData.attach(b2bua, dialog, serverTransaction,
-						request);
-				DialogApplicationData.get(dialog).setItspInfo(accountInfo);
-				this.backToBackUserAgentTable.put(callId, b2bua);
-			}
-
-		} catch (IOException ex) {
-			logger.error("unepxected exception", ex);
-			throw new RuntimeException("IOException -- check symmitron", ex);
-		} catch (SymmitronException ex) {
-			logger.error("Error contacting symmitron", ex);
-			throw new RuntimeException("SipXrelay Exception ", ex);
-		} catch (Exception ex) {
-			logger.error("unexpected exception ", ex);
-			throw new RuntimeException(
-					"Unepxected exception processing request", ex);
-		}
-		return b2bua;
-
-	}
 
 	/**
 	 * Process an incoming request.
@@ -2440,6 +2428,8 @@ class CallControlManager implements SymmitronResetHandler {
 			processNotifyResponse(responseEvent);
 		} else if (method.equals(Request.REFER)) {
 			processReferResponse(responseEvent);
+		} else if (method.equals(Request.OPTIONS)) {
+			processOptionsResponse(responseEvent);
 		}
 	}
 
@@ -2455,63 +2445,13 @@ class CallControlManager implements SymmitronResetHandler {
 
 	}
 
-	/**
-	 * Remove all the records in the back to back user agent table corresponsing
-	 * to a given B2BUA.
-	 * 
-	 * @param backToBackUserAgent
-	 */
-	void removeBackToBackUserAgent(BackToBackUserAgent backToBackUserAgent) {
-		for (Iterator<String> keyIterator = this.backToBackUserAgentTable
-				.keySet().iterator(); keyIterator.hasNext();) {
-			String key = keyIterator.next();
-			if (this.backToBackUserAgentTable.get(key) == backToBackUserAgent) {
-				keyIterator.remove();
-			}
-		}
-
-		logger
-				.debug("CallControlManager: removeBackToBackUserAgent() after removal "
-						+ this.backToBackUserAgentTable);
-
-	}
-
-	/**
-	 * Dump the B2BUA table for memory debugging.
-	 */
-
-	void dumpBackToBackUATable() {
-
-		logger.debug("B2BUATable = " + this.backToBackUserAgentTable);
-
-	}
-
-	/**
-	 * Get the Back to back user agent set.
-	 */
-	Collection<BackToBackUserAgent> getBackToBackUserAgents() {
-		return this.backToBackUserAgentTable.values();
-	}
-
-	/**
-	 * Get the B2BUA for a given callId. This method is used by the XML RPC
-	 * interface to cancel a call hence needs to be public.
-	 * 
-	 * @param callId
-	 * @return
-	 */
-	public BackToBackUserAgent getBackToBackUserAgent(String callId) {
-
-		return this.backToBackUserAgentTable.get(callId);
-
-	}
-
+	
+	
 	/**
 	 * The Reset handler for the symmitron.
 	 */
 	public void reset(String serverHandle) {
-		for (BackToBackUserAgent btobua : this.backToBackUserAgentTable
-				.values()) {
+		for (BackToBackUserAgent btobua : Gateway.getBackToBackUserAgentFactory().getBackToBackUserAgents()) {
 			if (serverHandle.equals(btobua.getSymmitronServerHandle())) {
 				try {
 					btobua.tearDown();
@@ -2523,16 +2463,6 @@ class CallControlManager implements SymmitronResetHandler {
 
 	}
 
-	/**
-	 * Set the back to back ua for a given call id.
-	 * 
-	 * @param callId
-	 * @param backToBackUserAgent
-	 */
-	public void setBackToBackUserAgent(String callId,
-			BackToBackUserAgent backToBackUserAgent) {
-		this.backToBackUserAgentTable.put(callId, backToBackUserAgent);
-
-	}
+	
 
 }

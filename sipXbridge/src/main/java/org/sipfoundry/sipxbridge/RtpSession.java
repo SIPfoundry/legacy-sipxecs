@@ -41,8 +41,6 @@ class RtpSession {
 
     private RtpTransmitterEndpoint rtpTransmitterEndpoint;
 
-    private int referenceCount;
-
     private boolean reInviteForwarded;
 
     public RtpSession(SymImpl symImpl) {
@@ -50,18 +48,7 @@ class RtpSession {
         this.rtpReceiverEndpoint = new RtpReceiverEndpoint(symImpl.getReceiver());
     }
 
-    public void incrementReferenceCount() {
-        this.referenceCount++;
-    }
-
-    public void decrementReferenceCount() {
-        this.referenceCount--;
-    }
-
-    public int getReferenceCount() {
-        return this.referenceCount;
-    }
-
+   
     public SymImpl getSym() {
         return this.symImpl;
     }
@@ -144,13 +131,15 @@ class RtpSession {
             Request request = serverTransaction.getRequest();
             if (request.getContentLength().getContentLength() != 0) {
                 SessionDescription fwdSd = SipUtilities.getSessionDescription(request);
+                /*
+                 * This is our offer that we are forwarding to the other side. Store it here.
+                 */
                 this.getReceiver().setSessionDescription(fwdSd);
             }
         }
+        
         SessionDescription sd = this.getReceiver().getSessionDescription();
-        if (logger.isDebugEnabled()) {
-            logger.debug("forwardReInvite" + sd);
-        }
+        
         // HACK alert. Some ITSPs do not like sendonly
         String duplexity = SipUtilities.getSessionDescriptionMediaAttributeDuplexity(sd);
         if (duplexity != null && duplexity.equals("sendonly")) {
