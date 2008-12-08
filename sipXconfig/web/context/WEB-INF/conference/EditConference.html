@@ -21,7 +21,7 @@
   <div jwcid="configTab@Block">
     <form jwcid="form" id="conference:form">
       <span jwcid="@If" condition="ognl:userSession.isAdmin()">
-         <fieldset jwcid="itemCommon"/>
+         <fieldset jwcid="itemCommon" nameValidator="spring-validators:required,validSipUserId" />
          <fieldset jwcid="@conference/ConferenceOwnerPanel" conference="ognl:conference" />
          <span jwcid="@If" condition="ognl:conference.isNew() && bridgeId == null">
          <table>

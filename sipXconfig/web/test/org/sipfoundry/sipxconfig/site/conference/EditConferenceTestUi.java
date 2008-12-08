@@ -88,6 +88,46 @@ public class EditConferenceTestUi extends WebTestCase {
         assertTextPresent("(none)");
     }
 
+    public void testConferenceValidation() {
+        SiteTestHelper.home(tester);
+        clickLink("ListBridges");
+        clickLinkWithText("testbridge");
+        clickLink("link:conferences");
+        SiteTestHelper.clickSubmitLink(tester, "conference:add");
+        
+        // Test empty fields
+        submit("form:ok");
+        SiteTestHelper.assertUserError(tester);
+        
+        setTextField("item:extension", "4444");
+        
+        // Test invalid conference names (must be a valid SIP user part)
+        setTextField("item:name", "conference 123");
+        submit("form:ok");
+        SiteTestHelper.assertUserError(tester);
+        
+        setTextField("item:name", "conf@$)(*@#");
+        submit("form:ok");
+        SiteTestHelper.assertUserError(tester);
+        
+        setTextField("item:name", "conference123");
+        submit("form:apply");
+        SiteTestHelper.assertNoUserError(tester);
+        
+        // Test invalid extensions
+        setTextField("item:extension", "testextension");
+        submit("form:apply");
+        SiteTestHelper.assertUserError(tester);
+        
+        setTextField("item:extension", "");
+        submit("form:apply");
+        SiteTestHelper.assertUserError(tester);
+        
+        setTextField("item:extension", "4444");
+        submit("form:apply");
+        SiteTestHelper.assertNoUserError(tester);
+    }
+    
     /**
      * Tests to ensure a validation error is displayed when no conference bridge is selected.
      */
