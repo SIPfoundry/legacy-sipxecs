@@ -468,8 +468,12 @@
     </property>
   </bean>
 
-  <bean id="sipxMrtgService" class="org.sipfoundry.sipxconfig.service.SipxMrtgService" scope="prototype"
-    parent="sipxService">
+  <bean id="sipxMrtgService" class="org.sipfoundry.sipxconfig.service.SipxMrtgService" scope="prototype" parent="sipxService">
     <property name="beanId" value="sipxMrtgService" />
+    <property name="bundles">
+      <set>
+        <ref bean="managementBundle" />
+      </set>
+    </property>
   </bean>
 </beans>

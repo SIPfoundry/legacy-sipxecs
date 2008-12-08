@@ -14,6 +14,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.collections.Factory;
 import org.apache.commons.collections.map.LazyMap;
@@ -80,7 +81,12 @@ public class SipxServiceManagerImpl extends SipxHibernateDaoSupport<SipxService>
         Map<SipxServiceBundle, List<SipxService>> bundles = LazyMap.decorate(rawBundles, listFactory);
         Collection<SipxService> allServices = getAllServices();
         for (SipxService service : allServices) {
-            for (SipxServiceBundle bundle : service.getBundles()) {
+            Set<SipxServiceBundle> serviceBundles = service.getBundles();
+            if (serviceBundles == null) {
+                LOG.warn(service.getBeanId() + " does not belong to any bundle");
+                continue;
+            }
+            for (SipxServiceBundle bundle : serviceBundles) {
                 bundles.get(bundle).add(service);
             }
         }
