@@ -80,8 +80,13 @@ public class Timezone {
 
         if (dir.isFile()) {
             // This is a file, then add the full name to the timezonelist
+            // Note: Filter out any names with a space as these will cause
+            // problems setting timezone.
             // First convert the name to Display name.
-            timezoneList.add(convertRealNameToDisplayName(fullname));
+
+            if (!fullname.contains(" ")) {
+                timezoneList.add(convertRealNameToDisplayName(fullname));
+            }
         } else if (dir.isDirectory()) {
             // This is another sub-directory, recursively call this method
             // for all children.
