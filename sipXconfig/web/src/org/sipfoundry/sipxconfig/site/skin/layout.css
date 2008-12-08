@@ -411,9 +411,12 @@ div.date
 {
     clear:right;
     float:right;
-    margin:19px 7px;
+    margin:-29px 7px;
     padding:0px;
     font-weight:bold;
+    right:0px;
+    top:0px;
+    position:relative;
 }
 
 div.right-column,
