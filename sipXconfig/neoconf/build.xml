@@ -34,7 +34,6 @@
     <pathelement location="${agent-bindings.jar}" />
     <pathelement location="${cdr-bindings.jar}" />
     <pathelement location="${jain-sip-sdp.jar}" />
-    <pathelement location="${log4j.jar}" />
   </path>
 
   <!-- 
@@ -60,6 +59,7 @@
     <pathelement location="${ehcache.jar}" />
     <pathelement location="${lucene.jar}" />
     <pathelement location="${jakarta-oro.jar}" />
+    <pathelement location="${log4j.jar}" />
   </path>
 
   <path id="base.path">
