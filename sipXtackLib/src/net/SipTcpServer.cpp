@@ -271,9 +271,10 @@ UtlBoolean SipTcpServer::SipServerBrokerListener::handleMessage(OsMsg& eventMess
     
     if (msgType == OsMsg::OS_EVENT)
     {
-        // if we are receiving this message, an accept has occurred,
-        // and the socket created by the accept is being sent to us in
-        // this message
+        // If we are receiving this message, an accept has occurred,
+        // and the socket created by the accept (that is, a pointer to
+        // the OsConnectionSocket) is being sent to us in this
+        // message.
         if (msgSubType == SIP_SERVER_BROKER_NOTIFY)
         {
             // unpackage the client socket
