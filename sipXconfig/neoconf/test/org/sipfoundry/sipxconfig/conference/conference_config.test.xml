@@ -9,10 +9,10 @@
       <control action="energy dn" digits="5"/>
       <control action="vol talk up" digits="9"/>
       <control action="vol talk zero" digits="#"/>
-      <control action="vol talk down" digits="*"/>
+      <control action="vol talk dn" digits="*"/>
       <control action="vol listen up" digits="6"/>
       <control action="vol listen zero" digits="7"/>
-      <control action="vol listen down" digits="8"/>
+      <control action="vol listen dn" digits="8"/>
       <control action="hangup" digits="0"/>
     </group>
   </caller-controls>
@@ -26,18 +26,23 @@
       <param name="sound-prefix"/>
       <param name="ack-sound" value="beep.wav"/>
       <param name="nack-sound" value="beep.wav"/>
-      <param name="mute-sound" value="conf/conf-muted.wav"/>
-      <param name="unmute-sound" value="conf/unmuted.wav"/>
+      <param name="muted-sound" value="conf/conf-muted.wav"/>
+      <param name="unmuted-sound" value="conf/conf-unmuted.wav"/>
       <param name="alone-sound" value="conf/conf-alone.wav"/>
+      <param name="moh-sound" value="$${hold_music}"/>
       <param name="enter-sound" value="beep.wav"/>
       <param name="exit-sound" value="beep.wav"/>
-      <param name="kicked-sound" value="conf/kicked.wav"/>
-      <param name="locked-sound" value="conf/locked.wav"/>
-      <param name="max-members-sound" value="conf/locked.wav"/>
+      <param name="kicked-sound" value="conf/conf-kicked.wav"/>
+      <param name="locked-sound" value="conf/conf-locked.wav"/>
+      <param name="max-members-sound" value="conf/conf-locked.wav"/>
       <param name="is-locked-sound" value="conf/conf-islocked.wav"/>
       <param name="is-unlocked-sound" value="beep.wav"/>
       <param name="pin-sound" value="conf/conf-pin.wav"/>
       <param name="bad-pin-sound" value="conf/conf-bad-pin.wav"/>
+      <param name="confort-noise-level" value="1400"/>
+      <param name="caller-id-name" value="$${outbound_caller_name}"/>
+      <param name="caller-id-number" value="$${outbound_caller_id}"/>
+      <param name="confort-noise" value="true"/>
     </profile>
     <profile name="234">
       <param name="domain" value="example.com"/>
@@ -48,18 +53,23 @@
       <param name="sound-prefix"/>
       <param name="ack-sound" value="beep.wav"/>
       <param name="nack-sound" value="beep.wav"/>
-      <param name="mute-sound" value="conf/conf-muted.wav"/>
-      <param name="unmute-sound" value="conf/unmuted.wav"/>
+      <param name="muted-sound" value="conf/conf-muted.wav"/>
+      <param name="unmuted-sound" value="conf/conf-unmuted.wav"/>
       <param name="alone-sound" value="conf/conf-alone.wav"/>
+      <param name="moh-sound" value="$${hold_music}"/>
       <param name="enter-sound" value="beep.wav"/>
       <param name="exit-sound" value="beep.wav"/>
-      <param name="kicked-sound" value="conf/kicked.wav"/>
-      <param name="locked-sound" value="conf/locked.wav"/>
-      <param name="max-members-sound" value="conf/locked.wav"/>
+      <param name="kicked-sound" value="conf/conf-kicked.wav"/>
+      <param name="locked-sound" value="conf/conf-locked.wav"/>
+      <param name="max-members-sound" value="conf/conf-locked.wav"/>
       <param name="is-locked-sound" value="conf/conf-islocked.wav"/>
       <param name="is-unlocked-sound" value="beep.wav"/>
       <param name="pin-sound" value="conf/conf-pin.wav"/>
       <param name="bad-pin-sound" value="conf/conf-bad-pin.wav"/>
+      <param name="confort-noise-level" value="1400"/>
+      <param name="caller-id-name" value="$${outbound_caller_name}"/>
+      <param name="caller-id-number" value="$${outbound_caller_id}"/>
+      <param name="confort-noise" value="true"/>
       <param name="max-members" value="4"/>
     </profile>
   </profiles>

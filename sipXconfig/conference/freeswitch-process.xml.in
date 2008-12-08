@@ -21,11 +21,11 @@
   </status>
   <resources>
     <osconfig>@SIPX_CONFDIR@/domain-config</osconfig>
-    <file required="false">@FREESWITCH_PREFIX@/conf/conference.conf.xml</file>
-    <file>@FREESWITCH_PREFIX@/conf/freeswitch.xml</file>
-    <file>@FREESWITCH_PREFIX@/conf/xml_rpc.conf.xml</file>
-    <file>@FREESWITCH_PREFIX@/conf/modules.conf.xml</file>
-    <file>@FREESWITCH_PREFIX@/conf/default_context.xml</file>
-    <file>@FREESWITCH_PREFIX@/conf/sofia.conf.xml</file>
+    <file required="false">@SIPX_CONFDIR@/freeswitch/conf/autoload_configs/conference.conf.xml</file>
+    <file>@SIPX_CONFDIR@/freeswitch/conf/freeswitch.xml</file>
+    <file>@SIPX_CONFDIR@/freeswitch/conf/autoload_configs/xml_rpc.conf.xml</file>
+    <file>@SIPX_CONFDIR@/freeswitch/conf/autoload_configs/modules.conf.xml</file>
+    <file>@SIPX_CONFDIR@/freeswitch/conf/dialplan/sipX_context.xml</file>
+    <file>@SIPX_CONFDIR@/freeswitch/conf/sip_profiles/sipX_profile.xml</file>
   </resources>
 </sipXecs-process>

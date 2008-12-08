@@ -1,5 +1,5 @@
 VERSION = 1.0.1
-RELEASE = 3
+RELEASE = 10597
 
 SRC_DIR = $(srcdir)/src
 SRC_TARBALL = $(SRC_DIR)/freeswitch-$(VERSION).tar.gz
@@ -21,7 +21,7 @@ all : PRINT_HEADER $(RPMS) PRINT_FOOTER
 .PHONY: build-rpms
 build-rpms:
 	tar -xzf $(SRC_TARBALL) -C @RPMBUILD_TOPDIR@/SOURCES
-	cp $(SRC_DIR)/bootstrap.sh @RPMBUILD_TOPDIR@/SOURCES/freeswitch-$(VERSION)
+#	cp $(SRC_DIR)/bootstrap.sh @RPMBUILD_TOPDIR@/SOURCES/freeswitch-$(VERSION)
 	mv -f @RPMBUILD_TOPDIR@/SOURCES/freeswitch-$(VERSION) @RPMBUILD_TOPDIR@/SOURCES/sipx-freeswitch-$(VERSION)
 	pushd @RPMBUILD_TOPDIR@/SOURCES && tar -czf $(PATCHED_SRC_TARBALL) sipx-freeswitch-$(VERSION) && rm -rf sipx-freeswitch-$(VERSION) && popd
 	cp $(SRC_SPEC_FILE) @RPMBUILD_TOPDIR@/SPECS/

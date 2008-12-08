@@ -423,23 +423,23 @@
     class="org.sipfoundry.sipxconfig.service.freeswitch.FreeswitchConfiguration" scope="prototype">
     <property name="name" value="freeswitch.xml" />
     <property name="template" value="freeswitch/freeswitch.xml.vm" />
-    <property name="directory" value="${sysdir.freeswitch}/conf" />
+    <property name="directory" value="${sysdir.etc}/freeswitch/conf" />
     <property name="domainManager" ref="domainManager" />
   </bean>
 
   <bean id="defaultContextConfiguration" parent="serviceConfigurationFile"
     class="org.sipfoundry.sipxconfig.service.freeswitch.DefaultContextConfiguration" scope="prototype">
-    <property name="name" value="default_context.xml" />
+    <property name="name" value="sipX_context.xml" />
     <property name="template" value="freeswitch/default_context.xml.vm" />
-    <property name="directory" value="${sysdir.freeswitch}/conf" />
+    <property name="directory" value="${sysdir.etc}/freeswitch/conf/dialplan" />
     <property name="conferenceContext" ref="conferenceBridgeContext" />
   </bean>
 
   <bean id="sofiaConfiguration" parent="serviceConfigurationFile" class="org.sipfoundry.sipxconfig.service.freeswitch.SofiaConfiguration"
     scope="prototype">
-    <property name="name" value="sofia.conf.xml" />
+    <property name="name" value="sipX_profile.xml" />
     <property name="template" value="freeswitch/sofia.conf.xml.vm" />
-    <property name="directory" value="${sysdir.freeswitch}/conf" />
+    <property name="directory" value="${sysdir.etc}/freeswitch/conf/sip_profiles" />
     <property name="coreContext" ref="coreContext" />
     <property name="domainManager" ref="domainManager" />
   </bean>
@@ -448,14 +448,14 @@
     scope="prototype">
     <property name="name" value="xml_rpc.conf.xml" />
     <property name="template" value="freeswitch/xml_rpc.conf.xml.vm" />
-    <property name="directory" value="${sysdir.freeswitch}/conf" />
+    <property name="directory" value="${sysdir.etc}/freeswitch/conf/autoload_configs" />
   </bean>
 
   <bean id="modulesConfiguration" parent="serviceConfigurationFile" class="org.sipfoundry.sipxconfig.service.freeswitch.ModulesConfiguration"
     scope="prototype">
     <property name="name" value="modules.conf.xml" />
     <property name="template" value="freeswitch/modules.conf.xml.vm" />
-    <property name="directory" value="${sysdir.freeswitch}/conf" />
+    <property name="directory" value="${sysdir.etc}/freeswitch/conf/autoload_configs" />
   </bean>
 
   <bean id="sipxRelayService" class="org.sipfoundry.sipxconfig.service.SipxRelayService" scope="prototype"

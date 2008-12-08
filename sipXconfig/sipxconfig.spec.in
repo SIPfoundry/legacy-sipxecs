@@ -460,6 +460,7 @@ sipx-snmp-init > /dev/null
 %defattr(644,@SIPXPBXUSER@,@SIPXPBXUSER@,755)
 %attr(644,root,root) %{_datadir}/sipxecs/process.d/freeswitch-process.xml
 %attr(755,root,root) %{_bindir}/freeswitch.sh
+%attr(755,root,root) %{_libexecdir}/sipXecs/setup.d/freeswitch_setup.sh
 
 %post conference
 freeswitch.sh --configtest

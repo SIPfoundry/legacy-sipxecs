@@ -34,31 +34,22 @@ done
 . @SIPX_LIBEXECDIR@/sipx-utils.sh || exit 1
 
 SIPX_USER=@SIPXPBXUSER@
-SIPX_VARDIR=@SIPX_VARDIR@
 
-SIPXDIRS="@FREESWITCH_PREFIX@/log @FREESWITCH_PREFIX@/db @FREESWITCH_PREFIX@/conf"
+FS_LOGDIR=@SIPX_LOGDIR@
+FS_DBDIR=@SIPX_VARDIR@/tmp/freeswitch
+FS_CONFDIR=@SIPX_CONFDIR@/freeswitch/conf
+FS_EXEC="@FREESWITCH_PREFIX@/bin/freeswitch -conf $FS_CONFDIR -db $FS_DBDIR -log $FS_LOGDIR"
 
-# Create additional directories
-if [ ! -d @FREESWITCH_PREFIX@/log ]
-then
-  mkdir @FREESWITCH_PREFIX@/log
-fi
-
-if [ ! -d @FREESWITCH_PREFIX@/db ]
-then
-  mkdir @FREESWITCH_PREFIX@/db
-fi
-
-chown -R $SIPX_USER:$SIPX_USER $SIPXDIRS
+SIPXDIRS="$FS_DBDIR $FS_CONFDIR"
 
 case ${Action} in
    RUN)
-     exec @FREESWITCH_PREFIX@/bin/freeswitch -nc -nf $Args
+     exec $FS_EXEC -nc -nf $Args
      exit 0
      ;;
 
    STOP)
-     @FREESWITCH_PREFIX@/bin/freeswitch -stop
+     exec $FS_EXEC -stop
      exit $?
      ;;
 
@@ -70,7 +61,8 @@ case ${Action} in
         then
            Status=0
            echo -e "\n Fixing FreeSWITCH folder permissions \n"
-           chown -R $SIPX_USER:$SIPX_USER $SIPXDIRS
+           rm -rf $SIPXDIRS
+           @SIPX_LIBEXECDIR@/setup.d/freeswitch_setup.sh
         else
            Status=1
            echo -e "\n Invalid FreeSWITCH folders & files permissions, run 'freeswitch.sh --configtest' as root to fix this \n"

@@ -24,12 +24,12 @@ public class ConferenceConfiguration extends XmlFile {
     private static final String CALLER_CONTROLS = "caller-controls";
     private static final String SIPX_CALLER_CONTROLS = "sipx-default";
     
-    private static final String DEFAULT_AUDIO_LOCKED = "conf/locked.wav";
+    private static final String DEFAULT_AUDIO_LOCKED = "conf/conf-locked.wav";
     private static final String DEFAULT_AUDIO_BEEP = "beep.wav";
     private static final String DEFAULT_AUDIO_MUTED = "conf/conf-muted.wav";
-    private static final String DEFAULT_AUDIO_UNMUTED = "conf/unmuted.wav";
+    private static final String DEFAULT_AUDIO_UNMUTED = "conf/conf-unmuted.wav";
     private static final String DEFAULT_AUDIO_ALONE = "conf/conf-alone.wav";
-    private static final String DEFAULT_AUDIO_KICKED = "conf/kicked.wav";
+    private static final String DEFAULT_AUDIO_KICKED = "conf/conf-kicked.wav";
     private static final String DEFAULT_AUDIO_ISLOCKED = "conf/conf-islocked.wav";
     private static final String DEFAULT_AUDIO_ENTER_PIN = "conf/conf-pin.wav";
     private static final String DEFAULT_AUDIO_BAD_PIN = "conf/conf-bad-pin.wav";
@@ -73,10 +73,10 @@ public class ConferenceConfiguration extends XmlFile {
             {"energy dn", Bridge.CALL_CONTROL_ENERGY_DOWN},
             {"vol talk up", Bridge.CALL_CONTROL_TALK_UP},
             {"vol talk zero", Bridge.CALL_CONTROL_TALK_RESET},
-            {"vol talk down", Bridge.CALL_CONTROL_TALK_DOWN},
+            {"vol talk dn", Bridge.CALL_CONTROL_TALK_DOWN},
             {"vol listen up", Bridge.CALL_CONTROL_VOLUME_UP},
             {"vol listen zero", Bridge.CALL_CONTROL_VOLUME_RESET},
-            {"vol listen down", Bridge.CALL_CONTROL_VOLUME_DOWN},
+            {"vol listen dn", Bridge.CALL_CONTROL_VOLUME_DOWN},
             {"hangup", Bridge.CALL_CONTROL_HANGUP},            
         };
         
@@ -122,9 +122,10 @@ public class ConferenceConfiguration extends XmlFile {
             addParam(profile, "sound-prefix", m_bridge.getAudioDirectory());
             addParam(profile, "ack-sound", DEFAULT_AUDIO_BEEP);
             addParam(profile, "nack-sound", DEFAULT_AUDIO_BEEP);
-            addParam(profile, "mute-sound", DEFAULT_AUDIO_MUTED);
-            addParam(profile, "unmute-sound", DEFAULT_AUDIO_UNMUTED);
+            addParam(profile, "muted-sound", DEFAULT_AUDIO_MUTED);
+            addParam(profile, "unmuted-sound", DEFAULT_AUDIO_UNMUTED);
             addParam(profile, "alone-sound", DEFAULT_AUDIO_ALONE);
+            addParam(profile, "moh-sound", "$${hold_music}");
             addParam(profile, "enter-sound", DEFAULT_AUDIO_BEEP);
             addParam(profile, "exit-sound", DEFAULT_AUDIO_BEEP);
             addParam(profile, "kicked-sound", DEFAULT_AUDIO_KICKED);
@@ -134,6 +135,10 @@ public class ConferenceConfiguration extends XmlFile {
             addParam(profile, "is-unlocked-sound", DEFAULT_AUDIO_BEEP);
             addParam(profile, "pin-sound", DEFAULT_AUDIO_ENTER_PIN);
             addParam(profile, "bad-pin-sound", DEFAULT_AUDIO_BAD_PIN);
+            addParam(profile, "confort-noise-level", "1400");
+            addParam(profile, "caller-id-name", "$${outbound_caller_name}");
+            addParam(profile, "caller-id-number", "$${outbound_caller_id}");
+            addParam(profile, "confort-noise", "true");
             if (conference != null) {
                 Integer val = (Integer) conference.getSettingTypedValue(Conference.MAX_LEGS);
                 if (val != null) {

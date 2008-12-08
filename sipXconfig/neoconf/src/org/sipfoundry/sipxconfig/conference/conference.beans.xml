@@ -58,7 +58,7 @@
   <bean id="conferenceConfiguration" class="org.sipfoundry.sipxconfig.conference.ConferenceConfiguration"
     scope="prototype" parent="defaultConfigurationFile">
     <property name="name" value="conference.conf.xml" />
-    <property name="directory" value="${sysdir.freeswitch}/conf" />
+    <property name="directory" value="${sysdir.etc}/freeswitch/conf/autoload_configs" />
   </bean>
 
   <bean id="eagerConferenceBridgeProvisioning" class="org.springframework.aop.framework.ProxyFactoryBean"
