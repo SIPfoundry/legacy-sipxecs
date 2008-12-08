@@ -23,8 +23,6 @@
 // CONSTANTS
 const char DEFAULT_AUTH_RULES_FILENAME[] = "authrules.xml";
 const char RULES_FILENAME_CONFIG_PARAM[] = "RULES";
-const char RULES_ENFORCED_ROUTE_PARAM[] = "auth";
-
 const char IDENTITY_VALIDITY_CONFIG_NAME[] = "IDENTITY_VALIDITY_SECONDS";
 
 const unsigned int DefaultSignatureValiditySeconds = 10;
@@ -173,103 +171,80 @@ EnforceAuthRules::authorizeAndModify(const UtlString& id,    /**< The authentica
 
    if (priorResult == CONTINUE)
    {
-      if (   routeState.isMutable()
-          || !routeState.getParameter(mInstanceName.data(), RULES_ENFORCED_ROUTE_PARAM, unused)
-          )
-      {
-         OsReadLock readLock(mRulesLock);
+      OsReadLock readLock(mRulesLock);
 
-         if (mpAuthorizationRules)
+      if (mpAuthorizationRules)
+      {
+         ResultSet  requiredPermissions;
+         mpAuthorizationRules->getPermissionRequired(requestUri, requiredPermissions);
+      
+         if (requiredPermissions.isEmpty())
          {
-            ResultSet  requiredPermissions;
-            mpAuthorizationRules->getPermissionRequired(requestUri, requiredPermissions);
-         
-            if (requiredPermissions.isEmpty())
+            result = ALLOW;
+            OsSysLog::add(FAC_AUTH, PRI_INFO, "EnforceAuthRules[%s]::authorizeAndModify "
+                          " no permission required for call %s",
+                          mInstanceName.data(), callId.data()
+                          );
+         }
+         else if (id.isNull())
+         {
+            /*
+             * Some permission is required, but we cannot look up permissions without
+             * an identity.  Let this request fail, which will cause a challenge.
+             * When there is no identity, good security practice dictates that we _not_
+             * supply any information about what is needed, so do not set the reason.
+             */
+            result = DENY;
+            OsSysLog::add(FAC_AUTH, PRI_DEBUG, "EnforceAuthRules[%s]::authorizeAndModify "
+                          " request not authenticated but requires some permission. Call-Id = '%s'",
+                          mInstanceName.data(), callId.data() 
+                          );
+         }
+         else
+         {
+            // some permission is required and caller is authenticated, so see if they have it
+            ResultSet grantedPermissions;
+            Url identity(id);
+            PermissionDB::getInstance()->getPermissions(identity, grantedPermissions);
+
+            UtlString unmatchedPermissions;
+            UtlString matchedPermission;
+
+            if (isAuthorized(requiredPermissions, grantedPermissions,
+                             matchedPermission, unmatchedPermissions)
+                )
             {
                result = ALLOW;
-               OsSysLog::add(FAC_AUTH, PRI_INFO, "EnforceAuthRules[%s]::authorizeAndModify "
-                             " no permission required for call %s",
-                             mInstanceName.data(), callId.data()
-                             );
-            }
-            else if (id.isNull())
-            {
-               /*
-                * Some permission is required, but we cannot look up permissions without
-                * an identity.  Let this request fail, which will cause a challenge.
-                * When there is no identity, good security practice dictates that we _not_
-                * supply any information about what is needed, so do not set the reason.
-                */
-               result = DENY;
                OsSysLog::add(FAC_AUTH, PRI_DEBUG, "EnforceAuthRules[%s]::authorizeAndModify "
-                             " request not authenticated but requires some permission. Call-Id = '%s'",
-                             mInstanceName.data(), callId.data() 
+                             " id '%s' authorized by '%s'",
+                             mInstanceName.data(), id.data(), matchedPermission.data()
                              );
             }
             else
             {
-               // some permission is required and caller is authenticated, so see if they have it
-               ResultSet grantedPermissions;
-               Url identity(id);
-               PermissionDB::getInstance()->getPermissions(identity, grantedPermissions);
-
-               UtlString unmatchedPermissions;
-               UtlString matchedPermission;
-
-               if (isAuthorized(requiredPermissions, grantedPermissions,
-                                matchedPermission, unmatchedPermissions)
-                   )
-               {
-                  result = ALLOW;
-                  OsSysLog::add(FAC_AUTH, PRI_DEBUG, "EnforceAuthRules[%s]::authorizeAndModify "
-                                " id '%s' authorized by '%s'",
-                                mInstanceName.data(), id.data(), matchedPermission.data()
-                                );
-               }
-               else
-               {
-                  result = DENY;
-                  OsSysLog::add(FAC_AUTH, PRI_WARNING,
-                                "EnforceAuthRules[%s]::authorizeAndModify "
-                                " call '%s' requires '%s'",
-                                mInstanceName.data(), callId.data(), unmatchedPermissions.data()
-                                );
-                  // since the user is at least a valid user, help them debug the configuration
-                  // by telling them what permissions would allow this request.
-                  reason.append("Requires ");
-                  reason.append(unmatchedPermissions);
-               }
+               result = DENY;
+               OsSysLog::add(FAC_AUTH, PRI_WARNING,
+                             "EnforceAuthRules[%s]::authorizeAndModify "
+                             " call '%s' requires '%s'",
+                             mInstanceName.data(), callId.data(), unmatchedPermissions.data()
+                             );
+               // since the user is at least a valid user, help them debug the configuration
+               // by telling them what permissions would allow this request.
+               reason.append("Requires ");
+               reason.append(unmatchedPermissions);
             }
-         }
-         else
-         {
-            // no rules configured, so all requests are allowed
-            result = CONTINUE;
-         }
-
-         if (   ALLOW == result
-             && routeState.isMutable()
-             )
-         {
-            routeState.setParameter(mInstanceName.data(),RULES_ENFORCED_ROUTE_PARAM,unused);
          }
       }
       else
       {
-         /*
-          * There is a valid RULES_ENFORCED_ROUTE_PARAM on this request,
-          * so there is no need to check it.
-          */
-         result = ALLOW;
-         OsSysLog::add(FAC_AUTH, PRI_DEBUG, "EnforceAuthRules[%s]::authorizeAndModify "
-                       "valid previous authorization found for call %s",
-                       mInstanceName.data(), callId.data()
-                       );
+         // no rules configured, so all requests are allowed
+         result = CONTINUE;
       }
    }
    else
    {
-      // Some earlier plugin already authorized this - don't waste time figuring it out.
+      // another plug-in already provided an authoritative result for this request so
+      // don't waste time figuring it out.
       result = priorResult;
       OsSysLog::add(FAC_AUTH, PRI_DEBUG, "EnforceAuthRules[%s]::authorizeAndModify "
                     "prior authorization result %s for call %s - rules skipped",

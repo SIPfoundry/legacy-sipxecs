@@ -17,9 +17,11 @@
 #include <os/OsSysLog.h>
 #include <net/SipMessage.h>
 #include <net/SipUserAgent.h>
+#include "net/SipXauthIdentity.h"
 #include "sipdb/CredentialDB.h"
 #include "ForwardRules.h"
 #include "SipRouter.h"
+#include "DummyAuthPlugIn.h"
 #include "CallerAlias.h"
 
 extern CallerAlias* CallerAlias::spInstance;
@@ -60,7 +62,12 @@ class SipRouterTest : public CppUnit::TestCase
    CPPUNIT_TEST(testProxyDontChallengeInDialog_Invite);   
    CPPUNIT_TEST(testProxyDontChallengeInDialog_Notify);   
    CPPUNIT_TEST(testProxyDontChallengeInDialog_Options);   
-   CPPUNIT_TEST(testProxyDontChallengeInDialog_Register);   
+   CPPUNIT_TEST(testProxyDontChallengeInDialog_Register);  
+   CPPUNIT_TEST(testAdditionOfRouteState_NoAuthenticatedIdentity);
+   CPPUNIT_TEST(testAdditionOfRouteState_AuthenticatedIdentity);
+   CPPUNIT_TEST(testProxyMessageWithRouteStateWithAuthentication_DialogForming);
+   CPPUNIT_TEST(testProxyMessageWithRouteStateWithAuthentication_InDialog);
+   CPPUNIT_TEST(testProxyMessageRouteState_DeniedByPlugin);
    CPPUNIT_TEST_SUITE_END();
 
 private:
@@ -68,6 +75,7 @@ private:
    SipUserAgent* mUserAgent;
    SipRouter*    mSipRouter;
    ForwardRules  mForwardingRules;
+   DummyAuthPlugin* mpDummyAuthPlugin;
 
    static const char* VoiceMail;
    static const char* MediaServer;
@@ -115,6 +123,11 @@ public:
          mSipRouter = new SipRouter(*mUserAgent,
                                      mForwardingRules,
                                      testConfigDb );
+         
+         PluginIterator authPlugins(mSipRouter->mAuthPlugins);
+         UtlString authPluginName;
+         mpDummyAuthPlugin = (DummyAuthPlugin*)(authPlugins.next(&authPluginName));
+         CPPUNIT_ASSERT( mpDummyAuthPlugin );
       }
 
    void tearDown()
@@ -942,7 +955,212 @@ public:
       SipMessage testRsp;
       CPPUNIT_ASSERT_EQUAL(SipRouter::SendRequest,mSipRouter->proxyMessage(testMsg, testRsp));
    }
+   
+   void testAdditionOfRouteState_NoAuthenticatedIdentity()
+   {
+      RouteState::setSecret("GuessThat!");
+      
+      const char* message =
+         "INVITE sip:user@somewhere.com SIP/2.0\r\n"
+         "Via: SIP/2.0/TCP 10.1.1.3:33855\r\n"
+         "To: sip:user@somewhere.com\r\n"
+         "From: Caller <sip:caller@example.org>; tag=30543f3483e1cb11ecb40866edd3295b\r\n"
+         "Call-Id: f88dfabce84b6a2787ef024a7dbe8749\r\n"
+         "Cseq: 1 INVITE\r\n"
+         "Max-Forwards: 20\r\n"
+         "Contact: caller@127.0.0.1\r\n"
+         "Content-Length: 0\r\n"
+         "X-SipX-Spiral: true"
+         "\r\n";
 
+      SipMessage testMsg(message, strlen(message));
+      SipMessage testRsp;
+      
+      mpDummyAuthPlugin->mbDenyNextRequest = false;
+      CPPUNIT_ASSERT_EQUAL(SipRouter::SendRequest,mSipRouter->proxyMessage(testMsg, testRsp));
+      CPPUNIT_ASSERT_EQUAL( AuthPlugin::CONTINUE, mpDummyAuthPlugin->mLastAuthResult );
+      ASSERT_STR_EQUAL( "", mpDummyAuthPlugin->mLastAuthenticatedId.data() );
+      
+      UtlString recordRoute, urlParmName, tempString;
+      CPPUNIT_ASSERT( !testMsg.getRecordRouteUri(1, &recordRoute) );
+      CPPUNIT_ASSERT(  testMsg.getRecordRouteUri(0, &recordRoute) );
+      Url recordRouteUrl(recordRoute);
+      recordRouteUrl.getHostWithPort( tempString );
+      ASSERT_STR_EQUAL("10.10.10.1:5060", tempString.data());
+      CPPUNIT_ASSERT( recordRouteUrl.getUrlParameter( 0, urlParmName, tempString ) );
+      ASSERT_STR_EQUAL("lr", urlParmName.data());
+      CPPUNIT_ASSERT( recordRouteUrl.getUrlParameter( 1, urlParmName, tempString ) );
+      ASSERT_STR_EQUAL("sipXecs-rs", urlParmName.data());
+
+      // look into RouteState
+      UtlSList noRemovedRoutes;
+      UtlString routeName("example.com"), rsParam;
+      RouteState routeState( testMsg, noRemovedRoutes, routeName );
+      CPPUNIT_ASSERT( routeState.isDialogAuthorized( rsParam ) ); 
+      CPPUNIT_ASSERT( rsParam.isNull() );    
+   }
+   
+   void testAdditionOfRouteState_AuthenticatedIdentity()
+   {
+      RouteState::setSecret("GuessThat!");
+      SipXauthIdentity::setSecret("GuessThat!");
+      
+      const char* message =
+         "INVITE sip:user@somewhere.com SIP/2.0\r\n"
+         "Via: SIP/2.0/TCP 10.1.1.3:33855\r\n"
+         "To: sip:user@somewhere.com\r\n"
+         "From: Caller <sip:caller@example.org>; tag=30543f3483e1cb11ecb40866edd3295b\r\n"
+         "Call-Id: f88dfabce84b6a2787ef024a7dbe8749\r\n"
+         "Cseq: 1 INVITE\r\n"
+         "Max-Forwards: 20\r\n"
+         "Contact: caller@127.0.0.1\r\n"
+         "Content-Length: 0\r\n"
+         "X-SipX-Spiral: true"
+         "\r\n";
+
+      SipMessage testMsg(message, strlen(message));
+      SipMessage testRsp;
+
+      // add SipxAuthIdentity to message
+      Url fromUrl;
+      testMsg.getFromUrl(fromUrl); 
+      SipXauthIdentity pAuthIdentity;
+      UtlString fromIdentity;
+      fromUrl.getIdentity(fromIdentity);
+      pAuthIdentity.setIdentity(fromIdentity);
+      pAuthIdentity.insert(testMsg, SipXauthIdentity::AuthIdentityHeaderName);
+      
+      mpDummyAuthPlugin->mbDenyNextRequest = false;
+      CPPUNIT_ASSERT_EQUAL(SipRouter::SendRequest,mSipRouter->proxyMessage(testMsg, testRsp));
+      CPPUNIT_ASSERT_EQUAL( AuthPlugin::CONTINUE, mpDummyAuthPlugin->mLastAuthResult );
+      ASSERT_STR_EQUAL( "caller@example.org", mpDummyAuthPlugin->mLastAuthenticatedId.data() );
+
+      UtlString recordRoute, urlParmName, tempString;
+      CPPUNIT_ASSERT( !testMsg.getRecordRouteUri(1, &recordRoute) );
+      CPPUNIT_ASSERT(  testMsg.getRecordRouteUri(0, &recordRoute) );
+      Url recordRouteUrl(recordRoute);
+      recordRouteUrl.getHostWithPort( tempString );
+      ASSERT_STR_EQUAL("10.10.10.1:5060", tempString.data());
+      CPPUNIT_ASSERT( recordRouteUrl.getUrlParameter( 0, urlParmName, tempString ) );
+      ASSERT_STR_EQUAL("lr", urlParmName.data());
+      CPPUNIT_ASSERT( recordRouteUrl.getUrlParameter( 1, urlParmName, tempString ) );
+      ASSERT_STR_EQUAL("sipXecs-rs", urlParmName.data());
+
+      // look into RouteState
+      UtlSList noRemovedRoutes;
+      UtlString routeName("example.com"), rsParam;
+      RouteState routeState( testMsg, noRemovedRoutes, routeName );
+      CPPUNIT_ASSERT( routeState.isDialogAuthorized( rsParam ) ); 
+      ASSERT_STR_EQUAL( "caller@example.org", rsParam.data() );  
+   }
+   
+   void testProxyMessageWithRouteStateWithAuthentication_DialogForming()
+   {
+      RouteState::setSecret("GuessThat!");
+      SipXauthIdentity::setSecret("GuessThat!");
+      
+      const char* message =
+         "INVITE sip:user@somewhere.com SIP/2.0\r\n"
+         "Record-Route: <sip:10.10.10.1:5060;lr;sipXecs-rs=%2Afrom%7EMzA1NDNmMzQ4M2UxY2IxMWVjYjQwODY2ZWRkMzI5NWI%60.srtr%2Aauth%7EY2FsbGVyQGV4YW1wbGUub3Jn%21c3a8fd2840a2f0a10a3a7cf49a752a78>\r\n"
+         "Via: SIP/2.0/TCP 10.1.1.3:33855\r\n"
+         "To: sip:user@somewhere.com\r\n"
+         "From: Caller <sip:caller@example.org>; tag=30543f3483e1cb11ecb40866edd3295b\r\n"
+         "Call-Id: f88dfabce84b6a2787ef024a7dbe8749\r\n"
+         "Cseq: 1 INVITE\r\n"
+         "Max-Forwards: 20\r\n"
+         "Contact: caller@127.0.0.1\r\n"
+         "Content-Length: 0\r\n"
+         "X-SipX-Spiral: true"
+         "\r\n";
+
+      SipMessage testMsg(message, strlen(message));
+      SipMessage testRsp;
+      
+      mpDummyAuthPlugin->mbDenyNextRequest = false;
+      CPPUNIT_ASSERT_EQUAL(SipRouter::SendRequest,mSipRouter->proxyMessage(testMsg, testRsp));
+      CPPUNIT_ASSERT_EQUAL( AuthPlugin::CONTINUE, mpDummyAuthPlugin->mLastAuthResult );
+      ASSERT_STR_EQUAL( "", mpDummyAuthPlugin->mLastAuthenticatedId.data() );
+
+      UtlString recordRoute, urlParmName, tempString;
+      CPPUNIT_ASSERT( !testMsg.getRecordRouteUri(1, &recordRoute) );
+      CPPUNIT_ASSERT(  testMsg.getRecordRouteUri(0, &recordRoute) );
+      Url recordRouteUrl(recordRoute);
+      recordRouteUrl.getHostWithPort( tempString );
+      ASSERT_STR_EQUAL("10.10.10.1:5060", tempString.data());
+      CPPUNIT_ASSERT( recordRouteUrl.getUrlParameter( 0, urlParmName, tempString ) );
+      ASSERT_STR_EQUAL("lr", urlParmName.data());
+      CPPUNIT_ASSERT( recordRouteUrl.getUrlParameter( 1, urlParmName, tempString ) );
+      ASSERT_STR_EQUAL("sipXecs-rs", urlParmName.data());
+
+      // look into RouteState
+      UtlSList noRemovedRoutes;
+      UtlString routeName("example.com"), rsParam;
+      RouteState routeState( testMsg, noRemovedRoutes, routeName );
+      CPPUNIT_ASSERT( routeState.isDialogAuthorized( rsParam ) ); 
+      ASSERT_STR_EQUAL( "", rsParam.data() );  
+   }
+   
+   void testProxyMessageWithRouteStateWithAuthentication_InDialog()
+   {
+      RouteState::setSecret("GuessThat!");
+      SipXauthIdentity::setSecret("GuessThat!");
+      
+      const char* message =
+         "INVITE sip:user@somewhere.com SIP/2.0\r\n"
+         "Route: <sip:10.10.10.1:5060;lr;sipXecs-rs=%2Aauth%7EY2FsbGVyQGV4YW1wbGUub3Jn.%2Afrom%7EMzA1NDNmMzQ4M2UxY2IxMWVjYjQwODY2ZWRkMzI5NWI%60%21dd68e849b4c9054d40b9eebfc52129a5>\r\n"
+         "Via: SIP/2.0/TCP 10.1.1.3:33855\r\n"
+         "To: Callee <sip:user@somewhere.com>; tag=1234\r\n"
+         "From: Caller <sip:othercaller@example.org>; tag=30543f3483e1cb11ecb40866edd3295b\r\n"
+         "Call-Id: f88dfabce84b6a2787ef024a7dbe8749\r\n"
+         "Cseq: 1 INVITE\r\n"
+         "Max-Forwards: 20\r\n"
+         "Contact: caller@127.0.0.1\r\n"
+         "Content-Length: 0\r\n"
+         "X-SipX-Spiral: true"
+         "\r\n";
+      SipMessage testMsg(message, strlen(message));
+      SipMessage testRsp;
+      mpDummyAuthPlugin->mbDenyNextRequest = false;
+      CPPUNIT_ASSERT_EQUAL(SipRouter::SendRequest,mSipRouter->proxyMessage(testMsg, testRsp));
+      CPPUNIT_ASSERT_EQUAL( AuthPlugin::ALLOW, mpDummyAuthPlugin->mLastAuthResult );
+      ASSERT_STR_EQUAL( "caller@example.org", mpDummyAuthPlugin->mLastAuthenticatedId.data() );
+      
+      // check that route has been popped.
+      UtlString route;
+      CPPUNIT_ASSERT( !testMsg.getRouteUri(0, &route) );
+   }
+   
+   void testProxyMessageRouteState_DeniedByPlugin()
+   {
+      RouteState::setSecret("GuessThat!");
+      SipXauthIdentity::setSecret("GuessThat!");
+      
+      const char* message =
+         "INVITE sip:user@somewhere.com SIP/2.0\r\n"
+         "Via: SIP/2.0/TCP 10.1.1.3:33855\r\n"
+         "To: sip:user@somewhere.com\r\n"
+         "From: Caller <sip:caller@example.org>; tag=30543f3483e1cb11ecb40866edd3295b\r\n"
+         "Call-Id: f88dfabce84b6a2787ef024a7dbe8749\r\n"
+         "Cseq: 1 INVITE\r\n"
+         "Max-Forwards: 20\r\n"
+         "Contact: caller@127.0.0.1\r\n"
+         "Content-Length: 0\r\n"
+         "X-SipX-Spiral: true"
+         "\r\n";
+
+      SipMessage testMsg(message, strlen(message));
+      SipMessage testRsp;
+      
+      mpDummyAuthPlugin->mbDenyNextRequest = true;
+      CPPUNIT_ASSERT_EQUAL(SipRouter::SendResponse,mSipRouter->proxyMessage(testMsg, testRsp));
+      CPPUNIT_ASSERT_EQUAL( AuthPlugin::DENY, mpDummyAuthPlugin->mLastAuthResult );
+      ASSERT_STR_EQUAL( "", mpDummyAuthPlugin->mLastAuthenticatedId.data() );
+
+      // verify that the request wasn't record-routed.
+      UtlString recordRoute;
+      CPPUNIT_ASSERT( !testMsg.getRecordRouteUri(0, &recordRoute) );
+   }
+   
 };
 
 const char* SipRouterTest::VoiceMail   = "Voicemail";
@@ -952,9 +1170,10 @@ const char* SipRouterTest::SipRouterConfiguration =
    "SIPX_PROXY_AUTHENTICATE_REALM : example.com\r\n"
    "SIPX_PROXY_HOSTPORT : 10.10.10.1:5060\r\n"
    "SIPX_PROXY_DOMAIN_NAME : example.com\r\n"
-   "SIPX_PROXY_HOOK_LIBRARY.authrules : ../../lib/authplugins/authplugins/.libs/libEnforceAuthRules.so\r\n"
-   "SIPX_PROXY.authrules.IDENTITY_VALIDITY_SECONDS : 300\r\n"
-   "SIPX_PROXY_HOOK_LIBRARY.fromalias : ../../lib/authplugins/authplugins/.libs/libCallerAlias.so\r\n"
+   "SIPX_PROXY_HOOK_LIBRARY.200-dummy : .libs/libDummyAuthPlugin.so\r\n"
+   "SIPX_PROXY_HOOK_LIBRARY.205-authrules : ../../lib/authplugins/authplugins/.libs/libEnforceAuthRules.so\r\n"
+   "SIPX_PROXY.205-authrules.IDENTITY_VALIDITY_SECONDS : 300\r\n"
+   "SIPX_PROXY_HOOK_LIBRARY.210-fromalias : ../../lib/authplugins/authplugins/.libs/libCallerAlias.so\r\n"
    "\r\n";
 
 CPPUNIT_TEST_SUITE_REGISTRATION(SipRouterTest);

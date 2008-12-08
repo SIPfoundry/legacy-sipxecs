@@ -573,41 +573,57 @@ SipRouter::ProxyAction SipRouter::proxyMessage(SipMessage& sipRequest, SipMessag
       
       if( bRequestShouldBeAuthorized )
       {
+          
+         bool requestIsAuthenticated = false; // message carries authenticated identity?         
+         UtlString authUser;                  // authenticated identity of the user.
+         AuthPlugin::AuthResult finalAuthResult = AuthPlugin::CONTINUE; // let the plugins decide
          UtlString callId;
          sipRequest.getCallIdField(&callId);  // for logging
-         
-         /*
-          * Determine the authIdentity.
-          */
-         UtlString authUser;
-         bool requestIsAuthenticated = false;
-         
-         // Use the identity found in the SipX-Auth-Identity header if found
-         SipXauthIdentity sipxIdentity(sipRequest,SipXauthIdentity::AuthIdentityHeaderName,
-             SipXauthIdentity::allowUnbound); 
-         if ((requestIsAuthenticated = sipxIdentity.getIdentity(authUser)))
-         {
-            // found identity in request
-            OsSysLog::add(FAC_AUTH, PRI_DEBUG, "SipRouter::proxyMessage "
-                          " found valid sipXauthIdentity '%s' for callId %s",
-                          authUser.data(), callId.data() 
-                          );
 
-            // Can't completely remove identity info, since it may be required
-            // further if the request spirals. Normalize authIdentity to only leave
-            // the most recent info in the request 
-            SipXauthIdentity::normalize(sipRequest, SipXauthIdentity::AuthIdentityHeaderName);
-         }
-         else
+         // If the RouteState is not mutable, check whether or not the dialog has already
+         // been authorized by interogating the RouteState
+         if( !routeState.isMutable() )
          {
-            // no SipX-Auth-Identity, so see if there is a Proxy-Authorization on the request
-            requestIsAuthenticated = isAuthenticated(sipRequest, authUser);
+            if( routeState.isDialogAuthorized( authUser ) )
+            {
+               // the dialog has already been authorized, allow request
+               finalAuthResult = AuthPlugin::ALLOW;
+               requestIsAuthenticated = true;
+            }           
+         }
+         
+         // if request does not appear to be authenticated based on the content of the
+         // RouteState then try to find authenticated user in SipXauthIdentity or in
+         // Authorization headers
+         if( !requestIsAuthenticated )
+         {
+                        
+            // Use the identity found in the SipX-Auth-Identity header if found
+            SipXauthIdentity sipxIdentity(sipRequest,SipXauthIdentity::AuthIdentityHeaderName,
+                SipXauthIdentity::allowUnbound); 
+            if ((requestIsAuthenticated = sipxIdentity.getIdentity(authUser)))
+            {
+               // found identity in request
+               OsSysLog::add(FAC_AUTH, PRI_DEBUG, "SipRouter::proxyMessage "
+                             " found valid sipXauthIdentity '%s' for callId %s",
+                             authUser.data(), callId.data() 
+                             );
+   
+               // Can't completely remove identity info, since it may be required
+               // further if the request spirals. Normalize authIdentity to only leave
+               // the most recent info in the request 
+               SipXauthIdentity::normalize(sipRequest, SipXauthIdentity::AuthIdentityHeaderName);
+            }
+            else
+            {
+               // no SipX-Auth-Identity, so see if there is a Proxy-Authorization on the request
+               requestIsAuthenticated = isAuthenticated(sipRequest, authUser);
+            }
          }
 
          /*
           * Determine whether or not this request is authorized.
           */
-         AuthPlugin::AuthResult finalAuthResult;
          UtlString rejectReason;
 
          // handle special cases that are universal
@@ -616,10 +632,6 @@ SipRouter::ProxyAction SipRouter::proxyMessage(SipMessage& sipRequest, SipMessag
          if (sipRequest.isResponse())  // responses are always allowed (just in case)
          {
             finalAuthResult = AuthPlugin::ALLOW;
-         }
-         else
-         {
-            finalAuthResult = AuthPlugin::CONTINUE; // let the plugins decide
          }
          
          // call each plugin
@@ -689,6 +701,7 @@ SipRouter::ProxyAction SipRouter::proxyMessage(SipMessage& sipRequest, SipMessag
            // Plugins may have modified the state - if allowed, put that state into the message
             if (routeState.isMutable())
             {
+               routeState.markDialogAsAuthorized( authUser );              
                routeState.update(&sipRequest);
             }
          }

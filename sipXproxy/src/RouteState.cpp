@@ -16,6 +16,9 @@
 // APPLICATION INCLUDES
 #include "RouteState.h"
 
+// CONSTANTS
+const char AUTHORIZED_DIALOG_PARAM[] = "auth";
+
 /* ################################################################
  * State Token Syntax
  *
@@ -289,6 +292,21 @@ bool RouteState::directionIsCallerToCalled(const char* instanceName)
    return isCallerToCalled;
 }
 
+// encodes 'auth' parameter to indicate that dialog has been authorized 
+void RouteState::markDialogAsAuthorized( const UtlString& authenticatedIdentity )
+{
+   if (isMutable())
+   {
+      setParameter( "", AUTHORIZED_DIALOG_PARAM, authenticatedIdentity );              
+   } 
+}
+
+// tests for the presence of the 'auth' parameter which indicates that dialog has been authorized
+bool RouteState::isDialogAuthorized( UtlString& authenticatedIdentity )
+{
+   authenticatedIdentity.remove( 0 );
+   return getParameter( "", AUTHORIZED_DIALOG_PARAM, authenticatedIdentity );
+}
 
 /// Encode and sign the state as a single SIP token
 void RouteState::encode(UtlString& stateToken)

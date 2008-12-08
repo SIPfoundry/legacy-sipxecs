@@ -5,6 +5,40 @@ endif
 
 TESTS = proxytest $(TEST_CSE_OPT)
 
+noinst_LTLIBRARIES = \
+    libDummyAuthPlugin.la
+    
+## Libtool version info - update only immediately before a release
+# Current - increment if any interfaces are added, removed, or changed
+version_Current=1
+# Revision - set to 0 if Current was incremented
+#            increment if any implementation has changed
+version_Revision=0
+# Age - set to 0 of any interfaces have been removed
+#       increment if any interfaces have been added
+version_Age=0
+
+# Note that adding new @*_LIBS@ symbols to the *_LIBADD lists may require
+# adding SFAC_LIB_* macros (defined in ../../../config/sipXlib.m4)
+# to ../../configure.ac to establish the substitution for the @*_LIBS@ symbols.
+
+# DummyAuthPlugin
+
+libDummyAuthPlugin_la_LDFLAGS = \
+    -module \
+    -rpath @abs_builddir@ \
+    -version-info ${version_Current}:${version_Revision}:${version_Age}
+
+libDummyAuthPlugin_la_LIBADD = \
+    @SIPXUNIT_LIBS@
+
+libDummyAuthPlugin_la_CXXFLAGS = \
+    -I$(top_builddir)/config \
+    -I$(top_srcdir)/include    
+
+libDummyAuthPlugin_la_SOURCES =  \
+    DummyAuthPlugIn.cpp 
+    
 check_PROGRAMS = \
 	proxytest
 

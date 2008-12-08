@@ -89,7 +89,7 @@ TransferControl::authorizeAndModify(const UtlString& id,    /**< The authenticat
    UtlString callId;
    request.getCallIdField(&callId);
 
-   if (CONTINUE == priorResult)
+   if (DENY != priorResult)
    {
       if (method.compareTo(SIP_REFER_METHOD) == 0)
       {
@@ -206,7 +206,7 @@ TransferControl::authorizeAndModify(const UtlString& id,    /**< The authenticat
    }
    else
    {
-      // Some earlier plugin already decided on this on - don't waste time figuring it out.
+      // Some earlier plugin already denied this - don't waste time figuring it out.
       OsSysLog::add(FAC_AUTH, PRI_DEBUG, "TransferControl[%s]::authorizeAndModify "
                     "prior authorization result %s for call %s",
                     mInstanceName.data(), AuthResultStr(priorResult), callId.data()

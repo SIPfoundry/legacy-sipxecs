@@ -137,14 +137,10 @@ public:
                                                         ));
          ASSERT_STR_EQUAL(unmodifiedRejectReason, rejectReason.data());
 
+         // No Record-Route header.
          routeState.update(&testMsg);
-
          UtlString recordRoute;
-         CPPUNIT_ASSERT(testMsg.getRecordRouteField(0, &recordRoute));
-         ASSERT_STR_EQUAL( "<sip:example.com;lr;sipXecs-rs=enforce%2Aauth%7E%21d1e296555015a54cb746fa7ac5695cf7>", recordRoute );
-
-         // Only one Record-Route header.
-         CPPUNIT_ASSERT(!testMsg.getRecordRouteField(1, &recordRoute));
+         CPPUNIT_ASSERT(!testMsg.getRecordRouteField(0, &recordRoute));
 
          RouteState spiraledRouteState(testMsg, noRemovedRoutes, routeName);
          
@@ -161,13 +157,9 @@ public:
                                                         ));
          ASSERT_STR_EQUAL(unmodifiedRejectReason, rejectReason.data());
 
+         // No Record-Route header.
          spiraledRouteState.update(&testMsg);
-
-         CPPUNIT_ASSERT(testMsg.getRecordRouteField(0, &recordRoute));
-         ASSERT_STR_EQUAL( "<sip:example.com;lr;sipXecs-rs=enforce%2Aauth%7E%21d1e296555015a54cb746fa7ac5695cf7>", recordRoute );
-
-         // Only one Record-Route header.
-         CPPUNIT_ASSERT(!testMsg.getRecordRouteField(1, &recordRoute));
+         CPPUNIT_ASSERT(!testMsg.getRecordRouteField(0, &recordRoute));
       }
 
 
@@ -221,14 +213,10 @@ public:
                                                         ));
          ASSERT_STR_EQUAL(unmodifiedRejectReason, rejectReason.data());
 
+         // No Record-Route header.
          routeState.update(&testMsg);
-
          UtlString recordRoute;
-         CPPUNIT_ASSERT(testMsg.getRecordRouteField(0, &recordRoute));
-         ASSERT_STR_EQUAL( "<sip:example.com;lr;sipXecs-rs=enforce%2Aauth%7E%21d1e296555015a54cb746fa7ac5695cf7>", recordRoute );
-
-         // Only one Record-Route header.
-         CPPUNIT_ASSERT(!testMsg.getRecordRouteField(1, &recordRoute));
+         CPPUNIT_ASSERT(!testMsg.getRecordRouteField(0, &recordRoute));
 
          RouteState spiraledRouteState(testMsg, noRemovedRoutes, routeName);
          
@@ -248,13 +236,9 @@ public:
                                                         ));
          ASSERT_STR_EQUAL(unmodifiedRejectReason, rejectReason.data());
 
+         // No Record-Route header.
          spiraledRouteState.update(&testMsg);
-
-         CPPUNIT_ASSERT(testMsg.getRecordRouteField(0, &recordRoute));
-         ASSERT_STR_EQUAL( "<sip:example.com;lr;sipXecs-rs=enforce%2Aauth%7E%21d1e296555015a54cb746fa7ac5695cf7>", recordRoute );
-
-         // Only one Record-Route header.
-         CPPUNIT_ASSERT(!testMsg.getRecordRouteField(1, &recordRoute));
+         CPPUNIT_ASSERT(!testMsg.getRecordRouteField(0, &recordRoute));
       }
 
    // Test that an ACK is not challenged and not RecordRouted
@@ -666,53 +650,10 @@ public:
                                                         ));
          CPPUNIT_ASSERT(rejectReason.isNull());
 
+         // No record-route
          okRouteState.update(&okMsg);
-
          UtlString recordRoute;
-         CPPUNIT_ASSERT(okMsg.getRecordRouteField(0, &recordRoute));
-         ASSERT_STR_EQUAL("<sip:example.com;lr;sipXecs-rs=enforce%2Aauth%7E%21c2ce876a02a4f62e6a4ba3069bfb75b5>",
-                          recordRoute );
-
-         // put that route header into a popped route list
-         UtlSList approvedRouteList;
-         approvedRouteList.insert(&recordRoute);
-         
-         /*
-          * Note that the request uri for this message is still 'boat' in order to
-          * trigger the authrule.  This actually happens frequently when using gateways
-          * because they are often configured using the IP address rather than a name,
-          * and/or the IP address is still in the authrule to force authorization, even
-          * for in-dialog requests.
-          */
-         const char* indialogForwardMessage =
-            "INFO sip:user@boat SIP/2.0\r\n"
-            "Via: SIP/2.0/TCP 10.1.1.3:33855\r\n"
-            "To: sip:user@boat; tag=9873930447473\r\n"
-            "From: Caller <sip:caller@example.org>; tag=30543f3483e1cb11ecb40866edd3295b\r\n"
-            "Call-Id: authorized-1\r\n"
-            "Cseq: 2 INFO\r\n"
-            "Max-Forwards: 20\r\n"
-            "Contact: caller@127.0.0.1\r\n"
-            "Content-Length: 0\r\n"
-            "\r\n";
-         SipMessage indialogForwardMsg(indialogForwardMessage, strlen(indialogForwardMessage));
-         RouteState indialogRouteState( indialogForwardMsg, approvedRouteList, routeName );
-         Url indialogRequestUri("sip:user@boat");
-
-         // confirm that a forward in-dialog message with that route is allowed
-         // even though it is not authenticated.
-         UtlString noIdentity;
-         CPPUNIT_ASSERT(AuthPlugin::ALLOW
-                        == enforcer->authorizeAndModify(noIdentity,
-                                                        indialogRequestUri,
-                                                        indialogRouteState,
-                                                        method,
-                                                        priorResult,
-                                                        indialogForwardMsg,
-                                                        bSpiralingRequest,
-                                                        rejectReason
-                                                        ));
-         CPPUNIT_ASSERT(rejectReason.isNull());
+         CPPUNIT_ASSERT(!okMsg.getRecordRouteField(0, &recordRoute));
       }
 
    // Test that a dialog forming request with an authorized route is challenged.
@@ -759,12 +700,10 @@ public:
                                                         ));
          CPPUNIT_ASSERT(rejectReason.isNull());
 
+         // No record-route
          okRouteState.update(&okMsg);
-
          UtlString recordRoute;
-         CPPUNIT_ASSERT(okMsg.getRecordRouteField(0, &recordRoute));
-         ASSERT_STR_EQUAL("<sip:example.com;lr;sipXecs-rs=enforce%2Aauth%7E%21c2ce876a02a4f62e6a4ba3069bfb75b5>",
-                          recordRoute );
+         CPPUNIT_ASSERT(!okMsg.getRecordRouteField(0, &recordRoute));
 
          /*
           * Note that the request uri for this message is now 'lodge', simulating a
