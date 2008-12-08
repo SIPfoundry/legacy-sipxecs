@@ -11,7 +11,6 @@ package org.sipfoundry.sipxconfig.common;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -27,14 +26,12 @@ import org.sipfoundry.sipxconfig.admin.alarm.AlarmServer;
 import org.sipfoundry.sipxconfig.admin.alarm.AlarmServerActivatedEvent;
 import org.sipfoundry.sipxconfig.admin.alarm.AlarmServerConfiguration;
 import org.sipfoundry.sipxconfig.admin.alarm.AlarmServerContacts;
-import org.sipfoundry.sipxconfig.admin.alarm.AlarmsActivatedEvent;
 import org.sipfoundry.sipxconfig.admin.commserver.AlarmApi;
-import org.sipfoundry.sipxconfig.admin.commserver.Process;
-import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
-import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessModel;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.xmlrpc.XmlRpcRemoteException;
 import org.springframework.beans.factory.annotation.Required;
+import org.springframework.context.ApplicationEvent;
+import org.springframework.context.ApplicationListener;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.w3c.dom.Document;
@@ -44,14 +41,13 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-public class AlarmContextImpl extends SipxHibernateDaoSupport implements AlarmContext {
+public class AlarmContextImpl extends SipxHibernateDaoSupport implements AlarmContext, ApplicationListener {
     private static final Log LOG = LogFactory.getLog(AlarmContextImpl.class);
     private static final String DEFAULT_HOST = "@localhost";
     private static final String EMPTY = "";
     private String m_host;
     private AlarmApi m_alarmApi;
     private SipxReplicationContext m_replicationContext;
-    private SipxProcessContext m_processContext;
     private AlarmServerConfiguration m_alarmServerConfiguration;
     private AlarmConfiguration m_alarmsConfiguration;
     private String m_sipxUser;
@@ -73,11 +69,6 @@ public class AlarmContextImpl extends SipxHibernateDaoSupport implements AlarmCo
     @Required
     public void setReplicationContext(SipxReplicationContext replicationContext) {
         m_replicationContext = replicationContext;
-    }
-
-    @Required
-    public void setProcessContext(SipxProcessContext processContext) {
-        m_processContext = processContext;
     }
 
     @Required
@@ -145,7 +136,14 @@ public class AlarmContextImpl extends SipxHibernateDaoSupport implements AlarmCo
             throw new UserException(e.getCause());
         }
     }
-    
+
+    public void onApplicationEvent(ApplicationEvent event) {
+        if (event instanceof AlarmServerActivatedEvent) {
+            // send "reloadAlarms" command to the supervisor
+            reloadAlarms();
+        }
+    }
+
     public void deployAlarmConfiguration(AlarmServer server, List<Alarm> alarms) {
         // save alarm server configuration
         saveAlarmServer(server);
@@ -154,8 +152,7 @@ public class AlarmContextImpl extends SipxHibernateDaoSupport implements AlarmCo
         // replicate new alarm types configuration
         replicateAlarmsConfiguration(alarms);
 
-        Process service = m_processContext.getProcess(SipxProcessModel.ProcessName.PROXY);
-        m_processContext.restartOnEvent(Arrays.asList(service), AlarmServerActivatedEvent.class);
+        m_replicationContext.publishEvent(new AlarmServerActivatedEvent(this));
     }
 
     public AlarmServer getAlarmServer() {
@@ -196,15 +193,11 @@ public class AlarmContextImpl extends SipxHibernateDaoSupport implements AlarmCo
         AlarmServer alarmServer = getAlarmServer();
         m_alarmServerConfiguration.generate(alarmServer, getLogDirectory(), getHostName());
         m_replicationContext.replicate(m_alarmServerConfiguration);
-        m_replicationContext.publishEvent(new AlarmServerActivatedEvent(
-                m_alarmServerConfiguration));
     }
 
     private void replicateAlarmsConfiguration(List<Alarm> alarms) {
         m_alarmsConfiguration.generate(alarms);
         m_replicationContext.replicate(m_alarmsConfiguration);
-        m_replicationContext.publishEvent(new AlarmsActivatedEvent(
-                m_alarmsConfiguration));
     }    
 
     public List<Alarm> getAlarmTypes(String configPath, String stringPath) {
