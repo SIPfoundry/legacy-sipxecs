@@ -1409,6 +1409,21 @@ void SipxProcess::clearStatusMessages()
    mNumStderrMsgs = 0;
 }
 
+/// Custom comparison method that allows SipxProcess retrieved in Utl containers
+/// using UtlStrings or any UtlString-derived object.
+int SipxProcess::compareTo(UtlContainable const *other) const
+{
+   int compareFlag = -1;
+   UtlString const * pOtherAsString = dynamic_cast<UtlString const *>( other );
+   if ( pOtherAsString )
+   {
+       compareFlag = UtlString::compareTo( pOtherAsString->data() );
+   }
+
+   return compareFlag;
+   
+}
+
 /// Save status message so it can be queried later
 void SipxProcess::addStatusMessage(const char* msgTag, UtlString& msg)
 {

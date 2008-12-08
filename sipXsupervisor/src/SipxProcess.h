@@ -207,6 +207,10 @@ class SipxProcess : public UtlString, OsServerTask, SipxProcessCmdOwner
    /// Clear any status messages accumulated so far and reset log counters
    void clearStatusMessages();
 
+   /// Custom comparison method that allows SipxProcess retrieved in Utl containers
+   /// using UtlStrings or any UtlString-derived object.
+   virtual int compareTo(UtlContainable const *other) const;
+   
   private:
      /// start the FSM up in its own task
      void startStateMachine();
