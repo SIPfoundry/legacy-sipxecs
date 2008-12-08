@@ -48,7 +48,7 @@
         <element ref='dmp:relayaggressiveness' minOccurs='1' maxOccurs='1'/>        
         <element ref='dmp:concurrentrelays' minOccurs='1' maxOccurs='1'/>        
         <element ref='dmp:mediarelayexternaladdress' minOccurs='0' maxOccurs='1'/>        
-        <element ref='dmp:mediarelaynativeaddress' minOccurs='1' maxOccurs='1'/>        
+        <element ref='dmp:mediarelaynativeaddress' minOccurs='0' maxOccurs='1'/>        
         <element ref='dmp:mediarelayxml-rpc-port' minOccurs='1' maxOccurs='1'/>        
         <element ref='dmp:publicport' minOccurs='0' maxOccurs='1'/>        
         <element ref='dmp:port-range' minOccurs='1' maxOccurs='1'/>        
