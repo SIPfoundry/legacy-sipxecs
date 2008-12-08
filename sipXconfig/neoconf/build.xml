@@ -22,9 +22,10 @@
     <pathelement location="${servlet.jar}" />
     <pathelement location="${velocity.jar}" />
     <pathelement location="${commons-digester.jar}" />
-	<pathelement location="${commons-beanutils.jar}" />
+    <pathelement location="${commons-beanutils.jar}" />
     <pathelement location="${commons-collections.jar}" />
     <pathelement location="${commons-codec.jar}" />
+    <pathelement location="${commons-net.jar}" />
     <pathelement location="${commons-io.jar}" />
     <pathelement location="${xmlrpc.jar}" />
     <pathelement location="${acegi-security.jar}" />
@@ -32,6 +33,8 @@
     <path refid="axis.path" />
     <pathelement location="${agent-bindings.jar}" />
     <pathelement location="${cdr-bindings.jar}" />
+    <pathelement location="${jain-sip-sdp.jar}" />
+    <pathelement location="${log4j.jar}" />
   </path>
 
   <!-- 
@@ -175,10 +178,10 @@
     <mkdir dir="${dest.dir}${sipxecs.java.dir}/sipXconfig" />
     <copy todir="${dest.dir}${sipxecs.java.dir}/sipXconfig">
       <fileset file="${sipxconfig.jar}" />
-      <fileset file="${jetty.jar}" />
-      <fileset file="${servlet.jar}" />
       <fileset file="${xerces.jar}" />
       <fileset file="${xml-apis.jar}" />
+      <fileset file="${ant.jar}" />
+      <fileset file="${ant-launcher.jar}" />
       <fileset file="${j2ee.jar}" />
       <fileset file="${spring.jar}" />
       <fileset file="${spring-ldap.jar}" />

@@ -75,6 +75,9 @@
     <pathelement path="${xstream.jar}" />
     <pathelement path="${spring-ldap.jar}" />
     <pathelement path="${ldap.jar}" />
+    <pathelement path="${log4j.jar}" />
+    <pathelement path="${jain-sip-sdp.jar}" />
+    <pathelement path="${commons-net.jar}" />
     <!-- SOAP -->
     <pathelement path="${jaxrpc.jar}"/>
     <pathelement path="${javamail.jar}"/>
@@ -171,8 +174,8 @@
     <replace file="${dest.dir}${bin.dir}/sipxconfig.sh" 
       propertyfile="${top.build.dir}/build.properties">
       <replacefilter token="@sipxpbx.conf.dir@" property="sipxpbx.conf.dir"/>
-      <replacefilter token="@sipxconfig.lib.dir@" property="sipxconfig.lib.dir" 
-       />
+      <replacefilter token="@sipxconfig.lib.dir@" property="sipxconfig.lib.dir"/>
+      <replacefilter token="@sipxcommons.lib.dir@" property="sipxcommons.lib.dir"/>
       <replacefilter token="@sipxecs.java.dir@" property="sipxecs.java.dir"/>
       <replacefilter token="@sipxecs.thirdparty.dir@" property="sipxecs.thirdparty.dir"/>
       <replacefilter token="@sipxpbx.log.dir@" property="sipxpbx.log.dir"/>    	
@@ -209,6 +212,7 @@
       <replacefilter token="@sipxpbx.conf.dir@" property="sipxpbx.conf.dir"/>
       <replacefilter token="@sipxpbx.user@" property="sipxpbx.user"/>
       <replacefilter token="@sipxconfig.lib.dir@" property="sipxconfig.lib.dir"/>
+      <replacefilter token="@sipxcommons.lib.dir@" property="sipxcommons.lib.dir"/>
       <replacefilter token="@openssl@" property="openssl"/>
       <replacefilter token="@bin.dir@" property="bin.dir"/>
       <replacefilter token="@bash@" property="bash"/>
@@ -278,8 +282,8 @@
   	<echo>http://localhost:9999/sipxconfig/app?page=TestPage&amp;service=page</echo>
   	<echo/>
     <java classname="org.sipfoundry.sipxconfig.site.JettyTestSetup" fork="true">
-      <classpath path="classpath.build"/>
-      <classpath path="classpath.run"/>
+      <classpath path="${classpath.build}"/>
+      <classpath path="${classpath.run}"/>
       <classpath refid="test.path"/>
       <classpath refid="base.path"/>
       <classpath location="${server-bindings.jar}"/>

@@ -15,6 +15,7 @@
     <pathelement path="${servlet.jar}" />
     <pathelement path="${commons-io.jar}" />
     <pathelement path="${commons-lang.jar}" />
+    <pathelement path="${commons-logging.jar}" />
   </path>
 
   <target name="init" depends="ant-targets.init">

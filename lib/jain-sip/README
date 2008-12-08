@@ -1,4 +1,0 @@
-Package jain-sip as RPM
-Buildding jain-sip RPMs here should be considered temporary solution.
-Once we figure out how to package it properly it's going to be submitted to
-jpackage.org and trickle down to all distros that we support.

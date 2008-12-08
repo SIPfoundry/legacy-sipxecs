@@ -37,7 +37,7 @@ sipXcommserverLib : sipXtackLib
 	@echo sipXcommserverLib
 
 .PHONY: sipXcommons
-sipXcommons : sipXcommserverLib
+sipXcommons :
 	@echo sipXcommons
 
 .PHONY: sipXpublisher
@@ -53,7 +53,7 @@ sipXproxy : sipXcommserverLib
 	@echo sipXproxy
 
 .PHONY: sipXconfig
-sipXconfig : 
+sipXconfig : sipXcommons
 	@echo sipXconfig
 
 .PHONY: sipXvxml

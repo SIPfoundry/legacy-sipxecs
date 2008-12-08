@@ -24,10 +24,7 @@ Url:      http://www.sipfoundry.org/
 
 Source: %name-%version.tar.gz
 
-Requires: ant >= 1.6
-Requires: log4j >= 1.2
-Requires: jain-sip >= 1.2.74
-Requires: jakarta-commons-net >= 1.4.1
+Requires: sipxcommons >= 3.11
 Requires: sipxtacklib >= 3.11
 Requires: sipxcommserverlib >= 3.11
 Requires: sipxpbx >= 3.11

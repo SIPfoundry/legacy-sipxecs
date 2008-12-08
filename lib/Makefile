@@ -6,10 +6,6 @@ DESTDIR = $(abspath dist)
 
 ARCH = $(shell uname -p)
 
-ifneq (,$(findstring 86,$(ARCH)))
-  JAVA_PKG = java-sun
-endif 
-
 %.bld :
 	cd $*/build; $(MAKE)
 
@@ -26,10 +22,6 @@ endif
 AC_TARGETS = \
 	cppunit \
 	cgicc \
-	dnsjava \
-	jain-sip \
-	jakarta-commons-net \
-	java-sun \
 	ruby-dbi \
 	rubygems \
 	ruby-postgres \
@@ -47,7 +39,7 @@ $(AC_TARGETS) :
 	$(MAKE) $@.bld
 
 # required on all platforms
-CUSTOM_PACKAGES = cgicc xerces-c ruby-postgres ruby-dbi jain-sip conference dnsjava rrdtool nsis sipx-jasperreports-deps $(JAVA_PKG)
+CUSTOM_PACKAGES = cgicc xerces-c ruby-postgres ruby-dbi freeswitch rrdtool nsis sipx-jasperreports-deps
 
 .PHONY: fc8 fc7
 fc8 fc7 : $(CUSTOM_PACKAGES) cppunit xerces-c rubygems
@@ -56,10 +48,7 @@ fc8 fc7 : $(CUSTOM_PACKAGES) cppunit xerces-c rubygems
 f9 : $(CUSTOM_PACKAGES)
 
 .PHONY: rhel5 centos5 rhel4
-rhel5 centos5 rhel4 : $(CUSTOM_PACKAGES) w3c-libwww rubygems cppunit jakarta-commons-net
+rhel5 centos5 rhel4 : $(CUSTOM_PACKAGES) w3c-libwww rubygems cppunit
 
 .PHONY: suse11.0
-suse11.0 : stunnel w3c-libwww $(CUSTOM_PACKAGES) jakarta-commons-net
-
-.PHONY: conference
-conference : freeswitch
+suse11.0 : stunnel w3c-libwww $(CUSTOM_PACKAGES)

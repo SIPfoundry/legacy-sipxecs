@@ -171,6 +171,8 @@
       <fileset file="${src.dir}/lib/cpptasks.jar"/>
       <fileset file="${src.dir}/lib/dnsjava.jar"/>
       <fileset file="${src.dir}/lib/jain-sip-sdp.jar"/>
+      <fileset file="${src.dir}/lib/javax.servlet.jar"/>
+      <fileset file="${src.dir}/lib/jetty.jar"/>
       <fileset file="${src.dir}/lib/jibx-bind.jar"/>
       <fileset file="${src.dir}/lib/jibx-run.jar"/>
       <fileset file="${src.dir}/lib/junit.jar"/>

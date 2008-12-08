@@ -1,8 +1,0 @@
-1.) Download java from java.sun.com and put .bin file in following directory
- ~/libsrc/java-sun
-2.) On Fedora core 5, run
-  yum install libXp
-2.) type
- make
-3.) 
-

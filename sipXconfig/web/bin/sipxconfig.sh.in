@@ -20,6 +20,7 @@ Args=""
 : ${PidFile:=@sipxpbx.run.dir@/sipxconfig.pid}
 : ${DatabaseProject:=@sipxpbx.conf.dir@/database/database.xml}
 : ${LibDir:=@sipxconfig.lib.dir@}
+: ${CommonsLibDir:=@sipxcommons.lib.dir@}
 : ${Psql:=psql}
 : ${ServiceDir:=@service.dir@}
 : ${SubstituteUser:=su}
@@ -131,6 +132,7 @@ databaseCommand() {
 
     Classpath=`classpath \
         @sipxpbx.conf.dir@ \
+        ${CommonsLibDir}/*.jar \
         ${LibDir}/*.jar`
 
     # XCF-1275 - Do not want to suppress output if there is an error
@@ -215,6 +217,7 @@ onWebUi() {
 
     Classpath=`classpath \
         @sipxpbx.conf.dir@ \
+        ${CommonsLibDir}/*.jar \
         ${LibDir}/*.jar`
 
     echo $$ > ${PidFile}

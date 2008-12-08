@@ -37,7 +37,7 @@
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/saxpath-1.0fcs.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/logkit-1.0.1.jar"/>
 	<classpathentry exported="true" kind="var" path="SIPX_CONFIG/lib/easymockclassextension-2.2.1.jar" sourcepath="/LIB_SRC/easymockclassextension/2.2.1/src-2.2.1.zip"/>
-	<classpathentry kind="var" path="SIPX_CONFIG/lib/javax.servlet.jar"/>
+	<classpathentry kind="var" path="SIPX_COMMONS/lib/javax.servlet.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/xmlrpc-2.0.jar" sourcepath="LIB_SRC/xmlrpc/src.zip"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/antlr-2.7.6.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/c3p0-0.9.1.1.jar"/>
@@ -61,8 +61,8 @@
 	<classpathentry exported="true" kind="var" path="JAVA_LIBDIR/sipx-jasperreports-deps/jasperreports.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="lib" path="etc"/>
-	<classpathentry kind="var" path="JAVA_LIBDIR/jain-sip/jain-sip-sdp.jar" sourcepath="/LIB_SRC/jain-sip/src.zip"/>
-	<classpathentry kind="var" path="JAVA_LIBDIR/log4j.jar"/>
-	<classpathentry kind="var" path="JAVA_LIBDIR/commons-net.jar" sourcepath="/LIB_SRC/commons-net/1.4.1/commons-net-1.4.1-src.zip"/>
+	<classpathentry kind="var" path="SIPX_COMMONS/lib/jain-sip-sdp.jar" sourcepath="/LIB_SRC/jain-sip/src.zip"/>
+	<classpathentry kind="var" path="SIPX_COMMONS/lib/log4j.jar"/>
+	<classpathentry kind="var" path="SIPX_COMMONS/lib/commons-net.jar" sourcepath="/LIB_SRC/commons-net/1.4.1/commons-net-1.4.1-src.zip"/>
 	<classpathentry kind="output" path="bin.eclipse"/>
 </classpath>
