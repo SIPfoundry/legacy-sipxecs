@@ -25,4 +25,4 @@ $(setupbin_SCRIPTS) : $(setupbin_IN)
 	@echo "Localizing $@ -> $<"
 	@${LocalizeSipXconfig} $(srcdir)/$(notdir $@).in > $@
 
-DISTCLEANFILES = freeswitch.sh
+DISTCLEANFILES = freeswitch.sh freeswitch_setup.sh
