@@ -77,9 +77,7 @@
         <integer required="yes"/>
       </type>
       <value>0</value>
-      <description>The maximum number of call legs to be allowed by this bridge. If a call request is received
-        when there are this many legs already active, a 486 Busy Here is returned with a Warning header indicating
-        that there are too many users on the bridge. 0 means unlimited.</description>
+      <description>The maximum number of call legs to be allowed by this bridge. 0 means unlimited.</description>
     </setting>
     <setting name="sip-port" advanced="yes">
       <label>Conference Server SIP port</label>
