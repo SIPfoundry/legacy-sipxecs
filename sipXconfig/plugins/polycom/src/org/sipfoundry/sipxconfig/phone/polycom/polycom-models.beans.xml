@@ -5,6 +5,12 @@
   <bean id="polycomModel" parent="abstractPhoneModel" class="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel"
     abstract="true" >
 	<property name="vendor" value="Polycom"/>
+    <property name="staticProfileFilenames">
+      <list>
+        <value>polycom_phone1.cfg</value>
+        <value>polycom_sip.cfg</value>
+      </list>
+    </property>
   </bean>
 
   <bean id="polycom300" parent="polycomModel">

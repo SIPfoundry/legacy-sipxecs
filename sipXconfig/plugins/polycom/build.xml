@@ -5,13 +5,4 @@
   <property name="plugin.name" value="polycom-phones" />
 
   <import file="../plugins.build.xml" />
-
-  <target name="install" depends="plugins.install">
-    <copy todir="${sipxpbx.var.dir}/configserver/phone/profile/tftproot">
-      <fileset dir="${plugin.models.dir}/mac-address.d">
-        <include name="*MATCHED_polycom*" />
-      </fileset>
-    </copy>
-  </target>
-
 </project>

@@ -1,15 +1,11 @@
 <?xml version="1.0" standalone="yes"?>
 <!-- Default SIP Configuration File-->
 <!-- Revision: 1.12  Date: 2003/06/17 15:26:10  -->
-#*
-  MATCHED_polycom_phone1.cfg and MATCHED_polycom_sip.cfg must exist under tftproot
-*#
-
 <APPLICATION APP_FILE_PATH="${cfg.SipBinaryFilename}"
     #if(${cfg.LicenseFilename})
-       CONFIG_FILES="${cfg.LicenseFilename}, ${cfg.SipFilename}, ${cfg.PhoneFilename}, MATCHED_polycom_phone1.cfg, MATCHED_polycom_sip.cfg"
+       CONFIG_FILES="${cfg.LicenseFilename}, ${cfg.SipFilename}, ${cfg.PhoneFilename}, polycom_phone1.cfg, polycom_sip.cfg"
     #else
-       CONFIG_FILES="${cfg.SipFilename}, ${cfg.PhoneFilename}, MATCHED_polycom_phone1.cfg, MATCHED_polycom_sip.cfg"
+       CONFIG_FILES="${cfg.SipFilename}, ${cfg.PhoneFilename}, polycom_phone1.cfg, polycom_sip.cfg"
     #end
 
     MISC_FILES="" LOG_FILE_DIRECTORY="">
