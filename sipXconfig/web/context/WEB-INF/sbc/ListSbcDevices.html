@@ -24,6 +24,7 @@
   <span jwcid="@common/ErrorMsg"/>
   <div jwcid="@If" condition="ognl:generateProfileIds != null">
     <span jwcid="@device/ConfirmProfileGeneration"
+      validator="bean:validator"
       profileManager="ognl:profileManager"
       deviceIds="ognl:generateProfileIds"/>
   </div>

@@ -16,6 +16,7 @@ import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.annotations.InitialValue;
 import org.apache.tapestry.annotations.Parameter;
+import org.apache.tapestry.valid.IValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.device.ProfileManager;
 
@@ -26,9 +27,12 @@ public abstract class ConfirmProfileGeneration extends BaseComponent {
     @Parameter(required = true)
     public abstract Collection<Integer> getDeviceIds();
 
+    @Parameter(required = true)
+    public abstract IValidationDelegate getValidator();
+
     public abstract void setDeviceIds(Collection<Integer> ids);
 
-    @InitialValue(value = "true")
+    @InitialValue("true")
     public abstract boolean getRestart();
 
     public abstract void setRestartDate(Date restartDate);
@@ -43,6 +47,9 @@ public abstract class ConfirmProfileGeneration extends BaseComponent {
     }
 
     public void generate() {
+        if (!TapestryUtils.isValid(this)) {
+            return;
+        }
         Collection<Integer> deviceIds = getDeviceIds();
         getProfileManager().generateProfiles(deviceIds, getRestart(), getRestartDate());
         String msg = getMessages().format("msg.success.profiles", deviceIds.size());
