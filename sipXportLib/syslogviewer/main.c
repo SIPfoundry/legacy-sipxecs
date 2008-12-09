@@ -12,6 +12,7 @@
 #include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/wait.h>
 #if defined(_WIN32)
 #   include <io.h>
 #elif defined(__pingtel_on_posix__)
@@ -27,10 +28,15 @@ static int indent = 0;
 static int fold = 0;
 // The line length for folding.
 static int width = 80;
+// Whether or not to pipe output through a pager when stdout is a tty
+static int UsePager = 1;
+const char* DefaultPager = "less";
 
 // Processing state.
 static char buffer[BUFFER_SIZE];
 static int buffer_full = 0;
+
+static pid_t pagerPid;
 
 static enum {
    StartLine,
@@ -222,10 +228,21 @@ static void process_char(char ch, int fd)
       flush_buffer(fd);
 }
 
+void wait_for_pager()
+{
+   if (pagerPid)
+   {
+      int childStatus;
+      waitpid(pagerPid, &childStatus, 0);
+   }
+}
+
 int main(int argc, char * argv[])
 {
    char input_buffer[BUFFER_SIZE];
-   int i, ifd = 0, ofd = 1;
+   int i;
+   int ifd = 0;
+   int ofd = 1;
 
    for(i = 1; i < argc; i++)
    {
@@ -239,16 +256,19 @@ int main(int argc, char * argv[])
             "\t\t[of=output]\n"
             "\t\t[input]\n"
             "\n"
-            "\n"
             "\t--help\tPrint this help message.\n"
             "\t--indent\tIndent messages and continued lines.\n"
+            "\t--no-pager\tDo not pipe the output through a pager, even if it is a tty.\n"
             "\t-f[nn]\tFold lines that are over nn (default 80) characters.\n"
             "\t\tImplies --indent.\n"
-            "\tif=\tSpecify input file name (deprecated - use file name directly).\n"
-            "\tof=\tSpecify output file name.\n"
-            "\tinput - input file name.\n"
+            "\tif=<file>\tinput file name (deprecated - use file name directly).\n"
+            "\tof=<file>\toutput file name (defaults to stdout)\n"
+            "\tinput - input file name (defaults to stdin)\n"
+            "\n"
+            "\tIf stdout is a tty, pipes output through the program specified\n"
+            "\tby the PAGER environment variable (defaults to '%s').\n"
             ;
-         fprintf(stderr, usage, argv[0]);
+         fprintf(stderr, usage, argv[0], DefaultPager);
 
          return 0;
       }
@@ -257,6 +277,10 @@ int main(int argc, char * argv[])
                )
       {
          indent = 1;
+      }
+      else if (strcmp(argv[i], "--no-pager") == 0)
+      {
+         UsePager=0;
       }
       else if (!strncmp(argv[i], "if=", 3))
       {
@@ -270,7 +294,7 @@ int main(int argc, char * argv[])
       else if (!strncmp(argv[i], "of=", 3))
       {
          ofd = open(&argv[i][3], O_WRONLY | O_CREAT, 0644);
-         if (ofd == -1)
+         if (ofd < 0)
          {
             fprintf(stderr, "%s: %s\n", &argv[i][3], strerror(errno));
             return 1;
@@ -313,6 +337,49 @@ int main(int argc, char * argv[])
       }
    }
 
+   if (UsePager && isatty(ofd))
+   {
+
+      int pagerPipe[2] = {-1,-1};
+      if (!pipe(pagerPipe))
+      {
+         pagerPid = fork();
+         if (pagerPid)
+         {
+            // this is the parent, so change output to go to the child
+
+            close(pagerPipe[0]); // don't need the read end of the pipe
+            close(ofd);          // the pager child takes care of this one now
+            ofd = pagerPipe[1];  // write output to the pager child
+
+            atexit(wait_for_pager);
+         }
+         else
+         {
+            // this is the child that will become the pager
+            close(ifd);          // close the original input - the parent reads that
+            close(pagerPipe[1]); // don't need the write end of the pipe
+
+            dup2(pagerPipe[0], STDIN_FILENO);  // the child reads from the read end of the pipe
+            dup2(ofd,          STDOUT_FILENO); // the child writes to the original output
+            
+            const char* pager;
+            if (!(pager = getenv("PAGER")))
+            {
+               pager = DefaultPager;
+            }
+
+            execlp( pager, pager, (char*)NULL );
+         }
+      }
+      else
+      {
+         // pipe call failed
+         fprintf(stderr, "failed to open pipe for pager: %s\n", strerror(errno));
+         return 1;
+      }
+   }
+
    position = 0;
    line_tabbed = 0;
    i = read(ifd, input_buffer, BUFFER_SIZE);
@@ -322,11 +389,15 @@ int main(int argc, char * argv[])
    {
       int j;
       for(j = 0; j != i; j++)
+      {
          process_char(input_buffer[j], ofd);
+      }
       i = read(ifd, input_buffer, BUFFER_SIZE);
    }
 
    flush_buffer(ofd);
-
+   close(ofd);
+   close(ifd);
+   
    return 0;
 }
