@@ -138,8 +138,6 @@
 	<!-- NOTE : Remove these aftr jetty-jar and servlet-jar are migrated to sipxcommons -->
     	<copy todir="${dest.dir}${sipxbridge.dir}">
 		<fileset file="${stun4j}" />
-		<fileset file="${jetty-jar}" />
-		<fileset file="${servlet-jar}" />
     	</copy>
   </target>
 
