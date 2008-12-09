@@ -17,8 +17,7 @@ bin_SCRIPTS = \
 	 ipcclean.pl
 
 SipxLibexecScripts = \
-	sipx-strip-db-secrets.pl \
-	initial-config
+	sipx-strip-db-secrets.pl
 
 SipxLibexecPythonScripts = \
 	 sipx_setup_common.py

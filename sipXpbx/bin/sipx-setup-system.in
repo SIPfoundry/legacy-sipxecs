@@ -528,14 +528,14 @@ UTC=true\n' % TimeZone
     progress(80, "Set system clock")
     show_progress()
 
-    log_printout("Time before set: %s" % time.strftime("%Y-%m-%d %H:%M:S +000", time.gmtime()))
+    log_printout("Time before set: %s" % time.strftime("%Y-%m-%d %H:%M:%S +000", time.gmtime()))
 
     timeSet=False
 
     ntpServerReachable=False
     ntpServerForceReady=False
     while (not ntpServerReachable) and (not ntpServerForceReady) :
-        # try to ping the first time server
+        # Test for something listening to the ntp port on the configured servers
         # so we don't get stuck in the ntpd command if it's unreachable
         ntpProbe=82
         checkMsg  = 'Checking reachability of NTP servers:\n   '
@@ -547,13 +547,21 @@ UTC=true\n' % TimeZone
             probeMsg="Probe of NTP server '%s'" % ts
             progress(ntpProbe, probeMsg)
             show_starting()
-            peerCmd='ping -c 1 "%s"' % ts
-            log_printout("Checking ntp server: '%s'\n" % peerCmd)
+            peerCmd='ping -c 1 -i 0.5 "%s"' % ts
+            log_printout("Checking ntp server ip: '%s'\n" % peerCmd)
             peerResult=commands.getstatusoutput(peerCmd)
             log_printout(peerResult[1])
             if peerResult[0] == 0 :
                 ntpServerReachable=True
-                probeMsg="Probe of NTP server '%s' Succeeded" % ts
+                peerCmd='nc -u -p 123 -z "%s" 123' % ts
+                log_printout("Checking ntp server port: '%s'\n" % peerCmd)
+                peerResult=commands.getstatusoutput(peerCmd)
+                log_printout(peerResult[1])
+                if peerResult[0] == 0 :
+                    ntpServerReachable=True
+                    probeMsg="NTP server found at '%s'" % ts
+                else:
+                    probeMsg="No NTP server detected at '%s'" % ts
             else:
                 probeMsg="Probe of NTP server '%s' Failed" % ts
             show_next()
@@ -621,10 +629,10 @@ using NTP if possible.'
 # ntpd configuration\n\
 # ------------------\n\
 #\n\
-# Permit time synchronization with our time source, but do not\
-# permit the source to query or modify the service on this system.\
-restrict default kod nomodify notrap nopeer noquery\
-restrict -6 default kod nomodify notrap nopeer noquery\
+# Permit time synchronization with our time source, but do not\n\
+# permit the source to query or modify the service on this system.\n\
+restrict default kod nomodify notrap nopeer noquery\n\
+restrict -6 default kod nomodify notrap nopeer noquery\n\
 #\n\
 # Permit all access over the loopback interface\n\
 restrict 127.0.0.1\n\
@@ -664,13 +672,12 @@ driftfile /var/lib/ntp/drift\n\
         progress(86, ntpSetMsg)
         show_starting()
         if runningAsRoot() :
-            ntpSetCmd='/usr/sbin/ntpd -q -x -g'
+            ntpSetCmd='/usr/sbin/ntpd -q -g'
             log_printout("Attempting to set date/time with: '%s'\n" % ntpSetCmd)
             cmdresult=commands.getstatusoutput(ntpSetCmd)
             if cmdresult[0] == 0 :
                 timeSet=True
-            else:
-                log_printout(" ntpd failed\n%s\n" % cmdresult[1])
+            log_printout(" ntpd result:\n%s\n" % cmdresult[1])
         else :
             log_printout("(simulated) set time\n")
             timeSet=True
@@ -679,7 +686,7 @@ driftfile /var/lib/ntp/drift\n\
         log_printout("   ntp server peer tests failed")
 
     if timeSet :
-        log_printout("Time after set: %s" % time.strftime("%Y-%m-%d %H:%M:S +000", time.gmtime()))
+        log_printout("Time after set: %s" % time.strftime("%Y-%m-%d %H:%M:%S +000", time.gmtime()))
     else:
         # Set time manually
         grid=snack.Grid(6,4)
