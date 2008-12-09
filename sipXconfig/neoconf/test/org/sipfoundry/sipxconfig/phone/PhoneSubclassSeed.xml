@@ -4,6 +4,6 @@
     <phone 
   		serial_number="000000000000" 		
 	  	phone_id="1000"
-      bean_id="polycom"
-      model_id="polycom300"/> 
+      bean_id="grandstream"
+      model_id="gsPhoneBt100"/>
 </dataset>

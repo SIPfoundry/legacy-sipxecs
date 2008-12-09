@@ -20,6 +20,7 @@ import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.service.ConfiguredService;
 import org.sipfoundry.sipxconfig.service.ServiceDescriptor;
 import org.sipfoundry.sipxconfig.service.ServiceManager;
+import org.sipfoundry.sipxconfig.service.SipxRegistrarService;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.sipfoundry.sipxconfig.service.UnmanagedService;
 import org.springframework.beans.factory.annotation.Required;
@@ -60,6 +61,7 @@ public class DeviceDefaults {
     private SipxServiceManager m_sipxServiceManager;
 
     private String m_mohUser;
+
 
     public void setDefaultNtpService(String defaultNtpService) {
         m_defaultNtpService = defaultNtpService;
@@ -244,4 +246,11 @@ public class DeviceDefaults {
     public String getLogDirectory() {
         return m_logDirectory;
     }
+
+    public String getDirectedCallPickupCode() {
+        SipxRegistrarService registrarService = (SipxRegistrarService) m_sipxServiceManager
+                .getServiceByBeanId(SipxRegistrarService.BEAN_ID);
+        return registrarService.getDirectedCallPickupCode();
+    }
+
 }

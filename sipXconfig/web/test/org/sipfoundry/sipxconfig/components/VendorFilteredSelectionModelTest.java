@@ -17,7 +17,6 @@ import junit.framework.TestCase;
 import org.sipfoundry.sipxconfig.phone.PhoneModel;
 import org.sipfoundry.sipxconfig.phone.cisco.CiscoModel;
 import org.sipfoundry.sipxconfig.phone.grandstream.GrandstreamModel;
-import org.sipfoundry.sipxconfig.phone.polycom.PolycomModel;
 
 /**
  * VendorFilteredSelectionModelTest
@@ -28,7 +27,6 @@ public class VendorFilteredSelectionModelTest extends TestCase {
 
     private PhoneModel ciscoModel1;
     private PhoneModel grandstreamModel1;
-    private PhoneModel polycomModel1;
     private PhoneModel ciscoModel2;
 
     protected void setUp() throws Exception {
@@ -50,11 +48,6 @@ public class VendorFilteredSelectionModelTest extends TestCase {
         grandstreamModel1.setLabel("GrandStream 1");
         grandstreamModel1.setVendor("grandstream");
 
-        polycomModel1 = new PolycomModel();
-        polycomModel1.setBeanId("polycom1");
-        polycomModel1.setLabel("Polycom 1");
-        polycomModel1.setVendor("polycom");
-
         ciscoModel2 = new CiscoModel();
         ciscoModel2.setBeanId("cisco2");
         ciscoModel2.setLabel("Cisco 2");
@@ -62,7 +55,6 @@ public class VendorFilteredSelectionModelTest extends TestCase {
 
         devicesModels.add(ciscoModel1);
         devicesModels.add(grandstreamModel1);
-        devicesModels.add(polycomModel1);
         devicesModels.add(ciscoModel2);
         m_model.setCollection(devicesModels);
     }

@@ -337,8 +337,6 @@
       </fileset>
       <fileset dir="etc/kphone" includes="**/*.xml" excludes="types.xml">
       </fileset>
-      <fileset dir="etc/polycom" includes="**/*.xml" excludes="types.xml">
-      </fileset>
       <fileset dir="etc/snom" includes="**/*.xml" excludes="types.xml">
       </fileset>
       <fileset dir="etc/grandstream" includes="**/*.xml" excludes="types.xml">

@@ -115,7 +115,13 @@ public class PhoneTestDriver {
     }
 
     public static DeviceDefaults getDeviceDefaults() {
-        DeviceDefaults defaults = new DeviceDefaults();
+        DeviceDefaults defaults = new DeviceDefaults() {
+            // This is a hack to workaround the problem that polycom plugin
+            // cannot access sipxregistrar.xml from unit tests.
+            public String getDirectedCallPickupCode() {
+                return "*78";
+            }
+        };
         TimeZone tz = TimeZone.getTimeZone("Etc/GMT+5");
         defaults.setDeviceTimeZone(new DeviceTimeZone(tz)); // no DST for consistent
         // results

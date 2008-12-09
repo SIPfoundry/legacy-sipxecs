@@ -9,7 +9,8 @@ SUBDIRS = \
 	mitel \
         nortel \
         counterpath \
-        cmcprov
+        cmcprov \
+        polycom
 
 EXTRA_DIST = \
 	$(SUBDIRS) \

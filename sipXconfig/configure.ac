@@ -125,6 +125,7 @@ AC_CONFIG_FILES([
     plugins/nortel/Makefile
     plugins/counterpath/Makefile
     plugins/cmcprov/Makefile
+    plugins/polycom/Makefile
 ])
 
 AC_OUTPUT

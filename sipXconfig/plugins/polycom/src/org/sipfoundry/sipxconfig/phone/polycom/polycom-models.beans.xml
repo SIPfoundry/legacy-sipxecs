@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN"
+  "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+  <bean id="polycomModel" parent="abstractPhoneModel" class="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel"
+    abstract="true" >
+	<property name="vendor" value="Polycom"/>
+  </bean>
+
+  <bean id="polycom300" parent="polycomModel">
+    <property name="label" value="Polycom SoundPoint IP 300/301" />
+    <property name="maxLineCount" value="2" />
+	<property name="supportedFeatures">
+	  <set>
+		<value>disableCallList</value>
+	  </set>
+    </property>
+  </bean>
+  <bean id="polycom330" parent="polycomModel">
+    <property name="label" value="Polycom SoundPoint IP 320/330" />
+    <property name="maxLineCount" value="2" />
+	<property name="supportedFeatures">
+	  <set>
+		<value>voiceQualityMonitoring</value>
+	  </set>
+    </property>
+  </bean>
+  <bean id="polycom430" parent="polycomModel">
+    <property name="label" value="Polycom SoundPoint IP 430" />
+    <property name="maxLineCount" value="2" />
+	<property name="supportedFeatures">
+	  <set>
+		<value>disableCallList</value>
+		<value>voiceQualityMonitoring</value>
+	  </set>
+    </property>
+  </bean>
+  <bean id="polycom500" parent="polycomModel">
+    <property name="label" value="Polycom SoundPoint IP 500/501" />
+    <property name="maxLineCount" value="3" />
+	<property name="supportedFeatures">
+	  <set>
+		<value>disableCallList</value>
+		<value>voiceQualityMonitoring</value>
+	  </set>
+    </property>
+  </bean>
+  <bean id="polycom550" parent="polycomModel">
+    <property name="label" value="Polycom SoundPoint IP 550/560" />
+    <property name="maxLineCount" value="4" />
+	<property name="supportedFeatures">
+	  <set>
+		<value>disableCallList</value>
+		<value>voiceQualityMonitoring</value>
+		<value>nway-conference</value>
+		<value>localConferenceCallHold</value>
+		<value>singleKeyPressConference</value>
+	  </set>
+    </property>
+  </bean>
+  <bean id="polycom600" parent="polycomModel">
+    <property name="label" value="Polycom SoundPoint IP 600/601" />
+    <property name="maxLineCount" value="12" />
+	<property name="supportedFeatures">
+	  <set>
+		<value>disableCallList</value>
+		<value>voiceQualityMonitoring</value>
+	  </set>
+    </property>
+  </bean>
+  <bean id="polycom650" parent="polycomModel">
+    <property name="label" value="Polycom SoundPoint IP 650/670" />
+    <property name="maxLineCount" value="12" />
+	<property name="supportedFeatures">
+	  <set>
+		<value>disableCallList</value>
+		<value>voiceQualityMonitoring</value>
+		<value>nway-conference</value>
+		<value>localConferenceCallHold</value>
+		<value>singleKeyPressConference</value>
+	  </set>
+    </property>
+  </bean>
+  <bean id="polycom4000" parent="polycomModel">
+    <property name="label" value="Polycom SoundStation IP 4000" />
+    <property name="maxLineCount" value="1" />
+	<property name="supportedFeatures">
+	  <set>
+		<value>disableCallList</value>
+		<value>voiceQualityMonitoring</value>
+	  </set>
+    </property>
+  </bean>
+  <bean id="polycom6000" parent="polycomModel">
+    <property name="label" value="Polycom SoundStation IP 6000" />
+    <property name="maxLineCount" value="1" />
+	<property name="supportedFeatures">
+	  <set>
+		<value>disableCallList</value>
+	  </set>
+    </property>
+  </bean>
+  <bean id="polycom7000" parent="polycomModel">
+    <property name="label" value="Polycom SoundStation IP 7000" />
+    <property name="maxLineCount" value="1" />
+	<property name="supportedFeatures">
+	  <set>
+		<value>nway-conference</value>
+		<value>localConferenceCallHold</value>
+		<value>singleKeyPressConference</value>
+	  </set>
+    </property>
+  </bean>
+  <bean id="polycom" class="org.sipfoundry.sipxconfig.phone.polycom.PolycomPhone" singleton="false"
+    parent="abstractPhone">
+  </bean>
+  <bean id="polycomFirmware" class="org.sipfoundry.sipxconfig.upload.UploadSpecification">
+    <property name="beanId" value="zipUpload" />
+    <property name="modelFilePath" value="polycom/upload.xml" />
+    <property name="label" value="Polycom Soundpoint" />
+  </bean>
+</beans>

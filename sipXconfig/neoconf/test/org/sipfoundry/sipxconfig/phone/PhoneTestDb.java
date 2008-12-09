@@ -23,7 +23,7 @@ import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.device.ModelSource;
-import org.sipfoundry.sipxconfig.phone.polycom.PolycomModel;
+import org.sipfoundry.sipxconfig.phone.grandstream.GrandstreamModel;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
 import org.sipfoundry.sipxconfig.setting.ValueStorage;
@@ -148,8 +148,8 @@ public class PhoneTestDb extends SipxDatabaseTestCase {
     }
 
     public void testPhoneSubclassSave() throws Exception {
-        PhoneModel model = new PolycomModel();
-        model.setModelId("polycom300");
+        PhoneModel model = new GrandstreamModel();
+        model.setModelId("gsPhoneBt100");
         Phone subclass = context.newPhone(model);
         subclass.setSerialNumber("000000000000");
         context.storePhone(subclass);
@@ -224,7 +224,7 @@ public class PhoneTestDb extends SipxDatabaseTestCase {
     public void testDeviceVersion() throws Exception {
         TestHelper.cleanInsertFlat("phone/PhoneVersionSeed.db.xml");
         Phone phone = context.loadPhone(1000);
-        assertSame(PolycomModel.VER_2_0, phone.getDeviceVersion());
+        assertSame("grandstream1.0", phone.getDeviceVersion());
 
         context.storePhone(phone);
 

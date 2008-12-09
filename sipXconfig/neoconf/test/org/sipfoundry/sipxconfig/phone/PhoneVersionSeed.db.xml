@@ -4,8 +4,8 @@
 	<phone 
 		serial_number="00001"
 		phone_id="1000" 
-		bean_id="polycom"
-    device_version_id="polycom2.0"
-    model_id="430"/>
+		bean_id="grandstream"
+    device_version_id="grandstream1.0"
+    model_id="100"/>
 	
 </dataset>

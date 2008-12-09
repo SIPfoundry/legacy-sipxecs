@@ -4,9 +4,9 @@
     <phone 
   		serial_number="000000000000" 		
 	  	phone_id="[phone_id]"
-      bean_id="polycom"
-      model_id="polycom300"
+      bean_id="grandstream"
+      model_id="gsPhoneBt100"
       description="[null]"
-      device_version_id="polycom2.0"
+      device_version_id="grandstream1.0"
 		  value_storage_id="[null]"/> 
 </dataset>
