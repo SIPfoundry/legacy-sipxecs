@@ -103,9 +103,12 @@ NatTraversalAgent::readConfig( OsConfigDb& configDb /**< a subhash of the indivi
                     );
    }
    mNatTraversalRules.loadRules( fileName );
-
+   
    if( mNatTraversalRules.isEnabled() )
    {
+      OsSysLog::add(FAC_NAT, PRI_INFO, "NatTraversalAgent[%s]::readConfig: "
+                    " NAT Traversal feature is ENABLED", mInstanceName.data() );
+      
       if( !mpMediaRelay )
       {
          mpMediaRelay = new MediaRelay();
@@ -154,6 +157,11 @@ NatTraversalAgent::readConfig( OsConfigDb& configDb /**< a subhash of the indivi
 
       }
    }
+   else
+   {
+      OsSysLog::add(FAC_NAT, PRI_INFO, "NatTraversalAgent[%s]::readConfig: "
+                    " NAT Traversal feature is DISABLED", mInstanceName.data() );
+  }
 }
 
 AuthPlugin::AuthResult
