@@ -37,7 +37,7 @@ libDummyAuthPlugin_la_CXXFLAGS = \
     -I$(top_srcdir)/include    
 
 libDummyAuthPlugin_la_SOURCES =  \
-    DummyAuthPlugIn.h \ 
+    DummyAuthPlugIn.h \
     DummyAuthPlugIn.cpp 
     
 check_PROGRAMS = \
