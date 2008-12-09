@@ -106,6 +106,12 @@ public class Gateway {
      */
     private static CallControlManager callControlManager;
     
+    
+    /*
+     * The RTP session manager.
+     */
+    private static RtpSessionManager rtpSessionManager;
+    
     /*
      * The allocator for back to back user agents.
      */
@@ -518,6 +524,8 @@ public class Gateway {
 
             callControlManager = new CallControlManager();
             
+            rtpSessionManager = new RtpSessionManager();
+            
             backToBackUserAgentFactory = new BackToBackUserAgentFactory();
 
         } catch (Throwable ex) {
@@ -562,6 +570,15 @@ public class Gateway {
     static CallControlManager getCallControlManager() {
         return callControlManager;
     }
+    
+    /**
+     * 
+     * @return  the rtp session manager.
+     */
+    public static RtpSessionManager getRtpSessionManager() {
+		return rtpSessionManager;
+	}
+
     
     /**
      * Get the back to back user agent factory.
@@ -1151,6 +1168,7 @@ public class Gateway {
 
     }
 
+	
 	
 	
 

@@ -7,29 +7,12 @@
 
 package org.sipfoundry.sipxbridge;
 
-import gov.nist.javax.sip.DialogExt;
-import gov.nist.javax.sip.header.ims.PAssertedIdentityHeader;
-
-import java.io.IOException;
-import java.util.HashSet;
-
-import javax.sdp.SdpParseException;
 import javax.sdp.SessionDescription;
-import javax.sip.ClientTransaction;
-import javax.sip.Dialog;
-import javax.sip.DialogState;
-import javax.sip.ServerTransaction;
-import javax.sip.SipException;
-import javax.sip.SipProvider;
-import javax.sip.header.AcceptHeader;
-import javax.sip.header.ContentTypeHeader;
 import javax.sip.message.Message;
-import javax.sip.message.Request;
-import javax.sip.message.Response;
 
 import org.apache.log4j.Logger;
 import org.sipfoundry.sipxbridge.symmitron.SymImpl;
-import org.sipfoundry.sipxbridge.symmitron.SymInterface;
+import org.sipfoundry.sipxbridge.symmitron.SymmitronClient;
 
 class RtpSession {
 
@@ -41,14 +24,11 @@ class RtpSession {
 
     private RtpTransmitterEndpoint rtpTransmitterEndpoint;
 
-    private boolean reInviteForwarded;
-
     public RtpSession(SymImpl symImpl) {
         this.symImpl = symImpl;
         this.rtpReceiverEndpoint = new RtpReceiverEndpoint(symImpl.getReceiver());
     }
 
-   
     public SymImpl getSym() {
         return this.symImpl;
     }
@@ -70,8 +50,8 @@ class RtpSession {
         symImpl.setTransmitter(endpoint.getSymTransmitter());
     }
 
-    protected boolean isHoldRequest(Request request) throws SdpParseException {
-        SessionDescription sessionDescription = SipUtilities.getSessionDescription(request);
+    protected boolean isHoldRequest(SessionDescription sessionDescription) {
+
         int oldPort = this.getTransmitter().getPort();
         String oldIpAddress = this.getTransmitter().getIpAddress();
 
@@ -90,8 +70,8 @@ class RtpSession {
         String sessionAttribute = SipUtilities.getSessionDescriptionAttribute(sessionDescription);
 
         if (logger.isDebugEnabled()) {
-            logger.debug("mediaAttribute = " + mediaAttribute);
-            logger.debug("sessionAttribute = " + sessionAttribute);
+            logger.debug("mediaAttribute = " + mediaAttribute + "sessionAttribute = "
+                    + sessionAttribute);
         }
         /*
          * RFC2543 specified that placing a user on hold was accomplished by setting the
@@ -112,281 +92,8 @@ class RtpSession {
         return false;
     }
 
-    
-    /**
-     * Forward the re-INVITE to the iTSP. Creates a corresponding client 
-     * transaction and forwards the re-INVITE to the ITSP.
-     * 
-     * @param serverTransaction - server transaction to forward
-     * @param dialog - dialog associated with server transaction.
-     * 
-     * @throws Exception
-     */
-    void forwardReInvite(ServerTransaction serverTransaction, Dialog dialog) throws Exception {
-        /*
-         * If we are re-negotiating media, then use the new session description of the incoming
-         * invite for the call setup attempt.
-         */
-        if (serverTransaction != null) {
-            Request request = serverTransaction.getRequest();
-            if (request.getContentLength().getContentLength() != 0) {
-                SessionDescription fwdSd = SipUtilities.getSessionDescription(request);
-                /*
-                 * This is our offer that we are forwarding to the other side. Store it here.
-                 */
-                this.getReceiver().setSessionDescription(fwdSd);
-            }
-        }
-        
-        SessionDescription sd = this.getReceiver().getSessionDescription();
-        
-        // HACK alert. Some ITSPs do not like sendonly
-        String duplexity = SipUtilities.getSessionDescriptionMediaAttributeDuplexity(sd);
-        if (duplexity != null && duplexity.equals("sendonly")) {
-            SipUtilities.setDuplexity(sd, "sendrecv");
-        }
-
-        DialogApplicationData dat = (DialogApplicationData) dialog.getApplicationData();
-        BackToBackUserAgent b2bua = dat.getBackToBackUserAgent();
-        Dialog peerDialog = DialogApplicationData.getPeerDialog(dialog);
-        
-        /*
-         * Check if the server side of the dialog is still alive. If not
-         * return an error.
-         */
-        if ( peerDialog.getState() == DialogState.TERMINATED ) {
-        	Response response = SipUtilities.createResponse(serverTransaction, Response.SERVER_INTERNAL_ERROR);
-        	response.setReasonPhrase("Peer Dialog is Terminated");
-        	return;	
-        }
-        
-        DialogApplicationData peerDat = DialogApplicationData.get(peerDialog);
-
-        b2bua.getWanRtpSession(peerDialog).getReceiver().setSessionDescription(sd);
-        SipUtilities.incrementSessionVersion(sd);
-
-        peerDat.sessionDescription = sd.toString();
-        
-      
-
-        Request newInvite = peerDialog.createRequest(Request.INVITE);
-
-        SipProvider peerProvider = ((DialogExt) peerDialog).getSipProvider();
-
-        /*
-         * Sending request to ITSP - make the addressing global if required.
-         */
-        if (peerProvider != Gateway.getLanProvider()) {
-            /*
-             * Make sure that global addressing is set.
-             */
-            logger.debug("peerDat.itspInfo " + peerDat.getItspInfo());
-            if (peerDat.getItspInfo() == null || peerDat.getItspInfo().isGlobalAddressingUsed()) {
-                if (Gateway.getGlobalAddress() != null) {
-                    SipUtilities.setGlobalAddresses(newInvite);
-                    SipUtilities.fixupSdpAddresses(sd, Gateway.getGlobalAddress());
-                } else {
-                    javax.sip.header.WarningHeader warning = ProtocolObjects.headerFactory
-                            .createWarningHeader("SipXbridge", 102,
-                                    "Public address of bridge is not known.");
-                    b2bua.tearDown(warning);
-
-                }
-            }
-
-        }
-
-        newInvite.removeHeader(PAssertedIdentityHeader.NAME);
-        AcceptHeader acceptHeader = ProtocolObjects.headerFactory.createAcceptHeader(
-                "application", "sdp");
-        newInvite.setHeader(acceptHeader);
-        SipUtilities.addWanAllowHeaders(newInvite);
-        ContentTypeHeader cth = ProtocolObjects.headerFactory.createContentTypeHeader(
-                "application", "sdp");
-        newInvite.setContent(sd.toString(), cth);
-
-        ClientTransaction ctx = ((DialogExt) peerDialog).getSipProvider()
-                .getNewClientTransaction(newInvite);
-        TransactionApplicationData tad = TransactionApplicationData.attach(ctx,
-                Operation.FORWARD_REINVITE);
-
-        tad.setServerTransaction(serverTransaction);
-
-        tad.serverTransactionProvider = ((DialogExt) dialog).getSipProvider();
-
-        peerDialog.sendRequest(ctx);
-        this.reInviteForwarded = true;
-    }
-
-    /**
-     * Set the transmitter IP address and port from the sdp parameters extracted from the message.
-     * 
-     * @param message
-     * @throws Exception
-     */
-    void setTransmitterPort(Message message) throws Exception {
-        if (logger.isDebugEnabled()) {
-            logger.debug("RtpSession.setTransmitterPort");
-        }
-        if (this.getTransmitter() != null) {
-            this.getTransmitter().setOnHold(false);
-
-            SessionDescription reInviteSd = SipUtilities.getSessionDescription(message);
-            int port = SipUtilities.getSessionDescriptionMediaPort(reInviteSd);
-            String ipAddress = SipUtilities.getSessionDescriptionMediaIpAddress(reInviteSd);
-
-            this.getTransmitter().setIpAddressAndPort(ipAddress, port);
-        }
-    }
-
-    /**
-     * Remove the music on hold.
-     * 
-     * @param dialog
-     */
-    void removeHold(ServerTransaction serverTransaction, Dialog dialog) {
-        try {
-            logger.debug("Remove media on hold!");
-            SipUtilities.setDuplexity(this.getReceiver().getSessionDescription(), "sendrecv");
-            SipUtilities.incrementSessionVersion(this.getReceiver().getSessionDescription());
-            Request request = serverTransaction.getRequest();
-            this.setTransmitterPort(request);
-
-            DialogApplicationData dat = (DialogApplicationData) dialog.getApplicationData();
-            BackToBackUserAgent b2bua = dat.getBackToBackUserAgent();
-
-            b2bua.sendByeToMohServer();
-
-            SessionDescription sd = this.getReceiver().getSessionDescription();
-
-            SipProvider provider = ((DialogExt) dialog).getSipProvider();
-
-            if (provider != Gateway.getLanProvider() || Gateway.isReInviteSupported()) {
-                /*
-                 * RE-INVITE was received from WAN side or from LAN side and wan side supports
-                 * Re-INIVTE then just forward it.
-                 */
-                this.forwardReInvite(serverTransaction, dialog);
-            }
-        } catch (Exception ex) {
-            throw new RuntimeException(ex);
-        }
-    }
-
-    /**
-     * Put the session on hold. Sends an INVITE to the park server to start playing music.
-     * 
-     * @param dialog
-     * @param peerDialog
-     * @throws SipException
-     */
-    void putOnHold(Dialog dialog, Dialog peerDialog) throws SipException {
-
-        if (logger.isDebugEnabled()) {
-            logger.debug("setting media on hold " + this.toString());
-        }
-        this.getTransmitter().setOnHold(true);
-        if (Gateway.getMusicOnHoldAddress() != null) {
-            /*
-             * For the standard MOH, the URI is defined to be <sip:~~mh~@[domain]>.
-             */
-            ClientTransaction mohCtx;
-            try {
-                mohCtx = DialogApplicationData.getBackToBackUserAgent(dialog)
-                        .createClientTxToMohServer(
-                                (SessionDescription) this.getReceiver().getSessionDescription()
-                                        .clone());
-            } catch (CloneNotSupportedException e) {
-                throw new RuntimeException("Unexpected exception ", e);
-            }
-            DialogApplicationData dat = (DialogApplicationData) dialog.getApplicationData();
-            Dialog mohDialog = mohCtx.getDialog();
-            DialogApplicationData mohDat = DialogApplicationData.get(mohDialog);
-            mohDat.peerDialog = peerDialog;
-            mohCtx.sendRequest();
-
-        }
-        SipUtilities.setDuplexity(this.getReceiver().getSessionDescription(), "recvonly");
-        SipUtilities.incrementSessionVersion(this.getReceiver().getSessionDescription());
-    }
-
-    /**
-     * Reassign the session parameters ( possibly putting the media on hold and playing music ).
-     * 
-     * @param sessionDescription
-     * @param dat -- the dialog application data
-     * @return -- the recomputed session description.
-     */
-    SessionDescription reAssignSessionParameters(Request request,
-            ServerTransaction serverTransaction, Dialog dialog, Dialog peerDialog)
-            throws SdpParseException, SipException {
-        try {
-            if (peerDialog != null) {
-                logger.debug("reAssignSessionParameters: peerDialog = " + peerDialog
-                        + " peerDialogApplicationData = " + peerDialog.getApplicationData()
-                        + "\n lastResponse = "
-                        + DialogApplicationData.get(peerDialog).lastResponse);
-            }
-
-            this.reInviteForwarded = false;
-            SessionDescription sessionDescription = SipUtilities.getSessionDescription(request);
-
-            int newport = SipUtilities.getSessionDescriptionMediaPort(sessionDescription);
-            String newIpAddress = SipUtilities
-                    .getSessionDescriptionMediaIpAddress(sessionDescription);
-
-            /*
-             * Get the a media attribute -- CAUTION - this only takes care of the first media.
-             * Question - what to do when only one media stream is put on hold?
-             */
-
-            String mediaAttribute = SipUtilities
-                    .getSessionDescriptionMediaAttributeDuplexity(sessionDescription);
-
-            String sessionAttribute = SipUtilities
-                    .getSessionDescriptionAttribute(sessionDescription);
-
-            if (logger.isDebugEnabled()) {
-                logger.debug("mediaAttribute = " + mediaAttribute);
-                logger.debug("sessionAttribute = " + sessionAttribute);
-            }
-
-            String attribute = sessionAttribute != null ? sessionAttribute : mediaAttribute;
-
-            if (this.isHoldRequest(request)) {
-                /*
-                 * Got a hold request. The answer should have a subset of codecs limited by the
-                 * offer
-                 */
-                this.putOnHold(dialog, peerDialog);
-                HashSet<Integer> codecs = SipUtilities.getCodecNumbers(sessionDescription);
-                SipUtilities.cleanSessionDescription(this.getReceiver().getSessionDescription(),
-                        codecs);
-                return this.getReceiver().getSessionDescription();
-            } else if (attribute == null || attribute.equals("sendrecv")) {
-                this.removeHold(serverTransaction, dialog);
-                return this.getReceiver().getSessionDescription();
-            } else {
-                SessionDescription retval = this.getReceiver().getSessionDescription();
-                this.getTransmitter().setIpAddressAndPort(newIpAddress, newport);
-                return retval;
-            }
-
-        } catch (IOException ex) {
-            throw new SipException("Exception occured while connecting", ex);
-        }
-
-    }
-
     public String getReceiverState() {
         return this.symImpl.getRecieverState();
-    }
-
-    /**
-     * @return the reInviteForwarded
-     */
-    boolean isReInviteForwarded() {
-        return reInviteForwarded;
     }
 
 }

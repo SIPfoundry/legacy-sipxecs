@@ -35,18 +35,6 @@ class TransactionApplicationData {
      */
     Operation operation;
     
-    /*
-     * The continuation operation after the current tx is complete
-     */
-
-    Operation continuationOperation;
-
-    /*
-     * The incoming session. This is associated with the incoming invite. It is
-     * completed when the response is forwarded.
-     */
-    RtpSession incomingSession;
-    
     
     /*
      * The Pending outgoing session ( awaiting completion after the response
@@ -115,10 +103,7 @@ class TransactionApplicationData {
      */
     Request referRequest;
 
-	/*
-	 * Pending response to be dispatched when OK is received for BYE.
-	 */
-    Response pendingResponse;
+	
 
     /**
      * The server side of the pairing.
@@ -191,6 +176,14 @@ class TransactionApplicationData {
 		
 		return (TransactionApplicationData) transaction.getApplicationData();
 	}
+
+    public Operation getContinuationOperation() {
+        if ( this.continuationData == null) {
+            return Operation.NONE;
+        } else {
+            return this.continuationData.getOperation();
+        }
+    }
 
     
 

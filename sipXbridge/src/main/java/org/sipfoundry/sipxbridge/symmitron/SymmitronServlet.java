@@ -21,32 +21,9 @@ import org.apache.xmlrpc.server.PropertyHandlerMapping;
 import org.apache.xmlrpc.server.XmlRpcServerConfigImpl;
 import org.apache.xmlrpc.webserver.XmlRpcServletServer;
 
-class SymmitronServlet extends HttpServlet {
-    private static XmlRpcServletServer server;
+public class SymmitronServlet extends HttpServlet {
+    private XmlRpcServletServer server;
 
-    static {
-        try {
-            // Add your handlers here:
-
-            PropertyHandlerMapping handlerMapping = new PropertyHandlerMapping();
-
-            handlerMapping.addHandler("sipXrelay", SymmitronServer.class);
-
-            server = new XmlRpcServletServer();
-           
-
-            XmlRpcServerConfigImpl serverConfig = new XmlRpcServerConfigImpl();
-            serverConfig.setKeepAliveEnabled(true);
-            serverConfig.setEnabledForExceptions(true);
-            serverConfig.setEnabledForExtensions(true);
-            server.setMaxThreads(4);
-
-            server.setConfig(serverConfig);
-            server.setHandlerMapping(handlerMapping);
-        } catch (Exception ex) {
-            throw new RuntimeException("Initialization failure", ex);
-        }
-    }
 
     /*
      * (non-Javadoc)
@@ -54,7 +31,26 @@ class SymmitronServlet extends HttpServlet {
      * @see javax.servlet.GenericServlet#init()
      */
     public void init() throws ServletException {
+    	 try {
+            
+             PropertyHandlerMapping handlerMapping = new PropertyHandlerMapping();
 
+             handlerMapping.addHandler("sipXrelay", SymmitronServer.class);
+
+             server = new XmlRpcServletServer();
+            
+
+             XmlRpcServerConfigImpl serverConfig = new XmlRpcServerConfigImpl();
+             serverConfig.setKeepAliveEnabled(true);
+             serverConfig.setEnabledForExceptions(true);
+             serverConfig.setEnabledForExtensions(true);
+             server.setMaxThreads(4);
+
+             server.setConfig(serverConfig);
+             server.setHandlerMapping(handlerMapping);
+         } catch (Exception ex) {
+             throw new ServletException("Initialization failure", ex);
+         }
     }
 
     /*

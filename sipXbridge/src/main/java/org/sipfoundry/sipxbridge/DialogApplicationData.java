@@ -33,324 +33,407 @@ import javax.sip.message.Response;
 import org.apache.log4j.Logger;
 
 /**
- * Store information that is specific to a Dialog. This is a temporary holding place for dialog
- * specific data.
+ * Store information that is specific to a Dialog. This is a temporary holding
+ * place for dialog specific data that is specific to the lifetime of a SIP
+ * Dialog. There is one of these structures per dialog.
  * 
  * @author M. Ranganathan
  * 
  */
 class DialogApplicationData {
 
-    private static Logger logger = Logger.getLogger(DialogApplicationData.class);
+	private static Logger logger = Logger
+			.getLogger(DialogApplicationData.class);
 
-    /*
-     * The Peer Dialog of this Dialog.
-     */
-    Dialog peerDialog;
 
-    /*
-     * The last response seen by the dialog.
-     */
-    Response lastResponse;
+	/*
+	 * Dialog associated with this application data.
+	 */
+	private Dialog dialog;
+	/*
+	 * The Peer Dialog of this Dialog.
+	 */
+	Dialog peerDialog;
 
-    /*
-     * The B2BUA associated with the dialog.
-     */
-    private BackToBackUserAgent backToBackUserAgent;
+	/*
+	 * The request that originated the Dialog
+	 */
+	Request request;
 
-    /*
-     * Rtp session associated with this call leg.
-     */
+	/*
+	 * The transaction that created this DialogApplicationData
+	 */
 
-    RtpSession rtpSession;
+	Transaction transaction;
 
-    /*
-     * Flag to indicate that an SDP answer is pending.
-     */
-    boolean isSdpAnswerPending;
+	/*
+	 * The last response seen by the dialog.
+	 */
+	Response lastResponse;
 
-    /*
-     * Account information for the outbound dialog.
-     */
-    private ItspAccountInfo itspInfo;
+	/*
+	 * The B2BUA associated with the dialog. The BackToBackUserAgent structure
+	 * tracks call state.
+	 */
+	private BackToBackUserAgent backToBackUserAgent;
 
-    /*
-     * A flag that indicates whether this Dialog was created by sipxbridge.
-     */
-    boolean isOriginatedBySipxbridge;
+	/*
+	 * Account information for the associated dialog. There can be several
+	 * ITSPs involved in a single call ( each call leg can have its own
+	 * ITSP).
+	 */
+	private ItspAccountInfo itspInfo;
 
-    /*
-     * The request that originated the Dialog
-     */
-    Request request;
+	/*
+	 * A flag that indicates whether this Dialog was created by sipxbridge and
+	 * is managed by sipXbridge.
+	 */
+	boolean isOriginatedBySipxbridge;
 
-    String sessionDescription;
+	// /////////////////////////////////////////////////////////////
+	// Auxilliary data structures associated with dialog state machine.
+	// ////////////////////////////////////////////////////////////
+	/*
+	 * Rtp session associated with this call leg.
+	 */
 
-    boolean sendReInviteOnResume;
+	RtpSession rtpSession;
 
-    Transaction transaction;
+	/*
+	 * Session timer associated with this call leg.
+	 */
+	private SessionTimerTask sessionTimer;
 
-    boolean mohCodecNegotiationFailed;
+	// //////////////////////////////////////////////////////////////
+	// The following are state variables associated with the Dialog State
+	// machine.
+	// ///////////////////////////////////////////////////////////////
+	/*
+	 * Flag to indicate that an SDP answer is pending. When we see a response
+	 * from the peer we play back the SDP to the dialog in the ACK.
+	 */
+	boolean isSdpAnswerPending;
 
-    boolean isSdpOfferPending;
+	/*
+	 * Records that the codec renegogiation operation with the MOH server
+	 * failed (SDP offer to codec from ITSP did not contain a codec
+	 * supported by the MOH server).
+	 */
+	boolean mohCodecNegotiationFailed;
 
-    long lastAckSent; // Session timer - records when last ACK was sent for this dialog.
+	/*
+	 * Records that we need to re-send an INVITE with an SDP offer.
+	 */
+	boolean isSdpOfferPending;
 
-    int sessionExpires;
+	/*
+	 * Used by the session timer - to compute whether or not to send a session
+	 * timer re-INVITE.
+	 */
+	long lastAckSent;
 
-    private Dialog dialog;
+	/*
+	 * Session timer interval ( seconds ).
+	 */
+	int sessionExpires;
 
-    private SessionTimerTask sessionTimer;
+	/*
+	 * Records whether or not an ACCEPTED has been sent for the
+	 * REFER. This dictates what we need to do when we see a BYE
+	 * for this dialog.
+	 */
+	boolean isReferAccepted;
 
-    boolean isReferAccepted;
+	/*
+	 * The generated REFER request.
+	 */
+	Request referRequest;
 
-    Request referRequest;
+	
 
-    // /////////////////////////////////////////////////////////////////
-    // Inner classes.
-    // ////////////////////////////////////////////////////////////////
+	// /////////////////////////////////////////////////////////////////
+	// Inner classes.
+	// ////////////////////////////////////////////////////////////////
 
-    class SessionTimerTask extends TimerTask {
+	/**
+	 * The session timer task -- sends Re-INVITE to the associated
+	 * dialog at specific intervals.
+	 */
+	class SessionTimerTask extends TimerTask {
 
-        String method;
+		String method;
 
-        public SessionTimerTask(String method) {
-            this.method = method;
+		public SessionTimerTask(String method) {
+			this.method = method;
 
-        }
+		}
 
-        @Override
-        public void run() {
-            if (dialog.getState() == DialogState.TERMINATED) {
-                this.cancel();
-            }
+		@Override
+		public void run() {
+			if (dialog.getState() == DialogState.TERMINATED) {
+				this.cancel();
+			}
 
-            try {
-                Request request;
-                long currentTimeMilis = System.currentTimeMillis();
-                if (dialog.getState() == DialogState.CONFIRMED
-                        && DialogApplicationData.get(dialog).peerDialog != null) {
-                    if (method.equalsIgnoreCase(Request.INVITE)) {
+			try {
+				Request request;
+				long currentTimeMilis = System.currentTimeMillis();
+				if (dialog.getState() == DialogState.CONFIRMED
+						&& DialogApplicationData.get(dialog).peerDialog != null) {
+					if (method.equalsIgnoreCase(Request.INVITE)) {
 
-                        if (currentTimeMilis < lastAckSent - sessionExpires * 1000) {
-                            return;
-                        }
+						if (currentTimeMilis < lastAckSent - sessionExpires
+								* 1000) {
+							return;
+						}
 
-                        SipProvider provider = ((DialogExt) dialog).getSipProvider();
-                        RtpSession rtpSession = getRtpSession();
-                        if (rtpSession == null || rtpSession.getReceiver() == null) {
-                            return;
-                        }
-                        SessionDescription sd = rtpSession.getReceiver().getSessionDescription();
+						SipProvider provider = ((DialogExt) dialog)
+								.getSipProvider();
+						RtpSession rtpSession = getRtpSession();
+						if (rtpSession == null
+								|| rtpSession.getReceiver() == null) {
+							return;
+						}
+						SessionDescription sd = rtpSession.getReceiver()
+								.getSessionDescription();
 
-                        request = dialog.createRequest(Request.INVITE);
-                        request.removeHeader(AllowHeader.NAME);
-                        SipUtilities.addWanAllowHeaders(request);
-                        AcceptHeader accept = ProtocolObjects.headerFactory.createAcceptHeader(
-                                "application", "sdp");
-                        request.setHeader(accept);
-                        request.removeHeader(SupportedHeader.NAME);
+						request = dialog.createRequest(Request.INVITE);
+						request.removeHeader(AllowHeader.NAME);
+						SipUtilities.addWanAllowHeaders(request);
+						AcceptHeader accept = ProtocolObjects.headerFactory
+								.createAcceptHeader("application", "sdp");
+						request.setHeader(accept);
+						request.removeHeader(SupportedHeader.NAME);
 
-                        request.setContent(sd.toString(), ProtocolObjects.headerFactory
-                                .createContentTypeHeader("application", "sdp"));
-                        ContactHeader cth = SipUtilities.createContactHeader(provider,
-                                getItspInfo());
-                        request.setHeader(cth);
-                        SessionExpiresHeader sexp = ((HeaderFactoryExt) ProtocolObjects.headerFactory)
-                                .createSessionExpiresHeader(Gateway.getSessionExpires());
-                        request.setHeader(sexp);
-                        MinSE minSe = new MinSE();
-                        minSe.setExpires(Gateway.getSessionExpires());
-                        request.setHeader(minSe);
-                        SubjectHeader sh = ProtocolObjects.headerFactory
-                                .createSubjectHeader("SipxBridge Session Timer");
-                        request.setHeader(sh);
+						request.setContent(sd.toString(),
+								ProtocolObjects.headerFactory
+										.createContentTypeHeader("application",
+												"sdp"));
+						ContactHeader cth = SipUtilities.createContactHeader(
+								provider, getItspInfo());
+						request.setHeader(cth);
+						SessionExpiresHeader sexp = ((HeaderFactoryExt) ProtocolObjects.headerFactory)
+								.createSessionExpiresHeader(Gateway
+										.getSessionExpires());
+						request.setHeader(sexp);
+						MinSE minSe = new MinSE();
+						minSe.setExpires(Gateway.getSessionExpires());
+						request.setHeader(minSe);
+						SubjectHeader sh = ProtocolObjects.headerFactory
+								.createSubjectHeader("SipxBridge Session Timer");
+						request.setHeader(sh);
 
-                        if (getItspInfo() == null || getItspInfo().isGlobalAddressingUsed()) {
-                            SipUtilities.setGlobalAddresses(request);
-                        }
+						if (getItspInfo() == null
+								|| getItspInfo().isGlobalAddressingUsed()) {
+							SipUtilities.setGlobalAddresses(request);
+						}
 
-                    } else {
-                        request = dialog.createRequest(Request.OPTIONS);
-                    }
+					} else {
+						/*
+						 * This is never used but keep it here for now.
+						 */
+						request = dialog.createRequest(Request.OPTIONS);
+					}
 
-                    DialogExt dialogExt = (DialogExt) dialog;
-                    ClientTransaction ctx = dialogExt.getSipProvider().getNewClientTransaction(
-                            request);
-                    TransactionApplicationData.attach(ctx, Operation.SESSION_TIMER);
+					DialogExt dialogExt = (DialogExt) dialog;
+					ClientTransaction ctx = dialogExt.getSipProvider()
+							.getNewClientTransaction(request);
+					TransactionApplicationData.attach(ctx,
+							Operation.SESSION_TIMER);
 
-                    dialog.sendRequest(ctx);
+					dialog.sendRequest(ctx);
 
-                    DialogApplicationData.this.sessionTimer = new SessionTimerTask(this.method);
-                    
-                    int expiryTime = sessionExpires <  Gateway.MIN_EXPIRES ? Gateway.MIN_EXPIRES : sessionExpires ;
-                    
-                    Gateway.getTimer().schedule(sessionTimer, expiryTime - Gateway.TIMER_ADVANCE*1000);
+					DialogApplicationData.this.sessionTimer = new SessionTimerTask(
+							this.method);
 
-                }
+					int expiryTime = sessionExpires < Gateway.MIN_EXPIRES ? Gateway.MIN_EXPIRES
+							: sessionExpires;
 
-            } catch (Exception ex) {
-                logger.error("Unexpected exception sending Session Timer INVITE", ex);
-                this.cancel();
+					Gateway.getTimer().schedule(sessionTimer,
+							expiryTime - Gateway.TIMER_ADVANCE * 1000);
 
-            }
-        }
-    }
+				}
 
-    private DialogApplicationData(Dialog dialog) {
-        this.sessionExpires = Gateway.getSessionExpires();
-        this.dialog = dialog;
-        // Kick off a task to test for session liveness.
-        SipProvider provider = ((DialogExt) dialog).getSipProvider();
-        if (Gateway.getSessionTimerMethod() != null && provider != Gateway.getLanProvider()) {
-            this.sessionTimer = new SessionTimerTask(Gateway.getSessionTimerMethod());
-            Gateway.getTimer().schedule(this.sessionTimer, Gateway.SESSION_EXPIRES * 1000 - Gateway.TIMER_ADVANCE*1000);
-        }
+			} catch (Exception ex) {
+				logger
+						.error(
+								"Unexpected exception sending Session Timer INVITE",
+								ex);
+				this.cancel();
 
-    }
+			}
+		}
+	}
 
-    static BackToBackUserAgent getBackToBackUserAgent(Dialog dialog) {
-        if (dialog == null) {
-            logger.debug("null dialog -- returning null ");
-            return null;
-        } else if (dialog.getApplicationData() == null) {
-            logger.debug("null dialog application data -- returning null");
-            return null;
-        } else {
-            return ((DialogApplicationData) dialog.getApplicationData()).getBackToBackUserAgent();
-        }
-    }
+	/*
+	 * Constructor.
+	 */
+	private DialogApplicationData(Dialog dialog) {
+		this.sessionExpires = Gateway.getSessionExpires();
+		this.dialog = dialog;
+		// Kick off a task to test for session liveness.
+		SipProvider provider = ((DialogExt) dialog).getSipProvider();
+		if (Gateway.getSessionTimerMethod() != null
+				&& provider != Gateway.getLanProvider()) {
+			this.sessionTimer = new SessionTimerTask(Gateway
+					.getSessionTimerMethod());
+			Gateway.getTimer().schedule(
+					this.sessionTimer,
+					Gateway.SESSION_EXPIRES * 1000 - Gateway.TIMER_ADVANCE
+							* 1000);
+		}
 
-    /**
-     * Conveniance methods
-     */
-    static Dialog getPeerDialog(Dialog dialog) {
-        return ((DialogApplicationData) dialog.getApplicationData()).peerDialog;
-    }
+	}
 
-    static RtpSession getRtpSession(Dialog dialog) {
-        logger.debug("DialogApplicationData.getRtpSession " + dialog);
+	static BackToBackUserAgent getBackToBackUserAgent(Dialog dialog) {
+		if (dialog == null) {
+			logger.debug("null dialog -- returning null ");
+			return null;
+		} else if (dialog.getApplicationData() == null) {
+			logger.debug("null dialog application data -- returning null");
+			return null;
+		} else {
+			return ((DialogApplicationData) dialog.getApplicationData())
+					.getBackToBackUserAgent();
+		}
+	}
 
-        return ((DialogApplicationData) dialog.getApplicationData()).rtpSession;
-    }
+	/**
+	 * Conveniance methods
+	 */
+	static Dialog getPeerDialog(Dialog dialog) {
+		return ((DialogApplicationData) dialog.getApplicationData()).peerDialog;
+	}
 
-    static DialogApplicationData attach(BackToBackUserAgent backToBackUserAgent, Dialog dialog,
-            Transaction transaction, Request request) {
-        if (backToBackUserAgent == null)
-            throw new NullPointerException("Null back2back ua");
-        if (dialog.getApplicationData() != null)
-            throw new RuntimeException("Already set!!");
-       
-        DialogApplicationData dat = new DialogApplicationData(dialog);
-        dat.transaction = transaction;
-        dat.request = request;
-        dat.setBackToBackUserAgent(backToBackUserAgent);
-        dialog.setApplicationData(dat);
+	static RtpSession getRtpSession(Dialog dialog) {
+		logger.debug("DialogApplicationData.getRtpSession " + dialog);
 
-        return dat;
-    }
+		return ((DialogApplicationData) dialog.getApplicationData()).rtpSession;
+	}
 
-    static DialogApplicationData get(Dialog dialog) {
-        return (DialogApplicationData) dialog.getApplicationData();
-    }
+	static DialogApplicationData attach(
+			BackToBackUserAgent backToBackUserAgent, Dialog dialog,
+			Transaction transaction, Request request) {
+		if (backToBackUserAgent == null)
+			throw new NullPointerException("Null back2back ua");
+		if (dialog.getApplicationData() != null)
+			throw new RuntimeException("Already set!!");
 
-    /**
-     * @param rtpSession the rtpSession to set
-     */
-    void setRtpSession(RtpSession rtpSession) {  
-        this.rtpSession = rtpSession;
-    }
+		DialogApplicationData dat = new DialogApplicationData(dialog);
+		dat.transaction = transaction;
+		dat.request = request;
+		dat.setBackToBackUserAgent(backToBackUserAgent);
+		dialog.setApplicationData(dat);
 
-    /**
-     * @return the rtpSession
-     */
-    RtpSession getRtpSession() {
-        return rtpSession;
-    }
+		return dat;
+	}
 
-    void recordLastAckTime() {
-        this.lastAckSent = System.currentTimeMillis();
-    }
+	static DialogApplicationData get(Dialog dialog) {
+		return (DialogApplicationData) dialog.getApplicationData();
+	}
 
-    /**
-     * @param backToBackUserAgent the backToBackUserAgent to set
-     */
-    void setBackToBackUserAgent(BackToBackUserAgent backToBackUserAgent) {
-        this.backToBackUserAgent = backToBackUserAgent;
-    }
+	/**
+	 * @param rtpSession
+	 *            the rtpSession to set
+	 */
+	void setRtpSession(RtpSession rtpSession) {
+		this.rtpSession = rtpSession;
+	}
 
-    /**
-     * @return the backToBackUserAgent
-     */
-    BackToBackUserAgent getBackToBackUserAgent() {
-        return backToBackUserAgent;
-    }
+	/**
+	 * @return the rtpSession
+	 */
+	RtpSession getRtpSession() {
+		return rtpSession;
+	}
 
-    /**
-     * @param itspInfo the itspInfo to set
-     */
-    void setItspInfo(ItspAccountInfo itspInfo) {
-        if (this.itspInfo != null) {
-            logger.warn("Re-Setting ITSP info to null!!");
-        }
-        this.itspInfo = itspInfo;
-    }
+	void recordLastAckTime() {
+		this.lastAckSent = System.currentTimeMillis();
+	}
 
-    /**
-     * @return the itspInfo
-     */
-    ItspAccountInfo getItspInfo() {
-        return itspInfo;
-    }
+	/**
+	 * @param backToBackUserAgent
+	 *            the backToBackUserAgent to set
+	 */
+	void setBackToBackUserAgent(BackToBackUserAgent backToBackUserAgent) {
+		this.backToBackUserAgent = backToBackUserAgent;
+	}
 
-    void cancelSessionTimer() {
-        if (this.sessionTimer != null) {
-            this.sessionTimer.cancel();
-        }
-    }
+	/**
+	 * @return the backToBackUserAgent
+	 */
+	BackToBackUserAgent getBackToBackUserAgent() {
+		return backToBackUserAgent;
+	}
 
-    void setSetExpires(int expires) {
-        this.sessionExpires = expires;
+	/**
+	 * @param itspInfo
+	 *            the itspInfo to set
+	 */
+	void setItspInfo(ItspAccountInfo itspInfo) {
+		if (this.itspInfo != null) {
+			logger.warn("Re-Setting ITSP info to null!!");
+		}
+		this.itspInfo = itspInfo;
+	}
 
-    }
+	/**
+	 * @return the itspInfo
+	 */
+	ItspAccountInfo getItspInfo() {
+		return itspInfo;
+	}
 
-    /**
-     * Check to see if the ITSP allows a REFER request.
-     * 
-     * @return true if REFER is allowed.
-     * 
-     * 
-     */
-    boolean isReferAllowed() {
-        if (this.transaction instanceof ServerTransaction) {
-            if (this.request == null) {
-                return false;
-            }
-            ListIterator li = request.getHeaders(AllowHeader.NAME);
+	/**
+	 * Cancel the session timer.
+	 */
+	void cancelSessionTimer() {
+		if (this.sessionTimer != null) {
+			this.sessionTimer.cancel();
+		}
+	}
 
-            while (li != null && li.hasNext()) {
-                AllowHeader ah = (AllowHeader) li.next();
-                if (ah.getMethod().equals(Request.REFER)) {
-                    return true;
-                }
-            }
-            return false;
+	void setSetExpires(int expires) {
+		this.sessionExpires = expires;
 
-        } else {
-            if (this.lastResponse == null) {
-                return false;
-            }
+	}
 
-            ListIterator li = lastResponse.getHeaders(AllowHeader.NAME);
+	/**
+	 * Check to see if the ITSP allows a REFER request.
+	 * 
+	 * @return true if REFER is allowed.
+	 * 
+	 * 
+	 */
+	boolean isReferAllowed() {
+		if (this.transaction instanceof ServerTransaction) {
+			if (this.request == null) {
+				return false;
+			}
+			ListIterator li = request.getHeaders(AllowHeader.NAME);
 
-            while (li != null && li.hasNext()) {
-                AllowHeader ah = (AllowHeader) li.next();
-                if (ah.getMethod().equals(Request.REFER)) {
-                    return true;
-                }
-            }
-            return false;
-        }
-    }
+			while (li != null && li.hasNext()) {
+				AllowHeader ah = (AllowHeader) li.next();
+				if (ah.getMethod().equals(Request.REFER)) {
+					return true;
+				}
+			}
+			return false;
+
+		} else {
+			if (this.lastResponse == null) {
+				return false;
+			}
+
+			ListIterator li = lastResponse.getHeaders(AllowHeader.NAME);
+
+			while (li != null && li.hasNext()) {
+				AllowHeader ah = (AllowHeader) li.next();
+				if (ah.getMethod().equals(Request.REFER)) {
+					return true;
+				}
+			}
+			return false;
+		}
+	}
 
 }

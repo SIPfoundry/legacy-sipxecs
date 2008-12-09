@@ -140,8 +140,8 @@ public class SymmitronClient {
         try {
             XmlRpcClientConfigImpl config = new XmlRpcClientConfigImpl();
             try {
-                logger.debug("Trying to sign in " + "https://" + serverAddress + ":" + port);
-                config.setServerURL(new URL("https://" + serverAddress + ":" + port));
+                logger.debug("Trying to sign in " + "http://" + serverAddress + ":" + port);
+                config.setServerURL(new URL("http://" + serverAddress + ":" + port));
                 this.serverAddress = serverAddress;
 
                 config.setEnabledForExceptions(true);

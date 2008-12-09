@@ -38,6 +38,8 @@
 		<pathelement location="${log4j}" />
 		<pathelement location="${jainsip}" />
 		<pathelement location="${junit}" />
+		<pathelement location="${servlet-jar}" />
+		<pathelement location="${jetty-jar}" />
 		<pathelement location="${sipunit}" />
 		<pathelement location="${dnsjava}" />
 		<pathelement location="${stun4j}" />
@@ -91,6 +93,7 @@
 
 	<target name="compile"  description="compile the source">
 		<!-- Compile the java code from ${src} into ${classes} -->
+		<echo>base path ${base.path}</echo>
 		<mkdir dir="${classes}" />
 		<javac srcdir="${src}" 
 			destdir="${classes}" 
@@ -132,17 +135,11 @@
      <target name="install">
     	<mkdir dir="${dest.dir}${sipxbridge.dir}"/>
     	<copy file="${build.dir}/dist/sipXbridge.jar" todir="${dest.dir}${sipxbridge.dir}"/>
+	<!-- NOTE : Remove these aftr jetty-jar and servlet-jar are migrated to sipxcommons -->
     	<copy todir="${dest.dir}${sipxbridge.dir}">
 		<fileset file="${stun4j}" />
-		<fileset file="${commons-logging-api}" />
-		<fileset file="${commons-logging}" />
-		<fileset file="${commons-digester}" />
-		<fileset file="${commons-collections}" />
-		<fileset file="${commons-beanutils}" />
-		<fileset file="${xml-rpc-common}" />
-		<fileset file="${xml-rpc-server}" />
-		<fileset file="${xml-rpc-client}" />
-		<fileset file="${ws-commons-util}" />
+		<fileset file="${jetty-jar}" />
+		<fileset file="${servlet-jar}" />
     	</copy>
   </target>
 

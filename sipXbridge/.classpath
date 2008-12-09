@@ -5,22 +5,22 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="lib/Stun4J.jar"/>
 	<classpathentry kind="lib" path="tools/sipunit.jar"/>
-	<classpathentry kind="var" path="SIPX_COMMONS/commons-logging.jar"/>
-	<classpathentry kind="var" path="SIPX_COMMONS/dnsjava.jar"/>
-	<classpathentry kind="var" path="SIPX_COMMONS/commons-beanutils.jar"/>
-	<classpathentry kind="var" path="SIPX_COMMONS/commons-collections.jar"/>
-	<classpathentry kind="var" path="SIPX_COMMONS/commons-digester.jar"/>
-	<classpathentry kind="var" path="SIPX_COMMONS/commons-logging-api.jar"/>
-	<classpathentry kind="var" path="SIPX_COMMONS/jain-sip-sdp.jar"/>
-	<classpathentry kind="var" path="SIPX_COMMONS/commons-net.jar"/>
-	<classpathentry kind="var" path="SIPX_COMMONS/junit.jar"/>
-	<classpathentry kind="var" path="SIPX_COMMONS/ws-commons-util.jar"/>
-	<classpathentry kind="var" path="SIPX_COMMONS/log4j.jar"/>
-	<classpathentry kind="var" path="SIPX_COMMONS/xmlrpc-client.jar"/>
-	<classpathentry kind="var" path="SIPX_COMMONS/xmlrpc-common.jar"/>
-	<classpathentry kind="var" path="SIPX_COMMONS/xmlrpc-server.jar"/>
-	<classpathentry kind="var" path="SIPX_COMMONS_BUILD/sipxcommons.jar"/>
-	<classpathentry kind="var" path="SIPX_CONFIG_LIB_DIR/jetty-5.1.4.jar"/>
-	<classpathentry kind="var" path="SIPX_CONFIG_LIB_DIR/javax.servlet.jar"/>
+	<classpathentry kind="var" path="SIPX-PROJECT-ROOT/sipXcommons/lib/commons-logging.jar"/>
+	<classpathentry kind="var" path="SIPX-PROJECT-ROOT/sipXcommons/lib/dnsjava.jar"/>
+	<classpathentry kind="var" path="SIPX-PROJECT-ROOT/sipXcommons/lib/commons-beanutils.jar"/>
+	<classpathentry kind="var" path="SIPX-PROJECT-ROOT/sipXcommons/lib/commons-collections.jar"/>
+	<classpathentry kind="var" path="SIPX-PROJECT-ROOT/sipXcommons/lib/commons-digester.jar"/>
+	<classpathentry kind="var" path="SIPX-PROJECT-ROOT/sipXcommons/lib/commons-logging-api.jar"/>
+	<classpathentry kind="var" path="SIPX-PROJECT-ROOT/sipXcommons/lib/jain-sip-sdp.jar"/>
+	<classpathentry kind="var" path="SIPX-PROJECT-ROOT/sipXcommons/lib/commons-net.jar"/>
+	<classpathentry kind="var" path="SIPX-PROJECT-ROOT/sipXcommons/lib/junit.jar"/>
+	<classpathentry kind="var" path="SIPX-PROJECT-ROOT/sipXcommons/lib/ws-commons-util.jar"/>
+	<classpathentry kind="var" path="SIPX-PROJECT-ROOT/sipXcommons/lib/log4j.jar"/>
+	<classpathentry kind="var" path="SIPX-PROJECT-ROOT/sipXcommons/lib/xmlrpc-client.jar"/>
+	<classpathentry kind="var" path="SIPX-PROJECT-ROOT/sipXcommons/lib/xmlrpc-common.jar"/>
+	<classpathentry kind="var" path="SIPX-PROJECT-ROOT/sipXcommons/lib/xmlrpc-server.jar"/>
+	<classpathentry kind="var" path="SIPX-PROJECT-ROOT/BUILD1/sipXcommons/dist/sipxcommons.jar"/>
+	<classpathentry kind="var" path="SIPX-PROJECT-ROOT/sipXconfig/lib/jetty-5.1.4.jar"/>
+	<classpathentry kind="var" path="SIPX-PROJECT-ROOT/sipXconfig/lib/javax.servlet.jar"/>
 	<classpathentry kind="output" path="classes"/>
 </classpath>

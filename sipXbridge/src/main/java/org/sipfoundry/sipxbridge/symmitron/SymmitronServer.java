@@ -34,6 +34,7 @@ import org.apache.xmlrpc.XmlRpcRequest;
 import org.apache.xmlrpc.server.XmlRpcServer;
 import org.apache.xmlrpc.webserver.WebServer;
 import org.mortbay.http.HttpContext;
+import org.mortbay.http.HttpServer;
 import org.mortbay.http.SocketListener;
 import org.mortbay.jetty.Server;
 import org.mortbay.jetty.servlet.ServletHandler;
@@ -232,7 +233,7 @@ public class SymmitronServer implements Symmitron {
                 symmitronConfig.getPortRangeUpperBound());
     }
 
-    public static void startWebServer() throws XmlRpcException, IOException {
+    public static void startWebServer() throws Exception {
 
         if (!isWebServerRunning) {
 
@@ -241,20 +242,29 @@ public class SymmitronServer implements Symmitron {
             logger.debug("Starting xml rpc server on port " + symmitronConfig.getXmlRpcPort());
 
             webServer = new Server();
-
             SocketListener socketListener = new SocketListener();
             socketListener.setPort(symmitronConfig.getXmlRpcPort());
             socketListener.setHost(symmitronConfig.getLocalAddress());
             socketListener.setMaxThreads(32);
             socketListener.setMinThreads(4);
-
+            webServer.addListener(socketListener);
+        
             HttpContext httpContext = new HttpContext();
-            
-            ServletHandler servletHandler =  new ServletHandler();
-            
-            servletHandler.addServlet("/", SymmitronServlet.class.getName());
+            httpContext.setContextPath("/");        
+            ServletHandler servletHandler = new ServletHandler();
+            servletHandler.addServlet("symmitron", "/*",SymmitronServlet.class.getName());           
+            httpContext.addHandler(servletHandler);   
+           
+            socketListener.setLingerTimeSecs(10000);
             
             webServer.addContext(httpContext);
+             
+              
+            
+            webServer.start();
+            
+            logger.debug("Web server started.");
+            
         }
     }
 

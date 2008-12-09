@@ -72,6 +72,11 @@ public class ProtocolObjects {
 
             }
 
+            /*
+             * Up to 16 active threads processing UDP messages.
+             */
+            stackProperties.setProperty("gov.nist.javax.sip.THREAD_POOL_SIZE", "16");
+            stackProperties.setProperty("gov.nist.javax.sip.REENTRANT_LISTENER", "true");
             stackProperties.setProperty("gov.nist.javax.sip.LOG_MESSAGE_CONTENT", "true");
             stackProperties.setProperty("gov.nist.javax.sip.LOG_FACTORY",
                     SipFoundryLogRecordFactory.class.getName());

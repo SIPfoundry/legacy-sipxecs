@@ -6,11 +6,8 @@
  */
 package org.sipfoundry.sipxbridge;
 
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 
-import javax.sdp.MediaDescription;
 import javax.sdp.SessionDescription;
 
 import org.apache.log4j.Logger;
@@ -26,7 +23,7 @@ class RtpTransmitterEndpoint {
     /*
      * Session description.
      */
-    protected SessionDescription sessionDescription;
+    private SessionDescription sessionDescription;
 
     private SymTransmitterEndpointImpl symTransmitter;
 
@@ -40,15 +37,15 @@ class RtpTransmitterEndpoint {
 
     private KeepaliveMethod keepAliveMethod = KeepaliveMethod.NONE;
 
-	private boolean isOffer;
+    private boolean isOffer;
+
+    private boolean isOnHold;
 
     public RtpTransmitterEndpoint(RtpSession rtpSession, SymmitronClient symmitronClient) {
         this.rtpSession = rtpSession;
         this.symTransmitter = symmitronClient.createSymTransmitter(this.rtpSession.getSym());
 
     }
-
-    
 
     public String getIpAddress() {
         return ipAddress;
@@ -99,8 +96,6 @@ class RtpTransmitterEndpoint {
         this.keepAliveMethod = keepAliveMethod;
     }
 
-   
-    
     public SymTransmitterEndpointInterface getSymTransmitter() {
         return this.symTransmitter;
     }
@@ -111,11 +106,15 @@ class RtpTransmitterEndpoint {
      * @return
      */
     SessionDescription getSessionDescription() {
+       
         return sessionDescription;
     }
 
     public void setOnHold(boolean flag) {
+        if (this.isOnHold == flag)
+            return;
         this.symTransmitter.setOnHold(flag);
+        this.isOnHold = flag;
     }
 
     void setSessionDescription(SessionDescription sessionDescription, boolean isOffer) {
@@ -123,24 +122,31 @@ class RtpTransmitterEndpoint {
             logger.debug("WARNING -- replacing session description");
 
         }
+
         
+
         this.isOffer = isOffer;
         try {
-            this.sessionDescription = sessionDescription;
-            this.ipAddress = null;
 
             this.keepAliveInterval = Gateway.getMediaKeepaliveMilisec();
-            this.ipAddress = SipUtilities.getSessionDescriptionMediaIpAddress(sessionDescription);
-            this.port = SipUtilities.getSessionDescriptionMediaPort(sessionDescription);
+            String ipAddress = SipUtilities
+                    .getSessionDescriptionMediaIpAddress(sessionDescription);
+            int port = SipUtilities.getSessionDescriptionMediaPort(sessionDescription);
 
             if (logger.isDebugEnabled()) {
-                logger.debug("isTransmitter = true : Setting ipAddress : " + ipAddress);
-                logger.debug("isTransmitter = true : Setting port " + port);
+                logger.debug("isTransmitter = true : Setting ipAddress : " + ipAddress
+                        + " Setting port " + port);
             }
 
-            this.symTransmitter.setIpAddressAndPort(ipAddress, port, keepAliveInterval,
-                    keepAliveMethod);
-            this.symTransmitter.setOnHold(false);
+            if (this.sessionDescription == null || !this.ipAddress.equals(ipAddress)
+                    || this.port != port) {
+                this.symTransmitter.setIpAddressAndPort(ipAddress, port, keepAliveInterval,
+                        keepAliveMethod);
+                this.ipAddress = ipAddress;
+                this.port = port;
+                this.symTransmitter.setOnHold(false);
+            }
+            this.sessionDescription = sessionDescription;
 
         } catch (Exception ex) {
             logger.error("Unexpected exception ", ex);
@@ -148,15 +154,12 @@ class RtpTransmitterEndpoint {
         }
     }
 
+    boolean isOffer() {
+        return isOffer;
+    }
 
-
-
-	boolean isOffer() {
-		return isOffer;
-	}
-
-
-
-    
+    public boolean isOnHold() {
+        return this.isOnHold;
+    }
 
 }
