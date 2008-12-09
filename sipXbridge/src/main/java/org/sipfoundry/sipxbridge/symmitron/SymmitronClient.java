@@ -21,8 +21,15 @@ import org.apache.log4j.Logger;
 import org.apache.xmlrpc.XmlRpcException;
 import org.apache.xmlrpc.client.XmlRpcClient;
 import org.apache.xmlrpc.client.XmlRpcClientConfigImpl;
-import org.apache.xmlrpc.client.XmlRpcCommonsTransportFactory;
-import org.apache.xmlrpc.client.XmlRpcHttpClientConfig;
+
+import java.security.cert.X509Certificate;
+
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 
 /**
  * Wrapper for the client methods of the Symmitron.
@@ -39,9 +46,46 @@ public class SymmitronClient {
 
     private SymmitronResetHandler resetHandler;
 
-	private String serverAddress;
+    private String serverAddress;
 
     private static Timer timer = new Timer();
+
+    static {
+        try {
+            // Create a trust manager that does not validate certificate chains
+            TrustManager[] trustAllCerts = new TrustManager[] {
+                new X509TrustManager() {
+                    public X509Certificate[] getAcceptedIssuers() {
+                        return null;
+                    }
+
+                    public void checkClientTrusted(X509Certificate[] certs, String authType) {
+                        // Trust always
+                    }
+
+                    public void checkServerTrusted(X509Certificate[] certs, String authType) {
+                        // Trust always
+                    }
+                }
+            };
+
+            // Install the all-trusting trust manager
+            SSLContext sc = SSLContext.getInstance("SSL");
+            // Create empty HostnameVerifier
+            HostnameVerifier hv = new HostnameVerifier() {
+                public boolean verify(String arg0, SSLSession arg1) {
+                    return true;
+                }
+            };
+
+            sc.init(null, trustAllCerts, new java.security.SecureRandom());
+            HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
+            HttpsURLConnection.setDefaultHostnameVerifier(hv);
+        } catch (Exception ex) {
+            throw new RuntimeException(ex);
+        }
+
+    }
 
     private boolean checkForServerReboot(Map map) throws SymmitronException {
 
@@ -96,8 +140,8 @@ public class SymmitronClient {
         try {
             XmlRpcClientConfigImpl config = new XmlRpcClientConfigImpl();
             try {
-                logger.debug("Trying to sign in " + "http://" + serverAddress + ":" + port);
-                config.setServerURL(new URL("http://" + serverAddress + ":" + port));
+                logger.debug("Trying to sign in " + "https://" + serverAddress + ":" + port);
+                config.setServerURL(new URL("https://" + serverAddress + ":" + port));
                 this.serverAddress = serverAddress;
 
                 config.setEnabledForExceptions(true);
@@ -212,8 +256,6 @@ public class SymmitronClient {
         }
         return (String) retval.get(Symmitron.PUBLIC_ADDRESS);
     }
-
-   
 
     public void destroyBridge(String bridgeId) throws SymmitronException {
         Object[] args = new Object[2];
@@ -508,9 +550,8 @@ public class SymmitronClient {
 
     }
 
-	
-	public String getServerAddress() {
-		return serverAddress;
-	}
+    public String getServerAddress() {
+        return serverAddress;
+    }
 
 }

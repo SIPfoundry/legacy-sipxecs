@@ -35,15 +35,23 @@ CONFIG_FILES="\
 . @SIPX_LIBEXECDIR@/sipx-utils.sh || exit 1
 
 JavaCmd=`@SIPX_BINDIR@/sipx-config --java`
-LibPath=`perl -e 'print join(":", @ARGV);' @SIPX_JAVADIR@/sipXbridge/*.jar @SIPX_JAVADIR@/sipXcommons/*.jar`
+LibPath=`perl -e 'print join(":", @ARGV);' @SIPX_JAVADIR@/sipXbridge/*.jar @SIPX_JAVADIR@/sipXconfig/jetty*.jar @SIPX_JAVADIR@/sipXcommons/*.jar`
 ClassPath=$LibPath
 
 case ${Action} in
    RUN)
      echo $$ > @SIPX_RUNDIR@/sipxbridge.pid
 
-     exec $JavaCmd -Dconf.dir=@SIPX_CONFDIR@  \
-         -Dsipxbridge.command=start \
+     exec $JavaCmd -Dconf.dir=@SIPX_CONFDIR@  		\
+	 -Djavax.net.ssl.trustStore=@PREFIX@/etc/sipxpbx/ssl/.authorities.jks 	\
+	 -Djavax.net.ssl.trustStoreType=JKS 					\
+	 -Djavax.net.ssl.keyStore=/usr/local/sipx/etc/sipxpbx/ssl/.ssl.keystore \
+	 -Djetty.lib.dir=@SIPX_JAVADIR@/sipXconfig 	\
+	 -Djetty.conf.dir=@PREFIX@/etc/sipxpbx 		\
+	 -Djetty.log.dir=@SIPX_LOGDIR@ 			\
+	 -Djetty.x509.algorithm=SunX509 		\
+	 -Dorg.apache.commons.logging.Log=org.apache.commons.logging.impl.Log4JLogger \
+         -Dsipxbridge.command=start 			  \
          -cp $ClassPath org.sipfoundry.sipxbridge.Gateway \
 	 $Args
      ;;
@@ -63,7 +71,17 @@ case ${Action} in
 	 Status=1
      fi
 
+#
+
      exec $JavaCmd -Dconf.dir=@SIPX_CONFDIR@  \
+	 -Djavax.net.ssl.trustStore=@PREFIX@/etc/sipxpbx/ssl/.authorities.jks 	\
+	 -Djavax.net.ssl.trustStoreType=JKS 					\
+	 -Djavax.net.ssl.keyStore=/usr/local/sipx/etc/sipxpbx/ssl/.ssl.keystore \
+	 -Dorg.apache.commons.logging.Log=org.apache.commons.logging.impl.Log4JLogger \
+	 -Djetty.lib.dir=@SIPX_JAVADIR@/sipXconfig 	\
+	 -Djetty.conf.dir=@PREFIX@/etc/sipxpbx 		\
+	 -Djetty.log.dir=@SIPX_LOGDIR@ 			\
+	 -Djetty.x509.algorithm=SunX509 		\
          -Dsipxbridge.command=configtest \
          -cp $ClassPath org.sipfoundry.sipxbridge.Gateway \
 	 $Args

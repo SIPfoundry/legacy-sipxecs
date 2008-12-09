@@ -21,21 +21,24 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
 
+import javax.servlet.http.HttpServlet;
+
 import net.java.stun4j.StunAddress;
 import net.java.stun4j.client.NetworkConfigurationDiscoveryProcess;
 import net.java.stun4j.client.StunDiscoveryReport;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.apache.log4j.PropertyConfigurator;
 import org.apache.xmlrpc.XmlRpcException;
-import org.apache.xmlrpc.server.PropertyHandlerMapping;
+import org.apache.xmlrpc.XmlRpcRequest;
 import org.apache.xmlrpc.server.XmlRpcServer;
-import org.apache.xmlrpc.server.XmlRpcServerConfigImpl;
 import org.apache.xmlrpc.webserver.WebServer;
+import org.mortbay.http.HttpContext;
+import org.mortbay.http.SocketListener;
+import org.mortbay.jetty.Server;
+import org.mortbay.jetty.servlet.ServletHandler;
 import org.sipfoundry.commons.log4j.SipFoundryAppender;
 import org.sipfoundry.commons.log4j.SipFoundryLayout;
-import org.sipfoundry.sipxbridge.Gateway;
 import org.sipfoundry.sipxbridge.GatewayConfigurationException;
 
 /**
@@ -86,7 +89,7 @@ public class SymmitronServer implements Symmitron {
 
     private static boolean isWebServerRunning;
 
-    private static WebServer webServer;
+    private static Server webServer;
 
     private static InetAddress localAddressByName;
 
@@ -95,6 +98,8 @@ public class SymmitronServer implements Symmitron {
     private static SymmitronConfig symmitronConfig;
 
     private static final int STUN_PORT = 3478;
+
+    // /////////////////////////////////////////////////////////////
 
     /**
      * Discover our address using stun.
@@ -134,7 +139,7 @@ public class SymmitronServer implements Symmitron {
                     logger.error("No stun address - could not do address discovery");
                     return;
                 }
-                
+
                 publicAddress = stunAddress.getSocketAddress().getAddress();
                 logger.debug("Stun report = " + report);
                 String publicAddr = publicAddress.getHostAddress();
@@ -234,25 +239,22 @@ public class SymmitronServer implements Symmitron {
             isWebServerRunning = true;
 
             logger.debug("Starting xml rpc server on port " + symmitronConfig.getXmlRpcPort());
-            webServer = new WebServer(symmitronConfig.getXmlRpcPort(), InetAddress
-                    .getByName(symmitronConfig.getLocalAddress()));
-         
 
-            PropertyHandlerMapping handlerMapping = new PropertyHandlerMapping();
+            webServer = new Server();
 
-            handlerMapping.addHandler("sipXrelay", SymmitronServer.class);
+            SocketListener socketListener = new SocketListener();
+            socketListener.setPort(symmitronConfig.getXmlRpcPort());
+            socketListener.setHost(symmitronConfig.getLocalAddress());
+            socketListener.setMaxThreads(32);
+            socketListener.setMinThreads(4);
 
-            XmlRpcServer server = webServer.getXmlRpcServer();
-
-            XmlRpcServerConfigImpl serverConfig = new XmlRpcServerConfigImpl();
-            serverConfig.setKeepAliveEnabled(true);
-            serverConfig.setEnabledForExceptions(true);
-            serverConfig.setEnabledForExtensions(true);
-            server.setMaxThreads(4);
-
-            server.setConfig(serverConfig);
-            server.setHandlerMapping(handlerMapping);
-            webServer.start();
+            HttpContext httpContext = new HttpContext();
+            
+            ServletHandler servletHandler =  new ServletHandler();
+            
+            servletHandler.addServlet("/", SymmitronServlet.class.getName());
+            
+            webServer.addContext(httpContext);
         }
     }
 
@@ -260,8 +262,6 @@ public class SymmitronServer implements Symmitron {
      * The RPC handler for sipxbridge.
      */
     public SymmitronServer() {
-
-        
 
     }
 
@@ -384,8 +384,6 @@ public class SymmitronServer implements Symmitron {
             return createErrorMap(PROCESSING_ERROR, ex.getMessage());
         }
     }
-
-  
 
     /*
      * (non-Javadoc)
@@ -908,7 +906,11 @@ public class SymmitronServer implements Symmitron {
      * Test method - stop the xml rpc server.
      */
     static void stopXmlRpcServer() {
-        SymmitronServer.webServer.shutdown();
+        try {
+            SymmitronServer.webServer.stop();
+        } catch (InterruptedException e) {
+            logger.error("request processing interrupt", e);
+        }
     }
 
     public static void main(String[] args) throws Exception {
@@ -933,36 +935,37 @@ public class SymmitronServer implements Symmitron {
                         config.setLogFileDirectory(installRoot + "/var/log/sipxpbx");
                     }
                     config.setLogFileName("sipxrelay.log");
-                    
-                    if ( config.getLocalAddress() == null ) {
+
+                    if (config.getLocalAddress() == null) {
                         System.err.println("Local address not specified");
                         System.exit(-1);
                     }
-                    
-                    if ( config.getPublicAddress() == null && config.getStunServerAddress() == null ) {
-                        System.err.println("Must specify either public address or stun server address");
+
+                    if (config.getPublicAddress() == null
+                            && config.getStunServerAddress() == null) {
+                        System.err
+                                .println("Must specify either public address or stun server address");
                         System.exit(-1);
                     }
-                    
-                    
-                    if ( config.getPublicAddress() != null ) {
+
+                    if (config.getPublicAddress() != null) {
                         addressToTest = config.getPublicAddress();
                         InetAddress.getByName(config.getPublicAddress());
                     }
-                    
-                    if ( config.getStunServerAddress() != null ) {
+
+                    if (config.getStunServerAddress() != null) {
                         addressToTest = config.getStunServerAddress();
                         InetAddress.getByName(config.getStunServerAddress());
                     }
-                    
+
                     addressToTest = config.getLocalAddress();
-                    
+
                     InetAddress.getByName(config.getLocalAddress());
 
                     System.exit(0);
 
                 } catch (UnknownHostException ex) {
-                    System.err.println("Host name error -- could not resolve " + addressToTest) ;
+                    System.err.println("Host name error -- could not resolve " + addressToTest);
                     System.exit(-1);
                 } catch (Exception ex) {
                     logger.fatal(
@@ -986,7 +989,7 @@ public class SymmitronServer implements Symmitron {
                     config.setLogFileDirectory(installRoot + "/var/log/sipxpbx");
                 }
                 config.setLogFileName("sipxrelay.log");
-                
+
                 String log4jProps = configDir + "/log4j.properties";
                 /*
                  * Allow override if a log4j properties file exists.
@@ -997,13 +1000,14 @@ public class SymmitronServer implements Symmitron {
                      */
                     Properties props = new Properties();
                     props.load(new FileInputStream(log4jProps));
-                    String level = props.getProperty("log4j.category.org.sipfoundry.sipxbridge.sipxrelay");
-                    if ( level != null ) {
+                    String level = props
+                            .getProperty("log4j.category.org.sipfoundry.sipxbridge.sipxrelay");
+                    if (level != null) {
                         config.setLogLevel(level);
                     }
                 }
                 SymmitronServer.setSymmitronConfig(config);
-                
+
                 logger.info("Checking port range " + config.getPortRangeLowerBound() + ":"
                         + config.getPortRangeUpperBound());
                 for (int i = config.getPortRangeLowerBound(); i < config.getPortRangeUpperBound(); i++) {
