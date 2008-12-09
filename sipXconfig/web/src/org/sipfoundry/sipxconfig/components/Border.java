@@ -27,7 +27,6 @@ import org.apache.tapestry.annotations.Asset;
 import org.apache.tapestry.annotations.ComponentClass;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.InjectState;
-import org.apache.tapestry.annotations.Message;
 import org.apache.tapestry.annotations.Parameter;
 import org.apache.tapestry.callback.ExternalCallback;
 import org.apache.tapestry.callback.ICallback;
@@ -92,9 +91,6 @@ public abstract class Border extends BaseComponent implements PageValidateListen
 
     @Parameter
     public abstract IRender getShellDelegate();
-
-    @Message
-    public abstract String getHelpLink(Integer... versionIds);
 
     /**
      * Gets the {@code Block} being used as the navigation area.
@@ -208,5 +204,9 @@ public abstract class Border extends BaseComponent implements PageValidateListen
 
     public Date getDate() {
         return new Date();
+    }
+
+    public String getHelpLink(Integer[] versionIds) {
+        return getMessages().format("help.link", versionIds);
     }
 }
