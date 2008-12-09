@@ -41,7 +41,7 @@ public class EditPhoneTestUi extends WebTestCase {
         setTextField("phone:serialNumber", "a00000000001");
         clickButton("form:ok");
         String[][] table = new String[][] {
-            { "a00000000001", "", "Acme" },
+            { "a00000000001", "", "Acme v1" },
         };
         assertTextInTable("phone:list", table[0]);
     }

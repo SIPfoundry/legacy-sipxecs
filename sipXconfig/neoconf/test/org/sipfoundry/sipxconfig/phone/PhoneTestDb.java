@@ -22,8 +22,8 @@ import org.sipfoundry.sipxconfig.SipxDatabaseTestCase;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.device.DeviceVersion;
 import org.sipfoundry.sipxconfig.device.ModelSource;
-import org.sipfoundry.sipxconfig.phone.grandstream.GrandstreamModel;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
 import org.sipfoundry.sipxconfig.setting.ValueStorage;
@@ -105,8 +105,7 @@ public class PhoneTestDb extends SipxDatabaseTestCase {
         expectedRds.addReplacementObject("[value_storage_id]", s.getId());
 
         IDataSet actual = TestHelper.getConnection().createDataSet();
-        Assertion.assertEquals(expectedRds.getTable("setting_value"), actual
-                .getTable("setting_value"));
+        Assertion.assertEquals(expectedRds.getTable("setting_value"), actual.getTable("setting_value"));
     }
 
     public void testAddGroup() throws Exception {
@@ -121,8 +120,7 @@ public class PhoneTestDb extends SipxDatabaseTestCase {
 
         IDataSet expectedDs = TestHelper.loadDataSetFlat("phone/AddGroupExpected.xml");
         IDataSet actual = TestHelper.getConnection().createDataSet();
-        Assertion
-                .assertEquals(expectedDs.getTable("phone_group"), actual.getTable("phone_group"));
+        Assertion.assertEquals(expectedDs.getTable("phone_group"), actual.getTable("phone_group"));
     }
 
     public void testRemoveGroupThenAddBackThenAddAnotherGroup() throws Exception {
@@ -143,13 +141,11 @@ public class PhoneTestDb extends SipxDatabaseTestCase {
 
         IDataSet expectedDs = TestHelper.loadDataSetFlat("phone/AddSecondGroupExpected.xml");
         IDataSet actual = TestHelper.getConnection().createDataSet();
-        Assertion
-                .assertEquals(expectedDs.getTable("phone_group"), actual.getTable("phone_group"));
+        Assertion.assertEquals(expectedDs.getTable("phone_group"), actual.getTable("phone_group"));
     }
 
     public void testPhoneSubclassSave() throws Exception {
-        PhoneModel model = new GrandstreamModel();
-        model.setModelId("gsPhoneBt100");
+        PhoneModel model = new PhoneModel("acmePhone", "acmePhoneStandard");
         Phone subclass = context.newPhone(model);
         subclass.setSerialNumber("000000000000");
         context.storePhone(subclass);
@@ -224,11 +220,12 @@ public class PhoneTestDb extends SipxDatabaseTestCase {
     public void testDeviceVersion() throws Exception {
         TestHelper.cleanInsertFlat("phone/PhoneVersionSeed.db.xml");
         Phone phone = context.loadPhone(1000);
-        assertSame("grandstream1.0", phone.getDeviceVersion());
+        DeviceVersion deviceVersion = phone.getDeviceVersion();
+        assertNotNull(deviceVersion);
+        assertEquals("acmePhone", deviceVersion.getVendorId());
+        assertEquals("1", deviceVersion.getVersionId());
 
         context.storePhone(phone);
-
-        // assert db update expected
     }
 
     public void testGetPrimaryUser() throws Exception {

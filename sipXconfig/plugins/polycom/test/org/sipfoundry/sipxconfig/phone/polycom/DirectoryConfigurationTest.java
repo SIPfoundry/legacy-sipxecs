@@ -34,6 +34,7 @@ public class DirectoryConfigurationTest extends XMLTestCase {
     private ProfileGenerator m_pg;
     private MemoryProfileLocation m_location;
 
+    @Override
     protected void setUp() {
         XMLUnit.setIgnoreWhitespace(true);
 

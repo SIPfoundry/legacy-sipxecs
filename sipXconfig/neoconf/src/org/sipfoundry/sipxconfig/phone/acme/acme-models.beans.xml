@@ -18,9 +18,20 @@
         <ref bean="acmeNtp" />
       </list>
     </property>
+    <property name="versions">
+      <list>
+        <bean class="org.sipfoundry.sipxconfig.device.DeviceVersion">
+          <constructor-arg value="acmePhone" />
+          <constructor-arg value="1" />
+        </bean>
+        <bean class="org.sipfoundry.sipxconfig.device.DeviceVersion">
+          <constructor-arg value="acmePhone" />
+          <constructor-arg value="2" />
+        </bean>
+      </list>
+    </property>
   </bean>
 
-  <bean id="acmePhone" class="org.sipfoundry.sipxconfig.phone.acme.AcmePhone" singleton="false"
-    parent="abstractPhone">
+  <bean id="acmePhone" class="org.sipfoundry.sipxconfig.phone.acme.AcmePhone" singleton="false" parent="abstractPhone">
   </bean>
 </beans>

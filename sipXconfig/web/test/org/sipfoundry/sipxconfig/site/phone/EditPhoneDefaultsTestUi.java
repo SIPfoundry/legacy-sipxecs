@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.site.phone;
@@ -15,29 +15,30 @@ import net.sourceforge.jwebunit.junit.WebTestCase;
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 
 public class EditPhoneDefaultsTestUi extends WebTestCase {
-    
+
     PhoneTestHelper tester;
 
     public static Test suite() throws Exception {
         return SiteTestHelper.webTestSuite(EditPhoneDefaultsTestUi.class);
     }
-    
+
+    @Override
     protected void setUp() throws Exception {
-        getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());        
+        getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
         tester = new PhoneTestHelper(getTester());
     }
-    
+
     public void testBooleanField() {
         tester.reset();
         tester.seedGroup(1);
         clickLink("PhoneGroups");
         clickLinkWithText("seedGroup0");
-        clickLinkWithText("Polycom SoundPoint IP 300/301");
+        clickLinkWithText("Acme");
         setWorkingForm("settingsForm");
-        checkCheckbox("setting:24HourClock");
+        setTextField("setting:outboundProxyPort", "5060");
         clickButton("setting:ok");
-        clickLinkWithText("Polycom SoundPoint IP 300/301");        
+        clickLinkWithText("Acme");
         setWorkingForm("settingsForm");
-        assertCheckboxSelected("setting:24HourClock");
+        assertTextFieldEquals("setting:outboundProxyPort", "5060");
     }
 }

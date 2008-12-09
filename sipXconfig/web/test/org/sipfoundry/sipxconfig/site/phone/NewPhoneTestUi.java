@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.site.phone;
@@ -22,6 +22,7 @@ public class NewPhoneTestUi extends WebTestCase {
         return SiteTestHelper.webTestSuite(NewPhoneTestUi.class);
     }
 
+    @Override
     protected void setUp() throws Exception {
         super.setUp();
         getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
@@ -30,6 +31,7 @@ public class NewPhoneTestUi extends WebTestCase {
         m_helper.reset();
     }
 
+    @Override
     protected void tearDown() throws Exception {
         super.tearDown();
     }
@@ -40,7 +42,7 @@ public class NewPhoneTestUi extends WebTestCase {
         clickButton("form:ok");
         String[][] table = new String[][] {
             {
-                "000000000000", "", "Acme"
+                "000000000000", "", "Acme v1"
             },
         };
         assertTextInTable("phone:list", table[0]);
@@ -58,7 +60,7 @@ public class NewPhoneTestUi extends WebTestCase {
         clickButton("form:cancel");
         String[][] table = new String[][] {
             {
-                "000000000000", "", "Acme"
+                "000000000000", "", "Acme v1"
             },
         };
         assertTextInTable("phone:list", table[0]);

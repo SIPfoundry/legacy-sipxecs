@@ -21,6 +21,7 @@ public class PolycomLineDefaultsTest extends TestCase {
     private Line m_line;
     private User m_user;
 
+    @Override
     protected void setUp() {
         PolycomPhone phone = new PolycomPhone();
         m_line = phone.createLine();

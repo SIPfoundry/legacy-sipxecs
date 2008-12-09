@@ -17,10 +17,12 @@ import org.sipfoundry.sipxconfig.setting.BeanValueStorage;
 public class PolycomIntercomDefaultsTest extends TestCase {
     private PolycomIntercomDefaultsDummy m_noItercomDefaults;
 
+    @Override
     protected void setUp() throws Exception {
         m_noItercomDefaults = new PolycomIntercomDefaultsDummy(null);
     }
 
+    @Override
     protected void tearDown() throws Exception {
         super.tearDown();
     }

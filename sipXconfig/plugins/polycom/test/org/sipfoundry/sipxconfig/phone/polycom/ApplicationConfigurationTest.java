@@ -29,6 +29,7 @@ public class ApplicationConfigurationTest extends XMLTestCase {
     private ProfileGenerator m_pg;
     private MemoryProfileLocation m_location;
 
+    @Override
     protected void setUp() throws Exception {
         XMLUnit.setIgnoreWhitespace(true);
         phone = new PolycomPhone();

@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.device;
@@ -31,7 +31,7 @@ public abstract class DeviceDescriptor {
     private String m_vendor;
 
     private Set<String> m_supportedFeatures = new HashSet<String>();
-    
+
     /**
      * Directory under 'etc/sipxpbx' directory where model files and templates are kept
      */
@@ -110,7 +110,7 @@ public abstract class DeviceDescriptor {
         return StringUtils.isNotBlank(getSerialNumberPattern());
     }
 
-    protected void setVersions(DeviceVersion[] versions) {
+    public void setVersions(DeviceVersion[] versions) {
         m_versions = versions;
     }
 
@@ -129,12 +129,12 @@ public abstract class DeviceDescriptor {
     public void setSupportedFeatures(Set<String> supportedFeatures) {
         m_supportedFeatures = supportedFeatures;
     }
-    
+
     /**
      * This function is called to transform serial number entered by the user to the format that
      * is accepted by sipXconfig. It is called before the serial number is verified against
      * regular expression pattern.
-     * 
+     *
      * @param raw serial number as entered by the user or
      * @return cleaned serial number
      */
@@ -160,10 +160,10 @@ public abstract class DeviceDescriptor {
 
     /**
      * When loading the settings model.
-     * 
+     *
      * Example If you can add "not-extinct" the following setting will not be loaded. Phone model
      * id and version are added by default.
-     * 
+     *
      * &lt;setting name="dinosaur" unless="not-extinct"/&gt;
      */
     public Set<String> getDefinitions() {
@@ -183,7 +183,7 @@ public abstract class DeviceDescriptor {
 
     /**
      * Return the name of the directory (under etc)
-     * 
+     *
      * For most models model files are located in the directory identified by bean_id. Howewer it
      * is possible have multiple bean_ids sharing model in the same directory.
      */
@@ -229,7 +229,7 @@ public abstract class DeviceDescriptor {
     public void setVendor(String vendor) {
         m_vendor = vendor;
     }
-    
+
     private static class LabelComparator implements Comparator<DeviceDescriptor> {
         public int compare(DeviceDescriptor o1, DeviceDescriptor o2) {
             if (o1 == null && o2 == null) {

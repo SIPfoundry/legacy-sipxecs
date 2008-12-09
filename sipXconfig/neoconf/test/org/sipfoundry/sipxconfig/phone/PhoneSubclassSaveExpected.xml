@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- DOCTYPE dataset SYSTEM "sipxconfig-db.dtd" -->
+  <!-- DOCTYPE dataset SYSTEM "sipxconfig-db.dtd" -->
 <dataset>
-    <phone 
-  		serial_number="000000000000" 		
-	  	phone_id="[phone_id]"
-      bean_id="grandstream"
-      model_id="gsPhoneBt100"
-      description="[null]"
-      device_version_id="grandstream1.0"
-		  value_storage_id="[null]"/> 
+  <phone serial_number="000000000000"
+    phone_id="[phone_id]"
+    bean_id="acmePhone"
+    model_id="acmePhoneStandard"
+    description="[null]"
+    device_version_id="[null]"
+    value_storage_id="[null]" />
 </dataset>

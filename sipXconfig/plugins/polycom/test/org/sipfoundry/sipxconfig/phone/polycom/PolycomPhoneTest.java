@@ -39,6 +39,7 @@ public class PolycomPhoneTest extends TestCase {
 
     private String m_root = TestHelper.getTestDirectory() + "/testPolycom";
 
+    @Override
     protected void setUp() {
         m_phone = new PolycomPhone();
         m_phone.setModel(new PolycomModel());
