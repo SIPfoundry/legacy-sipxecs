@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.site.user;
@@ -47,9 +47,9 @@ public abstract class NewUser extends PageWithCallback implements PageBeginRende
     private static final String CONFERENCE_SETTING_PATH = "conference" + Setting.PATH_DELIM;
 
     private static final Log LOG = LogFactory.getLog(NewUser.class);
-    
+
     public abstract ConferenceBridgeContext getConferenceBridgeContext();
-    
+
     public abstract CoreContext getCoreContext();
 
     public abstract SettingDao getSettingDao();
@@ -79,7 +79,7 @@ public abstract class NewUser extends PageWithCallback implements PageBeginRende
         if (conferenceGroup != null) {
             createUserConference(user, conferenceGroup);
         }
-        
+
         MailboxManager mmgr = getMailboxManager();
         if (mmgr.isEnabled()) {
             String userName = user.getUserName();
@@ -100,100 +100,102 @@ public abstract class NewUser extends PageWithCallback implements PageBeginRende
 
     /**
      * Creates a new conference for a new user.
-     * 
+     *
      * @param user The user that has just been created.
      * @param conferenceGroup The group containing conference settings to use.
      */
     private void createUserConference(User user, Group conferenceGroup) {
-        SettingValue bridgeIdValue = conferenceGroup.getSettingValue(
-                new SettingImpl(CONFERENCE_SETTING_PATH + "bridgeId"));
+        SettingValue bridgeIdValue = conferenceGroup.getSettingValue(new SettingImpl(CONFERENCE_SETTING_PATH
+                + "bridgeId"));
         Integer bridgeId = Integer.parseInt(bridgeIdValue.getValue());
-        
-        SettingValue conferenceOffsetValue = conferenceGroup.getSettingValue(
-                new SettingImpl(CONFERENCE_SETTING_PATH + "offset"));
+
+        SettingValue conferenceOffsetValue = conferenceGroup.getSettingValue(new SettingImpl(CONFERENCE_SETTING_PATH
+                + "offset"));
         Integer conferenceOffset = Integer.parseInt(conferenceOffsetValue.getValue());
-        
+
         ConferenceBridgeContext bridgeContext = getConferenceBridgeContext();
-        
+
         Bridge bridge = null;
         try {
             bridge = bridgeContext.loadBridge(bridgeId);
         } catch (HibernateObjectRetrievalFailureException horfe) {
             LOG.warn(String.format("Unable to create a conference for new user %s; the user group \"%s\" "
-                    + "references a non-existent conference bridge ID: %d",
-                    user.getUserName(), conferenceGroup.getName(), bridgeId));
+                    + "references a non-existent conference bridge ID: %d", user.getUserName(), conferenceGroup
+                    .getName(), bridgeId));
         }
-        
-        
+
         if (bridge != null) {
             // TODO handle the case of a non-numeric user extension
             Integer extension = Integer.parseInt(user.getExtension(true));
             Integer conferenceExtension = extension + conferenceOffset;
-            
+
             Conference userConference = bridgeContext.newConference();
             userConference.setExtension(conferenceExtension.toString());
             userConference.setName(user.getUserName() + "-conference");
             userConference.setOwner(user);
             userConference.setEnabled(true);
             userConference.setDescription("Automatically created conference for " + user.getDisplayName());
-            
-            LOG.debug(String.format("Creating conference \"%s\", extension %s, for user %s", 
-                    userConference.getName(), userConference.getExtension(), user.getDisplayName()));
-            
+
+            LOG.debug(String.format("Creating conference \"%s\", extension %s, for user %s", userConference
+                    .getName(), userConference.getExtension(), user.getDisplayName()));
+
             bridgeContext.validate(userConference);
             bridge.addConference(userConference);
             bridgeContext.store(bridge);
         }
     }
-    
+
     /**
      * Examines the groups a user belongs to and determines which, if any, group's conference
      * creation settings to use.
+     *
      * @param user The user being created.
-     * @return A Group whose conference creation settings should be used, or null if none of the user's groups
-     *         have conferences enabled.
+     * @return A Group whose conference creation settings should be used, or null if none of the
+     *         user's groups have conferences enabled.
      */
     private Group getConferenceGroup(User user) {
         // Find the highest weight group that has conferences enabled, if any.
-        List<Group> userGroups = new ArrayList<Group>(user.getGroupsAsList()); // cloning it because we may remove items
+        List<Group> userGroups = new ArrayList<Group>(user.getGroupsAsList()); // cloning it
+        // because we may
+        // remove items
         Group conferenceGroup = null;
         while (!userGroups.isEmpty() && conferenceGroup == null) {
             Group highestGroup = Group.selectGroupWithHighestWeight(userGroups);
-            SettingValue groupValue = highestGroup.getSettingValue(
-                    new SettingImpl(CONFERENCE_SETTING_PATH + "enabled"));
+            SettingValue groupValue = highestGroup.getSettingValue(new SettingImpl(CONFERENCE_SETTING_PATH
+                    + "enabled"));
             if (groupValue != null && Boolean.valueOf(groupValue.getValue())) {
                 conferenceGroup = highestGroup;
             } else {
                 userGroups.remove(highestGroup);
             }
         }
-        
+
         if (conferenceGroup != null) {
-            LOG.debug("Using group \"" + conferenceGroup.getName() + "\" for conference settings for new user: " 
+            LOG.debug("Using group \"" + conferenceGroup.getName() + "\" for conference settings for new user: "
                     + user.getUserName());
-        } 
-        
+        }
+
         return conferenceGroup;
     }
-    
+
     private MailboxPreferences getMailboxPreferences() {
         return (MailboxPreferences) getBeans().getBean("mailboxPreferences");
     }
 
     public IPage extensionPools(IRequestCycle cycle) {
-        ExtensionPoolsPage poolsPage = (ExtensionPoolsPage) cycle
-                .getPage(ExtensionPoolsPage.PAGE);
+        ExtensionPoolsPage poolsPage = (ExtensionPoolsPage) cycle.getPage(ExtensionPoolsPage.PAGE);
         poolsPage.setReturnPage(this);
         return poolsPage;
     }
 
-    public void setReturnPage(String returnPageName) {
-        super.setReturnPage(returnPageName);
-        setCallback(new OptionalStay(getCallback()));
+    @Override
+    protected ICallback createCallback(String pageName) {
+        ICallback createCallback = super.createCallback(pageName);
+        return new OptionalStay(createCallback);
     }
 
     class OptionalStay implements ICallback {
-        private ICallback m_delegate;
+        private final ICallback m_delegate;
 
         OptionalStay(ICallback delegate) {
             m_delegate = delegate;
@@ -205,16 +207,16 @@ public abstract class NewUser extends PageWithCallback implements PageBeginRende
                 // otherwise keep form values as is theory that creating users in bulk will want
                 // all the same settings by default
                 setUser(null);
-                
+
                 MailboxPreferences mailboxPrefs = getMailboxPreferences();
                 // Clear the email addresses
                 mailboxPrefs.setEmailAddress(null); // XCF-1523
                 mailboxPrefs.setAlternateEmailAddress(null);
-                
+
                 // Reset (clear) the voicemail checkboxes
                 mailboxPrefs.setAttachVoicemailToEmail(false);
                 mailboxPrefs.setAttachVoicemailToAlternateEmail(false);
-                
+
                 cycle.activate(PAGE);
             } else if (m_delegate != null) {
                 m_delegate.performCallback(cycle);

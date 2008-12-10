@@ -143,7 +143,29 @@ public class NewUserTestUi extends WebTestCase {
         clickButton("form:ok");
         assertElementNotPresent("user:success");        
     }
-    
+
+    public void testStayFromHomePage() throws Exception {
+        clickLink("toggleNavigation");
+        clickLink("link.home");
+        clickLink("addUser");
+        SiteTestHelper.assertNoException(tester);
+        SiteTestHelper.assertNoUserError(tester);
+
+        setTextField("user:userId", "xx");
+        setTextField("cp:password", "1234");
+        setTextField("cp:confirmPassword", "1234");
+        checkCheckbox("stay");
+        clickButton("form:ok");
+        assertElementPresent("user:success");
+
+        setTextField("user:userId", "yy");
+        setTextField("cp:password", "1234");
+        setTextField("cp:confirmPassword", "1234");
+        uncheckCheckbox("stay");
+        clickButton("form:ok");
+        assertElementNotPresent("user:success");
+    }
+
     public void testNoStayOnCancel() {
         clickLink("ManageUsers");
         clickLink("AddUser");
