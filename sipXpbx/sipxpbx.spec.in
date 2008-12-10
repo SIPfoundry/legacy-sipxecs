@@ -122,8 +122,6 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/sipx-package.py*
 %attr(755,root,root) %{_bindir}/sipx-swadmin.py*
 
-%attr(755,root,root) %{_libexecdir}/sipXecs/initial-config
-
 %attr(755,root,root) %{_sysconfdir}/init.d/sipxpbx
 %attr(755,root,root) %{_sysconfdir}/cron.daily/sipx-chkspace
 %attr(755,root,root) %{_sysconfdir}/cron.daily/voicemail_clean
