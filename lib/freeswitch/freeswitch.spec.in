@@ -278,7 +278,10 @@ rm -rf $RPM_BUILD_ROOT%{prefix}/conf/lang/fr
 %ifos linux
 %dir /etc/monit.d
 %endif
+%dir %{prefix}/
 %dir %{prefix}/bin
+%dir %{prefix}/lib
+%dir %{prefix}/mod
 %dir %{prefix}/db
 %dir %{prefix}/log
 %dir %{prefix}/log/xml_cdr
@@ -361,7 +364,8 @@ rm -rf $RPM_BUILD_ROOT%{prefix}/conf/lang/fr
 ## /usr/sbin/rcfreeswitch
 ## %endif
 %endif
-%attr(0755,-,-) %{prefix}/bin/*
+%attr(0755,%{fs_user},daemon) %{prefix}/bin/*
+%{prefix}/lib/libfreeswitch*.so*
 %{prefix}/lib/libfreeswitch*.so*
 %{prefix}/lib/libopenzap.so*
 %{prefix}/mod/mod_console.so*
