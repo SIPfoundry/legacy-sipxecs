@@ -4,6 +4,44 @@ SIPfoundry Issue Tracker at:
         http://track.sipfoundry.org/browse?XCF
 
 
+Version 3.11.8
+
+** Bug
+    * [XCF-2737] - MP-124 Config generation NPEs
+    * [XCF-2813] - LG Phones: Clicking on Apply Button in default 'Dialing' Page produces error
+    * [XCF-2831] - ACD login and logout aliases incorrect: Agents cannot log in to ACD Queue
+    * [XCF-2848] - SIP trunk changes do not cause regeneration of affected SBC configuration
+    * [XCF-2857] - Ftp Restore is not working.
+    * [XCF-2974] - autoattendant.xml: use full path for transferPrompt element
+    * [XCF-2997] - Paging fails to work - Page service not started
+    * [XCF-3022] - Localization Package Install fails due to ownership issue
+    * [XCF-3048] - first-run task runs every time (not just after an upgrade or on a fresh installation)
+    * [XCF-3050] - domain-config fails to replicate when started after fresh install
+    * [XCF-3059] - Audio files not displayed in the drop down menu of paging group
+    * [XCF-3073] - sipXconfig fails to start after upgrade - problem with reading backup plans from the DB
+    * [XCF-3086] - System/Servers menu link moved on top - keep SCS /sipXconfig menus in sync
+
+** Improvement
+    * [XCF-2355] - provide a GUI for setting time (including DST rules) and pushing it to phones
+    * [XCF-2804] - The Default setting for the sipXbridge Local Port is suggested as 5060, this needs to be changed
+    * [XCF-3015] - New time settings needs to provide Time Zone setting
+    * [XCF-3024] - remove freeswitch usage of configuration preprocessor (freeswitch_config.defs)
+    * [XCF-3025] - move adding new ACD servers to Servers page
+    * [XCF-3039] - Removing fields from sipxbridge/ITSP configuration panel
+
+** New Feature
+    * [XCF-2286] - Integrate Jasper Reports
+    * [XCF-2612] - Set configuration version stamp for each service when configuration is complete
+    * [XCF-2739] - Automatically re-generate all profiles as part of an upgrade
+    * [XCF-2945] - Package Updates: Create Python script to interact with Yum/RPM
+    * [XCF-2946] - Package Updates: Create "Software Updates" section in sipXconfig UI
+    * [XCF-2993] - To add domain alias to domain-config
+    * [XCF-2769] - Add the ability to change the time and date from the UI
+
+** Task
+    * [XCF-3041] - remove support for sipXvxml based autoattendant
+
+
 Version 3.11.7
 
 ** Bug
