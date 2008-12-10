@@ -143,7 +143,8 @@ void Disabled::DoEntryAction( SipxProcess& impl ) const
 
 void Disabled::evStartProcess( SipxProcess& impl ) const
 {
-   ChangeState( impl, impl.pConfigurationMismatch );
+   // kill off any previously running process before starting up
+   ChangeState( impl, impl.pStopping );
 }
 
 void Disabled::evRestartProcess( SipxProcess& impl ) const
