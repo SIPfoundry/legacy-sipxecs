@@ -34,12 +34,32 @@ bad_usage() {
 }
 
 postgresql_running() {
-  if [ ! -f /var/run/postmaster*.pid -a \
-       ! -f /var/lib/postgresql/data/postmaster*.pid -a \
-       ! -f /var/lib/pgsql/data/postmaster*.pid -a \
-       ! -f ~@POSTGRESQL_USER@/data/postmaster*.pid ]
-  then
-    echo "PostgreSQL does not appear to be running. You must start it in order to $OPERATION."
+  PID_FILES="/var/run/postmaster*.pid /var/lib/postgresql/data/postmaster*.pid"
+  PID_FILES="$PID_FILES /var/lib/pgsql/data/postmaster*.pid"
+  PID_FILES="$PID_FILES ~@POSTGRESQL_USER@/data/postmaster*.pid"
+  
+  # check for the existance of a postgresql pid file
+  for PF in $PID_FILES; do
+    if [ -e "$PF" ] ; then
+      PID_FILE="$PF"
+      break
+    fi
+  done
+
+  if [ ! -r "$PID_FILE" ] ; then
+    # if we can read the pid file, then determine if there's a pid in the
+    # process table that matches
+    PID="$(cat $PID_FILE | head -1)"
+    PIDS="$(ps -C postmaster -o pid --noheaders 2>/dev/null | grep -q $PID >/dev/null 2>&1)"
+  else
+    # if we can't read the pid file, then simply see if there's a postmaster 
+    # running
+    PIDS="$(ps -C postmaster -o pid --noheaders 2>/dev/null)"
+  fi
+
+  if [ -z "$PIDS" ] ; then
+    echo "PostgreSQL does not appear to be running."
+	echo "  You must start it in order to $OPERATION."
     exit 2
   fi
 }
