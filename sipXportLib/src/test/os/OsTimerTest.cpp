@@ -220,16 +220,38 @@ public:
           OsTask::delay(expectedWaitUSecs / OsTime::USECS_PER_MSEC +
                         testData[i].tolerance);
 
-          TestUtilities::createMessage(2, &Message, testData[i].testDescription,
-                                       " - verify return value");
           // gCallBackCount is reinitialized to 0 each iteration, so
           // its value should be 1 now.
-          KNOWN_BUG("fails on ecs-fc8", "XECS-1975");
-          CPPUNIT_ASSERT_MESSAGE("Verify timer was fired for each iteration",
-                                 gCallBackCount == 1);
-          CPPUNIT_ASSERT_MESSAGE(Message.data(), returnValue);
-          TestUtilities::createMessage(2, &Message, testData[i].testDescription,
-                                       " - verify timer *was* fired");
+
+          UtlString failureMessage;
+
+          failureMessage.remove(0);
+          failureMessage.append("Timer did not fire for iteration ");
+          failureMessage.appendNumber(i);
+          failureMessage.append("\n");
+          failureMessage.append(testData[i].testDescription);
+          failureMessage.append("\n  seconds:      ");
+          failureMessage.appendNumber(testData[i].seconds);
+          failureMessage.append("\n  milliseconds: ");
+          failureMessage.appendNumber(testData[i].milliseconds);
+          failureMessage.append("\n  tolerance:    ");
+          failureMessage.appendNumber(testData[i].tolerance);
+
+          CPPUNIT_ASSERT_MESSAGE(failureMessage.data(), gCallBackCount == 1);
+ 
+          failureMessage.remove(0);
+          failureMessage.append("oneshotAfter returned failure on iteration ");
+          failureMessage.appendNumber(i);
+          failureMessage.append("\n");
+          failureMessage.append(testData[i].testDescription);
+          failureMessage.append("\n  seconds:      ");
+          failureMessage.appendNumber(testData[i].seconds);
+          failureMessage.append("\n  milliseconds: ");
+          failureMessage.appendNumber(testData[i].milliseconds);
+          failureMessage.append("\n  tolerance:    ");
+          failureMessage.appendNumber(testData[i].tolerance);
+          CPPUNIT_ASSERT_MESSAGE(failureMessage.data(), returnValue);
+
           diffUSecs = getTimeDeltaInUsecs();
           REPORT_SKEW(("      Timing inaccuracy for iter %3d = %8ld us; Time = %ld.%03ld;\n",
                        i,

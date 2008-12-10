@@ -14,6 +14,7 @@
 
 #include "os/OsFS.h"
 #include "os/OsTask.h"
+#include "os/OsTime.h"
 #include "utl/UtlString.h"
 #include "sipxunit/TestUtilities.h"
 #include "testlib/FileTestContext.h"
@@ -23,6 +24,9 @@
 
 // DEFINES
 // CONSTANTS
+const int TEST_TASK_DELAY = (3 * OsTime::MSECS_PER_SEC);
+
+
 // TYPEDEFS
 // FORWARD DECLARATIONS
 
@@ -77,7 +81,7 @@ public:
 
       testContext.inputFilePath("newprocess.xml", path);
       CPPUNIT_ASSERT((process1 = SipxProcess::createFromDefinition(path)));
-      OsTask::delay(500); // give task some time to get up and running
+      OsTask::delay(TEST_TASK_DELAY); // give task some time to get up and running
 
       ASSERT_STR_EQUAL("New", process1->data());
       ASSERT_STR_EQUAL("1.0.0", process1->mVersion.data());
@@ -88,7 +92,7 @@ public:
 
       testContext.inputFilePath("another-process.xml", path);
       CPPUNIT_ASSERT((process2 = SipxProcess::createFromDefinition(path)));
-      OsTask::delay(500); // give task some time to get up and running
+      OsTask::delay(TEST_TASK_DELAY); // give task some time to get up and running
 
       ASSERT_STR_EQUAL("Nother", process2->data());
       ASSERT_STR_EQUAL("1.0.0", process2->mVersion.data());
@@ -102,15 +106,16 @@ public:
       process2->setConfigurationVersion(newCfgVersion);
 
       process1->enable();
-      OsTask::delay(2000); // give task some time to get up and running
+      process2->enable();
+
+      OsTask::delay(TEST_TASK_DELAY); // give tasks some time to get up and running
+
       CPPUNIT_ASSERT(process1->isEnabled());
       ASSERT_STR_EQUAL(SipxProcess::pRunning->name(), process1->mpDesiredState->name());
-      KNOWN_BUG("Fails on ecs-centos5.x64", "XECS-1967");
+
       ASSERT_STR_EQUAL(SipxProcess::pRunning->name(), process1->GetCurrentState()->name());
 
-      process2->enable();
-      OsTask::delay(2000); // give task some time to get up and running
-      KNOWN_BUG("Fails on ecs-centos5", "XECS-1966");
+
       ASSERT_STR_EQUAL(SipxProcess::pRunning->name(), process2->GetCurrentState()->name());
       CPPUNIT_ASSERT(process2->isEnabled());
 
@@ -129,14 +134,16 @@ public:
 
       process2->shutdown();
       CPPUNIT_ASSERT(process2->isEnabled());
-      KNOWN_BUG("Fails on ecs-fc8", "XECS-1968");
+
       ASSERT_STR_EQUAL(SipxProcess::pRunning->name(), process2->mpDesiredState->name());
-      OsTask::delay(2000); // give task some time to shutdown
+
+      OsTask::delay(TEST_TASK_DELAY); // give task some time to shutdown
       ASSERT_STR_EQUAL(SipxProcess::pShutDown->name(), process2->GetCurrentState()->name());
 
       // when ProcessMgr shuts down, it deletes all the processes
       delete process1;
-      OsTask::delay(2000); // give task some time to shutdown
+
+      OsTask::delay(TEST_TASK_DELAY); // give task some time to shutdown
    }
 
 };
