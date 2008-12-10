@@ -341,7 +341,10 @@ public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContex
         SipxService service = locationService.getSipxService();
         if (service instanceof SipxAcdService) {
             AcdServer server = getAcdServerForLocationId(locationService.getLocation().getId());
-            getHibernateTemplate().delete(server);
+            
+            if (server != null) {
+                getHibernateTemplate().delete(server);
+            }
         }
     }
 

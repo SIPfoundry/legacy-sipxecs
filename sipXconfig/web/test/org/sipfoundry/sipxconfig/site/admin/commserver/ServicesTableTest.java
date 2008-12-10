@@ -37,6 +37,7 @@ public class ServicesTableTest extends TestCase {
         m_out = (ServicesTable) pageCreator.newInstance(ServicesTable.class);
 
         SipxProxyService proxyService = new SipxProxyService();
+        proxyService.setBeanId(SipxProxyService.BEAN_ID);
         m_location = new Location();
         m_location.addService(proxyService);
         PropertyUtils.write(m_out, "serviceLocation", m_location);

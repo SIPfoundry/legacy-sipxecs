@@ -9,10 +9,9 @@
  */
 package org.sipfoundry.sipxconfig.admin.commserver;
 
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Iterator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -33,8 +32,8 @@ public class Location extends BeanWithId {
     private String m_fqdn;
     private String m_password;
 
-    private Map<String, LocationSpecificService> m_services;
-
+    private Collection<LocationSpecificService> m_services;
+    
     private DaoEventPublisher m_daoEventPublisher;
 
     public String getName() {
@@ -95,10 +94,7 @@ public class Location extends BeanWithId {
      * @param services
      */
     public void setServices(Collection<LocationSpecificService> services) {
-        m_services = new HashMap<String, LocationSpecificService>();
-        for (LocationSpecificService locationSpecificService : services) {
-            addService(locationSpecificService);
-        }
+        m_services = services;
     }
 
     /**
@@ -108,7 +104,7 @@ public class Location extends BeanWithId {
      * @param services
      */
     public void setServiceDefinitions(Collection<SipxService> services) {
-        m_services = new HashMap<String, LocationSpecificService>();
+        m_services = new ArrayList<LocationSpecificService>();
         for (SipxService sipxService : services) {
             LocationSpecificService newService = new LocationSpecificService();
             newService.setSipxService(sipxService);
@@ -121,10 +117,7 @@ public class Location extends BeanWithId {
      * services on this location, use the Location's addService or removeService methods.
      */
     public Collection<LocationSpecificService> getServices() {
-        if (m_services == null) {
-            return Collections.unmodifiableCollection(Collections.<LocationSpecificService> emptyList());
-        }
-        return Collections.unmodifiableCollection(m_services.values());
+        return m_services;
     }
 
     public void removeService(LocationSpecificService service) {
@@ -132,21 +125,37 @@ public class Location extends BeanWithId {
     }
 
     public void removeServiceByBeanId(String beanId) {
-        LocationSpecificService service = m_services.get(beanId);
-        if (service != null && service.getSipxService() instanceof SipxAcdService) {
-            m_daoEventPublisher.publishDelete(service);
+        if (m_services == null) {
+            return;
         }
+        Iterator<LocationSpecificService> iterator = m_services.iterator();
+        while (iterator.hasNext()) {
+            LocationSpecificService next = iterator.next();
+            SipxService service = next.getSipxService();
+            if (beanId != null && beanId.equals(service.getBeanId())) {
+                if (service instanceof SipxAcdService) {
+                    m_daoEventPublisher.publishDelete(next);
+                }
+                iterator.remove();
+                break;
+            }
+        }
+        
         m_services.remove(beanId);
     }
 
     public void addService(LocationSpecificService service) {
         if (m_services == null) {
-            m_services = new HashMap<String, LocationSpecificService>();
+            m_services = new ArrayList<LocationSpecificService>();
         }
-        if (!m_services.containsKey(service.getSipxService().getBeanId())) {
-            service.setLocation(this);
-            m_services.put(service.getSipxService().getBeanId(), service);
+        String serviceName = service.getSipxService().getBeanId();
+        for (LocationSpecificService lss : m_services) {
+            if (serviceName.equals(lss.getSipxService().getBeanId())) {
+                return;
+            }        
         }
+        service.setLocation(this);
+        m_services.add(service);
     }
 
     public void addService(SipxService service) {

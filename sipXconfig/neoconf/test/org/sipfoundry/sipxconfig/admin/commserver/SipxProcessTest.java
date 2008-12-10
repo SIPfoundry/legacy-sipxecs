@@ -12,28 +12,30 @@ import junit.framework.TestCase;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessModel.ProcessName;
 import org.sipfoundry.sipxconfig.service.SipxProxyService;
 import org.sipfoundry.sipxconfig.service.SipxRegistrarService;
-import org.sipfoundry.sipxconfig.service.SipxService;
 
 public class SipxProcessTest extends TestCase {
 
     SipxProcessContext m_sipxProcessContext;
     LocationsManager m_locationsManager;
 
+    @Override
     protected void setUp() throws Exception {
         m_sipxProcessContext = createMock(SipxProcessContext.class);
         m_locationsManager = createMock(LocationsManager.class);
         
         Location location = new Location();
-        location.setServiceDefinitions(Arrays.asList(new SipxService[] {
-                new SipxRegistrarService(), new SipxProxyService()
-        }));
-        
+        SipxRegistrarService sipxRegistrarService = new SipxRegistrarService();
+        sipxRegistrarService.setBeanId(SipxRegistrarService.BEAN_ID);
+        SipxProxyService sipxProxyService = new SipxProxyService();
+        sipxProxyService.setBeanId(SipxProxyService.BEAN_ID);
+        location.setServiceDefinitions(Arrays.asList(sipxRegistrarService, sipxProxyService));
         
         Location[] locations = new Location[] {
                 location
         };
         
-        ServiceStatus servStatus1 = new ServiceStatus(new Process(ProcessName.ACD_SERVER), ServiceStatus.Status.Running);
+        ServiceStatus servStatus1 = new ServiceStatus(new Process(ProcessName.ACD_SERVER), 
+                ServiceStatus.Status.Running);
         ServiceStatus servStatus2 = new ServiceStatus(new Process(ProcessName.PRESENCE_SERVER),
                 ServiceStatus.Status.Disabled);
         ServiceStatus[] serviceStatusList = new ServiceStatus[] {
@@ -45,6 +47,7 @@ public class SipxProcessTest extends TestCase {
         replay(m_sipxProcessContext, m_locationsManager);
     }
 
+    @Override
     protected void tearDown() throws Exception {
         verify(m_sipxProcessContext, m_locationsManager);
     }
