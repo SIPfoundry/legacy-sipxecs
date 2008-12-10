@@ -388,7 +388,7 @@ In-band means the application will encode the DTMF signals in the audio stream a
       <description>If Force send in band is No and RTP 2833 enabled is true, specifies the time between 2833 packets (in milliseconds). During this time, only audio will be sent. This setting is useful if you cannot handled back-to-back 2833 packets.</description>
     </setting>
     <setting name='rtp:2833:payload_number'>
-      <label>Packet time</label>
+      <label>Payload number</label>
       <type>
         <integer />
       </type>
