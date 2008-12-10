@@ -58,8 +58,7 @@ public class GatewaysTestUi extends WebTestCase {
 
         assertTablePresent("list:gateway");
         Table gatewaysTable = getTable("list:gateway");
-        // make sure it's sorted by name
-        clickLinkWithExactText("Name");
+
         int lastColumn = getColumnCount(gatewaysTable) - 1;
         assertEquals(4, lastColumn);
 
@@ -87,7 +86,9 @@ public class GatewaysTestUi extends WebTestCase {
         gatewaysTable = getTable("list:gateway");
         // we should have 3 gateway now
         assertEquals(4, gatewaysTable.getRowCount());
-        assertEquals("kukuDescription", getCellAsText(gatewaysTable, 2, lastColumn));
+        assertTextInTable("list:gateway", "kukuDescription");
+        assertTextInTable("list:gateway", "bongoDescription");
+        assertTextInTable("list:gateway", "sharedGDescription");
     }
 
     public void testEditGatewaySettings() throws Exception {
