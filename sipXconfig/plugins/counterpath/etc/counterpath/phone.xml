@@ -125,7 +125,7 @@
         <description>Enable AEC (acoustic echo cancellation) for audio via the headset (outgoing audio stream).</description>
       </setting>
       <setting name='audio:headset:audio_in_agc_enabled'>
-        <label>AEC enabled</label>
+        <label>AGC enabled</label>
         <type refid="true-false" />
         <value>true</value>
         <description>Enable AGC for audio via the headset (outgoing audio stream).</description>
@@ -157,7 +157,7 @@
         <description>Enable AEC (acoustic echo cancellation) for audio via the speakerphone (outgoing audio stream).</description>
       </setting>
       <setting name='audio:speaker_phone:audio_in_agc_enabled'>
-        <label>AEC enabled</label>
+        <label>AGC enabled</label>
         <type refid="true-false" />
         <value>true</value>
         <description>Enable AGC for audio via the speakerphone (outgoing audio stream).</description>
