@@ -35,6 +35,7 @@ public class LoginServlet extends ProvisioningServlet {
             java.io.IOException {
         PrintWriter out = resp.getWriter();
         try {
+            authenticateRequest(req);
             Map<String, String> settings = new Hashtable<String, String>();
             String queryString = "?username=$username$&password=$password$&mac=$MAC$";
             String configServerURL = req.getRequestURL().substring(0,
