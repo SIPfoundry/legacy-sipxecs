@@ -69,7 +69,7 @@ public class ConferenceConfiguration extends XmlFile {
             {"mute", Bridge.CALL_CONTROL_MUTE},
             {"deaf mute", Bridge.CALL_CONTROL_DEAF_MUTE},
             {"energy up", Bridge.CALL_CONTROL_ENERGY_UP},
-            {"enery equ", Bridge.CALL_CONTROL_ENERGY_RESET},
+            {"energy equ", Bridge.CALL_CONTROL_ENERGY_RESET},
             {"energy dn", Bridge.CALL_CONTROL_ENERGY_DOWN},
             {"vol talk up", Bridge.CALL_CONTROL_TALK_UP},
             {"vol talk zero", Bridge.CALL_CONTROL_TALK_RESET},
