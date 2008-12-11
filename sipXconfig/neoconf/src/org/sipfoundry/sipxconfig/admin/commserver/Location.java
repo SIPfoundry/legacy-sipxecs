@@ -132,7 +132,7 @@ public class Location extends BeanWithId {
         while (iterator.hasNext()) {
             LocationSpecificService next = iterator.next();
             SipxService service = next.getSipxService();
-            if (beanId != null && beanId.equals(service.getBeanId())) {
+            if (beanId.equals(service.getBeanId())) {
                 if (service instanceof SipxAcdService) {
                     m_daoEventPublisher.publishDelete(next);
                 }
@@ -140,8 +140,6 @@ public class Location extends BeanWithId {
                 break;
             }
         }
-        
-        m_services.remove(beanId);
     }
 
     public void addService(LocationSpecificService service) {
