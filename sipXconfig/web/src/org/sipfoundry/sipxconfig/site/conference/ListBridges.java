@@ -21,6 +21,8 @@ public abstract class ListBridges extends BasePage {
 
     public static final String PAGE = "conference/ListBridges";
 
+    public static final String CONFIG = "config";
+
     @InjectObject(value = "spring:conferenceBridgeContext")
     public abstract ConferenceBridgeContext getConferenceBridgeContext();
 
@@ -31,11 +33,11 @@ public abstract class ListBridges extends BasePage {
     public abstract EditBridge getEditBridgePage();
 
     public IPage add() {
-        return activateEditPage(null, null);
+        return activateEditPage(null, CONFIG);
     }
 
     public IPage edit(Integer bridgeId) {
-        return activateEditPage(bridgeId, "config");
+        return activateEditPage(bridgeId, CONFIG);
     }
 
     public IPage active(Integer bridgeId) {
