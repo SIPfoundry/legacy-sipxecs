@@ -75,6 +75,9 @@ class CallerAliasDB
    // Write the current rows to the persistent store.
    OsStatus store();
 
+    // Determine if the table is loaded from xml file
+   bool isLoaded();
+
   protected:
    // Fast DB instance
    static dbDatabase* spDBInstance;
@@ -109,6 +112,9 @@ class CallerAliasDB
 
    // The XML namespace of the top-level 'items' element.
    static const UtlString sXmlNamespace;
+
+    // boolean indicating table is loaded
+   bool mTableLoaded;
 
   private:
    /// No destructor, no no no

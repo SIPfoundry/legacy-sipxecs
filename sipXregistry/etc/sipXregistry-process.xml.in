@@ -27,8 +27,7 @@
     <imdb>credential</imdb>
     <imdb>permission</imdb>
     <imdb>alias</imdb>
-    <imdb>huntgroup</imdb>
-    <imdb>registration</imdb>
+    <imdb required='false' configAccess='read-only'>registration</imdb>
     <imdb>userlocation</imdb>
   </resources>
 </sipXecs-process>

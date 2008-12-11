@@ -29,8 +29,18 @@
 #include "sipdb/PermissionDB.h"
 #include "sipdb/RegistrationDB.h"
 #include "sipdb/SubscriptionDB.h"
+#include "sipdb/AuthexceptionDB.h"
+#include "sipdb/UserLocationDB.h"
 
 // DEFINES
+
+#define  CREDENTIAL     "credential"
+#define  ALIAS          "alias"
+#define  CALLER_ALIAS   "caller-alias"
+#define  PERMISSION     "permission"
+#define  EXTENSION      "extension"
+#define  REGISTRATION   "registration"
+#define  USERLOCATION   "userlocation"
 
 REGISTER( TableInfo );
 
@@ -393,6 +403,7 @@ SIPDBManager::getDatabase ( const UtlString& tablename ) const
             // calls to  close (which persists the memory to disk)
             dbCursor< TableInfo > cursor ( dbCursorForUpdate );
             dbQuery query;
+
             query="tablename=",tablename,"and pid=",pid;
             if ( cursor.select( query ) > 0 )
             {
@@ -801,7 +812,6 @@ SIPDBManager::preloadAllDatabase() const
     CredentialDB*   pCredentialDB   = CredentialDB::getInstance();
     SubscriptionDB* pSubscriptionDB = SubscriptionDB::getInstance();
     RegistrationDB* pRegistrationDB = RegistrationDB::getInstance();
-    HuntgroupDB*    pHuntgroupDB    = HuntgroupDB::getInstance();
     PermissionDB*   pPermissionDB   = PermissionDB::getInstance();
     ExtensionDB*    pExtensionDB    = ExtensionDB::getInstance();
     AliasDB*        pAliasDB        = AliasDB::getInstance();
@@ -811,7 +821,6 @@ SIPDBManager::preloadAllDatabase() const
     if (pCredentialDB &&
     pSubscriptionDB &&
     pRegistrationDB &&
-    pHuntgroupDB &&
     pPermissionDB &&
     pExtensionDB &&
     pAliasDB) res = OS_SUCCESS;
@@ -825,7 +834,6 @@ SIPDBManager::releaseAllDatabase() const
     CredentialDB::releaseInstance();
     SubscriptionDB::releaseInstance();
     RegistrationDB::releaseInstance();
-    HuntgroupDB::releaseInstance();
     PermissionDB::releaseInstance();
     ExtensionDB::releaseInstance();
     AliasDB::releaseInstance();
@@ -833,6 +841,68 @@ SIPDBManager::releaseAllDatabase() const
     return OS_SUCCESS;
 }
 
+OsStatus 
+SIPDBManager::preloadDatabaseTable(const UtlString &tableName) const
+{
+
+   OsStatus res = OS_FAILED;
+   if (tableName == CREDENTIAL)
+   {
+       if (CredentialDB::getInstance()->isLoaded()) 
+       {
+          res = OS_SUCCESS;
+       }
+   }
+   else if (tableName == ALIAS)
+   {
+       if (AliasDB::getInstance()->isLoaded())
+       {
+          res = OS_SUCCESS;
+       }
+   }
+   else if (tableName == PERMISSION)
+   {
+       if (PermissionDB::getInstance()->isLoaded())
+       {
+          res = OS_SUCCESS;
+       }
+   }  
+   else if (tableName == EXTENSION)
+   {
+       if (ExtensionDB::getInstance()->isLoaded())
+       {
+          res = OS_SUCCESS;
+       }
+   }
+   else if (tableName == CALLER_ALIAS)
+   {
+      if (CallerAliasDB::getInstance()->isLoaded())
+      {
+          res = OS_SUCCESS;
+      }
+   }
+   else if (tableName == USERLOCATION)
+   {
+      if (UserLocationDB::getInstance()->isLoaded())
+      {
+          res = OS_SUCCESS;
+      }
+   }
+   else if (tableName == REGISTRATION)
+   {
+      if (RegistrationDB::getInstance()->isLoaded())
+      {
+          res = OS_SUCCESS;
+      }
+   }
+   else
+   {
+      OsSysLog::add(FAC_DB, PRI_ERR, 
+                      "SIPDBManager::preloadDatabaseTable - "
+                      "ERROR unknown table name: %s", tableName.data() );
+   }
+   return res;
+}
 /// Override the default fastdb tmp dir
 void SIPDBManager::setFastdbTempDir()
 {

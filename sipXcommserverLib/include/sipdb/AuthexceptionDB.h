@@ -67,6 +67,9 @@ public:
     // Query interface
     UtlBoolean isException ( const UtlString& rUser ) const;
 
+    // Determine if the table is loaded from xml file
+    bool isLoaded();
+
     // The 'type' attribute of the top-level 'items' element.
     static const UtlString sType;
 
@@ -94,6 +97,9 @@ protected:
 
     // the persistent filename for loading/saving
     UtlString mDatabaseName;
+
+    // boolean indicating table is loaded
+    bool mTableLoaded;
 
 private:
     /**

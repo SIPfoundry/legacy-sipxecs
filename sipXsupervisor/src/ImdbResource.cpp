@@ -122,17 +122,30 @@ bool ImdbResource::isReadyToStart(UtlString& missingResource)
 {
    OsLock mutex(mLock);
 
+   bool rc;
+   rc = false;
+
+        
    if (NULL == mDatabase)
    {
-      mDatabase = SIPDBManager::getInstance()->getDatabase(*this);
+        mDatabase = SIPDBManager::getInstance()->getDatabase(*this);
    }
-   
-   bool rc = (NULL != mDatabase);
-   if (!rc)
+           
+   rc = (NULL != mDatabase);
+   if (rc)
+   {
+      // preload the database.  if it fails (i.e. no xml file) then resource not ready.
+      if (SIPDBManager::getInstance()->preloadDatabaseTable(*this) != OS_SUCCESS)
+      {
+         OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG, "FAILED to load database %s returning missing resource", this->data());
+         rc = false;
+      }
+   }
+   else
    {
       missingResource = "";
       appendDescription(missingResource);
-   }
+   } 
    return rc;
 }
 

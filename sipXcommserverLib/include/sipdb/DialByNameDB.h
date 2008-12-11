@@ -62,6 +62,9 @@ public:
         const UtlString& digitstring,
         ResultSet& rResultset ) const;
 
+    // Determine if the table is loaded from xml file
+    bool isLoaded();
+
 protected:
     // Insert database rows (potentially multiple if > 2 words in display name)
     UtlBoolean insertRow ( const Url& contact ) const;
@@ -101,6 +104,9 @@ protected:
 
     // the persistent filename for loading/saving
     UtlString mDatabaseName;
+
+    // boolean indicating table is loaded
+    bool mTableLoaded;
 
 private:
     /**

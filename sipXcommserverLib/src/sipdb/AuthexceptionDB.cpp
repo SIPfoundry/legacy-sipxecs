@@ -52,10 +52,14 @@ AuthexceptionDB::AuthexceptionDB( const UtlString& name )
     // If we are the first process to attach
     // then we need to load the DB
     int users = pSIPDBManager->getNumDatabaseProcesses(name);
-    if ( users == 1 )
+    if ( users == 1 || ( users > 1 && mTableLoaded == false ) )
     {
+        mTableLoaded = false;
         // Load the file implicitly
-        this->load();
+        if (this->load() == OS_SUCCESS)
+        {
+           mTableLoaded = true;
+        }
     }
 }
 
@@ -170,6 +174,7 @@ AuthexceptionDB::load()
         {
             OsSysLog::add(FAC_DB, PRI_WARNING, "AuthexceptionDB::load failed to load \"%s\"",
                     pathName.data());
+            result = OS_FAILED;
         }
     } else 
     {
@@ -192,6 +197,17 @@ AuthexceptionDB::store()
         UtlString pathName = SipXecsService::Path(SipXecsService::DatabaseDirType,
                                                   fileName.data());
 
+        // Create an empty document
+        TiXmlDocument document;
+
+        // Create a hard coded standalone declaration section
+        document.Parse ("<?xml version=\"1.0\" standalone=\"yes\"?>");
+
+        // Create the root node container
+        TiXmlElement itemsElement ( "items" );
+        itemsElement.SetAttribute( "type", sType.data() );
+        itemsElement.SetAttribute( "xmlns", sXmlNamespace.data() );
+
         // Thread Local Storage
         m_pFastDB->attach();
 
@@ -201,17 +217,6 @@ AuthexceptionDB::store()
         // Select everything in the IMDB and add as item elements if present
         if ( cursor.select() > 0 )
         {
-            // Create an empty document
-            TiXmlDocument document;
-
-            // Create a hard coded standalone declaration section
-            document.Parse ("<?xml version=\"1.0\" standalone=\"yes\"?>");
-
-            // Create the root node container
-            TiXmlElement itemsElement ( "items" );
-            itemsElement.SetAttribute( "type", sType.data() );
-            itemsElement.SetAttribute( "xmlns", sXmlNamespace.data() );
-
             // metadata contains column names
             dbTableDescriptor* pTableMetaData = &AuthexceptionRow::dbDescriptor;
 
@@ -257,18 +262,13 @@ AuthexceptionDB::store()
                 // add the line to the element
                 itemsElement.InsertEndChild ( itemElement );
             } while ( cursor.next() );
-            // Attach the root node to the document
-            document.InsertEndChild ( itemsElement );
-            document.SaveFile ( pathName );
-        } else 
-        {
-            // database contains no rows so delete the file
-            if ( OsFileSystem::exists ( pathName ) ) {
-                 OsFileSystem::remove( pathName );
-            }
-        }
+        }  
+        // Attach the root node to the document
+        document.InsertEndChild ( itemsElement );
+        document.SaveFile ( pathName );
         // Commit rows to memory - multiprocess workaround
         m_pFastDB->detach(0);
+        mTableLoaded = true;
     } else 
     {
          result = OS_FAILED;
@@ -393,6 +393,12 @@ AuthexceptionDB::getAllRows(ResultSet& rResultSet) const
         // commit rows and also ensure process/tls integrity
         m_pFastDB->detach(0);
     }
+}
+
+bool
+AuthexceptionDB::isLoaded()
+{
+   return mTableLoaded;
 }
 
 UtlBoolean

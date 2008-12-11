@@ -208,6 +208,9 @@ public:
     // The XML namespace of the top-level 'items' element.
     static const UtlString sXmlNamespace;
 
+    // Determine if the table is loaded from xml file
+    bool isLoaded();
+
 protected:
     // There is only one singleton in this design
     static RegistrationDB* spInstance;
@@ -234,6 +237,9 @@ protected:
 
     int getUpdatesForRegistrar(dbQuery&         query,
                                UtlSList&        bindings) const;
+
+    // boolean indicating table is loaded
+    bool mTableLoaded;
 
 private:
     /// No destructor, no no no

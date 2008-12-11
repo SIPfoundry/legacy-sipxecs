@@ -370,30 +370,6 @@ int main(int argc, char* argv[])
     enableConsoleOutput(false);
     fflush(NULL); // Flush all output so children don't get a buffer of output
 
-    // Preload the databases.  This ensures that:               
-    //  1. Their reference count does not go to 0 causing an expensive 
-    //  load by another process.  (Notably when the system only has apache 
-    //  running on it; on such a system, the only processes accessing the 
-    //  database would be CGIs, and they are created and destroyed frequently -
-    //  the database would be recreated and reloaded a lot if there were not 
-    //  a process holding the use count above zero.)
-    //
-    //  2. The first touch of each database is performed by a non-root 
-    //  process, thus allowing processes running as root to subsequently 
-    //  access the database  without causing the known fastdb hang problem.  
-    OsStatus rc = SIPDBManager::getInstance()->preloadAllDatabase();
-    if (OS_SUCCESS == rc)
-    {
-       // The databases must be released on exit.
-       gbPreloadedDatabases = TRUE;
-       OsSysLog::add(FAC_SUPERVISOR, PRI_INFO, "Preloaded databases.");
-    }
-    else
-    {
-       OsSysLog::add(FAC_SUPERVISOR, PRI_ERR,
-          "sipXsupervisor preloadAllDatabase() failed, rc = %d", (int)rc); 
-    }
-        
     if (!cAlarmServer::getInstance()->init())
     {
        OsSysLog::add(FAC_SUPERVISOR, PRI_ERR,

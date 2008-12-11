@@ -195,6 +195,9 @@ public:
     // The XML namespace of the top-level 'items' element.
     static const UtlString sXmlNamespace;
 
+    // Determine if the table is loaded from xml file
+    bool isLoaded();
+
 protected:
     // this is implicit now
     OsStatus load();
@@ -226,6 +229,9 @@ protected:
 
     // the persistent filename for loading/saving
     UtlString mDatabaseName;
+
+    // boolean indicating table is loaded
+    bool mTableLoaded;
 
 private:
     virtual ~SubscriptionDB();

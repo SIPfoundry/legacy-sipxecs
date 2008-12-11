@@ -113,10 +113,16 @@ RegistrationDB::RegistrationDB( const UtlString& name ) :
     // If we are the first process to attach
     // then we need to load the DB
     int users = pSIPDBManager->getNumDatabaseProcesses(name);
-    if ( users == 1 )
+    if ( users == 1 || ( users > 1 && mTableLoaded == false ) )
     {
+        OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG, "About to try to load registration db");
+        mTableLoaded = false;
         // Load the file implicitly
         this->load();
+        // the RegistrationDB is not replicated from sipXconfig, as 
+        // a result, make this table appear as being loaded regardless
+        // of the load() result.
+        mTableLoaded = true;
     }
 }
 
@@ -223,6 +229,7 @@ RegistrationDB::load()
         {
             OsSysLog::add(FAC_DB, PRI_WARNING, "RegistrationDB::load failed to load \"%s\"",
                     pathName.data());
+            result = OS_FAILED;
         }
     } else
     {
@@ -970,6 +977,11 @@ RegistrationDB::getUnexpiredContactsFieldsContaining (
    }
 }
    
+bool
+RegistrationDB::isLoaded()
+{
+   return mTableLoaded;
+}
    
 RegistrationDB*
 RegistrationDB::getInstance( const UtlString& name )

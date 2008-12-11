@@ -52,10 +52,14 @@ HuntgroupDB::HuntgroupDB( const UtlString& name ) :
     // If we are the first process to attach
     // then we need to load the DB
     int users = pSIPDBManager->getNumDatabaseProcesses(name);
-    if ( users == 1 )
+    if ( users == 1 || ( users > 1 && mTableLoaded == false ) )
     {
+        mTableLoaded = false;
         // Load the file implicitly
-        this->load();
+        if (this->load() == OS_SUCCESS)
+        {
+           mTableLoaded = true;
+        }
     }
     // Initialize the singleton variable
     spInstance = this;
@@ -170,6 +174,7 @@ HuntgroupDB::load()
         {
             OsSysLog::add(FAC_SIP, PRI_WARNING, "HuntgroupDB::load failed to load \"%s\"",
                     pathName.data());
+            result = OS_FAILED;
         }
     } else 
     {
@@ -270,6 +275,7 @@ HuntgroupDB::store()
         }
         // Commit rows to memory - multiprocess workaround
         m_pFastDB->detach(0);
+        mTableLoaded = true;
     } else
     {
         result = OS_FAILED;
@@ -429,6 +435,12 @@ HuntgroupDB::isHuntGroup ( const Url& identity ) const
         m_pFastDB->detach(0);
     }
     return isHuntGroup;
+}
+
+bool
+HuntgroupDB::isLoaded()
+{
+   return mTableLoaded;
 }
 
 HuntgroupDB*

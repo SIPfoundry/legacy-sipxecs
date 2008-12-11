@@ -72,6 +72,9 @@ public:
     // The XML namespace of the top-level 'items' element.
     static const UtlString sXmlNamespace;
 
+    // Determine if the table is loaded from xml file
+    bool isLoaded();
+
 protected:
     // deserialization
     OsStatus load();
@@ -100,6 +103,9 @@ protected:
     // the working direcory for all database instances
     // the XML files are located here
     UtlString m_etcDirectory;
+
+    // boolean indicating table is loaded
+    bool mTableLoaded;
 
 private:
     /**

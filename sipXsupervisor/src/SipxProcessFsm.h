@@ -111,7 +111,7 @@ public:
 
    // State machine events relevant for this state
    virtual void DoEntryAction( SipxProcess& impl ) const;
-   virtual void evResourceCreated( SipxProcess& impl ) const;
+   virtual void evConfigurationChanged( SipxProcess& impl ) const;
    virtual void evRestartProcess( SipxProcess& impl ) const;
 };
 

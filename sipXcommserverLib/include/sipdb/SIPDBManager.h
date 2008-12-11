@@ -124,6 +124,9 @@ public:
     /** preload all database tables **/
     OsStatus preloadAllDatabase() const;
 
+    /** preload database table by name **/
+    OsStatus preloadDatabaseTable(const UtlString &tablename) const;
+
     /** release all database tables **/
     OsStatus releaseAllDatabase() const;
 

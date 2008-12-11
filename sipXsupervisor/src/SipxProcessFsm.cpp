@@ -204,12 +204,9 @@ void ResourceRequired::DoEntryAction( SipxProcess& impl ) const
    }
 }
 
-void ResourceRequired::evResourceCreated( SipxProcess& impl ) const
+void ResourceRequired::evConfigurationChanged( SipxProcess& impl ) const
 {
-   if ( impl.resourcesAreReady() )
-   {
-      ChangeState( impl, impl.pTesting );
-   }
+   ChangeState( impl, impl.pConfigurationMismatch );
 }
 
 void ResourceRequired::evRestartProcess( SipxProcess& impl ) const
