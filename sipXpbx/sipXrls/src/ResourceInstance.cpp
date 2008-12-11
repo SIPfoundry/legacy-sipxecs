@@ -133,8 +133,8 @@ void ResourceInstance::notifyEventCallback(const UtlString* dialogHandle,
       const char* p = dialog_info_node->ToElement()->Attribute("state");
       if (p && strcmp(p, "full") == 0)
       {
-         // If the state is "full", delete all non-terminated dialogs.  (XECS-1668)
-         destroyNonTerminatedXmlDialogs();
+         // If the state is "full", terminate all non-terminated dialogs.  (XECS-1668)
+         terminateXmlDialogs();
          OsSysLog::add(FAC_RLS, PRI_DEBUG,
                        "ResourceInstance::notifyEventCallback all non-terminated dialogs");
       }
@@ -207,6 +207,7 @@ void ResourceInstance::notifyEventCallback(const UtlString* dialogHandle,
             // it in mXmlDialogs.
             // Clone the XML and create a UtlVoidPtr to wrap it.
             TiXmlElement* alloc_xml = dialog_element->Clone()->ToElement();
+
             // Look for an earlier version of this dialog in the hash map.
             UtlVoidPtr* p = dynamic_cast <UtlVoidPtr*> (mXmlDialogs.findValue(&id));
             if (p)
@@ -221,7 +222,7 @@ void ResourceInstance::notifyEventCallback(const UtlString* dialogHandle,
             else
             {
                // Check that we don't have too many dialogs.
-               if (mXmlDialogs.entries() <
+               if ((int)mXmlDialogs.entries() <
                    getResourceListServer()->getMaxDialogsInResInst())
                {
                   mXmlDialogs.insertKeyAndValue(new UtlString(id),
@@ -477,11 +478,11 @@ void ResourceInstance::destroyXmlDialogs()
    mXmlDialogs.destroyAll();
 }
 
-//! Destroy the non-Terminated contents of mXmlDialogs.
-void ResourceInstance::destroyNonTerminatedXmlDialogs()
+//! Terminate the non-Terminated contents of mXmlDialogs.
+void ResourceInstance::terminateXmlDialogs()
 {
    OsSysLog::add(FAC_RLS, PRI_DEBUG,
-                 "ResourceInstance::destroyNonTerminatedXmlDialogs mInstanceName = '%s'",
+                 "ResourceInstance::terminateXmlDialogs mInstanceName = '%s'",
                  mInstanceName.data());
 
    // Iterate through the contents.
@@ -500,11 +501,17 @@ void ResourceInstance::destroyNonTerminatedXmlDialogs()
          UtlString stateText;
          textContentShallow(stateText, state); // textContentShallow allows state == NULL.
 
+         // Check if the state is not terminated.
          if (0 != stateText.compareTo("terminated"))
          {
-            // Yes, so destroy it.
-            delete dialog_element;
-            mXmlDialogs.destroy(itor.key());
+            TiXmlElement newstate = "state";
+            TiXmlText newtext = "terminated";
+
+            // Replace the old state element with a new state element indicating terminated.
+            // The calling routine will then normally overwrite this with the actual (full) state.
+            // Note that tinyxml will delete the old state element for us.
+            newstate.InsertEndChild(newtext);
+            dialog_element->ReplaceChild(state, newstate);
          }
       }
    }

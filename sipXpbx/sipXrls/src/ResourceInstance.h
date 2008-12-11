@@ -126,8 +126,8 @@ class ResourceInstance : public UtlContainableAtomic,
    //! Destroy the contents of mXmlDialogs.
    void destroyXmlDialogs();
 
-   //! Destroy the non-Terminated contents of mXmlDialogs.
-   void destroyNonTerminatedXmlDialogs();
+   //! Terminate the non-Terminated contents of mXmlDialogs.
+   void terminateXmlDialogs();
 
    //! Parent SubscriptionSet.
    SubscriptionSet* mSubscriptionSet;
