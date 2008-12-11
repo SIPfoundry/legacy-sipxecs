@@ -44,7 +44,7 @@ public class MRTGConfigTest extends TestCase {
                 .getFilename());
         assertEquals(5, m_mrtgConfig.getTargets().size());
         assertEquals("/mrtg", m_mrtgConfig.getWorkingDir());
-        assertEquals("/tmp/mrtg", m_mrtgConfig.getThreshDir());
+        assertEquals("/mrtg/thresh", m_mrtgConfig.getThreshDir());
         assertEquals("rrdtool", m_mrtgConfig.getLogFormat());
         assertEquals("/usr/bin", m_mrtgConfig.getPathAdd());
 
@@ -137,7 +137,7 @@ public class MRTGConfigTest extends TestCase {
                 + "NoDetach: Yes"
                 + "Interval: 5"
                 + "workdir: /mrtg"
-                + "threshdir: /tmp/mrtg"
+                + "threshdir: /mrtg/thresh"
                 + "LoadMibs: /usr/share/snmp/mibs/UCD-SNMP-MIB.txt, /usr/share/snmp/mibs/TCP-MIB.txt"
                 + "EnableIPv6: no"
                 + "LogFormat: rrdtool"
@@ -156,7 +156,7 @@ public class MRTGConfigTest extends TestCase {
                 + "NoDetach: Yes"
                 + "Interval: 5"
                 + "workdir: /mrtg"
-                + "threshdir: /tmp/mrtg"
+                + "threshdir: /mrtg/thresh"
                 + "LoadMibs: /usr/share/snmp/mibs/UCD-SNMP-MIB.txt, /usr/share/snmp/mibs/TCP-MIB.txt"
                 + "EnableIPv6: no"
                 + "LogFormat: rrdtool"
@@ -194,7 +194,7 @@ public class MRTGConfigTest extends TestCase {
                 + "NoDetach: Yes"
                 + "Interval: 5"
                 + "workdir: /mrtg"
-                + "threshdir: /tmp/mrtg"
+                + "threshdir: /mrtg/thresh"
                 + "LoadMibs: /usr/share/snmp/mibs/UCD-SNMP-MIB.txt, /usr/share/snmp/mibs/TCP-MIB.txt"
                 + "EnableIPv6: no"
                 + "LogFormat: rrdtool"

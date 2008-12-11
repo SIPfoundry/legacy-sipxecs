@@ -451,6 +451,7 @@ sipx-snmp-init > /dev/null
 %dir %attr(775,@SIPXPBXUSER@,@SIPXPBXUSER@) %{sipxpbxconf}/mrtg
 %config(noreplace) %{sipxpbxconf}/mrtg/*
 %dir %attr(775,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_localstatedir}/sipxdata/mrtg
+%dir %attr(775,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_localstatedir}/sipxdata/mrtg/thresh
 %attr(644,root,root) %{_datadir}/sipxecs/process.d/sipXmrtg-process.xml
 
 %files conference
