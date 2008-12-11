@@ -6,7 +6,6 @@ lib_LTLIBRARIES = \
 	libRedirectorAuthRouter.la \
 	libRedirectorMapping.la \
     	libRedirectorFallback.la \
-	libRedirectorHunt.la \
 	libRedirectorPickUp.la \
 	libRedirectorRegDB.la \
 	libRedirectorSubscribe.la \
@@ -97,22 +96,6 @@ libRedirectorFallback_la_CXXFLAGS = \
 libRedirectorFallback_la_SOURCES =  \
     SipRedirectorFallback.cpp \
     SipRedirectorFallback.h
-
-# SipRedirectorHunt
-
-libRedirectorHunt_la_LDFLAGS = \
-	-module \
-	-version-info ${version_Current}:${version_Revision}:${version_Age}
-
-libRedirectorHunt_la_LIBADD = \
-	@SIPXCOMMSERVER_LIBS@
-
-libRedirectorHunt_la_CXXFLAGS = \
-	-I$(top_builddir)/config
-
-libRedirectorHunt_la_SOURCES =  \
-	SipRedirectorHunt.cpp \
-	SipRedirectorHunt.h
 
 # SipRedirectorPickUp
 

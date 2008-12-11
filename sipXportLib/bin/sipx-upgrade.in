@@ -182,13 +182,6 @@ UpgradeRegistry() {
 
 # Upgrade the registry from 2.6 to 2.8.
 UpgradeRegistry2_6To2_8() {
-    # add the namespace to an existing 2.6.x huntgroup file
-    f=${LocalStateDir}/sipxdata/sipdb/huntgroup.xml
-    if test -r $f
-    then
-        cp $f $f.OLD
-        sed 's|<items type="huntgroup">|<items type="huntgroup" xmlns="http://www.sipfoundry.org/sipX/schema/xml/huntgroup-00-00">|' $f.OLD > $f
-    fi
 
     # add the namespace to an existing 2.6.x alias file
     f=${LocalStateDir}/sipxdata/sipdb/alias.xml

@@ -59,19 +59,6 @@
      this phase uses the same syntax and expressive ability as the
      first Mapping Rules phase.
 
-  ++ Hunt Group Reordering ($prefix/var/sipxdata/sipdb/huntgroup.xml)
-
-     This phase occurs _only_ if the result set is non-empty.  If the
-     target URI is found in the huntgroups file, then any contacts in
-     the result set that do not have explicit 'q' values assigned (q
-     values may be provided with any of the above mechanisms), are
-     given randomly assigned unique q values in the range 0.2 to 0.8.
-     This causes those contacts to be tried serially rather than
-     in parallel (the restricted range allows contacts provided by
-     other means to be explicitly above or below the randomized
-     range).  There is an example huntgroup.xml file in this
-     directory.
-
   ++ Global Call Pick-Up Processing
      ($prefix/var/sipxdata/sipdb/credentials.xml)
 

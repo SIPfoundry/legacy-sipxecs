@@ -25,11 +25,9 @@
 #include "sipdb/CallerAliasDB.h"
 #include "sipdb/CredentialDB.h"
 #include "sipdb/ExtensionDB.h"
-#include "sipdb/HuntgroupDB.h"
 #include "sipdb/PermissionDB.h"
 #include "sipdb/RegistrationDB.h"
 #include "sipdb/SubscriptionDB.h"
-#include "sipdb/AuthexceptionDB.h"
 #include "sipdb/UserLocationDB.h"
 
 // DEFINES

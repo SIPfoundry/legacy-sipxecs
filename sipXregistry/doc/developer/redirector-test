@@ -33,7 +33,6 @@
 # 401 - mapping rule with permission test
 # 500 - fallback rule is activated
 # 501 - fallback rule is not activated
-# 600 - hunt group reordering
 # *76 - global call pick-up
 
 # Debugging statements start with '##'.
@@ -169,18 +168,6 @@ cat >$TMPDIR/permission.xml <<EOF
 EOF
 # Set up the IMDB.
 cp $TMPDIR/permission.xml $SIPX_DBDIR/permission.xml
-
-# Set up the hunt group database.
-cat >$TMPDIR/huntgroup.xml <<EOF
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<items type="huntgroup" xmlns='http://www.sipfoundry.org/sipX/schema/xml/huntgroup-00-00'>
-  <item>
-    <identity>sip:600@$SIPXCHANGE_DOMAIN_NAME</identity>
-  </item>
-</items>
-EOF
-# Set up the IMDB.
-cp $TMPDIR/huntgroup.xml $SIPX_DBDIR/huntgroup.xml
 
 # Set up the mapping rules.
 cat >$SIPX_CONFDIR/mappingrules.xml <<EOF

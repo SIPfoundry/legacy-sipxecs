@@ -75,8 +75,6 @@ case ${Action} in
          ! test -e @SIPX_DBDIR@/alias.xml \
          || @bindir@/sipx-validate-xml @SIPX_DBDIR@/alias.xml
          Status=$(($Status+$?))
-         ! test -e @SIPX_DBDIR@/huntgroup.xml \
-         || @bindir@/sipx-validate-xml @SIPX_DBDIR@/huntgroup.xml
          Status=$(($Status+$?))
 
          # if this system is configured for HA, check that both have valid routes

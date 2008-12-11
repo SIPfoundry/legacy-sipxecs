@@ -26,7 +26,6 @@
 #include "sipdb/CredentialDB.h"
 #include "sipdb/RegistrationDB.h"
 #include "sipdb/ExtensionDB.h"
-#include "sipdb/AuthexceptionDB.h"
 #include "sipdb/UserLocationDB.h"
 
 #include "SipxRpc.h"
@@ -52,7 +51,6 @@
 #define  PERMISSION     "permission"
 #define  EXTENSION      "extension"
 #define  REGISTRATION   "registration"
-#define  AUTHEXCEPTION  "authexception"
 #define  USERLOCATION   "userlocation"
 
 // EXTERNAL FUNCTIONS
@@ -207,11 +205,6 @@ void ImdbRpcMethod::storeTable(const UtlString& tableName){
         }
     }
 
-    else if ( tableName == AUTHEXCEPTION ){
-        if ( AuthexceptionDB::getInstance()->store() != OS_SUCCESS ){
-        }
-    }
-
     else if ( tableName == CALLER_ALIAS ){
        if ( CallerAliasDB::getInstance()->store() != OS_SUCCESS ){
        }
@@ -248,10 +241,6 @@ UtlBoolean ImdbRpcMethod::insertTableRecord(UtlString& tableName, const UtlHashM
 
     else if ( tableName == EXTENSION ){
        result = ExtensionDB::getInstance()->insertRow(tableRecord);
-    }
-
-    else if ( tableName == AUTHEXCEPTION ){
-       result = AuthexceptionDB::getInstance()->insertRow(tableRecord);
     }
 
     else if ( tableName == USERLOCATION ){
@@ -445,10 +434,6 @@ void ImdbRpcReplaceTable::clearTable(UtlString& tableName)
     {
        ExtensionDB::getInstance()->removeAllRows();
     }
-    else if ( tableName == AUTHEXCEPTION )
-    {
-       AuthexceptionDB::getInstance()->removeAllRows();
-    }
     else if ( tableName == CALLER_ALIAS )
     {
        CallerAliasDB::getInstance()->removeAllRows();
@@ -591,10 +576,6 @@ void ImdbRpcRetrieveTable::readTable(UtlString& tableName, ResultSet* imdb_recor
 
     else if ( tableName == EXTENSION ){
        ExtensionDB::getInstance()->getAllRows( *imdb_records );
-    }
-
-    else if ( tableName == AUTHEXCEPTION ){
-       AuthexceptionDB::getInstance()->getAllRows( *imdb_records );
     }
 
     else if ( tableName == USERLOCATION ){
@@ -946,11 +927,6 @@ UtlBoolean ImdbRpcDeleteTableRecords::deleteTableRecord(UtlString& tableName, co
     else if ( tableName == EXTENSION ){
         result = ExtensionDB::getInstance()->removeRow(
                      Url (*((UtlString*)tableRecordKeys.findValue(&uriKey))) );
-    }
-
-    else if ( tableName == AUTHEXCEPTION ){
-       result = AuthexceptionDB::getInstance()->removeRow(
-                     (*(UtlString*)tableRecordKeys.findValue(&userKey)) );
     }
 
     else if ( tableName == USERLOCATION ){

@@ -36,7 +36,6 @@ total 5580
 -rw-r--r--    1 dworley  dworley      1400 Sep  1 18:11 forwardingrules.xml
 -rw-rw-r--    1 dworley  dworley      1663 Aug 31 18:03 forwardingrules.xml.in
 -rw-r--r--    1 dworley  dworley     16571 Sep  1 17:34 forwardmessage.vxml.in
--rw-rw-r--    1 dworley  dworley       224 Aug 31 18:00 huntgroup.xml.in
 -rw-r--r--    1 dworley  dworley      8117 Sep  1 17:34 login_no_autoattendant.vxml.in
 -rw-r--r--    1 dworley  dworley      8621 Sep  1 17:34 login.vxml.in
 -rw-r--r--    1 dworley  dworley      4596 Sep  1 13:17 mappingrules2.xml
@@ -129,7 +128,6 @@ total 0
 total 16
 -rw-rw-r--    1 root     root           86 Aug 31 15:28 alias.xml
 -rw-rw-r--    1 root     root          311 Sep  1 13:07 credential.xml
--rw-rw-r--    1 root     root           90 Aug 31 15:28 huntgroup.xml
 -rw-rw-r--    1 root     root          199 Sep  1 13:07 permission.xml
 
 ----------------------------------------------------------------------

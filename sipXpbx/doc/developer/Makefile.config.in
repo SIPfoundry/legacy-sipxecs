@@ -81,7 +81,7 @@ install-test-config:
 	J=$$( sed <$(CONFIG_DEFS) -e '/^ *SIPXCHANGE_REALM *=/!d' -e 's/^.*=//' ) ; \
 	K=$$( eval echo $$J ) ; \
 	echo SIP registration realm: $$K ; \
-	for file in alias.xml huntgroup.xml permission.xml ; \
+	for file in alias.xml permission.xml ; \
 	do \
 	sed -e "s/\[domain]/$$I/" -e "s/\[realm]/$$K/" <sipXpbx/doc/developer/test-config/var=sipxdata=sipdb/$$file >$$file.tmp ; \
 	install $$file.tmp @SIPX_DBDIR@/$$file ; \

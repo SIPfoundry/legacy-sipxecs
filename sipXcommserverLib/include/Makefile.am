@@ -12,8 +12,6 @@ nobase_include_HEADERS =  \
     configrpc/ConfigRPC.h \
     sipdb/AliasDB.h \
     sipdb/AliasRow.h \
-    sipdb/AuthexceptionDB.h \
-    sipdb/AuthexceptionRow.h \
     sipdb/CallerAliasDB.h \
     sipdb/CallerAliasRow.h \
     sipdb/CredentialDB.h \
@@ -22,8 +20,6 @@ nobase_include_HEADERS =  \
     sipdb/DialByNameRow.h \
     sipdb/ExtensionDB.h \
     sipdb/ExtensionRow.h \
-    sipdb/HuntgroupDB.h \
-    sipdb/HuntgroupRow.h \
     sipdb/LocationDB.h \
     sipdb/LocationRow.h \
     sipdb/PermissionDB.h \

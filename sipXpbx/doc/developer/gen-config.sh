@@ -65,7 +65,6 @@ echo -n 'generate groups '
 
 cat /dev/null                                                   > ${CfgDir}/credential.xml
 cat /dev/null                                                   > ${CfgDir}/permission.xml
-cat /dev/null                                                   > ${CfgDir}/huntgroup.xml
 cat /dev/null                                                   > ${CfgDir}/alias.xml
 
 echo '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' >> ${CfgDir}/credential.xml
@@ -73,9 +72,6 @@ echo '<items type="credential">'                               >> ${CfgDir}/cred
 
 echo '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' >> ${CfgDir}/permission.xml
 echo '<items type="permission">'                               >> ${CfgDir}/permission.xml
-
-echo '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' >> ${CfgDir}/huntgroup.xml
-echo '<items type="huntgroup">'                                >> ${CfgDir}/huntgroup.xml
 
 echo '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' >> ${CfgDir}/alias.xml
 echo '<items type="alias">'                                    >> ${CfgDir}/alias.xml
@@ -139,11 +135,6 @@ EOF
     ua=$((${ua} + 1))
   done
 
-  ################# HuntGroup ################
-  echo '  <item>'                                              >> ${CfgDir}/huntgroup.xml
-  echo "    <identity>sip:5${Group}0@${host}</identity>"       >> ${CfgDir}/huntgroup.xml
-  echo '  </item>'                                             >> ${CfgDir}/huntgroup.xml
-
   test $(($Group % 10)) -eq 0 && echo -n '.'
 
   Group=$((${Group} + 1))
@@ -151,7 +142,6 @@ done
 
 echo '</items>'                                                >> ${CfgDir}/credential.xml
 echo '</items>'                                                >> ${CfgDir}/permission.xml
-echo '</items>'                                                >> ${CfgDir}/huntgroup.xml
 echo '</items>'                                                >> ${CfgDir}/alias.xml
 
 echo ' configuration done.'

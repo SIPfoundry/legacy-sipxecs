@@ -133,6 +133,11 @@ $(SIPX_DATADIR)/sipdb/credential.xml.in.pre: $(SIPX_DATADIR)/sipdb/credential.xm
 $(SIPX_DATADIR)/sipdb/permission.xml.pre: $(SIPX_DATADIR)/sipdb/permission.xml.pre.script
 	sh $< >$@
 
+# This rule runs the script alias.xml.pre.script to generate
+# alias.xml.pre.
+$(SIPX_DATADIR)/sipdb/alias.xml.pre: $(SIPX_DATADIR)/sipdb/alias.xml.pre.script
+	sh $< >$@
+
 # This rule runs the script resource-lists.xml.pre.script to generate
 # resource-lists.xml.pre.
 $(SIPX_CONFDIR)/resource-lists.xml.pre: $(SIPX_CONFDIR)/resource-lists.xml.pre.script

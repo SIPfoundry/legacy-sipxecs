@@ -149,8 +149,7 @@ private:
        <td>string</td>
        <td>IMDBTableName</td>
        <td>The name of the IMDB table to replace with the records supplied.  Current
-           tables supported are "credential", "alias", "caller-alias", "permission", "extension"
-           and "authexception".</td>
+           tables supported are "credential", "alias", "caller-alias", "permission", "extension".</td>
     </tr>
     <tr>
        <td>array</td>
@@ -240,8 +239,7 @@ private:
        <td>string</td>
        <td>IMDBTableName</td>
        <td>The name of the IMDB table to replace with the records supplied.  Current
-           tables supported are "credential", "alias", "caller-alias", "permission", "extension"
-           and "authexception".</td>
+           tables supported are "credential", "alias", "caller-alias", "permission", "extension".</td>
     </tr>
  </table>
  
@@ -324,8 +322,7 @@ private:
        <td>string</td>
        <td>IMDBTableName</td>
        <td>The name of the IMDB table to which to add the records.  Current
-           tables supported are "credential", "alias", "caller-alias", "permission", "extension"
-           and "authexception".</td>
+           tables supported are "credential", "alias", "caller-alias", "permission", "extension".</td>
     </tr>
     <tr>
        <td>array</td>
@@ -411,8 +408,7 @@ private:
        <td>string</td>
        <td>IMDBTableName</td>
        <td>The name of the IMDB table from which to delete the records.  Current
-           tables supported are "credential", "alias", "caller-alias", "permission", "extension"
-           and "authexception".</td>
+           tables supported are "credential", "alias", "caller-alias", "permission", "extension".</td>
     </tr>
     <tr>
        <td>array</td>

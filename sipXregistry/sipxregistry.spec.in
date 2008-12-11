@@ -76,8 +76,6 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_libdir}/libRedirectorAuthRouter.so*
 %attr(755,root,root) %{_libdir}/libRedirectorENUM.la
 %attr(755,root,root) %{_libdir}/libRedirectorENUM.so*
-%attr(755,root,root) %{_libdir}/libRedirectorHunt.la
-%attr(755,root,root) %{_libdir}/libRedirectorHunt.so*
 %attr(755,root,root) %{_libdir}/libRedirectorISN.la
 %attr(755,root,root) %{_libdir}/libRedirectorISN.so*
 %attr(755,root,root) %{_libdir}/libRedirectorJoin.la
@@ -99,7 +97,6 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_datadir}/sipxecs/schema/alias.xsd
 %attr(755,root,root) %{_datadir}/sipxecs/schema/caller-alias.xsd
 %attr(755,root,root) %{_datadir}/sipxecs/schema/fallbackrules.xsd
-%attr(755,root,root) %{_datadir}/sipxecs/schema/huntgroup.xsd
 
 %files devel
 %defattr(644,root,root,755)
@@ -109,7 +106,6 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_libdir}/libRedirectorAliasDB.a
 %attr(755,root,root) %{_libdir}/libRedirectorAuthRouter.a
 %attr(755,root,root) %{_libdir}/libRedirectorENUM.a
-%attr(755,root,root) %{_libdir}/libRedirectorHunt.a
 %attr(755,root,root) %{_libdir}/libRedirectorISN.a
 %attr(755,root,root) %{_libdir}/libRedirectorJoin.a
 %attr(755,root,root) %{_libdir}/libRedirectorMapping.a

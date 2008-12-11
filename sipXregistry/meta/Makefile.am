@@ -3,8 +3,7 @@ include $(top_srcdir)/config/subdir.am
 schemas = \
 	alias.xsd \
 	caller-alias.xsd \
-	fallbackrules.xsd \
-	huntgroup.xsd
+	fallbackrules.xsd
 
 EXTRA_DATA = $(foreach xsd,$(schemas),$(xsd).in)
 
