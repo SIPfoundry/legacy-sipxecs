@@ -80,7 +80,8 @@ public class CounterpathPhone extends Phone {
         public String getWorkgroupSubscriptionAor() {
             SpeedDial speedDial = getPhoneContext().getSpeedDial(m_phone);
             if (speedDial != null) {
-                return "sip:" + speedDial.getResourceListId(true);
+                return "sip:" + speedDial.getResourceListId(true) + "@"
+                        + getPhoneContext().getPhoneDefaults().getDomainName();
             } else {
                 return null;
             }
