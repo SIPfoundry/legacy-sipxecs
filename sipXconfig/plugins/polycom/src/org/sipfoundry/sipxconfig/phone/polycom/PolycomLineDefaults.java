@@ -112,4 +112,9 @@ public class PolycomLineDefaults {
     public Integer getEmergencyPort() {
         return m_defaults.getEmergencyPort();
     }
+    
+    @SettingEntry(path = "reg/outboundProxy.address")
+    public String getProxyServer() {
+        return m_defaults.getDomainName();
+    }
 }
