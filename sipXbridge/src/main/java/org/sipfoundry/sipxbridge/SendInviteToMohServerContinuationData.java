@@ -11,29 +11,14 @@ import javax.sip.message.Request;
  */
 class SendInviteToMohServerContinuationData implements ContinuationData {
     
-    Dialog dialog;
-    
-    Request request;
-
-    SipProvider provider;
-
-    ServerTransaction serverTransaction;
-
+  
     private RequestEvent requestEvent;
 
     private Operation operation;
     
-    public SendInviteToMohServerContinuationData(RequestEvent requestEvent, 
-            Dialog dialog, 
-            SipProvider provider, 
-            ServerTransaction serverTransaction, 
-            Request request) {
+    public SendInviteToMohServerContinuationData(RequestEvent requestEvent) {
       
-        this.requestEvent = requestEvent;
-        this.dialog = dialog;
-        this.request = request;
-        this.provider = provider;
-        this.serverTransaction = serverTransaction;
+        this.requestEvent = requestEvent;     
         this.operation = Operation.SEND_INVITE_TO_MOH_SERVER;
     }
 
@@ -42,14 +27,28 @@ class SendInviteToMohServerContinuationData implements ContinuationData {
       return this.requestEvent;
     }
     
+    /*
+     * (non-Javadoc)
+     * @see org.sipfoundry.sipxbridge.ContinuationData#getOperation()
+     */
     public Operation getOperation() {
         return operation;
     }
 
 
+    /*
+     * (non-Javadoc)
+     * @see org.sipfoundry.sipxbridge.ContinuationData#getDialog()
+     */
     public Dialog getDialog() {
        
-        return dialog;
+        return requestEvent.getDialog();
     }
+
+
+	ServerTransaction getServerTransaction() {
+		return requestEvent.getServerTransaction();
+	}
+
 
 }

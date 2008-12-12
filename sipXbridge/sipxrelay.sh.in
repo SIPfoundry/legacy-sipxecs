@@ -44,6 +44,13 @@ case ${Action} in
 
      exec $JavaCmd -Dconf.dir=@SIPX_CONFDIR@  \
 	 -Dsipxrelay.command=start \
+	 -Djavax.net.ssl.trustStore=@PREFIX@/etc/sipxpbx/ssl/.authorities.jks 	\
+	 -Djavax.net.ssl.trustStoreType=JKS 					\
+	 -Djavax.net.ssl.keyStore=@PREFIX@/etc/sipxpbx/ssl/.ssl.keystore \
+	 -Djetty.lib.dir=@SIPX_JAVADIR@/sipXconfig 	\
+	 -Djetty.conf.dir=@PREFIX@/etc/sipxpbx 		\
+	 -Djetty.x509.algorithm=SunX509 		\
+	 -Dorg.apache.commons.logging.Log=org.apache.commons.logging.impl.Log4JLogger \
          -cp $ClassPath org.sipfoundry.sipxbridge.symmitron.SymmitronServer \
          $Args
      ;;

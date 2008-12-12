@@ -91,6 +91,11 @@ class TransactionApplicationData {
      * transaction.
      */
     BackToBackUserAgent backToBackUa;
+    
+    /*
+     * The Dialog that gets an ACK with the answer from an SDP offer solicitation.
+     */
+    Dialog dialogPendingSdpAnswer;
 
     
     /*

@@ -31,6 +31,7 @@ import javax.net.ssl.SSLSession;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
+
 /**
  * Wrapper for the client methods of the Symmitron.
  * 
@@ -41,6 +42,8 @@ public class SymmitronClient {
 
     private String clientHandle;
     private XmlRpcClient client;
+    
+   
 
     private String serverHandle;
 
@@ -141,6 +144,7 @@ public class SymmitronClient {
             XmlRpcClientConfigImpl config = new XmlRpcClientConfigImpl();
             try {
                 logger.debug("Trying to sign in " + "http://" + serverAddress + ":" + port);
+                
                 config.setServerURL(new URL("http://" + serverAddress + ":" + port));
                 this.serverAddress = serverAddress;
 

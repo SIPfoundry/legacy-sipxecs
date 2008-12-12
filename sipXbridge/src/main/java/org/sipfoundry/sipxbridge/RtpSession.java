@@ -8,12 +8,14 @@
 package org.sipfoundry.sipxbridge;
 
 import javax.sdp.SessionDescription;
-import javax.sip.message.Message;
 
 import org.apache.log4j.Logger;
 import org.sipfoundry.sipxbridge.symmitron.SymImpl;
-import org.sipfoundry.sipxbridge.symmitron.SymmitronClient;
 
+/**
+ * An RTP session consists of a transmitter and receiver endpoint. 
+ * Both endpoints belong to the same sym.
+ */
 class RtpSession {
 
     private static Logger logger = Logger.getLogger(RtpSession.class);
@@ -50,6 +52,13 @@ class RtpSession {
         symImpl.setTransmitter(endpoint.getSymTransmitter());
     }
 
+    /**
+     * Does the inbound session Description represent a HOLD request
+     * for the Rtp Session?
+     * 
+     * @param sessionDescription
+     * @return
+     */
     protected boolean isHoldRequest(SessionDescription sessionDescription) {
 
         int oldPort = this.getTransmitter().getPort();

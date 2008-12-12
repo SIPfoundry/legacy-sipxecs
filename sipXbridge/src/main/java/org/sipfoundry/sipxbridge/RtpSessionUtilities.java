@@ -26,10 +26,10 @@ import javax.sip.message.Response;
 
 import org.apache.log4j.Logger;
 
-public class RtpSessionManager {
+public class RtpSessionUtilities {
 
 	private static final Logger logger = Logger
-			.getLogger(RtpSessionManager.class);
+			.getLogger(RtpSessionUtilities.class);
 
 	/**
 	 * Forward the re-INVITE to the iTSP. Creates a corresponding client
@@ -42,7 +42,7 @@ public class RtpSessionManager {
 	 * 
 	 * @throws Exception
 	 */
-	void forwardReInvite(RtpSession rtpSession,
+	static void forwardReInvite(RtpSession rtpSession,
 			ServerTransaction serverTransaction, Dialog dialog)
 			throws Exception {
 		/*
@@ -97,8 +97,9 @@ public class RtpSessionManager {
 
 		DialogApplicationData peerDat = DialogApplicationData.get(peerDialog);
 
-		b2bua.getWanRtpSession(peerDialog).getReceiver().setSessionDescription(
+		DialogApplicationData.getRtpSession(peerDialog).getReceiver().setSessionDescription(
 				outboundSessionDescription);
+		
 		SipUtilities.incrementSessionVersion(outboundSessionDescription);
 
 		Request newInvite = peerDialog.createRequest(Request.INVITE);
@@ -155,7 +156,7 @@ public class RtpSessionManager {
 	 * @param dialog
 	 */
 
-	void removeHold(RtpSession rtpSession,
+	static void removeHold(RtpSession rtpSession,
 			ServerTransaction serverTransaction, Dialog dialog) {
 		try {
 			logger.debug("Remove media on hold!");
@@ -180,48 +181,18 @@ public class RtpSessionManager {
 	}
 
 	/**
-	 * Put the session on hold. Sends an INVITE to the park server to start
-	 * playing music.
+	 * Put the session on hold. 
+	 * Changes the session attributes to recvonly and sets the transmitter state to hold.
 	 * 
 	 * @rtpSession -- the rtp session to put on hold.
-	 * @param dialog
-	 * @param peerDialog
-	 * @throws SipException
 	 */
-	void putOnHold(RtpSession rtpSession, Dialog dialog,
-			Dialog peerDialog) throws SipException {
+	static void putOnHold(RtpSession rtpSession) {
 
 		if (logger.isDebugEnabled()) {
 			logger.debug("setting media on hold " + rtpSession.toString());
 		}
 		rtpSession.getTransmitter().setOnHold(true);
-		BackToBackUserAgent b2bua = DialogApplicationData
-				.getBackToBackUserAgent(dialog);
-		Dialog currentMohDialog = b2bua.getMusicOnHoldDialog();
-		if (Gateway.getMusicOnHoldAddress() != null
-				&& (currentMohDialog == null || currentMohDialog.getState() == DialogState.TERMINATED)) {
-			/*
-			 * For the standard MOH, the URI is defined to be
-			 * <sip:~~mh~@[domain]>.
-			 */
-			ClientTransaction mohCtx;
-			try {
-				mohCtx = DialogApplicationData.getBackToBackUserAgent(dialog)
-						.createClientTxToMohServer(
-								(SessionDescription) rtpSession.getReceiver()
-										.getSessionDescription().clone());
-			} catch (CloneNotSupportedException e) {
-				throw new RuntimeException("Unexpected exception ", e);
-			}
-			Dialog mohDialog = mohCtx.getDialog();
-			DialogApplicationData mohDat = DialogApplicationData.get(mohDialog);
-			mohDat.peerDialog = peerDialog;
-			mohCtx.sendRequest();
-
-		} else if (currentMohDialog != null) {
-			logger.debug("MohDialog already exists : "   + currentMohDialog );
-
-		}
+		
 		SipUtilities.setDuplexity(rtpSession.getReceiver()
 				.getSessionDescription(), "recvonly");
 		SipUtilities.incrementSessionVersion(rtpSession.getReceiver()
@@ -247,7 +218,7 @@ public class RtpSessionManager {
 	 *             sending bye to MOH server.
 	 * 
 	 */
-	 RtpSessionOperation reAssignRtpSessionParameters(
+	 static RtpSessionOperation reAssignRtpSessionParameters(
 			
 			ServerTransaction serverTransaction) throws SdpParseException, SipException {
 		 
@@ -280,7 +251,7 @@ public class RtpSessionManager {
 
 		/*
 		 * Get the a media attribute -- CAUTION - this only takes care of the
-		 * first media. Question - what to do when only one media stream is put
+		 * one media attribute. Question - what to do when only one media stream is put
 		 * on hold?
 		 */
 
@@ -292,26 +263,15 @@ public class RtpSessionManager {
 
 		if (logger.isDebugEnabled()) {
 			logger.debug("mediaAttribute = " + mediaAttribute
-					+ "sessionAttribute = " + sessionAttribute);
+					+ " sessionAttribute = " + sessionAttribute);
 		}
 
 		String attribute = sessionAttribute != null ? sessionAttribute
 				: mediaAttribute;
 
 		if (rtpSession.isHoldRequest(sessionDescription)) {
-			/*
-			 * Got a hold request. The answer should have a subset of codecs
-			 * limited by the offer
-			 */
-
-			putOnHold(rtpSession, dialog, peerDialog);
-
-			HashSet<Integer> codecs = SipUtilities
-					.getCodecNumbers(sessionDescription);
-
-			SipUtilities.cleanSessionDescription(rtpSession.getReceiver()
-					.getSessionDescription(), codecs);
-
+			
+			putOnHold(rtpSession);
 			return RtpSessionOperation.PLACE_HOLD;
 
 		} else if (rtpSession.getTransmitter().isOnHold() && 

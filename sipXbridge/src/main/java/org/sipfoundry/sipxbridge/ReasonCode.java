@@ -20,5 +20,6 @@ public class ReasonCode {
     public static int SESSION_TIMER_ERROR = 202;
     public static final int UNEXPECTED_CONTENT_TYPE = 203;
     public static final int UNCAUGHT_EXCEPTION = 204;
+	public static final int PROTOCOL_ERROR = 205;
 
 }

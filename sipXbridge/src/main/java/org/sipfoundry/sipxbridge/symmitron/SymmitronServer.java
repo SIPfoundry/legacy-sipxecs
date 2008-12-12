@@ -21,21 +21,15 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
 
-import javax.servlet.http.HttpServlet;
-
 import net.java.stun4j.StunAddress;
 import net.java.stun4j.client.NetworkConfigurationDiscoveryProcess;
 import net.java.stun4j.client.StunDiscoveryReport;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.apache.xmlrpc.XmlRpcException;
-import org.apache.xmlrpc.XmlRpcRequest;
-import org.apache.xmlrpc.server.XmlRpcServer;
-import org.apache.xmlrpc.webserver.WebServer;
 import org.mortbay.http.HttpContext;
-import org.mortbay.http.HttpServer;
 import org.mortbay.http.SocketListener;
+import org.mortbay.http.SslListener;
 import org.mortbay.jetty.Server;
 import org.mortbay.jetty.servlet.ServletHandler;
 import org.sipfoundry.commons.log4j.SipFoundryAppender;
@@ -99,6 +93,8 @@ public class SymmitronServer implements Symmitron {
     private static SymmitronConfig symmitronConfig;
 
     private static final int STUN_PORT = 3478;
+
+    private static boolean useHttps = false;
 
     // /////////////////////////////////////////////////////////////
 
@@ -242,29 +238,37 @@ public class SymmitronServer implements Symmitron {
             logger.debug("Starting xml rpc server on port " + symmitronConfig.getXmlRpcPort());
 
             webServer = new Server();
-            SocketListener socketListener = new SocketListener();
-            socketListener.setPort(symmitronConfig.getXmlRpcPort());
-            socketListener.setHost(symmitronConfig.getLocalAddress());
-            socketListener.setMaxThreads(32);
-            socketListener.setMinThreads(4);
+
+            SocketListener socketListener = null;
+
+            if (useHttps) {
+                SslListener sslListener = new SslListener();
+                String keystore = System.getProperties().getProperty("javax.net.ssl.keyStore");
+                sslListener.setKeystore(keystore);
+                sslListener.setAlgorithm(System.getProperties().getProperty("jetty.x509.algorithm"));
+            } else {
+                socketListener = new SocketListener();
+                socketListener.setPort(symmitronConfig.getXmlRpcPort());
+                socketListener.setHost(symmitronConfig.getLocalAddress());
+                socketListener.setMaxThreads(32);
+                socketListener.setMinThreads(4);
+                socketListener.setLingerTimeSecs(10000);
+            }
+
             webServer.addListener(socketListener);
-        
+
             HttpContext httpContext = new HttpContext();
-            httpContext.setContextPath("/");        
+            httpContext.setContextPath("/");
             ServletHandler servletHandler = new ServletHandler();
-            servletHandler.addServlet("symmitron", "/*",SymmitronServlet.class.getName());           
-            httpContext.addHandler(servletHandler);   
-           
-            socketListener.setLingerTimeSecs(10000);
-            
+            servletHandler.addServlet("symmitron", "/*", SymmitronServlet.class.getName());
+            httpContext.addHandler(servletHandler);
+
             webServer.addContext(httpContext);
-             
-              
-            
+
             webServer.start();
-            
+
             logger.debug("Web server started.");
-            
+
         }
     }
 

@@ -107,11 +107,7 @@ public class Gateway {
     private static CallControlManager callControlManager;
     
     
-    /*
-     * The RTP session manager.
-     */
-    private static RtpSessionManager rtpSessionManager;
-    
+   
     /*
      * The allocator for back to back user agents.
      */
@@ -158,12 +154,7 @@ public class Gateway {
      */
     private static final int MAX_REGISTRATION_TIMER = 10000;
 
-    /*
-     * The rediscovery timer for determining the sipx proxy addresses. Every 30 seconds, look up
-     * the proxy addresses.
-     */
-    private static final int REDISCOVERY_TIMER = 30 * 1000;
-
+ 
     /*
      * Default transport to talk to ITSP
      */
@@ -523,9 +514,7 @@ public class Gateway {
             registrationManager = new RegistrationManager(getWanProvider("udp"));
 
             callControlManager = new CallControlManager();
-            
-            rtpSessionManager = new RtpSessionManager();
-            
+              
             backToBackUserAgentFactory = new BackToBackUserAgentFactory();
 
         } catch (Throwable ex) {
@@ -571,13 +560,7 @@ public class Gateway {
         return callControlManager;
     }
     
-    /**
-     * 
-     * @return  the rtp session manager.
-     */
-    public static RtpSessionManager getRtpSessionManager() {
-		return rtpSessionManager;
-	}
+   
 
     
     /**

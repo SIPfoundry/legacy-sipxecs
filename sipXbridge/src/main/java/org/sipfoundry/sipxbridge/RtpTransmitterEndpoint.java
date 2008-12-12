@@ -110,17 +110,27 @@ class RtpTransmitterEndpoint {
         return sessionDescription;
     }
 
-    public void setOnHold(boolean flag) {
-        if (this.isOnHold == flag)
+    /**
+     * Set or remove hold.
+     */
+    void setOnHold(boolean flag) {
+        if (this.isOnHold == flag) {
             return;
+        }
+        
+        if ( logger.isDebugEnabled() ) {
+        	logger.debug("setOnHold : " + this + " : " + flag );
+        }
+        
         this.symTransmitter.setOnHold(flag);
         this.isOnHold = flag;
     }
 
     void setSessionDescription(SessionDescription sessionDescription, boolean isOffer) {
         if (this.sessionDescription != null) {
-            logger.debug("WARNING -- replacing session description");
-
+            logger.debug("replacing session description");
+        } else {
+        	logger.debug("setting session description");
         }
 
         

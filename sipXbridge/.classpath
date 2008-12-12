@@ -20,7 +20,7 @@
 	<classpathentry kind="var" path="SIPX-PROJECT-ROOT/sipXcommons/lib/xmlrpc-common.jar"/>
 	<classpathentry kind="var" path="SIPX-PROJECT-ROOT/sipXcommons/lib/xmlrpc-server.jar"/>
 	<classpathentry kind="var" path="SIPX-PROJECT-ROOT/BUILD1/sipXcommons/dist/sipxcommons.jar"/>
-	<classpathentry kind="var" path="SIPX-PROJECT-ROOT/sipXconfig/lib/jetty-5.1.4.jar"/>
-	<classpathentry kind="var" path="SIPX-PROJECT-ROOT/sipXconfig/lib/javax.servlet.jar"/>
+	<classpathentry kind="var" path="SIPX-PROJECT-ROOT/sipXcommons/lib/jetty.jar"/>
+	<classpathentry kind="var" path="SIPX-PROJECT-ROOT/sipXcommons/lib/javax.servlet.jar"/>
 	<classpathentry kind="output" path="classes"/>
 </classpath>
