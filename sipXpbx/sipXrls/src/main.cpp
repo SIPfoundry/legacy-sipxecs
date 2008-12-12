@@ -308,7 +308,7 @@ SipLineMgr* addCredentials (UtlString domain, UtlString realm)
                   }
                   else
                   {
-                     OsSysLog::add(LOG_FACILITY, PRI_ERR,
+                     OsSysLog::add(LOG_FACILITY, PRI_CRIT,
                                    "Error adding identity '%s': user='%s' realm='%s'\n",
                                    identity.toString().data(), user.data(), realm.data()
                                    );
@@ -316,24 +316,24 @@ SipLineMgr* addCredentials (UtlString domain, UtlString realm)
                }
                else
                {
-                  OsSysLog::add(LOG_FACILITY, PRI_ERR, "addLine failed" );
+                  OsSysLog::add(LOG_FACILITY, PRI_CRIT, "addLine failed" );
                }
             }
             else
             {
-               OsSysLog::add(LOG_FACILITY, PRI_ERR,
+               OsSysLog::add(LOG_FACILITY, PRI_CRIT,
                              "Constructing SipLineMgr failed" );
             }
          }
          else
          {
-            OsSysLog::add(LOG_FACILITY, PRI_ERR,
+            OsSysLog::add(LOG_FACILITY, PRI_CRIT,
                           "Constructing SipLine failed" );
          }
       }
       else
       {
-         OsSysLog::add(LOG_FACILITY, PRI_ERR,
+         OsSysLog::add(LOG_FACILITY, PRI_CRIT,
                        "No credential found for '%s' in realm '%s'"
                        ,identity.toString().data(), domain.data(), realm.data()
                        );
