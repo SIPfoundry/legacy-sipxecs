@@ -56,6 +56,11 @@ public abstract class SbcDeviceSelect extends BaseComponent {
 
     public abstract IActionListener getSelectedAction();
 
+    @Parameter(required = false)
+    public abstract void setEnforceInternetCallingSupport(boolean enforce);
+
+    public abstract boolean getEnforceInternetCallingSupport();
+
     protected void renderComponent(IMarkupWriter writer, IRequestCycle cycle) {
         if (getSelectedSbcDevice() != null) {
             setSelectedAction(new AddExistingSbcDeviceAction(getSelectedSbcDevice()));
@@ -87,6 +92,16 @@ public abstract class SbcDeviceSelect extends BaseComponent {
         return getTapestry().addExtraOption(model, getMessages(), "label.select");
     }
 
+    private boolean checkIfAllowedToAddAction(SbcDescriptor model) {
+        boolean enforceInternetCallingSupport = getEnforceInternetCallingSupport();
+        if (enforceInternetCallingSupport) {
+            if (!model.isInternetCallingSupported()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     public IPropertySelectionModel getModel() {
         SbcDeviceManager deviceManager = getSbcDeviceManager();
         Collection<OptionAdapter> actions = new ArrayList<OptionAdapter>();
@@ -95,16 +110,21 @@ public abstract class SbcDeviceSelect extends BaseComponent {
         if (!sbcDevices.isEmpty()) {
             actions.add(new OptGroup(getMessages().getMessage("label.addSbc")));
             for (SbcDevice sbcDevice : sbcDevices) {
-                AddExistingSbcDeviceAction action = new AddExistingSbcDeviceAction(sbcDevice);
-                actions.add(action);
+                if (checkIfAllowedToAddAction(sbcDevice.getModel())) {
+                    AddExistingSbcDeviceAction action = new AddExistingSbcDeviceAction(sbcDevice);
+                    actions.add(action);
+                }
             }
         }
 
         Collection<SbcDescriptor> models = getSbcModelSource().getModels();
         actions.add(new OptGroup(getMessages().getMessage("label.createSbc")));
         for (SbcDescriptor model : models) {
-            AddNewSbcDeviceAction action = new AddNewSbcDeviceAction(model);
-            actions.add(action);
+            boolean maxAllowedReached = deviceManager.maxAllowedLimitReached(model);
+            if (checkIfAllowedToAddAction(model) && !maxAllowedReached) {
+                AddNewSbcDeviceAction action = new AddNewSbcDeviceAction(model);
+                actions.add(action);
+            }
         }
 
         AdaptedSelectionModel model = new AdaptedSelectionModel();

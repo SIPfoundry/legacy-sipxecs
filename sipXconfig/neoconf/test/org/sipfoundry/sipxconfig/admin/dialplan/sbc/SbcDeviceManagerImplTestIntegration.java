@@ -1,11 +1,11 @@
 /*
  *
  *
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
- * 
+ *
+ *
  */
 package org.sipfoundry.sipxconfig.admin.dialplan.sbc;
 
@@ -123,6 +123,14 @@ public class SbcDeviceManagerImplTestIntegration extends IntegrationTestCase {
         } catch (UserException e) {
             // ok - duplicate name
         }
+    }
+
+    public void testMaxAllowedLimitReached() {
+        loadDataSet("admin/dialplan/sbc/sbc-device.db.xml");
+        SbcDescriptor bridgeModel = m_modelSource.getModel("sipXbridgeSbcModel");
+        assertTrue(m_sdm.maxAllowedLimitReached(bridgeModel));
+        SbcDescriptor sbcModel = m_modelSource.getModel("sbcGenericModel");
+        assertFalse(m_sdm.maxAllowedLimitReached(sbcModel));
     }
 
     public void setSbcDeviceManager(SbcDeviceManager sdm) {

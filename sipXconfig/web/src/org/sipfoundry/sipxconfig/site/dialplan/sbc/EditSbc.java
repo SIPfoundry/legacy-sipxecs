@@ -46,6 +46,11 @@ public abstract class EditSbc extends PageWithCallback implements PageBeginRende
 
     public abstract SbcDevice getSelectedSbcDevice();
 
+    @Persist
+    public abstract void setEnforceInternetCallingSupport(boolean enforce);
+
+    public abstract boolean getEnforceInternetCallingSupport();
+
     public void pageBeginRender(PageEvent event) {
         if (getSbc() != null) {
             return;

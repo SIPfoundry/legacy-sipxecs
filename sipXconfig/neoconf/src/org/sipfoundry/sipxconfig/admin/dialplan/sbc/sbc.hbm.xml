@@ -71,4 +71,8 @@
     <![CDATA[select sbc_id as id, address
       	from Sbc sbc]]>
   </sql-query>
+
+  <query name="countSbcsByType">
+    <![CDATA[select count (*) from SbcDevice sbc where sbc.beanId = :sbcBeanId]]>
+  </query>
 </hibernate-mapping>

@@ -116,6 +116,14 @@ public class SbcDeviceManagerImpl extends SipxHibernateDaoSupport<SbcDevice> imp
         }
     }
 
+    public boolean maxAllowedLimitReached(SbcDescriptor model) {
+        String type = model.getBeanId();
+        int limit = model.getMaxAllowed();
+        List count = getHibernateTemplate().findByNamedQueryAndNamedParam("countSbcsByType", "sbcBeanId", type);
+        int sbcNumber = DataAccessUtils.intResult(count);
+        return limit != -1 && sbcNumber >= limit;
+    }
+
     public SbcDevice newSbcDevice(SbcDescriptor descriptor) {
         String beanId = descriptor.getBeanId();
         SbcDevice newSbc = (SbcDevice) m_beanFactory.getBean(beanId, SbcDevice.class);

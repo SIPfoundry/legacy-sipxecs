@@ -38,4 +38,6 @@ public interface SbcDeviceManager {
     public void checkForNewSbcDeviceCreation(SbcDescriptor descriptor);
 
     public String getLocalIpAddress();
+
+    public boolean maxAllowedLimitReached(SbcDescriptor model);
 }

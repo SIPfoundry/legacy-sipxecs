@@ -16,6 +16,7 @@
     <property name="maxAllowed" value="1" />
     <property name="defaultProfileLocation" ref="sipXbridgeProfileLocation" />
     <property name="defaultPort" value="5090" />
+	<property name="internetCallingSupported" value="false" />
   </bean>
 
   <bean id="sbcSipXbridge" class="org.sipfoundry.sipxconfig.admin.dialplan.sbc.bridge.BridgeSbc" scope="prototype"

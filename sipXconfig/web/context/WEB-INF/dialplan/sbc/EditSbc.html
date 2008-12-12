@@ -2,7 +2,7 @@
   <h2><span key="title">SBC</span></h2>
   <span jwcid="@common/ErrorMsg" />
   <form jwcid="@Form" delegate="bean:validator">
-    <fieldset jwcid="@dialplan/sbc/SbcPanel" sbc="ognl:sbc" selectedSbcDevice="ognl:selectedSbcDevice"/>
+    <fieldset jwcid="@dialplan/sbc/SbcPanel" sbc="ognl:sbc" selectedSbcDevice="ognl:selectedSbcDevice" enforceInternetCallingSupport="ognl:enforceInternetCallingSupport"/>
    <span jwcid="@common/FormActions" listener="listener:save" callback="ognl:callback"/>
   </form>
 </div>
