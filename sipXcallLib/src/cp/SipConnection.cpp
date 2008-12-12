@@ -701,11 +701,17 @@ UtlBoolean SipConnection::dial(const char* dialString,
             cause = CONNECTION_CAUSE_TRANSFER;
         }
 
-        // Set the header fields for REFER style transfer INVITE
+        // Set the header fields for REFER-style transfer INVITE
         /*else*/ if(callController && originalCallConnection)
         {
             mOriginalCallConnectionAddress = originalCallConnection;
             sipInvite.setReferredByField(callController);
+
+            UtlString referencesValue(originalCallId);
+            referencesValue.append(";rel=refer");
+            sipInvite.setHeaderValue(SIP_REFERENCES_FIELD,
+                                     referencesValue);
+
             cause = CONNECTION_CAUSE_TRANSFER;
         }
 
@@ -1560,6 +1566,10 @@ void SipConnection::doBlindRefer()
         //mTargetCallId);
         // The following does not set the call Id on the xfer target
         "");
+    UtlString referencesValue(mTargetCallId);
+    referencesValue.append(";rel=xfer");
+    referRequest.setHeaderValue(SIP_REFERENCES_FIELD,
+                                referencesValue);
 
     mIsReferSent = send(referRequest);
 }

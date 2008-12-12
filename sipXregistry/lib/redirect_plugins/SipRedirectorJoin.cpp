@@ -454,8 +454,12 @@ SipRedirectorJoin::lookUpDialog(
       subscribe.setHeaderValue(SIP_ACCEPT_FIELD,
                                DIALOG_EVENT_CONTENT_TYPE);
       // Set the References header for tracing dialog associations.
-      subscribe.setHeaderValue(SIP_REFERENCES_FIELD,
-                               incomingCallId);
+      {
+         UtlString referencesValue(incomingCallId);
+         referencesValue.append(";rel=inquiry");
+         subscribe.setHeaderValue(SIP_REFERENCES_FIELD,
+                                  referencesValue);
+      }
    
       // Send the SUBSCRIBE.
       mpSipUserAgent->send(subscribe);
