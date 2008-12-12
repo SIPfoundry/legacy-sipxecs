@@ -23,6 +23,7 @@ testsuite_LDADD = \
 testsuite_SOURCES = \
     net/BranchIdTest.cpp \
     net/CallIdTest.cpp \
+    net/GetDigestAuthorizationDataTest.cpp \
     net/NameValuePairInsensitiveTest.cpp \
     net/NameValuePairTest.cpp \
     net/NetAttributeTokenizerTest.cpp \

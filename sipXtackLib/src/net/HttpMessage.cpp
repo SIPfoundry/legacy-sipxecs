@@ -2927,28 +2927,31 @@ UtlBoolean HttpMessage::getDigestAuthorizationData(UtlString* user,
                                                    HttpMessage::HttpEndpointEnum authorizationEntity,
                                                    int index) const
 {
+   // Empty the output arguments.
+   if (realm) realm->remove(0);
+   if (nonce) nonce->remove(0);
+   if (opaque) opaque->remove(0);
+   if (user) user->remove(0);
+   if (uri) uri->remove(0);
+   if (response) response->remove(0);
 
    const char* value = NULL;
-   value = getHeaderValue(index, HTTP_PROXY_AUTHORIZATION_FIELD);
-
-   if(!value)
+   if (authorizationEntity == SERVER)
    {
       value = getHeaderValue(index, HTTP_AUTHORIZATION_FIELD);
    }
+   else if (authorizationEntity == PROXY)
+   {
+      value = getHeaderValue(index, HTTP_PROXY_AUTHORIZATION_FIELD);
+   }
+
    if(value)
    {
       NetAttributeTokenizer tokenizer(value);
       UtlString name;
       UtlString value;
       UtlString scheme;
-
-      if(realm) realm->remove(0);
-      if(nonce) nonce->remove(0);
-      if(opaque) opaque->remove(0);
-      if(user) user->remove(0);
-      if(uri) uri->remove(0);
-      if(response) response->remove(0);
-
+   
       // If this is a digest response
       tokenizer.getNextAttribute(scheme, value);
       if( 0 == scheme.compareTo(HTTP_DIGEST_AUTHENTICATION,
@@ -2987,7 +2990,8 @@ UtlBoolean HttpMessage::getDigestAuthorizationData(UtlString* user,
          }
       }
    }
-   return(value != NULL);
+
+   return value != NULL;
 }
 
 

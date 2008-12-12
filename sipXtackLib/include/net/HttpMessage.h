@@ -671,14 +671,20 @@ public:
                                     HttpEndpointEnum authorizationEntity
                                     );
 
+    /// Return data from the index-th (0-origin) Authorization/Proxy-Authorization header.
+    // Use Authorization headers if authorizationEntity == SERVER, or
+    // Proxy-Authorization headers if authorizationEntity == PROXY.
+    // Return TRUE if the index-th value exists -- But it may not contain
+    // the mandatory fields, and if it is not Digest type, all returned
+    // strings will be empty.
     UtlBoolean getDigestAuthorizationData(UtlString* user,
-                                         UtlString* realm = NULL,
-                                         UtlString* nonce = NULL,
-                                         UtlString* opaque = NULL,
-                                         UtlString* response = NULL,
-                                         UtlString* uri = NULL,
-                                         HttpEndpointEnum authorizationEntity = HttpMessage::PROXY ,
-                                         int index = 0) const;
+                                          UtlString* realm = NULL,
+                                          UtlString* nonce = NULL,
+                                          UtlString* opaque = NULL,
+                                          UtlString* response = NULL,
+                                          UtlString* uri = NULL,
+                                          HttpEndpointEnum authorizationEntity = HttpMessage::PROXY ,
+                                          int index = 0) const;
 
     static void buildMd5UserPasswordDigest(const char* user,
                                            const char* realm,
