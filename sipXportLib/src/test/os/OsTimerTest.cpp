@@ -237,6 +237,7 @@ public:
           failureMessage.append("\n  tolerance:    ");
           failureMessage.appendNumber(testData[i].tolerance);
 
+          KNOWN_BUG("Fails on ecs-fc8. Timing issue.", "XECS-1975");
           CPPUNIT_ASSERT_MESSAGE(failureMessage.data(), gCallBackCount == 1);
  
           failureMessage.remove(0);
@@ -396,7 +397,7 @@ public:
        // must have been called once in the begining and every 100 milliseconds thereafter
        // and hence the callbackcount must be up by 10+1.
        OsTask::delay(1010);
-//       KNOWN_BUG("Itermittent failure here; not predictable", "XPL-52");
+//       KNOWN_BUG("Intermittent failure here; not predictable", "XPL-52");
        CPPUNIT_ASSERT_EQUAL_MESSAGE("Test periodic timer - verify that the fractional timer is "
                                     "*indeed* called periodically", 11, gCallBackCount);
        delete pTimer;
