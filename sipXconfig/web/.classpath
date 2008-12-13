@@ -10,21 +10,21 @@
 	<classpathentry exported="true" kind="var" path="SIPX_CONFIG/lib/commons-codec-1.3.jar" sourcepath="LIB_SRC/commons-codec/src.zip"/>
 	<classpathentry exported="true" kind="var" path="SIPX_CONFIG/lib/commons-collections-3.2.jar"/>
 	<classpathentry exported="true" kind="var" path="SIPX_CONFIG/lib/commons-discovery-0.4.jar"/>
-	<classpathentry exported="true" kind="var" path="SIPX_CONFIG/lib/commons-lang-2.3.jar"/>
+	<classpathentry exported="true" kind="var" path="SIPX_CONFIG/lib/commons-lang-2.4.jar"/>
 	<classpathentry exported="true" kind="var" path="SIPX_CONFIG/lib/commons-logging-1.1.jar"/>
-	<classpathentry exported="true" kind="var" path="SIPX_CONFIG/lib/commons-pool-1.3.jar"/>
+	<classpathentry exported="true" kind="var" path="SIPX_CONFIG/lib/commons-pool-1.4.jar"/>
 	<classpathentry exported="true" kind="var" path="SIPX_CONFIG/lib/easymock-2.2.jar"/>
 	<classpathentry exported="true" kind="var" path="SIPX_CONFIG/lib/htmlunit-1.14.jar"/>
 	<classpathentry exported="true" kind="var" path="SIPX_CONFIG/lib/jakarta-oro-2.0.8.jar" sourcepath="/LIB_SRC/oro/src.zip"/>
-	<classpathentry exported="true" kind="var" path="SIPX_CONFIG/lib/javassist-3.6.ga.jar" sourcepath="/LIB_SRC/javassist/3.0/src.zip"/>
-	<classpathentry exported="true" kind="var" path="SIPX_CONFIG/lib/ognl-2.7.2.jar" sourcepath="LIB_SRC/ognl/ognl-2.6.7-dist.zip"/>
+	<classpathentry exported="true" kind="var" path="SIPX_CONFIG/lib/javassist-3.7.ga.jar" sourcepath="/LIB_SRC/javassist/3.7/src.zip"/>
+	<classpathentry kind="var" path="SIPX_CONFIG/lib/ognl-2.7.3.jar" sourcepath="LIB_SRC/ognl/ognl-2.6.7-dist.zip"/>
 	<classpathentry exported="true" kind="var" path="SIPX_COMMONS/lib/javax.servlet.jar" sourcepath="JRE_SRC"/>
 	<classpathentry exported="true" kind="var" path="SIPX_CONFIG/lib/sipx-jwebunit-core-1.4.1.jar" sourcepath="/LIB_SRC/jwebunit/1.4.1/jwebunit-1.4.1-sources.zip">
 		<attributes>
 			<attribute name="javadoc_location" value="http://jwebunit.sourceforge.net/apidocs"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry exported="true" kind="var" path="SIPX_CONFIG/lib/tapestry-framework-4.1.5.jar" sourcepath="/LIB_SRC/tapestry/4.1.5/src.zip"/>
+	<classpathentry exported="true" kind="var" path="SIPX_CONFIG/lib/tapestry-framework-4.1.6.jar" sourcepath="/LIB_SRC/tapestry/4.1.6/src.zip"/>
 	<classpathentry exported="true" kind="var" path="SIPX_COMMONS/lib/jetty.jar" sourcepath="LIB_SRC/jetty/src.zip"/>
 	<classpathentry exported="true" kind="var" path="SIPX_CONFIG/lib/jasper-compiler-4.1.31.jar"/>
 	<classpathentry exported="true" kind="var" path="SIPX_CONFIG/lib/jasper-runtime-4.1.31.jar"/>
@@ -41,10 +41,10 @@
 	<classpathentry exported="true" kind="var" path="SIPX_CONFIG/lib/lucene-core-2.0.0.jar"/>
 	<classpathentry exported="true" kind="var" path="SIPX_CONFIG/lib/hivemind-1.1.1.jar" sourcepath="LIB_SRC/hivemind/1.1.1/src.zip"/>
 	<classpathentry exported="true" kind="var" path="SIPX_CONFIG/lib/hivemind-lib-1.1.1.jar" sourcepath="LIB_SRC/hivemind/1.1.1/src.zip"/>
-	<classpathentry exported="true" kind="var" path="SIPX_CONFIG/lib/tapestry-contrib-4.1.5.jar" sourcepath="/LIB_SRC/tapestry/4.1.5/src.zip"/>
+	<classpathentry exported="true" kind="var" path="SIPX_CONFIG/lib/tapestry-contrib-4.1.6.jar" sourcepath="/LIB_SRC/tapestry/4.1.6/src.zip"/>
 	<classpathentry exported="true" kind="var" path="SIPX_CONFIG/lib/js-1.7R1.jar"/>
-	<classpathentry exported="true" kind="var" path="SIPX_CONFIG/lib/commons-fileupload-1.2.jar"/>
-	<classpathentry exported="true" kind="var" path="SIPX_CONFIG/lib/tapestry-annotations-4.1.5.jar" sourcepath="/LIB_SRC/tapestry/4.1.5/src.zip"/>
+	<classpathentry kind="var" path="SIPX_CONFIG/lib/commons-fileupload-1.2.1.jar"/>
+	<classpathentry exported="true" kind="var" path="SIPX_CONFIG/lib/tapestry-annotations-4.1.6.jar" sourcepath="/LIB_SRC/tapestry/4.1.6/src.zip"/>
 	<classpathentry exported="true" kind="var" path="SIPX_CONFIG/lib/postgresql-8.2-504.jdbc3.jar" sourcepath="/LIB_SRC/pgsql/8.2/src.zip"/>
 	<classpathentry exported="true" kind="var" path="SIPX_CONFIG/lib/restlet-1.0.1.jar" sourcepath="/LIB_SRC/restlet/1.0.1/src.zip"/>
 	<classpathentry exported="true" kind="var" path="SIPX_CONFIG/lib/restlet-noelios-impl-1.0.1.jar"/>

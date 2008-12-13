@@ -53,7 +53,7 @@
     <binding name="condition" value="rowInfo.isSelectable(tableRow)" />
   </component>
   <component id="selectedRow" type="contrib:ControlledCheckbox">
-    <binding name="value" value="selections.selected[rowInfo.getSelectId(tableRow)]" />
+    <binding name="value" value="selections.selected[#this.rowInfo.getSelectId(tableRow)]" />
   </component>
   <component id="tablePagesCell" type="Any">
     <!-- need an extra column for a footer -->
