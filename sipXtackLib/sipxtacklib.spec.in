@@ -78,14 +78,9 @@ rm -rf $RPM_BUILD_ROOT
 %docdir doc/license
 %attr(755,root,root) %{_bindir}/dialogdisplay
 %attr(755,root,root) %{_bindir}/dialogwatch
-%attr(755,root,root) %{_bindir}/siplog2siptrace
 %attr(755,root,root) %{_bindir}/siptest
-%attr(755,root,root) %{_bindir}/sipviewer
 %attr(755,root,root) %{_bindir}/subscribe-dialog-test
 %attr(755,root,root) %{_bindir}/%name-config
-%attr(755,root,root) %{_bindir}/merge-logs
-%attr(755,root,root) %{_bindir}/siptrace-merge
-%attr(755,root,root) %{_bindir}/syslog2siptrace
 %attr(755,root,root) %{_libdir}/libsipXtack.la
 %attr(755,root,root) %{_libdir}/libsipXtack.so*
 %attr(755,root,root) %{_datadir}/sipxecs/schema/sip_types.xsd

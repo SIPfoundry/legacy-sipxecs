@@ -3,6 +3,8 @@ include $(top_srcdir)/config/subdir.am
 SUBDIRS = \
 	. \
 	man \
+	syslog2siptrace \
+	sipviewer \
 	test
 
 LOCAL_SHELLSCRIPTS = \

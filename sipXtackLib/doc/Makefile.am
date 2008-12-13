@@ -7,8 +7,6 @@ include $(top_srcdir)/config/doxygen.am
 EXTRA_DIST = \
   Doxyfile.project.in \
   footer.html \
-  license/jdom-LICENSE.txt \
-  license/junit-LICENSE.txt \
   license/MD5-LICENSE
 
 

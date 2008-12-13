@@ -15,6 +15,9 @@ prefix.dir=@prefix@
 # when debug is on
 debuglevel=lines
 
+sipxcommons.dir=@SIPX_JAVADIR@/sipXcommons
+sipviewer.lib.dir=@SIPX_JAVADIR@/sipXviewer
+
 # U T I L
-jdom.jar=${top.dir}/lib/jdom-b10.jar
-junit.jar=${top.dir}/lib/junit.jar
+jdom.jar=${sipxcommons.dir}/jdom-1.0.jar
+junit.jar=${sipxcommons.dir}/junit.jar

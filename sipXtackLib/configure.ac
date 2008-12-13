@@ -62,21 +62,6 @@ ENABLE_DOXYGEN
 AM_CONDITIONAL(DOC, test x$enable_doc = xyes)
 AM_CONDITIONAL(GENERATE_DOXYGEN, test x$enable_doxygen = xyes)
 
-## Sipviewer is written in java and compiled w/ant so allow someone
-## w/o java or ant to effectively ignore anything about this
-AC_ARG_ENABLE(sipviewer, 
-  [  --disable-sipviewer       Do not try to compile java based sipviewer program],
-  , enable_sipviewer=yes)
-AM_CONDITIONAL(SIPVIEWER, test x$enable_sipviewer = xyes)
-
-if test x$enable_sipviewer = xyes
-then
-## SIPViewer is only part of project that uses java, so restrict
-## test only if installing sipviewer
-  CHECK_JDK
-  CHECK_ANT
-fi
-
 AC_ARG_ENABLE(stack-examples, 
   [  --enable-stack-examples       Builds examples directory (disabled by default) ]
   , enable_stack_examples=yes)
@@ -95,9 +80,6 @@ AC_CONFIG_FILES([
   examples/Makefile
   examples/im/Makefile
   examples/xmlrpc/Makefile
-  syslog2siptrace/Makefile 
-  siplog2siptrace/Makefile
-  sipviewer/Makefile 
   siptest/Makefile 
   siptest/src/Makefile 
   siptest/include/Makefile 
@@ -107,7 +89,3 @@ AC_CONFIG_FILES([
 ])
 
 AC_OUTPUT
-
-# autoconf variables like datadir, localstatedir, etc are not resolved until make
-# time, so this allows ant to work immediately after ./configure
-make config.properties

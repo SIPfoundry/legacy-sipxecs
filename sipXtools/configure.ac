@@ -17,7 +17,13 @@ CHECK_NSIS
 
 AC_CONFIG_SRCDIR([src/sipxcar])
 
+AC_PROG_CXX
+AX_COMPILER_VENDOR
+AC_PROG_CC
+
 SFAC_INIT_FLAGS
+SFAC_LIB_STACK
+
 CHECK_GENERATE_MANPAGES
 
 # Java
@@ -29,6 +35,8 @@ AC_CONFIG_FILES([
   src/Makefile 
   src/test/Makefile 
   src/man/Makefile 
+  src/sipviewer/Makefile 
+  src/syslog2siptrace/Makefile 
   preflight/Makefile
 ])
 

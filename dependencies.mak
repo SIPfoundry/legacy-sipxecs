@@ -5,7 +5,7 @@ doc : sipXcommserverLib
 	@echo doc
 
 .PHONY: sipXtools
-sipXtools : sipXcommons
+sipXtools : sipXcommons sipXtackLib 
 	@echo sipXtools
 
 .PHONY: sipXbuild
@@ -85,5 +85,5 @@ sipXivr : sipXcommons
 	@echo sipXivr
 
 .PHONY: sipXecs
-sipXecs : sipXproxy sipXregistry sipXpublisher sipXvxml sipXconfig sipXpbx sipXsupervisor doc
+sipXecs : sipXproxy sipXregistry sipXpublisher sipXvxml sipXconfig sipXpbx sipXsupervisor sipXtools doc
 	@echo sipXecs

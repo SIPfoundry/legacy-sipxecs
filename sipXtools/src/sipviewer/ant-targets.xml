@@ -24,7 +24,7 @@
     -  test.classes         = Patterset of explicit junit tests for quick test
     -  regression.classes   = Patterset of explicit junit tests for full regression test
     -->
-  <property file="${top.build.dir}/config.properties"/>
+  <property file="${top.build.dir}/src/sipviewer/config.properties"/>
   <property name="src.dir" value="src" />
   <property name="classes.dir" value="${build.dir}/classes" />
   <property name="dist.dir" value="${build.dir}/dist" />

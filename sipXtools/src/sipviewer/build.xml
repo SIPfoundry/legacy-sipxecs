@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<!--  -->
+
+<!-- sipviewer Build Script  -->
 
 <project name="sipviewer" default="jar" basedir="." >
 
   <patternset id="test.classes" excludes="**"/>
   <property name="top.build.dir" value="${basedir}/.."/>
   <property name="build.dir" value="${top.build.dir}/sipviewer"/>
-  <import file="../ant-targets.xml"/>
+  <import file="ant-targets.xml"/>
 
   <property name="sipviewer.lib.dir" value="${lib.dir}/sipviewer"/>
 
@@ -34,13 +35,13 @@
     <!-- BINARIES/LIB/SCRIPTS -->
     <mkdir dir="${dest.dir}${sipviewer.lib.dir}"/>
     <copy file="${build.dir}/dist/sipviewer.jar" todir="${dest.dir}${sipviewer.lib.dir}"/>
-    <copy file="${jdom.jar}" tofile="${dest.dir}${sipviewer.lib.dir}/jdom.jar"/>
 
     <copy file="bin/sipviewer.in" tofile="${dest.dir}${bin.dir}/sipviewer"/>
     <replace file="${dest.dir}${bin.dir}/sipviewer" 
-         propertyfile="${top.build.dir}/config.properties">
+         propertyfile="${top.build.dir}/src/sipviewer/config.properties">
       <replacefilter token="@bin.dir@" property="bin.dir"/>
       <replacefilter token="@sipviewer.lib.dir@" value="${sipviewer.lib.dir}"/>
+      <replacefilter token="@sipxcommons.dir@" value="${sipxcommons.dir}"/>
     </replace>
     <chmod file="${dest.dir}${bin.dir}/sipviewer" perm="ugo+x" />
     
@@ -49,7 +50,6 @@
   <target name="uninstall">
     <delete file="${dest.dir}${bin.dir}/sipviewer"/>
     <delete file="${dest.dir}${sipviewer.lib.dir}/sipviewer.jar"/>
-    <delete file="${dest.dir}${sipviewer.lib.dir}/jdom.jar"/>
   </target>
 
 </project>
