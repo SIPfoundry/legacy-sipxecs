@@ -127,7 +127,7 @@ class DialogApplicationData {
      * Records whether or not an ACCEPTED has been sent for the REFER. This dictates what we need
      * to do when we see a BYE for this dialog.
      */
-    boolean isReferAccepted;
+    boolean forwardByeToPeer = true;
 
     /*
      * The generated REFER request.

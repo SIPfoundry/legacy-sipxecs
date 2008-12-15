@@ -245,6 +245,19 @@ class CallControlManager implements SymmitronResetHandler {
 							requestEvent);
 					dat.getBackToBackUserAgent().solicitSdpOfferFromPeerDialog(
 							requestEvent, cdata);
+				} else {
+					/*
+					 * No MOH support on bridge so send OK right away.
+					 */
+					Response response = SipUtilities.createResponse(serverTransaction, Response.OK);
+					SessionDescription sessionDescription = rtpSession.getReceiver().getSessionDescription();
+					SipUtilities.setSessionDescription(response, sessionDescription);
+					/*
+					 * Send an OK to the other side with a SD that indicates that the HOLD operation is
+					 * successful.
+					 */
+					serverTransaction.sendResponse(response);
+					
 				}
 			} else if (operation == RtpSessionOperation.REMOVE_HOLD
 					|| operation == RtpSessionOperation.CODEC_RENEGOTIATION) {
@@ -1020,7 +1033,9 @@ class CallControlManager implements SymmitronResetHandler {
 				}
 			}
 
-			if (tad.operation != Operation.REFER_INVITE_TO_SIPX_PROXY) {
+			if ( tad.operation == Operation.CANCEL_REPLACED_INVITE) {
+				logger.debug("ingoring 4xx response " + tad.operation);
+			} else if (tad.operation != Operation.REFER_INVITE_TO_SIPX_PROXY) {
 				if (serverTransaction != null) {
 					if (serverTransaction.getState() != TransactionState.TERMINATED) {
 						Response newResponse = SipUtilities.createResponse(
@@ -1717,12 +1732,14 @@ class CallControlManager implements SymmitronResetHandler {
 					 * We already ACKED him so we dont owe him an SDP Answer in
 					 * the ACK
 					 */
+					DialogApplicationData.get(dialog).setPendingAction(PendingDialogAction.NONE);
 
 					DialogApplicationData
 							.get(continuation.getDialog())
 							.setPendingAction(
 									PendingDialogAction.PENDING_RE_INVITE_WITH_SDP_OFFER);
 
+					
 					dialog.sendAck(ack);
 				} else {
 					DialogApplicationData.get(dialog).lastResponse = response;

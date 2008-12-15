@@ -80,24 +80,18 @@ public class CallControlUtilities {
 	 */
 	static void sendSdpReOffer(Response response, Dialog dialog)
 			throws Exception {
+		//DialogApplicationData dialogContext = (DialogApplicationData) dialog
+		//		.getApplicationData();
+		BackToBackUserAgent b2bua = DialogApplicationData.getBackToBackUserAgent(dialog);
 		DialogApplicationData dialogContext = (DialogApplicationData) dialog
 				.getApplicationData();
-		BackToBackUserAgent b2bua = dialogContext.getBackToBackUserAgent();
-		Dialog peerDialog = DialogApplicationData.getPeerDialog(dialog);
-		DialogApplicationData peerDialogContext = (DialogApplicationData) peerDialog
-				.getApplicationData();
 		if (logger.isDebugEnabled()) {
-			logger.debug("sendSdpOffer : peerDialog = " + peerDialog
-					+ " peerDialogApplicationData = " + peerDialogContext
-					+ "\nlastResponse = " + peerDialogContext.lastResponse);
+			logger.debug("sendSdpOffer : peerDialog = " + dialog
+					+ " peerDialogApplicationData = " + dialogContext
+					+ "\nlastResponse = " + dialogContext.lastResponse);
 		}
 
-		/*
-		 * This method should only ever be invoked when an sdp offer is pending.
-		 */
-
-		dialogContext.setPendingAction(PendingDialogAction.NONE);
-
+	
 		b2bua.sendByeToMohServer();
 
 		/*
@@ -113,35 +107,35 @@ public class CallControlUtilities {
 					SipUtilities.getSessionDescription(response), Gateway
 							.getCodecName());
 
-			Request sdpOfferInvite = peerDialog.createRequest(Request.INVITE);
+			Request sdpOfferInvite = dialog.createRequest(Request.INVITE);
 
 			/*
 			 * Got a Response to our SDP query. Shuffle to the other end.
 			 */
 
-			DialogApplicationData.getRtpSession(peerDialog).getTransmitter()
+			DialogApplicationData.getRtpSession(dialog).getTransmitter()
 					.setOnHold(false);
 
 			/*
 			 * Set and fix up the sdp offer to send to the opposite side.
 			 */
-			DialogApplicationData.getRtpSession(peerDialog).getReceiver()
+			DialogApplicationData.getRtpSession(dialog).getReceiver()
 					.setSessionDescription(sdpOffer);
 
 			SipUtilities.incrementSessionVersion(sdpOffer);
 
-			SipUtilities.fixupOutboundRequest(peerDialog, sdpOfferInvite);
+			SipUtilities.fixupOutboundRequest(dialog, sdpOfferInvite);
 
 			sdpOfferInvite.setContent(sdpOffer.toString(),
 					ProtocolObjects.headerFactory.createContentTypeHeader(
 							"application", "sdp"));
 
-			ClientTransaction ctx = ((DialogExt) peerDialog).getSipProvider()
+			ClientTransaction ctx = ((DialogExt) dialog).getSipProvider()
 					.getNewClientTransaction(sdpOfferInvite);
 
 			TransactionApplicationData.attach(ctx, Operation.SEND_SDP_RE_OFFER);
 
-			peerDialog.sendRequest(ctx);
+			dialog.sendRequest(ctx);
 
 		} else {
 			dialogContext.getBackToBackUserAgent().tearDown(

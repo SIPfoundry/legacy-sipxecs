@@ -108,6 +108,8 @@ class TransactionApplicationData {
      */
     Request referRequest;
 
+    
+
 	
 
     /**
