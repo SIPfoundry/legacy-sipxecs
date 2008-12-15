@@ -68,6 +68,7 @@ public:
 
    void tearDown()
    {
+      freeAllTestFixtures();
    }
    
    void instantiateAllTestFixtures( UtlString resourceListFile,
@@ -144,8 +145,8 @@ public:
                                        ,proxyAddress ); // Proxy address
    }
    
-   // The freeAllTestFixtures() has to be called for every call to instantiateAllTestFixtures()
-   // after a test case is completed.
+   // The freeAllTestFixtures() is automatically called after every test case so 
+   // unit tests should not call this method.
    void freeAllTestFixtures()
    {
       pResourceServerUnderTest->mClientUserAgent.removeSipOutputProcessor( pUacOutputProcessor );     
@@ -368,7 +369,6 @@ public:
             }
          }
       }
-      freeAllTestFixtures();
       return ret;
    }
 
@@ -388,7 +388,6 @@ public:
    //     ...
    //     <add test case code here>
    //     ...
-   //     freeAllTestFixtures();
    // }
    //
    // void someRegEventTestCase()
@@ -447,8 +446,6 @@ public:
       CPPUNIT_ASSERT( getNextMessageFromRlsServerUnderTest( response, 5 ) );
       CPPUNIT_ASSERT( response.isResponse() );
       CPPUNIT_ASSERT( response.getResponseStatusCode() == SIP_ACCEPTED_CODE );
-
-      freeAllTestFixtures();
    }
 
    void SubscribeWithoutEventListSupportRejectedTest()
@@ -498,8 +495,6 @@ public:
       const char *pRequireFieldValue = response.getHeaderValue( 0, SIP_REQUIRE_FIELD );
       CPPUNIT_ASSERT( pRequireFieldValue );
       ASSERT_STR_EQUAL( "eventlist", pRequireFieldValue );
-      
-      freeAllTestFixtures();
    }
 
    void SubscribeNothingSupportedRejectedTest()
@@ -548,8 +543,6 @@ public:
       const char *pRequireFieldValue = response.getHeaderValue( 0, SIP_REQUIRE_FIELD );
       CPPUNIT_ASSERT( pRequireFieldValue );
       ASSERT_STR_EQUAL( "eventlist", pRequireFieldValue );
-
-      freeAllTestFixtures();
    }
 
 
