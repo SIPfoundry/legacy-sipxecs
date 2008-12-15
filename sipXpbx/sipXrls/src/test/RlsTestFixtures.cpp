@@ -169,28 +169,32 @@ void OutputProcessorFixture::handleOutputMessage( SipMessage& message,
    }
    UtlContainable* pCallbackTrace = new CallbackTrace( message, address, port );
    mCallbackTraceList.append( pCallbackTrace );
+   mEvent.signal(NULL);
+
 }
 
 // function that waits no more than 'maxWaitInSecs' for
 // 'numberOfMessages' received by the processor
-bool OutputProcessorFixture::waitForMessages( size_t numberOfMessages, int maxWaitInSecs )
+bool OutputProcessorFixture::waitForMessage(long maxWaitInSecs )
 {
-   // poll every second
    int index;
    bool bMessagesReceived = false;
    
-   for( index = 0; index < maxWaitInSecs; index++ )
+   OsTime wTime(maxWaitInSecs*1000);
+   while(OS_SUCCESS == mEvent.wait(wTime))
    {
+      // check to make sure that the CallbackTrace is not empty
+      // if it is empty, reset the event and try again
+      OsLock lock(mMutex);
+      if(mCallbackTraceList.entries() > 0)
       {
-         OsLock lock( mMutex );
-         if( mCallbackTraceList.entries() >= numberOfMessages )
-         {
-            bMessagesReceived = true;
-            break;
-         }
+         bMessagesReceived = true;
+         mEvent.reset();
+         break;
       }
-      sleep( 1 );
+      mEvent.reset();
    }
+
    return bMessagesReceived;
 }
 

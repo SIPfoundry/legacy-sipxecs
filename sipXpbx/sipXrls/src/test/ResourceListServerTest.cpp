@@ -35,6 +35,13 @@ class ResourceListServerTest : public CppUnit::TestCase
    CPPUNIT_TEST(SubscribeWithEventListSupportAcceptedTest);
    CPPUNIT_TEST(SubscribeWithoutEventListSupportRejectedTest);
    CPPUNIT_TEST(SubscribeNothingSupportedRejectedTest);
+   CPPUNIT_TEST(regInfoSubscribeWithGruuAddressTest);
+   CPPUNIT_TEST(regInfoSubscribeWithBadlyFormattedGruuTest);
+   CPPUNIT_TEST(regInfoSubscribeWithPathHeaderTest);
+   CPPUNIT_TEST(regInfoSubscribeWithJustUriTest);
+   CPPUNIT_TEST(regInfoSubscribeWithMultiplePathHeadersTest);
+   CPPUNIT_TEST(regInfoSubscribeWithMultiplePathHeaderElementsTest);
+   
    CPPUNIT_TEST_SUITE_END();
 
 private:
@@ -71,11 +78,17 @@ public:
                                     //< is used to select which of the files in .../sipXrls/src/test/rlsdata/
                                     //< will get used to preload the subscription IMDB.  The name provided here is the 
                                     //< xml file in .../sipXrls/src/test/rlsdata/ without the ".xml" extension.
-                                    UtlString credentialDbName 
+                                    UtlString credentialDbName,
                                     //< Specifies the credential DB to use for the test.  The name 
                                     //< is used to select which of the files in .../sipXrls/src/test/rlsdata/
                                     //< will get used to preload the credential IMDB.  The name provided here is the 
                                     //< xml file in .../sipXrls/src/test/rlsdata/ without the ".xml" extension.
+                                    UtlString domianName,
+                                    //< Specify the domain name to use for the test
+                                    UtlBoolean routeAllRequestsToRlsServer
+                                    //< Send all requests to either the RLS Server UA or the RLS Client UA
+                                    //< The Client UA typically deals with the outgoing subscriptions and
+                                    //< the Server UA deals witht the incoming subscriptions
                                     )
    {
       mCredentialDbName = credentialDbName;
@@ -83,9 +96,9 @@ public:
       sipDbContext.inputFile( subscriptionDbName + ".xml" );
       sipDbContext.inputFile( credentialDbName + ".xml" );
       UtlString tempResourceListFile = UtlString(TEST_DATA_DIR) + "/" + resourceListFile;
-      
+
       pResourceServerUnderTest = new ResourceListServer(
-                                       "rlstest.test", // domain 
+                                       domianName, // domain 
                                        "rlstest.test", // realm
                                        NULL, 
                                        DIALOG_EVENT_TYPE, 
@@ -105,25 +118,37 @@ public:
                                        20,    // The maximum number of dialogs per resource instance
                                        subscriptionDbName,
                                        credentialDbName );
-   
+
       pUacOutputProcessor = new OutputProcessorFixture();
       pUasOutputProcessor = new OutputProcessorFixture();
       
       pResourceServerUnderTest->mClientUserAgent.addSipOutputProcessor( pUacOutputProcessor );
       pResourceServerUnderTest->mServerUserAgent.addSipOutputProcessor( pUasOutputProcessor );
- 
+
+      UtlString proxyAddress;
+      if(routeAllRequestsToRlsServer)
+      {
+         proxyAddress = "127.0.0.1:45140";
+      }
+      else
+      {
+         int pPort;
+         pResourceServerUnderTest->mClientUserAgent.getLocalAddress(&proxyAddress, &pPort);
+         proxyAddress.append(':');
+         proxyAddress.appendNumber(pPort);
+      }
       pSipUserAgent = new SipUserAgent( 45141, 45141, 45142
                                        ,"127.0.0.1"  // default publicAddress
                                        ,NULL         // default defaultUser
                                        ,"127.0.0.1"  // default defaultSipAddress
-                                       ,"127.0.0.1:45140" ); // Rls Server
+                                       ,proxyAddress ); // Proxy address
    }
    
    // The freeAllTestFixtures() has to be called for every call to instantiateAllTestFixtures()
    // after a test case is completed.
    void freeAllTestFixtures()
    {
-      pResourceServerUnderTest->mClientUserAgent.removeSipOutputProcessor( pUacOutputProcessor );      
+      pResourceServerUnderTest->mClientUserAgent.removeSipOutputProcessor( pUacOutputProcessor );     
       pResourceServerUnderTest->mServerUserAgent.removeSipOutputProcessor( pUasOutputProcessor );
 
       pResourceServerUnderTest->shutdown();
@@ -135,7 +160,7 @@ public:
       
       delete pUasOutputProcessor;
       pUasOutputProcessor = 0;
-      
+
       delete pSipUserAgent;
    }   
    
@@ -150,7 +175,7 @@ public:
    bool getNextMessageFromRlsServerUnderTest( SipMessage& message, int timeoutInSecs )
    {
       bool result = false;
-      if( pUasOutputProcessor->waitForMessages( 1, timeoutInSecs ) == true )
+      if( pUasOutputProcessor->waitForMessage((long) timeoutInSecs ) == true )
       {
          CallbackTrace trace;
          result = pUasOutputProcessor->popNextCallbackTrace( trace );
@@ -167,7 +192,7 @@ public:
    bool getNextMessageFromRlsClientUnderTest( SipMessage& message, int timeoutInSecs )
    {
       bool result = false;
-      if( pUacOutputProcessor->waitForMessages( 1, timeoutInSecs ) == true )
+      if( pUacOutputProcessor->waitForMessage((long) timeoutInSecs ) == true )
       {
          CallbackTrace trace;
          result = pUacOutputProcessor->popNextCallbackTrace( trace );
@@ -255,27 +280,136 @@ public:
       }
       return result;
    }
+
+   /// wrapper function for all reg-info event tests
+   bool ContactSetTest(UtlString regContactxml, UtlString requestUri, UtlString route)
+   {
+      bool ret = FALSE;
+      instantiateAllTestFixtures( "resource-lists2.xml", 
+                                  "subscription1", 
+                                  "credential1", 
+                                  "sip:127.0.0.1:45141",
+                                  FALSE);
+
+      // Stop SipUserAgent from rejecting all SUBSCRIBEs
+      pSipUserAgent->allowMethod(SIP_SUBSCRIBE_METHOD, true);
+
+      // receive the reg-info subscribe 
+      SipMessage request;
+      while(getNextMessageFromRlsClientUnderTest( request, 3 ) )
+      {
+         UtlString method;
+         request.getRequestMethod(&method);
+         if(!request.isResponse() &&
+            0 == method.compareTo(SIP_SUBSCRIBE_METHOD) )
+         {
+            // Accept the Subscription, regardless of whether it for a 'dialog' or 'reg' event
+            // in order to stop retransmissions
+            SipMessage regResponse;
+            regResponse.setResponseData(&request, 202, "Accepted", "sip:127.0.0.1:45141");
+            SipMessage * dispatchedMessage = new SipMessage(regResponse);            
+            pResourceServerUnderTest->mClientUserAgent.dispatch(dispatchedMessage);
+
+            // Deal with the two events separately
+            UtlString eventField;
+            request.getEventField(eventField);
+            if(0 == eventField.compareTo("reg"))
+            {
+               UtlString contactInfo;
+               request.getContactUri(0, &contactInfo);
+               UtlString callid;
+               request.getCallIdField(&callid);
+               int cseq;
+               request.getCSeqField(&cseq, NULL);
+
+               Url toField;
+               regResponse.getToUrl(toField);
+
+               SipMessage regNotify;
+               regNotify.setNotifyData(&request, 1, "", "", "reg");
+               UtlString regInfo ("<?xml version=\"1.0\"?>\r\n"
+                                 "<reginfo xmlns=\"urn:ietf:params:xml:ns:reginfo\" "
+                                 "xmlns:gr=\"urn:ietf:params:xml:ns:gruuinfo\" version=\"911\" state=\"full\">\r\n"
+                                 "   <registration aor=\"sip:332@rlstest.test\" id=\"sip:332@rlstest.test\" state=\"active\">\r\n "
+                                 "      <contact id=\"sip:332@rlstest.test@@&lt;");
+               regInfo.append(contactInfo);
+               regInfo.append("&gt;\" state=\"active\" event=\"registered\" q=\"1\" callid=\"");
+               regInfo.append(callid);
+               regInfo.append("\" cseq=\"");
+               regInfo.appendNumber(cseq);
+               regInfo.append("\">\r\n");
+               regInfo.append(regContactxml);
+               regInfo.append("      </contact>\r\n"
+                              "   </registration>\r\n"
+                              "</reginfo>");
+               HttpBody * newBody = new HttpBody (regInfo, strlen(regInfo), "application/reginfo+xml");
+               regNotify.setContentType("application/reginfo+xml");
+               regNotify.setBody(newBody);
+
+               // Set the From field the same as the to field from the 202 response, as it
+               // contains the dialog identifying to tags
+               regNotify.setRawFromField(toField.toString().data());
+               sendToRlsServerUnderTest( regNotify );
+            }
+            else if(0 == eventField.compareTo("dialog"))
+            {
+               // If we find a dialog event subscription with the request uri and route
+               // that we are looking for, mark the test as passed
+
+               UtlString uri;
+               UtlString myRoute;
+               request.getRequestUri(&uri);
+               request.getRouteField(&myRoute); 
+               if(0 == uri.compareTo(requestUri) &&
+                  0 == route.compareTo(myRoute))
+               {
+                  ret = true;
+               }
+            }
+         }
+      }
+      freeAllTestFixtures();
+      return ret;
+   }
+
    //____________________________________________________
    // || || || || || || || || || || || || || || || || || 
    // \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ 
-   // Acutal test cases start below.  The test case skeleton is:
+   // Actual test cases start below.  The test case skeletons are:
    //
    // void someTestCase()
    // {
    //     instantiateAllTestFixtures( <resource list xml file to be used by Rls Server for test case>,
    //                                 <name of subscription DB to be used by Rls Server for test case>,
-   //                                 <name of credential DB to be used by Rls Server for test case> 
+   //                                 <name of credential DB to be used by Rls Server for test case>,
+   //                                 <domain name to be used for the test case>,
+   //                                 <should requests be sent to the SERVER or CLIENT UA>
    //                               );
    //     ...
    //     <add test case code here>
    //     ...
    //     freeAllTestFixtures();
    // }
+   //
+   // void someRegEventTestCase()
+   // {
+   //      UtlString regInfoContact; < The contact info xml to be tested>
+   //      ...
+   //      CPPUNIT_ASSERT( ContactSetTest( <contact info xml with the uri, gruu, and path headers>, 
+   //                                      <expected request uri, if the reg-info is parsed correctly>, 
+   //                                      <expected route, if the reg-info is parsed correctly>
+   //                                    );
+   // }
+   //
    //____________________________________________________
-   
+
    void SubscribeWithEventListSupportAcceptedTest()
    {
-      instantiateAllTestFixtures( "resource-lists1.xml", "subscription1", "credential1" );
+      instantiateAllTestFixtures( "resource-lists1.xml", 
+                                  "subscription1", 
+                                  "credential1", 
+                                  "rlstest.test",
+                                  TRUE);
 
       const char* message = 
          "SUBSCRIBE sip:~~rl~F~331@177.0.0.1:54140 SIP/2.0\r\n"
@@ -319,7 +453,11 @@ public:
 
    void SubscribeWithoutEventListSupportRejectedTest()
    {
-      instantiateAllTestFixtures( "resource-lists1.xml", "subscription1", "credential1" );
+      instantiateAllTestFixtures( "resource-lists1.xml", 
+                                  "subscription1", 
+                                  "credential1", 
+                                  "rlstest.test",
+                                  TRUE);
 
       const char* message = 
          "SUBSCRIBE sip:~~rl~F~331@177.0.0.1:54140 SIP/2.0\r\n"
@@ -366,7 +504,11 @@ public:
 
    void SubscribeNothingSupportedRejectedTest()
    {
-      instantiateAllTestFixtures( "resource-lists1.xml", "subscription1", "credential1" );
+      instantiateAllTestFixtures( "resource-lists1.xml", 
+                                  "subscription1", 
+                                  "credential1", 
+                                  "rlstest.test",
+                                  TRUE);
 
       const char* message = 
          "SUBSCRIBE sip:~~rl~F~331@177.0.0.1:54140 SIP/2.0\r\n"
@@ -408,6 +550,69 @@ public:
       ASSERT_STR_EQUAL( "eventlist", pRequireFieldValue );
 
       freeAllTestFixtures();
+   }
+
+
+    // ================================================
+    //  REG-INFO EVENT SPECIFIC TEST CASES START HERE:
+    // ================================================
+
+
+   void regInfoSubscribeWithGruuAddressTest()
+   {
+      UtlString regContactxml ("         <uri>sip:user@127.0.0.1:45141</uri>\r\n"
+                               "         <unknown-param name=\"path\">&lt;sip:127.0.0.1:45141&gt;</unknown-param>\r\n"
+                               "         <unknown-param name=\"+sip.instance\">\"&lt;urn:uuid:f81d4fae"
+                               "-7dec-11d0-a765-00a0c91e6bf6&gt;\"</unknown-param>\r\n"
+                               "         <gr:pub-gruu uri=\"sip:~~gr~hha9s8d-999@127.0.0.1:45141;gr\"/>\r\n");
+
+      CPPUNIT_ASSERT(ContactSetTest(regContactxml, "sip:~~gr~hha9s8d-999@127.0.0.1:45141;gr", ""));
+   }
+
+   void regInfoSubscribeWithBadlyFormattedGruuTest()
+   {
+      UtlString regContactxml ("         <uri>sip:user@127.0.0.1:45141</uri>\r\n"
+                               "         <unknown-param name=\"path\">&lt;sip:127.0.0.1:45141&gt;</unknown-param>\r\n"
+                               "         <unknown-param name=\"+sip.instance\">\"&lt;urn:uuid:f81d4fae"
+                               "-7dec-11d0-a765-00a0c91e6bf6&gt;\"</unknown-param>\r\n"
+                               "         <gr:pub-gruu uri=\"~~gr~hha9s8d-999@127.0.0.1:45141;gr\"/>\r\n");
+
+      CPPUNIT_ASSERT(ContactSetTest(regContactxml, "sip:~~gr~hha9s8d-999@127.0.0.1:45141;gr", ""));
+   }
+
+   void regInfoSubscribeWithPathHeaderTest()
+   {
+      UtlString regContactxml ("         <uri>sip:user@127.0.0.1:45141</uri>\r\n"
+                               "         <unknown-param name=\"path\">&lt;sip:127.0.0.1:45141&gt;</unknown-param>\r\n");
+
+      CPPUNIT_ASSERT(ContactSetTest(regContactxml, "sip:user@127.0.0.1:45141", "<sip:127.0.0.1:45141;lr>"));
+   }
+
+   void regInfoSubscribeWithJustUriTest()
+   {
+      UtlString regContactxml ("         <uri>sip:user@127.0.0.1:45141</uri>\r\n"
+                               "         <unknown-param name=\"+sip.instance\">\"&lt;urn:uuid:f81d4fae"
+                                                              "-7dec-11d0-a765-00a0c91e6bf6&gt;\"</unknown-param>\r\n");
+      CPPUNIT_ASSERT(ContactSetTest(regContactxml, "sip:user@127.0.0.1:45141", ""));
+   }
+
+   void regInfoSubscribeWithMultiplePathHeadersTest()
+   {
+      UtlString regContactxml ("         <uri>sip:user@127.0.0.1:45141</uri>\r\n"
+                               "         <unknown-param name=\"path\">&lt;sip:127.0.0.1:45141&gt;,&lt;sip:127.0.0.1:45142&gt;</unknown-param>\r\n");
+
+      CPPUNIT_ASSERT(ContactSetTest(regContactxml, "sip:user@127.0.0.1:45141", "<sip:127.0.0.1:45141;lr>,<sip:127.0.0.1:45142;lr>"));
+   }
+
+   void regInfoSubscribeWithMultiplePathHeaderElementsTest()
+   {
+      UtlString regContactxml ("         <uri>sip:user@127.0.0.1:45141</uri>\r\n"
+                               "         <unknown-param name=\"path\">&lt;sip:127.0.0.1:45142&gt;</unknown-param>\r\n"
+                               "         <unknown-param name=\"path\">&lt;sip:127.0.0.1:45141&gt;</unknown-param>\r\n"
+                               "         <unknown-param name=\"+sip.instance\">\"&lt;urn:uuid:f81d4fae"
+                               "-7dec-11d0-a765-00a0c91e6bf6&gt;\"</unknown-param>\r\n");
+
+      CPPUNIT_ASSERT(ContactSetTest(regContactxml, "sip:user@127.0.0.1:45141", "<sip:127.0.0.1:45141;lr>,<sip:127.0.0.1:45142;lr>"));
    }
 
 };

@@ -20,6 +20,7 @@
 #include "os/OsSysLog.h"
 #include "os/OsMutex.h"
 #include "os/OsLock.h"
+#include "os/OsEvent.h"
 #include "testlib/SipDbTestContext.h"
 #include "utl/UtlSList.h"
 
@@ -67,16 +68,16 @@ private:
    UtlSList      mCallbackTraceList;
    bool          mRestDuringCallback;
    OsMutex       mMutex;
-   
+   OsEvent       mEvent;
+
 public:
    OutputProcessorFixture( uint prio = 0, bool restDuringCallback = false ); 
    void handleOutputMessage( SipMessage& message,
                              const char* address,
                              int port );
    
-   // function that waits no more than 'maxWaitInSecs' for
-   // 'numberOfMessages' received by the processor
-   bool waitForMessages( size_t numberOfMessages, int maxWaitInSecs );
+   // function that waits no more than 'maxWaitInSecs'
+   bool waitForMessage( long maxWaitInSecs );
    CallbackTrace& getLastStoredCallbackTrace( void ); 
    CallbackTrace& getStoredCallbackTrace( size_t index );
    bool popNextCallbackTrace( CallbackTrace& trace );

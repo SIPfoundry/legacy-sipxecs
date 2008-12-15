@@ -293,12 +293,70 @@ void ContactSet::notifyEventCallback(const UtlString* dialogHandle,
                const char* state = contact_element->Attribute("state");
                // Get the id attribute
                const char* id = contact_element->Attribute("id");
-               // Get the URI content.
+               // Get the URI content. Start with the GRUU address.
+
                UtlString* uri_allocated = new UtlString;
-               TiXmlNode* u = contact_element->FirstChild("uri");
-               if (u)
+               UtlBoolean check_uri = TRUE;
+               TiXmlNode* pub_gruu_node = contact_element->FirstChild("gr:pub-gruu");
+               if(pub_gruu_node)
                {
-                  textContentShallow(*uri_allocated, u);
+                  TiXmlElement* pub_gruu_element = pub_gruu_node->ToElement();
+                  UtlString pub_gruu_uri (pub_gruu_element->Attribute("uri"));
+                  if(!pub_gruu_uri.isNull())
+                  {
+                     // Check the URI Scheme
+                     Url tmp (pub_gruu_uri, TRUE );
+                     Url::Scheme uriScheme = tmp.getScheme();
+                     if(Url::SipUrlScheme != uriScheme &&
+                        Url::SipsUrlScheme != uriScheme)
+                     {
+                        // default to sip uri scheme
+                        tmp.setScheme(Url::SipUrlScheme);
+                     }
+                     tmp.removeAngleBrackets();
+                     tmp.getUri(*uri_allocated);
+                     check_uri = FALSE;
+                  }
+               }
+
+               if(check_uri)
+               {
+                  TiXmlNode* u = contact_element->FirstChild("uri");
+                  if (u)
+                  {
+                     textContentShallow(*uri_allocated, u);
+                     UtlString tmpString (*uri_allocated);
+                     // Account for any path headers
+                     for (TiXmlNode* unknown_param_node = 0;
+                          (unknown_param_node = contact_node->IterateChildren("unknown-param",
+                                                                               unknown_param_node));
+                          )
+                     {
+                        TiXmlElement* unknown_param_element = unknown_param_node->ToElement();
+                        UtlString path(unknown_param_element->Attribute("name"));
+                        if(0 == path.compareTo("path"))
+                        {
+                           UtlString pathVector;
+                           textContentShallow(pathVector, unknown_param_node);
+                           if(!pathVector.isNull())
+                           {
+                              Url contact_uri(*uri_allocated, TRUE);
+
+                              UtlString existingRouteValue;
+                              if ( contact_uri.getHeaderParameter(SIP_ROUTE_FIELD, existingRouteValue))
+                              {
+                                 // there is already a Route header parameter in the contact; append it to the
+                                 // Route derived from the Path vector.
+                                 pathVector.append(SIP_MULTIFIELD_SEPARATOR);
+                                 pathVector.append(existingRouteValue);
+                              }
+                              contact_uri.setHeaderParameter(SIP_ROUTE_FIELD, pathVector);
+                              contact_uri.removeAngleBrackets();
+                              contact_uri.getUri(*uri_allocated);
+                           }
+                        }
+                     }
+                  }
                }
                // Only process <contact> elements that have the needed values.
                if (state && state[0] != '\0' &&
