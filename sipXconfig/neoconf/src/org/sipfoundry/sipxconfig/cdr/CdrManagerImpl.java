@@ -34,6 +34,8 @@ import org.apache.commons.lang.time.DateUtils;
 import org.sipfoundry.sipxconfig.cdr.Cdr.Termination;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.service.SipxCallResolverService;
+import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.jdbc.core.PreparedStatementCreator;
@@ -52,8 +54,6 @@ public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager {
     static final String START_TIME = "start_time";
     static final String CALLER_AOR = "caller_aor";
 
-    private String m_cdrAgentHost;
-    private int m_cdrAgentPort;
     private int m_csvLimit;
     private int m_jsonLimit;
 
@@ -64,6 +64,8 @@ public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager {
      * timestamp as UTC timestamps.
      */
     private TimeZone m_tz = DateUtils.UTC_TIME_ZONE;
+    private CdrServiceProvider m_cdrServiceProvider;
+    private SipxServiceManager m_sipxServiceManager;
 
     public List<Cdr> getCdrs(Date from, Date to, User user) {
         return getCdrs(from, to, new CdrSearch(), user);
@@ -150,8 +152,8 @@ public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager {
 
     public CdrService getCdrService() {
         try {
-            URL url = new URL("http", m_cdrAgentHost, m_cdrAgentPort, StringUtils.EMPTY);
-            return new CdrImplServiceLocator().getCdrService(url);
+            URL url = new URL("http", getCdrAgentAddress(), getCdrAgentPort(), StringUtils.EMPTY);
+            return m_cdrServiceProvider.getCdrService(url);
         } catch (ServiceException e) {
             throw new UserException(e);
         } catch (MalformedURLException e) {
@@ -159,12 +161,26 @@ public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager {
         }
     }
 
-    public void setCdrAgentHost(String cdrAgentHost) {
-        m_cdrAgentHost = cdrAgentHost;
+    public void setCdrServiceProvider(CdrServiceProvider cdrServiceProvider) {
+        m_cdrServiceProvider = cdrServiceProvider;
     }
 
-    public void setCdrAgentPort(int cdrAgentPort) {
-        m_cdrAgentPort = cdrAgentPort;
+    private int getCdrAgentPort() {
+        return getSipxCallResolverService().getAgentPort();
+    }
+
+    private String getCdrAgentAddress() {
+        return getSipxCallResolverService().getAgentAddress();
+    }
+
+    private SipxCallResolverService getSipxCallResolverService() {
+        SipxCallResolverService service =
+            (SipxCallResolverService) m_sipxServiceManager.getServiceByBeanId(SipxCallResolverService.BEAN_ID);
+        return service;
+    }
+
+    public void setSipxServiceManager(SipxServiceManager sipxServiceManager) {
+        m_sipxServiceManager = sipxServiceManager;
     }
 
     public void setCsvLimit(int csvLimit) {

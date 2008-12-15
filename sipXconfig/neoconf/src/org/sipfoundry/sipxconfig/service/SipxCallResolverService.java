@@ -18,6 +18,7 @@ public class SipxCallResolverService extends SipxService {
     public static final String BEAN_ID = "sipxCallResolverService";
 
     private static final ProcessName PROCESS_NAME = ProcessName.CALL_RESOLVER;
+
     private int m_agentPort;
     private LocationsManager m_locationManager;
 
