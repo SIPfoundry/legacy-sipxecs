@@ -302,7 +302,8 @@ void RegisterEventServer::generateContent(const UtlString& aorString,
    // (Ugh.)
    version = mVersion++;
    content.append("<?xml version=\"1.0\"?>\r\n"
-                  "<reginfo xmlns=\"urn:ietf:params:xml:ns:reg\" "
+                  "<reginfo xmlns=\"urn:ietf:params:xml:ns:reginfo\" "
+                  "xmlns:gr=\"urn:ietf:params:xml:ns:gruuinfo\" "
                   "version=\"");
    content.appendNumber(version);
    content.append("\" state=\"full\">\r\n");
@@ -351,6 +352,9 @@ void RegisterEventServer::generateContent(const UtlString& aorString,
       unsigned long expired =
          (dynamic_cast <UtlInt*>
           (rowp->findValue(&RegistrationDB::gExpiresKey)))->getValue();
+      UtlString* pathVector = dynamic_cast <UtlString*> (rowp->findValue(&RegistrationDB::gPathKey));
+      UtlString* gruu = dynamic_cast <UtlString*> (rowp->findValue(&RegistrationDB::gGruuKey));
+      UtlString* instanceId = dynamic_cast <UtlString*> (rowp->findValue(&RegistrationDB::gInstanceIdKey));
 
       content.append("    <contact id=\"");
       // We key the registrations table on identity and contact URI, so
@@ -392,6 +396,36 @@ void RegisterEventServer::generateContent(const UtlString& aorString,
          content.append("      <display-name>");
          XmlEscape(content, display_name);
          content.append("</display-name>\r\n");
+      }
+      
+      // Add the path header, gruu and sip instance id info
+
+      if(NULL != pathVector && 
+         !pathVector->isNull() &&
+         0 != pathVector->compareTo(SPECIAL_IMDB_NULL_VALUE))
+      {
+         content.append("      <unknown-param name=\"path\">");
+         XmlEscape(content, *pathVector);
+         content.append("</unknown-param>\r\n");
+      }
+      if(NULL != instanceId && 
+         !instanceId->isNull() &&
+         0 != instanceId->compareTo(SPECIAL_IMDB_NULL_VALUE))
+      {
+         content.append("      <unknown-param name=\"+sip.instance\">");
+         XmlEscape(content, *instanceId);
+         content.append("</unknown-param>\r\n");
+      }
+      if(NULL != gruu && 
+         !gruu->isNull() &&
+         0 != gruu->compareTo(SPECIAL_IMDB_NULL_VALUE))
+      {
+         content.append("      <gr:pub-gruu uri=\"");
+         Url tmp(*gruu);
+         tmp.setScheme(Url::SipUrlScheme);
+         tmp.setGRUU( UtlString("") );
+         XmlEscape(content, tmp.toString());
+         content.append("\"/>\r\n");
       }
 
       content.append("    </contact>\r\n");
