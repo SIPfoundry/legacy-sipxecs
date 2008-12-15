@@ -46,6 +46,9 @@ public class PolycomPhone extends Phone {
     static final String PASSWORD_PATH = "reg/auth.password";
     static final String USER_ID_PATH = "reg/address";
     static final String AUTHORIZATION_ID_PATH = "reg/auth.userId";
+    static final String CALL_BACK_PATH = "msg.mwi/callBack";
+    static final String CALL_BACK_MODE_PATH = "msg.mwi/callBackMode";
+    static final String SUBSCRIBE_PATH = "msg.mwi/subscribe";
     static final String TEMPLATE_DIR = "polycom/mac-address.d";
 
     public PolycomPhone() {
@@ -152,6 +155,13 @@ public class PolycomPhone extends Phone {
         line.setSettingValue(DISPLAY_NAME_PATH, externalLine.getDisplayName());
         line.setSettingValue(USER_ID_PATH, externalLine.getUserId());
         line.setSettingValue(PASSWORD_PATH, externalLine.getPassword());
+        
+        String voiceMail = externalLine.getVoiceMail();
+        if (voiceMail != null) {
+            line.setSettingValue(CALL_BACK_PATH, voiceMail);
+            line.setSettingValue(CALL_BACK_MODE_PATH, CONTACT_MODE);
+            line.setSettingValue(SUBSCRIBE_PATH, externalLine.getUserId());
+        }
 
         // Both userId and authId are required, see XCF-914
         line.setSettingValue(AUTHORIZATION_ID_PATH, externalLine.getUserId());

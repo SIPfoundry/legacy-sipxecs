@@ -25,6 +25,7 @@ import org.sipfoundry.sipxconfig.device.FileSystemProfileLocation;
 import org.sipfoundry.sipxconfig.device.RestartException;
 import org.sipfoundry.sipxconfig.device.VelocityProfileGenerator;
 import org.sipfoundry.sipxconfig.phone.Line;
+import org.sipfoundry.sipxconfig.phone.LineInfo;
 import org.sipfoundry.sipxconfig.phone.PhoneTestDriver;
 import org.sipfoundry.sipxconfig.phone.polycom.PolycomPhone.FormatFilter;
 import org.sipfoundry.sipxconfig.setting.Setting;
@@ -146,4 +147,24 @@ public class PolycomPhoneTest extends TestCase {
         assertEquals(1, PolycomPhoneDefaults.dayOfWeek(Calendar.SUNDAY));
         assertEquals(7, PolycomPhoneDefaults.dayOfWeek(Calendar.SATURDAY));
     }
+
+    public void testExternalLine() throws Exception {
+
+        LineInfo li = new LineInfo();
+        li.setDisplayName("George Bush");
+        li.setUserId("2000");
+        li.setRegistrationServer("example.org");
+        li.setPassword("1234");
+        li.setVoiceMail("1001");
+
+        Line externalLine = m_phone.createLine();
+        m_phone.addLine(externalLine);
+        externalLine.setLineInfo(li);
+
+        assertEquals("\"George Bush\"<sip:2000@example.org>", externalLine.getUri());
+        assertEquals("2000", externalLine.getSettingValue("msg.mwi/subscribe"));
+        assertEquals("contact", externalLine.getSettingValue("msg.mwi/callBackMode"));
+        assertEquals("1001", externalLine.getSettingValue("msg.mwi/callBack"));
+    }
+
 }
