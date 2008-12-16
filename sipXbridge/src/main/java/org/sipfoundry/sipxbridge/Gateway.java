@@ -303,7 +303,7 @@ public class Gateway {
 
 				httpContext.setContextPath("/");
 				ServletHandler servletHandler = new ServletHandler();
-				servletHandler.addServlet("symmitron", "/*",
+				servletHandler.addServlet("sipxbridge", "/*",
 						SipxbridgeServlet.class.getName());
 				httpContext.addHandler(servletHandler);
 
@@ -320,8 +320,6 @@ public class Gateway {
 		}
 
 	}
-
-	
 
 	/**
 	 * Initialize the loggers for the libraries used.
@@ -477,9 +475,10 @@ public class Gateway {
 				for (Record rec : records) {
 					SRVRecord record = (SRVRecord) rec;
 					String resolvedName = record.getTarget().toString();
-					// Sometimes the DNS (on linux) appends a "." to the end of
-					// the
-					// record. The library ought to strip this.
+					/*
+					 * Sometimes the DNS (on linux) appends a "." to the end of
+					 * the record. The library ought to strip this.
+					 */
 					if (resolvedName.endsWith(".")) {
 						resolvedName = resolvedName.substring(0, resolvedName
 								.lastIndexOf('.'));
@@ -1162,8 +1161,9 @@ public class Gateway {
 			String command = System.getProperty("sipxbridge.command", "start");
 			String log4jPropertiesFile = Gateway.configurationPath
 					+ "/log4j.properties";
-			
-			useHttps = Boolean.parseBoolean(System.getProperty("sipxbridge.secure","true"));
+
+			useHttps = Boolean.parseBoolean(System.getProperty(
+					"sipxbridge.secure", "true"));
 
 			if (command.equals("start")) {
 				// Wait for the configuration file to become available.
