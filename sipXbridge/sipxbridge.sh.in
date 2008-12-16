@@ -43,8 +43,8 @@ case ${Action} in
      echo $$ > @SIPX_RUNDIR@/sipxbridge.pid
 
      exec $JavaCmd -Dconf.dir=@SIPX_CONFDIR@  		\
-	 -Dsipxrelay.secure=true			\
-	 -Dsipbridge.secure=true			\
+	 -Dsipxrelay.secure=false			\
+	 -Dsipbridge.secure=false			\
 	 -Djavax.net.ssl.trustStore=@PREFIX@/etc/sipxpbx/ssl/.authorities.jks 	\
 	 -Djavax.net.ssl.trustStoreType=JKS 					\
 	 -Djavax.net.ssl.keyStore=@PREFIX@/etc/sipxpbx/ssl/.ssl.keystore \
