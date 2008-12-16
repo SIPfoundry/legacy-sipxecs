@@ -26,7 +26,8 @@ setupbindir = @SIPX_LIBEXECDIR@/setup.d
 setupbin_SCRIPTS = \
         sipx-change-date-init \
         sipx-change-timezone-init \
-        sipxpackage-init
+        sipxpackage-init \
+        sipxswadmin-init
 
 setupbin_IN = $(foreach file,$(setupbin_SCRIPTS),$(file).in)
 
