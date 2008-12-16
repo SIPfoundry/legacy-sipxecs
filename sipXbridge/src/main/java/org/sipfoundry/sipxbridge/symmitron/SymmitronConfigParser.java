@@ -80,6 +80,11 @@ public class SymmitronConfigParser {
                 0);
         digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG, "log-directory"),
                 "setLogFileDirectory", 0);
+        
+        digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG,"securetransport"),
+                "setUseHttps", 0, new Class[] {
+            Boolean.class
+        });
     }
 
     public SymmitronConfig parse(String url) {

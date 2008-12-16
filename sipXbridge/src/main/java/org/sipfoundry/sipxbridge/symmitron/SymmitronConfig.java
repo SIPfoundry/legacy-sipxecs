@@ -21,6 +21,7 @@ public class SymmitronConfig {
     private boolean useStun;
     private String stunServerAddress = "stun01.sipphone.com";
     private int rediscoveryTime = 60;
+    private boolean useHttps = false;
 
     public SymmitronConfig() {
 
@@ -188,6 +189,14 @@ public class SymmitronConfig {
      */
     public int getRediscoveryTime() {
         return rediscoveryTime;
+    }
+    
+    public void setUseHttps( boolean flag ) {
+        this.useHttps = flag;
+    }
+    
+    public boolean getUseHttps() {
+        return this.useHttps;
     }
 
 }

@@ -168,7 +168,15 @@
 				</xs:annotation>
 			</xs:element>
 
-
+			<xs:element name="secure-xml-rpc" type="xs:boolean"
+				maxOccurs="1" minOccurs="0" default="false">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+						Whether or not xml rpc communication with sipxbridge will be secure
+						(i.e. use https transport).
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
 
 			
 			<xs:element name="log-level" maxOccurs="1" minOccurs="0"

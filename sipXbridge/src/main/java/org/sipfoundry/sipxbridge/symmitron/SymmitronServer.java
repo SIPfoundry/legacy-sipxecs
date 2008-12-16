@@ -105,8 +105,7 @@ public class SymmitronServer implements Symmitron {
 
     private static final int STUN_PORT = 3478;
 
-    private static boolean useHttps = true;
-
+   
     // /////////////////////////////////////////////////////////////
 
     /**
@@ -250,7 +249,8 @@ public class SymmitronServer implements Symmitron {
             logger.debug("Starting xml rpc server on inetAddr:port " + symmitronConfig.getLocalAddress() + ":" +  symmitronConfig.getXmlRpcPort());
             InetAddrPort inetAddrPort = new InetAddrPort(symmitronConfig.getLocalAddress(),symmitronConfig.getXmlRpcPort() );
             inetAddrPort.setInetAddress(InetAddress.getByName(symmitronConfig.getLocalAddress()));
-            if (useHttps) {                
+           
+            if (symmitronConfig.getUseHttps()) {                
                 SslListener sslListener = new SslListener(inetAddrPort);
                 inetAddrPort.setInetAddress(InetAddress.getByName(symmitronConfig.getLocalAddress()));
                 
@@ -968,7 +968,6 @@ public class SymmitronServer implements Symmitron {
             String configDir = System.getProperty("conf.dir", "/etc/sipxpbx");
             String configurationFile = configDir + "/nattraversalrules.xml";
             String command = System.getProperty("sipxrelay.command", "start");
-            useHttps = Boolean.parseBoolean(System.getProperty("sipxrelay.secure","true"));
             
             String addressToTest = null;
 
@@ -981,6 +980,7 @@ public class SymmitronServer implements Symmitron {
                     SymmitronConfig config = new SymmitronConfigParser().parse("file:"
                             + configurationFile);
                     SymmitronServer.setSymmitronConfig(config);
+                    
                     if (config.getLogFileDirectory() == null) {
                         String installRoot = configDir.substring(0, configDir
                                 .indexOf("/etc/sipxpbx"));

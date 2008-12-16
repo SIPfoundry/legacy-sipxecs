@@ -38,19 +38,22 @@ JavaCmd=`@SIPX_BINDIR@/sipx-config --java`
 LibPath=`perl -e 'print join(":", @ARGV);' @SIPX_JAVADIR@/sipXbridge/*.jar  @SIPX_JAVADIR@/sipXcommons/*.jar`
 ClassPath=$LibPath
 
+X509Algorithm=`$JavaCmd \
+       -classpath "$ClassPath" \
+       org.sipfoundry.commons.x509selector.X509Selector`
+
+
 case ${Action} in
    RUN)
      echo $$ > @SIPX_RUNDIR@/sipxbridge.pid
 
      exec $JavaCmd -Dconf.dir=@SIPX_CONFDIR@  		\
-	 -Dsipxrelay.secure=false			\
-	 -Dsipbridge.secure=false			\
 	 -Djavax.net.ssl.trustStore=@PREFIX@/etc/sipxpbx/ssl/.authorities.jks 	\
 	 -Djavax.net.ssl.trustStoreType=JKS 					\
 	 -Djavax.net.ssl.keyStore=@PREFIX@/etc/sipxpbx/ssl/.ssl.keystore \
 	 -Djetty.lib.dir=@SIPX_JAVADIR@/sipXconfig 	\
 	 -Djetty.conf.dir=@PREFIX@/etc/sipxpbx 		\
-	 -Djetty.x509.algorithm=SunX509 		\
+	 -Djetty.x509.algorithm=$X509Algorithm		\
 	 -Djetty.ssl.password=changeit			\
 	 -Djetty.ssl.keypassword=changeit		\
 	 -Dorg.apache.commons.logging.Log=org.apache.commons.logging.impl.Log4JLogger \
@@ -84,7 +87,9 @@ case ${Action} in
 	 -Djetty.lib.dir=@SIPX_JAVADIR@/sipXconfig 	\
 	 -Djetty.conf.dir=@PREFIX@/etc/sipxpbx 		\
 	 -Djetty.log.dir=@SIPX_LOGDIR@ 			\
-	 -Djetty.x509.algorithm=SunX509 		\
+	 -Djetty.x509.algorithm=$X509Algorithm 		\
+	 -Djetty.ssl.password=changeit			\
+	 -Djetty.ssl.keypassword=changeit		\
          -Dsipxbridge.command=configtest \
          -cp $ClassPath org.sipfoundry.sipxbridge.Gateway \
 	 $Args

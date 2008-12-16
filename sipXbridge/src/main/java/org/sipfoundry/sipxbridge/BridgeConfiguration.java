@@ -46,6 +46,8 @@ public class BridgeConfiguration {
     private String symmitronHost;
     private int symmitronXmlRpcPort = 0;
     private String sipxProxyTransport = "udp";
+    
+    private boolean isSecure = false;
 
     private static Logger logger = Logger.getLogger(BridgeConfiguration.class);
 
@@ -430,6 +432,14 @@ public class BridgeConfiguration {
         
         return false;
         
+    }
+    
+    public void setSecure(boolean isSecure ) {
+        this.isSecure = isSecure;
+    }
+    
+    public boolean isSecure() {
+        return this.isSecure;
     }
 
 }

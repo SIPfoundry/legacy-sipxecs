@@ -28,10 +28,10 @@ public class ConfigurationParser {
 
     static {
         Logger logger = Logger.getLogger(Digester.class);
-        logger.addAppender(new ConsoleAppender( new SimpleLayout()));
+        logger.addAppender(new ConsoleAppender(new SimpleLayout()));
         logger.setLevel(Level.OFF);
-        logger = Logger.getLogger( "org.apache.commons.beanutils");
-        logger.addAppender(new ConsoleAppender( new SimpleLayout()));
+        logger = Logger.getLogger("org.apache.commons.beanutils");
+        logger.addAppender(new ConsoleAppender(new SimpleLayout()));
         logger.setLevel(Level.OFF);
     }
 
@@ -73,10 +73,9 @@ public class ConfigurationParser {
                     Integer.class
                 });
 
-     
         digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG, "sipx-proxy-domain"),
                 "setSipxProxyDomain", 0);
-        
+
         digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG, "sipx-proxy-transport"),
                 "setSipxProxyTransport", 0);
 
@@ -85,6 +84,11 @@ public class ConfigurationParser {
             Boolean.class
         });
 
+        digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG, "secure-xml-rpc"),
+                "setSecure", 0, new Class[] {
+                    Boolean.class
+                });
+        
         digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG, "log-level"), "setLogLevel",
                 0);
         digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG, "sip-keepalive-seconds"),
@@ -96,7 +100,7 @@ public class ConfigurationParser {
 
         digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG,
                 "max-number-of-concurrent-calls"), "setMaxCalls", 0);
-        
+
         digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG,
                 "route-inbound-calls-to-extension"), "setAutoAttendantName", 0, new Class[] {
             String.class
@@ -106,7 +110,7 @@ public class ConfigurationParser {
                 "setSymmitronHost", 0);
         digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG, "sipxrelay-xml-rpc-port"),
                 "setSymmitronXmlRpcPort", 0);
-        
+
         digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG, "sipx-proxy-port"),
                 "setSipxProxyPort", 0);
 
@@ -116,7 +120,6 @@ public class ConfigurationParser {
         digester.addObjectCreate(ITSP_CONFIG, ItspAccountInfo.class);
         digester.addSetNext(ITSP_CONFIG, "addItspAccount");
 
-       
         digester.addCallMethod(String.format("%s/%s", ITSP_CONFIG, "outbound-proxy"),
                 "setOutboundProxy", 0);
 
@@ -139,11 +142,11 @@ public class ConfigurationParser {
                 "setOutboundTransport", 0);
         digester.addCallMethod(String.format("%s/%s", ITSP_CONFIG, "proxy-domain"),
                 "setProxyDomain", 0);
-       
+
         digester
                 .addCallMethod(String.format("%s/%s", ITSP_CONFIG, "user-name"), "setUserName", 0);
         digester.addCallMethod(String.format("%s/%s", ITSP_CONFIG, "password"), "setPassword", 0);
-       
+
         digester.addCallMethod(String.format("%s/%s", ITSP_CONFIG, "rtp-keepalive-method"),
                 "setRtpKeepaliveMethod", 0);
 
@@ -159,7 +162,6 @@ public class ConfigurationParser {
                 "setRegisterOnInitialization", 0, new Class[] {
                     Boolean.class
                 });
-        
 
     }
 

@@ -188,10 +188,7 @@ public class Gateway {
 
 	static SipFoundryAppender logAppender;
 
-	/*
-	 * USE https for xmlrpc signaling to me.
-	 */
-	private static boolean useHttps = false;
+
 
 	private Gateway() {
 
@@ -211,6 +208,7 @@ public class Gateway {
 		SymmitronClient symmitronClient = symmitronClients.get(address);
 		if (symmitronClients != null) {
 			int symmitronPort;
+			boolean isSecure = false;
 			if (Gateway.getBridgeConfiguration().getSymmitronXmlRpcPort() != 0) {
 				symmitronPort = Gateway.getBridgeConfiguration()
 						.getSymmitronXmlRpcPort();
@@ -219,8 +217,10 @@ public class Gateway {
 						.parse(Gateway.configurationPath
 								+ "/nattraversalrules.xml");
 				symmitronPort = symconfig.getXmlRpcPort();
+				isSecure = symconfig.getUseHttps();
 			}
-			symmitronClient = new SymmitronClient(address, symmitronPort,
+		
+			symmitronClient = new SymmitronClient(address, symmitronPort, isSecure,
 					callControlManager);
 		}
 		symmitronClients.put(address, symmitronClient);
@@ -255,7 +255,7 @@ public class Gateway {
 						.getXmlRpcPort());
 				inetAddrPort.setInetAddress(InetAddress.getByName(Gateway
 						.getLocalAddress()));
-				if (useHttps) {
+				if (Gateway.getBridgeConfiguration().isSecure()) {
 					SslListener sslListener = new SslListener(inetAddrPort);
 					inetAddrPort.setInetAddress(InetAddress.getByName(Gateway
 							.getLocalAddress()));
@@ -1161,9 +1161,6 @@ public class Gateway {
 			String command = System.getProperty("sipxbridge.command", "start");
 			String log4jPropertiesFile = Gateway.configurationPath
 					+ "/log4j.properties";
-
-			useHttps = Boolean.parseBoolean(System.getProperty(
-					"sipxbridge.secure", "true"));
 
 			if (command.equals("start")) {
 				// Wait for the configuration file to become available.
