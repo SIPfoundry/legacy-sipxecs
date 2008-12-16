@@ -412,8 +412,6 @@ OsStatus OsProcessLinux::launch(UtlString &rAppName, UtlString parameters[], OsP
 
                     //osPrintf("About to launch: %s %s\n", rAppName.data(), cmdLine.data());
                     
-                    OsSysLog::add(FAC_PROCESS, PRI_DEBUG,"About to execvp '%s' from '%s'", 
-                     rAppName.data(), startupDir.data());
                     //set the current dir for this process
                     OsFileSystem::change(startupDir);
                     //3...2...1...  Blastoff!
