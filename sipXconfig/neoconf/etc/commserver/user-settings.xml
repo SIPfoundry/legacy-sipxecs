@@ -21,11 +21,6 @@
       </false>
     </boolean>
   </type>
-  <type id="sip-uri">
-    <string maxLen="255">
-      <pattern>^([&SIP_USER_CHARS;]|&SIP_USER_ESCAPED;)+$</pattern>
-    </string>
-  </type>
   <group name="permission">
     <group name="application">
       <setting name="superadmin">
@@ -92,7 +87,9 @@
   </group>
   <group name="caller-alias">
     <setting name="external-number">
-      <type refid="sip-uri" />
+      <type>
+        <sip-uri userPartOnly="yes"/>
+      </type>
     </setting>
     <setting name="anonymous-caller-alias">
       <type>
@@ -120,7 +117,7 @@
   </group>  
   <group name="personal-attendant">
     <setting name="operator">
-      <type refid="sip-uri"/>
+      <type><sip-uri /></type>
     </setting>
   </group>
 </model>
