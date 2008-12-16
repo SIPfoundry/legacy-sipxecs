@@ -113,18 +113,23 @@ bool FileResource::parse(const TiXmlDocument& fileDefinitionDoc, ///< process de
 /// Log files are resources too - this creates a log file resource
 FileResource* FileResource::logFileResource(const UtlString& logFilePath, SipxProcess* currentProcess)
 {
-   // a log file resource is read-only and not required
-   FileResource* logFile = new FileResource(logFilePath.data());
-   logFile->usedBy(currentProcess);
-   currentProcess->resourceIsOptional(logFile); // logs are never required 
-   
-   logFile->mWritableImplicit = false;
-   logFile->mWritable = false;
-
-   logFile->mFirstDefinition = false;
-
+   // Check to see if it has already been declared as a resource.
    FileResourceManager* fileResourceMgr = FileResourceManager::getInstance();
-   fileResourceMgr->save(logFile);
+   FileResource*        logFile;
+   if ( !(logFile = fileResourceMgr->find(logFilePath)))
+   {
+      // a log file resource is read-only and not required
+      logFile = new FileResource(logFilePath.data());
+      logFile->usedBy(currentProcess);
+      currentProcess->resourceIsOptional(logFile); // logs are never required 
+   
+      logFile->mWritableImplicit = false;
+      logFile->mWritable = false;
+
+      logFile->mFirstDefinition = false;
+
+      fileResourceMgr->save(logFile);
+   }
 
    return logFile;
 }

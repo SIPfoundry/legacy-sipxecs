@@ -10,7 +10,7 @@
 #
 #----------------------------------------------------------------------
 
-import yum, sys, os
+import yum, sys, os, fcntl
 from subprocess import Popen, PIPE
 
 # Checks for updated sipXecs packages.
@@ -34,11 +34,12 @@ def check_update():
 # The version of the main sipxecs package is checked, and that version number is used.
 def check_version():
     yumBase = yum.YumBase()
-    sipxecs = yumBase.rpmdb.searchAll("sipx*")
+    pkgName = "@SIPXECS_NAME@"
+    sipxecs = yumBase.rpmdb.searchAll(pkgName.lower())
     if len(sipxecs) > 0:
        print sipxecs[0].name + " " + sipxecs[0].ver + "-" + sipxecs[0].release
     else:
-       print "No package sipxecs found"
+       print "No package",pkgName.lower(),"found"
 
     sys.stderr.write('***END***\n')
     sys.stdout.write('***END***\n')
@@ -49,6 +50,13 @@ def check_version():
 def update():
     print "Downloading and installing updated packages...\n\n"
     sys.stdout.flush()
+
+#   Turn buffering of the output off so we can get intermittent results.
+    flag = fcntl.fcntl(sys.stdout.fileno(), fcntl.F_GETFL)
+    fcntl.fcntl(sys.stdout.fileno(), fcntl.F_SETFL, flag | os.O_NDELAY)
+    flag = fcntl.fcntl(sys.stdout.fileno(), fcntl.F_GETFL)
+    fcntl.fcntl(sys.stdout.fileno(), fcntl.F_SETFL, flag | os.O_NDELAY)
+
     yumProcess = os.system("yum update -y --disablerepo=* --enablerepo=sipxecs*")
     sys.stdout.flush()
     print "Package update complete.\n"

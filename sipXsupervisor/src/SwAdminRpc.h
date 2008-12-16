@@ -170,8 +170,8 @@ private:
        <td><b>Description</b></td>
     </tr>
     <tr>
-       <td>boolean</td>
-       <td>true if the command was successfully launched</td>
+       <td>array</td>
+       <td>Array of 2 strings specifying the location of result files (output and err)</td>
     </tr>
  </table>
 */
@@ -207,102 +207,6 @@ protected:
                         XmlRpcResponse& response,                 ///< request response
                         ExecutionStatus& status                   ///< XML-RPC method execution status
                         );
-
-};
-
-/**
- Retrieve Software Administration command execution results for a specified system.
-
- Currently support returning results from three commands:
-
- "version"  - version of sipXecs installed.
- "check-update" - sipXecs software updates available.
- "update" - results of last software update.
-
- \par
- <b>Method Name: SwAdmin.getResult</b>
-
- \par
- <b>Input:</b>
- <table border="1">
-    <tr>
-       <td><b>Data type</b></td>
-       <td><b>Name</b></td>
-       <td><b>Description</b></td>
-    </tr>
-    <tr>
-       <td>string</td>
-       <td>callingHostname</td>
-       <td>The FQDN of the calling host to be checked as an SSL trusted peer <b>and</b> 
-           against an explicit list of hosts allowed to make requests.</td>
-    </tr>
-    <tr>
-       <td>string</td>
-       <td>Command Name</td>
-       <td>The subcommand of the software administration to retrieve results for.  Currently supports
-           "version", "check-update" and "update"</td>
-    </tr>
- </table>
- 
- \par
- <b>Return Value:</b>
- <table border="1">
-    <tr>
-       <td><b>Data type</b></td>
-       <td><b>Description</b></td>
-    </tr>
-    <tr>
-       <td>Array</td>
-       <td>Base 64 encoded results(stdout and stderr) from the last issued specific command</td>
-    </tr>
- </table>
-*/
-
-class SwAdminRpcGetResult :  public SwAdminRpcMethod
-{
-public:
-
-   /// The XmlRpcMethod::Get registered with the dispatcher for this XML-RPC Method.  
-   static XmlRpcMethod* get();
-
-   /// Destructor.
-   virtual ~SwAdminRpcGetResult() {};
-
-   /// Get the name of the XML-RPC method.
-   virtual const char* name();
-
-   /// Register this method handler with the XML-RPC dispatcher.
-   static void registerSelf(SipxRpc & sipxRpcImpl);
-
-protected:
-
-   /// The name of the XML-RPC method.
-   static const char* METHOD_NAME;
-
-   /// Constructor.
-   SwAdminRpcGetResult();
-
-   /// The execution of this XML-RPC Method.
-   virtual bool execute(const HttpRequestContext& requestContext, ///< request context
-                        UtlSList& params,                         ///< request param list
-                        void* userData,                           ///< user data
-                        XmlRpcResponse& response,                 ///< request response
-                        ExecutionStatus& status                   ///< XML-RPC method execution status
-                        );
-
-
-private:
-
-   /// read in a file.
-   bool readResultFile(OsFile&  result_file,
-                       UtlString& output_std_content
-                      );
-
-   /// Encode the output in base64.
-   bool encodeOutputFile(UtlString& input_content,
-                        UtlString& encoded_content,
-                        UtlString& errorMsg);
-
 
 };
 

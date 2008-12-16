@@ -28,6 +28,8 @@
 #include "sipXecsService/SipXecsService.h"
 #include "SipxRpc.h"
 #include "SwAdminRpc.h"
+#include "SipxProcessManager.h"
+#include "FileResource.h"
 
 // DEFINES
 // EXTERNAL FUNCTIONS
@@ -182,6 +184,7 @@ bool SwAdminRpcMethod::duplicateProcess(const char*     command,
       procStatus = runningProcess.getInfo(procInfo);
       if (procStatus == OS_SUCCESS)
       {
+         OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG, "Process commandlines found = %s", procInfo.commandline.data());
          procInfo.name.data(), procInfo.commandline.data();
          if (procInfo.commandline.contains(command))
          {
@@ -299,7 +302,7 @@ bool SwAdminRpcExec::execute(const HttpRequestContext& requestContext,
                UtlBool   method_result(true);
                UtlString arguments[3];
                OsPath    mWorkingDirectory = ".";
-               OsPath    mExec = "sudo";
+               OsPath    mExec = SipXecsService::Path(SipXecsService::LibExecDirType,"sipxswadmin");
                UtlString mStdOutFile;
                UtlString mStdErrFile;
 
@@ -316,12 +319,12 @@ bool SwAdminRpcExec::execute(const HttpRequestContext& requestContext,
                OsPath    mStdOutPath = SipXecsService::Path(SipXecsService::TmpDirType, mStdOutFile.data());
                OsPath    mStdErrPath = SipXecsService::Path(SipXecsService::TmpDirType, mStdErrFile.data());
 
-               arguments[0] = SipXecsService::Path(SipXecsService::BinDirType, SwAdminExec).data();
-               arguments[1] = pSubCommand->data();
-               arguments[2] = NULL;
+               // arguments[0] = mExec.data();
+               arguments[0] = pSubCommand->data();
+               arguments[1] = NULL;
 
                // Make sure that there is no other instance running.
-               if (! duplicateProcess(arguments[0], response, status))
+               if (! duplicateProcess(SwAdminExec, response, status))
                {
                   // execute the command and return whether or not the launch was successful.
                   OsProcess* swCheck = new OsProcess();
@@ -339,7 +342,15 @@ bool SwAdminRpcExec::execute(const HttpRequestContext& requestContext,
                            == OS_SUCCESS )
                   {
                       // Construct and set the response.
-                      response.setResponse(&method_result);
+                      UtlSList outputPaths;
+                      outputPaths.insert(&mStdOutPath);
+                      outputPaths.insert(&mStdErrPath);
+                      
+                      // Add the file resources to SipXProxy Process because Supervisor doesn't have a process object yet.
+                      
+                      FileResource::logFileResource( mStdOutPath, SipxProcessManager::getInstance()->findProcess("SIPXProxy"));
+                      FileResource::logFileResource( mStdErrPath, SipxProcessManager::getInstance()->findProcess("SIPXProxy"));
+                      response.setResponse(&outputPaths);
                       status = XmlRpcMethod::OK;
                       result = true;
                   }   // launch
@@ -361,230 +372,6 @@ bool SwAdminRpcExec::execute(const HttpRequestContext& requestContext,
       }  // param 0 okay
    } //number of parms check
 
-   return result;
-}
-
- 
-
-/*****************************************************************
- **** SwAdminRpcGetResult
- *****************************************************************/
-
-const char* SwAdminRpcGetResult::METHOD_NAME = "SwAdminRpc.getResult";
-
-const char* SwAdminRpcGetResult::name()
-{
-   return METHOD_NAME;
-}
-
-SwAdminRpcGetResult::SwAdminRpcGetResult()
-{
-}
-
-XmlRpcMethod* SwAdminRpcGetResult::get()
-{
-   return new SwAdminRpcGetResult();
-}
-
-void SwAdminRpcGetResult::registerSelf(SipxRpc & sipxRpcImpl)
-{
-   registerMethod(METHOD_NAME, SwAdminRpcGetResult::get, sipxRpcImpl);
-}
-
-bool SwAdminRpcGetResult::execute(const HttpRequestContext& requestContext,
-                                 UtlSList&                 params,
-                                 void*                     userData,
-                                 XmlRpcResponse&           response,
-                                 ExecutionStatus&          status)
-{
-
-   bool result = false;
-   status = XmlRpcMethod::FAILED;
-
-   if (2 != params.entries())
-   {
-      handleExtraExecuteParam(name(), response, status);
-   }
-   else
-   {
-      if (!params.at(0) || !params.at(0)->isInstanceOf(UtlString::TYPE))
-      {
-         handleMissingExecuteParam(name(), PARAM_NAME_CALLING_HOST, response, status);
-      }
-      else
-      {
-         UtlString* pCallingHostname = dynamic_cast<UtlString*>(params.at(0));
-         SipxRpc* pSipxRpcImpl = ((SipxRpc *)userData);
-
-         if (!params.at(1) || !params.at(1)->isInstanceOf(UtlString::TYPE))
-         {
-            handleMissingExecuteParam(name(), PARAM_NAME_COMMAND, response, status);
-         }
-         else
-         {        
-            if(validCaller(requestContext, *pCallingHostname, response, *pSipxRpcImpl, name()))
-            {
-               UtlString  mStdOutFile;
-               UtlString  mStdErrFile;
-               UtlString* pSubCommand = dynamic_cast<UtlString*>(params.at(1));
-            
-               if ( !buildOutputFiles(*pSubCommand, mStdOutFile, mStdErrFile))
-               {
-                  // Invalid request. Set a Fault.
-                  response.setFault(SwAdminRpcMethod::FailureToLaunch, "Invalid command");
-                  status = XmlRpcMethod::FAILED;
-                  return result;
-               }
-
-               OsPath    mStdOutPath = SipXecsService::Path(SipXecsService::TmpDirType, mStdOutFile.data());
-               OsPath    mStdErrPath = SipXecsService::Path(SipXecsService::TmpDirType, mStdErrFile.data());
-
-               OsFile resultStdOutFile(mStdOutPath);
-               OsFile resultStdErrFile(mStdErrPath);
-               OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG, "StdOutfile = %s", mStdOutPath.data());
-               OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG, "StdErrfile = %s", mStdErrPath.data());
-               UtlSList encodedResults;
-               if (!resultStdOutFile.exists() || !resultStdErrFile.exists())
-               {
-                  // Result files don't exist.  Return a fault
-                  response.setFault(SwAdminRpcMethod::FailureToLaunch, "Results not found");
-                  status = XmlRpcMethod::FAILED;
-               }
-               else
-               {
-                  // Open the stdout file, read it all into a UtlString and encode it base 64
-                  UtlString fileContent;
-                  UtlString encodedOutFile;
-                  UtlString encodedErrFile;
-                  UtlString errorMsg;
-                  if (readResultFile(resultStdOutFile, fileContent))
-                  {
-                     OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG, "StdOutfile = %s", fileContent.data());
-                     if (encodeOutputFile(fileContent, encodedOutFile, errorMsg))
-                     {
-                        encodedResults.insert(&encodedOutFile);
-
-                        // Now do the stderr file.
-                        if (readResultFile(resultStdErrFile, fileContent))
-                        {
-                           if (encodeOutputFile(fileContent, encodedErrFile, errorMsg))
-                           {
-                              encodedResults.insert(&encodedErrFile);
-                              result = true;
-                              response.setResponse(&encodedResults);
-                              status = XmlRpcMethod::OK;
-                           }
-                           else
-                           {
-                              // failed to encode file content
-                              response.setFault(SwAdminRpcMethod::FailureToEncode, errorMsg.data());
-                              status = XmlRpcMethod::FAILED;
-                           }
-                        }
-                        else
-                        {
-                           response.setFault(SwAdminRpcMethod::FailureToEncode, "Results not found");
-                           status = XmlRpcMethod::FAILED;
-                        }
-                     }
-                     else
-                     {
-                        // failed to encode file content
-                        response.setFault(SwAdminRpcMethod::FailureToEncode, errorMsg.data());
-                        status = XmlRpcMethod::FAILED;
-                     }
-                  }
-                  else
-                  {
-                     response.setFault(SwAdminRpcMethod::FailureToEncode, "Results not found");
-                     status = XmlRpcMethod::FAILED;
-                  }
-               }
-            }
-            else
-            {
-               // Caller is not valid.  Return a fault.
-               status = XmlRpcMethod::FAILED;
-            }
-         }  // param 1 okay
-      }  // param 0 okay
-   } //number of parms check
-
-   return result;
-}
-
-bool SwAdminRpcGetResult::encodeOutputFile(UtlString&  input_content,
-                                          UtlString&  encoded_output,
-                                          UtlString& errorMsg
-                                       )
-{
-   bool   result = true;
-  
-   encoded_output.remove(0);
-   errorMsg.remove(0);
-
-   if ( input_content.length() == 0 ) 
-   {
-      input_content.append("\n");
-   }
-
-   OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG, "SwAdminRpcGetResult::encodeOutputFile %s",
-                 input_content.data());
-   NetBase64Codec::encode( input_content, encoded_output );
-
-   if ( encoded_output.length() == 0 )
-   {
-         // Encode failed.
-         result = false;
-         errorMsg.append("Failed to encode output data in base64");
-         OsSysLog::add(FAC_SUPERVISOR, PRI_INFO, "SwAdminRpcGetResult::encodeOutputFile %s",
-                       errorMsg.data());
-   }
-   return result;
-}
-
-bool SwAdminRpcGetResult::readResultFile( OsFile& result_file,
-                                          UtlString&  output_std_content
-                                        )
-{
-   bool   result = true;
-  
-   output_std_content.remove(0);
-
-   if (result_file.open(OsFile::READ_ONLY) != OS_SUCCESS)
-   {
-      result = false;
-   }
-   else
-   {
-      size_t flength;
-      if (result_file.getLength(flength) == OS_SUCCESS)
-      {
-         // File is open for reading.  Read in the entire file.
-         UtlString readbuf;
-         size_t bytesRead = 0;
-
-         readbuf.capacity(flength+50);
-         if (result_file.read( (char*) readbuf.data(), flength, bytesRead) == OS_SUCCESS)
-         {
-            if (bytesRead)
-            {
-
-               readbuf.setLength(bytesRead);
-               output_std_content.append(readbuf.data());
-            }
-            else
-            {
-               result = false;
-            }
-         }
-         else
-         {
-            result = false;
-         }
-      }
-      result_file.close();
-   }
    return result;
 }
 
