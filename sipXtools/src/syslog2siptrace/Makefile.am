@@ -5,7 +5,9 @@ INCLUDES = -I$(top_srcdir)/include
 
 bin_PROGRAMS = syslog2siptrace
 
-syslog2siptrace_LDADD = @SIPXTACK_LIBS@
+syslog2siptrace_LDADD = \
+	@SIPXPORT_LIBS@ \
+	@SIPXTACK_LIBS@
 
 syslog2siptrace_SOURCES = main.cpp
 
