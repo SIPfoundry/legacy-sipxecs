@@ -6,9 +6,6 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
-import org.sipfoundry.sipxconfig.test.TestUtil;
-import org.sipfoundry.sipxconfig.TestHelper.TestCaseDb;
-
 public class TimezoneTest extends TestCase {
 
     StringReader sr = null;

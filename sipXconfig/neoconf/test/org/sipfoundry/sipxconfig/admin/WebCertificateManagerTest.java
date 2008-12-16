@@ -20,7 +20,6 @@ import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.domain.Domain;
 import org.sipfoundry.sipxconfig.domain.DomainConfiguration;
 import org.sipfoundry.sipxconfig.domain.DomainManagerImpl;
-import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.sipfoundry.sipxconfig.test.TestUtil;
 
 public class WebCertificateManagerTest extends TestCase {

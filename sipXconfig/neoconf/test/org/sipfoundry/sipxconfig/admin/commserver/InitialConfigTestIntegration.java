@@ -4,24 +4,15 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.Reader;
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.nio.CharBuffer;
 import java.util.Set;
 import java.util.TreeSet;
 
 import org.apache.commons.io.IOUtils;
 import org.sipfoundry.sipxconfig.IntegrationTestCase;
-import org.sipfoundry.sipxconfig.TestHelper;
-import org.sipfoundry.sipxconfig.admin.LocalBackupPlan;
-import org.sipfoundry.sipxconfig.alarm.AlarmConfigurationTest;
 import org.sipfoundry.sipxconfig.domain.Domain;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.test.TestUtil;
-
-import junit.framework.TestCase;
 
 public class InitialConfigTestIntegration extends IntegrationTestCase {
     private InitialConfig m_initialConfig;
@@ -41,27 +32,25 @@ public class InitialConfigTestIntegration extends IntegrationTestCase {
         d.setAliases(aliasesSet);
         m_domainManager.saveDomain(d);
         m_initialConfig.setBinDirectory(TestUtil.getTestSourceDirectory(this.getClass()));
-        //create initial-config directory
-        File file = new File(m_initialConfig.getTmpDirectory()+"/initial-config");
+        // create initial-config directory
+        File file = new File(m_initialConfig.getTmpDirectory() + "/initial-config");
         file.mkdirs();
         m_initialConfig.getArchiveStream("test_location");
 
-
         InputStream referenceStream = InitialConfigTestIntegration.class
-            .getResourceAsStream("expected-domain-config");
-        Reader reader = new BufferedReader(new FileReader(m_initialConfig.getTmpDirectory()+"/domain-config"));
+                .getResourceAsStream("expected-domain-config");
+        Reader reader = new BufferedReader(new FileReader(m_initialConfig.getTmpDirectory() + "/domain-config"));
 
         String referenceText = IOUtils.toString(referenceStream);
         String readerText = IOUtils.toString(reader);
 
-        //domain-config is generated
-        System.out.println(referenceText );
-        System.out.println(readerText );
+        // domain-config is generated
+        System.out.println(referenceText);
+        System.out.println(readerText);
         assertTrue(referenceText.equals(readerText));
 
-        //archive is created
-        assertTrue(new File(m_initialConfig.getTmpDirectory()+"/initial-config/test_location.tar.gz").exists());
-
+        // archive is created
+        assertTrue(new File(m_initialConfig.getTmpDirectory() + "/initial-config/test_location.tar.gz").exists());
 
     }
 
@@ -72,6 +61,5 @@ public class InitialConfigTestIntegration extends IntegrationTestCase {
     public void setDomainManager(DomainManager domainManager) {
         m_domainManager = domainManager;
     }
-
 
 }

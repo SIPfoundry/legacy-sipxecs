@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.components;
@@ -97,10 +97,12 @@ public class BorderTest extends TestCase {
             m_admin = admin;
         }
 
+        @Override
         public Integer getUserId() {
             return new Integer(5);
         }
 
+        @Override
         public boolean isAdmin() {
             return m_admin;
         }
@@ -119,22 +121,27 @@ public class BorderTest extends TestCase {
             m_userSession = userSession;
         }
 
+        @Override
         public void setNavigationBlock(Block block) {
 
         }
 
+        @Override
         public Block getNavigationBlock() {
             return null;
         }
 
+        @Override
         public boolean isLoginRequired() {
             return m_loginRequired;
         }
 
+        @Override
         public boolean isRestricted() {
             return m_restricted;
         }
 
+        @Override
         public UserSession getUserSession() {
             return m_userSession;
         }
@@ -143,24 +150,30 @@ public class BorderTest extends TestCase {
             return null;
         }
 
+        @Override
         public ApplicationLifecycle getApplicationLifecycle() {
             return new ApplicationLifecycleImpl();
         }
 
+        @Override
         protected void redirectToLogin(IPage page, IRequestCycle cycle) {
             throw new PageRedirectException("LoginPage");
         }
 
+        @Override
         public IEngineService getRestartService() {
             return null;
         }
 
+        @Override
         public CoreContext getCoreContext() {
             return new CoreContextImpl() {
+                @Override
                 public int getUsersCount() {
                     return 1;
                 }
 
+                @Override
                 public User newUser() {
                     return null;
                 }
@@ -171,45 +184,56 @@ public class BorderTest extends TestCase {
         public SkinControl getSkin() {
             return null;
         }
+        @Override
         public String getClientId() {
             return m_clientId;
         }
 
+        @Override
         public void setClientId(String id) {
             m_clientId = id;
         }
 
+        @Override
         public String getBaseUrl() {
             return null;
         }
 
-        public String getHelpLink(Integer... versionIds) {
+        @Override
+        public String getHelpLink(Integer[] versionIds) {
             return null;
         }
 
+        @Override
         public WebRequest getRequest() {
             return null;
         }
 
+        @Override
         public TapestryContext getTapestry() {
             return null;
         }
 
+        @Override
         public boolean getUseDojo() {
             return false;
         }
 
+        @Override
         public VersionInfo getVersionInfo() {
             return null;
         }
 
+        @Override
         public void setBaseUrl(String baseUrl) {
         }
 
+        @Override
         public IRender getShellDelegate() {
             return null;
         }
 
+        @Override
         public IAsset getBorderDateScript() {
             return null;
         }
