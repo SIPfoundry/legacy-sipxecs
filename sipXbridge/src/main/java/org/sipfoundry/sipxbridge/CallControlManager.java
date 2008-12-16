@@ -351,7 +351,7 @@ class CallControlManager implements SymmitronResetHandler {
 
 			}
 
-			BackToBackUserAgent btobua = null;
+			BackToBackUserAgent btobua ;
 
 			/*
 			 * Look at the Dialog context. The B2BUA structure tracks the call

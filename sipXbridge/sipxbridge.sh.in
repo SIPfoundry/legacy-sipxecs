@@ -43,12 +43,16 @@ case ${Action} in
      echo $$ > @SIPX_RUNDIR@/sipxbridge.pid
 
      exec $JavaCmd -Dconf.dir=@SIPX_CONFDIR@  		\
+	 -Dsipxrelay.secure=true			\
+	 -Dsipbridge.secure=true			\
 	 -Djavax.net.ssl.trustStore=@PREFIX@/etc/sipxpbx/ssl/.authorities.jks 	\
 	 -Djavax.net.ssl.trustStoreType=JKS 					\
 	 -Djavax.net.ssl.keyStore=@PREFIX@/etc/sipxpbx/ssl/.ssl.keystore \
 	 -Djetty.lib.dir=@SIPX_JAVADIR@/sipXconfig 	\
 	 -Djetty.conf.dir=@PREFIX@/etc/sipxpbx 		\
 	 -Djetty.x509.algorithm=SunX509 		\
+	 -Djetty.ssl.password=changeit			\
+	 -Djetty.ssl.keypassword=changeit		\
 	 -Dorg.apache.commons.logging.Log=org.apache.commons.logging.impl.Log4JLogger \
          -Dsipxbridge.command=start 			  \
          -cp $ClassPath org.sipfoundry.sipxbridge.Gateway \

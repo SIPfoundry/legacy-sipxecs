@@ -28,7 +28,8 @@ public class SipXbridgeXmlRpcClient {
     public SipXbridgeXmlRpcClient(String serverAddress, int port) {
         try {
             XmlRpcClientConfigImpl config = new XmlRpcClientConfigImpl();
-            config.setServerURL(new URL("http://" + serverAddress + ":" + port));
+            boolean isSecure = Boolean.parseBoolean(System.getProperty("sipxbridge.secure","true"));
+            config.setServerURL(new URL(isSecure? "https" : "http" + "://" + serverAddress + ":" + port));
             this.client = new XmlRpcClient();
             this.client.setConfig(config);
         } catch (Exception ex) {

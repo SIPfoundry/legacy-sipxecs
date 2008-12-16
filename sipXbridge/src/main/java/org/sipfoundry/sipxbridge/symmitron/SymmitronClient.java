@@ -142,10 +142,15 @@ public class SymmitronClient {
             throws SymmitronException {
         try {
             XmlRpcClientConfigImpl config = new XmlRpcClientConfigImpl();
+            boolean isSipxRelaySecure = Boolean.parseBoolean(System.getProperties().getProperty("sipxrelay.secure","true"));
             try {
-                logger.debug("Trying to sign in " + "http://" + serverAddress + ":" + port);
-                
-                config.setServerURL(new URL("http://" + serverAddress + ":" + port));
+            	String protocol = "http";
+            	if ( isSipxRelaySecure ) protocol = "https";
+            	
+                logger.debug("Trying to sign in " + protocol + "://" + serverAddress + ":" + port);
+              
+                config.setServerURL(new URL(protocol+"://" + serverAddress + ":" + port));
+               
                 this.serverAddress = serverAddress;
 
                 config.setEnabledForExceptions(true);
@@ -162,7 +167,7 @@ public class SymmitronClient {
             client.setMaxThreads(32);
             clientHandle = "sipxbridge:" + Math.abs(new Random().nextLong());
             this.signIn();
-            logger.debug("signedIn : " + "http://" + serverAddress + ":" + port);
+            logger.debug("signedIn : " + "https://" + serverAddress + ":" + port);
             // ping the server continually.
             timer.schedule(new ResetHandlerTimerTask(), 0, 3000);
         } catch (SymmitronException ex) {

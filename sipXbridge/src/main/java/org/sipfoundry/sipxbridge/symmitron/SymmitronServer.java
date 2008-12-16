@@ -25,13 +25,24 @@ import net.java.stun4j.StunAddress;
 import net.java.stun4j.client.NetworkConfigurationDiscoveryProcess;
 import net.java.stun4j.client.StunDiscoveryReport;
 
+import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.FileAppender;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.apache.log4j.PropertyConfigurator;
+import org.apache.log4j.SimpleLayout;
 import org.mortbay.http.HttpContext;
+import org.mortbay.http.HttpListener;
+import org.mortbay.http.HttpServer;
+import org.mortbay.http.JsseListener;
 import org.mortbay.http.SocketListener;
 import org.mortbay.http.SslListener;
+import org.mortbay.http.SunJsseListener;
 import org.mortbay.jetty.Server;
 import org.mortbay.jetty.servlet.ServletHandler;
+import org.mortbay.util.InetAddrPort;
+import org.mortbay.util.Password;
+import org.mortbay.util.ThreadedServer;
 import org.sipfoundry.commons.log4j.SipFoundryAppender;
 import org.sipfoundry.commons.log4j.SipFoundryLayout;
 import org.sipfoundry.sipxbridge.GatewayConfigurationException;
@@ -84,7 +95,7 @@ public class SymmitronServer implements Symmitron {
 
     private static boolean isWebServerRunning;
 
-    private static Server webServer;
+    private static HttpServer webServer;
 
     private static InetAddress localAddressByName;
 
@@ -94,7 +105,7 @@ public class SymmitronServer implements Symmitron {
 
     private static final int STUN_PORT = 3478;
 
-    private static boolean useHttps = false;
+    private static boolean useHttps = true;
 
     // /////////////////////////////////////////////////////////////
 
@@ -234,30 +245,55 @@ public class SymmitronServer implements Symmitron {
         if (!isWebServerRunning) {
 
             isWebServerRunning = true;
-
-            logger.debug("Starting xml rpc server on port " + symmitronConfig.getXmlRpcPort());
-
-            webServer = new Server();
-
-            SocketListener socketListener = null;
-
-            if (useHttps) {
-                SslListener sslListener = new SslListener();
+            webServer = new HttpServer();
+  
+            logger.debug("Starting xml rpc server on inetAddr:port " + symmitronConfig.getLocalAddress() + ":" +  symmitronConfig.getXmlRpcPort());
+            InetAddrPort inetAddrPort = new InetAddrPort(symmitronConfig.getLocalAddress(),symmitronConfig.getXmlRpcPort() );
+            inetAddrPort.setInetAddress(InetAddress.getByName(symmitronConfig.getLocalAddress()));
+            if (useHttps) {                
+                SslListener sslListener = new SslListener(inetAddrPort);
+                inetAddrPort.setInetAddress(InetAddress.getByName(symmitronConfig.getLocalAddress()));
+                
                 String keystore = System.getProperties().getProperty("javax.net.ssl.keyStore");
+                logger.debug("keystore = " + keystore);
                 sslListener.setKeystore(keystore);
-                sslListener.setAlgorithm(System.getProperties().getProperty("jetty.x509.algorithm"));
+                String algorithm =  System.getProperties().getProperty(
+                        "jetty.x509.algorithm") ;
+                logger.debug("algorithm = " + algorithm);
+                sslListener.setAlgorithm(algorithm);  
+                String password = System.getProperties().getProperty("jetty.ssl.password");
+                sslListener.setPassword(password);
+                
+                String keypassword = System.getProperties().getProperty("jetty.ssl.keypassword");
+                
+                sslListener.setKeyPassword(keypassword);
+                sslListener.setMaxThreads(32);
+                sslListener.setMinThreads(4);
+                sslListener.setLingerTimeSecs(30000);
+              
+                ((ThreadedServer)sslListener).open();
+               
+                webServer.setListeners(new HttpListener[] { sslListener });
+                
+                for ( HttpListener listener : webServer.getListeners() ) {
+                    logger.debug("Listener = " + listener);
+                    
+                    listener.start();
+                }
+                
             } else {
-                socketListener = new SocketListener();
-                socketListener.setPort(symmitronConfig.getXmlRpcPort());
-                socketListener.setHost(symmitronConfig.getLocalAddress());
+                SocketListener socketListener = new SocketListener(inetAddrPort);
                 socketListener.setMaxThreads(32);
                 socketListener.setMinThreads(4);
-                socketListener.setLingerTimeSecs(10000);
+                socketListener.setLingerTimeSecs(30000);
+                webServer.addListener(socketListener);
             }
+           
 
-            webServer.addListener(socketListener);
-
+        
+            
             HttpContext httpContext = new HttpContext();
+           
             httpContext.setContextPath("/");
             ServletHandler servletHandler = new ServletHandler();
             servletHandler.addServlet("symmitron", "/*", SymmitronServlet.class.getName());
@@ -932,6 +968,8 @@ public class SymmitronServer implements Symmitron {
             String configDir = System.getProperty("conf.dir", "/etc/sipxpbx");
             String configurationFile = configDir + "/nattraversalrules.xml";
             String command = System.getProperty("sipxrelay.command", "start");
+            useHttps = Boolean.parseBoolean(System.getProperty("sipxrelay.secure","true"));
+            
             String addressToTest = null;
 
             if (command.equals("configtest")) {
@@ -1009,17 +1047,17 @@ public class SymmitronServer implements Symmitron {
                  * Allow override if a log4j properties file exists.
                  */
                 if (new File(log4jProps).exists()) {
-                    /*
-                     * Override the file configuration setting.
-                     */
-                    Properties props = new Properties();
-                    props.load(new FileInputStream(log4jProps));
-                    String level = props
-                            .getProperty("log4j.category.org.sipfoundry.sipxbridge.sipxrelay");
-                    if (level != null) {
-                        config.setLogLevel(level);
-                    }
-                }
+					/*
+					 * Override the file configuration setting.
+					 */
+					Properties props = new Properties();
+					props.load(new FileInputStream(log4jProps));
+					String level = props
+							.getProperty("log4j.category.org.sipfoundry.sipxbridge.sipxrelay");
+					if (level != null) {
+						config.setLogLevel(level);
+					}
+				}
                 SymmitronServer.setSymmitronConfig(config);
 
                 logger.info("Checking port range " + config.getPortRangeLowerBound() + ":"
@@ -1071,6 +1109,7 @@ public class SymmitronServer implements Symmitron {
 
         } catch (Throwable th) {
             logger.fatal("Exitting main! ", th);
+            logger.fatal("Cause = " + th.getCause());
             System.exit(-1);
         }
     }
