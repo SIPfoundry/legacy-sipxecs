@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.common;
@@ -139,7 +139,7 @@ public final class SipUri {
     /**
      * Creates normailized SIP URI from the string that can represent URI or just a user part. If
      * candidate is a user part only a domain is appended to create a normailized URI.
-     * 
+     *
      * @param candidate SIP URI (with or without sip: prefix) or just a user part of URI
      * @param domain DNS domain appended if candidate is not a full SIP URI
      */
@@ -201,14 +201,14 @@ public final class SipUri {
 
     /**
      * Extract user id and optional user info
-     * 
+     *
      * <!--
-     * 
+     *
      * 154@example.org => 154 sip:user@exampl.org => user "Full name"<sip:202@example.org> =>Full
      * name - 202
-     * 
+     *
      * -->
-     * 
+     *
      */
     public static String extractFullUser(String uri) {
         if (uri == null) {

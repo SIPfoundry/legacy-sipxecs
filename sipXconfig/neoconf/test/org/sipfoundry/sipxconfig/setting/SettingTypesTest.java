@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.setting;
@@ -22,12 +22,14 @@ import org.sipfoundry.sipxconfig.setting.type.FileSetting;
 import org.sipfoundry.sipxconfig.setting.type.IntegerSetting;
 import org.sipfoundry.sipxconfig.setting.type.RealSetting;
 import org.sipfoundry.sipxconfig.setting.type.SettingType;
+import org.sipfoundry.sipxconfig.setting.type.SipUriSetting;
 import org.sipfoundry.sipxconfig.setting.type.StringSetting;
 
 public class SettingTypesTest extends TestCase {
 
     private Setting group;
 
+    @Override
     protected void setUp() throws Exception {
         ModelBuilder builder = new XmlModelBuilder("etc");
         File in = TestHelper.getResourceAsFile(getClass(), "setting-types.xml");
@@ -66,8 +68,7 @@ public class SettingTypesTest extends TestCase {
 
     public void testNullSettings() {
         SettingType[] types = {
-            new IntegerSetting(), new RealSetting(), new BooleanSetting(), new StringSetting(),
-            new EnumSetting()
+            new IntegerSetting(), new RealSetting(), new BooleanSetting(), new StringSetting(), new EnumSetting()
         };
 
         for (int i = 0; i < types.length; i++) {
@@ -238,5 +239,17 @@ public class SettingTypesTest extends TestCase {
 
         EnumSetting type = (EnumSetting) setting.getType();
         assertEquals("type.enum3.VALUE_2", type.getLabelKey(setting, "VALUE_2"));
+    }
+
+    public void testSettingSipUriType() {
+        Setting stringSetting = group.getSetting("sip_uri_setting");
+        SettingType type = stringSetting.getType();
+        assertTrue(type instanceof SipUriSetting);
+        SipUriSetting strType = (SipUriSetting) type;
+        assertEquals(256, strType.getMaxLen());
+        assertNotNull(strType.getPattern());
+        assertFalse(strType.getPattern().contains("@"));
+        assertTrue(strType.isRequired());
+        assertFalse(strType.isPassword());
     }
 }

@@ -32,7 +32,7 @@
 <!ELEMENT value (#PCDATA)>
 
 <!-- settings type system -->
-<!ELEMENT type (string|integer|enum|ipaddr|bitmap|boolean|real|file)?>
+<!ELEMENT type (string|integer|enum|ipaddr|bitmap|boolean|real|file|sip-uri)?>
 <!ATTLIST type 
     required %flag; "no"
     id ID #IMPLIED
@@ -80,6 +80,10 @@
 <!ELEMENT directory (#PCDATA)>
 <!ELEMENT contentType (#PCDATA)>
 
+<!ELEMENT sip-uri EMPTY>
+<!ATTLIST sip-uri
+    required %flag; "no"
+    userPartOnly %flag; "no">
 
 <!-- enumeration type is a list of options, each option has a value and may have label -->
 <!-- if not label is provided, value is used as a label -->

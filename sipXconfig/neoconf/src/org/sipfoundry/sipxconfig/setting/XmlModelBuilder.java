@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.setting;
@@ -32,6 +32,7 @@ import org.sipfoundry.sipxconfig.setting.type.FileSetting;
 import org.sipfoundry.sipxconfig.setting.type.IntegerSetting;
 import org.sipfoundry.sipxconfig.setting.type.RealSetting;
 import org.sipfoundry.sipxconfig.setting.type.SettingType;
+import org.sipfoundry.sipxconfig.setting.type.SipUriSetting;
 import org.sipfoundry.sipxconfig.setting.type.StringSetting;
 import org.xml.sax.Attributes;
 import org.xml.sax.EntityResolver;
@@ -67,8 +68,7 @@ public class XmlModelBuilder implements ModelBuilder {
             return model;
 
         } catch (IOException e) {
-            throw new RuntimeException("Cannot parse model definitions file "
-                    + modelFile.getPath(), e);
+            throw new RuntimeException("Cannot parse model definitions file " + modelFile.getPath(), e);
         } finally {
             IOUtils.closeQuietly(is);
         }
@@ -109,17 +109,19 @@ public class XmlModelBuilder implements ModelBuilder {
         digester.addRuleSet(new EnumSettingRule(patternPrefix + "enum"));
         digester.addRuleSet(new BooleanSettingRule(patternPrefix + "boolean"));
         digester.addRuleSet(new FileSettingRule(patternPrefix + "file"));
+        digester.addRuleSet(new SipUriSettingRule(patternPrefix + "sip-uri"));
     }
 
     static class AbstractSettingRuleSet extends RuleSetBase {
-        private String m_pattern;
-        private Class m_klass;
+        private final String m_pattern;
+        private final Class m_klass;
 
         public AbstractSettingRuleSet(String pattern, Class klass) {
             m_pattern = pattern;
             m_klass = klass;
         }
 
+        @Override
         public void addRuleInstances(Digester digester) {
             digester.addObjectCreate(m_pattern, m_klass);
             digester.addSetProperties(m_pattern, "parent", null);
@@ -141,6 +143,7 @@ public class XmlModelBuilder implements ModelBuilder {
             super("*/collection", SettingArray.class);
         }
 
+        @Override
         public void addRuleInstances(Digester digester) {
             super.addRuleInstances(digester);
             digester.addSetNext(getPattern(), ADD_SETTING_METHOD, Setting.class.getName());
@@ -152,14 +155,13 @@ public class XmlModelBuilder implements ModelBuilder {
             super(pattern, klass);
         }
 
+        @Override
         public void addRuleInstances(Digester digester) {
             super.addRuleInstances(digester);
             digester.addRule(getPattern(), new CopyOfRule());
-            digester.addRule(getPattern() + EL_VALUE, new BeanPropertyNullOnEmptyStringRule(
-                    "value"));
+            digester.addRule(getPattern() + EL_VALUE, new BeanPropertyNullOnEmptyStringRule("value"));
             addSettingTypes(digester, getPattern() + "/type/");
-            digester.addSetNext(getPattern(), ADD_SETTING_METHOD, ConditionalSettingImpl.class
-                    .getName());
+            digester.addSetNext(getPattern(), ADD_SETTING_METHOD, ConditionalSettingImpl.class.getName());
         }
     }
 
@@ -168,6 +170,7 @@ public class XmlModelBuilder implements ModelBuilder {
             super(property);
         }
 
+        @Override
         public void body(String namespace, String name, String text) throws Exception {
 
             super.body(namespace, name, text);
@@ -179,6 +182,7 @@ public class XmlModelBuilder implements ModelBuilder {
 
     static class CopyOfRule extends Rule {
 
+        @Override
         public void begin(String namespace_, String name_, Attributes attributes) {
             // warning, this is called TWICE by digester! and I do not know why. Stack
             // is identical so i think it's coming from SAXParser. Code here works fine,
@@ -209,6 +213,7 @@ public class XmlModelBuilder implements ModelBuilder {
 
         private final Map m_types = new HashMap();
 
+        @Override
         public void end(String namespace_, String name_) {
             if (m_id != null) {
                 Setting rootSetting = (Setting) getDigester().peek();
@@ -218,14 +223,14 @@ public class XmlModelBuilder implements ModelBuilder {
             }
         }
 
+        @Override
         public void begin(String namespace_, String name_, Attributes attributes) {
             m_id = attributes.getValue("id");
             String refid = attributes.getValue("refid");
             if (refid != null) {
                 SettingType prototype = (SettingType) m_types.get(refid);
                 if (prototype == null) {
-                    throw new IllegalArgumentException("Setting type with id=" + refid
-                            + " not found.");
+                    throw new IllegalArgumentException("Setting type with id=" + refid + " not found.");
                 }
                 SettingType type = prototype.clone();
                 Setting setting = (Setting) getDigester().peek();
@@ -236,11 +241,9 @@ public class XmlModelBuilder implements ModelBuilder {
                     try {
                         BeanUtils.setProperty(type, REQUIRED, "yes".equals(required));
                     } catch (IllegalAccessException e) {
-                        throw new IllegalArgumentException(
-                                "Could not access 'required' property on " + type);
+                        throw new IllegalArgumentException("Could not access 'required' property on " + type);
                     } catch (InvocationTargetException e) {
-                        throw new IllegalArgumentException(
-                                "Could not set 'required' property on " + type);
+                        throw new IllegalArgumentException("Could not set 'required' property on " + type);
                     }
                 }
             }
@@ -257,6 +260,7 @@ public class XmlModelBuilder implements ModelBuilder {
             m_pattern = pattern;
         }
 
+        @Override
         public void addRuleInstances(Digester digester) {
             digester.addSetNext(m_pattern, "setType", SettingType.class.getName());
             digester.addRule(getParentPattern(), SETTING_TYPE_ID_RULE);
@@ -277,6 +281,7 @@ public class XmlModelBuilder implements ModelBuilder {
             super(pattern);
         }
 
+        @Override
         public void addRuleInstances(Digester digester) {
             digester.addObjectCreate(getPattern(), StringSetting.class);
             digester.addSetProperties(getPattern());
@@ -290,6 +295,7 @@ public class XmlModelBuilder implements ModelBuilder {
             super(pattern);
         }
 
+        @Override
         public void addRuleInstances(Digester digester) {
             digester.addObjectCreate(getPattern(), IntegerSetting.class);
             digester.addSetProperties(getPattern());
@@ -302,6 +308,7 @@ public class XmlModelBuilder implements ModelBuilder {
             super(pattern);
         }
 
+        @Override
         public void addRuleInstances(Digester digester) {
             digester.addObjectCreate(getPattern(), RealSetting.class);
             digester.addSetProperties(getPattern());
@@ -314,6 +321,7 @@ public class XmlModelBuilder implements ModelBuilder {
             super(pattern);
         }
 
+        @Override
         public void addRuleInstances(Digester digester) {
             String pattern = getPattern();
             digester.addObjectCreate(pattern, BooleanSetting.class);
@@ -329,6 +337,7 @@ public class XmlModelBuilder implements ModelBuilder {
             super(pattern);
         }
 
+        @Override
         public void addRuleInstances(Digester digester) {
             digester.addObjectCreate(getPattern(), EnumSetting.class);
             digester.addSetProperties(getPattern());
@@ -345,8 +354,23 @@ public class XmlModelBuilder implements ModelBuilder {
             super(pattern);
         }
 
+        @Override
         public void addRuleInstances(Digester digester) {
             digester.addObjectCreate(getPattern(), FileSetting.class);
+            digester.addSetProperties(getPattern());
+            digester.addSetNestedProperties(getPattern());
+            super.addRuleInstances(digester);
+        }
+    }
+
+    static class SipUriSettingRule extends SettingTypeRule {
+        public SipUriSettingRule(String pattern) {
+            super(pattern);
+        }
+
+        @Override
+        public void addRuleInstances(Digester digester) {
+            digester.addObjectCreate(getPattern(), SipUriSetting.class);
             digester.addSetProperties(getPattern());
             digester.addSetNestedProperties(getPattern());
             super.addRuleInstances(digester);
@@ -357,8 +381,8 @@ public class XmlModelBuilder implements ModelBuilder {
         private static final Log LOG = LogFactory.getLog(ModelEntityResolver.class);
         private static final String DTD = "setting.dtd";
 
-        private File m_dtd;
-        private File m_baseSystemId;
+        private final File m_dtd;
+        private final File m_baseSystemId;
 
         ModelEntityResolver(File configDirectory, File baseSystemId) {
             m_dtd = new File(configDirectory, DTD);

@@ -152,5 +152,10 @@
       </type>
       <value>VALUE_0</value>
     </setting>
+    <setting name="sip_uri_setting">
+      <type>
+        <sip-uri required="true" userPartOnly="true" />
+      </type>
+    </setting>
   </group>
 </model>
