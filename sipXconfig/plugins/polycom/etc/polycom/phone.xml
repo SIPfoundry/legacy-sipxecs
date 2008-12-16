@@ -1585,6 +1585,7 @@
         <type>
           <boolean />
         </type>
+        <value>0</value>
       </setting>
       <setting name="keepalive.sessionTimers">
         <type>
@@ -1598,11 +1599,11 @@
         </type>
         <value />
       </setting>
-      <setting name="allowTransferOnProceeding">
+      <setting name="allowTransferOnProceeding" hidden="yes">
         <type>
           <boolean />
         </type>
-        <value>1</value>
+        <value>0</value>
       </setting>
       <setting name="musicOnHold.uri">
       <type>
