@@ -81,7 +81,7 @@ public:
 
       testContext.inputFilePath("newprocess.xml", path);
       CPPUNIT_ASSERT((process1 = SipxProcess::createFromDefinition(path)));
-      OsTask::delay(TEST_TASK_DELAY); // give task some time to get up and running
+      OsTask::delay(1 * OsTime::MSECS_PER_SEC); // give task some time to get up and running
 
       ASSERT_STR_EQUAL("New", process1->data());
       ASSERT_STR_EQUAL("1.0.0", process1->mVersion.data());
@@ -92,7 +92,7 @@ public:
 
       testContext.inputFilePath("another-process.xml", path);
       CPPUNIT_ASSERT((process2 = SipxProcess::createFromDefinition(path)));
-      OsTask::delay(TEST_TASK_DELAY); // give task some time to get up and running
+      OsTask::delay(1 * OsTime::MSECS_PER_SEC); // give task some time to get up and running
 
       ASSERT_STR_EQUAL("Nother", process2->data());
       ASSERT_STR_EQUAL("1.0.0", process2->mVersion.data());
@@ -108,7 +108,11 @@ public:
       process1->enable();
       process2->enable();
 
-      OsTask::delay(TEST_TASK_DELAY); // give tasks some time to get up and running
+      int retries = 5;
+      while ( retries-- && strcmp(process1->GetCurrentState()->name(),SipxProcess::pRunning->name()) )
+      {
+         OsTask::delay(1 * OsTime::MSECS_PER_SEC);
+      }
 
       CPPUNIT_ASSERT(process1->isEnabled());
       ASSERT_STR_EQUAL(SipxProcess::pRunning->name(), process1->mpDesiredState->name());
@@ -137,7 +141,11 @@ public:
 
       ASSERT_STR_EQUAL(SipxProcess::pRunning->name(), process2->mpDesiredState->name());
 
-      OsTask::delay(TEST_TASK_DELAY); // give task some time to shutdown
+      retries = 5;
+      while ( retries-- && strcmp(process2->GetCurrentState()->name(),SipxProcess::pShutDown->name()) )
+      {
+         OsTask::delay(1 * OsTime::MSECS_PER_SEC); // give task some time to shutdown
+      }
       ASSERT_STR_EQUAL(SipxProcess::pShutDown->name(), process2->GetCurrentState()->name());
 
       // when ProcessMgr shuts down, it deletes all the processes
