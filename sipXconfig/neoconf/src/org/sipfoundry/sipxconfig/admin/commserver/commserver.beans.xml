@@ -158,6 +158,7 @@
 
   <bean id="aliasCollector"
     class="org.sipfoundry.sipxconfig.admin.commserver.AliasCollector">
+    <property name="includeProxies" value="true" />
     <property name="aliasProviderBeanIds">
       <list>
         <value>externalAliases</value>
@@ -191,11 +192,28 @@
   <bean id="userlocationDataSet" parent="dataSetGenerator"
     class="org.sipfoundry.sipxconfig.admin.commserver.imdb.UserLocation">
   </bean>
+
+  <bean id="aliasCollectorForAA"
+    class="org.sipfoundry.sipxconfig.admin.commserver.AliasCollector">
+    <property name="includeProxies" value="false" />
+    <property name="aliasProviderBeanIds">
+      <list>
+        <value>callGroupContext</value>
+        <value>acdContext</value>
+        <value>conferenceBridgeContext</value>
+        <value>externalAliases</value>
+      </list>
+    </property>
+  </bean>
+
   <bean id="validUsersConfig" parent="defaultConfigurationFile"
     class="org.sipfoundry.sipxconfig.admin.dialplan.attendant.ValidUsersConfig">
     <property name="name" value="validusers.xml" />
     <property name="coreContext" ref="coreContext" />
     <property name="domainManager" ref="domainManager" />
+    <property name="aliasProvider">
+      <ref local="aliasCollectorForAA" />
+    </property>
   </bean>
 
   <bean id="replicationTrigger"

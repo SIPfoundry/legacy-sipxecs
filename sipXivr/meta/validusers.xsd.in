@@ -78,7 +78,7 @@
             <element ref="tns:aliases" maxOccurs="1" minOccurs="0"/>
             <element ref="tns:displayName" maxOccurs="1" minOccurs="0"/>
             <element ref="tns:contact" maxOccurs="1" minOccurs="1"/>
-            <element ref="tns:pintoken" maxOccurs="1" minOccurs="1"/>
+            <element ref="tns:pintoken" maxOccurs="1" minOccurs="0"/>
             <element ref="tns:inDirectory" maxOccurs="1" minOccurs="1"/>
          </all>
       </complexType>

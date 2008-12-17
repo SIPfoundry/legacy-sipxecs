@@ -15,6 +15,8 @@ import java.util.Arrays;
 import org.custommonkey.xmlunit.XMLTestCase;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.sipfoundry.sipxconfig.TestHelper;
+import org.sipfoundry.sipxconfig.admin.commserver.AliasProvider;
+import org.sipfoundry.sipxconfig.admin.forwarding.AliasMapping;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.domain.Domain;
@@ -66,16 +68,23 @@ public class ValidUsersConfigTest extends XMLTestCase {
         DomainManager domainManager = createMock(DomainManager.class);
         expect(domainManager.getDomain()).andReturn(domain).anyTimes();
 
-        replay(coreContext, domainManager);
+        AliasMapping am1 = new AliasMapping("500@example.com", "sip:500@example.com");
+        AliasMapping am2 = new AliasMapping("501@example.com", "sip:501@example.com");
+        
+        AliasProvider aliasProvider = createMock(AliasProvider.class);
+        expect(aliasProvider.getAliasMappings()).andReturn(Arrays.asList(am1, am2)).anyTimes();
+        
+        replay(coreContext, domainManager, aliasProvider);
 
         ValidUsersConfig vu = new ValidUsersConfig();
         vu.setCoreContext(coreContext);
         vu.setDomainManager(domainManager);
+        vu.setAliasProvider(aliasProvider);
 
         String generatedXml = vu.getFileContent();
         InputStream referenceXml = getClass().getResourceAsStream("validusers.test.xml");
         assertXMLEqual(new InputStreamReader(referenceXml), new StringReader(generatedXml));
 
-        verify(coreContext, domainManager);
+        verify(coreContext, domainManager, aliasProvider);
     }
 }

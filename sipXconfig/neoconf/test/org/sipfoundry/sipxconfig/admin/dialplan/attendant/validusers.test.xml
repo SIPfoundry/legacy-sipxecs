@@ -22,4 +22,16 @@
     <pintoken>6833fd1fc2dd908dc99a3a457d88b812</pintoken>
     <inDirectory>false</inDirectory>
   </user>
+  <user>
+    <identity>500@example.com</identity>
+    <userName>500</userName>
+    <contact>sip:500@example.com</contact>
+    <inDirectory>false</inDirectory>
+  </user>
+  <user>
+    <identity>501@example.com</identity>
+    <userName>501</userName>
+    <contact>sip:501@example.com</contact>
+    <inDirectory>false</inDirectory>
+  </user>
 </validusers>
