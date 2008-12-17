@@ -53,7 +53,6 @@ def usage_exit(error_code=1)
   -r|--restart        Restart the specified monitored process
   -l|--state          Current state of all monitored processes
   -m|--getStatusMessages          Display output from the specified service
-  -g|--getAliasByPID  Get the monitored process with the specified PID
   -c|--getConfigVersion Get the configuration version of the specified service
   -u|--setConfigVersion Set the configuration version of the specified service
   -v|--serviceVersion The service version value to update
@@ -77,7 +76,6 @@ if __FILE__ == $0
       ['--restart','-r',       GetoptLong::REQUIRED_ARGUMENT],
       ['--state','-l',         GetoptLong::NO_ARGUMENT],
       ['--getStatusMessages','-m',  GetoptLong::REQUIRED_ARGUMENT],
-      ['--getAliasByPID','-g', GetoptLong::REQUIRED_ARGUMENT],
       ['--getConfigVersion','-c', GetoptLong::REQUIRED_ARGUMENT],
       ['--setConfigVersion','-u', GetoptLong::REQUIRED_ARGUMENT],
       ['--serviceVersion','-v',       GetoptLong::REQUIRED_ARGUMENT],
@@ -111,10 +109,6 @@ begin
       case name
          when '--help'
             usage_exit 0
-         when '--getAliasByPID'
-            # One integer argument must be specified.
-            action = name.gsub(/--/, '')
-            argument = arg.to_i
          when '--getConfigVersion'
             # One string argument must be specified.
             action = name.gsub(/--/, '')
@@ -178,8 +172,6 @@ when 'start', 'stop', 'restart'
     params.push(block)
 when 'getStatusMessages', 'runConfigtest', 'getConfigtestMessages'
     params.push(alias1)
-when 'getalisbypid'
-    params.push(argument)
 when 'getConfigVersion'
     params.push(argument)
 when 'setConfigVersion'
