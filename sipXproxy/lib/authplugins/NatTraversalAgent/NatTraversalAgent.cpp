@@ -119,6 +119,7 @@ NatTraversalAgent::readConfig( OsConfigDb& configDb /**< a subhash of the indivi
       {
          if( mpMediaRelay->initialize( mNatTraversalRules.getMediaRelayPublicAddress(),
                                        mNatTraversalRules.getMediaRelayNativeAddress(),
+                                       mNatTraversalRules.isXmlRpcSecured(),
                                        mNatTraversalRules.isPartOfLocalTopology( mNatTraversalRules.getMediaRelayNativeAddress() ),
                                        mNatTraversalRules.getMediaRelayXmlRpcPort(),
                                        mNatTraversalRules.getMaxMediaRelaySessions() ) == true )

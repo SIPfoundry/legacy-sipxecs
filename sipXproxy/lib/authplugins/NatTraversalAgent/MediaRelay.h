@@ -261,6 +261,7 @@ class MediaRelay : public OsNotification
       *                   be the public IP address of that NAT otherwise it is
       *                   the IP address of the machine it is running on.
       *  - nativeAddress: [input] IP address of the machine the Symmitron is running on
+      *  - bXmlRpcSecured: [input] true will send XMLRPC over HTTPS, otherwise it will use HTTP.
       *  - isPartOfsipXLocalPrivateNetwork: [input] True of the symmitron is part
       *                                     of the same local private network as the
       *                                     application that will utilize the media relay.
@@ -271,6 +272,7 @@ class MediaRelay : public OsNotification
       */
       bool initialize( const  UtlString& publicAddress, 
                        const  UtlString& nativeAddress,
+                       bool   bXmlRpcSecured,
                        bool   isPartOfsipXLocalPrivateNetwork,
                        int    xmlRpcPort,
                        size_t maxMediaRelaySessions );

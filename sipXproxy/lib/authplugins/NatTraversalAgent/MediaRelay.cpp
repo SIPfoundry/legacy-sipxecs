@@ -127,6 +127,7 @@ MediaRelay::MediaRelay() :
 
 bool MediaRelay::initialize( const  UtlString& publicAddress, 
                              const  UtlString& nativeAddress,
+                             bool   bXmlRpcSecured,
                              bool   isPartOfsipXLocalPrivateNetwork,
                              int    xmlRpcPort,
                              size_t maxMediaRelaySessions )
@@ -139,7 +140,14 @@ bool MediaRelay::initialize( const  UtlString& publicAddress,
    mXmlRpcPort = xmlRpcPort;
    mMaxMediaRelaySessions = maxMediaRelaySessions;
    mRelaySessionHandle = 0;
-   mSymmitronUrl.setUrlType("http");
+   if( bXmlRpcSecured )
+   {
+      mSymmitronUrl.setUrlType("https");
+   }
+   else
+   {
+      mSymmitronUrl.setUrlType("http");
+   }
    mSymmitronUrl.setHostAddress( nativeAddress.data() );
    mSymmitronUrl.setHostPort( xmlRpcPort );
    mAvailableMediaBridgePairsList.clear();

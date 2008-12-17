@@ -34,7 +34,8 @@ NatTraversalRules::NatTraversalRules()
      mMaxMediaRelaySessions( DEFAULT_MAX_MEDIA_RELAY_SESSIONS ),
      mbDiscoverPublicIpAddressViaStun( false ),
      mStunRefreshIntervalInSecs( 300 ),
-     mpStunClient( 0 )
+     mpStunClient( 0 ),
+     mbXmlRpcOverSecureTransport( true )
 {
    UtlString hostIpAddress;
    OsSocket::getHostIp( &hostIpAddress );
@@ -280,6 +281,24 @@ void NatTraversalRules::initializeNatTraversalInfo( void )
          {
             OsSysLog::add(FAC_NAT, PRI_ERR, "NatTraversalRules::initializeNatTraversalInfo - No child Node named '%s'", XML_TAG_STUN_SERVER );
          }
+         
+         // get the 'secureXMLRPC' node
+         if( ( pChildNode = pNode->FirstChild( XML_TAG_SECURE_XMLRPC ) ) && pChildNode->FirstChild() )
+         {
+            UtlString status = pChildNode->FirstChild()->Value();
+            if( status.compareTo(XML_VALUE_TRUE, UtlString::ignoreCase) == 0 || status.compareTo(XML_VALUE_YES, UtlString::ignoreCase) == 0  )
+            {  
+               mbXmlRpcOverSecureTransport = true;
+            }
+            else
+            {
+               mbXmlRpcOverSecureTransport = false;
+            }
+         }
+         else
+         {
+            OsSysLog::add(FAC_NAT, PRI_ERR, "NatTraversalRules::initializeNatTraversalInfo - No child Node named '%s'", XML_TAG_SECURE_XMLRPC );          
+         }
       }
       else
       {
@@ -434,6 +453,11 @@ bool NatTraversalRules::isAggressiveModeSet( void ) const
 bool NatTraversalRules::isConservativeModeSet( void ) const
 {
    return !mbAggressiveModeSet;
+}
+
+bool NatTraversalRules::isXmlRpcSecured( void ) const
+{
+   return mbXmlRpcOverSecureTransport;
 }
 
 bool NatTraversalRules::isPartOfLocalTopology( const UtlString& host, bool bCheckIpSubnets, bool bCheckDnsWidlcards ) const

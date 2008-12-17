@@ -14,6 +14,8 @@
     <publicport>6666</publicport>
     
     <proxyhostport>10.10.10.1:5060</proxyhostport>
+    
+    <secureXMLRPC>true</secureXMLRPC>
   
   </info>
 

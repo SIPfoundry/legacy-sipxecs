@@ -45,6 +45,7 @@
 #define XML_TAG_STUN_SERVER           "stun-server-address"
 #define XML_TAG_STUN_REFRESH_INTERVAL "rediscovery-time"
 #define XML_TAG_AGGRESSIVENESS        "relayaggressiveness"
+#define XML_TAG_SECURE_XMLRPC         "secureXMLRPC"
 
 //XML values
 #define XML_VALUE_ENABLED           "enabled"
@@ -117,6 +118,8 @@ public:
 
    bool          isConservativeModeSet( void ) const;
    
+   bool          isXmlRpcSecured( void ) const;
+   
    bool isPartOfLocalTopology(const UtlString& host, 
                               bool checkIpSubnets = true,
                               bool checkDnsWidlcards = true ) const;
@@ -172,6 +175,7 @@ private:
    UtlString      mStunServer;
    int            mStunRefreshIntervalInSecs;
    StunClient*    mpStunClient;
+   bool           mbXmlRpcOverSecureTransport;
    
    void initializeNatTraversalInfo( void );
 

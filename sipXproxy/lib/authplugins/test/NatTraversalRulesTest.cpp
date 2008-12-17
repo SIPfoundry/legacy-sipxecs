@@ -24,6 +24,7 @@ class NatTraversalRulesTest : public CppUnit::TestCase
       CPPUNIT_TEST(testGetPublicIpAddress);
       CPPUNIT_TEST(testGetPublicPort);
       CPPUNIT_TEST(testGetProxyHostPort);
+      CPPUNIT_TEST(testIsXmlRpcSecured);
       CPPUNIT_TEST(testIsPartOfLocalTopology);
       CPPUNIT_TEST_SUITE_END();
 
@@ -99,6 +100,25 @@ class NatTraversalRulesTest : public CppUnit::TestCase
          CPPUNIT_ASSERT( theRules4.getProxyTransportInfo().getPort() == 6060 );
       }
 
+      void testIsXmlRpcSecured()
+      {
+         NatTraversalRules theRules;
+         // test default value
+         UtlString     rulesFile3(TEST_DATA_DIR "/NatTraversalAgent/nattraversalrules3.xml");
+         CPPUNIT_ASSERT( theRules.loadRules( rulesFile3 ) == OS_SUCCESS );
+         CPPUNIT_ASSERT( theRules.isXmlRpcSecured() == true );
+
+         // test secure set to true
+         UtlString     rulesFile1(TEST_DATA_DIR "/NatTraversalAgent/nattraversalrules1.xml");
+         CPPUNIT_ASSERT( theRules.loadRules( rulesFile1 ) == OS_SUCCESS );
+         CPPUNIT_ASSERT( theRules.isXmlRpcSecured() == true );
+         
+         // test secure set to false
+         UtlString     rulesFile2(TEST_DATA_DIR "/NatTraversalAgent/nattraversalrules2.xml");
+         CPPUNIT_ASSERT( theRules.loadRules( rulesFile2 ) == OS_SUCCESS );
+         CPPUNIT_ASSERT( theRules.isXmlRpcSecured() == false );
+      }
+      
       void testIsPartOfLocalTopology()
       {
          NatTraversalRules theRules;

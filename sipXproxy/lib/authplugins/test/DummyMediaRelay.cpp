@@ -42,6 +42,7 @@ MediaRelay::MediaRelay() :
 
 bool MediaRelay::initialize( const  UtlString& publicAddress, 
                              const  UtlString& nativeAddress,
+                             bool   bXmlRpcSecured,                             
                              bool   isPartOfsipXLocalPrivateNetwork,
                              int    xmlRpcPort,
                              size_t maxMediaRelaySessions )

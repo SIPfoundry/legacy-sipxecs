@@ -53,7 +53,8 @@
         <element ref='dmp:publicport' minOccurs='0' maxOccurs='1'/>        
         <element ref='dmp:port-range' minOccurs='1' maxOccurs='1'/>        
         <element ref='dmp:log-level' minOccurs='0' maxOccurs='1'/>        
-        <element ref='dmp:log-directory' minOccurs='0' maxOccurs='1'/>        
+        <element ref='dmp:log-directory' minOccurs='0' maxOccurs='1'/>           
+        <element ref='dmp:secureXMLRPC' minOccurs='0' maxOccurs='1'/>       
       </all>
     </complexType>
   </element>
@@ -267,7 +268,15 @@
     </simpleType>
   </element>
 
-
+  <element name='secureXMLRPC' type="boolean">
+    <annotation>
+      <documentation>
+        When true, XMLRPC is exchnaged over HTTPS, otherwise HTTP is used.  
+        If absent, HTTPS is assumed.  
+      </documentation>
+    </annotation>
+  </element>
+  
   <element name='localtopology'>
     <annotation>
       <documentation>

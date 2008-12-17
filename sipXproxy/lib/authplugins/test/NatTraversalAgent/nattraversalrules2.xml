@@ -13,6 +13,8 @@
     
     <proxyhostport>10.10.10.1:5060</proxyhostport>
   
+    <secureXMLRPC>false</secureXMLRPC>
+    
   </info>
 
   
