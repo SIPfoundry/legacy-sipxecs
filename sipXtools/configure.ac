@@ -17,6 +17,8 @@ CHECK_NSIS
 
 AC_CONFIG_SRCDIR([src/sipxcar])
 
+# Checks for programs.
+AC_PATH_PROG([BASH], [bash])
 AC_PROG_CXX
 AX_COMPILER_VENDOR
 AC_PROG_CC
