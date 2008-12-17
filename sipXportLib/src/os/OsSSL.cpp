@@ -30,6 +30,8 @@ const char* defaultPrivateKeyFile        = SIPX_CONFDIR "/ssl/ssl.key";
 const char* defaultAuthorityPath         = SIPX_CONFDIR "/ssl/authorities";
 
 bool OsSSL::sInitialized = false;
+OsMutex* OsSSL::spOpenSSL_locks[];
+
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
@@ -71,6 +73,8 @@ OsSSL::OsSSL(const char* authorityPath,
       // Perhaps this should be conditional?
       SSL_load_error_strings();
 
+      OpenSSL_thread_setup();
+      
       sInitialized = true;
    }
 
@@ -191,6 +195,59 @@ OsSSL::~OsSSL()
 }
 
 /* ============================ MANIPULATORS ============================== */
+
+void OsSSL::OpenSSL_thread_setup()
+{
+   if (sInitialized)
+   {
+      return;
+   }
+   
+   for (int i=0 ; i<CRYPTO_NUM_LOCKS ; i++)
+   {
+      spOpenSSL_locks[i] = new OsMutex(OsMutex::Q_FIFO);
+   }
+   
+   // set locking callback to make SSL thread-safe
+   CRYPTO_set_locking_callback((void (*)(int,int,const char*, int))OpenSSL_locking_function);
+
+   // set ID callback for linux, where getpid() returns the same for multiple threads
+   CRYPTO_set_id_callback(OpenSSL_id_function);
+}
+
+void OsSSL::OpenSSL_thread_cleanup()
+{
+   CRYPTO_set_locking_callback(NULL);
+   for (int i=0 ; i<CRYPTO_NUM_LOCKS ; i++)
+   {
+      delete spOpenSSL_locks[i];
+      spOpenSSL_locks[i] = NULL;
+   }
+}
+
+/// callback for OpenSSL CRYPTO_set_id_callback
+unsigned long OsSSL::OpenSSL_id_function(void)
+{
+   // This implementation assumes that pthread_self() can be cast to long,
+   // which is not necessarily true, though it is on Linux.
+   // The man page for CRYPTO_set_id_callback says, of platforms on which
+   // pthread_self() is not an integer:
+   // "This is a bit unusual, and this manual has no cookbook solution for that case."
+   return ((unsigned long) pthread_self());
+}
+
+/// callback for OpenSSL CRYPTO_set_locking_callback
+void OsSSL::OpenSSL_locking_function(int mode, int n, const char *file, int line)
+{
+   if (mode & CRYPTO_LOCK)
+   {
+      spOpenSSL_locks[n]->acquire();
+   }
+   else if (mode & CRYPTO_UNLOCK)
+   {
+      spOpenSSL_locks[n]->release();
+   }
+}
 
 /* ============================ ACCESSORS ================================= */
 

@@ -14,6 +14,7 @@
 
 // APPLICATION INCLUDES                      
 #include "os/OsBSem.h"
+#include "os/OsMutex.h"
 #include "os/OsSysLog.h"
 #include "openssl/ssl.h"
 
@@ -107,6 +108,18 @@ class OsSSL
                         int errCode             ///< error returned from ssl routine
                         );
    
+   /// Set OpenSSL callbacks for locking and thread id
+   void OpenSSL_thread_setup();
+   
+   /// Cleanup OpenSSL callbacks
+   void OpenSSL_thread_cleanup();
+   
+   /// callback for OpenSSL CRYPTO_set_id_callback
+   static unsigned long OpenSSL_id_function(void);
+   
+   /// callback for OpenSSL CRYPTO_set_locking_callback
+   static void OpenSSL_locking_function(int mode, int n, const char *file, int line);
+
 /* ============================ INQUIRY =================================== */
 
 
@@ -129,6 +142,8 @@ class OsSSL
     * @note See 'man SSL_CTX_set_verify'
     */
 
+   static OsMutex* spOpenSSL_locks[CRYPTO_NUM_LOCKS];
+   
    /// Disable copy constructor
    OsSSL(const OsSSL& rOsSSL);
 
