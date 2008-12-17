@@ -942,94 +942,50 @@ ProvisioningAttrList* ACDServer::Set(ProvisioningAttrList& rRequestAttributes)
       targetURL.setHostPort(mWatchdogRpcServerPort);
       targetURL.setPath("RPC2");
 
-      // Make the XMLRPC request to query this process's alias.
-      XmlRpcRequest requestGetAlias(targetURL, "ProcMgmtRpc.getAliasByPID");
-      requestGetAlias.addParam(&mDomain);
-      UtlInt pid(OsProcess::getCurrentPID());
-      requestGetAlias.addParam(&pid);
-      XmlRpcResponse response1;
-      if (!requestGetAlias.execute(response1)) // blocks; returns false for any fault
+      // Make the XMLRPC request to restart this process.
+      UtlString alias(ACD_SERVER_ALIAS);
+      XmlRpcRequest requestRestart(targetURL, "ProcMgmtRpc.restart");
+      requestRestart.addParam(&mDomain);
+      requestRestart.addParam(&alias);
+      UtlBool bBlock(false);
+      requestRestart.addParam(&bBlock); // No, don't block for the state change.
+      XmlRpcResponse response;
+      if (!requestRestart.execute(response))
       {
          // The XMLRPC request failed.
          int faultCode;
          UtlString faultString;
-         response1.getFault(&faultCode, faultString);         
-         OsSysLog::add(LOG_FACILITY, PRI_CRIT, "ProcMgmtRpc.getAliasByPID failed, fault %d : %s",
-                       faultCode, faultString.data());
+         response.getFault(&faultCode, faultString);
+         OsSysLog::add(LOG_FACILITY, PRI_CRIT, "ProcMgmtRpc.restart failed, fault %d : %s",
+         faultCode, faultString.data());
       }
       else
       {
          // Apparently successful, so extract the result.
          UtlContainable* pValue = NULL;
-         if (!response1.getResponse(pValue) || !pValue)
+         if (!response.getResponse(pValue) || !pValue)
          {
-            OsSysLog::add(LOG_FACILITY, PRI_CRIT, "ProcMgmtRpc.getAliasByPID response had no result.");
+            OsSysLog::add(LOG_FACILITY, PRI_CRIT, "ProcMgmtRpc.restart response had no result.");
          }
          else
          {
-            
-            UtlString* pAlias = dynamic_cast<UtlString*>(pValue);
-            if (!pAlias)
+            UtlBool* pResult = dynamic_cast<UtlBool*>(pValue);
+            if (!pResult)
             {
-               OsSysLog::add(LOG_FACILITY, PRI_CRIT, 
-                             "ProcMgmtRpc.getAliasByPID response result had unexpected type: %s",
-                             pValue->getContainableType());
-              }
+               OsSysLog::add(LOG_FACILITY, PRI_CRIT,
+               "ProcMgmtRpc.restart response result had unexpected type: %s",
+               pValue->getContainableType());
+            }
             else
             {
-               if (pAlias->isNull())
+               if (!pResult->getValue())
                {
-                  OsSysLog::add(LOG_FACILITY, PRI_ERR, "ProcMgmtRpc.getAliasByPID could not match the pid to an alias.");
+                  OsSysLog::add(LOG_FACILITY, PRI_ERR, "ProcMgmtRpc.restart could not restart the process.");
                }
                else
                {
-                  // Make the XMLRPC request to restart this process.
-                  XmlRpcRequest requestRestart(targetURL, "ProcMgmtRpc.restart");
-                  requestRestart.addParam(&mDomain);
-                  requestRestart.addParam(pAlias);
-                  UtlBool bBlock(false);
-                  requestRestart.addParam(&bBlock); // No, don't block for the state change.
-                  XmlRpcResponse response2;
-                  if (!requestRestart.execute(response2))
-                  {
-                     // The XMLRPC request failed.
-                     int faultCode;
-                     UtlString faultString;
-                     response2.getFault(&faultCode, faultString);         
-                     OsSysLog::add(LOG_FACILITY, PRI_CRIT, "ProcMgmtRpc.restart failed, fault %d : %s",
-                                   faultCode, faultString.data());
-                  }
-                  else
-                  {
-                     // Apparently successful, so extract the result.
-                     pValue = NULL;
-                     if (!response2.getResponse(pValue) || !pValue)
-                     {
-                        OsSysLog::add(LOG_FACILITY, PRI_CRIT, "ProcMgmtRpc.restart response had no result.");
-                     }
-                     else
-                     {                  
-                        UtlBool* pResult = dynamic_cast<UtlBool*>(pValue);
-                        if (!pResult)
-                        {
-                           OsSysLog::add(LOG_FACILITY, PRI_CRIT, 
-                                         "ProcMgmtRpc.restart response result had unexpected type: %s",
-                                         pValue->getContainableType());
-                        }
-                        else
-                        {
-                           if (!pResult->getValue())
-                           {
-                              OsSysLog::add(LOG_FACILITY, PRI_ERR, "ProcMgmtRpc.restart could not restart the process.");
-                           }
-                           else
-                           {
-                              OsSysLog::add(LOG_FACILITY, PRI_INFO, "ACDServer::Set - Restart %s", mDomain.data());
-                              bWatchDogRestarted = true;
-                           }
-                        }
-                     }
-                  }
+                  OsSysLog::add(LOG_FACILITY, PRI_INFO, "ACDServer::Set - Restart %s", mDomain.data());
+                  bWatchDogRestarted = true;
                }
             }
          }

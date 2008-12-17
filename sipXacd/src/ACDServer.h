@@ -23,6 +23,7 @@
 #define LOG_FACILITY                  FAC_ACD
 
 #define ACD_SERVER_NAME               "sipxacd"
+#define ACD_SERVER_ALIAS              "ACDServer"   // matches the name from the process definition file
 
 // Provisioning Tag Definitions
 #define ACD_SERVER_TAG                "acd-server"
