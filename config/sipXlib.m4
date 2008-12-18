@@ -663,9 +663,11 @@ AC_DEFUN([CHECK_POSTGRES],
       [The PostgreSQL user, default is postgres]),
     [POSTGRESQL_USER=${withval}],[POSTGRESQL_USER=postgres])
   AC_SUBST([POSTGRESQL_USER])
-  if test -f /usr/include/pgsql/libpq-fe.h ; then
+  if test -d /usr/include/pgsql ; then
     AC_SUBST(POSTGRESQL_INLCLUDE,--with-pgsql-include-dir=/usr/include/pgsql)
   fi
+  AC_MSG_NOTICE([POSTGRESQL_USER = $POSTGRESQL_USER])
+  AC_MSG_NOTICE([POSTGRESQL_INCLUDE = $POSTGRESQL_INCLUDE])
 ])
 
 # This allows configuring where the script that starts sipXecs gets installed
