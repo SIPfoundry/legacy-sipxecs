@@ -809,7 +809,7 @@ public:
 
       SipMessage testMsg(message, strlen(message));
       SipMessage testRsp;
-    
+      
       CPPUNIT_ASSERT_EQUAL(SipRouter::SendResponse,mSipRouter->proxyMessage(testMsg, testRsp));
       CPPUNIT_ASSERT_EQUAL(HTTP_PROXY_UNAUTHORIZED_CODE, testRsp.getResponseStatusCode());
 
@@ -831,9 +831,8 @@ public:
 
       SipMessage testMsg(message, strlen(message));
       SipMessage testRsp;
-    
-      CPPUNIT_ASSERT_EQUAL(SipRouter::SendResponse,mSipRouter->proxyMessage(testMsg, testRsp));
-      CPPUNIT_ASSERT_EQUAL(HTTP_PROXY_UNAUTHORIZED_CODE, testRsp.getResponseStatusCode());
+      // exception - PAI header is only applicable for out-of-dialog INVITEs
+      CPPUNIT_ASSERT_EQUAL(SipRouter::SendRequest,mSipRouter->proxyMessage(testMsg, testRsp));
    }
 
    void testProxyChallengeDialogForming_Options()

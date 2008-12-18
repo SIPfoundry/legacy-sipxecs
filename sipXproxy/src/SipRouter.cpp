@@ -1112,12 +1112,7 @@ bool SipRouter::isPAIdentityApplicable(const SipMessage& sipRequest)
        requestIsAuthenticated = sipxIdentity.getIdentity(authUser);
    }      
 
-   // All out-of-dialog REQUESTS are authenticated (with two exceptions) whereas all in-dialog
-   // request aren't. The presence of a To-Tag is used to determine if a REQUEST is out-of-dialog or not. 
-   // EXCEPTION 1: REGISTER requests are not authenticated. sipXregistrar is in a better position
-   // to authenticate these.
-   // EXCEPTION 2: OPTIONS requests are also not authenticated. They are very useful for debugging
-   // purposes, hence we make an exception for them.
+   // Only out-of-dialog INVITE requests are authenticated
    if (!requestIsAuthenticated) 
    {
        UtlString method;
@@ -1128,13 +1123,10 @@ bool SipRouter::isPAIdentityApplicable(const SipMessage& sipRequest)
        sipRequest.getToUrl(toUrl);
        toUrl.getFieldParameter("tag", toTag);
 
-       if(toTag.isNull())
+       if(toTag.isNull() &&
+          0 == method.compareTo(SIP_INVITE_METHOD, UtlString::ignoreCase))
        {
-           if ((0 != method.compareTo(SIP_REGISTER_METHOD, UtlString::ignoreCase)) &&
-               (0 != method.compareTo(SIP_OPTIONS_METHOD, UtlString::ignoreCase)) )
-           {
-               result = true;
-           }
+           result = true;
        }
    }
 
