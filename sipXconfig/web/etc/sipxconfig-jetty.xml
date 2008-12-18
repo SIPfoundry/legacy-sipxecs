@@ -49,19 +49,4 @@
     </Arg>
   </Call>
 
-  <Call name="addWebApplication">
-	  <Arg>/cmcprov</Arg>
-	  <Arg><SystemProperty name="jetty.lib.dir"/>/cmcprov.war</Arg>
-	  <Set name="extractWAR">true</Set>
-  </Call>
-
 </Configure>
-
-
-
-
-
-
-
-
-
