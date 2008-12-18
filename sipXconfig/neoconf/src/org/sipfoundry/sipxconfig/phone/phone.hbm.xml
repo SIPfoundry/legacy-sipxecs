@@ -63,4 +63,8 @@
     <![CDATA[select distinct line.phone from Line as line join line.user as line_user where line_user.id = :userId]]>
   </query>
   
+  <query name="phonesByUserIdAndPhoneModel">
+    <![CDATA[select distinct line.phone from Line as line join line.user as line_user where line_user.id = :userId and line.phone.modelId = :modelId]]>
+  </query>
+
 </hibernate-mapping>

@@ -193,6 +193,17 @@ public class PhoneTestDb extends SipxDatabaseTestCase {
         assertEquals("unittest-sample phone1", p.getDescription());
     }
 
+    public void testPhonesByUserIdAndPhoneModel() throws Exception {
+        TestHelper.cleanInsertFlat("common/TestUserSeed.db.xml");
+        TestHelper.cleanInsertFlat("phone/EndpointLineSeed.xml");
+        Collection phones = context.getPhonesByUserIdAndPhoneModel(new Integer(1000), "testPhoneModel");
+        assertEquals(1, phones.size());
+        Phone p = (Phone) phones.iterator().next();
+        assertEquals("unittest-sample phone1", p.getDescription());
+        phones = context.getPhonesByUserIdAndPhoneModel(new Integer(1000), "unknownModel");
+        assertEquals(0, phones.size());
+    }
+
     public void testDeleteUserRemoveLines() throws Exception {
         TestHelper.cleanInsertFlat("common/TestUserSeed.db.xml");
         TestHelper.cleanInsertFlat("phone/EndpointLineSeed.xml");

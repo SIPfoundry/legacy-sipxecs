@@ -113,4 +113,6 @@ public interface PhoneContext extends DataObjectSource {
     Collection<PhonebookEntry> getPhonebookEntries(Phone phone);
 
     SpeedDial getSpeedDial(Phone phone);
+
+    Collection<Phone> getPhonesByUserIdAndPhoneModel(Integer userId, String modelId);
 }

@@ -46,6 +46,8 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
 
     private static final String QUERY_PHONE_ID_BY_SERIAL_NUMBER = "phoneIdsWithSerialNumber";
 
+    private static final String USER_ID = "userId";
+
     private CoreContext m_coreContext;
 
     private SettingDao m_settingDao;
@@ -265,8 +267,20 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
     }
 
     public Collection<Phone> getPhonesByUserId(Integer userId) {
-        return getHibernateTemplate().findByNamedQueryAndNamedParam("phonesByUserId", "userId",
+        return getHibernateTemplate().findByNamedQueryAndNamedParam("phonesByUserId", USER_ID,
                 userId);
+    }
+
+    public Collection<Phone> getPhonesByUserIdAndPhoneModel(Integer userId, String modelId) {
+        String[] paramsNames = {
+            USER_ID, "modelId"
+        };
+        Object[] paramsValues = {
+            userId, modelId
+        };
+        Collection<Phone> phones = getHibernateTemplate().findByNamedQueryAndNamedParam(
+                "phonesByUserIdAndPhoneModel", paramsNames, paramsValues);
+        return phones;
     }
 
     public void addToGroup(Integer groupId, Collection<Integer> ids) {
