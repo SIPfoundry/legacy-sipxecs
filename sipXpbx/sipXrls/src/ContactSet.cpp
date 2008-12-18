@@ -293,7 +293,12 @@ void ContactSet::notifyEventCallback(const UtlString* dialogHandle,
                const char* state = contact_element->Attribute("state");
                // Get the id attribute
                const char* id = contact_element->Attribute("id");
-               // Get the URI content. Start with the GRUU address.
+
+               // Get the Contact URI for the phone. If a GRUU address is present we should
+               // use that as the Contact URI. Otherwise, use the contact URI present in the 
+               // "uri" element, and append any path headers that are present to the ROUTE 
+               // header parameter in the URI. This will ensure proper routing in HA systems.
+               // Please refer to XECS-1694 for more details.
 
                UtlString* uri_allocated = new UtlString;
                UtlBoolean check_uri = TRUE;
@@ -304,21 +309,22 @@ void ContactSet::notifyEventCallback(const UtlString* dialogHandle,
                   UtlString pub_gruu_uri (pub_gruu_element->Attribute("uri"));
                   if(!pub_gruu_uri.isNull())
                   {
-                     // Check the URI Scheme
+                     // Check the URI Scheme. Only accept the GRUU address if it is of either 
+                     // a sip or sips scheme
                      Url tmp (pub_gruu_uri, TRUE );
                      Url::Scheme uriScheme = tmp.getScheme();
-                     if(Url::SipUrlScheme != uriScheme &&
-                        Url::SipsUrlScheme != uriScheme)
+                     if(Url::SipUrlScheme == uriScheme ||
+                        Url::SipsUrlScheme == uriScheme)
                      {
-                        // default to sip uri scheme
-                        tmp.setScheme(Url::SipUrlScheme);
+                        tmp.removeAngleBrackets();
+                        tmp.getUri(*uri_allocated);
+                        check_uri = FALSE;
                      }
-                     tmp.removeAngleBrackets();
-                     tmp.getUri(*uri_allocated);
-                     check_uri = FALSE;
                   }
                }
 
+               // If we did not find a GRUU address, then use the address in the "uri" element as the
+               // contact URI, and check for path headers. 
                if(check_uri)
                {
                   TiXmlNode* u = contact_element->FirstChild("uri");
@@ -326,7 +332,9 @@ void ContactSet::notifyEventCallback(const UtlString* dialogHandle,
                   {
                      textContentShallow(*uri_allocated, u);
                      UtlString tmpString (*uri_allocated);
-                     // Account for any path headers
+
+                     // Iterate through all the path header elements. Path headers are stored in the
+                     // "unknown-param" elements that have a "name" attribute value of "path". 
                      for (TiXmlNode* unknown_param_node = 0;
                           (unknown_param_node = contact_node->IterateChildren("unknown-param",
                                                                                unknown_param_node));
@@ -342,11 +350,11 @@ void ContactSet::notifyEventCallback(const UtlString* dialogHandle,
                            {
                               Url contact_uri(*uri_allocated, TRUE);
 
+                              // there is already a Route header parameter in the contact; append it to the
+                              // Route derived from the Path vector.
                               UtlString existingRouteValue;
                               if ( contact_uri.getHeaderParameter(SIP_ROUTE_FIELD, existingRouteValue))
                               {
-                                 // there is already a Route header parameter in the contact; append it to the
-                                 // Route derived from the Path vector.
                                  pathVector.append(SIP_MULTIFIELD_SEPARATOR);
                                  pathVector.append(existingRouteValue);
                               }
@@ -358,6 +366,7 @@ void ContactSet::notifyEventCallback(const UtlString* dialogHandle,
                      }
                   }
                }
+
                // Only process <contact> elements that have the needed values.
                if (state && state[0] != '\0' &&
                    id && id[0] != '\0' &&
