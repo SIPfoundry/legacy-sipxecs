@@ -4,11 +4,10 @@
     Verify that the specified TFTP server is functioning properly.
   </description>
   <longDescription>
-      Phone configuration files produced by the SIPxchange Configuration Server
-      can optionally be served by a TFTP server. This test verifies that
-      the specified TFTP server can be used to retrieve a special phone
-      configuration test file which has been produced by the Configuration
-      Server.
+    Phone configuration files produced by the SIPxchange Configuration Server
+    can optionally be served by a TFTP server. This test verifies that
+    the specified TFTP server can be used to retrieve a special phone
+    configuration test file which has been produced by the Configuration Server.
   </longDescription>
   <command>
     <exec>preflight</exec>

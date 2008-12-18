@@ -1,0 +1,25 @@
+<test name="master">
+  <label>Configuration server location</label>
+  <description>Verify CONFIG_SERVER_HOST location</description>
+  <command>
+    <exec>sipx-test-master</exec>
+  </command>
+  <results>
+    <result exit="0">
+      <status>Success</status>
+      <msg>The test was successful</msg>
+    </result>
+    <result exit="1">
+      <status>Error</status>
+      <msg>CONFIG_SERVER_HOST is not set properly</msg>
+    </result>
+    <result exit="2">
+      <status>Error</status>
+      <msg>CONFIG_SERVER_ADDR is not set properly</msg>
+    </result>
+    <result exit="3">
+      <status>Error</status>
+      <msg>Mismatched Configuration Server data</msg>
+    </result>
+  </results>
+</test>

@@ -1,0 +1,40 @@
+#!/bin/sh
+#
+# Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+# Contributors retain copyright to elements licensed under a Contributor Agreement.
+# Licensed to the User under the LGPL license.
+
+
+    Status=0
+
+    badNames=`mktemp -t sipxpbx.badnames.XXXXXX`
+    trap "rm $badNames 2>/dev/null" EXIT
+    cat /dev/null > ${badNames}
+    sed 's/#.*//' /etc/hosts \
+    | awk '$1 == "127.0.0.1" {for (n = 2; n <= NF; n++) print $n;}' \
+    | while read name ; \
+    do
+        case ${name} in
+            localhost)
+                ;;
+            localhost.localdomain)
+                ;;
+            *)
+                echo "      ${name}" >> ${badNames}
+                ;;
+        esac
+    done
+    if [ -s ${badNames} ]
+    then
+        cat <<EOF
+        The 127.0.0.1 address should map to only the names
+        'localhost.localdomain' and 'localhost'.
+        Any other name for that address may cause routing or authentication errors.
+        Remove the following names from the 127.0.0.1 line in /etc/hosts:
+
+EOF
+        cat ${badNames}
+        Status=1
+    fi
+    rm -f ${badNames}
+    exit $Status

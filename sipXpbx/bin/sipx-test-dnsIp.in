@@ -1,0 +1,21 @@
+#!/bin/sh
+#
+# Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+# Contributors retain copyright to elements licensed under a Contributor Agreement.
+# Licensed to the User under the LGPL license.
+
+Status=0
+
+. @SIPX_LIBEXECDIR@/sipx-utils.sh || exit 1000
+
+myDomain=`sipx_config_value @SIPX_CONFDIR@/domain-config SIP_DOMAIN_NAME`
+myIp=`sipx_config_value @SIPX_CONFDIR@/sipXproxy-config SIPX_PROXY_BIND_IP 2> /dev/null`
+if ! sip_resolves_to ${myDomain} ${myIp}; then
+       cat <<ERROR
+       SIP route to SIPXCHANGE_DOMAIN_NAME '${myDomain}' is not to my IP address: ${myIp}
+       See the installation guide on setting the DNS SRV records and domain names
+ERROR
+       Status=1
+fi
+
+exit $Status

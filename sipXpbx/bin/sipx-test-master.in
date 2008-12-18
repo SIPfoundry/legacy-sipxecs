@@ -1,0 +1,26 @@
+#!/bin/sh
+#
+# Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+# Contributors retain copyright to elements licensed under a Contributor Agreement.
+# Licensed to the User under the LGPL license.
+
+Status=0
+    if [ "${CONFIG_SERVER_HOST}"x = ""x ]
+    then
+        echo "CONFIG_SERVER_HOST is not set in @SIPX_CONFDIR@/config.defs"
+        Status=1
+    elif [ "${CONFIG_SERVER_ADDR}"x = ""x ]
+    then
+        echo "CONFIG_SERVER_ADDR is not set in @SIPX_CONFDIR@/config.defs"
+        Status=2
+    else
+        local master_addr=`dns_a ${CONFIG_SERVER_HOST}`
+        if [ "${master_addr}" != "${CONFIG_SERVER_ADDR}" ]
+        then
+            echo "Mismatched Config Server configuration data:"
+            echo "   CONFIG_SERVER_HOST '${CONFIG_SERVER_HOST}' -> '${master_addr}'"
+            echo "   CONFIG_SERVER_ADDR '${CONFIG_SERVER_ADDR}'"
+            Status=3
+        fi
+    fi
+exit $Status

@@ -14,10 +14,22 @@ bin_SCRIPTS = \
 	 sipxlocalization \
 	 check-fqdn \
 	 sipx-archive-common \
-	 ipcclean.pl
+	 ipcclean.pl \
+	 sipx-test-dnsIp \
+	 sipx-test-ssl \
+	 sipx-test-selinux \
+	 sipx-test-rpmnew \
+         sipx-test-localhostConfigured \
+         sipx-test-localhostShared \
+         sipx-test-tmp \
+	 sipx-test-apache \
+         sipx-test-hostname \
+         sipx-test-master \
+         sipx-test-maxfds
 
 SipxLibexecScripts = \
 	sipx-strip-db-secrets.pl
+
 
 SipxLibexecPythonScripts = \
 	 sipx_setup_common.py
@@ -35,12 +47,23 @@ ${PACKAGE}-config: $(top_srcdir)/config/sipX-config.in $(top_builddir)/BUILDSTAM
 SCRIPT_TEMPLATES = \
 	sipx-snapshot.in \
 	initial-config.in \
+	sipx-test-dnsIp.in \
+	sipx-test-ssl.in \
+	sipx-test-selinux.in \
+	sipx-test-rpmnew.in \
+        sipx-test-localhostConfigured.in \
+        sipx-test-localhostShared.in \
+	sipx-test-apache.in \
+        sipx-test-hostname.in \
+        sipx-test-master.in \
 	sipx-backup.in \
 	sipx-restore.in \
 	sipx-sendmail-configure.in \
 	sipxlocalization.in \
 	check-fqdn.in \
-	sipx-archive-common.in
+	sipx-archive-common.in \
+        sipx-test-tmp.in \
+        sipx-test-maxfds.in
 
 PythonScripts = \
 	sipx-setup.in \
