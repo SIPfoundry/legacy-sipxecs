@@ -33,6 +33,11 @@
 
   <bean id="whacker" class="org.sipfoundry.sipxconfig.admin.Whacker">
     <property name="processContext" ref="sipxProcessContext" />
+    <property name="services">
+      <list>
+        <ref bean="sipxMediaService" />
+      </list>
+    </property>
   </bean>
 
   <bean id="initializeSystemTask" class="org.sipfoundry.sipxconfig.admin.DataInitializer">
@@ -67,6 +72,7 @@
     <property name="phoneProfileManager" ref="phoneProfileManager" />
     <property name="taskName" value="first-run" />
     <property name="locationsManager" ref="locationsManager" />
+    <property name="sipxServiceManager" ref="sipxServiceManager" />
   </bean>
 
   <bean id="exportCsv" class="org.sipfoundry.sipxconfig.admin.ExportCsv">

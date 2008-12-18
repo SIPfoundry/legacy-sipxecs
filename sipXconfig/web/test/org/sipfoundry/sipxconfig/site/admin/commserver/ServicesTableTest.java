@@ -18,12 +18,13 @@ import org.apache.tapestry.test.Creator;
 import org.easymock.EasyMock;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
-import org.sipfoundry.sipxconfig.admin.commserver.Process;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext.Command;
-import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessModel.ProcessName;
 import org.sipfoundry.sipxconfig.components.SelectMap;
 import org.sipfoundry.sipxconfig.service.SipxProxyService;
+import org.sipfoundry.sipxconfig.service.SipxServiceManager;
+
+import static org.easymock.EasyMock.*;
 
 public class ServicesTableTest extends TestCase {
 
@@ -37,6 +38,7 @@ public class ServicesTableTest extends TestCase {
         m_out = (ServicesTable) pageCreator.newInstance(ServicesTable.class);
 
         SipxProxyService proxyService = new SipxProxyService();
+        proxyService.setProcessName("SIPXProxy");
         m_location = new Location();
         m_location.addService(proxyService);
         PropertyUtils.write(m_out, "serviceLocation", m_location);
@@ -45,8 +47,14 @@ public class ServicesTableTest extends TestCase {
         PropertyUtils.write(m_out, "sipxProcessContext", m_sipxProcessContext);
 
         SelectMap selectMap = new SelectMap();
-        selectMap.setSelected(new Process(ProcessName.PROXY), true);
+        selectMap.setSelected("SIPXProxy", true);
         PropertyUtils.write(m_out, "selections", selectMap);
+
+        SipxServiceManager serviceManager = createMock(SipxServiceManager.class);
+        serviceManager.getServiceByName("SIPXProxy");
+        expectLastCall().andReturn(proxyService).atLeastOnce();
+        replay(serviceManager);
+        PropertyUtils.write(m_out, "sipxServiceManager", serviceManager);
     }
 
     public void testRestart() {

@@ -11,7 +11,6 @@ package org.sipfoundry.sipxconfig.service;
 import java.util.Arrays;
 
 import org.sipfoundry.sipxconfig.admin.commserver.ConflictingFeatureCodeValidator;
-import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessModel.ProcessName;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
 public class SipxRegistrarService extends SipxService {
@@ -19,7 +18,6 @@ public class SipxRegistrarService extends SipxService {
     public static final String BEAN_ID = "sipxRegistrarService";
 
     private static final String VOICEMAIL_SERVER = "https://localhost";
-    private static final ProcessName PROCESS_NAME = ProcessName.REGISTRAR;
 
     private String m_registrarEventSipPort;
     private String m_mediaServerSipSrvOrHostport;
@@ -87,11 +85,6 @@ public class SipxRegistrarService extends SipxService {
         new ConflictingFeatureCodeValidator().validate(Arrays.asList(new Setting[] {
             getSettings(), presenceService.getSettings()
         }));
-    }
-
-    @Override
-    public ProcessName getProcessName() {
-        return PROCESS_NAME;
     }
 
     public String getDirectedCallPickupCode() {

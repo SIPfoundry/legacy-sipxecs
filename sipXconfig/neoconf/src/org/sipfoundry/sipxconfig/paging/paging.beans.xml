@@ -8,7 +8,7 @@
     <property name="template" value="sipxpage/sipxpage.properties.vm" />
     <property name="name" value="sipxpage.properties" />
     <property name="sipxServiceManager" ref="sipxServiceManager" />
-    <property name="pagingContext" ref="pagingContext"/>
+    <property name="pagingContext" ref="pagingContext" />
   </bean>
 
   <bean id="pagingServer" class="org.sipfoundry.sipxconfig.paging.PagingServer" scope="prototype">
@@ -24,7 +24,8 @@
   <bean id="pagingProvisioningContextImpl" class="org.sipfoundry.sipxconfig.paging.PagingProvisioningContextImpl">
     <property name="processContext" ref="sipxProcessContext" />
     <property name="replicationContext" ref="sipxReplicationContext" />
-    <property name="sipxServiceManager" ref="sipxServiceManager"/>
+    <property name="sipxServiceManager" ref="sipxServiceManager" />
+    <property name="sipxPageService" ref="sipxPageService" />
   </bean>
 
   <alias alias="pagingProvisioningContext" name="pagingProvisioningContextImpl" />

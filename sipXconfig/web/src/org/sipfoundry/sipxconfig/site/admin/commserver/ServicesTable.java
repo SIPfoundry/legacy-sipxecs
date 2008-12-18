@@ -12,6 +12,7 @@ package org.sipfoundry.sipxconfig.site.admin.commserver;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.ArrayUtils;
@@ -30,9 +31,7 @@ import org.sipfoundry.sipxconfig.acd.AcdContext;
 import org.sipfoundry.sipxconfig.acd.AcdServer;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
-import org.sipfoundry.sipxconfig.admin.commserver.Process;
 import org.sipfoundry.sipxconfig.admin.commserver.ServiceStatus;
-import org.sipfoundry.sipxconfig.admin.commserver.ServiceStatus.Status;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.components.ObjectSelectionModel;
@@ -52,6 +51,8 @@ import org.sipfoundry.sipxconfig.site.service.EditProxyService;
 import org.sipfoundry.sipxconfig.site.service.EditRegistrarService;
 import org.sipfoundry.sipxconfig.site.service.EditResourceListService;
 import org.sipfoundry.sipxconfig.site.service.EditStatusService;
+
+import static org.sipfoundry.sipxconfig.admin.commserver.ServiceStatus.Status.Undefined;
 
 public abstract class ServicesTable extends BaseComponent {
 
@@ -182,10 +183,9 @@ public abstract class ServicesTable extends BaseComponent {
 
             Collection<ServiceStatus> serviceStatusList = new ArrayList<ServiceStatus>();
             for (LocationSpecificService service : location.getServices()) {
-                if (service.getSipxService().getProcessName() != null) {
-                    Process process = getSipxProcessContext().getProcess(
-                            service.getSipxService().getProcessName());
-                    serviceStatusList.add(new ServiceStatus(process, Status.Undefined));
+                String serviceName = service.getSipxService().getProcessName();
+                if (serviceName != null) {
+                    serviceStatusList.add(new ServiceStatus(serviceName, Undefined));
                 }
             }
             return serviceStatusList.toArray();
@@ -217,23 +217,13 @@ public abstract class ServicesTable extends BaseComponent {
 
     public void removeService() {
         manageServices(SipxProcessContext.Command.STOP);
-        Collection<Process> selectedProcesses = getSelections().getAllSelected();
-        for (Process process : selectedProcesses) {
-            getServiceLocation().removeServiceByBeanId(getSipxServiceForProcess(process).getBeanId());
+        Collection<String> selectedNames = getSelections().getAllSelected();
+        for (String name : selectedNames) {
+            SipxService service = getSipxServiceManager().getServiceByName(name);
+            getServiceLocation().removeServiceByBeanId(service.getBeanId());
         }
         getLocationsManager().storeLocation(getServiceLocation());
         refresh();
-    }
-
-    private SipxService getSipxServiceForProcess(Process process) {
-        Collection<LocationSpecificService> allServices = getServiceLocation().getServices();
-        for (LocationSpecificService service : allServices) {
-            if (service.getSipxService().getProcessName().getName().equals(process.getName())) {
-                return service.getSipxService();
-            }
-        }
-
-        return null;
     }
 
     public void start() {
@@ -252,11 +242,19 @@ public abstract class ServicesTable extends BaseComponent {
     }
 
     private void manageServices(SipxProcessContext.Command operation) {
-        Collection<Process> services = getSelections().getAllSelected();
-        if (services == null) {
+        Collection<String> serviceNames = getSelections().getAllSelected();
+        if (serviceNames == null) {
             return;
         }
         try {
+            SipxServiceManager sipxServiceManager = getSipxServiceManager();
+            List<SipxService> services = new ArrayList<SipxService>(serviceNames.size());
+            for (String name : serviceNames) {
+                SipxService service = sipxServiceManager.getServiceByName(name);
+                if (service != null) {
+                    services.add(service);
+                }
+            }
             getSipxProcessContext().manageServices(getServiceLocation(), services, operation);
         } catch (UserException e) {
             IValidationDelegate validator = TapestryUtils.getValidator(this);

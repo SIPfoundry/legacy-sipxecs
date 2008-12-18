@@ -1,19 +1,17 @@
 /*
  *
  *
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  *
  */
 package org.sipfoundry.sipxconfig.paging;
 
 import java.util.Arrays;
 
-import org.sipfoundry.sipxconfig.admin.commserver.Process;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
-import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessModel;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.service.SipxPageService;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
@@ -27,6 +25,8 @@ public class PagingProvisioningContextImpl implements PagingProvisioningContext 
 
     private SipxProcessContext m_processContext;
 
+    private SipxPageService m_sipxPageService;
+
     private void replicatePagingConfig() {
         SipxPageService pageService = (SipxPageService) m_sipxServiceManager
                 .getServiceByBeanId(SipxPageService.BEAN_ID);
@@ -39,8 +39,7 @@ public class PagingProvisioningContextImpl implements PagingProvisioningContext 
      */
     public void deploy() {
         replicatePagingConfig();
-        Process service = m_processContext.getProcess(SipxProcessModel.ProcessName.PAGE_SERVER);
-        m_processContext.restartOnEvent(Arrays.asList(service), PagingServerActivatedEvent.class);
+        m_processContext.restartOnEvent(Arrays.asList(m_sipxPageService), PagingServerActivatedEvent.class);
     }
 
     @Required
@@ -58,4 +57,8 @@ public class PagingProvisioningContextImpl implements PagingProvisioningContext 
         m_sipxServiceManager = sipxServiceManager;
     }
 
+    @Required
+    public void setSipxPageService(SipxPageService sipxPageService) {
+        m_sipxPageService = sipxPageService;
+    }
 }

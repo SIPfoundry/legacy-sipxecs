@@ -1,43 +1,41 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.admin;
 
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.TimeZone;
 import java.util.Timer;
 import java.util.TimerTask;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sipfoundry.sipxconfig.admin.commserver.Process;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
-import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessModel.ProcessName;
 import org.sipfoundry.sipxconfig.common.ApplicationInitializedEvent;
 import org.sipfoundry.sipxconfig.common.DSTChangeEvent;
+import org.sipfoundry.sipxconfig.service.SipxService;
+import org.springframework.beans.factory.annotation.Required;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 
 /** Restart media server and status server periodically due to memory leaks */
 public class Whacker implements ApplicationListener {
     class WhackerTask extends TimerTask {
+        @Override
         public void run() {
             LOG.info("Restarting the media server");
-            m_processContext.manageServices(Arrays.asList(SERVICES), SipxProcessContext.Command.RESTART);
+            m_processContext.manageServices(m_services, SipxProcessContext.Command.RESTART);
         }
     }
 
-    static final Process[] SERVICES = {
-        new Process(ProcessName.MEDIA_SERVER)
-    };
     private static final Log LOG = LogFactory.getLog(Whacker.class);
 
     private SipxProcessContext m_processContext;
@@ -47,6 +45,13 @@ public class Whacker implements ApplicationListener {
     private String m_scheduledDay = ScheduledDay.SUNDAY.getName();
     private Timer m_timer;
     private boolean m_allowStaleDate; // for testing only
+
+    private List<SipxService> m_services;
+
+    @Required
+    public void setServices(List<SipxService> services) {
+        m_services = services;
+    }
 
     public void setProcessContext(SipxProcessContext processContext) {
         m_processContext = processContext;
@@ -111,16 +116,14 @@ public class Whacker implements ApplicationListener {
         sched.setTime(getTimeOfDayValue());
         sched.setAllowStaleDate(m_allowStaleDate); // for testing only
         sched.schedule(m_timer, new WhackerTask());
-        LOG.info("Whacker is scheduled: " + sched.getScheduledDay().getName() + ", "
-                + getTimeOfDayValue());
+        LOG.info("Whacker is scheduled: " + sched.getScheduledDay().getName() + ", " + getTimeOfDayValue());
     }
 
     /** Convert the ScheduledDayName string to a ScheduledDay and return it */
     ScheduledDay getScheduledDayEnum() {
         ScheduledDay day = ScheduledDay.getScheduledDay(getScheduledDay());
         if (day == null) {
-            throw new RuntimeException("Whacker: unrecognized scheduled day: "
-                    + getScheduledDay());
+            throw new RuntimeException("Whacker: unrecognized scheduled day: " + getScheduledDay());
         }
         return day;
     }

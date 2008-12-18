@@ -51,7 +51,7 @@ public class AlarmContextImpl extends SipxHibernateDaoSupport implements AlarmCo
     private AlarmServerConfiguration m_alarmServerConfiguration;
     private AlarmConfiguration m_alarmsConfiguration;
     private String m_sipxUser;
-    private String m_hostName;    
+    private String m_hostName;
     private String m_logDirectory;
     private String m_configDirectory;
     private String m_alarmsStringsDirectory;
@@ -79,8 +79,8 @@ public class AlarmContextImpl extends SipxHibernateDaoSupport implements AlarmCo
     @Required
     public void setAlarmsConfiguration(AlarmConfiguration alarmConfiguration) {
         m_alarmsConfiguration = alarmConfiguration;
-    }    
-    
+    }
+
     public String getSipxUser() {
         return m_sipxUser;
     }
@@ -172,7 +172,7 @@ public class AlarmContextImpl extends SipxHibernateDaoSupport implements AlarmCo
         // set default email address (SIPXPBXUSER@localhost)
         server.setContacts(createDefaultContacts());
         return server;
-    }    
+    }
 
     private AlarmServerContacts createDefaultContacts() {
         AlarmServerContacts contacts = new AlarmServerContacts();
@@ -184,7 +184,7 @@ public class AlarmContextImpl extends SipxHibernateDaoSupport implements AlarmCo
     }
 
     private void saveAlarmServer(AlarmServer server) {
-        HibernateTemplate template = getHibernateTemplate(); 
+        HibernateTemplate template = getHibernateTemplate();
         template.saveOrUpdate(server);
         template.flush();
     }
@@ -198,7 +198,7 @@ public class AlarmContextImpl extends SipxHibernateDaoSupport implements AlarmCo
     private void replicateAlarmsConfiguration(List<Alarm> alarms) {
         m_alarmsConfiguration.generate(alarms);
         m_replicationContext.replicate(m_alarmsConfiguration);
-    }    
+    }
 
     public List<Alarm> getAlarmTypes(String configPath, String stringPath) {
         List<Alarm> alarms = parseAlarmsConfig(configPath);
@@ -268,5 +268,5 @@ public class AlarmContextImpl extends SipxHibernateDaoSupport implements AlarmCo
             return firstElement.getAttribute(atributeName);
         }
         return EMPTY;
-    }    
+    }
 }

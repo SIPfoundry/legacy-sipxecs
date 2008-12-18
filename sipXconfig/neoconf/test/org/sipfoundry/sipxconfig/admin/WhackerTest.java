@@ -1,16 +1,17 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.admin;
 
-import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.List;
 
 import junit.framework.AssertionFailedError;
 import junit.framework.TestCase;
@@ -19,18 +20,23 @@ import org.easymock.classextension.EasyMock;
 import org.easymock.classextension.IMocksControl;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
 import org.sipfoundry.sipxconfig.common.ApplicationInitializedEvent;
+import org.sipfoundry.sipxconfig.service.SipxMediaService;
+import org.sipfoundry.sipxconfig.service.SipxService;
 
 public class WhackerTest extends TestCase {
 
     public void testWhacker() throws Exception {
+        SipxService sipxMediaService = new SipxMediaService();
+        List<SipxService> services = Collections.singletonList(sipxMediaService);
+
         Whacker whacker = new Whacker();
+        whacker.setServices(services);
 
         // The Whacker is supposed to do a restart through the processContext.
         // Make a mock control that checks that.
         IMocksControl m_processControl = EasyMock.createStrictControl();
         SipxProcessContext processContext = m_processControl.createMock(SipxProcessContext.class);
-        processContext.manageServices(Arrays.asList(Whacker.SERVICES),
-                SipxProcessContext.Command.RESTART);
+        processContext.manageServices(services, SipxProcessContext.Command.RESTART);
         m_processControl.replay();
 
         whacker.setProcessContext(processContext);
@@ -61,13 +67,11 @@ public class WhackerTest extends TestCase {
         Whacker whacker = new Whacker();
 
         String dayNames[] = new String[] {
-            "Every day", "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday",
-            "Saturday"
+            "Every day", "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"
         };
         ScheduledDay[] days = new ScheduledDay[] {
-            ScheduledDay.EVERYDAY, ScheduledDay.SUNDAY, ScheduledDay.MONDAY,
-            ScheduledDay.TUESDAY, ScheduledDay.WEDNESDAY, ScheduledDay.THURSDAY,
-            ScheduledDay.FRIDAY, ScheduledDay.SATURDAY
+            ScheduledDay.EVERYDAY, ScheduledDay.SUNDAY, ScheduledDay.MONDAY, ScheduledDay.TUESDAY,
+            ScheduledDay.WEDNESDAY, ScheduledDay.THURSDAY, ScheduledDay.FRIDAY, ScheduledDay.SATURDAY
         };
         for (int i = 0; i < days.length; i++) {
             whacker.setScheduledDay(dayNames[i]);

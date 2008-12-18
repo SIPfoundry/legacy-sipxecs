@@ -16,10 +16,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
-import org.sipfoundry.sipxconfig.admin.commserver.Process;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext.Command;
-import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessModel.ProcessName;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanActivatedEvent;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.common.AlarmContext;
@@ -30,6 +28,8 @@ import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.gateway.GatewayContext;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.service.LocationSpecificService;
+import org.sipfoundry.sipxconfig.service.SipxService;
+import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
@@ -42,6 +42,7 @@ public class FirstRunTask implements ApplicationListener {
     private DomainManager m_domainManager;
     private DialPlanContext m_dialPlanContext;
     private SipxProcessContext m_processContext;
+    private SipxServiceManager m_sipxServiceManager;
     private String m_taskName;
     private AlarmContext m_alarmContext;
     private GatewayContext m_gatewayContext;
@@ -59,7 +60,7 @@ public class FirstRunTask implements ApplicationListener {
 
         m_alarmContext.replicateAlarmServer();
 
-        List restartable = m_processContext.getRestartable();
+        List<SipxService> restartable = m_sipxServiceManager.getRestartable();
         m_processContext.restartOnEvent(restartable, DialPlanActivatedEvent.class);
 
         enableServicesOnPrimaryServer();
@@ -78,13 +79,12 @@ public class FirstRunTask implements ApplicationListener {
         if (primaryLocation == null) {
             return;
         }
-        Collection<Process> processesToEnable = new ArrayList<Process>();
+        Collection<SipxService> processesToEnable = new ArrayList<SipxService>();
         Collection<LocationSpecificService> servicesForPrimaryLocation = primaryLocation.getServices();
         for (LocationSpecificService locationSpecificService : servicesForPrimaryLocation) {
             if (locationSpecificService.getEnableOnNextUpgrade()) {
-                ProcessName processName = locationSpecificService.getSipxService().getProcessName();
-                Process process = m_processContext.getProcess(processName);
-                processesToEnable.add(process);
+                SipxService sipxService = locationSpecificService.getSipxService();
+                processesToEnable.add(sipxService);
                 locationSpecificService.setEnableOnNextUpgrade(false);
             }
         }
@@ -192,5 +192,10 @@ public class FirstRunTask implements ApplicationListener {
     @Required
     public void setLocationsManager(LocationsManager locationsManager) {
         m_locationsManager = locationsManager;
+    }
+
+    @Required
+    public void setSipxServiceManager(SipxServiceManager sipxServiceManager) {
+        m_sipxServiceManager = sipxServiceManager;
     }
 }

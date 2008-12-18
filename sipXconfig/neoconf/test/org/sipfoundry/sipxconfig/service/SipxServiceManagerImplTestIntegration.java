@@ -9,6 +9,12 @@
  */
 package org.sipfoundry.sipxconfig.service;
 
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.expectLastCall;
+import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.same;
+import static org.easymock.EasyMock.verify;
+
 import java.util.Arrays;
 import java.util.Collection;
 
@@ -16,12 +22,6 @@ import org.hibernate.SessionFactory;
 import org.sipfoundry.sipxconfig.IntegrationTestCase;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.setting.ModelFilesContext;
-
-import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.replay;
-import static org.easymock.EasyMock.same;
-import static org.easymock.EasyMock.verify;
-import static org.easymock.EasyMock.expectLastCall;
 
 public class SipxServiceManagerImplTestIntegration extends IntegrationTestCase {
 

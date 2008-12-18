@@ -21,7 +21,6 @@ import org.apache.tapestry.event.PageEvent;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcess;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
-import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessModel;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.site.user_portal.UserBasePage;
 
@@ -60,8 +59,7 @@ public abstract class CdrPage extends UserBasePage implements PageBeginRenderLis
     public void pageBeginRender(PageEvent event) {
         SipxProcess crp = getCallResolverProcess();
         if (crp == null) {
-            crp = new SipxProcess(getLocationsManager(), getSipxProcessContext(),
-                    SipxProcessModel.ProcessName.CALL_RESOLVER);
+            crp = new SipxProcess(getLocationsManager(), getSipxProcessContext(), "CallResolver");
             setCallResolverProcess(crp);
         }
 

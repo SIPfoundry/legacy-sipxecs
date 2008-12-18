@@ -18,9 +18,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
-import org.sipfoundry.sipxconfig.admin.commserver.Process;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
-import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessModel.ProcessName;
+import org.sipfoundry.sipxconfig.service.SipxMrtgService;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Required;
 
@@ -40,6 +39,8 @@ public class MonitoringContextImpl implements MonitoringContext, InitializingBea
     private String m_communitySnmp;
 
     private SipxProcessContext m_processContext;
+
+    private SipxMrtgService m_mrtgService;
 
     /**
      * set and load mrtg config file object
@@ -66,6 +67,11 @@ public class MonitoringContextImpl implements MonitoringContext, InitializingBea
     @Required
     public void setProcessContext(SipxProcessContext processContext) {
         m_processContext = processContext;
+    }
+
+    @Required
+    public void setMrtgService(SipxMrtgService mrtgService) {
+        m_mrtgService = mrtgService;
     }
 
 
@@ -232,8 +238,7 @@ public class MonitoringContextImpl implements MonitoringContext, InitializingBea
     }
 
     private void restartMrtg() {
-        Process p = new Process(ProcessName.MRTG);
-        m_processContext.manageServices(Arrays.asList(p), SipxProcessContext.Command.RESTART);
+        m_processContext.manageServices(Arrays.asList(m_mrtgService), SipxProcessContext.Command.RESTART);
     }
 
     /**

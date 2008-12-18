@@ -13,7 +13,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessModel.ProcessName;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettings;
 import org.sipfoundry.sipxconfig.setting.Setting;
@@ -21,9 +22,10 @@ import org.springframework.beans.factory.annotation.Required;
 
 public abstract class SipxService extends BeanWithSettings {
 
+    private String m_processName;
+    private String m_beanId;
     private String m_modelName;
     private String m_modelDir;
-    private String m_beanId;
     private List<SipxServiceConfiguration> m_configurations;
     private String m_sipPort;
     private String m_logDir;
@@ -31,8 +33,16 @@ public abstract class SipxService extends BeanWithSettings {
     private String m_voicemailHttpsPort;
     private DomainManager m_domainManager;
     private Set<SipxServiceBundle> m_bundles;
+    private boolean m_restartable = true;
 
-    public abstract ProcessName getProcessName();
+    public String getProcessName() {
+        return m_processName;
+    }
+
+    @Required
+    public void setProcessName(String processName) {
+        m_processName = processName;
+    }
 
     public String getBeanId() {
         return m_beanId;
@@ -56,6 +66,17 @@ public abstract class SipxService extends BeanWithSettings {
 
     public void setModelDir(String modelDir) {
         m_modelDir = modelDir;
+    }
+
+    /**
+     * @param restartable true if it can/should be restarted from sipXconfig
+     */
+    public void setRestartable(boolean restartable) {
+        m_restartable = restartable;
+    }
+
+    public boolean isRestartable() {
+        return m_restartable;
     }
 
     public void setConfigurations(List<SipxServiceConfiguration> configurations) {
@@ -137,5 +158,22 @@ public abstract class SipxService extends BeanWithSettings {
     @Override
     protected Setting loadSettings() {
         return getModelFilesContext().loadModelFile(m_modelName, m_modelDir);
+    }
+
+    @Override
+    public final int hashCode() {
+        return new HashCodeBuilder().append(getBeanId()).toHashCode();
+    }
+
+    @Override
+    public final boolean equals(Object other) {
+        if (!(other instanceof SipxService)) {
+            return false;
+        }
+        if (this == other) {
+            return true;
+        }
+        SipxService proc = (SipxService) other;
+        return new EqualsBuilder().append(getBeanId(), proc.getBeanId()).isEquals();
     }
 }

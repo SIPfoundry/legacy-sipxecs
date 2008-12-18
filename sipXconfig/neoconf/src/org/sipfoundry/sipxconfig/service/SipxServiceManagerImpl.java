@@ -57,14 +57,32 @@ public class SipxServiceManagerImpl extends SipxHibernateDaoSupport<SipxService>
         Collection<SipxService> services = getHibernateTemplate().findByNamedQueryAndNamedParam(query, "beanId",
                 beanId);
 
-        // this is to handle a problem in unit tests where beans retrieved from
-        // hibernate
-        // do not have their spring attributes set
         for (SipxService sipxService : services) {
             ensureBeanIsInitialized(sipxService);
         }
 
         return DaoUtils.requireOneOrZero(services, query);
+    }
+
+    public SipxService getServiceByName(String name) {
+        Collection<SipxService> allServices = getAllServices();
+        for (SipxService service : allServices) {
+            if (name.equals(service.getProcessName())) {
+                return service;
+            }
+        }
+        return null;
+    }
+
+    public List<SipxService> getRestartable() {
+        Collection<SipxService> allServices = getAllServices();
+        List<SipxService> restartable = new ArrayList<SipxService>(allServices.size());
+        for (SipxService sipxService : allServices) {
+            if (sipxService.isRestartable()) {
+                restartable.add(sipxService);
+            }
+        }
+        return restartable;
     }
 
     public Collection<SipxService> getAllServices() {
@@ -93,6 +111,10 @@ public class SipxServiceManagerImpl extends SipxHibernateDaoSupport<SipxService>
         return rawBundles;
     }
 
+    /**
+     * This method handles problems in unit tests where beans retrieved from hibernate do not have
+     * their spring attributes set.
+     */
     private void ensureBeanIsInitialized(SipxService sipxService) {
         if (sipxService.getModelFilesContext() == null) {
             String beanId = sipxService.getBeanId();
@@ -159,7 +181,7 @@ public class SipxServiceManagerImpl extends SipxHibernateDaoSupport<SipxService>
             VersionInfo versionInfo = new VersionInfo();
             String version = versionInfo.getVersion();
             try {
-                api.setConfigVersion(m_host, service.getProcessName().getName(), version);
+                api.setConfigVersion(m_host, service.getProcessName(), version);
             } catch (XmlRpcRemoteException e) {
                 LOG.error(e);
             }

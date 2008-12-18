@@ -21,10 +21,10 @@ import org.apache.commons.collections.Factory;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessModel.ProcessName;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.service.LocationSpecificService;
 import org.sipfoundry.sipxconfig.service.SipxService;
+import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.sipfoundry.sipxconfig.xmlrpc.ApiProvider;
 import org.sipfoundry.sipxconfig.xmlrpc.XmlRpcRemoteException;
 import org.springframework.beans.factory.annotation.Required;
@@ -35,20 +35,15 @@ public class SipxProcessContextImpl implements SipxProcessContext, ApplicationLi
 
     private static final Log LOG = LogFactory.getLog(SipxProcessContextImpl.class);
 
-    private SipxProcessModel m_processModel;
-    private final EventsToServices<Process> m_eventsToServices = new EventsToServices<Process>();
+    private final EventsToServices<SipxService> m_eventsToServices = new EventsToServices<SipxService>();
     private String m_host;
     private LocationsManager m_locationsManager;
     private ApiProvider<ProcessManagerApi> m_processManagerApiProvider;
+    private SipxServiceManager m_sipxServiceManager;
 
     @Required
     public void setHost(String host) {
         m_host = host;
-    }
-
-    @Required
-    public void setProcessModel(SipxProcessModel model) {
-        m_processModel = model;
     }
 
     @Required
@@ -59,6 +54,11 @@ public class SipxProcessContextImpl implements SipxProcessContext, ApplicationLi
     @Required
     public void setProcessManagerApiProvider(ApiProvider processManagerApiProvider) {
         m_processManagerApiProvider = processManagerApiProvider;
+    }
+
+    @Required
+    public void setSipxServiceManager(SipxServiceManager sipxServiceManager) {
+        m_sipxServiceManager = sipxServiceManager;
     }
 
     /**
@@ -93,7 +93,7 @@ public class SipxProcessContextImpl implements SipxProcessContext, ApplicationLi
             List<String> locationServiceProcesses = new ArrayList<String>();
             for (LocationSpecificService service : location.getServices()) {
                 if (service.getSipxService().getProcessName() != null) {
-                    locationServiceProcesses.add(service.getSipxService().getProcessName().getName());
+                    locationServiceProcesses.add(service.getSipxService().getProcessName());
                 }
             }
 
@@ -107,19 +107,19 @@ public class SipxProcessContextImpl implements SipxProcessContext, ApplicationLi
                 st = ServiceStatus.Status.Undefined;
             }
 
-            Process process = m_processModel.getProcess(name);
-            if (process == null) {
+            SipxService service = m_sipxServiceManager.getServiceByName(name);
+            if (service == null) {
                 // Ignore unknown processes
                 LOG.warn("Unknown process name " + name + " received from: " + location.getProcessMonitorUrl());
             } else {
-                serviceStatusList.add(new ServiceStatus(process, st));
+                serviceStatusList.add(new ServiceStatus(name, st));
             }
         }
 
         return serviceStatusList.toArray(new ServiceStatus[serviceStatusList.size()]);
     }
 
-    public void manageServices(Collection<Process> processes, Command command) {
+    public void manageServices(Collection< ? extends SipxService> processes, Command command) {
         Location[] locations = m_locationsManager.getLocations();
         for (int i = 0; i < locations.length; i++) {
             Location location = locations[i];
@@ -127,12 +127,12 @@ public class SipxProcessContextImpl implements SipxProcessContext, ApplicationLi
         }
     }
 
-    public void manageServices(Location location, Collection<Process> processes, Command command) {
+    public void manageServices(Location location, Collection< ? extends SipxService> processes, Command command) {
         try {
             String[] processNames = new String[processes.size()];
             int i = 0;
-            for (Process process : processes) {
-                processNames[i++] = process.getName();
+            for (SipxService process : processes) {
+                processNames[i++] = process.getProcessName();
             }
 
             ProcessManagerApi api = m_processManagerApiProvider.getApi(location.getProcessMonitorUrl());
@@ -159,27 +159,11 @@ public class SipxProcessContextImpl implements SipxProcessContext, ApplicationLi
     }
 
     public void onApplicationEvent(ApplicationEvent event) {
-        Collection<Process> services = m_eventsToServices.getServices(event.getClass());
+        Collection<SipxService> services = m_eventsToServices.getServices(event.getClass());
         if (!services.isEmpty()) {
             // do not call if set is empty - it's harmless but it triggers topology.xml parsing
             manageServices(services, Command.RESTART);
         }
-    }
-
-    public List<Process> getRestartable() {
-        return m_processModel.getRestartable();
-    }
-
-    public Process getProcess(ProcessName name) {
-        return m_processModel.getProcess(name);
-    }
-
-    public List<Process> toProcessList(List<SipxService> services) {
-        List<Process> processes = new ArrayList(services.size());
-        for (SipxService service : services) {
-            processes.add(getProcess(service.getProcessName()));
-        }
-        return processes;
     }
 
     static final class EventsToServices<E> {
@@ -194,7 +178,7 @@ public class SipxProcessContextImpl implements SipxProcessContext, ApplicationLi
             m_map = MapUtils.lazyMap(new HashMap(), setFactory);
         }
 
-        public void addServices(Collection<E> services, Class eventClass) {
+        public void addServices(Collection< ? extends E> services, Class eventClass) {
             Set<E> serviceSet = m_map.get(eventClass);
             serviceSet.addAll(services);
         }

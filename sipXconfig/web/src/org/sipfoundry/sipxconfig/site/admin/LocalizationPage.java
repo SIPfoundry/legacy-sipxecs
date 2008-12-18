@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.site.admin;
@@ -24,15 +24,17 @@ import org.apache.tapestry.form.IPropertySelectionModel;
 import org.apache.tapestry.html.BasePage;
 import org.apache.tapestry.request.IUploadFile;
 import org.apache.tapestry.valid.ValidatorException;
-import org.sipfoundry.sipxconfig.admin.commserver.Process;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
-import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessModel;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.localization.LocalizationContext;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.domain.DomainConfigReplicatedEvent;
+import org.sipfoundry.sipxconfig.service.SipxMediaService;
+import org.sipfoundry.sipxconfig.service.SipxProxyService;
+import org.sipfoundry.sipxconfig.service.SipxRegistrarService;
+import org.sipfoundry.sipxconfig.service.SipxService;
 import org.sipfoundry.sipxconfig.site.common.AssetSelector;
 
 public abstract class LocalizationPage extends BasePage implements PageBeginRenderListener {
@@ -41,17 +43,26 @@ public abstract class LocalizationPage extends BasePage implements PageBeginRend
     @Bean
     public abstract SipxValidationDelegate getValidator();
 
-    @InjectObject(value = "spring:localizationContext")
+    @InjectObject("spring:localizationContext")
     public abstract LocalizationContext getLocalizationContext();
 
-    @InjectObject(value = "spring:dialPlanContext")
+    @InjectObject("spring:dialPlanContext")
     public abstract DialPlanContext getDialPlanContext();
 
-    @InjectObject(value = "spring:sipxProcessContext")
+    @InjectObject("spring:sipxProcessContext")
     public abstract SipxProcessContext getProcessContext();
 
-    @InjectObject(value = "spring:localizedLanguageMessages")
+    @InjectObject("spring:localizedLanguageMessages")
     public abstract LocalizedLanguageMessages getLocalizedLanguageMessages();
+
+    @InjectObject("spring:sipxMediaService")
+    public abstract SipxMediaService getSipxMediaService();
+
+    @InjectObject("spring:sipxRegistrarService")
+    public abstract SipxRegistrarService getSipxRegistrarService();
+
+    @InjectObject("spring:sipxProxyService")
+    public abstract SipxProxyService getSipxProxyService();
 
     public abstract IPropertySelectionModel getRegionList();
 
@@ -94,8 +105,7 @@ public abstract class LocalizationPage extends BasePage implements PageBeginRend
     protected void initLanguages() {
         String[] availableLanguages = getLocalizationContext().getInstalledLanguages();
         getLocalizedLanguageMessages().setAvailableLanguages(availableLanguages);
-        IPropertySelectionModel model = new ModelWithDefaults(getLocalizedLanguageMessages(),
-                availableLanguages);
+        IPropertySelectionModel model = new ModelWithDefaults(getLocalizedLanguageMessages(), availableLanguages);
         setLanguageList(model);
     }
 
@@ -111,8 +121,7 @@ public abstract class LocalizationPage extends BasePage implements PageBeginRend
             return getPage();
         }
 
-        ConfirmUpdateRegion updatePage = (ConfirmUpdateRegion) cycle
-                .getPage(ConfirmUpdateRegion.PAGE);
+        ConfirmUpdateRegion updatePage = (ConfirmUpdateRegion) cycle.getPage(ConfirmUpdateRegion.PAGE);
         updatePage.setRegion(getRegion());
         updatePage.setReturnPage(PAGE);
         return updatePage;
@@ -127,11 +136,8 @@ public abstract class LocalizationPage extends BasePage implements PageBeginRend
 
         if (exitCode > 0) {
             getDialPlanContext().activateDialPlan(true); // restartSBCDevices == true
-            List<Process> processList = Arrays.asList(new Process[] {
-                getProcessContext().getProcess(SipxProcessModel.ProcessName.MEDIA_SERVER),
-                getProcessContext().getProcess(SipxProcessModel.ProcessName.REGISTRAR),
-                getProcessContext().getProcess(SipxProcessModel.ProcessName.PROXY)
-            });
+            List<SipxService> processList = Arrays.asList(getSipxMediaService(), getSipxProxyService(),
+                    getSipxRegistrarService());
             getProcessContext().restartOnEvent(processList, DomainConfigReplicatedEvent.class);
             recordSuccess("message.label.languageChanged");
         } else if (exitCode < 0) {

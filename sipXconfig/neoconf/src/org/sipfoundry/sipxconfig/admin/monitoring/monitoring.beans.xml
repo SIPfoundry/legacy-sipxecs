@@ -22,6 +22,7 @@
     </property>
     <property name="processContext" ref="sipxProcessContext" />
     <property name="communitySnmp" value="sipxecs" />
+    <property name="mrtgService" ref="sipxMrtgService" />
   </bean>
 
   <bean id="mrtgTemplateConfig" class="org.sipfoundry.sipxconfig.admin.monitoring.MRTGConfig">

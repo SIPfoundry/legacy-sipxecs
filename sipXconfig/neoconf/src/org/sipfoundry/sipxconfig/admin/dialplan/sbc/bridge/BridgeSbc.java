@@ -10,18 +10,17 @@
 package org.sipfoundry.sipxconfig.admin.dialplan.sbc.bridge;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import org.sipfoundry.sipxconfig.admin.commserver.Process;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
-import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessModel.ProcessName;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDevice;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
 import org.sipfoundry.sipxconfig.device.ProfileContext;
 import org.sipfoundry.sipxconfig.gateway.GatewayContext;
 import org.sipfoundry.sipxconfig.gateway.SipTrunk;
+import org.sipfoundry.sipxconfig.service.SipxBridgeService;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingEntry;
 import org.springframework.beans.factory.annotation.Required;
@@ -32,6 +31,8 @@ public class BridgeSbc extends SbcDevice {
 
     private SipxProcessContext m_processContext;
 
+    private SipxBridgeService m_sipxBridgeService;
+
     @Required
     public void setGatewayContext(GatewayContext gatewayContext) {
         m_gatewayContext = gatewayContext;
@@ -40,6 +41,11 @@ public class BridgeSbc extends SbcDevice {
     @Required
     public void setProcessContext(SipxProcessContext processContext) {
         m_processContext = processContext;
+    }
+
+    @Required
+    public void setSipxBridgeService(SipxBridgeService sipxBridgeService) {
+        m_sipxBridgeService = sipxBridgeService;
     }
 
     @Override
@@ -118,7 +124,6 @@ public class BridgeSbc extends SbcDevice {
 
     @Override
     public void restart() {
-        Process p = new Process(ProcessName.SBC_BRIDGE);
-        m_processContext.manageServices(Arrays.asList(p), SipxProcessContext.Command.RESTART);
+        m_processContext.manageServices(Collections.singleton(m_sipxBridgeService), SipxProcessContext.Command.RESTART);
     }
 }

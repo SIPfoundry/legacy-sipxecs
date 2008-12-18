@@ -11,21 +11,12 @@ package org.sipfoundry.sipxconfig.service;
 
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
-import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessModel.ProcessName;
 import org.springframework.beans.factory.annotation.Required;
-
 public class SipxCallResolverService extends SipxService {
     public static final String BEAN_ID = "sipxCallResolverService";
 
-    private static final ProcessName PROCESS_NAME = ProcessName.CALL_RESOLVER;
-
     private int m_agentPort;
     private LocationsManager m_locationManager;
-
-    @Override
-    public ProcessName getProcessName() {
-        return PROCESS_NAME;
-    }
 
     public int getAgentPort() {
         return m_agentPort;

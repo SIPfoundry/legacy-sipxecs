@@ -23,5 +23,6 @@
     parent="sbcGeneric">
     <property name="gatewayContext" ref="gatewayContext" />
     <property name="processContext" ref="sipxProcessContext" />
+    <property name="sipxBridgeService" ref="sipxBridgeService" />
   </bean>
 </beans>

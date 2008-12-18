@@ -1,16 +1,15 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.site.admin.commserver;
 
 import org.apache.tapestry.components.IPrimaryKeyConverter;
-import org.sipfoundry.sipxconfig.admin.commserver.Process;
 import org.sipfoundry.sipxconfig.admin.commserver.ServiceStatus;
 import org.sipfoundry.sipxconfig.admin.commserver.ServiceStatus.Status;
 
@@ -22,7 +21,6 @@ public class ServerStatusSqueezeAdapter implements IPrimaryKeyConverter {
     }
 
     public Object getValue(Object primaryKey) {
-        Process process = new Process((String) primaryKey);
-        return new ServiceStatus(process, Status.Undefined);
+        return new ServiceStatus((String) primaryKey, Status.Undefined);
     }
 }

@@ -9,16 +9,8 @@
  */
 package org.sipfoundry.sipxconfig.service;
 
-import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessModel.ProcessName;
-
 public class SipxBridgeService extends SipxService {
     private static final String BEAN_ID = "sipxBridgeService";
-    private static final ProcessName PROCESS_NAME = ProcessName.SBC_BRIDGE;
-    
-    @Override
-    public ProcessName getProcessName() {
-        return PROCESS_NAME;
-    }
 
     @Override
     public String getBeanId() {

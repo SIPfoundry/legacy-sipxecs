@@ -9,17 +9,8 @@
  */
 package org.sipfoundry.sipxconfig.service;
 
-import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessModel.ProcessName;
-
 public class SipxFreeswitchService extends SipxService {
     public static final String BEAN_ID = "sipxFreeswitchService";
-
-    private static final ProcessName PROCESS_NAME = ProcessName.FREESWITCH_SERVER;
-
-    @Override
-    public ProcessName getProcessName() {
-        return PROCESS_NAME;
-    }
 
     @Override
     public String getBeanId() {

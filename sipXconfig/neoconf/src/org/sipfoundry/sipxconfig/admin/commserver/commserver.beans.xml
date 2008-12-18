@@ -93,9 +93,6 @@
     </property>
   </bean>
   
-  <bean id="simpleSipxProcessModel"
-    class="org.sipfoundry.sipxconfig.admin.commserver.SimpleSipxProcessModel" />
-
   <bean id="processManagerApiProvider"
     class="org.sipfoundry.sipxconfig.xmlrpc.XmlRpcApiProvider">
     <property name="methodNamePrefix" value="ProcMgmtRpc." />
@@ -109,10 +106,9 @@
     class="org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContextImpl">
     <!-- real value injected by sipxconfig.properties -->
     <property name="host" value="localhost" />
-    <property name="processModel" ref="simpleSipxProcessModel" />
     <property name="locationsManager" ref="locationsManager" />
-    <property name="processManagerApiProvider"
-      ref="processManagerApiProvider" />
+    <property name="processManagerApiProvider" ref="processManagerApiProvider" />
+    <property name="sipxServiceManager" ref="sipxServiceManager" />
   </bean>
 
   <bean id="alarmApi" class="org.sipfoundry.sipxconfig.xmlrpc.XmlRpcProxyFactoryBean">

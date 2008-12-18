@@ -7,15 +7,12 @@
  */
 package org.sipfoundry.sipxconfig.service;
 
-import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessModel.ProcessName;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.common.SipUri;
 import org.springframework.beans.factory.annotation.Required;
 
 public class SipxIvrService extends SipxService {
     public static final String BEAN_ID = "sipxIvrService";
-
-    private static final ProcessName PROCESS_NAME = ProcessName.IVR;
 
     private String m_vxmlDir;
     private String m_mailstoreDir;
@@ -66,11 +63,6 @@ public class SipxIvrService extends SipxService {
     public String getVoicemailUrl() {
         String voiceMail = m_dialPlanContext.getVoiceMail();
         return SipUri.fix(voiceMail, getDomainName());
-    }
-
-    @Override
-    public ProcessName getProcessName() {
-        return PROCESS_NAME;
     }
 
     @Override

@@ -24,7 +24,6 @@ import org.apache.tapestry.form.IPropertySelectionModel;
 import org.sipfoundry.sipxconfig.acd.AcdContext;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
-import org.sipfoundry.sipxconfig.admin.commserver.Process;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext.Command;
 import org.sipfoundry.sipxconfig.components.ExtraOptionModelDecorator;
@@ -104,11 +103,11 @@ public abstract class EditLocationPage extends PageWithCallback implements PageB
         location.addServices(services);
         getLocationsManager().storeLocation(getLocationBean());
 
-        List<Process> processes = getSipxProcessContext().toProcessList(services);
-        getSipxProcessContext().manageServices(getLocationBean(), processes, Command.START);
+        getSipxProcessContext().manageServices(getLocationBean(), services, Command.START);
 
         for (SipxService sipxService : services) {
-            // FIXME: only works in UI - better publish an event that the new service has been added
+            // FIXME: only works in UI - better publish an event that the new service has been
+            // added
             if (sipxService instanceof SipxAcdService) {
                 getAcdContext().addNewServer(getLocationBean());
             }

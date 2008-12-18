@@ -10,17 +10,16 @@
 package org.sipfoundry.sipxconfig.admin.commserver;
 
 import org.sipfoundry.sipxconfig.admin.commserver.ServiceStatus.Status;
-import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessModel.ProcessName;
 import org.springframework.beans.factory.annotation.Required;
 
 public class SipxProcess {
     private Boolean m_enabled;
     private LocationsManager m_locationsManager;
     private SipxProcessContext m_sipxProcessContext;
-    private ProcessName m_processName;
+    private String m_processName;
 
     public SipxProcess(LocationsManager locationsManager, SipxProcessContext sipxProcessContext,
-            ProcessName processName) {
+            String processName) {
         m_locationsManager = locationsManager;
         m_sipxProcessContext = sipxProcessContext;
         m_processName = processName;
@@ -35,7 +34,7 @@ public class SipxProcess {
 
     private boolean searchProcess() {
         boolean enabled = false;
-        String name = m_processName.getName();
+        String name = m_processName;
         ServiceStatus[] servStatus = null;
         for (Location location : m_locationsManager.getLocations()) {
             servStatus = m_sipxProcessContext.getStatus(location, false);
@@ -54,7 +53,7 @@ public class SipxProcess {
     }
 
     @Required
-    public void setProcessName(ProcessName processName) {
+    public void setProcessName(String processName) {
         m_processName = processName;
     }
 

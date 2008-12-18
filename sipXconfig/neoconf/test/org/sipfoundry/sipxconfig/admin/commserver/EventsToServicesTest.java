@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.admin.commserver;
@@ -15,6 +15,7 @@ import java.util.Collection;
 import junit.framework.TestCase;
 
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContextImpl.EventsToServices;
+import org.sipfoundry.sipxconfig.service.SipxService;
 
 public class EventsToServicesTest extends TestCase {
 
@@ -22,16 +23,6 @@ public class EventsToServicesTest extends TestCase {
         EventsToServices ets = new EventsToServices();
         Collection services = ets.getServices(Object.class);
         assertEquals(0, services.size());
-    }
-
-    public void testProcess() {
-        Process p = new Process("a");
-        assertEquals(p, new Process("a"));
-        assertFalse(p.equals(new Process("b")));
-        assertFalse(p.equals(new Process((String) null)));
-        assertFalse(p.equals(null));
-
-        assertEquals(p.hashCode(), p.hashCode());
     }
 
     public void testAddServicesOneClass() {
@@ -43,12 +34,13 @@ public class EventsToServicesTest extends TestCase {
     }
 
     public void testAddServicesForProcess() {
-        EventsToServices ets = new EventsToServices<Process>();
-        ets.addServices(Arrays.asList(new Process("a"), new Process("b"), new Process("c")),
+        EventsToServices<SipxService> ets = new EventsToServices<SipxService>();
+        ets.addServices(Arrays.asList(new DummyService("a"), new DummyService("b"),
+                new DummyService("c")), Integer.class);
+        ets.addServices(Arrays.asList(new DummyService("a"), new DummyService("b")),
                 Integer.class);
-        ets.addServices(Arrays.asList(new Process("a"), new Process("b")), Integer.class);
 
-        Collection<Process> services = ets.getServices(Integer.class);
+        Collection<SipxService> services = ets.getServices(Integer.class);
         assertEquals(3, services.size());
 
         // next time it should be empty
@@ -79,5 +71,19 @@ public class EventsToServicesTest extends TestCase {
         // 5 - 3 two remaining services should be here
         assertEquals(2, services.size());
         assertTrue(services.contains("b"));
+    }
+
+    static class DummyService extends SipxService {
+        private final String m_beanId;
+
+        public DummyService(String beanId) {
+            m_beanId = beanId;
+        }
+
+        @Override
+        public String getBeanId() {
+            return m_beanId;
+        }
+
     }
 }

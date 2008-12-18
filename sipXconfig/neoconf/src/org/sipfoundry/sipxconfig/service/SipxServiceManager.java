@@ -16,6 +16,8 @@ import java.util.Map;
 public interface SipxServiceManager {
     SipxService getServiceByBeanId(String beanId);
 
+    SipxService getServiceByName(String name);
+
     Collection<SipxService> getAllServices();
 
     void storeService(SipxService service);
@@ -23,4 +25,6 @@ public interface SipxServiceManager {
     void replicateServiceConfig(SipxService service);
 
     Map<SipxServiceBundle, List<SipxService>> getBundles();
+
+    List<SipxService> getRestartable();
 }

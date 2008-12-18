@@ -12,7 +12,6 @@ package org.sipfoundry.sipxconfig.service;
 import java.util.Arrays;
 
 import org.sipfoundry.sipxconfig.admin.commserver.ConflictingFeatureCodeValidator;
-import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessModel.ProcessName;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
 public class SipxPresenceService extends SipxService {
@@ -22,8 +21,6 @@ public class SipxPresenceService extends SipxService {
     public static final String PRESENCE_SIGN_OUT_CODE = "presence-config/SIP_PRESENCE_SIGN_OUT_CODE";
     public static final String PRESENCE_SERVER_SIP_PORT = "presence-config/PRESENCE_SERVER_SIP_PORT";
     public static final String PRESENCE_API_PORT = "presence-config/SIP_PRESENCE_HTTP_PORT";
-
-    private static final ProcessName PROCESS_NAME = ProcessName.PRESENCE_SERVER;
 
     private SipxServiceManager m_sipxServiceManager;
 
@@ -47,11 +44,6 @@ public class SipxPresenceService extends SipxService {
 
     public int getPresenceApiPort() {
         return (Integer) getSettingTypedValue(PRESENCE_API_PORT);
-    }
-
-    @Override
-    public ProcessName getProcessName() {
-        return PROCESS_NAME;
     }
 
     @Override

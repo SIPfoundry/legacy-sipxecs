@@ -14,14 +14,11 @@ import java.util.Collections;
 import java.util.Set;
 
 import org.apache.commons.codec.binary.Base64;
-import org.easymock.EasyMock;
 import org.sipfoundry.sipxconfig.IntegrationTestCase;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
-import org.sipfoundry.sipxconfig.admin.commserver.Process;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext.Command;
-import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessModel.ProcessName;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanActivatedEvent;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.common.AlarmContext;
@@ -29,6 +26,15 @@ import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.domain.Domain;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.service.LocationSpecificService;
+import org.sipfoundry.sipxconfig.service.SipxServiceManager;
+
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.createNiceMock;
+import static org.easymock.EasyMock.eq;
+import static org.easymock.EasyMock.expectLastCall;
+import static org.easymock.EasyMock.isA;
+import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.verify;
 
 // FIXME: it only test domain manager initialization for now
 public class FirstRunTaskTestIntegration extends IntegrationTestCase {
@@ -82,38 +88,40 @@ public class FirstRunTaskTestIntegration extends IntegrationTestCase {
     }
 
     public void testEnableFirstRunServices() throws Exception {
-        DomainManager domainManager = EasyMock.createNiceMock(DomainManager.class);
+        DomainManager domainManager = createNiceMock(DomainManager.class);
         m_firstRun.setDomainManager(domainManager);
-        AdminContext adminContext = EasyMock.createNiceMock(AdminContext.class);
+        AdminContext adminContext = createNiceMock(AdminContext.class);
         m_firstRun.setAdminContext(adminContext);
-        DialPlanContext dialPlanContext = EasyMock.createNiceMock(DialPlanContext.class);
+        DialPlanContext dialPlanContext = createNiceMock(DialPlanContext.class);
         m_firstRun.setDialPlanContext(dialPlanContext);
-        CoreContext coreContext = EasyMock.createNiceMock(CoreContext.class);
+        CoreContext coreContext = createNiceMock(CoreContext.class);
         m_firstRun.setCoreContext(coreContext);
-        AlarmContext alarmContext = EasyMock.createNiceMock(AlarmContext.class);
+        AlarmContext alarmContext = createNiceMock(AlarmContext.class);
         m_firstRun.setAlarmContext(alarmContext);
 
-        EasyMock.replay(domainManager, adminContext, dialPlanContext, coreContext, alarmContext);
+        replay(domainManager, adminContext, dialPlanContext, coreContext, alarmContext);
 
         loadDataSetXml("admin/commserver/seedLocationsAndServices.xml");
         m_firstRun.setLocationsManager(m_locationsManager);
 
-        SipxProcessContext processContext = EasyMock.createMock(SipxProcessContext.class);
-        processContext.getRestartable();
-        EasyMock.expectLastCall().andReturn(Collections.EMPTY_LIST);
-        processContext.restartOnEvent(EasyMock.isA(Collection.class), EasyMock
-                .eq(DialPlanActivatedEvent.class));
-        EasyMock.expectLastCall();
-        processContext.getProcess(EasyMock.isA(ProcessName.class));
-        EasyMock.expectLastCall().andReturn(new Process()).anyTimes();
-        processContext.manageServices(EasyMock.eq(m_locationsManager.getPrimaryLocation()),
-                EasyMock.isA(Collection.class), EasyMock.eq(Command.START));
-        EasyMock.expectLastCall();
-        EasyMock.replay(processContext);
-        m_firstRun.setProcessContext(processContext);
+        SipxProcessContext processContext = createMock(SipxProcessContext.class);
+        processContext.restartOnEvent(isA(Collection.class), eq(DialPlanActivatedEvent.class));
+        expectLastCall();
+        processContext.manageServices(eq(m_locationsManager.getPrimaryLocation()), isA(Collection.class),
+                eq(Command.START));
+        expectLastCall();
 
+        SipxServiceManager sipxServiceManager = createMock(SipxServiceManager.class);
+        sipxServiceManager.getRestartable();
+        expectLastCall().andReturn(Collections.EMPTY_LIST);
+
+        replay(processContext, sipxServiceManager);
+
+        m_firstRun.setProcessContext(processContext);
+        m_firstRun.setSipxServiceManager(sipxServiceManager);
         m_firstRun.runTask();
-        EasyMock.verify(processContext);
+
+        verify(processContext, sipxServiceManager);
 
         Location primaryLocation = m_locationsManager.getPrimaryLocation();
         Collection<LocationSpecificService> servicesForPrimaryLocation = primaryLocation.getServices();

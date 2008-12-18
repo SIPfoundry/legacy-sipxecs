@@ -10,9 +10,7 @@
 package org.sipfoundry.sipxconfig.admin.commserver;
 
 import java.util.Collection;
-import java.util.List;
 
-import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessModel.ProcessName;
 import org.sipfoundry.sipxconfig.service.SipxService;
 
 public interface SipxProcessContext {
@@ -23,9 +21,10 @@ public interface SipxProcessContext {
     /**
      * Return an array containing a ServiceStatus entry for each process on the first server
      * machine. This is a first step towards providing status for all server machines.
-     * @param onlyActiveServices If true, only return status information for the services
-     * that the location parameter lists in its services list.  If false, return all service status
-     * information available.
+     *
+     * @param onlyActiveServices If true, only return status information for the services that the
+     *        location parameter lists in its services list. If false, return all service status
+     *        information available.
      */
     public ServiceStatus[] getStatus(Location location, boolean onlyActiveServices);
 
@@ -37,9 +36,9 @@ public interface SipxProcessContext {
      * @param command command to send
      * @param location information about the host on which services are running
      */
-    public void manageServices(Location location, Collection<Process> services, Command command);
+    public void manageServices(Location location, Collection< ? extends SipxService> services, Command command);
 
-    public void manageServices(Collection<Process> services, Command command);
+    public void manageServices(Collection< ? extends SipxService> services, Command command);
 
     /**
      * Delayed version of manageServices strictly for restarting services. Restart commands is not
@@ -48,17 +47,5 @@ public interface SipxProcessContext {
      * @param services list of services that will receive the command
      * @param eventClass class of event that will trigger the command
      */
-    public void restartOnEvent(Collection<Process> services, Class eventClass);
-
-    /**
-     * This should be used to get list of restartable Processes
-     *
-     * @return list of the services that you usually want to restart
-     *
-     */
-    public List<Process> getRestartable();
-
-    public Process getProcess(ProcessName name);
-
-    public List<Process> toProcessList(List<SipxService> services);
+    public void restartOnEvent(Collection< ? extends SipxService> services, Class eventClass);
 }

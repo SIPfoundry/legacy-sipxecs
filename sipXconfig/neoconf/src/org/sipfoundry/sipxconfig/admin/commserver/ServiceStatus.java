@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.admin.commserver;
@@ -19,25 +19,25 @@ public class ServiceStatus implements PrimaryKeySource {
         Disabled,
         ShutDown,
         ConfigurationMismatch,
-        ResourceRequired,        
+        ResourceRequired,
         ConfigurationTestFailed,
         Testing,
         Starting,
         Stopping,
-        ShuttingDown,     
+        ShuttingDown,
         Failed
     }
-    
-    private Process m_process;
-    private Status m_status;
 
-    public ServiceStatus(Process process, Status status) {
-        m_process = process;
+    private final String m_serviceName;
+    private final Status m_status;
+
+    public ServiceStatus(String serviceName, Status status) {
+        m_serviceName = serviceName;
         m_status = status;
     }
 
     public String getServiceName() {
-        return m_process.getName();
+        return m_serviceName;
     }
 
     public Status getStatus() {
@@ -45,6 +45,6 @@ public class ServiceStatus implements PrimaryKeySource {
     }
 
     public Object getPrimaryKey() {
-        return m_process;
+        return m_serviceName;
     }
 }
