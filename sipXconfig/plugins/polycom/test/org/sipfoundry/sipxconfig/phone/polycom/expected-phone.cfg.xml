@@ -460,9 +460,9 @@
     msg.bypassInstantMessage="0"
   >
     <mwi
-      msg.mwi.1.subscribe="juser@sipfoundry.org"
+      msg.mwi.1.subscribe="juser"
       msg.mwi.1.callBackMode="contact"
-      msg.mwi.1.callBack="101@sipfoundry.org"
+      msg.mwi.1.callBack="101"
       msg.mwi.2.subscribe=""
       msg.mwi.2.callBackMode="disabled"
       msg.mwi.2.callBack=""

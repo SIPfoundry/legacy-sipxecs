@@ -29,7 +29,7 @@ public class PolycomLineDefaults {
         String uri = null;
         User u = m_line.getUser();
         if (u != null) {
-            uri = u.getUserName() + '@' + m_defaults.getDomainName();
+            uri = u.getUserName();
         }
 
         return uri;
@@ -40,7 +40,7 @@ public class PolycomLineDefaults {
         String uri = null;
         User u = m_line.getUser();
         if (u != null) {
-            uri = m_defaults.getVoiceMail() + '@' + m_defaults.getDomainName();
+            uri = m_defaults.getVoiceMail();
         }
 
         return uri;

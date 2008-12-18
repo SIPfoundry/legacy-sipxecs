@@ -35,6 +35,6 @@ public class PolycomLineDefaultsTest extends TestCase {
     public void testGetMwi() {
         assertNull(m_defaults.getMwiSubscribe());
         m_line.setUser(m_user);
-        assertEquals("bluejay@example.org", m_defaults.getMwiSubscribe());
+        assertEquals("bluejay", m_defaults.getMwiSubscribe());
     }
 }
