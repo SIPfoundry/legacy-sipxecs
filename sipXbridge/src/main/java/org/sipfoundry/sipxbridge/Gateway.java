@@ -1135,6 +1135,35 @@ public class Gateway {
 
 		return parkServerCodecs;
 	}
+	
+	/**
+	 * Log an internal error and potentially throw a runtime exception ( if debug is 
+	 * enabled).
+	 * 
+	 * @param errorString
+	 */
+    static void logInternalError(String errorString , Exception exception ) {
+        if ( logger.isDebugEnabled()) {
+            logger.fatal(errorString, exception);
+            throw new RuntimeException (errorString, exception);
+        }  else {
+            logger.fatal(errorString, exception);
+        }
+        
+    }
+    
+    static void logInternalError(String errorString ) {
+        if ( logger.isDebugEnabled()) {
+            logger.fatal(errorString);
+            throw new RuntimeException (errorString);
+        }  else {
+            /*
+             * Log our stack trace for analysis.
+             */
+            logger.fatal(errorString, new Exception());
+        }
+    }
+
 
 	/**
 	 * The main method for the Bridge.
@@ -1242,4 +1271,5 @@ public class Gateway {
 
 	}
 
+    
 }

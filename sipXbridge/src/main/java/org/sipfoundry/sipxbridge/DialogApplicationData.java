@@ -19,6 +19,7 @@ import javax.sdp.SessionDescription;
 import javax.sip.ClientTransaction;
 import javax.sip.Dialog;
 import javax.sip.DialogState;
+import javax.sip.RequestEvent;
 import javax.sip.ServerTransaction;
 import javax.sip.SipProvider;
 import javax.sip.Transaction;
@@ -27,6 +28,7 @@ import javax.sip.header.AllowHeader;
 import javax.sip.header.ContactHeader;
 import javax.sip.header.SubjectHeader;
 import javax.sip.header.SupportedHeader;
+import javax.sip.header.ViaHeader;
 import javax.sip.message.Request;
 import javax.sip.message.Response;
 
@@ -107,12 +109,7 @@ class DialogApplicationData {
     // machine.
     // ///////////////////////////////////////////////////////////////
 
-    /*
-     * Records that the codec renegogiation operation with the MOH server failed (SDP offer to
-     * codec from ITSP did not contain a codec supported by the MOH server).
-     */
-    boolean mohCodecNegotiationFailed;
-
+    
     /*
      * Used by the session timer - to compute whether or not to send a session timer re-INVITE.
      */
@@ -364,6 +361,27 @@ class DialogApplicationData {
         this.sessionExpires = expires;
 
     }
+    
+    /**
+     * Send ACK to the encapsulated dialog.
+     * 
+     * @throws Exception
+     */
+    void sendAck(SessionDescription sessionDescription ) throws Exception {
+        if ( this.lastResponse == null ) {
+            Gateway.logInternalError("Method was called with lastResponse null");
+            
+        }
+        Request ackRequest = dialog.createAck(SipUtilities.getSeqNumber(this.lastResponse));
+        this.lastResponse = null;
+        this.recordLastAckTime();
+        SipUtilities.setSessionDescription(ackRequest, sessionDescription);
+        /*
+         * Compensate for the quirks of some ITSPs which will play MOH.
+         */
+        SipUtilities.setDuplexity(sessionDescription, "sendrecv");
+        dialog.sendAck(ackRequest);
+    }
 
     /**
      * Check to see if the ITSP allows a REFER request.
@@ -402,6 +420,75 @@ class DialogApplicationData {
             }
             return false;
         }
+    }
+    
+    
+    /**
+     * Send an INVITE with no SDP to the peer dialog. This solicits an SDP offer from the peer of
+     * the given dialog.
+     * 
+     * @param requestEvent -- the request event for which we have to solicit the offer.
+     * @param continuationData -- context information so we can process the continuation.
+     * 
+     * @return true if the offer is sent successfully. false if there is already an offer in
+     *         progress and hence we should not send an offer.
+     */
+    boolean solicitSdpOfferFromPeerDialog(
+            ContinuationData continuationData) throws Exception {
+        try {
+          
+            Dialog peerDialog = DialogApplicationData.getPeerDialog(dialog);
+            /*
+             * There is already a re-negotiation in progress so return silently
+             */
+
+            if (peerDialog != null && peerDialog.getState() != DialogState.TERMINATED) {
+                logger.debug("queryDialogFromPeer -- sending query to " + peerDialog);
+                Request reInvite = peerDialog.createRequest(Request.INVITE);
+                reInvite.removeHeader(SupportedHeader.NAME);
+                SipUtilities.addWanAllowHeaders(reInvite);
+                SipProvider provider = ((DialogExt) peerDialog).getSipProvider();
+                ViaHeader viaHeader = SipUtilities.createViaHeader(provider, 
+                        this.backToBackUserAgent.getItspAccountInfo());
+                reInvite.setHeader(viaHeader);
+                ContactHeader contactHeader = SipUtilities.createContactHeader(provider,
+                        this.backToBackUserAgent.getItspAccountInfo());
+                /*
+                 * Do not place a content type header in the content solicitation.
+                 * 
+                 * ContentTypeHeader cth = ProtocolObjects.headerFactory
+                 * .createContentTypeHeader("application", "sdp"); reInvite.setHeader(cth);
+                 */
+
+                reInvite.setHeader(contactHeader);
+                AcceptHeader acceptHeader = ProtocolObjects.headerFactory.createAcceptHeader(
+                        "application", "sdp");
+                reInvite.setHeader(acceptHeader);
+                ClientTransaction ctx = provider.getNewClientTransaction(reInvite);
+                TransactionApplicationData tad = TransactionApplicationData.attach(ctx,
+                        Operation.SOLICIT_SDP_OFFER_FROM_PEER_DIALOG);
+                /*
+                 * Mark what we should do when we see the 200 OK response. This is what this
+                 * dialog expects to see. Mark this as the pending operation for this dialog.
+                 */
+                DialogApplicationData.get(peerDialog).setPendingAction(
+                        PendingDialogAction.PENDING_SDP_ANSWER_IN_ACK);
+
+                /*
+                 * The information we need to continue the operation when the Response comes in.
+                 */
+                tad.continuationData = continuationData;
+
+                peerDialog.sendRequest(ctx);
+
+            }
+            return true;
+        } catch (Exception ex) {
+            logger.error("Exception occured. tearing down call! ", ex);
+            this.backToBackUserAgent.tearDown();
+            return true;
+        }
+
     }
 
     public static RtpSession getPeerTransmitter(Dialog dialog) {
