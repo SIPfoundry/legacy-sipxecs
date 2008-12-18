@@ -28,6 +28,9 @@ public class SipxRegistrarConfigurationTest extends SipxServiceTestBase {
         registrarService.setModelFilesContext(TestHelper.getModelFilesContext());
         initCommonAttributes(registrarService);
 
+        SipxProxyService proxyService = new SipxProxyService();
+        proxyService.setSipPort("5060");
+
         Domain domain = new Domain();
         domain.addAlias("another.example.org");
         domain.setName("example.org");
@@ -64,12 +67,14 @@ public class SipxRegistrarConfigurationTest extends SipxServiceTestBase {
         registrarService.setOrbitServerSipSrvOrHostport("orbit.example.org");
         registrarService.setProxyServerSipHostport("proxy.example.org");
         registrarService.setVoicemailHttpsPort("443");
-        registrarService.setRegistrarSipPort("5070");
+        registrarService.setSipPort("5070");
         registrarService.setRegistrarEventSipPort("5075");
 
         SipxServiceManager sipxServiceManager = createMock(SipxServiceManager.class);
         sipxServiceManager.getServiceByBeanId(SipxRegistrarService.BEAN_ID);
         expectLastCall().andReturn(registrarService).atLeastOnce();
+        sipxServiceManager.getServiceByBeanId(SipxProxyService.BEAN_ID);
+        expectLastCall().andReturn(proxyService).atLeastOnce();
         replay(domainManager, sipxServiceManager);
 
         SipxRegistrarConfiguration out = new SipxRegistrarConfiguration();

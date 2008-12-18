@@ -87,6 +87,10 @@ public class AuthRules extends RulesXmlFile {
             Element hostMatch = mappings.addElement(HOST_MATCH);
             addRuleNameComment(hostMatch, rule);
             addRuleDescription(hostMatch, rule);
+
+            Element domainElement = hostMatch.addElement(HOST_PATTERN);
+            domainElement.setText(getDomainManager().getDomain().getName());
+
             for (String host : MappingRules.HOSTS) {
                 Element hostPattern = hostMatch.addElement(HOST_PATTERN);
                 hostPattern.setText(host);

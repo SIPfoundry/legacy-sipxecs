@@ -13,11 +13,17 @@ import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessModel.ProcessName;
 
 public class SipxRelayService extends SipxService {
 
+    private static final String BEAN_ID = "sipxRelayService";
     private static final ProcessName PROCESS_NAME = ProcessName.RELAY;
     
     @Override
     public ProcessName getProcessName() {
         return PROCESS_NAME;
+    }
+
+    @Override
+    public String getBeanId() {
+        return BEAN_ID;
     }
 
 }

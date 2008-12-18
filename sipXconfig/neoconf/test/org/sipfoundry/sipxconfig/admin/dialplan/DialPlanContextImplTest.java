@@ -14,6 +14,7 @@ import java.util.Collections;
 
 import junit.framework.TestCase;
 
+import org.easymock.EasyMock;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.dialplan.attendant.AutoAttendantsConfig;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.AuthRules;
@@ -24,8 +25,15 @@ import org.sipfoundry.sipxconfig.admin.dialplan.config.MappingRules;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.SpecialAutoAttendantMode;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcManager;
 import org.sipfoundry.sipxconfig.device.ProfileManager;
+import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
 import org.sipfoundry.sipxconfig.gateway.GatewayContext;
+import org.sipfoundry.sipxconfig.service.SipxProxyService;
+import org.sipfoundry.sipxconfig.service.SipxRegistrarService;
+import org.sipfoundry.sipxconfig.service.SipxServiceManager;
+import org.sipfoundry.sipxconfig.service.SipxStatusService;
+import org.sipfoundry.sipxconfig.setting.Setting;
+import org.sipfoundry.sipxconfig.test.TestUtil;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.orm.hibernate3.HibernateTemplate;
@@ -43,9 +51,22 @@ public class DialPlanContextImplTest extends TestCase {
 
     private ConfigGenerator createConfigGenerator() {
         ConfigGenerator cg = new ConfigGenerator();
-        cg.setAuthRules(new AuthRules());
-        cg.setMappingRules(new MappingRules());
-        cg.setFallbackRules(new FallbackRules());
+
+        DomainManager domainManager = TestUtil.getMockDomainManager();
+        EasyMock.replay(domainManager);
+
+        AuthRules authRules = new AuthRules();
+        authRules.setDomainManager(domainManager);
+        cg.setAuthRules(authRules);
+
+        MappingRules mappingRules = new MappingRules();
+        mappingRules.setDomainManager(domainManager);
+        cg.setMappingRules(mappingRules);
+
+        FallbackRules fallbackRules = new FallbackRules();
+        fallbackRules.setDomainManager(domainManager);
+        cg.setFallbackRules(fallbackRules);
+
         cg.setAutoAttendantConfig(new AutoAttendantsConfig());
 
         ForwardingRules forwardingRules = new ForwardingRules();
@@ -56,6 +77,24 @@ public class DialPlanContextImplTest extends TestCase {
         replay(sbcManager);
 
         forwardingRules.setSbcManager(sbcManager);
+
+        SipxProxyService proxyService = new SipxProxyService();
+        proxyService.setSipPort("9901");
+        proxyService.setDomainManager(domainManager);
+
+        SipxStatusService statusService = new SipxStatusService();
+        statusService.setModelFilesContext(TestHelper.getModelFilesContext());
+        statusService.setSettings(TestHelper.loadSettings("sipxstatus/sipxstatus.xml"));
+        Setting statusConfigSettings = statusService.getSettings().getSetting("status-config");
+        statusConfigSettings.getSetting("SIP_STATUS_SIP_PORT").setValue("9905");
+
+        SipxRegistrarService registrarService = new SipxRegistrarService();
+        registrarService.setRegistrarEventSipPort("9906");
+        registrarService.setSipPort("9907");
+
+        SipxServiceManager sipxServiceManager =TestUtil.getMockSipxServiceManager(proxyService, registrarService, statusService);
+        EasyMock.replay(sipxServiceManager);
+        forwardingRules.setSipxServiceManager(sipxServiceManager);
 
         return cg;
     }

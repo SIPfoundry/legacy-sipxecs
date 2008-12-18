@@ -174,4 +174,17 @@ public class Location extends BeanWithId {
     public void setPassword(String password) {
         m_password = password;
     }
+
+    /**
+     * Get the hostname portion of the fully qualified domain name
+     */
+    public String getHostname() {
+        String fqdn = getFqdn();
+        if (fqdn.indexOf('.') < 0) {
+            return fqdn;
+        } else {
+            String hostname = fqdn.substring(0, fqdn.indexOf('.'));
+            return hostname;
+        }
+    }
 }

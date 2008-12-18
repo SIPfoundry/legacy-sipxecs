@@ -21,7 +21,6 @@ public class SipxRegistrarService extends SipxService {
     private static final String VOICEMAIL_SERVER = "https://localhost";
     private static final ProcessName PROCESS_NAME = ProcessName.REGISTRAR;
 
-    private String m_registrarSipPort;
     private String m_registrarEventSipPort;
     private String m_mediaServerSipSrvOrHostport;
     private String m_orbitServerSipSrvOrHostport;
@@ -41,14 +40,6 @@ public class SipxRegistrarService extends SipxService {
         }
 
         return voicemailServer.toString();
-    }
-
-    public String getRegistrarSipPort() {
-        return m_registrarSipPort;
-    }
-
-    public void setRegistrarSipPort(String sipPort) {
-        m_registrarSipPort = sipPort;
     }
 
     public String getRegistrarEventSipPort() {
@@ -105,5 +96,10 @@ public class SipxRegistrarService extends SipxService {
 
     public String getDirectedCallPickupCode() {
         return getSettingValue("call-pick-up/SIP_REDIRECT.100-PICKUP.DIRECTED_CALL_PICKUP_CODE");
+    }
+
+    @Override
+    public String getBeanId() {
+        return BEAN_ID;
     }
 }

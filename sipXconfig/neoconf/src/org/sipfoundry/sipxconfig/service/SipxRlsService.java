@@ -29,4 +29,8 @@ public class SipxRlsService extends SipxService {
         m_rlsPort = rlsPort;
     }
 
+    @Override
+    public String getBeanId() {
+        return BEAN_ID;
+    }
 }

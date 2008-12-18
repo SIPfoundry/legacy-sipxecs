@@ -33,7 +33,6 @@ CONFIG_DEFS="@SIPX_CONFDIR@/config.defs"
 
 CONFIG_FILES="\
   @SIPX_CONFDIR@/nattraversalrules.xml \
-  @SIPX_CONFDIR@/forwardingrules.xml \
   @SIPX_CONFDIR@/authrules.xml \
   "
   

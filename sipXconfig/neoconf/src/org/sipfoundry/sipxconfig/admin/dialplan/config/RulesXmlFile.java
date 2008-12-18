@@ -20,11 +20,14 @@ import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
 import org.sipfoundry.sipxconfig.admin.dialplan.IDialingRule;
+import org.sipfoundry.sipxconfig.domain.DomainManager;
 
 public abstract class RulesXmlFile extends XmlFile {
     public static final Log LOG = LogFactory.getLog(RulesXmlFile.class);
 
     private String m_externalRulesFileName;
+
+    private DomainManager m_domainManager;
 
     /**
      * Trims the filename - leading and trailing spaces not supported in the file name.
@@ -81,5 +84,13 @@ public abstract class RulesXmlFile extends XmlFile {
         if (!StringUtils.isBlank(nameText)) {
             hostMatch.addComment(nameText);
         }
+    }
+
+    public DomainManager getDomainManager() {
+        return m_domainManager;
+    }
+
+    public void setDomainManager(DomainManager domainManager) {
+        m_domainManager = domainManager;
     }
 }

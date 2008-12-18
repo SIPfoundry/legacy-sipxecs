@@ -32,6 +32,8 @@ import org.sipfoundry.sipxconfig.admin.dialplan.CallPattern;
 import org.sipfoundry.sipxconfig.admin.dialplan.CustomDialingRule;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPattern;
 import org.sipfoundry.sipxconfig.admin.dialplan.IDialingRule;
+import org.sipfoundry.sipxconfig.domain.Domain;
+import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
 
@@ -282,7 +284,13 @@ public class AuthRulesTest {
         rule.setCallPattern(callPattern);
         rule.setPermissionNames(Arrays.asList("LocalDialing"));
 
+        DomainManager domainManager = EasyMock.createMock(DomainManager.class);
+        domainManager.getDomain();
+        EasyMock.expectLastCall().andReturn(new Domain("example.org")).anyTimes();
+        EasyMock.replay(domainManager);
+
         MockAuthRules authRules = new MockAuthRules();
+        authRules.setDomainManager(domainManager);
         authRules.begin();
         authRules.generate(rule);
         authRules.end();

@@ -22,6 +22,12 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.Properties;
 
+import org.easymock.EasyMock;
+import org.sipfoundry.sipxconfig.domain.Domain;
+import org.sipfoundry.sipxconfig.domain.DomainManager;
+import org.sipfoundry.sipxconfig.service.SipxService;
+import org.sipfoundry.sipxconfig.service.SipxServiceManager;
+
 /**
  * Common utility methods for unit testing with neoconf. Somewhat controversial being in codebase,
  * however unit test library would be uglier, IMHO.
@@ -255,5 +261,33 @@ public final class TestUtil {
         File tempDir = new File(tempDirPath);
         tempDir.mkdirs();
         return tempDir;
+    }
+
+    /**
+     * Creates a mock SipxServiceManager using EasyMock.  It is up to the user of this
+     * mock to call EasyMock.replay.  This allows the user to add more functionality to the mock.
+     * By default the service manager will do lookups for all of the provides SipxService objects
+     * @param sipxServices
+     * @return
+     */
+    public static SipxServiceManager getMockSipxServiceManager(SipxService... sipxServices) {
+        SipxServiceManager sipxServiceManager = EasyMock.createMock(SipxServiceManager.class);
+        for (SipxService sipxService : sipxServices) {
+            sipxServiceManager.getServiceByBeanId(sipxService.getBeanId());
+            EasyMock.expectLastCall().andReturn(sipxService).anyTimes();
+        }
+
+        return sipxServiceManager;
+    }
+
+    /**
+     * Creates a mock domain manager using EasyMock.  Up to the caller to call replay on the mock.
+     * @return
+     */
+    public static DomainManager getMockDomainManager() {
+        DomainManager domainManager = EasyMock.createMock(DomainManager.class);
+        domainManager.getDomain();
+        EasyMock.expectLastCall().andReturn(new Domain("example.org")).anyTimes();
+        return domainManager;
     }
 }

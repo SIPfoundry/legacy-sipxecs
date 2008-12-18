@@ -25,9 +25,7 @@ public class SipxProcessTest extends TestCase {
         
         Location location = new Location();
         SipxRegistrarService sipxRegistrarService = new SipxRegistrarService();
-        sipxRegistrarService.setBeanId(SipxRegistrarService.BEAN_ID);
         SipxProxyService sipxProxyService = new SipxProxyService();
-        sipxProxyService.setBeanId(SipxProxyService.BEAN_ID);
         location.setServiceDefinitions(Arrays.asList(sipxRegistrarService, sipxProxyService));
         
         Location[] locations = new Location[] {

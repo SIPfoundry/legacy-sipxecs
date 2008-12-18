@@ -21,10 +21,11 @@ import org.sipfoundry.sipxconfig.admin.dialplan.IDialingRule;
  */
 public class MappingRules extends RulesXmlFile {
     public static final String[] HOSTS = {
-        "${SIPXCHANGE_DOMAIN_NAME}", "${MY_FULL_HOSTNAME}", "${MY_HOSTNAME}", "${MY_IP_ADDR}"
+        "${MY_FULL_HOSTNAME}", "${MY_HOSTNAME}", "${MY_IP_ADDR}"
     };
 
     private static final String NAMESPACE = "http://www.sipfoundry.org/sipX/schema/xml/urlmap-00-00";
+    private static final String HOST_PATTERN = "hostPattern";
 
     private Document m_doc;
     private Element m_hostMatch;
@@ -108,10 +109,15 @@ public class MappingRules extends RulesXmlFile {
 
     protected Element addHostPatterns(String[] hostPatterns) {
         Element hostMatch = FACTORY.createElement("hostMatch", m_namespace);
+
+        Element domainElement = hostMatch.addElement(HOST_PATTERN);
+        domainElement.setText(getDomainManager().getDomain().getName());
+
         for (String hostPattern : hostPatterns) {
-            Element pattern = hostMatch.addElement("hostPattern");
+            Element pattern = hostMatch.addElement(HOST_PATTERN);
             pattern.setText(hostPattern);
         }
+
         return hostMatch;
     }
 

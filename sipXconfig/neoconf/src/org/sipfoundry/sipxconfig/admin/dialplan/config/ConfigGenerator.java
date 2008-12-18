@@ -28,7 +28,7 @@ import org.springframework.beans.factory.annotation.Required;
 public class ConfigGenerator {
     public static final String BEAN_NAME = "dialPlanConfigGenerator";
 
-    private MappingRules m_mappingRules;
+    private RulesXmlFile m_mappingRules;
     private AuthRules m_authRules;
     private FallbackRules m_fallbackRules;
     private ForwardingRules m_forwardingRules;
@@ -53,7 +53,7 @@ public class ConfigGenerator {
     }
 
     @Required
-    public void setMappingRules(MappingRules mappingRules) {
+    public void setMappingRules(RulesXmlFile mappingRules) {
         m_mappingRules = mappingRules;
     }
 

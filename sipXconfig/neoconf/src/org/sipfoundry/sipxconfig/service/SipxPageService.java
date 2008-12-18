@@ -30,4 +30,9 @@ public class SipxPageService extends SipxService {
         m_audioDirectory = audioDirectory;
     }
 
+    @Override
+    public String getBeanId() {
+        return BEAN_ID;
+    }
+
 }

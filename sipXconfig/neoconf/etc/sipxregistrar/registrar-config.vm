@@ -2,7 +2,7 @@ SIP_REGISTRAR_BIND_IP : $!{location.address}
 SIP_REGISTRAR_AUTHENTICATE_ALGORITHM : 
 SIP_REGISTRAR_AUTHENTICATE_REALM : $!{registrarService.realm}
 SIP_REGISTRAR_DOMAIN_NAME : $!{registrarService.domainName}
-SIP_REGISTRAR_PROXY_PORT : $!{registrarService.sipPort}
+SIP_REGISTRAR_PROXY_PORT : $!{proxyService.sipPort}
 SIP_REGISTRAR_LOG_CONSOLE : 
 SIP_REGISTRAR_LOG_DIR : 
 SIP_REGISTRAR_LOG_LEVEL : $!settings.getSetting('logging').getSetting('SIP_REGISTRAR_LOG_LEVEL').Value
@@ -10,8 +10,8 @@ SIP_REGISTRAR_MAX_EXPIRES :
 SIP_REGISTRAR_MIN_EXPIRES : 
 SIP_REGISTRAR_HOOK_LIBRARY.MWI : @sipxpbx.lib.dir@/libRegistrarImpliedMWI.so
 SIP_REGISTRAR.MWI.UA.CISCO : ^(CSCO|Cisco)
-SIP_REGISTRAR_TCP_PORT : $!{registrarService.registrarSipPort}
-SIP_REGISTRAR_UDP_PORT : $!{registrarService.registrarSipPort}
+SIP_REGISTRAR_TCP_PORT : $!{registrarService.sipPort}
+SIP_REGISTRAR_UDP_PORT : $!{registrarService.sipPort}
 SIP_REGISTRAR_REG_EVENT_PORT : $!{registrarService.registrarEventSipPort}
 
 # Configure the redirectors.

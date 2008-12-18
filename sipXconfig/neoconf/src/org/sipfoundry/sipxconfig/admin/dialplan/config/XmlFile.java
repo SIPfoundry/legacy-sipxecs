@@ -34,10 +34,20 @@ public abstract class XmlFile extends AbstractConfigurationFile implements Confi
      * @see org.sipfoundry.sipxconfig.admin.dialplan.config.ConfigurationFile#write(java.io.Writer)
      */
     public void write(Writer writer, Location location) throws IOException {
+        generateDocument(location);
         Document document = getDocument();
         OutputFormat format = createFormat();
         XMLWriter xmlWriter = new XMLWriter(writer, format);
         xmlWriter.write(document);
+    }
+
+
+    /**
+     * Override this method to use location-specific data as last step to generate the
+     * Document object that will be written by the write method
+     */
+    protected void generateDocument(Location location) {
+        // no default implementation
     }
 
     /**

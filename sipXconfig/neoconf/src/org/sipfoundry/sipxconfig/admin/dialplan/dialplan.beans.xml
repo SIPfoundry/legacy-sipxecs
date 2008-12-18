@@ -154,23 +154,27 @@
   <bean id="mappingRules" class="org.sipfoundry.sipxconfig.admin.dialplan.config.MappingRules"
     parent="defaultConfigurationFile">
     <property name="name" value="mappingrules.xml.in" />
+    <property name="domainManager" ref="domainManager" />
   </bean>
 
   <bean id="fallbackRules" class="org.sipfoundry.sipxconfig.admin.dialplan.config.FallbackRules"
     parent="defaultConfigurationFile">
     <property name="name" value="fallbackrules.xml.in" />
+    <property name="domainManager" ref="domainManager" />
   </bean>
 
   <bean id="authRules" class="org.sipfoundry.sipxconfig.admin.dialplan.config.AuthRules"
     parent="defaultConfigurationFile">
     <property name="name" value="authrules.xml.in" />
+    <property name="domainManager" ref="domainManager" />
   </bean>
 
   <bean id="forwardingRules" class="org.sipfoundry.sipxconfig.admin.dialplan.config.ForwardingRules"
     parent="defaultConfigurationFile">
-    <property name="name" value="forwardingrules.xml.in" />
+    <property name="name" value="forwardingrules.xml" />
     <property name="velocityEngine" ref="velocityEngine" />
     <property name="sbcManager" ref="sbcManager" />
+    <property name="sipxServiceManager" ref="sipxServiceManager" />
   </bean>
 
   <bean id="natTraversalRules" class="org.sipfoundry.sipxconfig.admin.dialplan.config.NatTraversalRules"

@@ -20,4 +20,8 @@ public class SipxConfigAgentService extends SipxService {
         return PROCESS_NAME;
     }
 
+    @Override
+    public String getBeanId() {
+        return BEAN_ID;
+    }
 }

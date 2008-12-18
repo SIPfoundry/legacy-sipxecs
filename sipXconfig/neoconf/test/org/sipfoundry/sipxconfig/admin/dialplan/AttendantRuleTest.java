@@ -16,13 +16,17 @@ import java.util.List;
 import junit.framework.TestCase;
 
 import org.apache.commons.io.IOUtils;
+import org.easymock.EasyMock;
 import org.sipfoundry.sipxconfig.admin.dialplan.attendant.Holiday;
 import org.sipfoundry.sipxconfig.admin.dialplan.attendant.ScheduledAttendant;
 import org.sipfoundry.sipxconfig.admin.dialplan.attendant.WorkingTime;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.MappingRules;
+import org.sipfoundry.sipxconfig.admin.dialplan.config.RulesXmlFile;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.Transform;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.UrlTransform;
 import org.sipfoundry.sipxconfig.admin.localization.LocalizationContext;
+import org.sipfoundry.sipxconfig.domain.DomainManager;
+import org.sipfoundry.sipxconfig.test.TestUtil;
 
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.createNiceMock;
@@ -35,6 +39,13 @@ public class AttendantRuleTest extends TestCase {
             + "%2Fcgi-bin%2Fvoicemail%2Fmediaserver.cgi%3Faction%3D";
     private static final String OPERATOR_URL = "<sip:{digits}@localhost;transport=tcp" + URL_PARAMS
             + "autoattendant%26name%3Daa_-1>";
+
+    private DomainManager m_domainManager;
+
+    public void setUp() {
+        m_domainManager = TestUtil.getMockDomainManager();
+        EasyMock.replay(m_domainManager);
+    }
 
     public void testNotImplemented() {
         AttendantRule rule = new AttendantRule();
@@ -103,7 +114,8 @@ public class AttendantRuleTest extends TestCase {
         rule.setAttendantAliases("0 operator");
         rule.setEnabled(true);
 
-        MappingRules mappingRules = new MappingRules();
+        RulesXmlFile mappingRules = new MappingRules();
+        mappingRules.setDomainManager(m_domainManager);
         List<DialingRule> rules = new ArrayList<DialingRule>();
         rule.appendToGenerationRules(rules);
         mappingRules.begin();
@@ -135,7 +147,8 @@ public class AttendantRuleTest extends TestCase {
         rule.setAttendantAliases("0 operator");
         rule.setEnabled(true);
 
-        MappingRules mappingRules = new MappingRules();
+        RulesXmlFile mappingRules = new MappingRules();
+        mappingRules.setDomainManager(m_domainManager);
         List<DialingRule> rules = new ArrayList<DialingRule>();
         rule.appendToGenerationRules(rules);
         mappingRules.begin();

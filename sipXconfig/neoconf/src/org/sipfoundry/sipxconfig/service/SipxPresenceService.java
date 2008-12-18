@@ -53,4 +53,9 @@ public class SipxPresenceService extends SipxService {
     public ProcessName getProcessName() {
         return PROCESS_NAME;
     }
+
+    @Override
+    public String getBeanId() {
+        return BEAN_ID;
+    }
 }

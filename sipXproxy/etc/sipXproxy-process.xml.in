@@ -22,7 +22,7 @@
   <resources>
     <osconfig>@SIPX_CONFDIR@/domain-config</osconfig>
     <osconfig>@SIPX_CONFDIR@/sipXproxy-config</osconfig>
-    <file>@SIPX_CONFDIR@/forwardingrules.xml.in</file>
+    <file>@SIPX_CONFDIR@/forwardingrules.xml</file>
     <file>@SIPX_CONFDIR@/authrules.xml.in</file>
 	<file>@SIPX_CONFDIR@/alarm-config.xml</file>
 	<file>@SIPX_CONFDIR@/alarms/sipXalarms-config.xml</file>

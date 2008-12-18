@@ -9,10 +9,10 @@
       All other requests go to the SIP registry/redirect service.
     </description>
 
-    <routeFrom>${SIPXCHANGE_DOMAIN_NAME}:${PROXY_SERVER_SIP_PORT}</routeFrom>
-    <routeFrom>${MY_IP_ADDR}:${PROXY_SERVER_SIP_PORT}</routeFrom>
-    <routeFrom>${MY_FULL_HOSTNAME}:${PROXY_SERVER_SIP_PORT}</routeFrom>
-    <routeFrom>${MY_HOSTNAME}:${PROXY_SERVER_SIP_PORT}</routeFrom>
+    <routeFrom>example.org:9901</routeFrom>
+    <routeFrom>192.168.1.1:9901</routeFrom>
+    <routeFrom>sipx.example.org:9901</routeFrom>
+    <routeFrom>sipx:9901</routeFrom>
     <routeFrom>gander</routeFrom>
     <methodMatch>
       <methodPattern>SUBSCRIBE</methodPattern>
@@ -21,22 +21,22 @@
       <fieldMatch fieldName="Event">
         <fieldPattern>message-summary.*</fieldPattern>
         <!--this goes to the status server-->
-        <routeTo>&lt;${STATUS_SERVER_SIP_SRV_OR_HOSTPORT};transport=tcp&gt;</routeTo>
+        <routeTo>&lt;192.168.1.1:9905;transport=tcp&gt;</routeTo>
       </fieldMatch>
 
       <!-- "reg" event subscriptions. -->
       <fieldMatch fieldName="Event">
         <fieldPattern>reg</fieldPattern>
-        <routeTo>&lt;${REGISTRAR_REG_EVENT_SIP_SRV_OR_HOSTPORT};transport=tcp&gt;</routeTo>
+        <routeTo>&lt;192.168.1.1:9906;transport=tcp&gt;</routeTo>
       </fieldMatch>
 
       <!-- All other SUBSCRIBE requests go to the SIP registry service -->
-      <routeTo>&lt;${REGISTRAR_SERVER_SIP_SRV_OR_HOSTPORT};transport=tcp;x-sipx-routetoreg&gt;</routeTo>
+      <routeTo>&lt;192.168.1.1:9907;transport=tcp;x-sipx-routetoreg&gt;</routeTo>
 
     </methodMatch>
 
     <!-- All other requests go to the SIP registry service -->
-    <routeTo>&lt;${REGISTRAR_SERVER_SIP_SRV_OR_HOSTPORT};transport=tcp;x-sipx-routetoreg&gt;</routeTo>
+    <routeTo>&lt;192.168.1.1:9907;transport=tcp;x-sipx-routetoreg&gt;</routeTo>
 
   </route>
 

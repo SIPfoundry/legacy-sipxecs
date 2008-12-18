@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beansProjectDescription>
 	<version>1</version>
-	<pluginVersion><![CDATA[2.0.3.v200802061800]]></pluginVersion>
+	<pluginVersion><![CDATA[2.0.2.v200712142013]]></pluginVersion>
 	<configSuffixes>
 		<configSuffix><![CDATA[xml]]></configSuffix>
 	</configSuffixes>
-	<enableImports><![CDATA[false]]></enableImports>
 	<configs>
 		<config>src/org/sipfoundry/sipxconfig/admin/forwarding/forwarding.beans.xml</config>
 		<config>src/org/sipfoundry/sipxconfig/admin/parkorbit/parkorbit.beans.xml</config>
@@ -34,7 +33,6 @@
 		<config>src/org/sipfoundry/sipxconfig/admin/dialplan/sbc/sbc.beans.xml</config>
 		<config>src/org/sipfoundry/sipxconfig/acd/acd.beans.xml</config>
 		<config>src/org/sipfoundry/sipxconfig/alias/alias.beans.xml</config>
-		<config>src/org/sipfoundry/sipxconfig/phone/polycom/polycom-models.beans.xml</config>
 		<config>src/org/sipfoundry/sipxconfig/conference/conference.beans.xml</config>
 		<config>src/org/sipfoundry/sipxconfig/search/search.beans.xml</config>
 		<config>src/org/sipfoundry/sipxconfig/cdr/cdr.beans.xml</config>
@@ -91,7 +89,6 @@
 				<config>src/org/sipfoundry/sipxconfig/vm/vm.beans.xml</config>
 				<config>src/org/sipfoundry/sipxconfig/gateway/acme/acme-models.beans.xml</config>
 				<config>src/org/sipfoundry/sipxconfig/phone/kphone/kphone-models.beans.xml</config>
-				<config>src/org/sipfoundry/sipxconfig/phone/polycom/polycom-models.beans.xml</config>
 				<config>src/org/sipfoundry/sipxconfig/phone/snom/snom-models.beans.xml</config>
 				<config>src/org/sipfoundry/sipxconfig/gateway/audiocodes/audiocodes-models.beans.xml</config>
 				<config>src/org/sipfoundry/sipxconfig/phone/cisco/cisco-models.beans.xml</config>

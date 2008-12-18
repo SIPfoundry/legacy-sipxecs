@@ -29,4 +29,9 @@ public class SipxMediaService extends SipxService {
     public void setHttpPort(int httpPort) {
         m_httpPort = httpPort;
     }
+
+    @Override
+    public String getBeanId() {
+        return BEAN_ID;
+    }
 }

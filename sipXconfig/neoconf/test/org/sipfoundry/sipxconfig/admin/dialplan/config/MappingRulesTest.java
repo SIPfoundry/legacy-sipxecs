@@ -39,6 +39,8 @@ import org.sipfoundry.sipxconfig.admin.dialplan.SipXMediaServerTest;
 import org.sipfoundry.sipxconfig.admin.dialplan.VoicemailRedirectRule;
 import org.sipfoundry.sipxconfig.admin.localization.LocalizationContext;
 import org.sipfoundry.sipxconfig.admin.parkorbit.MohRule;
+import org.sipfoundry.sipxconfig.domain.Domain;
+import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
 import org.sipfoundry.sipxconfig.speeddial.RlsRule;
 
@@ -48,34 +50,45 @@ import org.sipfoundry.sipxconfig.speeddial.RlsRule;
 public class MappingRulesTest extends XMLTestCase {
     private static final String VOICEMAIL_SERVER = "https%3A%2F%2Flocalhost%3A443";
 
+    private DomainManager m_domainManager;
+
+    // Object Under Test
+    private MappingRules m_out;
+
     public MappingRulesTest() {
         XmlUnitHelper.setNamespaceAware(false);
         XMLUnit.setIgnoreWhitespace(true);
+
+        m_domainManager = EasyMock.createMock(DomainManager.class);
+        m_domainManager.getDomain();
+        EasyMock.expectLastCall().andReturn(new Domain("example.org")).anyTimes();
+        EasyMock.replay(m_domainManager);
+
+        m_out = new MappingRules();
+        m_out.setDomainManager(m_domainManager);
     }
 
     public void testGetDocument() throws Exception {
-        MappingRules mappingRules = new MappingRules();
-        mappingRules.begin();
-        mappingRules.end();
-        Document document = mappingRules.getDocument();
+        m_out.begin();
+        m_out.end();
+        Document document = m_out.getDocument();
 
         String xml = XmlUnitHelper.asString(document);
         XmlUnitHelper.assertElementInNamespace(document.getRootElement(),
                 "http://www.sipfoundry.org/sipX/schema/xml/urlmap-00-00");
 
         assertXpathExists("/mappings/hostMatch/hostPattern", xml);
-        assertXpathEvaluatesTo("${SIPXCHANGE_DOMAIN_NAME}", "/mappings/hostMatch/hostPattern", xml);
+        assertXpathEvaluatesTo("example.org", "/mappings/hostMatch/hostPattern", xml);
         assertXpathEvaluatesTo("${MY_FULL_HOSTNAME}", "/mappings/hostMatch/hostPattern[2]", xml);
         assertXpathEvaluatesTo("${MY_HOSTNAME}", "/mappings/hostMatch/hostPattern[3]", xml);
         assertXpathEvaluatesTo("${MY_IP_ADDR}", "/mappings/hostMatch/hostPattern[4]", xml);
     }
 
     public void testGetDocumentInvalidExternals() throws Exception {
-        MappingRules mappingRules = new MappingRules();
-        mappingRules.begin();
-        mappingRules.end();
-        mappingRules.setExternalRulesFileName("/invalid/file/name");
-        Document document = mappingRules.getDocument();
+        m_out.begin();
+        m_out.end();
+        m_out.setExternalRulesFileName("/invalid/file/name");
+        Document document = m_out.getDocument();
 
         String xml = XmlUnitHelper.asString(document);
         XmlUnitHelper.assertElementInNamespace(document.getRootElement(),
@@ -87,11 +100,10 @@ public class MappingRulesTest extends XMLTestCase {
     public void testGetDocumentValidExternals() throws Exception {
         URL resource = getClass().getResource("external_mappingrules.test.xml");
 
-        MappingRules mappingRules = new MappingRules();
-        mappingRules.setExternalRulesFileName(resource.getFile());
-        mappingRules.begin();
-        mappingRules.end();
-        Document document = mappingRules.getDocument();
+        m_out.setExternalRulesFileName(resource.getFile());
+        m_out.begin();
+        m_out.end();
+        Document document = m_out.getDocument();
 
         String xml = XmlUnitHelper.asString(document);
 
@@ -108,11 +120,10 @@ public class MappingRulesTest extends XMLTestCase {
     public void testGetDocumentValidExternalsExtraSpaceInFilename() throws Exception {
         URL resource = getClass().getResource("external_mappingrules.test.xml");
 
-        MappingRules mappingRules = new MappingRules();
-        mappingRules.setExternalRulesFileName(resource.getFile() + " ");
-        mappingRules.begin();
-        mappingRules.end();
-        Document document = mappingRules.getDocument();
+        m_out.setExternalRulesFileName(resource.getFile() + " ");
+        m_out.begin();
+        m_out.end();
+        Document document = m_out.getDocument();
 
         String xml = XmlUnitHelper.asString(document);
 
@@ -143,11 +154,10 @@ public class MappingRulesTest extends XMLTestCase {
     }
 
     public void testGetHostMatch() throws Exception {
-        MappingRules mappingRules = new MappingRules();
-        mappingRules.begin();
-        mappingRules.end();
-        Element hostMatch = mappingRules.getFirstHostMatch();
-        Document document = mappingRules.getDocument();
+        m_out.begin();
+        m_out.end();
+        Element hostMatch = m_out.getFirstHostMatch();
+        Document document = m_out.getDocument();
         assertSame(document, hostMatch.getDocument());
         XmlUnitHelper.assertElementInNamespace(document.getRootElement(),
                 "http://www.sipfoundry.org/sipX/schema/xml/urlmap-00-00");
@@ -189,12 +199,11 @@ public class MappingRulesTest extends XMLTestCase {
         });
         control.replay();
 
-        MappingRules mappingRules = new MappingRules();
-        mappingRules.begin();
-        mappingRules.generate(rule);
-        mappingRules.end();
+        m_out.begin();
+        m_out.generate(rule);
+        m_out.end();
 
-        Document document = mappingRules.getDocument();
+        Document document = m_out.getDocument();
 
         String domDoc = XmlUnitHelper.asString(document);
 
@@ -216,12 +225,11 @@ public class MappingRulesTest extends XMLTestCase {
         control.andReturn(false);
         control.replay();
 
-        MappingRules mappingRules = new MappingRules();
-        mappingRules.begin();
-        mappingRules.generate(rule);
-        mappingRules.end();
+        m_out.begin();
+        m_out.generate(rule);
+        m_out.end();
 
-        Document document = mappingRules.getDocument();
+        Document document = m_out.getDocument();
         String domDoc = XmlUnitHelper.asString(document);
 
         assertXpathNotExists("/mappings/hostMatch/userMatch/userPattern", domDoc);
@@ -264,14 +272,13 @@ public class MappingRulesTest extends XMLTestCase {
         rules.add(new VoicemailRedirectRule());
 
 
-        MappingRules mappingRules = new MappingRules();
-        mappingRules.begin();
+        m_out.begin();
         for (DialingRule rule : rules) {
-            mappingRules.generate(rule);
+            m_out.generate(rule);
         }
-        mappingRules.end();
+        m_out.end();
 
-        String generatedXml = mappingRules.getFileContent();
+        String generatedXml = m_out.getFileContent();
 
         InputStream referenceXmlStream = getClass().getResourceAsStream("mappingrules-multiple-servers.test.xml");
 
@@ -315,12 +322,11 @@ public class MappingRulesTest extends XMLTestCase {
 
         control.replay();
 
-        MappingRules mappingRules = new MappingRules();
-        mappingRules.begin();
-        mappingRules.generate(rule);
-        mappingRules.end();
+        m_out.begin();
+        m_out.generate(rule);
+        m_out.end();
 
-        Document document = mappingRules.getDocument();
+        Document document = m_out.getDocument();
         String domDoc = XmlUnitHelper.asString(document);
 
         assertXpathExists("/mappings/hostMatch[1]/hostPattern", domDoc);
@@ -350,12 +356,11 @@ public class MappingRulesTest extends XMLTestCase {
         control.andReturn(new Transform[0]);
         control.replay();
 
-        MappingRules mappingRules = new MappingRules();
-        mappingRules.begin();
-        mappingRules.generate(rule);
-        mappingRules.end();
+        m_out.begin();
+        m_out.generate(rule);
+        m_out.end();
 
-        Document document = mappingRules.getDocument();
+        Document document = m_out.getDocument();
 
         String domDoc = XmlUnitHelper.asString(document);
 

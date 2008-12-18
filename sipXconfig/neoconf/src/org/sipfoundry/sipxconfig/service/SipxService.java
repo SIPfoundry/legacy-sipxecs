@@ -21,9 +21,9 @@ import org.springframework.beans.factory.annotation.Required;
 
 public abstract class SipxService extends BeanWithSettings {
 
-    private String m_beanId;
     private String m_modelName;
     private String m_modelDir;
+    private String m_beanId;
     private List<SipxServiceConfiguration> m_configurations;
     private String m_sipPort;
     private String m_logDir;

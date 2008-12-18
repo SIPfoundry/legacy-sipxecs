@@ -22,11 +22,14 @@ import org.apache.commons.lang.StringUtils;
 import org.custommonkey.xmlunit.XMLTestCase;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.dom4j.Document;
+import org.easymock.EasyMock;
 import org.sipfoundry.sipxconfig.admin.dialplan.CallDigits;
 import org.sipfoundry.sipxconfig.admin.dialplan.CallPattern;
 import org.sipfoundry.sipxconfig.admin.dialplan.CustomDialingRule;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPattern;
 import org.sipfoundry.sipxconfig.admin.dialplan.IDialingRule;
+import org.sipfoundry.sipxconfig.domain.Domain;
+import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
 import org.sipfoundry.sipxconfig.setting.Group;
 
@@ -40,9 +43,24 @@ import static org.sipfoundry.sipxconfig.XmlUnitHelper.assertElementInNamespace;
 import static org.sipfoundry.sipxconfig.XmlUnitHelper.setNamespaceAware;
 
 public class FallbackRulesTest extends XMLTestCase {
+
+    //Object Under Test
+    private FallbackRules m_out;
+
     public FallbackRulesTest() {
         setNamespaceAware(false);
         XMLUnit.setIgnoreWhitespace(true);
+    }
+
+    public void setUp() {
+        m_out = new FallbackRules();
+
+        DomainManager domainManager = EasyMock.createMock(DomainManager.class);
+        domainManager.getDomain();
+        EasyMock.expectLastCall().andReturn(new Domain("example.org")).anyTimes();
+        EasyMock.replay(domainManager);
+
+        m_out.setDomainManager(domainManager);
     }
 
     public void testGenerateRuleWithGateways() throws Exception {
@@ -69,12 +87,11 @@ public class FallbackRulesTest extends XMLTestCase {
 
         replay(rule);
 
-        MappingRules mappingRules = new FallbackRules();
-        mappingRules.begin();
-        mappingRules.generate(rule);
-        mappingRules.end();
+        m_out.begin();
+        m_out.generate(rule);
+        m_out.end();
 
-        Document document = mappingRules.getDocument();
+        Document document = m_out.getDocument();
 
         assertElementInNamespace(document.getRootElement(),
                 "http://www.sipfoundry.org/sipX/schema/xml/fallback-00-00");
@@ -110,12 +127,11 @@ public class FallbackRulesTest extends XMLTestCase {
 
         replay(rule);
 
-        MappingRules mappingRules = new FallbackRules();
-        mappingRules.begin();
-        mappingRules.generate(rule);
-        mappingRules.end();
+        m_out.begin();
+        m_out.generate(rule);
+        m_out.end();
 
-        Document document = mappingRules.getDocument();
+        Document document = m_out.getDocument();
         assertElementInNamespace(document.getRootElement(),
                 "http://www.sipfoundry.org/sipX/schema/xml/fallback-00-00");
 
@@ -168,12 +184,11 @@ public class FallbackRulesTest extends XMLTestCase {
         rule.setCallPattern(new CallPattern("444", CallDigits.NO_DIGITS));
         rule.setDialPatterns(Arrays.asList(new DialPattern("x", DialPattern.VARIABLE_DIGITS)));
 
-        MappingRules mappingRules = new FallbackRules();
-        mappingRules.begin();
-        mappingRules.generate(rule);
-        mappingRules.end();
+        m_out.begin();
+        m_out.generate(rule);
+        m_out.end();
 
-        Document document = mappingRules.getDocument();
+        Document document = m_out.getDocument();
 
         assertElementInNamespace(document.getRootElement(),
                 "http://www.sipfoundry.org/sipX/schema/xml/fallback-00-00");
@@ -190,12 +205,11 @@ public class FallbackRulesTest extends XMLTestCase {
         expectLastCall().andReturn(true);
         replay(rule);
 
-        MappingRules mappingRules = new FallbackRules();
-        mappingRules.begin();
-        mappingRules.generate(rule);
-        mappingRules.end();
+        m_out.begin();
+        m_out.generate(rule);
+        m_out.end();
 
-        Document document = mappingRules.getDocument();
+        Document document = m_out.getDocument();
 
         assertElementInNamespace(document.getRootElement(),
                 "http://www.sipfoundry.org/sipX/schema/xml/fallback-00-00");

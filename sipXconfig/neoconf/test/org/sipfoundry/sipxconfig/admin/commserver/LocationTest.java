@@ -39,10 +39,8 @@ public class LocationTest extends TestCase {
         Location out = new Location();
         Collection<SipxService> sipxServices = new ArrayList<SipxService>();
         SipxService proxyService = new SipxProxyService();
-        proxyService.setBeanId("sipxProxyService");
         sipxServices.add(proxyService);
         SipxService registrarService = new SipxRegistrarService();
-        registrarService.setBeanId("sipxRegistrarService");
         sipxServices.add(registrarService);
 
         out.setServiceDefinitions(sipxServices);
@@ -56,12 +54,10 @@ public class LocationTest extends TestCase {
         Location out = new Location();
         Collection<LocationSpecificService> services = new ArrayList<LocationSpecificService>();
         SipxService proxyService = new SipxProxyService();
-        proxyService.setBeanId("sipxProxyService");
         LocationSpecificService proxyLss= new LocationSpecificService();
         proxyLss.setSipxService(proxyService);
         services.add(proxyLss);
         SipxService registrarService = new SipxRegistrarService();
-        registrarService.setBeanId("sipxRegistrarService");
         LocationSpecificService registrarLss = new LocationSpecificService();
         registrarLss.setSipxService(registrarService);
         services.add(registrarLss);
@@ -77,16 +73,13 @@ public class LocationTest extends TestCase {
         Location out = new Location();
         Collection<SipxService> sipxServices = new ArrayList<SipxService>();
         SipxService proxyService = new SipxProxyService();
-        proxyService.setBeanId("sipxProxyService");
         sipxServices.add(proxyService);
         SipxService registrarService = new SipxRegistrarService();
-        registrarService.setBeanId("sipxRegistrarService");
         sipxServices.add(registrarService);
 
         out.setServiceDefinitions(sipxServices);
 
         SipxService parkService = new SipxParkService();
-        parkService.setBeanId("sipxParkService");
         out.addService(parkService);
 
         Collection<LocationSpecificService> servicesFromOut = out.getServices();
@@ -98,10 +91,8 @@ public class LocationTest extends TestCase {
         Location out = new Location();
         Collection<SipxService> sipxServices = new ArrayList<SipxService>();
         SipxService proxyService = new SipxProxyService();
-        proxyService.setBeanId("sipxProxyService");
         sipxServices.add(proxyService);
         SipxService registrarService = new SipxRegistrarService();
-        registrarService.setBeanId("sipxRegistrarService");
         sipxServices.add(registrarService);
 
         out.setServiceDefinitions(sipxServices);
@@ -113,5 +104,12 @@ public class LocationTest extends TestCase {
         Collection<LocationSpecificService> servicesFromOut = out.getServices();
         assertNotNull(servicesFromOut);
         assertEquals(1, servicesFromOut.size());
+    }
+
+    public void testGetHostname() {
+        Location out = new Location();
+        out.setFqdn("sipx.example.org");
+
+        assertEquals("sipx", out.getHostname());
     }
 }
