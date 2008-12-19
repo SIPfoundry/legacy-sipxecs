@@ -85,8 +85,8 @@ public class ProvisioningContextImpl implements ProvisioningContext {
     public Phone getPhoneForUser(User user) {
         Collection<Phone> phones = getSipxPhoneContext().getPhonesByUserIdAndPhoneModel(user.getId(), MODEL_ID);
         if (!phones.isEmpty()) {
-            for(Phone phone : phones) {
-                if(phone.getLine(0).getUser().equals(user)) {
+            for (Phone phone : phones) {
+                if (phone.getLine(0).getUser().equals(user)) {
                     return phone;
                 }
             }
