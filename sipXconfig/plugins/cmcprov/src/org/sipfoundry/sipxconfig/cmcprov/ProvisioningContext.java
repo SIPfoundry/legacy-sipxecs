@@ -10,6 +10,7 @@
 package org.sipfoundry.sipxconfig.cmcprov;
 
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.phone.Phone;
 
 public interface ProvisioningContext {
 
@@ -18,4 +19,6 @@ public interface ProvisioningContext {
     public String getUploadDirectory();
 
     public String getDomainName();
+    
+    public Phone getPhoneForUser(User user);
 }

@@ -1,7 +1,7 @@
 /*
  *
  *
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
+ * Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *
@@ -9,13 +9,18 @@
  */
 package org.sipfoundry.sipxconfig.cmcprov;
 
+import java.util.Collection;
+
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.Md5Encoder;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.upload.Upload;
 
 public class ProvisioningContextImpl implements ProvisioningContext {
+    private static final String MODEL_ID = "counterpathCMCEnterprise";
+    
     private CoreContext m_sipxCoreContext;
     private PhoneContext m_sipxPhoneContext;
     private Upload m_sipxUpload;
@@ -75,5 +80,13 @@ public class ProvisioningContextImpl implements ProvisioningContext {
 
     private String getEncodedPassword(String userName, String password) {
         return Md5Encoder.digestPassword(userName, m_sipxCoreContext.getAuthorizationRealm(), password);
+    }
+    
+    public Phone getPhoneForUser(User user) {
+        Collection<Phone> phones = getSipxPhoneContext().getPhonesByUserIdAndPhoneModel(user.getId(), MODEL_ID);
+        if (!phones.isEmpty()) {
+            return (Phone) phones.toArray()[0];
+        }
+        return null;
     }
 }

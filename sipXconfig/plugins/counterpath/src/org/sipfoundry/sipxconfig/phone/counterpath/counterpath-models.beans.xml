@@ -8,6 +8,7 @@
     <property name="maxLineCount" value="10"/>
     <property name="profileTemplate" value="counterpath/counterpath.ini.vm" />
     <property name="vendor" value="Counterpath"/>
+    <property name="serialNumberPattern" value="[a-zA-Z0-9]+"/>
   </bean>
 
   <!-- models -->
