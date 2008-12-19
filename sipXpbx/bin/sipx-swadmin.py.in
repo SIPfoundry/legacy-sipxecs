@@ -73,8 +73,9 @@ def update():
     flag = fcntl.fcntl(sys.stdout.fileno(), fcntl.F_GETFL)
     fcntl.fcntl(sys.stdout.fileno(), fcntl.F_SETFL, flag | os.O_NDELAY)
 
+    yumBase = yum.YumBase()
     sipxPackage = yumBase.rpmdb.searchAll("sipxecs-release")
-    if len(sipxPackage) == 0:
+    if len(sipxPackage) > 0:
         yumProcess = os.system("yum update -y --disablerepo=* --enablerepo=sipxecs*")
     else:
         yumProcess = os.system("yum update -y")
