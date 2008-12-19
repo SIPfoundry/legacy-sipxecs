@@ -923,7 +923,7 @@ UtlBoolean SipTransaction::doFirstSend(SipMessage& message,
     UtlString seqMethod;
     int responseCode = -1;
 
-    OsSocket::IpProtocolSocketType lastSentProtocol = message.getSendProtocol();
+    OsSocket::IpProtocolSocketType sendProtocol = message.getSendProtocol();
     // Time (msec) after which this message should be resent.
     int resendDuration;
     // Time (in microseconds) after which this message should be resent.
@@ -943,7 +943,7 @@ UtlBoolean SipTransaction::doFirstSend(SipMessage& message,
 
     if (toProtocol == OsSocket::UNKNOWN)
     {
-       if (lastSentProtocol == OsSocket::UNKNOWN)
+       if (sendProtocol == OsSocket::UNKNOWN)
        {
           /*
            * This problem should be fixed by XECS-414 which sends an 
@@ -957,7 +957,7 @@ UtlBoolean SipTransaction::doFirstSend(SipMessage& message,
        }
        else
        {
-          toProtocol = lastSentProtocol;
+          toProtocol = sendProtocol;
        }
     }
 
@@ -1018,7 +1018,7 @@ UtlBoolean SipTransaction::doFirstSend(SipMessage& message,
 
     if(toProtocol == OsSocket::TCP)
     {
-        lastSentProtocol = OsSocket::TCP;
+        sendProtocol = OsSocket::TCP;
         resendDuration = 0;
         // Set resend timer based on user agent TCP resend time.
         resendTime = userAgent.getReliableTransportTimeout() * 1000;
@@ -1026,7 +1026,7 @@ UtlBoolean SipTransaction::doFirstSend(SipMessage& message,
 #   ifdef SIP_TLS
     else if(toProtocol == OsSocket::SSL_SOCKET)
     {
-        lastSentProtocol = OsSocket::SSL_SOCKET;
+        sendProtocol = OsSocket::SSL_SOCKET;
         resendDuration = 0;
         // Set resend timer based on user agent TCP resend time.
         resendTime = userAgent.getReliableTransportTimeout() * 1000;
@@ -1041,7 +1041,7 @@ UtlBoolean SipTransaction::doFirstSend(SipMessage& message,
                 &message, toProtocol);
         }
 
-        lastSentProtocol = OsSocket::UDP;
+        sendProtocol = OsSocket::UDP;
         resendDuration = userAgent.getFirstResendTimeout();
         // Set resend timer based on user agent UDP resend time.
         resendTime = userAgent.getFirstResendTimeout() * 1000;
@@ -1049,7 +1049,7 @@ UtlBoolean SipTransaction::doFirstSend(SipMessage& message,
 
     // Set the transport information
     message.setResendDuration(resendDuration);
-    message.setSendProtocol(lastSentProtocol);
+    message.setSendProtocol(sendProtocol);
     message.touchTransportTime();
 
     SipMessage* transactionMessageCopy = NULL;
@@ -3442,11 +3442,10 @@ UtlBoolean SipTransaction::doResend(SipMessage& resendMessage,
         if(numTries < SIP_UDP_RESEND_TIMES)
         {
             // Try UDP again
-            numTries++;
             if(userAgent.sendUdp(&resendMessage, sendAddress.data(), sendPort))
             {
                 // Do this after the send so that the log message is correct
-                resendMessage.setTimesSent(numTries);
+                resendMessage.incrementTimesSent();
 
                 // Schedule the time out for the next resend.
                 if(lastTimeout < userAgent.getFirstResendTimeout())
@@ -3461,7 +3460,6 @@ UtlBoolean SipTransaction::doResend(SipMessage& resendMessage,
                 {
                     nextTimeout = userAgent.getLastResendTimeout();
                 }
-                resendMessage.setTimesSent(numTries);
                 resendMessage.setResendDuration(nextTimeout);
 
                 sentOk = TRUE;
@@ -3490,7 +3488,6 @@ UtlBoolean SipTransaction::doResend(SipMessage& resendMessage,
        else
        {
            // Try TCP once
-           numTries = 1;
            UtlBoolean sendOk;
            if(protocol == OsSocket::TCP)
            {
@@ -3517,7 +3514,7 @@ UtlBoolean SipTransaction::doResend(SipMessage& resendMessage,
                nextTimeout =
                    userAgent.getReliableTransportTimeout();
 
-               resendMessage.setTimesSent(numTries);
+               resendMessage.incrementTimesSent();
                resendMessage.setResendDuration(nextTimeout);
                resendMessage.setSendProtocol(protocol);
 
