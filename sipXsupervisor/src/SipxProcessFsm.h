@@ -87,6 +87,7 @@ public:
    virtual void DoEntryAction( SipxProcess& impl ) const;
    virtual void evStartProcess( SipxProcess& impl ) const;
    virtual void evRestartProcess( SipxProcess& impl ) const;
+   virtual void evStopProcess( SipxProcess& impl ) const;
    virtual void evProcessStopped( SipxProcess& impl ) const;
 };
 

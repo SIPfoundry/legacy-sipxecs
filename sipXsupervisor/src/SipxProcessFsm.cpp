@@ -54,15 +54,15 @@ void SipxProcessFsm::evStartProcess( SipxProcess& impl ) const
 
 void SipxProcessFsm::evStopProcess( SipxProcess& impl ) const
 {
-   OsSysLog::add(FAC_SUPERVISOR,PRI_WARNING,"'%s': Received unexpected event evStopProcess while in state '%s'",
+   OsSysLog::add(FAC_SUPERVISOR,PRI_INFO,"'%s': Received event evStopProcess while in state '%s'",
          impl.name(), impl.GetCurrentState()->name() );   
    
-   evProcessStopped(impl);
+   ChangeState( impl, impl.pStopping);
 }
 
 void SipxProcessFsm::evRestartProcess( SipxProcess& impl ) const
 {
-   OsSysLog::add(FAC_SUPERVISOR,PRI_WARNING,"'%s': Received unexpected event evRestartProcess while in state '%s'",
+   OsSysLog::add(FAC_SUPERVISOR,PRI_INFO,"'%s': Received event evRestartProcess while in state '%s'",
          impl.name(), impl.GetCurrentState()->name() );   
 
    ChangeState( impl, impl.pConfigurationMismatch );
@@ -153,6 +153,11 @@ void Disabled::evRestartProcess( SipxProcess& impl ) const
    {
       ChangeState( impl, impl.pConfigurationMismatch );
    }
+}
+
+void Disabled::evStopProcess( SipxProcess& impl ) const
+{
+   // NOP
 }
 
 void Disabled::evProcessStopped( SipxProcess& impl ) const
