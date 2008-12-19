@@ -412,7 +412,7 @@ public:
     //! @name Transport state accessors
     /*! \note: these are mostly only useful inside servers
      * that keep message state.
-     * Used for transport reliablity to tack when this message was
+     * Used for transport reliablity to track when this message was
      * sent so that it may be resent or timed-out.
      */
     //@{
@@ -420,19 +420,19 @@ public:
     void touchTransportTime();
     long getTransportTime() const;
 
-    //!  Used for transport to track reliably the last duration
-    //! waited before resending
+    //! Used by transport to record the current resend interval (from the last
+    //  time the message was sent to the time that the message is scheduled to
+    //  be resent). (msec)
     void setResendDuration(int resendMSec);
     int getResendDuration() const;
 
-    // Used by transport to track reliably the number of times the
-    // message was sent (and resent).
+    // Used by transport to record the number of times the message has
+    // been sent/resent.
     int getTimesSent() const;
     void incrementTimesSent();
     void setTimesSent(int times = 0);
 
-    // Used by the tranport to track reliably which protocol the
-    // message was sent over
+    // Used by tranport to record which protocol the message was sent over.
     void setSendProtocol(OsSocket::IpProtocolSocketType protocol = OsSocket::TCP);
     OsSocket::IpProtocolSocketType getSendProtocol() const;
 
@@ -778,10 +778,19 @@ protected:
 private:
    HttpBody* body;
    bool mUseChunkedEncoding;
+
+   // Note that these "transport parameters" are copied by the
+   // assignment and copy constructors.
+
    long transportTimeStamp;
+   // The resend timeout that was set at the last resend, which is thus
+   // the time from that resend until the resend timer fires.  (msec)
    int lastResendDuration;
+   // The transport protocol that is being used to send this message.
    OsSocket::IpProtocolSocketType transportProtocol;
+   // The number of times this message has been sent so far.
    int timesSent;
+
    UtlBoolean mFirstSent;
    UtlString mSendAddress;
    int mSendPort;

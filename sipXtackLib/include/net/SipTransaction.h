@@ -340,10 +340,14 @@ private:
     SipTransaction& operator=(const SipTransaction& rhs);
     //:Assignment operator (disabled)
 
+    // Resend a message when the resent timer has expired.  Also schedules
+    // the next resend.
     UtlBoolean doResend(SipMessage& resendMessage,
                        SipUserAgent& userAgent,
                        int& nextTimeoutMs);
 
+    // Do the first transmission of a message, including for requests,
+    // scheduling the timeout that triggers the first send.
     UtlBoolean doFirstSend(SipMessage& message,
                           enum messageRelationship relationship,
                           SipUserAgent& userAgent,

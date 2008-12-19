@@ -362,7 +362,9 @@ SipUserAgent::SipUserAgent(int sipTcpPort,
 
     UtlString hostIpAddress(sipIpAddress.data());
 
-    // Timers
+    // Set up timers.
+    // First, calculate mFirstResendTimeoutMs based on the sipFirstResendTimeout
+    // by applying appropriate limitations.
     if ( sipFirstResendTimeout <= 0)
     {
         mFirstResendTimeoutMs = SIP_DEFAULT_RTT;
@@ -375,7 +377,9 @@ SipUserAgent::SipUserAgent(int sipTcpPort,
     {
         mFirstResendTimeoutMs = sipFirstResendTimeout;
     }
+    // The other timers are scaled based on mFirstResendTimeoutMs.
     mLastResendTimeoutMs = 8 * mFirstResendTimeoutMs;
+    // Initial timeout for TCP is 2 times the UDP initial timeout.
     mReliableTransportTimeoutMs = 2 * mLastResendTimeoutMs;
     mTransactionStateTimeoutMs = 10 * mLastResendTimeoutMs;
 

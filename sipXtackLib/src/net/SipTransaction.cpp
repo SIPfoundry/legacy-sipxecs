@@ -30,7 +30,7 @@
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
-#define SIP_UDP_RESEND_TIMES 7
+#define SIP_UDP_RESEND_TIMES 7          // Maximum number of times to send/resend messages via UDP
 #define MIN_Q_DELTA_SQUARE 0.0000000001 // Smallest Q difference is 0.00001
 #define UDP_LARGE_MSG_LIMIT  1200       // spec says 1300, but we may have to add another via
 
@@ -924,7 +924,9 @@ UtlBoolean SipTransaction::doFirstSend(SipMessage& message,
     int responseCode = -1;
 
     OsSocket::IpProtocolSocketType lastSentProtocol = message.getSendProtocol();
+    // Time (msec) after which this message should be resent.
     int resendDuration;
+    // Time (in microseconds) after which this message should be resent.
     int resendTime;
 
 #   ifdef ROUTE_DEBUG
@@ -980,27 +982,25 @@ UtlBoolean SipTransaction::doFirstSend(SipMessage& message,
         message.setSendAddress(toAddress.data(), port);
         message.setFirstSent();
     }
-
     // Requests:
     else
     {
-
-        // This is the first send, save the address and port to which it get sent
+        // This is the first send, save the address and port to which it gets sent.
         message.setSendAddress(toAddress.data(), port);
         message.setFirstSent();
         message.getRequestMethod(&method);
 
-        // Add a via to requests, now that we know the protocol
+        // Add a Via header, now that we know the protocol.
 
-        // Get the via info
+        // Get the via info.
         UtlString viaAddress;
         UtlString viaProtocolString;
         SipMessage::convertProtocolEnumToString(toProtocol, viaProtocolString);
         int viaPort;
 
         userAgent.getViaInfo(toProtocol,
-                            viaAddress,
-                            viaPort);
+                             viaAddress,
+                             viaPort);
 
         // Add the via field data
         message.addVia(viaAddress.data(),
@@ -1014,13 +1014,13 @@ UtlBoolean SipTransaction::doFirstSend(SipMessage& message,
                       "SipTransaction::doFirstSend message send %s:%d via %s",
                       toAddress.data(), port, viaProtocolString.data());
 #       endif
-
     }
 
     if(toProtocol == OsSocket::TCP)
     {
         lastSentProtocol = OsSocket::TCP;
         resendDuration = 0;
+        // Set resend timer based on user agent TCP resend time.
         resendTime = userAgent.getReliableTransportTimeout() * 1000;
     }
 #   ifdef SIP_TLS
@@ -1028,6 +1028,7 @@ UtlBoolean SipTransaction::doFirstSend(SipMessage& message,
     {
         lastSentProtocol = OsSocket::SSL_SOCKET;
         resendDuration = 0;
+        // Set resend timer based on user agent TCP resend time.
         resendTime = userAgent.getReliableTransportTimeout() * 1000;
     }
 #   endif
@@ -1038,12 +1039,12 @@ UtlBoolean SipTransaction::doFirstSend(SipMessage& message,
             OsSysLog::add(FAC_SIP, PRI_WARNING,
                 "SipTransaction::doFirstSend %p unknown protocol: %d using UDP",
                 &message, toProtocol);
-
         }
 
-        resendTime = userAgent.getFirstResendTimeout() * 1000;
-        resendDuration = userAgent.getFirstResendTimeout();
         lastSentProtocol = OsSocket::UDP;
+        resendDuration = userAgent.getFirstResendTimeout();
+        // Set resend timer based on user agent UDP resend time.
+        resendTime = userAgent.getFirstResendTimeout() * 1000;
     }
 
     // Set the transport information
@@ -1075,7 +1076,7 @@ UtlBoolean SipTransaction::doFirstSend(SipMessage& message,
 
     // Save the transaction in the message to make
     // it easier to find the transaction on timeout or 
-	// transport error, eg. connect failure, far-end closed
+    // transport error, e.g. connect failure, far-end closed
     message.setTransaction(this);
 
     if (toProtocol == OsSocket::TCP)
@@ -1084,7 +1085,6 @@ UtlBoolean SipTransaction::doFirstSend(SipMessage& message,
                                          toAddress.data(),
                                          port);
     }
-
     else if (toProtocol == OsSocket::SSL_SOCKET)
     {
        sendSucceeded = userAgent.sendTls(&message,
@@ -1097,6 +1097,7 @@ UtlBoolean SipTransaction::doFirstSend(SipMessage& message,
                                          toAddress.data(),
                                          port);
     }
+
     if(   MESSAGE_REQUEST == relationship
        && !sendSucceeded
        )
@@ -1106,22 +1107,17 @@ UtlBoolean SipTransaction::doFirstSend(SipMessage& message,
 
 #   ifdef TEST_PRINT
     message.dumpTimeLog();
-#   endif
-
-#   ifdef TEST_PRINT
     OsSysLog::add(FAC_SIP, PRI_DEBUG,
                   "SipTransaction::doFirstSend set Scheduling & resend data");
 #   endif
 
-    // Increment after the send so the logging messages are
-    // acurate
-
+    // Increment the sent counter after the send so the logging messages are acurate.
     message.incrementTimesSent();
     if(transactionMessageCopy) transactionMessageCopy->incrementTimesSent();
 
     if(sendSucceeded)
     {
-        // Schedule a timeout for requests and final INVITE error
+        // Schedule a resend timeout for requests and final INVITE error
         // responses (2xx class INVITE responses will be resent
         // by user agents only)
         if(   (   ! isResponse
@@ -1144,7 +1140,7 @@ UtlBoolean SipTransaction::doFirstSend(SipMessage& message,
 
             if(transactionMessageCopy) transactionMessageCopy->setTransaction(this);
 
-            // Make a separate copy for the sip message resend timer
+            // Make a separate copy for the SIP message resend timer
             SipMessageEvent* resendEvent =
                 new SipMessageEvent(new SipMessage(message),
                                     SipMessageEvent::TRANSACTION_RESEND);
@@ -1154,27 +1150,29 @@ UtlBoolean SipTransaction::doFirstSend(SipMessage& message,
                           resendEvent->getMessage());
 #           endif
 
-            // Set an event timer to resend the message
-            // queue a message on this OsServerTask
+            // Set an event timer to resend the message.
+            // When it fires, queue a message to the SipUserAgent.
             OsMsgQ* incomingQ = userAgent.getMessageQueue();
             OsTimer* timer = new OsTimer(incomingQ, resendEvent);
             mTimers.append(timer);
+            // Set the resend timer based on resendTime.
+            OsTime timerTime(0, resendTime);
+            timer->oneshotAfter(timerTime);
 #ifdef TEST_PRINT
             OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                          "SipTransaction::doFirstSend added timer %p to timer list.",
-                          timer);
+                          "SipTransaction::doFirstSend added timer %p to timer list, time = %f secs",
+                          timer, resendTime / 1000000.0);
 #endif
-            // Convert from mSeconds to uSeconds
-            OsTime timerTime(0,
-                             resendTime);
-            timer->oneshotAfter(timerTime);
 
             // If this is a client transaction and we are sending
             // a request, set an expires timer for the transaction
             if(!mIsServerTransaction &&
                !isResponse)
             {
+                // Time (sec) after which to expire the transaction.
+                // Start with the mExpires value of this SipTransaction object.
                 int expireSeconds = mExpires;
+                // The upper limit is the user agent's mDefaultExpiresSeconds.
                 int maxExpires = userAgent.getDefaultExpiresSeconds();
                 // We cancel DNS SRV children after the configured DNS SRV timeout.
                 // The timeout is ignored if we receive any response.
@@ -1185,17 +1183,15 @@ UtlBoolean SipTransaction::doFirstSend(SipMessage& message,
                 {
                     expireSeconds = userAgent.getDnsSrvTimeout();
                 }
-
                 // Normal client transaction
                 else if(expireSeconds <= 0)
                 {
                     if(mpParentTransaction &&
                         mpParentTransaction->isChildSerial())
                     {
+                        // Transactions that fork serially get a different default expiration.
                         expireSeconds = userAgent.getDefaultSerialExpiresSeconds();
-
                     }
-
                     else
                     {
                         expireSeconds = maxExpires;
@@ -1209,10 +1205,10 @@ UtlBoolean SipTransaction::doFirstSend(SipMessage& message,
                     expireSeconds = maxExpires;
                 }
 
-                // Make a separate copy for the transaction expires timer
+                // Make a separate copy of the message for the transaction expires timer.
                 SipMessageEvent* expiresEvent =
                     new SipMessageEvent(new SipMessage(message),
-                                SipMessageEvent::TRANSACTION_EXPIRATION);
+                                        SipMessageEvent::TRANSACTION_EXPIRATION);
 
                 OsTimer* expiresTimer = new OsTimer(incomingQ, expiresEvent);
                 mTimers.append(expiresTimer);
@@ -3425,13 +3421,15 @@ UtlBoolean SipTransaction::doResend(SipMessage& resendMessage,
                                    SipUserAgent& userAgent,
                                    int& nextTimeout)
 {
-    // Find out how many times we have tried
+    // The timeout to set from this resend to the next resend. (msec)
     nextTimeout = 0;
+    // Get how many times we have sent this message before.
     int numTries = resendMessage.getTimesSent();
+    // Get the sending protocol.
     OsSocket::IpProtocolSocketType protocol = resendMessage.getSendProtocol();
     int lastTimeout = resendMessage.getResendDuration();
+    // Get the address/port to which to send the message.
     UtlString sendAddress;
-
     int sendPort;
     resendMessage.getSendAddress(&sendAddress, &sendPort);
     UtlBoolean sentOk = FALSE;
@@ -3445,31 +3443,24 @@ UtlBoolean SipTransaction::doResend(SipMessage& resendMessage,
         {
             // Try UDP again
             numTries++;
-            if(userAgent.sendUdp(&resendMessage,
-                sendAddress.data(), sendPort))
+            if(userAgent.sendUdp(&resendMessage, sendAddress.data(), sendPort))
             {
-                // Do this after the send so that
-                // the log message is correct
+                // Do this after the send so that the log message is correct
                 resendMessage.setTimesSent(numTries);
 
-                // Schedule a time out
-                if(lastTimeout <
-                    userAgent.getFirstResendTimeout())
+                // Schedule the time out for the next resend.
+                if(lastTimeout < userAgent.getFirstResendTimeout())
                 {
-                    nextTimeout =
-                        userAgent.getFirstResendTimeout();
+                    nextTimeout = userAgent.getFirstResendTimeout();
                 }
-                else if(lastTimeout <
-                    userAgent.getLastResendTimeout())
+                else if(lastTimeout < userAgent.getLastResendTimeout())
                 {
                     nextTimeout = lastTimeout * 2;
                 }
                 else
                 {
-                    nextTimeout =
-                        userAgent.getLastResendTimeout();
+                    nextTimeout = userAgent.getLastResendTimeout();
                 }
-
                 resendMessage.setTimesSent(numTries);
                 resendMessage.setResendDuration(nextTimeout);
 
@@ -3477,13 +3468,11 @@ UtlBoolean SipTransaction::doResend(SipMessage& resendMessage,
             }
         }
     }
-
+    else if(   protocol == OsSocket::TCP
 #ifdef SIP_TLS
-    else if(protocol == OsSocket::TCP ||
-       protocol == OsSocket::SSL_SOCKET)
-#else
-    else if(protocol == OsSocket::TCP)
+            || protocol == OsSocket::SSL_SOCKET
 #endif
+           )
     {
        if(numTries >= 1)
        {
@@ -3502,7 +3491,6 @@ UtlBoolean SipTransaction::doResend(SipMessage& resendMessage,
        {
            // Try TCP once
            numTries = 1;
-
            UtlBoolean sendOk;
            if(protocol == OsSocket::TCP)
            {
@@ -3561,8 +3549,7 @@ UtlBoolean SipTransaction::doResend(SipMessage& resendMessage,
 #endif
 
                // Convert from mSeconds to uSeconds
-               OsTime lapseTime(0,
-                   nextTimeout * 1000);
+               OsTime lapseTime(0, nextTimeout * 1000);
                timer->oneshotAfter(lapseTime);
 
 

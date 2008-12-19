@@ -27,8 +27,9 @@
 #include <net/SipOutputProcessor.h>
 
 // DEFINES
-#define SIP_DEFAULT_RTT     500
-#define SIP_MINIMUM_RTT     100
+#define SIP_DEFAULT_RTT     500 // Default T1 value (RFC 3261), in msec.
+                                // Intended to be estimate of RTT of network.
+#define SIP_MINIMUM_RTT     100 // Minimum T1 value allowed, in msec.
 #define SIP_MAX_PORT_RANGE  10  // If a port is in use and the sip user agent 
                                 // is created with bUseNextAvailablePort set to
                                 // true, this is the number of sequential ports
@@ -212,7 +213,10 @@ public:
      * \param lineMgr - SipLineMgr object which is container for user
      *        definitions and their credentials.  This is used to
      *        authenticate incoming requests to the UA application.
-     * \param sipFirstResendTimeout - T1 in RFC 3261
+     * \param sipFirstResendTimeout - T1 in RFC 3261, in msec
+     *        Time from first send of a message (using UDP) to first resend.
+     *        0 defaults to SIP_DEFAULT_RTT (defined above)
+     *        minimum allowed value is SIP_MINIMUM_RTT (defined above)
      * \param defaultToUaTransactions - default transactions to be
      *        UA or PROXY.  TRUE means that this is a UA and associated
      *        validation should occur.  FALSE means that this is a
@@ -525,18 +529,19 @@ public:
 
     int getSipStateTransactionTimeout();
 
+    // Manipulate mDefaultExpiresSeconds, the default time to let a transaction live.
     int getDefaultExpiresSeconds() const;
-
     void setDefaultExpiresSeconds(int expiresSeconds);
 
+    // Manipulate mDefaultSerialExpiresSeconds, the default time to
+    // let a transaction live if it is a serially-forked child.
     int getDefaultSerialExpiresSeconds() const;
+    void setDefaultSerialExpiresSeconds(int expiresSeconds);
 
     //! Tells the User Agent whether or not to append
     //! the platform name onto the User Agent string
     void setIncludePlatformInUserAgentName(const bool bInclude);
     
-    void setDefaultSerialExpiresSeconds(int expiresSeconds);
-
     //! Period of time a TCP socket can remain idle before it is removed
     void setMaxTcpSocketIdleTime(int idleTimeSeconds);
 
@@ -706,10 +711,13 @@ protected:
                        const char* serverAddress,
                        int port);
 
+    // Get mReliableTransportTimeoutMs, the time from first send via TCP to first resend (msec).
     int getReliableTransportTimeout();
 
+    // Get mFirstResendTimeoutMs, the time from first send via UDP to first resend (msec).
     int getFirstResendTimeout();
 
+    // ***
     int getLastResendTimeout();
 
     UtlBoolean shouldAuthenticate(SipMessage* message) const;
@@ -759,17 +767,22 @@ private:
     OsRWMutex mMessageLogWMutex;
     OsRWMutex mOutputProcessorMutex;
     
-    //times
-    int mFirstResendTimeoutMs; //intialtimeout
-    int mLastResendTimeoutMs; //timeout between last 2 resends
-    int mReliableTransportTimeoutMs;//TCP timeout
-    int mTransactionStateTimeoutMs;//transaction timeout
-    int mDefaultExpiresSeconds; // Seconds
+    // Timers (in seconds or milliseconds)
+    // Time allowed before first resend of a message, in msec.
+    // T1 in RFC 3261.
+    int mFirstResendTimeoutMs;
+    int mLastResendTimeoutMs;
+    int mReliableTransportTimeoutMs;
+    int mTransactionStateTimeoutMs;
+    int mDefaultExpiresSeconds;
     int mDefaultSerialExpiresSeconds;
-    int mMinInviteTransactionTimeout; // INVITE tx must live longer so the phone can ring
-    int mMaxTcpSocketIdleTime; // time after which unused TCP sockets are removed
+    // Minimum secs needed for an INVITE transaction so that a called phone
+    // can be answered.
+    int mMinInviteTransactionTimeout;
+    int mMaxTcpSocketIdleTime; // Time after which unused TCP sockets are removed (secs)
+    int mDnsSrvTimeout; // Time to give up & try the next DNS SRV record (secs)
+
     int mMaxSrvRecords; // Max num of DNS SRV records to use before giving up
-    int mDnsSrvTimeout; // second to give up & try the next DNS SRV record
 
 
     UtlString defaultUserAgentName;
