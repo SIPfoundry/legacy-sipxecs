@@ -158,7 +158,7 @@ private:
        <td>string</td>
        <td>Command Name</td>
        <td>The subcommand of the software administration to execute.  Currently supports
-           "version", "check-update" and "update"</td>
+           "version", "check-update", "update", "restart" and "reboot"</td>
     </tr>
  </table>
  

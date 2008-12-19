@@ -41,6 +41,8 @@ const char* SwAdminExec = "sipx-swadmin.py";
 const char* SwAdminCheckUpdate_cmd = "check-update";
 const char* SwAdminUpdate_cmd = "update";
 const char* SwAdminVersion_cmd = "version";
+const char* SwAdminRestart_cmd = "restart";
+const char* SwAdminReboot_cmd = "reboot";
 const char* SwAdminStdOut_filetype = ".output";
 const char* SwAdminStdErr_filetype = ".err";
 
@@ -231,9 +233,21 @@ bool SwAdminRpcMethod::buildOutputFiles(const UtlString&     command,
             stderrfn.append(SwAdminUpdate_cmd);
          }   
          else
-         {
-            return false;
-         }
+            if ( command.compareTo(SwAdminRestart_cmd, UtlString::ignoreCase) == 0) 
+            {
+               stdoutfn.append(SwAdminRestart_cmd);
+               stderrfn.append(SwAdminRestart_cmd);
+            }      
+            else
+               if ( command.compareTo(SwAdminReboot_cmd, UtlString::ignoreCase) == 0) 
+               {
+                  stdoutfn.append(SwAdminReboot_cmd);
+                  stderrfn.append(SwAdminReboot_cmd);
+               }   
+               else
+               {
+                  return false;
+               }
   
    stderrfn.append(SwAdminStdErr_filetype);
    stdoutfn.append(SwAdminStdOut_filetype);

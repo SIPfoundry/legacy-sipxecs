@@ -62,6 +62,8 @@ def usage_exit(error_code=1)
   -C|--checkUpdate      Check for Software Updates
   -V|--checkSwVersion   Check Software Version
   -U|--updateSwVersion  Update Software
+  -R|--restartSipXecs   Restart the SipXecs services
+  -B|--rebootSystem     Reboot the system
 
 __EOU__
 
@@ -87,6 +89,8 @@ if __FILE__ == $0
       ['--checkUpdate','-C',      GetoptLong::NO_ARGUMENT],
       ['--checkSwVersion','-V',   GetoptLong::NO_ARGUMENT],
       ['--updateSwVersion','-U',  GetoptLong::NO_ARGUMENT],
+      ['--restartSipXecs','-R',  GetoptLong::NO_ARGUMENT],
+      ['--rebootSystem','-B',  GetoptLong::NO_ARGUMENT],
       ['--help','-h',          GetoptLong::NO_ARGUMENT]
    ]
 end
@@ -141,6 +145,12 @@ begin
          when '--updateSwVersion'
             action = 'exec'
             argument = 'update'
+         when '--restartSipXecs'
+            action = 'exec'
+            argument = 'restart'
+         when '--rebootSystem'
+            action = 'exec'
+            argument = 'reboot'
          when '--getStatusMessages', '--runConfigtest', '--getConfigtestMessages'
             # One string argument must be specified.
             action = name.gsub(/--/, '')
