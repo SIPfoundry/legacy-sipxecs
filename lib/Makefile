@@ -51,4 +51,4 @@ f9 : $(CUSTOM_PACKAGES)
 rhel5 centos5 rhel4 : $(CUSTOM_PACKAGES) w3c-libwww rubygems cppunit
 
 .PHONY: suse11.0
-suse11.0 : stunnel w3c-libwww $(CUSTOM_PACKAGES)
+suse11.0 : stunnel w3c-libwww cppunit $(CUSTOM_PACKAGES)
