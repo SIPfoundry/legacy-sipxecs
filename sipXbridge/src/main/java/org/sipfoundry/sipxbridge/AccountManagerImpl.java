@@ -7,14 +7,12 @@
 package org.sipfoundry.sipxbridge;
 
 import gov.nist.javax.sip.clientauthutils.UserCredentials;
-import gov.nist.javax.sip.header.ims.PAssertedIdentityHeader;
 import gov.nist.javax.sip.header.ims.PPreferredIdentityHeader;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Hashtable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 

@@ -7,7 +7,6 @@
 package org.sipfoundry.sipxbridge;
 
 import java.text.ParseException;
-import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -16,7 +15,6 @@ import javax.sip.ListeningPoint;
 import javax.sip.SipProvider;
 import javax.sip.address.Address;
 import javax.sip.address.SipURI;
-import javax.sip.header.AuthorizationHeader;
 import javax.sip.header.CSeqHeader;
 import javax.sip.header.CallIdHeader;
 import javax.sip.header.ContactHeader;
@@ -27,9 +25,6 @@ import javax.sip.header.ViaHeader;
 import javax.sip.message.Request;
 
 import org.apache.log4j.Logger;
-import org.sipfoundry.sipxbridge.Gateway;
-import org.sipfoundry.sipxbridge.GatewayConfigurationException;
-import org.sipfoundry.sipxbridge.ItspAccountInfo;
 
 public class TestUtilities {
 

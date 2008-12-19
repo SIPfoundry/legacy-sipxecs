@@ -6,35 +6,21 @@
  */
 package org.sipfoundry.sipxbridge;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileReader;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
 import java.util.HashSet;
 import java.util.Properties;
 
-import javax.sdp.MediaDescription;
 import javax.sdp.SdpFactory;
 import javax.sdp.SessionDescription;
 import javax.sip.message.Request;
 import javax.sip.message.Response;
 
-import org.apache.log4j.PropertyConfigurator;
-import org.sipfoundry.sipxbridge.Gateway;
-import org.sipfoundry.sipxbridge.ItspAccountInfo;
-import org.sipfoundry.sipxbridge.MockItsp.SocketReader;
-import org.sipfoundry.sipxbridge.MockItsp.SocketWriter;
+import junit.framework.TestCase;
+
 import org.cafesip.sipunit.SipCall;
 import org.cafesip.sipunit.SipPhone;
 import org.cafesip.sipunit.SipRequest;
-import org.cafesip.sipunit.SipResponse;
 import org.cafesip.sipunit.SipStack;
-import org.cafesip.sipunit.SipTestCase;
-import org.cafesip.sipunit.SipTransaction;
-
-import junit.framework.TestCase;
+import org.sipfoundry.sipxbridge.MockItsp.SocketReader;
 
 public class SimpleCallSetupTest extends AbstractSipSignalingTest {
 

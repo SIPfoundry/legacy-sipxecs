@@ -8,10 +8,6 @@ package org.sipfoundry.sipxbridge;
 
 import java.util.TimerTask;
 
-import javax.sip.ClientTransaction;
-import javax.sip.SipProvider;
-import javax.sip.message.Request;
-
 /**
  * Issues a re-registration after time expires.
  * 

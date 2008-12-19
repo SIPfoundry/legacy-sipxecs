@@ -10,15 +10,14 @@
 
 package org.sipfoundry.sipxbridge;
 
-import java.util.HashSet;
-
 import gov.nist.javax.sip.DialogExt;
+
+import java.util.HashSet;
 
 import javax.sdp.SessionDescription;
 import javax.sip.ClientTransaction;
 import javax.sip.Dialog;
 import javax.sip.ServerTransaction;
-import javax.sip.header.SupportedHeader;
 import javax.sip.message.Request;
 import javax.sip.message.Response;
 

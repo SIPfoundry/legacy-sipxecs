@@ -6,12 +6,8 @@
  */
 package org.sipfoundry.sipxbridge;
 
-import java.io.IOException;
 import java.util.Random;
-import java.util.Vector;
 
-import javax.sdp.Connection;
-import javax.sdp.MediaDescription;
 import javax.sdp.Origin;
 import javax.sdp.SdpFactory;
 import javax.sdp.SessionDescription;

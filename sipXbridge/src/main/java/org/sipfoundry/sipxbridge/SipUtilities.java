@@ -46,7 +46,6 @@ import javax.sip.header.ContactHeader;
 import javax.sip.header.ContentTypeHeader;
 import javax.sip.header.ExpiresHeader;
 import javax.sip.header.FromHeader;
-import javax.sip.header.Header;
 import javax.sip.header.MaxForwardsHeader;
 import javax.sip.header.ReferToHeader;
 import javax.sip.header.RouteHeader;

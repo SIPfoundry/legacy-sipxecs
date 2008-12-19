@@ -6,8 +6,6 @@
  */
 package org.sipfoundry.sipxbridge;
 
-import gov.nist.javax.sip.DialogExt;
-
 import javax.sip.ClientTransaction;
 import javax.sip.Dialog;
 import javax.sip.DialogState;

@@ -3,8 +3,6 @@ package org.sipfoundry.sipxbridge;
 import javax.sip.Dialog;
 import javax.sip.RequestEvent;
 import javax.sip.ServerTransaction;
-import javax.sip.SipProvider;
-import javax.sip.message.Request;
 
 /**
  * Continuation data for re-invite processing.

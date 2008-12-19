@@ -38,7 +38,6 @@ import javax.sip.SipProvider;
 import javax.sip.TransactionState;
 import javax.sip.address.Address;
 import javax.sip.address.SipURI;
-import javax.sip.header.AcceptHeader;
 import javax.sip.header.CSeqHeader;
 import javax.sip.header.CallIdHeader;
 import javax.sip.header.ContactHeader;

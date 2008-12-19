@@ -7,8 +7,6 @@ import java.util.Properties;
 import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
-import org.apache.xmlrpc.XmlRpcException;
-import org.apache.xmlrpc.client.XmlRpcClient;
 import org.sipfoundry.sipxbridge.xmlrpc.RegistrationRecord;
 import org.sipfoundry.sipxbridge.xmlrpc.SipXbridgeXmlRpcClient;
 

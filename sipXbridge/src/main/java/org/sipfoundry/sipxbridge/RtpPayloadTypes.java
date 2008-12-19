@@ -6,7 +6,6 @@
  */
 package org.sipfoundry.sipxbridge;
 
-import java.util.HashSet;
 import java.util.Hashtable;
 
 import org.apache.log4j.Logger;

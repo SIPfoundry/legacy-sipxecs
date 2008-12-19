@@ -6,8 +6,6 @@
  */
 package org.sipfoundry.sipxbridge.symmitron;
 
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 import java.nio.channels.DatagramChannel;
 import java.util.HashMap;

@@ -1,6 +1,5 @@
 package org.sipfoundry.sipxbridge.symmitron;
 
-import java.util.Set;
 
 
 public interface BridgeInterface {

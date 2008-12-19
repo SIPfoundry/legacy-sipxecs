@@ -10,7 +10,6 @@
 
 package org.sipfoundry.sipxbridge.symmitron;
 
-import java.net.UnknownHostException;
 
 /**
  * Transmitter endpoint for symmitron.

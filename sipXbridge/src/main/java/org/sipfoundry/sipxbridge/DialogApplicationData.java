@@ -19,7 +19,6 @@ import javax.sdp.SessionDescription;
 import javax.sip.ClientTransaction;
 import javax.sip.Dialog;
 import javax.sip.DialogState;
-import javax.sip.RequestEvent;
 import javax.sip.ServerTransaction;
 import javax.sip.SipProvider;
 import javax.sip.Transaction;

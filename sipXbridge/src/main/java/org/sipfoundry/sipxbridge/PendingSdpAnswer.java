@@ -7,7 +7,6 @@
 package org.sipfoundry.sipxbridge;
 
 import javax.sdp.SessionDescription;
-import javax.sip.ServerTransaction;
 
 
 /**

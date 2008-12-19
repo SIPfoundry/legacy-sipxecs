@@ -15,7 +15,6 @@ import javax.sip.SipException;
 import javax.sip.SipProvider;
 import javax.sip.TimeoutEvent;
 import javax.sip.address.SipURI;
-import javax.sip.header.AllowHeader;
 import javax.sip.header.ContactHeader;
 import javax.sip.message.Request;
 import javax.sip.message.Response;

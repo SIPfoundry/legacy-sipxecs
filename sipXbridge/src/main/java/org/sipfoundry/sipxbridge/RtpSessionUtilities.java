@@ -9,8 +9,6 @@ package org.sipfoundry.sipxbridge;
 import gov.nist.javax.sip.DialogExt;
 import gov.nist.javax.sip.header.ims.PAssertedIdentityHeader;
 
-import java.util.HashSet;
-
 import javax.sdp.SdpParseException;
 import javax.sdp.SessionDescription;
 import javax.sip.ClientTransaction;

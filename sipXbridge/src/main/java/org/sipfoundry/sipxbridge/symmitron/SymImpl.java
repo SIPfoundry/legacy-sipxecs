@@ -6,10 +6,6 @@ package org.sipfoundry.sipxbridge.symmitron;
  *
  */
 
-import java.util.Map;
-
-import org.sipfoundry.sipxbridge.symmitron.SymEndpointInterface;
-import org.sipfoundry.sipxbridge.symmitron.SymInterface;
 
 
 public class SymImpl implements SymInterface {

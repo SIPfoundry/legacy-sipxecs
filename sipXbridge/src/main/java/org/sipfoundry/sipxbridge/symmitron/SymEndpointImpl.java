@@ -6,7 +6,6 @@
  */
 package org.sipfoundry.sipxbridge.symmitron;
 
-import org.sipfoundry.sipxbridge.symmitron.SymEndpointInterface;
 
 public class SymEndpointImpl implements SymEndpointInterface {
     private SymmitronClient symmitronClient;

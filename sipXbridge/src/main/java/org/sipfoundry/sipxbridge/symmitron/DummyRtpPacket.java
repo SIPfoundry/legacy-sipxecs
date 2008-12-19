@@ -9,8 +9,6 @@ package org.sipfoundry.sipxbridge.symmitron;
 import java.nio.ByteBuffer;
 import java.util.Random;
 
-import org.apache.log4j.Logger;
-
 /**
  * A simple RTP packet class.
  * 

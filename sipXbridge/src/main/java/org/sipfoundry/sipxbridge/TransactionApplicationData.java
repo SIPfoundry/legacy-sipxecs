@@ -12,7 +12,6 @@ import javax.sip.ServerTransaction;
 import javax.sip.SipProvider;
 import javax.sip.Transaction;
 import javax.sip.message.Request;
-import javax.sip.message.Response;
 
 import org.apache.log4j.Logger;
 

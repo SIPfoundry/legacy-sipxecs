@@ -2,19 +2,15 @@ package org.sipfoundry.sipxbridge.symmitron;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileReader;
 import java.net.URL;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Random;
 
-import org.apache.log4j.PropertyConfigurator;
+import junit.framework.TestCase;
+
 import org.apache.xmlrpc.client.XmlRpcClient;
 import org.apache.xmlrpc.client.XmlRpcClientConfigImpl;
-import org.sipfoundry.sipxbridge.symmitron.SymInterface;
-import org.sipfoundry.sipxbridge.symmitron.Symmitron;
-
-import junit.framework.TestCase;
 
 public abstract class AbstractSymmitronTestCase extends TestCase {
     protected static String serverAddress;
