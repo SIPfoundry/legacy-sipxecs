@@ -2,6 +2,7 @@
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN"
   "http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
+  <!-- models -->
   <bean id="counterpathStandard" abstract="true" parent="abstractPhoneModel">
     <property name="beanId" value="counterpath" />
     <property name="label" value="Counterpath" />
@@ -10,12 +11,11 @@
     <property name="vendor" value="Counterpath"/>
     <property name="serialNumberPattern" value="[a-zA-Z0-9]+"/>
   </bean>
-
-  <!-- models -->
-  <bean id="counterpathCMCEnterprise" parent="counterpathStandard">
+  
+  <bean id="counterpathCMCEnterprise" class="org.sipfoundry.sipxconfig.phone.counterpath.CounterpathPhoneModel" parent="counterpathStandard">
     <property name="label" value="Counterpath CMC Enterprise" />
   </bean>
-
+    
   <bean id="counterpath" class="org.sipfoundry.sipxconfig.phone.counterpath.CounterpathPhone" singleton="false" parent="abstractPhone">
   </bean>
 </beans>

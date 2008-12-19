@@ -26,7 +26,7 @@ public class CounterpathPhoneTest extends TestCase {
     }
 
     public void testGenerateCounterpathCMCEnterprise() throws Exception {
-        PhoneModel counterpathModel = new PhoneModel("counterpath");
+        CounterpathPhoneModel counterpathModel = new CounterpathPhoneModel("counterpath");
         counterpathModel.setProfileTemplate("counterpath/counterpath.ini.vm");
         counterpathModel.setModelId("counterpathCMCEnterprise");
         CounterpathPhone phone = new CounterpathPhone();

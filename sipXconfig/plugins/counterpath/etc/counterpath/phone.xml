@@ -698,11 +698,11 @@ If this setting is true and the compuer has a low bandwidth connection, then the
     <label>Provisioning</label>
     <group name="auto_update">
       <label>Auto update</label>
-      <setting name="system:auto_update:code_server_url">
+      <setting name="system:auto_update:code_server_url" advanced="yes">
         <label>Code server URL</label>
         <value></value>
-        <description>The “upgrade executable server”: the server that handle remote update requests.
-The setting must be specified before any remote update can be performed. If there is ever a need to point to a new server, change the setting through remote update or through forced update (if it is necessary to make the change immediately).</description>
+        <description>The “upgrade executable server”: the server that handle remote update requests.  Should be left blank (unless there is a different upgrade server available) so the phone can use the default one which comes embedded with it. 
+        </description>
       </setting>
       <setting name="system:auto_update:update_check_initial_t1_s">
         <label>Initial update timer</label>

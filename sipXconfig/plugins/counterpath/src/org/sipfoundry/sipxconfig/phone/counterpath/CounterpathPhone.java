@@ -85,7 +85,7 @@ public class CounterpathPhone extends Phone {
             } else {
                 return null;
             }
-        }
+        }       
     }
 
     public static class CounterpathLineDefaults {

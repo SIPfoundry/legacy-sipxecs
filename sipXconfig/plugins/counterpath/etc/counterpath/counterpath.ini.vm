@@ -5,7 +5,10 @@
 #if($setting.value)
 ${setting.name}="${setting.value}"
 #else
+#if($setting.name == "system:auto_update:code_server_url")
+#else
 ${setting.name}=""
+#end
 #end
 #end
 #end
