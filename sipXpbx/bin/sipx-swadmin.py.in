@@ -51,7 +51,7 @@ def check_version():
     sipxPackage = yumBase.rpmdb.searchAll("sipxcommons")
     if len(sipxPackage) == 0:
        sipxPackage = yumBase.rpmdb.searchAll("sipxcommonserverlib")
-  
+ 
     if len(sipxPackage) > 0:
        print sipxPackage[0].name + " " + sipxPackage[0].ver + "-" + sipxPackage[0].release
     else:
@@ -62,7 +62,7 @@ def check_version():
     sys.stdout.flush()
     sys.stderr.flush()
     
-# Downloads and installs updated packages for the system 
+# Downloads and installs updated packages for the system
 def update():
     print "Downloading and installing updated packages...\n\n"
     sys.stdout.flush()
