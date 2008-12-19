@@ -450,7 +450,7 @@ public:
 
       // requisite first NOTIFY request
       SipMessage notify_request;
-      CPPUNIT_ASSERT( getNextMessageFromRlsServerUnderTest( notify_request, 5 ) );
+      CPPUNIT_ASSERT( getNextMessageFromRlsServerUnderTest( notify_request, 15 ) );
       CPPUNIT_ASSERT( ! notify_request.isResponse() );
       UtlString tmp;
       notify_request.getRequestMethod(&tmp);
