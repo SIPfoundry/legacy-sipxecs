@@ -4208,11 +4208,26 @@ void SipMessage::setSupportedField(const char* supportedField)
 
 UtlBoolean SipMessage::isInSupportedField(const char* token) const
 {
+   return isInSpecifiedHeaderField(token, SIP_SUPPORTED_FIELD);
+}
+
+UtlBoolean SipMessage::getRequireField(UtlString& requireField) const
+{
+    return(getFieldSubfield(SIP_REQUIRE_FIELD, 0, &requireField));
+}
+
+UtlBoolean SipMessage::isInRequireField(const char* token) const
+{
+   return isInSpecifiedHeaderField(token, SIP_REQUIRE_FIELD);
+}
+
+UtlBoolean SipMessage::isInSpecifiedHeaderField(const char* token, const char* header) const
+{
    UtlBoolean tokenFound = FALSE;
    UtlString url;
    int fieldIndex = 0;
    int subFieldIndex = 0;
-   const char* value = getHeaderValue(fieldIndex, SIP_SUPPORTED_FIELD);
+   const char* value = getHeaderValue(fieldIndex, header);
 
    while (value && !tokenFound)
    {

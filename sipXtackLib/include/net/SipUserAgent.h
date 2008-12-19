@@ -444,6 +444,12 @@ public:
 
     void getSupportedExtensions(UtlString& extensionsString);
 
+    //! Add the specified Require header "extension" for clients.
+    void requireExtension(const char* extension);
+
+    //! Get the extensions Require'd for clients, blank if there are none.
+    void getRequiredExtensions(UtlString& extensionsString);
+
     //! Set the SIP proxy servers for the user agent.
     /*! This method will clear any existing proxy servers before
      *  resetting this list.  NOTE: As of 12/2004, only the first
@@ -600,6 +606,8 @@ public:
 
     UtlBoolean isExtensionAllowed(const char* extension) const;
 
+    UtlBoolean isExtensionRequired(const char* extension) const;
+
     UtlBoolean isForkingEnabled();
 
     UtlBoolean isMyHostAlias(const Url& route) const;
@@ -740,6 +748,7 @@ private:
     int mSipPort;
     UtlDList allowedSipMethods;
     UtlDList allowedSipExtensions;
+    UtlDList requiredSipExtensions;
     // The specific name for this compnent, to be added to the User-Agent
     // or Server headers.
     UtlString mUserAgentHeaderProperties;

@@ -58,7 +58,7 @@ UtlBoolean RlsSubscribePolicy::isAuthorized(const SipMessage& subscribeRequest,
                                             SipMessage& subscribeResponse)
 {
    // SUBSCRIBE is authorized if "eventlist" is supported.
-   UtlBoolean ret = subscribeRequest.isInSupportedField("eventlist");
+   UtlBoolean ret = subscribeRequest.isInSupportedField(SIP_EVENTLIST_EXTENSION);
 
    // If we return false, we must construct a failure response.
    if (!ret)
@@ -68,7 +68,7 @@ UtlBoolean RlsSubscribePolicy::isAuthorized(const SipMessage& subscribeRequest,
       subscribeResponse.setResponseData(&subscribeRequest,
                                         SIP_EXTENSION_REQUIRED_CODE,
                                         SIP_EXTENSION_REQUIRED_TEXT);
-      subscribeResponse.addRequireExtension("eventlist");
+      subscribeResponse.addRequireExtension(SIP_EVENTLIST_EXTENSION);
    }
    
    return ret;

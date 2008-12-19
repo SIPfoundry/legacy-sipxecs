@@ -539,6 +539,7 @@ SipUserAgent::~SipUserAgent()
 
     mMessageObservers.destroyAll();
     allowedSipExtensions.destroyAll();
+    requiredSipExtensions.destroyAll();
     allowedSipMethods.destroyAll();
 }
 
@@ -1071,6 +1072,21 @@ UtlBoolean SipUserAgent::send(SipMessage& message,
             {
                message.setSupportedField(supportedExtensions.data());
                supportedExtensions.remove(0);
+            }
+         }
+
+         // Set the Require field if this is neither a CANCEL 
+         // nor ACK request, and the Require field is not already set.
+         if( method.compareTo(SIP_ACK_METHOD) != 0 &&
+             method.compareTo(SIP_CANCEL_METHOD) != 0 &&
+             !message.getHeaderValue(0, SIP_REQUIRE_FIELD)
+           )
+         {
+            UtlString requiredExtensions; 
+            getRequiredExtensions(requiredExtensions);
+            if( requiredExtensions.length() > 0 )
+            {
+               message.setRequireField(requiredExtensions.data());
             }
          }
 
@@ -3516,6 +3532,24 @@ void SipUserAgent::getSupportedExtensions(UtlString& extensionsString)
     }
 }
 
+void SipUserAgent::requireExtension(const char* extension)
+{
+    requiredSipExtensions.append(new UtlString(extension));
+}
+
+void SipUserAgent::getRequiredExtensions(UtlString& extensionsString)
+{
+    extensionsString.remove(0);
+    UtlString* extensionName = NULL;
+    UtlDListIterator iterator(requiredSipExtensions);
+
+    while ((extensionName = (UtlString*) iterator()))
+    {
+        if(!extensionsString.isNull()) extensionsString.append(", ");
+        extensionsString.append(extensionName->data());
+    }
+}
+
 void SipUserAgent::setRecurseOnlyOne300Contact(UtlBoolean recurseOnlyOne)
 {
     mRecurseOnlyOne300Contact = recurseOnlyOne;
@@ -3618,6 +3652,13 @@ UtlBoolean SipUserAgent::isExtensionAllowed(const char* extension) const
         UtlString extensionName(extensionString);
         extensionString.remove(0);
         return(allowedSipExtensions.occurrencesOf(&extensionName) > 0);
+}
+
+UtlBoolean SipUserAgent::isExtensionRequired(const char* extension) const
+{
+    UtlString extensionString( extension );
+    extensionString.toLower();
+    return NULL != requiredSipExtensions.find( &extensionString );
 }
 
 void SipUserAgent::whichExtensionsNotAllowed(const SipMessage* message,

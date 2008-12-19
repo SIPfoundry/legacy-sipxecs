@@ -9,6 +9,7 @@
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
 
+#include <net/SipMessage.h>
 #include <os/OsSysLog.h>
 #include <os/OsDefs.h>
 #include <sipdb/SubscriptionDB.h>
@@ -168,8 +169,10 @@ ResourceListServer::ResourceListServer(const UtlString& domainName,
    // Set the user-agent strings.
    mServerUserAgent.setUserAgentHeaderProperty("sipXecs/rls");
    mClientUserAgent.setUserAgentHeaderProperty("sipXecs/rls");
-   // Allow the "eventlist" extension in the server.
-   mServerUserAgent.allowExtension("eventlist");
+
+   // Require the "eventlist" extension in the Resource List clients.
+   mServerUserAgent.requireExtension(SIP_EVENTLIST_EXTENSION);
+
    // Start them.
    mServerUserAgent.start();
    mClientUserAgent.start();

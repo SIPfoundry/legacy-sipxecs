@@ -447,6 +447,20 @@ public:
       CPPUNIT_ASSERT( getNextMessageFromRlsServerUnderTest( response, 5 ) );
       CPPUNIT_ASSERT( response.isResponse() );
       CPPUNIT_ASSERT( response.getResponseStatusCode() == SIP_ACCEPTED_CODE );
+
+      // requisite first NOTIFY request
+      SipMessage notify_request;
+      CPPUNIT_ASSERT( getNextMessageFromRlsServerUnderTest( notify_request, 5 ) );
+      CPPUNIT_ASSERT( ! notify_request.isResponse() );
+      UtlString tmp;
+      notify_request.getRequestMethod(&tmp);
+      CPPUNIT_ASSERT( 0 == tmp.compareTo( SIP_NOTIFY_METHOD ) );
+      CPPUNIT_ASSERT( notify_request.isInRequireField(SIP_EVENTLIST_EXTENSION) );
+
+      // no further NOTIFY request
+/* XECS-2005
+      CPPUNIT_ASSERT( ! getNextMessageFromRlsServerUnderTest( notify_request, 5 ) );
+//*/
    }
 
    void SubscribeWithoutEventListSupportRejectedTest()
@@ -495,7 +509,11 @@ public:
       CPPUNIT_ASSERT( response.getResponseStatusCode() == SIP_EXTENSION_REQUIRED_CODE );
       const char *pRequireFieldValue = response.getHeaderValue( 0, SIP_REQUIRE_FIELD );
       CPPUNIT_ASSERT( pRequireFieldValue );
-      ASSERT_STR_EQUAL( "eventlist", pRequireFieldValue );
+      ASSERT_STR_EQUAL( SIP_EVENTLIST_EXTENSION, pRequireFieldValue );
+      
+      // no requisite first NOTIFY request
+      SipMessage notify_request;
+      CPPUNIT_ASSERT( ! getNextMessageFromRlsServerUnderTest( notify_request, 5 ) );
    }
 
    void SubscribeNothingSupportedRejectedTest()
@@ -543,9 +561,12 @@ public:
       CPPUNIT_ASSERT( response.getResponseStatusCode() == SIP_EXTENSION_REQUIRED_CODE );
       const char *pRequireFieldValue = response.getHeaderValue( 0, SIP_REQUIRE_FIELD );
       CPPUNIT_ASSERT( pRequireFieldValue );
-      ASSERT_STR_EQUAL( "eventlist", pRequireFieldValue );
-   }
+      ASSERT_STR_EQUAL( SIP_EVENTLIST_EXTENSION, pRequireFieldValue );
 
+      // no requisite first NOTIFY request
+      SipMessage notify_request;
+      CPPUNIT_ASSERT( ! getNextMessageFromRlsServerUnderTest( notify_request, 5 ) );
+   }
 
     // ================================================
     //  REG-INFO EVENT SPECIFIC TEST CASES START HERE:

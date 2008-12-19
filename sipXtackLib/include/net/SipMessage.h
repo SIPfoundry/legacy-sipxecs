@@ -28,6 +28,7 @@ class SipUserAgent;
 
 // SIP extensions
 // Keep in alphabetical order by extension.
+#define SIP_EVENTLIST_EXTENSION "eventlist"
 #define SIP_JOIN_EXTENSION "join"
 #define SIP_PATH_EXTENSION "path"
 #define SIP_REPLACES_EXTENSION "replaces"
@@ -1048,6 +1049,14 @@ public:
 
     //! Test whether "token" is present in the Supported: header.
     UtlBoolean isInSupportedField(const char* token) const;
+
+    UtlBoolean getRequireField(UtlString& requireField) const;
+
+    //! Test whether "token" is present in the Require: header.
+    UtlBoolean isInRequireField(const char* token) const;
+
+    //! Test whether "token" is present in the specified "header" field.
+    UtlBoolean isInSpecifiedHeaderField(const char* token, const char* header) const;
 
     //! Get the SIP-IF-MATCH field from the PUBLISH request
     UtlBoolean getSipIfMatchField(UtlString& sipIfMatchField) const;
