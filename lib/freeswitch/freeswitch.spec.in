@@ -26,7 +26,12 @@ BuildRequires: autoconf
 BuildRequires: automake
 BuildRequires: curl-devel
 BuildRequires: gcc-c++
+
+%if 0%{?suse_version} >= 1100
+BuildRequires: libgnutls-devel
+%else
 BuildRequires: gnutls-devel
+%endif
 #BuildRequires: libtool >= 1.5.14
 BuildRequires: ncurses-devel
 BuildRequires: openssl-devel
