@@ -112,16 +112,15 @@ public class BackToBackUserAgentFactory {
 				this.backToBackUserAgentTable.put(callId, b2bua);
 			}
 
-		} catch (IOException ex) {
+	     } catch (IOException ex) {
 			logger.error("unepxected exception", ex);
-			throw new RuntimeException("IOException -- check symmitron", ex);
-		} catch (SymmitronException ex) {
-			logger.error("Error contacting symmitron", ex);
-			throw new RuntimeException("SipXrelay Exception ", ex);
-		} catch (Exception ex) {
+			throw new RuntimeException("IOException -- check SipXrelay", ex);
+		 } catch (Exception ex) {
 			logger.error("unexpected exception ", ex);
 			throw new RuntimeException(
 					"Unepxected exception processing request", ex);
+		} finally {
+		    logger.debug("returning " + b2bua);
 		}
 		return b2bua;
 

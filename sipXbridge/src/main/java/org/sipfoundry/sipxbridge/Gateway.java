@@ -205,8 +205,11 @@ public class Gateway {
 	}
 
 	static SymmitronClient initializeSymmitron(String address) {
+	    /*
+	     * Looks up a symmitron for a given address.
+	     */
 		SymmitronClient symmitronClient = symmitronClients.get(address);
-		if (symmitronClients != null) {
+		if (symmitronClient == null) {
 			int symmitronPort;
 			boolean isSecure = false;
 			if (Gateway.getBridgeConfiguration().getSymmitronXmlRpcPort() != 0) {
@@ -222,8 +225,9 @@ public class Gateway {
 		
 			symmitronClient = new SymmitronClient(address, symmitronPort, isSecure,
 					callControlManager);
+			symmitronClients.put(address, symmitronClient);
 		}
-		symmitronClients.put(address, symmitronClient);
+		
 
 		return symmitronClient;
 	}
@@ -834,37 +838,9 @@ public class Gateway {
 		if (Gateway.getState() != GatewayState.STOPPED) {
 			return;
 		}
+		
+		
 		Gateway.state = GatewayState.INITIALIZING;
-
-		/*
-		 * If specified, try to contact symmitron.
-		 */
-		if (Gateway.getBridgeConfiguration().getSymmitronHost() != null) {
-			int i;
-			for (i = 0; i < 8; i++) {
-				try {
-					Gateway.initializeSymmitron(Gateway
-							.getBridgeConfiguration().getSymmitronHost());
-				} catch (SymmitronException ex) {
-					logger.error("Symmitron not started -- retrying!");
-					try {
-						Thread.sleep(30000);
-						continue;
-					} catch (InterruptedException e) {
-
-					}
-
-				}
-				break;
-			}
-			if (i == 8) {
-				logger
-						.fatal("Coould not contact symmitron - please start symmitron on "
-								+ Gateway.getBridgeConfiguration()
-										.getSymmitronHost());
-
-			}
-		}
 
 		/*
 		 * Initialize the JAIN-SIP listening points.
@@ -1266,6 +1242,7 @@ public class Gateway {
 		} catch (Throwable ex) {
 			ex.printStackTrace();
 			logger.fatal("Unexpected exception starting", ex);
+			System.exit(-1);
 
 		}
 

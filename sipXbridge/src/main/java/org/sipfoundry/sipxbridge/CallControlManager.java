@@ -160,7 +160,7 @@ class CallControlManager implements SymmitronResetHandler {
              * In this case the phone will solicit the ITSP for an offer See Issue 1739
              */
             Request newRequest = peerDialog.createRequest(Request.INVITE);
-           
+
             /*
              * Contact header for the re-INVITE we are about to send.
              */
@@ -390,27 +390,30 @@ class CallControlManager implements SymmitronResetHandler {
              * INVITE on its way.
              */
             if (provider == Gateway.getLanProvider()) {
+                logger.debug("Request received from LAN side");
                 String toDomain = null;
                 // outbound call. better check for valid account
-                ItspAccountInfo account = Gateway.getAccountManager().getAccount(request);
-                if (account == null) {
-                    Response response = ProtocolObjects.messageFactory.createResponse(
-                            Response.NOT_FOUND, request);
-                    response.setReasonPhrase("Could not find account record for ITSP");
-                    serverTransaction.sendResponse(response);
-                    return;
+                /*
+                 * ItspAccountInfo account = Gateway.getAccountManager().getAccount(request); if
+                 * (account == null) { Response response =
+                 * ProtocolObjects.messageFactory.createResponse( Response.NOT_FOUND, request);
+                 * response.setReasonPhrase("Could not find account record for ITSP");
+                 * serverTransaction.sendResponse(response); return;
+                 *  } else
+                 */
 
-                } else if (account.getState() == AccountState.INVALID) {
+                ItspAccountInfo account = btobua.getItspAccountInfo();
+                if (account.getState() == AccountState.INVALID) {
                     Response response = ProtocolObjects.messageFactory.createResponse(
                             Response.BAD_GATEWAY, request);
-                    response.setReasonPhrase("Configuration problem for ITSP - check logs");
+                    response.setReasonPhrase("Account state is INVALID. Check config.");
                     serverTransaction.sendResponse(response);
                     return;
                 }
                 /*
                  * This case occurs when in and outbound proxy are different.
                  */
-                btobua.setItspAccount(account);
+
                 toDomain = account.getSipDomain();
 
                 /*
@@ -418,7 +421,7 @@ class CallControlManager implements SymmitronResetHandler {
                  */
                 btobua.sendInviteToItsp(requestEvent, serverTransaction, toDomain);
             } else {
-
+                logger.debug("request received from Wan side");
                 btobua.sendInviteToSipxProxy(requestEvent, serverTransaction);
 
             }
@@ -551,7 +554,6 @@ class CallControlManager implements SymmitronResetHandler {
             Request request = requestEvent.getRequest();
             SipProvider provider = (SipProvider) requestEvent.getSource();
             ServerTransaction stx = requestEvent.getServerTransaction();
-            
 
             /*
              * ONLY in-dialog stateful REFER handling is allowed.
@@ -620,7 +622,7 @@ class CallControlManager implements SymmitronResetHandler {
 
                 ReferInviteToSipxProxyContinuationData continuation = new ReferInviteToSipxProxyContinuationData(
                         inviteRequest, requestEvent);
-                
+
                 if (!dat.solicitSdpOfferFromPeerDialog(continuation)) {
                     Gateway.getTimer().schedule(new RequestPendingTimerTask(continuation), 100);
                 }
@@ -760,8 +762,7 @@ class CallControlManager implements SymmitronResetHandler {
                      * .getSessionDescription();
                      * 
                      * SipUtilities.setDuplexity(sd, "sendrecv"); ack.setContent(sd.toString(),
-                     * cth); dialogContext.mohCodecNegotiationFailed = false;
-                     *  } else
+                     * cth); dialogContext.mohCodecNegotiationFailed = false; } else
                      */
 
                     if (peerDialogContext.getPendingAction() == PendingDialogAction.PENDING_FORWARD_ACK_WITH_SDP_ANSWER) {
@@ -1688,8 +1689,7 @@ class CallControlManager implements SymmitronResetHandler {
                  * (Example: this case happens for AT&T HIPCS ).
                  */
                 DialogApplicationData.get(dialog).lastResponse = response;
-                
-               
+
                 SessionDescription ackSd = dialogContext.getRtpSession().getReceiver()
                         .getSessionDescription();
                 /*
@@ -1699,7 +1699,7 @@ class CallControlManager implements SymmitronResetHandler {
                 HashSet<Integer> codecs = SipUtilities
                         .getCodecNumbers(responseSessionDescription);
                 SipUtilities.restictToSpecifiedCodecs(ackSd, codecs);
-             
+
                 /*
                  * Now reply back to the original Transaction and put the WAN side on hold. Note
                  * tha this case MOH will not play.
@@ -1713,7 +1713,7 @@ class CallControlManager implements SymmitronResetHandler {
                  * before.
                  */
                 DialogApplicationData.get(dialog).sendAck(ackSd);
-                
+
                 DialogApplicationData.get(dialog).setPendingAction(PendingDialogAction.NONE);
                 Request request = continuation.getServerTransaction().getRequest();
                 Response newResponse = ProtocolObjects.messageFactory.createResponse(Response.OK,

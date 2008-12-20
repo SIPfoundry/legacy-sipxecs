@@ -10,7 +10,9 @@
 
 package org.sipfoundry.sipxbridge.symmitron;
 
+import java.io.FileInputStream;
 import java.net.URL;
+import java.security.KeyStore;
 import java.security.cert.X509Certificate;
 import java.util.Map;
 import java.util.Random;
@@ -19,8 +21,10 @@ import java.util.TimerTask;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSession;
+import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
@@ -28,7 +32,6 @@ import org.apache.log4j.Logger;
 import org.apache.xmlrpc.XmlRpcException;
 import org.apache.xmlrpc.client.XmlRpcClient;
 import org.apache.xmlrpc.client.XmlRpcClientConfigImpl;
-
 
 /**
  * Wrapper for the client methods of the Symmitron.
@@ -40,8 +43,6 @@ public class SymmitronClient {
 
     private String clientHandle;
     private XmlRpcClient client;
-    
-   
 
     private String serverHandle;
 
@@ -80,9 +81,41 @@ public class SymmitronClient {
             };
 
             sc.init(null, trustAllCerts, new java.security.SecureRandom());
-            HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
             HttpsURLConnection.setDefaultHostnameVerifier(hv);
+            
+            String trustStoreType = System.getProperty("javax.net.ssl.trustStoreType");
+            
+            logger.debug("trustStoreType = " + trustStoreType);
+            
+            KeyStore ts = KeyStore.getInstance(trustStoreType);
+            
+            String pathToTrustStore = System.getProperty("javax.net.ssl.trustStore");
+            
+            logger.debug("pathToTrustStore = " + pathToTrustStore);
+            
+            logger.debug("passwKey = " +
+                    System.getProperty("javax.net.ssl.trustStorePassword") );
+            
+            char[] passwKey = System.getProperty("javax.net.ssl.trustStorePassword")
+                    .toCharArray();
+            
+            ts.load(new FileInputStream(pathToTrustStore),passwKey);
+            
+            String x509Algorithm = System.getProperty("jetty.x509.algorithm");
+            
+            logger.debug("X509Algorithm = " + x509Algorithm);
+
+            KeyManagerFactory tmf = KeyManagerFactory.getInstance(x509Algorithm);
+            
+            tmf.init(ts, passwKey);
+            SSLContext sslContext = SSLContext.getInstance("TLS");
+            sslContext.init(tmf.getKeyManagers(), null, null);
+            SSLSocketFactory factory = sslContext.getSocketFactory();
+            HttpsURLConnection.setDefaultSSLSocketFactory(factory);
+            
+            
         } catch (Exception ex) {
+            logger.fatal("Unexpected exception initializing class", ex);
             throw new RuntimeException(ex);
         }
 
@@ -136,17 +169,19 @@ public class SymmitronClient {
         return this.serverHandle;
     }
 
-    public SymmitronClient(String serverAddress, int port, boolean isSipxRelaySecure, SymmitronResetHandler resetHandler)
-            throws SymmitronException {
+    public SymmitronClient(String serverAddress, int port, boolean isSipxRelaySecure,
+            SymmitronResetHandler resetHandler) throws SymmitronException {
         try {
             XmlRpcClientConfigImpl config = new XmlRpcClientConfigImpl();
             String protocol = isSipxRelaySecure ? "https" : "http";
             try {
-            		
-                logger.debug("Trying to sign in " + protocol + "://" + serverAddress + ":" + port);
-              
-                config.setServerURL(new URL(protocol+"://" + serverAddress + ":" + port));
-               
+
+                logger
+                        .debug("Trying to sign in " + protocol + "://" + serverAddress + ":"
+                                + port);
+
+                config.setServerURL(new URL(protocol + "://" + serverAddress + ":" + port));
+
                 this.serverAddress = serverAddress;
 
                 config.setEnabledForExceptions(true);
@@ -156,6 +191,10 @@ public class SymmitronClient {
                 logger.error(e);
                 throw new SymmitronException(e);
             }
+           
+            
+
+      
             this.resetHandler = resetHandler;
             this.client = new XmlRpcClient();
             // client.setTransportFactory(new XmlRpcCommonsTransportFactory(client));

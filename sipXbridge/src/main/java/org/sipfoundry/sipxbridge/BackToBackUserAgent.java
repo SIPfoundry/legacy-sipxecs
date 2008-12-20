@@ -12,6 +12,7 @@ import gov.nist.javax.sip.TransactionExt;
 import gov.nist.javax.sip.header.HeaderFactoryExt;
 import gov.nist.javax.sip.header.extensions.ReferredByHeader;
 import gov.nist.javax.sip.header.extensions.ReplacesHeader;
+import gov.nist.javax.sip.message.SIPMessage;
 
 import java.io.IOException;
 import java.net.URLDecoder;
@@ -137,11 +138,19 @@ public class BackToBackUserAgent {
             ItspAccountInfo itspAccountInfo) throws IOException {
         this(request, itspAccountInfo);
         /*
-         * Received this reuqest from the LAN The symmitron to use is the symmitron that runs
+         * Received this request from the LAN The symmitron to use is the symmitron that runs
          * where the request originated from.
+         * If received this request from the LAN side then we look at the topmost via header
+         * and try to contact the server at that address.
          */
         if (provider == Gateway.getLanProvider()) {
-            String address = ((ViaHeader) request.getHeader(ViaHeader.NAME)).getHost();
+            ViaHeader viaHeader = (ViaHeader) request.getHeader(ViaHeader.NAME);
+            /*
+             * If we have a received header, then use that header to look for a symmmitron there.
+             * Otherwise use the Via header. The symmitron must be up and running
+             * by the time the request is seen at the server.
+             */
+            String address = ( viaHeader.getReceived() != null ? viaHeader.getReceived() : viaHeader.getHost()); 
             this.symmitronClient = Gateway.getSymmitronClient(address);
         } else {
             this.symmitronClient = Gateway.getSymmitronClient(Gateway.getLocalAddress());
@@ -882,6 +891,8 @@ public class BackToBackUserAgent {
     void sendInviteToSipxProxy(RequestEvent requestEvent, ServerTransaction serverTransaction) {
         Request request = requestEvent.getRequest();
 
+        logger.debug("sendInviteToSipXProxy " + ((SIPMessage) request).getFirstLine());
+      
         try {
             /*
              * This is a request I got from the external provider. Route this into the network.
