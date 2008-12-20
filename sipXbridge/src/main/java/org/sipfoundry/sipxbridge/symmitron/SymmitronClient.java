@@ -26,6 +26,7 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSession;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
+import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509TrustManager;
 
 import org.apache.log4j.Logger;
@@ -105,11 +106,16 @@ public class SymmitronClient {
             
             logger.debug("X509Algorithm = " + x509Algorithm);
 
-            KeyManagerFactory tmf = KeyManagerFactory.getInstance(x509Algorithm);
+            KeyManagerFactory kmf = KeyManagerFactory.getInstance(x509Algorithm);
             
-            tmf.init(ts, passwKey);
-            SSLContext sslContext = SSLContext.getInstance("TLS");
-            sslContext.init(tmf.getKeyManagers(), null, null);
+            kmf.init(ts, passwKey);
+            
+            TrustManagerFactory tmf = TrustManagerFactory.getInstance(x509Algorithm); 
+            
+            tmf.init(ts); 
+            
+            SSLContext sslContext = SSLContext.getInstance("SSL");
+            sslContext.init(kmf.getKeyManagers(), tmf.getTrustManagers(), null);
             SSLSocketFactory factory = sslContext.getSocketFactory();
             HttpsURLConnection.setDefaultSSLSocketFactory(factory);
             
