@@ -41,9 +41,9 @@ import org.apache.log4j.Logger;
  * @author M. Ranganathan
  * 
  */
-class DialogApplicationData {
+class DialogContext {
 
-    private static Logger logger = Logger.getLogger(DialogApplicationData.class);
+    private static Logger logger = Logger.getLogger(DialogContext.class);
 
     private PendingDialogAction pendingAction = PendingDialogAction.NONE;
 
@@ -156,7 +156,7 @@ class DialogApplicationData {
                 Request request;
                 long currentTimeMilis = System.currentTimeMillis();
                 if (dialog.getState() == DialogState.CONFIRMED
-                        && DialogApplicationData.get(dialog).peerDialog != null) {
+                        && DialogContext.get(dialog).peerDialog != null) {
                     if (method.equalsIgnoreCase(Request.INVITE)) {
 
                         if (currentTimeMilis < lastAckSent - sessionExpires * 1000) {
@@ -207,11 +207,11 @@ class DialogApplicationData {
                     DialogExt dialogExt = (DialogExt) dialog;
                     ClientTransaction ctx = dialogExt.getSipProvider().getNewClientTransaction(
                             request);
-                    TransactionApplicationData.attach(ctx, Operation.SESSION_TIMER);
+                    TransactionContext.attach(ctx, Operation.SESSION_TIMER);
 
                     dialog.sendRequest(ctx);
 
-                    DialogApplicationData.this.sessionTimer = new SessionTimerTask(this.method);
+                    DialogContext.this.sessionTimer = new SessionTimerTask(this.method);
 
                     int expiryTime = sessionExpires < Gateway.MIN_EXPIRES ? Gateway.MIN_EXPIRES
                             : sessionExpires;
@@ -232,7 +232,7 @@ class DialogApplicationData {
     /*
      * Constructor.
      */
-    private DialogApplicationData(Dialog dialog) {
+    private DialogContext(Dialog dialog) {
         this.sessionExpires = Gateway.getSessionExpires();
         this.dialog = dialog;
         // Kick off a task to test for session liveness.
@@ -253,7 +253,7 @@ class DialogApplicationData {
             logger.debug("null dialog application data -- returning null");
             return null;
         } else {
-            return ((DialogApplicationData) dialog.getApplicationData()).getBackToBackUserAgent();
+            return ((DialogContext) dialog.getApplicationData()).getBackToBackUserAgent();
         }
     }
 
@@ -261,7 +261,7 @@ class DialogApplicationData {
      * Conveniance methods
      */
     static Dialog getPeerDialog(Dialog dialog) {
-        return ((DialogApplicationData) dialog.getApplicationData()).peerDialog;
+        return ((DialogContext) dialog.getApplicationData()).peerDialog;
     }
 
     public static RtpSession getPeerRtpSession(Dialog dialog) {
@@ -272,17 +272,17 @@ class DialogApplicationData {
     static RtpSession getRtpSession(Dialog dialog) {
         logger.debug("DialogApplicationData.getRtpSession " + dialog);
 
-        return ((DialogApplicationData) dialog.getApplicationData()).rtpSession;
+        return ((DialogContext) dialog.getApplicationData()).rtpSession;
     }
 
-    static DialogApplicationData attach(BackToBackUserAgent backToBackUserAgent, Dialog dialog,
+    static DialogContext attach(BackToBackUserAgent backToBackUserAgent, Dialog dialog,
             Transaction transaction, Request request) {
         if (backToBackUserAgent == null)
             throw new NullPointerException("Null back2back ua");
         if (dialog.getApplicationData() != null)
             throw new RuntimeException("Already set!!");
 
-        DialogApplicationData dat = new DialogApplicationData(dialog);
+        DialogContext dat = new DialogContext(dialog);
         dat.transaction = transaction;
         dat.request = request;
         dat.setBackToBackUserAgent(backToBackUserAgent);
@@ -291,8 +291,8 @@ class DialogApplicationData {
         return dat;
     }
 
-    static DialogApplicationData get(Dialog dialog) {
-        return (DialogApplicationData) dialog.getApplicationData();
+    static DialogContext get(Dialog dialog) {
+        return (DialogContext) dialog.getApplicationData();
     }
 
     /**
@@ -436,7 +436,7 @@ class DialogApplicationData {
             ContinuationData continuationData) throws Exception {
         try {
           
-            Dialog peerDialog = DialogApplicationData.getPeerDialog(dialog);
+            Dialog peerDialog = DialogContext.getPeerDialog(dialog);
             /*
              * There is already a re-negotiation in progress so return silently
              */
@@ -464,13 +464,13 @@ class DialogApplicationData {
                         "application", "sdp");
                 reInvite.setHeader(acceptHeader);
                 ClientTransaction ctx = provider.getNewClientTransaction(reInvite);
-                TransactionApplicationData tad = TransactionApplicationData.attach(ctx,
+                TransactionContext tad = TransactionContext.attach(ctx,
                         Operation.SOLICIT_SDP_OFFER_FROM_PEER_DIALOG);
                 /*
                  * Mark what we should do when we see the 200 OK response. This is what this
                  * dialog expects to see. Mark this as the pending operation for this dialog.
                  */
-                DialogApplicationData.get(peerDialog).setPendingAction(
+                DialogContext.get(peerDialog).setPendingAction(
                         PendingDialogAction.PENDING_SDP_ANSWER_IN_ACK);
 
                 /*
@@ -491,7 +491,7 @@ class DialogApplicationData {
     }
 
     public static RtpSession getPeerTransmitter(Dialog dialog) {
-        return DialogApplicationData.get(DialogApplicationData.getPeerDialog(dialog)).rtpSession;
+        return DialogContext.get(DialogContext.getPeerDialog(dialog)).rtpSession;
     }
 
     void setPendingAction(PendingDialogAction pendingAction) {
@@ -513,11 +513,11 @@ class DialogApplicationData {
     }
 
     public static PendingDialogAction getPendingAction(Dialog dialog) {
-        return DialogApplicationData.get(dialog).pendingAction;
+        return DialogContext.get(dialog).pendingAction;
     }
 
-    public static DialogApplicationData getPeerDialogContext(Dialog dialog) {
-        return DialogApplicationData.get(DialogApplicationData.getPeerDialog(dialog));
+    public static DialogContext getPeerDialogContext(Dialog dialog) {
+        return DialogContext.get(DialogContext.getPeerDialog(dialog));
     }
 
 }

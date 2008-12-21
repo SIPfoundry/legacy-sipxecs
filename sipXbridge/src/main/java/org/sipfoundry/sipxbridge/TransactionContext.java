@@ -25,9 +25,9 @@ import org.apache.log4j.Logger;
  * @author M. Ranganathan
  * 
  */
-class TransactionApplicationData {
+class TransactionContext {
     
-    private static Logger logger = Logger.getLogger(TransactionApplicationData.class);
+    private static Logger logger = Logger.getLogger(TransactionContext.class);
 
     /*
      * The current operation.
@@ -141,7 +141,7 @@ class TransactionApplicationData {
         
     }
 
-    TransactionApplicationData(Transaction transaction , Operation operation) {
+    TransactionContext(Transaction transaction , Operation operation) {
         this.operation = operation;
         if ( transaction instanceof ServerTransaction )  {
             this.setServerTransaction((ServerTransaction)transaction);
@@ -165,22 +165,22 @@ class TransactionApplicationData {
         return clientTransaction;
     }
 
-    static TransactionApplicationData attach(Transaction transaction,
+    static TransactionContext attach(Transaction transaction,
             Operation operation) {
         if ( transaction.getApplicationData() != null ) {
             logger.warn("RESETTING Transaction Pointer");
         }
-        TransactionApplicationData retval = new TransactionApplicationData(transaction,operation);
+        TransactionContext retval = new TransactionContext(transaction,operation);
         return retval;
     }
 
     /*
      * Get the TAD associated with a Transaction.
      */
-	static TransactionApplicationData get(
+	static TransactionContext get(
 			Transaction  transaction ) {
 		
-		return (TransactionApplicationData) transaction.getApplicationData();
+		return (TransactionContext) transaction.getApplicationData();
 	}
 
     public Operation getContinuationOperation() {

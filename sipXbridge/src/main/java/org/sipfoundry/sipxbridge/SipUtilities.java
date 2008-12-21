@@ -1395,8 +1395,8 @@ class SipUtilities {
 				/*
 				 * Request is bound to the WAN.
 				 */
-				if (DialogApplicationData.get(dialog).getItspInfo() == null
-						|| DialogApplicationData.get(dialog).getItspInfo()
+				if (DialogContext.get(dialog).getItspInfo() == null
+						|| DialogContext.get(dialog).getItspInfo()
 								.isGlobalAddressingUsed()) {
 					SipUtilities.setGlobalAddresses(request);
 					SipUtilities.addWanAllowHeaders(request);

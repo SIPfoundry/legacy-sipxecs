@@ -892,7 +892,7 @@ public class Gateway {
 			for (Dialog dialog : ((SipStackExt) ProtocolObjects.sipStack)
 					.getDialogs()) {
 
-				DialogApplicationData dat = DialogApplicationData.get(dialog);
+				DialogContext dat = DialogContext.get(dialog);
 
 				if (dat != null) {
 					BackToBackUserAgent b2bua = dat.getBackToBackUserAgent();

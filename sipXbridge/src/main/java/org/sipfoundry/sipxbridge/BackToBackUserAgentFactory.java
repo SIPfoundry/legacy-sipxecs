@@ -98,17 +98,17 @@ public class BackToBackUserAgentFactory {
 			if (this.backToBackUserAgentTable.containsKey(callId)) {
 				b2bua = this.backToBackUserAgentTable.get(callId);
 				if ( dialog.getApplicationData() == null ) {
-					DialogApplicationData.attach(b2bua, dialog, serverTransaction, request);
-					DialogApplicationData.get(dialog).setItspInfo(accountInfo);
+					DialogContext.attach(b2bua, dialog, serverTransaction, request);
+					DialogContext.get(dialog).setItspInfo(accountInfo);
 				}
 
 			} else {
 
 				b2bua = new BackToBackUserAgent(provider, request, dialog,
 						accountInfo);
-				DialogApplicationData.attach(b2bua, dialog, serverTransaction,
+				DialogContext.attach(b2bua, dialog, serverTransaction,
 						request);
-				DialogApplicationData.get(dialog).setItspInfo(accountInfo);
+				DialogContext.get(dialog).setItspInfo(accountInfo);
 				this.backToBackUserAgentTable.put(callId, b2bua);
 			}
 

@@ -48,7 +48,7 @@ public class SipListenerImpl implements SipListener {
 
 		logger.debug("DialogTerminatedEvent " + dte.getDialog());
 
-		DialogApplicationData dat = DialogApplicationData.get(dte.getDialog());
+		DialogContext dat = DialogContext.get(dte.getDialog());
 		if (dat != null) {
 			dat.cancelSessionTimer();
 		}
@@ -225,11 +225,11 @@ public class SipListenerImpl implements SipListener {
 			}
 
 			logger.debug("processResponse : operator "
-					+ TransactionApplicationData.get(responseEvent
+					+ TransactionContext.get(responseEvent
 							.getClientTransaction()).operation);
 			
 			
-			ItspAccountInfo accountInfo = ((TransactionApplicationData) responseEvent
+			ItspAccountInfo accountInfo = ((TransactionContext) responseEvent
 					.getClientTransaction().getApplicationData()).itspAccountInfo;
 
 			if ((response.getStatusCode() == Response.PROXY_AUTHENTICATION_REQUIRED
@@ -264,7 +264,7 @@ public class SipListenerImpl implements SipListener {
 				if (logger.isDebugEnabled()) {
 					logger.debug("SipListenerImpl : dialog = " + dialog);
 				}
-				BackToBackUserAgent b2bua = DialogApplicationData
+				BackToBackUserAgent b2bua = DialogContext
 						.getBackToBackUserAgent(responseEvent.getDialog());
 				if (b2bua != null) {
 					b2bua.removeDialog(dialog);
@@ -276,7 +276,7 @@ public class SipListenerImpl implements SipListener {
 					 * to handle challenge for inbound calling If we get such a
 					 * challenge, we just decline the call.
 					 */
-					ServerTransaction stx = ((TransactionApplicationData) responseEvent
+					ServerTransaction stx = ((TransactionContext) responseEvent
 							.getClientTransaction().getApplicationData())
 							.getServerTransaction();
 					Response errorResponse = SipUtilities.createResponse(stx,
@@ -293,16 +293,16 @@ public class SipListenerImpl implements SipListener {
 
 				// Handle authentication responses locally.
 
-				TransactionApplicationData tad = (TransactionApplicationData) responseEvent
+				TransactionContext tad = (TransactionContext) responseEvent
 						.getClientTransaction().getApplicationData();
 				tad.setClientTransaction(newClientTransaction);
 
 				if (b2bua != null) {
 					b2bua.addDialog(newClientTransaction.getDialog());
-					DialogApplicationData dialogApplicationData = (DialogApplicationData) dialog
+					DialogContext dialogApplicationData = (DialogContext) dialog
 							.getApplicationData();
 
-					DialogApplicationData newDialogApplicationData = DialogApplicationData
+					DialogContext newDialogApplicationData = DialogContext
 							.attach(b2bua, newClientTransaction.getDialog(),
 									newClientTransaction, newClientTransaction
 											.getRequest());
@@ -313,7 +313,7 @@ public class SipListenerImpl implements SipListener {
 					 * Hook the application data pointer of the previous guy in
 					 * the chain at us.
 					 */
-					DialogApplicationData peerDialogApplicationData = (DialogApplicationData) dialogApplicationData.peerDialog
+					DialogContext peerDialogApplicationData = (DialogContext) dialogApplicationData.peerDialog
 							.getApplicationData();
 					peerDialogApplicationData.peerDialog = newClientTransaction
 							.getDialog();
@@ -381,7 +381,7 @@ public class SipListenerImpl implements SipListener {
 					ClientTransaction clientTransaction = timeoutEvent
 							.getClientTransaction();
 					Dialog dialog = clientTransaction.getDialog();
-					BackToBackUserAgent b2bua = DialogApplicationData.get(
+					BackToBackUserAgent b2bua = DialogContext.get(
 							dialog).getBackToBackUserAgent();
 					b2bua.tearDown();
 				} else if (request.getMethod().equals(Request.REGISTER)) {
@@ -391,7 +391,7 @@ public class SipListenerImpl implements SipListener {
 					ClientTransaction clientTransaction = timeoutEvent
 							.getClientTransaction();
 					Dialog dialog = clientTransaction.getDialog();
-					BackToBackUserAgent b2bua = DialogApplicationData.get(
+					BackToBackUserAgent b2bua = DialogContext.get(
 							dialog).getBackToBackUserAgent();
 					dialog.delete();
 					b2bua.removeDialog(dialog);
@@ -400,7 +400,7 @@ public class SipListenerImpl implements SipListener {
 					 * If this is a refer request -- grab the MOH Dialog and
 					 * kill it. Otherwise we are stuck with the MOH dialog.
 					 */
-					BackToBackUserAgent b2bua = DialogApplicationData.get(
+					BackToBackUserAgent b2bua = DialogContext.get(
 							ctx.getDialog()).getBackToBackUserAgent();
 					b2bua.sendByeToMohServer();
 
@@ -426,7 +426,7 @@ public class SipListenerImpl implements SipListener {
 				&& dialog.getState() == DialogState.CONFIRMED
 				&& ((ToHeader) request.getHeader(ToHeader.NAME))
 						.getParameter("tag") == null) {
-			DialogApplicationData dat = (DialogApplicationData) dialog
+			DialogContext dat = (DialogContext) dialog
 					.getApplicationData();
 			if (dat == null)
 				return; // Nothing to do must be MOH Dialog.

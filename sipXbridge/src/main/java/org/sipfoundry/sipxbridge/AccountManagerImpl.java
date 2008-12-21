@@ -243,7 +243,7 @@ public class AccountManagerImpl implements gov.nist.javax.sip.clientauthutils.Ac
      */
     public UserCredentials getCredentials(ClientTransaction ctx, String authRealm) {
 
-        TransactionApplicationData tad = (TransactionApplicationData) ctx.getApplicationData();
+        TransactionContext tad = (TransactionContext) ctx.getApplicationData();
 
         return tad.itspAccountInfo;
 

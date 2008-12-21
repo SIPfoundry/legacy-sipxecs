@@ -77,10 +77,10 @@ public class RtpSessionUtilities {
 			SipUtilities.setDuplexity(outboundSessionDescription, "sendrecv");
 		}
 
-		DialogApplicationData dat = (DialogApplicationData) dialog
+		DialogContext dat = (DialogContext) dialog
 				.getApplicationData();
 		BackToBackUserAgent b2bua = dat.getBackToBackUserAgent();
-		Dialog peerDialog = DialogApplicationData.getPeerDialog(dialog);
+		Dialog peerDialog = DialogContext.getPeerDialog(dialog);
 
 		/*
 		 * Check if the server side of the dialog is still alive. If not return
@@ -93,9 +93,9 @@ public class RtpSessionUtilities {
 			return;
 		}
 
-		DialogApplicationData peerDat = DialogApplicationData.get(peerDialog);
+		DialogContext peerDat = DialogContext.get(peerDialog);
 
-		DialogApplicationData.getRtpSession(peerDialog).getReceiver().setSessionDescription(
+		DialogContext.getRtpSession(peerDialog).getReceiver().setSessionDescription(
 				outboundSessionDescription);
 		
 		SipUtilities.incrementSessionVersion(outboundSessionDescription);
@@ -138,7 +138,7 @@ public class RtpSessionUtilities {
 
 		ClientTransaction ctx = ((DialogExt) peerDialog).getSipProvider()
 				.getNewClientTransaction(newInvite);
-		TransactionApplicationData tad = TransactionApplicationData.attach(ctx,
+		TransactionContext tad = TransactionContext.attach(ctx,
 				Operation.FORWARD_REINVITE);
 
 		tad.setServerTransaction(serverTransaction);
@@ -167,7 +167,7 @@ public class RtpSessionUtilities {
 			rtpSession.getTransmitter().setOnHold(false);
 			rtpSession.getTransmitter().setSessionDescription(sd, true);
 
-			DialogApplicationData dat = (DialogApplicationData) dialog
+			DialogContext dat = (DialogContext) dialog
 					.getApplicationData();
 			BackToBackUserAgent b2bua = dat.getBackToBackUserAgent();
 
@@ -223,18 +223,18 @@ public class RtpSessionUtilities {
 	
 		Dialog dialog = serverTransaction.getDialog();
 		
-		Dialog peerDialog  = DialogApplicationData.getPeerDialog(dialog);
+		Dialog peerDialog  = DialogContext.getPeerDialog(dialog);
 		
 		Request request = serverTransaction.getRequest();
 		
-		RtpSession rtpSession = DialogApplicationData.get(dialog).getRtpSession();
+		RtpSession rtpSession = DialogContext.get(dialog).getRtpSession();
 		
 
 		if (peerDialog != null) {
 			logger.debug("reAssignSessionParameters: dialog = " + dialog
 					+ " peerDialog = "
 					+ peerDialog + " peerDialog.lastResponse = \n"
-					+ DialogApplicationData.get(peerDialog).lastResponse);
+					+ DialogContext.get(peerDialog).lastResponse);
 		}
 		
 		logger.debug("rtpSession.getTransmitter().sessionDescription = " + rtpSession.getTransmitter().getSessionDescription());

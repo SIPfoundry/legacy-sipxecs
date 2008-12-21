@@ -81,8 +81,8 @@ public class CallControlUtilities {
 			throws Exception {
 		//DialogApplicationData dialogContext = (DialogApplicationData) dialog
 		//		.getApplicationData();
-		BackToBackUserAgent b2bua = DialogApplicationData.getBackToBackUserAgent(dialog);
-		DialogApplicationData dialogContext = (DialogApplicationData) dialog
+		BackToBackUserAgent b2bua = DialogContext.getBackToBackUserAgent(dialog);
+		DialogContext dialogContext = (DialogContext) dialog
 				.getApplicationData();
 		if (logger.isDebugEnabled()) {
 			logger.debug("sendSdpOffer : peerDialog = " + dialog
@@ -112,13 +112,13 @@ public class CallControlUtilities {
 			 * Got a Response to our SDP query. Shuffle to the other end.
 			 */
 
-			DialogApplicationData.getRtpSession(dialog).getTransmitter()
+			DialogContext.getRtpSession(dialog).getTransmitter()
 					.setOnHold(false);
 
 			/*
 			 * Set and fix up the sdp offer to send to the opposite side.
 			 */
-			DialogApplicationData.getRtpSession(dialog).getReceiver()
+			DialogContext.getRtpSession(dialog).getReceiver()
 					.setSessionDescription(sdpOffer);
 
 			SipUtilities.incrementSessionVersion(sdpOffer);
@@ -132,7 +132,7 @@ public class CallControlUtilities {
 			ClientTransaction ctx = ((DialogExt) dialog).getSipProvider()
 					.getNewClientTransaction(sdpOfferInvite);
 
-			TransactionApplicationData.attach(ctx, Operation.SEND_SDP_RE_OFFER);
+			TransactionContext.attach(ctx, Operation.SEND_SDP_RE_OFFER);
 
 			dialog.sendRequest(ctx);
 
@@ -159,7 +159,7 @@ public class CallControlUtilities {
 	static void sendSdpAnswerInAck(Response response, Dialog dialog)
 			throws Exception {
 
-		DialogApplicationData dialogContext = (DialogApplicationData) dialog
+		DialogContext dialogContext = (DialogContext) dialog
 				.getApplicationData();
 		if (logger.isDebugEnabled()) {
 			logger.debug("sendSdpAnswerInAck : dialog = " + dialog
@@ -185,7 +185,7 @@ public class CallControlUtilities {
 			 * Get the transmitter session description for the peer. This is
 			 * either our old answer or our old offer.
 			 */
-			SessionDescription transmitterSd = DialogApplicationData
+			SessionDescription transmitterSd = DialogContext
 					.getPeerTransmitter(dialog).getTransmitter()
 					.getSessionDescription();
 			/*
@@ -211,7 +211,7 @@ public class CallControlUtilities {
 				 * description.
 				 */
 
-				ackSd = DialogApplicationData.getRtpSession(dialog)
+				ackSd = DialogContext.getRtpSession(dialog)
 						.getReceiver().getSessionDescription();
 
 				/*
@@ -219,7 +219,7 @@ public class CallControlUtilities {
 				 */
 				SipUtilities.restictToSpecifiedCodecs(ackSd, transmitterCodecs);
 
-				DialogApplicationData.getRtpSession(dialog).getTransmitter()
+				DialogContext.getRtpSession(dialog).getTransmitter()
 						.setOnHold(false);
 
 			} else {
@@ -236,10 +236,10 @@ public class CallControlUtilities {
 				 * Fix up the ports.
 				 */
 
-				DialogApplicationData.getRtpSession(dialog).getReceiver()
+				DialogContext.getRtpSession(dialog).getReceiver()
 						.setSessionDescription(ackSd);
 
-				DialogApplicationData.getRtpSession(dialog).getTransmitter()
+				DialogContext.getRtpSession(dialog).getTransmitter()
 						.setOnHold(false);
 
 				SipUtilities.incrementSessionVersion(ackSd);
