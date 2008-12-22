@@ -153,19 +153,21 @@
 
   <bean id="mappingRules" class="org.sipfoundry.sipxconfig.admin.dialplan.config.MappingRules"
     parent="defaultConfigurationFile">
-    <property name="name" value="mappingrules.xml.in" />
+    <property name="name" value="mappingrules.xml" />
     <property name="domainManager" ref="domainManager" />
+    <property name="sipxServiceManager" ref="sipxServiceManager" />
   </bean>
 
   <bean id="fallbackRules" class="org.sipfoundry.sipxconfig.admin.dialplan.config.FallbackRules"
     parent="defaultConfigurationFile">
-    <property name="name" value="fallbackrules.xml.in" />
+    <property name="name" value="fallbackrules.xml" />
     <property name="domainManager" ref="domainManager" />
+    <property name="sipxServiceManager" ref="sipxServiceManager" />
   </bean>
 
   <bean id="authRules" class="org.sipfoundry.sipxconfig.admin.dialplan.config.AuthRules"
     parent="defaultConfigurationFile">
-    <property name="name" value="authrules.xml.in" />
+    <property name="name" value="authrules.xml" />
     <property name="domainManager" ref="domainManager" />
   </bean>
 

@@ -9,21 +9,35 @@
  */
 package org.sipfoundry.sipxconfig.admin.dialplan.config;
 
+import java.io.IOException;
+import java.io.StringReader;
+import java.io.StringWriter;
 import java.util.List;
 
 import org.dom4j.Document;
+import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.dom4j.QName;
+import org.dom4j.io.OutputFormat;
+import org.dom4j.io.SAXReader;
+import org.dom4j.io.XMLWriter;
+import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.dialplan.IDialingRule;
+import org.sipfoundry.sipxconfig.service.SipxPageService;
+import org.sipfoundry.sipxconfig.service.SipxParkService;
+import org.sipfoundry.sipxconfig.service.SipxRlsService;
+import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 
 /**
  * Special type of mappingrules document with a single host match matching standard SIPx hosts
  */
 public class MappingRules extends RulesXmlFile {
-    public static final String[] HOSTS = {
-        "${MY_FULL_HOSTNAME}", "${MY_HOSTNAME}", "${MY_IP_ADDR}"
-    };
-
+    private static final String ORBIT_SERVER_SIP_SRV_OR_HOSTPORT = "${ORBIT_SERVER_SIP_SRV_OR_HOSTPORT}";
+    private static final String RLS_SIP_SRV_OR_HOSTPORT = "${RLS_SIP_SRV_OR_HOSTPORT}";
+    private static final String MY_HOSTNAME = "${MY_HOSTNAME}";
+    private static final String MY_FULL_HOSTNAME = "${MY_FULL_HOSTNAME}";
+    private static final String MY_IP_ADDR = "${MY_IP_ADDR}";
+    private static final String SIPXCHANGE_DOMAIN_NAME = "${SIPXCHANGE_DOMAIN_NAME}";
     private static final String NAMESPACE = "http://www.sipfoundry.org/sipX/schema/xml/urlmap-00-00";
     private static final String HOST_PATTERN = "hostPattern";
 
@@ -31,6 +45,8 @@ public class MappingRules extends RulesXmlFile {
     private Element m_hostMatch;
     private final String m_namespace;
     private Element m_mappings;
+
+    private SipxServiceManager m_sipxServiceManager;
 
     public MappingRules() {
         this(NAMESPACE);
@@ -46,7 +62,7 @@ public class MappingRules extends RulesXmlFile {
         QName mappingsName = FACTORY.createQName("mappings", m_namespace);
         m_mappings = m_doc.addElement(mappingsName);
         addExternalRules(m_mappings);
-        m_hostMatch = addHostPatterns(HOSTS);
+        m_hostMatch = addHostPatterns(getHostStrings());
     }
 
     Element getFirstHostMatch() {
@@ -124,5 +140,65 @@ public class MappingRules extends RulesXmlFile {
     @Override
     public void end() {
         m_mappings.add(m_hostMatch);
+    }
+
+    public static String[] getHostStrings() {
+        return new String[] {
+            MY_FULL_HOSTNAME, MY_HOSTNAME, MY_IP_ADDR
+        };
+    }
+
+    @Override
+    protected void localizeDocument(Location location) {
+        if (location == null) {
+            return;
+        }
+
+        try {
+            Document document = getDocument();
+            OutputFormat format = new OutputFormat();
+            StringWriter stringWriter = new StringWriter();
+            XMLWriter xmlWriter = new XMLWriter(stringWriter, format);
+            xmlWriter.write(document);
+
+            String rulesString = stringWriter.toString();
+            rulesString = rulesString.replace(SIPXCHANGE_DOMAIN_NAME, getDomainManager()
+                    .getDomain().getName());
+            rulesString = rulesString.replace(MY_IP_ADDR, location.getAddress());
+            rulesString = rulesString.replace(MY_FULL_HOSTNAME, location.getFqdn());
+            rulesString = rulesString.replace(MY_HOSTNAME, location.getHostname());
+
+            SipxRlsService rlsService = (SipxRlsService) m_sipxServiceManager
+                    .getServiceByBeanId(SipxRlsService.BEAN_ID);
+            String rlsServerSipSrvOrHostport = location.getAddress() + ':'
+                    + rlsService.getRlsPort();
+            rulesString = rulesString.replace(RLS_SIP_SRV_OR_HOSTPORT, rlsServerSipSrvOrHostport);
+
+            SipxParkService parkService = (SipxParkService) m_sipxServiceManager
+                    .getServiceByBeanId(SipxParkService.BEAN_ID);
+            String parkServerSipSrvOrHostport = location.getAddress() + ':'
+                    + parkService.getParkServerSipPort();
+            rulesString = rulesString.replace(ORBIT_SERVER_SIP_SRV_OR_HOSTPORT,
+                    parkServerSipSrvOrHostport);
+
+            SipxPageService pageService = (SipxPageService) m_sipxServiceManager
+                    .getServiceByBeanId(SipxPageService.BEAN_ID);
+            rulesString = rulesString.replace("${PAGE_SERVER_ADDR}",
+                    location.getAddress());
+            rulesString = rulesString.replace("${PAGE_SERVER_SIP_PORT}",
+                    pageService.getSipPort());
+
+            StringReader stringReader = new StringReader(rulesString);
+            SAXReader saxReader = new SAXReader();
+            m_doc = saxReader.read(stringReader);
+        } catch (IOException ioe) {
+            throw new RuntimeException(ioe);
+        } catch (DocumentException de) {
+            throw new RuntimeException(de);
+        }
+    }
+
+    public void setSipxServiceManager(SipxServiceManager sipxServiceManager) {
+        m_sipxServiceManager = sipxServiceManager;
     }
 }

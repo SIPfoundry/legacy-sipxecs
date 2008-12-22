@@ -33,7 +33,6 @@ CONFIG_DEFS="@SIPX_CONFDIR@/config.defs"
 
 CONFIG_FILES="\
   @SIPX_CONFDIR@/nattraversalrules.xml \
-  @SIPX_CONFDIR@/authrules.xml \
   "
   
 # If the "config.defs" file exists and the <name>.in file exists for a

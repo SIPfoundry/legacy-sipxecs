@@ -84,7 +84,7 @@ public class ForwardingRules extends XmlFile {
     }
 
     @Override
-    protected void generateDocument(Location location) {
+    protected void localizeDocument(Location location) {
         m_velocityContext.put("location", location);
 
         try {

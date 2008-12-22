@@ -26,7 +26,7 @@ import org.sipfoundry.sipxconfig.site.admin.commserver.RestartReminderPanel;
  */
 public abstract class ActivateDialPlan extends PageWithCallback {
     public static final String[] OPTIONS = {
-        "mappingrules.xml.in", "fallbackrules.xml.in", "authrules.xml.in", "forwardingrules.xml.in",
+        "mappingrules.xml", "fallbackrules.xml", "authrules.xml", "forwardingrules.xml",
         "nattraversalrules.xml"
     };
 

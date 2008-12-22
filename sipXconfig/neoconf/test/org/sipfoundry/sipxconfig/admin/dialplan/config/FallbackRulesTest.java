@@ -9,6 +9,15 @@
  */
 package org.sipfoundry.sipxconfig.admin.dialplan.config;
 
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.createStrictMock;
+import static org.easymock.EasyMock.expectLastCall;
+import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.verify;
+import static org.sipfoundry.sipxconfig.XmlUnitHelper.asString;
+import static org.sipfoundry.sipxconfig.XmlUnitHelper.assertElementInNamespace;
+import static org.sipfoundry.sipxconfig.XmlUnitHelper.setNamespaceAware;
+
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -31,16 +40,13 @@ import org.sipfoundry.sipxconfig.admin.dialplan.IDialingRule;
 import org.sipfoundry.sipxconfig.domain.Domain;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
+import org.sipfoundry.sipxconfig.service.SipxPageService;
+import org.sipfoundry.sipxconfig.service.SipxParkService;
+import org.sipfoundry.sipxconfig.service.SipxRlsService;
+import org.sipfoundry.sipxconfig.service.SipxService;
+import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.sipfoundry.sipxconfig.setting.Group;
-
-import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.createStrictMock;
-import static org.easymock.EasyMock.expectLastCall;
-import static org.easymock.EasyMock.replay;
-import static org.easymock.EasyMock.verify;
-import static org.sipfoundry.sipxconfig.XmlUnitHelper.asString;
-import static org.sipfoundry.sipxconfig.XmlUnitHelper.assertElementInNamespace;
-import static org.sipfoundry.sipxconfig.XmlUnitHelper.setNamespaceAware;
+import org.sipfoundry.sipxconfig.test.TestUtil;
 
 public class FallbackRulesTest extends XMLTestCase {
 
@@ -61,6 +67,23 @@ public class FallbackRulesTest extends XMLTestCase {
         EasyMock.replay(domainManager);
 
         m_out.setDomainManager(domainManager);
+
+        SipxParkService parkService = new SipxParkService();
+        parkService.setParkServerSipPort("9905");
+
+        SipxRlsService rlsService = new SipxRlsService();
+        rlsService.setRlsPort("9906");
+
+        SipxPageService pageService = new SipxPageService() {
+            @Override
+            public String getSipPort() {
+                return "9910";
+            }
+        };
+
+        SipxServiceManager sipxServiceManager = TestUtil.getMockSipxServiceManager(parkService, rlsService, pageService);
+        EasyMock.replay(sipxServiceManager);
+        m_out.setSipxServiceManager(sipxServiceManager);
     }
 
     public void testGenerateRuleWithGateways() throws Exception {
@@ -90,6 +113,7 @@ public class FallbackRulesTest extends XMLTestCase {
         m_out.begin();
         m_out.generate(rule);
         m_out.end();
+        m_out.localizeDocument(TestUtil.createDefaultLocation());
 
         Document document = m_out.getDocument();
 
@@ -130,6 +154,7 @@ public class FallbackRulesTest extends XMLTestCase {
         m_out.begin();
         m_out.generate(rule);
         m_out.end();
+        m_out.localizeDocument(TestUtil.createDefaultLocation());
 
         Document document = m_out.getDocument();
         assertElementInNamespace(document.getRootElement(),
@@ -187,6 +212,7 @@ public class FallbackRulesTest extends XMLTestCase {
         m_out.begin();
         m_out.generate(rule);
         m_out.end();
+        m_out.localizeDocument(TestUtil.createDefaultLocation());
 
         Document document = m_out.getDocument();
 
@@ -208,6 +234,7 @@ public class FallbackRulesTest extends XMLTestCase {
         m_out.begin();
         m_out.generate(rule);
         m_out.end();
+        m_out.localizeDocument(TestUtil.createDefaultLocation());
 
         Document document = m_out.getDocument();
 

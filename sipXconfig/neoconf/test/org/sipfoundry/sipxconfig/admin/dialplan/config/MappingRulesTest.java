@@ -39,10 +39,15 @@ import org.sipfoundry.sipxconfig.admin.dialplan.SipXMediaServerTest;
 import org.sipfoundry.sipxconfig.admin.dialplan.VoicemailRedirectRule;
 import org.sipfoundry.sipxconfig.admin.localization.LocalizationContext;
 import org.sipfoundry.sipxconfig.admin.parkorbit.MohRule;
-import org.sipfoundry.sipxconfig.domain.Domain;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
+import org.sipfoundry.sipxconfig.service.SipxPageService;
+import org.sipfoundry.sipxconfig.service.SipxParkService;
+import org.sipfoundry.sipxconfig.service.SipxRlsService;
+import org.sipfoundry.sipxconfig.service.SipxService;
+import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.sipfoundry.sipxconfig.speeddial.RlsRule;
+import org.sipfoundry.sipxconfig.test.TestUtil;
 
 /**
  * MappingRulesTest
@@ -59,18 +64,34 @@ public class MappingRulesTest extends XMLTestCase {
         XmlUnitHelper.setNamespaceAware(false);
         XMLUnit.setIgnoreWhitespace(true);
 
-        m_domainManager = EasyMock.createMock(DomainManager.class);
-        m_domainManager.getDomain();
-        EasyMock.expectLastCall().andReturn(new Domain("example.org")).anyTimes();
+        m_domainManager = TestUtil.getMockDomainManager();
         EasyMock.replay(m_domainManager);
 
         m_out = new MappingRules();
         m_out.setDomainManager(m_domainManager);
+
+        SipxParkService parkService = new SipxParkService();
+        parkService.setParkServerSipPort("9905");
+
+        SipxRlsService rlsService = new SipxRlsService();
+        rlsService.setRlsPort("9906");
+
+        SipxPageService pageService = new SipxPageService() {
+            @Override
+            public String getSipPort() {
+                return "9910";
+            }
+        };
+
+        SipxServiceManager sipxServiceManager = TestUtil.getMockSipxServiceManager(parkService, rlsService, pageService);
+        EasyMock.replay(sipxServiceManager);
+        m_out.setSipxServiceManager(sipxServiceManager);
     }
 
     public void testGetDocument() throws Exception {
         m_out.begin();
         m_out.end();
+        m_out.localizeDocument(TestUtil.createDefaultLocation());
         Document document = m_out.getDocument();
 
         String xml = XmlUnitHelper.asString(document);
@@ -79,9 +100,9 @@ public class MappingRulesTest extends XMLTestCase {
 
         assertXpathExists("/mappings/hostMatch/hostPattern", xml);
         assertXpathEvaluatesTo("example.org", "/mappings/hostMatch/hostPattern", xml);
-        assertXpathEvaluatesTo("${MY_FULL_HOSTNAME}", "/mappings/hostMatch/hostPattern[2]", xml);
-        assertXpathEvaluatesTo("${MY_HOSTNAME}", "/mappings/hostMatch/hostPattern[3]", xml);
-        assertXpathEvaluatesTo("${MY_IP_ADDR}", "/mappings/hostMatch/hostPattern[4]", xml);
+        assertXpathEvaluatesTo("sipx.example.org", "/mappings/hostMatch/hostPattern[2]", xml);
+        assertXpathEvaluatesTo("sipx", "/mappings/hostMatch/hostPattern[3]", xml);
+        assertXpathEvaluatesTo("192.168.1.1", "/mappings/hostMatch/hostPattern[4]", xml);
     }
 
     public void testGetDocumentInvalidExternals() throws Exception {
@@ -103,6 +124,7 @@ public class MappingRulesTest extends XMLTestCase {
         m_out.setExternalRulesFileName(resource.getFile());
         m_out.begin();
         m_out.end();
+        m_out.localizeDocument(TestUtil.createDefaultLocation());
         Document document = m_out.getDocument();
 
         String xml = XmlUnitHelper.asString(document);
@@ -111,7 +133,7 @@ public class MappingRulesTest extends XMLTestCase {
                 "http://www.sipfoundry.org/sipX/schema/xml/urlmap-00-00");
 
         assertXpathEvaluatesTo("some_other.domain.com", "/mappings/hostMatch/hostPattern", xml);
-        assertXpathEvaluatesTo("${SIPXCHANGE_DOMAIN_NAME}",
+        assertXpathEvaluatesTo("example.org",
                 "/mappings/hostMatch/userMatch/permissionMatch/transform/host", xml);
 
         assertXpathExists("/mappings/hostMatch[2]/hostPattern", xml);
@@ -123,6 +145,7 @@ public class MappingRulesTest extends XMLTestCase {
         m_out.setExternalRulesFileName(resource.getFile() + " ");
         m_out.begin();
         m_out.end();
+        m_out.localizeDocument(TestUtil.createDefaultLocation());
         Document document = m_out.getDocument();
 
         String xml = XmlUnitHelper.asString(document);
@@ -131,7 +154,7 @@ public class MappingRulesTest extends XMLTestCase {
                 "http://www.sipfoundry.org/sipX/schema/xml/urlmap-00-00");
 
         assertXpathEvaluatesTo("some_other.domain.com", "/mappings/hostMatch/hostPattern", xml);
-        assertXpathEvaluatesTo("${SIPXCHANGE_DOMAIN_NAME}",
+        assertXpathEvaluatesTo("example.org",
                 "/mappings/hostMatch/userMatch/permissionMatch/transform/host", xml);
 
         assertXpathExists("/mappings/hostMatch[2]/hostPattern", xml);
@@ -277,6 +300,7 @@ public class MappingRulesTest extends XMLTestCase {
             m_out.generate(rule);
         }
         m_out.end();
+        m_out.localizeDocument(TestUtil.createDefaultLocation());
 
         String generatedXml = m_out.getFileContent();
 
@@ -288,11 +312,11 @@ public class MappingRulesTest extends XMLTestCase {
 
     public void testEquals() throws Exception {
         AbstractConfigurationFile f1 = new MappingRules();
-        f1.setName("mappingrules.xml.in");
+        f1.setName("mappingrules.xml");
         AbstractConfigurationFile f2 = new MappingRules();
-        f2.setName("mappingrules.xml.in");
+        f2.setName("mappingrules.xml");
         AbstractConfigurationFile f3 = new FallbackRules();
-        f3.setName("fallbackrules.xml.in");
+        f3.setName("fallbackrules.xml");
         assertEquals(f1, f2);
         assertNotSame(f1, f2);
         assertEquals(f1.hashCode(), f2.hashCode());

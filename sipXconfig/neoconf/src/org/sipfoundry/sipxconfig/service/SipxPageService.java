@@ -12,6 +12,8 @@ package org.sipfoundry.sipxconfig.service;
 public class SipxPageService extends SipxService {
 
     public static final String BEAN_ID = "sipxPageService";
+    
+    private static final String SIP_PORT = "page-config/PAGE_SERVER_SIP_PORT";
 
     private String m_audioDirectory;
     
@@ -21,6 +23,10 @@ public class SipxPageService extends SipxService {
 
     public void setAudioDir(String audioDirectory) {
         m_audioDirectory = audioDirectory;
+    }
+
+    public String getSipPort() {
+        return getSettingValue(SIP_PORT);
     }
 
     @Override

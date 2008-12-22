@@ -36,6 +36,7 @@ import org.sipfoundry.sipxconfig.domain.Domain;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
+import org.sipfoundry.sipxconfig.test.TestUtil;
 
 public class AuthRulesTest {
     private static final int GATEWAYS_LEN = 5;
@@ -294,6 +295,7 @@ public class AuthRulesTest {
         authRules.begin();
         authRules.generate(rule);
         authRules.end();
+        authRules.localizeDocument(TestUtil.createDefaultLocation());
 
         Document document = authRules.getDocument();
         String domDoc = XmlUnitHelper.asString(document);

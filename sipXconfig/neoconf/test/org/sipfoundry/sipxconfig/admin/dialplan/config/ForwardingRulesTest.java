@@ -259,19 +259,11 @@ public class ForwardingRulesTest extends XMLTestCase {
 
     private String getGeneratedXmlFileAsString(XmlFile xmlFile) throws Exception {
         StringWriter actualXmlFileWriter = new StringWriter();
-        xmlFile.write(actualXmlFileWriter, createDefaultLocation());
+        xmlFile.write(actualXmlFileWriter, TestUtil.createDefaultLocation());
 
         Reader actualXmlFileReader = new StringReader(actualXmlFileWriter.toString());
         String actualXmlFile = IOUtils.toString(actualXmlFileReader);
 
         return actualXmlFile;
-    }
-
-    private Location createDefaultLocation() {
-        Location location = new Location();
-        location.setName("localLocation");
-        location.setFqdn("sipx.example.org");
-        location.setAddress("192.168.1.1");
-        return location;
     }
 }

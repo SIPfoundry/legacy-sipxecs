@@ -22,8 +22,8 @@
   <resources>
     <osconfig>@SIPX_CONFDIR@/domain-config</osconfig>
     <osconfig>@SIPX_CONFDIR@/registrar-config</osconfig>
-    <file>@SIPX_CONFDIR@/mappingrules.xml.in</file>
-    <file>@SIPX_CONFDIR@/fallbackrules.xml.in</file>
+    <file>@SIPX_CONFDIR@/mappingrules.xml</file>
+    <file>@SIPX_CONFDIR@/fallbackrules.xml</file>
     <imdb>credential</imdb>
     <imdb>permission</imdb>
     <imdb>alias</imdb>

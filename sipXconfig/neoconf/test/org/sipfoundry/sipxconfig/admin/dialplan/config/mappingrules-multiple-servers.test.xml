@@ -4,9 +4,9 @@
 
   <hostMatch>
     <hostPattern>example.org</hostPattern>
-    <hostPattern>${MY_FULL_HOSTNAME}</hostPattern>
-    <hostPattern>${MY_HOSTNAME}</hostPattern>
-    <hostPattern>${MY_IP_ADDR}</hostPattern>
+    <hostPattern>sipx.example.org</hostPattern>
+    <hostPattern>sipx</hostPattern>
+    <hostPattern>192.168.1.1</hostPattern>
 
     <userMatch>
       <!--Music on Hold-->
@@ -14,7 +14,7 @@
       <userPattern>~~mh~</userPattern>
       <permissionMatch>
         <transform>
-          <url>&lt;sip:moh@${ORBIT_SERVER_SIP_SRV_OR_HOSTPORT}&gt;</url>
+          <url>&lt;sip:moh@192.168.1.1:9905&gt;</url>
         </transform>
       </permissionMatch>
     </userMatch>
@@ -25,7 +25,7 @@
       <userPattern>~~rl~.</userPattern>
       <permissionMatch>
         <transform>
-          <headerparams>Route=sip:${RLS_SIP_SRV_OR_HOSTPORT}</headerparams>
+          <headerparams>Route=sip:192.168.1.1:9906</headerparams>
         </transform>
       </permissionMatch>
     </userMatch>

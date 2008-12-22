@@ -91,22 +91,22 @@ public class ConfigGeneratorTest extends XMLTestCase {
         generator.setDialingRuleProvider(dialingRuleProvider);
 
         AuthRules authRules = new AuthRules();
-        authRules.setName("authrules.xml.in");
+        authRules.setName("authrules.xml");
         authRules.setDomainManager(m_domainManager);
         generator.setAuthRules(authRules);
 
         RulesXmlFile mappingRules = new MappingRules();
-        mappingRules.setName("mappingrules.xml.in");
+        mappingRules.setName("mappingrules.xml");
         mappingRules.setDomainManager(m_domainManager);
         generator.setMappingRules(mappingRules);
 
         FallbackRules fallbackRules = new FallbackRules();
-        fallbackRules.setName("fallbackrules.xml.in");
+        fallbackRules.setName("fallbackrules.xml");
         fallbackRules.setDomainManager(m_domainManager);
         generator.setFallbackRules(fallbackRules);
 
         ForwardingRules forwardingRules = new ForwardingRules();
-        forwardingRules.setName("fallbackrules.xml.in");
+        forwardingRules.setName("fallbackrules.xml");
         forwardingRules.setVelocityEngine(TestHelper.getVelocityEngine());
         forwardingRules.setSbcManager(sbcManager);
         forwardingRules.setSipxServiceManager(m_sipxServiceManager);
@@ -117,9 +117,9 @@ public class ConfigGeneratorTest extends XMLTestCase {
 
         generator.generate(dialPlanContext);
 
-        checkConfigFileGeneration(generator, authRules, "authrules.xml.in");
-        checkConfigFileGeneration(generator, mappingRules, "mappingrules.xml.in");
-        checkConfigFileGeneration(generator, fallbackRules, "fallbackrules.xml.in");
+        checkConfigFileGeneration(generator, authRules, "authrules.xml");
+        checkConfigFileGeneration(generator, mappingRules, "mappingrules.xml");
+        checkConfigFileGeneration(generator, fallbackRules, "fallbackrules.xml");
 
         verify(dialingRuleProvider, dialPlanContext);
     }

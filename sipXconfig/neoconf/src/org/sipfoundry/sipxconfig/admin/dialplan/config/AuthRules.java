@@ -9,14 +9,22 @@
  */
 package org.sipfoundry.sipxconfig.admin.dialplan.config;
 
+import java.io.IOException;
+import java.io.StringReader;
+import java.io.StringWriter;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import org.dom4j.Document;
+import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.dom4j.QName;
+import org.dom4j.io.OutputFormat;
+import org.dom4j.io.SAXReader;
+import org.dom4j.io.XMLWriter;
+import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.dialplan.IDialingRule;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
@@ -91,7 +99,7 @@ public class AuthRules extends RulesXmlFile {
             Element domainElement = hostMatch.addElement(HOST_PATTERN);
             domainElement.setText(getDomainManager().getDomain().getName());
 
-            for (String host : MappingRules.HOSTS) {
+            for (String host : MappingRules.getHostStrings()) {
                 Element hostPattern = hostMatch.addElement(HOST_PATTERN);
                 hostPattern.setText(host);
             }
@@ -138,5 +146,34 @@ public class AuthRules extends RulesXmlFile {
         userMatch.addElement(USER_PATTERN).setText(".");
         Element permissionMatch = userMatch.addElement(PERMISSION_MATCH);
         permissionMatch.addElement(PERMISSION).setText(PermissionName.NO_ACCESS.getName());
+    }
+
+    @Override
+    protected void localizeDocument(Location location) {
+        if (location == null) {
+            return;
+        }
+
+        try {
+            Document document = getDocument();
+            OutputFormat format = createFormat();
+            StringWriter stringWriter = new StringWriter();
+            XMLWriter xmlWriter = new XMLWriter(stringWriter, format);
+            xmlWriter.write(document);
+
+            String rulesString = stringWriter.toString();
+            rulesString = rulesString.replace("${SIPXCHANGE_DOMAIN_NAME}", getDomainManager().getDomain().getName());
+            rulesString = rulesString.replace("${MY_IP_ADDR}", location.getAddress());
+            rulesString = rulesString.replace("${MY_FULL_HOSTNAME}", location.getFqdn());
+            rulesString = rulesString.replace("${MY_HOSTNAME}", location.getHostname());
+
+            StringReader stringReader = new StringReader(rulesString);
+            SAXReader saxReader = new SAXReader();
+            m_doc = saxReader.read(stringReader);
+        } catch (IOException ioe) {
+            throw new RuntimeException(ioe);
+        } catch (DocumentException de) {
+            throw new RuntimeException(de);
+        }
     }
 }

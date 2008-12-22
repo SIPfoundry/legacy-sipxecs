@@ -37,15 +37,7 @@ Args=""
 
 TEST_WRITE_ACCESS="\
   @sipxpbx.conf.dir@/config.defs \
-  @sipxpbx.conf.dir@/sipxpresence-config.in \
-  @sipxpbx.conf.dir@/status-config.in \
-  @sipxpbx.conf.dir@/callresolver-config.in \
   @sipxpbx.conf.dir@/sipxdialog-config.in \
-  @sipxpbx.conf.dir@/status-plugin.xml.in \
-  @sipxpbx.conf.dir@/authrules.xml.in \
-  @sipxpbx.conf.dir@/fallbackrules.xml.in \
-  @sipxpbx.conf.dir@/mappingrules.xml.in \
-  @sipxpbx.conf.dir@/forwardingrules.xml.in"
 
 Database=SIPXCONFIG
 RequiredDatabaseVersion=8
