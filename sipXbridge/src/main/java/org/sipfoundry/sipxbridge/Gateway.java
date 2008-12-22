@@ -22,6 +22,7 @@ import java.util.TimerTask;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 
+import javax.net.ssl.SSLServerSocket;
 import javax.sip.Dialog;
 import javax.sip.ListeningPoint;
 import javax.sip.SipProvider;
@@ -47,7 +48,6 @@ import org.sipfoundry.commons.log4j.SipFoundryLayout;
 import org.sipfoundry.sipxbridge.symmitron.SymmitronClient;
 import org.sipfoundry.sipxbridge.symmitron.SymmitronConfig;
 import org.sipfoundry.sipxbridge.symmitron.SymmitronConfigParser;
-import org.sipfoundry.sipxbridge.symmitron.SymmitronException;
 import org.xbill.DNS.Lookup;
 import org.xbill.DNS.Record;
 import org.xbill.DNS.SRVRecord;
@@ -188,7 +188,7 @@ public class Gateway {
 
 	static SipFoundryAppender logAppender;
 
-
+	private static SymmitronConfig symconfig;
 
 	private Gateway() {
 
@@ -205,9 +205,9 @@ public class Gateway {
 	}
 
 	static SymmitronClient initializeSymmitron(String address) {
-	    /*
-	     * Looks up a symmitron for a given address.
-	     */
+		/*
+		 * Looks up a symmitron for a given address.
+		 */
 		SymmitronClient symmitronClient = symmitronClients.get(address);
 		if (symmitronClient == null) {
 			int symmitronPort;
@@ -215,19 +215,15 @@ public class Gateway {
 			if (Gateway.getBridgeConfiguration().getSymmitronXmlRpcPort() != 0) {
 				symmitronPort = Gateway.getBridgeConfiguration()
 						.getSymmitronXmlRpcPort();
-			} else {
-				SymmitronConfig symconfig = new SymmitronConfigParser()
-						.parse(Gateway.configurationPath
-								+ "/nattraversalrules.xml");
+			} else {	
 				symmitronPort = symconfig.getXmlRpcPort();
 				isSecure = symconfig.getUseHttps();
 			}
-		
-			symmitronClient = new SymmitronClient(address, symmitronPort, isSecure,
-					callControlManager);
+			
+			symmitronClient = new SymmitronClient(address, symmitronPort,
+					isSecure, callControlManager);
 			symmitronClients.put(address, symmitronClient);
 		}
-		
 
 		return symmitronClient;
 	}
@@ -285,6 +281,26 @@ public class Gateway {
 					sslListener.setLingerTimeSecs(30000);
 
 					((ThreadedServer) sslListener).open();
+
+					String[] cypherSuites = ((SSLServerSocket) sslListener
+							.getServerSocket()).getSupportedCipherSuites();
+
+					for (String suite : cypherSuites) {
+						logger.info("Cypher Suites enabled : " + suite);
+					}
+
+					((SSLServerSocket) sslListener.getServerSocket())
+							.setEnabledCipherSuites(cypherSuites);
+
+					String[] protocols = ((SSLServerSocket) sslListener
+							.getServerSocket()).getSupportedProtocols();
+
+					for (String protocol : protocols) {
+						logger.info("Supported protocol = " + protocol);
+					}
+
+					((SSLServerSocket) sslListener.getServerSocket())
+							.setEnabledProtocols(protocols);
 
 					webServer.setListeners(new HttpListener[] { sslListener });
 
@@ -402,10 +418,6 @@ public class Gateway {
 					.getStunServerAddress();
 
 			if (stunServerAddress != null) {
-
-				java.util.logging.Logger log = java.util.logging.Logger
-						.getLogger("net.java.stun4j");
-
 				// Todo -- deal with the situation when this port may be taken.
 				StunAddress localStunAddress = new StunAddress(Gateway
 						.getLocalAddress(), STUN_PORT);
@@ -422,8 +434,10 @@ public class Gateway {
 				globalAddress = report.getPublicAddress().getSocketAddress()
 						.getAddress().getHostAddress();
 				logger.debug("Stun report = " + report);
+
 				if (report.getPublicAddress().getPort() != STUN_PORT) {
-					logger.debug("WARNING External port != internal port ");
+					logger
+							.warn("WARNING External port != internal port your NAT may not be symmetric.");
 				}
 
 			}
@@ -838,8 +852,7 @@ public class Gateway {
 		if (Gateway.getState() != GatewayState.STOPPED) {
 			return;
 		}
-		
-		
+
 		Gateway.state = GatewayState.INITIALIZING;
 
 		/*
@@ -875,6 +888,7 @@ public class Gateway {
 		 * Register with ITSPs. Now we can take inbound calls
 		 */
 		registerWithItsp();
+		
 
 	}
 
@@ -1111,35 +1125,34 @@ public class Gateway {
 
 		return parkServerCodecs;
 	}
-	
+
 	/**
-	 * Log an internal error and potentially throw a runtime exception ( if debug is 
-	 * enabled).
+	 * Log an internal error and potentially throw a runtime exception ( if
+	 * debug is enabled).
 	 * 
 	 * @param errorString
 	 */
-    static void logInternalError(String errorString , Exception exception ) {
-        if ( logger.isDebugEnabled()) {
-            logger.fatal(errorString, exception);
-            throw new RuntimeException (errorString, exception);
-        }  else {
-            logger.fatal(errorString, exception);
-        }
-        
-    }
-    
-    static void logInternalError(String errorString ) {
-        if ( logger.isDebugEnabled()) {
-            logger.fatal(errorString);
-            throw new RuntimeException (errorString);
-        }  else {
-            /*
-             * Log our stack trace for analysis.
-             */
-            logger.fatal(errorString, new Exception());
-        }
-    }
+	static void logInternalError(String errorString, Exception exception) {
+		if (logger.isDebugEnabled()) {
+			logger.fatal(errorString, exception);
+			throw new RuntimeException(errorString, exception);
+		} else {
+			logger.fatal(errorString, exception);
+		}
 
+	}
+
+	static void logInternalError(String errorString) {
+		if (logger.isDebugEnabled()) {
+			logger.fatal(errorString);
+			throw new RuntimeException(errorString);
+		} else {
+			/*
+			 * Log our stack trace for analysis.
+			 */
+			logger.fatal(errorString, new Exception());
+		}
+	}
 
 	/**
 	 * The main method for the Bridge.
@@ -1194,6 +1207,12 @@ public class Gateway {
 				Gateway.start();
 
 				startXmlRpcServer();
+				
+				Gateway.symconfig = new SymmitronConfigParser().parse(Gateway.configurationPath+ "/nattraversalrules.xml");
+				
+				if ( symconfig.getUseHttps() ) {
+					SymmitronClient.initHttpsClient();
+				}
 
 			} else if (command.equals("configtest")) {
 				try {
@@ -1230,7 +1249,12 @@ public class Gateway {
 
 						System.exit(-1);
 					}
-
+					
+					Gateway.symconfig = new SymmitronConfigParser().parse(Gateway.configurationPath+ "/nattraversalrules.xml");
+					
+					if ( symconfig.getUseHttps() ) {
+						SymmitronClient.initHttpsClient();
+					}
 					System.exit(0);
 				} catch (Exception ex) {
 					System.exit(-1);
@@ -1248,5 +1272,4 @@ public class Gateway {
 
 	}
 
-    
 }

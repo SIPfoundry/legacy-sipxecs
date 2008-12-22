@@ -21,6 +21,9 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
 
+import javax.net.ssl.SSLServerSocket;
+import javax.net.ssl.SSLSocket;
+
 import net.java.stun4j.StunAddress;
 import net.java.stun4j.client.NetworkConfigurationDiscoveryProcess;
 import net.java.stun4j.client.StunDiscoveryReport;
@@ -238,20 +241,25 @@ public class SymmitronServer implements Symmitron {
             isWebServerRunning = true;
             webServer = new HttpServer();
   
-            logger.debug("Starting xml rpc server on inetAddr:port " + symmitronConfig.getLocalAddress() + ":" +  symmitronConfig.getXmlRpcPort());
-            InetAddrPort inetAddrPort = new InetAddrPort(symmitronConfig.getLocalAddress(),symmitronConfig.getXmlRpcPort() );
+             InetAddrPort inetAddrPort = new InetAddrPort(symmitronConfig.getLocalAddress(),symmitronConfig.getXmlRpcPort() );
             inetAddrPort.setInetAddress(InetAddress.getByName(symmitronConfig.getLocalAddress()));
            
-            if (symmitronConfig.getUseHttps()) {                
+            if (symmitronConfig.getUseHttps()) { 
+            	logger.info("Starting  secure xml rpc server on inetAddr:port " + symmitronConfig.getLocalAddress() + ":" +  symmitronConfig.getXmlRpcPort());
+                  
                 SslListener sslListener = new SslListener(inetAddrPort);
                 inetAddrPort.setInetAddress(InetAddress.getByName(symmitronConfig.getLocalAddress()));
                 
                 String keystore = System.getProperties().getProperty("javax.net.ssl.keyStore");
-                logger.debug("keystore = " + keystore);
+                logger.info("keystore = " + keystore);
                 sslListener.setKeystore(keystore);
+                String keystoreType = System.getProperty("javax.net.ssl.trustStoreType");  
+                logger.info("keyStoreType = "  + keystoreType); 
+                sslListener.setKeystoreType(keystoreType);
+                
                 String algorithm =  System.getProperties().getProperty(
                         "jetty.x509.algorithm") ;
-                logger.debug("algorithm = " + algorithm);
+                logger.info("algorithm = " + algorithm);
                 sslListener.setAlgorithm(algorithm);  
                 String password = System.getProperties().getProperty("jetty.ssl.password");
                 sslListener.setPassword(password);
@@ -259,12 +267,29 @@ public class SymmitronServer implements Symmitron {
                 String keypassword = System.getProperties().getProperty("jetty.ssl.keypassword");
                 
                 sslListener.setKeyPassword(keypassword);
+                  
                 sslListener.setMaxThreads(32);
                 sslListener.setMinThreads(4);
                 sslListener.setLingerTimeSecs(30000);
               
                 ((ThreadedServer)sslListener).open();
-               
+                
+                String[] cypherSuites = ((SSLServerSocket)sslListener.getServerSocket()).getSupportedCipherSuites();
+                
+                for ( String suite: cypherSuites) {
+                	logger.info("Cypher Suites enabled : " + suite);
+                }
+              
+                ((SSLServerSocket)sslListener.getServerSocket()).setEnabledCipherSuites(cypherSuites);
+                
+                String[] protocols = ((SSLServerSocket)sslListener.getServerSocket()).getSupportedProtocols();
+                
+                for ( String protocol: protocols ) {
+                	logger.info("Supported protocol = " + protocol);
+                }
+                
+                ((SSLServerSocket)sslListener.getServerSocket()).setEnabledProtocols(protocols);
+                
                 webServer.setListeners(new HttpListener[] { sslListener });
                 
                 for ( HttpListener listener : webServer.getListeners() ) {
@@ -274,6 +299,8 @@ public class SymmitronServer implements Symmitron {
                 }
                 
             } else {
+            	logger.info("Starting unsecure xml rpc server on inetAddr:port " + symmitronConfig.getLocalAddress() + ":" +  symmitronConfig.getXmlRpcPort());
+                
                 SocketListener socketListener = new SocketListener(inetAddrPort);
                 socketListener.setMaxThreads(32);
                 socketListener.setMinThreads(4);

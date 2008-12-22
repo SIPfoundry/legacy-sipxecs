@@ -580,7 +580,6 @@ public class BackToBackUserAgent {
             String headerValue = uri.getHeader(headerName);
             Header header = null;
             if (headerValue != null) {
-
                 String decodedHeaderValue = URLDecoder.decode(headerValue, "UTF-8");
                 header = (Header) ProtocolObjects.headerFactory.createHeader(headerName,
                         decodedHeaderValue);
