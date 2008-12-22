@@ -38,6 +38,7 @@ Args=""
 TEST_WRITE_ACCESS="\
   @sipxpbx.conf.dir@/config.defs \
   @sipxpbx.conf.dir@/sipxdialog-config.in \
+  "
 
 Database=SIPXCONFIG
 RequiredDatabaseVersion=8
@@ -46,7 +47,7 @@ IndexDir=${TmpDir}/index
 # jars that we expect to be installed on the system
 ADDITIONAL_JARS="\
 	log4j \
-	ant
+	ant \
 	ant-launcher"
 
 # Search/replace variables used in config.defs into config files
@@ -259,14 +260,14 @@ databaseVersionCheck() {
 
         @bin.dir@/sipxconfig.sh --database drop create
 
-    Exiting now."
+    Exiting now.
 EOF
         else
             cat <<EOF
     Error: bad ${Database} database version.
     Expected version $RequiredDatabaseVersion, got version $dbver.  
     This database was created or modified by a newer version of sipXconfig.  
-    Exiting now."
+    Exiting now.
 EOF
         fi
         exit 1
