@@ -42,6 +42,9 @@ public class Collect extends CallCommand {
     }
 
     String timerCmd(int delay) {
+    	if (delay <= 0) {
+    		delay = 1;
+    	}
         return "playback\nexecute-app-arg: silence_stream://" + delay;
     }
 
@@ -106,6 +109,12 @@ public class Collect extends CallCommand {
         } else {
             // Wait for the next digit
             m_currentTimer = m_interDigitTimer;
+        }
+        
+        if (m_currentTimer <= 0) {
+        	// Next timer is "immediate", so give up now
+        	m_done = true;
+        	return true;
         }
 
         return false;
