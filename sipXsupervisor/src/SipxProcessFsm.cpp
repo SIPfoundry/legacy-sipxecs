@@ -299,6 +299,13 @@ void Stopping::DoEntryAction( SipxProcess& impl ) const
    impl.stopProcess();
 }
 
+void Stopping::evRestartProcess( SipxProcess& impl ) const
+{
+   // we will always check if we should start up again once this stop is complete
+   OsSysLog::add(FAC_SUPERVISOR,PRI_INFO,"'%s': Ignoring event evRestartProcess while in state '%s'",
+         impl.name(), impl.GetCurrentState()->name() );   
+}
+
 // We need both the actual process, and the script which stops it, to finish
 // before we move on.  These events can come in any order.
 void Stopping::evProcessStopped( SipxProcess& impl ) const

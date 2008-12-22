@@ -209,6 +209,13 @@ SipxProcessCmd* SipxProcessCmd::parseCommandDefinition(const TiXmlDocument& proc
 /// Execute the command.
 void SipxProcessCmd::execute(SipxProcessCmdOwner* owner)
 {
+   if ( isRunning() )
+   {
+      OsSysLog::add(FAC_SUPERVISOR, PRI_CRIT, "SipxProcessCmd::execute %s: process is already running ",
+                 data());
+      // kill the previous one?
+   }
+
    ExecuteMsg message(owner);
    postMessage( message );
 }
@@ -247,8 +254,18 @@ UtlBoolean SipxProcessCmd::handleMessage( OsMsg& rMsg )
       
    case OsMsg::OS_EVENT:
    {
-      executeInTask(pMsg->getOwner());
-      handled = TRUE;
+      switch ( pMsg->getMsgSubType() )
+      {
+      case ExecuteMsg::EXECUTE:
+         executeInTask(pMsg->getOwner());
+         handled = TRUE;
+         break;
+      default:
+         OsSysLog::add(FAC_SUPERVISOR, PRI_CRIT,
+                       "SipxProcessCmd::handleMessage: '%s' unhandled message subtype %d.%d",
+                       mName.data(), rMsg.getMsgType(), rMsg.getMsgSubType());
+         break;
+      }
       break;
    }
 
@@ -293,6 +310,8 @@ void SipxProcessCmd::executeInTask(SipxProcessCmdOwner* owner)
        == OS_SUCCESS )
    {
       owner->evCommandStarted(this);
+      OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG,"'%s: process running, pid %ld", 
+                    mExecutable.data(), (long)mProcess->getPID());
 
       //now wait around for the thing to finish
       UtlString stdoutMsg;

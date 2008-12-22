@@ -993,20 +993,24 @@ void SipxProcess::evCommandStoppedInTask(const SipxProcessCmd* command, int rc)
 {
    OsLock mutex(mLock);
 
-   OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG, "SipxProcess[%s]::evCommandStopped %s",
-                 data(), command->data());
    if (command == mStart)
    {
+      OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG, "SipxProcess[%s]::evCommandStopped mStart %s, rc=%d",
+                    data(), command->data(), rc);
       mpCurrentState->evProcessStopped(*this);
 
    }
    else if (command == mStop)
    {
       // stop stopped, but we are really interested in the start
+      OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG, "SipxProcess[%s]::evCommandStopped mStop %s, rc=%d",
+                    data(), command->data(), rc);
       mpCurrentState->evStopCompleted(*this);
    }
    else if (command == mConfigtest)
    {
+      OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG, "SipxProcess[%s]::evCommandStopped mConfigtest %s, rc=%d",
+                    data(), command->data(), rc);
       if ( rc == 0 )
       {
          mpCurrentState->evConfigTestPassed(*this);
