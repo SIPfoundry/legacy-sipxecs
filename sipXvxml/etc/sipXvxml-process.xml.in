@@ -23,6 +23,7 @@
   <resources>
     <osconfig>@SIPX_CONFDIR@/domain-config</osconfig>
     <osconfig>@SIPX_CONFDIR@/mediaserver-config</osconfig>
+    <osconfig>@SIPX_CONFDIR@/voicemail.xml</osconfig>
     <imdb>extension</imdb><!-- actually used by DialByNameCGI and MailboxManager, 
                                                  but there is no process definition for the cgis -->
   </resources>

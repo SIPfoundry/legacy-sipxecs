@@ -43,7 +43,7 @@
         <web-message-block-size>50</web-message-block-size>
 
         <!-- Voicemail notification emails will be sent from this address. -->
-        <email-notification-addr>postmaster@${MY_FULL_HOSTNAME}</email-notification-addr>
+        <email-notification-addr>postmaster@${location.fqdn}</email-notification-addr>
 
         <!-- Enables/disables playing envelope information before playing the voicemail
             Accepts two values: ENABLE and DISABLE
@@ -53,55 +53,55 @@
         <!-- ========PLEASE DO NOT EDIT PARAMETERS DEFINED BELOW THIS LINE ========== -->
 
         <!-- To manage multiple domains we have to have an entry per domain here -->
-        <default-domain>${SIPXCHANGE_DOMAIN_NAME}</default-domain>
+        <default-domain>${mediaService.domainName}</default-domain>
 
         <!-- Authentication realm for this installation.  Could be different from domain -->
-        <default-realm>${SIPXCHANGE_REALM}</default-realm>
+        <default-realm>${mediaService.realm}</default-realm>
 
         <!-- Secure fully qualified configserver base URL -->
-        <config-server-url-secure>https://${CONFIG_SERVER_ADDR}:8443</config-server-url-secure>
+        <config-server-url-secure>https://${location.address}:8443</config-server-url-secure>
 
         <!-- Secure fully qualified configserver mailbox URL -->
-        <email-mailbox-url>https://${CONFIG_SERVER_HOST}:8443/sipxconfig/mailbox</email-mailbox-url>
+        <email-mailbox-url>https://${location.fqdn}:8443/sipxconfig/mailbox</email-mailbox-url>
 
-        <!-- smtp server name for voicemail notification 
+        <!-- smtp server name for voicemail notification
              is no longer configurable: must be 'localhost' -->
 
         <!-- Location of the voicemail folders -->
-        <mailstore-root>@SIPX_VXMLDATADIR@</mailstore-root>
+        <mailstore-root>@sipxvxml.data.dir@</mailstore-root>
 
         <!-- Media Server base directory - home of standard prompts, vxml scripts, etc. -->
-        <mediaserver-root>@wwwdir@/doc</mediaserver-root>
+        <mediaserver-root>@www.dir@/doc</mediaserver-root>
 
         <!--
             Non-SSL (HTTP) mediaserver base URL - used for retrieving UI webpages,
             stylesheets, standard prompts, vxml scripts, etc.
         -->
-        <mediaserver-url>http://localhost:${MEDIA_SERVER_HTTP_PORT}</mediaserver-url>
+        <mediaserver-url>http://localhost:${mediaService.httpPort}</mediaserver-url>
 
         <!--
             Secure mediaserver base URL for accessing CGIs, user's mailbox, etc.
             If you dont want to use secure connection at all, specify the same
             value as mediaserver-url here.
         -->
-        <mediaserver-url-secure>https://localhost:${MEDIA_SERVER_HTTPS_PORT}</mediaserver-url-secure>
+        <mediaserver-url-secure>https://localhost:${mediaService.voicemailHttpsPort}</mediaserver-url-secure>
 
         <!--
             Non-SSL (HTTP) fully qualified mediaserver base URL - not used right now.
         -->
-        <full-mediaserver-url>http://${VOICEMAIL_SERVER_HOSTNAME}:${MEDIA_SERVER_HTTP_PORT}</full-mediaserver-url>
+        <full-mediaserver-url>http://${location.fqdn}:${mediaService.httpPort}</full-mediaserver-url>
 
         <!--
             Secure fully qualified mediaserver base URL - currently used for constructing links
             in voicemail notification emails.
         -->
-        <full-mediaserver-url-secure>https://${VOICEMAIL_SERVER_HOSTNAME}:${VOICEMAIL_SERVER_HTTPS_PORT}</full-mediaserver-url-secure>
+        <full-mediaserver-url-secure>https://${location.fqdn}:${mediaService.voicemailHttpsPort}</full-mediaserver-url-secure>
 
         <!--
             IVR prompt base URL - used by VXML interpreter for
             retrieving standard prompts.
         -->
-        <ivr-prompt-url>file://@wwwdir@/doc</ivr-prompt-url>
+        <ivr-prompt-url>file://@www.dir@/doc</ivr-prompt-url>
 
         <!--
             this is a template for when we create new mailboxes.
@@ -151,7 +151,7 @@
         the message summary notify message contents
     -->
     <mwi>
-        <mwiurl>https://${STATUS_SERVER_ADDR}:${STATUS_SERVER_HTTPS_PORT}/cgi/StatusEvent.cgi</mwiurl>
+        <mwiurl>https://${location.address}:${statusService.httpsPort}/cgi/StatusEvent.cgi</mwiurl>
     </mwi>
 
 </settings>

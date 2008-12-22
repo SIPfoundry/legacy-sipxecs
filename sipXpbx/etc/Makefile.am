@@ -6,9 +6,6 @@ pkgconfdir = @SIPX_CONFDIR@
 pkgconf_DATA = \
     mime.types
 
-pbxconf_files = \
-    voicemail.xml.in
-
 wwwconf_files = \
     httpd.conf \
     httpd-sipxchange-common-ssl.conf.in \
@@ -16,7 +13,7 @@ wwwconf_files = \
 
 EXTRA_DIST = \
 	$(pkgconf_DATA) \
-	$(foreach file,$(pbxconf_files) $(wwwconf_files),$(file).in) \
+	$(foreach file,$(wwwconf_files),$(file).in) \
 	init.d/sipxpbx.in \
 	logrotate.d/sipxchange.in
 
@@ -36,12 +33,12 @@ $(DESTDIR)@SERVICEDIR@:
 install-data-hook : \
 	$(DESTDIR)$(sysconfdir)/sipxpbx/httpd.conf.d \
 	$(DESTDIR)$(sysconfdir)/logrotate.d/sipxchange \
-	$(foreach file,$(pbxconf_files) $(wwwconf_files),$(DESTDIR)$(sysconfdir)/sipxpbx/$(file))
+	$(foreach file, $(wwwconf_files),$(DESTDIR)$(sysconfdir)/sipxpbx/$(file))
 
 $(DESTDIR)$(sysconfdir)/sipxpbx/httpd.conf.d:
 	$(INSTALL) -d -m 755 $@
 
-$(foreach file,$(pbxconf_files) $(wwwconf_files),$(DESTDIR)$(sysconfdir)/sipxpbx/$(file)) : $(DESTDIR)$(sysconfdir)/sipxpbx/% : %
+$(foreach file,$(wwwconf_files),$(DESTDIR)$(sysconfdir)/sipxpbx/$(file)) : $(DESTDIR)$(sysconfdir)/sipxpbx/% : %
 	@if [ -f $@ ]; \
 	then \
 		diff $< $@ > /dev/null 2>&1 \
@@ -53,7 +50,7 @@ $(foreach file,$(pbxconf_files) $(wwwconf_files),$(DESTDIR)$(sysconfdir)/sipxpbx
 		$(INSTALL) -D -m 644 $< $@; \
 	fi
 
-$(foreach file,$(pbxconf_files) $(wwwconf_files),$(file)) : % : %.in
+$(foreach file,$(wwwconf_files),$(file)) : % : %.in
 	@echo "Localize $< -> $@"
 	@$(LocalizeSipXconfig) \
 	-e 's,@APACHE2_HOST_ACCESS\@,@APACHE2_HOST_ACCESS@,g' \
