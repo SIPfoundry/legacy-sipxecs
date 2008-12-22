@@ -132,16 +132,18 @@ public:
                              enum messageRelationship relationship);
 
     void handleResendEvent(const SipMessage& outgoingMessage,
-                            SipUserAgent& userAgent,
-                            enum messageRelationship relationship,
-                            SipTransactionList& transactionList,
-                            int& nextTimeout,
-                            SipMessage*& delayedDispatchedMessage);
+                           SipUserAgent& userAgent,
+                           enum messageRelationship relationship,
+                           SipTransactionList& transactionList,
+                           // Time until the next resend should happen (msec) (output)
+                           int& nextTimeout,
+                           SipMessage*& delayedDispatchedMessage);
 
     void handleExpiresEvent(const SipMessage& outgoingMessage,
                             SipUserAgent& userAgent,
                             enum messageRelationship relationship,
                             SipTransactionList& transactionList,
+                            // Time until the next resend should happen (msec) (output)
                             int& nextTimeout,
                             SipMessage*& delayedDispatchedMessage);
 
@@ -281,6 +283,7 @@ protected:
                                  SipUserAgent& userAgent,
                                  enum messageRelationship relationship,
                                  SipTransactionList& transactionList,
+                                 // Time until the next resend should happen (msec) (output)
                                  int& nextTimeout,
                                  SipMessage*& delayedDispatchedMessage);
     //: tells the parent transaction the result of the timeout event
@@ -343,8 +346,9 @@ private:
     // Resend a message when the resent timer has expired.  Also schedules
     // the next resend.
     UtlBoolean doResend(SipMessage& resendMessage,
-                       SipUserAgent& userAgent,
-                       int& nextTimeoutMs);
+                        SipUserAgent& userAgent,
+                        // Time until the next resend should happen (msec) (output)
+                        int& nextTimeoutMs);
 
     // Do the first transmission of a message, including for requests,
     // scheduling the timeout that triggers the first send.

@@ -412,13 +412,14 @@ public:
     //! @name Transport state accessors
     /*! \note: these are mostly only useful inside servers
      * that keep message state.
-     * Used for transport reliablity to track when this message was
-     * sent so that it may be resent or timed-out.
      */
     //@{
+    // Manipulate transportTimeStamp, which gives the time the message was
+    // last sent/resent.
     void setTransportTime(long timeStamp);
-    void touchTransportTime();
     long getTransportTime() const;
+    // Set transportTimeStamp to the current time.
+    void touchTransportTime();
 
     //! Used by transport to record the current resend interval (from the last
     //  time the message was sent to the time that the message is scheduled to
@@ -782,6 +783,7 @@ private:
    // Note that these "transport parameters" are copied by the
    // assignment and copy constructors.
 
+   // The time at which the message was last sent/resent.
    long transportTimeStamp;
    // The resend timeout that was set at the last resend, which is thus
    // the time from that resend until the resend timer fires.  (msec)

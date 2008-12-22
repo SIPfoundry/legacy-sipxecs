@@ -1117,8 +1117,8 @@ UtlBoolean SipTransaction::doFirstSend(SipMessage& message,
 
     if(sendSucceeded)
     {
-        // Schedule a resend timeout for requests and final INVITE error
-        // responses (2xx class INVITE responses will be resent
+        // Schedule a resend timeout for requests and final INVITE failure
+        // responses (2xx-class INVITE responses will be resent
         // by user agents only)
         if(   (   ! isResponse
                && strcmp(method.data(), SIP_ACK_METHOD) != 0
@@ -1250,6 +1250,7 @@ void SipTransaction::handleResendEvent(const SipMessage& outgoingMessage,
         delayedDispatchedMessage = NULL;
     }
 
+    // nextTimeout is in msec.
     nextTimeout = 0;
 
     // If this is not a duplicate, then there is something worng
@@ -1284,13 +1285,13 @@ void SipTransaction::handleResendEvent(const SipMessage& outgoingMessage,
         {
             // We have not yet received the ACK
 
-            //int nextTimeout = 0;
             // Use mpLastFinalResponse, not outgoingMessage as
             // mpLastFinalResponse may be a newer final response.
             // outgoingMessage is a snapshot that was taken when the
             // timer was set.
             UtlBoolean sentOk = doResend(*mpLastFinalResponse,
-                                        userAgent, nextTimeout);
+                                         userAgent, nextTimeout);
+            // doResend() sets nextTimeout.
 
             if(sentOk)
             {
@@ -1313,7 +1314,7 @@ void SipTransaction::handleResendEvent(const SipMessage& outgoingMessage,
                 // receive a response
                 SipMessageEvent* resendEvent =
                     new SipMessageEvent(new SipMessage(outgoingMessage),
-                                    SipMessageEvent::TRANSACTION_RESEND);
+                                        SipMessageEvent::TRANSACTION_RESEND);
 
                 OsMsgQ* incomingQ = userAgent.getMessageQueue();
                 OsTimer* timer = new OsTimer(incomingQ, resendEvent);
@@ -1324,9 +1325,8 @@ void SipTransaction::handleResendEvent(const SipMessage& outgoingMessage,
                               timer);
 #endif
 
-                // Convert from mSeconds to uSeconds
-                OsTime lapseTime(0,
-                    nextTimeout * 1000);
+                // Convert from msecs to usecs.
+                OsTime lapseTime(0, nextTimeout * 1000);
                 timer->oneshotAfter(lapseTime);
             }
             else
@@ -1403,12 +1403,11 @@ void SipTransaction::handleResendEvent(const SipMessage& outgoingMessage,
             {
                 resendMessage = mpRequest;
             }
-            //int nextTimeout = 0;
             UtlBoolean sentOk = doResend(*resendMessage,
                                         userAgent, nextTimeout);
+            // doResend() sets nextTimeout.
 
-            if(sentOk &&
-                nextTimeout > 0)
+            if(sentOk && nextTimeout > 0)
             {
                 // Schedule the next timeout
 #ifdef TEST_PRINT
@@ -1429,7 +1428,7 @@ void SipTransaction::handleResendEvent(const SipMessage& outgoingMessage,
                 // receive a response
                 SipMessageEvent* resendEvent =
                     new SipMessageEvent(new SipMessage(outgoingMessage),
-                                    SipMessageEvent::TRANSACTION_RESEND);
+                                        SipMessageEvent::TRANSACTION_RESEND);
 
                 OsMsgQ* incomingQ = userAgent.getMessageQueue();
                 OsTimer* timer = new OsTimer(incomingQ, resendEvent);
@@ -1440,9 +1439,8 @@ void SipTransaction::handleResendEvent(const SipMessage& outgoingMessage,
                               timer);
 #endif
 
-                // Convert from mSeconds to uSeconds
-                OsTime lapseTime(0,
-                    nextTimeout * 1000);
+                // Convert from msecs to usecs.
+                OsTime lapseTime(0, nextTimeout * 1000);
                 timer->oneshotAfter(lapseTime);
             }
             else
@@ -2106,7 +2104,7 @@ void SipTransaction::handleChildTimeoutEvent(SipTransaction& child,
     if(mpParentTransaction)
     {
         // For now recurse.  We might be able to short cut this
-        // and go straight to the top most parent
+        // and go straight to the top-most parent
         mpParentTransaction->handleChildTimeoutEvent(child,
                                                      outgoingMessage,
                                                      userAgent,
@@ -3447,7 +3445,7 @@ UtlBoolean SipTransaction::doResend(SipMessage& resendMessage,
                 // Do this after the send so that the log message is correct
                 resendMessage.incrementTimesSent();
 
-                // Schedule the time out for the next resend.
+                // Schedule the timeout for the next resend.
                 if(lastTimeout < userAgent.getFirstResendTimeout())
                 {
                     nextTimeout = userAgent.getFirstResendTimeout();
@@ -3511,8 +3509,7 @@ UtlBoolean SipTransaction::doResend(SipMessage& resendMessage,
            if(sendOk)
            {
                // Schedule a timeout
-               nextTimeout =
-                   userAgent.getReliableTransportTimeout();
+               nextTimeout = userAgent.getReliableTransportTimeout();
 
                resendMessage.incrementTimesSent();
                resendMessage.setResendDuration(nextTimeout);
@@ -3549,10 +3546,8 @@ UtlBoolean SipTransaction::doResend(SipMessage& resendMessage,
                OsTime lapseTime(0, nextTimeout * 1000);
                timer->oneshotAfter(lapseTime);
 
-
                sentOk = TRUE;
            }
-
            else
            {
                // Send failed send back the transport error

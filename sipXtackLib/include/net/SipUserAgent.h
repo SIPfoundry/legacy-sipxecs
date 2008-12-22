@@ -770,11 +770,16 @@ private:
     // Timers (in seconds or milliseconds)
     // Time allowed before first resend of a message, in msec.
     // T1 in RFC 3261.
+    // The time from first send via UDP to first resend (msec).
     int mFirstResendTimeoutMs;
     int mLastResendTimeoutMs;
+    // The time from first send via TCP (or other reliable transport) to first resend (msec).
     int mReliableTransportTimeoutMs;
     int mTransactionStateTimeoutMs;
+    // The default time to let a transaction live.
     int mDefaultExpiresSeconds;
+    // The default time to let a transaction live if it is a
+    // serially-forked child.
     int mDefaultSerialExpiresSeconds;
     // Minimum secs needed for an INVITE transaction so that a called phone
     // can be answered.
