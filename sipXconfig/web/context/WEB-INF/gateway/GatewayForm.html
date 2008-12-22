@@ -95,10 +95,10 @@
           validators="spring-validators:validFieldSize"
           displayName="message:label.description"/>
       </label>
-      <span jwcid="@If" condition="ognl:(!gateway.isNew()) && (gateway instanceof org.sipfoundry.sipxconfig.gateway.SipTrunk)">
+      <span jwcid="@If" condition="ognl:gateway instanceof org.sipfoundry.sipxconfig.gateway.SipTrunk">
         <label jwcid="@common/FieldPanel" for="gateway:route" field="ognl:null"
                label="message:label.route" description="message:description.route">
-          <input jwcid="sbcDevice@common/SbcDeviceSelect"
+          <input jwcid="@common/SbcDeviceSelect"
                  selectedSbcDevice="ognl:selectedSbcDevice"/>
         </label>
       </span>

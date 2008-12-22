@@ -122,22 +122,22 @@ public class GatewaysTestUi extends WebTestCase {
 
         for (String gatewayType : nonRouteGateways) {
             SiteTestHelper.selectOption(tester, "selectGatewayModel", gatewayType);
-            assertElementNotPresent("common_FlexiblePropertySelection");
+            assertElementNotPresent("sbcDeviceSelect");
             clickButton("form:cancel");
         }
 
         SiteTestHelper.selectOption(tester, "selectGatewayModel", "SIP trunk");
         setTextField("gateway:name", "SipTrunkRouteTest");
         setTextField("gateway:address", "1.2.3.4");
-        // FIXME: apply should not be necessary see: XCF-2444
+//        // FIXME: apply should not be necessary see: XCF-2444
         clickButton("form:apply");
-        SiteTestHelper.selectOption(tester, "common_FlexiblePropertySelection", "Unmanaged SBC");
+        SiteTestHelper.selectOption(tester, "sbcDeviceSelect", "Unmanaged SBC");
         setTextField("sbcDevice:name", "sbcDeviceForSipTrunk");
         setTextField("sbcDevice:address", "sbc.example.org");
         clickButton("form:ok");
         assertNoUserError(tester);
-        SiteTestHelper.selectOption(tester, "common_FlexiblePropertySelection", "sbcDeviceForSipTrunk");
-        clickButton("form:ok");
+        assertSelectedOptionEquals("sbcDeviceSelect", "sbcDeviceForSipTrunk");
+        clickButton("form:ok");        
         assertNoUserError(tester);
     }
 

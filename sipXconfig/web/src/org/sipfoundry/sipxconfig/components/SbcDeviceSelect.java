@@ -47,9 +47,12 @@ public abstract class SbcDeviceSelect extends BaseComponent {
     @Bean
     public abstract OptGroupPropertySelectionRenderer getRender();
 
+    @Parameter(defaultValue = "literal:selectedSbcDevice")
+    public abstract void setAddProperty(String addProperty);
+    public abstract String getAddProperty();
+    
     @Parameter(required = true)
     public abstract void setSelectedSbcDevice(SbcDevice selectedSbcDevice);
-
     public abstract SbcDevice getSelectedSbcDevice();
 
     public abstract void setSelectedAction(IActionListener selectedAction);
@@ -144,7 +147,7 @@ public abstract class SbcDeviceSelect extends BaseComponent {
             Runnable action = new Runnable() {
                 public void run() {
                     EditSbcDevice page = EditSbcDevice
-                            .getAddPage(cycle, m_model, cycle.getPage());
+                            .getAddPage(cycle, m_model, cycle.getPage(), getAddProperty());
                     cycle.activate(page);
                 }
             };

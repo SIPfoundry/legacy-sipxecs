@@ -14,6 +14,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.annotations.Bean;
+import org.apache.tapestry.annotations.EventListener;
 import org.apache.tapestry.annotations.InitialValue;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.InjectPage;
@@ -58,11 +59,13 @@ public abstract class EditGateway extends PageWithCallback implements PageBeginR
 
     @Persist
     public abstract Integer getGatewayId();
-
     public abstract void setGatewayId(Integer id);
-
+    
+    @Persist("session")
+    public abstract Gateway getTransientGateway();
+    public abstract void setTransientGateway(Gateway transientGateway);
+    
     public abstract Gateway getGateway();
-
     public abstract void setGateway(Gateway gateway);
 
     @Persist
@@ -94,7 +97,6 @@ public abstract class EditGateway extends PageWithCallback implements PageBeginR
     public abstract void setActiveSetting(String setting);
 
     public abstract void setSelectedSbcDevice(SbcDevice selectedSbcDevice);
-
     public abstract SbcDevice getSelectedSbcDevice();
 
     /**
@@ -110,7 +112,17 @@ public abstract class EditGateway extends PageWithCallback implements PageBeginR
         return tabs;
     }
 
+    @EventListener(events = "onchange", targets = "sbcDeviceSelect")
+    public void onSbcDeviceSelect() {
+        setTransientGateway(getGateway());
+    }
+    
     public void pageBeginRender(PageEvent event_) {
+        if (getTransientGateway() != null) {
+            setGateway(getTransientGateway());
+        }
+        setTransientGateway(null);
+        
         Gateway gateway = getGateway();
         if (null != gateway) {
             return;
@@ -215,6 +227,7 @@ public abstract class EditGateway extends PageWithCallback implements PageBeginR
         page.setCurrentSettingSetName(null);
         page.setRuleId(ruleId);
         page.setReturnPage(returnPage);
+        page.setTransientGateway(null);
         return page;
     }
 
@@ -227,6 +240,7 @@ public abstract class EditGateway extends PageWithCallback implements PageBeginR
         page.setCurrentSettingSetName(null);
         page.setRuleId(ruleId);
         page.setReturnPage(returnPage);
+        page.setTransientGateway(null);
         return page;
     }
 }

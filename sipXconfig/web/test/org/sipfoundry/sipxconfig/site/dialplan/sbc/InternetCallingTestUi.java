@@ -52,13 +52,13 @@ public class InternetCallingTestUi extends WebTestCase {
         // it's going to fails since SBC address is needed
         SiteTestHelper.assertUserError(tester);
 
-        SiteTestHelper.selectOption(tester, "common_FlexiblePropertySelection", "Unmanaged SBC");
+        SiteTestHelper.selectOption(tester, "sbcDeviceSelect", "Unmanaged SBC");
         SiteTestHelper.assertNoUserError(tester);
         setTextField("sbcDevice:name", "sbcDevice1");
         setTextField("sbcDevice:address", "sbc.example.org");
         clickButton("form:ok");
         SiteTestHelper.assertNoUserError(tester);
-        SiteTestHelper.selectOption(tester, "common_FlexiblePropertySelection", "sbcDevice1");
+        SiteTestHelper.selectOption(tester, "sbcDeviceSelect", "sbcDevice1");
 
         Table auxSbcsTable = tester.getTable("sbc:list");
         assertEquals(1, auxSbcsTable.getRowCount());
@@ -66,11 +66,11 @@ public class InternetCallingTestUi extends WebTestCase {
         // add aditional SBC
         clickLink("sbc:add");
         SiteTestHelper.assertNoUserError(tester);
-        SiteTestHelper.selectOption(tester, "common_FlexiblePropertySelection", "Unmanaged SBC");
+        SiteTestHelper.selectOption(tester, "sbcDeviceSelect", "Unmanaged SBC");
         setTextField("sbcDevice:name", "sbcDevice2");
         setTextField("sbcDevice:address", "sbc.example.net");
         clickButton("form:ok");
-        SiteTestHelper.selectOption(tester, "common_FlexiblePropertySelection", "sbcDevice2");
+        SiteTestHelper.selectOption(tester, "sbcDeviceSelect", "sbcDevice2");
         clickButton("form:ok");
         SiteTestHelper.assertNoUserError(tester);
 

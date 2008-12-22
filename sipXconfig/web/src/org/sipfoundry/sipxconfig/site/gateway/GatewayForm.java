@@ -89,7 +89,6 @@ public abstract class GatewayForm extends BaseComponent implements PageBeginRend
 
     @Parameter(required = true)
     public abstract void setSelectedSbcDevice(SbcDevice selectedSbcDevice);
-
     public abstract SbcDevice getSelectedSbcDevice();
 
     public ObjectSelectionModel getVersions() {
