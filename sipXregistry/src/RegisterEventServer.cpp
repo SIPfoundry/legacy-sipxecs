@@ -421,10 +421,12 @@ void RegisterEventServer::generateContent(const UtlString& aorString,
          0 != gruu->compareTo(SPECIAL_IMDB_NULL_VALUE))
       {
          content.append("      <gr:pub-gruu uri=\"");
-         Url tmp(*gruu);
-         tmp.setScheme(Url::SipUrlScheme);
-         tmp.setGRUU( UtlString("") );
-         XmlEscape(content, tmp.toString());
+         // It is a bit clunky to just prepend "sip:" onto the GRUU identity.
+         // But if we were handling things properly as URIs, the gruu column
+         // of the registration DB would contain the full GRUU URI already.
+         UtlString tmp("sip:");
+         tmp.append(*gruu);
+         XmlEscape(content, tmp);
          content.append("\"/>\r\n");
       }
 
