@@ -44,6 +44,7 @@ SIPXDIRS="$FS_DBDIR $FS_CONFDIR"
 
 case ${Action} in
    RUN)
+     ulimit -s 244  # Keep stack size small for maximum number of threads
      exec $FS_EXEC -nc -nf $Args
      exit 0
      ;;
