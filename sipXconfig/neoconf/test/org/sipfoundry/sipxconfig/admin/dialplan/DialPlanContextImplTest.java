@@ -79,16 +79,19 @@ public class DialPlanContextImplTest extends TestCase {
         forwardingRules.setSbcManager(sbcManager);
 
         SipxProxyService proxyService = new SipxProxyService();
+        proxyService.setModelId(SipxProxyService.BEAN_ID);
         proxyService.setSipPort("9901");
         proxyService.setDomainManager(domainManager);
 
         SipxStatusService statusService = new SipxStatusService();
+        statusService.setModelId(SipxStatusService.BEAN_ID);
         statusService.setModelFilesContext(TestHelper.getModelFilesContext());
         statusService.setSettings(TestHelper.loadSettings("sipxstatus/sipxstatus.xml"));
         Setting statusConfigSettings = statusService.getSettings().getSetting("status-config");
         statusConfigSettings.getSetting("SIP_STATUS_SIP_PORT").setValue("9905");
 
         SipxRegistrarService registrarService = new SipxRegistrarService();
+        registrarService.setModelId(SipxRegistrarService.BEAN_ID);
         registrarService.setRegistrarEventSipPort("9906");
         registrarService.setSipPort("9907");
 

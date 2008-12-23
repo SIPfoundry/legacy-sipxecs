@@ -16,7 +16,7 @@ import java.util.Set;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 
-public abstract class DeviceDescriptor {
+public abstract class DeviceDescriptor implements Model {
 
     public static final LabelComparator LABEL_COMPARATOR = new LabelComparator();
 
@@ -80,6 +80,9 @@ public abstract class DeviceDescriptor {
         m_label = label;
     }
 
+    /* (non-Javadoc)
+     * @see org.sipfoundry.sipxconfig.device.Model#setModelId(java.lang.String)
+     */
     public void setModelId(String modelId) {
         m_modelId = modelId;
     }

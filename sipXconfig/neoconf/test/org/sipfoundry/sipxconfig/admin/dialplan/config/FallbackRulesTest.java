@@ -9,15 +9,6 @@
  */
 package org.sipfoundry.sipxconfig.admin.dialplan.config;
 
-import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.createStrictMock;
-import static org.easymock.EasyMock.expectLastCall;
-import static org.easymock.EasyMock.replay;
-import static org.easymock.EasyMock.verify;
-import static org.sipfoundry.sipxconfig.XmlUnitHelper.asString;
-import static org.sipfoundry.sipxconfig.XmlUnitHelper.assertElementInNamespace;
-import static org.sipfoundry.sipxconfig.XmlUnitHelper.setNamespaceAware;
-
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -43,14 +34,22 @@ import org.sipfoundry.sipxconfig.gateway.Gateway;
 import org.sipfoundry.sipxconfig.service.SipxPageService;
 import org.sipfoundry.sipxconfig.service.SipxParkService;
 import org.sipfoundry.sipxconfig.service.SipxRlsService;
-import org.sipfoundry.sipxconfig.service.SipxService;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.test.TestUtil;
 
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.createStrictMock;
+import static org.easymock.EasyMock.expectLastCall;
+import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.verify;
+import static org.sipfoundry.sipxconfig.XmlUnitHelper.asString;
+import static org.sipfoundry.sipxconfig.XmlUnitHelper.assertElementInNamespace;
+import static org.sipfoundry.sipxconfig.XmlUnitHelper.setNamespaceAware;
+
 public class FallbackRulesTest extends XMLTestCase {
 
-    //Object Under Test
+    // Object Under Test
     private FallbackRules m_out;
 
     public FallbackRulesTest() {
@@ -58,6 +57,7 @@ public class FallbackRulesTest extends XMLTestCase {
         XMLUnit.setIgnoreWhitespace(true);
     }
 
+    @Override
     public void setUp() {
         m_out = new FallbackRules();
 
@@ -69,10 +69,12 @@ public class FallbackRulesTest extends XMLTestCase {
         m_out.setDomainManager(domainManager);
 
         SipxParkService parkService = new SipxParkService();
+        parkService.setModelId(SipxParkService.BEAN_ID);
         parkService.setParkServerSipPort("9905");
 
         SipxRlsService rlsService = new SipxRlsService();
         rlsService.setRlsPort("9906");
+        rlsService.setModelId(SipxRlsService.BEAN_ID);
 
         SipxPageService pageService = new SipxPageService() {
             @Override
@@ -80,8 +82,10 @@ public class FallbackRulesTest extends XMLTestCase {
                 return "9910";
             }
         };
+        pageService.setModelId(SipxPageService.BEAN_ID);
 
-        SipxServiceManager sipxServiceManager = TestUtil.getMockSipxServiceManager(parkService, rlsService, pageService);
+        SipxServiceManager sipxServiceManager = TestUtil.getMockSipxServiceManager(parkService, rlsService,
+                pageService);
         EasyMock.replay(sipxServiceManager);
         m_out.setSipxServiceManager(sipxServiceManager);
     }

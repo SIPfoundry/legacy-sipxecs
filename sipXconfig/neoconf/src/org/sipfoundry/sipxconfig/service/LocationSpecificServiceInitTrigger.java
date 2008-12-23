@@ -42,9 +42,8 @@ public class LocationSpecificServiceInitTrigger extends InitTaskListener {
             for (LocationSpecificService service : primaryServer.getServices()) {
                 service.setEnableOnNextUpgrade(true);
             }
-            m_locationsManager.storeLocation(primaryServer);
         } else {
-            Collection<SipxService> allServiceDefinitions = m_sipxServiceManager.getAllServices();
+            Collection<SipxService> allServiceDefinitions = m_sipxServiceManager.getServiceDefinitions();
             for (SipxService sipxService : allServiceDefinitions) {
                 if (!sipxService.getBeanId().equals(SipxConfigAgentService.BEAN_ID)) {
                     LocationSpecificService newService = new LocationSpecificService();
@@ -53,8 +52,8 @@ public class LocationSpecificServiceInitTrigger extends InitTaskListener {
                     primaryServer.addService(newService);
                 }
             }
-            m_locationsManager.storeLocation(primaryServer);
         }
+        m_locationsManager.storeLocation(primaryServer);
     }
 
     public void setLocationManager(LocationsManager locationsManager) {

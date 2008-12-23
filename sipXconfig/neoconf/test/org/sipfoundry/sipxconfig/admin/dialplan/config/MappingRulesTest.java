@@ -44,7 +44,6 @@ import org.sipfoundry.sipxconfig.permission.PermissionName;
 import org.sipfoundry.sipxconfig.service.SipxPageService;
 import org.sipfoundry.sipxconfig.service.SipxParkService;
 import org.sipfoundry.sipxconfig.service.SipxRlsService;
-import org.sipfoundry.sipxconfig.service.SipxService;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.sipfoundry.sipxconfig.speeddial.RlsRule;
 import org.sipfoundry.sipxconfig.test.TestUtil;
@@ -55,10 +54,10 @@ import org.sipfoundry.sipxconfig.test.TestUtil;
 public class MappingRulesTest extends XMLTestCase {
     private static final String VOICEMAIL_SERVER = "https%3A%2F%2Flocalhost%3A443";
 
-    private DomainManager m_domainManager;
+    private final DomainManager m_domainManager;
 
     // Object Under Test
-    private MappingRules m_out;
+    private final MappingRules m_out;
 
     public MappingRulesTest() {
         XmlUnitHelper.setNamespaceAware(false);
@@ -71,9 +70,11 @@ public class MappingRulesTest extends XMLTestCase {
         m_out.setDomainManager(m_domainManager);
 
         SipxParkService parkService = new SipxParkService();
+        parkService.setModelId(SipxParkService.BEAN_ID);
         parkService.setParkServerSipPort("9905");
 
         SipxRlsService rlsService = new SipxRlsService();
+        rlsService.setModelId(SipxRlsService.BEAN_ID);
         rlsService.setRlsPort("9906");
 
         SipxPageService pageService = new SipxPageService() {
@@ -82,6 +83,7 @@ public class MappingRulesTest extends XMLTestCase {
                 return "9910";
             }
         };
+        pageService.setModelId(SipxPageService.BEAN_ID);
 
         SipxServiceManager sipxServiceManager = TestUtil.getMockSipxServiceManager(parkService, rlsService, pageService);
         EasyMock.replay(sipxServiceManager);

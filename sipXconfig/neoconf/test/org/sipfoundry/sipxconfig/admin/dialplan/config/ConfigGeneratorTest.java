@@ -9,14 +9,7 @@
  */
 package org.sipfoundry.sipxconfig.admin.dialplan.config;
 
-import static org.easymock.EasyMock.createNiceMock;
-import static org.easymock.EasyMock.createStrictMock;
-import static org.easymock.EasyMock.expectLastCall;
-import static org.easymock.EasyMock.replay;
-import static org.easymock.EasyMock.verify;
-
 import java.io.StringWriter;
-import java.util.Arrays;
 import java.util.Collections;
 
 import org.custommonkey.xmlunit.XMLTestCase;
@@ -38,6 +31,12 @@ import org.sipfoundry.sipxconfig.service.SipxStatusService;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.test.TestUtil;
 
+import static org.easymock.EasyMock.createNiceMock;
+import static org.easymock.EasyMock.createStrictMock;
+import static org.easymock.EasyMock.expectLastCall;
+import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.verify;
+
 /**
  * ConfigGeneratorTest
  */
@@ -50,22 +49,26 @@ public class ConfigGeneratorTest extends XMLTestCase {
         XMLUnit.setIgnoreWhitespace(true);
     }
 
+    @Override
     public void setUp() {
         m_domainManager = EasyMock.createMock(DomainManager.class);
         m_domainManager.getDomain();
         EasyMock.expectLastCall().andReturn(new Domain("example.org")).anyTimes();
 
         SipxProxyService proxyService = new SipxProxyService();
+        proxyService.setModelId(SipxProxyService.BEAN_ID);
         proxyService.setSipPort("9901");
         proxyService.setDomainManager(m_domainManager);
 
         SipxStatusService statusService = new SipxStatusService();
+        statusService.setModelId(SipxStatusService.BEAN_ID);
         statusService.setModelFilesContext(TestHelper.getModelFilesContext());
         statusService.setSettings(TestHelper.loadSettings("sipxstatus/sipxstatus.xml"));
         Setting statusConfigSettings = statusService.getSettings().getSetting("status-config");
         statusConfigSettings.getSetting("SIP_STATUS_SIP_PORT").setValue("9905");
 
         SipxRegistrarService registrarService = new SipxRegistrarService();
+        registrarService.setModelId(SipxRegistrarService.BEAN_ID);
         registrarService.setRegistrarEventSipPort("9906");
         registrarService.setSipPort("9907");
 

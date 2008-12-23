@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.device;
@@ -20,13 +20,13 @@ import org.springframework.beans.factory.ListableBeanFactory;
 /**
  * Loads phone models from bean factory BeanFactoryPhoneModelSource
  */
-public class BeanFactoryModelSource<T extends DeviceDescriptor> implements ModelSource, BeanFactoryAware {
+public class BeanFactoryModelSource<T extends Model> implements ModelSource, BeanFactoryAware {
 
     private ListableBeanFactory m_beanFactory;
     private Map<String, T> m_modelCache;
     /** T.class, but no such access at compile time */
     private Class m_class;
-    
+
     public BeanFactoryModelSource(String className) {
         try {
             m_class = Class.forName(className);
@@ -44,7 +44,7 @@ public class BeanFactoryModelSource<T extends DeviceDescriptor> implements Model
         // invalidate cache
         m_modelCache = null;
     }
-    
+
     private Map<String, T> loadModels() {
         if (m_modelCache != null) {
             return m_modelCache;
@@ -61,7 +61,7 @@ public class BeanFactoryModelSource<T extends DeviceDescriptor> implements Model
         }
         return m_modelCache;
     }
-    
+
     public T getModel(String modelId) {
         T model = loadModels().get(modelId);
         if (model == null) {

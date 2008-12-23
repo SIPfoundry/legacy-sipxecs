@@ -1,18 +1,13 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.admin.dialplan.config;
-
-import static org.easymock.EasyMock.createNiceMock;
-import static org.easymock.EasyMock.expectLastCall;
-import static org.easymock.EasyMock.replay;
-import static org.easymock.EasyMock.verify;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -23,17 +18,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import javax.imageio.spi.RegisterableService;
-
 import org.apache.commons.io.IOUtils;
 import org.custommonkey.xmlunit.XMLTestCase;
 import org.custommonkey.xmlunit.XMLUnit;
-import org.dom4j.Document;
 import org.easymock.EasyMock;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.XmlUnitHelper;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
-import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.admin.dialplan.IDialingRule;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.AuxSbc;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.DefaultSbc;
@@ -41,23 +32,24 @@ import org.sipfoundry.sipxconfig.admin.dialplan.sbc.Sbc;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDevice;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcManager;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcRoutes;
-import org.sipfoundry.sipxconfig.admin.localization.Localization;
-import org.sipfoundry.sipxconfig.domain.Domain;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
-import org.sipfoundry.sipxconfig.domain.DomainManagerImpl;
 import org.sipfoundry.sipxconfig.service.SipxProxyService;
 import org.sipfoundry.sipxconfig.service.SipxRegistrarService;
-import org.sipfoundry.sipxconfig.service.SipxServiceConfiguration;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
-import org.sipfoundry.sipxconfig.service.SipxServiceTestBase;
 import org.sipfoundry.sipxconfig.service.SipxStatusService;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.test.TestUtil;
+
+import static org.easymock.EasyMock.createNiceMock;
+import static org.easymock.EasyMock.expectLastCall;
+import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.verify;
 
 public class ForwardingRulesTest extends XMLTestCase {
 
     private SipxServiceManager m_sipxServiceManager;
 
+    @Override
     protected void setUp() throws Exception {
         XmlUnitHelper.setNamespaceAware(false);
         XMLUnit.setIgnoreWhitespace(true);
@@ -65,16 +57,19 @@ public class ForwardingRulesTest extends XMLTestCase {
         DomainManager domainManager = TestUtil.getMockDomainManager();
 
         SipxProxyService proxyService = new SipxProxyService();
+        proxyService.setModelId(SipxProxyService.BEAN_ID);
         proxyService.setSipPort("9901");
         proxyService.setDomainManager(domainManager);
 
         SipxStatusService statusService = new SipxStatusService();
+        statusService.setModelId(SipxStatusService.BEAN_ID);
         statusService.setModelFilesContext(TestHelper.getModelFilesContext());
         statusService.setSettings(TestHelper.loadSettings("sipxstatus/sipxstatus.xml"));
         Setting statusConfigSettings = statusService.getSettings().getSetting("status-config");
         statusConfigSettings.getSetting("SIP_STATUS_SIP_PORT").setValue("9905");
 
         SipxRegistrarService registrarService = new SipxRegistrarService();
+        registrarService.setModelId(SipxRegistrarService.BEAN_ID);
         registrarService.setRegistrarEventSipPort("9906");
         registrarService.setSipPort("9907");
 
@@ -103,8 +98,7 @@ public class ForwardingRulesTest extends XMLTestCase {
 
         String generatedXml = getGeneratedXmlFileAsString(rules);
 
-        InputStream referenceXmlStream = ForwardingRulesTest.class
-                .getResourceAsStream("forwardingrules.test.xml");
+        InputStream referenceXmlStream = ForwardingRulesTest.class.getResourceAsStream("forwardingrules.test.xml");
 
         assertXMLEqual(new InputStreamReader(referenceXmlStream), new StringReader(generatedXml));
 
@@ -112,7 +106,7 @@ public class ForwardingRulesTest extends XMLTestCase {
 
         verify(rule, sbcManager);
     }
-    
+
     public void testGenerateWithEmptyDomainsAndIntranets() throws Exception {
 
         IDialingRule rule = createNiceMock(IDialingRule.class);
@@ -121,8 +115,8 @@ public class ForwardingRulesTest extends XMLTestCase {
             "gander"
         });
 
-        Sbc sbc = configureSbc(new DefaultSbc(), configureSbcDevice("10.1.2.3"),
-        		new ArrayList<String>(), new ArrayList<String>());
+        Sbc sbc = configureSbc(new DefaultSbc(), configureSbcDevice("10.1.2.3"), new ArrayList<String>(),
+                new ArrayList<String>());
 
         SbcManager sbcManager = createNiceMock(SbcManager.class);
         sbcManager.loadDefaultSbc();
@@ -133,7 +127,7 @@ public class ForwardingRulesTest extends XMLTestCase {
         ForwardingRules rules = generate(rule, sbcManager);
 
         String generatedXml = getGeneratedXmlFileAsString(rules);
-        
+
         InputStream referenceXmlStream = ForwardingRulesTest.class
                 .getResourceAsStream("forwardingrules-no-local-ip.test.xml");
 
@@ -207,8 +201,7 @@ public class ForwardingRulesTest extends XMLTestCase {
 
         String generatedXml = getGeneratedXmlFileAsString(rules);
 
-        InputStream referenceXmlStream = ForwardingRulesTest.class
-                .getResourceAsStream("forwardingrules.test.xml");
+        InputStream referenceXmlStream = ForwardingRulesTest.class.getResourceAsStream("forwardingrules.test.xml");
 
         assertXMLEqual(new InputStreamReader(referenceXmlStream), new StringReader(generatedXml));
         verify(rule, sbcManager);
@@ -225,8 +218,7 @@ public class ForwardingRulesTest extends XMLTestCase {
         return rules;
     }
 
-    private Sbc configureSbc(Sbc sbc, SbcDevice sbcDevice, List<String> domains,
-            List<String> subnets) {
+    private Sbc configureSbc(Sbc sbc, SbcDevice sbcDevice, List<String> domains, List<String> subnets) {
         SbcRoutes routes = new SbcRoutes();
         routes.setDomains(domains);
         routes.setSubnets(subnets);
@@ -241,20 +233,6 @@ public class ForwardingRulesTest extends XMLTestCase {
         SbcDevice sbcDevice = new SbcDevice();
         sbcDevice.setAddress(address);
         return sbcDevice;
-    }
-
-    private void assertCorrectFileGeneration(XmlFile xmlFile,
-            String expectedFileName) throws Exception {
-
-        InputStream resourceAsStream = xmlFile.getClass().getResourceAsStream(expectedFileName);
-        assertNotNull(resourceAsStream);
-
-        Reader referenceXmlFileReader = new InputStreamReader(resourceAsStream);
-        String referenceXmlFile = IOUtils.toString(referenceXmlFileReader);
-
-        String actualXmlFile = getGeneratedXmlFileAsString(xmlFile);
-
-        assertEquals(referenceXmlFile, actualXmlFile);
     }
 
     private String getGeneratedXmlFileAsString(XmlFile xmlFile) throws Exception {

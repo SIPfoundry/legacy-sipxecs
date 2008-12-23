@@ -1,19 +1,14 @@
 /*
- * 
- * 
- * Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.service;
 
 public class SipxConfigAgentService extends SipxService {
     public static final String BEAN_ID = "sipxConfigAgentService";
-
-    @Override
-    public String getBeanId() {
-        return BEAN_ID;
-    }
 }

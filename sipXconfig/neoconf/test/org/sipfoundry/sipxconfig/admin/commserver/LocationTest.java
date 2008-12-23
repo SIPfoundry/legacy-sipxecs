@@ -39,8 +39,10 @@ public class LocationTest extends TestCase {
         Location out = new Location();
         Collection<SipxService> sipxServices = new ArrayList<SipxService>();
         SipxService proxyService = new SipxProxyService();
+        proxyService.setModelId(SipxProxyService.BEAN_ID);
         sipxServices.add(proxyService);
         SipxService registrarService = new SipxRegistrarService();
+        registrarService.setModelId(SipxRegistrarService.BEAN_ID);
         sipxServices.add(registrarService);
 
         out.setServiceDefinitions(sipxServices);
@@ -73,13 +75,16 @@ public class LocationTest extends TestCase {
         Location out = new Location();
         Collection<SipxService> sipxServices = new ArrayList<SipxService>();
         SipxService proxyService = new SipxProxyService();
+        proxyService.setModelId(SipxProxyService.BEAN_ID);
         sipxServices.add(proxyService);
         SipxService registrarService = new SipxRegistrarService();
+        registrarService.setModelId(SipxRegistrarService.BEAN_ID);
         sipxServices.add(registrarService);
 
         out.setServiceDefinitions(sipxServices);
 
         SipxService parkService = new SipxParkService();
+        parkService.setBeanId(SipxParkService.BEAN_ID);
         out.addService(parkService);
 
         Collection<LocationSpecificService> servicesFromOut = out.getServices();
@@ -92,7 +97,9 @@ public class LocationTest extends TestCase {
         Collection<SipxService> sipxServices = new ArrayList<SipxService>();
         SipxService proxyService = new SipxProxyService();
         sipxServices.add(proxyService);
+        proxyService.setModelId(SipxProxyService.BEAN_ID);
         SipxService registrarService = new SipxRegistrarService();
+        registrarService.setModelId(SipxRegistrarService.BEAN_ID);
         sipxServices.add(registrarService);
 
         out.setServiceDefinitions(sipxServices);

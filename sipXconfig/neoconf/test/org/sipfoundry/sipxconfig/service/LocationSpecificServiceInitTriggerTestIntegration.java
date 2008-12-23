@@ -31,6 +31,9 @@ public class LocationSpecificServiceInitTriggerTestIntegration extends Integrati
 
         verifyCorrectServiceStateOnPrimaryServer();
 
+        Location primaryLocation = m_locationsManager.getPrimaryLocation();
+        assertEquals(3, primaryLocation.getServices().size());
+
         Location distributedLocation = m_locationsManager.getLocation(102);
         assertNotNull(distributedLocation.getServices());
         assertEquals(1, distributedLocation.getServices().size());
@@ -42,7 +45,7 @@ public class LocationSpecificServiceInitTriggerTestIntegration extends Integrati
     private void verifyCorrectServiceStateOnPrimaryServer() {
         Location primaryLocation = m_locationsManager.getPrimaryLocation();
         assertNotNull(primaryLocation.getServices());
-        assertEquals(3, primaryLocation.getServices().size());
+        assertFalse(primaryLocation.getServices().isEmpty());
         for (LocationSpecificService service : primaryLocation.getServices()) {
             if (service.getSipxService().getBeanId().equals(SipxConfigAgentService.BEAN_ID)) {
                 assertFalse(service.getEnableOnNextUpgrade());

@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.service;
@@ -31,6 +31,7 @@ public class SipxPresenceService extends SipxService {
     /**
      * Validates the data in this service and throws a UserException if there is a problem
      */
+    @Override
     public void validate() {
         SipxService registrarService = m_sipxServiceManager.getServiceByBeanId(SipxRegistrarService.BEAN_ID);
         new ConflictingFeatureCodeValidator().validate(Arrays.asList(new Setting[] {
@@ -44,10 +45,5 @@ public class SipxPresenceService extends SipxService {
 
     public int getPresenceApiPort() {
         return (Integer) getSettingTypedValue(PRESENCE_API_PORT);
-    }
-
-    @Override
-    public String getBeanId() {
-        return BEAN_ID;
     }
 }

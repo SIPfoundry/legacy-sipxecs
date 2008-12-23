@@ -11,9 +11,4 @@ package org.sipfoundry.sipxconfig.service;
 
 public class SipxFreeswitchService extends SipxService {
     public static final String BEAN_ID = "sipxFreeswitchService";
-
-    @Override
-    public String getBeanId() {
-        return BEAN_ID;
-    }
 }

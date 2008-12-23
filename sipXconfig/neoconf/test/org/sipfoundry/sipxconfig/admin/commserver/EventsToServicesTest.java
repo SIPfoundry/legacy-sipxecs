@@ -74,16 +74,8 @@ public class EventsToServicesTest extends TestCase {
     }
 
     static class DummyService extends SipxService {
-        private final String m_beanId;
-
         public DummyService(String beanId) {
-            m_beanId = beanId;
+            setBeanId(beanId);
         }
-
-        @Override
-        public String getBeanId() {
-            return m_beanId;
-        }
-
     }
 }

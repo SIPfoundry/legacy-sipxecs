@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.admin.commserver.imdb;
@@ -33,9 +33,9 @@ public class ReplicationTrigger implements ApplicationListener, DaoEventListener
     private ParkOrbitContext m_parkOrbitContext;
 
     private SpeedDialManager m_speedDialManager;
-    
+
     private SipxServiceManager m_sipxServiceManager;
-    
+
     private boolean m_replicateOnStartup = true;
 
     public void setReplicationContext(SipxReplicationContext replicationContext) {
@@ -49,11 +49,11 @@ public class ReplicationTrigger implements ApplicationListener, DaoEventListener
     public void setSpeedDialManager(SpeedDialManager speedDialManager) {
         m_speedDialManager = speedDialManager;
     }
-    
+
     public void setSipxServiceManager(SipxServiceManager serviceManager) {
         m_sipxServiceManager = serviceManager;
     }
-    
+
     public boolean isReplicateOnStartup() {
         return m_replicateOnStartup;
     }
@@ -80,8 +80,8 @@ public class ReplicationTrigger implements ApplicationListener, DaoEventListener
             m_replicationContext.generateAll();
             m_parkOrbitContext.activateParkOrbits();
             m_speedDialManager.activateResourceList();
-            
-            Collection<SipxService> allSipxServices = m_sipxServiceManager.getAllServices();
+
+            Collection<SipxService> allSipxServices = m_sipxServiceManager.getServiceDefinitions();
             for (SipxService sipxService : allSipxServices) {
                 m_sipxServiceManager.replicateServiceConfig(sipxService);
             }
@@ -108,7 +108,7 @@ public class ReplicationTrigger implements ApplicationListener, DaoEventListener
     ParkOrbitContext getParkOrbitContext() {
         return m_parkOrbitContext;
     }
-    
+
     SpeedDialManager getSpeedDialManager() {
         return m_speedDialManager;
     }

@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.service;
@@ -16,7 +16,7 @@ public class SipxPageService extends SipxService {
     private static final String SIP_PORT = "page-config/PAGE_SERVER_SIP_PORT";
 
     private String m_audioDirectory;
-    
+
     public String getAudioDir() {
         return m_audioDirectory;
     }
@@ -24,13 +24,7 @@ public class SipxPageService extends SipxService {
     public void setAudioDir(String audioDirectory) {
         m_audioDirectory = audioDirectory;
     }
-
     public String getSipPort() {
         return getSettingValue(SIP_PORT);
-    }
-
-    @Override
-    public String getBeanId() {
-        return BEAN_ID;
     }
 }

@@ -17,11 +17,6 @@ public class SipxStatusService extends SipxService {
     // TODO: remove once it's removed from config.defs and voicemail.xml
     private int m_httpsPort;
 
-    @Override
-    public String getBeanId() {
-        return BEAN_ID;
-    }
-
     public void setHttpsPort(int httpsPort) {
         m_httpsPort = httpsPort;
     }

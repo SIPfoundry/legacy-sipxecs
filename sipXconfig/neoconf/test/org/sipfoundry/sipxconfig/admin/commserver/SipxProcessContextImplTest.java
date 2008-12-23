@@ -51,8 +51,10 @@ public class SipxProcessContextImplTest extends TestCase {
         Location location = new Location();
         SipxService registrarService = new SipxRegistrarService();
         registrarService.setProcessName("SIPRegistrar");
+        registrarService.setModelId(SipxRegistrarService.BEAN_ID);
         SipxService proxyService = new SipxProxyService();
         proxyService.setProcessName("SIPXProxy");
+        proxyService.setModelId(SipxProxyService.BEAN_ID);
         location.setServiceDefinitions(Arrays.asList(registrarService, proxyService));
         m_locationsManager.getLocations();
         EasyMock.expectLastCall().andReturn(new Location[] {

@@ -15,12 +15,13 @@ import java.util.Set;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.sipfoundry.sipxconfig.device.Model;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettings;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.springframework.beans.factory.annotation.Required;
 
-public abstract class SipxService extends BeanWithSettings {
+public abstract class SipxService extends BeanWithSettings implements Model {
 
     private String m_processName;
     private String m_beanId;
@@ -50,6 +51,13 @@ public abstract class SipxService extends BeanWithSettings {
 
     public void setBeanId(String beanId) {
         m_beanId = beanId;
+    }
+
+    /**
+     * When SipxService is loaded by model source it's bean ID is written here.
+     */
+    public void setModelId(String modelId) {
+        setBeanId(modelId);
     }
 
     public String getModelName() {

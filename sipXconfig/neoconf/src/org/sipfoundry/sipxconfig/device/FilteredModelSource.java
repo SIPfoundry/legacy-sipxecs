@@ -15,7 +15,7 @@ import java.util.regex.Pattern;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Predicate;
 
-public class FilteredModelSource<T extends DeviceDescriptor> implements ModelSource {
+public class FilteredModelSource<T extends Model> implements ModelSource {
 
     private Predicate m_filter;
 

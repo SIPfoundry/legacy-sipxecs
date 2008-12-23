@@ -11,10 +11,4 @@ package org.sipfoundry.sipxconfig.service;
 
 
 public class SipxMrtgService extends SipxService {
-    private static final String BEAN_ID = "sipxMrtgService";
-
-    @Override
-    public String getBeanId() {
-        return BEAN_ID;
-    }
 }

@@ -28,8 +28,10 @@ import org.sipfoundry.sipxconfig.common.DaoUtils;
 import org.sipfoundry.sipxconfig.common.ReplicationsFinishedEvent;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.VersionInfo;
+import org.sipfoundry.sipxconfig.device.ModelSource;
 import org.sipfoundry.sipxconfig.xmlrpc.ApiProvider;
 import org.sipfoundry.sipxconfig.xmlrpc.XmlRpcRemoteException;
+import org.springframework.beans.factory.annotation.Required;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ApplicationEvent;
@@ -50,6 +52,8 @@ public class SipxServiceManagerImpl extends SipxHibernateDaoSupport<SipxService>
 
     private ApiProvider<ProcessManagerApi> m_processManagerApiProvider;
 
+    private ModelSource<SipxService> m_modelSource;
+
     private String m_host;
 
     public SipxService getServiceByBeanId(String beanId) {
@@ -65,7 +69,7 @@ public class SipxServiceManagerImpl extends SipxHibernateDaoSupport<SipxService>
     }
 
     public SipxService getServiceByName(String name) {
-        Collection<SipxService> allServices = getAllServices();
+        Collection<SipxService> allServices = getServiceDefinitions();
         for (SipxService service : allServices) {
             if (name.equals(service.getProcessName())) {
                 return service;
@@ -75,7 +79,7 @@ public class SipxServiceManagerImpl extends SipxHibernateDaoSupport<SipxService>
     }
 
     public List<SipxService> getRestartable() {
-        Collection<SipxService> allServices = getAllServices();
+        Collection<SipxService> allServices = getServiceDefinitions();
         List<SipxService> restartable = new ArrayList<SipxService>(allServices.size());
         for (SipxService sipxService : allServices) {
             if (sipxService.isRestartable()) {
@@ -85,7 +89,7 @@ public class SipxServiceManagerImpl extends SipxHibernateDaoSupport<SipxService>
         return restartable;
     }
 
-    public Collection<SipxService> getAllServices() {
+    Collection<SipxService> getServicesFromDb() {
         return getHibernateTemplate().loadAll(SipxService.class);
     }
 
@@ -97,7 +101,7 @@ public class SipxServiceManagerImpl extends SipxHibernateDaoSupport<SipxService>
         };
         Map<SipxServiceBundle, List<SipxService>> rawBundles = new HashMap<SipxServiceBundle, List<SipxService>>();
         Map<SipxServiceBundle, List<SipxService>> bundles = LazyMap.decorate(rawBundles, listFactory);
-        Collection<SipxService> allServices = getAllServices();
+        Collection<SipxService> allServices = getServiceDefinitions();
         for (SipxService service : allServices) {
             Set<SipxServiceBundle> serviceBundles = service.getBundles();
             if (serviceBundles == null) {
@@ -141,6 +145,7 @@ public class SipxServiceManagerImpl extends SipxHibernateDaoSupport<SipxService>
         }
     }
 
+    @Required
     public void setSipxReplicationContext(SipxReplicationContext replicationContext) {
         m_replicationContext = replicationContext;
     }
@@ -149,26 +154,22 @@ public class SipxServiceManagerImpl extends SipxHibernateDaoSupport<SipxService>
         m_applicationContext = applicationContext;
     }
 
-    public String getHost() {
-        return m_host;
+    @Required
+    public void setModelSource(ModelSource<SipxService> modelSource) {
+        m_modelSource = modelSource;
     }
 
+    @Required
     public void setHost(String host) {
         m_host = host;
     }
 
-    public LocationsManager getLocationsManager() {
-        return m_locationsManager;
-    }
-
+    @Required
     public void setLocationsManager(LocationsManager locationsManager) {
         m_locationsManager = locationsManager;
     }
 
-    public ApiProvider<ProcessManagerApi> getProcessManagerApiProvider() {
-        return m_processManagerApiProvider;
-    }
-
+    @Required
     public void setProcessManagerApiProvider(ApiProvider<ProcessManagerApi> processManagerApiProvider) {
         m_processManagerApiProvider = processManagerApiProvider;
     }
@@ -190,10 +191,27 @@ public class SipxServiceManagerImpl extends SipxHibernateDaoSupport<SipxService>
 
     public void onApplicationEvent(ApplicationEvent event) {
         if (event instanceof ReplicationsFinishedEvent) {
-            Collection<SipxService> services = getAllServices();
+            Collection<SipxService> services = getServicesFromDb();
             for (SipxService service : services) {
                 setConfigurationVersion(service);
             }
         }
+    }
+
+    /**
+     * Create collection of all known services.
+     *
+     * If service has been added to DB already a persisted version will be returned, if it's a
+     * bran new service a Spring instantiated object will be returned.
+     */
+    public Collection<SipxService> getServiceDefinitions() {
+        Map<String, SipxService> beanIdsToServices = new HashMap<String, SipxService>();
+        for (SipxService sipxService : m_modelSource.getModels()) {
+            beanIdsToServices.put(sipxService.getBeanId(), sipxService);
+        }
+        for (SipxService sipxService : getServicesFromDb()) {
+            beanIdsToServices.put(sipxService.getBeanId(), sipxService);
+        }
+        return beanIdsToServices.values();
     }
 }

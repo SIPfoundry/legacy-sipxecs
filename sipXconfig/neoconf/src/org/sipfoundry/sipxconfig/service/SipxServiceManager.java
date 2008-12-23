@@ -18,7 +18,7 @@ public interface SipxServiceManager {
 
     SipxService getServiceByName(String name);
 
-    Collection<SipxService> getAllServices();
+    Collection<SipxService> getServiceDefinitions();
 
     void storeService(SipxService service);
 

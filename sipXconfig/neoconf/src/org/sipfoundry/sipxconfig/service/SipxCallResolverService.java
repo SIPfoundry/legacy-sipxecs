@@ -35,9 +35,4 @@ public class SipxCallResolverService extends SipxService {
     public void setLocationManager(LocationsManager locationManager) {
         m_locationManager = locationManager;
     }
-
-    @Override
-    public String getBeanId() {
-        return BEAN_ID;
-    }
 }

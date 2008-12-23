@@ -64,9 +64,4 @@ public class SipxIvrService extends SipxService {
         String voiceMail = m_dialPlanContext.getVoiceMail();
         return SipUri.fix(voiceMail, getDomainName());
     }
-
-    @Override
-    public String getBeanId() {
-        return BEAN_ID;
-    }
 }

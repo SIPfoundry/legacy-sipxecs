@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.service;
@@ -29,10 +29,5 @@ public class SipxProxyService extends SipxService {
 
     public void setCallResolverCallStateDb(String callResolverCallStateDb) {
         this.m_callResolverCallStateDb = callResolverCallStateDb;
-    }
-
-    @Override
-    public String getBeanId() {
-        return BEAN_ID;
     }
 }
