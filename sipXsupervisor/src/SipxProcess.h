@@ -465,6 +465,8 @@ class SipxProcess : public UtlString, OsServerTask, SipxProcessCmdOwner
    OsTimer*         mpTimer;
    OsCallback*      mpTimeoutCallback;
    ssize_t          mRetries;          ///< number of times we have attempted to start process
+   unsigned long    mLastFailure;      ///< time of last failure
+   ssize_t          mNumRetryIntervals; ///< number of intervals to attempt retries at
    UtlSList         mStatusMessages;   ///< list of messages relevant to current state
    int              mNumStdoutMsgs;    ///< number of messages received since last restart
    int              mNumStderrMsgs;    ///< number of messages received since last restart

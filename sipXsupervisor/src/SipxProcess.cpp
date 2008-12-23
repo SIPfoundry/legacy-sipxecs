@@ -10,6 +10,7 @@
 // APPLICATION INCLUDES
 #include "alarm/Alarm.h"
 #include "os/OsFS.h"
+#include "os/OsTime.h"
 #include "utl/UtlSListIterator.h"
 #include "utl/UtlTokenizer.h"
 #include "os/OsSysLog.h"
@@ -31,6 +32,13 @@
 #define MAX_RETRY_ATTEMPTS 3 // raise alarm after this many retries
 
 // CONSTANTS
+// This list contains the intervals at which a failed process will be restarted.
+// The last interval will be used "forever".
+const int retry_interval[] = { 
+      2*OsTime::MSECS_PER_SEC,
+      10*OsTime::MSECS_PER_SEC,
+      1*60*OsTime::MSECS_PER_SEC,
+      5*60*OsTime::MSECS_PER_SEC };
 
 const UtlContainableType SipxProcess::TYPE = "SipxProcess";
 
@@ -101,6 +109,8 @@ SipxProcess::SipxProcess(const UtlString& name,
    mpTimer(NULL),
    mpTimeoutCallback(NULL),
    mRetries(0),
+   mLastFailure(OsDateTime::getSecsSinceEpoch()),
+   mNumRetryIntervals(sizeof(retry_interval) / sizeof(retry_interval[0])),
    mNumStdoutMsgs(0),
    mNumStderrMsgs(0)
 {
@@ -1084,19 +1094,46 @@ void SipxProcess::stopProcess()
 
 void SipxProcess::processFailed()
 {
-   mRetries++;
-   //@TODO: clear mRetries if the last failure was a long time ago (>1 minute?)
+   // if process managed to stay up for a minute after its last restart, 
+   // then start the retry counter over again.  Otherwise random failures
+   // will accumulate and prevent quick recovery.
+   unsigned long currTime = OsDateTime::getSecsSinceEpoch();
+   int lastRetryInterval = (mRetries >= mNumRetryIntervals ? mNumRetryIntervals-1 : mRetries );
+   if ( (int)(currTime - mLastFailure)*1000 > retry_interval[lastRetryInterval]+60*OsTime::MSECS_PER_SEC )
+   {
+      mRetries = 1;
+   }
+   else
+   {
+      mRetries++;
+   }
+      
+   OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG, "SipxProcess[%s]::processFailed last %lu sec ago",
+                    data(), (currTime - mLastFailure));
+
    if ( mRetries == MAX_RETRY_ATTEMPTS )
    {
       Alarm::raiseAlarm("PROCESS_FAILED", data());
    }
+   mLastFailure = currTime;
 }
 
 void SipxProcess::startRetryTimer()
 {
    if (mpTimer)
    {
-      mpTimer->oneshotAfter((mRetries+1)*2000);
+      int timerVal;
+      if ( mRetries < mNumRetryIntervals )
+      {
+         timerVal = retry_interval[mRetries-1];
+      }
+      else
+      {
+         timerVal = retry_interval[mNumRetryIntervals-1];
+      }
+      OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG, "SipxProcess[%s]::startRetryTimer(%d)",
+                    data(), timerVal);
+      mpTimer->oneshotAfter(timerVal);
    }
 }
 
