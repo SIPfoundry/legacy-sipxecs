@@ -151,7 +151,7 @@ accept_unsigned_yum_packages /etc/yum.conf
 accept_unsigned_yum_packages /etc/yum.repos.d/sipxecs-unstable-fc.repo
 
 #* Install the required packages.
-YUM_PACKAGES="gcc gcc-c++ autoconf automake libtool subversion rpm-build httpd httpd-devel openssl-devel jpackage-utils pcre-devel expat-devel unixODBC-devel jakarta-commons-beanutils jakarta-commons-collections jakarta-commons-net ant log4j junit ant-commons-logging ant-trax ant-nodeps postgresql-server zlib-devel postgresql-devel cppunit cppunit-devel redhat-rpm-config alsa-lib-devel curl curl-devel gnutls-devel lzo-devel mysql-devel ncurses-devel python-devel termcap ruby ruby-devel ruby-postgres rubygems rubygem-rake ruby-dbi bind cgicc-devel java-1.6.0-sun-devel w3c-libwww-devel xerces-c-devel jain-sip git tftp-server doxygen rpm-build zip which unzip createrepo ant-junit mod_ssl libXp libpng-devel libart_lgpl-devel freetype freetype-devel rpmdevtools alsa-lib-devel curl-devel gnutls-devel lzo-devel gdb gdbm-devel mysql-devel ncurses-devel python-devel termcap dnsjava nsis vsftpd sipx-jasperreports-deps"
+YUM_PACKAGES="gcc gcc-c++ autoconf automake libtool subversion rpm-build httpd httpd-devel openssl-devel jpackage-utils pcre-devel expat-devel unixODBC-devel jakarta-commons-beanutils jakarta-commons-collections jakarta-commons-net ant log4j junit ant-commons-logging ant-trax ant-nodeps postgresql-server zlib-devel postgresql-devel cppunit cppunit-devel redhat-rpm-config alsa-lib-devel curl curl-devel gnutls-devel lzo-devel mysql-devel ncurses-devel python-devel termcap ruby ruby-devel ruby-postgres rubygems rubygem-rake ruby-dbi bind cgicc-devel java-1.6.0-sun-devel java-fonts w3c-libwww-devel xerces-c-devel jain-sip git tftp-server doxygen rpm-build zip which unzip createrepo ant-junit mod_ssl libXp libpng-devel libart_lgpl-devel freetype freetype-devel rpmdevtools alsa-lib-devel curl-devel gnutls-devel lzo-devel gdb gdbm-devel mysql-devel ncurses-devel python-devel termcap dnsjava nsis vsftpd sipx-jasperreports-deps"
 for package in $YUM_PACKAGES;
 do
    yum_install_and_check $package
@@ -203,6 +203,7 @@ service postgresql start
 sudo -u $DEVEL_USER echo p | svn co https://sipxecs.sipfoundry.org/rep/sipXecs/main/sipXcallLib/include/tapi/ /tmp/del_me
 rm -rf /tmp/del_me
 
-
-
+echo ""
+echo "Script complete.  Please reboot."
+echo ""
 
