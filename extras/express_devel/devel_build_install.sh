@@ -107,13 +107,13 @@ sudo rm -rf /tftpboot
 sudo ln -s $TFTP_PATH /tftpboot
 
 # Clear any database contents that might be left over from the last install.
-$INSTALL/bin/sipxconfig.sh --database drop create
-$INSTALL/bin/sipxconfig.sh --first-run
+$INSTALL/bin/sipxconfig.sh --database drop create &> sipxconfig_drop_create.log
+$INSTALL/bin/sipxconfig.sh --first-run &> sipxconfig_first-run.log
 
 # Fix FreeSWITCH
-sudo $INSTALL/bin/freeswitch.sh --configtest
+sudo $INSTALL/bin/freeswitch.sh --configtest &> freeswitch_configtest.log
 
-read -p "About to run the sipx-setup.  Press any key to continue..."
+# sipx-setup
 sudo $INSTALL/bin/sipx-setup
 
 # Show whether or not the services got started by the above.  (It is an option...)
