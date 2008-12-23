@@ -879,6 +879,15 @@ Hours are 00-23.\
             
         screen_end()
 
+    # Set the hardware clock to use the same settings as the system clock
+    dateCmd="hwclock --systohc --utc"
+    if runningAsRoot() :
+        log_printout("Setting hardware clock: "+dateCmd)
+        cmdoutput=commands.getoutput(dateCmd)
+        log_printout(cmdoutput)
+    else:
+        log_printout("(simulated) Setting hardware clock: "+dateCmd)
+
     ntpStartMsg='Start NTP Server'
     progress(88, ntpStartMsg)
     show_starting()
