@@ -8,12 +8,6 @@
 
 # See http://sipx-wiki.calivia.com/index.php/Express_Development_Environment_Setup for instructions.
 
-# Get rid of the SIPfoundry certificate prompt.  
-echo p | svn co https://sipxecs.sipfoundry.org/rep/sipXecs/main/sipXcallLib/include/tapi/ 
-rm -rf tapi
-echo p | git svn clone -q https://sipxecs.sipfoundry.org/rep/sipXecs/main/sipXcallLib/include/tapi/ 
-rm -rf tapi
-
 # Clean up the old (which may not even exist...)
 sudo /sbin/service sipxpbx stop
 sudo killall httpd
