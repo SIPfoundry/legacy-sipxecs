@@ -32,8 +32,14 @@ Args=""
 : ${PostgresUser:=@sipxconfig.db.user@}
 : ${FirstRunFile:=@sipxpbx.conf.dir@/.first-run}
 : ${SipxUtils:=@sipxpbx.libexec.dir@/sipx-utils.sh}
+: ${SipxConfigEnv:=@sipxpbx.conf.dir@/sipxconfig}
 
 . ${SipxUtils}
+
+if [ -f "$SipxConfigEnv" ]
+then
+  . ${SipxConfigEnv}
+fi
 
 TEST_WRITE_ACCESS="\
   @sipxpbx.conf.dir@/config.defs \
@@ -128,11 +134,14 @@ databaseCommand() {
         ${CommonsLibDir}/*.jar \
         ${LibDir}/*.jar`
 
+    JavaOpts="$SIPXCONFIG_OPTS"
+
     # XCF-1275 - Do not want to suppress output if there is an error
     # however want to be quiet if everything is ok for clean rpm install
     # output
     # ant.library.dir needs to be set - but should not point to any jars
     CmdOut=`$JavaCmd \
+        $JavaOpts \
         -Dant.library.dir=${TmpDir} \
         -Djava.net.preferIPv4Stack=true \
         -classpath $Classpath \
