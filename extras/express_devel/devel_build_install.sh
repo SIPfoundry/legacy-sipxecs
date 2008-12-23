@@ -21,7 +21,7 @@ then
    CODE=$1
 fi
 if [ ! -d $CODE ]; then
-   echo "ERROR: Directory './$CODE' does not exist."
+   echo "Error: Directory './$CODE' does not exist."
    exit 1
 fi
 echo INSTALL=`pwd`/$INSTALL > env
@@ -59,6 +59,7 @@ function install_sipfoundry_rpm {
    sudo rpm -ihv $rpm_name
    if [ $? != 0 ]
    then
+      echo "Error: RPM install failed, see console output."
       exit 2
    fi
    rm -rf $rpm_name
@@ -74,6 +75,7 @@ FULL_CODE_PATH=`pwd`
 autoreconf -if  
 if [ $? != 0 ]
 then
+   echo "Error: autoreconf failed, see console output."
    exit 3
 fi
 popd
@@ -82,11 +84,13 @@ pushd $BUILD
 $FULL_CODE_PATH/configure --srcdir=$FULL_CODE_PATH --cache-file=`pwd`/ac-cache-file SIPXPBXUSER=`whoami` --prefix=$FULL_INSTALL_PATH --enable-reports --enable-agent --enable-cdr --enable-conference &> configure_output.txt
 if [ $? != 0 ]
 then
+   echo "Error: configure failed, see configure_output.txt."
    exit 4
 fi
-make build &> make_output.txt
+make recurse TARGETS="all install" &> make_output.txt
 if [ $? != 0 ]
 then
+   echo "Error: make failed, see make_output.txt."
    exit 5
 fi
 popd

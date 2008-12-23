@@ -15,6 +15,7 @@
 # Default URL value.
 root_uri_str = "file:///./000000000000.cfg"
 # Other Example: root_uri_str = "ftp://PlcmSpIp:PlcmSpIp@bcmsl2165.ca.nortel.com/0004f2064015.cfg"
+# Other Example: root_uri_str = "file:///D:/Profiles/MOSSMANP/Desktop/MISC/spip_ssip_3_1_1_release_sig/000000000000.cfg"
 
 require 'rexml/document'
 require 'net/http'
