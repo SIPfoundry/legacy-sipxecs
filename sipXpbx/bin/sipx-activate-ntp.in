@@ -1,0 +1,19 @@
+#!/bin/sh
+
+remove_self () {
+    local myname=`basename $0`
+    echo "${myname} setup successful - disabling future invocations"
+    rm -f $0
+}
+
+if ! /sbin/chkconfig ntpd
+then
+    /sbin/chkconfig ntpd on
+fi
+
+if ! /sbin/service ntpd status
+then
+    /sbin/service ntpd start && remove_self
+else
+    remove_self
+fi

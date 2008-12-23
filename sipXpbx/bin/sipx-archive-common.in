@@ -2,7 +2,7 @@
 
 CONFIG_DATABASE_NAME=SIPXCONFIG
 DB_TAR=db.tar
-SIPX_CERTDB_DIR=@SIPX_VARDIR@/sipxecs/certdb
+SIPX_CERTDB_DIR=@SIPX_VARDIR@/certdb
 
 operation_stamp() {
    echo $OPERATION" script invoked at "`date`", INTERACTIVE="$INTERACTIVE"."

@@ -10,6 +10,7 @@
 CurrentWorkDir=`pwd`
 WorkDir=${CurrentWorkDir}
 
+InstallPrefix=""
 InstallDir="@SIPX_CONFDIR@"
 openssl="@OPENSSL@"
 sipXuser="@SIPXPBXUSER@"
@@ -27,10 +28,25 @@ do
 	    Action=REMOTE_UNSUPPORTED
             ;;
 
-        ## Internal command
         --remote-receive)
 	    Action=REMOTE_UNSUPPORTED
             ;;
+
+        -i|--install-prefix)
+            ##
+            ## Set the prefix for installation directory (for use by sipXconfig building remotes)
+            ##
+            if [ $# -lt 2 ]
+            then
+                echo "Must specify <install-prefix> with ${1}" 1>&2
+                Action=USAGE
+                break
+            else
+                InstallPrefix=${2}
+                shift # consume the switch ( for n values, consume n-1 )
+            fi
+            ;;
+
 
         -wd|--workdir)
             ##
@@ -136,6 +152,7 @@ then
     cat <<EOF
 Usage:
    install-cert.sh [ {-wd|--workdir} <working-directory> ]
+                   [ {-i|--install-prefix} <install-prefix> ]
                    [ <server-name> ]
 
    The server-name specifies the base name of the .key and .crt files
@@ -146,11 +163,10 @@ Usage:
                 defaults to the current directory.  If specified, then
                 other names may be relative to this directory.
 
-   install-cert.sh [ {-wd|--workdir} <working-directory> ]
-                   --remote <server-name>
-
-   Installs the .key, .crt and CA certificate on the remote system <server-name>.  
-   The remote system must have sipxpbx installed of the same major version.
+   --install-prefix  Specifies a directory that is the root for a sipXecs
+                     installation; used only by sipXconfig when building
+                     initial configurations for distributed systems.
+                     (This also disables the post-install validity check).
 
    The certificate is examined to find the issuer name; if a CA certificate
    is found in the same directory with that name (with a '.crt' suffix),
@@ -176,57 +192,60 @@ echo "Checking the '${Basename}' certificate"
 if @bindir@/ssl-cert/check-cert.sh ${AuthoritySwitch} "${AuthorityTarget}" "$Basename.crt"
 then
 
-    if [ ! -d ${InstallDir}/ssl ]
+    if [ ! -d "${InstallPrefix}${InstallDir}/ssl" ]
     then
-        mkdir               ${InstallDir}/ssl || exit 1
-        chown ${sipXuser}   ${InstallDir}/ssl || exit 1
-        chmod 0700          ${InstallDir}/ssl || exit 1
+        mkdir               "${InstallPrefix}${InstallDir}/ssl" || exit 1
+        chown ${sipXuser}   "${InstallPrefix}${InstallDir}/ssl" || exit 1
+        chmod 0700          "${InstallPrefix}${InstallDir}/ssl" || exit 1
     fi
 
     if [ -n "${caName}" -a -f "${caName}.crt" ]
     then
         # create the sipX authorities store directory
-        if [ ! -d ${InstallDir}/ssl/authorities ]
+        if [ ! -d "${InstallPrefix}${InstallDir}/ssl/authorities" ]
         then
-            mkdir               ${InstallDir}/ssl/authorities || exit 1
-            chown ${sipXuser}   ${InstallDir}/ssl/authorities || exit 1
-            chmod 0700          ${InstallDir}/ssl/authorities || exit 1
+            mkdir               "${InstallPrefix}${InstallDir}/ssl/authorities" || exit 1
+            chown ${sipXuser}   "${InstallPrefix}${InstallDir}/ssl/authorities" || exit 1
+            chmod 0700          "${InstallPrefix}${InstallDir}/ssl/authorities" || exit 1
         fi
         
         echo "Installing '${caName}.crt' certificate as a trusted CA"
-        cp -v "${caName}.crt" "${InstallDir}/ssl/authorities/${caName}.crt" || exit 1
-        chown ${sipXuser}     "${InstallDir}/ssl/authorities/${caName}.crt" || exit 1
-        chmod 0644            "${InstallDir}/ssl/authorities/${caName}.crt" || exit 1
+        cp -v "${caName}.crt" "${InstallPrefix}${InstallDir}/ssl/authorities/${caName}.crt" || exit 1
+        chown ${sipXuser}     "${InstallPrefix}${InstallDir}/ssl/authorities/${caName}.crt" || exit 1
+        chmod 0644            "${InstallPrefix}${InstallDir}/ssl/authorities/${caName}.crt" || exit 1
 
         # regenerate the hash symlinks for the certificate store
-        @bindir@/ssl-cert/ca_rehash 
+        @bindir@/ssl-cert/ca_rehash "${InstallPrefix}${InstallDir}/ssl/authorities"
     fi
 
     if [ -r "${Basename}.crt" -a -r "${Basename}.key" ]
     then
         echo "Installing the '${Basename}' certificate (pem format)"
-        cp -v "$Basename.crt" "${InstallDir}/ssl/ssl${installQualifier}.crt" || exit 1
-        chown ${sipXuser}     "${InstallDir}/ssl/ssl${installQualifier}.crt" || exit 1
-        chmod 0600            "${InstallDir}/ssl/ssl${installQualifier}.crt" || exit 1
+        cp -v "$Basename.crt" "${InstallPrefix}${InstallDir}/ssl/ssl${installQualifier}.crt" || exit 1
+        chown ${sipXuser}     "${InstallPrefix}${InstallDir}/ssl/ssl${installQualifier}.crt" || exit 1
+        chmod 0600            "${InstallPrefix}${InstallDir}/ssl/ssl${installQualifier}.crt" || exit 1
 
         echo "Installing the '${Basename}' private key"
-        cp -v "$Basename.key" "${InstallDir}/ssl/ssl${installQualifier}.key" || exit 1
-        chown ${sipXuser}     "${InstallDir}/ssl/ssl${installQualifier}.key" || exit 1
-        chmod 0600            "${InstallDir}/ssl/ssl${installQualifier}.key" || exit 1
+        cp -v "$Basename.key" "${InstallPrefix}${InstallDir}/ssl/ssl${installQualifier}.key" || exit 1
+        chown ${sipXuser}     "${InstallPrefix}${InstallDir}/ssl/ssl${installQualifier}.key" || exit 1
+        chmod 0600            "${InstallPrefix}${InstallDir}/ssl/ssl${installQualifier}.key" || exit 1
 
         certsInstalled+=1
 
-        echo "Checking the installed certificate"
-        @bindir@/ssl-cert/check-cert.sh "${InstallDir}/ssl/ssl${installQualifier}.crt"
-        certOk+=$?
+        if [ -z "${InstallPrefix}" ]
+        then
+            echo "Checking the installed certificate"
+            @bindir@/ssl-cert/check-cert.sh "${InstallDir}/ssl/ssl${installQualifier}.crt"
+            certOk+=$?
+        fi
     fi
 
     if [ -r "${Basename}.p12" ]
     then
         echo "Installing the '${Basename}' certificate (pkcs12 format)"
-        cp -v "$Basename.crt" "${InstallDir}/ssl/ssl${installQualifier}.p12" || exit 1
-        chown ${sipXuser}     "${InstallDir}/ssl/ssl${installQualifier}.p12" || exit 1
-        chmod 0600            "${InstallDir}/ssl/ssl${installQualifier}.p12" || exit 1
+        cp -v "$Basename.crt" "${InstallPrefix}${InstallDir}/ssl/ssl${installQualifier}.p12" || exit 1
+        chown ${sipXuser}     "${InstallPrefix}${InstallDir}/ssl/ssl${installQualifier}.p12" || exit 1
+        chmod 0600            "${InstallPrefix}${InstallDir}/ssl/ssl${installQualifier}.p12" || exit 1
 
         certsInstalled+=1
     fi

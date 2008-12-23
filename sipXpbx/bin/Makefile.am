@@ -28,6 +28,7 @@ bin_SCRIPTS = \
          sipx-test-maxfds
 
 SipxLibexecScripts = \
+	sipx-activate-ntp \
 	sipx-strip-db-secrets.pl
 
 
@@ -94,6 +95,7 @@ install-exec-hook : $(DESTDIR)@DAILYDIR@/voicemail_clean \
 						  $(DESTDIR)@DAILYDIR@/sipx-chkspace \
 						  $(foreach sipxScript,$(SipxLibexecScripts),$(DESTDIR)@SIPX_LIBEXECDIR@/$(sipxScript)) \
 						  $(foreach sipxScript,$(SipxLibexecPythonScripts),$(DESTDIR)@SIPX_LIBEXECDIR@/$(sipxScript)) \
+                    $(DESTDIR)@SIPX_LIBEXECDIR@/setup.d/010_sipx-activate-ntp \
 						  remove-obsolete-bins
 
 .PHONY: remove-obsolete-bins
@@ -142,3 +144,5 @@ $(DESTDIR)@DAILYDIR@/sipx-chkspace: sipx-chkspace.in
 	@$(LocalizeSipXconfig) $(srcdir)/sipx-chkspace.in > sipx-chkspace
 	$(INSTALL) -D -m 755 sipx-chkspace $(DESTDIR)@DAILYDIR@/sipx-chkspace
 
+$(DESTDIR)@SIPX_LIBEXECDIR@/setup.d/010_sipx-activate-ntp: $(DESTDIR)@SIPX_LIBEXECDIR@/sipx-activate-ntp
+	ln -s ../sipx-activate-ntp $@

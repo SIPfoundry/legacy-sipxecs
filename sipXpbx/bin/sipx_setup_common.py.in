@@ -22,7 +22,7 @@ MyID = ''
 SIPX_SETUP_LOG = '@SIPX_LOGDIR@/setup.log'
 
 RUNLEVEL       = 3                              # Always use this runlevel
-SSL_GENDIR     = '@SIPX_VARDIR@/sipxecs/certdb' # Directory where certificates are stored
+SSL_GENDIR     = '@SIPX_VARDIR@/certdb'         # Directory where certificates are generated
 SSL_CRTDIR     = '@SIPX_CONFDIR@/ssl'           # Directory where certificates are installed
 
 CONFIGDEFSFile = '@SIPX_CONFDIR@/config.defs'

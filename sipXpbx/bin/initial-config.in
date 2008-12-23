@@ -1,15 +1,35 @@
 #!/bin/bash
-hostname=$1
-INITIAL_CONFIG=@SIPX_TMPDIR@/initial-config
-if test -d $INITIAL_CONFIG; then
-	rm -rf $INITIAL_CONFIG
+
+INITIAL_CONFIG_BASE="@SIPX_TMPDIR@/initial-config"
+
+myHostname=`hostname -f`
+newHostname=$1
+INITIAL_CONFIG="${INITIAL_CONFIG_BASE}/${newHostname}"
+
+if test -d "${INITIAL_CONFIG}"; then
+	rm -rf "${INITIAL_CONFIG}"
 fi
 
-mkdir ${INITIAL_CONFIG}
+mkdir -p "${INITIAL_CONFIG}@SIPX_CONFDIR@" || exit 1
 
-cp @SIPX_VARDIR@/sipxecs/certdb/SSL_DEFAULTS  ${INITIAL_CONFIG}
-mv @SIPX_TMPDIR@/domain-config ${INITIAL_CONFIG}
+# copy the domain configuration
+cp -v "@SIPX_CONFDIR@/domain-config" "${INITIAL_CONFIG}@SIPX_CONFDIR@" || exit 1
 
-@SIPX_BINDIR@/ssl-cert/gen-ssl-keys.sh -p SSL_DEFAULTS -d -s "${hostname}" -wd ${INITIAL_CONFIG}
+# create a modified ntp.conf file 
+#    modify local clock configuration so it will be lower stratum than the master systems clock
+test -d "${INITIAL_CONFIG}/etc" || mkdir -p "${INITIAL_CONFIG}/etc" || exit 1
+perl -p \
+    -e 's/fudge\s+127.127.1.0\s+stratum\s+10/fudge  127.127.1.0 stratum 12/;' \
+    -e "END { print \"\\nserver ${myHostname}\\n\"; };" \
+    /etc/ntp.conf > "${INITIAL_CONFIG}/etc/ntp.conf" || exit 1
 
-tar -cf ${INITIAL_CONFIG}/${hostname}.tar.gz -C ${INITIAL_CONFIG} ${hostname}.key ${hostname}.crt domain-config
+# generate TLS credentials 
+@SIPX_BINDIR@/ssl-cert/gen-ssl-keys.sh \
+    --workdir "@SIPX_VARDIR@/certdb" -d -s "${newHostname}" \
+    || exit 1
+@SIPX_BINDIR@/ssl-cert/install-cert.sh \
+    --workdir "@SIPX_VARDIR@/certdb" --install-prefix "${INITIAL_CONFIG}" "${newHostname}" \
+    || exit 1
+
+# package the configuration for the sipx-setup-system script to unpack
+tar -czf "${INITIAL_CONFIG_BASE}/${newHostname}.tar.gz" -C "${INITIAL_CONFIG}" .
