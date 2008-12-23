@@ -39,11 +39,9 @@ Requires: apache2-prefork
 
 %if %{use_ibm_jvm}
 Requires: java-ibm >= 1.6
-Requires: java-ibm-fonts >= 1.6
 Requires: java-ibm-unrestricted
 %else
 Requires: java-sun >= 1.5
-Requires: java-sun-fonts >= 1.5
 %endif
 
 %if %{_vendor} == redhat
