@@ -279,7 +279,7 @@ The Master system is running the configuration service.\n\
         sg.setField(l1, 0, 0)
         sg.setField(e1, 1, 0)
 
-        l2 = snack.Label("%s Password:   " % HostName)
+        l2 = snack.Label("%s Setup Password:   " % HostName)
         e2 = snack.Entry(8, "")
         sg.setField(l2, 0, 1)
         sg.setField(e2, 1, 1)
