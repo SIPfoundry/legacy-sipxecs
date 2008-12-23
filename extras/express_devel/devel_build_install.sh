@@ -21,7 +21,7 @@ sudo killall httpd
 # You can override the CODE directory, relative to the current directory.
 INSTALL=INSTALL
 BUILD=BUILD
-CODE=CODE
+CODE=main
 if [ $# -gt 0 ]
 then
    CODE=$1
