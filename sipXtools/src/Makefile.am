@@ -30,7 +30,6 @@ dist_bin_SCRIPTS = \
 	sipx-alias2dot \
 	sipx-trace \
 	sipx-log-cut \
-	sipx-servtest \
 	sipxcar \
 	sipdb-dump \
 	polycom-config
