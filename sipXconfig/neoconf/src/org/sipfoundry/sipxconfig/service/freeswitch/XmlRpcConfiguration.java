@@ -26,4 +26,9 @@ public class XmlRpcConfiguration extends SipxServiceConfiguration {
 
         return context;
     }
+
+    @Override
+    public boolean isReplicable(Location location) {
+        return getSipxServiceManager().isServiceInstalled(location.getId(), SipxFreeswitchService.BEAN_ID);
+    }
 }

@@ -36,4 +36,9 @@ public class FreeswitchConfiguration extends SipxServiceConfiguration {
     public void setDomainManager(DomainManager domainManager) {
         m_domainManager = domainManager;
     }
+
+    @Override
+    public boolean isReplicable(Location location) {
+        return getSipxServiceManager().isServiceInstalled(location.getId(), SipxFreeswitchService.BEAN_ID);
+    }
 }

@@ -7,8 +7,14 @@
  */
 package org.sipfoundry.sipxconfig.service.freeswitch;
 
+import org.sipfoundry.sipxconfig.admin.commserver.Location;
+import org.sipfoundry.sipxconfig.service.SipxFreeswitchService;
 import org.sipfoundry.sipxconfig.service.SipxServiceConfiguration;
 
 public class ModulesConfiguration extends SipxServiceConfiguration {
-}
 
+    @Override
+    public boolean isReplicable(Location location) {
+        return getSipxServiceManager().isServiceInstalled(location.getId(), SipxFreeswitchService.BEAN_ID);
+    }
+}

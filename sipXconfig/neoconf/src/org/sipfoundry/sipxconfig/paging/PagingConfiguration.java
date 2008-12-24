@@ -48,4 +48,9 @@ public class PagingConfiguration extends SipxServiceConfiguration {
     public void setPagingContext(PagingContext pagingContext) {
         m_pagingContext = pagingContext;
     }
+
+    @Override
+    public boolean isReplicable(Location location) {
+        return getSipxServiceManager().isServiceInstalled(location.getId(), SipxPageService.BEAN_ID);
+    }
 }

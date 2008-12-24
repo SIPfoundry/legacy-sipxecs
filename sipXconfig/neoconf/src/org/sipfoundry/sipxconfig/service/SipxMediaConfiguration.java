@@ -17,8 +17,13 @@ public class SipxMediaConfiguration extends SipxServiceConfiguration {
     protected VelocityContext setupContext(Location location) {
         VelocityContext context = super.setupContext(location);
         SipxService service = getService(SipxMediaService.BEAN_ID);
-        context.put("settings", service .getSettings().getSetting("mediaserver-config"));
+        context.put("settings", service.getSettings().getSetting("mediaserver-config"));
         context.put("mediaService", service);
         return context;
+    }
+
+    @Override
+    public boolean isReplicable(Location location) {
+        return getSipxServiceManager().isServiceInstalled(location.getId(), SipxMediaService.BEAN_ID);
     }
 }

@@ -8,6 +8,7 @@
 package org.sipfoundry.sipxconfig.admin;
 
 import org.apache.commons.lang.StringUtils;
+import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.XmlFile;
 import org.springframework.beans.factory.annotation.Required;
 
@@ -59,5 +60,9 @@ public abstract class AbstractConfigurationFile implements ConfigurationFile {
     @Override
     public int hashCode() {
         return getPath().hashCode();
+    }
+
+    public boolean isReplicable(Location location) {
+        return true;
     }
 }

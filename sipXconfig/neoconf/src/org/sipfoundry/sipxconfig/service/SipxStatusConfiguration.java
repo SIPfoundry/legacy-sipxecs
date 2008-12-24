@@ -21,4 +21,9 @@ public class SipxStatusConfiguration extends SipxServiceConfiguration {
         context.put("statusService", service);
         return context;
     }
+
+    @Override
+    public boolean isReplicable(Location location) {
+        return getSipxServiceManager().isServiceInstalled(location.getId(), SipxStatusService.BEAN_ID);
+    }
 }

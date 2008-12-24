@@ -19,4 +19,9 @@ public class SipxIvrConfiguration extends SipxServiceConfiguration {
         context.put("service", getService(SipxIvrService.BEAN_ID));
         return context;
     }
+
+    @Override
+    public boolean isReplicable(Location location) {
+        return getSipxServiceManager().isServiceInstalled(location.getId(), SipxIvrService.BEAN_ID);
+    }
 }

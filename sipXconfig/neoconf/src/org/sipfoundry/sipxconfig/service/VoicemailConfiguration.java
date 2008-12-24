@@ -19,9 +19,14 @@ public class VoicemailConfiguration extends SipxServiceConfiguration {
         VelocityContext context = super.setupContext(location);
         SipxService mediaService = getService(SipxMediaService.BEAN_ID);
         SipxService statusService = getService(SipxStatusService.BEAN_ID);
-        context.put("settings", mediaService .getSettings().getSetting("mediaserver-config"));
+        context.put("settings", mediaService.getSettings().getSetting("mediaserver-config"));
         context.put("mediaService", mediaService);
         context.put("statusService", statusService);
         return context;
+    }
+
+    @Override
+    public boolean isReplicable(Location location) {
+        return getSipxServiceManager().isServiceInstalled(location.getId(), SipxMediaService.BEAN_ID);
     }
 }

@@ -25,4 +25,9 @@ public class SipxRegistrarConfiguration extends SipxServiceConfiguration {
         return context;
     }
 
+    @Override
+    public boolean isReplicable(Location location) {
+        return getSipxServiceManager().isServiceInstalled(location.getId(), SipxRegistrarService.BEAN_ID);
+    }
+
 }

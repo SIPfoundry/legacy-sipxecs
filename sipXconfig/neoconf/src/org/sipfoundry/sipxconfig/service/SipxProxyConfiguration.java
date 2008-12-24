@@ -18,12 +18,17 @@ public class SipxProxyConfiguration extends SipxServiceConfiguration {
         VelocityContext context = super.setupContext(location);
 
         SipxService service = getService(SipxProxyService.BEAN_ID);
-        context.put("settings", service .getSettings().getSetting("proxy-configuration"));
+        context.put("settings", service.getSettings().getSetting("proxy-configuration"));
         context.put("proxyService", service);
 
         SipxService callResolverService = getService(SipxCallResolverService.BEAN_ID);
         context.put("callResolverSettings", callResolverService.getSettings().getSetting("callresolver"));
 
         return context;
+    }
+
+    @Override
+    public boolean isReplicable(Location location) {
+        return getSipxServiceManager().isServiceInstalled(location.getId(), SipxProxyService.BEAN_ID);
     }
 }

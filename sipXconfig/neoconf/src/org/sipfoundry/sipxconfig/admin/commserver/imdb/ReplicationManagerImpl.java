@@ -98,6 +98,11 @@ public class ReplicationManagerImpl implements ReplicationManager {
         }
         boolean success = false;
         for (int i = 0; i < locations.length; i++) {
+            if (!file.isReplicable(locations[i])) {
+                LOG.info("File " + file.getName() + " cannot be replicated on location: " + locations[i].getFqdn());
+                success = true;
+                continue;
+            }
             try {
                 ByteArrayOutputStream outStream = new ByteArrayOutputStream();
                 Writer writer = new OutputStreamWriter(outStream, "UTF-8");

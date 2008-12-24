@@ -21,4 +21,9 @@ public class SipxCallResolverConfiguration extends SipxServiceConfiguration {
         context.put("callresolverService", service);
         return context;
     }
+
+    @Override
+    public boolean isReplicable(Location location) {
+        return getSipxServiceManager().isServiceInstalled(location.getId(), SipxCallResolverService.BEAN_ID);
+    }
 }

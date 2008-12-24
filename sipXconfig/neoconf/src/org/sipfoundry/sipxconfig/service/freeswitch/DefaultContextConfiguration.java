@@ -13,6 +13,7 @@ import org.apache.velocity.VelocityContext;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.conference.Bridge;
 import org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext;
+import org.sipfoundry.sipxconfig.service.SipxFreeswitchService;
 import org.sipfoundry.sipxconfig.service.SipxServiceConfiguration;
 import org.springframework.beans.factory.annotation.Required;
 
@@ -37,5 +38,10 @@ public class DefaultContextConfiguration extends SipxServiceConfiguration {
     @Required
     public void setConferenceContext(ConferenceBridgeContext conferenceContext) {
         m_conferenceContext = conferenceContext;
+    }
+
+    @Override
+    public boolean isReplicable(Location location) {
+        return getSipxServiceManager().isServiceInstalled(location.getId(), SipxFreeswitchService.BEAN_ID);
     }
 }

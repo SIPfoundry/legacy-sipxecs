@@ -21,4 +21,9 @@ public class SipxPresenceConfiguration extends SipxServiceConfiguration {
         context.put("presenceService", service);
         return context;
     }
+
+    @Override
+    public boolean isReplicable(Location location) {
+        return getSipxServiceManager().isServiceInstalled(location.getId(), SipxPresenceService.BEAN_ID);
+    }
 }

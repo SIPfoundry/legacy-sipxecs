@@ -21,4 +21,9 @@ public class SipxParkConfiguration extends SipxServiceConfiguration {
         context.put("parkService", service);
         return context;
     }
+
+    @Override
+    public boolean isReplicable(Location location) {
+        return getSipxServiceManager().isServiceInstalled(location.getId(), SipxParkService.BEAN_ID);
+    }
 }

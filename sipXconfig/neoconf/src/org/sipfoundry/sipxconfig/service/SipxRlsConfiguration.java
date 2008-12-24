@@ -21,4 +21,9 @@ public class SipxRlsConfiguration extends SipxServiceConfiguration {
         context.put("rlsService", service);
         return context;
     }
+
+    @Override
+    public boolean isReplicable(Location location) {
+        return getSipxServiceManager().isServiceInstalled(location.getId(), SipxRlsService.BEAN_ID);
+    }
 }
