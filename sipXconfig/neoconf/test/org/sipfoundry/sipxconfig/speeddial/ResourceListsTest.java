@@ -148,7 +148,7 @@ public class ResourceListsTest extends XMLTestCase {
         Element name = elementControl.createMock(Element.class);
         list.addElement("resource");        
         elementControl.andReturn(item);
-        item.addAttribute("uri", "sip:123@example.org");
+        item.addAttribute("uri", "sip:123@example.org;sipx-noroute=VoiceMail;sipx-userforward=false");
         elementControl.andReturn(item);
         item.addElement("name");
         elementControl.andReturn(name);

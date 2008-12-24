@@ -3,16 +3,16 @@
 <lists xmlns="http://www.sipfoundry.org/sipX/schema/xml/resource-lists-00-01">
   <list user="~~rl~F~user_a" user-cons="~~rl~C~user_a">
     <name>user_a</name>
-    <resource uri="sip:102@example.org">
+    <resource uri="sip:102@example.org;sipx-noroute=VoiceMail;sipx-userforward=false">
       <name>beta</name>
     </resource>
-    <resource uri="sip:104@sipfoundry.org">
+    <resource uri="sip:104@sipfoundry.org;sipx-noroute=VoiceMail;sipx-userforward=false">
       <name>gamma</name>
     </resource>
   </list>
   <list user="~~rl~F~user_c" user-cons="~~rl~C~user_c">
     <name>user_c</name>
-    <resource uri="sip:100@example.org">
+    <resource uri="sip:100@example.org;sipx-noroute=VoiceMail;sipx-userforward=false">
       <name>delta</name>
     </resource>
   </list>

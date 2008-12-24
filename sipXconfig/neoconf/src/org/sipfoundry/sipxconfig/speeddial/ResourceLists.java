@@ -55,7 +55,12 @@ public class ResourceLists extends XmlFile {
 
     Element createResourceForUser(Element list, Button button, String domainName) {
         Element resource = list.addElement("resource");
-        resource.addAttribute("uri", button.getUri(domainName));
+        // Append "sipx-noroute=Voicemail" and "sipx-userforward=false"
+        // URI parameters to the target URI to control how the proxy forwards
+        // SUBSCRIBEs to the resource URI.
+        resource.addAttribute("uri",
+                              button.getUri(domainName)
+                              + ";sipx-noroute=VoiceMail;sipx-userforward=false");
         addNameElement(resource, StringUtils.defaultIfEmpty(button.getLabel(), button.getNumber()));
         return resource;
     }
