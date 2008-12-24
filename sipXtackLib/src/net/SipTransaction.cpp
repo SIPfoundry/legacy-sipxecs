@@ -924,10 +924,8 @@ UtlBoolean SipTransaction::doFirstSend(SipMessage& message,
     int responseCode = -1;
 
     OsSocket::IpProtocolSocketType sendProtocol = message.getSendProtocol();
-    // Time (msec) after which this message should be resent.
-    int resendDuration;
-    // Time (in microseconds) after which this message should be resent.
-    int resendTime;
+    // Time (in milliseconds) after which this message should be resent.
+    int resendInterval;
 
 #   ifdef ROUTE_DEBUG
     {
@@ -1016,22 +1014,17 @@ UtlBoolean SipTransaction::doFirstSend(SipMessage& message,
 #       endif
     }
 
-    if(toProtocol == OsSocket::TCP)
-    {
-        sendProtocol = OsSocket::TCP;
-        resendDuration = 0;
-        // Set resend timer based on user agent TCP resend time.
-        resendTime = userAgent.getReliableTransportTimeout() * 1000;
-    }
+    if(
+          toProtocol == OsSocket::TCP
 #   ifdef SIP_TLS
-    else if(toProtocol == OsSocket::SSL_SOCKET)
-    {
-        sendProtocol = OsSocket::SSL_SOCKET;
-        resendDuration = 0;
-        // Set resend timer based on user agent TCP resend time.
-        resendTime = userAgent.getReliableTransportTimeout() * 1000;
-    }
+       || toProtocol == OsSocket::SSL_SOCKET
 #   endif
+       )
+    {
+        sendProtocol = toProtocol;
+        // Set resend timer based on user agent TCP resend time.
+        resendInterval = userAgent.getReliableTransportTimeout();
+    }
     else
     {
         if(toProtocol != OsSocket::UDP)
@@ -1042,13 +1035,12 @@ UtlBoolean SipTransaction::doFirstSend(SipMessage& message,
         }
 
         sendProtocol = OsSocket::UDP;
-        resendDuration = userAgent.getFirstResendTimeout();
         // Set resend timer based on user agent UDP resend time.
-        resendTime = userAgent.getFirstResendTimeout() * 1000;
+        resendInterval = userAgent.getFirstResendTimeout();
     }
 
     // Set the transport information
-    message.setResendDuration(resendDuration);
+    message.setResendInterval(resendInterval);
     message.setSendProtocol(sendProtocol);
     message.touchTransportTime();
 
@@ -1155,13 +1147,13 @@ UtlBoolean SipTransaction::doFirstSend(SipMessage& message,
             OsMsgQ* incomingQ = userAgent.getMessageQueue();
             OsTimer* timer = new OsTimer(incomingQ, resendEvent);
             mTimers.append(timer);
-            // Set the resend timer based on resendTime.
-            OsTime timerTime(0, resendTime);
+            // Set the resend timer based on resendInterval.
+            OsTime timerTime(0, resendInterval * 1000);
             timer->oneshotAfter(timerTime);
 #ifdef TEST_PRINT
             OsSysLog::add(FAC_SIP, PRI_DEBUG,
                           "SipTransaction::doFirstSend added timer %p to timer list, time = %f secs",
-                          timer, resendTime / 1000000.0);
+                          timer, resendInterval / 1000.0);
 #endif
 
             // If this is a client transaction and we are sending
@@ -3425,7 +3417,7 @@ UtlBoolean SipTransaction::doResend(SipMessage& resendMessage,
     int numTries = resendMessage.getTimesSent();
     // Get the sending protocol.
     OsSocket::IpProtocolSocketType protocol = resendMessage.getSendProtocol();
-    int lastTimeout = resendMessage.getResendDuration();
+    int lastTimeout = resendMessage.getResendInterval();
     // Get the address/port to which to send the message.
     UtlString sendAddress;
     int sendPort;
@@ -3458,7 +3450,7 @@ UtlBoolean SipTransaction::doResend(SipMessage& resendMessage,
                 {
                     nextTimeout = userAgent.getLastResendTimeout();
                 }
-                resendMessage.setResendDuration(nextTimeout);
+                resendMessage.setResendInterval(nextTimeout);
 
                 sentOk = TRUE;
             }
@@ -3512,7 +3504,7 @@ UtlBoolean SipTransaction::doResend(SipMessage& resendMessage,
                nextTimeout = userAgent.getReliableTransportTimeout();
 
                resendMessage.incrementTimesSent();
-               resendMessage.setResendDuration(nextTimeout);
+               resendMessage.setResendInterval(nextTimeout);
                resendMessage.setSendProtocol(protocol);
 
 #ifdef TEST_PRINT

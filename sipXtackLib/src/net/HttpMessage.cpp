@@ -78,7 +78,7 @@ HttpMessage::HttpMessage(const char* messageBytes, ssize_t byteCount)
    , body(NULL)
    , mUseChunkedEncoding(false)
    , transportTimeStamp(0)
-   , lastResendDuration(0)
+   , lastResendInterval(0)
    , transportProtocol(OsSocket::UNKNOWN)
    , timesSent(0)
    , mFirstSent(FALSE)
@@ -100,7 +100,7 @@ HttpMessage::HttpMessage(OsSocket* inSocket, ssize_t bufferSize)
    , body(NULL)
    , mUseChunkedEncoding(false)
    , transportTimeStamp(0)
-   , lastResendDuration(0)
+   , lastResendInterval(0)
    , transportProtocol(OsSocket::UNKNOWN)
    , timesSent(0)
    , mFirstSent(FALSE)
@@ -133,7 +133,7 @@ HttpMessage::HttpMessage(const HttpMessage& rHttpMessage)
     }
     //nameValues = new UtlHashBag(100);
     transportTimeStamp = rHttpMessage.transportTimeStamp;
-    lastResendDuration = rHttpMessage.lastResendDuration;
+    lastResendInterval = rHttpMessage.lastResendInterval;
     transportProtocol = rHttpMessage.transportProtocol;
     timesSent = rHttpMessage.timesSent;
     mFirstSent = rHttpMessage.mFirstSent;
@@ -221,7 +221,7 @@ HttpMessage::operator=(const HttpMessage& rHttpMessage)
       //use copy constructor to copy values
        smHttpMessageCount++;
        transportTimeStamp = rHttpMessage.transportTimeStamp;
-       lastResendDuration = rHttpMessage.lastResendDuration;
+       lastResendInterval = rHttpMessage.lastResendInterval;
        transportProtocol = rHttpMessage.transportProtocol;
        timesSent = rHttpMessage.timesSent;
        mFirstSent = rHttpMessage.mFirstSent;
@@ -1984,14 +1984,14 @@ long HttpMessage::getTransportTime() const
         return(transportTimeStamp);
 }
 
-void HttpMessage::setResendDuration(int resendMSec)
+void HttpMessage::setResendInterval(int resendMSec)
 {
-        lastResendDuration = resendMSec;
+        lastResendInterval = resendMSec;
 }
 
-int HttpMessage::getResendDuration() const
+int HttpMessage::getResendInterval() const
 {
-        return(lastResendDuration);
+        return(lastResendInterval);
 }
 
 int HttpMessage::getTimesSent() const
@@ -2043,7 +2043,7 @@ void HttpMessage::getSendAddress(UtlString* address, int* port) const
 void HttpMessage::resetTransport()
 {
     transportTimeStamp = 0;
-    lastResendDuration = 0;
+    lastResendInterval = 0;
     timesSent = 0;
     transportProtocol = OsSocket::UNKNOWN;
     mFirstSent = FALSE;

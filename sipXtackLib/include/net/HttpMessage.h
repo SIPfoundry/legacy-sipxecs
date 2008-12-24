@@ -424,8 +424,8 @@ public:
     //! Used by transport to record the current resend interval (from the last
     //  time the message was sent to the time that the message is scheduled to
     //  be resent). (msec)
-    void setResendDuration(int resendMSec);
-    int getResendDuration() const;
+    void setResendInterval(int resendMSec);
+    int getResendInterval() const;
 
     // Used by transport to record the number of times the message has
     // been sent/resent.
@@ -787,7 +787,7 @@ private:
    long transportTimeStamp;
    // The resend timeout that was set at the last resend, which is thus
    // the time from that resend until the resend timer fires.  (msec)
-   int lastResendDuration;
+   int lastResendInterval;
    // The transport protocol that is being used to send this message.
    OsSocket::IpProtocolSocketType transportProtocol;
    // The number of times this message has been sent so far.
