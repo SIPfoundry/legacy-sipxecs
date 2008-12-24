@@ -334,7 +334,7 @@
 	<element name="schedules">
 		<complexType>
 			<sequence>
-                <element ref="tns:schedule" minOccurs="0">
+                <element ref="tns:schedule" maxOccurs="unbounded" minOccurs="0">
 				</element>
 			</sequence>
 		</complexType>
