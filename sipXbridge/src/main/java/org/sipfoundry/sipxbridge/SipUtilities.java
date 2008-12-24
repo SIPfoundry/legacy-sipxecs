@@ -11,6 +11,7 @@ import gov.nist.javax.sip.DialogExt;
 import gov.nist.javax.sip.TransactionExt;
 import gov.nist.javax.sip.header.HeaderFactoryExt;
 import gov.nist.javax.sip.header.extensions.ReplacesHeader;
+import gov.nist.javax.sip.header.ims.PAssertedIdentityHeader;
 import gov.nist.javax.sip.header.ims.PPreferredIdentityHeader;
 import gov.nist.javax.sip.header.ims.PrivacyHeader;
 
@@ -525,7 +526,12 @@ class SipUtilities {
 			if (fromDisplayName == null) {
 				fromDisplayName = "sipxbridge";
 			}
-			PPreferredIdentityHeader preferredIdentityHeader = null;
+			
+			Address address = itspAccount.getCallerAlias();
+			
+			PAssertedIdentityHeader passertedIdentityHeader = ((HeaderFactoryExt) ProtocolObjects.headerFactory)
+						.createPAssertedIdentityHeader(address);
+			
 			PrivacyHeader privacyHeader = null;
 
 			FromHeader fromHeader = from;
@@ -545,40 +551,18 @@ class SipUtilities {
 						ProtocolObjects.addressFactory.createAddress(fromUri),
 						new Long(Math.abs(new java.util.Random().nextLong()))
 								.toString());
-
-				if (itspAccount.isRegisterOnInitialization()) {
-					domain = itspAccount.getProxyDomain();
-					String realFromUser = itspAccount.getUserName();
-					fromUri = ProtocolObjects.addressFactory.createSipURI(
-							realFromUser, domain);
-					fromUri.removeParameter("user");
-					preferredIdentityHeader = ((HeaderFactoryExt) ProtocolObjects.headerFactory)
-							.createPPreferredIdentityHeader(ProtocolObjects.addressFactory
-									.createAddress(fromUri));
-				} else {
-					domain = Gateway.getGlobalAddress();
-					String realFromUser = itspAccount.getUserName();
-
-					fromUri = ProtocolObjects.addressFactory.createSipURI(
-							realFromUser, domain);
-					fromUri.removeParameter("user");
-					preferredIdentityHeader = ((HeaderFactoryExt) ProtocolObjects.headerFactory)
-							.createPPreferredIdentityHeader(ProtocolObjects.addressFactory
-									.createAddress(fromUri));
-
-				}
 				privacyHeader = ((HeaderFactoryExt) ProtocolObjects.headerFactory)
 						.createPrivacyHeader("id");
-			} else {
-				Address fromAddress = itspAccount.getCallerAlias();
-				fromHeader = ProtocolObjects.headerFactory.createFromHeader(
-						fromAddress, new Long(Math.abs(new java.util.Random()
+			} else {				
+				fromHeader = (FromHeader) from.clone();
+				
+				fromHeader.setTag(new Long(Math.abs(new java.util.Random()
 								.nextLong())).toString());
-
-				if (fromDisplayName != null) {
-					fromAddress.setDisplayName(fromDisplayName);
-				}
+				
 			}
+			
+			
+			
 
 			/*
 			 * Remove stuff from the inbound request that can have an effect on
@@ -630,8 +614,8 @@ class SipUtilities {
 			/*
 			 * Attach the PreferredIdentity header if we generated one.
 			 */
-			if (preferredIdentityHeader != null) {
-				request.setHeader(preferredIdentityHeader);
+			if (passertedIdentityHeader != null) {
+				request.setHeader(passertedIdentityHeader);
 			}
 
 			/*
