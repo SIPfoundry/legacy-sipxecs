@@ -93,6 +93,28 @@ public class SipxServiceManagerImpl extends SipxHibernateDaoSupport<SipxService>
         return getHibernateTemplate().loadAll(SipxService.class);
     }
 
+    public boolean isServiceInstalled(Integer locationId, String serviceBeanId) {
+        Location location = m_locationsManager.getLocation(locationId);
+        Collection<LocationSpecificService> services = location.getServices();
+        for (LocationSpecificService service : services) {
+            SipxService sipxService = service.getSipxService();
+            if (sipxService.getBeanId().equals(serviceBeanId)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean isServiceInstalled(String serviceBeanId) {
+        Location[] locations = m_locationsManager.getLocations();
+        for (Location location : locations) {
+            if (isServiceInstalled(location.getId(), serviceBeanId)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public Map<SipxServiceBundle, List<SipxService>> getBundles() {
         Factory listFactory = new Factory() {
             public Object create() {

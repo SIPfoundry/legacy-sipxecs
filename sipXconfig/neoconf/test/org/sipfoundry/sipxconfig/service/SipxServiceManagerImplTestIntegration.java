@@ -9,30 +9,26 @@
  */
 package org.sipfoundry.sipxconfig.service;
 
+import java.util.Arrays;
+import java.util.Collection;
+
+import org.sipfoundry.sipxconfig.IntegrationTestCase;
+import org.sipfoundry.sipxconfig.admin.commserver.Location;
+import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
+import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
+import org.sipfoundry.sipxconfig.setting.ModelFilesContext;
+
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.same;
 import static org.easymock.EasyMock.verify;
 
-import java.util.Arrays;
-import java.util.Collection;
-
-import org.hibernate.SessionFactory;
-import org.sipfoundry.sipxconfig.IntegrationTestCase;
-import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
-import org.sipfoundry.sipxconfig.setting.ModelFilesContext;
-
 public class SipxServiceManagerImplTestIntegration extends IntegrationTestCase {
 
     private SipxServiceManagerImpl m_out;
     private ModelFilesContext m_modelFilesContext;
-    private SessionFactory m_sessionFactory;
-
-    @Override
-    protected void onSetUpInTransaction() {
-        m_out.setSessionFactory(m_sessionFactory);
-    }
+    private LocationsManager m_locationsManager;
 
     public void testGetServiceByBeanId() {
         SipxService service = m_out.getServiceByBeanId(SipxProxyService.BEAN_ID);
@@ -44,9 +40,16 @@ public class SipxServiceManagerImplTestIntegration extends IntegrationTestCase {
         Collection<SipxService> allServices = m_out.getServicesFromDb();
         assertNotNull(allServices);
 
-        // There should be at least 5 services returned.  This assertion means
+        // There should be at least 5 services returned. This assertion means
         // we don't need to update the test each time we add a new service
         assertTrue(allServices.size() > 5);
+    }
+
+    public void testInstalledService() throws Exception {
+        loadDataSetXml("service/seedLocationsAndServicesWithServiceMigration.xml");
+        Location primary = m_locationsManager.getPrimaryLocation();
+        assertTrue(m_out.isServiceInstalled(primary.getId(), SipxProxyService.BEAN_ID));
+        assertFalse(m_out.isServiceInstalled(primary.getId(), SipxStatusService.BEAN_ID));
     }
 
     public void testStoreService() {
@@ -59,7 +62,7 @@ public class SipxServiceManagerImplTestIntegration extends IntegrationTestCase {
         StatusPluginConfiguration statusPluginConfiguration = new StatusPluginConfiguration();
         statusPluginConfiguration.setName("status-pluing.xml");
 
-        service.setConfigurations(Arrays.asList(new SipxServiceConfiguration[] {sipxStatusConfiguration, statusPluginConfiguration}));
+        service.setConfigurations(Arrays.asList(sipxStatusConfiguration, statusPluginConfiguration));
 
         SipxReplicationContext replicationContext = createMock(SipxReplicationContext.class);
         m_out.setSipxReplicationContext(replicationContext);
@@ -81,8 +84,7 @@ public class SipxServiceManagerImplTestIntegration extends IntegrationTestCase {
         m_modelFilesContext = context;
     }
 
-    @Override
-    public void setSessionFactory(SessionFactory sessionFactory) {
-        m_sessionFactory = sessionFactory;
+    public void setLocationsManager(LocationsManager locationsManager) {
+        m_locationsManager = locationsManager;
     }
 }

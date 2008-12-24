@@ -27,4 +27,18 @@ public interface SipxServiceManager {
     Map<SipxServiceBundle, List<SipxService>> getBundles();
 
     List<SipxService> getRestartable();
+
+    /**
+     * verifies if the service is installed on the given location
+     * @param serviceBeanId - service bean id
+     * @return true if the service is installed on the given location / false otherwise
+     */
+    boolean isServiceInstalled(Integer locationId, String serviceBeanId);
+
+    /**
+     * verifies if the service is installed on any location
+     * @param serviceBeanId - service bean id
+     * @return true if there is at least one location with this service installed / false otherwise
+     */
+    boolean isServiceInstalled(String serviceBeanId);
 }
