@@ -131,6 +131,10 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/sipx-test-dnsIp
 %attr(755,root,root) %{_bindir}/sipx-test-apache
 
+%attr(755,root,root) %{_libexecdir}/sipXecs/sipx-strip-db-secrets.pl
+%attr(755,root,root) %{_libexecdir}/sipXecs/sipx_setup_common.py
+%attr(755,root,root) %{_libexecdir}/sipXecs/sipx_setup_common.pyc
+%attr(755,root,root) %{_libexecdir}/sipXecs/sipx_setup_common.pyo
 %attr(755,root,root) %{_libexecdir}/sipXecs/sipx-activate-ntp
 %attr(755,root,root) %{_libexecdir}/sipXecs/setup.d/010_sipx-activate-ntp
 
