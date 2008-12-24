@@ -13,6 +13,7 @@ package org.sipfoundry.sipxbridge.xmlrpc;
 import java.net.URL;
 import java.util.Map;
 
+import org.apache.log4j.Logger;
 import org.apache.xmlrpc.client.XmlRpcClient;
 import org.apache.xmlrpc.client.XmlRpcClientConfigImpl;
 
@@ -22,14 +23,18 @@ import org.apache.xmlrpc.client.XmlRpcClientConfigImpl;
  * 
  */
 public class SipXbridgeXmlRpcClient {
+	private static Logger logger = Logger.getLogger(SipXbridgeXmlRpcClient.class);
 
     private XmlRpcClient client;
 
-    public SipXbridgeXmlRpcClient(String serverAddress, int port) {
+    public SipXbridgeXmlRpcClient(String serverAddress, int port, boolean isSecure) {
         try {
             XmlRpcClientConfigImpl config = new XmlRpcClientConfigImpl();
-            boolean isSecure = Boolean.parseBoolean(System.getProperty("sipxbridge.secure","true"));
-            config.setServerURL(new URL(isSecure? "https" : "http" + "://" + serverAddress + ":" + port));
+        	config.setEnabledForExceptions(true);
+			config.setEnabledForExtensions(true);
+			String url = (isSecure? "https" : "http") + "://" + serverAddress + ":" + port;
+			logger.debug("SipXbridgeXmlRpcClient: url =  " + url);
+            config.setServerURL(new URL(url));
             this.client = new XmlRpcClient();
             this.client.setConfig(config);
         } catch (Exception ex) {
@@ -119,6 +124,21 @@ public class SipXbridgeXmlRpcClient {
             retval = (Map) client.execute(SipXbridgeXmlRpcServer.SERVER + "."
                     + "stop", (Object[]) null);
         } catch (Exception ex) {
+            throw new SipXbridgeClientException(ex);
+        }
+        if (retval.get(SipXbridgeXmlRpcServer.STATUS_CODE).equals(SipXbridgeXmlRpcServer.ERROR)) {
+            throw new SipXbridgeClientException("Error in processing request "
+                    + retval.get(SipXbridgeXmlRpcServer.ERROR_INFO));
+        }
+    }
+    
+    public void exit() {
+        Map retval = null;
+        try {
+            retval = (Map) client.execute(SipXbridgeXmlRpcServer.SERVER + "."
+                    + "exit", (Object[]) null);
+        } catch (Exception ex) {
+        	logger.error("Exception in exit() ", ex);
             throw new SipXbridgeClientException(ex);
         }
         if (retval.get(SipXbridgeXmlRpcServer.STATUS_CODE).equals(SipXbridgeXmlRpcServer.ERROR)) {

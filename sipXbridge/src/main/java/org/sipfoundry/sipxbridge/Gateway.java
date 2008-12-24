@@ -14,15 +14,25 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.InetAddress;
+import java.security.KeyStore;
+import java.security.SecureRandom;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Properties;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLServerSocket;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.TrustManagerFactory;
 import javax.sip.Dialog;
 import javax.sip.ListeningPoint;
 import javax.sip.SipProvider;
@@ -48,6 +58,7 @@ import org.sipfoundry.commons.log4j.SipFoundryLayout;
 import org.sipfoundry.sipxbridge.symmitron.SymmitronClient;
 import org.sipfoundry.sipxbridge.symmitron.SymmitronConfig;
 import org.sipfoundry.sipxbridge.symmitron.SymmitronConfigParser;
+import org.sipfoundry.sipxbridge.xmlrpc.SipXbridgeXmlRpcClient;
 import org.xbill.DNS.Lookup;
 import org.xbill.DNS.Record;
 import org.xbill.DNS.SRVRecord;
@@ -133,11 +144,7 @@ public class Gateway {
 	 */
 	private static Address gatewayFromAddress;
 
-	/*
-	 * THe Webserver for the xml rpc interface.
-	 */
-	private static HttpServer webServer;
-
+	
 	/*
 	 * The Gateway state.
 	 */
@@ -176,9 +183,7 @@ public class Gateway {
 
 	private static int callCount;
 
-	private static boolean isWebServerRunning;
-
-	private static Hashtable<String, SymmitronClient> symmitronClients = new Hashtable<String, SymmitronClient>();
+	private static ConcurrentHashMap<String, SymmitronClient> symmitronClients = new ConcurrentHashMap<String, SymmitronClient>();
 
 	private static String configurationPath;
 
@@ -228,118 +233,8 @@ public class Gateway {
 		return symmitronClient;
 	}
 
-	static void stopXmlRpcServer() {
-		try {
-			if (webServer != null) {
-				webServer.stop();
-			}
-			isWebServerRunning = false;
-		} catch (Exception ex) {
-			logger.error("Error stopping xml rpc server.", ex);
-		}
-	}
-
-	public static void startXmlRpcServer() throws GatewayConfigurationException {
-		try {
-			if (!isWebServerRunning) {
-
-				isWebServerRunning = true;
-				webServer = new HttpServer();
-
-				logger.debug("Starting xml rpc server on inetAddr:port "
-						+ Gateway.getBridgeConfiguration().getLocalAddress()
-						+ ":"
-						+ Gateway.getBridgeConfiguration().getXmlRpcPort());
-				InetAddrPort inetAddrPort = new InetAddrPort(Gateway
-						.getLocalAddress(), Gateway.getBridgeConfiguration()
-						.getXmlRpcPort());
-				inetAddrPort.setInetAddress(InetAddress.getByName(Gateway
-						.getLocalAddress()));
-				if (Gateway.getBridgeConfiguration().isSecure()) {
-					SslListener sslListener = new SslListener(inetAddrPort);
-					inetAddrPort.setInetAddress(InetAddress.getByName(Gateway
-							.getLocalAddress()));
-
-					String keystore = System.getProperties().getProperty(
-							"javax.net.ssl.keyStore");
-					logger.debug("keystore = " + keystore);
-					sslListener.setKeystore(keystore);
-					String algorithm = System.getProperties().getProperty(
-							"jetty.x509.algorithm");
-					logger.debug("algorithm = " + algorithm);
-					sslListener.setAlgorithm(algorithm);
-					String password = System.getProperties().getProperty(
-							"jetty.ssl.password");
-					sslListener.setPassword(password);
-
-					String keypassword = System.getProperties().getProperty(
-							"jetty.ssl.keypassword");
-
-					sslListener.setKeyPassword(keypassword);
-					sslListener.setMaxThreads(32);
-					sslListener.setMinThreads(4);
-					sslListener.setLingerTimeSecs(30000);
-
-					((ThreadedServer) sslListener).open();
-
-					String[] cypherSuites = ((SSLServerSocket) sslListener
-							.getServerSocket()).getSupportedCipherSuites();
-
-					for (String suite : cypherSuites) {
-						logger.info("Cypher Suites enabled : " + suite);
-					}
-
-					((SSLServerSocket) sslListener.getServerSocket())
-							.setEnabledCipherSuites(cypherSuites);
-
-					String[] protocols = ((SSLServerSocket) sslListener
-							.getServerSocket()).getSupportedProtocols();
-
-					for (String protocol : protocols) {
-						logger.info("Supported protocol = " + protocol);
-					}
-
-					((SSLServerSocket) sslListener.getServerSocket())
-							.setEnabledProtocols(protocols);
-
-					webServer.setListeners(new HttpListener[] { sslListener });
-
-					for (HttpListener listener : webServer.getListeners()) {
-						logger.debug("Listener = " + listener);
-
-						listener.start();
-					}
-
-				} else {
-					SocketListener socketListener = new SocketListener(
-							inetAddrPort);
-					socketListener.setMaxThreads(32);
-					socketListener.setMinThreads(4);
-					socketListener.setLingerTimeSecs(30000);
-					webServer.addListener(socketListener);
-				}
-
-				HttpContext httpContext = new HttpContext();
-
-				httpContext.setContextPath("/");
-				ServletHandler servletHandler = new ServletHandler();
-				servletHandler.addServlet("sipxbridge", "/*",
-						SipxbridgeServlet.class.getName());
-				httpContext.addHandler(servletHandler);
-
-				webServer.addContext(httpContext);
-
-				webServer.start();
-
-				logger.debug("Web server started.");
-
-			}
-		} catch (Exception ex) {
-			throw new GatewayConfigurationException(
-					"Exception starting web server", ex);
-		}
-
-	}
+	
+	
 
 	/**
 	 * Initialize the loggers for the libraries used.
@@ -898,37 +793,35 @@ public class Gateway {
 	 */
 	static synchronized void stop() {
 		Gateway.state = GatewayState.STOPPING;
-		callControlManager.stop();
+		
 		logger.debug("Stopping Gateway");
 		// Purge the timer.
 		getTimer().purge();
 		try {
-			for (Dialog dialog : ((SipStackExt) ProtocolObjects.sipStack)
-					.getDialogs()) {
-
-				DialogContext dat = DialogContext.get(dialog);
-
-				if (dat != null) {
-					BackToBackUserAgent b2bua = dat.getBackToBackUserAgent();
-					if (b2bua != null) {
-						b2bua.removeDialog(dialog);
-
-					}
-
-					if (dat.getBackToBackUserAgent() != null
-							&& dat.getBackToBackUserAgent().getCreatingDialog() == dialog) {
-
-						ItspAccountInfo itspAccountInfo = dat
-								.getBackToBackUserAgent().getItspAccountInfo();
-
-						Gateway.decrementCallCount();
-
-						if (itspAccountInfo != null) {
-							itspAccountInfo.decrementCallCount();
-						}
-					}
+			/*
+			 * De-register from all ITSP accounts.
+			 */
+			for ( ItspAccountInfo itspAccount : Gateway.getAccountManager().getItspAccounts()) {
+				if ( itspAccount.isRegisterOnInitialization() ) {
+					registrationManager.sendDeregister(itspAccount);
 				}
 			}
+			
+			/*
+			 * Tear down all ongoing calls.
+			 */
+			
+			for ( BackToBackUserAgent b2bua : backToBackUserAgentFactory.getBackToBackUserAgents()) {
+				b2bua.tearDown(Gateway.SIPXBRIDGE_USER, ReasonCode.BRIDGE_STOPPING, "Bridge Stopping");
+			}
+			
+			Gateway.callCount = 0;
+			
+			for ( SymmitronClient client : Gateway.symmitronClients.values() ) {
+				client.signOut();
+			}
+			
+			
 		} catch (Exception ex) {
 			logger.error("Unexepcted exception occured while stopping bridge",
 					ex);
@@ -1153,7 +1046,74 @@ public class Gateway {
 			logger.fatal(errorString, new Exception());
 		}
 	}
+	/**
+	 * 
+	 * This method must be called before SSL connection is initialized.
+	 */
+	private static void initHttpsClient() {
+		try {
+			// Create empty HostnameVerifier
+			HostnameVerifier hv = new HostnameVerifier() {
+				public boolean verify(String arg0, SSLSession arg1) {
+					return true;
+				}
+			};
 
+			HttpsURLConnection.setDefaultHostnameVerifier(hv);
+
+			String trustStoreType = System
+					.getProperty("javax.net.ssl.trustStoreType");
+
+			logger.debug("trustStoreType = " + trustStoreType);
+
+			KeyStore ks = KeyStore.getInstance(trustStoreType);
+
+			String pathToTrustStore = System
+					.getProperty("javax.net.ssl.trustStore");
+
+			logger.debug("pathToTrustStore = " + pathToTrustStore);
+
+			logger.debug("passwKey = "
+					+ System.getProperty("javax.net.ssl.trustStorePassword"));
+
+			char[] passwKey = System.getProperty(
+					"javax.net.ssl.trustStorePassword").toCharArray();
+
+			ks.load(new FileInputStream(pathToTrustStore), passwKey);
+
+			String x509Algorithm = System.getProperty("jetty.x509.algorithm");
+
+			logger.debug("X509Algorithm = " + x509Algorithm);
+
+			TrustManagerFactory tmf = TrustManagerFactory
+					.getInstance(x509Algorithm);
+
+			tmf.init(ks);
+
+			SSLContext sslContext = SSLContext.getInstance("SSL");
+
+			sslContext.init(null, tmf.getTrustManagers(), new SecureRandom());
+
+			SSLSocketFactory factory = sslContext.getSocketFactory();
+			SSLSocket socket = ((SSLSocket) factory.createSocket());
+			String[] suites = socket.getEnabledCipherSuites();
+			socket.setEnabledCipherSuites(suites);
+			for (String suite : factory.getDefaultCipherSuites()) {
+				logger.debug("Supported Suite = " + suite);
+			}
+
+			HttpsURLConnection.setDefaultSSLSocketFactory(factory);
+
+		} catch (Exception ex) {
+			logger.fatal("Unexpected exception initializing HTTPS client", ex);
+			throw new RuntimeException(ex);
+		}
+	}
+	
+	
+	
+	
+	
 	/**
 	 * The main method for the Bridge.
 	 * 
@@ -1206,12 +1166,12 @@ public class Gateway {
 
 				Gateway.start();
 
-				startXmlRpcServer();
+				SipXbridgeXmlRpcServerImpl.startXmlRpcServer();
 				
 				Gateway.symconfig = new SymmitronConfigParser().parse(Gateway.configurationPath+ "/nattraversalrules.xml");
 				
 				if ( symconfig.getUseHttps() ) {
-					SymmitronClient.initHttpsClient();
+					Gateway.initHttpsClient();
 				}
 
 			} else if (command.equals("configtest")) {
@@ -1252,13 +1212,40 @@ public class Gateway {
 					
 					Gateway.symconfig = new SymmitronConfigParser().parse(Gateway.configurationPath+ "/nattraversalrules.xml");
 					
+					/*
+					 * Make sure we can initialize the keystores etc.
+					 */
 					if ( symconfig.getUseHttps() ) {
-						SymmitronClient.initHttpsClient();
+						initHttpsClient();
 					}
 					System.exit(0);
 				} catch (Exception ex) {
 					System.exit(-1);
 				}
+			} else if (command.equals("stop")){
+				
+				/*
+				 * Stop bridge, release all resources and exit.
+				 */
+				
+				Gateway.parseConfigurationFile();
+				Gateway.initializeLogging();
+				logger.debug("command " + command);
+				/*
+				 * Initialize the HTTPS client.
+				 */
+				if ( Gateway.getBridgeConfiguration().isSecure()) {
+					Gateway.initHttpsClient();
+				}
+				
+				/*
+				 * Connect to the sipxbridge server and ask him to exit.
+				 */
+				SipXbridgeXmlRpcClient client = new SipXbridgeXmlRpcClient(Gateway.getBridgeConfiguration().getExternalAddress(),
+						Gateway.getBridgeConfiguration().getXmlRpcPort(), Gateway.getBridgeConfiguration().isSecure());
+				client.exit();
+				System.exit(0);
+				
 			} else {
 				logger.error("Bad option ");
 			}

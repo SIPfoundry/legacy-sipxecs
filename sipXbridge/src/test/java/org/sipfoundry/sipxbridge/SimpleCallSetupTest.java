@@ -279,7 +279,7 @@ public class SimpleCallSetupTest extends AbstractSipSignalingTest {
     public void tearDown() throws Exception {
         mockItsp.stop();
         sipStack.dispose();
-        Gateway.stopXmlRpcServer();
+        SipXbridgeXmlRpcServerImpl.stopXmlRpcServer();
         Gateway.stop();
         for ( SipPhone phone : this.caller) {
             phone.dispose();

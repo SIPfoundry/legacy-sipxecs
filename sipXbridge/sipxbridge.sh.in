@@ -81,24 +81,20 @@ X509Algorithm=`$JavaCmd \
        -classpath "$ClassPath" \
        org.sipfoundry.commons.x509selector.X509Selector`
 
+# need to run this again because we need to set 
+# command line options.
 
 case ${Action} in
    RUN)
      echo $$ > @SIPX_RUNDIR@/sipxbridge.pid
-
-     # need to run this again because we need to set 
-     # command line options.
-     createAuthoritiesTruststore
-     createAuthoritiesKeystore
-
+      createAuthoritiesTruststore
+      createAuthoritiesKeystore
       $JavaCmd -Dconf.dir=@SIPX_CONFDIR@  		\
 	 $TrustStoreOpts 				\
-	 $KeystoreOpts					\
-	 -Djetty.lib.dir=@SIPX_JAVADIR@/sipXconfig 	\
-	 -Djetty.conf.dir=@PREFIX@/etc/sipxpbx 		\
+	 $KeyStoreOpts					\
 	 -Djetty.x509.algorithm=$X509Algorithm		\
-	 -Djetty.ssl.password=changeit			\
-	 -Djetty.ssl.keypassword=changeit		\
+	 -Djetty.ssl.password=$TrustStorePassword	\
+	 -Djetty.ssl.keypassword=$KeyStorePassword	\
 	 -Dorg.apache.commons.logging.Log=org.apache.commons.logging.impl.Log4JLogger \
          -Dsipxbridge.command=start 			  \
          -cp $ClassPath org.sipfoundry.sipxbridge.Gateway \
@@ -106,12 +102,26 @@ case ${Action} in
      ;;
 
    STOP)
+     createAuthoritiesTruststore
+     createAuthoritiesKeystore
+     exec $JavaCmd -Dconf.dir=@SIPX_CONFDIR@  \
+	 $TrustStoreOpts \
+	 $KeyStoreOpts	 \
+	 -Dorg.apache.commons.logging.Log=org.apache.commons.logging.impl.Log4JLogger \
+	 -Djetty.x509.algorithm=$X509Algorithm 		\
+	 -Djetty.ssl.password=$TrustStorePassword	\
+	 -Djetty.ssl.keypassword=$KeyStorePassword	\
+         -Dsipxbridge.command=stop 			\
+         -cp $ClassPath org.sipfoundry.sipxbridge.Gateway \
+	 $Args
+
      sipx_stop sipXbridge @SIPX_RUNDIR@/sipxbridge.pid
      ;;
 
    CONFIGTEST)
      Status=0
-
+     createAuthoritiesTruststore
+     createAuthoritiesKeystore
      # Check that the log file is writable.
      logfile="@SIPX_LOGDIR@/sipxbridge.log"
      if [ -e $logfile -a ! -w $logfile ]
@@ -120,21 +130,15 @@ case ${Action} in
 	 Status=1
      fi
 
-#
-     createAuthoritiesTruststore
-     createAuthoritiesKeystore
 
      exec $JavaCmd -Dconf.dir=@SIPX_CONFDIR@  \
 	 $TrustStoreOpts \
 	 $KeyStoreOpts	 \
 	 -Dorg.apache.commons.logging.Log=org.apache.commons.logging.impl.Log4JLogger \
-	 -Djetty.lib.dir=@SIPX_JAVADIR@/sipXconfig 	\
-	 -Djetty.conf.dir=@PREFIX@/etc/sipxpbx 		\
-	 -Djetty.log.dir=@SIPX_LOGDIR@ 			\
 	 -Djetty.x509.algorithm=$X509Algorithm 		\
-	 -Djetty.ssl.password=changeit			\
-	 -Djetty.ssl.keypassword=changeit		\
-         -Dsipxbridge.command=configtest \
+	 -Djetty.ssl.password=$TrustStorePassword	\
+	 -Djetty.ssl.keypassword=$KeyStorePassword	\
+         -Dsipxbridge.command=configtest 		\
          -cp $ClassPath org.sipfoundry.sipxbridge.Gateway \
 	 $Args
      ;;

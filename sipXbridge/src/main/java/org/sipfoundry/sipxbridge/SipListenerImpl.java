@@ -383,7 +383,7 @@ public class SipListenerImpl implements SipListener {
 					Dialog dialog = clientTransaction.getDialog();
 					BackToBackUserAgent b2bua = DialogContext.get(
 							dialog).getBackToBackUserAgent();
-					b2bua.tearDown();
+					b2bua.tearDown(Gateway.SIPXBRIDGE_USER, ReasonCode.SESSION_TIMER_ERROR, "OPTIONS Session timer timed out.");
 				} else if (request.getMethod().equals(Request.REGISTER)) {
 					Gateway.getRegistrationManager().processTimeout(
 							timeoutEvent);

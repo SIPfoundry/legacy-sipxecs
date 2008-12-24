@@ -83,6 +83,11 @@ public interface SipXbridgeXmlRpcServer {
      * Stop the bridge.
      */
     public Map<String,Object> stop();
+    
+    /**
+     * Exit the bridge.
+     */
+    public Map<String,Object> exit();
   
 
 }

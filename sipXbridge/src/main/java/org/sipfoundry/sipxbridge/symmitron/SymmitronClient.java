@@ -56,68 +56,7 @@ public class SymmitronClient {
 
 	private static Timer timer = new Timer();
 
-	/*
-	 * This method must be called before SSL connection is initialized.
-	 */
-	public static void initHttpsClient() {
-		try {
-			// Create empty HostnameVerifier
-			HostnameVerifier hv = new HostnameVerifier() {
-				public boolean verify(String arg0, SSLSession arg1) {
-					return true;
-				}
-			};
-
-			HttpsURLConnection.setDefaultHostnameVerifier(hv);
-
-			String trustStoreType = System
-					.getProperty("javax.net.ssl.trustStoreType");
-
-			logger.debug("trustStoreType = " + trustStoreType);
-
-			KeyStore ks = KeyStore.getInstance(trustStoreType);
-
-			String pathToTrustStore = System
-					.getProperty("javax.net.ssl.trustStore");
-
-			logger.debug("pathToTrustStore = " + pathToTrustStore);
-
-			logger.debug("passwKey = "
-					+ System.getProperty("javax.net.ssl.trustStorePassword"));
-
-			char[] passwKey = System.getProperty(
-					"javax.net.ssl.trustStorePassword").toCharArray();
-
-			ks.load(new FileInputStream(pathToTrustStore), passwKey);
-
-			String x509Algorithm = System.getProperty("jetty.x509.algorithm");
-
-			logger.debug("X509Algorithm = " + x509Algorithm);
-
-			TrustManagerFactory tmf = TrustManagerFactory
-					.getInstance(x509Algorithm);
-
-			tmf.init(ks);
-
-			SSLContext sslContext = SSLContext.getInstance("SSL");
-
-			sslContext.init(null, tmf.getTrustManagers(), new SecureRandom());
-
-			SSLSocketFactory factory = sslContext.getSocketFactory();
-			SSLSocket socket = ((SSLSocket) factory.createSocket());
-			String[] suites = socket.getEnabledCipherSuites();
-			socket.setEnabledCipherSuites(suites);
-			for (String suite : factory.getDefaultCipherSuites()) {
-				logger.debug("Supported Suite = " + suite);
-			}
-
-			HttpsURLConnection.setDefaultSSLSocketFactory(factory);
-
-		} catch (Exception ex) {
-			logger.fatal("Unexpected exception initializing class", ex);
-			throw new RuntimeException(ex);
-		}
-	}
+	
 
 	private boolean checkForServerReboot(Map map) throws SymmitronException {
 

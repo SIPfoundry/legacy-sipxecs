@@ -31,11 +31,12 @@ public class InvalidAccountTest extends TestCase {
         Gateway.setConfigurationFileName(properties.getProperty("org.sipfoundry.gateway.badAccount"));
        
         Gateway.parseConfigurationFile();
-        Gateway.startXmlRpcServer();
+        SipXbridgeXmlRpcServerImpl.startXmlRpcServer();
         System.out.println("Web server started");
         client = new SipXbridgeXmlRpcClient
             (Gateway.getAccountManager().getBridgeConfiguration().getExternalAddress(),
-                    Gateway.getAccountManager().getBridgeConfiguration().getXmlRpcPort());
+                    Gateway.getAccountManager().getBridgeConfiguration().getXmlRpcPort(),
+                    Gateway.getBridgeConfiguration().isSecure());
         
         
        
@@ -63,7 +64,7 @@ public class InvalidAccountTest extends TestCase {
     protected void tearDown() throws Exception {
         super.tearDown();
         client.stop();
-        Gateway.stopXmlRpcServer();
+        SipXbridgeXmlRpcServerImpl.stopXmlRpcServer();
     }
 
 }
