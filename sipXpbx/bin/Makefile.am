@@ -144,6 +144,9 @@ $(DESTDIR)@DAILYDIR@/sipx-chkspace: sipx-chkspace.in
 	@$(LocalizeSipXconfig) $(srcdir)/sipx-chkspace.in > sipx-chkspace
 	$(INSTALL) -D -m 755 sipx-chkspace $(DESTDIR)@DAILYDIR@/sipx-chkspace
 
-$(DESTDIR)@SIPX_LIBEXECDIR@/setup.d/010_sipx-activate-ntp: $(DESTDIR)@SIPX_LIBEXECDIR@/sipx-activate-ntp
+$(DESTDIR)@SIPX_LIBEXECDIR@/setup.d/010_sipx-activate-ntp: $(DESTDIR)@SIPX_LIBEXECDIR@/sipx-activate-ntp $(DESTDIR)@SIPX_LIBEXECDIR@/setup.d
 	cd $(DESTDIR)@SIPX_LIBEXECDIR@/setup.d \
-	; ln -s ../sipx-activate-ntp 010_sipx-activate-ntp
+	&& ln -s ../sipx-activate-ntp 010_sipx-activate-ntp
+
+$(DESTDIR)@SIPX_LIBEXECDIR@/setup.d:
+	$(INSTALL) -d --user @SIPXPBXUSER@ --group @SIPXPBXGROUP@ $(DESTDIR)@SIPX_LIBEXECDIR@/setup.d
