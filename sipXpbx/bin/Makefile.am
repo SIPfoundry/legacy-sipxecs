@@ -145,4 +145,5 @@ $(DESTDIR)@DAILYDIR@/sipx-chkspace: sipx-chkspace.in
 	$(INSTALL) -D -m 755 sipx-chkspace $(DESTDIR)@DAILYDIR@/sipx-chkspace
 
 $(DESTDIR)@SIPX_LIBEXECDIR@/setup.d/010_sipx-activate-ntp: $(DESTDIR)@SIPX_LIBEXECDIR@/sipx-activate-ntp
-	ln -s ../sipx-activate-ntp $@
+	cd $(DESTDIR)@SIPX_LIBEXECDIR@/setup.d \
+	; ln -s ../sipx-activate-ntp 010_sipx-activate-ntp

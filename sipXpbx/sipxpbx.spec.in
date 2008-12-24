@@ -131,10 +131,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/sipx-test-dnsIp
 %attr(755,root,root) %{_bindir}/sipx-test-apache
 
-%dir %attr(755,root,root) %{_libexecdir}/sipXecs/
 %attr(755,root,root) %{_libexecdir}/sipXecs/sipx-activate-ntp
-
-%dir %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_libexecdir}/sipXecs/setup.d
 %attr(755,root,root) %{_libexecdir}/sipXecs/setup.d/010_sipx-activate-ntp
 
 %attr(755,root,root) %{_sysconfdir}/init.d/sipxpbx
