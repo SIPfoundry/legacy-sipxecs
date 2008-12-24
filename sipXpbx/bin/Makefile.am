@@ -149,4 +149,4 @@ $(DESTDIR)@SIPX_LIBEXECDIR@/setup.d/010_sipx-activate-ntp: $(DESTDIR)@SIPX_LIBEX
 	&& ln -s ../sipx-activate-ntp 010_sipx-activate-ntp
 
 $(DESTDIR)@SIPX_LIBEXECDIR@/setup.d:
-	$(INSTALL) -d --user @SIPXPBXUSER@ --group @SIPXPBXGROUP@ $(DESTDIR)@SIPX_LIBEXECDIR@/setup.d
+	$(INSTALL) -d --owner @SIPXPBXUSER@ --group @SIPXPBXGROUP@ $(DESTDIR)@SIPX_LIBEXECDIR@/setup.d
