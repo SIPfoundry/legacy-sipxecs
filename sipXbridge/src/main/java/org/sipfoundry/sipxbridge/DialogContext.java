@@ -244,6 +244,24 @@ class DialogContext {
         }
 
     }
+    
+    /**
+	 * Create a dialog to dialog association.
+	 * 
+	 * @param dialog1
+	 *            - first dialog.
+	 * @param dialog2
+	 *            - second dialog.
+	 * 
+	 */
+	static void pairDialogs(Dialog dialog1, Dialog dialog2) {
+		logger.debug("pairDialogs dialogs = " + dialog1 + " " + dialog2);
+
+		DialogContext dad1 = DialogContext.get(dialog1);
+		DialogContext dad2 = DialogContext.get(dialog2);
+		dad1.peerDialog = dialog2;
+		dad2.peerDialog = dialog1;
+	}
 
     static BackToBackUserAgent getBackToBackUserAgent(Dialog dialog) {
         if (dialog == null) {
@@ -279,9 +297,9 @@ class DialogContext {
             Transaction transaction, Request request) {
         if (backToBackUserAgent == null)
             throw new NullPointerException("Null back2back ua");
-        if (dialog.getApplicationData() != null)
-            throw new RuntimeException("Already set!!");
-
+        if (dialog.getApplicationData() != null) {
+            throw new SipXbridgeException("DialogContext: Context Already set!!");
+        }
         DialogContext dat = new DialogContext(dialog);
         dat.transaction = transaction;
         dat.request = request;
@@ -389,7 +407,8 @@ class DialogContext {
      * 
      * 
      */
-    boolean isReferAllowed() {
+    @SuppressWarnings("unchecked")
+	boolean isReferAllowed() {
         if (this.transaction instanceof ServerTransaction) {
             if (this.request == null) {
                 return false;
@@ -503,7 +522,7 @@ class DialogContext {
         	  && this.pendingAction != pendingAction) {
             	logger.error("Replacing pending action " + this.pendingAction + " with "
                     + pendingAction);
-            	throw new RuntimeException("Pending dialog action is " + this.pendingAction);
+            	throw new SipXbridgeException("Pending dialog action is " + this.pendingAction);
         }
         this.pendingAction = pendingAction;
     }

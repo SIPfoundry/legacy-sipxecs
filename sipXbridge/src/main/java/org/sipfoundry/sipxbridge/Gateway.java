@@ -17,7 +17,6 @@ import java.net.InetAddress;
 import java.security.KeyStore;
 import java.security.SecureRandom;
 import java.util.HashSet;
-import java.util.Hashtable;
 import java.util.Properties;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -28,12 +27,10 @@ import java.util.logging.Level;
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLServerSocket;
 import javax.net.ssl.SSLSession;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManagerFactory;
-import javax.sip.Dialog;
 import javax.sip.ListeningPoint;
 import javax.sip.SipProvider;
 import javax.sip.address.Address;
@@ -45,14 +42,6 @@ import net.java.stun4j.client.NetworkConfigurationDiscoveryProcess;
 import net.java.stun4j.client.StunDiscoveryReport;
 
 import org.apache.log4j.Logger;
-import org.mortbay.http.HttpContext;
-import org.mortbay.http.HttpListener;
-import org.mortbay.http.HttpServer;
-import org.mortbay.http.SocketListener;
-import org.mortbay.http.SslListener;
-import org.mortbay.jetty.servlet.ServletHandler;
-import org.mortbay.util.InetAddrPort;
-import org.mortbay.util.ThreadedServer;
 import org.sipfoundry.commons.log4j.SipFoundryAppender;
 import org.sipfoundry.commons.log4j.SipFoundryLayout;
 import org.sipfoundry.sipxbridge.symmitron.SymmitronClient;
@@ -302,9 +291,9 @@ public class Gateway {
 	/**
 	 * Discover our address using stun.
 	 * 
-	 * @throws GatewayConfigurationException
+	 * @throws SipXbridgeException
 	 */
-	static void discoverAddress() throws GatewayConfigurationException {
+	static void discoverAddress() throws SipXbridgeException {
 		try {
 
 			BridgeConfiguration bridgeConfiguration = accountManager
@@ -337,7 +326,7 @@ public class Gateway {
 
 			}
 		} catch (Exception ex) {
-			throw new GatewayConfigurationException(
+			throw new SipXbridgeException(
 					"Error discovering  address", ex);
 		}
 	}
@@ -371,7 +360,7 @@ public class Gateway {
 	 * inbound INVITE from other addresses than the ones on this list.
 	 */
 
-	static void getSipxProxyAddresses() throws GatewayConfigurationException {
+	static void getSipxProxyAddresses() throws SipXbridgeException {
 		try {
 
 			Record[] records = new Lookup("_sip._" + getSipxProxyTransport()
@@ -406,7 +395,7 @@ public class Gateway {
 			logger.debug("proxy address table = " + proxyAddressTable);
 		} catch (Exception ex) {
 			logger.error("Cannot do address lookup ", ex);
-			throw new GatewayConfigurationException(
+			throw new SipXbridgeException(
 					"Could not do dns lookup for " + getSipxProxyDomain(), ex);
 		}
 	}
@@ -491,7 +480,7 @@ public class Gateway {
 		} catch (Throwable ex) {
 			ex.printStackTrace();
 			logger.error("Cannot initialize gateway", ex);
-			throw new GatewayConfigurationException(
+			throw new SipXbridgeException(
 					"Cannot initialize gateway", ex);
 		}
 
@@ -611,7 +600,7 @@ public class Gateway {
 									.getSipxProxyDomain());
 		} catch (Exception ex) {
 			logger.error("Unexpected exception creating Music On Hold URI", ex);
-			throw new RuntimeException("Unexpected exception", ex);
+			throw new SipXbridgeException("Unexpected exception", ex);
 		}
 	}
 
@@ -634,7 +623,7 @@ public class Gateway {
 
 	}
 
-	static void registerWithItsp() throws GatewayConfigurationException {
+	static void registerWithItsp() throws SipXbridgeException {
 		logger.info("------- REGISTERING--------");
 		try {
 			Gateway.accountManager.lookupItspAccountAddresses();
@@ -658,7 +647,7 @@ public class Gateway {
 				try {
 					Thread.sleep(1000);
 				} catch (InterruptedException ex) {
-					throw new RuntimeException(
+					throw new SipXbridgeException(
 							"Unexpected exception registering", ex);
 				}
 
@@ -693,13 +682,13 @@ public class Gateway {
 				}
 			}
 
-		} catch (GatewayConfigurationException ex) {
+		} catch (SipXbridgeException ex) {
 			logger.fatal(ex);
 			throw ex;
 
 		} catch (Exception ex) {
 			logger.fatal(ex);
-			throw new GatewayConfigurationException(ex.getMessage());
+			throw new SipXbridgeException(ex.getMessage());
 		}
 	}
 
@@ -708,7 +697,7 @@ public class Gateway {
 	 * 
 	 * @throws Exception
 	 */
-	static void startSipListener() throws GatewayConfigurationException {
+	static void startSipListener() throws SipXbridgeException {
 
 		try {
 			SipListenerImpl listener = new SipListenerImpl();
@@ -718,7 +707,7 @@ public class Gateway {
 			getLanProvider().addSipListener(listener);
 			ProtocolObjects.start();
 		} catch (Exception ex) {
-			throw new GatewayConfigurationException(
+			throw new SipXbridgeException(
 					"Could not start gateway -- check configuration", ex);
 		}
 
@@ -729,7 +718,7 @@ public class Gateway {
 		if (Gateway.getGlobalAddress() == null
 				&& Gateway.accountManager.getBridgeConfiguration()
 						.getStunServerAddress() == null) {
-			throw new GatewayConfigurationException(
+			throw new SipXbridgeException(
 					"Gateway address or stun server required. ");
 		}
 
@@ -743,7 +732,7 @@ public class Gateway {
 
 	}
 
-	static void start() throws GatewayConfigurationException {
+	static void start() throws SipXbridgeException {
 		if (Gateway.getState() != GatewayState.STOPPED) {
 			return;
 		}
@@ -1028,7 +1017,7 @@ public class Gateway {
 	static void logInternalError(String errorString, Exception exception) {
 		if (logger.isDebugEnabled()) {
 			logger.fatal(errorString, exception);
-			throw new RuntimeException(errorString, exception);
+			throw new SipXbridgeException(errorString, exception);
 		} else {
 			logger.fatal(errorString, exception);
 		}
@@ -1038,7 +1027,7 @@ public class Gateway {
 	static void logInternalError(String errorString) {
 		if (logger.isDebugEnabled()) {
 			logger.fatal(errorString);
-			throw new RuntimeException(errorString);
+			throw new SipXbridgeException(errorString);
 		} else {
 			/*
 			 * Log our stack trace for analysis.
@@ -1106,7 +1095,7 @@ public class Gateway {
 
 		} catch (Exception ex) {
 			logger.fatal("Unexpected exception initializing HTTPS client", ex);
-			throw new RuntimeException(ex);
+			throw new SipXbridgeException(ex);
 		}
 	}
 	

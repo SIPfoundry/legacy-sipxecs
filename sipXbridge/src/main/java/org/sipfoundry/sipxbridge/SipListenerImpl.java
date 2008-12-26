@@ -14,7 +14,6 @@ import javax.sip.IOExceptionEvent;
 import javax.sip.RequestEvent;
 import javax.sip.ResponseEvent;
 import javax.sip.ServerTransaction;
-import javax.sip.SipException;
 import javax.sip.SipListener;
 import javax.sip.SipProvider;
 import javax.sip.TimeoutEvent;
@@ -30,8 +29,8 @@ import javax.sip.message.Response;
 import org.apache.log4j.Logger;
 
 /**
- * This is the listener that fields all request and response events from the
- * stack. INVITES, ACKS, BYES get handled by the BackToBackUserAgentManager.
+ * This is the JAIN-SIP listener that fields all request and response events
+ * from the stack.
  * 
  * @author M. Ranganathan
  * 
@@ -60,19 +59,6 @@ public class SipListenerImpl implements SipListener {
 
 			}
 
-			if (dat.getBackToBackUserAgent() != null
-					&& dat.getBackToBackUserAgent().getCreatingDialog() == dte
-							.getDialog()) {
-
-				ItspAccountInfo itspAccountInfo = dat.getBackToBackUserAgent()
-						.getItspAccountInfo();
-
-				Gateway.decrementCallCount();
-
-				if (itspAccountInfo != null) {
-					itspAccountInfo.decrementCallCount();
-				}
-			}
 		}
 
 	}
@@ -146,11 +132,9 @@ public class SipListenerImpl implements SipListener {
 		} catch (TransactionAlreadyExistsException ex) {
 			logger.error("transaction already exists", ex);
 			return;
-		} catch (SipException ex) {
-			throw new RuntimeException("Unexpected exceptione", ex);
 		} catch (Exception ex) {
 			logger.error("Unexpected exception ", ex);
-			throw new RuntimeException("unexpected exception", ex);
+			throw new SipXbridgeException("Unexpected exceptione", ex);
 		}
 
 		if (method.equals(Request.INVITE) || method.equals(Request.ACK)
@@ -171,11 +155,9 @@ public class SipListenerImpl implements SipListener {
 				st.sendResponse(response);
 			} catch (TransactionAlreadyExistsException ex) {
 				logger.error("transaction already exists", ex);
-			} catch (SipException ex) {
-				throw new RuntimeException("Unexpected exceptione", ex);
 			} catch (Exception ex) {
-				logger.error("Unexpected exception ", ex);
-				throw new RuntimeException("unexpected exception", ex);
+				logger.error("unexpected exception", ex);
+				throw new SipXbridgeException("Unexpected exceptione", ex);
 			}
 		}
 
@@ -227,8 +209,7 @@ public class SipListenerImpl implements SipListener {
 			logger.debug("processResponse : operator "
 					+ TransactionContext.get(responseEvent
 							.getClientTransaction()).operation);
-			
-			
+
 			ItspAccountInfo accountInfo = ((TransactionContext) responseEvent
 					.getClientTransaction().getApplicationData()).itspAccountInfo;
 
@@ -381,9 +362,11 @@ public class SipListenerImpl implements SipListener {
 					ClientTransaction clientTransaction = timeoutEvent
 							.getClientTransaction();
 					Dialog dialog = clientTransaction.getDialog();
-					BackToBackUserAgent b2bua = DialogContext.get(
-							dialog).getBackToBackUserAgent();
-					b2bua.tearDown(Gateway.SIPXBRIDGE_USER, ReasonCode.SESSION_TIMER_ERROR, "OPTIONS Session timer timed out.");
+					BackToBackUserAgent b2bua = DialogContext.get(dialog)
+							.getBackToBackUserAgent();
+					b2bua.tearDown(Gateway.SIPXBRIDGE_USER,
+							ReasonCode.SESSION_TIMER_ERROR,
+							"OPTIONS Session timer timed out.");
 				} else if (request.getMethod().equals(Request.REGISTER)) {
 					Gateway.getRegistrationManager().processTimeout(
 							timeoutEvent);
@@ -391,8 +374,8 @@ public class SipListenerImpl implements SipListener {
 					ClientTransaction clientTransaction = timeoutEvent
 							.getClientTransaction();
 					Dialog dialog = clientTransaction.getDialog();
-					BackToBackUserAgent b2bua = DialogContext.get(
-							dialog).getBackToBackUserAgent();
+					BackToBackUserAgent b2bua = DialogContext.get(dialog)
+							.getBackToBackUserAgent();
 					dialog.delete();
 					b2bua.removeDialog(dialog);
 				} else if (request.getMethod().equals(Request.INVITE)) {
@@ -426,16 +409,13 @@ public class SipListenerImpl implements SipListener {
 				&& dialog.getState() == DialogState.CONFIRMED
 				&& ((ToHeader) request.getHeader(ToHeader.NAME))
 						.getParameter("tag") == null) {
-			DialogContext dat = (DialogContext) dialog
-					.getApplicationData();
-			if (dat == null)
-				return; // Nothing to do must be MOH Dialog.
-			BackToBackUserAgent b2bua = dat.getBackToBackUserAgent();
-			if (b2bua != null && dialog == b2bua.getCreatingDialog()
-					&& b2bua.getItspAccountInfo() != null) {
-				b2bua.getItspAccountInfo().incrementCallCount();
+			TransactionContext txContext = TransactionContext.get(transaction);
+			if (txContext != null
+					&& txContext.operation == Operation.SEND_INVITE_TO_ITSP
+					|| txContext.operation == Operation.SEND_INVITE_TO_ITSP) {
+
+				Gateway.incrementCallCount();
 			}
-			Gateway.incrementCallCount();
 		}
 
 	}

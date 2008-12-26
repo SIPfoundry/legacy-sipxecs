@@ -174,7 +174,8 @@ public class RtpSessionUtilities {
 			b2bua.sendByeToMohServer();
 
 		} catch (Exception ex) {
-			throw new RuntimeException(ex);
+			logger.error("Unexpected exception removing hold", ex);
+			throw new SipXbridgeException(ex);
 		}
 	}
 

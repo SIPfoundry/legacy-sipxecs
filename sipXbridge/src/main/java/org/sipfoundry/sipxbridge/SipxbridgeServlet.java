@@ -19,6 +19,11 @@ import org.apache.xmlrpc.server.XmlRpcServerConfigImpl;
 import org.apache.xmlrpc.webserver.XmlRpcServletServer;
 import org.sipfoundry.sipxbridge.xmlrpc.SipXbridgeXmlRpcServer;
 
+/**
+ * The servlet class that routes XML RPC requests for sipxbridge to 
+ * the appropriate handler.
+ */
+@SuppressWarnings("serial")
 public class SipxbridgeServlet extends HttpServlet {
 	 private XmlRpcServletServer server;
 

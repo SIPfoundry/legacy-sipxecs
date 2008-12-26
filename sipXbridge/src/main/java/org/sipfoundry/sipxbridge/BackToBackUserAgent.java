@@ -108,11 +108,7 @@ public class BackToBackUserAgent {
 	 */
 	private String creatingCallId;
 
-	/*
-	 * The Dialog that created this B2BUA.
-	 */
-	private Dialog creatingDialog;
-
+	
 	private static Logger logger = Logger.getLogger(BackToBackUserAgent.class);
 
 	private SymmitronClient symmitronClient;
@@ -166,7 +162,6 @@ public class BackToBackUserAgent {
 		this.symmitronServerHandle = symmitronClient.getServerHandle();
 		rtpBridge = new RtpBridge(request, bridge);
 		dialogTable.add(dialog);
-		this.creatingDialog = dialog;
 		this.creatingCallId = ((CallIdHeader) request
 				.getHeader(CallIdHeader.NAME)).getCallId();
 
@@ -176,51 +171,7 @@ public class BackToBackUserAgent {
 	// Package local methods.
 	// ////////////////////////////////////////////////////////////////////////
 
-	/**
-	 * Create a dialog to dialog association.
-	 * 
-	 * @param dialog1
-	 *            - first dialog.
-	 * @param dialog2
-	 *            - second dialog.
-	 * 
-	 */
-	void pairDialogs(Dialog dialog1, Dialog dialog2) {
-		logger.debug("pairDialogs dialogs = " + dialog1 + " " + dialog2);
-
-		DialogContext dad1 = DialogContext.get(dialog1);
-		DialogContext dad2 = DialogContext.get(dialog2);
-		dad1.peerDialog = dialog2;
-		dad2.peerDialog = dialog1;
-	}
-
-	/**
-	 * RTP session that is connected to the WAN Side. Note that we use a
-	 * different method here because we need to record additionally whether or
-	 * not to use global addressing in the RTP session descriptor associated
-	 * with the receiver.
-	 * 
-	 * @return the RTP session associated with the WAN side of this B2BUA.
-	 */
-	RtpSession getWanRtpSession(Dialog dialog) {
-
-		RtpSession rtpSession = DialogContext.getRtpSession(dialog);
-		if (rtpSession == null) {
-			SymImpl symImpl = symmitronClient.createEvenSym();
-			rtpSession = new RtpSession(symImpl);
-			rtpSession.getReceiver().setGlobalAddress(
-					symmitronClient.getPublicAddress());
-			rtpSession.getReceiver().setUseGlobalAddressing(
-					this.itspAccountInfo == null
-							|| this.itspAccountInfo.isGlobalAddressingUsed());
-			DialogContext.get(dialog).setRtpSession(rtpSession);
-			this.rtpBridge.addSym(rtpSession);
-		}
-		logger.debug("getWanRtpSession : " + dialog + " rtpSession = "
-				+ rtpSession);
-		return rtpSession;
-
-	}
+	
 
 	/**
 	 * Create an RTP session for a dialog.
@@ -352,7 +303,7 @@ public class BackToBackUserAgent {
 				return;
 			}
 
-			this.pairDialogs(((DialogContext) replacedDialog
+			DialogContext.pairDialogs(((DialogContext) replacedDialog
 					.getApplicationData()).peerDialog, this.referingDialogPeer);
 			/*
 			 * Tear down the Music On Hold Dialog if any.
@@ -574,6 +525,7 @@ public class BackToBackUserAgent {
 	 * @return the INVITE request crafted from the IB Refer
 	 * 
 	 */
+	@SuppressWarnings("unchecked")
 	Request createInviteFromReferRequest(RequestEvent requestEvent)
 			throws SipException, ParseException, IOException {
 		Dialog dialog = requestEvent.getDialog();
@@ -852,7 +804,7 @@ public class BackToBackUserAgent {
 
 		} catch (ParseException ex) {
 			logger.error("Unexpected parse exception", ex);
-			throw new RuntimeException("Unexpected parse exception", ex);
+			throw new SipXbridgeException("Unexpected parse exception", ex);
 
 		} catch (Exception ex) {
 			logger
@@ -948,7 +900,7 @@ public class BackToBackUserAgent {
 					.error(
 							"INTERNAL Error while processing the request - hanging up ",
 							e);
-			throw new RuntimeException(
+			throw new SipXbridgeException(
 					"INTERNAL Error while processing the request ", e);
 		}
 	}
@@ -1121,7 +1073,7 @@ public class BackToBackUserAgent {
 			 * Set the ITSP account info for the inbound INVITE to sipx proxy.
 			 */
 			DialogContext.get(outboundDialog).setItspInfo(itspAccountInfo);
-			pairDialogs(inboundDialog, outboundDialog);
+			DialogContext.pairDialogs(inboundDialog, outboundDialog);
 
 			/*
 			 * Apply the Session Description from the INBOUND invite to the
@@ -1161,10 +1113,10 @@ public class BackToBackUserAgent {
 
 		} catch (InvalidArgumentException ex) {
 			logger.error("Unexpected exception encountered");
-			throw new RuntimeException("Unexpected exception encountered", ex);
+			throw new SipXbridgeException("Unexpected exception encountered", ex);
 		} catch (ParseException ex) {
 			logger.error("Unexpected parse exception", ex);
-			throw new RuntimeException("Unexpected parse exception", ex);
+			throw new SipXbridgeException("Unexpected parse exception", ex);
 		} catch (SdpParseException ex) {
 			try {
 				Response response = ProtocolObjects.messageFactory
@@ -1276,12 +1228,12 @@ public class BackToBackUserAgent {
 
 		} catch (InvalidArgumentException ex) {
 			logger.error("Unexpected exception encountered");
-			throw new RuntimeException("Unexpected exception encountered", ex);
+			throw new SipXbridgeException("Unexpected exception encountered", ex);
 		} catch (Exception ex) {
 			logger.error("Unexpected parse exception", ex);
-			if (retval != null)
+			if (retval != null) {
 				this.dialogTable.remove(retval);
-
+			}
 		}
 		return retval;
 	}
@@ -1308,7 +1260,7 @@ public class BackToBackUserAgent {
 			}
 		} catch (SipException ex) {
 			logger.error("Unexpected exception ", ex);
-			throw new RuntimeException(ex);
+			throw new SipXbridgeException(ex);
 		}
 
 	}
@@ -1326,6 +1278,7 @@ public class BackToBackUserAgent {
 	 * 
 	 * @throws SipException
 	 */
+	@SuppressWarnings("unchecked")
 	void sendInviteToItsp(RequestEvent requestEvent,
 			ServerTransaction serverTransaction, String toDomain)
 			throws SipException {
@@ -1345,7 +1298,7 @@ public class BackToBackUserAgent {
 			} catch (Exception e) {
 				String s = "Unepxected exception ";
 				logger.fatal(s, e);
-				throw new RuntimeException(s, e);
+				throw new SipXbridgeException(s, e);
 			}
 		}
 
@@ -1464,9 +1417,9 @@ public class BackToBackUserAgent {
 			 * outgoing dialog. Otherwise pair the inbound and outboud dialogs.
 			 */
 			if (!spiral) {
-				pairDialogs(incomingDialog, outboundDialog);
+				DialogContext.pairDialogs(incomingDialog, outboundDialog);
 			} else {
-				pairDialogs(this.referingDialogPeer, outboundDialog);
+				DialogContext.pairDialogs(this.referingDialogPeer, outboundDialog);
 			}
 
 			SessionDescription sessionDescription = SipUtilities
@@ -1545,7 +1498,7 @@ public class BackToBackUserAgent {
 
 			} else {
 				logger.fatal("Internal error -- case not covered");
-				throw new RuntimeException("Case not covered");
+				throw new SipXbridgeException("Case not covered");
 			}
 
 			ct.setApplicationData(tad);
@@ -1566,12 +1519,12 @@ public class BackToBackUserAgent {
 			} catch (Exception e) {
 				String s = "Unepxected exception ";
 				logger.fatal(s, e);
-				throw new RuntimeException(s, e);
+				throw new SipXbridgeException(s, e);
 			}
 		} catch (ParseException ex) {
 			String s = "Unepxected exception ";
 			logger.fatal(s, ex);
-			throw new RuntimeException(s, ex);
+			throw new SipXbridgeException(s, ex);
 		} catch (IOException ex) {
 			logger.error("Caught IO exception ", ex);
 			for (Dialog dialog : this.dialogTable) {
@@ -1879,13 +1832,7 @@ public class BackToBackUserAgent {
 		return rtpBridge;
 	}
 
-	/**
-	 * @return the creatingDialog
-	 */
-	Dialog getCreatingDialog() {
-		return creatingDialog;
-	}
-
+	
 	/**
 	 * Set the ITSP account info.
 	 * 

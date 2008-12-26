@@ -84,11 +84,11 @@ public class TestUtilities {
      * @param toDomain
      * @param isphone
      * @return
-     * @throws GatewayConfigurationException
+     * @throws SipXbridgeException
      */
     public static Request createOutboundInviteRequest(SipProvider sipProvider,
             String toUser, String toDomain, String gatewayAddress, int gatewayPort, boolean isphone)
-            throws GatewayConfigurationException {
+            throws SipXbridgeException {
         try {
 
             SipURI requestUri = SipFactories.addressFactory.createSipURI(
@@ -145,7 +145,7 @@ public class TestUtilities {
         } catch (ParseException ex) {
             String s = "Unexpected error creating INVITE -- check proxy configuration ";
             logger.error(s, ex);
-            throw new GatewayConfigurationException(s, ex);
+            throw new SipXbridgeException(s, ex);
 
         } catch (InvalidArgumentException e) {
             String s = "Unexpected error creating INVITE";

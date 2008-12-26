@@ -40,7 +40,7 @@ import org.mortbay.util.InetAddrPort;
 import org.mortbay.util.ThreadedServer;
 import org.sipfoundry.commons.log4j.SipFoundryAppender;
 import org.sipfoundry.commons.log4j.SipFoundryLayout;
-import org.sipfoundry.sipxbridge.GatewayConfigurationException;
+import org.sipfoundry.sipxbridge.SipXbridgeException;
 
 /**
  * The SIPXbridge XML RPC handler.
@@ -106,7 +106,7 @@ public class SymmitronServer implements Symmitron {
     /**
      * Discover our address using stun.
      * 
-     * @throws GatewayConfigurationException
+     * @throws SipXbridgeException
      */
     static void discoverAddress() throws Exception {
         try {

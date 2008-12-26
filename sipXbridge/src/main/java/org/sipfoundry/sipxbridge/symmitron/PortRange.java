@@ -57,7 +57,7 @@ public class PortRange {
             retval.remove("class");
             return retval;
         } catch (Exception ex) {
-            throw new RuntimeException("Error generating map", ex);
+            throw new SymmitronException("Error generating map", ex);
         }
     }
 

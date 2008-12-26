@@ -154,7 +154,7 @@ final class SymTransmitterEndpoint extends SymEndpoint implements SymTransmitter
             }
         } catch (Exception ex) {
             logger.error("Unexpected exception",ex);
-            throw new RuntimeException("Unexpected exception ", ex);
+            throw new SymmitronException("Unexpected exception ", ex);
         }
 
     }

@@ -160,7 +160,7 @@ class RtpTransmitterEndpoint {
 
         } catch (Exception ex) {
             logger.error("Unexpected exception ", ex);
-            throw new RuntimeException("Unexpected exception setting sdp", ex);
+            throw new SipXbridgeException("Unexpected exception setting sdp", ex);
         }
     }
 

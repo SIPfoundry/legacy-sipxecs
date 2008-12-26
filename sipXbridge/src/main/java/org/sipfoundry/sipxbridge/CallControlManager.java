@@ -8,7 +8,6 @@ package org.sipfoundry.sipxbridge;
 
 import gov.nist.javax.sip.DialogExt;
 import gov.nist.javax.sip.SipStackExt;
-import gov.nist.javax.sip.SipStackImpl;
 import gov.nist.javax.sip.TransactionExt;
 import gov.nist.javax.sip.header.extensions.MinSE;
 import gov.nist.javax.sip.header.extensions.ReplacesHeader;
@@ -54,10 +53,8 @@ import org.sipfoundry.sipxbridge.symmitron.KeepaliveMethod;
 import org.sipfoundry.sipxbridge.symmitron.SymmitronResetHandler;
 
 /**
- * The main job of this class is to manage BackToBackUserAgents. It mantains a
- * hash map of BackToBackUserAgents indexed by call id. It acts as a factory for
- * creating the BackToBackUserAgent by looking up the callId in this HashMap and
- * creating a new one if needed. It also acts as a high level router for routing
+ * This class does some pre-processing of requests and then 
+ * acts as a high level router for routing
  * the request to the appropriate B2BUA. It processes INVITE, REFER, ACK,
  * OPTIONS, BYE.
  * 
@@ -386,7 +383,8 @@ class CallControlManager implements SymmitronResetHandler {
 				if (replacesDialog.getState() != DialogState.CONFIRMED) {
 					dat.peerDialog = null;
 				}
-				b2bua.pairDialogs(dialog, peerDialog);
+				
+				DialogContext.pairDialogs(dialog, peerDialog);
 
 				b2bua.handleInviteWithReplaces(requestEvent, replacesDialog,
 						serverTransaction);
@@ -572,7 +570,7 @@ class CallControlManager implements SymmitronResetHandler {
 				}
 
 			} catch (Exception e) {
-				throw new GatewayConfigurationException(
+				throw new SipXbridgeException(
 						"Check gateway configuration", e);
 			}
 		}
@@ -688,11 +686,11 @@ class CallControlManager implements SymmitronResetHandler {
 		} catch (ParseException ex) {
 			// This should never happen
 			logger.fatal("Internal error constructing message ", ex);
-			throw new RuntimeException("Internal error", ex);
+			throw new SipXbridgeException("Internal error", ex);
 
 		} catch (InvalidArgumentException ex) {
 			logger.fatal("Internal error -- invalid argument", ex);
-			throw new RuntimeException("Internal error", ex);
+			throw new SipXbridgeException("Internal error", ex);
 		} catch (Exception ex) {
 			logger.error("Unexpected exception while processing REFER", ex);
 			if (tad != null) {
@@ -1227,11 +1225,8 @@ class CallControlManager implements SymmitronResetHandler {
 		Response response = responseEvent.getResponse();
 		dialogContext.lastResponse = response;
 		ServerTransaction st = transactionContext.getServerTransaction();
-		Request serverRequest = st.getRequest();
-		DialogContext peerDialogContext = DialogContext
-				.getPeerDialogContext(dialog);
-		Response newResponse = ProtocolObjects.messageFactory.createResponse(
-				Response.OK, serverRequest);
+		
+		Response newResponse = SipUtilities.createResponse(st, Response.OK);
 
 		if (response.getContentLength().getContentLength() != 0) {
 			SessionDescription responseSessionDescription = SipUtilities
@@ -1626,14 +1621,7 @@ class CallControlManager implements SymmitronResetHandler {
 		 * Dialog for the response.
 		 */
 		Dialog dialog = responseEvent.getDialog();
-
-		/*
-		 * Provider for the response event.
-		 */
-		SipProvider provider = (SipProvider) responseEvent.getSource();
-
-		boolean responseFromLan = provider == Gateway.getLanProvider();
-
+	
 		/*
 		 * Sequence Number for the response.
 		 */
@@ -1655,9 +1643,6 @@ class CallControlManager implements SymmitronResetHandler {
 		 */
 		Operation continuationOperation = transactionContext
 				.getContinuationOperation();
-
-		RtpSession rtpSession = DialogContext
-				.getRtpSession(transactionContext.continuationData.getDialog());
 
 		RtpSession peerRtpSession = DialogContext
 				.getPeerRtpSession(transactionContext.continuationData
@@ -2049,7 +2034,7 @@ class CallControlManager implements SymmitronResetHandler {
 		if (b2bua == null) {
 			logger
 					.fatal("Could not find a BackToBackUA -- dropping the response");
-			throw new RuntimeException(
+			throw new SipXbridgeException(
 					"Could not find a B2BUA for this response : " + response);
 		}
 
@@ -2205,10 +2190,10 @@ class CallControlManager implements SymmitronResetHandler {
 
 		} catch (ParseException ex) {
 			logger.error("Unexpected parse exception", ex);
-			throw new RuntimeException("Unexpected exception", ex);
+			throw new SipXbridgeException("Unexpected exception", ex);
 		} catch (InvalidArgumentException ex) {
 			logger.error("Unpexpected exception", ex);
-			throw new RuntimeException("Unexpected exception", ex);
+			throw new SipXbridgeException("Unexpected exception", ex);
 		} catch (Exception ex) {
 			// Some other exception occured during processing of the request.
 			logger.error("Exception while processing inbound response ", ex);
@@ -2286,7 +2271,7 @@ class CallControlManager implements SymmitronResetHandler {
 			referDialog.sendRequest(ctx);
 		} catch (ParseException ex) {
 			logger.error("Unexpected parse exception ", ex);
-			throw new RuntimeException("Unexpected parse exception ", ex);
+			throw new SipXbridgeException("Unexpected parse exception ", ex);
 		}
 
 	}

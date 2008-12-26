@@ -12,7 +12,6 @@ import gov.nist.javax.sip.TransactionExt;
 import gov.nist.javax.sip.header.HeaderFactoryExt;
 import gov.nist.javax.sip.header.extensions.ReplacesHeader;
 import gov.nist.javax.sip.header.ims.PAssertedIdentityHeader;
-import gov.nist.javax.sip.header.ims.PPreferredIdentityHeader;
 import gov.nist.javax.sip.header.ims.PrivacyHeader;
 
 import java.text.ParseException;
@@ -66,6 +65,7 @@ import org.apache.log4j.Logger;
  * @author mranga
  * 
  */
+@SuppressWarnings("unchecked")
 class SipUtilities {
 
 	private static Logger logger = Logger.getLogger(SipUtilities.class);
@@ -92,7 +92,7 @@ class SipUtilities {
 			} catch (Exception ex) {
 
 				logger.error("Unexpected exception", ex);
-				throw new RuntimeException("Unexpected exception ", ex);
+				throw new SipXbridgeException("Unexpected exception ", ex);
 			}
 		}
 	}
@@ -115,7 +115,7 @@ class SipUtilities {
 			return mediaDescription;
 		} catch (Exception ex) {
 			logger.error("Unexpected exception", ex);
-			throw new RuntimeException("Unexpected exception ", ex);
+			throw new SipXbridgeException("Unexpected exception ", ex);
 		}
 	}
 
@@ -135,7 +135,7 @@ class SipUtilities {
 			return ProtocolObjects.headerFactory.createViaHeader(host, port,
 					listeningPoint.getTransport(), null);
 		} catch (Exception ex) {
-			throw new RuntimeException("Unexpected exception ", ex);
+			throw new SipXbridgeException("Unexpected exception ", ex);
 		}
 
 	}
@@ -175,7 +175,7 @@ class SipUtilities {
 
 		} catch (Exception ex) {
 			logger.fatal("Unexpected exception creating via header", ex);
-			throw new RuntimeException("Could not create via header", ex);
+			throw new SipXbridgeException("Could not create via header", ex);
 		}
 	}
 
@@ -236,7 +236,7 @@ class SipUtilities {
 			}
 		} catch (Exception ex) {
 			logger.fatal("Unexpected exception creating contact header", ex);
-			throw new RuntimeException(
+			throw new SipXbridgeException(
 					"Unexpected error creating contact header", ex);
 		}
 
@@ -267,7 +267,7 @@ class SipUtilities {
 					.createContactHeader(address);
 			return ch;
 		} catch (Exception ex) {
-			throw new RuntimeException(
+			throw new SipXbridgeException(
 					"Unexpected error creating contact header", ex);
 		}
 	}
@@ -361,10 +361,10 @@ class SipUtilities {
 	 * @param sipProvider
 	 * @param itspAccount
 	 * @return
-	 * @throws GatewayConfigurationException
+	 * @throws SipXbridgeException
 	 */
 	static Request createDeregistrationRequest(SipProvider sipProvider,
-			ItspAccountInfo itspAccount) throws GatewayConfigurationException {
+			ItspAccountInfo itspAccount) throws SipXbridgeException {
 		try {
 
 			Request request = createRegistrationRequestTemplate(itspAccount,
@@ -378,15 +378,12 @@ class SipUtilities {
 					.createExpiresHeader(0);
 			request.addHeader(expiresHeader);
 			return request;
-		} catch (ParseException ex) {
-			String s = "Unexpected error creating register -- check proxy configuration ";
+		} catch ( Exception ex) {
+			String s = "Unexpected error creating register";
 			logger.error(s, ex);
-			throw new GatewayConfigurationException(s, ex);
+			throw new SipXbridgeException(s, ex);
 
-		} catch (InvalidArgumentException ex) {
-			logger.error("An unexpected exception occured", ex);
-			throw new RuntimeException("Internal error", ex);
-		}
+		} 
 
 	}
 
@@ -395,7 +392,7 @@ class SipUtilities {
 	 */
 
 	static Request createOptionsRequest(SipProvider sipProvider,
-			ItspAccountInfo itspAccount) throws GatewayConfigurationException {
+			ItspAccountInfo itspAccount) throws SipXbridgeException {
 		try {
 			SipURI requestUri = ProtocolObjects.addressFactory.createSipURI(
 					null, itspAccount.getSipDomain());
@@ -441,7 +438,7 @@ class SipUtilities {
 
 			return request;
 		} catch (Exception ex) {
-			throw new GatewayConfigurationException(
+			throw new SipXbridgeException(
 					"Error creating OPTIONS request", ex);
 		}
 	}
@@ -452,10 +449,10 @@ class SipUtilities {
 	 * @param sipProvider
 	 * @param itspAccount
 	 * @return
-	 * @throws GatewayConfigurationException
+	 * @throws SipXbridgeException
 	 */
 	static Request createRegistrationRequest(SipProvider sipProvider,
-			ItspAccountInfo itspAccount) throws GatewayConfigurationException {
+			ItspAccountInfo itspAccount) throws SipXbridgeException {
 
 		try {
 			Request request = createRegistrationRequestTemplate(itspAccount,
@@ -476,11 +473,11 @@ class SipUtilities {
 		} catch (ParseException ex) {
 			String s = "Unexpected error creating register -- check proxy configuration ";
 			logger.error(s, ex);
-			throw new GatewayConfigurationException(s, ex);
+			throw new SipXbridgeException(s, ex);
 
 		} catch (InvalidArgumentException ex) {
 			logger.error("An unexpected exception occured", ex);
-			throw new GatewayConfigurationException("Internal error", ex);
+			throw new SipXbridgeException("Internal error", ex);
 		}
 
 	}
@@ -491,31 +488,28 @@ class SipUtilities {
 	 * @param sipProvider
 	 * @param itspAccount
 	 * @return
-	 * @throws GatewayConfigurationException
+	 * @throws SipXbridgeException
 	 */
 	static Request createRegisterQuery(SipProvider sipProvider,
-			ItspAccountInfo itspAccount) throws GatewayConfigurationException {
+			ItspAccountInfo itspAccount) throws SipXbridgeException {
 		try {
 			Request request = createRegistrationRequestTemplate(itspAccount,
 					sipProvider);
 
 			return request;
-		} catch (ParseException ex) {
-			String s = "Unexpected error creating register -- check proxy configuration ";
+		} catch (Exception ex) {
+			String s = "Unexpected error creating register ";
 			logger.error(s, ex);
-			throw new GatewayConfigurationException(s, ex);
+			throw new SipXbridgeException(s, ex);
 
-		} catch (InvalidArgumentException ex) {
-			logger.error("An unexpected exception occured", ex);
-			throw new RuntimeException("Internal error", ex);
-		}
+		} 
 
 	}
 
 	static Request createInviteRequest(SipURI requestUri,
 			SipProvider sipProvider, ItspAccountInfo itspAccount,
 			FromHeader from, String callId)
-			throws GatewayConfigurationException {
+			throws SipXbridgeException {
 		try {
 
 			String toUser = requestUri.getUser();
@@ -643,16 +637,12 @@ class SipUtilities {
 			request.setHeader(createUserAgentHeader());
 			return request;
 
-		} catch (ParseException ex) {
-			String s = "Unexpected error creating INVITE -- check proxy configuration ";
+		} catch (Exception ex) {
+			String s = "Unexpected error creating INVITE ";
 			logger.error(s, ex);
-			throw new RuntimeException(s, ex);
+			throw new SipXbridgeException(s, ex);
 
-		} catch (InvalidArgumentException e) {
-			String s = "Unexpected error creating INVITE";
-			logger.fatal(s, e);
-			throw new RuntimeException(s, e);
-		}
+		} 
 	}
 
 	static SessionDescription getSessionDescription(Message message)
@@ -666,6 +656,7 @@ class SipUtilities {
 
 	}
 
+	
 	static Set<Integer> getMediaFormats(SessionDescription sessionDescription) {
 		try {
 			Vector mediaDescriptions = sessionDescription
@@ -686,7 +677,7 @@ class SipUtilities {
 			return retval;
 		} catch (Exception ex) {
 			logger.fatal("Unexpected exception!", ex);
-			throw new RuntimeException(
+			throw new SipXbridgeException(
 					"Unexpected exception getting media formats", ex);
 		}
 	}
@@ -719,7 +710,7 @@ class SipUtilities {
 			return retval;
 		} catch (Exception ex) {
 			logger.fatal("Unexpected exception!", ex);
-			throw new RuntimeException("Unexpected exception cleaning SDP", ex);
+			throw new SipXbridgeException("Unexpected exception cleaning SDP", ex);
 		}
 
 	}
@@ -745,7 +736,7 @@ class SipUtilities {
 			 * No codec specified -- return the incoming session description.
 			 */
 
-			boolean found = false;
+		
 
 			Vector mediaDescriptions = sessionDescription
 					.getMediaDescriptions(true);
@@ -763,10 +754,10 @@ class SipUtilities {
 					for (Iterator it1 = formats.iterator(); it1.hasNext();) {
 						Object format = it1.next();
 						int fmt = new Integer(format.toString());
-						if (fmt != keeper && RtpPayloadTypes.isPayload(fmt))
+						if (fmt != keeper && RtpPayloadTypes.isPayload(fmt)) {
 							it1.remove();
-						else if (fmt == keeper)
-							found = true;
+						}
+						
 					}
 				}
 				Vector attributes = mediaDescription.getAttributes(true);
@@ -800,7 +791,7 @@ class SipUtilities {
 
 		} catch (Exception ex) {
 			logger.fatal("Unexpected exception!", ex);
-			throw new RuntimeException("Unexpected exception cleaning SDP", ex);
+			throw new SipXbridgeException("Unexpected exception cleaning SDP", ex);
 		}
 	}
 
@@ -855,7 +846,7 @@ class SipUtilities {
 			}
 		} catch (Exception ex) {
 			logger.fatal("Unexpected exception!", ex);
-			throw new RuntimeException("Unexpected exception cleaning SDP", ex);
+			throw new SipXbridgeException("Unexpected exception cleaning SDP", ex);
 		}
 
 	}
@@ -875,11 +866,9 @@ class SipUtilities {
 				ipAddress = mediaDescription.getConnection().getAddress();
 			}
 			return ipAddress;
-		} catch (SdpParseException ex) {
-			throw new RuntimeException("Unexpected parse exception ", ex);
-		} catch (SdpException ex) {
-			throw new RuntimeException("Unexpected Sdpexception exception ", ex);
-		}
+		} catch (Exception ex) {
+			throw new SipXbridgeException("Unexpected parse exception ", ex);
+		} 
 	}
 
 	static String getSessionDescriptionMediaAttributeDuplexity(
@@ -901,7 +890,7 @@ class SipUtilities {
 			}
 			return null;
 		} catch (Exception ex) {
-			throw new RuntimeException("Malformatted sdp", ex);
+			throw new SipXbridgeException("Malformatted sdp", ex);
 		}
 
 	}
@@ -923,7 +912,7 @@ class SipUtilities {
 			}
 			return null;
 		} catch (SdpParseException ex) {
-			throw new RuntimeException(
+			throw new SipXbridgeException(
 					"Unexpected exeption retrieving a field", ex);
 		}
 	}
@@ -940,7 +929,7 @@ class SipUtilities {
 			logger.error("Error while processing the following SDP : "
 					+ sessionDescription);
 			logger.error("attributeValue = " + attributeValue);
-			throw new RuntimeException("Malformatted sdp", ex);
+			throw new SipXbridgeException("Malformatted sdp", ex);
 		}
 
 	}
@@ -952,7 +941,7 @@ class SipUtilities {
 
 			return mediaDescription.getMedia().getMediaPort();
 		} catch (Exception ex) {
-			throw new RuntimeException("Malformatted sdp", ex);
+			throw new SipXbridgeException("Malformatted sdp", ex);
 		}
 
 	}
@@ -991,7 +980,7 @@ class SipUtilities {
 
 		} catch (ParseException ex) {
 			logger.fatal("Unexpected parse exception", ex);
-			throw new RuntimeException("Unexpected parse exceptione", ex);
+			throw new SipXbridgeException("Unexpected parse exceptione", ex);
 		}
 	}
 
@@ -1039,7 +1028,7 @@ class SipUtilities {
 
 		} catch (Exception ex) {
 			logger.error("Unepxected exception fixing up sdp addresses", ex);
-			throw new RuntimeException(
+			throw new SipXbridgeException(
 					"Unepxected exception fixing up sdp addresses", ex);
 		}
 
@@ -1051,7 +1040,7 @@ class SipUtilities {
 			sessionDescription.setAttribute("a", attribute);
 		} catch (SdpException ex) {
 			logger.error("Unexpected exception ", ex);
-			throw new RuntimeException("Unexpected exception", ex);
+			throw new SipXbridgeException("Unexpected exception", ex);
 		}
 
 	}
@@ -1067,7 +1056,7 @@ class SipUtilities {
 			sessionDescription.getOrigin().setSessionVersion(++version);
 		} catch (SdpException ex) {
 			logger.error("Unexpected exception ", ex);
-			throw new RuntimeException("Unexepcted exception", ex);
+			throw new SipXbridgeException("Unexepcted exception", ex);
 		}
 
 	}
@@ -1091,7 +1080,7 @@ class SipUtilities {
 			viaHeader.setPort(Gateway.getGlobalPort());
 		} catch (Exception ex) {
 			logger.error("Unexpected exception ", ex);
-			throw new RuntimeException("Unexepcted exception", ex);
+			throw new SipXbridgeException("Unexepcted exception", ex);
 		}
 
 	}
@@ -1108,7 +1097,7 @@ class SipUtilities {
 
 		} catch (Exception ex) {
 			logger.error("Unexpected exception ", ex);
-			throw new RuntimeException("Unexepcted exception", ex);
+			throw new SipXbridgeException("Unexepcted exception", ex);
 		}
 	}
 
@@ -1160,7 +1149,7 @@ class SipUtilities {
 			message.setContent(sessionDescription.toString(), cth);
 		} catch (Exception ex) {
 			logger.error("Unexpected exception", ex);
-			throw new RuntimeException(ex);
+			throw new SipXbridgeException(ex);
 		}
 
 	}
@@ -1221,7 +1210,7 @@ class SipUtilities {
 
 		} catch (Exception ex) {
 			logger.error("Unexpected exception", ex);
-			throw new RuntimeException(ex);
+			throw new SipXbridgeException(ex);
 		}
 
 	}
@@ -1237,7 +1226,7 @@ class SipUtilities {
 			}
 		} catch (Exception ex) {
 			logger.error("Unexpected exception", ex);
-			throw new RuntimeException(ex);
+			throw new SipXbridgeException(ex);
 		}
 
 	}
@@ -1254,7 +1243,7 @@ class SipUtilities {
 			}
 		} catch (Exception ex) {
 			logger.error("Unexpected exception", ex);
-			throw new RuntimeException(ex);
+			throw new SipXbridgeException(ex);
 		}
 	}
 
@@ -1273,7 +1262,7 @@ class SipUtilities {
 			return !fmt1.equals(fmt2);
 		} catch (Exception ex) {
 			logger.error("Unexpected exception", ex);
-			throw new RuntimeException(ex);
+			throw new SipXbridgeException(ex);
 		}
 	}
 
@@ -1320,7 +1309,7 @@ class SipUtilities {
 			return retval;
 		} catch (Exception ex) {
 			logger.error("unexpected error creating inbound Request URI ", ex);
-			throw new RuntimeException("Unexpected error creating RURI ", ex);
+			throw new SipXbridgeException("Unexpected error creating RURI ", ex);
 		}
 	}
 
@@ -1336,7 +1325,7 @@ class SipUtilities {
 			return retval;
 		} catch (Exception ex) {
 			logger.error("unexpected error creating inbound Request URI ", ex);
-			throw new RuntimeException("Unexpected error creating RURI ", ex);
+			throw new SipXbridgeException("Unexpected error creating RURI ", ex);
 		}
 	}
 
@@ -1347,7 +1336,7 @@ class SipUtilities {
 					sd.toString());
 		} catch (Exception ex) {
 			logger.error("unexpected exception cloning sd", ex);
-			throw new RuntimeException("unexpected exception cloning sd", ex);
+			throw new SipXbridgeException("unexpected exception cloning sd", ex);
 		}
 	}
 
@@ -1358,7 +1347,7 @@ class SipUtilities {
 			return version;
 		} catch (SdpException ex) {
 			logger.error("Unexpected exception ", ex);
-			throw new RuntimeException("Unexepcted exception", ex);
+			throw new SipXbridgeException("Unexepcted exception", ex);
 		}
 	}
 
@@ -1395,7 +1384,7 @@ class SipUtilities {
 		} catch (Exception ex) {
 			String s = "Unexpected exception";
 			logger.fatal(s, ex);
-			throw new RuntimeException(s, ex);
+			throw new SipXbridgeException(s, ex);
 		}
 
 	}

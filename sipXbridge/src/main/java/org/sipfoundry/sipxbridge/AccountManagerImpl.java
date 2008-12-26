@@ -64,7 +64,7 @@ public class AccountManagerImpl implements gov.nist.javax.sip.clientauthutils.Ac
         return bridgeConfiguration;
     }
 
-    void lookupItspAccountAddresses() throws GatewayConfigurationException {
+    void lookupItspAccountAddresses() throws SipXbridgeException {
 
         for (ItspAccountInfo accountInfo : this.getItspAccounts()) {
 
@@ -231,7 +231,7 @@ public class AccountManagerImpl implements gov.nist.javax.sip.clientauthutils.Ac
     /**
      * Add an ITSP account to the account database ( method is accessed by the digester).
      */
-    public void addItspAccount(ItspAccountInfo accountInfo) throws GatewayConfigurationException {
+    public void addItspAccount(ItspAccountInfo accountInfo) throws SipXbridgeException {
         this.itspAccounts.add(accountInfo);
     }
 

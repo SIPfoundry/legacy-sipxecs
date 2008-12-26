@@ -128,7 +128,7 @@ public class ItspAccountInfo implements gov.nist.javax.sip.clientauthutils.UserC
 
     private int maxCalls = -1;
 
-    private int callCount = 0;
+ 
 
     private boolean crLfTimerTaskStarted;
 
@@ -255,7 +255,7 @@ public class ItspAccountInfo implements gov.nist.javax.sip.clientauthutils.UserC
 
     }
 
-    public void lookupAccount() throws TextParseException, GatewayConfigurationException {
+    public void lookupAccount() throws TextParseException, SipXbridgeException {
         // User has already specified an outbound proxy so just bail out.
         if (this.outboundProxy != null)
             return;
@@ -287,7 +287,7 @@ public class ItspAccountInfo implements gov.nist.javax.sip.clientauthutils.UserC
         } catch (Exception ex) {
 
             logger.fatal("Exception in processing -- could not add ITSP account ", ex);
-            throw new GatewayConfigurationException("Problem with domain name lookup", ex);
+            throw new SipXbridgeException("Problem with domain name lookup", ex);
         }
     }
 
@@ -487,22 +487,8 @@ public class ItspAccountInfo implements gov.nist.javax.sip.clientauthutils.UserC
         return maxCalls;
     }
 
-    public void decrementCallCount() {
-        if (this.callCount > 0) {
-            this.callCount--;
-        }
-
-    }
-
-    public int getCallCount() {
-        return this.callCount;
-    }
-
-    public void incrementCallCount() {
-        this.callCount++;
-
-    }
-
+   
+   
     
 
     /**
@@ -589,7 +575,7 @@ public class ItspAccountInfo implements gov.nist.javax.sip.clientauthutils.UserC
             }
         } catch (Exception ex) {
             logger.error("Bad caller alias", ex);
-            throw new RuntimeException("Bad caller alias", ex);
+            throw new SipXbridgeException("Bad caller alias", ex);
         }
     }
 

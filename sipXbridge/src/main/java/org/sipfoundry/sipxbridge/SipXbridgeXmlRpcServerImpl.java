@@ -6,6 +6,7 @@ import java.net.InetAddress;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Timer;
 import java.util.TimerTask;
 
 import javax.net.ssl.SSLServerSocket;
@@ -32,7 +33,7 @@ public class SipXbridgeXmlRpcServerImpl implements SipXbridgeXmlRpcServer {
 
 	private static boolean isWebServerRunning;
 
-	public static void startXmlRpcServer() throws GatewayConfigurationException {
+	public static void startXmlRpcServer() throws SipXbridgeException {
 		try {
 			if (!isWebServerRunning) {
 
@@ -128,7 +129,7 @@ public class SipXbridgeXmlRpcServerImpl implements SipXbridgeXmlRpcServer {
 
 			}
 		} catch (Exception ex) {
-			throw new GatewayConfigurationException(
+			throw new SipXbridgeException(
 					"Exception starting web server", ex);
 		}
 
@@ -229,7 +230,10 @@ public class SipXbridgeXmlRpcServerImpl implements SipXbridgeXmlRpcServer {
 		HashMap<String, Object> retval = createSuccessMap();
 
 		try {
-			Gateway.getTimer().schedule(new TimerTask() {
+			/*
+			 * Need a fresh timer here because the gateway timer is canceled.
+			 */
+			new Timer().schedule(new TimerTask() {
 				public void run() {
 					logger.debug("Exitting bridge!");
 					System.exit(0);

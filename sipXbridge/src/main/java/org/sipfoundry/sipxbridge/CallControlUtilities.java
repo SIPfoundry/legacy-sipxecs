@@ -47,7 +47,7 @@ public class CallControlUtilities {
 			st.sendResponse(response);
 
 		} catch (Exception e) {
-			throw new RuntimeException("Check gateway configuration", e);
+			throw new SipXbridgeException("Check gateway configuration", e);
 		}
 	}
 
@@ -66,7 +66,7 @@ public class CallControlUtilities {
 			st.sendResponse(response);
 
 		} catch (Exception e) {
-			throw new RuntimeException("Check gateway configuration", e);
+			throw new SipXbridgeException("Check gateway configuration", e);
 		}
 	}
 

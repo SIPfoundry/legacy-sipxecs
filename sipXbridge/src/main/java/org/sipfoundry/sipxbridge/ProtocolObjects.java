@@ -89,7 +89,7 @@ public class ProtocolObjects {
         } catch (Exception ex) {
             ex.printStackTrace();
             logger.error("Error loading factories ", ex);
-            throw new GatewayConfigurationException("Error loading factories", ex);
+            throw new SipXbridgeException("Error loading factories", ex);
         }
 
     }

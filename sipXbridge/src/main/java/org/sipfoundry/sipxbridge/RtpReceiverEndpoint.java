@@ -47,7 +47,7 @@ class RtpReceiverEndpoint implements SymEndpointInterface {
             origin = SdpFactory.getInstance().createOrigin(Gateway.SIPXBRIDGE_USER, sessionId,
                     sessionVersion, "IN", "IP4", address);
         } catch (Exception ex) {
-            throw new RuntimeException("Unexpected exception creating origin ", ex);
+            throw new SipXbridgeException("Unexpected exception creating origin ", ex);
         }
     }
 
@@ -104,7 +104,7 @@ class RtpReceiverEndpoint implements SymEndpointInterface {
 
         } catch (Exception ex) {
             logger.error("Unexpected exception ", ex);
-            throw new RuntimeException("Unexpected exception", ex);
+            throw new SipXbridgeException("Unexpected exception", ex);
         }
     }
 

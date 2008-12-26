@@ -28,7 +28,7 @@ public enum KeepaliveMethod {
         } else if ( this.equals(USE_DUMMY_RTP_PAYLOAD)) {
             return USE_DUMMY_RTP_PAYLOAD_NAME;
         } else {
-            throw new RuntimeException("Bad value") ;
+            throw new SymmitronException("Bad value") ;
         }
     }
     

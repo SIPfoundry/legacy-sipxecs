@@ -10,7 +10,6 @@
 
 package org.sipfoundry.sipxbridge;
 
-import java.io.IOException;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
@@ -22,7 +21,6 @@ import javax.sip.header.ViaHeader;
 import javax.sip.message.Request;
 
 import org.apache.log4j.Logger;
-import org.sipfoundry.sipxbridge.symmitron.SymmitronException;
 
 
 /**
@@ -112,12 +110,10 @@ public class BackToBackUserAgentFactory {
 				this.backToBackUserAgentTable.put(callId, b2bua);
 			}
 
-	     } catch (IOException ex) {
-			logger.error("unepxected exception", ex);
-			throw new RuntimeException("IOException -- check SipXrelay", ex);
+	     
 		 } catch (Exception ex) {
 			logger.error("unexpected exception ", ex);
-			throw new RuntimeException(
+			throw new SipXbridgeException(
 					"Unepxected exception processing request", ex);
 		} finally {
 		    logger.debug("returning " + b2bua);

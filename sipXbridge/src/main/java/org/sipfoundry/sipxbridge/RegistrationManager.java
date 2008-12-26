@@ -50,7 +50,14 @@ public class RegistrationManager {
 
     }
 
-    public void sendDeregister(ItspAccountInfo itspAccount) throws GatewayConfigurationException,
+    /**
+     * Send a de-register to the specified ITSP account.
+     * 
+     * @param itspAccount - itsp account with which we want to de-register.
+     * @throws SipXbridgeException - problem with gateway configuration.
+     * @throws SipException - if protocol exception occured.
+     */
+    public void sendDeregister(ItspAccountInfo itspAccount) throws SipXbridgeException,
             SipException {
         Request request = SipUtilities.createDeregistrationRequest(provider, itspAccount);
         ClientTransaction ct = provider.getNewClientTransaction(request);
@@ -65,12 +72,12 @@ public class RegistrationManager {
      * Sends a registration query.
      * 
      * @param itspAccount -- the ITSP account.
-     * @throws GatewayConfigurationException
+     * @throws SipXbridgeException
      * @throws SipException
      * @throws Exception
      */
     public void sendRegisterQuery(ItspAccountInfo itspAccount)
-            throws GatewayConfigurationException, SipException {
+            throws SipXbridgeException, SipException {
         Request request = SipUtilities.createRegisterQuery(provider, itspAccount);
         ClientTransaction ct = provider.getNewClientTransaction(request);
         TransactionContext tad = new TransactionContext(
@@ -88,8 +95,9 @@ public class RegistrationManager {
      * 
      * @param responseEvent
      */
-    public void processResponse(ResponseEvent responseEvent)
-            throws GatewayConfigurationException, SipException {
+    @SuppressWarnings("unchecked")
+	public void processResponse(ResponseEvent responseEvent)
+            throws SipXbridgeException, SipException {
 
         Response response = responseEvent.getResponse();
         logger.debug("registrationManager.processResponse() " + response.getStatusCode());

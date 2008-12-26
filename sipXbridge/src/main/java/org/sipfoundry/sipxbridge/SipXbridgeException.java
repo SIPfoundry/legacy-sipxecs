@@ -6,19 +6,25 @@
  */
 package org.sipfoundry.sipxbridge;
 
+
 /**
- * Gateway configuration exception.
+ * Sipxbridge runtime exception specialization.
  * 
  * @author M. Ranganathan.
  * 
  */
-public class GatewayConfigurationException extends RuntimeException {
-    public GatewayConfigurationException(String reason) {
+@SuppressWarnings("serial")
+public class SipXbridgeException extends RuntimeException {
+    public SipXbridgeException(String reason) {
         super(reason);
     }
 
-    public GatewayConfigurationException(String reason, Throwable cause) {
+    public SipXbridgeException(String reason, Throwable cause) {
         super(reason, cause);
     }
+
+	public SipXbridgeException(Exception ex) {
+		super(ex);
+	}
 
 }

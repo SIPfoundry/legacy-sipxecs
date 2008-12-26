@@ -8,6 +8,8 @@ package org.sipfoundry.sipxbridge;
 
 import java.util.TimerTask;
 
+import org.apache.log4j.Logger;
+
 /**
  * Issues a re-registration after time expires.
  * 
@@ -15,6 +17,7 @@ import java.util.TimerTask;
  * 
  */
 public class RegistrationTimerTask extends TimerTask {
+	private static Logger logger = Logger.getLogger(RegistrationTimerTask.class);
 
     ItspAccountInfo itspAccount;
 
@@ -31,7 +34,10 @@ public class RegistrationTimerTask extends TimerTask {
             Gateway.getRegistrationManager().sendRegistrer(itspAccount);
             this.itspAccount.registrationTimerTask = null;
         } catch (Exception ex) {
-            throw new RuntimeException("Unexpected exception", ex);
+        	/*
+        	 * Dont throw runtime exception here! It will kill the Timer.
+        	 */
+        	logger.error("Unexpected Exception in timer task",ex);
         }
     }
 

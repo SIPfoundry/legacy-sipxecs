@@ -86,7 +86,7 @@ public class SymmitronConfigParser {
     }
 
     public SymmitronConfig parse(String url) {
-        try {
+        
             // Create a Digester instance
             Digester digester = new Digester();
              
@@ -101,15 +101,12 @@ public class SymmitronConfigParser {
             } catch (java.io.IOException ioe) {
                 // Note that we do not have a debug file here so we need to print to stderr.
                 ioe.printStackTrace(System.err);
-                throw new RuntimeException("Intiialzation exception", ioe);
+                throw new SymmitronException("Intiialzation exception", ioe);
             } catch (org.xml.sax.SAXException se) {
                 se.printStackTrace(System.err);
-                throw new RuntimeException("Intiialzation exception", se);
+                throw new SymmitronException("Intiialzation exception", se);
             }
-        } catch (RuntimeException ex) {
-            System.err.println("unexpected exception " + ex);
-            throw ex;
-        }
+        
 
     }
 
