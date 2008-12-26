@@ -8,6 +8,7 @@ package org.sipfoundry.sipxbridge.symmitron;
 
 import org.apache.xmlrpc.XmlRpcException;
 
+@SuppressWarnings("serial")
 public class SymmitronException extends RuntimeException {
     public SymmitronException(String msg ) {
         super( msg);

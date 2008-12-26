@@ -22,6 +22,7 @@ import org.apache.xmlrpc.client.XmlRpcClientConfigImpl;
  * Client to invoke methods on the SipxBridgeXmlRpcServer.
  * 
  */
+@SuppressWarnings("unchecked")
 public class SipXbridgeXmlRpcClient {
 	private static Logger logger = Logger.getLogger(SipXbridgeXmlRpcClient.class);
 
@@ -118,7 +119,8 @@ public class SipXbridgeXmlRpcClient {
         }
     }
     
-    public void stop() {
+    
+	public void stop() {
         Map retval = null;
         try {
             retval = (Map) client.execute(SipXbridgeXmlRpcServer.SERVER + "."

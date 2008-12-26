@@ -22,7 +22,6 @@ import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.net.ssl.SSLServerSocket;
-import javax.net.ssl.SSLSocket;
 
 import net.java.stun4j.StunAddress;
 import net.java.stun4j.client.NetworkConfigurationDiscoveryProcess;
@@ -48,6 +47,7 @@ import org.sipfoundry.sipxbridge.SipXbridgeException;
  * @author M. Ranganathan
  * 
  */
+@SuppressWarnings("unchecked")
 public class SymmitronServer implements Symmitron {
 
     private static Logger logger = Logger.getLogger(SymmitronServer.class.getPackage().getName());
@@ -373,7 +373,8 @@ public class SymmitronServer implements Symmitron {
      * 
      * @return the port range supported by the bridge.
      */
-    public Map getRtpPortRange() {
+   
+	public Map getRtpPortRange() {
 
         PortRange portRange = new PortRange(symmitronConfig.getPortRangeLowerBound(),
                 symmitronConfig.getPortRangeUpperBound());
@@ -394,8 +395,7 @@ public class SymmitronServer implements Symmitron {
     public void checkForControllerReboot(String controllerHandle) {
         String[] handleParts = controllerHandle.split(":");
         if (handleParts.length != 2) {
-            Map<String, Object> retval = this.createErrorMap(ILLEGAL_ARGUMENT,
-                    "handle must have the format componentName:instance");
+           throw new IllegalArgumentException("Illegal handle format");
         }
         String componentName = handleParts[0];
 
@@ -869,10 +869,10 @@ public class SymmitronServer implements Symmitron {
             logger.debug("ping : " + controllerHandle);
             this.checkForControllerReboot(controllerHandle);
             Map<String, Object> retval = createSuccessMap();
-            if (this.sessionResourceMap.get(controllerHandle) != null) {
+            if (sessionResourceMap.get(controllerHandle) != null) {
                 HashSet<String> timedOutSyms = new HashSet<String>();
 
-                for (Sym sym : this.sessionResourceMap.get(controllerHandle)) {
+                for (Sym sym : sessionResourceMap.get(controllerHandle)) {
                     if (sym.isTimedOut()) {
                         timedOutSyms.add(sym.getId());
                     }

@@ -10,26 +10,11 @@
 
 package org.sipfoundry.sipxbridge.symmitron;
 
-import java.io.FileInputStream;
 import java.net.URL;
-import java.security.KeyStore;
-import java.security.SecureRandom;
-import java.security.cert.X509Certificate;
 import java.util.Map;
 import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
-
-import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.KeyManagerFactory;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSession;
-import javax.net.ssl.SSLSocket;
-import javax.net.ssl.SSLSocketFactory;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.TrustManagerFactory;
-import javax.net.ssl.X509TrustManager;
 
 import org.apache.log4j.Logger;
 import org.apache.xmlrpc.XmlRpcException;
@@ -40,6 +25,7 @@ import org.apache.xmlrpc.client.XmlRpcClientConfigImpl;
  * Wrapper for the client methods of the Symmitron.
  * 
  */
+@SuppressWarnings("unchecked")
 public class SymmitronClient {
 
 	private static final Logger logger = Logger
@@ -55,8 +41,6 @@ public class SymmitronClient {
 	private String serverAddress;
 
 	private static Timer timer = new Timer();
-
-	
 
 	private boolean checkForServerReboot(Map map) throws SymmitronException {
 
@@ -344,9 +328,7 @@ public class SymmitronClient {
 		try {
 			retval = (Map) client.execute("sipXrelay.getSym", args);
 		} catch (XmlRpcException ex) {
-			if (retval.get(Symmitron.STATUS_CODE).equals(Symmitron.ERROR)) {
-				throw new SymmitronException("Error in processing request ", ex);
-			}
+			throw new SymmitronException("Error in processing request ", ex);
 		}
 		if (retval.get(Symmitron.STATUS_CODE).equals(Symmitron.ERROR)) {
 			throw new SymmitronException("Error in processing request "
@@ -523,7 +505,7 @@ public class SymmitronClient {
 			Object[] args = new Object[2];
 			args[0] = clientHandle;
 			args[1] = sym;
-			Map retval = (Map) client.execute("sipXrelay.destroySym", args);
+			client.execute("sipXrelay.destroySym", args);
 		} catch (XmlRpcException ex) {
 			logger.error(ex);
 			throw new SymmitronException(ex);

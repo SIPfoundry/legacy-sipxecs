@@ -21,6 +21,7 @@ import org.apache.xmlrpc.server.PropertyHandlerMapping;
 import org.apache.xmlrpc.server.XmlRpcServerConfigImpl;
 import org.apache.xmlrpc.webserver.XmlRpcServletServer;
 
+@SuppressWarnings("serial")
 public class SymmitronServlet extends HttpServlet {
     private XmlRpcServletServer server;
 

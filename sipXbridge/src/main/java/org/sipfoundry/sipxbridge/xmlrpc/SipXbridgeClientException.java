@@ -10,9 +10,8 @@
 
 package org.sipfoundry.sipxbridge.xmlrpc;
 
-/**
- * 
- */
+
+@SuppressWarnings("serial")
 public class SipXbridgeClientException extends RuntimeException {
     public SipXbridgeClientException(Exception ex) {
         super(ex);
