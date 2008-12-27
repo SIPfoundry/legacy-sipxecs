@@ -785,7 +785,10 @@ class CallControlManager implements SymmitronResetHandler {
 						 * HACK ALERT Some ITPSs do not like sendonly so make
 						 * sure it is sendrecv
 						 */
-						SipUtilities.setDuplexity(sd, "sendrecv");
+						if ( SipUtilities.getSessionDescriptionMediaAttributeDuplexity(sd) != null ) {
+						    SipUtilities.setDuplexity(sd, "sendrecv");
+						    
+						}
 						ack.setContent(sd.toString(), cth);
 					} else {
 						/*
@@ -804,27 +807,7 @@ class CallControlManager implements SymmitronResetHandler {
 					 * support ITSPs that do not respond correctly to SDP offer
 					 * solicitations.
 					 */
-					/*
-					 * if (peerDialogContext.getPendingAction() ==
-					 * PendingDialogAction.PENDING_FORWARD_ACK_WITH_SDP_ANSWER
-					 * && dialogContext.mohCodecNegotiationFailed) { logger
-					 * .debug("sdpAnswer is pending and none is in ACK and MOH
-					 * renegotiation failed -- replay old sdp"); ack =
-					 * peerDialog.createAck(SipUtilities
-					 * .getSeqNumber(peerDialogContext.lastResponse));
-					 * 
-					 * ContentTypeHeader cth = ProtocolObjects.headerFactory
-					 * .createContentTypeHeader("application", "sdp");
-					 * 
-					 * SessionDescription sd =
-					 * peerDialogContext.getRtpSession().getReceiver()
-					 * .getSessionDescription();
-					 * 
-					 * SipUtilities.setDuplexity(sd, "sendrecv");
-					 * ack.setContent(sd.toString(), cth);
-					 * dialogContext.mohCodecNegotiationFailed = false; } else
-					 */
-
+				
 					if (peerDialogContext.getPendingAction() == PendingDialogAction.PENDING_FORWARD_ACK_WITH_SDP_ANSWER) {
 						/*
 						 * The content length is 0. There is no answer but the
@@ -833,7 +816,10 @@ class CallControlManager implements SymmitronResetHandler {
 						logger
 								.debug("no SDP body in ACK but the other side expects one");
 						return;
-
+						
+					} else if ( peerDialogContext.getPendingAction() == PendingDialogAction.PENDING_SDP_ANSWER_IN_ACK) {
+					    logger.debug("Pending SDP Answer in ACK  -- not forwarding inbound ACK");
+					    return;
 					} else {
 						/*
 						 * There is no answer and no last response and the other

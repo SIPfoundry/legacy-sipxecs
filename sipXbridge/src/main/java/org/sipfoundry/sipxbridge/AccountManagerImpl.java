@@ -213,8 +213,17 @@ public class AccountManagerImpl implements gov.nist.javax.sip.clientauthutils.Ac
                     return accountInfo;
                 }
 
+            } else {
+                String inBoundProxyDomain = accountInfo.getInboundProxy();
+                int inBoundProxyPort = accountInfo.getInboundProxyPort();
+                if (host.equals(inBoundProxyDomain) &&  port == inBoundProxyPort ) {
+                    logger.debug("found account based on inbound proxy " ) ;
+                    return accountInfo;
+                }
             }
         }
+        
+       
         return null;
     }
 
