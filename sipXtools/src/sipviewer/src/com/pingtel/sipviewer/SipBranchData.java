@@ -6,6 +6,10 @@ import java.util.List;
 import java.util.Enumeration;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.net.URLConnection;
+
 import org.jdom.Element;
 import org.jdom.Document;
 import org.jdom.input.SAXBuilder;
@@ -99,7 +103,7 @@ public class SipBranchData
     }
 
 
-    public static Vector getSipBranchDataElements(String traceFilename)
+    public static Vector getSipBranchDataElements(URL traceFilename)
     {
         SAXBuilder builder = new SAXBuilder();
         System.out.println("reading: " + traceFilename);
@@ -108,11 +112,15 @@ public class SipBranchData
 
         try
         {
-            Document traceDoc = builder.build(new File(traceFilename));
+            URLConnection uc = traceFilename.openConnection();
+            InputStreamReader input = new InputStreamReader(uc.getInputStream());
+            
+            Document traceDoc = builder.build(input);
             Element nodeContainer = traceDoc.getRootElement();
 
 
             nodes = SipBranchData.getSipBranchDataElements(nodeContainer);
+            input.close();
         }
         catch(JDOMException je)
         {
@@ -128,10 +136,10 @@ public class SipBranchData
     }
 
 
-    public static void main(String argv[])
-    {
+    public static void main(String argv[]) throws Exception {
         String filename = argv[0];
-        Vector nodes = SipBranchData.getSipBranchDataElements(filename);
+        URL url = new URL( "file:" + filename);
+        Vector nodes = SipBranchData.getSipBranchDataElements(url);
         int count = nodes.size();
         for(int i = 0; i < count; i++)
         {

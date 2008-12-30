@@ -24,15 +24,15 @@ public class SIPViewer
 //////////////////////////////////////////////////////////////////////////////
 // Public Methods
 ////
-    public static void main(String args[])
-    {
+    public static void main(String args[]) throws Exception  {
         if (processCmdlineArgs(args))
         {
-            SIPViewerFrame frame = new SIPViewerFrame() ;
+            SIPViewerFrame frame = new SIPViewerFrame(true) ;
             if (s_strAliasesFile != null)
                 frame.applyAliasesFile(s_strAliasesFile) ;
-            if (s_strCmdLineFile != null)
+            if (s_strCmdLineFile != null) { 
                 frame.applySourceFile(s_strCmdLineFile) ;
+            }
             frame.show() ;
         }
         else

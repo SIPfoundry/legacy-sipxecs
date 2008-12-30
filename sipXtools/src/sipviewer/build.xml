@@ -2,7 +2,7 @@
 
 <!-- sipviewer Build Script  -->
 
-<project name="sipviewer" default="jar" basedir="." >
+<project name="sipviewer" default="installer" basedir="." >
 
   <patternset id="test.classes" excludes="**"/>
   <property name="top.build.dir" value="${basedir}/.."/>
@@ -24,8 +24,35 @@
       <fileset dir="${classes.dir}" >
         <include name="**/*.class" />
       </fileset>
+      <manifest>
+	<attribute name="Class-Path" value="jdom.jar" />
+	<attribute name="Created-By" value="1.5.0_10-b03 (Sun Microsystems Inc.)" />
+	<attribute name="Main-Class" value="com.pingtel.sipviewer.SIPViewer" />
+      </manifest>
     </jar>
   </target>
+
+    <taskdef name="izpack" classpath="${src.dir}/../installer/tools/standalone-compiler.jar"
+    classname="com.izforge.izpack.ant.IzPackTask"/>
+
+   <!-- Run installer build -->
+   <target name="installer" depends="jar" >
+     <!-- A bit ugly - the spec file for IZ-pack does not handle substititions -->
+     <copy file="${jdom.jar}" tofile="${build.dir}/jdom.jar" />
+     <copy toDir="${build.dir}" >
+	<fileset dir="${src.dir}/../installer" excludes="**/*.jar" />
+     </copy>
+     <echo message="Running IzPack to build the installer..."/>
+    <!-- Allows us to use the IzPack Ant task, standalone-compiler.jar 
+    added to Ant lib -->
+
+     <izpack input="${build.dir}/tools/izpack-install.xml"
+        output="${build.dir}/dist/sipviewer-install.jar"
+        installerType="standard"
+        inheritAll="true"
+        basedir="${build.dir}"
+     />
+    </target>
 
   <!--
     -  I N S T A L L

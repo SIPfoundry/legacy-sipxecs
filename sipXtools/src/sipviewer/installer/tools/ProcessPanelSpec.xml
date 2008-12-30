@@ -1,0 +1,9 @@
+<processing>
+  <job name="Run SIPVIEWER">
+    <executefile name="java">
+    <arg>-jar</arg>
+    <arg>"$INSTALL_PATH/sipviewer.jar"</arg>
+    </executefile>
+  </job>
+</processing>
+
