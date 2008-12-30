@@ -169,12 +169,11 @@ class DataShuffler implements Runnable {
                 Iterator<SelectionKey> selectedKeys = selector.selectedKeys().iterator();
                 while (selectedKeys.hasNext()) {
                     SelectionKey key = (SelectionKey) selectedKeys.next();
-                    //selectedKeys.remove();
-
+                   
                     if (!key.isValid()) {
                         if ( logger.isDebugEnabled()) {
                             logger.debug("Discarding packet:Key not valid");
-                        }
+                        }        
                         continue;
                     }
                     if (key.isReadable()) {
@@ -203,6 +202,8 @@ class DataShuffler implements Runnable {
                         if ( logger.isTraceEnabled() ) {
                             logger.trace("got something on " + datagramChannel.socket().getLocalPort() );
                         }
+                        // Need to  remove key for selfRouted test.
+                        selectedKeys.remove();
                         send(bridge, datagramChannel, remoteAddress);
 
                     }

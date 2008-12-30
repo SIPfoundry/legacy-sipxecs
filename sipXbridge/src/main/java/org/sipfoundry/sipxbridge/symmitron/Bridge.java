@@ -118,7 +118,11 @@ final class Bridge implements BridgeInterface {
     public void stop() {
         if (logger.isDebugEnabled()) {
             logger.debug("Closing SymBridge : " + this.toString());
+            Exception ex = new Exception();
+            logger.debug("caller = " + ex.getStackTrace()[1].getFileName() + ":" 
+                    + ex.getStackTrace()[1].getLineNumber());
         }
+        
         for (Sym sym : this.sessions) {
             sym.close();
         }

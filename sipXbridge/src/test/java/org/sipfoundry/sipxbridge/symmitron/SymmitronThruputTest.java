@@ -98,6 +98,10 @@ public class SymmitronThruputTest extends AbstractSymmitronTestCase {
         super.signIn();
 
     }
+    
+    @Override public void tearDown() throws Exception {
+        System.out.println("Done with thruput test!");
+    }
 
     public void testThruput10() throws Exception {
         int destinationPort1 = startPort;

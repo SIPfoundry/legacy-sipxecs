@@ -19,7 +19,7 @@ public abstract class AbstractSymmitronTestCase extends TestCase {
     protected String clientHandle;
 
     protected void connectToServer() throws Exception {
-        clientHandle = "nat:" + new Random().nextLong();
+        clientHandle = "thruput-tester:" + new Random().nextLong();
         XmlRpcClientConfigImpl config = new XmlRpcClientConfigImpl();
         config.setServerURL(new URL("http://" + serverAddress + ":" + port));
         client = new XmlRpcClient();
