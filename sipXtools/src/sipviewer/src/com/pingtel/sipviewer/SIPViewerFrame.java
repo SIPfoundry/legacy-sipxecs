@@ -29,12 +29,13 @@ public class SIPViewerFrame extends JFrame {
     protected boolean m_sortBranchNodes;
     // Initialize with a trivial reload object so Reload does nothing.
     protected Reload m_Reload = new Reload();
-
-    public SIPViewerFrame(boolean createMenu) {
-        super("SIP Viewer");
-        setSize(800, 600);
+   
+    public SIPViewerFrame( boolean createMenu) {
+        super("sipviewer");
+        
+        this.setSize(800, 600);
         m_sortBranchNodes = false;
-        addWindowListener(new icWindowAdapter());
+        this.addWindowListener(new icWindowAdapter());
 
         createComponents();
         layoutComponents();
@@ -73,8 +74,12 @@ public class SIPViewerFrame extends JFrame {
             fr.close();
         } catch (Exception e) {
             System.out.println("Unable to apply aliases file: " + strAliasesFile);
+            
+            JOptionPane.showConfirmDialog(null, "Unable to apply aliases file: " + strAliasesFile, 
+                    "Error", 
+                    JOptionPane.DEFAULT_OPTION, JOptionPane.ERROR_MESSAGE, null);
             e.printStackTrace();
-            System.exit(-1);
+            this.dispose();
         }
     }
 
@@ -184,7 +189,7 @@ public class SIPViewerFrame extends JFrame {
     }
 
     protected void layoutComponents() {
-        Container rootPane = getContentPane();
+        Container rootPane = this.getContentPane();
 
         Container tempCont = new Container();
         tempCont.setLayout(new GridBagLayout());
@@ -215,7 +220,7 @@ public class SIPViewerFrame extends JFrame {
         }
 
         public void windowClosing(WindowEvent e) {
-            System.exit(1);
+            
         }
     }
 
@@ -242,7 +247,7 @@ public class SIPViewerFrame extends JFrame {
             System.out.println("saving chooser dir: " + m_fileChooserDir);
 
             String fileNameNoPath = file.getName();
-            setTitle("SIP Viewer - " + fileNameNoPath);
+            this.setTitle("SIP Viewer - " + fileNameNoPath);
         }
         return (fileName);
     }
@@ -253,7 +258,7 @@ public class SIPViewerFrame extends JFrame {
 
         // Create the menu bar.
         JMenuBar menuBar = new JMenuBar();
-        setJMenuBar(menuBar);
+        this.setJMenuBar(menuBar);
 
         // Build the File menu.
         menu = new JMenu("File");
@@ -424,7 +429,7 @@ public class SIPViewerFrame extends JFrame {
         }
 
         public void actionPerformed(ActionEvent e) {
-            System.exit(0);
+            SIPViewerFrame.this.dispose();
         }
     }
 
