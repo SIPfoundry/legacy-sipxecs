@@ -81,10 +81,11 @@ class DataShuffler implements Runnable {
                     if (logger.isDebugEnabled()) {
                         
                         if (remoteAddress != null) {
-                            if (logger.isTraceEnabled())
+                            if (logger.isTraceEnabled()) {
                                 logger.trace("remoteIpAddressAndPort : "
                                         + remoteAddress.getAddress().getHostAddress() + ":"
                                         + remoteAddress.getPort());
+                            }
                         }
                     }
                     sym.lastPacketTime = System.currentTimeMillis();
@@ -168,7 +169,7 @@ class DataShuffler implements Runnable {
                 Iterator<SelectionKey> selectedKeys = selector.selectedKeys().iterator();
                 while (selectedKeys.hasNext()) {
                     SelectionKey key = (SelectionKey) selectedKeys.next();
-                    selectedKeys.remove();
+                    //selectedKeys.remove();
 
                     if (!key.isValid()) {
                         if ( logger.isDebugEnabled()) {
