@@ -2,7 +2,7 @@
 
 <!-- sipviewer Build Script  -->
 
-<project name="sipviewer" default="installer" basedir="." >
+<project name="sipviewer" default="jar" basedir="." >
 
   <patternset id="test.classes" excludes="**"/>
   <property name="top.build.dir" value="${basedir}/.."/>
@@ -32,11 +32,9 @@
     </jar>
   </target>
 
-    <taskdef name="izpack" classpath="${src.dir}/../installer/tools/standalone-compiler.jar"
-    classname="com.izforge.izpack.ant.IzPackTask"/>
 
-   <!-- Run installer build -->
-   <target name="installer" depends="jar" >
+  <!-- Run installer build. Not part of the default build target.  -->
+  <target name="installer" depends="jar" >
      <!-- A bit ugly - the spec file for IZ-pack does not handle substititions -->
      <copy file="${jdom.jar}" tofile="${build.dir}/jdom.jar" />
      <copy toDir="${build.dir}" >
@@ -45,14 +43,16 @@
      <echo message="Running IzPack to build the installer..."/>
     <!-- Allows us to use the IzPack Ant task, standalone-compiler.jar 
     added to Ant lib -->
+    <taskdef name="izpack" classpath="${src.dir}/../installer/tools/standalone-compiler.jar"
+    classname="com.izforge.izpack.ant.IzPackTask"/>
 
-     <izpack input="${build.dir}/tools/izpack-install.xml"
+    <izpack input="${build.dir}/tools/izpack-install.xml"
         output="${build.dir}/dist/sipviewer-install.jar"
         installerType="standard"
         inheritAll="true"
         basedir="${build.dir}"
      />
-    </target>
+  </target>
 
   <!--
     -  I N S T A L L
