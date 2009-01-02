@@ -44,7 +44,7 @@ public class ConferenceBridgeProvisioningtImplTestIntegration extends Integratio
     }
 
     public void testGenerateConfigurationData() throws Exception {
-        loadDataSet("admin/dialplan/sbc/domain.db.xml");
+        loadDataSetXml("admin/dialplan/sbc/domain.xml");
         loadDataSet("conference/users.db.xml");
         loadDataSet("conference/participants.db.xml");
 

@@ -13,7 +13,7 @@
       <userPattern>operator</userPattern>
       <permissionMatch>
         <transform>
-          <url>&lt;sip:{digits}@localhost;transport=tcp;voicexml=https%3A%2F%2Flocalhost%3A443%2Fcgi-bin%2Fvoicemail%2Fmediaserver.cgi%3Faction%3Dautoattendant%26name%3Daa_-1&gt;</url>
+          <url>&lt;sip:{digits}@192.168.1.1;transport=tcp;voicexml=https%3A%2F%2F192.168.1.1%3A443%2Fcgi-bin%2Fvoicemail%2Fmediaserver.cgi%3Faction%3Dautoattendant%26name%3Daa_-1&gt;</url>
         </transform>
       </permissionMatch>
     </userMatch>

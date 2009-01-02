@@ -27,10 +27,32 @@ import junit.framework.TestCase;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.easymock.EasyMock;
+import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
+import org.sipfoundry.sipxconfig.service.SipxMediaService;
+import org.sipfoundry.sipxconfig.service.SipxServiceManager;
+import org.sipfoundry.sipxconfig.test.TestUtil;
 import org.sipfoundry.sipxconfig.vm.Voicemail.MessageDescriptor;
 
 public class VoicemailTest extends TestCase {
     
+    private MailboxManagerImpl m_mailboxManager;
+    
+    public void setUp() {
+        m_mailboxManager = new MailboxManagerImpl();
+        SipxMediaService mediaService = new SipxMediaService();
+        mediaService.setBeanId(SipxMediaService.BEAN_ID);
+        SipxServiceManager serviceManager = TestUtil.getMockSipxServiceManager(mediaService);
+        EasyMock.replay(serviceManager);
+        m_mailboxManager.setSipxServiceManager(serviceManager);
+        
+        LocationsManager locationsManager = EasyMock.createMock(LocationsManager.class);
+        locationsManager.getPrimaryLocation();
+        EasyMock.expectLastCall().andReturn(TestUtil.createDefaultLocation());
+        EasyMock.replay(locationsManager);
+        m_mailboxManager.setLocationsManager(locationsManager);
+    }
+
     public void testReadMessageDescriptor() throws IOException {
         InputStream in = getClass().getResourceAsStream("200/inbox/00000001-00.xml");
         MessageDescriptor md = Voicemail.readMessageDescriptor(in);
@@ -70,11 +92,10 @@ public class VoicemailTest extends TestCase {
     
     public void testMove() throws IOException {
         File mailstore = MailboxManagerTest.createTestMailStore();
-        MailboxManagerImpl mgr = new MailboxManagerImpl();
-        mgr.setMailstoreDirectory(mailstore.getAbsolutePath());
-        Mailbox mbox = mgr.getMailbox("200");
+        m_mailboxManager.setMailstoreDirectory(mailstore.getAbsolutePath());
+        Mailbox mbox = m_mailboxManager.getMailbox("200");
         Voicemail vmOrig = mbox.getVoicemail("inbox", "00000001");
-        mgr.move(mbox, vmOrig, "deleted");
+        m_mailboxManager.move(mbox, vmOrig, "deleted");
         Voicemail vmNew = mbox.getVoicemail("deleted", "00000001");
         assertEquals("Voice Message 00000002", vmNew.getDescriptor().getSubject());
         // nice, not critical
@@ -90,15 +111,14 @@ public class VoicemailTest extends TestCase {
     
     public void testDelete() throws IOException {
         File mailstore = MailboxManagerTest.createTestMailStore();
-        MailboxManagerImpl mgr = new MailboxManagerImpl();
-        mgr.setMailstoreDirectory(mailstore.getAbsolutePath());
-        Mailbox mbox = mgr.getMailbox("200");
-        List<Voicemail> vm = mgr.getVoicemail(mbox, "inbox"); 
+        m_mailboxManager.setMailstoreDirectory(mailstore.getAbsolutePath());
+        Mailbox mbox = m_mailboxManager.getMailbox("200");
+        List<Voicemail> vm = m_mailboxManager.getVoicemail(mbox, "inbox"); 
         assertEquals(2, vm.size());
 
-        mgr.delete(mbox, vm.get(0));
+        m_mailboxManager.delete(mbox, vm.get(0));
 
-        assertEquals(1, mgr.getVoicemail(mbox, "inbox").size());
+        assertEquals(1, m_mailboxManager.getVoicemail(mbox, "inbox").size());
 
         // nice, not critical
         FileUtils.deleteDirectory(mailstore);        

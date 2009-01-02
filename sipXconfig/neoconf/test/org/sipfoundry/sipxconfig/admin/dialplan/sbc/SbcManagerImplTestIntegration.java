@@ -22,7 +22,7 @@ public class SbcManagerImplTestIntegration extends IntegrationTestCase {
     private SbcDeviceManager m_sbcDeviceManager;
 
     public void testCreateDefaultSbc() throws Exception {
-        loadDataSet("admin/dialplan/sbc/domain.db.xml");
+        loadDataSetXml("admin/dialplan/sbc/domain.xml");
         assertEquals(0, countRowsInTable("sbc"));
         Sbc sbc = m_sbcManager.loadDefaultSbc();
         assertNotNull(sbc);
@@ -97,7 +97,7 @@ public class SbcManagerImplTestIntegration extends IntegrationTestCase {
     }
 
     public void testSaveSbc() throws Exception {
-        loadDataSet("admin/dialplan/sbc/domain.db.xml");
+        loadDataSetXml("admin/dialplan/sbc/domain.xml");
         loadDataSet("admin/dialplan/sbc/sbc-device.db.xml");
         assertEquals(0, countRowsInTable("sbc"));
         Sbc sbc = m_sbcManager.loadDefaultSbc();

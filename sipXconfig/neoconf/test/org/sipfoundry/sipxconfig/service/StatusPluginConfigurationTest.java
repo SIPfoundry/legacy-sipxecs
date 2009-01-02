@@ -9,20 +9,24 @@
  */
 package org.sipfoundry.sipxconfig.service;
 
-import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
+
+import org.sipfoundry.sipxconfig.test.TestUtil;
 
 public class StatusPluginConfigurationTest extends SipxServiceTestBase {
 
     public void testWrite() throws Exception {
         SipxStatusService statusService = new SipxStatusService();
         initCommonAttributes(statusService);
+        statusService.setBeanId(SipxStatusService.BEAN_ID);
 
-        SipxServiceManager sipxServiceManager = createMock(SipxServiceManager.class);
-        sipxServiceManager.getServiceByBeanId(SipxStatusService.BEAN_ID);
-        expectLastCall().andReturn(statusService).atLeastOnce();
+        SipxMediaService mediaService = new SipxMediaService();
+        mediaService.setVoicemailHttpsPort(9905);
+        mediaService.setBeanId(SipxMediaService.BEAN_ID);
+
+        SipxServiceManager sipxServiceManager = TestUtil.getMockSipxServiceManager(statusService,
+                mediaService);
         replay(sipxServiceManager);
 
         StatusPluginConfiguration out = new StatusPluginConfiguration();

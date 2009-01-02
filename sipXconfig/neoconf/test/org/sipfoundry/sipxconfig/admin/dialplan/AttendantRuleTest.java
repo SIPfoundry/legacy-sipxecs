@@ -34,10 +34,10 @@ import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.replay;
 
 public class AttendantRuleTest extends TestCase {
-    private static final String VOICEMAIL_SERVER = "https%3A%2F%2Flocalhost%3A443";
+    private static final String VOICEMAIL_SERVER = "https%3A%2F%2F192.168.1.1%3A443";
     private static final String URL_PARAMS = ";voicexml=" + VOICEMAIL_SERVER
             + "%2Fcgi-bin%2Fvoicemail%2Fmediaserver.cgi%3Faction%3D";
-    private static final String OPERATOR_URL = "<sip:{digits}@localhost;transport=tcp" + URL_PARAMS
+    private static final String OPERATOR_URL = "<sip:{digits}@192.168.1.1;transport=tcp" + URL_PARAMS
             + "autoattendant%26name%3Daa_-1>";
 
     private DomainManager m_domainManager;
@@ -138,7 +138,7 @@ public class AttendantRuleTest extends TestCase {
         AttendantRule rule = new AttendantRule();
         FreeswitchMediaServer mediaServer = new FreeswitchMediaServer();
         mediaServer.setLocalizationContext(lc);
-        mediaServer.setHostname("localhost");
+        mediaServer.setHostname("192.168.1.1");
         mediaServer.setPort(15060);
 
         rule.setMediaServer(mediaServer);

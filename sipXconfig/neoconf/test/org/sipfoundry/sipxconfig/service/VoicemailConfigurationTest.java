@@ -21,8 +21,8 @@ public class VoicemailConfigurationTest extends SipxServiceTestBase {
         mediaService.setModelId(SipxMediaService.BEAN_ID);
         mediaService.setSettings(TestHelper.loadSettings("sipxvxml/mediaserver.xml"));
         initCommonAttributes(mediaService);
-        mediaService.setHttpPort(9905);
-        mediaService.setVoicemailHttpsPort("9906");
+        mediaService.setVoicemailHttpPort(9905);
+        mediaService.setVoicemailHttpsPort(9906);
 
         SipxStatusService statusService= new SipxStatusService();
         statusService.setModelId(SipxStatusService.BEAN_ID);

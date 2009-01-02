@@ -52,7 +52,7 @@ import org.sipfoundry.sipxconfig.test.TestUtil;
  * MappingRulesTest
  */
 public class MappingRulesTest extends XMLTestCase {
-    private static final String VOICEMAIL_SERVER = "https%3A%2F%2Flocalhost%3A443";
+    private static final String VOICEMAIL_SERVER = "https%3A%2F%2F192.168.1.1%3A443";
 
     private final DomainManager m_domainManager;
 

@@ -15,7 +15,7 @@ import java.util.TreeMap;
 
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
-import org.sipfoundry.sipxconfig.service.SipxRegistrarService;
+import org.sipfoundry.sipxconfig.service.SipxMediaService;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 
 public class SipXMediaServer extends MediaServer {
@@ -83,16 +83,16 @@ public class SipXMediaServer extends MediaServer {
     }
 
     /**
-     * Override the superclass implementation to return the media server value from the registrar
+     * Override the superclass implementation to return the media server value from the media
      * service"
      *
      * @return The media server as defined by SipxRegistrarService
      */
     @Override
     public String getHostname() {
-        SipxRegistrarService registrarService = (SipxRegistrarService) m_sipxServiceManager
-                .getServiceByBeanId(SipxRegistrarService.BEAN_ID);
-        return registrarService.getMediaServer();
+        SipxMediaService mediaService = (SipxMediaService) m_sipxServiceManager
+                .getServiceByBeanId(SipxMediaService.BEAN_ID);
+        return mediaService.getMediaServer();
     }
 
     @Override
@@ -105,8 +105,8 @@ public class SipXMediaServer extends MediaServer {
     }
 
     private String getVoicemailServer() {
-        SipxRegistrarService registrarService = (SipxRegistrarService) m_sipxServiceManager
-                .getServiceByBeanId(SipxRegistrarService.BEAN_ID);
-        return registrarService.getVoicemailServer();
+        SipxMediaService mediaService = (SipxMediaService) m_sipxServiceManager
+                .getServiceByBeanId(SipxMediaService.BEAN_ID);
+        return mediaService.getVoicemailServer();
     }
 }

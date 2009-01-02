@@ -16,8 +16,8 @@ public class StatusPluginConfiguration extends SipxServiceConfiguration {
     @Override
     protected VelocityContext setupContext(Location location) {
         VelocityContext context = super.setupContext(location);
-        SipxService statusService = getService(SipxStatusService.BEAN_ID);
-        context.put("statusService", statusService);
+        SipxService mediaService = getService(SipxMediaService.BEAN_ID);
+        context.put("mediaService", mediaService);
         return context;
     }
 

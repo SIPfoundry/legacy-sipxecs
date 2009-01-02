@@ -342,6 +342,7 @@
         <ref bean="voicemailBundle" />
       </set>
     </property>
+    <property name="locationsManager" ref="locationsManager" />
   </bean>
 
   <bean id="sipxMediaConfiguration" class="org.sipfoundry.sipxconfig.service.SipxMediaConfiguration" scope="prototype"

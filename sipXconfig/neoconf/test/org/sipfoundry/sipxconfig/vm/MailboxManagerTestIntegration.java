@@ -19,8 +19,8 @@ public class MailboxManagerTestIntegration extends IntegrationTestCase {
 
     private CoreContext m_coreContext;
 
-    public void testLoadPersonalAttendantPerUser() {
-        loadDataSet("admin/dialplan/sbc/domain.db.xml");
+    public void testLoadPersonalAttendantPerUser() throws Exception {
+        loadDataSetXml("admin/dialplan/sbc/domain.xml");
         
         assertEquals(0, countRowsInTable("personal_attendant"));
 

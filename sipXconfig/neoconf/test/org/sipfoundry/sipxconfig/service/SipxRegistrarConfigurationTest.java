@@ -63,10 +63,8 @@ public class SipxRegistrarConfigurationTest extends SipxServiceTestBase {
             "myenumdomain.org", null, "*66", "Y"
         });
 
-        registrarService.setMediaServerSipSrvOrHostport("media.example.org");
         registrarService.setOrbitServerSipSrvOrHostport("orbit.example.org");
         registrarService.setProxyServerSipHostport("proxy.example.org");
-        registrarService.setVoicemailHttpsPort("443");
         registrarService.setSipPort("5070");
         registrarService.setRegistrarEventSipPort("5075");
 

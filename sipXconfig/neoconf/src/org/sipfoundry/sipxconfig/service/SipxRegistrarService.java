@@ -17,28 +17,10 @@ public class SipxRegistrarService extends SipxService {
 
     public static final String BEAN_ID = "sipxRegistrarService";
 
-    private static final String VOICEMAIL_SERVER = "https://localhost";
-
     private String m_registrarEventSipPort;
-    private String m_mediaServerSipSrvOrHostport;
     private String m_orbitServerSipSrvOrHostport;
     private String m_proxyServerSipHostport;
     private SipxServiceManager m_sipxServiceManager;
-
-    public String getMediaServer() {
-        return m_mediaServerSipSrvOrHostport + ";transport=tcp";
-    }
-
-    public String getVoicemailServer() {
-        StringBuffer voicemailServer = new StringBuffer();
-        voicemailServer.append(VOICEMAIL_SERVER);
-        if (getVoicemailHttpsPort() != null) {
-            voicemailServer.append(':');
-            voicemailServer.append(getVoicemailHttpsPort());
-        }
-
-        return voicemailServer.toString();
-    }
 
     public String getRegistrarEventSipPort() {
         return m_registrarEventSipPort;
@@ -46,14 +28,6 @@ public class SipxRegistrarService extends SipxService {
 
     public void setRegistrarEventSipPort(String eventSipPort) {
         m_registrarEventSipPort = eventSipPort;
-    }
-
-    public String getMediaServerSipSrvOrHostport() {
-        return m_mediaServerSipSrvOrHostport;
-    }
-
-    public void setMediaServerSipSrvOrHostport(String serverSipSrvOrHostport) {
-        m_mediaServerSipSrvOrHostport = serverSipSrvOrHostport;
     }
 
     public String getOrbitServerSipSrvOrHostport() {

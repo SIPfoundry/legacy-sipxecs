@@ -35,8 +35,8 @@ import org.springframework.beans.factory.BeanFactory;
  */
 public class InternalRuleTest extends TestCase {
 
-    private static final String VOICEMAIL_SERVER = "https%3A%2F%2Flocalhost%3A443";
-    private static final String MEDIA_SERVER = "localhost;transport=tcp";
+    private static final String VOICEMAIL_SERVER = "https%3A%2F%2F192.168.1.1%3A443";
+    private static final String MEDIA_SERVER = "192.168.1.1;transport=tcp";
     private static final String URL_PARAMS = ";voicexml=" + VOICEMAIL_SERVER + "%2Fcgi-bin%2Fvoicemail%2Fmediaserver.cgi%3Faction%3D";
     private static final String VOICEMAIL_URL = "<sip:{digits}@" + MEDIA_SERVER + URL_PARAMS
             + "retrieve>";

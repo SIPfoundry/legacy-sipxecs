@@ -26,11 +26,15 @@ import org.apache.commons.io.filefilter.SuffixFileFilter;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sipfoundry.sipxconfig.admin.commserver.Location;
+import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.common.event.UserDeleteListener;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
+import org.sipfoundry.sipxconfig.service.SipxMediaService;
+import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.sipfoundry.sipxconfig.vm.attendant.PersonalAttendant;
 import org.sipfoundry.sipxconfig.vm.attendant.PersonalAttendantWriter;
 import org.springframework.dao.support.DataAccessUtils;
@@ -41,13 +45,17 @@ public class MailboxManagerImpl extends HibernateDaoSupport implements MailboxMa
     private static final FilenameFilter MESSAGE_FILES = new SuffixFileFilter(MESSAGE_SUFFIX);
     private static final Log LOG = LogFactory.getLog(MailboxManagerImpl.class);
     private File m_mailstoreDirectory;
-    private String m_mediaServerCgiUrl;
     private MailboxPreferencesReader m_mailboxPreferencesReader;
     private MailboxPreferencesWriter m_mailboxPreferencesWriter;
     private DistributionListsReader m_distributionListsReader;
     private DistributionListsWriter m_distributionListsWriter;
     private PersonalAttendantWriter m_personalAttendantWriter;
     private CoreContext m_coreContext;
+    private SipxServiceManager m_sipxServiceManager;
+    private LocationsManager m_locationsManager;
+
+    // should only be accessed via accessor method
+    private String m_mediaServerCgiUrl;
 
     public boolean isEnabled() {
         return m_mailstoreDirectory != null && m_mailstoreDirectory.exists();
@@ -123,10 +131,10 @@ public class MailboxManagerImpl extends HibernateDaoSupport implements MailboxMa
 
     public void mediaserverCgiRequest(String cgiRequest) {
         String errMsg = "Cannot contact media server to update voicemail status";
-        if (StringUtils.isBlank(m_mediaServerCgiUrl)) {
+        if (StringUtils.isBlank(getMediaServerCgiUrl())) {
             return;
         }
-        String sUpdate = m_mediaServerCgiUrl + '?' + cgiRequest;
+        String sUpdate = getMediaServerCgiUrl() + '?' + cgiRequest;
         InputStream updateResponse = null;
         try {
             LOG.info(sUpdate);
@@ -214,6 +222,34 @@ public class MailboxManagerImpl extends HibernateDaoSupport implements MailboxMa
         }
     }
 
+    /**
+     * Returns the media server cgi url string for the primary server using the port
+     * defined in the sipx media service.
+     * @return
+     */
+    protected String getMediaServerCgiUrl() {
+        if (m_mediaServerCgiUrl == null) {
+            SipxMediaService mediaService = (SipxMediaService) m_sipxServiceManager
+                    .getServiceByBeanId(SipxMediaService.BEAN_ID);
+            Location primaryLocation = m_locationsManager.getPrimaryLocation();
+
+            StringBuffer mediaServerCgiUrlBuffer = new StringBuffer();
+            mediaServerCgiUrlBuffer.append("https://");
+            mediaServerCgiUrlBuffer.append(primaryLocation.getFqdn());
+
+            int httpsPort = mediaService.getVoicemailHttpsPort();
+            if (httpsPort != 0) {
+                mediaServerCgiUrlBuffer.append(':');
+                mediaServerCgiUrlBuffer.append(httpsPort);
+            }
+
+            mediaServerCgiUrlBuffer.append("/cgi-bin/voicemail/mediaserver.cgi");
+            m_mediaServerCgiUrl = mediaServerCgiUrlBuffer.toString();
+        }
+
+        return m_mediaServerCgiUrl;
+    }
+
     public void setMailboxPreferencesReader(MailboxPreferencesReader mailboxReader) {
         m_mailboxPreferencesReader = mailboxReader;
     }
@@ -230,12 +266,16 @@ public class MailboxManagerImpl extends HibernateDaoSupport implements MailboxMa
         m_distributionListsWriter = distributionListsWriter;
     }
 
-    public void setMediaServerCgiUrl(String mediaServerCgiUrl) {
-        m_mediaServerCgiUrl = mediaServerCgiUrl;
-    }
-
     public void setCoreContext(CoreContext coreContext) {
         m_coreContext = coreContext;
+    }
+
+    public void setSipxServiceManager(SipxServiceManager sipxServiceManager) {
+        m_sipxServiceManager = sipxServiceManager;
+    }
+
+    public void setLocationsManager(LocationsManager locationsManager) {
+        m_locationsManager = locationsManager;
     }
 
     public void setPersonalAttendantWriter(PersonalAttendantWriter personalAttendantWriter) {
@@ -265,10 +305,11 @@ public class MailboxManagerImpl extends HibernateDaoSupport implements MailboxMa
     }
 
     public void clearPersonalAttendants() {
-        List<PersonalAttendant> allPersonalAttendants = getHibernateTemplate().loadAll(PersonalAttendant.class);
+        List<PersonalAttendant> allPersonalAttendants = getHibernateTemplate().loadAll(
+                PersonalAttendant.class);
         getHibernateTemplate().deleteAll(allPersonalAttendants);
     }
-    
+
     public void writeAllPersonalAttendants() {
         List<PersonalAttendant> all = getHibernateTemplate().loadAll(PersonalAttendant.class);
         for (PersonalAttendant pa : all) {

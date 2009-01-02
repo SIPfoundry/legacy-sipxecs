@@ -31,7 +31,6 @@ public abstract class SipxService extends BeanWithSettings implements Model {
     private String m_sipPort;
     private String m_logDir;
     private String m_confDir;
-    private String m_voicemailHttpsPort;
     private DomainManager m_domainManager;
     private Set<SipxServiceBundle> m_bundles;
     private boolean m_restartable = true;
@@ -113,14 +112,6 @@ public abstract class SipxService extends BeanWithSettings implements Model {
 
     public String getDomainName() {
         return m_domainManager.getDomain().getName();
-    }
-
-    public String getVoicemailHttpsPort() {
-        return m_voicemailHttpsPort;
-    }
-
-    public void setVoicemailHttpsPort(String httpsPort) {
-        m_voicemailHttpsPort = httpsPort;
     }
 
     public void setLogDir(String logDir) {

@@ -16,8 +16,12 @@ import java.util.List;
 import junit.framework.TestCase;
 
 import org.apache.commons.io.FileUtils;
+import org.easymock.EasyMock;
 import org.sipfoundry.sipxconfig.TestHelper;
+import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.service.SipxMediaService;
+import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.sipfoundry.sipxconfig.test.TestUtil;
 
 public class MailboxManagerTest extends TestCase {
@@ -140,5 +144,23 @@ public class MailboxManagerTest extends TestCase {
         m_mgr.setMailboxPreferencesWriter(writer);
         Mailbox mailbox = m_mgr.getMailbox("save-prefs-" + System.currentTimeMillis());
         m_mgr.saveMailboxPreferences(mailbox, null);
+    }
+
+    public void testGetMediaServerCgiUrl() {
+        LocationsManager locationsManager = EasyMock.createMock(LocationsManager.class);
+        locationsManager.getPrimaryLocation();
+        EasyMock.expectLastCall().andReturn(TestUtil.createDefaultLocation());
+
+        SipxMediaService mediaService = new SipxMediaService();
+        mediaService.setBeanId(SipxMediaService.BEAN_ID);
+        mediaService.setVoicemailHttpsPort(9905);
+        SipxServiceManager sipxServiceManager = TestUtil.getMockSipxServiceManager(mediaService);
+        EasyMock.replay(locationsManager, sipxServiceManager);
+
+        MailboxManagerImpl out = new MailboxManagerImpl();
+        out.setLocationsManager(locationsManager);
+        out.setSipxServiceManager(sipxServiceManager);
+        String expectedCgiUrl = "https://sipx.example.org:9905/cgi-bin/voicemail/mediaserver.cgi";
+        assertEquals(expectedCgiUrl, out.getMediaServerCgiUrl());
     }
 }

@@ -13,7 +13,7 @@
       <userPattern>operator</userPattern>
       <permissionMatch>
         <transform>
-          <url>&lt;sip:IVR@localhost:15060;action=autoattendant;schedule_id=aa_-1;locale=en_US&gt;</url>
+          <url>&lt;sip:IVR@192.168.1.1:15060;action=autoattendant;schedule_id=aa_-1;locale=en_US&gt;</url>
         </transform>
       </permissionMatch>
     </userMatch>

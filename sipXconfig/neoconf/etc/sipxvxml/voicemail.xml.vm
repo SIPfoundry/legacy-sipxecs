@@ -77,7 +77,7 @@
             Non-SSL (HTTP) mediaserver base URL - used for retrieving UI webpages,
             stylesheets, standard prompts, vxml scripts, etc.
         -->
-        <mediaserver-url>http://localhost:${mediaService.httpPort}</mediaserver-url>
+        <mediaserver-url>http://localhost:${mediaService.voicemailHttpPort}</mediaserver-url>
 
         <!--
             Secure mediaserver base URL for accessing CGIs, user's mailbox, etc.
@@ -89,7 +89,7 @@
         <!--
             Non-SSL (HTTP) fully qualified mediaserver base URL - not used right now.
         -->
-        <full-mediaserver-url>http://${location.fqdn}:${mediaService.httpPort}</full-mediaserver-url>
+        <full-mediaserver-url>http://${location.fqdn}:${mediaService.voicemailHttpPort}</full-mediaserver-url>
 
         <!--
             Secure fully qualified mediaserver base URL - currently used for constructing links

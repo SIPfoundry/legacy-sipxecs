@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<dataset>
+  <table name="domain">
+    <column>domain_id</column>
+    <column>name</column>
+    <row>
+      <value>2000</value>
+      <value>example.org</value>
+    </row>
+  </table>
+</dataset>

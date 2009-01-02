@@ -30,7 +30,7 @@ client.jsi.maxBranches                  VXIInteger      100000
 
 client.vxi.beepURI                      VXIString       file:///@www.dir@/doc/stdprompts/beep.wav
 
-client.vxmlURL                          VXIString       http://localhost:8090/vm_vxml/ 
+client.vxmlURL                          VXIString       http://localhost:8090/vm_vxml/
 
 autothrottle.engage			VXIInteger      0
 autothrottle.tick                       VXIInteger      1000

@@ -38,7 +38,7 @@
       <permissionMatch>
         <transform>
           <url>
-            &lt;sip:{digits}@localhost;transport=tcp;voicexml=https%3A%2F%2Flocalhost%3A443%2Fcgi-bin%2Fvoicemail%2Fmediaserver.cgi%3Faction%3Dautoattendant%26name%3Doperator&gt;
+            &lt;sip:{digits}@192.168.1.1;transport=tcp;voicexml=https%3A%2F%2F192.168.1.1%3A443%2Fcgi-bin%2Fvoicemail%2Fmediaserver.cgi%3Faction%3Dautoattendant%26name%3Doperator&gt;
           </url>
         </transform>
       </permissionMatch>
@@ -49,7 +49,7 @@
       <permissionMatch>
         <transform>
           <url>
-            &lt;sip:{digits}@localhost;transport=tcp;voicexml=https%3A%2F%2Flocalhost%3A443%2Fcgi-bin%2Fvoicemail%2Fmediaserver.cgi%3Faction%3Dretrieve&gt;
+            &lt;sip:{digits}@192.168.1.1;transport=tcp;voicexml=https%3A%2F%2F192.168.1.1%3A443%2Fcgi-bin%2Fvoicemail%2Fmediaserver.cgi%3Faction%3Dretrieve&gt;
           </url>
         </transform>
       </permissionMatch>
@@ -69,7 +69,7 @@
       <permissionMatch>
         <transform>
           <url>
-            &lt;sip:{vdigits}@localhost;transport=tcp;voicexml=https%3A%2F%2Flocalhost%3A443%2Fcgi-bin%2Fvoicemail%2Fmediaserver.cgi%3Faction%3Ddeposit%26mailbox%3D{vdigits-escaped}&gt;
+            &lt;sip:{vdigits}@192.168.1.1;transport=tcp;voicexml=https%3A%2F%2F192.168.1.1%3A443%2Fcgi-bin%2Fvoicemail%2Fmediaserver.cgi%3Faction%3Ddeposit%26mailbox%3D{vdigits-escaped}&gt;
           </url>
         </transform>
       </permissionMatch>
@@ -91,7 +91,7 @@
         <permission>SipXVoicemailServer</permission>
         <transform>
           <url>
-            &lt;sip:{vdigits}@localhost;transport=tcp;voicexml=https%3A%2F%2Flocalhost%3A443%2Fcgi-bin%2Fvoicemail%2Fmediaserver.cgi%3Faction%3Ddeposit%26mailbox%3D{vdigits-escaped}&gt;;q=0.1
+            &lt;sip:{vdigits}@192.168.1.1;transport=tcp;voicexml=https%3A%2F%2F192.168.1.1%3A443%2Fcgi-bin%2Fvoicemail%2Fmediaserver.cgi%3Faction%3Ddeposit%26mailbox%3D{vdigits-escaped}&gt;;q=0.1
           </url>
         </transform>
       </permissionMatch>
