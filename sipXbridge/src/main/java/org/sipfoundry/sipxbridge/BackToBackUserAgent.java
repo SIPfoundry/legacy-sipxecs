@@ -702,11 +702,11 @@ public class BackToBackUserAgent {
 
             TransactionContext tad = TransactionContext.attach(ct,
                     Operation.REFER_INVITE_TO_SIPX_PROXY);
-            tad.backToBackUa = ((DialogContext) dialog.getApplicationData())
-                    .getBackToBackUserAgent();
-            tad.referingDialog = dialog;
+            tad.setBackToBackUa(((DialogContext) dialog.getApplicationData())
+                    .getBackToBackUserAgent());
+            tad.setReferingDialog(dialog);
 
-            tad.referRequest = referRequest;
+            tad.setReferRequest(referRequest);
 
             /*
              * Stamp the via header with our stamp so that we know we Referred this request. we
@@ -797,7 +797,6 @@ public class BackToBackUserAgent {
             TransactionContext tad = TransactionContext.attach(outboundReferClientTx,
                     Operation.FORWARD_REFER);
             tad.setServerTransaction(requestEvent.getServerTransaction());
-            tad.serverTransactionProvider = (SipProvider) requestEvent.getSource();
             peerDialog.sendRequest(outboundReferClientTx);
 
         } catch (SipException ex) {
@@ -985,13 +984,9 @@ public class BackToBackUserAgent {
             TransactionContext tad = new TransactionContext(ct,
                     Operation.SEND_INVITE_TO_SIPX_PROXY);
 
-            SipProvider provider = (SipProvider) requestEvent.getSource();
-
-            tad.clientTransactionProvider = Gateway.getLanProvider();
             tad.setServerTransaction(serverTransaction);
-            tad.serverTransactionProvider = provider;
-            tad.backToBackUa = this;
-            tad.itspAccountInfo = itspAccountInfo;
+            tad.setBackToBackUa(this);
+            tad.setItspAccountInfo(itspAccountInfo);
 
             this.addDialog(ct.getDialog());
             this.referingDialog = ct.getDialog();
@@ -1100,9 +1095,7 @@ public class BackToBackUserAgent {
             TransactionContext tad = TransactionContext.attach(ct,
                     Operation.SEND_INVITE_TO_MOH_SERVER);
 
-            tad.clientTransactionProvider = Gateway.getLanProvider();
-            tad.serverTransactionProvider = null;
-            tad.backToBackUa = this;
+            tad.setBackToBackUa(this);
             this.addDialog(ct.getDialog());
             DialogContext.attach(this, ct.getDialog(), ct, ct.getRequest());
 
@@ -1316,9 +1309,8 @@ public class BackToBackUserAgent {
             TransactionContext tad = new TransactionContext(serverTransaction,
                     spiral ? Operation.SPIRAL_BLIND_TRANSFER_INVITE_TO_ITSP
                             : Operation.SEND_INVITE_TO_ITSP);
-            tad.serverTransactionProvider = Gateway.getLanProvider();
-            tad.itspAccountInfo = itspAccountInfo;
-            tad.backToBackUa = this;
+            tad.setItspAccountInfo(itspAccountInfo);
+            tad.setBackToBackUa(this);
             tad.setClientTransaction(ct);
 
             if (!spiral) {
@@ -1352,15 +1344,15 @@ public class BackToBackUserAgent {
 
                     return;
                 }
-                tad.referingDialog = referingDialog;
-                tad.referRequest = DialogContext.get(referingDialog).referRequest;
+                tad.setReferingDialog(referingDialog);
+                tad.setReferRequest(DialogContext.get(referingDialog).referRequest);
                 RtpTransmitterEndpoint rtpEndpoint = new RtpTransmitterEndpoint(rtpSession,
                         symmitronClient);
                 rtpSession.setTransmitter(rtpEndpoint);
 
                 rtpEndpoint.setSessionDescription(sessionDescription, true);
                 int keepaliveInterval = Gateway.getMediaKeepaliveMilisec();
-                KeepaliveMethod keepaliveMethod = tad.itspAccountInfo.getRtpKeepaliveMethod();
+                KeepaliveMethod keepaliveMethod = tad.getItspAccountInfo().getRtpKeepaliveMethod();
                 rtpEndpoint.setIpAddressAndPort(keepaliveInterval, keepaliveMethod);
 
                 /*
@@ -1487,7 +1479,7 @@ public class BackToBackUserAgent {
                 TransactionContext tad = TransactionContext.attach(ctx,
                         Operation.HANDLE_INVITE_WITH_REPLACES);
                 tad.setServerTransaction(serverTransaction);
-                tad.replacedDialog = replacedDialog;
+                tad.setReplacedDialog(replacedDialog);
 
                 // send the in-dialog re-invite to the other side.
                 peerDialog.sendRequest(ctx);
@@ -1635,7 +1627,7 @@ public class BackToBackUserAgent {
                     Operation.PROCESS_BYE);
 
             transactionContext.setClientTransaction(ct);
-            transactionContext.itspAccountInfo = DialogContext.get(peer).getItspInfo();
+            transactionContext.setItspAccountInfo(DialogContext.get(peer).getItspInfo());
             ct.setApplicationData(transactionContext);
 
             peer.sendRequest(ct);

@@ -460,8 +460,15 @@ class DialogContext {
              * There is already a re-negotiation in progress so return silently
              */
 
-            if (peerDialog != null && peerDialog.getState() != DialogState.TERMINATED) {
+            if (peerDialog != null && peerDialog.getState() != DialogState.TERMINATED ) {
                 logger.debug("queryDialogFromPeer -- sending query to " + peerDialog);
+                DialogContext peerDialogContext = DialogContext.get(peerDialog);
+                /* Are we pending a query already ? If so need to retry later. ITSPs do take well
+                 * to nested media negotiation attempts.
+                 */
+                if ( peerDialogContext.getPendingAction() == PendingDialogAction.PENDING_SDP_ANSWER_IN_ACK) {
+                    return false;
+                }
                 Request reInvite = peerDialog.createRequest(Request.INVITE);
                 reInvite.removeHeader(SupportedHeader.NAME);
                 SipUtilities.addWanAllowHeaders(reInvite);
@@ -496,9 +503,10 @@ class DialogContext {
                 /*
                  * The information we need to continue the operation when the Response comes in.
                  */
-                tad.continuationData = continuationData;
+                tad.setContinuationData(continuationData);
 
                 peerDialog.sendRequest(ctx);
+               
 
             }
             return true;

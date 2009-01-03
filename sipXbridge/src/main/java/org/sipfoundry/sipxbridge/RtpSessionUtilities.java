@@ -143,8 +143,6 @@ public class RtpSessionUtilities {
 
 		tad.setServerTransaction(serverTransaction);
 
-		tad.serverTransactionProvider = ((DialogExt) dialog).getSipProvider();
-
 		peerDialog.sendRequest(ctx);
 	}
 

@@ -6,6 +6,10 @@
  */
 package org.sipfoundry.sipxbridge;
 
+import java.util.Random;
+
+import gov.nist.javax.sip.TransactionExt;
+
 import javax.sip.ClientTransaction;
 import javax.sip.Dialog;
 import javax.sip.ServerTransaction;
@@ -32,7 +36,7 @@ class TransactionContext {
     /*
      * The current operation.
      */
-    Operation operation;
+    private Operation operation;
     
     
     /*
@@ -40,76 +44,82 @@ class TransactionContext {
      * comes in ). This is associated with the outgoing invite and is completed
      * when the response containing the sdp answer comes in.
      */
-    RtpSession outgoingSession;
+    private RtpSession outgoingRtpSession;
     
     
     /*
      * The ITSP account information.
      */
-    ItspAccountInfo itspAccountInfo;
+    private ItspAccountInfo itspAccountInfo;
 
     /*
      * The incoming server transaction.
      */
     private ServerTransaction serverTransaction;
 
-    /*
-     * The provider associated with the server transaction
-     */
-    SipProvider serverTransactionProvider;
-
+  
     /*
      * The outgoing client transaction.
      */
 
     private ClientTransaction clientTransaction;
 
-    /*
-     * The provider associated with the ct.
-     */
-    SipProvider clientTransactionProvider;
-
-    /*
-     * The tag to assign to responses.
-     */
-    String toTag;
-
   
     /*
      * The Refering DIALOG if any.
      */
-    Dialog referingDialog;
+    private Dialog referingDialog;
 
     /*
      * The ReferedTo dialog if any.
      */
-    Dialog replacedDialog;
+    private Dialog replacedDialog;
 
     /*
      * The Back to back UA that is shared by both the client and server
-     * transaction.
+     * transaction. 
      */
-    BackToBackUserAgent backToBackUa;
+    private BackToBackUserAgent backToBackUa;
     
     /*
      * The Dialog that gets an ACK with the answer from an SDP offer solicitation.
      */
-    Dialog dialogPendingSdpAnswer;
+    private Dialog dialogPendingSdpAnswer;
 
     
     /*
-     * For the next step of the SBC state machine.
+     * State for the next step of the SBC state machine.
      */
-    ContinuationData continuationData;
+    private ContinuationData continuationData;
 
     /*
      * The Refer request.
      */
-    Request referRequest;
+    private Request referRequest;
 
-    
 
+    /*
+     * To tag for client/server pair.
+     */
+    private String toTag;
 	
+    static TransactionContext attach(Transaction transaction,
+            Operation operation) {
+        if ( transaction.getApplicationData() != null ) {
+            logger.warn("RESETTING Transaction Pointer");
+        }
+        TransactionContext retval = new TransactionContext(transaction,operation);
+        return retval;
+    }
+
+    /*
+     * Get the TAD associated with a Transaction.
+     */
+    static TransactionContext get(
+            Transaction  transaction ) {
+        
+        return (TransactionContext) transaction.getApplicationData();
+    }
 
     /**
      * The server side of the pairing.
@@ -142,7 +152,7 @@ class TransactionContext {
     }
 
     TransactionContext(Transaction transaction , Operation operation) {
-        this.operation = operation;
+        this.setOperation(operation);
         if ( transaction instanceof ServerTransaction )  {
             this.setServerTransaction((ServerTransaction)transaction);
         } else {
@@ -165,36 +175,169 @@ class TransactionContext {
         return clientTransaction;
     }
 
-    static TransactionContext attach(Transaction transaction,
-            Operation operation) {
-        if ( transaction.getApplicationData() != null ) {
-            logger.warn("RESETTING Transaction Pointer");
-        }
-        TransactionContext retval = new TransactionContext(transaction,operation);
-        return retval;
-    }
-
-    /*
-     * Get the TAD associated with a Transaction.
-     */
-	static TransactionContext get(
-			Transaction  transaction ) {
-		
-		return (TransactionContext) transaction.getApplicationData();
-	}
-
-    public Operation getContinuationOperation() {
-        if ( this.continuationData == null) {
+  
+	/**
+	 * Get the continuation operation. 
+	 * 
+	 * @return
+	 */
+    Operation getContinuationOperation() {
+        if ( this.getContinuationData() == null) {
             return Operation.NONE;
         } else {
-            return this.continuationData.getOperation();
+            return this.getContinuationData().getOperation();
         }
+    }
+
+    /**
+     * @param dialogPendingSdpAnswer the dialogPendingSdpAnswer to set
+     */
+    void setDialogPendingSdpAnswer(Dialog dialogPendingSdpAnswer) {
+        this.dialogPendingSdpAnswer = dialogPendingSdpAnswer;
+    }
+
+    /**
+     * @return the dialogPendingSdpAnswer
+     */
+    Dialog getDialogPendingSdpAnswer() {
+        return dialogPendingSdpAnswer;
+    }
+
+
+    /**
+     * @return the serverTransactionProvider
+     */
+    SipProvider getServerTransactionProvider() {
+        return this.serverTransaction == null ? null :
+            ((TransactionExt) serverTransaction).getSipProvider();
+       
+    }
+
+    /**
+     * @param referingDialog the referingDialog to set
+     */
+    void setReferingDialog(Dialog referingDialog) {
+        this.referingDialog = referingDialog;
+    }
+
+    /**
+     * @return the referingDialog
+     */
+    Dialog getReferingDialog() {
+        return referingDialog;
+    }
+
+    /**
+     * @param replacedDialog the replacedDialog to set
+     */
+    void setReplacedDialog(Dialog replacedDialog) {
+        this.replacedDialog = replacedDialog;
+    }
+
+    /**
+     * @return the replacedDialog
+     */
+    Dialog getReplacedDialog() {
+        return replacedDialog;
+    }
+
+    /**
+     * @param operation the operation to set
+     */
+    void setOperation(Operation operation) {
+        this.operation = operation;
+    }
+
+    /**
+     * @return the operation
+     */
+    Operation getOperation() {
+        return operation;
+    }
+
+    /**
+     * @param outgoingRtpSession the outgoingRtpSession to set
+     */
+    void setOutgoingRtpSession(RtpSession outgoingRtpSession) {
+        this.outgoingRtpSession = outgoingRtpSession;
+    }
+
+    /**
+     * @return the outgoingRtpSession
+     */
+    RtpSession getOutgoingRtpSession() {
+        return outgoingRtpSession;
+    }
+
+    /**
+     * @param backToBackUa the backToBackUa to set
+     */
+    void setBackToBackUa(BackToBackUserAgent backToBackUa) {
+        this.backToBackUa = backToBackUa;
+    }
+
+    /**
+     * @return the backToBackUa
+     */
+    BackToBackUserAgent getBackToBackUa() {
+        return backToBackUa;
+    }
+
+    /**
+     * @param continuationData the continuationData to set
+     */
+    void setContinuationData(ContinuationData continuationData) {
+        this.continuationData = continuationData;
+    }
+
+    /**
+     * @return the continuationData
+     */
+    ContinuationData getContinuationData() {
+        return continuationData;
+    }
+
+    /**
+     * @param referRequest the referRequest to set
+     */
+    void setReferRequest(Request referRequest) {
+        this.referRequest = referRequest;
+    }
+
+    /**
+     * @return the referRequest
+     */
+    Request getReferRequest() {
+        return referRequest;
+    }
+
+    /**
+     * possibly create and return a fresh to tag.
+     * 
+     * @return toTag
+     */
+    String createToTag() {
+        if (toTag == null) {
+            toTag = Integer.toString(Math.abs(new Random().nextInt()));
+            
+        }
+        return toTag;
+    }
+
+    /**
+     * @param itspAccountInfo the itspAccountInfo to set
+     */
+    void setItspAccountInfo(ItspAccountInfo itspAccountInfo) {
+        this.itspAccountInfo = itspAccountInfo;
+    }
+
+    /**
+     * @return the itspAccountInfo
+     */
+    ItspAccountInfo getItspAccountInfo() {
+        return itspAccountInfo;
     }
 
     
-
-
-
-   
 
 }

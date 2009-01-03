@@ -195,10 +195,10 @@ public class SipListenerImpl implements SipListener {
             }
 
             logger.debug("processResponse : operator "
-                    + TransactionContext.get(responseEvent.getClientTransaction()).operation);
+                    + TransactionContext.get(responseEvent.getClientTransaction()).getOperation());
 
             ItspAccountInfo accountInfo = ((TransactionContext) responseEvent
-                    .getClientTransaction().getApplicationData()).itspAccountInfo;
+                    .getClientTransaction().getApplicationData()).getItspAccountInfo();
 
             if ((response.getStatusCode() == Response.PROXY_AUTHENTICATION_REQUIRED
                     || response.getStatusCode() == Response.UNAUTHORIZED || (response
@@ -393,8 +393,8 @@ public class SipListenerImpl implements SipListener {
                 && dialog.getState() == DialogState.CONFIRMED
                 && ((ToHeader) request.getHeader(ToHeader.NAME)).getParameter("tag") == null) {
             TransactionContext txContext = TransactionContext.get(transaction);
-            if (txContext != null && txContext.operation == Operation.SEND_INVITE_TO_ITSP
-                    || txContext.operation == Operation.SEND_INVITE_TO_ITSP) {
+            if (txContext != null && txContext.getOperation() == Operation.SEND_INVITE_TO_ITSP
+                    || txContext.getOperation() == Operation.SEND_INVITE_TO_ITSP) {
 
                 Gateway.incrementCallCount();
             }

@@ -207,8 +207,8 @@ class CallControlManager implements SymmitronResetHandler {
 			 * Set up the continuation data so we know what to do when the
 			 * response arrives.
 			 */
-			tad.continuationData = new ForwardSdpSolicitationContinuationData(
-					requestEvent);
+			tad.setContinuationData(new ForwardSdpSolicitationContinuationData(
+					requestEvent));
 			serverTransaction.setApplicationData(tad);
 
 			DialogContext peerDat = DialogContext.get(peerDialog);
@@ -1031,7 +1031,7 @@ class CallControlManager implements SymmitronResetHandler {
 			 */
 			Operation continuationOperation = tad.getContinuationOperation();
 			if (continuationOperation != Operation.NONE) {
-				ContinuationData cdata = (ContinuationData) tad.continuationData;
+				ContinuationData cdata = (ContinuationData) tad.getContinuationData();
 				Response errorResponse = SipUtilities.createResponse(cdata
 						.getRequestEvent().getServerTransaction(), response
 						.getStatusCode());
@@ -1041,9 +1041,9 @@ class CallControlManager implements SymmitronResetHandler {
 				}
 			}
 
-			if (tad.operation == Operation.CANCEL_REPLACED_INVITE) {
-				logger.debug("ingoring 4xx response " + tad.operation);
-			} else if (tad.operation != Operation.REFER_INVITE_TO_SIPX_PROXY) {
+			if (tad.getOperation() == Operation.CANCEL_REPLACED_INVITE) {
+				logger.debug("ingoring 4xx response " + tad.getOperation());
+			} else if (tad.getOperation() != Operation.REFER_INVITE_TO_SIPX_PROXY) {
 				if (serverTransaction != null) {
 					if (serverTransaction.getState() != TransactionState.TERMINATED) {
 						Response newResponse = SipUtilities.createResponse(
@@ -1060,8 +1060,8 @@ class CallControlManager implements SymmitronResetHandler {
 									"CallControlManager: Call transfer error"));
 				}
 			} else {
-				Dialog referDialog = tad.referingDialog;
-				Request referRequest = tad.referRequest;
+				Dialog referDialog = tad.getReferingDialog();
+				Request referRequest = tad.getReferRequest();
 				if (referDialog != null
 						&& referDialog.getState() == DialogState.CONFIRMED) {
 					this.notifyReferDialog(referRequest, referDialog, response);
@@ -1105,11 +1105,7 @@ class CallControlManager implements SymmitronResetHandler {
 
 		newResponse.setHeader(sh);
 
-		String toTag = transactionContext.toTag;
-		if (toTag == null) {
-			toTag = Integer.toString(Math.abs(new Random().nextInt()));
-			transactionContext.toTag = toTag;
-		}
+		
 
 		ToHeader toHeader = (ToHeader) transactionContext
 				.getServerTransaction().getRequest().getHeader(ToHeader.NAME);
@@ -1121,17 +1117,19 @@ class CallControlManager implements SymmitronResetHandler {
 		 * Set the contact address for the OK. Note that ITSP may want global
 		 * addressing.
 		 */
-		if (transactionContext.operation == Operation.SEND_INVITE_TO_ITSP) {
+		if (transactionContext.getOperation() == Operation.SEND_INVITE_TO_ITSP) {
 			contactHeader = SipUtilities.createContactHeader(user,
-					transactionContext.serverTransactionProvider);
+					transactionContext.getServerTransactionProvider());
 		} else {
 			contactHeader = SipUtilities.createContactHeader(
-					transactionContext.serverTransactionProvider,
-					transactionContext.itspAccountInfo);
+					transactionContext.getServerTransactionProvider(),
+					transactionContext.getItspAccountInfo());
 		}
 
 		newResponse.setHeader(contactHeader);
 		ToHeader newToHeader = (ToHeader) newResponse.getHeader(ToHeader.NAME);
+		String toTag = transactionContext.createToTag();
+       
 		newToHeader.setTag(toTag);
 
 		/*
@@ -1171,8 +1169,8 @@ class CallControlManager implements SymmitronResetHandler {
 
 			KeepaliveMethod keepaliveMethod;
 
-			if (transactionContext.operation == Operation.SEND_INVITE_TO_ITSP) {
-				keepaliveMethod = transactionContext.itspAccountInfo
+			if (transactionContext.getOperation() == Operation.SEND_INVITE_TO_ITSP) {
+				keepaliveMethod = transactionContext.getItspAccountInfo()
 						.getRtpKeepaliveMethod();
 			} else {
 				keepaliveMethod = KeepaliveMethod.NONE;
@@ -1194,7 +1192,7 @@ class CallControlManager implements SymmitronResetHandler {
 
 			newResponse.setContent(newSd.toString(), cth);
 
-			transactionContext.backToBackUa.getRtpBridge().start();
+			transactionContext.getBackToBackUa().getRtpBridge().start();
 
 		} else if (response.getRawContent() != null) {
 			// Cannot recognize header.
@@ -1283,7 +1281,7 @@ class CallControlManager implements SymmitronResetHandler {
 
 		dialogContext.lastResponse = response;
 		ServerTransaction serverTransaction = tad.getServerTransaction();
-		Dialog replacedDialog = tad.replacedDialog;
+		Dialog replacedDialog = tad.getReplacedDialog();
 		Request request = serverTransaction.getRequest();
 		SipProvider peerProvider = ((TransactionExt) serverTransaction)
 				.getSipProvider();
@@ -1386,7 +1384,7 @@ class CallControlManager implements SymmitronResetHandler {
 
 			newResponse.setHeader(sh);
 			ContactHeader contactHeader = SipUtilities.createContactHeader(
-					Gateway.SIPXBRIDGE_USER, tad.serverTransactionProvider);
+					Gateway.SIPXBRIDGE_USER, tad.getServerTransactionProvider());
 			newResponse.setHeader(contactHeader);
 			Dialog peerDialog = DialogContext.getPeerDialog(dialog);
 			SipProvider peerProvider = ((DialogExt) peerDialog)
@@ -1454,8 +1452,8 @@ class CallControlManager implements SymmitronResetHandler {
 		 */
 		ContentTypeHeader cth = (ContentTypeHeader) response
 				.getHeader(ContentTypeHeader.NAME);
-		Dialog referDialog = tad.referingDialog;
-		Request referRequest = tad.referRequest;
+		Dialog referDialog = tad.getReferingDialog();
+		Request referRequest = tad.getReferRequest();
 		Dialog peerDialog = DialogContext.getPeerDialog(dialog);
 		DialogContext peerDat = DialogContext.get(peerDialog);
 
@@ -1551,11 +1549,11 @@ class CallControlManager implements SymmitronResetHandler {
 		 * SDP was returned from the transfer target.
 		 */
 		if (response.getContentLength().getContentLength() != 0) {
-			if (tad.dialogPendingSdpAnswer != null
-					&& DialogContext.get(tad.dialogPendingSdpAnswer)
+			if (tad.getDialogPendingSdpAnswer() != null
+					&& DialogContext.get(tad.getDialogPendingSdpAnswer())
 							.getPendingAction() == PendingDialogAction.PENDING_SDP_ANSWER_IN_ACK) {
-				Dialog dialogToAck = tad.dialogPendingSdpAnswer;
-				tad.dialogPendingSdpAnswer = null;
+				Dialog dialogToAck = tad.getDialogPendingSdpAnswer();
+				tad.setDialogPendingSdpAnswer(null);
 				CallControlUtilities.sendSdpAnswerInAck(response, dialogToAck);
 			} else if (dialogContext.getPendingAction() == PendingDialogAction.PENDING_RE_INVITE_WITH_SDP_OFFER) {
 				dialogContext.setPendingAction(PendingDialogAction.NONE);
@@ -1613,8 +1611,8 @@ class CallControlManager implements SymmitronResetHandler {
          */
         ContentTypeHeader cth = (ContentTypeHeader) response
                 .getHeader(ContentTypeHeader.NAME);
-        Dialog referDialog = tad.referingDialog;
-        Request referRequest = tad.referRequest;
+        Dialog referDialog = tad.getReferingDialog();
+        Request referRequest = tad.getReferRequest();
         Dialog peerDialog = DialogContext.getPeerDialog(dialog);
         DialogContext peerDat = DialogContext.get(peerDialog);
 
@@ -1709,11 +1707,11 @@ class CallControlManager implements SymmitronResetHandler {
          * SDP was returned from the transfer target.
          */
         if (response.getContentLength().getContentLength() != 0) {
-            if (tad.dialogPendingSdpAnswer != null
-                    && DialogContext.get(tad.dialogPendingSdpAnswer)
+            if (tad.getDialogPendingSdpAnswer() != null
+                    && DialogContext.get(tad.getDialogPendingSdpAnswer())
                             .getPendingAction() == PendingDialogAction.PENDING_SDP_ANSWER_IN_ACK) {
-                Dialog dialogToAck = tad.dialogPendingSdpAnswer;
-                tad.dialogPendingSdpAnswer = null;
+                Dialog dialogToAck = tad.getDialogPendingSdpAnswer();
+                tad.setDialogPendingSdpAnswer(null);
                 CallControlUtilities.sendSdpAnswerInAck(response, dialogToAck);
             } else if (dialogContext.getPendingAction() == PendingDialogAction.PENDING_RE_INVITE_WITH_SDP_OFFER) {
                 dialogContext.setPendingAction(PendingDialogAction.NONE);
@@ -1807,7 +1805,7 @@ class CallControlManager implements SymmitronResetHandler {
 				.getContinuationOperation();
 
 		RtpSession peerRtpSession = DialogContext
-				.getPeerRtpSession(transactionContext.continuationData
+				.getPeerRtpSession(transactionContext.getContinuationData()
 						.getDialog());
 
 		SessionDescription responseSessionDescription;
@@ -1855,7 +1853,7 @@ class CallControlManager implements SymmitronResetHandler {
 				 * send another invite to the phone. The Park server will play
 				 * music when the phone is ringing ( simulates RINGING ).
 				 */
-				ReferInviteToSipxProxyContinuationData continuation = (ReferInviteToSipxProxyContinuationData) transactionContext.continuationData;
+				ReferInviteToSipxProxyContinuationData continuation = (ReferInviteToSipxProxyContinuationData) transactionContext.getContinuationData();
 
 				if (!Gateway.getBridgeConfiguration()
 						.isMusicOnHoldSupportEnabled()
@@ -1926,7 +1924,7 @@ class CallControlManager implements SymmitronResetHandler {
 					 * Note the dialog to ACK when we get an SDP answer in our
 					 * transaction context.
 					 */
-					TransactionContext.get(mohCtx).dialogPendingSdpAnswer = dialog;
+					TransactionContext.get(mohCtx).setDialogPendingSdpAnswer(dialog);
 					DialogContext.get(mohCtx.getDialog()).setPendingAction(
 							PendingDialogAction.PENDING_SDP_ANSWER_IN_ACK);
 					DialogContext.get(mohCtx.getDialog()).peerDialog = dialog;
@@ -2002,7 +2000,7 @@ class CallControlManager implements SymmitronResetHandler {
 				 * Now reply back to the original Transaction and put the WAN
 				 * side on hold. Note tha this case MOH will not play.
 				 */
-				SendInviteToMohServerContinuationData continuation = (SendInviteToMohServerContinuationData) transactionContext.continuationData;
+				SendInviteToMohServerContinuationData continuation = (SendInviteToMohServerContinuationData) transactionContext.getContinuationData();
 				// DialogApplicationData.get(continuation.getDialog()).mohCodecNegotiationFailed
 				// =
 				// true;
@@ -2059,7 +2057,7 @@ class CallControlManager implements SymmitronResetHandler {
 
 				return;
 			} else {
-				SendInviteToMohServerContinuationData continuation = (SendInviteToMohServerContinuationData) transactionContext.continuationData;
+				SendInviteToMohServerContinuationData continuation = (SendInviteToMohServerContinuationData) transactionContext.getContinuationData();
 
 				SessionDescription clonedSd = SipUtilities
 						.cloneSessionDescription(responseSessionDescription);
@@ -2087,7 +2085,7 @@ class CallControlManager implements SymmitronResetHandler {
 					/*
 					 * Note that we owe the dialog an sdp answer when we get it.
 					 */
-					TransactionContext.get(ctx).dialogPendingSdpAnswer = dialog;
+					TransactionContext.get(ctx).setDialogPendingSdpAnswer(dialog);
 					ctx.sendRequest();
 				}
 
@@ -2184,7 +2182,7 @@ class CallControlManager implements SymmitronResetHandler {
 				}
 				return;
 			} else if (((TransactionContext) responseEvent
-					.getClientTransaction().getApplicationData()).operation == Operation.SESSION_TIMER
+					.getClientTransaction().getApplicationData()).getOperation() == Operation.SESSION_TIMER
 					&& dialog != null) {
 
 			}
@@ -2212,10 +2210,10 @@ class CallControlManager implements SymmitronResetHandler {
 				 */
 				TransactionContext tad = (TransactionContext) responseEvent
 						.getClientTransaction().getApplicationData();
-				if (tad.operation == Operation.REFER_INVITE_TO_SIPX_PROXY
-						|| tad.operation == Operation.SPIRAL_BLIND_TRANSFER_INVITE_TO_ITSP) {
-					Dialog referDialog = tad.referingDialog;
-					Request referRequest = tad.referRequest;
+				if (tad.getOperation() == Operation.REFER_INVITE_TO_SIPX_PROXY
+						|| tad.getOperation() == Operation.SPIRAL_BLIND_TRANSFER_INVITE_TO_ITSP) {
+					Dialog referDialog = tad.getReferingDialog();
+					Request referRequest = tad.getReferRequest();
 					if (referDialog.getState() == DialogState.CONFIRMED) {
 						this.notifyReferDialog(referRequest, referDialog,
 								response);
@@ -2238,7 +2236,7 @@ class CallControlManager implements SymmitronResetHandler {
 				TransactionContext tad = (TransactionContext) responseEvent
 						.getClientTransaction().getApplicationData();
 
-				logger.debug("Operation = " + tad.operation);
+				logger.debug("Operation = " + tad.getOperation());
 
 				/*
 				 * The TransactionApplicationData operator will indicate what
@@ -2247,7 +2245,7 @@ class CallControlManager implements SymmitronResetHandler {
 				/*
 				 * This is an OK for the session timer
 				 */
-				if (tad.operation == Operation.SESSION_TIMER) {
+				if (tad.getOperation() == Operation.SESSION_TIMER) {
 					if (response.getStatusCode() == 200) {
 						Request ack = dialog.createAck(((CSeqHeader) response
 								.getHeader(CSeqHeader.NAME)).getSeqNumber());
@@ -2255,7 +2253,7 @@ class CallControlManager implements SymmitronResetHandler {
 						dialog.sendAck(ack);
 
 					}
-				} else if (tad.operation == Operation.SEND_SDP_RE_OFFER) {
+				} else if (tad.getOperation() == Operation.SEND_SDP_RE_OFFER) {
 					/*
 					 * We sent the other side a re-OFFER.
 					 */
@@ -2272,50 +2270,50 @@ class CallControlManager implements SymmitronResetHandler {
 						dialog.sendAck(ack);
 					}
 					return;
-				} else if (tad.operation == Operation.FORWARD_SDP_SOLICITIATION) {
+				} else if (tad.getOperation() == Operation.FORWARD_SDP_SOLICITIATION) {
 					this.forwardSdpSolicitationResponse(responseEvent);
-				} else if (tad.operation == Operation.SOLICIT_SDP_OFFER_FROM_PEER_DIALOG
+				} else if (tad.getOperation() == Operation.SOLICIT_SDP_OFFER_FROM_PEER_DIALOG
 						&& response.getStatusCode() == 200) {
 					this.solicitSdpOfferFromPeerDialogResponse(responseEvent);
-				} else if (tad.operation == Operation.SEND_INVITE_TO_ITSP
-						|| tad.operation == Operation.SEND_INVITE_TO_SIPX_PROXY) {
+				} else if (tad.getOperation() == Operation.SEND_INVITE_TO_ITSP
+						|| tad.getOperation() == Operation.SEND_INVITE_TO_SIPX_PROXY) {
 					this.inviteToItspOrProxyResponse(responseEvent);
-				} else if (tad.operation == Operation.REFER_INVITE_TO_SIPX_PROXY) {
+				} else if (tad.getOperation() == Operation.REFER_INVITE_TO_SIPX_PROXY) {
 					this.referInviteToSipxProxyResponse(responseEvent);
-				} else if ( tad.operation == Operation.SPIRAL_BLIND_TRANSFER_INVITE_TO_ITSP ) {
+				} else if ( tad.getOperation() == Operation.SPIRAL_BLIND_TRANSFER_INVITE_TO_ITSP ) {
 				    this.blindTransferToItspResponse(responseEvent);
-				} else if (tad.operation
+				} else if (tad.getOperation()
 						.equals(Operation.SEND_INVITE_TO_MOH_SERVER)) {
 					if (response.getStatusCode() == Response.OK) {
 						Request ack = dialog.createAck(((CSeqHeader) response
 								.getHeader(CSeqHeader.NAME)).getSeqNumber());
 
 						dialog.sendAck(ack);
-						if (tad.dialogPendingSdpAnswer != null
+						if (tad.getDialogPendingSdpAnswer() != null
 								&& DialogContext
-										.getPendingAction(tad.dialogPendingSdpAnswer) == PendingDialogAction.PENDING_SDP_ANSWER_IN_ACK) {
+										.getPendingAction(tad.getDialogPendingSdpAnswer()) == PendingDialogAction.PENDING_SDP_ANSWER_IN_ACK) {
 							CallControlUtilities.sendSdpAnswerInAck(response,
-									tad.dialogPendingSdpAnswer);
+									tad.getDialogPendingSdpAnswer());
 						}
 
 					}
-				} else if (tad.operation.equals(Operation.FORWARD_REINVITE)) {
+				} else if (tad.getOperation().equals(Operation.FORWARD_REINVITE)) {
 					this.forwardReInviteResponse(responseEvent);
-				} else if (tad.operation == Operation.HANDLE_SPIRAL_INVITE_WITH_REPLACES) {
+				} else if (tad.getOperation() == Operation.HANDLE_SPIRAL_INVITE_WITH_REPLACES) {
 					if (response.getStatusCode() == Response.OK) {
 						Request ack = dialog.createAck(((CSeqHeader) response
 								.getHeader(CSeqHeader.NAME)).getSeqNumber());
 
 						dialog.sendAck(ack);
 
-						if (tad.dialogPendingSdpAnswer != null
+						if (tad.getDialogPendingSdpAnswer() != null
 								&& DialogContext
-										.getPendingAction(tad.dialogPendingSdpAnswer) == PendingDialogAction.PENDING_SDP_ANSWER_IN_ACK) {
+										.getPendingAction(tad.getDialogPendingSdpAnswer()) == PendingDialogAction.PENDING_SDP_ANSWER_IN_ACK) {
 							CallControlUtilities.sendSdpAnswerInAck(response,
-									tad.dialogPendingSdpAnswer);
+									tad.getDialogPendingSdpAnswer());
 						}
 					}
-				} else if (tad.operation == Operation.HANDLE_INVITE_WITH_REPLACES) {
+				} else if (tad.getOperation() == Operation.HANDLE_INVITE_WITH_REPLACES) {
 					handleInviteWithReplacesResponse(responseEvent);
 				} else {
 					logger
@@ -2328,8 +2326,8 @@ class CallControlManager implements SymmitronResetHandler {
 				 */
 				TransactionContext tad = (TransactionContext) responseEvent
 						.getClientTransaction().getApplicationData();
-				if (tad.continuationData == null
-						|| tad.continuationData.getOperation() != Operation.REFER_INVITE_TO_SIPX_PROXY) {
+				if (tad.getContinuationData() == null
+						|| tad.getContinuationData().getOperation() != Operation.REFER_INVITE_TO_SIPX_PROXY) {
 					logger.warn("Unexpected REQUEST_PENDING");
 					b2bua.tearDown();
 					return;
@@ -2338,7 +2336,7 @@ class CallControlManager implements SymmitronResetHandler {
 				Gateway.getTimer()
 						.schedule(
 								new RequestPendingTimerTask(
-										tad.continuationData), 1000);
+										tad.getContinuationData()), 1000);
 			} else if (response.getStatusCode() == Response.INTERVAL_TOO_BRIEF) {
 				MinSE minSe = (MinSE) response.getHeader(MinSE.NAME);
 				if (minSe != null) {
