@@ -44,7 +44,7 @@ class RtpReceiverEndpoint implements SymEndpointInterface {
             this.sessionVersion = 1;
 
             String address = this.getIpAddress();
-            origin = SdpFactory.getInstance().createOrigin(Gateway.SIPXBRIDGE_USER, sessionId,
+            origin = SdpFactory.getInstance().createOrigin("sipxbridge", sessionId,
                     sessionVersion, "IN", "IP4", address);
         } catch (Exception ex) {
             throw new SipXbridgeException("Unexpected exception creating origin ", ex);
@@ -125,7 +125,10 @@ class RtpReceiverEndpoint implements SymEndpointInterface {
      */
 
     void setUseGlobalAddressing(boolean globalAddressingUsed) {
-        this.useGlobalAddressing = globalAddressingUsed;
+            this.useGlobalAddressing = globalAddressingUsed;
+            if ( this.sessionDescription != null ) {
+                this.setSessionDescription(sessionDescription);
+            }
     }
 
 }

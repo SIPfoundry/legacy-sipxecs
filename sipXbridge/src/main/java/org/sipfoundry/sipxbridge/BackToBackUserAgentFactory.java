@@ -114,7 +114,7 @@ public class BackToBackUserAgentFactory {
 		 } catch (Exception ex) {
 			logger.error("unexpected exception ", ex);
 			throw new SipXbridgeException(
-					"Unepxected exception processing request", ex);
+					"Initialization exception while processing request", ex);
 		} finally {
 		    logger.debug("returning " + b2bua);
 		}

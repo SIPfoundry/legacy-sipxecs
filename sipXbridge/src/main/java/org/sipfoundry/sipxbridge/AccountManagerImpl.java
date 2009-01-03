@@ -6,6 +6,7 @@
  */
 package org.sipfoundry.sipxbridge;
 
+import gov.nist.javax.sip.TransactionExt;
 import gov.nist.javax.sip.clientauthutils.UserCredentials;
 import gov.nist.javax.sip.header.ims.PPreferredIdentityHeader;
 
@@ -17,6 +18,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import javax.sip.ClientTransaction;
+import javax.sip.SipProvider;
 import javax.sip.address.SipURI;
 import javax.sip.header.FromHeader;
 import javax.sip.message.Request;
@@ -216,14 +218,13 @@ public class AccountManagerImpl implements gov.nist.javax.sip.clientauthutils.Ac
             } else {
                 String inBoundProxyDomain = accountInfo.getInboundProxy();
                 int inBoundProxyPort = accountInfo.getInboundProxyPort();
-                if (host.equals(inBoundProxyDomain) &&  port == inBoundProxyPort ) {
-                    logger.debug("found account based on inbound proxy " ) ;
+                if (host.equals(inBoundProxyDomain) && port == inBoundProxyPort) {
+                    logger.debug("found account based on inbound proxy ");
                     return accountInfo;
                 }
             }
         }
-        
-       
+
         return null;
     }
 
@@ -252,9 +253,39 @@ public class AccountManagerImpl implements gov.nist.javax.sip.clientauthutils.Ac
      */
     public UserCredentials getCredentials(ClientTransaction ctx, String authRealm) {
 
-        TransactionContext tad = (TransactionContext) ctx.getApplicationData();
+        SipProvider provider = ((TransactionExt) ctx).getSipProvider();
 
-        return tad.itspAccountInfo;
+        /*
+         * Challenge from the LAN side.
+         */
+        if (provider == Gateway.getLanProvider()) {
+            if (Gateway.getBridgeConfiguration().getSipxbridgePassword() != null) {
+                return new UserCredentials() {
+                    public String getPassword() {
+                        return Gateway.getBridgeConfiguration().getSipxbridgePassword();
+                    }
+
+                    public String getSipDomain() {
+                        return Gateway.getSipxProxyDomain();
+                    }
+
+                    public String getUserName() {
+                        return Gateway.getBridgeConfiguration().getSipxbridgeUserName();
+                    }
+
+                };
+
+            } else {
+                /*
+                 * Credentials not available.
+                 */
+                return null;
+            }
+
+        } else {
+            TransactionContext tad = (TransactionContext) ctx.getApplicationData();
+            return tad.itspAccountInfo;
+        }
 
     }
 

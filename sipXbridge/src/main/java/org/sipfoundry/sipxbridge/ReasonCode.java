@@ -23,5 +23,6 @@ public class ReasonCode {
 	public static final int PROTOCOL_ERROR = 205;
 	public static final int CALL_SETUP_ERROR = 206;
 	public static final int BRIDGE_STOPPING = 207;
+	public static final int ACCOUNT_NOT_FOUND = 208;
 
 }

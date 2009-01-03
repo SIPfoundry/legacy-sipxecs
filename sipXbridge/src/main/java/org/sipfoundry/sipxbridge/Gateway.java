@@ -65,7 +65,10 @@ public class Gateway {
 
 	private static String configurationFile = "file:///etc/sipxpbx/sipxbridge.xml";
 
-	static final String SIPXBRIDGE_USER = "sipxbridge";
+	/*
+	 * This is a reserved name for the sipxbridge user.
+	 */
+	static final String SIPXBRIDGE_USER = "~~id~bridge";
 	/*
 	 * The account manager -- tracks user accounts. This is populated by reading
 	 * the sipxbridge.xml configuration file.

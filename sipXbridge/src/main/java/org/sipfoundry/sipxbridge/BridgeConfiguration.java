@@ -46,6 +46,8 @@ public class BridgeConfiguration {
     private String symmitronHost;
     private int symmitronXmlRpcPort = 0;
     private String sipxProxyTransport = "udp";
+    private String sipxbridgeUserName = null;
+    private String sipxbridgePassword = null;
     
     private boolean isSecure = true;
 
@@ -440,6 +442,34 @@ public class BridgeConfiguration {
     
     public boolean isSecure() {
         return this.isSecure;
+    }
+
+    /**
+     * @param sipXbridgeUserName the sipXbridgeUserName to set
+     */
+    public void setSipxbridgeUserName(String sipXbridgeUserName) {
+        this.sipxbridgeUserName = sipXbridgeUserName;
+    }
+
+    /**
+     * @return the sipXbridgeUserName
+     */
+    String getSipxbridgeUserName() {
+        return sipxbridgeUserName;
+    }
+
+    /**
+     * @param sipXbridgePassword the sipXbridgePassword to set
+     */
+    public void setSipxbridgePassword(String sipXbridgePassword) {
+        this.sipxbridgePassword = sipXbridgePassword;
+    }
+
+    /**
+     * @return the sipXbridgePassword
+     */
+    public String getSipxbridgePassword() {
+        return sipxbridgePassword;
     }
 
 }

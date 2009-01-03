@@ -38,6 +38,7 @@ The assigned facility codes are:
       ~~id~park  -> the park server
       ~~id~media -> the media server
       ~~id~sipXrls -> the RLS
+      ~~id~bridge -> sipXbridge
 
 *** mh => The music-on-hold source.
 

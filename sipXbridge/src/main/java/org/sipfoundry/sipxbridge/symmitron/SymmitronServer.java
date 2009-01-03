@@ -444,7 +444,7 @@ public class SymmitronServer implements Symmitron {
         try {
             checkForControllerReboot(controllerHandle);
             Map<String, Object> retval = createSuccessMap();
-            logger.debug("getPublicAddress : " + symmitronConfig.getPublicAddress());
+            logger.debug(controllerHandle + " getPublicAddress : " + symmitronConfig.getPublicAddress());
 
             retval.put(PUBLIC_ADDRESS, symmitronConfig.getPublicAddress());
 
@@ -480,7 +480,7 @@ public class SymmitronServer implements Symmitron {
                 sym.setReceiver(rtpEndpoint);
                 hmapArray[i] = sym.toMap();
                 this.addSymResource(controllerHandle, sym);
-                logger.debug("createSym : " + sym.getId());
+                logger.debug(controllerHandle + " createSym : " + sym.getId());
             }
 
             retval.put(SYM_SESSION, hmapArray);
@@ -501,7 +501,7 @@ public class SymmitronServer implements Symmitron {
      */
     public Map<String, Object> getSym(String controllerHandle, String symId) {
 
-        logger.debug("getSym " + symId);
+        logger.debug("getSym : " + controllerHandle + " symId = " + symId);
         try {
             this.checkForControllerReboot(controllerHandle);
 
@@ -580,6 +580,7 @@ public class SymmitronServer implements Symmitron {
 
     public Map<String, Object> startBridge(String controllerHandle, String bridgeId) {
         try {
+            logger.debug("startBridge: " +controllerHandle + " bridgeId = "+ bridgeId);
             this.checkForControllerReboot(controllerHandle);
 
             Bridge rtpBridge = bridgeMap.get(bridgeId);
@@ -596,6 +597,7 @@ public class SymmitronServer implements Symmitron {
 
     public Map<String, Object> pauseSym(String controllerHandle, String sessionId) {
         try {
+            logger.debug("pauseSym: " + controllerHandle + " symId = " + sessionId );
             this.checkForControllerReboot(controllerHandle);
             Sym rtpSession = sessionMap.get(sessionId);
             if (rtpSession == null) {
@@ -622,6 +624,8 @@ public class SymmitronServer implements Symmitron {
      */
     public Map<String, Object> removeSym(String controllerHandle, String bridgeId, String symId) {
         try {
+            logger.debug( "removeSym: " + controllerHandle + " bridgeId = "+ bridgeId + " symId = "  + symId);
+            
             this.checkForControllerReboot(controllerHandle);
             Bridge rtpBridge = bridgeMap.get(bridgeId);
             if (rtpBridge == null) {
@@ -654,7 +658,7 @@ public class SymmitronServer implements Symmitron {
         try {
             this.checkForControllerReboot(controllerHandle);
             Bridge bridge = bridgeMap.get(bridgeId);
-            logger.debug("addSym: " + bridgeId + " symId " + symId);
+            logger.debug( "addSym: " + controllerHandle + " bridgeId = " +  bridgeId + " symId = " + symId);
             if (bridge == null) {
                 return this.createErrorMap(SESSION_NOT_FOUND, "Specified Bridge was not found "
                         + bridgeId);
@@ -683,6 +687,7 @@ public class SymmitronServer implements Symmitron {
     public Map<String, Object> createBridge(String controllerHandle) {
         try {
             this.checkForControllerReboot(controllerHandle);
+            logger.debug("createBridge: " + controllerHandle );
 
             Bridge bridge = new Bridge();
             bridgeMap.put(bridge.getId(), bridge);
@@ -708,6 +713,7 @@ public class SymmitronServer implements Symmitron {
 
     public Map<String, Object> pauseBridge(String controllerHandle, String bridgeId) {
         try {
+            logger.debug ( " pauseBridge: " + controllerHandle + " " + bridgeId);
             this.checkForControllerReboot(controllerHandle);
             Bridge bridge = bridgeMap.get(bridgeId);
             if (bridge == null) {
@@ -740,6 +746,7 @@ public class SymmitronServer implements Symmitron {
 
     public Map<String, Object> resumeSym(String controllerHandle, String sessionId) {
         try {
+            logger.debug("resumeSym : " + controllerHandle + " symId = " + sessionId);
             this.checkForControllerReboot(controllerHandle);
             Sym rtpSession = sessionMap.get(sessionId);
             if (rtpSession == null) {
@@ -760,6 +767,7 @@ public class SymmitronServer implements Symmitron {
 
     public Map<String, Object> getSymStatistics(String controllerHandle, String symId) {
         try {
+            logger.debug("getSymStatistics : " + controllerHandle + " symId = " + symId );
             Sym sym = sessionMap.get(symId);
             if (sym == null) {
                 return this.createErrorMap(SESSION_NOT_FOUND, "Specified sym was not found "
@@ -813,6 +821,7 @@ public class SymmitronServer implements Symmitron {
 
     public Map<String, Object> signOut(String controllerHandle) {
         try {
+            logger.debug("signOut " + controllerHandle);
             HashSet<Bridge> rtpBridges = bridgeResourceMap.get(controllerHandle);
             if (rtpBridges != null) {
                 for (Bridge rtpBridge : rtpBridges) {
@@ -839,7 +848,7 @@ public class SymmitronServer implements Symmitron {
     public Map<String, Object> destroySym(String controllerHandle, String symId) {
 
         try {
-            logger.debug("destroySym: " + symId);
+            logger.debug("destroySym: " + controllerHandle + " symId = " + symId);
             this.checkForControllerReboot(controllerHandle);
 
             if (sessionMap.containsKey(symId)) {
@@ -913,7 +922,7 @@ public class SymmitronServer implements Symmitron {
 
     public Map<String, Object> destroyBridge(String controllerHandle, String bridgeId) {
         try {
-            logger.debug("destroyBridge: " + bridgeId);
+            logger.debug("destroyBridge: " + controllerHandle + " bridgeId " +  bridgeId);
             this.checkForControllerReboot(controllerHandle);
             Bridge bridge = bridgeMap.get(bridgeId);
             if (bridge != null) {
@@ -953,6 +962,7 @@ public class SymmitronServer implements Symmitron {
      */
     public Map<String, Object> getReceiverState(String controllerHandle, String symId) {
         try {
+            logger.debug("getReceiverState : " + controllerHandle + " symId " + symId);
             this.checkForControllerReboot(controllerHandle);
 
             if (sessionMap.containsKey(symId)) {

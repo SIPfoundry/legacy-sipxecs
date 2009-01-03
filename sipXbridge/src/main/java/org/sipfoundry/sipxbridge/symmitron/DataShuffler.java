@@ -119,8 +119,9 @@ class DataShuffler implements Runnable {
                     continue;
                 }
                 SymTransmitterEndpoint writeChannel = sym.getTransmitter();
-                if (writeChannel == null)
+                if (writeChannel == null) {
                     continue;
+                }
 
                 try {
 
@@ -169,11 +170,12 @@ class DataShuffler implements Runnable {
                 Iterator<SelectionKey> selectedKeys = selector.selectedKeys().iterator();
                 while (selectedKeys.hasNext()) {
                     SelectionKey key = (SelectionKey) selectedKeys.next();
-                   
+                    //selectedKeys.remove();
                     if (!key.isValid()) {
                         if ( logger.isDebugEnabled()) {
                             logger.debug("Discarding packet:Key not valid");
-                        }        
+                        } 
+                        selectedKeys.remove();
                         continue;
                     }
                     if (key.isReadable()) {
@@ -181,6 +183,7 @@ class DataShuffler implements Runnable {
                         DatagramChannel datagramChannel = (DatagramChannel) key.channel();
                         if (!datagramChannel.isOpen()) {
                             logger.debug("DataShuffler: Datagram channel is closed -- discarding packet.");
+                            selectedKeys.remove();
                             continue;
                         }
                         bridge = ConcurrentSet.getBridge(datagramChannel);
@@ -192,7 +195,7 @@ class DataShuffler implements Runnable {
                                 .receive(readBuffer);
 
                         bridge.pakcetsReceived++;
-                        if (bridge.getState() != BridgeState.RUNNING) {
+                        if (bridge.getState() != BridgeState.RUNNING ) {
                             if (logger.isDebugEnabled()) {
                                 logger.debug("DataShuffler: Discarding packet: Bridge state is "
                                         + bridge.getState());
@@ -202,8 +205,7 @@ class DataShuffler implements Runnable {
                         if ( logger.isTraceEnabled() ) {
                             logger.trace("got something on " + datagramChannel.socket().getLocalPort() );
                         }
-                        // Need to  remove key for selfRouted test.
-                        selectedKeys.remove();
+                         
                         send(bridge, datagramChannel, remoteAddress);
 
                     }
