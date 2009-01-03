@@ -437,17 +437,13 @@ class CallControlManager implements SymmitronResetHandler {
 				logger.debug("Request received from LAN side");
 				String toDomain = null;
 				// outbound call. better check for valid account
-				/*
-				 * ItspAccountInfo account =
-				 * Gateway.getAccountManager().getAccount(request); if (account
-				 * == null) { Response response =
-				 * ProtocolObjects.messageFactory.createResponse(
-				 * Response.NOT_FOUND, request);
-				 * response.setReasonPhrase("Could not find account record for ITSP"
-				 * ); serverTransaction.sendResponse(response); return; } else
-				 */
-
-				ItspAccountInfo account = btobua.getItspAccountInfo();
+				
+				ItspAccountInfo account = Gateway.getAccountManager().getAccount(request);
+				if ( account == null ) {
+				    Response response = SipUtilities.createResponse(serverTransaction, Response.NOT_FOUND);
+				    response.setReasonPhrase("ITSP account not found");
+				    return;
+				}
 				if (account.getState() == AccountState.INVALID) {
 					Response response = ProtocolObjects.messageFactory
 							.createResponse(Response.BAD_GATEWAY, request);
@@ -916,7 +912,8 @@ class CallControlManager implements SymmitronResetHandler {
 				return;
 			}
 			ClientTransaction ct = tad.getClientTransaction();
-			ItspAccountInfo itspAccount = btobua.getItspAccountInfo();
+			ItspAccountInfo itspAccount = DialogContext.get(ct.getDialog()).getItspInfo();
+			
 			String transport = itspAccount != null ? itspAccount
 					.getOutboundTransport() : Gateway.DEFAULT_ITSP_TRANSPORT;
 			if (ct.getState() == TransactionState.CALLING

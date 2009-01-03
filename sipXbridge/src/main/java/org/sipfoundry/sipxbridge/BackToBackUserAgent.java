@@ -79,10 +79,7 @@ public class BackToBackUserAgent {
      */
     private static final String ORIGINATOR = "originator";
 
-    /*
-     * The ITSP account for outbound calls.
-     */
-    private ItspAccountInfo itspAccountInfo;
+    
 
     private RtpBridge rtpBridge;
 
@@ -99,6 +96,9 @@ public class BackToBackUserAgent {
 
     private Dialog referingDialogPeer;
 
+    /*
+     * For generation of call ids ( so we can filter logs easily)
+     */
     private int counter;
 
     /*
@@ -122,16 +122,13 @@ public class BackToBackUserAgent {
     // ///////////////////////////////////////////////////////////////////////
     // Constructor.
     // ///////////////////////////////////////////////////////////////////////
-    private BackToBackUserAgent(Request request, ItspAccountInfo itspAccountInfo)
-            throws IOException {
-
-        this.itspAccountInfo = itspAccountInfo;
+    private BackToBackUserAgent() {
 
     }
 
     BackToBackUserAgent(SipProvider provider, Request request, Dialog dialog,
             ItspAccountInfo itspAccountInfo) throws IOException {
-        this(request, itspAccountInfo);
+      
         /*
          * Received this request from the LAN The symmitron to use is the symmitron that runs
          * where the request originated from. If received this request from the LAN side then we
@@ -192,8 +189,8 @@ public class BackToBackUserAgent {
                 rtpSession = new RtpSession(symImpl);
                 rtpSession.getReceiver().setGlobalAddress(symmitronClient.getPublicAddress());
                 rtpSession.getReceiver().setUseGlobalAddressing(
-                        this.itspAccountInfo == null
-                                || this.itspAccountInfo.isGlobalAddressingUsed());
+                        dialogApplicationData.getItspInfo() == null
+                                || dialogApplicationData.getItspInfo().isGlobalAddressingUsed());
                 DialogContext.get(dialog).setRtpSession(rtpSession);
                 this.rtpBridge.addSym(rtpSession);
             }
@@ -387,7 +384,7 @@ public class BackToBackUserAgent {
                 /*
                  * Patch up outbound re-INVITE.
                  */
-                if (itspAccountInfo == null || accountInfo.isGlobalAddressingUsed()) {
+                if (accountInfo == null || accountInfo.isGlobalAddressingUsed()) {
                     SipUtilities.setGlobalAddresses(reInvite);
                 }
 
@@ -454,15 +451,7 @@ public class BackToBackUserAgent {
         }
     }
 
-    /**
-     * Get the itsp account info.
-     * 
-     * @return the itsp account info.
-     */
-    ItspAccountInfo getItspAccountInfo() {
-        return itspAccountInfo;
-    }
-
+   
     /**
      * Add a dialog entry to the b2bua. This implies that the given dialog holds a pointer to this
      * structure.
@@ -849,6 +838,7 @@ public class BackToBackUserAgent {
 
             SipURI incomingRequestURI = (SipURI) request.getRequestURI();
             Dialog inboundDialog = serverTransaction.getDialog();
+            ItspAccountInfo itspAccountInfo = Gateway.getAccountManager().getAccount(request);
 
             SipURI uri = null;
             if (!Gateway.isInboundCallsRoutedToAutoAttendant()) {
@@ -947,13 +937,13 @@ public class BackToBackUserAgent {
 
             incomingSession.getReceiver()
                     .setUseGlobalAddressing(
-                            this.itspAccountInfo == null
-                                    || this.itspAccountInfo.isGlobalAddressingUsed());
+                            itspAccountInfo == null
+                                    || itspAccountInfo.isGlobalAddressingUsed());
 
             RtpTransmitterEndpoint rtpEndpoint = new RtpTransmitterEndpoint(incomingSession,
                     symmitronClient);
             incomingSession.setTransmitter(rtpEndpoint);
-            KeepaliveMethod keepaliveMethod = this.itspAccountInfo != null ? this.itspAccountInfo
+            KeepaliveMethod keepaliveMethod = itspAccountInfo != null ? itspAccountInfo
                     .getRtpKeepaliveMethod() : KeepaliveMethod.NONE;
 
             rtpEndpoint.setKeepAliveMethod(keepaliveMethod);
@@ -1172,6 +1162,12 @@ public class BackToBackUserAgent {
         logger.debug("sendInviteToItsp: " + this);
         Request incomingRequest = serverTransaction.getRequest();
         Dialog incomingDialog = serverTransaction.getDialog();
+        ItspAccountInfo itspAccountInfo = Gateway.getAccountManager().getAccount(incomingRequest);
+        if ( itspAccountInfo == null ) {
+            SipUtilities.createResponse(serverTransaction, Response.NOT_FOUND);
+            return;
+        }
+        
         SipProvider itspProvider = Gateway
                 .getWanProvider(itspAccountInfo == null ? Gateway.DEFAULT_ITSP_TRANSPORT
                         : itspAccountInfo.getOutboundTransport());
@@ -1293,10 +1289,10 @@ public class BackToBackUserAgent {
 
             outgoingRequest.setContent(outboundSessionDescription.toString(), cth);
 
-            ListeningPoint lp = itspProvider.getListeningPoint(this.itspAccountInfo
-                    .getOutboundTransport());
+            String outboundTransport = itspAccountInfo == null ? Gateway.DEFAULT_ITSP_TRANSPORT : itspAccountInfo.getOutboundTransport();
+            ListeningPoint lp = itspProvider.getListeningPoint(outboundTransport);
             String sentBy = lp.getSentBy();
-            if (this.getItspAccountInfo().isGlobalAddressingUsed()) {
+            if (itspAccountInfo == null || itspAccountInfo.isGlobalAddressingUsed()) {
                 lp.setSentBy(Gateway.getGlobalAddress() + ":" + lp.getPort());
             }
             lp.setSentBy(sentBy);
@@ -1639,7 +1635,7 @@ public class BackToBackUserAgent {
                     Operation.PROCESS_BYE);
 
             transactionContext.setClientTransaction(ct);
-            transactionContext.itspAccountInfo = this.itspAccountInfo;
+            transactionContext.itspAccountInfo = DialogContext.get(peer).getItspInfo();
             ct.setApplicationData(transactionContext);
 
             peer.sendRequest(ct);
@@ -1685,15 +1681,6 @@ public class BackToBackUserAgent {
         return rtpBridge;
     }
 
-    /**
-     * Set the ITSP account info.
-     * 
-     * @param account
-     */
-    void setItspAccount(ItspAccountInfo account) {
-        this.itspAccountInfo = account;
-
-    }
 
     /**
      * Get XML RPC client interface.

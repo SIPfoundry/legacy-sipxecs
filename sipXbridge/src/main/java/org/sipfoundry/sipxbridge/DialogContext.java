@@ -466,11 +466,12 @@ class DialogContext {
                 reInvite.removeHeader(SupportedHeader.NAME);
                 SipUtilities.addWanAllowHeaders(reInvite);
                 SipProvider provider = ((DialogExt) peerDialog).getSipProvider();
+                ItspAccountInfo peerAccountInfo = DialogContext.getPeerDialogContext(dialog).getItspInfo();
                 ViaHeader viaHeader = SipUtilities.createViaHeader(provider, 
-                        this.backToBackUserAgent.getItspAccountInfo());
+                        peerAccountInfo);
                 reInvite.setHeader(viaHeader);
                 ContactHeader contactHeader = SipUtilities.createContactHeader(provider,
-                        this.backToBackUserAgent.getItspAccountInfo());
+                        peerAccountInfo);
                 /*
                  * Do not place a content type header in the content solicitation.
                  * 
