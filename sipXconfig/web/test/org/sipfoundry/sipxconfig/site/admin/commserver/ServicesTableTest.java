@@ -48,11 +48,11 @@ public class ServicesTableTest extends TestCase {
         PropertyUtils.write(m_out, "sipxProcessContext", m_sipxProcessContext);
 
         SelectMap selectMap = new SelectMap();
-        selectMap.setSelected("SIPXProxy", true);
+        selectMap.setSelected(SipxProxyService.BEAN_ID, true);
         PropertyUtils.write(m_out, "selections", selectMap);
 
         SipxServiceManager serviceManager = createMock(SipxServiceManager.class);
-        serviceManager.getServiceByName("SIPXProxy");
+        serviceManager.getServiceByBeanId(SipxProxyService.BEAN_ID);
         expectLastCall().andReturn(proxyService).atLeastOnce();
         replay(serviceManager);
         PropertyUtils.write(m_out, "sipxServiceManager", serviceManager);

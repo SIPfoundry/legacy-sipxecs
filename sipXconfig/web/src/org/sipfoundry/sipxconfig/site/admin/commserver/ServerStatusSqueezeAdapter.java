@@ -17,7 +17,7 @@ public class ServerStatusSqueezeAdapter implements IPrimaryKeyConverter {
 
     public Object getPrimaryKey(Object value) {
         ServiceStatus status = (ServiceStatus) value;
-        return status.getServiceName();
+        return status.getServiceBeanId();
     }
 
     public Object getValue(Object primaryKey) {

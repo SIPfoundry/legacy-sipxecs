@@ -28,16 +28,16 @@ public class ServiceStatus implements PrimaryKeySource {
         Failed
     }
 
-    private final String m_serviceName;
+    private final String m_serviceBeanId;
     private final Status m_status;
 
-    public ServiceStatus(String serviceName, Status status) {
-        m_serviceName = serviceName;
+    public ServiceStatus(String serviceBeanId, Status status) {
+        m_serviceBeanId = serviceBeanId;
         m_status = status;
     }
 
-    public String getServiceName() {
-        return m_serviceName;
+    public String getServiceBeanId() {
+        return m_serviceBeanId;
     }
 
     public Status getStatus() {
@@ -45,6 +45,6 @@ public class ServiceStatus implements PrimaryKeySource {
     }
 
     public Object getPrimaryKey() {
-        return m_serviceName;
+        return m_serviceBeanId;
     }
 }

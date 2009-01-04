@@ -37,10 +37,18 @@ import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.components.ObjectSelectionModel;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.components.SelectMap;
-import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.service.LocationSpecificService;
+import org.sipfoundry.sipxconfig.service.SipxAcdService;
+import org.sipfoundry.sipxconfig.service.SipxCallResolverService;
+import org.sipfoundry.sipxconfig.service.SipxFreeswitchService;
+import org.sipfoundry.sipxconfig.service.SipxParkService;
+import org.sipfoundry.sipxconfig.service.SipxPresenceService;
+import org.sipfoundry.sipxconfig.service.SipxProxyService;
+import org.sipfoundry.sipxconfig.service.SipxRegistrarService;
+import org.sipfoundry.sipxconfig.service.SipxRlsService;
 import org.sipfoundry.sipxconfig.service.SipxService;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
+import org.sipfoundry.sipxconfig.service.SipxStatusService;
 import org.sipfoundry.sipxconfig.site.acd.AcdServerPage;
 import org.sipfoundry.sipxconfig.site.service.EditCallResolverService;
 import org.sipfoundry.sipxconfig.site.service.EditFreeswitchService;
@@ -53,21 +61,23 @@ import org.sipfoundry.sipxconfig.site.service.EditResourceListService;
 import org.sipfoundry.sipxconfig.site.service.EditStatusService;
 
 import static org.sipfoundry.sipxconfig.admin.commserver.ServiceStatus.Status.Undefined;
+import static org.sipfoundry.sipxconfig.components.TapestryUtils.getMessage;
+import static org.sipfoundry.sipxconfig.components.TapestryUtils.getValidator;
 
 public abstract class ServicesTable extends BaseComponent {
 
     public static final Map<String, String> SERVICE_MAP = new HashMap<String, String>();
     static {
-        SERVICE_MAP.put("SIPXProxy", EditProxyService.PAGE);
-        SERVICE_MAP.put("SIPRegistrar", EditRegistrarService.PAGE);
-        SERVICE_MAP.put("ParkServer", EditParkService.PAGE);
-        SERVICE_MAP.put("PresenceServer", EditPresenceService.PAGE);
-        SERVICE_MAP.put("CallResolver", EditCallResolverService.PAGE);
-        SERVICE_MAP.put("ResourceListServer", EditResourceListService.PAGE);
-        SERVICE_MAP.put("SIPStatus", EditStatusService.PAGE);
-        SERVICE_MAP.put("PageServer", EditPageService.PAGE);
-        SERVICE_MAP.put("FreeSWITCH", EditFreeswitchService.PAGE);
-        SERVICE_MAP.put("ACDServer", AcdServerPage.PAGE);
+        SERVICE_MAP.put(SipxProxyService.BEAN_ID, EditProxyService.PAGE);
+        SERVICE_MAP.put(SipxRegistrarService.BEAN_ID, EditRegistrarService.PAGE);
+        SERVICE_MAP.put(SipxParkService.BEAN_ID, EditParkService.PAGE);
+        SERVICE_MAP.put(SipxPresenceService.BEAN_ID, EditPresenceService.PAGE);
+        SERVICE_MAP.put(SipxCallResolverService.BEAN_ID, EditCallResolverService.PAGE);
+        SERVICE_MAP.put(SipxRlsService.BEAN_ID, EditResourceListService.PAGE);
+        SERVICE_MAP.put(SipxStatusService.BEAN_ID, EditStatusService.PAGE);
+        SERVICE_MAP.put(SipxParkService.BEAN_ID, EditPageService.PAGE);
+        SERVICE_MAP.put(SipxFreeswitchService.BEAN_ID, EditFreeswitchService.PAGE);
+        SERVICE_MAP.put(SipxAcdService.BEAN_ID, AcdServerPage.PAGE);
     }
 
     @InjectObject(value = "service:tapestry.ognl.ExpressionEvaluator")
@@ -159,6 +169,12 @@ public abstract class ServicesTable extends BaseComponent {
         }
     }
 
+    public String getServiceLabel() {
+        String serviceBeanId = getCurrentRow().getServiceBeanId();
+        String key = "label." + serviceBeanId;
+        return getMessage(getMessages(), key, serviceBeanId);
+    }
+
     @Override
     protected void prepareForRender(IRequestCycle cycle) {
         super.prepareForRender(cycle);
@@ -178,14 +194,15 @@ public abstract class ServicesTable extends BaseComponent {
             return getSipxProcessContext().getStatus(location, true);
 
         } catch (UserException e) {
-            IValidationDelegate validator = TapestryUtils.getValidator(this);
+            IValidationDelegate validator = getValidator(this);
             validator.record(new ValidatorException(e.getMessage()));
 
             Collection<ServiceStatus> serviceStatusList = new ArrayList<ServiceStatus>();
-            for (LocationSpecificService service : location.getServices()) {
-                String serviceName = service.getSipxService().getProcessName();
+            for (LocationSpecificService lss : location.getServices()) {
+                SipxService service = lss.getSipxService();
+                String serviceName = service.getProcessName();
                 if (serviceName != null) {
-                    serviceStatusList.add(new ServiceStatus(serviceName, Undefined));
+                    serviceStatusList.add(new ServiceStatus(service.getBeanId(), Undefined));
                 }
             }
             return serviceStatusList.toArray();
@@ -193,11 +210,11 @@ public abstract class ServicesTable extends BaseComponent {
     }
 
     public boolean getCurrentRowHasServiceLink() {
-        return SERVICE_MAP.containsKey(getCurrentRow().getServiceName());
+        return SERVICE_MAP.containsKey(getCurrentRow().getServiceBeanId());
     }
 
-    public IPage editService(IRequestCycle cycle, String serviceName, Integer locationId) {
-        PageWithCallback page = (PageWithCallback) cycle.getPage(SERVICE_MAP.get(serviceName));
+    public IPage editService(IRequestCycle cycle, String serviceBeanId, Integer locationId) {
+        PageWithCallback page = (PageWithCallback) cycle.getPage(SERVICE_MAP.get(serviceBeanId));
         page.setReturnPage(EditLocationPage.PAGE);
         if (page instanceof AcdServerPage) {
             AcdServer acdServer = getAcdContext().getAcdServerForLocationId(locationId);
@@ -217,10 +234,9 @@ public abstract class ServicesTable extends BaseComponent {
 
     public void removeService() {
         manageServices(SipxProcessContext.Command.STOP);
-        Collection<String> selectedNames = getSelections().getAllSelected();
-        for (String name : selectedNames) {
-            SipxService service = getSipxServiceManager().getServiceByName(name);
-            getServiceLocation().removeServiceByBeanId(service.getBeanId());
+        Collection<String> selectedBeanIds = getSelections().getAllSelected();
+        for (String beanId : selectedBeanIds) {
+            getServiceLocation().removeServiceByBeanId(beanId);
         }
         getLocationsManager().storeLocation(getServiceLocation());
         refresh();
@@ -242,22 +258,22 @@ public abstract class ServicesTable extends BaseComponent {
     }
 
     private void manageServices(SipxProcessContext.Command operation) {
-        Collection<String> serviceNames = getSelections().getAllSelected();
-        if (serviceNames == null) {
+        Collection<String> serviceBeanIds = getSelections().getAllSelected();
+        if (serviceBeanIds == null) {
             return;
         }
         try {
             SipxServiceManager sipxServiceManager = getSipxServiceManager();
-            List<SipxService> services = new ArrayList<SipxService>(serviceNames.size());
-            for (String name : serviceNames) {
-                SipxService service = sipxServiceManager.getServiceByName(name);
+            List<SipxService> services = new ArrayList<SipxService>(serviceBeanIds.size());
+            for (String beanId : serviceBeanIds) {
+                SipxService service = sipxServiceManager.getServiceByBeanId(beanId);
                 if (service != null) {
                     services.add(service);
                 }
             }
             getSipxProcessContext().manageServices(getServiceLocation(), services, operation);
         } catch (UserException e) {
-            IValidationDelegate validator = TapestryUtils.getValidator(this);
+            IValidationDelegate validator = getValidator(this);
             validator.record(new ValidatorException(e.getMessage()));
         }
     }

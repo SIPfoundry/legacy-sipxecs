@@ -86,18 +86,26 @@ public class SipxProcessContextImpl implements SipxProcessContext, ApplicationLi
      */
     private ServiceStatus[] extractStatus(Map<String, String> statusAll, Location location,
             boolean onlyActiveServices) {
+        List<String> locationServiceProcesses = new ArrayList<String>();
+        if (onlyActiveServices) {
+            for (LocationSpecificService service : location.getServices()) {
+                locationServiceProcesses.add(service.getSipxService().getProcessName());
+            }
+        }
+
         List<ServiceStatus> serviceStatusList = new ArrayList(statusAll.size());
         for (Map.Entry<String, String> entry : statusAll.entrySet()) {
             String name = entry.getKey();
 
-            List<String> locationServiceProcesses = new ArrayList<String>();
-            for (LocationSpecificService service : location.getServices()) {
-                if (service.getSipxService().getProcessName() != null) {
-                    locationServiceProcesses.add(service.getSipxService().getProcessName());
-                }
+            SipxService service = m_sipxServiceManager.getServiceByName(name);
+            if (service == null) {
+                // ignore unknown services
+                LOG.warn("Unknown process name " + name + " received from: " + location.getProcessMonitorUrl());
+                continue;
             }
 
             if (onlyActiveServices && !locationServiceProcesses.contains(name)) {
+                // ignore services not running at specified location
                 continue;
             }
 
@@ -107,13 +115,7 @@ public class SipxProcessContextImpl implements SipxProcessContext, ApplicationLi
                 st = ServiceStatus.Status.Undefined;
             }
 
-            SipxService service = m_sipxServiceManager.getServiceByName(name);
-            if (service == null) {
-                // Ignore unknown processes
-                LOG.warn("Unknown process name " + name + " received from: " + location.getProcessMonitorUrl());
-            } else {
-                serviceStatusList.add(new ServiceStatus(name, st));
-            }
+            serviceStatusList.add(new ServiceStatus(service.getBeanId(), st));
         }
 
         return serviceStatusList.toArray(new ServiceStatus[serviceStatusList.size()]);

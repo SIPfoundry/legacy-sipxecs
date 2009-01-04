@@ -15,12 +15,12 @@
       <img jwcid="@Image" image="asset:serviceIcon" align="absmiddle" />
       <span jwcid="@If" condition="ognl:currentRowHasServiceLink">
         <a jwcid="@DirectLink" listener="listener:editService"
-          parameters="ognl:{currentRow.serviceName, serviceLocation.id}" >
-          <span jwcid="@Insert" value="ognl:currentRow.serviceName" />
+          parameters="ognl:{currentRow.serviceBeanId, serviceLocation.id}" >
+          <span jwcid="@Insert" value="ognl:serviceLabel" />
         </a>
       </span>
       <span jwcid="@Else">
-        <span jwcid="@Insert" value="ognl:currentRow.serviceName" />
+        <span jwcid="@Insert" value="ognl:serviceLabel" />
       </span>
     </span>
   </table>
