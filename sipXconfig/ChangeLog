@@ -3,6 +3,62 @@ SIPfoundry Issue Tracker at:
 
         http://track.sipfoundry.org/browse?XCF
 
+Version 3.11.9
+
+** Bug
+    * [XCF-1614] - Calls dialed by URL (e.g. using speed dial) bypass the proxy and therefore do not report as CDRs
+    * [XCF-2455] - AssetSelector problems after Tapestry upgrade to 1.4.1
+    * [XCF-2529] - HA : CDR page gives an Internal Exception when sipxcallresolver agent is not Running in the Distributed machine.
+    * [XCF-2531] - ACD: Overflow configuration mechanism for queues does not work
+    * [XCF-2537] - A conference name must be restricted to characters allowed in a SIP user part
+    * [XCF-2541] - Personal AutoAttendant : SIP URI is not accepted as Operator extension
+    * [XCF-2641] - Help link points to invalid URL (/sipxconfig/[HELP-LINK])
+    * [XCF-2714] - Intermittent : Selecting the Create another user checkbox does not create another user.
+    * [XCF-2770] - Backup page:Module heading is not visible.
+    * [XCF-2771] - Firefox ver 3.01 & Google Chrome Password Managers' inserts user "superadmin" into "Additional E-Mail address" field when any User is opened in GUI 
+    * [XCF-2780] - Automatic refresh does not work after first refresh
+    * [XCF-2793] - 'Remove' service(s) from the configUI prone to give an internal exception.
+    * [XCF-2794] - "ACD Presence" tab is missing in the user portal.
+    * [XCF-2819] - While adding a new SIP Trunk Gateway the "Route" field is not seen on initial screen
+    * [XCF-2825] - Attempting to create a second sipXbridge through the "Route" parameter in SIP trunk gateway page does not display error message.
+    * [XCF-2830] - Intermittent: The page navigates directly to "Add New Conference" when clicked on "Add New Conference Server" from Feature|Conference Bridge.
+    * [XCF-2860] - FreeSwitch: Help text for "Maximum Legs" in the Conference Bridge page is Incomplete.
+    * [XCF-2863] - Exception in Phone page while projecting profiles with invalid "restart time" format.
+    * [XCF-2884] - Exception due to stale link on config UI
+    * [XCF-2960] - precommit creates a file in the source tree
+    * [XCF-2962] - sipXconfig should call reloadAlarms after Alarm Server configuration change
+    * [XCF-2983] - sipXconfig tries to configure sipXivr even if sipXivr is not installed
+    * [XCF-3020] - Alarm page:Module heading is not visible - E-mail address(es)  
+    * [XCF-3052] - Deleting a server from the Servers page results in an error.
+    * [XCF-3058] - Statistics page under Diagnostics fails to generate the graphs
+    * [XCF-3060] - Second time SMC3456 is started User Registers then 20 seconds later "Registering Account Please wait is seen"
+    * [XCF-3062] - Remove @domain from Polycom msg.mwi.x.callBack default
+    * [XCF-3067] - Provisioned SMC 3456 Device  Workgroups/blf failing "Subscription Failed Retry..."
+    * [XCF-3075] - After entering Login information for SCS SMC 3456 initially starts up with "No accounts are enabled" message 
+    * [XCF-3079] - SMC 3456 any user, any password can Log In to the soft phone via the provisioning server - no user authentication
+    * [XCF-3087] - Nortel Softphone SMC3456: Typo error with AGC enabled in Audio tab.
+    * [XCF-3094] - Nortel Softphone SMC3456: Payload Number has been named incorrectly as Packet time in DTMF page.
+    * [XCF-3100] - SMC 3456 Auto Update Code Server URL no default specified
+    * [XCF-3113] - Date/Time field is not displayed correct when IE 7.0 is used (see attached screenshot)
+    * [XCF-3116] - Internal exception occured in the server page of config UI(r014190)
+
+** Improvement
+    * [XCF-2528] - Change process names to something more usable
+    * [XCF-2897] - Generate mappingrules directly so that can be used without configuration preprocessor
+    * [XCF-2969] - Support new services via a pluggable mechanism in sipXconfig
+    * [XCF-3111] - Help text improvements
+
+** New Feature
+    * [XCF-2407] - Provide configuration support for XECS-415: Per user gateway preferences
+    * [XCF-2751] - Implement Polycom overlay approach to use Polycom default configurations
+    * [XCF-2924] - new diagnostic tests: verify consistency of DNS configuration
+
+** Task
+    * [XCF-2786] - move polycom support to its own directory under plugins
+    * [XCF-2810] - define MRTG as sipx service (sipXmrtg)
+    * [XCF-2972] - inject SIPXCONFIG_OPTS from the file
+    * [XCF-3013] - GatewaysTestUi fails intermittently
+
 
 Version 3.11.8
 
