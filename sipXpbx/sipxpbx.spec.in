@@ -132,14 +132,10 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/sipx-test-apache
 
 %attr(755,root,root) %{_libexecdir}/sipXecs/sipx-strip-db-secrets.pl
-%attr(755,root,root) %{_libexecdir}/sipXecs/sipx_setup_common.py
+%attr(755,root,root) %{_libexecdir}/sipXecs/sipx_setup_common.py*
 
 %attr(755,root,root) %{_libexecdir}/sipXecs/sipx-activate-ntp
 %attr(755,root,root) %{_libexecdir}/sipXecs/setup.d/010_sipx-activate-ntp
-%if 0%{?py_ver} < 2.5
-%attr(755,root,root) %{_libexecdir}/sipXecs/sipx_setup_common.pyc
-%attr(755,root,root) %{_libexecdir}/sipXecs/sipx_setup_common.pyo
-%endif 
 
 %attr(755,root,root) %{_sysconfdir}/init.d/sipxpbx
 %attr(755,root,root) %{_sysconfdir}/cron.daily/sipx-chkspace
