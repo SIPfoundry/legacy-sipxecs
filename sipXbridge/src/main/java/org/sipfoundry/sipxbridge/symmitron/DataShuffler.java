@@ -170,12 +170,14 @@ class DataShuffler implements Runnable {
                 Iterator<SelectionKey> selectedKeys = selector.selectedKeys().iterator();
                 while (selectedKeys.hasNext()) {
                     SelectionKey key = (SelectionKey) selectedKeys.next();
-                    //selectedKeys.remove();
+                    // The key must be removed or you can get one way audio ( i.e. will read a null byte ).
+                    // (see issue 2075 ).
+                    selectedKeys.remove();
                     if (!key.isValid()) {
                         if ( logger.isDebugEnabled()) {
                             logger.debug("Discarding packet:Key not valid");
                         } 
-                        selectedKeys.remove();
+                  
                         continue;
                     }
                     if (key.isReadable()) {
@@ -183,7 +185,7 @@ class DataShuffler implements Runnable {
                         DatagramChannel datagramChannel = (DatagramChannel) key.channel();
                         if (!datagramChannel.isOpen()) {
                             logger.debug("DataShuffler: Datagram channel is closed -- discarding packet.");
-                            selectedKeys.remove();
+                           
                             continue;
                         }
                         bridge = ConcurrentSet.getBridge(datagramChannel);
