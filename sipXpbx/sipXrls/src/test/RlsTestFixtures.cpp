@@ -179,18 +179,26 @@ bool OutputProcessorFixture::waitForMessage(long maxWaitInSecs )
 {
    int index;
    bool bMessagesReceived = false;
-   
-   OsTime wTime(maxWaitInSecs*1000);
-   while(OS_SUCCESS == mEvent.wait(wTime))
+
    {
-      // check to make sure that the CallbackTrace is not empty
-      // if it is empty, reset the event and try again
       OsLock lock(mMutex);
       if(mCallbackTraceList.entries() > 0)
       {
          bMessagesReceived = true;
-         mEvent.reset();
-         break;
+      }
+      mEvent.reset();  
+   }
+
+   OsTime wTime(maxWaitInSecs*1000);
+ 
+   if(!bMessagesReceived &&
+      OS_SUCCESS == mEvent.wait(wTime))
+   {
+      // check to make sure that the CallbackTrace is not empty
+      OsLock lock(mMutex);
+      if(mCallbackTraceList.entries() > 0)
+      {
+         bMessagesReceived = true;
       }
       mEvent.reset();
    }
