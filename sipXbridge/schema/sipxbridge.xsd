@@ -306,8 +306,6 @@
 		</xs:annotation>
 		<xs:sequence>
 
-			
-
 			<xs:element name="registration-interval" type="xs:integer"
 				maxOccurs="1" minOccurs="0">
 				<xs:annotation>
@@ -406,6 +404,7 @@
 					</xs:documentation>
 				</xs:annotation>
 			</xs:element>
+
 			<xs:element name="password" type="xs:string" maxOccurs="1"
 				minOccurs="0">
 				<xs:annotation>
@@ -415,47 +414,42 @@
 				</xs:annotation>
 			</xs:element>
 
+			<xs:element name="strip-private-headers" type="xs:boolean"
+				default="false" minOccurs="1" maxOccurs="0">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+                                        When set to true, sensitive headers that can reveal identity such as 
+                                        Subject, Call-Info, Organization, User-Agent, Reply-To and In-Reply-To will be stripped 
+                                        in all requests and responses.  Display Name will be stripped where ever it appears. 
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
 
 
+			<xs:element name="asserted-identity" type="xs:string"
+				maxOccurs="1" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+                                         The identity to use in "P-Assetrted-Identy" header for outbound signaling. This is an 
+                                         override for the default.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
 
 			<xs:element name="use-global-addressing" type="xs:boolean"
 				default="false" maxOccurs="1" minOccurs="0" >
 				<xs:annotation>
 					<xs:documentation xml:lang="en">
-						Whether or not to use the stun determined global
-						address.
+						Whether or not to use global address for call setup signaling.
 					</xs:documentation>
 				</xs:annotation>
 			</xs:element>
-
-
-
-			<xs:element name="use-rport" type="xs:boolean" maxOccurs="1" minOccurs="0"
-				default="false">
-				<xs:annotation>
-					<xs:documentation xml:lang="en">
-						Whether or not to use the Rport parameter.
-					</xs:documentation>
-				</xs:annotation>
-			</xs:element>
-
-			
 
 			<xs:element name="register-on-initialization"
 				type="xs:boolean" default="true" maxOccurs="1" minOccurs="0">
 				<xs:annotation>
 					<xs:documentation xml:lang="en">
 						Whether or not to REGISTER on initialization.
-					</xs:documentation>
-				</xs:annotation>
-			</xs:element>
-
-			<xs:element name="use-registration-for-caller-id"
-				type="xs:boolean" default="true" maxOccurs="1" minOccurs="0">
-				<xs:annotation>
-					<xs:documentation xml:lang="en">
-						Whether or not to use Registration record for From Header of INVITE.
-						Only meaningful if register-on-initialization is set to true.
 					</xs:documentation>
 				</xs:annotation>
 			</xs:element>
@@ -475,8 +469,9 @@
 					</xs:restriction>
 				</xs:simpleType>
 			</xs:element>
+
 			<xs:element name="rtp-keepalive-method"
-				 default="USE-EMPTY-PACKET" maxOccurs="1" minOccurs="0">
+				 default="NONE" maxOccurs="1" minOccurs="0">
 				<xs:annotation>
 					<xs:documentation xml:lang="en">
 						 Defines the mechanism to use for RTP keepalive.  If undefined,
@@ -492,7 +487,6 @@
 					</xs:restriction>
 				</xs:simpleType>
 			</xs:element>
-
 			
 		</xs:sequence>
 	</xs:complexType>

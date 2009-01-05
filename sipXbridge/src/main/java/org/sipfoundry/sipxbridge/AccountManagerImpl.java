@@ -203,7 +203,7 @@ public class AccountManagerImpl implements gov.nist.javax.sip.clientauthutils.Ac
      * @return
      */
     ItspAccountInfo getItspAccount(String host, int port) {
-        logger.debug("INVITE received on " + host);
+        logger.debug("INVITE received on " + host + ":" + port);
         for (ItspAccountInfo accountInfo : this.getItspAccounts()) {
             if (accountInfo.isRegisterOnInitialization()) {
                 // Account needs registration.

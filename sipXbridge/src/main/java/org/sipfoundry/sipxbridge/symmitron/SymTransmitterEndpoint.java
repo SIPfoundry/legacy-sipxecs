@@ -146,7 +146,7 @@ final class SymTransmitterEndpoint extends SymEndpoint implements SymTransmitter
                 if (!destination.equals(SymmitronServer.getLocalInetAddress())) {
                     return false;
                 } else {
-                    logger.debug("Self routed!");
+                    logger.trace("Self routed!");
                     return true;
                 }
             } else {

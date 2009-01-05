@@ -837,7 +837,14 @@ public class BackToBackUserAgent {
 
             SipURI incomingRequestURI = (SipURI) request.getRequestURI();
             Dialog inboundDialog = serverTransaction.getDialog();
-            ItspAccountInfo itspAccountInfo = Gateway.getAccountManager().getAccount(request);
+            ViaHeader inboundVia = ((ViaHeader)request.getHeader(ViaHeader.NAME));
+            
+             
+           String host = inboundVia.getReceived() != null ? inboundVia.getReceived() : inboundVia.getHost();
+           int port = inboundVia.getRPort() != -1 ? inboundVia.getRPort() : inboundVia.getPort();
+            
+            
+           ItspAccountInfo itspAccountInfo = Gateway.getAccountManager().getItspAccount(host,port);
 
             SipURI uri = null;
             if (!Gateway.isInboundCallsRoutedToAutoAttendant()) {
