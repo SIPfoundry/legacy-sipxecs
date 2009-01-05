@@ -18,15 +18,13 @@ def check_update():
     print "# Package Name|Installed Version|Updated Version"
     yumBase = yum.YumBase()
     
-    # Check for an installed sipxecs-release package.
+    # Check for an installed sipxecs package.
     # This is used to determine whether or not to look
     # at specific sipx repos or all repos for updates.
-    sipxPackage = yumBase.rpmdb.searchAll("sipxecs-release")
+    sipxPackage = yumBase.rpmdb.searchAll("sipxecs")
     if len(sipxPackage) > 0:
        yumBase.repos.disableRepo('*')
        yumBase.repos.enableRepo("sipxecs*")
-    else:
-       yumBase.repos.enableRepo('*')
 
     packages = yumBase.doPackageLists('updates')
 
