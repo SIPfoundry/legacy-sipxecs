@@ -140,6 +140,9 @@ chkconfig iptables off
 #* General update.
 yum -y update
 
+#* The command so nice it's best run twice.
+yum -y update
+
 #* For packages from SIPfoundry.
 if [ ! -f /etc/yum.repos.d/sipxecs-unstable-fc.repo ] 
 then
@@ -199,7 +202,15 @@ service postgresql initdb
 chkconfig postgresql on
 service postgresql start
 
+# Get rid of the svn certificate prompt for $DEVEL_USER, which may be useful.
+sudo su - $DEVEL_USER -c "echo p | svn co https://sipxecs.sipfoundry.org/rep/sipXecs/main/sipXcallLib/include/tapi/ /tmp/del_me"
+rm -rf /tmp/del_me
+
+# Reboot.
+echo -e '\a' ; sleep 1 ; echo -e '\a' ; sleep 1 ; echo -e '\a'
 echo ""
-echo "Script complete.  Please reboot."
+echo -n "Script complete, rebooting now"
+ruby -e '(1..10).each {print "."; $stdout.flush; sleep(1) }'
 echo ""
+reboot
 

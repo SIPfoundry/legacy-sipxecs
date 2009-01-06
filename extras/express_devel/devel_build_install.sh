@@ -31,13 +31,16 @@ sudo rm -rf $INSTALL $BUILD
 mkdir $INSTALL
 mkdir $BUILD
 
-# Easy scripts to start and stop.
+# Easy scripts to start, stop, and get status.
 echo sudo `pwd`/$INSTALL/etc/init.d/sipxpbx start > /tmp/sstart
-sudo mv /tmp/sstart /usr/bin/sstart
+sudo mv /tmp/sstart /usr/bin/
 sudo chmod a+rx /usr/bin/sstart
 echo sudo `pwd`/$INSTALL/etc/init.d/sipxpbx stop > /tmp/sstop
-sudo mv /tmp/sstop /usr/bin/sstop
+sudo mv /tmp/sstop /usr/bin/
 sudo chmod a+rx /usr/bin/sstop
+echo sudo `pwd`/$INSTALL/etc/init.d/sipxpbx status > /tmp/sstatus
+sudo mv /tmp/sstatus /usr/bin/
+sudo chmod a+rx /usr/bin/sstatus
 
 # Install FreeSWITCH.
 SIPFOUNDRY_RPM_BASE_URL=http://sipxecs.sipfoundry.org/temp/sipXecs/main/FC/8/i386/RPM
@@ -121,13 +124,15 @@ sudo /sbin/service sipxpbx status
 if [ $? != 0 ]
 then
    echo ""
-   echo "NOTE: sipXpbx has not yet been started."
-   echo ""
+   echo "Starting sipXecs...."
+   sstart
+   sstatus
 fi
 
 echo ""
 echo "TO START: sstart"
 echo "TO STOP : sstop"
+echo "TO GET STATUS : sstatus"
 echo ""
 echo "ENV:"
 cat env
