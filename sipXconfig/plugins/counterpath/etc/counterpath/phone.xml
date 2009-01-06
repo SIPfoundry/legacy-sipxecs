@@ -573,7 +573,7 @@ A lower number has a higher priority (therefore 1.0 is the highest priority).</d
       <setting name="dvi4_wb">
         <profileName>codec_name</profileName>
         <type refid="codec-preference" />
-        <value>0</value>
+        <value>0.0</value>
       </setting>
       <setting name="evrc">
         <profileName>codec_name</profileName>
