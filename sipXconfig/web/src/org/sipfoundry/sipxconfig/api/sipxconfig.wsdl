@@ -20,36 +20,6 @@
     <xsd:schema targetNamespace="http://www.sipfoundry.org/2007/08/21/ConfigService">
 
       <!-- B U S I N E S S  O B J E C T S -->
-      <xsd:complexType name="Conference">
-        <xsd:sequence>
-          <xsd:element name="name" type="xsd:string" minOccurs="1" maxOccurs="1" />
-          <xsd:element name="extension" type="xsd:string" nillable="true" minOccurs="0" maxOccurs="1" />
-          <xsd:element name="description" type="xsd:string" nillable="true" minOccurs="0" maxOccurs="1" />
-          <xsd:element name="enabled" type="xsd:boolean" nillable="true" minOccurs="0" maxOccurs="1" />
-        </xsd:sequence>
-      </xsd:complexType>
-      <xsd:complexType name="ArrayOfConferences">
-        <xsd:sequence>
-          <xsd:element name="conference" type="tns:Conference" nillable="true" minOccurs="0" maxOccurs="unbounded" />
-        </xsd:sequence>
-      </xsd:complexType>
-      <xsd:complexType name="ConferenceBridge">
-        <xsd:sequence>
-          <xsd:element name="name" type="xsd:string" minOccurs="1" maxOccurs="1" />
-          <xsd:element name="description" type="xsd:string" nillable="true" minOccurs="0" maxOccurs="1" />
-          <xsd:element name="enabled" type="xsd:boolean" nillable="true" minOccurs="0" maxOccurs="1" />
-          <xsd:element name="host" type="xsd:string" nillable="true" minOccurs="0" maxOccurs="1" />
-          <xsd:element name="port" type="xsd:int" nillable="true" minOccurs="0" maxOccurs="1" />
-          <xsd:element name="serviceUri" type="xsd:string" nillable="true" minOccurs="0" maxOccurs="1" />
-          <xsd:element name="conferences" type="tns:Conference" nillable="true" minOccurs="0" maxOccurs="unbounded" />
-        </xsd:sequence>
-      </xsd:complexType>
-      <xsd:complexType name="ArrayOfConferenceBridges">
-        <xsd:sequence>
-          <xsd:element name="conferenceBridge" type="tns:ConferenceBridge" nillable="true" minOccurs="0"
-            maxOccurs="unbounded" />
-        </xsd:sequence>
-      </xsd:complexType>
       <xsd:simpleType name="RingType">
         <xsd:restriction base="xsd:string">
           <xsd:enumeration value="delayed">
@@ -247,22 +217,6 @@
         </xsd:complexType>
       </xsd:element>
 
-      <!-- C O N F E R E N C E   B R I D G E -->
-      <xsd:element name="GetConferenceBridgesResponse">
-        <xsd:complexType>
-          <xsd:sequence>
-            <xsd:element name="conferenceBridges" type="tns:ArrayOfConferenceBridges" minOccurs="1" maxOccurs="1" />
-          </xsd:sequence>
-        </xsd:complexType>
-      </xsd:element>
-      <xsd:element name="AddConferenceBridge">
-        <xsd:complexType>
-          <xsd:sequence>
-            <xsd:element name="ConferenceBridge" type="tns:ConferenceBridge" minOccurs="1" maxOccurs="1" />
-          </xsd:sequence>
-        </xsd:complexType>
-      </xsd:element>
-
       <!-- P A R K   O R B I T -->
       <xsd:element name="GetParkOrbitsResponse">
         <xsd:complexType>
@@ -408,7 +362,6 @@
           <!-- A flag for each service indicating whether it should be reset -->
           <xsd:sequence>
             <xsd:element name="callGroup" type="xsd:boolean" nillable="true" minOccurs="0" maxOccurs="1" />
-            <xsd:element name="conferenceBridge" type="xsd:boolean" nillable="true" minOccurs="0" maxOccurs="1" />
             <xsd:element name="parkOrbit" type="xsd:boolean" nillable="true" minOccurs="0" maxOccurs="1" />
             <xsd:element name="permission" type="xsd:boolean" nillable="true" minOccurs="0" maxOccurs="1" />
             <xsd:element name="phone" type="xsd:boolean" nillable="true" minOccurs="0" maxOccurs="1" />
@@ -470,49 +423,7 @@
   </binding>
 
   <!-- C O N F E R E N C E   B R I D G E   S E R V I C E -->
-  <message name="addConferenceBridgeResponse" />
-  <message name="addConferenceBridgeRequest">
-    <part name="addConferenceBridge" element="tns:AddConferenceBridge" />
-  </message>
-  <message name="getConferenceBridgesResponse">
-    <part name="getConferenceBridges" element="tns:GetConferenceBridgesResponse" />
-  </message>
-  <message name="getConferenceBridgesRequest" />
-  <portType name="ConferenceBridgeService">
-    <documentation>
-      Any change to conference bridges or conferences updates all servers automatically and asynchronously.
-    </documentation>
-    <operation name="addConferenceBridge">
-      <input message="tns:addConferenceBridgeRequest" />
-      <output message="tns:addConferenceBridgeResponse" />
-    </operation>
-    <operation name="getConferenceBridges">
-      <input message="tns:getConferenceBridgesRequest" />
-      <output message="tns:getConferenceBridgesResponse" />
-    </operation>
-  </portType>
 
-  <binding name="ConferenceBridgeServiceSoapBinding" type="tns:ConferenceBridgeService">
-    <soapbind:binding style="document" transport="http://schemas.xmlsoap.org/soap/http" />
-    <operation name="addConferenceBridge">
-      <soapbind:operation />
-      <input>
-        <soapbind:body use="literal" />
-      </input>
-      <output>
-        <soapbind:body use="literal" />
-      </output>
-    </operation>
-    <operation name="getConferenceBridges">
-      <soapbind:operation />
-      <input>
-        <soapbind:body use="literal" />
-      </input>
-      <output>
-        <soapbind:body use="literal" />
-      </output>
-    </operation>
-  </binding>
 
   <!-- P A R K   O R B I T   S E R V I C E -->
   <message name="addParkOrbitResponse" />
@@ -813,9 +724,6 @@
   <service name="ConfigImplService">
     <port name="CallGroupService" binding="tns:CallGroupServiceSoapBinding">
       <soapbind:address location="http://localhost:9999/sipxconfig/services/CallGroupService" />
-    </port>
-    <port name="ConferenceBridgeService" binding="tns:ConferenceBridgeServiceSoapBinding">
-      <soapbind:address location="http://localhost:9999/sipxconfig/services/ConferenceBridgeService" />
     </port>
     <port name="ParkOrbitService" binding="tns:ParkOrbitServiceSoapBinding">
       <soapbind:address location="http://localhost:9999/sipxconfig/services/ParkOrbitService" />

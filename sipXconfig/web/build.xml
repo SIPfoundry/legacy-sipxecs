@@ -514,9 +514,6 @@
       <arg line="${webservice-unit-test-command}/CallGroupServiceTestApi.rb"/>
     </exec>
     <exec executable="${ruby}" failonerror="true">
-      <arg line="${webservice-unit-test-command}/ConferenceBridgeServiceTestApi.rb"/>
-    </exec>
-    <exec executable="${ruby}" failonerror="true">
       <arg line="${webservice-unit-test-command}/ParkOrbitServiceTestApi.rb"/>
     </exec>
     <exec executable="${ruby}" failonerror="true">

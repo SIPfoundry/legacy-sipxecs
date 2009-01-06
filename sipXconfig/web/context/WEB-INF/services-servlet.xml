@@ -8,11 +8,6 @@
     <property name="callGroupBuilder" ref="callGroupBuilder" />
   </bean>
 
-  <bean id="ConferenceBridgeService" class="org.sipfoundry.sipxconfig.api.ConferenceBridgeServiceImpl">
-    <property name="conferenceBridgeContext" ref="conferenceBridgeContext" />
-    <property name="conferenceBridgeBuilder" ref="conferenceBridgeBuilder" />
-  </bean>
-
   <bean id="ParkOrbitService" class="org.sipfoundry.sipxconfig.api.ParkOrbitServiceImpl">
     <property name="parkOrbitContext" ref="parkOrbitContext" />
     <property name="parkOrbitBuilder" ref="parkOrbitBuilder" />

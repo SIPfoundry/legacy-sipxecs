@@ -65,9 +65,6 @@ public class TestServiceImpl implements TestService {
         if (Boolean.TRUE.equals(resetServices.getCallGroup())) {
             m_callGroupContext.clear();
         }
-        if (Boolean.TRUE.equals(resetServices.getConferenceBridge())) {
-            m_conferenceBridgeContext.clear();
-        }
         if (Boolean.TRUE.equals(resetServices.getParkOrbit())) {
             m_parkOrbitContext.clear();
         }
