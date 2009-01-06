@@ -59,8 +59,12 @@ pid_t gSupervisorPid;
 void cleanup()
 {
     // tell the supervisor-in-waiting to exit nicely
-    write(fdin[1], EXIT_KEYWORD, strlen(EXIT_KEYWORD));
-    write(fdin[1], "\n", 1);
+    ssize_t rc = write(fdin[1], EXIT_KEYWORD, strlen(EXIT_KEYWORD));
+    if ( rc < 0 )
+    {
+       osPrintf("Failed to write to supervisor-in-waiting, errno %d\n", errno);
+    }
+    rc = write(fdin[1], "\n", 1);
 
     // Stop handling xmlrpc requests
     if ( pSipxRpcImpl )
