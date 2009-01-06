@@ -21,10 +21,7 @@
 #include "os/OsConfigDb.h"
 #include "os/OsTask.h"
 #include "os/OsSSLServerSocket.h"
-#include "net/HttpServer.h"
-#include "net/HttpService.h"
 #include "net/XmlRpcDispatch.h"
-#include "sipdb/SIPDBManager.h"
 #include "sipXecsService/SipXecsService.h"
 #include "SipxRpc.h"
 #include "HttpFileAccess.h"
@@ -54,60 +51,9 @@ const char* EXIT_KEYWORD = "exit";
 int supervisorMain(bool bOriginalSupervisor);
 
 // GLOBALS
-int gnCheckPeriod = 10;
 UtlBoolean gbDone = FALSE;
 UtlBoolean gbShutdown = FALSE;
-UtlBoolean gbPreloadedDatabases = FALSE;
 pid_t gSupervisorPid;
-
-//retrieve the update rate from the xml file
-OsStatus getSettings(TiXmlDocument &doc, int &rCheckPeriod)
-{
-    OsStatus retval = OS_FAILED;
-
-    OsSysLog::add(FAC_SUPERVISOR,PRI_INFO,"Getting check_period settings");
-
-    TiXmlElement*rootElement = doc.RootElement();
-    if (rootElement)
-    {
-
-        TiXmlNode *settingsItem = rootElement->FirstChild("settings");
-        if (settingsItem)
-        {
-            TiXmlNode *healthItem = settingsItem->FirstChild("health");
-
-            if ( healthItem != NULL )
-            {
-                // This is actually an individual row
-                TiXmlElement *nextElement = healthItem->ToElement();
-
-
-                const char *pCheckStr = nextElement->Attribute("check_period");
-                if ( pCheckStr )
-                {
-                    rCheckPeriod = atoi(pCheckStr);
-
-                    retval = OS_SUCCESS;
-                }
-
-            }
-            else
-            {
-                OsSysLog::add(FAC_SUPERVISOR,PRI_ERR,"Can not read health settings");
-            }
-        }
-        else
-        {
-            OsSysLog::add(FAC_SUPERVISOR,PRI_ERR,"Can not read settings node");
-        }
-    }
-    else
-    {
-            OsSysLog::add(FAC_SUPERVISOR,PRI_ERR,"Can not read root element in getSettings!");
-    }
-
-    return retval;
-}
 
 
 void cleanup()
@@ -125,22 +71,6 @@ void cleanup()
 
     // Shut down all processes
     SipxProcessManager::getInstance()->shutdown();
-
-    // Release preloaded databases.
-    if (gbPreloadedDatabases)
-    {
-        OsStatus rc = SIPDBManager::getInstance()->releaseAllDatabase();
-        if (OS_SUCCESS == rc)
-        {
-            OsSysLog::add(FAC_SUPERVISOR, PRI_INFO, "Released the preloaded databases.");
-        }
-        else
-        {
-            OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, 
-                          "releaseAllDatabase() failed, rc = %d.", (int)rc); 
-        }
-        delete SIPDBManager::getInstance();
-    }
 
     cAlarmServer::getInstance()->cleanup();
     
