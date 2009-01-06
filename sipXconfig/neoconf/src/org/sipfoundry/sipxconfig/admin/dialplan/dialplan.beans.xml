@@ -265,6 +265,7 @@
 
   <bean id="specialAutoAttendantMode" class="org.sipfoundry.sipxconfig.admin.dialplan.config.SpecialAutoAttendantMode"
     scope="prototype" parent="defaultConfigurationFile">
+    <property name="directory" value="${sysdir.vxml}" />
     <property name="name" value="organizationprefs.xml" />
   </bean>
 
