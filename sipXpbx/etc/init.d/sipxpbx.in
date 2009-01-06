@@ -89,6 +89,32 @@ process_command() {
   echo -n "${proc_cmd}"
 }
 
+#
+#XECS-2063 : Java Keystore setup. This code is migrated from sipxconfig.sh
+#
+SslDir=@SIPX_CONFDIR@/ssl
+AuthoritiesDir=$SslDir/authorities
+
+createAuthoritiesTruststore() {    
+    # List of authorities accepted system-wide
+    if [ -d $AuthoritiesDir ]
+    then
+      TrustStore=$SslDir/.authorities.jks
+      @SIPX_BINDIR@/ssl-cert/create-ssl-truststore.sh --checksum $SslDir/.authorities-contents.md5 \
+          --truststore $TrustStore --ca-path $AuthoritiesDir
+      # password on command line is not security issue. catrust and directory has appropriate
+      # permissions, password is required by keystores
+    else
+      echo_failure    
+      STATUS=1
+    fi
+}
+
+# Create a keystore and set-up the command-line options to supply it to the JVM.
+createAuthoritiesKeystore() { 
+    @SIPX_BINDIR@/ssl-cert/create-ssl-keystore.sh
+}
+
 # Low-level start function.
 # We wait after the fork and see if the .pid file was created
 start() { # process-name
@@ -126,6 +152,8 @@ start() { # process-name
         fi
 
         echo
+	createAuthoritiesKeystore
+	createAuthoritiesTruststore
         return $STATUS
 }
 
@@ -739,6 +767,8 @@ do_status() {
     status sipxsupervisor
     return $?
 }
+
+
 
 export PATH=$PATH:@bindir@
 
