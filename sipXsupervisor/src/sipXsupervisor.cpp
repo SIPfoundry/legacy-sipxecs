@@ -36,23 +36,29 @@
 
 //The worker who manages xmlrpc requests
 SipxRpc *pSipxRpcImpl;
+int fdin[2];                     /// stdin pipe between supervisor and supervisor-in-waiting
 
 // MACROS
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
 const char* CONFIG_SETTINGS_FILE = "sipxsupervisor-config";
+const char* SUPERVISOR_PID_FILE = "sipxsupervisor.pid";
 const int   DEFAULT_SUPERVISOR_PORT = 8092;
 const char* SUPERVISOR_HOST = "SUPERVISOR_HOST";
+const char* EXIT_KEYWORD = "exit";
 
 // STRUCTS
 // TYPEDEFS
 // FORWARD DECLARATIONS
+int supervisorMain(bool bOriginalSupervisor);
+
 // GLOBALS
 int gnCheckPeriod = 10;
 UtlBoolean gbDone = FALSE;
 UtlBoolean gbShutdown = FALSE;
 UtlBoolean gbPreloadedDatabases = FALSE;
+pid_t gSupervisorPid;
 
 //retrieve the update rate from the xml file
 OsStatus getSettings(TiXmlDocument &doc, int &rCheckPeriod)
@@ -106,6 +112,10 @@ OsStatus getSettings(TiXmlDocument &doc, int &rCheckPeriod)
 
 void cleanup()
 {
+    // tell the supervisor-in-waiting to exit nicely
+    write(fdin[1], EXIT_KEYWORD, strlen(EXIT_KEYWORD));
+    write(fdin[1], "\n", 1);
+
     // Stop handling xmlrpc requests
     if ( pSipxRpcImpl )
     {
@@ -179,6 +189,7 @@ void sig_routine(int sig)
        break;
        
     case SIGTERM:
+    {
 #ifdef DEBUG
        osPrintf("Execution TERMINATED!\n");
 #endif /* DEBUG */
@@ -186,6 +197,7 @@ void sig_routine(int sig)
        gbShutdown = true;
        return;
        break;
+    }
        
     case SIGKILL:
 #ifdef DEBUG
@@ -208,7 +220,7 @@ void sig_routine(int sig)
 class SignalTask : public OsTask
 {
 public:
-   SignalTask() : OsTask() {}
+   SignalTask() : OsTask("SignalTask") {}
 
    int
    run(void *pArg)
@@ -235,23 +247,72 @@ public:
    }
 };
 
+/// Fork another copy of the supervisor which will do nothing unless/until the parent dies,
+/// in which case it will take over by calling main again
+void forkSupervisorInWaiting()
+{
+    // create pipes between the parent and child for stdin
+    if ( pipe(fdin) < 0 )
+    {
+       osPrintf("Failed to create pipe for supervisor, errno %d",
+                     errno);
+       return;
+    }
+
+    //now fork into two processes
+    pid_t forkReturnVal = fork();
+    switch (forkReturnVal)
+    {
+        case -1 : //retval = OS_FAILED;
+                  break;
+
+        case 0 :
+        {
+                  // this is the child process
+                  // Dupe the stdin pipe, then read from it.
+                  // If we ever return from read with EOF, the parent has died
+                  // so it's time for the child to take over
+
+                  // child closes the writing end of the stdin pipe
+                  close(fdin[1]);
+
+                  // replace stdin with read part of the pipe
+                  if (dup2(fdin[0], STDIN_FILENO) < 0)
+                  {
+                     osPrintf("Failed to dup2 pipe for supervisor, errno %d!\n",
+                     errno);
+                  }
+
+                  ssize_t rc;
+                  char recvbuf[1024];
+                  while ( (rc = read(fdin[0], recvbuf, sizeof(recvbuf))) > 0 )
+                  {
+                     if ( !strncasecmp(recvbuf, EXIT_KEYWORD, strlen(EXIT_KEYWORD)) )
+                     {
+                        _exit(EXIT_SUCCESS);
+                     }
+                  }
+
+                  // now the supervisor-in-waiting ascends to the throne
+                  OsTask::delay(20000);
+                  supervisorMain(false);
+                  break;
+        }
+        default : // this is the parent process
+
+                  // parent closes the reading end of the stdin pipe
+                  close(fdin[0]);
+                  //retval = OS_SUCCESS;
+                  break;
+    }
+}
+
 int main(int argc, char* argv[])
 {
-    // Block all signals in this the main thread
-    // Any threads created after this will have all signals masked.
-    OsTask::blockSignals();
+   // All osPrintf output should go to the console until the log file is initialized.
+   enableConsoleOutput(true);
 
-    // Create a new task to wait for signals.  Only that task
-    // will ever see a signal from the outside.
-    SignalTask* signalTask = new SignalTask();
-    signalTask->start() ;
-
-    // All osPrintf output should go to the console until the log file is initialized.
-    enableConsoleOutput(true);
-
-    UtlString argString;
-    const char * sipxpbxuser = SipXecsService::User();
-    const char * sipxpbxgroup = SipXecsService::Group();
+   UtlString argString;
 
     for (int argIndex = 1; argIndex < argc; argIndex++) 
     {
@@ -286,7 +347,38 @@ int main(int argc, char* argv[])
         }
     }
 
+    return supervisorMain(true);
+}
+
+int supervisorMain(bool bOriginalSupervisor)
+{
+    // Create forked process which will do nothing unless parent dies.  Parent continues with initialization.
+    forkSupervisorInWaiting();
+
+    // Write this process's pid into the supervisor pidfile (it might be a child or grandchild)
+    gSupervisorPid = getpid();
+    UtlString pidFileName = SipXecsService::Path(SipXecsService::RunDirType, SUPERVISOR_PID_FILE);
+    char pidString[1024];
+    sprintf(pidString, "%ld\n", (long)gSupervisorPid);
+    OsFile pidFile(pidFileName);
+    if ( OS_SUCCESS == pidFile.open(OsFile::CREATE) )
+    {
+       size_t bytesWritten;
+       if ( OS_SUCCESS != pidFile.write(pidString, strlen(pidString), bytesWritten) )
+       {
+          osPrintf("sipXsupervisor: could not write pidFile %s\n", pidFileName.data());
+       }
+       pidFile.close();
+    }
+    else
+    {
+       osPrintf("sipXsupervisor: could not open pidFile %s\n", pidFileName.data());
+    }
+
     // Drop privileges down to the specified user & group
+    const char * sipxpbxuser = SipXecsService::User();
+    const char * sipxpbxgroup = SipXecsService::Group();
+
     if (NULL == sipxpbxuser || 0 == strlen(sipxpbxuser))
     {
        osPrintf("sipXsupervisor: Failed to setuid(%s), username not defined.\n",
@@ -355,12 +447,29 @@ int main(int argc, char* argv[])
     osPrintf("sipXsupervisor: Dropped privileges with setuid(%s)/setgid(%s).", 
        sipxpbxuser, sipxpbxgroup);
 #endif
-                              
+
+    // Block all signals in this the main thread
+    // Any threads created after this will have all signals masked.
+    OsTask::blockSignals();
+
+    // Create a new task to wait for signals.  Only that task
+    // will ever see a signal from the outside.
+    SignalTask* signalTask = new SignalTask();
+    signalTask->start() ;
+
+    // All osPrintf output should go to the console until the log file is initialized.
+    enableConsoleOutput(true);
+
     // Initialize the log file.
     OsSysLog::initialize(0, "Supervisor") ;
     UtlString logFile = SipXecsService::Path(SipXecsService::LogDirType, "sipxsupervisor.log");
     OsSysLog::setOutputFile(0, logFile) ;
     OsSysLog::setLoggingPriority(PRI_DEBUG);
+    if (!bOriginalSupervisor)
+    {
+       OsSysLog::add(FAC_SUPERVISOR, PRI_CRIT,
+                     "Restarting sipxsupervisor after unexpected shutdown");
+    }
     OsSysLog::add(FAC_SUPERVISOR, PRI_NOTICE,
                   ">>>>> Starting sipxsupervisor version %s",
                   SipXsupervisorVersion);
