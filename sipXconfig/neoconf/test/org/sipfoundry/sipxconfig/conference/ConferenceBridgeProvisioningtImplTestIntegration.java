@@ -15,6 +15,7 @@ import java.util.List;
 import org.sipfoundry.sipxconfig.IntegrationTestCase;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
+import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.setting.ModelFilesContext;
 
 import static org.easymock.EasyMock.createMock;
@@ -31,6 +32,12 @@ public class ConferenceBridgeProvisioningtImplTestIntegration extends Integratio
 
     private ModelFilesContext m_modelFilesContext;
 
+    private DomainManager m_domainManager;
+    
+    public void setDomainManager(DomainManager domainManager) {
+        m_domainManager = domainManager;
+    }
+    
     public void setConferenceBridgeContext(ConferenceBridgeContext context) {
         m_context = context;
     }
@@ -55,7 +62,9 @@ public class ConferenceBridgeProvisioningtImplTestIntegration extends Integratio
         ConferenceBridgeProvisioningImpl impl = new ConferenceBridgeProvisioningImpl() {
             @Override
             public ConferenceConfiguration createConferenceConfiguration() {
-                return new ConferenceConfiguration();
+                ConferenceConfiguration config = new ConferenceConfiguration();
+                config.setDomainManager(m_domainManager);
+                return config;
             }
         };
         impl.setSipxReplicationContext(replication);

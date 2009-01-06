@@ -13,13 +13,29 @@ import java.util.List;
 
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.acd.BeanWithSettingsTestCase;
+import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.forwarding.AliasMapping;
+import org.sipfoundry.sipxconfig.service.LocationSpecificService;
+import org.sipfoundry.sipxconfig.service.SipxFreeswitchService;
 
 public class ConferenceTest extends BeanWithSettingsTestCase {
     private Conference m_conf;
-
+    private Bridge m_bridge;
+    
     protected void setUp() throws Exception {
         super.setUp();
+        
+        Location location = new Location();
+        SipxFreeswitchService sipxService = new SipxFreeswitchService();
+        sipxService.setSettings(TestHelper.loadSettings("freeswitch/freeswitch.xml"));
+        LocationSpecificService service = new LocationSpecificService(sipxService);
+        service.setLocation(location);          
+        
+        m_bridge = new Bridge();
+        m_bridge.setService(service);
+        m_bridge.setModelFilesContext(TestHelper.getModelFilesContext());
+        initializeBeanWithSettings(m_bridge);
+        
         m_conf = new Conference();
         initializeBeanWithSettings(m_conf);
         m_conf.getSettings();
@@ -32,30 +48,19 @@ public class ConferenceTest extends BeanWithSettingsTestCase {
     }
 
     public void testGetUri() {
+        m_bridge.getService().getLocation().setFqdn("bridge1.sipfoundry.org");
+        m_bridge.addConference(m_conf);
+
         m_conf.setName("weekly.marketing");
+        assertEquals("sip:weekly.marketing@bridge1.sipfoundry.org:15060", m_conf.getUri());
 
-        Bridge bridge = new Bridge();
-        bridge.setModelFilesContext(TestHelper.getModelFilesContext());
-        bridge.setHost("bridge1.sipfoundry.org");
-        bridge.setPort(15060);
-        bridge.addConference(m_conf);
-
-        assertEquals("sip:weekly.marketing@bridge1.sipfoundry.org:15060",
-                m_conf.getUri());
-
-        bridge.setHost("abc.domain.com");
-        assertEquals("sip:weekly.marketing@abc.domain.com:15060", m_conf
-                .getUri());
+        m_bridge.getService().getLocation().setFqdn("abc.domain.com");
+        assertEquals("sip:weekly.marketing@abc.domain.com:15060", m_conf.getUri());
     }
 
     public void testGenerateRemoteAdmitSecret() {
-        Bridge bridge = new Bridge();
-        initializeBeanWithSettings(bridge);
-        bridge.getSettings();
-        
-        bridge.setHost("bridge1.sipfoundry.org");
-        bridge.setPort(15060);
-        bridge.addConference(m_conf);
+        m_bridge.getService().getLocation().setFqdn("bridge1.sipfoundry.org");
+        m_bridge.addConference(m_conf);
                 
         assertNull(m_conf.getRemoteAdmitSecret());
         m_conf.generateRemoteAdmitSecret();
@@ -63,12 +68,8 @@ public class ConferenceTest extends BeanWithSettingsTestCase {
     }
 
     public void testGenerateAliases() {
-        Bridge bridge = new Bridge();
-        initializeBeanWithSettings(bridge);
-        bridge.getSettings();
-        bridge.setHost("bridge1.sipfoundry.org");
-        bridge.setPort(15060);
-        bridge.addConference(m_conf);
+        m_bridge.getService().getLocation().setFqdn("bridge1.sipfoundry.org");
+        m_bridge.addConference(m_conf);
 
         // empty for disabled conference
         m_conf.setName("conf1");

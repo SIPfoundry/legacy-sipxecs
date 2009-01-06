@@ -58,9 +58,8 @@ public abstract class EditBridge extends PageWithCallback implements PageBeginRe
         Bridge bridge = null;
         if (getBridgeId() != null) {
             bridge = getConferenceBridgeContext().loadBridge(getBridgeId());
-        } else {
-            bridge = getConferenceBridgeContext().newBridge();
         }
+        
         setBridge(bridge);
     }
 
@@ -72,12 +71,7 @@ public abstract class EditBridge extends PageWithCallback implements PageBeginRe
 
     private void saveValid() {
         Bridge bridge = getBridge();
-        boolean isNew = bridge.isNew();
         getConferenceBridgeContext().store(bridge);
-        if (isNew) {
-            Integer id = bridge.getId();
-            setBridgeId(id);
-        }
     }
 
     public void formSubmit() {

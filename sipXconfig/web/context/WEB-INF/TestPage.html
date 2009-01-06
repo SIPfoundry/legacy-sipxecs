@@ -91,6 +91,7 @@
       <li><a jwcid="@DirectLink" id="link:waitingPage" listener="listener:testWaitingPage">Waiting Page</a></li>
       <li><a jwcid="@PageLink" id="menu.exhibit" page="cdr/CdrExhibit">Exhibit demo</a></li>
       <li><a jwcid="seedLocationsManager@DirectLink" id="seedLocationsManager" listener="listener:seedLocationsManager">Seed Locations Manager</a></li>
+      <li><a jwcid="@PageLink" id="link:locations" page="admin/commserver/LocationsPage">Servers</a></li>
     </ul>
     
     <h3>User Portal</h3>
@@ -103,7 +104,7 @@
     
     <h3>Conference Bridge</h3>
     <ul>
-      <li><a jwcid="@PageLink" id="EditBridge" page="conference/EditBridge">New Bridge</a></li>
+      <li><a jwcid="@DirectLink" id="createTestBridge" listener="listener:createTestBridge">Create test conference bridge</a></li>
       <li><a jwcid="@PageLink" id="ListBridges" page="conference/ListBridges">Conference Bridges</a></li>
     </ul>
   </div>      

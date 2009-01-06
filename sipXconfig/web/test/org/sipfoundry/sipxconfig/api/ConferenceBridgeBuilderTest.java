@@ -62,11 +62,11 @@ public class ConferenceBridgeBuilderTest extends TestCase {
         myConf.setExtension("1234");
         myConf.setName("conf0");
         m_myBridge.addConference(myConf);
-        m_myBridge.setDescription("bridge to nowhere");
+//        m_myBridge.setDescription("bridge to nowhere");
         m_myBridge.setEnabled(true);
-        m_myBridge.setHost("bridge host");
-        m_myBridge.setName("bridge name");
-        m_myBridge.setPort(4321);
+//        m_myBridge.setHost("bridge host");
+//        m_myBridge.setName("bridge name");
+//        m_myBridge.setPort(4321);
         ApiBeanUtil.toApiObject(m_builder, m_apiBridge, m_myBridge);
         assertEquals("bridge to nowhere", m_apiBridge.getDescription());
         assertEquals(true, m_apiBridge.getEnabled().booleanValue());

@@ -14,6 +14,7 @@ import junit.framework.Test;
 import org.apache.commons.lang.ArrayUtils;
 import org.sipfoundry.sipxconfig.site.ListWebTestCase;
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
+import org.sipfoundry.sipxconfig.site.TestPage;
 
 public class EditBridgeTestUi extends ListWebTestCase {
 
@@ -33,28 +34,23 @@ public class EditBridgeTestUi extends ListWebTestCase {
 
     public void testTabNames() {
         SiteTestHelper.home(tester);
-        clickLink("EditBridge");
-        assertLinkPresent("link:config");
-        assertLinkNotPresent("link:conferences");
-        m_conferenceHelper.createBridge("testCreateBridge");
-        SiteTestHelper.home(tester);
         clickLink("ListBridges");
-        clickLinkWithText("testCreateBridge");
+        clickLinkWithText(TestPage.TEST_LOCATION_FQDN);
         assertLinkPresent("link:config");
         assertLinkPresent("link:conferences");
     }
     
     public void setUp() {
+        m_conferenceHelper = new ConferenceTestHelper(tester);
         getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
         SiteTestHelper.home(getTester());
         SiteTestHelper.setScriptingEnabled(tester, true);
         clickLink("resetConferenceBridgeContext");
-        clickLink("EditBridge");
-        setWorkingForm("form");
-        setTextField("item:name", "bridge_test");
-        clickButton("form:apply");
+        m_conferenceHelper.createBridge();
+        clickLink("ListBridges");
+        clickLinkWithText(TestPage.TEST_LOCATION_FQDN);
         clickLink("link:conferences");
-        m_conferenceHelper = new ConferenceTestHelper(tester);
+       
         SiteTestHelper.assertNoUserError(tester);
     }
 
@@ -79,18 +75,18 @@ public class EditBridgeTestUi extends ListWebTestCase {
     // 2 = 1 thead (columns) + 1 tfoot (pager)
     //Table row counting will be the true value+2
     public void testGroupFilter() throws Exception {
-	SiteTestHelper.home(getTester());
-	clickLink("resetConferenceBridgeContext");
+        SiteTestHelper.home(getTester());
+        clickLink("resetConferenceBridgeContext");
         SiteTestHelper.seedGroup(tester, "NewUserGroup", 2);
-        m_conferenceHelper.createBridge("groupFilterTestBridge");
-        m_conferenceHelper.groupConferenceAutomation("seedGroup0", "groupFilterTestBridge");
-        m_conferenceHelper.groupConferenceAutomation("seedGroup1", "groupFilterTestBridge");
+        m_conferenceHelper.createBridge();
+        m_conferenceHelper.groupConferenceAutomation("seedGroup0");
+        m_conferenceHelper.groupConferenceAutomation("seedGroup1");
         m_conferenceHelper.addUserToGroup(3, "seedGroup1",12200);
         m_conferenceHelper.addUserToGroup(2, "seedGroup0",13300);
 
         SiteTestHelper.home(tester);
         clickLink("ListBridges");
-        clickLinkWithText("groupFilterTestBridge");
+        clickLinkWithText(TestPage.TEST_LOCATION_FQDN);
         clickLink("link:conferences");
 
         // all conferences

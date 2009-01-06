@@ -14,16 +14,13 @@ import java.util.List;
 import java.util.Map;
 
 public interface SipxServiceManager {
-    SipxService getServiceByBeanId(String beanId);
+    static final String CONTEXT_BEAN_NAME = "sipxServiceManager";
 
     SipxService getServiceByName(String name);
-
+    SipxService getServiceByBeanId(String beanId);
     Collection<SipxService> getServiceDefinitions();
-
     void storeService(SipxService service);
-
     void replicateServiceConfig(SipxService service);
-
     Map<SipxServiceBundle, List<SipxService>> getBundles();
 
     List<SipxService> getRestartable();

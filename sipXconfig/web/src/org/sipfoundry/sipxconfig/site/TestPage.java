@@ -44,6 +44,7 @@ import org.sipfoundry.sipxconfig.admin.parkorbit.ParkOrbitContext;
 import org.sipfoundry.sipxconfig.bulk.ldap.LdapImportManager;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.conference.Bridge;
 import org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext;
 import org.sipfoundry.sipxconfig.device.ModelSource;
 import org.sipfoundry.sipxconfig.device.TimeZoneManager;
@@ -61,7 +62,10 @@ import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.phone.PhoneModel;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookManager;
 import org.sipfoundry.sipxconfig.search.IndexManager;
+import org.sipfoundry.sipxconfig.service.LocationSpecificService;
 import org.sipfoundry.sipxconfig.service.ServiceManager;
+import org.sipfoundry.sipxconfig.service.SipxFreeswitchService;
+import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.site.admin.WaitingPage;
 import org.sipfoundry.sipxconfig.site.admin.commserver.ReplicationData;
@@ -88,6 +92,9 @@ public abstract class TestPage extends BasePage {
     public static final String EMPTY_STRING = "";
     public static final int SERIAL_NUM_LEN = 12;
 
+    public static final String TEST_LOCATION_FQDN = "host.example.org"; 
+    public static final String TEST_LOCATION_NAME = "Remote Location";
+    
     // Data for the primary test user
     // Make sure the username matches SiteTestHelper.java
     public static final String TEST_USER_USERNAME = "testuser";
@@ -158,6 +165,9 @@ public abstract class TestPage extends BasePage {
     @InjectObject(value = "spring:serviceManager")
     public abstract ServiceManager getServiceManager();
 
+    @InjectObject(value = "spring:sipxServiceManager")
+    public abstract SipxServiceManager getSipxServiceManager();
+    
     @InjectObject(value = "spring:sbcManager")
     public abstract SbcManager getSbcManager();
 
@@ -237,6 +247,31 @@ public abstract class TestPage extends BasePage {
     public void resetConferenceBridgeContext() {
         getConferenceBridgeContext().clear();
     }
+    
+    public void createTestBridge() {
+        seedLocationsManager();
+        resetConferenceBridgeContext();
+        
+        Location location = getLocationsManager().getPrimaryLocation();
+        SipxFreeswitchService sipxService = 
+            (SipxFreeswitchService) getSipxServiceManager().getServiceByBeanId(SipxFreeswitchService.BEAN_ID);
+        
+        // Check if we already have a FreeSWITCH service here
+        LocationSpecificService service = location.getService(SipxFreeswitchService.BEAN_ID);
+        if (service == null) {
+            service = new LocationSpecificService(sipxService);
+            location.addService(service);
+            getLocationsManager().storeLocation(location);
+        }
+        
+        // Check if the test bridge already exists
+        Bridge bridge = getConferenceBridgeContext().getBridgeByServer(location.getFqdn());
+        if (bridge == null) {
+            bridge = getConferenceBridgeContext().newBridge();
+            bridge.setService(service);
+            getConferenceBridgeContext().store(bridge);
+        }
+    }
 
     public void resetPersonalAttendants() {
         getMailboxManager().clearPersonalAttendants();
@@ -246,8 +281,8 @@ public abstract class TestPage extends BasePage {
         deleteLocations();
 
         Location remoteLocation = new Location();
-        remoteLocation.setName("Remote Location");
-        remoteLocation.setFqdn("host.example.org");
+        remoteLocation.setName(TEST_LOCATION_NAME);
+        remoteLocation.setFqdn(TEST_LOCATION_FQDN);
         remoteLocation.setAddress("192.168.155.100");
         getLocationsManager().storeLocation(remoteLocation);
     }

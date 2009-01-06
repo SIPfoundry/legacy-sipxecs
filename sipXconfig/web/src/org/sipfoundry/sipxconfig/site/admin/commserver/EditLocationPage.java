@@ -32,7 +32,10 @@ import org.sipfoundry.sipxconfig.components.ObjectSelectionModel;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
+import org.sipfoundry.sipxconfig.conference.Bridge;
+import org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext;
 import org.sipfoundry.sipxconfig.service.SipxAcdService;
+import org.sipfoundry.sipxconfig.service.SipxFreeswitchService;
 import org.sipfoundry.sipxconfig.service.SipxService;
 import org.sipfoundry.sipxconfig.service.SipxServiceBundle;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
@@ -51,6 +54,9 @@ public abstract class EditLocationPage extends PageWithCallback implements PageB
 
     @InjectObject("spring:acdContext")
     public abstract AcdContext getAcdContext();
+
+    @InjectObject("spring:conferenceBridgeContext")
+    public abstract ConferenceBridgeContext getConferenceBridgeContext();    
 
     @Bean
     public abstract SipxValidationDelegate getValidator();
@@ -110,6 +116,11 @@ public abstract class EditLocationPage extends PageWithCallback implements PageB
             // added
             if (sipxService instanceof SipxAcdService) {
                 getAcdContext().addNewServer(getLocationBean());
+            } else if (sipxService instanceof SipxFreeswitchService) {
+                Bridge bridge = getConferenceBridgeContext().newBridge();
+                bridge.setService(location.getService(sipxService.getBeanId())); 
+                bridge.setEnabled(true);
+                getConferenceBridgeContext().store(bridge);
             }
         }
 

@@ -79,22 +79,6 @@
       <value>0</value>
       <description>The maximum number of call legs to be allowed by this bridge. 0 means unlimited.</description>
     </setting>
-    <setting name="sip-port" advanced="yes">
-      <label>Conference Server SIP port</label>
-      <type refid="port-number"/>
-      <value>15060</value>
-    </setting>
-    <setting name="sip-domain">
-      <label>Conference Server SIP domain</label>
-      <value></value>
-      <description>The host parts of the SIP URI of the conference server.</description>
-    </setting>
-    <setting name="sip-proxy" advanced="yes">
-      <label>SIP Outbound Proxy</label>
-      <value/>
-      <description>An 'outbound proxy' that should be used as the first hop in any request originated from the
-        bridge.</description>
-    </setting>
     <setting name="sip-aliases" hidden="yes">
       <value></value>
       <description> A comma separated list of host and/or host:port values that the bridge should accept as

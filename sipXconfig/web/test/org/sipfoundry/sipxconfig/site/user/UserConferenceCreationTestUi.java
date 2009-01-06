@@ -6,6 +6,7 @@ import net.sourceforge.jwebunit.html.Table;
 import net.sourceforge.jwebunit.junit.WebTestCase;
 
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
+import org.sipfoundry.sipxconfig.site.TestPage;
 import org.sipfoundry.sipxconfig.site.conference.ConferenceTestHelper;
 
 public class UserConferenceCreationTestUi extends WebTestCase {
@@ -28,7 +29,7 @@ public class UserConferenceCreationTestUi extends WebTestCase {
     
     public void testConferenceCreation() {
         // Create the test bridge and a user group for conference creation.
-        m_helper.createBridge("testbridge");
+        m_helper.createBridge();
         SiteTestHelper.seedGroup(getTester(), "NewUserGroup", 1);
         
         // Enable conference creation and select the previously created bridge.
@@ -37,7 +38,7 @@ public class UserConferenceCreationTestUi extends WebTestCase {
         clickLink("link:conferences");               
         checkCheckbox("conferences:enable");
         setTextField("conferences:offset", "1000");
-        selectOption("bridgeSelect", "testbridge");
+        selectOption("bridgeSelect", TestPage.TEST_LOCATION_FQDN);
         submit("submit:ok");
 
         // Create a new user and assign it to the group.
@@ -52,7 +53,7 @@ public class UserConferenceCreationTestUi extends WebTestCase {
         // Lastly, verify that a conference was created for this user.
         SiteTestHelper.home(tester);
         clickLink("ListBridges");
-        clickLinkWithText("testbridge");
+        clickLinkWithText(TestPage.TEST_LOCATION_FQDN);
         clickLink("link:conferences");
         Table conferenceTable = getTable("conference:list");
         assertEquals(3, conferenceTable.getRowCount()); // the header, the pager and the one conference

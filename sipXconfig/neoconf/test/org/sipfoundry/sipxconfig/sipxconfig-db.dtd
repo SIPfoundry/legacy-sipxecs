@@ -458,11 +458,8 @@
 <!ATTLIST meetme_bridge
     meetme_bridge_id CDATA #REQUIRED
     enabled CDATA #IMPLIED
-    name CDATA #REQUIRED
-    host CDATA #IMPLIED
-    port CDATA #IMPLIED
-    description CDATA #IMPLIED
     value_storage_id CDATA #IMPLIED
+    location_specific_service_id CDATA #REQUIRED
 >
 
 <!ELEMENT meetme_conference EMPTY>

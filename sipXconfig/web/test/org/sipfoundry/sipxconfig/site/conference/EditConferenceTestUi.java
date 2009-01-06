@@ -14,6 +14,7 @@ import junit.framework.Test;
 import net.sourceforge.jwebunit.junit.WebTestCase;
 
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
+import org.sipfoundry.sipxconfig.site.TestPage;
 
 public class EditConferenceTestUi extends WebTestCase {
 
@@ -30,13 +31,13 @@ public class EditConferenceTestUi extends WebTestCase {
         SiteTestHelper.home(tester);
         SiteTestHelper.setScriptingEnabled(tester, true);
         clickLink("resetConferenceBridgeContext");
-        m_helper.createBridge("testbridge");
+        m_helper.createBridge();
     }
 
     public void testSetOwner() {
         SiteTestHelper.home(tester);
         clickLink("ListBridges");
-        clickLinkWithText("testbridge");
+        clickLinkWithText(TestPage.TEST_LOCATION_FQDN);
         clickLink("link:conferences");
         SiteTestHelper.clickSubmitLink(tester, "conference:add");
         checkCheckbox("item:enabled");
@@ -81,7 +82,7 @@ public class EditConferenceTestUi extends WebTestCase {
     public void testAddConferenceFromBridge() {
         SiteTestHelper.home(tester);
         clickLink("ListBridges");
-        clickLinkWithText("testbridge");
+        clickLinkWithText(TestPage.TEST_LOCATION_FQDN);
         clickLink("link:conferences");
         SiteTestHelper.clickSubmitLink(tester, "conference:add");
         assertElementNotPresent("bridgeSelect");
@@ -91,7 +92,7 @@ public class EditConferenceTestUi extends WebTestCase {
     public void testConferenceValidation() {
         SiteTestHelper.home(tester);
         clickLink("ListBridges");
-        clickLinkWithText("testbridge");
+        clickLinkWithText(TestPage.TEST_LOCATION_FQDN);
         clickLink("link:conferences");
         SiteTestHelper.clickSubmitLink(tester, "conference:add");
         

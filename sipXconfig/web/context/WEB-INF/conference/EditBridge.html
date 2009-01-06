@@ -6,28 +6,43 @@
         <img jwcid="@Image" image="asset:breadcrumbSeparator" align="absmiddle" />
         <span jwcid="@If" condition="ognl:bridge.isNew"><span key="crumb.newConferenceServer" /></span>
         <span jwcid="@Else"><span jwcid="@Insert" value="ognl:bridge.name" /></span>
-    </div>  
+    </div>
     <span jwcid="@common/ErrorMsg"/> 
+    
     <form jwcid="form" id="bridge:form">
+      <h2><span key="title">Conference Server</span></h2>
       <span jwcid="@RenderBlock" block="ognl:components.get(tab + 'Tab')" />
       <span jwcid="formActions"/>
     </form>
-  </div>
+  </div>   
+  
   <div jwcid="configTab@Block">
+    <ul class="component-links">
+        <li jwcid="@common/ToggleLink" toggle="ognl:components['settingsFieldset'].showAdvanced"/>
+    </ul>
     <fieldset>
-      <table>
-        <tbody>
-          <tr jwcid="itemCommon"/>
-          <tr jwcid="hostPanel" for="bridge:host">
-            <span jwcid="host" id="bridge:host"/>
-          </tr>
-          <tr jwcid="portPanel" for="bridge:port">
-            <span jwcid="port" id="bridge:port"/>
-          </tr>
-        </tbody>
-      </table>
-    </fieldset>  
-    <fieldset jwcid="settingsFieldset"/>
+        <table>
+            <tbody>
+                <tr>
+                    <td><label><span key="label.host">Server name</span></label></td>
+                    <td><b><span jwcid="@Insert" value="ognl:bridge.name">mydomain.com</span></b></td>
+                </tr>
+                <tr>
+                    <td><label><span key="label.ip">IP address</span></label></td>
+                    <td><b><span jwcid="@Insert" value="ognl:bridge.service.location.address">10.1.2.3</span></b></td>
+                </tr>                
+                <tr>
+                    <td><label><span key="label.description">Server description</span></label></td>
+                    <td><b><span jwcid="@Insert" value="ognl:bridge.description">Server</span></b></td>
+                </tr>            
+				<tr jwcid="@common/FieldPanel" for="bridge:enabled" field="component:enabled" label="message:enabled">
+				  <input jwcid="enabled@Checkbox" type="checkbox" id="bridge:enabled" value="ognl:bridge.enabled"/>
+				</tr>            
+            </tbody>
+        </table>    
+    </fieldset>
+    <fieldset jwcid="settingsFieldset@setting/SettingsFieldset" settings="ognl:bridge.settings" renderGroupTitle="false"
+              showAdvancedToggle="false" />
   </div>
   <div jwcid="conferencesTab@Block">
     <span jwcid="@conference/ConferencesPanel"

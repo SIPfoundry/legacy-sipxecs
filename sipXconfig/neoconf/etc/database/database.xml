@@ -292,6 +292,7 @@
     <antcall target="gateway-location" />
     <antcall target="add-device-timezone"/>
     <antcall target="add-mrtg-service"/>
+  	<antcall target="conference-bridge-service" />
     <!-- temporary patches -->
     <antcall target="clean-sipx-service-values"/>
     <antcall target="backup-ftp-fix-empty-type-2" />
@@ -774,6 +775,10 @@
     <db-patch patch="add-device-timezone"/>
   </target>
 
+  <target name="conference-bridge-service" unless="conference-bridge-service">
+	<db-patch patch="conference-bridge-service" />
+  </target>
+	
   <!--
     Migration Targets Legend
     

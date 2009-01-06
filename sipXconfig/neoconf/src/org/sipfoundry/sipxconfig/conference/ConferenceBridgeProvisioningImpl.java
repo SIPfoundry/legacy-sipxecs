@@ -95,7 +95,7 @@ public abstract class ConferenceBridgeProvisioningImpl extends HibernateDaoSuppo
     public void setFreeswitchApiProvider(ApiProvider<FreeswitchApi> freeswitchApiProvider) {
         m_freeswitchApiProvider = freeswitchApiProvider;
     }
-
+    
     public static class BostonBridgeFilter implements SettingFilter {
         private static final String PREFIX = "fs-conf";
 

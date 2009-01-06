@@ -9,28 +9,27 @@
  */
 package org.sipfoundry.sipxconfig.conference;
 
-import java.text.MessageFormat;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-import org.sipfoundry.sipxconfig.common.NamedObject;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
+import org.sipfoundry.sipxconfig.service.LocationSpecificService;
 import org.sipfoundry.sipxconfig.setting.AbstractSettingVisitor;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettings;
 import org.sipfoundry.sipxconfig.setting.Setting;
-import org.sipfoundry.sipxconfig.setting.SettingEntry;
 import org.sipfoundry.sipxconfig.setting.type.FileSetting;
 import org.sipfoundry.sipxconfig.setting.type.SettingType;
 
-public class Bridge extends BeanWithSettings implements NamedObject {
+public class Bridge extends BeanWithSettings {
     public static final String BEAN_NAME = "conferenceBridge";
     
     public static final String CONFERENCES_PROP = "conferences";
     public static final String SERVICE_URI_PROP = "serviceUri";    
-    public static final String SIP_DOMAIN = "fs-conf-bridge/sip-domain";
-    public static final String SIP_PORT = "fs-conf-bridge/sip-port";
+    
+    public static final String FREESWITCH_SIP_PORT = "freeswitch-config/FREESWITCH_SIP_PORT";
+    public static final String FREESWITCH_XMLRPC_PORT = "freeswitch-config/FREESWITCH_XMLRPC_PORT";
     
     public static final String CALL_CONTROL_MUTE = "fs-conf-bridge/dtmf-commands/mute";
     public static final String CALL_CONTROL_DEAF_MUTE = "fs-conf-bridge/dtmf-commands/deaf-mute";
@@ -47,58 +46,25 @@ public class Bridge extends BeanWithSettings implements NamedObject {
        
     private boolean m_enabled;
 
-    private String m_name;
-
-    private String m_description;
-
     private Set m_conferences = new HashSet();
 
     private DeviceDefaults m_systemDefaults;
 
     private String m_audioDirectory;
-
-    private int m_port;
-
-    private String m_host;
-            
-    public void initialize() {
-        addDefaultBeanSettingHandler(new BridgeDefaults(this));
-    }
     
-    public static class BridgeDefaults {
-        private Bridge m_bridge;
-        public BridgeDefaults(Bridge bridge) {
-            m_bridge = bridge;
-        }
-        
-        @SettingEntry(path = SIP_DOMAIN)
-        public String getDomainName() {
-            return m_bridge.m_systemDefaults.getDomainName();
-        }
-    }
+    /** The associated FreeSWITCH service. */
+    private LocationSpecificService m_service;
 
     public String getHost() {
-        return m_host;
+        return getService().getLocation().getFqdn();
     }
-
-    public void setHost(String host) {
-        m_host = host;
+    
+    public LocationSpecificService getService() {
+        return m_service;
     }
-
-    public int getPort() {
-        return m_port;
-    }
-
-    public void setPort(int port) {
-        m_port = port;
-    }
-
-    public String getSipDomain() {
-        return getSettingValue(SIP_DOMAIN);
-    }
-
-    public int getSipPort() {
-        return Integer.parseInt(getSettingValue(SIP_PORT));
+    
+    public void setService(LocationSpecificService service) {
+        m_service = service;
     }
     
     @Override
@@ -125,11 +91,7 @@ public class Bridge extends BeanWithSettings implements NamedObject {
     
     // trivial get/set
     public String getDescription() {
-        return m_description;
-    }
-
-    public void setDescription(String description) {
-        m_description = description;
+        return getService().getLocation().getName();
     }
 
     public boolean isEnabled() {
@@ -141,11 +103,7 @@ public class Bridge extends BeanWithSettings implements NamedObject {
     }
 
     public String getName() {
-        return m_name;
-    }
-
-    public void setName(String name) {
-        m_name = name;
+        return getService().getLocation().getFqdn();
     }
 
     public Set getConferences() {
@@ -168,6 +126,14 @@ public class Bridge extends BeanWithSettings implements NamedObject {
         return m_audioDirectory;
     }
 
+    public int getSipPort() {
+        return (Integer) getService().getSipxService().getSettingTypedValue(FREESWITCH_SIP_PORT);
+    }
+    
+    public int getPort() {
+        return (Integer) getService().getSipxService().getSettingTypedValue(FREESWITCH_XMLRPC_PORT);
+    }
+    
     @Override
     public void setSettings(Setting settings) {
         settings.acceptVisitor(new AudioDirectorySetter());
@@ -185,9 +151,6 @@ public class Bridge extends BeanWithSettings implements NamedObject {
     }
 
     public String getServiceUri() {
-        Object[] params = new Object[] {
-            m_host, Integer.toString(m_port)
-        };
-        return MessageFormat.format("http://{0}:{1}/RPC2", params);
+        return String.format("http://%s:%d/RPC2", getHost(), getPort());
     }    
 }

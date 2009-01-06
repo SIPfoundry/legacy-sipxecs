@@ -17,6 +17,8 @@ import org.dom4j.Document;
 import org.dom4j.Element;
 import org.dom4j.io.OutputFormat;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.XmlFile;
+import org.sipfoundry.sipxconfig.domain.DomainManager;
+import org.springframework.beans.factory.annotation.Required;
 
 public class ConferenceConfiguration extends XmlFile {
     private static final String NAME = "name";
@@ -38,6 +40,13 @@ public class ConferenceConfiguration extends XmlFile {
 
     private Document m_document;
 
+    private DomainManager m_domainManager;
+    
+    @Required
+    public void setDomainManager(DomainManager domainManager) {
+        m_domainManager = domainManager;
+    }
+    
     public Document getDocument() {
         return m_document;
     }
@@ -51,12 +60,14 @@ public class ConferenceConfiguration extends XmlFile {
         addCallerControls(configuration);
         Element profile = configuration.addElement("profiles");
         
+        String domain = m_domainManager.getDomain().getName();
+        
         // Add default profile
-        BuildConferenceProfile builder = new BuildConferenceProfile(profile, m_bridge);
+        BuildConferenceProfile builder = new BuildConferenceProfile(profile, m_bridge, domain);
         builder.execute(null);
 
         // Add each conference profile
-        CollectionUtils.forAllDo(conferences, new BuildConferenceProfile(profile, m_bridge));
+        CollectionUtils.forAllDo(conferences, new BuildConferenceProfile(profile, m_bridge, domain));
     }
     
     private void addCallerControls(Element parent) {
@@ -97,10 +108,12 @@ public class ConferenceConfiguration extends XmlFile {
     private static class BuildConferenceProfile implements Closure {
         private final Bridge m_bridge;
         private final Element m_parent;
+        private final String m_domain;
 
-        public BuildConferenceProfile(Element parent, Bridge bridge) {
+        public BuildConferenceProfile(Element parent, Bridge bridge, String domain) {
             m_parent = parent;
             m_bridge = bridge;
+            m_domain = domain;
         }
 
         public void execute(Object input) {
@@ -114,7 +127,7 @@ public class ConferenceConfiguration extends XmlFile {
                 profile.addAttribute(NAME, "default");
             }
             
-            addParam(profile, "domain", m_bridge.getSipDomain());
+            addParam(profile, "domain", m_domain);
             addParam(profile, CALLER_CONTROLS, SIPX_CALLER_CONTROLS);
             addParam(profile, "rate", "8000");
             addParam(profile, "interval", "20");

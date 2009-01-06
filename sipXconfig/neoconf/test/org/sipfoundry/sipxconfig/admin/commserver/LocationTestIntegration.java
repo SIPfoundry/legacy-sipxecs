@@ -3,15 +3,21 @@ package org.sipfoundry.sipxconfig.admin.commserver;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import junit.framework.TestCase;
-
+import org.sipfoundry.sipxconfig.IntegrationTestCase;
+import org.sipfoundry.sipxconfig.common.event.DaoEventPublisher;
 import org.sipfoundry.sipxconfig.service.LocationSpecificService;
 import org.sipfoundry.sipxconfig.service.SipxParkService;
 import org.sipfoundry.sipxconfig.service.SipxProxyService;
 import org.sipfoundry.sipxconfig.service.SipxRegistrarService;
 import org.sipfoundry.sipxconfig.service.SipxService;
 
-public class LocationTest extends TestCase {
+public class LocationTestIntegration extends IntegrationTestCase {
+    private DaoEventPublisher m_daoEventPublisher;
+    
+    public void setDaoEventPublisher(DaoEventPublisher daoEventPublisher) {
+        m_daoEventPublisher = daoEventPublisher;
+    }
+    
     public void testGetProcessMonitorUrl() {
         Location out = new Location();
         out.setFqdn("localhost");
@@ -94,6 +100,7 @@ public class LocationTest extends TestCase {
 
     public void testRemoveService() {
         Location out = new Location();
+        out.setDaoEventPublisher(m_daoEventPublisher);
         Collection<SipxService> sipxServices = new ArrayList<SipxService>();
         SipxService proxyService = new SipxProxyService();
         sipxServices.add(proxyService);
@@ -112,11 +119,50 @@ public class LocationTest extends TestCase {
         assertNotNull(servicesFromOut);
         assertEquals(1, servicesFromOut.size());
     }
-
+    
     public void testGetHostname() {
         Location out = new Location();
         out.setFqdn("sipx.example.org");
 
         assertEquals("sipx", out.getHostname());
+    }
+
+    public void testRemoveServiceByBeanId() {
+        Location out = new Location();
+        out.setDaoEventPublisher(m_daoEventPublisher);
+        Collection<SipxService> sipxServices = new ArrayList<SipxService>();
+        SipxService proxyService = new SipxProxyService();
+        proxyService.setBeanId("sipxProxyService");
+        sipxServices.add(proxyService);
+        SipxService registrarService = new SipxRegistrarService();
+        registrarService.setBeanId("sipxRegistrarService");
+        sipxServices.add(registrarService);
+
+        out.setServiceDefinitions(sipxServices);
+        
+        out.removeServiceByBeanId("sipxProxyService");
+        
+        Collection<LocationSpecificService> servicesFromOut = out.getServices();
+        assertNotNull(servicesFromOut);
+        assertEquals(1, servicesFromOut.size());
+        
+        assertNotSame(proxyService, servicesFromOut.iterator().next().getSipxService());
+    }
+    
+    public void testGetService() {
+        Location out = new Location();
+        Collection<SipxService> sipxServices = new ArrayList<SipxService>();
+        SipxService proxyService = new SipxProxyService();
+        proxyService.setBeanId("sipxProxyService");
+        sipxServices.add(proxyService);
+        SipxService registrarService = new SipxRegistrarService();
+        registrarService.setBeanId("sipxRegistrarService");
+        sipxServices.add(registrarService);
+
+        out.setServiceDefinitions(sipxServices);
+        
+        assertSame(proxyService, out.getService("sipxProxyService").getSipxService());
+        assertSame(registrarService, out.getService("sipxRegistrarService").getSipxService());
+        assertNull(out.getService("invalidBeanId"));
     }
 }

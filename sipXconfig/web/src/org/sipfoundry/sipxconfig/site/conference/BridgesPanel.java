@@ -31,9 +31,10 @@ public abstract class BridgesPanel extends TablePanel {
     public abstract ActiveConferenceContext getActiveConferenceContext();
 
     protected void removeRows(Collection selectedRows) {
-        getConferenceBridgeContext().removeBridges(selectedRows);
+        
     }
 
+    
     public void calculateActiveValue(RequestCycle cycle, int id) {
         Bridge bridge = getConferenceBridgeContext().loadBridge(id);
 

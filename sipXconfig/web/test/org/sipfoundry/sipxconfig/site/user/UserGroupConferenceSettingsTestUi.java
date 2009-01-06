@@ -14,6 +14,7 @@ import junit.framework.Test;
 import net.sourceforge.jwebunit.junit.WebTestCase;
 
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
+import org.sipfoundry.sipxconfig.site.TestPage;
 import org.sipfoundry.sipxconfig.site.conference.ConferenceTestHelper;
 
 public class UserGroupConferenceSettingsTestUi extends WebTestCase {
@@ -40,7 +41,7 @@ public class UserGroupConferenceSettingsTestUi extends WebTestCase {
      */
     public void testBridgeRefIntegrity() {
         // Create a bridge and a group.
-        m_helper.createBridge("testbridge");
+        m_helper.createBridge();
         SiteTestHelper.seedGroup(getTester(), "NewUserGroup", 1);
         clickLink("UserGroups");
         clickLinkWithText("seedGroup0");
@@ -49,14 +50,14 @@ public class UserGroupConferenceSettingsTestUi extends WebTestCase {
         // Enable conference creation and select the previously created bridge.
         checkCheckbox("conferences:enable");
         setTextField("conferences:offset", "1000");
-        selectOption("bridgeSelect", "testbridge");
+        selectOption("bridgeSelect", TestPage.TEST_LOCATION_FQDN);
         submit("submit:ok");
 
         // Go back and delete the bridge.
         SiteTestHelper.home(tester);
-        clickLink("ListBridges");
+        clickLink("link:locations");
         checkCheckbox("checkbox");
-        submit("bridge:delete");
+        submit("locations:delete");
 
         // Now go back to the group - make sure there is no exception page, and that the default option
         // gets selected.
@@ -74,7 +75,7 @@ public class UserGroupConferenceSettingsTestUi extends WebTestCase {
      * when creation is disabled.
      */
     public void testValidation() {
-        m_helper.createBridge("testbridge");
+        m_helper.createBridge();
         SiteTestHelper.seedGroup(getTester(), "NewUserGroup", 1);
         clickLink("UserGroups");
         clickLinkWithText("seedGroup0");
@@ -91,11 +92,11 @@ public class UserGroupConferenceSettingsTestUi extends WebTestCase {
         SiteTestHelper.assertUserError(tester);
 
         setTextField("conferences:offset", "");
-        selectOption("bridgeSelect", "testbridge");
+        selectOption("bridgeSelect", TestPage.TEST_LOCATION_FQDN);
         submit("submit:apply");
         SiteTestHelper.assertUserError(tester);
         
-        selectOption("bridgeSelect", "testbridge");
+        selectOption("bridgeSelect", TestPage.TEST_LOCATION_FQDN);
         setTextField("conferences:offset", "1000");
         submit("submit:apply");
         SiteTestHelper.assertNoUserError(tester);

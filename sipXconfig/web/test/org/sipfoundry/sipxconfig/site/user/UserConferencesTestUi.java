@@ -33,8 +33,10 @@ public class UserConferencesTestUi extends WebTestCase {
         getTestContext().setBaseUrl(getBaseUrl());
         SiteTestHelper.home(tester);
         SiteTestHelper.setScriptingEnabled(tester, true);
+        clickLink("resetCoreContext");
+        SiteTestHelper.home(tester);
         clickLink("resetConferenceBridgeContext");
-        m_helper.createBridge("testbridge");
+        m_helper.createBridge();
     }    
     
     /**
@@ -80,7 +82,7 @@ public class UserConferencesTestUi extends WebTestCase {
     private void createTestConference() {
         SiteTestHelper.home(tester);        
         clickLink("ListBridges");
-        clickLinkWithText("testbridge");
+        clickLinkWithText(TestPage.TEST_LOCATION_FQDN);
         clickLink("link:conferences");
         setWorkingForm("form");
         SiteTestHelper.clickSubmitLink(tester, "conference:add");

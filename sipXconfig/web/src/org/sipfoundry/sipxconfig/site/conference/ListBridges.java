@@ -32,10 +32,6 @@ public abstract class ListBridges extends BasePage {
     @InjectPage(value = EditBridge.PAGE)
     public abstract EditBridge getEditBridgePage();
 
-    public IPage add() {
-        return activateEditPage(null, CONFIG);
-    }
-
     public IPage edit(Integer bridgeId) {
         return activateEditPage(bridgeId, CONFIG);
     }

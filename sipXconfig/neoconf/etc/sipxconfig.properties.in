@@ -48,7 +48,6 @@ localBackupPlan.backupDirectory=@sipxpbx.backup.dir@
 ftpBackupPlan.backupDirectory=@sipxpbx.download.dir@
 ftpRestore.downloadDirectory=@sipxpbx.download.dir@
 orbitsGenerator.audioDirectory=@sipxpark.audio.dir@
-conferenceBridge.host=${MY_FULL_HOSTNAME}
 upload.uploadRootDirectory=@sipxconfig.upload.dir@
 upload.destinationDirectory=@sipxconfig.phone.dir@/profile/tftproot
 phonebookManagerImpl.externalUsersDirectory=@sipxconfig.phonebook.dir@

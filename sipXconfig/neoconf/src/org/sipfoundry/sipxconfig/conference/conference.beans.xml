@@ -7,8 +7,6 @@
     <property name="systemDefaults" ref="phoneDefaults" />
     <property name="audioDirectory" value="${sysdir.doc}/stdprompts" />
     <!-- default value - overridden in sipxconfig.properties -->
-    <property name="host" value="localhost" />
-    <property name="port" value="8080" />
   </bean>
 
   <bean name="conferenceConference" class="org.sipfoundry.sipxconfig.conference.Conference" scope="prototype"
@@ -58,7 +56,8 @@
   <bean id="conferenceConfiguration" class="org.sipfoundry.sipxconfig.conference.ConferenceConfiguration"
     scope="prototype" parent="defaultConfigurationFile">
     <property name="name" value="conference.conf.xml" />
-    <property name="directory" value="${sysdir.etc}/freeswitch/conf/autoload_configs" />
+    <property name="directory" value="${sysdir.etc}/freeswitch/conf/autoload_configs" />    
+    <property name="domainManager" ref="domainManager" />
   </bean>
 
   <bean id="eagerConferenceBridgeProvisioning" class="org.springframework.aop.framework.ProxyFactoryBean"
@@ -87,6 +86,16 @@
 
   <bean id="identity" class="org.sipfoundry.sipxconfig.conference.BridgeConferenceIdentityImpl">
     <property name="sessionFactory" ref="sessionFactory" />
+  </bean>
+
+  <bean name="conferenceBridgeMigrationTask" class="org.sipfoundry.sipxconfig.conference.ConferenceBridgeMigrationTask">
+    <property name="conferenceBridgeContext" ref="conferenceBridgeContext" />
+    <property name="locationsManager" ref="locationsManager" />
+    <property name="taskNames">
+      <list>
+        <value>migrate-conference-bridges</value>
+      </list>
+    </property>  
   </bean>
 
 </beans>

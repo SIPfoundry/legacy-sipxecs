@@ -53,6 +53,10 @@ public abstract class SettingsFieldset extends BaseComponent {
     @Parameter(defaultValue = "true")
     public abstract void setRequiredEnabled(boolean enabled);
 
+    @Parameter(defaultValue = "true")
+    public abstract void setShowAdvancedToggle(boolean showAdvancedToggle);
+    public abstract boolean getShowAdvancedToggle();
+    
     public abstract Collection<Setting> getFlattenedSettings();
 
     public abstract void setFlattenedSettings(Collection<Setting> flat);

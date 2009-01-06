@@ -18,7 +18,6 @@ import java.util.regex.Pattern;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
 import org.sipfoundry.sipxconfig.common.event.DaoEventPublisher;
 import org.sipfoundry.sipxconfig.service.LocationSpecificService;
-import org.sipfoundry.sipxconfig.service.SipxAcdService;
 import org.sipfoundry.sipxconfig.service.SipxService;
 import org.springframework.beans.factory.annotation.Required;
 
@@ -33,7 +32,6 @@ public class Location extends BeanWithId {
     private String m_password;
 
     private Collection<LocationSpecificService> m_services;
-    
     private DaoEventPublisher m_daoEventPublisher;
 
     public String getName() {
@@ -120,26 +118,33 @@ public class Location extends BeanWithId {
         return m_services;
     }
 
+    public LocationSpecificService getService(String beanId) {
+        LocationSpecificService serviceForBeanId = null;
+
+        if (m_services != null) {
+            Iterator<LocationSpecificService> iterator = m_services.iterator();
+            while (iterator.hasNext() && serviceForBeanId == null) {
+                LocationSpecificService next = iterator.next();
+                SipxService service = next.getSipxService();
+                if (beanId.equals(service.getBeanId())) {
+                    serviceForBeanId = next;
+                }
+            }         
+        }
+        
+        return serviceForBeanId;
+    }
+    
     public void removeService(LocationSpecificService service) {
-        removeServiceByBeanId(service.getSipxService().getBeanId());
+        if (m_daoEventPublisher != null) {
+            m_daoEventPublisher.publishDelete(service);
+        }
+        m_services.remove(service);
     }
 
     public void removeServiceByBeanId(String beanId) {
-        if (m_services == null) {
-            return;
-        }
-        Iterator<LocationSpecificService> iterator = m_services.iterator();
-        while (iterator.hasNext()) {
-            LocationSpecificService next = iterator.next();
-            SipxService service = next.getSipxService();
-            if (beanId.equals(service.getBeanId())) {
-                if (service instanceof SipxAcdService) {
-                    m_daoEventPublisher.publishDelete(next);
-                }
-                iterator.remove();
-                break;
-            }
-        }
+        LocationSpecificService service = getService(beanId);
+        removeService(service);
     }
 
     public void addService(LocationSpecificService service) {

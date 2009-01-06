@@ -15,21 +15,32 @@ import java.util.List;
 import org.dbunit.database.IDatabaseConnection;
 import org.sipfoundry.sipxconfig.SipxDatabaseTestCase;
 import org.sipfoundry.sipxconfig.TestHelper;
+import org.sipfoundry.sipxconfig.admin.commserver.Location;
+import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.service.LocationSpecificService;
+import org.sipfoundry.sipxconfig.service.SipxService;
+import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 
 public class ConferenceBridgeContextImplTestDb extends SipxDatabaseTestCase {
 
     private ConferenceBridgeContext m_context;
     private CoreContext m_coreContext;
+    private LocationsManager m_locationsManager;
+    private SipxServiceManager m_sipxServiceManager;
 
     @Override
     protected void setUp() throws Exception {
         m_context = (ConferenceBridgeContext) TestHelper.getApplicationContext().getBean(
                 ConferenceBridgeContext.CONTEXT_BEAN_NAME);
         m_coreContext = (CoreContext) TestHelper.getApplicationContext().getBean(CoreContext.CONTEXT_BEAN_NAME);
-
+        m_locationsManager = (LocationsManager) TestHelper.getApplicationContext().getBean(
+                LocationsManager.CONTEXT_BEAN_NAME);
+        m_sipxServiceManager = (SipxServiceManager) TestHelper.getApplicationContext().getBean(
+                SipxServiceManager.CONTEXT_BEAN_NAME);        
+        
         TestHelper.cleanInsert("ClearDb.xml");
         TestHelper.insertFlat("conference/users.db.xml");
     }
@@ -42,14 +53,24 @@ public class ConferenceBridgeContextImplTestDb extends SipxDatabaseTestCase {
     public void testGetBridgeByServer() throws Exception {
         TestHelper.insertFlat("conference/participants.db.xml");
         assertNull(m_context.getBridgeByServer("uknown"));
-        assertEquals("bridge_name_2006", m_context.getBridgeByServer("host.example.com").getName());
+        assertEquals("host.example.com", m_context.getBridgeByServer("host.example.com").getName());
     }
 
     public void testStore() throws Exception {
         IDatabaseConnection db = TestHelper.getConnection();
 
+        Location location = new Location();
+        location.setFqdn("b1");
+        location.setName("server b1");
+
+        SipxService freeswitchService = m_sipxServiceManager.getServiceByBeanId("sipxFreeswitchService");
+        LocationSpecificService service = new LocationSpecificService(freeswitchService);
+        location.addService(service);
+        
+        m_locationsManager.storeLocation(location);
+        
         Bridge bridge = new Bridge();
-        bridge.setName("b1");
+        bridge.setService(service);        
         Conference conference = new Conference();
         conference.setName("c1");
         bridge.addConference(conference);

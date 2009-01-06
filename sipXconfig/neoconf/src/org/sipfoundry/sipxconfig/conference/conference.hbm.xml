@@ -10,10 +10,9 @@
       </generator>
     </id>
     <property name="enabled" />
-    <property name="name" />
-    <property name="description" />
-    <property name="host" />
-    <property name="port" />
+
+    <many-to-one name="service" class="org.sipfoundry.sipxconfig.service.LocationSpecificService" 
+                 column="location_specific_service_id" />
 
     <many-to-one cascade="all" name="valueStorage" column="value_storage_id"
       class="org.sipfoundry.sipxconfig.setting.ValueStorage" foreign-key="fk_meetme_bridge_value_storage" />
@@ -45,10 +44,6 @@
       not-null="false" lazy="proxy" />
   </class>
 
-  <query name="bridgeByHost">
-    <![CDATA[from Bridge bridge where bridge.host = :value]]>
-  </query>
-
   <query name="conferenceIdsWithAlias">
     <![CDATA[select conf.id from Conference conf where conf.name = :value or conf.extension = :value]]>
   </query>
@@ -61,4 +56,12 @@
     <![CDATA[from Conference conf where conf.owner = :owner]]>
   </query>
 
+  <query name="bridgeForLocationId">
+    <![CDATA[from Bridge bridge where bridge.service.location.id = :locationId]]>
+  </query>
+
+  <query name="bridgeByHost">
+    <![CDATA[from Bridge bridge where bridge.service.location.fqdn = :value]]>
+  </query>
+  
 </hibernate-mapping>

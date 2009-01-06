@@ -11,7 +11,10 @@ package org.sipfoundry.sipxconfig.conference;
 
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.acd.BeanWithSettingsTestCase;
+import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
+import org.sipfoundry.sipxconfig.service.LocationSpecificService;
+import org.sipfoundry.sipxconfig.service.SipxFreeswitchService;
 
 public class BridgeTest extends BeanWithSettingsTestCase {
 
@@ -50,38 +53,44 @@ public class BridgeTest extends BeanWithSettingsTestCase {
     
     public void testAccessors()
     {
+        Location location = new Location();
+        SipxFreeswitchService sipxService = new SipxFreeswitchService();
+        sipxService.setSettings(TestHelper.loadSettings("freeswitch/freeswitch.xml"));
+        LocationSpecificService service = new LocationSpecificService(sipxService);
+        service.setLocation(location);
+        
         Bridge bridge = new Bridge();
+        bridge.setService(service);
+        
         bridge.setModelFilesContext(TestHelper.getModelFilesContext());
         DeviceDefaults dd = new DeviceDefaults() ;
         dd.setDomainManager(TestHelper.getTestDomainManager("example.com")) ;
         bridge.setSystemDefaults(dd);
         assertTrue(bridge.getConferences().isEmpty());
-        bridge.initialize() ;    
         
-        assertEquals(bridge.getHost(), null);
-        assertEquals(bridge.getPort(), 0);
-        assertEquals(bridge.getSipDomain(), "example.com");
-        assertEquals(bridge.getSipPort(), 15060);
-        assertEquals(bridge.getDescription(), null);
-        assertEquals(bridge.isEnabled(), false);
-        assertEquals(bridge.getName(), null);
-        assertEquals(bridge.getServiceUri(), "http://null:0/RPC2");
+        // Test the defaults
+        assertEquals(null, bridge.getHost());
+        assertEquals(8080, bridge.getPort());
+        assertEquals(15060, bridge.getSipPort());
+        assertEquals(null, bridge.getDescription());
+        assertEquals(false, bridge.isEnabled());
+        assertEquals(null, bridge.getName());
+        assertEquals("http://null:8080/RPC2", bridge.getServiceUri());
         
-        bridge.setHost("bridge") ;
-        bridge.setPort(8080) ;
-        bridge.setDescription("Example Bridge");
+        // Test setting explicit values
+        location.setFqdn("bridge");
+        location.setName("Example Bridge");
+        sipxService.setSettingValue(Bridge.FREESWITCH_XMLRPC_PORT, "8081");
+        sipxService.setSettingValue(Bridge.FREESWITCH_SIP_PORT, "15061");
         bridge.setEnabled(true);
-        bridge.setName("foo");
         bridge.setAudioDirectory("/tmp") ;
         
-        assertEquals(bridge.getHost(), "bridge");
-        assertEquals(bridge.getPort(), 8080);
-        assertEquals(bridge.getSipDomain(), "example.com");
-        assertEquals(bridge.getSipPort(), 15060);
-        assertEquals(bridge.getDescription(), "Example Bridge");
-        assertEquals(bridge.isEnabled(), true);
-        assertEquals(bridge.getName(), "foo");
-        assertEquals(bridge.getServiceUri(), "http://bridge:8080/RPC2");
-        assertEquals(bridge.getAudioDirectory(), "/tmp");
+        assertEquals("bridge", bridge.getHost());
+        assertEquals(8081, bridge.getPort());
+        assertEquals(15061, bridge.getSipPort());
+        assertEquals("Example Bridge", bridge.getDescription());
+        assertEquals(true, bridge.isEnabled());
+        assertEquals("http://bridge:8081/RPC2", bridge.getServiceUri());
+        assertEquals("/tmp", bridge.getAudioDirectory());
     }    
 }

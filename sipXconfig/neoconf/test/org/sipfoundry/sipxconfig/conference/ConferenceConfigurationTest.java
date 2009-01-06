@@ -17,8 +17,12 @@ import java.util.List;
 
 import org.custommonkey.xmlunit.XMLTestCase;
 import org.custommonkey.xmlunit.XMLUnit;
+import org.easymock.EasyMock;
+import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
+import org.sipfoundry.sipxconfig.domain.Domain;
+import org.sipfoundry.sipxconfig.domain.DomainManager;
 
 public class ConferenceConfigurationTest extends XMLTestCase {
 
@@ -68,7 +72,18 @@ public class ConferenceConfigurationTest extends XMLTestCase {
         bridge.addConference(conf);
         conferences.add(conf);
 
+
+        Domain domain = new Domain("example.com");
+        
+        IMocksControl control = EasyMock.createControl();
+        DomainManager domainManager = control.createMock(DomainManager.class);
+        domainManager.getDomain();
+        EasyMock.expectLastCall().andReturn(domain);
+        EasyMock.replay(domainManager);
+
         ConferenceConfiguration config = new ConferenceConfiguration();
+        config.setDomainManager(domainManager);
+        
         config.generate(bridge, conferences);
         String generatedXml = config.getFileContent();
         System.err.println(generatedXml);

@@ -9,7 +9,11 @@
  */
 package org.sipfoundry.sipxconfig.site.conference;
 
+import org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext;
+import org.sipfoundry.sipxconfig.conference.ConferenceBridgeContextImpl;
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
+import org.sipfoundry.sipxconfig.site.TestPage;
+
 import net.sourceforge.jwebunit.junit.WebTester;
 
 /**
@@ -23,25 +27,19 @@ public class ConferenceTestHelper {
         m_tester = tester;
     }
     
-    public void createBridge(String name) {
+    public void createBridge() {
         SiteTestHelper.home(m_tester);
-        m_tester.clickLink("resetConferenceBridgeContext");               
-        m_tester.clickLink("EditBridge");
-        
-        m_tester.setWorkingForm("form");
-        m_tester.setTextField("item:name", name);
-        m_tester.checkCheckbox("item:enabled");
-        m_tester.clickButton("form:apply");        
+        m_tester.clickLink("createTestBridge");
     }
 
-    public void groupConferenceAutomation(String seedGroup, String bridge) {
+    public void groupConferenceAutomation(String seedGroup) {
 	    SiteTestHelper.home(m_tester);
         m_tester.clickLink("UserGroups");
         m_tester.clickLinkWithText(seedGroup);
         m_tester.clickLink("link:conferences");
         m_tester.checkCheckbox("conferences:enable");
         m_tester.setTextField("conferences:offset", "1000");
-        m_tester.selectOption("bridgeSelect", bridge);
+        m_tester.selectOption("bridgeSelect", TestPage.TEST_LOCATION_FQDN);
         m_tester.submit("submit:ok");
 	    SiteTestHelper.home(m_tester);
 
