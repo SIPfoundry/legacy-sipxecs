@@ -37,6 +37,7 @@ public class ManageVoicemailTestUi extends WebTestCase {
     private void gotoManageVoicemail() {
         SiteTestHelper.home(getTester());    
         SiteTestHelper.setScriptingEnabled(tester, true);
+        clickLink("seedLocationsManager");
         clickLink("resetVoicemail");              
         clickLink("loginFirstTestUser");              
         clickLink("ManageVoicemail");                      
