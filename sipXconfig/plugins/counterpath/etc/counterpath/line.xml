@@ -246,7 +246,7 @@ Set to false to disable session timer; refreshes will never be sent.</descriptio
         <description>The interval for the timer, in seconds. Ignored if Enable session timer is false.</description>
       </setting>
       <setting name="prefered_session_fresher">
-        <label>Prefered session fresher</label>
+        <label>Preferred session fresher</label>
         <type>
           <enum>
             <option>
