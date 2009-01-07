@@ -31,7 +31,6 @@ public interface SipxServiceManager {
      * @return true if the service is installed on the given location / false otherwise
      */
     boolean isServiceInstalled(Integer locationId, String serviceBeanId);
-
     /**
      * verifies if the service is installed on any location
      * @param serviceBeanId - service bean id

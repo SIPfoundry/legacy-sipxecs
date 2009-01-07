@@ -341,7 +341,7 @@ public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContex
         SipxService service = locationService.getSipxService();
         if (service instanceof SipxAcdService) {
             AcdServer server = getAcdServerForLocationId(locationService.getLocation().getId());
-            
+
             if (server != null) {
                 getHibernateTemplate().delete(server);
             }
@@ -521,6 +521,17 @@ public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContex
         }
 
         cleanSchema();
+        checkAcdServerForAcdService();
+    }
+
+    private void checkAcdServerForAcdService() {
+        // make sure that SipxAcdService always has a corresponding AcdServer
+        Location[] locations = m_locationsManager.getLocations();
+        for (Location location : locations) {
+            if (m_sipxServiceManager.isServiceInstalled(location.getId(), SipxAcdService.BEAN_ID)) {
+                addNewServer(location);
+            }
+        }
     }
 
     private void cleanSchema() {
