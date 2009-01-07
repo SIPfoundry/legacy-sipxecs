@@ -75,13 +75,11 @@ runConfigpp() {
 
 # Create a truststore of the same Certificate Authorities the
 # other SIP servers use.
-createAuthoritiesTruststore() {    
+setTrustStoreOpts() {
     # List of authorities accepted system-wide
     if [ -d $AuthoritiesDir ]
     then
       TrustStore=$SslDir/.authorities.jks
-      @bin.dir@/ssl-cert/create-ssl-truststore.sh --checksum $SslDir/.authorities-contents.md5 \
-          --truststore $TrustStore --ca-path $AuthoritiesDir
       # password on command line is not security issue. catrust and directory has appropriate
       # permissions, password is required by keystores
       TrustStoreOpts="\
@@ -95,13 +93,6 @@ createAuthoritiesTruststore() {
     fi
 }
 
-# Create a keystore and set-up the command-line options to supply it to the JVM.
-createAuthoritiesKeystore() { 
-    @bin.dir@/ssl-cert/create-ssl-keystore.sh
-    KeyStoreOpts="\
-      -Djavax.net.ssl.keyStore=$SslDir/.ssl.keystore \
-      -Djavax.net.ssl.keyStorePassword=$StorePassword"
-}
 
 
     
@@ -182,6 +173,8 @@ firstRunCheck() {
         rm --force $FirstRunFile
     fi
 }
+
+
     
 # Run Web interface
 onWebUi() {
@@ -195,8 +188,7 @@ onWebUi() {
     databaseCommand upgrade
     databaseVersionCheck
 
-    createAuthoritiesTruststore
-    createAuthoritiesKeystore
+    setTrustStoreOpts
     
     JavaOpts="$SIPXCONFIG_OPTS"
 
@@ -217,13 +209,17 @@ onWebUi() {
         -Dorg.apache.commons.logging.Log=org.apache.commons.logging.impl.Log4JLogger \
         -Djava.awt.headless=true"
 
+    KeyStoreOpts="\
+      -Djavax.net.ssl.keyStore=$SslDir/.ssl.keystore \
+      -Djavax.net.ssl.keyStorePassword=$StorePassword"
+
     Classpath=`classpath \
         @sipxpbx.conf.dir@ \
         ${CommonsLibDir}/*.jar \
         ${LibDir}/*.jar`
 
     echo $$ > ${PidFile}
-    
+
     exec $JavaCmd \
        $SystemProps \
        $JavaOpts \
